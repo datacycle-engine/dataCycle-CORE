@@ -15,8 +15,6 @@ module DataCycleCore
         key.underscore.to_s,
         "#{definition['type'].underscore}_#{definition.try(:[], 'xml').try(:[], 'partial').try(:underscore)}",
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
-        "#{definition.try(:[], 'compute').try(:[], 'type').try(:underscore)}_#{definition.try(:[], 'xml').try(:[], 'partial').try(:underscore)}",
-        definition.try(:[], 'compute').try(:[], 'type').try(:underscore).to_s,
         definition['type'].underscore.to_s,
         'default'
       ].reject(&:blank?)
@@ -48,7 +46,7 @@ module DataCycleCore
     end
 
     # def xml_cache_key(item, language, include_parameters, mode_parameters, xml_subversion = nil)
-    #   "xml_#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{xml_subversion}_#{item.updated_at}_#{item.template_updated_at}_#{include_parameters.join('_')}_#{mode_parameters.join('_')}"
+    #   "xml_#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{xml_subversion}_#{item.updated_at}_#{item.cache_valid_since}_#{include_parameters.join('_')}_#{mode_parameters.join('_')}"
     # end
 
     def overwritten_properties(content, overlay_name)

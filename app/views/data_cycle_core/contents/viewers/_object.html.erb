@@ -3,7 +3,7 @@
           editor: 'included-object'
       }) do %>
 
-  <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
+  <% ordered_validation_properties(validation: definition, scope: :show).each do |o_key, o_definition| %>
     <% o_value = value.try(o_key) %>
     <%= render_attribute_viewer key: "#{key}[#{o_key}]",
                                 definition: o_definition,
@@ -12,8 +12,8 @@
                                   parent: value,
                                   options: options.merge(
                                     {
-                                      item_diff: attribute_changes(@diff_schema, "#{key}[#{o_key}]"),
-                                      mode: changes_mode(attribute_changes(@diff_schema, "#{key}[#{o_key}]"))
+                                      item_diff: attribute_changes(options['item_diff'], o_key),
+                                      mode: changes_mode(attribute_changes(options['item_diff'], o_key))
                                     }
                                   )
                                 },

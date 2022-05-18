@@ -52,14 +52,11 @@ module DataCycleCore
           render(json: {
             error: @asset
               .errors
-              &.messages
-              &.map { |k, v|
-                v.map do |t|
-                  "#{@asset.class.human_attribute_name(k.to_sym, locale: helpers.active_ui_locale)} #{DataCycleCore::LocalizationService.translate_and_substitute(t, helpers.active_ui_locale)}"
-                end
+              .map { |e|
+                e.options.present? ? "#{@asset.class.human_attribute_name(e.attribute, locale: helpers.active_ui_locale)} #{DataCycleCore::LocalizationService.translate_and_substitute(e.options, helpers.active_ui_locale)}" : I18n.with_locale(helpers.active_ui_locale) { e.message }
               }
-              &.flatten
-              &.join(', ')
+              .flatten
+              .join(', ')
           })
         end
       rescue StandardError => e
@@ -79,15 +76,12 @@ module DataCycleCore
       else
         render(json: {
           error: @asset
-            .errors
-            &.messages
-            &.map { |k, v|
-              v.map do |t|
-                "#{@asset.class.human_attribute_name(k.to_sym, locale: helpers.active_ui_locale)} #{DataCycleCore::LocalizationService.translate_and_substitute(t, helpers.active_ui_locale)}"
-              end
-            }
-            &.flatten
-            &.join(', ')
+          .errors
+          .map { |e|
+            e.options.present? ? "#{@asset.class.human_attribute_name(e.attribute, locale: helpers.active_ui_locale)} #{DataCycleCore::LocalizationService.translate_and_substitute(e.options, helpers.active_ui_locale)}" : I18n.with_locale(helpers.active_ui_locale) { e.message }
+          }
+          .flatten
+          .join(', ')
         })
       end
     end
@@ -121,7 +115,7 @@ module DataCycleCore
     end
 
     def permitted_params
-      params.permit(:id, :append, :last_asset_type, :page, :type, :html_target, asset_ids: [], selected: [], types: [])
+      params.permit(:id, :append, :last_asset_type, :page, :type, :html_target, :variant, asset_ids: [], selected: [], types: [])
     end
 
     def find_params

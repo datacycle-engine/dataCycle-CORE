@@ -4,6 +4,7 @@
     flex-flow: row;
     justify-content: flex-end;
     align-items: center;
+    height: 3.5rem;
 
     > li > a {
       display: block;
@@ -58,6 +59,10 @@
       .fa {
         font-size: 2rem;
       }
+
+      &:hover .fa::before {
+        content: '\f0e7';
+      }
     }
   }
   .fa {
@@ -89,7 +94,7 @@
             cursor: not-allowed;
           }
           .progress-value {
-            color: white;
+            color: $white;
             display: block;
             position: absolute;
             width: 100%;

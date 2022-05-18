@@ -105,7 +105,8 @@
     overflow: hidden;
   }
 
-  .description {
+  .description,
+  .address-block {
     color: $black;
 
     p {
@@ -146,37 +147,37 @@
 .content-tiles,
 .media-thumbs {
   margin: 0;
-  // margin-bottom: 1rem;
   list-style-type: none;
-  display: flex;
-  flex-flow: row wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(calc(190px + 1.3rem), 1fr));
+  grid-gap: 1rem;
 
   .content {
     display: block;
-    width: auto;
-    height: auto;
     padding: 0.65rem;
-    margin: 0 1rem 1rem 0;
-    box-shadow: 0 0 1px rgba($black, 0.8);
-    transition: box-shadow 200ms ease-out;
-    flex: auto;
-    width: 300px;
-    max-width: 450px;
+    box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+    transition: box-shadow 0.1s ease-in-out;
+    border-radius: 3px;
+    font-size: 0.9rem;
 
     .object-browser-tile-checkbox {
       display: none;
     }
 
+    span.name {
+      font-weight: 600;
+    }
+
     .thumbnail {
       position: relative;
       display: block;
-      width: 194px;
       height: 170px;
       margin: 0;
       background-position: center center;
       background-size: contain;
       background-repeat: no-repeat;
-      background-color: white;
+      background-color: $white;
+      box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
       overflow: hidden;
       border: 0;
       cursor: pointer;
@@ -204,33 +205,30 @@
         font-size: 0.8rem;
         color: $body-font-color;
         overflow: hidden;
-        /* white-space: nowrap; */
-        /* text-overflow: ellipsis; */
         padding: 0.5rem;
         text-align: center;
         display: -ms-flexbox;
         display: flex;
-        -ms-flex-align: center;
         align-items: center;
-        -ms-flex-pack: center;
         justify-content: center;
         transition: opacity 0.25s;
+        box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
 
         .translatable-field-container {
           min-width: 5rem;
         }
       }
     }
+
     &.hard-warnings {
       box-shadow: 0 0 5px 1px $alert-color;
+
       .content-warning {
         color: $alert-color;
       }
     }
 
     &.asset {
-      width: 194px;
-      max-width: 194px;
       &.hard-warnings {
         box-shadow: none;
 
@@ -241,10 +239,10 @@
 
       .buttons {
         position: absolute;
-        top: 6px;
-        right: 6px;
+        top: 7px;
+        right: 7px;
         background: rgba($white, 0.8);
-        border-bottom-left-radius: 5px;
+        border-radius: $global-radius;
         padding: 2px 5px;
         z-index: 1;
       }
@@ -255,15 +253,19 @@
     }
 
     .buttons {
+      margin: 0;
+      display: flex;
+      flex-flow: row wrap;
+      align-items: center;
+      justify-content: flex-end;
       position: relative;
       top: 0;
       right: 0;
-      margin-left: 0.5rem;
-      float: right;
-      display: flex;
-      flex-flow: row nowrap;
-      align-items: center;
-      justify-content: flex-end;
+
+      .fa {
+        font-size: 1.1rem;
+        margin: 0;
+      }
 
       .tile-external-connections {
         display: flex;
@@ -271,9 +273,18 @@
         justify-content: center;
       }
 
+      > .draggable-handle,
+      > .icon {
+        margin-right: auto;
+      }
+
+      > .draggable-handle + .icon {
+        margin-right: 0;
+      }
+
       > a,
       > span {
-        padding: 0 3px;
+        padding: 0 3px !important;
         margin-left: 3px;
 
         &.copy {
@@ -305,29 +316,26 @@
   .content.bild,
   .content.bild-filmcommission,
   .content.video {
-    margin: 0 0.1rem 2rem 0;
-    padding: 6px;
+    margin: 0;
+    padding: 0;
     box-shadow: 0 0 0 0;
-  }
+    overflow: unset;
 
-  &:before,
-  &:after {
-    content: '';
-    display: table;
-  }
-
-  &:after {
-    clear: both;
+    .buttons {
+      top: 1px;
+      right: 1px;
+    }
   }
 
   .tile-property {
     &.image {
-      max-height: 50px;
+      max-height: 30px;
       display: flex;
-      margin-top: 0.5rem;
+      margin: 0.5rem 0 0 0;
+      overflow: hidden;
 
       img {
-        max-height: 50px;
+        max-height: 30px;
         margin-right: 0.5rem;
       }
     }
@@ -346,7 +354,7 @@
   text-align: center;
   overflow: hidden;
   line-height: 1.5;
-  color: white;
+  color: $white;
   background-color: rgba($alert-color, 0.8);
   font-size: 0.9rem;
 }
@@ -373,10 +381,15 @@
 
 .media-thumbs {
   .object-thumbs {
-    display: flex;
-    flex-flow: row wrap;
-    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(calc(190px + 1.3rem), 1fr));
+    grid-gap: 1rem;
+    grid-column: 1/-1;
     margin-bottom: 0;
+
+    &.has-items {
+      padding-top: 1rem;
+    }
 
     .object-browser-tile-checkbox {
       display: none;
@@ -386,31 +399,27 @@
       position: relative;
       order: 1;
       text-shadow: 1px 1px 1px rgba($black, 0.3);
+
       .fa {
         font-size: 1.3rem;
       }
     }
 
     .media {
-      flex: auto;
       position: relative;
       display: block;
       overflow: hidden;
-      width: auto;
-      height: auto;
       padding: 0.65rem;
       background-position: center center;
       background-size: contain;
       background-repeat: no-repeat;
       outline: none;
-      border-radius: 0;
+      border-radius: $global-radius;
       background-color: rgba(white, 0.5);
       border: 0;
-      box-shadow: 0 0 1px rgba($black, 0.8);
-      transition: box-shadow 200ms ease-out;
+      box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+      transition: box-shadow 0.1s ease-in-out;
       line-height: 1.5;
-      width: 300px;
-      max-width: 450px;
 
       &.hard-warnings {
         box-shadow: 0 0 5px 1px $alert-color;
@@ -426,12 +435,15 @@
       &.thumbnail {
         position: relative;
         width: 100%;
-        max-width: 194px;
         height: 170px;
         padding: 5px 0;
         cursor: pointer;
         text-align: right;
         border: 0;
+
+        .draggable-handle {
+          margin-left: 5px;
+        }
 
         &:focus,
         &:hover {
@@ -452,17 +464,14 @@
           font-size: 0.8rem;
           color: $body-font-color;
           overflow: hidden;
-          /* white-space: nowrap; */
-          /* text-overflow: ellipsis; */
           padding: 0.5rem;
           text-align: center;
           display: -ms-flexbox;
           display: flex;
-          -ms-flex-align: center;
           align-items: center;
-          -ms-flex-pack: center;
           justify-content: center;
           transition: opacity 0.25s;
+          box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
         }
       }
 
@@ -476,6 +485,7 @@
       }
     }
   }
+
   > .buttons {
     text-align: left;
   }
@@ -586,7 +596,7 @@
           outline: none;
           background-color: lighten($light-gray, 7%);
           transition: background ease-in-out 0.2s;
-          border-radius: 4px;
+          border-radius: $global-radius;
           font-size: 1.1rem;
 
           &::placeholder {
@@ -597,7 +607,7 @@
           &:hover,
           &:focus,
           &:active {
-            background-color: white;
+            background-color: $white;
           }
         }
 
@@ -634,7 +644,7 @@
             &:hover,
             &:focus,
             &:active {
-              background-color: white;
+              background-color: $white;
             }
 
             .select2-selection__rendered {
@@ -674,7 +684,7 @@
         button,
         .button {
           padding: 0.5rem 0.8rem;
-          border-radius: 4px;
+          border-radius: $global-radius;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -751,10 +761,12 @@
     }
 
     .chosen-items-container {
-      width: max-content;
       line-height: 1;
-      display: flex;
-      flex-flow: row;
+      display: grid;
+      grid-gap: 0.5rem;
+      grid-auto-flow: column;
+      grid-template-columns: max-content;
+      width: max-content;
       margin-bottom: 0;
 
       .expired-item-overlay {
@@ -767,7 +779,7 @@
 
       li.item {
         width: auto !important;
-        margin: 0 0.3rem 0 0;
+        margin: 0;
       }
 
       .item.content {
@@ -784,11 +796,19 @@
             display: none;
           }
 
+          > .icon {
+            display: inline-flex;
+            position: relative;
+            align-items: center;
+            justify-content: center;
+          }
+
           .delete-thumbnail {
             display: inline-block;
             position: relative;
             order: 1;
             text-shadow: 1px 1px 1px rgba($black, 0.3);
+
             .fa {
               font-size: 1.3rem;
             }
@@ -808,11 +828,11 @@
     .items .item.media {
       position: relative;
       line-height: 1.5;
-
       position: relative;
       margin: 0 0.3rem 0 0;
       width: auto;
-      max-width: none;
+      max-width: 250px;
+      font-size: 0.9rem;
 
       &.thumbnail {
         width: 80px;
@@ -878,6 +898,7 @@
       box-shadow: 0 0 1px rgba($primary-color, 1);
       color: $white;
     }
+
     .media.item {
       position: relative;
 
@@ -892,7 +913,7 @@
         }
 
         .person {
-          color: white;
+          color: $white;
         }
 
         .warning {
@@ -924,26 +945,13 @@
     max-height: calc(100% - 7.9rem);
     overflow-y: scroll;
     position: relative;
-    display: flex;
-    flex-flow: row wrap;
-
-    &.margin-bottom-10::after {
-      content: '';
-      float: none;
-      clear: both;
-      height: 10rem;
-      display: block;
-      flex: unset;
-      width: 100%;
-    }
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(calc(190px + 1.3rem), 1fr));
+    grid-gap: 1rem;
 
     li.item {
       position: relative;
       display: block;
-      flex: auto;
-      width: 250px;
-      max-width: 500px;
-      margin: 0 1rem 1rem 0;
 
       .delete-thumbnail {
         display: none;
@@ -952,15 +960,15 @@
       .description {
         display: none;
       }
+
       &.asset {
-        width: 194px;
-        max-width: 250px;
         display: flex;
         justify-content: center;
 
         .content-link {
           position: relative;
-          width: 194px;
+          height: 100%;
+          width: 100%;
         }
 
         .object-browser-tile-checkbox {
@@ -976,7 +984,7 @@
           right: 0;
           top: 0;
           background: rgba($white, 0.8);
-          border-bottom-left-radius: 5px;
+          border-radius: 3px;
           padding: 2px 5px;
         }
       }
@@ -988,12 +996,12 @@
       .object-browser-tile-checkbox {
         cursor: pointer;
         display: inline-flex;
-        color: white;
+        color: $white;
         font-size: 1.1rem;
         line-height: 1.1rem;
         border: 1px solid rgba($dark-gray, 0.5);
-        background-color: white;
-        border-radius: 5px;
+        background-color: $white;
+        border-radius: $global-radius;
         margin: 0 0.2rem 0.5rem 0;
         width: 1.2rem;
         height: 1.2rem;
@@ -1013,7 +1021,7 @@
       .buttons {
         float: right;
         display: flex;
-        flex-flow: row nowrap;
+        flex-flow: row wrap;
         align-items: center;
         justify-content: flex-end;
         position: relative;
@@ -1065,12 +1073,13 @@
       display: block;
       overflow: hidden;
       outline: none;
-      border-radius: 0;
+      border-radius: $global-radius;
       background-color: rgba(white, 0.5);
       border: 0;
       box-shadow: 0 0 1px rgba($black, 0.8);
       transition: box-shadow 0.1s;
       line-height: 1.5;
+      font-size: 0.9rem;
 
       .name {
         font-weight: 600;
@@ -1079,8 +1088,6 @@
       cursor: pointer;
 
       &.thumbnail {
-        width: 194px;
-        max-width: 194px;
         height: 170px;
         padding: 5px 0;
         background-position: center center;
@@ -1102,13 +1109,15 @@
     }
 
     .tile-property {
+      overflow: hidden;
+
       &.image {
-        max-height: 50px;
+        max-height: 30px;
         display: flex;
         margin-top: 0.5rem;
 
         img {
-          max-height: 50px;
+          max-height: 30px;
           margin-right: 0.5rem;
         }
       }
@@ -1124,11 +1133,11 @@
     padding: 5rem 1.5rem 1.5rem 1.5rem;
     height: calc(100% - 7.9rem);
     overflow-y: scroll;
-    -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     z-index: 3;
-    background-color: white;
+    background-color: $white;
     border-left: 1px solid $medium-gray;
+    font-size: 0.9rem;
 
     .item-info-scrollable {
       padding-bottom: 10rem;
@@ -1255,7 +1264,7 @@ span.single_error.object-browser-error {
 }
 
 .close-object-browser-error {
-  color: white;
+  color: $white;
   margin-left: 0.5rem;
   display: inline-block;
 
@@ -1323,11 +1332,6 @@ span.single_error.object-browser-error {
     &:not(:last-child) {
       margin-bottom: 1rem;
     }
-    padding: 0.5rem;
-
-    &:not(:last-child) {
-      margin-bottom: 1rem;
-    }
 
     h2 {
       .icon {
@@ -1362,15 +1366,13 @@ span.single_error.object-browser-error {
     }
 
     .content-object-item {
-      &:not(:last-child) {
-        margin-bottom: 0.5rem;
-      }
-
       position: relative;
-      background-color: white;
-      border-radius: 3px;
-      box-shadow: 0 0 3px $dark-gray inset;
+      background-color: $white;
       padding: 1rem;
+
+      &:not(:last-child) {
+        margin-bottom: 1rem;
+      }
 
       &.accordion-item {
         display: flex;
@@ -1382,10 +1384,10 @@ span.single_error.object-browser-error {
         content: '\f106';
       }
 
-      .accordion-title {
+      > .accordion-title {
         flex: 1;
         padding: 0.2rem;
-        font-size: 1rem;
+        font-size: 0.9rem;
         border: none;
         background: transparent;
         color: $dark-gray;
@@ -1403,8 +1405,16 @@ span.single_error.object-browser-error {
 
         .icon {
           margin-right: 0.5rem;
+
           .fa {
             font-size: 1rem;
+          }
+        }
+
+        > .title {
+          > .readonly-icon,
+          > .translatable-icon {
+            margin-right: 0.3rem;
           }
         }
 
@@ -1434,7 +1444,7 @@ span.single_error.object-browser-error {
         }
       }
 
-      .accordion-content {
+      > .accordion-content {
         flex: auto;
         width: 100%;
         border: none;
@@ -1471,29 +1481,71 @@ span.single_error.object-browser-error {
 /* Duration Slider */
 
 .detail-header.editor {
-  .duration {
+  .duration-slider-editor {
+    display: flex;
+    align-items: center;
+
+    > label.attribute-edit-label {
+      padding: 0;
+      position: relative;
+      display: inline-flex;
+      left: unset;
+      top: unset;
+      flex: 0;
+      white-space: nowrap;
+      line-height: 2.5rem;
+      margin-right: 0.5rem;
+    }
+
     .duration-slider {
-      padding-left: 8rem;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      flex: auto;
 
-      .small-2 {
-        position: relative;
-        padding-right: 0;
+      .duration-slider-slider {
+        flex: auto;
+        display: flex;
+
+        > .slider {
+          flex: auto;
+          margin: 1rem 0;
+
+          .slider-handle {
+            border-radius: $global-radius;
+          }
+        }
       }
 
-      input {
-        min-width: 100%;
-        text-align: right;
-        padding: 0 3rem 0 1rem;
-        height: 2.5rem;
-      }
+      .duration-slider-input {
+        flex: 0;
+        margin-left: 1rem;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: flex-end;
 
-      .duration-label {
-        position: absolute;
-        right: 1rem;
-        top: 0;
-        display: inline-block;
-        height: 2.5rem;
-        line-height: 2.5rem;
+        > input {
+          display: block;
+          position: relative;
+          width: 100%;
+          padding: 0.5rem 0.35rem 0.5rem 0.7rem;
+          min-width: 5rem;
+          margin-right: 0.35rem;
+          text-align: right;
+          height: 2.5rem;
+        }
+
+        .duration-label {
+          position: relative;
+          top: unset;
+          left: unset;
+          height: unset;
+          line-height: inherit;
+          display: block;
+          right: unset;
+          padding: 0.5rem 0.7rem 0.5rem 0;
+        }
       }
     }
   }

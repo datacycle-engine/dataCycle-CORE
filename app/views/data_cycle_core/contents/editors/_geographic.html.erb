@@ -60,7 +60,7 @@
         </div>
 
         <%= render_attribute_editor key: 'elevation',
-                                    prefix: key.gsub(/\[key.attribute_name_from_key\]/, ''),
+                                    prefix: key.delete_suffix("[#{key.attribute_name_from_key}]"),
                                     definition: content&.schema&.dig(*schema_path_from_key(key.gsub(key.attribute_name_from_key, 'elevation'))),
                                     value: (content.elevation.blank? || content.elevation.zero?) ? nil : content.elevation,
                                     parameters: { options: { force_render: true, prefix: local_assigns.dig(:options, :prefix) } },

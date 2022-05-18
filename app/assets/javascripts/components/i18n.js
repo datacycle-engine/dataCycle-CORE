@@ -39,6 +39,8 @@ const I18n = {
   }
 };
 
+I18n.t = I18n.translate;
+
 Object.freeze(I18n);
 
 export default I18n;

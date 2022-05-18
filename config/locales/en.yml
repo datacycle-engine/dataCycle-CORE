@@ -98,7 +98,7 @@ en:
       running: There are still uploads in progress!
       missing_metadata: Missing metadata!
       processing: is being processed
-      found_duplicate: Duplicate found!
+      found_duplicate: Duplicates found!
       uploaded_successfully: uploaded, OK
       error_saving_content: Error saving the content!
       upload_error: Upload error
@@ -170,6 +170,10 @@ en:
         other: Words
       max: '(still max %{data} %{label})'
       min: '(still min. %{data} %{label})'
+    image_editor:
+      edit_image: edit image
+      unsupported_format: The image will be converted to a supported file format by the image editor.
+      save_error: The image could not be saved
 
   schedule:
     dtstart: Start time
@@ -222,14 +226,14 @@ en:
 
   collection:
     new: new %{data}
-    filter: 'filter %{data}...'
+    filter: 'filter %{data} ...'
 
   common:
     'true': 'Yes'
     'false': 'No'
     loading: Loading ...
     load_more: '... show more content'
-    load_all: '...show all contents'
+    load_all: '... show all contents'
     are_you_sure: Are you sure?
     language: Language
     all: All
@@ -336,7 +340,6 @@ en:
     life_cycle: Life cycle
     create_new_content: Create new content
     data_type: Content type
-    change_api_access: Change API Release
     select_asset: Select %{data}
     select_asset_title: Uploaded files
     my_assets: My files
@@ -387,10 +390,19 @@ en:
       indesign: Adobe InDesign
       version:
         original: Original
+        default: Default
         thumb_preview: Thumbnail
         web: Web
       format:
         none: Original format
+      confirmation:
+        download: Download
+        terms_not_checked: The terms of use must be accepted
+        terms_of_use_html: 'Terms of use'
+        terms_of_use_link_html: 'I accept the %{link}'
+        terms_of_use_link_text: Terms of use
+        download_start: Start download
+        download_preparing: Download is being prepared ...
     help: Help
     mode_switcher_title: View
     date: Date
@@ -463,6 +475,10 @@ en:
     full_size: open full-size
     media_archive: open in the media archive
   feature:
+    duplicate_candidate:
+      manual_button: Select manually for merging
+    releasable:
+      version_and_status: Version & Status
     named_version:
       input_label: Version name
       version_name: 'Version: %{name}'
@@ -479,16 +495,26 @@ en:
         subject: A new user has been created
         text_html: The new user %{name} (%{email}) has been created.
         user_link: Edit user
+
+  compare:
+    switch_contents: switch contents
+
   history:
     latest_edits: Latest edits
     created_at_html: created on <b>%{date}</b>
     updated_at_html: edited in <b>%{language}</b> on <b>%{date}</b>
     valid_since: effective since
     differences_to_version: Differences to version
-    active_version: Current version
-    look_at_version: Compare current version with this version
+    active_version: compare with current version
+    # look_at_version: compare current version with this version
     restored: Recovered on %{date}
     created: Content created
+    switch_versions: switch versions
+    active_source: source version
+    active_target: target version
+    use_as_source: use as source version in comparison
+    use_as_target: use as target version in comparison
+    different_locales: The two versions were edited in different languages, changes to translated attributes are not considered
     restore:
       version:
         title: restore this version
@@ -505,6 +531,8 @@ en:
     thing:
       nominativ: the content
       akkusativ: the content
+    stored_filter:
+      default: the stored search
     send_subject: Shared link to a content
     update_subject: Shared content collection has been updated
     notice: Note
@@ -591,24 +619,24 @@ en:
       num: Number
       unit: Unit
   filter_groups:
-    classification_alias_ids: filter by classifications...
-    classification_tree_ids: filter by classification tree...
-    creator: filter by person...
-    external_source: filter by external sources...
-    external_system: filter by external systems...
-    validity_period: filter by validity period...
-    date_range: filter by date...
-    boolean: filter by Boolean criteria...
+    classification_alias_ids: filter by classifications ...
+    classification_tree_ids: filter by classification tree ...
+    creator: filter by person ...
+    external_source: filter by external sources ...
+    external_system: filter by external systems ...
+    validity_period: filter by validity period ...
+    date_range: filter by date ...
+    boolean: filter by Boolean criteria ...
     id: filter by id ...
-    advanced_attributes: filter by attributes...
-    geo_radius: filter by radius...
-    geo_within_classification: filter by geographical location...
-    geo_filter: filter by geographical location...
+    advanced_attributes: filter by attributes ...
+    geo_radius: filter by radius ...
+    geo_within_classification: filter by geographical location ...
+    geo_filter: filter by geographical location ...
     relation_filter: Filter based on linked content ...
-    union_filter_ids: combine several collections...
+    union_filter_ids: combine several collections ...
     related_to: filter by linked content ...
-    in_schedule: filter by date...
-    inactive_things: filter for expired content...
+    in_schedule: filter by date ...
+    inactive_things: filter for expired content ...
   sortable:
     default: Standard
     created_at: Creation date
@@ -847,6 +875,7 @@ en:
       missing_parameter: Parameter missing!
       duplicate:
         type_mismatch: Contents of different types cannot be merged!
+        cannot_merge_self: The content cannot be merged with itself!
       session_expired: The session has expired, please log in again.
       token_invalid: The session has expired, please reload the page.
       no_shared_attributes: There are no attributes that occur with all content
@@ -857,6 +886,7 @@ en:
       content_duplication_invalid: The duplicate could not be created!
       bulk_update_error: An error occurred while saving, please try again
       definition_mismatch: the versions cannot be compared, because the data-definitions of these versions don't match
+      user_locked: A user with this email already exists and is locked. Please contact an administrator to unlock the user.
     success:
       created: '%{data} was successfully created.'
       ready_to_send: '%{data} has been successfully created and can now be sent.'
@@ -1053,6 +1083,7 @@ en:
         default_locale: Default language for searches and new content
         represented_by: Represented by
         ui_locale: user interface language
+        locked_at: locked
       data_cycle_core/thing:
         name: Name
         legal_name: Company name
@@ -1144,6 +1175,7 @@ en:
     stored_searches:
       my_searches: My searches
       my_saved: My saved searches
+      show_in_my_saved_searches: show in my saved searches
       last: Last searched
       saved:
         one: Saved search
@@ -1152,6 +1184,16 @@ en:
       show_search_history: View entire history
       save: Save search
       history: Search History
+      load_more: ... show more searches
+      load_all: show all searches
+      filter_searches: filter searches ...
+      count_html:
+        zero: '<b>No</b> searches'
+        one: '<b>%{count}</b> searches'
+        other: '<b>%{count}</b> searches'
+      form:
+        api: API
+      update_params: save and apply search parameters
     watch_list:
       locked_by_data_link: Add/Remove Content Locked (Active External Links)
     upload: Upload new media
@@ -1170,7 +1212,7 @@ en:
       download_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida
         Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong>
         has shared %{a_type} "<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
-        font-weight: bold;font-style: italic">%{title}</span></a>" shared with you.<br><br>%{n_type}
+        font-weight: bold;font-style: italic">%{title}</span></a>" with you.<br><br>%{n_type}
         is now available for download.</span>'
       updated_watchlist_html: '<span style="font-size:12pt; font-family: ''Lato'',
         ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333">%{a_type} "<a
@@ -1280,6 +1322,8 @@ en:
     imx_platform:
       description: Description
       description_long: Detailed description
+    gem2go:
+      description: Description
     timm4:
       intro: Introduction
       description: Description
@@ -1296,6 +1340,46 @@ en:
       timesComment: Entrance details
       menuDownload: Download menu
       recipeSuggestionDownload: Download suggested recipe
+    toubiz:
+      abstract: Abstract
+      description: Description
+      additionalBookingInformation: Additional booking information
+      currentInformation: Current information
+      additionalLocationInformation: Additional location information
+      additionalHostInformation: Additional host information
+    destination_one:
+      facility_unterhaltung: Facility upkeep
+      info_wegbelag: Info pavement
+      kitchen_spezialitaeten: Gastronomic specialities
+      kitchen_zeiten: Kitchen opening hours
+      object_betriebsurlaub: Plant holidays
+      price_info: Price information
+      price_reducedinfo: Price reduced information
+      room_sonstige: Room miscellaneous
+      route_start: Route start
+      route_start_ort: Route start place
+      route_ziel: Route destination
+      socialdescription: Social description
+      socialtitle: Social title
+      web_seo_beschreibung: web_seo_beschreibung
+      web_seo_keywords: web_seo_keywords
+      web_seo_titel: web_seo_titel
+      additionaltext_feature_barrierefreiheit: Accessiblity
+      additionaltext_feature_eignung: Accessiblity levels
+      additionaltext_feature_hygiene- und infektionsschutzmaßnahmen: hygiene and anti infection measures
+      dayoff: Day off
+      details: Details
+      directions: Directions
+      iframe_height: iframe_height
+      iframe_titel: iframe_title
+      iframe_url: iframe_url
+      moreinfo: Additional information
+      openings: Opening hours
+      packagefeature: Package feature
+      packagetripinfo: Package trip information
+      station: Station
+      subtitle: Subtitle
+      teaser: Teaser
 
   media_archive:
     allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>

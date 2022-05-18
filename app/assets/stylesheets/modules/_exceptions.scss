@@ -5,7 +5,7 @@
   margin: 1rem 0;
   padding: 3rem 5rem;
   text-align: center;
-  border-radius: 5px;
+  border-radius: $global-radius;
 
   > * {
     position: relative;
@@ -21,7 +21,7 @@
     font-size: 12rem;
     height: 100%;
     align-items: center;
-    color: white;
+    color: $white;
     opacity: 0.5;
     justify-content: center;
   }
@@ -59,7 +59,7 @@
 
   .button {
     position: relative;
-    border-radius: 4px;
+    border-radius: $global-radius;
     display: inline-flex;
     align-items: center;
     justify-content: center;

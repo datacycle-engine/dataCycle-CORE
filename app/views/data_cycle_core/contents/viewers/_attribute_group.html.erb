@@ -1,0 +1,29 @@
+<% content_for :attribute_group, flush: true do %>
+  <% validation_properties = ordered_validation_properties(validation: definition, scope: :show) %>
+  <% validation_properties.presence&.each do |o_key, prop| %>
+    <% object_value = contextual_content(local_assigns).try(o_key.to_sym) %>
+    <% object_value = object_value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if object_value.is_a?(ActiveRecord::Relation) && !content.history? && ['linked', 'embedded'].include?(prop&.[]('type')) %>
+
+    <%= render_attribute_viewer key: key.gsub(key.attribute_name_from_key, o_key),
+                                definition: prop,
+                                value: object_value,
+                                parameters: {
+                                  options: local_assigns[:options],
+                                  parent: local_assigns[:parent]
+                                },
+                                content: content %>
+  <% end %>
+<% end %>
+
+<%
+  is_accordion = definition.dig('features', 'collapsible')
+  group_title = attribute_group_title(contextual_content(local_assigns), key)
+%>
+
+<%= tag.div(class: "attribute-group viewer #{'accordion' if is_accordion} #{'has-title' if group_title.present?} #{key.attribute_name_from_key} #{definition['features']&.keys.join(' ')}", data: { allow_all_closed: true, accordion: is_accordion }) do
+  tag.div(class: "attribute-group-item #{'accordion-item' if is_accordion} #{'is-active' unless !is_accordion || definition.dig('features', 'collapsed')}", data: { accordion_item: is_accordion }) do
+    link_to_if(is_accordion, tag.span(group_title, class: 'attribute-group-title'), '#', class: "attribute-group-title-link #{'accordion-title' if is_accordion}") +
+    tag.div(class: 'buttons') +
+    tag.div(tag.div(yield_content!(:attribute_group), class: 'attribute-group-content-element'), class: "attribute-group-content #{'accordion-content' if is_accordion}", data: { tab_content: is_accordion })
+  end
+end if content_for(:attribute_group).present? %>

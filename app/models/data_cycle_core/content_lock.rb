@@ -41,7 +41,7 @@ module DataCycleCore
     end
 
     def update_locks
-      lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: user.id, lock_ids: Array(id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i))
+      lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: user.id, lock_ids: Array(id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i)).token
 
       return if activitiable.nil?
 

@@ -38,10 +38,7 @@ class AssetUploader {
     this.reveal.addClass('initialized');
     this.reveal.on('open.zf.reveal', this.openReveal.bind(this));
     this.reveal.on('closed.zf.reveal', this.closeReveal.bind(this));
-    this.fileField.on('change', this.validateFiles.bind(this));
-    this.reveal.on('dc:upload:setFiles', (e, files) => {
-      this.validateFiles(e, files.fileList);
-    });
+    this.reveal.on('dc:upload:setFiles', (_e, data) => this.validateFiles(data.fileList));
     this.reveal.on('dc:upload:setIds', this.importAssetIds.bind(this));
     this.reveal.on(
       'click',
@@ -223,17 +220,11 @@ class AssetUploader {
       () => this.enableButtons()
     );
   }
-  validateFiles(event, files = undefined) {
-    if (
-      (event.target.files == undefined || event.target.files.length == 0) &&
-      (files == undefined || files.length == 0)
-    )
-      return;
+  async validateFiles(fileList = undefined) {
+    if (!fileList || !fileList.length) return;
 
-    const newFiles = files && files.length ? files : event.target.files;
-
-    for (const file of newFiles) {
-      this.checkFileAndQueue(file);
+    for (const file of fileList) {
+      await this.checkFileAndQueue(file);
     }
   }
   async checkFileAndQueue(file, fileOptions = {}) {
@@ -255,8 +246,8 @@ class AssetUploader {
       if (!error) error = await I18n.translate('frontend.upload.missing_metadata');
     }
 
-    if (error) this.createButton.attr('title', `${await I18n.translate('frontend.upload.error')}: ${error}`);
-    else this.createButton.removeAttr('title');
+    if (error) this.createButton.attr('data-dc-tooltip', `${await I18n.translate('frontend.upload.error')}: ${error}`);
+    else this.createButton.removeAttr('data-dc-tooltip');
   }
 }
 

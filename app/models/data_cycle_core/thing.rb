@@ -69,6 +69,7 @@ module DataCycleCore
     has_many :external_systems, through: :external_system_syncs
 
     has_many :activities, as: :activitiable, dependent: :destroy
+    has_many :timeseries, class_name: 'DataCycleCore::Timeseries', dependent: :destroy, inverse_of: :thing
 
     def self.translated_locales
       DataCycleCore::Thing::Translation.where(translated_model: all).distinct.pluck(:locale)

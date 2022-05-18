@@ -8,14 +8,15 @@ import domElementHelpers from '../helpers/dom_element_helpers';
 import quillHelpers from './../helpers/quill_helpers';
 import quillCustomHandlers from '../components/quill_custom_handlers';
 const icons = Quill.import('ui/icons');
+import castArray from 'lodash/castArray';
 
 icons[
   'insertNbsp'
-] = `<span title="dc-loading-title"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M18 9v4H6V9H4v6h16V9z"/></svg></span>`;
+] = `<span data-dc-tooltip><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M18 9v4H6V9H4v6h16V9z"/></svg></span>`;
 
 icons[
   'replaceAllNbsp'
-] = `<span title="dc-loading-title"><svg class="spacebar-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M18 9v4H6V9H4v6h16V9z"/></svg><svg class="times-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></span>`;
+] = `<span data-dc-tooltip><svg class="spacebar-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M18 9v4H6V9H4v6h16V9z"/></svg><svg class="times-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></span>`;
 
 Quill.register(SmartBreak);
 Quill.register('modules/contentlink', QuillContentlinkModule);
@@ -29,6 +30,7 @@ class TextEditor {
     this.element = element;
     this.$container = $(element.parentElement);
     this.editor;
+    this.excludeFormats = this.element.dataset.excludeFormats ? castArray(this.element.dataset.excludeFormats) : [];
     this.availableFormats = {
       none: ['break'],
       minimal: ['bold', 'italic', 'underline', 'break'],
@@ -111,10 +113,17 @@ class TextEditor {
         }
       },
       theme: 'snow',
-      formats: this.availableFormats[this.mode],
+      formats: this.availableFormats[this.mode].filter(v => !this.excludeFormats.includes(v)),
       readOnly: !!this.element.getAttribute('readonly'),
       bounds: this.element
     };
+
+    if (this.excludeFormats.length) {
+      this.options.modules.toolbar.container = this.options.modules.toolbar.container.map(v =>
+        v.filter(v => !this.excludeFormats.includes(v))
+      );
+    }
+
     this.scrollOptions =
       $('.split-content').length > 0
         ? {
@@ -180,8 +189,8 @@ class TextEditor {
     const promise = I18n.translate(`frontend.text_editor.${key}`);
 
     promise.then(text => {
-      icons[key] = icons[key].replace('dc-loading-title', text);
-      document.querySelectorAll(`.ql-${key} [title="dc-loading-title"]`).forEach(e => (e.title = text));
+      icons[key] = icons[key].replace('data-dc-tooltip', `data-dc-tooltip="${text}"`);
+      document.querySelectorAll(`.ql-${key} [data-dc-tooltip=""]`).forEach(e => (e.dataset.dcTooltip = text));
     });
 
     return promise;

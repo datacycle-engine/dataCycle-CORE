@@ -50,14 +50,15 @@ button,
   cursor: pointer;
   line-height: 1.3;
   padding: 0.75rem 1rem;
+  border-radius: $global-radius;
 }
 
 .button.success {
-  color: white;
+  color: $white;
 
   &:focus,
   &:hover {
-    color: white;
+    color: $white;
   }
 }
 
@@ -74,7 +75,7 @@ button,
     margin: 40% 3rem 0 3rem;
     color: $alert-color;
     text-align: center;
-    background: white;
+    background: $white;
     padding: 2rem;
   }
 }
@@ -281,6 +282,7 @@ footer {
     background: $light-gray;
     margin-top: 0;
     padding: 2.5rem 1rem 1rem;
+    border-radius: $global-radius;
 
     &::before {
       content: '';
@@ -370,6 +372,7 @@ footer {
   text-align: center;
   padding: 4rem 1rem 2.5rem 1rem;
   margin: 1rem 0 1.5rem 0;
+  border-radius: $global-radius;
 
   &.with-external-connections {
     margin-bottom: 0;
@@ -409,9 +412,9 @@ footer {
   > .name input,
   > .headline_external input,
   > .headline input {
-    font-size: 2rem;
-    font-weight: 200;
-    padding: 0 5rem 0 5rem;
+    font-size: 1.6rem;
+    font-weight: 300;
+    padding: 1.7rem 1rem 1.2rem 1rem !important;
     text-align: center;
     position: relative;
   }
@@ -463,7 +466,7 @@ footer {
     outline: none;
     display: inline-block;
     vertical-align: middle;
-    box-shadow: 0 0 0 1px white;
+    box-shadow: 0 0 0 1px $white;
   }
 
   .headline_external,
@@ -606,13 +609,18 @@ footer {
       left: initial;
     }
 
+    > label {
+      padding-top: 0 !important;
+      margin-top: -0.5rem;
+    }
+
     input {
       min-width: 100px;
     }
 
     &.focus {
       border-color: $primary-color;
-      background: white;
+      background: $white;
 
       input {
         background: $white;
@@ -649,7 +657,7 @@ footer {
     top: 0.2rem;
     left: 1rem;
     z-index: 12;
-    color: rgba($dark-gray, 50%);
+    color: $dark-gray;
     transition: color ease-in-out 0.25s;
   }
 
@@ -666,29 +674,36 @@ footer {
   input,
   .editor-block,
   .daterange,
-  .embedded_object:not(.publication_schedule),
-  .detail_object,
+  .embedded_object:not(.publication_schedule) .content-object-item,
   .readonly-select,
+  .form-element.detail_object,
+  .map-info.detail_object,
+  .form-element.linked,
+  .form-element.boolean,
+  .form-element.check_box,
+  .form-element.asset,
+  .form-element.radio_button,
+  .form-element.geographic .geographic,
   .select2 {
-    border: 1px solid $light-gray;
-    background: $light-gray;
+    border: 1px solid rgba($dark-gray, 0.5);
     outline: none;
     height: auto;
     line-height: 1;
     margin: 0;
-    border-color: $light-gray;
-    box-shadow: 0 0 0 $dark-gray;
+    box-shadow: 0 0 0 rgba($dark-gray, 0.5);
     position: relative;
-    transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
-    min-width: 280px;
+    transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+    min-width: 150px;
+    border-radius: $global-radius;
+    background: $white;
 
     &:hover {
+      border-color: transparent;
       box-shadow: 0 0 7px $primary-color;
     }
 
     &:focus {
       border-color: $primary-color;
-      background: white;
     }
 
     &::placeholder {
@@ -696,25 +711,55 @@ footer {
       color: $dark-gray;
     }
 
-    &[readonly] {
-      background: $light-gray;
+    &[readonly],
+    &[data-readonly='true'],
+    &[disabled],
+    &.disabled {
+      cursor: not-allowed !important;
+      background: lighten($light-gray, 5%) !important;
     }
   }
 
-  .form-element.release_status_comment {
-    .editor-block {
-      background-color: white;
+  .form-element.check_box .dc-checkbox {
+    [type='checkbox'] + label[for] {
+      position: relative;
+      left: 0;
+      top: 0;
+      padding: 1rem;
+      margin: 0;
+    }
+  }
 
-      > label,
-      > .ql-toolbar {
-        background-color: white;
+  .form-element.detail_object > .content-object-item {
+    border: none;
+    box-shadow: none;
+  }
+
+  .content-object-item {
+    border-radius: $global-radius;
+  }
+
+  .form-element {
+    &[readonly],
+    &[data-readonly='true'],
+    &[disabled],
+    &.disabled {
+      > input,
+      > .editor-block,
+      > .daterange,
+      > .readonly-select,
+      > .v-select > .select2,
+      > .editor-block > .attribute-edit-label,
+      > .editor-block > .ql-toolbar {
+        cursor: not-allowed !important;
+        background: lighten($light-gray, 5%) !important;
       }
     }
   }
 
   .form-element.focus > .editor-block {
     border-color: $primary-color;
-    background: white;
+    background: $white;
   }
 
   .focus {
@@ -743,21 +788,11 @@ footer {
     .form-element {
       position: relative;
 
-      &.boolean,
-      &.linked {
-        background: $light-gray;
-        border: 1px solid $light-gray;
-        transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
-
-        &:hover {
-          box-shadow: 0 0 7px $primary-color;
-        }
-      }
-
       &.boolean {
         input[type='checkbox'] {
           margin: 1rem 0 1rem 1rem;
         }
+
         input[type='checkbox'] + label[for] {
           position: relative;
           top: 0;
@@ -769,30 +804,31 @@ footer {
         }
       }
 
+      &.dc-checkbox {
+        input[type='checkbox'] {
+          margin: 0;
+        }
+
+        input[type='checkbox'] + label[for] {
+          position: relative;
+          top: unset;
+          left: unset;
+          margin: 1rem;
+
+          &.attribute-edit-label {
+            display: inline-flex;
+          }
+        }
+      }
+
       &.linked {
         .object-browser {
-          padding: 3rem 1rem 1rem 1rem;
-
-          .object-thumbs.has-items::after {
-            content: '';
-            position: relative;
-            display: block;
-            width: 100%;
-            height: 0;
-            border-bottom: 1px solid $white;
-            margin-bottom: 1rem;
-          }
+          padding: 2rem 1rem 1rem 1rem;
         }
       }
 
       &:not(:last-child) {
         margin-bottom: 1rem;
-      }
-
-      &.release_status_comment {
-        margin-bottom: 2rem;
-        padding-bottom: 2rem;
-        border-bottom: 1px solid $light-gray;
       }
 
       &.object {
@@ -813,7 +849,7 @@ footer {
       label {
         padding-top: 0.5rem;
         opacity: 1;
-        color: rgba($dark-gray, 50%);
+        color: $dark-gray;
       }
 
       [type='checkbox'] + label[for],
@@ -843,8 +879,9 @@ footer {
         &.remote-render,
         &.remote-rendering,
         &.remote-render-failed {
-          background: $light-gray;
-          padding: 2.5rem 1rem 2rem 1rem;
+          box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+          padding: 2.5rem 1rem 1.2rem 1rem;
+          border-radius: $global-radius;
 
           &::before {
             margin-top: 2.5rem;
@@ -872,7 +909,7 @@ footer {
     input.single_date,
     .single_date input.form-control,
     .number input {
-      padding: 2.5rem 1rem 2rem 1rem;
+      padding: 2.5rem 1rem 1.2rem 1rem;
       line-height: initial;
     }
 
@@ -952,8 +989,8 @@ span.single_warning,
   right: 2rem;
   background-color: map-get($foundation-palette, alert);
   padding: 0.5rem 2rem 0.5rem 1rem;
-  color: white;
-  border-radius: 5px;
+  color: $white;
+  border-radius: $global-radius;
   z-index: 20;
   transition: all 0.4s ease;
   line-height: 1.5;
@@ -1075,7 +1112,7 @@ span.single_warning:before {
 
   .image-data {
     float: right;
-    background: white;
+    background: $white;
     position: relative;
     text-align: left;
     width: 33%;
@@ -1118,6 +1155,8 @@ span.single_warning:before {
 }
 
 .select2 {
+  border-radius: $global-radius;
+
   &.select2-container--disabled {
     .select2-selection {
       &.select2-selection--multiple {
@@ -1128,6 +1167,17 @@ span.single_warning:before {
           display: none;
         }
       }
+    }
+  }
+
+  .select2-selection.select2-selection--multiple .select2-selection__choice {
+    border-radius: $global-radius;
+  }
+
+  &.select2-container {
+    .select2-selection--multiple,
+    .select2-selection--single {
+      border-radius: $global-radius;
     }
   }
 
@@ -1154,6 +1204,7 @@ span.single_warning:before {
             flex: auto;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-right: 0.5rem;
           }
 
           .open-selection-link {
@@ -1210,7 +1261,7 @@ span.single_warning:before {
 
         .select2-selection__choice__remove {
           position: absolute;
-          // color: white;
+          // color: $white;
           right: 0;
           padding: 0 0.2rem;
           transition: color 0.1s ease-in;
@@ -1255,7 +1306,7 @@ body .v-select {
 
     .close {
       font-size: 1.2rem;
-      color: white;
+      color: $white;
       text-shadow: none;
       opacity: 0.7;
     }
@@ -1328,6 +1379,7 @@ body .v-select {
   display: block;
   text-align: center;
   padding: 1rem 0;
+  grid-column: 1 / -1;
 }
 
 .overflow-hidden {
@@ -1387,6 +1439,7 @@ body .v-select {
         margin: -0.5rem -0.5rem -0.5rem 0.5rem;
       }
     }
+
     fieldset:not(.active) {
       display: none;
     }
@@ -1394,15 +1447,21 @@ body .v-select {
     > .buttons {
       padding-top: 1rem;
       border-top: 1px lighten($dark-gray, 20%) dashed;
+      display: grid;
+      grid-auto-flow: column;
+      grid-gap: 1rem;
+      justify-content: end;
 
       .submit {
         display: none;
       }
     }
+
     fieldset.template.active ~ .translatable-attribute-locales,
     fieldset.template.active ~ .form-thumbnail {
       display: none;
     }
+
     > .form-thumbnail {
       position: absolute;
       height: 2.8rem;
@@ -1437,9 +1496,11 @@ body .v-select {
           display: inline-block;
         }
       }
+
       legend {
         display: none;
       }
+
       .form-loading {
         text-align: center;
         line-height: 5.5rem;
@@ -1490,12 +1551,12 @@ body .v-select {
         position: absolute;
         right: 3rem;
         display: block;
-        background: white;
+        background: $white;
         color: $black;
         padding: 3px 7px;
         white-space: nowrap;
         z-index: 13;
-        border-radius: 5px;
+        border-radius: $global-radius;
         top: 0;
         box-shadow: 0 0 3px #ccc;
         line-height: 1.5rem;
@@ -1505,9 +1566,18 @@ body .v-select {
       .copy-attribute-to-all + .form-element {
         margin-right: 4rem;
       }
+
       .form-element {
         min-height: 3rem;
         margin-bottom: 1rem;
+
+        &.linked {
+          .show-objectbrowser {
+            top: 0;
+            right: 0;
+          }
+        }
+
         .translated {
           display: none;
         }
@@ -1515,7 +1585,7 @@ body .v-select {
           margin: 0;
         }
         .editor-block {
-          background-color: white;
+          background-color: $white;
 
           .ql-editor {
             box-shadow: inset 0 1px 2px rgba($black, 0.1);
@@ -1534,7 +1604,7 @@ body .v-select {
           > label,
           > .ql-toolbar {
             height: 2rem;
-            background-color: white;
+            background-color: $white;
             border: none;
           }
         }
@@ -1550,12 +1620,15 @@ body .v-select {
           background: $white;
           box-shadow: inset 0 1px 2px rgba($black, 0.1);
           border: 1px solid $medium-gray;
+
           .select2-selection {
             margin: 0.2rem 0.5rem;
+
             &.select2-selection--multiple {
               margin: 0.5rem;
             }
           }
+
           .select2-search__field {
             background: $white;
           }
@@ -1603,6 +1676,8 @@ body .v-select {
   border: none;
   box-shadow: 0 0 3px rgba($black, 0.3);
   transition: top 0.3s;
+  border-radius: $global-radius;
+
   .buttons {
     text-align: right;
   }
@@ -1743,6 +1818,15 @@ a {
           color: darken($primary-color, 30%);
         }
 
+        &.unlock-data-link {
+          color: $success-color;
+
+          &:hover,
+          &:focus {
+            color: darken($success-color, 30%);
+          }
+        }
+
         &.invalidate-data-link,
         &.delete-translation-link {
           color: $alert-color;
@@ -1790,19 +1874,29 @@ a {
       text-align: center;
     }
 
+    .email .fa {
+      min-width: unset;
+      margin-right: 0.3rem;
+    }
+
     .email,
     .buttons {
+      display: flex;
+      align-items: center;
       flex: auto;
       white-space: nowrap;
     }
 
     .buttons {
       text-align: right;
+
       > *,
       i.fa {
-        vertical-align: middle;
-        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
+
       .has-tip,
       .dc-foundation-tooltip {
         border: none;
@@ -1813,11 +1907,12 @@ a {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      display: inline-block;
-      vertical-align: middle;
+
       .fa {
         font-size: 0.9rem;
-        vertical-align: middle;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
   }
@@ -1931,5 +2026,15 @@ body.object-browser-overlay-open {
     left: 0;
     width: 100%;
     z-index: 1007;
+  }
+}
+
+.accordion {
+  .accordion-item {
+    &.is-active {
+      .accordion-content:not([id]) {
+        display: block;
+      }
+    }
   }
 }

@@ -28,6 +28,8 @@ module DataCycleCore
         end
 
         def duplicate_method(content)
+          return unless enabled?
+
           configuration(content).dig('method') || nil
         end
 

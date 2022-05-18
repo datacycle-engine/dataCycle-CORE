@@ -1,18 +1,20 @@
-<div id="show-history-link" data-toggle="show-history" class="link">
+<% random_id = SecureRandom.hex(10) %>
+
+<div id="show-history-link" data-toggle="<%= random_id %>" class="link">
   <i class="fa fa-clock-o" aria-hidden="true"></i>
   <% date = visible_content_date(dataCycleObject) %>
   <%= date %>
 </div>
 
 <% if date %>
-  <div class="dropdown-pane no-bullet bottom left-auto"
-    id="show-history"
+  <div class="dropdown-pane no-bullet bottom left-auto content-diff-dropdown"
+    id="<%= random_id %>"
     data-dropdown
     data-hover="true"
     data-hover-pane="true">
     <div class="remote-render"
         data-remote-path="data_cycle_core/application/histories"
-        data-remote-options="<%= to_query_params({ content: dataCycleObject }).to_json %>">
+        data-remote-options="<%= to_query_params({ content: dataCycleObject, history_id: dataCycleObject.id }).to_json %>">
     </div>
   </div>
 <% end %>

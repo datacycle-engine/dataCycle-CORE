@@ -3,7 +3,7 @@
 module DataCycleCore
   module AttributeEditorHelper
     ATTRIBUTE_DATAHASH_PREFIX = '[datahash]'
-    ATTRIBUTE_DATAHASH_REGEX = Regexp.new(/.*\K#{Regexp.quote(ATTRIBUTE_DATAHASH_PREFIX)}/)
+    ATTRIBUTE_DATAHASH_REGEX = Regexp.new(/.*\K(#{Regexp.quote(ATTRIBUTE_DATAHASH_PREFIX)}|\[translations\]\[[^\]]*\])/)
     ATTRIBUTE_FIELD_PREFIX = "thing#{ATTRIBUTE_DATAHASH_PREFIX}"
     RENDER_EDITOR_ARGUMENTS = DataCycleCore::AttributeViewerHelper::RENDER_VIEWER_ARGUMENTS.deep_merge({
       parameters: { options: { edit_scope: 'edit' } },
@@ -26,10 +26,11 @@ module DataCycleCore
     end
 
     def attribute_editor_allowed(options)
-      return if options.definition['type'] == 'slug' && options.parameters[:parent]&.embedded?
-      return if options.definition['type'] == 'computed'
+      return if options.type?('slug') && options.parameters[:parent]&.embedded?
+      return if options.definition['compute'].present?
+      return render('data_cycle_core/contents/editors/attribute_group', options.render_params) if options.type?('attribute_group')
 
-      return render_linked_viewer(options.to_h.slice(:key, :definition, :value, :parameters, :content)) if options.definition['type'] == 'linked' && options.definition['link_direction'] == 'inverse'
+      return render_linked_viewer(options.to_h.slice(:key, :definition, :value, :parameters, :content)) if options.type?('linked') && options.definition['link_direction'] == 'inverse'
 
       return unless can?(:edit, DataCycleCore::DataAttribute.new(
                                   options.key,
@@ -41,7 +42,7 @@ module DataCycleCore
                                 )) &&
                     (options.content.nil? || options.content&.allowed_feature_attribute?(options.key.attribute_name_from_key))
 
-      return if options.definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(options.definition['tree_label'], options.scope.to_s)
+      return if options.type?('classification') && !DataCycleCore::ClassificationService.visible_classification_tree?(options.definition['tree_label'], options.scope.to_s)
 
       true
     end
@@ -54,7 +55,7 @@ module DataCycleCore
       allowed = attribute_editor_allowed(options)
       return allowed unless allowed.is_a?(TrueClass)
 
-      if attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values) && !options.parameters&.dig(:parent_translatable)
+      if (attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values) && !options.parameters&.dig(:parent_translatable)) || object_has_translatable_attributes?(options.content, options.definition)
         render_translatable_attribute_editor options.to_h
       else
         render_untranslatable_attribute_editor options.to_h
@@ -68,7 +69,7 @@ module DataCycleCore
         content = options.parameters[:parent] || options.content
 
         if DataCycleCore::DataHashService.blank?(options.value)
-          content.default_value(options.key.attribute_name_from_key, current_user) if !content.persisted? || content.template
+          content.default_value(options.key.attribute_name_from_key, current_user) if content.is_a?(DataCycleCore::Thing) && (!content.persisted? || content.template)
           options.value = content.try(options.key.attribute_name_from_key)
         end
 
@@ -101,7 +102,7 @@ module DataCycleCore
 
       options.parameters[:options][:readonly] = !attribute_editable?(options.key, options.definition, options.parameters[:options], options.content)
 
-      render_first_existing_partial(partials, options.parameters.merge(options.to_h.slice(:key, :definition, :value, :content)))
+      render_first_existing_partial(partials, options.render_params)
     end
 
     def embedded_key_prefix(key, index)

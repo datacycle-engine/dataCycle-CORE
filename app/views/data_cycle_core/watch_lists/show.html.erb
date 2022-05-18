@@ -16,7 +16,7 @@
             <div id="show-history-link" class="link"><i class="fa fa-clock-o" aria-hidden="true"></i>
               <%= t('history.created_at_html', locale: active_ui_locale, date: l(@watch_list&.created_at&.in_time_zone, locale: active_ui_locale, format: :history)) %>
               <span> <%= t('terms.from', locale: active_ui_locale) %> </span>
-              <span><strong><a class="email-link" title="<%= @watch_list&.user&.full_name %>" href="mailto:<%= "#{@watch_list&.user&.email}" %>"><%= @watch_list&.user&.full_name %></a></strong></span>
+              <span><strong><a class="email-link" data-dc-tooltip="<%= @watch_list&.user&.full_name %>" href="mailto:<%= "#{@watch_list&.user&.email}" %>"><%= @watch_list&.user&.full_name %></a></strong></span>
             </div>
           </li>
 
@@ -24,21 +24,23 @@
             <li>
               <%= tag.span tag.i(class: 'fa fa-language', aria_hidden: true),
                             class: 'link',
-                            title: @watch_list.available_locales
+                            data: {
+                              dc_tooltip: @watch_list.available_locales
                                 .map { |t| t("locales.#{t}", locale: active_ui_locale) }
-                                .join("\n") %>
+                                .join('<br>')
+                            } %>
             </li>
           <% end %>
 
-          <% if can?(:copy_api_link, DataCycleCore::WatchList) %>
+          <% if can?(:copy_api_link, @watch_list) %>
             <li>
               <span class="link" aria_hidden="true">
                 <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", api_subversion: nil, id: @watch_list),
                                             class: 'copy-to-clipboard',
                                             data: {
-                                                value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_url", api_subversion: nil, id: @watch_list)
-                                            },
-                                            title: t('actions.copy_to_clipboard', locale: active_ui_locale) do %>
+                                                value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_url", api_subversion: nil, id: @watch_list),
+                                                dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale)
+                                            } do %>
                   <i class="fa fa-clipboard" aria-hidden="true"></i>
                 <% end %>
               </span>
@@ -57,16 +59,17 @@
                 <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", api_subversion: nil, id: @watch_list),
                                             class: 'copy-to-clipboard',
                                             data: {
-                                                value: send("webdav_#{DataCycleCore.main_config.dig(:webdav, :default)}_contents_index_url", api_subversion: nil, id: @watch_list)
-                                            },
-                                            title: t('actions.copy_to_clipboard', locale: active_ui_locale) do %>
+                                                value: send("webdav_#{DataCycleCore.main_config.dig(:webdav, :default)}_contents_index_url", api_subversion: nil, id: @watch_list),
+                                                dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale)
+                                            } do %>
                   <i class="fa fa-hdd-o" aria-hidden="true"></i>
                 <% end %>
               </span>
             </li>
           <% end %>
 
-          <%= tag.li render('data_links', content: @watch_list) if can?(:index, DataCycleCore::DataLink) %>
+          <%= tag.li render('data_cycle_core/data_links/data_links_list', content: @watch_list) if can?(:index, DataCycleCore::DataLink) %>
+
           <li class="buttons">
             <%= link_to previous_authorized_crumb.url, class: 'has-content close-show-button' do %>
               <i aria-hidden="true" class="fa fa-times"></i>
@@ -78,9 +81,11 @@
       <div class="detail-header-info">
         <div class="type watchlist">
           <%= render 'data_cycle_core/shared/icon', icon_class: @watch_list&.class&.name&.demodulize&.underscore_blanks %>
+
           <span class="title"><%= DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) %></span>
+
           <% if can?(:edit, @watch_list) && !can?(:remove_item, @watch_list) %>
-            <i class="fa fa-exclamation-circle" title="<%= t('data_cycle_core.watch_list.locked_by_data_link', locale: active_ui_locale) %>" aria-hidden="true"></i>
+            <i class="fa fa-exclamation-circle" data-dc-tooltip="<%= t('data_cycle_core.watch_list.locked_by_data_link', locale: active_ui_locale) %>" aria-hidden="true"></i>
           <% end %>
         </div>
       </div>
@@ -94,7 +99,7 @@
       <% if @watch_list.users.any? %>
         <div class="description watchlist">
           <i class="fa fa-user"></i>
-          <%= safe_join(@watch_list.users.map{ |u| tag.span(u.full_name, title: u.email) }, ', ') %>
+          <%= safe_join(@watch_list.users.map{ |u| tag.span(u.full_name, data: { dc_tooltip: u.email }) }, ', ') %>
         </div>
       <% end %>
 
@@ -112,18 +117,18 @@
 
         <%= render 'data_cycle_core/application/downloads/download', content: @watch_list if can?(:download, @watch_list) %>
 
-        <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small edit-content-link', title: t('actions.edit', locale: active_ui_locale) do %>
+        <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small edit-content-link', data: { dc_tooltip: t('actions.edit', locale: active_ui_locale) } do %>
           <i class="fa fa-pencil" aria-hidden="true"></i>
         <% end if can?(:edit, @watch_list) %>
 
         <%= render 'data_cycle_core/watch_lists/bulk_edit_button', collection: @watch_list if can?(:bulk_edit, @watch_list) %>
 
-        <%= link_to @watch_list, method: :delete, class:'button-prime small alert', data: { confirm: "#{@watch_list.model_name.human(locale: active_ui_locale)} #{t('actions.delete', locale: active_ui_locale)}?" }, title: t('actions.delete', locale: active_ui_locale) do %>
+        <%= link_to @watch_list, method: :delete, class:'button-prime small alert', data: { confirm: "#{@watch_list.model_name.human(locale: active_ui_locale)} #{t('actions.delete', locale: active_ui_locale)}?", dc_tooltip: t('actions.delete', locale: active_ui_locale) } do %>
           <i class="fa fa-trash-o" aria-hidden="true"></i>
         <% end if can? :destroy, @watch_list %>
 
         <% if can?(:bulk_delete, @watch_list) %>
-          <span title="<%= t('actions.delete_items_in_watch_list', locale: active_ui_locale) %>">
+          <span data-dc-tooltip="<%= t('actions.delete_items_in_watch_list', locale: active_ui_locale) %>">
             <%= button_to bulk_delete_watch_list_path(@watch_list),
                     method: :delete,
                     remote: true,

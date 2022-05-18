@@ -35,6 +35,10 @@ module DataCycleCore
         reflect(@query.where(*params))
       end
 
+      def not(*params)
+        reflect(@query.not(*params))
+      end
+
       def order(*params)
         reflect(@query.order(*params))
       end

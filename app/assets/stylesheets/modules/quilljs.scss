@@ -2,19 +2,18 @@ $fa-font-path: '/assets';
 @import 'quill/dist/quill.snow';
 
 .detail-header.editor .form-element .editor-block label {
-  padding-top: 0;
   display: flex;
 }
 
 .form-element.focus,
 .detail-header.editor .form-element.focus {
   > .editor-block {
-    background: white;
+    background: $white;
     border-color: $primary-color;
 
     > label,
     > .ql-toolbar {
-      background: white;
+      background: $white;
     }
 
     > label {
@@ -102,10 +101,12 @@ $fa-font-path: '/assets';
       }
     }
   }
+
   .ql-editor {
-    padding-bottom: 2rem;
+    padding: 0.1rem 1rem 1.2rem 1rem;
     font-size: 1rem;
-    min-height: 8rem;
+    min-height: 2rem;
+    border-radius: $global-radius;
 
     p:not(:last-child) {
       margin-bottom: 0.5rem;
@@ -149,6 +150,19 @@ $fa-font-path: '/assets';
           fill: #009fe3;
         }
       }
+
+      > span {
+        position: relative;
+        display: block;
+
+        &::after {
+          content: '';
+          visibility: hidden;
+          float: none;
+          clear: both;
+          display: block;
+        }
+      }
     }
     .ql-insertNbsp,
     .ql-replaceAllNbsp {
@@ -167,8 +181,8 @@ $fa-font-path: '/assets';
       position: absolute;
       right: 8px;
       white-space: nowrap;
-      background: white;
-      border-radius: 5px;
+      background: $white;
+      border-radius: $global-radius;
       padding: 0.2rem 0.5rem;
       top: 8px;
       box-shadow: 0 0 3px $dark-gray;
@@ -213,13 +227,13 @@ $fa-font-path: '/assets';
   > .ql-toolbar {
     display: flex;
     flex: auto;
-    background: $light-gray;
-    border-bottom: 1px solid $light-gray;
+    background-color: $white;
     align-items: center;
     position: sticky;
     top: 55px;
     z-index: 12;
-    height: 3rem;
+    height: 2.5rem;
+    border-radius: $global-radius;
   }
 
   > .quill-editor {

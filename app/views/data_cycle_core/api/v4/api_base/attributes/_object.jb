@@ -11,7 +11,7 @@ object_options = { fields: new_fields, include: new_include, field_filter: optio
 object_properties = {}
 object_properties['@type'] = api_property_definition.dig('type') if api_property_definition.dig('type').present?
 
-ordered_validation_properties(validation: definition).each do |o_key, o_definition|
+ordered_api_properties(validation: definition).each do |o_key, o_definition|
   next if options[:field_filter] && new_fields.present? && !valid_key?(attribute_key(o_key, o_definition), object_options) && api_property_definition.dig('transformation', 'method') != 'merge_object'
 
   key_new = attribute_key(o_key, o_definition)

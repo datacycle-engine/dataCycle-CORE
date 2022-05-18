@@ -52,17 +52,12 @@
             <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if show_external_connections?(content) %>
           </div>
 
-          <% if DataCycleCore::Feature::NamedVersion.enabled? %>
-            <div class="clearfix form-element version-name string">
-              <%= label_tag 'thing[version_name]', t('feature.named_version.input_label', locale: active_ui_locale) %>
-              <%= text_field_tag 'thing[version_name]', nil, id: 'thing_version_name', class: 'form-control' %>
-            </div>
-          <% end %>
+          <%= render 'data_cycle_core/contents/version_and_status', local_assigns.slice(:content, :key_prefix) if content.property_definitions.slice(*DataCycleCore::Feature::Releasable.allowed_attribute_keys(content)).present? || DataCycleCore::Feature::NamedVersion.enabled? %>
 
           <%= render 'data_cycle_core/contents/editors/metadata/finalize', content: content if DataCycleCore::Feature::Releasable.allowed?(content) && current_user.is_rank?(0) && content.indirect_data_links.by_receiver(current_user).valid.exists? %>
 
           <%
-            ordered_validation_properties(validation: content.schema).presence&.each do |key, prop|
+            ordered_validation_properties(validation: content.schema, scope: :edit).except(*DataCycleCore::Feature::Releasable.allowed_attribute_keys(content)).presence&.each do |key, prop|
               concat render_attribute_editor(
                 content: content,
                 key: key,

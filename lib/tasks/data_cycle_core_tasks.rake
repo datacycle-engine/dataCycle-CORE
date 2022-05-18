@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'data_cycle_core/acknowledgments'
-
 Rake::Task['db:create'].enhance do
   if ENV['RAILS_ENV']
     ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
@@ -46,6 +44,42 @@ namespace :data_cycle_core do
           user.send_notification subcribed_with_changes if subcribed_with_changes.size.positive?
         end
       end
+    end
+  end
+
+  namespace :reports do
+    desc 'send download report via email'
+    task :send_report, [:recipient, :report_identifier, :format] => [:environment] do |_, args|
+      recipient = args.fetch(:recipient, nil)
+      unless recipient
+        puts 'Recipient is required!'
+        exit(-1)
+      end
+      DataCycleCore::ReportMailer.notify(
+        identifier: args.fetch(:report_identifier, 'downloads_popular'),
+        format: args.fetch(:format, 'xlsx'),
+        recipient: recipient
+      ).deliver_now
+    end
+    desc 'send monthly download report from the last month via email'
+    task :send_monthly_report, [:recipient, :report_identifier, :format] => [:environment] do |_, args|
+      recipient = args.fetch(:recipient, nil)
+      unless recipient
+        puts 'Recipient is required!'
+        exit(-1)
+      end
+      last_month = Time.zone.now - 1.month
+      params = {
+        by_month: last_month.month,
+        by_year: last_month.year
+      }
+
+      DataCycleCore::ReportMailer.notify(
+        identifier: args.fetch(:report_identifier, 'downloads_popular'),
+        format: args.fetch(:format, 'xlsx'),
+        recipient: recipient,
+        params: params
+      ).deliver_now
     end
   end
 
@@ -263,19 +297,6 @@ namespace :data_cycle_core do
       end
 
       puts "Cleaning up #{duplicated_content_relations_count} content relations ... [DONE]"
-    end
-  end
-
-  namespace :acknowledgments do
-    desc 'Extract acknowledgment related data'
-    task prepare: :environment do
-      File.write(
-        DataCycleCore::Acknowledgments::PACKAGE_INFO_PATH,
-        JSON.pretty_generate(
-          DataCycleCore::Acknowledgments.extract_ruby_gem_infos +
-          DataCycleCore::Acknowledgments.extract_npm_package_infos
-        )
-      )
     end
   end
 end

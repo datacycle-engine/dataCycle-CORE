@@ -27,7 +27,7 @@
                                 } %>
     <% end %>
 
-    <span class="clear-both">
+    <div class="clear-both">
       <%= link_to t('common.load_all', locale: active_ui_locale), load_more_linked_objects_thing_path(
               contextual_content(local_assigns),
               key: key.attribute_name_from_key,
@@ -46,8 +46,7 @@
             data: {
               disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}"
             } if objects.try(:total_pages)&.positive? && !objects&.last_page? %>
-    </span>
-
+    </div>
   </ul>
 
 <% end %>

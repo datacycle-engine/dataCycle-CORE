@@ -104,7 +104,8 @@ module DataCycleCore
             'url' => "http://www.example.com/things/#{@content.id}",
             'inLanguage' => 'de',
             'name' => 'TestArtikel',
-            'slug' => 'testartikel'
+            'slug' => 'testartikel',
+            'headline' => 'TestArtikel'
           }
           v1_except = ['dateCreated', 'dateModified', 'classifications']
 
@@ -116,7 +117,8 @@ module DataCycleCore
             'url' => data_hash['url'],
             'inLanguage' => data_hash['inLanguage'],
             'name' => data_hash['headline'],
-            'slug' => 'testartikel'
+            'slug' => 'testartikel',
+            'headline' => data_hash['headline']
           }
 
           # APIv2: release-stati has been removed

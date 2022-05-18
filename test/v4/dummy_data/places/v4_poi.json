@@ -2,7 +2,6 @@
   "name": "Test-POI 1",
   "text": "<p>long-description</p>",
   "description": "<p>short-description</p>",
-  "price_range": "<p>price-info</p>",
   "address": {
     "street_address": "StreeAddress",
     "postal_code": "PostCode",
@@ -25,8 +24,6 @@
   ],
   "use_guidelines": "cc_use_guidlines",
   "license": "cc_license",
-  "more_permissions": "cc_more_permissions",
-  "attribution_name": "attribution_name",
   "attribution_url": "attribution_url",
   "license_classification": "CC0",
   "price_range": "test price_range",

@@ -17,6 +17,8 @@ class SplitView {
     this.translateAllButton;
     this.leftId = this.leftContainer.dataset.id;
     this.translatableTypes = ['string', 'text_editor'];
+    this.allButtonParentSelector =
+      '[data-editor="included-object"], .split-content.detail-content, .attribute-group.viewer.has-title > .attribute-group-item';
     this.copyableTypes = [
       'object_browser',
       'embedded_object',
@@ -79,7 +81,7 @@ class SplitView {
       e => e.tagName === 'A' && (e.classList.contains('copy-all') || e.classList.contains('translate-all')),
       e => {
         e.addEventListener('click', this.triggerAllButtons.bind(this));
-        const parent = e.closest('.split-content, [data-editor="included-object"]');
+        const parent = e.closest(this.allButtonParentSelector);
 
         if (parent.classList.contains('split-content') && e.classList.contains('copy-all')) this.copyAllButton = e;
         if (parent.classList.contains('split-content') && e.classList.contains('translate-all'))
@@ -171,19 +173,19 @@ class SplitView {
     } else this.renderButton(element, single);
   }
   async addAllButton(element, type) {
-    let container = element.closest('[data-editor="included-object"], .split-content.detail-content');
+    let container = element.closest(this.allButtonParentSelector);
 
     if (container.classList.contains(`show-${type}-all-button`)) return;
 
-    if (!container.querySelector(':scope > .split-view-all-buttons'))
-      container.insertAdjacentHTML('afterbegin', '<div class="split-view-all-buttons"></div>');
-    const buttonsContainer = container.querySelector(':scope > .split-view-all-buttons');
+    if (!container.querySelector(':scope > .buttons'))
+      container.insertAdjacentHTML('afterbegin', '<div class="buttons"></div>');
+    const buttonsContainer = container.querySelector(':scope > .buttons');
 
     container.classList.add(`show-${type}-all-button`);
 
     await buttonsContainer.insertAdjacentHTML(
       'afterbegin',
-      `<a class="button-prime small ${type}-all" data-disable-with="<i class=\'fa fa-spinner fa-fw fa-spin\'></i>" title="${await I18n.translate(
+      `<a class="button-prime small ${type}-all" data-disable-with="<i class=\'fa fa-spinner fa-fw fa-spin\'></i>" data-dc-tooltip="${await I18n.translate(
         `frontend.split_view.${type}_all`
       )}"><i class="fa ${this.buttonMappings[type].icon}" aria-hidden="true"></i></a>`
     );
@@ -222,7 +224,7 @@ class SplitView {
       'beforeend',
       `<a class="button-prime small ${type} ${
         single ? `${type}-single-button` : ''
-      }" data-disable-with="<i class=\'fa fa-spinner fa-fw fa-spin\'></i>" title="${await I18n.translate(
+      }" data-disable-with="<i class=\'fa fa-spinner fa-fw fa-spin\'></i>" data-dc-tooltip="${await I18n.translate(
         `frontend.split_view.${type}`
       )}"><i class="fa ${this.buttonMappings[type].icon} aria-hidden="true"></i></a>`
     );
@@ -277,7 +279,7 @@ class SplitView {
 
     const target = event.currentTarget;
 
-    const parent = target.closest('.split-content, [data-editor="included-object"]');
+    const parent = target.closest(this.allButtonParentSelector);
 
     if (
       target.classList.contains('copy-all') &&

@@ -216,7 +216,7 @@ namespace :dc do
           # update template, template definition
           place.template_name = poi_template.template_name
           place.schema = poi_template.schema
-          place.template_updated_at = Time.zone.now
+          place.cache_valid_since = Time.zone.now
           place.save
           # update search table
           place.search_languages(true)
@@ -268,6 +268,18 @@ namespace :dc do
       SQL
 
       ActiveRecord::Base.connection.execute(byyearday_sql)
+    end
+
+    desc 'migrate watchlists to paths with separator'
+    task migrate_watchlists_to_paths: :environment do
+      items = DataCycleCore::WatchList.all
+      progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+      items.find_each do |wl|
+        wl.send(:split_full_path)
+        wl.save!(touch: false)
+        progressbar.increment
+      end
     end
   end
 end

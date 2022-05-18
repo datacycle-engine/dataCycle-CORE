@@ -1,9 +1,9 @@
-<div class="reveal data-link-reveal" id="data-link-overlay-<%= data_link.id || "new" %>" data-reveal>
+<div class="reveal data-link-reveal" id="<%= random_id %>" data-reveal>
   <button class="close-button" data-close aria-label="Close modal" type="button">
     <span aria-hidden="true">&times;</span>
   </button>
 
-  <div id="data-link-form-<%= data_link.id || "new" %>" class="remote-render"
+  <div class="remote-render"
     data-remote-path="data_cycle_core/data_links/form"
     data-remote-options="<%= to_query_params(local_assigns.merge({ split_source: @split_source })).to_json %>"></div>
 </div>

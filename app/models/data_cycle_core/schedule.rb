@@ -104,6 +104,7 @@ module DataCycleCore
       by_day = nil
       by_month = nil
       by_month_day = nil
+      by_month_week = nil
       if @schedule_object&.recurrence_rules&.first.present?
         rule = @schedule_object&.recurrence_rules&.first
         rule_hash = rule.to_hash
@@ -111,9 +112,13 @@ module DataCycleCore
         end_time = @schedule_object&.last&.in_time_zone&.+(duration&.presence || 0)&.to_s(:only_time) if end_time.blank? && @schedule_object.terminating?
         repeat_count = rule&.occurrence_count
         repeat_frequency = to_repeat_frequency(rule_hash)
-        by_day = rule_hash.dig(:validations, :day)
+        by_day = rule_hash.dig(:validations, :day)&.map { |day| dow(day) }
         by_month = rule_hash.dig(:validations, :month_of_year)
         by_month_day = rule_hash.dig(:validations, :day_of_month)
+        if rule_hash.dig(:validations, :day_of_week).present?
+          by_day = dow(rule_hash.dig(:validations, :day_of_week).keys.first)
+          by_month_week = rule_hash.dig(:validations, :day_of_week).values.flatten.first
+        end
       end
 
       {
@@ -129,9 +134,10 @@ module DataCycleCore
         'exceptDate' => exdate&.map(&:iso8601)&.presence,
         'dc:additionalDate' => rdate&.map(&:iso8601)&.presence,
         'repeatFrequency' => repeat_frequency,
-        'byDay' => by_day&.map { |day| dow(day) },
+        'byDay' => by_day,
         'byMonth' => by_month&.map(&:to_i),
         'byMonthDay' => by_month_day&.map(&:to_i),
+        'byMonthWeek' => by_month_week,
         'scheduleTimezone' => dtstart.time_zone.name
       }.compact
     end

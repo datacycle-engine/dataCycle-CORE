@@ -1,6 +1,6 @@
 .v-select {
   position: relative;
-  font-family: sans-serif;
+  font-family: $body-font-family;
 }
 
 .v-select,
@@ -66,7 +66,7 @@
   padding: 0;
   background: none;
   border: 1px solid rgba(60, 60, 60, 0.26);
-  border-radius: 4px;
+  border-radius: $global-radius;
   white-space: normal;
   transition: border-radius 0.25s;
 }
@@ -128,7 +128,7 @@
   color: #333;
   background-color: #f0f0f0;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: $global-radius;
   height: 26px;
   margin: 4px 1px 0px 3px;
   padding: 1px 0.25em;
@@ -176,7 +176,7 @@
   padding: 0 0.5em;
   max-width: 100%;
   box-shadow: none;
-  background: white;
+  background: $white;
   position: relative;
   clear: none;
 }

@@ -39,7 +39,8 @@ module DataCycleCore
           post stored_filters_path, params: {
             stored_filter: {
               name: 'TestFilter'
-            }
+            },
+            update_filter_parameters: true
           }, headers: {
             referer: root_path
           }

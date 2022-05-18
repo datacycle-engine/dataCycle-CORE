@@ -7,11 +7,12 @@
 
     <%= render 'data_cycle_core/contents/editors/features/geo_key_figure_all' if DataCycleCore::Feature::GeoKeyFigure.allowed_child_attribute_key?(content, definition) %>
 
-    <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
+    <% ordered_validation_properties(validation: definition, scope: :edit).each do |o_key, o_definition| %>
       <%= render_attribute_editor key: o_key,
                                   definition: o_definition,
                                   value: value.try(:[], o_key),
                                   parameters: {
+                                    parent: value,
                                     options: { prefix: local_assigns.dig(:options, :prefix) }
                                   },
                                   content: content,

@@ -2,4 +2,4 @@
             collection: DataCycleCore::StoredFilter.accessible_by(current_ability).where.not(name: nil).order(updated_at: :desc).first(9),
             as: :stored_filter %>
 
-<li><%= link_to t('data_cycle_core.stored_searches.show_all_saved', count: 1, locale: active_ui_locale), stored_filters_path(anchor: 'searches-saved'), class: 'button' %></li>
+<li><%= link_to t('data_cycle_core.stored_searches.show_all_saved', count: 1, locale: active_ui_locale), saved_searches_stored_filters_path, class: 'button' %></li>

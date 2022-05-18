@@ -6,7 +6,7 @@
 
   <span class="tags-container">
     <% union_ids_to_value(value).each do |item| %>
-      <%= tag.span(class: "tag #{item.html_class}", title: item.title) do %>
+      <%= tag.span(class: "tag #{item.html_class}", data: { dc_tooltip: item.dc_tooltip }) do %>
         <%= item.name %>
         <%# can be activated, if "zuletzt gesucht" and "Gespeicherte Suchen" dropdown does not wrap whole tag in link anymore %>
         <%#= link_to tag.i(class: 'fa fa-external-link', aria_hidden: true), polymorphic_path(item.html_class, id: item.id), class: 'open-selection-link', target: :_blank %>
@@ -14,5 +14,5 @@
     <% end %>
   </span>
 
-  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons == 'a' %>
 </span>

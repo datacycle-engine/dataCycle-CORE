@@ -13,7 +13,7 @@ module DataCycleCore
 
         # import a event to be from feratel
         event = DataCycleCore::DummyDataHelper.create_data('event')
-        event.external_source_id = DataCycleCore::ExternalSystem.find_by(identifier: 'Feratel Kärnten').id
+        event.external_source_id = DataCycleCore::ExternalSystem.find_by(identifier: 'Feratel').id
         event.external_key = '00000000-0000-0000-0000-000000000005'
         event.save
 
@@ -167,7 +167,7 @@ module DataCycleCore
 
       test 'imported data successfully recognizes already present data from feratel' do
         event = DataCycleCore::Thing.find_by(external_key: '00000000-0000-0000-0000-000000000005')
-        assert_equal('Feratel Kärnten', event.external_source.identifier)
+        assert_equal('Feratel', event.external_source.identifier)
 
         assert_equal(2, event.external_system_syncs.count)
         assert_equal(['data-cycle-base', 'outdooractive'], event.external_system_syncs.map(&:external_system).map(&:identifier).sort)

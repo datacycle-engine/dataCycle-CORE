@@ -86,6 +86,7 @@ module DataCycleCore
           set_template_data_hash(options, partial_schema&.dig('properties') || property_definitions)
 
           self.updated_at = options.save_time
+          self.cache_valid_since = options.save_time
           self.updated_by = options.current_user&.id
           self.last_updated_locale = I18n.locale
           self.version_name = DataCycleCore::Feature::NamedVersion.enabled? ? options.version_name.presence : nil
@@ -183,7 +184,8 @@ module DataCycleCore
       end
 
       def validate(data_hash:, schema_hash: nil, strict: false, add_defaults: false, current_user: nil, add_warnings: true, add_errors: true)
-        data_hash = add_default_values(data_hash: data_hash, current_user: current_user).dup if add_defaults && properties_with_default_values.present?
+        data_hash = add_default_values(data_hash: data_hash, current_user: current_user, partial: !strict).dup if add_defaults && properties_with_default_values.present?
+
         validator = DataCycleCore::MasterData::ValidateData.new(self)
         valid = DataCycleCore::LocalizationService.localize_validation_errors(validator.validate(data_hash, schema_hash || schema, strict), current_user&.ui_locale || DataCycleCore.ui_locales.first)
 
@@ -224,33 +226,20 @@ module DataCycleCore
       end
 
       def invalidate_self
-        Rails.cache.delete_matched("*#{id}*")
+        update_columns(cache_valid_since: Time.zone.now)
         invalidate_related_cache
       end
 
       def invalidate_related_cache
-        # WITH RECURSIVE content_dependencies AS (
-        # 	SELECT
-        # 		ARRAY[content_contents.content_a_id, content_contents.content_b_id] "content_ids",
-        # 		ARRAY[content_contents.relation_a] "content_property_names"
-        # 	FROM content_contents
-        # 	UNION ALL
-        # 	SELECT
-        # 		content_dependencies.content_ids || content_contents.content_b_id "content_ids",
-        # 		content_dependencies.content_property_names || content_contents.relation_a "content_property_names"
-        # 	FROM content_contents
-        # 	JOIN content_dependencies ON
-        # 		content_dependencies.content_ids[ARRAY_LENGTH(content_dependencies.content_ids, 1)] = content_contents.content_a_id AND
-        # 		content_contents.content_b_id <> ALL(content_dependencies.content_ids)
-        # ) SELECT first_things.id, first_things.template_name, content_ids, content_property_names, last_things.id, last_things.template_name
-        # FROM content_dependencies
-        # JOIN things "first_things" ON first_things.id = content_ids[1]
-        # JOIN things "last_things" ON last_things.id = content_ids[ARRAY_LENGTH(content_ids, 1)]
-        # WHERE '#{self.id}'::uuid = ANY(content_ids);
+        cached_related_contents.invalidate_all
+      end
 
-        cached_related_contents.ids.each do |item_id|
-          Rails.cache.delete_matched("*#{item_id}*")
-        end
+      def self.invalidate_all
+        all.update_all(cache_valid_since: Time.zone.now)
+      end
+
+      def self.update_search_all
+        all.find_each { |t| t.search_languages(true) }
       end
 
       private
@@ -262,6 +251,7 @@ module DataCycleCore
       end
 
       def attribute_blank?(data_hash, key, _defininition = nil)
+        # BUG: if used on content in new language, translated_locales will include the new language after this method call
         return true if key.blank?
 
         data_hash[key].blank? &&
@@ -290,7 +280,7 @@ module DataCycleCore
           set_linked(key, value, properties)
         when 'embedded'
           set_embedded(key, value, properties['template_name'], properties['translated'], options)
-        when 'string', 'number', 'datetime', 'date', 'boolean', 'geographic', 'object', 'computed'
+        when 'string', 'number', 'datetime', 'date', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])
@@ -300,7 +290,7 @@ module DataCycleCore
           set_schedule(value, key)
         when 'slug'
           save_slug(key, value, options.data_hash)
-        when 'key'
+        when 'key', 'timeseries'
           true # do nothing
         end
       end
@@ -317,8 +307,6 @@ module DataCycleCore
           save_to_jsonb(key, value, properties, 'metadata')
         when 'translated_value'
           save_to_jsonb(key, value, properties, 'content')
-        when 'classification'
-          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal']) if properties.dig('compute', 'type') == 'classification'
         end
       end
 

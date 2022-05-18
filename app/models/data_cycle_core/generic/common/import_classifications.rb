@@ -10,6 +10,7 @@ module DataCycleCore
         )
 
           raise ArgumentError('tree_name cannot be blank') if tree_name.blank?
+          with_filters = options.dig(:import, :with_filters) || false
 
           external_source_id = utility_object.external_source.id
           init_logging(utility_object) do |logging|
@@ -25,8 +26,19 @@ module DataCycleCore
                   begin
                     logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
 
+                    if with_filters
+                      source_filter = options&.dig(:import, :source_filter) || {}
+                      source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
+                      source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false }, "dump.#{locale}.archived_at" => { '$exists' => false } })
+                    end
+
                     utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                      raw_classification_data_stack = load_root_classifications.call(mongo_item, locale, options).to_a
+                      raw_classification_data_stack =
+                        if with_filters
+                          load_root_classifications.call(mongo_item, locale, options, source_filter).to_a
+                        else
+                          load_root_classifications.call(mongo_item, locale, options).to_a
+                        end
 
                       while (raw_classification_data = raw_classification_data_stack.pop.try(:[], 'dump')&.dig(locale))
                         item_count += 1
@@ -38,7 +50,12 @@ module DataCycleCore
                           classification_data: extracted_classification_data.merge({ tree_name: tree_name }),
                           parent_classification_alias: load_parent_classification_alias.call(raw_classification_data, external_source_id, options)
                         )
-                        raw_classification_data_stack += load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
+                        raw_classification_data_stack +=
+                          if with_filters
+                            load_child_classifications.call(mongo_item, raw_classification_data, locale, source_filter).to_a
+                          else
+                            load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
+                          end
 
                         logging.item_processed(
                           extracted_classification_data[:name],
@@ -120,6 +137,17 @@ module DataCycleCore
               end
             end
           end
+        end
+
+        def import_classifications_with_filter(
+          utility_object, tree_name, load_root_classifications, load_child_classifications,
+          load_parent_classification_alias, extract_data, options
+        )
+          options[:import] = options[:import].merge(with_filters: true) if options.dig(:import, :source_filter).present?
+          import_classifications(
+            utility_object, tree_name, load_root_classifications, load_child_classifications,
+            load_parent_classification_alias, extract_data, options
+          )
         end
 
         def import_classifications_frame(utility_object, tree_name, classification_processing, options)

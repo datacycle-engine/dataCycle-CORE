@@ -15,7 +15,7 @@ module DataCycleCore
               count("things"."id") as downloads_all, 
               sum(1) FILTER (where EXTRACT(MONTH FROM "activities"."created_at") = :by_month AND EXTRACT(YEAR FROM "activities"."created_at") = :by_year) AS downloads_by_month
             FROM things
-            JOIN thing_translations ON things.id = thing_translations.thing_id
+            JOIN thing_translations ON things.id = thing_translations.thing_id AND thing_translations.locale = :locale
             JOIN activities ON things.id = activities.activitiable_id 
             OR things.id = ANY (
                 ARRAY(SELECT jsonb_array_elements_text(activities.data -> 'collection_items'))::uuid[]
@@ -26,7 +26,7 @@ module DataCycleCore
             LIMIT :limit
           SQL
 
-          @data = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, by_month: by_month, by_year: by_year, limit: limit]))
+          @data = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, by_month: by_month, by_year: by_year, locale: @locale, limit: limit]))
         end
 
         private

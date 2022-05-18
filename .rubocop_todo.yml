@@ -69,6 +69,7 @@ Rails/HasManyOrHasOneDependent:
     - 'app/models/data_cycle_core/role.rb'
     - 'app/models/data_cycle_core/user.rb'
     - 'app/models/data_cycle_core/watch_list.rb'
+    - 'app/models/data_cycle_core/stored_filter.rb'
     - 'app/models/data_cycle_core/search.rb'
     - 'app/models/data_cycle_core/feature/content/content_lock.rb'
 
@@ -87,6 +88,7 @@ Rails/InverseOf:
     - 'app/models/data_cycle_core/subscribable.rb'
     - 'app/models/data_cycle_core/user.rb'
     - 'app/models/data_cycle_core/watch_list.rb'
+    - 'app/models/data_cycle_core/stored_filter.rb'
     - 'app/models/data_cycle_core/search.rb'
 
 Rails/Output:

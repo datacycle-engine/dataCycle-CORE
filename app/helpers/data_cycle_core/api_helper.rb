@@ -15,8 +15,8 @@ module DataCycleCore
       api_version = @api_version || 2
       if api_version == 4
         partials = [
-          "#{(definition&.dig('compute', 'type') || definition&.dig('type')).underscore}_#{key.underscore}",
-          (api_property_definition&.dig('partial')&.present? ? "#{(definition&.dig('compute', 'type') || definition&.dig('type')).underscore}_#{api_property_definition&.dig('partial')&.underscore}" : ''),
+          "#{definition&.dig('type')&.underscore}_#{key.underscore}",
+          (api_property_definition&.dig('partial')&.present? ? "#{definition&.dig('type')&.underscore}_#{api_property_definition&.dig('partial')&.underscore}" : ''),
           api_property_definition&.dig('partial')&.underscore,
           definition['type'].underscore,
           'default'
@@ -26,9 +26,6 @@ module DataCycleCore
           "#{definition['type'].underscore}_#{key.underscore}",
           "#{definition['type'].underscore}_#{api_property_definition&.dig('partial')&.underscore}",
           "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
-          "#{definition&.dig('compute', 'type')&.underscore}_#{api_property_definition.dig('partial')&.underscore}",
-          definition&.dig('compute', 'type')&.underscore,
-          definition&.dig('virtual', 'type')&.underscore,
           definition['type'].underscore,
           'default'
         ].reject(&:blank?)
@@ -51,27 +48,22 @@ module DataCycleCore
     end
 
     def attribute_key(key, definition)
-      definition.dig('api', 'v4', 'name') || definition.dig('api', 'name') || key.camelize(:lower)
+      api_definition(definition)['name'] || key.camelize(:lower)
     end
 
-    def api_definition(definition, api_version = @api_version)
-      return {} if definition.dig('api').blank?
+    def api_definition(definition, api_version = @api_version, api_context = @api_context)
+      return {} if definition[api_context].blank?
 
-      definition['api'].except('v1', 'v2', 'v3', 'v4').merge(definition.dig('api', "v#{api_version}") || {})
+      definition[api_context].reject { |k, _v| k.to_s.match?(/v\d+/) }.merge(definition.dig(api_context, "v#{api_version}") || {})
     end
 
-    def attribute_disabled?(definition, api_version = @api_version)
-      return definition.dig('api', "v#{api_version}", 'disabled') if definition.dig('api', "v#{api_version}")&.key?('disabled')
-      definition.dig('api', 'disabled') || false
+    def attribute_disabled?(definition, api_version = @api_version, api_context = @api_context)
+      api_definition(definition, api_version, api_context)['disabled'] || false
     end
 
     def included_attribute?(name, attribute_list)
       return if attribute_list.blank?
       attribute_list.map { |item| item.first == name }.inject(&:|)
-    end
-
-    def virtual_attribute(content, key, definition, language)
-      DataCycleCore::Utility::Virtual::Base.virtual_values(key, definition, content, language)
     end
 
     def subtree_for(name, attribute_list)
@@ -90,11 +82,27 @@ module DataCycleCore
       (content.embedded? && options.dig(:translatable_embedded)) || content.translatable? || options.dig(:languages).include?(content.first_available_locale.to_s)
     end
 
+    def ordered_api_properties(validation:, type: nil)
+      return if validation.nil? || validation['properties'].blank?
+
+      validation['properties']
+        .sort_by { |_, prop| prop['sorting'] }
+        .filter do |key, prop|
+          next false if INTERNAL_PROPERTIES.include?(key) || prop['sorting'].blank?
+          next false if type.present? && prop['type'] != type
+          next false if attribute_disabled?(prop) && prop['type'] != 'linked'
+
+          true
+        end
+    end
+
     def load_value_object(content, key, value, languages, definition = nil)
       data_value = nil
-      single_value = !content.translatable_property_names.include?(key) || (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first))
+
+      return api_value_format(value, definition) unless content.translatable_property_names.include?(key)
+      single_value = (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first))
       if single_value
-        data_value = api_value_format(value, definition)
+        data_value = I18n.with_locale(Array.wrap(languages).first) { api_value_format(content.send(key + '_overlay'), definition) }
       else
         data_value = []
 
@@ -152,9 +160,9 @@ module DataCycleCore
     def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil, full = nil, linked_filter_id = nil, is_linked = false, depth = 0)
       include_params = is_linked ? include_parameters.dup << 'is_linked' : include_parameters
       if item.is_a?(DataCycleCore::Thing)
-        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{linked_filter_id}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{item.cache_valid_since.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{linked_filter_id}"
       elsif item.is_a?(DataCycleCore::Thing::History)
-        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{item.cache_valid_since.to_i}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias)
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at.to_i}_#{include_params.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
       elsif item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
@@ -171,7 +179,7 @@ module DataCycleCore
       tree_params = classification_trees&.compact&.sort&.join(',')
 
       if item.is_a?(DataCycleCore::Thing) || item.is_a?(DataCycleCore::Thing::History)
-        key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_include/#{include_params}_fields/#{field_params}_lsf/#{linked_stored_filter_id}_trees/#{tree_params}"
+        key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{item.cache_valid_since.to_i}_include/#{include_params}_fields/#{field_params}_lsf/#{linked_stored_filter_id}_trees/#{tree_params}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias) || item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
         key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_include/#{include_params}_fields/#{field_params}_trees/#{tree_params}_#{full}"
       else

@@ -1,6 +1,6 @@
 <a data-toggle="download_zip_<%= content.id %>"
    class="<%= 'button-prime small ' unless content.class.to_s == 'DataCycleCore::StoredFilter' %>download-content-link"
-   title="<%= t('actions.download_zip', locale: active_ui_locale) %>">
+   data-dc-tooltip="<%= t('actions.download_zip', locale: active_ui_locale) %>">
   <i class="fa fa-file-archive-o" aria-hidden="true"></i>
 </a>
 

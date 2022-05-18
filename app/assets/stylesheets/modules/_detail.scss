@@ -106,8 +106,9 @@
             &.remote-render,
             &.remote-rendering,
             &.remote-render-failed {
-              box-shadow: 0 0 1px $dark-gray;
+              box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
               padding: 2.2rem 1rem 1rem 1rem;
+              border-radius: $global-radius;
 
               &::before {
                 margin-top: 2.2rem;
@@ -143,8 +144,15 @@
 
         .detail-type {
           position: relative;
-          box-shadow: 0 0 1px $dark-gray;
+          box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
           padding: 2.2rem 1rem 1rem 1rem;
+          border-radius: $global-radius;
+          min-width: 150px;
+          background-color: $white;
+
+          .detail-type {
+            background-color: transparent;
+          }
 
           &.has-changes:not(.geographic),
           &.has-changes.geographic .map-info {
@@ -185,6 +193,22 @@
 
                 background-color: rgba($alert-color, 0.1) !important;
                 box-shadow: 0 0 1px $alert-color;
+              }
+
+              &.irrelevant {
+                &::after {
+                  display: none;
+                }
+
+                background-color: rgba($light-gray, 0.5) !important;
+                background-image: repeating-linear-gradient(
+                  135deg,
+                  transparent,
+                  transparent 35px,
+                  rgba(255, 255, 255, 0.5) 35px,
+                  rgba(255, 255, 255, 0.5) 70px
+                );
+                opacity: 0.7;
               }
             }
 
@@ -232,7 +256,9 @@
           }
 
           > div:not(.detail-type, .map-info, .geographic) {
-            margin-bottom: 1rem;
+            &:not(:last-child) {
+              margin-bottom: 1rem;
+            }
           }
 
           .detail-type {
@@ -241,8 +267,9 @@
 
             &.object,
             &.embedded {
-              box-shadow: 0 0 1px $dark-gray;
+              box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
               padding: 2.2rem 1rem 1rem 1rem;
+              border-radius: $global-radius;
 
               > .detail-label {
                 position: absolute;
@@ -256,19 +283,20 @@
           }
 
           &.media {
+            position: relative;
+            text-align: left;
+            padding-top: 2.5rem;
+
             .media-thumbs {
               display: flex;
             }
-
-            position: relative;
-            text-align: left;
           }
 
           .detail-label {
             position: absolute;
             left: 0;
             top: 0;
-            background: inherit;
+            background: transparent;
             color: $dark-gray;
             padding: 0.4rem 0.7rem;
 
@@ -303,22 +331,65 @@
   }
 }
 
-.detail-header-info.diff {
-  display: flex;
-  flex-wrap: wrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.content-diff-wrapper {
+  .content-diff-header {
+    margin-top: 1rem;
 
-  .meta-data-splitter {
-    flex: 0;
-    padding: 0 1rem;
+    .detail-header-info.diff {
+      display: flex;
+      background: rgba($light-gray, 0.5);
+      padding: 1rem;
+      box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+      border-radius: $global-radius;
+
+      .meta-data-splitter {
+        flex: 0;
+        padding: 0 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .fa {
+          font-size: 1.6rem;
+          line-height: 1.2rem;
+        }
+
+        a {
+          display: flex;
+          align-items: center;
+
+          &:hover .fa::before {
+            content: '\f0ec';
+          }
+        }
+      }
+
+      .history-different-locales {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 0.5rem;
+        color: $warning-color;
+
+        .fa {
+          font-size: 1.4rem;
+        }
+      }
+
+      .metadata {
+        position: relative;
+        flex: 1;
+
+        .diff-header {
+          cursor: pointer;
+        }
+      }
+    }
   }
 
-  .metadata {
-    flex: 1;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  .detail-content-wrapper {
+    padding-top: 1rem;
+    border-top: 1px solid rgba($light-gray, 0.5);
   }
 }
 

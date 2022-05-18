@@ -40,7 +40,7 @@ module DataCycleCore
           max_count: 1,
           mode: 'full'
         }
-        @external_source_f = DataCycleCore::ExternalSystem.find_by(name: 'Feratel VCloud')
+        @external_source_f = DataCycleCore::ExternalSystem.find_by(name: 'Feratel')
         @external_source_oa = DataCycleCore::ExternalSystem.find_by(name: 'OutdoorActive')
 
         download_from_local_json(@external_source_f, 'feratel', true)
@@ -50,7 +50,7 @@ module DataCycleCore
       end
 
       after(:all) do
-        DataCycleCore::MongoHelper.drop_mongo_db('Feratel VCloud')
+        DataCycleCore::MongoHelper.drop_mongo_db('Feratel')
         DataCycleCore::MongoHelper.drop_mongo_db('OutdoorActive')
       end
 

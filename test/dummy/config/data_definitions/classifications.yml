@@ -448,3 +448,5 @@
 - ActionTypes | all:
     - Download **https://schema.org/DownloadAction
     - View **https://schema.org/ViewAction
+
+- Dateiformate | all:

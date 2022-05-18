@@ -156,7 +156,7 @@ module DataCycleCore
         def date_time_array?(data)
           false unless data.is_a?(::Array)
           data.each do |item|
-            return false unless item.date_time?
+            return false unless date_time?(item)
           end
           true
         end

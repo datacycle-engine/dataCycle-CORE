@@ -9,7 +9,7 @@ module DataCycleCore
         can [:become, :show_representation_of, :change_ui_locale], DataCycleCore::User
         can :manage, DataCycleCore::ClassificationTreeLabel
         can :manage, DataCycleCore::ClassificationAlias
-        # can :update, DataCycleCore::DataAttribute
+        # can :update, DataCycleCore::DataAttribute if Rails.env.development?
         can [:update, :destroy, :show_admin_panel], DataCycleCore::Thing
         can [:bulk_edit, :bulk_delete], DataCycleCore::WatchList
         can :api, DataCycleCore::StoredFilter

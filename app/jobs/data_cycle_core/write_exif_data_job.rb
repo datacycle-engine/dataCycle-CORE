@@ -67,11 +67,15 @@ module DataCycleCore
       return unless exif_data.changed?
 
       exif_data.save
+      udpate_cache_entry(thing)
       update_variants(thing, updated_values)
     end
 
     def update_variants(thing, updated_values)
       image_variant_property_names = thing.name_property_selector { |definition| definition['type'] == 'embedded' && definition['template_name'] == 'ImageVariant' }
+
+      return if image_variant_property_names.blank?
+
       image_variants = thing.send(image_variant_property_names.first)
 
       I18n.with_locale(thing.first_available_locale) do
@@ -87,9 +91,27 @@ module DataCycleCore
             exif_data[k] = v
           end
 
-          exif_data.save if exif_data.changed?
+          next unless exif_data.changed?
+
+          exif_data.save
+          udpate_cache_entry(variant)
         end
       end
+    end
+
+    def udpate_cache_entry(thing)
+      headers = {
+        'x-invalidate-pattern' => "/things/#{thing.id}",
+        'Host' => 'docker-varnish'
+      }
+
+      client = Faraday.new
+      request = client.build_request(:ban) do |req|
+        req.url('http://varnish')
+        req.headers.update(headers)
+      end
+
+      client.builder.build_response(client, request)
     end
   end
 end

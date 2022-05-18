@@ -1,7 +1,22 @@
-<span class="diff metadata">
-  <span class="type <%= content.template_name.underscore_blanks %>">
-    <%= content.translated_template_name(active_ui_locale) %> (<%= I18n.locale %>)
-  </span>
+<% random_id = SecureRandom.hex(10) %>
 
-  <%= history_version_html(content) %>
-</span>
+<div class="diff metadata">
+  <div class="diff-header" data-toggle="<%= random_id %>">
+    <span class="type <%= local_assigns[source_parameter].template_name.underscore_blanks %>">
+      <%= local_assigns[source_parameter].translated_template_name(active_ui_locale) %> (<%= I18n.locale %>)
+    </span>
+
+    <%= history_version_html(local_assigns[source_parameter]) %>
+  </div>
+
+  <div class="dropdown-pane no-bullet bottom compare-contents-dropdown"
+    id="<%= random_id %>"
+    data-dropdown
+    data-hover="true"
+    data-hover-pane="true">
+    <div class="remote-render"
+        data-remote-path="data_cycle_core/application/compare_sources_dropdown"
+        data-remote-options="<%= to_query_params(local_assigns).to_json %>">
+    </div>
+  </div>
+</div>

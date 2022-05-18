@@ -1,0 +1,168 @@
+*:not(.detail-header-wrapper) {
+  .attribute-group {
+    &:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+
+    > .attribute-group-item {
+      position: relative;
+      display: flex;
+      flex-flow: row wrap;
+      align-items: center;
+      justify-content: center;
+
+      &:not(:last-child) {
+        margin-bottom: 1rem;
+      }
+
+      > .attribute-group-title-link {
+        flex: auto;
+        display: flex;
+        align-items: center;
+        padding: 0;
+        border: 0;
+        background-color: transparent;
+        color: $dark-gray;
+        transition: color 0.1s ease-in-out;
+
+        > .attribute-group-title {
+          display: flex;
+          align-items: center;
+          color: $dark-gray;
+          font-size: 0.9rem;
+          font-weight: normal;
+          line-height: 1rem;
+          transition: color 0.1s ease-in-out;
+          flex: auto;
+
+          > *:not(:last-child) {
+            margin-right: 0.3rem;
+          }
+        }
+
+        &::before {
+          display: none;
+        }
+
+        &::after {
+          content: '\f107';
+          font-family: FontAwesome;
+          font-style: normal;
+          font-weight: normal;
+          display: block;
+          font-size: 1.5rem;
+          line-height: 1rem;
+        }
+      }
+
+      > .buttons {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+        position: relative;
+        top: unset;
+        right: unset;
+
+        > * {
+          padding: 0.5rem;
+
+          &:last-child {
+            margin-right: 0.5rem;
+          }
+        }
+      }
+
+      > .attribute-group-content {
+        border: none;
+        padding: 0;
+        width: 100%;
+      }
+
+      &.is-active {
+        > .attribute-group-title-link::after {
+          content: '\f106';
+        }
+      }
+    }
+
+    &.has-title,
+    &.collapsible {
+      > .attribute-group-item {
+        border: 1px solid rgba($dark-gray, 0.5);
+        border-radius: $global-radius;
+        box-shadow: 0 0 0 rgba($dark-gray, 0.5);
+        transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+
+        > .attribute-group-title-link {
+          &::after,
+          > .attribute-group-title {
+            padding: 1rem;
+          }
+        }
+
+        > .attribute-group-content {
+          padding: 0 1rem 1rem 1rem;
+        }
+      }
+
+      &.editor > .attribute-group-item:hover {
+        border-color: transparent;
+        box-shadow: 0 0 7px $primary-color;
+
+        > .attribute-group-title-link > .attribute-group-title,
+        > .attribute-group-title-link {
+          color: $primary-color;
+        }
+      }
+    }
+
+    &.one_line,
+    &.two_columns,
+    &.three_columns,
+    &.four_columns {
+      > .attribute-group-item {
+        > .attribute-group-content > .attribute-group-content-element {
+          display: grid;
+          grid-auto-columns: 1fr;
+          grid-gap: 1rem;
+
+          > * {
+            margin: 0 !important;
+
+            > input,
+            > .editor-block {
+              height: 100%;
+            }
+
+            > .v-select {
+              height: 100%;
+
+              > .select2,
+              > .select2 > .selection,
+              > .select2 > .selection > .select2-selection {
+                display: block;
+                height: 100%;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    &.one_line > .attribute-group-item > .attribute-group-content > .attribute-group-content-element {
+      grid-auto-flow: column;
+    }
+
+    &.two_columns > .attribute-group-item > .attribute-group-content > .attribute-group-content-element {
+      grid-template-columns: 50fr 50fr;
+    }
+
+    &.three_columns > .attribute-group-item > .attribute-group-content > .attribute-group-content-element {
+      grid-template-columns: 33fr 33fr 33fr;
+    }
+
+    &.four_columns > .attribute-group-item > .attribute-group-content > .attribute-group-content-element {
+      grid-template-columns: 25fr 25fr 25fr 25fr;
+    }
+  }
+}

@@ -23,10 +23,9 @@
           :format: integer
       :common_copy:
         :label: Common Copy Value
+        :type: number
         :storage_location: value
-        :type: computed
         :compute:
-          :type: number
           :module: Utility::Compute::Common
           :method: copy
           :parameters:

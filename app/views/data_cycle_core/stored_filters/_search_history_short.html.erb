@@ -1,5 +1,5 @@
 <%= render partial: 'data_cycle_core/stored_filters/search_history_short_item',
-            collection: DataCycleCore::StoredFilter.accessible_by(current_ability).order(updated_at: :desc).first(9),
+            collection: current_user.stored_filters.order(updated_at: :desc).first(9),
             as: :stored_filter %>
 
-<li><%= link_to t('data_cycle_core.stored_searches.show_search_history', locale: active_ui_locale), stored_filters_path(anchor: 'searches-history'), class: 'button' %></li>
+<li><%= link_to t('data_cycle_core.stored_searches.show_search_history', locale: active_ui_locale), stored_filters_path, class: 'button' %></li>

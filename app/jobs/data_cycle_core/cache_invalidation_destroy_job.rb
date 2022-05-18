@@ -35,9 +35,10 @@ module DataCycleCore
     def invalidate_things_cache
       return if arguments[3].blank?
 
-      arguments[3].each do |thing_id|
-        DataCycleCore::CacheInvalidationJob.perform_later('DataCycleCore::Thing', thing_id, 'invalidate_self_and_update_search')
-      end
+      things = DataCycleCore::Thing.where(id: arguments[3])
+
+      things.invalidate_all
+      things.update_search_all
     end
   end
 end

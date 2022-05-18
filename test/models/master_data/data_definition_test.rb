@@ -318,12 +318,11 @@ describe DataCycleCore::MasterData::ImportTemplates do
     let(:computed_value_hash) do
       {
         label: 'whatever',
-        type: 'computed',
+        type: 'number',
         storage_location: 'value',
         compute: {
           module: 'Utility::Compute::Math',
           method: 'sum',
-          type: 'number',
           parameters: {
             '0': 'label Property B',
             '1': 'string'
@@ -481,18 +480,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
     it 'checks computed value definition for non existing method' do
       test_hash = computed_value_hash
       test_hash[:compute][:method] = 'WhatEver'
-      assert !validate_property.call(test_hash).success?
-    end
-
-    it 'checks computed value definition for non existing compute property hash' do
-      test_hash = computed_value_hash
-      test_hash.delete(:compute)
-      assert !validate_property.call(test_hash).success?
-    end
-
-    it 'checks computed value definition for non existing target type' do
-      test_hash = computed_value_hash
-      test_hash[:compute][:type] = 'WhatEver'
       assert !validate_property.call(test_hash).success?
     end
   end

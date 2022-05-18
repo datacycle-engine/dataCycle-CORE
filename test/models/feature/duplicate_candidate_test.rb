@@ -130,7 +130,7 @@ module DataCycleCore
     end
 
     test 'duplicates from different external_source get merged correctly' do
-      external_source_f = DataCycleCore::ExternalSystem.find_by(name: 'Feratel VCloud')
+      external_source_f = DataCycleCore::ExternalSystem.find_by(name: 'Feratel')
       external_key_f = SecureRandom.uuid
       external_source_oa = DataCycleCore::ExternalSystem.find_by(name: 'OutdoorActive')
       external_key_oa = SecureRandom.uuid

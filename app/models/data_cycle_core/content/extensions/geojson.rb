@@ -124,7 +124,7 @@ module DataCycleCore
         private
 
         def geojson_cache_key
-          "#{self.class.name.underscore}/#{id}_#{I18n.locale}_#{updated_at.to_i}_#{template_updated_at.to_i}"
+          "#{self.class.name.underscore}/#{id}_#{I18n.locale}_#{updated_at.to_i}_#{cache_valid_since.to_i}"
         end
       end
     end

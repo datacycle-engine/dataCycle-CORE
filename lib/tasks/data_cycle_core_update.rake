@@ -48,19 +48,24 @@ namespace :data_cycle_core do
       before_import = Time.zone.now
       puts "importing new template definitions\n"
       errors, duplicates, mixin_duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
+
       if duplicates.present?
         puts 'INFO: the following templates are overwritten:'
         ap duplicates
       end
+
       if mixin_duplicates.present?
         puts 'INFO: the following mixins are overwritten:'
         ap mixin_duplicates
       end
+
       if errors.present?
         puts 'the following errors were encountered during import:'
         ap errors
       end
-      errors.blank? ? puts('[done] ... looks good') : exit(-1)
+
+      errors.blank? ? puts("[done] ... looks good (Duration: #{(Time.zone.now - before_import).round} sec)") : exit(-1)
+
       puts "\nchecking for usage of not translatable embedded"
       templates = DataCycleCore::MasterData::ImportTemplates.find_not_translatable_embedded
       if templates.present?
@@ -74,11 +79,11 @@ namespace :data_cycle_core do
 
       outdated_templates = DataCycleCore::MasterData::ImportTemplates.updated_template_statistics(before_import)
       if outdated_templates.present?
-        puts "\nWARNING: the following templates are not updated:"
-        puts "#{'template_name'.ljust(20)} | #{'template_updated_at'.ljust(38)} | #{'#things'.ljust(12)} | #{'#things_hist'.ljust(12)}"
+        puts "\nWARNING: the following templates were not updated:"
+        puts "#{'template_name'.ljust(20)} | #{'cache_valid_since'.ljust(38)} | #{'#things'.ljust(12)} | #{'#things_hist'.ljust(12)}"
         puts '-' * 92
         outdated_templates.each do |key, value|
-          puts "#{key.to_s.ljust(20)} | #{value[:template_updated_at].to_s(:long_usec).ljust(38)} | #{value[:count].to_s.rjust(12)} | #{value[:count_history].to_s.rjust(12)}"
+          puts "#{key.to_s.ljust(20)} | #{value[:cache_valid_since].to_s(:long_usec).ljust(38)} | #{value[:count].to_s.rjust(12)} | #{value[:count_history].to_s.rjust(12)}"
         end
       end
       puts "\n"
@@ -116,65 +121,6 @@ namespace :data_cycle_core do
         data_item.destroy_content
       end
       puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-    end
-
-    desc 'replace the data-definitions of all data-types in the Database with the templates in the Database'
-    task :update_all_templates_sql, [:history] => [:environment] do |_, args|
-      temp = Time.zone.now
-      puts "#{'template_name'.ljust(41)} | #updated | of total | process time/s \r"
-      puts '-' * 80 + " \r"
-      DataCycleCore::Thing.where(template: true).each do |template_object|
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_template_sql"].invoke(template_object.template_name, args.fetch(:history, false))
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_template_sql"].reenable
-      end
-      puts '-' * 80 + " \r"
-      puts "total time: #{TimeHelper.format_time(Time.zone.now - temp, 6, 6, 's')} \r"
-    end
-
-    desc 'replace a given data-definition with its recent template'
-    task :update_template_sql, [:template_name, :history] => [:environment] do |_, args|
-      template = DataCycleCore::Thing.find_by(template_name: args[:template_name], template: true)
-      total_items = DataCycleCore::Thing.where(template_name: args[:template_name], template: false).count
-
-      if template.nil?
-        puts "ERROR: template [#{args[:template_name]}] not found. The following templates are known to the system:"
-        puts DataCycleCore::Thing.where(template: true).map(&:template_name)
-        exit(-1)
-      end
-
-      temp = Time.zone.now
-
-      update_sql = <<-EOS
-        UPDATE things
-        SET
-          schema = '#{template.schema.to_json}',
-          boost = #{template.schema.dig('boost') || 'NULL'},
-          content_type = '#{template.schema.dig('content_type')}',
-          template_updated_at = '#{Time.zone.now}'
-        WHERE template_name='#{args[:template_name]}' and template=false
-      EOS
-
-      affected_items = ActiveRecord::Base.connection.update(ActiveRecord::Base.send(:sanitize_sql_for_conditions, update_sql))
-
-      puts "#{args[:template_name].ljust(41)} | #{(affected_items || 0).to_s.rjust(8)} | #{(total_items || 0).to_s.rjust(8)} | #{TimeHelper.format_time(Time.zone.now - temp, 5, 6, 's')} \r"
-
-      next unless args.fetch(:history, false).to_s == 'true'
-
-      # history update
-      total_history_items = DataCycleCore::Thing::History.where(template_name: args[:template_name], template: false).count
-      temp = Time.zone.now
-
-      update_history_sql = <<-EOS
-        UPDATE thing_histories
-        SET schema = '#{template.schema.to_json}',
-        boost = #{template.schema.dig('boost') || 'NULL'},
-        content_type = '#{template.schema.dig('content_type')}'
-        WHERE template_name='#{args[:template_name]}' and template=false
-      EOS
-
-      affected_history_items = ActiveRecord::Base.connection.update(ActiveRecord::Base.send(:sanitize_sql_for_conditions, update_history_sql))
-
-      puts "#{'thing_histories'.ljust(15)} | #{args[:template_name].ljust(25)} | #{(affected_history_items || 0).to_s.rjust(7)} | #{(total_history_items || 0).to_s.rjust(7)} | #{TimeHelper.format_time(Time.zone.now - temp, 5, 6, 's')} \r"
     end
 
     desc 'auto_tag all images (without Cloud Vision Tags)'

@@ -189,9 +189,7 @@ module DataCycleCore
     end
 
     def translated_locales
-      @translated_locales ||= begin
-        (name_i18n&.deep_reject { |_, v| v.blank? }&.symbolize_keys&.keys || []).concat(description_i18n&.deep_reject { |_, v| v.blank? }&.symbolize_keys&.keys || []).uniq
-      end
+      @translated_locales ||= (name_i18n&.deep_reject { |_, v| v.blank? }&.symbolize_keys&.keys || []).concat(description_i18n&.deep_reject { |_, v| v.blank? }&.symbolize_keys&.keys || []).uniq
     end
     alias available_locales translated_locales
 
@@ -223,11 +221,16 @@ module DataCycleCore
 
       new_path = Array.wrap(new_path)
 
-      ctl = DataCycleCore::ClassificationTreeLabel.find_by(name: new_path.first)
+      if new_path.first.uuid?
+        new_ca = DataCycleCore::ClassificationAlias.find_by(id: new_path.first)
+        ctl = new_ca&.classification_tree_label
+      else
+        ctl = DataCycleCore::ClassificationTreeLabel.find_by(name: new_path.first)
+
+        new_ca = DataCycleCore::ClassificationAlias.includes(:classification_alias_path).find_by(classification_alias_paths: { full_path_names: new_path.reverse })
+      end
 
       return if ctl.nil?
-
-      new_ca = DataCycleCore::ClassificationAlias.includes(:classification_alias_path).find_by(classification_alias_paths: { full_path_names: new_path.reverse })
 
       ActiveRecord::Base.transaction do
         if new_ca.nil?
@@ -371,9 +374,8 @@ module DataCycleCore
     end
 
     def invalidate_things_cache
-      linked_contents.ids.each do |thing_id|
-        DataCycleCore::CacheInvalidationJob.perform_later('DataCycleCore::Thing', thing_id, 'invalidate_self_and_update_search')
-      end
+      linked_contents.invalidate_all
+      linked_contents.update_search_all
     end
 
     def clean_stored_filters

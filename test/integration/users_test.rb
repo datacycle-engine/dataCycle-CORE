@@ -118,7 +118,8 @@ module DataCycleCore
 
       assert_response :success
       users = JSON.parse(@response.body)
-      assert_equal users.first['email'], 'admin@datacycle.at'
+
+      assert_equal 'admin@datacycle.at', users.first['name']
     end
 
     test 'become specific user' do

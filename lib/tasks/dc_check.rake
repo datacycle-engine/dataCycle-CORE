@@ -63,7 +63,7 @@ namespace :dc do
         count = DataCycleCore::Thing.where(template: false, template_name: template.template_name).count
         next if count.positive?
         warnings = true
-        puts "#{('# ' + template.template_name).ljust(41)} | #{template.content_type}| #{count} | #{template.template_updated_at} \r"
+        puts "#{('# ' + template.template_name).ljust(41)} | #{template.content_type}| #{count} | #{template.cache_valid_since} \r"
       end
       if warnings
         puts "\n[warning] ... unused data_definitions found"

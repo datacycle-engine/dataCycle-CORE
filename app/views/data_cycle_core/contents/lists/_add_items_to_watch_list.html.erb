@@ -6,19 +6,20 @@
     <%= hidden_field_tag :relation_a, relation_a %>
     <%= hidden_field_tag :content_id, content.id %>
     <div class="validation-container form-element">
-      <%= f.label :watch_list, DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) %>
+      <%= f.label :watch_list_id, ActionView::OutputBuffer.new("#{DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale)} #{tag.span('*', class: 'required-field-marker')}") %>
       <div class="v-select white">
-        <%= f.collection_select(:watch_list,
-          DataCycleCore::WatchList.accessible_by(current_ability).conditional_my_selection.order(updated_at: :desc),
-          :id,
-          :name,
+        <%= f.select(:watch_list_id,
+          [],
           {},
           {
-            class: 'single-select',
+            required: true,
+            class: 'async-select',
             id: "add-items-to-watch-list-select-#{SecureRandom.hex(10)}",
             data: {
-              allow_clear: false,
-              tags: true
+              tags: true,
+              max: 20,
+              placeholder: '',
+              search_path: search_watch_lists_path
             }
           }) %>
       </div>

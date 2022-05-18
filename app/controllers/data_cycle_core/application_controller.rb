@@ -5,8 +5,7 @@ module DataCycleCore
     include DataCycleCore::ParamsResolver
     include DataCycleCore::ErrorHandler
     protect_from_forgery with: :exception
-    before_action :load_watch_lists
-    before_action :load_stored_filters
+    before_action :load_watch_lists, if: -> { params[:watch_list_id].present? }
     before_action :better_errors_hack, if: -> { Rails.env.development? }
     before_action :flashes_from_params, if: -> { params[:flash].present? }
 
@@ -15,11 +14,7 @@ module DataCycleCore
     end
 
     def load_watch_lists
-      @watch_list = DataCycleCore::WatchList.find_by(id: params[:watch_list_id]) if params[:watch_list_id]
-    end
-
-    def load_stored_filters
-      @accessible_stored_filters = DataCycleCore::StoredFilter.accessible_by(current_ability)
+      @watch_list = DataCycleCore::WatchList.find_by(id: params[:watch_list_id])
     end
 
     def current_ability

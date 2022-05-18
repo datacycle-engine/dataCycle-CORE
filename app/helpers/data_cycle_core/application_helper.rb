@@ -140,7 +140,7 @@ module DataCycleCore
     end
 
     def content_view_cache_key(item:, mode:, watch_list:, locale: 'de')
-      "#{item.class.name.underscore}_#{item.id}_#{locale}_#{item.updated_at&.to_i}_#{item.template_updated_at&.to_i}_#{mode}_#{watch_list&.id}_#{active_ui_locale}"
+      "#{item.class.name.underscore}_#{item.id}_#{locale}_#{item.updated_at&.to_i}_#{item.cache_valid_since&.to_i}_#{mode}_#{watch_list&.id}_#{active_ui_locale}"
     end
 
     def new_content_select_options(query: DataCycleCore::Thing.all, query_methods: [], content: nil, scope: nil, limit: nil, ordered_array: nil)

@@ -117,7 +117,7 @@ Gem::Specification.new do |s|
   # URI (https://tools.ietf.org/html/rfc3986) and IRI (https://tools.ietf.org/html/rfc3987) Parser
   s.add_dependency 'addressable'
 
-  s.add_dependency 'puma'
+  s.add_dependency 'puma', '< 6'
   s.add_dependency 'puma-status'
   s.add_dependency 'puma_worker_killer'
 
@@ -127,10 +127,6 @@ Gem::Specification.new do |s|
 
   # premailer
   s.add_dependency 'premailer'
-
-  # support for ED25519 SSH Keys
-  s.add_dependency 'bcrypt_pbkdf'
-  s.add_dependency 'ed25519'
 
   # Better distance_of_time_in_words (https://github.com/radar/distance_of_time_in_words)
   s.add_dependency 'dotiw'

@@ -1,6 +1,5 @@
 import cloneDeep from 'lodash/cloneDeep';
 import unionBy from 'lodash/unionBy';
-import get from 'lodash/get';
 import domElementHelpers from '../../helpers/dom_element_helpers';
 import uploadDuplicate from '../../templates/uploadDuplicate';
 import MimeTypes from 'mime';
@@ -331,16 +330,20 @@ class AssetFile {
         data_hash: data_hash
       },
       dataType: 'json'
-    }).then(data => {
-      const blankValues = this._attributesWithBlankDefaultValues();
-      const defaultValues = Object.fromEntries(Object.entries(data).filter(([key]) => blankValues.includes(key)));
+    })
+      .then(data => {
+        const blankValues = this._attributesWithBlankDefaultValues();
+        const defaultValues = Object.fromEntries(Object.entries(data).filter(([key]) => blankValues.includes(key)));
 
-      for (const value of Object.values(defaultValues)) {
-        this._setAttributeFieldValues(value);
-      }
+        for (const value of Object.values(defaultValues)) {
+          this._setAttributeFieldValues(value);
+        }
 
-      this._updateAttributeFieldValues();
-    });
+        this._updateAttributeFieldValues();
+      })
+      .catch(e => {
+        if (e.status != 404) console.error(e.statusText);
+      });
   }
   _renderEditOverlay() {
     this.uploader.remoteOptions.search_required = false;

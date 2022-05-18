@@ -51,18 +51,15 @@ module DataCycleCore
             data = nil
             mime_type = nil
             remote = false
-            if DataCycleCore::Feature::ImageProxy.enabled? && DataCycleCore::Feature::ImageProxy.supported_content_type?(content)
+            if DataCycleCore::Feature::ImageProxy.enabled? && DataCycleCore::Feature::ImageProxy.supported_content_type?(content) && version != 'original'
 
               proxy_format = transformation&.dig('format')
 
               case version
               when 'thumb_preview'
                 proxy_variant = 'thumb'
-              when 'original'
-                proxy_variant = 'original'
-                proxy_variant = 'default' if proxy_format.present?
               else
-                proxy_variant = 'web'
+                proxy_variant = version
               end
 
               if proxy_format.present?

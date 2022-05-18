@@ -1,19 +1,32 @@
 .edit-content-form {
   .form-element.asset {
-    background: $light-gray;
-    border: 1px solid $light-gray;
-    padding: 2.5rem 0.5rem 1rem 0.5rem;
-    transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
+    padding: 2rem 1rem 1rem;
 
-    &:hover {
-      box-shadow: 0 0 7px $primary-color;
+    .asset-list {
+      margin: 0;
+
+      &.has-items {
+        padding-top: 1rem;
+      }
     }
 
-    .content-uploader {
-      .asset-selector-button {
-        width: auto;
-        margin: 0 0 0 0.5rem;
+    .asset-editor-buttons {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+
+      > * {
+        margin-left: 0.5rem;
       }
+    }
+
+    .asset-selector-button,
+    .image-editor-button {
+      padding: 0.3rem 0.5rem;
+      margin: 0;
     }
   }
 }
@@ -45,7 +58,7 @@
   .scrollable-asset-list {
     overflow-y: auto;
     flex: 1;
-    padding-top: 1rem;
+    padding: 1rem 0.5rem 0;
   }
 
   .buttons {
@@ -96,7 +109,7 @@
         max-width: 100px;
         margin: 0.3rem;
         padding: 0;
-        background: white;
+        background: $white;
         transition: all 0.2s ease-in-out;
 
         > a {
@@ -127,41 +140,44 @@
 }
 
 ul.asset-list {
-  display: flex;
-  flex-flow: row wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(calc(190px + 1.3rem), 1fr));
+  grid-gap: 1rem;
+
   h4.list-title {
-    width: 100%;
+    grid-column: 1/-1;
   }
+
   .asset-upload-date {
     display: none;
     font-size: 0.9rem;
     font-style: italic;
   }
+
   .asset-type {
+    font-size: 0.9rem;
+
     .asset-checkbox {
       display: none;
-      color: white;
+      color: $white;
       font-size: 1.1rem;
       line-height: 0.9rem;
       border: 1px solid rgba($dark-gray, 0.5);
-      background-color: white;
-      border-radius: 5px;
+      background-color: $white;
+      border-radius: $global-radius;
       margin-right: 0.2rem;
     }
-    font-size: 0.9rem;
   }
+
   > li {
     position: relative;
     display: block;
-    flex: auto;
     word-wrap: break-word;
-    width: 250px;
-    max-width: 300px;
     padding: 0.5rem;
-    margin: 0.5rem;
     background-color: rgba($white, 0.5);
-    box-shadow: 0 0 1px rgba($black, 0.9);
+    box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
     transition: all 0.1s;
+    border-radius: $global-radius;
 
     .asset-deselect,
     .asset-destroy {
@@ -177,15 +193,18 @@ ul.asset-list {
 
     .inner > span {
       display: block;
+
       &.asset-title {
         font-size: 1rem;
         line-height: 1.5;
         font-weight: 200;
       }
+
       &.asset-file-link {
         float: right;
         margin-left: 0.5rem;
       }
+
       &.asset-duplicate-warning {
         display: none;
       }
@@ -193,6 +212,7 @@ ul.asset-list {
     .inner > .thumb {
       margin-top: 0.5rem;
       text-align: center;
+
       img {
         max-height: 300px;
       }
@@ -225,6 +245,7 @@ ul.asset-list {
   &.selectable {
     > li:not(.locked) {
       cursor: pointer;
+
       .asset-type {
         .asset-checkbox {
           display: inline;
@@ -232,15 +253,17 @@ ul.asset-list {
       }
 
       &.active {
+        border-color: $primary-color;
+        background-color: $primary-color;
+        box-shadow: 0 0 1px rgba($primary-color, 1);
+        color: $white;
+
         .asset-type {
           .asset-checkbox {
             color: $black;
           }
         }
-        border-color: $primary-color;
-        background-color: $primary-color;
-        box-shadow: 0 0 1px rgba($primary-color, 1);
-        color: $white;
+
         a {
           color: $white;
         }
@@ -270,6 +293,7 @@ ul.asset-list {
     overflow: auto;
     height: calc(100vh - 10.5rem);
     padding-right: 0.5rem;
+
     .drag-and-drop-field {
       height: 8rem;
       margin-top: 1rem;
@@ -283,21 +307,21 @@ ul.asset-list {
     .content-upload-form {
       .buttons {
         position: absolute;
-        display: flex;
         bottom: 0;
         left: 0;
         width: 100%;
         padding: 1rem;
-        background-color: white;
+        background-color: $white;
         text-align: right;
         z-index: 1;
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+        grid-gap: 1rem;
+
         .button,
         button {
           margin: 0;
-          flex: 1;
-          &:not(:last-child) {
-            margin-right: 1rem;
-          }
         }
       }
     }
@@ -306,23 +330,28 @@ ul.asset-list {
   .accordion {
     .accordion-item {
       padding: 0;
+
       &:first-child {
         margin-top: 0;
       }
+
       &.is-active {
         .accordion-title {
           border-bottom: 1px solid rgba($dark-gray, 0.25);
         }
       }
+
       .accordion-title {
         color: $black;
         font-style: normal;
         font-size: 1.5rem;
         font-weight: 200;
+
         &::before {
           margin-top: -0.9rem;
         }
       }
+
       .accordion-title,
       .accordion-content {
         border: none;
@@ -353,6 +382,7 @@ ul.asset-list {
     }
   }
 }
+
 .file-for-upload {
   position: relative;
   display: block;
@@ -362,6 +392,7 @@ ul.asset-list {
   flex-flow: column;
   transition: all 0.3s;
   background: rgba($dark-gray, 0.05);
+  border-radius: $global-radius;
 
   .new-asset-attributes {
     flex: auto;
@@ -380,7 +411,7 @@ ul.asset-list {
 
         .file-info {
           display: flex;
-          flex-flow: row;
+          flex-flow: row wrap;
           font-size: 0.9rem;
           flex: auto;
           margin: 0;
@@ -389,10 +420,11 @@ ul.asset-list {
           padding: 0.5rem;
           color: $dark-gray;
 
-          span.notice {
+          span.notice,
+          span.error {
+            position: relative;
             white-space: nowrap;
-            border-left: 1px solid $medium-gray;
-            padding-left: 0.5rem;
+            width: 100%;
           }
 
           > span {
@@ -414,6 +446,7 @@ ul.asset-list {
 
   &[data-open] {
     cursor: pointer;
+
     &:hover {
       border-color: $dark-gray;
       background: rgba($light-gray, 0.5);
@@ -446,6 +479,7 @@ ul.asset-list {
     .fa {
       font-size: 4rem;
     }
+
     img,
     object {
       max-width: 100%;
@@ -487,6 +521,7 @@ ul.asset-list {
   .file-title-label {
     position: relative;
     padding-left: 1.2rem;
+
     .fa-pencil {
       position: absolute;
       top: 0;
@@ -548,8 +583,14 @@ ul.asset-list {
   }
   .file-info {
     .possible-duplicates {
+      cursor: pointer;
+
       i {
         font-size: 0.9rem;
+      }
+
+      a {
+        text-decoration: underline;
       }
     }
     .dropdown-pane {
@@ -610,6 +651,7 @@ ul.asset-list {
       display: inline-block;
       margin-right: 1rem;
       cursor: pointer;
+
       input {
         margin: 0 0.3rem 0 0;
         cursor: pointer;

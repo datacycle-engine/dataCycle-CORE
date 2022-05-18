@@ -2,7 +2,7 @@
 
 unless content.schema.nil?
 
-  ordered_validation_properties(validation: content.schema).each do |key, prop|
+  ordered_api_properties(validation: content.schema).each do |key, prop|
     next if options[:hidden_attributes].include?(key) || options[:combined_attributes].include?(key) || (@mode_parameters.include?('minimal') && !prop.dig('api', 'minimal'))
     next if content.schema&.dig('properties', key, 'link_direction') == 'inverse'
     value = content.try(key.to_sym)

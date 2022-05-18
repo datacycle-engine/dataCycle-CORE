@@ -8,11 +8,7 @@ module DataCycleCore
         get_webhooks_for(action, data).each do |external_system, webhook|
           execute(external_system, webhook, data, action)
         rescue SystemStackError => e
-          ActiveSupport::Notifications.instrument 'webhooks_failed.datacycle', this: {
-            exception: e,
-            action: action,
-            payload: data
-          }
+          Appsignal.set_error(e)
         end
       end
 

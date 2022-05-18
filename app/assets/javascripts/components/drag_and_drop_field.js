@@ -33,6 +33,9 @@ class DragAndDropField {
       });
 
     this.fileField.on('change', e => {
+      e.preventDefault();
+      e.stopPropagation();
+
       this.openUploaderReveal(e.target.files);
     });
   }

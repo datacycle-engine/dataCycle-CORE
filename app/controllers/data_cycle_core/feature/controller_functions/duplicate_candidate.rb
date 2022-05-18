@@ -9,7 +9,7 @@ module DataCycleCore
         included do
           DataCycleCore::Engine.routes.append do
             scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
-              get '/things/:id/merge_with_duplicate/:source_id', action: :merge_with_duplicate, controller: 'things', as: 'merge_with_duplicate_thing' unless has_named_route?(:merge_with_duplicate_thing)
+              get '/things/:id/merge_with_duplicate(/:source_id)', action: :merge_with_duplicate, controller: 'things', as: 'merge_with_duplicate_thing' unless has_named_route?(:merge_with_duplicate_thing)
               post '/things/:id/false_positive_duplicate/:source_id', action: :false_positive_duplicate, controller: 'things', as: 'false_positive_duplicate_thing' unless has_named_route?(:false_positive_duplicate_thing)
             end
           end
@@ -18,9 +18,11 @@ module DataCycleCore
 
         def merge_with_duplicate
           @content = DataCycleCore::Thing.find(merge_params[:id])
-          @split_source = DataCycleCore::Thing.find(merge_params[:source_id])
+          @split_source = DataCycleCore::Thing.find(Array.wrap(merge_params[:source_id]).first)
           @source_locale = source_params[:source_locale] || @split_source.first_available_locale
           authorize!(:merge_duplicates, @content)
+
+          redirect_back(fallback_location: root_path, alert: (I18n.t :cannot_merge_self, scope: [:controllers, :error, :duplicate], locale: helpers.active_ui_locale)) && return if @content.id == @split_source.id
 
           redirect_back(fallback_location: root_path, alert: (I18n.t :type_mismatch, scope: [:controllers, :error, :duplicate], locale: helpers.active_ui_locale)) && return if @content.template_name != @split_source.template_name
 
@@ -62,7 +64,7 @@ module DataCycleCore
         private
 
         def merge_params
-          params.permit(:id, :source_id, :duplicate_id)
+          params.permit(:id, :source_id, :duplicate_id, source_id: [])
         end
 
         def version_name_for_merge(datahash)

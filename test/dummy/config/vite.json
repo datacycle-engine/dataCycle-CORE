@@ -12,6 +12,6 @@
   },
   "test": {
     "autoBuild": true,
-    "publicOutputDir": "assets/dev-build"
+    "publicOutputDir": "assets/test-build"
   }
 }

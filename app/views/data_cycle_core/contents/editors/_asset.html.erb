@@ -2,21 +2,25 @@
 
   <%= attribute_edit_label_tag(**local_assigns) %>
 
-  <% value = value.first if value.is_a?(Array) || value.is_a?(ActiveRecord::Relation) %>
-  <%= render 'data_cycle_core/assets/asset_list',
-      assets: Array(value),
-      class: attribute_editable?(key, definition, options, content) ? 'editable' : nil,
-      key: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_editable" %>
+  <div class="asset-editor-buttons">
+    <% if DataCycleCore::Feature::ImageEditor.allowed?(contextual_content(local_assigns)) %>
+      <%= render 'data_cycle_core/contents/editors/features/image_editor', local_assigns %>
+    <% end %>
 
-  <% if attribute_editable?(key, definition, options, content) %>
-    <%= render 'data_cycle_core/application/new_asset_form',
+    <% if attribute_editable?(key, definition, options, content) %>
+      <%= render 'data_cycle_core/application/new_asset_form',
         key: key,
         key_id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}",
         editable_list_key: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_editable_asset_list",
         asset_type: definition&.dig('asset_type'),
         label: translated_attribute_label(key, definition, content, options) %>
-  <% end %>
-  <% if DataCycleCore::Feature::ImageEditor.allowed?(contextual_content(local_assigns)) %>
-    <%= render 'data_cycle_core/contents/editors/features/image_editor', local_assigns %>
-  <% end %>
+    <% end %>
+  </div>
+
+  <% value = value.first if value.is_a?(Array) || value.is_a?(ActiveRecord::Relation) %>
+
+  <%= render 'data_cycle_core/assets/asset_list',
+      assets: Array(value),
+      class: attribute_editable?(key, definition, options, content) ? 'editable' : nil,
+      key: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_editable" %>
 <% end %>

@@ -11,11 +11,11 @@ module DataCycleCore
             @content = DataCycleCore::V4::DummyDataHelper.create_data('event')
             @article = DataCycleCore::V4::DummyDataHelper.create_data('structured_article')
             @article.set_data_hash(partial_update: true, prevent_history: true, data_hash: { about: [@content.id] })
+            @content.reload
           end
 
           test 'api_v4_thing_path event multilingual in non existing language' do
             assert_full_thing_datahash(@content)
-
             params = {
               id: @content.id,
               language: 'en'
@@ -52,14 +52,14 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['validity_period']) do
               {}
             end
+
             # cc_rel
             assert_attributes(json_validate, required_attributes, ['license', 'attribution_url', 'attribution_name', 'more_permissions', 'license_classification']) do
               # license is overwritten by license_classification
               {
                 'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
-                'cc:attributionUrl' => @content.attribution_url,
-                'cc:attributionName' => @content.attribution_name,
-                'cc:morePermissions' => @content.more_permissions
+                'url' => @content.attribution_url,
+                'copyrightNotice' => @content.copyright_notice_computed
               }
             end
 
@@ -128,7 +128,7 @@ module DataCycleCore
 
           test 'api_v4_thing_path event multilingual in non existing language with fallback to de' do
             assert_full_thing_datahash(@content)
-
+            @content.reload
             params = {
               id: @content.id,
               language: 'de,en'
@@ -197,14 +197,13 @@ module DataCycleCore
             end
 
             # cc_rel
-            assert_translated_attributes(json_validate, required_attributes, ['license', 'use_guidelines', 'attribution_url', 'attribution_name', 'more_permissions', 'license_classification']) do
+            assert_translated_attributes(json_validate, required_attributes, ['license', 'use_guidelines', 'attribution_url', 'attribution_name', 'license_classification']) do
               # license is overwritten by license_classification
               {
                 'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
                 'cc:useGuidelines' => translated_value(@content, 'use_guidelines', ['de']),
-                'cc:attributionUrl' => @content.attribution_url,
-                'cc:attributionName' => @content.attribution_name,
-                'cc:morePermissions' => @content.more_permissions
+                'url' => @content.attribution_url,
+                'copyrightNotice' => @content.copyright_notice_computed
               }
             end
 
@@ -510,8 +509,9 @@ module DataCycleCore
             offer = @content.offers.first
             offer_data_hash_en = DataCycleCore::TestPreparations.load_dummy_data_hash('intangibles', 'v4_offer_en').merge({ 'id' => offer.id })
             data_hash_en['offers'] = [offer_data_hash_en]
-            @content.reload
+
             I18n.with_locale(:en) { @content.set_data_hash(data_hash: @content.get_data_hash.merge(data_hash_en)) }
+            @content.reload
 
             assert_translated_datahash(data_hash_en, @content)
             assert_translated_thing(@content, 'en')
@@ -586,14 +586,13 @@ module DataCycleCore
             end
 
             # cc_rel
-            assert_translated_attributes(json_validate, required_attributes, ['license', 'use_guidelines', 'attribution_url', 'attribution_name', 'more_permissions', 'license_classification']) do
+            assert_translated_attributes(json_validate, required_attributes, ['license', 'use_guidelines', 'attribution_url', 'attribution_name', 'license_classification']) do
               # license is overwritten by license_classification
               {
                 'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
                 'cc:useGuidelines' => translated_value(@content, 'use_guidelines', ['de', 'en']),
-                'cc:attributionUrl' => @content.attribution_url,
-                'cc:attributionName' => @content.attribution_name,
-                'cc:morePermissions' => @content.more_permissions
+                'url' => @content.attribution_url,
+                'copyrightNotice' => @content.copyright_notice_computed
               }
             end
 

@@ -17,7 +17,7 @@ if content.translations.size > 1 && @include_parameters.include?('translations')
         # if translated_object.schema.present?
         #
         #   json.content_partial! 'context', content: translated_object
-        #   ordered_validation_properties(validation: translated_object.schema).each do |key, prop|
+        #   ordered_api_properties(validation: translated_object.schema).each do |key, prop|
         #     object_value = translated_object.try(key.to_sym)
         #     json.partial!(*(render_api_attribute key: key, definition: prop, value: object_value, parameters: { options: options }, content: translated_object))
         #   end
@@ -38,7 +38,7 @@ else
       # if object.schema.present?
       #
       #   json.content_partial! 'context', content: object
-      #   ordered_validation_properties(validation: object.schema).each do |key, prop|
+      #   ordered_api_properties(validation: object.schema).each do |key, prop|
       #     object_value = object.try(key.to_sym)
       #     json.partial!(*(render_api_attribute key: key, definition: prop, value: object_value, parameters: { options: options }, content: object))
       #   end
