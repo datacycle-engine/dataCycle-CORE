@@ -57,7 +57,7 @@ module DataCycleCore
                       http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
                       https: Rails.application.config.force_ssl
                     ).render(
-                      assigns: { contents: pagination_contents, language: language, include_parameters: [], mode_parameters: [] ,api_version: 3, api_context: 'api' },
+                      assigns: { contents: pagination_contents, language: language, include_parameters: [], mode_parameters: [], api_version: 3, api_context: 'api' },
                       template: 'data_cycle_core/api/v3/contents/index',
                       layout: false
                     ),
