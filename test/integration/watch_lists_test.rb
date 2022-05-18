@@ -129,11 +129,7 @@ module DataCycleCore
 
     test 'add related content to watch_list' do
       post add_related_items_watch_lists_path, xhr: true, params: {
-<<<<<<< HEAD
         watch_list: @watch_list.id,
-=======
-        watch_list_id: @watch_list.id,
->>>>>>> old/develop
         template_name: 'Bild',
         relation_a: 'author',
         content_id: @organization.id
@@ -160,11 +156,7 @@ module DataCycleCore
 
     test 'add related content to new watch_list' do
       post add_related_items_watch_lists_path, xhr: true, params: {
-<<<<<<< HEAD
         watch_list: 'TestWatchList2',
-=======
-        watch_list_id: 'TestWatchList2',
->>>>>>> old/develop
         template_name: 'Bild',
         relation_a: 'author',
         content_id: @organization.id

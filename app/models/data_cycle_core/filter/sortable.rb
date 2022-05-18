@@ -28,28 +28,14 @@ module DataCycleCore
       def sort_boost(ordering)
         reflect(
           @query
-<<<<<<< HEAD
             .order(sanitized_order_string('things.boost', ordering))
-=======
-            .order(
-              sanitized_order_string('things.boost', ordering),
-              thing[:id].desc
-            )
->>>>>>> old/develop
         )
       end
 
       def sort_updated_at(ordering)
         reflect(
           @query
-<<<<<<< HEAD
             .order(sanitized_order_string('things.updated_at', ordering))
-=======
-            .order(
-              sanitized_order_string('things.updated_at', ordering),
-              thing[:id].desc
-            )
->>>>>>> old/develop
         )
       end
       alias sort_dct_modified sort_updated_at
@@ -57,14 +43,7 @@ module DataCycleCore
       def sort_created_at(ordering)
         reflect(
           @query
-<<<<<<< HEAD
             .order(sanitized_order_string('things.created_at', ordering))
-=======
-            .order(
-              sanitized_order_string('things.created_at', ordering),
-              thing[:id].desc
-            )
->>>>>>> old/develop
         )
       end
       alias sort_dct_created sort_created_at
@@ -74,14 +53,7 @@ module DataCycleCore
         reflect(
           @query
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = ?', locale]))
-<<<<<<< HEAD
             .order(sanitized_order_string('thing_translations.name', ordering, true))
-=======
-            .order(
-              sanitized_order_string('thing_translations.name', ordering, true),
-              thing[:id].desc
-            )
->>>>>>> old/develop
         )
       end
       alias sort_name sort_translated_name
@@ -100,12 +72,7 @@ module DataCycleCore
           @query.reorder(
             absolute_date_diff(thing[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
             absolute_date_diff(thing[:start_date], Arel::Nodes.build_quoted(date.iso8601)),
-<<<<<<< HEAD
             thing[:start_date]
-=======
-            thing[:start_date],
-            thing[:id].desc
->>>>>>> old/develop
           )
         )
       end

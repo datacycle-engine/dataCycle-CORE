@@ -380,7 +380,7 @@ class ObjectBrowser {
     this.objectListElement.classList.remove('has-items');
     this.element
       .find('> .media-thumbs > .object-thumbs')
-      .html(`<input type="hidden" id="${this.hidden_field_id}" name="${this.key}[]">`);
+      .html('<input type="hidden" id="' + this.hidden_field_id + '" name="' + this.key + '[]">');
   }
   findObjects(ids, external) {
     return DataCycle.httpRequest({

@@ -105,11 +105,7 @@ de:
       running: Es gibt noch laufende Uploads!
       missing_metadata: Fehlende Metadaten!
       processing: wird verarbeitet
-<<<<<<< HEAD
       found_duplicate: Duplikat gefunden!
-=======
-      found_duplicate: Duplikate gefunden!
->>>>>>> old/develop
       uploaded_successfully: hochgeladen, OK
       error_saving_content: Fehler beim Speichern des Inhalts!
       upload_error: Uploadfehler
@@ -234,22 +230,14 @@ de:
 
   collection:
     new: Neue %{data}
-<<<<<<< HEAD
     filter: '%{data} filtern...'
-=======
-    filter: '%{data} filtern ...'
->>>>>>> old/develop
 
   common:
     'true': Ja
     'false': Nein
     loading: 'Laden ...'
     load_more: ... weitere Inhalte anzeigen
-<<<<<<< HEAD
     load_all: ...alle Inhalte anzeigen
-=======
-    load_all: ... alle Inhalte anzeigen
->>>>>>> old/develop
     are_you_sure: 'Sind Sie sicher?'
     language: 'Sprache'
     all: Alle
@@ -355,10 +343,7 @@ de:
     life_cycle: Lebenszyklus
     create_new_content: Neuen Inhalt erstellen
     data_type: Inhaltstyp
-<<<<<<< HEAD
     change_api_access: API Freigabe ändern
-=======
->>>>>>> old/develop
     select_asset: '%{data} auswählen'
     select_asset_title: Hochgeladene Dateien
     my_assets: Meine Dateien
@@ -404,25 +389,10 @@ de:
       indesign: Adobe InDesign
       version:
         original: Original
-<<<<<<< HEAD
-=======
-        default: Default
->>>>>>> old/develop
         thumb_preview: Thumbnail
         web: Web
       format:
         none: Originalformat
-<<<<<<< HEAD
-=======
-      confirmation:
-        download: Download
-        terms_not_checked: Die Nutzungsbedingungen müssen akzeptiert werden
-        terms_of_use_html: 'Nutzungsbedingungen'
-        terms_of_use_link_html: 'Ich akzeptiere die %{link}'
-        terms_of_use_link_text: Nutzungsbedingungen
-        download_start: Download starten
-        download_preparing: Download wird vorbereitet ...
->>>>>>> old/develop
     help: Hilfe
     mode_switcher_title: Ansicht
     date: Datum
@@ -493,13 +463,6 @@ de:
     media_archive: im Medienarchiv öffnen
 
   feature:
-<<<<<<< HEAD
-=======
-    duplicate_candidate:
-      manual_button: Manuell zum Zusammenführen auswählen
-    releasable:
-      version_and_status: Version & Status
->>>>>>> old/develop
     named_version:
       input_label: Versionsname
       version_name: 'Version: %{name}'
@@ -538,17 +501,6 @@ de:
         date_created: Heruntergeladen am
         email: E-Mail
         user_display_name: Account
-<<<<<<< HEAD
-=======
-      mailer:
-        subject:
-          downloads_popular: TOP 50 Bild Downloads
-        text_html:
-         downloads_popular: Im Anhang finden Sie die TOP 50 Bild Downloads.
-
-  compare:
-    switch_contents: Inhalte tauschen
->>>>>>> old/develop
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -556,23 +508,10 @@ de:
     updated_at_html: bearbeitet in <b>%{language}</b> am <b>%{date}</b>
     valid_since: gültig seit
     differences_to_version: Unterschiede zu Version
-<<<<<<< HEAD
     active_version: Aktuelle Version
     look_at_version: Aktuellen Version mit dieser Version vergleichen
     restored: Wiederhergestellt am %{date}
     created: Inhalt erstellt
-=======
-    active_version: mit aktueller Version vergleichen
-    # look_at_version: aktuelle Version mit dieser Version vergleichen
-    use_as_source: als Ausgangsversion im Vergleich verwenden
-    use_as_target: als Zielversion im Vergleich verwenden
-    restored: Wiederhergestellt am %{date}
-    created: Inhalt erstellt
-    switch_versions: Versionen tauschen
-    active_source: Ausgangsversion
-    active_target: Zielversion
-    different_locales: Die zwei Versionen wurden in unterschiedlichen Sprachen bearbeitet, Änderungen an übersetzten Attributen werden nicht berücksichtigt
->>>>>>> old/develop
     restore:
       version:
         title: Diese Version wiederherstellen
@@ -589,11 +528,6 @@ de:
     thing:
       nominativ: der Inhalt
       akkusativ: den Inhalt
-<<<<<<< HEAD
-=======
-    stored_filter:
-      default: die gespeicherte Suche
->>>>>>> old/develop
     send_subject: Geteilter Link zu einem Inhalt
     update_subject: Geteilte Inhaltssammlung wurde aktualisiert
     notice: Hinweis
@@ -611,11 +545,7 @@ de:
     validity_period: Gültigkeitszeitraum
     upload_date: Uploaddatum
     duplicate_candidates: Potentielle Duplikate vorhanden
-<<<<<<< HEAD
     not_duplicate_candidates: keine potentiellen Duplikate vorhanden
-=======
-    not_1dates: keine potentiellen Duplikate vorhanden
->>>>>>> old/develop
     bookable: buchbar
     not_bookable: nicht buchbar
     width: Breite
@@ -686,7 +616,6 @@ de:
       unit: Einheit
 
   filter_groups:
-<<<<<<< HEAD
     classification_alias_ids: nach Klassifizierungen filtern...
     classification_tree_ids: nach Klassifizierungsbaum filtern...
     creator: nach Personen filtern...
@@ -705,26 +634,6 @@ de:
     related_to: nach verknüpften Inhalten filtern ...
     in_schedule: nach Termin filtern...
     inactive_things: nach abgelaufenen Inhalten filtern...
-=======
-    classification_alias_ids: nach Klassifizierungen filtern ...
-    classification_tree_ids: nach Klassifizierungsbaum filtern ...
-    creator: nach Personen filtern ...
-    external_source: nach externen Quellen filtern ...
-    external_system: nach externen Systemen filtern ...
-    validity_period: nach Gültigkeitszeitraum filtern ...
-    date_range: nach Datum filtern ...
-    boolean: nach booleschen Kriterien filtern ...
-    advanced_attributes: nach Attributen filtern ...
-    geo_radius: nach Umkreis filtern ...
-    geo_within_classification: nach geografischer Lage filtern ...
-    geo_filter: nach geografischer Lage filtern ...
-    relation_filter: auf Basis von verknüpften Inhalten filtern ...
-    id: nach IDs filtern ...
-    union_filter_ids: mehrere Sammlungen kombinieren ...
-    related_to: nach verknüpften Inhalten filtern ...
-    in_schedule: nach Termin filtern ...
-    inactive_things: nach abgelaufenen Inhalten filtern ...
->>>>>>> old/develop
 
   sortable:
     default: Standard
@@ -956,10 +865,6 @@ de:
       missing_parameter: Parameter fehlt!
       duplicate:
         type_mismatch: 'Inhalte unterschiedlichen Typs können nicht zusammengeführt werden!'
-<<<<<<< HEAD
-=======
-        cannot_merge_self: Der Inhalt kann nicht mit sich selbst zusammengeführt werden!
->>>>>>> old/develop
       session_expired: Die Sitzung ist abgelaufen, bitte melden Sie sich erneut an.
       token_invalid: Die Sitzung ist abgelaufen, bitte laden Sie die Seite neu.
       no_shared_attributes: Es gibt keine Attribute, die bei allen Inhalten vorkommen
@@ -969,10 +874,6 @@ de:
       content_duplication_invalid: 'Das Duplikat konnte nicht erstellt werden!'
       bulk_update_error: Beim Speichern ist ein Fehler aufgetreten, bitte versuchen Sie es erneut
       definition_mismatch: Die Versionen können nicht verglichen werden, weil die Datendefinitionen nicht überein stimmen
-<<<<<<< HEAD
-=======
-      user_locked: Ein Benutzer mit dieser E-Mail existiert bereits und ist gesperrt. Bitte wenden Sie sich an einen Administrator, um den Benutzer freizuschalten.
->>>>>>> old/develop
     success:
       created: '%{data} wurde erfolgreich erstellt.'
       ready_to_send: '%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden.'
@@ -1066,15 +967,6 @@ de:
               blank: 'E-Mail darf nicht leer sein.'
               taken: 'Für diese E-Mail existiert schon ein Benutzer.'
               invalid: 'Keine gültige E-Mail.'
-<<<<<<< HEAD
-=======
-            reset_password_token:
-              blank: Das Token darf nicht leer sein
-              invalid: Das Token ist nicht mehr gültig
-            confirmation_token:
-              blank: Das Token darf nicht leer sein
-              invalid: Das Token ist nicht mehr gültig
->>>>>>> old/develop
         data_cycle_core/user_group:
           attributes:
             name:
@@ -1172,10 +1064,6 @@ de:
         default_locale: 'Default-Sprache für Suchen und neue Inhalte'
         represented_by: Repräsentiert durch
         ui_locale: Sprache der Benutzeroberfläche
-<<<<<<< HEAD
-=======
-        locked_at: gesperrt
->>>>>>> old/develop
       data_cycle_core/thing:
         name: Name
         legal_name: Firmenname
@@ -1274,19 +1162,6 @@ de:
       show_search_history: Gesamten Verlauf ansehen
       save: Suche speichern
       history: Suchverlauf
-<<<<<<< HEAD
-=======
-      load_more: ... weitere Suchen anzeigen
-      load_all: alle Suchen anzeigen
-      filter_searches: Suchen filtern ...
-      count_html:
-        zero: '<b>Keine</b> Suchen'
-        one: '<b>%{count_string}</b> Suche'
-        other: '<b>%{count_string}</b> Suchen'
-      update_params: speichern und Suchparameter übernehmen
-      form:
-        api: API
->>>>>>> old/develop
     watch_list:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
     upload: Neue Medien hochladen
@@ -1308,10 +1183,7 @@ de:
         contents:
           root: Inhalte
           specification: Spezifikation
-<<<<<<< HEAD
     acknowledgments: Acknowledgments
-=======
->>>>>>> old/develop
 
     schema:
       root: Schema
@@ -1402,11 +1274,6 @@ de:
     imx_platform:
       description: Beschreibung
       description_long: Detailbeschreibung
-<<<<<<< HEAD
-=======
-    gem2go:
-      description: Beschreibung
->>>>>>> old/develop
     timm4:
       intro: Einleitung
       description: Beschreibung
@@ -1423,50 +1290,6 @@ de:
       timesComment: Erläuterung Beginnzeiten
       menuDownload: Speisekarte herunterladen
       recipeSuggestionDownload: Rezept herunterladen
-<<<<<<< HEAD
-=======
-    toubiz:
-      abstract: Zusammenfassung
-      description: Beschreibung
-      additionalBookingInformation: Zusatzinformationen zur Buchung
-      currentInformation: Aktuelle Informationen
-      additionalLocationInformation: Zusatzinformationen zum Veranstaltungsort
-      additionalHostInformation: Zusatzinformationen zum Veranstalter
-    destination_one:
-      facility_unterhaltung: Facility Unterhaltung
-      info_wegbelag: Info Wegbelag
-      kitchen_spezialitaeten: Küche Spezialitäten
-      kitchen_zeiten: Küche Öffungszeiten
-      object_betriebsurlaub: Betriebsurlaub
-      price_info: Preisinformation
-      price_reducedinfo: Preisinformation Überblick
-      room_sonstige: Raum Sonstiges
-      route_start: Route Start
-      route_start_ort: Route Startort
-      route_ziel: Route Ziel
-      socialdescription: Socialdescription
-      socialtitle: Socialtitle
-      web_seo_beschreibung: web_seo_beschreibung
-      web_seo_keywords: web_seo_keywords
-      web_seo_titel: web_seo_titel
-      additionaltext_feature_barrierefreiheit: Barrierefreiheit
-      additionaltext_feature_eignung: Eignung
-      additionaltext_feature_hygiene- und infektionsschutzmaßnahmen: Hygiene- und Infektionsmaßnahmen
-      dayoff: Ruhetag
-      details: Details
-      directions: Wegbeschreibung
-      iframe_height: iframe_height
-      iframe_titel: iframe_title
-      iframe_url: iframe_url
-      moreinfo: Weitere Informationen
-      openings: Öffungszeiten
-      packagefeature: Pauschalangebot Details
-      packagetripinfo: Pauschalangebot Informationen
-      station: Bahnhof
-      subtitle: Untertitel
-      teaser: Teaser
-
->>>>>>> old/develop
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

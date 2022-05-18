@@ -65,9 +65,9 @@ class BulkUpdateValidator extends Validator {
       !$(validationContainer).hasClass('agbs') &&
       !this.bulkUpdateTypes(validationContainer).filter(':checked').length
     )
-      return Promise.resolve({ valid: true });
+      return;
 
-    return super.validateItem(validationContainer);
+    super.validateItem(validationContainer);
   }
   changeActiveClass(event) {
     const currentFormElement = event.currentTarget.parentNode.nextElementSibling;

@@ -11,16 +11,7 @@ module DataCycleCore
           DataCycleCore.features.dig(name.demodulize.underscore.to_sym)&.except(:enabled, :config)&.each do |key, value|
             filters.concat(try(key.to_sym, user, value) || default(user, key.to_s, value) || [])
           end
-<<<<<<< HEAD
           filters.select { |k, v| user&.can?(:advanced_filter, view_type.to_sym, k, v) }.sort.group_by { |f| f[1] }.transform_keys { |k| I18n.t("filter_groups.#{k}", default: k, locale: user.ui_locale) }
-=======
-
-          filters
-            .select { |k, v| user&.can?(:advanced_filter, view_type.to_sym, k, v) }
-            .sort
-            .group_by { |f| f[1] }
-            .transform_keys { |k| I18n.t("filter_groups.#{k}", default: k, locale: user.ui_locale) }
->>>>>>> old/develop
         end
 
         def available_visible_filters(user, view_type, filter_config)

@@ -38,22 +38,14 @@
         <%= t('actions.filter', locale: active_ui_locale) %>
       <% end %>
 
-<<<<<<< HEAD
       <%= button_tag type: :reset, class: 'button clear alert round reset-button', title: t('actions.reset', count: 2, locale: active_ui_locale) do %>
-=======
-      <%= button_tag type: :reset, class: 'button clear alert round reset-button', data: { dc_tooltip: t('actions.reset', count: 2, locale: active_ui_locale) } do %>
->>>>>>> old/develop
         <i class="fa fa-times" aria-hidden="true"></i>
       <% end %>
     </div>
 
     <span class="item-count"></span>
 
-<<<<<<< HEAD
     <%= tag.i(class: 'fa fa-exclamation-triangle filter-warning', title: t("object_browser.limited_by.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale)) if definition.dig('ui', 'edit', 'options', 'limited_by').present? && I18n.exists?("object_browser.limited_by.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale) %>
-=======
-    <%= tag.i(class: 'fa fa-exclamation-triangle filter-warning', data: { dc_tooltip: limited_by_warning(content, definition, key, 'filter_warning') }) if definition.dig('ui', 'edit', 'options', 'limited_by').present? %>
->>>>>>> old/develop
   </form>
 </div>
 
@@ -88,19 +80,10 @@
             locale: I18n.locale,
             object_browser: true,
             key: html_id,
-<<<<<<< HEAD
             scope: 'object_browser'
         }, definition) %>
 
     <%= render 'data_cycle_core/contents/new_content_button', form_parameters if definition.dig('ui', 'edit', 'options', 'limited_by').blank? && form_parameters.present? %>
-=======
-            scope: 'object_browser',
-            disabled: definition&.dig('ui', 'edit', 'options', 'limited_by').present?,
-            dc_tooltip: limited_by_warning(content, definition, key, 'create_button_warning')
-        }, definition) %>
-
-    <%= render 'data_cycle_core/contents/new_content_button', form_parameters if form_parameters.present? && local_assigns[:hide_new_button].blank? %>
->>>>>>> old/develop
 
     <button class="button-prime small close-object-browser" type="button" data-close>
       <i aria-hidden="true" class="fa fa-times"></i>

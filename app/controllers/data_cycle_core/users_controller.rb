@@ -13,25 +13,18 @@ module DataCycleCore
       @roles = DataCycleCore::Role.where(id: search_params[:roles]) if search_params[:roles].present?
       @user_groups = DataCycleCore::UserGroup.where(id: search_params[:user_groups]) if search_params[:user_groups].present?
 
-<<<<<<< HEAD
       search_columns = DataCycleCore::User.columns
         .select { |c| (c.type == :string && BLOCKED_COLUMNS.exclude?(c.name)) || c.name == DataCycleCore::User.primary_key }
         .map { |c| "users.#{c.name}" }
 
-=======
->>>>>>> old/develop
       query = DataCycleCore::User.accessible_by(current_ability).except(:left_outer_joins).includes(:represented_by, :external_systems)
 
       query = query.where(locked_at: nil) unless current_user.has_rank?(10)
 
-<<<<<<< HEAD
       if @search_param.present?
         search_term = @search_param.split(' ').map { |item| "concat_ws(' ', #{search_columns.join(', ')}) ILIKE '%#{item.strip}%'" }.join(' AND ')
         query = query.where(search_term)
       end
-=======
-      query = query.where(sql_for_fulltext_search(@search_param)) if @search_param.present?
->>>>>>> old/develop
 
       query = query.joins(:role).where(role: @roles.ids) if @roles.present?
       query = query.joins(:user_groups).where(user_groups: { id: @user_groups.ids }) if @user_groups.present?
@@ -103,36 +96,20 @@ module DataCycleCore
     def destroy
       @user.lock_access!
 
-<<<<<<< HEAD
       redirect_to users_path, notice: I18n.t(:locked, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)
-=======
-      redirect_back(fallback_location: root_path, notice: I18n.t(:locked, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
->>>>>>> old/develop
     end
 
     def unlock
       @user.unlock_access!
 
-<<<<<<< HEAD
       redirect_to users_path, notice: I18n.t(:unlocked, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)
-=======
-      redirect_back(fallback_location: root_path, notice: I18n.t(:unlocked, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
->>>>>>> old/develop
     end
 
     def search
       authorize! :show, DataCycleCore::User
-<<<<<<< HEAD
       users = DataCycleCore::User.where('email ILIKE :q', q: "%#{params[:q]}%").limit(20)
 
       render json: users
-=======
-
-      users = DataCycleCore::User.all.limit(20)
-      users = users.where(sql_for_fulltext_search(search_params[:q])) if search_params[:q].present?
-
-      render plain: users.map { |u| u.to_select_option(helpers.active_ui_locale) }.to_json, content_type: 'application/json'
->>>>>>> old/develop
     end
 
     def become
@@ -146,23 +123,8 @@ module DataCycleCore
 
     private
 
-<<<<<<< HEAD
     def search_params
       params.permit(:q, roles: [], user_groups: [])
-=======
-    def sql_for_fulltext_search(search_term)
-      search_columns = DataCycleCore::User.columns
-        .select { |c| (c.type == :string && BLOCKED_COLUMNS.exclude?(c.name)) || c.name == DataCycleCore::User.primary_key }
-        .map { |c| "users.#{c.name}" }
-
-      search_term.to_s.split(' ').map { |term| "concat_ws(' ', #{search_columns.join(', ')}) ILIKE '%#{term.strip}%'" }.join(' AND ')
-    end
-
-    def search_params
-      params
-        .permit(:q, roles: [], user_groups: [])
-        .tap { |p| p[:q]&.strip! }
->>>>>>> old/develop
     end
 
     def permitted_params

@@ -26,12 +26,6 @@ AllCops:
 Bundler/OrderedGems:
   Enabled: false
 
-<<<<<<< HEAD
-=======
-Style/FetchEnvVar:
-  Enabled: false
-
->>>>>>> old/develop
 #######################################################
 ########## Layout
 Layout/MultilineMethodCallIndentation:
@@ -52,12 +46,6 @@ Layout/SpaceAroundMethodCallOperator:
 Layout/EmptyLinesAroundAttributeAccessor:
   Enabled: false
 
-<<<<<<< HEAD
-=======
-Style/RedundantInitialize:
-  Enabled: false
-
->>>>>>> old/develop
 #######################################################
 ########## Lint
 

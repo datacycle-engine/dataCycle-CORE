@@ -54,16 +54,6 @@ module DataCycleCore
       @download_list = download_config&.sort_by { |v| v.second['sorting'] }&.map { |k, _| k.to_sym }
     end
 
-<<<<<<< HEAD
-=======
-    def download_pretty_list
-      return @download_pretty_list if defined? @download_pretty_list
-      @download_pretty_list = download_config
-        &.sort_by { |v| v.second['sorting'] }
-        &.map { |k, v| "#{v['sorting'].to_s.ljust(4)}:#{k.to_sym}" }
-    end
-
->>>>>>> old/develop
     def download_list_ranked
       return @download_list_ranked if defined? @download_list_ranked
       @download_list_ranked = download_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
@@ -79,16 +69,6 @@ module DataCycleCore
       @import_list = import_config&.sort_by { |v| v.second['sorting'] }&.map { |k, _| k.to_sym }
     end
 
-<<<<<<< HEAD
-=======
-    def import_pretty_list
-      return @import_pretty_list if defined? @import_pretty_list
-      @import_pretty_list = import_config
-        &.sort_by { |v| v.second['sorting'] }
-        &.map { |k, v| "#{v['sorting'].to_s.ljust(4)}:#{k.to_sym}" }
-    end
-
->>>>>>> old/develop
     def import_list_ranked
       return @import_list_ranked if defined? @import_list_ranked
       @import_list_ranked = import_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }

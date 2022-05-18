@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <div class="reveal" id="add-items-to-watch-list-overlay" data-reveal>
   <h3><%= t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale), locale: active_ui_locale) %></h3>
   <%= form_with url: add_to_watchlist_stored_filters_path, local: true, id: 'add-items-to-watch-list-form' do |f| %>
@@ -16,33 +15,10 @@
             data: {
               allow_clear: false,
               tags: true
-=======
-<div class="reveal" id="<%= html_id %>" data-reveal>
-  <h3><%= t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale), locale: active_ui_locale) %></h3>
-  <%= form_with url: add_to_watchlist_stored_filters_path, local: true, namespace: SecureRandom.hex(10), class: 'add-items-to-watch-list-form' do |f| %>
-    <div class="validation-container form-element">
-      <%= f.label :watch_list_id, ActionView::OutputBuffer.new("#{DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale)} #{tag.span('*', class: 'required-field-marker')}") %>
-      <div class="v-select white">
-        <%= f.select(:watch_list_id,
-          [],
-          {},
-          {
-            required: true,
-            class: 'async-select add-items-to-watch-list-select',
-            data: {
-              tags: true,
-              max: 20,
-              placeholder: '',
-              search_path: search_watch_lists_path
->>>>>>> old/develop
             }
           }) %>
       </div>
     </div>
-<<<<<<< HEAD
-=======
-    <div class="search-form-data"></div>
->>>>>>> old/develop
     <div class="buttons">
       <%= f.button t('actions.add', locale: active_ui_locale),
         class: 'button primary',

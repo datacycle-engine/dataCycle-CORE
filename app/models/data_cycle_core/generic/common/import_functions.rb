@@ -141,7 +141,6 @@ module DataCycleCore
           )
 
           if valid
-<<<<<<< HEAD
             ActiveSupport::Notifications.instrument 'object_import_succeeded.datacycle', this: {
               external_system: utility_object.external_source,
               external_type: utility_object.source_type.collection_name,
@@ -153,19 +152,6 @@ module DataCycleCore
               external_type: utility_object.source_type.collection_name,
               template_name: content.template_name
             }
-=======
-            Appsignal.increment_counter(
-              "import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.counts.success",
-              1,
-              template_name: content.template_name
-            )
-          else
-            Appsignal.increment_counter(
-              "import.#{utility_object.external_source.identifier}.#{utility_object.source_type.collection_name}.counts.failure",
-              1,
-              template_name: content.template_name
-            )
->>>>>>> old/develop
 
             utility_object.logging&.error('Validating import data', data['external_key'], data, content.errors.messages.collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', '))
 
@@ -206,10 +192,6 @@ module DataCycleCore
 
               each_locale(utility_object.locales) do |locale|
                 item_count = 0
-<<<<<<< HEAD
-=======
-                total = 0
->>>>>>> old/develop
                 begin
                   logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
                   source_filter = options&.dig(:import, :source_filter) || {}
@@ -238,13 +220,8 @@ module DataCycleCore
                       iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max).batch_size(2)
 
                       total = iterate.size
-<<<<<<< HEAD
                       from = options[:min_count] || 0
                       to = options[:max_count] || total
-=======
-                      from = [options[:min_count] || 0, 0].max
-                      to = [options[:max_count] || total, total].min
->>>>>>> old/develop
                       page_from = from / per
                       page_to = (to - 1) / per
                     end
@@ -310,18 +287,10 @@ module DataCycleCore
                     end
                   end
                 ensure
-<<<<<<< HEAD
                   if $CHILD_STATUS.exitstatus&.zero?
                     logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count.to_s)
                   else
                     logging.info("#{importer_name}(#{phase_name}) #{locale} (#{item_count} items) aborted")
-=======
-                  if $CHILD_STATUS.present? && $CHILD_STATUS.exitstatus&.zero? || total.zero?
-                    logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count.to_s)
-                  else
-                    logging.info("#{importer_name}(#{phase_name}) #{locale} (#{item_count} items) aborted")
-                    raise DataCycleCore::Generic::Common::Error::ImporterError, "error importing data from #{utility_object.external_source.name} #{importer_name}, #{item_count.to_s.rjust(7)}/#{total}" unless Rails.env.test?
->>>>>>> old/develop
                   end
                 end
               end

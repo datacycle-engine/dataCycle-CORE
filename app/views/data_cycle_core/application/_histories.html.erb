@@ -2,18 +2,6 @@
 <ul class="list-items">
   <% history_entries = complete_history_list(content) %>
   <% history_entries.each do |item| %>
-<<<<<<< HEAD
     <%= history_dropdown_line(content, item, @watch_list&.id, local_assigns[:history_id] == item[:id]) %>
-=======
-    <%= history_dropdown_line(
-          content,
-          item,
-          @watch_list&.id,
-          local_assigns[:history_id],
-          local_assigns[:diff_id],
-          local_assigns[:right_side],
-          local_assigns[:diff_view]
-        ) %>
->>>>>>> old/develop
   <% end %>
 </ul>

@@ -129,11 +129,7 @@ module DataCycleCore
           get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
           json_data = JSON.parse(response.body)
           poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
-<<<<<<< HEAD
           assert_equal(1, poi.dig('image', 0, 'dc:classification')&.size)
-=======
-          assert_equal(2, poi.dig('image', 0, 'dc:classification')&.size)
->>>>>>> old/develop
 
           fulltext_filter.classification_tree_labels = tree1
           fulltext_filter.save

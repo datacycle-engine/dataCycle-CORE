@@ -1501,11 +1501,7 @@
             "last_sync_at": "2020-12-04T11:23:47.921+01:00",
             "sync_type": "import",
             "last_successful_sync_at": "2020-12-04T11:23:47.921+01:00",
-<<<<<<< HEAD
             "identifier": "Feratel Kärnten"
-=======
-            "identifier": "Feratel"
->>>>>>> old/develop
           }
         ]
       }

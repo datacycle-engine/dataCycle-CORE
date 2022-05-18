@@ -42,11 +42,7 @@
         accept: uploader_validation[:format].presence&.map{ |e| ".#{e}" }&.join(', '),
         class: 'upload-file' %>
       <span class="buttons">
-<<<<<<< HEAD
         <button type="button" class="button success content-create-button" disabled="disabled" data-disable="true">
-=======
-        <button type="button" class="button success content-create-button" disabled="disabled" data-disable="true" data-dc-tooltip="<%= t('actions.new_asset', data: type_class.model_name.human(count: 2, locale: active_ui_locale), locale: active_ui_locale) %>">
->>>>>>> old/develop
           <span class="progress-bar">
             <span class="progress-filled"></span>
           </span>

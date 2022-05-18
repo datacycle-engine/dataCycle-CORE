@@ -149,19 +149,6 @@ $fa-font-path: '/assets';
           fill: #009fe3;
         }
       }
-
-      > span {
-        position: relative;
-        display: block;
-
-        &::after {
-          content: '';
-          visibility: hidden;
-          float: none;
-          clear: both;
-          display: block;
-        }
-      }
     }
     .ql-insertNbsp,
     .ql-replaceAllNbsp {

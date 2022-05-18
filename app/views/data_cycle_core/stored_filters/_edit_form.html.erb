@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <%= form_for(stored_search, namespace: stored_search.id) do |f| %>
   <div class="form-element">
     <%= f.check_box :api %>
@@ -27,104 +26,6 @@
   <% end %>
   <div class="buttons">
     <%= f.button t('actions.save', locale: active_ui_locale),
-=======
-<% stored_search ||= DataCycleCore::StoredFilter.new %>
-
-<%= form_with(model: stored_search, namespace: SecureRandom.hex(10), local: true, url: stored_filters_path, method: :post, class: 'update-stored-search-form', data: {
-  update_params: local_assigns[:update_params]
-}) do |f| %>
-  <% if local_assigns[:update_params].to_s == 'true' %>
-    <%= hidden_field_tag :update_filter_parameters, true %>
-    <div class="search-form-data"></div>
-
-    <div class="form-element">
-      <%= f.label :id, ActionView::OutputBuffer.new("#{DataCycleCore::StoredFilter.human_attribute_name(:name, locale: active_ui_locale)} #{tag.span('*', class: 'required-field-marker')}") %>
-      <div class="v-select white">
-        <%= f.select(
-            :id,
-            stored_search.name.present? ? [stored_search.to_select_option&.to_option_for_select].compact : [],
-            {
-              include_blank: true
-            },
-            {
-              required: true,
-              class: 'async-select update-search-id-selector',
-              data: {
-                tags: true,
-                max: 20,
-                placeholder: '',
-                search_path: search_stored_filters_path
-              }
-            }
-          ) %>
-      </div>
-    </div>
-  <% else %>
-    <div class="form-element">
-      <%= f.hidden_field :id %>
-
-      <%= f.label :name, ActionView::OutputBuffer.new("#{DataCycleCore::StoredFilter.human_attribute_name(:name, locale: active_ui_locale)} #{tag.span('*', class: 'required-field-marker')}") %>
-      <%= f.text_field :name, required: true %>
-    </div>
-  <% end %>
-
-  <div class="dynamic-form-parts">
-    <div class="form-element dc-checkbox">
-      <%= f.check_box :system %>
-      <%= f.label :system, DataCycleCore::StoredFilter.human_attribute_name(:system, locale: active_ui_locale) %>
-    </div>
-
-    <% if can?(:create_api, stored_search) %>
-      <fieldset>
-        <legend><%= t('data_cycle_core.stored_searches.form.api', locale: active_ui_locale) %></legend>
-        <div class="form-element dc-checkbox">
-          <%= f.check_box :api %>
-          <%= f.label :api, DataCycleCore::StoredFilter.human_attribute_name(:api, locale: active_ui_locale) %>
-        </div>
-
-        <% if can?(:create_api_with_users, stored_search) %>
-          <div class="form-element">
-            <%= f.label :api_users, DataCycleCore::StoredFilter.human_attribute_name(:api_users, locale: active_ui_locale) %>
-            <div class="v-select white">
-              <%= f.collection_select(:api_users, DataCycleCore::User.all, :id, :email, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
-            </div>
-          </div>
-
-          <div class="form-element">
-            <%= f.label :linked_stored_filter_id, DataCycleCore::StoredFilter.human_attribute_name(:linked_stored_filter_id, locale: active_ui_locale) %>
-            <div class="v-select white">
-              <%= f.select(
-            :linked_stored_filter_id,
-            [stored_search.linked_stored_filter&.to_select_option&.to_option_for_select].compact,
-            {
-              include_blank: true
-            },
-            {
-              class: 'async-select',
-              data: {
-                max: 20,
-                placeholder: '',
-                search_path: search_stored_filters_path
-              }
-            }
-          ) %>
-            </div>
-          </div>
-
-          <div class="form-element">
-            <%= f.label :classification_tree_labels, DataCycleCore::StoredFilter.human_attribute_name(:classification_tree_labels, locale: active_ui_locale) %>
-            <div class="v-select white">
-              <%= f.collection_select(:classification_tree_labels, DataCycleCore::ClassificationTreeLabel.all, :id, :name, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
-            </div>
-          </div>
-        <% end %>
-      </fieldset>
-    <% end %>
-  </div>
-
-  <div class="buttons">
-    <%= f.button t(local_assigns[:update_params].to_s == 'true' ? 'data_cycle_core.stored_searches.update_params' : 'actions.save', locale: active_ui_locale),
->>>>>>> old/develop
         data: {
           disable_with: "<i class='fa fa-spinner fa-spin fa-fw'></i> #{t('actions.save', locale: active_ui_locale)}"
         },

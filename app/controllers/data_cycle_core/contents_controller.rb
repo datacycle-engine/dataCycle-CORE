@@ -11,11 +11,7 @@ module DataCycleCore
       include feature.controller_module if feature.enabled? && feature.controller_module
     end
 
-<<<<<<< HEAD
     load_and_authorize_resource only: [:index, :show, :destroy, :history]
-=======
-    load_and_authorize_resource only: [:index, :show, :destroy]
->>>>>>> old/develop
 
     def index
       redirect_back(fallback_location: root_path)
@@ -84,11 +80,7 @@ module DataCycleCore
       content = DataCycleCore::Thing.find(params[:id])
       type = asset_proxy_params.dig(:type)
       attribute = :content_url
-<<<<<<< HEAD
       attribute = :thumbnail_url if type == 'thumb' || (type == 'content' && !['Bild', 'ImageVariant'].include?(content.template_name))
-=======
-      attribute = :thumbnail_url if type == 'thumb' || (type == 'content' && !['Audio', 'Bild', 'ImageVariant'].include?(content.template_name))
->>>>>>> old/develop
 
       raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
       uri = URI.parse(content.send(attribute))
@@ -258,7 +250,6 @@ module DataCycleCore
     end
 
     def history
-<<<<<<< HEAD
       @content = DataCycleCore::Thing.includes(:classifications).find(params[:id])
       @diff_source = @content.histories.find(params[:history_id]) if params[:history_id].present?
 
@@ -267,27 +258,6 @@ module DataCycleCore
       I18n.with_locale(@diff_source.first_available_locale) do
         @data_schema = @content.get_data_hash
         @diff_schema = @diff_source.diff(@data_schema)
-=======
-      @content = DataCycleCore::Thing.find_by(id: params[:id]) || DataCycleCore::Thing::History.find_by(id: params[:id])
-      @diff_source = DataCycleCore::Thing.find_by(id: params[:history_id]) || DataCycleCore::Thing::History.find_by(id: params[:history_id])
-
-      raise ActiveRecord::RecordNotFound if @content.nil? || @diff_source.nil?
-
-      authorize! :history, @content
-
-      @source_locale = @diff_source.last_updated_locale || @diff_source.first_available_locale
-
-      I18n.with_locale(@source_locale) do
-        @target_locale = @content.last_updated_locale || @content.first_available_locale
-        @data_schema = @content.get_data_hash
-        @diff_schema = @diff_source.diff(@data_schema) || {}
-
-        if @source_locale.to_s != @target_locale.to_s
-          @content.translatable_property_names.each do |key|
-            @diff_schema[key] = ['0', nil]
-          end
-        end
->>>>>>> old/develop
 
         render
       rescue StandardError

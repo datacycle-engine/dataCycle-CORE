@@ -115,16 +115,6 @@ module DataCycleCore
         DataCycleCore::Schedule.where(thing_id: thing_id, relation: relation_name).order(created_at: :asc)
       end
 
-<<<<<<< HEAD
-=======
-      def load_timeseries(property_name, from = nil, to = nil)
-        query = DataCycleCore::Timeseries.where(thing_id: id, property: property_name)
-        query = query.where('timestamp >= ?', from) if from.present?
-        query = query.where('timestamp <= ?', to) if to.present?
-        query.order(timestamp: :asc)
-      end
-
->>>>>>> old/develop
       def as_of(timestamp)
         return self if updated_at.blank? || timestamp.blank? || timestamp >= updated_at
 

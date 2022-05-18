@@ -7,17 +7,9 @@
 
   <span class="tags-container">
     <% union_ids_to_value(value).each do |item| %>
-<<<<<<< HEAD
       <%= tag.span(item.name, class: "tag #{item.html_class}", title: item.title) %>
     <% end %>
   </span>
 
   <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>
-=======
-      <%= tag.span(item.name, class: "tag #{item.html_class}", data: { dc_tooltip: item.dc_tooltip }) %>
-    <% end %>
-  </span>
-
-  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons == 'a' %>
->>>>>>> old/develop
 </span>

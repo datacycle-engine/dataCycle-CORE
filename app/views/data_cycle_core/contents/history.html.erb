@@ -1,10 +1,4 @@
-<<<<<<< HEAD
 <% breadcrumb :show_history, @content, @watch_list %>
-=======
-<% thing, thing_history, show_restore_link = thing_from_histories(@content, @diff_source) %>
-
-<% breadcrumb :show_history, thing, @watch_list %>
->>>>>>> old/develop
 
 <% content_for :top_content do %>
 
@@ -13,7 +7,6 @@
       <div class="row expanded">
         <div class="column edit-header-functions">
           <div class="edit-name">
-<<<<<<< HEAD
             <i class="fa fa-history" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: active_ui_locale) %>
           </div>
           <ul>
@@ -44,23 +37,6 @@
               </div>
             </li>
             <li class="buttons"></li>
-=======
-            <i class="fa fa-arrows-h" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: active_ui_locale) %>
-          </div>
-          <ul>
-            <% if show_restore_link && can?(:restore_version, thing_history) %>
-              <li>
-                <%= link_to tag.i(class: 'fa fa-history', aria_hidden: true),
-                            restore_history_version_thing_path(id: thing.id, history_id: thing_history.id),
-                            method: :post,
-                            class: 'button alert clear restore-version-button',
-                            data: {
-                              confirm: t('history.restore.version.confirmation_html', history_version_html: history_version_html(thing_history), locale: active_ui_locale),
-                              dc_tooltip: t('history.restore.version.title', locale: active_ui_locale)
-                            } %>
-              </li>
-            <% end %>
->>>>>>> old/develop
           </ul>
         </div>
       </div>
@@ -68,7 +44,6 @@
 
     <div class="column">
 
-<<<<<<< HEAD
       <div class="detail-content detail-content-wrapper">
 
         <% I18n.with_locale(@diff_source.first_available_locale) do %>
@@ -85,25 +60,6 @@
                 <%= render 'diff_meta_data', content: @content %>
               </div>
 
-=======
-      <div class="content-diff-wrapper">
-
-        <% I18n.with_locale(@source_locale) do %>
-
-          <div class="detail-content row content-diff-header">
-            <div class="show-content">
-              <div class="detail-header-info diff">
-                <%= render 'data_cycle_core/contents/history/history_meta_data', content: @diff_source, diff_id: @content.id %>
-
-                <span class="meta-data-splitter">
-                  <%= link_to tag.i(class: 'fa fa-long-arrow-right'), history_thing_path(id: @diff_source.id, history_id: @content.id, watch_list_id: @watch_list&.id), data: { dc_tooltip: t('history.switch_versions', locale: active_ui_locale) } %>
-                </span>
-
-                <%= render 'data_cycle_core/contents/history/history_meta_data', content: @content, right_side: true, diff_id: @diff_source.id %>
-
-                <%= tag.span(tag.i(class: 'fa fa-exclamation'), class: 'history-different-locales', data: { dc_tooltip: t('history.different_locales', locale: active_ui_locale) }) if @source_locale.to_s != @target_locale.to_s %>
-              </div>
->>>>>>> old/develop
             </div>
           </div>
 

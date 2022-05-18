@@ -43,40 +43,6 @@ module DataCycleCore
           render(plain: @content.to_geojson, content_type: GEOJSON_CONTENT_TYPE) && return if accept_geojson?
         end
 
-<<<<<<< HEAD
-=======
-        def timeseries
-          content = DataCycleCore::Thing
-            .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
-            .find(permitted_params[:content_id] || permitted_params[:id])
-
-          from = nil
-          from = Time.parse(permitted_params.dig(:time, :in, :min)).in_time_zone if permitted_params.dig(:time, :in, :min).present?
-          to = nil
-          to = Time.parse(permitted_params.dig(:time, :in, :max)).in_time_zone if permitted_params.dig(:time, :in, :max).present?
-          if permitted_params[:timeseries].in?(content.timeseries_property_names)
-            method = permitted_params[:timeseries]
-            @contents = content.send(method, from, to)
-          else
-            @contents = nil
-          end
-
-          case permitted_params[:format].to_sym
-          when :json
-            # render template: 'data_cycle_core/api/v4/timeseries/show', layout: false
-            json = { error: "no timeseries data found for #{content.name}(#{content.id})" }
-            json = { data: @contents.pluck(:timestamp, :value) } unless @contents.nil?
-            render json: json
-          when :csv
-            response.headers['Content-Type'] = 'text/csv'
-            response.headers['Content-Disposition'] = "attachment; filename=#{content.id}_#{permitted_params[:timeseries]}.csv"
-            csv = ['timestamp; value']
-            csv = (csv + @contents.pluck(:timestamp, :value).map { |line| line.join('; ') }).join("\n") if @contents.present?
-            render plain: csv
-          end
-        end
-
->>>>>>> old/develop
         def select
           uuid = permitted_params[:uuid] || permitted_params[:uuids]&.split(',')
           if uuid.present? && uuid.is_a?(::Array) && uuid.size.positive?
@@ -126,11 +92,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-<<<<<<< HEAD
           super + [:id, :language, :uuids, :search, :limit, uuid: []] + [filter: {}] + ['dc:liveData': [:'@id', :minPrice]]
-=======
-          super + [:id, :language, :uuids, :search, :limit, :timeseries, uuid: []] + [filter: {}] + [time: {}] + ['dc:liveData': [:'@id', :minPrice]]
->>>>>>> old/develop
         end
 
         def permitted_filter_parameters

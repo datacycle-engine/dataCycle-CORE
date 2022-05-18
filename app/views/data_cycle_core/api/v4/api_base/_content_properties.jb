@@ -48,14 +48,11 @@ unless content.schema.nil?
       value_blank = load_value_object(content, key, value, options[:languages], api_definition(prop)).blank?
     end
 
-<<<<<<< HEAD
     if value.blank? && prop.dig('type') == 'virtual'
       value = virtual_attribute(content, key, prop, options[:languages])
       value_blank = value.blank?
     end
 
-=======
->>>>>>> old/develop
     next if value_blank
 
     partial_params = render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content

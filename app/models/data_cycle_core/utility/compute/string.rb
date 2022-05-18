@@ -26,7 +26,6 @@ module DataCycleCore
             end
           end
 
-<<<<<<< HEAD
           def attribution_name(**args)
             attribution_name = []
 
@@ -42,8 +41,6 @@ module DataCycleCore
             attribution_name.compact.presence&.join(' / ')&.prepend('(c) ')
           end
 
-=======
->>>>>>> old/develop
           def number_of_characters(computed_parameters:, data_hash:, **_args)
             recursive_char_count(data_hash, computed_parameters.first.dig('paths'))&.flatten&.compact&.sum
           end

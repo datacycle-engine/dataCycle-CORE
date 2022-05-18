@@ -24,17 +24,6 @@ module DataCycleCore
             end
             data_value
           end
-<<<<<<< HEAD
-=======
-
-          def take_first(virtual_parameters:, content:, **_args)
-            virtual_parameters.each do |virtual_key|
-              val = content.try(virtual_key.to_sym)
-              return val if val.present?
-            end
-            nil
-          end
->>>>>>> old/develop
         end
       end
     end

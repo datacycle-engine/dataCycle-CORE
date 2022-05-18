@@ -12,11 +12,7 @@ namespace :dc do
 
         abort('ERROR: Missing from- or to_path') if from_path.blank? || to_path.blank?
 
-<<<<<<< HEAD
         from_ca = DataCycleCore::ClassificationAlias.includes(:classification_alias_path).find_by(classification_alias_paths: { full_path_names: from_path.reverse })
-=======
-        from_ca = from_path.first.uuid? ? DataCycleCore::ClassificationAlias.find_by(id: from_path.first) : DataCycleCore::ClassificationAlias.includes(:classification_alias_path).find_by(classification_alias_paths: { full_path_names: from_path.reverse })
->>>>>>> old/develop
 
         abort('ERROR: from ClassificationAlias not found') if from_ca.nil?
 

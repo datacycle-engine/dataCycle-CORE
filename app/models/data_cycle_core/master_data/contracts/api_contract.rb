@@ -25,10 +25,6 @@ module DataCycleCore
           optional(:api_subversion).filled(:string)
           optional(:token).filled(:string)
           optional(:id).filled(:string)
-<<<<<<< HEAD
-=======
-          optional(:timeseries).filled(:string)
->>>>>>> old/develop
         end
 
         CONTENT = Dry::Schema.Params do
@@ -80,16 +76,6 @@ module DataCycleCore
           optional(:shapes).value(:array, min_size?: 1)
         end
 
-<<<<<<< HEAD
-=======
-        TIME_FILTER = Dry::Schema.Params do
-          optional(:in).hash do
-            optional(:min).filled(:string)
-            optional(:max).filled(:string)
-          end
-        end
-
->>>>>>> old/develop
         ATTRIBUTE_FILTER = Dry::Schema.Params do
           optional(:in).hash do
             optional(:min).filled(:string)
@@ -150,10 +136,6 @@ module DataCycleCore
           optional(:page).hash(PAGE)
           optional(:section).hash(SECTION)
           optional(:filter).hash(FILTER)
-<<<<<<< HEAD
-=======
-          optional(:time).hash(TIME_FILTER)
->>>>>>> old/develop
         end
       end
       class ApiLinkedContract < Dry::Validation::Contract

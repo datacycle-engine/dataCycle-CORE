@@ -41,7 +41,6 @@ module DataCycleCore
         end
 
         def address_line
-<<<<<<< HEAD
           return if schema_type != 'Place'
           (try(:address)&.postal_code.present? || try(:address)&.address_locality.present? ? "#{address.postal_code} #{address.address_locality}, " : '') + (try(:address)&.street_address.present? ? address.street_address : '')
         end
@@ -49,29 +48,6 @@ module DataCycleCore
         def address_block
           return if schema_type != 'Place'
           ((try(:address)&.street_address.present? ? "#{address.street_address}<br/>" : '') + (try(:address)&.postal_code.present? || try(:address)&.address_locality.present? ? "#{address.postal_code} #{address.address_locality}" : ''))
-=======
-          return if properties_for('address')&.[]('type') != 'object' || try(:address).blank?
-
-          ActionView::OutputBuffer.new([
-            [
-              address.postal_code,
-              address.address_locality
-            ].compact_blank.join(' '),
-            address.street_address
-          ].compact_blank.join(', '))
-        end
-
-        def address_block
-          return if properties_for('address')&.[]('type') != 'object' || try(:address).blank?
-
-          ActionView::OutputBuffer.new([
-            address.street_address,
-            [
-              address.postal_code,
-              address.address_locality
-            ].compact_blank.join(' ')
-          ].compact_blank.join('<br>'))
->>>>>>> old/develop
         end
 
         def coordinates

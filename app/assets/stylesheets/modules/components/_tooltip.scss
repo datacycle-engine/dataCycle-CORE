@@ -19,15 +19,6 @@
     transform: rotate(45deg);
   }
 
-  #dc-tooltip-content {
-    .fa {
-      font-size: 0.9rem;
-      line-height: 0.9rem;
-      vertical-align: middle;
-      display: inline-flex;
-    }
-  }
-
   .tag-full-path {
     font-weight: bold;
   }
@@ -43,28 +34,30 @@
 
     ul.tag-translations-list {
       list-style-type: none;
-      margin: 0 0 0 1rem;
+      margin: 0 0 0 3rem;
 
       li {
         position: relative;
-        font-weight: bold;
+        font-style: italic;
 
-        .tag-translations-locales {
-          font-weight: normal;
-          font-style: italic;
+        &::before {
+          content: attr(data-locale);
+          position: absolute;
+          right: calc(100% + 0.3rem);
+          font-weight: bold;
+          font-style: normal;
+          white-space: nowrap;
         }
       }
     }
   }
 }
 
-[data-dc-tooltip]:not([data-dc-tooltip='']):not([disabled]):not(button):not(a):not(.button):not(label):not(.copy-to-clipboard):not([data-open]:not([data-toggle])) {
+[data-dc-tooltip]:not([data-dc-tooltip='']):not(button):not(a):not(.button):not(label):not(.copy-to-clipboard) {
   cursor: help;
 }
 
 .select2-results__option [data-dc-tooltip],
-.select2-selection [data-dc-tooltip],
-a [data-dc-tooltip],
-.ql-formats [data-dc-tooltip] {
+a [data-dc-tooltip] {
   cursor: inherit !important;
 }

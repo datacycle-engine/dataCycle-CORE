@@ -52,10 +52,7 @@ module DataCycleCore
         }, headers: {
           referer: edit_thing_path(@content)
         }
-<<<<<<< HEAD
 
-=======
->>>>>>> old/develop
         assert_redirected_to thing_path(@content, locale: I18n.locale)
         assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
         assert_equal DataCycleCore::Feature::Releasable.get_stage('review'), @content.reload.try(DataCycleCore::Feature::Releasable.allowed_attribute_keys(@content)&.first)&.reload&.first&.name

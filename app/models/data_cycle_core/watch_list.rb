@@ -54,32 +54,13 @@ module DataCycleCore
       end
     end
 
-<<<<<<< HEAD
-=======
-    def to_select_option
-      DataCycleCore::Filter::SelectOption.new(
-        id,
-        name,
-        model_name.param_key,
-        full_path
-      )
-    end
-
->>>>>>> old/develop
     private
 
     def split_full_path
       full_path.squish!
-<<<<<<< HEAD
       return self.name = full_path.squish unless DataCycleCore::Feature::CollectionGroup.enabled?
 
       path_items = full_path.squish.split(DataCycleCore::Feature::CollectionGroup.separator)
-=======
-
-      return self.name = full_path unless DataCycleCore::Feature::CollectionGroup.enabled?
-
-      path_items = full_path.split(DataCycleCore::Feature::CollectionGroup.separator)
->>>>>>> old/develop
 
       self.full_path_names = path_items[0...-1]
       self.name = path_items.last

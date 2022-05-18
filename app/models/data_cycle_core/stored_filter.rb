@@ -10,12 +10,6 @@ module DataCycleCore
     belongs_to :linked_stored_filter, class_name: 'DataCycleCore::StoredFilter', inverse_of: :filter_uses, dependent: nil
     has_many :filter_uses, class_name: 'DataCycleCore::StoredFilter', foreign_key: :linked_stored_filter_id, inverse_of: :linked_stored_filter, dependent: :nullify
 
-<<<<<<< HEAD
-=======
-    has_many :data_links, as: :item, dependent: :destroy
-    has_many :valid_write_links, -> { valid.writable }, class_name: 'DataCycleCore::DataLink', as: :item
-
->>>>>>> old/develop
     # Mögliche Filter-Parameter: c, t, v, m, n, q
     #
     # c => 'd' oder 'a'         | für 'default' oder 'advanced'
@@ -110,29 +104,17 @@ module DataCycleCore
       if search.present?
         [
           {
-<<<<<<< HEAD
             "m": 'fulltext_search',
             "o": 'DESC',
             "v": search
-=======
-            'm': 'fulltext_search',
-            'o': 'DESC',
-            'v': search
->>>>>>> old/develop
           }
         ]
       elsif schedule.present?
         [
           {
-<<<<<<< HEAD
             "m": 'by_proximity',
             "o": 'ASC',
             "v": schedule
-=======
-            'm': 'by_proximity',
-            'o': 'ASC',
-            'v': schedule
->>>>>>> old/develop
           }
         ]
       end
@@ -156,39 +138,5 @@ module DataCycleCore
 
       Arel::SelectManager.new(Arel::Nodes::TableAlias.new(query1.union(:all, query2), 'combined_collections_and_searches')).project(Arel.star).order('name ASC')
     end
-<<<<<<< HEAD
-=======
-
-    def to_select_option
-      DataCycleCore::Filter::SelectOption.new(
-        id,
-        name,
-        model_name.param_key,
-        name
-      )
-    end
-
-    def valid_write_links?
-      valid_write_links.present?
-    end
-
-    def apply_params_for_data_links(data_link_ids)
-      stored_filter_ids = DataCycleCore::DataLink.where(id: data_link_ids, permissions: 'read').valid_stored_filters.ids
-
-      return if stored_filter_ids.blank?
-
-      if (union_filters = parameters&.filter { |f| f['t'] == 'union_filter_ids' && f['v'].intersection(stored_filter_ids).present? }).present?
-        union_filters.each { |f| f['v'] = f['v'].intersection(stored_filter_ids) }
-      else
-        parameters << {
-          'c' => 'a',
-          't' => 'union_filter_ids',
-          'n' => 'Union_filter_ids',
-          'm' => 'i',
-          'v' => stored_filter_ids
-        }
-      end
-    end
->>>>>>> old/develop
   end
 end

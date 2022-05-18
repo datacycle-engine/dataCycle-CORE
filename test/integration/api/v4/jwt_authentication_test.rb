@@ -148,11 +148,7 @@ module DataCycleCore
           DataCycleCore::JsonWebToken.decode(json_data['token'])
         end
 
-<<<<<<< HEAD
         test '/api/v4/users - create new user' do
-=======
-        test '/api/v4/users/create - create new user' do
->>>>>>> old/develop
           user_data = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
             email: "tester_2_#{Time.now.getutc.to_i}@datacycle.at",
             confirmed_at: Time.zone.now - 1.day
@@ -185,26 +181,6 @@ module DataCycleCore
           assert_response :unauthorized
         end
 
-<<<<<<< HEAD
-=======
-        test '/api/v4/users/update - update user' do
-          rsa_private = generate_private_key
-          token = DataCycleCore::JsonWebToken.encode(payload: { user: @user_data.deep_transform_keys { |k| k.to_s.camelize(:lower) } }, alg: 'RS256', key: rsa_private)
-
-          patch api_v4_users_update_path, params: { givenName: 'Test', familyName: 'Er' }, headers: {
-            Authorization: "Bearer #{token}"
-          }
-
-          assert_response :success
-          assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse(response.body)
-
-          assert json_data['token'].present?
-          assert_equal 'Test', json_data['givenName']
-          assert_equal 'Er', json_data['familyName']
-        end
-
->>>>>>> old/develop
         test '/api/v4/users - login or create user on authenticate' do
           user_data = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
             email: "tester_3_#{Time.now.getutc.to_i}@datacycle.at",

@@ -4,13 +4,8 @@
   <%= link_to remove_item_watch_list_path(@watch_list, hashable_type: content&.class&.name, hashable_id: content&.id, load_more: true),
     class: 'remove-from-watchlist-link watch-lists-link',
     method: :delete,
-<<<<<<< HEAD
     title: t('actions.remove_from', collection: @watch_list.name, locale: active_ui_locale),
     data: {
-=======
-    data: {
-      dc_tooltip: t('actions.remove_from', collection: @watch_list.name, locale: active_ui_locale),
->>>>>>> old/develop
       disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw')
     }.merge(@watch_list.my_selection ? {} : {
       confirm: t('actions.remove_content_from', name: I18n.with_locale(content&.first_available_locale){ content&.title }, collection: @watch_list.name, locale: active_ui_locale)

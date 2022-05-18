@@ -12,10 +12,6 @@
   },
   "test": {
     "autoBuild": true,
-<<<<<<< HEAD
     "publicOutputDir": "assets/dev-build"
-=======
-    "publicOutputDir": "assets/test-build"
->>>>>>> old/develop
   }
 }

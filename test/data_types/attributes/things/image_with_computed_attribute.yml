@@ -32,7 +32,6 @@
               :aliases:
                 - Person
                 - Organisation
-<<<<<<< HEAD
       :copyright_notice:
         :label: Copyright-Hinweis
         :storage_location: translated_value
@@ -46,50 +45,3 @@
           :parameters:
             :0: copyright_holder
             :1: author
-=======
-      :copyright_notice_computed:
-        :label: Urheberrechtsvermerk (automatisch)
-        :type: string
-        :storage_location: value
-        :compute:
-          :module: Utility::Compute::Copyright
-          :method: copyright_notice
-          :parameters:
-            :0: license_classification
-            :1: author
-            :2: copyright_holder
-            :3: copyright_year
-        :search: true
-        :api:
-          :disabled: true
-        :ui:
-          :edit:
-            :disabled: true
-      :copyright_notice_override:
-        :label: Urheberrechtsvermerk (manuell)
-        :storage_location: value
-        :type: string
-        :search: true
-        :api:
-          :disabled: true
-        :ui:
-          :edit:
-            :disabled: false
-      :copyright_notice:
-        :label: Urheberrechtsvermerk
-        :type: string
-        :storage_location: value
-        :virtual:
-          :module: Utility::Virtual::Common
-          :method: take_first
-          :parameters:
-            :0: copyright_notice_override
-            :1: copyright_notice_computed
-        :api:
-          :disabled: false
-        :ui:
-          :show:
-            :disabled: true
-          :edit:
-            :disabled: true
->>>>>>> old/develop

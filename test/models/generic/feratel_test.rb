@@ -41,11 +41,7 @@ module DataCycleCore
           max_count: 1,
           mode: 'full'
         }
-<<<<<<< HEAD
         external_source = DataCycleCore::ExternalSystem.find_by(name: 'Feratel VCloud')
-=======
-        external_source = DataCycleCore::ExternalSystem.find_by(name: 'Feratel')
->>>>>>> old/develop
         download_from_local_json(external_source)
         external_source.import(options)
 
@@ -57,11 +53,7 @@ module DataCycleCore
       end
 
       def teardown
-<<<<<<< HEAD
         DataCycleCore::MongoHelper.drop_mongo_db('Feratel VCloud')
-=======
-        DataCycleCore::MongoHelper.drop_mongo_db('Feratel')
->>>>>>> old/develop
       end
     end
   end

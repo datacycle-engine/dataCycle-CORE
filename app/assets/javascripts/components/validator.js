@@ -162,7 +162,7 @@ class Validator {
     } else {
       this.removeSubmitButtonErrors(validationContainer);
     }
-    return Promise.resolve(error);
+    return error;
   }
   disable() {
     DataCycle.disableElement(this.$submitButton);
@@ -280,12 +280,14 @@ class Validator {
     }
 
     let formData = $(validationContainer).find(':input').serializeArray();
-    if (formData.length == 0) return Promise.resolve({ valid: true });
+    if (formData.length == 0) return;
 
     const translationLocale = this.attributeLocale(validationContainer);
 
     if (!this.formFieldChanged(formData, translationLocale, submitFormaDataUpToDate))
-      return Promise.resolve({ valid: true });
+      return Promise.resolve({
+        valid: true
+      });
 
     const uuid = this.$form.find(':input[name="uuid"]').val();
     const locale = translationLocale || this.locale();
@@ -432,7 +434,6 @@ class Validator {
         values.filter(Boolean).forEach(validation => {
           if (!validation.valid) this.valid = false;
         });
-
         if (this.valid && submit) {
           this.queryCount = 0;
           let warnings = this.$form.find('.form-element .warning.counter');

@@ -12,11 +12,8 @@ module DataCycleCore
 
     belongs_to :text_file, foreign_key: :asset_id
 
-<<<<<<< HEAD
     scope :session_edit_links, ->(ids) { where(permissions: 'write', id: ids) }
 
-=======
->>>>>>> old/develop
     def self.by_creator(creator)
       creator = DataCycleCore::User.find(creator) unless creator.is_a?(DataCycleCore::User)
 
@@ -53,13 +50,6 @@ module DataCycleCore
       !valid_from.presence&.>(Time.zone.now.round) && !valid_until.presence&.<(Time.zone.now.round)
     end
 
-<<<<<<< HEAD
-=======
-    def self.valid_stored_filters
-      DataCycleCore::StoredFilter.where(id: all.where(item_type: 'DataCycleCore::StoredFilter').valid.pluck(:item_id))
-    end
-
->>>>>>> old/develop
     private
 
     def set_release_status

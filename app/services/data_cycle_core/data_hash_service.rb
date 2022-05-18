@@ -158,11 +158,7 @@ module DataCycleCore
 
         datahash&.each do |key, value|
           properties = template_hash['properties'][key]
-<<<<<<< HEAD
           type = properties['type'] == 'computed' ? properties.dig('compute', 'type') : properties['type']
-=======
-          type = properties['type']
->>>>>>> old/develop
 
           if value.is_a?(::Hash)
             if type == 'embedded'

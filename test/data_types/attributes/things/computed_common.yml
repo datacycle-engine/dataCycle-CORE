@@ -23,16 +23,10 @@
           :format: integer
       :common_copy:
         :label: Common Copy Value
-<<<<<<< HEAD
         :storage_location: value
         :type: computed
         :compute:
           :type: number
-=======
-        :type: number
-        :storage_location: value
-        :compute:
->>>>>>> old/develop
           :module: Utility::Compute::Common
           :method: copy
           :parameters:

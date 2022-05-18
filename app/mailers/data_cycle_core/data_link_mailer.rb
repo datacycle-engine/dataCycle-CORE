@@ -8,21 +8,13 @@ module DataCycleCore
       @receiver = data_link.receiver
       @locale = data_link.locale.presence || @receiver.ui_locale
 
-<<<<<<< HEAD
       if data_link.item.is_a?(DataCycleCore::WatchList)
-=======
-      if data_link.item.is_a?(DataCycleCore::WatchList) || data_link.item.is_a?(DataCycleCore::StoredFilter)
->>>>>>> old/develop
         @title = data_link.item.try(:name)
       elsif data_link.item.class.table_name == 'things'
         I18n.with_locale(data_link.item.first_available_locale) do
           @title = data_link.item.try(:title)
         end
       end
-<<<<<<< HEAD
-=======
-
->>>>>>> old/develop
       @url = url
 
       mail(to: @receiver.email, cc: @user.email, from: t('data_link_mailer.from', from: self.class.default[:from], locale: @locale, default: self.class.default[:from]), subject: t('data_link_mailer.send_subject', locale: @locale))

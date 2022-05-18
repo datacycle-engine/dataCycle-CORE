@@ -262,19 +262,11 @@ module DataCycleCore
           params = {
             id: user_id
           }
-<<<<<<< HEAD
           get api_v4_user_path(params)
           json_data = JSON.parse response.body
           assert_equal(user_id, json_data.dig('id'))
 
           post api_v4_user_path(params)
-=======
-          get api_v4_users_user_path(params)
-          json_data = JSON.parse response.body
-          assert_equal(user_id, json_data.dig('id'))
-
-          post api_v4_users_user_path(params)
->>>>>>> old/develop
           json_data = JSON.parse response.body
           assert_equal(user_id, json_data.dig('id'))
         end

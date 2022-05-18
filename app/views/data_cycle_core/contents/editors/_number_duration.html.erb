@@ -1,52 +1,25 @@
-<<<<<<< HEAD
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
-=======
-<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: (options || {}).merge(class: 'duration-slider-editor'), content: content, parent: local_assigns[:parent] do %>
->>>>>>> old/develop
 
   <%= attribute_edit_label_tag(**local_assigns) %>
 
   <div class="duration-slider">
-<<<<<<< HEAD
     <div class="small-10 columns">
-=======
-    <div class="duration-slider-slider">
->>>>>>> old/develop
       <%= tag.div tag.span(class: 'slider-handle', role: 'slider', tabindex: 1, aria: { controls: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" }, data: { slider_handle: true }),
         class: "slider#{' disabled' unless attribute_editable?(key, definition, options, content) }",
         data: {
           slider: true,
           initial_start: value.try(:to_i) || 0,
           step: 1,
-<<<<<<< HEAD
           position_value_function: 'pow',
-=======
-          position_value_function: options.fetch('position_value_function', 'pow'),
->>>>>>> old/develop
           non_linear_base: 5,
           start: definition.dig('validations', 'min').try(:to_i) || 0,
           end: definition.dig('validations', 'max').try(:to_i) || 100,
           decimal: 0
         } %>
     </div>
-<<<<<<< HEAD
     <div class="small-2 columns">
       <%= number_field_tag key, value, options.merge(id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", min: definition.dig('validations', 'min').try(:to_i) || 0, max: definition.dig('validations', 'max').try(:to_i) || 100, step: 1, value: value.try(:to_i) || 0) %>
       <span class="duration-label"><%= options.fetch('data-unit', 'min') %></span>
-=======
-
-    <div class="duration-slider-input">
-      <%= number_field_tag key,
-                            value,
-                            options.merge(
-                              id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}",
-                              min: definition.dig('validations', 'min').try(:to_i) || 0,
-                              max: definition.dig('validations', 'max').try(:to_i) || 100,
-                              step: 1,
-                              value: value.try(:to_i) || 0
-                            ) %>
-      <%= tag.span(options.fetch('data-unit', 'min'), class: 'duration-label') if options.fetch('data-unit', 'min').present? %>
->>>>>>> old/develop
     </div>
   </div>
 

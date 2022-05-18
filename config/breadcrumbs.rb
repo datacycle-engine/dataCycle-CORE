@@ -65,11 +65,6 @@ end
 
 # Content Crumbs
 crumb :content do |content, watch_list|
-<<<<<<< HEAD
-=======
-  content = content.thing if content.history?
-
->>>>>>> old/develop
   I18n.with_locale(content.first_available_locale) do
     link to_html_string(content.translated_template_name(active_ui_locale), content.title), thing_path(content, watch_list_id: watch_list), authorized: can?(:show, content)
   end
@@ -100,20 +95,12 @@ end
 
 # History Crumbs
 crumb :show_history do |item, watch_list|
-<<<<<<< HEAD
   link to_html_string("<i aria-hidden='true' class='fa fa-history'></i>#{t('actions.show', locale: active_ui_locale).capitalize}"), thing_path(item), authorized: can?(:history, item)
-=======
-  link to_html_string("<i aria-hidden='true' class='fa fa-arrows-h'></i>#{t('common.compare', locale: active_ui_locale).capitalize}"), thing_path(item), authorized: can?(:history, item)
->>>>>>> old/develop
   parent :content, item, watch_list
 end
 
 crumb :show_compare do |item, watch_list|
-<<<<<<< HEAD
   link to_html_string("<i aria-hidden='true' class='fa fa-columns'></i>#{t('common.compare', locale: active_ui_locale).capitalize}"), thing_path(item), authorized: can?(:show, item)
-=======
-  link to_html_string("<i aria-hidden='true' class='fa fa-arrows-h'></i>#{t('common.compare', locale: active_ui_locale).capitalize}"), thing_path(item), authorized: can?(:show, item)
->>>>>>> old/develop
   parent :content, item, watch_list
 end
 
@@ -123,21 +110,10 @@ crumb :'data_cycle_core/publications' do
 end
 
 # Stored Filters Crumb
-<<<<<<< HEAD
 crumb :'data_cycle_core/stored_filters' do
   link to_html_string("<i aria-hidden='true' class='fa fa-search'></i> #{t('data_cycle_core.stored_searches.my_searches', locale: active_ui_locale)}"), stored_filters_path, authorized: can?(:index, DataCycleCore::StoredFilter)
 end
 
-=======
-crumb :search_history do
-  link to_html_string("<i aria-hidden='true' class='fa fa-search'></i> #{t('data_cycle_core.stored_searches.my_searches', locale: active_ui_locale)}"), stored_filters_path, authorized: can?(:index, DataCycleCore::StoredFilter)
-end
-
-crumb :saved_searches do
-  link to_html_string("<i aria-hidden='true' class='fa fa-search'></i> #{t('data_cycle_core.stored_searches.my_saved', locale: active_ui_locale)}"), saved_searches_stored_filters_path, authorized: can?(:index, DataCycleCore::StoredFilter)
-end
-
->>>>>>> old/develop
 # Documentation
 crumb :documentation do
   link t('data_cycle_core.documentation.root', locale: active_ui_locale), docs_path, authorized: true
@@ -153,13 +129,10 @@ crumb :documentation do
   end
 end
 
-<<<<<<< HEAD
 crumb :acknowledgments do
   link 'Acknowledgments', acknowledgments_path, authorized: true
 end
 
-=======
->>>>>>> old/develop
 # Schema
 crumb :schema do
   link t('data_cycle_core.schema.root', locale: active_ui_locale), schema_path, authorized: params[:id].present?

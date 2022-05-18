@@ -1,18 +1,5 @@
-<<<<<<< HEAD
 <a data-toggle="new_<%= local_assigns.fetch(:key, 'default') %>" class="button-prime <%= local_assigns[:button_class] %>" data-dc-tooltip="<%= local_assigns.fetch(:button_title, t('common.create_new_content', locale: active_ui_locale)) %>">
   <i class="fa fa-plus" aria-hidden="true"></i>
 </a>
-=======
-<%= button_tag(
-  tag.i(class: 'fa fa-plus'),
-  type: :button,
-  class: "button-prime #{local_assigns[:button_class]}",
-  disabled: local_assigns[:disabled],
-  data: {
-    toggle: "new_#{local_assigns.fetch(:key, 'default')}",
-    dc_tooltip: local_assigns[:dc_tooltip].presence || local_assigns.fetch(:button_title, t('common.create_new_content', locale: active_ui_locale))
-  }
-) %>
->>>>>>> old/develop
 
 <%= render 'data_cycle_core/application/new_contents/new_content_form', local_assigns %>

@@ -15,11 +15,8 @@ module DataCycleCore
         key.underscore.to_s,
         "#{definition['type'].underscore}_#{definition.try(:[], 'xml').try(:[], 'partial').try(:underscore)}",
         "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
-<<<<<<< HEAD
         "#{definition.try(:[], 'compute').try(:[], 'type').try(:underscore)}_#{definition.try(:[], 'xml').try(:[], 'partial').try(:underscore)}",
         definition.try(:[], 'compute').try(:[], 'type').try(:underscore).to_s,
-=======
->>>>>>> old/develop
         definition['type'].underscore.to_s,
         'default'
       ].reject(&:blank?)

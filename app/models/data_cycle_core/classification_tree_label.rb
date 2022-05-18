@@ -78,50 +78,6 @@ module DataCycleCore
       parent_classification_alias
     end
 
-<<<<<<< HEAD
-=======
-    def create_or_update_classification_alias_by_name(*classification_attributes)
-      parent_classification_alias = nil
-      classification_attributes.map { |attributes|
-        if attributes.is_a?(String)
-          {
-            name: attributes
-          }
-        else
-          attributes.compact_blank!
-        end
-      }.each do |attributes|
-        if parent_classification_alias
-          classification_alias = parent_classification_alias
-            .sub_classification_alias
-            .find_or_initialize_by(name: attributes[:name])
-        else
-          classification_alias = classification_aliases.roots
-            .find_or_initialize_by(name: attributes[:name])
-        end
-
-        if classification_alias.new_record?
-          classification_alias.save!
-
-          classification = Classification.create!(attributes.slice(:name, :external_source_id, :external_key, :uri))
-
-          ClassificationGroup.create!(classification: classification,
-                                      classification_alias: classification_alias)
-
-          ClassificationTree.create!(classification_tree_label: self,
-                                     parent_classification_alias: parent_classification_alias,
-                                     sub_classification_alias: classification_alias)
-        else
-          classification_alias.primary_classification.update!(attributes.slice(:external_source_id, :external_key, :uri))
-        end
-        classification_alias.update!(attributes.slice(:external_source_id, :uri))
-        parent_classification_alias = classification_alias
-      end
-
-      parent_classification_alias
-    end
-
->>>>>>> old/develop
     def to_csv(include_contents: false)
       CSV.generate do |csv|
         csv << [name]

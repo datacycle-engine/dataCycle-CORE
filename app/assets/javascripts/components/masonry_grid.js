@@ -1,6 +1,7 @@
 class MasonryGrid {
   constructor(selector, config = null) {
     this.grid = $(selector);
+    this.rowGap = parseInt(window.getComputedStyle(this.grid[0]).getPropertyValue('grid-row-gap'));
     this.rowHeight = parseInt(window.getComputedStyle(this.grid[0]).getPropertyValue('grid-auto-rows'));
     this.config = config || { attributes: true, childList: true, subtree: true };
     this.observer = new MutationObserver(this.callbackFunction.bind(this));
@@ -58,7 +59,7 @@ class MasonryGrid {
   resizeMasonryItem(item) {
     let newHeight = this.boundingHeight(item);
     $(item).data('original-height', newHeight);
-    let rowSpan = Math.ceil(newHeight / this.rowHeight) + 1;
+    let rowSpan = Math.ceil((newHeight + this.rowGap) / (this.rowHeight + this.rowGap));
     item.style.gridRow = 'span ' + rowSpan;
   }
   resizeAllMasonryItems(event) {

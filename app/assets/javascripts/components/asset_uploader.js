@@ -255,8 +255,8 @@ class AssetUploader {
       if (!error) error = await I18n.translate('frontend.upload.missing_metadata');
     }
 
-    if (error) this.createButton.attr('data-dc-tooltip', `${await I18n.translate('frontend.upload.error')}: ${error}`);
-    else this.createButton.removeAttr('data-dc-tooltip');
+    if (error) this.createButton.attr('title', `${await I18n.translate('frontend.upload.error')}: ${error}`);
+    else this.createButton.removeAttr('title');
   }
 }
 

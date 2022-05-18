@@ -43,11 +43,7 @@
         <div class="form-element input name validation-container" data-key="watch_list[full_path]">
           <%= f.label :full_path do %>
             <%= DataCycleCore::WatchList.human_attribute_name(:full_path, locale: active_ui_locale) %>
-<<<<<<< HEAD
             <%= tag.i '*', class: 'required-field-marker', title: t('common.required_field', locale: active_ui_locale) %>
-=======
-            <%= tag.i '*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) } %>
->>>>>>> old/develop
           <% end %>
 
           <%= f.text_field :full_path, data: { validate: 'text' } %>
