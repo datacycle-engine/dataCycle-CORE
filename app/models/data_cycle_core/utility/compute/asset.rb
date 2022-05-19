@@ -12,11 +12,11 @@ module DataCycleCore
           DataCycleCore::Asset.find_by(id: computed_parameters.values.first)&.try(:file_size)&.to_i
         end
 
-        def self.file_format(computed_parameters:, data_hash:, key:, content:, **_args)
+        def self.file_format(computed_parameters:, data_hash:, **_args)
           DataCycleCore::Asset.find_by(id: computed_parameters.values.first)&.try(:content_type) || MiniMime.lookup_by_extension(data_hash['content_url']&.match(/.*\.(.*)/)&.[](1).to_s)&.content_type
         end
 
-        def self.file_type_classification(computed_parameters:, data_hash:, key:, content:, computed_definition:, **_args)
+        def self.file_type_classification(computed_parameters:, computed_definition:, **_args)
           file_format_path = computed_parameters.values.first&.split('/')
 
           return [] if file_format_path.blank?

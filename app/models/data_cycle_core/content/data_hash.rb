@@ -24,7 +24,7 @@ module DataCycleCore
         inherit_source_attributes(**options.to_h.slice(:data_hash, :source)) if options.new_content && !options.source.nil?
 
         # add default value
-        add_default_values(**options.to_h.slice(:data_hash, :current_user, :new_content)) if properties_with_default_values.present?
+        add_default_values(**options.to_h.slice(:data_hash, :current_user, :new_content)) if default_value_property_names.present?
 
         # add computed values
         add_computed_values(data_hash: options.data_hash) if computed_property_names.present?
@@ -178,7 +178,7 @@ module DataCycleCore
       end
 
       def validate(data_hash:, schema_hash: nil, strict: false, add_defaults: false, current_user: nil, add_warnings: true, add_errors: true)
-        data_hash = add_default_values(data_hash: data_hash, current_user: current_user, partial: !strict).dup if add_defaults && properties_with_default_values.present?
+        data_hash = add_default_values(data_hash: data_hash, current_user: current_user, partial: !strict).dup if add_defaults && default_value_property_names.present?
 
         validator = DataCycleCore::MasterData::ValidateData.new(self)
         valid = DataCycleCore::LocalizationService.localize_validation_errors(validator.validate(data_hash, schema_hash || schema, strict), current_user&.ui_locale || DataCycleCore.ui_locales.first)

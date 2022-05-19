@@ -14,9 +14,9 @@ module DataCycleCore
           end
 
           def linked_gip_route_attribute(property_parameters:, property_definition:, **_additional_args)
-            return nil if property_parameters.first.blank?
+            return if property_parameters.values.first.blank?
 
-            DataCycleCore::Thing.find(property_parameters&.first&.first)&.send(property_definition&.dig('default_value', 'linked_attribute').to_s)
+            DataCycleCore::Thing.find_by(id: property_parameters.values.first)&.send(property_definition&.dig('default_value', 'linked_attribute').to_s)
           end
 
           private

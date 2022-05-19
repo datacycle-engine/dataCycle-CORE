@@ -5,8 +5,20 @@ module DataCycleCore
     module Compute
       module String
         class << self
-          def concat(computed_parameters:, **_args)
-            computed_parameters.values.join
+          def concat(computed_parameters:, computed_definition:, **_args)
+            computed_parameters.values.join(computed_definition&.dig('compute', 'separator').to_s)
+          end
+
+          def value(computed_definition:, **_args)
+            computed_definition.dig('compute', 'value')
+          end
+
+          def interpolate(computed_parameters:, content:, computed_definition:, **_args)
+            format(computed_definition&.dig('compute', 'value').to_s, {
+              locale: I18n.locale,
+              created_at: content&.created_at,
+              external_key: content&.external_key
+            }.merge(computed_parameters.symbolize_keys))
           end
 
           # def transform_string(definition, args)
@@ -28,11 +40,9 @@ module DataCycleCore
             recursive_char_count(data_hash, computed_parameters.first.dig('paths'))&.flatten&.compact&.sum
           end
 
-          def linked_gip_route_attribute(computed_parameters:, computed_definition:, **args)
-            return args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key)) if computed_parameters.first.blank?
+          def linked_gip_route_attribute(computed_parameters:, computed_definition:, **_args)
+            content = DataCycleCore::Thing.find_by(id: computed_parameters.values.first)
 
-            # when called from UpdateComputedPropertiesJob, linked items are objects, not id-strings
-            content = computed_parameters&.first&.first.is_a?(::String) ? DataCycleCore::Thing.find(computed_parameters&.first&.first) : computed_parameters&.first&.first
             content&.send(computed_definition&.dig('compute', 'linked_attribute').to_s)
           end
 

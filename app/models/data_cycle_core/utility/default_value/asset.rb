@@ -15,7 +15,7 @@ module DataCycleCore
         end
 
         def self.color_space_classification(property_parameters:, property_definition:, **_args)
-          color_space = DataCycleCore::Asset.find_by(id: property_parameters&.first)&.metadata&.dig('ImColorSpace')
+          color_space = DataCycleCore::Asset.find_by(id: property_parameters.values.first)&.metadata&.dig('ImColorSpace')
 
           return [] if color_space.blank?
 
@@ -27,7 +27,7 @@ module DataCycleCore
         end
 
         def self.exif_to_classification(property_parameters:, property_definition:, content:, **_args)
-          meta_data = DataCycleCore::Asset.find_by(id: property_parameters&.first)&.metadata
+          meta_data = DataCycleCore::Asset.find_by(id: property_parameters.values.first)&.metadata
           meta_property_keys = property_definition.dig('default_value', 'parameters', '1', 'metadata')
           default_value = property_definition.dig('default_value', 'parameters', '1', 'default')
           default_value_import = property_definition.dig('default_value', 'parameters', '1', 'default_import')
@@ -55,11 +55,11 @@ module DataCycleCore
         end
 
         def self.filename_to_string(property_parameters:, **_args)
-          DataCycleCore::Asset.find_by(id: property_parameters&.first)&.name
+          DataCycleCore::Asset.find_by(id: property_parameters.values.first)&.name
         end
 
         def self.exif_to_string(property_parameters:, property_definition:, **_args)
-          meta_data = DataCycleCore::Asset.find_by(id: property_parameters&.first)&.metadata
+          meta_data = DataCycleCore::Asset.find_by(id: property_parameters.values.first)&.metadata
           meta_property_keys = property_definition.dig('default_value', 'parameters', '1', 'metadata')
 
           return if meta_data.blank? || meta_property_keys.blank?
@@ -77,7 +77,7 @@ module DataCycleCore
         end
 
         def self.exif_to_linked(property_parameters:, property_definition:, content:, **_args)
-          meta_data = DataCycleCore::Asset.find_by(id: property_parameters&.first)&.metadata
+          meta_data = DataCycleCore::Asset.find_by(id: property_parameters.values.first)&.metadata
           meta_property_keys = property_definition.dig('default_value', 'parameters', '1', 'metadata')
 
           default_value = property_definition.dig('default_value', 'parameters', '1', 'default')

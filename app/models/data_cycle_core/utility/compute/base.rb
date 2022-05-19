@@ -8,17 +8,20 @@ module DataCycleCore
           def compute_values(key, data_hash, content, force)
             return if data_hash.key?(key)
 
-            properties = content.properties_for(key)
+            properties = content.properties_for(key)&.with_indifferent_access
 
             return if properties.blank?
-            return if skip_compute_value?(key, data_hash, content, properties, force)
+
+            computed_parameters = Array.wrap(properties&.dig('compute', 'parameters'))
+
+            return unless conditions_satisfied?(content, properties)
+            return if skip_compute_value?(key, data_hash, content, computed_parameters, force)
 
             module_name = ('DataCycleCore::' + properties.dig('compute', 'module').classify).safe_constantize
             method_name = module_name.method(properties.dig('compute', 'method'))
 
             data_hash[key] = method_name.try(:call, **{
-              computed_parameters: Array.wrap(properties&.dig('compute', 'parameters')).index_with { |v| data_hash[v] },
-              computed_options: properties.dig('compute', 'options') || {},
+              computed_parameters: computed_parameters.index_with { |v| data_hash[v] },
               key: key,
               data_hash: data_hash,
               content: content,
@@ -26,26 +29,49 @@ module DataCycleCore
             })
           end
 
-          def missing_keys(properties, data_hash)
-            computed_parameters = Array.wrap(properties&.dig('compute', 'parameters'))
+          def conditions_satisfied?(content, properties)
+            return true unless properties['compute'].key?('conditions')
 
-            computed_parameters.difference(data_hash.slice(*computed_parameters).keys)
-          end
-
-          def skip_compute_value?(key, data_hash, content, properties, force, checked = false)
-            missing_keys = missing_keys(properties, data_hash)
-
-            raise "computed_exception: some required parameters are missing in data_hash (content: #{content.id}, key: #{key}, data_hash_keys: #{data_hash.keys})" if checked && missing_keys.size != Array.wrap(properties&.dig('compute', 'parameters')).size
-
-            return true if missing_keys.blank? || checked
-
-            missing_keys.intersection(content.computed_property_names).each do |missing_key|
-              compute_values(missing_key, data_hash, content, force)
+            Array.wrap(properties.dig('compute', 'conditions')).compact_blank.each do |condition|
+              return false unless condition_satisfied?(content, condition)
             end
 
-            # TODO: load values for missing_keys from content if above execption is raised
+            true
+          end
 
-            skip_compute_value?(key, data_hash, content, properties, force, true)
+          def condition_satisfied?(content, definition)
+            expected_value = definition['value']
+
+            value = case definition['type']
+                    when 'external_source'
+                      content&.external_source&.default_options&.dig(definition['name'])
+                    when 'I18n'
+                      I18n.send(definition['name'])
+                    when 'content'
+                      content.send(definition['name'])
+                    else
+                      raise 'Unknown type for validation'
+                    end
+
+            send(definition['method'], value, expected_value)
+          end
+
+          def skip_compute_value?(key, data_hash, content, computed_parameters, force, checked = false)
+            return false if computed_parameters.blank?
+
+            missing_keys = computed_parameters.difference(data_hash.slice(*computed_parameters).keys)
+
+            return false if missing_keys.blank?
+            return true if checked && missing_keys.present?
+            return true if missing_keys.size == computed_parameters.size && missing_keys.difference(content.computed_property_names).present?
+
+            missing_keys.intersection(content.computed_property_names).each do |missing_computed_key|
+              compute_values(missing_computed_key, data_hash, content, force)
+            end
+
+            data_hash.merge!(content.get_data_hash_partial(missing_keys.difference(content.computed_property_names)))
+
+            skip_compute_value?(key, data_hash, content, computed_parameters, force, true)
           end
 
           def equals?(value_a, value_b)

@@ -5,45 +5,31 @@ module DataCycleCore
     module Virtual
       module Timeseries
         class << self
-          def first(**args)
-            virtual_parameters = args.dig(:virtual_definition)
-            content = args.dig(:content)
+          def first(virtual_parameters:, content:, **_args)
             content&.send(virtual_parameters.dig('virtual', 'data'))&.first&.send(:value)
           end
 
-          def last(**args)
-            virtual_parameters = args.dig(:virtual_definition)
-            content = args.dig(:content)
+          def last(virtual_parameters:, content:, **_args)
             content&.send(virtual_parameters.dig('virtual', 'data'))&.last&.send(:value)
           end
 
-          def min(**args)
-            virtual_parameters = args.dig(:virtual_definition)
-            content = args.dig(:content)
+          def min(virtual_parameters:, content:, **_args)
             calculate(content, virtual_parameters.dig('virtual', 'data'), :minimum)
           end
 
-          def max(**args)
-            virtual_parameters = args.dig(:virtual_definition)
-            content = args.dig(:content)
+          def max(virtual_parameters:, content:, **_args)
             calculate(content, virtual_parameters.dig('virtual', 'data'), :maximum)
           end
 
-          def count(**args)
-            virtual_parameters = args.dig(:virtual_definition)
-            content = args.dig(:content)
+          def count(virtual_parameters:, content:, **_args)
             calculate(content, virtual_parameters.dig('virtual', 'data'), :count)
           end
 
-          def sum(**args)
-            virtual_parameters = args.dig(:virtual_definition)
-            content = args.dig(:content)
+          def sum(virtual_parameters:, content:, **_args)
             calculate(content, virtual_parameters.dig('virtual', 'data'), :sum)
           end
 
-          def avg(**args)
-            virtual_parameters = args.dig(:virtual_definition)
-            content = args.dig(:content)
+          def avg(virtual_parameters:, content:, **_args)
             calculate(content, virtual_parameters.dig('virtual', 'data'), :average)
           end
 

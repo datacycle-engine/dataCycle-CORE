@@ -71,7 +71,7 @@
           :module: Utility::Compute::Classification
           :method: keywords
           :parameters:
-            :0: country_code
+            - country_code
         :ui:
           :show:
             :disabled: true

@@ -103,7 +103,7 @@
           :module: Utility::Compute::Classification
           :method: description
           :parameters:
-            :0: gender
+            - gender
         :ui:
           :show:
             :disabled: true
