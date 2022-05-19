@@ -574,7 +574,7 @@ de:
     validity_period: Gültigkeitszeitraum
     upload_date: Uploaddatum
     duplicate_candidates: Potentielle Duplikate vorhanden
-    not_1dates: keine potentiellen Duplikate vorhanden
+    not_duplicate_candidates: keine potentiellen Duplikate vorhanden
     bookable: buchbar
     not_bookable: nicht buchbar
     width: Breite
@@ -613,11 +613,16 @@ de:
     event_location: Veranstaltungsort
     inactive_things: Abgelaufene Inhalte
     in_schedule: Termin
+    related_through_attribute:
+      relation_item_offered: ist verknüpft über angebotene Leistung
+      not_relation_item_offered: ist nicht verknüpft über angebotene Leistung
     relation_filter:
       equal: ist
       not_equal: ist nicht
       contained_in: ist enthalten in
       not_contained_in: ist nicht enthalten in
+      exists: ist vorhanden
+      not_exists: ist nicht vorhanden
       placeholder:
         thing: Inhalt
         collection_or_stored_filter: '%{collection} oder %{stored_filter}'
@@ -658,6 +663,7 @@ de:
     geo_within_classification: nach geografischer Lage filtern ...
     geo_filter: nach geografischer Lage filtern ...
     relation_filter: auf Basis von verknüpften Inhalten filtern ...
+    related_through_attribute: nach verknüpften Inhalten mit Attribut filtern ...
     id: nach IDs filtern ...
     union_filter_ids: mehrere Sammlungen kombinieren ...
     related_to: nach verknüpften Inhalten filtern ...
