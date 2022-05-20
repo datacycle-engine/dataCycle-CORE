@@ -27,8 +27,7 @@ chown -R ruby:ruby /app/docker
 # update static vite build
 rm -Rf /app${CORE_DUMMY_PREFIX:-}/public/assets/* \
   && cp -Rf /app${CORE_DUMMY_PREFIX:-}/dc_volumes/public/assets/* /app${CORE_DUMMY_PREFIX:-}/public/assets/. \
-  && cp /app${CORE_DUMMY_PREFIX:-}/public/favicon* /app${CORE_DUMMY_PREFIX:-}/public/assets/. \
-  && cp /app${CORE_DUMMY_PREFIX:-}/public/robots.txt /app${CORE_DUMMY_PREFIX:-}/public/assets/.
+  && cp /app${CORE_DUMMY_PREFIX:-}/public/*.* /app${CORE_DUMMY_PREFIX:-}/public/assets/.
 chown -R ruby:ruby /app${CORE_DUMMY_PREFIX:-}/public/assets
 
 exec /app/docker-entrypoint.sh "$@"
