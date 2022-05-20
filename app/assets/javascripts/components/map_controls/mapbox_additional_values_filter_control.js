@@ -301,6 +301,7 @@ class AdditionalValuesFilterControl {
 
     for (const feature of data.features) {
       feature.properties.id = feature.id;
+      feature.properties.clickable = true;
     }
 
     return data;
