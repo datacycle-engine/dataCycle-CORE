@@ -108,9 +108,8 @@
       :content_url:
         :label: Bild URL
         :storage_location: value
-        :type: computed
+        :type: string
         :compute:
-          :type: string
           :module: Utility::Compute::Asset
           :method: content_url
           :parameters:
@@ -118,14 +117,15 @@
         :ui:
           :show:
             :disabled: true
+          :edit:
+            :disabled: true
         :api:
           :minimal: true
       :thumbnail_url:
         :label: Thumbnail URL
         :storage_location: value
-        :type: computed
+        :type: string
         :compute:
-          :type: string
           :module: Utility::Compute::Image
           :method: thumbnail_url
           :parameters:
@@ -133,6 +133,8 @@
         :ui:
           :show:
             :partial: preview_image
+          :edit:
+            :disabled: true
         :api:
           :minimal: true
       :url:
@@ -151,9 +153,8 @@
       :width:
         :label: Breite
         :storage_location: value
-        :type: computed
+        :type: number
         :compute:
-          :type: number
           :module: Utility::Compute::Image
           :method: width
           :parameters:
@@ -162,6 +163,8 @@
           :show:
             :options:
               :data-unit: px
+          :edit:
+            :disabled: true
         :api:
           :partial: property_value
           :type: QuantitativeValue
@@ -173,10 +176,9 @@
         :advanced_search: true
       :height:
         :label: Höhe
+        :type: number
         :storage_location: value
-        :type: computed
         :compute:
-          :type: number
           :module: Utility::Compute::Image
           :method: height
           :parameters:
@@ -185,6 +187,8 @@
           :show:
             :options:
               :data-unit: px
+          :edit:
+            :disabled: true
         :api:
           :partial: property_value
           :type: QuantitativeValue
@@ -199,31 +203,34 @@
       :content_size:
         :label: Dateigröße
         :storage_location: value
-        :type: computed
+        :type: number
         :compute:
-          :type: number
           :module: Utility::Compute::Asset
           :method: file_size
           :parameters:
             :0: asset
         :advanced_search: true
+        :ui:
+          :edit:
+            :disabled: true
       :file_format: # has to be valid MimeType
         :label: Dateiformat
         :storage_location: value
-        :type: computed
+        :type: string
         :compute:
-          :type: string
           :module: Utility::Compute::Asset
           :method: file_format
           :parameters:
             :0: asset
+        :ui:
+          :edit:
+            :disabled: true
       :file_type:
         :label: Dateiformat - Klassifizierung
         :storage_location: classification
-        :type: computed
+        :type: classification
         :tree_label: Dateiformate
         :compute:
-          :type: classification
           :module: Utility::Compute::Asset
           :method: file_type_classification
           :parameters:
@@ -231,6 +238,8 @@
         :ui:
           :show:
             :content_area: header
+          :edit:
+            :disabled: true
       :upload_date:
         :label: Hochgeladen am
         :type: date
@@ -282,15 +291,16 @@
       :keywords:
         :label: Keywords
         :storage_location: translated_value
-        :type: computed
+        :type: string
         :compute:
-          :type: string
           :module: Utility::Compute::Classification
           :method: keywords
           :parameters:
             :0: tags
         :ui:
           :show:
+            :disabled: true
+          :edit:
             :disabled: true
       :gravity:
         :type: mixin

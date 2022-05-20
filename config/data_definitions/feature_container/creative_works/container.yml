@@ -33,10 +33,9 @@
           :required: true
       :headline:
         :label: Headline
+        :type: string
         :storage_location: translated_value
-        :type: computed
         :compute:
-          :type: string
           :module: Utility::Compute::String
           :method: concat
           :parameters:
@@ -45,6 +44,8 @@
               :name: name
         :ui:
           :show:
+            :disabled: true
+          :edit:
             :disabled: true
         :api:
           :minimal: true

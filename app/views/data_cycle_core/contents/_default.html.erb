@@ -2,7 +2,7 @@
 
   <div class="type properties">
 
-    <% ordered_validation_properties(validation: content.schema, content_area: options.presence&.dig(:force_render).try(:to_s) == 'true' ? '' : 'content').except(DataCycleCore::Feature::LifeCycle.attribute_keys(content)&.first).each do |key, prop| %>
+    <% ordered_validation_properties(validation: content.schema, content_area: options.presence&.dig(:force_render).try(:to_s) == 'true' ? '' : 'content', scope: :show).except(DataCycleCore::Feature::LifeCycle.attribute_keys(content)&.first).each do |key, prop| %>
 
       <% value = content.try(key.to_sym) %>
       <% value = value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if value.is_a?(ActiveRecord::Relation) && prop&.dig('type')&.in?(['linked', 'embedded']) %>

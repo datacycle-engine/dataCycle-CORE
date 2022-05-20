@@ -30,7 +30,7 @@ server {
 
   server_name ${PUBLIC_APPLICATION_HOST};
   root ${APPLICATION_ROOT}/public;
-  try_files $uri/index.html $uri @puma_data_cycle;
+  try_files $uri/index.html $uri /assets/$uri @puma_data_cycle;
 
   client_max_body_size 4G;
   keepalive_timeout 90;
@@ -93,14 +93,6 @@ server {
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-Proto ${APP_PROTOCOL};
     proxy_redirect off;
-  }
-
-  location = /robots.txt {
-    root ${APPLICATION_ROOT}/public/assets;
-  }
-
-  location = /favicon.ico {
-    root ${APPLICATION_ROOT}/public/assets;
   }
 
   location = /50x.html {

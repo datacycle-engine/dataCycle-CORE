@@ -14,7 +14,7 @@ module DataCycleCore
           end
 
           def serialize_thing(content:, language:, **_options)
-            content = content.is_a?(Array) ? content : [content]
+            content = [content] unless content.is_a?(Array)
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               content
                 .select { |item| serializable?(item) }
@@ -33,7 +33,7 @@ module DataCycleCore
                         http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
                         https: Rails.application.config.force_ssl
                       ).render(
-                        assigns: { watch_list: watch_list, language: language, include_parameters: ['linked'], mode_parameters: [] },
+                        assigns: { watch_list: watch_list, language: language, include_parameters: ['linked'], mode_parameters: [], api_version: 1, api_context: 'xml' },
                         template: 'data_cycle_core/xml/v1/watch_lists/show',
                         layout: false
                       ),
@@ -60,7 +60,7 @@ module DataCycleCore
                         http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
                         https: Rails.application.config.force_ssl
                       ).render(
-                        assigns: { contents: pagination_contents, language: language, include_parameters: ['linked'], mode_parameters: [] },
+                        assigns: { contents: pagination_contents, language: language, include_parameters: ['linked'], mode_parameters: [], api_version: 1, api_context: 'xml' },
                         template: 'data_cycle_core/xml/v1/contents/index',
                         layout: false
                       ),
@@ -84,7 +84,7 @@ module DataCycleCore
                     http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
                     https: Rails.application.config.force_ssl
                   ).render(
-                    assigns: { content: content, language: language, include_parameters: ['linked'], mode_parameters: [] },
+                    assigns: { content: content, language: language, include_parameters: ['linked'], mode_parameters: [], api_version: 1, api_context: 'xml' },
                     template: 'data_cycle_core/xml/v1/contents/show',
                     layout: false
                   ),

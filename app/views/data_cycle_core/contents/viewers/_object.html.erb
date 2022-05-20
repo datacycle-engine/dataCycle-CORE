@@ -3,7 +3,7 @@
           editor: 'included-object'
       }) do %>
 
-  <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
+  <% ordered_validation_properties(validation: definition, scope: :show).each do |o_key, o_definition| %>
     <% o_value = value.try(o_key) %>
     <%= render_attribute_viewer key: "#{key}[#{o_key}]",
                                 definition: o_definition,

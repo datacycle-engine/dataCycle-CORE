@@ -19,9 +19,9 @@
       # legacy API Attribute
       :legacy_license:
         :label: LegacyLicense
-        :type: virtual
+        :type: string
+        :storage_location: value
         :virtual:
-          :type: string
           :module: Utility::Virtual::Common
           :method: take_first
           :parameters:
@@ -50,9 +50,9 @@
       # legacy API Attribute
       :legacy_attribution_name:
         :label: LegacyAttributionName
-        :type: virtual
+        :type: string
+        :storage_location: value
         :virtual:
-          :type: string
           :module: Utility::Virtual::Common
           :method: take_first
           :parameters:
@@ -77,9 +77,9 @@
       # legacy API Attribute
       :legacy_attribution_url:
         :label: LegacyAttributionName
-        :type: virtual
+        :type: string
+        :storage_location: value
         :virtual:
-          :type: string
           :module: Utility::Virtual::Common
           :method: take_first
           :parameters:
@@ -117,10 +117,9 @@
             :partial: string
       :copyright_notice_computed:
         :label: Urheberrechtsvermerk (automatisch)
+        :type: string
         :storage_location: value
-        :type: computed
         :compute:
-          :type: string
           :module: Utility::Compute::Copyright
           :method: copyright_notice
           :parameters:
@@ -146,9 +145,9 @@
             :disabled: false
       :copyright_notice:
         :label: Urheberrechtsvermerk
-        :type: virtual
+        :type: string
+        :storage_location: value
         :virtual:
-          :type: string
           :module: Utility::Virtual::Common
           :method: take_first
           :parameters:

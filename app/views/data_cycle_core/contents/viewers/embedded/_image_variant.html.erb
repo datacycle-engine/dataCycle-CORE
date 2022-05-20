@@ -10,9 +10,9 @@
             <%= render_attribute_viewer key: "#{key}[#{index}][thumbnail_url]",
                                         definition: object.schema['properties']['thumbnail_url'],
                                         value: thumbnail_url,
-                                        parameters: { 
-                                          options: {hide_label: true},
-                                          parent: object 
+                                        parameters: {
+                                          options: { hide_label: true },
+                                          parent: object
                                         },
                                         content: object %>
           </div>

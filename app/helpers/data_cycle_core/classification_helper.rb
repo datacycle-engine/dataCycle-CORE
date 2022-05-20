@@ -219,7 +219,10 @@ module DataCycleCore
           search_path: search_classifications_path
         },
         id: "#{options&.dig(:prefix)}#{sanitize_to_id(key)}"
-      }.with_indifferent_access.merge(additional_options).merge(definition.dig('ui', 'edit', 'options') || {})
+      }.with_indifferent_access
+        .merge(additional_options)
+        .merge(definition.dig('ui', 'edit', 'options')&.except('class') || {})
+        .tap { |h| h['class'] = "#{h['class']} #{definition.dig('ui', 'edit', 'options', 'class')}".squish }
     end
   end
 end

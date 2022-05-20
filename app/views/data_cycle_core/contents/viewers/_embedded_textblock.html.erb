@@ -3,7 +3,7 @@
 
 <% objects.presence&.each_with_index do |object, index| %>
   <% I18n.with_locale(object.first_available_locale) do %>
-    <% validation_properties = ordered_validation_properties(validation: object.schema) %>
+    <% validation_properties = ordered_validation_properties(validation: object.schema, scope: :show) %>
     <% validation_properties['text']['label'] = object.try(:name) if object.try(:name).present? %>
 
     <%= render 'data_cycle_core/contents/viewers/attribute',

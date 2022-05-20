@@ -22,7 +22,7 @@ module DataCycleCore
       def self.import_template_list(template_paths: nil)
         template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
         import_hash, _duplicates = check_for_duplicates(template_paths, CONTENT_SETS)
-        import_hash.map { |_key, value| value }.reduce([], :+).map { |item| item[:name] }.uniq.sort
+        import_hash.map { |_key, value| value }.reduce([], :+).pluck(:name).uniq.sort
       end
 
       def self.check_for_duplicates(template_paths, content_sets)
@@ -56,7 +56,7 @@ module DataCycleCore
         return import_list, collisions.reject { |_, value| value.blank? }.map { |key, value| { key => value.dup } }.inject(&:merge)
       end
 
-      def self.import_all_templates(template_hash:, validation: true, mixins:)
+      def self.import_all_templates(template_hash:, mixins:, validation: true)
         errors = {}
         template_hash.each do |content_set, template_list|
           errors = errors.merge({ content_set => import_content_templates(template_list: template_list, content_set: content_set, validation: validation, mixins: mixins) })
@@ -64,7 +64,7 @@ module DataCycleCore
         errors
       end
 
-      def self.import_content_templates(template_list:, content_set:, validation: true, mixins:)
+      def self.import_content_templates(template_list:, content_set:, mixins:, validation: true)
         errors = {}
         template_list.each do |template_location|
           template = YAML.safe_load(File.open(template_location[:file]), [Symbol])[template_location[:position]]
@@ -78,7 +78,7 @@ module DataCycleCore
                 template_name: template[:data][:name],
                 template: true
               )
-            data_set.template_updated_at = Time.zone.now
+            data_set.cache_valid_since = Time.zone.now
             data_set.schema = template[:data]
             data_set.save
           elsif error.present?
@@ -92,7 +92,7 @@ module DataCycleCore
         puts e.backtrace
       end
 
-      def self.transform_schema(content_set: nil, schema: {}, mixins:)
+      def self.transform_schema(mixins:, content_set: nil, schema: {})
         schema[:boost] = schema[:boost] || 1.0
         schema[:features] = transform_features(schema: schema, content_set: content_set)
         schema[:properties] = transform_properties(schema: schema, content_set: content_set, mixins: mixins)
@@ -222,11 +222,12 @@ module DataCycleCore
               ['key', 'string', 'text', 'number', 'boolean',
                'datetime', 'date', 'geographic', 'slug',
                'object', 'embedded', 'linked', 'classification',
-               'asset', 'computed', 'schedule', 'virtual', 'opening_time']
+               'asset', 'schedule', 'opening_time',
+               'timeseries']
             )
           end
           optional(:storage_location) do
-            str? & included_in?(['column', 'value', 'translated_value', 'virtual', 'classification'])
+            str? & included_in?(['column', 'value', 'translated_value', 'classification'])
           end
           optional(:template_name) { str? }
           optional(:validations) { hash? }
@@ -300,13 +301,6 @@ module DataCycleCore
             required(:module) { str? }
             required(:method) { str? }
             required(:parameters) { hash? }
-            required(:type) do
-              str? & included_in?(
-                ['string', 'text', 'number', 'boolean',
-                 'datetime', 'geographic',
-                 'object', 'classification', 'asset', 'schedule']
-              )
-            end
           end
         end
 
@@ -322,12 +316,16 @@ module DataCycleCore
             key.failure(:invalid_classification) if values.dig(:tree_label).blank? && values.dig(:universal) == false
           when 'asset'
             key.failure(:invalid_asset) if values.dig(:asset_type).blank?
-          when 'computed'
+          end
+        end
+
+        rule(:compute) do
+          if key? && values.present?
             temp = begin
               module_name = ('DataCycleCore::' + values.dig(:compute, :module).classify).safe_constantize
               module_name.respond_to?(values.dig(:compute, :method))
-                   rescue StandardError
-                     false
+            rescue StandardError
+              false
             end
             key.failure(:invalid_computed) if temp == false
           end
@@ -340,17 +338,17 @@ module DataCycleCore
 
       def self.updated_template_statistics(timestamp = Time.zone.now)
         templates = {}
-        DataCycleCore::Thing.where('template_updated_at < ?', timestamp.utc.to_s(:long_usec))
+        DataCycleCore::Thing.where('cache_valid_since < ?', timestamp.utc.to_s(:long_usec))
           .where(template: true).find_each do |template|
             templates[template.template_name] = {
-              template_updated_at: template.template_updated_at,
+              cache_valid_since: template.cache_valid_since,
               count: DataCycleCore::Thing.where(template: false, template_name: template.template_name).count,
               count_history: DataCycleCore::Thing::History.where(template: false, template_name: template.template_name).count
             }
           end
         templates
           .to_a
-          .sort_by { |item| item[1][:template_updated_at] }
+          .sort_by { |item| item[1][:cache_valid_since] }
           .reduce({}) { |aggregate, item| aggregate.merge({ item[0] => item[1] }) }
       end
 

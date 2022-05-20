@@ -44,9 +44,7 @@ module DataCycleCore
           if @user.save
             DataCycleCore::Feature::UserApi.notify_users(@user) if DataCycleCore::Feature::UserApi.new_user_notification?
 
-            render json: @user.as_user_api_json.merge({
-              token: DataCycleCore::JsonWebToken.encode(payload: { user_id: @user.id, jti: @user.jti })
-            }).deep_transform_keys { |k| k.to_s.camelize(:lower) }, status: :created
+            render json: @user.as_user_api_json.merge(@user.generate_user_token.to_h).deep_transform_keys { |k| k.to_s.camelize(:lower) }, status: :created
           else
             render json: { errors: @user.errors }, status: :unprocessable_entity
           end
@@ -61,9 +59,7 @@ module DataCycleCore
           current_user.attributes = layout_params
 
           if current_user.save
-            render json: current_user.as_user_api_json.merge({
-              token: DataCycleCore::JsonWebToken.encode(payload: { user_id: current_user.id, jti: current_user.jti })
-            }), status: :ok
+            render json: current_user.as_user_api_json.merge(current_user.generate_user_token.to_h), status: :ok
           else
             render json: { errors: current_user.errors }, status: :unprocessable_entity
           end
@@ -101,9 +97,7 @@ module DataCycleCore
           if user.errors.present?
             render json: { errors: user.errors }, status: :unprocessable_entity
           else
-            render json: user.as_user_api_json.merge({
-              token: DataCycleCore::JsonWebToken.encode(payload: { user_id: user.id, jti: user.jti })
-            }), status: :ok
+            render json: user.as_user_api_json.merge(user.generate_user_token.to_h), status: :ok
           end
         end
 
