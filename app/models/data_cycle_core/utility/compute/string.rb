@@ -6,7 +6,7 @@ module DataCycleCore
       module String
         class << self
           def concat(computed_parameters:, computed_definition:, **_args)
-            computed_parameters.values.join(computed_definition&.dig('compute', 'separator').to_s)
+            computed_parameters.values.flatten.join(computed_definition&.dig('compute', 'separator').to_s)
           end
 
           def value(computed_definition:, **_args)

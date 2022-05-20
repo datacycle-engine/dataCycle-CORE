@@ -116,9 +116,9 @@
   integrity sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==
 
 "@types/node@*":
-  version "17.0.34"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.34.tgz#3b0b6a50ff797280b8d000c6281d229f9c538cef"
-  integrity sha512-XImEz7XwTvDBtzlTnm8YvMqGW/ErMWBsKZ+hMTvnDIjGCKxwK5Xpc+c/oQjOauwq8M4OS11hEkpjX8rrI/eEgA==
+  version "17.0.35"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.35.tgz#635b7586086d51fb40de0a2ec9d1014a5283ba4a"
+  integrity sha512-vu1SrqBjbbZ3J6vwY17jBs8Sr/BKA+/a/WtjRG+whKg1iuLFOosq872EXS0eXWILdO36DHQQeku/ZcL6hz2fpg==
 
 abab@^2.0.0:
   version "2.0.6"
@@ -438,17 +438,17 @@ datatables.net-buttons@1.7.1, datatables.net-buttons@^1.6.1:
     jquery ">=1.7"
 
 datatables.net-zf@^1.10.15, datatables.net-zf@^1.10.20:
-  version "1.12.0"
-  resolved "https://registry.yarnpkg.com/datatables.net-zf/-/datatables.net-zf-1.12.0.tgz#5b56069320c118862054c485d7c8607f7c79289e"
-  integrity sha512-ROmB6uVLAZZWTaeZ5Q1woIuWiAOczUZPQ9L2zV77hLqb1uTwDU8IhJu1TyiIlKyTofZwutT/ANNERhSOMOUUXA==
+  version "1.12.1"
+  resolved "https://registry.yarnpkg.com/datatables.net-zf/-/datatables.net-zf-1.12.1.tgz#425c4ad7e44c5e80c36426b9ae6cf8f0afdea044"
+  integrity sha512-iOqsg5nj46KTa5uIN9IHEQ4CEwsgqrRBQi9i1E+igNp4Z8XZEBCkKODAn40AZb1wRjyNxjuGklKq03vKawMgnw==
   dependencies:
     datatables.net ">=1.11.3"
     jquery ">=1.7"
 
 datatables.net@>=1.11.3, datatables.net@^1.10.15, datatables.net@^1.10.20:
-  version "1.12.0"
-  resolved "https://registry.yarnpkg.com/datatables.net/-/datatables.net-1.12.0.tgz#a1306fd222d964bd47ea6c9fea606c1dea8e358b"
-  integrity sha512-oCKzEqv7kDGOpdE4WE+hTEKgYZ0+pnQ6jDl/fr2HQKlb1AaNTWaeG/3skoGk51fyf80ET/bwlFyMI3hgvKv71Q==
+  version "1.12.1"
+  resolved "https://registry.yarnpkg.com/datatables.net/-/datatables.net-1.12.1.tgz#3e625e49a3341f605b0efb519fae94e37b278f24"
+  integrity sha512-e6XAMUoV41JdQPS/r9YRfRcmTPcCVvyZbWI+xog1Zg+kjVliMQbEkvWK5XFItmi64Cvwg+IqsZbTUJ1KSY3umA==
   dependencies:
     jquery ">=1.7"
 
@@ -1789,9 +1789,9 @@ rollup-plugin-gzip@^2.5.0:
   integrity sha512-l9h3g0imsGvhjcSsxNRLHNW/gqRSSgaJLCKKWYeRclPHvDMDewmI43ZyiGJ3nc3+sZNy1pJnWzB3Bvm+tJI2jQ==
 
 rollup@^2.59.0:
-  version "2.74.0"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.74.0.tgz#4f460e7979b8ed1f3aa0489059480a504de28b4a"
-  integrity sha512-RRwXTX5+ObPJhcMV6zP3RdHvy90/lBOUfbzL7IKkFjMJGAqeBGZiv9nZWm/DoTESaTE3GBkkzbU9QVN2AuCkjw==
+  version "2.74.1"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.74.1.tgz#4fba0ff1c312cc4ee82691b154eee69a0d01929f"
+  integrity sha512-K2zW7kV8Voua5eGkbnBtWYfMIhYhT9Pel2uhBk2WO5eMee161nPze/XRfvEQPFYz7KgrCCnmh2Wy0AMFLGGmMA==
   optionalDependencies:
     fsevents "~2.3.2"
 

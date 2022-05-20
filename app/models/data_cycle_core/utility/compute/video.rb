@@ -25,7 +25,7 @@ module DataCycleCore
             meta_value(computed_parameters.values.first, ['format', 'duration'])&.to_f
           end
 
-          def thumbnail_url(**_args)
+          def thumbnail_url(computed_parameters:, **_args)
             DataCycleCore::Video.find_by(id: computed_parameters.values.first)&.file&.thumb_preview&.url
           end
 

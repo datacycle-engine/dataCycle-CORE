@@ -433,6 +433,20 @@ module DataCycleCore
         @get_property_value[[property_name, property_definition, I18n.locale, filter, overlay_flag]]
       end
 
+      def property_value_for_set_datahash(property_name)
+        get_property_value(property_name, properties_for(property_name))&.tap do |value|
+          if schedule_property_names.include?(property_name)
+            value.map(&:to_h)
+          elsif value.is_a?(ActiveRecord::Relation)
+            value.pluck(:id)
+          elsif value.is_a?(::Array) && value.first.is_a?(ActiveRecord)
+            value.map(&:id)
+          else
+            value
+          end
+        end
+      end
+
       def load_virtual_attribute(property_name, locale = I18n.locale)
         DataCycleCore::Utility::Virtual::Base.virtual_values(property_name, self, locale)
       end

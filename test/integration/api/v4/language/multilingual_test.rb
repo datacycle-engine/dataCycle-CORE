@@ -308,7 +308,10 @@ module DataCycleCore
             organizer = @content.organizer.first
             data_hash_en = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person_en')
             organizer.reload
-            I18n.with_locale(:en) { organizer.set_data_hash(data_hash: organizer.get_data_hash.merge(data_hash_en)) }
+
+            I18n.with_locale(:en) do
+              organizer.set_data_hash(data_hash: organizer.get_data_hash.except(*organizer.computed_property_names).merge(data_hash_en))
+            end
 
             assert_full_thing_datahash(@content)
 
@@ -405,7 +408,7 @@ module DataCycleCore
             organizer = @content.organizer.first
             data_hash_en = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person_en')
             organizer.reload
-            I18n.with_locale(:en) { organizer.set_data_hash(data_hash: organizer.get_data_hash.merge(data_hash_en)) }
+            I18n.with_locale(:en) { organizer.set_data_hash(data_hash: organizer.get_data_hash.except(*organizer.computed_property_names).merge(data_hash_en)) }
 
             assert_full_thing_datahash(@content)
 
@@ -698,7 +701,7 @@ module DataCycleCore
             organizer = @content.organizer.first
             data_hash_en = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person_en')
             organizer.reload
-            I18n.with_locale(:en) { organizer.set_data_hash(data_hash: organizer.get_data_hash.merge(data_hash_en)) }
+            I18n.with_locale(:en) { organizer.set_data_hash(data_hash: organizer.get_data_hash.except(*organizer.computed_property_names).merge(data_hash_en)) }
 
             data_hash_en = DataCycleCore::TestPreparations.load_dummy_data_hash('events', 'v4_event_en')
             offer = @content.offers.first
@@ -891,7 +894,7 @@ module DataCycleCore
             organizer = @content.organizer.first
             data_hash_en = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person_en')
             organizer.reload
-            I18n.with_locale(:en) { organizer.set_data_hash(data_hash: organizer.get_data_hash.merge(data_hash_en)) }
+            I18n.with_locale(:en) { organizer.set_data_hash(data_hash: organizer.get_data_hash.except(*organizer.computed_property_names).merge(data_hash_en)) }
 
             data_hash_en = DataCycleCore::TestPreparations.load_dummy_data_hash('events', 'v4_event_en')
             offer = @content.offers.first

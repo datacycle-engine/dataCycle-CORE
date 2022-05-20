@@ -6,7 +6,7 @@ module DataCycleCore
       module Classification
         class << self
           def keywords(computed_parameters:, **_args)
-            DataCycleCore::Classification.where(id: Array.wrap(computed_parameters.values).flatten.reject(&:blank?)).pluck(:name).join(',')
+            DataCycleCore::Classification.find(Array.wrap(computed_parameters.values).flatten.reject(&:blank?)).map(&:name).join(',').presence
           end
 
           def description(computed_parameters:, **_args)

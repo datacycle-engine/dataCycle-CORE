@@ -23,6 +23,8 @@ module DataCycleCore
         end
 
         def default_value(key, user, data_hash = {})
+          return unless default_value_property_names.include?(key)
+
           DataCycleCore::Utility::DefaultValue::Base.default_values(key, data_hash, self, user)
 
           value = data_hash[key]

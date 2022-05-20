@@ -17,13 +17,14 @@ module DataCycleCore
             if properties['default_value'].is_a?(::String) && properties['type'] == 'classification'
               method_name = DataCycleCore::Utility::DefaultValue::Classification.method(:by_name)
             elsif properties['default_value'].is_a?(::String)
-              return properties['default_value']
+              data_hash[key] = properties['default_value']
+              return
             else
               module_name = properties.dig('default_value', 'module').classify.safe_constantize
               method_name = module_name.method(properties.dig('default_value', 'method'))
             end
 
-            property_parameters = Array.wrap(properties&.dig('default_value', 'parameters')) if properties['default_value'].is_a?(::Hash)
+            property_parameters = Array.wrap(properties&.dig('default_value', 'parameters')).intersection(content.property_names) if properties['default_value'].is_a?(::Hash)
 
             return if skip_default_value?(key, data_hash, content, property_parameters, current_user)
 
@@ -56,7 +57,9 @@ module DataCycleCore
               default_values(missing_default_key, data_hash, content, user)
             end
 
-            data_hash.merge!(content.get_data_hash_partial(missing_keys.difference(content.default_value_property_names)))
+            missing_keys.difference(content.default_value_property_names).each do |missing_key|
+              data_hash[missing_key] = content.property_value_for_set_datahash(missing_key)
+            end
 
             skip_default_value?(key, data_hash, content, property_parameters, user, true)
           end

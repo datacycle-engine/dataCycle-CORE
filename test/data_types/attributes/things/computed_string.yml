@@ -25,7 +25,7 @@
           :module: Utility::Compute::String
           :method: interpolate
           :value: '-text-%{locale}-text-%{created_at}-text-%{value_2}'
-          :conditions:
+          :condition:
             - :type: content
               :name: template_name
               :method: equals?
@@ -40,7 +40,7 @@
           :module: Utility::Compute::String
           :method: interpolate
           :value: '-text-%{locale}-text-%{created_at}-text-%{value_2}'
-          :conditions:
+          :condition:
             - :type: content
               :name: template_name
               :method: equals?

@@ -5,17 +5,17 @@ module DataCycleCore
     module Compute
       module Base
         class << self
-          def compute_values(key, data_hash, content, force)
+          def compute_values(key, data_hash, content)
             return if data_hash.key?(key)
 
             properties = content.properties_for(key)&.with_indifferent_access
 
             return if properties.blank?
 
-            computed_parameters = Array.wrap(properties&.dig('compute', 'parameters'))
+            computed_parameters = Array.wrap(properties&.dig('compute', 'parameters')).intersection(content.property_names)
 
             return unless conditions_satisfied?(content, properties)
-            return if skip_compute_value?(key, data_hash, content, computed_parameters, force)
+            return if skip_compute_value?(key, data_hash, content, computed_parameters)
 
             module_name = ('DataCycleCore::' + properties.dig('compute', 'module').classify).safe_constantize
             method_name = module_name.method(properties.dig('compute', 'method'))
@@ -30,9 +30,9 @@ module DataCycleCore
           end
 
           def conditions_satisfied?(content, properties)
-            return true unless properties['compute'].key?('conditions')
+            return true unless properties['compute'].key?('condition')
 
-            Array.wrap(properties.dig('compute', 'conditions')).compact_blank.each do |condition|
+            Array.wrap(properties.dig('compute', 'condition')).compact_blank.each do |condition|
               return false unless condition_satisfied?(content, condition)
             end
 
@@ -56,7 +56,7 @@ module DataCycleCore
             send(definition['method'], value, expected_value)
           end
 
-          def skip_compute_value?(key, data_hash, content, computed_parameters, force, checked = false)
+          def skip_compute_value?(key, data_hash, content, computed_parameters, checked = false)
             return false if computed_parameters.blank?
 
             missing_keys = computed_parameters.difference(data_hash.slice(*computed_parameters).keys)
@@ -66,12 +66,14 @@ module DataCycleCore
             return true if missing_keys.size == computed_parameters.size && missing_keys.difference(content.computed_property_names).present?
 
             missing_keys.intersection(content.computed_property_names).each do |missing_computed_key|
-              compute_values(missing_computed_key, data_hash, content, force)
+              compute_values(missing_computed_key, data_hash, content)
             end
 
-            data_hash.merge!(content.get_data_hash_partial(missing_keys.difference(content.computed_property_names)))
+            missing_keys.difference(content.default_value_property_names).each do |missing_key|
+              data_hash[missing_key] = content.property_value_for_set_datahash(missing_key)
+            end
 
-            skip_compute_value?(key, data_hash, content, computed_parameters, force, true)
+            skip_compute_value?(key, data_hash, content, computed_parameters, true)
           end
 
           def equals?(value_a, value_b)

@@ -826,11 +826,9 @@ CREATE VIEW public.content_computed_properties AS
  SELECT content_properties.content_id,
     content_properties.content_template_name,
     content_properties.property_name,
-    parameters.key AS compute_parameter_order,
-    parameters.value AS compute_parameter_definition,
-    COALESCE((parameters.value ->> 'name'::text), (parameters.value #>> '{}'::text[])) AS compute_parameter_property_name
+    parameters.value AS compute_parameter_property_name
    FROM public.content_properties,
-    LATERAL jsonb_each(((content_properties.property_definition -> 'compute'::text) -> 'parameters'::text)) parameters(key, value)
+    LATERAL jsonb_array_elements_text(((content_properties.property_definition -> 'compute'::text) -> 'parameters'::text)) parameters(value)
   WHERE (content_properties.property_definition ? 'compute'::text);
 
 
@@ -3370,6 +3368,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220510085119'),
 ('20220513075644'),
 ('20220516134326'),
-('20220518121205');
+('20220518121205'),
+('20220520065309');
 
 

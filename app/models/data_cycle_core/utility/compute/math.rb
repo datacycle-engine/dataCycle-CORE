@@ -6,7 +6,7 @@ module DataCycleCore
       module Math
         class << self
           def sum(computed_parameters:, **_args)
-            computed_parameters.values.grep(::Numeric).sum
+            computed_parameters.values.flatten.grep(::Numeric).sum
           end
         end
       end
