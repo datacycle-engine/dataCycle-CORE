@@ -215,6 +215,28 @@ module DataCycleCore
     classification_visibilities.except(['show_more', 'tree_view'])
   end
 
+  def self.load_configurations(path, except_folders = [])
+    Dir[path.to_s].each do |file_name|
+      file_path = file_name.delete_suffix('.yml').match(/\/configurations\/(.*)/).captures.first.split('/')
+      config_name = file_path.shift
+
+      next unless except_folders.exclude?(config_name)
+      next unless self.respond_to?(config_name)
+
+      new_value = YAML.safe_load(ERB.new(File.read(file_name)).result, [Symbol])
+      value = self.try(config_name)
+
+      next unless new_value.present? || new_value.is_a?(FalseClass)
+
+      if value.is_a?(::Hash) && new_value.is_a?(::Hash)
+        new_value = file_path.reverse.inject(new_value) { |assigned_value, key| { key => assigned_value } }
+        new_value = value.deep_merge(new_value) { |_k, v1, _v2| v1 }.with_indifferent_access
+      end
+
+      self.send("#{config_name}=", new_value).freeze
+    end
+  end
+
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
 
