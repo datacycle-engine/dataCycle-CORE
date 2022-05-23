@@ -216,15 +216,16 @@ module DataCycleCore
   end
 
   def self.load_configurations(path, except_folders = [])
-    Dir[path.to_s].each do |file_name|
-      file_path = file_name.delete_suffix('.yml').match(/\/configurations\/(.*)/).captures.first.split('/')
+    Dir[path.to_s].index_with { |f|
+      f.delete_suffix('.yml').match(%r{/configurations/(.*)}).captures.first.split('/')
+    }.sort_by { |_k, v| -v.size }.each do |file_name, file_path|
       config_name = file_path.shift
 
       next unless except_folders.exclude?(config_name)
-      next unless self.respond_to?(config_name)
+      next unless respond_to?(config_name)
 
       new_value = YAML.safe_load(ERB.new(File.read(file_name)).result, [Symbol])
-      value = self.try(config_name)
+      value = try(config_name)
 
       next unless new_value.present? || new_value.is_a?(FalseClass)
 
@@ -233,7 +234,7 @@ module DataCycleCore
         new_value = value.deep_merge(new_value) { |_k, v1, _v2| v1 }.with_indifferent_access
       end
 
-      self.send("#{config_name}=", new_value).freeze
+      send("#{config_name}=", new_value).freeze
     end
   end
 
