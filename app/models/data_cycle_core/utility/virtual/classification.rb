@@ -5,8 +5,7 @@ module DataCycleCore
     module Virtual
       module Classification
         class << self
-          def concat(virtual_parameters:, virtual_definition:, **args)
-            content = args.dig(:content)
+          def concat(virtual_parameters:, content:, virtual_definition:, **_args)
             values = []
 
             virtual_parameters.each do |param|
