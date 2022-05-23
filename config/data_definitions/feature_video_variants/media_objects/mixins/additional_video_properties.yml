@@ -6,9 +6,8 @@
       :transcoding_mp4:
         :label: Label
         :storage_location: value
-        :type: computed
+        :type: string
         :compute:
-          :type: string
           :module: Utility::Compute::Video
           :method: transcode
           :transformation:
@@ -18,9 +17,8 @@
       :transcoding_mp4_low:
         :label: Label
         :storage_location: value
-        :type: computed
+        :type: string
         :compute:
-          :type: string
           :module: Utility::Compute::Video
           :method: transcode
           :transformation:
@@ -30,9 +28,8 @@
       :transcoding_mp4_mid:
         :label: Label
         :storage_location: value
-        :type: computed
+        :type: string
         :compute:
-          :type: string
           :module: Utility::Compute::Video
           :method: transcode
           :transformation:
