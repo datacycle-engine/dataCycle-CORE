@@ -215,13 +215,18 @@ module DataCycleCore
     classification_visibilities.except(['show_more', 'tree_view'])
   end
 
-  def self.load_configurations(path, except_folders = [])
+  def self.load_configurations(path, include_environments = true)
+    path_regex = if include_environments
+                   %r{/configurations(?:/(?:#{ActiveRecord::Base.configurations.to_h.keys.without('default').join('|')}))?/(.*)}
+                 else
+                   %r{/configurations(?!/(?:#{ActiveRecord::Base.configurations.to_h.keys.without('default').join('|')}))/(.*)}
+                 end
+
     Dir[path.to_s].index_with { |f|
-      f.delete_suffix('.yml').match(%r{/configurations/(.*)}).captures.first.split('/')
-    }.sort_by { |_k, v| -v.size }.each do |file_name, file_path|
+      f.delete_suffix('.yml').match(path_regex)&.captures&.first&.split('/')
+    }.compact.sort_by { |_k, v| -v.size }.each do |file_name, file_path|
       config_name = file_path.shift
 
-      next unless except_folders.exclude?(config_name)
       next unless respond_to?(config_name)
 
       new_value = YAML.safe_load(ERB.new(File.read(file_name)).result, [Symbol])
