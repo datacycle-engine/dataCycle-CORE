@@ -75,6 +75,18 @@ module DataCycleCore
       query
     end
 
+    def apply_creator_filters(query, filters)
+      query_method = 'creator'
+      filters.each do |operator, values|
+        query_method = 'not_' + query_method if operator == :notIn
+        next unless query.respond_to?(query_method)
+        values.each do |v|
+          query = query.send(query_method, v.split(','))
+        end
+      end
+      query
+    end
+
     alias apply_dc_classification_filters apply_classifications_filters
 
     def apply_geo_filters(query, filters)

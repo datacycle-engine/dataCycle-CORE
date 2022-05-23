@@ -128,6 +128,10 @@ module DataCycleCore
             optional(:in).hash(GEO_FILTER)
             optional(:notIn).hash(GEO_FILTER)
           end
+          optional(:creator).hash do
+            optional(:in).filled(:array)
+            optional(:notIn).filled(:array)
+          end
           optional(:attribute).hash do
             optional(:'dct:deleted').hash(ATTRIBUTE_FILTER)
             (DataCycleCore::ApiService::API_SCHEDULE_ATTRIBUTES +

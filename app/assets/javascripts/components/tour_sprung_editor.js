@@ -289,14 +289,16 @@ class TourSprungEditor extends OpenLayersEditor {
     });
 
     this.map.gl.on('mousemove', e => {
-      const feature = this.map.gl.queryRenderedFeatures(e.point, { layers: this.allRenderedLayers })[0];
+      const feature = this.map.gl.queryRenderedFeatures(e.point)[0];
 
-      if (feature) {
+      if (feature && feature.properties.clickable) {
         this.map.gl.getCanvas().style.cursor = 'pointer';
-        popup
-          .setLngLat(feature.geometry.type !== 'Point' ? e.lngLat : feature.geometry.coordinates)
-          .setHTML(feature.properties.name)
-          .addTo(this.map.gl);
+
+        if (feature.properties.name)
+          popup
+            .setLngLat(feature.geometry.type !== 'Point' ? e.lngLat : feature.geometry.coordinates)
+            .setHTML(feature.properties.name)
+            .addTo(this.map.gl);
       } else {
         this.map.gl.getCanvas().style.cursor = '';
         popup.remove();
@@ -403,7 +405,6 @@ class TourSprungEditor extends OpenLayersEditor {
   }
   _changeMtkLineStyle() {
     const waypointLayerDefinition = this.editorGui.editor.getLayerDefinitions().find(v => v.type == 'symbol');
-
     const waypointLayerId = waypointLayerDefinition && waypointLayerDefinition.id;
 
     if (waypointLayerId) {
