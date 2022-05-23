@@ -8,10 +8,12 @@
 
         <% if content.try(:content_url).present? %>
           <div class="image-container stripes">
-            <video class="lazyload" data-poster="<%= content.try(:thumbnail_url) %>" controls="controls" controlsList="nodownload" preload="none">
-              <source src="<%= content.try(:content_url) %>" type="video/mp4">
-              Your browser does not support the video tag
-            </video>
+            <div data-vjs-player>
+              <video class="video-js" poster="<%= content.try(:thumbnail_url) %>">
+                <source src="<%= content.try(:content_url) %>" type="video/mp4">
+                Your browser does not support the video tag
+              </video>
+            </div>
           </div>
         <% end %>
 
