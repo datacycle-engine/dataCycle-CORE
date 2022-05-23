@@ -14,6 +14,8 @@ module DataCycleCore
                 copyright_notice.concat(DataCycleCore::Classification.where(id: value).primary_classification_aliases.pluck(:internal_name))
               when 'linked'
                 copyright_notice.push(DataCycleCore::Thing.where(id: value).map { |c| I18n.with_locale(c.first_available_locale) { c.title.presence } }.compact.join(', ').presence)
+              when 'number'
+                copyright_notice.push(value.presence&.to_i)
               else
                 copyright_notice.push(value.presence)
               end
