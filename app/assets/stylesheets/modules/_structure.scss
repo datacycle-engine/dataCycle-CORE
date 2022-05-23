@@ -205,7 +205,7 @@ button.button-prime.new-object-circle {
   top: auto !important;
   padding: 0;
   border: 0;
-  background-color: white;
+  background-color: $white;
   max-width: 32rem;
   box-shadow: 1px 4px 2px 0px rgba(0, 1, 1, 0.2);
 
@@ -236,6 +236,7 @@ button.button-prime.new-object-circle {
     font-size: 1.5rem;
     font-weight: 200;
     transition: all ease-in-out 0.1s;
+    border-radius: $global-radius;
 
     &.default-new-option {
       border-top: 1px solid $light-gray;
@@ -270,7 +271,7 @@ button.button-prime.new-object-circle {
     &:focus,
     &:hover {
       background: $primary-color;
-      color: white;
+      color: $white;
     }
   }
 }
@@ -575,7 +576,7 @@ ul.footer-links {
   input,
   button,
   .button {
-    border-radius: 4px;
+    border-radius: $global-radius;
   }
 }
 
@@ -629,12 +630,12 @@ ul.footer-links {
     z-index: 10001;
     border: 0;
     border-top: 5px solid $customercolor;
-    color: white;
+    color: $white;
 
     .close-button,
     .close-button.medium {
       line-height: 3rem;
-      color: white;
+      color: $white;
       padding: 0;
     }
   }
@@ -701,16 +702,16 @@ ul.footer-links {
       content: '\f00c';
       font-family: FontAwesome;
       display: inline-flex;
-      background-color: white;
+      background-color: $white;
       border: 1px solid darken($medium-gray, 5%);
-      border-radius: 4px;
+      border-radius: $global-radius;
       height: 16px;
       width: 16px;
       align-items: center;
       justify-content: center;
       font-size: 11px;
       margin-right: 0.4rem;
-      color: white;
+      color: $white;
       transition: all 0.2s ease;
       text-shadow: none;
     }
@@ -722,7 +723,7 @@ ul.footer-links {
 
   > input:checked + label {
     &::before {
-      color: white;
+      color: $white;
       background-color: $primary-color;
       border-color: $primary-color;
     }

@@ -11,6 +11,7 @@ module DataCycleCore
         include ActiveSupport::Rescuable
         include DataCycleCore::ErrorHandler
         include DataCycleCore::WebdavHelper
+        include DataCycleCore::ApiBeforeActions
         helper DataCycleCore::WebdavHelper
 
         before_action :set_default_response_format, :authenticate_user!

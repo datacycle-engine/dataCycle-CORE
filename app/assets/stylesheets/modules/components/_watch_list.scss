@@ -50,7 +50,7 @@
 #main-menu {
   .watch-lists,
   .abos {
-    background: white;
+    background: $white;
     a {
       color: $black;
     }
@@ -315,22 +315,28 @@
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 2px solid $medium-gray;
+
     label {
       display: none;
     }
+
     input {
       background: none;
-      box-shadow: 0 0 2px $light-gray inset;
+      box-shadow: inset 0 1px 2px rgba($black, 0.1);
+      border: 1px solid $light-gray;
       padding-right: 2.5rem;
       height: 2.2rem;
       margin: 0;
+
       &:focus {
         border-color: $primary-color;
       }
+
       &::placeholder {
         color: $dark-gray;
       }
     }
+
     form {
       [type='submit'] {
         position: absolute;
@@ -343,8 +349,11 @@
         z-index: 2;
         width: 2.5rem;
       }
+
       button[type='submit'].button {
         height: 100%;
+        border-radius: 0 $global-radius $global-radius 0;
+
         i {
           font-size: 1rem;
           line-height: 1.2rem;
@@ -352,8 +361,10 @@
       }
     }
   }
+
   .watch-lists-filter {
     margin: 0 0 1rem 0;
+
     .watch-list-filter-param {
       margin: 0;
       padding-right: 2.5rem;
@@ -414,6 +425,6 @@
     align-items: center;
     justify-content: center;
     top: -1px;
-    color: white;
+    color: $white;
   }
 }

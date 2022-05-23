@@ -29,10 +29,9 @@
           :disabled: true
       :content_url:
         :label: Bild URL
+        :type: string
         :storage_location: value
-        :type: computed
         :compute:
-          :type: string
           :module: Utility::Compute::Asset
           :method: content_url
           :parameters:
@@ -40,14 +39,15 @@
         :ui:
           :show:
             :disabled: true
+          :edit:
+            :disabled: true
         :api:
           :minimal: true
       :thumbnail_url:
         :label: Thumbnail URL
+        :type: string
         :storage_location: value
-        :type: computed
         :compute:
-          :type: string
           :module: Utility::Compute::Image
           :method: thumbnail_url
           :parameters:
@@ -55,6 +55,8 @@
         :ui:
           :show:
             :partial: preview_image
+          :edit:
+            :disabled: true
         :api:
           :minimal: true
       :url:
@@ -72,10 +74,9 @@
             :disabled: true
       :width:
         :label: Breite
+        :type: number
         :storage_location: value
-        :type: computed
         :compute:
-          :type: number
           :module: Utility::Compute::Image
           :method: width
           :parameters:
@@ -84,6 +85,8 @@
           :show:
             :options:
               :data-unit: px
+          :edit:
+            :disabled: true
         :api:
           :partial: property_value
           :type: QuantitativeValue
@@ -95,10 +98,9 @@
         :advanced_search: true
       :height:
         :label: Höhe
+        :type: number
         :storage_location: value
-        :type: computed
         :compute:
-          :type: number
           :module: Utility::Compute::Image
           :method: height
           :parameters:
@@ -107,6 +109,8 @@
           :show:
             :options:
               :data-unit: px
+          :edit:
+            :disabled: true
         :api:
           :partial: property_value
           :type: QuantitativeValue
@@ -120,25 +124,29 @@
       # data-cycle: Integer (Byte)
       :content_size:
         :label: Dateigröße
+        :type: number
         :storage_location: value
-        :type: computed
         :compute:
-          :type: number
           :module: Utility::Compute::Asset
           :method: file_size
           :parameters:
             :0: asset
         :advanced_search: true
+        :ui:
+          :edit:
+            :disabled: true
       :file_format: # has to be valid MimeType
         :label: Dateiformat
+        :type: string
         :storage_location: value
-        :type: computed
         :compute:
-          :type: string
           :module: Utility::Compute::Asset
           :method: file_format
           :parameters:
             :0: asset
+        :ui:
+          :edit:
+            :disabled: true
       :upload_date:
         :label: Hochgeladen am
         :type: date

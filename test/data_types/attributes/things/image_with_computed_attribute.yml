@@ -34,10 +34,9 @@
                 - Organisation
       :copyright_notice_computed:
         :label: Urheberrechtsvermerk (automatisch)
+        :type: string
         :storage_location: value
-        :type: computed
         :compute:
-          :type: string
           :module: Utility::Compute::Copyright
           :method: copyright_notice
           :parameters:
@@ -63,9 +62,9 @@
             :disabled: false
       :copyright_notice:
         :label: Urheberrechtsvermerk
-        :type: virtual
+        :type: string
+        :storage_location: value
         :virtual:
-          :type: string
           :module: Utility::Virtual::Common
           :method: take_first
           :parameters:
@@ -74,6 +73,7 @@
         :api:
           :disabled: false
         :ui:
+          :show:
+            :disabled: true
           :edit:
             :disabled: true
-

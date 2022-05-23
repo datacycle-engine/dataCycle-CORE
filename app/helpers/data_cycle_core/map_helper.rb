@@ -36,6 +36,7 @@ module DataCycleCore
         thingPath: thing_path(content),
         color: 'gray',
         width: 4
+        clickable: true
       }
     end
 

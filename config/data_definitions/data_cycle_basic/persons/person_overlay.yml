@@ -26,10 +26,9 @@
           :type: surname
       :name:
         :label: Name
+        :type: string
         :storage_location: column
-        :type: computed
         :compute:
-          :type: string
           :module: Utility::Compute::String
           :method: concat
           :parameters:
@@ -42,6 +41,8 @@
               :name: family_name
         :ui:
           :show:
+            :disabled: true
+          :edit:
             :disabled: true
       :postal_address:
         :type: mixin

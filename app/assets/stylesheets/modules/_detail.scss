@@ -106,8 +106,9 @@
             &.remote-render,
             &.remote-rendering,
             &.remote-render-failed {
-              box-shadow: 0 0 1px $dark-gray;
+              box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
               padding: 2.2rem 1rem 1rem 1rem;
+              border-radius: $global-radius;
 
               &::before {
                 margin-top: 2.2rem;
@@ -143,8 +144,15 @@
 
         .detail-type {
           position: relative;
-          box-shadow: 0 0 1px $dark-gray;
+          box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
           padding: 2.2rem 1rem 1rem 1rem;
+          border-radius: $global-radius;
+          min-width: 150px;
+          background-color: $white;
+
+          .detail-type {
+            background-color: transparent;
+          }
 
           &.has-changes:not(.geographic),
           &.has-changes.geographic .map-info {
@@ -248,7 +256,9 @@
           }
 
           > div:not(.detail-type, .map-info, .geographic) {
-            margin-bottom: 1rem;
+            &:not(:last-child) {
+              margin-bottom: 1rem;
+            }
           }
 
           .detail-type {
@@ -257,8 +267,9 @@
 
             &.object,
             &.embedded {
-              box-shadow: 0 0 1px $dark-gray;
+              box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
               padding: 2.2rem 1rem 1rem 1rem;
+              border-radius: $global-radius;
 
               > .detail-label {
                 position: absolute;
@@ -272,19 +283,20 @@
           }
 
           &.media {
+            position: relative;
+            text-align: left;
+            padding-top: 2.5rem;
+
             .media-thumbs {
               display: flex;
             }
-
-            position: relative;
-            text-align: left;
           }
 
           .detail-label {
             position: absolute;
             left: 0;
             top: 0;
-            background: inherit;
+            background: transparent;
             color: $dark-gray;
             padding: 0.4rem 0.7rem;
 
@@ -327,7 +339,8 @@
       display: flex;
       background: rgba($light-gray, 0.5);
       padding: 1rem;
-      box-shadow: 0 0 1px $dark-gray;
+      box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+      border-radius: $global-radius;
 
       .meta-data-splitter {
         flex: 0;

@@ -10,6 +10,7 @@
   <button title="<%= t('frontend.image_editor.edit_image', locale: active_ui_locale) %>" type="button" class="button image-editor-button" data-disable data-open="image-editor-<%= asset_id || editor_id %>">
     <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
   </button>
+
   <div class="full reveal image-editor-reveal"
        id="image-editor-<%= asset_id || editor_id %>"
        data-reveal data-multiple-opened="true"
@@ -20,9 +21,15 @@
        data-file-mime-type="<%= file_mime_type %>"
        data-hidden-field-key="<%= key %>">
     <div class="top-bar">
-      <button class="save-button" data-close aria-label="Save modal" type="button">
-        <i class="fa fa-floppy-o" aria-hidden="true"></i>
-      </button>
+      <%= tag.button(
+        tag.i(class: 'fa fa-floppy-o'),
+        class: 'save-button',
+        type: 'button',
+        data: {
+          disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw')
+        }
+      ) %>
+
       <button class="close-button" data-close aria-label="Close modal" type="button">
         <i class="fa fa-ban" aria-hidden="true"></i>
       </button>

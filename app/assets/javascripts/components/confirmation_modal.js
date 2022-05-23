@@ -110,7 +110,7 @@ class ConfirmationModal {
     const fieldOffset = overlayRect.top + overlayRect.height + 20;
 
     for (let i = 0; i < elements.length; ++i) {
-      elementMethod.call(this, elements[i], fieldOffset, elements.length > 1);
+      elementMethod.call(this, elements[i], fieldOffset, elements.length > 1, i);
     }
   }
   _showAncestors(ancestors) {
@@ -133,7 +133,7 @@ class ConfirmationModal {
       else if (field.style.display) field.style.removeProperty('display');
     }
   }
-  _showSpecificField(field, fieldOffset, multiple = true) {
+  _showSpecificField(field, fieldOffset, multiple = true, order = 0) {
     if (field.style.top) field.dataset.oldTopValue = field.style.top;
     if (field.style.opacity) field.dataset.oldOpacityValue = field.style.opacity;
     if (field.style.left) field.dataset.oldLeftValue = field.style.left;
@@ -144,21 +144,18 @@ class ConfirmationModal {
       const ancestors = domElementHelpers.findAncestors(field, domElementHelpers.isHidden);
       this._showAncestors(ancestors.reverse());
 
-      let leftOffset = `${field.getBoundingClientRect().left}px`;
-
       field.classList.add('dc-focus-field');
       field.style.top = `${fieldOffset}px`;
 
-      if (!multiple) leftOffset = `calc(50% - ${field.getBoundingClientRect().width}px / 2)`;
-
-      field.style.left = leftOffset;
+      if (!multiple) field.style.left = `calc(50% - ${field.getBoundingClientRect().width}px / 2)`;
+      else field.style.left = order == 0 ? '1.5rem' : 'calc(50% + 1.5rem)';
     });
 
     window.requestAnimationFrame(() => {
       field.style.opacity = 1;
     });
   }
-  _hideSpecificField(field, _fieldOffset, _multiple = true) {
+  _hideSpecificField(field, _fieldOffset, _multiple = true, _order = 0) {
     if (!field.classList.contains('dc-focus-field')) return;
 
     field.style.opacity = 0;

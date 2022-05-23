@@ -2,7 +2,7 @@
   <% if definition.dig('xml', 'transformation', 'method') == 'unwrap' %>
 
     <% if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations') %>
-      <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
+      <% ordered_api_properties(validation: definition).each do |o_key, o_definition| %>
         <% o_key_name = o_definition.dig('xml', 'name') || o_key %>
         < <%=o_key_name.camelize(:lower)%>>
         <% content.translations.each do |translation| %>
@@ -13,7 +13,7 @@
         </ <%=o_key_name.camelize(:lower)%>>
       <% end %>
     <% else %>
-      <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
+      <% ordered_api_properties(validation: definition).each do |o_key, o_definition| %>
         <% partial_params = xml_attribute(key: o_key, definition: o_definition, value: value.try(o_key), parameters: { options: options }, content: content) %>
         <%= render *partial_params unless partial_params.nil? %>
       <% end %>
@@ -27,7 +27,7 @@
       <type><%=definition.dig('xml', 'type')%></type>
     <% end %>
     <% if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations') %>
-      <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
+      <% ordered_api_properties(validation: definition).each do |o_key, o_definition| %>
         <% o_key_name = o_definition.dig('xml', 'name') || o_key %>
         <<%=o_key_name.camelize(:lower)%>>
         <% content.translations.each do |translation| %>
@@ -38,7 +38,7 @@
         </<%=o_key_name.camelize(:lower)%>>
       <% end %>
     <% else %>
-      <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
+      <% ordered_api_properties(validation: definition).each do |o_key, o_definition| %>
         <% partial_params = xml_attribute(key: o_key, definition: o_definition, value: value.try(o_key), parameters: { options: options }, content: content) %>
         <%= render *partial_params unless partial_params.nil? %>
       <% end %>

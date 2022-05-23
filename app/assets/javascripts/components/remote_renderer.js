@@ -19,7 +19,10 @@ class RemoteRenderer {
     this.selector.on(
       'open.zf.reveal dc:remote:render dc:html:changed show.zf.dropdown dc:clickableMenu:show dc:toggler:show down.zf.accordion',
       '*',
-      this.loadRemote.bind(this)
+      (event, data) => {
+        event.stopPropagation();
+        this.loadRemote(event.target, data);
+      }
     );
     this.addForceRenderTranslationHandler(this.selector.find('.translatable-attribute.remote-render'));
     this.selector.on(
@@ -32,6 +35,8 @@ class RemoteRenderer {
       e => e.classList.contains('remote-render') && e.classList.contains('translatable-attribute'),
       this.addForceRenderTranslationHandler.bind(this)
     ]);
+
+    DataCycle.htmlObserver.addCallbacks.push([e => e.classList.contains('remote-render'), this.loadRemote.bind(this)]);
   }
   addForceRenderTranslationHandler(element) {
     $(element).on('dc:remote:forceRenderTranslations', this.forceLoadRemote.bind(this));
@@ -70,10 +75,8 @@ class RemoteRenderer {
       if (!$(element).closest('.dropdown-pane').length) this.loadRemotePartial(element);
     });
   }
-  loadRemote(event, data) {
-    event.stopPropagation();
-
-    $(event.target)
+  loadRemote(target, data = undefined) {
+    $(target)
       .find('.remote-render, .remote-reload')
       .addBack('.remote-render, .remote-reload')
       .filter((_, elem) => {

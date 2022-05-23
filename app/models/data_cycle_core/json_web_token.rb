@@ -7,10 +7,13 @@ module DataCycleCore
     SECRET_KEY = Rails.application.secrets.secret_key_base.to_s
     ISSUER = DataCycleCore.features.dig(:user_api, :issuer) || 'datacycle.at'
 
+    Token = Struct.new(:token, :exp)
+
     def self.encode(payload:, exp: Time.zone.now + (DataCycleCore.features.dig(:user_api, :expiration_time) || 24.hours), alg: 'HS256', key: SECRET_KEY)
       payload[:exp] = exp.to_i
       payload[:iss] = ISSUER
-      JWT.encode(payload, key, ALGORITHMS.include?(alg) ? alg : 'HS256')
+
+      Token.new(JWT.encode(payload, key, ALGORITHMS.include?(alg) ? alg : 'HS256'), exp)
     end
 
     def self.decode(token)

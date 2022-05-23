@@ -391,7 +391,7 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
 
 CREATE FUNCTION public.update_template_definitions_trigger() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN UPDATE things SET "schema" = NEW.schema, boost = (NEW.schema -> 'boost')::numeric, content_type = NEW.schema ->> 'content_type', template_updated_at = NOW() WHERE things.template_name = NEW.template_name AND things.template = FALSE; RETURN new; END; $$;
+    AS $$ BEGIN UPDATE things SET "schema" = NEW.schema, boost = (NEW.schema -> 'boost')::numeric, content_type = NEW.schema ->> 'content_type', cache_valid_since = NOW() WHERE things.template_name = NEW.template_name AND things.template = FALSE; RETURN new; END; $$;
 
 
 --
@@ -774,7 +774,7 @@ CREATE TABLE public.things (
     created_by uuid,
     updated_by uuid,
     deleted_by uuid,
-    template_updated_at timestamp without time zone,
+    cache_valid_since timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone,
@@ -831,7 +831,7 @@ CREATE VIEW public.content_computed_properties AS
     COALESCE((parameters.value ->> 'name'::text), (parameters.value #>> '{}'::text[])) AS compute_parameter_property_name
    FROM public.content_properties,
     LATERAL jsonb_each(((content_properties.property_definition -> 'compute'::text) -> 'parameters'::text)) parameters(key, value)
-  WHERE ((content_properties.property_definition ->> 'type'::text) = 'computed'::text);
+  WHERE (content_properties.property_definition ? 'compute'::text);
 
 
 --
@@ -1292,7 +1292,7 @@ CREATE TABLE public.thing_histories (
     created_by uuid,
     updated_by uuid,
     deleted_by uuid,
-    template_updated_at timestamp without time zone,
+    cache_valid_since timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone,
@@ -1354,6 +1354,20 @@ CREATE TABLE public.thing_translations (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     slug character varying
+);
+
+
+--
+-- Name: timeseries; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.timeseries (
+    thing_id uuid NOT NULL,
+    property character varying NOT NULL,
+    "timestamp" timestamp with time zone NOT NULL,
+    value double precision,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
 );
 
 
@@ -2715,6 +2729,13 @@ CREATE UNIQUE INDEX pg_dict_mappings_locale_dict_idx ON public.pg_dict_mappings 
 
 
 --
+-- Name: thing_attribute_timestamp_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX thing_attribute_timestamp_idx ON public.timeseries USING btree (thing_id, property, "timestamp");
+
+
+--
 -- Name: thing_translations_name_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3053,6 +3074,14 @@ CREATE TRIGGER update_template_definitions_trigger AFTER UPDATE OF schema, boost
 
 
 --
+-- Name: timeseries fk_rails_53ff16144f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.timeseries
+    ADD CONSTRAINT fk_rails_53ff16144f FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
+
+
+--
 -- Name: schedule_occurrences schedule_occurrences_schedule_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3336,6 +3365,11 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220323090941'),
 ('20220328090933'),
 ('20220426105827'),
-('20220502150336');
+('20220502150336'),
+('20220505135021'),
+('20220510085119'),
+('20220513075644'),
+('20220516134326'),
+('20220518121205');
 
 

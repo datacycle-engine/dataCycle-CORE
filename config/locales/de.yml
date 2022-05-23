@@ -49,7 +49,7 @@ de:
     zh: chinesisch
 
   roles:
-    super_admin: Administrator (DataCycle)
+    super_admin: Super-Administrator
     admin: Administrator
     user: Benutzer
     standard: Standard
@@ -186,6 +186,7 @@ de:
     image_editor:
       edit_image: Bild bearbeiten
       unsupported_format: Das Bild wird vom Bild-Editor in ein unterstützes Dateiformat konvertiert.
+      save_error: Das Bild konnte nicht gespeichert werden
 
   schedule:
     dtstart: Startzeitpunkt
@@ -582,7 +583,7 @@ de:
     validity_period: Gültigkeitszeitraum
     upload_date: Uploaddatum
     duplicate_candidates: Potentielle Duplikate vorhanden
-    not_1dates: keine potentiellen Duplikate vorhanden
+    not_duplicate_candidates: keine potentiellen Duplikate vorhanden
     bookable: buchbar
     not_bookable: nicht buchbar
     width: Breite
@@ -621,11 +622,16 @@ de:
     event_location: Veranstaltungsort
     inactive_things: Abgelaufene Inhalte
     in_schedule: Termin
+    related_through_attribute:
+      relation_item_offered: ist verknüpft über angebotene Leistung
+      not_relation_item_offered: ist nicht verknüpft über angebotene Leistung
     relation_filter:
       equal: ist
       not_equal: ist nicht
       contained_in: ist enthalten in
       not_contained_in: ist nicht enthalten in
+      exists: ist vorhanden
+      not_exists: ist nicht vorhanden
       placeholder:
         thing: Inhalt
         collection_or_stored_filter: '%{collection} oder %{stored_filter}'
@@ -666,6 +672,7 @@ de:
     geo_within_classification: nach geografischer Lage filtern ...
     geo_filter: nach geografischer Lage filtern ...
     relation_filter: auf Basis von verknüpften Inhalten filtern ...
+    related_through_attribute: nach verknüpften Inhalten mit Attribut filtern ...
     id: nach IDs filtern ...
     union_filter_ids: mehrere Sammlungen kombinieren ...
     related_to: nach verknüpften Inhalten filtern ...
@@ -1200,6 +1207,7 @@ de:
     stored_searches:
       my_searches: Meine Suchen
       my_saved: Meine gespeicherten Suchen
+      show_in_my_saved_searches: in meinen gespeicherten Suchen anzeigen
       last: Zuletzt gesucht
       saved:
         one: Gepeicherte Suche

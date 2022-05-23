@@ -24,9 +24,19 @@ module DataCycleCore
 
         super(**args)
       end
+
+      def type?(attribute_type)
+        definition&.[]('type') == attribute_type
+      end
+
+      def render_params
+        parameters.merge(to_h.slice(:key, :definition, :value, :content))
+      end
     end
 
     def attribute_viewer_allowed(options)
+      return render('data_cycle_core/contents/viewers/attribute_group', options.render_params) if options.type?('attribute_group')
+
       return unless can?(:show, DataCycleCore::DataAttribute.new(
                                   options.key,
                                   options.definition,
@@ -36,14 +46,14 @@ module DataCycleCore
                                 )) &&
                     (options.content.nil? || options.content&.allowed_feature_attribute?(options.key.attribute_name_from_key))
 
-      return if options.definition['type'] == 'classification' &&
+      return if options.type?('classification') &&
                 !options.definition['universal'] &&
                 !DataCycleCore::ClassificationService.visible_classification_tree?(
                   options.definition['tree_label'],
                   options.parameters.dig(:options, :force_render) ? DataCycleCore.classification_visibilities.select { |c| c.start_with?(options.scope.to_s) } : options.scope.to_s
                 )
 
-      return if options.definition['type'] == 'slug' && options.parameters[:parent]&.embedded?
+      return if options.type?('slug') && options.parameters[:parent]&.embedded?
 
       true
     end
@@ -95,7 +105,6 @@ module DataCycleCore
       options = RenderMethodOptions.new(**args, defaults: RENDER_VIEWER_ARGUMENTS)
 
       type = options.definition['type'].underscore_blanks
-      type = options.definition.dig('compute', 'type').underscore_blanks.to_s if options.definition.dig('compute', 'type').present?
 
       partials = [
         options.definition&.dig('ui', 'show', 'partial').presence,
@@ -108,7 +117,7 @@ module DataCycleCore
 
       partials.map! { |p| "data_cycle_core/contents/viewers/#{p}" }
 
-      render_first_existing_partial(partials, options.parameters.merge(options.to_h.slice(:key, :definition, :value, :content)))
+      render_first_existing_partial(partials, options.render_params)
     end
 
     def render_attribute_history_viewer(**args)
@@ -125,7 +134,7 @@ module DataCycleCore
       partials.map! { |p| "data_cycle_core/contents/history/#{p}" }
 
       begin
-        render_first_existing_partial(partials, options.parameters.merge(options.to_h.slice(:key, :definition, :value, :content)))
+        render_first_existing_partial(partials, options.render_params)
       rescue StandardError
         render_attribute_viewer options.to_h
       end
