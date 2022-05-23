@@ -36,8 +36,8 @@ module DataCycleCore
           #   end
           # end
 
-          def number_of_characters(computed_parameters:, data_hash:, **_args)
-            recursive_char_count(data_hash, computed_parameters.first.dig('paths'))&.flatten&.compact&.sum
+          def number_of_characters(computed_definition:, data_hash:, **_args)
+            recursive_char_count(data_hash, computed_definition.dig('compute', 'paths'))&.flatten&.compact&.sum
           end
 
           def linked_gip_route_attribute(computed_parameters:, computed_definition:, **_args)
@@ -54,10 +54,12 @@ module DataCycleCore
             parameters.map do |parameter|
               if parameter.is_a?(::Hash)
                 parameter.map do |k, v|
-                  data.dig(k)&.map { |s| recursive_char_count(s, v) }
+                  data.dig(k)&.map do |s|
+                    recursive_char_count(s, v)
+                  end
                 end
               else
-                ActionController::Base.helpers.strip_tags(data.dig(parameter).to_s).size
+                ActionController::Base.helpers.strip_tags((data.dig('translations', I18n.locale.to_s, parameter) || data.dig('datahash', parameter) || data.dig(parameter)).to_s).size
               end
             end
           end
