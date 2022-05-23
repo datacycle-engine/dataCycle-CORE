@@ -137,6 +137,7 @@ en:
       upload_gpx: 
         button_title: Upload GPX file
       styles:
+        osm: OpenStreetMap
         topo: Topo
         street: Standard
         bright: Bright

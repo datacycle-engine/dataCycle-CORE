@@ -142,6 +142,7 @@ de:
       upload_gpx: 
         button_title: 'GPX-Datei hochladen'
       styles:
+        osm: OpenStreetMap
         topo: Topo
         street: Standard
         bright: Bright

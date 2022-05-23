@@ -4,18 +4,9 @@
 :editor: 'MapLibreGl'
 # :editor: 'TourSprung'
 :styles:
-  - :id: topo
-    :value: 'https://map.pixeldev.at/styles/pp-topo/style.json'
-  # - :id: street
-  #   :value: 'https://map.pixeldev.at/styles/pp-street/style.json'
-  # - :id: bright
-  #   :value: 'https://map.pixeldev.at/styles/pp-bright/style.json'
-  # - :id: winter
-  #   :value: 'https://map.pixeldev.at/styles/pp-winter/style.json'
+  - :id: osm
+    :value: 'OSM'
   # - :id: basemap
   #   :value: 'BaseMapAt'
-  # - :id: toursprung
-  #   :value: 'TourSprung'
 :credentials:
   :api_key: 'sandbox'
-  # '1bb99e3a056f9ff374e7c1f6f64ae638'

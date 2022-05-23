@@ -100,6 +100,33 @@ class MapLibreGlViewer {
     else if (baseStyle) return baseStyle;
     else return 'https://map.pixeldev.at/styles/pp-street/style.json';
   }
+  baseLayerOSM() {
+    return {
+      version: 8,
+      sources: {
+        'osm-tiles': {
+          type: 'raster',
+          tiles: [
+            'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png'
+          ],
+          tileSize: 256,
+          attribution:
+            '&#169; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors.'
+        }
+      },
+      layers: [
+        {
+          id: 'osm-tiles',
+          type: 'raster',
+          source: 'osm-tiles',
+          minzoom: 0,
+          maxzoom: 19
+        }
+      ]
+    };
+  }
   baseLayerBaseMapAt() {
     const layer = this.highDpi ? 'bmaphidpi' : 'geolandbasemap';
     const matrixSet = 'google3857';
