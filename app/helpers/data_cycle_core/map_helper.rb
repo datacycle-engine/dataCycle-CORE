@@ -35,7 +35,7 @@ module DataCycleCore
         name: I18n.with_locale(content.first_available_locale) { content.try(paths['title'].to_s) },
         thingPath: thing_path(content),
         color: 'gray',
-        width: 4
+        width: 4,
         clickable: true
       }
     end
