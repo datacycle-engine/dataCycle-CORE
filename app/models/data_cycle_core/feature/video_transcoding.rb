@@ -21,7 +21,6 @@ module DataCycleCore
           # @todo: trigger cache invalidation
           [
             Rails.application.config.asset_host,
-            'uploads',
             'processed',
             'video',
             content.id,
