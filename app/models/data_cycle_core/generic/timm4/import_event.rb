@@ -19,22 +19,33 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            if raw_data['mainImage'].present?
-              DataCycleCore::Generic::Timm4::Processing.process_image(
-                utility_object,
-                {
-                  'content_url' => raw_data['mainImage']
-                },
-                options.dig(:import, :transformations, :image)
-              )
-            end
+            [raw_data['mainImage'], raw_data['headerImage'], *raw_data['images']].compact.each do |image_data|
+              data =
+                if image_data.is_a?(::String)
+                  { 'content_url' => image_data }
+                elsif image_data.is_a?(::Hash)
+                  image_data.merge({ 'content_url' => image_data['url'] })
+                end
 
-            Array.wrap(raw_data['images']).each do |link|
+              if data.dig('photographer').present?
+                DataCycleCore::Generic::Timm4::Processing.process_author(
+                  utility_object,
+                  { 'name' => data.dig('photographer') },
+                  options.dig(:import, :transformations, :author)
+                )
+              end
+
+              if data.dig('copyright').present?
+                DataCycleCore::Generic::Timm4::Processing.process_copyright_holder(
+                  utility_object,
+                  { 'name' => data.dig('copyright') },
+                  options.dig(:import, :transformations, :copyright_holder)
+                )
+              end
+
               DataCycleCore::Generic::Timm4::Processing.process_image(
                 utility_object,
-                {
-                  'content_url' => link
-                },
+                data,
                 options.dig(:import, :transformations, :image)
               )
             end

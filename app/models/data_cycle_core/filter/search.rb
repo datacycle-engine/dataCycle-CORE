@@ -51,6 +51,14 @@ module DataCycleCore
         )
       end
 
+      def not_creator(ids = nil)
+        return self if ids.blank?
+
+        reflect(
+          @query.where.not(thing[:created_by].in(ids))
+        )
+      end
+
       def updated_since_flat(updated_at = nil)
         return self if updated_at.blank?
 
