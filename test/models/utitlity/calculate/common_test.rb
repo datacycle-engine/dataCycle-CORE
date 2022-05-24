@@ -11,15 +11,15 @@ describe DataCycleCore::Utility::Compute::Common do
 
   describe 'testing Common method: copy' do
     it 'copy string value' do
-      assert_equal('test', subject.copy({ computed_parameters: ['test'] }))
+      assert_equal('test', subject.copy({ computed_parameters: { key: 'test' } }))
     end
 
     it 'copy empty string value' do
-      assert_equal('', subject.copy({ computed_parameters: '' }))
+      assert_equal('', subject.copy({ computed_parameters: { key: '' } }))
     end
 
     it 'copy nil value' do
-      assert_nil(subject.copy({ computed_parameters: nil }))
+      assert_nil(subject.copy({ computed_parameters: { key: nil } }))
     end
   end
 end

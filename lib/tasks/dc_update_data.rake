@@ -63,7 +63,7 @@ namespace :dc do
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
 
       contents.find_each do |content|
-        next if content.properties_with_default_values.blank?
+        next if content.default_value_property_names.blank?
 
         content.translated_locales.each do |locale|
           I18n.with_locale(locale) do

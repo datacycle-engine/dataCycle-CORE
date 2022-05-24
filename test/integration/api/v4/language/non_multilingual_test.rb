@@ -15,7 +15,7 @@ module DataCycleCore
             # add translation for author
             author = @content.author.first
             data_hash_en = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person_en')
-            I18n.with_locale(:en) { author.set_data_hash(data_hash: author.get_data_hash.merge(data_hash_en)) }
+            I18n.with_locale(:en) { author.set_data_hash(data_hash: author.get_data_hash.except(*author.computed_property_names).merge(data_hash_en)) }
             author.reload
 
             assert_full_thing_datahash(@content)

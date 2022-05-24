@@ -323,10 +323,10 @@ describe DataCycleCore::MasterData::ImportTemplates do
         compute: {
           module: 'Utility::Compute::Math',
           method: 'sum',
-          parameters: {
-            '0': 'label Property B',
-            '1': 'string'
-          }
+          parameters: [
+            'label Property B',
+            'string'
+          ]
         }
       }
     end

@@ -29,4 +29,4 @@
           :module: Utility::Compute::Common
           :method: copy
           :parameters:
-            :0: value_1
+            - value_1

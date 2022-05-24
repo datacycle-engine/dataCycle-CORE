@@ -14,7 +14,7 @@ module DataCycleCore
         end
 
         def virtual_value(name, thing)
-          DataCycleCore::Utility::Virtual::Base.virtual_values(name, thing.properties_for(name), thing)
+          thing.load_virtual_attribute(name)
         end
 
         test 'Testing Utility::Virtual::Timeseries methods' do
