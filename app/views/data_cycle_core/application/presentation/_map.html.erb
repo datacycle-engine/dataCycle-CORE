@@ -1,24 +1,7 @@
-<% 
-# binding.pry 
-# options
-# value
-# contents
-# additional_values
-value = contents.first.line
-definition = contents.first.schema['properties']['line']
-# binding.pry
-%>
-<% is_line_string = (value.presence&.geometry_type || definition.dig('ui', 'edit', 'type')).to_s.include?('LineString') %>
 <div class="geographic">
-  <div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map linestring"
+  <div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map dashboard"
           data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
-          data-value="<%= value_to_geojson(value, {id: content.id})&.to_json %>"
-          data-additional-values="<%= additional_map_values(contents, definition&.dig('ui', 'edit', 'options', 'additional_value_paths'))&.to_json %>"
+          data-language="<%= @language %>"
           >
-
-  </div>
-  <div class="ol-popup">
-    <a href="#" class="ol-popup-closer"><i class="fa fa-times" aria-hidden="true"></i></a>
-    <div class="ol-popup-content"></div>
   </div>
 </div>

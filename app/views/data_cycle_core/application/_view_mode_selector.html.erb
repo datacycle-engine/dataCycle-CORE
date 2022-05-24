@@ -23,7 +23,7 @@
       }
     ) %>
 
-  <% if content_for?(:sortable) || local_assigns[:sortable].present? %>
+  <% if @mode != 'map' && (content_for?(:sortable) || local_assigns[:sortable].present?) %>
     <%= yield :sortable %>
     <span class="filter-sortable">
       <%= select_tag(

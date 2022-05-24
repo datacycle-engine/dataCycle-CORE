@@ -1,7 +1,7 @@
 <section class="search-results" id="search-results">
   <% @mode ||= 'grid' %>
 
-  <% if @mode == 'tree' || contents.present? %>
+  <% if @mode.in?(['tree', 'map']) || contents.present? %>
 
     <ul class="no-bullet no-format <%= @mode %>">
       <%= render "data_cycle_core/application/presentation/#{valid_mode(@mode)}", contents: contents %>
