@@ -51,11 +51,16 @@ module DataCycleCore
         end
 
         def self.add_images(data, external_source_id)
-          images = [data.dig('img'), data.dig('image'), data.dig('images'), data.dig('mainImage')]
+          images = [data.dig('img'), data.dig('image'), data.dig('images'), data.dig('mainImage'), data.dig('headerImage'), data.dig('headerImg')]
             .flatten
             .compact
-            .map { |i| DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: i)&.id }
-            .compact
+            .map { |i|
+              if i.is_a?(::String)
+                DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: i)&.id
+              elsif i.is_a?(::Hash)
+                DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: i.dig('url'))&.id
+              end
+            }.compact
           data['image'] = images
           data
         end

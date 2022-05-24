@@ -32,6 +32,13 @@ module DataCycleCore
           Enumerator.new do |yielder|
             (1..pages).each do |page|
               load_data(endpoint: type, limit: @limit, offset: (page - 1) * @limit)&.dig('data')&.each do |data|
+                ['mainImage', 'headerImage', 'img', 'image'].each do |key_name|
+                  data[key_name]['keywords'] = data[key_name]['keywords']&.split(',')&.map { |word| word&.split('--') }&.flatten if data[key_name].present?
+                end
+                data['images']&.map do |image|
+                  image['keywords'] = image['keywords']&.split(',')&.map { |word| word&.split('--') }&.flatten if image['keywords'].present?
+                  image
+                end
                 yielder << data
               end
             end
