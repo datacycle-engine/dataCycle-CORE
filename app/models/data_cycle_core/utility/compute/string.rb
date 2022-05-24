@@ -35,7 +35,6 @@ module DataCycleCore
             }.reverse_merge(computed_parameters.symbolize_keys))
           end
 
-
           def number_of_characters(computed_definition:, data_hash:, **_args)
             recursive_char_count(data_hash, computed_definition.dig('compute', 'paths'))&.flatten&.compact&.sum
           end
