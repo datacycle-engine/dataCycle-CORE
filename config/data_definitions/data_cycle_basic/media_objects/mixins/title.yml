@@ -20,4 +20,4 @@
           :module: DataCycleCore::Utility::DefaultValue::Asset
           :method: filename_to_string
           :parameters:
-            :0: asset
+            - asset

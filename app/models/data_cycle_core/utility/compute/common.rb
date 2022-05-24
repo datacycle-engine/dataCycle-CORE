@@ -5,8 +5,8 @@ module DataCycleCore
     module Compute
       module Common
         class << self
-          def copy(**args)
-            args[:computed_parameters]&.first
+          def copy(computed_parameters:, **_args)
+            computed_parameters.values.first
           end
         end
       end

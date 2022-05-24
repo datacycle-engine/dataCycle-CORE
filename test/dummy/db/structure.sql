@@ -430,8 +430,8 @@ CREATE TABLE public.activities (
 CREATE TABLE public.ar_internal_metadata (
     key character varying NOT NULL,
     value character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
 );
 
 
@@ -826,11 +826,9 @@ CREATE VIEW public.content_computed_properties AS
  SELECT content_properties.content_id,
     content_properties.content_template_name,
     content_properties.property_name,
-    parameters.key AS compute_parameter_order,
-    parameters.value AS compute_parameter_definition,
-    COALESCE((parameters.value ->> 'name'::text), (parameters.value #>> '{}'::text[])) AS compute_parameter_property_name
+    parameters.value AS compute_parameter_property_name
    FROM public.content_properties,
-    LATERAL jsonb_each(((content_properties.property_definition -> 'compute'::text) -> 'parameters'::text)) parameters(key, value)
+    LATERAL jsonb_array_elements_text(((content_properties.property_definition -> 'compute'::text) -> 'parameters'::text)) parameters(value)
   WHERE (content_properties.property_definition ? 'compute'::text);
 
 
@@ -2008,10 +2006,10 @@ CREATE INDEX headline_idx ON public.searches USING gin (headline public.gin_trgm
 
 
 --
--- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_activities_on_activitiable; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
+CREATE INDEX index_activities_on_activitiable ON public.activities USING btree (activitiable_type, activitiable_id);
 
 
 --
@@ -3370,6 +3368,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220510085119'),
 ('20220513075644'),
 ('20220516134326'),
-('20220518121205');
+('20220518121205'),
+('20220520065309');
 
 

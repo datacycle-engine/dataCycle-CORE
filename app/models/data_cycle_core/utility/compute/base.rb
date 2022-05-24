@@ -5,40 +5,75 @@ module DataCycleCore
     module Compute
       module Base
         class << self
-          def computed_values(key, properties, data_hash, content)
+          def compute_values(key, data_hash, content)
+            return if data_hash.key?(key)
+
+            properties = content.properties_for(key)&.with_indifferent_access
+
+            return if properties.blank?
+
+            computed_parameters = Array.wrap(properties&.dig('compute', 'parameters')).intersection(content.property_names)
+
+            return unless conditions_satisfied?(content, properties)
+            return if skip_compute_value?(key, data_hash, content, computed_parameters)
+
             module_name = ('DataCycleCore::' + properties.dig('compute', 'module').classify).safe_constantize
             method_name = module_name.method(properties.dig('compute', 'method'))
-            computed_parameters = properties.dig('compute', 'parameters').values.map { |value| value.is_a?(::String) ? data_hash.dig(value) : value }
 
-            return unless validate_computed(data_hash: data_hash, content: content, computed_definition: properties)
-            computed_value = method_name.try(:call, **{ computed_parameters: computed_parameters, key: key, data_hash: data_hash, content: content, computed_definition: properties })
-            computed_value
+            data_hash[key] = method_name.try(:call, **{
+              computed_parameters: computed_parameters.index_with { |v| data_hash[v] },
+              key: key,
+              data_hash: data_hash,
+              content: content,
+              computed_definition: properties
+            })
           end
 
-          def validate_computed(data_hash:, content:, computed_definition:)
-            return true if computed_definition.dig('compute', 'depends').blank?
-            computed_definition.dig('compute', 'depends').each do |_v_key, v_value|
-              return false unless validate(definition: v_value, data_hash: data_hash, content: content)
+          def conditions_satisfied?(content, properties)
+            return true unless properties['compute'].key?('condition')
+
+            Array.wrap(properties.dig('compute', 'condition')).compact_blank.each do |condition|
+              return false unless condition_satisfied?(content, condition)
             end
+
             true
           end
 
-          def validate(definition:, data_hash:, content:)
-            expected_value = definition.dig('value')
-            value = case definition.dig('type')
+          def condition_satisfied?(content, definition)
+            expected_value = definition['value']
+
+            value = case definition['type']
                     when 'external_source'
-                      content&.external_source&.default_options&.dig(definition.dig('name'))
+                      content&.external_source&.default_options&.dig(definition['name'])
                     when 'I18n'
-                      definition.dig('type').constantize.send(definition.dig('name'))
+                      I18n.send(definition['name'])
                     when 'content'
-                      content.send(definition.dig('name'))
-                    when 'data_hash'
-                      data_hash.dig(definition.dig('name'))
+                      content.send(definition['name'])
                     else
                       raise 'Unknown type for validation'
                     end
 
-            send(definition.dig('method'), value, expected_value)
+            send(definition['method'], value, expected_value)
+          end
+
+          def skip_compute_value?(key, data_hash, content, computed_parameters, checked = false)
+            return false if computed_parameters.blank?
+
+            missing_keys = computed_parameters.difference(data_hash.slice(*computed_parameters).keys)
+
+            return false if missing_keys.blank?
+            return true if checked && missing_keys.present?
+            return true if missing_keys.size == computed_parameters.size && missing_keys.difference(content.computed_property_names).present?
+
+            missing_keys.intersection(content.computed_property_names).each do |missing_computed_key|
+              compute_values(missing_computed_key, data_hash, content)
+            end
+
+            missing_keys.difference(content.default_value_property_names).each do |missing_key|
+              data_hash[missing_key] = content.property_value_for_set_datahash(missing_key)
+            end
+
+            skip_compute_value?(key, data_hash, content, computed_parameters, true)
           end
 
           def equals?(value_a, value_b)

@@ -32,10 +32,21 @@ module DataCycleCore
 
         def measures(*)
           Enumerator.new do |yielder|
+            # old logic
             load_routes.each_slice(@page_size) do |objects|
               params = {
                 'layers' => ['ANY'],
                 'objectIds' => objects
+              }
+              load_data(['get_measure'], params, 0)['features'].each do |feature|
+                yielder << feature
+              end
+            end
+            # new specific types
+            ['5019', '5020', '5021', '5022'].each do |type|
+              params = {
+                'layers' => ['ANY'],
+                'efql' => "[attribute:type]=#{type}"
               }
               load_data(['get_measure'], params, 0)['features'].each do |feature|
                 yielder << feature

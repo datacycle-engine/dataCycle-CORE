@@ -5,28 +5,29 @@ module DataCycleCore
     module Compute
       module Classification
         class << self
-          def keywords(**args)
-            tags = args.dig(:computed_parameters).presence&.try(:flatten)&.reject(&:blank?)
-            return if tags.blank?
-            DataCycleCore::Classification.find(tags)&.map(&:name)&.join(',')
+          def keywords(computed_parameters:, **_args)
+            DataCycleCore::Classification.find(Array.wrap(computed_parameters.values).flatten.reject(&:blank?)).map(&:name).join(',').presence
           end
 
-          def description(**args)
-            classification_ids = args.dig(:computed_parameters).presence&.try(:flatten)&.reject(&:blank?)
+          def description(computed_parameters:, **_args)
+            classification_ids = computed_parameters.values.flatten.reject(&:blank?)
+
             return if classification_ids.blank?
+
             DataCycleCore::Classification
-              .find(classification_ids)
-              &.map(&:classification_aliases)
-              &.flatten
-              &.uniq
-              &.map { |classification_alias| classification_alias.description || classification_alias.name || classification_alias.internal_name }
+              .where(id: classification_ids)
+              .classification_aliases
+              .map { |classification_alias| classification_alias.description || classification_alias.name || classification_alias.internal_name }
               &.join(',')
           end
 
-          def value(**args)
-            values = args.dig(:computed_parameters).presence&.try(:flatten)
-            return unless values.size == 1
-            args.dig(:data_hash).dig('translated_classification') || DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(values.first.dig('tree'), values.first.dig('value'))
+          def value(computed_definition:, **_args)
+            tree = computed_definition.dig('compute', 'tree')
+            value = computed_definition.dig('compute', 'value')
+
+            return if value.blank? || tree.blank?
+
+            DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(tree, value)
           end
         end
       end

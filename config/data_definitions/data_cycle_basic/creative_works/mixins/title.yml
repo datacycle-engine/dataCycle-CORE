@@ -29,9 +29,7 @@
           :module: Utility::Compute::String
           :method: concat
           :parameters:
-            :0:
-              :type: content
-              :name: name
+            - name
         :ui:
           :show:
             :disabled: true

@@ -5,10 +5,10 @@ module DataCycleCore
     module Virtual
       module String
         class << self
-          def concat(**args)
-            args.dig(:virtual_parameters)&.map { |item|
+          def concat(virtual_parameters:, **args)
+            virtual_parameters.map { |item|
               item.is_a?(Hash) ? transform_string(item, args) : item
-            }&.join
+            }.join
           end
 
           def transform_string(definition, args)
