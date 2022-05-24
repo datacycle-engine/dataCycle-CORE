@@ -21,20 +21,20 @@ module DataCycleCore
             }.merge(computed_parameters.symbolize_keys))
           end
 
-          # def transform_string(definition, args)
-          #   case definition.dig('type')
-          #   when 'external_source'
-          #     args.dig(:content)&.external_source&.default_options&.dig(definition.dig('name'))
-          #   when 'I18n'
-          #     definition.dig('type').constantize.send(definition.dig('name'))
-          #   when 'content'
-          #     args.dig(:data_hash).dig(definition.dig('name')) || args.dig(:content).send(definition.dig('name'))
-          #   when 'value'
-          #     args.dig(:data_hash).dig('translation_type') || definition.dig('value')
-          #   else
-          #     raise 'Unknown type for string transformation'
-          #   end
-          # end
+          def interpolate_outdoor_active_tour_url(computed_parameters:, content:, computed_definition:, **_args)
+            format(computed_definition&.dig('compute', 'value').to_s, {
+              external_key: content&.external_key,
+              outdoor_active_tour_base_url: content&.external_source&.default_options&.dig('outdoor_active_tour_base_url')
+            }.reverse_merge(computed_parameters.symbolize_keys))
+          end
+
+          def interpolate_outdoor_active_poi_url(computed_parameters:, content:, computed_definition:, **_args)
+            format(computed_definition&.dig('compute', 'value').to_s, {
+              external_key: content&.external_key,
+              outdoor_active_poi_base_url: content&.external_source&.default_options&.dig('outdoor_active_poi_base_url')
+            }.reverse_merge(computed_parameters.symbolize_keys))
+          end
+
 
           def number_of_characters(computed_definition:, data_hash:, **_args)
             recursive_char_count(data_hash, computed_definition.dig('compute', 'paths'))&.flatten&.compact&.sum
