@@ -148,6 +148,10 @@
         :type: number
         :storage_location: value
         :advanced_search: true
+        :ui:
+          :show:
+            :options:
+              :delimiter: ''
       :content_location:
         :label: Ort
         :type: linked
