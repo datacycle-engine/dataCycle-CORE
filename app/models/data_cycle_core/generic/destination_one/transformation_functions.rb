@@ -107,7 +107,7 @@ module DataCycleCore
             dtend = time['end'].in_time_zone
             duration = dtend - dtstart
             until_time = time['repeatUntil']&.in_time_zone || Time.zone.now.end_of_year + 5.years
-            next if 'LMT'.in?([dtstart&.zone, dtend&.zone, dtuntil&.zone])
+            next if 'LMT'.in?([dtstart&.zone, dtend&.zone, until_time&.zone])
 
             schedule_hash = {
               id: id,
