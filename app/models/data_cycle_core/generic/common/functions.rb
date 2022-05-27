@@ -165,6 +165,21 @@ module DataCycleCore
           data_hash
         end
 
+        def self.local_video(data_hash, attribute)
+          return data_hash if data_hash[attribute].blank?
+
+          begin
+            asset = DataCycleCore::Video.new(remote_file_url: data_hash[attribute])
+            asset.save!
+            data_hash[attribute] = asset.try(:id)
+          rescue StandardError => e
+            logger = DataCycleCore::Generic::Logger::LogFile.new('carrierwave')
+            logger.info(e, data_hash[attribute])
+            logger.close
+          end
+          data_hash
+        end
+
         def self.add_field(data_hash, name, function)
           data_hash.merge({ name => function.call(data_hash) })
         end
