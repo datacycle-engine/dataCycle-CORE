@@ -93,18 +93,26 @@ module DataCycleCore
       end
     end
 
-    class DateFilterRangeError < StandardError
-      attr_reader :start_date, :end_date
+    module Filter
+      class DateFilterRangeError < StandardError
+        attr_reader :start_date, :end_date
 
-      def initialize(dates = [])
-        @start_date = dates[0]
-        @end_date = dates[1]
+        def initialize(dates = [])
+          @start_date = dates[0]
+          @end_date = dates[1]
 
-        super
+          super
+        end
+
+        def message
+          'end date must be equal or greater then start date in date filters'
+        end
       end
 
-      def message
-        'end date must be equal or greater then start date in date filters'
+      class UnionFilterRecursionError < StandardError
+        def message
+          'stored filters cannot filter on themselves inside union filters (infinite recursion)'
+        end
       end
     end
   end

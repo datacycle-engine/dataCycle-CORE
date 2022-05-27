@@ -102,9 +102,9 @@ module DataCycleCore
       params.permit(:id, :table, :datestring)
     end
 
-    def authorized_root_path(user = nil)
+    def authorized_root_path(user = nil, root_path_params = {})
       if (user || current_user)&.can?(:index, :backend)
-        root_path
+        root_path(root_path_params)
       else
         unauthorized_exception_path
       end
