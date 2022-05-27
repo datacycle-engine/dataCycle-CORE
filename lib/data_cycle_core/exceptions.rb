@@ -92,5 +92,20 @@ module DataCycleCore
         super&.take(5)
       end
     end
+
+    class DateFilterRangeError < StandardError
+      attr_reader :start_date, :end_date
+
+      def initialize(dates = [])
+        @start_date = dates[0]
+        @end_date = dates[1]
+
+        super
+      end
+
+      def message
+        'end date must be equal or greater then start date in date filters'
+      end
+    end
   end
 end

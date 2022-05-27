@@ -20,9 +20,11 @@ module DataCycleCore
 
     def display_flash_messages_new(closable: true)
       capture do
-        flash.each do |key, value|
-          alert_class = DEFAULT_KEY_MATCHING[key.to_sym]
-          concat alert_box(value, alert_class, closable)
+        tag.div(class: 'flash-messages') do
+          flash.each do |key, value|
+            alert_class = DEFAULT_KEY_MATCHING[key.to_sym]
+            concat alert_box(value, alert_class, closable)
+          end
         end
       end
     end

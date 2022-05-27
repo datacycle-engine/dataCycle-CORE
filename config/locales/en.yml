@@ -1617,6 +1617,7 @@ en:
     data_cycle_core/error/api/expired_content_error:
       expired_content: Content is expired
     active_record/record_not_found: Not found
+    data_cycle_core/error/date_filter_range_error: end date must be equal or greater then start date in date filters
 
   details:
     bild:

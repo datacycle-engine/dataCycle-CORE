@@ -1643,6 +1643,7 @@ de:
     data_cycle_core/error/api/expired_content_error:
       expired_content: Inhalt ist abgelaufen
     active_record/record_not_found: Nicht gefunden
+    data_cycle_core/error/date_filter_range_error: Das Enddatum bei Datumsfiltern muss nach dem Startdatum liegen.
 
   details:
     bild:

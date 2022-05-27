@@ -11,6 +11,7 @@ module DataCycleCore
         rescue_from ActionController::UnknownFormat, with: :not_acceptable
         rescue_from ActionController::InvalidAuthenticityToken, with: :unprocessable_entity
         rescue_from ActionController::BadRequest, with: :bad_request
+        rescue_from DataCycleCore::Error::DateFilterRangeError, with: :date_filter_range_error
       end
 
       rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
@@ -104,6 +105,15 @@ module DataCycleCore
         format.json { render status: status_code, json: { errors: content_api_error(exception) } }
         format.js { render status: status_code, js: "console.error('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale)}')" } if is_a?(ApplicationController)
         format.any { head status_code }
+      end
+    end
+
+    def date_filter_range_error(exception)
+      respond_to do |format|
+        format.html { redirect_to root_path(reset: true), alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale), allow_other_host: false } if is_a?(ApplicationController)
+        format.json { render status: :bad_request, json: { errors: content_api_error(exception) } }
+        format.js { render status: :bad_request, js: "console.error('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale)}')" } if is_a?(ApplicationController)
+        format.any { head :bad_request }
       end
     end
 
