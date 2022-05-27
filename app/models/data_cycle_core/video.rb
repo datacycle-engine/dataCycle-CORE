@@ -4,6 +4,7 @@ module DataCycleCore
   class Video < Asset
     mount_uploader :file, VideoUploader
     process_in_background :file
+    has_one_attached :file_new
 
     def codec_validation(options)
       video = FFMPEG::Movie.new(file.file.path)

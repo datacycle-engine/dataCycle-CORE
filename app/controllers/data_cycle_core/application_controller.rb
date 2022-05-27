@@ -4,6 +4,8 @@ module DataCycleCore
   class ApplicationController < ActionController::Base
     include DataCycleCore::ParamsResolver
     include DataCycleCore::ErrorHandler
+    include ActiveStorage::SetCurrent
+
     protect_from_forgery with: :exception
     before_action :load_watch_lists, if: -> { params[:watch_list_id].present? }
     before_action :better_errors_hack, if: -> { Rails.env.development? }
