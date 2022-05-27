@@ -26,7 +26,13 @@ module DataCycleCore
           end
 
           def thumbnail_url(computed_parameters:, **_args)
-            DataCycleCore::Video.find_by(id: computed_parameters.values.first)&.file&.thumb_preview&.url
+            video = DataCycleCore::Video.find_by(id: computed_parameters.values.first)
+            if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+              video.file_new.blob.preview_image.purge
+              video.file_new.preview(**options).processed.url
+            else
+              video&.file&.thumb_preview&.url
+            end
           end
 
           def transcode(**args)

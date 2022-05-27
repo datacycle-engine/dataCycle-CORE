@@ -13,6 +13,11 @@ module DataCycleCore
       validate_audio_codec(video, options)
     end
 
+    def new_thumb(**options)
+      file_new.blob.preview_image.purge
+      file_new.preview(**options).processed.url
+    end
+
     private
 
     def validate_video_codec(video, options)

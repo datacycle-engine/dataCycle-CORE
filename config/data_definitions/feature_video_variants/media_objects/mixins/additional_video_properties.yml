@@ -13,7 +13,7 @@
           :transformation:
             :version: mp4
           :parameters:
-            :0: asset
+            - asset
       :transcoding_mp4_low:
         :label: Label
         :storage_location: value
@@ -24,7 +24,7 @@
           :transformation:
             :version: mp4_low
           :parameters:
-            :0: asset
+            - asset
       :transcoding_mp4_mid:
         :label: Label
         :storage_location: value
@@ -35,5 +35,9 @@
           :transformation:
             :version: mp4_mid
           :parameters:
-            :0: asset
+            - asset
+      :preview_image_start_time:
+        :label: Vorschaubild von Sekunde
+        :type: number
+        :storage_location: value
 

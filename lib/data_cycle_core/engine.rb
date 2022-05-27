@@ -336,12 +336,16 @@ module DataCycleCore
     config.to_prepare do
       Rails.autoloaders.main.ignore(
         [
+          DataCycleCore::Engine.root.join('app', 'extensions'),
+          DataCycleCore::Engine.root.join('app', 'decorators'),
           Rails.root.join('app', 'extensions'),
           Rails.root.join('app', 'decorators')
         ]
       )
       Dir.glob(
         [
+          DataCycleCore::Engine.root + 'app/decorators/**/*_decorator*.rb',
+          DataCycleCore::Engine.root + 'app/extensions/**/*.rb',
           Rails.root + 'app/decorators/**/*_decorator*.rb',
           Rails.root + 'app/extensions/**/*.rb'
         ]
@@ -355,7 +359,6 @@ module DataCycleCore
       Devise::ConfirmationsController.layout 'data_cycle_core/devise'
       Devise::UnlocksController.layout 'data_cycle_core/devise'
       Devise::PasswordsController.layout 'data_cycle_core/devise'
-
       ActiveStorage::Blob
     end
   end

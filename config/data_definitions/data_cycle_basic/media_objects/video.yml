@@ -116,6 +116,7 @@
           :method: thumbnail_url
           :parameters:
             - asset
+            - preview_image_start_time
         :ui:
           :show:
             :partial: preview_image
