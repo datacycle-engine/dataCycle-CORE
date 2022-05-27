@@ -119,9 +119,14 @@
         </div>
 
       </div>
-
+      <%= DataCycleCore.experimental_features.dig('active_storage', 'enabled') %>
+            <div data-vjs-player>
+              <video class="video-js" poster="<%= content.asset.file_new.preview(resize_to_limit: [800, 600]).processed.url %>">
+                <source src="<%= Rails.application.routes.url_helpers.rails_blob_path(content.asset.file_new, only_path: true) %>" type="video/mp4">
+                Your browser does not support the video tag
+              </video>
+            </div>
     </div>
 
   </div>
-
 <% end %>
