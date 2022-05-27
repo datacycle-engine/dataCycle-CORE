@@ -66,8 +66,8 @@ module DataCycleCore
           .>> t(:add_links, 'timm4_category', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s['category'])&.map { |i| "TIMM4 - Events - Category - #{i}" } })
           .>> t(:universal_classifications, ->(s) { s.dig('timm4_category') })
           .>> t(:add_links, 'timm4_music_category', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s['musicCategory'])&.map { |i| "TIMM4 - Events - Music category - #{i}" } })
-          .>> t(:universal_classifications, ->(s) { s.dig('timm4_music_category') })
           .>> t(:add_schedule, external_source_id, ->(s) { s.dig('external_key') })
+          .>> t(:universal_classifications, ->(s) { s.dig('timm4_music_category') })
         end
 
         def self.to_tour(external_source_id)
@@ -80,11 +80,24 @@ module DataCycleCore
           .>> t(:add_line)
         end
 
-        def self.to_image
+        def self.to_image(external_source_id)
           t(:add_field, 'thumbnail_url', ->(s) { s.dig('content_url') })
           .>> t(:add_field, 'url', ->(s) { s.dig('url') })
-          .>> t(:add_field, 'name', ->(s) { s.dig('img_description') || s.dig('content_url').split('/').last })
+          .>> t(:add_field, 'name', ->(s) { s.dig('title') || s.dig('img_description') || s.dig('content_url').split('/').last })
+          .>> t(:add_links, 'timm4_image_tags', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s['keywords'])&.map { |i| "TIMM4 - Bilder - Tag - #{i}" } })
+          .>> t(:universal_classifications, ->(s) { s.dig('timm4_image_tags') })
+          .>> t(:add_links, 'author', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s['photographer'])&.map { |i| "TIMM4 - Photographer - #{i}" } })
+          .>> t(:add_links, 'copyright_holder', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s['copyright'])&.map { |i| "TIMM4 - CopyrightHolder - #{i}" } })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('content_url') })
+          .>> t(:reject_keys, ['keywords'])
+        end
+
+        def self.to_author
+          t(:add_field, 'external_key', ->(s) { "TIMM4 - Photographer - #{s.dig('name')}" })
+        end
+
+        def self.to_copyright_holder
+          t(:add_field, 'external_key', ->(s) { "TIMM4 - CopyrightHolder - #{s.dig('name')}" })
         end
 
         def self.to_event_location

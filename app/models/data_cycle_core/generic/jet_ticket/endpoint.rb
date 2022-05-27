@@ -5,7 +5,7 @@ module DataCycleCore
     module JetTicket
       class Endpoint
         def initialize(host:, end_point:, **options)
-          @start_year = 2021
+          @start_year = Time.zone.now.year - 1
           @future_years = 1
 
           @host = host

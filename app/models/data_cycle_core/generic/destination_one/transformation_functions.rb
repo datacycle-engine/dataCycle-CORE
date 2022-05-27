@@ -74,12 +74,14 @@ module DataCycleCore
             dtstart = time['start']&.in_time_zone
             dtend = time['end']&.in_time_zone
             dtuntil = time['repeatUntil']&.in_time_zone || Time.zone.now.end_of_year + 5.years
+            next if 'LMT'.in?([dtstart&.zone, dtend&.zone, dtuntil&.zone])
             if time['freq'].blank? && time['start'].present? # single entry
               dtuntil = dtend
               wdays = Array.wrap(dtstart.wday)
             else
               wdays = days(time['weekdays'])
             end
+
             data[property] << DataCycleCore::Generic::Common::OpeningHours.parse_opening_times({
               'TimeFrom' => dtstart,
               'DateFrom' => dtstart,
@@ -105,6 +107,7 @@ module DataCycleCore
             dtend = time['end'].in_time_zone
             duration = dtend - dtstart
             until_time = time['repeatUntil']&.in_time_zone || Time.zone.now.end_of_year + 5.years
+            next if 'LMT'.in?([dtstart&.zone, dtend&.zone, until_time&.zone])
 
             schedule_hash = {
               id: id,

@@ -32,7 +32,7 @@ module DataCycleCore
               'creationDate', 'mainKeyword', 'transferred', 'allParentIds',
               'assetType', 'defaultSystemLocale', 'old_name', 'path', 'translatable',
               'tagUrl', 'nrOfChildren', 'additionalLanguages', 'userPermissions',
-              'permissions'
+              'permissions', 'keywords'
             ]
           )
           .>> t(:strip_all)

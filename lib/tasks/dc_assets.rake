@@ -93,7 +93,7 @@ namespace :dc do
         progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
 
         exif_property_names = ['license_classification', 'keyword_classifications', 'copyright_holder', 'author']
-        properties = images.first.properties_with_default_values.select { |k, _v| exif_property_names.include?(k) }
+        properties = images.first.default_value_property_names.select { |k| exif_property_names.include?(k) }
 
         images.each do |image|
           progressbar.increment

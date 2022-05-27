@@ -417,7 +417,7 @@ module DataCycleCore
                       iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
                     end
 
-                    external_keys = iterate.map { |c| c[:external_id] }
+                    external_keys = iterate.pluck(:external_id)
                     min = (options[:min_count] || 1) - 1
                     max = (options[:max_count] || external_keys.size) - 1
                     keys = external_keys[min..max]

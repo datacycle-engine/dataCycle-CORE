@@ -20,7 +20,7 @@
           :method: concat
           :key: uri
           :parameters:
-            :0: gravity
+            - gravity
         :api:
           :disabled: true
           :v4:
