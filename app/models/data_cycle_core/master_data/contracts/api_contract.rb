@@ -127,6 +127,7 @@ module DataCycleCore
           optional(:geo).hash do
             optional(:in).hash(GEO_FILTER)
             optional(:notIn).hash(GEO_FILTER)
+            optional(:withGeometry).filled(:string)
           end
           optional(:creator).hash do
             optional(:in).filled(:array)
