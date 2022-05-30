@@ -28,7 +28,7 @@ module DataCycleCore
           def thumbnail_url(computed_parameters:, **_args)
             video = DataCycleCore::Video.find_by(id: computed_parameters.values.first)
             if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
-              video&.file.blob&.preview_image&.purge
+              video&.file&.blob&.preview_image&.purge
               video&.file&.preview(resize_to_limit: [200, 200])&.processed&.url
             else
               video&.file&.thumb_preview&.url

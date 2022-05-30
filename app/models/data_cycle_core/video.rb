@@ -5,7 +5,7 @@ require 'streamio-ffmpeg'
 module DataCycleCore
   class Video < Asset
     # if active_storage_activated
-      has_one_attached :file
+    has_one_attached :file
     # else
     #   mount_uploader :file, VideoUploader
     #   process_in_background :file
@@ -25,8 +25,7 @@ module DataCycleCore
 
     def new_thumb(**options)
       file.blob&.preview_image&.purge
-      binding.pry
-      video_options = {start: 3}
+      # video_options = { start: 3 }
       # binding.pry
       file.preview(**options).processed.url
     end
@@ -42,7 +41,6 @@ module DataCycleCore
         rescue JSON::GeneratorError
           self.metadata = nil
         end
-        self.duplicate_check = file.duplicate_check if file.respond_to?(:duplicate_check)
       else
         self.content_type = file.file.content_type
         self.file_size = file.file.size
@@ -52,14 +50,14 @@ module DataCycleCore
         rescue JSON::GeneratorError
           self.metadata = nil
         end
-        self.duplicate_check = file.duplicate_check if file.respond_to?(:duplicate_check)
       end
+      self.duplicate_check = file.duplicate_check if file.respond_to?(:duplicate_check)
     end
 
     private
 
     def metadata_from_blob
-      path_to_tempfile = self.attachment_changes['file'].attachable.tempfile.path
+      path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
       movie = FFMPEG::Movie.new(path_to_tempfile)
 
       return movie.metadata&.to_utf8 if movie.metadata.try(:to_utf8)&.to_json.present?

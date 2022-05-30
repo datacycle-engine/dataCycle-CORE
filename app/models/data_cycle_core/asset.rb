@@ -76,7 +76,7 @@ module DataCycleCore
     private
 
     def active_storage_activated
-      true if (DataCycleCore.experimental_features.dig('active_storage', 'enabled') && self.class.name == 'DataCycleCore::Video')
+      true if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && instance_of?(DataCycleCore::Video)
     end
 
     def recreate_version(version_name = nil)
