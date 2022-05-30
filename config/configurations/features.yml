@@ -296,7 +296,6 @@
     :family_name:
     :default_locale:
     :password:
-    :password_confirmation:
     :confirmed_at:
   :issuer: datacycle.at
 
@@ -417,3 +416,6 @@
   :enabled: true
   :attribute_keys:
     - translation_of_work
+
+:user_group_classification:
+  :enabled: false

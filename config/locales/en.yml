@@ -985,8 +985,6 @@ en:
             password:
               blank: Password must not be empty.
               too_short: Password too short.
-            password_confirmation:
-              confirmation: Passwords do not match.
             current_password:
               blank: Enter current password for confirmation.
               invalid: Wrong password.
@@ -1082,7 +1080,7 @@ en:
         given_name: First name
         family_name: Family name
         password: Password
-        password_confirmation: Repeat password
+        new_password: New password
         current_password: Current password
         email: Email
         role_id: Roll

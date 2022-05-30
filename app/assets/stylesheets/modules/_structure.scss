@@ -621,9 +621,10 @@ ul.footer-links {
   flex-flow: column nowrap;
   align-items: center;
   pointer-events: none;
+  top: 0;
 
   .flash-notification.callout {
-    min-height: 2rem;
+    min-height: 2.8rem;
     position: relative;
     display: block;
     margin: 1rem 0 0 0;
@@ -634,7 +635,7 @@ ul.footer-links {
     box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.3);
     pointer-events: auto;
     flex: auto;
-    max-width: calc(100% - 2rem);
+    max-width: 90vw;
 
     .close-button,
     .close-button.medium {

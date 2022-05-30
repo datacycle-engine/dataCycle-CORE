@@ -18,6 +18,9 @@ module DataCycleCore
     has_one :primary_classification_group, class_name: 'DataCycleCore::ClassificationGroup::PrimaryClassificationGroup'
     has_one :primary_classification_alias, through: :primary_classification_group, source: :classification_alias
 
+    has_many :classification_user_groups, dependent: :destroy
+    has_many :user_groups, through: :classification_user_groups
+
     def self.for_tree(tree_name)
       joins(primary_classification_alias: { classification_tree: :classification_tree_label })
         .where('classification_aliases' => {

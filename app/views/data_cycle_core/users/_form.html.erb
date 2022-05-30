@@ -77,18 +77,13 @@
         </div>
 
         <% unless content.external %>
-          <div class="form-element input">
-            <%= f.label :password, DataCycleCore::User.human_attribute_name(:password, locale: active_ui_locale) %>
+          <div class="form-element input password-field">
+            <%= f.label :password, DataCycleCore::User.human_attribute_name(:new_password, locale: active_ui_locale) %>
             <%= f.password_field :password, autocomplete: 'off' %>
           </div>
 
-          <div class="form-element input">
-            <%= f.label :password_confirmation, DataCycleCore::User.human_attribute_name(:password_confirmation, locale: active_ui_locale) %>
-            <%= f.password_field :password_confirmation, autocomplete: 'off' %>
-          </div>
-
           <% if current_user == content %>
-            <div class="form-element input">
+            <div class="form-element input password-field">
               <%= f.label :current_password, DataCycleCore::User.human_attribute_name(:current_password, locale: active_ui_locale) %>
               <%= f.password_field :current_password %>
             </div>
