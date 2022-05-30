@@ -146,7 +146,8 @@ module DataCycleCore
             when 'Yearly'
               rrule = IceCube::Rule.yearly
               rrule.month_of_year(time['month'])
-              rrule.day_of_month(time['dayOfMonth'])
+              rrule.day_of_month(time['dayOfMonth']) if time['dayOfMonth'].present?
+              rrule.day_of_month(time['dayOrdinal']) if time['dayOrdinal'].present?
               rrule.interval(time['interval']) if time['interval'].present?
               rrule.until(until_time)
               schedule << schedule_hash.merge({ rrules: [rrule.to_hash] })
