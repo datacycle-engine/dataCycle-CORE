@@ -184,6 +184,7 @@ module DataCycleCore
       @target = count_only_params[:target]
       classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id]) if mode_params[:ct_id].present?
       total_count = get_filtered_results(query: query, user_filter: user_filter)
+      total_count = total_count.with_geometry if @mode == 'map'
       @count_mode = count_only_params[:count_mode]
       @content_class = count_only_params[:content_class]
 

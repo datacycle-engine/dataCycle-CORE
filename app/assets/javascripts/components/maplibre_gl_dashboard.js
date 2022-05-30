@@ -1,8 +1,6 @@
 import MapLibreGlViewer from './maplibre_gl_viewer';
 import maplibregl from 'maplibre-gl/dist/maplibre-gl';
 
-// TODO: map loading spinner, Styling, Punkt vs Linie?
-
 class MapLibreGlDashboard extends MapLibreGlViewer {
   constructor(container) {
     super(container);
@@ -51,7 +49,8 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
     if (!searchForm) return;
     const currentStoredFilterId = searchForm.dataset.storedFilter;
     const params = {
-      language: this.language.join(',')
+      language: this.language.join(','),
+      filter: { geo: { withGeometry: 'true' } }
     };
 
     let data = await DataCycle.httpRequest({
