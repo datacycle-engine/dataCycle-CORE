@@ -995,8 +995,6 @@ de:
             password:
               blank: 'Passwort darf nicht leer sein.'
               too_short: 'Passwort zu kurz.'
-            password_confirmation:
-              confirmation: 'Passwörter stimmen nicht überein.'
             current_password:
               blank: 'Aktuelles Passwort zur Bestätigung eingeben.'
               invalid: 'Falsches Passwort.'
@@ -1096,7 +1094,7 @@ de:
         given_name: Vorname
         family_name: Familienname
         password: Passwort
-        password_confirmation: 'Passwort wiederholen'
+        new_password: Neues Passwort
         current_password: 'Aktuelles Passwort'
         email: E-Mail
         role_id: Rolle

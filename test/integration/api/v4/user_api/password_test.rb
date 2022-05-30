@@ -68,25 +68,6 @@ module DataCycleCore
             assert json_data.dig('errors', 'password').present?
           end
 
-          test 'PATCH /api/v4/users/password - change password for user - passwords not matching' do
-            reset_token = @new_user.send(:set_reset_password_token)
-            password = Devise.friendly_token
-
-            patch api_v4_users_password_path, headers: {
-              Authorization: "Bearer #{@current_user.access_token}"
-            }, params: {
-              resetPasswordToken: reset_token,
-              password: password,
-              passwordConfirmation: "#{password}notmatching"
-            }
-
-            assert_response :unprocessable_entity
-
-            assert response.content_type.include?('application/json')
-            json_data = JSON.parse(response.body)
-            assert json_data.dig('errors', 'password_confirmation').present?
-          end
-
           test 'PATCH /api/v4/users/password - change password for user - ok with single password' do
             reset_token = @new_user.send(:set_reset_password_token)
             password = Devise.friendly_token

@@ -92,7 +92,7 @@ module DataCycleCore
         def change_password
           authorize! :reset_password, :user_api
 
-          user = User.reset_password_by_token(password_params.slice(:password, :password_confirmation, :reset_password_token))
+          user = User.reset_password_by_token(password_params.slice(:password, :reset_password_token))
 
           if user.errors.present?
             render json: { errors: user.errors }, status: :unprocessable_entity
@@ -132,7 +132,6 @@ module DataCycleCore
             .permit(:email, :mailerLayout, :viewerLayout, :redirectUrl, :password, :passwordConfirmation, :resetPasswordToken, :confirmationToken, :forwardToUrl).to_h
             .deep_transform_keys(&:underscore)
             .with_indifferent_access
-            .tap { |u| u[:password_confirmation] = u[:password] if u.key?(:password) && u[:password_confirmation].blank? }
         end
 
         def user_params

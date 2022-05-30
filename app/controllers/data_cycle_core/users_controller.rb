@@ -45,8 +45,9 @@ module DataCycleCore
       if @user.save
         flash[:success] = I18n.t :created, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
       else
-        flash[:error] = @user.try(:errors).try(:first).try(:[], 1)
+        flash[:error] = I18n.with_locale(helpers.active_ui_locale) { @user.errors.messages.transform_keys { |k| @user.class.human_attribute_name(k, locale: helpers.active_ui_locale) } }
       end
+
       redirect_back(fallback_location: root_path)
     end
 
@@ -72,7 +73,8 @@ module DataCycleCore
         bypass_sign_in(@user) if current_user == @user && !@permitted_params[:password].nil?
 
         if params[:user_settings]
-          redirect_to(settings_path, notice: I18n.t(:updated_user_settings, scope: [:controllers, :success], locale: helpers.active_ui_locale))
+          flash.clear[:success] = I18n.t(:updated_user_settings, scope: [:controllers, :success], locale: helpers.active_ui_locale)
+          redirect_to(settings_path)
         elsif Rails.env.development?
           redirect_to edit_user_path(@user)
         elsif can? :index, DataCycleCore::User
@@ -80,8 +82,9 @@ module DataCycleCore
         else
           redirect_to root_path
         end
-
       else
+        flash.now[:error] = I18n.with_locale(helpers.active_ui_locale) { @user.errors.messages.transform_keys { |k| @user.class.human_attribute_name(k, locale: helpers.active_ui_locale) } }
+
         render :edit
       end
     end
@@ -134,7 +137,7 @@ module DataCycleCore
 
     def permitted_params
       allowed_params = [:email, :family_name, :given_name, :name, :role_id, :notification_frequency, :default_locale, :ui_locale, :type, :external, user_group_ids: []]
-      allowed_params.push(:password, :password_confirmation, :current_password) if params.dig(controller_name.singularize.to_sym, :password).present? && params.dig(controller_name.singularize.to_sym, :password_confirmation).present?
+      allowed_params.push(:password, :current_password) if params.dig(controller_name.singularize.to_sym, :password).present?
       params.require(controller_name.singularize.to_sym).permit(allowed_params)
     end
 
