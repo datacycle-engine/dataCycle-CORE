@@ -91,7 +91,8 @@ server {
       application/json
       application/xml
       application/rss+xml
-      image/svg+xml;
+      image/svg+xml
+      application/vnd.geo+json;
 
   location @puma_data_cycle {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
