@@ -23,6 +23,8 @@ namespace :dc do
         items = DataCycleCore::Thing.where(template: false, template_name: template.template_name)
         items_to_update = items.size
         translated_computed = (template.computed_property_names & template.translatable_property_names).present?
+        keys_for_data_hash = template.property_names.difference(template.computed_property_names)
+        keys_for_data_hash = keys_for_data_hash.intersection(template.property_definitions.slice(*computed_names).values.map { |d| d.dig('compute', 'parameters') }.flatten.uniq.compact) if computed_names.present?
 
         puts "#{template.template_name}\r"
         puts "#{('# ' + items_to_update.to_s).ljust(41)} | #updated | of total | process time/s \r"
@@ -36,10 +38,10 @@ namespace :dc do
 
           if translated_computed
             item.available_locales.each do |locale|
-              I18n.with_locale(locale) { item.set_data_hash(data_hash: item.get_data_hash.except(*template.computed_property_names)) }
+              I18n.with_locale(locale) { item.set_data_hash(data_hash: item.get_data_hash_partial(keys_for_data_hash), partial_update: true) }
             end
           else
-            I18n.with_locale(item.first_available_locale) { item.set_data_hash(data_hash: item.get_data_hash.except(*template.computed_property_names)) }
+            I18n.with_locale(item.first_available_locale) { item.set_data_hash(data_hash: item.get_data_hash_partial(keys_for_data_hash), partial_update: true) }
           end
         end
 

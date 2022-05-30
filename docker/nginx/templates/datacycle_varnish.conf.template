@@ -214,6 +214,7 @@ server {
   }
 
   location ~ "^\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/(?<mode>(fit|fill|auto))\/(?<width>\d+)\/(?<height>\d+)\/(?<enlarge>(0|1))\/(?<gravity>(.*))\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+    resolver 127.0.0.11 8.8.8.8 8.8.4.4;
     limit_req zone=req_zone burst=100 nodelay;
 
     set $rqUrl "${IMGPROXY_DC_SIGNATURE_URL}/things/$thing/asset/content";

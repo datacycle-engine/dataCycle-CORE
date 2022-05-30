@@ -12,7 +12,9 @@ class SplitView {
     this.embedLocale = this.leftContainer.dataset.embedLocale;
     this.leftLocaleSwitcher = this.leftContainer.getElementsByClassName('attribute-locale-switcher')[0];
     this.leftAvailableLocales = domElementHelpers.parseDataAttribute(this.leftContainer.dataset.availableLocales);
-    this.enableTranslateButtons = this.leftContainer.dataset.enableTranslateButtons;
+    this.enableTranslateButtons = domElementHelpers.parseDataAttribute(
+      this.leftContainer.dataset.enableTranslateButtons
+    );
     this.copyAllButton;
     this.translateAllButton;
     this.leftId = this.leftContainer.dataset.id;
