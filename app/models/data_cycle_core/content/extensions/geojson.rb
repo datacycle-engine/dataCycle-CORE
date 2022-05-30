@@ -77,9 +77,7 @@ module DataCycleCore
             geojson_query += ' WHERE t.geometry IS NOT NULL' unless include_without_geometry
 
             ActiveRecord::Base.connection.execute(
-              ActiveRecord::Base.send(:sanitize_sql_array, [
-                                        geojson_query.gsub(':from_query', things_query.to_sql)
-                                      ])
+              Arel.sql(geojson_query.gsub(':from_query', things_query.to_sql))
             ).first&.values&.first
           end
 
