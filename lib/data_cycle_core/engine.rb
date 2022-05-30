@@ -306,6 +306,9 @@ module DataCycleCore
     # prevent span tags inside HTML-Attributes for missing translations
     config.action_view.debug_missing_translation = false
 
+    # active storage default options
+    config.active_storage.resolve_model_to_route = :rails_storage_proxy
+
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|
       unless app.root.to_s.match? root.to_s
@@ -336,16 +339,12 @@ module DataCycleCore
     config.to_prepare do
       Rails.autoloaders.main.ignore(
         [
-          DataCycleCore::Engine.root.join('app', 'extensions'),
-          DataCycleCore::Engine.root.join('app', 'decorators'),
           Rails.root.join('app', 'extensions'),
           Rails.root.join('app', 'decorators')
         ]
       )
       Dir.glob(
         [
-          DataCycleCore::Engine.root + 'app/decorators/**/*_decorator*.rb',
-          DataCycleCore::Engine.root + 'app/extensions/**/*.rb',
           Rails.root + 'app/decorators/**/*_decorator*.rb',
           Rails.root + 'app/extensions/**/*.rb'
         ]

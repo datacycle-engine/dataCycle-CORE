@@ -1,0 +1,8 @@
+
+Rails.application.configure do
+  config.active_storage.previewers = [
+    ActiveStorage::Previewer::PopplerPDFPreviewer,
+    ActiveStorage::Previewer::MuPDFPreviewer,
+    DataCycleCore::Storage::Previewer::VideoPreviewer
+  ]
+end

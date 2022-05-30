@@ -273,7 +273,7 @@ module DataCycleCore
       return {} unless creatable && uploader_model
 
       {
-        format: uploader_model.uploaders[:file].new&.extension_white_list || [],
+        format: uploader_model.extension_white_list,
         class: uploader_model.name,
         translation: uploader_model.model_name.human(count: 1, locale: active_ui_locale),
         translation_description: t("uploader.description.#{uploader_model.name.demodulize.underscore}", locale: active_ui_locale, default: '')

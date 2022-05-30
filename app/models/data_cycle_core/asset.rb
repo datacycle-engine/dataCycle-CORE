@@ -24,6 +24,10 @@ module DataCycleCore
       end
     end
 
+    def self.extension_white_list
+      uploaders[:file].new&.extension_white_list || []
+    end
+
     def duplicate_candidates
       @duplicate_candidates ||= []
     end
@@ -46,6 +50,7 @@ module DataCycleCore
     end
 
     def method_missing(name, *args, &block)
+      return super if active_storage_activated
       if name.to_sym == :original
         file
       elsif file&.versions&.key?(name.to_sym)
@@ -57,6 +62,7 @@ module DataCycleCore
     end
 
     def respond_to_missing?(method_name, include_private = false)
+      return super if active_storage_activated
       method_name.to_sym == :original || file&.versions&.key?(method_name.to_sym) || super
     end
 
@@ -68,6 +74,10 @@ module DataCycleCore
     end
 
     private
+
+    def active_storage_activated
+      true if (DataCycleCore.experimental_features.dig('active_storage', 'enabled') && self.class.name == 'DataCycleCore::Video')
+    end
 
     def recreate_version(version_name = nil)
       return if file.try(version_name)&.file&.exists?

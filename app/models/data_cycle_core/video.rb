@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
+require 'streamio-ffmpeg'
+
 module DataCycleCore
   class Video < Asset
-    mount_uploader :file, VideoUploader
-    process_in_background :file
-    has_one_attached :file_new
+    # if active_storage_activated
+      has_one_attached :file
+    # else
+    #   mount_uploader :file, VideoUploader
+    #   process_in_background :file
+    # end
+    # has_one_attached :file_new
 
     def codec_validation(options)
       video = FFMPEG::Movie.new(file.file.path)
@@ -13,12 +19,52 @@ module DataCycleCore
       validate_audio_codec(video, options)
     end
 
+    def self.extension_white_list
+      DataCycleCore.uploader_validations.dig(:video, :format).presence || ['avi', 'mov', 'mp4', 'mpeg', 'mpg', 'wmv']
+    end
+
     def new_thumb(**options)
-      file_new.blob.preview_image.purge
-      file_new.preview(**options).processed.url
+      file.blob&.preview_image&.purge
+      binding.pry
+      video_options = {start: 3}
+      # binding.pry
+      file.preview(**options).processed.url
+    end
+
+    def update_asset_attributes
+      return if file.blank?
+      if active_storage_activated
+        self.content_type = file.blob.content_type
+        self.file_size = file.blob.byte_size
+        self.name ||= file.blob.filename
+        begin
+          self.metadata = metadata_from_blob
+        rescue JSON::GeneratorError
+          self.metadata = nil
+        end
+        self.duplicate_check = file.duplicate_check if file.respond_to?(:duplicate_check)
+      else
+        self.content_type = file.file.content_type
+        self.file_size = file.file.size
+        self.name ||= file.file.filename
+        begin
+          self.metadata = file.metadata&.to_utf8 if file.respond_to?(:metadata) && file.metadata.try(:to_utf8)&.to_json.present?
+        rescue JSON::GeneratorError
+          self.metadata = nil
+        end
+        self.duplicate_check = file.duplicate_check if file.respond_to?(:duplicate_check)
+      end
     end
 
     private
+
+    def metadata_from_blob
+      path_to_tempfile = self.attachment_changes['file'].attachable.tempfile.path
+      movie = FFMPEG::Movie.new(path_to_tempfile)
+
+      return movie.metadata&.to_utf8 if movie.metadata.try(:to_utf8)&.to_json.present?
+      nil
+    end
 
     def validate_video_codec(video, options)
       return unless options.dig(:video)&.exclude?(video.video_codec)
