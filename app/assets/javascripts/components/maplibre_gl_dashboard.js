@@ -20,13 +20,31 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
     };
   }
   setup() {
-    this.storedFilterGeoJson().then(() => {
-      super.setup();
-    });
+    super.setup();
+
+    const $element = $(
+      '<div class="loading-overlay"><div class="loading-overlay-text"><i class="fa fa-spinner fa-spin fa-fw fa-2xl"></i></div></div>'
+    );
+    this.$container.append($element);
   }
   configureMap() {
-    super.configureMap();
+    this.storedFilterGeoJson().then(() => {
+      this.$container.find('.loading-overlay').fadeOut(100);
+      this.initFeatures();
+    });
+
+    this.initControls();
+    this.setZoomMethod();
+    this.setIcons();
+
+    this._disableScrollingOnMapOverlays();
+    this.initMouseWheelZoom();
     this.initEventHandlers();
+  }
+  initFeatures() {
+    this.drawFeatures();
+    this.drawAdditionalFeatures();
+    this.updateMapPosition();
   }
   async storedFilterGeoJson() {
     const searchForm = document.getElementById('search-form');
@@ -45,7 +63,7 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
         Accept: 'application/vnd.geo+json'
       }
     });
-    this.value = data;
+    this.value = this.feature = data;
     return;
   }
   initEventHandlers() {
@@ -62,7 +80,7 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
     this.map.on('mousemove', e => {
       const feature = this.map.queryRenderedFeatures(e.point)[0];
 
-      if (feature) {
+      if (feature && feature.source == 'feature_source_primary') {
         this.map.getCanvas().style.cursor = 'pointer';
         popup
           .setLngLat(feature.geometry.type !== 'Point' ? e.lngLat : feature.geometry.coordinates)
@@ -79,10 +97,10 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
   _addClickHandler() {
     this.map.on('click', e => {
       const feature = this.map.queryRenderedFeatures(e.point)[0];
-      if (feature) {
+      if (feature && feature.source == 'feature_source_primary') {
         const url = new URL(window.location);
         url.search = '';
-        window.location.assign(`${url}things/${feature.id}`);
+        window.open(`${url}things/${feature.id}`, '_blank');
       }
     });
   }

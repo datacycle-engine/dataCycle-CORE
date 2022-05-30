@@ -5,6 +5,7 @@
     .geographic-map {
       height: 100%;
 
+      .loading-overlay,
       .scroll-overlay {
         position: absolute;
         display: flex;
@@ -17,7 +18,7 @@
         font-size: 1.2rem;
         justify-content: center;
         align-items: center;
-        background-color: rgba(black, 0.5);
+        background-color: rgba(black, 0.4);
       }
     }
   }
