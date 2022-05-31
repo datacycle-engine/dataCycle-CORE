@@ -2921,6 +2921,11 @@ input.normalized {
       pointer-events: none;
       font-weight: bold;
     }
+
+    .load-as-split-source-link {
+      display: none;
+      pointer-events: none;
+    }
   }
 }
 
