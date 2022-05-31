@@ -109,6 +109,16 @@ label.attribute-edit-label {
   }
 }
 
+.detail-header-wrapper {
+  .dc-type-icon {
+    margin-right: 0;
+
+    &::before {
+      margin-right: 0.3rem;
+    }
+  }
+}
+
 .form-element {
   position: relative;
 
