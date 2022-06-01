@@ -26,10 +26,7 @@ namespace :dc do
         keys_for_data_hash = template.property_names.difference(template.computed_property_names)
         keys_for_data_hash = keys_for_data_hash.intersection(template.property_definitions.slice(*computed_names).values.map { |d| d.dig('compute', 'parameters') }.flatten.uniq.compact) if computed_names.present?
 
-        puts "#{template.template_name}\r"
-        puts "#{('# ' + items_to_update.to_s).ljust(41)} | #updated | of total | process time/s \r"
-
-        temp = Time.zone.now
+        progressbar = ProgressBar.create(total: items_to_update, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
 
         items.find_each do |item|
           next if dry_run
@@ -43,9 +40,13 @@ namespace :dc do
           else
             I18n.with_locale(item.first_available_locale) { item.set_data_hash(data_hash: item.get_data_hash_partial(keys_for_data_hash), partial_update: true) }
           end
-        end
 
-        puts "#{''.ljust(41)} | #{(items_to_update || 0).to_s.rjust(8)} | #{(items_to_update || 0).to_s.rjust(8)} | #{TimeHelper.format_time(Time.zone.now - temp, 5, 6, 's')} \r"
+          progressbar.increment
+        rescue StandardError => e
+          progressbar.increment
+
+          puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
+        end
       end
 
       if dry_run
