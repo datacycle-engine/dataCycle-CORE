@@ -18,11 +18,7 @@ export default ({ mode }) => {
     plugins: [
       RubyPlugin(),
       CopyPlugin({
-        targets: [
-          { src: resolve(__dirname, 'app/assets/images/*'), dest: 'app/assets/entrypoints/images' },
-          { src: resolve(__dirname, 'app/assets/fonts/*'), dest: 'public/assets/fonts' },
-          { src: 'app/assets/images/*', dest: 'app/assets/entrypoints/images' }
-        ],
+        targets: [{ src: resolve(__dirname, 'app/assets/fonts/*'), dest: 'public/assets/fonts' }],
         hook: 'buildStart',
         copyOnce: true
       }),

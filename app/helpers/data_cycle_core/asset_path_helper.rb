@@ -5,7 +5,11 @@ module DataCycleCore
     def dc_image_path(filename)
       return if filename.blank?
 
-      vite_asset_path("entrypoints/images/#{filename}")
+      return vite_asset_path("/vendor/gems/data-cycle-core/app/assets/images/#{filename}") if ViteRuby.instance.dev_server_running? && ViteRuby.instance.manifest.send(:manifest)[ViteRuby.instance.manifest.send(:resolve_entry_name, "images/#{filename}")].nil?
+
+      vite_asset_path("images/#{filename}")
+    rescue ViteRuby::MissingEntrypointError
+      vite_asset_path("/vendor/gems/data-cycle-core/app/assets/images/#{filename}")
     end
 
     def dc_background_image_style
