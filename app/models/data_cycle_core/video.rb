@@ -4,13 +4,15 @@ require 'streamio-ffmpeg'
 
 module DataCycleCore
   class Video < Asset
-    # if active_storage_activated
-    has_one_attached :file
-    # else
-    #   mount_uploader :file, VideoUploader
-    #   process_in_background :file
-    # end
-    # has_one_attached :file_new
+    if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+      has_one_attached :file
+    else
+      mount_uploader :file, VideoUploader
+      process_in_background :file
+      validates_integrity_of :file
+      after_destroy :remove_directory
+      delegate :versions, to: :file
+    end
 
     def codec_validation(options)
       video = FFMPEG::Movie.new(file.file.path)
@@ -23,16 +25,9 @@ module DataCycleCore
       DataCycleCore.uploader_validations.dig(:video, :format).presence || ['avi', 'mov', 'mp4', 'mpeg', 'mpg', 'wmv']
     end
 
-    def new_thumb(**options)
-      file.blob&.preview_image&.purge
-      # video_options = { start: 3 }
-      # binding.pry
-      file.preview(**options).processed.url
-    end
-
     def update_asset_attributes
       return if file.blank?
-      if active_storage_activated
+      if self.class.active_storage_activated?
         self.content_type = file.blob.content_type
         self.file_size = file.blob.byte_size
         self.name ||= file.blob.filename
@@ -41,6 +36,7 @@ module DataCycleCore
         rescue JSON::GeneratorError
           self.metadata = nil
         end
+        self.duplicate_check = file.duplicate_check if file.respond_to?(:duplicate_check)
       else
         self.content_type = file.file.content_type
         self.file_size = file.file.size

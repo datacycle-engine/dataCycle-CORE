@@ -96,7 +96,7 @@
         :storage_location: value
         :type: string
         :compute:
-          :module: Utility::Compute::Asset
+          :module: Utility::Compute::Video
           :method: content_url
           :parameters:
             - asset
@@ -107,23 +107,31 @@
             :disabled: true
           :edit:
             :disabled: true
-      :thumbnail_url:
-        :label: Teaserbild
+      :thumbnail_url_override:
+        :label: Teaserbild (Manuel)
         :storage_location: value
         :type: string
-        :compute:
-          :module: Utility::Compute::Video
-          :method: thumbnail_url
-          :parameters:
-            - asset
-            - preview_image_start_time
         :ui:
           :show:
             :partial: preview_image
           :edit:
             :disabled: true
         :api:
-          :minimal: true
+          :disabled: true
+      :thumbnail_url:
+        :label: Teaserbild
+        :type: string
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Video
+          :method: thumbnail_url
+          :parameters:
+            - thumbnail_url_override
+        :api:
+          :disabled: false
+        :ui:
+          :edit:
+            :disabled: true
       :url:
         :label: Inhalt URL
         :type: string

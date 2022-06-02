@@ -5,9 +5,8 @@ module DataCycleCore
     module Previewer
       class VideoPreviewer < ActiveStorage::Previewer::VideoPreviewer
         def preview(**options)
-          video_options = { start: 2 }
           download_blob_to_tempfile do |input|
-            draw_relevant_frame_from(input, video_options: video_options) do |output|
+            draw_relevant_frame_from(input, additional_video_arguments: video_options_from_thing) do |output|
               yield io: output, filename: "#{blob.filename.base}.jpg", content_type: 'image/jpeg', **options
             end
           end
@@ -15,15 +14,18 @@ module DataCycleCore
 
         private
 
-        def draw_relevant_frame_from(file, video_options: {}, &block)
-          video_arguments = Shellwords.split(ActiveStorage.video_preview_arguments)
-          if video_options.dig(:start).present?
-            start = video_options.dig(:start)&.to_i
-            start_time = (Time.zone.now.beginning_of_day + start.seconds).strftime('%H:%M:%S')
-            video_arguments << '-ss'
-            video_arguments << start_time
-          end
+        def draw_relevant_frame_from(file, additional_video_arguments: '', &block)
+          video_arguments = Shellwords.split(ActiveStorage.video_preview_arguments + additional_video_arguments)
           draw self.class.ffmpeg_path, '-i', file.path, *video_arguments, '-', &block
+        end
+
+        def video_options_from_thing
+          thing = blob&.attachments&.first&.record&.thing
+          start_time = thing&.preview_image_start_time
+          return '' if start_time.blank? || (start_time > thing.duration)
+
+          start_time = (Time.zone.now.beginning_of_day + start_time.to_i.seconds).strftime('%H:%M:%S')
+          " -ss #{start_time}"
         end
       end
     end

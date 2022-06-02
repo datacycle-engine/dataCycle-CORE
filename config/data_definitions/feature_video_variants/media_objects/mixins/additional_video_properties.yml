@@ -40,4 +40,20 @@
         :label: Vorschaubild von Sekunde
         :type: number
         :storage_location: value
+      :preview_image_start_time_computed:
+        :label: Vorschaubild von Sekunde (Computed)
+        :type: string
+        :storage_location: value
+        :compute:
+          :module: Utility::Compute::Video
+          :method: preview_image_start_time
+          :parameters:
+            - preview_image_start_time
+        :api:
+          :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
 

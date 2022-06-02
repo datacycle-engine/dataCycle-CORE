@@ -25,14 +25,23 @@ module DataCycleCore
             meta_value(computed_parameters.values.first, ['format', 'duration'])&.to_f
           end
 
-          def thumbnail_url(computed_parameters:, **_args)
+          def preview_image_start_time(content:, **_args)
+            content&.asset&.file&.blob&.preview_image&.purge if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+            nil
+          end
+
+          def content_url(computed_parameters:, **_args)
             video = DataCycleCore::Video.find_by(id: computed_parameters.values.first)
             if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
-              video&.file&.blob&.preview_image&.purge
-              video&.file&.preview(resize_to_limit: [200, 200])&.processed&.url
+              Rails.application.routes.url_helpers.rails_storage_proxy_url(video.file, host: Rails.application.config.asset_host)
             else
-              video&.file&.thumb_preview&.url
+              video&.try(:file)&.try(:url)
             end
+          end
+
+          def thumbnail_url(computed_parameters:, **_args)
+            video = DataCycleCore::Video.find_by(id: computed_parameters.values.first)
+            video&.file&.thumb_preview&.url
           end
 
           def transcode(**args)
@@ -45,7 +54,7 @@ module DataCycleCore
             asset = args.dig(:computed_parameters)&.first || args.dig(:content).try(:asset)
             return if asset.blank?
 
-            DataCycleCore::VideoTranscodingJob.perform_later(content.id, args.dig(:key))
+            # DataCycleCore::VideoTranscodingJob.perform_later(content.id, args.dig(:key))
             DataCycleCore::Feature::VideoTranscoding.placeholder
           end
 
