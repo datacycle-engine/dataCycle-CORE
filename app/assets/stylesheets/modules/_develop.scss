@@ -3178,6 +3178,7 @@ section.duplicate-candidates {
     .translatable-field-container {
       flex: auto;
       width: 100%;
+      overflow-wrap: break-word;
     }
   }
 }
