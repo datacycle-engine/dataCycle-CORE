@@ -6,5 +6,8 @@ module DataCycleCore
 
     mount_uploader :file, TextFileUploader
     process_in_background :file
+    validates_integrity_of :file
+    after_destroy :remove_directory
+    delegate :versions, to: :file
   end
 end

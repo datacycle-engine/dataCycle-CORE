@@ -4,5 +4,8 @@ module DataCycleCore
   class Pdf < Asset
     mount_uploader :file, PdfUploader
     process_in_background :file
+    validates_integrity_of :file
+    after_destroy :remove_directory
+    delegate :versions, to: :file
   end
 end
