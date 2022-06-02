@@ -72,7 +72,7 @@ module DataCycleCore
               compute_values(missing_computed_key, data_hash, content)
             end
 
-            missing_keys.difference(content.default_value_property_names).each do |missing_key|
+            missing_keys.difference(content.computed_property_names).each do |missing_key|
               data_hash[missing_key] = content.property_value_for_set_datahash(missing_key)
             end
 

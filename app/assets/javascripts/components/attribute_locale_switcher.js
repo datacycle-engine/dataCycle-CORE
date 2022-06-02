@@ -81,7 +81,7 @@ class AttributeLocaleSwitcher {
       });
 
     $container
-      .find('.edit-content-link, a.show-link, a.edit-link, a.load-more-linked-contents')
+      .find('.edit-content-link, a.show-link, a.edit-link, a.load-more-linked-contents, a.load-as-split-source-link')
       .each((_index, item) => {
         if (item.nodeName == 'BUTTON') {
           const $inputField = $(item).siblings('[name="locale"]');
