@@ -3,7 +3,7 @@
 # This migration comes from active_storage (originally 20170806125915)
 class CreateActiveStorageTables < ActiveRecord::Migration[5.2]
   def change
-    create_table :active_storage_blobs do |t|
+    create_table :active_storage_blobs, id: :uuid do |t|
       t.string   :key,          null: false
       t.string   :filename,     null: false
       t.string   :content_type
@@ -16,10 +16,10 @@ class CreateActiveStorageTables < ActiveRecord::Migration[5.2]
       t.index [:key], unique: true
     end
 
-    create_table :active_storage_attachments do |t|
+    create_table :active_storage_attachments, id: :uuid do |t|
       t.string     :name,     null: false
-      t.references :record,   null: false, polymorphic: true, index: false
-      t.references :blob,     null: false
+      t.references :record,   type: :uuid, null: false, polymorphic: true, index: false
+      t.references :blob,     type: :uuid, null: false
 
       t.datetime :created_at, null: false
 
@@ -27,8 +27,8 @@ class CreateActiveStorageTables < ActiveRecord::Migration[5.2]
       t.foreign_key :active_storage_blobs, column: :blob_id
     end
 
-    create_table :active_storage_variant_records do |t|
-      t.belongs_to :blob, null: false, index: false
+    create_table :active_storage_variant_records, id: :uuid do |t|
+      t.belongs_to :blob, type: :uuid, null: false, index: false
       t.string :variation_digest, null: false
 
       t.index [:blob_id, :variation_digest], name: 'index_active_storage_variant_records_uniqueness', unique: true

@@ -394,15 +394,6 @@ CREATE FUNCTION public.update_template_definitions_trigger() RETURNS trigger
     AS $$ BEGIN UPDATE things SET "schema" = NEW.schema, boost = (NEW.schema -> 'boost')::numeric, content_type = NEW.schema ->> 'content_type', cache_valid_since = NOW() WHERE things.template_name = NEW.template_name AND things.template = FALSE; RETURN new; END; $$;
 
 
---
--- Name: core_german; Type: TEXT SEARCH DICTIONARY; Schema: public; Owner: -
---
-
-CREATE TEXT SEARCH DICTIONARY public.core_german (
-    TEMPLATE = pg_catalog.thesaurus,
-    dictfile = 'core_german', dictionary = 'pg_catalog.german_stem' );
-
-
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -412,32 +403,13 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.active_storage_attachments (
-    id bigint NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying NOT NULL,
     record_type character varying NOT NULL,
-    record_id bigint NOT NULL,
-    blob_id bigint NOT NULL,
+    record_id uuid NOT NULL,
+    blob_id uuid NOT NULL,
     created_at timestamp without time zone NOT NULL
 );
-
-
---
--- Name: active_storage_attachments_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.active_storage_attachments_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: active_storage_attachments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.active_storage_attachments_id_seq OWNED BY public.active_storage_attachments.id;
 
 
 --
@@ -445,7 +417,7 @@ ALTER SEQUENCE public.active_storage_attachments_id_seq OWNED BY public.active_s
 --
 
 CREATE TABLE public.active_storage_blobs (
-    id bigint NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     key character varying NOT NULL,
     filename character varying NOT NULL,
     content_type character varying,
@@ -458,52 +430,14 @@ CREATE TABLE public.active_storage_blobs (
 
 
 --
--- Name: active_storage_blobs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.active_storage_blobs_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: active_storage_blobs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.active_storage_blobs_id_seq OWNED BY public.active_storage_blobs.id;
-
-
---
 -- Name: active_storage_variant_records; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.active_storage_variant_records (
-    id bigint NOT NULL,
-    blob_id bigint NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    blob_id uuid NOT NULL,
     variation_digest character varying NOT NULL
 );
-
-
---
--- Name: active_storage_variant_records_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.active_storage_variant_records_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: active_storage_variant_records_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.active_storage_variant_records_id_seq OWNED BY public.active_storage_variant_records.id;
 
 
 --
@@ -1569,27 +1503,6 @@ CREATE TABLE public.watch_lists (
 
 
 --
--- Name: active_storage_attachments id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.active_storage_attachments ALTER COLUMN id SET DEFAULT nextval('public.active_storage_attachments_id_seq'::regclass);
-
-
---
--- Name: active_storage_blobs id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.active_storage_blobs ALTER COLUMN id SET DEFAULT nextval('public.active_storage_blobs_id_seq'::regclass);
-
-
---
--- Name: active_storage_variant_records id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.active_storage_variant_records ALTER COLUMN id SET DEFAULT nextval('public.active_storage_variant_records_id_seq'::regclass);
-
-
---
 -- Name: delayed_jobs id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2178,10 +2091,10 @@ CREATE UNIQUE INDEX index_active_storage_variant_records_uniqueness ON public.ac
 
 
 --
--- Name: index_activities_on_activitiable; Type: INDEX; Schema: public; Owner: -
+-- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_activities_on_activitiable ON public.activities USING btree (activitiable_type, activitiable_id);
+CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
 
 
 --
@@ -3491,7 +3404,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210510120343'),
 ('20210518074537'),
 ('20210518133349'),
-('20210520121223'),
 ('20210520123323'),
 ('20210522171126'),
 ('20210527121641'),
@@ -3504,56 +3416,35 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210709121013'),
 ('20210731090959'),
 ('20210802095013'),
-('20210802130128'),
-('20210803170527'),
 ('20210804140504'),
 ('20210817101040'),
 ('20210908095952'),
 ('20211001085525'),
-('20211004160440'),
 ('20211005125306'),
 ('20211005134137'),
 ('20211007123156'),
-('20211007150305'),
-('20211011060931'),
 ('20211011123517'),
 ('20211014062654'),
 ('20211021062347'),
 ('20211021111915'),
-('20211110092804'),
-('20211115140202'),
 ('20211122075759'),
 ('20211123081845'),
 ('20211130111352'),
 ('20211214135559'),
 ('20211216110505'),
 ('20211217094832'),
-('20211217111102'),
 ('20220105142232'),
 ('20220111132413'),
 ('20220113113445'),
-('20220113150316'),
-('20220119101040'),
-('20220125101015'),
 ('20220218095025'),
 ('20220221123152'),
 ('20220304071341'),
-('20220308150335'),
-('20220308150336'),
 ('20220316115212'),
-('20220316130143'),
-('20220316140219'),
 ('20220317105304'),
 ('20220317131316'),
-('20220317140209'),
-('20220317150319'),
 ('20220322104259'),
-('20220323090941'),
-('20220328090933'),
 ('20220426105827'),
-('20220502150336'),
 ('20220505135021'),
-('20220510085119'),
 ('20220513075644'),
 ('20220516134326'),
 ('20220520065309'),
