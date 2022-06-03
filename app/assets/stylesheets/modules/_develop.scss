@@ -2921,6 +2921,11 @@ input.normalized {
       pointer-events: none;
       font-weight: bold;
     }
+
+    .load-as-split-source-link {
+      display: none;
+      pointer-events: none;
+    }
   }
 }
 
@@ -3808,5 +3813,15 @@ body {
 .compare-contents-link {
   .fa {
     font-size: 1.3rem;
+  }
+}
+
+.editor.trail,
+.editor.tour {
+  .attribute-group.editor.trail_rating
+    > .attribute-group-item
+    > .attribute-group-content
+    > .attribute-group-content-element {
+    grid-template-columns: 65fr 35fr;
   }
 }
