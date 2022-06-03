@@ -417,7 +417,7 @@
     - translation_of_work
 
 :video_transcoding:
-  :enabled: true
+  :enabled: false
   :placeholder: "path/to/placeholder/video.mp4"
   :config:
     :dynamic:

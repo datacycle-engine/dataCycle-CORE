@@ -32,7 +32,7 @@ module DataCycleCore
 
           def content_url(computed_parameters:, **_args)
             video = DataCycleCore::Video.find_by(id: computed_parameters.values.first)
-            if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+            if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && video&.file&.attached?
               Rails.application.routes.url_helpers.rails_storage_proxy_url(video.file, host: Rails.application.config.asset_host)
             else
               video&.try(:file)&.try(:url)

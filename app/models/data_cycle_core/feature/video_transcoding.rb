@@ -11,13 +11,19 @@ module DataCycleCore
           processed_dir = Rails.root.join('public', 'uploads', 'processed', 'video', content.id)
           Dir.mkdir(processed_dir) unless File.exist?(processed_dir)
 
-          asset_path = content.asset.file.file.path
-          movie = FFMPEG::Movie.new(asset_path)
-
           filename = video_filename(content, video_processing)
           output_path = File.join(processed_dir, filename)
 
-          movie.transcode(output_path, video_processing.dig('options'))
+          movie = nil
+          if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+            content.asset.file.blob.open do |video|
+              movie = FFMPEG::Movie.new(video.path)
+              movie.transcode(output_path, video_processing.dig('options'))
+            end
+          else
+            movie = FFMPEG::Movie.new(content.asset.file.file.path)
+            movie.transcode(output_path, video_processing.dig('options'))
+          end
           # @todo: trigger cache invalidation
           [
             Rails.application.config.asset_host,
