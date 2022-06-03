@@ -463,8 +463,8 @@ CREATE TABLE public.activities (
 CREATE TABLE public.ar_internal_metadata (
     key character varying NOT NULL,
     value character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
 );
 
 
@@ -1024,6 +1024,7 @@ CREATE VIEW public.content_property_dependencies AS
  SELECT content_computed_properties.content_id,
     content_computed_properties.content_template_name,
     content_computed_properties.property_name,
+    content_computed_properties.compute_parameter_property_name,
     things.id AS dependent_content_id,
     things.template_name AS dependent_content_template_name
    FROM ((public.things
@@ -2085,6 +2086,7 @@ CREATE INDEX headline_idx ON public.searches USING gin (headline public.gin_trgm
 
 
 --
+-- Name: index_active_storage_attachments_on_blob_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_active_storage_attachments_on_blob_id ON public.active_storage_attachments USING btree (blob_id);
@@ -2115,9 +2117,8 @@ CREATE UNIQUE INDEX index_active_storage_variant_records_uniqueness ON public.ac
 -- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
 --
 
--- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
-
 CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
+
 
 --
 -- Name: index_activities_on_activity_type_and_updated_at; Type: INDEX; Schema: public; Owner: -
@@ -3483,11 +3484,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220505135021'),
 ('20220513075644'),
 ('20220516134326'),
-('20220518121205'),
 ('20220520065309'),
+('20220524095157'),
 ('20220530063350'),
-('20220530140254'),
-('20220531080830'),
-('20220531140218');
+('20220602074421');
 
 
