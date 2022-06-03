@@ -1384,7 +1384,10 @@ de:
       station: Bahnhof
       subtitle: Untertitel
       teaser: Teaser
-
+    pimcore_ats:
+      description: Beschreibung
+      longDescription: Detailbeschreibung
+      shortDescription: Kurzbeschreibung
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

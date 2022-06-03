@@ -1378,6 +1378,10 @@ en:
       station: Station
       subtitle: Subtitle
       teaser: Teaser
+    pimcore_ats:
+      description: Description
+      longDescription: Detailed descripton
+      shortDescription: Brief descripton
 
   media_archive:
     allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>

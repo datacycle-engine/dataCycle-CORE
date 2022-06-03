@@ -77,7 +77,7 @@
 - Informationstypen | all:
 
 - $$Externe Informationstypen | all:
-    - description | OutdoorActive/imx_platform/TIMM4/GEM2GO/mein.toubiz
+    - description | OutdoorActive/imx_platform/TIMM4/GEM2GO/mein.toubiz/pimcore_ats
     - abstract | mein.toubiz
     - description_long | imx_platform
     - text | OutdoorActive
@@ -161,6 +161,8 @@
     - currentInformation | mein.toubiz
     - additionalLocationInformation | mein.toubiz
     - additionalHostInformation | mein.toubiz
+    - longDescription | pimcore_ats
+    - shortDescription | pimcore_ats
 
 - POI - Kategorien | all:
 
