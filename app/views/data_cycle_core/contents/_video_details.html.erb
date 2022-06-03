@@ -7,9 +7,12 @@
       <div class="image">
 
         <% if content.try(:content_url).present? %>
+          <%
+            thumbnail_url = content&.thumbnail_image&.first&.thumbnail_url || content.try(:thumbnail_url)
+          %>
           <div class="image-container stripes">
             <div data-vjs-player>
-              <video class="video-js" poster="<%= content.try(:thumbnail_url) %>">
+              <video class="video-js" poster="<%= thumbnail_url %>">
                 <source src="<%= content.try(:content_url) %>" type="video/mp4">
                 Your browser does not support the video tag
               </video>
@@ -20,7 +23,7 @@
         <div class="image-data">
           <h5>Details</h5>
           <dl>
-            <% ['caption', 'description'].each do |property_name| %>
+            <% ['caption', 'description', 'transcript'].each do |property_name| %>
               <% next if content.properties_for(property_name).blank? %>
               <dd>
                 <%= render_attribute_viewer key: property_name,
