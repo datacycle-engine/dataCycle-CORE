@@ -127,8 +127,8 @@ namespace :dc do
 
         assets.each do |asset|
           progressbar.increment
-          file_path = Rails.public_path.join('uploads', 'data_cycle_core', 'video', 'file', asset[:id], asset[:file])
           begin
+            file_path = Rails.public_path.join('uploads', 'data_cycle_core', 'video', 'file', asset[:id], asset[:file])
             asset.file.attach(io: File.open(file_path.to_s), filename: asset[:file])
             asset[:file] = nil
             asset.save
