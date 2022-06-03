@@ -65,6 +65,22 @@
             :options:
               :data-size: basic
         :advanced_search: true
+      :trail_closed:
+        :label: Trail/Tour gesperrt
+        :type: boolean
+        :storage_location: value
+        :advanced_search: true
+        :default_value: 'false'
+        :api:
+          :name: dcls:trailClosed
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :primary_image:
         :label: Hauptbild
         :type: linked
@@ -87,6 +103,36 @@
         :template_name: Bild
         :api:
           :minimal: true
+      :video:
+        :label: Videos
+        :type: linked
+        :template_name: Video
+        :api:
+          :name: dcls:video
+          :minimal: true
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :audio_object:
+        :label: Audiobeiträge
+        :type: linked
+        :template_name: Audio
+        :api:
+          :name: dcls:audioObject
+          :minimal: true
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :schedule:
         :label: Season
         :type: embedded
@@ -118,6 +164,44 @@
       :geo_contains:
         :type: mixin
         :name: geo_contains
+      :start_location:
+        :label: Startpunkt
+        :type: linked
+        :ui:
+          :attribute_group: trail_start_end_one_line
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+        :api:
+          :name: odta:startLocation
+          :disabled: true
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - POI
+        :xml:
+          :disabled: true
+      :end_location:
+        :label: Endpunkt
+        :type: linked
+        :ui:
+          :attribute_group: trail_start_end_one_line
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+        :api:
+          :name: odta:endLocation
+          :disabled: true
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - POI
+        :xml:
+          :disabled: true
       :directions_public_transport:
         :label: Anfahrt mit öffentlichen Verkehrsmitteln
         :type: string
@@ -197,6 +281,48 @@
         :label: Bewertung - Technik
         :type: number
         :storage_location: value
+      :season:
+        :label: Empfohlene Jahreszeiten
+        :type: classification
+        :tree_label: Jahreszeiten
+        :ui:
+          :show:
+            :content_area: header
+            :disabled: true
+          :edit:
+            :disabled: true
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true
+      :difficulty:
+        :label: Schwierigkeitsgrad
+        :type: classification
+        :tree_label: Schwierigkeitsgrad (Trail/Tour)
+        :ui:
+          :show:
+            :content_area: header
+            :disabled: true
+          :edit:
+            :type: radio_button
+            :disabled: true
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true
+      :aggregate_rating:
+        :label: Tourenbewertung
+        :type: embedded
+        :template_name: Tourenbewertung
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :opening_hours_specification:
         :type: mixin
         :name: opening_hours_specification

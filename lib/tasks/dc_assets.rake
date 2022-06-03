@@ -57,7 +57,8 @@ namespace :dc do
       task update_meta_data: :environment do
         temp = Time.zone.now
 
-        assets = DataCycleCore::Image.all
+        assets = DataCycleCore::Image.where("metadata ? 'version'")
+
         items_count = assets.size
 
         puts "START UPDATE MetaData ==> Images (#{items_count})"
@@ -71,6 +72,8 @@ namespace :dc do
             .to_hash
             .transform_values { |value| value.is_a?(String) ? value.delete("\u0000") : value }
           asset.save!
+        rescue StandardError => e
+          puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
         end
 
         puts 'END'

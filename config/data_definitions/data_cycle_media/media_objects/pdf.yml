@@ -177,6 +177,7 @@
           :method: file_format
           :parameters:
             - asset
+            - content_url
         :ui:
           :edit:
             :disabled: true

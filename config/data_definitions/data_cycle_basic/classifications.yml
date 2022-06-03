@@ -539,3 +539,15 @@
     - Ausverkauft **https://schema.org/SoldOut
 
 - Preis - Kategorien | all:
+
+- Jahreszeiten | all:
+    - Frühling
+    - Sommer
+    - Herbst
+    - Winter
+    - Ganzjahr
+
+- Schwierigkeitsgrad (Trail/Tour) | all:
+    - leicht
+    - mittel
+    - schwer

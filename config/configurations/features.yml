@@ -296,7 +296,6 @@
     :family_name:
     :default_locale:
     :password:
-    :password_confirmation:
     :confirmed_at:
   :issuer: datacycle.at
 
@@ -472,3 +471,6 @@
           audio_sample_rate: 22050 # -ar 22050
           audio_channels: 2 # -ac 2
           threads: 4 # -threads 2
+          
+:user_group_classification:
+  :enabled: false
