@@ -19,25 +19,13 @@ module DataCycleCore
       DataCycleCore::Thing.name
     end
 
-    def perform(content_id)
+    def perform(content_id, _changed_attributes)
       DataCycleCore::Thing
-        .where(id: load_depending_content_ids(content_id))
+        .where(id: DataCycleCore::Thing::PropertyDependency.select(:content_id).where(dependent_content_id: content_id))
         .find_each { |thing| update_computed_properties(thing) }
     end
 
     private
-
-    def load_depending_content_ids(content_id)
-      ActiveRecord::Base.connection.execute(
-        ActiveRecord::Base.send(
-          :sanitize_sql_array,
-          [
-            'SELECT DISTINCT content_id FROM content_property_dependencies WHERE dependent_content_id = ?',
-            content_id
-          ]
-        )
-      ).values.flatten
-    end
 
     def update_computed_properties(content)
       if (content.computed_property_names & content.translatable_property_names).present?
