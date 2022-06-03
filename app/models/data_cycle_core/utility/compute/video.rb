@@ -54,7 +54,7 @@ module DataCycleCore
             asset = args.dig(:computed_parameters)&.first || args.dig(:content).try(:asset)
             return if asset.blank?
 
-            # DataCycleCore::VideoTranscodingJob.perform_later(content.id, args.dig(:key))
+            DataCycleCore::VideoTranscodingJob.perform_later(content.id, args.dig(:key))
             DataCycleCore::Feature::VideoTranscoding.placeholder
           end
 
