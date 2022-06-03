@@ -1,7 +1,7 @@
 {
   "all": {
     "sourceCodeDir": "app/assets",
-    "additionalEntrypoints": [],
+    "additionalEntrypoints": ["app/assets/images/*", "../../app/assets/images/*"],
     "watchAdditionalPaths": ["../../app/assets/**/*"],
     "publicOutputDir": "assets/build",
     "assetsDir": ""
