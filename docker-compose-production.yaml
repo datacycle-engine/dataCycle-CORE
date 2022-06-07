@@ -31,6 +31,7 @@ x-app: &default-app
   restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
   extra_hosts:
     - 'dockerhost:host-gateway'
+  stop_grace_period: 1m30s
 
 services:
   web:
@@ -111,17 +112,20 @@ services:
       - app-docker:/app/docker
       - ${BASE_DATA_VOLUME_PATH:-~/data_cycle/dcdata}/postgres:/var/lib/postgresql/data
     restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
+    stop_grace_period: 1m30s
   mongodb:
     volumes:
       - app-docker:/app/docker
       - ${BASE_DATA_VOLUME_PATH:-~/data_cycle/dcdata}/mongodb:/data/db
       - ${BASE_LOG_VOLUME_PATH:-~/data_cycle/log}/mongodb:/var/log/mongodb
     restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
+    stop_grace_period: 1m30s
   redis:
     volumes:
       - app-docker:/app/docker
       - redis:/data
     restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
+    stop_grace_period: 1m30s
   nginx:
     volumes:
       - app-docker:/app/docker
