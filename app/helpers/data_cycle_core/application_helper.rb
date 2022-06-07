@@ -20,9 +20,11 @@ module DataCycleCore
 
     def display_flash_messages_new(closable: true)
       capture do
-        flash.each do |key, value|
-          alert_class = DEFAULT_KEY_MATCHING[key.to_sym]
-          concat alert_box(value, alert_class, closable)
+        tag.div(class: 'flash-messages') do
+          flash.each do |key, value|
+            alert_class = DEFAULT_KEY_MATCHING[key.to_sym]
+            concat alert_box(value, alert_class, closable)
+          end
         end
       end
     end
@@ -140,7 +142,7 @@ module DataCycleCore
     end
 
     def content_view_cache_key(item:, mode:, watch_list:, locale: 'de')
-      "#{item.class.name.underscore}_#{item.id}_#{locale}_#{item.updated_at&.to_i}_#{item.template_updated_at&.to_i}_#{mode}_#{watch_list&.id}_#{active_ui_locale}"
+      "#{item.class.name.underscore}_#{item.id}_#{locale}_#{item.updated_at&.to_i}_#{item.cache_valid_since&.to_i}_#{mode}_#{watch_list&.id}_#{active_ui_locale}"
     end
 
     def new_content_select_options(query: DataCycleCore::Thing.all, query_methods: [], content: nil, scope: nil, limit: nil, ordered_array: nil)
@@ -454,16 +456,18 @@ module DataCycleCore
     def alert_box(value, alert_class, closable)
       options = { class: "flash flash-notification callout #{alert_class}" }
       options[:data] = { closable: '' } if closable
+
       tag.div(options) do
         if value.is_a?(::String)
           concat value.html_safe
-        elsif value.is_a?(::Hash)
-          concat value.map { |k, v| tag.b(k.titleize + ': ') + v.join(', ') }.join(', ').html_safe
+        elsif value.is_a?(::Hash) || value.is_a?(ActiveModel::DeprecationHandlingMessageHash)
+          concat value.map { |k, v| tag.b(k.to_s.titleize + ': ') + v.join(', ') }.join(', ').html_safe
         elsif value.is_a?(::Array)
           concat value.join(', ').html_safe.to_s
         else
           concat value.to_s.html_safe
         end
+
         concat close_link if closable
       end
     end

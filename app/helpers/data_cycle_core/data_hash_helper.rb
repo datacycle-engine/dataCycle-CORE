@@ -3,6 +3,14 @@
 module DataCycleCore
   module DataHashHelper
     INTERNAL_PROPERTIES = DataCycleCore.internal_data_attributes + ['id']
+    GROUP_FLAGS = [
+      'collapsible',
+      'one_line',
+      'collapsed',
+      'two_columns',
+      'three_columns',
+      'four_columns'
+    ].freeze
 
     def object_from_definition(definition)
       return nil if definition.blank? || definition.dig('template_name').nil?
@@ -11,20 +19,57 @@ module DataCycleCore
       DataCycleCore::Thing.find_by("template = true AND schema ->> 'content_type' = ? AND template_name =?", 'entity', template_name)
     end
 
-    def ordered_validation_properties(validation:, type: nil, content_area: nil)
-      return nil if validation.nil? || validation['properties'].blank?
+    def attribute_group_title(content, key)
+      label_html = ActionView::OutputBuffer.new
 
-      ordered_properties = ActiveSupport::OrderedHash.new
-      validation['properties'].each do |prop|
-        next if INTERNAL_PROPERTIES.include?(prop[0]) || prop[1]['sorting'].blank?
-        next if type.present? && prop[1]['type'] != type
-        next if content_area.presence&.!=('content') && prop[1].dig('ui', 'show', 'content_area') != content_area
-        next if content_area == 'content' && prop[1].dig('ui', 'show', 'content_area').present?
-
-        ordered_properties[prop[1]['sorting'].to_i] = prop
+      if I18n.exists?("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale)
+        label_html << tag.span(I18n.t("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale))
+      elsif I18n.exists?("attribute_labels.#{key.attribute_name_from_key}", locale: active_ui_locale)
+        label_html << tag.span(I18n.t("attribute_labels.#{key.attribute_name_from_key}", locale: active_ui_locale))
+      else
+        return
       end
 
-      Hash[ordered_properties.sort.map { |_, v| v }]
+      label_html.prepend(tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-object"))
+      label_html << render('data_cycle_core/contents/helper_text', key: key, content: content)
+
+      label_html
+    end
+
+    def ordered_validation_properties(validation:, type: nil, content_area: nil, scope: :edit)
+      return if validation.nil? || validation['properties'].blank?
+
+      ordered_props = {}
+
+      validation['properties'].sort_by { |_, prop| prop['sorting'] }.each do |key, prop|
+        next if INTERNAL_PROPERTIES.include?(key) || prop['sorting'].blank?
+        next if type.present? && prop['type'] != type
+        next if content_area.presence&.!=('content') && prop.dig('ui', scope.to_s, 'content_area') != content_area
+        next if content_area == 'content' && prop.dig('ui', scope.to_s, 'content_area').present?
+
+        add_attribute_config(key, prop, scope, content_area, ordered_props)
+      end
+
+      ordered_props
+    end
+
+    def add_attribute_config(key, prop, scope, content_area, ordered_props)
+      return ordered_props[key] = prop unless content_area != 'header' && (prop['ui']&.key?('attribute_group') || prop.dig('ui', scope.to_s)&.key?('attribute_group'))
+
+      prop['ui'].delete('attribute_group') if prop['ui']&.key?('attribute_group') && prop.dig('ui', scope.to_s)&.key?('attribute_group')
+
+      prop_context = prop.dig('ui', scope.to_s)&.key?('attribute_group') ? prop['ui'][scope.to_s] : prop['ui']
+      group = prop_context.then { |g| g['attribute_group'].is_a?(::Array) ? g['attribute_group'].shift : g.delete('attribute_group') }
+      prop_context.delete('attribute_group') if prop_context.key?('attribute_group') && prop_context['attribute_group'].blank?
+      group_name = group.remove(*GROUP_FLAGS.map { |f| "_#{f}" })
+
+      ordered_props[group_name] ||= {
+        'type' => 'attribute_group',
+        'properties' => {},
+        'features' => GROUP_FLAGS.index_with { |f| group.include?("_#{f}") }.compact_blank
+      }
+
+      ordered_props[group_name]['properties'][key] = prop
     end
 
     def to_html_string(title, text = '')

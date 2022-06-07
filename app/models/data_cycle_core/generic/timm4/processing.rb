@@ -68,8 +68,28 @@ module DataCycleCore
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
-            transformation: DataCycleCore::Generic::Timm4::Transformations.to_image,
+            transformation: DataCycleCore::Generic::Timm4::Transformations.to_image(utility_object.external_source.id),
             default: { template: 'Bild' },
+            config: config
+          )
+        end
+
+        def self.process_author(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Timm4::Transformations.to_author,
+            default: { template: 'Organization' },
+            config: config
+          )
+        end
+
+        def self.process_copyright_holder(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Timm4::Transformations.to_copyright_holder,
+            default: { template: 'Organization' },
             config: config
           )
         end

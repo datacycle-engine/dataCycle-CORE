@@ -133,7 +133,10 @@ module DataCycleCore
             else
               filter_query_sql = filter_query_sql.or(filter.apply.select(:id).except(*UNION_FILTER_EXCEPTS))
             end
+          rescue SystemStackError
+            raise DataCycleCore::Error::Filter::UnionFilterRecursionError
           end
+
           filter_query_sql
         end
 

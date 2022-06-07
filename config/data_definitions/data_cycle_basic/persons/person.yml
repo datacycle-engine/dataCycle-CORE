@@ -97,16 +97,17 @@
       # legacy protpert for v2 / v3
       :gender_api:
         :label: Geschlecht
+        :type: string
         :storage_location: value
-        :type: computed
         :compute:
-          :type: string
           :module: Utility::Compute::Classification
           :method: description
           :parameters:
-            :0: gender
+            - gender
         :ui:
           :show:
+            :disabled: true
+          :edit:
             :disabled: true
         :api:
           :name: gender

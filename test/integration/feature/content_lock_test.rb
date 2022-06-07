@@ -88,7 +88,7 @@ module DataCycleCore
       test 'extend content lock' do
         @content.create_lock(user: @current_user)
         updated_at = @content.lock.updated_at
-        lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: @current_user.id, lock_ids: Array(@content.lock&.id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i))
+        lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: @current_user.id, lock_ids: Array(@content.lock&.id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i)).token
 
         travel 1.minute
 
@@ -112,7 +112,7 @@ module DataCycleCore
         new_user = User.find_by(email: 'admin@datacycle.at')
         sign_in(new_user)
 
-        lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: new_user.id, lock_ids: Array(@content.lock&.id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i))
+        lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: new_user.id, lock_ids: Array(@content.lock&.id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i)).token
 
         patch content_locks_path, xhr: true, as: :json, params: {
           token: lock_token
@@ -127,7 +127,7 @@ module DataCycleCore
       test 'remove content lock' do
         @content.create_lock(user: @current_user)
 
-        lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: @current_user.id, lock_ids: Array(@content.lock&.id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i))
+        lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: @current_user.id, lock_ids: Array(@content.lock&.id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i)).token
 
         post content_locks_path, xhr: true, as: :json, params: {
           token: lock_token
@@ -146,7 +146,7 @@ module DataCycleCore
         new_user = User.find_by(email: 'admin@datacycle.at')
         sign_in(new_user)
 
-        lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: new_user.id, lock_ids: Array(@content.lock&.id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i))
+        lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: new_user.id, lock_ids: Array(@content.lock&.id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i)).token
 
         post content_locks_path, xhr: true, as: :json, params: {
           token: lock_token

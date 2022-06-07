@@ -1,46 +1,54 @@
-.full.reveal.image-editor-reveal{
+.full.reveal.image-editor-reveal {
   background: #151515;
   padding: 0;
-  .top-bar{
+  .top-bar {
     min-height: 5vh;
-    .close-button{
+    .close-button {
       font-size: 2rem;
       top: 1rem;
     }
-    .save-button{
+    .save-button {
       position: absolute;
       top: 1rem;
       left: 1rem;
       font-size: 2em;
       line-height: 1;
-      color: #9d9d9d;
+      color: $dark-gray;
       cursor: pointer;
       padding: 0;
+
+      &[disabled] {
+        cursor: not-allowed;
+        color: $black;
+      }
     }
-    .close-button, .save-button{
-      .fa{
+    .close-button,
+    .save-button {
+      .fa {
         font-size: 2rem;
       }
-      &:hover{
+      &:hover {
         color: #fff;
       }
     }
   }
-  .image-editor-wrapper{
+  .image-editor-wrapper {
     background: green;
   }
-  thead, tbody, tfoot{
+  thead,
+  tbody,
+  tfoot {
     background: none;
     border: none;
-    tr{
+    tr {
       background: none;
       border: none;
     }
   }
   .tui-image-editor-header-buttons {
-    display:none;
+    display: none;
   }
-  .tui-image-editor-header-logo{
+  .tui-image-editor-header-logo {
     display: none;
   }
   .bottom-bar {
@@ -60,7 +68,7 @@
     }
   }
 }
-.button.image-editor-button{
+.button.image-editor-button {
   margin: 0.5rem 0 0 0.5rem;
   padding: 0.9rem;
 }

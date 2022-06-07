@@ -23,12 +23,11 @@
           :format: integer
       :math_sum:
         :label: Math Sum
+        :type: number
         :storage_location: value
-        :type: computed
         :compute:
-          :type: number
           :module: Utility::Compute::Math
           :method: sum
           :parameters:
-            :0: value_1
-            :1: value_2
+            - value_1
+            - value_2

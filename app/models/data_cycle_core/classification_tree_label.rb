@@ -205,9 +205,7 @@ module DataCycleCore
     end
 
     def invalidate_things_cache
-      things.ids.each do |thing_id|
-        DataCycleCore::CacheInvalidationJob.perform_later('DataCycleCore::Thing', thing_id, 'invalidate_self')
-      end
+      things.invalidate_all
     end
   end
 end

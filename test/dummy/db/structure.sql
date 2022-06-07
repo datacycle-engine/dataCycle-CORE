@@ -391,7 +391,7 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
 
 CREATE FUNCTION public.update_template_definitions_trigger() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN UPDATE things SET "schema" = NEW.schema, boost = (NEW.schema -> 'boost')::numeric, content_type = NEW.schema ->> 'content_type', template_updated_at = NOW() WHERE things.template_name = NEW.template_name AND things.template = FALSE; RETURN new; END; $$;
+    AS $$ BEGIN UPDATE things SET "schema" = NEW.schema, boost = (NEW.schema -> 'boost')::numeric, content_type = NEW.schema ->> 'content_type', cache_valid_since = NOW() WHERE things.template_name = NEW.template_name AND things.template = FALSE; RETURN new; END; $$;
 
 
 --
@@ -725,6 +725,20 @@ CREATE VIEW public.classification_tree_label_statistics AS
 
 
 --
+-- Name: classification_user_groups; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_user_groups (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    classification_id uuid,
+    user_group_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
 -- Name: classifications; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -774,7 +788,7 @@ CREATE TABLE public.things (
     created_by uuid,
     updated_by uuid,
     deleted_by uuid,
-    template_updated_at timestamp without time zone,
+    cache_valid_since timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone,
@@ -826,12 +840,10 @@ CREATE VIEW public.content_computed_properties AS
  SELECT content_properties.content_id,
     content_properties.content_template_name,
     content_properties.property_name,
-    parameters.key AS compute_parameter_order,
-    parameters.value AS compute_parameter_definition,
-    COALESCE((parameters.value ->> 'name'::text), (parameters.value #>> '{}'::text[])) AS compute_parameter_property_name
+    parameters.value AS compute_parameter_property_name
    FROM public.content_properties,
-    LATERAL jsonb_each(((content_properties.property_definition -> 'compute'::text) -> 'parameters'::text)) parameters(key, value)
-  WHERE ((content_properties.property_definition ->> 'type'::text) = 'computed'::text);
+    LATERAL jsonb_array_elements_text(((content_properties.property_definition -> 'compute'::text) -> 'parameters'::text)) parameters(value)
+  WHERE (content_properties.property_definition ? 'compute'::text);
 
 
 --
@@ -1292,7 +1304,7 @@ CREATE TABLE public.thing_histories (
     created_by uuid,
     updated_by uuid,
     deleted_by uuid,
-    template_updated_at timestamp without time zone,
+    cache_valid_since timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone,
@@ -1354,6 +1366,20 @@ CREATE TABLE public.thing_translations (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     slug character varying
+);
+
+
+--
+-- Name: timeseries; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.timeseries (
+    thing_id uuid NOT NULL,
+    property character varying NOT NULL,
+    "timestamp" timestamp with time zone NOT NULL,
+    value double precision,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
 );
 
 
@@ -1534,6 +1560,14 @@ ALTER TABLE ONLY public.classification_contents
 
 ALTER TABLE ONLY public.classification_polygons
     ADD CONSTRAINT classification_polygons_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: classification_user_groups classification_user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.classification_user_groups
+    ADD CONSTRAINT classification_user_groups_pkey PRIMARY KEY (id);
 
 
 --
@@ -2169,6 +2203,20 @@ CREATE INDEX index_classification_trees_on_parent_classification_alias_id ON pub
 
 
 --
+-- Name: index_classification_user_groups_on_classification_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_user_groups_on_classification_id ON public.classification_user_groups USING btree (classification_id);
+
+
+--
+-- Name: index_classification_user_groups_on_user_group_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_user_groups_on_user_group_id ON public.classification_user_groups USING btree (user_group_id);
+
+
+--
 -- Name: index_classifications_on_deleted_at; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2715,6 +2763,13 @@ CREATE UNIQUE INDEX pg_dict_mappings_locale_dict_idx ON public.pg_dict_mappings 
 
 
 --
+-- Name: thing_attribute_timestamp_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX thing_attribute_timestamp_idx ON public.timeseries USING btree (thing_id, property, "timestamp");
+
+
+--
 -- Name: thing_translations_name_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3053,6 +3108,14 @@ CREATE TRIGGER update_template_definitions_trigger AFTER UPDATE OF schema, boost
 
 
 --
+-- Name: timeseries fk_rails_53ff16144f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.timeseries
+    ADD CONSTRAINT fk_rails_53ff16144f FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
+
+
+--
 -- Name: schedule_occurrences schedule_occurrences_schedule_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3336,6 +3399,16 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220323090941'),
 ('20220328090933'),
 ('20220426105827'),
-('20220502150336');
+('20220502150336'),
+('20220505135021'),
+('20220510085119'),
+('20220513075644'),
+('20220516134326'),
+('20220518121205'),
+('20220520065309'),
+('20220530063350'),
+('20220530140254'),
+('20220531080830'),
+('20220531140218');
 
 

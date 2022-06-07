@@ -142,9 +142,7 @@ module DataCycleCore
       def excluded_properties_for(content)
         content.name_property_selector do |definition|
           (
-            definition['type'] == 'classification' || (
-              definition['type'] == 'computed' && definition['compute']['type'] == 'classification'
-            )
+            definition['type'] == 'classification'
           ) && !api_enabled?(definition)
         end
       end

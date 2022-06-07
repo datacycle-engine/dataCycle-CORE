@@ -33,18 +33,17 @@
           :required: true
       :headline:
         :label: Headline
+        :type: string
         :storage_location: translated_value
-        :type: computed
         :compute:
-          :type: string
           :module: Utility::Compute::String
           :method: concat
           :parameters:
-            :0:
-              :type: content
-              :name: name
+            - name
         :ui:
           :show:
+            :disabled: true
+          :edit:
             :disabled: true
         :api:
           :minimal: true
@@ -76,7 +75,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Container"
+        :default_value: 'Container'
       :meta_data:
         :type: mixin
         :name: meta_data

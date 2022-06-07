@@ -33,7 +33,7 @@ module DataCycleCore
         def self.extract_data(_options, raw_data)
           {
             external_key: "CATEGORY:#{raw_data['id']}",
-            name: raw_data['name']
+            name: raw_data['name']&.squish
           }
         end
       end

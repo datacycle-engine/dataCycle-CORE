@@ -12,7 +12,7 @@
 
 .schedule-editor {
   input {
-    background-color: white;
+    background-color: $white;
   }
 
   .daterange,
@@ -48,7 +48,7 @@
         input {
           width: 80px;
           min-width: 80px;
-          margin-right: 1rem;
+          margin-right: 0.5rem;
           text-align: right;
         }
       }
@@ -73,7 +73,7 @@
     }
 
     .after-label {
-      margin-left: 1rem;
+      margin-left: 0.5rem;
     }
 
     .single_occurrence,
@@ -136,8 +136,11 @@
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
-    background: $light-gray;
     padding: 0.5rem 1rem;
+    transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+    box-shadow: 0 0 0 rgba($dark-gray, 0.5);
+    border: 1px solid rgba($dark-gray, 0.5);
+    border-radius: $global-radius;
 
     &:not(:last-of-type):not(.until) {
       margin-right: 1rem;
@@ -212,7 +215,7 @@
     .leaf-duration {
       font-size: 0.8rem;
       border: 7px solid;
-      border-radius: 5px;
+      border-radius: $global-radius;
       width: 6.5rem;
       border-bottom-left-radius: 7px;
       border-bottom-right-radius: 7px;
@@ -286,9 +289,12 @@
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
-    background: $light-gray;
     padding: 0.5rem;
     height: 3.5rem;
+    transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+    box-shadow: 0 0 0 rgba($dark-gray, 0.5);
+    border: 1px solid rgba($dark-gray, 0.5);
+    border-radius: $global-radius;
 
     label {
       position: relative;
@@ -326,6 +332,18 @@
           width: auto;
         }
       }
+    }
+
+    &.valid_from {
+      border-right: none;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    &.valid_until {
+      border-left: none;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
     }
   }
 }

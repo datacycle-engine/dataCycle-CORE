@@ -51,6 +51,14 @@ module DataCycleCore
         )
       end
 
+      def not_creator(ids = nil)
+        return self if ids.blank?
+
+        reflect(
+          @query.where.not(thing[:created_by].in(ids))
+        )
+      end
+
       def updated_since_flat(updated_at = nil)
         return self if updated_at.blank?
 
@@ -139,6 +147,34 @@ module DataCycleCore
         return self if name.blank? || filter.blank?
 
         subquery = related_to_query(filter, name)
+        return self if subquery.nil?
+
+        reflect(
+          @query.where.not(subquery.exists)
+        )
+      end
+
+      def related_through_attribute(value, relation_name)
+        if value.to_s == 'true'
+          exists_relation_filter(relation_name)
+        else
+          not_exists_relation_filter(relation_name)
+        end
+      end
+
+      def exists_relation_filter(name = nil)
+        return self if name.blank?
+        subquery = related_to_any(name, true)
+        return self if subquery.nil?
+
+        reflect(
+          @query.where(subquery.exists)
+        )
+      end
+
+      def not_exists_relation_filter(name = nil)
+        return self if name.blank?
+        subquery = related_to_any(name, true)
         return self if subquery.nil?
 
         reflect(
@@ -279,6 +315,19 @@ module DataCycleCore
         sub_select = content_content[thing_id].eq(thing[:id])
           .and(content_content[related_to_id].in(filter_query))
 
+        sub_select = sub_select.and(content_content[:relation_a].eq(name)) if name.present?
+
+        Arel::SelectManager.new
+          .from(content_content)
+          .where(sub_select)
+      end
+
+      def related_to_any(name = nil, inverse = false)
+        thing_id = :content_a_id
+        related_to_id = :content_b_id
+        thing_id = related_to_id if inverse
+
+        sub_select = content_content[thing_id].eq(thing[:id])
         sub_select = sub_select.and(content_content[:relation_a].eq(name)) if name.present?
 
         Arel::SelectManager.new

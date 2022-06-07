@@ -10,7 +10,7 @@ module DataCycleCore
           template = content || DataCycleCore::Thing.find_by(template: true, template_name: template_name)
           template.schema['properties'][key]['default_value'] = value
           template.save
-          template.remove_instance_variable(:@properties_with_default_values) if template.instance_variable_defined?(:@properties_with_default_values)
+          template.remove_instance_variable(:@default_value_property_names) if template.instance_variable_defined?(:@default_value_property_names)
         end
 
         test 'default strings get set on new contents' do

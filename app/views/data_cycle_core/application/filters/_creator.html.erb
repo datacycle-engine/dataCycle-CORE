@@ -9,8 +9,7 @@
   </div>
 
   <div class="advanced-filter-mode">
-    <%= t("common.has", locale: active_ui_locale) %>
-    <%= hidden_field_tag "f[#{identifier}][m]", 'i' %>
+    <%= select_tag "f[#{identifier}][m]", options_for_select([[t("common.has", locale: active_ui_locale), 'i'], [t("common.has_not", locale: active_ui_locale), 'e']], filter_method) %>
   </div>
 
   <div class="advanced-filter-selector">

@@ -28,19 +28,8 @@
               <%= t('activerecord.attributes.user.password', locale: active_ui_locale) %>:
             </label>
           </div>
-          <div class="small-6 columns end">
+          <div class="small-6 columns end password-field">
             <%= f.input :password, required: false, label: false %>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="small-5 columns">
-            <label for="user_password_confirmation" class="text-right middle">
-              <%= t('activerecord.attributes.user.password_confirmation', locale: active_ui_locale) %>:
-            </label>
-          </div>
-          <div class="small-6 columns end">
-            <%= f.input :password_confirmation, required: false, label: false %>
           </div>
         </div>
 

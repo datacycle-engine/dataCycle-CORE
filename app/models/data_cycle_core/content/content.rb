@@ -16,7 +16,7 @@ module DataCycleCore
 
       self.abstract_class = true
 
-      attr_accessor :datahash, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS
+      attr_accessor :datahash, :datahash_changes, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS
       attr_writer :webhook_data
 
       DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
@@ -35,6 +35,7 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::SyncApi
       include DataCycleCore::Content::Extensions::Geojson
       include DataCycleCore::Content::Extensions::DefaultValue
+      include DataCycleCore::Content::Extensions::ComputedValue
 
       after_save :reload_memoized
       after_save :reload_memoized_overlay
@@ -66,6 +67,9 @@ module DataCycleCore
           if original_name.in?(embedded_property_names + linked_property_names)
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
             get_property_value(original_name, property_definition, args.first, overlay_flag & original_name.in?(overlay_property_names))
+          elsif original_name.in?(timeseries_property_names)
+            raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 2
+            get_property_value(original_name, property_definition, args.first, args&.try(:second))
           else
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
             get_property_value(original_name, property_definition, nil, overlay_flag & original_name.in?(overlay_property_names))
@@ -220,7 +224,7 @@ module DataCycleCore
       end
 
       def virtual_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'virtual' }
+        name_property_selector(include_overlay) { |definition| definition['virtual'].present? }
       end
 
       def linked_property_names(include_overlay = false)
@@ -237,20 +241,20 @@ module DataCycleCore
 
       def computed_property_names(include_overlay = false)
         @computed_property_names ||= Hash.new do |h, key|
-          h[key] = name_property_selector(key) { |definition| definition['type'] == 'computed' }
+          h[key] = name_property_selector(key) { |definition| definition['compute'].present? }
         end
         @computed_property_names[include_overlay]
       end
 
-      def classification_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'classification' }
+      def default_value_property_names(include_overlay = false)
+        @default_value_property_names ||= Hash.new do |h, key|
+          h[key] = name_property_selector(key) { |definition| definition['default_value'].present? }
+        end
+        @default_value_property_names[include_overlay]
       end
 
-      def properties_with_default_values(include_overlay = false)
-        @properties_with_default_values ||= Hash.new do |h, key|
-          h[key] = property_selector(key) { |definition| definition['default_value'].present? }
-        end
-        @properties_with_default_values[include_overlay]
+      def classification_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition['type'] == 'classification' }
       end
 
       def asset_property_names
@@ -259,6 +263,10 @@ module DataCycleCore
 
       def schedule_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| definition['type'].in?(['schedule', 'opening_time']) }
+      end
+
+      def timeseries_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition['type'] == 'timeseries' }
       end
 
       def external_property_names
@@ -339,6 +347,10 @@ module DataCycleCore
       def attribute_to_h(property_name, timestamp = Time.zone.now)
         if property_name == 'id' && history?
           send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
+        elsif virtual_property_names.include?(property_name)
+          []
+        # elsif computed_property_names.include?(property_name)
+        #   send(property_name)
         elsif plain_property_names.include?(property_name)
           send(property_name)
         elsif classification_property_names.include?(property_name)
@@ -355,13 +367,11 @@ module DataCycleCore
           embedded_array.blank? ? [] : embedded_array.compact
         elsif asset_property_names.include?(property_name)
           send(property_name)
-        elsif computed_property_names.include?(property_name)
-          send(property_name)
         elsif schedule_property_names.include?(property_name)
           schedule_array = send(property_name)
           schedule_array = schedule_array.map(&:to_h).presence
           schedule_array.blank? ? [] : schedule_array.compact
-        elsif virtual_property_names.include?(property_name)
+        elsif timeseries_property_names.include?(property_name)
           []
         else
           raise StandardError, "cannot determine how to serialize #{property_name}"
@@ -397,29 +407,48 @@ module DataCycleCore
       def get_property_value(property_name, property_definition, filter = nil, overlay_flag = false)
         @get_property_value ||= Hash.new do |h, key|
           h[key] =
-            if plain_property_names(true).include?(key[0])
+            if virtual_property_names.include?(key[0])
+              load_virtual_attribute(key[0], key[2])
+            elsif plain_property_names(true).include?(key[0])
               load_json_attribute(key[0], key[1], key[4])
             elsif included_property_names(true).include?(key[0])
               load_included_data(key[0], key[1], key[4])
             elsif classification_property_names(true).include?(key[0])
               load_classifications(key[0], key[4])
             elsif linked_property_names(true).include?(key[0])
-              load_linked_objects(key[0], key[3], false, [I18n.locale], key[4])
+              load_linked_objects(key[0], key[3], false, [key[2]], key[4])
             elsif embedded_property_names(true).include?(key[0])
-              load_embedded_objects(key[0], key[3], !key.dig(1, 'translated'), [I18n.locale], key[4])
+              load_embedded_objects(key[0], key[3], !key.dig(1, 'translated'), [key[2]], key[4])
             elsif asset_property_names.include?(key[0]) # no overlay
               load_asset_relation(key[0])&.first
-            elsif computed_property_names(true).include?(key[0])
-              load_computed_attribute(key[0], key[1], key[4])
             elsif schedule_property_names(true).include?(key[0])
               load_schedule(key[0], key[4])
-            elsif virtual_property_names.include?(key[0])
-              nil
+            elsif timeseries_property_names.include?(key[0])
+              load_timeseries(key[0], key[3], key[4])
             else
               raise NotImplementedError
             end
         end
+
         @get_property_value[[property_name, property_definition, I18n.locale, filter, overlay_flag]]
+      end
+
+      def property_value_for_set_datahash(property_name)
+        get_property_value(property_name, properties_for(property_name))&.tap do |value|
+          if schedule_property_names.include?(property_name)
+            value.map(&:to_h)
+          elsif value.is_a?(ActiveRecord::Relation)
+            value.pluck(:id)
+          elsif value.is_a?(::Array) && value.first.is_a?(ActiveRecord)
+            value.map(&:id)
+          else
+            value
+          end
+        end
+      end
+
+      def load_virtual_attribute(property_name, locale = I18n.locale)
+        DataCycleCore::Utility::Virtual::Base.virtual_values(property_name, self, locale)
       end
 
       def load_json_attribute(property_name, property_definition, overlay_flag)
@@ -432,21 +461,6 @@ module DataCycleCore
               property_definition['type'],
               send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s),
               property_definition
-            )
-          end
-      end
-
-      def load_computed_attribute(property_name, property_definition, overlay_flag)
-        value = overlay_data(I18n.locale).try(:[], property_name) if overlay_flag
-        value ||
-          if property_definition['storage_location'] == 'column'
-            send(property_name)
-          elsif property_definition['storage_location'] == 'classification'
-            load_classifications(property_name, overlay_flag)
-          else
-            convert_to_type(
-              property_definition.dig('compute', 'type'),
-              send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s)
             )
           end
       end

@@ -11,6 +11,7 @@ module DataCycleCore
         include ActiveSupport::Rescuable
         include DataCycleCore::ErrorHandler
         include DataCycleCore::WebdavHelper
+        include DataCycleCore::ApiBeforeActions
         helper DataCycleCore::WebdavHelper
 
         before_action :set_default_response_format, :authenticate_user!
@@ -26,6 +27,8 @@ module DataCycleCore
         def log_activity
           activity_data = permitted_params.to_h.merge(controller: params.dig('controller'), action: params.dig('action'))
           current_user.activities.create(activity_type: "api_v#{@api_version}", data: activity_data)
+
+          DataCycleCore::Activity.where('activities.activity_type = ? AND activities.created_at < ?', "api_v#{@api_version}", 3.months.ago).delete_all
         end
 
         private

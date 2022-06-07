@@ -77,18 +77,13 @@
         </div>
 
         <% unless content.external %>
-          <div class="form-element input">
-            <%= f.label :password, DataCycleCore::User.human_attribute_name(:password, locale: active_ui_locale) %>
+          <div class="form-element input password-field">
+            <%= f.label :password, DataCycleCore::User.human_attribute_name(:new_password, locale: active_ui_locale) %>
             <%= f.password_field :password, autocomplete: 'off' %>
           </div>
 
-          <div class="form-element input">
-            <%= f.label :password_confirmation, DataCycleCore::User.human_attribute_name(:password_confirmation, locale: active_ui_locale) %>
-            <%= f.password_field :password_confirmation, autocomplete: 'off' %>
-          </div>
-
           <% if current_user == content %>
-            <div class="form-element input">
+            <div class="form-element input password-field">
               <%= f.label :current_password, DataCycleCore::User.human_attribute_name(:current_password, locale: active_ui_locale) %>
               <%= f.password_field :current_password %>
             </div>
@@ -96,9 +91,9 @@
         <% end %>
 
         <% if can? :generate_access_token, content %>
-          <div class="form-element">
+          <div class="form-element boolean dc-checkbox">
             <%= f.check_box :access_token, label: false, checked: content.access_token.present? %>
-            <%= f.label :access_token, nil, class: 'flex-field' do %>
+            <%= f.label :access_token, nil do %>
               <%= DataCycleCore::User.human_attribute_name(:access_token, locale: active_ui_locale) %>
 
               <%= content_tag :span, "(#{content.access_token})", class: 'copy-to-clipboard with-shadow', title: DataCycleCore::User.human_attribute_name(:access_token, locale: active_ui_locale), data: { value: content.access_token } if content.access_token.present? %>

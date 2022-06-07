@@ -25,6 +25,7 @@ module DataCycleCore
           optional(:api_subversion).filled(:string)
           optional(:token).filled(:string)
           optional(:id).filled(:string)
+          optional(:timeseries).filled(:string)
         end
 
         CONTENT = Dry::Schema.Params do
@@ -76,6 +77,13 @@ module DataCycleCore
           optional(:shapes).value(:array, min_size?: 1)
         end
 
+        TIME_FILTER = Dry::Schema.Params do
+          optional(:in).hash do
+            optional(:min).filled(:string)
+            optional(:max).filled(:string)
+          end
+        end
+
         ATTRIBUTE_FILTER = Dry::Schema.Params do
           optional(:in).hash do
             optional(:min).filled(:string)
@@ -120,6 +128,10 @@ module DataCycleCore
             optional(:in).hash(GEO_FILTER)
             optional(:notIn).hash(GEO_FILTER)
           end
+          optional(:creator).hash do
+            optional(:in).filled(:array)
+            optional(:notIn).filled(:array)
+          end
           optional(:attribute).hash do
             optional(:'dct:deleted').hash(ATTRIBUTE_FILTER)
             (DataCycleCore::ApiService::API_SCHEDULE_ATTRIBUTES +
@@ -136,6 +148,7 @@ module DataCycleCore
           optional(:page).hash(PAGE)
           optional(:section).hash(SECTION)
           optional(:filter).hash(FILTER)
+          optional(:time).hash(TIME_FILTER)
         end
       end
       class ApiLinkedContract < Dry::Validation::Contract

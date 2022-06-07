@@ -13,15 +13,14 @@
             :content_area: header
       :api_gravity:
         :label: Gravity
-        :storage_location: virtual
-        :type: virtual
+        :type: string
+        :storage_location: value
         :virtual:
-          :type: string
           :module: Utility::Virtual::Classification
           :method: concat
           :key: uri
           :parameters:
-            :0: gravity
+            - gravity
         :api:
           :disabled: true
           :v4:
@@ -29,4 +28,6 @@
             :name: dc:gravity
         :ui:
           :show:
+            :disabled: true
+          :edit:
             :disabled: true

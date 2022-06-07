@@ -6,7 +6,7 @@ key_name = definition.dig('api', 'name') || key
 
 if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations')
   translated_properties = {}
-  ordered_validation_properties(validation: definition).each do |o_key, o_definition|
+  ordered_api_properties(validation: definition).each do |o_key, o_definition|
     o_key_name = o_definition.dig('api', 'name') || o_key
     translated_properties[o_key_name.camelize(:lower)] = {}
     content.translations.each do |translation|
@@ -19,7 +19,7 @@ if content.translations.size > 1 && content.translatable_property_names.include?
 else
   non_translated_properties = {}
 
-  ordered_validation_properties(validation: definition).each do |o_key, o_definition|
+  ordered_api_properties(validation: definition).each do |o_key, o_definition|
     partial_params = render_api_attribute key: o_key, definition: o_definition, value: value.try(o_key), parameters: { options: options }, content: content
     non_translated_properties.merge!(render(*partial_params)) unless partial_params.nil?
   end

@@ -51,19 +51,18 @@
             :content_area: header
       :translation_type:
         :label: Typ der Übersetzung (pro Sprache)
-        :type: computed
+        :type: string
         :storage_location: translated_value
         :compute:
-          :type: string
           :module: Utility::Compute::String
-          :method: concat
-          :parameters:
-            :0:
-              :type: value
-              :value: 'manual'
+          :method: value
+          :value: manual
         :advanced_search: true
         :api:
           :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
       :modified:
         :label: Letzte Änderung
         :type: datetime
@@ -84,17 +83,17 @@
           :disabled: true
       :translated_classification:
         :label: Typ der Übersetzung (gesamter Datensatz)
-        :type: computed
+        :type: classification
         :tree_label: Übersetzungstyp
         :storage_location: classification
         :compute:
-          :type: classification
           :module: Utility::Compute::Classification
           :method: value
-          :parameters:
-            :0:
-              :value: 'Manuell'
-              :tree: 'Übersetzungstyp'
+          :tree: Übersetzungstyp
+          :value: Manuell
+        :ui:
+          :edit:
+            :disabled: true
       :data_type:
         :label: Inhaltstyp
         :type: classification

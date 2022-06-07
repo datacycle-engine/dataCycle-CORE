@@ -14,9 +14,8 @@ end
 json ||= {}
 
 unless content.schema.nil?
-  ordered_validation_properties(validation: content.schema).each do |key, prop|
+  ordered_api_properties(validation: content.schema).each do |key, prop|
     api_property_definition = api_definition(prop)
-    next if attribute_disabled?(prop) && prop.dig('type') != 'linked' # ignore linked disabled (legacy of bidirectional links)
     next if prop.dig('type') == 'classification' && api_property_definition.dig('partial').blank?
     next if prop.dig('type') == 'computed' && prop.dig('storage_location') == 'classification'
     next if options[:hidden_attributes].include?(key)
@@ -46,11 +45,6 @@ unless content.schema.nil?
     else
       value = I18n.with_locale(content.first_available_locale) { content.try(key + '_overlay') }
       value_blank = load_value_object(content, key, value, options[:languages], api_definition(prop)).blank?
-    end
-
-    if value.blank? && prop.dig('type') == 'virtual'
-      value = virtual_attribute(content, key, prop, options[:languages])
-      value_blank = value.blank?
     end
 
     next if value_blank

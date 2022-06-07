@@ -65,16 +65,17 @@
               :name: address
       :country_code_api:
         :label: Ländercode
+        :type: string
         :storage_location: value
-        :type: computed
         :compute:
-          :type: string
           :module: Utility::Compute::Classification
           :method: keywords
           :parameters:
-            :0: country_code
+            - country_code
         :ui:
           :show:
+            :disabled: true
+          :edit:
             :disabled: true
         :api:
           :name: address_country

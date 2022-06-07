@@ -51,7 +51,12 @@ class AssetSelector {
 
     this.updateHiddenField();
   }
-  importAsset(event, data) {
+  importAsset(_event, data) {
+    if (data.error)
+      return new ConfirmationModal({
+        text: data.error
+      });
+
     this.selectedAssetIds = [data.id];
     this.setSelectedAssets();
   }
@@ -125,12 +130,15 @@ class AssetSelector {
     this.editableFormElement.children(':hidden').remove();
 
     if (this.selectedAssetIds && this.selectedAssetIds.length) {
+      if (this.editableList.length) this.editableList.addClass('has-items');
       this.selectedAssetIds.forEach(selected => {
         this.editableFormElement.append(
           `<input type="hidden" id="${this.hiddenFieldId}_${selected}" name="${this.hiddenFieldKey}" value="${selected}">`
         );
       });
     } else {
+      if (this.editableList.length) this.editableList.removeClass('has-items');
+
       this.editableFormElement.append(
         `<input type="hidden" id="${this.hiddenFieldId}_default" name="${this.hiddenFieldKey}">`
       );
@@ -185,7 +193,7 @@ class AssetSelector {
         this.assetList.append($html).trigger('dc:asset_list:changed', {
           assets: data.assets,
           selected: this.selectedAssetIds,
-          last_asset_type: this.lastAssetType,
+          last_asset_type: data.last_asset_type,
           page: this.page,
           total: data.total,
           append: append

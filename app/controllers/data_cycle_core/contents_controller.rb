@@ -426,7 +426,10 @@ module DataCycleCore
 
     def clear_cache
       authorize! :clear, :cache
-      Rails.cache.delete_matched("*#{params[:id]}*")
+
+      @content = DataCycleCore::Thing.find(params[:id])
+      @content.invalidate_self
+
       redirect_back(fallback_location: root_path)
     end
 

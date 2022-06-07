@@ -325,13 +325,10 @@ module DataCycleCore
 
                 times = [Time.current]
                 utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                  # mongo_item.with_session do |session|
-                  iterator.call(mongo_item, nil, source_filter).all.no_timeout.max_time_ms(fixnum_max).each do |content|
+                  iterator.call(mongo_item, nil, source_filter).all.no_timeout.max_time_ms(fixnum_max).batch_size(2).each do |content|
                     item_count += 1
                     break if options[:max_count].present? && item_count > options[:max_count]
                     next if options[:min_count].present? && item_count < options[:min_count]
-
-                    # session.client.command(refreshSessions: [session.session_id]) # keep the mongo_session alive
 
                     data_processor.call(
                       utility_object: utility_object,
@@ -348,7 +345,6 @@ module DataCycleCore
 
                     logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
                   end
-                  # end
                 ensure
                   logging.phase_finished("#{importer_name}(#{phase_name})", item_count)
                 end
@@ -421,7 +417,7 @@ module DataCycleCore
                       iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
                     end
 
-                    external_keys = iterate.map { |c| c[:external_id] }
+                    external_keys = iterate.pluck(:external_id)
                     min = (options[:min_count] || 1) - 1
                     max = (options[:max_count] || external_keys.size) - 1
                     keys = external_keys[min..max]

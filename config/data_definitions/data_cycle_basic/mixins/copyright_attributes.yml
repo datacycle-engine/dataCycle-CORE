@@ -19,13 +19,13 @@
       # legacy API Attribute
       :legacy_license:
         :label: LegacyLicense
-        :type: virtual
+        :type: string
+        :storage_location: value
         :virtual:
-          :type: string
           :module: Utility::Virtual::Common
           :method: take_first
           :parameters:
-            :0: copyright_notice_override
+            - copyright_notice_override
         :api:
           :disabled: true
           :name: 'cc:license'
@@ -50,13 +50,13 @@
       # legacy API Attribute
       :legacy_attribution_name:
         :label: LegacyAttributionName
-        :type: virtual
+        :type: string
+        :storage_location: value
         :virtual:
-          :type: string
           :module: Utility::Virtual::Common
           :method: take_first
           :parameters:
-            :0: copyright_notice_computed
+            - copyright_notice_computed
         :api:
           :disabled: true
           :name: 'cc:attributionName'
@@ -77,13 +77,13 @@
       # legacy API Attribute
       :legacy_attribution_url:
         :label: LegacyAttributionName
-        :type: virtual
+        :type: string
+        :storage_location: value
         :virtual:
-          :type: string
           :module: Utility::Virtual::Common
           :method: take_first
           :parameters:
-            :0: attribution_url
+            - attribution_url
         :api:
           :disabled: true
           :name: 'cc:attributionUrl'
@@ -117,17 +117,16 @@
             :partial: string
       :copyright_notice_computed:
         :label: Urheberrechtsvermerk (automatisch)
+        :type: string
         :storage_location: value
-        :type: computed
         :compute:
-          :type: string
           :module: Utility::Compute::Copyright
           :method: copyright_notice
           :parameters:
-            :0: license_classification
-            :1: author
-            :2: copyright_holder
-            :3: copyright_year
+            - license_classification
+            - author
+            - copyright_holder
+            - copyright_year
         :search: true
         :api:
           :disabled: true
@@ -146,14 +145,14 @@
             :disabled: false
       :copyright_notice:
         :label: Urheberrechtsvermerk
-        :type: virtual
+        :type: string
+        :storage_location: value
         :virtual:
-          :type: string
           :module: Utility::Virtual::Common
           :method: take_first
           :parameters:
-            :0: copyright_notice_override
-            :1: copyright_notice_computed
+            - copyright_notice_override
+            - copyright_notice_computed
         :api:
           :disabled: false
         :ui:

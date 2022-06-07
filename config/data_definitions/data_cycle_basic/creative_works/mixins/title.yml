@@ -23,35 +23,17 @@
       # legacy property for v2 / v3
       :headline:
         :label: Headline
+        :type: string
         :storage_location: translated_value
-        :type: computed
         :compute:
-          :type: string
           :module: Utility::Compute::String
           :method: concat
           :parameters:
-            :0:
-              :type: content
-              :name: name
+            - name
         :ui:
           :show:
             :disabled: true
+          :edit:
+            :disabled: true
         :api:
           :minimal: true
-#      :headline:
-#        :label: Headline
-#        :storage_location: virtual
-#        :type: virtual
-#        :virtual:
-#          :type: string
-#          :module: Utility::Virtual::String
-#          :method: concat
-#          :parameters:
-#            :0:
-#              :type: content
-#              :name: name
-#        :ui:
-#          :show:
-#            :disabled: true
-#        :api:
-#          :minimal: true

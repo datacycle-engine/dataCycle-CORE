@@ -6,7 +6,7 @@ module DataCycleCore
       class << self
         def file_name(content)
           file_name_segments = content&.asset&.name&.split('.')
-          file_name_segments[0...-1]&.join('.')
+          file_name_segments&.[](0...-1)&.join('.').to_s
         end
 
         def file_mime_type(content)

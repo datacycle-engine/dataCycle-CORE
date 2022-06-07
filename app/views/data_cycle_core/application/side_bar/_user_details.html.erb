@@ -4,16 +4,25 @@
   </div>
   <div class="row columns">
     <% if can? :update, current_user %>
-      <%= link_to edit_user_path(current_user), class: 'edit-user-link', title: current_user&.full_name do %>
+      <%= link_to edit_user_path(current_user), class: 'edit-user-link' do %>
         <span class="icon"><i class="fa fa-smile-o" aria-hidden="true"></i></span>
-        <span class="title"><%= current_user&.full_name %></span>
-        <span class="icon icon-edit"><i class="fa fa-pencil" aria-hidden="true"></i></span>
+        <span class="title" data-dc-tooltip="<%= current_user&.full_name %>"><%= current_user&.full_name %></span>
+        <span class="icon icon-edit" data-dc-tooltip="<%= t('actions.edit_data', data: DataCycleCore::User.model_name.human(count: 1, locale: active_ui_locale), locale: active_ui_locale) %>"><i class="fa fa-pencil" aria-hidden="true"></i></span>
       <% end %>
     <% else %>
       <span class="icon"><i class="fa fa-smile-o" aria-hidden="true"></i></span>
-      <span class="title" title="<%= current_user&.full_name %>"><%= current_user&.full_name %></span>
+      <span class="title" data-dc-tooltip="<%= current_user&.full_name %>"><%= current_user&.full_name %></span>
+    <% end %>
+
+    <%= link_to settings_path, class: 'user-settings-link', data: { dc_tooltip: t('data_cycle_core.settings', locale: active_ui_locale) } do %>
+      <span class="icon"><i class="fa fa-cogs" aria-hidden="true"></i></span>
+    <% end if current_user.role&.rank&.positive? %>
+
+    <%= link_to data_cycle_core.destroy_user_session_path, method: :delete, class: 'logout-link', data: { dc_tooltip: t('actions.logout', locale: active_ui_locale) } do %>
+      <span class="icon"><i class="fa fa-sign-out" aria-hidden="true"></i></span>
     <% end %>
   </div>
+
   <% if current_user.access_token.present? %>
     <div class="row columns access-token">
       <span class="icon"><i class="fa fa-key" aria-hidden="true"></i></span>

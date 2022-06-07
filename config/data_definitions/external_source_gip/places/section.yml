@@ -132,26 +132,30 @@
           minimal: true
       :route_name:
         :label: Name der Gesamtroute
-        :type: computed
+        :type: string
         :storage_location: value
         :compute:
-          :type: string
           :module: Utility::Compute::String
           :method: linked_gip_route_attribute
           :linked_attribute: name
           :parameters:
-            :linked: routes
+            - routes
+        :ui:
+          :edit:
+            :disabled: true
       :route_number:
         :label: Nummer der Gesamtroute
-        :type: computed
+        :type: string
         :storage_location: value
         :compute:
-          :type: string
           :module: Utility::Compute::String
           :method: linked_gip_route_attribute
           :linked_attribute: route_number
           :parameters:
-            :linked: routes
+            - routes
+        :ui:
+          :edit:
+            :disabled: true
       :round_trip:
         :label: Rundkurs
         :type: boolean

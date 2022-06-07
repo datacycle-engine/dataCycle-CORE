@@ -18,18 +18,17 @@
           :type: company
       :legal_name:
         :label: Legal Name
+        :type: string
         :storage_location: translated_value
-        :type: computed
         :compute:
-          :type: string
           :module: Utility::Compute::String
           :method: concat
           :parameters:
-            :0:
-              :type: content
-              :name: name
+            - name
         :ui:
           :show:
+            :disabled: true
+          :edit:
             :disabled: true
         :api:
           :minimal: true

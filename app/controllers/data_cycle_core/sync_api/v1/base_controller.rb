@@ -10,6 +10,7 @@ module DataCycleCore
         include CanCan::ControllerAdditions
         include ActiveSupport::Rescuable
         include DataCycleCore::ErrorHandler
+        include DataCycleCore::ApiBeforeActions
 
         wrap_parameters format: []
 
@@ -55,6 +56,8 @@ module DataCycleCore
         def log_activity
           activity_data = permitted_params.to_h.merge(controller: params.dig('controller'), action: params.dig('action'))
           current_user.activities.create(activity_type: "sync_api_v#{@sync_api_version}", data: activity_data)
+
+          DataCycleCore::Activity.where('activities.activity_type = ? AND activities.created_at < ?', "sync_api_v#{@sync_api_version}", 3.months.ago).delete_all
         end
 
         def prepare_url_parameters
