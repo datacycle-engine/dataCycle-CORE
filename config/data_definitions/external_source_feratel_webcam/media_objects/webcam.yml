@@ -195,7 +195,7 @@
           :module: Utility::Compute::Video
           :method: duration
           :parameters:
-            -: asset
+            - asset
         :ui:
           :show:
             :options:
