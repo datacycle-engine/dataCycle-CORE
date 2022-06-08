@@ -43,8 +43,8 @@ module DataCycleCore
       headers.delete 'X-Frame-Options'
 
       send_file processed_asset_path, disposition: 'inline', filename: file_name, type: content_type
-    # rescue StandardError => e
-    #   not_found(e)
+    rescue StandardError => e
+      not_found(e)
     end
 
     private
