@@ -35,17 +35,16 @@ module DataCycleCore
       content_type = MiniMime.lookup_by_extension(File.extname(processed_asset_path).delete_prefix('.'))&.content_type
 
       @asset = DataCycleCore::Thing.find(id)&.try(:asset)
-      @asset_path = @asset&.file&.path
 
-      raise ActiveRecord::RecordNotFound if @asset_path.blank?
+      raise ActiveRecord::RecordNotFound unless @asset.file.attached?
 
       headers['ETag'] = %("#{File.mtime(processed_asset_path)}-#{processed_asset_path.try(:size)}")
       headers['Last-Modified'] = File.mtime(processed_asset_path).httpdate
       headers.delete 'X-Frame-Options'
 
       send_file processed_asset_path, disposition: 'inline', filename: file_name, type: content_type
-    rescue StandardError => e
-      not_found(e)
+    # rescue StandardError => e
+    #   not_found(e)
     end
 
     private
