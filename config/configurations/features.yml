@@ -437,6 +437,9 @@
           audio_sample_rate: 22050 # -ar 22050
           audio_channels: 2 # -ac 2
           threads: 8 # -threads 2
+          custom: 
+            - '-movflags'
+            - 'faststart'
     :mp4_low:
       :processing:
         :file_ext: "mp4"
@@ -454,6 +457,9 @@
           audio_sample_rate: 22050 # -ar 22050
           audio_channels: 2 # -ac 2
           threads: 8 # -threads 2
+          custom: 
+            - '-movflags'
+            - 'faststart'
     :mp4_mid:
       :processing:
         :file_ext: "mp4"
@@ -471,6 +477,9 @@
           audio_sample_rate: 22050 # -ar 22050
           audio_channels: 2 # -ac 2
           threads: 8 # -threads 2
+          custom: 
+            - '-movflags'
+            - 'faststart'
           
 :user_group_classification:
   :enabled: false
