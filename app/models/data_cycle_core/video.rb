@@ -53,7 +53,7 @@ module DataCycleCore
     private
 
     def metadata_from_blob
-      if attachment_changes['file'].attachable.dig(:io).present?
+      if attachment_changes['file'].attachable.respond_to?(:io) && attachment_changes['file'].attachable.dig(:io).present?
         # import from local disc
         path_to_tempfile = attachment_changes['file'].attachable.dig(:io).path
       else
