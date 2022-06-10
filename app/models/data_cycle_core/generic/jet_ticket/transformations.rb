@@ -10,7 +10,7 @@ module DataCycleCore
 
         def self.to_event_series(external_source_id)
           t(:stringify_keys)
-          .>> t(:add_field, 'name', ->(s) { s.dig('Name1') })
+          .>> t(:add_field, 'name', ->(s) { s.dig('Name1') || s.dig('Name2') || s.dig('ShortName') })
           .>> t(:add_field, 'external_key', ->(s) { ['JetTicket - EventSeriesID: ', s.dig('EventSetID')].join })
           .>> t(:add_links, 'sub_event', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Thing.where(external_source_id: external_source_id, template_name: 'Event').where('external_key ILIKE ?', "#{s.dig('external_key')}%").pluck(:external_key) })
           .>> t(:strip_all)

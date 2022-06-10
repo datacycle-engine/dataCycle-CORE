@@ -170,6 +170,10 @@
         :advanced_search: true
         :default_value: 'false'
         :global: true
+      :order_main_route:
+        :label: Reihenfolge HR
+        :type: number
+        :storage_location: value
       :line:
         :label: Route
         :storage_location: column
