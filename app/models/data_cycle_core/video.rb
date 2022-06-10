@@ -53,7 +53,12 @@ module DataCycleCore
     private
 
     def metadata_from_blob
-      path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
+      if attachment_changes['file'].attachable.dig(:io).present?
+        # import from local disc
+        path_to_tempfile = attachment_changes['file'].attachable.dig(:io).path
+      else
+        path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
+      end
       movie = FFMPEG::Movie.new(path_to_tempfile)
 
       return movie.metadata&.to_utf8 if movie.metadata.try(:to_utf8)&.to_json.present?
