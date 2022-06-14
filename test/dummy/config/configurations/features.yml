@@ -262,4 +262,4 @@
         :enabled: true
 
 :video_transcoding:
-  :enabled: true
+  :enabled: false
