@@ -72,7 +72,7 @@ module DataCycleCore
             path: 'validation.errors.classification',
             substitutions: {
               key: key,
-              template: template['label'],
+              label: template['label'],
               tree_label: template['tree_label']
             }
           }
