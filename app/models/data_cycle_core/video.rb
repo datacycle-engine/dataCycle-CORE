@@ -14,6 +14,12 @@ module DataCycleCore
       delegate :versions, to: :file
     end
 
+    if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+      def versions
+        {}
+      end
+    end
+
     def codec_validation(options)
       video = FFMPEG::Movie.new(file.file.path)
 
