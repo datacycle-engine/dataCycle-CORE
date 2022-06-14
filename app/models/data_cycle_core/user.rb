@@ -198,10 +198,10 @@ module DataCycleCore
       )
     end
 
-    def log_activity(type:, data:, cleanup: true)
+    def log_activity(type:, data:)
       transaction(joinable: true) do
         # disable cleanup for now, as performance is seriously impacted
-        # activities.where('activities.activity_type = ? AND activities.created_at < ?', type, 3.months.ago).delete_all if cleanup
+        # activities.where('activities.activity_type = ? AND activities.created_at < ?', type, 3.months.ago).delete_all
         activities.create(activity_type: type, data: data)
       end
     end
