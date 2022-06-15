@@ -34,7 +34,7 @@ if [ ! -d ./db/backups/development ]; then
   mkdir -p ./db/backups/development;
 fi
 
-DOCKER_HOST="$REMOTE_DOCKER_HOST" docker exec -it "$REMOTE_COMPOSER_PROJECT_NAME"_web_1 rake data_cycle_core:db:dump[local_dev_db]
+DOCKER_HOST="$REMOTE_DOCKER_HOST" docker exec -it "$REMOTE_COMPOSER_PROJECT_NAME"_web_1 rake data_cycle_core:db:dump[local_dev_db,dir,review]
 DOCKER_HOST="$REMOTE_DOCKER_HOST" docker cp "$REMOTE_COMPOSER_PROJECT_NAME"_web_1:/app/db/backups/"$REMOTE_DOCKER_ENV"/local_dev_db.dir ./db/backups/development/.
 
 docker exec -it "$LOCAL_COMPOSE_PROJECT_NAME"_web_1 rake data_cycle_core:db:restore[local_dev_db]
