@@ -494,7 +494,7 @@ CREATE TABLE public.assets (
     file character varying,
     type character varying,
     content_type character varying,
-    file_size integer,
+    file_size bigint,
     creator_id uuid,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
@@ -2135,6 +2135,13 @@ CREATE INDEX index_activities_on_user_id ON public.activities USING btree (user_
 
 
 --
+-- Name: index_activities_on_user_id_activity_type_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_activities_on_user_id_activity_type_created_at ON public.activities USING btree (user_id, activity_type, created_at);
+
+
+--
 -- Name: index_asset_contents_on_asset_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3487,6 +3494,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220520065309'),
 ('20220524095157'),
 ('20220530063350'),
-('20220602074421');
+('20220602074421'),
+('20220613074116'),
+('20220614085121');
 
 
