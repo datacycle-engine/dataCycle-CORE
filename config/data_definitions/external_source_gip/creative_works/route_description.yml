@@ -63,7 +63,7 @@
           :disabled: true
         :ui:
           :edit:
-            :readonly: true
+            :disabled: true
             :type: LineString
             :options:
               :additional_value_paths:
