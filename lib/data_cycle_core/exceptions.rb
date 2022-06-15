@@ -38,6 +38,9 @@ module DataCycleCore
     class DeprecatedMethodError < StandardError
     end
 
+    class GeojsonError < StandardError
+    end
+
     class WebhookError < StandardError
       attr_reader :original_error
 

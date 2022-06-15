@@ -46,7 +46,7 @@
           :show:
             :content_area: none
       :about:
-        :label: Gesamtroute / Route
+        :label: Gesamtroute
         :type: linked
         :inverse_of: subject_of
         :stored_filter:
@@ -54,7 +54,6 @@
               :treeLabel: Inhaltstypen
               :aliases:
                 - Gesamtroute
-                - Route
       :map_view:
         :label: Gesamtstrecke
         :storage_location: value
