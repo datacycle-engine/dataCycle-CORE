@@ -183,6 +183,7 @@
           :method: file_format
           :parameters:
             - asset
+            - content_url
         :ui:
           :edit:
             :disabled: true
@@ -194,7 +195,7 @@
           :module: Utility::Compute::Video
           :method: duration
           :parameters:
-            -: asset
+            - asset
         :ui:
           :show:
             :options:

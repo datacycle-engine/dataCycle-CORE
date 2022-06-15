@@ -73,6 +73,8 @@ module DataCycleCore
           differ = diff_obj(options.data_hash, partial_schema, options.partial_update)
           return no_changes(options.ui_locale) if differ.diff_hash.blank? && differ.errors[:error].blank?
 
+          self.datahash_changes = differ.diff_hash.deep_dup
+
           if options.partial_update_improved
             # reduce partial schema to only updated properties:
             partial_schema['properties']&.slice!(*differ.diff_hash.keys)
@@ -210,7 +212,7 @@ module DataCycleCore
       end
 
       def add_update_dependent_computed_properties_job
-        DataCycleCore::UpdateComputedPropertiesJob.perform_later(id)
+        DataCycleCore::UpdateComputedPropertiesJob.perform_later(id, Array.wrap(datahash_changes&.keys))
       end
 
       def invalidate_self_and_update_search

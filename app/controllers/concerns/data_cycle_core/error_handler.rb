@@ -11,6 +11,8 @@ module DataCycleCore
         rescue_from ActionController::UnknownFormat, with: :not_acceptable
         rescue_from ActionController::InvalidAuthenticityToken, with: :unprocessable_entity
         rescue_from ActionController::BadRequest, with: :bad_request
+        rescue_from DataCycleCore::Error::Filter::DateFilterRangeError, with: :stored_filter_error
+        rescue_from DataCycleCore::Error::Filter::UnionFilterRecursionError, with: :stored_filter_error
       end
 
       rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
@@ -98,13 +100,17 @@ module DataCycleCore
       end
     end
 
-    def redirect_to_root_with_error(exception, status_code)
+    def redirect_to_root_with_error(exception, status_code, root_path_params = {})
       respond_to do |format|
-        format.html { redirect_to authorized_root_path, alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale), allow_other_host: false } if is_a?(ApplicationController)
+        format.html { redirect_to authorized_root_path(nil, root_path_params), alert: I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale), allow_other_host: false } if is_a?(ApplicationController)
         format.json { render status: status_code, json: { errors: content_api_error(exception) } }
         format.js { render status: status_code, js: "console.error('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale)}')" } if is_a?(ApplicationController)
         format.any { head status_code }
       end
+    end
+
+    def stored_filter_error(exception)
+      redirect_to_root_with_error(exception, :bad_request, { reset: true })
     end
 
     def exception_message(exception)

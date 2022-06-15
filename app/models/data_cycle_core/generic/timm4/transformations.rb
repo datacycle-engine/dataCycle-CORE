@@ -89,6 +89,7 @@ module DataCycleCore
           .>> t(:add_links, 'author', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s['photographer'])&.map { |i| "TIMM4 - Photographer - #{i}" } })
           .>> t(:add_links, 'copyright_holder', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s['copyright'])&.map { |i| "TIMM4 - CopyrightHolder - #{i}" } })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('content_url') })
+          .>> t(:reject_keys, ['keywords'])
         end
 
         def self.to_author

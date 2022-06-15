@@ -14,7 +14,7 @@ module DataCycleCore
         end
 
         def self.import_local_shape(utility_object:, options:, credentials:)
-          local_dirs = Array(credentials.dig('directory'))
+          local_dirs = Array(options.dig(:import, :directory)).presence || Array(credentials.dig('directory'))
           geometry_type = options.dig(:import, :geometry_type).constantize
           srid = options.dig(:import, :srid).to_i
           db_table = options.dig(:import, :db_table)

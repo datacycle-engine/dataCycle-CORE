@@ -147,6 +147,8 @@ module DataCycleCore
             to_date = relative_to_absolute_date(max)
           end
 
+          raise DataCycleCore::Error::Filter::DateFilterRangeError, [from_date, to_date] if !to_date.nil? && from_date&.>(to_date)
+
           return from_date, to_date
         end
 

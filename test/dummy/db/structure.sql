@@ -430,8 +430,8 @@ CREATE TABLE public.activities (
 CREATE TABLE public.ar_internal_metadata (
     key character varying NOT NULL,
     value character varying,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -722,6 +722,20 @@ CREATE VIEW public.classification_tree_label_statistics AS
    FROM ((public.classification_tree_labels
      LEFT JOIN descendant_counts ON ((descendant_counts.id = classification_tree_labels.id)))
      LEFT JOIN linked_content_counts ON ((linked_content_counts.id = classification_tree_labels.id)));
+
+
+--
+-- Name: classification_user_groups; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_user_groups (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    classification_id uuid,
+    user_group_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
 
 
 --
@@ -1549,6 +1563,14 @@ ALTER TABLE ONLY public.classification_polygons
 
 
 --
+-- Name: classification_user_groups classification_user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.classification_user_groups
+    ADD CONSTRAINT classification_user_groups_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: classification_aliases classifications_aliases_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2006,10 +2028,10 @@ CREATE INDEX headline_idx ON public.searches USING gin (headline public.gin_trgm
 
 
 --
--- Name: index_activities_on_activitiable; Type: INDEX; Schema: public; Owner: -
+-- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_activities_on_activitiable ON public.activities USING btree (activitiable_type, activitiable_id);
+CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
 
 
 --
@@ -2178,6 +2200,20 @@ CREATE INDEX index_classification_trees_on_deleted_at ON public.classification_t
 --
 
 CREATE INDEX index_classification_trees_on_parent_classification_alias_id ON public.classification_trees USING btree (parent_classification_alias_id);
+
+
+--
+-- Name: index_classification_user_groups_on_classification_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_user_groups_on_classification_id ON public.classification_user_groups USING btree (classification_id);
+
+
+--
+-- Name: index_classification_user_groups_on_user_group_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_user_groups_on_user_group_id ON public.classification_user_groups USING btree (user_group_id);
 
 
 --
@@ -3369,6 +3405,10 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220513075644'),
 ('20220516134326'),
 ('20220518121205'),
-('20220520065309');
+('20220520065309'),
+('20220530063350'),
+('20220530140254'),
+('20220531080830'),
+('20220531140218');
 
 

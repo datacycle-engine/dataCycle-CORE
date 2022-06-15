@@ -58,7 +58,6 @@ module DataCycleCore
           .>> t(:add_field, 'content_score', ->(s) { s.dig('ranking')&.to_f || 0 })
           .>> t(:add_field, 'latitude', ->(s) { s.dig('startingPoint', 'lon')&.to_f })
           .>> t(:add_field, 'longitude', ->(s) { s.dig('startingPoint', 'lat')&.to_f })
-          .>> t(:add_field, 'start_location', ->(s) { RGeo::Geographic.spherical_factory(srid: 4326).point(s['latitude'], s['longitude']) if s['longitude'] && s['latitude'] })
           .>> t(:add_field, 'line', ->(s) { tour(s&.dig('geometry')) })
           .>> t(:unwrap, 'elevation', ['ascent', 'descent', 'minAltitude', 'maxAltitude'])
           .>> t(:unwrap, 'time', ['min'])
@@ -112,6 +111,7 @@ module DataCycleCore
           .>> t(:category_key_to_ids, 'outdoor_active_tags', ->(s) { s&.dig('properties', 'property') }, nil, external_source_id, 'TAG:', 'tag')
           .>> t(:add_links, 'regions', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('regions', 'region')&.map { |item| "REGION:#{item&.dig('id')}" } || [] })
           .>> t(:add_links, 'source', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('meta', 'source', 'id').present? ? ["SOURCE:#{s&.dig('meta', 'source', 'id')}"] : nil })
+          .>> t(:reject_keys, ['season'])
           .>> t(:strip_all)
         end
 
@@ -148,11 +148,11 @@ module DataCycleCore
           .>> t(:add_links, 'copyright_holder', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_copyright_holder(s)['external_key'] }, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_copyright_holder(s)['external_key'] })
           .>> t(:universal_classifications, ->(s) { s.dig('license', 'short').blank? ? [] : DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('OutdoorActive - Lizenzen', s.dig('license', 'short')) })
           .>> t(:add_field, 'caption', ->(s) { [s.dig('author'), s.dig('source').is_a?(::Hash) ? s.dig('source', 'name') : s.dig('source')]&.reject(&:blank?)&.join(' - ') })
-          .>> t(:map_value, 'copyright_notice_override', ->(v) { v.dig('url') if v.present? })
+          .>> t(:add_field, 'copyright_notice_override', ->(s) { s.dig('license', 'url').presence })
           .>> t(:rename_keys, { 'id' => 'external_key', 'title' => 'name' })
           .>> t(:map_value, 'name', ->(v) { v || '__NO_NAME__' })
           .>> t(:add_links, 'author', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_author_data(s)['external_key'] }, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_author_data(s)['external_key'] })
-          .>> t(:reject_keys, ['meta', 'primary', 'gallery'])
+          .>> t(:reject_keys, ['meta', 'primary', 'gallery', 'license'])
           .>> t(:strip_all)
         end
 

@@ -16,7 +16,7 @@ module DataCycleCore
 
       self.abstract_class = true
 
-      attr_accessor :datahash, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS
+      attr_accessor :datahash, :datahash_changes, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS
       attr_writer :webhook_data
 
       DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|

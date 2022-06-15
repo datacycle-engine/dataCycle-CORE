@@ -995,8 +995,6 @@ de:
             password:
               blank: 'Passwort darf nicht leer sein.'
               too_short: 'Passwort zu kurz.'
-            password_confirmation:
-              confirmation: 'Passwörter stimmen nicht überein.'
             current_password:
               blank: 'Aktuelles Passwort zur Bestätigung eingeben.'
               invalid: 'Falsches Passwort.'
@@ -1096,7 +1094,7 @@ de:
         given_name: Vorname
         family_name: Familienname
         password: Passwort
-        password_confirmation: 'Passwort wiederholen'
+        new_password: Neues Passwort
         current_password: 'Aktuelles Passwort'
         email: E-Mail
         role_id: Rolle
@@ -1386,7 +1384,22 @@ de:
       station: Bahnhof
       subtitle: Untertitel
       teaser: Teaser
-
+    pimcore_ats:
+      description: Beschreibung
+      longDescription: Detailbeschreibung
+      shortDescription: Kurzbeschreibung
+      directions: Wegbeschreibung
+      parking: Parkmöglichkeiten
+      maps: Karten
+      shortText: Kurzbeschreibung
+      longText: Detailbeschreibung
+      additionalInformation: Zusätzliche Informationen
+      destination: Zielbeschreibung
+      gettingThere: Anfahrtsbeschreibung
+      literature: Literatur
+      startingPointDescr: Startpunktbeschreibung
+      tip: Tipps
+      publicTransit: Öffentliche Verkehrsmittel
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
@@ -1643,6 +1656,8 @@ de:
     data_cycle_core/error/api/expired_content_error:
       expired_content: Inhalt ist abgelaufen
     active_record/record_not_found: Nicht gefunden
+    data_cycle_core/error/filter/date_filter_range_error: 'Fehler bei Suchparametern: das Enddatum bei Datumsfiltern muss nach dem Startdatum liegen.'
+    data_cycle_core/error/filter/union_filter_recursion_error: 'Fehler bei Suchparametern: Gespeicherte Suchen können nicht auf sich selbst filtern (unendliche Rekursion).'
 
   details:
     bild:
