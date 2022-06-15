@@ -20,8 +20,31 @@ module DataCycleCore
       end
     end
 
+    def custom_validators
+      if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+        DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
+          try("#{validator}_validation", options)
+        end
+      else
+        DataCycleCore.uploader_validations.dig(file.class.name.underscore.match(/(\w+)_uploader/) { |m| m[1].to_sym })&.except(:format)&.presence&.each do |validator, options|
+          try("#{validator}_validation", options)
+        end
+      end
+    end
+
     def codec_validation(options)
-      video = FFMPEG::Movie.new(file.file.path)
+      if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+        if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable.dig(:io).present?
+          # import from local disc
+          path_to_tempfile = attachment_changes['file'].attachable.dig(:io).path
+        else
+          path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
+        end
+      else
+        path_to_tempfile = file.file.path
+      end
+
+      video = FFMPEG::Movie.new(path_to_tempfile)
 
       validate_video_codec(video, options)
       validate_audio_codec(video, options)
