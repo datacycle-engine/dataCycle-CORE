@@ -70,7 +70,7 @@ module DataCycleCore
     end
 
     def self.active_storage_activated?
-      true if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && ['DataCycleCore::Video'].include?(name)
+      true if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && DataCycleCore.experimental_features.dig('active_storage', 'asset_types')&.include?(name)
     end
 
     private

@@ -1,3 +1,5 @@
 :active_storage: 
   :enabled: false
-  
+  :asset_types:
+    - DataCycleCore::Video
+    - DataCycleCore::Pdf
