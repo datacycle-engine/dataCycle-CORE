@@ -105,7 +105,13 @@ module DataCycleCore
       file_name = (@data_link.text_file.name.presence || DataCycleCore::DataLink.human_attribute_name('text_file', locale: helpers.active_ui_locale)).underscore_blanks
       extension = MiniMime.lookup_by_content_type(@data_link.text_file.content_type)&.extension || @data_link.text_file.content_type.split('/').last
 
-      send_file @data_link.text_file.file.current_path,
+      if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && DataCycleCore.experimental_features.dig('active_storage', 'asset_types')&.include?(@data_link.text_file.class.name) && @data_link&.text_file&.file&.attached?
+        path_to_file = @data_link.text_file.file.service.path_for(@data_link.text_file.file.key)
+      else
+        path_to_file = @data_link.text_file.file.current_path
+      end
+
+      send_file path_to_file,
                 type: @data_link.text_file.content_type,
                 disposition: :inline,
                 filename: "#{file_name}.#{extension}"
