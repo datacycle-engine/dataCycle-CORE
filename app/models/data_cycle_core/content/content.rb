@@ -434,9 +434,11 @@ module DataCycleCore
       end
 
       def property_value_for_set_datahash(property_name)
-        get_property_value(property_name, properties_for(property_name))&.tap do |value|
+        get_property_value(property_name, properties_for(property_name))&.then do |value|
           if schedule_property_names.include?(property_name)
             value.map(&:to_h)
+          elsif embedded_property_names.include?(property_name)
+            value.map(&:get_data_hash)
           elsif value.is_a?(ActiveRecord::Relation)
             value.pluck(:id)
           elsif value.is_a?(::Array) && value.first.is_a?(ActiveRecord)
