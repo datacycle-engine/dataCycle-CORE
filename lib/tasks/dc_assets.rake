@@ -193,5 +193,31 @@ namespace :dc do
       puts 'END'
       puts "--> ELAPSED TIME: #{((Time.zone.now - temp) / 60).to_i} min"
     end
+
+    desc 'migrate data_cycle_file to active_storage'
+    task migrate_data_cycle_file_to_active_storage: :environment do
+      temp = Time.zone.now
+
+      assets = DataCycleCore::DataCycleFile.where.not(file: nil)
+      items_count = assets.size
+      puts "START MIGRATE DataCycleFile ==> DataCycleFile (#{items_count})"
+
+      progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+      assets.each do |asset|
+        progressbar.increment
+        begin
+          file_path = Rails.public_path.join('uploads', 'data_cycle_core', 'data_cycle_file', 'file', asset[:id], asset[:file])
+          asset.file.attach(io: File.open(file_path.to_s), filename: asset[:file])
+          asset[:file] = nil
+          asset.save
+        rescue StandardError => e
+          puts "### UnprocessableEntity: Asset: #{asset.id} (#{e})"
+        end
+      end
+
+      puts 'END'
+      puts "--> ELAPSED TIME: #{((Time.zone.now - temp) / 60).to_i} min"
+    end
   end
 end

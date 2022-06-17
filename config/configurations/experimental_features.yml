@@ -2,5 +2,6 @@
   :enabled: false
   :asset_types:
     - DataCycleCore::Audio
+    - DataCycleCore::DataCycleFile
     - DataCycleCore::Pdf
     - DataCycleCore::Video
