@@ -62,7 +62,7 @@
         :storage_location: value
         :type: string
         :compute:
-          :module: Utility::Compute::Asset
+          :module: Utility::Compute::Audio
           :method: content_url
           :parameters:
             - asset
