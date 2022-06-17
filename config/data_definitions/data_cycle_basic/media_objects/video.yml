@@ -96,7 +96,7 @@
         :storage_location: value
         :type: string
         :compute:
-          :module: Utility::Compute::Video
+          :module: Utility::Compute::Asset
           :method: content_url
           :parameters:
             - asset

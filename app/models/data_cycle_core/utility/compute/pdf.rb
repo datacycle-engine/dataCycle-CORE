@@ -13,15 +13,6 @@ module DataCycleCore
             # not implemented
           end
 
-          def content_url(computed_parameters:, **_args)
-            pdf = DataCycleCore::Pdf.find_by(id: computed_parameters.values.first)
-            if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && pdf&.file&.attached?
-              Rails.application.routes.url_helpers.rails_storage_proxy_url(pdf.file, host: Rails.application.config.asset_host)
-            else
-              pdf&.try(:file)&.try(:url)
-            end
-          end
-
           def thumbnail_url(computed_parameters:, **_args)
             pdf = DataCycleCore::Pdf.find_by(id: computed_parameters.values.first)
             thumb_url = nil
