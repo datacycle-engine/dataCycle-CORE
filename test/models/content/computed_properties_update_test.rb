@@ -31,8 +31,8 @@ module DataCycleCore
         )
       end
 
-      test 'it should work' do
-        assert_equal('(c) Test Person 1 / Test Organization 1', @image.copyright_notice_override || @image.copyright_notice_computed)
+      test 'update copyright_notice' do
+        assert_equal('(c) Test Person 1 / Test Organization 1', @image.copyright_notice)
 
         @organization.set_data_hash(data_hash: @organization.get_data_hash.merge({
           'name' => 'Test Organization 1 - UPDATED'
@@ -40,7 +40,7 @@ module DataCycleCore
 
         @image = DataCycleCore::Thing.find(@image.id)
 
-        assert_equal('(c) Test Person 1 / Test Organization 1 - UPDATED', @image.copyright_notice_override || @image.copyright_notice_computed)
+        assert_equal('(c) Test Person 1 / Test Organization 1 - UPDATED', @image.copyright_notice)
       end
 
       test 'update computed with partial hash and missing linked' do

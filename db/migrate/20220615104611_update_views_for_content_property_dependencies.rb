@@ -17,8 +17,7 @@ class UpdateViewsForContentPropertyDependencies < ActiveRecord::Migration[6.1]
         content_properties,
         jsonb_array_elements_text(property_definition -> 'compute' -> 'parameters') "parameters"
       WHERE
-        property_definition ? 'compute'
-        AND content_properties.property_name = 'content_block_classifications';
+        property_definition ? 'compute';
 
       CREATE VIEW "content_property_dependencies" AS
       SELECT
