@@ -13,8 +13,31 @@ module DataCycleCore
             # not implemented
           end
 
+          def content_url(computed_parameters:, **_args)
+            pdf = DataCycleCore::Pdf.find_by(id: computed_parameters.values.first)
+            if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && pdf&.file&.attached?
+              Rails.application.routes.url_helpers.rails_storage_proxy_url(pdf.file, host: Rails.application.config.asset_host)
+            else
+              pdf&.try(:file)&.try(:url)
+            end
+          end
+
           def thumbnail_url(computed_parameters:, **_args)
-            DataCycleCore::Pdf.find_by(id: computed_parameters.values.first)&.file&.thumb_preview&.url
+            pdf = DataCycleCore::Pdf.find_by(id: computed_parameters.values.first)
+            thumb_url = nil
+            if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && pdf&.file&.attached?
+              begin
+                ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
+                  thumb_url = pdf.file.preview(resize_to_limit: [300, 300]).processed.url
+                end
+              rescue ActiveStorage::FileNotFoundError
+                # add some logging
+                return nil
+              end
+            else
+              thumb_url = pdf&.file&.thumb_preview&.url
+            end
+            thumb_url
           end
 
           def exif_value(pdf_id, path)

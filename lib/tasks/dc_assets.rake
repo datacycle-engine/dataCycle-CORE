@@ -141,5 +141,31 @@ namespace :dc do
       puts 'END'
       puts "--> ELAPSED TIME: #{((Time.zone.now - temp) / 60).to_i} min"
     end
+
+    desc 'migrate pdfs to active_storage'
+    task migrate_pdfs_to_active_storage: :environment do
+      temp = Time.zone.now
+
+      assets = DataCycleCore::Pdf.where.not(file: nil)
+      items_count = assets.size
+      puts "START MIGRATE PDFS ==> Pdf (#{items_count})"
+
+      progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+      assets.each do |asset|
+        progressbar.increment
+        begin
+          file_path = Rails.public_path.join('uploads', 'data_cycle_core', 'pdf', 'file', asset[:id], asset[:file])
+          asset.file.attach(io: File.open(file_path.to_s), filename: asset[:file])
+          asset[:file] = nil
+          asset.save
+        rescue StandardError => e
+          puts "### UnprocessableEntity: Asset: #{asset.id} (#{e})"
+        end
+      end
+
+      puts 'END'
+      puts "--> ELAPSED TIME: #{((Time.zone.now - temp) / 60).to_i} min"
+    end
   end
 end
