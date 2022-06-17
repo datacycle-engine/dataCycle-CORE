@@ -4,5 +4,6 @@
     - DataCycleCore::Audio
     - DataCycleCore::DataCycleFile
     - DataCycleCore::Pdf
+    - DataCycleCore::SrtFile
     - DataCycleCore::TextFile
     - DataCycleCore::Video

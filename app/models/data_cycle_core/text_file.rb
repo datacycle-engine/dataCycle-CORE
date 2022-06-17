@@ -14,7 +14,7 @@ module DataCycleCore
     end
 
     def self.extension_white_list
-      DataCycleCore.uploader_validations.dig(:pdf, :format).presence || ['pdf']
+      DataCycleCore.uploader_validations.dig(:text_file, :format).presence || ['pdf']
     end
 
     def update_asset_attributes
