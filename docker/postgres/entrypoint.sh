@@ -26,8 +26,13 @@ then
   echo "use core config file for local development: $CORE_CONFIG_FILE"
   CONFIG_FILE=$CORE_CONFIG_FILE
 else
-  echo "ERROR: Postgres config file not found: $CONFIG_FILE"
-  exit 1
+  if [ "$CORE_DUMMY_PREFIX" != "" ]
+  then
+    echo "CORE using config file not found: $CONFIG_FILE"
+  else
+    echo "ERROR: Postgres config file not found: $CONFIG_FILE"
+    exit 1
+  fi
 fi
 
 envsubst < $CONFIG_FILE > /etc/postgresql.conf
