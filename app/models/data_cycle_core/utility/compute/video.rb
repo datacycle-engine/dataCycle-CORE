@@ -27,23 +27,6 @@ module DataCycleCore
 
           def preview_image_start_time(content:, **_args)
             content&.asset&.file&.blob&.preview_image&.purge if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
-            # flush varnish
-            begin
-              headers = {
-                'x-invalidate-pattern' => "/things/#{content.id}",
-                'Host' => 'docker-varnish'
-              }
-
-              client = Faraday.new
-              request = client.build_request(:ban) do |req|
-                req.url('http://varnish')
-                req.headers.update(headers)
-              end
-
-              client.builder.build_response(client, request)
-            rescue StandardError => e
-              Rails.logger.info e.inspect
-            end
             nil
           end
 
