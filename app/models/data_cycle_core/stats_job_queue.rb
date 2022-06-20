@@ -8,6 +8,8 @@ module DataCycleCore
       @job_list = []
       jobs_list = Delayed::Job.where(failed_at: nil, queue: 'importers').order(created_at: :asc)
       jobs_list.each do |job|
+        next unless job.delayed_reference_id.to_s.uuid?
+
         if job.locked_at.nil? && job.locked_by.nil?
           @job_list.push(
             {
@@ -30,6 +32,7 @@ module DataCycleCore
           )
         end
       end
+
       @job_list.push(
         {
           importers: jobs_list.count,
@@ -42,6 +45,7 @@ module DataCycleCore
           wrong_queue: Delayed::Job.where(failed_at: nil).where.not(queue: ['default', 'importers', 'carrierwave', 'cache_invalidation', 'search_update', 'mailers', 'webhooks']).count
         }
       )
+
       @job_list.push(
         {
           importers: Delayed::Job.where(queue: 'importers').where.not(failed_at: nil).count,
@@ -54,6 +58,7 @@ module DataCycleCore
           '*': Delayed::Job.where.not(queue: ['default', 'importers', 'carrierwave', 'cache_invalidation', 'search_update', 'mailers', 'webhooks']).where.not(failed_at: nil).count
         }
       )
+
       @job_list
     end
   end

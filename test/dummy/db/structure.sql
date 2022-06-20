@@ -873,7 +873,7 @@ CREATE VIEW public.content_computed_properties AS
  SELECT content_properties.content_id,
     content_properties.content_template_name,
     content_properties.property_name,
-    parameters.value AS compute_parameter_property_name
+    split_part(parameters.value, '.'::text, 1) AS compute_parameter_property_name
    FROM public.content_properties,
     LATERAL jsonb_array_elements_text(((content_properties.property_definition -> 'compute'::text) -> 'parameters'::text)) parameters(value)
   WHERE (content_properties.property_definition ? 'compute'::text);
@@ -2114,10 +2114,10 @@ CREATE UNIQUE INDEX index_active_storage_variant_records_uniqueness ON public.ac
 
 
 --
--- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_activities_on_activitiable; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
+CREATE INDEX index_activities_on_activitiable ON public.activities USING btree (activitiable_type, activitiable_id);
 
 
 --
@@ -2167,6 +2167,13 @@ CREATE INDEX index_assets_on_creator_id ON public.assets USING btree (creator_id
 --
 
 CREATE INDEX index_assets_on_type ON public.assets USING btree (type);
+
+
+--
+-- Name: index_classification_alias_paths_on_ancestor_ids; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_alias_paths_on_ancestor_ids ON public.classification_alias_paths USING gin (ancestor_ids);
 
 
 --
@@ -3494,8 +3501,12 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220520065309'),
 ('20220524095157'),
 ('20220530063350'),
-('20220602074421'),
-('20220613074116'),
 ('20220614085121');
-
-
+('20220530140254'),
+('20220531080830'),
+('20220531140218'),
+('20220602074421'),
+('20220602130139'),
+('20220613074116'),
+('20220615085015'),
+('20220615104611');

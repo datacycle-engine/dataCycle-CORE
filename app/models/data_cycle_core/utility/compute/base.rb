@@ -12,7 +12,7 @@ module DataCycleCore
 
             return if properties.blank?
 
-            computed_parameters = Array.wrap(properties&.dig('compute', 'parameters')).intersection(content.property_names)
+            computed_parameters = Array.wrap(properties&.dig('compute', 'parameters')).map { |p| p.split('.').first }.uniq.intersection(content.property_names)
 
             return unless conditions_satisfied?(content, properties)
             return if skip_compute_value?(key, data_hash, content, computed_parameters)
@@ -59,24 +59,28 @@ module DataCycleCore
             send(definition['method'], value, expected_value)
           end
 
-          def skip_compute_value?(key, data_hash, content, computed_parameters, checked = false)
+          def load_missing_values(missing_keys, content, datahash)
+            missing_keys.each do |missing_key|
+              if content.computed_property_names.include?(missing_key)
+                compute_values(missing_key, datahash, content)
+              else
+                datahash[missing_key] = content.property_value_for_set_datahash(missing_key)
+              end
+            end
+          end
+
+          def skip_compute_value?(key, datahash, content, computed_parameters, checked = false)
             return false if computed_parameters.blank?
 
-            missing_keys = computed_parameters.difference(data_hash.slice(*computed_parameters).keys)
+            missing_keys = computed_parameters.difference(datahash.slice(*computed_parameters).keys)
 
             return false if missing_keys.blank?
             return true if checked && missing_keys.present?
-            return true if missing_keys.size == computed_parameters.size && missing_keys.difference(content.computed_property_names).present?
+            return true if missing_keys.size == computed_parameters.size && missing_keys.any? { |k| content.computed_property_names.exclude?(k) }
 
-            missing_keys.intersection(content.computed_property_names).each do |missing_computed_key|
-              compute_values(missing_computed_key, data_hash, content)
-            end
+            load_missing_values(missing_keys, content, datahash)
 
-            missing_keys.difference(content.computed_property_names).each do |missing_key|
-              data_hash[missing_key] = content.property_value_for_set_datahash(missing_key)
-            end
-
-            skip_compute_value?(key, data_hash, content, computed_parameters, true)
+            skip_compute_value?(key, datahash, content, computed_parameters, true)
           end
 
           def equals?(value_a, value_b)
