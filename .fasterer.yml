@@ -4,6 +4,7 @@ speedups:
 exclude_paths:
   - 'app/controllers/data_cycle_core/api/v1/api_base_controller.rb'
   - 'app/models/data_cycle_core/callbacks.rb'
+  - 'app/models/data_cycle_core/pdf.rb'
   - 'app/uploaders/data_cycle_core/pdf_uploader.rb'
   - 'config/deploy/review.rb'
   - 'test/dummy/config/environments/review.rb'
