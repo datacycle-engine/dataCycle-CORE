@@ -9,7 +9,13 @@ module DataCycleCore
 
       vite_asset_path("images/#{filename}")
     rescue ViteRuby::MissingEntrypointError
-      vite_asset_path("/vendor/gems/data-cycle-core/app/assets/images/#{filename}")
+      begin
+        vite_asset_path("/vendor/gems/data-cycle-core/app/assets/images/#{filename}")
+      rescue ViteRuby::MissingEntrypointError => e
+        ActiveSupport::Notifications.instrument 'vite_asset_path_error.datacycle', content: filename, exception: e
+
+        filename
+      end
     end
 
     def dc_background_image_style
