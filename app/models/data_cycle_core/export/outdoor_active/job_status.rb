@@ -7,12 +7,14 @@ module DataCycleCore
         include Functions
 
         def self.process(utility_object:, options: {})
-          items = DataCycleCore::Thing.joins(:external_systems)&.to_a&.select do |item|
-            if options.dig(:job_id).present?
-              item.external_system_data(utility_object.external_system, 'export', nil, false)&.dig('job_id') == options.dig(:job_id)
-            else
-              item.external_system_data(utility_object.external_system, 'export', nil, false)&.dig('job_id').present?
-            end
+          items = DataCycleCore::Thing
+            .includes(:external_system_syncs)
+            .where(external_system_syncs: { external_system_id: utility_object.external_system.id, sync_type: 'export' })
+
+          if options.dig(:job_id).present?
+            items = items.where("external_system_syncs.data ->> 'job_id' = ?", options[:job_id])
+          else
+            items = items.where("external_system_syncs.data ->> 'job_id' IS NOT NULL")
           end
 
           init_logging do |logger|

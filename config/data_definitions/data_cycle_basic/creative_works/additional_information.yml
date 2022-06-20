@@ -49,9 +49,24 @@
         :label: Bilder
         :type: linked
         :template_name: Bild
+        :ui:
+          :attribute_group: description_block_linked_one_line
+      :author:
+        :label: Autor
+        :type: linked
+        :validations:
+          :max: 1
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+        :ui:
+          :attribute_group: description_block_linked_one_line
       :copyright_attributes:
         :type: mixin
-        :name: copyright_attributes        
+        :name: copyright_attributes
       :dummy:
         :label: invisible
         :type: string

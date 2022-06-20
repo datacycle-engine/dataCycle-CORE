@@ -430,8 +430,8 @@ CREATE TABLE public.activities (
 CREATE TABLE public.ar_internal_metadata (
     key character varying NOT NULL,
     value character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
 );
 
 
@@ -840,7 +840,7 @@ CREATE VIEW public.content_computed_properties AS
  SELECT content_properties.content_id,
     content_properties.content_template_name,
     content_properties.property_name,
-    parameters.value AS compute_parameter_property_name
+    split_part(parameters.value, '.'::text, 1) AS compute_parameter_property_name
    FROM public.content_properties,
     LATERAL jsonb_array_elements_text(((content_properties.property_definition -> 'compute'::text) -> 'parameters'::text)) parameters(value)
   WHERE (content_properties.property_definition ? 'compute'::text);
@@ -991,6 +991,7 @@ CREATE VIEW public.content_property_dependencies AS
  SELECT content_computed_properties.content_id,
     content_computed_properties.content_template_name,
     content_computed_properties.property_name,
+    content_computed_properties.compute_parameter_property_name,
     things.id AS dependent_content_id,
     things.template_name AS dependent_content_template_name
    FROM ((public.things
@@ -2028,10 +2029,10 @@ CREATE INDEX headline_idx ON public.searches USING gin (headline public.gin_trgm
 
 
 --
--- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_activities_on_activitiable; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
+CREATE INDEX index_activities_on_activitiable ON public.activities USING btree (activitiable_type, activitiable_id);
 
 
 --
@@ -2046,6 +2047,13 @@ CREATE INDEX index_activities_on_activity_type_and_updated_at ON public.activiti
 --
 
 CREATE INDEX index_activities_on_user_id ON public.activities USING btree (user_id);
+
+
+--
+-- Name: index_activities_on_user_id_activity_type_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_activities_on_user_id_activity_type_created_at ON public.activities USING btree (user_id, activity_type, created_at);
 
 
 --
@@ -2074,6 +2082,13 @@ CREATE INDEX index_assets_on_creator_id ON public.assets USING btree (creator_id
 --
 
 CREATE INDEX index_assets_on_type ON public.assets USING btree (type);
+
+
+--
+-- Name: index_classification_alias_paths_on_ancestor_ids; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_alias_paths_on_ancestor_ids ON public.classification_alias_paths USING gin (ancestor_ids);
 
 
 --
@@ -3409,6 +3424,11 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220530063350'),
 ('20220530140254'),
 ('20220531080830'),
-('20220531140218');
+('20220531140218'),
+('20220602074421'),
+('20220602130139'),
+('20220613074116'),
+('20220615085015'),
+('20220615104611');
 
 
