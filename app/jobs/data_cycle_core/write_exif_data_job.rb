@@ -53,6 +53,9 @@ module DataCycleCore
 
           next if exif_keys.blank? || exif_value.blank?
 
+          exif_value = property_definition.dig('exif', 'prepend') + exif_value if property_definition.dig('exif', 'prepend')
+          exif_value += property_definition.dig('exif', 'prepend') if property_definition.dig('exif', 'append')
+
           exif_keys.each do |key|
             if exif_value.is_a?(Array) && EXIF_ARRAY_DATA_TYPES.exclude?(key)
               exif_data[key] = exif_value.join(',')
