@@ -3,10 +3,10 @@
     {
       "warning_type": "File Access",
       "warning_code": 16,
-      "fingerprint": "0057581e457fb16400fd92b92421cf3b6ea4989476439d6fd377af34b52943c0",
+      "fingerprint": "ba512edeb5e71b6f779f46b74b9c9732b6e4baace691c720780deb7f58011a48",
       "check_name": "SendFile",
       "message": "Model attribute used in file name",
-      "file": "node_modules/data-cycle-core/app/controllers/data_cycle_core/data_links_controller.rb",
+      "file": "app/controllers/data_cycle_core/data_links_controller.rb",
       "line": 114,
       "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
       "code": "send_file((DataCycleCore::DataLink.find(params[:id]).text_file.file.service.path_for(DataCycleCore::DataLink.find(params[:id]).text_file.file.key) or DataCycleCore::DataLink.find(params[:id]).text_file.file.current_path), :type => DataCycleCore::DataLink.find(params[:id]).text_file.content_type, :disposition => :inline, :filename => (\"#{(DataCycleCore::DataLink.find(params[:id]).text_file.name.presence or DataCycleCore::DataLink.human_attribute_name(\"text_file\", :locale => helpers.active_ui_locale)).underscore_blanks}.#{(MiniMime.lookup_by_content_type(DataCycleCore::DataLink.find(params[:id]).text_file.content_type).extension or DataCycleCore::DataLink.find(params[:id]).text_file.content_type.split(\"/\").last)}\"))",
