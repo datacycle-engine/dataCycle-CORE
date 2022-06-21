@@ -1,5 +1,6 @@
 <li id="<%= tree_label.id %>" class="classification_tree_label">
   <span class="inner-item">
+    <%= tag.fa(class: 'fa fa-eye-slash') if tree_label.internal? %>
     <%= link_to tree_label.name, classifications_path(classification_tree_label_id: tree_label.id),
             class: 'name',
             data: {

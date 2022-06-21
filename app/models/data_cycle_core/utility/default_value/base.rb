@@ -12,7 +12,7 @@ module DataCycleCore
 
             return if properties.blank?
 
-            return if properties['default_value'].is_a?(::Hash) && properties.dig('default_value', 'condition').present? && !properties.dig('default_value', 'condition').all? { |k, v| send("condition_#{k}", current_user, v) }
+            return if properties['default_value'].is_a?(::Hash) && properties.dig('default_value', 'condition').present? && !properties.dig('default_value', 'condition').all? { |k, v| send("condition_#{k}", current_user, v, content) }
 
             if properties['default_value'].is_a?(::String) && properties['type'] == 'classification'
               method_name = DataCycleCore::Utility::DefaultValue::Classification.method(:by_name)
@@ -40,8 +40,16 @@ module DataCycleCore
 
           private
 
-          def condition_user(user, config)
+          def condition_user(user, config, _content)
             user&.is_rank?(config['rank'].to_i) if config&.dig('rank').present?
+          end
+
+          def condition_except_content_type(_user, config, content)
+            content.content_type != config
+          end
+
+          def condition_schema_ancestors_present(_user, config, content)
+            content.schema_ancestors.present? == config
           end
 
           def skip_default_value?(key, data_hash, content, property_parameters, user, checked = false)

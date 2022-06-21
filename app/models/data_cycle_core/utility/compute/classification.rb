@@ -45,31 +45,7 @@ module DataCycleCore
             end).flatten.compact.uniq
           end
 
-          def schema_types(computed_definition:, content:, **_args)
-            schema_paths = Array.wrap(computed_definition.dig('compute', 'ancestors'))
-            schema_paths = [schema_paths] unless schema_paths.first.is_a?(::Array)
-            schema_types = []
-            schema_paths.each do |path|
-              schema_types.concat(find_or_create_classification(path + [content.template_name], computed_definition['tree_label']))
-            end
-
-            schema_types.compact
-          end
-
           private
-
-          def find_or_create_classification(path, tree_label_name)
-            return [] if path.blank? || tree_label_name.blank?
-
-            DataCycleCore::ClassificationAlias
-              .for_tree(tree_label_name)
-              .includes(:classification_alias_path)
-              .where(classification_alias_paths: { full_path_names: path.reverse + [tree_label_name] })
-              .primary_classifications
-              .limit(1)
-              .pluck(:id)
-              .presence || Array.wrap(DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label_name)&.create_classification_alias(*path)&.primary_classification&.id).compact
-          end
 
           def get_values_from_embedded(key_path, values)
             return values if key_path.blank?

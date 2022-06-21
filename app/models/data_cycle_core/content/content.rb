@@ -145,6 +145,10 @@ module DataCycleCore
         schema&.dig('schema_type')
       end
 
+      def schema_ancestors
+        Array.wrap(schema&.dig('schema_ancestors')).then { |p| p.present? && !p.first.is_a?(::Array) ? [p] : p }
+      end
+
       def translatable?
         schema&.dig('features', 'translatable', 'allowed') || false
       end
