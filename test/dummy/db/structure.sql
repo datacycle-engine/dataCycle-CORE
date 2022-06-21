@@ -408,6 +408,48 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: active_storage_attachments; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.active_storage_attachments (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    name character varying NOT NULL,
+    record_type character varying NOT NULL,
+    record_id uuid NOT NULL,
+    blob_id uuid NOT NULL,
+    created_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: active_storage_blobs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.active_storage_blobs (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    key character varying NOT NULL,
+    filename character varying NOT NULL,
+    content_type character varying,
+    metadata text,
+    service_name character varying NOT NULL,
+    byte_size bigint NOT NULL,
+    checksum character varying NOT NULL,
+    created_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: active_storage_variant_records; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.active_storage_variant_records (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    blob_id uuid NOT NULL,
+    variation_digest character varying NOT NULL
+);
+
+
+--
 -- Name: activities; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -461,7 +503,7 @@ CREATE TABLE public.assets (
     file character varying,
     type character varying,
     content_type character varying,
-    file_size integer,
+    file_size bigint,
     creator_id uuid,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
@@ -1492,6 +1534,30 @@ ALTER TABLE ONLY public.delayed_jobs ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
+-- Name: active_storage_attachments active_storage_attachments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.active_storage_attachments
+    ADD CONSTRAINT active_storage_attachments_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: active_storage_blobs active_storage_blobs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.active_storage_blobs
+    ADD CONSTRAINT active_storage_blobs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: active_storage_variant_records active_storage_variant_records_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.active_storage_variant_records
+    ADD CONSTRAINT active_storage_variant_records_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: activities activities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2029,10 +2095,38 @@ CREATE INDEX headline_idx ON public.searches USING gin (headline public.gin_trgm
 
 
 --
--- Name: index_activities_on_activitiable; Type: INDEX; Schema: public; Owner: -
+-- Name: index_active_storage_attachments_on_blob_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_activities_on_activitiable ON public.activities USING btree (activitiable_type, activitiable_id);
+CREATE INDEX index_active_storage_attachments_on_blob_id ON public.active_storage_attachments USING btree (blob_id);
+
+
+--
+-- Name: index_active_storage_attachments_uniqueness; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_active_storage_attachments_uniqueness ON public.active_storage_attachments USING btree (record_type, record_id, name, blob_id);
+
+
+--
+-- Name: index_active_storage_blobs_on_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_active_storage_blobs_on_key ON public.active_storage_blobs USING btree (key);
+
+
+--
+-- Name: index_active_storage_variant_records_uniqueness; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_active_storage_variant_records_uniqueness ON public.active_storage_variant_records USING btree (blob_id, variation_digest);
+
+
+--
+-- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
 
 
 --
@@ -2264,6 +2358,13 @@ CREATE UNIQUE INDEX index_classifications_on_id ON public.classifications USING 
 --
 
 CREATE INDEX index_content_content_histories_on_content_a_history_id ON public.content_content_histories USING btree (content_a_history_id);
+
+
+--
+-- Name: index_content_content_links_on_content_b_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_content_content_links_on_content_b_id ON public.content_content_links USING btree (content_b_id);
 
 
 --
@@ -3131,6 +3232,22 @@ ALTER TABLE ONLY public.timeseries
 
 
 --
+-- Name: active_storage_variant_records fk_rails_993965df05; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.active_storage_variant_records
+    ADD CONSTRAINT fk_rails_993965df05 FOREIGN KEY (blob_id) REFERENCES public.active_storage_blobs(id);
+
+
+--
+-- Name: active_storage_attachments fk_rails_c3b3935057; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.active_storage_attachments
+    ADD CONSTRAINT fk_rails_c3b3935057 FOREIGN KEY (blob_id) REFERENCES public.active_storage_blobs(id);
+
+
+--
 -- Name: schedule_occurrences schedule_occurrences_schedule_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3354,7 +3471,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210510120343'),
 ('20210518074537'),
 ('20210518133349'),
-('20210520121223'),
 ('20210520123323'),
 ('20210522171126'),
 ('20210527121641'),
@@ -3367,68 +3483,45 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210709121013'),
 ('20210731090959'),
 ('20210802095013'),
-('20210802130128'),
-('20210803170527'),
 ('20210804140504'),
 ('20210817101040'),
 ('20210908095952'),
 ('20211001085525'),
-('20211004160440'),
 ('20211005125306'),
 ('20211005134137'),
 ('20211007123156'),
-('20211007150305'),
-('20211011060931'),
 ('20211011123517'),
 ('20211014062654'),
 ('20211021062347'),
 ('20211021111915'),
-('20211110092804'),
-('20211115140202'),
 ('20211122075759'),
 ('20211123081845'),
 ('20211130111352'),
 ('20211214135559'),
 ('20211216110505'),
 ('20211217094832'),
-('20211217111102'),
 ('20220105142232'),
 ('20220111132413'),
 ('20220113113445'),
-('20220113150316'),
-('20220119101040'),
-('20220125101015'),
 ('20220218095025'),
 ('20220221123152'),
 ('20220304071341'),
-('20220308150335'),
-('20220308150336'),
 ('20220316115212'),
-('20220316130143'),
-('20220316140219'),
 ('20220317105304'),
 ('20220317131316'),
-('20220317140209'),
-('20220317150319'),
 ('20220322104259'),
-('20220323090941'),
-('20220328090933'),
 ('20220426105827'),
-('20220502150336'),
 ('20220505135021'),
-('20220510085119'),
 ('20220513075644'),
 ('20220516134326'),
-('20220518121205'),
 ('20220520065309'),
+('20220524095157'),
 ('20220530063350'),
-('20220530140254'),
-('20220531080830'),
-('20220531140218'),
 ('20220602074421'),
-('20220602130139'),
 ('20220613074116'),
+('20220614085121'),
 ('20220615085015'),
-('20220615104611');
+('20220615104611'),
+('20220617113231');
 
 

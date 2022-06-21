@@ -37,7 +37,14 @@
     <fieldset class="active version hidden">
       <legend><%= t('common.download.available_versions', locale: active_ui_locale) %></legend>
       <div class="form-element">
-        <% ([:original, :default] + Array(content.asset&.versions&.keys)).each_with_index do |version, i| %>
+        <%
+          if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && DataCycleCore.experimental_features.dig('active_storage', 'asset_types')&.include?(content.asset.class.name)
+            available_versions = [:original, :default]
+          else
+            available_versions = [:original, :default] + Array(content.asset&.versions&.keys)
+          end
+        %>
+        <% available_versions.each_with_index do |version, i| %>
           <div>
             <%= radio_button_tag "version", version, i == 0 %>
             <%= label_tag "version[#{version}]", "#{t("common.download.version.#{version}", locale: active_ui_locale)}" %>
@@ -46,7 +53,6 @@
 
       </div>
     </fieldset>
-
     <% DataCycleCore::Feature::Serialize.asset_versions(content)&.each do |key, value| %>
       <fieldset class="active transformation hidden <%= key %>">
         <legend><%= t('common.download.available_transformations', locale: active_ui_locale) %></legend>

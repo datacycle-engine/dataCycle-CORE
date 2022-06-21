@@ -55,16 +55,6 @@ services:
       - web
       - imgproxy
   imgproxy:
-    image: darthsim/imgproxy:v2.16
+    image: darthsim/imgproxy:v3.6
     environment:
       PORT: '${IMGPROXY_PORT:-9000}'
-  varnish:
-    build:
-      context: ./docker/varnish
-      dockerfile: Dockerfile
-    entrypoint: ${DC_DOCKER_SETUP_PATH:-/app/docker/}varnish/entrypoint.sh
-    command: "-s static=file,/var/lib/varnish/data/cache,${VARNISH_STATIC_SIZE:-10M} -f /var/lib/varnish/default.vcl"
-    depends_on:
-      - imgproxy
-      - nginx
-    restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'

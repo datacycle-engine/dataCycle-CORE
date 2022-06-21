@@ -260,3 +260,6 @@
     :content:
       :downloads_content:
         :enabled: true
+
+:video_transcoding:
+  :enabled: false

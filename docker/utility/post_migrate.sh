@@ -16,4 +16,6 @@ bundle exec rake ${CORE_RAKE_PREFIX:-}db:maintenance:vacuum
 # cleanup db dumps
 bundle exec rake ${CORE_RAKE_PREFIX:-}data_cycle_core:db:clean_up_dumps
 
+bundle exec rake ${CORE_RAKE_PREFIX:-}dc:cache:clear_rails_cache
+
 echo "### POST MIGRATIONS END ###"

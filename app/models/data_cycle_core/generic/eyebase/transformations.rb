@@ -64,7 +64,7 @@ module DataCycleCore
           .>> t(:reject_keys, ['item_id', 'titel', 'field_202', 'field_224', 'copyright', 'field_216', 'resolution_x', 'resolution_y', 'size_mb'])
           .>> t(:add_field, 'content_url', ->(s) { s.dig('field_219', '#cdata-section') || s.dig('field_218', '#cdata-section') })
           .>> t(:add_field, 'url', ->(s) { s.dig('field_219', '#cdata-section') || s.dig('field_218', '#cdata-section') })
-          .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('quality_256', 'url', '#cdata-section') || s.dig('quality_2', 'permalink', '#cdata-section') || s.dig('quality_1', 'permalink', '#cdata-section') })
+          .>> t(:add_field, 'thumbnail_url_override', ->(s) { s.dig('quality_256', 'url', '#cdata-section') || s.dig('quality_2', 'permalink', '#cdata-section') || s.dig('quality_1', 'permalink', '#cdata-section') })
           .>> t(:add_field, 'keywords_eyebase', ->(s) { parse_keywords(s) })
           .>> t(:tags_to_ids, 'keywords_eyebase', external_source_id, 'Eyebase - Tag - ')
           .>> t(:add_link, 'eyebase_lizenz', DataCycleCore::Classification, external_source_id, lambda { |s|

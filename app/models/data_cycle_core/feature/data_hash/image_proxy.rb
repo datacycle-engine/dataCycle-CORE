@@ -11,6 +11,7 @@ module DataCycleCore
         end
 
         def thumbnail_url
+          return super if template_name == 'Video' && !DataCycleCore.experimental_features.dig('active_storage', 'enabled')
           return DataCycleCore::Feature::ImageProxy.process_image(content: self, variant: 'thumb') if DataCycleCore::Feature::ImageProxy.frontend_enabled? && DataCycleCore::Feature::ImageProxy.supported_content_type?(self)
           super
         end

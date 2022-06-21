@@ -19,5 +19,9 @@ namespace :dc do
         end
       end
     end
+    desc 'clear rails cache'
+    task clear_rails_cache: :environment do
+      Rails.cache.clear
+    end
   end
 end

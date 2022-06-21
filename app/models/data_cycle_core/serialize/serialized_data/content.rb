@@ -29,6 +29,10 @@ module DataCycleCore
           @data.is_a?(DataCycleCore::CommonUploader)
         end
 
+        def active_storage?
+          DataCycleCore.experimental_features.dig('active_storage', 'enabled') && @data.attached?
+        end
+
         def remote?
           @is_remote
         end
