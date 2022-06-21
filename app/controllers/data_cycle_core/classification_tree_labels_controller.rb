@@ -21,6 +21,12 @@ module DataCycleCore
           @tree_total_pages = @classification_trees.total_pages
         end
 
+        format.json do
+          @total_count = total_count if count_only_params[:count_only].present?
+
+          render json: { html: helpers.result_count(@count_mode, @total_count, @content_class || 'things') }
+        end
+
         format.js do
           @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:ctl_id])
 

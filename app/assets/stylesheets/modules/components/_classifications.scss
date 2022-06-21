@@ -605,6 +605,7 @@ ul.backend-treeview-list,
     .loading {
       display: inline;
       padding: 0;
+
       .fa {
         font-size: 0.9rem;
       }
@@ -637,13 +638,9 @@ ul.backend-treeview-list,
       .child-count-direct,
       .child-count-full {
         margin: 0 0.2rem;
+        padding: 0;
 
-        &.remote-render,
-        &.remote-rendering {
-          &::before {
-            display: none;
-          }
-
+        &.loading {
           &::after {
             content: '\f110';
             font-family: FontAwesome;

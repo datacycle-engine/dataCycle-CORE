@@ -3,7 +3,7 @@ import DomElementHelper from '../helpers/dom_element_helpers';
 class ResultCount {
   constructor(element) {
     this.countContainer = element;
-    this.form = this.countContainer.closest('form');
+    this.form = document.getElementById('search-form');
     this.url = this.form && this.form.action;
     this.additionalFormParams = DomElementHelper.parseDataAttribute(
       this.countContainer.dataset.additionalFormParameters
@@ -28,10 +28,14 @@ class ResultCount {
       processData: false,
       contentType: false,
       dataType: 'json'
-    }).then(data => {
-      this.countContainer.classList.remove('loading');
-      this.countContainer.innerHTML = data.html;
-    });
+    })
+      .then(data => {
+        this.countContainer.innerHTML = data.html;
+        this.countContainer.classList.remove('loading');
+      })
+      .catch(() => {
+        console.warn('could not load count');
+      });
   }
 }
 
