@@ -19,6 +19,7 @@ module DataCycleCore
             content: content,
             variant: 'dynamic',
             image_processing: {
+              'preset' => 'default',
               'resize_type' => 'fill',
               'width' => 50,
               'height' => 50,
@@ -45,8 +46,9 @@ module DataCycleCore
 
           if variant == 'dynamic'
             return unless image_processing.is_a?(::Hash) && !image_processing.empty?
+            preset = image_processing.dig('preset') || 'default'
             target_url += [
-              image_processing.dig('preset'),
+              preset,
               image_processing.dig('resize_type'),
               image_processing.dig('width'),
               image_processing.dig('height'),

@@ -353,6 +353,7 @@
           :transformation:
             :version: dynamic
           :processing:
+            :preset: default
             :resize_type: fill
             :width: 1920
             :height: 1080
@@ -362,7 +363,7 @@
         :api:
           :disabled: true
           :v4:
-            :disabled: false
+            :disabled: true
             :name: dc:dynamicUrl
         :ui:
           :show:

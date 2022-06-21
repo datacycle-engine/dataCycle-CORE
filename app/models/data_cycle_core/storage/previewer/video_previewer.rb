@@ -21,7 +21,7 @@ module DataCycleCore
 
         def video_options_from_thing
           thing = blob&.attachments&.first&.record&.thing
-          start_time = thing&.preview_image_start_time
+          start_time = thing&.try(:preview_image_start_time)
           return '' if start_time.blank? || (start_time > thing.duration)
 
           start_time = (Time.zone.now.beginning_of_day + start_time.to_i.seconds).strftime('%H:%M:%S')
