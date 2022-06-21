@@ -116,6 +116,22 @@ namespace :dc do
       end
     end
 
+    desc 'migrate assets to active_storage'
+    task migrate_assets_to_active_storage: :environment do
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_videos_to_active_storage"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_pdfs_to_active_storage"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_audio_to_active_storage"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_data_cycle_file_to_active_storage"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_text_file_to_active_storage"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_srt_file_to_active_storage"].invoke
+
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('PDF', 'false')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].reenable
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('Video', 'false')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].reenable
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('Audio', 'false')
+    end
+
     desc 'migrate videos to active_storage'
     task migrate_videos_to_active_storage: :environment do
       temp = Time.zone.now
