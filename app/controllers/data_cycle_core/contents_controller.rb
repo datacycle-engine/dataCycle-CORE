@@ -66,7 +66,13 @@ module DataCycleCore
         end
 
         respond_to do |format|
-          format.json { redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_thing_path", id: @content) }
+          format.json do
+            if @count_only
+              render(json: { html: helpers.result_count(@count_mode, @total_count, @content_class || 'things') })
+            else
+              redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_thing_path", id: @content)
+            end
+          end
           format.js { render 'data_cycle_core/application/more_results' }
           format.html { render && return }
         end

@@ -34,6 +34,7 @@ module DataCycleCore
 
       respond_to do |format|
         format.html
+        format.json { render json: { html: helpers.result_count(@count_mode, @total_count, @content_class || 'things') } }
         format.js { render 'data_cycle_core/application/more_results' }
       end
     end
