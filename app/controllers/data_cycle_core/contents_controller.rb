@@ -451,6 +451,7 @@ module DataCycleCore
         .template_names(select_search_params[:template_name])
         .exclude_ids(select_search_params[:exclude])
       query = query.limit(select_search_params[:max].to_i) if select_search_params[:max].present?
+      query = query.sort_fulltext_search('DESC', select_search_params[:q])
 
       render plain: query.includes(:translations).map { |t| t.to_select_option(template_filter, helpers.active_ui_locale) }.to_json,
              content_type: 'application/json'
