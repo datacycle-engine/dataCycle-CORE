@@ -394,6 +394,15 @@ CREATE FUNCTION public.update_template_definitions_trigger() RETURNS trigger
     AS $$ BEGIN UPDATE things SET "schema" = NEW.schema, boost = (NEW.schema -> 'boost')::numeric, content_type = NEW.schema ->> 'content_type', cache_valid_since = NOW() WHERE things.template_name = NEW.template_name AND things.template = FALSE; RETURN new; END; $$;
 
 
+--
+-- Name: core_german; Type: TEXT SEARCH DICTIONARY; Schema: public; Owner: -
+--
+
+CREATE TEXT SEARCH DICTIONARY public.core_german (
+    TEMPLATE = pg_catalog.thesaurus,
+    dictfile = 'core_german', dictionary = 'pg_catalog.german_stem' );
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -2114,10 +2123,10 @@ CREATE UNIQUE INDEX index_active_storage_variant_records_uniqueness ON public.ac
 
 
 --
--- Name: index_activities_on_activitiable; Type: INDEX; Schema: public; Owner: -
+-- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_activities_on_activitiable ON public.activities USING btree (activitiable_type, activitiable_id);
+CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
 
 
 --
@@ -2349,6 +2358,13 @@ CREATE UNIQUE INDEX index_classifications_on_id ON public.classifications USING 
 --
 
 CREATE INDEX index_content_content_histories_on_content_a_history_id ON public.content_content_histories USING btree (content_a_history_id);
+
+
+--
+-- Name: index_content_content_links_on_content_b_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_content_content_links_on_content_b_id ON public.content_content_links USING btree (content_b_id);
 
 
 --
@@ -3501,12 +3517,11 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220520065309'),
 ('20220524095157'),
 ('20220530063350'),
-('20220614085121');
-('20220530140254'),
-('20220531080830'),
-('20220531140218'),
 ('20220602074421'),
-('20220602130139'),
 ('20220613074116'),
+('20220614085121'),
 ('20220615085015'),
-('20220615104611');
+('20220615104611'),
+('20220617113231');
+
+
