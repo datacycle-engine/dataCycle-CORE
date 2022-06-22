@@ -30,7 +30,7 @@ module DataCycleCore
         end
 
         def active_storage?
-          DataCycleCore.experimental_features.dig('active_storage', 'enabled') && @data.attached?
+          DataCycleCore.experimental_features.dig('active_storage', 'enabled') && @data.try(:attached?) && DataCycleCore.experimental_features.dig('active_storage', 'asset_types')&.include?(@data&.record&.class&.name)
         end
 
         def remote?
