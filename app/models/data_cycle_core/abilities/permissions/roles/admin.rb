@@ -300,7 +300,13 @@ module DataCycleCore
 
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read, :download,
+              :can, :read,
+              DataCycleCore::Abilities::Segments::SubjectNotExternal.new(DataCycleCore::ClassificationTreeLabel, internal: false)
+            )
+
+            add_permission(
+              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+              :can, :download,
               DataCycleCore::Abilities::Segments::SubjectNotExternal.new(DataCycleCore::ClassificationTreeLabel)
             )
 
@@ -313,7 +319,7 @@ module DataCycleCore
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
               :can, :map_classifications,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::ClassificationAlias)
+              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::ClassificationAlias, internal: false)
             )
 
             add_permission(
