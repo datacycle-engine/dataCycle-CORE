@@ -84,7 +84,7 @@ module DataCycleCore
           asset = variant.asset
           next if asset.blank?
 
-          exif_data = MiniExiftool.new(asset.original.file.file, { replace_invalid_chars: true })
+          exif_data = MiniExiftool.new(asset.original.file.file, { replace_invalid_chars: true, ignore_minor_errors: true })
 
           updated_values['Headline'] = variant.name || updated_values['Headline']
 
