@@ -314,6 +314,7 @@ ul.backend-treeview-list,
         .new-button-spacer {
           position: relative;
           padding: 0.5rem 1rem;
+
           &::before {
             content: '';
             position: absolute;
@@ -325,6 +326,7 @@ ul.backend-treeview-list,
             border-top: 0 none transparent;
             border-right: 0 none transparent;
           }
+
           .create {
             height: 2.5rem;
             width: 2.5rem;
@@ -334,11 +336,13 @@ ul.backend-treeview-list,
             }
           }
         }
+
         form.new_classification_alias {
           position: relative;
           padding: 1rem;
           margin-left: 1rem;
           margin-bottom: 1rem;
+
           &::before {
             content: '';
             position: absolute;
@@ -581,16 +585,22 @@ ul.backend-treeview-list,
         font-style: italic;
 
         > span.inner-item {
+          padding-bottom: 0.5rem;
+          padding-top: 0.5rem;
+
           .fa {
             font-size: 0.75rem;
           }
 
-          padding-top: 1.5rem;
-          padding-bottom: 0.5rem;
+          &::before {
+            bottom: 50%;
+          }
         }
 
         .button {
           margin: 0;
+          width: unset;
+          padding: 0.75rem 1rem;
         }
       }
     }
@@ -790,6 +800,7 @@ ul.backend-treeview-list,
     ul.contents {
       display: none;
       position: relative;
+
       > li.content-row {
         transition: background-color 0.1s;
         position: relative;
@@ -916,15 +927,21 @@ ul.backend-treeview-list,
           text-align: center;
 
           &::before {
-            display: none;
+            height: 50%;
+          }
+
+          .inner-item {
+            padding-top: 0.3rem;
+            padding-bottom: 0.3rem;
+            text-align: left;
           }
 
           a {
-            background-color: $primary-color;
-            display: block;
-            width: 100%;
-            padding: 0.75rem;
-            color: $white;
+            font-size: 0.75rem;
+            font-style: italic;
+            margin: 0;
+            width: unset;
+            padding: 0.75rem 1rem;
           }
         }
       }

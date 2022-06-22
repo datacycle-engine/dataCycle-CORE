@@ -56,7 +56,8 @@ DataCycleCore::Engine.routes.draw do
     post :create_user, on: :collection
   end
 
-  resources :user_groups do
+  resources :user_groups, only: [:index, :edit, :update, :destroy] do
+    post '/create', on: :collection, action: :create
     post '/', on: :collection, action: :index
   end
 
@@ -104,10 +105,6 @@ DataCycleCore::Engine.routes.draw do
     post :add_to_watchlist, on: :collection
     get :saved_searches, on: :collection
     get :render_update_form, on: :collection
-  end
-
-  resources :classification_tree_labels, only: :show, param: :ctl_id do
-    post '/', on: :member, action: :show
   end
 
   defaults format: :json do

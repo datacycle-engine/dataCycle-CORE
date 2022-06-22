@@ -2,7 +2,7 @@
 <% new_filter_id = SecureRandom.hex(10) %>
 <% add_to_collection_id = SecureRandom.hex(10) %>
 
-<%= form_with(url: request.path, local: true, id: 'search-form', method: :post, data: {
+<%= form_with(url: request.path, local: true, id: 'search-form', data: {
   add_filter_path: add_filter_path,
   add_tag_group_path: add_tag_group_path,
   stored_filter: @stored_filter&.id,

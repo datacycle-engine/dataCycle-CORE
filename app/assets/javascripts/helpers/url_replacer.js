@@ -26,6 +26,6 @@ export default {
     if (ctlId) newUrlParams.append('ctl_id', ctlId);
     if (ctId) newUrlParams.append('ct_id', ctId);
 
-    history.replaceState({}, '', `?${newUrlParams.toString()}`);
+    history.replaceState({}, '', `?${newUrlParams.toString()}${url.hash}`);
   }
 };
