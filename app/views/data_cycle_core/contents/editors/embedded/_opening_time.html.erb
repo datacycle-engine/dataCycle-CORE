@@ -1,4 +1,4 @@
-<%= tag.div class: "content-object-item draggable_#{sanitize_to_id(key)} accordion-item is-active",
+<%= tag.div class: "content-object-item draggable_#{sanitize_to_id(key)} accordion-item#{ ' is-active' if (!local_assigns[:hide_embedded] && !definition.dig('ui', 'edit', 'hide_onload')) }",
   id: "#{sanitize_to_id(key)}_item_#{index}",
   data: {
     index: index,

@@ -18,8 +18,12 @@ module DataCycleCore
           def schema_types(property_definition:, content:, **_args)
             schema_types = []
 
-            content.schema_ancestors.each do |path|
-              schema_types.concat(find_or_create_classification(path + [content.template_name], property_definition['tree_label'], true))
+            if content.schema_ancestors.present?
+              content.schema_ancestors.each do |path|
+                schema_types.concat(find_or_create_classification(path + [content.template_name], property_definition['tree_label'], true))
+              end
+            else
+              schema_types.concat(find_or_create_classification([content.template_name], property_definition['tree_label'], true))
             end
 
             schema_types.compact

@@ -48,8 +48,8 @@ module DataCycleCore
             content.content_type != config
           end
 
-          def condition_schema_ancestors_present(_user, config, content)
-            content.schema_ancestors.present? == config
+          def condition_schema_key_present(_user, config, content)
+            content.schema.key?(config)
           end
 
           def skip_default_value?(key, data_hash, content, property_parameters, user, checked = false)

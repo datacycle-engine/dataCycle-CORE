@@ -73,7 +73,7 @@
           :method: schema_types
           :condition:
             :except_content_type: embedded
-            :schema_ancestors_present: true
+            :schema_key_present: schema_ancestors
         :ui:
           :show:
             :disabled: true
