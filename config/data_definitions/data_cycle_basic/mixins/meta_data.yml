@@ -81,3 +81,5 @@
             :disabled: true
         :api:
           :disabled: true
+        :xml:
+          :disabled: true
