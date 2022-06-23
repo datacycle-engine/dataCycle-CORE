@@ -19,6 +19,9 @@ de:
   submit: 'Erstellen'
   settings:
 
+  attribute_labels:
+    additional_information: Beschreibungsblock
+
   locales:
     de: deutsch
     en: englisch

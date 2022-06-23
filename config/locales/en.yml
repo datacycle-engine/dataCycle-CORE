@@ -18,6 +18,10 @@ en:
     title: Title
     updated: Edited
   submit: Create
+
+  attribute_labels:
+    additional_information: Description block
+
   locales:
     de: German
     en: English
