@@ -28,6 +28,8 @@ module DataCycleCore
           .>> t(:nest, 'address', ['street_address', 'postal_code', 'address_locality', 'address_country'])
           .>> t(:add_links, 'timm4_categories', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s['categories'])&.map { |i| "TIMM4 - Pois - Category - #{i}" } })
           .>> t(:universal_classifications, ->(s) { s.dig('timm4_categories') })
+          .>> t(:add_links, 'timm4_publishers', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s['publisher'])&.map { |i| "TIMM4 - Publishers - #{i}" } })
+          .>> t(:universal_classifications, ->(s) { s.dig('timm4_publishers') })
         end
 
         def self.to_gastronomy(external_source_id)
@@ -53,6 +55,8 @@ module DataCycleCore
           .>> t(:add_links, 'timm4_equipment', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s['equipmentFeatures'])&.map { |i| "TIMM4 - Gastronomy - Equipment feature - #{i}" } })
           .>> t(:add_potential_action, external_source_id)
           .>> t(:universal_classifications, ->(s) { s.dig('timm4_equipment') })
+          .>> t(:add_links, 'timm4_publishers', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s['publisher'])&.map { |i| "TIMM4 - Publishers - #{i}" } })
+          .>> t(:universal_classifications, ->(s) { s.dig('timm4_publishers') })
         end
 
         def self.to_event(external_source_id)
@@ -68,6 +72,8 @@ module DataCycleCore
           .>> t(:add_links, 'timm4_music_category', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s['musicCategory'])&.map { |i| "TIMM4 - Events - Music category - #{i}" } })
           .>> t(:add_schedule, external_source_id, ->(s) { s.dig('external_key') })
           .>> t(:universal_classifications, ->(s) { s.dig('timm4_music_category') })
+          .>> t(:add_links, 'timm4_publishers', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s['publisher'])&.map { |i| "TIMM4 - Publishers - #{i}" } })
+          .>> t(:universal_classifications, ->(s) { s.dig('timm4_publishers') })
         end
 
         def self.to_tour(external_source_id)
@@ -77,6 +83,8 @@ module DataCycleCore
           .>> t(:map_value, 'length', ->(v) { v.blank? ? nil : v&.to_f&.*(1000) })
           .>> t(:add_links, 'timm4_localities', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s['localities'])&.map { |i| "TIMM4 - Tracks - Locality - #{i}" } })
           .>> t(:universal_classifications, ->(s) { s.dig('timm4_localities') })
+          .>> t(:add_links, 'timm4_publishers', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s['publisher'])&.map { |i| "TIMM4 - Publishers - #{i}" } })
+          .>> t(:universal_classifications, ->(s) { s.dig('timm4_publishers') })
           .>> t(:add_line)
         end
 
