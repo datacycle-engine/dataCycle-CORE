@@ -34,7 +34,7 @@ module DataCycleCore
           end
 
           def calculate(content, data, method)
-            content&.send(data)&.send(method, :value)
+            content&.send(data)&.send(method, :value)&.to_f
           end
         end
       end
