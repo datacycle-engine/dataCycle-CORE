@@ -31,10 +31,11 @@ module DataCycleCore
 
         # Classifications
         can :manage, [DataCycleCore::Classification, DataCycleCore::ClassificationTree], external_source_id: nil
-        can [:read, :download], DataCycleCore::ClassificationTreeLabel
+        can :read, DataCycleCore::ClassificationTreeLabel, internal: false
+        can :download, DataCycleCore::ClassificationTreeLabel
         can [:create, :update, :download], [DataCycleCore::ClassificationTreeLabel, DataCycleCore::ClassificationAlias], external_source_id: nil, internal: false
 
-        can :map_classifications, DataCycleCore::ClassificationAlias
+        can :map_classifications, DataCycleCore::ClassificationAlias, internal: false
         can :destroy, DataCycleCore::ClassificationTreeLabel do |c|
           c.external_source_id.nil? && !c.internal && !c.classification_aliases&.any?(&:internal) && !c.classification_aliases&.any?(&:external_source_id)
         end

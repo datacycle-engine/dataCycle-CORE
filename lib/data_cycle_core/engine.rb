@@ -133,6 +133,9 @@ module DataCycleCore
   mattr_accessor :features
   self.features = {}
 
+  mattr_accessor :experimental_features
+  self.experimental_features = {}
+
   mattr_accessor :main_config
   self.main_config = {}
 
@@ -303,6 +306,9 @@ module DataCycleCore
     # prevent span tags inside HTML-Attributes for missing translations
     config.action_view.debug_missing_translation = false
 
+    # active storage default options
+    config.active_storage.resolve_model_to_route = :rails_storage_proxy
+
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|
       unless app.root.to_s.match? root.to_s
@@ -352,6 +358,7 @@ module DataCycleCore
       Devise::ConfirmationsController.layout 'data_cycle_core/devise'
       Devise::UnlocksController.layout 'data_cycle_core/devise'
       Devise::PasswordsController.layout 'data_cycle_core/devise'
+      ActiveStorage::Blob
     end
   end
 end

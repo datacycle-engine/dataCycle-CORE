@@ -186,52 +186,52 @@ server {
   #  proxy_set_header X-Forwarded-Proto $scheme;
   #  proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/800/600/$resize_enlarge/$resize_gravity/$filename.$type;
   #}
-  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/thumb\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/thumb\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/300/300/$resize_enlarge/$resize_gravity/$filename.$type;
   }
 
-  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/web\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/web\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/2048/2048/$resize_enlarge/$resize_gravity/$filename.$type;
   }
 
-  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/web_small\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/web_small\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/1500/1500/$resize_enlarge/$resize_gravity/$filename.$type;
   }
 
-  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/custom\/(?<width>\d+)\/(?<height>\d+)\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/custom\/(?<width>\d+)\/(?<height>\d+)\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/$width/$height/$resize_enlarge/$resize_gravity/$filename.$type;
   }
 
-  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/format\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/format\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/$resize_width/$resize_height/$resize_enlarge/$resize_gravity/$filename.$type;
   }
 
-  # get the image with original with and height
-  # the image is still processed so it is not the original image
-  # the following processing options will be applied: strip_metadata, strip_color_profile, auto_rotate, quality
-  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/default\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+  # # get the image with original with and height
+  # # the image is still processed so it is not the original image
+  # # the following processing options will be applied: strip_metadata, strip_color_profile, auto_rotate, quality
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/default\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/$resize_width/$resize_height/$resize_enlarge/$resize_gravity/$filename.$type;
   }
 
-  location ~ "^\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/(?<mode>(fit|fill|auto))\/(?<width>\d+)\/(?<height>\d+)\/(?<enlarge>(0|1))\/(?<gravity>(.*))\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+  location ~ "^\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<mode>(fit|fill|auto))\/(?<width>\d+)\/(?<height>\d+)\/(?<enlarge>(0|1))\/(?<gravity>(.*))\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     # resolver 127.0.0.11 8.8.8.8 8.8.4.4;
     limit_req zone=req_zone burst=100 nodelay;
 
@@ -245,6 +245,90 @@ server {
 
     # the filename is not used for key cache
     proxy_cache_key "$rqUrl$mode$width$height$enlarge$gravity$type";
+
+    proxy_cache_background_update on;
+
+    proxy_cache_lock on;
+    proxy_cache_lock_age 5s;
+    proxy_cache_lock_timeout 5s;
+
+    proxy_cache_use_stale updating;
+
+    proxy_cache_valid 200 30d; # Cache valid assets for 30 days.
+    proxy_cache_valid any 15s; # Everything else gets 15s.
+
+    proxy_http_version 1.1;
+    expires 1y;
+
+    add_header X-Cache $upstream_cache_status;
+
+    proxy_intercept_errors on;
+    recursive_error_pages on;
+    error_page 502 = $rqUrl;
+  }
+
+  # imgporxy v3.x
+  # includes preset and cachebuster
+  
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/thumb\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$cachebuster/default/$resize_type/300/300/$resize_enlarge/$resize_gravity/$filename.$type;
+  }
+
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/web\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$cachebuster/default/$resize_type/2048/2048/$resize_enlarge/$resize_gravity/$filename.$type;
+  }
+
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/web_small\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$cachebuster/default/$resize_type/1500/1500/$resize_enlarge/$resize_gravity/$filename.$type;
+  }
+
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/custom\/(?<width>\d+)\/(?<height>\d+)\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$cachebuster/default/$resize_type/$width/$height/$resize_enlarge/$resize_gravity/$filename.$type;
+  }
+
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/format\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$cachebuster/default/$resize_type/$resize_width/$resize_height/$resize_enlarge/$resize_gravity/$filename.$type;
+  }
+
+  # # get the image with original with and height
+  # # the image is still processed so it is not the original image
+  # # the following processing options will be applied: strip_metadata, strip_color_profile, auto_rotate, quality
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/default\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$cachebuster/default/$resize_type/$resize_width/$resize_height/$resize_enlarge/$resize_gravity/$filename.$type;
+  }
+  
+  location ~ "^\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/(?<preset>(default|blurry|pixelated))\/(?<mode>(fit|fill|auto))\/(?<width>\d+)\/(?<height>\d+)\/(?<enlarge>(0|1))\/(?<gravity>(.*))\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+    # resolver 127.0.0.11 8.8.8.8 8.8.4.4;
+    limit_req zone=req_zone burst=100 nodelay;
+
+    set $rqUrl "${IMGPROXY_DC_SIGNATURE_URL}/things/$thing/asset/content";
+
+    # the filename is always ignored by the proxy to avoid DOS attachs. If required the name can be set via Content-Disposition header.
+    # when no target type is set, the image will be processed with the source type
+    proxy_pass http://docker-imgproxy/$signature/cachebuster:$cachebuster/preset:$preset/resize:$mode:$width:$height:$enlarge/gravity:$gravity/filename:$thing/plain/$rqUrl@$type;
+
+    proxy_cache imgproxy_data_cycle;
+
+    # the filename is not used for key cache
+    proxy_cache_key "$rqUrl$mode$cachebuster$preset$width$height$enlarge$gravity$type";
 
     proxy_cache_background_update on;
 

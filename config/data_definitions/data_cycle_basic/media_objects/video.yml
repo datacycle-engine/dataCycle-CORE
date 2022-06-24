@@ -63,6 +63,34 @@
             :options:
               :data-size: basic
         :advanced_search: true
+      :text:
+        :label: Text
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+      :transcript:
+        :label: Transkript
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+      :thumbnail_image:
+        :label: Vorschaubild
+        :type: linked
+        :template_name: Bild
+        :api:
+          :name: thumbnail
       :content_url:
         :label: Video URL
         :storage_location: value
@@ -79,22 +107,31 @@
             :disabled: true
           :edit:
             :disabled: true
-      :thumbnail_url:
-        :label: Teaserbild
+      :thumbnail_url_override:
+        :label: Teaserbild (Manuel)
         :storage_location: value
         :type: string
-        :compute:
-          :module: Utility::Compute::Video
-          :method: thumbnail_url
-          :parameters:
-            - asset
         :ui:
           :show:
             :partial: preview_image
           :edit:
             :disabled: true
         :api:
-          :minimal: true
+          :disabled: true
+      :thumbnail_url:
+        :label: Teaserbild
+        :type: string
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Video
+          :method: thumbnail_url
+          :parameters:
+            - thumbnail_url_override
+        :api:
+          :disabled: false
+        :ui:
+          :edit:
+            :disabled: true
       :url:
         :label: Inhalt URL
         :type: string
@@ -305,9 +342,34 @@
             :disabled: true
           :edit:
             :disabled: true
-      :image_proxy:
-        :type: mixin
-        :name: image_proxy
+      # proxy test url
+      :virtual_dynamic_url:
+        :label: Virtual Preview Url
+        :type: string
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Asset
+          :method: imgproxy
+          :transformation:
+            :version: dynamic
+          :processing:
+            :preset: default
+            :resize_type: fill
+            :width: 1920
+            :height: 1080
+            :enlarge: 0
+            :gravity: sm
+            :format: jpeg
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: true
+            :name: dc:dynamicUrl
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
       :additional_media_properties:
         :type: mixin
         :name: additional_media_properties

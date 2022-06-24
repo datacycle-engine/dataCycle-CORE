@@ -45,6 +45,8 @@ module DataCycleCore
             end).flatten.compact.uniq
           end
 
+          private
+
           def get_values_from_embedded(key_path, values)
             return values if key_path.blank?
 

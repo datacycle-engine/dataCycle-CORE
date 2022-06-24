@@ -3,6 +3,12 @@
     :name: Eventserie
     :type: object
     :schema_type: Event
+    :schema_ancestors:
+      - - Event
+        - EventSeries
+      - - Intangible
+        - Series
+        - EventSeries
     :boost: 100.0
     :content_type: entity
     :api:
@@ -69,8 +75,7 @@
         :label: Veranstaltungsort
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Ort
@@ -155,7 +160,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Veranstaltungsserie"
+        :default_value: 'Veranstaltungsserie'
       :copyright_attributes:
         :type: mixin
         :name: copyright_attributes

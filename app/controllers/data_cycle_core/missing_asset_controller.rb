@@ -27,6 +27,26 @@ module DataCycleCore
       not_found(e)
     end
 
+    def processed
+      id = permitted_params[:id]
+      processed_asset_path = Rails.root.join('public/uploads' + request.path)
+
+      file_name = File.basename(processed_asset_path)
+      content_type = MiniMime.lookup_by_extension(File.extname(processed_asset_path).delete_prefix('.'))&.content_type
+
+      @asset = DataCycleCore::Thing.find(id)&.try(:asset)
+
+      raise ActiveRecord::RecordNotFound unless @asset.file.attached?
+
+      headers['ETag'] = %("#{File.mtime(processed_asset_path)}-#{processed_asset_path.try(:size)}")
+      headers['Last-Modified'] = File.mtime(processed_asset_path).httpdate
+      headers.delete 'X-Frame-Options'
+
+      send_file processed_asset_path, disposition: 'inline', filename: file_name, type: content_type
+    rescue StandardError => e
+      not_found(e)
+    end
+
     private
 
     def permitted_params

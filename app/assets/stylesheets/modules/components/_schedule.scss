@@ -260,6 +260,7 @@
       transition: box-shadow 0.1s;
       background: rgba($alert-color, 0.5);
       border: 1px solid rgba($alert-color, 0.5);
+      max-width: unset;
     }
 
     input:not(:disabled) ~ label:hover {

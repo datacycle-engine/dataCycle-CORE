@@ -1,8 +1,6 @@
 <li id="<%= classification_tree.id %>">
     <span class="inner-item">
-        <% if classification_tree.sub_classification_alias.internal? %>
-            <i class="fa fa-eye-slash" aria-hidden="true"></i>
-        <% end %>
+        <%= tag.fa(class: 'fa fa-eye-slash') if classification_tree.sub_classification_alias.internal? %>
         <%= link_to classification_title(classification_tree.sub_classification_alias),
             classifications_path(classification_tree_id: classification_tree.id),
             data: {remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}"} %>
