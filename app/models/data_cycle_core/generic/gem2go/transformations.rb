@@ -15,7 +15,6 @@ module DataCycleCore
           .>> t(:add_field, 'description', ->(s) { s.dig('text', 'text') })
           .>> t(:add_info, ['description'], external_source_id)
           .>> t(:add_field, 'date_created', ->(s) { s.dig('created', 'text') })
-          .>> t(:add_field, 'url', ->(s) { s.dig('detailurl', 'text')&.strip })
           .>> t(:add_links, 'gem2go_category', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('category')).map { |i| "GEM2GO - Event - Kategorie - #{i.dig('id')}" } })
           .>> t(:universal_classifications, ->(s) { s.dig('gem2go_category') })
           .>> t(:add_links, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap("GEM2GO - EventLocation - #{s.dig('id', 'text')}") })
