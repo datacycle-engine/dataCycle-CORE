@@ -248,23 +248,42 @@ class EmbeddedObject {
     else if (embeddedObject.data('accordion-item') && !embeddedObject.hasClass('is-active'))
       embeddedObject.closest('[data-accordion]').foundation('down', embeddedObject.find('> .accordion-content'));
 
-    this.element.find('> .accordion-item:not(.is-active) > .accordion-content.remote-render').each((index, item) => {
+    this.element.find('> .accordion-item:not(.is-active) > .accordion-content.remote-render').each((_index, item) => {
       let remoteOptions = $(item).data('remote-options');
       delete remoteOptions.hide_embedded;
       $(item).attr('data-remote-options', JSON.stringify(remoteOptions));
     });
 
-    window.scrollTo({ top: topOffset, behavior: 'smooth' });
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: topOffset, behavior: 'smooth' });
+    });
   }
   loadAllContents(embeddedObject) {
-    this.element.on('dc:html:initialized', event => {
-      if ($(event.target).data('id') == embeddedObject.data('id') && !$(event.target).hasClass('hidden'))
-        $(event.target).closest('[data-accordion]').foundation('down', $(event.target).find('> .accordion-content'));
+    const observer = new MutationObserver(mutations => {
+      for (const mutation of mutations) {
+        if (mutation.type !== 'childList') continue;
 
-      this.element.off(event);
+        for (const addedNode of mutation.addedNodes) {
+          if (addedNode.nodeType !== Node.ELEMENT_NODE) continue;
+          if (addedNode.dataset.id == embeddedObject[0].dataset.id) {
+            observer.disconnect();
+
+            $(addedNode.closest('[data-accordion]')).foundation('down', $(addedNode).find('> .accordion-content'));
+          }
+        }
+      }
     });
 
-    this.element.find('> .buttons > .load-more-linked-contents').click();
+    observer.observe(this.element[0], {
+      attributes: false,
+      characterData: false,
+      subtree: true,
+      childList: true,
+      attributeOldValue: false,
+      characterDataOldValue: false
+    });
+
+    this.element.find('> .buttons > .load-more-linked-contents').get(0).click();
   }
 }
 

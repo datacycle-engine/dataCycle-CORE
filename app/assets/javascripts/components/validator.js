@@ -25,6 +25,16 @@ class Validator {
     this.eventHandlers = {
       beforeunload: this.pageLeaveHandler.bind(this)
     };
+    this.changeObserver = new MutationObserver(this._checkForChangedFormData.bind(this));
+    this.changeObserverConfig = {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class'],
+      characterData: false,
+      childList: false,
+      attributeOldValue: true,
+      characterDataOldValue: false
+    };
 
     this.addEventHandlers();
   }
@@ -46,7 +56,8 @@ class Validator {
     this.$agbsCheck.on('change', this.validateSingle.bind(this));
     this.$form.on('dc:form:disable', this.disable.bind(this));
     this.$form.on('dc:form:enable', this.enable.bind(this));
-    this.$form.on('dc:html:initialized', '*', this.updateInitialFormData.bind(this));
+
+    this.changeObserver.observe(this.$form[0], this.changeObserverConfig);
   }
   clickSubmitButton(event) {
     event.preventDefault();
@@ -129,21 +140,21 @@ class Validator {
       });
     }
   }
-  updateInitialFormData(event, data = {}) {
-    event.preventDefault();
-    event.stopPropagation();
+  _checkForChangedFormData(mutations) {
+    for (const mutation of mutations) {
+      if (mutation.type !== 'attributes') continue;
 
-    if (!data || !data.newContent) {
-      this.initialFormData = collectionReject(
-        sortBy(unionWith(this.initialFormData, $(event.target).find(':input').serializeArray(), isEqual), [
-          'name',
-          'value'
-        ]),
-        {
-          name: 'authenticity_token'
-        }
-      );
+      if (mutation.target.classList.contains('remote-rendered') && mutation.oldValue.includes('remote-rendering'))
+        this.updateInitialFormData(mutation.target);
     }
+  }
+  updateInitialFormData(target) {
+    this.initialFormData = collectionReject(
+      sortBy(unionWith(this.initialFormData, $(target).find(':input').serializeArray(), isEqual), ['name', 'value']),
+      {
+        name: 'authenticity_token'
+      }
+    );
   }
   async validateAgbs(validationContainer) {
     let error = {
