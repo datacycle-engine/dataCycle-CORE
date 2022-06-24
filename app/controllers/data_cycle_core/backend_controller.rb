@@ -18,8 +18,7 @@ module DataCycleCore
 
       respond_to do |format|
         format.html
-        format.json { render json: { html: helpers.result_count(@count_mode, @total_count, @content_class || 'things') } }
-        format.js { render 'data_cycle_core/application/more_results' }
+        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/application/count_or_more_results').squish } }
       end
     end
 

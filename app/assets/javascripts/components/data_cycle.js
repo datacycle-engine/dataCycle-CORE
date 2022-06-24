@@ -122,9 +122,7 @@ class DataCycle {
       delete element.dataset.dcDisableWith;
     }
 
-    if (element.nodeName == 'A' && !element.dataset.disableWith) element.dataset.disableWith = element.innerHTML;
-    else if (element.nodeName == 'BUTTON' && !element.dataset.disable && !element.dataset.disableWith)
-      element.dataset.disable = true;
+    if (!element.dataset.disable && !element.dataset.disableWith) element.dataset.disable = true;
 
     return element;
   }
@@ -133,36 +131,34 @@ class DataCycle {
     if (!element) return;
 
     Rails.disableElement(element);
-    if (element.nodeName == 'A') element.classList.add('disabled');
+    element.classList.add('disabled');
   }
   enableElement(element) {
     element = this._prepareElement(element);
     if (!element) return;
 
     Rails.enableElement(element);
-    if (element.nodeName == 'A') element.classList.remove('disabled');
+    element.classList.remove('disabled');
   }
   _checkForConditionRecursive(node, type) {
-    for (let i = 0; i < node.children.length; i++) {
-      this._checkForConditionRecursive(node.children[i], type);
-    }
+    for (const child of node.children) this._checkForConditionRecursive(child, type);
 
-    for (let i = 0; i < this.htmlObserver[`${type}Callbacks`].length; ++i) {
-      if (this.htmlObserver[`${type}Callbacks`][i][0](node)) this.htmlObserver[`${type}Callbacks`][i][1](node);
-    }
+    for (const [condition, callback] of this.htmlObserver[`${type}Callbacks`]) if (condition(node)) callback(node);
   }
   _observeHtmlContent(mutations) {
-    for (let i = 0; i < mutations.length; ++i) {
-      if (mutations[i].type !== 'childList') continue;
+    for (const mutation of mutations) {
+      if (mutation.type !== 'childList') continue;
 
-      for (let j = 0; j < mutations[i].addedNodes.length; ++j) {
-        if (mutations[i].addedNodes[j].nodeType === Node.ELEMENT_NODE)
-          this._checkForConditionRecursive(mutations[i].addedNodes[j], 'add');
+      for (const addedNode of mutation.addedNodes) {
+        if (addedNode.nodeType !== Node.ELEMENT_NODE) continue;
+
+        this._checkForConditionRecursive(addedNode, 'add');
       }
 
-      for (let j = 0; j < mutations[i].removedNodes.length; ++j) {
-        if (mutations[i].removedNodes[j].nodeType === Node.ELEMENT_NODE)
-          this._checkForConditionRecursive(mutations[i].removedNodes[j], 'remove');
+      for (const removedNode of mutation.removedNodes) {
+        if (removedNode.nodeType !== Node.ELEMENT_NODE) continue;
+
+        this._checkForConditionRecursive(removedNode, 'remove');
       }
     }
   }

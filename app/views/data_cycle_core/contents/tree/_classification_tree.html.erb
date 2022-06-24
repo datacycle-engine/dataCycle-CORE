@@ -1,6 +1,14 @@
-<li id="<%= classification_tree.id %>">
+<li id="<%= classification_tree.id %>" class="tree-link-container">
   <span class="inner-item">
-    <%= link_to request.params.slice(:language, :f, :stored_filter).merge({ ctl_id: classification_tree_label&.id, ct_id: classification_tree.id, mode: @mode }), data: { remote: true, disable: true }, class: 'tree-link' do %>
+    <%= link_to '#',
+                class: 'tree-link',
+                data: {
+                  disable: true,
+                  additional_form_parameters: {
+                    ctl_id: classification_tree_label&.id,
+                    ct_id: classification_tree.id
+                  }.compact.to_json
+                } do %>
       <%= classification_tree.sub_classification_alias.try(:internal_name) %>
       <span class="children-count">(
         <span class="child-count-direct result-count loading"
@@ -26,6 +34,4 @@
       </span>
     <% end %>
   </span>
-  <ul class="children"></ul>
-  <ul class="contents no-bullet"></ul>
 </li>

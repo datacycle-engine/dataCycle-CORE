@@ -9,7 +9,7 @@ class MasonryGrid {
     else this.renderNotSupportedError();
   }
   setup() {
-    this.grid.children('.grid-loading').hide();
+    this.grid.children('.grid-loading').remove();
     this.initializeItems(this.grid);
 
     $(window).on('load resize', this.resizeAllMasonryItems.bind(this));

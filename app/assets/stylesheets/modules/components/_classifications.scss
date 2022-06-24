@@ -607,8 +607,6 @@ ul.backend-treeview-list,
   }
 }
 
-// classification_tree_label_view
-#classification-tree-label-list .backend-treeview-list,
 #search-results > ul.tree {
   .child-count-full,
   .child-count-direct {
@@ -669,7 +667,8 @@ ul.backend-treeview-list,
       }
     }
 
-    .tree-link {
+    .tree-link,
+    .toggle-details {
       cursor: pointer;
       display: flex;
       flex-flow: row nowrap;
@@ -698,6 +697,7 @@ ul.backend-treeview-list,
         width: auto;
         text-align: left;
         padding: 0;
+        pointer-events: none;
 
         &::after {
           content: '\f110';
@@ -763,12 +763,15 @@ ul.backend-treeview-list,
     }
 
     .open {
+      .toggle-details:not(.loading):after,
       .tree-link:not(.loading):after {
         content: '\f106';
       }
     }
 
     ul.children {
+      display: none;
+
       > li {
         .inner-item {
           padding: 0 0 0 1rem;
@@ -819,7 +822,8 @@ ul.backend-treeview-list,
             display: flex;
           }
 
-          .tree-link {
+          .tree-link,
+          .toggle-details {
             display: flex;
             white-space: nowrap;
             overflow: hidden;
@@ -945,6 +949,13 @@ ul.backend-treeview-list,
           }
         }
       }
+    }
+
+    .inner-item.open ~ ul.contents,
+    .inner-item.open ~ ul.children,
+    h5 ~ ul.contents,
+    h5 ~ ul.children {
+      display: block;
     }
   }
 }
