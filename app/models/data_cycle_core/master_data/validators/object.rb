@@ -37,7 +37,7 @@ module DataCycleCore
 
             next if !strict && data_keys.exclude?(key)
 
-            next if key_item['type'].in?(['virtual', 'slug'])
+            next if key_item['type'].in?(['virtual', 'slug', 'timeseries'])
 
             unless basic_types.include?(key_item['type'])
               (@error[:error][key] ||= []) << {
