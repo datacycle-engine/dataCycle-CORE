@@ -98,6 +98,8 @@ Rails.application.configure do
 
   config.asset_host = { host: ENV.fetch('APP_HOST', 'localhost:3003'), protocol: ENV.fetch('APP_PROTOCOL', 'http') }&.slice(:protocol, :host)&.values&.join('://')
 
+  config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3003'), protocol: ENV.fetch('APP_PROTOCOL', 'http') }
+
   # not required ?
   # config.action_controller.asset_host = config.asset_host
   # config.action_mailer.asset_host = config.asset_host
