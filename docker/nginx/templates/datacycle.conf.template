@@ -2,7 +2,7 @@ proxy_cache_path /var/cache/nginx/data_cycle
   levels=1:2
   keys_zone=data_cycle:100m
   inactive=1y
-  max_size=100m;
+  max_size=10G;
 proxy_cache_path /var/cache/nginx/imgproxy_data_cycle
   levels=1:2
   keys_zone=imgproxy_data_cycle:100M
@@ -371,4 +371,79 @@ server {
   #   add_header X-Cache $upstream_cache_status;
   # }
 
+
+  ############# video caching proxy
+  # video caching with active storage
+  location ~ "\/rails\/active_storage\/.[^\.]*?\/*\.mp4" {
+    proxy_ignore_headers Cache-Control Expires Set-Cookie;
+    proxy_hide_header Cache-Control;
+    
+    gzip_static on;
+    expires max;
+    add_header Cache-Control public;
+
+    mp4;
+    mp4_buffer_size 1M;
+    mp4_max_buffer_size 3M;
+    # enable thread bool
+    aio threads=default;
+    # enable caching for mp4 videos
+    proxy_cache data_cycle;
+    proxy_cache_valid 200 300s;
+    proxy_cache_lock on;
+    # enable nginx slicing
+    slice 1m;
+    proxy_cache_key $host$uri$is_args$args$slice_range;
+    proxy_set_header Range $slice_range;
+    proxy_http_version 1.1;
+    # Immediately forward requests to the origin if we are filling the cache
+    proxy_cache_lock_timeout 0s;
+    # Set the 'age' to a value larger than the expected fill time
+    proxy_cache_lock_age 200s;
+    proxy_cache_use_stale updating;
+
+    # debug
+    # add_header X-Cache-Status $upstream_cache_status;
+    # add_header X-Cache-Control $upstream_http_cache_control;
+    # add_header X-Cache-Key $host$uri$is_args$args$slice_range;
+
+    proxy_pass http://puma_data_cycle;
+  }
+
+  # video caching with computed transcodings
+  location ~ "\/processed\/video\/.[^\.]*?\/*\.mp4" {
+    proxy_ignore_headers Cache-Control Expires Set-Cookie;
+    proxy_hide_header Cache-Control;
+    
+    gzip_static on;
+    expires max;
+    add_header Cache-Control public;
+
+    mp4;
+    mp4_buffer_size 1M;
+    mp4_max_buffer_size 3M;
+    # enable thread bool
+    aio threads=default;
+    # enable caching for mp4 videos
+    proxy_cache data_cycle;
+    proxy_cache_valid 200 300s;
+    proxy_cache_lock on;
+    # enable nginx slicing
+    slice 1m;
+    proxy_cache_key $host$uri$is_args$args$slice_range;
+    proxy_set_header Range $slice_range;
+    proxy_http_version 1.1;
+    # Immediately forward requests to the origin if we are filling the cache
+    proxy_cache_lock_timeout 0s;
+    # Set the 'age' to a value larger than the expected fill time
+    proxy_cache_lock_age 200s;
+    proxy_cache_use_stale updating;
+
+    # debug
+    # add_header X-Cache-Status $upstream_cache_status;
+    # add_header X-Cache-Control $upstream_http_cache_control;
+    # add_header X-Cache-Key $host$uri$is_args$args$slice_range;
+
+    proxy_pass http://puma_data_cycle;
+  }
 }
