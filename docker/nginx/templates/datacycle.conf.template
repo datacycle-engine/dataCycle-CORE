@@ -389,8 +389,9 @@ server {
     aio threads=default;
     # enable caching for mp4 videos
     proxy_cache data_cycle;
-    proxy_cache_valid 200 300s;
+    proxy_cache_valid 200 206 300s;
     proxy_cache_lock on;
+    proxy_force_ranges on;
     # enable nginx slicing
     slice 1m;
     proxy_cache_key $host$uri$is_args$args$slice_range;
@@ -426,8 +427,9 @@ server {
     aio threads=default;
     # enable caching for mp4 videos
     proxy_cache data_cycle;
-    proxy_cache_valid 200 300s;
+    proxy_cache_valid 200 206 300s;
     proxy_cache_lock on;
+    proxy_force_ranges on;
     # enable nginx slicing
     slice 1m;
     proxy_cache_key $host$uri$is_args$args$slice_range;
