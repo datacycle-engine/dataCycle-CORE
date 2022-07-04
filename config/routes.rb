@@ -25,8 +25,6 @@ DataCycleCore::Engine.routes.draw do
 
   root to: redirect('users/sign_in')
 
-  mount RailsPgExtras::Web::Engine, at: 'pg_extras'
-
   get '/docs/*path/:file', to: 'documentation#image', constraints: ->(request) { request.path.match?(/\.(gif|jpg|png|svg)$/) }
   get '/docs/*path', to: 'documentation#show', as: :docs_with_path
   get '/docs', to: 'documentation#show'

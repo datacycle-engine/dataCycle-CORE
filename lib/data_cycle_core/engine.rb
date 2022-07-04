@@ -82,8 +82,6 @@ require 'vite_rails'
 
 require 'holidays'
 
-require 'rails-pg-extras'
-
 module DataCycleCore
   mattr_accessor :breadcrumb_root_name
   self.breadcrumb_root_name = 'Dashboard'
