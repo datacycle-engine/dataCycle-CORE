@@ -4,6 +4,9 @@ module DataCycleCore
   class Image < Asset
     mount_uploader :file, ImageUploader
     process_in_background :file
+    validates_integrity_of :file
+    after_destroy :remove_directory
+    delegate :versions, to: :file
 
     after_create_commit :set_duplicate_hash, if: proc { |image| image.persisted? && file.enable_processing && !image.file.thumb_preview&.file&.exists? }
 

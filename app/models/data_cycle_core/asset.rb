@@ -4,24 +4,24 @@ module DataCycleCore
   class Asset < ApplicationRecord
     attribute :type, :string, default: name
     belongs_to :creator, class_name: 'DataCycleCore::User'
-    mount_uploader :file, DataCycleFileUploader
+
     before_create :update_asset_attributes
-    process_in_background :file
     validates :file, presence: true
-    validates_integrity_of :file
     validate :custom_validators
-    after_destroy :remove_directory
 
     include AssetHelpers
 
     has_one :asset_content, dependent: :destroy
     has_one :thing, through: :asset_content, source: 'content_data'
-    delegate :versions, to: :file
 
     def custom_validators
       DataCycleCore.uploader_validations.dig(file.class.name.underscore.match(/(\w+)_uploader/) { |m| m[1].to_sym })&.except(:format)&.presence&.each do |validator, options|
         try("#{validator}_validation", options)
       end
+    end
+
+    def self.extension_white_list
+      uploaders[:file].new&.extension_white_list || []
     end
 
     def duplicate_candidates
@@ -46,6 +46,7 @@ module DataCycleCore
     end
 
     def method_missing(name, *args, &block)
+      return super if self.class.active_storage_activated?
       if name.to_sym == :original
         file
       elsif file&.versions&.key?(name.to_sym)
@@ -57,6 +58,7 @@ module DataCycleCore
     end
 
     def respond_to_missing?(method_name, include_private = false)
+      return super if self.class.active_storage_activated?
       method_name.to_sym == :original || file&.versions&.key?(method_name.to_sym) || super
     end
 
@@ -65,6 +67,10 @@ module DataCycleCore
       new_asset.file = file
       new_asset.save
       new_asset.persisted? ? new_asset : nil
+    end
+
+    def self.active_storage_activated?
+      true if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && DataCycleCore.experimental_features.dig('active_storage', 'asset_types')&.include?(name)
     end
 
     private

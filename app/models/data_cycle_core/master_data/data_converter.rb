@@ -45,6 +45,8 @@ module DataCycleCore
 
       def self.string_to_string(value)
         return if value&.strip_tags.blank?
+
+        value = value.encode('UTF-8') if value.encoding.name == 'ASCII-8BIT' # ActiveStorage generates ASCII-8BIT encoded URLs
         old_value = value
           &.unicode_normalize(:nfc)
           &.delete("\u0000") # jsonb does not support \u0000 (https://www.postgresql.org/docs/11/datatype-json.html)

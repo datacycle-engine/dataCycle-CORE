@@ -3,6 +3,8 @@
     :name: Tour
     :type: object
     :schema_type: Place
+    :schema_ancestors:
+      - Place
     :content_type: entity
     :boost: 100.0
     :features:
@@ -36,6 +38,22 @@
       :content_classifications:
         :type: mixin
         :name: content_classifications
+      :trail_closed:
+        :label: Trail/Tour gesperrt
+        :type: boolean
+        :storage_location: value
+        :advanced_search: true
+        :default_value: 'false'
+        :api:
+          :name: dcls:trailClosed
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :additional_information:
         :label: Ergänzende Information
         :type: embedded
@@ -65,22 +83,6 @@
             :options:
               :data-size: basic
         :advanced_search: true
-      :trail_closed:
-        :label: Trail/Tour gesperrt
-        :type: boolean
-        :storage_location: value
-        :advanced_search: true
-        :default_value: 'false'
-        :api:
-          :name: dcls:trailClosed
-          :disabled: true
-        :xml:
-          :disabled: true
-        :ui:
-          :edit:
-            :disabled: true
-          :show:
-            :disabled: true
       :primary_image:
         :label: Hauptbild
         :type: linked
@@ -281,6 +283,9 @@
         :label: Bewertung - Technik
         :type: number
         :storage_location: value
+      :opening_hours_specification:
+        :type: mixin
+        :name: opening_hours_specification
       :season:
         :label: Empfohlene Jahreszeiten
         :type: classification
@@ -323,9 +328,6 @@
             :disabled: true
           :show:
             :disabled: true
-      :opening_hours_specification:
-        :type: mixin
-        :name: opening_hours_specification
       :potential_actions:
         :type: mixin
         :name: potential_actions

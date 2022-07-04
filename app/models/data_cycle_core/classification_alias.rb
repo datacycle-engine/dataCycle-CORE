@@ -381,7 +381,7 @@ module DataCycleCore
     end
 
     def clean_stored_filters
-      ActiveRecord::Base.connection.execute <<-SQL
+      ActiveRecord::Base.connection.execute <<-SQL.squish
         WITH subquery AS
         (
             SELECT

@@ -26,6 +26,9 @@
         :storage_location: translated_value
         :search: true
         :advanced_search: true
+      :additional_information_classifications:
+        :type: mixin
+        :name: additional_information_classifications
       :description:
         :label: Text
         :type: string
