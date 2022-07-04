@@ -1,0 +1,31 @@
+---
+- :data:
+    :name: temperatures
+    :type: mixin
+    :properties:
+      :minimum_temperature:
+        :label: Temperatur (min)
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+        :ui:
+          :edit:
+            :options:
+              :data-unit: °C
+          :show:
+            :options:
+              :data-unit: °C
+      :maximum_temperature:
+        :label: Temperatur (max)
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+        :ui:
+          :edit:
+            :options:
+              :data-unit: °C
+          :show:
+            :options:
+              :data-unit: °C

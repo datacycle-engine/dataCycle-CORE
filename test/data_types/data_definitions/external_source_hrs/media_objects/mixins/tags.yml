@@ -1,0 +1,33 @@
+---
+- :data:
+    :name: tags
+    :type: mixin
+    :properties:
+      :keywords:
+        :label: Tags
+        :type: classification
+        :tree_label: Tags
+      :keywords_eyebase:
+        :label: Eyebase - Tags
+        :type: classification
+        :tree_label: Eyebase - Tags
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :status_eyebase:
+        :label: Eyebase - Status
+        :type: classification
+        :tree_label: Eyebase - Status
+        :external: true
+        :ui:
+          :show:
+            :content_area: header            
+      :hrs_image_categories:
+        :label: HRS - Image-Categories
+        :type: classification
+        :tree_label: HRS - Image-Categories
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

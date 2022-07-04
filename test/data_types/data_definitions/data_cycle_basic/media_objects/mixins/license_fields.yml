@@ -1,0 +1,27 @@
+---
+- :data:
+    :name: license_fields
+    :type: mixin
+    :properties:
+      :copyright_holder:
+        :label: Rechteinhaber
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :copyright_year:
+        :label: Copyright - Jahr
+        :type: number
+        :storage_location: value
+        :advanced_search: true
+      :mandatory_license:
+        :label: Copyright Nennung verpflichtend
+        :type: boolean
+        :storage_location: value
+        :external: true
+        :advanced_search: true
+        :default_value: 'false'

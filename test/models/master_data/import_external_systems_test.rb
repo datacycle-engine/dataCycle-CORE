@@ -11,11 +11,11 @@ describe DataCycleCore::MasterData::ImportExternalSystems do
 
   describe 'loaded external_sources_config' do
     let(:import_path) do
-      Rails.root.join('..', '..', 'config', 'external_systems')
+      Rails.root.join('..', 'dummy', 'config', 'external_systems')
     end
 
     let(:external_source) do
-      import_path.join('medienarchiv.yml')
+      import_path.join('remote_system.yml')
     end
 
     let(:external_source_config) do

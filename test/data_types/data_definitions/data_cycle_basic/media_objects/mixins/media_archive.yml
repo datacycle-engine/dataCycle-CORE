@@ -1,0 +1,39 @@
+---
+- :data:
+    :name: media_archive
+    :type: mixin
+    :properties:
+      :comment:
+        :label: Kommentar
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :external: true
+      :source:
+        :label: Erhalten von
+        :type: string
+        :storage_location: value
+        :external: true
+      :image_id:
+        :label: Bildnummer
+        :type: string
+        :storage_location: value
+        :external: true
+      :visibility:
+        :label: Sichtbarkeit
+        :type: string
+        :storage_location: value
+        :external: true
+      :restrictions:
+        :label: Einschränkungen
+        :type: string
+        :storage_location: value
+        :external: true
+      :access:
+        :label: Rechte/Einsatzgebiet
+        :type: classification
+        :tree_label: Rechte
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

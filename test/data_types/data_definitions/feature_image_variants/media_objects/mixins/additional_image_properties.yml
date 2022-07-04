@@ -1,0 +1,10 @@
+---
+- :data:
+    :name: additional_image_properties
+    :type: mixin
+    :properties:
+      :encoding:
+        :label: Bild-Varianten
+        :type: embedded
+        :template_name: ImageVariant
+        :translated: true

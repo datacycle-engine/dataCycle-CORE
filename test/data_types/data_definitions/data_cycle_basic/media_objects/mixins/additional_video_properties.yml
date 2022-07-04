@@ -1,0 +1,5 @@
+---
+- :data:
+    :name: additional_video_properties
+    :type: mixin
+    :properties: ~

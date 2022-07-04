@@ -1,0 +1,65 @@
+---
+- :data:
+    :name: place_attributes
+    :type: mixin
+    :properties:
+      :description:
+        :label: Kurzbeschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+      :text:
+        :label: Beschreibung
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+      :primary_image:
+        :label: Hauptbild
+        :type: linked
+        :template_name: Bild
+        :validations:
+          :max: 1
+        :api:
+          :name: image
+          :minimal: true
+          :v4:
+            :name: photo
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+        :api:
+          :name: photo
+          :minimal: true
+          :v4:
+            :name: image
+      :logo:
+        :label: Logo
+        :type: linked
+        :template_name: Bild
+        :api:
+          :minimal: true
+      :subject_of:
+        :label: Thema von
+        :type: linked
+        :inverse_of: about
+        :link_direction: inverse
+        :global: true

@@ -1,0 +1,335 @@
+---
+- :data:
+    :name: Video
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: entity
+    :boost: 10.0
+    :features:
+      :creatable:
+        :allowed: true
+      :translatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :asset: true
+          :json: true
+          :xml: true
+          :indesign: true
+    :api:
+      :type:
+        - CreativeWork
+        - MediaObject
+        - VideoObject
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :asset:
+        :label: Datei
+        :type: asset
+        :asset_type: video
+        :api:
+          :disabled: true
+        :ui:
+          :edit:
+            :readonly: true
+      :caption:
+        :label: Alt-Label
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :advanced_search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+        :advanced_search: true
+      :content_url:
+        :label: Video URL
+        :storage_location: value
+        :type: string
+        :compute:
+          :module: Utility::Compute::Asset
+          :method: content_url
+          :parameters:
+            :0: asset
+        :api:
+          :minimal: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :thumbnail_url:
+        :label: Teaserbild
+        :storage_location: value
+        :type: string
+        :compute:
+          :module: Utility::Compute::Video
+          :method: thumbnail_url
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :partial: preview_image
+          :edit:
+            :disabled: true
+        :api:
+          :minimal: true
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_location: value
+        :validations:
+          :format: url
+        :api:
+          :name: sameAs
+        :xml:
+          :name: sameAs
+        :ui:
+          :edit:
+            :disabled: true
+      :width:
+        :label: Breite
+        :storage_location: value
+        :type: number
+        :compute:
+          :module: Utility::Compute::Video
+          :method: width
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: px
+          :edit:
+            :disabled: true
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: width
+        :advanced_search: true
+      :height:
+        :label: Höhe
+        :storage_location: value
+        :type: number
+        :compute:
+          :module: Utility::Compute::Video
+          :method: height
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: px
+          :edit:
+            :disabled: true
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: height
+        :advanced_search: true
+      # schema.org: TEXT with KB/MB
+      # data-cycle: Integer (Byte)
+      :content_size:
+        :label: Dateigröße
+        :storage_location: value
+        :type: number
+        :compute:
+          :module: Utility::Compute::Asset
+          :method: file_size
+          :parameters:
+            :0: asset
+        :advanced_search: true
+        :ui:
+          :edit:
+            :disabled: true
+      :file_format: # has to be valid MimeType
+        :label: Dateiformat
+        :storage_location: value
+        :type: string
+        :compute:
+          :module: Utility::Compute::Asset
+          :method: file_format
+          :parameters:
+            :0: asset
+        :ui:
+          :edit:
+            :disabled: true
+      :file_type:
+        :label: Dateiformat - Klassifizierung
+        :storage_location: classification
+        :type: classification
+        :tree_label: Dateiformate
+        :compute:
+          :module: Utility::Compute::Asset
+          :method: file_type_classification
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :disabled: true
+      :duration:
+        :label: Dauer
+        :storage_location: value
+        :type: number
+        :compute:
+          :module: Utility::Compute::Video
+          :method: duration
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: sec
+          :edit:
+            :disabled: true
+        :api:
+          :partial: duration
+          :format:
+            :append: S
+            :prepend: PT
+        :advanced_search: true
+      :video_frame_size:
+        :label: Auslösung
+        :storage_location: value
+        :type: string
+        :compute:
+          :module: Utility::Compute::Video
+          :method: frame_size
+          :parameters:
+            :0: asset
+        :ui:
+          :edit:
+            :disabled: true
+      :video_quality:
+        :label: Qualität
+        :storage_location: value
+        :type: string
+        :compute:
+          :module: Utility::Compute::Video
+          :method: quality
+          :parameters:
+            :0: asset
+        :ui:
+          :edit:
+            :disabled: true
+      :upload_date:
+        :label: Hochgeladen am
+        :type: date
+        :storage_location: value
+        :ui:
+          :edit:
+            :options:
+              :placeholder: tt.mm.jjjj
+              :class: daterange
+        :default_value:
+          module: DataCycleCore::Utility::DefaultValue::Date
+          method: beginning_of_day
+        :advanced_search: true
+      :youtube_url:
+        :label: YouTube URL
+        :type: string
+        :storage_location: value
+        :validations:
+          :format: url
+        :api:
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
+      :director:
+        :label: Regie
+        :type: linked
+        :template_name: Person
+      :contributor:
+        :label: Kamera
+        :type: linked
+        :template_name: Person
+      :content_location:
+        :label: Ort
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :validations:
+          :max: 1
+      :license_fields:
+        :type: mixin
+        :name: license_fields
+      :keywords:
+        :label: Keywords
+        :storage_location: translated_value
+        :type: string
+        :compute:
+          :module: Utility::Compute::Classification
+          :method: keywords
+          :parameters:
+            :0: tags
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :image_proxy:
+        :type: mixin
+        :name: image_proxy
+      :additional_media_properties:
+        :type: mixin
+        :name: additional_media_properties
+      :additional_video_properties:
+        :type: mixin
+        :name: additional_video_properties
+      :tags:
+        :type: mixin
+        :name: tags
+      :media_archive:
+        :type: mixin
+        :name: media_archive
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'Video'
+      :copyright_attributes:
+        :type: mixin
+        :name: copyright_attributes
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

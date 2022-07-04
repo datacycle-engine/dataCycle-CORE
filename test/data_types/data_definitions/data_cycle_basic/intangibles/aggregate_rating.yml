@@ -1,0 +1,27 @@
+- :data:
+    :name: Durchschnittswertung
+    :type: object
+    :schema_type: Intangible
+    :content_type: embedded
+    :api:
+      :type:
+        - Intangible
+        - Rating
+        - AggregateRating
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :rating_count:
+        :label: Anzahl Wertungen
+        :type: number
+        :storage_location: value
+      :rating_value:
+        :label: Wertung
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+      :meta_data:
+        :type: mixin
+        :name: meta_data

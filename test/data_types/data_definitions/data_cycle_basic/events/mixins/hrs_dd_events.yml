@@ -1,0 +1,13 @@
+---
+- :data:
+    :name: hrs_dd_events
+    :type: mixin
+    :properties:
+      :hrs_dd_categories:
+        :label: HRS Destination Data - Classifications
+        :type: classification
+        :tree_label: HRS Destination Data - Classifications
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

@@ -1,0 +1,21 @@
+---
+- :data:
+    :name: google
+    :type: mixin
+    :properties:
+      :google_tags:
+        :label: GooglePlaces - Tags
+        :type: classification
+        :tree_label: GooglePlaces - Tags
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :opening_hours:
+        :label: Öffnungszeit
+        :type: embedded
+        :template_name: Öffnungszeit - Simple
+        :translated: true
+        :api:
+          :partial: simple_opening_hours_specification
+          :name: openingHoursSpecification

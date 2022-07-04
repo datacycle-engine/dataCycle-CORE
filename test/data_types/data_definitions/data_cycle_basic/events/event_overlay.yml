@@ -1,0 +1,129 @@
+---
+- :data:
+    :name: EventOverlay
+    :type: object
+    :schema_type: Event
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :start_date:
+        :label: Startzeitpunkt
+        :storage_location: column
+        :type: datetime
+        :compute:
+          :module: Utility::Compute::Schedule
+          :method: start_date
+          :parameters:
+            :0: event_schedule
+        :ui:
+          :show:
+            :content_area: none
+          :edit:
+            :disabled: true
+      :end_date:
+        :label: Endzeitpunkt
+        :storage_location: column
+        :type: datetime
+        :compute:
+          :module: Utility::Compute::Schedule
+          :method: end_date
+          :parameters:
+            :0: event_schedule
+        :ui:
+          :show:
+            :content_area: none
+          :edit:
+            :disabled: true
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_location: translated_value
+        :validations:
+          :format: url
+        :api:
+          :name: sameAs
+        :xml:
+          :name: sameAs
+      :content_location:
+        :label: Veranstaltungsort
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :api:
+          :name: location
+      :virtual_location:
+        :label: Virtueller Veranstaltungsort
+        :type: embedded
+        :template_name: VirtualLocation
+        :api:
+          :disabled: true
+      :event_attendance_mode:
+        :label: Veranstaltungsteilnahmemodus
+        :type: classification
+        :tree_label: Veranstaltungsteilnahmemodus
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :type: radio_button
+        :api:
+          :disabled: true
+      :event_status:
+        :label: Veranstaltungsstatus
+        :type: classification
+        :tree_label: Veranstaltungsstatus
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :type: radio_button
+        :api:
+          :disabled: true
+      :event_schedule:
+        :label: Termine
+        :type: schedule
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+        :validations:
+          valid_dates: true
+          soft_max_duration: P1D
+      :schedule:
+        :label: Event-Schedule
+        :type: embedded
+        :template_name: EventSchedule
+        :translated: true
+        :api:
+          :name: eventSchedule
+          :v4:
+            :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true

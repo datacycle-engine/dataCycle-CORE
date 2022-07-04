@@ -1,0 +1,62 @@
+---
+- :data:
+    :name: outdoor_active_categories
+    :type: mixin
+    :properties:
+      :frontend_type:
+        :label: OutdoorActive - Frontend-Typ
+        :type: classification
+        :tree_label: OutdoorActive - FrontendTypes
+        :external: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header
+#        :api:
+#          :partial: property_value
+#          :type: PropertyValue
+#          :transformation:
+#            :method: combine
+#            :name: additionalProperty
+      :tour_categories:
+        :label: OutdoorActive - Kategorie
+        :type: classification
+        :tree_label: OutdoorActive - Touren-Kategorien
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :poi_categories:
+        :label: OutdoorActive - Kategorie
+        :type: classification
+        :tree_label: OutdoorActive - POI-Kategorien
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :outdoor_active_tags:
+        :label: OutdoorActive - Tags
+        :type: classification
+        :tree_label: OutdoorActive - Tags
+        :external: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header
+      :regions:
+        :label: Regionen
+        :type: classification
+        :tree_label: OutdoorActive - Regionen
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :source:
+        :label: Quelle
+        :type: classification
+        :tree_label: OutdoorActive - Quellen
+        :external: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header

@@ -1,0 +1,5 @@
+---
+- :data:
+    :name: additional_aggregate_offer_properties
+    :type: mixin
+    :properties: ~

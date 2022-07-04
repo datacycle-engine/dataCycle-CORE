@@ -10,8 +10,8 @@ module DataCycleCore
         before(:all) do
           @routes = Engine.routes
           @data_set = create_data({ 'name' => 'My_test' })
-          @external_system = DataCycleCore::ExternalSystem.find_by(identifier: 'outdooractive')
-          @data_set.add_external_system_data(@external_system, external_system_data, nil, 'export', 'outdoor_active_id', false)
+          @external_system = DataCycleCore::ExternalSystem.find_by(identifier: 'remote-system')
+          @data_set.add_external_system_data(@external_system, external_system_data, nil, 'export', 'remote_system_id', false)
         end
 
         setup do

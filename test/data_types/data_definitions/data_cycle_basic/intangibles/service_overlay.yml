@@ -1,0 +1,29 @@
+---
+- :data:
+    :name: ServiceOverlay
+    :type: object
+    :schema_type: Service
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild

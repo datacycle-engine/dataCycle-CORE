@@ -1,0 +1,86 @@
+---
+- :data:
+    :name: postal_address
+    :type: mixin
+    :properties:
+      :address:
+        :label: Adresse
+        :type: object
+        :storage_location: value
+        :api:
+          :type: PostalAddress
+        :xml:
+          :type: PostalAddress
+        :advanced_search: true
+        :properties:
+          :street_address:
+            :label: Straße
+            :type: string
+            :storage_location: value
+            :normalize:
+              :id: street
+              :type: street
+            :advanced_search: true
+          :postal_code:
+            :label: PLZ
+            :type: string
+            :storage_location: value
+            :normalize:
+              :id: zip
+              :type: zip
+            :advanced_search: true
+          :address_locality:
+            :label: Ort
+            :type: string
+            :storage_location: value
+            :normalize:
+              :id: city
+              :type: city
+            :advanced_search: true
+          :address_country:
+            :label: Land
+            :type: string
+            :storage_location: value
+            :normalize:
+              :id: country
+              :type: country
+            :advanced_search: true
+      :country_code:
+        :label: Ländercode
+        :type: classification
+        :tree_label: Ländercodes
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :partial: country_code
+          :transformation:
+            :method: nest
+            :name: address
+          :v4:
+            :name: addressCountry
+            :partial: string
+            :transformation:
+              :method: nest
+              :name: address
+      :country_code_api:
+        :label: Ländercode
+        :type: string
+        :storage_location: value
+        :compute:
+          :module: Utility::Compute::Classification
+          :method: keywords
+          :parameters:
+            :0: country_code
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+        :api:
+          :name: address_country
+          :transformation:
+            :method: nest
+            :name: address
+          :v4:
+            :disabled: true

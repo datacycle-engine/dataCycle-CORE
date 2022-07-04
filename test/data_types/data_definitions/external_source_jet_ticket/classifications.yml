@@ -1,0 +1,14 @@
+- JetTicket - Eventstatus | all:
+  - $$nur Veranstaltungskalender
+  - $$im Verkauf
+  - $$online
+  - $$vorübergehend gestoppt
+  - $$ausverkauft
+  - $$Event wurde abgesagt
+
+- JetTicket - EventFlags | all:
+  - $$Vorstellungsvariante vorhanden
+  - $$Preisübersteuerung/Preistabelle vorhanden
+  - $$Frei für Wahlabo
+  - $$Personalisierung vorhanden
+  - $$Packetverwendung erforderlich

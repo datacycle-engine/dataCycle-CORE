@@ -1,0 +1,77 @@
+---
+- :data:
+    :name: meteorologic_data
+    :type: mixin
+    :properties:
+      :clouds:
+        :label: Bewölkungsgrad
+        :type: number
+        :storage_location: value
+      :fresh_snow:
+        :label: Akkumulierter Neuschnee
+        :type: number
+        :storage_location: value
+        :ui:
+          :edit:
+            :options:
+              :data-unit: cm
+          :show:
+            :options:
+              :data-unit: cm
+      :frost_line:
+        :label: Nullgradgrenze, Frostgrenze
+        :type: number
+        :storage_location: value
+        :ui:
+          :edit:
+            :options:
+              :data-unit: m
+          :show:
+            :options:
+              :data-unit: m
+      :precipitation_probability:
+        :label: Wahrscheinlichkeit für Niederschlag (Regen oder Schneefall)
+        :type: number
+        :storage_location: value
+        :ui:
+          :edit:
+            :options:
+              :data-unit: '%'
+          :show:
+            :options:
+              :data-unit: '%'
+      :precipitation:
+        :label: Akkumulierte Niederschlagsmenge (Regen oder Schnee)
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+        :ui:
+          :edit:
+            :options:
+              :data-unit: mm
+          :show:
+            :options:
+              :data-unit: mm
+      :snow_line:
+        :label: Schneegrenze
+        :type: number
+        :storage_location: value
+        :ui:
+          :edit:
+            :options:
+              :data-unit: m
+          :show:
+            :options:
+              :data-unit: m
+      :thunderstorm_probability:
+        :label: Wahrscheinlichkeit für Gewitter
+        :type: number
+        :storage_location: value
+        :ui:
+          :edit:
+            :options:
+              :data-unit: '%'
+          :show:
+            :options:
+              :data-unit: '%'

@@ -1,0 +1,301 @@
+---
+- :data:
+    :name: Event
+    :type: object
+    :schema_type: Event
+    :boost: 100.0
+    :content_type: entity
+    :features:
+      :overlay:
+        :allowed: true
+      :translatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :indesign: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: EventOverlay
+        :translated: true
+        :validations:
+          :max: 1
+      :title:
+        :type: mixin
+        :name: title
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :start_date:
+        :label: Startzeitpunkt
+        :storage_location: column
+        :type: datetime
+        :compute:
+          :module: Utility::Compute::Schedule
+          :method: start_date
+          :parameters:
+            :0: event_schedule
+        :ui:
+          :show:
+            :content_area: none
+          :edit:
+            :disabled: true
+      :end_date:
+        :label: Endzeitpunkt
+        :storage_location: column
+        :type: datetime
+        :compute:
+          :module: Utility::Compute::Schedule
+          :method: end_date
+          :parameters:
+            :0: event_schedule
+        :ui:
+          :show:
+            :content_area: none
+          :edit:
+            :disabled: true
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_location: translated_value
+        :validations:
+          :format: url
+        :api:
+          :name: sameAs
+        :xml:
+          :name: sameAs
+      :same_as:
+        :label: Link
+        :type: string
+        :storage_location: translated_value
+        :validations:
+          :format: url
+        :api:
+          :name: link
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+        :xml:
+          :name: link
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :content_location:
+        :label: Veranstaltungsort
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :api:
+          :name: location
+      :virtual_location:
+        :label: Virtueller Veranstaltungsort
+        :type: embedded
+        :template_name: VirtualLocation
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :transformation:
+              :method: append
+              :name: location
+      :event_attendance_mode:
+        :label: Veranstaltungsteilnahmemodus
+        :type: classification
+        :tree_label: Veranstaltungsteilnahmemodus
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :type: radio_button
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :partial: string
+      :event_status:
+        :label: Veranstaltungsstatus
+        :type: classification
+        :tree_label: Veranstaltungsstatus
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :type: radio_button
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :partial: string
+      :event_schedule:
+        :label: Termine
+        :type: schedule
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+        :validations:
+          valid_dates: true
+          soft_max_duration: P1D
+      :sub_event:
+        :label: Veranstaltungsdaten
+        :type: embedded
+        :template_name: SubEvent
+        :api:
+          :v4:
+            :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :schedule:
+        :label: Event-Schedule
+        :type: embedded
+        :template_name: EventSchedule
+        :translated: true
+        :api:
+          :name: eventSchedule
+          :v4:
+            :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :super_event:
+        :label: Veranstaltungsserie
+        :type: linked
+        :template_name: Eventserie
+        :inverse_of: sub_event
+      :performer:
+        :label: Ausführende Person/Organisation
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :organizer:
+        :label: Veranstalter
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+                - LocalBusiness
+      :offers:
+        :label: Angebote
+        :type: embedded
+        :template_name: Angebot
+        :translated: true
+      :dc_potential_action:
+        :label: Weiterführende Links
+        :type: embedded
+        :template_name: Action
+        :translated: true
+        :api:
+          :transformation:
+            :method: append
+            :name: potentialAction
+      :potential_action:
+        :label: Link mit weiterführenden Infos
+        :type: string
+        :storage_location: translated_value
+        :api:
+          :partial: action
+          :type: ViewAction
+          :transformation:
+            :method: append
+            :name: potentialAction
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        :api:
+          :v4:
+            :name: dc:additionalInformation
+      :linked_data:
+        :type: mixin
+        :name: linked_data
+      :subject_of:
+        :label: Thema von
+        :type: linked
+        :inverse_of: about
+        :link_direction: inverse
+        :global: true
+      :external_source_attributes:
+        :type: mixin
+        :name: external_source_attributes
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'Veranstaltung'
+      :copyright_attributes:
+        :type: mixin
+        :name: copyright_attributes
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :event_db:
+        :type: mixin
+        :name: event_db
+      :v_ticket:
+        :type: mixin
+        :name: v_ticket
+      :feratel_events:
+        :type: mixin
+        :name: feratel_events
+      :hrs_dd_events:
+        :type: mixin
+        :name: hrs_dd_events
+      :open_destination_one_events:
+        :type: mixin
+        :name: open_destination_one_events
+      :marche_events:
+        :type: mixin
+        :name: marche_events
+      :puglia_events:
+        :type: mixin
+        :name: puglia_events
+      :piemonte_events:
+        :type: mixin
+        :name: piemonte_events
+      :pimcore_events:
+        :type: mixin
+        :name: pimcore_events
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

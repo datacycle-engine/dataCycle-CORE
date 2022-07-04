@@ -1,0 +1,29 @@
+---
+- :data:
+    :name: pimcore_events
+    :type: mixin
+    :properties:
+      :pimcore_tags:
+        :label: Pimcore - Tags
+        :type: classification
+        :tree_label: Pimcore - Tags
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :pimcore_locations:
+        :label: Pimcore - Locations
+        :type: classification
+        :tree_label: Pimcore - Locations
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :pimcore_categories:
+        :label: Pimcore - Event-Categories
+        :type: classification
+        :tree_label: Pimcore - Event-Categories
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

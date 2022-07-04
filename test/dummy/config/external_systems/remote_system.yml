@@ -1,0 +1,19 @@
+---
+name: Remote-System
+identifier: remote-system
+config:
+  download_config:
+    images:
+      sorting: 1
+      source_type: contents
+      endpoint: DataCycleCore::Generic::Csv::Endpoint
+      download_strategy: DataCycleCore::Generic::Common::DownloadFunctions
+  import_config:
+    images:
+      sorting: 1
+      source_type: content
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: Content - Tags
+      tag_id_path: 'keywords'
+      tag_name_path: 'keywords'
+      external_id_prefix: 'Content - keyword - '

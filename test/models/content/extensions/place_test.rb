@@ -71,7 +71,7 @@ module DataCycleCore
 
     test 'tour has correct WKT 1.2 string representation' do
       test_tour = DataCycleCore::DummyDataHelper.create_data('tour')
-
+      
       assert test_tour.line.as_text.include?('MULTILINESTRING Z')
     end
 

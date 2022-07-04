@@ -1,0 +1,69 @@
+---
+- :data:
+    :name: Skigebiet # replaced by external_source_bergfex -> places -> snow_resort.yml (Skigebiet)
+    :type: object
+    :schema_type: Place
+    :content_type: entity
+    :boost: 100.0
+    :features:
+      :translatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :indesign: true
+    :api:
+      :type:
+        - Place
+        - Organization
+        - LocalBusiness
+        - LodgingBusiness
+        - Resort
+        - SportsActivityLocation
+        - SkiResort
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :lifts:
+        :label: Lifte
+        :type: linked
+        :template_name: Lift
+      :slopes:
+        :label: Pisten
+        :type: linked
+        :template_name: Piste
+      :amenity_feature:
+        :label: Zusatzangebot
+        :type: linked
+        :template_name: Zusatzangebot
+        :api:
+          :name: amenityFeature
+      :geo:
+        :type: mixin
+        :name: geo
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'Skigebiet'
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :copyright_attributes:
+        :type: mixin
+        :name: copyright_attributes
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

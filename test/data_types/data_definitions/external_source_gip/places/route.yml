@@ -1,0 +1,88 @@
+---
+- :data:
+    :name: Gesamtroute
+    :type: object
+    :schema_type: Place
+    :content_type: entity
+    :boost: 100.0
+    :features:
+      :translatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :overlay:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :gpx: true
+          :indesign: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :required: true
+        :ui:
+          :show:
+            :content_area: none
+        :api:
+          :minimal: true
+      :description:
+        :label: Kurzbeschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :route_number:
+        :label: Nummer der Radroute
+        :type: string
+        :storage_location: value
+      :sections:
+        :label: Routen
+        :type: linked
+        :inverse_of: routes
+        :link_direction: inverse
+        :api:
+          minimal: true
+      :line:
+        :label: Gesamtstrecke
+        :storage_location: column
+        :type: geographic
+        :ui:
+          :edit:
+            :disabled: true
+            :type: LineString
+            :options:
+              :additional_value_paths:
+                :sections:
+                  :geo: line
+                  :title: title
+      :subject_of:
+        :label: Thema von
+        :type: linked
+        :inverse_of: about
+        :link_direction: inverse
+        :global: true
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'Gesamtroute'
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

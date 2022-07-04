@@ -1,0 +1,167 @@
+---
+- :data:
+    :name: Lift
+    :type: object
+    :schema_type: Place
+    :content_type: entity
+    :boost: 10.0
+    :features:
+      :geocode:
+        :allowed: true
+      :overlay:
+        :allowed: true
+      :translatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :gpx: true
+          :indesign: true
+    :api:
+      :type:
+        - Place
+        - TouristAttraction
+        - 'odta:SkiLift'
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: SimplePlaceOverlay
+        :translated: true
+        :validations:
+          :max: 1
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :opening_hours_specification:
+        :type: mixin
+        :name: opening_hours_specification
+      :postal_address:
+        :type: mixin
+        :name: postal_address
+      :geo:
+        :type: mixin
+        :name: geo
+      :length:
+        :label: Länge (m)
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+        :api:
+          :v4:
+            :name: odta:distance
+            :format:
+              :append: ' m'
+      :geo_shape:
+        :type: mixin
+        :name: geo_shape
+      :contact_info:
+        :type: mixin
+        :name: contact_info
+      :place_attributes:
+        :type: mixin
+        :name: place_attributes
+      :man_per_h:
+        :label: Personen pro Stunde
+        :type: number
+        :storage_location: value
+        :api:
+          :partial: property_value
+          :small_header: true
+          :unit_code: 'H10'
+          :unit_text: '1/h'
+          :transformation:
+            :method: nest
+            :name: dcls:hourlyTransportCapacity
+            :type: QuantitativeValue
+      :man_per_t:
+        :label: Personen pro Fahrt
+        :type: number
+        :storage_location: value
+        :ui:
+          :edit:
+            :options:
+              :data-unit: Personen
+          :show:
+            :options:
+              :data-unit: Personen
+        :api:
+          :partial: property_value
+          :small_header: true
+          :unit_code: 'C62'
+          :transformation:
+            :method: nest
+            :name: odta:transportCapacity
+            :type: QuantitativeValue
+      :order_string:
+        :label: nr
+        :type: string
+        :storage_location: value
+        :api:
+          :name: dcls:orderString
+      :snow_resort:
+        :label: Skigebiet
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Skigebiet
+        :inverse_of: lift_details
+        :api:
+          :name: containedInPlace
+      :ski_lift_type:
+        :label: Lifttyp (odta)
+        :type: classification
+        :tree_label: 'odta:SkiLiftType'
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :name: 'odta:skiLiftType'
+          :partial: string
+      :ski_lift_status:
+        :label: Liftstatus (odta)
+        :type: classification
+        :tree_label: 'odta:OpeningStatus'
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :name: 'odta:skiLiftStatus'
+          :partial: string
+      :linked_data:
+        :type: mixin
+        :name: linked_data
+      :potential_actions:
+        :type: mixin
+        :name: potential_actions
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'Lift'
+      :feratel_cps:
+        :type: mixin
+        :name: feratel_cps
+      :copyright_attributes:
+        :type: mixin
+        :name: copyright_attributes
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

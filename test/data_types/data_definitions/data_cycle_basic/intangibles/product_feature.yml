@@ -1,0 +1,29 @@
+- :data:
+    :name: ProductFeature
+    :type: object
+    :schema_type: Intangible
+    :content_type: embedded
+    :api:
+      :type:
+        - Intangible
+        - StructuredValue
+        - PropertyValue
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+      :value:
+        :label: Wert
+        :type: string
+        :storage_location: translated_value
+      :unit_text:
+        :label: Einheit
+        :type: string
+        :storage_location: translated_value
+      :meta_data:
+        :type: mixin
+        :name: meta_data
