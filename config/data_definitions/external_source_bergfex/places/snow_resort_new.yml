@@ -424,37 +424,3 @@
       :additional_properties:
         :type: mixin
         :name: additional_properties
-      :schema_types:
-        :label: SchemaTypes
-        :type: classification
-        :tree_label: SchemaTypes
-        :compute:
-          :module: Utility::Compute::Classification
-          :method: schema_types
-          :ancestors:
-            - - Organization
-              - LocalBusiness
-              - LodgingBusiness
-              - Resort
-              - SkiResort
-              - odta:SkiResort
-              - dcls:Skigebiet
-            - - Organization
-              - LocalBusiness
-              - SportsActivityLocation
-              - SkiResort
-              - odta:SkiResort
-              - dcls:Skigebiet
-            - - Place
-              - LocalBusiness
-              - LodgingBusiness
-              - Resort
-              - SkiResort
-              - odta:SkiResort
-              - dcls:Skigebiet
-            - - Place
-              - LocalBusiness
-              - SportsActivityLocation
-              - SkiResort
-              - odta:SkiResort
-              - dcls:Skigebiet
