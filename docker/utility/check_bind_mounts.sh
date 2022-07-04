@@ -7,7 +7,8 @@ mkdir -p $BASE_DATA_VOLUME_PATH/{mongodb,postgres}
 
 ## app
 echo "$BASE_DC_PUBLIC_UPLOADS_VOLUME_PATH"
-mkdir -p $BASE_DC_PUBLIC_UPLOADS_VOLUME_PATH/app
+mkdir -p $BASE_DC_PUBLIC_UPLOADS_VOLUME_PATH/app/storage
+mkdir -p $BASE_DC_PUBLIC_UPLOADS_VOLUME_PATH/app/processed/video
 sudo chgrp -R 1000 $BASE_DC_PUBLIC_UPLOADS_VOLUME_PATH/app
 sudo chmod -R g+w $BASE_DC_PUBLIC_UPLOADS_VOLUME_PATH/app
 

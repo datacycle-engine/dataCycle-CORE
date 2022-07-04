@@ -160,6 +160,7 @@ module DataCycleCore
 
     def create_download_file(serialized_content, file_name)
       return serialized_content.data.path if serialized_content.local_file?
+      return serialized_content.data.service.path_for(serialized_content.data.key) if serialized_content.active_storage?
 
       download_dir = Rails.root.join('public', 'downloads')
       Dir.mkdir(download_dir) unless File.exist?(download_dir)

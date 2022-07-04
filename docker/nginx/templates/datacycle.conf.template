@@ -2,7 +2,7 @@ proxy_cache_path /var/cache/nginx/data_cycle
   levels=1:2
   keys_zone=data_cycle:100m
   inactive=1y
-  max_size=100m;
+  max_size=10G;
 proxy_cache_path /var/cache/nginx/imgproxy_data_cycle
   levels=1:2
   keys_zone=imgproxy_data_cycle:100M
@@ -66,6 +66,7 @@ server {
       image/svg+xml;
 
   location @puma_data_cycle {
+    proxy_http_version 1.1;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto ${APP_PROTOCOL};
@@ -157,52 +158,52 @@ server {
   #  proxy_set_header X-Forwarded-Proto $scheme;
   #  proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/800/600/$resize_enlarge/$resize_gravity/$filename.$type;
   #}
-  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/thumb\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/thumb\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/300/300/$resize_enlarge/$resize_gravity/$filename.$type;
   }
 
-  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/web\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/web\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/2048/2048/$resize_enlarge/$resize_gravity/$filename.$type;
   }
 
-  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/web_small\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/web_small\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/1500/1500/$resize_enlarge/$resize_gravity/$filename.$type;
   }
 
-  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/custom\/(?<width>\d+)\/(?<height>\d+)\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/custom\/(?<width>\d+)\/(?<height>\d+)\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/$width/$height/$resize_enlarge/$resize_gravity/$filename.$type;
   }
 
-  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/format\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/format\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/$resize_width/$resize_height/$resize_enlarge/$resize_gravity/$filename.$type;
   }
 
-  # get the image with original with and height
-  # the image is still processed so it is not the original image
-  # the following processing options will be applied: strip_metadata, strip_color_profile, auto_rotate, quality
-  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/default\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+  # # get the image with original with and height
+  # # the image is still processed so it is not the original image
+  # # the following processing options will be applied: strip_metadata, strip_color_profile, auto_rotate, quality
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/default\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://self_data_cycle/asset/$thing/$signature/$resize_type/$resize_width/$resize_height/$resize_enlarge/$resize_gravity/$filename.$type;
   }
 
-  location ~ "^\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.*?))\/(?<mode>(fit|fill|auto))\/(?<width>\d+)\/(?<height>\d+)\/(?<enlarge>(0|1))\/(?<gravity>(.*))\/(?<filename>(.*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+  location ~ "^\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<mode>(fit|fill|auto))\/(?<width>\d+)\/(?<height>\d+)\/(?<enlarge>(0|1))\/(?<gravity>(.*))\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     # resolver 127.0.0.11 8.8.8.8 8.8.4.4;
     limit_req zone=req_zone burst=100 nodelay;
 
@@ -216,6 +217,90 @@ server {
 
     # the filename is not used for key cache
     proxy_cache_key "$rqUrl$mode$width$height$enlarge$gravity$type";
+
+    proxy_cache_background_update on;
+
+    proxy_cache_lock on;
+    proxy_cache_lock_age 5s;
+    proxy_cache_lock_timeout 5s;
+
+    proxy_cache_use_stale updating;
+
+    proxy_cache_valid 200 30d; # Cache valid assets for 30 days.
+    proxy_cache_valid any 15s; # Everything else gets 15s.
+
+    proxy_http_version 1.1;
+    expires 1y;
+
+    add_header X-Cache $upstream_cache_status;
+
+    proxy_intercept_errors on;
+    recursive_error_pages on;
+    error_page 502 = $rqUrl;
+  }
+
+  # imgporxy v3.x
+  # includes preset and cachebuster
+  
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/thumb\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$cachebuster/default/$resize_type/300/300/$resize_enlarge/$resize_gravity/$filename.$type;
+  }
+
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/web\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$cachebuster/default/$resize_type/2048/2048/$resize_enlarge/$resize_gravity/$filename.$type;
+  }
+
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/web_small\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$cachebuster/default/$resize_type/1500/1500/$resize_enlarge/$resize_gravity/$filename.$type;
+  }
+
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/custom\/(?<width>\d+)\/(?<height>\d+)\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$cachebuster/default/$resize_type/$width/$height/$resize_enlarge/$resize_gravity/$filename.$type;
+  }
+
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/format\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$cachebuster/default/$resize_type/$resize_width/$resize_height/$resize_enlarge/$resize_gravity/$filename.$type;
+  }
+
+  # # get the image with original with and height
+  # # the image is still processed so it is not the original image
+  # # the following processing options will be applied: strip_metadata, strip_color_profile, auto_rotate, quality
+  location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/default\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass http://self_data_cycle/asset/$thing/$signature/$cachebuster/default/$resize_type/$resize_width/$resize_height/$resize_enlarge/$resize_gravity/$filename.$type;
+  }
+  
+  location ~ "^\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/(?<preset>(default|blurry|pixelated))\/(?<mode>(fit|fill|auto))\/(?<width>\d+)\/(?<height>\d+)\/(?<enlarge>(0|1))\/(?<gravity>(.*))\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
+    # resolver 127.0.0.11 8.8.8.8 8.8.4.4;
+    limit_req zone=req_zone burst=100 nodelay;
+
+    set $rqUrl "${IMGPROXY_DC_SIGNATURE_URL}/things/$thing/asset/content";
+
+    # the filename is always ignored by the proxy to avoid DOS attachs. If required the name can be set via Content-Disposition header.
+    # when no target type is set, the image will be processed with the source type
+    proxy_pass http://docker-imgproxy/$signature/cachebuster:$cachebuster/preset:$preset/resize:$mode:$width:$height:$enlarge/gravity:$gravity/filename:$thing/plain/$rqUrl@$type;
+
+    proxy_cache imgproxy_data_cycle;
+
+    # the filename is not used for key cache
+    proxy_cache_key "$rqUrl$mode$cachebuster$preset$width$height$enlarge$gravity$type";
 
     proxy_cache_background_update on;
 
@@ -287,4 +372,85 @@ server {
   #   add_header X-Cache $upstream_cache_status;
   # }
 
+
+  ############# video caching proxy
+  # video caching with active storage
+  # location ~ "\/rails\/active_storage\/.[^\.]*?\/*\.mp4" {
+  #   proxy_ignore_headers Cache-Control Expires Set-Cookie;
+  #   proxy_hide_header Cache-Control;
+    
+  #   gzip_static on;
+  #   expires max;
+  #   add_header Cache-Control public;
+
+  #   mp4;
+  #   mp4_buffer_size 1M;
+  #   mp4_max_buffer_size 3M;
+  #   # enable thread bool
+  #   aio threads=default;
+  #   # enable caching for mp4 videos
+  #   proxy_cache data_cycle;
+  #   proxy_cache_valid 200 206 300s;
+  #   proxy_cache_lock on;
+  #   proxy_force_ranges on;
+  #   # enable nginx slicing
+  #   slice 1m;
+  #   proxy_cache_key $host$uri$is_args$args$slice_range;
+  #   proxy_set_header Range $slice_range;
+  #   proxy_http_version 1.1;
+  #   # Immediately forward requests to the origin if we are filling the cache
+  #   proxy_cache_lock_timeout 0s;
+  #   # Set the 'age' to a value larger than the expected fill time
+  #   proxy_cache_lock_age 200s;
+  #   proxy_cache_use_stale updating;
+
+  #   # debug
+  #   # add_header X-Cache-Status $upstream_cache_status;
+  #   # add_header X-Cache-Control $upstream_http_cache_control;
+  #   # add_header X-Cache-Key $host$uri$is_args$args$slice_range;
+
+  #   proxy_pass http://puma_data_cycle;
+  # }
+
+  # video caching with computed transcodings
+  location ~ "\/processed\/video\/.[^\.]*?\/*\.mp4" {
+    proxy_ignore_headers Cache-Control Expires Set-Cookie;
+    proxy_hide_header Cache-Control;
+    
+    gzip_static on;
+    expires max;
+    add_header Cache-Control public;
+
+    mp4;
+    mp4_buffer_size 1M;
+    mp4_max_buffer_size 3M;
+    # enable thread bool
+    aio threads=default;
+    # enable caching for mp4 videos
+
+    proxy_cache data_cycle;
+    slice 1m;
+
+    proxy_cache_lock on;
+    proxy_force_ranges on;
+    # enable nginx slicing
+    proxy_cache_key $host$uri$is_args$args$slice_range;
+    proxy_set_header Range $slice_range;
+    proxy_http_version 1.1;
+    proxy_cache_valid 200 206 300s;
+    # Immediately forward requests to the origin if we are filling the cache
+    proxy_cache_lock_timeout 0s;
+    # Set the 'age' to a value larger than the expected fill time
+    proxy_cache_lock_age 200s;
+    proxy_cache_use_stale updating;
+
+    # debug                                           
+    add_header X-Cache-Status $upstream_cache_status;                                                                                                                     
+    add_header X-Cache-Control $upstream_http_cache_control;                                                                                                              
+    add_header X-Cache-Key $host$uri$is_args$args$slice_range;  
+    add_header X-Range $slice_range;                                                                                                                                      
+    add_header X-HTTP-RANGE $http_range;
+
+    proxy_pass http://puma_data_cycle;
+  }
 }

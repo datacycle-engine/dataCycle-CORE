@@ -32,8 +32,16 @@ module DataCycleCore
           .>> t(:load_category, 'booking_hotel_types', external_source_id, ->(s) { 'Booking.com - HotelTypes - ' + s&.dig('hotel_data', 'hotel_type_id').to_s })
           .>> t(:add_field, 'booking_hotel_facility_types', ->(s) { load_hotel_facilities(s&.dig('hotel_data', 'hotel_facilities'), external_source_id) })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('hotel_data', 'hotel_photos')&.map { |item| item.dig('url_original').split('/').last } || [] })
+          .>> t(:add_field, 'external_status', ->(s) { parse_is_closed(s.dig('hotel_data', 'is_closed')) })
           .>> t(:reject_keys, ['hotel_data', 'room_data'])
           .>> t(:strip_all)
+        end
+
+        def self.parse_is_closed(is_closed)
+          status = 'Aktiv' if is_closed == false
+          status = 'Inaktiv' if is_closed.nil?
+          status = 'Inaktiv' if is_closed
+          ClassificationAlias.classifications_for_tree_with_name('Externer Status', status)
         end
 
         def self.booking_to_image(name, external_source_id)
@@ -42,6 +50,7 @@ module DataCycleCore
           .>> t(:add_field, 'external_key', ->(s) { s.dig('url_original').split('/').last })
           .>> t(:rename_keys, { 'url_original' => 'content_url', 'url_max300' => 'thumbnail_url', 'tags' => 'keywords_booking' })
           .>> t(:reject_keys, ['main_photo', 'is_logo_photo', 'url_square60'])
+          .>> t(:map_value, 'content_url', ->(url) { url&.sub('max500', 'max2160') })
           .>> t(:tags_to_ids, 'keywords_booking', external_source_id, 'Booking.com - Tag - ')
           .>> t(:strip_all)
         end

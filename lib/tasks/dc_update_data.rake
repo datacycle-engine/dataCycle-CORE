@@ -7,9 +7,9 @@ namespace :dc do
     desc 'update all computed attributes'
     task :computed_attributes, [:template_name, :webhooks, :computed_name, :dry_run] => [:environment] do |_, args|
       dry_run = args.fetch(:dry_run, false)
-      webhooks = args.fetch(:webhooks, 'true')
-      template_name = args.fetch(:template_name, false)
-      computed_name = args.fetch(:computed_name, false)
+      webhooks = args.fetch(:webhooks, 'true').to_s
+      template_name = args.fetch(:template_name, false).to_s
+      computed_name = args.fetch(:computed_name, false).to_s
       computed_names = computed_name.present? && computed_name != 'false' ? computed_name.split(',') : false
 
       selected_things = DataCycleCore::Thing.where(template: true)

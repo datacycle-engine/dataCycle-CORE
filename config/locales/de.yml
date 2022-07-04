@@ -19,6 +19,9 @@ de:
   submit: 'Erstellen'
   settings:
 
+  attribute_labels:
+    additional_information: Beschreibungsblock
+
   locales:
     de: deutsch
     en: englisch
@@ -1388,6 +1391,18 @@ de:
       description: Beschreibung
       longDescription: Detailbeschreibung
       shortDescription: Kurzbeschreibung
+      directions: Wegbeschreibung
+      parking: Parkmöglichkeiten
+      maps: Karten
+      shortText: Kurzbeschreibung
+      longText: Detailbeschreibung
+      additionalInformation: Zusätzliche Informationen
+      destination: Zielbeschreibung
+      gettingThere: Anfahrtsbeschreibung
+      literature: Literatur
+      startingPointDescr: Startpunktbeschreibung
+      tip: Tipps
+      publicTransit: Öffentliche Verkehrsmittel
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

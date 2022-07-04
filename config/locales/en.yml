@@ -18,6 +18,10 @@ en:
     title: Title
     updated: Edited
   submit: Create
+
+  attribute_labels:
+    additional_information: Description block
+
   locales:
     de: German
     en: English
@@ -1382,6 +1386,18 @@ en:
       description: Description
       longDescription: Detailed descripton
       shortDescription: Brief descripton
+      directions: Directions
+      parking: Parking
+      maps: Maps
+      shortText: Brief description
+      longText: Detailed description
+      additionalInformation: Additional Information
+      destination: Destination
+      gettingThere: Getting there
+      literature: Literature
+      startingPointDescr: Starting point description
+      tip: Tip
+      publicTransit: Public transit
 
   media_archive:
     allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>

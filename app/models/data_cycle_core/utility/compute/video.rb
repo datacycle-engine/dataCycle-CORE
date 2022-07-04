@@ -25,8 +25,28 @@ module DataCycleCore
             meta_value(computed_parameters.values.first, ['format', 'duration'])&.to_f
           end
 
+          def preview_image_start_time(content:, **_args)
+            content&.asset&.file&.blob&.preview_image&.purge if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+            nil
+          end
+
           def thumbnail_url(computed_parameters:, **_args)
-            DataCycleCore::Video.find_by(id: computed_parameters.values.first)&.file&.thumb_preview&.url
+            video = DataCycleCore::Video.find_by(id: computed_parameters.values.first)
+            video&.file&.thumb_preview&.url
+          end
+
+          def transcode(**args)
+            content = args.dig(:content)
+            original_value = content.try(args.dig(:key))
+            return original_value if original_value.present? && original_value != DataCycleCore::Feature::VideoTranscoding.placeholder
+            # could be used for custom processing instructions via data definition
+            # video_processing = args.dig(:computed_definition, 'compute', 'processing')
+
+            asset = args.dig(:computed_parameters)&.first || args.dig(:content).try(:asset)
+            return if asset.blank?
+
+            DataCycleCore::VideoTranscodingJob.perform_later(content.id, args.dig(:key))
+            DataCycleCore::Feature::VideoTranscoding.placeholder
           end
 
           def meta_value(video_id, path)

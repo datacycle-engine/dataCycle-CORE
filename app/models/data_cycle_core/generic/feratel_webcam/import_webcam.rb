@@ -54,7 +54,7 @@ module DataCycleCore
               thumbnail_url = cam_details.dig('pci').detect { |ii| ii.dig('t') == '10' }&.dig('v')
               DataCycleCore::Generic::FeratelWebcam::Processing.process_video(
                 utility_object,
-                { 'item' => item, 'url' => url_hash.dig('v'), 'thumbnail_url' => thumbnail_url, 'rid' => cam_details['rid'], 'video_data' => video_data },
+                { 'item' => item, 'url' => url_hash.dig('v'), 'thumbnail_url_override' => thumbnail_url, 'rid' => cam_details['rid'], 'video_data' => video_data },
                 options.dig(:import, :transformations, :image)
               )
             end

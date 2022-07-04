@@ -47,7 +47,7 @@ services:
     <<: *default-app
     environment:
       <<: *default-app-env
-    entrypoint: ${DC_DOCKER_SETUP_PATH:-/app/docker/}web/entrypoint.sh
+    entrypoint: ${DC_DOCKER_SETUP_PATH:-/app/docker/}migrate_project/entrypoint.sh
     command: ["/bin/bash"]
     restart: 'no'
     profiles: ['migrate']
@@ -135,15 +135,8 @@ services:
     env_file:
       - ${PWD}/.env.production
     restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
-  varnish:
-    env_file:
-      - ${PWD}/.env.production
-    volumes:
-      - app-docker:/app/docker
-      - varnish-data:/var/lib/varnish/data
 volumes:
   app-docker:
   app-tmp:
   app-public-assets:
   redis:
-  varnish-data:
