@@ -20,6 +20,16 @@ class NewContentDialog {
     this.nextAssetButton;
     this.prevAssetButton;
     this.translatedFieldInitObserver = new MutationObserver(this.initTranslatableField.bind(this));
+    this.changeObserver = new MutationObserver(this._checkForChangedFormData.bind(this));
+    this.changeObserverConfig = {
+      subtree: false,
+      attributes: true,
+      attributeFilter: ['class'],
+      characterData: false,
+      childList: false,
+      attributeOldValue: true,
+      characterDataOldValue: false
+    };
 
     this.init();
     this.initEventHandlers();
@@ -66,21 +76,26 @@ class NewContentDialog {
         attributeFilter: ['class']
       });
 
-      this.$formWrapper.on('dc:html:initialized', event => {
-        event.stopPropagation();
+      if (this.$formWrapper[0].classList.contains('remote-rendered')) this.triggerSyncWithContentUploader();
+      else this.changeObserver.observe(this.$formWrapper[0], this.changeObserverConfig);
+    }
+  }
+  _checkForChangedFormData(mutations) {
+    for (const mutation of mutations) {
+      if (mutation.type !== 'attributes') continue;
 
+      if (mutation.target.classList.contains('remote-rendered') && mutation.oldValue.includes('remote-rendering'))
         this.triggerSyncWithContentUploader();
-      });
     }
   }
   initTranslatableField(mutations) {
-    for (let i = 0; i < mutations.length; ++i) {
+    for (const mutation of mutations) {
       if (
-        mutations[i].target.classList.contains('dc-import-data') &&
-        !mutations[i].target.classList.contains('triggered-sync-with-uploader')
+        mutation.target.classList.contains('dc-import-data') &&
+        !mutation.target.classList.contains('triggered-sync-with-uploader')
       ) {
-        mutations[i].target.classList.add('triggered-sync-with-uploader');
-        const formElement = mutations[i].target.closest('.form-element');
+        mutation.target.classList.add('triggered-sync-with-uploader');
+        const formElement = mutation.target.closest('.form-element');
 
         this.addCopyAttributeButtons(formElement);
         this.triggerSyncWithContentUploader(formElement);

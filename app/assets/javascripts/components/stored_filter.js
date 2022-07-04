@@ -74,7 +74,7 @@ class StoredFilter {
         target.closest('li.load-more-link').remove();
         this.list.insertAdjacentHTML('beforeend', data.html);
 
-        $(this.list).trigger('dc:html:changed').trigger('dc:html:initialized');
+        $(this.list).trigger('dc:html:changed');
       })
       .finally(_error => {
         this.enableForm();
@@ -122,7 +122,7 @@ class StoredFilter {
           }).then(html => (this.count.innerHTML = html));
 
         this.list.innerHTML = data.html;
-        $(this.list).trigger('dc:html:changed').trigger('dc:html:initialized');
+        $(this.list).trigger('dc:html:changed');
       })
       .finally(() => {
         this.enableForm();

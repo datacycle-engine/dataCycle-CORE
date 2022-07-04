@@ -33,7 +33,7 @@ class StoredFilterForm {
       .then(data => {
         this.dynamicFormPart.innerHTML = $(data.html).find('.dynamic-form-parts').html();
 
-        $(this.dynamicFormPart).trigger('dc:html:changed').trigger('dc:html:initialized');
+        $(this.dynamicFormPart).trigger('dc:html:changed');
       })
       .finally(() => {
         this.idSelector.disabled = false;

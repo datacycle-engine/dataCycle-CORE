@@ -54,7 +54,7 @@ class DashboardPagination {
     const $newElements = $(this.paginationContainer)[this.directionNext ? 'nextAll' : 'prevAll']();
 
     this.paginationContainer.remove();
-    $newElements.trigger('dc:html:changed').trigger('dc:html:initialized');
+    $newElements.trigger('dc:html:changed');
   }
   redirectToPage(formData) {
     const form = document.createElement('form');

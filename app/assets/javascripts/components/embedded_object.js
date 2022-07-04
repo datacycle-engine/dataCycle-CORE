@@ -32,6 +32,15 @@ class EmbeddedObject {
       removeItem: this.handleRemoveEvent.bind(this),
       scrollToLocationHash: this.scrollToLocationHash.bind(this)
     };
+    this.addedItemsObserver = new MutationObserver(this._checkForAddedNodes.bind(this));
+    this.addedItemsObserverConfig = {
+      attributes: false,
+      characterData: false,
+      subtree: true,
+      childList: true,
+      attributeOldValue: false,
+      characterDataOldValue: false
+    };
 
     this.setup();
   }
@@ -50,9 +59,7 @@ class EmbeddedObject {
       .off('reinit-event-handlers', this.eventHandlers.reInit)
       .on('reinit-event-handlers', this.eventHandlers.reInit);
 
-    this.element.on('dc:html:changed', '> .content-object-item:not(.hidden)', event =>
-      this.setSwapClasses(event.currentTarget)
-    );
+    this.addedItemsObserver.observe(this.element[0], this.addedItemsObserverConfig);
 
     this.element
       .off('dc:import:data', this.eventHandlers.import)
@@ -60,6 +67,22 @@ class EmbeddedObject {
       .addClass('dc-import-data');
 
     this.addEventHandlers();
+  }
+  _checkForConditionRecursive(node) {
+    for (const child of node.children) this._checkForConditionRecursive(child);
+
+    if (node.classList.contains('content-object-item') && !node.classList.contains('hidden')) this.setSwapClasses(node);
+  }
+  _checkForAddedNodes(mutations) {
+    for (const mutation of mutations) {
+      if (mutation.type !== 'childList') continue;
+
+      for (const addedNode of mutation.addedNodes) {
+        if (addedNode.nodeType !== Node.ELEMENT_NODE) continue;
+
+        this._checkForConditionRecursive(addedNode);
+      }
+    }
   }
   locale() {
     return this.element.data('locale') || 'de';

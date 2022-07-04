@@ -84,7 +84,7 @@ class AssetSelector {
             assets: data.assets,
             selected: this.selectedAssetIds
           });
-          $html.trigger('dc:html:changed').trigger('dc:html:initialized');
+          $html.trigger('dc:html:changed');
         }
       })
       .finally(() => {
@@ -198,7 +198,7 @@ class AssetSelector {
           total: data.total,
           append: append
         });
-        $html.trigger('dc:html:changed').trigger('dc:html:initialized');
+        $html.trigger('dc:html:changed');
       } else {
         this.assetList.html(data.html).trigger('dc:asset_list:changed', {
           selected: this.selectedAssetIds,

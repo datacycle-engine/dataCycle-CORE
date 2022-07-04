@@ -30,12 +30,9 @@ class DashboardTreeLoader extends DashboardPagination {
 
     this.paginationContainer.insertAdjacentHTML('beforeend', data.html);
 
-    $(this.paginationContainer.querySelector(':scope > .children'))
-      .trigger('dc:html:changed')
-      .trigger('dc:html:initialized');
-    $(this.paginationContainer.querySelector(':scope > .contents'))
-      .trigger('dc:html:changed')
-      .trigger('dc:html:initialized');
+    $(this.paginationContainer.querySelector(':scope > .children')).trigger('dc:html:changed');
+
+    $(this.paginationContainer.querySelector(':scope > .contents')).trigger('dc:html:changed');
   }
 }
 

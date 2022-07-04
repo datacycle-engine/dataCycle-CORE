@@ -49,5 +49,5 @@
 
   $('<%= j content_for :forms %>').appendTo('body').foundation();
 
-  $content.trigger('dc:html:changed').trigger('dc:html:initialized', { newContent: <%= @objects.nil? || @duplicated_content.to_s == 'true' %> });
+  $content.trigger('dc:html:changed');
 })();
