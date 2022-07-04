@@ -134,4 +134,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'mini_exiftool_vendored'
 
   s.add_dependency 'image_processing', '>= 1.2'
+
+  s.add_dependency 'rails-pg-extras'
 end
