@@ -10,7 +10,7 @@ module DataCycleCore
         before(:all) do
           @routes = Engine.routes
           @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { 'name' => 'My_test' })
-          @external_system = DataCycleCore::ExternalSystem.find_by(name: 'austria.info')
+          @external_system = DataCycleCore::ExternalSystem.find_by(identifier: 'remote-system')
           @external_key = 'external_key_1'
         end
 

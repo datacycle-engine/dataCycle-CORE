@@ -130,15 +130,15 @@ module DataCycleCore
     end
 
     test 'duplicates from different external_source get merged correctly' do
-      external_source_f = DataCycleCore::ExternalSystem.find_by(name: 'Feratel')
+      external_source_f = DataCycleCore::ExternalSystem.find_by(identifier: 'local-system')
       external_key_f = SecureRandom.uuid
-      external_source_oa = DataCycleCore::ExternalSystem.find_by(name: 'OutdoorActive')
+      external_source_oa = DataCycleCore::ExternalSystem.find_by(identifier: 'remote-system')
       external_key_oa = SecureRandom.uuid
-      external_source_v = DataCycleCore::ExternalSystem.find_by(name: 'V-Ticket')
+      external_source_v = DataCycleCore::ExternalSystem.find_by(identifier: 'remote-system-2')
       external_key_v = SecureRandom.uuid
-      external_source_m = DataCycleCore::ExternalSystem.find_by(name: 'Medienarchiv')
+      external_source_m = DataCycleCore::ExternalSystem.find_by(identifier: 'remote-system-3')
       external_key_m = SecureRandom.uuid
-      external_source_hrs = DataCycleCore::ExternalSystem.find_by(name: 'HRS')
+      external_source_hrs = DataCycleCore::ExternalSystem.find_by(identifier: 'remote-system-4')
       external_key_hrs = SecureRandom.uuid
 
       image_f = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1' })

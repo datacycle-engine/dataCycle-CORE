@@ -1,0 +1,6 @@
+---
+name: Remote-System 2
+identifier: remote-system-2
+config:
+  download:
+  import:
