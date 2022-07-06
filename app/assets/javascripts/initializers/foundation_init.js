@@ -20,6 +20,7 @@ export default function () {
 
   DataCycle.htmlObserver.removeCallbacks.push([e => 'open' in e.dataset, e => removeFoundationOverlays(e, 'open')]);
   DataCycle.htmlObserver.removeCallbacks.push([e => 'toggle' in e.dataset, e => removeFoundationOverlays(e, 'toggle')]);
+  DataCycle.htmlObserver.addCallbacks.push([e => e.classList.contains('slider'), e => new Foundation.Slider($(e))]);
 
   $('body').foundation().addClass('dc-fd-initialized');
 
