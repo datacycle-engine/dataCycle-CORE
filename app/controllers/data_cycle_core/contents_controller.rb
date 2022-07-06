@@ -91,10 +91,11 @@ module DataCycleCore
       elsif content.template_name == 'Video'
         # no active storage
         rendered_attribute = content.send(:thumbnail_url)
+      elsif content.template_name == 'Webcam' && content.send(attribute).blank?
+        rendered_attribute = content.try(:image)&.first&.send(attribute)
       else
         rendered_attribute = content.send(attribute)
       end
-
       uri = URI.parse(rendered_attribute)
       # used for local development and docker env.
       uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && ENV.fetch('APP_DOCKER_ENV') { nil } != 'production' && uri.hostname == 'localhost'
