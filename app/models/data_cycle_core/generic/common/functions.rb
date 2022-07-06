@@ -74,13 +74,9 @@ module DataCycleCore
           if data_hash[attribute].blank?
             data_hash[attribute] = []
           else
-            data_hash[attribute] = data_hash[attribute].map { |keyword|
-              DataCycleCore::Classification.where(
-                external_source_id: external_source_id,
-                external_key: external_prefix.to_s + keyword.to_s
-              )&.first&.id
-            }.reject(&:nil?) || []
+            data_hash[attribute] = DataCycleCore::Classification.where(external_source_id: external_source_id, external_key: data_hash[attribute].map { |a| "#{external_prefix}#{a}" }).pluck(:id)
           end
+
           data_hash
         end
 
