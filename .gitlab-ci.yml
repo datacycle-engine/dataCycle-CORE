@@ -1,0 +1,178 @@
+########################################################################
+######################### DOCKER setup for DC core
+
+include:
+  - project: 'datacycle/utilities/datacycle-gitlab'
+    ref: master
+    file: '.gitlab-ci-dc-common.yml'
+
+# variables:
+#   DOCKER_URL: 'https://core-develop.datacycle.at'
+#   GITLAB_ENVIRONMENT: 'develop'
+
+stages:
+  - build
+  - check
+  - test
+
+before_script:
+  - gem install bundler
+  - bundle config set --local path 'cache/bundler'
+  - bundle install
+  - export RUBYOPT="-W:no-deprecated -W:no-experimental"
+
+########################################################################
+######################### Branch Configuration
+.master_ci_config: &master_ci
+  only:
+    - develop
+    - master
+  tags:
+    - dc-opensource
+
+.review_ci_config: &review_ci
+  only:
+    - branches
+  except:
+    - master
+    - develop
+  tags:
+    - dc-opensource
+
+########################################################################
+######################### Docker / Develop
+build_caches:
+  <<: *master_ci
+  extends: .build_caches_config
+
+code_validation:
+  <<: *master_ci
+  extends: .code_validation_config
+
+rails_test:
+  <<: *master_ci
+  extends: .rails_test_config
+
+# build_docker_job:
+#   <<: *docker_ci
+#   extends: .build_docker_config
+#   script:
+#     - docker build --pull -f Dockerfile-core -t "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG" --target production .
+#     - docker push "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG"
+
+# deploy_docker_job:
+#   <<: *docker_ci
+#   extends: .deploy_docker_config
+#   script:
+#     # update ssh config of deployment target to support bigger number of active sessions
+#     # e.g. MaxSessions 20
+#     - echo "$DOCKER_HOST"
+#     - bash docker/utility/ssh_helper.sh .env.production docker/utility/check_bind_mounts.sh
+#     - docker-compose --env-file .env.production pull
+#     - docker-compose --env-file .env.production build
+#     - docker-compose --env-file .env.production --profile migrate run migrate_project bash /app/docker/utility/migrate.sh
+#     - docker-compose --env-file .env.production up --scale job_worker_cache_invalidation=2 --scale job_worker_search_update=3 -d --force-recreate
+#   environment:
+#     name: $GITLAB_ENVIRONMENT
+#     url: $DOCKER_URL
+#     on_stop: stop_docker_job
+#   when: manual
+
+# stop_docker_job:
+#   <<: *docker_ci
+#   extends: .stop_docker_config
+#   environment:
+#     name: $GITLAB_ENVIRONMENT
+#     action: stop
+
+# restart_docker_job:
+#   <<: *docker_ci
+#   extends: .restart_docker_config
+#   environment:
+#     name: $GITLAB_ENVIRONMENT
+#     url: $DOCKER_URL
+
+# post_deploy_docker_job:
+#   <<: *docker_ci
+#   extends: .post_deploy_docker_config
+#   environment:
+#     name: $GITLAB_ENVIRONMENT
+#     url: $DOCKER_URL
+
+# ########################################################################
+# ######################### Master
+# build_caches_master:
+#   <<: *master_ci
+#   extends: .build_caches_config
+
+# code_validation_master:
+#   <<: *master_ci
+#   extends: .code_validation_config
+
+# rails_test_master:
+#   <<: *master_ci
+#   extends: .rails_test_config
+
+########################################################################
+######################### Review Apps
+build_review_caches:
+  <<: *review_ci
+  extends: .build_caches_config
+
+code_review_validation:
+  <<: *review_ci
+  extends: .code_validation_config
+
+rails_review_test:
+  <<: *review_ci
+  extends: .rails_test_config
+
+#deploy_review:
+#  <<: *review_ci
+#  extends: .job_cache_config
+#  stage: deploy
+#  script:
+#    - cd test/dummy && bundle exec rake tmp:create
+#    - cd $CI_PROJECT_DIR
+#    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+#    - bundle exec cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
+#  environment:
+#    name: review/$CI_COMMIT_REF_NAME
+#    url: http://core-$CI_COMMIT_REF_SLUG.datacycle.at
+#    on_stop: stop_review
+#  when: manual
+#  allow_failure: false
+#
+#stop_review:
+#  <<: *review_ci
+#  stage: deploy
+#  variables:
+#    GIT_STRATEGY: none
+#  before_script:
+#    # uncomment for local testing
+#    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+#    - eval $(ssh-agent -s)
+#    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+#    # uncomment for local testing END
+#    - mkdir -p ~/.ssh
+#    - chmod 700 ~/.ssh
+#    - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
+#    - chmod 644 ~/.ssh/known_hosts
+#
+#    - git init
+#    - git remote add origin $CI_REPOSITORY_URL
+#    - git fetch
+#    - git reset origin/develop
+#    - git checkout -t origin/develop
+#    - git reset origin/develop --hard
+#
+#    - bundle install --path=cache/bundler
+#
+#    - cd $CI_PROJECT_DIR
+#  script:
+#    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+#    - bundle exec cap review review:undeploy application=$CI_COMMIT_REF_SLUG
+#  environment:
+#    name: review/$CI_COMMIT_REF_NAME
+#    action: stop
+#  when: manual
