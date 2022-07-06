@@ -1,6 +1,7 @@
 import QuillHelpers from './../helpers/quill_helpers';
 import ConfirmationModal from './../components/confirmation_modal';
 import UuidHelper from './../helpers/uuid_helper';
+import ObserverHelpers from '../helpers/observer_helpers';
 
 class NewContentDialog {
   constructor(form) {
@@ -21,15 +22,6 @@ class NewContentDialog {
     this.prevAssetButton;
     this.translatedFieldInitObserver = new MutationObserver(this.initTranslatableField.bind(this));
     this.changeObserver = new MutationObserver(this._checkForChangedFormData.bind(this));
-    this.changeObserverConfig = {
-      subtree: false,
-      attributes: true,
-      attributeFilter: ['class'],
-      characterData: false,
-      childList: false,
-      attributeOldValue: true,
-      characterDataOldValue: false
-    };
 
     this.init();
     this.initEventHandlers();
@@ -70,14 +62,10 @@ class NewContentDialog {
       this.referencedAssetField.on('dc:form:importAttributeValues', this.importAttributeValues.bind(this));
       this.form.on('dc:form:submitWithoutRedirect', this.copyToReferenceField.bind(this));
       this.form.find('.set-all-attributes').on('click', this.copyToAllReferenceFields.bind(this));
-      this.translatedFieldInitObserver.observe(this.form.get(0), {
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['class']
-      });
+      this.translatedFieldInitObserver.observe(this.form.get(0), ObserverHelpers.changedClassWithSubtreeConfig);
 
       if (this.$formWrapper[0].classList.contains('remote-rendered')) this.triggerSyncWithContentUploader();
-      else this.changeObserver.observe(this.$formWrapper[0], this.changeObserverConfig);
+      else this.changeObserver.observe(this.$formWrapper[0], ObserverHelpers.changedClassConfig);
     }
   }
   _checkForChangedFormData(mutations) {
@@ -341,13 +329,16 @@ class NewContentDialog {
   updateForm() {
     this.updateCrumbs();
     this.updateWarningLevel();
+
     let activeFieldset = this.form.find('fieldset.active');
+
     if (
       (!activeFieldset.hasClass('iframe') && !activeFieldset.hasClass('no-search-warning')) ||
       activeFieldset.hasClass('template')
     )
       this.form.find('.search-warning').show();
     else this.form.find('.search-warning').hide();
+
     if (activeFieldset.hasClass('template') || activeFieldset.hasClass('no-search-warning')) {
       DataCycle.enableElement(this.form);
     } else if (this.form.hasClass('disabled')) {

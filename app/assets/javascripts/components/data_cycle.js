@@ -36,7 +36,7 @@ class DataCycle {
 
     this.htmlObserver = {
       observer: new MutationObserver(this._observeHtmlContent.bind(this)),
-      config: {
+      newItemsConfig: {
         attributes: false,
         characterData: false,
         subtree: true,
@@ -49,13 +49,14 @@ class DataCycle {
     };
 
     this.notifications = new Comment('dataCycle-notifications');
+    this.mutableNodes = ['A', 'BUTTON'];
 
     this.init();
   }
 
   init() {
     Object.freeze(this.config);
-    this.htmlObserver.observer.observe(document.body, this.htmlObserver.config);
+    this.htmlObserver.observer.observe(document.body, this.htmlObserver.newItemsConfig);
   }
   joinPath(...segments) {
     const parts = segments.reduce((parts, segment) => {
@@ -131,14 +132,14 @@ class DataCycle {
     if (!element) return;
 
     Rails.disableElement(element);
-    element.classList.add('disabled');
+    if (this.mutableNodes.includes(element.nodeName)) element.classList.add('disabled');
   }
   enableElement(element) {
     element = this._prepareElement(element);
     if (!element) return;
 
     Rails.enableElement(element);
-    element.classList.remove('disabled');
+    if (this.mutableNodes.includes(element.nodeName)) element.classList.remove('disabled');
   }
   _checkForConditionRecursive(node, type) {
     for (const child of node.children) this._checkForConditionRecursive(child, type);
