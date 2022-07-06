@@ -61,6 +61,7 @@ en:
     grid: Tiles
     list: List view
     tree: Tree view
+    map: Map
   new_step_title:
     title: Image description
     copyright: Copyright

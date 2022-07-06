@@ -63,6 +63,7 @@ de:
     grid: Kacheln
     list: Listenansicht
     tree: Baumansicht
+    map: Karte
 
   new_step_title:
     title: Bildbeschreibung
