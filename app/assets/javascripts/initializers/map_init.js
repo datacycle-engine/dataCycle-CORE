@@ -8,19 +8,8 @@ const mapEditors = {
 };
 
 export default function () {
-  if ($('.geographic-map').length) {
-    $('.geographic-map').each((_, item) => {
-      initMap(item);
-    });
-  }
-  $(document).on('dc:html:changed', '*', event => {
-    event.stopPropagation();
-    $(event.target)
-      .find('.geographic-map')
-      .each((_, item) => {
-        initMap(item);
-      });
-  });
+  for (const element of document.querySelectorAll('.geographic-map')) initMap(element);
+  DataCycle.htmlObserver.addCallbacks.push([e => e.classList.contains('geographic-map'), e => initMap(e)]);
 }
 
 function initMap(item) {

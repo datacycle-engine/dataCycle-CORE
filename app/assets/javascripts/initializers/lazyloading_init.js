@@ -1,13 +1,23 @@
 import loadingIcon from '../templates/loadingIcon';
 
+function monitorSizeChanges(element) {
+  const resizeObserver = new ResizeObserver(_ => $(element).foundation('_updatePosition'));
+  resizeObserver.observe(element);
+}
+
 export default function () {
-  // reposition reveal after it is loaded
-  $(document).on('dc:html:changed lazyloaded', '*', event => {
-    event.stopPropagation();
-    let reveal = $(event.target).closest('.reveal:not(.full)');
-    if (reveal.length && (reveal.data('v-offset') === 'auto' || reveal.data('v-offset') === undefined))
-      reveal.foundation('_updatePosition');
-  });
+  for (const element of document.querySelectorAll(
+    '.reveal:not(.full)[data-v-offset="auto"], .reveal:not(.full):not([data-v-offset])'
+  ))
+    monitorSizeChanges(element);
+
+  DataCycle.htmlObserver.addCallbacks.push([
+    e =>
+      e.classList.contains('reveal') &&
+      !e.classList.contains('full') &&
+      (e.dataset.vOffset == 'auto' || !e.dataset.vOffset),
+    e => monitorSizeChanges(e)
+  ]);
 
   $(document).on('lazybeforeunveil', 'iframe', event => {
     event.stopPropagation();

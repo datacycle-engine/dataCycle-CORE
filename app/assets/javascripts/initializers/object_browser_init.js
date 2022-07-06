@@ -3,17 +3,11 @@ import ObjectBrowser from './../components/object_browser';
 export default function () {
   var object_browsers = [];
 
-  $('.object-browser').each((_i, elem) => {
-    object_browsers.push(new ObjectBrowser($(elem)));
-  });
+  for (const element of document.querySelectorAll('.object-browser'))
+    object_browsers.push(new ObjectBrowser($(element)));
 
-  $(document).on('dc:html:changed', '*', event => {
-    event.stopPropagation();
-
-    $(event.target)
-      .find('.object-browser')
-      .each((_i, elem) => {
-        object_browsers.push(new ObjectBrowser($(elem)));
-      });
-  });
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('object-browser'),
+    e => object_browsers.push(new ObjectBrowser($(e)))
+  ]);
 }

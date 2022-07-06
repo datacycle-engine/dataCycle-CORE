@@ -3,18 +3,11 @@ import TextEditor from '../components/text_editor';
 export default function () {
   const textEditors = [];
 
-  function init(container = document) {
-    $(container)
-      .find('.quill-editor')
-      .each(async (_, node) => {
-        textEditors.push(new TextEditor(node));
-      });
-  }
+  for (const element of document.querySelectorAll('.quill-editor:not(.ql-container)'))
+    textEditors.push(new TextEditor(element));
 
-  $(document).on('dc:html:changed', '*', event => {
-    event.stopPropagation();
-    init(event.target);
-  });
-
-  init();
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('quill-editor') && !e.classList.contains('ql-container'),
+    e => textEditors.push(new TextEditor(e))
+  ]);
 }
