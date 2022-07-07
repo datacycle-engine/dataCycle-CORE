@@ -314,6 +314,7 @@ ul.backend-treeview-list,
         .new-button-spacer {
           position: relative;
           padding: 0.5rem 1rem;
+
           &::before {
             content: '';
             position: absolute;
@@ -325,6 +326,7 @@ ul.backend-treeview-list,
             border-top: 0 none transparent;
             border-right: 0 none transparent;
           }
+
           .create {
             height: 2.5rem;
             width: 2.5rem;
@@ -334,11 +336,13 @@ ul.backend-treeview-list,
             }
           }
         }
+
         form.new_classification_alias {
           position: relative;
           padding: 1rem;
           margin-left: 1rem;
           margin-bottom: 1rem;
+
           &::before {
             content: '';
             position: absolute;
@@ -581,30 +585,35 @@ ul.backend-treeview-list,
         font-style: italic;
 
         > span.inner-item {
+          padding-bottom: 0.5rem;
+          padding-top: 0.5rem;
+
           .fa {
             font-size: 0.75rem;
           }
 
-          padding-top: 1.5rem;
-          padding-bottom: 0.5rem;
+          &::before {
+            bottom: 50%;
+          }
         }
 
         .button {
           margin: 0;
+          width: unset;
+          padding: 0.75rem 1rem;
         }
       }
     }
   }
 }
 
-// classification_tree_label_view
-#classification-tree-label-list .backend-treeview-list,
 #search-results > ul.tree {
   .child-count-full,
   .child-count-direct {
     .loading {
       display: inline;
       padding: 0;
+
       .fa {
         font-size: 0.9rem;
       }
@@ -637,13 +646,9 @@ ul.backend-treeview-list,
       .child-count-direct,
       .child-count-full {
         margin: 0 0.2rem;
+        padding: 0;
 
-        &.remote-render,
-        &.remote-rendering {
-          &::before {
-            display: none;
-          }
-
+        &.loading {
           &::after {
             content: '\f110';
             font-family: FontAwesome;
@@ -662,7 +667,8 @@ ul.backend-treeview-list,
       }
     }
 
-    .tree-link {
+    .tree-link,
+    .toggle-details {
       cursor: pointer;
       display: flex;
       flex-flow: row nowrap;
@@ -691,6 +697,7 @@ ul.backend-treeview-list,
         width: auto;
         text-align: left;
         padding: 0;
+        pointer-events: none;
 
         &::after {
           content: '\f110';
@@ -756,12 +763,15 @@ ul.backend-treeview-list,
     }
 
     .open {
+      .toggle-details:not(.loading):after,
       .tree-link:not(.loading):after {
         content: '\f106';
       }
     }
 
     ul.children {
+      display: none;
+
       > li {
         .inner-item {
           padding: 0 0 0 1rem;
@@ -793,6 +803,7 @@ ul.backend-treeview-list,
     ul.contents {
       display: none;
       position: relative;
+
       > li.content-row {
         transition: background-color 0.1s;
         position: relative;
@@ -811,7 +822,8 @@ ul.backend-treeview-list,
             display: flex;
           }
 
-          .tree-link {
+          .tree-link,
+          .toggle-details {
             display: flex;
             white-space: nowrap;
             overflow: hidden;
@@ -919,18 +931,31 @@ ul.backend-treeview-list,
           text-align: center;
 
           &::before {
-            display: none;
+            height: 50%;
+          }
+
+          .inner-item {
+            padding-top: 0.3rem;
+            padding-bottom: 0.3rem;
+            text-align: left;
           }
 
           a {
-            background-color: $primary-color;
-            display: block;
-            width: 100%;
-            padding: 0.75rem;
-            color: $white;
+            font-size: 0.75rem;
+            font-style: italic;
+            margin: 0;
+            width: unset;
+            padding: 0.75rem 1rem;
           }
         }
       }
+    }
+
+    .inner-item.open ~ ul.contents,
+    .inner-item.open ~ ul.children,
+    h5 ~ ul.contents,
+    h5 ~ ul.children {
+      display: block;
     }
   }
 }

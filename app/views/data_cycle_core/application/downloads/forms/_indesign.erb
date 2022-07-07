@@ -1,6 +1,7 @@
 <%= form_with url: polymorphic_path([:download_indesign, content]),
               method: :get,
-              local: true do %>
+              local: true,
+              class: 'download-content-form' do %>
 
   <fieldset class="active template">
     <legend><%= t('common.choose_language', locale: active_ui_locale) %></legend>

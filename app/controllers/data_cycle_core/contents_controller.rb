@@ -66,8 +66,13 @@ module DataCycleCore
         end
 
         respond_to do |format|
-          format.json { redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_thing_path", id: @content) }
-          format.js { render 'data_cycle_core/application/more_results' }
+          format.json do
+            if @count_only || @mode
+              render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/application/count_or_more_results').squish }
+            else
+              redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_thing_path", id: @content)
+            end
+          end
           format.html { render && return }
         end
       end
@@ -91,10 +96,11 @@ module DataCycleCore
       elsif content.template_name == 'Video'
         # no active storage
         rendered_attribute = content.send(:thumbnail_url)
+      elsif content.template_name == 'Webcam' && content.send(attribute).blank?
+        rendered_attribute = content.try(:image)&.first&.send(attribute)
       else
         rendered_attribute = content.send(attribute)
       end
-
       uri = URI.parse(rendered_attribute)
       # used for local development and docker env.
       uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && ENV.fetch('APP_DOCKER_ENV') { nil } != 'production' && uri.hostname == 'localhost'
@@ -588,7 +594,7 @@ module DataCycleCore
     end
 
     def linked_object_params
-      params.permit(:id, :key, :page, :load_more_action, :locale, :load_more_type, :complete_key, :editable, :content_id, :content_type, definition: {}, load_more_except: [], options: {})
+      params.permit(:id, :key, :page, :load_more_action, :locale, :load_more_type, :complete_key, :editable, :content_id, :content_type, :hide_embedded, definition: {}, load_more_except: [], options: {})
     end
 
     def life_cycle_params

@@ -1,5 +1,6 @@
 import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
+import ObserverHelpers from '../../helpers/observer_helpers';
 
 class AdditionalValuesFilterControl {
   constructor(editor) {
@@ -223,7 +224,8 @@ class AdditionalValuesFilterControl {
       this.editor.editorGui.editor.visibility = 'none';
 
       if (this.controlOverlay.classList.contains('remote-render')) {
-        $(this.controlOverlay).one('dc:html:changed', this._initializeOverlay.bind(this));
+        const changeObserver = new MutationObserver(this._checkForChangedFormData.bind(this));
+        changeObserver.observe(this.controlOverlay, ObserverHelpers.changedClassConfig);
 
         this.controlOverlay.dispatchEvent(
           new CustomEvent('dc:remote:render', {
@@ -231,6 +233,14 @@ class AdditionalValuesFilterControl {
           })
         );
       }
+    }
+  }
+  _checkForChangedFormData(mutations) {
+    for (const mutation of mutations) {
+      if (mutation.type !== 'attributes') continue;
+
+      if (mutation.target.classList.contains('remote-rendered') && mutation.oldValue.includes('remote-rendering'))
+        this._initializeOverlay();
     }
   }
   async _groupChanged(event) {

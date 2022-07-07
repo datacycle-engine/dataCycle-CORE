@@ -47,16 +47,23 @@ DataCycleCore::Engine.routes.draw do
 
   get  '/info', to: 'frontend#info', as: :info
   get  '/settings', to: 'backend#settings'
+
   resources :users, only: [:index, :edit, :update, :destroy] do
     post :unlock, on: :member
     post :create_user, on: :collection
     get :search, on: :collection
     get :become
+    post '/', on: :collection, action: :index
   end
+
   resources :user_organizations do
     post :create_user, on: :collection
   end
-  resources :user_groups
+
+  resources :user_groups, only: [:index, :edit, :update, :destroy] do
+    post '/create', on: :collection, action: :create
+    post '/', on: :collection, action: :index
+  end
 
   scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
     resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things) do
@@ -102,10 +109,6 @@ DataCycleCore::Engine.routes.draw do
     post :add_to_watchlist, on: :collection
     get :saved_searches, on: :collection
     get :render_update_form, on: :collection
-  end
-
-  resources :classification_tree_labels, only: :show, param: :ctl_id do
-    post '/', on: :member, action: :show
   end
 
   defaults format: :json do

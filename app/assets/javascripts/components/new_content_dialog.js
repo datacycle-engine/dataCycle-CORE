@@ -1,6 +1,7 @@
 import QuillHelpers from './../helpers/quill_helpers';
 import ConfirmationModal from './../components/confirmation_modal';
 import UuidHelper from './../helpers/uuid_helper';
+import ObserverHelpers from '../helpers/observer_helpers';
 
 class NewContentDialog {
   constructor(form) {
@@ -20,6 +21,7 @@ class NewContentDialog {
     this.nextAssetButton;
     this.prevAssetButton;
     this.translatedFieldInitObserver = new MutationObserver(this.initTranslatableField.bind(this));
+    this.changeObserver = new MutationObserver(this._checkForChangedFormData.bind(this));
 
     this.init();
     this.initEventHandlers();
@@ -60,27 +62,28 @@ class NewContentDialog {
       this.referencedAssetField.on('dc:form:importAttributeValues', this.importAttributeValues.bind(this));
       this.form.on('dc:form:submitWithoutRedirect', this.copyToReferenceField.bind(this));
       this.form.find('.set-all-attributes').on('click', this.copyToAllReferenceFields.bind(this));
-      this.translatedFieldInitObserver.observe(this.form.get(0), {
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['class']
-      });
+      this.translatedFieldInitObserver.observe(this.form.get(0), ObserverHelpers.changedClassWithSubtreeConfig);
 
-      this.$formWrapper.on('dc:html:initialized', event => {
-        event.stopPropagation();
+      if (this.$formWrapper[0].classList.contains('remote-rendered')) this.triggerSyncWithContentUploader();
+      else this.changeObserver.observe(this.$formWrapper[0], ObserverHelpers.changedClassConfig);
+    }
+  }
+  _checkForChangedFormData(mutations) {
+    for (const mutation of mutations) {
+      if (mutation.type !== 'attributes') continue;
 
+      if (mutation.target.classList.contains('remote-rendered') && mutation.oldValue.includes('remote-rendering'))
         this.triggerSyncWithContentUploader();
-      });
     }
   }
   initTranslatableField(mutations) {
-    for (let i = 0; i < mutations.length; ++i) {
+    for (const mutation of mutations) {
       if (
-        mutations[i].target.classList.contains('dc-import-data') &&
-        !mutations[i].target.classList.contains('triggered-sync-with-uploader')
+        mutation.target.classList.contains('dc-import-data') &&
+        !mutation.target.classList.contains('triggered-sync-with-uploader')
       ) {
-        mutations[i].target.classList.add('triggered-sync-with-uploader');
-        const formElement = mutations[i].target.closest('.form-element');
+        mutation.target.classList.add('triggered-sync-with-uploader');
+        const formElement = mutation.target.closest('.form-element');
 
         this.addCopyAttributeButtons(formElement);
         this.triggerSyncWithContentUploader(formElement);
@@ -326,13 +329,16 @@ class NewContentDialog {
   updateForm() {
     this.updateCrumbs();
     this.updateWarningLevel();
+
     let activeFieldset = this.form.find('fieldset.active');
+
     if (
       (!activeFieldset.hasClass('iframe') && !activeFieldset.hasClass('no-search-warning')) ||
       activeFieldset.hasClass('template')
     )
       this.form.find('.search-warning').show();
     else this.form.find('.search-warning').hide();
+
     if (activeFieldset.hasClass('template') || activeFieldset.hasClass('no-search-warning')) {
       DataCycle.enableElement(this.form);
     } else if (this.form.hasClass('disabled')) {

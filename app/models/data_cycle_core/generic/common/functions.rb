@@ -74,13 +74,9 @@ module DataCycleCore
           if data_hash[attribute].blank?
             data_hash[attribute] = []
           else
-            data_hash[attribute] = data_hash[attribute].map { |keyword|
-              DataCycleCore::Classification.where(
-                external_source_id: external_source_id,
-                external_key: external_prefix.to_s + keyword.to_s
-              )&.first&.id
-            }.reject(&:nil?) || []
+            data_hash[attribute] = DataCycleCore::Classification.where(external_source_id: external_source_id, external_key: data_hash[attribute].map { |a| "#{external_prefix}#{a}" }).pluck(:id)
           end
+
           data_hash
         end
 
@@ -162,6 +158,7 @@ module DataCycleCore
             logger.info(e, data_hash[attribute])
             logger.close
           end
+
           data_hash
         end
 
@@ -180,7 +177,9 @@ module DataCycleCore
           data_hash
         end
 
-        def self.add_field(data_hash, name, function)
+        def self.add_field(data_hash, name, function, condition_function = nil)
+          return data_hash if condition_function.present? && !condition_function.call(data_hash)
+
           data_hash.merge({ name => function.call(data_hash) })
         end
 
