@@ -167,7 +167,10 @@ class ImageEditor {
   }
   handleSave(event) {
     event.preventDefault();
+    event.stopPropagation();
+
     let newUrl = this.editor.toDataURL({ format: this.fileFormat });
+
     this.updateAsset(newUrl, true);
   }
   initFile() {
