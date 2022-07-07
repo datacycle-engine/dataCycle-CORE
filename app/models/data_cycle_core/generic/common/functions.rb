@@ -158,6 +158,7 @@ module DataCycleCore
             logger.info(e, data_hash[attribute])
             logger.close
           end
+
           data_hash
         end
 
@@ -176,7 +177,9 @@ module DataCycleCore
           data_hash
         end
 
-        def self.add_field(data_hash, name, function)
+        def self.add_field(data_hash, name, function, condition_function = nil)
+          return data_hash if condition_function.present? && !condition_function.call(data_hash)
+
           data_hash.merge({ name => function.call(data_hash) })
         end
 
