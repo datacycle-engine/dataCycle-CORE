@@ -5,7 +5,11 @@ module DataCycleCore
     def dc_image_path(filename)
       return if filename.blank?
 
-      return vite_asset_path("/vendor/gems/data-cycle-core/app/assets/images/#{filename}") if ViteRuby.instance.dev_server_running? && ViteRuby.instance.manifest.send(:manifest)[ViteRuby.instance.manifest.send(:resolve_entry_name, "images/#{filename}")].nil?
+      if ViteRuby.instance.dev_server_running?
+        return vite_asset_path("/vendor/gems/data-cycle-core/app/assets/images/#{filename}") unless File.file?(ViteRuby.config.vite_root_dir.join('images', filename))
+
+        vite_asset_path("/images/#{filename}")
+      end
 
       vite_asset_path("images/#{filename}")
     rescue ViteRuby::MissingEntrypointError

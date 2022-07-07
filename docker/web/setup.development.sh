@@ -4,7 +4,7 @@ gem install bundler
 
 bundle install
 
-(yarn && yarn upgrade && bundle exec vite build && bundle exec vite dev) &> log/yarn.log &
+(yarn && yarn upgrade && bundle exec vite dev) &> log/yarn.log &
 
 # check if db exists
 bundle exec rake db:version
