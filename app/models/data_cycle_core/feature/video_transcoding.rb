@@ -8,8 +8,8 @@ module DataCycleCore
           return unless processable?(content: content, variant: variant)
           video_processing = config.dig(variant, 'processing')
 
-          processed_dir = Rails.root.join('public', 'uploads', 'processed', 'video', content.id)
-          Dir.mkdir(processed_dir) unless File.exist?(processed_dir)
+          processed_dir = Rails.public_path.join('uploads', 'processed', 'video', content.id)
+          FileUtils.mkdir_p(processed_dir)
 
           filename = video_filename(content, video_processing)
           output_path = File.join(processed_dir, filename)

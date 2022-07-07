@@ -7,8 +7,7 @@
         :label: Rechteinhaber
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Person
@@ -18,6 +17,10 @@
         :type: number
         :storage_location: value
         :advanced_search: true
+        :ui:
+          :show:
+            :options:
+              :delimiter: ''
       :mandatory_license:
         :label: Copyright Nennung verpflichtend
         :type: boolean

@@ -191,6 +191,9 @@ Rails/RakeEnvironment:
 Rails/SkipsModelValidations:
   Enabled: false
 
+Rails/DotSeparatedKeys:
+  Enabled: false
+
 #######################################################
 ########## Security
 

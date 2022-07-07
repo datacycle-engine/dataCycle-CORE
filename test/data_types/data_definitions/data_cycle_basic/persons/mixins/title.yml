@@ -36,14 +36,10 @@
         :compute:
           :module: Utility::Compute::String
           :method: concat
+          :separator: ' '
           :parameters:
-            :0:
-              :type: content
-              :name: given_name
-            :1: ' '
-            :2:
-              :type: content
-              :name: family_name
+            - given_name
+            - family_name
         :ui:
           :show:
             :disabled: true

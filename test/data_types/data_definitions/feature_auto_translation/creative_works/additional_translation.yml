@@ -55,11 +55,8 @@
         :storage_location: translated_value
         :compute:
           :module: Utility::Compute::String
-          :method: concat
-          :parameters:
-            :0:
-              :type: value
-              :value: 'manual'
+          :method: value
+          :value: manual
         :advanced_search: true
         :api:
           :disabled: true
@@ -92,10 +89,8 @@
         :compute:
           :module: Utility::Compute::Classification
           :method: value
-          :parameters:
-            :0:
-              :value: 'Manuell'
-              :tree: 'Übersetzungstyp'
+          :tree: Übersetzungstyp
+          :value: Manuell
         :ui:
           :edit:
             :disabled: true

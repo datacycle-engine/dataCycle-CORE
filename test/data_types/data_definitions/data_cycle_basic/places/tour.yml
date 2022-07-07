@@ -3,6 +3,8 @@
     :name: Tour
     :type: object
     :schema_type: Place
+    :schema_ancestors:
+      - Place
     :content_type: entity
     :boost: 100.0
     :features:
@@ -36,13 +38,22 @@
       :content_classifications:
         :type: mixin
         :name: content_classifications
-      :additional_information:
-        :label: Ergänzende Information
-        :type: embedded
-        :template_name: Ergänzende Information
+      :trail_closed:
+        :label: Trail/Tour gesperrt
+        :type: boolean
+        :storage_location: value
+        :advanced_search: true
+        :default_value: 'false'
         :api:
-          :v4:
-            :name: dc:additionalInformation
+          :name: dcls:trailClosed
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :description:
         :label: Kurzbeschreibung
         :type: string
@@ -65,6 +76,13 @@
             :options:
               :data-size: basic
         :advanced_search: true
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        :api:
+          :v4:
+            :name: dc:additionalInformation
       :primary_image:
         :label: Hauptbild
         :type: linked
@@ -87,6 +105,36 @@
         :template_name: Bild
         :api:
           :minimal: true
+      :video:
+        :label: Videos
+        :type: linked
+        :template_name: Video
+        :api:
+          :name: dcls:video
+          :minimal: true
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :audio_object:
+        :label: Audiobeiträge
+        :type: linked
+        :template_name: Audio
+        :api:
+          :name: dcls:audioObject
+          :minimal: true
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :schedule:
         :label: Season
         :type: embedded
@@ -115,9 +163,66 @@
         :type: linked
         :template_name: POI
         :inverse_of: tour
+      :odta_waypoint:
+        :label: POIs
+        :type: linked
+        :template_name: POI
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - poi
+        :api:
+          :name: odta:wayPoint
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :geo_contains:
         :type: mixin
         :name: geo_contains
+      :start_location:
+        :label: Startpunkt
+        :type: linked
+        :ui:
+          :attribute_group: trail_start_end_one_line
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+        :api:
+          :name: odta:startLocation
+          :disabled: true
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - POI
+        :xml:
+          :disabled: true
+      :end_location:
+        :label: Endpunkt
+        :type: linked
+        :ui:
+          :attribute_group: trail_start_end_one_line
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+        :api:
+          :name: odta:endLocation
+          :disabled: true
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - POI
+        :xml:
+          :disabled: true
       :directions_public_transport:
         :label: Anfahrt mit öffentlichen Verkehrsmitteln
         :type: string
@@ -157,26 +262,122 @@
         :label: Aufstieg (m)
         :type: number
         :storage_location: value
+      :dcls_ascent:
+        :label: Aufstieg (m)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - ascent
+        :api:
+          :name: dcls:ascent
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :descent:
         :label: Abstieg (m)
         :type: number
         :storage_location: value
+      :dcls_descent:
+        :label: Abstieg (m)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - descent
+        :api:
+          :name: dcls:descent
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :min_altitude:
         :label: Minimale Seehöhe (m)
         :type: number
         :storage_location: value
+      :dcls_min_altitude:
+        :label: Minimale Seehöhe (m)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - min_altitude
+        :api:
+          :name: dcls:minAltitude
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :max_altitude:
         :label: Maximale Seehöhe (m)
         :type: number
         :storage_location: value
+      :dcls_max_altitude:
+        :label: Maximale Seehöhe (m)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - max_altitude
+        :api:
+          :name: dcls:maxAltitude
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :length:
         :label: Länge (m)
         :type: number
         :storage_location: value
+      :dcls_length:
+        :label: Länge (m)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - length
+        :api:
+          :name: dcls:length
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :duration:
         :label: Dauer (min)
         :type: number
         :storage_location: value
+      :dcls_duration:
+        :label: Dauer (min)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - duration
+        :api:
+          :name: dcls:duration
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :condition_rating:
         :label: Bewertung - Kondition
         :type: number
@@ -200,6 +401,48 @@
       :opening_hours_specification:
         :type: mixin
         :name: opening_hours_specification
+      :season:
+        :label: Empfohlene Jahreszeiten
+        :type: classification
+        :tree_label: Jahreszeiten
+        :ui:
+          :show:
+            :content_area: header
+            :disabled: true
+          :edit:
+            :disabled: true
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true
+      :difficulty:
+        :label: Schwierigkeitsgrad
+        :type: classification
+        :tree_label: Schwierigkeitsgrad (Trail/Tour)
+        :ui:
+          :show:
+            :content_area: header
+            :disabled: true
+          :edit:
+            :type: radio_button
+            :disabled: true
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true
+      :aggregate_rating:
+        :label: Tourenbewertung
+        :type: embedded
+        :template_name: Tourenbewertung
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :potential_actions:
         :type: mixin
         :name: potential_actions

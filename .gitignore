@@ -4,11 +4,7 @@ pkg/
 **/db/*.sqlite3-journal
 **/db/backups
 **/tmp/
-**/public/eyebase/*
-**/public/filmcommission/*
-**/public/downloads/*
-**/public/uploads
-**/public/assets
+**/public/**/*
 **/private/import
 **/docker/hist
 **/log/

@@ -408,6 +408,48 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: active_storage_attachments; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.active_storage_attachments (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    name character varying NOT NULL,
+    record_type character varying NOT NULL,
+    record_id uuid NOT NULL,
+    blob_id uuid NOT NULL,
+    created_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: active_storage_blobs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.active_storage_blobs (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    key character varying NOT NULL,
+    filename character varying NOT NULL,
+    content_type character varying,
+    metadata text,
+    service_name character varying NOT NULL,
+    byte_size bigint NOT NULL,
+    checksum character varying NOT NULL,
+    created_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: active_storage_variant_records; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.active_storage_variant_records (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    blob_id uuid NOT NULL,
+    variation_digest character varying NOT NULL
+);
+
+
+--
 -- Name: activities; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -461,7 +503,7 @@ CREATE TABLE public.assets (
     file character varying,
     type character varying,
     content_type character varying,
-    file_size integer,
+    file_size bigint,
     creator_id uuid,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
@@ -725,6 +767,20 @@ CREATE VIEW public.classification_tree_label_statistics AS
 
 
 --
+-- Name: classification_user_groups; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_user_groups (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    classification_id uuid,
+    user_group_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
 -- Name: classifications; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -826,11 +882,9 @@ CREATE VIEW public.content_computed_properties AS
  SELECT content_properties.content_id,
     content_properties.content_template_name,
     content_properties.property_name,
-    parameters.key AS compute_parameter_order,
-    parameters.value AS compute_parameter_definition,
-    COALESCE((parameters.value ->> 'name'::text), (parameters.value #>> '{}'::text[])) AS compute_parameter_property_name
+    split_part(parameters.value, '.'::text, 1) AS compute_parameter_property_name
    FROM public.content_properties,
-    LATERAL jsonb_each(((content_properties.property_definition -> 'compute'::text) -> 'parameters'::text)) parameters(key, value)
+    LATERAL jsonb_array_elements_text(((content_properties.property_definition -> 'compute'::text) -> 'parameters'::text)) parameters(value)
   WHERE (content_properties.property_definition ? 'compute'::text);
 
 
@@ -979,6 +1033,7 @@ CREATE VIEW public.content_property_dependencies AS
  SELECT content_computed_properties.content_id,
     content_computed_properties.content_template_name,
     content_computed_properties.property_name,
+    content_computed_properties.compute_parameter_property_name,
     things.id AS dependent_content_id,
     things.template_name AS dependent_content_template_name
    FROM ((public.things
@@ -1479,6 +1534,30 @@ ALTER TABLE ONLY public.delayed_jobs ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
+-- Name: active_storage_attachments active_storage_attachments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.active_storage_attachments
+    ADD CONSTRAINT active_storage_attachments_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: active_storage_blobs active_storage_blobs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.active_storage_blobs
+    ADD CONSTRAINT active_storage_blobs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: active_storage_variant_records active_storage_variant_records_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.active_storage_variant_records
+    ADD CONSTRAINT active_storage_variant_records_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: activities activities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1548,6 +1627,14 @@ ALTER TABLE ONLY public.classification_contents
 
 ALTER TABLE ONLY public.classification_polygons
     ADD CONSTRAINT classification_polygons_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: classification_user_groups classification_user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.classification_user_groups
+    ADD CONSTRAINT classification_user_groups_pkey PRIMARY KEY (id);
 
 
 --
@@ -2008,6 +2095,34 @@ CREATE INDEX headline_idx ON public.searches USING gin (headline public.gin_trgm
 
 
 --
+-- Name: index_active_storage_attachments_on_blob_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_active_storage_attachments_on_blob_id ON public.active_storage_attachments USING btree (blob_id);
+
+
+--
+-- Name: index_active_storage_attachments_uniqueness; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_active_storage_attachments_uniqueness ON public.active_storage_attachments USING btree (record_type, record_id, name, blob_id);
+
+
+--
+-- Name: index_active_storage_blobs_on_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_active_storage_blobs_on_key ON public.active_storage_blobs USING btree (key);
+
+
+--
+-- Name: index_active_storage_variant_records_uniqueness; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_active_storage_variant_records_uniqueness ON public.active_storage_variant_records USING btree (blob_id, variation_digest);
+
+
+--
 -- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2026,6 +2141,13 @@ CREATE INDEX index_activities_on_activity_type_and_updated_at ON public.activiti
 --
 
 CREATE INDEX index_activities_on_user_id ON public.activities USING btree (user_id);
+
+
+--
+-- Name: index_activities_on_user_id_activity_type_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_activities_on_user_id_activity_type_created_at ON public.activities USING btree (user_id, activity_type, created_at);
 
 
 --
@@ -2054,6 +2176,13 @@ CREATE INDEX index_assets_on_creator_id ON public.assets USING btree (creator_id
 --
 
 CREATE INDEX index_assets_on_type ON public.assets USING btree (type);
+
+
+--
+-- Name: index_classification_alias_paths_on_ancestor_ids; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_alias_paths_on_ancestor_ids ON public.classification_alias_paths USING gin (ancestor_ids);
 
 
 --
@@ -2183,6 +2312,20 @@ CREATE INDEX index_classification_trees_on_parent_classification_alias_id ON pub
 
 
 --
+-- Name: index_classification_user_groups_on_classification_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_user_groups_on_classification_id ON public.classification_user_groups USING btree (classification_id);
+
+
+--
+-- Name: index_classification_user_groups_on_user_group_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_user_groups_on_user_group_id ON public.classification_user_groups USING btree (user_group_id);
+
+
+--
 -- Name: index_classifications_on_deleted_at; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2215,6 +2358,13 @@ CREATE UNIQUE INDEX index_classifications_on_id ON public.classifications USING 
 --
 
 CREATE INDEX index_content_content_histories_on_content_a_history_id ON public.content_content_histories USING btree (content_a_history_id);
+
+
+--
+-- Name: index_content_content_links_on_content_b_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_content_content_links_on_content_b_id ON public.content_content_links USING btree (content_b_id);
 
 
 --
@@ -3082,6 +3232,22 @@ ALTER TABLE ONLY public.timeseries
 
 
 --
+-- Name: active_storage_variant_records fk_rails_993965df05; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.active_storage_variant_records
+    ADD CONSTRAINT fk_rails_993965df05 FOREIGN KEY (blob_id) REFERENCES public.active_storage_blobs(id);
+
+
+--
+-- Name: active_storage_attachments fk_rails_c3b3935057; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.active_storage_attachments
+    ADD CONSTRAINT fk_rails_c3b3935057 FOREIGN KEY (blob_id) REFERENCES public.active_storage_blobs(id);
+
+
+--
 -- Name: schedule_occurrences schedule_occurrences_schedule_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3369,6 +3535,15 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220505135021'),
 ('20220510085119'),
 ('20220513075644'),
-('20220516134326');
+('20220516134326'),
+('20220520065309'),
+('20220524095157'),
+('20220530063350'),
+('20220602074421'),
+('20220613074116'),
+('20220614085121'),
+('20220615085015'),
+('20220615104611'),
+('20220617113231');
 
 

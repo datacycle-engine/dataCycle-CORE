@@ -139,7 +139,7 @@
           :method: linked_gip_route_attribute
           :linked_attribute: name
           :parameters:
-            :linked: routes
+            - routes
         :ui:
           :edit:
             :disabled: true
@@ -152,7 +152,7 @@
           :method: linked_gip_route_attribute
           :linked_attribute: route_number
           :parameters:
-            :linked: routes
+            - routes
         :ui:
           :edit:
             :disabled: true
@@ -170,6 +170,10 @@
         :advanced_search: true
         :default_value: 'false'
         :global: true
+      :order_main_route:
+        :label: Reihenfolge HR
+        :type: number
+        :storage_location: value
       :line:
         :label: Route
         :storage_location: column

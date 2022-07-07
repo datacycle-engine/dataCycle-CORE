@@ -62,7 +62,7 @@
           :module: Utility::Compute::Asset
           :method: content_url
           :parameters:
-            :0: asset
+            - asset
         :ui:
           :show:
             :disabled: true
@@ -80,7 +80,7 @@
           :module: Utility::Compute::Asset
           :method: file_size
           :parameters:
-            :0: asset
+            - asset
         :advanced_search: true
         :ui:
           :edit:
@@ -93,7 +93,8 @@
           :module: Utility::Compute::Asset
           :method: file_format
           :parameters:
-            :0: asset
+            - asset
+            - content_url
         :ui:
           :edit:
             :disabled: true
@@ -106,7 +107,7 @@
           :module: Utility::Compute::Asset
           :method: file_type_classification
           :parameters:
-            :0: asset
+            - file_format
         :ui:
           :show:
             :content_area: header
@@ -148,6 +149,10 @@
         :type: number
         :storage_location: value
         :advanced_search: true
+        :ui:
+          :show:
+            :options:
+              :delimiter: ''
       :content_location:
         :label: Ort
         :type: linked
@@ -166,7 +171,7 @@
           :module: Utility::Compute::Classification
           :method: keywords
           :parameters:
-            :0: tags
+            - tags
         :ui:
           :show:
             :disabled: true

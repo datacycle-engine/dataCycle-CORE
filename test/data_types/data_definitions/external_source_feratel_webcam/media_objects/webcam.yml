@@ -68,7 +68,7 @@
           :module: Utility::Compute::Asset
           :method: content_url
           :parameters:
-            :0: asset
+            - asset
         :api:
           :minimal: true
         :ui:
@@ -82,7 +82,7 @@
           :module: Utility::Compute::Video
           :method: thumbnail_url
           :parameters:
-            :0: asset
+            - asset
         :ui:
           :show:
             :partial: preview_image
@@ -119,7 +119,7 @@
           :module: Utility::Compute::Video
           :method: width
           :parameters:
-            :0: asset
+            - asset
         :ui:
           :show:
             :options:
@@ -143,7 +143,7 @@
           :module: Utility::Compute::Video
           :method: height
           :parameters:
-            :0: asset
+            - asset
         :ui:
           :show:
             :options:
@@ -169,7 +169,7 @@
           :module: Utility::Compute::Asset
           :method: file_size
           :parameters:
-            :0: asset
+            - asset
         :advanced_search: true
         :ui:
           :edit:
@@ -182,7 +182,8 @@
           :module: Utility::Compute::Asset
           :method: file_format
           :parameters:
-            :0: asset
+            - asset
+            - content_url
         :ui:
           :edit:
             :disabled: true
@@ -194,7 +195,7 @@
           :module: Utility::Compute::Video
           :method: duration
           :parameters:
-            :0: asset
+            - asset
         :ui:
           :show:
             :options:
@@ -215,7 +216,7 @@
           :module: Utility::Compute::Video
           :method: frame_size
           :parameters:
-            :0: asset
+            - asset
         :ui:
           :edit:
             :disabled: true
@@ -227,7 +228,7 @@
           :module: Utility::Compute::Video
           :method: quality
           :parameters:
-            :0: asset
+            - asset
         :ui:
           :edit:
             :disabled: true

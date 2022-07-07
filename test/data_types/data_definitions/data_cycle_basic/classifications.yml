@@ -77,13 +77,13 @@
 - Informationstypen | all:
 
 - $$Externe Informationstypen | all:
-    - description | OutdoorActive/imx_platform/TIMM4/GEM2GO/mein.toubiz
+    - description | OutdoorActive/imx_platform/TIMM4/GEM2GO/mein.toubiz/pimcore_ats
     - abstract | mein.toubiz
     - description_long | imx_platform
     - text | OutdoorActive
-    - directions | OutdoorActive/destination.one
+    - directions | OutdoorActive/destination.one/Pimcore ATS
     - directions_public_transport | OutdoorActive
-    - parking | OutdoorActive
+    - parking | OutdoorActive/Pimcore ATS
     - hours_available | OutdoorActive
     - price | OutdoorActive
     - instructions | OutdoorActive
@@ -91,7 +91,7 @@
     - equipment | OutdoorActive
     - suggestion | OutdoorActive
     - additional_information | OutdoorActive
-    - maps | OutdoorActive
+    - maps | OutdoorActive/Pimcore ATS
     - AdditionalService | Feratel
     - CurrentInformation | Feratel
     - EventHeader | Feratel
@@ -161,6 +161,17 @@
     - currentInformation | mein.toubiz
     - additionalLocationInformation | mein.toubiz
     - additionalHostInformation | mein.toubiz
+    - longDescription | pimcore_ats
+    - shortDescription | pimcore_ats
+    - shortText | Pimcore ATS
+    - longText | Pimcore ATS
+    - additionalInformation | Pimcore ATS
+    - destination | Pimcore ATS
+    - gettingThere | Pimcore ATS
+    - literature | Pimcore ATS
+    - startingPointDescr | Pimcore ATS
+    - tip | Pimcore ATS
+    - publicTransit | Pimcore ATS
 
 - POI - Kategorien | all:
 
@@ -539,3 +550,17 @@
     - Ausverkauft **https://schema.org/SoldOut
 
 - Preis - Kategorien | all:
+
+- Jahreszeiten | all:
+    - Frühling
+    - Sommer
+    - Herbst
+    - Winter
+    - Ganzjahr
+
+- Schwierigkeitsgrad (Trail/Tour) | all:
+    - leicht
+    - mittel
+    - schwer
+
+- $$SchemaTypes:

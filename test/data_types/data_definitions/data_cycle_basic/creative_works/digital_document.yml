@@ -3,6 +3,9 @@
     :name: Katalog
     :type: object
     :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
+      - DigitalDocument
     :content_type: entity
     :boost: 100.0
     :api:

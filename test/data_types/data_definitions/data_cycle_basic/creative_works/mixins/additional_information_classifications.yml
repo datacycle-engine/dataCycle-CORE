@@ -1,0 +1,5 @@
+---
+- :data:
+    :name: additional_information_classifications
+    :type: mixin
+    :properties: ~

@@ -28,8 +28,7 @@
         :type: linked
         :inverse_of: subject_of
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Person
@@ -78,8 +77,7 @@
         :label: Ort
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Ort
@@ -103,7 +101,7 @@
           :module: Utility::Compute::Classification
           :method: keywords
           :parameters:
-            :0: tags
+            - tags
         :ui:
           :show:
             :disabled: true
