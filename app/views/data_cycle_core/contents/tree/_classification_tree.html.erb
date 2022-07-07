@@ -1,20 +1,37 @@
-<li id="<%= classification_tree.id %>">
+<li id="<%= classification_tree.id %>" class="tree-link-container">
   <span class="inner-item">
-    <%= link_to request.params.slice(:language, :f, :stored_filter).merge({ ctl_id: classification_tree_label&.id, ct_id: classification_tree.id, mode: @mode }), data: { remote: true, disable: true }, class: 'tree-link' do %>
+    <%= link_to '#',
+                class: 'tree-link',
+                data: {
+                  disable: true,
+                  additional_form_parameters: {
+                    ctl_id: classification_tree_label&.id,
+                    ct_id: classification_tree.id
+                  }.compact.to_json
+                } do %>
       <%= classification_tree.sub_classification_alias.try(:internal_name) %>
       <span class="children-count">(
-        <span class="child-count-direct remote-render"
+        <span class="child-count-direct result-count loading"
         id="tree-direct-child-count-<%= classification_tree.id %>"
-        data-remote-render-params="<%= to_query_params(request.params.slice(:language, :f, :stored_filter, :watch_list_id, :id).merge({ action: controller.action_name, controller: controller.controller_name, ctl_id: classification_tree_label&.id, ct_id: classification_tree.id, mode: @mode, count_only: true, count_mode: 'classification_alias' })).to_json %>"
+        data-additional-form-parameters="<%= to_query_params({
+          content_class: local_assigns[:content_class] || 'things',
+          count_mode: 'classification_alias',
+          ctl_id: classification_tree_label&.id,
+          ct_id: classification_tree.id
+        }).to_json %>"
         ></span>
         /
-        <span class="child-count-full remote-render"
+        <span class="child-count-full result-count loading"
         id="tree-child-count-<%= classification_tree.id %>"
-        data-remote-render-params="<%= to_query_params(request.params.slice(:language, :f, :stored_filter, :watch_list_id, :id).merge({ action: controller.action_name, controller: controller.controller_name, ctl_id: classification_tree_label&.id, ct_id: classification_tree.id, mode: @mode, count_only: true, count_mode: 'ca_recursive' })).to_json %>"
+        data-additional-form-parameters="<%= to_query_params({
+          content_class: local_assigns[:content_class] || 'things',
+          count_mode: 'ca_recursive',
+          ctl_id: classification_tree_label&.id,
+          ct_id: classification_tree.id
+        }).to_json %>"
         ></span>
-        )</span>
+        )
+      </span>
     <% end %>
   </span>
-  <ul class="children"></ul>
-  <ul class="contents no-bullet"></ul>
 </li>

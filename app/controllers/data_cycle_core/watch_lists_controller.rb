@@ -33,8 +33,13 @@ module DataCycleCore
 
       respond_to do |format|
         format.html
-        format.json { redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", id: @watch_list) }
-        format.js { render 'data_cycle_core/application/more_results' }
+        format.json do
+          if @count_only || @mode
+            render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/application/count_or_more_results').squish }
+          else
+            redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", id: @watch_list)
+          end
+        end
       end
     end
 

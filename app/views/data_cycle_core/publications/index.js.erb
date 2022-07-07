@@ -18,6 +18,6 @@
     $('.publication-year[data-year="'+$(year_content).data('year')+'"] > ul').append($(year_content).find('.publication-month'));
   }
 
-  $(new_html).foundation().appendTo('.publications-list > .row > ul');
+  $(new_html).appendTo('.publications-list > .row > ul');
   Foundation.reInit($('.publications-list .accordion'));
 })();

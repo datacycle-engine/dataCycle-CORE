@@ -82,9 +82,15 @@ button,
 
 .pagination-container {
   padding: 1rem 0;
+
   a,
   button {
     margin: 0;
+
+    &[disabled],
+    &.disabled {
+      pointer-events: none;
+    }
   }
 }
 

@@ -3,18 +3,11 @@ import CopyFromAttribute from './../components/copy_from_attribute';
 export default function () {
   let copyFromAttributeFeatures = [];
 
-  function init(container = document) {
-    $(container)
-      .find('.copy-from-attribute-feature')
-      .each((_, elem) => {
-        copyFromAttributeFeatures.push(new CopyFromAttribute(elem));
-      });
-  }
+  for (const element of document.querySelectorAll('.copy-from-attribute-feature'))
+    copyFromAttributeFeatures.push(new CopyFromAttribute(element));
 
-  init();
-
-  $(document).on('dc:html:changed', '*', event => {
-    event.stopPropagation();
-    init(event.target);
-  });
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('copy-from-attribute-feature'),
+    e => copyFromAttributeFeatures.push(new CopyFromAttribute(e))
+  ]);
 }

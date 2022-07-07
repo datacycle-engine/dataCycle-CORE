@@ -3760,7 +3760,8 @@ body {
     margin-right: 0.3rem;
   }
 }
-.tree-link {
+.tree-link,
+.toggle-details {
   .mini-preview-image {
     padding-right: 0.5rem;
   }
@@ -3825,4 +3826,15 @@ body {
     > .attribute-group-content-element {
     grid-template-columns: 65fr 35fr;
   }
+}
+
+.download-with-contents {
+  .fa-plus {
+    font-size: 0.7rem;
+    vertical-align: text-top;
+  }
+}
+
+#classification-administration {
+  padding-top: 1.5rem;
 }

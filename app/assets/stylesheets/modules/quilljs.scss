@@ -71,8 +71,32 @@ $fa-font-path: '/assets';
       top: 0;
       left: 0;
       display: none;
-      &::before {
-        content: 'In neuem Tab öffnen:';
+      color: $black;
+      padding: 0.5rem 0 0.3rem;
+      align-items: center;
+      font-size: 0.9rem;
+      line-height: 0.9rem;
+
+      .dc--external-link {
+        margin: 0 0.3rem 0 0;
+        cursor: pointer;
+
+        &:hover {
+          box-shadow: none;
+        }
+
+        &:disabled {
+          cursor: not-allowed;
+        }
+      }
+
+      .dc--external-link-text {
+        cursor: pointer;
+      }
+
+      .dc--external-link:disabled ~ .dc--external-link-text {
+        cursor: not-allowed;
+        color: $dark-gray;
       }
     }
 
@@ -91,7 +115,7 @@ $fa-font-path: '/assets';
 
     &.ql-editing {
       .dc--external-link-label {
-        display: inline-block;
+        display: flex;
       }
       span.ql-preview {
         display: none;
