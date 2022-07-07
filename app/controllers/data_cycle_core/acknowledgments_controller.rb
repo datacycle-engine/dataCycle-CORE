@@ -25,16 +25,20 @@ module DataCycleCore
 
     def render_package_file(allowed_files_attribute)
       package = (ruby_gems + npm_packages).find do |p|
-        p['name'] == params['package'] && p['version'] = params['version']
+        p['name'] == package_params['package'] && p['version'] = package_params['version']
       end
 
-      file = File.join(package['base_path'], package[allowed_files_attribute].find { |f| f == params['file'] })
+      file = File.join(package['base_path'], package[allowed_files_attribute].find { |f| f == package_params['file'] })
 
       if File.file?(file)
         render file: file, layout: false
       else
         render not_found
       end
+    end
+
+    def package_params
+      params.permit(:package, :version, :file)
     end
 
     private
