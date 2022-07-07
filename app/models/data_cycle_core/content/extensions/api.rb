@@ -9,7 +9,8 @@ module DataCycleCore
             '@id' => id,
             '@type' => api_type,
             'dct:modified' => updated_at,
-            'dct:created' => created_at
+            'dct:created' => created_at,
+            'dc:touched' => cache_valid_since
           }
         end
 

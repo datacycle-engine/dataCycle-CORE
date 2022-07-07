@@ -57,6 +57,7 @@ module DataCycleCore
         end
 
         if classification_alias.new_record?
+          classification_alias.internal = attributes[:internal] || false
           classification_alias.save!
 
           classification = Classification.create!(name: attributes[:name],

@@ -19,7 +19,7 @@
                             false,
                             class: 'dc-additional-values-filter-group' %>
           <%= label_tag "#{random_id}_dc_map_additional_value_#{key}", class: 'dc-additional-values-filter-title' do %>
-            <%= tag.span(value['label'], class: 'attribute-label-text') %>
+            <%= tag.span(value['label'], class: 'attribute-label-text', title: value['label']) %>
           <% end %>
         </div>
 

@@ -5,50 +5,36 @@ module DataCycleCore
     module Virtual
       module Timeseries
         class << self
-          def first(**args)
-            virtual_parameters = args.dig(:virtual_definition)
-            content = args.dig(:content)
-            content&.send(virtual_parameters.dig('virtual', 'data'))&.first&.send(:value)
+          def first(virtual_definition:, content:, **_args)
+            content&.send(virtual_definition.dig('virtual', 'data'))&.first&.send(:value)
           end
 
-          def last(**args)
-            virtual_parameters = args.dig(:virtual_definition)
-            content = args.dig(:content)
-            content&.send(virtual_parameters.dig('virtual', 'data'))&.last&.send(:value)
+          def last(virtual_definition:, content:, **_args)
+            content&.send(virtual_definition.dig('virtual', 'data'))&.last&.send(:value)
           end
 
-          def min(**args)
-            virtual_parameters = args.dig(:virtual_definition)
-            content = args.dig(:content)
-            calculate(content, virtual_parameters.dig('virtual', 'data'), :minimum)
+          def min(virtual_definition:, content:, **_args)
+            calculate(content, virtual_definition.dig('virtual', 'data'), :minimum)
           end
 
-          def max(**args)
-            virtual_parameters = args.dig(:virtual_definition)
-            content = args.dig(:content)
-            calculate(content, virtual_parameters.dig('virtual', 'data'), :maximum)
+          def max(virtual_definition:, content:, **_args)
+            calculate(content, virtual_definition.dig('virtual', 'data'), :maximum)
           end
 
-          def count(**args)
-            virtual_parameters = args.dig(:virtual_definition)
-            content = args.dig(:content)
-            calculate(content, virtual_parameters.dig('virtual', 'data'), :count)
+          def count(virtual_definition:, content:, **_args)
+            calculate(content, virtual_definition.dig('virtual', 'data'), :count)
           end
 
-          def sum(**args)
-            virtual_parameters = args.dig(:virtual_definition)
-            content = args.dig(:content)
-            calculate(content, virtual_parameters.dig('virtual', 'data'), :sum)
+          def sum(virtual_definition:, content:, **_args)
+            calculate(content, virtual_definition.dig('virtual', 'data'), :sum)
           end
 
-          def avg(**args)
-            virtual_parameters = args.dig(:virtual_definition)
-            content = args.dig(:content)
-            calculate(content, virtual_parameters.dig('virtual', 'data'), :average)
+          def avg(virtual_definition:, content:, **_args)
+            calculate(content, virtual_definition.dig('virtual', 'data'), :average)
           end
 
           def calculate(content, data, method)
-            content&.send(data)&.send(method, :value)
+            content&.send(data)&.send(method, :value)&.to_f
           end
         end
       end

@@ -38,6 +38,9 @@ module DataCycleCore
     class DeprecatedMethodError < StandardError
     end
 
+    class GeojsonError < StandardError
+    end
+
     class WebhookError < StandardError
       attr_reader :original_error
 
@@ -90,6 +93,29 @@ module DataCycleCore
 
       def backtrace
         super&.take(5)
+      end
+    end
+
+    module Filter
+      class DateFilterRangeError < StandardError
+        attr_reader :start_date, :end_date
+
+        def initialize(dates = [])
+          @start_date = dates[0]
+          @end_date = dates[1]
+
+          super
+        end
+
+        def message
+          'end date must be equal or greater then start date in date filters'
+        end
+      end
+
+      class UnionFilterRecursionError < StandardError
+        def message
+          'stored filters cannot filter on themselves inside union filters (infinite recursion)'
+        end
       end
     end
   end

@@ -5,7 +5,6 @@ de:
         current_password: Bisheriges Passwort
         email: E-Mail
         password: Passwort
-        password_confirmation: Passwortbestätigung
         remember_me: Angemeldet bleiben
         reset_password_token: Passwort-Zurücksetzen-Token
         unlock_token: Entsperrungs-Token

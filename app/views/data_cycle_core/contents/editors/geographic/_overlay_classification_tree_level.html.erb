@@ -11,7 +11,7 @@
                       } %>
 
           <%= cb.label for: "#{random_id}_#{cb.value.underscore_blanks}" do %>
-            <span class="attribute-label-text">
+            <span class="attribute-label-text" title="<%= cb.text %>">
               <%= cb.text %> <%= tag.i(class: 'fa fa-info-circle') if cb.object.try(:description).present? %>
             </span>
           <% end %>

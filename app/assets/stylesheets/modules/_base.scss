@@ -109,6 +109,16 @@ label.attribute-edit-label {
   }
 }
 
+.detail-header-wrapper {
+  .dc-type-icon {
+    margin-right: 0;
+
+    &::before {
+      margin-right: 0.3rem;
+    }
+  }
+}
+
 .form-element {
   position: relative;
 
@@ -607,6 +617,7 @@ footer {
       display: inline-block;
       top: initial;
       left: initial;
+      overflow: unset;
     }
 
     > label {
@@ -659,6 +670,15 @@ footer {
     z-index: 12;
     color: $dark-gray;
     transition: color ease-in-out 0.25s;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: calc(100% - 2rem);
+
+    .attribute-label-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   .translated + label {

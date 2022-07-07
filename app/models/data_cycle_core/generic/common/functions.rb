@@ -74,13 +74,9 @@ module DataCycleCore
           if data_hash[attribute].blank?
             data_hash[attribute] = []
           else
-            data_hash[attribute] = data_hash[attribute].map { |keyword|
-              DataCycleCore::Classification.where(
-                external_source_id: external_source_id,
-                external_key: external_prefix.to_s + keyword.to_s
-              )&.first&.id
-            }.reject(&:nil?) || []
+            data_hash[attribute] = DataCycleCore::Classification.where(external_source_id: external_source_id, external_key: data_hash[attribute].map { |a| "#{external_prefix}#{a}" }).pluck(:id)
           end
+
           data_hash
         end
 
@@ -155,6 +151,21 @@ module DataCycleCore
 
           begin
             asset = DataCycleCore::Image.new(remote_file_url: data_hash[attribute])
+            asset.save!
+            data_hash[attribute] = asset.try(:id)
+          rescue StandardError => e
+            logger = DataCycleCore::Generic::Logger::LogFile.new('carrierwave')
+            logger.info(e, data_hash[attribute])
+            logger.close
+          end
+          data_hash
+        end
+
+        def self.local_video(data_hash, attribute)
+          return data_hash if data_hash[attribute].blank?
+
+          begin
+            asset = DataCycleCore::Video.new(remote_file_url: data_hash[attribute])
             asset.save!
             data_hash[attribute] = asset.try(:id)
           rescue StandardError => e

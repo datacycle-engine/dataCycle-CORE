@@ -133,6 +133,9 @@ module DataCycleCore
   mattr_accessor :features
   self.features = {}
 
+  mattr_accessor :experimental_features
+  self.experimental_features = {}
+
   mattr_accessor :main_config
   self.main_config = {}
 
@@ -215,6 +218,34 @@ module DataCycleCore
     classification_visibilities.except(['show_more', 'tree_view'])
   end
 
+  def self.load_configurations(path, include_environments = true)
+    path_regex = if include_environments
+                   %r{/configurations(?:/(?:#{ActiveRecord::Base.configurations.to_h.keys.without('default').join('|')}))?/(.*)}
+                 else
+                   %r{/configurations(?!/(?:#{ActiveRecord::Base.configurations.to_h.keys.without('default').join('|')}))/(.*)}
+                 end
+
+    Dir[path.to_s].index_with { |f|
+      f.delete_suffix('.yml').match(path_regex)&.captures&.first&.split('/')
+    }.compact.sort_by { |_k, v| -v.size }.each do |file_name, file_path|
+      config_name = file_path.shift
+
+      next unless respond_to?(config_name)
+
+      new_value = YAML.safe_load(ERB.new(File.read(file_name)).result, [Symbol])
+      value = try(config_name)
+
+      next unless new_value.present? || new_value.is_a?(FalseClass)
+
+      if value.is_a?(::Hash) && new_value.is_a?(::Hash)
+        new_value = file_path.reverse.inject(new_value) { |assigned_value, key| { key => assigned_value } }
+        new_value = value.deep_merge(new_value) { |_k, v1, _v2| v1 }.with_indifferent_access
+      end
+
+      send("#{config_name}=", new_value).freeze
+    end
+  end
+
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
 
@@ -275,6 +306,9 @@ module DataCycleCore
     # prevent span tags inside HTML-Attributes for missing translations
     config.action_view.debug_missing_translation = false
 
+    # active storage default options
+    config.active_storage.resolve_model_to_route = :rails_storage_proxy
+
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|
       unless app.root.to_s.match? root.to_s
@@ -324,6 +358,7 @@ module DataCycleCore
       Devise::ConfirmationsController.layout 'data_cycle_core/devise'
       Devise::UnlocksController.layout 'data_cycle_core/devise'
       Devise::PasswordsController.layout 'data_cycle_core/devise'
+      ActiveStorage::Blob
     end
   end
 end

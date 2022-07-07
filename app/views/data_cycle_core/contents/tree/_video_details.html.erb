@@ -7,7 +7,10 @@
             <img data-src="<%= image.thumbnail_url %>" alt="<%= image.title %>" class="lazyload dc-foundation-tooltip" title="<img src='<%= image.thumbnail_url %>' />" data-allow-html="true" data-template-classes="thumbnail-tooltip" />
           <% end %>
         <% elsif item.try(:thumbnail_url).present? %>
-          <img data-src="<%= item.thumbnail_url %>" alt="<%= item.title %>" class="lazyload dc-foundation-tooltip" title="<img src='<%= item.thumbnail_url %>' />" data-allow-html="true" data-template-classes="thumbnail-tooltip" />
+          <%
+            thumbnail_url = item&.thumbnail_image&.first&.thumbnail_url || item.try(:thumbnail_url)
+          %>
+          <img data-src="<%= thumbnail_url %>" alt="<%= item.title %>" class="lazyload dc-foundation-tooltip" title="<img src='<%= thumbnail_url %>' />" data-allow-html="true" data-template-classes="thumbnail-tooltip" />
         <% elsif item.try(:image).is_a?(String) && item.try(:image).present? %>
           <img data-src="<%= item.image %>" alt="<%= item.title %>" class="lazyload dc-foundation-tooltip" title="<img src='<%= item.image %>' />" data-allow-html="true" data-template-classes="thumbnail-tooltip" />
         <% end %>

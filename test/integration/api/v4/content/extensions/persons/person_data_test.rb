@@ -209,7 +209,7 @@ module DataCycleCore
               test 'api_v4_thing_path validate full person with default params in language en' do
                 data_hash_en = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person_en')
                 @content.reload
-                I18n.with_locale(:en) { @content.set_data_hash(data_hash: @content.get_data_hash.merge(data_hash_en)) }
+                I18n.with_locale(:en) { @content.set_data_hash(data_hash: @content.get_data_hash.except(*@content.computed_property_names).merge(data_hash_en)) }
 
                 assert_translated_datahash(data_hash_en, @content)
                 assert_translated_thing(@content, 'en')
@@ -315,7 +315,7 @@ module DataCycleCore
 
               test 'api_v4_thing_path validate full person with default params in language en and de' do
                 data_hash_en = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person_en')
-                I18n.with_locale(:en) { @content.set_data_hash(data_hash: @content.get_data_hash.merge(data_hash_en)) }
+                I18n.with_locale(:en) { @content.set_data_hash(data_hash: @content.get_data_hash.except(*@content.computed_property_names).merge(data_hash_en)) }
                 @content.reload
 
                 assert_translated_datahash(data_hash_en, @content)

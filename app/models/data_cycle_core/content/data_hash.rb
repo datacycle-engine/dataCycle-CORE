@@ -24,10 +24,10 @@ module DataCycleCore
         inherit_source_attributes(**options.to_h.slice(:data_hash, :source)) if options.new_content && !options.source.nil?
 
         # add default value
-        add_default_values(**options.to_h.slice(:data_hash, :current_user, :new_content)) if properties_with_default_values.present?
+        add_default_values(**options.to_h.slice(:data_hash, :current_user, :new_content)) if default_value_property_names.present?
 
         # add computed values
-        set_computed_values(data_hash: options.data_hash) if computed_property_names.present?
+        add_computed_values(data_hash: options.data_hash) if computed_property_names.present? && options.update_computed
       end
 
       def after_save_data_hash(options)
@@ -48,7 +48,7 @@ module DataCycleCore
         # trigger update of dependent computed properties
         add_update_dependent_computed_properties_job
 
-        add_update_exif_values_job
+        add_update_exif_values_job if template_name == 'Bild' && exif_property_names.present?
       end
 
       def before_destroy_data_hash(_options)
@@ -72,6 +72,8 @@ module DataCycleCore
         unless options.force_update
           differ = diff_obj(options.data_hash, partial_schema, options.partial_update)
           return no_changes(options.ui_locale) if differ.diff_hash.blank? && differ.errors[:error].blank?
+
+          self.datahash_changes = differ.diff_hash.deep_dup
 
           if options.partial_update_improved
             # reduce partial schema to only updated properties:
@@ -134,12 +136,6 @@ module DataCycleCore
         i18n_valid?
       end
 
-      def set_computed_values(data_hash:) # rubocop:disable Naming/AccessorMethodName
-        computed_property_names.each do |computed_property|
-          data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(computed_property, properties_for(computed_property), data_hash, self)
-        end
-      end
-
       def inherit_source_attributes(data_hash:, source:)
         I18n.with_locale(source.first_available_locale) do
           source_data_hash = source.get_data_hash
@@ -184,7 +180,7 @@ module DataCycleCore
       end
 
       def validate(data_hash:, schema_hash: nil, strict: false, add_defaults: false, current_user: nil, add_warnings: true, add_errors: true)
-        data_hash = add_default_values(data_hash: data_hash, current_user: current_user, partial: !strict).dup if add_defaults && properties_with_default_values.present?
+        data_hash = add_default_values(data_hash: data_hash, current_user: current_user, partial: !strict).dup if add_defaults && default_value_property_names.present?
 
         validator = DataCycleCore::MasterData::ValidateData.new(self)
         valid = DataCycleCore::LocalizationService.localize_validation_errors(validator.validate(data_hash, schema_hash || schema, strict), current_user&.ui_locale || DataCycleCore.ui_locales.first)
@@ -212,12 +208,11 @@ module DataCycleCore
       end
 
       def add_update_exif_values_job
-        return if template_name != 'Bild' || exif_property_names.blank?
         DataCycleCore::WriteExifDataJob.perform_later(id)
       end
 
       def add_update_dependent_computed_properties_job
-        DataCycleCore::UpdateComputedPropertiesJob.perform_later(id)
+        DataCycleCore::UpdateComputedPropertiesJob.perform_later(id, Array.wrap(datahash_changes&.keys))
       end
 
       def invalidate_self_and_update_search

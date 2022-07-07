@@ -81,7 +81,11 @@ module DataCycleCore
         def timeseries
           external_system = DataCycleCore::ExternalSystem.find(permitted_params[:external_source_id])
           render(json: { error: 'unknown endpoint' }, status: :not_found) && return if external_system.blank?
-          content = DataCycleCore::Thing.find_by(external_source_id: external_system.id, external_key: permitted_params[:external_key])
+          if permitted_params[:external_key].uuid?
+            content = DataCycleCore::Thing.find_by('(external_source_id = ? AND external_key = ?) OR id = ?', external_system.id, permitted_params[:external_key], permitted_params[:external_key])
+          else
+            content = DataCycleCore::Thing.find_by('(external_source_id = ? AND external_key = ?)', external_system.id, permitted_params[:external_key])
+          end
           render(json: { error: 'unknown endpoint' }, status: :not_found) && return if content.blank?
           render(json: { error: 'unknown endpoint' }, status: :not_found) && return unless content.timeseries_property_names.include?(permitted_params[:attribute])
 

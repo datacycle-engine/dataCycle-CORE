@@ -7,7 +7,7 @@ module DataCycleCore
   module Feature
     class ImageProxy < Base
       class << self
-        SUPPORTED_CONTENT_TYPES = ['Bild', 'ImageVariant'].freeze
+        SUPPORTED_CONTENT_TYPES = ['Bild', 'ImageVariant', 'Video'].freeze
         SUPPORTED_FILE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'avif', 'webp', 'gif'].freeze
 
         def data_hash_module
@@ -19,6 +19,7 @@ module DataCycleCore
             content: content,
             variant: 'dynamic',
             image_processing: {
+              'preset' => 'default',
               'resize_type' => 'fill',
               'width' => 50,
               'height' => 50,
@@ -39,11 +40,15 @@ module DataCycleCore
           ]
 
           format = image_file_extension(content, variant, image_processing)
-          target_url << imgproxy_signature(content.id, image_processing, format) if image_processing.is_a?(::Hash) && !image_processing.empty?
+          target_url << imgproxy_signature(content, image_processing, format) if image_processing.is_a?(::Hash) && !image_processing.empty?
+
+          target_url << content.cache_valid_since.to_i
 
           if variant == 'dynamic'
             return unless image_processing.is_a?(::Hash) && !image_processing.empty?
+            preset = image_processing.dig('preset') || 'default'
             target_url += [
+              preset,
               image_processing.dig('resize_type'),
               image_processing.dig('width'),
               image_processing.dig('height'),
@@ -98,7 +103,7 @@ module DataCycleCore
           ext_name
         end
 
-        def imgproxy_signature(content_id, processing, format)
+        def imgproxy_signature(content, processing, format)
           raise 'Insufficient imgproxy credentials! Validate imgproxy_key and imgproxy_salt secrets!' unless Rails.application.secrets.imgproxy_key.present? && Rails.application.secrets.imgproxy_salt.present?
 
           key = [Rails.application.secrets.imgproxy_key].pack('H*')
@@ -110,11 +115,13 @@ module DataCycleCore
           url = [
             application_url.to_s,
             'things',
-            content_id,
+            content.id,
             'asset',
             'content'
           ].join('/')
 
+          cachebuster = content.cache_valid_since.to_i
+          preset = processing.dig('preset') || 'default'
           resize_type = processing.dig('resize_type')
           width = processing.dig('width')
           height = processing.dig('height')
@@ -122,7 +129,7 @@ module DataCycleCore
           enlarge = processing.dig('enlarge')
           extension = processing.dig('format') || format
 
-          path = "/resize:#{resize_type}:#{width}:#{height}:#{enlarge}/gravity:#{gravity}/filename:#{content_id}/plain/#{url}@#{extension}"
+          path = "/cachebuster:#{cachebuster}/preset:#{preset}/resize:#{resize_type}:#{width}:#{height}:#{enlarge}/gravity:#{gravity}/filename:#{content.id}/plain/#{url}@#{extension}"
 
           digest = OpenSSL::Digest.new('sha256')
           hmac = Base64.urlsafe_encode64(OpenSSL::HMAC.digest(digest, key, "#{salt}#{path}")).tr('=', '')

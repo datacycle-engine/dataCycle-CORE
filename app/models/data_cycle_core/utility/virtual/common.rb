@@ -17,6 +17,14 @@ module DataCycleCore
 
             nil
           end
+
+          def value_from_definition(virtual_definition:, content:, **_args)
+            path = virtual_definition.dig('virtual', 'path')
+
+            return if path.blank?
+
+            content&.property_definitions&.dig(*path)
+          end
         end
       end
     end

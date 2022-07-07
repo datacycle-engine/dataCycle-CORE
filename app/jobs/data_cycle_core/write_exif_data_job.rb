@@ -53,6 +53,9 @@ module DataCycleCore
 
           next if exif_keys.blank? || exif_value.blank?
 
+          exif_value = property_definition.dig('exif', 'prepend') + exif_value if property_definition.dig('exif', 'prepend')
+          exif_value += property_definition.dig('exif', 'prepend') if property_definition.dig('exif', 'append')
+
           exif_keys.each do |key|
             if exif_value.is_a?(Array) && EXIF_ARRAY_DATA_TYPES.exclude?(key)
               exif_data[key] = exif_value.join(',')
@@ -67,13 +70,11 @@ module DataCycleCore
       return unless exif_data.changed?
 
       exif_data.save
-      udpate_cache_entry(thing)
       update_variants(thing, updated_values)
     end
 
     def update_variants(thing, updated_values)
       image_variant_property_names = thing.name_property_selector { |definition| definition['type'] == 'embedded' && definition['template_name'] == 'ImageVariant' }
-
       return if image_variant_property_names.blank?
 
       image_variants = thing.send(image_variant_property_names.first)
@@ -83,7 +84,7 @@ module DataCycleCore
           asset = variant.asset
           next if asset.blank?
 
-          exif_data = MiniExiftool.new(asset.original.file.file, { replace_invalid_chars: true })
+          exif_data = MiniExiftool.new(asset.original.file.file, { replace_invalid_chars: true, ignore_minor_errors: true })
 
           updated_values['Headline'] = variant.name || updated_values['Headline']
 
@@ -94,24 +95,9 @@ module DataCycleCore
           next unless exif_data.changed?
 
           exif_data.save
-          udpate_cache_entry(variant)
+          variant.invalidate_self
         end
       end
-    end
-
-    def udpate_cache_entry(thing)
-      headers = {
-        'x-invalidate-pattern' => "/things/#{thing.id}",
-        'Host' => 'docker-varnish'
-      }
-
-      client = Faraday.new
-      request = client.build_request(:ban) do |req|
-        req.url('http://varnish')
-        req.headers.update(headers)
-      end
-
-      client.builder.build_response(client, request)
     end
   end
 end

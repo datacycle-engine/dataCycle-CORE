@@ -15,7 +15,12 @@ module DataCycleCore
         @assets = @assets.where(type: permitted_params[:types]) if permitted_params[:types].present?
         @assets = @assets.where(id: permitted_params[:asset_ids]) if permitted_params[:asset_ids].present?
         @assets = @assets.page(@page).per(25)
-        @asset_details = @assets.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
+
+        if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+          @asset_details = @assets.as_json(only: [:id, :name, :file_size, :content_type], methods: :duplicate_candidates)
+        else
+          @asset_details = @assets.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
+        end
         @total = @assets.total_count
 
         render json: {

@@ -64,6 +64,10 @@
                 "shapes": "[UUID]",
             }
         },
+        "creator": {
+            "in": "[UUID]",
+            "notIn": "[UUID]"
+        },
         "search": "String",
         "q": "String",
         "linked": {

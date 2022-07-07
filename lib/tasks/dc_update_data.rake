@@ -7,27 +7,24 @@ namespace :dc do
     desc 'update all computed attributes'
     task :computed_attributes, [:template_name, :webhooks, :computed_name, :dry_run] => [:environment] do |_, args|
       dry_run = args.fetch(:dry_run, false)
-      webhooks = args.fetch(:webhooks, 'true')
-      template_name = args.fetch(:template_name, false)
-      computed_name = args.fetch(:computed_name, false)
+      webhooks = args.fetch(:webhooks, 'true').to_s
+      template_name = args.fetch(:template_name, false).to_s
+      computed_name = args.fetch(:computed_name, false).to_s
       computed_names = computed_name.present? && computed_name != 'false' ? computed_name.split(',') : false
 
-      if template_name.present? && template_name != 'false'
-        selected_things = DataCycleCore::Thing.where(template: true, template_name: template_name)
-      else
-        selected_things = DataCycleCore::Thing.where(template: true)
-      end
+      selected_things = DataCycleCore::Thing.where(template: true)
+      selected_things = selected_things.where(template_name: template_name) if template_name.present? && template_name != 'false'
 
-      selected_things.find_each.select { |template| template.computed_property_names.present? }.each do |template|
+      selected_things.find_each do |template|
+        next if template.computed_property_names.blank?
         next if computed_names.present? && computed_names.size.positive? && !(computed_names & template.computed_property_names).size.positive?
+
         items = DataCycleCore::Thing.where(template: false, template_name: template.template_name)
-        items_to_update = items.size
         translated_computed = (template.computed_property_names & template.translatable_property_names).present?
+        keys_for_data_hash = template.property_names.difference(template.computed_property_names)
+        keys_for_data_hash = keys_for_data_hash.intersection(template.property_definitions.slice(*computed_names).values.map { |d| d.dig('compute', 'parameters') }.flatten.uniq.compact) if computed_names.present?
 
-        puts "#{template.template_name}\r"
-        puts "#{('# ' + items_to_update.to_s).ljust(41)} | #updated | of total | process time/s \r"
-
-        temp = Time.zone.now
+        progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
 
         items.find_each do |item|
           next if dry_run
@@ -36,14 +33,22 @@ namespace :dc do
 
           if translated_computed
             item.available_locales.each do |locale|
-              I18n.with_locale(locale) { item.set_data_hash(data_hash: item.get_data_hash.except(*template.computed_property_names)) }
+              I18n.with_locale(locale) do
+                item.set_data_hash(data_hash: item.get_data_hash_partial(keys_for_data_hash), partial_update: true)
+              end
             end
           else
-            I18n.with_locale(item.first_available_locale) { item.set_data_hash(data_hash: item.get_data_hash.except(*template.computed_property_names)) }
+            I18n.with_locale(item.first_available_locale) do
+              item.set_data_hash(data_hash: item.get_data_hash_partial(keys_for_data_hash), partial_update: true)
+            end
           end
-        end
 
-        puts "#{''.ljust(41)} | #{(items_to_update || 0).to_s.rjust(8)} | #{(items_to_update || 0).to_s.rjust(8)} | #{TimeHelper.format_time(Time.zone.now - temp, 5, 6, 's')} \r"
+          progressbar.increment
+        rescue StandardError => e
+          progressbar.increment
+
+          puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
+        end
       end
 
       if dry_run
@@ -55,29 +60,51 @@ namespace :dc do
     desc 'add default values for all attributes'
     task :add_defaults, [:template_names, :webhooks, :imported] => [:environment] do |_, args|
       template_names = args.template_names&.split('|')&.map(&:squish)
+      selected_things = DataCycleCore::Thing.where(template: true)
+      selected_things = selected_things.where(template_name: template_names) if template_names.present?
 
-      contents = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded')
-      contents = contents.where(template_name: template_names) if template_names.present?
-      contents = contents.where(external_source_id: nil) if args.imported&.to_s&.downcase == 'false'
+      selected_things.find_each do |template|
+        next if template.default_value_property_names.blank?
 
-      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+        items = DataCycleCore::Thing.where(template: false, template_name: template.template_name)
+        items = items.where(external_source_id: nil) if args.imported&.to_s&.downcase == 'false'
 
-      contents.find_each do |content|
-        next if content.properties_with_default_values.blank?
+        translated_properties = (template.default_value_property_names & template.translatable_property_names).present?
+        keys_for_data_hash = template
+          .property_definitions
+          .slice(*template.default_value_property_names)
+          .map { |k, d| [k, d.dig('default_value').is_a?(::Hash) ? d.dig('default_value', 'parameters') : nil] }
+          .flatten
+          .uniq
+          .compact
 
-        content.translated_locales.each do |locale|
-          I18n.with_locale(locale) do
-            data_hash = {}
-            content.add_default_values(data_hash: data_hash, force: true)
-            content.prevent_webhooks = args.webhooks&.to_s&.downcase == 'false'
-            begin
-              content.set_data_hash(data_hash: data_hash, partial_update: true)
-            rescue StandardError => e
-              puts e.message
+        progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
+
+        items.find_each do |item|
+          item.prevent_webhooks = args.webhooks&.to_s&.downcase == 'false'
+
+          if translated_properties
+            item.translated_locales.each do |locale|
+              I18n.with_locale(locale) do
+                data_hash = item.get_data_hash_partial(keys_for_data_hash)
+                item.add_default_values(data_hash: data_hash, force: true)
+                item.set_data_hash(data_hash: data_hash, partial_update: true)
+              end
+            end
+          else
+            I18n.with_locale(item.first_available_locale) do
+              data_hash = item.get_data_hash_partial(keys_for_data_hash)
+              item.add_default_values(data_hash: data_hash, force: true)
+              item.set_data_hash(data_hash: data_hash, partial_update: true)
             end
           end
+
+          progressbar.increment
+        rescue StandardError => e
+          progressbar.increment
+
+          puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
         end
-        progressbar.increment
       end
     end
   end

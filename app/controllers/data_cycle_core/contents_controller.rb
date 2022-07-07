@@ -73,6 +73,7 @@ module DataCycleCore
       end
     end
 
+    # @todo: refactor when finally migrated to ActiveStorage
     # original = content_url
     # content => Bild: content_url ; other = thumbnail_url
     # thumbnail = thumbnail_url
@@ -80,11 +81,22 @@ module DataCycleCore
       content = DataCycleCore::Thing.find(params[:id])
       type = asset_proxy_params.dig(:type)
       attribute = :content_url
-      attribute = :thumbnail_url if type == 'thumb' || (type == 'content' && !['Audio', 'Bild', 'ImageVariant'].include?(content.template_name))
+      attribute = :thumbnail_url if type == 'thumb' || (type == 'content' && !['Video', 'Audio', 'Bild', 'ImageVariant'].include?(content.template_name))
 
       raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
-      uri = URI.parse(content.send(attribute))
 
+      if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && DataCycleCore.experimental_features.dig('active_storage', 'asset_types')&.include?(content.asset.class.name)
+        content.asset.file.preview(resize_to_limit: [300, 300]).processed unless content.asset.file.preview_image.attached?
+        rendered_attribute = content.asset.file.preview_image.url
+      elsif content.template_name == 'Video'
+        # no active storage
+        rendered_attribute = content.send(:thumbnail_url)
+      elsif content.template_name == 'Webcam' && content.send(attribute).blank?
+        rendered_attribute = content.try(:image)&.first&.send(attribute)
+      else
+        rendered_attribute = content.send(attribute)
+      end
+      uri = URI.parse(rendered_attribute)
       # used for local development and docker env.
       uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && ENV.fetch('APP_DOCKER_ENV') { nil } != 'production' && uri.hostname == 'localhost'
       redirect_to(uri.to_s, allow_other_host: true)
@@ -451,6 +463,7 @@ module DataCycleCore
         .template_names(select_search_params[:template_name])
         .exclude_ids(select_search_params[:exclude])
       query = query.limit(select_search_params[:max].to_i) if select_search_params[:max].present?
+      query = query.sort_fulltext_search('DESC', select_search_params[:q])
 
       render plain: query.includes(:translations).map { |t| t.to_select_option(template_filter, helpers.active_ui_locale) }.to_json,
              content_type: 'application/json'

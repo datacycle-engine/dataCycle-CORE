@@ -57,7 +57,8 @@ namespace :dc do
       task update_meta_data: :environment do
         temp = Time.zone.now
 
-        assets = DataCycleCore::Image.all
+        assets = DataCycleCore::Image.where("metadata ? 'version'")
+
         items_count = assets.size
 
         puts "START UPDATE MetaData ==> Images (#{items_count})"
@@ -71,6 +72,8 @@ namespace :dc do
             .to_hash
             .transform_values { |value| value.is_a?(String) ? value.delete("\u0000") : value }
           asset.save!
+        rescue StandardError => e
+          puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
         end
 
         puts 'END'
@@ -93,7 +96,7 @@ namespace :dc do
         progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
 
         exif_property_names = ['license_classification', 'keyword_classifications', 'copyright_holder', 'author']
-        properties = images.first.properties_with_default_values.select { |k, _v| exif_property_names.include?(k) }
+        properties = images.first.default_value_property_names.select { |k| exif_property_names.include?(k) }
 
         images.each do |image|
           progressbar.increment
@@ -111,6 +114,178 @@ namespace :dc do
         puts 'END'
         puts "--> ELAPSED TIME: #{((Time.zone.now - temp) / 60).to_i} min"
       end
+    end
+
+    desc 'migrate assets to active_storage'
+    task migrate_assets_to_active_storage: :environment do
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_videos_to_active_storage"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_pdfs_to_active_storage"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_audio_to_active_storage"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_data_cycle_file_to_active_storage"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_text_file_to_active_storage"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_srt_file_to_active_storage"].invoke
+
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('PDF', 'false')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].reenable
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('Video', 'false')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].reenable
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('Audio', 'false')
+    end
+
+    desc 'migrate videos to active_storage'
+    task migrate_videos_to_active_storage: :environment do
+      temp = Time.zone.now
+
+      assets = DataCycleCore::Video.where.not(file: nil)
+      items_count = assets.size
+      puts "START MIGRATE VIDEOS ==> Video (#{items_count})"
+
+      progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+      assets.each do |asset|
+        progressbar.increment
+        begin
+          file_path = Rails.public_path.join('uploads', 'data_cycle_core', 'video', 'file', asset[:id], asset[:file])
+          asset.file.attach(io: File.open(file_path.to_s), filename: asset[:file])
+          asset[:file] = nil
+          asset.save
+        rescue StandardError => e
+          puts "### UnprocessableEntity: Asset: #{asset.id} (#{e})"
+        end
+      end
+
+      puts 'END'
+      puts "--> ELAPSED TIME: #{((Time.zone.now - temp) / 60).to_i} min"
+    end
+
+    desc 'migrate pdfs to active_storage'
+    task migrate_pdfs_to_active_storage: :environment do
+      temp = Time.zone.now
+
+      assets = DataCycleCore::Pdf.where.not(file: nil)
+      items_count = assets.size
+      puts "START MIGRATE PDFS ==> Pdf (#{items_count})"
+
+      progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+      assets.each do |asset|
+        progressbar.increment
+        begin
+          file_path = Rails.public_path.join('uploads', 'data_cycle_core', 'pdf', 'file', asset[:id], asset[:file])
+          asset.file.attach(io: File.open(file_path.to_s), filename: asset[:file])
+          asset[:file] = nil
+          asset.save
+        rescue StandardError => e
+          puts "### UnprocessableEntity: Asset: #{asset.id} (#{e})"
+        end
+      end
+
+      puts 'END'
+      puts "--> ELAPSED TIME: #{((Time.zone.now - temp) / 60).to_i} min"
+    end
+
+    desc 'migrate audio to active_storage'
+    task migrate_audio_to_active_storage: :environment do
+      temp = Time.zone.now
+
+      assets = DataCycleCore::Audio.where.not(file: nil)
+      items_count = assets.size
+      puts "START MIGRATE AUDIO ==> Audio (#{items_count})"
+
+      progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+      assets.each do |asset|
+        progressbar.increment
+        begin
+          file_path = Rails.public_path.join('uploads', 'data_cycle_core', 'audio', 'file', asset[:id], asset[:file])
+          asset.file.attach(io: File.open(file_path.to_s), filename: asset[:file])
+          asset[:file] = nil
+          asset.save
+        rescue StandardError => e
+          puts "### UnprocessableEntity: Asset: #{asset.id} (#{e})"
+        end
+      end
+
+      puts 'END'
+      puts "--> ELAPSED TIME: #{((Time.zone.now - temp) / 60).to_i} min"
+    end
+
+    desc 'migrate data_cycle_file to active_storage'
+    task migrate_data_cycle_file_to_active_storage: :environment do
+      temp = Time.zone.now
+
+      assets = DataCycleCore::DataCycleFile.where.not(file: nil)
+      items_count = assets.size
+      puts "START MIGRATE DataCycleFile ==> DataCycleFile (#{items_count})"
+
+      progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+      assets.each do |asset|
+        progressbar.increment
+        begin
+          file_path = Rails.public_path.join('uploads', 'data_cycle_core', 'data_cycle_file', 'file', asset[:id], asset[:file])
+          asset.file.attach(io: File.open(file_path.to_s), filename: asset[:file])
+          asset[:file] = nil
+          asset.save
+        rescue StandardError => e
+          puts "### UnprocessableEntity: Asset: #{asset.id} (#{e})"
+        end
+      end
+
+      puts 'END'
+      puts "--> ELAPSED TIME: #{((Time.zone.now - temp) / 60).to_i} min"
+    end
+
+    desc 'migrate text_file to active_storage'
+    task migrate_text_file_to_active_storage: :environment do
+      temp = Time.zone.now
+
+      assets = DataCycleCore::TextFile.where.not(file: nil)
+      items_count = assets.size
+      puts "START MIGRATE TextFile ==> TextFile (#{items_count})"
+
+      progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+      assets.each do |asset|
+        progressbar.increment
+        begin
+          file_path = Rails.public_path.join('uploads', 'data_cycle_core', 'text_file', 'file', asset[:id], asset[:file])
+          asset.file.attach(io: File.open(file_path.to_s), filename: asset[:file])
+          asset[:file] = nil
+          asset.save
+        rescue StandardError => e
+          puts "### UnprocessableEntity: Asset: #{asset.id} (#{e})"
+        end
+      end
+
+      puts 'END'
+      puts "--> ELAPSED TIME: #{((Time.zone.now - temp) / 60).to_i} min"
+    end
+
+    desc 'migrate srt_file to active_storage'
+    task migrate_srt_file_to_active_storage: :environment do
+      temp = Time.zone.now
+
+      assets = DataCycleCore::SrtFile.where.not(file: nil)
+      items_count = assets.size
+      puts "START MIGRATE srt_file ==> srt_file (#{items_count})"
+
+      progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+      assets.each do |asset|
+        progressbar.increment
+        begin
+          file_path = Rails.public_path.join('uploads', 'data_cycle_core', 'srt_file', 'file', asset[:id], asset[:file])
+          asset.file.attach(io: File.open(file_path.to_s), filename: asset[:file])
+          asset[:file] = nil
+          asset.save
+        rescue StandardError => e
+          puts "### UnprocessableEntity: Asset: #{asset.id} (#{e})"
+        end
+      end
+
+      puts 'END'
+      puts "--> ELAPSED TIME: #{((Time.zone.now - temp) / 60).to_i} min"
     end
   end
 end

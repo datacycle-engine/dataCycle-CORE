@@ -5,33 +5,55 @@ module DataCycleCore
     module Compute
       module Video
         class << self
-          def width(**args)
-            meta_stream_value(args.dig(:computed_parameters)&.first, ['width'])&.to_i || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
+          def width(computed_parameters:, **_args)
+            meta_stream_value(computed_parameters.values.first, ['width'])&.to_i
           end
 
-          def height(**args)
-            meta_stream_value(args.dig(:computed_parameters)&.first, ['height'])&.to_i || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
+          def height(computed_parameters:, **_args)
+            meta_stream_value(computed_parameters.values.first, ['height'])&.to_i
           end
 
           def frame_size(**args)
-            args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
+            # not implemented
           end
 
           def quality(**args)
-            args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
+            # not implemented
           end
 
-          def duration(**args)
-            meta_value(args.dig(:computed_parameters)&.first, ['format', 'duration'])&.to_f || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
+          def duration(computed_parameters:, **_args)
+            meta_value(computed_parameters.values.first, ['format', 'duration'])&.to_f
           end
 
-          def thumbnail_url(**args)
-            DataCycleCore::Video.find_by(id: args.dig(:computed_parameters)&.first)&.file&.thumb_preview&.url || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
+          def preview_image_start_time(content:, **_args)
+            content&.asset&.file&.blob&.preview_image&.purge if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+            nil
+          end
+
+          def thumbnail_url(computed_parameters:, **_args)
+            video = DataCycleCore::Video.find_by(id: computed_parameters.values.first)
+            video&.file&.thumb_preview&.url
+          end
+
+          def transcode(**args)
+            content = args.dig(:content)
+            original_value = content.try(args.dig(:key))
+            return original_value if original_value.present? && original_value != DataCycleCore::Feature::VideoTranscoding.placeholder
+            # could be used for custom processing instructions via data definition
+            # video_processing = args.dig(:computed_definition, 'compute', 'processing')
+
+            asset = args.dig(:computed_parameters)&.first || args.dig(:content).try(:asset)
+            return if asset.blank?
+
+            DataCycleCore::VideoTranscodingJob.perform_later(content.id, args.dig(:key))
+            DataCycleCore::Feature::VideoTranscoding.placeholder
           end
 
           def meta_value(video_id, path)
             video = DataCycleCore::Video.find_by(id: video_id)
+
             return nil if video.blank? || path.blank?
+
             video&.metadata&.dig(*path)
           end
 

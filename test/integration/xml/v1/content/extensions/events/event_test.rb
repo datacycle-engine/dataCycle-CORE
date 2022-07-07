@@ -12,7 +12,7 @@ module DataCycleCore
               before(:all) do
                 DataCycleCore::Thing.where(template: false).delete_all
                 @content = DataCycleCore::DummyDataHelper.create_data('event')
-                event_schedule = @content.get_data_hash
+                event_schedule = @content.get_data_hash.except(*@content.computed_property_names)
                 event_schedule['event_schedule'] = [{
                   'start_time' => {
                     'time' => 8.days.ago.to_s,
@@ -20,6 +20,7 @@ module DataCycleCore
                   },
                   'duration' => 10.days.to_i
                 }]
+
                 @content.set_data_hash(prevent_history: true, data_hash: event_schedule)
               end
 

@@ -119,35 +119,28 @@ module DataCycleCore
 
       def depending_contents
         raw_sql = <<-SQL.squish
-          WITH RECURSIVE content_links AS (
-            SELECT
-              #{content_a_id_column} "content_a_id",
-              #{content_b_id_column} "content_b_id"
-            FROM #{content_content_table}
-            UNION
-            SELECT
-              #{content_b_id_column} "content_a_id",
-              #{content_a_id_column} "content_b_id"
-            FROM #{content_content_table}
-            WHERE #{relation_b_column} IS NOT NULL
-          ), content_dependencies AS (
-            SELECT
-          		ARRAY[content_links.content_a_id, content_links.content_b_id] "content_ids"
-          	FROM content_links
-          	WHERE content_links.content_b_id = ?::uuid
+          WITH RECURSIVE content_dependencies AS (
+            SELECT ARRAY [content_content_links.content_a_id, content_content_links.content_b_id] content_ids
+            FROM content_content_links
+            WHERE content_content_links.content_b_id = :id::UUID
             UNION ALL
-            SELECT
-          		content_links.content_a_id || content_dependencies.content_ids "content_ids"
-          	FROM content_links
-          	JOIN content_dependencies ON
-          		content_dependencies.content_ids[1] = content_links.content_b_id AND
-          		content_links.content_a_id <> ALL(content_dependencies.content_ids)
-          ) SELECT 1 FROM content_dependencies WHERE content_ids[1] = #{self.class.table_name}.#{self.class.primary_key}
+            SELECT content_content_links.content_a_id || content_dependencies.content_ids content_ids
+            FROM content_content_links
+              JOIN content_dependencies ON content_dependencies.content_ids [1] = content_content_links.content_b_id
+              AND content_content_links.content_a_id <> ALL (content_dependencies.content_ids)
+          )
+          SELECT things.id
+          FROM things
+          WHERE EXISTS (
+              SELECT 1
+              FROM content_dependencies
+              WHERE content_ids [1] = #{self.class.table_name}.#{self.class.primary_key}
+            )
         SQL
 
         self.class
-          .where(content_type: 'entity')
-          .where("EXISTS (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, id])})")
+          .where(content_type: 'entity', template: false)
+          .where("things.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, id: id])})")
       end
 
       def linked_contents

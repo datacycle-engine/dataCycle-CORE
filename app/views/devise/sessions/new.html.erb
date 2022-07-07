@@ -33,18 +33,14 @@
                 </div>
               </div>
 
-              <div class="row password-field">
+              <div class="row">
                 <div class="small-4 columns">
                   <label for="user_password" class="text-right middle">
                     <%= t('activerecord.attributes.user.password', locale: active_ui_locale) %>:
                   </label>
                 </div>
-                <div class="small-7 columns end">
+                <div class="small-7 columns end password-field">
                   <%= f.input :password, required: false, label: false %>
-                  <span class="password-visibility-toggle">
-                    <i class="fa fa-eye "></i>
-                    <i class="fa fa-eye-slash  hide"></i>
-                  </span>
                 </div>
               </div>
 
@@ -121,16 +117,12 @@
                   </div>
                 </div>
 
-                <div class="row password-field">
+                <div class="row">
                   <div class="small-4 columns">
                     <label for="user_password" class="text-right middle">Passwort:</label>
                   </div>
-                  <div class="small-7 columns end">
+                  <div class="small-7 columns end password-field">
                     <%= f.input :password, required: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length), label: false %>
-                    <span class="password-visibility-toggle">
-                      <i class="fa fa-eye toggle-show"></i>
-                      <i class="fa fa-eye-slash toggle-hide hide"></i>
-                    </span>
                   </div>
                 </div>
 

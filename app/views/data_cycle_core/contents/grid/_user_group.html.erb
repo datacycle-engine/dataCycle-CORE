@@ -11,6 +11,13 @@
       <%= item.name %>
     </div>
 
+    <div class="tags">
+      <ul class="no-bullet no-format">
+        <% item.display_classification_aliases.each do |classification_alias| %>
+          <li class="tag" data-dc-tooltip="<%= classification_tooltip(classification_alias) %>"><%= classification_alias.internal_name %></li>
+        <% end %>
+      </ul>
+    </div>
   </div>
 
 <% end %>

@@ -18,6 +18,10 @@ en:
     title: Title
     updated: Edited
   submit: Create
+
+  attribute_labels:
+    additional_information: Description block
+
   locales:
     de: German
     en: English
@@ -975,8 +979,6 @@ en:
             password:
               blank: Password must not be empty.
               too_short: Password too short.
-            password_confirmation:
-              confirmation: Passwords do not match.
             current_password:
               blank: Enter current password for confirmation.
               invalid: Wrong password.
@@ -1072,7 +1074,7 @@ en:
         given_name: First name
         family_name: Family name
         password: Password
-        password_confirmation: Repeat password
+        new_password: New password
         current_password: Current password
         email: Email
         role_id: Roll
@@ -1380,6 +1382,22 @@ en:
       station: Station
       subtitle: Subtitle
       teaser: Teaser
+    pimcore_ats:
+      description: Description
+      longDescription: Detailed descripton
+      shortDescription: Brief descripton
+      directions: Directions
+      parking: Parking
+      maps: Maps
+      shortText: Brief description
+      longText: Detailed description
+      additionalInformation: Additional Information
+      destination: Destination
+      gettingThere: Getting there
+      literature: Literature
+      startingPointDescr: Starting point description
+      tip: Tip
+      publicTransit: Public transit
 
   media_archive:
     allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>
@@ -1617,6 +1635,8 @@ en:
     data_cycle_core/error/api/expired_content_error:
       expired_content: Content is expired
     active_record/record_not_found: Not found
+    data_cycle_core/error/filter/date_filter_range_error: 'error in filter params: end date must be equal or greater then start date in date filters'
+    data_cycle_core/error/filter/union_filter_recursion_error: 'error in filter params: stored filters cannot filter on themselves inside union filters (infinite recursion)'
 
   details:
     bild:

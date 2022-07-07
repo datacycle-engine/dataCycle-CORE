@@ -48,7 +48,6 @@ module DataCycleCore
           exception: e,
           external_system: external_source
         }
-
         external_source.config['last_download_import_failed'] = true
         external_source.config['last_download_import_exception'] = "#{e} (#{Time.zone.now})"
         external_source.save!

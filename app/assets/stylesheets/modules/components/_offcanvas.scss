@@ -10,7 +10,29 @@
     border-bottom: 1px solid $medium-gray;
 
     .edit-user-link {
-      width: 100%;
+      width: 85%;
+
+      .icon-edit {
+        padding: 0 0.3rem;
+        width: auto;
+        margin: 0 0 0 0.5rem;
+
+        .fa {
+          margin: 0;
+        }
+      }
+    }
+
+    .user-settings-link,
+    .logout-link {
+      .icon {
+        padding: 0 0.3rem;
+        width: auto;
+
+        .fa {
+          margin: 0;
+        }
+      }
     }
 
     .copy-to-clipboard {

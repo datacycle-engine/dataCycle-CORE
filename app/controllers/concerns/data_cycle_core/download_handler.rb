@@ -13,7 +13,7 @@ module DataCycleCore
     def download_collection(object, items, serialize_format, languages, versions = nil)
       languages ||= [I18n.locale]
       download_dir = Rails.root.join('public', 'downloads')
-      FileUtils.mkdir_p(download_dir)
+      Dir.mkdir(download_dir) unless File.exist?(download_dir)
       cleanup_files(download_dir)
 
       zipfile_name = "#{object.name&.parameterize(separator: '_')}-#{Time.now.to_i}.zip"
@@ -70,7 +70,7 @@ module DataCycleCore
     def download_indesign_collection(object, items, serialize_format, languages, serialize_method = :serialize_thing)
       languages ||= [I18n.locale]
       download_dir = Rails.root.join('public', 'downloads')
-      FileUtils.mkdir_p(download_dir)
+      Dir.mkdir(download_dir) unless File.exist?(download_dir)
       cleanup_files(download_dir)
 
       zipfile_name = "#{object.name&.parameterize(separator: '_')}-#{Time.now.to_i}.zip"
@@ -160,9 +160,10 @@ module DataCycleCore
 
     def create_download_file(serialized_content, file_name)
       return serialized_content.data.path if serialized_content.local_file?
+      return serialized_content.data.service.path_for(serialized_content.data.key) if serialized_content.active_storage?
 
       download_dir = Rails.root.join('public', 'downloads')
-      FileUtils.mkdir_p(download_dir)
+      Dir.mkdir(download_dir) unless File.exist?(download_dir)
       download_file = File.join(download_dir, file_name)
       file_mode = 'wb' if serialized_content.remote?
       File.open(File.join(download_file), file_mode || 'w') do |f|

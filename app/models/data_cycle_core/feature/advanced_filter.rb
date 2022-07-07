@@ -144,6 +144,20 @@ module DataCycleCore
           end || []
         end
 
+        def related_through_attribute(user, value)
+          return [] unless value.is_a?(Hash)
+
+          value.map { |k, v|
+            next unless v
+
+            [
+              I18n.t("filter.related_through_attribute.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: user.ui_locale),
+              'related_through_attribute',
+              data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
+            ]
+          }.compact
+        end
+
         def default(user, key, value)
           return [] unless value
           [

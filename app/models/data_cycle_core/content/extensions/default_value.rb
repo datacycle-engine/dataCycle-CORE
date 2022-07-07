@@ -6,28 +6,28 @@ module DataCycleCore
       module DefaultValue
         def add_default_values(data_hash:, current_user: nil, new_content: false, force: false, partial: false)
           if new_content || force
-            props = properties_with_default_values.select { |k, _| attribute_blank?(data_hash, k) }
+            keys = default_value_property_names.select { |k| attribute_blank?(data_hash, k) }
           elsif !partial && translated_locales.presence&.exclude?(I18n.locale)
-            props = properties_with_default_values.select { |k, _| attribute_blank?(data_hash, k) }.slice(*translatable_property_names)
+            keys = default_value_property_names.select { |k| attribute_blank?(data_hash, k) }.intersection(translatable_property_names)
           else
-            props = properties_with_default_values.select { |k, _| attribute_blank?(data_hash, k) }.slice(*data_hash.keys)
+            keys = default_value_property_names.select { |k| attribute_blank?(data_hash, k) }.intersection(data_hash.keys)
           end
 
-          return data_hash if props.blank?
+          return data_hash if keys.blank?
 
-          props.each do |property_name, property_definition|
-            data_hash[property_name] = DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, property_definition, data_hash, self, current_user)
+          keys.each do |property_name|
+            DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, data_hash, self, current_user)
           end
 
           data_hash
         end
 
         def default_value(key, user, data_hash = {})
-          definition = properties_with_default_values[key]
+          return unless default_value_property_names.include?(key)
 
-          return if definition.blank?
+          DataCycleCore::Utility::DefaultValue::Base.default_values(key, data_hash, self, user)
 
-          value = DataCycleCore::Utility::DefaultValue::Base.default_values(key, definition, data_hash, self, user)
+          value = data_hash[key]
 
           return if value.blank? && !value.is_a?(FalseClass)
 

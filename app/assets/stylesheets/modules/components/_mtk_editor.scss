@@ -32,6 +32,10 @@
     margin-top: 0;
   }
 
+  .mtk-control-styles label {
+    max-width: unset;
+  }
+
   .mtk-elevation-profile {
     pointer-events: none;
 

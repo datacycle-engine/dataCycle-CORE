@@ -38,7 +38,7 @@
           <tr>
             <td style="padding:12pt 0 0 0">
               <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999"><%= DataCycleCore::DataLink.human_attribute_name("text_file", file_types: DataCycleCore::TextFileUploader.new.extension_white_list.join(', '), locale: @locale) %>:</span>
-              &nbsp;&nbsp;&nbsp;<a href="<%= get_text_file_data_link_url(@data_link) %>" target="_blank">
+              &nbsp;&nbsp;&nbsp;<a href="<%= get_text_file_data_link_url(@data_link, host: Rails.application.config.asset_host) %>" target="_blank">
                 <span style="color:#333333;text-decoration:underline;text-underline:underline"><%= @data_link.text_file.name %></span>
               </a>
             </td>

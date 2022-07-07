@@ -5,7 +5,7 @@ module DataCycleCore
     module Validators
       class Linked < BasicValidator
         def keywords
-          ['min', 'max', 'required', 'soft_min', 'soft_max']
+          ['min', 'max', 'required', 'soft_required', 'soft_min', 'soft_max']
         end
 
         def validate(data, template, _strict = false)

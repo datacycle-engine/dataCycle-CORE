@@ -23,49 +23,27 @@
         :storage_location: translated_value
         :compute:
           :module: Utility::Compute::String
-          :method: concat
-          :depends:
-            :0:
-              :type: content
+          :method: interpolate
+          :value: '-text-%{locale}-text-%{created_at}-text-%{value_2}'
+          :condition:
+            - :type: content
               :name: template_name
               :method: equals?
               :value: 'NOT Computed-String'
           :parameters:
-            :0: "-text-"
-            :1:
-              :type: I18n
-              :name: locale
-            :2: "-text-"
-            :3:
-              :type: content
-              :name: created_at
-            :4: "-text-"
-            :5:
-              :type: content
-              :name: value_2
+            - value_2
       :computed_value_correct:
         :label: Computed Value
         :type: string
         :storage_location: translated_value
         :compute:
           :module: Utility::Compute::String
-          :method: concat
-          :depends:
-            :0:
-              :type: content
+          :method: interpolate
+          :value: '-text-%{locale}-text-%{created_at}-text-%{value_2}'
+          :condition:
+            - :type: content
               :name: template_name
               :method: equals?
               :value: 'Computed-String'
           :parameters:
-            :0: "-text-"
-            :1:
-              :type: I18n
-              :name: locale
-            :2: "-text-"
-            :3:
-              :type: content
-              :name: created_at
-            :4: "-text-"
-            :5:
-              :type: content
-              :name: value_2
+            - value_2

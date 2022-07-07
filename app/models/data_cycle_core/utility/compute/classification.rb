@@ -5,28 +5,115 @@ module DataCycleCore
     module Compute
       module Classification
         class << self
-          def keywords(**args)
-            tags = args.dig(:computed_parameters).presence&.try(:flatten)&.reject(&:blank?)
-            return if tags.blank?
-            DataCycleCore::Classification.find(tags)&.map(&:name)&.join(',')
+          def keywords(computed_parameters:, **_args)
+            DataCycleCore::Classification.find(Array.wrap(computed_parameters.values).flatten.reject(&:blank?)).map(&:name).join(',').presence
           end
 
-          def description(**args)
-            classification_ids = args.dig(:computed_parameters).presence&.try(:flatten)&.reject(&:blank?)
+          def description(computed_parameters:, **_args)
+            classification_ids = computed_parameters.values.flatten.reject(&:blank?)
+
             return if classification_ids.blank?
+
             DataCycleCore::Classification
-              .find(classification_ids)
-              &.map(&:classification_aliases)
-              &.flatten
-              &.uniq
-              &.map { |classification_alias| classification_alias.description || classification_alias.name || classification_alias.internal_name }
+              .where(id: classification_ids)
+              .classification_aliases
+              .map { |classification_alias| classification_alias.description || classification_alias.name || classification_alias.internal_name }
               &.join(',')
           end
 
-          def value(**args)
-            values = args.dig(:computed_parameters).presence&.try(:flatten)
-            return unless values.size == 1
-            args.dig(:data_hash).dig('translated_classification') || DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(values.first.dig('tree'), values.first.dig('value'))
+          def value(computed_definition:, **_args)
+            tree = computed_definition.dig('compute', 'tree')
+            value = computed_definition.dig('compute', 'value')
+
+            return if value.blank? || tree.blank?
+
+            DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(tree, value)
+          end
+
+          def from_geo_shape(computed_parameters:, computed_definition:, **_args)
+            value = DataCycleCore::MasterData::DataConverter.string_to_geographic(computed_parameters.values.first)
+
+            return if value.blank?
+
+            get_ids_from_geometry(tree_label: computed_definition.dig('tree_label'), geometry: value.to_s)
+          end
+
+          def from_embedded(computed_parameters:, computed_definition:, **_args)
+            Array.wrap(computed_definition.dig('compute', 'parameters')&.map do |p|
+              key_path = p.split('.')
+              get_values_from_embedded(key_path.drop(1), computed_parameters.dig(key_path.first))
+            end).flatten.compact.uniq
+          end
+
+          private
+
+          def get_values_from_embedded(key_path, values)
+            return values if key_path.blank?
+
+            if values.is_a?(::Hash)
+              key = key_path.first
+
+              if values.key?(key) || values.dig('datahash')&.key?(key) || values.dig('translations', I18n.locale.to_s)&.key?(key)
+                value = values.dig(key) || values.dig('datahash', key) || values.dig('translations', I18n.locale.to_s, key)
+              else
+                id = values.dig('id') || values.dig('datahash', 'id') || values.dig('translations', I18n.locale.to_s, 'id')
+                value = DataCycleCore::Thing.find_by(id: id)&.property_value_for_set_datahash(key)
+              end
+
+              get_values_from_embedded(key_path.drop(1), value)
+            elsif values.is_a?(::Array)
+              values.map { |v| get_values_from_embedded(key_path, v) }
+            else
+              values
+            end
+          end
+
+          def get_ids_from_geometry(tree_label:, geometry:)
+            query_sql = <<-SQL.squish
+              WITH filtered_classifications AS (
+                SELECT
+                  classification_polygons.classification_alias_id
+                FROM
+                  classification_polygons
+                  INNER JOIN classification_aliases ON classification_aliases.deleted_at IS NULL
+                    AND classification_aliases.id = classification_polygons.classification_alias_id
+                  INNER JOIN "classification_trees" ON "classification_trees"."deleted_at" IS NULL
+                    AND "classification_trees"."classification_alias_id" = "classification_aliases"."id"
+                  INNER JOIN "classification_tree_labels" ON "classification_tree_labels"."deleted_at" IS NULL
+                    AND "classification_tree_labels"."id" = "classification_trees"."classification_tree_label_id"
+                WHERE
+                  "classification_tree_labels"."name" = :tree_label
+                  AND ST_Intersects ("classification_polygons"."geom", ST_Transform (ST_GeomFromText (:geo, 4326), 3035)))
+              SELECT DISTINCT ON (classification_groups.classification_id)
+                classification_groups.classification_id
+              FROM
+                classification_groups
+              WHERE
+                classification_groups.deleted_at IS NULL
+                AND classification_groups.classification_alias_id IN (
+                  SELECT
+                    filtered_classifications.classification_alias_id
+                  FROM
+                    filtered_classifications
+                  WHERE
+                    NOT EXISTS (
+                      SELECT
+                      FROM
+                        classification_alias_paths
+                      WHERE
+                        classification_alias_paths.ancestor_ids @> ARRAY[filtered_classifications.classification_alias_id]::uuid[]))
+                ORDER BY
+                  classification_groups.classification_id,
+                  classification_groups.created_at
+            SQL
+
+            ActiveRecord::Base.connection.execute(
+              ActiveRecord::Base.send(:sanitize_sql_array, [
+                                        query_sql,
+                                        tree_label: tree_label,
+                                        geo: geometry
+                                      ])
+            ).values.flatten
           end
         end
       end

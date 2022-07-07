@@ -16,7 +16,8 @@ module DataCycleCore
       version_name: nil,
       invalidate_related_cache: true,
       check_for_duplicates: false,
-      ui_locale: DataCycleCore.ui_locales.first
+      ui_locale: DataCycleCore.ui_locales.first,
+      update_computed: true
     }.freeze
 
     DataHashOptions = Struct.new(*SET_DATA_HASH_ARGUMENTS.keys, keyword_init: true) do

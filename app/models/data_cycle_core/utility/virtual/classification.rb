@@ -5,23 +5,20 @@ module DataCycleCore
     module Virtual
       module Classification
         class << self
-          def concat(**args)
-            virtual_parameters = args.dig(:virtual_parameters)
-            content = args.dig(:content)
-            definition = args.dig(:virtual_definition)&.deep_symbolize_keys
+          def concat(virtual_parameters:, content:, virtual_definition:, **_args)
             values = []
+
             virtual_parameters.each do |param|
-              values << classifcation_alias_value(content.send(param), definition.dig(:virtual, :key))
+              values << classifcation_alias_value(content.send(param), virtual_definition.dig(:virtual, :key))
             end
+
             values.join(', ')
           end
 
           def classifcation_alias_value(classifications, key)
             classifications
-              &.map(&:classification_aliases)
-              &.flatten
-              &.uniq
-              &.map { |classification_alias| classification_alias.send(key) || classification_alias.internal_name }
+              &.classification_aliases
+              &.map { |ca| ca.send(key) || ca.internal_name }
           end
         end
       end

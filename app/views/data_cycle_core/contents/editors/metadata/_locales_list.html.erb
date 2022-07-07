@@ -9,7 +9,7 @@
 
         <% if local_assigns[:content]&.translated_locales&.include?(l.first) %>
           <span class="buttons">
-            <% if @split_source.nil? && l.first != I18n.locale %>
+            <% if @split_source.nil? %>
               <%= link_to tag.i(class: 'fa fa-columns', aria_hidden: true),
                             polymorphic_path(
                               [local_assigns[:link_action], content],
@@ -21,6 +21,7 @@
                             data: {
                               locale: l.first,
                             },
+                            class: 'load-as-split-source-link',
                             title: t('actions.open_as_source', locale: active_ui_locale) %>
             <% end %>
 

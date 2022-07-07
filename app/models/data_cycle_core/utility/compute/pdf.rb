@@ -6,26 +6,44 @@ module DataCycleCore
       module Pdf
         class << self
           def width(**args)
-            args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
+            # not implemented
           end
 
           def height(**args)
-            args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
+            # not implemented
           end
 
-          def thumbnail_url(**args)
-            DataCycleCore::Pdf.find_by(id: args.dig(:computed_parameters)&.first)&.file&.thumb_preview&.url || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
+          def thumbnail_url(computed_parameters:, **_args)
+            pdf = DataCycleCore::Pdf.find_by(id: computed_parameters.values.first)
+            thumb_url = nil
+            if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && pdf&.file&.attached?
+              begin
+                ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
+                  thumb_url = pdf.file.preview(resize_to_limit: [300, 300]).processed.url
+                end
+              rescue ActiveStorage::FileNotFoundError
+                # add some logging
+                return nil
+              end
+            else
+              thumb_url = pdf&.file&.thumb_preview&.url
+            end
+            thumb_url
           end
 
           def exif_value(pdf_id, path)
             pdf = DataCycleCore::Pdf.find_by(id: pdf_id)
+
             return nil if pdf.blank? || path.blank?
+
             pdf&.metadata&.dig(*path)
           end
 
-          def extract_content(**args)
-            pdf = DataCycleCore::Pdf.find_by(id: args.dig(:computed_parameters)&.first)
+          def extract_content(computed_parameters:, **_args)
+            pdf = DataCycleCore::Pdf.find_by(id: computed_parameters.values.first)
+
             return nil if pdf.blank?
+
             pdf&.metadata&.dig('content')
           end
         end

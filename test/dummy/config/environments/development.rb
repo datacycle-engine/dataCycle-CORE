@@ -48,7 +48,8 @@ Rails.application.configure do
   end
 
   # Store uploaded files on the local file system (see config/storage.yml for options)
-  # config.active_storage.service = :local
+  config.active_storage.service = :local
+  config.active_storage.resolve_model_to_route = :rails_storage_proxy
 
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false
@@ -93,10 +94,16 @@ Rails.application.configure do
 
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.default_options = { from: "noreply@#{ENV.fetch('APP_HOST', 'localhost')}" }
-  config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3000'), protocol: ENV.fetch('APP_PROTOCOL', 'http') }
   config.action_mailer.smtp_settings = { address: ENV.fetch('MAILHOG_HOST', 'localhost'), port: 1025 }
 
-  config.asset_host = config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')
+  config.asset_host = { host: ENV.fetch('APP_HOST', 'localhost:3003'), protocol: ENV.fetch('APP_PROTOCOL', 'http') }&.slice(:protocol, :host)&.values&.join('://')
+
+  # not required ?
+  # config.action_controller.asset_host = config.asset_host
+  # config.action_mailer.asset_host = config.asset_host
+  # obsolete ?
+  # config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3003'), protocol: ENV.fetch('APP_PROTOCOL', 'http') }
+  # config.action_controler.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3003'), protocol: ENV.fetch('APP_PROTOCOL', 'http') }
 
   config.hosts.clear
 
@@ -116,5 +123,5 @@ Rails.application.configure do
   #   Bullet.add_footer = true
   # end
   config.action_cable.url = '/cable'
-  config.action_cable.allowed_request_origins = [config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')]
+  config.action_cable.allowed_request_origins = [config.asset_host]
 end

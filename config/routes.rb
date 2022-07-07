@@ -41,6 +41,10 @@ DataCycleCore::Engine.routes.draw do
     id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
     file: /.*/
   }
+  get '/processed/:klass/:id(/:file)', to: 'missing_asset#processed', constraints: {
+    klass: /(image|audio|video|pdf|text_file|data_cycle_file|srt_file)/,
+    id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
+  }
 
   get '/schema', to: 'schema#index'
   get '/schema/:id', to: 'schema#show', as: :schema_details

@@ -51,6 +51,7 @@
 @import 'modules/components/mtk_editor';
 @import 'modules/components/tooltip';
 @import 'modules/components/attribute_groups';
+@import 'modules/components/password_toggler';
 @import 'flatpickr/dist/flatpickr.min';
 @import 'modules/components/date_picker';
 @import 'ol/ol';
@@ -61,3 +62,6 @@
 @import 'modules/components/_report';
 
 @import 'tabulator-tables/dist/css/tabulator.min.css';
+
+@import 'video.js/dist/video-js';
+@import 'modules/components/_video_player';

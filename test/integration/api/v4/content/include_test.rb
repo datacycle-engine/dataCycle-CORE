@@ -51,6 +51,9 @@ module DataCycleCore
             assert_equal(header, data)
             # all embedded/linked have a compact header
             (@content_tour.embedded_property_names + @content_tour.linked_property_names - excluded_attributes).each do |embedded|
+              next if @content_tour.properties_for(embedded)&.dig('api', 'v4', 'disabled').to_s == 'true'
+              next if @content_tour.properties_for(embedded)&.dig('api', 'disabled').to_s == 'true'
+
               json_key = @content_tour.schema.dig('properties', embedded, 'api', 'v4', 'name') || @content_tour.schema.dig('properties', embedded, 'api', 'name') || embedded.camelize(:lower)
               assert_compact_header(json_data.dig(json_key))
             end
@@ -71,6 +74,9 @@ module DataCycleCore
 
             # all embedded/linked have at least a compact header
             (@content_tour.embedded_property_names + @content_tour.linked_property_names - excluded_attributes).each do |embedded|
+              next if @content_tour.properties_for(embedded)&.dig('api', 'v4', 'disabled').to_s == 'true'
+              next if @content_tour.properties_for(embedded)&.dig('api', 'disabled').to_s == 'true'
+
               json_key = @content_tour.schema.dig('properties', embedded, 'api', 'v4', 'name') || @content_tour.schema.dig('properties', embedded, 'api', 'name') || embedded.camelize(:lower)
               assert_compact_header(json_data.dig(json_key))
             end
@@ -96,6 +102,9 @@ module DataCycleCore
 
             # all embedded/linked have a compact header
             (@content_tour.embedded_property_names + @content_tour.linked_property_names - excluded_attributes).each do |embedded|
+              next if @content_tour.properties_for(embedded)&.dig('api', 'v4', 'disabled').to_s == 'true'
+              next if @content_tour.properties_for(embedded)&.dig('api', 'disabled').to_s == 'true'
+
               json_key = @content_tour.schema.dig('properties', embedded, 'api', 'v4', 'name') || @content_tour.schema.dig('properties', embedded, 'api', 'name') || embedded.camelize(:lower)
               assert_compact_header(json_data.dig(json_key))
             end
@@ -121,6 +130,9 @@ module DataCycleCore
 
             # all embedded/linked have a compact header
             (@content_tour.embedded_property_names + @content_tour.linked_property_names - excluded_attributes).each do |embedded|
+              next if @content_tour.properties_for(embedded)&.dig('api', 'v4', 'disabled').to_s == 'true'
+              next if @content_tour.properties_for(embedded)&.dig('api', 'disabled').to_s == 'true'
+
               json_key = @content_tour.schema.dig('properties', embedded, 'api', 'v4', 'name') || @content_tour.schema.dig('properties', embedded, 'api', 'name') || embedded.camelize(:lower)
               assert_compact_header(json_data.dig(json_key))
             end
@@ -151,6 +163,9 @@ module DataCycleCore
 
             # all embedded/linked have a compact header
             (@content_tour.embedded_property_names + @content_tour.linked_property_names - excluded_attributes).each do |embedded|
+              next if @content_tour.properties_for(embedded)&.dig('api', 'v4', 'disabled').to_s == 'true'
+              next if @content_tour.properties_for(embedded)&.dig('api', 'disabled').to_s == 'true'
+
               json_key = @content_tour.schema.dig('properties', embedded, 'api', 'v4', 'name') || @content_tour.schema.dig('properties', embedded, 'api', 'name') || embedded.camelize(:lower)
               assert_compact_header(json_data.dig(json_key))
             end

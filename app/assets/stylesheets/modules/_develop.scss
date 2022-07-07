@@ -2395,6 +2395,7 @@ select {
           font-size: inherit;
           line-height: inherit;
           color: inherit;
+          max-width: unset;
         }
       }
 
@@ -2920,6 +2921,11 @@ input.normalized {
       cursor: default;
       pointer-events: none;
       font-weight: bold;
+    }
+
+    .load-as-split-source-link {
+      display: none;
+      pointer-events: none;
     }
   }
 }
@@ -3542,35 +3548,6 @@ button.button-prime.small.bulk-delete-button {
       padding-right: 2rem;
     }
   }
-  .password-visibility-toggle {
-    position: absolute;
-    top: 0;
-    width: 2.5rem;
-    line-height: 2rem;
-    right: 0.9375rem;
-    height: 2.4375rem;
-    text-align: center;
-    cursor: pointer;
-    transition: opacity 0.2s ease-in;
-    text-shadow: none;
-    color: $black;
-    opacity: 0;
-
-    .fa {
-      display: flex;
-      width: 100%;
-      height: 100%;
-      align-items: center;
-      justify-content: center;
-      padding-bottom: 4px;
-    }
-  }
-
-  &.has-value {
-    .password-visibility-toggle {
-      opacity: 1;
-    }
-  }
 }
 .overflow-x-auto {
   overflow-x: auto;
@@ -3837,5 +3814,15 @@ body {
 .compare-contents-link {
   .fa {
     font-size: 1.3rem;
+  }
+}
+
+.editor.trail,
+.editor.tour {
+  .attribute-group.editor.trail_rating
+    > .attribute-group-item
+    > .attribute-group-content
+    > .attribute-group-content-element {
+    grid-template-columns: 65fr 35fr;
   }
 }

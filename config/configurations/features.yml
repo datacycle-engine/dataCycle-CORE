@@ -296,7 +296,6 @@
     :family_name:
     :default_locale:
     :password:
-    :password_confirmation:
     :confirmed_at:
   :issuer: datacycle.at
 
@@ -416,3 +415,71 @@
   :enabled: true
   :attribute_keys:
     - translation_of_work
+
+:video_transcoding:
+  :enabled: false
+  :placeholder: "path/to/placeholder/video.mp4"
+  :config:
+    :dynamic:
+    :mp4:
+      :processing:
+        :file_ext: "mp4"
+        :options:
+          video_codec: "libx264" # -c:v codec
+          frame_rate: 29.97 # -r framerate
+          keyframe_interval: 90 # -g
+          x264_preset: "slow" # -preset slow
+          video_bitrate: 1500 # -b:v 1500k
+          x264_vprofile: "main" # -vprofile main
+          resolution: "1280x720" # -s 1280x720
+          audio_bitrate: 92 # -b:a 92k
+          audio_codec: "aac" # -c:a libfdk_aac
+          audio_sample_rate: 22050 # -ar 22050
+          audio_channels: 2 # -ac 2
+          threads: 8 # -threads 2
+          custom: 
+            - '-movflags'
+            - 'faststart'
+    :mp4_low:
+      :processing:
+        :file_ext: "mp4"
+        :filename_append: "low"
+        :options:
+          video_codec: "libx264" # -c:v codec
+          frame_rate: 29.97 # -r framerate
+          keyframe_interval: 90 # -g
+          x264_preset: "slow" # -preset slow
+          video_bitrate: 600 # -b:v 1500k
+          x264_vprofile: "baseline" # -vprofile main
+          resolution: "640x360" # -s 1280x720
+          audio_bitrate: 92 # -b:a 92k
+          audio_codec: "aac" # -c:a libfdk_aac
+          audio_sample_rate: 22050 # -ar 22050
+          audio_channels: 2 # -ac 2
+          threads: 8 # -threads 2
+          custom: 
+            - '-movflags'
+            - 'faststart'
+    :mp4_mid:
+      :processing:
+        :file_ext: "mp4"
+        :filename_append: "mid"
+        :options:
+          video_codec: "libx264" # -c:v codec
+          frame_rate: 29.97 # -r framerate
+          keyframe_interval: 90 # -g
+          x264_preset: "slow" # -preset slow
+          video_bitrate: 800 # -b:v 1500k
+          x264_vprofile: "baseline" # -vprofile main
+          resolution: "640x360" # -s 1280x720
+          audio_bitrate: 92 # -b:a 92k
+          audio_codec: "aac" # -c:a libfdk_aac
+          audio_sample_rate: 22050 # -ar 22050
+          audio_channels: 2 # -ac 2
+          threads: 8 # -threads 2
+          custom: 
+            - '-movflags'
+            - 'faststart'
+          
+:user_group_classification:
+  :enabled: false

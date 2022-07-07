@@ -25,8 +25,7 @@ module DataCycleCore
         end
 
         def log_activity
-          activity_data = permitted_params.to_h.merge(controller: params.dig('controller'), action: params.dig('action'))
-          current_user.activities.create(activity_type: "api_v#{@api_version}", data: activity_data)
+          current_user.log_activity(type: "api_v#{@api_version}", data: permitted_params.to_h.merge(controller: params.dig('controller'), action: params.dig('action')))
         end
 
         private

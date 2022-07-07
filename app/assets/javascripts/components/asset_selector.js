@@ -193,7 +193,7 @@ class AssetSelector {
         this.assetList.append($html).trigger('dc:asset_list:changed', {
           assets: data.assets,
           selected: this.selectedAssetIds,
-          last_asset_type: this.lastAssetType,
+          last_asset_type: data.last_asset_type,
           page: this.page,
           total: data.total,
           append: append

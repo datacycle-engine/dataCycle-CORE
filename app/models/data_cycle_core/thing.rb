@@ -49,6 +49,20 @@ module DataCycleCore
       end
     end
 
+    class PropertyDependency < ApplicationRecord
+      self.table_name = 'content_property_dependencies'
+
+      belongs_to :thing, foreign_key: :content_id, class_name: 'DataCycleCore::Thing', inverse_of: :property_dependencies
+      belongs_to :dependent_thing, foreign_key: :dependent_content_id, class_name: 'DataCycleCore::Thing', inverse_of: :dependent_properties
+
+      def readonly?
+        true
+      end
+    end
+
+    has_many :property_dependencies, class_name: 'PropertyDependency', inverse_of: :thing, foreign_key: :content_id
+    has_many :dependent_properties, class_name: 'PropertyDependency', inverse_of: :dependent_thing, foreign_key: :dependent_content_id
+
     has_many :histories, -> { joins(:translations).order(Arel.sql('LOWER(thing_history_translations.history_valid) DESC, thing_history_translations.created_at DESC')) }, class_name: 'DataCycleCore::Thing::History', foreign_key: :thing_id, inverse_of: :thing
     has_many :scheduled_data, class_name: 'DataCycleCore::Schedule', dependent: :destroy, inverse_of: :thing
 

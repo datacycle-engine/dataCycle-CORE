@@ -16,7 +16,7 @@ module DataCycleCore
 
       self.abstract_class = true
 
-      attr_accessor :datahash, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS
+      attr_accessor :datahash, :datahash_changes, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS
       attr_writer :webhook_data
 
       DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
@@ -35,6 +35,7 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::SyncApi
       include DataCycleCore::Content::Extensions::Geojson
       include DataCycleCore::Content::Extensions::DefaultValue
+      include DataCycleCore::Content::Extensions::ComputedValue
 
       after_save :reload_memoized
       after_save :reload_memoized_overlay
@@ -144,6 +145,10 @@ module DataCycleCore
         schema&.dig('schema_type')
       end
 
+      def schema_ancestors
+        Array.wrap(schema&.dig('schema_ancestors')).then { |p| p.present? && !p.first.is_a?(::Array) ? [p] : p }
+      end
+
       def translatable?
         schema&.dig('features', 'translatable', 'allowed') || false
       end
@@ -245,15 +250,15 @@ module DataCycleCore
         @computed_property_names[include_overlay]
       end
 
-      def classification_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'classification' }
+      def default_value_property_names(include_overlay = false)
+        @default_value_property_names ||= Hash.new do |h, key|
+          h[key] = name_property_selector(key) { |definition| definition['default_value'].present? }
+        end
+        @default_value_property_names[include_overlay]
       end
 
-      def properties_with_default_values(include_overlay = false)
-        @properties_with_default_values ||= Hash.new do |h, key|
-          h[key] = property_selector(key) { |definition| definition['default_value'].present? }
-        end
-        @properties_with_default_values[include_overlay]
+      def classification_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition['type'] == 'classification' }
       end
 
       def asset_property_names
@@ -336,11 +341,11 @@ module DataCycleCore
       end
 
       def to_h_partial(partial_properties, timestamp = Time.zone.now)
-        known_names = partial_properties.select { |i| i.in?(property_names) }
-        (known_names - virtual_property_names).map { |property_name|
-          property_value = attribute_to_h(property_name, timestamp)
-          { property_name.to_s => property_value }
-        }.inject(&:merge)&.deep_stringify_keys || {}
+        Array.wrap(partial_properties)
+          .intersection(property_names)
+          .difference(virtual_property_names)
+          .index_with { |k| attribute_to_h(k, timestamp) }
+          .deep_stringify_keys
       end
 
       def attribute_to_h(property_name, timestamp = Time.zone.now)
@@ -407,7 +412,7 @@ module DataCycleCore
         @get_property_value ||= Hash.new do |h, key|
           h[key] =
             if virtual_property_names.include?(key[0])
-              DataCycleCore::Utility::Virtual::Base.virtual_values(key[0], key[1], self, key[2])
+              load_virtual_attribute(key[0], key[2])
             elsif plain_property_names(true).include?(key[0])
               load_json_attribute(key[0], key[1], key[4])
             elsif included_property_names(true).include?(key[0])
@@ -415,9 +420,9 @@ module DataCycleCore
             elsif classification_property_names(true).include?(key[0])
               load_classifications(key[0], key[4])
             elsif linked_property_names(true).include?(key[0])
-              load_linked_objects(key[0], key[3], false, [I18n.locale], key[4])
+              load_linked_objects(key[0], key[3], false, [key[2]], key[4])
             elsif embedded_property_names(true).include?(key[0])
-              load_embedded_objects(key[0], key[3], !key.dig(1, 'translated'), [I18n.locale], key[4])
+              load_embedded_objects(key[0], key[3], !key.dig(1, 'translated'), [key[2]], key[4])
             elsif asset_property_names.include?(key[0]) # no overlay
               load_asset_relation(key[0])&.first
             elsif schedule_property_names(true).include?(key[0])
@@ -428,7 +433,28 @@ module DataCycleCore
               raise NotImplementedError
             end
         end
+
         @get_property_value[[property_name, property_definition, I18n.locale, filter, overlay_flag]]
+      end
+
+      def property_value_for_set_datahash(property_name)
+        get_property_value(property_name, properties_for(property_name))&.then do |value|
+          if schedule_property_names.include?(property_name)
+            value.map(&:to_h)
+          elsif embedded_property_names.include?(property_name)
+            value.map(&:get_data_hash)
+          elsif value.is_a?(ActiveRecord::Relation)
+            value.pluck(:id)
+          elsif value.is_a?(::Array) && value.first.is_a?(ActiveRecord)
+            value.map(&:id)
+          else
+            value
+          end
+        end
+      end
+
+      def load_virtual_attribute(property_name, locale = I18n.locale)
+        DataCycleCore::Utility::Virtual::Base.virtual_values(property_name, self, locale)
       end
 
       def load_json_attribute(property_name, property_definition, overlay_flag)
@@ -553,7 +579,6 @@ module DataCycleCore
           message: "method set_property_value(#{property_name}, ...) is deprecated, use set_data_hash instead.",
           object: self
         }
-
         raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
         ActiveSupport::Deprecation.warn("DataCycleCore::Content::Content setter should not be used any more! property_name: #{property_name}, property_definition: #{property_definition}, value: #{value}")
         send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',

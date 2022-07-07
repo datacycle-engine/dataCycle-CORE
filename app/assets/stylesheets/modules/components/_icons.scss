@@ -357,9 +357,8 @@
       content: '\f073';
     }
 
-    &.type-datetime::before,
-    &.type-number.key-duration::before {
-      content: '\f017';
+    &.type-classification::before {
+      content: '\f02c';
     }
 
     &.type-object {

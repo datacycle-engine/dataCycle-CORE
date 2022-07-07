@@ -5,8 +5,8 @@ module DataCycleCore
     module Compute
       module Math
         class << self
-          def sum(**args)
-            args.dig(:computed_parameters).select { |v| v.is_a?(::Numeric) }.try(:sum)
+          def sum(computed_parameters:, **_args)
+            computed_parameters.values.flatten.grep(::Numeric).sum
           end
         end
       end

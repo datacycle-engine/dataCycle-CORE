@@ -19,6 +19,9 @@ de:
   submit: 'Erstellen'
   settings:
 
+  attribute_labels:
+    additional_information: Beschreibungsblock
+
   locales:
     de: deutsch
     en: englisch
@@ -574,7 +577,7 @@ de:
     validity_period: Gültigkeitszeitraum
     upload_date: Uploaddatum
     duplicate_candidates: Potentielle Duplikate vorhanden
-    not_1dates: keine potentiellen Duplikate vorhanden
+    not_duplicate_candidates: keine potentiellen Duplikate vorhanden
     bookable: buchbar
     not_bookable: nicht buchbar
     width: Breite
@@ -613,11 +616,16 @@ de:
     event_location: Veranstaltungsort
     inactive_things: Abgelaufene Inhalte
     in_schedule: Termin
+    related_through_attribute:
+      relation_item_offered: ist verknüpft über angebotene Leistung
+      not_relation_item_offered: ist nicht verknüpft über angebotene Leistung
     relation_filter:
       equal: ist
       not_equal: ist nicht
       contained_in: ist enthalten in
       not_contained_in: ist nicht enthalten in
+      exists: ist vorhanden
+      not_exists: ist nicht vorhanden
       placeholder:
         thing: Inhalt
         collection_or_stored_filter: '%{collection} oder %{stored_filter}'
@@ -658,6 +666,7 @@ de:
     geo_within_classification: nach geografischer Lage filtern ...
     geo_filter: nach geografischer Lage filtern ...
     relation_filter: auf Basis von verknüpften Inhalten filtern ...
+    related_through_attribute: nach verknüpften Inhalten mit Attribut filtern ...
     id: nach IDs filtern ...
     union_filter_ids: mehrere Sammlungen kombinieren ...
     related_to: nach verknüpften Inhalten filtern ...
@@ -989,8 +998,6 @@ de:
             password:
               blank: 'Passwort darf nicht leer sein.'
               too_short: 'Passwort zu kurz.'
-            password_confirmation:
-              confirmation: 'Passwörter stimmen nicht überein.'
             current_password:
               blank: 'Aktuelles Passwort zur Bestätigung eingeben.'
               invalid: 'Falsches Passwort.'
@@ -1090,7 +1097,7 @@ de:
         given_name: Vorname
         family_name: Familienname
         password: Passwort
-        password_confirmation: 'Passwort wiederholen'
+        new_password: Neues Passwort
         current_password: 'Aktuelles Passwort'
         email: E-Mail
         role_id: Rolle
@@ -1380,7 +1387,22 @@ de:
       station: Bahnhof
       subtitle: Untertitel
       teaser: Teaser
-
+    pimcore_ats:
+      description: Beschreibung
+      longDescription: Detailbeschreibung
+      shortDescription: Kurzbeschreibung
+      directions: Wegbeschreibung
+      parking: Parkmöglichkeiten
+      maps: Karten
+      shortText: Kurzbeschreibung
+      longText: Detailbeschreibung
+      additionalInformation: Zusätzliche Informationen
+      destination: Zielbeschreibung
+      gettingThere: Anfahrtsbeschreibung
+      literature: Literatur
+      startingPointDescr: Startpunktbeschreibung
+      tip: Tipps
+      publicTransit: Öffentliche Verkehrsmittel
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
@@ -1637,6 +1659,8 @@ de:
     data_cycle_core/error/api/expired_content_error:
       expired_content: Inhalt ist abgelaufen
     active_record/record_not_found: Nicht gefunden
+    data_cycle_core/error/filter/date_filter_range_error: 'Fehler bei Suchparametern: das Enddatum bei Datumsfiltern muss nach dem Startdatum liegen.'
+    data_cycle_core/error/filter/union_filter_recursion_error: 'Fehler bei Suchparametern: Gespeicherte Suchen können nicht auf sich selbst filtern (unendliche Rekursion).'
 
   details:
     bild:

@@ -231,7 +231,6 @@ module DataCycleCore
           end
           optional(:template_name) { str? }
           optional(:validations) { hash? }
-          optional(:default_value) { str? | hash? } # the default_value is set only on creation of content or translation / can either be a String or a Hash with 'module' and 'method'
           optional(:ui) { hash? }
           optional(:api) { hash? }
           optional(:xml) { hash? }
@@ -296,11 +295,24 @@ module DataCycleCore
             )
           end
 
-          # for type compute
+          optional(:default_value) do
+            str? | number? | (hash? & hash do
+              required(:module) { str? }
+              required(:method) { str? }
+              optional(:parameters) { array? }
+            end)
+          end
+
+          optional(:virtual).hash do
+            required(:module) { str? }
+            required(:method) { str? }
+            optional(:parameters) { array? }
+          end
+
           optional(:compute).hash do
             required(:module) { str? }
             required(:method) { str? }
-            required(:parameters) { hash? }
+            optional(:parameters) { array? }
           end
         end
 
