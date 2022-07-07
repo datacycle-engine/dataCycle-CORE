@@ -15,6 +15,7 @@ x-app-env: &default-app-env
   RAILS_ENV: ${RAILS_ENV:-development}
   MAILHOG_HOST: mailhog
   VITE_RUBY_HOST: 0.0.0.0
+  VITE_RUBY_PORT: ${PUBLIC_VITE_PORT:-3036}
 
 x-app: &default-app
   build:
@@ -73,10 +74,12 @@ services:
       - redis:/data
   nginx:
     ports:
-      - '3036:3036'
+      - '${PUBLIC_VITE_PORT:-3036}:${PUBLIC_VITE_PORT:-3036}'
     volumes:
       - '${PWD}:/app'
       - nginx-log:/var/log/datacycle
+    environment:
+      - VITE_RUBY_PORT=${PUBLIC_VITE_PORT:-3036}
   imgproxy:
     env_file:
       - ${PWD}/.env
