@@ -273,12 +273,8 @@ class AssetFile {
   }
   _renderErrorHtml(cssClass, message) {
     let fileInfoField = this.fileField.find('.file-info');
-    if (fileInfoField.find('.' + cssClass).length)
-      fileInfoField
-        .find('.' + cssClass)
-        .html(message)
-        .foundation();
-    else fileInfoField.append('<span class="' + cssClass + '">' + message + '</span>').foundation();
+    if (fileInfoField.find('.' + cssClass).length) fileInfoField.find('.' + cssClass).html(message);
+    else fileInfoField.append('<span class="' + cssClass + '">' + message + '</span>');
 
     if (!this.fileFormField) return;
 
@@ -287,10 +283,7 @@ class AssetFile {
       if (!fileFormInfoField.find('.' + cssClass).length)
         fileFormInfoField.append('<span class="' + cssClass + '"></span>');
 
-      fileFormInfoField
-        .find('.' + cssClass)
-        .html(this._updateIdsInClonedErrors(message))
-        .foundation();
+      fileFormInfoField.find('.' + cssClass).html(this._updateIdsInClonedErrors(message));
     }
   }
   async _renderDuplicateHtml(duplicates) {
@@ -383,8 +376,6 @@ class AssetFile {
     if (this.uploader.contentUploader && this.uploader.showNewForm)
       this.fileField
         .append(this._renderEditOverlay())
-        .foundation()
-        .addClass('dc-fd-initialized')
         .find('.file-buttons .edit-upload-button')
         .prop('disabled', false)
         .attr('title', await I18n.translate('frontend.upload.edit_content'));

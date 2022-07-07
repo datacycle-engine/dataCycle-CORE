@@ -29,7 +29,7 @@
 
   $('#<%= sanitize_to_id(@params[:complete_key]) %>').trigger('reinit-event-handlers');
 
-  $('<%= j content_for :forms %>').appendTo('body').foundation();
+  $('<%= j content_for :forms %>').appendTo('body');
 
   $($.map(<%= @linked_objects.ids.to_json.html_safe %>, id => $('#<%= sanitize_to_id(@params[:complete_key]) %> > .content-object-item.hidden[data-id="' + id + '"]'))).each((index, elem) => $(elem).remove());
   load_more_button.remove();
