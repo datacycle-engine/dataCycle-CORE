@@ -729,7 +729,7 @@ class ObjectBrowser {
 
       let html = data.html;
       if (!data.has_contents) html = `<span class="no-results">${await I18n.translate('common.no_results')}</span>`;
-      $(html).insertBefore(this.overlay.find('.items .loading')).trigger('dc:html:changed');
+      $(html).insertBefore(this.overlay.find('.items .loading'));
 
       this.overlay.find('.items li.item .reveal.media-preview').each(function () {
         if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));

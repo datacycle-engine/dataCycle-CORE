@@ -48,6 +48,4 @@
   else $content.insertBefore('#<%= sanitize_to_id(@key) %> > .buttons');
 
   $('<%= j content_for :forms %>').appendTo('body');
-
-  $content.trigger('dc:html:changed');
 })();

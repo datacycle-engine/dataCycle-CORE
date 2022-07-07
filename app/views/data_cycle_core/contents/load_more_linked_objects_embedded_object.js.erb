@@ -25,7 +25,7 @@
 
   $(html_content).insertBefore($('#<%= sanitize_to_id(@params[:complete_key]) %> > .content-object-item.hidden').first());
 
-  $('<%= ((active_index_multiplier * DataCycleCore.linked_objects_page_size)..((active_index_multiplier * DataCycleCore.linked_objects_page_size) + @linked_objects.size)).map { |i| "##{sanitize_to_id(@params[:complete_key])}_item_#{i}" }.join(', ') %>').trigger('dc:html:changed');
+  $('<%= ((active_index_multiplier * DataCycleCore.linked_objects_page_size)..((active_index_multiplier * DataCycleCore.linked_objects_page_size) + @linked_objects.size)).map { |i| "##{sanitize_to_id(@params[:complete_key])}_item_#{i}" }.join(', ') %>');
 
   $('#<%= sanitize_to_id(@params[:complete_key]) %>').trigger('reinit-event-handlers');
 

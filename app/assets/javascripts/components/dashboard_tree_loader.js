@@ -29,10 +29,6 @@ class DashboardTreeLoader extends DashboardPagination {
     this.innerItem.classList.toggle('open');
 
     this.paginationContainer.insertAdjacentHTML('beforeend', data.html);
-
-    $(this.paginationContainer.querySelector(':scope > .children')).trigger('dc:html:changed');
-
-    $(this.paginationContainer.querySelector(':scope > .contents')).trigger('dc:html:changed');
   }
 }
 

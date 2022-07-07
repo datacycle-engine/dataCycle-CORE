@@ -51,10 +51,9 @@ class DashboardPagination {
   }
   insertNewData(data) {
     this.paginationContainer.insertAdjacentHTML(this.directionNext ? 'afterend' : 'beforebegin', data.html);
-    const $newElements = $(this.paginationContainer)[this.directionNext ? 'nextAll' : 'prevAll']();
+    $(this.paginationContainer)[this.directionNext ? 'nextAll' : 'prevAll']();
 
     this.paginationContainer.remove();
-    $newElements.trigger('dc:html:changed');
   }
   redirectToPage(formData) {
     const form = document.createElement('form');
