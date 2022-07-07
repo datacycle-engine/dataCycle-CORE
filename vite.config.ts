@@ -1,10 +1,16 @@
 import RubyPlugin from 'vite-plugin-ruby';
-import { resolve } from 'path';
-import CopyPlugin from 'rollup-plugin-copy';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import gzipPlugin from 'rollup-plugin-gzip';
+const _dirname = dirname(fileURLToPath(import.meta.url));
 
 export default ({ mode }) => {
   return {
+    resolve: {
+      alias: {
+        '@core_assets': resolve(_dirname, 'app/assets')
+      }
+    },
     build: {
       chunkSizeWarningLimit: 5000,
       brotliSize: false,
@@ -15,14 +21,6 @@ export default ({ mode }) => {
         }
       }
     },
-    plugins: [
-      RubyPlugin(),
-      CopyPlugin({
-        targets: [{ src: resolve(__dirname, 'app/assets/fonts/*'), dest: 'public/assets/fonts' }],
-        hook: 'buildStart',
-        copyOnce: true
-      }),
-      ...(mode == 'development' ? [] : [gzipPlugin()])
-    ]
+    plugins: [RubyPlugin(), ...(mode == 'development' ? [] : [gzipPlugin()])]
   };
 };
