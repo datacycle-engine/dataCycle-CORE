@@ -1482,6 +1482,7 @@ $filter-border: #aaa;
         font-size: 1rem;
         border: 1px solid $primary-color;
         color: $primary-color;
+        border-radius: $global-radius;
 
         .title {
           display: flex;
