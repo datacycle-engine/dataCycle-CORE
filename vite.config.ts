@@ -1,14 +1,12 @@
 import RubyPlugin from 'vite-plugin-ruby';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { resolve } from 'path';
 import gzipPlugin from 'rollup-plugin-gzip';
-const _dirname = dirname(fileURLToPath(import.meta.url));
 
 export default ({ mode }) => {
   return {
     resolve: {
       alias: {
-        '@core_assets': resolve(_dirname, 'app/assets')
+        '@core_assets': resolve(__dirname, 'app/assets')
       }
     },
     build: {
