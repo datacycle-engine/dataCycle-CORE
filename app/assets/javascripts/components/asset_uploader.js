@@ -183,7 +183,7 @@ class AssetUploader {
 
     $(window).off('beforeunload', this.eventHandlers.pageLeave);
 
-    return DataCycle.httpRequest({
+    DataCycle.httpRequest({
       url: '/things/bulk_create',
       method: 'POST',
       data: formData,
