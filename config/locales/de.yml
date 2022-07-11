@@ -1328,6 +1328,12 @@ de:
         suggestion: Tipps
         additional_information: Zusatzinformationen
         maps: Literatur
+      ratings:
+        technique_rating: Technik
+        condition_rating: Kondition
+        experience_rating: Erlebnis
+        landscape_rating: Landschaft
+        difficulty_rating: Schwierigkeit
     imx_platform:
       description: Beschreibung
       description_long: Detailbeschreibung

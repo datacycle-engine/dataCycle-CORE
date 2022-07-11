@@ -1323,6 +1323,12 @@ en:
         suggestion: Tips
         additional_information: Additional information
         maps: Literature
+      ratings:
+        technique_rating: Technique
+        condition_rating: Stamina
+        experience_rating: Experience
+        landscape_rating: Landscape
+        difficulty_rating: Difficulty
     imx_platform:
       description: Description
       description_long: Detailed description
