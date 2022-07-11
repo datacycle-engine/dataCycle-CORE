@@ -35,7 +35,7 @@ class AssetUploader {
     this.init();
   }
   init() {
-    this.reveal.addClass('initialized');
+    this.reveal.addClass('dc-asset-uploader');
     this.reveal.on('open.zf.reveal', this.openReveal.bind(this));
     this.reveal.on('closed.zf.reveal', this.closeReveal.bind(this));
     this.reveal.on('dc:upload:setFiles', (_e, data) => this.validateFiles(data.fileList));
