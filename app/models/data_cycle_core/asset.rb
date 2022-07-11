@@ -87,17 +87,16 @@ module DataCycleCore
       @retry_count = 0
 
       begin
-        tmp_file = URI.open(remote_file_url)
-        filename = File.basename(URI.parse(remote_file_url).path)
+        tmp_uri = URI.parse(remote_file_url)
+        tmp_file = tmp_uri.open
+        filename = File.basename(tmp_uri.path)
         file.attach(io: tmp_file, filename: filename)
       rescue StandardError => e
-        if @retry_count < 3
-          @retry_count += 1
-          sleep 5
-          retry
-        else
-          raise DataCycleCore::Error::Asset::RemoteFileDownloadError, "could not download file: #{e.message}"
-        end
+        raise DataCycleCore::Error::Asset::RemoteFileDownloadError, "could not download file: #{e.message}" if @retry_count >= 3
+
+        @retry_count += 1
+        sleep 5
+        retry
       end
     end
 
