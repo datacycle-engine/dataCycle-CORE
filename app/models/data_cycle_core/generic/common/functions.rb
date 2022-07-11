@@ -146,6 +146,22 @@ module DataCycleCore
           )
         end
 
+        def self.local_asset(data_hash, attribute, asset_type)
+          return data_hash if data_hash[attribute].blank?
+
+          begin
+            asset = "DataCycleCore::#{asset_type&.classify}".safe_constantize.new(remote_file_url: data_hash[attribute])
+            asset.save!
+            data_hash[attribute] = asset.try(:id)
+          rescue StandardError => e
+            logger = DataCycleCore::Generic::Logger::LogFile.new('carrierwave')
+            logger.info(e, data_hash[attribute])
+            logger.close
+          end
+
+          data_hash
+        end
+
         def self.local_image(data_hash, attribute)
           return data_hash if data_hash[attribute].blank?
 

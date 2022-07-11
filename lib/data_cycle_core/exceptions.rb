@@ -118,5 +118,10 @@ module DataCycleCore
         end
       end
     end
+
+    module Asset
+      class RemoteFileDownloadError < StandardError
+      end
+    end
   end
 end

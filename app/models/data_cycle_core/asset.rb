@@ -81,6 +81,26 @@ module DataCycleCore
       file.recreate_versions!(version_name)
     end
 
+    def load_file_from_remote_file_url
+      return if remote_file_url.blank?
+
+      @retry_count = 0
+
+      begin
+        tmp_file = URI.open(remote_file_url)
+        filename = File.basename(URI.parse(remote_file_url).path)
+        file.attach(io: tmp_file, filename: filename)
+      rescue StandardError => e
+        if @retry_count < 3
+          @retry_count += 1
+          sleep 5
+          retry
+        else
+          raise DataCycleCore::Error::Asset::RemoteFileDownloadError, "could not download file: #{e.message}"
+        end
+      end
+    end
+
     def file_size_validation(options)
       return unless file.size > options.dig(:file_size, :max).to_i
 
