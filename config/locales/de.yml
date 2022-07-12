@@ -21,6 +21,7 @@ de:
 
   attribute_labels:
     additional_information: Beschreibungsblock
+    key_figures_container: Kennzahlen
 
   locales:
     de: deutsch

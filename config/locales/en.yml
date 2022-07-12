@@ -21,6 +21,7 @@ en:
 
   attribute_labels:
     additional_information: Description block
+    key_figures_container: Key Figures
 
   locales:
     de: German
