@@ -281,5 +281,22 @@ namespace :dc do
         progressbar.increment
       end
     end
+
+    desc 'migrate history definitions for computed, virtual and default_value properties'
+    task migrate_history_definitions: :environment do
+      DataCycleCore::Thing.where(template: true).find_each do |template|
+        new_definition = template.property_definitions.slice(*(template.virtual_property_names + template.computed_property_names + template.default_value_property_names)).to_json
+
+        next if new_definition.blank?
+
+        puts "MIGRATING #{template.template_name} ..."
+
+        ActiveRecord::Base.connection.execute <<-SQL.squish
+          UPDATE thing_histories
+          SET schema = jsonb_set(schema, '{properties}', thing_histories.schema -> 'properties' || '#{new_definition}', false)
+          WHERE template_name = '#{template.template_name}'
+        SQL
+      end
+    end
   end
 end

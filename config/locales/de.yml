@@ -21,6 +21,7 @@ de:
 
   attribute_labels:
     additional_information: Beschreibungsblock
+    key_figures_container: Kennzahlen
 
   locales:
     de: deutsch
@@ -1339,6 +1340,12 @@ de:
         suggestion: Tipps
         additional_information: Zusatzinformationen
         maps: Literatur
+      ratings:
+        technique_rating: Technik
+        condition_rating: Kondition
+        experience_rating: Erlebnis
+        landscape_rating: Landschaft
+        difficulty_rating: Schwierigkeit
     imx_platform:
       description: Beschreibung
       description_long: Detailbeschreibung
@@ -1400,22 +1407,6 @@ de:
       station: Bahnhof
       subtitle: Untertitel
       teaser: Teaser
-    pimcore_ats:
-      description: Beschreibung
-      longDescription: Detailbeschreibung
-      shortDescription: Kurzbeschreibung
-      directions: Wegbeschreibung
-      parking: Parkmöglichkeiten
-      maps: Karten
-      shortText: Kurzbeschreibung
-      longText: Detailbeschreibung
-      additionalInformation: Zusätzliche Informationen
-      destination: Zielbeschreibung
-      gettingThere: Anfahrtsbeschreibung
-      literature: Literatur
-      startingPointDescr: Startpunktbeschreibung
-      tip: Tipps
-      publicTransit: Öffentliche Verkehrsmittel
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

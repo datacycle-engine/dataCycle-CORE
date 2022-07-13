@@ -29,8 +29,6 @@ de:
       unauthenticated: Sie müssen sich anmelden oder registrieren, bevor Sie fortfahren können.
       unauthenticated_json: invalid or missing authentication token
       unconfirmed: Sie müssen Ihren Account bestätigen, bevor Sie fortfahren können.
-      user:
-        invalid_saml_response: Sie müssen sich anmelden oder registrieren, bevor Sie fortfahren können.
     mailer:
       confirmation_instructions:
         action: Mein Konto bestätigen

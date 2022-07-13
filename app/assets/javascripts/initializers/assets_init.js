@@ -5,19 +5,19 @@ export default function () {
   var assetSelectors = [];
   var assetUploaders = [];
 
-  for (const element of document.querySelectorAll('.asset-selector-reveal:not(.initialized)'))
+  for (const element of document.querySelectorAll('.asset-selector-reveal:not(.dc-asset-selector)'))
     assetSelectors.push(new AssetSelector(element));
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('asset-selector-reveal') && !e.classList.contains('initialized'),
+    e => e.classList.contains('asset-selector-reveal') && !e.classList.contains('dc-asset-selector'),
     e => assetSelectors.push(new AssetSelector(e))
   ]);
 
-  for (const element of document.querySelectorAll('.asset-upload-reveal:not(.initialized)'))
+  for (const element of document.querySelectorAll('.asset-upload-reveal:not(.dc-asset-uploader)'))
     assetUploaders.push(new AssetUploader(element));
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('asset-upload-reveal') && !e.classList.contains('initialized'),
+    e => e.classList.contains('asset-upload-reveal') && !e.classList.contains('dc-asset-uploader'),
     e => assetUploaders.push(new AssetUploader(e))
   ]);
 

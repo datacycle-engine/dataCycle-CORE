@@ -98,6 +98,13 @@ module DataCycleCore
           .>> t(:map_value, 'experience_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'landscape_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'technique_rating', ->(s) { s&.to_i })
+          .>> t(:collect_ratings,
+                [
+                  ['technique_rating', 1, 6],
+                  ['condition_rating', 1, 6],
+                  ['experience_rating', 1, 6],
+                  ['landscape_rating', 1, 6]
+                ], 'import.outdoor_active.ratings.')
           .>> t(:universal_classifications, ->(s) { Array.wrap(load_difficulty_rating(s.dig('difficulty_rating'))) })
           .>> t(:universal_classifications, ->(s) { load_opened(s.dig('opened')) })
           .>> t(:universal_classifications, ->(s) { load_winter_activity(s.dig('winterActivity')) })

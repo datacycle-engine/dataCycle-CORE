@@ -1,4 +1,5 @@
 import DashboardPagination from './dashboard_pagination';
+import DomElementHelper from '../helpers/dom_element_helpers';
 
 class DashboardTreeLoader extends DashboardPagination {
   constructor(element) {
@@ -18,7 +19,8 @@ class DashboardTreeLoader extends DashboardPagination {
     this.paginationElement.classList.add('loading');
 
     const formData = new FormData();
-    for (const [key, value] of this.form.dcDashboardFilter.initialFormData) formData.set(key, value);
+    for (const [key, value] of DomElementHelper.parseDataAttribute(this.form.dataset.initialFormData) || [])
+      formData.append(key, value);
 
     this.loadPageContent(formData);
   }

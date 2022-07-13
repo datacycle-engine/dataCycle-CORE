@@ -26,7 +26,8 @@ class DashboardPagination {
     DataCycle.disableElement(this.paginationElement);
 
     const formData = new FormData();
-    for (const [key, value] of this.form.dcDashboardFilter.initialFormData) formData.set(key, value);
+    for (const [key, value] of DomElementHelper.parseDataAttribute(this.form.dataset.initialFormData) || [])
+      formData.append(key, value);
 
     if (
       (this.listContainer.classList.contains('grid') || this.listContainer.classList.contains('list')) &&
