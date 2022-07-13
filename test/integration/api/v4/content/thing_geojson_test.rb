@@ -6,7 +6,7 @@ module DataCycleCore
   module Api
     module V4
       module Content
-        class ThingTest < DataCycleCore::V4::Base
+        class ThingGeojsonTest < DataCycleCore::V4::Base
           before(:all) do
             @test_tour = DataCycleCore::DummyDataHelper.create_data('tour')
 
