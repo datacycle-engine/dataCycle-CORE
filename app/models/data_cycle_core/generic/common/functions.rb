@@ -9,6 +9,7 @@ module DataCycleCore
         import Transproc::Conditional
         import Transproc::Recursion
         import RatingTransformations
+        import ExternalReferenceTransformations
 
         def self.underscore_keys(data_hash)
           data_hash.to_h.deep_transform_keys { |k| k.to_s.underscore }
