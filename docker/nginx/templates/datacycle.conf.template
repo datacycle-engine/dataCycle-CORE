@@ -25,12 +25,12 @@ upstream puma_data_cycle {
 }
 
 upstream vite_dev_data_cycle {
-  server web:${VITE_RUBY_PORT};
+  server web:3036;
 }
 
 server {
-  listen ${VITE_RUBY_PORT};
-  listen [::]:${VITE_RUBY_PORT};
+  listen 3036;
+  listen [::]:3036;
 
   server_name ${PUBLIC_APPLICATION_HOST};
   root ${APPLICATION_ROOT}/public;
