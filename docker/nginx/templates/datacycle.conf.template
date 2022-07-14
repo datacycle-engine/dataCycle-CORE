@@ -24,34 +24,6 @@ upstream puma_data_cycle {
   server unix:${APPLICATION_ROOT}/tmp/sockets/puma.sock fail_timeout=0;
 }
 
-upstream vite_dev_data_cycle {
-  server web:3036;
-}
-
-server {
-  listen 3036;
-  listen [::]:3036;
-
-  server_name ${PUBLIC_APPLICATION_HOST};
-  root ${APPLICATION_ROOT}/public;
-
-  #access_log /var/log/datacycle/hmr_nginx.access.log;
-  #error_log /var/log/datacycle/hmr_nginx.error.log;
-
-  location /assets/dev-build {
-    proxy_pass http://vite_dev_data_cycle;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "Upgrade";
-
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header Host $http_host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-Proto ${APP_PROTOCOL};
-    proxy_redirect off;
-  }
-}
-
 server {
   listen ${PUBLIC_APPLICATION_PORT};
   listen [::]:${PUBLIC_APPLICATION_PORT};

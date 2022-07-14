@@ -48,6 +48,8 @@ services:
         'postgres',
         '${DC_DOCKER_SETUP_PATH:-/app/docker/}web/setup.development.sh'
       ]
+    ports:
+      - '${PUBLIC_VITE_PORT:-3036}:${PUBLIC_VITE_PORT:-3036}'
     depends_on:
       - postgres
       - mongodb
@@ -73,13 +75,9 @@ services:
       - '${PWD}:/app'
       - redis:/data
   nginx:
-    ports:
-      - '${PUBLIC_VITE_PORT:-3036}:${PUBLIC_VITE_PORT:-3036}'
     volumes:
       - '${PWD}:/app'
       - nginx-log:/var/log/datacycle
-    environment:
-      - VITE_RUBY_PORT=${PUBLIC_VITE_PORT:-3036}
   imgproxy:
     env_file:
       - ${PWD}/.env
