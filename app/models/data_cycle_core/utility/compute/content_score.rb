@@ -18,7 +18,7 @@ module DataCycleCore
 
             return max_value if max_value == min_value
 
-            actual, required = values_present(content, computed_parameters, computed_parameters.keys)
+            actual, _required = values_present(content, computed_parameters, computed_parameters.keys)
 
             [actual * rating_factor, max_value].min.round
           end
