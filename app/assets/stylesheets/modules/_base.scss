@@ -326,13 +326,30 @@ footer {
       font-weight: bold;
     }
 
-    > * {
+    > *,
+    .embedded-viewer {
       margin: 0 1rem;
     }
 
     .remote-render,
     .remote-rendering {
       min-width: 200px;
+    }
+
+    .detail-type.embedded {
+      > .accordion-title {
+        display: none;
+      }
+
+      > .accordion-content {
+        display: flex;
+        align-items: center;
+        padding: 0;
+      }
+
+      > .accordion-content > *:not([data-attribute-key='value']) {
+        display: none;
+      }
     }
   }
 
