@@ -107,7 +107,7 @@ namespace :dc do
           end
           update_hash['name'] = image.asset.metadata['Headline'] if image.asset.metadata.dig('Headline').present?
           image.available_locales.each do |locale|
-            I18n.with_locale(locale) { image.set_data_hash(data_hash: update_hash, partial_update: true) }
+            I18n.with_locale(locale) { image.set_data_hash(data_hash: update_hash) }
           end
         end
 

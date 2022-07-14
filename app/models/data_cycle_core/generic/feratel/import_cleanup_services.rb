@@ -27,7 +27,7 @@ module DataCycleCore
           DataCycleCore::Thing
             .where(id: items)
             .find_each do |item|
-              valid = item.set_data_hash(data_hash: { 'feratel_status' => status }, partial_update: true)
+              valid = item.set_data_hash(data_hash: { 'feratel_status' => status })
               items_count += 1 if valid
             end
 

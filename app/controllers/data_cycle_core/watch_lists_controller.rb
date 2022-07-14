@@ -208,8 +208,7 @@ module DataCycleCore
           if specific_datahash[:translations].present? || specific_datahash[:datahash].present?
             valid = content.set_data_hash_with_translations(
               data_hash: transform_exisiting_values(bulk_edit_types, template_hash, specific_datahash, content),
-              current_user: current_user,
-              partial_update: true
+              current_user: current_user
             )
             errors.concat(Array.wrap(content.errors.full_messages)) unless valid
           end

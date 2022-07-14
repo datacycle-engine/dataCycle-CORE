@@ -34,12 +34,12 @@ namespace :dc do
           if translated_computed
             item.available_locales.each do |locale|
               I18n.with_locale(locale) do
-                item.set_data_hash(data_hash: item.get_data_hash_partial(keys_for_data_hash), partial_update: true)
+                item.set_data_hash(data_hash: item.get_data_hash_partial(keys_for_data_hash))
               end
             end
           else
             I18n.with_locale(item.first_available_locale) do
-              item.set_data_hash(data_hash: item.get_data_hash_partial(keys_for_data_hash), partial_update: true)
+              item.set_data_hash(data_hash: item.get_data_hash_partial(keys_for_data_hash))
             end
           end
 
@@ -88,14 +88,14 @@ namespace :dc do
               I18n.with_locale(locale) do
                 data_hash = item.get_data_hash_partial(keys_for_data_hash)
                 item.add_default_values(data_hash: data_hash, force: true)
-                item.set_data_hash(data_hash: data_hash, partial_update: true)
+                item.set_data_hash(data_hash: data_hash)
               end
             end
           else
             I18n.with_locale(item.first_available_locale) do
               data_hash = item.get_data_hash_partial(keys_for_data_hash)
               item.add_default_values(data_hash: data_hash, force: true)
-              item.set_data_hash(data_hash: data_hash, partial_update: true)
+              item.set_data_hash(data_hash: data_hash)
             end
           end
 

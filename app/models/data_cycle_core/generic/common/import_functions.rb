@@ -131,7 +131,6 @@ module DataCycleCore
             prevent_history: !utility_object.history,
             update_search_all: true,
             current_user: current_user,
-            partial_update: !created,
             partial_update_improved: partial_update_improved,
             new_content: created,
             invalidate_related_cache: invalidate_related_cache

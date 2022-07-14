@@ -87,7 +87,6 @@ namespace :dc do
               asset: asset.id,
               url: nil
             },
-            partial_update: true,
             prevent_history: true,
             update_search_all: false
           )

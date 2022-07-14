@@ -25,7 +25,6 @@ module DataCycleCore
             update_hash = {
               current_user: current_user,
               save_time: Time.zone.now,
-              partial_update: true,
               data_hash: {
                 DataCycleCore::Feature::LifeCycle.attribute_keys(@content).first => [
                   @parent.try(:life_cycle_stage)&.id
