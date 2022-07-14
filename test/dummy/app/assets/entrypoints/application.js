@@ -1,5 +1,3 @@
-import '../../../../../app/assets/stylesheets/application.scss';
-
 import DataCycleInit from '../../../../../app/assets/javascripts/application';
 
 // Demo for AppSignal Integration

@@ -309,6 +309,7 @@
     - grid
     - list
     - tree
+#    - map
 
 :translated_data_link:
   :enabled: true

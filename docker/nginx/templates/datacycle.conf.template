@@ -24,6 +24,34 @@ upstream puma_data_cycle {
   server unix:${APPLICATION_ROOT}/tmp/sockets/puma.sock fail_timeout=0;
 }
 
+upstream vite_dev_data_cycle {
+  server web:3036;
+}
+
+server {
+  listen 3036;
+  listen [::]:3036;
+
+  server_name ${PUBLIC_APPLICATION_HOST};
+  root ${APPLICATION_ROOT}/public;
+
+  #access_log /var/log/datacycle/hmr_nginx.access.log;
+  #error_log /var/log/datacycle/hmr_nginx.error.log;
+
+  location /assets/dev-build {
+    proxy_pass http://vite_dev_data_cycle;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "Upgrade";
+
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-Proto ${APP_PROTOCOL};
+    proxy_redirect off;
+  }
+}
+
 server {
   listen ${PUBLIC_APPLICATION_PORT};
   listen [::]:${PUBLIC_APPLICATION_PORT};
@@ -63,7 +91,8 @@ server {
       application/json
       application/xml
       application/rss+xml
-      image/svg+xml;
+      image/svg+xml
+      application/vnd.geo+json;
 
   location @puma_data_cycle {
     proxy_http_version 1.1;
@@ -241,7 +270,7 @@ server {
 
   # imgporxy v3.x
   # includes preset and cachebuster
-  
+
   location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/thumb\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
@@ -286,7 +315,7 @@ server {
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://self_data_cycle/asset/$thing/$signature/$cachebuster/default/$resize_type/$resize_width/$resize_height/$resize_enlarge/$resize_gravity/$filename.$type;
   }
-  
+
   location ~ "^\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/(?<preset>(default|blurry|pixelated))\/(?<mode>(fit|fill|auto))\/(?<width>\d+)\/(?<height>\d+)\/(?<enlarge>(0|1))\/(?<gravity>(.*))\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     # resolver 127.0.0.11 8.8.8.8 8.8.4.4;
     limit_req zone=req_zone burst=100 nodelay;
@@ -378,7 +407,7 @@ server {
   # location ~ "\/rails\/active_storage\/.[^\.]*?\/*\.mp4" {
   #   proxy_ignore_headers Cache-Control Expires Set-Cookie;
   #   proxy_hide_header Cache-Control;
-    
+
   #   gzip_static on;
   #   expires max;
   #   add_header Cache-Control public;
@@ -416,7 +445,7 @@ server {
   location ~ "\/processed\/video\/.[^\.]*?\/*\.mp4" {
     proxy_ignore_headers Cache-Control Expires Set-Cookie;
     proxy_hide_header Cache-Control;
-    
+
     gzip_static on;
     expires max;
     add_header Cache-Control public;
@@ -444,11 +473,11 @@ server {
     proxy_cache_lock_age 200s;
     proxy_cache_use_stale updating;
 
-    # debug                                           
-    add_header X-Cache-Status $upstream_cache_status;                                                                                                                     
-    add_header X-Cache-Control $upstream_http_cache_control;                                                                                                              
-    add_header X-Cache-Key $host$uri$is_args$args$slice_range;  
-    add_header X-Range $slice_range;                                                                                                                                      
+    # debug
+    add_header X-Cache-Status $upstream_cache_status;
+    add_header X-Cache-Control $upstream_http_cache_control;
+    add_header X-Cache-Key $host$uri$is_args$args$slice_range;
+    add_header X-Range $slice_range;
     add_header X-HTTP-RANGE $http_range;
 
     proxy_pass http://puma_data_cycle;

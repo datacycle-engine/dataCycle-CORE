@@ -1,3 +1,3 @@
 <% I18n.with_locale(object.first_available_locale(local_assigns[:locale])) do %>
-  <span class="name <%= local_assigns[:css_class] %>"><%= "#{object.try(:title)} (#{I18n.locale})" %></span>
+  <span class="name <%= local_assigns[:css_class] %>" title="<%= object.try(:title) %>"><%= "#{object.try(:title)} (#{I18n.locale})" %></span>
 <% end %>

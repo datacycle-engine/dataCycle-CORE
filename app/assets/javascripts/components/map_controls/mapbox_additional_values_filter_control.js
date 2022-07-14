@@ -127,6 +127,8 @@ class AdditionalValuesFilterControl {
   }
   _addGeoJsonSource(key, data) {
     const sourceId = `additional_values_${key}`;
+    // const sourceId = `additional_values_source_${key}`; // TODO:
+    // const layerId = `additional_values_line_${key}`;
     this.additionalSources[key] = sourceId;
 
     this.map.addSource(sourceId, {
@@ -146,6 +148,8 @@ class AdditionalValuesFilterControl {
       point: this.editor._additionalPointLayer(key),
       line: this.editor._additionalLineLayer(key)
     };
+
+    // this.allRenderedLayers.push(layerId);
   }
   _additionalValuesByKey(key) {
     if (!this.editor.additionalValues[key]) this.editor.additionalValues[key] = this.editor._createFeatureCollection();
@@ -317,7 +321,7 @@ class AdditionalValuesFilterControl {
     return data;
   }
   async _reloadGeoJson(key) {
-    const data = await this._loadGeojson(key);
+    let data = await this._loadGeojson(key);
 
     if (!data) data = this.editor._createFeatureCollection();
     if (!data.features) data.features = [];

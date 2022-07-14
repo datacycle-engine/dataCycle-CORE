@@ -62,6 +62,7 @@ en:
     grid: Tiles
     list: List view
     tree: Tree view
+    map: Map
   new_step_title:
     title: Image description
     copyright: Copyright
@@ -139,6 +140,16 @@ en:
         pinch: Use two fingers to zoom/scroll the map
       filter:
         button_title: edit linked contents
+      upload_gpx: 
+        button_title: Upload GPX file
+      styles:
+        osm: OpenStreetMap
+        topo: Topo
+        street: Standard
+        bright: Bright
+        basemap: BasemapAT
+        winter: Winter
+        toursprung: Toursprung
     remote_render:
       error: Error loading content.
       reload: Reload

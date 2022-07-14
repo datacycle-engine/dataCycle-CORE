@@ -64,6 +64,7 @@ de:
     grid: Kacheln
     list: Listenansicht
     tree: Baumansicht
+    map: Karte
 
   new_step_title:
     title: Bildbeschreibung
@@ -143,6 +144,16 @@ de:
         pinch: 'Verwende zwei Finger zum Zoomen/Scrollen der Karte'
       filter:
         button_title: Verknüpfte Inhalte bearbeiten
+      upload_gpx: 
+        button_title: 'GPX-Datei hochladen'
+      styles:
+        osm: OpenStreetMap
+        topo: Topo
+        street: Standard
+        bright: Bright
+        basemap: BasemapAT
+        winter: Winter
+        toursprung: Toursprung
     remote_render:
       error: Fehler beim Laden des Inhalts.
       reload: Neu laden
