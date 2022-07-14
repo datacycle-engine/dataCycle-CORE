@@ -122,6 +122,10 @@ module DataCycleCore
       data.is_a?(::Array) ? data.reject(&:blank?).empty? : data.blank?
     end
 
+    def self.present?(data)
+      !blank?(data)
+    end
+
     def self.parse_translated_hash(datahash)
       return {} unless datahash.is_a?(::Hash)
 
