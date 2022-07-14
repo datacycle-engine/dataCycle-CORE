@@ -546,7 +546,7 @@ module DataCycleCore
             t.schema['properties'].dc_deep_dup
               .except!(*(DataCycleCore.internal_data_attributes + ['id']))
               .keep_if { |k, v|
-                ['computed', 'virtual', 'asset'].exclude?(v['type']) &&
+                !k.in?(t.computed_property_names + t.virtual_property_names + t.asset_property_names) &&
                   (v['type'] != 'linked' || v['link_direction'] != 'inverse') &&
                   t.allowed_feature_attribute?(k.attribute_name_from_key) &&
                   v.dig('ui', 'bulk_edit', 'disabled').to_s != 'true'
