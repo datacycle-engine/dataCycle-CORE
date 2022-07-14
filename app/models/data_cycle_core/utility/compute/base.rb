@@ -5,7 +5,7 @@ module DataCycleCore
     module Compute
       module Base
         class << self
-          def compute_values(key, data_hash, content)
+          def compute_values(key, data_hash, content, force = false)
             return if data_hash.key?(key)
 
             properties = content.properties_for(key)&.with_indifferent_access
@@ -15,7 +15,7 @@ module DataCycleCore
             computed_parameters = Array.wrap(properties&.dig('compute', 'parameters')).map { |p| p.split('.').first }.uniq.intersection(content.property_names)
 
             return unless conditions_satisfied?(content, properties)
-            return if skip_compute_value?(key, data_hash, content, computed_parameters)
+            return if skip_compute_value?(key, data_hash, content, computed_parameters, false, force)
 
             module_name = ('DataCycleCore::' + properties.dig('compute', 'module').classify).safe_constantize
             method_name = module_name.method(properties.dig('compute', 'method'))
@@ -62,21 +62,21 @@ module DataCycleCore
           def load_missing_values(missing_keys, content, datahash)
             missing_keys.each do |missing_key|
               if content.computed_property_names.include?(missing_key)
-                compute_values(missing_key, datahash, content)
+                compute_values(missing_key, datahash, content, true)
               else
                 datahash[missing_key] = content.property_value_for_set_datahash(missing_key)
               end
             end
           end
 
-          def skip_compute_value?(key, datahash, content, computed_parameters, checked = false)
+          def skip_compute_value?(key, datahash, content, computed_parameters, checked = false, force = false)
             return false if computed_parameters.blank?
 
             missing_keys = computed_parameters.difference(datahash.slice(*computed_parameters).keys)
 
             return false if missing_keys.blank?
             return true if checked && missing_keys.present?
-            return true if missing_keys.size == computed_parameters.size && missing_keys.any? { |k| content.computed_property_names.exclude?(k) }
+            return true if !force && missing_keys.size == computed_parameters.size && missing_keys.any? { |k| content.computed_property_names.exclude?(k) }
 
             load_missing_values(missing_keys, content, datahash)
 

@@ -7,9 +7,11 @@ value = load_value_object(content, key, value, options[:languages], api_property
 
 if value.present?
   json = render "data_cycle_core/api/v#{@api_version}/api_base/property_value_header", key: key, definition: definition
-  json = json.merge({ 'value' => value })
-  json = json.merge({ 'unitCode' => api_property_definition.dig('unit_code') }) if api_property_definition.dig('unit_code').present?
-  json = json.merge({ 'unitText' => api_property_definition.dig('unit_text') }) if api_property_definition.dig('unit_text').present?
+  json['value'] = value
+  json['unitCode'] = api_property_definition.dig('unit_code') if api_property_definition.dig('unit_code').present?
+  json['unitText'] = api_property_definition.dig('unit_text') if api_property_definition.dig('unit_text').present?
+  json['minValue'] = definition.dig('validations', 'min') if definition.dig('validations', 'min').present?
+  json['maxValue'] = definition.dig('validations', 'max') if definition.dig('validations', 'max').present?
 
   if api_property_definition.dig('small_header')
     json.delete('identifier')
