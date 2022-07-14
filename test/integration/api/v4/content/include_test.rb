@@ -29,7 +29,8 @@ module DataCycleCore
               'poi',
               'image',
               'opening_hours_description',
-              'schedule'
+              'schedule',
+              'external_content_score'
             ]
           end
 

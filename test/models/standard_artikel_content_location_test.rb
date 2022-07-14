@@ -22,7 +22,8 @@ module DataCycleCore
         'marketing_groups' => [],
         'external_status' => [],
         'feratel_facilities_accommodations' => [],
-        'feratel_facilities_additional_services' => []
+        'feratel_facilities_additional_services' => [],
+        'external_content_score' => []
       }
       data_set_place1.set_data_hash(data_hash: place_hash1)
       data_set_place1.save
