@@ -21,7 +21,7 @@
         <dt><%= t('object_browser.details.title', locale: active_ui_locale).capitalize %> </dt>
         <dd><%= object.title %></dd>
       <% end %>
-      s
+
       <% if object.try(:width).present? || object.try(:height).present? || object.try(:content_size).present? %>
         <dt><%= t('object_browser.details.info', locale: active_ui_locale).capitalize %> </dt>
         <dd><%= "#{number_to_human_size(object.try(:content_size))}, " if object.try(:content_size).present? %><%= "#{object.try(:width)&.to_i}x#{object.try(:height)&.to_i}" %></dd>
