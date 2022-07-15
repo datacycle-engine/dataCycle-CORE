@@ -4,7 +4,7 @@ require 'date'
 
 $LOAD_PATH.push File.expand_path('lib', __dir__)
 
-$LOAD_PATH.push File.expand_path('app/models', __dir__)
+# $LOAD_PATH.push File.expand_path('app/models', __dir__)
 
 # allows bundler to use the gemspec for dependencies
 # lib = File.expand_path('../lib', __FILE__)
