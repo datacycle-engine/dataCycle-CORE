@@ -28,7 +28,9 @@ module DataCycleCore
 
           def attribute_value_from_named_embedded(virtual_parameters:, content:, **_args)
             virtual_parameters.reduce(content) do |content_part, params|
-              if params['name']
+              if !content_part.respond_to?(params['attribute'])
+                nil
+              elsif params['name']
                 content_part
                   &.send(params['attribute'])
                   &.find do |c|
