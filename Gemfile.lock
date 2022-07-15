@@ -60,7 +60,7 @@ PATH
       streamio-ffmpeg
       taglib-ruby
       transproc (~> 1.0)
-      vite_rails (~> 2.0)
+      vite_rails (>= 3.0.0)
       whenever
 
 PATH
@@ -629,10 +629,10 @@ GEM
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.2.0)
     version_gem (1.1.0)
-    vite_rails (2.0.13)
+    vite_rails (3.0.10)
       railties (>= 5.1, < 8)
-      vite_ruby (~> 1.0)
-    vite_ruby (1.2.20)
+      vite_ruby (~> 3.0)
+    vite_ruby (3.2.0)
       dry-cli (~> 0.7.0)
       rack-proxy (~> 0.6, >= 0.6.1)
       zeitwerk (~> 2.2)
