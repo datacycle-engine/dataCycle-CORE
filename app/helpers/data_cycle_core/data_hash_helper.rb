@@ -56,9 +56,10 @@ module DataCycleCore
     def add_attribute_config(key, prop, scope, content_area, ordered_props)
       return ordered_props[key] = prop unless content_area != 'header' && (prop['ui']&.key?('attribute_group') || prop.dig('ui', scope.to_s)&.key?('attribute_group'))
 
-      prop['ui'].delete('attribute_group') if prop['ui']&.key?('attribute_group') && prop.dig('ui', scope.to_s)&.key?('attribute_group')
+      cloned_props = prop.deep_dup
+      cloned_props['ui'].delete('attribute_group') if cloned_props['ui']&.key?('attribute_group') && cloned_props.dig('ui', scope.to_s)&.key?('attribute_group')
 
-      prop_context = prop.dig('ui', scope.to_s)&.key?('attribute_group') ? prop['ui'][scope.to_s] : prop['ui']
+      prop_context = cloned_props.dig('ui', scope.to_s)&.key?('attribute_group') ? cloned_props['ui'][scope.to_s] : cloned_props['ui']
       group = prop_context.then { |g| g['attribute_group'].is_a?(::Array) ? g['attribute_group'].shift : g.delete('attribute_group') }
       prop_context.delete('attribute_group') if prop_context.key?('attribute_group') && prop_context['attribute_group'].blank?
       group_name = group.remove(*GROUP_FLAGS.map { |f| "_#{f}" })
@@ -69,7 +70,7 @@ module DataCycleCore
         'features' => GROUP_FLAGS.index_with { |f| group.include?("_#{f}") }.compact_blank
       }
 
-      ordered_props[group_name]['properties'][key] = prop
+      ordered_props[group_name]['properties'][key] = cloned_props
     end
 
     def to_html_string(title, text = '')

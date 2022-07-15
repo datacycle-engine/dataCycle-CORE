@@ -1,0 +1,7 @@
+<div class="geographic">
+  <div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map dashboard"
+          data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
+          data-language="<%= @language %>"
+          >
+  </div>
+</div>

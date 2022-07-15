@@ -6,7 +6,7 @@
 
 <% @classification_tree_labels.each do |tree_label|%>
   <classificationTree
-    about="<%=classification_tree_label_url(tree_label)%>">
+    about="<%= root_url(mode: 'tree', ctl_id: tree_label.id, reset: true) %>">
     <id><%=tree_label.id%></id>
     <name><%=tree_label.name%></name>
     <url><%=xml_v1_classification_tree_url(tree_label, language: @language, api_subversion: @api_subversion)%></url>

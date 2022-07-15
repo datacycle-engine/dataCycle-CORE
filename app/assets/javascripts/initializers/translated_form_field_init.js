@@ -1,19 +1,10 @@
 import AttributeLocaleSwitcher from '../components/attribute_locale_switcher';
 
 export default function () {
-  $(document).on('dc:html:changed', '*', event => {
-    event.stopPropagation();
+  for (const element of document.querySelectorAll('.attribute-locale-switcher')) new AttributeLocaleSwitcher(element);
 
-    init(event.target);
-  });
-
-  init();
-
-  function init(container = document) {
-    $(container)
-      .find('.attribute-locale-switcher')
-      .each((_index, element) => {
-        new AttributeLocaleSwitcher(element);
-      });
-  }
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('attribute-locale-switcher'),
+    e => new AttributeLocaleSwitcher(e)
+  ]);
 }

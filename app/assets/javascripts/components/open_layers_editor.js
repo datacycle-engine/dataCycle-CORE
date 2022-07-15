@@ -388,7 +388,7 @@ class OpenLayersEditor extends OpenLayersViewer {
       geometry: geometry
     };
 
-    this.$locationField.val(this.geoJsonToWkt(geometry));
+    this.$locationField.val(JSON.stringify(this.value));
   }
   resetHiddenFieldValue() {
     this.value = null;

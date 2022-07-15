@@ -17,7 +17,7 @@ class RemoteRenderer {
       this.reloadOnNextOpen.bind(this)
     );
     this.selector.on(
-      'open.zf.reveal dc:remote:render dc:html:changed show.zf.dropdown dc:clickableMenu:show dc:toggler:show down.zf.accordion',
+      'open.zf.reveal dc:remote:render show.zf.dropdown dc:clickableMenu:show dc:toggler:show down.zf.accordion',
       '*',
       (event, data) => {
         event.stopPropagation();

@@ -172,7 +172,7 @@ module DataCycleCore
     end
 
     def set_view_mode
-      if mode_params[:mode].in?(['list', 'tree'])
+      if mode_params[:mode].in?(['list', 'tree', 'map'])
         @mode = mode_params[:mode].to_s
       else
         @mode = 'grid'
@@ -184,6 +184,7 @@ module DataCycleCore
       @target = count_only_params[:target]
       classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id]) if mode_params[:ct_id].present?
       total_count = get_filtered_results(query: query, user_filter: user_filter)
+      total_count = total_count.with_geometry if @mode == 'map'
       @count_mode = count_only_params[:count_mode]
       @content_class = count_only_params[:content_class]
 
@@ -198,6 +199,7 @@ module DataCycleCore
         ca_label = DataCycleCore::ClassificationTreeLabel.find(mode_params[:ctl_id])
         total_count = total_count.classification_tree_ids(ca_label.id)
       end
+
       total_count.count
     end
 

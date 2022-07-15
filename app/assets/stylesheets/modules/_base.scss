@@ -82,9 +82,15 @@ button,
 
 .pagination-container {
   padding: 1rem 0;
+
   a,
   button {
     margin: 0;
+
+    &[disabled],
+    &.disabled {
+      pointer-events: none;
+    }
   }
 }
 
@@ -280,31 +286,74 @@ footer {
 }
 
 .detail-header-wrapper {
-  .external-connections {
+  > .detail-header {
+    margin-bottom: 1.5rem;
+    border-top-left-radius: $global-radius;
+    border-top-right-radius: $global-radius;
+  }
+
+  > *:last-child {
+    border-bottom-left-radius: $global-radius;
+    border-bottom-right-radius: $global-radius;
+  }
+
+  > .content-scores,
+  > .external-connections {
     position: relative;
     border-bottom: 0px;
-    margin-top: 1rem;
     font-size: 0.9rem;
     display: flex;
-    flex-flow: row nowrap;
+    flex-flow: row wrap;
     align-items: center;
     justify-content: center;
     background: $light-gray;
     margin-top: 0;
-    padding: 2.5rem 1rem 1rem;
-    border-radius: $global-radius;
+    padding: 0 1rem 1rem;
+  }
 
-    &::before {
-      content: '';
-      display: block;
-      position: absolute;
-      width: calc(100% - 2rem);
-      height: 0;
-      border-top: 1px solid $white;
-      top: 0;
-      left: 1rem;
+  > .content-scores {
+    .detail-type,
+    .detail-type > .detail-label {
+      display: flex;
+      align-items: center;
+
+      > *:not(:last-child) {
+        margin-right: 0.3rem;
+      }
     }
 
+    .detail-type > .detail-content {
+      font-weight: bold;
+    }
+
+    > *,
+    .embedded-viewer {
+      margin: 0 1rem;
+    }
+
+    .remote-render,
+    .remote-rendering {
+      min-width: 200px;
+    }
+
+    .detail-type.embedded {
+      > .accordion-title {
+        display: none;
+      }
+
+      > .accordion-content {
+        display: flex;
+        align-items: center;
+        padding: 0;
+      }
+
+      > .accordion-content > *:not([data-attribute-key='value']) {
+        display: none;
+      }
+    }
+  }
+
+  > .external-connections {
     .external-connection {
       position: relative;
       margin: 0 1rem;
@@ -362,6 +411,22 @@ footer {
       }
     }
   }
+
+  .detail-header + * {
+    margin-top: -1.5rem;
+    padding-top: 2.5rem;
+
+    &::before {
+      content: '';
+      display: block;
+      position: absolute;
+      width: calc(100% - 2rem);
+      height: 0;
+      border-top: 1px solid $white;
+      top: 0;
+      left: 1rem;
+    }
+  }
 }
 
 .detail-header-info {
@@ -381,8 +446,7 @@ footer {
   background: $light-gray;
   text-align: center;
   padding: 4rem 1rem 2.5rem 1rem;
-  margin: 1rem 0 1.5rem 0;
-  border-radius: $global-radius;
+  margin: 1rem 0 0 0;
 
   &.with-external-connections {
     margin-bottom: 0;

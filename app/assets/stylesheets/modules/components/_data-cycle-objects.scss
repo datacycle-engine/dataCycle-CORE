@@ -160,6 +160,10 @@
     border-radius: 3px;
     font-size: 0.9rem;
 
+    &.highlight {
+      box-shadow: 0 0 7px $primary-color;
+    }
+
     .object-browser-tile-checkbox {
       display: none;
     }
@@ -426,6 +430,11 @@
         .content-warning {
           color: $alert-color;
         }
+      }
+
+      &.highlight {
+        // box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+        box-shadow: 0 0 7px $primary-color;
       }
 
       .name {
@@ -1573,6 +1582,7 @@ ul.list {
           color: $black;
           transition: color 0.3s;
         }
+
         .validity_period {
           color: $alert-color;
           float: right;

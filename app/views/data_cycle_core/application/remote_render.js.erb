@@ -1,10 +1,7 @@
 (function(){
   let $target = $('.remote-rendering[data-remote-render-id="<%= @target %>"]');
   $target.html('<%= (@render_function.present? && respond_to?(@render_function)) ? j(try(@render_function, (@render_params || {}).deep_merge(parameters: @options))) : j(render(@partial, @options)) %>').removeClass('remote-rendering')
-    .addClass('remote-rendered')
-    .trigger('dc:remote:rendered')
-    .trigger('dc:html:changed')
-    .trigger('dc:html:initialized', JSON.parse('<%== (@options.dig(:event_data) || {}).to_json %>'));
+    .addClass('remote-rendered');
 
   <% @content_for.presence&.each do |yield_class| %>
     $('.remote-rendered[data-remote-render-id="<%= @target %>"]').siblings('.<%= yield_class %>').add($('.remote-rendered[data-remote-render-id="<%= @target %>"]').closest('.<%= yield_class %>')).first().html('<%= j yield(yield_class.to_sym) %>')

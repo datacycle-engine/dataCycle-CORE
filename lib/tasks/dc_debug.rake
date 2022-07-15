@@ -98,11 +98,11 @@ namespace :dc do
         end
 
         I18n.with_locale(:en) do
-          item.set_data_hash(data_hash: { overlay: [en_overlay_data_hash] }, partial_update: true, prevent_history: true)
+          item.set_data_hash(data_hash: { overlay: [en_overlay_data_hash] }, prevent_history: true)
         end
 
         I18n.with_locale(:de) do
-          item.set_data_hash(data_hash: { overlay: [de_overlay_data_hash] }, partial_update: true, prevent_history: true)
+          item.set_data_hash(data_hash: { overlay: [de_overlay_data_hash] }, prevent_history: true)
         end
       end
     end

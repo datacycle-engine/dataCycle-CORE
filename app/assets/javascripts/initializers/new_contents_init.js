@@ -3,12 +3,19 @@ import DragAndDropField from '../components/drag_and_drop_field';
 import loadingIcon from '../templates/loadingIcon';
 
 export default function () {
-  $(document).on('dc:html:changed', '*', event => {
-    event.stopPropagation();
-    init(event.target);
-  });
+  for (const element of document.querySelectorAll('form.multi-step')) new NewContentDialog(element);
 
-  init();
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.nodeName == 'FORM' && e.classList.contains('multi-step'),
+    e => new NewContentDialog(e)
+  ]);
+
+  for (const element of document.querySelectorAll('.content-uploader')) new DragAndDropField(element);
+
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('content-uploader'),
+    e => new DragAndDropField(e)
+  ]);
 
   $(document).on('ajax:before', '.new-content-reveal [data-remote]', event => {
     $(event.target).closest('.new-content-reveal').find('.new-content-form').html(loadingIcon('show'));
@@ -20,18 +27,4 @@ export default function () {
       .find('.new-content-form')
       .html(await I18n.translate('frontend.load_error'));
   });
-
-  function init(container = document) {
-    $(container)
-      .find('form.multi-step')
-      .each((_index, element) => {
-        new NewContentDialog(element);
-      });
-
-    $(container)
-      .find('.content-uploader')
-      .each((_, e) => {
-        new DragAndDropField(e);
-      });
-  }
 }

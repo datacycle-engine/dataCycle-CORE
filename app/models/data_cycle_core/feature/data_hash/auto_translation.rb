@@ -43,8 +43,7 @@ module DataCycleCore
                     'data_type' => [data_type],
                     'about' => [id]
                   },
-                  prevent_history: true,
-                  partial_update: true
+                  prevent_history: true
                 )
                 translations_created[classification].push(locale)
               end
@@ -106,8 +105,7 @@ module DataCycleCore
                     'source_locale' => source_locale,
                     'about' => [id]
                   },
-                  prevent_history: true,
-                  partial_update: true
+                  prevent_history: true
                 )
                 translations_done[classification].push(target_locale.to_sym)
               end
@@ -146,8 +144,7 @@ module DataCycleCore
                 data_hash: {
                   translated_classification: ClassificationAlias.classifications_for_tree_with_name('Übersetzungstyp', 'Automatisch'),
                   translation_type: translation_type
-                },
-                partial_update: true
+                }
               )
             end
           else

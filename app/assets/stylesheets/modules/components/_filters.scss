@@ -424,7 +424,7 @@ $filter-border: #aaa;
 
         > div {
           display: none;
-          z-index: 2;
+          z-index: 3;
           position: absolute;
           top: 100%;
           left: 0;
@@ -758,6 +758,7 @@ $filter-border: #aaa;
         .loading {
           display: inline;
           padding: 0;
+
           .fa {
             font-size: 0.9rem;
           }
@@ -1385,6 +1386,21 @@ $filter-border: #aaa;
     }
   }
 
+  @keyframes progress-bar {
+    0% {
+      margin-left: 0.25rem;
+      width: 0;
+    }
+    50% {
+      margin-left: 25%;
+      width: calc(75% - 0.25rem);
+    }
+    100% {
+      margin-left: calc(100% - 0.25rem);
+      width: 0;
+    }
+  }
+
   .result-count {
     display: flex;
     flex-flow: row nowrap;
@@ -1394,15 +1410,40 @@ $filter-border: #aaa;
     border: 1px solid $light-gray;
     min-width: 6rem;
     border-radius: $global-radius;
+    width: unset;
+    position: relative;
+    overflow: hidden;
 
-    &.remote-render,
-    &.remote-rendering {
+    &.loading {
       justify-content: flex-start;
 
+      &::before,
+      &::after {
+        content: '';
+        width: 100%;
+        display: flex;
+        top: 0;
+        border-radius: $global-radius;
+      }
+
       &::before {
+        position: absolute;
+        height: 1.5rem;
+        left: 0;
+        background-color: lighten($light-gray, 4%);
+        box-shadow: 0 0 0 1px $light-gray inset;
         margin-top: 0.6rem;
         margin-left: 0.6rem;
         width: calc(100% - 1.2rem);
+      }
+
+      &::after {
+        position: relative;
+        width: calc(100% - 1.2rem);
+        height: 1rem;
+        margin: 0.25rem 0;
+        background-color: darken($light-gray, 10%);
+        animation: progress-bar 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
       }
     }
 

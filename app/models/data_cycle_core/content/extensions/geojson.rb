@@ -41,7 +41,7 @@ module DataCycleCore
         end
 
         def geojson_properties
-          { name: title }
+          { id: id, name: title }
         end
 
         class_methods do
@@ -77,9 +77,7 @@ module DataCycleCore
             geojson_query += ' WHERE t.geometry IS NOT NULL' unless include_without_geometry
 
             ActiveRecord::Base.connection.execute(
-              ActiveRecord::Base.send(:sanitize_sql_array, [
-                                        geojson_query.gsub(':from_query', things_query.to_sql)
-                                      ])
+              Arel.sql(geojson_query.gsub(':from_query', things_query.to_sql))
             ).first&.values&.first
           end
 
@@ -110,7 +108,7 @@ module DataCycleCore
           def geojson_detail_select_sql(include_crs = false)
             <<-SQL.squish
               json_build_object('type', 'Feature'#{CRS_SQL if include_crs}, 'id', t.id, 'geometry', ST_AsGeoJSON (t.geometry, #{GEOMETRY_PRECISION})::json, 'properties',
-                json_build_object(#{ADDITIONAL_GEOJSON_PROPERTIES.keys.map { |k| "'#{k}', t.#{k}" }.join(', ')}))
+                json_build_object('id', t.id, #{ADDITIONAL_GEOJSON_PROPERTIES.keys.map { |k| "'#{k}', t.#{k}" }.join(', ')}))
             SQL
           end
 

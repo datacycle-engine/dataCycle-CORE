@@ -36,7 +36,7 @@ module DataCycleCore
       data_set.template_name = template.template_name
       data_set.save
       assert_raises StandardError do
-        data_set.set_data_hash(data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('things', 'organization'))
+        data_set.set_data_hash(data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('things', 'organization'), partial_update: false)
       end
     end
   end

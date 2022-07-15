@@ -15,20 +15,10 @@ module DataCycleCore
 
     test 'list subclassifications and contents for classification_tree_labels' do
       tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltstypen')
-      get classification_tree_label_path(tree_label), params: {}, headers: {
+      get root_path(mode: 'tree', ctl_id: tree_label.id, reset: true), params: {}, headers: {
         referer: root_path
       }
       assert_response :success
-
-      article_tree_id = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Artikel').first.classification_tree.id
-
-      get classification_tree_label_path(tree_label), xhr: true, params: {
-        ct_id: article_tree_id
-      }, headers: {
-        referer: root_path
-      }
-      assert_response :success
-      assert response.body.include?(@content.name)
     end
 
     test 'find classifications with ids' do

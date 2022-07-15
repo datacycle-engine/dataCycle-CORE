@@ -3,5 +3,5 @@
 
   let load_more_button = $('#load_more_duplicates_<%= @content.id %>').parent('.clear-both');
 
-  $(new_html).replaceAll(load_more_button).trigger('dc:html:changed');
+  $(new_html).replaceAll(load_more_button);
 })();

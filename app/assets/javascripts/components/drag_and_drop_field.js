@@ -4,7 +4,6 @@ class DragAndDropField {
     this.uploaderRevealId = this.container.data('asset-uploader');
     this.uploaderReveal = $('#' + this.container.data('asset-uploader'));
     this.fileField = this.container.find('input.content-upload-field');
-    this.dragAndDropField = this.container.find('.drag-and-drop-field');
 
     this.init();
   }
@@ -12,31 +11,46 @@ class DragAndDropField {
     if (!this.isAdvancedUpload) return;
     if (!this.fileField.length) this.fileField = this.uploaderReveal.find('input[type="file"].upload-file');
 
-    this.dragAndDropField
-      .on('drag dragstart dragend dragover dragenter dragleave drop', e => {
-        e.preventDefault();
-        e.stopPropagation();
-      })
-      .on('dragenter dragover', e => {
-        this.dragAndDropField.addClass('is-dragover');
-      })
-      .on('dragleave dragend drop', e => {
-        this.dragAndDropField.removeClass('is-dragover');
-      })
-      .on('drop', e => {
-        this.openUploaderReveal(e.originalEvent.dataTransfer.files);
-      })
-      .on('click', e => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.fileField.trigger('click');
-      });
+    this.initDragAndDropEvents(this.container[0].querySelector('.drag-and-drop-field'));
+    if (this.uploaderReveal.length)
+      for (const field of this.uploaderReveal[0].querySelectorAll('.drag-and-drop-field'))
+        this.initDragAndDropEvents(field);
 
     this.fileField.on('change', e => {
       e.preventDefault();
       e.stopPropagation();
 
       this.openUploaderReveal(e.target.files);
+    });
+  }
+  initDragAndDropEvents(field) {
+    if (!field) return;
+
+    for (const type of ['drag', 'dragstart', 'dragend', 'dragover', 'dragenter', 'dragleave', 'drop'])
+      field.addEventListener(type, e => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+
+    for (const type of ['dragenter', 'dragover'])
+      field.addEventListener(type, _e => {
+        field.classList.add('is-dragover');
+      });
+
+    for (const type of ['dragleave', 'dragend', 'drop'])
+      field.addEventListener(type, _e => {
+        field.classList.remove('is-dragover');
+      });
+
+    field.addEventListener('drop', e => {
+      this.openUploaderReveal(e.dataTransfer.files);
+    });
+
+    field.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      this.fileField.trigger('click');
     });
   }
   openUploaderReveal(files) {

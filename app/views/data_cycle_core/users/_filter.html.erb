@@ -1,4 +1,4 @@
-<%= form_tag('', :method => "get", id: "search-form", data: { add_filter_path: add_filter_path, add_tag_group_path: add_tag_group_path }) do %>
+<%= form_with(url: '', local: true, id: "search-form", data: { add_filter_path: add_filter_path, add_tag_group_path: add_tag_group_path }) do %>
   <section class="filters">
     <div class="row">
       <div class="column filter-body">

@@ -7,7 +7,7 @@ class ImageEditor {
     this.$reveal = $(reveal);
     this.editor = null;
     this.fileUrl = reveal.dataset.fileUrl;
-    this.fileName = reveal.dataset.fileName;
+    this.fileName = reveal.dataset.fileName || 'unnamed_asset';
     this.fileMimeType = reveal.dataset.fileMimeType;
     this.assetId = reveal.dataset.assetId;
     this.hiddenFieldKey = reveal.dataset.hiddenFieldKey;
@@ -21,10 +21,7 @@ class ImageEditor {
       .first();
     this.fileFormat = this.setFileFormat(this.fileMimeType);
 
-    if (!this.assetId) {
-      // initialize new asset
-      this.initFile();
-    }
+    if (!this.assetId) this.initFile();
 
     this.initEvents();
     this.setup();
@@ -167,7 +164,10 @@ class ImageEditor {
   }
   handleSave(event) {
     event.preventDefault();
+    event.stopPropagation();
+
     let newUrl = this.editor.toDataURL({ format: this.fileFormat });
+
     this.updateAsset(newUrl, true);
   }
   initFile() {
@@ -178,61 +178,62 @@ class ImageEditor {
 
     DataCycle.disableElement(this.saveButton);
 
-    this.urlToFile(fileUrl, fileName, this.fileMimeType).then(file => {
-      let data = new FormData();
-      data.append('asset[file]', file);
-      data.append('asset[type]', 'DataCycleCore::Image');
-      data.append('asset[name]', fileName);
-      data.append('variant', true);
-      const url = '/files/assets';
-      const type = 'POST';
-
-      const promise = DataCycle.httpRequest({
-        url: url,
-        type: type,
-        enctype: 'multipart/form-data',
-        data: data,
-        dataType: 'json',
-        processData: false,
-        contentType: false,
-        cache: false
-      });
-
-      promise
-        .then(async data => {
-          if (data.error) {
-            if (closeOverlay) this.handleError(data.error);
-            return;
-          }
-
-          this.editableList.trigger('dc:import:data', data);
-
-          if (closeOverlay) this.$reveal.foundation('close');
-        })
-        .catch(async data => {
-          let error = data.statusText;
-          if (data && data.responseJSON && data.responseJSON.error) error = data.responseJSON.error;
-          console.error('error saving image:', error);
-
-          const errorMessage = await I18n.t('frontend.image_editor.save_error');
-          this.handleError(errorMessage);
-        })
-        .finally(() => {
-          DataCycle.enableElement(this.saveButton);
+    this.urlToFile(fileUrl, fileName, this.fileMimeType)
+      .then(file => {
+        let data = new FormData();
+        data.append('asset[file]', file);
+        data.append('asset[type]', 'DataCycleCore::Image');
+        data.append('asset[name]', fileName);
+        data.append('variant', true);
+        const url = '/files/assets';
+        const type = 'POST';
+        const promise = DataCycle.httpRequest({
+          url: url,
+          type: type,
+          enctype: 'multipart/form-data',
+          data: data,
+          dataType: 'json',
+          processData: false,
+          contentType: false,
+          cache: false
         });
-    });
+
+        promise
+          .then(async data => {
+            if (data.error) {
+              if (closeOverlay) this.handleError(data.error);
+              return;
+            }
+
+            this.editableList.trigger('dc:import:data', data);
+
+            if (closeOverlay) this.$reveal.foundation('close');
+          })
+          .catch(async data => {
+            let error = data.statusText;
+            if (data && data.responseJSON && data.responseJSON.error) error = data.responseJSON.error;
+            console.error('error saving image:', error);
+
+            const errorMessage = await I18n.t('frontend.image_editor.save_error');
+            this.handleError(errorMessage);
+          })
+          .finally(() => {
+            DataCycle.enableElement(this.saveButton);
+          });
+      })
+      .catch(error => {
+        console.error('error', error);
+
+        DataCycle.enableElement(this.saveButton);
+      });
   }
   handleError(e) {
     CalloutHelpers.show(e, 'alert');
   }
   urlToFile(url, filename, mimeType) {
     return fetch(url)
-      .then(function (res) {
-        return res.arrayBuffer();
-      })
-      .then(function (buf) {
-        return new File([buf], filename, { type: mimeType });
-      });
+      .then(res => res.blob())
+      .then(blob => new File([blob], filename, { type: mimeType || blob.type }));
   }
 }
 

@@ -12,7 +12,7 @@ class ConfirmationModal {
     this.cancelText = config.cancelText;
     this.confirmationIndex = 1;
     this.wrapperHtml =
-      '<div class="reveal confirmation-modal" data-multiple-opened="true"><button class="close-button" data-close aria-label="Close modal" type="button"><span aria-hidden="true">&times;</span></button></div';
+      '<div class="reveal confirmation-modal" data-multiple-opened="true" data-reveal data-initial-state="open"><button class="close-button" data-close aria-label="Close modal" type="button"><span aria-hidden="true">&times;</span></button></div>';
     this.overlay;
     this.closed = false;
     this.section;
@@ -22,25 +22,25 @@ class ConfirmationModal {
   async setup() {
     this.section = $(await this.renderSectionHtml());
 
-    if ($('.confirmation-modal:visible').length) {
-      this.overlay = $('.confirmation-modal:visible').first().append(this.section);
-      this.confirmationIndex = this.overlay.find('section.confirmation-section').length;
+    window.requestAnimationFrame(() => {
+      if ($('.confirmation-modal:visible').length) {
+        this.overlay = $('.confirmation-modal:visible').first().append(this.section);
+        this.confirmationIndex = this.overlay.find('section.confirmation-section').length;
 
-      if (this.overlay.find('.confirmation-info').length)
-        this.overlay.find('.confirmation-count').text(this.confirmationIndex);
-      else
-        this.overlay.append(
-          '<div class="confirmation-info"><span class="confirmation-index">1</span> / <span class="confirmation-count">' +
-            this.confirmationIndex +
-            '</span></div>'
-        );
-    } else {
-      this.overlay = $(this.wrapperHtml).append(this.section).appendTo('body');
-      new Foundation.Reveal(this.overlay);
-      this.overlay.foundation('open');
-    }
+        if (this.overlay.find('.confirmation-info').length)
+          this.overlay.find('.confirmation-count').text(this.confirmationIndex);
+        else
+          this.overlay.append(
+            '<div class="confirmation-info"><span class="confirmation-index">1</span> / <span class="confirmation-count">' +
+              this.confirmationIndex +
+              '</span></div>'
+          );
+      } else {
+        this.overlay = $(this.wrapperHtml).append(this.section).appendTo('body');
+      }
 
-    this.addEvents();
+      this.addEvents();
+    });
   }
   async renderSectionHtml() {
     return `<section class="confirmation-section"><div class="confirmation-text">${

@@ -24,7 +24,7 @@ module DataCycleCore
           valid = true
 
           I18n.with_locale(first_available_locale) do
-            valid = set_data_hash(data_hash: { DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(self).presence&.first => [classification_id] }, current_user: user, partial_update: true)
+            valid = set_data_hash(data_hash: { DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(self).presence&.first => [classification_id] }, current_user: user)
           end
 
           return valid unless respond_to?(:children)
@@ -34,7 +34,7 @@ module DataCycleCore
               if child.life_cycle_classification?(classification_id)
                 child.set_data_hash(data_hash: {
                   DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(self).presence&.first => [classification_id]
-                }, current_user: user, partial_update: true)
+                }, current_user: user)
               end
             end
           end

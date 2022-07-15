@@ -1,29 +1,16 @@
 <% @mode ||= 'grid' %>
 
 <div class="mode-container <%= local_assigns[:additional_classes] %>">
-  <%= tag.span(class: 'result-count remote-render',
+  <%= tag.span(class: 'result-count loading',
       data: {
-        remote_render_params: to_query_params(
-          request.params.slice(
-            *[:language, :f, :stored_filter, :watch_list_id, :id, :q, :roles, :user_groups].concat(
-              Array.wrap(local_assigns[:additional_request_params])
-            )
-          ).merge(
-            {
-              action: controller.action_name,
-              controller: controller.controller_name,
-              mode: @mode,
-              count_only: true,
-              ctl_id: @classification_tree_label&.id,
+        additional_form_parameters: to_query_params({
               content_class: local_assigns[:content_class] || 'things',
               count_mode: @classification_tree_label.nil? ? nil : 'classification_tree_label'
-            }
-          )
-        ).to_json
+            }).to_json
       }
     ) %>
 
-  <% if content_for?(:sortable) || local_assigns[:sortable].present? %>
+  <% if @mode != 'map' && (content_for?(:sortable) || local_assigns[:sortable].present?) %>
     <%= yield :sortable %>
     <span class="filter-sortable">
       <%= select_tag(

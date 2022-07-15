@@ -109,6 +109,26 @@ module DataCycleCore
               .where(contains_queries.reduce(:or))
           )
         end
+
+        def with_geometry
+          reflect(
+            @query
+              .where.not(
+                thing[:location].eq(nil)
+                .and(thing[:line].eq(nil))
+              )
+          )
+        end
+
+        def not_with_geometry
+          reflect(
+            @query
+              .where(
+                thing[:location].eq(nil)
+                .and(thing[:line].eq(nil))
+              )
+          )
+        end
       end
     end
   end

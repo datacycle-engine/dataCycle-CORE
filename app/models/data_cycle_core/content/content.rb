@@ -334,10 +334,10 @@ module DataCycleCore
       end
 
       def to_h(timestamp = Time.zone.now)
-        (property_names - virtual_property_names).map { |property_name|
-          property_value = attribute_to_h(property_name, timestamp)
-          { property_name.to_s => property_value }
-        }.inject(&:merge).deep_stringify_keys
+        Array.wrap(property_names)
+          .difference(virtual_property_names)
+          .index_with { |k| attribute_to_h(k, timestamp) }
+          .deep_stringify_keys
       end
 
       def to_h_partial(partial_properties, timestamp = Time.zone.now)
@@ -439,9 +439,11 @@ module DataCycleCore
 
       def property_value_for_set_datahash(property_name)
         get_property_value(property_name, properties_for(property_name))&.then do |value|
-          if schedule_property_names.include?(property_name)
+          if property_name.in?(included_property_names)
+            value.to_h
+          elsif property_name.in?(schedule_property_names)
             value.map(&:to_h)
-          elsif embedded_property_names.include?(property_name)
+          elsif property_name.in?(embedded_property_names)
             value.map(&:get_data_hash)
           elsif value.is_a?(ActiveRecord::Relation)
             value.pluck(:id)
@@ -544,7 +546,7 @@ module DataCycleCore
             t.schema['properties'].dc_deep_dup
               .except!(*(DataCycleCore.internal_data_attributes + ['id']))
               .keep_if { |k, v|
-                ['computed', 'virtual', 'asset'].exclude?(v['type']) &&
+                !k.in?(t.computed_property_names + t.virtual_property_names + t.asset_property_names) &&
                   (v['type'] != 'linked' || v['link_direction'] != 'inverse') &&
                   t.allowed_feature_attribute?(k.attribute_name_from_key) &&
                   v.dig('ui', 'bulk_edit', 'disabled').to_s != 'true'
@@ -575,10 +577,9 @@ module DataCycleCore
       end
 
       def set_property_value(property_name, property_definition, value)
-        ActiveSupport::Notifications.instrument 'deprecation.datacycle', this: {
-          message: "method set_property_value(#{property_name}, ...) is deprecated, use set_data_hash instead.",
-          object: self
-        }
+        Appsignal.send_error(e) do |transaction|
+          transaction.set_namespace("method set_property_value is deprecated use set_data_hash instead. Thing: #{id}(#{template_name}) - #{property_name}")
+        end
         raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
         ActiveSupport::Deprecation.warn("DataCycleCore::Content::Content setter should not be used any more! property_name: #{property_name}, property_definition: #{property_definition}, value: #{value}")
         send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',

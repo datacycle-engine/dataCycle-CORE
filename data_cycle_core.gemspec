@@ -32,7 +32,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'rake'
   # Frontend Asset Handling
   # s.add_dependency 'sprockets', '4.0.0'
-  s.add_dependency 'vite_rails', '~> 2.0' # 3.0 has a bug, trying to find entrypoints/application.js
+  s.add_dependency 'vite_rails', '>= 3.0.0'
   # database
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'

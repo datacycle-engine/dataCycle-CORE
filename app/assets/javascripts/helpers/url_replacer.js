@@ -17,15 +17,13 @@ export default {
     if (url.searchParams.get('stored_filter') == currentStoredFilterId) return;
 
     const newUrlParams = new URLSearchParams(`stored_filter=${currentStoredFilterId}`);
-    for (let i = 0; i < this.persistedUrlParams.length; ++i) {
-      if (url.searchParams.has(this.persistedUrlParams[i]))
-        newUrlParams.append(this.persistedUrlParams[i], url.searchParams.get(this.persistedUrlParams[i]));
-    }
+    for (const param of this.persistedUrlParams())
+      if (url.searchParams.has(param)) newUrlParams.set(param, url.searchParams.get(param));
 
-    if (mode) newUrlParams.append('mode', mode);
-    if (ctlId) newUrlParams.append('ctl_id', ctlId);
-    if (ctId) newUrlParams.append('ct_id', ctId);
+    if (mode) newUrlParams.set('mode', mode);
+    if (ctlId) newUrlParams.set('ctl_id', ctlId);
+    if (ctId) newUrlParams.set('ct_id', ctId);
 
-    history.replaceState({}, '', `?${newUrlParams.toString()}`);
+    history.replaceState({}, '', `?${newUrlParams.toString()}${url.hash}`);
   }
 };

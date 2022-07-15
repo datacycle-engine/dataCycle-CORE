@@ -17,7 +17,6 @@ unless content.schema.nil?
   ordered_api_properties(validation: content.schema).each do |key, prop|
     api_property_definition = api_definition(prop)
     next if prop.dig('type') == 'classification' && api_property_definition.dig('partial').blank?
-    next if prop.dig('type') == 'computed' && prop.dig('storage_location') == 'classification'
     next if options[:hidden_attributes].include?(key)
     next if options[:combined_attributes].include?(key)
 
@@ -71,7 +70,7 @@ unless content.schema.nil?
       end
     elsif api_property_definition.dig('transformation', 'method') == 'append'
       # TODO: add more types for append transformation
-      next unless ['embedded', 'linked', 'string', 'computed'].include?(prop.dig('type'))
+      next unless ['embedded', 'linked', 'string', 'number'].include?(prop.dig('type'))
       json[property_name] ||= []
       if ['embedded', 'linked'].include?(prop.dig('type'))
         json[property_name] += (render(*partial_params)&.dig(property_name) || [])&.reject(&:blank?) unless partial_params.nil?

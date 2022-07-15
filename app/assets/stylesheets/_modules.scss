@@ -55,13 +55,16 @@
 @import 'flatpickr/dist/flatpickr.min';
 @import 'modules/components/date_picker';
 @import 'ol/ol';
+@import 'maplibre-gl/dist/maplibre-gl';
+@import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw';
 @import 'select2/dist/css/select2.min';
 // load tui-image-editor
 @import 'tui-image-editor/dist/tui-image-editor';
 @import 'modules/components/_image_editor';
 @import 'modules/components/_report';
+@import 'modules/components/_geographic';
 
-@import 'tabulator-tables/dist/css/tabulator.min.css';
+@import 'tabulator-tables/dist/css/tabulator.min';
 
 @import 'video.js/dist/video-js';
 @import 'modules/components/_video_player';

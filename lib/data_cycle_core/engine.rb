@@ -355,8 +355,6 @@ module DataCycleCore
         load c
       end
 
-      Rails.autoloaders.log!
-
       Devise::Mailer.layout 'data_cycle_core/email' # email.haml or email.erb
       Devise::SessionsController.layout 'data_cycle_core/devise'
       Devise::RegistrationsController.layout 'data_cycle_core/devise'
@@ -367,15 +365,3 @@ module DataCycleCore
     end
   end
 end
-
-# require 'data_cycle_core/acknowledgments'
-# require 'data_cycle_core/exceptions'
-
-# require 'data_cycle_core/generic/common/functions'
-# require 'data_cycle_core/generic/webhook_base'
-# require 'data_cycle_core/generic/common/webhook'
-# require 'data_cycle_core/generic/csv/endpoint'
-# require 'data_cycle_core/master_data/contracts/general_contract'
-# require 'data_cycle_core/export/generic/endpoint'
-# require 'data_cycle_core/export/common/endpoint/generic_endpoint'
-# require 'data_cycle_core/export/common/webhook'

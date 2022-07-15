@@ -144,7 +144,7 @@ class SplitView {
     return container.querySelector(`.translatable-attribute.remote-render[data-remote-render-params*="${key}"]`);
   }
   dismissSubscribeNotice(_event) {
-    document.cookie = 'subscribe_notice_dismissed=true';
+    document.cookie = 'subscribe_notice_dismissed=true;SameSite=Lax';
   }
   availableEditors(container, selectors = []) {
     const newSelectorString = selectors

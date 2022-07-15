@@ -1,11 +1,14 @@
 import RubyPlugin from 'vite-plugin-ruby';
 import { resolve } from 'path';
-import CopyPlugin from 'rollup-plugin-copy';
-import DelPlugin from 'rollup-plugin-delete';
 import gzipPlugin from 'rollup-plugin-gzip';
 
 export default ({ mode }) => {
   return {
+    resolve: {
+      alias: {
+        '@core_assets': resolve(__dirname, 'app/assets') // will be replaced with the correct path to self https://vitejs.dev/config/#config-file-resolving
+      }
+    },
     build: {
       chunkSizeWarningLimit: 5000,
       brotliSize: false,
@@ -16,23 +19,6 @@ export default ({ mode }) => {
         }
       }
     },
-    plugins: [
-      RubyPlugin(),
-      CopyPlugin({
-        targets: [
-          { src: resolve(__dirname, 'app/assets/images/*'), dest: 'app/assets/entrypoints/images' },
-          { src: resolve(__dirname, 'app/assets/fonts/*'), dest: 'public/assets/fonts' },
-          { src: 'app/assets/images/*', dest: 'app/assets/entrypoints/images' }
-        ],
-        hook: 'buildStart',
-        copyOnce: true
-      }),
-      DelPlugin({
-        targets: ['app/assets/entrypoints/images'],
-        hook: 'closeBundle',
-        runOnce: true
-      }),
-      ...(mode == 'development' ? [] : [gzipPlugin()])
-    ]
+    plugins: [RubyPlugin(), ...(mode == 'development' ? [] : [gzipPlugin()])]
   };
 };

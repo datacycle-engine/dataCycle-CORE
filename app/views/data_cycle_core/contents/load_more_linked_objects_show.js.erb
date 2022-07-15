@@ -8,10 +8,10 @@
         <% end %>
       <% end %>
     <% end %>
-    $('<%= j yield :rendered_items %>').replaceAll(load_more_button).trigger('dc:html:changed').trigger('dc:contents:added', { editor: 'object_browser', single: true });
+    $('<%= j yield :rendered_items %>').replaceAll(load_more_button);
   <% else %>
     <% I18n.with_locale(@params[:locale] || I18n.locale) do %>
-      $('<%= j render_attribute_viewer key: @params[:complete_key], definition: @params[:definition], value: @linked_objects, parameters: { options: (@params[:options].presence || {}), parent: @object, no_wrapper: true, }, content: @content %>').replaceAll(load_more_button).trigger('dc:contents:added', { editor: 'embedded_object', single: false });
+      $('<%= j render_attribute_viewer key: @params[:complete_key], definition: @params[:definition], value: @linked_objects, parameters: { options: (@params[:options].presence || {}), parent: @object, no_wrapper: true, }, content: @content %>').replaceAll(load_more_button);
     <% end %>
   <% end %>
 })();

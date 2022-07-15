@@ -55,6 +55,7 @@ module DataCycleCore
       when 'grid' then tag.i(class: 'fa fa-th', aria_hidden: true, data: { dc_tooltip: title })
       when 'list' then tag.i(class: 'fa fa-th-list', aria_hidden: true, data: { dc_tooltip: title })
       when 'tree' then tag.i(class: 'fa fa-sitemap', aria_hidden: true, data: { dc_tooltip: title })
+      when 'map' then tag.i(class: 'fa fa-map', aria_hidden: true, data: { dc_tooltip: title })
       end
     end
 
@@ -109,7 +110,7 @@ module DataCycleCore
 
     def valid_mode(mode)
       case mode
-      when 'list', 'tree' then mode
+      when 'list', 'tree', 'map' then mode
       else 'grid'
       end
     end

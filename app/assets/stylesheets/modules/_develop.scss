@@ -2080,9 +2080,12 @@ select {
 
     .additional-feature-popup {
       pointer-events: none;
+      font-size: 0.9rem;
 
       .maplibregl-popup-content,
-      .maplibregl-popup-tip {
+      .mapboxgl-popup-content,
+      .maplibregl-popup-tip,
+      .mapboxgl-popup-tip {
         pointer-events: none;
       }
     }
@@ -2330,31 +2333,6 @@ select {
               margin-bottom: 0;
             }
           }
-        }
-      }
-    }
-    .maplibregl-popup-content {
-      padding-right: 2rem;
-
-      .ol-popup-detail-link {
-        float: right;
-      }
-
-      p {
-        &:last-of-type {
-          margin-bottom: 0;
-        }
-      }
-
-      .maplibregl-popup-close-button {
-        padding: 0.4rem 0.6rem;
-        top: 0;
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: $primary-color;
-
-        &:hover {
-          background: none;
         }
       }
     }
@@ -3201,6 +3179,7 @@ section.duplicate-candidates {
     .translatable-field-container {
       flex: auto;
       width: 100%;
+      overflow-wrap: break-word;
     }
   }
 }
@@ -3760,7 +3739,8 @@ body {
     margin-right: 0.3rem;
   }
 }
-.tree-link {
+.tree-link,
+.toggle-details {
   .mini-preview-image {
     padding-right: 0.5rem;
   }
@@ -3825,4 +3805,15 @@ body {
     > .attribute-group-content-element {
     grid-template-columns: 65fr 35fr;
   }
+}
+
+.download-with-contents {
+  .fa-plus {
+    font-size: 0.7rem;
+    vertical-align: text-top;
+  }
+}
+
+#classification-administration {
+  padding-top: 1.5rem;
 }

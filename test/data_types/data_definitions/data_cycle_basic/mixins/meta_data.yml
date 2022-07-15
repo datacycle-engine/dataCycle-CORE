@@ -83,3 +83,27 @@
           :disabled: true
         :xml:
           :disabled: true
+      :internal_content_score:
+        :label: Interner Content Score
+        :type: number
+        :storage_location: translated_value
+        :advanced_search: true
+        :xml:
+          disabled: true
+        :api:
+          :disabled: true
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: append
+            :name: dc:contentScore
+        :ui:
+          :show:
+            :disabled: true
+            :content_area: content_score
+            :type: content_score
+          :edit:
+            :disabled: true
+        :validations:
+          :min: 0
+          :max: 100

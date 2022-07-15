@@ -8,6 +8,8 @@ module DataCycleCore
         import Transproc::HashTransformations
         import Transproc::Conditional
         import Transproc::Recursion
+        import RatingTransformations
+        import ExternalReferenceTransformations
 
         def self.underscore_keys(data_hash)
           data_hash.to_h.deep_transform_keys { |k| k.to_s.underscore }
@@ -146,6 +148,22 @@ module DataCycleCore
           )
         end
 
+        def self.local_asset(data_hash, attribute, asset_type)
+          return data_hash if data_hash[attribute].blank?
+
+          begin
+            asset = "DataCycleCore::#{asset_type&.classify}".safe_constantize.new(remote_file_url: data_hash[attribute])
+            asset.save!
+            data_hash[attribute] = asset.try(:id)
+          rescue StandardError => e
+            logger = DataCycleCore::Generic::Logger::LogFile.new('carrierwave')
+            logger.info(e, data_hash[attribute])
+            logger.close
+          end
+
+          data_hash
+        end
+
         def self.local_image(data_hash, attribute)
           return data_hash if data_hash[attribute].blank?
 
@@ -158,6 +176,7 @@ module DataCycleCore
             logger.info(e, data_hash[attribute])
             logger.close
           end
+
           data_hash
         end
 
@@ -176,7 +195,9 @@ module DataCycleCore
           data_hash
         end
 
-        def self.add_field(data_hash, name, function)
+        def self.add_field(data_hash, name, function, condition_function = nil)
+          return data_hash if condition_function.present? && !condition_function.call(data_hash)
+
           data_hash.merge({ name => function.call(data_hash) })
         end
 

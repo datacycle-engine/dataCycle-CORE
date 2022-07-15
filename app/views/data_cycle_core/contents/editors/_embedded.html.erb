@@ -57,6 +57,7 @@
               definition: definition,
               options: options,
               page: params.fetch(:page, 1).to_i + 1,
+              hide_embedded: local_assigns[:hide_embedded].to_s == 'true',
               load_more_action: :embedded_object,
               editable: attribute_editable?(key, definition, options, content),
               content_id: content.id,

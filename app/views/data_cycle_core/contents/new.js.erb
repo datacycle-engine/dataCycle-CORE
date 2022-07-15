@@ -2,7 +2,6 @@
   let html = $('<%= j render_new_form(template: @template, parameters: @resolved_params) %>');
   html.filter('fieldset').first().addClass('active');
   $('#<%= @resolved_params[:key] %> form.multi-step fieldset.content-fields').replaceWith(html);
-  html.trigger('dc:html:changed').trigger('dc:html:initialized');
   DataCycle.enableElement($('#<%= @resolved_params[:key] %> form.multi-step'));
 
   <% if @resolved_params[:search_required] && @resolved_params[:search_param].blank? && cannot?(:create_without_search, @template) %>

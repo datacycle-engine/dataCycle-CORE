@@ -37,7 +37,9 @@ module DataCycleCore
           'visibility',
           'photographer',
           'restrictions',
-          'mandatory_license'
+          'mandatory_license',
+          'internal_content_score',
+          'external_content_score'
         ].freeze
 
       def assert_api_count_result(count)

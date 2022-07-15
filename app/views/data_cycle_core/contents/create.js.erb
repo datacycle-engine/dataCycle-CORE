@@ -14,9 +14,9 @@
   let html_content = '<%= j yield(:rendered_items) %>';
 
   <% I18n.with_locale(params[:locale] || I18n.locale) do %>
-    $(html_content).insertBefore('<%= params[:overlay_id] %> .items .loading').trigger('dc:html:changed').trigger('dc:html:initialized');
+    $(html_content).insertBefore('<%= params[:overlay_id] %> .items .loading');
 
-    $('<%= params[:overlay_id] %>').find('.item-info-scrollable').html('<%= escape_javascript(render_linked_details(key: params[:key], definition: params[:definition], parameters: { object: @objects.first, options: params[:options] })) %>').trigger('dc:html:changed').trigger('dc:html:initialized');
+    $('<%= params[:overlay_id] %>').find('.item-info-scrollable').html('<%= escape_javascript(render_linked_details(key: params[:key], definition: params[:definition], parameters: { object: @objects.first, options: params[:options] })) %>');
 
     $('<%= params[:overlay_id] %>').trigger('dc:import:complete', { ids: <%= @objects.map(&:id).to_json.html_safe %> });
   <% end %>

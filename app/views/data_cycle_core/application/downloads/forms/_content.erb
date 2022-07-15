@@ -1,6 +1,8 @@
 <%= form_with url: polymorphic_path([:download, content]),
               method: :get,
-              local: true do %>
+              local: true,
+              class: 'download-content-form',
+              namespace: SecureRandom.hex(10) do |f| %>
 
   <fieldset class="active template">
     <legend><%= t('common.choose_language', locale: active_ui_locale) %></legend>
@@ -26,8 +28,8 @@
     <div class="form-element">
       <% available_download_serializers(content).each_key.with_index do |serializer_key, i| %>
         <div>
-          <%= radio_button_tag "serialize_format", serializer_key, i == 0 %>
-          <%= label_tag "serialize_format[#{serializer_key}]", "#{t("common.download.#{serializer_key}", locale: active_ui_locale)}" %>
+          <%= f.radio_button "serialize_format", serializer_key, checked: i == 0 %>
+          <%= f.label "serialize_format_#{serializer_key}", "#{t("common.download.#{serializer_key}", locale: active_ui_locale)}" %>
         </div>
       <% end %>
     </div>
@@ -46,8 +48,8 @@
         %>
         <% available_versions.each_with_index do |version, i| %>
           <div>
-            <%= radio_button_tag "version", version, i == 0 %>
-            <%= label_tag "version[#{version}]", "#{t("common.download.version.#{version}", locale: active_ui_locale)}" %>
+            <%= f.radio_button "version", version, checked: i == 0 %>
+            <%= f.label "version_#{version}", "#{t("common.download.version.#{version}", locale: active_ui_locale)}" %>
           </div>
         <% end %>
 
@@ -60,8 +62,8 @@
 
           <% (['none'] + Array(value)).each_with_index do |t_format, i| %>
             <div>
-              <%= radio_button_tag "transformation[#{key}][format]", t_format, i == 0 %>
-              <%= label_tag "transformation[#{key}][format][#{t_format}]", "#{t("common.download.format.#{t_format}", default: t_format, locale: active_ui_locale)}" %>
+              <%= f.radio_button "transformation[#{key}][format]", t_format, checked: i == 0 %>
+              <%= f.label "transformation[#{key}][format]_#{t_format}", "#{t("common.download.format.#{t_format}", default: t_format, locale: active_ui_locale)}" %>
             </div>
           <% end %>
 

@@ -29,10 +29,6 @@ DataCycleCore::Engine.routes.draw do
   get '/docs/*path', to: 'documentation#show', as: :docs_with_path
   get '/docs', to: 'documentation#show'
 
-  # get '/acknowledgments', to: 'acknowledgments#index'
-  # get '/acknowledgments/license', to: 'acknowledgments#license'
-  # get '/acknowledgments/notice', to: 'acknowledgments#notice'
-
   get :clear_all_caches, controller: :application
   get '/i18n/translate', to: 'application#translate'
 
@@ -51,16 +47,23 @@ DataCycleCore::Engine.routes.draw do
 
   get  '/info', to: 'frontend#info', as: :info
   get  '/settings', to: 'backend#settings'
+
   resources :users, only: [:index, :edit, :update, :destroy] do
     post :unlock, on: :member
     post :create_user, on: :collection
     get :search, on: :collection
     get :become
+    post '/', on: :collection, action: :index
   end
+
   resources :user_organizations do
     post :create_user, on: :collection
   end
-  resources :user_groups
+
+  resources :user_groups, only: [:index, :edit, :update, :destroy] do
+    post '/create', on: :collection, action: :create
+    post '/', on: :collection, action: :index
+  end
 
   scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
     resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things) do
@@ -106,10 +109,6 @@ DataCycleCore::Engine.routes.draw do
     post :add_to_watchlist, on: :collection
     get :saved_searches, on: :collection
     get :render_update_form, on: :collection
-  end
-
-  resources :classification_tree_labels, only: :show, param: :ctl_id do
-    post '/', on: :member, action: :show
   end
 
   defaults format: :json do
@@ -373,24 +372,6 @@ DataCycleCore::Engine.routes.draw do
                 match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
               end
             end
-          end
-        end
-      end
-    end
-
-    defaults format: 'application/vnd.geo+json' do
-      namespace :geojson do
-        namespace :v1 do
-          scope path: '(/:api_subversion)' do
-            match 'things', to: 'contents#index', as: 'contents_index', via: [:get, :post]
-            match 'things/:id', to: 'contents#show', as: 'content_show', via: [:get, :post]
-
-            match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
-            match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
-
-            # TODO: how to work with watch_lists?
-            match 'collections', to: 'watch_lists#index', via: [:get, :post]
-            match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
           end
         end
       end

@@ -1,4 +1,4 @@
-import DataPicker from './../components/date_picker';
+import DatePicker from './../components/date_picker';
 
 export default function () {
   const dateSelectors = [
@@ -8,17 +8,18 @@ export default function () {
     'input[data-type=timepicker]:not([readonly]):not(:disabled)'
   ];
 
-  init(document);
+  for (const element of document.querySelectorAll(dateSelectors.join(', '))) new DatePicker(element);
 
-  $(document).on('dc:html:changed', '*', event => {
-    event.stopPropagation();
-
-    init(event.target);
-  });
-
-  function init(element) {
-    $(element)
-      .find(dateSelectors.join(', '))
-      .each((_, elem) => new DataPicker(elem));
-  }
+  DataCycle.htmlObserver.addCallbacks.push([
+    e =>
+      e.nodeName == 'INPUT' &&
+      !e.disabled &&
+      !e.readOnly &&
+      !e.classList.contains('flatpickr-input') &&
+      (e.type == 'datetime-local' ||
+        e.type == 'date' ||
+        e.dataset.type == 'datepicker' ||
+        e.dataset.type == 'timepicker'),
+    e => new DatePicker(e)
+  ]);
 }

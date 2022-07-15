@@ -42,3 +42,16 @@
             :content_area: header
           :edit:
             :disabled: true
+      :external_content_score:
+        :label: Externer Content Score
+        :type: embedded
+        :template_name: ContentScore
+        :external: true
+        :translated: true
+        :ui:
+          :show:
+            :content_area: content_score
+        :api:
+          :transformation:
+            :method: append
+            :name: dc:contentScore

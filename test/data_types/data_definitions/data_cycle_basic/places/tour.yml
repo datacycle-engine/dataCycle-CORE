@@ -262,6 +262,10 @@
         :label: Aufstieg (m)
         :type: number
         :storage_location: value
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_second_line_one_line
       :dcls_ascent:
         :label: Aufstieg (m)
         :type: number
@@ -282,6 +286,10 @@
         :label: Abstieg (m)
         :type: number
         :storage_location: value
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_second_line_one_line
       :dcls_descent:
         :label: Abstieg (m)
         :type: number
@@ -302,6 +310,10 @@
         :label: Minimale Seehöhe (m)
         :type: number
         :storage_location: value
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_second_line_one_line
       :dcls_min_altitude:
         :label: Minimale Seehöhe (m)
         :type: number
@@ -322,6 +334,10 @@
         :label: Maximale Seehöhe (m)
         :type: number
         :storage_location: value
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_second_line_one_line
       :dcls_max_altitude:
         :label: Maximale Seehöhe (m)
         :type: number
@@ -342,6 +358,10 @@
         :label: Länge (m)
         :type: number
         :storage_location: value
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_first_line_one_line
       :dcls_length:
         :label: Länge (m)
         :type: number
@@ -362,6 +382,10 @@
         :label: Dauer (min)
         :type: number
         :storage_location: value
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_first_line_one_line
       :dcls_duration:
         :label: Dauer (min)
         :type: number

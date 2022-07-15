@@ -1,10 +1,10 @@
 import jQuery from 'jquery';
 import Rails from '@rails/ujs';
-import ActionCable from '@rails/actioncable';
+import { createConsumer } from '@rails/actioncable';
 import DataCycleSingleton from './components/data_cycle';
 import I18n from './components/i18n';
 
-Object.assign(window, { $: jQuery, jQuery, Rails, actionCable: ActionCable.createConsumer(), I18n });
+Object.assign(window, { $: jQuery, jQuery, Rails, actionCable: createConsumer(), I18n });
 
 import 'jquery-serializejson';
 import 'lazysizes';
@@ -21,6 +21,12 @@ export default (dataCycleConfig = {}, postDataCycleInit = null) => {
   DataCycle = window.DataCycle = new DataCycleSingleton(dataCycleConfig);
 
   UrlReplacer.paramsToStoredFilterId();
+
+  try {
+    Rails.start();
+  } catch {
+    console.log('rails-ujs already started');
+  }
 
   if (typeof postDataCycleInit === 'function') postDataCycleInit();
   DataCycle.notifications.addEventListener('error', ({ detail }) => console.error(detail));

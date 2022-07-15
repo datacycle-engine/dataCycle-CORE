@@ -91,21 +91,27 @@ module DataCycleCore
 
     def apply_geo_filters(query, filters)
       filters.each do |operator, filter|
-        filter_prefix = operator == :notIn ? 'not_' : ''
-        filter&.each do |k, v|
-          query_method = filter_prefix + query_method_mapping(k)
-          next unless query.respond_to?(query_method)
-          if k == :box
-            query = query.send(query_method, *v)
-          else
-            if k == :perimeter && v.size == 3
-              v = {
-                'lon' => v[0],
-                'lat' => v[1],
-                'distance' => v[2]
-              }
+        if operator == :withGeometry
+          filter_prefix = filter.to_s == 'true' ? '' : 'not_'
+          query_method = filter_prefix + operator.to_s.underscore
+          query = query.send(query_method)
+        else
+          filter_prefix = operator == :notIn ? 'not_' : ''
+          filter&.each do |k, v|
+            query_method = filter_prefix + query_method_mapping(k)
+            next unless query.respond_to?(query_method)
+            if k == :box
+              query = query.send(query_method, *v)
+            else
+              if k == :perimeter && v.size == 3
+                v = {
+                  'lon' => v[0],
+                  'lat' => v[1],
+                  'distance' => v[2]
+                }
+              end
+              query = query.send(query_method, v)
             end
-            query = query.send(query_method, v)
           end
         end
       end

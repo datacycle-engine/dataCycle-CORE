@@ -18,7 +18,6 @@ class DashboardFilter {
     this.$sortableOrderInputs = this.$searchForm.find(
       '.mode-container .filter-sortable .filter-sortable-checkbox-wrapper :input'
     );
-
     this.defaultFilterOptions = {
       splitListClass: 'split-list',
       numCols: 4,
@@ -33,6 +32,9 @@ class DashboardFilter {
     this.initEventHandlers();
     this.initSearchForm();
     this.initClickableMenu();
+
+    this.$searchForm[0].dataset.initialFormData = JSON.stringify(Array.from(new FormData(this.$searchForm[0])));
+    this.$searchForm[0].classList.add('dc-dashboard-filter');
   }
   initDefaultFilters() {
     if (!this.$defaultFilterContainer.length) return;

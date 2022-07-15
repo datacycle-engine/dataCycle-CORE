@@ -1,19 +1,10 @@
 import GeoKeyFigure from '../components/geo_key_figure';
 
 export default function () {
-  init();
+  for (const element of document.querySelectorAll('.geo-key-figure-button')) new GeoKeyFigure(element);
 
-  $(document).on('dc:html:changed', '*', event => {
-    event.stopPropagation();
-
-    init(event.currentTarget);
-  });
-
-  function init(element = document) {
-    $(element)
-      .find('.geo-key-figure-button')
-      .each((_, elem) => {
-        new GeoKeyFigure(elem);
-      });
-  }
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('geo-key-figure-button'),
+    e => new GeoKeyFigure(e)
+  ]);
 }

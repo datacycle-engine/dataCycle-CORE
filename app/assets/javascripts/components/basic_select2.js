@@ -177,7 +177,7 @@ class BasicSelect2 {
     });
   }
   copyDataAttributes(data, target) {
-    const source = data.element;
+    let source = data.element;
 
     if (source && source instanceof $) source = source[0];
     if (target instanceof $) target = target[0];

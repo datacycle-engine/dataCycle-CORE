@@ -7,22 +7,14 @@ export default function () {
   new AccordionExtension();
   new EmbeddedTitle();
 
-  $('.edit-content-form .embedded-object').each((_index, element) => {
+  for (const element of document.querySelectorAll('.edit-content-form .embedded-object'))
     embedded_objects.push(new EmbeddedObject($(element)));
-  });
 
-  $(document).on('dc:html:changed', '*', event => {
-    event.stopPropagation();
-    $(event.target)
-      .find('.embedded-object')
-      .each((i, elem) => {
-        embedded_objects.push(new EmbeddedObject($(elem)));
-      });
-  });
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('embedded-object'),
+    e => embedded_objects.push(new EmbeddedObject($(e)))
+  ]);
 
-  $('.is-embedded-title').each((_index, element) => {
-    new EmbeddedTitle(element);
-  });
-
+  for (const element of document.querySelectorAll('.is-embedded-title')) new EmbeddedTitle(element);
   DataCycle.htmlObserver.addCallbacks.push([e => e.classList.contains('is-embedded-title'), e => new EmbeddedTitle(e)]);
 }

@@ -1,20 +1,13 @@
 import ConditionalField from '../components/conditional_field';
 
 export default function () {
-  let conditionalFields = [];
+  const conditionalFields = [];
 
-  initConditionalField();
+  for (const element of document.querySelectorAll('.conditional-form-field'))
+    conditionalFields.push(new ConditionalField(element));
 
-  $(document).on('dc:html:changed', '*', event => {
-    event.stopPropagation();
-    initConditionalField(event.currentTarget);
-  });
-
-  function initConditionalField(element = document) {
-    $(element)
-      .find('.conditional-form-field')
-      .each((_, elem) => {
-        conditionalFields.push(new ConditionalField(elem));
-      });
-  }
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('conditional-form-field'),
+    e => conditionalFields.push(new ConditionalField(e))
+  ]);
 }

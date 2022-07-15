@@ -9,19 +9,19 @@ module DataCycleCore
         @html_target = permitted_params[:html_target]
         @selected = permitted_params[:selected]
         @append = permitted_params[:append] || false
-        @page = permitted_params[:page] || 1
+        @page = (permitted_params[:page] || 1).to_i
         @last_asset_type = permitted_params[:last_asset_type]
         @assets = DataCycleCore::Asset.includes(:thing).accessible_by(current_ability).order(type: :asc, updated_at: :desc)
         @assets = @assets.where(type: permitted_params[:types]) if permitted_params[:types].present?
         @assets = @assets.where(id: permitted_params[:asset_ids]) if permitted_params[:asset_ids].present?
-        @assets = @assets.page(@page).per(25)
+        @assets = @assets.limit(25).offset((@page - 1) * 25 - permitted_params[:delete_count].to_i)
 
         if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
           @asset_details = @assets.as_json(only: [:id, :name, :file_size, :content_type], methods: :duplicate_candidates)
         else
           @asset_details = @assets.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
         end
-        @total = @assets.total_count
+        @total = @assets.except(:limit, :offset).count
 
         render json: {
           assets: @asset_details || [],
@@ -120,7 +120,7 @@ module DataCycleCore
     end
 
     def permitted_params
-      params.permit(:id, :append, :last_asset_type, :page, :type, :html_target, :variant, asset_ids: [], selected: [], types: [])
+      params.permit(:id, :append, :last_asset_type, :page, :delete_count, :type, :html_target, :variant, asset_ids: [], selected: [], types: [])
     end
 
     def find_params

@@ -1,21 +1,23 @@
+import ObserverHelpers from '../helpers/observer_helpers';
+
 class MasonryGrid {
   constructor(selector, config = null) {
     this.grid = $(selector);
     this.rowHeight = parseInt(window.getComputedStyle(this.grid[0]).getPropertyValue('grid-auto-rows'));
     this.config = config || { attributes: true, childList: true, subtree: true };
     this.observer = new MutationObserver(this.callbackFunction.bind(this));
+    this.addedItemsObserver = new MutationObserver(this._checkForAddedNodes.bind(this));
 
     if (this.checkSupport()) this.setup();
     else this.renderNotSupportedError();
   }
   setup() {
-    this.grid.children('.grid-loading').hide();
-    this.initializeItems(this.grid);
+    this.grid.children('.grid-loading').remove();
+    this.grid.children('.grid-item').each((_index, item) => this.initializeItem(item));
 
     $(window).on('load resize', this.resizeAllMasonryItems.bind(this));
-    this.grid.on('dc:html:changed', event => {
-      this.initializeItems(event.target);
-    });
+
+    this.addedItemsObserver.observe(this.grid[0], ObserverHelpers.newItemsConfig);
   }
   checkSupport() {
     let el = document.createElement('div');
@@ -26,19 +28,28 @@ class MasonryGrid {
       '<div class="html-feature-missing"><h2>Verwenden Sie bitte einen aktuellen Browser um diese Anwendung korrekt darstellen zu können!</h2></div>'
     );
   }
-  initializeItems(items) {
-    $(items)
-      .find('.grid-item')
-      .addBack('.grid-item')
-      .get()
-      .forEach(item => {
-        item.style.display = 'block';
-        this.resizeMasonryItem(item);
-        this.observer.observe(item, this.config);
-      });
+  _checkForAddedNodes(mutations) {
+    for (const mutation of mutations) {
+      if (mutation.type !== 'childList') continue;
+
+      for (const addedNode of mutation.addedNodes) {
+        if (addedNode.nodeType !== Node.ELEMENT_NODE) continue;
+
+        ObserverHelpers.checkForConditionRecursive(
+          addedNode,
+          e => e.classList.contains('grid-item'),
+          this.initializeItem.bind(this)
+        );
+      }
+    }
+  }
+  initializeItem(item) {
+    item.style.display = 'block';
+    this.resizeMasonryItem(item);
+    this.observer.observe(item, this.config);
   }
   callbackFunction(mutationsList, _observer) {
-    for (var mutation of mutationsList) {
+    for (const mutation of mutationsList) {
       let item = $(mutation.target).closest('.grid-item');
       if (
         item.length &&

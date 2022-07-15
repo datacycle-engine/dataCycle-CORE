@@ -21,6 +21,7 @@ en:
 
   attribute_labels:
     additional_information: Description block
+    key_figures_container: Key Figures
 
   locales:
     de: German
@@ -61,6 +62,7 @@ en:
     grid: Tiles
     list: List view
     tree: Tree view
+    map: Map
   new_step_title:
     title: Image description
     copyright: Copyright
@@ -138,6 +140,16 @@ en:
         pinch: Use two fingers to zoom/scroll the map
       filter:
         button_title: edit linked contents
+      upload_gpx: 
+        button_title: Upload GPX file
+      styles:
+        osm: OpenStreetMap
+        topo: Topo
+        street: Standard
+        bright: Bright
+        basemap: BasemapAT
+        winter: Winter
+        toursprung: Toursprung
     remote_render:
       error: Error loading content.
       reload: Reload
@@ -1152,6 +1164,8 @@ en:
     classifications_adminitration:
       classification:
         submit_loading_message: Saving may take several minutes, please be patient
+      download_tree: download classification tree as CSV
+      download_tree_with_contents: download classification tree including contents as CSV
     this_classification: This classification
     this_classification_tree: This classification tree
     show_contents_for_tree_label: List contents in %{data}
@@ -1321,6 +1335,12 @@ en:
         suggestion: Tips
         additional_information: Additional information
         maps: Literature
+      ratings:
+        technique_rating: Technique
+        condition_rating: Stamina
+        experience_rating: Experience
+        landscape_rating: Landscape
+        difficulty_rating: Difficulty
     imx_platform:
       description: Description
       description_long: Detailed description
@@ -1382,22 +1402,6 @@ en:
       station: Station
       subtitle: Subtitle
       teaser: Teaser
-    pimcore_ats:
-      description: Description
-      longDescription: Detailed descripton
-      shortDescription: Brief descripton
-      directions: Directions
-      parking: Parking
-      maps: Maps
-      shortText: Brief description
-      longText: Detailed description
-      additionalInformation: Additional Information
-      destination: Destination
-      gettingThere: Getting there
-      literature: Literature
-      startingPointDescr: Starting point description
-      tip: Tip
-      publicTransit: Public transit
 
   media_archive:
     allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>

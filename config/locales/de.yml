@@ -21,6 +21,7 @@ de:
 
   attribute_labels:
     additional_information: Beschreibungsblock
+    key_figures_container: Kennzahlen
 
   locales:
     de: deutsch
@@ -63,6 +64,7 @@ de:
     grid: Kacheln
     list: Listenansicht
     tree: Baumansicht
+    map: Karte
 
   new_step_title:
     title: Bildbeschreibung
@@ -142,6 +144,16 @@ de:
         pinch: 'Verwende zwei Finger zum Zoomen/Scrollen der Karte'
       filter:
         button_title: Verknüpfte Inhalte bearbeiten
+      upload_gpx: 
+        button_title: 'GPX-Datei hochladen'
+      styles:
+        osm: OpenStreetMap
+        topo: Topo
+        street: Standard
+        bright: Bright
+        basemap: BasemapAT
+        winter: Winter
+        toursprung: Toursprung
     remote_render:
       error: Fehler beim Laden des Inhalts.
       reload: Neu laden
@@ -1177,6 +1189,8 @@ de:
     classifications_adminitration:
       classification:
         submit_loading_message: Das Speichern kann mehrere Minuten dauern, bitte haben Sie etwas Geduld
+      download_tree: Klassifizierungsbaum als CSV herunterladen
+      download_tree_with_contents: Klassifizierungsbaum inklusive Inhalten als CSV herunterladen
     this_classification: Dieser Klassifizierung
     this_classification_tree: Diesem Klassifizierungsbaum
     show_contents_for_tree_label: 'Inhalte in %{data} auflisten'
@@ -1326,6 +1340,12 @@ de:
         suggestion: Tipps
         additional_information: Zusatzinformationen
         maps: Literatur
+      ratings:
+        technique_rating: Technik
+        condition_rating: Kondition
+        experience_rating: Erlebnis
+        landscape_rating: Landschaft
+        difficulty_rating: Schwierigkeit
     imx_platform:
       description: Beschreibung
       description_long: Detailbeschreibung
@@ -1387,22 +1407,6 @@ de:
       station: Bahnhof
       subtitle: Untertitel
       teaser: Teaser
-    pimcore_ats:
-      description: Beschreibung
-      longDescription: Detailbeschreibung
-      shortDescription: Kurzbeschreibung
-      directions: Wegbeschreibung
-      parking: Parkmöglichkeiten
-      maps: Karten
-      shortText: Kurzbeschreibung
-      longText: Detailbeschreibung
-      additionalInformation: Zusätzliche Informationen
-      destination: Zielbeschreibung
-      gettingThere: Anfahrtsbeschreibung
-      literature: Literatur
-      startingPointDescr: Startpunktbeschreibung
-      tip: Tipps
-      publicTransit: Öffentliche Verkehrsmittel
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

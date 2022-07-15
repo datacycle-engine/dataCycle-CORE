@@ -11,13 +11,13 @@
 
   let html_content = '<%= j yield(:rendered_items) %>';
 
-  $(html_content).insertBefore($('#<%= sanitize_to_id(@params[:complete_key]) %> .object-thumbs > input:hidden').first()).trigger('dc:html:changed');
+  $(html_content).insertBefore($('#<%= sanitize_to_id(@params[:complete_key]) %> .object-thumbs > input:hidden').first());
 
   <%= @linked_objects.ids.to_json.html_safe %>.forEach(element => {
     html_content = html_content.replace('id="media_reveal_' + element + '"', 'id="overlay_media_reveal_' + element + '"');
   });
 
-  $(html_content).appendTo('#object_browser_<%= sanitize_to_id(@params[:complete_key]) %> .chosen-items-container').trigger('dc:html:changed');
+  $(html_content).appendTo('#object_browser_<%= sanitize_to_id(@params[:complete_key]) %> .chosen-items-container');
 
   $($.map(<%= @linked_objects.ids.to_json.html_safe %>, id => $('#<%= sanitize_to_id(@params[:complete_key]) %> .object-thumbs > input:hidden[value="' + id + '"]'))).each((index, elem) => $(elem).remove());
   load_more_button.remove();
