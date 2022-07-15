@@ -25,6 +25,20 @@ module DataCycleCore
 
             content&.property_definitions&.dig(*path)
           end
+
+          def attribute_value_from_named_embedded(virtual_parameters:, content:, **_args)
+            virtual_parameters.reduce(content) do |content_part, params|
+              if params['name']
+                content_part
+                  &.send(params['attribute'])
+                  &.find do |c|
+                    c.name == I18n.t(params['name'], default: params['name'])
+                  end
+              else
+                content_part&.send(params['attribute'])
+              end
+            end
+          end
         end
       end
     end
