@@ -10,11 +10,12 @@ describe 'DataCycleCore::Utility::Virtual::Common#attribute_value_from_named_emb
   end
 
   it 'should extract string value' do
-    content = Struct.new(:my_attribute).new(
-      [
-        Struct.new(:name, :my_value).new('my.name', 'SOME VALUE')
-      ]
-    )
+    content = create_content_dummy({
+      my_attribute: [{
+        name: 'my.name',
+        my_value: 'SOME VALUE'
+      }]
+    })
 
     virtual_attribute_parameters = [
       { 'attribute' => 'my_attribute', 'name' => 'my.name' },
@@ -27,11 +28,12 @@ describe 'DataCycleCore::Utility::Virtual::Common#attribute_value_from_named_emb
   end
 
   it 'should extract numeric value' do
-    content = Struct.new(:my_attribute).new(
-      [
-        Struct.new(:name, :my_value).new('my.name', 7)
-      ]
-    )
+    content = create_content_dummy({
+      my_attribute: [{
+        name: 'my.name',
+        my_value: 7
+      }]
+    })
 
     virtual_attribute_parameters = [
       { 'attribute' => 'my_attribute', 'name' => 'my.name' },
@@ -44,11 +46,12 @@ describe 'DataCycleCore::Utility::Virtual::Common#attribute_value_from_named_emb
   end
 
   it 'should handle missing attributes' do
-    content = Struct.new(:my_attribute).new(
-      [
-        Struct.new(:name, :my_value).new('my.name', 7)
-      ]
-    )
+    content = create_content_dummy({
+      my_attribute: [{
+        name: 'my.name',
+        my_value: 7
+      }]
+    })
 
     virtual_attribute_parameters = [
       { 'attribute' => 'my_attribute', 'name' => 'my.name' },
@@ -66,11 +69,12 @@ describe 'DataCycleCore::Utility::Virtual::Common#attribute_value_from_named_emb
   end
 
   it 'should handle missing embedded' do
-    content = Struct.new(:my_attribute).new(
-      [
-        Struct.new(:name, :my_value).new('my.name', 7)
-      ]
-    )
+    content = create_content_dummy({
+      my_attribute: [{
+        name: 'my.name',
+        my_value: 7
+      }]
+    })
 
     virtual_attribute_parameters = [
       { 'attribute' => 'my_attribute', 'name' => 'missing.name' },
@@ -78,5 +82,15 @@ describe 'DataCycleCore::Utility::Virtual::Common#attribute_value_from_named_emb
     ]
 
     assert_nil(subject.attribute_value_from_named_embedded(virtual_parameters: virtual_attribute_parameters, content: content))
+  end
+
+  def create_content_dummy(data)
+    if data.is_a?(Array)
+      data.map { |d| create_content_dummy(d) }
+    elsif data.is_a?(Hash)
+      Struct.new(*data.keys).new(*data.values.map { |d| create_content_dummy(d) })
+    else
+      data
+    end
   end
 end
