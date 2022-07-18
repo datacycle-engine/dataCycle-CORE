@@ -32,7 +32,7 @@ class DataCycle {
     );
 
     this.uiLocale = document.documentElement.lang;
-    this.cache = {};
+    this.globalPromises = {};
 
     this.htmlObserver = {
       observer: new MutationObserver(this._observeHtmlContent.bind(this)),

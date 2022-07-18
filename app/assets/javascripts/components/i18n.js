@@ -1,21 +1,24 @@
 import template from 'lodash/template';
 import get from 'lodash/get';
+import LocalStorageCache from './local_storage_cache';
 
 const I18n = {
-  cache: {},
+  config: {
+    namespace: 'dcI18nCache'
+  },
   countMapping(count) {
     if (count === 0) return 'zero';
     else if (count === 1) return 'one';
     else return 'other';
   },
   async translate(path, substitutions = {}) {
-    let text = this.cache[path];
+    let text = LocalStorageCache.get(this.config.namespace, path);
     if (text && typeof text.then === 'function') text = await text;
 
-    if (!text) {
-      this.cache[path] = this._loadTranslation(path);
-      text = this.cache[path] = await this.cache[path];
-    }
+    const promiseKey = `${this.config.namespace}/${path}`;
+    if (!text && DataCycle.globalPromises.hasOwnProperty(promiseKey))
+      text = (await DataCycle.globalPromises[promiseKey]).text;
+    else if (!text) text = LocalStorageCache.set(this.config.namespace, path, await this._loadTranslation(path));
 
     if (text && typeof text === 'object' && substitutions.hasOwnProperty('count'))
       text = text[this.countMapping(substitutions.count)];
@@ -25,7 +28,7 @@ const I18n = {
     return compiled(substitutions);
   },
   async _loadTranslation(path) {
-    const result = await DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       url: '/i18n/translate',
       contentType: 'application/json',
       data: {
@@ -34,6 +37,12 @@ const I18n = {
     }).catch(e => {
       return { text: `${get(e, 'responseJSON.error', 'TRANSLATION_MISSING')} (${path})` };
     });
+
+    const promiseKey = `${this.config.namespace}/${path}`;
+    DataCycle.globalPromises[promiseKey] = promise;
+
+    const result = await promise;
+    delete DataCycle.globalPromises[promiseKey];
 
     return result.text;
   }
