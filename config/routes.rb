@@ -53,7 +53,7 @@ DataCycleCore::Engine.routes.draw do
     post :create_user, on: :collection
     get :search, on: :collection
     get :become
-    post '/', on: :collection, action: :index
+    match '/index', via: [:get, :post], on: :collection, action: :index
   end
 
   resources :user_organizations do

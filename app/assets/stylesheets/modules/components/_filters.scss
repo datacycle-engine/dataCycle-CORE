@@ -925,7 +925,7 @@ $filter-border: #aaa;
         }
       }
 
-      .expandable-buttons {
+      .filter-buttons {
         display: flex;
         align-items: center;
         justify-content: flex-start;
@@ -938,17 +938,7 @@ $filter-border: #aaa;
           border-radius: 1.4rem;
           white-space: nowrap;
           overflow: hidden;
-
-          .expandable {
-            max-width: 0;
-            opacity: 0;
-            display: inline-block;
-            overflow: hidden;
-            padding-left: 0;
-            padding-right: 0;
-            transition: all ease-in-out 0.25s;
-            transition-delay: 100ms;
-          }
+          transition: background ease-in-out 0.1s;
 
           i,
           .fa-stack {
@@ -969,11 +959,7 @@ $filter-border: #aaa;
           }
 
           &:hover {
-            .expandable {
-              padding-right: 1rem;
-              max-width: 300px;
-              opacity: 1;
-            }
+            background: darken($medium-gray, 7%);
           }
 
           &:last-child {
