@@ -9,11 +9,12 @@ namespace :dc do
       dry_run = args.fetch(:dry_run, false)
       webhooks = args.fetch(:webhooks, 'true').to_s
       template_name = args.fetch(:template_name, false).to_s
+      template_names = template_name.present? && template_name != 'false' ? template_name.split('|') : false
       computed_name = args.fetch(:computed_name, false).to_s
-      computed_names = computed_name.present? && computed_name != 'false' ? computed_name.split(',') : false
+      computed_names = computed_name.present? && computed_name != 'false' ? computed_name.split('|') : false
 
       selected_things = DataCycleCore::Thing.where(template: true)
-      selected_things = selected_things.where(template_name: template_name) if template_name.present? && template_name != 'false'
+      selected_things = selected_things.where(template_name: template_names) if template_names.present?
 
       selected_things.find_each do |template|
         next if template.computed_property_names.blank?

@@ -31,7 +31,9 @@ module DataCycleCore
           end
 
           def from_geo_shape(computed_parameters:, computed_definition:, **_args)
-            value = DataCycleCore::MasterData::DataConverter.string_to_geographic(computed_parameters.values.first)
+            parameter_key = computed_definition.dig('compute', 'parameters')&.first
+            location_value = Array.wrap(Common.get_values_from_hash(computed_parameters, parameter_key.split('.'))).first
+            value = DataCycleCore::MasterData::DataConverter.string_to_geographic(location_value)
 
             return if value.blank?
 
