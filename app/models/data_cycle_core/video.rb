@@ -7,6 +7,7 @@ module DataCycleCore
     if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
       has_one_attached :file
 
+      cattr_reader :versions, default: {}
       attr_accessor :remote_file_url
       before_validation :load_file_from_remote_file_url, if: -> { remote_file_url.present? }
     else
@@ -15,12 +16,6 @@ module DataCycleCore
       validates_integrity_of :file
       after_destroy :remove_directory
       delegate :versions, to: :file
-    end
-
-    if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
-      def versions
-        {}
-      end
     end
 
     def custom_validators

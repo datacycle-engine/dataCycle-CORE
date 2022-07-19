@@ -14,6 +14,8 @@ module DataCycleCore
     has_one :asset_content, dependent: :destroy
     has_one :thing, through: :asset_content, source: 'content_data'
 
+    DEFAULT_ASSET_VERSIONS = [:original, :default].freeze
+
     def custom_validators
       DataCycleCore.uploader_validations.dig(file.class.name.underscore.match(/(\w+)_uploader/) { |m| m[1].to_sym })&.except(:format)&.presence&.each do |validator, options|
         try("#{validator}_validation", options)
