@@ -983,7 +983,12 @@ module DataCycleCore
           options = { duration: duration } if duration.positive?
 
           res = []
-          return nil if available_dates.blank?
+          return nil if data.dig('Dates').blank? # return if events have no Dates and therefore no Date
+
+          if available_dates.blank?
+            # no specific dates given --> always valid (for Services)
+            available_dates = [{ 'From' => Time.zone.now.beginning_of_year.to_s(:only_date), 'To' => (Time.zone.now.end_of_year + 3.years).to_s(:only_date) }]
+          end
 
           available_dates.each do |date|
             dstart = date['From'].presence
