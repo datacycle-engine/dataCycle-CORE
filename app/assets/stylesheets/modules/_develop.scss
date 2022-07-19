@@ -3807,6 +3807,13 @@ body {
   }
 }
 
+.attribute-group.editor.action_type
+  > .attribute-group-item
+  > .attribute-group-content
+  > .attribute-group-content-element {
+  grid-template-columns: 65fr 35fr;
+}
+
 .download-with-contents {
   .fa-plus {
     font-size: 0.7rem;
