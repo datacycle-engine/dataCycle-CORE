@@ -1,14 +1,39 @@
 .form-element.linked {
-  .show-objectbrowser {
+  &[readonly],
+  &[data-readonly='true'],
+  &[disabled],
+  &.disabled {
+    .linked-editor-header {
+      cursor: not-allowed !important;
+      background: lighten($light-gray, 5%) !important;
+    }
+  }
+
+  .linked-editor-header {
     display: flex;
     align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    padding: 0.3rem 0.5rem;
-    margin: 0;
-    height: 2rem;
-    width: 2rem;
+    position: sticky;
+    top: 55px;
+    z-index: 12;
+    background: $white;
+
+    .attribute-edit-label {
+      position: relative;
+      top: unset;
+      left: unset;
+      padding: 0.7rem 1rem;
+      flex: auto;
+    }
+
+    .show-objectbrowser {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 0.3rem 0.5rem;
+      height: 2rem;
+      width: 2rem;
+      margin: 0 0.5rem;
+    }
   }
 }

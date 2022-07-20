@@ -907,7 +907,7 @@ footer {
 
       &.linked {
         .object-browser {
-          padding: 2rem 1rem 1rem 1rem;
+          padding: 0 1rem 1rem 1rem;
         }
       }
 
@@ -1656,9 +1656,12 @@ body .v-select {
         margin-bottom: 1rem;
 
         &.linked {
-          .show-objectbrowser {
+          .linked-editor-header {
             top: 0;
-            right: 0;
+
+            .attribute-edit-label {
+              padding-left: 0;
+            }
           }
         }
 
