@@ -391,6 +391,10 @@
     grid-column: 1/-1;
     margin-bottom: 0;
 
+    &.has-items {
+      padding: 0.3rem 1rem 1rem 1rem;
+    }
+
     .object-browser-tile-checkbox {
       display: none;
     }
@@ -509,7 +513,6 @@
 
 .object-browser {
   text-align: left;
-  padding: 3rem 0 0 0.1rem;
   overflow: hidden;
 
   input {

@@ -905,12 +905,6 @@ footer {
         }
       }
 
-      &.linked {
-        .object-browser {
-          padding: 0 1rem 1rem 1rem;
-        }
-      }
-
       &:not(:last-child) {
         margin-bottom: 1rem;
       }
@@ -1693,11 +1687,6 @@ body .v-select {
             height: 2rem;
             background-color: $white;
             border: none;
-          }
-        }
-        &.linked {
-          .object-browser {
-            padding: 0.1rem;
           }
         }
 
