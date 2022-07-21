@@ -215,6 +215,10 @@ server {
     proxy_pass http://docker-imgproxy/$signature/resize:$mode:$width:$height:$enlarge/gravity:$gravity/filename:$thing/plain/$rqUrl@$type;
 
     proxy_cache imgproxy_data_cycle;
+    
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
 
     # the filename is not used for key cache
     proxy_cache_key "$rqUrl$mode$width$height$enlarge$gravity$type";
@@ -299,6 +303,10 @@ server {
     proxy_pass http://docker-imgproxy/$signature/cachebuster:$cachebuster/preset:$preset/resize:$mode:$width:$height:$enlarge/gravity:$gravity/filename:$thing/plain/$rqUrl@$type;
 
     proxy_cache imgproxy_data_cycle;
+
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
 
     # the filename is not used for key cache
     proxy_cache_key "$rqUrl$mode$cachebuster$preset$width$height$enlarge$gravity$type";
@@ -417,6 +425,10 @@ server {
   location ~ "\/processed\/video\/.[^\.]*?\/*\.mp4" {
     proxy_ignore_headers Cache-Control Expires Set-Cookie;
     proxy_hide_header Cache-Control;
+    
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
 
     gzip_static on;
     expires max;
