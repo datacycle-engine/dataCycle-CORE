@@ -206,9 +206,9 @@ class MapLibreGlEditor extends MapLibreGlViewer {
     this.draw.changeMode(this.getMapDrawMode());
   }
   shortenCoordinates(coords) {
-    for (const coord of coords) {
-      if (Array.isArray(coord)) coord = this.shortenCoordinates(coord);
-      else coord = Number(coord.toFixed(this.precision));
+    for (let i = 0; i < coords.length; i++) {
+      if (Array.isArray(coords[i])) coords[i] = this.shortenCoordinates(coords[i]);
+      else coords[i] = Number(coords[i].toFixed(this.precision));
     }
 
     return coords;
