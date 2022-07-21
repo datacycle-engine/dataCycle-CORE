@@ -3381,7 +3381,7 @@ button.button-prime.small.bulk-delete-button {
     z-index: 0;
     position: absolute;
     right: 50%;
-    top: 1rem;
+    top: 0.5rem;
     height: 3rem;
     padding: 0;
     background: inherit;
@@ -3392,6 +3392,8 @@ button.button-prime.small.bulk-delete-button {
     width: 0;
     overflow: hidden;
     white-space: nowrap;
+    font-weight: bold;
+
     &.alert {
       background-color: $alert-color;
     }
