@@ -18,4 +18,4 @@ bundle exec rake ${CORE_RAKE_PREFIX:-}dc:update:dictionaries
 # Remove a potentially pre-existing server.pid for Rails.
 rm -f /app${CORE_DUMMY_PREFIX:-}/tmp/pids/server.pid
 
-exec bundle exec puma -C ${DC_DOCKER_SETUP_PATH:-/app/docker/}web/puma.rb "$@"
+exec bundle exec puma -p ${PUBLIC_APPLICATION_PORT:-3003} -C ${DC_DOCKER_SETUP_PATH:-/app/docker/}web/puma.rb "$@"

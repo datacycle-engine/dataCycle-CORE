@@ -21,7 +21,7 @@ upstream docker-imgproxy {
 }
 
 upstream puma_data_cycle {
-  server unix:${APPLICATION_ROOT}/tmp/sockets/puma.sock fail_timeout=0;
+  server web:${PUBLIC_APPLICATION_PORT};
 }
 
 server {
