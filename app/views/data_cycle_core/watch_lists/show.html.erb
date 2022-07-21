@@ -60,7 +60,7 @@
                                             class: 'copy-to-clipboard',
                                             data: {
                                                 value: send("webdav_#{DataCycleCore.main_config.dig(:webdav, :default)}_contents_index_url", api_subversion: nil, id: @watch_list),
-                                                dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale)
+                                                dc_tooltip: t('actions.copy_webdav_to_clipboard', locale: active_ui_locale)
                                             } do %>
                   <i class="fa fa-hdd-o" aria-hidden="true"></i>
                 <% end %>
