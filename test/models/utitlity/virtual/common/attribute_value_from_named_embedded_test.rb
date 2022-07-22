@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require 'virtual_attributes_test_utilities'
 require 'minitest/spec'
 require 'minitest/autorun'
 
 describe 'DataCycleCore::Utility::Virtual::Common#attribute_value_from_named_embedded' do
+  include VirtualAttributeTestUtilities
+
   subject do
     DataCycleCore::Utility::Virtual::Common
   end
@@ -82,15 +85,5 @@ describe 'DataCycleCore::Utility::Virtual::Common#attribute_value_from_named_emb
     ]
 
     assert_nil(subject.attribute_value_from_named_embedded(virtual_parameters: virtual_attribute_parameters, content: content))
-  end
-
-  def create_content_dummy(data)
-    if data.is_a?(Array)
-      data.map { |d| create_content_dummy(d) }
-    elsif data.is_a?(Hash)
-      Struct.new(*data.keys).new(*data.values.map { |d| create_content_dummy(d) })
-    else
-      data
-    end
   end
 end

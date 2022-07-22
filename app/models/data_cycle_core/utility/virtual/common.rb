@@ -41,6 +41,10 @@ module DataCycleCore
               end
             end
           end
+
+          def take_first_linked(virtual_parameters:, content:, **_args)
+            content.send(virtual_parameters.first)&.limit(1) || []
+          end
         end
       end
     end
