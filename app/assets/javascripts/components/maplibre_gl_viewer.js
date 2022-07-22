@@ -57,8 +57,12 @@ class MapLibreGlViewer {
     this.hoveredStateId = {};
   }
   setup() {
-    this.initMap();
-    this.map.on('load', this.configureMap.bind(this));
+    try {
+      this.initMap();
+      this.map.on('load', this.configureMap.bind(this));
+    } catch (error) {
+      console.error(error);
+    }
   }
   initMap() {
     this.map = new maplibregl.Map({
@@ -98,7 +102,8 @@ class MapLibreGlViewer {
 
     if (typeof this['baseLayer' + baseStyle] == 'function') return this['baseLayer' + baseStyle]();
     else if (baseStyle) return baseStyle;
-    else return 'https://map.pixeldev.at/styles/pp-street/style.json';
+
+    throw 'No Map-Style defined!';
   }
   baseLayerOSM() {
     return {
