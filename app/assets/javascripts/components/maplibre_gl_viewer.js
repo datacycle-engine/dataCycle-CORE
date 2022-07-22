@@ -71,7 +71,7 @@ class MapLibreGlViewer {
       center: this.defaultCenter(),
       zoom: this.defaultZoom(),
       transformRequest: (url, resourceType) => {
-        if (url.includes('map.pixeldev.at')) {
+        if (url.includes('tiles.pixelmap.at/')) {
           return {
             headers: {
               Authorization: `Bearer ${this.credentials.api_key}`
