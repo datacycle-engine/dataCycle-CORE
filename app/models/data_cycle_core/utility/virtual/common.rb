@@ -42,8 +42,22 @@ module DataCycleCore
             end
           end
 
+          def attribute_value_from_first_linked(virtual_parameters:, content:, **_args)
+            virtual_parameters.reduce(content) do |content_part, attribute_name|
+              if content_part.is_a?(Enumerable) && content_part.first.respond_to?(attribute_name)
+                content_part.first&.send(attribute_name)
+              elsif content_part.respond_to?(attribute_name)
+                content_part&.send(attribute_name)
+              end
+            end
+          end
+
           def take_first_linked(virtual_parameters:, content:, **_args)
-            content.send(virtual_parameters.first)&.limit(1) || []
+            if content.respond_to?(virtual_parameters.first)
+              content.send(virtual_parameters.first)&.limit(1) || []
+            else
+              []
+            end
           end
         end
       end

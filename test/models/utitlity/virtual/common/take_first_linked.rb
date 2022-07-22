@@ -57,13 +57,8 @@ describe 'DataCycleCore::Utility::Virtual::Common#take_first_linked' do
 
   it 'should handle missing property' do
     content = create_content_dummy({
-      my_linked: []
+      different_linked: []
     })
-    content.my_linked.extend(Module.new do
-      def limit(n)
-        take(n)
-      end
-    end)
 
     value = subject.take_first_linked(virtual_parameters: ['my_linked'], content: content)
 
