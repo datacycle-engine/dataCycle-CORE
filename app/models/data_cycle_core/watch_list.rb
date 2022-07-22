@@ -16,6 +16,8 @@ module DataCycleCore
     has_many :user_groups, through: :watch_list_shares, source: :shareable, source_type: 'DataCycleCore::UserGroup'
     has_many :users, through: :watch_list_shares, source: :shareable, source_type: 'DataCycleCore::User'
 
+    has_many :subscriptions, as: :subscribable, dependent: :destroy
+
     has_many :data_links, as: :item, dependent: :destroy
     has_many :valid_write_links, -> { valid.writable }, class_name: 'DataCycleCore::DataLink', as: :item
 
@@ -28,6 +30,14 @@ module DataCycleCore
 
     def valid_write_links?
       valid_write_links.present?
+    end
+
+    def notify_subscribers(content_ids, type)
+      return if content_ids.blank?
+
+      subscriptions.users.find_each do |user|
+        SubscriptionMailer.notify_changed_watch_list_items(user, self, content_ids, type).deliver_later
+      end
     end
 
     def self.fulltext_search(q)
@@ -61,6 +71,27 @@ module DataCycleCore
         model_name.param_key,
         full_path
       )
+    end
+
+    def add_things_from_query(contents_query)
+      ids = ActiveRecord::Base.connection.execute <<-SQL.squish
+        INSERT INTO watch_list_data_hashes (watch_list_id, hashable_id, hashable_type, created_at, updated_at)
+        #{contents_query.select("'#{id}', things.id, 'DataCycleCore::Thing', NOW(), NOW()").to_sql}
+        ON CONFLICT DO NOTHING
+        RETURNING hashable_id;
+      SQL
+
+      ids.pluck('hashable_id')
+    end
+
+    def delete_all_watch_list_data_hashes
+      ids = ActiveRecord::Base.connection.execute <<-SQL.squish
+        DELETE FROM watch_list_data_hashes
+        WHERE watch_list_data_hashes.watch_list_id = '#{id}'
+        RETURNING hashable_id;
+      SQL
+
+      ids.pluck('hashable_id')
     end
 
     private

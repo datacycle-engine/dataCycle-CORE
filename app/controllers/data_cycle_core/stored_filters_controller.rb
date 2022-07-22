@@ -139,15 +139,11 @@ module DataCycleCore
 
       authorize! :add_item, @watch_list
 
-      content_query = get_filtered_results.select("'#{@watch_list.id}', things.id, 'DataCycleCore::Thing', NOW(), NOW()")
+      inserted_ids = @watch_list.add_things_from_query(get_filtered_results)
 
-      ActiveRecord::Base.connection.execute <<-SQL.squish
-        INSERT INTO watch_list_data_hashes (watch_list_id, hashable_id, hashable_type, created_at, updated_at)
-        #{content_query.to_sql}
-        ON CONFLICT DO NOTHING
-      SQL
+      @watch_list.notify_subscribers(inserted_ids, 'add')
 
-      redirect_to(root_path, notice: (I18n.t :added_to, scope: [:controllers, :success], data: @watch_list.name, locale: helpers.active_ui_locale))
+      redirect_to(root_path, notice: I18n.t('controllers.success.added_to', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
     end
 
     def download

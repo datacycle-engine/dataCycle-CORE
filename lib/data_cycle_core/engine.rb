@@ -219,11 +219,8 @@ module DataCycleCore
   end
 
   def self.load_configurations(path, include_environments = true)
-    path_regex = if include_environments
-                   %r{/configurations(?:/(?:#{ActiveRecord::Base.configurations.to_h.keys.without('default').join('|')}))?/(.*)}
-                 else
-                   %r{/configurations(?!/(?:#{ActiveRecord::Base.configurations.to_h.keys.without('default').join('|')}))/(.*)}
-                 end
+    available_environments = ActiveRecord::Base.configurations.configurations.to_a.map(&:env_name).without('default').join('|')
+    path_regex = include_environments ? %r{/configurations(?:/(?:#{available_environments}))?/(.*)} : %r{/configurations(?!/(?:#{available_environments}))/(.*)}
 
     Dir[path.to_s].index_with { |f|
       f.delete_suffix('.yml').match(path_regex)&.captures&.first&.split('/')

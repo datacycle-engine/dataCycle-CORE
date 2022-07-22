@@ -32,7 +32,7 @@ module DataCycleCore
         def notify_subscribers(current_user:)
           if finalize
             subscriptions.except_user(current_user).to_notify.presence&.each do |subscription|
-              DataCycleCore::ReleasableSubscriptionMailer.notify(subscription.user, [self]).deliver_later
+              DataCycleCore::ReleasableSubscriptionMailer.notify(subscription.user, [id]).deliver_later
             end
           elsif release_stage&.name != DataCycleCore::Feature::Releasable.get_stage('partner')
             super

@@ -11,6 +11,14 @@ module DataCycleCore
       where.not(user_id: user.id)
     end
 
+    def self.things
+      DataCycleCore::Thing.where(id: all.select(:subscribable_id))
+    end
+
+    def self.users
+      DataCycleCore::User.where(id: all.select(:user_id))
+    end
+
     def self.to_notify(frequencies = ['always'])
       return if DataCycleCore.notification_frequencies.blank?
 

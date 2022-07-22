@@ -140,7 +140,7 @@ en:
         pinch: Use two fingers to zoom/scroll the map
       filter:
         button_title: edit linked contents
-      upload_gpx: 
+      upload_gpx:
         button_title: Upload GPX file
       styles:
         osm: OpenStreetMap
@@ -909,8 +909,8 @@ en:
       updated: '%{data} has been updated.'
       destroyed: '%{data} has been deleted.'
       destroyed_translation: Translation %{language} of %{data} was deleted.
-      added_to: 'Added to watch list: %{data} added.'
-      removedFrom: 'Removed from watch list: %{data} removed.'
+      added_to: 'Added to %{type}: %{data} added.'
+      removed_from: 'Removed from %{type}: %{data} removed.'
       sent: Email has been sent.
       saved: '%{data} was created.'
       saved_and_sent: '%{data} was created and sent.'
@@ -1011,9 +1011,9 @@ en:
         one: User group
         other: User groups
       data_cycle_core/subscription:
-        zero: No subscriptions
-        one: Subscription
-        other: Subscriptions
+        zero: No subscriptions (only contents)
+        one: Subscription (only contents)
+        other: Subscriptions (only contents)
       data_cycle_core/watch_list:
         one: Content collection
         other: Content collections
@@ -1092,7 +1092,7 @@ en:
         role_id: Roll
         user_group_ids: User groups
         external: SSO
-        notification_frequency: Subscription notification
+        notification_frequency: Subscription notification (only applies to subscribed contents)
         access_token: API Token
         default_locale: Default language for searches and new content
         represented_by: Represented by
@@ -1212,6 +1212,21 @@ en:
       update_params: save and apply search parameters
     watch_list:
       locked_by_data_link: Add/Remove Content Locked (Active External Links)
+      mailer:
+        add:
+          subject:
+            one: 'A content was added to %{type}: %{name}'
+            other: '%{count} contents were added to %{type}: %{name}'
+          text_html:
+            one: 'The following content was added to %{link}:'
+            other: 'The following contents were added to %{link}:'
+        remove:
+          subject:
+            one: 'A content was removed from %{type}: %{name}'
+            other: '%{count} contents were removed from %{type}: %{name}'
+          text_html:
+            one: 'The following content was removed from %{link}:'
+            other: 'The following contents were removed from %{link}:'
     upload: Upload new media
     data_links:
       write_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida
