@@ -448,7 +448,7 @@ module DataCycleCore
       }
 
       assert_redirected_to root_path
-      assert_equal I18n.t('controllers.success.added_to', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale), flash[:notice]
+      assert_equal I18n.t('controllers.success.added_to', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_locales.first), locale: DataCycleCore.ui_locales.first), flash[:notice]
       assert @watch_list.things.ids.include?(@content.id)
       assert @watch_list.things.ids.include?(content2.id)
     end
