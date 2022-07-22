@@ -95,6 +95,21 @@ module DataCycleCore
           end
         end
 
+        def self.process_tour_author(utility_object, raw_data, _config)
+          # binding.pry
+
+          DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
+            utility_object: utility_object,
+            template: DataCycleCore::Generic::Common::ImportFunctions.load_template('Organization'),
+            data: {
+              name: raw_data.dig('meta', 'author'),
+              external_key: Transformations.prefix_external_key(raw_data.dig('meta', 'author'),
+                                                                parent_content_type: 'tour',
+                                                                content_type: 'author')
+            }.with_indifferent_access
+          )
+        end
+
         def self.process_tour(utility_object, raw_data, config)
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,

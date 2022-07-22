@@ -63,7 +63,8 @@ module DataCycleCore
           .>> t(:unwrap, 'time', ['min'])
           .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'qualityOfExperience', 'landscape', 'technique'])
           .>> t(:reject_keys, ['rating'])
-          .>> t(:add_field, 'author', ->(s) { s.dig('meta', 'author') })
+          .>> t(:add_links, 'author', DataCycleCore::Thing, external_source_id,
+                ->(s) { prefix_external_key(s.dig('meta', 'author'), parent_content_type: 'tour', content_type: 'author') })
           .>> t(
             :rename_keys,
             {
@@ -87,14 +88,12 @@ module DataCycleCore
           .>> t(:add_field, 'directions_public_transport', ->(s) { s.dig('publicTransit') })
           .>> t(:add_field, 'safety_instructions', ->(s) { s.dig('safetyGuidelines') })
           .>> t(:add_field, 'suggestion', ->(s) { s.dig('tip') })
-          .>> t(:add_field, 'additional_information', ->(s) { s.dig('additionalInformation') })
           .>> t(:add_field, 'additional_information', ->(s) { to_additional_information(s, 'tour', external_source_id) })
           .>> t(:add_field, 'schedule', ->(s) { load_tour_season(s.dig('season')) })
           .>> t(:map_value, 'elevation', ->(s) { s&.to_f })
           .>> t(:map_value, 'length', ->(s) { s&.to_f })
           .>> t(:map_value, 'duration', ->(s) { s&.to_i })
           .>> t(:map_value, 'condition_rating', ->(s) { s&.to_i })
-          .>> t(:map_value, 'difficulty_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'experience_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'landscape_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'technique_rating', ->(s) { s&.to_i })
@@ -105,14 +104,20 @@ module DataCycleCore
                   ['experience_rating', 1, 6],
                   ['landscape_rating', 1, 6]
                 ], 'import.outdoor_active.ratings.')
-          .>> t(:universal_classifications, ->(s) { Array.wrap(load_difficulty_rating(s.dig('difficulty_rating'))) })
+          .>> t(:map_value, 'difficulty_rating', ->(s) { s&.to_i })
+          .>> t(:universal_classifications, ->(s) { load_difficulty_rating(s.dig('difficulty_rating')) })
           .>> t(:universal_classifications, ->(s) { load_opened(s.dig('opened')) })
           .>> t(:universal_classifications, ->(s) { load_winter_activity(s.dig('winterActivity')) })
-          .>> t(:add_links, 'poi', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('pois', 'poi')&.map { |item| item&.dig('id') } || [] })
+          .>> t(:add_links, 'waypoint', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('pois', 'poi')&.map { |item| item&.dig('id') } || [] })
           .>> t(:add_links, 'contains_place', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('stageTours')&.map { |item| item&.dig('id') } || [] })
           .>> t(:add_links, 'contained_in_place', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s.dig('stageTour')).compact })
-          .>> t(:add_links, 'primary_image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('primaryImage', 'id') })
-          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('images', 'image')&.map { |item| item&.dig('id') } || [] })
+          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id,
+                lambda { |s|
+                  (
+                    Array(s&.dig('primaryImage', 'id')) +
+                    Array(s&.dig('images', 'image')&.map { |item| item&.dig('id') })
+                  ).uniq || []
+                })
           .>> t(:load_category, 'tour_categories', external_source_id, ->(s) { s&.dig('category', 'id').present? ? "CATEGORY:#{s&.dig('category', 'id')}" : nil })
           .>> t(:load_category, 'frontend_type', external_source_id, ->(s) { s&.dig('frontendtype').present? ? "FRONTENDTYPE:#{Digest::MD5.new.update(s.dig('frontendtype')).hexdigest}" : nil })
           .>> t(:category_key_to_ids, 'outdoor_active_tags', ->(s) { s&.dig('properties', 'property') }, nil, external_source_id, 'TAG:', 'tag')
@@ -124,13 +129,14 @@ module DataCycleCore
 
         def self.load_opened(opened)
           return [] unless opened.in?([true, false])
-          status = opened ? 'geöffnet' : 'geschlossen'
-          DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('OutdoorActive - Status', status)
+
+          Array(classification_id_by_tree_and_name(tree_name: 'Status', classification_name: opened ? 'geöffnet' : 'geschlossen'))
         end
 
         def self.load_winter_activity(winter)
           return [] unless winter == true
-          DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('OutdoorActive - Status', 'Winteraktivität')
+
+          Array(classification_id_by_tree_and_name(tree_name: 'Status', classification_name: 'Winteraktivität'))
         end
 
         def self.load_difficulty_rating(rating)
@@ -145,7 +151,8 @@ module DataCycleCore
             else
               'unbekannt'
             end
-          DataCycleCore::ClassificationAlias.classification_for_tree_with_name('OutdoorActive - Schwierigkeitsgrad', rating_name)
+
+          Array(classification_id_by_tree_and_name(tree_name: 'Schwierigkeitsgrad', classification_name: rating_name))
         end
 
         def self.outdoor_active_to_image(external_source_id)
@@ -175,7 +182,7 @@ module DataCycleCore
         end
 
         def self.to_additional_information(hash, type, external_source_id)
-          ['description', 'text', 'directions', 'directions_public_transport', 'parking',
+          ['text', 'directions', 'directions_public_transport', 'parking',
            'hours_available', 'price', 'instructions', 'safety_instructions',
            'equipment', 'suggestion', 'additional_information', 'maps'].map { |desc|
             next if hash[desc].blank?
@@ -234,6 +241,36 @@ module DataCycleCore
             'dec' => 'Dezember'
           }
           DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Monate', month_hash[month])
+        end
+
+        def self.prefix_external_key(external_key, parent_content_type:, content_type:)
+          case [parent_content_type, content_type].join(' - ').upcase
+          when 'TOUR - AUTHOR'
+            "AUTHOR - #{external_key}"
+          else
+            raise 'NotImplemented'
+          end
+        end
+
+        CLASSIFICATION_TREE_PREFIX = 'OutdoorActive - '
+
+        def self.prefix_tree_name(tree_name)
+          CLASSIFICATION_TREE_PREFIX + tree_name
+        end
+
+        @classification_ids = {}
+
+        def self.classification_id_by_tree_and_name(tree_name:, classification_name:)
+          unless @classification_ids[prefix_tree_name(tree_name)]
+            @classification_ids[prefix_tree_name(tree_name)] = DataCycleCore::ClassificationAlias
+              .for_tree(prefix_tree_name(tree_name))
+              .includes(:primary_classification)
+              .map { |c|
+                { c.name => c.primary_classification.id }
+              }.reduce({}, &:merge)
+          end
+
+          @classification_ids[prefix_tree_name(tree_name)][classification_name]
         end
       end
     end
