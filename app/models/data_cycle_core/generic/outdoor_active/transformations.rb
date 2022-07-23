@@ -89,7 +89,6 @@ module DataCycleCore
           .>> t(:add_field, 'safety_instructions', ->(s) { s.dig('safetyGuidelines') })
           .>> t(:add_field, 'suggestion', ->(s) { s.dig('tip') })
           .>> t(:add_field, 'additional_information', ->(s) { to_additional_information(s, 'tour', external_source_id) })
-          .>> t(:add_field, 'schedule', ->(s) { load_tour_season(s.dig('season')) })
           .>> t(:map_value, 'elevation', ->(s) { s&.to_f })
           .>> t(:map_value, 'length', ->(s) { s&.to_f })
           .>> t(:map_value, 'duration', ->(s) { s&.to_i })
@@ -123,6 +122,7 @@ module DataCycleCore
           .>> t(:category_key_to_ids, 'outdoor_active_tags', ->(s) { s&.dig('properties', 'property') }, nil, external_source_id, 'TAG:', 'tag')
           .>> t(:add_links, 'regions', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('regions', 'region')&.map { |item| "REGION:#{item&.dig('id')}" } || [] })
           .>> t(:add_links, 'source', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('meta', 'source', 'id').present? ? ["SOURCE:#{s&.dig('meta', 'source', 'id')}"] : nil })
+          .>> t(:add_field, 'season_months', ->(s) { s.dig('season').select { |_, v| v }.keys.map { |m| by_month_id(m) } })
           .>> t(:reject_keys, ['season'])
           .>> t(:strip_all)
         end
@@ -213,17 +213,6 @@ module DataCycleCore
           )
         end
 
-        def self.load_tour_season(season)
-          return if season.blank?
-          season_data = season.select { |_k, val| val.present? }.keys.map { |month| by_month_id(month) }
-          return if season_data.blank?
-          [
-            {
-              by_month: season_data
-            }
-          ]
-        end
-
         def self.by_month_id(month)
           return nil unless ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].include?(month)
           month_hash = {
@@ -240,7 +229,8 @@ module DataCycleCore
             'nov' => 'November',
             'dec' => 'Dezember'
           }
-          DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Monate', month_hash[month])
+
+          classification_id_by_tree_and_name(tree_name: 'Monate', classification_name: month_hash[month])
         end
 
         def self.prefix_external_key(external_key, parent_content_type:, content_type:)
@@ -254,8 +244,10 @@ module DataCycleCore
 
         CLASSIFICATION_TREE_PREFIX = 'OutdoorActive - '
 
+        UNPREFIXED_CLASSIFICATION_TREES = ['Monate'].freeze
+
         def self.prefix_tree_name(tree_name)
-          CLASSIFICATION_TREE_PREFIX + tree_name
+          UNPREFIXED_CLASSIFICATION_TREES.include?(tree_name) ? tree_name : CLASSIFICATION_TREE_PREFIX + tree_name
         end
 
         @classification_ids = {}
