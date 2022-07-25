@@ -23,16 +23,16 @@
           :format: integer
         :ui:
           :attribute_group: trail_rating_one_line
-      :best_rating:
-        :label: Höchste zulässige Bewertung
+      :worst_rating:
+        :label: Niedrigste zulässige Bewertung
         :type: number
         :storage_location: value
         :validations:
           :format: integer
         :ui:
           :attribute_group: trail_rating_second_one_line
-      :worst_rating:
-        :label: Niedrigste zulässige Bewertung
+      :best_rating:
+        :label: Höchste zulässige Bewertung
         :type: number
         :storage_location: value
         :validations:
