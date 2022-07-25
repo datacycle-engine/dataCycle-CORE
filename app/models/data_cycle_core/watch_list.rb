@@ -32,10 +32,10 @@ module DataCycleCore
       valid_write_links.present?
     end
 
-    def notify_subscribers(content_ids, type)
+    def notify_subscribers(current_user, content_ids, type)
       return if content_ids.blank?
 
-      subscriptions.users.find_each do |user|
+      subscriptions.except_user(current_user).users.find_each do |user|
         SubscriptionMailer.notify_changed_watch_list_items(user, self, content_ids, type).deliver_later
       end
     end
