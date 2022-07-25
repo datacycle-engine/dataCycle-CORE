@@ -1,7 +1,7 @@
 <% breadcrumb :index, 'user_groups' %>
 
 <% content_for :top_content do %>
-  <%= render 'data_cycle_core/users/filter', filter_model: DataCycleCore::UserGroup if user_signed_in? %>
+  <%= render 'data_cycle_core/users/filter', filter_model: DataCycleCore::UserGroup, form_path: user_groups_path if user_signed_in? %>
 <% end %>
 
 <%= render 'results', content_class: 'user_groups', contents: @contents %>
