@@ -17,21 +17,11 @@
           <td width="100%" style="width:100%;padding:0;height:24pt">
             <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333">
 
-              <style type="text/css" scoped>
-                ul {
-                  list-style:none;
-                  padding-left: 12pt;
-                }
-
-                ul li::before {
-                  content: '<%= @type == 'add' ? '+' : '-' %>';
-                }
-              </style>
-
-              <ul>
+              <ul style="list-style:none;padding-left: 12pt;">
                 <% @contents.each do |content| %>
                   <% I18n.with_locale(content.first_available_locale) do %>
                     <li>
+                      <%= @type == 'add' ? '+' : '-' %>
                       <a href="<%= polymorphic_url(content) %>">
                         <span style="color:#333333;text-decoration:underline;text-underline:underline">
                           <%= content.template_name %>: <%= content.title.presence || content.id %>
