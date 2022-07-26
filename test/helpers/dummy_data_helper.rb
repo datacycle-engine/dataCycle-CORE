@@ -12,13 +12,6 @@ module DataCycleCore
     end
 
     def tour
-      # schedule
-      schedule = [
-        {
-          by_month: (['Juni'].map { |m| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Monate', m) })
-        }
-      ]
-
       poi_data = poi
       image_data = image
 
@@ -26,8 +19,9 @@ module DataCycleCore
       tour_data_hash[:image] = image_data.id
       tour_data_hash[:primary_image] = image_data.id
       tour_data_hash[:logo] = image_data.id
-      tour_data_hash[:poi] = poi_data.id
-      tour_data_hash[:schedule] = schedule
+      tour_data_hash[:waypoint] = poi_data.id
+      tour_data_hash[:author] = organization.id
+      tour_data_hash[:universal_classifications] = ['Juni'].map { |m| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Monate', m) }
       tour_data_hash.deep_stringify_keys!
 
       content = DataCycleCore::Thing.find_by(tour_data_hash.slice('name').merge(template_name: 'Tour'))
@@ -42,6 +36,7 @@ module DataCycleCore
       content.save!
       I18n.with_locale(:de) do
         content.set_data_hash(data_hash: tour_data_hash, new_content: true, current_user: @user)
+        raise 'INVALID CONTENT' unless content.valid?
       end
       content.reload
     end

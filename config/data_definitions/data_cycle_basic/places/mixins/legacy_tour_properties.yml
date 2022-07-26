@@ -474,8 +474,6 @@
               - Intangible
               - Schedule
               - dcls:Schedule
-          :v3:
-            :partial: outdooractive_legacy_schedule
         :ui:
           :show:
             :disabled: true

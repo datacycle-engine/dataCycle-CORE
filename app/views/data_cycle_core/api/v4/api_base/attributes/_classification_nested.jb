@@ -2,7 +2,6 @@
 
 json ||= {}
 key_new = attribute_key(key, definition)
-json[key_new] ||= []
 
 api_property_definition = api_definition(definition)
 
@@ -22,6 +21,10 @@ json['dc:multilingual'] = (content.embedded? ? options.dig(:translatable_embedde
 json['dc:translation'] = content.available_locales if options[:field_filter] == false || (included_attribute?('dc:translation', options[:include]) || included_attribute?('dc:translation', options[:fields]))
 json['dc:classification'] = classification_json[key_new]
 
-{
-  api_property_definition['name'] => json.reject { |_k, v| v.blank? }
-}
+if classification_json[key_new].present?
+  {
+    key_new => [json.reject { |_k, v| v.blank? }]
+  }
+else
+  {}
+end
