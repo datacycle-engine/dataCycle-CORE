@@ -63,8 +63,7 @@ module DataCycleCore
           .>> t(:unwrap, 'time', ['min'])
           .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'qualityOfExperience', 'landscape', 'technique'])
           .>> t(:reject_keys, ['rating'])
-          .>> t(:add_links, 'author', DataCycleCore::Thing, external_source_id,
-                ->(s) { prefix_external_key(s.dig('meta', 'author'), parent_content_type: 'tour', content_type: 'author') })
+          .>> t(:add_links, 'author', DataCycleCore::Thing, external_source_id, ->(s) { to_author.call(s)['external_key'] })
           .>> t(
             :rename_keys,
             {
@@ -180,7 +179,9 @@ module DataCycleCore
           .>> t(:add_field, 'copyright_notice_override', ->(s) { s.dig('license', 'url').presence })
           .>> t(:rename_keys, { 'id' => 'external_key', 'title' => 'name' })
           .>> t(:map_value, 'name', ->(v) { v || '__NO_NAME__' })
-          .>> t(:add_links, 'author', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_author_data(s)['external_key'] }, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_author_data(s)['external_key'] })
+          .>> t(:add_links, 'author', DataCycleCore::Thing, external_source_id,
+                ->(s) { to_author.call(s)['external_key'] },
+                ->(s) { to_author.call(s)['external_key'] })
           .>> t(:reject_keys, ['meta', 'primary', 'gallery', 'license'])
           .>> t(:strip_all)
         end
@@ -193,6 +194,15 @@ module DataCycleCore
 
         def self.to_author
           t(:stringify_keys)
+          .>> t(:select_keys, 'meta', 'author')
+          .>> t(:unwrap, 'meta')
+          .>> t(:select_keys, 'authorFull', 'author')
+          .>> t(:rename_keys, { 'author' => 'name' })
+          .>> t(:unwrap, 'authorFull')
+          .>> t(:add_field, 'external_key',
+                ->(s) { s['id'] || Digest::MD5.new.update(s['name']).hexdigest },
+                ->(s) { s['id'].present? || s['name'].present? })
+          .>> t(:select_keys, 'external_key', 'name')
           .>> t(:strip_all)
         end
 

@@ -26,7 +26,8 @@ module DataCycleCore
 
         def self.process_fotograf(utility_object, raw_data, config)
           # parse fallbacks ...
-          author_data = get_author_data(raw_data)
+          author_data = DataCycleCore::Generic::OutdoorActive::Transformations.to_author.call(raw_data)
+
           return if author_data.blank?
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
@@ -34,35 +35,9 @@ module DataCycleCore
             template: DataCycleCore::Generic::Common::ImportFunctions.load_template('Organization'),
             data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
               config,
-              DataCycleCore::Generic::OutdoorActive::Transformations.to_author.call(author_data)
+              author_data
             ).with_indifferent_access
           )
-        end
-
-        def self.get_author_data(data)
-          if data.dig('meta', 'authorFull', 'id').present? && data.dig('meta', 'authorFull', 'name').present?
-            {
-              'name' => data.dig('meta', 'authorFull', 'name'),
-              'external_key' => data.dig('meta', 'authorFull', 'id')
-            }
-          elsif data.dig('meta', 'authorFull', 'name').present?
-            {
-              'name' => data.dig('meta', 'authorFull', 'name'),
-              'external_key' => Digest::MD5.new.update(data.dig('meta', 'authorFull', 'name')).hexdigest
-            }
-          elsif data.dig('meta', 'author').present?
-            {
-              'name' => data.dig('meta', 'author'),
-              'external_key' => Digest::MD5.new.update(data.dig('meta', 'author')).hexdigest
-            }
-          elsif data.dig('author').present?
-            {
-              'name' => data.dig('author'),
-              'external_key' => Digest::MD5.new.update(data.dig('author')).hexdigest
-            }
-          else
-            {}
-          end
         end
 
         def self.process_copyright_holder(utility_object, raw_data, config)
@@ -97,16 +72,14 @@ module DataCycleCore
 
         def self.process_tour_author(utility_object, raw_data, _config)
           # binding.pry
+          author_data = DataCycleCore::Generic::OutdoorActive::Transformations.to_author.call(raw_data)
+
+          return if author_data.blank?
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
             utility_object: utility_object,
             template: DataCycleCore::Generic::Common::ImportFunctions.load_template('Organization'),
-            data: {
-              name: raw_data.dig('meta', 'author'),
-              external_key: Transformations.prefix_external_key(raw_data.dig('meta', 'author'),
-                                                                parent_content_type: 'tour',
-                                                                content_type: 'author')
-            }.with_indifferent_access
+            data: author_data.with_indifferent_access
           )
         end
 
