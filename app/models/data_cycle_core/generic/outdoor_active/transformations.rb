@@ -63,7 +63,10 @@ module DataCycleCore
           .>> t(:unwrap, 'time', ['min'])
           .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'qualityOfExperience', 'landscape', 'technique'])
           .>> t(:reject_keys, ['rating'])
-          .>> t(:add_links, 'author', DataCycleCore::Thing, external_source_id, ->(s) { to_author.call(s)['external_key'] })
+          .>> t(:add_links, 'author', DataCycleCore::Thing, external_source_id,
+                ->(s) { to_author.call(s)['external_key'] })
+          .>> t(:add_links, 'sd_publisher', DataCycleCore::Thing, external_source_id,
+                ->(s) { to_publisher.call(s)['external_key'] })
           .>> t(
             :rename_keys,
             {
@@ -131,7 +134,7 @@ module DataCycleCore
           .>> t(:universal_classifications, ->(s) { Array(s['source']) })
           .>> t(:add_field, 'season_months', ->(s) { s.dig('season').select { |_, v| v }.keys.map { |m| by_month_id(m) } })
           .>> t(:universal_classifications, ->(s) { Array(s['season_months']) })
-          .>> t(:reject_keys, ['season', 'season_months', 'tour_categories', 'frontendtype', 'outdoor_active_tags', 'regions', 'source'])
+          .>> t(:reject_keys, ['season', 'season_months', 'category', 'tour_categories', 'frontendtype', 'outdoor_active_tags', 'regions', 'source'])
           .>> t(:strip_all)
         end
 
@@ -204,6 +207,19 @@ module DataCycleCore
                 ->(s) { s['id'].present? || s['name'].present? })
           .>> t(:select_keys, 'external_key', 'name')
           .>> t(:strip_all)
+        end
+
+        def self.to_publisher
+          t(:stringify_keys)
+          .>> t(:select_keys, 'meta', 'source')
+          .>> t(:unwrap, 'meta')
+          .>> t(:unwrap, 'source')
+          .>> t(:rename_keys, { 'id' => 'external_key' })
+          .>> t(:add_field, 'contact_info',
+                ->(s) {
+                  { 'url' => s['url'] }
+                })
+          .>> t(:reject_keys, 'url')
         end
 
         def self.to_additional_information(hash, type, external_source_id)
