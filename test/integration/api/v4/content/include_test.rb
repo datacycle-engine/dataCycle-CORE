@@ -30,6 +30,7 @@ module DataCycleCore
               'image',
               'opening_hours_description',
               'schedule',
+              'sd_publisher',
               'external_content_score'
             ]
           end
