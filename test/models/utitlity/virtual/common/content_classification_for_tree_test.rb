@@ -14,7 +14,7 @@ describe 'DataCycleCore::Utility::Virtual::Common#content_classification_for_tre
 
   it 'should call Content#classification_aliases_for_tree' do
     content = Minitest::Mock.new
-    content.expect(:classification_aliases_for_tree, [], tree_name: 'My Classificaton Tree')
+    content.expect(:classifications_for_tree, [], tree_name: 'My Classificaton Tree')
 
     subject.content_classification_for_tree(virtual_definition: { 'tree_label' => 'My Classificaton Tree' }, content: content)
 
