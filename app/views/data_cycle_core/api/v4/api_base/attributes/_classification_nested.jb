@@ -2,6 +2,10 @@
 
 json ||= {}
 key_new = attribute_key(key, definition)
+new_id = [
+  content.id.sub(/(.*)-(\w+)$/, '\1'),
+  content.id.sub(/(.*)-(\w+)$/, '\2').hex ^ Digest::MD5.hexdigest(key_new)[0..11].hex
+].join('-')
 
 api_property_definition = api_definition(definition)
 
@@ -15,7 +19,7 @@ classification_aliases = load_value_object(content, key, value, options[:languag
 
 classification_json = render 'classifications', classification_aliases: classification_aliases, key: key_new, definition: {}, options: new_options
 
-json['@id'] = SecureRandom.uuid
+json['@id'] = new_id
 json['@type'] = api_property_definition['types']
 json['dc:multilingual'] = (content.embedded? ? options.dig(:translatable_embedded) || false : content.translatable?) if options[:field_filter] == false || (included_attribute?('dc:multilingual', options[:include]) || included_attribute?('dc:multilingual', options[:fields]))
 json['dc:translation'] = content.available_locales if options[:field_filter] == false || (included_attribute?('dc:translation', options[:include]) || included_attribute?('dc:translation', options[:fields]))
