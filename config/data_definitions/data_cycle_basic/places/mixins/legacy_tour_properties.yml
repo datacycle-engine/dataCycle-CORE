@@ -385,3 +385,99 @@
             :disabled: true
           :edit:
             :disabled: true
+      :frontend_type:
+        :label: OutdoorActive - FrontendTypes
+        :type: classification
+        :tree_label: OutdoorActive - FrontendTypes
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: content_classification_for_tree
+        :api:
+          :v4:
+            :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :tour_categories:
+        :label: OutdoorActive - Kategorie
+        :type: classification
+        :tree_label: OutdoorActive - Touren-Kategorien
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: content_classification_for_tree
+        :api:
+          :v4:
+            :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :outdoor_active_tags:
+        :label: OutdoorActive - Tags
+        :type: classification
+        :tree_label: OutdoorActive - Tags
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: content_classification_for_tree
+        :api:
+          :v4:
+            :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :regions:
+        :label: Regionen
+        :type: classification
+        :tree_label: OutdoorActive - Regionen
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: content_classification_for_tree
+        :api:
+          :v4:
+            :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :source:
+        :label: Quelle
+        :type: classification
+        :tree_label: OutdoorActive - Quellen
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: content_classification_for_tree
+        :api:
+          :v4:
+            :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :schedule:
+        :label: Saison (Monate)
+        :type: classification
+        :tree_label: Monate
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: content_classification_for_tree
+        :api:
+          :v4:
+            :partial: classification_nested
+            :types:
+              - Intangible
+              - Schedule
+              - dcls:Schedule
+          :v3:
+            :partial: outdooractive_legacy_schedule
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true

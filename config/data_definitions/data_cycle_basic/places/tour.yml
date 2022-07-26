@@ -114,9 +114,9 @@
             :disabled: true
           :show:
             :disabled: true
-      :outdoor_active_categories:
-        :type: mixin
-        :name: outdoor_active_categories
+      # :outdoor_active_categories:
+      #   :type: mixin
+      #   :name: outdoor_active_categories
       :location:
         :label: GPS-Startkoordinaten
         :type: geographic
@@ -240,20 +240,6 @@
       :opening_hours_specification:
         :type: mixin
         :name: opening_hours_specification
-      :season_months:
-        :label: Saison (Monate)
-        :type: classification
-        :tree_label: Monate
-        :api:
-          :v4:
-            :partial: classification_nested
-            :name: schedule
-            :types:
-              - Intangible
-              - Schedule
-              - dcls:Schedule
-          :v3:
-            :partial: outdooractive_legacy_schedule
       :season:
         :label: Empfohlene Jahreszeit
         :type: classification

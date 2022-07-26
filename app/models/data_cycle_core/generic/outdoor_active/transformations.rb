@@ -117,14 +117,29 @@ module DataCycleCore
                     Array(s&.dig('images', 'image')&.map { |item| item&.dig('id') })
                   ).uniq || []
                 })
-          .>> t(:load_category, 'tour_categories', external_source_id, ->(s) { s&.dig('category', 'id').present? ? "CATEGORY:#{s&.dig('category', 'id')}" : nil })
-          .>> t(:load_category, 'frontend_type', external_source_id, ->(s) { s&.dig('frontendtype').present? ? "FRONTENDTYPE:#{Digest::MD5.new.update(s.dig('frontendtype')).hexdigest}" : nil })
+          .>> t(:load_category, 'tour_categories', external_source_id,
+                lambda { |s|
+                  s&.dig('category', 'id').present? ? "CATEGORY:#{s&.dig('category', 'id')}" : nil
+                })
+          .>> t(:universal_classifications, ->(s) { Array(s['tour_categories']) })
+          # .>> t(:load_category, 'frontend_type', external_source_id, ->(s) { s&.dig('frontendtype').present? ? "FRONTENDTYPE:#{Digest::MD5.new.update(s.dig('frontendtype')).hexdigest}" : nil })
+          .>> t(:universal_classifications, ->(s) { Array(load_frontend_type(s&.dig('frontendtype'))) })
           .>> t(:category_key_to_ids, 'outdoor_active_tags', ->(s) { s&.dig('properties', 'property') }, nil, external_source_id, 'TAG:', 'tag')
+          .>> t(:universal_classifications, ->(s) { Array(s['outdoor_active_tags']) })
           .>> t(:add_links, 'regions', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('regions', 'region')&.map { |item| "REGION:#{item&.dig('id')}" } || [] })
+          .>> t(:universal_classifications, ->(s) { Array(s['regions']) })
           .>> t(:add_links, 'source', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('meta', 'source', 'id').present? ? ["SOURCE:#{s&.dig('meta', 'source', 'id')}"] : nil })
+          .>> t(:universal_classifications, ->(s) { Array(s['source']) })
           .>> t(:add_field, 'season_months', ->(s) { s.dig('season').select { |_, v| v }.keys.map { |m| by_month_id(m) } })
-          .>> t(:reject_keys, ['season'])
+          .>> t(:universal_classifications, ->(s) { Array(s['season_months']) })
+          .>> t(:reject_keys, ['season', 'season_months', 'tour_categories', 'frontendtype', 'outdoor_active_tags', 'regions', 'source'])
           .>> t(:strip_all)
+        end
+
+        def self.load_frontend_type(frontend_type)
+          return [] if frontend_type.blank?
+
+          Array(classification_id_by_tree_and_name(tree_name: 'FrontendTypes', classification_name: frontend_type))
         end
 
         def self.load_opened(opened)
@@ -258,7 +273,7 @@ module DataCycleCore
               .for_tree(prefix_tree_name(tree_name))
               .includes(:primary_classification)
               .map { |c|
-                { c.name => c.primary_classification.id }
+                { c.internal_name => c.primary_classification.id }
               }.reduce({}, &:merge)
           end
 
