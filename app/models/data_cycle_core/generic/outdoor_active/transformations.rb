@@ -176,7 +176,9 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:add_field, 'content_url', ->(s) { "http://img.oastatic.com/img/#{s['id']}/.jpg" })
           .>> t(:add_field, 'thumbnail_url', ->(s) { "http://img.oastatic.com/img/400/400/fit/#{s['id']}/.jpg" })
-          .>> t(:add_links, 'copyright_holder', DataCycleCore::Thing, external_source_id, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_copyright_holder(s)['external_key'] }, ->(s) { DataCycleCore::Generic::OutdoorActive::Processing.get_copyright_holder(s)['external_key'] })
+          .>> t(:add_links, 'copyright_holder', DataCycleCore::Thing, external_source_id,
+                ->(s) { to_publisher.call(s)['external_key'] },
+                ->(s) { to_publisher.call(s)['external_key'] })
           .>> t(:universal_classifications, ->(s) { s.dig('license', 'short').blank? ? [] : DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('OutdoorActive - Lizenzen', s.dig('license', 'short')) })
           .>> t(:add_field, 'caption', ->(s) { [s.dig('author'), s.dig('source').is_a?(::Hash) ? s.dig('source', 'name') : s.dig('source')]&.reject(&:blank?)&.join(' - ') })
           .>> t(:add_field, 'copyright_notice_override', ->(s) { s.dig('license', 'url').presence })
@@ -213,6 +215,7 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:select_keys, 'meta', 'source')
           .>> t(:unwrap, 'meta')
+          .>> t(:select_keys, 'source')
           .>> t(:unwrap, 'source')
           .>> t(:rename_keys, { 'id' => 'external_key' })
           .>> t(:add_field, 'contact_info',

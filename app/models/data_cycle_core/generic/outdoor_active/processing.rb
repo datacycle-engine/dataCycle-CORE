@@ -41,33 +41,18 @@ module DataCycleCore
         end
 
         def self.process_copyright_holder(utility_object, raw_data, config)
-          copyright_data = get_copyright_holder(raw_data)
-          return if copyright_data.blank?
+          copyright_holder_data = DataCycleCore::Generic::OutdoorActive::Transformations.to_publisher.call(raw_data)
+
+          return if copyright_holder_data.blank?
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
             utility_object: utility_object,
             template: DataCycleCore::Generic::Common::ImportFunctions.load_template('Organization'),
             data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
               config,
-              DataCycleCore::Generic::OutdoorActive::Transformations.to_copyright_holder.call(copyright_data)
+              copyright_holder_data
             ).with_indifferent_access
           )
-        end
-
-        def self.get_copyright_holder(data)
-          if data.dig('meta', 'source', 'id').present? && data.dig('meta', 'source', 'name').present?
-            {
-              'name' => data.dig('meta', 'source', 'name'),
-              'external_key' => data.dig('meta', 'source', 'id')
-            }
-          elsif data.dig('meta', 'source', 'name').present?
-            {
-              'name' => data.dig('meta', 'source', 'name'),
-              'external_key' => Digest::MD5.new.update(data.dig('meta', 'source', 'name')).hexdigest
-            }
-          else
-            {}
-          end
         end
 
         def self.process_author(utility_object, raw_data, _config)
