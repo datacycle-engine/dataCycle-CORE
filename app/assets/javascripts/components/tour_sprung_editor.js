@@ -140,6 +140,7 @@ class TourSprungEditor extends OpenLayersEditor {
           );
 
           this.$container.append($element);
+          $element.fadeIn(100);
 
           I18n.translate(`frontend.map.scroll_notice.${this.zoomMethod}`).then(text => {
             $($element).find('.scroll-overlay-text').text(text);

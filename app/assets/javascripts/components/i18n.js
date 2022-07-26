@@ -16,9 +16,14 @@ const I18n = {
     if (text && typeof text.then === 'function') text = await text;
 
     const promiseKey = `${this.config.namespace}/${path}`;
-    if (!text && DataCycle.globalPromises.hasOwnProperty(promiseKey))
-      text = (await DataCycle.globalPromises[promiseKey]).text;
-    else if (!text) text = LocalStorageCache.set(this.config.namespace, path, await this._loadTranslation(path));
+    if (!text) {
+      const result = DataCycle.globalPromises.hasOwnProperty(promiseKey)
+        ? await DataCycle.globalPromises[promiseKey]
+        : await this._loadTranslation(path);
+      if (result && !result.error && result.hasOwnProperty('text'))
+        text = LocalStorageCache.set(this.config.namespace, path, result.text);
+      else text = result.hasOwnProperty('error') ? result.error : this._errorObject(path).error;
+    }
 
     if (text && typeof text === 'object' && substitutions.hasOwnProperty('count'))
       text = text[this.countMapping(substitutions.count)];
@@ -27,6 +32,9 @@ const I18n = {
 
     return compiled(substitutions);
   },
+  _errorObject(path, e = {}) {
+    return { error: get(e, 'responseJSON.error', `TRANSLATION_MISSING (${path})`) };
+  },
   async _loadTranslation(path) {
     const promise = DataCycle.httpRequest({
       url: '/i18n/translate',
@@ -34,9 +42,7 @@ const I18n = {
       data: {
         path: path
       }
-    }).catch(e => {
-      return { text: `${get(e, 'responseJSON.error', 'TRANSLATION_MISSING')} (${path})` };
-    });
+    }).catch(e => this._errorObject(path, e));
 
     const promiseKey = `${this.config.namespace}/${path}`;
     DataCycle.globalPromises[promiseKey] = promise;
@@ -44,7 +50,7 @@ const I18n = {
     const result = await promise;
     delete DataCycle.globalPromises[promiseKey];
 
-    return result.text;
+    return result;
   }
 };
 

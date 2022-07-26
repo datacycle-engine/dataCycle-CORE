@@ -101,7 +101,7 @@ module DataCycleCore
       @content_object = DataCycleCore::Thing.find(params[:hashable_id])
       @content_object.watch_lists.destroy(@watch_list) unless @content_object.nil? || @watch_list.nil?
 
-      @watch_list.notify_subscribers([@content_object.id], 'remove')
+      @watch_list.notify_subscribers(current_user, [@content_object.id], 'remove')
 
       respond_to do |format|
         format.html { redirect_back(fallback_location: root_path, notice: I18n.t('controllers.success.removed_from', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)) }
@@ -115,7 +115,7 @@ module DataCycleCore
       @content_object = DataCycleCore::Thing.find(params[:hashable_id])
       @content_object.watch_lists << @watch_list unless @content_object.nil? || @watch_list.nil? || @watch_list.id.in?(@content_object.watch_list_ids)
 
-      @watch_list.notify_subscribers([@content_object.id], 'add')
+      @watch_list.notify_subscribers(current_user, [@content_object.id], 'add')
 
       respond_to do |format|
         format.html { redirect_back(fallback_location: root_path, notice: I18n.t('controllers.success.added_to', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)) }
@@ -134,7 +134,7 @@ module DataCycleCore
 
       inserted_ids = @watch_list.add_things_from_query(related_objects)
 
-      @watch_list.notify_subscribers(inserted_ids, 'add')
+      @watch_list.notify_subscribers(current_user, inserted_ids, 'add')
 
       respond_to do |format|
         format.html { redirect_back(fallback_location: root_path, notice: I18n.t('controllers.success.added_to', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)) }
@@ -357,7 +357,7 @@ module DataCycleCore
 
       deleted_ids = @watch_list.delete_all_watch_list_data_hashes
 
-      @watch_list.notify_subscribers(deleted_ids, 'remove')
+      @watch_list.notify_subscribers(current_user, deleted_ids, 'remove')
 
       redirect_back(
         fallback_location: root_path,

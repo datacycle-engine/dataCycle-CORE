@@ -141,7 +141,7 @@ module DataCycleCore
 
       inserted_ids = @watch_list.add_things_from_query(get_filtered_results)
 
-      @watch_list.notify_subscribers(inserted_ids, 'add')
+      @watch_list.notify_subscribers(current_user, inserted_ids, 'add')
 
       redirect_to(root_path, notice: I18n.t('controllers.success.added_to', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
     end

@@ -14,9 +14,9 @@ module DataCycleCore
               }.map do |rating_config|
                 {
                   'name' => I18n.t(translation_key_prefix + rating_config[0], default: rating_config[0]),
-                  'rating_value' => data[rating_config[0]]
-                  # 'worst_rating' => rating_config[1],
-                  # 'best_rating' => rating_config[2]
+                  'rating_value' => data[rating_config[0]],
+                  'worst_rating' => rating_config[1],
+                  'best_rating' => rating_config[2]
                 }
               end
             }

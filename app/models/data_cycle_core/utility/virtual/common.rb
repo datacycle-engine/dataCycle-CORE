@@ -59,6 +59,10 @@ module DataCycleCore
               []
             end
           end
+
+          def content_classification_for_tree(virtual_definition:, content:, **_args)
+            content.classification_aliases_for_tree(tree_name: virtual_definition['tree_label'])
+          end
         end
       end
     end
