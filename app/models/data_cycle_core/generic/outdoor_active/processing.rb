@@ -70,8 +70,7 @@ module DataCycleCore
           end
         end
 
-        def self.process_tour_author(utility_object, raw_data, _config)
-          # binding.pry
+        def self.process_author(utility_object, raw_data, _config)
           author_data = DataCycleCore::Generic::OutdoorActive::Transformations.to_author.call(raw_data)
 
           return if author_data.blank?
@@ -80,6 +79,18 @@ module DataCycleCore
             utility_object: utility_object,
             template: DataCycleCore::Generic::Common::ImportFunctions.load_template('Organization'),
             data: author_data.with_indifferent_access
+          )
+        end
+
+        def self.process_publisher(utility_object, raw_data, _config)
+          publisher_data = DataCycleCore::Generic::OutdoorActive::Transformations.to_publisher.call(raw_data)
+
+          return if publisher_data.blank?
+
+          DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
+            utility_object: utility_object,
+            template: DataCycleCore::Generic::Common::ImportFunctions.load_template('Organization'),
+            data: publisher_data.with_indifferent_access
           )
         end
 

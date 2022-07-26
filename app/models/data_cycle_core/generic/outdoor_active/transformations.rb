@@ -216,7 +216,7 @@ module DataCycleCore
           .>> t(:unwrap, 'source')
           .>> t(:rename_keys, { 'id' => 'external_key' })
           .>> t(:add_field, 'contact_info',
-                ->(s) {
+                lambda { |s|
                   { 'url' => s['url'] }
                 })
           .>> t(:reject_keys, 'url')

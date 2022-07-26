@@ -298,6 +298,22 @@
               :aliases:
                 - Person
                 - Organisation
+
+        :ui:
+          :attribute_group:
+            - copyright_attributes_one_line
+      :sd_publisher:
+        :label: Inhaber / Herausgeber
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+        :ui:
+          :attribute_group:
+            - copyright_attributes_one_line
       :copyright_attributes:
         :type: mixin
         :name: copyright_attributes
