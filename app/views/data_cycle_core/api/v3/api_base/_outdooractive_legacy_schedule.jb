@@ -49,7 +49,7 @@ months = content
       'contentType': 'Schedule',
       'identifier': SecureRandom.uuid,
       'inLanguage': nil,
-      'byMonth': months
+      'byMonth': months.sort
     }
   ]
 }
