@@ -35,9 +35,7 @@ module DataCycleCore
     def notify_subscribers(current_user, content_ids, type)
       return if content_ids.blank?
 
-      subscriptions.except_user(current_user).users.find_each do |user|
-        SubscriptionMailer.notify_changed_watch_list_items(user, self, content_ids, type).deliver_later
-      end
+      DataCycleCore::WatchListSubscriberNotificationJob.perform_later(self, current_user, content_ids, type) if subscriptions.except_user_id(current_user.id).exists?
     end
 
     def self.fulltext_search(q)

@@ -479,6 +479,8 @@
     li {
       display: flex;
       font-size: 0.9rem;
+      overflow: hidden;
+      flex-flow: row wrap;
 
       .attribute-label {
         margin-right: 0.3rem;

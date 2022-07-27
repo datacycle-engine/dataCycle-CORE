@@ -256,7 +256,7 @@ module DataCycleCore
       end
 
       def notify_subscribers(current_user:)
-        subscriptions.except_user(current_user).to_notify(version_name.present? && DataCycleCore::Feature::NamedVersion.enabled? ? ['always', 'named_version'] : ['always']).presence&.each do |subscription|
+        subscriptions.except_user_id(current_user.id).to_notify(version_name.present? && DataCycleCore::Feature::NamedVersion.enabled? ? ['always', 'named_version'] : ['always']).presence&.each do |subscription|
           DataCycleCore::SubscriptionMailer.notify(subscription.user, [id]).deliver_later
         end
       end
