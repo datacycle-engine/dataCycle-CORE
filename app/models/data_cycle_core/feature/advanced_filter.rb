@@ -64,6 +64,20 @@ module DataCycleCore
           }.compact
         end
 
+        def relation_filter_inv(user, value)
+          return [] unless value.is_a?(Hash)
+
+          value.map { |k, v|
+            next unless v
+
+            [
+              I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: user.ui_locale),
+              'relation_filter_inv',
+              data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
+            ]
+          }.compact
+        end
+
         def union_filter_ids(user, value)
           return [] unless value
 

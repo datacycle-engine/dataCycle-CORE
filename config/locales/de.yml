@@ -678,6 +678,7 @@ de:
     geo_within_classification: nach geografischer Lage filtern ...
     geo_filter: nach geografischer Lage filtern ...
     relation_filter: auf Basis von verknüpften Inhalten filtern ...
+    relation_filter_inv: auf Basis von verknüpften Inhalten filtern (inverse Richtung) ...
     related_through_attribute: nach verknüpften Inhalten mit Attribut filtern ...
     id: nach IDs filtern ...
     union_filter_ids: mehrere Sammlungen kombinieren ...
@@ -1116,7 +1117,7 @@ de:
         role_id: Rolle
         user_group_ids: Benutzergruppen
         external: SSO
-        notification_frequency: Benachrichtigung von Abos (gilt nur für abonnierte Inhalte)
+        notification_frequency: Benachrichtigung von Abos
         access_token: API Token
         default_locale: 'Default-Sprache für Suchen und neue Inhalte'
         represented_by: Repräsentiert durch
@@ -1236,20 +1237,12 @@ de:
     watch_list:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
       mailer:
-        add:
-          subject:
-            one: 'Ein Inhalt wurde der %{type}: %{name} hinzugefügt'
-            other: '%{count} Inhalte wurden der %{type}: %{name} hinzugefügt'
-          text_html:
-            one: 'Folgender Inhalt wurde zu %{link} hinzugefügt:'
-            other: 'Folgende Inhalte wurden zu %{link} hinzugefügt:'
-        remove:
-          subject:
-            one: 'Ein Inhalt wurde von der %{type}: %{name} entfernt'
-            other: '%{count} Inhalte wurden von der %{type}: %{name} entfernt'
-          text_html:
-            one: 'Folgender Inhalt wurde von %{link} entfernt:'
-            other: 'Folgende Inhalte wurden von %{link} entfernt:'
+        subject:
+          one: 'Inhalte wurden zu/von einer %{type} hinzugefügt/entfernt'
+          other: 'Inhalte wurden zu/von mehreren %{type} hinzugefügt/entfernt'
+        text_html:
+          one: 'Folgender Inhalt wurde zu/von %{link} hinzugefügt/entfernt:'
+          other: 'Folgende Inhalte wurden zu/von %{link} hinzugefügt/entfernt:'
     upload: Neue Medien hochladen
     data_links:
       write_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong> hat %{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihre Ergänzungen und Ihr Feedback. <br><br>Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor.</span>'
