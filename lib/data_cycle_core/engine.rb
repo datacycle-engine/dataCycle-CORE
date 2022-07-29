@@ -210,6 +210,9 @@ module DataCycleCore
   mattr_accessor :persistent_activities
   self.persistent_activities = ['downloads']
 
+  mattr_accessor :user_filters
+  self.user_filters = []
+
   def self.setup
     yield self
   end

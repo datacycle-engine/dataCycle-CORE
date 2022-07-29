@@ -555,6 +555,7 @@ footer {
 
     &.mapped-classification {
       color: $dark-gray;
+
       .tag {
         background-color: rgba($dark-gray, 0.5);
       }
@@ -1306,10 +1307,10 @@ span.single_warning:before {
         padding-right: 2rem;
 
         .open-selection-link {
-          color: darken($dark-gray, 10%);
+          color: $white;
 
           &:hover {
-            color: darken($dark-gray, 20%);
+            color: $primary-color;
           }
 
           .fa {
@@ -1336,10 +1337,13 @@ span.single_warning:before {
         white-space: normal;
         padding: 0 1.2rem 0 0.3rem;
         position: relative;
+        color: $white;
+        background-color: lighten($dark-gray, 6%);
+        font-weight: 600;
 
         .select2-selection__choice__remove {
           position: absolute;
-          // color: $white;
+          color: $white;
           right: 0;
           padding: 0 0.2rem;
           transition: color 0.1s ease-in;
@@ -1373,7 +1377,7 @@ body .v-select {
     margin: 0.1rem 0;
     line-height: 1.2rem;
     border-radius: $object-border-radius;
-    font-weight: normal;
+    font-weight: 600;
     word-break: break-word;
     white-space: normal;
 
@@ -1425,11 +1429,10 @@ body .v-select {
   }
 
   .tag {
-    font-weight: 600;
-    background-color: rgba($dark-gray, 0.8);
+    background-color: lighten($dark-gray, 6%);
 
     &.mapped {
-      background-color: rgba($dark-gray, 0.5);
+      background-color: lighten($dark-gray, 19%);
     }
 
     &.has-changed {
