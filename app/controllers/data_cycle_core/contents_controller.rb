@@ -26,7 +26,7 @@ module DataCycleCore
       index = 0
       content_ids = []
 
-      ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", progress: 0, items: item_count
+      ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { progress: 0, items: item_count })
 
       new_thing_params.each do |_key, thing_params|
         thing_hash = content_params(params[:template], thing_params)
@@ -35,13 +35,13 @@ module DataCycleCore
           content = DataCycleCore::DataHashService.create_internal_object(params[:template], thing_hash, current_user)
           content_ids << { id: content.id, field_id: thing_params[:uploader_field_id] } if content.try(:id).present?
 
-          ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", progress: index += 1, items: item_count, errors: content.try(:errors).presence
+          ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { progress: index += 1, items: item_count, errors: content.try(:errors).presence })
         end
       end
 
       flash.now[:success] = I18n.t :bulk_created, scope: [:controllers, :success], count: item_count, locale: helpers.active_ui_locale
 
-      ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", redirect_path: root_path, flash: flash.to_hash, created: true, content_ids: content_ids
+      ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { redirect_path: root_path, flash: flash.to_hash, created: true, content_ids: content_ids })
 
       head(:ok)
     end
@@ -237,7 +237,7 @@ module DataCycleCore
 
         destroy_content_params[:destroy_locale] = destroy_params[:locale].present?
 
-        @content.destroy_content(destroy_content_params)
+        @content.destroy_content(**destroy_content_params)
 
         flash[:success] = @content.destroyed? ? I18n.t(:destroyed, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale) : I18n.t(:destroyed_translation, scope: [:controllers, :success], data: @content.template_name, language: I18n.locale, locale: helpers.active_ui_locale)
 

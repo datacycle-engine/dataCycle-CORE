@@ -458,7 +458,7 @@ module DataCycleCore
       options = { class: "flash flash-notification callout #{alert_class}" }
       options[:data] = { closable: '' } if closable
 
-      tag.div(options) do
+      tag.div(**options) do
         if value.is_a?(::String)
           concat value.html_safe
         elsif value.is_a?(::Hash) || value.is_a?(ActiveModel::DeprecationHandlingMessageHash)

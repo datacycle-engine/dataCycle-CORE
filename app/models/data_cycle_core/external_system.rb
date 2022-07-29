@@ -158,11 +158,11 @@ module DataCycleCore
       cred = credentials
       cred = cred[full_options[:credentials_index]] if full_options[:credentials_index].present?
       if cred.is_a?(Hash)
-        utility_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: self, locales: locales, credentials: cred))
+        utility_object = DataCycleCore::Generic::DownloadObject.new(**full_options.merge(external_source: self, locales: locales, credentials: cred))
         success &&= full_options.dig(:download, :download_strategy).constantize.download_content(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
       else
         cred.each do |credential|
-          utility_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: self, locales: locales, credentials: credential))
+          utility_object = DataCycleCore::Generic::DownloadObject.new(**full_options.merge(external_source: self, locales: locales, credentials: credential))
           success &&= full_options.dig(:download, :download_strategy).constantize.download_content(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
         end
       end
@@ -203,7 +203,7 @@ module DataCycleCore
       full_options = (default_options || {}).deep_symbolize_keys.deep_merge({ import: import_config.dig(name).deep_symbolize_keys.except(:sorting) }).deep_merge(options.deep_symbolize_keys)
       full_options[:import][:name] = name.to_s
       locales = full_options[:import][:locales] || full_options[:locales] || I18n.available_locales
-      utility_object = DataCycleCore::Generic::ImportObject.new(full_options.merge(external_source: self, locales: locales))
+      utility_object = DataCycleCore::Generic::ImportObject.new(**full_options.merge(external_source: self, locales: locales))
       raise "Missing import_strategy for #{name}, options given: #{options}" if full_options.dig(:import, :import_strategy).blank?
       full_options.dig(:import, :import_strategy).constantize.import_data(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
     end
