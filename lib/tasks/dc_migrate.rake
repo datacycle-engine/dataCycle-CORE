@@ -410,7 +410,6 @@ namespace :dc do
 
         DataCycleCore::ContentContent.where(content_a: content.id, relation_a: 'poi').update_all(relation_a: 'waypoint')
 
-
         content.additional_information.select { |c| c.name == I18n.t('import.outdoor_active.tour.description') }.each(&:destroy!)
 
         DataCycleCore::ContentContent.where(content_a: content.id, relation_a: 'aggregate_rating').map(&:content_b).each do |rating|
