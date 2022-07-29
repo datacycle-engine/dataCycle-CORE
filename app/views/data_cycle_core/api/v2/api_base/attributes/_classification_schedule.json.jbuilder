@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-attribute_id = [
-  content.id.sub(/(.*)-(\w+)$/, '\1'),
-  content.id.sub(/(.*)-(\w+)$/, '\2').hex ^ Digest::MD5.hexdigest(key)[0..11].hex
-].join('-')
-
 months = content
   .send(key)
   &.includes(:classification_aliases)
@@ -53,8 +48,6 @@ data =
           'Schedule'
         ],
         'contentType': 'Schedule',
-        'identifier': attribute_id,
-        'inLanguage': nil,
         'byMonth': months.sort
       }
     ]

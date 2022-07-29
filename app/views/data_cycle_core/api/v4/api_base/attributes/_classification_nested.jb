@@ -9,6 +9,9 @@ new_id = [
 
 api_property_definition = api_definition(definition)
 
+json['@id'] = new_id
+json['@type'] = api_property_definition['types']
+
 new_options = options.dup
 new_options[:fields] = subtree_for(key_new, options[:fields]).map { |fields| fields[1..-1] }
 new_options[:include] = subtree_for(key_new, options[:include]).map { |includes| includes[1..-1] }
@@ -19,11 +22,11 @@ classification_aliases = load_value_object(content, key, value, options[:languag
 
 classification_json = render 'classifications', classification_aliases: classification_aliases, key: key_new, definition: {}, options: new_options
 
-json['@id'] = new_id
-json['@type'] = api_property_definition['types']
-json['dc:multilingual'] = (content.embedded? ? options.dig(:translatable_embedded) || false : content.translatable?) if options[:field_filter] == false || (included_attribute?('dc:multilingual', options[:include]) || included_attribute?('dc:multilingual', options[:fields]))
-json['dc:translation'] = content.available_locales if options[:field_filter] == false || (included_attribute?('dc:translation', options[:include]) || included_attribute?('dc:translation', options[:fields]))
-json['dc:classification'] = classification_json[key_new]
+if options[:include].map(&:first).include?(key_new) || options[:fields].map(&:first).include?(key_new)
+  json['dc:multilingual'] = (content.embedded? ? options.dig(:translatable_embedded) || false : content.translatable?) if options[:field_filter] == false || (included_attribute?('dc:multilingual', options[:include]) || included_attribute?('dc:multilingual', options[:fields]))
+  json['dc:translation'] = content.available_locales if options[:field_filter] == false || (included_attribute?('dc:translation', options[:include]) || included_attribute?('dc:translation', options[:fields]))
+  json['dc:classification'] = classification_json[key_new]
+end
 
 if classification_json[key_new].present?
   {
