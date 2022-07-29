@@ -261,13 +261,10 @@
               margin-right: 0.5rem;
 
               .tag {
-                color: $black;
-                background-color: lighten($light-gray, 5%);
                 font-style: normal;
                 padding: 0 0.3rem;
                 line-height: 1.2rem;
                 border-radius: $global-radius;
-                font-weight: normal;
               }
 
               &.e {

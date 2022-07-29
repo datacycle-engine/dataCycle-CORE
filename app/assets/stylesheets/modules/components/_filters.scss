@@ -84,8 +84,8 @@ $filter-border: #aaa;
     .permanent-advanced-filters,
     .publication-date-filter {
       .add-advanced-filter-container {
-        background-color: darken($medium-gray, 10%);
-        box-shadow: 0 0 2px $dark-gray;
+        background-color: lighten($dark-gray, 32%);
+        box-shadow: 0 0 0 2px lighten($dark-gray, 12%);
         padding: 0.5rem;
         border-radius: $global-radius;
       }
@@ -94,10 +94,10 @@ $filter-border: #aaa;
         position: relative;
         display: flex;
         margin: 1rem 0;
-        background-color: darken($medium-gray, 10%);
-        transition: background-color 1s ease;
+        background-color: lighten($dark-gray, 32%);
+        box-shadow: 0 0 0 2px lighten($dark-gray, 12%);
+        transition: background-color box-shadow 0.5s ease;
         border-radius: $global-radius;
-        box-shadow: 0 0 5px lighten($color: $black, $amount: 20%);
 
         select {
           border: 1px solid $filter-border;
@@ -132,13 +132,15 @@ $filter-border: #aaa;
         &.i,
         &.s,
         &.p {
-          box-shadow: 0 0 0 1px $success-color, 0 0 5px 3px $success-color;
+          background-color: lighten($success-color, 34%);
+          box-shadow: 0 0 0 2px $success-color;
         }
 
         &.e,
         &.u,
         &.b {
-          box-shadow: 0 0 4px 2px rgba($alert-color, 0.8);
+          background-color: lighten($alert-color, 41%);
+          box-shadow: 0 0 0 2px lighten($alert-color, 15%);
         }
 
         &.highlight {
@@ -613,7 +615,7 @@ $filter-border: #aaa;
 
           a.tag {
             transition: background-color 0.2s ease-in;
-            background-color: rgba($primary-color, 0.5);
+            background-color: lighten($primary-color, 2%);
 
             .fa {
               text-shadow: none;
@@ -657,19 +659,21 @@ $filter-border: #aaa;
 
     .tag-group {
       display: inline-flex;
-      background: lighten($light-gray, 7%);
       border-radius: $global-radius;
       padding: 2px 4px;
       margin: 0 0.5rem 0.5rem 0;
-      box-shadow: 0 0 5px lighten($color: $black, $amount: 20%);
+      background-color: lighten($dark-gray, 32%);
+      box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
 
       &.e,
       &.u,
       &.b {
-        box-shadow: 0 0 5px 2px rgba($alert-color, 0.8);
+        background-color: lighten($alert-color, 41%);
+        box-shadow: 0 0 0 1px lighten($alert-color, 15%);
 
         .tag {
           position: relative;
+
           &::after {
             content: '';
             display: block;
@@ -686,7 +690,13 @@ $filter-border: #aaa;
       &.i,
       &.s,
       &.p {
-        box-shadow: 0 0 5px 3px $success-color;
+        background-color: lighten($success-color, 34%);
+        box-shadow: 0 0 0 1px $success-color;
+      }
+
+      &.user-force-filter {
+        background-color: lighten($dark-gray, 32%);
+        box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
       }
 
       .tag-container {
@@ -1142,6 +1152,7 @@ $filter-border: #aaa;
                     &.e {
                       .tag {
                         position: relative;
+
                         &::after {
                           content: '';
                           display: block;
@@ -1156,13 +1167,10 @@ $filter-border: #aaa;
                     }
 
                     .tag {
-                      color: $black;
-                      background-color: $light-gray;
                       font-style: normal;
                       padding: 0 0.3rem;
                       line-height: 1.2rem;
                       border-radius: $global-radius;
-                      font-weight: normal;
                     }
 
                     &.search-term .tag {
@@ -1297,7 +1305,7 @@ $filter-border: #aaa;
 }
 
 .tag-group-label {
-  color: $dark-gray;
+  color: $black;
   white-space: nowrap;
 
   .fa {
