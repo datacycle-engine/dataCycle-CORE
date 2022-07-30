@@ -63,6 +63,6 @@ describe DataCycleCore::Generic::Common::RatingTransformations do
     transformed_data = subject.collect_ratings(raw_data, [['rating_value', 1, 6]], '')
 
     assert_equal(transformed_data['aggregate_rating'].size, 1)
-    assert_equal(transformed_data['aggregate_rating']['external_key'], 'EXTERNAL KEY - rating_value')
+    assert_equal(transformed_data['aggregate_rating'][0]['external_key'], 'EXTERNAL KEY - rating_value')
   end
 end
