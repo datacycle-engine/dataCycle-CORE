@@ -4,6 +4,14 @@ module DataCycleCore
   module Generic
     module Common
       module ExternalReferenceTransformations
+        def self.add_external_content_references(data, property_name, external_source_id, external_key_path)
+          add_external_references(data, :content, property_name, external_source_id, external_key_path)
+        end
+
+        def self.add_external_classification_references(data, property_name, external_source_id, external_key_path)
+          add_external_references(data, :classification, property_name, external_source_id, external_key_path)
+        end
+
         def self.add_external_references(data, reference_type, property_name, external_source_id, external_key_path)
           external_references = external_key_path.reduce(data) { |partial_data, key|
             if partial_data.is_a?(Hash)
@@ -16,14 +24,6 @@ module DataCycleCore
           }.map { |key| ExternalReference.new(reference_type, external_source_id, key) }
 
           data.merge({ property_name => external_references })
-        end
-
-        def self.add_external_content_references(data, property_name, external_source_id, external_key_path)
-          add_external_references(data, :content, property_name, external_source_id, external_key_path)
-        end
-
-        def self.add_external_classification_references(data, property_name, external_source_id, external_key_path)
-          add_external_references(data, :classification, property_name, external_source_id, external_key_path)
         end
 
         def self.resolve_external_references(data)
