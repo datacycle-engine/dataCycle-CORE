@@ -104,7 +104,7 @@ module DataCycleCore
                   ['condition_rating', 1, 6],
                   ['experience_rating', 1, 6],
                   ['landscape_rating', 1, 6]
-                ], 'import.outdoor_active.ratings.')
+                ], 'import.outdoor_active.ratings.', external_source_id)
           .>> t(:map_value, 'difficulty_rating', ->(s) { s&.to_i })
           .>> t(:universal_classifications, ->(s) { load_difficulty_rating(s.dig('difficulty_rating')) })
           .>> t(:universal_classifications, ->(s) { load_opened(s.dig('opened')) })
@@ -119,22 +119,36 @@ module DataCycleCore
                     Array(s&.dig('images', 'image')&.map { |item| item&.dig('id') })
                   ).uniq || []
                 })
-          .>> t(:load_category, 'tour_categories', external_source_id,
-                lambda { |s|
-                  s&.dig('category', 'id').present? ? "CATEGORY:#{s&.dig('category', 'id')}" : nil
-                })
-          .>> t(:universal_classifications, ->(s) { Array(s['tour_categories']) })
-          # .>> t(:load_category, 'frontend_type', external_source_id, ->(s) { s&.dig('frontendtype').present? ? "FRONTENDTYPE:#{Digest::MD5.new.update(s.dig('frontendtype')).hexdigest}" : nil })
           .>> t(:universal_classifications, ->(s) { Array(load_frontend_type(s&.dig('frontendtype'))) })
-          .>> t(:category_key_to_ids, 'outdoor_active_tags', ->(s) { s&.dig('properties', 'property') }, nil, external_source_id, 'TAG:', 'tag')
-          .>> t(:universal_classifications, ->(s) { Array(s['outdoor_active_tags']) })
-          .>> t(:add_links, 'regions', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('regions', 'region')&.map { |item| "REGION:#{item&.dig('id')}" } || [] })
-          .>> t(:universal_classifications, ->(s) { Array(s['regions']) })
-          .>> t(:add_links, 'source', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('meta', 'source', 'id').present? ? ["SOURCE:#{s&.dig('meta', 'source', 'id')}"] : nil })
-          .>> t(:universal_classifications, ->(s) { Array(s['source']) })
+          .>> t(:add_field, 'tour_category_references',
+                lambda { |s|
+                  Array(s&.dig('category', 'id')).compact.map { |v| 'CATEGORY:' + v }
+                })
+          .>> t(:add_external_classification_references, 'tour_category_references', external_source_id, ['tour_category_references'])
+          .>> t(:universal_classifications, ->(s) { Array(s['tour_category_references']) })
+          .>> t(:reject_keys, ['tour_category_references'])
+          .>> t(:add_field, 'tag_references',
+                lambda { |s|
+                  s&.dig('properties', 'property')&.map { |p| p['tag'] }&.compact&.map { |v| 'TAG:' + v }
+                })
+          .>> t(:add_external_classification_references, 'tag_references', external_source_id, ['tag_references'])
+          .>> t(:universal_classifications, ->(s) { Array(s['tag_references']) })
+          .>> t(:add_field, 'region_references',
+                lambda { |s|
+                  s&.dig('regions', 'region')&.map { |p| p['id'] }&.compact&.map { |v| 'REGION:' + v }
+                })
+          .>> t(:add_external_classification_references, 'region_references', external_source_id, ['region_references'])
+          .>> t(:universal_classifications, ->(s) { Array(s['region_references']) })
+          .>> t(:add_field, 'source_references',
+                lambda { |s|
+                  Array(s&.dig('meta', 'source', 'id')).compact.map { |v| 'SOURCE:' + v }
+                })
+          .>> t(:add_external_classification_references, 'source_references', external_source_id, ['source_references'])
+          .>> t(:universal_classifications, ->(s) { Array(s['source_references']) })
           .>> t(:add_field, 'season_months', ->(s) { s.dig('season').select { |_, v| v }.keys.map { |m| by_month_id(m) } })
           .>> t(:universal_classifications, ->(s) { Array(s['season_months']) })
           .>> t(:reject_keys, ['season', 'season_months', 'category', 'tour_categories', 'frontendtype', 'outdoor_active_tags', 'regions', 'source'])
+          .>> t(:resolve_external_references)
           .>> t(:strip_all)
         end
 
