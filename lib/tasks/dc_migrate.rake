@@ -2,7 +2,7 @@
 
 def find_or_create_content(external_source: nil, external_key: nil, template_name: nil, data: nil)
   content = DataCycleCore::Thing.where(template_name: template_name,
-                                       external_source_id: external_source.id, external_key: external_key).first
+                                       external_source_id: external_source&.id, external_key: external_key).first
 
   unless content
     content = DataCycleCore::Thing.find_by!(template_name: template_name, template: true).dup
@@ -11,7 +11,7 @@ def find_or_create_content(external_source: nil, external_key: nil, template_nam
     content.created_at = Time.zone.now
     content.updated_at = content.created_at
     content.created_by = nil
-    content.external_source_id = external_source.id
+    content.external_source_id = external_source&.id
     content.external_key = external_key
     content.save!(touch: false)
 
@@ -347,9 +347,8 @@ namespace :dc do
       end
     end
 
-    task :outdooractive_tours, [:stored_filter] => :environment do |_, args|
-      contents = DataCycleCore::Thing.joins(:external_source)
-        .where(template_name: 'Tour', external_systems: { identifier: 'outdooractive' })
+    task :tours, [:stored_filter] => :environment do |_, args|
+      contents = DataCycleCore::Thing.where(template_name: 'Tour')
 
       contents = contents.where(id: DataCycleCore::StoredFilter.find(args[:stored_filter]).apply.select(:id)) if args[:stored_filter]
 
@@ -358,7 +357,7 @@ namespace :dc do
       contents.includes(:translations).map do |content|
         translation = content.translations.first
 
-        if translation.content['author']
+        if translation&.content&.dig('author')
           author = I18n.with_locale(translation.locale) do
             find_or_create_content(
               external_source: content.external_source,
@@ -413,7 +412,9 @@ namespace :dc do
         content.additional_information.select { |c| c.name == I18n.t('import.outdoor_active.tour.description') }.each(&:destroy!)
 
         DataCycleCore::ContentContent.where(content_a: content.id, relation_a: 'aggregate_rating').map(&:content_b).each do |rating|
-          rating_key = rating.external_key.split(' - ')[1]
+          rating_key = [
+            'technique_rating', 'condition_rating', 'experience_rating', 'landscape_rating', 'difficulty_rating'
+          ].find { |k| rating.name == I18n.t('import.outdoor_active.ratings.' + k, default: k) }
 
           next unless rating_key
 
