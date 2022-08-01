@@ -119,6 +119,7 @@ module DataCycleCore
           .>> t(:add_links, 'regions', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('regions', 'region')&.map { |item| "REGION:#{item&.dig('id')}" } || [] })
           .>> t(:add_links, 'source', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('meta', 'source', 'id').present? ? ["SOURCE:#{s&.dig('meta', 'source', 'id')}"] : nil })
           .>> t(:reject_keys, ['season'])
+          .>> t(:resolve_external_references)
           .>> t(:strip_all)
         end
 
