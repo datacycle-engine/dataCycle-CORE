@@ -82,14 +82,15 @@ module DataCycleCore
       self
     end
 
-    def user_filters_from_hash(user, scope)
+    def user_filters_from_hash(user, filter_options)
       user_filters = []
 
       Array.wrap(DataCycleCore.user_filters).each do |f|
-        next if Array.wrap(f['scope']).exclude?(scope)
+        next if Array.wrap(f['scope']).exclude?(filter_options[:scope])
         next if Array.wrap(f['segments']).none? { |s| s['name'].safe_constantize.new(*Array.wrap(s['parameters'])).include?(user) }
+        next if filter_options[:scope] == 'object_browser' && f['object_browser_restriction'].to_h.none? { |k, v| filter_options[:content_template] == k && filter_options[:attribute_key]&.in?(Array.wrap(v)) }
 
-        user_filters.concat(Array.wrap(f['stored_filter']).map { |s| param_from_definition(s, f['force'] ? 'uf' : 'u') })
+        user_filters.concat(Array.wrap(f['stored_filter']).map { |s| param_from_definition(s, f['force'] ? 'uf' : 'u', user) })
       end
 
       user_filters
@@ -106,7 +107,7 @@ module DataCycleCore
       filter_options.merge!(options) { |_k, v1, v2| v2.presence || v1 } if options.present?
 
       self.parameters ||= []
-      applicable_filters = user_filters_from_hash(user, filter_options[:scope])
+      applicable_filters = user_filters_from_hash(user, filter_options)
       parameters.each { |f| f['c'] = 'a' if f['c'].in?(['u', 'uf']) && applicable_filters.none? { |af| filter_equal?(af, f) } }
 
       self.parameters = user.default_filter(parameters, filter_options) # keep for backwards compatibility
@@ -183,18 +184,18 @@ module DataCycleCore
 
     private
 
-    def param_from_definition(definition, type = 'a')
+    def param_from_definition(definition, type = 'a', user = nil)
       definition.to_h.deep_stringify_keys.each_with_object({}) do |(k, v), hash|
         hash['t'], hash['m'] = filter_method_from_prefix(k)
         hash['v'] = v
         hash['c'] = type
         hash['n'] = hash['t'].capitalize
 
-        custom_param_transformation(hash)
+        custom_param_transformation(hash, user)
       end
     end
 
-    def custom_param_transformation(hash)
+    def custom_param_transformation(hash, user)
       case hash['t']
       when 'with_classification_aliases_and_treename'
         raise StandardError, 'Missing data definition: treeLabel' if hash.dig('v', 'treeLabel').blank?
@@ -209,6 +210,8 @@ module DataCycleCore
         hash['t'] = 'external_system'
         hash['n'] = hash['t'].capitalize
         hash['q'] = 'import'
+      when 'creator'
+        hash['v'] = Array.wrap(user&.id) if hash['v'] == 'current_user'
       end
     end
 

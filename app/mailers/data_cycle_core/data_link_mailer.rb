@@ -21,6 +21,12 @@ module DataCycleCore
       mail(to: @receiver.email, cc: @user.email, from: t('data_link_mailer.from', from: self.class.default[:from], locale: @locale, default: self.class.default[:from]), subject: t('data_link_mailer.send_subject', locale: @locale))
     end
 
+    def mail_external_link(data_link, url, instructions_url = nil)
+      @instructions_url = instructions_url
+
+      mail_link(data_link, url)
+    end
+
     def updated_items(data_link)
       return unless data_link.item.is_a?(DataCycleCore::WatchList)
 

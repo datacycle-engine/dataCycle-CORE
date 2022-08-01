@@ -525,7 +525,7 @@ module DataCycleCore
     end
 
     def attribute_default_value
-      authorize! :index, DataCycleCore::Thing
+      authorize! :show, DataCycleCore::Thing
 
       template = DataCycleCore::Thing.find_by!(template: true, template_name: default_value_params[:template_name])
 
