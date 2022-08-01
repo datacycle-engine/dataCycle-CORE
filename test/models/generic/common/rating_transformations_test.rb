@@ -72,7 +72,6 @@ describe DataCycleCore::Generic::Common::RatingTransformations do
       'rating_value' => 3
     }
 
-    transformed_data = subject.collect_ratings(raw_data, [['rating_value', 1, 6]], '')
     transformed_data = subject.collect_ratings(raw_data, [['rating_value', 1, 6]], '', '123454321')
 
     assert_equal(transformed_data['aggregate_rating'].size, 1)
