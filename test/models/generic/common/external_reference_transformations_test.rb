@@ -61,7 +61,7 @@ describe DataCycleCore::Generic::Common::ExternalReferenceTransformations do
     }
 
     transformed_data = subject.add_external_content_references(raw_data, 'content', 'EXTERNAL SOURCE ID',
-                                                       ['contents_1', 'contents_2', 'contents_3', 'id'])
+                                                               ['contents_1', 'contents_2', 'contents_3', 'id'])
 
     assert_equal(2, transformed_data['content'].size)
 
@@ -140,9 +140,9 @@ describe DataCycleCore::Generic::Common::ExternalReferenceTransformations do
     }
 
     transformed_data = subject.add_external_content_references(raw_data, 'content', 'EXTERNAL SOURCE ID',
-                                                       ['contents_1', 'contents_2', 'contents_3', 'id'])
+                                                               ['contents_1', 'contents_2', 'contents_3', 'id'])
     transformed_data = subject.add_external_content_references(transformed_data, 'additional_content', 'EXTERNAL SOURCE ID',
-                                                       ['additional_content', 'id'])
+                                                               ['additional_content', 'id'])
 
     load_things_stub = lambda do |_external_source_id, _external_keys|
       {
@@ -182,9 +182,9 @@ describe DataCycleCore::Generic::Common::ExternalReferenceTransformations do
     }
 
     transformed_data = subject.add_external_classification_references(raw_data, 'classification', 'EXTERNAL SOURCE ID',
-      ['classification_1', 'classification_2', 'classification_3', 'id'])
+                                                                      ['classification_1', 'classification_2', 'classification_3', 'id'])
     transformed_data = subject.add_external_classification_references(transformed_data, 'additional_classification', 'EXTERNAL SOURCE ID',
-      ['additional_classification', 'id'])
+                                                                      ['additional_classification', 'id'])
 
     load_classifications_stub = lambda do |_external_source_id, _external_keys|
       {

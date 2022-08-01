@@ -88,8 +88,9 @@ module DataCycleCore
                                 .pluck(:external_key, :id).to_h
         end
 
-        def self.load_classifications(_external_source_id, _external_keys)
-          {}
+        def self.load_classifications(external_source_id, external_keys)
+          DataCycleCore::Classification.where(external_source_id: external_source_id, external_key: external_keys)
+                                       .pluck(:external_key, :id).to_h
         end
       end
     end

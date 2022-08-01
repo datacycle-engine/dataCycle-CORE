@@ -63,10 +63,10 @@ module DataCycleCore
           .>> t(:unwrap, 'time', ['min'])
           .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'qualityOfExperience', 'landscape', 'technique'])
           .>> t(:reject_keys, ['rating'])
-          .>> t(:add_links, 'author', DataCycleCore::Thing, external_source_id,
-                ->(s) { to_author.call(s)['external_key'] })
-          .>> t(:add_links, 'sd_publisher', DataCycleCore::Thing, external_source_id,
-                ->(s) { to_publisher.call(s)['external_key'] })
+          .>> t(:add_field, 'author', ->(s) { to_author.call(s)['external_key'] })
+          .>> t(:add_external_content_references, 'author', external_source_id, ['author'])
+          .>> t(:add_field, 'sd_publisher', ->(s) { to_publisher.call(s)['external_key'] })
+          .>> t(:add_external_content_references, 'sd_publisher', external_source_id, ['sd_publisher'])
           .>> t(
             :rename_keys,
             {
@@ -98,27 +98,32 @@ module DataCycleCore
           .>> t(:map_value, 'experience_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'landscape_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'technique_rating', ->(s) { s&.to_i })
+          .>> t(:map_value, 'difficulty_rating', ->(s) { s&.to_i })
           .>> t(:collect_ratings,
                 [
                   ['technique_rating', 1, 6],
                   ['condition_rating', 1, 6],
                   ['experience_rating', 1, 6],
-                  ['landscape_rating', 1, 6]
+                  ['landscape_rating', 1, 6],
+                  ['difficulty_rating', 1, 3]
                 ], 'import.outdoor_active.ratings.', external_source_id)
-          .>> t(:map_value, 'difficulty_rating', ->(s) { s&.to_i })
           .>> t(:universal_classifications, ->(s) { load_difficulty_rating(s.dig('difficulty_rating')) })
           .>> t(:universal_classifications, ->(s) { load_opened(s.dig('opened')) })
           .>> t(:universal_classifications, ->(s) { load_winter_activity(s.dig('winterActivity')) })
-          .>> t(:add_links, 'waypoint', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('pois', 'poi')&.map { |item| item&.dig('id') } || [] })
-          .>> t(:add_links, 'contains_place', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('stageTours')&.map { |item| item&.dig('id') } || [] })
-          .>> t(:add_links, 'contained_in_place', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s.dig('stageTour')).compact })
-          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id,
+          .>> t(:add_field, 'waypoint', ->(s) { Array(s&.dig('pois', 'poi')&.map { |item| item&.dig('id') }) })
+          .>> t(:add_external_content_references, 'waypoint', external_source_id, ['waypoint'])
+          .>> t(:add_field, 'contains_place', ->(s) { Array(s&.dig('stageTours')&.map { |item| item&.dig('id') }) })
+          .>> t(:add_external_content_references, 'contains_place', external_source_id, ['contains_place'])
+          .>> t(:add_field, 'contained_in_place', ->(s) { Array(s.dig('stageTour')).compact })
+          .>> t(:add_external_content_references, 'contained_in_place', external_source_id, ['contained_in_place'])
+          .>> t(:add_field, 'image',
                 lambda { |s|
                   (
                     Array(s&.dig('primaryImage', 'id')) +
                     Array(s&.dig('images', 'image')&.map { |item| item&.dig('id') })
                   ).uniq || []
                 })
+          .>> t(:add_external_content_references, 'image', external_source_id, ['image'])
           .>> t(:universal_classifications, ->(s) { Array(load_frontend_type(s&.dig('frontendtype'))) })
           .>> t(:add_field, 'tour_category_references',
                 lambda { |s|
@@ -190,18 +195,20 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:add_field, 'content_url', ->(s) { "http://img.oastatic.com/img/#{s['id']}/.jpg" })
           .>> t(:add_field, 'thumbnail_url', ->(s) { "http://img.oastatic.com/img/400/400/fit/#{s['id']}/.jpg" })
-          .>> t(:add_links, 'copyright_holder', DataCycleCore::Thing, external_source_id,
-                ->(s) { to_publisher.call(s)['external_key'] },
-                ->(s) { to_publisher.call(s)['external_key'] })
-          .>> t(:universal_classifications, ->(s) { s.dig('license', 'short').blank? ? [] : DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('OutdoorActive - Lizenzen', s.dig('license', 'short')) })
+          .>> t(:add_field, 'copyright_holder', ->(s) { to_publisher.call(s)['external_key'] })
+          .>> t(:add_external_content_references, 'copyright_holder', external_source_id, ['copyright_holder'])
+          .>> t(:add_field, 'author', ->(s) { to_author.call(s)['external_key'] })
+          .>> t(:add_external_content_references, 'author', external_source_id, ['author'])
+          .>> t(:universal_classifications,
+                lambda { |s|
+                  classification_id_by_tree_and_name(tree_name: 'OutdoorActive - Lizenzen', classification_name: s.dig('license', 'short')) || []
+                })
           .>> t(:add_field, 'caption', ->(s) { [s.dig('author'), s.dig('source').is_a?(::Hash) ? s.dig('source', 'name') : s.dig('source')]&.reject(&:blank?)&.join(' - ') })
           .>> t(:add_field, 'copyright_notice_override', ->(s) { s.dig('license', 'url').presence })
           .>> t(:rename_keys, { 'id' => 'external_key', 'title' => 'name' })
           .>> t(:map_value, 'name', ->(v) { v || '__NO_NAME__' })
-          .>> t(:add_links, 'author', DataCycleCore::Thing, external_source_id,
-                ->(s) { to_author.call(s)['external_key'] },
-                ->(s) { to_author.call(s)['external_key'] })
           .>> t(:reject_keys, ['meta', 'primary', 'gallery', 'license'])
+          .>> t(:resolve_external_references)
           .>> t(:strip_all)
         end
 
