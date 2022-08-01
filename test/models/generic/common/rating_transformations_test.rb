@@ -54,15 +54,30 @@ describe DataCycleCore::Generic::Common::RatingTransformations do
     assert_equal(transformed_data['aggregate_rating'].size, 1)
   end
 
-  it 'should set external key' do
+  it 'should set minimum and maximum values' do
+    raw_data = {
+      'rating_value' => 4
+    }
+
+    transformed_data = subject.collect_ratings(raw_data, [['rating_value', 1, 6]], '')
+
+    assert_equal(transformed_data['aggregate_rating'].size, 1)
+    assert_equal(transformed_data['aggregate_rating'][0]['worst_rating'], 1)
+    assert_equal(transformed_data['aggregate_rating'][0]['best_rating'], 6)
+  end
+
+  it 'should set external key and create external reference' do
     raw_data = {
       'external_key' => 'EXTERNAL KEY',
       'rating_value' => 3
     }
 
     transformed_data = subject.collect_ratings(raw_data, [['rating_value', 1, 6]], '')
+    transformed_data = subject.collect_ratings(raw_data, [['rating_value', 1, 6]], '', '123454321')
 
     assert_equal(transformed_data['aggregate_rating'].size, 1)
     assert_equal(transformed_data['aggregate_rating'][0]['external_key'], 'EXTERNAL KEY - rating_value')
+    assert_equal(transformed_data['aggregate_rating'][0]['id'].external_source_id, '123454321')
+    assert_equal(transformed_data['aggregate_rating'][0]['id'].external_key, 'EXTERNAL KEY - rating_value')
   end
 end
