@@ -104,7 +104,7 @@ module DataCycleCore
                   ['condition_rating', 1, 6],
                   ['experience_rating', 1, 6],
                   ['landscape_rating', 1, 6]
-                ], 'import.outdoor_active.ratings.')
+                ], 'import.outdoor_active.ratings.', external_source_id)
           .>> t(:universal_classifications, ->(s) { Array.wrap(load_difficulty_rating(s.dig('difficulty_rating'))) })
           .>> t(:universal_classifications, ->(s) { load_opened(s.dig('opened')) })
           .>> t(:universal_classifications, ->(s) { load_winter_activity(s.dig('winterActivity')) })
