@@ -576,6 +576,8 @@ de:
     update_subject: Geteilte Inhaltssammlung wurde aktualisiert
     notice: Hinweis
     from: '%{from}'
+    external_link_text_html: 'Sie haben einen neuen Inhalt mit dem Titel "%{title}" angelegt.<br><br>Über den folgenden Link können Sie noch fehlende Details ergänzen.'
+    external_link_instructions: Anleitung zum Erfassen von Inhalten
 
   filter:
     add: Filter hinzufügen

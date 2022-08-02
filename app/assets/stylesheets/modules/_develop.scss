@@ -1153,7 +1153,7 @@ video {
     }
 
     &::after {
-      content: '\f060';
+      content: '\f061';
       font-family: FontAwesome;
       font-style: normal;
       font-weight: normal;
@@ -1168,7 +1168,7 @@ video {
       width: 2.1rem;
     }
 
-    &::after:last-child {
+    &:last-child::after {
       display: none;
     }
 
@@ -1179,13 +1179,20 @@ video {
       &::after {
         display: none;
       }
+    }
 
-      & ~ ::after {
-        content: '\f061';
-        display: flex;
-        left: -2.1rem;
-        right: auto;
-      }
+    &.before-active::after {
+      content: '\f060';
+      display: flex;
+      left: auto;
+      right: -2.1rem;
+    }
+
+    &.after-active::after {
+      content: '\f061';
+      display: flex;
+      left: -2.1rem;
+      right: auto;
     }
   }
 }
