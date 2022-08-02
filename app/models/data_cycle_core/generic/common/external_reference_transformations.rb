@@ -37,7 +37,7 @@ module DataCycleCore
                 }.map(&:external_key)
 
                 {
-                  external_source_id => load_data(reference_type, external_source_id, external_keys)
+                  external_source_id => load_data(reference_type, external_source_id, external_keys.compact)
                 }
               }.reduce(&:merge)
             }
@@ -84,8 +84,11 @@ module DataCycleCore
         end
 
         def self.load_things(external_source_id, external_keys)
-          DataCycleCore::Thing.where(external_source_id: external_source_id, external_key: external_keys)
-                                .pluck(:external_key, :id).to_h
+          (
+            DataCycleCore::Thing.by_external_key(external_source_id, external_keys).pluck(:external_key, :id) +
+            DataCycleCore::ExternalSystemSync.where(external_system_id: external_source_id, external_key: external_keys)
+                                             .pluck(:external_key, :syncable_id)
+          ).uniq.to_h
         end
 
         def self.load_classifications(external_source_id, external_keys)
