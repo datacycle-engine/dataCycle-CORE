@@ -1025,11 +1025,29 @@ $filter-border: #aaa;
 
             &.search-favorites-list-input {
               background: transparent;
+              position: relative;
+
+              &::before {
+                content: '\f002';
+                font-family: FontAwesome;
+                font-size: 1rem;
+                line-height: 1rem;
+                display: flex;
+                position: absolute;
+                left: 0;
+                top: 0;
+                z-index: 1;
+                height: 100%;
+                align-items: center;
+                justify-content: center;
+                width: 2.5rem;
+              }
 
               #search-favorites-fulltext-filter {
                 margin: 0;
                 font-size: 0.9rem;
                 line-height: 0.9rem;
+                padding-left: 2.5rem;
               }
             }
 
