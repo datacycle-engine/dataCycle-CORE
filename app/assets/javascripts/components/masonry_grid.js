@@ -72,7 +72,7 @@ class MasonryGrid {
     let rowSpan = Math.ceil(newHeight / this.rowHeight) + 1;
     item.style.gridRow = 'span ' + rowSpan;
   }
-  resizeAllMasonryItems(event) {
+  resizeAllMasonryItems(_event) {
     this.grid[0].querySelectorAll(':scope .grid-item').forEach(item => {
       this.resizeMasonryItem(item);
     });

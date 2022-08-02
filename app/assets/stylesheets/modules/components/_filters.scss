@@ -132,15 +132,15 @@ $filter-border: #aaa;
         &.i,
         &.s,
         &.p {
-          background-color: lighten($success-color, 34%);
-          box-shadow: 0 0 0 2px $success-color;
+          background-color: lighten($success-color, 36%);
+          box-shadow: 0 0 0 2px lighten($success-color, 3%);
         }
 
         &.e,
         &.u,
         &.b {
           background-color: lighten($alert-color, 41%);
-          box-shadow: 0 0 0 2px lighten($alert-color, 15%);
+          box-shadow: 0 0 0 2px lighten($alert-color, 20%);
         }
 
         &.highlight {
@@ -669,7 +669,7 @@ $filter-border: #aaa;
       &.u,
       &.b {
         background-color: lighten($alert-color, 41%);
-        box-shadow: 0 0 0 1px lighten($alert-color, 15%);
+        box-shadow: 0 0 0 1px lighten($alert-color, 20%);
 
         .tag {
           position: relative;
@@ -690,8 +690,8 @@ $filter-border: #aaa;
       &.i,
       &.s,
       &.p {
-        background-color: lighten($success-color, 34%);
-        box-shadow: 0 0 0 1px $success-color;
+        background-color: lighten($success-color, 36%);
+        box-shadow: 0 0 0 1px lighten($success-color, 3%);
       }
 
       &.user-force-filter {
@@ -1021,17 +1021,65 @@ $filter-border: #aaa;
 
         &.search-favorites-short {
           > ul li {
+            gap: 1rem;
+
+            &.search-favorites-list-input {
+              background: transparent;
+
+              #search-favorites-fulltext-filter {
+                margin: 0;
+                font-size: 0.9rem;
+                line-height: 0.9rem;
+              }
+            }
+
+            &.search-favorites-list-li {
+              background: transparent;
+
+              .search-favorites-list {
+                flex: auto;
+                display: flex;
+                flex-flow: column;
+                gap: 0.4rem;
+
+                &.list-loading {
+                  pointer-events: none;
+                  cursor: wait;
+
+                  &::before {
+                    content: '';
+                    display: block;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba($white, 0.8);
+                    z-index: 1;
+                    cursor: wait;
+                    pointer-events: none;
+                  }
+                }
+              }
+            }
+
             a:not(.button) {
-              padding: 1rem 1rem 1.5rem 1rem;
+              gap: 1rem;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+
+              .title {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
             }
 
             .buttons {
               display: flex;
               align-items: center;
               justify-content: flex-end;
-              position: absolute;
-              bottom: 1px;
-              right: 1px;
               z-index: 1;
 
               a {
@@ -1051,9 +1099,12 @@ $filter-border: #aaa;
           }
         }
 
-        &.search-history-short > ul li .stored-date {
-          color: $black;
-          margin-bottom: 0.2rem;
+        &.search-history-short > ul li {
+          .stored-date {
+            color: $dark-gray;
+            min-width: 10rem;
+            flex: 0;
+          }
         }
 
         > ul {
@@ -1063,8 +1114,9 @@ $filter-border: #aaa;
           align-items: stretch;
           overflow-y: auto;
           background: $light-gray;
-          padding: 0.2rem;
+          padding: 0.4rem;
           border-radius: $global-radius;
+          gap: 0.4rem;
 
           &.remote-render,
           &.remote-rendering {
@@ -1075,27 +1127,17 @@ $filter-border: #aaa;
           }
 
           li {
-            flex: 0;
-            flex-basis: calc(calc(100% / 3) - 0.4rem);
             border-radius: $global-radius;
             background: $white;
             position: relative;
-            margin: 0.2rem;
             display: flex;
-            flex-flow: column;
             overflow: hidden;
-
-            &:last-child {
-              flex-basis: 100%;
-              align-items: flex-end;
-              background: transparent;
-            }
+            width: 100%;
 
             a:not(.button) {
               color: $dark-gray;
               padding: 1rem;
               display: flex;
-              flex-flow: column;
               height: 100%;
               width: 100%;
               transition: background-color ease-in-out 0.25s, color ease-in-out 0.25s;
@@ -1110,10 +1152,6 @@ $filter-border: #aaa;
                 &.global {
                   font-weight: bold;
                 }
-              }
-
-              .stored-date {
-                padding-right: 6rem;
               }
 
               &:hover,
@@ -1140,16 +1178,36 @@ $filter-border: #aaa;
                 }
 
                 &.stored-filter-params {
-                  display: table-cell;
-                  color: $black;
                   font-size: 0.8rem;
+                  color: $dark-gray;
+                  display: flex;
+                  flex-flow: row wrap;
+                  gap: 0.5rem;
+                  flex: auto;
 
                   .tag-group {
                     color: $dark-gray;
-                    display: block;
-                    margin-right: 0.5rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    border-radius: $global-radius;
+                    padding: 2px 4px;
+                    background-color: lighten($dark-gray, 32%);
+                    box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
 
-                    &.e {
+                    .tag {
+                      font-style: normal;
+                      padding: 0 0.3rem;
+                      line-height: 1.2rem;
+                      border-radius: $global-radius;
+                    }
+
+                    &.e,
+                    &.u,
+                    &.b {
+                      background-color: lighten($alert-color, 41%);
+                      box-shadow: 0 0 0 1px lighten($alert-color, 20%);
+
                       .tag {
                         position: relative;
 
@@ -1166,15 +1224,25 @@ $filter-border: #aaa;
                       }
                     }
 
-                    .tag {
-                      font-style: normal;
-                      padding: 0 0.3rem;
-                      line-height: 1.2rem;
-                      border-radius: $global-radius;
+                    &.i,
+                    &.s,
+                    &.p {
+                      background-color: lighten($success-color, 36%);
+                      box-shadow: 0 0 0 1px lighten($success-color, 3%);
                     }
 
-                    &.search-term .tag {
-                      background-color: lighten($primary-color, 50%);
+                    &.user-force-filter {
+                      background-color: lighten($dark-gray, 32%);
+                      box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
+                    }
+
+                    &.language {
+                      background-color: lighten($primary-color, 55%);
+                      box-shadow: 0 0 0 1px lighten($primary-color, 25%);
+
+                      .tag {
+                        background-color: lighten($primary-color, 2%);
+                      }
                     }
                   }
                 }
@@ -1184,6 +1252,11 @@ $filter-border: #aaa;
             a.button {
               margin: 1rem;
             }
+          }
+
+          > li:last-child {
+            justify-content: flex-end;
+            background: transparent;
           }
         }
 

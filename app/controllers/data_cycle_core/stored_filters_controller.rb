@@ -43,8 +43,19 @@ module DataCycleCore
           @saved_count = @stored_searches.total_count
         end
         format.json do
+          partial = "data_cycle_core/stored_filters/#{index_params[:partial].presence || 'saved_searches_list'}"
+
           json = {
-            html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/stored_filters/saved_searches_list', locals: { stored_searches: @stored_searches, last_page: @last_page, page: @page })
+            html: render_to_string(
+              formats: [:html],
+              layout: false,
+              partial: partial,
+              locals: {
+                stored_searches: @stored_searches,
+                last_page: @last_page,
+                page: @page
+              }
+            )
           }
 
           if @page == 1
@@ -188,7 +199,7 @@ module DataCycleCore
     end
 
     def index_params
-      params.permit(:page, :last_day, :q, :load_all)
+      params.permit(:page, :last_day, :q, :load_all, :partial)
     end
   end
 end
