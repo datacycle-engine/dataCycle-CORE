@@ -8,15 +8,15 @@ class StoredSearchesFilter {
     this.dropdownTrigger = this.inputField.closest('.search-favorites-short');
     this.dropdownList = this.inputField.closest('ul');
     this.listContainer = this.dropdownList.querySelector('.search-favorites-list');
-    this.callback = this.filterStoredSearches.bind(this);
     this.changeObserver = new MutationObserver(this._checkForVisibility.bind(this));
+    this.currentRequest;
 
     this.setup();
   }
   setup() {
     this.inputField.addEventListener('keydown', this.preventEnterSubmit.bind(this));
     this.inputField.addEventListener('change', this.preventDefault.bind(this));
-    this.inputField.addEventListener('input', debounce(this.callback, 300));
+    this.inputField.addEventListener('input', debounce(this.filterStoredSearches.bind(this), 300));
     this.changeObserver.observe(this.dropdownTrigger, ObserverHelpers.changedClassConfig);
 
     this.focusInputField();
@@ -27,7 +27,7 @@ class StoredSearchesFilter {
 
     this.listContainer.classList.add('list-loading');
 
-    DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       url: this.url,
       data: {
         q: this.inputField.value,
@@ -35,12 +35,16 @@ class StoredSearchesFilter {
       },
       dataType: 'json',
       contentType: 'application/json'
-    })
+    });
+
+    this.currentRequest = promise;
+
+    promise
       .then(data => {
-        this.listContainer.innerHTML = data.html;
+        if (this.currentRequest == promise) this.listContainer.innerHTML = data.html;
       })
       .finally(() => {
-        this.listContainer.classList.remove('list-loading');
+        if (this.currentRequest == promise) this.listContainer.classList.remove('list-loading');
       });
   }
   _checkForVisibility(mutations) {
