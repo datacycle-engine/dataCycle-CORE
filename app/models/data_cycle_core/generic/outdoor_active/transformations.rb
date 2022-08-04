@@ -318,7 +318,7 @@ module DataCycleCore
         @classification_ids = {}
 
         def self.classification_id_by_tree_and_name(tree_name:, classification_name:)
-          unless @classification_ids[prefix_tree_name(tree_name)]
+          if @classification_ids[prefix_tree_name(tree_name)].blank? || Rails.env.test?
             @classification_ids[prefix_tree_name(tree_name)] = DataCycleCore::ClassificationAlias
               .for_tree(prefix_tree_name(tree_name))
               .includes(:primary_classification)
