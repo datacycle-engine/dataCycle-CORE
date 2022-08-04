@@ -53,8 +53,10 @@ module DataCycleCore
           .>> t(:add_field, 'name', ->(s) { "Bild Webcam #{s.dig('type') == 'is' ? 'Highlight' : 'Aktuell'}" })
           .>> t(:hashify_data, 'isi')
           .>> t(:hashify_data, 'hi')
-          .>> t(:add_field, 'content_url', ->(s) { s.dig("#{s.dig('type')}i", '36', s.dig('url_key')) || s.dig("#{s.dig('type')}i", '37', s.dig('url_key')) })
-          .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig("#{s.dig('type')}i", '44', s.dig('url_key')) })
+          .>> t(:image_url, 'content_url', ['36', '37'])
+          .>> t(:image_url, 'thumbnail_url', ['44'])
+          # .>> t(:add_field, 'content_url', ->(s) { s.dig("#{s.dig('type')}i", '36', s.dig('url_key')) || s.dig("#{s.dig('type')}i", '37', s.dig('url_key')) })
+          # .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig("#{s.dig('type')}i", '44', s.dig('url_key')) })
         end
 
         def self.to_place(external_source_id)

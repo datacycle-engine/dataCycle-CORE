@@ -179,6 +179,7 @@ module DataCycleCore
           response = Faraday.new.post do |req|
             req.url File.join([@host] + url_path)
             req.headers['Content-Type'] = 'application/json'
+            req.options.timeout = 300
             req.body = params.to_json
           end
 
