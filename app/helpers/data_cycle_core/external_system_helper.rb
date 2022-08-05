@@ -6,7 +6,7 @@ module DataCycleCore
       syncs = external_system_syncs&.joins(:external_system)&.select('external_systems.name')&.group('external_systems.name')&.size || {}
 
       unless external_source.nil?
-        syncs.merge!({ external_source.name => 1 }) { |_k, v1, v2| v1 + v2 }
+        syncs[external_source.name] = syncs[external_source.name].to_i + 1
         syncs = { "#{external_source.name} *" => syncs.delete(external_source.name) }.merge!(syncs)
       end
 
