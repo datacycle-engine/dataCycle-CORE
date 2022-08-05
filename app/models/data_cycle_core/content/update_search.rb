@@ -32,21 +32,25 @@ module DataCycleCore
           boost = schema.dig('boost') || 1.0
           schema_type = schema.dig('schema_type')
 
-          DataCycleCore::Search.where(content_data_id: id, locale: language).first_or_initialize.tap do |s|
-            s.full_text = search_data[:full_text]&.unicode_normalize(:nfkc)
-            s.created_at = created_at
-            s.updated_at = Time.zone.now
-            s.headline = search_data[:headline]
-            s.classification_string = search_data[:classification_string]
-            s.data_type = template_name
-            s.all_text = search_data[:all_text]&.unicode_normalize(:nfkc)
-            s.validity_period = validity_string
-            s.boost = boost
-            s.schema_type = schema_type
-            s.advanced_attributes = advanced_search_attributes
-            s.classification_aliases_mapping = classification_alias_mapping
-            s.classification_ancestors_mapping = classification_ancestors_mapping
-            s.save!
+          begin
+            DataCycleCore::Search.where(content_data_id: id, locale: language).first_or_initialize.tap do |s|
+              s.full_text = search_data[:full_text]&.unicode_normalize(:nfkc)
+              s.created_at = created_at
+              s.updated_at = Time.zone.now
+              s.headline = search_data[:headline]
+              s.classification_string = search_data[:classification_string]
+              s.data_type = template_name
+              s.all_text = search_data[:all_text]&.unicode_normalize(:nfkc)
+              s.validity_period = validity_string
+              s.boost = boost
+              s.schema_type = schema_type
+              s.advanced_attributes = advanced_search_attributes
+              s.classification_aliases_mapping = classification_alias_mapping
+              s.classification_ancestors_mapping = classification_ancestors_mapping
+              s.save!
+            end
+          rescue ActiveRecord::RecordNotUnique
+            retry
           end
         end
         # ap "### inside update time: #{(Time.zone.now - timestamp)}: #{id}"
@@ -67,10 +71,10 @@ module DataCycleCore
 
       def parse_search_data
         string_hash = {}
-        string_hash[:full_text] = DataCycleCore::MasterData::DataConverter.string_to_string(search_property_names.map { |item| try(item) }.join(' ').gsub(/[']/, "''"))
+        string_hash[:full_text] = DataCycleCore::MasterData::DataConverter.string_to_string(search_property_names.map { |item| try(item) }.join(' ').gsub(/'/, "''"))
         string_hash[:full_text] = '' if string_hash[:full_text].nil?
         string_hash[:headline] = try('title')
-        string_hash[:headline] = DataCycleCore::MasterData::DataConverter.string_to_string(string_hash[:headline].gsub(/[']/, "''")) unless string_hash[:headline].nil?
+        string_hash[:headline] = DataCycleCore::MasterData::DataConverter.string_to_string(string_hash[:headline].gsub(/'/, "''")) unless string_hash[:headline].nil?
         string_hash[:headline] = '' if string_hash[:headline].nil?
 
         if embedded? # only headline of main content gets full boost!
@@ -79,8 +83,8 @@ module DataCycleCore
           string_hash[:classification_string] = ''
         else
           string_hash[:classification_string] = [
-            display_classification_aliases('show').map(&:name).try(:join, ' ').try(:gsub, /[']/, "''"),
-            display_classification_aliases('show').pluck(:internal_name).try(:join, ' ').try(:gsub, /[']/, "''")
+            display_classification_aliases('show').map(&:name).try(:join, ' ').try(:gsub, /'/, "''"),
+            display_classification_aliases('show').pluck(:internal_name).try(:join, ' ').try(:gsub, /'/, "''")
           ].compact.join(' ').squish
         end
 
@@ -118,7 +122,7 @@ module DataCycleCore
         }
         classification_aliases.each do |c|
           c.ancestors.each do |a|
-            classification_mapping[:classification_ancestors] << a.id if a.class.name == 'DataCycleCore::ClassificationAlias'
+            classification_mapping[:classification_ancestors] << a.id if a.instance_of?(DataCycleCore::ClassificationAlias)
           end
         end
         classification_mapping[:classification_ancestors].uniq!
@@ -148,7 +152,7 @@ module DataCycleCore
           ids = []
           try(property)&.classification_aliases&.each do |c|
             c.ancestors.each do |a|
-              ids << a.id if a.class.name == 'DataCycleCore::ClassificationAlias'
+              ids << a.id if a.instance_of?(DataCycleCore::ClassificationAlias)
             end
 
             ids << c.id

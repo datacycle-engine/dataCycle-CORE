@@ -244,6 +244,12 @@ en:
     new: new %{data}
     filter: 'filter %{data} ...'
 
+  content_external_data:
+    primary_external_system_tooltip: This system is the primary external system
+    toolip: Use this external system as the primary external system
+    primary_system_switched: The primary external system was successfully switched
+    duplicate_record_html: There is already a <a href="%{url}" target="_blank">content</a> in the target external system
+
   common:
     'true': 'Yes'
     'false': 'No'

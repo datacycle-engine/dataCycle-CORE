@@ -51,7 +51,7 @@ class StoredSearchesFilter {
     for (const mutation of mutations) {
       if (mutation.type !== 'attributes') continue;
 
-      if (mutation.target.classList.contains('active') && mutation.oldValue && !mutation.oldValue.includes('active'))
+      if (mutation.target.classList.contains('active') && (!mutation.oldValue || mutation.oldValue.includes('active')))
         this.focusInputField();
     }
   }

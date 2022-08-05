@@ -540,7 +540,26 @@ module DataCycleCore
       end
     end
 
+    def switch_primary_external_system
+      @content = DataCycleCore::Thing.find(switch_system_params[:id])
+      authorize! :switch_primary_external_system, @content
+
+      @external_sync = @content.external_system_syncs.find(switch_system_params[:external_system_sync_id])
+
+      @content.switch_primary_external_system(@external_sync)
+
+      redirect_back(fallback_location: root_path, notice: I18n.t('content_external_data.primary_system_switched', locale: helpers.active_ui_locale)) && return
+    rescue ActiveRecord::RecordNotUnique
+      @existing = DataCycleCore::Thing.find_by(external_source_id: @external_sync.external_system_id, external_key: @external_sync.external_key)
+
+      redirect_back(fallback_location: root_path, alert: I18n.t('content_external_data.duplicate_record_html', url: @existing ? thing_path(@existing) : nil, locale: helpers.active_ui_locale)) && return
+    end
+
     private
+
+    def switch_system_params
+      params.permit(:id, :external_system_sync_id)
+    end
 
     def default_value_params
       params.permit(:template_name, :locale, keys: [], data_hash: {})

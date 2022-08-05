@@ -99,6 +99,7 @@ module DataCycleCore
               :set_life_cycle,
               :view_life_cycle,
               :move_content,
+              :switch_primary_external_system,
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::Thing)
             )
 

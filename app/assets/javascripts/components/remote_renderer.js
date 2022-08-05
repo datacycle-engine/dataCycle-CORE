@@ -130,7 +130,7 @@ class RemoteRenderer {
       }
     }
 
-    $(element).empty().removeClass('remote-render remote-rendered remote-reload').addClass('remote-rendering');
+    $(element).removeClass('remote-render remote-rendered remote-reload').addClass('remote-rendering');
 
     return this.sendRequest(element, params);
   }

@@ -109,11 +109,11 @@
               box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
               padding: 2.2rem 1rem 1rem 1rem;
               border-radius: $global-radius;
+              min-height: 4.7rem;
 
-              &::before {
-                margin-top: 2.2rem;
-                margin-left: 1rem;
-                width: calc(100% - 2rem);
+              &::before,
+              &::after {
+                margin: 2.2rem 1rem 1rem 1rem;
               }
             }
           }
@@ -131,11 +131,11 @@
               &.remote-render-failed {
                 box-shadow: none;
                 padding: 0.4rem 0 0.4rem 0.7rem;
+                min-height: 2.3rem;
 
-                &::before {
-                  margin-top: 0.4rem;
-                  margin-left: 0.7rem;
-                  width: calc(100% - 0.7rem);
+                &::before,
+                &::after {
+                  margin: 0.4rem 0 0.4rem 0.7rem;
                 }
               }
             }

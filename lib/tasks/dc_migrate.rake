@@ -429,5 +429,54 @@ namespace :dc do
         progressbar.increment
       end
     end
+
+    desc 'download external assets into dataCycle for things with external_system_id'
+    task outdoor_active_oertlichkeit_to_feratel_poi: :environment do
+      outdoor_active = DataCycleCore::ExternalSystem.find_by(identifier: 'outdooractive')
+      abort('outdooractive external system not found!') if outdoor_active.nil?
+      feratel = DataCycleCore::ExternalSystem.find_by(identifier: 'feratel')
+      abort('feratel external system not found!') if feratel.nil?
+
+      aggregation = [
+        { '$match': { 'dump.de.meta.externalSystem.name': { '$exists': true } } },
+        { '$match': { 'dump.de.meta.externalId.id': { '$exists': true } } },
+        { '$match': { 'dump.de.meta.externalSystem.name': /.*feratel.*/i } },
+        { '$match': { 'dump.de.frontendtype': 'poi' } },
+        { '$project': { 'external_id': '$dump.de.id', 'external_key': '$dump.de.meta.externalId.id' } }
+      ]
+
+      places = outdoor_active.query('places') { |i| i.collection.aggregate(aggregation).to_a }.to_h { |p| [p['external_id'], p['external_key']] }
+      contents = DataCycleCore::Thing.where(external_source_id: outdoor_active.id, template_name: 'Örtlichkeit', external_key: places.keys)
+      existing_feratel = DataCycleCore::Thing.where(external_source_id: feratel.id, external_key: places.values).pluck(:external_key, :id).to_h
+
+      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+      contents.find_each do |content|
+        feratel_thing_id = existing_feratel[places[content.external_key]]
+
+        next progressbar.increment if feratel_thing_id.nil?
+
+        begin
+          content.content_content_b.update_all(content_b_id: feratel_thing_id)
+        rescue ActiveRecord::RecordNotUnique
+          nil
+        end
+
+        begin
+          DataCycleCore::ExternalSystemSync.find_or_create_by(syncable_id: feratel_thing_id, syncable_type: 'DataCycleCore::Thing', sync_type: 'duplicate', external_system_id: outdoor_active.id, external_key: content.external_key) do |sync|
+            sync.status = 'success'
+            sync.data = { 'external_key' => content.external_key }
+            sync.last_sync_at = content.updated_at
+            sync.last_successful_sync_at = content.updated_at
+          end
+        rescue ActiveRecord::RecordNotUnique
+          nil
+        end
+
+        content.destroy_content
+
+        progressbar.increment
+      end
+    end
   end
 end

@@ -670,6 +670,11 @@ ul.footer-links {
     display: inline-block;
     line-height: 1.5;
   }
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+  }
 }
 
 .pixelpoint-sso-login {

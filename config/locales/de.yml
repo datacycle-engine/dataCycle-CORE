@@ -248,6 +248,12 @@ de:
     new: Neue %{data}
     filter: '%{data} filtern ...'
 
+  content_external_data:
+    primary_external_system_tooltip: Dieses System ist das primäre externe System
+    tooltip: Dieses externe System als primäres externes System verwenden
+    primary_system_switched: Das primäre externe System wurde erfolgreich getauscht
+    duplicate_record_html: Es existiert bereits ein <a href="%{url}" target="_blank">Inhalt</a> im externen Zielsystem
+
   common:
     'true': Ja
     'false': Nein
