@@ -186,6 +186,23 @@
           :transformation:
             :method: combine
             :name: additionalProperty
+      :difficulty_rating:
+        :label: Bewertung - Schwierigkeit
+        :type: number
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            -
+              :attribute: aggregate_rating
+              :name: import.outdoor_active.ratings.difficulty_rating
+            -
+              :attribute: rating_value
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :condition_rating:
         :label: Bewertung - Kondition
         :type: number
