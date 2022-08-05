@@ -90,11 +90,11 @@ module DataCycleCore
         transaction(joinable: false, requires_new: true) do
           add_external_system_data(external_source, { external_key: external_key }, 'success', 'duplicate', external_key) if external_source_id.present? && external_key.present?
 
-          return if external_system_sync.external_key.blank? || external_system_sync.external_system_id.blank?
+          if external_system_sync.external_key.present? && external_system_sync.external_system_id.present?
+            update_columns(external_source_id: external_system_sync.external_system_id, external_key: external_system_sync.external_key)
 
-          update_columns(external_source_id: external_system_sync.external_system_id, external_key: external_system_sync.external_key)
-
-          external_system_sync.destroy
+            external_system_sync.destroy
+          end
         end
       end
     end

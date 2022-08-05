@@ -259,7 +259,7 @@ module DataCycleCore
       format(default_options.dig('external_detail_url'), locale: I18n.locale, external_key: content.external_key)
     end
 
-    def self.find_by_keys_in_hash(data)
+    def self.find_from_hash(data)
       return find_by(identifier: data['identifier']) if data['identifier'].present?
 
       find_by(identifier: data['name']) || find_by(name: data['name'])

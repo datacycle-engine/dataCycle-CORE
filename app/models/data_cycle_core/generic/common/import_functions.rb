@@ -54,7 +54,7 @@ module DataCycleCore
               }]
               all_imported_external_system_data.each do |es|
                 next if present_external_systems.detect { |i| i['external_identifier'] == (es['identifier'] || es['name']) && i['external_key'] == es['external_key'] }.present?
-                external_system = DataCycleCore::ExternalSystem.find_by_keys_in_hash(es)
+                external_system = DataCycleCore::ExternalSystem.find_from_hash(es)
                 external_system = DataCycleCore::ExternalSystem.create!(name: es['name'] || es['identifier'], identifier: es['identifier'] || es['name']) if external_system.blank? && !utility_object.external_source.default_options&.[]('reject_unknown_external_systems')
 
                 next if external_system.nil?
@@ -156,7 +156,7 @@ module DataCycleCore
           end
 
           data.dig('external_system_data')&.each do |es|
-            external_system = DataCycleCore::ExternalSystem.find_by_keys_in_hash(es)
+            external_system = DataCycleCore::ExternalSystem.find_from_hash(es)
             external_system = DataCycleCore::ExternalSystem.create!(name: es['name'] || es['identifier'], identifier: es['identifier'] || es['name']) if external_system.blank? && !utility_object.external_source.default_options&.[]('reject_unknown_external_systems')
 
             next if external_system.nil?
