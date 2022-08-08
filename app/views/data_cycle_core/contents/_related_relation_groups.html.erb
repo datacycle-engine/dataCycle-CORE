@@ -1,4 +1,4 @@
-<% grouped_objects = related_objects.presence&.includes(:content_content_a).group_by(&:template_name) %>
+<% grouped_objects = related_objects.presence&.includes(:content_content_a)&.group_by(&:template_name) %>
 <% grouped_objects&.each do |group| %>
 
   <%
