@@ -6,7 +6,7 @@
       :tour:
         :label: Touren
         :type: linked
-        :inverse_of: poi
+        :inverse_of: waypoint
         :link_direction: inverse
         :template_name: Tour
         :api:
