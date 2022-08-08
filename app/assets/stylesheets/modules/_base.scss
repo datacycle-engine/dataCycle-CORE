@@ -227,6 +227,10 @@ footer {
   vertical-align: middle;
 }
 
+.primary-external-system {
+  margin: 0 0.3rem 0 0.15rem;
+}
+
 .tooltip,
 #dc-tooltip {
   .external-system-icon:not(.success, .pending, .error, .failure) {
@@ -961,11 +965,11 @@ footer {
           box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
           padding: 2.5rem 1rem 1.2rem 1rem;
           border-radius: $global-radius;
+          min-height: 5rem;
 
-          &::before {
-            margin-top: 2.5rem;
-            margin-left: 1rem;
-            width: calc(100% - 2rem);
+          &::before,
+          &::after {
+            margin: 2.5rem 1rem 1.2rem 1rem;
           }
         }
       }
@@ -1370,13 +1374,13 @@ body .v-select {
   .selected-tag,
   .select2-selection__choice {
     display: inline-block;
-    background-color: rgba($primary-color, 0.5);
+    background-color: lighten($dark-gray, 6%);
     font-size: 0.8rem;
     color: $white;
     padding: 0 0.3rem;
     margin: 0.1rem 0;
     line-height: 1.2rem;
-    border-radius: $object-border-radius;
+    border-radius: $global-radius;
     font-weight: 600;
     word-break: break-word;
     white-space: normal;

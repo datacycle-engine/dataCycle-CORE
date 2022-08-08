@@ -49,6 +49,7 @@ module DataCycleCore
           .>> t(:load_category, 'poi_categories', external_source_id, ->(s) { s&.dig('category', 'id').present? ? "CATEGORY:#{s&.dig('category', 'id')}" : nil })
           .>> t(:load_category, 'frontend_type', external_source_id, ->(s) { s&.dig('frontendtype').present? ? "FRONTENDTYPE:#{Digest::MD5.new.update(s.dig('frontendtype')).hexdigest}" : nil })
           .>> t(:category_key_to_ids, 'outdoor_active_tags', ->(s) { s&.dig('properties', 'property') }, nil, external_source_id, 'TAG:', 'tag')
+          .>> t(:add_external_system_data, ['meta', 'externalSystem', 'name'], ['meta', 'externalId', 'id'])
           .>> t(:reject_keys, ['category', 'primaryImage', 'images', 'regions', 'meta'])
           .>> t(:strip_all)
         end
@@ -173,6 +174,12 @@ module DataCycleCore
           return [] unless winter == true
 
           Array(classification_id_by_tree_and_name(tree_name: 'Status', classification_name: 'Winteraktivität'))
+        end
+
+        def self.external_system_identifier_transformation(external_system_name)
+          return 'feratel' if external_system_name.include?('feratel')
+
+          external_system_name
         end
 
         def self.load_difficulty_rating(rating)

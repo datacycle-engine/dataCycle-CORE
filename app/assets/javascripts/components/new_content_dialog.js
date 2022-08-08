@@ -72,7 +72,10 @@ class NewContentDialog {
     for (const mutation of mutations) {
       if (mutation.type !== 'attributes') continue;
 
-      if (mutation.target.classList.contains('remote-rendered') && mutation.oldValue.includes('remote-rendering'))
+      if (
+        mutation.target.classList.contains('remote-rendered') &&
+        (!mutation.oldValue || mutation.oldValue.includes('remote-rendering'))
+      )
         this.triggerSyncWithContentUploader();
     }
   }

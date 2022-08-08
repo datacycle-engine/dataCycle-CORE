@@ -14,7 +14,7 @@ module DataCycleCore
 
         def allowed?(content = nil)
           false if content.blank?
-          enabled? && content.respond_to?(:additional_information)
+          enabled? && content.respond_to?(:additional_information) && content.respond_to?(:subject_of)
         end
       end
     end

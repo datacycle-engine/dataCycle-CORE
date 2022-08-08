@@ -3,10 +3,14 @@
 module DataCycleCore
   module ExternalSystemHelper
     def external_systems_tooltip(external_source, external_system_syncs)
-      external_connections = external_system_syncs&.joins(:external_system)&.select('external_systems.name')&.group('external_systems.name')&.size || {}
-      external_connections[external_source.name] = (external_connections[external_source.name] || 0) + 1 unless external_source.nil?
+      syncs = external_system_syncs&.joins(:external_system)&.select('external_systems.name')&.group('external_systems.name')&.size || {}
 
-      external_connections.map { |k, v| v > 1 ? "#{k} (#{v})" : k }.compact.uniq.join('<br>')
+      unless external_source.nil?
+        syncs[external_source.name] = syncs[external_source.name].to_i + 1
+        syncs = { "#{external_source.name} *" => syncs.delete(external_source.name) }.merge!(syncs)
+      end
+
+      syncs.map { |k, v| v > 1 ? "#{k} (#{v})" : k }.join('<br>')
     end
 
     def external_systems_with_details(content)
@@ -14,6 +18,7 @@ module DataCycleCore
 
       unless content.external_source.nil?
         syncs[content.external_source.name] = [{
+          primary: true,
           status: 'success',
           sync_type: 'import',
           date: [content.updated_at, content.external_source.last_successful_import].compact.min,
@@ -26,6 +31,7 @@ module DataCycleCore
 
       content.external_system_syncs.includes(:external_system).each do |sync|
         (syncs[sync.external_system.name] ||= []).push({
+          id: sync.id,
           status: sync.status,
           sync_type: sync.sync_type,
           date: sync.last_successful_sync_at,

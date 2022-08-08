@@ -92,6 +92,7 @@ DataCycleCore::Engine.routes.draw do
       get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'
       post :attribute_value, on: :member
       post :attribute_default_value, on: :collection, defaults: { format: 'application/json' }
+      post :switch_primary_external_system, on: :member
       post '/', on: :member, action: :show
     end
   end

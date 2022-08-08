@@ -43,7 +43,8 @@ module DataCycleCore
             template: DataCycleCore::Generic::Common::ImportFunctions.load_template(template),
             data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
               config,
-              event_data
+              event_data,
+              utility_object
             ).with_indifferent_access
           )
         end
@@ -55,12 +56,11 @@ module DataCycleCore
           end
         end
 
-        def self.transform_sub_event(_utility_object, raw_data, config)
+        def self.transform_sub_event(utility_object, raw_data, config)
           DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
             config,
-            DataCycleCore::Generic::EventDatabase::Transformations
-            .event_database_sub_item_to_sub_event
-            .call(raw_data)
+            DataCycleCore::Generic::EventDatabase::Transformations.event_database_sub_item_to_sub_event.call(raw_data),
+            utility_object
           ).with_indifferent_access
         end
       end

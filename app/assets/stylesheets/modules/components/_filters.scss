@@ -96,7 +96,7 @@ $filter-border: #aaa;
         margin: 1rem 0;
         background-color: lighten($dark-gray, 32%);
         box-shadow: 0 0 0 2px lighten($dark-gray, 12%);
-        transition: background-color box-shadow 0.5s ease;
+        transition: all 0.5s ease;
         border-radius: $global-radius;
 
         select {
@@ -121,6 +121,7 @@ $filter-border: #aaa;
 
         .separator {
           padding: 0 1rem;
+
           &:last-child {
             padding-right: 0;
           }
@@ -145,6 +146,7 @@ $filter-border: #aaa;
 
         &.highlight {
           background-color: $white;
+          box-shadow: 0 0 0 2px darken($white, 15%);
         }
 
         > div {
@@ -1061,20 +1063,11 @@ $filter-border: #aaa;
                 gap: 0.4rem;
 
                 &.list-loading {
-                  pointer-events: none;
                   cursor: wait;
 
-                  &::before {
-                    content: '';
-                    display: block;
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba($white, 0.8);
-                    z-index: 1;
-                    cursor: wait;
+                  > * {
+                    transition: opacity 0.1s ease;
+                    opacity: 0.1;
                     pointer-events: none;
                   }
                 }
@@ -1501,6 +1494,10 @@ $filter-border: #aaa;
 
     &.loading {
       justify-content: flex-start;
+      position: relative;
+      overflow: hidden;
+      min-height: 2.7rem;
+      cursor: wait;
 
       &::before,
       &::after {
@@ -1508,27 +1505,31 @@ $filter-border: #aaa;
         width: 100%;
         display: flex;
         top: 0;
+        left: 0;
+        right: 0;
         border-radius: $global-radius;
+        z-index: 1;
+        position: absolute;
+        width: auto;
+        margin: 0.6rem;
       }
 
       &::before {
-        position: absolute;
         height: 1.5rem;
-        left: 0;
-        background-color: lighten($light-gray, 4%);
+        background-color: rgba($light-gray, 0.9);
         box-shadow: 0 0 0 1px $light-gray inset;
-        margin-top: 0.6rem;
-        margin-left: 0.6rem;
-        width: calc(100% - 1.2rem);
       }
 
       &::after {
-        position: relative;
-        width: calc(100% - 1.2rem);
         height: 1rem;
-        margin: 0.25rem 0;
-        background-color: darken($light-gray, 10%);
+        top: 0.25rem;
+        background-color: rgba($dark-gray, 0.5);
         animation: progress-bar 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      }
+
+      > * {
+        opacity: 0.1;
+        pointer-events: none;
       }
     }
 
