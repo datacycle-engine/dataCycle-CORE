@@ -6,6 +6,6 @@ $('<%= j render_advanced_filter_partial({
           filter_type: @params[:t],
           filter_buttons: true,
           value: nil,
-          identifier: @identifier }) %>').hide().insertBefore('.filters .advanced-filters > .accordion-item > .accordion-content > .add-advanced-filter-container').slideDown('fast').trigger('dc:html:changed').trigger('dc:html:initialized');
+          identifier: @identifier }) %>').hide().insertBefore('.filters .advanced-filters > .accordion-item > .accordion-content > .add-advanced-filter-container').slideDown('fast');
 
 $('.filters #add_advanced_filter').data('index', $('.filters #add_advanced_filter').data('index') + 1);

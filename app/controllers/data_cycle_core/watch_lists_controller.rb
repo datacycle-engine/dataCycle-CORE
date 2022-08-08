@@ -33,8 +33,13 @@ module DataCycleCore
 
       respond_to do |format|
         format.html
-        format.json { redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", id: @watch_list) }
-        format.js { render 'data_cycle_core/application/more_results' }
+        format.json do
+          if @count_only || @mode
+            render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/application/count_or_more_results').squish }
+          else
+            redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", id: @watch_list)
+          end
+        end
       end
     end
 
@@ -96,8 +101,10 @@ module DataCycleCore
       @content_object = DataCycleCore::Thing.find(params[:hashable_id])
       @content_object.watch_lists.destroy(@watch_list) unless @content_object.nil? || @watch_list.nil?
 
+      @watch_list.notify_subscribers(current_user, [@content_object.id], 'remove')
+
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :removedFrom, scope: [:controllers, :success], data: @watch_list.name, locale: helpers.active_ui_locale)) }
+        format.html { redirect_back(fallback_location: root_path, notice: I18n.t('controllers.success.removed_from', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)) }
         format.js
       end
     end
@@ -108,8 +115,10 @@ module DataCycleCore
       @content_object = DataCycleCore::Thing.find(params[:hashable_id])
       @content_object.watch_lists << @watch_list unless @content_object.nil? || @watch_list.nil? || @watch_list.id.in?(@content_object.watch_list_ids)
 
+      @watch_list.notify_subscribers(current_user, [@content_object.id], 'add')
+
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :added_to, scope: [:controllers, :success], data: @watch_list.name, locale: helpers.active_ui_locale)) }
+        format.html { redirect_back(fallback_location: root_path, notice: I18n.t('controllers.success.added_to', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)) }
         format.js
       end
     end
@@ -123,16 +132,12 @@ module DataCycleCore
       content = DataCycleCore::Thing.find(params[:content_id])
       related_objects = content&.related_contents&.joins(:content_content_a)&.where(template: false, template_name: params[:template_name], content_contents: { content_b_id: params[:content_id], relation_a: params[:relation_a] })
 
-      content_query = related_objects.select("'#{@watch_list.id}', things.id, 'DataCycleCore::Thing', NOW(), NOW()")
+      inserted_ids = @watch_list.add_things_from_query(related_objects)
 
-      ActiveRecord::Base.connection.execute <<-SQL.squish
-        INSERT INTO watch_list_data_hashes (watch_list_id, hashable_id, hashable_type, created_at, updated_at)
-        #{content_query.to_sql}
-        ON CONFLICT DO NOTHING
-      SQL
+      @watch_list.notify_subscribers(current_user, inserted_ids, 'add')
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :added_to, scope: [:controllers, :success], data: @watch_list.name, locale: helpers.active_ui_locale)) }
+        format.html { redirect_back(fallback_location: root_path, notice: I18n.t('controllers.success.added_to', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale)) }
         format.js
       end
     end
@@ -203,8 +208,7 @@ module DataCycleCore
           if specific_datahash[:translations].present? || specific_datahash[:datahash].present?
             valid = content.set_data_hash_with_translations(
               data_hash: transform_exisiting_values(bulk_edit_types, template_hash, specific_datahash, content),
-              current_user: current_user,
-              partial_update: true
+              current_user: current_user
             )
             errors.concat(Array.wrap(content.errors.full_messages)) unless valid
           end
@@ -228,7 +232,7 @@ module DataCycleCore
           end
         end
 
-        @watch_list.watch_list_data_hashes.clear if @watch_list.my_selection
+        @watch_list.watch_list_data_hashes.delete_all if @watch_list.my_selection
 
         ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
 
@@ -351,7 +355,9 @@ module DataCycleCore
 
       authorize! :remove_item, @watch_list
 
-      @watch_list.watch_list_data_hashes.clear
+      deleted_ids = @watch_list.delete_all_watch_list_data_hashes
+
+      @watch_list.notify_subscribers(current_user, deleted_ids, 'remove')
 
       redirect_back(
         fallback_location: root_path,

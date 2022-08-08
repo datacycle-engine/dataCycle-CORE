@@ -15,6 +15,7 @@ class LinkTooltip extends QuillTooltip {
 
   listen() {
     super.listen();
+
     this.root.querySelector('a.ql-action').addEventListener('click', event => {
       if (this.root.classList.contains('ql-editing')) {
         this.save();
@@ -26,6 +27,7 @@ class LinkTooltip extends QuillTooltip {
       }
       event.preventDefault();
     });
+
     this.root.querySelector('a.ql-remove').addEventListener('click', event => {
       if (this.linkRange != null) {
         const range = this.linkRange;
@@ -33,9 +35,12 @@ class LinkTooltip extends QuillTooltip {
         this.quill.formatText(range, 'customlink', false, Quill.sources.USER);
         delete this.linkRange;
       }
+
       event.preventDefault();
+
       this.hide();
     });
+
     this.quill.on(Quill.events.SELECTION_CHANGE, (range, oldRange, source) => {
       if (range == null) return;
       if (range.length === 0 && source === Quill.sources.USER) {
@@ -62,6 +67,8 @@ class LinkTooltip extends QuillTooltip {
   edit(mode = 'link', preview = null) {
     this.root.classList.remove('ql-hidden');
     this.root.classList.add('ql-editing');
+    this.externalCheckbox.disabled = false;
+
     if (preview != null && preview.text) {
       this.textbox.value = preview.text;
       this.externalCheckbox.checked = preview.external;
@@ -69,6 +76,7 @@ class LinkTooltip extends QuillTooltip {
       this.textbox.value = '';
       this.externalCheckbox.checked = true;
     }
+
     this.position(this.quill.getBounds(this.quill.selection.savedRange));
     this.textbox.select();
     this.textbox.setAttribute('placeholder', this.textbox.getAttribute(`data-${mode}`) || '');
@@ -77,6 +85,8 @@ class LinkTooltip extends QuillTooltip {
 
   show() {
     super.show();
+    this.externalCheckbox.checked = this.preview.getAttribute('target') == '_blank';
+    this.externalCheckbox.disabled = true;
     this.root.removeAttribute('data-mode');
   }
 
@@ -86,9 +96,11 @@ class LinkTooltip extends QuillTooltip {
       text: value,
       external: this.externalCheckbox && this.externalCheckbox.checked
     };
+
     switch (this.root.getAttribute('data-mode')) {
       case 'customlink': {
         const { scrollTop } = this.quill.root;
+
         if (this.linkRange) {
           this.quill.formatText(this.linkRange, 'customlink', value, Quill.sources.USER);
           delete this.linkRange;
@@ -96,13 +108,16 @@ class LinkTooltip extends QuillTooltip {
           this.restoreFocus();
           this.quill.format('customlink', value, Quill.sources.USER);
         }
+
         this.quill.root.scrollTop = scrollTop;
         break;
       }
       default:
     }
+
     this.textbox.value = '';
     this.externalCheckbox.checked = true;
+    this.externalCheckbox.disabled = true;
     this.hide();
   }
 }
@@ -112,7 +127,7 @@ LinkTooltip.TEMPLATE = [
   '<input type="text" data-formula="e=mc^2" data-link="https://quilljs.com" data-video="Embed URL">',
   '<a class="ql-action"></a>',
   '<a class="ql-remove"></a>',
-  '<br><label class="dc--external-link-label"><input type="checkbox" checked="checked" class="dc--external-link"></label>'
+  '<br><label class="dc--external-link-label"><input disabled="disabled" type="checkbox" checked="checked" class="dc--external-link"><span class="dc--external-link-text">In neuem Tab öffnen</span></label>'
 ].join('');
 
 class QuillLinkFormat extends InlineBlot {

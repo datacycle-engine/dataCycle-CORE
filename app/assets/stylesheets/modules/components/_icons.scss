@@ -370,5 +370,17 @@
         content: '\f073';
       }
     }
+
+    &.type-number-content_score::before {
+      content: '\f006';
+    }
+
+    &.type-number-content_score.medium-score::before {
+      content: '\f123';
+    }
+
+    &.type-number-content_score.high-score::before {
+      content: '\f005';
+    }
   }
 }

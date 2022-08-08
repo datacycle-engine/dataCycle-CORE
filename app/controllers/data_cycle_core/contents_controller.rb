@@ -66,8 +66,13 @@ module DataCycleCore
         end
 
         respond_to do |format|
-          format.json { redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_thing_path", id: @content) }
-          format.js { render 'data_cycle_core/application/more_results' }
+          format.json do
+            if @count_only || @mode
+              render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/application/count_or_more_results').squish }
+            else
+              redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_thing_path", id: @content)
+            end
+          end
           format.html { render && return }
         end
       end
@@ -91,10 +96,11 @@ module DataCycleCore
       elsif content.template_name == 'Video'
         # no active storage
         rendered_attribute = content.send(:thumbnail_url)
+      elsif content.template_name == 'Webcam' && content.send(attribute).blank?
+        rendered_attribute = content.try(:image)&.first&.send(attribute)
       else
         rendered_attribute = content.send(attribute)
       end
-
       uri = URI.parse(rendered_attribute)
       # used for local development and docker env.
       uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && ENV.fetch('APP_DOCKER_ENV') { nil } != 'production' && uri.hostname == 'localhost'
@@ -196,7 +202,7 @@ module DataCycleCore
 
         version_name_for_merge(datahash) if merge_duplicate
 
-        unless @content.set_data_hash_with_translations(data_hash: datahash, current_user: current_user, partial_update: true, force_update: merge_duplicate)
+        unless @content.set_data_hash_with_translations(data_hash: datahash, current_user: current_user, force_update: merge_duplicate)
           flash[:error] = @content.i18n_errors.map { |k, v| v.full_messages.map { |m| "#{k}: #{m}" } }.flatten
           redirect_back(fallback_location: root_path) && return
         end
@@ -298,7 +304,7 @@ module DataCycleCore
         history_date = (@history.try(:history_valid)&.first || @history.try(:updated_at))&.in_time_zone
         history_date_string = I18n.l(history_date, locale: helpers.active_ui_locale, format: :history) if history_date.present?
 
-        if @content.set_data_hash(data_hash: history_hash, version_name: I18n.t(:restored_version_name, scope: [:history, :restore, :version], locale: helpers.active_ui_locale, date: history_date_string))
+        if @content.set_data_hash(data_hash: history_hash, version_name: I18n.t(:restored_version_name, scope: [:history, :restore, :version], locale: helpers.active_ui_locale, date: history_date_string), partial_update: false)
           flash[:success] = I18n.t(:restored, scope: [:history, :restore, :version], locale: helpers.active_ui_locale, date: history_date_string)
         else
           flash[:error] = @content.i18n_errors.map { |k, v| v.full_messages.map { |m| "#{k}: #{m}" } }.flatten
@@ -519,7 +525,7 @@ module DataCycleCore
     end
 
     def attribute_default_value
-      authorize! :index, DataCycleCore::Thing
+      authorize! :show, DataCycleCore::Thing
 
       template = DataCycleCore::Thing.find_by!(template: true, template_name: default_value_params[:template_name])
 
@@ -534,7 +540,26 @@ module DataCycleCore
       end
     end
 
+    def switch_primary_external_system
+      @content = DataCycleCore::Thing.find(switch_system_params[:id])
+      authorize! :switch_primary_external_system, @content
+
+      @external_sync = @content.external_system_syncs.find(switch_system_params[:external_system_sync_id])
+
+      @content.switch_primary_external_system(@external_sync)
+
+      redirect_back(fallback_location: root_path, notice: I18n.t('content_external_data.primary_system_switched', locale: helpers.active_ui_locale)) && return
+    rescue ActiveRecord::RecordNotUnique
+      @existing = DataCycleCore::Thing.find_by(external_source_id: @external_sync.external_system_id, external_key: @external_sync.external_key)
+
+      redirect_back(fallback_location: root_path, alert: I18n.t('content_external_data.duplicate_record_html', url: @existing ? thing_path(@existing) : nil, locale: helpers.active_ui_locale)) && return
+    end
+
     private
+
+    def switch_system_params
+      params.permit(:id, :external_system_sync_id)
+    end
 
     def default_value_params
       params.permit(:template_name, :locale, keys: [], data_hash: {})
@@ -588,7 +613,7 @@ module DataCycleCore
     end
 
     def linked_object_params
-      params.permit(:id, :key, :page, :load_more_action, :locale, :load_more_type, :complete_key, :editable, :content_id, :content_type, definition: {}, load_more_except: [], options: {})
+      params.permit(:id, :key, :page, :load_more_action, :locale, :load_more_type, :complete_key, :editable, :content_id, :content_type, :hide_embedded, definition: {}, load_more_except: [], options: {})
     end
 
     def life_cycle_params

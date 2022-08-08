@@ -21,47 +21,24 @@
         :storage_location: value
         :validations:
           :format: integer
-          :min: 1
-          :max: 6
         :ui:
           :attribute_group: trail_rating_one_line
-          :edit:
-            :partial: number_slider
-            :options:
-              :position_value_function: 'linear'
-              :data-unit: ''
-      :best_rating:
-        :label: Höchste zulässige Bewertung
-        :type: number
-        :storage_location: value
-        :virtual:
-          :module: Utility::Virtual::Common
-          :method: value_from_definition
-          :path:
-            - rating_value
-            - validations
-            - max
-        :ui:
-          :show:
-            :disabled: true
-          :edit:
-            :disabled: true
       :worst_rating:
         :label: Niedrigste zulässige Bewertung
         :type: number
         :storage_location: value
-        :virtual:
-          :module: Utility::Virtual::Common
-          :method: value_from_definition
-          :path:
-            - rating_value
-            - validations
-            - min
+        :validations:
+          :format: integer
         :ui:
-          :show:
-            :disabled: true
-          :edit:
-            :disabled: true
+          :attribute_group: trail_rating_second_one_line
+      :best_rating:
+        :label: Höchste zulässige Bewertung
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: integer
+        :ui:
+          :attribute_group: trail_rating_second_one_line
       :meta_data:
         :type: mixin
         :name: meta_data

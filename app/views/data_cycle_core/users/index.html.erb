@@ -1,7 +1,7 @@
 <% breadcrumb :index, 'users' %>
 
 <% content_for :top_content do %>
-  <%= render 'filter', filter_model: DataCycleCore::User if user_signed_in? %>
+  <%= render 'filter', filter_model: DataCycleCore::User, form_path: index_users_path if user_signed_in? %>
 <% end %>
 
 <%= render 'results', content_class: 'users', contents: @contents %>

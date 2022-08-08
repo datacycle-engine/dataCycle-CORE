@@ -16,15 +16,14 @@
             tag.i(class: 'fa fa-times', aria_hidden: true),
             class: 'button discard top',
             type: :button,
-            title: t('actions.discard_changes', locale: active_ui_locale)), previous_authorized_crumb.url if previous_authorized_crumb.present? %>
+            data: { dc_tooltip: t('actions.discard_changes', locale: active_ui_locale) }), previous_authorized_crumb.url if previous_authorized_crumb.present? %>
 
           <% content_locks = DataCycleCore::Feature::ContentLock.enabled? ? watch_list.things.includes(:translations, :lock).map(&:lock).compact.sort_by(&:updated_at).reverse! : nil %>
 
           <%= button_tag safe_join([DataCycleCore::Feature::ContentLock.enabled? ? tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') : nil, tag.i(class: 'fa fa-check', aria_hidden: true)]),
             class: "button-prime submit submit-edit-form #{'content-lock editable-lock' if DataCycleCore::Feature::ContentLock.enabled?}",
-            title: t('actions.save_changes', locale: active_ui_locale),
             data: {
-              tooltip: true,
+              dc_tooltip: t('actions.save_changes', locale: active_ui_locale),
               disable_with: tag.span(tag.span(class: 'progress-filled'), class: 'progress-bar') +
                 tag.span(class: 'progress-value') +
                 tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)

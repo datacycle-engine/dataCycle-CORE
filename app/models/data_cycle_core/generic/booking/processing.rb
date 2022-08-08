@@ -15,7 +15,8 @@ module DataCycleCore
                 config,
                 DataCycleCore::Generic::Booking::Transformations
                 .booking_to_image(raw_data.dig('hotel_data', 'name'), utility_object.external_source.id)
-                .call(image_hash)
+                .call(image_hash),
+                utility_object
               ).with_indifferent_access
             )
           end

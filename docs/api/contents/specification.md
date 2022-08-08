@@ -62,7 +62,8 @@
                 "box": ["swLon","swLat","neLon","neLat"],
                 "perimeter": ["lon","lat","distance"],
                 "shapes": "[UUID]",
-            }
+            },
+            "withGeometry": "Boolean"
         },
         "creator": {
             "in": "[UUID]",
@@ -122,7 +123,8 @@
                         "box": ["swLon","swLat","neLon","neLat"],
                         "perimeter": ["lon","lat","distance"],
                         "shapes": "[UUID]",
-                    }
+                    },
+                    "withGeometry": "Boolean"
                 },
                 "search": "String",
                 "q": "String"
@@ -180,7 +182,8 @@
                         "box": ["swLon", "swLat", "neLon", "neLat"],
                         "perimeter": ["lon", "lat", "distance"],
                         "shapes": "[UUID]"
-                    }
+                    },
+                    "withGeometry": "Boolean"
                 },
                 "search": "String",
                 "q": "String",
@@ -236,7 +239,8 @@
                                 "box": ["swLon", "swLat", "neLon", "neLat"],
                                 "perimeter": ["lon", "lat", "distance"],
                                 "shapes": "[UUID]"
-                            }
+                            },
+                            "withGeometry": "Boolean"
                         },
                         "search": "String",
                         "q": "String"

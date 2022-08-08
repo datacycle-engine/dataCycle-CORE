@@ -21,11 +21,12 @@ class AssetSelector {
     this.editableList = $(`#${this.reveal.data('editable-list-id')}`);
     this.editableFormElement = this.editableList.closest('.form-element');
     this.editButton = $(`#${this.reveal.prop('id')}`);
+    this.deleteCount = 0;
 
     this.init();
   }
   init() {
-    this.reveal.addClass('initialized');
+    this.reveal.addClass('dc-asset-selector');
     this.reveal.on('open.zf.reveal', _ => this.loadAssets(false));
     this.assetList.on('click', 'li:not(.locked)', this.clickOnAsset.bind(this));
     this.assetList.on('click', '.asset-destroy', this.destroyAsset.bind(this));
@@ -84,7 +85,6 @@ class AssetSelector {
             assets: data.assets,
             selected: this.selectedAssetIds
           });
-          $html.trigger('dc:html:changed').trigger('dc:html:initialized');
         }
       })
       .finally(() => {
@@ -107,6 +107,7 @@ class AssetSelector {
       cancelable: true,
       confirmationCallback: () => {
         this.total--;
+        this.deleteCount++;
 
         DataCycle.httpRequest({
           url: url,
@@ -173,6 +174,7 @@ class AssetSelector {
         types: this.assetList.data('asset-types'),
         selected: this.selectedAssetIds,
         page: this.page,
+        delete_count: this.deleteCount,
         last_asset_type: this.lastAssetType,
         append: append
       },
@@ -198,7 +200,6 @@ class AssetSelector {
           total: data.total,
           append: append
         });
-        $html.trigger('dc:html:changed').trigger('dc:html:initialized');
       } else {
         this.assetList.html(data.html).trigger('dc:asset_list:changed', {
           selected: this.selectedAssetIds,
@@ -211,30 +212,33 @@ class AssetSelector {
     });
   }
   updateButtons(_event, data) {
-    if (data && data.assets && data.assets.length) {
-      if (data.append) this.assets = this.assets.concat(data.assets);
-      else this.assets = data.assets;
-    }
-
-    if (data !== undefined) {
-      if (data.selected && data.selected.length && data.total != 0) {
-        DataCycle.enableElement(this.selectButton);
-        this.selectButton.data('value', data.selected[0]);
+    window.requestAnimationFrame(() => {
+      if (data && data.assets && data.assets.length) {
+        if (data.append) this.assets = this.assets.concat(data.assets);
+        else this.assets = data.assets;
       }
 
-      if (data.total !== undefined) this.total = data.total;
-      if (data.page !== undefined) this.page = data.page + 1;
-      if (data.last_asset_type !== undefined) this.lastAssetType = data.last_asset_type;
-    }
-    if (
-      this.assetList.children('li').length < this.total &&
-      this.assetList.children('li').last().offset().top - this.assetList.offset().top <
-        this.assetList.parent().outerHeight()
-    ) {
-      this.loadAssets();
-    } else {
-      this.loading = false;
-    }
+      if (data !== undefined) {
+        if (data.selected && data.selected.length && data.total != 0) {
+          DataCycle.enableElement(this.selectButton);
+          this.selectButton.data('value', data.selected[0]);
+        }
+
+        if (data.total !== undefined) this.total = data.total;
+        if (data.page !== undefined) this.page = data.page + 1;
+        if (data.last_asset_type !== undefined) this.lastAssetType = data.last_asset_type;
+      }
+
+      if (
+        this.assetList.children('li').length < this.total &&
+        this.assetList.children('li').last().offset().top - this.assetList.offset().top <
+          this.assetList.parent().outerHeight()
+      ) {
+        this.loadAssets();
+      } else {
+        this.loading = false;
+      }
+    });
   }
   clickOnAsset(event) {
     if (event.target.closest('a')) return;

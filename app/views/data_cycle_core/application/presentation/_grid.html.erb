@@ -1,6 +1,14 @@
-<% unless contents.first_page? || local_assigns[:direction] == 'next' %>
+<% unless local_assigns[:direction] == 'next' || contents.first_page? %>
   <li class="pagination-container text-center prev" data-page="<%= contents.prev_page %>">
-    <%= link_to t('pagination.prev', locale: active_ui_locale), path_to_prev_page(contents, params: { direction: 'prev' }), class: 'button pagination-link', remote: (contents.current_page % 10) != 0, data: { disable_with: tag.i(class: 'fa fa-spinner fa-fw fa-spin') + " #{t('common.loading', locale: active_ui_locale)}" } %>
+    <%= link_to t('pagination.prev', locale: active_ui_locale), '#',
+                class: 'button pagination-link',
+                data: {
+                  additional_form_parameters: {
+                    page: contents.prev_page,
+                    direction: 'prev',
+                  }.to_json,
+                  disable_with: tag.i(class: 'fa fa-spinner fa-fw fa-spin') + " #{t('common.loading', locale: active_ui_locale)}"
+                } %>
   </li>
 <% end %>
 
@@ -45,8 +53,16 @@
   </li>
 <% end %>
 
-<% unless contents.last_page? || local_assigns[:direction] == 'prev' %>
+<% unless local_assigns[:direction] == 'prev' || contents.last_page? %>
   <li class="pagination-container text-center next" data-page="<%= contents.next_page %>">
-    <%= link_to t('pagination.next', locale: active_ui_locale), path_to_next_page(contents, params: { direction: 'next' }), class: 'button pagination-link', remote: (contents.next_page.to_i % 10) != 0, data: { disable_with: tag.i(class: 'fa fa-spinner fa-fw fa-spin') + " #{t('common.loading', locale: active_ui_locale)}" } %>
+    <%= link_to t('pagination.next', locale: active_ui_locale), '#',
+                class: 'button pagination-link',
+                data: {
+                  additional_form_parameters: {
+                    page: contents.next_page,
+                    direction: 'next'
+                  }.to_json,
+                  disable_with: tag.i(class: 'fa fa-spinner fa-fw fa-spin') + " #{t('common.loading', locale: active_ui_locale)}"
+                } %>
   </li>
 <% end %>

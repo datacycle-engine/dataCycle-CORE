@@ -3,17 +3,11 @@ import ScheduleEditor from '../components/schedule_editor';
 export default function () {
   var schedule_editors = [];
 
-  $('.schedule-editor').each((_i, elem) => {
-    schedule_editors.push(new ScheduleEditor($(elem)));
-  });
+  for (const element of document.querySelectorAll('.schedule-editor'))
+    schedule_editors.push(new ScheduleEditor($(element)));
 
-  $(document).on('dc:html:changed', '*', event => {
-    event.stopPropagation();
-    $(event.target)
-      .find('.schedule-editor')
-      .addBack('.schedule-editor')
-      .each((_i, elem) => {
-        schedule_editors.push(new ScheduleEditor($(elem)));
-      });
-  });
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('schedule-editor'),
+    e => schedule_editors.push(new ScheduleEditor($(e)))
+  ]);
 }

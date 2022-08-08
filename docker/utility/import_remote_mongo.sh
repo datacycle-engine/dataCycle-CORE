@@ -24,7 +24,16 @@ REMOTE_DOCKER_HOST=$(read_var REMOTE_DOCKER_HOST $ENV_FILE)
 REMOTE_DOCKER_ENV=$(read_var REMOTE_DOCKER_ENV $ENV_FILE)
 REMOTE_COMPOSER_PROJECT_NAME=$(read_var REMOTE_COMPOSER_PROJECT_NAME $ENV_FILE)
 LOCAL_COMPOSE_PROJECT_NAME=$(read_var COMPOSE_PROJECT_NAME $ENV_FILE)
-LOCAL_MONGO=$(docker exec -it "$LOCAL_COMPOSE_PROJECT_NAME"_web_1 rake data_cycle_core:mongo:name["$MONGO_UUID"] | tail -n 1 | tr -d '[:cntrl:]')
+if [ "$(docker ps -q -f name=^${LOCAL_COMPOSE_PROJECT_NAME}_web_1$)" ]; then LOCAL_WEB_CONTAINER="${LOCAL_COMPOSE_PROJECT_NAME}_web_1";
+elif [ "$(docker ps -q -f name=^${LOCAL_COMPOSE_PROJECT_NAME}-web-1$)" ]; then LOCAL_WEB_CONTAINER="${LOCAL_COMPOSE_PROJECT_NAME}-web-1";
+else echo "LOCAL_WEB_CONTAINER NOT RUNNING OR NOT FOUND!" && exit 1
+fi
+
+if [ "$(docker ps -q -f name=^${LOCAL_COMPOSE_PROJECT_NAME}_mongodb_1$)" ]; then LOCAL_MONGO_CONTAINER="${LOCAL_COMPOSE_PROJECT_NAME}_mongodb_1";
+elif [ "$(docker ps -q -f name=^${LOCAL_COMPOSE_PROJECT_NAME}-mongodb-1$)" ]; then LOCAL_MONGO_CONTAINER="${LOCAL_COMPOSE_PROJECT_NAME}-mongodb-1";
+else echo "LOCAL_MONGO_CONTAINER NOT RUNNING OR NOT FOUND!" && exit 1
+fi
+LOCAL_MONGO=$(docker exec -it "$LOCAL_WEB_CONTAINER" rake data_cycle_core:mongo:name["$MONGO_UUID"] | tail -n 1 | tr -d '[:cntrl:]')
 REMOTE_MONGO=$(DOCKER_HOST="$REMOTE_DOCKER_HOST" docker exec -it "$REMOTE_COMPOSER_PROJECT_NAME"_web_1 rake data_cycle_core:mongo:name["$MONGO_UUID"] | tail -n 1 | tr -d '[:cntrl:]')
 
 print_header_message "ENV vars loaded: $ENV_FILE";
@@ -32,6 +41,8 @@ echo "REMOTE_DOCKER_HOST          : $REMOTE_DOCKER_HOST"
 echo "REMOTE_DOCKER_ENV           : $REMOTE_DOCKER_ENV"
 echo "REMOTE_COMPOSER_PROJECT_NAME: $REMOTE_COMPOSER_PROJECT_NAME"
 echo "LOCAL_COMPOSE_PROJECT_NAME  : $LOCAL_COMPOSE_PROJECT_NAME"
+echo "LOCAL_WEB_CONTAINER         : $LOCAL_WEB_CONTAINER"
+echo "LOCAL_MONGO_CONTAINER       : $LOCAL_MONGO_CONTAINER"
 echo "################## MONGO VARS"
 echo "MONGO_UUID                  : $MONGO_UUID"
 echo "LOCAL_MONGO                 : $LOCAL_MONGO"
@@ -63,6 +74,5 @@ echo "downloading ... "
 echo "$REMOTE_DOCKER_HOST docker cp ${REMOTE_COMPOSER_PROJECT_NAME}_mongodb_1:/tmp/${REMOTE_MONGO}_download.archive ./db/backups/development/."
 DOCKER_HOST="$REMOTE_DOCKER_HOST" docker cp "$REMOTE_COMPOSER_PROJECT_NAME"_mongodb_1:/tmp/"$REMOTE_MONGO"_download.archive ./db/backups/development/.
 
-echo "restoring mongodb local ... "
-docker cp ./db/backups/development/"$REMOTE_MONGO"_download.archive "$LOCAL_COMPOSE_PROJECT_NAME"_mongodb_1:/tmp/"$REMOTE_MONGO"_download.archive
-docker exec -it "$LOCAL_COMPOSE_PROJECT_NAME"_mongodb_1 mongorestore --archive=/tmp/"$REMOTE_MONGO"_download.archive --drop --nsFrom="$REMOTE_MONGO".* --nsTo="$LOCAL_MONGO".*
+docker cp ./db/backups/development/"$REMOTE_MONGO"_download.archive "$LOCAL_MONGO_CONTAINER":/tmp/"$REMOTE_MONGO"_download.archive
+docker exec -it "$LOCAL_MONGO_CONTAINER" mongorestore --archive=/tmp/"$REMOTE_MONGO"_download.archive --drop --nsFrom="$REMOTE_MONGO".* --nsTo="$LOCAL_MONGO".*

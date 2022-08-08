@@ -15,7 +15,6 @@ namespace :deploy do
             execute :yarn_local, 'upgrade'
             execute :vite_local, 'build -f'
             execute :dc_rsync_relative, "./public/assets/build/ #{server.user}@#{server.hostname}:#{release_path}"
-            execute :dc_rsync_relative, "./public/assets/fonts/ #{server.user}@#{server.hostname}:#{release_path}"
             execute :vite_local, 'clobber'
           end
         end

@@ -55,7 +55,7 @@ module DataCycleCore
             data_hash['contact_info'] = (data_hash['contact_info'] || {}).reverse_merge(thing.contact_info.to_h)
             data_hash['address'] = (data_hash['address'] || {}).reverse_merge(thing.address.to_h)
 
-            if thing.set_data_hash(data_hash: data_hash, partial_update: true, save_time: save_time)
+            if thing.set_data_hash(data_hash: data_hash, save_time: save_time)
               thing.add_external_system_data(external_source, nil, 'success', 'import', data.dig('contact', 'id'))
               logging.info('update', thing.id)
               response = { 'datetime' => save_time, 'vCloudID' => thing.id }

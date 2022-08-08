@@ -4,55 +4,66 @@ import AssetUploader from './../components/asset_uploader';
 export default function () {
   var assetSelectors = [];
   var assetUploaders = [];
-  function init(_) {
-    $('.asset-selector-reveal:not(.initialized)').each((_, element) => {
-      assetSelectors.push(new AssetSelector(element));
-    });
-    $('.asset-upload-reveal:not(.initialized)').each((_, element) => {
-      assetUploaders.push(new AssetUploader(element));
-    });
-    toggleAssetVersion();
-    toggleAssetTransformation();
-    $('.download-content-reveal .active.serialize_formats input').on('change', event => {
-      event.preventDefault();
-      toggleAssetVersion();
-    });
-    $('.download-content-reveal .active.version input').on('change', event => {
-      event.preventDefault();
-      toggleAssetTransformation();
-    });
+
+  for (const element of document.querySelectorAll('.asset-selector-reveal:not(.dc-asset-selector)'))
+    assetSelectors.push(new AssetSelector(element));
+
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('asset-selector-reveal') && !e.classList.contains('dc-asset-selector'),
+    e => assetSelectors.push(new AssetSelector(e))
+  ]);
+
+  for (const element of document.querySelectorAll('.asset-upload-reveal:not(.dc-asset-uploader)'))
+    assetUploaders.push(new AssetUploader(element));
+
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('asset-upload-reveal') && !e.classList.contains('dc-asset-uploader'),
+    e => assetUploaders.push(new AssetUploader(e))
+  ]);
+
+  for (const element of document.querySelectorAll('.download-content-form')) initDownloadContentReveal(element);
+
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('download-content-form'),
+    e => initDownloadContentReveal(e)
+  ]);
+
+  function initDownloadContentReveal(element) {
+    toggleAssetVersion(element);
+    toggleAssetTransformation(element);
+
+    $(element)
+      .find('.active.serialize_formats input')
+      .on('change', event => {
+        event.preventDefault();
+        toggleAssetVersion(element);
+      });
+
+    $(element)
+      .find('.active.version input')
+      .on('change', event => {
+        event.preventDefault();
+        toggleAssetTransformation(element);
+      });
   }
-  function toggleAssetVersion() {
-    if ($('.download-content-reveal .active.serialize_formats #serialize_format_asset').is(':checked')) {
-      $('.download-content-reveal .active.version').removeClass('hidden');
+
+  function toggleAssetVersion(element) {
+    if ($(element).find('.active.serialize_formats :input[value="asset"]').is(':checked')) {
+      $(element).find('.active.version').removeClass('hidden');
     } else {
-      $('.download-content-reveal .active.version').addClass('hidden');
+      $(element).find('.active.version').addClass('hidden');
     }
-    toggleAssetTransformation();
+
+    toggleAssetTransformation(element);
   }
-  function toggleAssetTransformation() {
-    let selectedVal = $('.download-content-reveal .active.version :input[name="version"]:checked').val();
-    $('.download-content-reveal .active.transformation').addClass('hidden');
-    if ($('.download-content-reveal .active.serialize_formats #serialize_format_asset').is(':checked')) {
-      $('.download-content-reveal .active.transformation.' + selectedVal).removeClass('hidden');
+
+  function toggleAssetTransformation(element) {
+    let selectedVal = $(element).find('.active.version :input[name="version"]:checked').val();
+    $(element).find('.active.transformation').addClass('hidden');
+    if ($(element).find('.active.serialize_formats :input[value="asset"]').is(':checked')) {
+      $(element)
+        .find('.active.transformation.' + selectedVal)
+        .removeClass('hidden');
     }
   }
-  init();
-  $(document).on('dc:html:changed', '*', event => {
-    event.stopPropagation();
-    init(event.target);
-  });
-  $(document).on('dc:html:remove', '*', event => {
-    event.preventDefault();
-    event.stopPropagation();
-    if ($(event.target).hasClass('asset-selector-reveal')) {
-      assetSelectors = assetSelectors.filter(value => {
-        return value.reveal.id != $(event.target).id;
-      });
-    } else if ($(event.target).hasClass('asset-upload-reveal')) {
-      assetUploaders = assetUploaders.filter(value => {
-        return value.reveal.id != $(event.target).id;
-      });
-    }
-  });
 }

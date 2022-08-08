@@ -35,7 +35,8 @@ module DataCycleCore
             config,
             DataCycleCore::Generic::Bergfex::Transformations
               .bergfex_to_ski_report(utility_object.external_source.id, locale)
-              .call(raw_data)
+              .call(raw_data),
+            utility_object
           ).with_indifferent_access
         end
 

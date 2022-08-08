@@ -9,11 +9,12 @@ namespace :dc do
       dry_run = args.fetch(:dry_run, false)
       webhooks = args.fetch(:webhooks, 'true').to_s
       template_name = args.fetch(:template_name, false).to_s
+      template_names = template_name.present? && template_name != 'false' ? template_name.split('|') : false
       computed_name = args.fetch(:computed_name, false).to_s
-      computed_names = computed_name.present? && computed_name != 'false' ? computed_name.split(',') : false
+      computed_names = computed_name.present? && computed_name != 'false' ? computed_name.split('|') : false
 
       selected_things = DataCycleCore::Thing.where(template: true)
-      selected_things = selected_things.where(template_name: template_name) if template_name.present? && template_name != 'false'
+      selected_things = selected_things.where(template_name: template_names) if template_names.present?
 
       selected_things.find_each do |template|
         next if template.computed_property_names.blank?
@@ -22,7 +23,7 @@ namespace :dc do
         items = DataCycleCore::Thing.where(template: false, template_name: template.template_name)
         translated_computed = (template.computed_property_names & template.translatable_property_names).present?
         keys_for_data_hash = template.property_names.difference(template.computed_property_names)
-        keys_for_data_hash = keys_for_data_hash.intersection(template.property_definitions.slice(*computed_names).values.map { |d| d.dig('compute', 'parameters') }.flatten.uniq.compact) if computed_names.present?
+        keys_for_data_hash = keys_for_data_hash.intersection(template.property_definitions.slice(*computed_names).values.map { |d| d.dig('compute', 'parameters') }.flatten.map { |p| p.split('.').first }.uniq.compact) if computed_names.present?
 
         progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
 
@@ -34,12 +35,12 @@ namespace :dc do
           if translated_computed
             item.available_locales.each do |locale|
               I18n.with_locale(locale) do
-                item.set_data_hash(data_hash: item.get_data_hash_partial(keys_for_data_hash), partial_update: true)
+                item.set_data_hash(data_hash: item.get_data_hash_partial(keys_for_data_hash))
               end
             end
           else
             I18n.with_locale(item.first_available_locale) do
-              item.set_data_hash(data_hash: item.get_data_hash_partial(keys_for_data_hash), partial_update: true)
+              item.set_data_hash(data_hash: item.get_data_hash_partial(keys_for_data_hash))
             end
           end
 
@@ -88,14 +89,14 @@ namespace :dc do
               I18n.with_locale(locale) do
                 data_hash = item.get_data_hash_partial(keys_for_data_hash)
                 item.add_default_values(data_hash: data_hash, force: true)
-                item.set_data_hash(data_hash: data_hash, partial_update: true)
+                item.set_data_hash(data_hash: data_hash)
               end
             end
           else
             I18n.with_locale(item.first_available_locale) do
               data_hash = item.get_data_hash_partial(keys_for_data_hash)
               item.add_default_values(data_hash: data_hash, force: true)
-              item.set_data_hash(data_hash: data_hash, partial_update: true)
+              item.set_data_hash(data_hash: data_hash)
             end
           end
 

@@ -8,7 +8,7 @@ module DataCycleCore
       save_time: nil,
       prevent_history: false,
       update_search_all: true,
-      partial_update: false,
+      partial_update: true,
       partial_update_improved: DataCycleCore.partial_update_improved,
       source: nil,
       new_content: false,

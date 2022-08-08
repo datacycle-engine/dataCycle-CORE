@@ -479,6 +479,8 @@
     li {
       display: flex;
       font-size: 0.9rem;
+      overflow: hidden;
+      flex-flow: row wrap;
 
       .attribute-label {
         margin-right: 0.3rem;
@@ -1151,7 +1153,7 @@ video {
     }
 
     &::after {
-      content: '\f060';
+      content: '\f061';
       font-family: FontAwesome;
       font-style: normal;
       font-weight: normal;
@@ -1166,7 +1168,7 @@ video {
       width: 2.1rem;
     }
 
-    &::after:last-child {
+    &:last-child::after {
       display: none;
     }
 
@@ -1177,13 +1179,20 @@ video {
       &::after {
         display: none;
       }
+    }
 
-      & ~ ::after {
-        content: '\f061';
-        display: flex;
-        left: -2.1rem;
-        right: auto;
-      }
+    &.before-active::after {
+      content: '\f060';
+      display: flex;
+      left: auto;
+      right: -2.1rem;
+    }
+
+    &.after-active::after {
+      content: '\f061';
+      display: flex;
+      left: -2.1rem;
+      right: auto;
     }
   }
 }
@@ -1580,7 +1589,7 @@ a.email-link {
 
       .select2-selection__choice {
         border-radius: $global-radius;
-        background-color: rgba($primary-color, 0.5);
+        background-color: lighten($dark-gray, 6%);
         border: 0;
         margin: 0.1rem;
         position: relative;
@@ -2080,9 +2089,12 @@ select {
 
     .additional-feature-popup {
       pointer-events: none;
+      font-size: 0.9rem;
 
       .maplibregl-popup-content,
-      .maplibregl-popup-tip {
+      .mapboxgl-popup-content,
+      .maplibregl-popup-tip,
+      .mapboxgl-popup-tip {
         pointer-events: none;
       }
     }
@@ -2114,9 +2126,11 @@ select {
 
       &.remote-render,
       &.remote-rendering {
-        &::before {
+        min-height: 3.5rem;
+
+        &::before,
+        &::after {
           margin: 1rem;
-          width: calc(100% - 2rem);
         }
       }
 
@@ -2330,31 +2344,6 @@ select {
               margin-bottom: 0;
             }
           }
-        }
-      }
-    }
-    .maplibregl-popup-content {
-      padding-right: 2rem;
-
-      .ol-popup-detail-link {
-        float: right;
-      }
-
-      p {
-        &:last-of-type {
-          margin-bottom: 0;
-        }
-      }
-
-      .maplibregl-popup-close-button {
-        padding: 0.4rem 0.6rem;
-        top: 0;
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: $primary-color;
-
-        &:hover {
-          background: none;
         }
       }
     }
@@ -3201,6 +3190,7 @@ section.duplicate-candidates {
     .translatable-field-container {
       flex: auto;
       width: 100%;
+      overflow-wrap: break-word;
     }
   }
 }
@@ -3402,7 +3392,7 @@ button.button-prime.small.bulk-delete-button {
     z-index: 0;
     position: absolute;
     right: 50%;
-    top: 1rem;
+    top: 0.5rem;
     height: 3rem;
     padding: 0;
     background: inherit;
@@ -3413,6 +3403,8 @@ button.button-prime.small.bulk-delete-button {
     width: 0;
     overflow: hidden;
     white-space: nowrap;
+    font-weight: bold;
+
     &.alert {
       background-color: $alert-color;
     }
@@ -3602,25 +3594,16 @@ button.button-prime.small.bulk-delete-button {
 
 @keyframes progress-bar {
   0% {
-    margin-left: 0.25rem;
-    width: 0;
+    left: 0.25rem;
+    right: calc(100% - 0.25rem);
   }
   50% {
-    margin-left: 25%;
-    width: calc(75% - 0.25rem);
+    left: 25%;
+    right: 0.25rem;
   }
   100% {
-    margin-left: calc(100% - 0.25rem);
-    width: 0;
-  }
-}
-
-@keyframes progress-circle {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
+    left: calc(100% - 0.25rem);
+    right: 0.25rem;
   }
 }
 
@@ -3629,6 +3612,8 @@ body {
   .remote-rendering {
     position: relative;
     overflow: hidden;
+    min-height: 1.5rem;
+    cursor: wait;
 
     &::before,
     &::after {
@@ -3636,25 +3621,32 @@ body {
       width: 100%;
       display: flex;
       top: 0;
+      left: 0;
+      right: 0;
       border-radius: $global-radius;
+      z-index: 1;
+      position: absolute;
+      width: auto;
+      margin: 0;
     }
 
     &::before {
-      position: absolute;
-      width: 100%;
       height: 1.5rem;
-      left: 0;
-      background-color: lighten($light-gray, 4%);
+      background-color: rgba(lighten($light-gray, 4%), 0.9);
       box-shadow: 0 0 0 1px $light-gray inset;
     }
 
     &::after {
-      position: relative;
-      width: 100%;
       height: 1rem;
-      margin: 0.25rem 0;
-      background-color: darken($light-gray, 10%);
+      top: 0.25rem;
+      background-color: rgba($dark-gray, 0.5);
       animation: progress-bar 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    > * {
+      transition: opacity 0.1s ease;
+      opacity: 0.1;
+      pointer-events: none;
     }
 
     &.new-favorites::before {
@@ -3701,9 +3693,11 @@ body {
     > .close-button:first-child + .remote-render-failed,
     > .remote-render-failed:first-child {
       padding-top: 2rem;
+      min-height: 3.5rem;
 
-      &::before {
-        top: 2rem;
+      &::before,
+      &::after {
+        margin-top: 2rem;
       }
     }
   }
@@ -3760,7 +3754,8 @@ body {
     margin-right: 0.3rem;
   }
 }
-.tree-link {
+.tree-link,
+.toggle-details {
   .mini-preview-image {
     padding-right: 0.5rem;
   }
@@ -3825,4 +3820,22 @@ body {
     > .attribute-group-content-element {
     grid-template-columns: 65fr 35fr;
   }
+}
+
+.attribute-group.editor.action_type
+  > .attribute-group-item
+  > .attribute-group-content
+  > .attribute-group-content-element {
+  grid-template-columns: 65fr 35fr;
+}
+
+.download-with-contents {
+  .fa-plus {
+    font-size: 0.7rem;
+    vertical-align: text-top;
+  }
+}
+
+#classification-administration {
+  padding-top: 1.5rem;
 }

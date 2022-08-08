@@ -63,7 +63,8 @@ module DataCycleCore
               config,
               DataCycleCore::Generic::MediaArchive::Transformations
                 .media_archive_to_person(utility_object.external_source.id)
-                .call(raw_data)
+                .call(raw_data),
+              utility_object
             ).merge(
               external_key: external_key
             ).with_indifferent_access

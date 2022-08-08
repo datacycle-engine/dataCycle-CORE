@@ -4,7 +4,8 @@ gem install bundler
 
 bundle install
 
-(yarn && yarn upgrade) &> log/yarn.log &
+yarn && yarn upgrade
+bundle exec vite dev &> log/vite.log &
 
 # check if db exists
 bundle exec rake db:version
@@ -28,5 +29,5 @@ rm -f /app${CORE_DUMMY_PREFIX:-}/tmp/pids/server.pid
 mkdir -p /app${CORE_DUMMY_PREFIX:-}/public/uploads/storage && mkdir -p /app${CORE_DUMMY_PREFIX:-}/public/uploads/processed/video && chown ruby:ruby -R /app${CORE_DUMMY_PREFIX:-}/public/uploads
 
 # enable warnings
-#RUBYOPT='-w' RAILS_LOG_TO_STDOUT=true exec bundle exec puma -C ${DC_DOCKER_SETUP_PATH:-/app/docker/}web/puma.rb "$@"
-RAILS_LOG_TO_STDOUT=true exec bundle exec puma -C ${DC_DOCKER_SETUP_PATH:-/app/docker/}web/puma.rb "$@"
+#RUBYOPT='-w' RAILS_LOG_TO_STDOUT=true exec bundle exec puma -p ${PUBLIC_APPLICATION_PORT:-3003} -C ${DC_DOCKER_SETUP_PATH:-/app/docker/}web/puma.rb "$@"
+RAILS_LOG_TO_STDOUT=true exec bundle exec puma -p ${PUBLIC_APPLICATION_PORT:-3003} -C ${DC_DOCKER_SETUP_PATH:-/app/docker/}web/puma.rb "$@"

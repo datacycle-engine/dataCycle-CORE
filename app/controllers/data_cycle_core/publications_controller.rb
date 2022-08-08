@@ -79,7 +79,7 @@ module DataCycleCore
         @count_only = true
         @total_count = query2.includes(:content_content_b).map(&:content_content_b).map { |c| c.first.content_a_id }.size
 
-        render 'data_cycle_core/application/more_results'
+        render json: { html: helpers.result_count(@count_mode, @total_count, @content_class || 'things') }
       else
         @contents = query2.order(Arel.sql("(#{value_storage_location} ->> 'publish_at')::date ASC")).page(params[:page]).per(10).includes(:classifications, content_content_b: [content_a: :translations])
 

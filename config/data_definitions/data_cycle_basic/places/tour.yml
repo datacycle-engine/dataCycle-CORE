@@ -54,13 +54,6 @@
             :disabled: true
           :show:
             :disabled: true
-      :additional_information:
-        :label: Ergänzende Information
-        :type: embedded
-        :template_name: Ergänzende Information
-        :api:
-          :v4:
-            :name: dc:additionalInformation
       :description:
         :label: Kurzbeschreibung
         :type: string
@@ -83,6 +76,13 @@
             :options:
               :data-size: basic
         :advanced_search: true
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        :api:
+          :v4:
+            :name: dc:additionalInformation
       :primary_image:
         :label: Hauptbild
         :type: linked
@@ -163,6 +163,25 @@
         :type: linked
         :template_name: POI
         :inverse_of: tour
+      :odta_waypoint:
+        :label: POIs
+        :type: linked
+        :template_name: POI
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - poi
+        :api:
+          :name: odta:wayPoint
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :geo_contains:
         :type: mixin
         :name: geo_contains
@@ -243,26 +262,146 @@
         :label: Aufstieg (m)
         :type: number
         :storage_location: value
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_second_line_one_line
+      :dcls_ascent:
+        :label: Aufstieg (m)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - ascent
+        :api:
+          :name: dcls:ascent
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :descent:
         :label: Abstieg (m)
         :type: number
         :storage_location: value
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_second_line_one_line
+      :dcls_descent:
+        :label: Abstieg (m)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - descent
+        :api:
+          :name: dcls:descent
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :min_altitude:
         :label: Minimale Seehöhe (m)
         :type: number
         :storage_location: value
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_second_line_one_line
+      :dcls_min_altitude:
+        :label: Minimale Seehöhe (m)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - min_altitude
+        :api:
+          :name: dcls:minAltitude
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :max_altitude:
         :label: Maximale Seehöhe (m)
         :type: number
         :storage_location: value
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_second_line_one_line
+      :dcls_max_altitude:
+        :label: Maximale Seehöhe (m)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - max_altitude
+        :api:
+          :name: dcls:maxAltitude
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :length:
         :label: Länge (m)
         :type: number
         :storage_location: value
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_first_line_one_line
+      :dcls_length:
+        :label: Länge (m)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - length
+        :api:
+          :name: dcls:length
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :duration:
         :label: Dauer (min)
         :type: number
         :storage_location: value
+        :ui:
+          :attribute_group:
+            - key_figures_container_collapsible
+            - key_figures_first_line_one_line
+      :dcls_duration:
+        :label: Dauer (min)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - duration
+        :api:
+          :name: dcls:duration
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :condition_rating:
         :label: Bewertung - Kondition
         :type: number

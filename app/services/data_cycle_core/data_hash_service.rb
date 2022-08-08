@@ -122,6 +122,10 @@ module DataCycleCore
       data.is_a?(::Array) ? data.reject(&:blank?).empty? : data.blank?
     end
 
+    def self.present?(data)
+      !blank?(data)
+    end
+
     def self.parse_translated_hash(datahash)
       return {} unless datahash.is_a?(::Hash)
 
@@ -198,8 +202,18 @@ module DataCycleCore
             value = value.blank? ? nil : value.to_f
           elsif type == 'number'
             value = value.blank? ? nil : value.to_i
-          end
+          elsif type == 'geographic'
+            if value.blank?
+              value = nil
+            else
+              factory3d = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 })
+              factory2d = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: false, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 })
 
+              geom = RGeo::GeoJSON.decode(value, geo_factory: factory3d)
+              geom = RGeo::GeoJSON.decode(value, geo_factory: factory2d) if geom.geometry.geometry_type == RGeo::Feature::Point
+              value = geom.geometry.as_text
+            end
+          end
           temp_datahash[key] = value
         end
 

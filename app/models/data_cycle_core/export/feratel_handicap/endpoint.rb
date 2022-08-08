@@ -16,7 +16,7 @@ module DataCycleCore
         def content_request(method: :post, transformation:, path:, utility_object:, data:)
           external_source_id = DataCycleCore::ExternalSystem.find_by(identifier: 'feratel')&.id
           return if external_source_id.blank?
-          external_keys = data.linked_thing.where(template_name: ['Unterkunft', 'POI'], external_source_id: external_source_id)&.pluck(:external_key)&.compact
+          external_keys = data.linked_thing.where(external_source_id: external_source_id)&.pluck(:external_key)&.compact
           return if external_keys.blank?
 
           external_keys.each do |feratel_id|
