@@ -6,6 +6,7 @@
       :text:
         :label: Beschreibung
         :type: string
+        :storage_location: translated_value
         :virtual:
           :module: Utility::Virtual::Common
           :method: attribute_value_from_named_embedded
@@ -41,6 +42,7 @@
       :directions_public_transport:
         :label: Anfahrt mit öffentlichen Verkehrsmitteln
         :type: string
+        :storage_location: translated_value
         :virtual:
           :module: Utility::Virtual::Common
           :method: attribute_value_from_named_embedded
@@ -58,6 +60,7 @@
       :instructions:
         :label: Wegbeschreibung
         :type: string
+        :storage_location: translated_value
         :virtual:
           :module: Utility::Virtual::Common
           :method: attribute_value_from_named_embedded
@@ -75,6 +78,7 @@
       :safety_instructions:
         :label: Sicherheitshinweis
         :type: string
+        :storage_location: translated_value
         :virtual:
           :module: Utility::Virtual::Common
           :method: attribute_value_from_named_embedded
@@ -92,6 +96,7 @@
       :equipment:
         :label: Ausrüstung
         :type: string
+        :storage_location: translated_value
         :virtual:
           :module: Utility::Virtual::Common
           :method: attribute_value_from_named_embedded
@@ -109,6 +114,7 @@
       :suggestion:
         :label: Tipps
         :type: string
+        :storage_location: translated_value
         :virtual:
           :module: Utility::Virtual::Common
           :method: attribute_value_from_named_embedded
@@ -126,6 +132,7 @@
       :maps:
         :label: Literatur
         :type: string
+        :storage_location: translated_value
         :virtual:
           :module: Utility::Virtual::Common
           :method: attribute_value_from_named_embedded
@@ -143,6 +150,7 @@
       :directions:
         :label: Anfahrtsbeschreibung
         :type: string
+        :storage_location: translated_value
         :virtual:
           :module: Utility::Virtual::Common
           :method: attribute_value_from_named_embedded
@@ -166,6 +174,7 @@
       :parking:
         :label: Parkmöglichkeit
         :type: string
+        :storage_location: translated_value
         :virtual:
           :module: Utility::Virtual::Common
           :method: attribute_value_from_named_embedded
