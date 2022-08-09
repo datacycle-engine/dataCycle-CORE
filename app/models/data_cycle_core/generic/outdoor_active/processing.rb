@@ -18,7 +18,8 @@ module DataCycleCore
                 config,
                 DataCycleCore::Generic::OutdoorActive::Transformations
                 .outdoor_active_to_image(utility_object.external_source.id)
-                .call(image_hash)
+                .call(image_hash),
+                utility_object
               ).with_indifferent_access
             )
           end
@@ -35,7 +36,8 @@ module DataCycleCore
             template: DataCycleCore::Generic::Common::ImportFunctions.load_template('Organization'),
             data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
               config,
-              author_data
+              author_data,
+              utility_object
             ).with_indifferent_access
           )
         end
@@ -50,7 +52,8 @@ module DataCycleCore
             template: DataCycleCore::Generic::Common::ImportFunctions.load_template('Organization'),
             data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
               config,
-              copyright_holder_data
+              copyright_holder_data,
+              utility_object
             ).with_indifferent_access
           )
         end
