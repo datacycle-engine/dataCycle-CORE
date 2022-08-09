@@ -94,7 +94,7 @@ module DataCycleCore
               'warnings' => warnings
             }.reject { |_k, v| v.blank? }
           else
-            raise DataCycleCore::Generic::Common::Error::EndpointError.new("Unknow job state '#{job_status}'", nil)
+            raise DataCycleCore::Generic::Common::Error::EndpointError.new("Unknow job state '#{job_status}', response body: #{raw_response_body}", nil)
           end
         end
       end
