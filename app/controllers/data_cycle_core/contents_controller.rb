@@ -662,7 +662,7 @@ module DataCycleCore
       if params_hash.present?
         params_hash.permit(allowed_content_params)
       else
-        params.fetch(:thing, {}).permit(:version_name, allowed_content_params)
+        params.fetch(:thing) { {} }.permit(:version_name, allowed_content_params)
       end
     end
 
