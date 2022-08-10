@@ -43,7 +43,6 @@ module DataCycleCore
 
         # TODO: migrate stored filters to use latest classification filter methods
         t.concat('_with_subtree') if filter['t'].in?(['classification_alias_ids', 'not_classification_alias_ids'])
-
         next unless query.respond_to?(t)
 
         if query.method(t)&.parameters&.size == 3
@@ -211,7 +210,7 @@ module DataCycleCore
         hash['n'] = hash['t'].capitalize
         hash['q'] = 'import'
       when 'creator'
-        hash['v'] = Array.wrap(user&.id) if hash['v'] == 'current_user'
+        hash['v'] = Array.wrap(hash['v']).map { |v| v == 'current_user' ? user&.id : v }
       end
     end
 
