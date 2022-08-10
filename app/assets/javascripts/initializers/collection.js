@@ -5,11 +5,9 @@ export default function () {
   let collectionLists = [];
 
   function init(container = document) {
-    $(container)
-      .find('.dropdown-pane.watch-lists')
-      .each((i, elem) => {
-        collectionLists.push(new CollectionFilter(elem));
-      });
+    for (const elem of container.getElementsByClassName('dropdown-pane.watch-lists')) {
+      collectionLists.push(new CollectionFilter(elem));
+    }
 
     for (const collectionForm of document.getElementsByClassName('add-items-to-watch-list-form')) {
       new CollectionForm(collectionForm);

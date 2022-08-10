@@ -1,5 +1,6 @@
 class PasswordToggler {
   constructor(container) {
+    container.dcPasswordToggler = true;
     this.container = container;
     this.passwordField = this.container.querySelector('input');
     this.passwordToggler = this.container.querySelector('.password-visibility-toggle');

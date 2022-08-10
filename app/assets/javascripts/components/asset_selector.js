@@ -26,6 +26,7 @@ class AssetSelector {
     this.init();
   }
   init() {
+    this.reveal[0].dcAssetSelector = true;
     this.reveal.addClass('dc-asset-selector');
     this.reveal.on('open.zf.reveal', _ => this.loadAssets(false));
     this.assetList.on('click', 'li:not(.locked)', this.clickOnAsset.bind(this));

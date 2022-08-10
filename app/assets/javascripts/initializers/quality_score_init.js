@@ -21,7 +21,7 @@ export default function () {
   }
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('attribute-quality-score'),
+    e => e.classList.contains('attribute-quality-score') && !e.hasOwnProperty('dcQualityScore'),
     e => {
       new QualityScore(e);
       intersectionObserver.observe(e);

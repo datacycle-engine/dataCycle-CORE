@@ -94,13 +94,17 @@ function checkForChangedFormData(mutations, element) {
 }
 
 function monitorNewContents(element) {
+  element.dcMonitorNewContents = true;
   const changeObserver = new MutationObserver(m => checkForChangedFormData(m, element));
   changeObserver.observe(element, ObserverHelpers.changedClassWithSubtreeConfig);
 }
 
 export default function () {
   for (const element of document.querySelectorAll('.dropdown-pane')) monitorNewContents(element);
-  DataCycle.htmlObserver.addCallbacks.push([e => e.classList.contains('dropdown-pane'), e => monitorNewContents(e)]);
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('dropdown-pane') && !e.hasOwnProperty('dcMonitorNewContents'),
+    e => monitorNewContents(e)
+  ]);
 
   $(document).on('show.zf.dropdown dc:dropdown:resize', '.dropdown-pane', event => {
     resizeDropdown(event.currentTarget);

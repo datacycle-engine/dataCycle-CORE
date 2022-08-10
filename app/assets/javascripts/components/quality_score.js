@@ -2,6 +2,7 @@ import DomElementHelper from '../helpers/dom_element_helpers';
 
 class QualityScore {
   constructor(element) {
+    element.dcQualityScore = true;
     this.element = element;
     this.qualityScoreText = this.element.querySelector('.quality-score-text');
     this.container = this.element.closest('.dc-quality-score');

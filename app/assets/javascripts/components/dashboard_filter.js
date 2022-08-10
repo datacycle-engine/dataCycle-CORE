@@ -1,5 +1,6 @@
 class DashboardFilter {
   constructor(element) {
+    element.dcDashboardFilter = true;
     this.$searchForm = $(element);
     this.$defaultFilterContainer = this.$searchForm.find('.main-filters').first();
     this.$classificationTreeFilterContainer = this.$searchForm.find('.classification-tree-filter').first();

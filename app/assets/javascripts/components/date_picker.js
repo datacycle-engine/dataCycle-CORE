@@ -7,6 +7,7 @@ import LocalStorageCache from './local_storage_cache';
 
 class DatePicker {
   constructor(element) {
+    element.dcDatePicker = true;
     this.element = element;
     this.elementName = this.element.getAttribute('name');
     this.calType = 'single';

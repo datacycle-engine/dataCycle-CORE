@@ -1,5 +1,6 @@
 class DataLinkForm {
   constructor(form) {
+    form.dcDataLinkForm = true;
     this.form = form;
     this.idSelector = this.form.querySelector('.data-link-receiver-selector');
     this.formSubmit = this.form.querySelectorAll('.buttons [type="submit"]');
