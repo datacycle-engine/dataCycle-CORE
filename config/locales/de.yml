@@ -493,6 +493,11 @@ de:
     media_archive: im Medienarchiv öffnen
 
   feature:
+    quality_score:
+      tooltip:
+        min: 'Minimal: %{value}'
+        optimal: 'Optimal: %{value}'
+        max: 'Maximal: %{value}'
     duplicate_candidate:
       manual_button: Manuell zum Zusammenführen auswählen
     releasable:

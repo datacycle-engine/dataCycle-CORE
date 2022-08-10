@@ -555,7 +555,35 @@ module DataCycleCore
       redirect_back(fallback_location: root_path, alert: I18n.t('content_external_data.duplicate_record_html', url: @existing ? thing_path(@existing) : nil, locale: helpers.active_ui_locale)) && return
     end
 
+    def quality_score
+      authorize! :show, DataCycleCore::Thing
+
+      content = DataCycleCore::Thing.find_by(id: quality_score_params[:id]) || DataCycleCore::Thing.find_by(template: true, template_name: quality_score_params[:template_name])
+
+      raise ActiveRecord::RecordNotFound if content.nil?
+
+      object_params = content_params(content.template_name, params[:thing])
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, content.schema)
+      _locale, values = datahash[:translations]&.first
+      datahash = (datahash[:datahash] || {}).merge(values || {})
+
+      I18n.with_locale(quality_score_params[:locale]) do
+        render(
+          json: {
+            value: content.calculate_quality_score(
+              quality_score_params[:attribute_key],
+              datahash
+            )
+          }
+        ) && return
+      end
+    end
+
     private
+
+    def quality_score_params
+      params.permit(:id, :template_name, :attribute_key, :locale)
+    end
 
     def switch_system_params
       params.permit(:id, :external_system_sync_id)
@@ -634,7 +662,7 @@ module DataCycleCore
       if params_hash.present?
         params_hash.permit(allowed_content_params)
       else
-        params.require(:thing).permit(:version_name, allowed_content_params)
+        params.fetch(:thing, {}).permit(:version_name, allowed_content_params)
       end
     end
 

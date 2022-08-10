@@ -203,11 +203,13 @@ class EmbeddedObject {
       .off('init.zf.accordion', this.eventHandlers.scrollToLocationHash)
       .on('init.zf.accordion', this.eventHandlers.scrollToLocationHash);
   }
-  addNewItem(event) {
+  async addNewItem(event) {
     event.preventDefault();
     event.stopPropagation();
 
-    this.renderEmbeddedObjects('new');
+    await this.renderEmbeddedObjects('new');
+
+    this.element.trigger('change');
   }
   handleRemoveEvent(event) {
     event.preventDefault();
@@ -227,13 +229,18 @@ class EmbeddedObject {
   }
   removeObject(element) {
     element.trigger('dc:html:remove');
+
     let id = element.data('id');
     if (id !== undefined) {
       this.element.find('input:hidden[value="' + id + '"]').remove();
       this.ids = this.ids.filter(x => x != id);
     }
+
     element.remove();
+
     this.update();
+
+    this.element.trigger('change');
   }
   update() {
     if (this.max != 0 && this.element.children('.content-object-item').length >= this.max) {

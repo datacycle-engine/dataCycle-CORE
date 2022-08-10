@@ -115,16 +115,6 @@ label.attribute-edit-label {
   }
 }
 
-.detail-header-wrapper {
-  .dc-type-icon {
-    margin-right: 0;
-
-    &::before {
-      margin-right: 0.3rem;
-    }
-  }
-}
-
 .form-element {
   position: relative;
 
@@ -294,6 +284,14 @@ footer {
     margin-bottom: 1.5rem;
     border-top-left-radius: $global-radius;
     border-top-right-radius: $global-radius;
+
+    .detail-type {
+      .detail-label {
+        > *:not(:last-child) {
+          margin-right: 0.3rem;
+        }
+      }
+    }
   }
 
   > *:last-child {

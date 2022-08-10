@@ -21,10 +21,13 @@ module DataCycleCore
       end
     end
 
-    def embedded_add_button(title, id, readonly = false)
-      tag.button(id: id, type: 'button', class: 'button addContentObject', style: 'display: none;', disabled: readonly) do
-        text = [I18n.t('embedded.button_title', title: title, locale: active_ui_locale)]
+    def embedded_add_button(id:, key:, content:, definition:, options: nil, **args)
+      readonly = !attribute_editable?(key, definition, options, content)
+
+      tag.button(id: id, type: 'button', class: 'button add-content-object', style: 'display: none;', disabled: readonly) do
+        text = [tag.span(I18n.t('embedded.button_title', title: translated_attribute_label(key, definition, content, options), locale: active_ui_locale), class: 'add-content-object-text')]
         text.prepend(tag.i(class: 'fa fa-ban')) if readonly
+        text.append(render('data_cycle_core/contents/quality_score', key: key, content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition)) if definition.key?('quality_score')
         text.append(tag.i(class: 'fa fa-spinner fa-spin fa-fw'))
         safe_join(text)
       end

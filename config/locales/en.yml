@@ -497,6 +497,11 @@ en:
     full_size: open full-size
     media_archive: open in the media archive
   feature:
+    quality_score:
+      tooltip:
+        min: 'minimal: %{value}'
+        optimal: 'optimal: %{value}'
+        max: 'maximal: %{value}'
     duplicate_candidate:
       manual_button: Select manually for merging
     releasable:
