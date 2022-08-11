@@ -58,7 +58,13 @@ module DataCycleCore
         query = query.reset_sort
         sort_parameters.each do |sort|
           sort_method_name = 'sort_' + sort['m']
-          next unless query.respond_to?('sort_' + sort['m'])
+
+          if sort['m'].starts_with?('advanced_attribute_')
+            sort['v'] = sort['m'].gsub('advanced_attribute_', '')
+            sort_method_name = 'sort_advanced_attribute'
+          end
+
+          next unless query.respond_to?(sort_method_name)
 
           if query.method(sort_method_name)&.parameters&.size == 2
             query = query.send(sort_method_name, sort['o'].presence, sort['v'].presence)

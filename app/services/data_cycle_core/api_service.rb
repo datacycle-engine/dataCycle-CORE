@@ -363,6 +363,13 @@ module DataCycleCore
       order_params&.split(',')&.each do |sort|
         key, order = key_with_ordering(sort)
         value = order_value_from_params(key, full_text_search, raw_query_params)
+
+        # advanced_attribute sorting
+        if DataCycleCore::Feature::Sortable.available_advanced_attribute_options.key?(key.underscore)
+          value = key.underscore
+          key = 'advanced_attribute'
+        end
+
         order_hash = {
           'm' => key.parameterize(separator: '_'),
           'o' => order
