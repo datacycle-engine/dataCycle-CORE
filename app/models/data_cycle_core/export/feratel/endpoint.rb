@@ -14,19 +14,27 @@ module DataCycleCore
           @endpoint_url = options.dig(:endpoint_url)
         end
 
-        def content_request(transformation:, path:, utility_object:, data:, method: :post)
+        def content_request(transformation:, utility_object:, data:, method: :post, **_options)
           return if data.external_source_id.present? # only manually created
-          body = transformations.try(transformation, data, utility_object)
 
-          # puts Nokogiri::XML(body, &:noblanks).to_xml(indent: 2)
-          # puts
-          # puts
-
-          url = @endpoint_url || 'http://interface.deskline.net/'
-          url += path
           @output_file = DataCycleCore::Generic::Logger::LogFile.new("#{utility_object.external_system.name.underscore_blanks}_webhook")
 
+          item =
+            case data.template_name
+            when 'Event'
+              'Event'
+            when 'POI'
+              'Infrastructure'
+            end
+          url = format(@endpoint_url, { item: item }) || "http://interface.deskline.net/DSI/#{item}.asmx/Import"
+
           begin
+            body = transformations.try(transformation, data, utility_object)
+
+            puts Nokogiri::XML(body, &:noblanks).to_xml(indent: 2)
+            puts
+            puts
+
             @output_file.info(Nokogiri::XML(body, &:noblanks).to_xml(indent: 2))
 
             @response = Faraday.run_request(method, url, URI.encode_www_form('xmlString' => body), { 'Content-Type' => 'application/x-www-form-urlencoded' })
@@ -35,6 +43,12 @@ module DataCycleCore
             # puts
             # puts
 
+            envelop = Nokogiri::XML(@response.body)
+            resp = Nokogiri::XML(envelop.children.first.content)
+            resp.remove_namespaces!
+
+            item_hash = resp.xpath("//#{item}").first.to_h
+
             @output_file.info("#{@response&.env&.dig(:method)&.to_s&.upcase} #{@response&.env&.dig(:url)} #{@response.body}", "#{data&.id} - #{@response&.env&.dig(:status)} #{@response&.env&.dig(:reason_phrase)}")
             @output_file.try(:close)
           rescue Faraday::Error => e
@@ -42,7 +56,7 @@ module DataCycleCore
             @output_file.try(:close)
             raise e
           end
-          @response # return last response
+          item_hash
         end
       end
     end
