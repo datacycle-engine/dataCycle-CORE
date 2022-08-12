@@ -669,6 +669,9 @@ en:
     created_at: Creation date
     translated_name: Name
     updated_at: Update date
+    width: Width
+    height: Height
+    upload_date: Upload date
     ordering:
       asc: Ascending
       desc: Descending

@@ -704,6 +704,9 @@ de:
     created_at: Erstellungsdatum
     translated_name: Name
     updated_at: Aktualisierungsdatum
+    width: Breite
+    height: Höhe
+    upload_date: Uploaddatum
     ordering:
       asc: Aufsteigend
       desc: Absteigend
