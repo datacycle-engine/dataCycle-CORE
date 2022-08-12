@@ -17,19 +17,8 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
       gray: '#767676'
     };
   }
-  setup() {
-    super.setup();
-
-    const $element = $(
-      '<div class="loading-overlay"><div class="loading-overlay-text"><i class="fa fa-spinner fa-spin fa-fw fa-2xl"></i></div></div>'
-    );
-    this.$container.append($element);
-  }
   configureMap() {
-    this.storedFilterGeoJson().then(() => {
-      this.$container.find('.loading-overlay').fadeOut(100);
-      this.initFeatures();
-    });
+    this.initMvt();
 
     this.initControls();
     this.setZoomMethod();
@@ -39,31 +28,62 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
     this.initMouseWheelZoom();
     this.initEventHandlers();
   }
+  initMvt() {
+    // TODO: add Popup, zoom to full extent?
+
+    const searchForm = document.getElementById('search-form');
+    if (!searchForm) return;
+    const currentStoredFilterId = searchForm.dataset.storedFilter;
+
+    this.map.addSource('mvt-source', {
+      type: 'vector',
+      tiles: [`http://localhost:3003/mvt/v1/endpoints/${currentStoredFilterId}/{z}/{x}/{y}.pbf`],
+      minzoom: 0,
+      maxzoom: 22
+    });
+
+    this.map.addLayer({
+      id: 'mvt-points',
+      type: 'circle',
+      source: 'mvt-source',
+      'source-layer': 'dataCycle',
+      filter: ['==', '$type', 'Point'],
+      paint: {
+        'circle-radius': 5,
+        'circle-stroke-width': 4,
+        'circle-color': this.getStyleCaseExpression(
+          'color',
+          this.getColorMatchHexExpression(),
+          this.definedColors.default
+        ),
+        'circle-stroke-color': this.definedColors.white
+      }
+    });
+    this.map.addLayer({
+      id: 'mvt-line',
+      type: 'line',
+      source: 'mvt-source',
+      'source-layer': 'dataCycle',
+      filter: ['==', '$type', 'LineString'],
+      layout: {
+        'line-cap': 'round',
+        'line-join': 'round'
+      },
+      paint: {
+        'line-color': this.getStyleCaseExpression(
+          'color',
+          this.getColorMatchHexExpression(),
+          this.definedColors.default
+        ),
+        'line-opacity': 1,
+        'line-width': this.getStyleCaseExpression('width', ['get', 'width'], 5)
+      }
+    });
+  }
   initFeatures() {
     this.drawFeatures();
     this.drawAdditionalFeatures();
     this.updateMapPosition();
-  }
-  async storedFilterGeoJson() {
-    const searchForm = document.getElementById('search-form');
-    if (!searchForm) return;
-    const currentStoredFilterId = searchForm.dataset.storedFilter;
-    const params = {
-      language: this.language.join(','),
-      filter: { geo: { withGeometry: 'true' } }
-    };
-
-    let data = await DataCycle.httpRequest({
-      url: `/api/v4/endpoints/${currentStoredFilterId}`,
-      method: 'POST',
-      data: params,
-      dataType: 'json',
-      headers: {
-        Accept: 'application/vnd.geo+json'
-      }
-    });
-    this.value = this.feature = data;
-    return;
   }
   initEventHandlers() {
     this._addPopup();

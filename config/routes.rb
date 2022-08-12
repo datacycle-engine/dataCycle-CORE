@@ -379,6 +379,14 @@ DataCycleCore::Engine.routes.draw do
       end
     end
 
+    namespace :mvt do
+      namespace :v1 do
+        scope path: '(/:api_subversion)' do
+          match 'endpoints/:id/:z/:x/:y', to: 'contents#index', as: 'stored_filter', via: [:get]
+        end
+      end
+    end
+
     defaults format: :xml do
       namespace :xml do
         namespace :v1 do
