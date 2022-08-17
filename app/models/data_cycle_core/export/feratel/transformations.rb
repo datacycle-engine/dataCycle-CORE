@@ -215,7 +215,11 @@ module DataCycleCore
               s
             end
 
-          # mehr als eine untersch. Dauer --> exception!
+          if Array.wrap(schedule_data&.select { |i| i['Duration'] }).uniq.size > 1
+            # mehr als eine untersch. Dauer --> exception!
+            raise DataCycleCore::Export::Common::Error::ScheduleFormatError, "Unable to convert Schedule to Feratel format for thing(#{data.id}), more than one duration detected, schedule: #{data.event_schedule}"
+          end
+
           schedules[:dates] = schedule_data.map { |i| i&.slice('From', 'To') }.uniq
           schedules[:start_times] = schedule_data.map { |i| i&.slice('Time', 'Days') }.uniq
           schedules[:duration] = schedule_data.detect { |i| i['Duration'].present? }&.try(:dig, 'Duration')
