@@ -12,7 +12,8 @@ export default function () {
       e.type == 'text' &&
       !e.disabled &&
       e.classList.contains('form-control') &&
-      !e.classList.contains('flatpickr-input'),
+      !e.classList.contains('flatpickr-input') &&
+      !e.hasOwnProperty('dcCounter'),
     e => new Counter(e).start()
   ]);
 }

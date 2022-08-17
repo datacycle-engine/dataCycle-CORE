@@ -36,6 +36,7 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::Geojson
       include DataCycleCore::Content::Extensions::DefaultValue
       include DataCycleCore::Content::Extensions::ComputedValue
+      include DataCycleCore::Content::Extensions::QualityScore
 
       after_save :reload_memoized
       after_save :reload_memoized_overlay
@@ -163,7 +164,7 @@ module DataCycleCore
       end
 
       def property_definitions
-        schema&.dig('properties') || {}
+        schema&.[]('properties') || {}
       end
 
       def property_names
@@ -248,6 +249,10 @@ module DataCycleCore
           h[key] = name_property_selector(key) { |definition| definition['compute'].present? }
         end
         @computed_property_names[include_overlay]
+      end
+
+      def quality_score_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition['quality_score'].present? }
       end
 
       def default_value_property_names(include_overlay = false)

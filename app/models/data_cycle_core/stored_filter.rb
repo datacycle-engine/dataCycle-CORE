@@ -2,6 +2,15 @@
 
 module DataCycleCore
   class StoredFilter < ApplicationRecord
+    # Mögliche Filter-Parameter: c, t, v, m, n, q
+    #
+    # c => one of 'd', 'a', 'p', 'u', 'uf'                | für 'default', 'advanced', 'permanent advanced', 'user', 'user forced'
+    # t => String                                         | der Filtertyp (die Methode, die auf die Query ausgeführt wird, z.B. 'classification_alias_ids')
+    # v => String, Array, Hash                            | der übergebene Wert für die Filtermethode (z.B. ['a9b25ff1-5af2-4f21-b61e-408812e14b0d'])
+    # m => 'i', 'e', 'g', 'l', 'u', 'n', 's', 'b', 'p'    | Filtermethode, 'include', 'exclude', 'greater', 'lower', 'neutral', 'like', 'notLike', 'blank', 'present'
+    # n => String                                         | das Filterlabel (z.B. 'Inhaltspools')
+    # q => String (Optional)                              | Ein spezifischer Query-Pfad für das Attribut (z.B. metadata ->> 'width') || type
+
     scope :by_user, ->(user) { where user: user }
     belongs_to :user
 
@@ -13,42 +22,27 @@ module DataCycleCore
     has_many :data_links, as: :item, dependent: :destroy
     has_many :valid_write_links, -> { valid.writable }, class_name: 'DataCycleCore::DataLink', as: :item
 
-    # Mögliche Filter-Parameter: c, t, v, m, n, q
-    #
-    # c => 'd' oder 'a'         | für 'default' oder 'advanced'
-    # t => String               | der Filtertyp (die Methode, die auf die Query ausgeführt wird, z.B. 'classification_alias_ids')
-    # v => String, Array, Hash  | der übergebene Wert für die Filtermethode (z.B. ['a9b25ff1-5af2-4f21-b61e-408812e14b0d'])             |
-    # m => 'i', 'e', 'g', 'l', 'u', 'n', 's', 'b', 'p'    | Filtermethode, 'include', 'exclude', 'greater', 'lower', 'neutral', 'like', 'notLike', 'blank', 'present'
-    # n => String               | das Filterlabel (z.B. 'Inhaltspools')
-    # q => String (Optional)    | Ein spezifischer Query-Pfad für das Attribut (z.B. metadata ->> 'width') || type
+    KEYS_FOR_EQUALITY = ['t', 'c', 'n'].freeze
+    FILTER_PREFIX = {
+      'e' => 'not_',
+      'g' => 'greater_',
+      'l' => 'lower_',
+      's' => 'like_',
+      'u' => 'not_like_',
+      'b' => 'not_exists_',
+      'p' => 'exists_'
+    }.freeze
 
     def apply(query: nil, skip_ordering: false)
       query_params = language&.exclude?('all') ? [language] : [nil]
       query ||= DataCycleCore::Filter::Search.new(*query_params)
 
       parameters.presence&.each do |filter|
-        case filter['m']
-        when 'e'
-          t = "not_#{filter['t']}"
-        when 'g'
-          t = "greater_#{filter['t']}"
-        when 'l'
-          t = "lower_#{filter['t']}"
-        when 's'
-          t = "like_#{filter['t']}"
-        when 'u'
-          t = "not_like_#{filter['t']}"
-        when 'b'
-          t = "not_exists_#{filter['t']}"
-        when 'p'
-          t = "exists_#{filter['t']}"
-        else
-          t = filter['t']
-        end
+        t = filter['t'].dup
+        t.prepend(FILTER_PREFIX[filter['m']].to_s)
 
         # TODO: migrate stored filters to use latest classification filter methods
-        t = "#{t}_with_subtree" if filter['t'] == 'classification_alias_ids' || filter['t'] == 'not_classification_alias_ids'
-
+        t.concat('_with_subtree') if filter['t'].in?(['classification_alias_ids', 'not_classification_alias_ids'])
         next unless query.respond_to?(t)
 
         if query.method(t)&.parameters&.size == 3
@@ -64,7 +58,13 @@ module DataCycleCore
         query = query.reset_sort
         sort_parameters.each do |sort|
           sort_method_name = 'sort_' + sort['m']
-          next unless query.respond_to?('sort_' + sort['m'])
+
+          if sort['m'].starts_with?('advanced_attribute_')
+            sort['v'] = sort['m'].gsub('advanced_attribute_', '')
+            sort_method_name = 'sort_advanced_attribute'
+          end
+
+          next unless query.respond_to?(sort_method_name)
 
           if query.method(sort_method_name)&.parameters&.size == 2
             query = query.send(sort_method_name, sort['o'].presence, sort['v'].presence)
@@ -79,17 +79,30 @@ module DataCycleCore
       query
     end
 
-    def parameters_from_hash(params)
-      return self if params.blank?
+    def parameters_from_hash(params_array)
+      return self if params_array.blank?
 
-      self.parameters = params.map do |f|
-        f.to_h.deep_stringify_keys.each_with_object({}) do |(k, v), hash|
-          hash['t'] = k
-          hash['v'] = v
-        end
-      end
+      self.parameters = params_array.map { |filter| param_from_definition(filter) }
 
       self
+    end
+
+    def user_filters_from_hash(user, filter_options)
+      user_filters = []
+
+      Array.wrap(DataCycleCore.user_filters).each do |f|
+        next if Array.wrap(f['scope']).exclude?(filter_options[:scope])
+        next if Array.wrap(f['segments']).none? { |s| s['name'].safe_constantize.new(*Array.wrap(s['parameters'])).include?(user) }
+        next if filter_options[:scope] == 'object_browser' && f['object_browser_restriction'].to_h.none? { |k, v| filter_options[:content_template] == k && filter_options[:attribute_key]&.in?(Array.wrap(v)) }
+
+        user_filters.concat(Array.wrap(f['stored_filter']).map { |s| param_from_definition(s, f['force'] ? 'uf' : 'u', user) })
+      end
+
+      user_filters
+    end
+
+    def filter_equal?(filter1, filter2)
+      filter1.slice(*KEYS_FOR_EQUALITY) == filter2.slice(*KEYS_FOR_EQUALITY)
     end
 
     def apply_user_filter(user, options = nil)
@@ -98,9 +111,20 @@ module DataCycleCore
       filter_options = { scope: 'backend' }
       filter_options.merge!(options) { |_k, v1, v2| v2.presence || v1 } if options.present?
 
-      self.parameters = user.default_filter(parameters || [], filter_options)
+      self.parameters ||= []
+      applicable_filters = user_filters_from_hash(user, filter_options)
+      parameters.each { |f| f['c'] = 'a' if f['c'].in?(['u', 'uf']) && applicable_filters.none? { |af| filter_equal?(af, f) } }
+
+      self.parameters = user.default_filter(parameters, filter_options) # keep for backwards compatibility
+
+      applicable_filters.each { |f| apply_specific_user_filter(f) }
 
       self
+    end
+
+    def apply_specific_user_filter(filter)
+      parameters.reject! { |f| filter_equal?(f, filter) } if filter['c'] == 'uf'
+      parameters.push(filter) unless parameters.any? { |f| filter_equal?(f, filter) }
     end
 
     def self.sort_params_from_filter(search = nil, schedule = nil)
@@ -160,17 +184,46 @@ module DataCycleCore
 
       return if stored_filter_ids.blank?
 
-      if (union_filters = parameters&.filter { |f| f['t'] == 'union_filter_ids' && f['v'].intersection(stored_filter_ids).present? }).present?
-        union_filters.each { |f| f['v'] = f['v'].intersection(stored_filter_ids) }
-      else
-        parameters << {
-          'c' => 'a',
-          't' => 'union_filter_ids',
-          'n' => 'Union_filter_ids',
-          'm' => 'i',
-          'v' => stored_filter_ids
-        }
+      apply_specific_user_filter(param_from_definition({ union_filter_ids: stored_filter_ids }, 'uf'))
+    end
+
+    private
+
+    def param_from_definition(definition, type = 'a', user = nil)
+      definition.to_h.deep_stringify_keys.each_with_object({}) do |(k, v), hash|
+        hash['t'], hash['m'] = filter_method_from_prefix(k)
+        hash['v'] = v
+        hash['c'] = type
+        hash['n'] = hash['t'].capitalize
+
+        custom_param_transformation(hash, user)
       end
+    end
+
+    def custom_param_transformation(hash, user)
+      case hash['t']
+      when 'with_classification_aliases_and_treename'
+        raise StandardError, 'Missing data definition: treeLabel' if hash.dig('v', 'treeLabel').blank?
+        raise StandardError, 'Missing data definition: aliases' if hash.dig('v', 'aliases').blank?
+
+        hash['t'] = 'classification_alias_ids'
+        hash['n'] = hash.dig('v', 'treeLabel')
+        hash['v'] = DataCycleCore::ClassificationAlias
+          .for_tree(hash.dig('v', 'treeLabel'))
+          .with_internal_name(hash.dig('v', 'aliases')).pluck(:id)
+      when 'external_source'
+        hash['t'] = 'external_system'
+        hash['n'] = hash['t'].capitalize
+        hash['q'] = 'import'
+      when 'creator'
+        hash['v'] = Array.wrap(hash['v']).map { |v| v == 'current_user' ? user&.id : v }
+      end
+    end
+
+    def filter_method_from_prefix(filter_type)
+      f_method, f_prefix = FILTER_PREFIX.to_a.reverse.find { |_, prefix| filter_type.starts_with?(prefix) }
+
+      return filter_type.delete_prefix(f_prefix.to_s), f_method || 'i'
     end
   end
 end

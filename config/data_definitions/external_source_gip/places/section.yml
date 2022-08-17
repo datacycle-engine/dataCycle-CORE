@@ -170,6 +170,13 @@
         :advanced_search: true
         :default_value: 'false'
         :global: true
+      :prevent_vao_export:
+        :label: Route vom VAO-Export ausnehmen
+        :type: boolean
+        :storage_location: value
+        :advanced_search: true
+        :default_value: 'false'
+        :global: true
       :order_main_route:
         :label: Reihenfolge HR
         :type: number

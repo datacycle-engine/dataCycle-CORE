@@ -5,6 +5,7 @@ import ObserverHelpers from '../helpers/observer_helpers';
 
 class NewContentDialog {
   constructor(form) {
+    form.dcNewContentDialog = true;
     this.form = $(form);
     this.nextButton = this.form.find('.next');
     this.prevButton = this.form.find('.prev');
@@ -72,7 +73,10 @@ class NewContentDialog {
     for (const mutation of mutations) {
       if (mutation.type !== 'attributes') continue;
 
-      if (mutation.target.classList.contains('remote-rendered') && mutation.oldValue.includes('remote-rendering'))
+      if (
+        mutation.target.classList.contains('remote-rendered') &&
+        (!mutation.oldValue || mutation.oldValue.includes('remote-rendering'))
+      )
         this.triggerSyncWithContentUploader();
     }
   }

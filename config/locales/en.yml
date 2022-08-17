@@ -140,7 +140,7 @@ en:
         pinch: Use two fingers to zoom/scroll the map
       filter:
         button_title: edit linked contents
-      upload_gpx: 
+      upload_gpx:
         button_title: Upload GPX file
       styles:
         osm: OpenStreetMap
@@ -243,6 +243,12 @@ en:
   collection:
     new: new %{data}
     filter: 'filter %{data} ...'
+
+  content_external_data:
+    primary_external_system_tooltip: This system is the primary external system
+    toolip: Use this external system as the primary external system
+    primary_system_switched: The primary external system was successfully switched
+    duplicate_record_html: There is already a <a href="%{url}" target="_blank">content</a> in the target external system
 
   common:
     'true': 'Yes'
@@ -491,6 +497,11 @@ en:
     full_size: open full-size
     media_archive: open in the media archive
   feature:
+    quality_score:
+      tooltip:
+        min: 'minimal: %{value}'
+        optimal: 'optimal: %{value}'
+        max: 'maximal: %{value}'
     duplicate_candidate:
       manual_button: Select manually for merging
     releasable:
@@ -658,6 +669,9 @@ en:
     created_at: Creation date
     translated_name: Name
     updated_at: Update date
+    width: Width
+    height: Height
+    upload_date: Upload date
     ordering:
       asc: Ascending
       desc: Descending
@@ -909,8 +923,8 @@ en:
       updated: '%{data} has been updated.'
       destroyed: '%{data} has been deleted.'
       destroyed_translation: Translation %{language} of %{data} was deleted.
-      added_to: 'Added to watch list: %{data} added.'
-      removedFrom: 'Removed from watch list: %{data} removed.'
+      added_to: 'Added to %{type}: %{data} added.'
+      removed_from: 'Removed from %{type}: %{data} removed.'
       sent: Email has been sent.
       saved: '%{data} was created.'
       saved_and_sent: '%{data} was created and sent.'
@@ -1011,9 +1025,9 @@ en:
         one: User group
         other: User groups
       data_cycle_core/subscription:
-        zero: No subscriptions
-        one: Subscription
-        other: Subscriptions
+        zero: No subscriptions (only contents)
+        one: Subscription (only contents)
+        other: Subscriptions (only contents)
       data_cycle_core/watch_list:
         one: Content collection
         other: Content collections
@@ -1212,6 +1226,13 @@ en:
       update_params: save and apply search parameters
     watch_list:
       locked_by_data_link: Add/Remove Content Locked (Active External Links)
+      mailer:
+        subject:
+          one: 'Contents were added/removed to/from a %{type}.'
+          other: 'Contents were added/removed to/from several %{type}'
+        text_html:
+          one: 'The following content was added/removed to/from %{link}:'
+          other: 'The following contents were added/removed to/from %{link}:'
     upload: Upload new media
     data_links:
       write_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida

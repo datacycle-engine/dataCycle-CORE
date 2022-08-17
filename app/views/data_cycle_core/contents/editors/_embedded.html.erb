@@ -71,7 +71,7 @@
               disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.load_all', locale: active_ui_locale)}..."
             } if objects.try(:total_pages)&.positive? && !objects&.last_page? %>
 
-      <%= embedded_add_button(translated_attribute_label(key, definition, content, options), "add_#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", !attribute_editable?(key, definition, options, content)) %>
+      <%= embedded_add_button(id: "add_#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", **local_assigns) %>
     </span>
   <% end %>
 

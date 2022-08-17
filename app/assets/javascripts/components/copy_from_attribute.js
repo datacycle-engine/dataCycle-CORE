@@ -13,6 +13,8 @@ class CopyFromAttribute {
     this.init();
   }
   init() {
+    this.$element[0].dcCopyFromAttribute = true;
+
     if (!this.hasCopyableValue()) {
       this.$element.hide();
       return;

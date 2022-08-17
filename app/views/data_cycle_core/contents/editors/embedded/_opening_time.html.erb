@@ -130,11 +130,7 @@
         <% end %>
 
         <span class="buttons">
-          <%= embedded_add_button(
-            translated_attribute_label(time_key, time_definition, content, options),
-            "add_#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(time_key)}",
-            !attribute_editable?(time_key, time_definition, options, content)
-          ) %>
+          <%= embedded_add_button(id: "add_#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(time_key)}", **local_assigns.merge({ key: time_key, definition: time_definition })) %>
         </span>
       </div>
     <% end %>

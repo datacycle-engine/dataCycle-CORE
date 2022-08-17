@@ -1,9 +1,9 @@
 <li>
   <%= link_to root_path(stored_filter: stored_filter.id) do %>
-    <span class="title <%= 'global' if stored_filter.system %>">
+    <span class="title <%= 'global' if stored_filter.system %>" title="<%= stored_filter.name %>">
       <%= stored_filter.system ? tag.i(class: 'fa fa-globe') : tag.i(class: 'fa fa-filter') %> <%= stored_filter.name %>
     </span>
-    <span class="stored-date"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= l(Time.zone.at(stored_filter.created_at.to_datetime), locale: active_ui_locale) %></span>
+    <span class="stored-date"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= l(Time.zone.at(stored_filter.created_at.to_datetime), format: :edit, locale: active_ui_locale) %></span>
   <% end %>
 
   <div class="buttons">

@@ -23,11 +23,7 @@ module DataCycleCore
     end
 
     def self.get_internal_template(name)
-      @get_internal_template ||= Hash.new do |h, key|
-        h[key] = DataCycleCore::Thing.find_by!(template: true, template_name: key)
-      end
-
-      @get_internal_template[name]
+      DataCycleCore::Thing.find_by!(template: true, template_name: name)
     end
 
     def self.create_duplicate(content: nil, current_user: nil)

@@ -17,6 +17,7 @@ module DataCycleCore
         can :read, DataCycleCore::StoredFilter, system: true
         can :read, [DataCycleCore::Subscription, :publication]
         can [:subscribe, :history], DataCycleCore::Thing
+        can :subscribe, DataCycleCore::WatchList
         can [:history], DataCycleCore::Thing::History
 
         can [:read, :create, :update, :add_item, :remove_item], DataCycleCore::WatchList, user_id: user.id

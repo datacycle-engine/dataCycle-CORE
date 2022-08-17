@@ -5,6 +5,7 @@ class DashboardTreeLoader extends DashboardPagination {
   constructor(element) {
     super(element);
 
+    element.dcDashboardTreeLoader = true;
     this.paginationContainer = this.paginationElement.closest('.tree-link-container');
     this.innerItem = this.paginationElement.closest('.inner-item');
   }

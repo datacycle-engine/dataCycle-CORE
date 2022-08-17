@@ -1,5 +1,6 @@
 class DashboardFilter {
   constructor(element) {
+    element.dcDashboardFilter = true;
     this.$searchForm = $(element);
     this.$defaultFilterContainer = this.$searchForm.find('.main-filters').first();
     this.$classificationTreeFilterContainer = this.$searchForm.find('.classification-tree-filter').first();
@@ -140,11 +141,11 @@ class DashboardFilter {
     let selectValue = $(elem).find('> .advanced-filter-mode select').val();
 
     if (selectValue == 'b' || selectValue == 'p') {
-      newTarget.find(':input[type=hidden]').prop('disabled', false);
-      newTarget.find(':input:not([type=hidden])').prop('disabled', true);
+      newTarget.find(':input[type=hidden]:not(.flatpickr-input)').prop('disabled', false);
+      newTarget.find(':input:not([type=hidden]), :input[type=hidden].flatpickr-input').prop('disabled', true);
     } else {
-      newTarget.find(':input[type=hidden]').prop('disabled', true);
-      newTarget.find(':input:not([type=hidden])').prop('disabled', false);
+      newTarget.find(':input[type=hidden]:not(.flatpickr-input)').prop('disabled', true);
+      newTarget.find(':input:not([type=hidden]), :input[type=hidden].flatpickr-input').prop('disabled', false);
     }
   }
   _conditionalValueSelectorChange(event) {

@@ -10,6 +10,7 @@ class CollectionFilter {
     this.init();
   }
   init() {
+    this.selector[0].dcCollectionFilter = true;
     this.filterInput.on('input', this.checkTimeout.bind(this));
     this.filterResetButton.on('click', this.resetFilter.bind(this));
     this.selector.on('dc:collection:filter', this.setFilterInputValue.bind(this));

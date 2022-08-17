@@ -1,5 +1,26 @@
 # frozen_string_literal: true
 
+def find_or_create_content(external_source: nil, external_key: nil, template_name: nil, data: nil)
+  content = DataCycleCore::Thing.where(template_name: template_name,
+                                       external_source_id: external_source.id, external_key: external_key).first
+
+  unless content
+    content = DataCycleCore::Thing.find_by!(template_name: template_name, template: true).dup
+
+    content.template = false
+    content.created_at = Time.zone.now
+    content.updated_at = content.created_at
+    content.created_by = nil
+    content.external_source_id = external_source.id
+    content.external_key = external_key
+    content.save!(touch: false)
+
+    content.set_data_hash(data_hash: data, new_content: true)
+  end
+
+  content
+end
+
 namespace :dc do
   namespace :migrate do
     desc 'move external_source_id and external_key from things to external_system_syncs'
@@ -295,6 +316,166 @@ namespace :dc do
           SET schema = jsonb_set(schema, '{properties}', thing_histories.schema -> 'properties' || '#{new_definition}', false)
           WHERE template_name = '#{template.template_name}'
         SQL
+      end
+    end
+
+    task :external_to_univeral_classifications, [:stored_filter] => :environment do |_, args|
+      contents = DataCycleCore::Thing.where(id: DataCycleCore::StoredFilter.find(args[:stored_filter]).apply.select(:id))
+
+      DataCycleCore::ClassificationContent.joins(:classification)
+        .where(content_data_id: contents.select(:id))
+        .where.not(relation: 'universal_classifications', classifications: { external_source_id: nil }).each do |relation|
+          relation.update!(relation: 'universal_classifications')
+      rescue ActiveRecord::RecordNotUnique
+        relation.destroy!
+        end
+    end
+
+    task :pull_classifications_from_embedded, [:stored_filter, :embedded, :source_relation, :target_relation] => :environment do |_, args|
+      contents = DataCycleCore::Thing.where(id: DataCycleCore::StoredFilter.find(args[:stored_filter]).apply.select(:id))
+
+      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING')
+
+      contents.map do |thing|
+        embedded_contents = DataCycleCore::ContentContent.where(content_a: thing.id, relation_a: args[:embedded])
+
+        DataCycleCore::ClassificationContent
+          .where(content_data_id: embedded_contents.select(:content_b_id), relation: args[:source_relation])
+          .update_all(content_data_id: thing.id, relation: args[:target_relation])
+
+        progressbar.increment
+      end
+    end
+
+    task :outdooractive_tours, [:stored_filter] => :environment do |_, args|
+      contents = DataCycleCore::Thing.joins(:external_source)
+        .where(template_name: 'Tour', external_systems: { identifier: 'outdooractive' })
+
+      contents = contents.where(id: DataCycleCore::StoredFilter.find(args[:stored_filter]).apply.select(:id)) if args[:stored_filter]
+
+      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING')
+
+      contents.includes(:translations).map do |content|
+        translation = content.translations.first
+
+        if translation.content['author']
+          author = I18n.with_locale(translation.locale) do
+            find_or_create_content(
+              external_source: content.external_source,
+              external_key: Digest::MD5.hexdigest(translation.content['author']),
+              template_name: 'Organization',
+              data: { name: translation.content['author'] }
+            )
+          end
+        end
+
+        publishers = content.classifications_for_tree(tree_name: 'OutdoorActive - Quellen').map do |classification|
+          find_or_create_content(
+            external_source: content.external_source,
+            external_key: Digest::MD5.hexdigest(classification.name),
+            template_name: 'Organization',
+            data: { name: classification.name }
+          )
+        end
+
+        data = {
+          author: author ? [author.id] : [],
+          sd_publisher: publishers.map(&:id),
+          image: (content.primary_image.map(&:id) + content.image.map(&:id)).uniq,
+          primary_image: [],
+          aggregate_rating: content.metadata.select { |k, _|
+                              k =~ /_rating$/
+                            }.select { |_, v|
+                              v.to_i.positive?
+                            }.map do |k, v|
+                              {
+                                'id' => DataCycleCore::Thing.where(
+                                  external_source_id: content.external_source_id,
+                                  external_key: [content.external_key, k].join(' - ')
+                                ).pick(:id),
+                                'external_key' => [content.external_key, k].join(' - '),
+                                'name' => I18n.t('import.outdoor_active.ratings.' + k, default: k),
+                                'rating_value' => v.to_i,
+                                'worst_rating' => 1,
+                                'best_rating' => k == 'difficulty_rating' ? 3 : 6
+                              }
+                            end
+        }
+
+        unless content.set_data_hash(data_hash: data, partial_update: true)
+          puts "Cannot migrate ##{content.id}:"
+          puts content.errors.full_messages.map { |m| "  #{m}" }.join("\n")
+          puts
+        end
+
+        DataCycleCore::ContentContent.where(content_a: content.id, relation_a: 'poi').update_all(relation_a: 'waypoint')
+
+        content.additional_information.select { |c| c.name == I18n.t('import.outdoor_active.tour.description') }.each(&:destroy!)
+
+        DataCycleCore::ContentContent.where(content_a: content.id, relation_a: 'aggregate_rating').map(&:content_b).each do |rating|
+          rating_key = rating.external_key.split(' - ')[1]
+
+          next unless rating_key
+
+          content.translations.map(&:locale).each do |locale|
+            I18n.with_locale(locale) do
+              rating.set_data_hash(data_hash: {
+                'name' => I18n.t('import.outdoor_active.ratings.' + rating_key, default: rating_key)
+              })
+            end
+          end
+        end
+
+        progressbar.increment
+      end
+    end
+
+    desc 'download external assets into dataCycle for things with external_system_id'
+    task outdoor_active_oertlichkeit_to_feratel_poi: :environment do
+      outdoor_active = DataCycleCore::ExternalSystem.find_by(identifier: 'outdooractive')
+      abort('outdooractive external system not found!') if outdoor_active.nil?
+      feratel = DataCycleCore::ExternalSystem.find_by(identifier: 'feratel')
+      abort('feratel external system not found!') if feratel.nil?
+
+      aggregation = [
+        { '$match': { 'dump.de.meta.externalSystem.name': { '$exists': true } } },
+        { '$match': { 'dump.de.meta.externalId.id': { '$exists': true } } },
+        { '$match': { 'dump.de.meta.externalSystem.name': /.*feratel.*/i } },
+        { '$match': { 'dump.de.frontendtype': 'poi' } },
+        { '$project': { 'external_id': '$dump.de.id', 'external_key': '$dump.de.meta.externalId.id' } }
+      ]
+
+      places = outdoor_active.query('places') { |i| i.collection.aggregate(aggregation).to_a }.to_h { |p| [p['external_id'], p['external_key']] }
+      contents = DataCycleCore::Thing.where(external_source_id: outdoor_active.id, template_name: 'Örtlichkeit', external_key: places.keys)
+      existing_feratel = DataCycleCore::Thing.where(external_source_id: feratel.id, external_key: places.values).pluck(:external_key, :id).to_h
+
+      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+      contents.find_each do |content|
+        feratel_thing_id = existing_feratel[places[content.external_key]]
+
+        next progressbar.increment if feratel_thing_id.nil?
+
+        begin
+          content.content_content_b.update_all(content_b_id: feratel_thing_id)
+        rescue ActiveRecord::RecordNotUnique
+          nil
+        end
+
+        begin
+          DataCycleCore::ExternalSystemSync.find_or_create_by(syncable_id: feratel_thing_id, syncable_type: 'DataCycleCore::Thing', sync_type: 'duplicate', external_system_id: outdoor_active.id, external_key: content.external_key) do |sync|
+            sync.status = 'success'
+            sync.data = { 'external_key' => content.external_key }
+            sync.last_sync_at = content.updated_at
+            sync.last_successful_sync_at = content.updated_at
+          end
+        rescue ActiveRecord::RecordNotUnique
+          nil
+        end
+
+        content.destroy_content
+
+        progressbar.increment
       end
     end
   end

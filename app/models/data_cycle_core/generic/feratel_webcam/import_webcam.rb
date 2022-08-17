@@ -25,10 +25,13 @@ module DataCycleCore
             return if cam_details.blank?
             return unless cam_details.dig('pci').is_a?(::Array)
 
+            design = options[:design] || 'v3'
+            static_image = options.dig(:import, :static_image)
+
             if cam_details.dig('is').present?
               DataCycleCore::Generic::FeratelWebcam::Processing.process_image(
                 utility_object,
-                cam_details.dig('is').merge({ 'rid' => cam_details['rid'], 'type' => 'is', 'url_key' => 'is' }),
+                cam_details.dig('is').merge({ 'rid' => cam_details['rid'], 'type' => 'is', 'url_key' => 'is', 'design' => design, 'static_image' => static_image }),
                 options.dig(:import, :transformations, :image)
               )
             end
@@ -36,7 +39,7 @@ module DataCycleCore
             if cam_details.dig('h').present?
               DataCycleCore::Generic::FeratelWebcam::Processing.process_image(
                 utility_object,
-                cam_details.dig('h').merge({ 'rid' => cam_details['rid'], 'type' => 'h', 'url_key' => 's' }),
+                cam_details.dig('h').merge({ 'rid' => cam_details['rid'], 'type' => 'h', 'url_key' => 's', 'design' => design, 'static_image' => static_image }),
                 options.dig(:import, :transformations, :image)
               )
             end

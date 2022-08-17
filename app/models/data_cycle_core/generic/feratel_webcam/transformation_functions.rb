@@ -21,6 +21,17 @@ module DataCycleCore
           }.inject(&:merge)
           data
         end
+
+        def self.image_url(data, key, ids)
+          id = ids.detect { |i| data.dig("#{data['type']}i", i, data['url_key']) }
+          data[key] =
+            if data['static_image'].present?
+              format(data['static_image'], { image_size: id, external_id: data['rid'], design: data['design'] })
+            else
+              data.dig("#{data['type']}i", id, data['url_key'])
+            end
+          data
+        end
       end
     end
   end
