@@ -141,8 +141,13 @@
       }
     }
   }
-  &.embedded:not(.textblock) {
+
+  &.embedded:not(.textblock):not(.embedded.embedded-wrapper) {
     padding: 0 !important;
+  }
+
+  &.embedded-wrapper {
+    padding-top: 2.5rem;
   }
 }
 

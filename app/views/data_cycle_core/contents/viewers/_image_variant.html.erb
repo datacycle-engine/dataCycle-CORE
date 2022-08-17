@@ -2,7 +2,7 @@
 <% objects = Array(objects) + new_relations(options.dig(:item_diff), 'things').includes(:translations).to_a.concat if changes_by_mode(options.dig(:item_diff), '+').present? %>
 
 <% if objects.present? %>
-  <%= conditional_tag :div, !local_assigns[:no_wrapper], class: 'embedded-viewer', data: { accordion: true, allow_all_closed: true, multi_expand: true } do %>
+  <%= conditional_tag :div, !local_assigns[:no_wrapper], class: embedded_viewer_html_classes(**local_assigns), data: { accordion: true, allow_all_closed: true, multi_expand: true } do %>
     <% objects.presence&.each_with_index do |object, index| %>
       <%= render 'data_cycle_core/contents/viewers/attribute',
                  key: key,

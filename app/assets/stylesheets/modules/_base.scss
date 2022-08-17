@@ -1,6 +1,7 @@
 body {
   background-color: $body-background;
   --dropdown-arrow-left-offset: 0px;
+  --dc-sticky-bar-offset: 0px;
 }
 
 /* Headings */
@@ -764,6 +765,7 @@ footer {
   .embedded_object:not(.publication_schedule) .content-object-item,
   .readonly-select,
   .form-element.detail_object,
+  .form-element.embedded,
   .map-info.detail_object,
   .form-element.linked,
   .form-element.boolean,
@@ -847,12 +849,6 @@ footer {
   .form-element.focus > .editor-block {
     border-color: $primary-color;
     background: $white;
-  }
-
-  .focus {
-    label {
-      z-index: 20;
-    }
   }
 
   &.editor {
@@ -2118,4 +2114,9 @@ body.object-browser-overlay-open {
       }
     }
   }
+}
+
+.dc-sticky-bar {
+  position: sticky !important;
+  top: var(--dc-sticky-bar-offset) !important;
 }

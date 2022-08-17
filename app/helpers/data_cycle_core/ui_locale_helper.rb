@@ -33,9 +33,9 @@ module DataCycleCore
       @available_locales_with_all[active_ui_locale]
     end
 
-    def translated_attribute_label(key, definition, content, options)
+    def translated_attribute_label(key, definition, content, options, _count = 1)
       @translated_attribute_label ||= Hash.new do |h, k|
-        h[k] = begin
+        h[k] = begin # TODO: allow singular and plural
           if I18n.exists?("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", locale: k[4])
             label = I18n.t("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", locale: k[4])
           elsif I18n.exists?("attribute_labels.#{k[2]&.template_name}.#{k[0]}", locale: k[4])
@@ -98,7 +98,7 @@ module DataCycleCore
       tag.span label_html, class: 'detail-label'
     end
 
-    def attribute_edit_label_tag(key:, definition:, content:, options:, **args)
+    def attribute_edit_label_tag(key:, definition:, content:, options:, html_classes: nil, **args)
       label_html = ActionView::OutputBuffer.new(tag.span(translated_attribute_label(key, definition, content, options), class: 'attribute-label-text', title: translated_attribute_label(key, definition, content, options)))
 
       label_html.prepend(tag.i(class: 'fa fa-language translatable-attribute-icon')) if attribute_translatable?(key, definition, content)
@@ -107,7 +107,7 @@ module DataCycleCore
       label_html << render('data_cycle_core/contents/helper_text', key: key, content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition)
       label_html << render('data_cycle_core/contents/quality_score', key: key, content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition) if definition.key?('quality_score')
 
-      label_tag "#{options&.dig(:prefix)}#{sanitize_to_id(key)}", label_html, class: 'attribute-edit-label'
+      label_tag "#{options&.dig(:prefix)}#{sanitize_to_id(key)}", label_html, class: "attribute-edit-label #{html_classes}".strip
     end
 
     def quality_score_tooltip(definition)

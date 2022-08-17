@@ -1325,18 +1325,60 @@ span.single_error.object-browser-error {
 /* embedded Objects */
 
 .detail-header {
-  .add-content-object {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  .form-element.embedded {
+    .embedded-editor-header {
+      display: flex;
+      align-items: center;
+      position: sticky;
+      z-index: 13;
+      background: $white;
 
-    > *:not(:last-child) {
-      margin-right: 0.3rem;
+      .attribute-edit-label {
+        display: flex;
+        align-items: center;
+        position: relative;
+        top: unset;
+        left: unset;
+        margin: 0;
+        flex: auto;
+        padding: 0.7rem 1rem;
+      }
+
+      .add-content-object {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 0.3rem 0.5rem;
+        height: 2rem;
+        width: 2rem;
+        margin: 0 0.5rem;
+      }
     }
 
-    .fa.fa-spinner {
-      display: none;
-      font-size: 0.9rem;
+    .embedded-object {
+      padding: 0;
+
+      &.has-items {
+        padding: 0.3rem 1rem 1rem 1rem;
+      }
+    }
+
+    &.loading-embedded {
+      button,
+      .button,
+      .add-content-object {
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+
+      > .embedded-editor-header > .add-content-object > .fa:before {
+        content: '\f110';
+        animation: fa-spin 2s infinite linear;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
   }
 

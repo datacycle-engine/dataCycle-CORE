@@ -254,7 +254,7 @@ $fa-font-path: '/assets';
     background-color: $white;
     align-items: center;
     position: sticky;
-    top: 55px;
+    top: var(--dc-sticky-bar-offset) !important;
     z-index: 12;
     height: 2.5rem;
     border-radius: $global-radius;
