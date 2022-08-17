@@ -14,7 +14,21 @@ module DataCycleCore
           end
 
           def thumbnail_url(computed_parameters:, **_args)
-            DataCycleCore::Image.find_by(id: computed_parameters.values.first)&.file&.thumb_preview&.url
+            image = DataCycleCore::Image.find_by(id: computed_parameters.values.first)
+            thumb_url = nil
+            if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && DataCycleCore.experimental_features.dig('active_storage', 'asset_types')&.include?(image.class.name) && image&.file&.attached?
+              begin
+                ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
+                  thumb_url = image.file.variant(resize_to_limit: [300, 300]).processed.url
+                end
+              rescue ActiveStorage::FileNotFoundError
+                # add some logging
+                return nil
+              end
+            else
+              thumb_url = image&.file&.thumb_preview&.url
+            end
+            thumb_url
           end
 
           def exif_value(image_id, path)
