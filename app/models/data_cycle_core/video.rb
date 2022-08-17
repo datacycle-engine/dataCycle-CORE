@@ -31,12 +31,16 @@ module DataCycleCore
     end
 
     def codec_validation(options)
-      if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
-        if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable.dig(:io).present?
-          # import from local disc
-          path_to_tempfile = attachment_changes['file'].attachable.dig(:io).path
+      if self.class.active_storage_activated?
+        if attachment_changes.present?
+          if attachment_changes['file']&.attachable.is_a?(::Hash) && attachment_changes['file']&.attachable&.dig(:io).present?
+            # import from local disc
+            path_to_tempfile = attachment_changes['file'].attachable.dig(:io).path
+          else
+            path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
+          end
         else
-          path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
+          path_to_tempfile = file.service.path_for(file.key)
         end
       else
         path_to_tempfile = file.file.path

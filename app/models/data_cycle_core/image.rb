@@ -24,7 +24,7 @@ module DataCycleCore
     end
 
     def custom_validators
-      if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+      if self.class.active_storage_activated?
         DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
           try("#{validator}_validation", options)
         end
@@ -65,9 +65,24 @@ module DataCycleCore
     end
 
     def dimensions_validation(options)
-      return if options.dig(:exclude, :format)&.include?(file.filename&.split('.')&.last) || file&.file.nil?
+      if self.class.active_storage_activated?
+        return if options.dig(:exclude, :format)&.include?(file.filename&.to_s&.split('.')&.last) || file&.attached? == false
 
-      image = ::MiniMagick::Image.new(file.file.path)
+        if attachment_changes.present?
+          if attachment_changes['file']&.attachable.is_a?(::Hash) && attachment_changes['file']&.attachable&.dig(:io).present?
+            # import from local disc
+            path_to_tempfile = attachment_changes['file'].attachable.dig(:io).path
+          else
+            path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
+          end
+        else
+          path_to_tempfile = file.service.path_for(file.key)
+        end
+        image = ::MiniMagick::Image.new(path_to_tempfile)
+      else
+        return if options.dig(:exclude, :format)&.include?(file.filename&.to_s&.split('.')&.last) || file&.file.nil?
+        image = ::MiniMagick::Image.new(file.file.path)
+      end
 
       options.except(:exclude, :landscape, :portrait).presence&.each_value do |v|
         return if image.width <= v.dig(:max, :width).to_i ||
