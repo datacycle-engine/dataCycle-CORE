@@ -21,10 +21,13 @@ module DataCycleCore
       end
     end
 
-    def embedded_add_button(id:, key:, content:, definition:, options: nil, **_args)
-      readonly = !attribute_editable?(key, definition, options, content)
+    def embedded_editor_header(key:, content:, definition:, options: nil, **args)
+      editable = attribute_editable?(key, definition, options, content)
 
-      tag.button(tag.i(class: 'fa fa-plus'), id: id, type: 'button', class: 'button add-content-object', style: 'display: none;', disabled: readonly)
+      html = attribute_edit_label_tag(**args.merge(key: key, content: content, definition: definition, options: options))
+      html << tag.button(tag.i(class: 'fa fa-plus'), id: "add_#{options&.dig(:prefix)}#{sanitize_to_id(key)}", type: 'button', class: 'button add-content-object', disabled: !editable) if editable
+
+      tag.div(html, class: 'embedded-editor-header dc-sticky-bar')
     end
 
     def embedded_viewer_html_classes(definition:, **_args)

@@ -21,8 +21,12 @@ function findStickyAncestors(elem, filter, ancestors = []) {
 function calculateStickyOffset(elem) {
   let topOffset = 0;
   const ancestors = findStickyAncestors(elem.parentElement);
+  for (const element of ancestors) {
+    if (parseInt(window.getComputedStyle(element).zIndex) <= parseInt(window.getComputedStyle(elem).zIndex))
+      element.style.zIndex = parseInt(window.getComputedStyle(elem).zIndex) + 1;
 
-  for (const element of ancestors) topOffset += element.getBoundingClientRect().height;
+    topOffset += element.getBoundingClientRect().height;
+  }
 
   elem.style.setProperty('--dc-sticky-bar-offset', `${topOffset}px`);
 }
