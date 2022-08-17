@@ -4,6 +4,8 @@ module DataCycleCore
   module Export
     module Feratel
       module Transformations
+        FERATEL_WDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].freeze
+
         def self.make_xml(data, utility_object)
           feratel_town =
             data.feratel_locations&.first&.external_key ||
@@ -59,7 +61,20 @@ module DataCycleCore
                       end
                     end
                   end
-                  # TODO: serialize schedule
+                  if data.event_schedule.present?
+                    schedules = load_schedules(data)
+                    xml.Dates do
+                      schedules[:dates].each do |date|
+                        xml.Date('From' => date['From'], 'To' => date['To'])
+                      end
+                    end
+                    xml.StartTimes do
+                      schedules[:start_times].each do |time|
+                        xml.StartTime('Time' => time['Time'], **time['Days'])
+                      end
+                    end
+                    xml.Duration(schedules.dig(:duration, 'value'), { 'Type' => schedules.dig(:duration, 'Type') })
+                  end
                 end
                 xml.Addresses do
                   if location.present?
@@ -107,7 +122,7 @@ module DataCycleCore
                 end
                 xml.Documents do
                   data.image.each do |image|
-                    xml.Document({ 'Class' => 'Image', 'Name' => image.name, 'Extension' => image&.file_type&.first&.name, 'Size' => image&.content_size&.to_i&.to_s }) do
+                    xml.Document({ 'Class' => 'Image', 'Name' => image.name, 'Extension' => image&.file_type&.first&.name, 'Size' => image&.content_size&.to_i&.to_s, 'Copyright' => image.copyright_notice }) do
                       xml.URL(image.content_url)
                     end
                   end
@@ -147,6 +162,64 @@ module DataCycleCore
             .query('events') { |i| i.collection.aggregate(aggregation).to_a }
             .map { |i| { i['_id'] => i['town'].first } } # For now: select the first id
             .inject(:merge)
+        end
+
+        def self.load_schedules(data)
+          return {} if data.event_schedule.blank?
+
+          schedules = { dates: [], start_times: [], duration: nil }
+
+          schedule_data = data
+            .event_schedule
+            &.map { |s| s.to_hash.merge({ duration: s.duration }) }
+            &.map { |s| s.slice(:dtstart, :dtend, :rrules, :duration) }
+            &.map { |s|
+              s['From'] = s[:dtstart].to_s(:only_date)
+              s['To'] = s[:dtend].to_s(:only_date)
+              s['Time'] = s[:dtstart].to_s(:only_time)
+              s.delete(:dtstart)
+              s.delete(:dtend)
+              s
+            }&.map { |s|
+              if s[:rrules]&.first.present?
+                rrule = s[:rrules]&.first
+                case rrule[:rule_type]
+                when 'IceCube::DailyRule'
+                  s['Days'] = FERATEL_WDAYS.map { |day| { day => true } }.inject(:merge)
+                when 'IceCube::WeeklyRule'
+                  days = {}
+                  FERATEL_WDAYS.each_with_index { |day, i| days[day] = rrule.dig(:validations, :day).include?(i).to_s }
+                  s['Days'] = days
+                else
+                  raise DataCycleCore::Export::Common::Error::ScheduleFormatError, "Unable to convert Schedule to Feratel format for thing(#{data.id}), schedule: #{s}"
+                end
+              end
+              s.delete(:rrule)
+              s
+            }
+            &.map do |s|
+              s['Duration'] = {}
+              if s[:duration].blank? || s[:duration]&.zero?
+                s['Duration']['value'] = 0
+                s['Duration']['Type'] = 'None'
+              else
+                parts = s[:duration].parts
+                [:days, :hours, :minutes].each do |part|
+                  if parts[part].present?
+                    s['Duration']['value'] = s[:duration].send("in_#{part}")&.to_i&.to_s
+                    s['Duration']['Type'] = part.to_s.singularize.capitalize
+                  end
+                end
+              end
+              s.delete(:duration)
+              s
+            end
+
+          # mehr als eine untersch. Dauer --> exception!
+          schedules[:dates] = schedule_data.map { |i| i&.slice('From', 'To') }.uniq
+          schedules[:start_times] = schedule_data.map { |i| i&.slice('Time', 'Days') }.uniq
+          schedules[:duration] = schedule_data.detect { |i| i['Duration'].present? }&.try(:dig, 'Duration')
+          schedules
         end
 
         def self.load_event_descriptions(data)

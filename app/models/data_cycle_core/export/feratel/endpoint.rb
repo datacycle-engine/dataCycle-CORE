@@ -31,9 +31,9 @@ module DataCycleCore
           begin
             body = transformations.try(transformation, data, utility_object)
 
-            puts Nokogiri::XML(body, &:noblanks).to_xml(indent: 2)
-            puts
-            puts
+            # puts Nokogiri::XML(body, &:noblanks).to_xml(indent: 2)
+            # puts
+            # puts
 
             @output_file.info(Nokogiri::XML(body, &:noblanks).to_xml(indent: 2))
 
@@ -49,8 +49,11 @@ module DataCycleCore
 
             item_hash = resp.xpath("//#{item}").first.to_h
 
-            @output_file.info("#{@response&.env&.dig(:method)&.to_s&.upcase} #{@response&.env&.dig(:url)} #{@response.body}", "#{data&.id} - #{@response&.env&.dig(:status)} #{@response&.env&.dig(:reason_phrase)}")
-            @output_file.try(:close)
+            if item_hash['Status'] != '0'
+              @output_file.info("#{@response&.env&.dig(:method)&.to_s&.upcase} #{@response&.env&.dig(:url)} #{@response.body}", "#{data&.id} - #{@response&.env&.dig(:status)} #{@response&.env&.dig(:reason_phrase)}")
+              @output_file.try(:close)
+              raise DataCycleCore::Export::Common::Error::EndpointError, "Try to update Thing(#{@data.id})", @response
+            end
           rescue Faraday::Error => e
             @output_file.error(e.try(:response)&.dig(:status), "#{data&.id}_#{I18n.locale}", nil, e.try(:response)&.dig(:body))
             @output_file.try(:close)

@@ -21,7 +21,6 @@ module DataCycleCore
             .external_system_sync_by_system(external_system: @utility_object.external_system)
             .update(
               status: 'error',
-              external_key: @feratel_id,
               data: {
                 message: exception.message.dup.force_encoding('UTF-8'),
                 text: exception.try(:response)&.dig(:body)&.dup&.force_encoding('UTF-8')
@@ -58,15 +57,6 @@ module DataCycleCore
           end
 
           @feratel_id = @response['Id']
-
-          unless @data.id == @response['PartnerId']
-            log("ERROR: Inconsistent Data: Thing.id sent:#{@data.id} Thing.id received:#{@response['Id']}; response:#{@response}", @data.id)
-            return
-          end
-
-          return if @response['Status'] == '0' # all good
-
-          log("ERROR: Try to update Thing.id #{@data.id}; response:#{@response}", @data.id)
         end
 
         def success(_job)
