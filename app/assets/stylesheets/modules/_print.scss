@@ -155,17 +155,21 @@
       .detail-type {
         border: 1px solid #c1c1c1;
         page-break-inside: avoid;
+
         .detail-label {
           vertical-align: top;
           opacity: 1;
           color: #c30000 !important;
         }
+
         .detail-type {
           padding: 0.2rem;
+
           &.geographic {
             padding: 1rem;
           }
         }
+
         &.media {
           .thumbnail {
             height: 225px;

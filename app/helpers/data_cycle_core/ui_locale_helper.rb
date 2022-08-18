@@ -88,12 +88,13 @@ module DataCycleCore
         )
     end
 
-    def attribute_viewer_label_tag(key:, definition:, content:, options: nil, **args)
+    def attribute_viewer_label_tag(key:, definition:, content:, options: nil, accordion_controls: false, **args)
       label_html = ActionView::OutputBuffer.new(tag.span(translated_attribute_label(key, definition, content, options), class: 'attribute-label-text', title: translated_attribute_label(key, definition, content, options)))
 
       label_html.prepend(tag.i(class: 'fa fa-language translatable-attribute-icon')) if attribute_translatable?(key, definition, content)
       label_html.prepend(tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-#{definition&.dig('type')} #{"type-#{definition&.dig('type')}-#{definition.dig('ui', 'show', 'type')}" if definition&.dig('ui', 'show', 'type').present?}"))
       label_html << render('data_cycle_core/contents/quality_score', key: key, content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition) if definition.key?('quality_score')
+      label_html << render('data_cycle_core/contents/viewers/shared/accordion_toggle_buttons', button_type: 'children') if accordion_controls
 
       tag.span label_html, class: 'detail-label'
     end

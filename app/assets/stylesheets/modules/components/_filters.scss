@@ -1020,6 +1020,22 @@ $filter-border: #aaa;
         text-align: left;
         cursor: pointer;
         border-radius: $global-radius;
+        gap: 0.3rem;
+
+        .search-history-short-link,
+        .search-favorites-short-link {
+          color: inherit;
+          order: 2;
+
+          &:hover {
+            color: $primary-color;
+          }
+
+          i {
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+          }
+        }
 
         &.search-favorites-short {
           > ul li {
@@ -1097,8 +1113,16 @@ $filter-border: #aaa;
                 position: relative;
                 padding: 0.2rem;
                 display: flex;
-                align-items: center;
-                justify-content: center;
+                gap: 0.3rem;
+
+                > * {
+                  display: flex;
+                  align-items: center;
+                }
+
+                .fa-external-link {
+                  margin-top: 0.2rem;
+                }
               }
 
               .preview-widget-list {
@@ -1316,6 +1340,8 @@ $filter-border: #aaa;
           text-decoration: inherit;
           font-size: 0.8rem;
           flex: 1;
+          order: 1;
+          padding-right: 0.3rem;
         }
       }
     }

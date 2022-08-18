@@ -262,7 +262,9 @@ class EmbeddedObject {
     this._updateContainerClass();
   }
   _updateContainerClass() {
-    this.element[0].classList.toggle('has-items', this.element.children('.content-object-item').length > 0);
+    this.element[0]
+      .closest('.form-element.embedded_object')
+      .classList.toggle('has-items', this.element.children('.content-object-item').length > 0);
   }
   scrollToLocationHash(event) {
     event.stopPropagation();

@@ -3,30 +3,26 @@ class AccordionExtension {
     this.setup();
   }
   setup() {
-    $(document).on('click', '.accordion-close-all', this.closeAll.bind(this));
-    $(document).on('click', '.accordion-open-all', this.openAll.bind(this));
+    $(document).on('click', '.accordion-close-all', this.closeChildren.bind(this));
+    $(document).on('click', '.accordion-open-all', this.openChildren.bind(this));
     $(document).on('click', '.accordion-close-children', this.closeChildren.bind(this));
     $(document).on('click', '.accordion-open-children', this.openChildren.bind(this));
   }
-  closeAll(event) {
-    this.closeAccordionItems(event, $(event.currentTarget.closest('.inner-container')));
-  }
   closeChildren(event) {
-    $(event.currentTarget)
-      .closest('.embedded-viewer[data-accordion], .embedded-object[data-accordion], .attribute-group[data-accordion]')
-      .foundation('up', $(event.currentTarget).closest('.accordion-title').siblings('.accordion-content'));
-
-    this.closeAccordionItems(event, $(event.currentTarget.closest('.accordion-item')));
-  }
-  openAll(event) {
-    this.openAccordionItems(event, $(event.currentTarget.closest('.inner-container')));
+    this.closeAccordionItems(
+      event,
+      $(
+        event.currentTarget.closest('.form-element.embedded_object, .embedded-viewer[data-accordion], .inner-container')
+      )
+    );
   }
   openChildren(event) {
-    $(event.currentTarget)
-      .closest('.embedded-viewer[data-accordion], .embedded-object[data-accordion], .attribute-group[data-accordion]')
-      .foundation('down', $(event.currentTarget).closest('.accordion-title').siblings('.accordion-content'));
-
-    this.openAccordionItems(event, $(event.currentTarget.closest('.accordion-item')));
+    this.openAccordionItems(
+      event,
+      $(
+        event.currentTarget.closest('.form-element.embedded_object, .embedded-viewer[data-accordion], .inner-container')
+      )
+    );
   }
   closeAccordionItems(event, container) {
     event.preventDefault();

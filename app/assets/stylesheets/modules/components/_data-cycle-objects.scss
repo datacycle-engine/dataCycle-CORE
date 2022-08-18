@@ -1356,11 +1356,23 @@ span.single_error.object-browser-error {
       }
     }
 
+    > .embedded-editor-header > .accordion-close-children,
+    > .embedded-editor-header > .accordion-open-children {
+      display: none;
+    }
+
     .embedded-object {
       padding: 0;
+    }
 
-      &.has-items {
+    &.has-items {
+      > .embedded-object {
         padding: 0.3rem 1rem 1rem 1rem;
+      }
+
+      > .embedded-editor-header > .accordion-close-children,
+      > .embedded-editor-header > .accordion-open-children {
+        display: flex;
       }
     }
 
