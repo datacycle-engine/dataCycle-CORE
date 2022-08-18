@@ -16,6 +16,7 @@ module DataCycleCore
           def mime_type(serialized_content:, content:)
             (
               serialized_content.try(:content_type) ||
+                serialized_content.variation.try(:content_type) ||
                 MiniMime.lookup_by_extension(content.try(:file_format)&.downcase.to_s)&.content_type ||
                 content.try(:file_format) ||
                 MiniMime.lookup_by_extension(File.extname(content.content_url).delete_prefix('.'))&.content_type ||
@@ -109,6 +110,7 @@ module DataCycleCore
               data = create_asset(content, version, transformation)
               mime_type = mime_type(serialized_content: data, content: content)
             end
+
             DataCycleCore::Serialize::SerializedData::Content.new(
               data: data,
               mime_type: mime_type,
@@ -120,7 +122,8 @@ module DataCycleCore
 
           def create_asset(content, version, transformation)
             if content.asset.class.active_storage_activated?
-              content.asset.file
+              return content.asset.try(version, transformation&.to_h) if content.asset.respond_to?(version)
+              content.asset.file.presence
             else
               return content.asset.try(version, recreate: true)&.dynamic_version(name: version, options: transformation, process: true) if version.present? && transformation.present? && (content.asset&.versions&.key?(version.to_sym) || version == 'original')
               return content.asset.try(version, recreate: true) if version.present? && content.asset&.versions&.key?(version.to_sym)

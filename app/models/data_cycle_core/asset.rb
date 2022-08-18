@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
+# @todo: refactor after active_storage migration
+# This class should not be used directly for any assets.
 module DataCycleCore
   class Asset < ApplicationRecord
     attribute :type, :string, default: name
     belongs_to :creator, class_name: 'DataCycleCore::User'
 
     before_create :update_asset_attributes
+
     validates :file, presence: true
     validate :custom_validators
 
@@ -16,12 +19,14 @@ module DataCycleCore
 
     DEFAULT_ASSET_VERSIONS = [:original, :default].freeze
 
+    # @todo: refactor after active_storage migration
     def custom_validators
       DataCycleCore.uploader_validations.dig(file.class.name.underscore.match(/(\w+)_uploader/) { |m| m[1].to_sym })&.except(:format)&.presence&.each do |validator, options|
         try("#{validator}_validation", options)
       end
     end
 
+    # @todo: refactor after active_storage migration
     def self.extension_white_list
       uploaders[:file].new&.extension_white_list || []
     end
@@ -34,6 +39,7 @@ module DataCycleCore
       @duplicate_candidates_with_score ||= []
     end
 
+    # @todo: refactor after active_storage migration
     def update_asset_attributes
       return if file.blank?
       self.content_type = file.file.content_type
@@ -71,12 +77,14 @@ module DataCycleCore
       new_asset.persisted? ? new_asset : nil
     end
 
+    # @todo: refactor after active_storage migration
     def self.active_storage_activated?
       true if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && DataCycleCore.experimental_features.dig('active_storage', 'asset_types')&.include?(name)
     end
 
     private
 
+    # @todo: carrierwave specific method
     def recreate_version(version_name = nil)
       return if file.try(version_name)&.file&.exists?
       self.process_file_upload = true
@@ -116,6 +124,7 @@ module DataCycleCore
       }
     end
 
+    # @todo: carrierwave specific method
     def remove_directory
       return if self&.file&.store_dir.blank? || self&.file&.store_dir&.end_with?('/file/')
       FileUtils.remove_dir(Rails.public_path.join(file.store_dir), force: true) # deletes only EMPTY directories!

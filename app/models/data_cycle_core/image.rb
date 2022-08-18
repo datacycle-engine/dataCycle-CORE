@@ -8,9 +8,10 @@ require 'mini_exiftool_vendored'
 module DataCycleCore
   class Image < Asset
     if active_storage_activated?
+      after_create_commit :set_duplicate_hash
       has_one_attached :file
 
-      cattr_reader :versions, default: {}
+      cattr_reader :versions, default: { thumb_preview: {}, web: {}, default: {} }
       attr_accessor :remote_file_url
       before_validation :load_file_from_remote_file_url, if: -> { remote_file_url.present? }
     else
@@ -22,6 +23,14 @@ module DataCycleCore
 
       after_create_commit :set_duplicate_hash, if: proc { |image| image.persisted? && file.enable_processing && !image.file.thumb_preview&.file&.exists? }
     end
+
+    WEB_SAVE_MIME_TYPES = [
+      'image/gif',
+      'image/png',
+      'image/jpeg'
+    ].freeze
+
+    DEFAULT_MIME_TYPE = 'image/jpeg'
 
     def custom_validators
       if self.class.active_storage_activated?
@@ -50,7 +59,7 @@ module DataCycleCore
         rescue JSON::GeneratorError
           self.metadata = nil
         end
-        self.duplicate_check = file.duplicate_check if file.respond_to?(:duplicate_check)
+        self.duplicate_check = duplicate_check
       else
         self.content_type = file.file.content_type
         self.file_size = file.file.size
@@ -60,8 +69,8 @@ module DataCycleCore
         rescue JSON::GeneratorError
           self.metadata = nil
         end
+        self.duplicate_check = file.duplicate_check if file.respond_to?(:duplicate_check)
       end
-      self.duplicate_check = file.duplicate_check if file.respond_to?(:duplicate_check)
     end
 
     def dimensions_validation(options)
@@ -170,7 +179,64 @@ module DataCycleCore
       end
     end
 
+    # carrierwave version
+    def thumb_preview(_transformation = {})
+      thumb = nil
+      if self.class.active_storage_activated? && file&.attached?
+        begin
+          thumb = file.variant(resize_to_fit: [300, 300], format: :jpeg, colorspace: 'sRGB').processed
+        rescue ActiveStorage::FileNotFoundError
+          # add some logging
+          return nil
+        end
+      else
+        thumb = file&.thumb_preview
+      end
+      thumb
+    end
+
+    def web(transformation = {})
+      web_version = nil
+      if self.class.active_storage_activated? && file&.attached?
+        begin
+          web_version = file.variant(resize_to_limit: [2048, 2048], colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
+        rescue ActiveStorage::FileNotFoundError
+          # add some logging
+          return nil
+        end
+      else
+        web_version = file&.web
+      end
+      web_version
+    end
+
+    def default(transformation = {})
+      default_version = nil
+      if self.class.active_storage_activated? && file&.attached?
+        begin
+          default_version = file.variant(colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
+        rescue ActiveStorage::FileNotFoundError
+          # add some logging
+          return nil
+        end
+      else
+        default_version = file&.default
+      end
+      default_version
+    end
+
     private
+
+    def format_for_transformation(format = nil)
+      return MiniMime.lookup_by_extension(format)&.extension if format.present? && WEB_SAVE_MIME_TYPES.include?(MiniMime.lookup_by_extension(format)&.content_type)
+      return MiniMime.lookup_by_content_type(content_type)&.extension if WEB_SAVE_MIME_TYPES.include?(MiniMime.lookup_by_content_type(content_type)&.content_type)
+      MiniMime.lookup_by_content_type(DEFAULT_MIME_TYPE)&.extension
+    end
+
+    def set_phash
+      return if duplicate_check&.dig('phash').present? && duplicate_check&.dig('phash')&.positive?
+      update_column(:duplicate_check, { phash: Phash::Image.new(file.service.path_for(thumb_preview.key)).try(:compute_phash).try(:data) })
+    end
 
     def metadata_from_blob
       if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable.dig(:io).present?
@@ -190,9 +256,13 @@ module DataCycleCore
     end
 
     def set_duplicate_hash
-      self.process_file_upload = true
-      file.recreate_versions!(:thumb_preview)
-      save!(validate: false)
+      if self.class.active_storage_activated?
+        set_phash
+      else
+        self.process_file_upload = true
+        file.recreate_versions!(:thumb_preview)
+        save!(validate: false)
+      end
     end
   end
 end
