@@ -15,7 +15,7 @@ module DataCycleCore
 
           def thumbnail_url(computed_parameters:, **_args)
             ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
-              DataCycleCore::Image.find_by(id: computed_parameters.values.first).thumb_preview&.url
+              DataCycleCore::Image.find_by(id: computed_parameters.values.first)&.thumb_preview&.url
             end
           end
 
