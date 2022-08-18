@@ -33,17 +33,17 @@ module DataCycleCore
       @available_locales_with_all[active_ui_locale]
     end
 
-    def translated_attribute_label(key, definition, content, options, _count = 1)
+    def translated_attribute_label(key, definition, content, options, count = 1)
       @translated_attribute_label ||= Hash.new do |h, k|
-        h[k] = begin # TODO: allow singular and plural
-          if I18n.exists?("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", locale: k[4])
-            label = I18n.t("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", locale: k[4])
-          elsif I18n.exists?("attribute_labels.#{k[2]&.template_name}.#{k[0]}", locale: k[4])
-            label = I18n.t("attribute_labels.#{k[2]&.template_name}.#{k[0]}", locale: k[4])
-          elsif I18n.exists?("attribute_labels.#{k[3]}.#{k[0]}", locale: k[4])
-            label = I18n.t("attribute_labels.#{k[3]}.#{k[0]}", locale: k[4])
-          elsif I18n.exists?("attribute_labels.#{k[0]}", locale: k[4])
-            label = I18n.t("attribute_labels.#{k[0]}", locale: k[4])
+        h[k] = begin
+          if I18n.exists?("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", count: k[5], locale: k[4])
+            label = I18n.t("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", count: k[5], locale: k[4])
+          elsif I18n.exists?("attribute_labels.#{k[2]&.template_name}.#{k[0]}", count: k[5], locale: k[4])
+            label = I18n.t("attribute_labels.#{k[2]&.template_name}.#{k[0]}", count: k[5], locale: k[4])
+          elsif I18n.exists?("attribute_labels.#{k[3]}.#{k[0]}", count: k[5], locale: k[4])
+            label = I18n.t("attribute_labels.#{k[3]}.#{k[0]}", count: k[5], locale: k[4])
+          elsif I18n.exists?("attribute_labels.#{k[0]}", count: k[5], locale: k[4])
+            label = I18n.t("attribute_labels.#{k[0]}", count: k[5], locale: k[4])
           elsif k[1].present?
             label = k[1].dig('ui', k[3].to_s, 'label') || k[1]['label']
           else
@@ -62,7 +62,8 @@ module DataCycleCore
           definition,
           content,
           options&.dig(:ui_scope),
-          active_ui_locale
+          active_ui_locale,
+          count
         ]
       ]
     end
@@ -88,8 +89,8 @@ module DataCycleCore
         )
     end
 
-    def attribute_viewer_label_tag(key:, definition:, content:, options: nil, accordion_controls: false, **args)
-      label_html = ActionView::OutputBuffer.new(tag.span(translated_attribute_label(key, definition, content, options), class: 'attribute-label-text', title: translated_attribute_label(key, definition, content, options)))
+    def attribute_viewer_label_tag(key:, definition:, content:, options: nil, accordion_controls: false, i18n_count: 1, **args)
+      label_html = ActionView::OutputBuffer.new(tag.span(translated_attribute_label(key, definition, content, options, i18n_count), class: 'attribute-label-text', title: translated_attribute_label(key, definition, content, options, i18n_count)))
 
       label_html.prepend(tag.i(class: 'fa fa-language translatable-attribute-icon')) if attribute_translatable?(key, definition, content)
       label_html.prepend(tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-#{definition&.dig('type')} #{"type-#{definition&.dig('type')}-#{definition.dig('ui', 'show', 'type')}" if definition&.dig('ui', 'show', 'type').present?}"))
@@ -99,8 +100,8 @@ module DataCycleCore
       tag.span label_html, class: 'detail-label'
     end
 
-    def attribute_edit_label_tag(key:, definition:, content:, options:, html_classes: nil, **args)
-      label_html = ActionView::OutputBuffer.new(tag.span(translated_attribute_label(key, definition, content, options), class: 'attribute-label-text', title: translated_attribute_label(key, definition, content, options)))
+    def attribute_edit_label_tag(key:, definition:, content:, options:, html_classes: nil, i18n_count: 1, **args)
+      label_html = ActionView::OutputBuffer.new(tag.span(translated_attribute_label(key, definition, content, options, i18n_count), class: 'attribute-label-text', title: translated_attribute_label(key, definition, content, options, i18n_count)))
 
       label_html.prepend(tag.i(class: 'fa fa-language translatable-attribute-icon')) if attribute_translatable?(key, definition, content)
       label_html.prepend(tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-#{definition&.dig('type')} #{"type-#{definition&.dig('type')}-#{definition.dig('ui', 'edit', 'type')}" if definition&.dig('ui', 'edit', 'type').present?}"))
