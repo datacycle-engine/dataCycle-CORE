@@ -4,7 +4,7 @@ require 'taglib'
 
 module DataCycleCore
   class Audio < Asset
-    if self.active_storage_activated?
+    if active_storage_activated?
       has_one_attached :file
 
       cattr_reader :versions, default: {}

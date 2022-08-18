@@ -4,7 +4,7 @@ require 'pdf-reader'
 
 module DataCycleCore
   class Pdf < Asset
-    if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+    if active_storage_activated?
       has_one_attached :file
 
       cattr_reader :versions, default: {}

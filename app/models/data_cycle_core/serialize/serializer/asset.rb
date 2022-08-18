@@ -119,7 +119,7 @@ module DataCycleCore
           end
 
           def create_asset(content, version, transformation)
-            if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && DataCycleCore.experimental_features.dig('active_storage', 'asset_types')&.include?(content.asset.class.name)
+            if content.asset.class.active_storage_activated?
               content.asset.file
             else
               return content.asset.try(version, recreate: true)&.dynamic_version(name: version, options: transformation, process: true) if version.present? && transformation.present? && (content.asset&.versions&.key?(version.to_sym) || version == 'original')

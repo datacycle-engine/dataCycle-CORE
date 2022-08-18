@@ -89,7 +89,7 @@ module DataCycleCore
       attribute = :thumbnail_url if type == 'thumb' || (type == 'content' && !['Video', 'Audio', 'Bild', 'ImageVariant'].include?(content.template_name))
 
       raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
-      
+
       if content.asset.class.active_storage_activated? && content.asset.class.name != 'DataCycleCore::Image'
         content.asset.file.preview(resize_to_limit: [300, 300]).processed unless content.asset.file.preview_image.attached?
         rendered_attribute = content.asset.file.preview_image.url

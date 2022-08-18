@@ -4,7 +4,7 @@ require 'streamio-ffmpeg'
 
 module DataCycleCore
   class Video < Asset
-    if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+    if active_storage_activated?
       has_one_attached :file
 
       cattr_reader :versions, default: {}
@@ -19,7 +19,7 @@ module DataCycleCore
     end
 
     def custom_validators
-      if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+      if self.class.active_storage_activated?
         DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
           try("#{validator}_validation", options)
         end
