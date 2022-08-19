@@ -1,4 +1,5 @@
 import ObserverHelpers from '../helpers/observer_helpers';
+import DomElementHelpers from '../helpers/dom_element_helpers';
 
 function resizeDropdown(element) {
   const elementRect = element.getBoundingClientRect();
@@ -90,6 +91,19 @@ function checkForChangedFormData(mutations, element) {
       (!mutation.oldValue || mutation.oldValue.includes('remote-rendering'))
     )
       resizeDropdown(element);
+
+    if (mutation.target.classList.contains('is-open') && (!mutation.oldValue || !mutation.oldValue.includes('is-open')))
+      focusFirstInputField(mutation.target);
+  }
+}
+
+function focusFirstInputField(element) {
+  for (const input of element.querySelectorAll('input[type="text"]')) {
+    if (DomElementHelpers.isVisible(input)) {
+      input.focus();
+      input.select();
+      break;
+    }
   }
 }
 
