@@ -184,7 +184,7 @@ module DataCycleCore
       thumb = nil
       if self.class.active_storage_activated? && file&.attached?
         begin
-          thumb = file.variant(resize_to_fit: [300, 300], format: :jpeg, colorspace: 'sRGB').processed
+          thumb = file.variant(resize_to_fit: [300, 300], format: :jpeg, colorspace: 'sRGB', background: 'White', flatten: true).processed
         rescue ActiveStorage::FileNotFoundError
           # add some logging
           return nil

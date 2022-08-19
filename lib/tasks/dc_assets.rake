@@ -133,6 +133,8 @@ namespace :dc do
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('Audio', 'false')
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].reenable
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('Bild', 'false')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].reenable
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('ImageVariant', 'false')
     end
 
     desc 'migrate images to active_storage'

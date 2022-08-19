@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# @todo: check if obsolete after avtive storage migration
 module DataCycleCore
   module AssetHelpers
     def thumbnail_url?
