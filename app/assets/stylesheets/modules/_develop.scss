@@ -34,7 +34,7 @@
 
     &:hover {
       border-color: $primary-color;
-      box-shadow: 0 0 7px darken($medium-gray, 3%);
+      box-shadow: 0 0 7px lighten($dark-gray, 12%);
 
       > .detail-label {
         color: $primary-color;
@@ -1529,7 +1529,7 @@ a.email-link {
       &:hover {
         z-index: 1;
         border-color: $primary-color;
-        box-shadow: 0 0 7px darken($medium-gray, 3%);
+        box-shadow: 0 0 7px lighten($dark-gray, 12%);
       }
 
       &:focus,
@@ -2400,7 +2400,7 @@ select {
 
     &:hover {
       border-color: $primary-color;
-      box-shadow: 0 0 7px darken($medium-gray, 3%);
+      box-shadow: 0 0 7px lighten($dark-gray, 12%);
     }
   }
 

@@ -107,7 +107,7 @@
 
       &.editor > .attribute-group-item:hover {
         border-color: $primary-color;
-        box-shadow: 0 0 7px darken($medium-gray, 3%);
+        box-shadow: 0 0 7px lighten($dark-gray, 12%);
 
         > .attribute-group-title-link > .attribute-group-title,
         > .attribute-group-title-link {

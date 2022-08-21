@@ -749,13 +749,6 @@ ul.asset-list {
     .upload-progress {
       background: rgba($primary-color, 0.2);
     }
-
-    .file-buttons {
-      .cancel-upload-button {
-        opacity: 0.25;
-        cursor: not-allowed;
-      }
-    }
   }
 
   &.finished {

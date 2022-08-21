@@ -483,9 +483,13 @@ class AssetFile {
 
     promise
       .then(data => {
+        if (!document.querySelector(`[data-id="${this.id}"]`)) return;
+
         this._updateFileAttributes(data);
       })
       .catch(data => {
+        if (!document.querySelector(`[data-id="${this.id}"]`)) return;
+
         this.retryUpload = true;
         this._resetFileField();
         let error = data.statusText;
@@ -493,6 +497,8 @@ class AssetFile {
         this._renderError(error);
       })
       .finally(() => {
+        if (!document.querySelector(`[data-id="${this.id}"]`)) return;
+
         this._updateOverlayButtons();
         DataCycle.enableElement(this.uploader.assetReloadButton);
       });

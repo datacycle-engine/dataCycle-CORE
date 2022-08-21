@@ -4,10 +4,10 @@ class RemoteRenderer {
   constructor(selector) {
     this.selector = $(selector);
     this.intersectionObserver = new IntersectionObserver(this.checkForNewVisibleElements.bind(this), {
-      root: DataCycle.config.remoteRenderFull ? document.body : null,
       rootMargin: '0px 0px 50px 0px',
       threshold: 0.1
     });
+
     if (DataCycle.config.remoteRenderFull)
       this.globalIntersectionObserver = new IntersectionObserver(this.checkForNewVisibleElements.bind(this), {
         root: document.body
