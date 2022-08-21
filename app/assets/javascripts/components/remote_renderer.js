@@ -8,6 +8,10 @@ class RemoteRenderer {
       rootMargin: '0px 0px 50px 0px',
       threshold: 0.1
     });
+    if (DataCycle.config.remoteRenderFull)
+      this.globalIntersectionObserver = new IntersectionObserver(this.checkForNewVisibleElements.bind(this), {
+        root: document.body
+      });
 
     this.init();
   }
@@ -32,6 +36,7 @@ class RemoteRenderer {
   }
   addRemoteRenderHandler(element) {
     this.intersectionObserver.observe(element);
+    if (this.globalIntersectionObserver) this.globalIntersectionObserver.observe(element);
 
     if (element.classList.contains('translatable-attribute')) this.addForceRenderTranslationHandler(element);
   }
@@ -46,6 +51,7 @@ class RemoteRenderer {
       if (!entry.isIntersecting) continue;
 
       this.intersectionObserver.unobserve(entry.target);
+      if (this.globalIntersectionObserver) this.globalIntersectionObserver.unobserve(entry.target);
       this.loadRemote(entry.target);
     }
   }
