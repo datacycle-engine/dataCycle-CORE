@@ -23,7 +23,7 @@
     font-size: 1rem;
     border: none !important;
     padding: 0.8rem 2.5rem 0.8rem 1rem;
-    transition: all 0.2s ease-in-out;
+    transition: $global-transition;
     display: flex;
     flex-flow: row nowrap;
     align-items: center;

@@ -26,15 +26,15 @@
     line-height: 1;
     box-shadow: 0 0 0 rgba($dark-gray, 0.5);
     position: relative;
-    transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+    transition: $input-transition;
     min-width: 150px;
     border-radius: $global-radius;
     cursor: not-allowed !important;
     background: lighten($light-gray, 5%) !important;
 
     &:hover {
-      border-color: transparent;
-      box-shadow: 0 0 7px $primary-color;
+      border-color: $primary-color;
+      box-shadow: 0 0 7px darken($medium-gray, 3%);
 
       > .detail-label {
         color: $primary-color;
@@ -52,7 +52,7 @@
       left: 1rem;
       z-index: 12;
       color: $dark-gray;
-      transition: color ease-in-out 0.25s;
+      transition: $color-transition;
       padding-top: 0.5rem;
       opacity: 1;
       display: flex;
@@ -511,7 +511,7 @@
     height: calc(100% - 2px);
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.2s ease-in-out;
+    transition: $opacity-transition;
     border-radius: $global-radius;
   }
 
@@ -627,7 +627,7 @@ select {
     font-size: 1rem;
     font-weight: normal;
     color: #333333;
-    transition: box-shadow 0.5s, border-color 0.25s ease-in-out;
+    transition: $input-transition;
     -webkit-appearance: none;
     -moz-appearance: none;
 
@@ -678,7 +678,7 @@ select {
     display: flex;
     max-width: 100%;
     opacity: 0.7;
-    transition: opacity 0.3s ease;
+    transition: $opacity-transition;
     align-items: center;
 
     > * {
@@ -910,7 +910,7 @@ select {
       height: 100%;
       overflow-y: scroll;
       float: left;
-      transition: background ease-in-out 0.1s;
+      transition: background 0.25s ease-out;
 
       &.nothover {
         background: rgba($light-gray, 0.2);
@@ -1248,7 +1248,7 @@ video {
 a.link {
   cursor: pointer;
   color: $body-font-color;
-  transition: all ease-in-out 0.25s;
+  transition: $global-transition;
   padding: 0 0 0.5rem 1rem;
 }
 
@@ -1326,7 +1326,7 @@ a.link {
         display: flex;
         align-items: center;
         opacity: 0.75;
-        transition: opacity 0.2s ease;
+        transition: $opacity-transition;
 
         &:hover {
           opacity: 1;
@@ -1499,7 +1499,7 @@ a.email-link {
     border-color: rgba($dark-gray, 0.5);
     box-shadow: 0 0 0 rgba($dark-gray, 0.5);
     position: relative;
-    transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+    transition: $input-transition;
     border-radius: $global-radius;
     padding: 0;
 
@@ -1511,16 +1511,12 @@ a.email-link {
       left: 1rem;
       z-index: 12;
       color: $dark-gray;
-      transition: color ease-in-out 0.1s;
+      transition: $color-transition;
       padding-top: 0.5rem;
       opacity: 1;
     }
 
     .select2 {
-      // border: 1px solid $light-gray;
-      // background: $light-gray;
-      // box-shadow: 0 0 0 1px $light-gray inset;
-      // border: none;
       min-width: initial;
 
       .select2-selection {
@@ -1532,7 +1528,8 @@ a.email-link {
 
       &:hover {
         z-index: 1;
-        box-shadow: 0 0 7px $primary-color;
+        border-color: $primary-color;
+        box-shadow: 0 0 7px darken($medium-gray, 3%);
       }
 
       &:focus,
@@ -2168,7 +2165,7 @@ select {
             font-size: 11px;
             margin-right: 0.5rem;
             color: $white;
-            transition: all 0.2s ease;
+            transition: $global-transition;
           }
 
           > input:indeterminate + label {
@@ -2399,10 +2396,11 @@ select {
   }
 
   .geographic {
-    transition: box-shadow 0.1s;
+    transition: $input-transition;
 
     &:hover {
-      box-shadow: 0 0 7px $primary-color;
+      border-color: $primary-color;
+      box-shadow: 0 0 7px darken($medium-gray, 3%);
     }
   }
 
@@ -2639,7 +2637,7 @@ select {
 }
 
 .fa {
-  transition: text-shadow ease-in-out 0.25s, color ease-in-out 0.25s;
+  transition: text-shadow ease-out 0.25s, color ease-out 0.25s;
 }
 
 .has-tip,
@@ -2935,18 +2933,18 @@ section.related-objects {
 
       > li {
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        transition: all ease-in-out 0.2s;
+        transition: $global-transition;
         background: lighten($primary-color, 50%);
         padding: 1rem;
         margin-bottom: 1rem;
         border-radius: $global-radius;
 
         &.expired-item {
-          box-shadow: 0 1px 8px $alert-color;
+          box-shadow: 0 1px 5px $alert-color;
 
           &:hover,
           &:focus {
-            box-shadow: 0 1px 25px $alert-color;
+            box-shadow: 0 1px 15px $alert-color;
           }
         }
         > ul {
@@ -3305,7 +3303,7 @@ button.button-prime.small.bulk-delete-button {
     box-shadow: 1px 2px 5px 0px rgba($black, 0.3);
     text-align: left;
     overflow: hidden;
-    transition: all 0.25s;
+    transition: $global-transition;
     visibility: hidden;
 
     .progress-filled {
@@ -3316,7 +3314,7 @@ button.button-prime.small.bulk-delete-button {
       background: lighten($color: $alert-color, $amount: 15%);
       width: 0;
       min-width: 2rem;
-      transition: width 0.1s;
+      transition: width 0.25s ease-out;
     }
   }
   i.fa-spin {
@@ -3399,7 +3397,7 @@ button.button-prime.small.bulk-delete-button {
     border-bottom-left-radius: 1.5rem;
     border-top-left-radius: 1.5rem;
     line-height: 3rem;
-    transition: all 0.3s;
+    transition: $global-transition;
     width: 0;
     overflow: hidden;
     white-space: nowrap;
@@ -3644,7 +3642,7 @@ body {
     }
 
     > * {
-      transition: opacity 0.1s ease;
+      transition: $opacity-transition;
       opacity: 0.1;
       pointer-events: none;
     }
@@ -3734,7 +3732,7 @@ body {
   z-index: 1010 !important;
   background: white !important;
   pointer-events: none !important;
-  transition: opacity 0.1s ease-in;
+  transition: $opacity-transition;
   opacity: 0;
   position: fixed !important;
   width: calc(50% - 3rem) !important;

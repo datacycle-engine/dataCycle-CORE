@@ -47,7 +47,7 @@ $filter-border: #aaa;
         right: 1rem;
         font-size: 1.2rem;
         line-height: 1.5em;
-        transition: all ease-in-out 0.1s;
+        transition: $global-transition;
       }
 
       li[data-children]:hover > label:after,
@@ -96,7 +96,7 @@ $filter-border: #aaa;
         margin: 1rem 0;
         background-color: lighten($dark-gray, 32%);
         box-shadow: 0 0 0 2px lighten($dark-gray, 12%);
-        transition: all 0.5s ease;
+        transition: $global-transition;
         border-radius: $global-radius;
 
         select {
@@ -315,7 +315,7 @@ $filter-border: #aaa;
       .input-group {
         background-color: lighten($light-gray, 7%);
         padding: 0 2.6rem 0 1rem;
-        transition: background ease-in-out 0.2s;
+        transition: background ease-out 0.25s;
         margin-bottom: 0;
         border-radius: $global-radius;
 
@@ -449,7 +449,7 @@ $filter-border: #aaa;
         label {
           display: block;
           padding: 0.3rem 0.5rem 0.3rem 2.5rem;
-          transition: all 0.4s ease;
+          transition: $global-transition;
           position: relative;
           overflow: hidden;
           cursor: pointer;
@@ -468,7 +468,7 @@ $filter-border: #aaa;
           position: absolute;
           top: 0;
           left: 0;
-          transition: all 0.4s ease;
+          transition: $global-transition;
           opacity: 1;
         }
 
@@ -494,7 +494,7 @@ $filter-border: #aaa;
           i {
             position: absolute;
             line-height: 1.5em;
-            transition: all ease-in-out 0.1s;
+            transition: $global-transition;
           }
         }
 
@@ -616,7 +616,7 @@ $filter-border: #aaa;
           }
 
           a.tag {
-            transition: background-color 0.2s ease-in;
+            transition: background-color 0.25s ease-out;
             background-color: lighten($primary-color, 2%);
 
             .fa {
@@ -751,7 +751,7 @@ $filter-border: #aaa;
       }
 
       a.tag {
-        transition: background-color 0.2s ease-in;
+        transition: background-color 0.25s ease-out;
       }
 
       a.tag:hover {
@@ -809,7 +809,7 @@ $filter-border: #aaa;
             label {
               display: block;
               padding: 0.3rem 0.5rem 0.3rem 2.5rem;
-              transition: all 0.4s ease;
+              transition: $global-transition;
               position: relative;
               overflow: hidden;
               cursor: pointer;
@@ -828,7 +828,7 @@ $filter-border: #aaa;
               position: absolute;
               top: 0;
               left: 0;
-              transition: all 0.4s ease;
+              transition: $global-transition;
               opacity: 1;
             }
 
@@ -950,7 +950,7 @@ $filter-border: #aaa;
           border-radius: 1.4rem;
           white-space: nowrap;
           overflow: hidden;
-          transition: background ease 0.2s;
+          transition: background ease-out 0.25s;
 
           i,
           .fa-stack {
@@ -996,7 +996,7 @@ $filter-border: #aaa;
         height: 2.8rem;
 
         i {
-          transition: all ease-in-out 0.25s;
+          transition: $global-transition;
           font-size: 1.1rem;
           line-height: 1.2;
           margin-right: 0.5rem;
@@ -1082,7 +1082,7 @@ $filter-border: #aaa;
                   cursor: wait;
 
                   > * {
-                    transition: opacity 0.1s ease;
+                    transition: $opacity-transition;
                     opacity: 0.1;
                     pointer-events: none;
                   }
@@ -1175,10 +1175,10 @@ $filter-border: #aaa;
               display: flex;
               height: 100%;
               width: 100%;
-              transition: background-color ease-in-out 0.25s, color ease-in-out 0.25s;
+              transition: background-color ease-out 0.25s, color ease-out 0.25s;
 
               span {
-                transition: background-color ease-in-out 0.25s, color ease-in-out 0.25s;
+                transition: background-color ease-out 0.25s, color ease-out 0.25s;
 
                 &.title {
                   font-weight: 600;
@@ -1377,7 +1377,7 @@ $filter-border: #aaa;
       text-align: center;
       color: $dark-gray;
       padding: 0;
-      transition: color ease-in-out 0.25s;
+      transition: $color-transition;
       display: block;
       border: none !important;
       background: transparent;
@@ -1481,7 +1481,7 @@ $filter-border: #aaa;
     > a,
     > span[data-toggle]:not(.selected) {
       color: lighten($dark-gray, 20%);
-      transition: color 0.3s;
+      transition: $color-transition;
       cursor: pointer;
 
       &:hover {
@@ -1586,7 +1586,7 @@ $filter-border: #aaa;
       label {
         display: block;
         padding: 0.5rem 0.8rem;
-        transition: all 0.4s ease;
+        transition: $global-transition;
         position: relative;
         overflow: hidden;
         cursor: pointer;
@@ -1636,7 +1636,7 @@ $filter-border: #aaa;
   }
 
   > li {
-    transition: background 0.4s ease;
+    transition: background 0.25s ease-out;
 
     &:hover {
       background: lighten($light-gray, 5%);

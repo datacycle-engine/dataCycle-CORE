@@ -41,7 +41,7 @@ $fa-font-path: '/assets';
   > label {
     order: 5;
     padding: 0 0 0 1rem;
-    transition: color ease-in-out 0.25s;
+    transition: $color-transition;
 
     .translatable-attribute-icon {
       margin-right: 0.3rem;
@@ -156,7 +156,7 @@ $fa-font-path: '/assets';
 
     .ql-contentlink {
       path {
-        transition: fill 0.2s;
+        transition: fill 0.25s ease-out;
       }
       .st1 {
         fill: #e6007e;
