@@ -18,8 +18,20 @@ module DataCycleCore
       delegate :versions, to: :file
     end
 
+    def custom_validators
+      if self.class.active_storage_activated?
+        DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
+          try("#{validator}_validation", options)
+        end
+      else
+        DataCycleCore.uploader_validations.dig(file.class.name.underscore.match(/(\w+)_uploader/) { |m| m[1].to_sym })&.except(:format)&.presence&.each do |validator, options|
+          try("#{validator}_validation", options)
+        end
+      end
+    end
+
     def self.extension_white_list
-      DataCycleCore.uploader_validations.dig(:audio, :format).presence || ['mp3', 'ogg', 'wav', 'wma']
+      DataCycleCore.uploader_validations.dig(:audio, :format).presence || ['mp3', 'ogg', 'wav', 'wma', 'mpga']
     end
 
     def update_asset_attributes

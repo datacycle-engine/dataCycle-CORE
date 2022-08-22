@@ -11,6 +11,7 @@ module DataCycleCore
 
     validates :file, presence: true
     validate :custom_validators
+    validate :file_extension_validation
 
     include AssetHelpers
 
@@ -19,16 +20,16 @@ module DataCycleCore
 
     DEFAULT_ASSET_VERSIONS = [:original, :default].freeze
 
-    # @todo: refactor after active_storage migration
     def custom_validators
-      DataCycleCore.uploader_validations.dig(file.class.name.underscore.match(/(\w+)_uploader/) { |m| m[1].to_sym })&.except(:format)&.presence&.each do |validator, options|
-        try("#{validator}_validation", options)
+      if self.class.active_storage_activated?
+        DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
+          try("#{validator}_validation", options)
+        end
+      else
+        DataCycleCore.uploader_validations.dig(file.class.name.underscore.match(/(\w+)_uploader/) { |m| m[1].to_sym })&.except(:format)&.presence&.each do |validator, options|
+          try("#{validator}_validation", options)
+        end
       end
-    end
-
-    # @todo: refactor after active_storage migration
-    def self.extension_white_list
-      uploaders[:file].new&.extension_white_list || []
     end
 
     def duplicate_candidates
@@ -82,6 +83,16 @@ module DataCycleCore
       true if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && DataCycleCore.experimental_features.dig('active_storage', 'asset_types')&.include?(name)
     end
 
+    # @todo: refactor after active_storage migration
+    def self.extension_white_list
+      uploaders[:file].new&.extension_white_list || []
+    end
+
+    # @todo: refactor after active_storage migration
+    def self.content_type_white_list
+      extension_white_list.map { |extension| MiniMime.lookup_by_extension(extension)&.extension }
+    end
+
     private
 
     # @todo: carrierwave specific method
@@ -108,6 +119,19 @@ module DataCycleCore
         sleep 5
         retry
       end
+    end
+
+    def file_extension_validation
+      return if self.class.content_type_white_list.include?(MiniMime.lookup_by_content_type(file.content_type)&.extension)
+
+      errors.add :file, {
+        path: 'uploader.validation.format_not_supported',
+        substitutions: {
+          data: {
+            value: file.content_type
+          }
+        }
+      }
     end
 
     def file_size_validation(options)
