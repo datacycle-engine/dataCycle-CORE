@@ -21,7 +21,7 @@ module DataCycleCore
               @contents = query
 
               I18n.with_locale(@language.first || I18n.locale) do
-                render plain: @contents.query.to_mvt(permitted_params[:x], permitted_params[:y], permitted_params[:z], include_without_geometry: false), content_type: 'application/x-protobuf'
+                render plain: @contents.query.to_mvt(permitted_params[:x], permitted_params[:y], permitted_params[:z], include_without_geometry: false), content_type: request.format
               end
             end
           end

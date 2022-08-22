@@ -4,3 +4,4 @@
 
 # Add new mime types for use in respond_to blocks:
 Mime::Type.register 'application/geo+json', :geojson, ['application/vnd.geo+json', 'application/geo+json']
+Mime::Type.register 'application/x-protobuf', :pbf
