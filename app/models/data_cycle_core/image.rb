@@ -181,8 +181,7 @@ module DataCycleCore
 
     # carrierwave version
     def original(_transformation = {})
-      return file if self.class.active_storage_activated? && file&.attached?
-      file&.original
+      file
     end
 
     # carrierwave version
