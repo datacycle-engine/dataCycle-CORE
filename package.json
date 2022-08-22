@@ -46,7 +46,7 @@
     "tui-image-editor": "^3.15.2",
     "url": "^0.11.0",
     "video.js": "^7.19.2",
-    "vite": "2.9.14",
+    "vite": "^2.6.13",
     "vite-plugin-ruby": "3.0.12"
   }
 }
