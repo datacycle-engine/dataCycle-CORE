@@ -1,7 +1,7 @@
 <% random_id = SecureRandom.hex(10) %>
 
 <a data-toggle="<%= random_id %>"><i class="fa fa-share" aria-hidden="true"></i><i class="fa <%= content.data_links.size.zero? ? "fa-user-o" : "fa-user" %>" aria-hidden="true"></i></a>
-<div class="dropdown-pane align-right no-bullet bottom data-links" id="<%= random_id %>" data-dropdown data-hover="true" data-hover-pane="true">
+<div class="dropdown-pane no-bullet bottom data-links" id="<%= random_id %>" data-dropdown>
   <h5><%= t('actions.send_with_data', data: DataCycleCore::DataLink.model_name.human(count: 2, locale: active_ui_locale), locale: active_ui_locale) %></h5>
 
   <ul class="list-items">
