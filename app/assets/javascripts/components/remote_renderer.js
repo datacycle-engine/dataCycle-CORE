@@ -7,6 +7,10 @@ class RemoteRenderer {
       rootMargin: '0px 0px 50px 0px',
       threshold: 0.1
     });
+    if (DataCycle.config.remoteRenderFull)
+      this.globalIntersectionObserver = new IntersectionObserver(this.checkForNewVisibleElements.bind(this), {
+        root: document.body
+      });
 
     if (DataCycle.config.remoteRenderFull)
       this.globalIntersectionObserver = new IntersectionObserver(this.checkForNewVisibleElements.bind(this), {
@@ -78,6 +82,7 @@ class RemoteRenderer {
     }
 
     $(event.target).addClass('remote-reload').removeClass('dc-fd-initialized');
+    this.intersectionObserver.observe(event.target);
   }
   loadInitial() {
     this.selector.find('.remote-render:visible').each((_, element) => {

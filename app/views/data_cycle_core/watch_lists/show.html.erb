@@ -73,7 +73,7 @@
           <% if !@watch_list.my_selection && can?(:subscribe, @watch_list) %>
             <li class="has-dropdown">
               <a id="subscribe-link" data-toggle="subscribe"><i class="fa <%= @watch_list.subscriptions.by_user(current_user).size > 0 ? 'fa-bell' : 'fa-bell-o' %>" aria-hidden="true"></i></a>
-              <div class="dropdown-pane align-right no-bullet bottom" id="subscribe" data-dropdown data-hover="true" data-hover-pane="true">
+              <div class="dropdown-pane no-bullet bottom" id="subscribe" data-dropdown>
                 <h5><%= @watch_list.subscriptions.by_user(current_user).size > 0 ? t('actions.subscribed_to', data: t('common.contents', count: 1, locale: active_ui_locale), locale: active_ui_locale) : t('actions.subscribe_to', data: t('common.contents', count: 1, locale: active_ui_locale), locale: active_ui_locale) %></h5>
                 <%= render 'subscriptions', content: @watch_list %>
               </div>
