@@ -31,7 +31,7 @@ module DataCycleCore
         end
 
         def active_storage?
-          return false if remote? || @data.is_a?(::String)
+          return false if remote? || @data.is_a?(::String) || @data.is_a?(DataCycleCore::CommonUploader)
           record = record_for_active_storage_file
           record&.class&.active_storage_activated? && record&.file&.try(:attached?)
         end

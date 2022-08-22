@@ -11,7 +11,7 @@ module DataCycleCore
       after_create_commit :set_duplicate_hash
       has_one_attached :file
 
-      cattr_reader :versions, default: { thumb_preview: {}, web: {}, default: {} }
+      cattr_reader :versions, default: { original: {}, thumb_preview: {}, web: {}, default: {} }
       attr_accessor :remote_file_url
       before_validation :load_file_from_remote_file_url, if: -> { remote_file_url.present? }
     else
@@ -180,6 +180,12 @@ module DataCycleCore
     end
 
     # carrierwave version
+    def original(_transformation = {})
+      return file if self.class.active_storage_activated? && file&.attached?
+      file&.original
+    end
+
+    # carrierwave version
     def thumb_preview(_transformation = {})
       thumb = nil
       if self.class.active_storage_activated? && file&.attached?
@@ -205,6 +211,7 @@ module DataCycleCore
           return nil
         end
       else
+        recreate_version(:web) if transformation.dig(:recreate)
         web_version = file&.web
       end
       web_version
@@ -220,9 +227,28 @@ module DataCycleCore
           return nil
         end
       else
+        recreate_version(:default) if transformation.dig(:recreate)
         default_version = file&.default
       end
       default_version
+    end
+
+    # active storage only
+    def dynamic(transformation = {})
+      dynamic = nil
+      if self.class.active_storage_activated? && file&.attached?
+        begin
+          if transformation.dig('width').present? || transformation.dig('height').present?
+            dynamic = file.variant(resize_to_fit: [(transformation.dig('width')&.to_i || nil), (transformation.dig('height')&.to_i || nil)], colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
+          else
+            dynamic = file.variant(colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
+          end
+        rescue ActiveStorage::FileNotFoundError
+          # add some logging
+          return nil
+        end
+      end
+      dynamic
     end
 
     private
