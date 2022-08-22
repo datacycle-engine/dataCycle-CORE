@@ -3,12 +3,23 @@ import DomElementHelpers from '../helpers/dom_element_helpers';
 
 function resizeDropdown(element) {
   const elementRect = element.getBoundingClientRect();
-  if (element.classList.contains('has-alignment-left') && elementRect.right > window.innerWidth) {
+  const headerHeight = document.querySelector('header').getBoundingClientRect().height;
+  const $linkedItem = $('[data-toggle="' + $(element).prop('id') + '"]');
+
+  if (!element.dataset.alignment) {
+    element.classList.toggle(
+      'has-alignment-right',
+      $linkedItem.offset().left > window.innerWidth - ($linkedItem.offset().left + $linkedItem.outerWidth())
+    );
+    element.classList.toggle(
+      'has-alignment-left',
+      $linkedItem.offset().left <= window.innerWidth - ($linkedItem.offset().left + $linkedItem.outerWidth())
+    );
+  } else if (element.dataset.alignment == 'left' && elementRect.right > window.innerWidth) {
     element.classList.add('has-alignment-right');
     element.classList.remove('has-alignment-left');
   }
 
-  const $linkedItem = $('[data-toggle="' + $(element).prop('id') + '"]');
   const pseudoWidth = parseInt(window.getComputedStyle(element, ':before').width);
   let resetOffset = Math.abs($(element).position().left) - pseudoWidth / 2;
 
@@ -18,11 +29,10 @@ function resizeDropdown(element) {
   element.style.setProperty('--dropdown-arrow-left-offset', resetOffset + 'px');
 
   if (!$linkedItem.length) return;
+
   if (
-    $linkedItem.offset().top + $linkedItem.outerHeight() - $(document).scrollTop() + $(element).outerHeight() + 20 >=
-      $(window).height() &&
-    $linkedItem.offset().top - $(document).scrollTop() >
-      $(window).height() - ($linkedItem.offset().top - $(document).scrollTop() + $linkedItem.outerHeight())
+    $linkedItem.offset().top - Math.max($(document).scrollTop(), headerHeight) >=
+    window.innerWidth - ($linkedItem.offset().top + $linkedItem.outerHeight() - $(document).scrollTop())
   ) {
     $(element).addClass('top');
     if ($(element).find('.list-items').length) {
