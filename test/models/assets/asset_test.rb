@@ -127,7 +127,7 @@ module DataCycleCore
 
         I18n.available_locales.each do |locale|
           I18n.with_locale(locale) do
-            test_image.destroy_content({ destroy_locale: true })
+            test_image.destroy_content(destroy_locale: true)
           end
         end
 

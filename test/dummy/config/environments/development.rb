@@ -93,6 +93,7 @@ Rails.application.configure do
   config.web_console.whiny_requests = false if config.respond_to?(:web_console)
 
   config.action_mailer.delivery_method = :smtp
+  config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3003').to_s, protocol: 'http' }
   config.action_mailer.default_options = { from: "noreply@#{ENV.fetch('APP_HOST', 'localhost')}" }
   config.action_mailer.smtp_settings = { address: ENV.fetch('MAILHOG_HOST', 'localhost'), port: 1025 }
 

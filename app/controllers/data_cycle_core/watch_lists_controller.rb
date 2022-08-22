@@ -175,7 +175,7 @@ module DataCycleCore
 
       if object_params.dig(:datahash).blank? && object_params.dig(:translations).blank?
         flash.now[:error] = I18n.t(:no_selected_attributes, scope: [:controllers, :error], locale: helpers.active_ui_locale)
-        ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
+        ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", { redirect_path: watch_list_path(@watch_list, flash: flash.to_hash) })
         return head(:ok)
       end
 
@@ -184,7 +184,7 @@ module DataCycleCore
       I18n.with_locale(params[:locale]) do
         unless can?(:bulk_edit, @watch_list) && @watch_list.things.all? { |t| can?(:update, t) }
           flash.now[:error] = I18n.t :no_permission, scope: [:controllers, :error], locale: helpers.active_ui_locale
-          ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
+          ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", { redirect_path: watch_list_path(@watch_list, flash: flash.to_hash) })
           return head(:ok)
         end
 
@@ -193,7 +193,7 @@ module DataCycleCore
         errors = []
         skip_update_count = {}
 
-        ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", progress: 0, items: item_count
+        ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", { progress: 0, items: item_count })
 
         update_items.find_each.with_index do |content, index|
           specific_datahash = datahash.dc_deep_dup.with_indifferent_access
@@ -214,7 +214,7 @@ module DataCycleCore
             errors.concat(Array.wrap(content.errors.full_messages)) unless valid
           end
 
-          ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", progress: index + 1, items: item_count
+          ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", { progress: index + 1, items: item_count })
         end
 
         if errors.present?
@@ -235,13 +235,13 @@ module DataCycleCore
 
         @watch_list.watch_list_data_hashes.delete_all if @watch_list.my_selection
 
-        ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
+        ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", { redirect_path: watch_list_path(@watch_list, flash: flash.to_hash) })
 
         head(:ok)
       end
     rescue StandardError
       flash.now[:error] = I18n.t :bulk_update_error, scope: [:controllers, :error], locale: helpers.active_ui_locale
-      ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", redirect_path: bulk_edit_watch_list_path(@watch_list, flash: flash.to_hash)
+      ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", { redirect_path: bulk_edit_watch_list_path(@watch_list, flash: flash.to_hash) })
     end
 
     def bulk_delete
@@ -250,7 +250,7 @@ module DataCycleCore
 
       unless can?(:bulk_delete, @watch_list)
         flash.now[:error] = I18n.t :no_permission, scope: [:controllers, :error], locale: helpers.active_ui_locale
-        ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
+        ActionCable.server.broadcast("bulk_delete_#{@watch_list.id}", { redirect_path: watch_list_path(@watch_list, flash: flash.to_hash) })
         return head(:ok)
       end
 
@@ -258,7 +258,7 @@ module DataCycleCore
       delete_count = delete_items.size
       cant_delete_count = 0
 
-      ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", progress: 0, items: delete_count
+      ActionCable.server.broadcast("bulk_delete_#{@watch_list.id}", { progress: 0, items: delete_count })
       delete_items.find_each.with_index do |content, index|
         if can?(:destroy, content)
           content.destroy_content
@@ -266,13 +266,13 @@ module DataCycleCore
           cant_delete_count += 1
         end
 
-        ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", progress: index + 1, items: delete_count
+        ActionCable.server.broadcast("bulk_delete_#{@watch_list.id}", { progress: index + 1, items: delete_count })
       end
 
       flash.now[:success] = I18n.t(:bulk_deleted, scope: [:controllers, :success], count: delete_count, locale: helpers.active_ui_locale)
       flash.now[:success] += I18n.t(:bulk_deleted_not_allowed_html, scope: [:controllers, :info], locale: helpers.active_ui_locale, count: cant_delete_count) if cant_delete_count.positive?
 
-      ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
+      ActionCable.server.broadcast("bulk_delete_#{@watch_list.id}", { redirect_path: watch_list_path(@watch_list, flash: flash.to_hash) })
       head(:ok)
     end
 
