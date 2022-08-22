@@ -122,6 +122,7 @@ module DataCycleCore
     end
 
     def file_extension_validation
+      return unless self.class.active_storage_activated?
       return if self.class.content_type_white_list.include?(MiniMime.lookup_by_content_type(file.content_type)&.extension)
 
       errors.add :file, {
