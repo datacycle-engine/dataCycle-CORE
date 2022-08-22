@@ -74,7 +74,7 @@ module DataCycleCore
           if DataCycleCore::ClassificationTreeLabel.visible('tree_view').many?
             concat(tag.span(mode_icon(mode), data: { toggle: 'tree-view-selector' }, class: selected ? 'selected' : nil))
             concat(
-              tag.div(class: 'dropdown-pane no-bullet align-right', id: 'tree-view-selector', data: { dropdown: true, hover: true, hover_pane: true }) do
+              tag.div(class: 'dropdown-pane no-bullet', id: 'tree-view-selector', data: { dropdown: true }) do
                 concat(
                   tag.ul(class: 'no-bullet') do
                     DataCycleCore::ClassificationTreeLabel.visible('tree_view').presence&.each do |tree_label|

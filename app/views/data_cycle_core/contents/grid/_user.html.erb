@@ -14,9 +14,7 @@
           </a>
           <div class="dropdown-pane no-bullet bottom"
               id="represented-by-<%= item.id %>"
-              data-dropdown
-              data-hover="true"
-              data-hover-pane="true">
+              data-dropdown>
             <h5><%= DataCycleCore::User.human_attribute_name(:represented_by, locale: active_ui_locale) %></h5>
             <ul class="list-items">
               <% item.represented_by.each do |thing| %>

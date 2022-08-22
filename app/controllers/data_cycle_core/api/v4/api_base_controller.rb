@@ -16,8 +16,6 @@ module DataCycleCore
 
         wrap_parameters format: []
 
-        GEOJSON_CONTENT_TYPE = 'application/vnd.geo+json'
-
         DEFAULT_PAGE_SETTINGS = {
           size: 25,
           number: 1,
@@ -106,11 +104,9 @@ module DataCycleCore
         private
 
         def set_default_response_format
-          request.format = :json unless permitted_params[:format]
-        end
+          return request.format = :geojson if request.format.geojson? || permitted_params[:format].to_s == 'geojson' || Mime::Type.parse(request.accept).include?(:geojson)
 
-        def accept_geojson?
-          request.accept == GEOJSON_CONTENT_TYPE
+          request.format = :json unless permitted_params[:format]
         end
       end
     end

@@ -77,6 +77,7 @@ class RemoteRenderer {
     }
 
     $(event.target).addClass('remote-reload').removeClass('dc-fd-initialized');
+    this.intersectionObserver.observe(event.target);
   }
   loadInitial() {
     this.selector.find('.remote-render:visible').each((_, element) => {

@@ -67,11 +67,14 @@ module DataCycleCore
 
         respond_to do |format|
           format.json do
-            if @count_only || @mode
+            if @count_only || params[:mode].present?
               render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/application/count_or_more_results').squish }
             else
               redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_thing_path", id: @content)
             end
+          end
+          format.geojson do
+            redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_thing_path", id: @content, format: request.format.symbol)
           end
           format.html { render && return }
         end
