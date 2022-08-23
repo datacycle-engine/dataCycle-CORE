@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 DataCycleCore::Role.where(rank: 0).first_or_create({ name: 'guest' })
+DataCycleCore::Role.where(rank: 1).first_or_create({ name: 'external_user' })
 DataCycleCore::Role.where(rank: 5).first_or_create({ name: 'standard' })
 DataCycleCore::Role.where(rank: 10).first_or_create({ name: 'admin' })
 DataCycleCore::Role.where(rank: 99).first_or_create({ name: 'super_admin' })
