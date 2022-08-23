@@ -22,9 +22,17 @@ module DataCycleCore
             end
 
             Array.wrap(data).each do |item|
-              next if item.try(:asset)&.file&.file&.path.blank?
+              if item.try(:asset).class.active_storage_activated? && item.try(:asset)&.file&.attached?
+                asset_path = item.asset.file.service.path_for(item.asset.file.key)
+                next if asset_path.blank?
+                file_ext = item.asset.file.filename.extension_with_delimiter
+              else
+                asset_path = item.try(:asset)&.file&.file&.path
+                next if asset_path.blank?
+                file_ext = File.extname(asset_path)
+              end
 
-              ftp.putbinaryfile(item.asset.file.file.path, item.id + File.extname(item.asset.file.file.path))
+              ftp.putbinaryfile(asset_path, item.id + file_ext)
             end
           end
         end
