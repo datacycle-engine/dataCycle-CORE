@@ -102,6 +102,14 @@
 
 :life_cycle:
   :enabled: false
+#   :attribute_keys:
+#     - data_pool
+#   :tree_label: Inhaltspools
+#   :ordered:
+#     - Vorschläge
+#     - Recherche
+#     - Aktuelle Inhalte
+#     - Archiv
 
 :idea_collection:
   :enabled: false
@@ -181,6 +189,7 @@
     :schedule_exceptions:
       - validity_schedule
   :classification_alias_ids: all
+#  :related_to: true
   :external_source: false
   :external_system: true
   :id: true
@@ -213,7 +222,6 @@
 #      :type: date
 #    :mandatory_license:
 #      :type: boolean
-#  :related_to: true
     # :upload_date:
     #   :type: date
     # :live_date_from:
@@ -505,3 +513,6 @@
 
 :user_group_classification:
   :enabled: false
+  # attribute_keys:
+  #   :output_channels:
+  #     :tree_label: "Ausgabekanäle"
