@@ -4,13 +4,15 @@
   <% object_template = definition['template_name'] %>
   <% html_id = "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
 
-  <%= attribute_edit_label_tag(**local_assigns) %>
+  <div class="linked-editor-header">
+    <%= attribute_edit_label_tag(**local_assigns) %>
 
-  <% if attribute_editable?(key, definition, options, content) %>
-    <button class="button show-objectbrowser" data-disable id="show-object-browser-<%= html_id %>" type="button" data-open="object_browser_<%= html_id %>">
-      <i class="fa fa-plus"></i>
-    </button>
-  <% end %>
+    <% if attribute_editable?(key, definition, options, content) %>
+      <button class="button show-objectbrowser" data-disable id="show-object-browser-<%= html_id %>" type="button" data-open="object_browser_<%= html_id %>">
+        <i class="fa fa-plus"></i>
+      </button>
+    <% end %>
+  </div>
 
   <div class="object-browser" id="<%= html_id %>"
       data-type="<%= definition.fetch('template_name', nil) %>"

@@ -200,7 +200,7 @@ module DataCycleCore
                 'parameter' => 'filter[linked][contentLocation][attribute][dct:modified][in][min]'
               },
               'title' => 'Invalid Query Parameter',
-              'detail' => 'must be a string'
+              'detail' => 'must be a string or must be an integer or must be a float'
             }
             assert_equal(error_object, json_data.dig('errors').first)
           end

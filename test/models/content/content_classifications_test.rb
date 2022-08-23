@@ -34,6 +34,16 @@ module DataCycleCore
         assert_includes(@content.mapped_classification_aliases.map(&:name), 'MAPPED TAG 1')
         assert_not_includes(@content.mapped_classification_aliases.map(&:name), 'Tag 1')
       end
+
+      test 'it should provide classifications for specific classification tree' do
+        assert_empty(@content.classification_aliases_for_tree(tree_name: 'Unkown Tree'))
+
+        assert_equal(1, @content.classification_aliases_for_tree(tree_name: 'Tags').size)
+        assert_includes(@content.classification_aliases_for_tree(tree_name: 'Tags').map(&:name), 'Tag 1')
+
+        assert_equal(1, @content.classification_aliases_for_tree(tree_name: 'Inhaltstypen').size)
+        assert_includes(@content.classification_aliases_for_tree(tree_name: 'Inhaltstypen').map(&:name), 'Artikel')
+      end
     end
   end
 end

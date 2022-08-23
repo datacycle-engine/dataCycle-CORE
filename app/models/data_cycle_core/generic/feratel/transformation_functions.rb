@@ -15,7 +15,7 @@ module DataCycleCore
 
           return data.map { |v| flatten_translations(v) } if data.is_a?(Array)
 
-          Hash[data.map do |k, v|
+          data.to_h do |k, v|
             if k == 'Translation'
               ['text', v['text']]
             elsif v.is_a?(Hash) || v.is_a?(Array)
@@ -23,7 +23,7 @@ module DataCycleCore
             else
               [k, v]
             end
-          end]
+          end
         end
 
         def self.flatten_texts(data)
@@ -31,7 +31,7 @@ module DataCycleCore
 
           return data.map { |v| flatten_texts(v) } if data.is_a?(Array)
 
-          Hash[data.map do |k, v|
+          data.to_h do |k, v|
             if v.is_a?(Hash) && v.keys == ['text']
               [k, v['text']]
             elsif v.is_a?(Hash) || v.is_a?(Array)
@@ -39,7 +39,7 @@ module DataCycleCore
             else
               [k, v]
             end
-          end]
+          end
         end
 
         def self.unwrap_description(data, description_types)
@@ -149,21 +149,6 @@ module DataCycleCore
           data.merge({ 'amenity_feature' => amenity_features })
         end
 
-        def self.add_external_system_data(data, name, key)
-          return data if (external_name = data.dig(*name)).nil? || (external_key = data.dig(*key)).nil?
-          return data if DataCycleCore::ExternalSystem.find_by(name: external_name).blank?
-
-          external_system_data = data['external_system_data'] || []
-          external_system_data.push(
-            {
-              name: external_name,
-              external_key: external_key
-            }
-          )
-
-          data.merge({ 'external_system_data' => external_system_data })
-        end
-
         def self.ensure_classification_tree(data, attribute_name, classification_tree)
           data.merge({
             attribute_name => DataCycleCore::Classification.for_tree(classification_tree)
@@ -175,7 +160,7 @@ module DataCycleCore
         def self.unwrap_address(data, address_type)
           raise ArgumentError unless data.is_a?(Array) || data.is_a?(Hash)
 
-          Hash[data.map do |k, v|
+          data.to_h do |k, v|
             if k == 'Addresses'
               [
                 'Address',
@@ -196,7 +181,7 @@ module DataCycleCore
             else
               [k, v]
             end
-          end]
+          end
         end
 
         def self.unwrap_address_data(data, address_type, address_function)

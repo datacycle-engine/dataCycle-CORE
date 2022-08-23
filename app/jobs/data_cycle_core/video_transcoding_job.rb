@@ -25,7 +25,7 @@ module DataCycleCore
       computed_definition = content.properties_for(computed_property_name)
       variant = computed_definition.dig('compute', 'transformation', 'version')
       processed_video_url = DataCycleCore::Feature::VideoTranscoding.process_video(content: content, variant: variant)
-      content.set_data_hash(data_hash: { computed_property_name => processed_video_url }, partial_update: true, update_computed: false)
+      content.set_data_hash(data_hash: { computed_property_name => processed_video_url }, update_computed: false)
     end
   end
 end

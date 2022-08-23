@@ -26,7 +26,7 @@
       <span class="asset-duplicate-warning">
         <a data-toggle="<%= local_assigns.dig(:options, :prefix) %><%= asset.id %>-duplicates-list" title="<%= t('common.duplicates_exist', data: asset.duplicate_candidates.size, count: asset.duplicate_candidates.size, locale: active_ui_locale) %>"><i class="fa fa-exclamation-triangle content-warning<%= ' alert' unless can?(:create_duplicate, asset) %>" aria-hidden="true"></i></a>
 
-        <div class="dropdown-pane align-right no-bullet bottom" id="<%= local_assigns.dig(:options, :prefix) %><%= asset.id %>-duplicates-list" data-dropdown data-hover="true" data-hover-pane="true">
+        <div class="dropdown-pane no-bullet bottom" id="<%= local_assigns.dig(:options, :prefix) %><%= asset.id %>-duplicates-list" data-dropdown>
           <h5><%= t('common.duplicates_exist', data: asset.duplicate_candidates.size, count: asset.duplicate_candidates.size, locale: active_ui_locale) %></h5>
 
           <% if cannot?(:create_duplicate, asset) %>

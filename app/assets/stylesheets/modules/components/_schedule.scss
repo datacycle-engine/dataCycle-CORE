@@ -155,6 +155,7 @@
       white-space: nowrap;
       display: flex;
       align-items: center;
+      overflow: unset;
 
       .fa {
         margin-right: 5px;

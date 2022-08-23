@@ -1,20 +1,20 @@
 import ConfirmationModal from '../components/confirmation_modal';
 
-export default {
-  isVisible: function (elem) {
+const DomElementHelpers = {
+  isVisible(elem) {
     return elem.offsetWidth > 0 || elem.offsetHeight > 0 || elem.getClientRects().length > 0;
   },
-  isHidden: function (elem) {
+  isHidden(elem) {
     return !this.isVisible(elem);
   },
-  findAncestors: function (elem, filter, ancestors = []) {
+  findAncestors(elem, filter, ancestors = []) {
     if (!elem) return ancestors;
 
     if (filter.call(this, elem)) ancestors.push(elem);
 
     return this.findAncestors(elem.parentElement, filter, ancestors);
   },
-  parseDataAttribute: function (value) {
+  parseDataAttribute(value) {
     if (!value) return value;
 
     try {
@@ -23,7 +23,7 @@ export default {
       return value;
     }
   },
-  randomId: function (prefix = '') {
+  randomId(prefix = '') {
     return `${prefix}_${Math.random().toString(36).slice(2)}`;
   },
   renderImportConfirmationModal: async function (field, sourceId, confirmationCallback) {
@@ -47,5 +47,18 @@ export default {
       cancelable: true,
       confirmationCallback: confirmationCallback
     });
+  },
+  getFormData(container) {
+    if (container.nodeName === 'FORM') return new FormData(container);
+
+    const formData = new FormData();
+
+    for (const element of $(container).find(':input').serializeArray()) formData.append(element.name, element.value);
+
+    return formData;
   }
 };
+
+Object.freeze(DomElementHelpers);
+
+export default DomElementHelpers;

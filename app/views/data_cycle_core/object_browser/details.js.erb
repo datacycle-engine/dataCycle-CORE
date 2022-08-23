@@ -6,4 +6,4 @@ $('#object_browser_<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %> .i
   $('#object_browser_<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %> .item-info-scrollable').html('<%= j render_linked_details(key: params[:key], definition: params[:definition], parameters: { object: @object, options: params[:options] }) %>').removeClass('dc-fd-initialized');
 <% end %>
 
-$('#object_browser_<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %> .item-info-scrollable').trigger('dc:html:changed').trigger('dc:html:initialized');
+$('#object_browser_<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %> .item-info-scrollable');

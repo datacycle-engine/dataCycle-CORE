@@ -15,7 +15,8 @@ module DataCycleCore
                 config,
                 DataCycleCore::Generic::VTicket::Transformations
                   .vticket_to_image
-                  .call(image_hash)
+                  .call(image_hash),
+                utility_object
               ).with_indifferent_access
             )
           end
@@ -50,7 +51,8 @@ module DataCycleCore
             template: DataCycleCore::Generic::Common::ImportFunctions.load_template(template),
             data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
               config,
-              event_data
+              event_data,
+              utility_object
             ).with_indifferent_access
           )
         end
@@ -67,7 +69,8 @@ module DataCycleCore
             config,
             DataCycleCore::Generic::VTicket::Transformations
               .vticket_subevent_to_subevent
-              .call(raw_data)
+              .call(raw_data),
+            utility_object
           ).with_indifferent_access
 
           return sub_event if event_data.dig('location', 'id') == raw_data.dig('location', 'id')
@@ -77,7 +80,8 @@ module DataCycleCore
             config,
             DataCycleCore::Generic::VTicket::Transformations
               .add_place_to_subevent(utility_object.external_source.id)
-              .call(sub_event)
+              .call(sub_event),
+            utility_object
           ).with_indifferent_access
         end
       end

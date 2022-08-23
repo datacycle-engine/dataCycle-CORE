@@ -1,6 +1,6 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
 
-  <%= hidden_field_tag key, value, class: 'location-data', id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
+  <%= hidden_field_tag key, value_to_geojson(value, {id: content.id})&.to_json, class: 'location-data', id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
   <%= hidden_field_tag key.gsub(key.attribute_name_from_key, 'route_data'), content.try(:route_data) if DataCycleCore.default_map_position.dig('editor') == 'TourSprung' %>
   <% is_line_string = (value.presence&.geometry_type || definition.dig('ui', 'edit', 'type')).to_s.include?('LineString') %>
 
@@ -9,20 +9,16 @@
           class="geographic-map <%= is_line_string ? 'linestring' : 'point' %><%= ' editor' if can?(:update, DataCycleCore::DataAttribute.new(key, definition, options, content, :update)) %>"
           data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
           data-type="<%= (value.presence&.geometry_type || (is_line_string ? 'MultiLineString' : 'Point')).to_s %>"
-          data-value="<%= value_to_geojson(value)&.to_json %>"
+          data-value="<%= value_to_geojson(value, {id: content.id})&.to_json %>"
           data-additional-values="<%= additional_map_values(content, definition&.dig('ui', 'edit', 'options', 'additional_value_paths'))&.to_json %>"
           data-additional-values-overlay="<%= additional_map_values_overlay(content, definition, options)&.to_json %>"
           data-elevation-profile="<%= definition&.dig('ui', 'edit', 'options', 'elevation_profile') %>"
           data-allow-upload="<%= definition&.dig('ui', 'edit', 'options', 'data_upload') %>">
     </div>
-    <div class="ol-popup">
-      <a href="#" class="ol-popup-closer"><i class="fa fa-times" aria-hidden="true"></i></a>
-      <div class="ol-popup-content"></div>
-    </div>
   </div>
 
   <div class="map-edit">
-    <% if definition&.dig('ui', 'edit', 'options', 'data_upload') && DataCycleCore.default_map_position.dig('editor') != 'TourSprung' %>
+    <% if definition&.dig('ui', 'edit', 'options', 'data_upload') && DataCycleCore.default_map_position.dig('editor') == 'OpenLayers' %>
       <input type="file" class="upload-gpx-input" accept=".gpx,.GPX,application/gpx+xml,application/octet-stream" style="display:none">
       <%= link_to '#',
         class: 'upload-gpx-button map-edit-button',

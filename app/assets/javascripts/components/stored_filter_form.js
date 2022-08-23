@@ -1,5 +1,6 @@
 class StoredFilterForm {
   constructor(form) {
+    form.dcStoredFilterForm = true;
     this.form = form;
     this.idSelector = this.form.querySelector('.update-search-id-selector');
     this.formSubmit = this.form.querySelector('.buttons [type="submit"]');
@@ -32,8 +33,6 @@ class StoredFilterForm {
     })
       .then(data => {
         this.dynamicFormPart.innerHTML = $(data.html).find('.dynamic-form-parts').html();
-
-        $(this.dynamicFormPart).trigger('dc:html:changed').trigger('dc:html:initialized');
       })
       .finally(() => {
         this.idSelector.disabled = false;

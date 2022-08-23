@@ -18,7 +18,7 @@ module DataCycleCore
       @stored_filter.sort_parameters ||= (@sort_params.presence || DataCycleCore::StoredFilter.sort_params_from_filter(@stored_filter.parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @stored_filter.parameters.find { |f| f['t'] == 'in_schedule' }))
       @sort_params = @stored_filter.sort_parameters
 
-      @stored_filter.parameters = current_user.default_filter(@stored_filter.parameters, user_filter) if user_filter.present?
+      @stored_filter.apply_user_filter(current_user, user_filter) if user_filter.present?
       @stored_filter.apply_params_for_data_links(session[:data_link_ids]) if current_user.is_role?('guest') && session[:data_link_ids].present?
       query = @stored_filter.apply(query: query)
 
@@ -138,6 +138,7 @@ module DataCycleCore
       apply_order_query(query, permitted_params.dig(:sort), @full_text_search, raw_query_params: permitted_params.to_h)
     end
 
+    # used only in APIv4
     def build_search_query
       endpoint_id = permitted_params[:id]
       @linked_stored_filter = nil
@@ -157,7 +158,7 @@ module DataCycleCore
 
       filter = @stored_filter || DataCycleCore::StoredFilter.new
       filter.language = @language
-      filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
+      filter.apply_user_filter(current_user, { scope: 'api' })
 
       query = filter.apply(skip_ordering: order_params_present?(permitted_params))
 
@@ -165,14 +166,16 @@ module DataCycleCore
 
       query = query.fulltext_search(@full_text_search) if @full_text_search
 
-      query = query.in_validity_period
+      # backwards compatibility for projects without user_filters
+      query = query.in_validity_period if DataCycleCore.user_filters.blank?
+
       query = apply_filters(query, permitted_params&.dig(:filter))
       query = append_filters(query, permitted_params)
       query
     end
 
     def set_view_mode
-      if mode_params[:mode].in?(['list', 'tree'])
+      if mode_params[:mode].in?(['list', 'tree', 'map'])
         @mode = mode_params[:mode].to_s
       else
         @mode = 'grid'
@@ -184,6 +187,7 @@ module DataCycleCore
       @target = count_only_params[:target]
       classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id]) if mode_params[:ct_id].present?
       total_count = get_filtered_results(query: query, user_filter: user_filter)
+      total_count = total_count.with_geometry if @mode == 'map'
       @count_mode = count_only_params[:count_mode]
       @content_class = count_only_params[:content_class]
 
@@ -198,6 +202,7 @@ module DataCycleCore
         ca_label = DataCycleCore::ClassificationTreeLabel.find(mode_params[:ctl_id])
         total_count = total_count.classification_tree_ids(ca_label.id)
       end
+
       total_count.count
     end
 

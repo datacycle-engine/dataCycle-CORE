@@ -49,6 +49,7 @@ module DataCycleCore
           .>> t(:load_category, 'poi_categories', external_source_id, ->(s) { s&.dig('category', 'id').present? ? "CATEGORY:#{s&.dig('category', 'id')}" : nil })
           .>> t(:load_category, 'frontend_type', external_source_id, ->(s) { s&.dig('frontendtype').present? ? "FRONTENDTYPE:#{Digest::MD5.new.update(s.dig('frontendtype')).hexdigest}" : nil })
           .>> t(:category_key_to_ids, 'outdoor_active_tags', ->(s) { s&.dig('properties', 'property') }, nil, external_source_id, 'TAG:', 'tag')
+          .>> t(:add_external_system_data, ['meta', 'externalSystem', 'name'], ['meta', 'externalId', 'id'])
           .>> t(:reject_keys, ['category', 'primaryImage', 'images', 'regions', 'meta'])
           .>> t(:strip_all)
         end
@@ -98,6 +99,13 @@ module DataCycleCore
           .>> t(:map_value, 'experience_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'landscape_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'technique_rating', ->(s) { s&.to_i })
+          .>> t(:collect_ratings,
+                [
+                  ['technique_rating', 1, 6],
+                  ['condition_rating', 1, 6],
+                  ['experience_rating', 1, 6],
+                  ['landscape_rating', 1, 6]
+                ], 'import.outdoor_active.ratings.', external_source_id)
           .>> t(:universal_classifications, ->(s) { Array.wrap(load_difficulty_rating(s.dig('difficulty_rating'))) })
           .>> t(:universal_classifications, ->(s) { load_opened(s.dig('opened')) })
           .>> t(:universal_classifications, ->(s) { load_winter_activity(s.dig('winterActivity')) })
@@ -112,6 +120,7 @@ module DataCycleCore
           .>> t(:add_links, 'regions', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('regions', 'region')&.map { |item| "REGION:#{item&.dig('id')}" } || [] })
           .>> t(:add_links, 'source', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('meta', 'source', 'id').present? ? ["SOURCE:#{s&.dig('meta', 'source', 'id')}"] : nil })
           .>> t(:reject_keys, ['season'])
+          .>> t(:resolve_external_references)
           .>> t(:strip_all)
         end
 
@@ -124,6 +133,12 @@ module DataCycleCore
         def self.load_winter_activity(winter)
           return [] unless winter == true
           DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('OutdoorActive - Status', 'Winteraktivität')
+        end
+
+        def self.external_system_identifier_transformation(external_system_name)
+          return 'feratel' if external_system_name.include?('feratel')
+
+          external_system_name
         end
 
         def self.load_difficulty_rating(rating)

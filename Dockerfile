@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.2
 
-FROM git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:dockerize-1.0 as base
+FROM git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:dockerize-1.1 as base
 
 WORKDIR /app
 

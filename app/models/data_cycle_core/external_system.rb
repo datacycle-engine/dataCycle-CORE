@@ -158,11 +158,11 @@ module DataCycleCore
       cred = credentials
       cred = cred[full_options[:credentials_index]] if full_options[:credentials_index].present?
       if cred.is_a?(Hash)
-        utility_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: self, locales: locales, credentials: cred))
+        utility_object = DataCycleCore::Generic::DownloadObject.new(**full_options.merge(external_source: self, locales: locales, credentials: cred))
         success &&= full_options.dig(:download, :download_strategy).constantize.download_content(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
       else
         cred.each do |credential|
-          utility_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: self, locales: locales, credentials: credential))
+          utility_object = DataCycleCore::Generic::DownloadObject.new(**full_options.merge(external_source: self, locales: locales, credentials: credential))
           success &&= full_options.dig(:download, :download_strategy).constantize.download_content(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
         end
       end
@@ -203,7 +203,7 @@ module DataCycleCore
       full_options = (default_options || {}).deep_symbolize_keys.deep_merge({ import: import_config.dig(name).deep_symbolize_keys.except(:sorting) }).deep_merge(options.deep_symbolize_keys)
       full_options[:import][:name] = name.to_s
       locales = full_options[:import][:locales] || full_options[:locales] || I18n.available_locales
-      utility_object = DataCycleCore::Generic::ImportObject.new(full_options.merge(external_source: self, locales: locales))
+      utility_object = DataCycleCore::Generic::ImportObject.new(**full_options.merge(external_source: self, locales: locales))
       raise "Missing import_strategy for #{name}, options given: #{options}" if full_options.dig(:import, :import_strategy).blank?
       full_options.dig(:import, :import_strategy).constantize.import_data(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
     end
@@ -259,13 +259,17 @@ module DataCycleCore
       format(default_options.dig('external_detail_url'), locale: I18n.locale, external_key: content.external_key)
     end
 
+    def self.find_from_hash(data)
+      return find_by(identifier: data['identifier']) if data['identifier'].present?
+
+      find_by(identifier: data['name']) || find_by(name: data['name'])
+    end
+
     # e.g. search for ID: query(:infrastructure_items) { |coll| coll.where({'external_id' => '3479fb74-a008-4ca5-a48f-becebee70e79'}).first }
-    def query(collection_name)
+    def query(collection_name, &block)
       mongo_class = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: collection_name)
       Mongoid.override_database("#{mongo_class.database_name}_#{id}")
-      DataCycleCore::Generic::Collection.with(mongo_class) do |mongo_collection|
-        yield(mongo_collection)
-      end
+      DataCycleCore::Generic::Collection.with(mongo_class, &block)
     ensure
       Mongoid.override_database(nil)
     end
@@ -274,7 +278,7 @@ module DataCycleCore
       mongo_class = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: collection_name)
       Mongoid.override_database("#{mongo_class.database_name}_#{id}")
       DataCycleCore::Generic::Collection.with(mongo_class) do |mongo_collection|
-        mongo_collection.where({ "dump.de.deleted_at": { '$exists' => true }, "dump.en.deleted_at": { '$exists' => false } }).find_all do |item|
+        mongo_collection.where({ 'dump.de.deleted_at': { '$exists' => true }, 'dump.en.deleted_at': { '$exists' => false } }).find_all do |item|
           item.dump['en']['archived_at'] =                item.dump['de']['archived_at']                if item.dump['de']['archived_at'].present?
           item.dump['en']['last_seen_before_archived'] =  item.dump['de']['last_seen_before_archived']  if item.dump['de']['last_seen_before_archived'].present?
           item.dump['en']['archive_reason'] =             item.dump['de']['archive_reason']             if item.dump['de']['archive_reason'].present?

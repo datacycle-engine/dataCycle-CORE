@@ -89,7 +89,8 @@ module DataCycleCore
             template: DataCycleCore::Generic::Common::ImportFunctions.load_template(template),
             data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
               config,
-              transformation.call(raw_data)
+              transformation.call(raw_data),
+              utility_object
             ).with_indifferent_access,
             local: true
           )

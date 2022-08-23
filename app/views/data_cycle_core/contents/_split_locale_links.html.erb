@@ -4,9 +4,7 @@
   <div class="dropdown-pane no-bullet attribute-locale-switcher"
     id="<%= random_id %>-locales-menu"
     data-dropdown
-    data-hover="true"
     data-locale-url-parameter="<%= local_assigns[:locale_url_parameter].presence %>"
-    data-hover-pane="true"
     data-position="bottom"
     data-alignment="right">
     <h5><%= local_assigns[:title] || t('common.choose_language', locale: active_ui_locale) %></h5>

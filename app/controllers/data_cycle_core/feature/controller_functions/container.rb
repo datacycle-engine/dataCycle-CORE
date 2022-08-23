@@ -25,7 +25,6 @@ module DataCycleCore
             update_hash = {
               current_user: current_user,
               save_time: Time.zone.now,
-              partial_update: true,
               data_hash: {
                 DataCycleCore::Feature::LifeCycle.attribute_keys(@content).first => [
                   @parent.try(:life_cycle_stage)&.id
@@ -35,7 +34,7 @@ module DataCycleCore
 
             @content.is_part_of = @parent.id
             @content.save(touch: false)
-            if @content.set_data_hash(update_hash)
+            if @content.set_data_hash(**update_hash)
               redirect_back(fallback_location: root_path, notice: I18n.t(:moved_to, scope: [:controllers, :success], locale: helpers.active_ui_locale, data: @parent.title))
             else
               redirect_back(fallback_location: root_path, alert: @content.errors.messages)

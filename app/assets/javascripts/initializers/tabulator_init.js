@@ -1,4 +1,4 @@
-import {TabulatorFull as Tabulator} from 'tabulator-tables';
+import { TabulatorFull as Tabulator } from 'tabulator-tables';
 
 export default function () {
   let exifWrapper = document.querySelector('#exif-details');
@@ -8,16 +8,17 @@ export default function () {
       return { name: key, value: value };
     });
 
-    var table = new Tabulator(exifWrapper, {
+    new Tabulator(exifWrapper, {
       data: transformedTableData,
-      layout: "fitColumns", //fit columns to width of table (optional)
-      columns: [ //Define Table Columns
-        {title: "Name", field: "name"},
-        {title: "Wert", field: "value"},
+      layout: 'fitColumns', //fit columns to width of table (optional)
+      columns: [
+        //Define Table Columns
+        { title: 'Name', field: 'name' },
+        { title: 'Wert', field: 'value' }
       ],
-      initialSort:[
-        {column:"name", dir:"asc"}, //sort by this first
+      initialSort: [
+        { column: 'name', dir: 'asc' } //sort by this first
       ]
-    })
+    });
   }
 }

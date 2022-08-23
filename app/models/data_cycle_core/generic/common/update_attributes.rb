@@ -66,7 +66,7 @@ module DataCycleCore
               end
             end
 
-            update_item.set_data_hash(partial_update: true, prevent_history: false, data_hash: update_hash) if update_hash.present?
+            update_item.set_data_hash(prevent_history: false, data_hash: update_hash) if update_hash.present?
           end
         end
 

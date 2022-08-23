@@ -22,7 +22,7 @@ module DataCycleCore
 
     test 'create new user_group' do
       group_name = "test_group_#{Time.now.getutc.to_i}"
-      post user_groups_path, params: {
+      post create_user_groups_path, params: {
         user_group: {
           name: group_name
         }

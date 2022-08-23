@@ -55,6 +55,7 @@ module DataCycleCore
       when 'grid' then tag.i(class: 'fa fa-th', aria_hidden: true, data: { dc_tooltip: title })
       when 'list' then tag.i(class: 'fa fa-th-list', aria_hidden: true, data: { dc_tooltip: title })
       when 'tree' then tag.i(class: 'fa fa-sitemap', aria_hidden: true, data: { dc_tooltip: title })
+      when 'map' then tag.i(class: 'fa fa-map', aria_hidden: true, data: { dc_tooltip: title })
       end
     end
 
@@ -73,7 +74,7 @@ module DataCycleCore
           if DataCycleCore::ClassificationTreeLabel.visible('tree_view').many?
             concat(tag.span(mode_icon(mode), data: { toggle: 'tree-view-selector' }, class: selected ? 'selected' : nil))
             concat(
-              tag.div(class: 'dropdown-pane no-bullet align-right', id: 'tree-view-selector', data: { dropdown: true, hover: true, hover_pane: true }) do
+              tag.div(class: 'dropdown-pane no-bullet', id: 'tree-view-selector', data: { dropdown: true }) do
                 concat(
                   tag.ul(class: 'no-bullet') do
                     DataCycleCore::ClassificationTreeLabel.visible('tree_view').presence&.each do |tree_label|
@@ -109,7 +110,7 @@ module DataCycleCore
 
     def valid_mode(mode)
       case mode
-      when 'list', 'tree' then mode
+      when 'list', 'tree', 'map' then mode
       else 'grid'
       end
     end
@@ -457,7 +458,7 @@ module DataCycleCore
       options = { class: "flash flash-notification callout #{alert_class}" }
       options[:data] = { closable: '' } if closable
 
-      tag.div(options) do
+      tag.div(**options) do
         if value.is_a?(::String)
           concat value.html_safe
         elsif value.is_a?(::Hash) || value.is_a?(ActiveModel::DeprecationHandlingMessageHash)

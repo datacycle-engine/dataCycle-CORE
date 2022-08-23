@@ -6,37 +6,39 @@ import castArray from 'lodash/castArray';
 import loadingIcon from '../templates/loadingIcon';
 import isEqual from 'lodash/isEqual';
 import sortBy from 'lodash/sortBy';
+import ObserverHelpers from '../helpers/observer_helpers';
 
 class ObjectBrowser {
   constructor(selector) {
-    this.element = selector;
+    selector.dcObjectBrowser = true;
+    this.element = $(selector);
     this.objectListElement = this.element.find('> .media-thumbs > .object-thumbs').get(0);
-    this.id = selector.prop('id');
+    this.id = this.element.prop('id');
     this.overlay = $(`#object_browser_${this.id}`);
     this.label = $('[for=' + this.id + ']')
       .text()
       .trim();
     this.overlay_per = 25;
-    this.per = selector.data('per') || 5;
-    this.type = selector.data('type');
-    this.locale = selector.data('locale');
-    this.key = selector.data('key');
-    this.hidden_field_id = selector.data('hidden-field-id');
-    this.object_id = selector.data('object-id');
-    this.object_key = selector.data('object-key');
-    this.definition = selector.data('definition');
-    this.options = selector.data('options');
-    this.class = selector.data('class');
-    this.table = selector.data('table');
-    this.max = selector.data('max');
-    this.min = selector.data('min');
-    this.limitedBy = selector.data('limited-by');
+    this.per = this.element.data('per') || 5;
+    this.type = this.element.data('type');
+    this.locale = this.element.data('locale');
+    this.key = this.element.data('key');
+    this.hidden_field_id = this.element.data('hidden-field-id');
+    this.object_id = this.element.data('object-id');
+    this.object_key = this.element.data('object-key');
+    this.definition = this.element.data('definition');
+    this.options = this.element.data('options');
+    this.class = this.element.data('class');
+    this.table = this.element.data('table');
+    this.max = this.element.data('max');
+    this.min = this.element.data('min');
+    this.limitedBy = this.element.data('limited-by');
     this.index = this.per;
-    this.editable = selector.data('editable');
+    this.editable = this.element.data('editable');
     this.page = 1;
     this.loading = false;
     this.total = 0;
-    this.ids = selector.data('objects') || [];
+    this.ids = this.element.data('objects') || [];
     this.chosen = this.ids.slice(0);
     this.preselectedItems = [];
     this.selected = '';
@@ -44,7 +46,7 @@ class ObjectBrowser {
     this.sortable;
     this.content_id = this.element.data('content-id');
     this.content_type = this.element.data('content-type');
-    this.prefix = selector.data('prefix');
+    this.prefix = this.element.data('prefix');
     this.activeRequest;
     this.activeCountRequest;
     this.eventHandlers = {
@@ -55,6 +57,7 @@ class ObjectBrowser {
       import: this.import.bind(this)
     };
     this.overlayInitObserver = new MutationObserver(this.initOverlay.bind(this));
+    this.changeObserver = new MutationObserver(this._checkForChangedFormData.bind(this));
 
     this.setup();
   }
@@ -75,11 +78,6 @@ class ObjectBrowser {
     this.overlay.on('open.zf.reveal', this.setOverlayPosition.bind(this));
     this.overlay.on('closed.zf.reveal', this.resetOverlayPosition.bind(this));
 
-    $(document).on(
-      'dc:html:changed',
-      `#new_${this.id}.in-object-browser .new-content-form`,
-      this.initNewFormHandlers.bind(this)
-    );
     this.element.on('dc:locale:changed', this.updateLocale.bind(this));
     this.element.closest('form').on('reset', this.reset.bind(this));
 
@@ -97,6 +95,17 @@ class ObjectBrowser {
       this.limitedBy.on('change', this.removeDeletedItem.bind(this));
       if (!this.element.closest('.split-content.edit-content').length) this.removeDeletedItem();
     } else this.limitedBy = undefined;
+  }
+  _checkForChangedFormData(mutations) {
+    for (const mutation of mutations) {
+      if (mutation.type !== 'attributes') continue;
+
+      if (
+        mutation.target.classList.contains('remote-rendered') &&
+        (!mutation.oldValue || mutation.oldValue.includes('remote-rendering'))
+      )
+        this.initNewFormHandlers();
+    }
   }
   setOverlayPosition(_event) {
     if ($('.reveal:visible').not(this.overlay).length) this.overlay.addClass('full-height');
@@ -138,6 +147,11 @@ class ObjectBrowser {
     this.overlayCount = this.overlayFilter.find('.item-count');
     this.overlayFilterForm = this.overlayFilter.find('.object-browser-filter-form');
     this.overlayItemList = this.overlay.children('.items');
+
+    const newForm = document.querySelector(`#new_${this.id}.in-object-browser`);
+    if (newForm && newForm.querySelector('form')) this.initNewFormHandlers();
+    else if (newForm && newForm.querySelector('.new-content-form'))
+      this.changeObserver.observe(newForm.querySelector('.new-content-form'), ObserverHelpers.changedClassConfig);
 
     this.overlay.on('open.zf.reveal', this.openOverlay.bind(this));
     this.overlay.on('closed.zf.reveal', this.closeOverlay.bind(this));
@@ -222,9 +236,6 @@ class ObjectBrowser {
     this.updateChosenCounter();
     this.overlay.find('.items li.item .reveal.media-preview').each((_i, element) => {
       if ($(element).prop('id').indexOf('overlay_') == -1) $(element).prop('id', 'overlay_' + $(element).prop('id'));
-    });
-    this.element.find('.object-thumbs li.item .reveal.media-preview').each((_i, element) => {
-      $(element).foundation().addClass('dc-fd-initialized');
     });
   }
   async clickSaveHandler(event) {
@@ -444,7 +455,6 @@ class ObjectBrowser {
         .each(function () {
           if ($(this).prop('id').indexOf('overlay_') != -1)
             $(this).prop('id', $(this).prop('id').replace('overlay_', ''));
-          $(this).foundation().addClass('dc-fd-initialized');
         });
       this.element
         .children('.media-thumbs')
@@ -452,10 +462,7 @@ class ObjectBrowser {
         .children('li.item')
         .find('[data-tooltip]')
         .each((_index, item) => {
-          $(item)
-            .attr('title', $('#' + $(item).data('toggle')).html())
-            .foundation()
-            .addClass('dc-fd-initialized');
+          $(item).attr('title', $('#' + $(item).data('toggle')).html());
         });
     }
 
@@ -468,10 +475,7 @@ class ObjectBrowser {
       $(element)
         .find('[data-tooltip]')
         .each((_index, item) => {
-          $(item)
-            .attr('title', $('#' + $(item).data('toggle')).html())
-            .foundation()
-            .addClass('dc-fd-initialized');
+          $(item).attr('title', $('#' + $(item).data('toggle')).html());
         });
       this.overlay
         .children('.items')
@@ -565,7 +569,7 @@ class ObjectBrowser {
       .html(this.cloneHtml(this.element.find('> .media-thumbs > .object-thumbs > li.item')))
       .find('[data-tooltip]')
       .each(function () {
-        $(this).attr('title', $(this).data('title')).foundation().addClass('dc-fd-initialized');
+        $(this).attr('title', $(this).data('title'));
       });
     this.chosen = $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'));
   }
@@ -729,10 +733,7 @@ class ObjectBrowser {
 
       let html = data.html;
       if (!data.has_contents) html = `<span class="no-results">${await I18n.translate('common.no_results')}</span>`;
-      $(html)
-        .insertBefore(this.overlay.find('.items .loading'))
-        .trigger('dc:html:changed')
-        .trigger('dc:html:initialized');
+      $(html).insertBefore(this.overlay.find('.items .loading'));
 
       this.overlay.find('.items li.item .reveal.media-preview').each(function () {
         if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));

@@ -26,7 +26,7 @@ module DataCycleCore
       index = 0
       content_ids = []
 
-      ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", progress: 0, items: item_count
+      ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { progress: 0, items: item_count })
 
       new_thing_params.each do |_key, thing_params|
         thing_hash = content_params(params[:template], thing_params)
@@ -35,13 +35,13 @@ module DataCycleCore
           content = DataCycleCore::DataHashService.create_internal_object(params[:template], thing_hash, current_user)
           content_ids << { id: content.id, field_id: thing_params[:uploader_field_id] } if content.try(:id).present?
 
-          ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", progress: index += 1, items: item_count, errors: content.try(:errors).presence
+          ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { progress: index += 1, items: item_count, errors: content.try(:errors).presence })
         end
       end
 
       flash.now[:success] = I18n.t :bulk_created, scope: [:controllers, :success], count: item_count, locale: helpers.active_ui_locale
 
-      ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", redirect_path: root_path, flash: flash.to_hash, created: true, content_ids: content_ids
+      ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { redirect_path: root_path, flash: flash.to_hash, created: true, content_ids: content_ids })
 
       head(:ok)
     end
@@ -66,8 +66,16 @@ module DataCycleCore
         end
 
         respond_to do |format|
-          format.json { redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_thing_path", id: @content) }
-          format.js { render 'data_cycle_core/application/more_results' }
+          format.json do
+            if @count_only || params[:mode].present?
+              render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/application/count_or_more_results').squish }
+            else
+              redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_thing_path", id: @content)
+            end
+          end
+          format.geojson do
+            redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_thing_path", id: @content, format: request.format.symbol)
+          end
           format.html { render && return }
         end
       end
@@ -91,10 +99,11 @@ module DataCycleCore
       elsif content.template_name == 'Video'
         # no active storage
         rendered_attribute = content.send(:thumbnail_url)
+      elsif content.template_name == 'Webcam' && content.send(attribute).blank?
+        rendered_attribute = content.try(:image)&.first&.send(attribute)
       else
         rendered_attribute = content.send(attribute)
       end
-
       uri = URI.parse(rendered_attribute)
       # used for local development and docker env.
       uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && ENV.fetch('APP_DOCKER_ENV') { nil } != 'production' && uri.hostname == 'localhost'
@@ -196,7 +205,7 @@ module DataCycleCore
 
         version_name_for_merge(datahash) if merge_duplicate
 
-        unless @content.set_data_hash_with_translations(data_hash: datahash, current_user: current_user, partial_update: true, force_update: merge_duplicate)
+        unless @content.set_data_hash_with_translations(data_hash: datahash, current_user: current_user, force_update: merge_duplicate)
           flash[:error] = @content.i18n_errors.map { |k, v| v.full_messages.map { |m| "#{k}: #{m}" } }.flatten
           redirect_back(fallback_location: root_path) && return
         end
@@ -231,7 +240,7 @@ module DataCycleCore
 
         destroy_content_params[:destroy_locale] = destroy_params[:locale].present?
 
-        @content.destroy_content(destroy_content_params)
+        @content.destroy_content(**destroy_content_params)
 
         flash[:success] = @content.destroyed? ? I18n.t(:destroyed, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale) : I18n.t(:destroyed_translation, scope: [:controllers, :success], data: @content.template_name, language: I18n.locale, locale: helpers.active_ui_locale)
 
@@ -298,7 +307,7 @@ module DataCycleCore
         history_date = (@history.try(:history_valid)&.first || @history.try(:updated_at))&.in_time_zone
         history_date_string = I18n.l(history_date, locale: helpers.active_ui_locale, format: :history) if history_date.present?
 
-        if @content.set_data_hash(data_hash: history_hash, version_name: I18n.t(:restored_version_name, scope: [:history, :restore, :version], locale: helpers.active_ui_locale, date: history_date_string))
+        if @content.set_data_hash(data_hash: history_hash, version_name: I18n.t(:restored_version_name, scope: [:history, :restore, :version], locale: helpers.active_ui_locale, date: history_date_string), partial_update: false)
           flash[:success] = I18n.t(:restored, scope: [:history, :restore, :version], locale: helpers.active_ui_locale, date: history_date_string)
         else
           flash[:error] = @content.i18n_errors.map { |k, v| v.full_messages.map { |m| "#{k}: #{m}" } }.flatten
@@ -519,7 +528,7 @@ module DataCycleCore
     end
 
     def attribute_default_value
-      authorize! :index, DataCycleCore::Thing
+      authorize! :show, DataCycleCore::Thing
 
       template = DataCycleCore::Thing.find_by!(template: true, template_name: default_value_params[:template_name])
 
@@ -534,7 +543,54 @@ module DataCycleCore
       end
     end
 
+    def switch_primary_external_system
+      @content = DataCycleCore::Thing.find(switch_system_params[:id])
+      authorize! :switch_primary_external_system, @content
+
+      @external_sync = @content.external_system_syncs.find(switch_system_params[:external_system_sync_id])
+
+      @content.switch_primary_external_system(@external_sync)
+
+      redirect_back(fallback_location: root_path, notice: I18n.t('content_external_data.primary_system_switched', locale: helpers.active_ui_locale)) && return
+    rescue ActiveRecord::RecordNotUnique
+      @existing = DataCycleCore::Thing.find_by(external_source_id: @external_sync.external_system_id, external_key: @external_sync.external_key)
+
+      redirect_back(fallback_location: root_path, alert: I18n.t('content_external_data.duplicate_record_html', url: @existing ? thing_path(@existing) : nil, locale: helpers.active_ui_locale)) && return
+    end
+
+    def quality_score
+      authorize! :show, DataCycleCore::Thing
+
+      content = DataCycleCore::Thing.find_by(id: quality_score_params[:id]) || DataCycleCore::Thing.find_by(template: true, template_name: quality_score_params[:template_name])
+
+      raise ActiveRecord::RecordNotFound if content.nil?
+
+      object_params = content_params(content.template_name, params[:thing])
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, content.schema)
+      _locale, values = datahash[:translations]&.first
+      datahash = (datahash[:datahash] || {}).merge(values || {})
+
+      I18n.with_locale(quality_score_params[:locale]) do
+        render(
+          json: {
+            value: content.calculate_quality_score(
+              quality_score_params[:attribute_key],
+              datahash
+            )
+          }
+        ) && return
+      end
+    end
+
     private
+
+    def quality_score_params
+      params.permit(:id, :template_name, :attribute_key, :locale)
+    end
+
+    def switch_system_params
+      params.permit(:id, :external_system_sync_id)
+    end
 
     def default_value_params
       params.permit(:template_name, :locale, keys: [], data_hash: {})
@@ -588,7 +644,7 @@ module DataCycleCore
     end
 
     def linked_object_params
-      params.permit(:id, :key, :page, :load_more_action, :locale, :load_more_type, :complete_key, :editable, :content_id, :content_type, definition: {}, load_more_except: [], options: {})
+      params.permit(:id, :key, :page, :load_more_action, :locale, :load_more_type, :complete_key, :editable, :content_id, :content_type, :hide_embedded, definition: {}, load_more_except: [], options: {})
     end
 
     def life_cycle_params
@@ -609,7 +665,7 @@ module DataCycleCore
       if params_hash.present?
         params_hash.permit(allowed_content_params)
       else
-        params.require(:thing).permit(:version_name, allowed_content_params)
+        params.fetch(:thing) { {} }.permit(:version_name, allowed_content_params)
       end
     end
 

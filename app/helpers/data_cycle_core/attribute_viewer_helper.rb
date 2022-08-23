@@ -162,5 +162,42 @@ module DataCycleCore
     def contextual_content(local_assigns)
       local_assigns[:parent] || local_assigns[:content]
     end
+
+    def life_cycle_class(content, stage)
+      html_classes = ['hollow button']
+      html_classes = ['active'] if content.life_cycle_stage?(stage[:id])
+
+      html_classes.push('disabled') unless can?(:set_life_cycle, content, stage)
+      html_classes.push('before-active') if content.life_cycle_stage_index&.>(content.life_cycle_stage_index(stage[:id]))
+      html_classes.push('after-active') if content.life_cycle_stage_index&.<(content.life_cycle_stage_index(stage[:id]))
+
+      html_classes.join(' ')
+    end
+
+    def attribute_viewer_html_classes(key:, definition:, options:, parent: nil, **_args)
+      html_classes = [
+        'detail-type',
+        key.attribute_name_from_key,
+        definition.dig('type')&.underscore,
+        options.dig('class')
+      ]
+
+      html_classes.push('dc-quality-score') if definition.key?('quality_score')
+      html_classes.push(definition.dig('ui', 'show', 'type').underscore) if definition.dig('ui', 'show', 'type').present?
+      html_classes.push(options.dig(:mode) || 'has-changes edit') if options.dig(:item_diff).present?
+      html_classes.push('is-embedded-title') if parent&.embedded_title_property_name.present? && key.attribute_name_from_key == parent.embedded_title_property_name
+
+      html_classes.compact_blank!
+      html_classes.uniq!
+      html_classes.join(' ')
+    end
+
+    def attribute_viewer_data_attributes(key:, definition:, content: nil, options: nil, data_attributes: nil, data_label: nil, **_args)
+      html_data = data_attributes.to_h.transform_values { |v| v.to_s.html_safe } # rubocop:disable Rails/OutputSafety
+      html_data[:label] = data_label || translated_attribute_label(key, definition, content, options)
+      html_data[:key] = key
+
+      html_data
+    end
   end
 end

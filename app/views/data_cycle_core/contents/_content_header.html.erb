@@ -1,8 +1,6 @@
 <div class="column detail-header-wrapper">
 
-  <% show_external_connections = show_external_connections?(content) %>
-
-  <div class="detail-header <%= DataCycleCore::Feature::TileBorderColor.class_string(content) %> <%= 'with-external-connections' if show_external_connections %>">
+  <div class="detail-header <%= DataCycleCore::Feature::TileBorderColor.class_string(content) %>">
     <%= render_content_partial 'header_top', content: content %>
 
     <% content_title = yield %>
@@ -76,5 +74,6 @@
     <%= render_content_partial 'header_bottom', content: content %>
   </div>
 
-  <%= render 'data_cycle_core/contents/external_connections', content: content if show_external_connections %>
+  <%= render 'data_cycle_core/contents/external_connections', content: content if show_external_connections?(content) %>
+  <%= render 'data_cycle_core/contents/content_scores', content: content %>
 </div>

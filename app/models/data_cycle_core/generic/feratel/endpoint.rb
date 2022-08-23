@@ -131,6 +131,10 @@ module DataCycleCore
           enumerate_items(:rating_visitors, '//RatingVisitor', lang: lang)
         end
 
+        def salutations(lang: :de)
+          enumerate_items(:salutations, '//Salutation', lang: lang)
+        end
+
         def shop_item_groups(lang: :de)
           enumerate_items(:shop_item_groups, '//ShopItemGroup', lang: lang)
         end

@@ -27,6 +27,8 @@ class BasicSelect2 {
     };
   }
   init() {
+    this.$element[0].dcSelect2 = true;
+
     if (!$.fn.select2) {
       Select2($);
       $.fn.select2.defaults.set('width', '100%');
@@ -177,7 +179,7 @@ class BasicSelect2 {
     });
   }
   copyDataAttributes(data, target) {
-    const source = data.element;
+    let source = data.element;
 
     if (source && source instanceof $) source = source[0];
     if (target instanceof $) target = target[0];

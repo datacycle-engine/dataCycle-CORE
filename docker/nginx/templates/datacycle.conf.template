@@ -2,7 +2,7 @@ proxy_cache_path /var/cache/nginx/data_cycle
   levels=1:2
   keys_zone=data_cycle:100m
   inactive=1y
-  max_size=100m;
+  max_size=10G;
 proxy_cache_path /var/cache/nginx/imgproxy_data_cycle
   levels=1:2
   keys_zone=imgproxy_data_cycle:100M
@@ -21,7 +21,7 @@ upstream docker-imgproxy {
 }
 
 upstream puma_data_cycle {
-  server unix:${APPLICATION_ROOT}/tmp/sockets/puma.sock fail_timeout=0;
+  server web:${PUBLIC_APPLICATION_PORT};
 }
 
 server {
@@ -63,9 +63,11 @@ server {
       application/json
       application/xml
       application/rss+xml
-      image/svg+xml;
+      image/svg+xml
+      application/vnd.geo+json;
 
   location @puma_data_cycle {
+    proxy_http_version 1.1;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto ${APP_PROTOCOL};
@@ -213,6 +215,10 @@ server {
     proxy_pass http://docker-imgproxy/$signature/resize:$mode:$width:$height:$enlarge/gravity:$gravity/filename:$thing/plain/$rqUrl@$type;
 
     proxy_cache imgproxy_data_cycle;
+    
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
 
     # the filename is not used for key cache
     proxy_cache_key "$rqUrl$mode$width$height$enlarge$gravity$type";
@@ -240,7 +246,7 @@ server {
 
   # imgporxy v3.x
   # includes preset and cachebuster
-  
+
   location ~ "\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/thumb\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
@@ -285,7 +291,7 @@ server {
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_pass http://self_data_cycle/asset/$thing/$signature/$cachebuster/default/$resize_type/$resize_width/$resize_height/$resize_enlarge/$resize_gravity/$filename.$type;
   }
-  
+
   location ~ "^\/asset\/(?<thing>[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\/(?<signature>(.[^\/]*?))\/(?<cachebuster>\d+)\/(?<preset>(default|blurry|pixelated))\/(?<mode>(fit|fill|auto))\/(?<width>\d+)\/(?<height>\d+)\/(?<enlarge>(0|1))\/(?<gravity>(.*))\/(?<filename>(.[^\/]*?))(\.(?<type>(jpe?g|png|webp|avif|gif)))?$"{
     # resolver 127.0.0.11 8.8.8.8 8.8.4.4;
     limit_req zone=req_zone burst=100 nodelay;
@@ -297,6 +303,10 @@ server {
     proxy_pass http://docker-imgproxy/$signature/cachebuster:$cachebuster/preset:$preset/resize:$mode:$width:$height:$enlarge/gravity:$gravity/filename:$thing/plain/$rqUrl@$type;
 
     proxy_cache imgproxy_data_cycle;
+
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
 
     # the filename is not used for key cache
     proxy_cache_key "$rqUrl$mode$cachebuster$preset$width$height$enlarge$gravity$type";
@@ -371,4 +381,89 @@ server {
   #   add_header X-Cache $upstream_cache_status;
   # }
 
+
+  ############# video caching proxy
+  # video caching with active storage
+  # location ~ "\/rails\/active_storage\/.[^\.]*?\/*\.mp4" {
+  #   proxy_ignore_headers Cache-Control Expires Set-Cookie;
+  #   proxy_hide_header Cache-Control;
+
+  #   gzip_static on;
+  #   expires max;
+  #   add_header Cache-Control public;
+
+  #   mp4;
+  #   mp4_buffer_size 1M;
+  #   mp4_max_buffer_size 3M;
+  #   # enable thread bool
+  #   aio threads=default;
+  #   # enable caching for mp4 videos
+  #   proxy_cache data_cycle;
+  #   proxy_cache_valid 200 206 300s;
+  #   proxy_cache_lock on;
+  #   proxy_force_ranges on;
+  #   # enable nginx slicing
+  #   slice 1m;
+  #   proxy_cache_key $host$uri$is_args$args$slice_range;
+  #   proxy_set_header Range $slice_range;
+  #   proxy_http_version 1.1;
+  #   # Immediately forward requests to the origin if we are filling the cache
+  #   proxy_cache_lock_timeout 0s;
+  #   # Set the 'age' to a value larger than the expected fill time
+  #   proxy_cache_lock_age 200s;
+  #   proxy_cache_use_stale updating;
+
+  #   # debug
+  #   # add_header X-Cache-Status $upstream_cache_status;
+  #   # add_header X-Cache-Control $upstream_http_cache_control;
+  #   # add_header X-Cache-Key $host$uri$is_args$args$slice_range;
+
+  #   proxy_pass http://puma_data_cycle;
+  # }
+
+  # video caching with computed transcodings
+  location ~ "\/processed\/video\/.[^\.]*?\/*\.mp4" {
+    proxy_ignore_headers Cache-Control Expires Set-Cookie;
+    proxy_hide_header Cache-Control;
+    
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto ${APP_PROTOCOL};
+
+    gzip_static on;
+    expires max;
+    add_header Cache-Control public;
+
+    mp4;
+    mp4_buffer_size 1M;
+    mp4_max_buffer_size 3M;
+    # enable thread bool
+    aio threads=default;
+    # enable caching for mp4 videos
+
+    proxy_cache data_cycle;
+    slice 1m;
+
+    proxy_cache_lock on;
+    proxy_force_ranges on;
+    # enable nginx slicing
+    proxy_cache_key $host$uri$is_args$args$slice_range;
+    proxy_set_header Range $slice_range;
+    proxy_http_version 1.1;
+    proxy_cache_valid 200 206 300s;
+    # Immediately forward requests to the origin if we are filling the cache
+    proxy_cache_lock_timeout 0s;
+    # Set the 'age' to a value larger than the expected fill time
+    proxy_cache_lock_age 200s;
+    proxy_cache_use_stale updating;
+
+    # debug
+    add_header X-Cache-Status $upstream_cache_status;
+    add_header X-Cache-Control $upstream_http_cache_control;
+    add_header X-Cache-Key $host$uri$is_args$args$slice_range;
+    add_header X-Range $slice_range;
+    add_header X-HTTP-RANGE $http_range;
+
+    proxy_pass http://puma_data_cycle;
+  }
 }

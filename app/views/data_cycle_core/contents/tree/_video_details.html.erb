@@ -8,7 +8,7 @@
           <% end %>
         <% elsif item.try(:thumbnail_url).present? %>
           <%
-            thumbnail_url = item&.thumbnail_image&.first&.thumbnail_url || item.try(:thumbnail_url)
+            thumbnail_url = item.try(:thumbnail_image)&.first&.thumbnail_url || item.try(:thumbnail_url)
           %>
           <img data-src="<%= thumbnail_url %>" alt="<%= item.title %>" class="lazyload dc-foundation-tooltip" title="<img src='<%= thumbnail_url %>' />" data-allow-html="true" data-template-classes="thumbnail-tooltip" />
         <% elsif item.try(:image).is_a?(String) && item.try(:image).present? %>

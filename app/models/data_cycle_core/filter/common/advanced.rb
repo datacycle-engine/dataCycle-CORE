@@ -11,6 +11,11 @@ module DataCycleCore
           not_equal: '<>'
         }.freeze
 
+        DATE_RANGE_COMPARISON_OPERATORS = {
+          overlaps: '&&',
+          contains: '@>'
+        }.freeze
+
         def advanced_attributes(value = nil, type = nil, attribute_path = nil)
           advanced_type = "equals_advanced_#{type}".to_sym
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
@@ -75,6 +80,14 @@ module DataCycleCore
 
         def not_equals_advanced_date(value = nil, attribute_path = nil)
           advanced_date(value, attribute_path, :not_equal)
+        end
+
+        def equals_advanced_date_range(value = nil, attribute_path = nil)
+          advanced_date_range(value, attribute_path, :equal)
+        end
+
+        def not_equals_advanced_date_range(value = nil, attribute_path = nil)
+          advanced_date_range(value, attribute_path, :not_equal)
         end
 
         def greater_advanced_time(value = nil, attribute_path = nil)
@@ -216,6 +229,26 @@ module DataCycleCore
           advanced_query(query_string, attribute_path)
         end
 
+        def advanced_date_range(value = nil, attribute_path = nil, comparison = nil)
+          return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparison.present?
+          date_range = "[#{value&.dig('from')&.to_s},#{value&.dig('until')&.to_s}]"
+
+          interval_keys = DataCycleCore::Feature::AdvancedFilter.available_advanced_attribute_filters.dig(attribute_path, 'attribute_keys')
+          query_operator = DATE_RANGE_COMPARISON_OPERATORS.dig(DataCycleCore::Feature::AdvancedFilter.available_advanced_attribute_filters.dig(attribute_path, 'query_operator')&.to_sym || :overlaps)
+
+          case comparison
+          when :equal
+            # query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE ?::daterange @> (pil)::text::date)', attribute_path, date_range])
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange #{query_operator} CONCAT('[',(advanced_attributes ->> ?)::text::date,',',(advanced_attributes ->> ?)::text::date,']')::daterange", date_range, interval_keys&.first, interval_keys&.second])
+          when :not_equal
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["NOT(?::daterange #{query_operator} CONCAT('[',(advanced_attributes ->> ?)::text::date,',',(advanced_attributes ->> ?)::text::date,']')::daterange)", date_range, interval_keys&.first, interval_keys&.second])
+          else
+            return self
+          end
+
+          advanced_query(query_string, attribute_path, false, true)
+        end
+
         def advanced_time(value = nil, attribute_path = nil, comparison = nil)
           return self unless value.present? && attribute_path.present? && comparison.present?
           comparison_operator = COMPARISON_OPERATORS.dig(comparison)
@@ -258,18 +291,19 @@ module DataCycleCore
           advanced_query(query_string, attribute_path, attribute_path_exists)
         end
 
-        def advanced_query(query_string, attribute_path, attribute_path_exists = true)
+        def advanced_query(query_string, attribute_path, attribute_path_exists = true, skip_attribute_exists_query = false)
           reflect(
             @query
               .where(
                 search_exists(
-                  Arel.sql(advanced_query_string(query_string, attribute_path, attribute_path_exists))
+                  Arel.sql(advanced_query_string(query_string, attribute_path, attribute_path_exists, skip_attribute_exists_query))
                 )
               )
           )
         end
 
-        def advanced_query_string(query_string, attribute_path, attribute_path_exists)
+        def advanced_query_string(query_string, attribute_path, attribute_path_exists, skip_attribute_exists_query)
+          return query_string if skip_attribute_exists_query
           return [attribute_path_exists(attribute_path), query_string].reject(&:blank?).join(' AND ').prepend('(').concat(')') if attribute_path_exists == true
           [attribute_path_not_exists(attribute_path), query_string].reject(&:blank?).join(' OR ').prepend('(').concat(')')
         end

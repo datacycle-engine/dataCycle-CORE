@@ -160,6 +160,10 @@
     border-radius: 3px;
     font-size: 0.9rem;
 
+    &.highlight {
+      box-shadow: 0 0 7px $primary-color;
+    }
+
     .object-browser-tile-checkbox {
       display: none;
     }
@@ -388,7 +392,7 @@
     margin-bottom: 0;
 
     &.has-items {
-      padding-top: 1rem;
+      padding: 0.3rem 1rem 1rem 1rem;
     }
 
     .object-browser-tile-checkbox {
@@ -426,6 +430,11 @@
         .content-warning {
           color: $alert-color;
         }
+      }
+
+      &.highlight {
+        // box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+        box-shadow: 0 0 7px $primary-color;
       }
 
       .name {
@@ -504,7 +513,6 @@
 
 .object-browser {
   text-align: left;
-  padding: 3rem 0 0 0.1rem;
   overflow: hidden;
 
   input {
@@ -1317,13 +1325,18 @@ span.single_error.object-browser-error {
 /* embedded Objects */
 
 .detail-header {
-  .addContentObject {
-    .fa {
-      padding: 0;
-      margin-left: 0.5rem;
+  .add-content-object {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    > *:not(:last-child) {
+      margin-right: 0.3rem;
+    }
+
+    .fa.fa-spinner {
       display: none;
       font-size: 0.9rem;
-      vertical-align: bottom;
     }
   }
 
@@ -1349,18 +1362,8 @@ span.single_error.object-browser-error {
         margin: 0;
         transition: all ease-in-out 0.2s;
 
-        .fa {
-          padding: 0;
-          margin-left: 0.5rem;
-          display: none;
-          font-size: 0.9rem;
-          vertical-align: bottom;
-        }
-
         .fa.fa-ban {
-          display: inline-block;
           font-size: 1.1rem;
-          margin-right: 0.3rem;
         }
       }
     }
@@ -1573,6 +1576,7 @@ ul.list {
           color: $black;
           transition: color 0.3s;
         }
+
         .validity_period {
           color: $alert-color;
           float: right;

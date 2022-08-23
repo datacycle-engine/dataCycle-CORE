@@ -10,7 +10,7 @@ module DataCycleCore
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::DcSync::Transformations.to_thing(utility_object.external_source.id),
             default: { template: template },
-            config: config.dig(:import, :transformations)
+            config: config.dig(:import, :transformations).to_h.merge({ import_external_system_data: true })
           )
         end
 
@@ -36,7 +36,7 @@ module DataCycleCore
                 raw_data: data_corrected,
                 transformation: DataCycleCore::Generic::DcSync::Transformations.to_thing(utility_object.external_source.id),
                 default: { template: template },
-                config: config.dig(:import, :transformations)
+                config: config.dig(:import, :transformations).to_h.merge({ import_external_system_data: true })
               )
             end
           end
@@ -134,7 +134,7 @@ module DataCycleCore
         end
 
         def self.process_namespaced_trees(utility_object, raw_data, namespace_trees)
-          namespaced_attributes = namespace_trees.map { |i| i[:attribute_name] }
+          namespaced_attributes = namespace_trees.pluck(:attribute_name)
           transformed_classifications = raw_data.dig('classifications')&.map do |classification|
             if classification['attribute_name'].in?(namespaced_attributes)
               transformed_ancestors = classification['ancestors']&.map do |ancestor|

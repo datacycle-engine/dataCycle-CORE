@@ -51,7 +51,7 @@ module DataCycleCore
               external_key: raw_data.dig('child_ids')
             ).ids
             update_hash = { 'contains_place' => ids }
-            item.set_data_hash(partial_update: true, prevent_history: false, data_hash: update_hash) if update_hash.present?
+            item.set_data_hash(prevent_history: false, data_hash: update_hash) if update_hash.present?
           end
         end
       end

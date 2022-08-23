@@ -60,7 +60,7 @@
                                             class: 'copy-to-clipboard',
                                             data: {
                                                 value: send("webdav_#{DataCycleCore.main_config.dig(:webdav, :default)}_contents_index_url", api_subversion: nil, id: @watch_list),
-                                                dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale)
+                                                dc_tooltip: t('actions.copy_webdav_to_clipboard', locale: active_ui_locale)
                                             } do %>
                   <i class="fa fa-hdd-o" aria-hidden="true"></i>
                 <% end %>
@@ -69,6 +69,16 @@
           <% end %>
 
           <%= tag.li render('data_cycle_core/data_links/data_links_list', content: @watch_list) if can?(:index, DataCycleCore::DataLink) %>
+
+          <% if !@watch_list.my_selection && can?(:subscribe, @watch_list) %>
+            <li class="has-dropdown">
+              <a id="subscribe-link" data-toggle="subscribe"><i class="fa <%= @watch_list.subscriptions.by_user(current_user).size > 0 ? 'fa-bell' : 'fa-bell-o' %>" aria-hidden="true"></i></a>
+              <div class="dropdown-pane no-bullet bottom" id="subscribe" data-dropdown>
+                <h5><%= @watch_list.subscriptions.by_user(current_user).size > 0 ? t('actions.subscribed_to', data: t('common.contents', count: 1, locale: active_ui_locale), locale: active_ui_locale) : t('actions.subscribe_to', data: t('common.contents', count: 1, locale: active_ui_locale), locale: active_ui_locale) %></h5>
+                <%= render 'subscriptions', content: @watch_list %>
+              </div>
+            </li>
+          <% end %>
 
           <li class="buttons">
             <%= link_to previous_authorized_crumb.url, class: 'has-content close-show-button' do %>

@@ -35,7 +35,7 @@
 <% end %>
 
 (function(){
-  $('#<%= sanitize_to_id(@key) %> > .buttons > .addContentObject .fa').css('display', 'none');
+  $('#<%= sanitize_to_id(@key) %> > .buttons > .add-content-object .fa').css('display', 'none');
   $('#<%= sanitize_to_id(@key) %> > .buttons > button').prop('disabled', false);
 
   let $followingEmbedded = $('#<%= sanitize_to_id(@key) %> > .content-object-item').filter(function(){
@@ -47,7 +47,5 @@
   if ($followingEmbedded.length) $content.insertBefore($followingEmbedded);
   else $content.insertBefore('#<%= sanitize_to_id(@key) %> > .buttons');
 
-  $('<%= j content_for :forms %>').appendTo('body').foundation();
-
-  $content.trigger('dc:html:changed').trigger('dc:html:initialized', { newContent: <%= @objects.nil? || @duplicated_content.to_s == 'true' %> });
+  $('<%= j content_for :forms %>').appendTo('body');
 })();

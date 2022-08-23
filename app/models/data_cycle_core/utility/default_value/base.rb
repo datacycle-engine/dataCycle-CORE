@@ -16,7 +16,7 @@ module DataCycleCore
 
             if properties['default_value'].is_a?(::String) && properties['type'] == 'classification'
               method_name = DataCycleCore::Utility::DefaultValue::Classification.method(:by_name)
-            elsif properties['default_value'].is_a?(::String)
+            elsif properties['default_value'].is_a?(::String) || properties['default_value'].is_a?(::Numeric)
               data_hash[key] = properties['default_value']
               return
             else

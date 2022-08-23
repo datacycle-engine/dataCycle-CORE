@@ -1,0 +1,48 @@
+.dc-quality-score {
+  .attribute-quality-score {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    .quality-score-icon,
+    .quality-score-text {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .quality-score-text {
+      font-weight: 600;
+      margin-left: 0.2rem;
+      transition: opacity ease 0.2s;
+    }
+
+    .quality-score-icon::before {
+      font-family: 'FontAwesome';
+      content: '\f006';
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &.score-loading {
+      .quality-score-icon::before {
+        content: '\f110' !important;
+        animation: fa-spin 2s infinite linear;
+      }
+
+      .quality-score-text {
+        opacity: 0;
+      }
+    }
+  }
+
+  &.medium-score .attribute-quality-score .quality-score-icon::before {
+    content: '\f123';
+  }
+
+  &.high-score .attribute-quality-score .quality-score-icon::before {
+    content: '\f005';
+  }
+}

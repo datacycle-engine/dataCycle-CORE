@@ -10,43 +10,50 @@ export default function () {
     if (searchField) searchField.focus();
   });
 
-  let editors = [];
-  let init = function (element) {
-    $(element)
-      .find('.form-element.classification.check_box > ul.classification-checkbox-list')
-      .each((_, item) => {
-        let newCheckBoxSelector = new CheckBoxSelector(item);
-        newCheckBoxSelector.init();
-        editors.push(newCheckBoxSelector);
-      });
-    $(element)
-      .find('.form-element.classification.radio_button > ul.classification-radiobutton-list')
-      .each((_, item) => {
-        let newRadioButtonSelector = new RadioButtonSelector(item);
-        newRadioButtonSelector.init();
-        editors.push(newRadioButtonSelector);
-      });
-    $('.auto-tagging-button').on('click', event => {
-      $(event.target).closest('.form-element').find('> .v-select > select').val(null).trigger('change');
-    });
-    $(element)
-      .find('.async-select')
-      .each((_index, item) => {
-        let newAsyncSelect = new AsyncSelect2(item);
-        newAsyncSelect.init();
-        editors.push(newAsyncSelect);
-      });
-    $(element)
-      .find('.single-select, .multi-select')
-      .each((_index, item) => {
-        let newSimpleSelect = new SimpleSelect2(item);
-        newSimpleSelect.init();
-        editors.push(newSimpleSelect);
-      });
-  };
-  $(document).on('dc:html:changed', '*', event => {
-    event.stopPropagation();
-    init(event.target);
+  for (const element of document.querySelectorAll(
+    '.form-element.classification.check_box > ul.classification-checkbox-list:not(.dc-check-box-selector)'
+  ))
+    new CheckBoxSelector(element).init();
+
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('classification-checkbox-list') && !e.classList.contains('dc-check-box-selector'),
+    e => new CheckBoxSelector(e).init()
+  ]);
+
+  for (const element of document.querySelectorAll(
+    '.form-element.classification.radio_button > ul.classification-radiobutton-list:not(.dc-radio-button-selector)'
+  ))
+    new RadioButtonSelector(element).init();
+
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('classification-radiobutton-list') && !e.classList.contains('dc-radio-button-selector'),
+    e => new RadioButtonSelector(e).init()
+  ]);
+
+  for (const element of document.querySelectorAll('.auto-tagging-button')) initAutoTagging(element);
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('auto-tagging-button') && !e.hasOwnProperty('dcAutoTagging'),
+    e => initAutoTagging(e)
+  ]);
+
+  for (const element of document.querySelectorAll('.async-select')) new AsyncSelect2(element).init();
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('async-select') && !e.hasOwnProperty('dcSelect2'),
+    e => new AsyncSelect2(e).init()
+  ]);
+
+  for (const element of document.querySelectorAll('.single-select, .multi-select')) new SimpleSelect2(element).init();
+  DataCycle.htmlObserver.addCallbacks.push([
+    e =>
+      (e.classList.contains('single-select') || e.classList.contains('multi-select')) && !e.hasOwnProperty('dcSelect2'),
+    e => new SimpleSelect2(e).init()
+  ]);
+}
+
+function initAutoTagging(element) {
+  element.dcAutoTagging = true;
+
+  $(element).on('click', event => {
+    $(event.target).closest('.form-element').find('> .v-select > select').val(null).trigger('change');
   });
-  init(document);
 }

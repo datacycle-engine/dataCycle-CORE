@@ -32,10 +32,21 @@ class EmbeddedObject {
       removeItem: this.handleRemoveEvent.bind(this),
       scrollToLocationHash: this.scrollToLocationHash.bind(this)
     };
+    this.addedItemsObserver = new MutationObserver(this._checkForAddedNodes.bind(this));
+    this.addedItemsObserverConfig = {
+      attributes: false,
+      characterData: false,
+      subtree: true,
+      childList: true,
+      attributeOldValue: false,
+      characterDataOldValue: false
+    };
 
     this.setup();
   }
   setup() {
+    this.element[0].dcEmbeddedObject = true;
+
     this.setupSwappableButtons();
     this.sortable = new Sortable(this.element[0], {
       group: this.id,
@@ -50,9 +61,7 @@ class EmbeddedObject {
       .off('reinit-event-handlers', this.eventHandlers.reInit)
       .on('reinit-event-handlers', this.eventHandlers.reInit);
 
-    this.element.on('dc:html:changed', '> .content-object-item:not(.hidden)', event =>
-      this.setSwapClasses(event.currentTarget)
-    );
+    this.addedItemsObserver.observe(this.element[0], this.addedItemsObserverConfig);
 
     this.element
       .off('dc:import:data', this.eventHandlers.import)
@@ -60,6 +69,22 @@ class EmbeddedObject {
       .addClass('dc-import-data');
 
     this.addEventHandlers();
+  }
+  _checkForConditionRecursive(node) {
+    for (const child of node.children) this._checkForConditionRecursive(child);
+
+    if (node.classList.contains('content-object-item') && !node.classList.contains('hidden')) this.setSwapClasses(node);
+  }
+  _checkForAddedNodes(mutations) {
+    for (const mutation of mutations) {
+      if (mutation.type !== 'childList') continue;
+
+      for (const addedNode of mutation.addedNodes) {
+        if (addedNode.nodeType !== Node.ELEMENT_NODE) continue;
+
+        this._checkForConditionRecursive(addedNode);
+      }
+    }
   }
   locale() {
     return this.element.data('locale') || 'de';
@@ -180,11 +205,13 @@ class EmbeddedObject {
       .off('init.zf.accordion', this.eventHandlers.scrollToLocationHash)
       .on('init.zf.accordion', this.eventHandlers.scrollToLocationHash);
   }
-  addNewItem(event) {
+  async addNewItem(event) {
     event.preventDefault();
     event.stopPropagation();
 
-    this.renderEmbeddedObjects('new');
+    await this.renderEmbeddedObjects('new');
+
+    this.element.trigger('change');
   }
   handleRemoveEvent(event) {
     event.preventDefault();
@@ -204,13 +231,18 @@ class EmbeddedObject {
   }
   removeObject(element) {
     element.trigger('dc:html:remove');
+
     let id = element.data('id');
     if (id !== undefined) {
       this.element.find('input:hidden[value="' + id + '"]').remove();
       this.ids = this.ids.filter(x => x != id);
     }
+
     element.remove();
+
     this.update();
+
+    this.element.trigger('change');
   }
   update() {
     if (this.max != 0 && this.element.children('.content-object-item').length >= this.max) {
@@ -248,23 +280,42 @@ class EmbeddedObject {
     else if (embeddedObject.data('accordion-item') && !embeddedObject.hasClass('is-active'))
       embeddedObject.closest('[data-accordion]').foundation('down', embeddedObject.find('> .accordion-content'));
 
-    this.element.find('> .accordion-item:not(.is-active) > .accordion-content.remote-render').each((index, item) => {
+    this.element.find('> .accordion-item:not(.is-active) > .accordion-content.remote-render').each((_index, item) => {
       let remoteOptions = $(item).data('remote-options');
       delete remoteOptions.hide_embedded;
       $(item).attr('data-remote-options', JSON.stringify(remoteOptions));
     });
 
-    window.scrollTo({ top: topOffset, behavior: 'smooth' });
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: topOffset, behavior: 'smooth' });
+    });
   }
   loadAllContents(embeddedObject) {
-    this.element.on('dc:html:initialized', event => {
-      if ($(event.target).data('id') == embeddedObject.data('id') && !$(event.target).hasClass('hidden'))
-        $(event.target).closest('[data-accordion]').foundation('down', $(event.target).find('> .accordion-content'));
+    const observer = new MutationObserver(mutations => {
+      for (const mutation of mutations) {
+        if (mutation.type !== 'childList') continue;
 
-      this.element.off(event);
+        for (const addedNode of mutation.addedNodes) {
+          if (addedNode.nodeType !== Node.ELEMENT_NODE) continue;
+          if (addedNode.dataset.id == embeddedObject[0].dataset.id) {
+            observer.disconnect();
+
+            $(addedNode.closest('[data-accordion]')).foundation('down', $(addedNode).find('> .accordion-content'));
+          }
+        }
+      }
     });
 
-    this.element.find('> .buttons > .load-more-linked-contents').click();
+    observer.observe(this.element[0], {
+      attributes: false,
+      characterData: false,
+      subtree: true,
+      childList: true,
+      attributeOldValue: false,
+      characterDataOldValue: false
+    });
+
+    this.element.find('> .buttons > .load-more-linked-contents').get(0).click();
   }
 }
 

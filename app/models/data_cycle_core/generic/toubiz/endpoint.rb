@@ -13,6 +13,17 @@ module DataCycleCore
           @page_size = 20
         end
 
+        def faraday
+          Faraday.new(request: { timeout: 1200 }) do |f|
+            f.request :url_encoded
+            f.request :retry, max: 7, interval: 60, backoff_factor: 2, exceptions: [StandardError]
+
+            f.request(:authorization, :Bearer, @bearer)
+
+            f.response :follow_redirects
+          end
+        end
+
         def categories(lang:)
           Enumerator.new do |yielder|
             request_categories(lang: lang, type: 'category', retry_count: 0).each do |item|
@@ -69,11 +80,7 @@ module DataCycleCore
 
         def request_data_details(lang:, type:, id:, includes:, retry_count:)
           url = [@host, @end_point, type, id].join('/')
-          conn = Faraday.new(url: url) do |connection|
-            connection.request(:authorization, :Bearer, @bearer)
-          end
-
-          response = conn.get do |req|
+          response = faraday.get(url) do |req|
             req.headers['Content-Type'] = 'application/json'
             req.params['language'] = lang.to_s
             req.params['include'] = includes
@@ -82,15 +89,12 @@ module DataCycleCore
           JSON.parse(response.body)['payload']
         rescue StandardError
           raise if retry_count >= @max_retry
-          request_data(lang: lang, type: type, id: id, includes: includes, retry_count: retry_count + 1)
+          request_data_details(lang: lang, type: type, id: id, includes: includes, retry_count: retry_count + 1)
         end
 
         def request_data(lang:, type:, includes:, page:, page_size:, retry_count:)
           url = [@host, @end_point, type].join('/')
-          conn = Faraday.new(url: url) do |connection|
-            connection.request(:authorization, :Bearer, @bearer)
-          end
-          response = conn.get do |req|
+          response = faraday.get(url) do |req|
             req.headers['Content-Type'] = 'application/json'
             req.params['pagination'] = { 'page' => page, 'pageSize' => page_size }
             req.params['language'] = lang.to_s
@@ -105,10 +109,7 @@ module DataCycleCore
 
         def request_data_min(lang:, type:, retry_count:)
           url = [@host, @end_point, type].join('/')
-          conn = Faraday.new(url: url) do |connection|
-            connection.request(:authorization, :Bearer, @bearer)
-          end
-          response = conn.get do |req|
+          response = faraday.get(url) do |req|
             req.headers['Content-Type'] = 'application/json'
             req.params['language'] = lang.to_s
             req.params['minimal'] = 1
@@ -122,10 +123,7 @@ module DataCycleCore
 
         def request_categories(lang:, type:, retry_count:)
           url = [@host, @end_point, type].join('/')
-          conn = Faraday.new(url: url) do |connection|
-            connection.request(:authorization, :Bearer, @bearer)
-          end
-          response = conn.get do |req|
+          response = faraday.get(url) do |req|
             req.headers['Content-Type'] = 'application/json'
             req.params['language'] = lang.to_s
           end

@@ -1,5 +1,6 @@
 class DashboardFilter {
   constructor(element) {
+    element.dcDashboardFilter = true;
     this.$searchForm = $(element);
     this.$defaultFilterContainer = this.$searchForm.find('.main-filters').first();
     this.$classificationTreeFilterContainer = this.$searchForm.find('.classification-tree-filter').first();
@@ -18,7 +19,6 @@ class DashboardFilter {
     this.$sortableOrderInputs = this.$searchForm.find(
       '.mode-container .filter-sortable .filter-sortable-checkbox-wrapper :input'
     );
-
     this.defaultFilterOptions = {
       splitListClass: 'split-list',
       numCols: 4,
@@ -33,6 +33,9 @@ class DashboardFilter {
     this.initEventHandlers();
     this.initSearchForm();
     this.initClickableMenu();
+
+    this.$searchForm[0].dataset.initialFormData = JSON.stringify(Array.from(new FormData(this.$searchForm[0])));
+    this.$searchForm[0].classList.add('dc-dashboard-filter');
   }
   initDefaultFilters() {
     if (!this.$defaultFilterContainer.length) return;
@@ -138,11 +141,11 @@ class DashboardFilter {
     let selectValue = $(elem).find('> .advanced-filter-mode select').val();
 
     if (selectValue == 'b' || selectValue == 'p') {
-      newTarget.find(':input[type=hidden]').prop('disabled', false);
-      newTarget.find(':input:not([type=hidden])').prop('disabled', true);
+      newTarget.find(':input[type=hidden]:not(.flatpickr-input)').prop('disabled', false);
+      newTarget.find(':input:not([type=hidden]), :input[type=hidden].flatpickr-input').prop('disabled', true);
     } else {
-      newTarget.find(':input[type=hidden]').prop('disabled', true);
-      newTarget.find(':input:not([type=hidden])').prop('disabled', false);
+      newTarget.find(':input[type=hidden]:not(.flatpickr-input)').prop('disabled', true);
+      newTarget.find(':input:not([type=hidden]), :input[type=hidden].flatpickr-input').prop('disabled', false);
     }
   }
   _conditionalValueSelectorChange(event) {

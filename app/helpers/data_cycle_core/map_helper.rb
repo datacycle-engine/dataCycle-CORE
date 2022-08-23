@@ -34,7 +34,8 @@ module DataCycleCore
         id: content.id,
         name: I18n.with_locale(content.first_available_locale) { content.try(paths['title'].to_s) },
         thingPath: thing_path(content),
-        style: { color: 'gray', width: 4 },
+        color: 'gray',
+        width: 4,
         clickable: true
       }
     end

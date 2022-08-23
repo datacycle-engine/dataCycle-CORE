@@ -8,6 +8,8 @@ module DataCycleCore
         import Transproc::HashTransformations
         import Transproc::Conditional
         import Transproc::Recursion
+        import RatingTransformations
+        import ExternalReferenceTransformations
 
         def self.underscore_keys(data_hash)
           data_hash.to_h.deep_transform_keys { |k| k.to_s.underscore }
@@ -15,6 +17,10 @@ module DataCycleCore
 
         def self.strip_all(data_hash)
           data_hash.to_h.deep_transform_values { |v| v.is_a?(::String) ? v.strip : v }
+        end
+
+        def self.select_keys(data, *keys)
+          data.select { |k, _| keys.include?(k) }
         end
 
         def self.location(data_hash)
@@ -74,13 +80,9 @@ module DataCycleCore
           if data_hash[attribute].blank?
             data_hash[attribute] = []
           else
-            data_hash[attribute] = data_hash[attribute].map { |keyword|
-              DataCycleCore::Classification.where(
-                external_source_id: external_source_id,
-                external_key: external_prefix.to_s + keyword.to_s
-              )&.first&.id
-            }.reject(&:nil?) || []
+            data_hash[attribute] = DataCycleCore::Classification.where(external_source_id: external_source_id, external_key: data_hash[attribute].map { |a| "#{external_prefix}#{a}" }).pluck(:id)
           end
+
           data_hash
         end
 
@@ -150,6 +152,22 @@ module DataCycleCore
           )
         end
 
+        def self.local_asset(data_hash, attribute, asset_type)
+          return data_hash if data_hash[attribute].blank?
+
+          begin
+            asset = "DataCycleCore::#{asset_type&.classify}".safe_constantize.new(remote_file_url: data_hash[attribute])
+            asset.save!
+            data_hash[attribute] = asset.try(:id)
+          rescue StandardError => e
+            logger = DataCycleCore::Generic::Logger::LogFile.new('carrierwave')
+            logger.info(e, data_hash[attribute])
+            logger.close
+          end
+
+          data_hash
+        end
+
         def self.local_image(data_hash, attribute)
           return data_hash if data_hash[attribute].blank?
 
@@ -162,6 +180,7 @@ module DataCycleCore
             logger.info(e, data_hash[attribute])
             logger.close
           end
+
           data_hash
         end
 
@@ -180,7 +199,9 @@ module DataCycleCore
           data_hash
         end
 
-        def self.add_field(data_hash, name, function)
+        def self.add_field(data_hash, name, function, condition_function = nil)
+          return data_hash if condition_function.present? && !condition_function.call(data_hash)
+
           data_hash.merge({ name => function.call(data_hash) })
         end
 
@@ -248,6 +269,21 @@ module DataCycleCore
           query = query.limit(limit) if limit.present?
           query = query.pluck(:id) if pluck_id
           query
+        end
+
+        def self.add_external_system_data(data, name, key)
+          return data if (external_name = data.dig(*Array.wrap(name))).nil? || (external_key = data.dig(*Array.wrap(key))).nil?
+
+          data['external_system_data'] ||= []
+          data['external_system_data'].push(
+            {
+              'identifier' => external_name,
+              'external_key' => external_key,
+              'sync_type' => 'duplicate'
+            }
+          )
+
+          data
         end
       end
     end

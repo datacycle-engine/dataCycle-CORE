@@ -5,7 +5,7 @@
   xmlns:schema="https://schema.org/Thing/">
 
   <classificationTree
-    about="<%=classification_tree_label_url(@classification_tree_label)%>">
+    about="<%= root_url(mode: 'tree', ctl_id: @classification_tree_label.id, reset: true) %>">
     <id><%=@classification_tree_label.id%></id>
     <name><%=@classification_tree_label.name%></name>
     <url><%=xml_v1_classification_tree_url(@classification_tree_label, language: @language, api_subversion: @api_subversion)%></url>

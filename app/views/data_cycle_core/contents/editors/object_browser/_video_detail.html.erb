@@ -2,8 +2,8 @@
   <h5>Details (<%= I18n.locale %>)</h5>
   <%= tag.div(render('data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object })), class: 'buttons') %>
 
-    <%
-      thumbnail_url = object&.thumbnail_image&.first&.thumbnail_url || object.try(:thumbnail_url)
+  <%
+      thumbnail_url = object.try(:thumbnail_image)&.first&.thumbnail_url || object.try(:thumbnail_url)
     %>
 
   <% unless object.schema.nil? %>
@@ -21,7 +21,7 @@
         <dt><%= t('object_browser.details.title', locale: active_ui_locale).capitalize %> </dt>
         <dd><%= object.title %></dd>
       <% end %>
-s
+
       <% if object.try(:width).present? || object.try(:height).present? || object.try(:content_size).present? %>
         <dt><%= t('object_browser.details.info', locale: active_ui_locale).capitalize %> </dt>
         <dd><%= "#{number_to_human_size(object.try(:content_size))}, " if object.try(:content_size).present? %><%= "#{object.try(:width)&.to_i}x#{object.try(:height)&.to_i}" %></dd>

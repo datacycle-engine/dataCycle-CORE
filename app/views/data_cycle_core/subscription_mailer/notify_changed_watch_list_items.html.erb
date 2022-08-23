@@ -1,0 +1,46 @@
+<table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%">
+  <tr>
+    <td style="background:white;padding:24pt;border-radius: 7px;box-shadow: 0px 5px 18px 2px rgba(0, 0, 0, 0.15);">
+      <table border="0" cellspacing="0" cellpadding="0"
+     width="100%" style="width:100%;">
+        <tr>
+          <td>
+            <span style="font-size:11.5pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><b><%= t('hello', locale: @user.ui_locale) %></b></span>
+          </td>
+        </tr>
+        <% @watch_lists.slice(*@changed_items.keys).each do |watch_list_id, watch_list| %>
+          <% changed_items = @changed_items[watch_list_id].select { |i| @contents.key?(i[:id]) } %>
+          <tr>
+            <td style="padding:12pt 0 0 0;">
+              <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><%= t("data_cycle_core.watch_list.mailer.text_html", link: link_to(watch_list.name, watch_list_url(watch_list)), count: changed_items.size, locale: @user.ui_locale) %></span>
+            </td>
+          </tr>
+          <tr>
+            <td width="100%" style="width:100%;padding:0;height:24pt">
+              <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333">
+
+                <ul style="list-style:none;padding-left: 12pt;">
+                  <% changed_items.each do |item| %>
+                    <% content = @contents[item[:id]] %>
+                    <% I18n.with_locale(content.first_available_locale) do %>
+                      <li>
+                        <%= item[:type] == 'add' ? '+' : '-' %>
+                        <a href="<%= polymorphic_url(content) %>" style="color:#333333;text-decoration:underline;text-underline:underline">
+                          <%= content.template_name %>: <%= content.title.presence || content.id %>
+                        </a> <%= t("terms.from", locale: @user.ui_locale) %>
+                        <a href="mailto:<%= @users[item[:user_id]]&.email %>">
+                          <%= @users[item[:user_id]]&.full_name.presence || @users[item[:user_id]]&.email %>
+                        </a>
+                      </li>
+                    <% end %>
+                  <% end %>
+                </ul>
+
+              </span>
+            </td>
+          </tr>
+        <% end %>
+      </table>
+    </td>
+  </tr>
+</table>

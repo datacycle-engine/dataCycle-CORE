@@ -49,6 +49,7 @@ module DataCycleCore
 
         def self.to_section(external_source_id)
           t(:stringify_keys)
+          .>> t(:rename_keys, { 'caption' => 'name' })
           .>> t(:add_field, 'external_key', ->(s) { parse_external_id(s) })
           .>> t(:add_field, 'line', ->(s) { parse_section(s.dig('geometry')) })
           .>> t(:add_links, 'bikeroute', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att1' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "Gip - BIKEROUTE - #{item}" }.presence || ['Gip - BIKEROUTE - 1'] })
@@ -63,13 +64,13 @@ module DataCycleCore
           .>> t(:add_field, 'order_main_route', ->(s) { s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att12' }&.dig('properties', 'stringvalue')&.to_i })
           .>> t(:add_links, 'referencetype', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'type') ? Array.wrap("Gip - REFERENCETYPE - #{s.dig('properties', 'type')}") : [] })
           .>> t(:add_links, 'orgcode', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'externalorgcode') ? Array.wrap("Gip - ORGCODE - #{s.dig('properties', 'externalorgcode')}") : [] })
-          .>> t(:add_field, 'name', ->(s) { "#{s['caption']} - #{DataCycleCore::Classification.find_by(id: s['minortyperef']).name}" })
+          .>> t(:add_field, 'internal_name', ->(s) { "#{s['name']} - #{DataCycleCore::Classification.find_by(id: s['minortyperef']).name}" })
           .>> t(:add_field, 'routes', ->(s) { load_feature_routes(s.dig('properties', 'geoNameId1'), 'GeoName_', external_source_id) })
           .>> t(:add_field, 'routes_ev', ->(s) { load_feature_routes(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att8' }&.dig('properties', 'stringvalue'), 'GEONAME - EUROVELO - ', external_source_id) })
           .>> t(:add_field, 'routes_at', ->(s) { load_feature_routes(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att9' }&.dig('properties', 'stringvalue'), 'GEONAME - ATROUTE - ', external_source_id) })
           .>> t(:merge_array_values, 'routes', 'routes_at')
           .>> t(:merge_array_values, 'routes', 'routes_ev')
-          .>> t(:reject_keys, ['id', 'caption', 'bbox', 'geometry', 'properties'])
+          .>> t(:reject_keys, ['id', 'bbox', 'geometry', 'properties'])
           .>> t(:strip_all)
         end
 

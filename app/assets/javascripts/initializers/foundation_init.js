@@ -1,4 +1,5 @@
 import 'foundation-sites';
+import domElementHelpers from '../helpers/dom_element_helpers';
 
 function removeFoundationOverlays(element, type) {
   let overlay = document.getElementById(element.dataset[type]);
@@ -6,6 +7,22 @@ function removeFoundationOverlays(element, type) {
   if (overlay.parentElement.classList.contains('reveal-overlay')) overlay = overlay.parentElement;
 
   overlay.remove();
+}
+
+function initReveal(element) {
+  element.dcFoundationReveal = true;
+  element.classList.add('dc-fd-reveal');
+  new Foundation.Reveal($(element));
+
+  if (element.dataset.initialState == 'open') $(element).foundation('open');
+}
+
+function monitorSizeChanges(element) {
+  const resizeObserver = new ResizeObserver(_ => {
+    if (domElementHelpers.isVisible(element)) $(element).foundation('_updatePosition');
+  });
+
+  resizeObserver.observe(element);
 }
 
 export default function () {
@@ -21,17 +38,66 @@ export default function () {
   DataCycle.htmlObserver.removeCallbacks.push([e => 'open' in e.dataset, e => removeFoundationOverlays(e, 'open')]);
   DataCycle.htmlObserver.removeCallbacks.push([e => 'toggle' in e.dataset, e => removeFoundationOverlays(e, 'toggle')]);
 
-  $('body').foundation().addClass('dc-fd-initialized');
+  // Foundation Slider
+  for (const element of document.querySelectorAll('.slider')) new Foundation.Slider($(element));
+  DataCycle.htmlObserver.addCallbacks.push([e => e.classList.contains('slider'), e => new Foundation.Slider($(e))]);
 
-  $(document).on('dc:html:changed dc:contents:added', '*:not(.dc-fd-initialized)', event => {
-    event.stopPropagation();
+  // Foundation Accordion
+  for (const element of document.querySelectorAll('[data-accordion]')) {
+    new Foundation.Accordion($(element));
+    element.classList.add('dc-fd-accordion');
+  }
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => 'accordion' in e.dataset,
+    e => {
+      new Foundation.Accordion($(e));
+      e.classList.add('dc-fd-accordion');
+    }
+  ]);
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('accordion-item') && e.closest('[data-accordion]').classList.contains('dc-fd-accordion'),
+    e => Foundation.reInit($(e.closest('[data-accordion]')))
+  ]);
 
-    const $target = $(event.currentTarget);
+  // Foundation Dropdown
+  for (const element of document.querySelectorAll('[data-dropdown]')) new Foundation.Dropdown($(element));
+  DataCycle.htmlObserver.addCallbacks.push([e => 'dropdown' in e.dataset, e => new Foundation.Dropdown($(e))]);
 
-    if ($target.hasClass('accordion-item')) Foundation.reInit($target.closest('[data-accordion]'));
-    if ($target.hasClass('accordion')) Foundation.reInit($target);
-    $target.foundation().addClass('dc-fd-initialized');
-  });
+  // Foundation OffCanvas
+  for (const element of document.querySelectorAll('[data-off-canvas]')) new Foundation.OffCanvas($(element));
+  DataCycle.htmlObserver.addCallbacks.push([e => 'offCanvas' in e.dataset, e => new Foundation.OffCanvas($(e))]);
+
+  // Foundation Reveal
+  for (const element of document.querySelectorAll('[data-reveal]')) initReveal(element);
+  DataCycle.htmlObserver.addCallbacks.push([
+    e =>
+      'reveal' in e.dataset &&
+      !e.hasOwnProperty('dcFoundationReveal') &&
+      (!e.classList.contains('media-preview') || !e.closest('.object-browser-overlay')),
+    e => initReveal(e)
+  ]);
+
+  // Foundation Reveal Position Updater
+  for (const element of document.querySelectorAll(
+    '.reveal:not(.full)[data-v-offset="auto"], .reveal:not(.full):not([data-v-offset])'
+  ))
+    monitorSizeChanges(element);
+
+  DataCycle.htmlObserver.addCallbacks.push([
+    e =>
+      e.classList.contains('reveal') &&
+      !e.classList.contains('full') &&
+      (e.dataset.vOffset == 'auto' || !e.dataset.vOffset),
+    e => monitorSizeChanges(e)
+  ]);
+
+  // Foundation Tabs
+  for (const element of document.querySelectorAll('[data-tabs]')) new Foundation.Tabs($(element));
+  DataCycle.htmlObserver.addCallbacks.push([e => 'tabs' in e.dataset, e => new Foundation.Tabs($(e))]);
+
+  // Foundation Tooltip
+  for (const element of document.querySelectorAll('[data-tooltip]')) new Foundation.Tooltip($(element));
+  DataCycle.htmlObserver.addCallbacks.push([e => 'tooltip' in e.dataset, e => new Foundation.Tooltip($(e))]);
 
   $(document).on('open.zf.reveal', '.reveal', event => {
     event.stopPropagation();

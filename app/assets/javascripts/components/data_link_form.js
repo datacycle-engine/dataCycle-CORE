@@ -1,5 +1,6 @@
 class DataLinkForm {
   constructor(form) {
+    form.dcDataLinkForm = true;
     this.form = form;
     this.idSelector = this.form.querySelector('.data-link-receiver-selector');
     this.formSubmit = this.form.querySelectorAll('.buttons [type="submit"]');
@@ -31,7 +32,6 @@ class DataLinkForm {
     })
       .then(data => {
         this.dynamicFormPart.innerHTML = $(data.html).find('.dynamic-form-parts').addBack('.dynamic-form-parts').html();
-        $(this.dynamicFormPart).trigger('dc:html:changed').trigger('dc:html:initialized');
       })
       .finally(() => {
         this.idSelector.disabled = false;

@@ -25,11 +25,11 @@
 
   $(html_content).insertBefore($('#<%= sanitize_to_id(@params[:complete_key]) %> > .content-object-item.hidden').first());
 
-  $('<%= ((active_index_multiplier * DataCycleCore.linked_objects_page_size)..((active_index_multiplier * DataCycleCore.linked_objects_page_size) + @linked_objects.size)).map { |i| "##{sanitize_to_id(@params[:complete_key])}_item_#{i}" }.join(', ') %>').trigger('dc:html:changed').trigger('dc:html:initialized');
+  $('<%= ((active_index_multiplier * DataCycleCore.linked_objects_page_size)..((active_index_multiplier * DataCycleCore.linked_objects_page_size) + @linked_objects.size)).map { |i| "##{sanitize_to_id(@params[:complete_key])}_item_#{i}" }.join(', ') %>');
 
   $('#<%= sanitize_to_id(@params[:complete_key]) %>').trigger('reinit-event-handlers');
 
-  $('<%= j content_for :forms %>').appendTo('body').foundation();
+  $('<%= j content_for :forms %>').appendTo('body');
 
   $($.map(<%= @linked_objects.ids.to_json.html_safe %>, id => $('#<%= sanitize_to_id(@params[:complete_key]) %> > .content-object-item.hidden[data-id="' + id + '"]'))).each((index, elem) => $(elem).remove());
   load_more_button.remove();

@@ -44,7 +44,7 @@
           </td>
           <td>
             <% if definition[:data_type] == 'classification' && definition.dig(:comment_link).present? %>
-              <a href="<%=classification_tree_label_path(definition.dig(:comment_link))%>"><%= definition.dig(:comment).presence %></a>
+              <a href="<%= root_path(mode: 'tree', ctl_id: definition.dig(:comment_link), reset: true) %>"><%= definition.dig(:comment).presence %></a>
             <% else %>
               <%= definition.dig(:comment).presence %>
             <% end %>
