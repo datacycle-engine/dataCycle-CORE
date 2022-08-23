@@ -1278,6 +1278,9 @@ de:
         contents:
           root: Inhalte
           specification: Spezifikation
+        webhooks:
+          root: Webhooks
+          json_ld: JSON-LD
 
     schema:
       root: Schema
