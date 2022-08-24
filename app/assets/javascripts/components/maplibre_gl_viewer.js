@@ -57,8 +57,12 @@ class MapLibreGlViewer {
     this.hoveredStateId = {};
   }
   setup() {
-    this.initMap();
-    this.map.on('load', this.configureMap.bind(this));
+    try {
+      this.initMap();
+      this.map.on('load', this.configureMap.bind(this));
+    } catch (error) {
+      console.error(error);
+    }
   }
   initMap() {
     this.map = new maplibregl.Map({
@@ -67,7 +71,7 @@ class MapLibreGlViewer {
       center: this.defaultCenter(),
       zoom: this.defaultZoom(),
       transformRequest: (url, resourceType) => {
-        if (url.includes('map.pixeldev.at')) {
+        if (url.includes('tiles.pixelmap.at/')) {
           return {
             headers: {
               Authorization: `Bearer ${this.credentials.api_key}`
@@ -98,7 +102,8 @@ class MapLibreGlViewer {
 
     if (typeof this['baseLayer' + baseStyle] == 'function') return this['baseLayer' + baseStyle]();
     else if (baseStyle) return baseStyle;
-    else return 'https://map.pixeldev.at/styles/pp-street/style.json';
+
+    throw 'No Map-Style defined!';
   }
   baseLayerOSM() {
     return {
@@ -461,6 +466,7 @@ class MapLibreGlViewer {
           );
 
           this.$container.append($element);
+          $element.fadeIn(100);
 
           I18n.translate(`frontend.map.scroll_notice.${this.zoomMethod}`).then(text => {
             $($element).find('.scroll-overlay-text').text(text);

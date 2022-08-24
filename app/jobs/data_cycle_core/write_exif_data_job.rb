@@ -35,7 +35,13 @@ module DataCycleCore
       asset = thing.asset
       return if asset.blank?
 
-      exif_data = MiniExiftool.new(asset.original.file.file, { replace_invalid_chars: true, ignore_minor_errors: true })
+      if asset.class.active_storage_activated?
+        asset_path = asset.file.service.path_for(asset.file.key)
+      else
+        asset_path = asset.original.file.file
+      end
+
+      exif_data = MiniExiftool.new(asset_path, { replace_invalid_chars: true, ignore_minor_errors: true })
 
       updated_values = {}
 
@@ -84,7 +90,13 @@ module DataCycleCore
           asset = variant.asset
           next if asset.blank?
 
-          exif_data = MiniExiftool.new(asset.original.file.file, { replace_invalid_chars: true, ignore_minor_errors: true })
+          if asset.class.active_storage_activated?
+            asset_path = asset.file.service.path_for(asset.file.key)
+          else
+            asset_path = asset.original.file.file
+          end
+
+          exif_data = MiniExiftool.new(asset_path, { replace_invalid_chars: true, ignore_minor_errors: true })
 
           updated_values['Headline'] = variant.name || updated_values['Headline']
 

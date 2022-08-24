@@ -10,8 +10,9 @@ function removeFoundationOverlays(element, type) {
 }
 
 function initReveal(element) {
-  new Foundation.Reveal($(element));
+  element.dcFoundationReveal = true;
   element.classList.add('dc-fd-reveal');
+  new Foundation.Reveal($(element));
 
   if (element.dataset.initialState == 'open') $(element).foundation('open');
 }
@@ -69,7 +70,10 @@ export default function () {
   // Foundation Reveal
   for (const element of document.querySelectorAll('[data-reveal]')) initReveal(element);
   DataCycle.htmlObserver.addCallbacks.push([
-    e => 'reveal' in e.dataset && !e.classList.contains('dc-fd-reveal'),
+    e =>
+      'reveal' in e.dataset &&
+      !e.hasOwnProperty('dcFoundationReveal') &&
+      (!e.classList.contains('media-preview') || !e.closest('.object-browser-overlay')),
     e => initReveal(e)
   ]);
 

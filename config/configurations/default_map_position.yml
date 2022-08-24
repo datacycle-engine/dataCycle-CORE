@@ -2,11 +2,8 @@
 :latitude: 47.69642
 :zoom: 7
 :editor: 'MapLibreGl'
-# :editor: 'TourSprung'
 :styles:
   # - :id: osm
   #   :value: 'OSM'
   - :id: basemap
     :value: 'BaseMapAt'
-:credentials:
-  :api_key: 'sandbox'

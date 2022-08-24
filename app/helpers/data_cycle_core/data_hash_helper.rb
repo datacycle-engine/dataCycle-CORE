@@ -54,7 +54,7 @@ module DataCycleCore
     end
 
     def add_attribute_config(key, prop, scope, content_area, ordered_props)
-      return ordered_props[key] = prop unless content_area != 'header' && (prop['ui']&.key?('attribute_group') || prop.dig('ui', scope.to_s)&.key?('attribute_group'))
+      return ordered_props[key] = prop.dup unless content_area != 'header' && (prop['ui']&.key?('attribute_group') || prop.dig('ui', scope.to_s)&.key?('attribute_group'))
 
       cloned_props = prop.deep_dup
       cloned_props['ui'].delete('attribute_group') if cloned_props['ui']&.key?('attribute_group') && cloned_props.dig('ui', scope.to_s)&.key?('attribute_group')

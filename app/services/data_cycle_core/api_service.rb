@@ -130,6 +130,7 @@ module DataCycleCore
           query_method = 'not_' + query_method if k == :notIn
           next unless query.respond_to?(query_method)
 
+          v = transform_values_for_query(v, attribute_key)
           if query.method(query_method)&.parameters&.size == 3
             query = query.send(query_method, v, attribute_path, attribute_key.to_s.delete_prefix('dc:').underscore_blanks)
           else
@@ -195,6 +196,11 @@ module DataCycleCore
       query
     end
 
+    def transform_values_for_query(value, key)
+      return { 'from' => value.dig(:min), 'until' => value.dig(:max) } if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') == 'date'
+      value
+    end
+
     def query_method_mapping(key)
       return 'date_range' if API_DATE_RANGE_ATTRIBUTES.include?(key)
       return 'equals_advanced_numeric' if API_NUMERIC_ATTRIBUTES.include?(key)
@@ -203,6 +209,7 @@ module DataCycleCore
       return 'geo_radius' if key == :perimeter
       return 'geo_within_classification' if key == :shapes
       return 'equals_advanced_slug' if key == :slug
+      return "equals_advanced_#{DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type')}" if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym).present?
       key.to_s
     end
 
@@ -356,6 +363,13 @@ module DataCycleCore
       order_params&.split(',')&.each do |sort|
         key, order = key_with_ordering(sort)
         value = order_value_from_params(key, full_text_search, raw_query_params)
+
+        # advanced_attribute sorting
+        if DataCycleCore::Feature::Sortable.available_advanced_attribute_options.key?(key.underscore)
+          value = key.underscore
+          key = 'advanced_attribute'
+        end
+
         order_hash = {
           'm' => key.parameterize(separator: '_'),
           'o' => order
@@ -412,6 +426,14 @@ module DataCycleCore
           *API_SCHEDULE_ATTRIBUTES.map { |a| ['filter', 'attribute', a.to_s] }
         ]
       }
+    end
+
+    def self.additional_advanced_attributes
+      DataCycleCore::Feature::AdvancedFilter.available_advanced_attribute_filters
+    end
+
+    def self.additional_advanced_attribute_keys
+      additional_advanced_attributes&.keys&.map { |k| k.camelize(:lower).to_sym }
     end
 
     def self.order_key_with_value(sort)

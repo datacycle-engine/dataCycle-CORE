@@ -24,6 +24,10 @@ body.documentation {
     border: 1px solid #e5e5e5;
     background-color: #e6e6e6;
     padding: 1rem;
+
+    code {
+      display: block;
+    }
   }
 
   p {

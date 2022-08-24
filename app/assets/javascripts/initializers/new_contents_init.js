@@ -6,14 +6,14 @@ export default function () {
   for (const element of document.querySelectorAll('form.multi-step')) new NewContentDialog(element);
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.nodeName == 'FORM' && e.classList.contains('multi-step'),
+    e => e.nodeName == 'FORM' && e.classList.contains('multi-step') && !e.hasOwnProperty('dcNewContentDialog'),
     e => new NewContentDialog(e)
   ]);
 
   for (const element of document.querySelectorAll('.content-uploader')) new DragAndDropField(element);
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('content-uploader'),
+    e => e.classList.contains('content-uploader') && !e.hasOwnProperty('dcDragAndDropField'),
     e => new DragAndDropField(e)
   ]);
 

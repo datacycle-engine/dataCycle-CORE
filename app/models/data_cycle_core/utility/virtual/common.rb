@@ -25,6 +25,44 @@ module DataCycleCore
 
             content&.property_definitions&.dig(*path)
           end
+
+          def attribute_value_from_named_embedded(virtual_parameters:, content:, **_args)
+            virtual_parameters.reduce(content) do |content_part, params|
+              if !content_part.respond_to?(params['attribute'])
+                nil
+              elsif params['name']
+                content_part
+                  &.send(params['attribute'])
+                  &.find do |c|
+                    c.name == I18n.t(params['name'], default: params['name'])
+                  end
+              else
+                content_part&.send(params['attribute'])
+              end
+            end
+          end
+
+          def attribute_value_from_first_linked(virtual_parameters:, content:, **_args)
+            virtual_parameters.reduce(content) do |content_part, attribute_name|
+              if content_part.is_a?(Enumerable) && content_part.first.respond_to?(attribute_name)
+                content_part.first&.send(attribute_name)
+              elsif content_part.respond_to?(attribute_name)
+                content_part&.send(attribute_name)
+              end
+            end
+          end
+
+          def take_first_linked(virtual_parameters:, content:, **_args)
+            if content.respond_to?(virtual_parameters.first)
+              content.send(virtual_parameters.first)&.limit(1) || []
+            else
+              []
+            end
+          end
+
+          def content_classification_for_tree(virtual_definition:, content:, **_args)
+            content.classifications_for_tree(tree_name: virtual_definition['tree_label'])
+          end
         end
       end
     end

@@ -1,27 +1,35 @@
 # frozen_string_literal: true
 
+# @todo: refactor after active_storage migration
+# This class should not be used directly for any assets.
 module DataCycleCore
   class Asset < ApplicationRecord
     attribute :type, :string, default: -> { name }
     belongs_to :creator, class_name: 'DataCycleCore::User'
 
     before_create :update_asset_attributes
+
     validates :file, presence: true
     validate :custom_validators
+    validate :file_extension_validation
 
     include AssetHelpers
 
     has_one :asset_content, dependent: :destroy
     has_one :thing, through: :asset_content, source: 'content_data'
 
-    def custom_validators
-      DataCycleCore.uploader_validations.dig(file.class.name.underscore.match(/(\w+)_uploader/) { |m| m[1].to_sym })&.except(:format)&.presence&.each do |validator, options|
-        try("#{validator}_validation", options)
-      end
-    end
+    DEFAULT_ASSET_VERSIONS = [:original, :default].freeze
 
-    def self.extension_white_list
-      uploaders[:file].new&.extension_white_list || []
+    def custom_validators
+      if self.class.active_storage_activated?
+        DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
+          try("#{validator}_validation", options)
+        end
+      else
+        DataCycleCore.uploader_validations.dig(file.class.name.underscore.match(/(\w+)_uploader/) { |m| m[1].to_sym })&.except(:format)&.presence&.each do |validator, options|
+          try("#{validator}_validation", options)
+        end
+      end
     end
 
     def duplicate_candidates
@@ -32,6 +40,7 @@ module DataCycleCore
       @duplicate_candidates_with_score ||= []
     end
 
+    # @todo: refactor after active_storage migration
     def update_asset_attributes
       return if file.blank?
       self.content_type = file.file.content_type
@@ -69,12 +78,24 @@ module DataCycleCore
       new_asset.persisted? ? new_asset : nil
     end
 
+    # @todo: refactor after active_storage migration
     def self.active_storage_activated?
       true if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && DataCycleCore.experimental_features.dig('active_storage', 'asset_types')&.include?(name)
     end
 
+    # @todo: refactor after active_storage migration
+    def self.extension_white_list
+      uploaders[:file].new&.extension_white_list || []
+    end
+
+    # @todo: refactor after active_storage migration
+    def self.content_type_white_list
+      extension_white_list.map { |extension| MiniMime.lookup_by_extension(extension)&.extension }
+    end
+
     private
 
+    # @todo: carrierwave specific method
     def recreate_version(version_name = nil)
       return if file.try(version_name)&.file&.exists?
       self.process_file_upload = true
@@ -100,6 +121,20 @@ module DataCycleCore
       end
     end
 
+    def file_extension_validation
+      return unless self.class.active_storage_activated?
+      return if self.class.content_type_white_list.include?(MiniMime.lookup_by_content_type(file.content_type)&.extension)
+
+      errors.add :file, {
+        path: 'uploader.validation.format_not_supported',
+        substitutions: {
+          data: {
+            value: file.content_type
+          }
+        }
+      }
+    end
+
     def file_size_validation(options)
       return unless file.size > options.dig(:file_size, :max).to_i
 
@@ -114,6 +149,7 @@ module DataCycleCore
       }
     end
 
+    # @todo: carrierwave specific method
     def remove_directory
       return if self&.file&.store_dir.blank? || self&.file&.store_dir&.end_with?('/file/')
       FileUtils.remove_dir(Rails.public_path.join(file.store_dir), force: true) # deletes only EMPTY directories!

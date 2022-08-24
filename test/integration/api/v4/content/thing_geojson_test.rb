@@ -27,10 +27,10 @@ module DataCycleCore
               id: @test_tour.id
             }
 
-            post api_v4_thing_path(params), headers: { Accept: 'application/vnd.geo+json' }
+            post api_v4_thing_path(params), headers: { Accept: 'application/geo+json' }
 
             assert_response(:success)
-            assert_equal('application/vnd.geo+json; charset=utf-8', response.content_type)
+            assert_equal('application/geo+json; charset=utf-8', response.content_type)
             geojson_data = RGeo::GeoJSON.decode(response.body)
             assert_equal('Test-TOUR', geojson_data['name'])
           end
@@ -39,10 +39,10 @@ module DataCycleCore
             params = {
               id: @test_tour.id
             }
-            post api_v4_thing_path(params), headers: { Accept: 'application/vnd.geo+json' }
+            post api_v4_thing_path(params), headers: { Accept: 'application/geo+json' }
 
             assert_response(:success)
-            assert_equal('application/vnd.geo+json; charset=utf-8', response.content_type)
+            assert_equal('application/geo+json; charset=utf-8', response.content_type)
             geojson_data = JSON.parse(response.body)
 
             assert_equal('Feature', geojson_data.dig('type'))
@@ -58,10 +58,10 @@ module DataCycleCore
             params = {
               id: @test_article.id
             }
-            post api_v4_thing_path(params), headers: { Accept: 'application/vnd.geo+json' }
+            post api_v4_thing_path(params), headers: { Accept: 'application/geo+json' }
 
             assert_response(:success)
-            assert_equal('application/vnd.geo+json; charset=utf-8', response.content_type)
+            assert_equal('application/geo+json; charset=utf-8', response.content_type)
             geojson_data = JSON.parse(response.body)
 
             assert_equal('Feature', geojson_data.dig('type'))
@@ -75,10 +75,10 @@ module DataCycleCore
             params = {
               id: @test_tour.id
             }
-            post api_v4_thing_path(params), headers: { Accept: 'application/vnd.geo+json' }
+            post api_v4_thing_path(params), headers: { Accept: 'application/geo+json' }
 
             assert_response(:success)
-            assert_equal('application/vnd.geo+json; charset=utf-8', response.content_type)
+            assert_equal('application/geo+json; charset=utf-8', response.content_type)
             longlat_projection = RGeo::CoordSys::Proj4.new('EPSG:4326')
             factory = RGeo::Cartesian.factory(srid: 4326, proj4: longlat_projection, has_z_coordinate: true, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 })
             coder = RGeo::GeoJSON.coder(geo_factory: factory)
@@ -93,10 +93,10 @@ module DataCycleCore
             params = {
               id: @test_poi.id
             }
-            post api_v4_thing_path(params), headers: { Accept: 'application/vnd.geo+json' }
+            post api_v4_thing_path(params), headers: { Accept: 'application/geo+json' }
 
             assert_response(:success)
-            assert_equal('application/vnd.geo+json; charset=utf-8', response.content_type)
+            assert_equal('application/geo+json; charset=utf-8', response.content_type)
             geojson_data = RGeo::GeoJSON.decode(response.body)
 
             assert_equal(@test_poi.location.coordinates.map { |c| c.round(DataCycleCore::Content::Extensions::Geojson::GEOMETRY_PRECISION) }, geojson_data.geometry.coordinates)

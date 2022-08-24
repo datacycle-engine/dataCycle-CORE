@@ -28,7 +28,7 @@ module DataCycleCore
           @endpoint ||= begin
             return if external_source.blank?
 
-            configuration.dig(:endpoint).constantize.new(external_source.credentials.symbolize_keys)
+            configuration.dig(:endpoint).constantize.new(**external_source.credentials.symbolize_keys)
           end
         end
 

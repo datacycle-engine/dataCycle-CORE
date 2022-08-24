@@ -114,10 +114,10 @@ module DataCycleCore
       user_groups.map { |ug| ug.users.ids }.flatten.uniq << id
     end
 
-    def send_notification(contents)
-      return unless contents.size.positive?
+    def send_notification(content_ids)
+      return if content_ids.blank?
 
-      SubscriptionMailer.notify(self, contents).deliver_later
+      SubscriptionMailer.notify(self, content_ids).deliver_later
     end
 
     def generate_user_token(refresh_jti = false)

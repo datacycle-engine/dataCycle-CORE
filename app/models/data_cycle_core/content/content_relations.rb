@@ -80,6 +80,14 @@ module DataCycleCore
         classification_aliases.where.not(id: primary_classification_aliases.pluck(:id))
       end
 
+      def classification_aliases_for_tree(tree_name:)
+        classification_aliases.joins(:classification_tree_label).where(classification_tree_labels: { name: tree_name })
+      end
+
+      def classifications_for_tree(tree_name:)
+        classification_aliases_for_tree(tree_name: tree_name).primary_classifications
+      end
+
       def is_related?
         content_content_b.except(:order).exists?
       end

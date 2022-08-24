@@ -204,6 +204,28 @@ module DataCycleCore
         )
       end
 
+      def relation_filter_inv(filter = nil, name = nil)
+        return self if name.blank? || filter.blank?
+
+        subquery = related_to_query(filter, name, true)
+        return self if subquery.nil?
+
+        reflect(
+          @query.where(subquery.exists)
+        )
+      end
+
+      def not_relation_filter_inv(filter = nil, name = nil)
+        return self if name.blank? || filter.blank?
+
+        subquery = related_to_query(filter, name, true)
+        return self if subquery.nil?
+
+        reflect(
+          @query.where.not(subquery.exists)
+        )
+      end
+
       def related_to(filter_id = nil)
         return self if filter_id.blank?
 
@@ -311,11 +333,12 @@ module DataCycleCore
         thing_id = :content_a_id
         related_to_id = :content_b_id
         thing_id, related_to_id = related_to_id, thing_id if inverse
+        relation_name = inverse ? :relation_b : :relation_a
 
         sub_select = content_content[thing_id].eq(thing[:id])
           .and(content_content[related_to_id].in(filter_query))
 
-        sub_select = sub_select.and(content_content[:relation_a].eq(name)) if name.present?
+        sub_select = sub_select.and(content_content[relation_name].eq(name)) if name.present?
 
         Arel::SelectManager.new
           .from(content_content)

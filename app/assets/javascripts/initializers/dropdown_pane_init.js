@@ -1,13 +1,25 @@
 import ObserverHelpers from '../helpers/observer_helpers';
+import DomElementHelpers from '../helpers/dom_element_helpers';
 
 function resizeDropdown(element) {
   const elementRect = element.getBoundingClientRect();
-  if (element.classList.contains('has-alignment-left') && elementRect.right > window.innerWidth) {
+  const headerHeight = document.querySelector('header').getBoundingClientRect().height;
+  const $linkedItem = $('[data-toggle="' + $(element).prop('id') + '"]');
+
+  if (!element.dataset.alignment) {
+    element.classList.toggle(
+      'has-alignment-right',
+      $linkedItem.offset().left > window.innerWidth - ($linkedItem.offset().left + $linkedItem.outerWidth())
+    );
+    element.classList.toggle(
+      'has-alignment-left',
+      $linkedItem.offset().left <= window.innerWidth - ($linkedItem.offset().left + $linkedItem.outerWidth())
+    );
+  } else if (element.dataset.alignment == 'left' && elementRect.right > window.innerWidth) {
     element.classList.add('has-alignment-right');
     element.classList.remove('has-alignment-left');
   }
 
-  const $linkedItem = $('[data-toggle="' + $(element).prop('id') + '"]');
   const pseudoWidth = parseInt(window.getComputedStyle(element, ':before').width);
   let resetOffset = Math.abs($(element).position().left) - pseudoWidth / 2;
 
@@ -17,11 +29,10 @@ function resizeDropdown(element) {
   element.style.setProperty('--dropdown-arrow-left-offset', resetOffset + 'px');
 
   if (!$linkedItem.length) return;
+
   if (
-    $linkedItem.offset().top + $linkedItem.outerHeight() - $(document).scrollTop() + $(element).outerHeight() + 20 >=
-      $(window).height() &&
-    $linkedItem.offset().top - $(document).scrollTop() >
-      $(window).height() - ($linkedItem.offset().top - $(document).scrollTop() + $linkedItem.outerHeight())
+    $linkedItem.offset().top - Math.max($(document).scrollTop(), headerHeight) >=
+    window.innerWidth - ($linkedItem.offset().top + $linkedItem.outerHeight() - $(document).scrollTop())
   ) {
     $(element).addClass('top');
     if ($(element).find('.list-items').length) {
@@ -85,19 +96,39 @@ function checkForChangedFormData(mutations, element) {
   for (const mutation of mutations) {
     if (mutation.type !== 'attributes') continue;
 
-    if (mutation.target.classList.contains('remote-rendered') && mutation.oldValue.includes('remote-rendering'))
+    if (
+      mutation.target.classList.contains('remote-rendered') &&
+      (!mutation.oldValue || mutation.oldValue.includes('remote-rendering'))
+    )
       resizeDropdown(element);
+
+    if (mutation.target.classList.contains('is-open') && (!mutation.oldValue || !mutation.oldValue.includes('is-open')))
+      focusFirstInputField(mutation.target);
+  }
+}
+
+function focusFirstInputField(element) {
+  for (const input of element.querySelectorAll('input[type="text"]')) {
+    if (DomElementHelpers.isVisible(input)) {
+      input.focus();
+      input.select();
+      break;
+    }
   }
 }
 
 function monitorNewContents(element) {
+  element.dcMonitorNewContents = true;
   const changeObserver = new MutationObserver(m => checkForChangedFormData(m, element));
   changeObserver.observe(element, ObserverHelpers.changedClassWithSubtreeConfig);
 }
 
 export default function () {
   for (const element of document.querySelectorAll('.dropdown-pane')) monitorNewContents(element);
-  DataCycle.htmlObserver.addCallbacks.push([e => e.classList.contains('dropdown-pane'), e => monitorNewContents(e)]);
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('dropdown-pane') && !e.hasOwnProperty('dcMonitorNewContents'),
+    e => monitorNewContents(e)
+  ]);
 
   $(document).on('show.zf.dropdown dc:dropdown:resize', '.dropdown-pane', event => {
     resizeDropdown(event.currentTarget);

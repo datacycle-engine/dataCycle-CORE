@@ -8,6 +8,8 @@ module DataCycleCore
         # config.messages.backend = :i18n
         config.validate_keys = true
 
+        UUID_OR_STRING_OF_UUIDS_REGEX = /^(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*)?(,(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*))*$/i.freeze
+
         SORTING_VALIDATION = Dry::Types['string'].constructor do |input|
           next input unless input&.starts_with?('random')
 
@@ -67,8 +69,8 @@ module DataCycleCore
         end
 
         CLASSIFICATIONS_FILTER = Dry::Schema.Params do
-          optional(:withSubtree).value(:array, min_size?: 1)
-          optional(:withoutSubtree).value(:array, min_size?: 1)
+          optional(:withSubtree).value(:array, min_size?: 1).each(:str?, format?: UUID_OR_STRING_OF_UUIDS_REGEX)
+          optional(:withoutSubtree).value(:array, min_size?: 1).each(:str?, format?: UUID_OR_STRING_OF_UUIDS_REGEX)
         end
 
         GEO_FILTER = Dry::Schema.Params do
@@ -86,18 +88,18 @@ module DataCycleCore
 
         ATTRIBUTE_FILTER = Dry::Schema.Params do
           optional(:in).hash do
-            optional(:min).filled(:string)
-            optional(:max).filled(:string)
-            optional(:equals).filled(:string)
-            optional(:like).filled(:string)
-            optional(:bool).filled(:string)
+            optional(:min).filled { str? | int? | float? }
+            optional(:max).filled { str? | int? | float? }
+            optional(:equals).filled { str? | int? | float? }
+            optional(:like).filled { str? }
+            optional(:bool).filled { bool? }
           end
           optional(:notIn).hash do
-            optional(:min).filled(:string)
-            optional(:max).filled(:string)
-            optional(:equals).filled(:string)
-            optional(:like).filled(:string)
-            optional(:bool).filled(:string)
+            optional(:min).filled { str? | int? | float? }
+            optional(:max).filled { str? | int? | float? }
+            optional(:equals).filled { str? | int? | float? }
+            optional(:like).filled { str? }
+            optional(:bool).filled { bool? }
           end
         end
 
@@ -137,7 +139,8 @@ module DataCycleCore
             optional(:'dct:deleted').hash(ATTRIBUTE_FILTER)
             (DataCycleCore::ApiService::API_SCHEDULE_ATTRIBUTES +
               DataCycleCore::ApiService::API_DATE_RANGE_ATTRIBUTES +
-              DataCycleCore::ApiService::API_NUMERIC_ATTRIBUTES).each do |a|
+              DataCycleCore::ApiService::API_NUMERIC_ATTRIBUTES +
+              DataCycleCore::ApiService.additional_advanced_attribute_keys).each do |a|
               optional(a).hash(ATTRIBUTE_FILTER)
             end
             optional(:slug).hash(ATTRIBUTE_FILTER)
@@ -152,12 +155,14 @@ module DataCycleCore
           optional(:time).hash(TIME_FILTER)
         end
       end
+
       class ApiLinkedContract < Dry::Validation::Contract
         config.validate_keys = true
 
         params(DataCycleCore::MasterData::Contracts::ApiContract::FILTER) do
         end
       end
+
       class ApiUnionFilterContract < Dry::Validation::Contract
         config.validate_keys = true
 

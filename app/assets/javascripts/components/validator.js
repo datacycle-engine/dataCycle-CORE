@@ -3,9 +3,9 @@ import QuillHelpers from './../helpers/quill_helpers';
 import isEqual from 'lodash/isEqual';
 import uniqWith from 'lodash/uniqWith';
 import unionWith from 'lodash/unionWith';
-import sortBy from 'lodash/sortBy';
 import isEmpty from 'lodash/isEmpty';
 import collectionReject from 'lodash/reject';
+import DomElementHelpers from '../helpers/dom_element_helpers';
 
 class Validator {
   constructor(formElement) {
@@ -92,10 +92,10 @@ class Validator {
     this.requests = [this.validateItem(event.currentTarget)];
     this.resolveRequests(false, data);
   }
-  sortedFormData(formData) {
+  sortedFormData(formData = undefined) {
     return collectionReject(
-      sortBy(uniqWith(formData || this.$form.serializeArray(), isEqual), ['name', 'value']),
-      v => v.name && ['authenticity_token', 'locale'].includes(v.name)
+      uniqWith(formData || Array.from(DomElementHelpers.getFormData(this.$form[0])), isEqual).sort(),
+      v => v[0] && ['authenticity_token', 'locale'].includes(v[0])
     );
   }
   updateSubmitFormData() {
@@ -144,16 +144,17 @@ class Validator {
     for (const mutation of mutations) {
       if (mutation.type !== 'attributes') continue;
 
-      if (mutation.target.classList.contains('remote-rendered') && mutation.oldValue.includes('remote-rendering'))
+      if (
+        mutation.target.classList.contains('remote-rendered') &&
+        (!mutation.oldValue || mutation.oldValue.includes('remote-rendering'))
+      )
         this.updateInitialFormData(mutation.target);
     }
   }
   updateInitialFormData(target) {
     this.initialFormData = collectionReject(
-      sortBy(unionWith(this.initialFormData, $(target).find(':input').serializeArray(), isEqual), ['name', 'value']),
-      {
-        name: 'authenticity_token'
-      }
+      unionWith(this.initialFormData, Array.from(DomElementHelpers.getFormData(target)), isEqual).sort(),
+      v => v[0] && ['authenticity_token'].includes(v[0])
     );
   }
   async validateAgbs(validationContainer) {
@@ -201,7 +202,7 @@ class Validator {
     const labelFor = $itemLabel.attr('for');
     const labelText = $itemLabel.text().replace(/\s+/g, ' ').trim();
     const completeKey = $(validationContainer).data('key');
-    const $submitTooltip = $(`#${this.$submitButton.data('toggle')}`);
+    const $activeTooltipHtml = $(`<div>${this.$submitButton.attr('data-dc-tooltip')}</div>`);
     const $tooltipError = this.tooltipError(completeKey, type);
     const $singleError = this.singleError(completeKey, type);
 
@@ -224,8 +225,10 @@ class Validator {
 
     if (this.$form.hasClass('edit-content-form')) {
       this.$submitButton.addClass(itemClass);
-      $submitTooltip.find(`.tooltip-${type}[data-attribute-key="${completeKey}"]`).remove();
-      $submitTooltip.append($tooltipError);
+
+      $activeTooltipHtml.find(`.tooltip-${type}[data-attribute-key="${completeKey}"]`).remove();
+      $activeTooltipHtml.append($tooltipError);
+      this.$submitButton.attr('data-dc-tooltip', $activeTooltipHtml.html());
     }
 
     return $singleError;
@@ -234,23 +237,25 @@ class Validator {
     return this.$form.find(':input[name="locale"]').val() || this.$form.find(':input[name="thing[locale]"]').val();
   }
   removeSubmitButtonErrors(item, type = 'error', itemClass = 'alert') {
-    const $submitTooltip = $(`#${this.$submitButton.data('toggle')}`);
+    const $activeTooltipHtml = $(`<div>${this.$submitButton.attr('data-dc-tooltip')}</div>`);
 
     if (item) {
       const translationLocale = this.attributeLocale(item);
-      $submitTooltip.find(`[data-attribute-key="${$(item).data('key')}"]`).remove();
-      if (!$submitTooltip.find(`.tooltip-${type}`).length) this.$submitButton.removeClass(itemClass);
+      $activeTooltipHtml.find(`[data-attribute-key="${$(item).data('key')}"]`).remove();
+      if (!$activeTooltipHtml.find(`.tooltip-${type}`).length) this.$submitButton.removeClass(itemClass);
 
       if (
         translationLocale &&
-        !$submitTooltip.find(`.tooltip-${type}[data-attribute-key*="[translations][${translationLocale}]"]`).length
+        !$activeTooltipHtml.find(`.tooltip-${type}[data-attribute-key*="[translations][${translationLocale}]"]`).length
       )
         this.$form.trigger('dc:form:removeValidationError', { locale: translationLocale, type: type });
     } else {
       this.$form.trigger('dc:form:removeValidationError', { type: type });
       this.$submitButton.removeClass(itemClass);
-      $submitTooltip.find(`.tooltip-${type}`).remove();
+      $activeTooltipHtml.find(`.tooltip-${type}`).remove();
     }
+
+    this.$submitButton.attr('data-dc-tooltip', $activeTooltipHtml.html());
   }
   resetField(validationContainer) {
     $(validationContainer).children('.single_error').remove();
@@ -272,30 +277,29 @@ class Validator {
     if (!translationLocale || translationLocale == this.locale() || this.bulkEdit) return true;
 
     newFieldData = this.sortedFormData(newFieldData || []);
-    const key = newFieldData[0] && newFieldData[0].name;
+    const key = newFieldData[0] && newFieldData[0][0];
     let oldFieldData = [];
-    if (key) oldFieldData = this.initialFormData.filter(v => v.name.includes(key));
+    if (key) oldFieldData = this.initialFormData.filter(v => v[0].includes(key));
 
     if (!submitFormaDataUpToDate) this.updateSubmitFormData();
 
     return (
       !isEqual(oldFieldData, newFieldData) ||
-      this.submitFormData.filter(v => v.name.includes(`[${translationLocale}]`)).some(v => !isEmpty(v.value))
+      this.submitFormData.filter(v => v[0].includes(`[${translationLocale}]`)).some(v => !isEmpty(v[1]))
     );
   }
   validateItem(validationContainer, submitFormaDataUpToDate = false) {
     this.resetField(validationContainer);
 
-    if ($(validationContainer).hasClass('agbs')) {
-      return this.validateAgbs(validationContainer);
-    }
+    if ($(validationContainer).hasClass('agbs')) return this.validateAgbs(validationContainer);
 
-    let formData = $(validationContainer).find(':input').serializeArray();
-    if (formData.length == 0) return Promise.resolve({ valid: true });
+    const formData = DomElementHelpers.getFormData(validationContainer);
+
+    if (!Array.from(formData).length) return Promise.resolve({ valid: true });
 
     const translationLocale = this.attributeLocale(validationContainer);
 
-    if (!this.formFieldChanged(formData, translationLocale, submitFormaDataUpToDate))
+    if (!this.formFieldChanged(Array.from(formData), translationLocale, submitFormaDataUpToDate))
       return Promise.resolve({ valid: true });
 
     const uuid = this.$form.find(':input[name="uuid"]').val();
@@ -303,25 +307,19 @@ class Validator {
     const table = this.$form.find(':input[name="table"]').val() || 'things';
     const url = `/${table}${uuid ? '/' + uuid : ''}/validate`;
     const template = this.$form.find(':input[name="template"]').val();
-    if (template != undefined) {
-      formData.push({
-        name: 'template',
-        value: template
-      });
-    }
 
-    if (locale) {
-      formData.push({
-        name: 'locale',
-        value: locale
-      });
-    }
+    if (template) formData.set('template', template);
+    if (locale) formData.set('locale', locale);
 
     const promise = DataCycle.httpRequest({
       type: 'POST',
       url: url,
-      data: $.param(formData),
-      dataType: 'json'
+      enctype: 'multipart/form-data',
+      data: formData,
+      dataType: 'json',
+      processData: false,
+      contentType: false,
+      cache: false
     });
 
     promise.then(async data => {

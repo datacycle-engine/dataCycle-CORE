@@ -1,6 +1,7 @@
 import DomElementHelpers from '../helpers/dom_element_helpers';
 
 async function setContentScoreClass(item) {
+  item.dcContentScoreClass = true;
   const embeddedParent = item.closest('.detail-type.embedded');
   const value = parseInt(DomElementHelpers.parseDataAttribute(item.dataset.value));
   const icon = item.querySelector('.type-number-content_score, .type-string-content_score');
@@ -53,7 +54,10 @@ export default function () {
   for (const element of document.querySelectorAll('.detail-type.content_score')) setContentScoreClass(element);
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('detail-type') && e.classList.contains('content_score'),
+    e =>
+      e.classList.contains('detail-type') &&
+      e.classList.contains('content_score') &&
+      !e.hasOwnProperty('dcContentScoreClass'),
     e => setContentScoreClass(e)
   ]);
 }

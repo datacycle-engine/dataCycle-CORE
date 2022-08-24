@@ -2,7 +2,9 @@
   <div class="card">
     <div class="card-divider">
       <h5><%= locals[:import_data][:name] %></h5>
-      <h6 style="font-size: 0.8rem;"><%= locals[:import_data][:uuid] %></h6>
+      <h6 style="font-size: 0.8rem; position:relative;" >
+        <span class="copy-to-clipboard" data-value="<%= locals[:import_data][:uuid] %>" ><%= locals[:import_data][:uuid] %></span>
+      </h6>
     </div>
     <div class="card-section">
       <%= truncate(locals[:import_data][:database], length: 35)%>
@@ -36,7 +38,7 @@
         <% if (locals[:import_data][:last_successful_import] == 'never' && locals[:import_data][:last_import] == 'never') || locals[:import_data][:deactivated] %>
           <li> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
         <% elsif locals[:import_data][:last_import] == locals[:import_data][:last_successful_import] && locals[:import_data][:last_successful_import] != 'never' %>
-            <li class="success-color"> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
+          <li class="success-color"> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
         <% else %>
           <li class="alert-color"> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
         <% end %>

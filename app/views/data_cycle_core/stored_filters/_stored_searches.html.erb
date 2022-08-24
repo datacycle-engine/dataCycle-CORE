@@ -6,21 +6,14 @@
     <% value.each do |stored_search| %>
       <li class="content-item">
         <span class="content-title">
-          <%= link_to root_path(stored_filter: stored_search.id) do %>
+          <%= link_to root_path(stored_filter: stored_search.id), data: {
+            dc_tooltip: stored_search.name.present? ? stored_search.name : nil
+          } do %>
             <i class="fa fa-clock-o" aria-hidden="true"></i>
             <%= l(stored_search.updated_at.to_datetime, format: '%H:%M', locale: active_ui_locale) %>
           <% end %>
         </span>
         <span class="content-attributes">
-          <% if stored_search.name.present? %>
-            <span class="stored-search-title <%= 'global' if stored_search.system %>">
-              <%= link_to root_path(stored_filter: stored_search.id) do %>
-                <%= stored_search.system ? tag.i(class: 'fa fa-globe') : tag.i(class: 'fa fa-filter') %>
-                <%= stored_search.name %>
-              <% end %>
-            </span>
-          <% end %>
-
           <%= render 'data_cycle_core/application/filters/search_params', stored_search: stored_search %>
         </span>
         <ul class="buttons no-bullet">

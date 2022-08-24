@@ -112,7 +112,9 @@ module DataCycleCore
     'DataCycleCore::Generic::FeratelIdentityServer::Webhook',
     'DataCycleCore::Generic::Sulu::Webhook',
     'DataCycleCore::Generic::ExternalLink::Webhook',
-    'DataCycleCore::Generic::Amtangee::Webhook'
+    'DataCycleCore::Generic::Amtangee::Webhook',
+    'DataCycleCore::Generic::ExternalContentForm::Webhook',
+    'DataCycleCore::Generic::DataCycleApiV4::Webhook'
   ]
 
   mattr_accessor :excluded_filter_classifications
@@ -210,6 +212,9 @@ module DataCycleCore
   mattr_accessor :persistent_activities
   self.persistent_activities = ['downloads']
 
+  mattr_accessor :user_filters
+  self.user_filters = []
+
   def self.setup
     yield self
   end
@@ -219,11 +224,8 @@ module DataCycleCore
   end
 
   def self.load_configurations(path, include_environments = true)
-    path_regex = if include_environments
-                   %r{/configurations(?:/(?:#{ActiveRecord::Base.configurations.to_h.keys.without('default').join('|')}))?/(.*)}
-                 else
-                   %r{/configurations(?!/(?:#{ActiveRecord::Base.configurations.to_h.keys.without('default').join('|')}))/(.*)}
-                 end
+    available_environments = ActiveRecord::Base.configurations.configurations.to_a.map(&:env_name).without('default').join('|')
+    path_regex = include_environments ? %r{/configurations(?:/(?:#{available_environments}))?/(.*)} : %r{/configurations(?!/(?:#{available_environments}))/(.*)}
 
     Dir[path.to_s].index_with { |f|
       f.delete_suffix('.yml').match(path_regex)&.captures&.first&.split('/')
@@ -336,10 +338,7 @@ module DataCycleCore
       app.middleware.insert_before Rack::Runtime, DataCycleCore::FixParamEncodingMiddleware
     end
 
-    # config.autoload_paths << "/app/vendor/gems/datacycle-connector-legacy/lib"
-    # config.autoload_paths << File.expand_path('app/models', __dir__)
     config.to_prepare do
-      # binding.pry
       Rails.autoloaders.main.ignore(
         [
           Rails.root.join('app', 'extensions'),

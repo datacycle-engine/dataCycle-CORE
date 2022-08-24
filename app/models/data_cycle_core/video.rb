@@ -4,9 +4,10 @@ require 'streamio-ffmpeg'
 
 module DataCycleCore
   class Video < Asset
-    if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+    if active_storage_activated?
       has_one_attached :file
 
+      cattr_reader :versions, default: { thumb_preview: {} }
       attr_accessor :remote_file_url
       before_validation :load_file_from_remote_file_url, if: -> { remote_file_url.present? }
     else
@@ -17,14 +18,8 @@ module DataCycleCore
       delegate :versions, to: :file
     end
 
-    if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
-      def versions
-        {}
-      end
-    end
-
     def custom_validators
-      if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+      if self.class.active_storage_activated?
         DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
           try("#{validator}_validation", options)
         end
@@ -36,12 +31,16 @@ module DataCycleCore
     end
 
     def codec_validation(options)
-      if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
-        if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable.dig(:io).present?
-          # import from local disc
-          path_to_tempfile = attachment_changes['file'].attachable.dig(:io).path
+      if self.class.active_storage_activated?
+        if attachment_changes.present?
+          if attachment_changes['file']&.attachable.is_a?(::Hash) && attachment_changes['file']&.attachable&.dig(:io).present?
+            # import from local disc
+            path_to_tempfile = attachment_changes['file'].attachable.dig(:io).path
+          else
+            path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
+          end
         else
-          path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
+          path_to_tempfile = file.service.path_for(file.key)
         end
       else
         path_to_tempfile = file.file.path

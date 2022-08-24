@@ -36,6 +36,11 @@ module DataCycleCore
           configuration.dig('advanced_attributes', specific_type, 'tree_label')
         end
 
+        def available_advanced_attribute_filters
+          return {} unless enabled?
+          configuration.dig('advanced_attributes') || {}
+        end
+
         def classification_alias_ids(user, value)
           return [] unless value
 
@@ -59,6 +64,20 @@ module DataCycleCore
             [
               I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: user.ui_locale),
               'relation_filter',
+              data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
+            ]
+          }.compact
+        end
+
+        def relation_filter_inv(user, value)
+          return [] unless value.is_a?(Hash)
+
+          value.map { |k, v|
+            next unless v
+
+            [
+              I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: user.ui_locale),
+              'relation_filter_inv',
               data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
             ]
           }.compact

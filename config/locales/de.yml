@@ -144,7 +144,7 @@ de:
         pinch: 'Verwende zwei Finger zum Zoomen/Scrollen der Karte'
       filter:
         button_title: Verknüpfte Inhalte bearbeiten
-      upload_gpx: 
+      upload_gpx:
         button_title: 'GPX-Datei hochladen'
       styles:
         osm: OpenStreetMap
@@ -247,6 +247,12 @@ de:
   collection:
     new: Neue %{data}
     filter: '%{data} filtern ...'
+
+  content_external_data:
+    primary_external_system_tooltip: Dieses System ist das primäre externe System
+    tooltip: Dieses externe System als primäres externes System verwenden
+    primary_system_switched: Das primäre externe System wurde erfolgreich getauscht
+    duplicate_record_html: Es existiert bereits ein <a href="%{url}" target="_blank">Inhalt</a> im externen Zielsystem
 
   common:
     'true': Ja
@@ -487,6 +493,11 @@ de:
     media_archive: im Medienarchiv öffnen
 
   feature:
+    quality_score:
+      tooltip:
+        min: 'Minimal: %{value}'
+        optimal: 'Optimal: %{value}'
+        max: 'Maximal: %{value}'
     duplicate_candidate:
       manual_button: Manuell zum Zusammenführen auswählen
     releasable:
@@ -576,6 +587,8 @@ de:
     update_subject: Geteilte Inhaltssammlung wurde aktualisiert
     notice: Hinweis
     from: '%{from}'
+    external_link_text_html: 'Sie haben einen neuen Inhalt mit dem Titel "%{title}" angelegt.<br><br>Über den folgenden Link können Sie noch fehlende Details ergänzen.'
+    external_link_instructions: Anleitung zum Erfassen von Inhalten
 
   filter:
     add: Filter hinzufügen
@@ -678,6 +691,7 @@ de:
     geo_within_classification: nach geografischer Lage filtern ...
     geo_filter: nach geografischer Lage filtern ...
     relation_filter: auf Basis von verknüpften Inhalten filtern ...
+    relation_filter_inv: auf Basis von verknüpften Inhalten filtern (inverse Richtung) ...
     related_through_attribute: nach verknüpften Inhalten mit Attribut filtern ...
     id: nach IDs filtern ...
     union_filter_ids: mehrere Sammlungen kombinieren ...
@@ -690,6 +704,9 @@ de:
     created_at: Erstellungsdatum
     translated_name: Name
     updated_at: Aktualisierungsdatum
+    width: Breite
+    height: Höhe
+    upload_date: Uploaddatum
     ordering:
       asc: Aufsteigend
       desc: Absteigend
@@ -776,6 +793,7 @@ de:
     finalize_agbs_text: AGBs
     finalize_combined_html: '%{finalize} und %{agbs} akzeptieren'
     copy_to_clipboard: In die Zwischenablage kopieren
+    copy_webdav_to_clipboard: WebDAV Link in die Zwischenablage kopieren
     copy_classification_alias_id_to_clipboard: Klassifizierungs-Alias-ID in die Zwischenablage kopieren
     copied_to_clipboard: In Zwischenablage kopiert.
     save: Speichern
@@ -932,8 +950,8 @@ de:
       updated: '%{data} wurde aktualisiert.'
       destroyed: '%{data} wurde gelöscht.'
       destroyed_translation: 'Übersetzung %{language} von %{data} wurde gelöscht.'
-      added_to: 'Zu Merkliste: %{data} hinzugefügt.'
-      removedFrom: 'Von Merkliste: %{data} entfernt.'
+      added_to: 'Zu %{type}: %{data} hinzugefügt.'
+      removed_from: 'Von %{type}: %{data} entfernt.'
       sent: 'E-Mail wurde versandt.'
       saved: '%{data} wurde erstellt.'
       saved_and_sent: '%{data} wurde erstellt und verschickt.'
@@ -1034,9 +1052,9 @@ de:
         one: Benutzergruppe
         other: Benutzergruppen
       data_cycle_core/subscription:
-        zero: 'Keine Abos'
-        one: Abo
-        other: Abos
+        zero: 'Keine Abos (nur Inhalte)'
+        one: Abo (nur Inhalte)
+        other: Abos (nur Inhalte)
       data_cycle_core/watch_list:
         one: Inhaltssammlung
         other: Inhaltssammlungen
@@ -1234,6 +1252,13 @@ de:
         api: API
     watch_list:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
+      mailer:
+        subject:
+          one: 'Inhalte wurden zu/von einer %{type} hinzugefügt/entfernt'
+          other: 'Inhalte wurden zu/von mehreren %{type} hinzugefügt/entfernt'
+        text_html:
+          one: 'Folgender Inhalt wurde zu/von %{link} hinzugefügt/entfernt:'
+          other: 'Folgende Inhalte wurden zu/von %{link} hinzugefügt/entfernt:'
     upload: Neue Medien hochladen
     data_links:
       write_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong> hat %{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihre Ergänzungen und Ihr Feedback. <br><br>Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor.</span>'
@@ -1253,6 +1278,9 @@ de:
         contents:
           root: Inhalte
           specification: Spezifikation
+        webhooks:
+          root: Webhooks
+          json_ld: JSON-LD
 
     schema:
       root: Schema
@@ -1670,6 +1698,8 @@ de:
     bild:
       open_url: URL öffnen
       exif_data: Bild-Metadaten (EXIF/IPTC/XMP)
+    video:
+      open_content_url: Video URL öffnen
 
   exceptions_page:
     back_to_root_link: Zurück zu dataCycle

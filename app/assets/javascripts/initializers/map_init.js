@@ -1,4 +1,3 @@
-import OpenLayersViewer from './../components/open_layers_viewer';
 import OpenLayersEditor from './../components/open_layers_editor';
 import TourSprungEditor from './../components/tour_sprung_editor';
 import MapLibreGlViewer from './../components/maplibre_gl_viewer';
@@ -13,10 +12,14 @@ const mapEditors = {
 
 export default function () {
   for (const element of document.querySelectorAll('.geographic-map')) initMap(element);
-  DataCycle.htmlObserver.addCallbacks.push([e => e.classList.contains('geographic-map'), e => initMap(e)]);
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('geographic-map') && !e.hasOwnProperty('dcMap'),
+    e => initMap(e)
+  ]);
 }
 
 function initMap(item) {
+  item.dcMap = true;
   if ($(item).hasClass('editor')) {
     const editor = $(item).data('map-options').editor;
 

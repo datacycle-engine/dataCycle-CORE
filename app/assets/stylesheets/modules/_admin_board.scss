@@ -41,10 +41,11 @@
 
       &.remote-render,
       &.remote-rendering {
-        &::before {
-          top: auto;
-          left: auto;
-          width: calc(100% - 2rem);
+        min-height: 3.5rem;
+
+        &::before,
+        &::after {
+          margin: 1rem;
         }
       }
     }

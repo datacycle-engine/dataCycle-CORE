@@ -3,13 +3,18 @@ import domElementHelpers from '../helpers/dom_element_helpers';
 class RemoteRenderer {
   constructor(selector) {
     this.selector = $(selector);
+    this.intersectionObserver = new IntersectionObserver(this.checkForNewVisibleElements.bind(this), {
+      rootMargin: '0px 0px 50px 0px',
+      threshold: 0.1
+    });
+    if (DataCycle.config.remoteRenderFull)
+      this.globalIntersectionObserver = new IntersectionObserver(this.checkForNewVisibleElements.bind(this), {
+        root: document.body
+      });
 
     this.init();
   }
   init() {
-    this.loadInitial();
-
-    this.selector.on('change.zf.tabs', this.loadChangedTabs.bind(this));
     this.selector.on('dc:remote:reload', '.remote-rendered', this.reload.bind(this));
     this.selector.on(
       'dc:remote:reloadOnNextOpen',
@@ -17,34 +22,37 @@ class RemoteRenderer {
       this.reloadOnNextOpen.bind(this)
     );
     this.selector.on(
-      'open.zf.reveal dc:remote:render show.zf.dropdown dc:clickableMenu:show dc:toggler:show down.zf.accordion',
-      '*',
-      (event, data) => {
-        event.stopPropagation();
-        this.loadRemote(event.target, data);
-      }
-    );
-    this.addForceRenderTranslationHandler(this.selector.find('.translatable-attribute.remote-render'));
-    this.selector.on(
       'click',
       '.remote-render-failed > .remote-render-error > .remote-reload-link',
       this.reloadAfterFail.bind(this)
     );
 
+    for (const element of document.querySelectorAll('.remote-render')) this.addRemoteRenderHandler(element);
     DataCycle.htmlObserver.addCallbacks.push([
-      e => e.classList.contains('remote-render') && e.classList.contains('translatable-attribute'),
-      this.addForceRenderTranslationHandler.bind(this)
+      e => e.classList.contains('remote-render'),
+      this.addRemoteRenderHandler.bind(this)
     ]);
+  }
+  addRemoteRenderHandler(element) {
+    this.intersectionObserver.observe(element);
+    if (this.globalIntersectionObserver) this.globalIntersectionObserver.observe(element);
 
-    DataCycle.htmlObserver.addCallbacks.push([e => e.classList.contains('remote-render'), this.loadRemote.bind(this)]);
+    if (element.classList.contains('translatable-attribute')) this.addForceRenderTranslationHandler(element);
   }
   addForceRenderTranslationHandler(element) {
     $(element).on('dc:remote:forceRenderTranslations', this.forceLoadRemote.bind(this));
 
-    $(element).each((_index, elem) => {
-      if (elem.classList.contains('force-render-translation'))
-        $(element).triggerHandler('dc:remote:forceRenderTranslations');
-    });
+    if (element.classList.contains('force-render-translation'))
+      $(element).triggerHandler('dc:remote:forceRenderTranslations');
+  }
+  checkForNewVisibleElements(entries) {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+
+      this.intersectionObserver.unobserve(entry.target);
+      if (this.globalIntersectionObserver) this.globalIntersectionObserver.unobserve(entry.target);
+      this.loadRemote(entry.target);
+    }
   }
   reloadAfterFail(event) {
     event.preventDefault();
@@ -69,6 +77,7 @@ class RemoteRenderer {
     }
 
     $(event.target).addClass('remote-reload').removeClass('dc-fd-initialized');
+    this.intersectionObserver.observe(event.target);
   }
   loadInitial() {
     this.selector.find('.remote-render:visible').each((_, element) => {
@@ -128,7 +137,7 @@ class RemoteRenderer {
       }
     }
 
-    $(element).empty().removeClass('remote-render remote-rendered remote-reload').addClass('remote-rendering');
+    $(element).removeClass('remote-render remote-rendered remote-reload').addClass('remote-rendering');
 
     return this.sendRequest(element, params);
   }

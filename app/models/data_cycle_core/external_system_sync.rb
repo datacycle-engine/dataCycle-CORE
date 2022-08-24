@@ -33,6 +33,12 @@ module DataCycleCore
       find_by(external_system_id: external_system_id)
     end
 
+    def self.to_external_data_hash
+      all.includes(:external_system)
+        .select(:external_system_id, :created_at, :updated_at, :external_key, :data)
+        .map { |e| e.to_hash.with_indifferent_access }
+    end
+
     def to_hash
       {
         external_system_id: external_system_id,

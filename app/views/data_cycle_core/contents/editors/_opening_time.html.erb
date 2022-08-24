@@ -41,7 +41,7 @@
     <% end %>
 
     <span class="buttons">
-      <%= embedded_add_button(translated_attribute_label(key, definition, content, options), "add_#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", !attribute_editable?(key, definition, options, content)) %>
+      <%= embedded_add_button(id: "add_#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", **local_assigns) %>
     </span>
   </div>
 

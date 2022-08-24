@@ -1,6 +1,6 @@
 <a id="generate_report" data-toggle="generate_reports"><i class="fa fa-table" aria-hidden="true"></i></a>
 
-<div class="dropdown-pane align-right no-bullet bottom" id="generate_reports" data-dropdown data-hover="true" data-hover-pane="true">
+<div class="dropdown-pane no-bullet bottom" id="generate_reports" data-dropdown>
   <h5><%= t('data_cycle_core.reports.available_reports', locale: active_ui_locale) %></h5>
   <% DataCycleCore::Feature::ReportGenerator.content_reports(content).each do |key, report| %>
     <div class="row">

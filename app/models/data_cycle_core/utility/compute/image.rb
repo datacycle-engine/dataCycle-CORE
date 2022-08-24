@@ -14,7 +14,9 @@ module DataCycleCore
           end
 
           def thumbnail_url(computed_parameters:, **_args)
-            DataCycleCore::Image.find_by(id: computed_parameters.values.first)&.file&.thumb_preview&.url
+            ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
+              DataCycleCore::Image.find_by(id: computed_parameters.values.first)&.thumb_preview&.url
+            end
           end
 
           def exif_value(image_id, path)

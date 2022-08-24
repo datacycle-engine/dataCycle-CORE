@@ -26,7 +26,7 @@ module DataCycleCore
           end
 
           def preview_image_start_time(content:, **_args)
-            content&.asset&.file&.blob&.preview_image&.purge if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+            content&.asset&.file&.blob&.preview_image&.purge if content.try(:asset)&.class&.active_storage_activated?
             nil
           end
 

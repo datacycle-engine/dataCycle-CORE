@@ -2,6 +2,7 @@ import ObserverHelpers from '../helpers/observer_helpers';
 
 class MasonryGrid {
   constructor(selector, config = null) {
+    selector.dcMasonryGrid = true;
     this.grid = $(selector);
     this.rowHeight = parseInt(window.getComputedStyle(this.grid[0]).getPropertyValue('grid-auto-rows'));
     this.config = config || { attributes: true, childList: true, subtree: true };
@@ -72,7 +73,7 @@ class MasonryGrid {
     let rowSpan = Math.ceil(newHeight / this.rowHeight) + 1;
     item.style.gridRow = 'span ' + rowSpan;
   }
-  resizeAllMasonryItems(event) {
+  resizeAllMasonryItems(_event) {
     this.grid[0].querySelectorAll(':scope .grid-item').forEach(item => {
       this.resizeMasonryItem(item);
     });

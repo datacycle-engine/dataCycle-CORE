@@ -14,8 +14,8 @@
             target: filter['identifier'],
             value: filter['v'],
             classification_aliases: selected_classification_aliases&.slice(*filter['v']),
-            buttons: filter['c'] == 'a' ? 'a' : 'd',
-            container_classes: filter['c'] == 'a' ? 'advanced-tags' : nil,
+            buttons: filter['c'].in?(['a', 'u']) ? 'a' : filter['c'] == 'uf' ? false : 'd',
+            container_classes: filter['c'].in?(['a', 'u']) ? 'advanced-tags' : filter['c'] == 'uf' ? 'user-force-filter' : nil,
         }) %>
     <% end %>
   </span>

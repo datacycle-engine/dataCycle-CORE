@@ -1,80 +1,86 @@
 <li class="content-item saved-search">
-  <span class="content-title <%= 'global' if stored_search.system %>" data-dc-tooltip="<%= DataCycleCore::StoredFilter.human_attribute_name(:system, locale: active_ui_locale) if stored_search.system %>">
-    <%= link_to root_path(stored_filter: stored_search.id) do %>
-      <%= stored_search.system ? tag.i(class: 'fa fa-globe') : tag.i(class: 'fa fa-filter') %>
-      <%= stored_search.name %>
-    <% end %>
-  </span>
-
-  <% if stored_search.linked_stored_filter_id.present? %>
-    <span class = "content-title">
-      <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
-      <%= stored_search.linked_stored_filter.name %>
+  <span class="content-title-line">
+    <span class="content-title <%= 'global' if stored_search.system %>" data-dc-tooltip="<%= DataCycleCore::StoredFilter.human_attribute_name(:system, locale: active_ui_locale) if stored_search.system %>">
+      <%= link_to root_path(stored_filter: stored_search.id), title: stored_search.name do %>
+        <%= stored_search.system ? tag.i(class: 'fa fa-globe') : tag.i(class: 'fa fa-filter') %>
+        <%= stored_search.name %>
+      <% end %>
     </span>
-  <% end %>
 
-  <span class="stored-filter-creator">
-    <i class="fa fa-user" aria-hidden="true"></i>
-    <a class="email-link" href="mailto:<%= stored_search.user.email %>"
-                 title="<%= stored_search.user.full_name %> <<%= stored_search.user.email %>>">
+    <% if stored_search.linked_stored_filter_id.present? %>
+      <span class="content-title" title="<%= stored_search.linked_stored_filter.name %>">
+        <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
+        <%= stored_search.linked_stored_filter.name %>
+      </span>
+    <% end %>
+
+    <span class="stored-filter-date-container">
+      <span class="stored-filter-creator">
+        <i class="fa fa-user" aria-hidden="true"></i>
+        <a class="email-link" href="mailto:<%= stored_search.user.email %>"
+                  title="<%= stored_search.user.full_name %> <<%= stored_search.user.email %>>">
                 <%= stored_search.user.full_name %>
               </a>
+        </span>
+
+        <span class="content-date">
+          <i class="fa fa-clock-o" aria-hidden="true"></i>
+          <%= l(stored_search.created_at.to_datetime, format: :edit, locale: active_ui_locale) %>
+        </span>
+      </span>
     </span>
 
-    <span class="content-date">
-      <i class="fa fa-clock-o" aria-hidden="true"></i>
-      <%= l(stored_search.created_at.to_datetime, locale: active_ui_locale) %>
-    </span>
+    <span class="content-attributes-line">
+      <span class="content-attributes">
+        <%= render 'data_cycle_core/application/filters/search_params', stored_search: stored_search %>
+      </span>
 
-    <span class="content-attributes">
-      <%= render 'data_cycle_core/application/filters/search_params', stored_search: stored_search %>
-    </span>
-
-    <ul class="buttons no-bullet">
-      <% if stored_search.api %>
-        <li>
-          <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_path", id: stored_search),
+      <ul class="buttons no-bullet">
+        <% if stored_search.api %>
+          <li>
+            <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_path", id: stored_search),
                       class: 'copy-to-clipboard',
                       data: {
                         value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_url", id: stored_search)
                       },
                       title: t('actions.copy_to_clipboard', locale: active_ui_locale) do %>
-            <i class="fa fa-clipboard" aria-hidden="true"></i>
-          <% end %>
-        </li>
-      <% end %>
+              <i class="fa fa-clipboard" aria-hidden="true"></i>
+            <% end %>
+          </li>
+        <% end %>
 
-      <%= tag.li(render('data_cycle_core/application/downloads/download_indesign', content: stored_search)) if can?(:download_indesign, stored_search) %>
+        <%= tag.li(render('data_cycle_core/application/downloads/download_indesign', content: stored_search)) if can?(:download_indesign, stored_search) %>
 
-      <%= tag.li(render('data_cycle_core/application/downloads/download_zip', content: stored_search)) if can?(:download_zip, stored_search) %>
+        <%= tag.li(render('data_cycle_core/application/downloads/download_zip', content: stored_search)) if can?(:download_zip, stored_search) %>
 
-      <%= tag.li(render('data_cycle_core/application/downloads/download', content: stored_search)) if can?(:download, stored_search) %>
+        <%= tag.li(render('data_cycle_core/application/downloads/download', content: stored_search)) if can?(:download, stored_search) %>
 
-      <%= tag.li(render('data_cycle_core/application/preview/widget', content: stored_search)) if DataCycleCore::Feature::Preview.enabled? && stored_search.api %>
+        <%= tag.li(render('data_cycle_core/application/preview/widget', content: stored_search)) if DataCycleCore::Feature::Preview.enabled? && stored_search.api %>
 
-      <%= tag.li render('data_cycle_core/data_links/data_links_list', content: stored_search), class: 'has-dropdown right' if can? :index, DataCycleCore::DataLink %>
+        <%= tag.li render('data_cycle_core/data_links/data_links_list', content: stored_search), class: 'has-dropdown right' if can? :index, DataCycleCore::DataLink %>
 
-      <% if can?(:update, stored_search) %>
-        <li>
-          <a id="update-stored-search-<%= stored_search.id %>" data-open="update-search-form-<%= stored_search.id %>" data-dc-tooltip="<%= t('actions.edit_data', data: stored_search.model_name.human(locale: active_ui_locale), locale: active_ui_locale)  %>">
-            <i class="fa fa-pencil" aria-hidden="true"></i>
-          </a>
-          <div class="reveal update-search-form" id="update-search-form-<%= stored_search.id %>" data-reveal>
-            <h3><%= t('actions.edit_data', data: stored_search.model_name.human(locale: active_ui_locale), locale: active_ui_locale) %></h3>
-            <div class="remote-render"
+        <% if can?(:update, stored_search) %>
+          <li>
+            <a id="update-stored-search-<%= stored_search.id %>" data-open="update-search-form-<%= stored_search.id %>" data-dc-tooltip="<%= t('actions.edit_data', data: stored_search.model_name.human(locale: active_ui_locale), locale: active_ui_locale)  %>">
+              <i class="fa fa-pencil" aria-hidden="true"></i>
+            </a>
+            <div class="reveal update-search-form" id="update-search-form-<%= stored_search.id %>" data-reveal>
+              <h3><%= t('actions.edit_data', data: stored_search.model_name.human(locale: active_ui_locale), locale: active_ui_locale) %></h3>
+              <div class="remote-render"
                  data-remote-path="data_cycle_core/stored_filters/edit_form"
                  data-remote-options="<%= to_query_params({ stored_search: stored_search }).to_json %>">
+              </div>
             </div>
-          </div>
-        </li>
-      <% end %>
+          </li>
+        <% end %>
 
-      <% if can?(:destroy, stored_search) %>
-        <li>
-          <%= link_to stored_filter_path(stored_search), method: :delete, data: { confirm: "#{t('data_cycle_core.stored_searches.saved', count: 1, locale: active_ui_locale)} #{t('actions.delete', locale: active_ui_locale)}?" } do %>
-            <i class="fa fa-trash-o alert" aria-hidden="true"></i>
-          <% end %>
-        </li>
-      <% end %>
-    </ul>
+        <% if can?(:destroy, stored_search) %>
+          <li>
+            <%= link_to stored_filter_path(stored_search), method: :delete, data: { confirm: "#{t('data_cycle_core.stored_searches.saved', count: 1, locale: active_ui_locale)} #{t('actions.delete', locale: active_ui_locale)}?" } do %>
+              <i class="fa fa-trash-o alert" aria-hidden="true"></i>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </span>
   </li>

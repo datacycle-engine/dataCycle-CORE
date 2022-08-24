@@ -265,7 +265,7 @@
         "meta": "Integer [1,0]: 1",
         "links": "Integer [1,0]: 1"
     },
-    "sort": "String ?[+,-] (dct:modified,dct:created,name,*similarity,*proximity.geographic, *proximity.in_time, proximity.occurrence, random): **default",
+    "sort": "String ?[+,-] (dct:modified,dct:created,name,*similarity,*proximity.geographic, *proximity.inTime, proximity.occurrence, random): **default",
     "token": "String"
 }
 ```

@@ -1,5 +1,6 @@
 class AttributeLocaleSwitcher {
   constructor(localeSwitch) {
+    localeSwitch.dcAttributeLocaleSwitcher = true;
     this.$localeSwitch = $(localeSwitch);
     this.$container = this.$localeSwitch.closest('.reveal, #edit-form, .inner-container, .split-content').first();
     this.$form = this.$container.find('form.validation-form').first();

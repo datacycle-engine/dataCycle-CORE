@@ -1,9 +1,10 @@
 :active_storage: 
   :enabled: false
-  :asset_types:
-    - DataCycleCore::Audio
-    - DataCycleCore::DataCycleFile
-    - DataCycleCore::Pdf
-    - DataCycleCore::SrtFile
-    - DataCycleCore::TextFile
-    - DataCycleCore::Video
+  # :asset_types:
+  #   - DataCycleCore::Audio
+  #   - DataCycleCore::DataCycleFile
+  #   - DataCycleCore::Pdf
+  #   - DataCycleCore::SrtFile
+  #   - DataCycleCore::TextFile
+  #   - DataCycleCore::Video
+  #   - DataCycleCore::Image

@@ -7,6 +7,7 @@ class ConditionalField {
     this.setup();
   }
   setup() {
+    this.$element[0].dcConditionalField = true;
     this.$options.on('click', this.toggleVisibleFields.bind(this));
     this.$element.on('dc:conditionalField:refresh', this.setVisibility.bind(this));
   }

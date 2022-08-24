@@ -25,16 +25,29 @@ module DataCycleCore
           "#{@file_name}#{file_extension}"
         end
 
+        # used with carrierwave
         def local_file?
           @data.is_a?(DataCycleCore::CommonUploader)
         end
 
         def active_storage?
-          DataCycleCore.experimental_features.dig('active_storage', 'enabled') && @data.try(:attached?) && DataCycleCore.experimental_features.dig('active_storage', 'asset_types')&.include?(@data&.record&.class&.name)
+          return false if remote? || @data.is_a?(::String) || @data.is_a?(DataCycleCore::CommonUploader)
+          record = record_for_active_storage_file
+          record&.class&.active_storage_activated? && record&.file&.try(:attached?)
         end
 
+        def active_storage_file_path
+          record_for_active_storage_file.file.service.path_for(@data.key)
+        end
+
+        # used for remote files and image proxy
         def remote?
           @is_remote
+        end
+
+        def record_for_active_storage_file
+          return @data&.blob&.attachments&.first&.record if @data.is_a?(ActiveStorage::VariantWithRecord)
+          @data&.record
         end
       end
     end

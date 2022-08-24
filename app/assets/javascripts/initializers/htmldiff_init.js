@@ -10,12 +10,14 @@ export default function () {
       e.classList.contains('detail-type') &&
       e.classList.contains('string') &&
       e.classList.contains('has-changes') &&
-      e.classList.contains('edit'),
+      e.classList.contains('edit') &&
+      !e.hasOwnProperty('dcDiffContent'),
     diffContent
   ]);
 }
 
 function diffContent(textField) {
+  textField.dcDiffContent = true;
   const detailContent = textField.querySelector('.detail-content');
 
   if (!detailContent) return;

@@ -23,11 +23,7 @@ module DataCycleCore
     end
 
     def self.get_internal_template(name)
-      @get_internal_template ||= Hash.new do |h, key|
-        h[key] = DataCycleCore::Thing.find_by!(template: true, template_name: key)
-      end
-
-      @get_internal_template[name]
+      DataCycleCore::Thing.find_by!(template: true, template_name: name)
     end
 
     def self.create_duplicate(content: nil, current_user: nil)
@@ -65,26 +61,28 @@ module DataCycleCore
       locale = object_hash[:translations]&.keys&.first || I18n.locale
       save_time = Time.zone.now
 
-      I18n.with_locale(locale) do
-        object.schema = template.schema
-        object.template_name = template.template_name
-        object.is_part_of = is_part_of if is_part_of.present?
-        object.created_at = save_time
-        object.updated_at = save_time
-        object.created_by = current_user&.id
-        object.save(touch: false)
+      DataCycleCore::Thing.transaction do
+        I18n.with_locale(locale) do
+          object.schema = template.schema
+          object.template_name = template.template_name
+          object.is_part_of = is_part_of if is_part_of.present?
+          object.created_at = save_time
+          object.updated_at = save_time
+          object.created_by = current_user&.id
+          object.save(touch: false)
+        end
+
+        next if object_hash[:datahash].blank? && object_hash[:translations].blank?
+
+        raise ActiveRecord::Rollback unless object.set_data_hash_with_translations(
+          data_hash: object_hash,
+          current_user: current_user,
+          source: source,
+          new_content: true,
+          save_time: save_time,
+          check_for_duplicates: true
+        )
       end
-
-      return object if object_hash[:datahash].blank? && object_hash[:translations].blank?
-
-      object.set_data_hash_with_translations(
-        data_hash: object_hash,
-        current_user: current_user,
-        source: source,
-        new_content: true,
-        save_time: save_time,
-        check_for_duplicates: true
-      )
 
       object
     end

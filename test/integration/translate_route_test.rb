@@ -25,7 +25,7 @@ module DataCycleCore
       assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = JSON.parse(response.body)
 
-      assert_equal I18n.translate('hello', locale: @current_user.ui_locale), json_data['text']
+      assert_equal I18n.t('hello', locale: @current_user.ui_locale), json_data['text']
     end
 
     test '/i18n/translate returns correct errors' do
@@ -44,7 +44,7 @@ module DataCycleCore
       assert_response :not_found
       assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = JSON.parse(response.body)
-      assert_equal 'TRANSLATION_MISSING', json_data['error']
+      assert_equal 'TRANSLATION_MISSING (not.existing.path)', json_data['error']
     end
 
     test '/i18n/translate returns translated string with different locale' do
@@ -62,7 +62,7 @@ module DataCycleCore
       assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = JSON.parse(response.body)
 
-      assert_equal I18n.translate('hello', locale: @current_user.ui_locale), json_data['text']
+      assert_equal I18n.t('hello', locale: @current_user.ui_locale), json_data['text']
     end
   end
 end

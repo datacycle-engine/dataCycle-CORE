@@ -1,4 +1,4 @@
-<%= form_for content, html: { class: 'edit-content-form validation-form' } do |f| %>
+<%= form_with model: content, local: true, html: { class: 'edit-content-form validation-form' } do |f| %>
   <%= hidden_field_tag 'uuid', content.id %>
   <%= hidden_field_tag :table, content.class.table_name %>
 
@@ -73,7 +73,23 @@
             <div class="v-select">
               <%= f.label :user_ids, DataCycleCore::WatchList.human_attribute_name(:user_ids, locale: active_ui_locale) %>
               <%= hidden_field_tag 'watch_list[user_ids][]', nil, id: 'hidden_watch_list_user_ids' %>
-              <%= select_tag('watch_list[user_ids][]', options_for_select(DataCycleCore::User.includes(:role).where.not(roles: { rank: 0 }).map { |c| [c.full_name, c.id, { title: c.email }] }, content.users.map(&:id)), { multiple: true, class: 'multi-select' }) %>
+              <%= f.select(
+                  :user_ids,
+                  content.users.map { |u| u.to_select_option(active_ui_locale) }.map(&:to_option_for_select),
+                  {
+                    include_blank: true
+                  },
+                  {
+                    multiple: true,
+                    class: 'async-select',
+                    data: {
+                      max: 20,
+                      placeholder: '',
+                      search_path: search_users_path,
+                      close_on_select: false
+                    }
+                  }
+                ) %>
             </div>
           </div>
         <% end %>

@@ -53,7 +53,7 @@ DataCycleCore::Engine.routes.draw do
     post :create_user, on: :collection
     get :search, on: :collection
     get :become
-    post '/', on: :collection, action: :index
+    match '/index', via: [:get, :post], on: :collection, action: :index
   end
 
   resources :user_organizations do
@@ -92,6 +92,8 @@ DataCycleCore::Engine.routes.draw do
       get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'
       post :attribute_value, on: :member
       post :attribute_default_value, on: :collection, defaults: { format: 'application/json' }
+      post :switch_primary_external_system, on: :member
+      post :quality_score, on: :collection
       post '/', on: :member, action: :show
     end
   end

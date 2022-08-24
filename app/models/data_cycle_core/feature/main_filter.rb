@@ -37,6 +37,7 @@ module DataCycleCore
           advanced_filters(user, config, selected_filters)
           advanced_filters(user, config, selected_filters, :permanent_advanced, 'p', false)
           classification_tree_filters(user, config, selected_filters)
+          advanced_user_filters(user, config, selected_filters)
         end
 
         def classification_trees_filters(_user, config, selected_filters)
@@ -87,6 +88,16 @@ module DataCycleCore
 
           advanced_filter[:filters].each do |filter|
             filter['buttons'] = buttons
+          end
+        end
+
+        def advanced_user_filters(_user, config, selected_filters)
+          advanced_filter = config[:filter].find { |v| v[:type] == 'advanced' }
+          return if advanced_filter.blank?
+
+          advanced_filter[:filters].concat(Array.wrap(selected_filters.select { |f| f['c'] == 'u' }))
+          advanced_filter[:filters].select { |f| f['c'] == 'u' }.each do |filter|
+            filter['buttons'] = true
           end
         end
 

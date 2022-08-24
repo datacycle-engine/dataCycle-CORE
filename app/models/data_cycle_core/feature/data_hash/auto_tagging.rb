@@ -11,7 +11,6 @@ module DataCycleCore
           relation_name = DataCycleCore.features.dig(:auto_tagging, :relation_name) || 'cloud_vision_tags'
           external_source_name = DataCycleCore.features.dig(:auto_tagging, :external_source) || 'Google Cloud Vision'
           file_path = thumbnail_url || content_url
-          file_path = asset.file.thumb_preview.file.file if asset.present?
 
           require 'google/cloud/vision'
           require 'google/cloud/translate'

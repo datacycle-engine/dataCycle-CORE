@@ -3,9 +3,11 @@ import { German } from 'flatpickr/dist/l10n/de.js';
 import { english } from 'flatpickr/dist/l10n/default';
 import domElementHelpers from '../helpers/dom_element_helpers';
 import castArray from 'lodash/castArray';
+import LocalStorageCache from './local_storage_cache';
 
 class DatePicker {
   constructor(element) {
+    element.dcDatePicker = true;
     this.element = element;
     this.elementName = this.element.getAttribute('name');
     this.calType = 'single';
@@ -62,11 +64,11 @@ class DatePicker {
       setDate: this.setDate.bind(this),
       import: this.importData.bind(this)
     };
+    this.cacheNamespace = 'dcDatepickerCache';
 
     this.setup();
   }
   setup() {
-    this.setupCache();
     this.setCalType();
     this.findSibling();
     this.initCalInstance();
@@ -82,14 +84,6 @@ class DatePicker {
     $(this.calInstance.altInput).off('dc:flatpickr:reInit', this.eventHandlers.reInit);
     $(this.calInstance.altInput).off('dc:flatpickr:setDate', this.eventHandlers.setDate);
     $(this.calInstance.altInput).off('dc:import:data', this.eventHandlers.import).removeClass('dc-import-data');
-  }
-  setupCache() {
-    if (!DataCycle.cache.holidays) {
-      DataCycle.cache['holidays'] = {
-        loadingHolidays: {},
-        loadingHolidaysRequest: {}
-      };
-    }
   }
   initCalInstance() {
     this.calInstance = Flatpickr(this.element, this.options());
@@ -148,10 +142,7 @@ class DatePicker {
 
     this.calInstance.set(this.calType == 'start' ? 'maxDate' : 'minDate', this.sibling.value);
   }
-  loadHolidays(year) {
-    if (DataCycle.cache.holidays[year]) return;
-
-    DataCycle.cache.holidays.loadingHolidays[year] = true;
+  async loadHolidays(year) {
     const promise = DataCycle.httpRequest({
       url: '/holidays',
       method: 'GET',
@@ -162,36 +153,30 @@ class DatePicker {
       contentType: 'application/json'
     });
 
-    promise
-      .then(data => {
-        DataCycle.cache.holidays[year] = data || [];
-      })
-      .finally(() => {
-        DataCycle.cache.holidays.loadingHolidays[year] = false;
-        DataCycle.cache.holidays.loadingHolidaysRequest[year] = null;
-      });
+    const promiseKey = `${this.cacheNamespace}/${year}`;
+    DataCycle.globalPromises[promiseKey] = promise;
 
-    DataCycle.cache.holidays.loadingHolidaysRequest[year] = promise;
+    const holidays = (await promise) || [];
+
+    LocalStorageCache.set(this.cacheNamespace, year, holidays);
+    delete DataCycle.globalPromises[promiseKey];
+
+    return holidays;
   }
-  createDayElement(_dObj, _dStr, _fp, dayElem) {
+  async createDayElement(_dObj, _dStr, _fp, dayElem) {
     if (dayElem.classList.contains('dc-holidays-initialized')) return;
 
-    const year = dayElem.dateObj.getFullYear();
-
-    if (!DataCycle.cache.holidays[year] && !DataCycle.cache.holidays.loadingHolidays[year]) this.loadHolidays(year);
-
-    this.markHoliday(dayElem, year);
+    await this.markHoliday(dayElem, dayElem.dateObj.getFullYear());
     dayElem.classList.add('dc-holidays-initialized');
   }
-  markHoliday(dayElem, year) {
-    if (!DataCycle.cache.holidays[year] && DataCycle.cache.holidays.loadingHolidays[year]) {
-      const promise = DataCycle.cache.holidays.loadingHolidaysRequest[year];
-      promise.then(_ => this.markHoliday(dayElem, year));
+  async markHoliday(dayElem, year) {
+    const promiseKey = `${this.cacheNamespace}/${year}`;
+    let holidays = LocalStorageCache.get(this.cacheNamespace, year);
+    if (!holidays && DataCycle.globalPromises.hasOwnProperty(promiseKey))
+      holidays = await DataCycle.globalPromises[promiseKey];
+    else if (!holidays) holidays = await this.loadHolidays(year);
 
-      return promise;
-    }
-
-    const holiday = DataCycle.cache.holidays[year].find(v => v.date === Flatpickr.formatDate(dayElem.dateObj, 'Y-m-d'));
+    const holiday = holidays.find(v => v.date === Flatpickr.formatDate(dayElem.dateObj, 'Y-m-d'));
 
     if (holiday) {
       dayElem.classList.add('holiday');

@@ -41,11 +41,12 @@ class Tooltips {
   }
   initNewTooltips() {
     DataCycle.htmlObserver.addCallbacks.push([
-      e => e.dataset.dcTooltip && !e.dataset.dcTooltipId,
+      e => e.dataset.dcTooltip && !e.hasOwnProperty('dcTooltip'),
       this.addEventsForTooltip.bind(this)
     ]);
   }
   addEventsForTooltip(tooltip) {
+    tooltip.dcTooltip = true;
     tooltip.dataset.dcTooltipId = domElementHelpers.randomId();
 
     tooltip.addEventListener('mouseenter', this.showTooltipDelayed.bind(this));

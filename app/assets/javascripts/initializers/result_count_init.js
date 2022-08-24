@@ -5,5 +5,8 @@ export default function () {
     new ResultCount(count);
   }
 
-  DataCycle.htmlObserver.addCallbacks.push([e => e.classList.contains('result-count'), e => new ResultCount(e)]);
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('result-count') && !e.hasOwnProperty('dcResultCount'),
+    e => new ResultCount(e)
+  ]);
 }

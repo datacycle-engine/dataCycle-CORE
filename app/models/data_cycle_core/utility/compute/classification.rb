@@ -31,11 +31,22 @@ module DataCycleCore
           end
 
           def from_geo_shape(computed_parameters:, computed_definition:, **_args)
-            value = DataCycleCore::MasterData::DataConverter.string_to_geographic(computed_parameters.values.first)
+            values = []
+            computed_definition.dig('compute', 'parameters')&.each do |parameter_key|
+              location_value = Array.wrap(Common.get_values_from_hash(computed_parameters, parameter_key.split('.'))).first
+              value = DataCycleCore::MasterData::DataConverter.string_to_geographic(location_value)
 
-            return if value.blank?
+              next if value.blank?
+              values << value
+            end
 
-            get_ids_from_geometry(tree_label: computed_definition.dig('tree_label'), geometry: value.to_s)
+            return if values.empty?
+
+            values.map { |value|
+              get_ids_from_geometry(tree_label: computed_definition.dig('tree_label'), geometry: value.to_s)
+            }.flatten
+            .compact
+            .uniq
           end
 
           def from_embedded(computed_parameters:, computed_definition:, **_args)

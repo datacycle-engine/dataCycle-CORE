@@ -5,16 +5,18 @@ import EmbeddedTitle from '../components/embedded_title';
 export default function () {
   var embedded_objects = [];
   new AccordionExtension();
-  new EmbeddedTitle();
 
   for (const element of document.querySelectorAll('.edit-content-form .embedded-object'))
     embedded_objects.push(new EmbeddedObject($(element)));
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('embedded-object'),
+    e => e.classList.contains('embedded-object') && !e.hasOwnProperty('dcEmbeddedObject'),
     e => embedded_objects.push(new EmbeddedObject($(e)))
   ]);
 
   for (const element of document.querySelectorAll('.is-embedded-title')) new EmbeddedTitle(element);
-  DataCycle.htmlObserver.addCallbacks.push([e => e.classList.contains('is-embedded-title'), e => new EmbeddedTitle(e)]);
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('is-embedded-title') && !e.hasOwnProperty('dcEmbeddedTitle'),
+    e => new EmbeddedTitle(e)
+  ]);
 }

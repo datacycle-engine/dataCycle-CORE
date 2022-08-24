@@ -1,10 +1,9 @@
 <% image ||= value %>
 
 <% unless image.nil? %>
-  <% content_for :additional_asset_metadata, ", #{image.metadata.dig('geometry', 'width')}x#{image.metadata.dig('geometry', 'height')}", flush: true if image&.metadata&.dig('geometry').present? %>
-
+  <% content_for :additional_asset_metadata, ", #{image.metadata.dig('ImageWidth')}x#{image.metadata.dig('ImageHeight')}", flush: true if image&.metadata.dig('ImageWidth').present? && image&.metadata.dig('ImageHeight').present? %>
   <% content_for :asset_thumb, flush: true do %>
-    <img src="<%= image.try(:thumb_preview)&.url %>" />
+    <img src="<%= image.try(:thumb_preview)&.url || image.thing&.thumbnail_url || image.file&.url %>" />
   <% end %>
   <%= render 'data_cycle_core/contents/viewers/asset/default', local_assigns %>
 <% end %>

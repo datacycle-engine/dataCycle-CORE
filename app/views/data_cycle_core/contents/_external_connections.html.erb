@@ -4,8 +4,13 @@
   <div class="external-connections">
     <% external_connections.each do |name, syncs| %>
       <div class="external-connection-with-dropdown">
-        <span class="external-connection" data-toggle="external-connections-<%= name.underscore_blanks %>"><i class="fa fa-external-link-square external-connections-icon <%= syncs.pluck(:status).compact.join(' ') %>"></i> <%= name %> (<%= syncs.size %>)</span>
-        <div class="dropdown-pane bottom external-connections-dropdown" id="external-connections-<%= name.underscore_blanks %>" data-dropdown data-hover="true" data-hover-pane="true">
+        <span class="external-connection" data-toggle="external-connections-<%= name.underscore_blanks %>">
+          <i class="fa fa-external-link-square external-connections-icon <%= syncs.pluck(:status).compact.join(' ') %>"></i>
+          <%= name %>
+          <%= tag.span('*', class: 'primary-external-system', data: { dc_tooltip: t('content_external_data.primary_external_system_tooltip', locale: active_ui_locale) }) if syncs.any?{ |s| s[:primary] } %>
+          (<%= syncs.size %>)
+        </span>
+        <div class="dropdown-pane bottom external-connections-dropdown" id="external-connections-<%= name.underscore_blanks %>" data-dropdown>
           <ul class="list-items no-bullet">
             <% syncs.each do |sync| %>
               <li>
@@ -20,6 +25,14 @@
                 <%= link_to tag.i(class: 'external-link-icon fa fa-pencil-square-o'), sync[:external_edit_url], class: 'external-edit-link', target: :_blank, data: { dc_tooltip: t('actions.external_edit', locale: active_ui_locale) } if sync[:external_edit_url].present? %>
 
                 <%= link_to tag.i(class: 'external-link-icon fa fa-external-link'), sync[:external_detail_url], class: 'external-detail-link', target: :_blank, data: { dc_tooltip: t('actions.external_detail', locale: active_ui_locale) } if sync[:external_detail_url].present? %>
+
+                <%= link_to tag.i(class: 'switch-primary-external-system-icon fa fa-exchange'),
+                            switch_primary_external_system_thing_path(content, external_system_sync_id: sync[:id]),
+                            class: 'switch-primary-external-system-link',
+                            data: {
+                              method: :post,
+                              dc_tooltip: t('content_external_data.tooltip', locale: active_ui_locale)
+                            } if sync[:id].present? && sync[:sync_type] == 'duplicate' && can?(:switch_primary_external_system, content) %>
               </li>
             <% end %>
           </ul>

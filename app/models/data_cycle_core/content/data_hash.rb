@@ -64,10 +64,10 @@ module DataCycleCore
         before_save_data_hash(options)
 
         partial_schema = schema.deep_dup
-        partial_schema['properties'] = property_definitions&.slice(*options.data_hash.keys) if options.partial_update
+        partial_schema['properties'].slice!(*options.data_hash.keys) if options.partial_update && !options.new_content
         options.data_hash.deep_freeze # ensure data_hash doesn't get changed
 
-        return false unless validate(data_hash: options.data_hash, schema_hash: partial_schema || schema, current_user: options.current_user)
+        return false unless validate(data_hash: options.data_hash, schema_hash: partial_schema, current_user: options.current_user, strict: options.new_content)
 
         unless options.force_update
           differ = diff_obj(options.data_hash, partial_schema, options.partial_update)
@@ -81,7 +81,7 @@ module DataCycleCore
           end
         end
 
-        ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+        transaction(joinable: false, requires_new: true) do
           to_history if write_history
           self.write_history = !options.prevent_history
 
@@ -116,7 +116,7 @@ module DataCycleCore
         version_name = (options.data_hash.key?(:version_name) ? options.data_hash[:version_name] : options.version_name).presence
         locale, datahash = translations.shift
 
-        ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+        transaction(joinable: false, requires_new: true) do
           I18n.with_locale(locale) do
             raise ActiveRecord::Rollback unless set_data_hash(**options.to_h.merge(data_hash: datahash, version_name: version_name&.+(" (#{I18n.locale})")))
           end
@@ -256,8 +256,8 @@ module DataCycleCore
       end
 
       def notify_subscribers(current_user:)
-        subscriptions.except_user(current_user).to_notify(version_name.present? && DataCycleCore::Feature::NamedVersion.enabled? ? ['always', 'named_version'] : ['always']).presence&.each do |subscription|
-          DataCycleCore::SubscriptionMailer.notify(subscription.user, [self]).deliver_later
+        subscriptions.except_user_id(current_user.id).to_notify(version_name.present? && DataCycleCore::Feature::NamedVersion.enabled? ? ['always', 'named_version'] : ['always']).presence&.each do |subscription|
+          DataCycleCore::SubscriptionMailer.notify(subscription.user, [id]).deliver_later
         end
       end
 

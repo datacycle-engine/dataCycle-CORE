@@ -7,7 +7,7 @@ module DataCycleCore
   module Feature
     class ImageProxy < Base
       class << self
-        SUPPORTED_CONTENT_TYPES = ['Bild', 'ImageVariant', 'Video'].freeze
+        SUPPORTED_CONTENT_TYPES = ['Bild', 'ImageVariant', 'Video', 'PDF'].freeze
         SUPPORTED_FILE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'avif', 'webp', 'gif'].freeze
 
         def data_hash_module
@@ -91,11 +91,7 @@ module DataCycleCore
           if processing&.dig('format').present?
             ext_name = processing.dig('format')
           elsif ['default', 'original'].include?(variant)
-            if content.respond_to?(:asset) && content.send(:asset).present?
-              orig_url = content.send(:asset)&.try(:file)&.try(:url)
-            else
-              orig_url = content.content_url
-            end
+            orig_url = content.content_url
             ext_name = orig_url.present? ? File.extname(orig_url)&.split('.')&.last : ''
           end
           return if ext_name.blank?

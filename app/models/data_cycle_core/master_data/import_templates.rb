@@ -314,6 +314,13 @@ module DataCycleCore
             required(:method) { str? }
             optional(:parameters) { array? }
           end
+
+          optional(:quality_score).hash do
+            required(:module) { str? }
+            required(:method) { str? }
+            optional(:parameters) { array? }
+            optional(:score_matrix) { hash? }
+          end
         end
 
         rule(:type) do
@@ -332,15 +339,21 @@ module DataCycleCore
         end
 
         rule(:compute) do
-          if key? && values.present?
-            temp = begin
-              module_name = ('DataCycleCore::' + values.dig(:compute, :module).classify).safe_constantize
-              module_name.respond_to?(values.dig(:compute, :method))
-            rescue StandardError
-              false
-            end
-            key.failure(:invalid_computed) if temp == false
-          end
+          next unless key? && values.present?
+
+          key.failure(:invalid_computed) unless "DataCycleCore::#{values.dig(:compute, :module)}".classify.safe_constantize.respond_to?(values.dig(:compute, :method))
+        end
+
+        rule(:virtual) do
+          next unless key? && values.present?
+
+          key.failure(:invalid_virtual) unless "DataCycleCore::#{values.dig(:virtual, :module)}".classify.safe_constantize.respond_to?(values.dig(:virtual, :method))
+        end
+
+        rule(:quality_score) do
+          next unless key? && value.present?
+
+          key.failure(:invalid_quality_score) unless values.dig(:quality_score, :module)&.classify&.safe_constantize.respond_to?(values.dig(:quality_score, :method))
         end
 
         rule(:properties) do

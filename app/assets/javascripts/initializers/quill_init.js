@@ -7,7 +7,10 @@ export default function () {
     textEditors.push(new TextEditor(element));
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('quill-editor') && !e.classList.contains('ql-container'),
+    e =>
+      e.classList.contains('quill-editor') &&
+      !e.classList.contains('ql-container') &&
+      !e.hasOwnProperty('dcTextEditor'),
     e => textEditors.push(new TextEditor(e))
   ]);
 }

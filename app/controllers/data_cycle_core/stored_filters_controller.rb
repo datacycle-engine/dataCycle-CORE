@@ -43,8 +43,19 @@ module DataCycleCore
           @saved_count = @stored_searches.total_count
         end
         format.json do
+          partial = "data_cycle_core/stored_filters/#{index_params[:partial].presence || 'saved_searches_list'}"
+
           json = {
-            html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/stored_filters/saved_searches_list', locals: { stored_searches: @stored_searches, last_page: @last_page, page: @page })
+            html: render_to_string(
+              formats: [:html],
+              layout: false,
+              partial: partial,
+              locals: {
+                stored_searches: @stored_searches,
+                last_page: @last_page,
+                page: @page
+              }
+            )
           }
 
           if @page == 1
@@ -139,15 +150,11 @@ module DataCycleCore
 
       authorize! :add_item, @watch_list
 
-      content_query = get_filtered_results.select("'#{@watch_list.id}', things.id, 'DataCycleCore::Thing', NOW(), NOW()")
+      inserted_ids = @watch_list.add_things_from_query(get_filtered_results)
 
-      ActiveRecord::Base.connection.execute <<-SQL.squish
-        INSERT INTO watch_list_data_hashes (watch_list_id, hashable_id, hashable_type, created_at, updated_at)
-        #{content_query.to_sql}
-        ON CONFLICT DO NOTHING
-      SQL
+      @watch_list.notify_subscribers(current_user, inserted_ids, 'add')
 
-      redirect_to(root_path, notice: (I18n.t :added_to, scope: [:controllers, :success], data: @watch_list.name, locale: helpers.active_ui_locale))
+      redirect_to(root_path, notice: I18n.t('controllers.success.added_to', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
     end
 
     def download
@@ -192,7 +199,7 @@ module DataCycleCore
     end
 
     def index_params
-      params.permit(:page, :last_day, :q, :load_all)
+      params.permit(:page, :last_day, :q, :load_all, :partial)
     end
   end
 end

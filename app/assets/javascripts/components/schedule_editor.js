@@ -1,5 +1,6 @@
 class ScheduleEditor {
   constructor(editor) {
+    editor.dcScheduleEditor = true;
     this.editor = editor;
     this.minInput = this.editor.find('.daterange .form-element.start input.flatpickr-input[type="hidden"]');
     this.maxInput = this.editor.find('.rrules .form-element.until input.flatpickr-input[type="hidden"]');

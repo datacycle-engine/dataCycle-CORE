@@ -25,6 +25,10 @@ module DataCycleCore
               { 'Content-Type' => 'application/json' }
             ) do |req|
               req.params['token'] = @token if @token_type == 'url'
+
+              utility_object.external_system.credentials(:export)&.dig('faraday_options')&.to_h&.each do |key, value|
+                req.options[key] = value
+              end
             end
 
             @output_file.info("#{@response&.env&.dig(:method)&.to_s&.upcase} #{@response&.env&.dig(:url)} #{DataCycleCore::NormalizeService.normalize_encoding(@response.body)}", "#{data&.id} - #{@response&.env&.dig(:status)} #{@response&.env&.dig(:reason_phrase)}")

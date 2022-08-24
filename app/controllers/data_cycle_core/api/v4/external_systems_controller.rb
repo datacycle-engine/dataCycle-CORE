@@ -32,50 +32,21 @@ module DataCycleCore
         end
 
         def update
-          strategy, external_system = api_strategy
-          render(json: { error: 'endpoint not active' }, status: :not_found) && return if strategy.nil?
-          contents = Array.wrap(content_params.as_json)
+          response, status = content_request(type: :update)
 
-          responses = contents.map do |content|
-            if strategy.method(:update).arity == 3
-              strategy.update(content, external_system, current_user)
-            else
-              strategy.update(content, external_system)
-            end
-          end
-
-          errors = responses.select { |i| i[:error].present? }
-
-          render plain: responses.to_json, content_type: 'application/json', status: errors.size.positive? ? :bad_request : :ok
+          render plain: response.to_json, content_type: 'application/json', status: status
         end
 
         def create
-          strategy, external_system = api_strategy
-          render(json: { error: 'endpoint not active' }, status: :not_found) && return if strategy.nil?
-          content = content_params.as_json
+          response, status = content_request(type: :create)
 
-          if strategy.method(:create).arity == 3
-            response = strategy.create(content, external_system, current_user)
-          else
-            response = strategy.create(content, external_system)
-          end
-          errors = response[:error] || []
-
-          render plain: Array.wrap(response).to_json, content_type: 'application/json', status: errors.size.positive? ? :bad_request : :ok
+          render plain: response.to_json, content_type: 'application/json', status: status
         end
 
         def destroy
-          strategy, external_system = api_strategy
-          render(json: { error: 'endpoint not active' }, status: :not_found) && return if strategy.nil?
-          contents = Array.wrap(content_params.as_json)
+          response, status = content_request(type: :delete)
 
-          responses = contents.map do |content|
-            strategy.delete(content, external_system)
-          end
-
-          errors = responses.select { |i| i[:error].present? }
-
-          render plain: responses.to_json, content_type: 'application/json', status: errors.size.positive? ? :bad_request : :ok
+          render plain: response.to_json, content_type: 'application/json', status: status
         end
 
         def timeseries
@@ -105,6 +76,26 @@ module DataCycleCore
         end
 
         private
+
+        def content_request(type: :update)
+          strategy, external_system = api_strategy
+          return { error: 'endpoint not active' }, :not_found if strategy.nil?
+
+          locale = params.dig(:@context, :@language)
+          locale = I18n.available_locales.first if locale.blank? || !locale.to_sym.in?(I18n.available_locales)
+
+          I18n.with_locale(locale) do
+            responses = content_params.map do |data|
+              if strategy.method(type).arity == 3
+                strategy.send(type, data, external_system, current_user)
+              else
+                strategy.send(type, data, external_system)
+              end
+            end
+
+            return responses, responses.any? { |i| i[:error].present? } ? :bad_request : :ok
+          end
+        end
 
         def search_feratel_api(search_method)
           external_system = DataCycleCore::ExternalSystem.find_by(id: permitted_params[:external_source_id])
@@ -152,8 +143,7 @@ module DataCycleCore
         end
 
         def content_params
-          return params[:@graph] if params.key?(:@graph)
-          params
+          Array.wrap(params.fetch(:@graph) { params }).map { |p| p.permit!.to_h }
         end
 
         def permitted_parameter_keys

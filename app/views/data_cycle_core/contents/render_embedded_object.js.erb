@@ -35,7 +35,7 @@
 <% end %>
 
 (function(){
-  $('#<%= sanitize_to_id(@key) %> > .buttons > .addContentObject .fa').css('display', 'none');
+  $('#<%= sanitize_to_id(@key) %> > .buttons > .add-content-object .fa').css('display', 'none');
   $('#<%= sanitize_to_id(@key) %> > .buttons > button').prop('disabled', false);
 
   let $followingEmbedded = $('#<%= sanitize_to_id(@key) %> > .content-object-item').filter(function(){

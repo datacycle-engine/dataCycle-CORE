@@ -4,10 +4,6 @@ export default function () {
   init();
 
   function init(element = document) {
-    $(element)
-      .find('.video-js')
-      .each((_, elem) => {
-        new VideoPlayer(elem);
-      });
+    for (const elem of element.querySelectorAll('.video-js')) new VideoPlayer(elem);
   }
 }

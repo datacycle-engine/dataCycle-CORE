@@ -1,4 +1,4 @@
-<%= form_with(url: '', local: true, id: "search-form", data: { add_filter_path: add_filter_path, add_tag_group_path: add_tag_group_path }) do %>
+<%= form_with(url: form_path, local: true, id: "search-form", data: { add_filter_path: add_filter_path, add_tag_group_path: add_tag_group_path }) do %>
   <section class="filters">
     <div class="row">
       <div class="column filter-body">
@@ -81,7 +81,7 @@
           </div>
         <% end %>
 
-        <div class=" filterbuttons clearfix">
+        <div class="filterbuttons clearfix">
           <div class="filterbuttons-left">
             <%= button_tag type: :submit, class: "button success", data: {
               disable_with: "<i class='fa fa-spinner fa-spin fa-fw'></i> #{t('actions.searching', locale: active_ui_locale)} ..."
@@ -90,12 +90,9 @@
               <%= t('actions.filter', locale: active_ui_locale) %>
             <% end %>
 
-            <div class="expandable-buttons">
-              <%= link_to request.path, class: 'button', id: 'reset-filter' do %>
+            <div class="filter-buttons">
+              <%= link_to request.path, class: 'button', id: 'reset-filter', data: { dc_tooltip: t('actions.reset', count: 2, locale: active_ui_locale) } do %>
                 <i class="fa fa-times" aria-hidden="true"></i>
-                <span class="expandable">
-                  <%= t('actions.reset', count: 2, locale: active_ui_locale) %>
-                </span>
               <% end %>
             </div>
           </div>

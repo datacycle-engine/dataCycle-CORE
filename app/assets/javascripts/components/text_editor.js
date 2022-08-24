@@ -27,6 +27,7 @@ Quill.register('modules/counter', Counter);
 
 class TextEditor {
   constructor(element) {
+    element.dcTextEditor = true;
     this.element = element;
     this.$container = $(element.parentElement);
     this.editor;

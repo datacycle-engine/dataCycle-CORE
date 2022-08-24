@@ -19,6 +19,10 @@ module DataCycleCore
           data_hash.to_h.deep_transform_values { |v| v.is_a?(::String) ? v.strip : v }
         end
 
+        def self.select_keys(data, *keys)
+          data.select { |k, _| keys.include?(k) }
+        end
+
         def self.location(data_hash)
           location = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f) if data_hash['longitude'].present? && data_hash['latitude'].present? && !(data_hash['longitude'].zero? && data_hash['latitude'].zero?)
           data_hash.nil? ? { 'location' => location.presence } : data_hash.merge({ 'location' => location.presence })
@@ -148,11 +152,14 @@ module DataCycleCore
           )
         end
 
-        def self.local_asset(data_hash, attribute, asset_type)
+        def self.local_asset(data_hash, attribute, asset_type, creator_id = nil)
           return data_hash if data_hash[attribute].blank?
 
           begin
-            asset = "DataCycleCore::#{asset_type&.classify}".safe_constantize.new(remote_file_url: data_hash[attribute])
+            asset_hash = data_hash[attribute].is_a?(::Hash) ? data_hash[attribute] : { 'remote_file_url' => data_hash[attribute] }
+            asset = "DataCycleCore::#{asset_type&.classify}".safe_constantize.new(asset_hash)
+            asset.name = asset_hash['file'].try(:original_filename) if asset_hash['name'].blank?
+            asset.creator_id = creator_id
             asset.save!
             data_hash[attribute] = asset.try(:id)
           rescue StandardError => e
@@ -265,6 +272,42 @@ module DataCycleCore
           query = query.limit(limit) if limit.present?
           query = query.pluck(:id) if pluck_id
           query
+        end
+
+        def self.add_external_system_data(data, name, key)
+          return data if (external_name = data.dig(*Array.wrap(name))).nil? || (external_key = data.dig(*Array.wrap(key))).nil?
+
+          data['external_system_data'] ||= []
+          data['external_system_data'].push(
+            {
+              'identifier' => external_name,
+              'external_key' => external_key,
+              'sync_type' => 'duplicate'
+            }
+          )
+
+          data
+        end
+
+        # split and nest data_hash into { datahash: {}, translations: {} }
+        def self.json_ld_to_translated_data_hash(data_hash)
+          return data_hash if data_hash.blank?
+
+          data_hash = { datahash: data_hash, translations: {} }
+          data_hash[:datahash]&.each do |key, value|
+            next unless value.is_a?(::Array) && value.first.key?('@language')
+
+            while value.present?
+              v = value.shift
+
+              data_hash[:translations][v['@language']] ||= {}
+              data_hash[:translations][v['@language']][key] = v['@value']
+            end
+
+            data_hash[:datahash].delete(key)
+          end
+
+          data_hash
         end
       end
     end

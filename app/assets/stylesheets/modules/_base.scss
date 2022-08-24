@@ -115,16 +115,6 @@ label.attribute-edit-label {
   }
 }
 
-.detail-header-wrapper {
-  .dc-type-icon {
-    margin-right: 0;
-
-    &::before {
-      margin-right: 0.3rem;
-    }
-  }
-}
-
 .form-element {
   position: relative;
 
@@ -227,6 +217,10 @@ footer {
   vertical-align: middle;
 }
 
+.primary-external-system {
+  margin: 0 0.3rem 0 0.15rem;
+}
+
 .tooltip,
 #dc-tooltip {
   .external-system-icon:not(.success, .pending, .error, .failure) {
@@ -290,6 +284,14 @@ footer {
     margin-bottom: 1.5rem;
     border-top-left-radius: $global-radius;
     border-top-right-radius: $global-radius;
+
+    .detail-type {
+      .detail-label {
+        > *:not(:last-child) {
+          margin-right: 0.3rem;
+        }
+      }
+    }
   }
 
   > *:last-child {
@@ -555,6 +557,7 @@ footer {
 
     &.mapped-classification {
       color: $dark-gray;
+
       .tag {
         background-color: rgba($dark-gray, 0.5);
       }
@@ -905,12 +908,6 @@ footer {
         }
       }
 
-      &.linked {
-        .object-browser {
-          padding: 2rem 1rem 1rem 1rem;
-        }
-      }
-
       &:not(:last-child) {
         margin-bottom: 1rem;
       }
@@ -966,11 +963,11 @@ footer {
           box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
           padding: 2.5rem 1rem 1.2rem 1rem;
           border-radius: $global-radius;
+          min-height: 5rem;
 
-          &::before {
-            margin-top: 2.5rem;
-            margin-left: 1rem;
-            width: calc(100% - 2rem);
+          &::before,
+          &::after {
+            margin: 2.5rem 1rem 1.2rem 1rem;
           }
         }
       }
@@ -1312,10 +1309,10 @@ span.single_warning:before {
         padding-right: 2rem;
 
         .open-selection-link {
-          color: darken($dark-gray, 10%);
+          color: $white;
 
           &:hover {
-            color: darken($dark-gray, 20%);
+            color: $primary-color;
           }
 
           .fa {
@@ -1342,10 +1339,13 @@ span.single_warning:before {
         white-space: normal;
         padding: 0 1.2rem 0 0.3rem;
         position: relative;
+        color: $white;
+        background-color: lighten($dark-gray, 6%);
+        font-weight: 600;
 
         .select2-selection__choice__remove {
           position: absolute;
-          // color: $white;
+          color: $white;
           right: 0;
           padding: 0 0.2rem;
           transition: color 0.1s ease-in;
@@ -1372,14 +1372,14 @@ body .v-select {
   .selected-tag,
   .select2-selection__choice {
     display: inline-block;
-    background-color: rgba($primary-color, 0.5);
+    background-color: lighten($dark-gray, 6%);
     font-size: 0.8rem;
     color: $white;
     padding: 0 0.3rem;
     margin: 0.1rem 0;
     line-height: 1.2rem;
-    border-radius: $object-border-radius;
-    font-weight: normal;
+    border-radius: $global-radius;
+    font-weight: 600;
     word-break: break-word;
     white-space: normal;
 
@@ -1431,11 +1431,10 @@ body .v-select {
   }
 
   .tag {
-    font-weight: 600;
-    background-color: rgba($dark-gray, 0.8);
+    background-color: lighten($dark-gray, 6%);
 
     &.mapped {
-      background-color: rgba($dark-gray, 0.5);
+      background-color: lighten($dark-gray, 19%);
     }
 
     &.has-changed {
@@ -1656,9 +1655,12 @@ body .v-select {
         margin-bottom: 1rem;
 
         &.linked {
-          .show-objectbrowser {
+          .linked-editor-header {
             top: 0;
-            right: 0;
+
+            .attribute-edit-label {
+              padding-left: 0;
+            }
           }
         }
 
@@ -1690,11 +1692,6 @@ body .v-select {
             height: 2rem;
             background-color: $white;
             border: none;
-          }
-        }
-        &.linked {
-          .object-browser {
-            padding: 0.1rem;
           }
         }
 

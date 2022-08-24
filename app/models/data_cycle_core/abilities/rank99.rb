@@ -10,7 +10,7 @@ module DataCycleCore
         can :manage, DataCycleCore::ClassificationTreeLabel
         can :manage, DataCycleCore::ClassificationAlias
         # can :update, DataCycleCore::DataAttribute if Rails.env.development?
-        can [:update, :destroy, :show_admin_panel], DataCycleCore::Thing
+        can [:update, :destroy, :show_admin_panel, :switch_primary_external_system], DataCycleCore::Thing
         can [:bulk_edit, :bulk_delete], DataCycleCore::WatchList
         can :api, DataCycleCore::StoredFilter
         can [:advanced_filter, :sortable], :backend

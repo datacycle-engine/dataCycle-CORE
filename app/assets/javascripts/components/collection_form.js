@@ -8,6 +8,8 @@ class CollectionForm {
     this.setup();
   }
   setup() {
+    this.form.dcCollectionForm = true;
+
     if (this.searchFormPart && this.searchForm)
       this.form.addEventListener('submit', this.injectSearchFormData.bind(this));
   }

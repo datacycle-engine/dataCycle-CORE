@@ -4,8 +4,10 @@ class CheckBoxSelector {
   constructor(element) {
     this.$element = $(element);
     this.$inputFields = this.$element.find('> li > :checkbox');
+    this.htmlClass = 'dc-check-box-selector';
   }
   init() {
+    this.$element.addClass(this.htmlClass);
     this.initEventHandlers();
   }
   initEventHandlers() {

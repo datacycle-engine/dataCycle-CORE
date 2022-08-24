@@ -32,16 +32,16 @@ namespace :data_cycle_core do
     desc 'send subscriber notification emails'
     task :send, [:frequency] => [:environment] do |_t, args|
       if args.frequency
-        puts 'sending mails for daily subscribers...'
+        puts 'queuing mails for daily subscribers...'
         puts "frequency: #{args.frequency}"
         puts "Users for interval (#{args.frequency}): #{DataCycleCore::User.where(notification_frequency: args.frequency).size}"
 
         DataCycleCore::User.where(notification_frequency: args.frequency, locked_at: nil).each do |user|
-          subcribed_with_changes = user.subscriptions.map(&:subscribable).reject { |c| c.as_of(1.send(args.frequency).ago).try(:history?) == false }
+          changed_content_ids = user.subscriptions.things.reject { |c| c.as_of(1.send(args.frequency).ago).try(:history?) == false }.pluck(:id)
 
-          puts "Subscriptions with changes: #{subcribed_with_changes.size}"
+          puts "Subscriptions with changes: #{changed_content_ids.size}"
 
-          user.send_notification subcribed_with_changes if subcribed_with_changes.size.positive?
+          user.send_notification changed_content_ids if changed_content_ids.any?
         end
       end
     end

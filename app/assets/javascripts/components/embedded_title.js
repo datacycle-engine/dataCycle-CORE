@@ -9,6 +9,8 @@ class EmbeddedTitle {
     this.init();
   }
   init() {
+    this.$element[0].dcEmbeddedTitle = true;
+
     this.updateEmbeddedTitle();
 
     this.$element.on('change dc:embedded:changeTitle', this.updateEmbeddedTitle.bind(this));

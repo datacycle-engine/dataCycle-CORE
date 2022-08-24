@@ -1,20 +1,28 @@
 import template from 'lodash/template';
 import get from 'lodash/get';
+import LocalStorageCache from './local_storage_cache';
 
 const I18n = {
-  cache: {},
+  config: {
+    namespace: 'dcI18nCache'
+  },
   countMapping(count) {
     if (count === 0) return 'zero';
     else if (count === 1) return 'one';
     else return 'other';
   },
   async translate(path, substitutions = {}) {
-    let text = this.cache[path];
+    let text = LocalStorageCache.get(this.config.namespace, path);
     if (text && typeof text.then === 'function') text = await text;
 
+    const promiseKey = `${this.config.namespace}/${path}`;
     if (!text) {
-      this.cache[path] = this._loadTranslation(path);
-      text = this.cache[path] = await this.cache[path];
+      const result = DataCycle.globalPromises.hasOwnProperty(promiseKey)
+        ? await DataCycle.globalPromises[promiseKey]
+        : await this._loadTranslation(path);
+      if (result && !result.error && result.hasOwnProperty('text'))
+        text = LocalStorageCache.set(this.config.namespace, path, result.text);
+      else text = result.hasOwnProperty('error') ? result.error : this._errorObject(path).error;
     }
 
     if (text && typeof text === 'object' && substitutions.hasOwnProperty('count'))
@@ -24,18 +32,25 @@ const I18n = {
 
     return compiled(substitutions);
   },
+  _errorObject(path, e = {}) {
+    return { error: get(e, 'responseJSON.error', `TRANSLATION_MISSING (${path})`) };
+  },
   async _loadTranslation(path) {
-    const result = await DataCycle.httpRequest({
+    const promise = DataCycle.httpRequest({
       url: '/i18n/translate',
       contentType: 'application/json',
       data: {
         path: path
       }
-    }).catch(e => {
-      return { text: `${get(e, 'responseJSON.error', 'TRANSLATION_MISSING')} (${path})` };
-    });
+    }).catch(e => this._errorObject(path, e));
 
-    return result.text;
+    const promiseKey = `${this.config.namespace}/${path}`;
+    DataCycle.globalPromises[promiseKey] = promise;
+
+    const result = await promise;
+    delete DataCycle.globalPromises[promiseKey];
+
+    return result;
   }
 };
 

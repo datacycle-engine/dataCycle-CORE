@@ -69,6 +69,13 @@ module DataCycleCore
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
               :can,
+              :subscribe,
+              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::WatchList)
+            )
+
+            add_permission(
+              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+              :can,
               :history,
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::Thing::History)
             )

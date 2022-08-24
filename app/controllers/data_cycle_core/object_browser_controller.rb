@@ -18,7 +18,7 @@ module DataCycleCore
 
         filter = DataCycleCore::StoredFilter.new
           .parameters_from_hash(stored_filter)
-          .apply_user_filter(current_user, { scope: 'object_browser', template_name: stored_filter.blank? ? template_name : nil })
+          .apply_user_filter(current_user, { scope: 'object_browser', content_template: @content&.template_name, attribute_key: params[:key]&.attribute_name_from_key, template_name: stored_filter.blank? ? template_name : nil })
         filter.language = @language
 
         @template = DataCycleCore::Thing.find_by(template: true, template_name: template_name)

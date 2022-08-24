@@ -75,14 +75,14 @@
 
             <% end %>
 
-            <% if ['width', 'height', 'content_size', 'file_format', 'duration', 'video_frame_size', 'video_quality', 'date_created', 'date_modified', 'upload_date'].any?{|val| content.try(val.to_sym).present? } %>
+            <% if ['width', 'height', 'content_size', 'file_format', 'duration', 'video_frame_size', 'video_quality', 'date_created', 'date_modified', 'upload_date', 'publication_date', 'video_start_time', 'preview_image_start_time'].any?{|val| content.try(val.to_sym).present? } %>
 
               <dt><i class="fa fa-info-circle" aria-hidden="true"></i> Video - Informationen</dt>
               <dd><%= content.width&.to_i %>px/<%= content.height&.to_i %>px, <%= number_to_human_size(content.content_size) %><br />
                 <strong>Format:</strong> <%= content.file_format %>
               </dd>
 
-              <% ['duration', 'video_frame_size', 'video_quality', 'date_created', 'date_modified', 'upload_date'].each do |property_name| %>
+              <% ['duration', 'video_frame_size', 'video_quality', 'date_created', 'date_modified', 'upload_date', 'publication_date', 'video_start_time', 'preview_image_start_time'].each do |property_name| %>
                 <% next if content.try(property_name.to_sym).blank? %>
                 <dd>
                   <%= render_attribute_viewer key: property_name,
@@ -116,12 +116,32 @@
                 </a>
               <% end %>
 
+              <% if content.try(:content_url).present? %>
+
+                <a class="button button-small" href="<%= content.content_url %>" target="_blank">
+                  <i class="fa fa-external-link" aria-hidden="true"></i>
+
+                  <%= t('details.video.open_content_url', locale: active_ui_locale) %>
+                </a>
+              <% end %>
+
             </dd>
           </dl>
 
         </div>
 
       </div>
+
+      <% if content.try(:additional_information) %>
+        <%= render 'data_cycle_core/contents/viewers/embedded',
+                   key: 'additional_information',
+                   definition: content.properties_for('additional_information'),
+                   value: content.try(:additional_information),
+                   options: {},
+                   content: content
+        %>
+      <% end %>
+
     </div>
 
   </div>

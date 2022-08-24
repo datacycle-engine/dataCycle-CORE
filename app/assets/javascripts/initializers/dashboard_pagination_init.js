@@ -7,7 +7,7 @@ export default function () {
   }
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('pagination-link'),
+    e => e.classList.contains('pagination-link') && !e.hasOwnProperty('dcDashboardPagination'),
     e => new DashboardPagination(e)
   ]);
 
@@ -15,5 +15,8 @@ export default function () {
     new DashboardTreeLoader(paginationLink);
   }
 
-  DataCycle.htmlObserver.addCallbacks.push([e => e.classList.contains('tree-link'), e => new DashboardTreeLoader(e)]);
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('tree-link') && !e.hasOwnProperty('dcDashboardTreeLoader'),
+    e => new DashboardTreeLoader(e)
+  ]);
 }

@@ -12,7 +12,7 @@ module DataCycleCore
             end
             video = content.asset
             thumb_url = nil
-            if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && video&.file&.attached?
+            if video&.class&.active_storage_activated? && video&.file&.attached?
               begin
                 ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
                   thumb_url = video.file.preview(resize_to_limit: [300, 300]).processed.url

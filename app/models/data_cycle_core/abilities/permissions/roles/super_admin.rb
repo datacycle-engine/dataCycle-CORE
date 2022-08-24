@@ -99,7 +99,15 @@ module DataCycleCore
               :set_life_cycle,
               :view_life_cycle,
               :move_content,
+              :switch_primary_external_system,
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::Thing)
+            )
+
+            add_permission(
+              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+              :can,
+              :subscribe,
+              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::WatchList)
             )
 
             add_permission(
@@ -282,7 +290,7 @@ module DataCycleCore
             # ViewMode
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :grid, :list, :tree,
+              :can, :grid, :list, :tree, :map,
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(:view_mode)
             )
 

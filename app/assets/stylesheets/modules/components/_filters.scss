@@ -84,8 +84,8 @@ $filter-border: #aaa;
     .permanent-advanced-filters,
     .publication-date-filter {
       .add-advanced-filter-container {
-        background-color: darken($medium-gray, 10%);
-        box-shadow: 0 0 2px $dark-gray;
+        background-color: lighten($dark-gray, 32%);
+        box-shadow: 0 0 0 2px lighten($dark-gray, 12%);
         padding: 0.5rem;
         border-radius: $global-radius;
       }
@@ -94,10 +94,10 @@ $filter-border: #aaa;
         position: relative;
         display: flex;
         margin: 1rem 0;
-        background-color: darken($medium-gray, 10%);
-        transition: background-color 1s ease;
+        background-color: lighten($dark-gray, 32%);
+        box-shadow: 0 0 0 2px lighten($dark-gray, 12%);
+        transition: all 0.5s ease;
         border-radius: $global-radius;
-        box-shadow: 0 0 5px lighten($color: $black, $amount: 20%);
 
         select {
           border: 1px solid $filter-border;
@@ -121,6 +121,7 @@ $filter-border: #aaa;
 
         .separator {
           padding: 0 1rem;
+
           &:last-child {
             padding-right: 0;
           }
@@ -132,17 +133,20 @@ $filter-border: #aaa;
         &.i,
         &.s,
         &.p {
-          box-shadow: 0 0 0 1px $success-color, 0 0 5px 3px $success-color;
+          background-color: lighten($success-color, 36%);
+          box-shadow: 0 0 0 2px lighten($success-color, 3%);
         }
 
         &.e,
         &.u,
         &.b {
-          box-shadow: 0 0 4px 2px rgba($alert-color, 0.8);
+          background-color: lighten($alert-color, 41%);
+          box-shadow: 0 0 0 2px lighten($alert-color, 20%);
         }
 
         &.highlight {
           background-color: $white;
+          box-shadow: 0 0 0 2px darken($white, 15%);
         }
 
         > div {
@@ -613,7 +617,7 @@ $filter-border: #aaa;
 
           a.tag {
             transition: background-color 0.2s ease-in;
-            background-color: rgba($primary-color, 0.5);
+            background-color: lighten($primary-color, 2%);
 
             .fa {
               text-shadow: none;
@@ -657,19 +661,21 @@ $filter-border: #aaa;
 
     .tag-group {
       display: inline-flex;
-      background: lighten($light-gray, 7%);
       border-radius: $global-radius;
       padding: 2px 4px;
       margin: 0 0.5rem 0.5rem 0;
-      box-shadow: 0 0 5px lighten($color: $black, $amount: 20%);
+      background-color: lighten($dark-gray, 32%);
+      box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
 
       &.e,
       &.u,
       &.b {
-        box-shadow: 0 0 5px 2px rgba($alert-color, 0.8);
+        background-color: lighten($alert-color, 41%);
+        box-shadow: 0 0 0 1px lighten($alert-color, 20%);
 
         .tag {
           position: relative;
+
           &::after {
             content: '';
             display: block;
@@ -686,7 +692,13 @@ $filter-border: #aaa;
       &.i,
       &.s,
       &.p {
-        box-shadow: 0 0 5px 3px $success-color;
+        background-color: lighten($success-color, 36%);
+        box-shadow: 0 0 0 1px lighten($success-color, 3%);
+      }
+
+      &.user-force-filter {
+        background-color: lighten($dark-gray, 32%);
+        box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
       }
 
       .tag-container {
@@ -925,7 +937,7 @@ $filter-border: #aaa;
         }
       }
 
-      .expandable-buttons {
+      .filter-buttons {
         display: flex;
         align-items: center;
         justify-content: flex-start;
@@ -938,17 +950,7 @@ $filter-border: #aaa;
           border-radius: 1.4rem;
           white-space: nowrap;
           overflow: hidden;
-
-          .expandable {
-            max-width: 0;
-            opacity: 0;
-            display: inline-block;
-            overflow: hidden;
-            padding-left: 0;
-            padding-right: 0;
-            transition: all ease-in-out 0.25s;
-            transition-delay: 100ms;
-          }
+          transition: background ease 0.2s;
 
           i,
           .fa-stack {
@@ -969,11 +971,7 @@ $filter-border: #aaa;
           }
 
           &:hover {
-            .expandable {
-              padding-right: 1rem;
-              max-width: 300px;
-              opacity: 1;
-            }
+            background: darken($medium-gray, 7%);
           }
 
           &:last-child {
@@ -1025,17 +1023,74 @@ $filter-border: #aaa;
 
         &.search-favorites-short {
           > ul li {
+            gap: 1rem;
+
+            &.search-favorites-list-input {
+              background: transparent;
+              position: relative;
+
+              &::before {
+                content: '\f002';
+                font-family: FontAwesome;
+                font-size: 1rem;
+                line-height: 1rem;
+                display: flex;
+                position: absolute;
+                left: 0;
+                top: 0;
+                z-index: 1;
+                height: 100%;
+                align-items: center;
+                justify-content: center;
+                width: 2.5rem;
+              }
+
+              #search-favorites-fulltext-filter {
+                margin: 0;
+                font-size: 0.9rem;
+                line-height: 0.9rem;
+                padding-left: 2.5rem;
+              }
+            }
+
+            &.search-favorites-list-li {
+              background: transparent;
+
+              .search-favorites-list {
+                flex: auto;
+                display: flex;
+                flex-flow: column;
+                gap: 0.4rem;
+
+                &.list-loading {
+                  cursor: wait;
+
+                  > * {
+                    transition: opacity 0.1s ease;
+                    opacity: 0.1;
+                    pointer-events: none;
+                  }
+                }
+              }
+            }
+
             a:not(.button) {
-              padding: 1rem 1rem 1.5rem 1rem;
+              gap: 1rem;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+
+              .title {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
             }
 
             .buttons {
               display: flex;
               align-items: center;
               justify-content: flex-end;
-              position: absolute;
-              bottom: 1px;
-              right: 1px;
               z-index: 1;
 
               a {
@@ -1055,9 +1110,12 @@ $filter-border: #aaa;
           }
         }
 
-        &.search-history-short > ul li .stored-date {
-          color: $black;
-          margin-bottom: 0.2rem;
+        &.search-history-short > ul li {
+          .stored-date {
+            color: $dark-gray;
+            min-width: 10rem;
+            flex: 0;
+          }
         }
 
         > ul {
@@ -1067,8 +1125,9 @@ $filter-border: #aaa;
           align-items: stretch;
           overflow-y: auto;
           background: $light-gray;
-          padding: 0.2rem;
+          padding: 0.4rem;
           border-radius: $global-radius;
+          gap: 0.4rem;
 
           &.remote-render,
           &.remote-rendering {
@@ -1079,27 +1138,17 @@ $filter-border: #aaa;
           }
 
           li {
-            flex: 0;
-            flex-basis: calc(calc(100% / 3) - 0.4rem);
             border-radius: $global-radius;
             background: $white;
             position: relative;
-            margin: 0.2rem;
             display: flex;
-            flex-flow: column;
             overflow: hidden;
-
-            &:last-child {
-              flex-basis: 100%;
-              align-items: flex-end;
-              background: transparent;
-            }
+            width: 100%;
 
             a:not(.button) {
               color: $dark-gray;
               padding: 1rem;
               display: flex;
-              flex-flow: column;
               height: 100%;
               width: 100%;
               transition: background-color ease-in-out 0.25s, color ease-in-out 0.25s;
@@ -1114,10 +1163,6 @@ $filter-border: #aaa;
                 &.global {
                   font-weight: bold;
                 }
-              }
-
-              .stored-date {
-                padding-right: 6rem;
               }
 
               &:hover,
@@ -1144,18 +1189,39 @@ $filter-border: #aaa;
                 }
 
                 &.stored-filter-params {
-                  display: table-cell;
-                  color: $black;
                   font-size: 0.8rem;
+                  color: $dark-gray;
+                  display: flex;
+                  flex-flow: row wrap;
+                  gap: 0.5rem;
+                  flex: auto;
 
                   .tag-group {
                     color: $dark-gray;
-                    display: block;
-                    margin-right: 0.5rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    border-radius: $global-radius;
+                    padding: 2px 4px;
+                    background-color: lighten($dark-gray, 32%);
+                    box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
 
-                    &.e {
+                    .tag {
+                      font-style: normal;
+                      padding: 0 0.3rem;
+                      line-height: 1.2rem;
+                      border-radius: $global-radius;
+                    }
+
+                    &.e,
+                    &.u,
+                    &.b {
+                      background-color: lighten($alert-color, 41%);
+                      box-shadow: 0 0 0 1px lighten($alert-color, 20%);
+
                       .tag {
                         position: relative;
+
                         &::after {
                           content: '';
                           display: block;
@@ -1169,18 +1235,25 @@ $filter-border: #aaa;
                       }
                     }
 
-                    .tag {
-                      color: $black;
-                      background-color: $light-gray;
-                      font-style: normal;
-                      padding: 0 0.3rem;
-                      line-height: 1.2rem;
-                      border-radius: $global-radius;
-                      font-weight: normal;
+                    &.i,
+                    &.s,
+                    &.p {
+                      background-color: lighten($success-color, 36%);
+                      box-shadow: 0 0 0 1px lighten($success-color, 3%);
                     }
 
-                    &.search-term .tag {
-                      background-color: lighten($primary-color, 50%);
+                    &.user-force-filter {
+                      background-color: lighten($dark-gray, 32%);
+                      box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
+                    }
+
+                    &.language {
+                      background-color: lighten($primary-color, 55%);
+                      box-shadow: 0 0 0 1px lighten($primary-color, 25%);
+
+                      .tag {
+                        background-color: lighten($primary-color, 2%);
+                      }
                     }
                   }
                 }
@@ -1190,6 +1263,11 @@ $filter-border: #aaa;
             a.button {
               margin: 1rem;
             }
+          }
+
+          > li:last-child {
+            justify-content: flex-end;
+            background: transparent;
           }
         }
 
@@ -1311,7 +1389,7 @@ $filter-border: #aaa;
 }
 
 .tag-group-label {
-  color: $dark-gray;
+  color: $black;
   white-space: nowrap;
 
   .fa {
@@ -1416,6 +1494,10 @@ $filter-border: #aaa;
 
     &.loading {
       justify-content: flex-start;
+      position: relative;
+      overflow: hidden;
+      min-height: 2.7rem;
+      cursor: wait;
 
       &::before,
       &::after {
@@ -1423,27 +1505,31 @@ $filter-border: #aaa;
         width: 100%;
         display: flex;
         top: 0;
+        left: 0;
+        right: 0;
         border-radius: $global-radius;
+        z-index: 1;
+        position: absolute;
+        width: auto;
+        margin: 0.6rem;
       }
 
       &::before {
-        position: absolute;
         height: 1.5rem;
-        left: 0;
-        background-color: lighten($light-gray, 4%);
+        background-color: rgba($light-gray, 0.9);
         box-shadow: 0 0 0 1px $light-gray inset;
-        margin-top: 0.6rem;
-        margin-left: 0.6rem;
-        width: calc(100% - 1.2rem);
       }
 
       &::after {
-        position: relative;
-        width: calc(100% - 1.2rem);
         height: 1rem;
-        margin: 0.25rem 0;
-        background-color: darken($light-gray, 10%);
+        top: 0.25rem;
+        background-color: rgba($dark-gray, 0.5);
         animation: progress-bar 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      }
+
+      > * {
+        opacity: 0.1;
+        pointer-events: none;
       }
     }
 

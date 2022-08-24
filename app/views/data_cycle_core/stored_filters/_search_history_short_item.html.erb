@@ -1,6 +1,9 @@
 <li>
   <%= link_to root_path(stored_filter: stored_filter.id) do %>
-    <span class="stored-date"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= "vor #{time_ago_in_words stored_filter.updated_at}" %></span>
+    <span class="stored-date">
+      <i class="fa fa-clock-o" aria-hidden="true"></i>
+      <%= l(stored_filter.updated_at.to_datetime, format: :edit, locale: active_ui_locale) %>
+    </span>
     <span class="stored-filter-params">
       <%= render 'data_cycle_core/application/filters/search_params', stored_search: stored_filter %>
     </span>

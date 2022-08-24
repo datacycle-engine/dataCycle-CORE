@@ -10,34 +10,35 @@ import ObserverHelpers from '../helpers/observer_helpers';
 
 class ObjectBrowser {
   constructor(selector) {
-    this.element = selector;
+    selector.dcObjectBrowser = true;
+    this.element = $(selector);
     this.objectListElement = this.element.find('> .media-thumbs > .object-thumbs').get(0);
-    this.id = selector.prop('id');
+    this.id = this.element.prop('id');
     this.overlay = $(`#object_browser_${this.id}`);
     this.label = $('[for=' + this.id + ']')
       .text()
       .trim();
     this.overlay_per = 25;
-    this.per = selector.data('per') || 5;
-    this.type = selector.data('type');
-    this.locale = selector.data('locale');
-    this.key = selector.data('key');
-    this.hidden_field_id = selector.data('hidden-field-id');
-    this.object_id = selector.data('object-id');
-    this.object_key = selector.data('object-key');
-    this.definition = selector.data('definition');
-    this.options = selector.data('options');
-    this.class = selector.data('class');
-    this.table = selector.data('table');
-    this.max = selector.data('max');
-    this.min = selector.data('min');
-    this.limitedBy = selector.data('limited-by');
+    this.per = this.element.data('per') || 5;
+    this.type = this.element.data('type');
+    this.locale = this.element.data('locale');
+    this.key = this.element.data('key');
+    this.hidden_field_id = this.element.data('hidden-field-id');
+    this.object_id = this.element.data('object-id');
+    this.object_key = this.element.data('object-key');
+    this.definition = this.element.data('definition');
+    this.options = this.element.data('options');
+    this.class = this.element.data('class');
+    this.table = this.element.data('table');
+    this.max = this.element.data('max');
+    this.min = this.element.data('min');
+    this.limitedBy = this.element.data('limited-by');
     this.index = this.per;
-    this.editable = selector.data('editable');
+    this.editable = this.element.data('editable');
     this.page = 1;
     this.loading = false;
     this.total = 0;
-    this.ids = selector.data('objects') || [];
+    this.ids = this.element.data('objects') || [];
     this.chosen = this.ids.slice(0);
     this.preselectedItems = [];
     this.selected = '';
@@ -45,7 +46,7 @@ class ObjectBrowser {
     this.sortable;
     this.content_id = this.element.data('content-id');
     this.content_type = this.element.data('content-type');
-    this.prefix = selector.data('prefix');
+    this.prefix = this.element.data('prefix');
     this.activeRequest;
     this.activeCountRequest;
     this.eventHandlers = {
@@ -99,7 +100,10 @@ class ObjectBrowser {
     for (const mutation of mutations) {
       if (mutation.type !== 'attributes') continue;
 
-      if (mutation.target.classList.contains('remote-rendered') && mutation.oldValue.includes('remote-rendering'))
+      if (
+        mutation.target.classList.contains('remote-rendered') &&
+        (!mutation.oldValue || mutation.oldValue.includes('remote-rendering'))
+      )
         this.initNewFormHandlers();
     }
   }
