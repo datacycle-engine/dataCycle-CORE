@@ -988,46 +988,6 @@ select {
   }
 }
 
-// Thumbnails in Grid Items
-.data-cycle-object {
-  border-radius: $global-radius;
-
-  .inner {
-    .image-thumbnail {
-      text-align: center;
-    }
-    .infoRow {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      padding-right: 5rem;
-    }
-    .grid-thumbnails {
-      height: 3rem;
-      padding: 0;
-      overflow: hidden;
-      display: flex;
-      flex-direction: row;
-
-      &.has-more:after {
-        content: '...';
-        display: flex;
-        line-height: 1.2rem;
-        font-size: 1.5rem;
-        align-self: flex-end;
-      }
-
-      .grid-item-thumbnail {
-        height: auto;
-        max-height: 3rem;
-        display: flex;
-        margin-right: 3px;
-        max-width: 29%;
-      }
-    }
-  }
-}
-
 .reveal {
   .loading {
     text-align: center;
@@ -2944,7 +2904,7 @@ section.related-objects {
 
           &:hover,
           &:focus {
-            box-shadow: 0 1px 15px $alert-color;
+            box-shadow: 0 1px 25px $alert-color;
           }
         }
         > ul {

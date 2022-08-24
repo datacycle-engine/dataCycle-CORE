@@ -15,22 +15,58 @@
 
 .data-cycle-object {
   position: relative;
-  box-shadow: 0 1px 3px rgba($black, 0.3);
+  box-shadow: 0 1px 3px rgba($black, 0.4);
   transition: $global-transition;
   background: $white;
+  border-radius: $global-radius;
+
+  .inner {
+    .image-thumbnail {
+      text-align: center;
+    }
+    .infoRow {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: 5rem;
+    }
+    .grid-thumbnails {
+      height: 3rem;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: row;
+
+      &.has-more:after {
+        content: '...';
+        display: flex;
+        line-height: 1.2rem;
+        font-size: 1.5rem;
+        align-self: flex-end;
+      }
+
+      .grid-item-thumbnail {
+        height: auto;
+        max-height: 3rem;
+        display: flex;
+        margin-right: 3px;
+        max-width: 29%;
+      }
+    }
+  }
 
   &.expired-item {
     box-shadow: 0 1px 5px $alert-color;
 
     &:hover,
     &:focus {
-      box-shadow: 0 1px 15px $alert-color;
+      box-shadow: 0 1px 25px $alert-color;
     }
   }
 
   &:hover,
   &:focus {
-    box-shadow: 0px 1px 15px rgba($black, 0.3);
+    box-shadow: 0 1px 25px rgba($black, 0.3);
     z-index: 2;
   }
 
