@@ -10,7 +10,7 @@ module DataCycleCore
       filename = nil
       content_type = nil
 
-      if @asset.class.active_storage_activated?
+      if @asset.class.active_storage_activated? && @asset[:file].blank?
         if permitted_params[:transformation]&.values.present?
           @asset_version = @asset.try(:dynamic, permitted_params[:transformation])
           @asset_path = @asset_version&.blob&.attachments&.first&.record&.file&.service&.path_for(@asset_version.key)
