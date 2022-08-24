@@ -143,7 +143,7 @@ module DataCycleCore
         end
 
         def content_params
-          Array.wrap(params.fetch(:@graph, params)).map { |p| p.permit!.to_h }
+          Array.wrap(params.fetch(:@graph) { params }).map { |p| p.permit!.to_h }
         end
 
         def permitted_parameter_keys

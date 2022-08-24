@@ -6,12 +6,13 @@ module DataCycleCore
       class Webhook < DataCycleCore::Generic::Common::Webhook
         include DataCycleCore::Engine.routes.url_helpers
 
-        def create(raw_data, _external_system, current_user)
+        def create(raw_data, external_system, current_user)
           return { error: 'no data' } if raw_data.blank?
 
           type = raw_data['@type']&.delete_prefix('dcls:')
 
           return { error: 'missing @type' } if type.nil?
+          return { error: 'forbidden @type' } if external_system.default_options&.dig('allowed_templates')&.exclude?(type)
 
           template = DataCycleCore::Thing.find_by(template: true, template_name: type)
 
@@ -22,8 +23,6 @@ module DataCycleCore
           return { error: 'no data' } if data.blank?
 
           content = DataCycleCore::DataHashService.create_internal_object(template.template_name, data.merge({ local_import: true }), current_user)
-
-          # binding.pry
 
           return { error: content.errors.messages } unless content.valid?
 
