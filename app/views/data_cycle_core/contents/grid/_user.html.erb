@@ -69,6 +69,8 @@
   <% end %>
 
   <% content_for :media_buttons do %>
+    <%= tag.i(class: 'fa fa-exclamation-triangle user-not-confirmed warning-color', data: { dc_tooltip: t('user.user_not_confirmed', locale: active_ui_locale) }) if DataCycleCore::Feature::UserRegistration.enabled? && !item.confirmed? %>
+
     <% if can? :become, item %>
       <%= link_to tag.i(class: 'fa fa-sign-in', aria_hidden: true), user_become_path(item), class: 'become-link', data: { dc_tooltip: t('actions.become', data: item.email, locale: active_ui_locale) } %>
     <% end %>
