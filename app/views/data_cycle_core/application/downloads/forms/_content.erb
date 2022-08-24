@@ -39,7 +39,7 @@
     <fieldset class="active version hidden">
       <legend><%= t('common.download.available_versions', locale: active_ui_locale) %></legend>
       <div class="form-element">
-        <% (DataCycleCore::Asset::DEFAULT_ASSET_VERSIONS + Array.wrap(content.asset&.versions&.keys)).each_with_index do |version, i| %>
+        <% (DataCycleCore::Asset::DEFAULT_ASSET_VERSIONS + Array.wrap(content.asset&.versions&.keys)).uniq.each_with_index do |version, i| %>
           <div>
             <%= f.radio_button "version", version, checked: i == 0 %>
             <%= f.label "version_#{version}", "#{t("common.download.version.#{version}", locale: active_ui_locale)}" %>

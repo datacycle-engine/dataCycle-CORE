@@ -93,10 +93,10 @@ module DataCycleCore
 
       raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
 
-      if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && DataCycleCore.experimental_features.dig('active_storage', 'asset_types')&.include?(content.asset.class.name)
+      if content.try(:asset)&.class&.active_storage_activated? && content.try(:asset)&.class&.name != 'DataCycleCore::Image'
         content.asset.file.preview(resize_to_limit: [300, 300]).processed unless content.asset.file.preview_image.attached?
         rendered_attribute = content.asset.file.preview_image.url
-      elsif content.template_name == 'Video'
+      elsif content.template_name == 'Video' || content.template_name == 'PDF'
         # no active storage
         rendered_attribute = content.send(:thumbnail_url)
       elsif content.template_name == 'Webcam' && content.send(attribute).blank?
