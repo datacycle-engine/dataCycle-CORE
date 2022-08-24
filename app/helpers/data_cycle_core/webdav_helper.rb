@@ -30,7 +30,7 @@ module DataCycleCore
     def propstat(thing)
       return create_resource(thing) if thing.assets.blank?
       asset = thing.assets.first
-      if asset.class.active_storage_activated? && asset.file&.attached?
+      if asset.class.active_storage_activated? && asset.file&.try(:attached?)
         {
           file_name: thing.slug + get_ext(asset.file.filename.to_s),
           display_name: asset.file.filename.to_s,

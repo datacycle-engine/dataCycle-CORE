@@ -22,7 +22,7 @@ module DataCycleCore
             end
 
             Array.wrap(data).each do |item|
-              if item.try(:asset).class.active_storage_activated? && item.try(:asset)&.file&.attached?
+              if item.try(:asset)&.class&.active_storage_activated? && item.try(:asset)&.file&.attached?
                 asset_path = item.asset.file.service.path_for(item.asset.file.key)
                 next if asset_path.blank?
                 file_ext = item.asset.file.filename.extension_with_delimiter

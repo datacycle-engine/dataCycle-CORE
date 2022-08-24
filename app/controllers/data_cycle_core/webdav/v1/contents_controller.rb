@@ -77,7 +77,7 @@ module DataCycleCore
           end
 
           @asset = @content.assets.first.file
-          if @asset.record.class.active_storage_activated? && @asset.attached?
+          if @asset.try(:record)&.class&.active_storage_activated? && @asset.try(:attached?)
             @asset_path = @asset.service.path_for(@asset.key)
             filename = @asset.filename.to_s
             headers['ETag'] = %("#{File.mtime(@asset_path)}-#{@asset.record.file_size}")
