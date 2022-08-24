@@ -116,7 +116,7 @@
 
         &:hover {
           border-color: $primary-color;
-          box-shadow: 0 0 7px lighten($dark-gray, 12%);
+          box-shadow: 0 1px 7px lighten($dark-gray, 12%);
           z-index: 1;
         }
 

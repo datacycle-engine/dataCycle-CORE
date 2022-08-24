@@ -160,7 +160,7 @@ ul.backend-treeview-list,
         &:hover {
           z-index: 1;
           border-color: $primary-color;
-          box-shadow: 0 0 7px lighten($dark-gray, 12%);
+          box-shadow: 0 1px 7px lighten($dark-gray, 12%);
         }
 
         .ca-checkbox {
@@ -428,7 +428,7 @@ ul.backend-treeview-list,
       &:hover {
         z-index: 1;
         border-color: $primary-color;
-        box-shadow: 0 0 7px lighten($dark-gray, 12%);
+        box-shadow: 0 1px 7px lighten($dark-gray, 12%);
       }
 
       &:focus,
@@ -462,7 +462,7 @@ ul.backend-treeview-list,
       &:hover .editor-block {
         z-index: 1;
         border-color: $primary-color;
-        box-shadow: 0 0 7px lighten($dark-gray, 12%);
+        box-shadow: 0 1px 7px lighten($dark-gray, 12%);
       }
 
       &.focus .editor-block {
@@ -520,7 +520,7 @@ ul.backend-treeview-list,
 
         &:hover {
           border-color: $primary-color;
-          box-shadow: 0 0 7px lighten($dark-gray, 12%);
+          box-shadow: 0 1px 7px lighten($dark-gray, 12%);
         }
 
         &:focus,

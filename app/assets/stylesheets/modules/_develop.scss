@@ -34,7 +34,7 @@
 
     &:hover {
       border-color: $primary-color;
-      box-shadow: 0 0 7px lighten($dark-gray, 12%);
+      box-shadow: 0 1px 7px lighten($dark-gray, 12%);
 
       > .detail-label {
         color: $primary-color;
@@ -1489,7 +1489,7 @@ a.email-link {
       &:hover {
         z-index: 1;
         border-color: $primary-color;
-        box-shadow: 0 0 7px lighten($dark-gray, 12%);
+        box-shadow: 0 1px 7px lighten($dark-gray, 12%);
       }
 
       &:focus,
@@ -2360,7 +2360,7 @@ select {
 
     &:hover {
       border-color: $primary-color;
-      box-shadow: 0 0 7px lighten($dark-gray, 12%);
+      box-shadow: 0 1px 7px lighten($dark-gray, 12%);
     }
   }
 
@@ -2892,7 +2892,7 @@ section.related-objects {
       padding: 0;
 
       > li {
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 1px 2px rgba($black, 0.3);
         transition: $global-transition;
         background: lighten($primary-color, 50%);
         padding: 1rem;
@@ -2900,12 +2900,7 @@ section.related-objects {
         border-radius: $global-radius;
 
         &.expired-item {
-          box-shadow: 0 1px 5px $alert-color;
-
-          &:hover,
-          &:focus {
-            box-shadow: 0 1px 25px $alert-color;
-          }
+          box-shadow: 0 0 0 1px lighten($alert-color, 20%) inset, 0 1px 3px $alert-color;
         }
         > ul {
           margin-top: 1rem;
