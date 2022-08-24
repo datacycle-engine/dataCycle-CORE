@@ -12,11 +12,6 @@ class RemoteRenderer {
         root: document.body
       });
 
-    if (DataCycle.config.remoteRenderFull)
-      this.globalIntersectionObserver = new IntersectionObserver(this.checkForNewVisibleElements.bind(this), {
-        root: document.body
-      });
-
     this.init();
   }
   init() {

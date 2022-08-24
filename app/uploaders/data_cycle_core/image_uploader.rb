@@ -41,11 +41,9 @@ module DataCycleCore
 
       def full_filename(for_file)
         basename = File.basename(for_file, File.extname(for_file))
-        MiniMime.lookup_by_content_type(MiniMime.lookup_by_filename(for_file.to_s)&.content_type.to_s)&.extension
 
         file_ext = MiniMime.lookup_by_content_type(MiniMime.lookup_by_filename(for_file.to_s)&.content_type.to_s)&.extension
         file_ext = MiniMime.lookup_by_content_type(DEFAULT_MIME_TYPE)&.extension if WEB_SAVE_MIME_TYPES.exclude?(MiniMime.lookup_by_filename(for_file.to_s)&.content_type.to_s)
-
         "#{version_name}_#{basename}.#{file_ext}"
       end
     end

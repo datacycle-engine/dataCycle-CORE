@@ -1,3 +1,10 @@
+// disable full reload of dev server (https://github.com/vitejs/vite/issues/6695#issuecomment-1069522995)
+if (import.meta.hot) {
+  import.meta.hot.on('vite:beforeFullReload', () => {
+    throw '(skipping full reload)';
+  });
+}
+
 import jQuery from 'jquery';
 import Rails from '@rails/ujs';
 import { createConsumer } from '@rails/actioncable';
