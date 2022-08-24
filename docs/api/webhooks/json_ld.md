@@ -4,15 +4,15 @@
 
 In dieser Konfiguration wird auch das Format der eingehenden Daten definiert (z.B. JSON-LD).
 
-Das allgemeine URL-Schema für eingehende Webhooks lautet: _**/api/v4/external_sources/CONFIGURATION_ID**_
+Das allgemeine URL-Schema für eingehende Webhooks lautet: _**/api/v4/external_sources/CONFIGURATION_ID**_.
 
 ## Einschränkungen
 
-Das Format der eingehenden Daten entspricht der Ausgabe der [APIv4](/docs/api)
+Das Format der eingehenden Daten entspricht der Ausgabe der [APIv4](/docs/api).
 
-**_Aktuell können nur einfache Attribute übergeben werden ('string', 'number', 'date', 'datetime', 'boolean')_**
+**_Aktuell können nur einfache Attribute übergeben werden ('string', 'number', 'date', 'datetime', 'boolean')_**.
 
-_Manche Attribute werden unter einem anderen Namen über die APIv4 ausgegeben, diese können ebenfalls noch nicht übergeben werden_
+_Manche Attribute werden unter einem anderen Namen über die APIv4 ausgegeben, diese können ebenfalls noch nicht übergeben werden_.
 
 ## Allgemein
 
