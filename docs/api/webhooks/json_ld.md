@@ -109,7 +109,7 @@ Alternativ können auch Übersetzungen für bestimmte Attribute übergeben werde
 
 _/api/v4/external_sources/CONFIGURATION_ID_
 
-entweder mit `asset[remote_file_url]`
+entweder als JSON mit `asset[remote_file_url]`
 
 ```json
 {
