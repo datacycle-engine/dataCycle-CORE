@@ -85,9 +85,50 @@ $filter-border: #aaa;
     .publication-date-filter {
       .add-advanced-filter-container {
         background-color: lighten($dark-gray, 32%);
-        box-shadow: 0 0 0 2px lighten($dark-gray, 12%);
-        padding: 0.5rem;
+        box-shadow: 0 1px 3px darken($light-gray, 10%);
         border-radius: $global-radius;
+
+        .select2-selection {
+          min-height: 2.5rem;
+          background: lighten($primary-color, 55%);
+          padding: 0.3rem;
+          border: 2px solid lighten($primary-color, 5%);
+
+          .select2-selection__rendered {
+            height: 100%;
+            padding-right: 2rem;
+            font-weight: 600;
+          }
+
+          .select2-selection__arrow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            height: 100%;
+            top: 0;
+            right: 0;
+            width: 3rem;
+
+            > * {
+              display: none;
+            }
+
+            &::before {
+              content: '\f067';
+              font-family: FontAwesome;
+              font-style: normal;
+              font-weight: normal;
+              font-size: 1.3rem;
+              line-height: 1.3rem;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              color: $primary-color;
+              margin-top: 1px;
+            }
+          }
+        }
       }
 
       .advanced-filter {
@@ -95,7 +136,7 @@ $filter-border: #aaa;
         display: flex;
         margin: 1rem 0;
         background-color: lighten($dark-gray, 32%);
-        box-shadow: 0 0 0 2px lighten($dark-gray, 12%);
+        box-shadow: 0 0 0 2px lighten($dark-gray, 12%) inset, 0 1px 3px darken($light-gray, 10%);
         transition: $global-transition;
         border-radius: $global-radius;
 
@@ -134,19 +175,19 @@ $filter-border: #aaa;
         &.s,
         &.p {
           background-color: lighten($success-color, 36%);
-          box-shadow: 0 0 0 2px lighten($success-color, 3%);
+          box-shadow: 0 0 0 2px lighten($success-color, 3%) inset, 0 1px 3px darken($light-gray, 10%);
         }
 
         &.e,
         &.u,
         &.b {
           background-color: lighten($alert-color, 41%);
-          box-shadow: 0 0 0 2px lighten($alert-color, 20%);
+          box-shadow: 0 0 0 2px lighten($alert-color, 20%) inset, 0 1px 3px darken($light-gray, 10%);
         }
 
         &.highlight {
           background-color: $white;
-          box-shadow: 0 0 0 2px darken($white, 15%);
+          box-shadow: 0 0 0 2px darken($white, 15%) inset, 0 1px 3px darken($light-gray, 10%);
         }
 
         > div {
