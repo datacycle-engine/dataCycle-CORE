@@ -2900,7 +2900,7 @@ section.related-objects {
         border-radius: $global-radius;
 
         &.expired-item {
-          box-shadow: 0 0 0 1px lighten($alert-color, 20%) inset, 0 1px 3px $alert-color;
+          box-shadow: 0 0 0 1px $alert-color inset, 0 1px 3px $alert-color;
         }
         > ul {
           margin-top: 1rem;

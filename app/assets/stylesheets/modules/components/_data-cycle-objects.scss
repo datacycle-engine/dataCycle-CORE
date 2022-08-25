@@ -15,7 +15,7 @@
 
 .data-cycle-object {
   position: relative;
-  box-shadow: 0 0 0 1px darken($medium-gray, 1%) inset, 0 1px 3px darken($medium-gray, 3%);
+  box-shadow: 0 1px 3px lighten($dark-gray, 8%);
   transition: $global-transition;
   background: $white;
   border-radius: $global-radius;
@@ -56,17 +56,17 @@
   }
 
   &.expired-item {
-    box-shadow: 0 0 0 1px lighten($alert-color, 20%) inset, 0 1px 5px $alert-color;
+    box-shadow: 0 0 0 1px $alert-color inset, 0 1px 5px $alert-color;
 
     &:hover,
     &:focus {
-      box-shadow: 0 0 0 1px $white inset, 0 1px 25px $alert-color;
+      box-shadow: 0 0 0 1px $alert-color inset, 0 1px 25px $alert-color;
     }
   }
 
   &:hover,
   &:focus {
-    box-shadow: 0 0 0 1px $white inset, 0 1px 25px darken($medium-gray, 15%);
+    box-shadow: 0 1px 25px lighten($dark-gray, 8%);
     z-index: 2;
   }
 
@@ -462,7 +462,7 @@
       line-height: 1.5;
 
       &.hard-warnings {
-        box-shadow: 0 0 0 1px lighten($alert-color, 20%) inset, 0 1px 5px $alert-color;
+        box-shadow: 0 1px 5px 1px $alert-color;
 
         .content-warning {
           color: $alert-color;
@@ -470,7 +470,7 @@
       }
 
       &.highlight {
-        box-shadow: 0 0 0 1px rgba($primary-color, 0.5) inset, 0 1px 5px $primary-color;
+        box-shadow: 0 1px 5px 1px $primary-color;
       }
 
       .name {
@@ -939,7 +939,7 @@
     .item.active .media.thumbnail {
       border-color: $primary-color;
       background-color: $primary-color;
-      box-shadow: 0 0 1px rgba($primary-color, 1);
+      box-shadow: 0 0 1px $primary-color;
       color: $white;
     }
 
@@ -949,11 +949,11 @@
       &.active {
         border-color: $primary-color;
         background-color: $primary-color;
-        box-shadow: 0 0 1px rgba($primary-color, 1);
+        box-shadow: 0 0 1px $primary-color;
         color: $white;
 
         &.hard-warnings {
-          box-shadow: 0 0 1px rgba($primary-color, 1), 0 0 5px $alert-color;
+          box-shadow: 0 0 5px 1px $alert-color;
         }
 
         .person {
