@@ -22,15 +22,15 @@ describe DataCycleCore::ExternalSystem do
           places: {
             sorting: 1,
             source_type: 'places',
-            endpoint: 'DataCycleCore::Generic::GooglePlaces::Endpoint',
-            download_strategy: 'DataCycleCore::Generic::GooglePlaces::Download'
+            endpoint: 'DataCycleCore::Generic::Places::Endpoint',
+            download_strategy: 'DataCycleCore::Generic::Places::Download'
           },
           places_detail: {
             sorting: 2,
             source_type: 'places_detail',
             read_type: 'places',
-            endpoint: 'DataCycleCore::Generic::GooglePlaces::Endpoint',
-            download_strategy: 'DataCycleCore::Generic::GooglePlaces::Download'
+            endpoint: 'DataCycleCore::Generic::Places::Endpoint',
+            download_strategy: 'DataCycleCore::Generic::Places::Download'
           }
         },
         import_config: {
@@ -38,15 +38,15 @@ describe DataCycleCore::ExternalSystem do
             sorting: 1,
             source_type: 'places',
             import_strategy: 'DataCycleCore::Generic::Common::ImportTags',
-            tree_label: 'GooglePlaces - Tags',
+            tree_label: 'Places - Tags',
             tag_id_path: 'types',
             tag_name_path: 'types',
-            external_id_prefix: 'GooglePlaces - Tags - '
+            external_id_prefix: 'Places - Tags - '
           },
           places: {
             sorting: 2,
             source_type: 'places_detail',
-            import_strategy: 'DataCycleCore::Generic::GooglePlaces::Import',
+            import_strategy: 'DataCycleCore::Generic::Places::Import',
             transformations: {
               place: {
                 content_type: 'DataCycleCore::Thing',

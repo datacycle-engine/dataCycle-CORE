@@ -66,8 +66,7 @@ else
   # DataCycleCore::TestPreparations.load_dictionaries
   DataCycleCore::TestPreparations.load_classifications(
     [
-      Rails.root.join('..', 'dummy', 'config', 'data_definitions'),
-      Rails.root.join('..', 'data_types', 'data_definitions', 'feature_auto_translation')
+      Rails.root.join('..', 'dummy', 'config', 'data_definitions')
     ]
   )
   DataCycleCore::TestPreparations.load_external_systems(
@@ -83,8 +82,6 @@ else
       Rails.root.join('..', 'data_types', 'data_definitions', 'feature_container'),
       Rails.root.join('..', 'data_types', 'data_definitions', 'feature_releasable'),
       Rails.root.join('..', 'data_types', 'data_definitions', 'feature_life_cycle'),
-      Rails.root.join('..', 'data_types', 'data_definitions', 'feature_auto_translation'),
-      Rails.root.join('..', 'data_types', 'data_definitions', 'external_source_google_places'),
       Rails.root.join('..', 'data_types', 'data_definitions', 'external_source_gip'),
       Rails.root.join('..', 'data_types', 'attributes'),
       Rails.root.join('..', 'data_types', 'models')
