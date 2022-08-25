@@ -74,7 +74,7 @@ services:
     - bundle exec bundle-audit update
     - bundle exec bundle audit check --ignore CVE-2021-21288 CVE-2021-21305
     - bundle exec brakeman -c vendor/gems/data-cycle-core/config/brakeman.yml
-    - bundle exec rubocop --format fuubar
+    - bundle exec rubocop --format fuubar -P
     - bundle exec fasterer
 
 .rails_test_config:
