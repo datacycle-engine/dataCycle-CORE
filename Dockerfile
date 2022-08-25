@@ -30,21 +30,15 @@ ENV RAILS_ENV="${RAILS_ENV}" \
     NODE_ENV="${NODE_ENV}" \
     APP_DOCKER_ENV="${APP_DOCKER_ENV}"
 
-RUN bundle install --jobs $(nproc) --without development test
-
-RUN mkdir -p /app/node_modules \
-    && chown ruby:ruby -R /app/node_modules
-
-RUN yarn
-
-RUN bundle exec vite build
+RUN bundle config set without 'development test' \
+    && bundle install --jobs $(nproc)
 
 # make sure docker-compose bind mount dirs exists inside the container
-RUN mkdir -p /app/log \
-    && chown ruby:ruby -R /app/log \
+RUN bash -c 'mkdir -p /app/{node_modules,log,public/uploads,private/import}' \
+    && chown ruby:ruby -R /app/node_modules /app/log /app/public/uploads /app/private/import \
     && chmod -R 0664 /app/log
-RUN mkdir -p /app/public/uploads \
-    && chown ruby:ruby -R /app/public/uploads
+
+RUN yarn && bundle exec vite build && rm -Rf /app/node_modules
 
 # create folder for local importer
 RUN mkdir -p /app/private/import \
@@ -60,8 +54,6 @@ RUN mkdir -p /app/docker \
     && mkdir -p /app/dc_volumes/docker \
     && cp -Rf /app/docker /app/dc_volumes/. \
     && chown ruby:ruby -R /app/dc_volumes/docker
-
-RUN rm -Rf /app/node_modules
 
 COPY vendor/gems/data-cycle-core/docker/docker-entrypoint.sh docker-entrypoint.sh
 
