@@ -14,6 +14,9 @@
         :type: string
         :storage_location: column
         :search: true
+        :ui:
+          :edit:
+            :attribute_group: action_type_one_line
       :url:
         :label: URL
         :type: string
@@ -28,6 +31,9 @@
         :api:
           :name: '@type'
           :partial: string
+        :ui:
+          :edit:
+            :attribute_group: action_type_one_line
       :meta_data:
         :type: mixin
         :name: meta_data

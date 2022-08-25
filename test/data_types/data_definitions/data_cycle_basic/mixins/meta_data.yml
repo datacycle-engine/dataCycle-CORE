@@ -48,6 +48,7 @@
           method: generate_slug
         :advanced_search: true
         :search: true
+        :global: true
         :ui:
           :bulk_edit:
             :disabled: true
