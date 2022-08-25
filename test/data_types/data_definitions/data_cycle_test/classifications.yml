@@ -20,9 +20,12 @@
         - $$Katalog
         - $$Strukturierter Artikel
         - $$Rezept
+        - $$Biografie
+        - $$Quiz
     - $$Organisation
     - $$Person
     - $$Pauschalangebot
+    - $$Angebot
     - $$Produkte:
         - $$Produkt
         - $$Produktgruppe
@@ -44,6 +47,8 @@
     - $$Zutat
     - $$Container
     - $$Recherche
+    - $$Frage
+    - $$Antwort
 
 - Geschlecht | all:
     - Männlich | Male **https://schema.org/Male
@@ -72,9 +77,21 @@
     - November
     - Dezember
 
+- Märkte | all:
+    - Markt 1
+    - Markt 2
+    - Markt 3
+
 - Tags | all:
-    - Tag 1
-    - Tag 2
+    - Tag 1 | Tag 1 - Beschreibung **https://tag1.com/
+    - Tag 2 | Tag 2 - Beschreibung **https://tag2.com/
+    - Tag 3 | Tag 3 - Beschreibung **https://tag3.com/:
+        - Nested Tag 1 | Nested Tag 1 - Beschreibung **https://nestedtag1.com/
+        - Nested Tag 2 | Nested Tag 2 - Beschreibung **https://nestedtag1.com/
+
+- Test Mapping | all:
+    - Test1
+    - Test2
 
 - Ausgabekanäle | all:
     - Web
@@ -541,6 +558,8 @@
     - Veranstaltung auf unbekannten Zeitpunkt vertagt **https://schema.org/EventPostponed
     - Veranstaltung verschoben **https://schema.org/EventRescheduled
     - Veranstaltung geplant **https://schema.org/EventScheduled
+    - Test Veranstaltung geplant
+    - Test Veranstaltung abgesagt
 
 - ActionTypes | all:
     - Download **https://schema.org/DownloadAction

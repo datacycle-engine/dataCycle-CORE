@@ -123,9 +123,14 @@ module DataCycleCore
         end
 
         test '/xml/v1/classification_trees' do
-          get xml_v1_classification_trees_path
+          params = {
+            page: {
+              size: 100
+            }
+          }
+          get xml_v1_classification_trees_path(params)
 
-          count = DataCycleCore::ClassificationTreeLabel.where("ARRAY['xml']::VARCHAR[] && visibility").count
+          count = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('xml').count
 
           assert_response :success
           assert_equal response.content_type, 'application/xml; charset=utf-8'

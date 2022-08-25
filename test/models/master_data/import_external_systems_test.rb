@@ -11,7 +11,7 @@ describe DataCycleCore::MasterData::ImportExternalSystems do
 
   describe 'loaded external_sources_config' do
     let(:import_path) do
-      Rails.root.join('..', 'dummy', 'config', 'external_systems')
+      Rails.root.join('..', 'fixtures', 'external_systems')
     end
 
     let(:external_source) do
@@ -31,11 +31,7 @@ describe DataCycleCore::MasterData::ImportExternalSystems do
     end
 
     it 'has a config path defined' do
-      assert(DataCycleCore.external_systems_path.present?)
-    end
-
-    it 'has yml-files in the config path' do
-      assert(Dir[DataCycleCore.external_systems_path + '*.yml'].count.positive?)
+      assert(DataCycleCore.external_systems_path.is_a?(::Array))
     end
 
     it 'successfully validates the test config' do

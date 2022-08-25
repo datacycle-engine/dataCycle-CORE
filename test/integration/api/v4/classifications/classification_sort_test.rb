@@ -21,7 +21,10 @@ module DataCycleCore
 
             # DESC
             params = {
-              sort: '-dct:created'
+              sort: '-dct:created',
+              page: {
+                size: 100
+              }
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -35,7 +38,10 @@ module DataCycleCore
 
             # ASC
             params = {
-              sort: '+dct:created'
+              sort: '+dct:created',
+              page: {
+                size: 100
+              }
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -49,7 +55,10 @@ module DataCycleCore
 
             # make sure ASC is default
             params = {
-              sort: 'dct:created'
+              sort: 'dct:created',
+              page: {
+                size: 100
+              }
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -71,7 +80,10 @@ module DataCycleCore
             # DESC
             tree_tags.update_column(:updated_at, (Time.zone.now + 10.days))
             params = {
-              sort: '-dct:modified'
+              sort: '-dct:modified',
+              page: {
+                size: 100
+              }
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -85,7 +97,10 @@ module DataCycleCore
 
             # ASC
             params = {
-              sort: '+dct:modified'
+              sort: '+dct:modified',
+              page: {
+                size: 100
+              }
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -99,7 +114,10 @@ module DataCycleCore
 
             # make sure ASC is default
             params = {
-              sort: 'dct:modified'
+              sort: 'dct:modified',
+              page: {
+                size: 100
+              }
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -112,7 +130,11 @@ module DataCycleCore
             end
 
             # make sure modified DESC is default for empty sort params
-            params = {}
+            params = {
+              page: {
+                size: 100
+              }
+            }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
 
@@ -131,7 +153,10 @@ module DataCycleCore
 
             tree_tags.update_column(:created_at, (Time.zone.now + 10.days))
             params = {
-              sort: '-dct:created,+dct:modified,+another'
+              sort: '-dct:created,+dct:modified,+another',
+              page: {
+                size: 100
+              }
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -157,7 +182,10 @@ module DataCycleCore
             # modified ASC
             params = {
               id: tree_id,
-              sort: 'dct:modified'
+              sort: 'dct:modified',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)
@@ -172,7 +200,10 @@ module DataCycleCore
             # modified ASC
             params = {
               id: tree_id,
-              sort: '+dct:modified'
+              sort: '+dct:modified',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)
@@ -187,7 +218,10 @@ module DataCycleCore
             # modified DESC
             params = {
               id: tree_id,
-              sort: '-dct:modified'
+              sort: '-dct:modified',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)
@@ -201,7 +235,10 @@ module DataCycleCore
 
             # make sure default is modified DESC
             params = {
-              id: tree_id
+              id: tree_id,
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)
@@ -216,7 +253,10 @@ module DataCycleCore
             # muliple and invalid sort params
             params = {
               id: tree_id,
-              sort: '-dct:modified,+dct:created,+another,++another2'
+              sort: '-dct:modified,+dct:created,+another,++another2',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)

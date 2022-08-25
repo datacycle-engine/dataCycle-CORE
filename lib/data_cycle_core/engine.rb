@@ -169,14 +169,17 @@ module DataCycleCore
 
   # template directories
   mattr_accessor :template_path
+  self.template_path = []
   mattr_accessor :default_template_paths
   self.default_template_paths = []
 
   # location of import/download configs
   mattr_accessor :external_sources_path
+  self.external_sources_path = []
 
   # location of external_system configs
   mattr_accessor :external_systems_path
+  self.external_systems_path = []
 
   # obsolete: remove after projects initializer update
   mattr_accessor :allowed_content_api_classifications

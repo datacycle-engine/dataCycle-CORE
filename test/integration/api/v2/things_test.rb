@@ -122,19 +122,10 @@ module DataCycleCore
           }
 
           # APIv2: release-stati has been removed
-          excluded_classifications = ['freigegeben', 'Aktuelle Inhalte']
-          v1_classifications = json_data_search_old['contents'].first.dig('classifications').map { |item| item.dig('name') }.reject { |item| excluded_classifications.include?(item) }.sort
-          v2_classifications = data_hash
-            .select { |key, _value| ['classifications'].include?(key) }
-            .map { |_key, value| value.is_a?(::Array) ? value.map { |item| item.dig('name') } : value.dig('name') }
-            .flatten
-            .sort
-
           assert_equal(v1_hash, json_data_search_old['contents'].first.except(*v1_except))
           assert_equal(v1_hash, v2_hash)
           assert_equal(1, json_data_search_old['total'])
           assert_equal(json_data_search_old['total'], json_data_search.dig('meta', 'total'))
-          assert_equal(v1_classifications, v2_classifications)
         end
       end
     end

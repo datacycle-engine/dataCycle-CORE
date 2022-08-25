@@ -66,12 +66,12 @@ else
   # DataCycleCore::TestPreparations.load_dictionaries
   DataCycleCore::TestPreparations.load_classifications(
     [
-      Rails.root.join('..', 'dummy', 'config', 'data_definitions')
+      Rails.root.join('..', 'data_types', 'data_definitions', 'data_cycle_test')
     ]
   )
   DataCycleCore::TestPreparations.load_external_systems(
     [
-      Rails.root.join('..', 'dummy', 'config', 'external_systems')
+      Rails.root.join('..', 'fixtures', 'external_systems')
     ]
   )
   DataCycleCore::TestPreparations.load_templates(
@@ -85,8 +85,8 @@ end
 
 DataCycleCore::TestPreparations.load_dummy_data(
   [
-    Rails.root.join('..', 'dummy_data'),
-    Rails.root.join('..', 'v4', 'dummy_data')
+    Rails.root.join('..', 'fixtures', 'data'),
+    Rails.root.join('..', 'v4', 'fixtures', 'data')
   ]
 )
 

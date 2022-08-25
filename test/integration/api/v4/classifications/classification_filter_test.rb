@@ -77,6 +77,9 @@ module DataCycleCore
                     }
                   }
                 }
+              },
+              page: {
+                size: 100
               }
             }
             post api_v4_concept_schemes_path(params)
@@ -92,6 +95,9 @@ module DataCycleCore
                     }
                   }
                 }
+              },
+              page: {
+                size: 100
               }
             }
             post api_v4_concept_schemes_path(params)
@@ -107,6 +113,9 @@ module DataCycleCore
                     }
                   }
                 }
+              },
+              page: {
+                size: 100
               }
             }
             post api_v4_concept_schemes_path(params)
@@ -191,6 +200,9 @@ module DataCycleCore
                     }
                   }
                 }
+              },
+              page: {
+                size: 100
               }
             }
             post api_v4_concept_schemes_path(params)
@@ -206,6 +218,9 @@ module DataCycleCore
                     }
                   }
                 }
+              },
+              page: {
+                size: 100
               }
             }
             post api_v4_concept_schemes_path(params)
@@ -221,6 +236,9 @@ module DataCycleCore
                     }
                   }
                 }
+              },
+              page: {
+                size: 100
               }
             }
             post api_v4_concept_schemes_path(params)

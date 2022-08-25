@@ -19,7 +19,7 @@ module DataCycleCore
     test 'redirect guest user to info page' do
       logout
       post user_session_path, params: {
-        user: User.find_by(email: 'guest@datacycle.at')&.attributes&.merge(password: 'PdebUfWF9aab2KG6')
+        user: User.find_by(email: 'guest@datacycle.at')&.attributes&.merge(password: 'vdr5pmx@juv9BMJ6ujt')
       }
 
       assert_redirected_to unauthorized_exception_path
