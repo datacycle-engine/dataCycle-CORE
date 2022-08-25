@@ -76,13 +76,7 @@ else
   )
   DataCycleCore::TestPreparations.load_templates(
     [
-      Rails.root.join('..', 'data_types', 'data_definitions', 'data_cycle_basic'),
-      Rails.root.join('..', 'data_types', 'data_definitions', 'data_cycle_media'),
-      Rails.root.join('..', 'data_types', 'data_definitions', 'data_cycle_creative_content'),
-      Rails.root.join('..', 'data_types', 'data_definitions', 'feature_container'),
-      Rails.root.join('..', 'data_types', 'data_definitions', 'feature_releasable'),
-      Rails.root.join('..', 'data_types', 'data_definitions', 'feature_life_cycle'),
-      Rails.root.join('..', 'data_types', 'data_definitions', 'external_source_gip'),
+      Rails.root.join('..', 'data_types', 'data_definitions', 'data_cycle_test'),
       Rails.root.join('..', 'data_types', 'attributes'),
       Rails.root.join('..', 'data_types', 'models')
     ]
