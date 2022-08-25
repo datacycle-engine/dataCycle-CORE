@@ -84,7 +84,6 @@ else
       Rails.root.join('..', 'data_types', 'data_definitions', 'feature_releasable'),
       Rails.root.join('..', 'data_types', 'data_definitions', 'feature_life_cycle'),
       Rails.root.join('..', 'data_types', 'data_definitions', 'feature_auto_translation'),
-      Rails.root.join('..', 'data_types', 'data_definitions', 'external_source_bergfex'),
       Rails.root.join('..', 'data_types', 'data_definitions', 'external_source_karriere_at'),
       Rails.root.join('..', 'data_types', 'data_definitions', 'external_source_google_places'),
       Rails.root.join('..', 'data_types', 'data_definitions', 'external_source_gip'),

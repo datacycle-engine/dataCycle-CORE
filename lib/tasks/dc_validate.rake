@@ -29,7 +29,7 @@ namespace :dc do
 
       desc 'run rubocop'
       task rubocop: :environment do
-        sh 'bundle exec rubocop --format fuubar'
+        sh 'bundle exec rubocop -P --format fuubar'
       end
 
       desc 'run fasterer'

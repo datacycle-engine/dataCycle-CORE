@@ -158,25 +158,6 @@
     # Creative Content
     :total_time:
       :type: numeric
-    # Bergfex
-    :water_temp.temperature:
-      :type: numeric
-    :water_temp.temp_at:
-      :type: date
-    :area:
-      :type: numeric
-    :depth:
-      :type: numeric
-    :length_nordic_classic:
-      :type: numeric
-    :length_nordic_skating:
-      :type: numeric
-    :elevation:
-      :type: numeric
-    :depth_of_snow:
-      :type: numeric
-    :depth_of_fresh_snow:
-      :type: numeric
     # offers
     :price:
       :type: numeric
