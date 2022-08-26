@@ -713,7 +713,7 @@ DEPENDENCIES
   rb-readline
   rgeo
   rgeo-proj4
-  rubocop
+  rubocop (= 1.28.2)
   rubocop-ast
   rubocop-performance
   rubocop-rails (= 2.13.2)
