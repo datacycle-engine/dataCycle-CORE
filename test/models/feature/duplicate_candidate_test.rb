@@ -7,11 +7,11 @@ module DataCycleCore
     include ActiveJob::TestHelper
 
     before(:all) do
-      DataCycleCore::ImageUploader.enable_processing = true
+      # DataCycleCore::ImageUploader.enable_processing = true
     end
 
     after(:all) do
-      DataCycleCore::ImageUploader.enable_processing = false
+      # DataCycleCore::ImageUploader.enable_processing = false
     end
 
     def upload_image(file_name)
@@ -24,7 +24,7 @@ module DataCycleCore
     test 'find duplicates for images' do
       assert DataCycleCore::Feature::DuplicateCandidate.enabled?
 
-      image1 = upload_image 'test_rgb.jpg'
+      image1 = upload_image 'test_rgb.jpeg'
       content1 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image1.id })
 
       image2 = upload_image 'test_rgb.png'
@@ -33,10 +33,10 @@ module DataCycleCore
       image3 = upload_image 'test_rgb.gif'
       content3 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 3', asset: image3.id })
 
-      image4 = upload_image 'test_cmyk.jpg'
+      image4 = upload_image 'test_cmyk.jpeg'
       content4 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 4', asset: image4.id })
 
-      image5 = upload_image 'test_rgb_portrait.jpg'
+      image5 = upload_image 'test_rgb_portrait.jpeg'
       content5 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 5', asset: image5.id })
 
       assert_empty content1.duplicate_candidates
@@ -104,7 +104,7 @@ module DataCycleCore
     end
 
     test 'duplicates marked as false_positive are not shown as duplicates' do
-      image1 = upload_image 'test_rgb.jpg'
+      image1 = upload_image 'test_rgb.jpeg'
       content1 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image1.id })
 
       image2 = upload_image 'test_rgb.png'

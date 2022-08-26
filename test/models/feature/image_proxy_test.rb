@@ -8,18 +8,11 @@ module DataCycleCore
 
     before(:all) do
       @image_proxy_config = DataCycleCore.features[:image_proxy].deep_dup
-      DataCycleCore::ImageUploader.enable_processing = true
+      # DataCycleCore::ImageUploader.enable_processing = true
     end
 
     after(:all) do
-      DataCycleCore::ImageUploader.enable_processing = false
-    end
-
-    def upload_image(file_name)
-      file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', file_name)
-      image = DataCycleCore::Image.new(file: File.open(file_path))
-      image.save
-      image
+      # DataCycleCore::ImageUploader.enable_processing = false
     end
 
     test 'image proxy enabled' do
@@ -27,7 +20,7 @@ module DataCycleCore
       DataCycleCore::Feature::ImageProxy.reload
       assert DataCycleCore::Feature::ImageProxy.enabled?
 
-      image = upload_image 'test_rgb.jpg'
+      image = upload_image 'test_rgb.jpeg'
       content = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image.id })
 
       validate_proxy_urls(DataCycleCore::Feature::ImageProxy.config, content)
@@ -42,7 +35,7 @@ module DataCycleCore
       DataCycleCore::Feature::ImageProxy.reload
       assert_not DataCycleCore::Feature::ImageProxy.enabled?
 
-      image = upload_image 'test_rgb.jpg'
+      image = upload_image 'test_rgb.jpeg'
       content = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image.id })
 
       config = DataCycleCore::Feature::ImageProxy.config
@@ -56,7 +49,7 @@ module DataCycleCore
       DataCycleCore.features[:image_proxy][:frontend][:enabled] = true
       assert DataCycleCore::Feature::ImageProxy.frontend_enabled?
 
-      image = upload_image 'test_rgb.jpg'
+      image = upload_image 'test_rgb.jpeg'
       content = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image.id })
 
       assert_equal(content.thumbnail_url, DataCycleCore::Feature::ImageProxy.process_image(content: content, variant: 'thumb'))
@@ -67,11 +60,11 @@ module DataCycleCore
       DataCycleCore.features[:image_proxy][:frontend][:enabled] = false
       assert_not DataCycleCore::Feature::ImageProxy.frontend_enabled?
 
-      image = upload_image 'test_rgb.jpg'
+      image = upload_image 'test_rgb.jpeg'
       content = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image.id })
 
       assert_equal(content.thumbnail_url, content.thumbnail_url)
-      assert_equal(content.asset_web_url, content.asset.web.url)
+      assert_equal(content.asset_web_url, content.asset.web)
     end
 
     test 'image proxy can handle local and external things' do
@@ -80,7 +73,7 @@ module DataCycleCore
       assert DataCycleCore::Feature::ImageProxy.enabled?
 
       # local content
-      image = upload_image 'test_rgb.jpg'
+      image = upload_image 'test_rgb.jpeg'
       content = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image.id })
 
       validate_proxy_urls(DataCycleCore::Feature::ImageProxy.config, content)

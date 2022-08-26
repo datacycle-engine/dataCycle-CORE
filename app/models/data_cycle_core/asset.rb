@@ -18,17 +18,12 @@ module DataCycleCore
     has_one :asset_content, dependent: :destroy
     has_one :thing, through: :asset_content, source: 'content_data'
 
+    # @todo disable defualt for audio/pdf
     DEFAULT_ASSET_VERSIONS = [:original, :default].freeze
 
     def custom_validators
-      if self.class.active_storage_activated?
-        DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
-          try("#{validator}_validation", options)
-        end
-      else
-        DataCycleCore.uploader_validations.dig(file.class.name.underscore.match(/(\w+)_uploader/) { |m| m[1].to_sym })&.except(:format)&.presence&.each do |validator, options|
-          try("#{validator}_validation", options)
-        end
+      DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
+        try("#{validator}_validation", options)
       end
     end
 
@@ -40,35 +35,16 @@ module DataCycleCore
       @duplicate_candidates_with_score ||= []
     end
 
-    # @todo: refactor after active_storage migration
     def update_asset_attributes
       return if file.blank?
-      self.content_type = file.file.content_type
-      self.file_size = file.file.size
-      self.name ||= file.file.filename
+      self.content_type = file.blob.content_type
+      self.file_size = file.blob.byte_size
+      self.name ||= file.blob.filename
       begin
-        self.metadata = file.metadata&.to_utf8 if file.respond_to?(:metadata) && file.metadata.try(:to_utf8)&.to_json.present?
+        self.metadata = metadata_from_blob
       rescue JSON::GeneratorError
         self.metadata = nil
       end
-      self.duplicate_check = file.duplicate_check if file.respond_to?(:duplicate_check)
-    end
-
-    def method_missing(name, *args, &block)
-      return super if self.class.active_storage_activated?
-      if name.to_sym == :original
-        file
-      elsif file&.versions&.key?(name.to_sym)
-        recreate_version(name) if args.dig(0, :recreate)
-        file.send(name)
-      else
-        super
-      end
-    end
-
-    def respond_to_missing?(method_name, include_private = false)
-      return super if self.class.active_storage_activated?
-      method_name.to_sym == :original || file&.versions&.key?(method_name.to_sym) || super
     end
 
     def duplicate
@@ -80,12 +56,12 @@ module DataCycleCore
 
     # @todo: refactor after active_storage migration
     def self.active_storage_activated?
-      true if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && DataCycleCore.experimental_features.dig('active_storage', 'asset_types')&.include?(name)
+      true
     end
 
     # @todo: refactor after active_storage migration
     def self.extension_white_list
-      uploaders[:file].new&.extension_white_list || []
+      []
     end
 
     # @todo: refactor after active_storage migration
@@ -95,11 +71,8 @@ module DataCycleCore
 
     private
 
-    # @todo: carrierwave specific method
-    def recreate_version(version_name = nil)
-      return if file.try(version_name)&.file&.exists?
-      self.process_file_upload = true
-      file.recreate_versions!(version_name)
+    def metadata_from_blob
+      nil
     end
 
     def load_file_from_remote_file_url
@@ -122,7 +95,6 @@ module DataCycleCore
     end
 
     def file_extension_validation
-      return unless self.class.active_storage_activated?
       return if self.class.content_type_white_list.include?(MiniMime.lookup_by_content_type(file.content_type)&.extension)
 
       errors.add :file, {
@@ -135,6 +107,7 @@ module DataCycleCore
       }
     end
 
+    # @todo: refactor after active_storage migration
     def file_size_validation(options)
       return unless file.size > options.dig(:file_size, :max).to_i
 
@@ -147,12 +120,6 @@ module DataCycleCore
           }
         }
       }
-    end
-
-    # @todo: carrierwave specific method
-    def remove_directory
-      return if self&.file&.store_dir.blank? || self&.file&.store_dir&.end_with?('/file/')
-      FileUtils.remove_dir(Rails.public_path.join(file.store_dir), force: true) # deletes only EMPTY directories!
     end
   end
 end

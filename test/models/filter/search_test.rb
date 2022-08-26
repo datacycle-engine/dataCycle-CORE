@@ -38,14 +38,7 @@ module DataCycleCore
       # SELECT ST_Transform(st_Multi(ST_Polygon('LINESTRING(40 40, 50 40, 50 50, 40 50, 40 40)'::geometry, 4326)),3035) as poly;
       DataCycleCore::ClassificationPolygon.create(admin_level: 2, geom: RGeo::Cartesian.factory(srid: 3035).parse_wkt('MULTIPOLYGON (((6820695.788487785 2383032.902099507, 7575054.368527604 2770439.3715101797, 7025493.8290515 3755848.0891880086, 6403110.237464223 3422994.1930276593, 6820695.788487785 2383032.902099507)))'), classification_alias_id: @alias_id2[0], id: 2)
     end
-
-    def upload_image(file_name)
-      file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', file_name)
-      image = DataCycleCore::Image.new(file: File.open(file_path))
-      image.save
-      image
-    end
-
+    
     test 'small helper functions' do
       assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').limit(1).count)
       assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').take(1).count)
@@ -163,13 +156,15 @@ module DataCycleCore
     end
 
     test 'test query for boolean -> duplicate_candidates' do
-      DataCycleCore::ImageUploader.enable_processing = true
       assert DataCycleCore::Feature::DuplicateCandidate.enabled?
-      asset1 = upload_image 'test_rgb.jpg'
+      asset1 = upload_image('test_rgb.jpeg')
+      assert asset1.thumb_preview.present?
       DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: asset1.id })
-      asset2 = upload_image 'test_rgb.png'
+      asset2 = upload_image('test_rgb.png')
+      assert asset2.thumb_preview.present?
       DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2', asset: asset2.id })
-      asset3 = upload_image 'test_rgb.jpg'
+      asset3 = upload_image('test_rgb.jpeg')
+      assert asset3.thumb_preview.present?
       image3 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 3', asset: asset3.id })
 
       DataCycleCore::Thing
@@ -184,7 +179,6 @@ module DataCycleCore
 
       items = DataCycleCore::Filter::Search.new(:de).boolean('false', 'duplicate_candidates')
       assert_equal(11, items.count)
-      DataCycleCore::ImageUploader.enable_processing = false
     end
 
     test 'test query for classification_tree' do

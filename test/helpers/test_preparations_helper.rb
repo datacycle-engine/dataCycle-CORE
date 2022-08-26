@@ -157,7 +157,7 @@ module DataCycleCore
       @content.updated_at = save_time # - 1 / 1001.0 # use - 1 / 1001.0 to ensure history creation
       @content.created_by = user&.id if user.present?
       @content.save!(touch: false)
-
+      
       @content.set_data_hash(
         data_hash: data_hash,
         new_content: true,

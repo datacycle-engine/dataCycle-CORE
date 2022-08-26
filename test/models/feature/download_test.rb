@@ -7,7 +7,7 @@ module DataCycleCore
     include ActiveJob::TestHelper
 
     before(:all) do
-      image_file = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpg')), creator: @current_user)
+      image_file = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpeg')), creator: @current_user)
       image_data_hash = {
         'name' => 'image_headline',
         'asset' => image_file.id

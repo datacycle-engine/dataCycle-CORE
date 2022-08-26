@@ -4,46 +4,28 @@ require 'streamio-ffmpeg'
 
 module DataCycleCore
   class Video < Asset
-    if active_storage_activated?
-      has_one_attached :file
+    has_one_attached :file
 
-      cattr_reader :versions, default: { thumb_preview: {} }
-      attr_accessor :remote_file_url
-      before_validation :load_file_from_remote_file_url, if: -> { remote_file_url.present? }
-    else
-      mount_uploader :file, VideoUploader
-      process_in_background :file
-      validates_integrity_of :file
-      after_destroy :remove_directory
-      delegate :versions, to: :file
-    end
+    cattr_reader :versions, default: { thumb_preview: {} }
+    attr_accessor :remote_file_url
+    before_validation :load_file_from_remote_file_url, if: -> { remote_file_url.present? }
 
     def custom_validators
-      if self.class.active_storage_activated?
-        DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
-          try("#{validator}_validation", options)
-        end
-      else
-        DataCycleCore.uploader_validations.dig(file.class.name.underscore.match(/(\w+)_uploader/) { |m| m[1].to_sym })&.except(:format)&.presence&.each do |validator, options|
-          try("#{validator}_validation", options)
-        end
+      DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
+        try("#{validator}_validation", options)
       end
     end
 
     def codec_validation(options)
-      if self.class.active_storage_activated?
-        if attachment_changes.present?
-          if attachment_changes['file']&.attachable.is_a?(::Hash) && attachment_changes['file']&.attachable&.dig(:io).present?
-            # import from local disc
-            path_to_tempfile = attachment_changes['file'].attachable.dig(:io).path
-          else
-            path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
-          end
+      if attachment_changes.present?
+        if attachment_changes['file']&.attachable.is_a?(::Hash) && attachment_changes['file']&.attachable&.dig(:io).present?
+          # import from local disc
+          path_to_tempfile = attachment_changes['file'].attachable.dig(:io).path
         else
-          path_to_tempfile = file.service.path_for(file.key)
+          path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
         end
       else
-        path_to_tempfile = file.file.path
+        path_to_tempfile = file.service.path_for(file.key)
       end
 
       video = FFMPEG::Movie.new(path_to_tempfile)
@@ -54,31 +36,6 @@ module DataCycleCore
 
     def self.extension_white_list
       DataCycleCore.uploader_validations.dig(:video, :format).presence || ['avi', 'mov', 'mp4', 'mpeg', 'mpg', 'wmv']
-    end
-
-    def update_asset_attributes
-      return if file.blank?
-      if self.class.active_storage_activated?
-        self.content_type = file.blob.content_type
-        self.file_size = file.blob.byte_size
-        self.name ||= file.blob.filename
-        begin
-          self.metadata = metadata_from_blob
-        rescue JSON::GeneratorError
-          self.metadata = nil
-        end
-        self.duplicate_check = file.duplicate_check if file.respond_to?(:duplicate_check)
-      else
-        self.content_type = file.file.content_type
-        self.file_size = file.file.size
-        self.name ||= file.file.filename
-        begin
-          self.metadata = file.metadata&.to_utf8 if file.respond_to?(:metadata) && file.metadata.try(:to_utf8)&.to_json.present?
-        rescue JSON::GeneratorError
-          self.metadata = nil
-        end
-      end
-      self.duplicate_check = file.duplicate_check if file.respond_to?(:duplicate_check)
     end
 
     private

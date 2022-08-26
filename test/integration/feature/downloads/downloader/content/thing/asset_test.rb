@@ -12,8 +12,7 @@ module DataCycleCore
               before(:all) do
                 @routes = Engine.routes
                 @current_user = User.find_by(email: 'tester@datacycle.at')
-                DataCycleCore::ImageUploader.enable_processing = true
-                @image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpg')), creator: @current_user)
+                @image = upload_image('test_rgb.jpeg')
                 image_data_hash = {
                   'name' => 'image_headline',
                   'asset' => @image.id
@@ -151,7 +150,7 @@ module DataCycleCore
                 DataCycleCore::Feature::ImageProxy.reload
               end
               after(:all) do
-                DataCycleCore::ImageUploader.enable_processing = false
+                
               end
             end
           end

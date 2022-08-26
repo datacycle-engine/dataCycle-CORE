@@ -5,20 +5,10 @@ require 'test_helper'
 module DataCycleCore
   module Assets
     class VideoTest < ActiveSupport::TestCase
+      include DataCycleCore::ActiveStorageHelper
       def setup
-        DataCycleCore::VideoUploader.enable_processing = true
+        # DataCycleCore::VideoUploader.enable_processing = true
         @video_temp = DataCycleCore::Video.count
-      end
-
-      def upload_video(file_name)
-        file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'videos', file_name)
-        @video = DataCycleCore::Video.new(file: File.open(file_path))
-        @video.save
-
-        assert(@video.persisted?)
-        assert(@video.valid?)
-
-        @video.reload
       end
 
       def validate_video(file_name)
@@ -53,9 +43,9 @@ module DataCycleCore
       end
 
       def teardown
-        @video.remove_file!
-        @video.destroy!
-        DataCycleCore::VideoUploader.enable_processing = false
+        # @video.remove_file!
+        # @video.destroy!
+        # DataCycleCore::VideoUploader.enable_processing = false
       end
     end
   end

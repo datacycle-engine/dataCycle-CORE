@@ -5,20 +5,10 @@ require 'test_helper'
 module DataCycleCore
   module Assets
     class ImageTest < ActiveSupport::TestCase
+      include DataCycleCore::ActiveStorageHelper
       def setup
-        DataCycleCore::ImageUploader.enable_processing = true
+        # DataCycleCore::ImageUploader.enable_processing = true
         @image_temp = DataCycleCore::Image.count
-      end
-
-      def upload_image(file_name)
-        file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', file_name)
-        @image = DataCycleCore::Image.new(file: File.open(file_path))
-        @image.save
-
-        assert(@image.persisted?)
-        assert(@image.valid?)
-
-        @image.reload
       end
 
       def validate_image(file_name)
@@ -33,8 +23,8 @@ module DataCycleCore
       end
 
       test 'upload Image: rgb/jpg' do
-        file_name = 'test_rgb.jpg'
-        upload_image file_name
+        file_name = 'test_rgb.jpeg'
+        @image = upload_image(file_name)
 
         assert_equal('sRGB', @image.metadata.dig('ImColorSpace'))
         assert_equal('image/jpeg', @image.content_type)
@@ -43,8 +33,8 @@ module DataCycleCore
       end
 
       test 'upload portrait format Image: rgb/jpg' do
-        file_name = 'test_rgb_portrait.jpg'
-        upload_image file_name
+        file_name = 'test_rgb_portrait.jpeg'
+        @image = upload_image(file_name)
 
         assert_equal('sRGB', @image.metadata.dig('ImColorSpace'))
         assert_equal('image/jpeg', @image.content_type)
@@ -54,7 +44,7 @@ module DataCycleCore
 
       test 'upload Image: rgb/gif' do
         file_name = 'test_rgb.gif'
-        upload_image file_name
+        @image = upload_image(file_name)
 
         assert_equal('image/gif', @image.content_type)
         assert_equal('sRGB', @image.metadata.dig('ImColorSpace'))
@@ -64,7 +54,7 @@ module DataCycleCore
 
       test 'upload Image: rgb/png' do
         file_name = 'test_rgb.png'
-        upload_image file_name
+        @image = upload_image(file_name)
 
         assert_equal('image/png', @image.content_type)
         assert_equal('sRGB', @image.metadata.dig('ImColorSpace'))
@@ -73,8 +63,8 @@ module DataCycleCore
       end
 
       test 'upload Image: cmyk/jpg' do
-        file_name = 'test_cmyk.jpg'
-        upload_image file_name
+        file_name = 'test_cmyk.jpeg'
+        @image = upload_image(file_name)
 
         assert_equal('image/jpeg', @image.content_type)
         assert_equal('CMYK', @image.metadata.dig('ImColorSpace'))
@@ -85,7 +75,8 @@ module DataCycleCore
       test 'upload invalid Image: .pdf' do
         file_name = 'test.pdf'
         file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'pdf', file_name)
-        @image = DataCycleCore::Image.new(file: File.open(file_path))
+        @image = DataCycleCore::Image.new
+        @image.file.attach(io: File.open(file_path), filename: file_name)
         @image.save
 
         assert_not(@image.persisted?)
@@ -94,9 +85,9 @@ module DataCycleCore
       end
 
       def teardown
-        return if @image.id.blank?
-        @image.remove_file!
-        DataCycleCore::ImageUploader.enable_processing = false
+        # return if @image.id.blank?
+        # @image.remove_file!
+        # DataCycleCore::ImageUploader.enable_processing = false
       end
     end
   end

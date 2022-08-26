@@ -13,7 +13,7 @@ module DataCycleCore
     end
 
     test 'return all assets for current user' do
-      image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpg')), creator: @current_user)
+      image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpeg')), creator: @current_user)
 
       get assets_path, xhr: true, params: {
         html_target: 'search-form',
@@ -34,7 +34,7 @@ module DataCycleCore
     test 'create new asset as current user' do
       post assets_path, xhr: true, params: {
         asset: {
-          file: fixture_file_upload(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpg')),
+          file: fixture_file_upload(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpeg')),
           type: 'DataCycleCore::Image'
         }
       }, headers: {
@@ -44,13 +44,13 @@ module DataCycleCore
       assert_response :success
       assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = JSON.parse response.body
-      assert_equal 'test_rgb.jpg', json_data['name']
+      assert_equal 'test_rgb.jpeg', json_data['name']
     end
 
     test 'create invalid asset as current user' do
       post assets_path, xhr: true, params: {
         asset: {
-          file: fixture_file_upload(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb_invalid.jpg')),
+          file: fixture_file_upload(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb_invalid.jpeg')),
           type: 'DataCycleCore::Image'
         }
       }, headers: {
@@ -64,12 +64,12 @@ module DataCycleCore
     end
 
     test 'update existing asset' do
-      image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpg')), creator: @current_user)
+      image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpeg')), creator: @current_user)
 
       patch asset_path(image), xhr: true, params: {
         asset: {
           id: image.id,
-          file: fixture_file_upload(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb_portrait.jpg'))
+          file: fixture_file_upload(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb_portrait.jpeg'))
         }
       }, headers: {
         referer: root_path
@@ -80,12 +80,12 @@ module DataCycleCore
     end
 
     test 'update existing asset with invalid asset' do
-      image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpg')), creator: @current_user)
+      image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpeg')), creator: @current_user)
 
       patch asset_path(image), xhr: true, params: {
         asset: {
           id: image.id,
-          file: fixture_file_upload(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb_invalid.jpg'))
+          file: fixture_file_upload(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb_invalid.jpeg'))
         }
       }, headers: {
         referer: root_path
@@ -113,7 +113,7 @@ module DataCycleCore
     end
 
     test 'destroy existing asset' do
-      image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpg')), creator: @current_user)
+      image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpeg')), creator: @current_user)
 
       delete asset_path(image), xhr: true, params: {}, headers: {
         referer: root_path
@@ -123,7 +123,7 @@ module DataCycleCore
     end
 
     test 'duplicate existing asset' do
-      image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpg')), creator: @current_user)
+      image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpeg')), creator: @current_user)
 
       post duplicate_asset_path(image), xhr: true, params: {}, headers: {
         referer: root_path

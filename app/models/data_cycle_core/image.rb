@@ -7,22 +7,12 @@ require 'mini_exiftool_vendored'
 
 module DataCycleCore
   class Image < Asset
-    if active_storage_activated?
-      after_create_commit :set_duplicate_hash
-      has_one_attached :file
+    after_create_commit :set_duplicate_hash
+    has_one_attached :file
 
-      cattr_reader :versions, default: { original: {}, thumb_preview: {}, web: {}, default: {} }
-      attr_accessor :remote_file_url
-      before_validation :load_file_from_remote_file_url, if: -> { remote_file_url.present? }
-    else
-      mount_uploader :file, ImageUploader
-      process_in_background :file
-      validates_integrity_of :file
-      after_destroy :remove_directory
-      delegate :versions, to: :file
-
-      after_create_commit :set_duplicate_hash, if: proc { |image| image.persisted? && file.enable_processing && !image.file.thumb_preview&.file&.exists? }
-    end
+    cattr_reader :versions, default: { original: {}, thumb_preview: {}, web: {}, default: {} }
+    attr_accessor :remote_file_url
+    before_validation :load_file_from_remote_file_url, if: -> { remote_file_url.present? }
 
     WEB_SAVE_MIME_TYPES = [
       'image/gif',
@@ -33,14 +23,8 @@ module DataCycleCore
     DEFAULT_MIME_TYPE = 'image/jpeg'
 
     def custom_validators
-      if self.class.active_storage_activated?
-        DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
-          try("#{validator}_validation", options)
-        end
-      else
-        DataCycleCore.uploader_validations.dig(file.class.name.underscore.match(/(\w+)_uploader/) { |m| m[1].to_sym })&.except(:format)&.presence&.each do |validator, options|
-          try("#{validator}_validation", options)
-        end
+      DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore)&.except(:format)&.presence&.each do |validator, options|
+        try("#{validator}_validation", options)
       end
     end
 
@@ -48,50 +32,20 @@ module DataCycleCore
       DataCycleCore.uploader_validations.dig(:image, :format).presence || ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'tif', 'tiff']
     end
 
-    def update_asset_attributes
-      return if file.blank?
-      if self.class.active_storage_activated?
-        self.content_type = file.blob.content_type
-        self.file_size = file.blob.byte_size
-        self.name ||= file.blob.filename
-        begin
-          self.metadata = metadata_from_blob
-        rescue JSON::GeneratorError
-          self.metadata = nil
-        end
-        self.duplicate_check = duplicate_check
-      else
-        self.content_type = file.file.content_type
-        self.file_size = file.file.size
-        self.name ||= file.file.filename
-        begin
-          self.metadata = file.metadata&.to_utf8 if file.respond_to?(:metadata) && file.metadata.try(:to_utf8)&.to_json.present?
-        rescue JSON::GeneratorError
-          self.metadata = nil
-        end
-        self.duplicate_check = file.duplicate_check if file.respond_to?(:duplicate_check)
-      end
-    end
-
     def dimensions_validation(options)
-      if self.class.active_storage_activated?
-        return if options.dig(:exclude, :format)&.include?(file.filename&.to_s&.split('.')&.last) || file&.attached? == false
+      return if options.dig(:exclude, :format)&.include?(file.filename&.to_s&.split('.')&.last) || file&.attached? == false
 
-        if attachment_changes.present?
-          if attachment_changes['file']&.attachable.is_a?(::Hash) && attachment_changes['file']&.attachable&.dig(:io).present?
-            # import from local disc
-            path_to_tempfile = attachment_changes['file'].attachable.dig(:io).path
-          else
-            path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
-          end
+      if attachment_changes.present?
+        if attachment_changes['file']&.attachable.is_a?(::Hash) && attachment_changes['file']&.attachable&.dig(:io).present?
+          # import from local disc
+          path_to_tempfile = attachment_changes['file'].attachable.dig(:io).path
         else
-          path_to_tempfile = file.service.path_for(file.key)
+          path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
         end
-        image = ::MiniMagick::Image.new(path_to_tempfile)
       else
-        return if options.dig(:exclude, :format)&.include?(file.filename&.to_s&.split('.')&.last) || file&.file.nil?
-        image = ::MiniMagick::Image.new(file.file.path)
+        path_to_tempfile = file.service.path_for(file.key)
       end
+      image = ::MiniMagick::Image.new(path_to_tempfile)
 
       options.except(:exclude, :landscape, :portrait).presence&.each_value do |v|
         return if image.width <= v.dig(:max, :width).to_i ||
@@ -185,49 +139,41 @@ module DataCycleCore
     end
 
     # carrierwave version
-    def thumb_preview(_transformation = {})
+    def thumb_preview(transformation = {})
       thumb = nil
-      if self.class.active_storage_activated? && file&.attached?
+      if file&.attached?
         begin
-          thumb = file.variant(resize_to_fit: [300, 300], format: :jpeg, colorspace: 'sRGB', background: 'White', flatten: true).processed
+          thumb = file.variant(resize_to_fit: [300, 300], format: format_for_transformation(transformation.dig('format')), colorspace: 'sRGB', background: 'White', flatten: true).processed
         rescue ActiveStorage::FileNotFoundError
           # add some logging
           return nil
         end
-      else
-        thumb = file&.thumb_preview
       end
       thumb
     end
 
     def web(transformation = {})
       web_version = nil
-      if self.class.active_storage_activated? && file&.attached?
+      if file&.attached?
         begin
           web_version = file.variant(resize_to_limit: [2048, 2048], colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
         rescue ActiveStorage::FileNotFoundError
           # add some logging
           return nil
         end
-      else
-        recreate_version(:web) if transformation.dig(:recreate)
-        web_version = file&.web
       end
       web_version
     end
 
     def default(transformation = {})
       default_version = nil
-      if self.class.active_storage_activated? && file&.attached?
+      if file&.attached?
         begin
           default_version = file.variant(colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
         rescue ActiveStorage::FileNotFoundError
           # add some logging
           return nil
         end
-      else
-        recreate_version(:default) if transformation.dig(:recreate)
-        default_version = file&.default
       end
       default_version
     end
@@ -235,7 +181,7 @@ module DataCycleCore
     # active storage only
     def dynamic(transformation = {})
       dynamic = nil
-      if self.class.active_storage_activated? && file&.attached?
+      if file&.attached?
         begin
           if transformation.dig('width').present? || transformation.dig('height').present?
             dynamic = file.variant(resize_to_fit: [(transformation.dig('width')&.to_i || nil), (transformation.dig('height')&.to_i || nil)], colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
@@ -258,11 +204,6 @@ module DataCycleCore
       MiniMime.lookup_by_content_type(DEFAULT_MIME_TYPE)&.extension
     end
 
-    def set_phash
-      return if duplicate_check&.dig('phash').present? && duplicate_check&.dig('phash')&.positive?
-      update_column(:duplicate_check, { phash: Phash::Image.new(file.service.path_for(thumb_preview.key)).try(:compute_phash).try(:data) })
-    end
-
     def metadata_from_blob
       if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable.dig(:io).present?
         # import from local disc
@@ -281,13 +222,8 @@ module DataCycleCore
     end
 
     def set_duplicate_hash
-      if self.class.active_storage_activated?
-        set_phash
-      else
-        self.process_file_upload = true
-        file.recreate_versions!(:thumb_preview)
-        save!(validate: false)
-      end
+      return if duplicate_check&.dig('phash').present? && duplicate_check&.dig('phash')&.positive?
+      update_column(:duplicate_check, { phash: Phash::Image.new(file.service.path_for(thumb_preview({'format' => 'jpeg'}).key)).try(:compute_phash).try(:data) })
     end
   end
 end

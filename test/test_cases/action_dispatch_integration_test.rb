@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'helpers/minitest_hook_helper'
+require 'helpers/active_storage_helper'
 
 module DataCycleCore
   module TestCases
@@ -8,6 +9,7 @@ module DataCycleCore
       include Devise::Test::IntegrationHelpers
       include Engine.routes.url_helpers
       include DataCycleCore::MinitestHookHelper
+      include DataCycleCore::ActiveStorageHelper
 
       before(:all) do
         @routes = Engine.routes

@@ -86,7 +86,7 @@ module DataCycleCore
       end
 
       test 'test duplication with assets' do
-        file_name = 'test_rgb.jpg'
+        file_name = 'test_rgb.jpeg'
         file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', file_name)
         @local_image = DataCycleCore::Image.new(file: File.open(file_path))
         @local_image.save

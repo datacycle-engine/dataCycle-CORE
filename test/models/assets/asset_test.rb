@@ -6,7 +6,7 @@ module DataCycleCore
   module Assets
     class AssetTest < ActiveSupport::TestCase
       def setup
-        DataCycleCore::ImageUploader.enable_processing = true
+        # DataCycleCore::ImageUploader.enable_processing = true
         @asset_temp = DataCycleCore::Image.count
       end
 
@@ -35,7 +35,7 @@ module DataCycleCore
       end
 
       test 'upload asset: Image: rgb/jpg' do
-        file_name = 'test_rgb.jpg'
+        file_name = 'test_rgb.jpeg'
         upload_asset file_name
 
         assert_equal('image/jpeg', @asset.content_type)
@@ -96,7 +96,7 @@ module DataCycleCore
       end
 
       test 'dont delete asset, when translation of content is destroyed' do
-        asset = upload_asset('test_rgb.jpg')
+        asset = upload_asset('test_rgb.jpeg')
         test_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: asset })
         I18n.available_locales.each do |locale|
           I18n.with_locale(locale) do
@@ -115,7 +115,7 @@ module DataCycleCore
       end
 
       test 'delete asset, if last translation is destroyed' do
-        asset = upload_asset('test_rgb.jpg')
+        asset = upload_asset('test_rgb.jpeg')
         test_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: asset })
         I18n.available_locales.each do |locale|
           I18n.with_locale(locale) do
@@ -136,7 +136,7 @@ module DataCycleCore
       end
 
       test 'delete asset, if content is destroyed' do
-        asset = upload_asset('test_rgb.jpg')
+        asset = upload_asset('test_rgb.jpeg')
         test_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: asset })
         I18n.available_locales.each do |locale|
           I18n.with_locale(locale) do
@@ -155,7 +155,7 @@ module DataCycleCore
       def teardown
         return if @asset.id.blank?
         @asset.remove_file!
-        DataCycleCore::ImageUploader.enable_processing = false
+        # DataCycleCore::ImageUploader.enable_processing = false
       end
     end
   end

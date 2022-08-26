@@ -57,7 +57,7 @@ describe DataCycleCore::MasterData::Validators::Asset do
     let(:image1) do
       image = DataCycleCore::Image.new(
         id: '00000000-0000-0000-0000-000000000001',
-        file: File.open(upload_file('images/test_rgb.jpg'))
+        file: File.open(upload_file('images/test_rgb.jpeg'))
       )
       image.save
       image

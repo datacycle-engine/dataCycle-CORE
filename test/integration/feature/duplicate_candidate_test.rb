@@ -7,9 +7,9 @@ module DataCycleCore
     class DuplicateCandidateTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
       before(:all) do
         @routes = Engine.routes
-        DataCycleCore::ImageUploader.enable_processing = true
+        # DataCycleCore::ImageUploader.enable_processing = true
         @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
-        image1 = upload_image 'test_rgb.jpg'
+        image1 = upload_image 'test_rgb.jpeg'
         @content1 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image1.id })
 
         image2 = upload_image 'test_rgb.png'
@@ -17,7 +17,7 @@ module DataCycleCore
       end
 
       after(:all) do
-        DataCycleCore::ImageUploader.enable_processing = false
+        # DataCycleCore::ImageUploader.enable_processing = false
       end
 
       setup do
