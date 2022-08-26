@@ -17,7 +17,7 @@ module DataCycleCore
     end
 
     def self.decode(token)
-      raise JWT::DecodeError, 'token cannot be blank' if token.blank?
+      return {} if token.blank?
 
       header_fields = JSON.parse(Base64.decode64(token.split('.').first))
       payload = JSON.parse(Base64.decode64(token.split('.')[1]))
