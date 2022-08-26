@@ -27,17 +27,21 @@ ARG APP_DOCKER_ENV=production \
     NODE_ENV=production \
     RAILS_ENV=production
 
-ENV APP_DOCKER_ENV=$APP_DOCKER_ENV \
-    NODE_ENV=$NODE_ENV \
-    RAILS_ENV=$RAILS_ENV
-
 RUN bundle config set without 'development test' \
     && bundle install --jobs $(nproc)
+
+RUN mkdir -p /app/node_modules \
+    && chown ruby:ruby -R /app/node_modules
+
+RUN yarn && bundle exec vite build && rm -Rf /app/node_modules
 
 # make sure docker-compose bind mount dirs exists inside the container
 RUN bash -c 'mkdir -p /app/{node_modules,log,public/uploads,private/import}' \
     && chown ruby:ruby -R /app/node_modules /app/log /app/public/uploads /app/private/import \
     && chmod -R 0664 /app/log
+
+RUN mkdir -p /app/public/uploads \
+    && chown ruby:ruby -R /app/public/uploads
 
 RUN yarn && bundle exec vite build && rm -Rf /app/node_modules
 

@@ -35,6 +35,9 @@ code_validation:
 build_docker_job:
   <<: *docker_ci
   extends: .build_docker_config
+  environment:
+    name: $GITLAB_ENVIRONMENT
+    url: $DOCKER_URL
 
 deploy_docker_job:
   <<: *docker_ci
