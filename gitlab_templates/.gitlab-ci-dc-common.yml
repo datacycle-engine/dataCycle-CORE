@@ -8,15 +8,17 @@ variables:
   GITLAB_ENVIRONMENT: ''
   GITLAB_ENVIRONMENT_DEVELOPMENT: ''
 
+.copy_production_env: &copy_production_env
+  - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
+  - echo -e "\nPIXELPOINT_AAD_V2_CLIENT_ID=$PIXELPOINT_AAD_V2_CLIENT_ID\nPIXELPOINT_AAD_V2_TENANT_ID=$PIXELPOINT_AAD_V2_TENANT_ID\nPIXELPOINT_AAD_V2_CLIENT_SECRET=$PIXELPOINT_AAD_V2_CLIENT_SECRET\nAPPSIGNAL_APP_REVISION=$CI_COMMIT_SHA" >> $(pwd)/.env.production
+  - set -o allexport; eval $(cat $PRODUCTION_ENVIRONMENT | sed -e '/^#/d;/^\s*$/d' -e 's/\(\w*\)[ \t]*=[ \t]*\(.*\)/\1=\2/' -e "s/=['\"]\(.*\)['\"]/=\1/g" -e "s/'/'\\\''/g" -e "s/=\(.*\)/='\1'/g"); set +o allexport
+  - echo "$RAILS_ENV"
+
 .docker_login_and_ssh_agent: &docker_login_and_ssh_agent
   # Configure SSH
   - eval $(ssh-agent -s)
   - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-
-.copy_production_env: &copy_production_env
-  - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
-  - echo -e "\nPIXELPOINT_AAD_V2_CLIENT_ID=$PIXELPOINT_AAD_V2_CLIENT_ID\nPIXELPOINT_AAD_V2_TENANT_ID=$PIXELPOINT_AAD_V2_TENANT_ID\nPIXELPOINT_AAD_V2_CLIENT_SECRET=$PIXELPOINT_AAD_V2_CLIENT_SECRET\nAPPSIGNAL_APP_REVISION=$CI_COMMIT_SHA" >> $(pwd)/.env.production
 
 .local_test_vars: &local_test_vars
   variables:
@@ -127,6 +129,9 @@ services:
     - *copy_production_env
   script:
     - docker build --pull -f vendor/gems/data-cycle-core/Dockerfile -t "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG" --target production .
+      --build-arg APP_DOCKER_ENV
+      --build-arg NODE_ENV
+      --build-arg RAILS_ENV
     - docker push "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG"
   after_script:
     - docker logout $CI_REGISTRY
