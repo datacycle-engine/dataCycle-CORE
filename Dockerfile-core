@@ -33,12 +33,22 @@ ENV RAILS_ENV="${RAILS_ENV}" \
 RUN bundle config set without 'development test' \
     && bundle install --jobs $(nproc)
 
-# make sure docker-compose bind mount dirs exists inside the container
-RUN bash -c 'mkdir -p /app/{node_modules,test/dummy/{log,public/uploads,private/import}}' \
-    && chown ruby:ruby -R /app/node_modules /app/test/dummy/log /app/test/dummy/public/uploads /app/test/dummy/private/import \
-    && chmod -R 0664 /app/test/dummy/log
+RUN mkdir -p /app/node_modules \
+    && chown ruby:ruby -R /app/node_modules
 
 RUN yarn && cd test/dummy && bundle exec vite build && cd /app && rm -Rf /app/node_modules
+
+# make sure docker-compose bind mount dirs exists inside the container
+RUN mkdir -p /app/test/dummy/log \
+    && chown ruby:ruby -R /app/test/dummy/log \
+    && chmod -R 0664 /app/test/dummy/log
+
+RUN mkdir -p /app/test/dummy/public/uploads \
+    && chown ruby:ruby -R /app/test/dummy/public/uploads
+
+# create folder for local importer
+RUN mkdir -p /app/test/dummy/private/import \
+    && chown ruby:ruby -R /app/test/dummy/private/import
 
 # create a temporary folder to update /app/public/assets in named volumes
 RUN mkdir -p /app/test/dummy/dc_volumes/public/assets \
