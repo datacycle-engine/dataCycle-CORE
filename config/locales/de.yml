@@ -97,6 +97,9 @@ de:
   classifications:
     tooltip_translations: Übersetzungen
 
+  user:
+    user_not_confirmed: Die E-Mail Adresse wurde noch nicht bestätigt
+
   frontend:
     load_error: Fehler beim Laden des Inhalts.
     text_editor:
@@ -516,11 +519,12 @@ de:
           file_name: nutzungsbedingungen
         introducton:
           file_name: einleitungstext
-          text: 'Überschrift
+          text: |
+            Überschrift
 
-          Hier könnte Ihre Enleitung stehen
+            Hier könnte Ihre Enleitung stehen
 
-          COPYRIGHT dataCycle'
+            COPYRIGHT dataCycle
     geo_key_figure:
       button_title: Ermittlung des Wertes für %{data} über ein Web-Service auf Basis der zugrundeliegenden Geo-Daten
       button_title_all: Ermittlung der Werte über ein Web-Service auf Basis der zugrundeliegenden Geo-Daten

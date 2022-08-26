@@ -217,6 +217,14 @@ module DataCycleCore
         hash['q'] = 'import'
       when 'creator'
         hash['v'] = Array.wrap(hash['v']).map { |v| v == 'current_user' ? user&.id : v }
+      when 'with_user_group_classifications_for_treename'
+        raise StandardError, 'Missing data definition: treeLabel' if hash['v'].blank?
+        relation = DataCycleCore::Feature::UserGroupClassification.attribute_relations.find { |_k, v| v['tree_label'] == hash['v'] }&.first
+        raise StandardError, "relation not found for UserGroup and treelabel (#{hash['v']})" if relation.blank?
+
+        hash['t'] = 'classification_alias_ids'
+        hash['n'] = hash['v']
+        hash['v'] = user&.user_groups&.send(relation)&.pluck(:id)
       end
     end
 

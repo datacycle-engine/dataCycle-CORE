@@ -1,5 +1,7 @@
 :publication_schedule:
   :enabled: false
+  :classification_keys:
+    - output_channel
 
 :download:
   :enabled: true
@@ -169,19 +171,6 @@
       :language: true
       :mode_selector: true
 
-:sortable:
-  :enabled: false
-  :updated_at: true
-  :created_at: true
-  :translated_name: true
-  # advanced attributes are also available in APIv4
-  # :advanced_attributes:
-  #   :upload_date: true
-  #   :publication_date: true
-  #   :width: true
-  #   :height: true
-  #   :live_date_from: true
-
 :advanced_filter:
   :enabled: true
   :config:
@@ -209,33 +198,76 @@
     :geo_radius: false
     :geo_within_classification:
       false
-      # - Administrative Einheiten
+      - Administrative Einheiten
   # :union_filter_ids: true
   # :relation_filter:
-  #   :event_location: content_location
-#  :advanced_attributes:
-#    :width:
-#      :type: numeric
-#    :contact_info.email:
-#      :type: string
-#    :upload_date:
-#      :type: date
-#    :mandatory_license:
-#      :type: boolean
-    # :upload_date:
-    #   :type: date
-    # :live_date_from:
-    #   :type: date
-    # :publication_date:
-    #   :type: date
-    # :live_stream_start_end:
-    #   :type: date_range
-    #   # default query_operator: overlaps
-    #   :query_operator: 'overlaps'
-    #   # :query_operator: 'contains'
-    #   :attribute_keys:
-    #     - live_date_from
-    #     - live_date_until
+  #   :linked_image: image
+  #   :linked_location:
+  #     :attribute: content_location
+  #     :filter:
+  #       :stored_filter:
+  #         - :with_classification_aliases_and_treename:
+  #             :treeLabel: Inhaltstypen
+  #             :aliases:
+  #               - Gastronomischer Betrieb
+  #               - LocalBusiness
+  #               - Örtlichkeit
+  #               - POI
+  #               - Unterkunft
+  #   :linked_author:
+  #     :attribute: author
+  #     :filter:
+  #       :stored_filter:
+  #         - :with_classification_aliases_and_treename:
+  #             :treeLabel: Inhaltstypen
+  #             :aliases:
+  #               - Person
+  #               - Organisation
+  #   :linked_copyright_holder:
+  #     :attribute: copyright_holder
+  #     :filter:
+  #       :stored_filter:
+  #         - :with_classification_aliases_and_treename:
+  #             :treeLabel: Inhaltstypen
+  #             :aliases:
+  #               - Person
+  #               - Organisation
+  # :advanced_attributes:
+  #   :width:
+  #     :type: numeric
+  #   :contact_info.email:
+  #     :type: string
+  #   :upload_date:
+  #     :type: date
+  #   :mandatory_license:
+  #     :type: boolean
+  #   :upload_date:
+  #     :type: date
+  #   :live_date_from:
+  #     :type: date
+  #   :publication_date:
+  #     :type: date
+  #   :live_stream_start_end:
+  #     :type: date_range
+  #     # default query_operator: overlaps
+  #     :query_operator: 'overlaps'
+  #     # :query_operator: 'contains'
+  #     :attribute_keys:
+  #       - live_date_from
+  #       - live_date_until
+
+:sortable:
+  :enabled: false
+  :updated_at: true
+  :created_at: true
+  :translated_name: true
+  # advanced attributes are also available in APIv4
+  # :advanced_attributes:
+  #   :upload_date: true
+  #   :publication_date: true
+  #   :width: true
+  #   :height: true
+  #   :live_date_from: true
 
 :geocode:
   :enabled: false
@@ -282,6 +314,8 @@
 
 :normalize:
   :enabled: false
+  :external_source: Econob Normalize
+  :endpoint: DataCycleCore::MasterData::Normalizer::Endpoint
 
 :duplicate_content:
   :enabled: false
@@ -349,8 +383,9 @@
 
 :user_registration:
   :enabled: false
-  :terms_condition_url:
-  :privacy_policy_url:
+  # :terms_condition_url:
+  # :privacy_policy_url:
+  # :default_role: external_user
 
 :preview:
   :enabled: false

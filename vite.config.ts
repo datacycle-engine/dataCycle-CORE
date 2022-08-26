@@ -6,7 +6,7 @@ export default ({ mode }) => {
   return {
     resolve: {
       alias: {
-        '@core_assets': resolve(__dirname, 'app/assets') // will be replaced with the correct path to self https://vitejs.dev/config/#config-file-resolving
+        '@core_assets': resolve(__dirname, 'app/assets')
       }
     },
     build: {

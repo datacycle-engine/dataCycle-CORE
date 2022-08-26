@@ -8,6 +8,10 @@ body {
   color: $alert-color;
 }
 
+.warning-color {
+  color: $warning-color;
+}
+
 .off-canvas-wrapper {
   position: relative;
   flex: auto;

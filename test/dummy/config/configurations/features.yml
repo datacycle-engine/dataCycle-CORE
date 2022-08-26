@@ -1,7 +1,5 @@
 :publication_schedule:
   :enabled: true
-  :classification_keys:
-    - output_channel
 
 :download:
   :enabled: true
@@ -11,51 +9,58 @@
       :thing:
         :enabled: true
         :serializers:
-          :asset: true
+          :asset: false
           :gpx: true
-          :json: true
-          :xml: true
+          :json: false
+          :indesign: false
+          :xml: false
       :watch_list:
-        :enabled: true
+        :enabled: false
         :serializers:
-          :json: true
-          :xml: true
+          :asset: false
+          :gpx: false
+          :json: false
+          :indesign: false
+          :xml: false
       :stored_filter:
-        :enabled: true
+        :enabled: false
         :serializers:
-          :json: true
-          :xml: true
+          :asset: false
+          :gpx: false
+          :json: false
+          :indesign: false
+          :xml: false
     :archive:
       :zip:
-        :enabled: true
+        :enabled: false
         :thing:
-          :enabled: true
+          :enabled: false
           # used from downloader.download.content.thing.serializers. can be overruled here.
           # :serializers:
           :mandatory_serializers:
-            :license: true
+            :license: false
         :watch_list:
-          :enabled: true
+          :enabled: false
           # used from downloader.download.content.thing.serializers. can be overruled here.
           # :serializers:
           :mandatory_serializers:
-            :license: true
+            :license: false
         :stored_filter:
-          :enabled: true
+          :enabled: false
           # used from downloader.download.content.thing.serializers. can be overruled here.
           # :serializers:
           :mandatory_serializers:
-            :license: true
+            :license: false
       :indesign:
-        :enabled: true
+        :enabled: false
         :thing:
-          :enabled: true
+          :enabled: false
           :serializers:
             :indesign: true
           :mandatory_serializers:
             :asset: true
         :watch_list:
-          :enabled: true
+          :enabled: false
           :serializers:
             :indesign: true
           :mandatory_serializers:
@@ -72,26 +77,18 @@
 :serialize:
   :enabled: true
   :serializers:
-    :asset: true
+    :asset: false
     :license: true
     :gpx: true
-    :indesign: true
-    :json: true
-    :xml: true
+    :indesign: false
+    :json: false
+    :xml: false
 
 :overlay:
   :enabled: true
 
 :container:
-  :enabled: false
-
-:external_media_archive:
-  :enabled: false
-
-:normalize:
-  :enabled: false
-  :external_source: Econob Normalize
-  :endpoint: DataCycleCore::MasterData::Normalizer::Endpoint
+  :enabled: true
 
 :duplicate_content:
   :enabled: true
@@ -99,8 +96,33 @@
 :releasable:
   :enabled: true
 
-:main_filter:
-  :autoload_last_filter: true
+:life_cycle:
+  :enabled: true
+  :attribute_keys:
+    - data_pool
+  :tree_label: Inhaltspools
+  :ordered:
+    - Vorschläge
+    - Recherche
+    - Aktuelle Inhalte
+    - Archiv
+
+:idea_collection:
+  :enabled: true
+  :dependencies:
+    - life_cycle
+    - container
+  :template: Recherche
+  :life_cycle_stage: Recherche
+
+:duplicate_candidate:
+  :enabled: true
+
+:content_lock:
+  :enabled: true
+
+:user_api:
+  :enabled: true
 
 :sortable:
   :enabled: true
@@ -132,81 +154,17 @@
       :type: boolean
     :duration:
       :type: numeric
-    :copyright_year:
-      :type: numeric
-    # lodging business
-    :number_of_rooms:
-      :type: numeric
-    :floor_size:
-      :type: numeric
-    # contact_info
-    :contact_info.email:
-      :type: string
-    :contact_info.telephone:
-      :type: string
-    :contact_info.fax_number:
-      :type: string
-    # address
-    :address.postal_code:
-      :type: string
-    :address.street_address:
-      :type: string
-    :address.address_locality:
-      :type: string
-    :address.address_country:
-      :type: string
-    # Creative Content
-    :total_time:
-      :type: numeric
-    # offers
-    :price:
-      :type: numeric
-    :min_price:
-      :type: numeric
-    :max_price:
-      :type: numeric
-    # testing new filters
-    :description:
-      :type: string
-    :alternative_headline:
-      :type: string
-    :caption:
-      :type: string
-    :text:
-      :type: string
-    #conventions
-    :number_of_meeting_rooms:
-      :type: numeric
-    :max_number_of_people:
-      :type: numeric
-#    :offer_period.valid_from:
-#      :type: date
-#    :offer_period.valid_through:
-#      :type: date
-#    :validity_period.valid_from:
-#      :type: date
-#    :validity_period.valid_through:
-#      :type: date
 
 :user_registration:
   :enabled: true
   :terms_condition_url: 'https://datacycle.info/de/allgemeine-geschaeftsbedingungen/'
   :privacy_policy_url: 'https://open.datacycle.cloud/de/datenschutzerklaerung/'
 
-:duplicate_candidate:
-  :enabled: true
-
-:content_lock:
-  :enabled: true
-
-:user_api:
-  :enabled: true
-
 :preview:
   :enabled: true
   :widgets:
-    :list: https://widgets.datacycle.cloud/list
-    :map: https://widgets.datacycle.cloud/map
+    :list: https://datacycle.info/widgets/list
+    :map: hhttps://datacycle.info/widgets/map
 
 :translate:
   :enabled: true
@@ -241,6 +199,3 @@
     :content:
       :downloads_content:
         :enabled: true
-
-:video_transcoding:
-  :enabled: false

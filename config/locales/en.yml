@@ -91,6 +91,9 @@ en:
   classifications:
     tooltip_translations: Translations
 
+  user:
+    user_not_confirmed: The email address has not been confirmed yet
+
   frontend:
     load_error: Error loading content.
     text_editor:
@@ -1269,8 +1272,11 @@ en:
         contents:
           root: Contents
           specification: Specification
+        webhooks:
+          root: Webhooks
+          json_ld: JSON-LD
 
-          schema:
+    schema:
       root: Scheme
       containers: Container
       entities: Contents
