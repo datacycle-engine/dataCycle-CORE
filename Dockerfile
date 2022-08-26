@@ -6,8 +6,7 @@ WORKDIR /app
 
 USER ruby
 
-# setup history
-RUN mkdir -p /home/ruby/hist && chown ruby:ruby -R /home/ruby/hist
+RUN mkdir -p /home/ruby/hist
 
 RUN echo "shopt -s histappend" >> /home/ruby/.bashrc
 RUN echo "PROMPT_COMMAND=\"\${PROMPT_COMMAND}\${PROMPT_COMMAND:+;}history -a; history -n\"" >> /home/ruby/.bashrc
@@ -23,20 +22,19 @@ CMD ["bash"]
 
 FROM base AS production
 
-ARG APP_DOCKER_ENV="production"
-ARG NODE_ENV="production"
-ARG RAILS_ENV="production"
-ENV RAILS_ENV="${RAILS_ENV}" \
-    NODE_ENV="${NODE_ENV}" \
-    APP_DOCKER_ENV="${APP_DOCKER_ENV}"
+ARG RAILS_ENV=production \
+    NODE_ENV=production \
+    APP_DOCKER_ENV=production
+
+ENV RAILS_ENV=$RAILS_ENV \
+    NODE_ENV=$NODE_ENV \
+    APP_DOCKER_ENV=$APP_DOCKER_ENV
 
 RUN bundle config set without 'development test' \
     && bundle install --jobs $(nproc)
 
 # make sure docker-compose bind mount dirs exists inside the container
-RUN bash -c 'mkdir -p /app/{node_modules,log,public/uploads,private/import}' \
-    && chown ruby:ruby -R /app/node_modules /app/log /app/public/uploads /app/private/import \
-    && chmod -R 0664 /app/log
+RUN bash -c 'mkdir -p /app/{node_modules,log,public/uploads,private/import}'
 
 RUN yarn && bundle exec vite build && rm -Rf /app/node_modules
 
@@ -62,12 +60,13 @@ CMD ["/app/docker/wait-for-postgres.sh", "bundle", "exec", "puma", "-C", "/app/d
 
 FROM base AS development
 
-ARG APP_DOCKER_ENV="development"
-ARG NODE_ENV="development"
-ARG RAILS_ENV="development"
-ENV RAILS_ENV="${RAILS_ENV}" \
-    NODE_ENV="${NODE_ENV}" \
-    APP_DOCKER_ENV="${APP_DOCKER_ENV}"
+ARG RAILS_ENV=development \
+    NODE_ENV=development \
+    APP_DOCKER_ENV=development
+
+ENV RAILS_ENV=$RAILS_ENV \
+    NODE_ENV=$NODE_ENV \
+    APP_DOCKER_ENV=$APP_DOCKER_ENV
 
 RUN bundle install --jobs $(nproc)
 
