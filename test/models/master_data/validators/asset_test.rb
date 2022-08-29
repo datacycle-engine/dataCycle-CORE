@@ -47,18 +47,18 @@ describe DataCycleCore::MasterData::Validators::Asset do
 
     let(:asset1) do
       asset = DataCycleCore::TextFile.new(
-        id: '00000000-0000-0000-0000-000000000000',
-        file: File.open(upload_file('pdf/test.pdf'))
+        id: '00000000-0000-0000-0000-000000000000'
       )
+      asset.file.attach(io: File.open(upload_file('pdf/test.pdf')), filename: 'test.pdf')
       asset.save
       asset
     end
 
     let(:image1) do
       image = DataCycleCore::Image.new(
-        id: '00000000-0000-0000-0000-000000000001',
-        file: File.open(upload_file('images/test_rgb.jpeg'))
+        id: '00000000-0000-0000-0000-000000000001'
       )
+      image.file.attach(io: File.open(upload_file('images/test_rgb.jpeg')), filename: 'test_rgb.jpeg')
       image.save
       image
     end

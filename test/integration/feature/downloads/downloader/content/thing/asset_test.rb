@@ -149,9 +149,6 @@ module DataCycleCore
                 DataCycleCore::Feature::Download.reload
                 DataCycleCore::Feature::ImageProxy.reload
               end
-              after(:all) do
-                
-              end
             end
           end
         end

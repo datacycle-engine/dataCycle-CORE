@@ -77,21 +77,12 @@ module DataCycleCore
           end
 
           @asset = @content.assets.first.file
-          if @asset.try(:record)&.class&.active_storage_activated? && @asset.try(:attached?)
-            @asset_path = @asset.service.path_for(@asset.key)
-            filename = @asset.filename.to_s
-            headers['ETag'] = %("#{File.mtime(@asset_path)}-#{@asset.record.file_size}")
-            headers['Last-Modified'] = File.mtime(@asset_path).httpdate
-            headers['Content-Length'] = @asset.record.file_size
-            headers['Content-Type'] = @asset.record.content_type
-          else
-            @asset_path = @asset.file.file
-            filename = @asset.file_name
-            headers['ETag'] = %("#{File.mtime(@asset_path)}-#{@asset.try(:size)}")
-            headers['Last-Modified'] = File.mtime(@asset_path).httpdate
-            headers['Content-Length'] = @content.assets.first&.file&.size
-            headers['Content-Type'] = @content.assets.first&.content_type
-          end
+          @asset_path = @asset.service.path_for(@asset.key)
+          filename = @asset.filename.to_s
+          headers['ETag'] = %("#{File.mtime(@asset_path)}-#{@asset.record.file_size}")
+          headers['Last-Modified'] = File.mtime(@asset_path).httpdate
+          headers['Content-Length'] = @asset.record.file_size
+          headers['Content-Type'] = @asset.record.content_type
           headers['Displayname'] = filename
           headers['Display-Name'] = filename
 

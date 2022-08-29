@@ -15,13 +15,8 @@ module DataCycleCore
           output_path = File.join(processed_dir, filename)
 
           movie = nil
-          if content.asset.class.active_storage_activated?
-            content.asset.file.blob.open do |video|
-              movie = FFMPEG::Movie.new(video.path)
-              movie.transcode(output_path, video_processing.dig('options'))
-            end
-          else
-            movie = FFMPEG::Movie.new(content.asset.file.file.path)
+          content.asset.file.blob.open do |video|
+            movie = FFMPEG::Movie.new(video.path)
             movie.transcode(output_path, video_processing.dig('options'))
           end
           # @todo: trigger cache invalidation

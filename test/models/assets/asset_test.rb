@@ -5,20 +5,10 @@ require 'test_helper'
 module DataCycleCore
   module Assets
     class AssetTest < ActiveSupport::TestCase
+      include DataCycleCore::ActiveStorageHelper
       def setup
         # DataCycleCore::ImageUploader.enable_processing = true
         @asset_temp = DataCycleCore::Image.count
-      end
-
-      def upload_asset(file_name)
-        file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', file_name)
-        @asset = DataCycleCore::Image.new(file: File.open(file_path))
-        @asset.save
-
-        assert(@asset.persisted?)
-        assert(@asset.valid?)
-
-        @asset.reload
       end
 
       def validate_asset(file_name)
@@ -36,7 +26,7 @@ module DataCycleCore
 
       test 'upload asset: Image: rgb/jpg' do
         file_name = 'test_rgb.jpeg'
-        upload_asset file_name
+        @asset = upload_image(file_name)
 
         assert_equal('image/jpeg', @asset.content_type)
 
@@ -54,7 +44,7 @@ module DataCycleCore
 
       test 'save asset in a data_hash' do
         asset_name = 'test_rgb.gif'
-        asset = upload_asset(asset_name)
+        asset = upload_image(asset_name)
         data = DataCycleCore::TestPreparations.create_content(template_name: 'Asset-Template-1', data_hash: data_hash(asset))
 
         assert(data.asset.present?)
@@ -63,7 +53,7 @@ module DataCycleCore
 
       test 'save asset in data_hash, stays the same if set(get) is called' do
         asset_name = 'test_rgb.gif'
-        asset = upload_asset(asset_name)
+        asset = upload_image(asset_name)
         data = DataCycleCore::TestPreparations.create_content(template_name: 'Asset-Template-1', data_hash: data_hash(asset))
         data.set_data_hash(data_hash: data.get_data_hash, force_update: true)
 
@@ -73,7 +63,7 @@ module DataCycleCore
 
       test 'save asset in data_hash and replace it with another asset' do
         asset_name = 'test_rgb.gif'
-        asset = upload_asset(asset_name)
+        asset = upload_image(asset_name)
         data = DataCycleCore::TestPreparations.create_content(template_name: 'Asset-Template-1', data_hash: data_hash(asset))
 
         asset_name2 = 'test_rgb.png'
@@ -85,7 +75,7 @@ module DataCycleCore
 
       test 'save asset in data_hash and replace it with another asset with uuid' do
         asset_name = 'test_rgb.gif'
-        asset = upload_asset(asset_name)
+        asset = upload_image(asset_name)
         data = DataCycleCore::TestPreparations.create_content(template_name: 'Asset-Template-1', data_hash: data_hash(asset.id))
 
         asset_name2 = 'test_rgb.png'
@@ -96,7 +86,9 @@ module DataCycleCore
       end
 
       test 'dont delete asset, when translation of content is destroyed' do
-        asset = upload_asset('test_rgb.jpeg')
+        asset_name = 'test_rgb.gif'
+        asset = upload_image(asset_name)
+        assert asset.thumb_preview.present?
         test_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: asset })
         I18n.available_locales.each do |locale|
           I18n.with_locale(locale) do
@@ -115,7 +107,8 @@ module DataCycleCore
       end
 
       test 'delete asset, if last translation is destroyed' do
-        asset = upload_asset('test_rgb.jpeg')
+        asset_name = 'test_rgb.jpeg'
+        asset = upload_image(asset_name)
         test_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: asset })
         I18n.available_locales.each do |locale|
           I18n.with_locale(locale) do
@@ -136,7 +129,8 @@ module DataCycleCore
       end
 
       test 'delete asset, if content is destroyed' do
-        asset = upload_asset('test_rgb.jpeg')
+        asset_name = 'test_rgb.jpeg'
+        asset = upload_image(asset_name)
         test_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: asset })
         I18n.available_locales.each do |locale|
           I18n.with_locale(locale) do
@@ -153,8 +147,8 @@ module DataCycleCore
       end
 
       def teardown
-        return if @asset.id.blank?
-        @asset.remove_file!
+        # return if @asset.id.blank?
+        # @asset.remove_file!
         # DataCycleCore::ImageUploader.enable_processing = false
       end
     end

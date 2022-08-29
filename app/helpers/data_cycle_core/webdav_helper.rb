@@ -30,25 +30,14 @@ module DataCycleCore
     def propstat(thing)
       return create_resource(thing) if thing.assets.blank?
       asset = thing.assets.first
-      if asset.class.active_storage_activated? && asset.file&.try(:attached?)
-        {
-          file_name: thing.slug + get_ext(asset.file.filename.to_s),
-          display_name: asset.file.filename.to_s,
-          last_modified: thing.updated_at.httpdate,
-          content_length: asset.file_size,
-          etag: %("#{File.mtime(asset.file.service.path_for(asset.file.key))}-#{asset.file_size}"),
-          content_type: asset&.content_type
-        }
-      else
-        {
-          file_name: thing.slug + get_ext(asset.file&.file_name),
-          display_name: asset.file&.file_name,
-          last_modified: thing.updated_at.httpdate,
-          content_length: asset.file&.size,
-          etag: %("#{File.mtime(asset.file.file.file)}-#{asset.file.try(:size)}"),
-          content_type: asset&.content_type
-        }
-      end
+      {
+        file_name: thing.slug + get_ext(asset.file.filename.to_s),
+        display_name: asset.file.filename.to_s,
+        last_modified: thing.updated_at.httpdate,
+        content_length: asset.file_size,
+        etag: %("#{File.mtime(asset.file.service.path_for(asset.file.key))}-#{asset.file_size}"),
+        content_type: asset&.content_type
+      }
     end
 
     def get_ext(file_name)

@@ -23,7 +23,7 @@ module DataCycleCore
 
       test 'upload Video: mp4' do
         file_name = 'test.mp4'
-        upload_video file_name
+        @video = upload_video(file_name)
 
         assert_equal('mov', @video.metadata.dig('format', 'format_name')&.split(',')&.first)
         assert_equal('video/mp4', @video.content_type)
@@ -34,7 +34,8 @@ module DataCycleCore
       test 'upload invalid Video: .pdf' do
         file_name = 'test.pdf'
         file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'pdf', file_name)
-        @video = DataCycleCore::Video.new(file: File.open(file_path))
+        @video = DataCycleCore::Video.new
+        @video.file.attach(io: File.open(file_path), filename: file_name)
         @video.save
 
         assert_not(@video.persisted?)

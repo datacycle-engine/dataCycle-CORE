@@ -12,7 +12,7 @@ module DataCycleCore
               before(:all) do
                 @routes = Engine.routes
                 @current_user = User.find_by(email: 'tester@datacycle.at')
-                image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpeg')), creator: @current_user)
+                image = upload_image('test_rgb.jpeg')
                 image_data_hash = {
                   'name' => 'image_headline',
                   'asset' => image.id

@@ -38,7 +38,7 @@ module DataCycleCore
       # SELECT ST_Transform(st_Multi(ST_Polygon('LINESTRING(40 40, 50 40, 50 50, 40 50, 40 40)'::geometry, 4326)),3035) as poly;
       DataCycleCore::ClassificationPolygon.create(admin_level: 2, geom: RGeo::Cartesian.factory(srid: 3035).parse_wkt('MULTIPOLYGON (((6820695.788487785 2383032.902099507, 7575054.368527604 2770439.3715101797, 7025493.8290515 3755848.0891880086, 6403110.237464223 3422994.1930276593, 6820695.788487785 2383032.902099507)))'), classification_alias_id: @alias_id2[0], id: 2)
     end
-    
+
     test 'small helper functions' do
       assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').limit(1).count)
       assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').take(1).count)

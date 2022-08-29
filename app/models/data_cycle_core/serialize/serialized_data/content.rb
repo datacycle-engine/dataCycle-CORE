@@ -32,8 +32,7 @@ module DataCycleCore
 
         def active_storage?
           return false if remote? || @data.is_a?(::String)
-          record = record_for_active_storage_file
-          record&.class&.active_storage_activated? && record&.file&.try(:attached?)
+          record_for_active_storage_file&.file&.try(:attached?)
         end
 
         def active_storage_file_path

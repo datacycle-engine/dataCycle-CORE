@@ -93,7 +93,7 @@ module DataCycleCore
 
       raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
 
-      if content.try(:asset)&.class&.active_storage_activated? && content.try(:asset)&.class&.name != 'DataCycleCore::Image'
+      if content.try(:asset)&.class&.name != 'DataCycleCore::Image'
         content.asset.file.preview(resize_to_limit: [300, 300]).processed unless content.asset.file.preview_image.attached?
         rendered_attribute = content.asset.file.preview_image.url
       elsif content.template_name == 'Video' || content.template_name == 'PDF'

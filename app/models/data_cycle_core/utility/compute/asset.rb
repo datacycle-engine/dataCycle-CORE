@@ -38,11 +38,8 @@ module DataCycleCore
 
         def self.content_url(computed_parameters:, **_args)
           asset = DataCycleCore::Asset.find_by(id: computed_parameters.values.first)
-          if asset&.class&.active_storage_activated? && asset&.file&.attached?
-            Rails.application.routes.url_helpers.rails_storage_proxy_url(asset.file, host: Rails.application.config.asset_host)
-          else
-            asset&.try(:file)&.try(:url)
-          end
+          return unless asset&.file&.attached?
+          Rails.application.routes.url_helpers.rails_storage_proxy_url(asset.file, host: Rails.application.config.asset_host)
         end
 
         def self.asset_url_with_transformation(computed_parameters:, computed_definition:, **_args)

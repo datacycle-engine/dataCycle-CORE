@@ -6,6 +6,7 @@ module DataCycleCore
   class AssetTest < ActionDispatch::IntegrationTest
     include Devise::Test::IntegrationHelpers
     include Engine.routes.url_helpers
+    include DataCycleCore::ActiveStorageHelper
 
     setup do
       @routes = Engine.routes
@@ -13,7 +14,7 @@ module DataCycleCore
     end
 
     test 'return all assets for current user' do
-      image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpeg')), creator: @current_user)
+      image = upload_image('test_rgb.jpeg')
 
       get assets_path, xhr: true, params: {
         html_target: 'search-form',
@@ -64,8 +65,7 @@ module DataCycleCore
     end
 
     test 'update existing asset' do
-      image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpeg')), creator: @current_user)
-
+      image = upload_image('test_rgb.jpeg')
       patch asset_path(image), xhr: true, params: {
         asset: {
           id: image.id,
@@ -80,7 +80,7 @@ module DataCycleCore
     end
 
     test 'update existing asset with invalid asset' do
-      image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpeg')), creator: @current_user)
+      image = upload_image('test_rgb.jpeg')
 
       patch asset_path(image), xhr: true, params: {
         asset: {
@@ -98,7 +98,7 @@ module DataCycleCore
     end
 
     test 'find existing pdf by name' do
-      pdf = DataCycleCore::TextFile.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'pdf', 'test.pdf')), creator: @current_user)
+      pdf = upload_text_file('test.pdf')
 
       get find_assets_path, xhr: true, params: {
         q: 'test.pdf'
@@ -113,7 +113,7 @@ module DataCycleCore
     end
 
     test 'destroy existing asset' do
-      image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpeg')), creator: @current_user)
+      image = upload_image('test_rgb.jpeg')
 
       delete asset_path(image), xhr: true, params: {}, headers: {
         referer: root_path
@@ -123,7 +123,7 @@ module DataCycleCore
     end
 
     test 'duplicate existing asset' do
-      image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpeg')), creator: @current_user)
+      image = upload_image('test_rgb.jpeg')
 
       post duplicate_asset_path(image), xhr: true, params: {}, headers: {
         referer: root_path

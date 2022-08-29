@@ -35,11 +35,7 @@ module DataCycleCore
       asset = thing.asset
       return if asset.blank?
 
-      if asset.class.active_storage_activated?
-        asset_path = asset.file.service.path_for(asset.file.key)
-      else
-        asset_path = asset.original.file.file
-      end
+      asset_path = asset.file.service.path_for(asset.file.key)
 
       exif_data = MiniExiftool.new(asset_path, { replace_invalid_chars: true, ignore_minor_errors: true })
 
@@ -90,11 +86,7 @@ module DataCycleCore
           asset = variant.asset
           next if asset.blank?
 
-          if asset.class.active_storage_activated?
-            asset_path = asset.file.service.path_for(asset.file.key)
-          else
-            asset_path = asset.original.file.file
-          end
+          asset_path = asset.file.service.path_for(asset.file.key)
 
           exif_data = MiniExiftool.new(asset_path, { replace_invalid_chars: true, ignore_minor_errors: true })
 

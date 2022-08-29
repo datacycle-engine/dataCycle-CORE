@@ -10,15 +10,23 @@ module DataCycleCore
       upload_asset(file_name, 'videos')
     end
 
+    def upload_audio(file_name)
+      upload_asset(file_name, 'audio')
+    end
+
     def upload_pdf(file_name)
       upload_asset(file_name, 'pdf')
     end
 
+    def upload_text_file(file_name)
+      upload_asset(file_name, 'text_file')
+    end
+
     def upload_asset(file_name, type = 'images')
       file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, type, file_name)
-
       asset = "DataCycleCore::#{type.singularize.camelize}".constantize.new
       asset.file.attach(io: File.open(file_path), filename: file_name)
+      asset.creator_id = @current_user.try(:id)
       asset.save
 
       assert(asset.persisted?)
@@ -29,7 +37,7 @@ module DataCycleCore
     end
 
     def active_storage_url_for(file)
-      return unless file.present?
+      return if file.blank?
       ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
         file.url
       end

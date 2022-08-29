@@ -86,11 +86,7 @@ module DataCycleCore
       end
 
       test 'test duplication with assets' do
-        file_name = 'test_rgb.jpeg'
-        file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', file_name)
-        @local_image = DataCycleCore::Image.new(file: File.open(file_path))
-        @local_image.save
-        @local_image.reload
+        @local_image = upload_image('test_rgb.jpeg')
 
         content_data_hash = {
           'name' => 'Test_ASSET',
@@ -199,8 +195,8 @@ module DataCycleCore
       end
 
       def teardown
-        return if @local_image&.id.blank?
-        @local_image.remove_file!
+        # return if @local_image&.id.blank?
+        # @local_image.remove_file!
       end
     end
   end

@@ -49,14 +49,9 @@ module DataCycleCore
 
     def duplicate
       new_asset = dup
-      new_asset.file = file
+      new_asset.file.attach(io: File.open(file.service.path_for(file.key)), filename: file.filename)
       new_asset.save
       new_asset.persisted? ? new_asset : nil
-    end
-
-    # @todo: refactor after active_storage migration
-    def self.active_storage_activated?
-      true
     end
 
     # @todo: refactor after active_storage migration
@@ -95,7 +90,7 @@ module DataCycleCore
     end
 
     def file_extension_validation
-      return if self.class.content_type_white_list.include?(MiniMime.lookup_by_content_type(file.content_type)&.extension)
+      return if file.present? && self.class.content_type_white_list.include?(MiniMime.lookup_by_content_type(file.content_type)&.extension)
 
       errors.add :file, {
         path: 'uploader.validation.format_not_supported',

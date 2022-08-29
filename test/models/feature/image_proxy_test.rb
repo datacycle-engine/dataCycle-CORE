@@ -61,10 +61,12 @@ module DataCycleCore
       assert_not DataCycleCore::Feature::ImageProxy.frontend_enabled?
 
       image = upload_image 'test_rgb.jpeg'
+      assert image.thumb_preview.present?
+      assert image.web.present?
       content = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image.id })
 
-      assert_equal(content.thumbnail_url, content.thumbnail_url)
-      assert_equal(content.asset_web_url, content.asset.web)
+      assert_equal(content.thumbnail_url, active_storage_url_for(content.asset.thumb_preview))
+      assert_equal(content.asset_web_url, active_storage_url_for(content.asset.web))
     end
 
     test 'image proxy can handle local and external things' do

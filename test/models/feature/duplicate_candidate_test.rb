@@ -14,29 +14,27 @@ module DataCycleCore
       # DataCycleCore::ImageUploader.enable_processing = false
     end
 
-    def upload_image(file_name)
-      file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', file_name)
-      image = DataCycleCore::Image.new(file: File.open(file_path))
-      image.save
-      image
-    end
-
     test 'find duplicates for images' do
       assert DataCycleCore::Feature::DuplicateCandidate.enabled?
 
-      image1 = upload_image 'test_rgb.jpeg'
+      image1 = upload_image('test_rgb.jpeg')
+      assert image1.thumb_preview.present?
       content1 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image1.id })
 
-      image2 = upload_image 'test_rgb.png'
+      image2 = upload_image('test_rgb.png')
+      assert image2.thumb_preview.present?
       content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2', asset: image2.id })
 
-      image3 = upload_image 'test_rgb.gif'
+      image3 = upload_image('test_rgb.gif')
+      assert image3.thumb_preview.present?
       content3 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 3', asset: image3.id })
 
-      image4 = upload_image 'test_cmyk.jpeg'
+      image4 = upload_image('test_cmyk.jpeg')
+      assert image4.thumb_preview.present?
       content4 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 4', asset: image4.id })
 
-      image5 = upload_image 'test_rgb_portrait.jpeg'
+      image5 = upload_image('test_rgb_portrait.jpeg')
+      assert image5.thumb_preview.present?
       content5 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 5', asset: image5.id })
 
       assert_empty content1.duplicate_candidates
@@ -104,10 +102,12 @@ module DataCycleCore
     end
 
     test 'duplicates marked as false_positive are not shown as duplicates' do
-      image1 = upload_image 'test_rgb.jpeg'
+      image1 = upload_image('test_rgb.jpeg')
+      assert image1.thumb_preview.present?
       content1 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image1.id })
 
-      image2 = upload_image 'test_rgb.png'
+      image2 = upload_image('test_rgb.png')
+      assert image2.thumb_preview.present?
       content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2', asset: image2.id })
 
       assert_empty content1.duplicate_candidates

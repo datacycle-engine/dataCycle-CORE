@@ -5,20 +5,10 @@ require 'test_helper'
 module DataCycleCore
   module Assets
     class PdfTest < ActiveSupport::TestCase
+      include DataCycleCore::ActiveStorageHelper
       def setup
         # DataCycleCore::PdfUploader.enable_processing = true
         @pdf_temp = DataCycleCore::Pdf.count
-      end
-
-      def upload_pdf(file_name)
-        file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'pdf', file_name)
-        @pdf = DataCycleCore::Pdf.new(file: File.open(file_path))
-        @pdf.save
-
-        assert(@pdf.persisted?)
-        assert(@pdf.valid?)
-
-        @pdf.reload
       end
 
       def validate_pdf(file_name)
@@ -33,7 +23,7 @@ module DataCycleCore
 
       test 'upload Pdf: pdf' do
         file_name = 'test.pdf'
-        upload_pdf file_name
+        @pdf = upload_pdf(file_name)
         assert_equal('application/pdf', @pdf.content_type)
 
         validate_pdf file_name
@@ -42,7 +32,8 @@ module DataCycleCore
       test 'upload invalid Pdf: .jpeg' do
         file_name = 'test_rgb.jpeg'
         file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', file_name)
-        @pdf = DataCycleCore::Pdf.new(file: File.open(file_path))
+        @pdf = DataCycleCore::Pdf.new
+        @pdf.file.attach(io: File.open(file_path), filename: file_name)
         @pdf.save
 
         assert_not(@pdf.persisted?)

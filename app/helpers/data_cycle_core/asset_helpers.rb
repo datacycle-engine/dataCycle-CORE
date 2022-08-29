@@ -4,19 +4,11 @@
 module DataCycleCore
   module AssetHelpers
     def thumbnail_url?
-      if self.class.active_storage_activated?
-        true if send(:thumb_preview).present?
-      elsif !file.try(:thumb_preview).nil? && !file.thumb_preview.file.nil? && file.thumb_preview.file.exists?
-        true
-      end
+      true if send(:thumb_preview).present?
     end
 
     def thumbnail_url
-      if self.class.active_storage_activated?
-        send(:thumb_preview).url if thumbnail_url?
-      elsif thumbnail_url?
-        file.thumb_preview.url
-      end
+      send(:thumb_preview).url if thumbnail_url?
     end
 
     def headline

@@ -223,7 +223,7 @@ module DataCycleCore
 
     def set_duplicate_hash
       return if duplicate_check&.dig('phash').present? && duplicate_check&.dig('phash')&.positive?
-      update_column(:duplicate_check, { phash: Phash::Image.new(file.service.path_for(thumb_preview({'format' => 'jpeg'}).key)).try(:compute_phash).try(:data) })
+      update_column(:duplicate_check, { phash: Phash::Image.new(file.service.path_for(thumb_preview({ 'format' => 'jpeg' }).key)).try(:compute_phash).try(:data) })
     end
   end
 end
