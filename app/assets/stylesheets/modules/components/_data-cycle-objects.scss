@@ -1368,6 +1368,13 @@ span.single_error.object-browser-error {
       }
     }
 
+    &.disabled {
+      > .embedded-editor-header {
+        cursor: not-allowed !important;
+        background: lighten($light-gray, 5%) !important;
+      }
+    }
+
     .embedded-editor-header {
       display: flex;
       align-items: center;
