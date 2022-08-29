@@ -43,10 +43,10 @@ group :development do
   gem 'bundler-audit', require: false
   gem 'faker'
   gem 'fasterer', require: false
-  gem 'rubocop', require: false
+  gem 'rubocop', '1.31.1', require: false
   gem 'rubocop-ast'
   gem 'rubocop-performance', require: false
-  gem 'rubocop-rails', require: false
+  gem 'rubocop-rails', '2.15.1', require: false
   gem 'awesome_print'
 
   # only activate if required for local testing
