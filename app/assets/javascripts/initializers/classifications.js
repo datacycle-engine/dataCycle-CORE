@@ -30,14 +30,14 @@ export default function () {
         .closest('li')
         .find('select[name="classification_alias[classification_ids][]"]');
 
-      if (!select.data('select2')) {
+      if (select.length && !select.data('select2')) {
         let newAsyncSelect = new AsyncSelect2(select);
         newAsyncSelect.init();
       }
 
       var select = $(event.currentTarget).closest('li').find('select[name="classification_alias[mapped_to][]"]');
 
-      if (!select.data('select2')) {
+      if (select.length && !select.data('select2')) {
         let newAsyncSelect = new AsyncSelect2(select);
         newAsyncSelect.init();
       }
