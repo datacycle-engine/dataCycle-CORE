@@ -1208,7 +1208,7 @@ en:
     stored_searches:
       my_searches: My searches
       my_saved: My saved searches
-      show_in_my_saved_searches: show in my saved searches
+      show_in_my_saved_searches: show details
       last: Last searched
       saved:
         one: Saved search

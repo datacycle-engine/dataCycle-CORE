@@ -35,8 +35,7 @@
 <% end %>
 
 (function(){
-  $('#<%= sanitize_to_id(@key) %> > .buttons > .add-content-object .fa').css('display', 'none');
-  $('#<%= sanitize_to_id(@key) %> > .buttons > button').prop('disabled', false);
+  $('#<%= sanitize_to_id(@key) %>').parent().removeClass('loading-embedded');
 
   let $followingEmbedded = $('#<%= sanitize_to_id(@key) %> > .content-object-item').filter(function(){
     return parseInt($(this).data('index')) > parseInt(<%= @index.presence&.to_i %>);
@@ -45,7 +44,8 @@
   let $content = $('<%= j yield :rendered_items %>');
 
   if ($followingEmbedded.length) $content.insertBefore($followingEmbedded);
-  else $content.insertBefore('#<%= sanitize_to_id(@key) %> > .buttons');
+  else if ($('#<%= sanitize_to_id(@key) %> > .load-more-linked-contents').length) $content.insertBefore('#<%= sanitize_to_id(@key) %> > .load-more-linked-contents');
+  else $content.appendTo('#<%= sanitize_to_id(@key) %>');
 
   $('<%= j content_for :forms %>').appendTo('body');
 })();

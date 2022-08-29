@@ -23,6 +23,16 @@ const DomElementHelpers = {
       return value;
     }
   },
+  elementDepth(elem) {
+    let depth = 0;
+
+    while (elem) {
+      depth++;
+      elem = elem.parentNode;
+    }
+
+    return depth;
+  },
   randomId(prefix = '') {
     return `${prefix}_${Math.random().toString(36).slice(2)}`;
   },
