@@ -96,7 +96,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'rufus-scheduler'
   # redis
   s.add_dependency 'hiredis'
-  s.add_dependency 'redis'
+  s.add_dependency 'redis', '~> 4.7'
 
   # redcarpet (for rendering markdown)
   s.add_dependency 'redcarpet'
