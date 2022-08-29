@@ -61,10 +61,6 @@ require 'acts_as_paranoid'
 require 'transproc/all'
 require 'dry-validation'
 
-# carrierwave
-require 'carrierwave'
-require 'carrierwave_backgrounder'
-
 # redcarpet (for markdown rendering)
 require 'redcarpet'
 
@@ -73,8 +69,6 @@ require 'ruby-progressbar'
 
 require 'premailer'
 
-# Image Optimizer
-require 'image_optim'
 require 'dotenv/load'
 
 # Frontend Asset Loader

@@ -101,10 +101,6 @@ Style/MultilineBlockChain:
 Style/NestedTernaryOperator:
   Enabled: false
 
-Style/NumericLiteralPrefix:
-  Exclude:
-    - 'config/initializers/carrierwave.rb'
-
 Style/RedundantReturn:
   AllowMultipleReturnValues: true
 

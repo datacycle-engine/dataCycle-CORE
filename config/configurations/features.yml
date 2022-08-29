@@ -320,24 +320,6 @@
 :duplicate_content:
   :enabled: false
 
-:image_optimizer:
-  :enabled: true
-  :config:
-    :pngout: false
-    :svgo: false
-    :advpng: false
-    :gifsicle:
-      :careful: true
-    :optipng:
-      :strip: false
-      :level: 1
-    :jpegtran:
-      :copy_chunks: true
-    :jpegoptim:
-      :strip: :com
-    :pngquant:
-      :speed: 10
-
 :duplicate_candidate:
   :enabled: false
 

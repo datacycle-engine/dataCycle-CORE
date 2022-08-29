@@ -163,7 +163,7 @@ module DataCycleCore
             asset.save!
             data_hash[attribute] = asset.try(:id)
           rescue StandardError => e
-            logger = DataCycleCore::Generic::Logger::LogFile.new('carrierwave')
+            logger = DataCycleCore::Generic::Logger::LogFile.new('asset_processing')
             logger.info(e, data_hash[attribute])
             logger.close
           end
@@ -179,7 +179,7 @@ module DataCycleCore
             asset.save!
             data_hash[attribute] = asset.try(:id)
           rescue StandardError => e
-            logger = DataCycleCore::Generic::Logger::LogFile.new('carrierwave')
+            logger = DataCycleCore::Generic::Logger::LogFile.new('asset_processing')
             logger.info(e, data_hash[attribute])
             logger.close
           end
@@ -195,7 +195,7 @@ module DataCycleCore
             asset.save!
             data_hash[attribute] = asset.try(:id)
           rescue StandardError => e
-            logger = DataCycleCore::Generic::Logger::LogFile.new('carrierwave')
+            logger = DataCycleCore::Generic::Logger::LogFile.new('asset_processing')
             logger.info(e, data_hash[attribute])
             logger.close
           end

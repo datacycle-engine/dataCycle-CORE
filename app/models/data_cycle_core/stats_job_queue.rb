@@ -36,26 +36,24 @@ module DataCycleCore
       @job_list.push(
         {
           importers: jobs_list.count,
-          carrierwave: Delayed::Job.where(failed_at: nil, queue: 'carrierwave').count,
           cache_invalidation: Delayed::Job.where(failed_at: nil, queue: 'cache_invalidation').count,
           search_update: Delayed::Job.where(failed_at: nil, queue: 'search_update').count,
           mailers: Delayed::Job.where(failed_at: nil, queue: 'mailers').count,
           webhooks: Delayed::Job.where(failed_at: nil, queue: 'webhooks').count,
           default: Delayed::Job.where(failed_at: nil, queue: 'default').count,
-          wrong_queue: Delayed::Job.where(failed_at: nil).where.not(queue: ['default', 'importers', 'carrierwave', 'cache_invalidation', 'search_update', 'mailers', 'webhooks']).count
+          wrong_queue: Delayed::Job.where(failed_at: nil).where.not(queue: ['default', 'importers', 'cache_invalidation', 'search_update', 'mailers', 'webhooks']).count
         }
       )
 
       @job_list.push(
         {
           importers: Delayed::Job.where(queue: 'importers').where.not(failed_at: nil).count,
-          carrierwave: Delayed::Job.where(queue: 'carrierwave').where.not(failed_at: nil).count,
           cache_invalidation: Delayed::Job.where(queue: 'cache_invalidation').where.not(failed_at: nil).count,
           search_update: Delayed::Job.where(queue: 'search_update').where.not(failed_at: nil).count,
           mailers: Delayed::Job.where(queue: 'mailers').where.not(failed_at: nil).count,
           webhooks: Delayed::Job.where(queue: 'webhooks').where.not(failed_at: nil).count,
           default: Delayed::Job.where(queue: 'default').where.not(failed_at: nil).count,
-          '*': Delayed::Job.where.not(queue: ['default', 'importers', 'carrierwave', 'cache_invalidation', 'search_update', 'mailers', 'webhooks']).where.not(failed_at: nil).count
+          '*': Delayed::Job.where.not(queue: ['default', 'importers', 'cache_invalidation', 'search_update', 'mailers', 'webhooks']).where.not(failed_at: nil).count
         }
       )
 

@@ -264,7 +264,6 @@ Lint/DuplicateBranch:
     - 'app/models/data_cycle_core/master_data/validators/classification.rb'
     - 'app/models/data_cycle_core/master_data/validators/linked.rb'
     - 'app/views/data_cycle_core/schema/index.xlsx.axlsx'
-    - 'lib/capistrano/tasks/dev_tasks.rake'
     - 'lib/rake_helpers/db_helper.rb'
     - 'lib/tasks/data_cycle_core_consistency.rake'
 
@@ -280,7 +279,6 @@ Lint/EmptyBlock:
   Exclude:
     - 'app/models/data_cycle_core/generic/jet_ticket/endpoint.rb'
     - 'app/models/data_cycle_core/master_data/contracts/api_contract.rb'
-    - 'lib/capistrano/tasks/git_tasks.rake'
     - 'test/models/content/computed_properties_update_test.rb'
 
 # Offense count: 3
@@ -670,7 +668,6 @@ Style/HashLikeCase:
     - 'app/models/data_cycle_core/generic/feratel/endpoint_load_ranges.rb'
     - 'app/models/data_cycle_core/generic/feratel_webcam/import_day_of_week.rb'
     - 'app/models/data_cycle_core/generic/feratel_webcam/import_time_of_day.rb'
-    - 'lib/capistrano/tasks/dev_tasks.rake'
     - 'lib/rake_helpers/db_helper.rb'
 
 # Offense count: 1

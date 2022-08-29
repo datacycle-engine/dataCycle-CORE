@@ -86,20 +86,12 @@ Gem::Specification.new do |s|
   s.add_dependency 'mini_mime'
 
   # File Upload
-  s.add_dependency 'carrierwave', '~> 0.5'
-  s.add_dependency 'carrierwave_backgrounder', '~> 0.4.2'
   s.add_dependency 'mini_magick'
   s.add_dependency 'pdf-reader'
   s.add_dependency 'streamio-ffmpeg'
   s.add_dependency 'taglib-ruby'
 
-  # Image Optimization
-  s.add_dependency 'image_optim'
-  s.add_dependency 'image_optim_pack'
-
   s.add_dependency 'rails-html-sanitizer', '>= 1.0.4'
-  # cron jobs gem
-  s.add_dependency 'whenever'
   # rufus scheduler
   s.add_dependency 'rufus-scheduler'
   # redis

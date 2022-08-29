@@ -3,13 +3,13 @@
     {
       "warning_type": "File Access",
       "warning_code": 16,
-      "fingerprint": "ba512edeb5e71b6f779f46b74b9c9732b6e4baace691c720780deb7f58011a48",
+      "fingerprint": "cefdc1747da35838e29075f1970e22e4c2bd98e7b7e00327dcb444b1918b6697",
       "check_name": "SendFile",
       "message": "Model attribute used in file name",
       "file": "app/controllers/data_cycle_core/data_links_controller.rb",
-      "line": 114,
+      "line": 110,
       "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "send_file((DataCycleCore::DataLink.find(params[:id]).text_file.file.service.path_for(DataCycleCore::DataLink.find(params[:id]).text_file.file.key) or DataCycleCore::DataLink.find(params[:id]).text_file.file.current_path), :type => DataCycleCore::DataLink.find(params[:id]).text_file.content_type, :disposition => :inline, :filename => (\"#{(DataCycleCore::DataLink.find(params[:id]).text_file.name.presence or DataCycleCore::DataLink.human_attribute_name(\"text_file\", :locale => helpers.active_ui_locale)).underscore_blanks}.#{(MiniMime.lookup_by_content_type(DataCycleCore::DataLink.find(params[:id]).text_file.content_type).extension or DataCycleCore::DataLink.find(params[:id]).text_file.content_type.split(\"/\").last)}\"))",
+      "code": "send_file(DataCycleCore::DataLink.find(params[:id]).text_file.file.service.path_for(DataCycleCore::DataLink.find(params[:id]).text_file.file.key), :type => DataCycleCore::DataLink.find(params[:id]).text_file.content_type, :disposition => :inline, :filename => (\"#{(DataCycleCore::DataLink.find(params[:id]).text_file.name.presence or DataCycleCore::DataLink.human_attribute_name(\"text_file\", :locale => helpers.active_ui_locale)).underscore_blanks}.#{(MiniMime.lookup_by_content_type(DataCycleCore::DataLink.find(params[:id]).text_file.content_type).extension or DataCycleCore::DataLink.find(params[:id]).text_file.content_type.split(\"/\").last)}\"))",
       "render_path": null,
       "location": {
         "type": "method",
@@ -17,9 +17,13 @@
         "method": "get_text_file"
       },
       "user_input": "DataCycleCore::DataLink.find(params[:id]).text_file.file.service.path_for(DataCycleCore::DataLink.find(params[:id]).text_file.file.key)",
-      "confidence": "Medium"
+      "confidence": "Medium",
+      "cwe_id": [
+        22
+      ]
     }
+
   ],
-  "updated": "2021-08-17 12:32:51 +0200",
-  "brakeman_version": "5.1.1"
+  "updated": "2022-08-29 12:32:51 +0200",
+  "brakeman_version": "5.3.1"
 }
