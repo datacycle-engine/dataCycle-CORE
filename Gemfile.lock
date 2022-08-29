@@ -640,10 +640,10 @@ DEPENDENCIES
   rb-readline
   rgeo
   rgeo-proj4
-  rubocop (= 1.31.1)
+  rubocop
   rubocop-ast
   rubocop-performance
-  rubocop-rails (= 2.15.1)
+  rubocop-rails
   seed_dump
   simplecov
   spring

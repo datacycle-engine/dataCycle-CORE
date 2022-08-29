@@ -64,6 +64,31 @@ module DataCycleCore
       extension_white_list.map { |extension| MiniMime.lookup_by_extension(extension)&.extension }
     end
 
+    def file_extension_validation
+      return if file.present? && self.class.content_type_white_list.include?(MiniMime.lookup_by_content_type(file.content_type)&.extension)
+      errors.add :file,
+                 path: 'uploader.validation.format_not_supported',
+                 substitutions: {
+                   data: {
+                     value: file.content_type
+                   }
+                 }
+    end
+
+    # @todo: refactor after active_storage migration
+    def file_size_validation(options)
+      return unless file.blob.byte_size > options.dig(:file_size, :max).to_i
+
+      errors.add :file,
+                 path: 'uploader.validation.file_size.max',
+                 substitutions: {
+                   data: {
+                     method: 'number_to_human_size',
+                     value: options.dig(:file_size, :max).to_i
+                   }
+                 }
+    end
+
     private
 
     def metadata_from_blob
@@ -87,34 +112,6 @@ module DataCycleCore
         sleep 5
         retry
       end
-    end
-
-    def file_extension_validation
-      return if file.present? && self.class.content_type_white_list.include?(MiniMime.lookup_by_content_type(file.content_type)&.extension)
-
-      errors.add :file, {
-        path: 'uploader.validation.format_not_supported',
-        substitutions: {
-          data: {
-            value: file.content_type
-          }
-        }
-      }
-    end
-
-    # @todo: refactor after active_storage migration
-    def file_size_validation(options)
-      return unless file.size > options.dig(:file_size, :max).to_i
-
-      errors.add :file, {
-        path: 'uploader.validation.file_size.max',
-        substitutions: {
-          data: {
-            method: 'number_to_human_size',
-            value: options.dig(:file_size, :max).to_i
-          }
-        }
-      }
     end
   end
 end
