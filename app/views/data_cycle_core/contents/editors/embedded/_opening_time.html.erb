@@ -62,11 +62,11 @@
 
         <% if readonly %>
           <%= text_field_tag "#{new_key}[valid_until]",
-            l(value.dig(:rrules, 0, :until)&.in_time_zone&.to_date, format: :edit, locale: active_ui_locale),
+            l(value.dig(:rrules, 0, :until)&.to_date, format: :edit, locale: active_ui_locale),
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[valid_until]")}", readonly: true %>
         <% else %>
-          <%= date_field_tag "#{new_key}[valid_until]", value.dig(:rrules, 0, :until)&.in_time_zone&.to_date, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[valid_until]")}", data: { type: 'datepicker' } %>
+          <%= date_field_tag "#{new_key}[valid_until]", value.dig(:rrules, 0, :until)&.to_date, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[valid_until]")}", data: { type: 'datepicker' } %>
         <% end %>
       </div>
 

@@ -135,12 +135,12 @@
         <% end %>
         <% if readonly %>
           <%= text_field_tag "#{embedded_prefix}[rrules][][until]",
-            l(value.dig(:rrules, 0, :until)&.in_time_zone&.to_date, locale: active_ui_locale),
+            l(value.dig(:rrules, 0, :until)&.to_date, locale: active_ui_locale),
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{embedded_prefix}[rrules][until]")}", readonly: true %>
         <% else %>
           <%= date_field_tag "#{embedded_prefix}[rrules][][until]",
-            value&.dig(:rrules, 0, :until)&.in_time_zone&.to_date,
+            value&.dig(:rrules, 0, :until)&.to_date,
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{embedded_prefix}[rrules][until]")}",
             data: {
               type: 'datepicker' ,
@@ -170,7 +170,7 @@
                 type: 'datepicker',
                 mode: 'multiple' ,
                 min_date: value&.dig(:start_time, :time)&.in_time_zone,
-                max_date: value&.dig(:rrules, 0, :until)&.in_time_zone
+                max_date: value&.dig(:rrules, 0, :until)
               } %>
           <% end %>
         </div>
