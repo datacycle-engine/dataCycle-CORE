@@ -209,6 +209,10 @@ class EmbeddedObject {
     await this.renderEmbeddedObjects('new');
 
     this.element.trigger('change');
+    this.element.children('.content-object-item').last().get(0).scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
   }
   handleRemoveEvent(event) {
     event.preventDefault();
