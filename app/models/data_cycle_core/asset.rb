@@ -77,8 +77,7 @@ module DataCycleCore
 
     # @todo: refactor after active_storage migration
     def file_size_validation(options)
-      return unless file.blob.byte_size > options.dig(:file_size, :max).to_i
-
+      return unless file.blob.byte_size > options.dig(:max).to_i
       errors.add :file,
                  path: 'uploader.validation.file_size.max',
                  substitutions: {
