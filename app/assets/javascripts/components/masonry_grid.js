@@ -2,6 +2,7 @@ import ObserverHelpers from '../helpers/observer_helpers';
 
 class MasonryGrid {
   constructor(selector, config = null) {
+    selector.dcMasonryGrid = true;
     this.grid = $(selector);
     this.rowHeight = parseInt(window.getComputedStyle(this.grid[0]).getPropertyValue('grid-auto-rows'));
     this.config = config || { attributes: true, childList: true, subtree: true };

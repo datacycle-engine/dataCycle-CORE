@@ -3,6 +3,7 @@ import ObserverHelpers from '../helpers/observer_helpers';
 
 class ResultCount {
   constructor(element) {
+    element.dcResultCount = true;
     this.countContainer = element;
     this.form = document.getElementById('search-form');
     this.url = this.form && this.form.action;

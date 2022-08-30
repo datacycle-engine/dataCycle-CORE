@@ -30,21 +30,21 @@ export default function () {
         .closest('li')
         .find('select[name="classification_alias[classification_ids][]"]');
 
-      if (!select.data('select2')) {
+      if (select.length && !select.data('select2')) {
         let newAsyncSelect = new AsyncSelect2(select);
         newAsyncSelect.init();
       }
 
       var select = $(event.currentTarget).closest('li').find('select[name="classification_alias[mapped_to][]"]');
 
-      if (!select.data('select2')) {
+      if (select.length && !select.data('select2')) {
         let newAsyncSelect = new AsyncSelect2(select);
         newAsyncSelect.init();
       }
 
       return false;
     });
-    $('#classification-administration').on('click', '.discard', function (event) {
+    $('#classification-administration').on('click', '.discard', function (_event) {
       $(this).parents('form').get(0).reset();
       $(this).closest('li.active').removeClass('active');
 

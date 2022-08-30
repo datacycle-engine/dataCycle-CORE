@@ -3,6 +3,7 @@ import CalloutHelpers from './../helpers/callout_helpers';
 
 class ImageEditor {
   constructor(reveal) {
+    reveal.dcImageEditor = true;
     this.supportedFileExtensions = ['jpg', 'jpeg', 'png'];
     this.$reveal = $(reveal);
     this.editor = null;

@@ -5,8 +5,16 @@ class DashboardTreeLoader extends DashboardPagination {
   constructor(element) {
     super(element);
 
+    element.dcDashboardTreeLoader = true;
     this.paginationContainer = this.paginationElement.closest('.tree-link-container');
+    this.locationArray = location.hash.substr(1).split('+').filter(Boolean);
     this.innerItem = this.paginationElement.closest('.inner-item');
+
+    this.openByLocationHash();
+  }
+  openByLocationHash() {
+    if (this.locationArray.length && this.locationArray.includes(this.paginationContainer.id))
+      window.requestAnimationFrame(() => this.paginationElement.click());
   }
   loadPage(event) {
     event.preventDefault();

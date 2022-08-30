@@ -27,6 +27,8 @@ class BasicSelect2 {
     };
   }
   init() {
+    this.$element[0].dcSelect2 = true;
+
     if (!$.fn.select2) {
       Select2($);
       $.fn.select2.defaults.set('width', '100%');

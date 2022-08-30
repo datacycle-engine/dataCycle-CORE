@@ -23,7 +23,7 @@
     <% if filter_advanced_type == 'string' %>
       <%= hidden_field_tag "f[#{identifier}][v][helper]", 'true', {class: 'hidden_helper', disabled: (!['b', 'p'].include?(filter_method))} %>
       <%= text_field_tag "f[#{identifier}][v][text]", value&.dig('text'), { placeholder: '', class: 'filter-text', disabled: (['b', 'p'].include?(filter_method)) } %>
-    <% elsif filter_advanced_type == 'date' %>
+    <% elsif filter_advanced_type == 'date' || filter_advanced_type == 'date_range' %>
       <span class="separator"><%= t("terms.from", locale: active_ui_locale) %></span>
       <%= date_field_tag "f[#{identifier}][v][from]", value&.dig('from') || local_assigns[:default_from], { placeholder: 'tt.mm.jjjj' } %>
       <span class="separator"><%= t("terms.until", locale: active_ui_locale) %></span>

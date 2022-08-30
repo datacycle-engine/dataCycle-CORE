@@ -23,7 +23,7 @@
         border: 0;
         background-color: transparent;
         color: $dark-gray;
-        transition: color 0.1s ease-in-out;
+        transition: $color-transition;
 
         > .attribute-group-title {
           display: flex;
@@ -32,7 +32,7 @@
           font-size: 0.9rem;
           font-weight: normal;
           line-height: 1rem;
-          transition: color 0.1s ease-in-out;
+          transition: $color-transition;
           flex: auto;
 
           > *:not(:last-child) {
@@ -91,7 +91,7 @@
         border: 1px solid rgba($dark-gray, 0.5);
         border-radius: $global-radius;
         box-shadow: 0 0 0 rgba($dark-gray, 0.5);
-        transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+        transition: $input-transition;
 
         > .attribute-group-title-link {
           &::after,
@@ -106,8 +106,8 @@
       }
 
       &.editor > .attribute-group-item:hover {
-        border-color: transparent;
-        box-shadow: 0 0 7px $primary-color;
+        border-color: $primary-color;
+        box-shadow: 0 1px 7px lighten($dark-gray, 12%);
 
         > .attribute-group-title-link > .attribute-group-title,
         > .attribute-group-title-link {

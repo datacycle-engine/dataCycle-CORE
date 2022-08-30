@@ -7,7 +7,7 @@ export default function () {
     conditionalFields.push(new ConditionalField(element));
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('conditional-form-field'),
+    e => e.classList.contains('conditional-form-field') && !e.hasOwnProperty('dcConditionalField'),
     e => conditionalFields.push(new ConditionalField(e))
   ]);
 }

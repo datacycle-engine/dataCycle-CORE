@@ -113,7 +113,8 @@ module DataCycleCore
     'DataCycleCore::Generic::Sulu::Webhook',
     'DataCycleCore::Generic::ExternalLink::Webhook',
     'DataCycleCore::Generic::Amtangee::Webhook',
-    'DataCycleCore::Generic::ExternalContentForm::Webhook'
+    'DataCycleCore::Generic::ExternalContentForm::Webhook',
+    'DataCycleCore::Generic::DataCycleApiV4::Webhook'
   ]
 
   mattr_accessor :excluded_filter_classifications

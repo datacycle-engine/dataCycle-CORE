@@ -1,13 +1,13 @@
 <% random_id = SecureRandom.hex(10) %>
 
 <a data-toggle="<%= random_id %>"><i class="fa <%= local_assigns[:icon_class] || 'fa-columns' %>" aria-hidden="true"></i></a>
-<div class="dropdown-pane align-right no-bullet bottom" id="<%= random_id %>" data-dropdown data-hover="true" data-hover-pane="true">
+<div class="dropdown-pane no-bullet bottom" id="<%= random_id %>" data-dropdown>
   <h5><%= t('common.choose_splitsource', locale: active_ui_locale) %></h5>
   <div id="split-source-selector">
-      <%= form_with(url: '', method: :get, local: true) do |f| %>
-          <div class="form-element">
-              <div class="v-select white">
-                  <%= select_tag(
+    <%= form_with(url: '', method: :get, local: true) do |f| %>
+      <div class="form-element">
+        <div class="v-select white">
+          <%= select_tag(
                         :source_id,
                         async_thing_select_options(local_assigns[:value], false),
                         {
@@ -23,12 +23,12 @@
                           }
                         }
                       ) %>
-              </div>
-          </div>
+        </div>
+      </div>
 
-          <button class="button" data-disable-with="<i class='fa fa-spinner fa-spin fa-fw'></i> <%= t('common.load_splitsource', locale: active_ui_locale) %>">
-            <%= t('common.load_splitsource', locale: active_ui_locale) %>
-          </button>
-      <% end %>
-  </div>
+      <button class="button" data-disable-with="<i class='fa fa-spinner fa-spin fa-fw'></i> <%= t('common.load_splitsource', locale: active_ui_locale) %>">
+      <%= t('common.load_splitsource', locale: active_ui_locale) %>
+    </button>
+  <% end %>
+</div>
 </div>

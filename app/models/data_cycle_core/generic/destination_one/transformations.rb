@@ -225,7 +225,8 @@ module DataCycleCore
           .>> t(:add_field, 'content_url', ->(s) { s.dig('url') })
           .>> t(:add_field, 'name', ->(s) { s.dig('value') })
           .>> t(:add_ccc, ->(s) { s['license'] })
-          .>> t(:reject_keys, ['author'])
+          .>> t(:add_field, 'copyright_notice_override', ->(s) { s['source'] })
+          .>> t(:reject_keys, ['author', 'license'])
         end
       end
     end
