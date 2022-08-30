@@ -20,8 +20,13 @@ en:
   submit: Create
 
   attribute_labels:
-    additional_information: Description block
-    key_figures_container: Key Figures
+    additional_information:
+      one: Description block
+      other: Description blocks
+    aggregate_rating:
+      one: Tour rating
+      other: Tour ratings
+    key_figures_container: Key figures
 
   locales:
     de: German
