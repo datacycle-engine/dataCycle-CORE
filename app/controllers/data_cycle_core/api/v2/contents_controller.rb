@@ -34,7 +34,6 @@ module DataCycleCore
           index
         end
 
-        # TODO: refactor
         def deleted
           deleted_contents = DataCycleCore::Thing::History.where(
             DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
@@ -55,7 +54,6 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          # json-api: fields, sort
           super + [
             :id, :stored_filter_id, :format, :type, :language, :mode, :q, :include,
             { filter: [:box, :modified_since, :created_since, :deleted_since, :from, :to, { classifications: [] }] }

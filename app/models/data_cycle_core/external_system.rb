@@ -265,7 +265,6 @@ module DataCycleCore
       find_by(identifier: data['name']) || find_by(name: data['name'])
     end
 
-    # e.g. search for ID: query(:infrastructure_items) { |coll| coll.where({'external_id' => '3479fb74-a008-4ca5-a48f-becebee70e79'}).first }
     def query(collection_name, &block)
       mongo_class = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: collection_name)
       Mongoid.override_database("#{mongo_class.database_name}_#{id}")

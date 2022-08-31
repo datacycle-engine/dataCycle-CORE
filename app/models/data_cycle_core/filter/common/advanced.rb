@@ -52,14 +52,12 @@ module DataCycleCore
           send(advanced_type, value, attribute_path)
         end
 
-        # TODO: check if required in future version
         def greater_advanced_attributes(value = nil, type = nil, attribute_path = nil)
           advanced_type = "greater_advanced_#{type}".to_sym
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
           send(advanced_type, value, attribute_path)
         end
 
-        # TODO: check if required in future version
         def lower_advanced_attributes(value = nil, type = nil, attribute_path = nil)
           advanced_type = "lower_advanced_#{type}".to_sym
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
@@ -238,7 +236,6 @@ module DataCycleCore
 
           case comparison
           when :equal
-            # query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE ?::daterange @> (pil)::text::date)', attribute_path, date_range])
             query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange #{query_operator} CONCAT('[',(advanced_attributes ->> ?)::text::date,',',(advanced_attributes ->> ?)::text::date,']')::daterange", date_range, interval_keys&.first, interval_keys&.second])
           when :not_equal
             query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["NOT(?::daterange #{query_operator} CONCAT('[',(advanced_attributes ->> ?)::text::date,',',(advanced_attributes ->> ?)::text::date,']')::daterange)", date_range, interval_keys&.first, interval_keys&.second])

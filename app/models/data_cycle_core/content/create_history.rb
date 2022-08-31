@@ -23,7 +23,6 @@ module DataCycleCore
         origin_table = self.class.to_s.split('::')[1].tableize
         data_set_history = (self.class.to_s + '::History').safe_constantize.new
 
-        # cc self to history
         data_set_history.send(origin_table.singularize.foreign_key + '=', id)
 
         I18n.with_locale(last_updated_locale) do

@@ -22,7 +22,7 @@ module DataCycleCore
     private
 
     def create_locks
-      # FIXME: move translation to JS
+      # TODO: move translation to JS
       ActionCable.server.broadcast(
         "content_lock_#{activitiable.id}",
         {

@@ -15,7 +15,6 @@ module DataCycleCore
           @watch_lists = apply_paging(@watch_lists)
         end
 
-        # method to show a particular WatchList
         def show
           @watch_list = DataCycleCore::WatchList.find(permitted_params[:id])
           @pagination_contents = apply_paging(@watch_list.watch_list_data_hashes.order(created_at: :desc, id: :asc))

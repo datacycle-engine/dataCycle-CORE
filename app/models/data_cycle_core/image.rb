@@ -133,12 +133,10 @@ module DataCycleCore
       end
     end
 
-    # carrierwave version
     def original(_transformation = {})
       file
     end
 
-    # carrierwave version
     def thumb_preview(transformation = {})
       thumb = nil
       if file&.attached?
@@ -178,7 +176,6 @@ module DataCycleCore
       default_version
     end
 
-    # active storage only
     def dynamic(transformation = {})
       dynamic = nil
       if file&.attached?

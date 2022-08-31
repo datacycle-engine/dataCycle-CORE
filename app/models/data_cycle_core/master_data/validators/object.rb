@@ -52,7 +52,6 @@ module DataCycleCore
             end
 
             unless key_item['type'] == 'object'
-              # puts "validate(#{key}/#{key_item['type']}) -> #{data[key]} // #{key_item}"
               validator_object = basic_types[key_item['type']].new(data[key], key_item, key, strict, @content)
               merge_errors(validator_object.error) unless validator_object.nil?
               next

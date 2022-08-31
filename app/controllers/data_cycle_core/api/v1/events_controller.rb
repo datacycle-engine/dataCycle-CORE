@@ -5,8 +5,6 @@ module DataCycleCore
     module V1
       class EventsController < DataCycleCore::Api::V1::ContentsController
         def index
-          # DEPRECATED ACTION
-          #
           filter = DataCycleCore::StoredFilter.new
           filter.language = 'all'
           query = filter.apply

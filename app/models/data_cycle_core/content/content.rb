@@ -212,7 +212,6 @@ module DataCycleCore
       end
 
       def attribute_transformation_mapping(api_version = nil)
-        # find transformation method: unwrap
         property_definitions.select { |_, definition|
           if api_version.present? && definition.dig('api', api_version).present?
             definition.dig('api', api_version, 'transformation', 'method') == 'unwrap'

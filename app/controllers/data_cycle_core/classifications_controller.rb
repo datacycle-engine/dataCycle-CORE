@@ -74,7 +74,6 @@ module DataCycleCore
       query = query.where.not(id: params[:exclude]) if params[:exclude].present?
       query = query.preload(:primary_classification, :classification_alias_path)
 
-      # FIXME: Jbuilder Bug: tries to render jbuilder partial
       render plain: query.map { |a|
         next if a.primary_classification.nil?
 
@@ -93,7 +92,6 @@ module DataCycleCore
       query = DataCycleCore::Classification.where(id: find_params[:ids]).preload(primary_classification_alias: :classification_alias_path)
       query = query.for_tree(find_params[:tree_label]) if find_params[:tree_label].present?
 
-      # FIXME: Jbuilder Bug: tries to render jbuilder partial
       render plain: query.map { |c|
         next if c.primary_classification_alias.nil?
 

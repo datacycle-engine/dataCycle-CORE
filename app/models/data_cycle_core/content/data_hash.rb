@@ -269,7 +269,6 @@ module DataCycleCore
 
       def storage_cases_set(options, key, properties)
         value = options.data_hash[key]
-        # puts "#{key}, #{value}, #{properties.dig('type')}"
         case properties['type']
         when 'linked'
           set_linked(key, value, properties)
@@ -440,7 +439,6 @@ module DataCycleCore
         end
         upsert_item.schema = template.schema
         upsert_item.template_name = template.template_name
-        # TODO: check if external_source_id is required
         upsert_item.external_source_id = external_source_id
         created = upsert_item.new_record?
         upsert_item.created_at = options.save_time if created

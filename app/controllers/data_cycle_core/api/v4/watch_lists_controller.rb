@@ -16,7 +16,6 @@ module DataCycleCore
           @watch_lists = apply_paging(@watch_lists)
         end
 
-        # method to show a particular WatchList
         def show
           redirect_to api_v4_stored_filter_path(id: permitted_params[:id], sl: 1, format: request.format.symbol)
         end

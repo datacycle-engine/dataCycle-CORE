@@ -25,7 +25,7 @@ module DataCycleCore
           "#{@file_name}#{file_extension}"
         end
 
-        # used with carrierwave
+        # @deprecated: used with carrierwave
         def local_file?
           false
         end

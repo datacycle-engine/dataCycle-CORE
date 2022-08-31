@@ -33,7 +33,6 @@ module DataCycleCore
         after_action :log_activity, unless: -> { params[:sl] }
         before_action :authenticate_user!, :set_default_response_format
 
-        # TODO: move validate_api_params to be called before permitted_params
         def permitted_params
           validate_api_params(params.to_unsafe_hash)
           @permitted_params ||= params.permit(*permitted_parameter_keys)

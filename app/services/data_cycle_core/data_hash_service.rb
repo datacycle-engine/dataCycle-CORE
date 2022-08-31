@@ -2,7 +2,6 @@
 
 module DataCycleCore
   class DataHashService
-    # TODO: refactor: class => module
     extend NormalizeService
 
     def self.flatten_datahash_value(datahash, template_hash, debug = false)

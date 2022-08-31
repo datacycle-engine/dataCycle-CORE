@@ -13,7 +13,6 @@ module DataCycleCore
                           :first, :second, :third, :fourth, :fifth, :forty_two, :last].freeze
       def_delegators :@query, *TERMINAL_METHODS
 
-      # helper for paging
       def limit(number)
         reflect(@query.limit(number))
       end
@@ -30,7 +29,6 @@ module DataCycleCore
         reflect(@query.offset(number))
       end
 
-      # continue queries
       def where(*params)
         reflect(@query.where(*params))
       end
@@ -114,14 +112,6 @@ module DataCycleCore
       def any(set)
         Arel::Nodes::UnaryOperation.new('ANY', Arel::Nodes::Grouping.new(set))
       end
-
-      # def trgm_match(text1, text2)
-      #   Arel::Nodes::InfixOperation.new('%', text1, text2)
-      # end
-
-      # def to_tsvector(field)
-      #   Arel::Nodes::NamedFunction.new('to_tsvector', [field]) # [quoted('german'), field])
-      # end
 
       def tstzrange(ts_l, ts_h, border = '[]')
         Arel::Nodes::NamedFunction.new('tstzrange', [ts_l, ts_h, quoted(border)])
@@ -337,7 +327,6 @@ module DataCycleCore
         end
       end
 
-      # chain method for Builder pattern
       def reflect(query)
         self.class.new(@locale, query, @include_embedded)
       end

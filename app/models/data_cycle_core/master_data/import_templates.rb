@@ -11,7 +11,6 @@ module DataCycleCore
         mixin_list, mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths, content_sets: CONTENT_SETS)
         errors = import_all_templates(template_hash: import_hash, validation: validation, mixins: mixin_list)
         format_errors = errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}
-        # TODO: add notice + warning
         return format_errors, reformat_duplicates(duplicates), reformat_duplicates(mixin_duplicates)
       end
 
@@ -115,7 +114,6 @@ module DataCycleCore
         sorting = 1
 
         schema[:properties].each do |property_name, property_value|
-          # TODO: refactor: add errors + warnings
           if property_value[:type] == 'mixin'
             mixin_properties, sorting = add_mixin_properties(content_set, property_value[:name].to_sym, sorting, mixins)
             new_properties.merge!(mixin_properties)

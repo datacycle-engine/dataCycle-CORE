@@ -18,7 +18,7 @@ module DataCycleCore
     has_one :asset_content, dependent: :destroy
     has_one :thing, through: :asset_content, source: 'content_data'
 
-    # @todo disable defualt for audio/pdf
+    # @todo: disable default for audio and pdf assets
     DEFAULT_ASSET_VERSIONS = [:original, :default].freeze
 
     def custom_validators
@@ -54,12 +54,10 @@ module DataCycleCore
       new_asset.persisted? ? new_asset : nil
     end
 
-    # @todo: refactor after active_storage migration
     def self.extension_white_list
       []
     end
 
-    # @todo: refactor after active_storage migration
     def self.content_type_white_list
       extension_white_list.map { |extension| MiniMime.lookup_by_extension(extension)&.extension }
     end
@@ -75,7 +73,6 @@ module DataCycleCore
                  }
     end
 
-    # @todo: refactor after active_storage migration
     def file_size_validation(options)
       return unless file.blob.byte_size > options.dig(:max).to_i
       errors.add :file,

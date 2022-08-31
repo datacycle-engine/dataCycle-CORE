@@ -46,22 +46,6 @@ module DataCycleCore
             .with_internal_name(definition.dig('aliases')).pluck(:id))
         end
 
-        # TODO: Delete if not used anymore
-        # def with_classification_aliases(tree_name, *aliases)
-        #   sub_query = DataCycleCore::Thing
-        #     .joins(:classification_aliases)
-        #     .merge(
-        #       DataCycleCore::ClassificationAlias
-        #         .for_tree(tree_name)
-        #         .with_internal_name(aliases)
-        #         .with_descendants
-        #     )
-
-        #   reflect(
-        #     @query.where(id: sub_query)
-        #   )
-        # end
-
         # TODO: Update with classification refactoring: SO SLOW !!!
         def classification_tree_ids(ids = nil)
           return self if ids.blank?

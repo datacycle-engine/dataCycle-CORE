@@ -27,7 +27,6 @@ module DataCycleCore
       end
 
       def get_validity_values(validity_hash)
-        # TODO: check for expires and publish_at usage
         from = nil
         to = nil
         from = validity_hash['valid_from'] if validity_hash && validity_hash['valid_from']

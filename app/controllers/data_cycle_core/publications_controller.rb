@@ -47,7 +47,6 @@ module DataCycleCore
 
       query2 = DataCycleCore::Thing.joins(:content_content_b).where(template: false, template_name: 'Publikations-Plan', content_contents: { content_a_id: query.pluck(:id) })
 
-      # TODO: move to value after final refactor_data_definition migration
       value_storage_location = 'metadata'
 
       if params[:publications_from].present?

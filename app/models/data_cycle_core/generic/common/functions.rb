@@ -143,7 +143,6 @@ module DataCycleCore
           return data_hash if condition_function.present? && !condition_function.call(data_hash)
 
           key_function_values = key_function.call(data_hash) || []
-          # key_function_values = [DataCycleCore::Thing.where(external_source_id: external_source_id, template: false, template_name: 'POI').first.external_key] if attribute == 'poi'
 
           data_hash.merge(
             {

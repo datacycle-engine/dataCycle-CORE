@@ -145,7 +145,6 @@ module DataCycleCore
       linked_filter.each do |linked_name, attribute_filter|
         linked_query = DataCycleCore::StoredFilter.new(language: @language).apply
 
-        # add error handling for invalid methods
         attribute_filter.delete_if { |k, _v| ![:classifications, :'dc:classification', :geo, :attribute, :contentId, :filterId, :watchListId].include?(k) }
 
         linked_query = apply_filters(linked_query, attribute_filter)
@@ -163,7 +162,6 @@ module DataCycleCore
           filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys
           next if filter_v.blank?
           filter_method_name = ('apply_' + filter_k.to_s.underscore.parameterize(separator: '_') + '_filters')
-          # TODO: add API error
           next unless respond_to?(filter_method_name)
           union_query = send(filter_method_name, union_query, filter_v)
         end
@@ -327,7 +325,6 @@ module DataCycleCore
       validator = DataCycleCore::MasterData::Contracts::ApiUnionFilterContract.new
       linked_validator = DataCycleCore::MasterData::Contracts::ApiLinkedContract.new
 
-      # TODO: add validation and correct API error message
       raise 'API Bad Request Error' unless unpermitted_params.is_a?(Hash)
 
       validation_params = unpermitted_params&.deep_symbolize_keys
@@ -364,7 +361,6 @@ module DataCycleCore
         key, order = key_with_ordering(sort)
         value = order_value_from_params(key, full_text_search, raw_query_params)
 
-        # advanced_attribute sorting
         if DataCycleCore::Feature::Sortable.available_advanced_attribute_options.key?(key.underscore)
           value = key.underscore
           key = 'advanced_attribute'
@@ -463,14 +459,13 @@ module DataCycleCore
       end
     end
 
-    # TODO: check if required
     def date_from_single_value(value)
       return if value.blank?
       return value if value.is_a?(::Date)
       DataCycleCore::MasterData::DataConverter.string_to_datetime(value)
     end
 
-    # TODO: add error handling
+    # @todo: error handling
     # https://jsonapi.org/format/#errors
     def param_to_classifications(classification_string)
       classification_string.map { |classifications|

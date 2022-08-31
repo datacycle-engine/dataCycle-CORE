@@ -58,7 +58,6 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          # json-api: fields, sort
           super + [
             :id, :stored_filter_id, :format, :type, :language, :mode, :q, :include,
             { filter: [:box, :modified_since, :created_since, :deleted_since, :from, :to, { classifications: [] }] }
@@ -90,7 +89,6 @@ module DataCycleCore
             query = apply_place_query_filters(query) if content_schema_type == 'Place'
           end
 
-          # query = query.where(schema_type: content_schema_type) if content_schema_type
           query = query.modified_at({ min: permitted_params.dig(:filter, :modified_since) }) if permitted_params.dig(:filter, :modified_since)
           query = query.created_at({ min: permitted_params.dig(:filter, :created_since) }) if permitted_params.dig(:filter, :created_since)
           query = query.fulltext_search(permitted_params[:q]) if permitted_params[:q]

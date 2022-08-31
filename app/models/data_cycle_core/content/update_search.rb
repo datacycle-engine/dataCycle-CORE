@@ -19,7 +19,6 @@ module DataCycleCore
 
       def update_search(language)
         return if search_property_names.blank? || embedded?
-        # timestamp = Time.zone.now
         I18n.with_locale(language) do
           search_data = walk_embedded_data
           advanced_search_attributes = walk_advanced
@@ -53,7 +52,6 @@ module DataCycleCore
             retry
           end
         end
-        # ap "### inside update time: #{(Time.zone.now - timestamp)}: #{id}"
       end
 
       def walk_embedded_data

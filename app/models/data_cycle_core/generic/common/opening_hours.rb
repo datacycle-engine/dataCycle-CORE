@@ -77,7 +77,6 @@ module DataCycleCore
             start_time = "#{item['DateFrom']} #{item['TimeFrom']}".in_time_zone
             duration = DataCycleCore::Schedule.time_to_duration(item['TimeFrom'], item['TimeTo'])
             until_time = item['DateTo']&.to_datetime&.end_of_day&.utc || 3.years.from_now.to_datetime.end_of_day.utc # !! use :to_datetime (until has to be given in UTC of local time)
-            # until_time = item['DateTo']&.in_time_zone&.end_of_day || 3.years.from_now.in_time_zone.end_of_day
             days = day_transformation.present? ? day_transformation&.call(item) : item['WeekDays']
             days = (0...7).to_a if days.blank?
 

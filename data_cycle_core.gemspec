@@ -4,12 +4,6 @@ require 'date'
 
 $LOAD_PATH.push File.expand_path('lib', __dir__)
 
-# $LOAD_PATH.push File.expand_path('app/models', __dir__)
-
-# allows bundler to use the gemspec for dependencies
-# lib = File.expand_path('../lib', __FILE__)
-# $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-
 # Maintain your gem's version:
 require 'data_cycle_core/version'
 
@@ -31,12 +25,10 @@ Gem::Specification.new do |s|
   s.add_dependency 'rails', '~> 6.1'
   s.add_dependency 'rake'
   # Frontend Asset Handling
-  # s.add_dependency 'sprockets', '4.0.0'
   s.add_dependency 'vite_rails', '>= 3.0.0'
   # database
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'
-  # s.add_dependency 'pg', '~> 0.21'
   s.add_dependency 'pg'
   s.add_dependency 'rgeo'
   s.add_dependency 'rgeo-geojson'

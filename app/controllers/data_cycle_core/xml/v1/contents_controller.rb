@@ -64,7 +64,6 @@ module DataCycleCore
             query = apply_event_query_filters(query) if content_schema_type == 'Event'
             query = apply_place_query_filters(query) if content_schema_type == 'Place'
           end
-          # query = query.where(schema_type: content_schema_type) if content_schema_type
           query = query.modified_at({ min: permitted_params.dig(:filter, :modified_since) }) if permitted_params.dig(:filter, :modified_since)
           query = query.created_at({ min: permitted_params.dig(:filter, :created_since) }) if permitted_params.dig(:filter, :created_since)
           query = query.fulltext_search(permitted_params[:q]) if permitted_params[:q]

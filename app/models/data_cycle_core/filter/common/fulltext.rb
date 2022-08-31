@@ -20,7 +20,7 @@ module DataCycleCore
           )
         end
 
-        # Fulltext search with cte for experimental queries
+        # @todo: Fulltext search with cte for experimental queries
         def fulltext_search_with_cte(name)
           return self if name.blank?
           normalized_name = name.unicode_normalize(:nfkc)

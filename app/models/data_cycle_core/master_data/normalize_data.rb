@@ -89,21 +89,6 @@ module DataCycleCore
           }.compact.flatten
         end
 
-        # maybe support
-        #   {
-        #    "fieldsProposed" => [],
-        #    "entryId" => "32855836",
-        #    "taskPhase" => "RESTRUCTURE",
-        #    "taskType" => "SPLIT",
-        #    "taskId" => "Split_CityZip",
-        #    "fieldsBefore" => [{ "type" => "CITY", "content" => "9545 Radenthein", "id" => "CITY" }],
-        #    "fieldsAfter" => [
-        #      { "type" => "CITY", "content" => "Radenthein", "id" => "CITY" },
-        #      { "type" => "ZIP", "content" => "9545", "id" => "ZIP" }
-        #     ]
-        #   }
-        # later
-
         def merge_street_streetnr(report)
           fields_list = report&.dig('entry', 'fields')
           return report if fields_list.blank?

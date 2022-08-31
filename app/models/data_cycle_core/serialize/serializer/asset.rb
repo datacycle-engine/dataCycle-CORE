@@ -24,7 +24,6 @@ module DataCycleCore
             )
           end
 
-          # legacy method for indesign downloader
           def file_extension(mime_type)
             ext = MiniMime.lookup_by_content_type(mime_type.to_s)&.extension
             return if ext.blank?

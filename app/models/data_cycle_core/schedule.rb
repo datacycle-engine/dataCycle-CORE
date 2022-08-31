@@ -484,19 +484,6 @@ module DataCycleCore
 
     attr_accessor :schedule_object
 
-    # SELECT *
-    # FROM schedules
-    # WHERE
-    # tstzrange('2010-01-01 00:00:00+02'::timestamp with time zone - duration, '2020-12-31 00:00:00+02'::timestamp with time zone, '[]') && tstzrange(dtstart, dtend, '[]')
-    # AND
-    # tstzrange('2010-01-01 00:00:00+02'::timestamp with time zone - duration, '2020-12-31 00:00:00+02'::timestamp with time zone, '[]') @> ANY (
-    # SELECT event_date from unnest(rdate) AS event_date
-    # UNION
-    # SELECT event_date FROM unnest(get_occurrences(rrule::rrule, dtstart)) AS event_date
-    # EXCEPT
-    # SELECT event_date from unnest(exdate) AS event_date
-    # )
-
     def history?
       false
     end

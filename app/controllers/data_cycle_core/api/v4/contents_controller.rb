@@ -61,7 +61,6 @@ module DataCycleCore
 
           case permitted_params[:format].to_sym
           when :json
-            # render template: 'data_cycle_core/api/v4/timeseries/show', layout: false
             json = { error: "no timeseries data found for #{content.name}(#{content.id})" }
             json = { data: @contents.pluck(:timestamp, :value) } unless @contents.nil?
             render json: json

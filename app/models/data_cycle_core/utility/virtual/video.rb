@@ -18,7 +18,7 @@ module DataCycleCore
                   thumb_url = video.file.preview(resize_to_limit: [300, 300]).processed.url
                 end
               rescue ActiveStorage::FileNotFoundError
-                # add some logging
+                # @todo: add some logging
                 return nil
               end
             end

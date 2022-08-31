@@ -4,8 +4,6 @@ module DataCycleCore
   module MasterData
     module Contracts
       class ApiContract < Dry::Validation::Contract
-        # config.messages.default_locale = :en
-        # config.messages.backend = :i18n
         config.validate_keys = true
 
         UUID_OR_STRING_OF_UUIDS_REGEX = /^(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*)?(,(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*))*$/i.freeze

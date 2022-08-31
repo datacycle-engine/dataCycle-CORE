@@ -13,12 +13,6 @@ module DataCycleCore
           @props = parse_request(request.body)
           @header = parse_header(request) # depth setting in Header
 
-          # logger.info @header
-          # logger.error Nokogiri::XML(request.body).to_xml(indent: 2)
-          # puts 'Header:'
-          # puts @header
-          # debug(request.body)
-
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
             @collection = load_collection(permitted_params.dig(:id), current_user)
@@ -38,9 +32,6 @@ module DataCycleCore
           @header = parse_header(request)
           @id = permitted_params.dig(:id)
 
-          # logger.info @header
-          # logger.info Nokogiri::XML(request.body).to_xml(indent: 2)
-
           @content = load_content(permitted_params.dig(:id), permitted_params.dig(:file_name), current_user)
 
           raise ActiveRecord::RecordNotFound if @content.blank?
@@ -52,9 +43,6 @@ module DataCycleCore
           @header = parse_header(request)
           @id = permitted_params.dig(:id)
 
-          # logger.error @header
-          # logger.error Nokogiri::XML(request.body).to_xml(indent: 2)
-
           @collection = load_collection(permitted_params.dig(:id), current_user)
           @contents = []
 
@@ -65,11 +53,6 @@ module DataCycleCore
           @props = parse_request(request.body)
           @header = parse_header(request)
           @content = load_content(permitted_params.dig(:id), permitted_params.dig(:file_name), current_user)
-
-          # ap params
-          # puts 'Header:'
-          # puts @header
-          # debug(request.body)
 
           if @content.assets.blank?
             send_data generate_file(@content), disposition: 'inline', filename: [@content.name, '.txt'].join, type: 'text/plain'
@@ -113,13 +96,6 @@ module DataCycleCore
         def load_content(id, file_name, user)
           load_contents(load_collection(id, user)).where(slug: file_name)&.first
         end
-
-        # def debug(body, message = 'Request Body')
-        #   puts "\n\n"
-        #   puts message
-        #   puts Nokogiri::XML(body).to_xml(indent: 2)
-        #   puts "\n\n"
-        # end
       end
     end
   end

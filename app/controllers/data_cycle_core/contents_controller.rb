@@ -82,9 +82,6 @@ module DataCycleCore
     end
 
     # @todo: refactor when finally migrated to ActiveStorage
-    # original = content_url
-    # content => Bild: content_url ; other = thumbnail_url
-    # thumbnail = thumbnail_url
     def asset
       content = DataCycleCore::Thing.find(params[:id])
       type = asset_proxy_params.dig(:type)

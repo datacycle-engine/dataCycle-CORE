@@ -7,7 +7,6 @@ module DataCycleCore
         class GenericEndpoint
           def initialize(**options)
             @host = options.dig(:host)
-
             # TODO: add Default Logging
           end
 

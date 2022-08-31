@@ -248,33 +248,11 @@ module DataCycleCore
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
 
-    # config.assets.enabled = false
-
-    # config.generators do |g|
-    #   g.assets false
-    # end
-
-    # config.assets.version = '1.0'
-    # config.assets.precompile += [
-    #   'data_cycle_core/*',
-    #   'eml-datacycle-border.png',
-    #   'eml-datacycle.png',
-    #   'location_after.svg',
-    #   'location_before.svg',
-    #   'location.svg',
-    #   'dc-logo_inverted.svg',
-    #   'dc-logo.svg',
-    #   'dc-logo.png'
-    # ]
     config.action_dispatch.cookies_serializer = :json
-    # TODO: check: raise_on_unfiltered_parameters never worked in main application
-    # config.action_controller.raise_on_unfiltered_parameters = true
     config.action_controller.per_form_csrf_tokens = true
     config.action_controller.forgery_protection_origin_check = true
     # Configure SSL options to enable HSTS with subdomains. Previous versions had false.
     config.ssl_options = { hsts: { subdomains: true } }
-    # Make Ruby 2.4 preserve the timezone of the receiver when calling `to_time`.
-    # Previous versions had false.
     ActiveSupport.to_time_preserves_timezone = true
     # Enable parameter wrapping for JSON. You can disable this by setting :format to an empty array.
     ActiveSupport.on_load(:action_controller) do

@@ -42,12 +42,7 @@ module DataCycleCore
         next unless lookup_context.exists?(partial, [prefix], true)
         return prefix + partial
       end
-      # puts "could not find partial for parameters -> partials: #{partials}, prefix: #{prefix}"
     end
-
-    # def xml_cache_key(item, language, include_parameters, mode_parameters, xml_subversion = nil)
-    #   "xml_#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{xml_subversion}_#{item.updated_at}_#{item.cache_valid_since}_#{include_parameters.join('_')}_#{mode_parameters.join('_')}"
-    # end
 
     def overwritten_properties(content, overlay_name)
       return [] if overlay_name.blank? || content.send(overlay_name).blank?

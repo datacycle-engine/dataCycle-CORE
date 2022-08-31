@@ -29,44 +29,6 @@ module DataCycleCore
       nil
     end
 
-    # def get_selected_values_for_classification(options, value)
-    #   return nil if value.nil?
-    #
-    #   # TODO: make this more fancy
-    #   @selected_values = []
-    #   Array(value).each do |v|
-    #     options.each do |o|
-    #       @selected_values.push(o) if o[1] == v
-    #     end
-    #   end
-    #
-    #   @selected_values
-    # end
-
-    # def get_custom_select_values(classification_alias)
-    #   walk_classification_tree(classification_alias)
-    # end
-
-    # def life_cycle_items
-    #   if DataCycleCore.features.dig(:life_cycle)
-    #     Rails.cache.fetch("life_cycle_#{DataCycleCore.features.dig(:life_cycle, :ordered)&.join(' ')&.parameterize(separator: '_')}", expires_in: 10.minutes) do
-    #       DataCycleCore::Classification.where(name: DataCycleCore.features.dig(:life_cycle, :ordered)).sort_by { |c| DataCycleCore.features.dig(:life_cycle, :ordered)&.index c.name }.map { |c| [c.name, { id: c.id, alias: c.primary_classification_alias }] }.to_h
-    #     end
-    #   else
-    #     {}
-    #   end
-    # end
-
-    # def walk_classification_tree(classification_alias)
-    #   classification_tree = []
-    #   return if classification_alias.nil?
-    #   classification_alias.each do |value|
-    #     classification_tree.push([value.name, value.classifications.ids.first])
-    #     classification_tree.push(walk_classification_tree(value.sub_classification_alias).flatten)
-    #   end
-    #   classification_tree
-    # end
-
     def classification_tree_label_has_children?(treelabel)
       DataCycleCore::Classification
         .includes(:classification_groups, :classification_aliases)
