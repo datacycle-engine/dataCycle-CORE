@@ -81,26 +81,32 @@ module DataCycleCore
       end
     end
 
-    # @todo: refactor when finally migrated to ActiveStorage
+    # returns an image for the given content
+    # used in asset serializer with image proxy
+    # used in api with image proxy
     def asset
       content = DataCycleCore::Thing.find(params[:id])
-      type = asset_proxy_params.dig(:type)
-      attribute = :content_url
-      attribute = :thumbnail_url if type == 'thumb' || (type == 'content' && !['Video', 'Audio', 'Bild', 'ImageVariant'].include?(content.template_name))
+      raise ActiveRecord::RecordInvalid if content.template_name == 'Audio'
+
+      content = content.try(:image)&.first unless content.respond_to?(:asset)
+
+      attribute = asset_proxy_params.dig(:type) == 'content' && ['Bild', 'ImageVariant'].include?(content.template_name) ? :content_url : :thumbnail_url
 
       raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
 
-      if content.try(:asset)&.class&.name != 'DataCycleCore::Image'
-        content.asset.file.preview(resize_to_limit: [300, 300]).processed unless content.asset.file.preview_image.attached?
-        rendered_attribute = content.asset.file.preview_image.url
-      elsif content.template_name == 'Video' || content.template_name == 'PDF'
-        # no active storage
-        rendered_attribute = content.send(:thumbnail_url)
-      elsif content.template_name == 'Webcam' && content.send(attribute).blank?
-        rendered_attribute = content.try(:image)&.first&.send(attribute)
+      if content.try(:asset).file.attached?
+        # active storage
+        if content.asset.instance_of?(::DataCycleCore::Image)
+          rendered_attribute = content.send(attribute)
+        else
+          content.asset.file.preview(resize_to_limit: [300, 300]).processed unless content.asset.file.preview_image.attached?
+          rendered_attribute = content.asset.file.preview_image.url
+        end
       else
+        # external thing
         rendered_attribute = content.send(attribute)
       end
+
       uri = URI.parse(rendered_attribute)
       # used for local development and docker env.
       uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && ENV.fetch('APP_DOCKER_ENV') { nil } != 'production' && uri.hostname == 'localhost'

@@ -19,13 +19,6 @@ Lint/NestedMethodDefinition:
     - 'app/models/data_cycle_core/master_data/import_external_sources.rb'
     - 'app/models/data_cycle_core/master_data/import_external_systems.rb'
 
-Lint/UnusedMethodArgument:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/google_places/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/eyebase/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/xamoom/import_spots.rb'
-    - 'app/models/data_cycle_core/generic/bergfex/endpoint.rb'
-
 Lint/NonDeterministicRequireOrder:
   Exclude:
     - 'vendor/gems/translations/spec/spec_helper.rb'
@@ -96,8 +89,6 @@ Rails/Output:
     - 'app/controllers/data_cycle_core/dash_board_controller.rb'
     - 'app/models/data_cycle_core/content/data_hash.rb'
     - 'app/models/data_cycle_core/generic/logger/console.rb'
-    - 'app/models/data_cycle_core/generic/media_archive/import.rb'
-    - 'app/models/data_cycle_core/generic/media_archive_v2/import.rb'
     - 'app/models/data_cycle_core/master_data/import_classifications.rb'
     - 'app/models/data_cycle_core/master_data/import_templates.rb'
     - 'app/models/data_cycle_core/master_data/import_external_sources.rb'
@@ -160,7 +151,6 @@ Gemspec/RequireMFA:
 # Configuration parameters: EmptyLineBetweenMethodDefs, EmptyLineBetweenClassDefs, EmptyLineBetweenModuleDefs, AllowAdjacentOneLineDefs, NumberOfEmptyLines.
 Layout/EmptyLineBetweenDefs:
   Exclude:
-    - 'app/models/data_cycle_core/generic/sulu/webhook.rb'
     - 'app/models/data_cycle_core/master_data/contracts/api_contract.rb'
     - 'lib/data_cycle_core/exceptions.rb'
 
@@ -259,8 +249,6 @@ Lint/DuplicateBranch:
     - 'app/models/data_cycle_core/content/content.rb'
     - 'app/models/data_cycle_core/content/data_hash.rb'
     - 'app/models/data_cycle_core/content/extensions/sync_api.rb'
-    - 'app/models/data_cycle_core/export/outdoor_active/webhook.rb'
-    - 'app/models/data_cycle_core/generic/feratel/transformations.rb'
     - 'app/models/data_cycle_core/master_data/validators/classification.rb'
     - 'app/models/data_cycle_core/master_data/validators/linked.rb'
     - 'app/views/data_cycle_core/schema/index.xlsx.axlsx'
@@ -277,7 +265,6 @@ Lint/ElseLayout:
 # Configuration parameters: AllowComments, AllowEmptyLambdas.
 Lint/EmptyBlock:
   Exclude:
-    - 'app/models/data_cycle_core/generic/jet_ticket/endpoint.rb'
     - 'app/models/data_cycle_core/master_data/contracts/api_contract.rb'
     - 'test/models/content/computed_properties_update_test.rb'
 
@@ -286,8 +273,6 @@ Lint/EmptyBlock:
 Lint/EmptyClass:
   Exclude:
     - 'app/models/data_cycle_core/feature/overlay.rb'
-    - 'app/models/data_cycle_core/generic/data_cycle_media/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/geo_shape/endpoint.rb'
 
 # Offense count: 5
 # Configuration parameters: AllowComments.
@@ -297,12 +282,6 @@ Lint/EmptyConditionalBody:
     - 'app/controllers/data_cycle_core/geojson/v1/contents_controller.rb'
     - 'app/controllers/data_cycle_core/sync_api/v1/contents_controller.rb'
     - 'lib/tasks/dc_debug.rake'
-
-# Offense count: 3
-Lint/FloatComparison:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/feratel/transformations.rb'
-    - 'app/models/data_cycle_core/generic/media_archive/processing.rb'
 
 # Offense count: 54
 Lint/MissingSuper:
@@ -351,14 +330,6 @@ Lint/TopLevelReturnWithArgument:
   Exclude:
     - 'app/views/data_cycle_core/api/v3/api_base/attributes/_geographic.jb'
 
-# Offense count: 3
-# Configuration parameters: EnforcedStyle, CheckMethodNames, CheckSymbols, AllowedIdentifiers.
-# SupportedStyles: snake_case, normalcase, non_integer
-# AllowedIdentifiers: capture3, iso8601, rfc1123_date, rfc822, rfc2822, rfc3339
-Naming/VariableNumber:
-  Exclude:
-    - 'app/models/data_cycle_core/generic/eyebase/endpoint.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Performance/BlockGivenWithExplicitBlock:
@@ -403,8 +374,6 @@ Performance/StringIdentifierArgument:
     - 'app/models/data_cycle_core/content/content.rb'
     - 'app/models/data_cycle_core/content/data_hash.rb'
     - 'app/models/data_cycle_core/feature/data_hash/publication_schedule.rb'
-    - 'app/models/data_cycle_core/generic/feratel/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/jet_ticket/endpoint.rb'
     - 'app/models/data_cycle_core/serialize/serializer/gpx.rb'
     - 'app/views/data_cycle_core/api/v2/api_base/_content_header.json.jbuilder'
     - 'app/views/data_cycle_core/api/v3/api_base/_content_header.jb'
@@ -416,11 +385,6 @@ Performance/Sum:
   Exclude:
     - 'app/models/data_cycle_core/content/extensions/sync_api.rb'
     - 'app/models/data_cycle_core/generic/common/opening_hours.rb'
-    - 'app/models/data_cycle_core/generic/feratel/download_asp.rb'
-    - 'app/models/data_cycle_core/generic/feratel/download_contents.rb'
-    - 'app/models/data_cycle_core/generic/feratel/download_mark_updated.rb'
-    - 'app/models/data_cycle_core/generic/feratel/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/pimcore/transformations.rb'
     - 'app/models/data_cycle_core/master_data/import_templates.rb'
     - 'lib/tasks/dc_debug.rake'
     - 'test/models/feature/auto_translate_feature_test.rb'
@@ -473,7 +437,6 @@ Rails/NegateInclude:
 Rails/Pluck:
   Exclude:
     - 'app/models/data_cycle_core/generic/common/import_functions.rb'
-    - 'app/models/data_cycle_core/generic/dc_sync/processing.rb'
     - 'app/models/data_cycle_core/generic/external_link/webhook.rb'
     - 'app/models/data_cycle_core/master_data/import_templates.rb'
     - 'lib/tasks/dc_clean_up.rake'
@@ -503,7 +466,6 @@ Rails/WhereEquals:
     - 'app/models/data_cycle_core/content/searchable.rb'
     - 'app/models/data_cycle_core/filter/common/typeahead.rb'
     - 'app/models/data_cycle_core/generic/common/update_attributes.rb'
-    - 'app/models/data_cycle_core/generic/google_places/transformations.rb'
     - 'lib/tasks/data_cycle_core_db_consistency.rake'
 
 # Offense count: 12
@@ -514,9 +476,7 @@ Rails/WhereExists:
   Exclude:
     - 'app/controllers/data_cycle_core/feature/controller_functions/life_cycle.rb'
     - 'app/models/data_cycle_core/classification_alias.rb'
-    - 'app/models/data_cycle_core/export/media_archive/update.rb'
     - 'app/models/data_cycle_core/feature/data_hash/releasable.rb'
-    - 'app/models/data_cycle_core/generic/media_archive/webhook.rb'
     - 'app/models/data_cycle_core/watch_list.rb'
     - 'db/migrate/20180907080412_add_super_admin_to_roles.rb'
     - 'test/integration/api/v4/jwt_authentication_test.rb'
@@ -582,8 +542,6 @@ Style/CollectionCompact:
   Exclude:
     - 'app/models/data_cycle_core/generic/common/functions.rb'
     - 'app/models/data_cycle_core/generic/common/import_functions.rb'
-    - 'app/models/data_cycle_core/generic/eyebase/transformations.rb'
-    - 'app/models/data_cycle_core/generic/feratel/processing.rb'
 
 # Offense count: 1
 Style/CombinableLoops:
@@ -651,11 +609,7 @@ Style/HashConversion:
     - 'app/helpers/data_cycle_core/data_hash_helper.rb'
     - 'app/models/data_cycle_core/generic/common/download_functions.rb'
     - 'app/models/data_cycle_core/generic/common/functions.rb'
-    - 'app/models/data_cycle_core/generic/data_cycle_api_v4/functions.rb'
     - 'app/models/data_cycle_core/generic/external_link/functions.rb'
-    - 'app/models/data_cycle_core/generic/eyebase/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/feratel/transformation_functions.rb'
-    - 'app/models/data_cycle_core/generic/pimcore/transformations.rb'
     - 'app/models/data_cycle_core/stats_database.rb'
     - 'config/initializers/monkey/hash_extension.rb'
     - 'config/initializers/monkey/patch_nokogiri.rb'
@@ -665,9 +619,6 @@ Style/HashConversion:
 # Configuration parameters: MinBranchesCount.
 Style/HashLikeCase:
   Exclude:
-    - 'app/models/data_cycle_core/generic/feratel/endpoint_load_ranges.rb'
-    - 'app/models/data_cycle_core/generic/feratel_webcam/import_day_of_week.rb'
-    - 'app/models/data_cycle_core/generic/feratel_webcam/import_time_of_day.rb'
     - 'lib/rake_helpers/db_helper.rb'
 
 # Offense count: 1
@@ -684,15 +635,8 @@ Style/KeywordParametersOrder:
   Exclude:
     - 'app/helpers/data_cycle_core/application_helper.rb'
     - 'app/models/data_cycle_core/content/extensions/sync_api.rb'
-    - 'app/models/data_cycle_core/export/feratel_handicap/endpoint.rb'
     - 'app/models/data_cycle_core/export/generic/endpoint.rb'
-    - 'app/models/data_cycle_core/export/toursprung/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/booking/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/celum/endpoint.rb'
     - 'app/models/data_cycle_core/generic/common/download_functions.rb'
-    - 'app/models/data_cycle_core/generic/feratel/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/feratel/endpoint_deleted_xml.rb'
-    - 'app/models/data_cycle_core/generic/feratel/endpoint_update_xml.rb'
     - 'app/models/data_cycle_core/master_data/import_templates.rb'
 
 # Offense count: 4
@@ -710,9 +654,6 @@ Style/NegatedIfElseCondition:
   Exclude:
     - 'app/helpers/data_cycle_core/classification_helper.rb'
     - 'app/models/data_cycle_core/generic/common/download_functions.rb'
-    - 'app/models/data_cycle_core/generic/event_database/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/feratel/endpoint_search.rb'
-    - 'app/models/data_cycle_core/generic/open_destination_one/endpoint.rb'
     - 'app/views/data_cycle_core/api/v2/api_base/_content_header.json.jbuilder'
     - 'app/views/data_cycle_core/api/v3/api_base/_content_header.jb'
 
@@ -720,14 +661,7 @@ Style/NegatedIfElseCondition:
 # Cop supports --auto-correct.
 Style/NilLambda:
   Exclude:
-    - 'app/models/data_cycle_core/generic/bergfex/import_snow_conditions.rb'
-    - 'app/models/data_cycle_core/generic/celum/import_users.rb'
     - 'app/models/data_cycle_core/generic/common/import_tags.rb'
-    - 'app/models/data_cycle_core/generic/eyebase/transformations.rb'
-    - 'app/models/data_cycle_core/generic/feratel_identity_server/import_realms.rb'
-    - 'app/models/data_cycle_core/generic/media_archive/import_tags.rb'
-    - 'app/models/data_cycle_core/generic/open_destination_one/transformations.rb'
-    - 'app/models/data_cycle_core/generic/reisen_fuer_alle/import_tags.rb'
 
 # Offense count: 24
 Style/OpenStructUse:
@@ -737,14 +671,10 @@ Style/OpenStructUse:
     - 'app/jobs/data_cycle_core/webhooks_job.rb'
     - 'app/models/data_cycle_core/content/content.rb'
     - 'app/models/data_cycle_core/export/generic/functions.rb'
-    - 'app/models/data_cycle_core/export/media_archive/functions.rb'
-    - 'app/models/data_cycle_core/export/outdoor_active/functions.rb'
     - 'app/models/data_cycle_core/external_system.rb'
     - 'app/models/data_cycle_core/feature/data_hash/auto_tagging.rb'
     - 'app/models/data_cycle_core/generic/common/functions.rb'
-    - 'app/models/data_cycle_core/generic/toursprung_geocoding/endpoint.rb'
     - 'app/models/data_cycle_core/open_struct_hash.rb'
-    - 'app/models/data_cycle_core/generic/gip_key_figures/endpoint.rb'
 
 # Offense count: 84
 # Configuration parameters: AllowedMethods.
@@ -760,10 +690,6 @@ Style/QuotedSymbols:
   Exclude:
     - 'app/models/data_cycle_core/external_system.rb'
     - 'app/models/data_cycle_core/feature/sortable.rb'
-    - 'app/models/data_cycle_core/generic/bergfex/import_ski_resorts_new.rb'
-    - 'app/models/data_cycle_core/generic/bergfex/import_snow_resorts.rb'
-    - 'app/models/data_cycle_core/generic/feratel/import_accommodations_aggregate.rb'
-    - 'app/models/data_cycle_core/generic/wikidata/import_classifications.rb'
     - 'app/models/data_cycle_core/stats_database.rb'
     - 'app/models/data_cycle_core/stored_filter.rb'
     - 'db/migrate/20200724094112_mark_feratel_mongo_data_deleted_all_languages.rb'
@@ -784,9 +710,7 @@ Style/RedundantArgument:
     - 'app/models/data_cycle_core/content/data_hash_utility.rb'
     - 'app/models/data_cycle_core/filter/common/fulltext.rb'
     - 'app/models/data_cycle_core/filter/sortable.rb'
-    - 'app/models/data_cycle_core/generic/celum/processing.rb'
     - 'app/models/data_cycle_core/generic/common/delete_contents.rb'
-    - 'app/models/data_cycle_core/generic/karriere_at/transformations.rb'
     - 'app/models/data_cycle_core/stats_database.rb'
     - 'config/initializers/monkey/patch_active_record_range.rb'
 
@@ -880,14 +804,3 @@ Style/StringLiterals:
     - 'test/dummy/config.ru'
     - 'test/dummy/config/environments/development.rb'
     - 'test/dummy/config/environments/test.rb'
-    - 'test/dummy/db/migrate_6_1/20220207112139_create_active_storage_variant_records.active_storage.rb'
-    - 'test/dummy/db/migrate_7_0/20220207131147_create_active_storage_variant_records.active_storage.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, MinSize.
-# SupportedStyles: percent, brackets
-Style/SymbolArray:
-  Exclude:
-    - 'test/dummy/db/migrate_6_1/20220207112139_create_active_storage_variant_records.active_storage.rb'
-    - 'test/dummy/db/migrate_7_0/20220207131147_create_active_storage_variant_records.active_storage.rb'

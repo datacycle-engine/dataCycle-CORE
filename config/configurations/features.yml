@@ -483,7 +483,7 @@
           audio_codec: 'aac' # -c:a libfdk_aac
           audio_sample_rate: 22050 # -ar 22050
           audio_channels: 2 # -ac 2
-          threads: 16 # -threads 2
+          threads: 4 # -threads 2
           custom:
             - '-movflags'
             - 'faststart'
@@ -503,7 +503,7 @@
           audio_codec: 'aac' # -c:a libfdk_aac
           audio_sample_rate: 22050 # -ar 22050
           audio_channels: 2 # -ac 2
-          threads: 16 # -threads 2
+          threads: 4 # -threads 2
           custom:
             - '-movflags'
             - 'faststart'
@@ -523,7 +523,7 @@
           audio_codec: 'aac' # -c:a libfdk_aac
           audio_sample_rate: 22050 # -ar 22050
           audio_channels: 2 # -ac 2
-          threads: 16 # -threads 2
+          threads: 4 # -threads 2
           custom:
             - '-movflags'
             - 'faststart'

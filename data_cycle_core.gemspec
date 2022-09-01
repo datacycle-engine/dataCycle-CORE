@@ -4,13 +4,12 @@ require 'date'
 
 $LOAD_PATH.push File.expand_path('lib', __dir__)
 
-# Maintain your gem's version:
-require 'data_cycle_core/version'
+version = File.read(File.expand_path('./GEM_VERSION', __dir__)).strip
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
   s.name        = 'data_cycle_core'
-  s.version     = DataCycleCore::VERSION
+  s.version     = version
   s.authors     = ['Manuel Mitterer', 'Martin Oehzelt', 'Benjamin Preisig', 'Patrick Rainer', 'Johannes Zlattinger']
   s.email       = ['office@datacycle.at']
   s.homepage    = 'https://datacycle.info'
