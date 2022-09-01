@@ -1,10 +1,10 @@
 <% contents.presence&.each do |content| %>
-  <% I18n.with_locale(content.first_available_locale) do %>
+  <% I18n.with_locale(content.first_available_locale(local_assigns[:language], active_ui_locale)) do %>
     <% content_for :media_buttons, flush: true do %>
       <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if show_external_connections?(content) %>
 
       <% if content.try(:translated_locales)&.many? %>
-        <i class="fa fa-language" title="<%= content.translated_locales.map {|t| t("locales.#{t}", locale: active_ui_locale)}&.join("\n") %>"></i>
+        <i class="fa fa-language" aria-hidden="true" data-dc-tooltip="<%= content.translated_locales.map {|t| t("locales.#{t}", locale: active_ui_locale)}&.join('<br>') %>"></i>
       <% end %>
 
       <% if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && !content.is_a?(DataCycleCore::WatchList) %>

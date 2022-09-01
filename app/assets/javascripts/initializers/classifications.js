@@ -44,7 +44,7 @@ export default function () {
 
       return false;
     });
-    $('#classification-administration').on('click', '.discard', function (event) {
+    $('#classification-administration').on('click', '.discard', function (_event) {
       $(this).parents('form').get(0).reset();
       $(this).closest('li.active').removeClass('active');
 

@@ -1,4 +1,4 @@
-<% I18n.with_locale(item.first_available_locale(@language)) do %>
+<% I18n.with_locale(item.first_available_locale(local_assigns[:language], active_ui_locale)) do %>
 
   <div class="inner-item">
     <div class="content-row">
@@ -31,6 +31,6 @@
     id="content-details-<%= item.id %>"
     data-remote-render-function="render_content_tile_details"
     data-remote-render-params="<%= to_query_params(item: item, mode: 'list').to_json %>"
-    data-remote-options="<%= to_query_params(locale: I18n.locale.to_s, language: @language).to_json %>">
+    data-remote-options="<%= to_query_params(locale: I18n.locale.to_s, language: local_assigns[:language]).to_json %>">
   </div>
 <% end %>

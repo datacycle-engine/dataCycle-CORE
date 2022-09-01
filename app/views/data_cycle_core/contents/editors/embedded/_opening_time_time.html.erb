@@ -24,9 +24,11 @@
   </span>
 
   <a href="#" class="accordion-title">
-    <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
-    <span class="embedded-label"><%= translated_attribute_label(key, definition, content, options) %></span>
-    <%= render 'data_cycle_core/contents/helper_text', key: key, definition: definition, content: contextual_content(local_assigns) %>
+    <span class="title">
+      <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+      <span class="embedded-label"><%= translated_attribute_label(key, definition, content, options) %></span>
+      <%= render 'data_cycle_core/contents/helper_text', key: key, definition: definition, content: contextual_content(local_assigns) %>
+    </span>
   </a>
 
   <% unless readonly %>

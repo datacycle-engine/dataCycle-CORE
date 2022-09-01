@@ -21,16 +21,22 @@ module DataCycleCore
       end
     end
 
-    def embedded_add_button(id:, key:, content:, definition:, options: nil, **args)
-      readonly = !attribute_editable?(key, definition, options, content)
+    def embedded_editor_header(key:, content:, definition:, options: nil, **args)
+      editable = attribute_editable?(key, definition, options, content)
 
-      tag.button(id: id, type: 'button', class: 'button add-content-object', style: 'display: none;', disabled: readonly) do
-        text = [tag.span(I18n.t('embedded.button_title', title: translated_attribute_label(key, definition, content, options), locale: active_ui_locale), class: 'add-content-object-text')]
-        text.prepend(tag.i(class: 'fa fa-ban')) if readonly
-        text.append(render('data_cycle_core/contents/quality_score', key: key, content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition)) if definition.key?('quality_score')
-        text.append(tag.i(class: 'fa fa-spinner fa-spin fa-fw'))
-        safe_join(text)
-      end
+      html = attribute_edit_label_tag(**args.merge(key: key, content: content, definition: definition, options: options, i18n_count: 2))
+      html << render('data_cycle_core/contents/viewers/shared/accordion_toggle_buttons', button_type: 'children')
+      html << tag.button(tag.i(class: 'fa fa-plus'), id: "add_#{options&.dig(:prefix)}#{sanitize_to_id(key)}", type: 'button', class: 'button add-content-object', disabled: !editable) if editable
+
+      tag.div(html, class: 'embedded-editor-header dc-sticky-bar')
+    end
+
+    def embedded_viewer_html_classes(definition:, **_args)
+      html_classes = ['detail-type', 'embedded-viewer', 'embedded-wrapper']
+
+      html_classes.push('dc-quality-score') if definition.key?('quality_score')
+
+      html_classes.join(' ')
     end
   end
 end

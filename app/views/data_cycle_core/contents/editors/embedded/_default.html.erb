@@ -25,8 +25,6 @@
         <%= render 'data_cycle_core/contents/helper_text', key: key, definition: definition, content: contextual_content(local_assigns) %>
         <%= tag.span object.try(object.embedded_title_property_name), title: object.try(object.embedded_title_property_name), class: "embedded-title#{' visible' if object.try(object.embedded_title_property_name).present?}" if object.embedded_title_property_name.present? %>
       </span>
-
-      <%= render 'data_cycle_core/contents/viewers/shared/accordion_toggle_buttons', button_type: 'children' if object.embedded_property_names.present? %>
     </div>
 
     <% if attribute_editable?(key, definition, options, content) %>

@@ -319,7 +319,7 @@ en:
     show_less: Show less
     expired_content: Validity period exceeded!
     entries: Entries
-    is: Sync and corrections by n17t01
+    is: is
     is_not: is not
     greater: greater than
     lower: less than
@@ -474,7 +474,7 @@ en:
     system_dialog: Select images via system dialog
     or: or
     select_from_datacycle: Use %{data} already uploaded
-    copy_all_title: "take all attributes from this %{single} for all %{multiple}"
+    copy_all_title: 'take all attributes from this %{single} for all %{multiple}'
   external_connection_states:
     success: Successfully synchronized
     pending: is synchronized
@@ -1208,7 +1208,7 @@ en:
     stored_searches:
       my_searches: My searches
       my_saved: My saved searches
-      show_in_my_saved_searches: show in my saved searches
+      show_in_my_saved_searches: show details
       last: Last searched
       saved:
         one: Saved search

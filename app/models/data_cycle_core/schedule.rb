@@ -78,8 +78,8 @@ module DataCycleCore
 
       {
         '@type' => 'OpeningHoursSpecification',
-        'validFrom' => @schedule_object&.start_time&.in_time_zone&.to_s(:only_date),
-        'validThrough' => rule_hash&.dig(:until)&.in_time_zone&.to_s(:only_date),
+        'validFrom' => dtstart&.to_s(:only_date),
+        'validThrough' => rule_hash&.dig(:until)&.to_s(:only_date),
         'opens' => dtstart&.to_s(:only_time),
         'closes' => dtend&.to_s(:only_time),
         'dayOfWeek' => Array.wrap(rule_hash&.dig(:validations, :day)&.map { |day| dow(day) }).concat(holidays ? [dow(99)] : []).presence

@@ -41,11 +41,7 @@ class AssetUploader {
     this.reveal.on('closed.zf.reveal', this.closeReveal.bind(this));
     this.reveal.on('dc:upload:setFiles', (_e, data) => this.validateFiles(data.fileList));
     this.reveal.on('dc:upload:setIds', this.importAssetIds.bind(this));
-    this.reveal.on(
-      'click',
-      '.file-for-upload:not(.uploading) .cancel-upload-button',
-      this.removeFileHandler.bind(this)
-    );
+    this.reveal.on('click', '.file-for-upload .cancel-upload-button', this.removeFileHandler.bind(this));
 
     if (this.contentUploader) this.createButton.on('click', this.createAssets.bind(this));
 

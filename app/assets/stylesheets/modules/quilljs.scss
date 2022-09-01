@@ -41,7 +41,7 @@ $fa-font-path: '/assets';
   > label {
     order: 5;
     padding: 0 0 0 1rem;
-    transition: color ease-in-out 0.25s;
+    transition: $color-transition;
 
     .translatable-attribute-icon {
       margin-right: 0.3rem;
@@ -156,7 +156,7 @@ $fa-font-path: '/assets';
 
     .ql-contentlink {
       path {
-        transition: fill 0.2s;
+        transition: fill 0.25s ease-out;
       }
       .st1 {
         fill: #e6007e;
@@ -254,7 +254,7 @@ $fa-font-path: '/assets';
     background-color: $white;
     align-items: center;
     position: sticky;
-    top: 55px;
+    top: var(--dc-sticky-bar-offset) !important;
     z-index: 12;
     height: 2.5rem;
     border-radius: $global-radius;
