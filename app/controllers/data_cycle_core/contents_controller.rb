@@ -94,7 +94,7 @@ module DataCycleCore
 
       raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
 
-      if content.try(:asset).file.attached?
+      if content.try(:asset)&.file&.attached?
         # active storage
         if content.asset.instance_of?(::DataCycleCore::Image)
           rendered_attribute = content.send(attribute)
