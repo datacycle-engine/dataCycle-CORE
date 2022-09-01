@@ -456,14 +456,6 @@ class ObjectBrowser {
           if ($(this).prop('id').indexOf('overlay_') != -1)
             $(this).prop('id', $(this).prop('id').replace('overlay_', ''));
         });
-      this.element
-        .children('.media-thumbs')
-        .children('.object-thumbs')
-        .children('li.item')
-        .find('[data-tooltip]')
-        .each((_index, item) => {
-          $(item).attr('title', $('#' + $(item).data('toggle')).html());
-        });
     }
 
     this.element.trigger('dc:objectBrowser:change', { key: this.key, ids: this.chosen });
@@ -472,11 +464,6 @@ class ObjectBrowser {
     if (this.chosen.indexOf(id) === -1) {
       this.chosen.push(id);
       this.overlay.find('.chosen-items-container').append(element);
-      $(element)
-        .find('[data-tooltip]')
-        .each((_index, item) => {
-          $(item).attr('title', $('#' + $(item).data('toggle')).html());
-        });
       this.overlay
         .children('.items')
         .find('li.item[data-id=' + id + ']')
@@ -564,13 +551,6 @@ class ObjectBrowser {
     });
   }
   setPreselected() {
-    this.overlay
-      .find('.chosen-items-container')
-      .html(this.cloneHtml(this.element.find('> .media-thumbs > .object-thumbs > li.item')))
-      .find('[data-tooltip]')
-      .each(function () {
-        $(this).attr('title', $(this).data('title'));
-      });
     this.chosen = $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'));
   }
   openOverlay(_ev) {

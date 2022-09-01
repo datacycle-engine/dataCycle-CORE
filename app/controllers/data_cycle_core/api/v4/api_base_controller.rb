@@ -103,7 +103,7 @@ module DataCycleCore
         private
 
         def set_default_response_format
-          return request.format = :geojson if request.format.geojson? || permitted_params[:format].to_s == 'geojson' || Mime::Type.parse(request.accept)&.include?(:geojson)
+          return request.format = :geojson if request.format.geojson? || permitted_params[:format].to_s == 'geojson' || Mime::Type.parse(request.accept.to_s)&.include?(:geojson)
 
           request.format = :json unless permitted_params[:format]
         end

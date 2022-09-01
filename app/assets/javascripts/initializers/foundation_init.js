@@ -1,5 +1,12 @@
-import 'foundation-sites';
 import domElementHelpers from '../helpers/dom_element_helpers';
+
+import { Foundation } from 'foundation-sites/js/foundation.core';
+import { Reveal } from 'foundation-sites/js/foundation.reveal';
+import { Dropdown } from 'foundation-sites/js/foundation.dropdown';
+import { Accordion } from 'foundation-sites/js/foundation.accordion';
+import { Slider } from 'foundation-sites/js/foundation.slider';
+import { OffCanvas } from 'foundation-sites/js/foundation.offcanvas';
+import { Tabs } from 'foundation-sites/js/foundation.tabs';
 
 function removeFoundationOverlays(element, type) {
   let overlay = document.getElementById(element.dataset[type]);
@@ -26,14 +33,21 @@ function monitorSizeChanges(element) {
 }
 
 export default function () {
-  Foundation.Tooltip.defaults.clickOpen = false;
+  Foundation.addToJquery($);
+
+  Foundation.plugin(Accordion, 'Accordion');
+  Foundation.plugin(Dropdown, 'Dropdown');
+  Foundation.plugin(OffCanvas, 'OffCanvas');
+  Foundation.plugin(Reveal, 'Reveal');
+  Foundation.plugin(Slider, 'Slider');
+  Foundation.plugin(Tabs, 'Tabs');
+
   Foundation.Reveal.defaults.closeOnClick = false;
   Foundation.Reveal.defaults.multipleOpened = true;
   Foundation.Dropdown.defaults.position = 'bottom';
   Foundation.Dropdown.defaults.alignment = 'left';
   Foundation.Dropdown.defaults.hover = true;
   Foundation.Dropdown.defaults.hoverPane = true;
-  Foundation.addToJquery($);
 
   DataCycle.htmlObserver.removeCallbacks.push([e => 'open' in e.dataset, e => removeFoundationOverlays(e, 'open')]);
   DataCycle.htmlObserver.removeCallbacks.push([e => 'toggle' in e.dataset, e => removeFoundationOverlays(e, 'toggle')]);
@@ -94,10 +108,6 @@ export default function () {
   // Foundation Tabs
   for (const element of document.querySelectorAll('[data-tabs]')) new Foundation.Tabs($(element));
   DataCycle.htmlObserver.addCallbacks.push([e => 'tabs' in e.dataset, e => new Foundation.Tabs($(e))]);
-
-  // Foundation Tooltip
-  for (const element of document.querySelectorAll('[data-tooltip]')) new Foundation.Tooltip($(element));
-  DataCycle.htmlObserver.addCallbacks.push([e => 'tooltip' in e.dataset, e => new Foundation.Tooltip($(e))]);
 
   $(document).on('open.zf.reveal', '.reveal', event => {
     event.stopPropagation();
@@ -166,15 +176,5 @@ export default function () {
     $(event.currentTarget)
       .closest('[data-accordion]')
       .foundation('toggle', $(event.currentTarget).closest('.accordion-title').siblings('.accordion-content'));
-  });
-
-  $(document).on('mouseenter', '.dc-foundation-tooltip', event => {
-    let $target = $(event.currentTarget);
-    $target.removeClass('dc-foundation-tooltip');
-
-    if ($target.prop('title').length) {
-      new Foundation.Tooltip($target);
-      $target.trigger('mouseenter');
-    }
   });
 }

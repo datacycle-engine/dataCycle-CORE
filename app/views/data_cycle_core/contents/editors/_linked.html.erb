@@ -4,7 +4,7 @@
   <% object_template = definition['template_name'] %>
   <% html_id = "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
 
-  <div class="linked-editor-header">
+  <div class="linked-editor-header dc-sticky-bar">
     <%= attribute_edit_label_tag(**local_assigns) %>
 
     <% if attribute_editable?(key, definition, options, content) %>

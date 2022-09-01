@@ -103,6 +103,7 @@
     ul.duplicates-list {
       display: flex;
       flex-flow: row wrap;
+
       > li {
         flex: auto;
         width: 90px;
@@ -110,16 +111,17 @@
         margin: 0.3rem;
         padding: 0;
         background: $white;
-        transition: all 0.2s ease-in-out;
+        transition: $global-transition;
 
         > a {
           > img {
             box-shadow: 0 0 5px $dark-gray;
-            transition: box-shadow 0.3s;
+            transition: box-shadow 0.25s ease-out;
           }
+
           &:hover {
             > img {
-              box-shadow: 0 0 7px $primary-color;
+              box-shadow: 0 1px 7px $primary-color;
             }
           }
         }
@@ -128,6 +130,7 @@
   }
   .content-warning {
     font-size: 2rem;
+
     &.alert {
       font-size: 4.5rem;
     }
@@ -176,7 +179,7 @@ ul.asset-list {
     padding: 0.5rem;
     background-color: rgba($white, 0.5);
     box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
-    transition: all 0.1s;
+    transition: $global-transition;
     border-radius: $global-radius;
 
     .asset-deselect,
@@ -390,7 +393,7 @@ ul.asset-list {
   border: 1px solid lighten($dark-gray, 10%);
   display: flex;
   flex-flow: column;
-  transition: all 0.3s;
+  transition: $global-transition;
   background: rgba($dark-gray, 0.05);
   border-radius: $global-radius;
 
@@ -497,7 +500,7 @@ ul.asset-list {
       text-align: center;
       font-size: 0.7rem;
       padding: 5px;
-      transition: all 0.3s;
+      transition: $global-transition;
 
       .working-spinner {
         font-size: 0.8rem;
@@ -606,7 +609,7 @@ ul.asset-list {
               max-width: 50px;
               max-height: 50px;
               box-shadow: 1px 1px 3px $dark-gray;
-              transition: all 0.2s ease-in-out;
+              transition: $global-transition;
             }
 
             &:hover {
@@ -681,7 +684,7 @@ ul.asset-list {
       height: 100%;
       width: 0;
       background: $primary-color;
-      transition: all 0.3s;
+      transition: $global-transition;
     }
   }
 
@@ -745,13 +748,6 @@ ul.asset-list {
     }
     .upload-progress {
       background: rgba($primary-color, 0.2);
-    }
-
-    .file-buttons {
-      .cancel-upload-button {
-        opacity: 0.25;
-        cursor: not-allowed;
-      }
     }
   }
 
@@ -842,7 +838,7 @@ ul.asset-list {
       width: 2rem;
       display: flex;
       padding: 0;
-      transition: all 0.3s;
+      transition: $global-transition;
       align-items: center;
       justify-content: center;
 

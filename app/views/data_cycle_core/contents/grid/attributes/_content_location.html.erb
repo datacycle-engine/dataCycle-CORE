@@ -1,4 +1,4 @@
-<% I18n.with_locale(item.content_location.first.first_available_locale(@language)) do %>
+<% I18n.with_locale(item.content_location.first.first_available_locale(local_assigns[:language], active_ui_locale)) do %>
 
   <% if item.content_location.first.try(:address).present? || item.content_location.first.try(:name).present? %>
 

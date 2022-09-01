@@ -7,6 +7,7 @@ import intersection from 'lodash/intersection';
 class EmbeddedObject {
   constructor(selector) {
     this.element = selector;
+    this.addButton = this.element.siblings('.embedded-editor-header').find('> .add-content-object').first();
     this.page = 1;
     this.id = this.element.prop('id');
     this.key = this.element.data('key');
@@ -54,9 +55,7 @@ class EmbeddedObject {
       draggable: '.content-object-item.draggable_' + this.id
     });
     if (this.write && (this.max == 0 || this.element.children('.content-object-item').length < this.max))
-      $(this.element)
-        .find('> .buttons > #add_' + this.id)
-        .show();
+      this.addButton.show();
     this.element
       .off('reinit-event-handlers', this.eventHandlers.reInit)
       .on('reinit-event-handlers', this.eventHandlers.reInit);
@@ -69,6 +68,7 @@ class EmbeddedObject {
       .addClass('dc-import-data');
 
     this.addEventHandlers();
+    this._updateContainerClass();
   }
   _checkForConditionRecursive(node) {
     for (const child of node.children) this._checkForConditionRecursive(child);
@@ -156,7 +156,7 @@ class EmbeddedObject {
     if (type == 'split_view') this.index += difference(ids, this.ids).length;
     else if (type == 'new') this.index++;
 
-    this.element.find('> .buttons > button').prop('disabled', true).find('.fa').css('display', 'inline-block');
+    this.element.parent().addClass('loading-embedded');
 
     const promise = DataCycle.httpRequest({
       url: this.url + '/render_embedded_object',
@@ -190,10 +190,7 @@ class EmbeddedObject {
     return $(element).find('> .removeContentObject, > .form-element > .editor-block > .removeContentObject');
   }
   addEventHandlers() {
-    this.element
-      .find('> .buttons > #add_' + this.id)
-      .off('click', this.eventHandlers.addItem)
-      .on('click', this.eventHandlers.addItem);
+    this.addButton.off('click', this.eventHandlers.addItem).on('click', this.eventHandlers.addItem);
 
     this.element.children('.content-object-item').each((_index, element) => {
       this.findRemoveButton(element)
@@ -212,6 +209,10 @@ class EmbeddedObject {
     await this.renderEmbeddedObjects('new');
 
     this.element.trigger('change');
+    this.element.children('.content-object-item').last().get(0).scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
   }
   handleRemoveEvent(event) {
     event.preventDefault();
@@ -246,9 +247,9 @@ class EmbeddedObject {
   }
   update() {
     if (this.max != 0 && this.element.children('.content-object-item').length >= this.max) {
-      this.element.find('> .buttons > #add_' + this.id).hide();
+      this.addButton.hide();
     } else if (this.write) {
-      this.element.find('> .buttons > #add_' + this.id).show();
+      this.addButton.show();
     }
     if (this.min != 0 && this.element.children('.content-object-item').length <= this.min) {
       this.findRemoveButton(this.element.children('.content-object-item')).hide();
@@ -262,6 +263,12 @@ class EmbeddedObject {
     }
 
     this.element.children('.content-object-item').each((_, elem) => this.setSwapClasses(elem));
+    this._updateContainerClass();
+  }
+  _updateContainerClass() {
+    this.element[0]
+      .closest('.form-element.embedded_object')
+      .classList.toggle('has-items', this.element.children('.content-object-item').length > 0);
   }
   scrollToLocationHash(event) {
     event.stopPropagation();
@@ -315,7 +322,7 @@ class EmbeddedObject {
       characterDataOldValue: false
     });
 
-    this.element.find('> .buttons > .load-more-linked-contents').get(0).click();
+    this.element.find('> .load-more-linked-contents').get(0).click();
   }
 }
 

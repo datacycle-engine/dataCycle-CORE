@@ -33,17 +33,17 @@ module DataCycleCore
       @available_locales_with_all[active_ui_locale]
     end
 
-    def translated_attribute_label(key, definition, content, options)
+    def translated_attribute_label(key, definition, content, options, count = 1)
       @translated_attribute_label ||= Hash.new do |h, k|
         h[k] = begin
-          if I18n.exists?("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", locale: k[4])
-            label = I18n.t("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", locale: k[4])
-          elsif I18n.exists?("attribute_labels.#{k[2]&.template_name}.#{k[0]}", locale: k[4])
-            label = I18n.t("attribute_labels.#{k[2]&.template_name}.#{k[0]}", locale: k[4])
-          elsif I18n.exists?("attribute_labels.#{k[3]}.#{k[0]}", locale: k[4])
-            label = I18n.t("attribute_labels.#{k[3]}.#{k[0]}", locale: k[4])
-          elsif I18n.exists?("attribute_labels.#{k[0]}", locale: k[4])
-            label = I18n.t("attribute_labels.#{k[0]}", locale: k[4])
+          if I18n.exists?("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", count: k[5], locale: k[4])
+            label = I18n.t("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", count: k[5], locale: k[4])
+          elsif I18n.exists?("attribute_labels.#{k[2]&.template_name}.#{k[0]}", count: k[5], locale: k[4])
+            label = I18n.t("attribute_labels.#{k[2]&.template_name}.#{k[0]}", count: k[5], locale: k[4])
+          elsif I18n.exists?("attribute_labels.#{k[3]}.#{k[0]}", count: k[5], locale: k[4])
+            label = I18n.t("attribute_labels.#{k[3]}.#{k[0]}", count: k[5], locale: k[4])
+          elsif I18n.exists?("attribute_labels.#{k[0]}", count: k[5], locale: k[4])
+            label = I18n.t("attribute_labels.#{k[0]}", count: k[5], locale: k[4])
           elsif k[1].present?
             label = k[1].dig('ui', k[3].to_s, 'label') || k[1]['label']
           else
@@ -62,7 +62,8 @@ module DataCycleCore
           definition,
           content,
           options&.dig(:ui_scope),
-          active_ui_locale
+          active_ui_locale,
+          count
         ]
       ]
     end
@@ -88,18 +89,19 @@ module DataCycleCore
         )
     end
 
-    def attribute_viewer_label_tag(key:, definition:, content:, options: nil, **args)
-      label_html = ActionView::OutputBuffer.new(tag.span(translated_attribute_label(key, definition, content, options), class: 'attribute-label-text', title: translated_attribute_label(key, definition, content, options)))
+    def attribute_viewer_label_tag(key:, definition:, content:, options: nil, accordion_controls: false, i18n_count: 1, **args)
+      label_html = ActionView::OutputBuffer.new(tag.span(translated_attribute_label(key, definition, content, options, i18n_count), class: 'attribute-label-text', title: translated_attribute_label(key, definition, content, options, i18n_count)))
 
       label_html.prepend(tag.i(class: 'fa fa-language translatable-attribute-icon')) if attribute_translatable?(key, definition, content)
       label_html.prepend(tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-#{definition&.dig('type')} #{"type-#{definition&.dig('type')}-#{definition.dig('ui', 'show', 'type')}" if definition&.dig('ui', 'show', 'type').present?}"))
       label_html << render('data_cycle_core/contents/quality_score', key: key, content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition) if definition.key?('quality_score')
+      label_html << render('data_cycle_core/contents/viewers/shared/accordion_toggle_buttons', button_type: 'children') if accordion_controls
 
       tag.span label_html, class: 'detail-label'
     end
 
-    def attribute_edit_label_tag(key:, definition:, content:, options:, **args)
-      label_html = ActionView::OutputBuffer.new(tag.span(translated_attribute_label(key, definition, content, options), class: 'attribute-label-text', title: translated_attribute_label(key, definition, content, options)))
+    def attribute_edit_label_tag(key:, definition:, content:, options:, html_classes: nil, i18n_count: 1, **args)
+      label_html = ActionView::OutputBuffer.new(tag.span(translated_attribute_label(key, definition, content, options, i18n_count), class: 'attribute-label-text', title: translated_attribute_label(key, definition, content, options, i18n_count)))
 
       label_html.prepend(tag.i(class: 'fa fa-language translatable-attribute-icon')) if attribute_translatable?(key, definition, content)
       label_html.prepend(tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-#{definition&.dig('type')} #{"type-#{definition&.dig('type')}-#{definition.dig('ui', 'edit', 'type')}" if definition&.dig('ui', 'edit', 'type').present?}"))
@@ -107,7 +109,7 @@ module DataCycleCore
       label_html << render('data_cycle_core/contents/helper_text', key: key, content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition)
       label_html << render('data_cycle_core/contents/quality_score', key: key, content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition) if definition.key?('quality_score')
 
-      label_tag "#{options&.dig(:prefix)}#{sanitize_to_id(key)}", label_html, class: 'attribute-edit-label'
+      label_tag "#{options&.dig(:prefix)}#{sanitize_to_id(key)}", label_html, class: "attribute-edit-label #{html_classes}".strip
     end
 
     def quality_score_tooltip(definition)

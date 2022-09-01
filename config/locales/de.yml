@@ -1235,7 +1235,7 @@ de:
     stored_searches:
       my_searches: Meine Suchen
       my_saved: Meine gespeicherten Suchen
-      show_in_my_saved_searches: in meinen gespeicherten Suchen anzeigen
+      show_in_my_saved_searches: Details anzeigen
       last: Zuletzt gesucht
       saved:
         one: Gepeicherte Suche

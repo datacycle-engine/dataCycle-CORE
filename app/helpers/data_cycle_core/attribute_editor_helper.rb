@@ -109,7 +109,7 @@ module DataCycleCore
       "#{key}[#{index}]#{ATTRIBUTE_DATAHASH_PREFIX}"
     end
 
-    def attribute_editor_html_classes(key:, definition:, options:, parent: nil, **_args)
+    def attribute_editor_html_classes(key:, definition:, options:, content: nil, parent: nil, **_args)
       html_classes = [
         'clearfix',
         'form-element',
@@ -119,6 +119,7 @@ module DataCycleCore
         options&.dig('class')
       ]
 
+      html_classes.push('disabled') unless attribute_editable?(key, definition, options, content)
       html_classes.push('validation-container') if definition.key?('validations')
       html_classes.push('dc-quality-score') if definition.key?('quality_score')
       html_classes.push(definition.dig('ui', 'edit', 'type')&.underscore) if definition&.dig('ui', options[:edit_scope], 'partial').blank?

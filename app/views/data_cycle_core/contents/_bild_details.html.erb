@@ -136,24 +136,24 @@
         %>
       <% end %>
 
-        <% if can? :show_exif_data, content %>
-            <div class="embedded-viewer" data-accordion="true" data-allow-all-closed="true">
-                <div class="detail-type embedded accordion-item" data-accordion-item="true">
-                    <div class="accordion-title">
-                        <h3>
-                            <span class="title">
-                                <span title="<%= t('details.bild.exif_data', locale: active_ui_locale) %>"><%= t('details.bild.exif_data', locale: active_ui_locale) %></span>
-                            </span>
-                        </h3>
-                    </div>
-                    <div class="accordion-content" data-tab-content>
-                        <% meta_data = content&.asset&.metadata&.to_utf8 || {} %>
-                        <div id="exif-details" data-exif="<%= meta_data.to_json %>">
-                        </div>
-                    </div>
-                </div>
+      <% if can? :show_exif_data, content %>
+        <div class="<%= embedded_viewer_html_classes(**local_assigns) %>" data-accordion="true" data-allow-all-closed="true">
+          <div class="detail-type embedded accordion-item" data-accordion-item="true">
+            <div class="accordion-title">
+              <h3>
+                <span class="title">
+                  <span title="<%= t('details.bild.exif_data', locale: active_ui_locale) %>"><%= t('details.bild.exif_data', locale: active_ui_locale) %></span>
+                </span>
+              </h3>
             </div>
-        <% end %>
+            <div class="accordion-content" data-tab-content>
+              <% meta_data = content&.asset&.metadata&.to_utf8 || {} %>
+              <div id="exif-details" data-exif="<%= meta_data.to_json %>">
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
 
     </div>
 

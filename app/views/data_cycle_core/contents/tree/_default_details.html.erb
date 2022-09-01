@@ -1,4 +1,4 @@
-<% I18n.with_locale(item.first_available_locale(local_assigns[:locale])) do %>
+<% I18n.with_locale(item.first_available_locale(local_assigns[:language], active_ui_locale)) do %>
 
   <% if item.try(:desc).present? %>
     <div class="description">
@@ -33,7 +33,7 @@
         <% else %>
           <% mini_thumb_url =  image.thumbnail_url %>
         <% end %>
-        <img data-src="<%= mini_thumb_url %>" alt="<%= image.title %>" class="lazyload dc-foundation-tooltip" title="<img src='<%= image.thumbnail_url %>' />" data-allow-html="true" data-template-classes="thumbnail-tooltip" />
+        <img data-src="<%= mini_thumb_url %>" alt="<%= image.title %>" class="lazyload" data-dc-tooltip="<img src='<%= image.thumbnail_url %>' />" />
       <% end %>
     <% elsif item.try(:thumbnail_url).present? %>
       <% if DataCycleCore::Feature::ImageProxy.frontend_enabled? %>
@@ -41,9 +41,9 @@
       <% else %>
         <% mini_thumb_url =  image.thumbnail_url %>
       <% end %>
-      <img data-src="<%= mini_thumb_url %>" alt="<%= item.title %>" class="lazyload dc-foundation-tooltip" title="<img src='<%= item.thumbnail_url %>' />" data-allow-html="true" data-template-classes="thumbnail-tooltip" />
+      <img data-src="<%= mini_thumb_url %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= item.thumbnail_url %>' />" />
     <% elsif item.try(:image).is_a?(String) && item.try(:image).present? %>
-      <img data-src="<%= item.image %>" alt="<%= item.title %>" class="lazyload dc-foundation-tooltip" title="<img src='<%= item.image %>' />" data-allow-html="true" data-template-classes="thumbnail-tooltip" />
+      <img data-src="<%= item.image %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= item.image %>' />" />
     <% end %>
   </div>
 

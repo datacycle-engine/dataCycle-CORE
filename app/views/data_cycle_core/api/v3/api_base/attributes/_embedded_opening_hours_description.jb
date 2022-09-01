@@ -7,7 +7,7 @@ def serialize_opening_hours_description(description)
     {
       '@type' => 'OpeningHoursSpecification',
       'validFrom' => schedule_hash.dig(:start_time, :time)&.in_time_zone&.to_s(:only_date),
-      'validThrough' => schedule_hash&.dig(:rrules, 0, :until)&.in_time_zone&.to_s(:only_date) || schedule_hash&.dig(:end_time, :time)&.in_time_zone&.to_s(:only_date),
+      'validThrough' => schedule_hash&.dig(:rrules, 0, :until)&.to_s(:only_date) || schedule_hash&.dig(:end_time, :time)&.in_time_zone&.to_s(:only_date),
       'description' => description&.description,
       'contentType' => 'Öffnungszeit',
       '@context' => 'http://schema.org'

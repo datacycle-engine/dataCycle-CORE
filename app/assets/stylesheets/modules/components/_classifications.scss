@@ -127,7 +127,7 @@ ul.backend-treeview-list,
       }
 
       input.ca-input-field {
-        padding: 3rem 1rem 1.5rem 1rem;
+        padding: 2.5rem 1rem 1.2rem 1rem;
         max-width: none;
         display: block;
         height: auto;
@@ -144,7 +144,7 @@ ul.backend-treeview-list,
         padding: 2.5rem 1rem 1rem 1rem;
         border: 1px solid rgba($dark-gray, 0.5);
         box-shadow: 0 0 0 rgba($dark-gray, 0.5);
-        transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+        transition: $input-transition;
         border-radius: $global-radius;
         background: $white;
 
@@ -159,8 +159,8 @@ ul.backend-treeview-list,
 
         &:hover {
           z-index: 1;
-          border-color: transparent;
-          box-shadow: 0 0 7px $primary-color;
+          border-color: $primary-color;
+          box-shadow: 0 1px 7px lighten($dark-gray, 12%);
         }
 
         .ca-checkbox {
@@ -183,7 +183,7 @@ ul.backend-treeview-list,
             border-radius: $global-radius;
             box-shadow: 0 0 1px #aaa;
             background: rgba($light-gray, 0.5);
-            transition: background 0.2s ease;
+            transition: background 0.25s ease-out;
             font-weight: normal;
             line-height: normal;
 
@@ -201,7 +201,7 @@ ul.backend-treeview-list,
               font-size: 11px;
               margin-right: 0.5rem;
               color: $white;
-              transition: all 0.2s ease;
+              transition: $global-transition;
             }
           }
 
@@ -421,14 +421,14 @@ ul.backend-treeview-list,
     input[type='text'] {
       border: 1px solid rgba($dark-gray, 0.5);
       box-shadow: 0 0 0 rgba($dark-gray, 0.5);
-      transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+      transition: $input-transition;
       border-radius: $global-radius;
       background: $white;
 
       &:hover {
         z-index: 1;
-        border-color: transparent;
-        box-shadow: 0 0 7px $primary-color;
+        border-color: $primary-color;
+        box-shadow: 0 1px 7px lighten($dark-gray, 12%);
       }
 
       &:focus,
@@ -454,15 +454,15 @@ ul.backend-treeview-list,
       .editor-block {
         border: 1px solid rgba($dark-gray, 0.5);
         box-shadow: 0 0 0 rgba($dark-gray, 0.5);
-        transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+        transition: $input-transition;
         border-radius: $global-radius;
         background: $white;
       }
 
       &:hover .editor-block {
         z-index: 1;
-        border-color: transparent;
-        box-shadow: 0 0 7px $primary-color;
+        border-color: $primary-color;
+        box-shadow: 0 1px 7px lighten($dark-gray, 12%);
       }
 
       &.focus .editor-block {
@@ -488,7 +488,7 @@ ul.backend-treeview-list,
         left: 1rem;
         z-index: 12;
         color: $dark-gray;
-        transition: color ease-in-out 0.25s;
+        transition: $color-transition;
         padding-top: 0.5rem;
         opacity: 1;
       }
@@ -500,14 +500,14 @@ ul.backend-treeview-list,
       border-color: $light-gray;
       box-shadow: 0 0 0 $dark-gray;
       position: relative;
-      transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
+      transition: $input-transition;
       min-width: 280px;
       padding: 0 0 0 0;
 
       .select2-container {
         border: 1px solid rgba($dark-gray, 0.5);
         box-shadow: 0 0 0 rgba($dark-gray, 0.5);
-        transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+        transition: $input-transition;
         border-radius: $global-radius;
         background: $white;
         padding: 2.5rem 0.5rem 0.5rem 0.5rem;
@@ -519,8 +519,8 @@ ul.backend-treeview-list,
         }
 
         &:hover {
-          border-color: transparent;
-          box-shadow: 0 0 7px $primary-color;
+          border-color: $primary-color;
+          box-shadow: 0 1px 7px lighten($dark-gray, 12%);
         }
 
         &:focus,
@@ -713,7 +713,7 @@ ul.backend-treeview-list,
     }
 
     .inner-item {
-      transition: margin 0.1s ease-in-out;
+      transition: margin 0.25s ease-out;
 
       .folder-icon::after {
         content: '\f07b';
@@ -805,7 +805,7 @@ ul.backend-treeview-list,
       position: relative;
 
       > li.content-row {
-        transition: background-color 0.1s;
+        transition: background-color 0.25s ease-out;
         position: relative;
         width: calc(100% - 2rem);
         margin-left: 2rem;

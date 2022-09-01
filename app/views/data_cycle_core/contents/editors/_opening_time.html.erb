@@ -2,6 +2,8 @@
 
   <% objects = value.presence&.group_by { |s| [s.dtstart.strftime('%Y-%m-%d'), s.rrule] }&.values %>
 
+  <%= embedded_editor_header(**local_assigns) %>
+
   <div class="embedded-object" id="<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>"
     data-locale="<%= I18n.locale.to_s %>"
     data-key="<%= key %>"
@@ -39,10 +41,6 @@
     <% else %>
       <%= hidden_field_tag key + '[]', nil, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_default" %>
     <% end %>
-
-    <span class="buttons">
-      <%= embedded_add_button(id: "add_#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", **local_assigns) %>
-    </span>
   </div>
 
 <% end %>

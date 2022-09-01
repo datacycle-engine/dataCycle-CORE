@@ -1,4 +1,4 @@
-<% I18n.with_locale(item.first_available_locale(@language)) do %>
+<% I18n.with_locale(item.first_available_locale(local_assigns[:language], active_ui_locale)) do %>
 
   <%= link_to thing_path(item, watch_list_id: @watch_list&.id, locale: I18n.locale), class: 'content-link' do %>
     <div class="inner">

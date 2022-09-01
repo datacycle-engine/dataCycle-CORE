@@ -1,15 +1,15 @@
-<% I18n.with_locale(item.first_available_locale(local_assigns[:locale])) do %>
+<% I18n.with_locale(item.first_available_locale(local_assigns[:language], active_ui_locale)) do %>
   <div class="row">
     <div class="small-3 columns">
       <div class="thumbnails large">
         <% if item.try(:image).is_a?(ActiveRecord::Relation) %>
           <% item.image.presence&.includes(:translations)&.each do |image| %>
-            <img data-src="<%= image.thumbnail_url %>" alt="<%= image.title %>" class="lazyload dc-foundation-tooltip" title="<img src='<%= image.thumbnail_url %>' />" data-allow-html="true" data-template-classes="thumbnail-tooltip" />
+            <img data-src="<%= image.thumbnail_url %>" alt="<%= image.title %>" class="lazyload" data-dc-tooltip="<img src='<%= image.thumbnail_url %>' />" />
           <% end %>
         <% elsif item.try(:thumbnail_url).present? %>
-          <img data-src="<%= item.thumbnail_url %>" alt="<%= item.title %>" class="lazyload dc-foundation-tooltip" title="<img src='<%= item.thumbnail_url %>' />" data-allow-html="true" data-template-classes="thumbnail-tooltip" />
+          <img data-src="<%= item.thumbnail_url %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= item.thumbnail_url %>' />" />
         <% elsif item.try(:image).is_a?(String) && item.try(:image).present? %>
-          <img data-src="<%= item.image %>" alt="<%= item.title %>" class="lazyload dc-foundation-tooltip" title="<img src='<%= item.image %>' />" data-allow-html="true" data-template-classes="thumbnail-tooltip" />
+          <img data-src="<%= item.image %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= item.image %>' />" />
         <% end %>
       </div>
     </div>

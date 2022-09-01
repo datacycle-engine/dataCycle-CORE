@@ -17,6 +17,8 @@ module DataCycleCore
     end
 
     def self.decode(token)
+      return {} if token.blank?
+
       header_fields = JSON.parse(Base64.decode64(token.split('.').first))
       payload = JSON.parse(Base64.decode64(token.split('.')[1]))
       algorithm = header_fields['alg'] if ALGORITHMS.include?(header_fields['alg'])

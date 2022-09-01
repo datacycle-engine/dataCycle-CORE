@@ -19,10 +19,8 @@
   display: inline-block;
   cursor: pointer;
   pointer-events: all;
-  transition: all 150ms cubic-bezier(1, -0.115, 0.975, 0.855);
-  transition-timing-function: cubic-bezier(1, -0.115, 0.975, 0.855);
   opacity: 1;
-  transition: opacity 0.1s;
+  transition: $global-transition;
   height: 20px;
   width: 10px;
 }
@@ -37,8 +35,7 @@
   width: 10px;
   vertical-align: top;
   transform: rotate(133deg);
-  transition: all 150ms cubic-bezier(1, -0.115, 0.975, 0.855);
-  transition-timing-function: cubic-bezier(1, -0.115, 0.975, 0.855);
+  transition: $global-transition;
   box-sizing: inherit;
 }
 
@@ -68,7 +65,7 @@
   border: 1px solid rgba(60, 60, 60, 0.26);
   border-radius: $global-radius;
   white-space: normal;
-  transition: border-radius 0.25s;
+  transition: border-radius 0.25s ease-out;
 }
 
 .v-select .dropdown-toggle:after {
@@ -244,7 +241,7 @@
   border-left: 0.9em solid rgba(60, 60, 60, 0.45);
   transform: translateZ(0);
   animation: vSelectSpinner 1.1s infinite linear;
-  transition: opacity 0.1s;
+  transition: $opacity-transition;
 }
 
 .v-select .spinner,
@@ -284,7 +281,7 @@
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.15s cubic-bezier(1, 0.5, 0.8, 1);
+  transition: $opacity-transition;
 }
 
 .fade-enter,

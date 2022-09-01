@@ -6,9 +6,7 @@
                    icon_type: item.template_name.underscore_blanks,
                    icon_class: item.try(:icon_class) || item.class.name.demodulize.underscore_blanks %>
 
-        <%= render 'data_cycle_core/shared/template_title',
-                   content: item,
-                   languages: item.translated_locales %>
+        <%= render 'data_cycle_core/shared/template_title', content: item, languages: [I18n.locale.to_s] %>
 
         <span> - </span>
 
@@ -25,7 +23,7 @@
     <div class="content-details remote-render"
           id="<%= "#{item.id}-#{local_assigns[:classification_parent_tree]&.id || classification_tree.id}-#{local_assigns[:container]&.id}" %>"
           data-remote-render-function="render_content_tile_details"
-          data-remote-render-params="<%= to_query_params(item: item, mode: 'tree').to_json %>">
+          data-remote-render-params="<%= to_query_params(item: item, mode: 'tree', parameters: { language: local_assigns[:language] }).to_json %>">
     </div>
   </div>
 </li>

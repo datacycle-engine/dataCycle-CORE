@@ -32,8 +32,13 @@ module DataCycleCore
           }
         end
 
-        def first_available_locale(locale = nil)
-          (Array.wrap(locale).map(&:to_sym).sort_by { |t| I18n.available_locales.index t }.push(I18n.locale) & translated_locales).first || translated_locales.min_by { |t| I18n.available_locales.index t }
+        def first_available_locale(locale = nil, ui_locale = nil)
+          available_locales = I18n.available_locales.dup
+          available_locales.prepend(I18n.locale)
+          available_locales.prepend(ui_locale.to_sym) if ui_locale.present?
+          available_locales.prepend(*Array.wrap(locale).map(&:to_sym).sort_by! { |t| available_locales.index t })
+
+          available_locales.intersection(translated_locales).first
         end
 
         def is_valid?

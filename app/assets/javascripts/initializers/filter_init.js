@@ -1,15 +1,11 @@
 import DashboardFilter from '../components/dashboard_filter';
 
 export default function () {
-  if ($('.filters').length > 0) {
-    init();
-  }
+  const searchForm = document.getElementById('search-form');
+  if (searchForm) new DashboardFilter(searchForm);
 
-  function init(element = document) {
-    $(element)
-      .find('#search-form')
-      .each((_index, elem) => {
-        new DashboardFilter(elem);
-      });
-  }
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.id == 'search-form' && !e.hasOwnProperty('dcDashboardFilter'),
+    e => new DashboardFilter(e)
+  ]);
 }

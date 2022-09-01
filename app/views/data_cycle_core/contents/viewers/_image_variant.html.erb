@@ -2,7 +2,9 @@
 <% objects = Array(objects) + new_relations(options.dig(:item_diff), 'things').includes(:translations).to_a.concat if changes_by_mode(options.dig(:item_diff), '+').present? %>
 
 <% if objects.present? %>
-  <%= conditional_tag :div, !local_assigns[:no_wrapper], class: 'embedded-viewer', data: { accordion: true, allow_all_closed: true, multi_expand: true } do %>
+  <%= conditional_tag :div, !local_assigns[:no_wrapper], class: embedded_viewer_html_classes(**local_assigns), data: { accordion: true, allow_all_closed: true, multi_expand: true } do %>
+    <%= attribute_viewer_label_tag(**local_assigns.merge(accordion_controls: true)) if !local_assigns[:no_wrapper] %>
+
     <% objects.presence&.each_with_index do |object, index| %>
       <%= render 'data_cycle_core/contents/viewers/attribute',
                  key: key,
@@ -31,8 +33,6 @@
           </span>
 
           <%= link_to tag.i(class: 'fa fa-pencil'), edit_thing_path(content, watch_list_id: @watch_list, locale: I18n.locale, hide_embedded: true, anchor: object.related_contents(embedded: true).ids.reverse.except(content.id).push(object.id).join('+')), class: 'edit-content-link', title: t('actions.edit', locale: active_ui_locale) if can?(:edit, content) %>
-
-          <%= render 'data_cycle_core/contents/viewers/shared/accordion_toggle_buttons', button_type: 'children' if object.embedded_property_names.present? %>
         </div>
 
         <div class="accordion-content remote-render" data-tab-content

@@ -1,6 +1,7 @@
 body {
   background-color: $body-background;
   --dropdown-arrow-left-offset: 0px;
+  --dc-sticky-bar-offset: 0px;
 }
 
 /* Headings */
@@ -435,7 +436,7 @@ footer {
   .type {
     display: inline-flex;
     align-items: center;
-    transition: opacity ease-in-out 0.25s;
+    transition: $opacity-transition;
 
     > *:not(:last-child) {
       margin-right: 0.3rem;
@@ -736,7 +737,7 @@ footer {
     left: 1rem;
     z-index: 12;
     color: $dark-gray;
-    transition: color ease-in-out 0.25s;
+    transition: $color-transition;
     white-space: nowrap;
     overflow: hidden;
     max-width: calc(100% - 2rem);
@@ -764,6 +765,7 @@ footer {
   .embedded_object:not(.publication_schedule) .content-object-item,
   .readonly-select,
   .form-element.detail_object,
+  .form-element.embedded_object,
   .map-info.detail_object,
   .form-element.linked,
   .form-element.boolean,
@@ -779,14 +781,14 @@ footer {
     margin: 0;
     box-shadow: 0 0 0 rgba($dark-gray, 0.5);
     position: relative;
-    transition: box-shadow 0.1s ease-in-out, border-color 0.1s ease-in-out;
+    transition: $input-transition;
     min-width: 150px;
     border-radius: $global-radius;
     background: $white;
 
     &:hover {
-      border-color: transparent;
-      box-shadow: 0 0 7px $primary-color;
+      border-color: $primary-color;
+      box-shadow: 0 1px 7px lighten($dark-gray, 12%);
     }
 
     &:focus {
@@ -847,12 +849,6 @@ footer {
   .form-element.focus > .editor-block {
     border-color: $primary-color;
     background: $white;
-  }
-
-  .focus {
-    label {
-      z-index: 20;
-    }
   }
 
   &.editor {
@@ -1073,7 +1069,7 @@ span.single_warning,
   color: $white;
   border-radius: $global-radius;
   z-index: 20;
-  transition: all 0.4s ease;
+  transition: $global-transition;
   line-height: 1.5;
   text-align: left;
   font-size: 0.9rem;
@@ -1115,7 +1111,7 @@ span.single_warning:before,
   border-top: 20px solid map-get($foundation-palette, alert);
   border-left: 20px solid transparent;
   border-right: 20px solid transparent;
-  transition: all 0.4s ease;
+  transition: $global-transition;
   left: 30%;
   bottom: -1.2rem;
 }
@@ -1264,6 +1260,7 @@ span.single_warning:before {
 
   .select2-selection {
     line-height: 1.2;
+    outline: none;
 
     &.select2-selection--single {
       .select2-selection__rendered {
@@ -1348,7 +1345,7 @@ span.single_warning:before {
           color: $white;
           right: 0;
           padding: 0 0.2rem;
-          transition: color 0.1s ease-in;
+          transition: $color-transition;
 
           &:hover {
             color: $alert-color;
@@ -1756,7 +1753,7 @@ body .v-select {
 .reveal {
   border: none;
   box-shadow: 0 0 3px rgba($black, 0.3);
-  transition: top 0.3s;
+  transition: top 0.25s ease-out;
   border-radius: $global-radius;
 
   .buttons {
@@ -1789,7 +1786,7 @@ body .v-select {
 
 .lazyloaded {
   opacity: 1;
-  transition: opacity 300ms;
+  transition: $opacity-transition;
 }
 
 a {
@@ -2118,4 +2115,9 @@ body.object-browser-overlay-open {
       }
     }
   }
+}
+
+.dc-sticky-bar {
+  position: sticky !important;
+  top: var(--dc-sticky-bar-offset) !important;
 }

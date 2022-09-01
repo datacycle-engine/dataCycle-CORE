@@ -15,22 +15,58 @@
 
 .data-cycle-object {
   position: relative;
-  box-shadow: 0 1px 3px rgba(black, 0.3);
-  transition: all ease-in-out 0.2s;
+  box-shadow: 0 1px 3px lighten($dark-gray, 8%);
+  transition: $global-transition;
   background: $white;
+  border-radius: $global-radius;
+
+  .inner {
+    .image-thumbnail {
+      text-align: center;
+    }
+    .infoRow {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: 5rem;
+    }
+    .grid-thumbnails {
+      height: 3rem;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: row;
+
+      &.has-more:after {
+        content: '...';
+        display: flex;
+        line-height: 1.2rem;
+        font-size: 1.5rem;
+        align-self: flex-end;
+      }
+
+      .grid-item-thumbnail {
+        height: auto;
+        max-height: 3rem;
+        display: flex;
+        margin-right: 3px;
+        max-width: 29%;
+      }
+    }
+  }
 
   &.expired-item {
-    box-shadow: 0 1px 8px $alert-color;
+    box-shadow: 0 0 0 1px $alert-color inset, 0 1px 5px $alert-color;
 
     &:hover,
     &:focus {
-      box-shadow: 0 1px 25px $alert-color;
+      box-shadow: 0 0 0 1px $alert-color inset, 0 1px 25px $alert-color;
     }
   }
 
   &:hover,
   &:focus {
-    box-shadow: 0px 1px 25px rgba(black, 0.3);
+    box-shadow: 0 1px 25px lighten($dark-gray, 8%);
     z-index: 2;
   }
 
@@ -156,12 +192,12 @@
     display: block;
     padding: 0.65rem;
     box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
-    transition: box-shadow 0.1s ease-in-out;
-    border-radius: 3px;
+    transition: box-shadow 0.25s ease-out;
+    border-radius: $global-radius;
     font-size: 0.9rem;
 
     &.highlight {
-      box-shadow: 0 0 7px $primary-color;
+      box-shadow: 0 1px 7px $primary-color;
     }
 
     .object-browser-tile-checkbox {
@@ -215,7 +251,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: opacity 0.25s;
+        transition: $opacity-transition;
         box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
 
         .translatable-field-container {
@@ -422,19 +458,19 @@
       background-color: rgba(white, 0.5);
       border: 0;
       box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
-      transition: box-shadow 0.1s ease-in-out;
+      transition: box-shadow 0.25s ease-out;
       line-height: 1.5;
 
       &.hard-warnings {
-        box-shadow: 0 0 5px 1px $alert-color;
+        box-shadow: 0 1px 5px 1px $alert-color;
+
         .content-warning {
           color: $alert-color;
         }
       }
 
       &.highlight {
-        // box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-        box-shadow: 0 0 7px $primary-color;
+        box-shadow: 0 1px 5px 1px $primary-color;
       }
 
       .name {
@@ -479,7 +515,7 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: opacity 0.25s;
+          transition: $opacity-transition;
           box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
         }
       }
@@ -603,7 +639,7 @@
           width: 350px;
           outline: none;
           background-color: lighten($light-gray, 7%);
-          transition: background ease-in-out 0.2s;
+          transition: background ease-out 0.25s;
           border-radius: $global-radius;
           font-size: 1.1rem;
 
@@ -647,7 +683,7 @@
             display: flex;
             align-items: center;
             background-color: lighten($light-gray, 7%);
-            transition: background ease-in-out 0.2s;
+            transition: background ease-out 0.25s;
 
             &:hover,
             &:focus,
@@ -903,7 +939,7 @@
     .item.active .media.thumbnail {
       border-color: $primary-color;
       background-color: $primary-color;
-      box-shadow: 0 0 1px rgba($primary-color, 1);
+      box-shadow: 0 0 1px $primary-color;
       color: $white;
     }
 
@@ -913,11 +949,11 @@
       &.active {
         border-color: $primary-color;
         background-color: $primary-color;
-        box-shadow: 0 0 1px rgba($primary-color, 1);
+        box-shadow: 0 0 1px $primary-color;
         color: $white;
 
         &.hard-warnings {
-          box-shadow: 0 0 1px rgba($primary-color, 1), 0 0 5px $alert-color;
+          box-shadow: 0 0 5px 1px $alert-color;
         }
 
         .person {
@@ -999,7 +1035,7 @@
     }
 
     .item.content {
-      transition: box-shadow 0.1s;
+      transition: box-shadow 0.25s ease-out;
 
       .object-browser-tile-checkbox {
         cursor: pointer;
@@ -1085,7 +1121,7 @@
       background-color: rgba(white, 0.5);
       border: 0;
       box-shadow: 0 0 1px rgba($black, 0.8);
-      transition: box-shadow 0.1s;
+      transition: box-shadow 0.25s ease-out;
       line-height: 1.5;
       font-size: 0.9rem;
 
@@ -1325,18 +1361,87 @@ span.single_error.object-browser-error {
 /* embedded Objects */
 
 .detail-header {
-  .add-content-object {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    > *:not(:last-child) {
-      margin-right: 0.3rem;
+  .form-element.embedded_object {
+    &:hover {
+      > .embedded-editor-header > .attribute-edit-label {
+        color: $primary-color;
+      }
     }
 
-    .fa.fa-spinner {
+    &.disabled {
+      > .embedded-editor-header {
+        cursor: not-allowed !important;
+        background: lighten($light-gray, 5%) !important;
+      }
+    }
+
+    .embedded-editor-header {
+      display: flex;
+      align-items: center;
+      position: sticky;
+      z-index: 13;
+      background: $white;
+      border-radius: $global-radius;
+
+      .attribute-edit-label {
+        display: flex;
+        align-items: center;
+        position: relative;
+        top: unset;
+        left: unset;
+        margin: 0;
+        flex: auto;
+        padding: 0.7rem 1rem;
+        transition: $color-transition;
+      }
+
+      .add-content-object {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 0.3rem 0.5rem;
+        height: 2rem;
+        width: 2rem;
+        margin: 0 0.5rem;
+      }
+    }
+
+    > .embedded-editor-header > .accordion-close-children,
+    > .embedded-editor-header > .accordion-open-children {
       display: none;
-      font-size: 0.9rem;
+    }
+
+    .embedded-object {
+      padding: 0;
+    }
+
+    &.has-items {
+      > .embedded-object {
+        padding: 0.5rem 1rem 1rem 1rem;
+      }
+
+      > .embedded-editor-header > .accordion-close-children,
+      > .embedded-editor-header > .accordion-open-children {
+        display: flex;
+      }
+    }
+
+    &.loading-embedded {
+      button,
+      .button,
+      .add-content-object {
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+
+      > .embedded-editor-header > .add-content-object > .fa:before {
+        content: '\f110';
+        animation: fa-spin 2s infinite linear;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
   }
 
@@ -1360,7 +1465,7 @@ span.single_error.object-browser-error {
 
       button {
         margin: 0;
-        transition: all ease-in-out 0.2s;
+        transition: $global-transition;
 
         .fa.fa-ban {
           font-size: 1.1rem;
@@ -1394,7 +1499,7 @@ span.single_error.object-browser-error {
         border: none;
         background: transparent;
         color: $dark-gray;
-        transition: all 0.2s ease-in-out;
+        transition: $global-transition;
         padding-right: 2.5rem;
         white-space: nowrap;
         overflow: hidden;
@@ -1422,7 +1527,7 @@ span.single_error.object-browser-error {
         }
 
         > .embedded-title {
-          transition: all 0.2s ease-in-out;
+          transition: $global-transition;
           opacity: 0;
           font-style: italic;
 
@@ -1574,7 +1679,7 @@ ul.list {
 
         .title {
           color: $black;
-          transition: color 0.3s;
+          transition: $color-transition;
         }
 
         .validity_period {

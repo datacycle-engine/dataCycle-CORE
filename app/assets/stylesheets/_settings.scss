@@ -77,6 +77,9 @@ $global-radius: 3px;
 $global-text-direction: ltr;
 $global-flexbox: false;
 $print-transparent-backgrounds: true;
+$color-transition: color 0.25s ease-out;
+$opacity-transition: opacity 0.25s ease-out;
+$global-transition: all 0.25s ease-out;
 
 @include add-foundation-colors;
 
@@ -414,7 +417,7 @@ $input-border-focus: 1px solid $dark-gray;
 $input-shadow: inset 0 1px 2px rgba($black, 0.1);
 $input-shadow-focus: 0 0 5px $medium-gray;
 $input-cursor-disabled: not-allowed;
-$input-transition: box-shadow 0.5s, border-color 0.25s ease-in-out;
+$input-transition: box-shadow 0.25s ease-out, border-color 0.25s ease-out;
 $input-number-spinners: true;
 $input-radius: $global-radius;
 $form-button-radius: $global-radius;
@@ -617,7 +620,7 @@ $thumbnail-border: solid 4px $white;
 $thumbnail-margin-bottom: $global-margin;
 $thumbnail-shadow: 0 0 0 1px rgba($black, 0.2);
 $thumbnail-shadow-hover: 0 0 6px 1px rgba($primary-color, 0.5);
-$thumbnail-transition: box-shadow 200ms ease-out;
+$thumbnail-transition: box-shadow 0.25s ease-out;
 $thumbnail-radius: $global-radius;
 
 // 35. Title Bar

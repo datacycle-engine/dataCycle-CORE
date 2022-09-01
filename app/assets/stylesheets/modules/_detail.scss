@@ -261,27 +261,6 @@
             }
           }
 
-          .detail-type {
-            box-shadow: none;
-            padding: 0;
-
-            &.object,
-            &.embedded {
-              box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
-              padding: 2.2rem 1rem 1rem 1rem;
-              border-radius: $global-radius;
-
-              > .detail-label {
-                position: absolute;
-                float: none;
-              }
-            }
-
-            .detail-label {
-              position: relative;
-            }
-          }
-
           &.media {
             position: relative;
             text-align: left;
