@@ -11,7 +11,7 @@ end
 
 combined.each do |combined_key, combined_value|
   json[combined_key] = combined_value.map { |key, definition|
-    value = load_value_object(content, key, content.try(key + '_overlay'), options[:languages], definition)
+    value = load_value_object(content, key, content.try(key + '_overlay'), options[:languages], definition, options[:expand_language])
 
     if value.present?
       partial_params = render_api_attribute key: key, definition: definition, value: value, parameters: { options: options }, content: content

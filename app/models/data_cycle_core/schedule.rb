@@ -77,6 +77,7 @@ module DataCycleCore
       rule_hash = rule&.to_hash
 
       {
+        '@id' => id,
         '@type' => 'OpeningHoursSpecification',
         'validFrom' => @schedule_object&.start_time&.in_time_zone&.to_s(:only_date),
         'validThrough' => rule_hash&.dig(:until)&.in_time_zone&.to_s(:only_date),
@@ -90,7 +91,7 @@ module DataCycleCore
       to_opening_hours_specification_schema_org&.merge({
         'contentType' => 'Öffnungszeit',
         '@context' => 'http://schema.org'
-      })
+      })&.except('@id')
     end
 
     def to_schedule_schema_org
@@ -123,6 +124,7 @@ module DataCycleCore
 
       {
         '@context' => 'https://schema.org/',
+        '@id' => id,
         '@type' => 'Schedule',
         'inLanguage' => I18n.locale.to_s,
         'startDate' => start_date,

@@ -14,10 +14,10 @@ module DataCycleCore
           data.add_external_system_data(external_system, nil, 'running', 'export', nil, false)
           log("update -> Export | Onlim | #{utility_object.external_system.id}", data&.id)
 
-          unless external_system_data.dig('job_status').in?(['waiting'])
+          unless external_system_data&.dig('job_status')&.in?(['waiting'])
             Delayed::Job.enqueue(
               DataCycleCore::Export::Onlim::Webhook.new(
-                data: OpenStruct.new(id: data.id, template_name: data.template_name),
+                data: OpenStruct.new(id: data.id, template_name: data.template_name), # rubocop:disable Style/OpenStructUse
                 external_system: external_system,
                 external_system_data: external_system_data,
                 endpoint: utility_object.endpoint,
@@ -27,7 +27,6 @@ module DataCycleCore
           end
 
           # ask for job_status (already running):
-          binding.pry
           update_job_status(utility_object: utility_object, data: data)
         end
 
@@ -38,7 +37,7 @@ module DataCycleCore
 
           Delayed::Job.enqueue(
             DataCycleCore::Export::Onlim::Webhook.new(
-              data: OpenStruct.new(id: data.id, template_name: data.template_name),
+              data: OpenStruct.new(id: data.id, template_name: data.template_name), # rubocop:disable Style/OpenStructUse
               external_system: external_system,
               external_system_data: external_system_data,
               endpoint: utility_object.endpoint,
@@ -55,7 +54,7 @@ module DataCycleCore
 
           Delayed::Job.enqueue(
             DataCycleCore::Export::Onlim::Webhook.new(
-              data: OpenStruct.new(id: data.id, template_name: data.template_name),
+              data: OpenStruct.new(id: data.id, template_name: data.template_name), # rubocop:disable Style/OpenStructUse
               external_system: external_system,
               external_system_data: external_system_data,
               endpoint: utility_object.endpoint,

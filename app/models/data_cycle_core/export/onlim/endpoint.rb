@@ -29,8 +29,6 @@ module DataCycleCore
         end
 
         def update_request(data:, external_system_data: {})
-          binding.pry
-
           verb = :post
           url = [@host, @end_point].join('/')
           body = serialize_data(data)
@@ -66,8 +64,6 @@ module DataCycleCore
         end
 
         def job_status_request(data:, external_system_data:)
-          binding.pry
-
           job_id = external_system_data.dig('job_id')
           url = [@host, @end_point, job_id].join('/')
           response = connection.get do |req|
@@ -80,6 +76,8 @@ module DataCycleCore
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error asking for status for #{url} ", response) unless response.success?
 
           status = JSON.parse(response.body)
+
+          ap status
 
           if status['running']
 
@@ -138,6 +136,21 @@ module DataCycleCore
             # 	]
             # }
 
+            external_system_data.merge(
+              {
+                'job_id' => job_id,
+                'job_status' => 'running',
+                'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: 'onlim').id
+              }
+            ).reject { |_k, v| v.blank? }
+          elsif !status['valid']
+            external_system_data.merge(
+              {
+                'job_id' => job_id,
+                'job_status' => 'failed',
+                'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: 'onlim').id
+              }
+            ).reject { |_k, v| v.blank? }
           else
             external_system_data.merge(
               {
@@ -156,8 +169,10 @@ module DataCycleCore
           ).render(
             assigns: {
               content: data,
-              language: ['de'],
+              language: ['de'], # TODO: Mehrsprachigkeit!
+              language_mode: 'expanded',
               fields_parameters: ATTRIBUTE_FILTER[data.template_name] || [],
+              force_expand: true,
               field_filter: true,
               include_parameters: [],
               api_version: 4,

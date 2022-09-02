@@ -34,10 +34,10 @@ module DataCycleCore
             data.add_external_system_data(@external_system, job_result, 'pending', 'export', external_key, false)
           when 'running'
             data.add_external_system_data(@external_system, job_result, 'pending', 'export', external_key, false)
-            raise DataCycleCore::Generic::Common::Error::GenericError, "OutdoorActive job is still running with id #{job_result.dig('job_id')}"
+            raise DataCycleCore::Generic::Common::Error::GenericError, "Onlim job is still running with id #{job_result.dig('job_id')}"
           when 'jobnotfound', 'failed'
             data.add_external_system_data(@external_system, job_result, 'failure', 'export', external_key, false)
-          when 'done'
+          when 'success'
             data.add_external_system_data(@external_system, job_result, 'success', 'export', external_key, false)
           else
             raise DataCycleCore::Generic::Common::Error::GenericError, "Unkown job status: #{job_result.dig('job_status')}"
