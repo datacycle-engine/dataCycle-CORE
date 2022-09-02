@@ -156,7 +156,7 @@ class OpenLayersEditor extends OpenLayersViewer {
       .find('.form-element')
       .find('input')
       .each((_index, elem) => {
-        address[elem.name.getAttributeKey()] = elem.value;
+        address[elem.name.attributeNameFromKey()] = elem.value;
       });
 
     const promise = DataCycle.httpRequest({

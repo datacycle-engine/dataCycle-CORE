@@ -89,10 +89,12 @@
         :type: number
         :storage_location: translated_value
         :advanced_search: true
+        :compute:
+          :module: Utility::Compute::ContentScore
+          :method: calculate_from_feature
         :xml:
           disabled: true
         :api:
-          :disabled: true
           :partial: property_value
           :type: PropertyValue
           :transformation:

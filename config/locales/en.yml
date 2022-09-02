@@ -500,8 +500,9 @@ en:
     full_size: open full-size
     media_archive: open in the media archive
   feature:
-    quality_score:
+    content_score:
       tooltip:
+        title_html: '<b>Content score</b>'
         min: 'minimal: %{value}'
         optimal: 'optimal: %{value}'
         max: 'maximal: %{value}'

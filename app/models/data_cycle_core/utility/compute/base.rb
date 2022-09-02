@@ -64,7 +64,7 @@ module DataCycleCore
               if content.computed_property_names.include?(missing_key)
                 compute_values(missing_key, datahash, content, true)
               else
-                datahash[missing_key] = content.property_value_for_set_datahash(missing_key)
+                datahash[missing_key] = content.attribute_to_h(missing_key)
               end
             end
           end

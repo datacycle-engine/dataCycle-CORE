@@ -94,7 +94,7 @@ module DataCycleCore
 
       label_html.prepend(tag.i(class: 'fa fa-language translatable-attribute-icon')) if attribute_translatable?(key, definition, content)
       label_html.prepend(tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-#{definition&.dig('type')} #{"type-#{definition&.dig('type')}-#{definition.dig('ui', 'show', 'type')}" if definition&.dig('ui', 'show', 'type').present?}"))
-      label_html << render('data_cycle_core/contents/quality_score', key: key, content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition) if definition.key?('quality_score')
+      label_html << render('data_cycle_core/contents/content_score', key: key, content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition) if definition.key?('content_score')
       label_html << render('data_cycle_core/contents/viewers/shared/accordion_toggle_buttons', button_type: 'children') if accordion_controls
 
       tag.span label_html, class: 'detail-label'
@@ -107,17 +107,17 @@ module DataCycleCore
       label_html.prepend(tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-#{definition&.dig('type')} #{"type-#{definition&.dig('type')}-#{definition.dig('ui', 'edit', 'type')}" if definition&.dig('ui', 'edit', 'type').present?}"))
       label_html.prepend(tag.i(class: 'fa fa-ban', aria_hidden: true)) unless attribute_editable?(key, definition, options, content)
       label_html << render('data_cycle_core/contents/helper_text', key: key, content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition)
-      label_html << render('data_cycle_core/contents/quality_score', key: key, content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition) if definition.key?('quality_score')
+      label_html << render('data_cycle_core/contents/content_score', key: key, content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition) if definition.key?('content_score')
 
       label_tag "#{options&.dig(:prefix)}#{sanitize_to_id(key)}", label_html, class: "attribute-edit-label #{html_classes}".strip
     end
 
-    def quality_score_tooltip(definition)
-      tooltip_html = []
+    def content_score_tooltip(definition)
+      tooltip_html = [t('feature.content_score.tooltip.title_html', locale: active_ui_locale)]
 
-      tooltip_html.push(t('feature.quality_score.tooltip.min', value: definition.dig('quality_score', 'score_matrix', 'min'), locale: active_ui_locale)) if definition.dig('quality_score', 'score_matrix', 'min').present?
-      tooltip_html.push(t('feature.quality_score.tooltip.optimal', value: definition.dig('quality_score', 'score_matrix', 'optimal'), locale: active_ui_locale)) if definition.dig('quality_score', 'score_matrix', 'optimal').present?
-      tooltip_html.push(t('feature.quality_score.tooltip.max', value: definition.dig('quality_score', 'score_matrix', 'max'), locale: active_ui_locale)) if definition.dig('quality_score', 'score_matrix', 'max').present?
+      tooltip_html.push(t('feature.content_score.tooltip.min', value: definition.dig('content_score', 'score_matrix', 'min'), locale: active_ui_locale)) if definition.dig('content_score', 'score_matrix', 'min').present?
+      tooltip_html.push(t('feature.content_score.tooltip.optimal', value: definition.dig('content_score', 'score_matrix', 'optimal'), locale: active_ui_locale)) if definition.dig('content_score', 'score_matrix', 'optimal').present?
+      tooltip_html.push(t('feature.content_score.tooltip.max', value: definition.dig('content_score', 'score_matrix', 'max'), locale: active_ui_locale)) if definition.dig('content_score', 'score_matrix', 'max').present?
 
       tooltip_html.join('<br>')
     end

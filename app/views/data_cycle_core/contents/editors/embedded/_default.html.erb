@@ -23,6 +23,7 @@
         <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.underscore_blanks, icon_class: object.class.name.demodulize.underscore %>
         <span class="embedded-label"><%= translated_attribute_label(key, definition, content, options)  %></span>
         <%= render 'data_cycle_core/contents/helper_text', key: key, definition: definition, content: contextual_content(local_assigns) %>
+        <%= render('data_cycle_core/contents/content_score', key: nil, content: object, definition: object.content_score_definition(nil)) if object.try(:content_score_allowed?) %>
         <%= tag.span object.try(object.embedded_title_property_name), title: object.try(object.embedded_title_property_name), class: "embedded-title#{' visible' if object.try(object.embedded_title_property_name).present?}" if object.embedded_title_property_name.present? %>
       </span>
     </div>

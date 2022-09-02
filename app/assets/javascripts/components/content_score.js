@@ -1,27 +1,34 @@
 import DomElementHelper from '../helpers/dom_element_helpers';
 
-class QualityScore {
+class ContentScore {
   constructor(element) {
-    element.dcQualityScore = true;
+    element.dcContentScore = true;
     this.element = element;
-    this.qualityScoreText = this.element.querySelector('.quality-score-text');
-    this.container = this.element.closest('.dc-quality-score');
-    this.contentId = this.element.dataset.qualityScoreContentId;
-    this.template = this.element.dataset.qualityScoreTemplate;
+    this.contentScoreText = this.element.querySelector('.content-score-text');
+    this.container = this.element.closest(
+      '.form-element, .detail-type, #edit-form, .detail-header, .content-object-item'
+    );
+    this.contentId = this.element.dataset.contentScoreContentId;
+    this.contentEmbedded = DomElementHelper.parseDataAttribute(this.element.dataset.contentScoreEmbedded);
+    this.template = this.element.dataset.contentScoreTemplate;
     this.attributeKey = this.element.dataset.key;
-    this.element.qualityScore = this;
+    this.element.contentScore = this;
     this.locale = this.element.dataset.locale;
 
     this.setup();
   }
   setup() {
-    $(this.container).on('change', this.loadScore.bind(this));
+    if (this.container) this.container.classList.add('dc-content-score');
+    $(this.container).on('change', this.loadScore.bind(this)); // not yet working with native 'change' event
   }
   loadScore() {
+    if (!this.container) return;
+
     this.element.classList.add('score-loading');
-    this.qualityScoreText.innerHTML = '-';
-    const formData = DomElementHelper.getFormData(this.container);
-    const url = '/things/quality_score';
+    this.contentScoreText.innerHTML = '-';
+
+    const formData = DomElementHelper.getFormData(this.container, 'thing[', this.contentEmbedded);
+    const url = '/things/content_score';
 
     if (this.template) formData.set('template_name', this.template);
     if (this.attributeKey) formData.set('attribute_key', this.attributeKey);
@@ -43,7 +50,7 @@ class QualityScore {
 
         const score = Math.round(data.value * 100);
 
-        if (data && data.hasOwnProperty('value')) this.qualityScoreText.innerHTML = score;
+        if (data && data.hasOwnProperty('value')) this.contentScoreText.innerHTML = score;
 
         this.container.classList.remove('medium-score', 'high-score');
         if (score > 66) this.container.classList.add('high-score');
@@ -51,7 +58,7 @@ class QualityScore {
       })
       .catch(_e => {
         this.container.classList.remove('medium-score', 'high-score');
-        this.qualityScoreText.innerHTML = '-';
+        this.contentScoreText.innerHTML = '-';
       })
       .finally(() => {
         this.element.classList.remove('score-loading');
@@ -59,4 +66,4 @@ class QualityScore {
   }
 }
 
-export default QualityScore;
+export default ContentScore;

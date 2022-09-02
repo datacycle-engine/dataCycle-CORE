@@ -31,12 +31,8 @@ module DataCycleCore
       tag.div(html, class: 'embedded-editor-header dc-sticky-bar')
     end
 
-    def embedded_viewer_html_classes(definition:, **_args)
-      html_classes = ['detail-type', 'embedded-viewer', 'embedded-wrapper']
-
-      html_classes.push('dc-quality-score') if definition.key?('quality_score')
-
-      html_classes.join(' ')
+    def embedded_viewer_html_classes(**_args)
+      'detail-type embedded-viewer embedded-wrapper'
     end
   end
 end
