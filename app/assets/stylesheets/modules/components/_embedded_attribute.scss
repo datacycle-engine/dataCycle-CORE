@@ -23,7 +23,7 @@
     font-size: 1rem;
     border: none !important;
     padding: 0.8rem 2.5rem 0.8rem 1rem;
-    transition: all 0.2s ease-in-out;
+    transition: $global-transition;
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
@@ -130,6 +130,16 @@
       }
     }
   }
+
+  > .detail-label {
+    display: flex;
+    align-items: center;
+    width: 100%;
+
+    > .accordion-close-children {
+      margin-left: auto;
+    }
+  }
 }
 
 .detail-content .type.properties .detail-type {
@@ -141,8 +151,13 @@
       }
     }
   }
-  &.embedded:not(.textblock) {
+
+  &.embedded:not(.textblock):not(.embedded.embedded-wrapper) {
     padding: 0 !important;
+  }
+
+  &.embedded-wrapper {
+    padding-top: 2.5rem;
   }
 }
 
@@ -192,31 +207,31 @@
   }
 }
 
+.accordion-close-children,
+.accordion-open-children,
+.edit-content-link {
+  cursor: pointer;
+  color: $dark-gray;
+  padding: 0 0.5rem;
+  display: flex;
+  align-items: center;
+
+  .fa {
+    font-size: 1.5rem;
+    line-height: 1rem;
+    vertical-align: middle;
+  }
+
+  &:hover {
+    color: $black;
+  }
+}
+
 .accordion-item {
   .accordion-title {
     .embedded-title {
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-  }
-
-  .accordion-close-children,
-  .accordion-open-children,
-  .edit-content-link {
-    cursor: pointer;
-    color: $dark-gray;
-    padding: 0 0.5rem;
-    display: flex;
-    align-items: center;
-
-    .fa {
-      font-size: 1.5rem;
-      line-height: 1rem;
-      vertical-align: middle;
-    }
-
-    &:hover {
-      color: $black;
     }
   }
 

@@ -39,7 +39,12 @@ services:
     environment:
       <<: *default-app-env
     entrypoint: /app/vendor/gems/data-cycle-core/docker/web/entrypoint.sh
-    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "${DC_DOCKER_SETUP_PATH:-/app/docker/}web/setup.production.sh"]
+    command:
+      [
+        '${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh',
+        'postgres',
+        '${DC_DOCKER_SETUP_PATH:-/app/docker/}web/setup.production.sh'
+      ]
     depends_on:
       - postgres
       - mongodb
@@ -49,7 +54,7 @@ services:
     environment:
       <<: *default-app-env
     entrypoint: /app/vendor/gems/data-cycle-core/docker/migrate_project/entrypoint.sh
-    command: ["/bin/bash"]
+    command: ['/bin/bash']
     restart: 'no'
     profiles: ['migrate']
   job_worker_default:
@@ -57,7 +62,15 @@ services:
     environment:
       <<: *default-app-env
       QUEUE: default,mailers
-    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command:
+      [
+        '${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh',
+        'postgres',
+        'bundle',
+        'exec',
+        'bin/rake',
+        'jobs:work'
+      ]
     depends_on:
       - web
   job_worker_importers:
@@ -65,7 +78,15 @@ services:
     environment:
       <<: *default-app-env
       QUEUE: importers
-    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command:
+      [
+        '${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh',
+        'postgres',
+        'bundle',
+        'exec',
+        'bin/rake',
+        'jobs:work'
+      ]
     depends_on:
       - web
   job_worker_cache_invalidation:
@@ -73,7 +94,15 @@ services:
     environment:
       <<: *default-app-env
       QUEUE: cache_invalidation
-    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command:
+      [
+        '${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh',
+        'postgres',
+        'bundle',
+        'exec',
+        'bin/rake',
+        'jobs:work'
+      ]
     depends_on:
       - web
   job_worker_search_update:
@@ -81,7 +110,15 @@ services:
     environment:
       <<: *default-app-env
       QUEUE: search_update
-    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command:
+      [
+        '${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh',
+        'postgres',
+        'bundle',
+        'exec',
+        'bin/rake',
+        'jobs:work'
+      ]
     depends_on:
       - web
   job_worker_carrierwave:
@@ -89,7 +126,15 @@ services:
     environment:
       <<: *default-app-env
       QUEUE: carrierwave
-    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command:
+      [
+        '${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh',
+        'postgres',
+        'bundle',
+        'exec',
+        'bin/rake',
+        'jobs:work'
+      ]
     depends_on:
       - web
   job_worker_webhooks:
@@ -97,7 +142,15 @@ services:
     environment:
       <<: *default-app-env
       QUEUE: webhooks
-    command: ["${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh", "postgres", "bundle", "exec", "bin/rake", "jobs:work"]
+    command:
+      [
+        '${DC_DOCKER_SETUP_PATH:-/app/docker/}postgres/wait-for-postgres.sh',
+        'postgres',
+        'bundle',
+        'exec',
+        'bin/rake',
+        'jobs:work'
+      ]
     depends_on:
       - web
   scheduler:

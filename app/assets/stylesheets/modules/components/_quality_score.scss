@@ -14,7 +14,7 @@
     .quality-score-text {
       font-weight: 600;
       margin-left: 0.2rem;
-      transition: opacity ease 0.2s;
+      transition: $opacity-transition;
     }
 
     .quality-score-icon::before {

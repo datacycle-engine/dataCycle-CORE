@@ -91,6 +91,9 @@ en:
   classifications:
     tooltip_translations: Translations
 
+  user:
+    user_not_confirmed: The email address has not been confirmed yet
+
   frontend:
     load_error: Error loading content.
     text_editor:
@@ -316,7 +319,7 @@ en:
     show_less: Show less
     expired_content: Validity period exceeded!
     entries: Entries
-    is: Sync and corrections by n17t01
+    is: is
     is_not: is not
     greater: greater than
     lower: less than
@@ -471,7 +474,7 @@ en:
     system_dialog: Select images via system dialog
     or: or
     select_from_datacycle: Use %{data} already uploaded
-    copy_all_title: "take all attributes from this %{single} for all %{multiple}"
+    copy_all_title: 'take all attributes from this %{single} for all %{multiple}'
   external_connection_states:
     success: Successfully synchronized
     pending: is synchronized
@@ -1205,7 +1208,7 @@ en:
     stored_searches:
       my_searches: My searches
       my_saved: My saved searches
-      show_in_my_saved_searches: show in my saved searches
+      show_in_my_saved_searches: show details
       last: Last searched
       saved:
         one: Saved search
@@ -1269,8 +1272,11 @@ en:
         contents:
           root: Contents
           specification: Specification
+        webhooks:
+          root: Webhooks
+          json_ld: JSON-LD
 
-          schema:
+    schema:
       root: Scheme
       containers: Container
       entities: Contents

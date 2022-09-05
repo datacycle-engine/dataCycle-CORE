@@ -22,10 +22,10 @@ module DataCycleCore
     def attribute_group_title(content, key)
       label_html = ActionView::OutputBuffer.new
 
-      if I18n.exists?("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale)
-        label_html << tag.span(I18n.t("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", locale: active_ui_locale))
-      elsif I18n.exists?("attribute_labels.#{key.attribute_name_from_key}", locale: active_ui_locale)
-        label_html << tag.span(I18n.t("attribute_labels.#{key.attribute_name_from_key}", locale: active_ui_locale))
+      if I18n.exists?("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", count: 1, locale: active_ui_locale)
+        label_html << tag.span(I18n.t("attribute_labels.#{content&.template_name}.#{key.attribute_name_from_key}", count: 1, locale: active_ui_locale))
+      elsif I18n.exists?("attribute_labels.#{key.attribute_name_from_key}", count: 1, locale: active_ui_locale)
+        label_html << tag.span(I18n.t("attribute_labels.#{key.attribute_name_from_key}", count: 1, locale: active_ui_locale))
       else
         return
       end

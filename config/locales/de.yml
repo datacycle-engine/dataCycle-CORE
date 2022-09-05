@@ -97,6 +97,9 @@ de:
   classifications:
     tooltip_translations: Übersetzungen
 
+  user:
+    user_not_confirmed: Die E-Mail Adresse wurde noch nicht bestätigt
+
   frontend:
     load_error: Fehler beim Laden des Inhalts.
     text_editor:
@@ -516,11 +519,12 @@ de:
           file_name: nutzungsbedingungen
         introducton:
           file_name: einleitungstext
-          text: 'Überschrift
+          text: |
+            Überschrift
 
-          Hier könnte Ihre Enleitung stehen
+            Hier könnte Ihre Enleitung stehen
 
-          COPYRIGHT dataCycle'
+            COPYRIGHT dataCycle
     geo_key_figure:
       button_title: Ermittlung des Wertes für %{data} über ein Web-Service auf Basis der zugrundeliegenden Geo-Daten
       button_title_all: Ermittlung der Werte über ein Web-Service auf Basis der zugrundeliegenden Geo-Daten
@@ -1231,7 +1235,7 @@ de:
     stored_searches:
       my_searches: Meine Suchen
       my_saved: Meine gespeicherten Suchen
-      show_in_my_saved_searches: in meinen gespeicherten Suchen anzeigen
+      show_in_my_saved_searches: Details anzeigen
       last: Zuletzt gesucht
       saved:
         one: Gepeicherte Suche
@@ -1278,6 +1282,9 @@ de:
         contents:
           root: Inhalte
           specification: Spezifikation
+        webhooks:
+          root: Webhooks
+          json_ld: JSON-LD
 
     schema:
       root: Schema
