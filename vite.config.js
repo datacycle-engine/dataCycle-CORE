@@ -12,12 +12,7 @@ export default ({ mode }) => {
     build: {
       chunkSizeWarningLimit: 5000,
       brotliSize: false,
-      minify: mode == 'development' ? false : 'terser',
-      rollupOptions: {
-        output: {
-          manualChunks: undefined
-        }
-      }
+      minify: mode == 'development' ? false : 'terser'
     },
     plugins: [RubyPlugin(), ...(mode == 'development' ? [] : [gzipPlugin()])]
   };

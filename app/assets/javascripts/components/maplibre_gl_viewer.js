@@ -1,7 +1,7 @@
 import pick from 'lodash/pick';
 import isEmpty from 'lodash/isEmpty';
 
-import maplibregl from 'maplibre-gl/dist/maplibre-gl';
+const MaplibreGl = () => import('maplibre-gl/dist/maplibre-gl').then(mod => mod.default);
 
 const iconPaths = {
   start:
@@ -13,6 +13,7 @@ class MapLibreGlViewer {
     this.$container = $(container);
     this.$parentContainer = this.$container.parent('.geographic');
     this.containerId = this.$container.attr('id');
+    this.maplibreGl;
     this.map;
     this.value = this.$container.data('value');
     this.beforeValue = this.$container.data('before-position');
@@ -56,8 +57,9 @@ class MapLibreGlViewer {
     this.allRenderedLayers = [];
     this.hoveredStateId = {};
   }
-  setup() {
+  async setup() {
     try {
+      this.maplibreGl = await MaplibreGl();
       this.initMap();
       this.map.on('load', this.configureMap.bind(this));
     } catch (error) {
@@ -65,7 +67,7 @@ class MapLibreGlViewer {
     }
   }
   initMap() {
-    this.map = new maplibregl.Map({
+    this.map = new this.maplibreGl.Map({
       container: this.containerId,
       style: this.mapBaseLayer(),
       center: this.defaultCenter(),
@@ -380,7 +382,7 @@ class MapLibreGlViewer {
     return layerId;
   }
   _addPopup() {
-    const popup = new maplibregl.Popup({
+    const popup = new this.maplibreGl.Popup({
       closeButton: false,
       closeOnClick: false,
       className: 'additional-feature-popup'
@@ -450,8 +452,8 @@ class MapLibreGlViewer {
     });
   }
   initControls() {
-    this.map.addControl(new maplibregl.NavigationControl(), 'top-left');
-    this.map.addControl(new maplibregl.FullscreenControl(), 'top-right');
+    this.map.addControl(new this.maplibreGl.NavigationControl(), 'top-left');
+    this.map.addControl(new this.maplibreGl.FullscreenControl(), 'top-right');
   }
   initMouseWheelZoom() {
     this.map.scrollZoom.disable();
@@ -506,7 +508,7 @@ class MapLibreGlViewer {
     });
   }
   updateMapPosition() {
-    let bounds = new maplibregl.LngLatBounds();
+    let bounds = new this.maplibreGl.LngLatBounds();
 
     if (this.feature) bounds.extend(this.getBoundsForGeojson(this.feature));
 
@@ -523,7 +525,7 @@ class MapLibreGlViewer {
     });
   }
   getBoundsForGeojson(geoJson) {
-    const bounds = new maplibregl.LngLatBounds();
+    const bounds = new this.maplibreGl.LngLatBounds();
 
     if (geoJson.hasOwnProperty('features')) {
       for (const feature of geoJson.features) {
