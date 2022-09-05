@@ -67,23 +67,26 @@ class MapLibreGlViewer {
     }
   }
   initMap() {
-    this.map = new this.maplibreGl.Map({
-      container: this.containerId,
-      style: this.mapBaseLayer(),
-      center: this.defaultCenter(),
-      zoom: this.defaultZoom(),
-      transformRequest: (url, resourceType) => {
-        if (url.includes('tiles.pixelmap.at/')) {
-          return {
-            headers: {
-              Authorization: `Bearer ${this.credentials.api_key}`
-            },
-            url: url
-          };
-        }
-        return;
-      }
-    });
+    this.map = new this.maplibreGl.Map(
+      Object.assign(
+        {
+          container: this.containerId,
+          style: this.mapBaseLayer(),
+          transformRequest: (url, _resourceType) => {
+            if (url.includes('tiles.pixelmap.at/')) {
+              return {
+                headers: {
+                  Authorization: `Bearer ${this.credentials.api_key}`
+                },
+                url: url
+              };
+            }
+            return;
+          }
+        },
+        this.defaultView()
+      )
+    );
   }
   configureMap() {
     this.initControls();
@@ -193,14 +196,17 @@ class MapLibreGlViewer {
       ]
     };
   }
-  defaultCenter() {
+  defaultView() {
+    const viewOptions = {
+      zoom: 7,
+      center: [13.34576, 47.69642]
+    };
+
+    if (this.defaultPosition && this.defaultPosition.zoom) viewOptions.zoom = this.defaultPosition.zoom;
     if (this.defaultPosition && this.defaultPosition.longitude && this.defaultPosition.latitude)
-      return [this.defaultPosition.longitude, this.defaultPosition.latitude];
-    else return [13.34576, 47.69642];
-  }
-  defaultZoom() {
-    if (this.defaultPosition && this.defaultPosition.zoom) return this.defaultPosition.zoom;
-    else return 7;
+      viewOptions.center = [this.defaultPosition.longitude, this.defaultPosition.latitude];
+
+    return viewOptions;
   }
   setZoomMethod() {
     const platform = window.navigator.platform;
@@ -536,6 +542,7 @@ class MapLibreGlViewer {
     } else {
       return this.addBoundsForFeature(bounds, geoJson);
     }
+
     return bounds;
   }
   addBoundsForFeature(bounds, feature) {
