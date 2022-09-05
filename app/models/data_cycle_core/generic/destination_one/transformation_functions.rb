@@ -38,7 +38,7 @@ module DataCycleCore
           key = license.call(data)
           return data if key.blank? || !key.starts_with?('CC')
           key = key.split('-')
-          data['license_classification'] = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('Lizenzen', "#{key[0]} #{key[1..-1].join('-')}")
+          data['license_classification'] = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('Lizenzen', "#{key[0]} #{key[1..-1].join('-')}".strip)
           data
         end
 

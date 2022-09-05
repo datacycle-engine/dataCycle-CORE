@@ -70,6 +70,18 @@ module DataCycleCore
       end
       alias sort_name sort_translated_name
 
+      def sort_advanced_attribute(ordering, attribute_path)
+        locale = @locale&.first || I18n.available_locales.first.to_s
+        reflect(
+          @query
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ?', locale]))
+            .order(
+              Arel.sql(sanitized_order_string("searches.advanced_attributes -> '#{attribute_path}'", ordering, true)),
+              thing[:id].desc
+            )
+        )
+      end
+
       def sort_by_proximity(_ordering = '', value = {})
         # sort_by_schedule_proximity('ASC', value)
         date = Time.zone.now

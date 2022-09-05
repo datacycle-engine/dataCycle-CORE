@@ -124,12 +124,43 @@ namespace :dc do
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_data_cycle_file_to_active_storage"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_text_file_to_active_storage"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_srt_file_to_active_storage"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_images_to_active_storage"].invoke
 
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('PDF', 'false')
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].reenable
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('Video', 'false')
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].reenable
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('Audio', 'false')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].reenable
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('Bild', 'false')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].reenable
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('ImageVariant', 'false')
+    end
+
+    desc 'migrate images to active_storage'
+    task migrate_images_to_active_storage: :environment do
+      temp = Time.zone.now
+
+      assets = DataCycleCore::Image.where.not(file: nil)
+      items_count = assets.size
+      puts "START MIGRATE IMAGES ==> Image (#{items_count})"
+
+      progressbar = ProgressBar.create(total: items_count, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+      assets.each do |asset|
+        progressbar.increment
+        begin
+          file_path = Rails.public_path.join('uploads', 'data_cycle_core', 'image', 'file', asset[:id], asset[:file])
+          asset.file.attach(io: File.open(file_path.to_s), filename: asset[:file])
+          asset[:file] = nil
+          asset.save
+        rescue StandardError => e
+          puts "### UnprocessableEntity: Asset: #{asset.id} (#{e})"
+        end
+      end
+
+      puts 'END'
+      puts "--> ELAPSED TIME: #{((Time.zone.now - temp) / 60).to_i} min"
     end
 
     desc 'migrate videos to active_storage'

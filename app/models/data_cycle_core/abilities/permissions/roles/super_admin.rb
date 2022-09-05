@@ -290,7 +290,7 @@ module DataCycleCore
             # ViewMode
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :grid, :list, :tree,
+              :can, :grid, :list, :tree, :map,
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(:view_mode)
             )
 

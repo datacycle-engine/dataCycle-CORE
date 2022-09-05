@@ -5,6 +5,7 @@ import ObserverHelpers from '../helpers/observer_helpers';
 
 class NewContentDialog {
   constructor(form) {
+    form.dcNewContentDialog = true;
     this.form = $(form);
     this.nextButton = this.form.find('.next');
     this.prevButton = this.form.find('.prev');

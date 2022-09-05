@@ -15,7 +15,7 @@ module DataCycleCore
           output_path = File.join(processed_dir, filename)
 
           movie = nil
-          if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+          if content.asset.class.active_storage_activated?
             content.asset.file.blob.open do |video|
               movie = FFMPEG::Movie.new(video.path)
               movie.transcode(output_path, video_processing.dig('options'))

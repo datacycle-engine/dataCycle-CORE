@@ -25,8 +25,8 @@
   <li class="grid-item data-cycle-object <%= content&.template_name&.underscore if content.is_a?(DataCycleCore::Thing) %> <%= ' expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %> <%= DataCycleCore::Feature::TileBorderColor.class_string(content) %>" id="grid-item-<%= content.id %>">
     <% if content.is_a?(DataCycleCore::Thing) %>
 
-      <% cache(content_view_cache_key(item: content, locale: params[:language] || @language, mode: 'grid', watch_list: @watch_list), expires_in: 1.year + Random.rand(7.days)) do %>
-        <%= render_content_tile(item: content, mode: 'grid') %>
+      <% cache(content_view_cache_key(item: content, locale: @language, mode: 'grid', watch_list: @watch_list), expires_in: 1.year + Random.rand(7.days)) do %>
+        <%= render_content_tile(item: content, mode: 'grid', parameters: { language: @language }) %>
       <% end %>
 
     <% else %>

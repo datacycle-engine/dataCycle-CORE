@@ -10,10 +10,6 @@ module DataCycleCore
         GEOMETRY_PRECISION = 5
         CRS_SQL = ", 'crs', json_build_object('type', 'name', 'properties', json_build_object('name', 'urn:ogc:def:crs:EPSG::4326'))"
 
-        ADDITIONAL_GEOJSON_PROPERTIES = {
-          name: 'thing_translations.name'
-        }.freeze
-
         def geojson_feature
           factory = RGeo::GeoJSON::EntityFactory.instance
           Rails.cache.fetch(geojson_cache_key, expires_in: 1.year + Random.rand(7.days)) do
@@ -25,8 +21,8 @@ module DataCycleCore
           RGeo::GeoJSON.encode(geojson_feature)
         end
 
-        def to_geojson(simplify_factor = SIMPLIFY_FACTOR)
-          self.class.where(id: id).limit(1).to_geojson(simplify_factor: simplify_factor, geojson_query: self.class.geojson_sql(self.class.geojson_detail_select_sql(true)))
+        def to_geojson(simplify_factor: SIMPLIFY_FACTOR, include_parameters: [], fields_parameters: [])
+          self.class.where(id: id).limit(1).to_geojson(simplify_factor: simplify_factor, include_parameters: include_parameters, fields_parameters: fields_parameters, single_item: true)
         end
 
         def geojson_geometry(content = self)
@@ -45,18 +41,16 @@ module DataCycleCore
         end
 
         class_methods do
-          def geojson_default_scope(simplify_factor: SIMPLIFY_FACTOR)
-            all.except(:order)
-              .left_outer_joins(:translations)
-              .where(thing_translations: { locale: I18n.locale })
-              .select(
-                Array.wrap(ADDITIONAL_GEOJSON_PROPERTIES.map { |k, v| "#{v} AS #{k}" }).prepend(
-                  ActiveRecord::Base.send(:sanitize_sql_array, [
-                                            geojson_content_select_sql,
-                                            simplify_factor: simplify_factor
-                                          ])
-                ).join(', ')
-              )
+          def geojson_default_scope
+            query = all.except(:order).select(geojson_content_select_sql)
+
+            joins = geojson_include_config.pluck(:joins)
+            joins.uniq!
+            joins.compact!
+
+            joins.each { |join| query = query.joins(join.squish) }
+
+            query
           end
 
           def as_geojson
@@ -65,16 +59,21 @@ module DataCycleCore
             RGeo::GeoJSON.encode(feature_collection)
           end
 
-          def to_geojson(include_without_geometry: true, simplify_factor: SIMPLIFY_FACTOR, geojson_query: geojson_sql(geojson_select_sql))
+          def to_geojson(include_without_geometry: true, simplify_factor: SIMPLIFY_FACTOR, include_parameters: [], fields_parameters: [], single_item: false)
+            @include_without_geometry = include_without_geometry
+            @simplify_factor = simplify_factor
+            @include_parameters = include_parameters
+            @fields_parameters = fields_parameters
+            @single_item = single_item
+
             geojson_result(
-              all.geojson_default_scope(simplify_factor: simplify_factor),
-              geojson_query,
-              include_without_geometry
+              all.geojson_default_scope,
+              geojson_sql(@single_item ? geojson_detail_select_sql : geojson_select_sql)
             )
           end
 
-          def geojson_result(things_query, geojson_query, include_without_geometry)
-            geojson_query += ' WHERE t.geometry IS NOT NULL' unless include_without_geometry
+          def geojson_result(things_query, geojson_query)
+            geojson_query += ' WHERE t.geometry IS NOT NULL' unless @include_without_geometry
 
             ActiveRecord::Base.connection.execute(
               Arel.sql(geojson_query.gsub(':from_query', things_query.to_sql))
@@ -92,10 +91,12 @@ module DataCycleCore
           end
 
           def geojson_content_select_sql
-            <<-SQL.squish
-              things.id AS id,
-              ST_Simplify (ST_Force2D (#{geojson_geometry_sql}), :simplify_factor, TRUE) AS geometry
-            SQL
+            [
+              'things.id AS id',
+              "ST_Simplify (ST_Force2D (#{geojson_geometry_sql}), #{@simplify_factor || SIMPLIFY_FACTOR}, TRUE) AS geometry"
+            ]
+              .concat(geojson_include_config.map { |c| "#{c[:select]} AS #{c[:identifier]}" })
+              .join(', ').squish
           end
 
           def geojson_sql(select_sql)
@@ -105,10 +106,10 @@ module DataCycleCore
             SQL
           end
 
-          def geojson_detail_select_sql(include_crs = false)
+          def geojson_detail_select_sql
             <<-SQL.squish
-              json_build_object('type', 'Feature'#{CRS_SQL if include_crs}, 'id', t.id, 'geometry', ST_AsGeoJSON (t.geometry, #{GEOMETRY_PRECISION})::json, 'properties',
-                json_build_object('id', t.id, #{ADDITIONAL_GEOJSON_PROPERTIES.keys.map { |k| "'#{k}', t.#{k}" }.join(', ')}))
+              json_build_object('type', 'Feature', 'id', t.id, 'geometry', ST_AsGeoJSON (t.geometry, #{GEOMETRY_PRECISION})::json, 'properties',
+                json_build_object(#{geojson_include_config.pluck(:identifier).prepend('id').map { |p| "'#{p}', t.#{p}" }.join(', ')}))
             SQL
           end
 
@@ -116,6 +117,57 @@ module DataCycleCore
             <<-SQL.squish
               json_build_object('type', 'FeatureCollection'#{CRS_SQL}, 'features', json_agg(#{geojson_detail_select_sql}))
             SQL
+          end
+
+          def geojson_include_config
+            config = []
+
+            if @fields_parameters.blank? || @fields_parameters&.any? { |p| p.first == 'name' }
+              config << {
+                identifier: 'name',
+                select: 'thing_translations.name',
+                joins: "LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = things.id
+                        AND thing_translations.locale = '#{I18n.locale}'"
+              }
+            end
+
+            if @include_parameters&.any? { |p| p.first == 'dc:classification' } || @fields_parameters&.any? { |p| p.first == 'dc:classification' }
+              fields_parameters = @fields_parameters.select { |p| p.first == 'dc:classification' }.map { |p| p.except('dc:classification') }.compact_blank.flatten
+              json_object = []
+              json_object.push("'@id', classification_aliases.id") if fields_parameters.blank? || fields_parameters.include?('@id')
+              json_object.push("'dc:path', classification_alias_paths.full_path_names") if fields_parameters.blank? || fields_parameters.include?('dc:path')
+
+              config << {
+                identifier: '"dc:classification"',
+                select: 'tmp1."dc:classification"',
+                joins: "LEFT OUTER JOIN (
+                  SELECT
+                    classification_contents.content_data_id,
+                    json_agg(
+                      json_build_object(#{json_object.join(', ')})
+                    ) AS \"dc:classification\"
+                  FROM
+                    classification_aliases
+                    INNER JOIN classification_groups ON classification_groups.deleted_at IS NULL
+                    AND classification_groups.classification_alias_id = classification_aliases.id
+                    INNER JOIN classifications ON classifications.deleted_at IS NULL
+                    AND classifications.id = classification_groups.classification_id
+                    INNER JOIN classification_trees ON classification_trees.deleted_at IS NULL
+                    AND classification_trees.classification_alias_id = classification_aliases.id
+                    INNER JOIN classification_tree_labels ON classification_tree_labels.deleted_at IS NULL
+                    AND classification_tree_labels.id = classification_trees.classification_tree_label_id
+                    INNER JOIN classification_contents ON classification_contents.classification_id = classifications.id
+                    #{'INNER JOIN classification_alias_paths ON classification_alias_paths.id = classification_aliases.id' if fields_parameters.blank? || fields_parameters.include?('dc:path')}
+                  WHERE
+                    classification_aliases.deleted_at IS NULL
+                    AND 'api' = ANY(classification_tree_labels.visibility)
+                  GROUP BY
+                    classification_contents.content_data_id
+                ) AS tmp1 ON tmp1.content_data_id = things.id"
+              }
+            end
+
+            config
           end
         end
 

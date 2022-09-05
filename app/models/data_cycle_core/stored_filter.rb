@@ -43,7 +43,6 @@ module DataCycleCore
 
         # TODO: migrate stored filters to use latest classification filter methods
         t.concat('_with_subtree') if filter['t'].in?(['classification_alias_ids', 'not_classification_alias_ids'])
-
         next unless query.respond_to?(t)
 
         if query.method(t)&.parameters&.size == 3
@@ -59,7 +58,13 @@ module DataCycleCore
         query = query.reset_sort
         sort_parameters.each do |sort|
           sort_method_name = 'sort_' + sort['m']
-          next unless query.respond_to?('sort_' + sort['m'])
+
+          if sort['m'].starts_with?('advanced_attribute_')
+            sort['v'] = sort['m'].gsub('advanced_attribute_', '')
+            sort_method_name = 'sort_advanced_attribute'
+          end
+
+          next unless query.respond_to?(sort_method_name)
 
           if query.method(sort_method_name)&.parameters&.size == 2
             query = query.send(sort_method_name, sort['o'].presence, sort['v'].presence)
@@ -211,7 +216,15 @@ module DataCycleCore
         hash['n'] = hash['t'].capitalize
         hash['q'] = 'import'
       when 'creator'
-        hash['v'] = Array.wrap(user&.id) if hash['v'] == 'current_user'
+        hash['v'] = Array.wrap(hash['v']).map { |v| v == 'current_user' ? user&.id : v }
+      when 'with_user_group_classifications_for_treename'
+        raise StandardError, 'Missing data definition: treeLabel' if hash['v'].blank?
+        relation = DataCycleCore::Feature::UserGroupClassification.attribute_relations.find { |_k, v| v['tree_label'] == hash['v'] }&.first
+        raise StandardError, "relation not found for UserGroup and treelabel (#{hash['v']})" if relation.blank?
+
+        hash['t'] = 'classification_alias_ids'
+        hash['n'] = hash['v']
+        hash['v'] = user&.user_groups&.send(relation)&.pluck(:id)
       end
     end
 

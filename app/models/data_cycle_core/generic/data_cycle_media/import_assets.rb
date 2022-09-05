@@ -36,8 +36,16 @@ module DataCycleCore
                   file = File.open(p)
                   title = File.basename(file, '.*')
 
+                  next unless asset_type.content_type_white_list.include?(File.extname(file).strip.downcase[1..-1])
+
                   ### process DataCycleImage
-                  asset_file = asset_type.new(file: file)
+                  if asset_type.active_storage_activated?
+                    asset_file = asset_type.new
+                    asset_file.file.attach(io: File.open(p.to_s), filename: File.basename(file))
+                  else
+                    asset_file = asset_type.new(file: file)
+                  end
+
                   next unless asset_file.save
 
                   image_data = {

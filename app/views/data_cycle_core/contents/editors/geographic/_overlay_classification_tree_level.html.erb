@@ -2,7 +2,7 @@
   <ul class="no-bullet additional-map-values-filter-items" data-accordion data-allow-all-closed="true" data-multi-expand="true">
     <%= collection_check_boxes(nil, "additional_values_filter[classification_tree]", items[local_assigns[:parent_classification_alias_id]], :id, :internal_name, {}, {}) do |cb| %>
       <%= tag.li(class: "additional-map-values-filter-item #{'accordion-item' if items.key?(cb.value)}", data: { accordion_item: items.key?(cb.value) ? true : nil }) do %>
-        <%= tag.div(title: cb.object.try(:description), class: 'overlay-filter-label dc-foundation-tooltip', data: { allow_html: true }) do %>
+        <%= tag.div(class: 'overlay-filter-label', data: { dc_tooltip: cb.object.try(:description) }) do %>
           <%= cb.check_box value: cb.value,
                       id: "#{random_id}_#{cb.value.underscore_blanks}",
                       class: 'dc-additional-values-filter-specific',

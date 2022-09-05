@@ -1,11 +1,16 @@
 ---
 name: Feratel
 credentials:
-  - pos_code: POS_CODE
+  import:
+    - pos_code: POS_CODE
+      company_code: COMPANY_CODE
+      range_code: RANGE_CODE
+      range_id: RANGE_ID
+      sales_channel_id: SALES_CHANNEL_ID
+  export:
+    pos_code: POS_CODE
     company_code: COMPANY_CODE
-    range_code: RANGE_CODE
-    range_id: RANGE_ID
-    sales_channel_id: SALES_CHANNEL_ID
+    endpoint_url: ENDPOINT_URL   
 default_options:
   locales: [de, en]
 config:
@@ -311,3 +316,13 @@ config:
           - "{{ ['dump', I18n.locale, 'deleted_at'].join('.') }}":
               '$lt': '{{ Time.zone.now }}'
       external_key_path: 'Id'
+  export_config:
+    webhook: DataCycleCore::Export::Feratel::Webhook
+    endpoint: DataCycleCore::Export::Feratel::Endpoint
+    filter:
+      template_names:
+        - Event
+    update:
+      strategy: DataCycleCore::Export::Generic::Update
+      method: post
+      transformation: make_xml

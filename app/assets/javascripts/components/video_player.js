@@ -2,8 +2,9 @@ import VideoJs from 'video.js';
 
 class VideoPlayer {
   constructor(videoObject) {
-    const player = VideoJs(videoObject, {
-      controls: true,
+    videoObject.dcVideoPlayer = true;
+    this.player = VideoJs(videoObject, {
+      controls: true
     });
   }
 }

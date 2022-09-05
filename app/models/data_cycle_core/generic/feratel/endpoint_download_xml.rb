@@ -28,6 +28,12 @@ module DataCycleCore
           end
         end
 
+        def create_salutations_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.Salutations('Show' => true)
+          end
+        end
+
         def create_shop_item_groups_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.ShopItemGroups('Show' => true)

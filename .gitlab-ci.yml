@@ -66,6 +66,9 @@ build_docker_job:
   extends: .build_docker_config
   script:
     - docker build --pull -f Dockerfile-core -t "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG" --target production .
+      --build-arg APP_DOCKER_ENV
+      --build-arg NODE_ENV
+      --build-arg RAILS_ENV
     - docker push "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG"
 
 deploy_docker_job:

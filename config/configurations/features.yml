@@ -102,6 +102,14 @@
 
 :life_cycle:
   :enabled: false
+#   :attribute_keys:
+#     - data_pool
+#   :tree_label: Inhaltspools
+#   :ordered:
+#     - Vorschläge
+#     - Recherche
+#     - Aktuelle Inhalte
+#     - Archiv
 
 :idea_collection:
   :enabled: false
@@ -166,6 +174,13 @@
   :updated_at: true
   :created_at: true
   :translated_name: true
+  # advanced attributes are also available in APIv4
+  # :advanced_attributes:
+  #   :upload_date: true
+  #   :publication_date: true
+  #   :width: true
+  #   :height: true
+  #   :live_date_from: true
 
 :advanced_filter:
   :enabled: true
@@ -174,6 +189,7 @@
     :schedule_exceptions:
       - validity_schedule
   :classification_alias_ids: all
+#  :related_to: true
   :external_source: false
   :external_system: true
   :id: true
@@ -206,7 +222,20 @@
 #      :type: date
 #    :mandatory_license:
 #      :type: boolean
-#  :related_to: true
+    # :upload_date:
+    #   :type: date
+    # :live_date_from:
+    #   :type: date
+    # :publication_date:
+    #   :type: date
+    # :live_stream_start_end:
+    #   :type: date_range
+    #   # default query_operator: overlaps
+    #   :query_operator: 'overlaps'
+    #   # :query_operator: 'contains'
+    #   :attribute_keys:
+    #     - live_date_from
+    #     - live_date_until
 
 :geocode:
   :enabled: false
@@ -484,3 +513,6 @@
 
 :user_group_classification:
   :enabled: false
+  # attribute_keys:
+  #   :output_channels:
+  #     :tree_label: "Ausgabekanäle"

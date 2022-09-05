@@ -19,7 +19,8 @@ export default function () {
       (e.type == 'datetime-local' ||
         e.type == 'date' ||
         e.dataset.type == 'datepicker' ||
-        e.dataset.type == 'timepicker'),
+        e.dataset.type == 'timepicker') &&
+      !e.hasOwnProperty('dcDatePicker'),
     e => new DatePicker(e)
   ]);
 }

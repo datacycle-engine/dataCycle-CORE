@@ -23,6 +23,16 @@ const DomElementHelpers = {
       return value;
     }
   },
+  elementDepth(elem) {
+    let depth = 0;
+
+    while (elem) {
+      depth++;
+      elem = elem.parentNode;
+    }
+
+    return depth;
+  },
   randomId(prefix = '') {
     return `${prefix}_${Math.random().toString(36).slice(2)}`;
   },
@@ -49,16 +59,11 @@ const DomElementHelpers = {
     });
   },
   getFormData(container) {
-    let form = container;
+    if (container.nodeName === 'FORM') return new FormData(container);
 
-    if (container.nodeName !== 'FORM') {
-      form = document.createElement('form');
-      form.appendChild(container.cloneNode(true));
-    }
+    const formData = new FormData();
 
-    const formData = new FormData(form);
-
-    if (container !== form) form.remove();
+    for (const element of $(container).find(':input').serializeArray()) formData.append(element.name, element.value);
 
     return formData;
   }

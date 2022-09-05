@@ -1,3 +1,5 @@
+import debounce from 'lodash/debounce';
+
 class CollectionFilter {
   constructor(selector) {
     this.selector = $(selector);
@@ -10,20 +12,11 @@ class CollectionFilter {
     this.init();
   }
   init() {
-    this.filterInput.on('input', this.checkTimeout.bind(this));
+    this.selector[0].dcCollectionFilter = true;
+    this.filterInput.on('input', debounce(this.filterCollection.bind(this), 500));
     this.filterResetButton.on('click', this.resetFilter.bind(this));
     this.selector.on('dc:collection:filter', this.setFilterInputValue.bind(this));
     this.newForm.on('dc:collection:newCollection', this.addNewCollection.bind(this));
-  }
-  checkTimeout(event) {
-    event.preventDefault();
-
-    if (this.filterInputTimeout !== null) {
-      clearTimeout(this.filterInputTimeout);
-    }
-    this.filterInputTimeout = setTimeout(() => {
-      this.filterCollection();
-    }, 500);
   }
   resetFilter(event) {
     event.preventDefault();
@@ -46,18 +39,16 @@ class CollectionFilter {
     $('.dropdown-pane.watch-lists').not(this.selector).trigger('dc:collection:filter', { q: q });
   }
   toggleResetButton(show) {
-    if (show && this.filterResetButton.is(':hidden')) {
-      this.filterResetButton.fadeIn(100);
-    } else if (!show && !this.filterResetButton.is(':hidden')) {
-      this.filterResetButton.fadeOut(100);
-    }
+    if (show) this.filterResetButton.fadeIn(100);
+    else this.filterResetButton.fadeOut(100);
   }
   setFilterInputValue(event, data) {
     event.stopPropagation();
 
-    let filterValue = data && data.q;
+    let filterValue = (data && data.q) || '';
     this.filterInput.val(filterValue);
-    this.toggleResetButton(filterValue && filterValue.length > 0);
+
+    this.toggleResetButton(filterValue.length > 0);
 
     this.collection.trigger('dc:remote:reloadOnNextOpen', { q: filterValue });
   }

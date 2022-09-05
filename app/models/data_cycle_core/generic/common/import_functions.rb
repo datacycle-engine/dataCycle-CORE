@@ -486,7 +486,7 @@ module DataCycleCore
           return nil if data_hash.blank?
           return_data = {}
           data_hash.each do |key, value|
-            return_data[key] = default_classification(value.symbolize_keys)
+            return_data[key] = default_classification(**value.symbolize_keys)
           end
           return_data.reject { |_, value| value.blank? }
         end

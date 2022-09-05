@@ -29,7 +29,7 @@ module DataCycleCore
         endpoint_params = @credentials.symbolize_keys
           .merge(read_type)
           .merge(options: options.dig(:download).merge(params: endpoint_options_params))
-        @endpoint = options.dig(:download, :endpoint).constantize.new(endpoint_params)
+        @endpoint = options.dig(:download, :endpoint).constantize.new(**endpoint_params)
       end
     end
   end

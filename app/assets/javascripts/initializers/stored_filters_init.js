@@ -8,7 +8,10 @@ export default function () {
 
   if (document.querySelector('.save-filter-with-params')) {
     DataCycle.htmlObserver.addCallbacks.push([
-      e => e.classList.contains('update-stored-search-form') && e.dataset.updateParams == 'true',
+      e =>
+        e.classList.contains('update-stored-search-form') &&
+        e.dataset.updateParams == 'true' &&
+        !e.hasOwnProperty('dcStoredFilterForm'),
       e => new StoredFilterForm(e)
     ]);
   }
@@ -17,7 +20,7 @@ export default function () {
   if (storedSearchesFilter) new StoredSearchesFilter(storedSearchesFilter);
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.id === 'search-favorites-fulltext-filter',
+    e => e.id === 'search-favorites-fulltext-filter' && !e.hasOwnProperty('dcStoredSearchesFilter'),
     e => new StoredSearchesFilter(e)
   ]);
 }

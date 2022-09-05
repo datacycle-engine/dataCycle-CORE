@@ -9,13 +9,16 @@
     }
   }
 
+  &:hover > .linked-editor-header > .attribute-edit-label {
+    color: $primary-color;
+  }
+
   .linked-editor-header {
     display: flex;
     align-items: center;
-    position: sticky;
-    top: 55px;
     z-index: 12;
     background: $white;
+    border-radius: $global-radius;
 
     .attribute-edit-label {
       position: relative;
@@ -23,6 +26,7 @@
       left: unset;
       padding: 0.7rem 1rem;
       flex: auto;
+      transition: $color-transition;
     }
 
     .show-objectbrowser {

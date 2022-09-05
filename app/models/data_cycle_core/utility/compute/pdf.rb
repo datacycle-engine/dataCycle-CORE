@@ -16,7 +16,7 @@ module DataCycleCore
           def thumbnail_url(computed_parameters:, **_args)
             pdf = DataCycleCore::Pdf.find_by(id: computed_parameters.values.first)
             thumb_url = nil
-            if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && pdf&.file&.attached?
+            if pdf&.class&.active_storage_activated? && pdf&.file&.attached?
               begin
                 ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
                   thumb_url = pdf.file.preview(resize_to_limit: [300, 300]).processed.url

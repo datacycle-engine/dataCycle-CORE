@@ -47,7 +47,7 @@
   .detail-header .edit,
   .detail-content .buttons,
   .edit-header,
-  .detail-header .embedded_object .addContentObject,
+  .detail-header .embedded_object .add-content-object,
   i.fa.fa-times,
   i.fa.fa-plus {
     display: none !important;
@@ -155,17 +155,21 @@
       .detail-type {
         border: 1px solid #c1c1c1;
         page-break-inside: avoid;
+
         .detail-label {
           vertical-align: top;
           opacity: 1;
           color: #c30000 !important;
         }
+
         .detail-type {
           padding: 0.2rem;
+
           &.geographic {
             padding: 1rem;
           }
         }
+
         &.media {
           .thumbnail {
             height: 225px;
