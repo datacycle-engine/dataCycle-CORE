@@ -14,7 +14,7 @@ PATH
       delayed_job_active_record
       devise
       dotiw
-      dry-schema (= 1.9.3)
+      dry-schema
       dry-transformer
       dry-validation
       faraday
