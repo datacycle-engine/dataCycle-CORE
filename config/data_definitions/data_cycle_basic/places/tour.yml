@@ -63,7 +63,7 @@
           :edit:
             :type: text_editor
             :options:
-              :data-size: basic
+              :data-size: full
         :advanced_search: true
       :additional_information:
         :label: Ergänzende Information
