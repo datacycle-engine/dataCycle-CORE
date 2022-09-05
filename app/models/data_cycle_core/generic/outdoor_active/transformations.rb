@@ -154,7 +154,7 @@ module DataCycleCore
           .>> t(:add_field, 'season_months', ->(s) { s.dig('season').select { |_, v| v }.keys.map { |m| by_month_id(m) } })
           .>> t(:universal_classifications, ->(s) { Array(s['season_months']) })
           .>> t(:reject_keys, ['season', 'season_months', 'category', 'tour_categories', 'frontendtype', 'outdoor_active_tags', 'regions', 'source'])
-          .>> t(:resolve_external_references)
+          .>> t(:resolve_references)
           .>> t(:strip_all)
         end
 
@@ -215,7 +215,7 @@ module DataCycleCore
           .>> t(:rename_keys, { 'id' => 'external_key', 'title' => 'name' })
           .>> t(:map_value, 'name', ->(v) { v || '__NO_NAME__' })
           .>> t(:reject_keys, ['meta', 'primary', 'gallery', 'license'])
-          .>> t(:resolve_external_references)
+          .>> t(:resolve_references)
           .>> t(:strip_all)
         end
 
