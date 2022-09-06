@@ -28,6 +28,11 @@ de:
       other: Tourenbewertungen
     key_figures_container: Kennzahlen
 
+  footer_links:
+    privacy_policy: Datenschutz
+    imprint: Impressum
+    terms_and_conditions: Allgemeine Geschäftsbedingungen (AGB)
+
   locales:
     de: deutsch
     en: englisch

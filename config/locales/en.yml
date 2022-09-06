@@ -28,6 +28,11 @@ en:
       other: Tour ratings
     key_figures_container: Key figures
 
+  footer_links:
+    privacy_policy: Privacy policy
+    imprint: Imprint
+    terms_and_conditions: Terms & Conditions
+
   locales:
     de: German
     en: English
