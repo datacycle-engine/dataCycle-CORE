@@ -14,7 +14,6 @@ PATH
       delayed_job_active_record
       devise
       dotiw
-      dry-schema (= 1.9.3)
       dry-transformer
       dry-validation
       faraday
@@ -50,7 +49,7 @@ PATH
       rails-html-sanitizer (>= 1.0.4)
       rake
       redcarpet
-      redis
+      redis (< 5)
       rgeo
       rgeo-geojson
       rgeo-proj4

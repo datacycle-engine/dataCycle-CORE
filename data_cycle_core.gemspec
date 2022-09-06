@@ -72,7 +72,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'jbuilder'
 
   s.add_dependency 'acts_as_paranoid'
-  s.add_dependency 'dry-schema', '1.9.3' # 1.10.0 freezes the returned message hash
   s.add_dependency 'dry-transformer'
   s.add_dependency 'dry-validation'
   s.add_dependency 'hashdiff', '>= 0.4.0'
@@ -102,7 +101,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'rufus-scheduler'
   # redis
   s.add_dependency 'hiredis'
-  s.add_dependency 'redis'
+  s.add_dependency 'redis', '< 5'
 
   # redcarpet (for rendering markdown)
   s.add_dependency 'redcarpet'
