@@ -28,6 +28,11 @@ de:
       other: Tourenbewertungen
     key_figures_container: Kennzahlen
 
+  footer_links:
+    privacy_policy: Datenschutz
+    imprint: Impressum
+    terms_and_conditions: Allgemeine Geschäftsbedingungen (AGB)
+
   locales:
     de: deutsch
     en: englisch
@@ -475,7 +480,7 @@ de:
     system_dialog: Bilder über Systemdialog auswählen
     or: oder
     select_from_datacycle: 'Bereits hochgeladene %{data} verwenden'
-    copy_all_title: "Alle Attribute von diesem %{single} für alle %{multiple} übernehmen"
+    copy_all_title: 'Alle Attribute von diesem %{single} für alle %{multiple} übernehmen'
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -501,8 +506,9 @@ de:
     media_archive: im Medienarchiv öffnen
 
   feature:
-    quality_score:
+    content_score:
       tooltip:
+        title_html: '<b>Content-Score</b>'
         min: 'Minimal: %{value}'
         optimal: 'Optimal: %{value}'
         max: 'Maximal: %{value}'
@@ -553,7 +559,7 @@ de:
         subject:
           downloads_popular: TOP 50 Bild Downloads
         text_html:
-         downloads_popular: Im Anhang finden Sie die TOP 50 Bild Downloads.
+          downloads_popular: Im Anhang finden Sie die TOP 50 Bild Downloads.
 
   compare:
     switch_contents: Inhalte tauschen

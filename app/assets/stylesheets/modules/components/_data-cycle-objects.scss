@@ -1476,7 +1476,7 @@ span.single_error.object-browser-error {
     .content-object-item {
       position: relative;
       background-color: $white;
-      padding: 1rem;
+      padding: 0.5rem;
 
       &:not(:last-child) {
         margin-bottom: 1rem;
@@ -1558,7 +1558,7 @@ span.single_error.object-browser-error {
         border: none;
         background: transparent;
         padding: 0;
-        margin-top: 1rem;
+        margin: 1rem 0.5rem 0.5rem 0.5rem;
       }
 
       .removeContentObject {

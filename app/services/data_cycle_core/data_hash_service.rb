@@ -22,6 +22,28 @@ module DataCycleCore
       datahash
     end
 
+    def self.flatten_datahash_translations_recursive(datahash, flatten_arrays = false)
+      return datahash unless datahash.is_a?(::Hash)
+
+      datahash = datahash.dc_deep_dup.with_indifferent_access
+
+      if datahash.key?(:translations) || datahash.key?(:datahash)
+        datahash.merge!(datahash.delete(:datahash).to_h)
+        datahash.merge!(datahash.dig(:translations, I18n.locale).to_h)
+        datahash.delete(:translations)
+      end
+
+      return datahash[:id] if flatten_arrays && datahash.keys.except('id').none?
+
+      datahash.each do |_key, value|
+        next unless value.is_a?(::Array)
+
+        value.map! { |v| flatten_datahash_translations_recursive(v, true) }
+      end
+
+      datahash
+    end
+
     def self.get_internal_template(name)
       DataCycleCore::Thing.find_by!(template: true, template_name: name)
     end

@@ -121,7 +121,6 @@ module DataCycleCore
 
       html_classes.push('disabled') unless attribute_editable?(key, definition, options, content)
       html_classes.push('validation-container') if definition.key?('validations')
-      html_classes.push('dc-quality-score') if definition.key?('quality_score')
       html_classes.push(definition.dig('ui', 'edit', 'type')&.underscore) if definition&.dig('ui', options[:edit_scope], 'partial').blank?
       html_classes.push('is-embedded-title') if parent&.embedded_title_property_name.present? && key.attribute_name_from_key == parent.embedded_title_property_name
 

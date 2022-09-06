@@ -28,6 +28,11 @@ en:
       other: Tour ratings
     key_figures_container: Key figures
 
+  footer_links:
+    privacy_policy: Privacy policy
+    imprint: Imprint
+    terms_and_conditions: Terms & Conditions
+
   locales:
     de: German
     en: English
@@ -505,8 +510,9 @@ en:
     full_size: open full-size
     media_archive: open in the media archive
   feature:
-    quality_score:
+    content_score:
       tooltip:
+        title_html: '<b>Content score</b>'
         min: 'minimal: %{value}'
         optimal: 'optimal: %{value}'
         max: 'maximal: %{value}'

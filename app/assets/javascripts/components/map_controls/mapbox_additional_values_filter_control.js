@@ -94,7 +94,7 @@ class AdditionalValuesFilterControl {
     event.preventDefault();
     event.stopPropagation();
 
-    const key = data.key.getAttributeKey();
+    const key = data.key.attributeNameFromKey();
     let changedFeatures = [];
 
     if (data.ids && data.ids.length) {

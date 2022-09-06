@@ -66,7 +66,7 @@ module DataCycleCore
             end
 
             missing_keys.difference(content.default_value_property_names).each do |missing_key|
-              data_hash[missing_key] = content.property_value_for_set_datahash(missing_key)
+              data_hash[missing_key] = content.attribute_to_h(missing_key)
             end
 
             skip_default_value?(key, data_hash, content, property_parameters, user, true)

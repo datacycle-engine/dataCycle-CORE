@@ -3,8 +3,8 @@
     <% if DataCycleCore.logo.dig('footer_links').present? %>
       <div class="columns">
         <ul class="footer-links">
-          <% DataCycleCore.logo.dig('footer_links').each do |url, text| %>
-            <li><%= link_to url, text, target: :_blank %></li>
+          <% DataCycleCore.logo.dig('footer_links').each do |text, url| %>
+            <li><%= link_to I18n.t("footer_links.#{text}", default: text, locale: active_ui_locale), url, target: :_blank %></li>
           <% end %>
         </ul>
       </div>

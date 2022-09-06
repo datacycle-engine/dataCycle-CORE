@@ -189,7 +189,7 @@
     :schedule_exceptions:
       - validity_schedule
   :classification_alias_ids: all
-#  :related_to: true
+  #  :related_to: true
   :external_source: false
   :external_system: true
   :id: true
@@ -222,20 +222,20 @@
 #      :type: date
 #    :mandatory_license:
 #      :type: boolean
-    # :upload_date:
-    #   :type: date
-    # :live_date_from:
-    #   :type: date
-    # :publication_date:
-    #   :type: date
-    # :live_stream_start_end:
-    #   :type: date_range
-    #   # default query_operator: overlaps
-    #   :query_operator: 'overlaps'
-    #   # :query_operator: 'contains'
-    #   :attribute_keys:
-    #     - live_date_from
-    #     - live_date_until
+# :upload_date:
+#   :type: date
+# :live_date_from:
+#   :type: date
+# :publication_date:
+#   :type: date
+# :live_stream_start_end:
+#   :type: date_range
+#   # default query_operator: overlaps
+#   :query_operator: 'overlaps'
+#   # :query_operator: 'contains'
+#   :attribute_keys:
+#     - live_date_from
+#     - live_date_until
 
 :geocode:
   :enabled: false
@@ -516,3 +516,6 @@
   # attribute_keys:
   #   :output_channels:
   #     :tree_label: "Ausgabekanäle"
+
+:content_score:
+  :enabled: true
