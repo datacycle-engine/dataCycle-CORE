@@ -190,7 +190,7 @@ module DataCycleCore
         errors = {}
         template[:properties].each do |property_name, property_definition|
           result_property = validate_property.call(property_definition)
-          error = result_property.errors.to_h
+          error = {}.merge!(result_property.errors.to_h)
           error.merge!(validate_properties(property_definition)) if property_definition.key?(:properties)
           errors[property_name] = error if error.present?
         end

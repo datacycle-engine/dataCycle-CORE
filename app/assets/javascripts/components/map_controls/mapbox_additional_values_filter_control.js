@@ -68,12 +68,13 @@ class AdditionalValuesFilterControl {
   _reloadOverlayData(_event = undefined) {
     for (const key of Object.keys(this.config)) {
       this._addGeoJsonSource(key, this.geojsonValues[key]);
+      this._updateLayerVisibilities(key);
     }
   }
   _addEventHandlers() {
     this.controlButton.addEventListener('click', this._toggleOverlay.bind(this));
 
-    this.editor.map.on('maptypechanged', this._reloadOverlayData.bind(this));
+    this.editor.mtkMap.on('maptypechanged', this._reloadOverlayData.bind(this));
 
     this._addOverlayTargetEvents();
   }

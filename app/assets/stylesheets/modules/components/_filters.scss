@@ -1160,16 +1160,13 @@ $filter-border: #aaa;
                   display: flex;
                   align-items: center;
                 }
-
-                .fa-external-link {
-                  margin-top: 0.2rem;
-                }
               }
 
               .preview-widget-list {
                 display: flex;
                 align-items: center;
                 justify-content: flex-end;
+                gap: 0.2rem;
               }
             }
           }

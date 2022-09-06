@@ -17,6 +17,9 @@
           :transformation:
             :method: combine
             :name: additionalProperty
+        :ui:
+          :edit:
+            :disabled: true
       :content_score: # general score used by: Feratel/OutdoorActive
         :label: ContentScore
         :type: number
@@ -31,6 +34,9 @@
           :transformation:
             :method: combine
             :name: additionalProperty
+        :ui:
+          :edit:
+            :disabled: true
       :external_status:
         :label: Externer Status
         :type: classification
@@ -51,6 +57,8 @@
         :ui:
           :show:
             :content_area: content_score
+          :edit:
+            :disabled: true
         :api:
           :transformation:
             :method: append

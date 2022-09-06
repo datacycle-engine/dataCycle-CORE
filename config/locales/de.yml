@@ -20,7 +20,12 @@ de:
   settings:
 
   attribute_labels:
-    additional_information: Beschreibungsblock
+    additional_information:
+      one: Beschreibungsblock
+      other: Beschreibungsblöcke
+    aggregate_rating:
+      one: Tourenbewertung
+      other: Tourenbewertungen
     key_figures_container: Kennzahlen
 
   locales:

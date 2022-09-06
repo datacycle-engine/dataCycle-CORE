@@ -320,6 +320,15 @@ module DataCycleCore
       end
     end
 
+    initializer :append_cable_configurations do |app|
+      app.paths['config/cable'] << root.join('config', 'cable.yml').to_s
+
+      ActiveSupport.on_load(:action_cable) do
+        config_path = Pathname.new(app.config.paths['config/cable'].find { |p| Pathname.new(p).exist? })
+        self.cable = Rails.application.config_for(config_path).to_h.with_indifferent_access if config_path
+      end
+    end
+
     # include rake_tasks
     rake_tasks do
       Dir[File.join(File.dirname(__FILE__), 'tasks/*.rake')].each { |f| load f }

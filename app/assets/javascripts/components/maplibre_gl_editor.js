@@ -25,7 +25,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
     this.$elevationField = this.$mapInfoContainer.find('.elevation input').first();
     this.$locationField = this.$parentContainer.siblings('input.location-data:hidden').first();
   }
-  static isAllowedType(type) {
+  static isAllowedType(_type) {
     return true;
   }
   configureMap() {
