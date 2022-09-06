@@ -297,7 +297,7 @@ class TourSprungEditor extends MapLibreGlEditor {
             this.uploadFile($input, (_err, d) => {
               this.setWaypoints(d.waypoints);
 
-              b.fitBounds(d.bounds, { padding: 50 });
+              if (d.bounds) b.fitBounds(d.bounds, { padding: 50 });
             });
           };
 
