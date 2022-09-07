@@ -1578,6 +1578,11 @@ span.single_error.object-browser-error {
         font-size: 1.2rem;
       }
     }
+
+    &.detail_object .content-object-item {
+      padding: 1rem;
+    }
+
     .translated + .content-object-item {
       .embedded-header {
         left: 2.5rem;

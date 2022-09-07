@@ -1902,7 +1902,7 @@ label[for='user_access_token'] {
   }
 
   .embedded_object {
-    .content-object-item.textblock {
+    > .content-object-item.textblock {
       padding: 0.5rem;
 
       .removeContentObject,

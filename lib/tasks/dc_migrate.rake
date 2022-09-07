@@ -24,24 +24,77 @@ end
 namespace :dc do
   namespace :migrate do
     desc 'move external_source_id and external_key from things to external_system_syncs'
-    task :external_source_to_system, [:external_system_id] => :environment do |_, args|
-      external_system_id = args[:external_system_id]
+    task :external_source_to_system, [:external_system_or_stored_filter_id] => :environment do |_, args|
+      external_system_or_stored_filter_id = args.external_system_or_stored_filter_id
 
-      abort('External System Id missing!') if external_system_id.blank?
+      abort('ExternalSystem- or StoredFilter-Id missing!') if external_system_or_stored_filter_id.blank?
 
-      contents = DataCycleCore::Thing.where(external_source_id: external_system_id)
+      stored_filter = DataCycleCore::StoredFilter.find_by(id: external_system_or_stored_filter_id)
+      external_system = DataCycleCore::ExternalSystem.find_by(id: external_system_or_stored_filter_id)
 
+      abort('ExternalSystem or StoredFilter not found!') if stored_filter.nil? && external_system.nil?
+
+      stored_filter = DataCycleCore::StoredFilter.new if stored_filter.nil?
+      query = stored_filter.apply(skip_ordering: true)
+      query = query.external_system(external_system.id, 'import') if external_system.present?
+
+      raw_sql = <<-SQL.squish
+        WITH RECURSIVE
+          content_dependencies AS (
+            SELECT
+              t.id
+            FROM
+              things AS t
+            WHERE
+              t.id IN (#{query.query.except(:order).select(:id).to_sql})
+              AND t.content_type != 'embedded'
+            UNION
+            SELECT
+              t.id
+            FROM
+              content_dependencies,
+              content_content_links
+              JOIN things AS t ON t.id = content_content_links.content_b_id
+              AND t.content_type = 'embedded'
+            WHERE
+              content_content_links.content_a_id = content_dependencies.id
+          )
+        SELECT
+          id
+        FROM
+          content_dependencies
+      SQL
+
+      embeddeds = DataCycleCore::Thing.where("things.id IN (#{raw_sql})").where(content_type: 'embedded')
+      progressbar1 = ProgressBar.create(total: embeddeds.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: embeddeds')
+
+      embeddeds.each do |embedded|
+        embedded.external_source_to_external_system_syncs
+
+        progressbar1.increment
+      end
+
+      contents = query.query.except(:order)
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: things')
 
-      contents.find_each do |content|
+      contents.each do |content|
         content.external_source_to_external_system_syncs
 
         progressbar.increment
       end
 
-      schedules = DataCycleCore::Schedule.where(external_source_id: external_system_id)
+      schedules = DataCycleCore::Schedule.where(thing_id: contents.select(:id))
       puts "MIGRATING: schedules (#{schedules.size})..."
       schedules.update_all(external_source_id: nil, external_key: nil)
+
+      puts 'MIGRATION SUCCESSFUL'
+    end
+
+    desc 'move external_source_id and external_key from things to external_system_syncs'
+    task :remove_external_source_from_classifications, [:external_system_id] => :environment do |_, args|
+      external_system_id = args.external_system_id
+
+      abort('ExternalSystemId missing!') if external_system_id.blank?
 
       classifications = DataCycleCore::Classification.where(external_source_id: external_system_id)
       puts "MIGRATING: classifications (#{classifications.size})..."
