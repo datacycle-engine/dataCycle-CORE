@@ -7,7 +7,7 @@
 
   <% if content.indirect_data_links.by_receiver(current_user).valid.map(&:text_file).compact.present? %>
     <div class="data-link-text-files">
-      <b><%= DataCycleCore::DataLink.human_attribute_name("text_file", file_types: DataCycleCore::TextFileUploader.new.extension_white_list.join(', '), locale: active_ui_locale) %>: </b>
+      <b><%= DataCycleCore::DataLink.human_attribute_name("text_file", file_types: DataCycleCore::TextFile.extension_white_list.join(', '), locale: active_ui_locale) %>: </b>
 
       <ul class="no-bullet">
         <% content.indirect_data_links.by_receiver(current_user).valid.each do |data_link| %>

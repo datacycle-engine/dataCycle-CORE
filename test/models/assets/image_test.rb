@@ -7,7 +7,6 @@ module DataCycleCore
     class ImageTest < ActiveSupport::TestCase
       include DataCycleCore::ActiveStorageHelper
       def setup
-        # DataCycleCore::ImageUploader.enable_processing = true
         @image_temp = DataCycleCore::Image.count
       end
 
@@ -82,12 +81,6 @@ module DataCycleCore
         assert_not(@image.persisted?)
         assert_not(@image.valid?)
         assert(@image.errors.present?)
-      end
-
-      def teardown
-        # return if @image.id.blank?
-        # @image.remove_file!
-        # DataCycleCore::ImageUploader.enable_processing = false
       end
     end
   end

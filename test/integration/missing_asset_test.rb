@@ -11,11 +11,6 @@ module DataCycleCore
     setup do
       @routes = Engine.routes
       sign_in(User.find_by(email: 'tester@datacycle.at'))
-      # DataCycleCore::ImageUploader.enable_processing = true
-    end
-
-    teardown do
-      # DataCycleCore::ImageUploader.enable_processing = false
     end
 
     test 'get asset versions by custom route' do

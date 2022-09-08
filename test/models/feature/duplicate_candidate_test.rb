@@ -6,14 +6,6 @@ module DataCycleCore
   class DuplicateCandidateTest < DataCycleCore::TestCases::ActiveSupportTestCase
     include ActiveJob::TestHelper
 
-    before(:all) do
-      # DataCycleCore::ImageUploader.enable_processing = true
-    end
-
-    after(:all) do
-      # DataCycleCore::ImageUploader.enable_processing = false
-    end
-
     test 'find duplicates for images' do
       assert DataCycleCore::Feature::DuplicateCandidate.enabled?
 

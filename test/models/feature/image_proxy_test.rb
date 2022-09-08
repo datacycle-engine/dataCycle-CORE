@@ -8,11 +8,6 @@ module DataCycleCore
 
     before(:all) do
       @image_proxy_config = DataCycleCore.features[:image_proxy].deep_dup
-      # DataCycleCore::ImageUploader.enable_processing = true
-    end
-
-    after(:all) do
-      # DataCycleCore::ImageUploader.enable_processing = false
     end
 
     test 'image proxy enabled' do

@@ -7,7 +7,6 @@ module DataCycleCore
     class AssetTest < ActiveSupport::TestCase
       include DataCycleCore::ActiveStorageHelper
       def setup
-        # DataCycleCore::ImageUploader.enable_processing = true
         @asset_temp = DataCycleCore::Image.count
       end
 
@@ -144,12 +143,6 @@ module DataCycleCore
 
         assert test_image.destroyed?
         assert_not Asset.exists?(id: asset.id)
-      end
-
-      def teardown
-        # return if @asset.id.blank?
-        # @asset.remove_file!
-        # DataCycleCore::ImageUploader.enable_processing = false
       end
     end
   end

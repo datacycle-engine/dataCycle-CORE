@@ -7,7 +7,6 @@ module DataCycleCore
     class VideoTest < ActiveSupport::TestCase
       include DataCycleCore::ActiveStorageHelper
       def setup
-        # DataCycleCore::VideoUploader.enable_processing = true
         @video_temp = DataCycleCore::Video.count
       end
 
@@ -41,12 +40,6 @@ module DataCycleCore
         assert_not(@video.persisted?)
         assert_not(@video.valid?)
         assert(@video.errors.present?)
-      end
-
-      def teardown
-        # @video.remove_file!
-        # @video.destroy!
-        # DataCycleCore::VideoUploader.enable_processing = false
       end
     end
   end

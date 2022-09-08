@@ -27,7 +27,7 @@
   </div>
 
   <div class="form-element">
-    <%= form.label :text_file, DataCycleCore::DataLink.human_attribute_name("text_file", file_types: DataCycleCore::TextFileUploader.new.extension_white_list.join(', '), locale: active_ui_locale) %>
+    <%= form.label :text_file, DataCycleCore::DataLink.human_attribute_name("text_file", file_types: DataCycleCore::TextFile.extension_white_list.join(', '), locale: active_ui_locale) %>
     <div class="v-select white">
       <%= form.select :asset_id, options_for_select(DataCycleCore::TextFile.accessible_by(current_ability).or(DataCycleCore::TextFile.accessible_by(current_ability).except(:where).where(id: data_link.asset_id)).order(name: :asc).pluck(:name, :id), data_link.asset_id), { include_blank: true }, { class: 'single-select reloadable', data: { placeholder: '', reload_path: assets_path, type: 'DataCycleCore::TextFile' } } %>
     </div>

@@ -7,7 +7,6 @@ module DataCycleCore
     class PdfTest < ActiveSupport::TestCase
       include DataCycleCore::ActiveStorageHelper
       def setup
-        # DataCycleCore::PdfUploader.enable_processing = true
         @pdf_temp = DataCycleCore::Pdf.count
       end
 
@@ -39,12 +38,6 @@ module DataCycleCore
         assert_not(@pdf.persisted?)
         assert_not(@pdf.valid?)
         assert(@pdf.errors.present?)
-      end
-
-      def teardown
-        # @pdf.remove_file!
-        # @pdf.destroy!
-        # DataCycleCore::PdfUploader.enable_processing = false
       end
     end
   end
