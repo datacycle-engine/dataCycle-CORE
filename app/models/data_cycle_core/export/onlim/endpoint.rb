@@ -13,10 +13,6 @@ module DataCycleCore
           'Event' => 'https://semantify.it/ds/mhpmBCJJt'
         }.freeze
 
-        ODTA_TYPE = {
-          'POI' => 'odta:PointOfInterest'
-        }.freeze
-
         def initialize(**options)
           super
 
@@ -32,11 +28,12 @@ module DataCycleCore
           verb = :post
           url = [@host, @end_point].join('/')
           body = serialize_data(data)
-          if external_system_data.present?
-            body = replace_ids(data: body, external_system_data: external_system_data)
-            url = [url, "imports/#{external_system_data['external_key']}"].join('/')
-            verb = :put
-          end
+          # if external_system_data.present?
+          #   body = replace_ids(data: body, external_system_data: external_system_data)
+          #   url = [url, "imports/#{external_system_data['external_key']}"].join('/')
+          #   verb = :put
+          # end
+          binding.pry
 
           response = connection.send(verb) do |req|
             req.url(url)
@@ -140,7 +137,8 @@ module DataCycleCore
               {
                 'job_id' => job_id,
                 'job_status' => 'running',
-                'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: 'onlim').id
+                'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: 'onlim').id,
+                'message' => status['verificationReport']
               }
             ).reject { |_k, v| v.blank? }
           elsif !status['valid']
@@ -148,7 +146,8 @@ module DataCycleCore
               {
                 'job_id' => job_id,
                 'job_status' => 'failed',
-                'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: 'onlim').id
+                'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: 'onlim').id,
+                'message' => status['verificationReport']
               }
             ).reject { |_k, v| v.blank? }
           else
@@ -156,7 +155,8 @@ module DataCycleCore
               {
                 'job_id' => job_id,
                 'job_status' => 'success',
-                'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: 'onlim').id
+                'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: 'onlim').id,
+                'message' => status['verificationReport']
               }
             ).reject { |_k, v| v.blank? }
           end
@@ -172,9 +172,9 @@ module DataCycleCore
               language: ['de'], # TODO: Mehrsprachigkeit!
               language_mode: 'expanded',
               fields_parameters: ATTRIBUTE_FILTER[data.template_name] || [],
-              force_expand: true,
+              expand_language: true,
               field_filter: true,
-              include_parameters: [],
+              include_parameters: [], # included data
               api_version: 4,
               permitted_params: {},
               api_context: 'api'
@@ -184,22 +184,26 @@ module DataCycleCore
           )
 
           hash = JSON[json]
-          context = hash['@context']
-          context[1] = context[1].merge(
-            {
-              'rdfs' => 'http://www.w3.org/2000/01/rdf-schema#',
-              'rdf' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-              'xsd' => 'http://www.w3.org/2001/XMLSchema#',
-              'odta' => 'https://odta.io/voc/',
-              'ds' => 'https://vocab.sti2.at/ds/'
-            }
-          ) # .reject { |k, _| k.in?('@base') }
+          hash = DataCycleCore::Export::Onlim::Transformations.to_poi.call(hash)
+
+          # context = hash['@context']
+          # context = Array.wrap(
+          #   context[1].merge(
+          #     {
+          #       'rdfs' => 'http://www.w3.org/2000/01/rdf-schema#',
+          #       'rdf' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+          #       'xsd' => 'http://www.w3.org/2001/XMLSchema#',
+          #       'odta' => 'https://odta.io/voc/',
+          #       'ds' => 'https://vocab.sti2.at/ds/'
+          #     }
+          #   ).reject { |k, _| k.in?('dcls') }
+          # )
 
           graph = hash['@graph'].first
           graph['@type'] += [ODTA_TYPE[data.template_name]]
           graph['ds:compliesWith'] = { '@id' => COMPLIES[data.template_name] }
 
-          hash['@context'] = context
+          # hash['@context'] = context
           hash['@graph'][0] = graph
           hash
         end
@@ -207,7 +211,7 @@ module DataCycleCore
         def replace_ids(data:, external_system_data:)
           key = external_system_data['external_key']
 
-          data['@graph'][0]['@id'] = "http://onlim.com/entity/+#{key}"
+          data['@graph'][0]['@id'] = "http://onlim.com/entity/#{key}"
           data
         end
       end

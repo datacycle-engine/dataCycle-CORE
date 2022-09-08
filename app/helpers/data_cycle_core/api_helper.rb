@@ -208,7 +208,7 @@ module DataCycleCore
           'cc' => 'http://creativecommons.org/ns#',
           'dc' => 'https://schema.datacycle.at/',
           'dcls' => schema_url + '/',
-          'odta' => 'https://ds.sti2.org/'
+          'odta' => 'https://odta.io/voc/' # 'https://ds.sti2.org/'
         }.compact
       ]
     end

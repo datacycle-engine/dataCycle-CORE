@@ -396,7 +396,7 @@ CREATE FUNCTION public.update_template_definitions_trigger() RETURNS trigger
 
 SET default_tablespace = '';
 
-SET default_with_oids = false;
+SET default_table_access_method = heap;
 
 --
 -- Name: active_storage_attachments; Type: TABLE; Schema: public; Owner: -
@@ -2922,7 +2922,7 @@ CREATE INDEX words_idx ON public.searches USING gin (full_text public.gin_trgm_o
 -- Name: classification_alias_paths_transitive delete_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER delete_ccc_relations_transitive_trigger AFTER DELETE ON public.classification_alias_paths_transitive REFERENCING OLD TABLE AS old_classification_alias_paths_transitive FOR EACH STATEMENT EXECUTE PROCEDURE public.delete_ccc_relations_transitive_trigger_2();
+CREATE TRIGGER delete_ccc_relations_transitive_trigger AFTER DELETE ON public.classification_alias_paths_transitive REFERENCING OLD TABLE AS old_classification_alias_paths_transitive FOR EACH STATEMENT EXECUTE FUNCTION public.delete_ccc_relations_transitive_trigger_2();
 
 ALTER TABLE public.classification_alias_paths_transitive DISABLE TRIGGER delete_ccc_relations_transitive_trigger;
 
@@ -2931,7 +2931,7 @@ ALTER TABLE public.classification_alias_paths_transitive DISABLE TRIGGER delete_
 -- Name: classification_contents delete_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER delete_ccc_relations_transitive_trigger AFTER DELETE ON public.classification_contents FOR EACH ROW EXECUTE PROCEDURE public.delete_ccc_relations_transitive_trigger_1();
+CREATE TRIGGER delete_ccc_relations_transitive_trigger AFTER DELETE ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.delete_ccc_relations_transitive_trigger_1();
 
 ALTER TABLE public.classification_contents DISABLE TRIGGER delete_ccc_relations_transitive_trigger;
 
@@ -2940,7 +2940,7 @@ ALTER TABLE public.classification_contents DISABLE TRIGGER delete_ccc_relations_
 -- Name: classification_groups delete_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER delete_ccc_relations_transitive_trigger AFTER DELETE ON public.classification_groups FOR EACH ROW EXECUTE PROCEDURE public.delete_ca_paths_transitive_trigger_1();
+CREATE TRIGGER delete_ccc_relations_transitive_trigger AFTER DELETE ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION public.delete_ca_paths_transitive_trigger_1();
 
 ALTER TABLE public.classification_groups DISABLE TRIGGER delete_ccc_relations_transitive_trigger;
 
@@ -2949,49 +2949,49 @@ ALTER TABLE public.classification_groups DISABLE TRIGGER delete_ccc_relations_tr
 -- Name: classification_groups delete_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER delete_collected_classification_content_relations_trigger_1 AFTER DELETE ON public.classification_groups FOR EACH ROW EXECUTE PROCEDURE public.delete_collected_classification_content_relations_trigger_1();
+CREATE TRIGGER delete_collected_classification_content_relations_trigger_1 AFTER DELETE ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION public.delete_collected_classification_content_relations_trigger_1();
 
 
 --
 -- Name: content_contents delete_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER delete_content_content_links_trigger BEFORE DELETE ON public.content_contents FOR EACH ROW EXECUTE PROCEDURE public.delete_content_content_links_trigger();
+CREATE TRIGGER delete_content_content_links_trigger BEFORE DELETE ON public.content_contents FOR EACH ROW EXECUTE FUNCTION public.delete_content_content_links_trigger();
 
 
 --
 -- Name: schedules delete_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER delete_schedule_occurences_trigger AFTER DELETE ON public.schedules REFERENCING OLD TABLE AS old_schedules FOR EACH STATEMENT EXECUTE PROCEDURE public.delete_schedule_occurences_trigger();
+CREATE TRIGGER delete_schedule_occurences_trigger AFTER DELETE ON public.schedules REFERENCING OLD TABLE AS old_schedules FOR EACH STATEMENT EXECUTE FUNCTION public.delete_schedule_occurences_trigger();
 
 
 --
 -- Name: classification_aliases generate_ca_paths_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_ca_paths_transitive_trigger AFTER INSERT ON public.classification_aliases FOR EACH ROW EXECUTE PROCEDURE public.generate_ca_paths_transitive_trigger_1();
+CREATE TRIGGER generate_ca_paths_transitive_trigger AFTER INSERT ON public.classification_aliases FOR EACH ROW EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_1();
 
 
 --
 -- Name: classification_tree_labels generate_ca_paths_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_ca_paths_transitive_trigger AFTER INSERT ON public.classification_tree_labels FOR EACH ROW EXECUTE PROCEDURE public.generate_ca_paths_transitive_trigger_3();
+CREATE TRIGGER generate_ca_paths_transitive_trigger AFTER INSERT ON public.classification_tree_labels FOR EACH ROW EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_3();
 
 
 --
 -- Name: classification_trees generate_ca_paths_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_ca_paths_transitive_trigger AFTER INSERT ON public.classification_trees FOR EACH ROW EXECUTE PROCEDURE public.generate_ca_paths_transitive_trigger_2();
+CREATE TRIGGER generate_ca_paths_transitive_trigger AFTER INSERT ON public.classification_trees FOR EACH ROW EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_2();
 
 
 --
 -- Name: classification_alias_paths_transitive generate_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_ccc_relations_transitive_trigger AFTER INSERT ON public.classification_alias_paths_transitive REFERENCING NEW TABLE AS new_classification_alias_paths_transitive FOR EACH STATEMENT EXECUTE PROCEDURE public.generate_ccc_relations_transitive_trigger_1();
+CREATE TRIGGER generate_ccc_relations_transitive_trigger AFTER INSERT ON public.classification_alias_paths_transitive REFERENCING NEW TABLE AS new_classification_alias_paths_transitive FOR EACH STATEMENT EXECUTE FUNCTION public.generate_ccc_relations_transitive_trigger_1();
 
 ALTER TABLE public.classification_alias_paths_transitive DISABLE TRIGGER generate_ccc_relations_transitive_trigger;
 
@@ -3000,7 +3000,7 @@ ALTER TABLE public.classification_alias_paths_transitive DISABLE TRIGGER generat
 -- Name: classification_contents generate_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_ccc_relations_transitive_trigger AFTER INSERT ON public.classification_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_ccc_relations_transitive_trigger_2();
+CREATE TRIGGER generate_ccc_relations_transitive_trigger AFTER INSERT ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.generate_ccc_relations_transitive_trigger_2();
 
 ALTER TABLE public.classification_contents DISABLE TRIGGER generate_ccc_relations_transitive_trigger;
 
@@ -3009,7 +3009,7 @@ ALTER TABLE public.classification_contents DISABLE TRIGGER generate_ccc_relation
 -- Name: classification_groups generate_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_ccc_relations_transitive_trigger AFTER INSERT ON public.classification_groups FOR EACH ROW EXECUTE PROCEDURE public.generate_ca_paths_transitive_trigger_4();
+CREATE TRIGGER generate_ccc_relations_transitive_trigger AFTER INSERT ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_4();
 
 ALTER TABLE public.classification_groups DISABLE TRIGGER generate_ccc_relations_transitive_trigger;
 
@@ -3018,126 +3018,126 @@ ALTER TABLE public.classification_groups DISABLE TRIGGER generate_ccc_relations_
 -- Name: classification_aliases generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_aliases FOR EACH ROW EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_1();
+CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_aliases FOR EACH ROW EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_1();
 
 
 --
 -- Name: classification_tree_labels generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_tree_labels FOR EACH ROW EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_3();
+CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_tree_labels FOR EACH ROW EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_3();
 
 
 --
 -- Name: classification_trees generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_trees FOR EACH ROW EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_2();
+CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_trees FOR EACH ROW EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_2();
 
 
 --
 -- Name: classification_alias_paths generate_collected_classification_content_relations_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_collected_classification_content_relations_trigger AFTER INSERT OR UPDATE ON public.classification_alias_paths FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_3();
+CREATE TRIGGER generate_collected_classification_content_relations_trigger AFTER INSERT OR UPDATE ON public.classification_alias_paths FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_3();
 
 
 --
 -- Name: classification_contents generate_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_collected_classification_content_relations_trigger_1 AFTER INSERT ON public.classification_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_1();
+CREATE TRIGGER generate_collected_classification_content_relations_trigger_1 AFTER INSERT ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_1();
 
 
 --
 -- Name: classification_contents generate_collected_classification_content_relations_trigger_2; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_collected_classification_content_relations_trigger_2 AFTER DELETE ON public.classification_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_2();
+CREATE TRIGGER generate_collected_classification_content_relations_trigger_2 AFTER DELETE ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_2();
 
 
 --
 -- Name: classification_groups generate_collected_classification_content_relations_trigger_4; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_collected_classification_content_relations_trigger_4 AFTER INSERT ON public.classification_groups FOR EACH ROW EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_4();
+CREATE TRIGGER generate_collected_classification_content_relations_trigger_4 AFTER INSERT ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_4();
 
 
 --
 -- Name: content_contents generate_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_content_content_links_trigger AFTER INSERT ON public.content_contents FOR EACH ROW EXECUTE PROCEDURE public.generate_content_content_links_trigger();
+CREATE TRIGGER generate_content_content_links_trigger AFTER INSERT ON public.content_contents FOR EACH ROW EXECUTE FUNCTION public.generate_content_content_links_trigger();
 
 
 --
 -- Name: users generate_my_selection_watch_list; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_my_selection_watch_list AFTER INSERT ON public.users FOR EACH ROW EXECUTE PROCEDURE public.generate_my_selection_watch_list();
+CREATE TRIGGER generate_my_selection_watch_list AFTER INSERT ON public.users FOR EACH ROW EXECUTE FUNCTION public.generate_my_selection_watch_list();
 
 
 --
 -- Name: schedules generate_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_schedule_occurences_trigger AFTER INSERT ON public.schedules FOR EACH ROW EXECUTE PROCEDURE public.generate_schedule_occurences_trigger();
+CREATE TRIGGER generate_schedule_occurences_trigger AFTER INSERT ON public.schedules FOR EACH ROW EXECUTE FUNCTION public.generate_schedule_occurences_trigger();
 
 
 --
 -- Name: searches tsvectorsearchinsert; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER tsvectorsearchinsert BEFORE INSERT ON public.searches FOR EACH ROW EXECUTE PROCEDURE public.tsvectorsearchupdate();
+CREATE TRIGGER tsvectorsearchinsert BEFORE INSERT ON public.searches FOR EACH ROW EXECUTE FUNCTION public.tsvectorsearchupdate();
 
 
 --
 -- Name: searches tsvectorsearchupdate; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER tsvectorsearchupdate BEFORE UPDATE OF words, locale, full_text ON public.searches FOR EACH ROW WHEN (((old.words IS DISTINCT FROM new.words) OR ((old.locale)::text IS DISTINCT FROM (new.locale)::text) OR (old.full_text IS DISTINCT FROM new.full_text))) EXECUTE PROCEDURE public.tsvectorsearchupdate();
+CREATE TRIGGER tsvectorsearchupdate BEFORE UPDATE OF words, locale, full_text ON public.searches FOR EACH ROW WHEN (((old.words IS DISTINCT FROM new.words) OR ((old.locale)::text IS DISTINCT FROM (new.locale)::text) OR (old.full_text IS DISTINCT FROM new.full_text))) EXECUTE FUNCTION public.tsvectorsearchupdate();
 
 
 --
 -- Name: searches tsvectortypeaheadsearchinsert; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER tsvectortypeaheadsearchinsert BEFORE INSERT ON public.searches FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger('words_typeahead', 'pg_catalog.simple', 'full_text');
+CREATE TRIGGER tsvectortypeaheadsearchinsert BEFORE INSERT ON public.searches FOR EACH ROW EXECUTE FUNCTION tsvector_update_trigger('words_typeahead', 'pg_catalog.simple', 'full_text');
 
 
 --
 -- Name: searches tsvectortypeaheadsearchupdate; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER tsvectortypeaheadsearchupdate BEFORE UPDATE OF full_text ON public.searches FOR EACH ROW WHEN ((old.full_text IS DISTINCT FROM new.full_text)) EXECUTE PROCEDURE tsvector_update_trigger('words_typeahead', 'pg_catalog.simple', 'full_text');
+CREATE TRIGGER tsvectortypeaheadsearchupdate BEFORE UPDATE OF full_text ON public.searches FOR EACH ROW WHEN ((old.full_text IS DISTINCT FROM new.full_text)) EXECUTE FUNCTION tsvector_update_trigger('words_typeahead', 'pg_catalog.simple', 'full_text');
 
 
 --
 -- Name: classification_aliases update_ca_paths_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_ca_paths_transitive_trigger AFTER UPDATE OF internal_name ON public.classification_aliases FOR EACH ROW WHEN (((old.internal_name)::text IS DISTINCT FROM (new.internal_name)::text)) EXECUTE PROCEDURE public.generate_ca_paths_transitive_trigger_1();
+CREATE TRIGGER update_ca_paths_transitive_trigger AFTER UPDATE OF internal_name ON public.classification_aliases FOR EACH ROW WHEN (((old.internal_name)::text IS DISTINCT FROM (new.internal_name)::text)) EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_1();
 
 
 --
 -- Name: classification_tree_labels update_ca_paths_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_ca_paths_transitive_trigger AFTER UPDATE OF name ON public.classification_tree_labels FOR EACH ROW WHEN (((old.name)::text IS DISTINCT FROM (new.name)::text)) EXECUTE PROCEDURE public.generate_ca_paths_transitive_trigger_3();
+CREATE TRIGGER update_ca_paths_transitive_trigger AFTER UPDATE OF name ON public.classification_tree_labels FOR EACH ROW WHEN (((old.name)::text IS DISTINCT FROM (new.name)::text)) EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_3();
 
 
 --
 -- Name: classification_trees update_ca_paths_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_ca_paths_transitive_trigger AFTER UPDATE OF parent_classification_alias_id, classification_alias_id, classification_tree_label_id ON public.classification_trees FOR EACH ROW WHEN (((old.parent_classification_alias_id IS DISTINCT FROM new.parent_classification_alias_id) OR (old.classification_alias_id IS DISTINCT FROM new.classification_alias_id) OR (new.classification_tree_label_id IS DISTINCT FROM old.classification_tree_label_id))) EXECUTE PROCEDURE public.generate_ca_paths_transitive_trigger_2();
+CREATE TRIGGER update_ca_paths_transitive_trigger AFTER UPDATE OF parent_classification_alias_id, classification_alias_id, classification_tree_label_id ON public.classification_trees FOR EACH ROW WHEN (((old.parent_classification_alias_id IS DISTINCT FROM new.parent_classification_alias_id) OR (old.classification_alias_id IS DISTINCT FROM new.classification_alias_id) OR (new.classification_tree_label_id IS DISTINCT FROM old.classification_tree_label_id))) EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_2();
 
 
 --
 -- Name: classification_contents update_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_ccc_relations_transitive_trigger AFTER UPDATE OF content_data_id, classification_id, relation ON public.classification_contents FOR EACH ROW WHEN (((old.content_data_id IS DISTINCT FROM new.content_data_id) OR (old.classification_id IS DISTINCT FROM new.classification_id) OR ((old.relation)::text IS DISTINCT FROM (new.relation)::text))) EXECUTE PROCEDURE public.generate_ccc_relations_transitive_trigger_2();
+CREATE TRIGGER update_ccc_relations_transitive_trigger AFTER UPDATE OF content_data_id, classification_id, relation ON public.classification_contents FOR EACH ROW WHEN (((old.content_data_id IS DISTINCT FROM new.content_data_id) OR (old.classification_id IS DISTINCT FROM new.classification_id) OR ((old.relation)::text IS DISTINCT FROM (new.relation)::text))) EXECUTE FUNCTION public.generate_ccc_relations_transitive_trigger_2();
 
 ALTER TABLE public.classification_contents DISABLE TRIGGER update_ccc_relations_transitive_trigger;
 
@@ -3146,7 +3146,7 @@ ALTER TABLE public.classification_contents DISABLE TRIGGER update_ccc_relations_
 -- Name: classification_groups update_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_ccc_relations_transitive_trigger AFTER UPDATE OF deleted_at ON public.classification_groups FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE PROCEDURE public.delete_ca_paths_transitive_trigger_1();
+CREATE TRIGGER update_ccc_relations_transitive_trigger AFTER UPDATE OF deleted_at ON public.classification_groups FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_ca_paths_transitive_trigger_1();
 
 ALTER TABLE public.classification_groups DISABLE TRIGGER update_ccc_relations_transitive_trigger;
 
@@ -3155,63 +3155,63 @@ ALTER TABLE public.classification_groups DISABLE TRIGGER update_ccc_relations_tr
 -- Name: classification_aliases update_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF internal_name ON public.classification_aliases FOR EACH ROW WHEN (((old.internal_name)::text IS DISTINCT FROM (new.internal_name)::text)) EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_1();
+CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF internal_name ON public.classification_aliases FOR EACH ROW WHEN (((old.internal_name)::text IS DISTINCT FROM (new.internal_name)::text)) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_1();
 
 
 --
 -- Name: classification_tree_labels update_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF name ON public.classification_tree_labels FOR EACH ROW WHEN (((old.name)::text IS DISTINCT FROM (new.name)::text)) EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_3();
+CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF name ON public.classification_tree_labels FOR EACH ROW WHEN (((old.name)::text IS DISTINCT FROM (new.name)::text)) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_3();
 
 
 --
 -- Name: classification_trees update_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF parent_classification_alias_id, classification_alias_id, classification_tree_label_id ON public.classification_trees FOR EACH ROW WHEN (((old.parent_classification_alias_id IS DISTINCT FROM new.parent_classification_alias_id) OR (old.classification_alias_id IS DISTINCT FROM new.classification_alias_id) OR (new.classification_tree_label_id IS DISTINCT FROM old.classification_tree_label_id))) EXECUTE PROCEDURE public.generate_classification_alias_paths_trigger_2();
+CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF parent_classification_alias_id, classification_alias_id, classification_tree_label_id ON public.classification_trees FOR EACH ROW WHEN (((old.parent_classification_alias_id IS DISTINCT FROM new.parent_classification_alias_id) OR (old.classification_alias_id IS DISTINCT FROM new.classification_alias_id) OR (new.classification_tree_label_id IS DISTINCT FROM old.classification_tree_label_id))) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_2();
 
 
 --
 -- Name: classification_contents update_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_collected_classification_content_relations_trigger_1 AFTER UPDATE OF content_data_id, classification_id, relation ON public.classification_contents FOR EACH ROW WHEN (((old.content_data_id IS DISTINCT FROM new.content_data_id) OR (old.classification_id IS DISTINCT FROM new.classification_id) OR ((old.relation)::text IS DISTINCT FROM (new.relation)::text))) EXECUTE PROCEDURE public.generate_collected_classification_content_relations_trigger_1();
+CREATE TRIGGER update_collected_classification_content_relations_trigger_1 AFTER UPDATE OF content_data_id, classification_id, relation ON public.classification_contents FOR EACH ROW WHEN (((old.content_data_id IS DISTINCT FROM new.content_data_id) OR (old.classification_id IS DISTINCT FROM new.classification_id) OR ((old.relation)::text IS DISTINCT FROM (new.relation)::text))) EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_1();
 
 
 --
 -- Name: classification_groups update_collected_classification_content_relations_trigger_4; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_collected_classification_content_relations_trigger_4 AFTER UPDATE OF deleted_at ON public.classification_groups FOR EACH ROW WHEN ((old.deleted_at IS DISTINCT FROM new.deleted_at)) EXECUTE PROCEDURE public.delete_collected_classification_content_relations_trigger_1();
+CREATE TRIGGER update_collected_classification_content_relations_trigger_4 AFTER UPDATE OF deleted_at ON public.classification_groups FOR EACH ROW WHEN ((old.deleted_at IS DISTINCT FROM new.deleted_at)) EXECUTE FUNCTION public.delete_collected_classification_content_relations_trigger_1();
 
 
 --
 -- Name: content_contents update_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_content_content_links_trigger AFTER UPDATE OF content_a_id, content_b_id, relation_b ON public.content_contents FOR EACH ROW WHEN (((old.content_a_id IS DISTINCT FROM new.content_a_id) OR (old.content_b_id IS DISTINCT FROM new.content_b_id) OR ((old.relation_b)::text IS DISTINCT FROM (new.relation_b)::text))) EXECUTE PROCEDURE public.generate_content_content_links_trigger();
+CREATE TRIGGER update_content_content_links_trigger AFTER UPDATE OF content_a_id, content_b_id, relation_b ON public.content_contents FOR EACH ROW WHEN (((old.content_a_id IS DISTINCT FROM new.content_a_id) OR (old.content_b_id IS DISTINCT FROM new.content_b_id) OR ((old.relation_b)::text IS DISTINCT FROM (new.relation_b)::text))) EXECUTE FUNCTION public.generate_content_content_links_trigger();
 
 
 --
 -- Name: users update_my_selection_watch_list; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_my_selection_watch_list AFTER UPDATE OF role_id ON public.users FOR EACH ROW WHEN ((old.role_id IS DISTINCT FROM new.role_id)) EXECUTE PROCEDURE public.generate_my_selection_watch_list();
+CREATE TRIGGER update_my_selection_watch_list AFTER UPDATE OF role_id ON public.users FOR EACH ROW WHEN ((old.role_id IS DISTINCT FROM new.role_id)) EXECUTE FUNCTION public.generate_my_selection_watch_list();
 
 
 --
 -- Name: schedules update_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_schedule_occurences_trigger AFTER UPDATE OF thing_id, duration, rrule, dtstart, relation, exdate, rdate ON public.schedules FOR EACH ROW WHEN (((old.thing_id IS DISTINCT FROM new.thing_id) OR (old.duration IS DISTINCT FROM new.duration) OR ((old.rrule)::text IS DISTINCT FROM (new.rrule)::text) OR (old.dtstart IS DISTINCT FROM new.dtstart) OR ((old.relation)::text IS DISTINCT FROM (new.relation)::text) OR (old.rdate IS DISTINCT FROM new.rdate) OR (old.exdate IS DISTINCT FROM new.exdate))) EXECUTE PROCEDURE public.generate_schedule_occurences_trigger();
+CREATE TRIGGER update_schedule_occurences_trigger AFTER UPDATE OF thing_id, duration, rrule, dtstart, relation, exdate, rdate ON public.schedules FOR EACH ROW WHEN (((old.thing_id IS DISTINCT FROM new.thing_id) OR (old.duration IS DISTINCT FROM new.duration) OR ((old.rrule)::text IS DISTINCT FROM (new.rrule)::text) OR (old.dtstart IS DISTINCT FROM new.dtstart) OR ((old.relation)::text IS DISTINCT FROM (new.relation)::text) OR (old.rdate IS DISTINCT FROM new.rdate) OR (old.exdate IS DISTINCT FROM new.exdate))) EXECUTE FUNCTION public.generate_schedule_occurences_trigger();
 
 
 --
 -- Name: things update_template_definitions_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_template_definitions_trigger AFTER UPDATE OF schema, boost, content_type ON public.things FOR EACH ROW WHEN (((new.template = true) AND ((old.schema IS DISTINCT FROM new.schema) OR (old.boost IS DISTINCT FROM new.boost) OR ((old.content_type)::text IS DISTINCT FROM (new.content_type)::text)))) EXECUTE PROCEDURE public.update_template_definitions_trigger();
+CREATE TRIGGER update_template_definitions_trigger AFTER UPDATE OF schema, boost, content_type ON public.things FOR EACH ROW WHEN (((new.template = true) AND ((old.schema IS DISTINCT FROM new.schema) OR (old.boost IS DISTINCT FROM new.boost) OR ((old.content_type)::text IS DISTINCT FROM (new.content_type)::text)))) EXECUTE FUNCTION public.update_template_definitions_trigger();
 
 
 --
@@ -3514,6 +3514,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220615085015'),
 ('20220615104611'),
 ('20220617113231'),
-('20220715173507');
+('20220715173507'),
+('20220905101007');
 
 
