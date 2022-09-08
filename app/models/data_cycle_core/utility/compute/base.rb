@@ -29,7 +29,7 @@ module DataCycleCore
             })
 
             # keep fallback for imported computed values
-            data_hash[key] = content.get_property_value(key, properties) if DataCycleCore::DataHashService.blank?(data_hash[key]) && properties.dig('compute', 'fallback').to_s != 'false'
+            data_hash[key] = content.attribute_to_h(key) if DataCycleCore::DataHashService.blank?(data_hash[key]) && properties.dig('compute', 'fallback').to_s != 'false'
           end
 
           def conditions_satisfied?(content, properties)
