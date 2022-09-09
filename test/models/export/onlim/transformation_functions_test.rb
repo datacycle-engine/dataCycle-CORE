@@ -352,7 +352,8 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
     let(:blacklist) do
       {
         'GeoCoordinates' => ['unwanted', 'unwanted1', ['more_data', 'unwanted']],
-        'PostalAddress' => ['telephone', 'faxNumber', 'email', 'url']
+        'PostalAddress' => ['telephone', 'faxNumber', 'email', 'url'],
+        'Place' => ['description']
       }
     end
 
@@ -374,7 +375,6 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
           '@id' => '11111111-1111-1111-1111-111111111111',
           '@type' => ['Place', 'TouristAttraction', 'dcls:POI'],
           'name' => [{ '@language' => 'de', '@value' => 'name' }],
-          'description' => [{ '@language' => 'de', '@value' => 'description' }],
           'address' => {
             '@id' => '11111111-1111-1111-1111-222222222222',
             '@type' => 'PostalAddress',
