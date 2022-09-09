@@ -214,12 +214,14 @@ class AdditionalValuesFilterControl {
     if (this.controlOverlay.classList.contains('active')) {
       this.enabled = false;
       this.controlOverlay.classList.remove('active');
+      this.controlButton.classList.remove('active');
       this.editor.editorGui.editor.clickable = true;
       this.editor.editorGui.editor._enabled = true;
       this.editor.editorGui.editor.visibility = 'visible';
     } else {
       this.enabled = true;
       this.controlOverlay.classList.add('active');
+      this.controlButton.classList.add('active');
       this.editor.editorGui.editor.clickable = false;
       this.editor.editorGui.editor._enabled = false;
       this.editor.editorGui.editor.visibility = 'none';
