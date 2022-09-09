@@ -109,6 +109,58 @@ module DataCycleCore
             .reject { |i| i.start_with?('dcls:') }
           types.size == 1 ? types.first : types
         end
+
+        def self.apply_full_blacklist(data, blacklist)
+          return data if data.blank? || blacklist.blank?
+          raise "Function parameter <blacklist> has to be a Hash { type => Array(attributes) } not #{blacklist.class}." unless blacklist.is_a?(Hash)
+          types = blacklist.keys
+          types.each { |type| data = apply_blacklist(data, type, blacklist[type]) }
+          data
+        end
+
+        def self.apply_blacklist(data, type, list)
+          return data if data.blank?
+          raise 'Function parameter <type> can not be empty.' if type.blank?
+
+          case data
+          in Hash
+            if data.key?('@type') && Array.wrap(data['@type']).any?(type)
+              reject_attributes(data, list)
+            else
+              data
+            end.map { |k, v| { k => apply_blacklist(v, type, list) } }&.reduce(&:merge)
+          in Array
+            data.map { |i| apply_blacklist(i, type, list) }
+          else
+            data
+          end
+        end
+
+        def self.reject_attributes(data, list)
+          return data if data.blank? || list.blank?
+          raise "Function parameter <list> has to be an Array not #{list.class}." unless list.is_a?(Array)
+          list.each do |path|
+            data = reject_attribute(data, path)
+          end
+          data
+        end
+
+        def self.reject_attribute(data, path)
+          return data if path.blank?
+          path = Array.wrap(path)
+          key = path[0]
+          leaf = path.size <= 1
+          case data
+          in Hash
+            data[key] = reject_attribute(data[key], path[1..-1]) if data.key?(key)
+            data.reject! { |k, _| k == key } if leaf
+            data.compact.presence
+          in Array
+            data.map { |i| reject_attribute(i, path) }.compact.presence
+          else
+            data
+          end
+        end
       end
     end
   end

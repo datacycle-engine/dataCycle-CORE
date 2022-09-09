@@ -216,4 +216,189 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
       )
     end
   end
+
+  describe 'reject_attribute' do
+    it 'rejects an simple attribue' do
+      data = { a: 1, b: 2 }
+      hash = subject.reject_attribute(data, :a)
+      assert(hash == { b: 2 })
+    end
+
+    it 'rejects path as array and as value' do
+      data = { a: 1, b: 2 }
+      hash = subject.reject_attribute(data, :a)
+      hash2 = subject.reject_attribute(data, [:a])
+      assert(hash == hash2)
+    end
+
+    it 'rejects attribute in a deep hash' do
+      data = { a: 1, b: { a: 1 } }
+      hash = subject.reject_attribute(data, [:b, :a])
+      assert(hash == { a: 1 })
+    end
+
+    it 'rejects attribute in an array' do
+      data = { a: 1, b: [{ a: 1 }, { c: 1 }] }
+      hash = subject.reject_attribute(data, [:b, :a])
+      assert(hash == { a: 1, b: [{ c: 1 }] })
+    end
+
+    it 'rejects attribue in an array and removes the empty array' do
+      data = { a: 1, b: [{ a: 1 }, { a: 2 }] }
+      hash = subject.reject_attribute(data, [:b, :a])
+      assert(hash == { a: 1 })
+    end
+
+    it 'rejects also more complicated cases' do
+      data = { a: 1, b: [{ a: 1 }, { a: { c: [{ d: 1 }] } }] }
+      hash = subject.reject_attribute(data, [:b, :a, :c, :d])
+      assert(hash == { a: 1, b: [{ a: 1 }] })
+    end
+  end
+
+  describe 'apply_blacklist' do
+    it 'does nothing if blacklist is empty' do
+      data = { '@type' => 'POI', a: 1, b: 2, c: 3 }
+      hash = subject.apply_blacklist(data, 'POI', [])
+      assert(hash == data)
+      hash = subject.apply_blacklist(data, 'POI', nil)
+      assert(hash == data)
+    end
+
+    it 'does nothing if data is empy' do
+      hash = subject.apply_blacklist({}, 'POI', [:a])
+      assert(hash == {})
+      hash = subject.apply_blacklist(nil, 'POI', [:a])
+      assert(hash.nil?)
+    end
+
+    it 'blacklists attributes from a given datatype' do
+      data = { '@type' => 'POI', a: 1, b: 2, c: 3 }
+      hash = subject.apply_blacklist(data, 'POI', [:a, :b])
+      assert(hash == { '@type' => 'POI', c: 3 })
+    end
+
+    it 'ignores other types' do
+      data = { '@type' => 'POI', a: 1, b: 2, c: 3 }
+      hash = subject.apply_blacklist(data, 'X', [:a, :b])
+      assert(hash == data)
+    end
+
+    it 'blacklists data from nested datastructure' do
+      data = { a: 1, b: [{ '@type' => 'POI', a: 1, b: 2, c: 3 }] }
+      hash = subject.apply_blacklist(data, 'POI', [:a, :b])
+      assert(hash == { a: 1, b: [{ '@type' => 'POI', c: 3 }] })
+    end
+
+    it 'blacklists attributes in all occurrences from a given datatype' do
+      poi_data = { '@type' => 'POI', a: 1, b: 2, c: 3 }
+      data = { a: 1, b: [poi_data.deep_dup], c: poi_data.deep_dup }
+      hash = subject.apply_blacklist(data, 'POI', [:a, :b])
+      assert(hash == { a: 1, b: [{ '@type' => 'POI', c: 3 }], c: { '@type' => 'POI', c: 3 } })
+    end
+  end
+
+  describe 'apply_full_blacklist' do
+    let(:data_hash) do
+      {
+        '@context' => [
+          'https://schema.org/',
+          {
+            '@base' => 'http://localhost:3000/api/v4/universal/',
+            'skos' => 'https://www.w3.org/2009/08/skos-reference/skos.html#',
+            'dct' => 'http://purl.org/dc/terms/',
+            'cc' => 'http://creativecommons.org/ns#',
+            'dc' => 'https://schema.datacycle.at/',
+            'dcls' => 'http://localhost:3000/schema/',
+            'odta' => 'https://odta.io/voc/'
+          }
+        ],
+        '@graph' => [{
+          '@id' => '11111111-1111-1111-1111-111111111111',
+          '@type' => ['Place', 'TouristAttraction', 'dcls:POI'],
+          'name' => [{ '@language' => 'de', '@value' => 'name' }],
+          'description' => [{ '@language' => 'de', '@value' => 'description' }],
+          'address' => {
+            '@id' => '11111111-1111-1111-1111-222222222222',
+            '@type' => 'PostalAddress',
+            'streetAddress' => 'Straße 40',
+            'postalCode' => '12345',
+            'addressLocality' => 'Stadt',
+            'addressCountry' => 'DE',
+            'telephone' => [{ '@language' => 'de', '@value' => '(0049)1111 111111' }],
+            'faxNumber' => [{ '@language' => 'de', '@value' => '(0049)2222 222222' }],
+            'email' => [{ '@language' => 'de', '@value' => 'maikammer@maikammer-erlebnisland.de' }],
+            'url' => [{ '@language' => 'de', '@value' => 'https://www.maikammer.de' }]
+          },
+          'geo' => {
+            '@id' => '76112d34-6f6f-4d37-8e45-679147a4c5af',
+            '@type' => 'GeoCoordinates',
+            'longitude' => 8.0,
+            'latitude' => 49.0,
+            'unwanted' => 1,
+            'unwanted1' => {
+              'unwanted_1' => 1,
+              'unwanted_2' => 2
+            },
+            'more_data' => {
+              'unwanted' => 1,
+              'keep' => 2
+            }
+          }
+        }]
+      }
+    end
+
+    let(:blacklist) do
+      {
+        'GeoCoordinates' => ['unwanted', 'unwanted1', ['more_data', 'unwanted']],
+        'PostalAddress' => ['telephone', 'faxNumber', 'email', 'url']
+      }
+    end
+
+    let(:cleaned_hash) do
+      {
+        '@context' => [
+          'https://schema.org/',
+          {
+            '@base' => 'http://localhost:3000/api/v4/universal/',
+            'skos' => 'https://www.w3.org/2009/08/skos-reference/skos.html#',
+            'dct' => 'http://purl.org/dc/terms/',
+            'cc' => 'http://creativecommons.org/ns#',
+            'dc' => 'https://schema.datacycle.at/',
+            'dcls' => 'http://localhost:3000/schema/',
+            'odta' => 'https://odta.io/voc/'
+          }
+        ],
+        '@graph' => [{
+          '@id' => '11111111-1111-1111-1111-111111111111',
+          '@type' => ['Place', 'TouristAttraction', 'dcls:POI'],
+          'name' => [{ '@language' => 'de', '@value' => 'name' }],
+          'description' => [{ '@language' => 'de', '@value' => 'description' }],
+          'address' => {
+            '@id' => '11111111-1111-1111-1111-222222222222',
+            '@type' => 'PostalAddress',
+            'streetAddress' => 'Straße 40',
+            'postalCode' => '12345',
+            'addressLocality' => 'Stadt',
+            'addressCountry' => 'DE'
+          },
+          'geo' => {
+            '@id' => '76112d34-6f6f-4d37-8e45-679147a4c5af',
+            '@type' => 'GeoCoordinates',
+            'longitude' => 8.0,
+            'latitude' => 49.0,
+            'more_data' => {
+              'keep' => 2
+            }
+          }
+        }]
+      }
+    end
+
+    it 'apply a blackist to a api/v4 graph' do
+      hash = subject.apply_full_blacklist(data_hash, blacklist)
+      assert_equal(cleaned_hash, hash)
+    end
+  end
 end
