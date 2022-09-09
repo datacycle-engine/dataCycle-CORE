@@ -74,11 +74,12 @@ namespace :dc do
         progressbar1.increment
       end
 
+      contents = query.query.except(:order)
+
       schedules = DataCycleCore::Schedule.where(thing_id: contents.select(:id))
       puts "MIGRATING: schedules (#{schedules.size})..."
       schedules.update_all(external_source_id: nil, external_key: nil)
 
-      contents = query.query.except(:order)
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: things')
 
       contents.each do |content|
