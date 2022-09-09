@@ -32,27 +32,27 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
 
     it 'removes namespaced keys from a hash' do
       hash = subject.remove_namespaced_data(hash1)
-      assert(hash == { 'b' => 2 })
+      assert_equal({ 'b' => 2 }, hash)
     end
 
     it 'removes namespaced keys from deep hashes' do
       hash = subject.remove_namespaced_data(hash2)
-      assert(hash == { 'a' => 6, 'b' => { 'e' => 6 } })
+      assert_equal({ 'a' => 6, 'b' => { 'e' => 6 } }, hash)
     end
 
     it 'removes namespaced keys from array of hash' do
       array = subject.remove_namespaced_data(Array.wrap(hash1))
-      assert(array == [{ 'b' => 2 }])
+      assert_equal([{ 'b' => 2 }], array)
     end
 
     it 'removes namespaced_keys from array of deep_hash' do
       array = subject.remove_namespaced_data(Array.wrap(hash2))
-      assert(array == [{ 'a' => 6, 'b' => { 'e' => 6 } }])
+      assert_equal([{ 'a' => 6, 'b' => { 'e' => 6 } }], array)
     end
 
     it 'removes all namespaced_keys from complex array of hashes' do
       array = subject.remove_namespaced_data([hash1, hash2])
-      assert(array == [{ 'b' => 2 }, { 'a' => 6, 'b' => { 'e' => 6 } }])
+      assert_equal([{ 'b' => 2 }, { 'a' => 6, 'b' => { 'e' => 6 } }], array)
     end
   end
 
@@ -84,17 +84,17 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
 
     it 'removes stub from a hash' do
       hash = subject.remove_thing_stubs(hash1)
-      assert(hash == { 'a' => 1 })
+      assert_equal({ 'a' => 1 }, hash)
     end
 
     it 'not removes data including stub from a hash' do
       hash = subject.remove_thing_stubs(hash2)
-      assert(hash == hash2)
+      assert_equal(hash2, hash)
     end
 
     it 'removes array of stubs from hash' do
       hash = subject.remove_thing_stubs(hash3)
-      assert(hash == { 'a' => 1 })
+      assert_equal({ 'a' => 1 }, hash)
     end
   end
 
@@ -140,28 +140,27 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
 
     it 'adds an apropriate type in a hash' do
       hash = subject.type_to_onlim(hash1)
-      assert(hash == { 'a' => 1, '@type' => ['TouristAttraction', 'odta:PointOfInterest'] })
+      assert_equal({ 'a' => 1, '@type' => ['TouristAttraction', 'odta:PointOfInterest'] }, hash)
     end
 
     it 'ignores unaffected types' do
       hash = subject.type_to_onlim(hash2)
-      assert(hash == { 'a' => 1, '@type' => 'POI' })
+      assert_equal({ 'a' => 1, '@type' => 'POI' }, hash)
     end
 
     it 'adds an apropriate type in a hash with more than one type' do
       hash = subject.type_to_onlim(hash3)
-      assert(hash == { 'a' => 1, '@type' => ['POI', 'TouristAttraction', 'odta:PointOfInterest'] })
+      assert_equal({ 'a' => 1, '@type' => ['POI', 'TouristAttraction', 'odta:PointOfInterest'] }, hash)
     end
 
     it 'adds and removes types' do
       hash = subject.type_to_onlim(hash4)
-      assert(hash == { 'a' => 1, '@type' => ['TouristAttraction', 'odta:PointOfInterest'] })
+      assert_equal({ 'a' => 1, '@type' => ['TouristAttraction', 'odta:PointOfInterest'] }, hash)
     end
 
     it 'handles subarrays correctly' do
       hash = subject.type_to_onlim(hash5)
-      assert(
-        hash ==
+      assert_equal(
         {
           'a' => 1,
           'b' => [
@@ -169,7 +168,8 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
             { '@id' => '2222222', '@type' => 'POI' },
             { '@id' => '3333333', '@type' => ['TouristAttraction', 'odta:PointOfInterest'] }
           ]
-        }
+        },
+        hash
       )
     end
   end
@@ -188,23 +188,22 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
 
     it 'adds apporpriate complies_with' do
       hash = subject.add_complies_with({ '@type' => 'POI' })
-      assert(hash == { '@type' => 'POI', 'ds:compliesWith' => { '@id' => 'https://semantify.it/ds/sloejGAwT' } })
+      assert_equal({ '@type' => 'POI', 'ds:compliesWith' => { '@id' => 'https://semantify.it/ds/sloejGAwT' } }, hash)
     end
 
     it 'does not alter unknown types' do
       hash = subject.add_complies_with({ '@type' => 'irrelevant' })
-      assert(hash == { '@type' => 'irrelevant' })
+      assert_equal({ '@type' => 'irrelevant' }, hash)
     end
 
     it 'adds apporpriate complies_with also if for type arrays' do
       hash = subject.add_complies_with({ '@type' => ['POI', 'irrelevant'] })
-      assert(hash == { '@type' => ['POI', 'irrelevant'], 'ds:compliesWith' => { '@id' => 'https://semantify.it/ds/sloejGAwT' } })
+      assert_equal({ '@type' => ['POI', 'irrelevant'], 'ds:compliesWith' => { '@id' => 'https://semantify.it/ds/sloejGAwT' } }, hash)
     end
 
     it 'also handles embedded data in subarrays' do
       hash = subject.add_complies_with(hash1)
-      assert(
-        hash ==
+      assert_equal(
         {
           'a' => 1,
           'b' => [
@@ -212,7 +211,8 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
             { '@type' => 'POI', 'ds:compliesWith' => { '@id' => 'https://semantify.it/ds/sloejGAwT' } },
             { '@type' => ['TouristAttraction', 'odta:PointOfInterest'] }
           ]
-        }
+        },
+        hash
       )
     end
   end
@@ -221,38 +221,38 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
     it 'rejects an simple attribue' do
       data = { a: 1, b: 2 }
       hash = subject.reject_attribute(data, :a)
-      assert(hash == { b: 2 })
+      assert_equal({ b: 2 }, hash)
     end
 
     it 'rejects path as array and as value' do
       data = { a: 1, b: 2 }
       hash = subject.reject_attribute(data, :a)
       hash2 = subject.reject_attribute(data, [:a])
-      assert(hash == hash2)
+      assert_equal(hash2, hash)
     end
 
     it 'rejects attribute in a deep hash' do
       data = { a: 1, b: { a: 1 } }
       hash = subject.reject_attribute(data, [:b, :a])
-      assert(hash == { a: 1 })
+      assert_equal({ a: 1 }, hash)
     end
 
     it 'rejects attribute in an array' do
       data = { a: 1, b: [{ a: 1 }, { c: 1 }] }
       hash = subject.reject_attribute(data, [:b, :a])
-      assert(hash == { a: 1, b: [{ c: 1 }] })
+      assert_equal({ a: 1, b: [{ c: 1 }] }, hash)
     end
 
     it 'rejects attribue in an array and removes the empty array' do
       data = { a: 1, b: [{ a: 1 }, { a: 2 }] }
       hash = subject.reject_attribute(data, [:b, :a])
-      assert(hash == { a: 1 })
+      assert_equal({ a: 1 }, hash)
     end
 
     it 'rejects also more complicated cases' do
       data = { a: 1, b: [{ a: 1 }, { a: { c: [{ d: 1 }] } }] }
       hash = subject.reject_attribute(data, [:b, :a, :c, :d])
-      assert(hash == { a: 1, b: [{ a: 1 }] })
+      assert_equal({ a: 1, b: [{ a: 1 }] }, hash)
     end
   end
 
@@ -260,14 +260,14 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
     it 'does nothing if blacklist is empty' do
       data = { '@type' => 'POI', a: 1, b: 2, c: 3 }
       hash = subject.apply_blacklist(data, 'POI', [])
-      assert(hash == data)
+      assert_equal(data, hash)
       hash = subject.apply_blacklist(data, 'POI', nil)
-      assert(hash == data)
+      assert_equal(data, hash)
     end
 
     it 'does nothing if data is empy' do
       hash = subject.apply_blacklist({}, 'POI', [:a])
-      assert(hash == {})
+      assert_equal({}, hash)
       hash = subject.apply_blacklist(nil, 'POI', [:a])
       assert(hash.nil?)
     end
@@ -275,26 +275,26 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
     it 'blacklists attributes from a given datatype' do
       data = { '@type' => 'POI', a: 1, b: 2, c: 3 }
       hash = subject.apply_blacklist(data, 'POI', [:a, :b])
-      assert(hash == { '@type' => 'POI', c: 3 })
+      assert_equal({ '@type' => 'POI', c: 3 }, hash)
     end
 
     it 'ignores other types' do
       data = { '@type' => 'POI', a: 1, b: 2, c: 3 }
       hash = subject.apply_blacklist(data, 'X', [:a, :b])
-      assert(hash == data)
+      assert_equal(data, hash)
     end
 
     it 'blacklists data from nested datastructure' do
       data = { a: 1, b: [{ '@type' => 'POI', a: 1, b: 2, c: 3 }] }
       hash = subject.apply_blacklist(data, 'POI', [:a, :b])
-      assert(hash == { a: 1, b: [{ '@type' => 'POI', c: 3 }] })
+      assert_equal({ a: 1, b: [{ '@type' => 'POI', c: 3 }] }, hash)
     end
 
     it 'blacklists attributes in all occurrences from a given datatype' do
       poi_data = { '@type' => 'POI', a: 1, b: 2, c: 3 }
       data = { a: 1, b: [poi_data.deep_dup], c: poi_data.deep_dup }
       hash = subject.apply_blacklist(data, 'POI', [:a, :b])
-      assert(hash == { a: 1, b: [{ '@type' => 'POI', c: 3 }], c: { '@type' => 'POI', c: 3 } })
+      assert_equal({ a: 1, b: [{ '@type' => 'POI', c: 3 }], c: { '@type' => 'POI', c: 3 } }, hash)
     end
   end
 
