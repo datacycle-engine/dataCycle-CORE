@@ -85,6 +85,15 @@ module DataCycleCore
           end
         end
 
+        def self.update_type(type)
+          types = Array
+            .wrap(type)
+            .map { |i| [i, ODTA_TYPE[i]].compact }
+            .flatten
+            .reject { |i| i.start_with?('dcls:') }
+          types.size == 1 ? types.first : types
+        end
+
         def self.add_complies_with(data)
           case data
           in Hash
@@ -99,15 +108,6 @@ module DataCycleCore
           else
             data
           end
-        end
-
-        def self.update_type(type)
-          types = Array
-            .wrap(type)
-            .map { |i| [i, ODTA_TYPE[i]].compact }
-            .flatten
-            .reject { |i| i.start_with?('dcls:') }
-          types.size == 1 ? types.first : types
         end
 
         def self.apply_full_blacklist(data, blacklist)
