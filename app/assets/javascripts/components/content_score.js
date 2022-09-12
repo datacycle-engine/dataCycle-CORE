@@ -45,24 +45,32 @@ class ContentScore {
       contentType: false,
       cache: false
     })
-      .then(data => {
-        if (!data || !data.hasOwnProperty('value')) return;
-
-        const score = Math.round(data.value * 100);
-
-        if (data && data.hasOwnProperty('value')) this.contentScoreText.innerHTML = score;
-
-        this.container.classList.remove('medium-score', 'high-score');
-        if (score > 66) this.container.classList.add('high-score');
-        else if (score > 33) this.container.classList.add('medium-score');
-      })
+      .then(this.setNewScore.bind(this))
       .catch(_e => {
         this.container.classList.remove('medium-score', 'high-score');
-        this.contentScoreText.innerHTML = '-';
+        this.contentScoreText.innerHTML = '';
       })
       .finally(() => {
         this.element.classList.remove('score-loading');
       });
+  }
+  setNewScore(data) {
+    if (!data || !data.hasOwnProperty('value')) return;
+
+    const score = Math.round(data.value * 100);
+
+    if (data && data.hasOwnProperty('value')) this.contentScoreText.innerHTML = score;
+
+    this.container.classList.remove('medium-score', 'high-score');
+    this.element.classList.remove('medium-score', 'high-score');
+
+    if (score > 66) {
+      this.container.classList.add('high-score');
+      this.element.classList.add('high-score');
+    } else if (score > 33) {
+      this.container.classList.add('medium-score');
+      this.element.classList.add('medium-score');
+    }
   }
 }
 

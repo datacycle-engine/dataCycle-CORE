@@ -606,6 +606,7 @@
     padding: 0.6rem;
     background: rgba($light-gray, 0.9);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    backdrop-filter: $global-backdrop-filter;
 
     .object-browser-filter-form {
       display: flex;
@@ -793,6 +794,7 @@
     left: 0;
     bottom: 0;
     box-shadow: 0 -3px 7px rgba(0, 0, 0, 0.1);
+    backdrop-filter: $global-backdrop-filter;
 
     .chosen-items {
       overflow-x: auto;
