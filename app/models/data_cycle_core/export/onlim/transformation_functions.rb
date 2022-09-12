@@ -24,8 +24,7 @@ module DataCycleCore
           in Hash
             data
               .reject { |k, _v| k.count(':').positive? }
-              &.map { |k, v| { k => remove_namespaced_data(v) } }
-              &.reduce(&:merge)
+              &.transform_values { |v| remove_namespaced_data(v).presence }
               &.compact
           in Array
             data.map { |i| remove_namespaced_data(i) }
@@ -58,8 +57,7 @@ module DataCycleCore
           in Hash
             if data.keys.sort != ['@id', '@type']
               data
-                .map { |k, v| { k => remove_thing_stubs(v) } }
-                &.reduce(&:merge)
+                .transform_values { |v| remove_thing_stubs(v).presence }
                 &.compact
             end
           in Array
@@ -102,7 +100,7 @@ module DataCycleCore
               data.merge({ 'ds:compliesWith' => { '@id' => complies_with } })
             else
               data
-            end.map { |k, v| { k => add_complies_with(v) } }&.reduce(&:merge)
+            end.transform_values { |v| add_complies_with(v) }
           in Array
             data.map { |i| add_complies_with(i) }
           else
@@ -128,7 +126,7 @@ module DataCycleCore
               reject_attributes(data, list)
             else
               data
-            end.map { |k, v| { k => apply_blacklist(v, type, list) } }&.reduce(&:merge)
+            end.transform_values { |v| apply_blacklist(v, type, list) }
           in Array
             data.map { |i| apply_blacklist(i, type, list) }
           else
