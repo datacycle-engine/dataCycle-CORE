@@ -98,7 +98,11 @@ module DataCycleCore
         rendered_attribute = content.asset.file.preview_image.url
       elsif content.template_name == 'Video' || content.template_name == 'PDF'
         # no active storage
-        rendered_attribute = content.send(:thumbnail_url)
+        if content.asset.present?
+          rendered_attribute = content.asset&.thumb_preview&.url
+        else
+          rendered_attribute = content.send(:thumbnail_url)
+        end
       elsif content.template_name == 'Webcam' && content.send(attribute).blank?
         rendered_attribute = content.try(:image)&.first&.send(attribute)
       else
