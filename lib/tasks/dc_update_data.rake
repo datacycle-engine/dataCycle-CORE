@@ -26,38 +26,31 @@ namespace :dc do
           keys_for_data_hash = keys_for_data_hash.intersection(computed_keys)
         end
 
-        update_proc = lambda { |item|
-          computed_hash = item.get_data_hash_partial(keys_for_data_hash)
-          item.add_computed_values(data_hash: computed_hash)
-          item.set_data_hash(data_hash: computed_hash, update_computed: false)
-        }
-
         progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
 
-        pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
-        futures = []
+        update_proc = lambda { |content|
+          computed_hash = content.get_data_hash_partial(keys_for_data_hash)
+          content.add_computed_values(data_hash: computed_hash)
+          content.set_data_hash(data_hash: computed_hash, update_computed: false)
+        }
 
         items.find_each do |item|
-          next if dry_run
+          next progressbar.increment if dry_run
 
-          futures << Concurrent::Future.execute({ executor: pool }) do
-            item.prevent_webhooks = true if webhooks == 'false'
+          item.prevent_webhooks = true if webhooks == 'false'
 
-            if translated_computed
-              item.available_locales.each do |locale|
-                I18n.with_locale(locale) { update_proc.call(item) }
-              end
-            else
-              I18n.with_locale(item.first_available_locale) { update_proc.call(item) }
+          if translated_computed
+            item.available_locales.each do |locale|
+              I18n.with_locale(locale) { update_proc.call(item) }
             end
-          rescue StandardError => e
-            puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
-          ensure
-            progressbar.increment
+          else
+            I18n.with_locale(item.first_available_locale) { update_proc.call(item) }
           end
+        rescue StandardError => e
+          puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
+        ensure
+          progressbar.increment
         end
-
-        futures.each(&:value!)
       end
 
       if dry_run
