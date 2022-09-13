@@ -120,23 +120,30 @@ module DataCycleCore
         def self.apply_blacklist(data, list)
           return data if data.blank? || list.blank?
           raise "Function parameter <list> has to be a Hash { type => Array(attributes) } not #{list.class}." unless list.is_a?(Hash)
-          list.each_key { |type| data = apply_blacklist_type(data, type, list[type]) }
+          list.each_key { |type| data = apply_list_type(data, type, list[type], :reject_attributes) }
           data
         end
 
-        def self.apply_blacklist_type(data, type, list)
-          return data if data.blank?
+        def self.apply_whitelist(data, list)
+          return data if data.blank? || list.blank?
+          raise "Function parameter <list> has to be a Hash { type => Array(attributes) } not #{list.class}." unless list.is_a?(Hash)
+          list.each_key { |type| data = apply_list_type(data, type, list[type], :select_attributes) }
+          data
+        end
+
+        def self.apply_list_type(data, type, list, hash_method)
+          return data if data.blank? || list.blank?
           raise 'Function parameter <type> can not be empty.' if type.blank?
 
           case data
           in Hash
             if data.key?('@type') && Array.wrap(data['@type']).any?(type)
-              reject_attributes(data, list)
+              send(hash_method, data, list)
             else
               data
-            end.transform_values { |v| apply_blacklist_type(v, type, list) }
+            end.transform_values { |v| apply_list_type(v, type, list, hash_method) }
           in Array
-            data.map { |i| apply_blacklist_type(i, type, list) }
+            data.map { |i| apply_list_type(i, type, list, hash_method) }
           else
             data
           end
@@ -163,31 +170,6 @@ module DataCycleCore
             data.compact.presence
           in Array
             data.map { |i| reject_attribute(i, path) }.compact.presence
-          else
-            data
-          end
-        end
-
-        def self.apply_whitelist(data, list)
-          return data if data.blank? || list.blank?
-          raise "Function parameter <list> has to be a Hash { type => Array(attributes) } not #{list.class}." unless list.is_a?(Hash)
-          list.each_key { |type| data = apply_whitelist_type(data, type, list[type]) }
-          data
-        end
-
-        def self.apply_whitelist_type(data, type, list)
-          return data if data.blank? || list.blank?
-          raise 'Function parameter <type> can not be empty.' if type.blank?
-
-          case data
-          in Hash
-            if data.key?('@type') && Array.wrap(data['@type']).any?(type)
-              select_attributes(data, list)
-            else
-              data
-            end.transform_values { |v| apply_whitelist_type(v, type, list) }
-          in Array
-            data.map { |i| apply_whitelist_type(i, type, list) }
           else
             data
           end
