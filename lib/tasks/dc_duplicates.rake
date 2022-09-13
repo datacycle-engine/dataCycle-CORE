@@ -42,15 +42,11 @@ namespace :dc do
       progress = ProgressBar.create(total: total_items, format: '%t |%w>%i| %a - %c/%C', title: 'Items')
 
       duplicate_count = 0
-      pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
-      futures = []
+
       query.query.find_each do |content|
-        futures << Concurrent::Future.execute({ executor: pool }) do
-          duplicate_count += content.create_duplicate_candidates&.size.to_i
-          progress.increment
-        end
+        duplicate_count += content.create_duplicate_candidates&.size.to_i
+        progress.increment
       end
-      futures.map(&:value!)
 
       puts "(RE)CREATED Duplicate Candidates - #{duplicate_count} duplicates found"
     end
