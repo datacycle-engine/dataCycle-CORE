@@ -533,7 +533,7 @@ class MapLibreGlViewer {
   getBoundsForGeojson(geoJson) {
     const bounds = new this.maplibreGl.LngLatBounds();
 
-    if (geoJson.hasOwnProperty('features')) {
+    if (geoJson.hasOwnProperty('features') && geoJson.features) {
       for (const feature of geoJson.features) {
         if (!feature || !feature.geometry) continue;
 
@@ -546,10 +546,12 @@ class MapLibreGlViewer {
     return bounds;
   }
   addBoundsForFeature(bounds, feature) {
-    if (feature.geometry.type === 'Point') bounds.extend(feature.geometry.coordinates);
-    else if (feature.geometry.type === 'MultiLineString') {
-      for (const lineStrings of feature.geometry.coordinates) {
-        for (const coords of lineStrings) bounds.extend([coords[0], coords[1]]);
+    if (feature.hasOwnProperty('geometry')) {
+      if (feature.geometry.type === 'Point') bounds.extend(feature.geometry.coordinates);
+      else if (feature.geometry.type === 'MultiLineString') {
+        for (const lineStrings of feature.geometry.coordinates) {
+          for (const coords of lineStrings) bounds.extend([coords[0], coords[1]]);
+        }
       }
     }
     return bounds;
