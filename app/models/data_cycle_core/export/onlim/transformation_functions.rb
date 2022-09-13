@@ -11,12 +11,21 @@ module DataCycleCore
         import DataCycleCore::Generic::Common::Functions
 
         ODTA_TYPE = {
-          'TouristAttraction' => 'odta:PointOfInterest'
+          'TouristAttraction' => 'odta:PointOfInterest',
+          'Tour' => 'Trail'
         }.freeze
 
         COMPLIES = {
           'POI' => 'https://semantify.it/ds/sloejGAwT',
-          'Event' => 'https://semantify.it/ds/mhpmBCJJt'
+          'Event' => 'https://semantify.it/ds/mhpmBCJJt',
+          'FoodEstablishment' => 'https://semantify.it/ds/SyCG2WVzkz',
+          'LodgingBusiness' => 'https://semantify.it/ds/Sypf3bVG1z',
+          'Person' => 'https://semantify.it/ds/iB4eyYN5K',
+          'Tour' => 'https://semantify.it/ds/nBTyKDsKX',
+          'GeoCoordinates' => 'https://semantify.it/ds/2NErTNGpd',
+          'PostalAddress' => 'https://semantify.it/ds/NP8df6sKy',
+          'OpeningHoursSpecification' => 'https://semantify.it/ds/rpOsHCyrE',
+          'PropertyValue' => 'https://semantify.it/ds/evJvhycX1'
         }.freeze
 
         def self.remove_namespaced_data(data)
@@ -108,15 +117,14 @@ module DataCycleCore
           end
         end
 
-        def self.apply_full_blacklist(data, blacklist)
-          return data if data.blank? || blacklist.blank?
-          raise "Function parameter <blacklist> has to be a Hash { type => Array(attributes) } not #{blacklist.class}." unless blacklist.is_a?(Hash)
-          types = blacklist.keys
-          types.each { |type| data = apply_blacklist(data, type, blacklist[type]) }
+        def self.apply_blacklist(data, list)
+          return data if data.blank? || list.blank?
+          raise "Function parameter <list> has to be a Hash { type => Array(attributes) } not #{list.class}." unless list.is_a?(Hash)
+          list.each_key { |type| data = apply_blacklist_type(data, type, list[type]) }
           data
         end
 
-        def self.apply_blacklist(data, type, list)
+        def self.apply_blacklist_type(data, type, list)
           return data if data.blank?
           raise 'Function parameter <type> can not be empty.' if type.blank?
 
@@ -126,9 +134,9 @@ module DataCycleCore
               reject_attributes(data, list)
             else
               data
-            end.transform_values { |v| apply_blacklist(v, type, list) }
+            end.transform_values { |v| apply_blacklist_type(v, type, list) }
           in Array
-            data.map { |i| apply_blacklist(i, type, list) }
+            data.map { |i| apply_blacklist_type(i, type, list) }
           else
             data
           end
@@ -157,6 +165,52 @@ module DataCycleCore
             data.map { |i| reject_attribute(i, path) }.compact.presence
           else
             data
+          end
+        end
+
+        def self.apply_whitelist(data, list)
+          return data if data.blank? || list.blank?
+          raise "Function parameter <list> has to be a Hash { type => Array(attributes) } not #{list.class}." unless list.is_a?(Hash)
+          list.each_key { |type| data = apply_whitelist_type(data, type, list[type]) }
+          data
+        end
+
+        def self.apply_whitelist_type(data, type, list)
+          return data if data.blank? || list.blank?
+          raise 'Function parameter <type> can not be empty.' if type.blank?
+
+          case data
+          in Hash
+            if data.key?('@type') && Array.wrap(data['@type']).any?(type)
+              select_attributes(data, list)
+            else
+              data
+            end.transform_values { |v| apply_whitelist_type(v, type, list) }
+          in Array
+            data.map { |i| apply_whitelist_type(i, type, list) }
+          else
+            data
+          end
+        end
+
+        def self.select_attributes(data, list)
+          return data if list.blank? || data.blank?
+          list.map! { |i| Array.wrap(i) }
+          keys = list.map(&:first).uniq
+          case data
+          in Hash
+            data
+              .select { |k, _| k.in?(keys) || k.starts_with?('@') }
+              .map { |k, v|
+                next_level = list.select { |i| i[0] == k }.map { |i| i[1..-1].presence }.compact
+                { k => select_attributes(v, next_level) }
+              }.reduce(&:merge)
+              &.compact
+              &.presence
+          in Array
+            data.map { |i| select_attributes(i, list) }&.compact&.presence
+          else
+            nil
           end
         end
       end

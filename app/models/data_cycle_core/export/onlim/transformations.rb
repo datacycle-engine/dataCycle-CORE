@@ -8,9 +8,24 @@ module DataCycleCore
           DataCycleCore::Export::Onlim::TransformationFunctions[*args]
         end
 
+        # + starts_with('@')
+        def self.whitelist
+          {
+            'Organisation' => ['name', 'url'],
+            'Person' => ['name', 'url']
+          }
+        end
+
         def self.blacklist
           {
-            'PostalAddress' => ['telephone', 'faxNumber', 'email', 'url']
+            'PostalAddress' => ['telephone', 'faxNumber', 'email', 'url'],
+            'POI' =>
+              ['additionalInformation', 'addressCountry', 'addressLocality', 'attributionUrl',
+               'author', 'contactName', 'contentScore', 'copyrightNotice', 'dateCreated',
+               'dateDeleted', 'dateModified', 'directions', 'elevation', 'externalContentScore',
+               'feratelContentScore', 'hoursAvailable', 'isLinkedTo', 'linkedThing',
+               'logo', 'openingHoursDescription', 'parking', 'potentialAction', 'price',
+               'priceRange', 'primaryImage', 'slug', 'subjectOf', 'text', 'useGuidelines']
           }
         end
 
@@ -19,6 +34,7 @@ module DataCycleCore
           .>> t(:remove_namespaced_data)
           .>> t(:remove_thing_stubs)
           .>> t(:type_to_onlim)
+          # .>> t(:apply_full_whitelist, whitelist)
           .>> t(:apply_full_blacklist, blacklist)
           .>> t(:strip_all)
         end

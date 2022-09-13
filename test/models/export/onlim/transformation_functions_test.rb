@@ -256,49 +256,49 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
     end
   end
 
-  describe 'apply_blacklist' do
+  describe 'apply_blacklist_type' do
     it 'does nothing if blacklist is empty' do
       data = { '@type' => 'POI', a: 1, b: 2, c: 3 }
-      hash = subject.apply_blacklist(data, 'POI', [])
+      hash = subject.apply_blacklist_type(data, 'POI', [])
       assert_equal(data, hash)
-      hash = subject.apply_blacklist(data, 'POI', nil)
+      hash = subject.apply_blacklist_type(data, 'POI', nil)
       assert_equal(data, hash)
     end
 
     it 'does nothing if data is empy' do
-      hash = subject.apply_blacklist({}, 'POI', [:a])
+      hash = subject.apply_blacklist_type({}, 'POI', [:a])
       assert_equal({}, hash)
-      hash = subject.apply_blacklist(nil, 'POI', [:a])
+      hash = subject.apply_blacklist_type(nil, 'POI', [:a])
       assert(hash.nil?)
     end
 
     it 'blacklists attributes from a given datatype' do
       data = { '@type' => 'POI', a: 1, b: 2, c: 3 }
-      hash = subject.apply_blacklist(data, 'POI', [:a, :b])
+      hash = subject.apply_blacklist_type(data, 'POI', [:a, :b])
       assert_equal({ '@type' => 'POI', c: 3 }, hash)
     end
 
     it 'ignores other types' do
       data = { '@type' => 'POI', a: 1, b: 2, c: 3 }
-      hash = subject.apply_blacklist(data, 'X', [:a, :b])
+      hash = subject.apply_blacklist_type(data, 'X', [:a, :b])
       assert_equal(data, hash)
     end
 
     it 'blacklists data from nested datastructure' do
       data = { a: 1, b: [{ '@type' => 'POI', a: 1, b: 2, c: 3 }] }
-      hash = subject.apply_blacklist(data, 'POI', [:a, :b])
+      hash = subject.apply_blacklist_type(data, 'POI', [:a, :b])
       assert_equal({ a: 1, b: [{ '@type' => 'POI', c: 3 }] }, hash)
     end
 
     it 'blacklists attributes in all occurrences from a given datatype' do
       poi_data = { '@type' => 'POI', a: 1, b: 2, c: 3 }
       data = { a: 1, b: [poi_data.deep_dup], c: poi_data.deep_dup }
-      hash = subject.apply_blacklist(data, 'POI', [:a, :b])
+      hash = subject.apply_blacklist_type(data, 'POI', [:a, :b])
       assert_equal({ a: 1, b: [{ '@type' => 'POI', c: 3 }], c: { '@type' => 'POI', c: 3 } }, hash)
     end
   end
 
-  describe 'apply_full_blacklist' do
+  describe 'apply_blacklist' do
     let(:data_hash) do
       {
         '@context' => [
@@ -397,8 +397,101 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
     end
 
     it 'apply a blackist to a api/v4 graph' do
-      hash = subject.apply_full_blacklist(data_hash, blacklist)
+      hash = subject.apply_blacklist(data_hash, blacklist)
       assert_equal(cleaned_hash, hash)
+    end
+  end
+
+  describe 'select_attributes' do
+    it 'selects more than one attribute' do
+      data = { a: 1, b: 2, c: 3 }
+      hash = subject.select_attributes(data, [:a, :b])
+      assert_equal({ a: 1, b: 2 }, hash)
+    end
+
+    it 'selects single paths as array and as value' do
+      data = { a: 1, b: 2, c: 3 }
+      hash = subject.select_attributes(data, [:a, :b])
+      hash2 = subject.select_attributes(data, [[:a], [:b]])
+      assert_equal(hash2, hash)
+    end
+
+    it 'selects all attributes that start with "@"' do
+      data = { a: 1, '@id' => 2 }
+      hash = subject.select_attributes(data, [:b])
+      assert_equal({ '@id' => 2 }, hash)
+    end
+
+    it 'selects attribute in a deep hash' do
+      data = { a: 1, b: { a: 1, c: 3 } }
+      hash = subject.select_attributes(data, [[:b, :a]])
+      assert_equal({ b: { a: 1 } }, hash)
+    end
+
+    it 'selects attribute in an array' do
+      data = { a: 1, b: [{ a: 1 }, { c: 1 }] }
+      hash = subject.select_attributes(data, [[:b, :a]])
+      assert_equal({ b: [{ a: 1 }] }, hash)
+    end
+
+    it 'selects attribues in an array' do
+      data = { a: 1, b: [{ a: 1 }, { a: 2 }, { b: 3 }] }
+      hash = subject.select_attributes(data, [[:b, :b]])
+      assert_equal({ b: [{ b: 3 }] }, hash)
+    end
+
+    it 'selects deep nested attributes' do
+      data = { a: 1, b: [{ a: 1 }, { a: { b: 1 } }] }
+      hash = subject.select_attributes(data, [[:b, :a, :b]])
+      assert_equal({ b: [{ a: { b: 1 } }] }, hash)
+    end
+
+    it 'select even more complicated cases' do
+      data = { a: 1, b: [{ a: 1 }, { a: { c: [{ d: 1 }] } }] }
+      hash = subject.select_attributes(data, [[:a], [:b, :a, :c, :d]])
+      assert_equal({ a: 1, b: [{ a: { c: [{ d: 1 }] } }] }, hash)
+    end
+  end
+
+  describe 'apply_whitelist_type' do
+    it 'does nothing if blacklist is empty' do
+      data = { '@type' => 'POI', a: 1, b: 2, c: 3 }
+      hash = subject.apply_whitelist_type(data, 'POI', [])
+      assert_equal(data, hash)
+      hash = subject.apply_whitelist_type(data, 'POI', nil)
+      assert_equal(data, hash)
+    end
+
+    it 'does nothing if data is empy' do
+      hash = subject.apply_whitelist_type({}, 'POI', [:a])
+      assert_equal({}, hash)
+      hash = subject.apply_whitelist_type(nil, 'POI', [:a])
+      assert(hash.nil?)
+    end
+
+    it 'whitelist attributes from a given datatype' do
+      data = { '@type' => 'POI', a: 1, b: 2, c: 3 }
+      hash = subject.apply_whitelist_type(data, 'POI', [:a, :b])
+      assert_equal({ '@type' => 'POI', a: 1, b: 2 }, hash)
+    end
+
+    it 'ignores other types' do
+      data = { '@type' => 'POI', a: 1, b: 2, c: 3 }
+      hash = subject.apply_whitelist_type(data, 'X', [:a, :b])
+      assert_equal(data, hash)
+    end
+
+    it 'whitelists data from nested datastructure' do
+      data = { a: 1, b: [{ '@type' => 'POI', a: 1, b: 2, c: 3 }] }
+      hash = subject.apply_whitelist_type(data, 'POI', [:a, :b])
+      assert_equal({ a: 1, b: [{ '@type' => 'POI', a: 1, b: 2 }] }, hash)
+    end
+
+    it 'whitelists attributes in all occurrences from a given datatype' do
+      poi_data = { '@type' => 'POI', a: 1, b: 2, c: 3 }
+      data = { a: 1, b: [poi_data.deep_dup], c: poi_data.deep_dup }
+      hash = subject.apply_whitelist_type(data, 'POI', [:a, :b])
+      assert_equal({ a: 1, b: [{ '@type' => 'POI', a: 1, b: 2 }], c: { '@type' => 'POI', a: 1, b: 2 } }, hash)
     end
   end
 end
