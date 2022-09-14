@@ -1,25 +1,6 @@
 # frozen_string_literal: true
 
-def find_or_create_content(external_source: nil, external_key: nil, template_name: nil, data: nil)
-  content = DataCycleCore::Thing.where(template_name: template_name,
-                                       external_source_id: external_source&.id, external_key: external_key).first
-
-  unless content
-    content = DataCycleCore::Thing.find_by!(template_name: template_name, template: true).dup
-
-    content.template = false
-    content.created_at = Time.zone.now
-    content.updated_at = content.created_at
-    content.created_by = nil
-    content.external_source_id = external_source&.id
-    content.external_key = external_key
-    content.save!(touch: false)
-
-    content.set_data_hash(data_hash: data, new_content: true)
-  end
-
-  content
-end
+require 'rake_helpers/content_helper'
 
 namespace :dc do
   namespace :migrate do
@@ -413,7 +394,7 @@ namespace :dc do
 
         if translation&.content&.dig('author')
           author = I18n.with_locale(translation.locale) do
-            find_or_create_content(
+            ContentHelper.find_or_create_content(
               external_source: content.external_source,
               external_key: Digest::MD5.hexdigest(translation.content['author']),
               template_name: 'Organization',
@@ -423,7 +404,7 @@ namespace :dc do
         end
 
         publishers = content.classifications_for_tree(tree_name: 'OutdoorActive - Quellen').map do |classification|
-          find_or_create_content(
+          ContentHelper.find_or_create_content(
             external_source: content.external_source,
             external_key: Digest::MD5.hexdigest(classification.name),
             template_name: 'Organization',
