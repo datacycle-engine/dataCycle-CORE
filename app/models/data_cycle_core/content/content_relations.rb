@@ -77,7 +77,7 @@ module DataCycleCore
       end
 
       def mapped_classification_aliases
-        classification_aliases.where.not(id: primary_classification_aliases.pluck(:id))
+        classification_aliases.where.not(id: primary_classification_aliases.select(:id))
       end
 
       def classification_aliases_for_tree(tree_name:)

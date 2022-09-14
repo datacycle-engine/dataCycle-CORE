@@ -144,7 +144,7 @@ module DataCycleCore
     end
 
     def self.in_context(context)
-      all.to_a.select { |ca| (Array(ca.classification_tree_label&.visibility) & Array(context)).size.positive? }
+      all.includes(:classification_tree_label).where('classification_tree_labels.visibility && ARRAY[?]::varchar[]', Array.wrap(context)).references(:classification_tree_label)
     end
 
     def primary_classification_id

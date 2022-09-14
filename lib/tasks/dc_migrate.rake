@@ -366,6 +366,50 @@ namespace :dc do
         end
     end
 
+    task :universal_to_attribute_classifications, [:stored_filter_id, :tree_name, :attribute_key] => :environment do |_, args|
+      abort('missing stored_filter_id') if args.stored_filter_id.blank?
+      abort('missing attribute_key') if args.attribute_key.blank?
+
+      tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: args.tree_name)
+
+      abort('missing tree_label') if tree_label.nil?
+
+      contents = DataCycleCore::StoredFilter.find(args.stored_filter_id).apply.query
+
+      query = DataCycleCore::ClassificationContent
+        .joins(classification: [primary_classification_alias: :classification_tree_label])
+        .where(
+          content_data_id: contents.select(:id),
+          relation: 'universal_classifications',
+          classifications: { primary_classification_aliases: { classification_tree_labels: { id: tree_label.id } } }
+        )
+
+      raw_query = <<-SQL.squish
+        UPDATE
+          classification_contents
+        SET
+          relation = :relation
+        WHERE
+          classification_contents.id IN (#{query.select(:id).to_sql})
+          AND NOT EXISTS (
+            SELECT
+              1
+            FROM
+              classification_contents c1
+            WHERE
+              classification_contents.content_data_id = c1.content_data_id
+              AND classification_contents.classification_id = c1.classification_id
+              AND c1.relation = :relation
+          );
+      SQL
+
+      ActiveRecord::Base.connection.execute(
+        ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, relation: args.attribute_key])
+      )
+
+      query.delete_all
+    end
+
     task :pull_classifications_from_embedded, [:stored_filter, :embedded, :source_relation, :target_relation] => :environment do |_, args|
       contents = DataCycleCore::Thing.where(id: DataCycleCore::StoredFilter.find(args[:stored_filter]).apply.select(:id))
 
