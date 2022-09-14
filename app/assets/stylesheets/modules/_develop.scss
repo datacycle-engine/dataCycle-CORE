@@ -1902,7 +1902,7 @@ label[for='user_access_token'] {
   }
 
   .embedded_object {
-    .content-object-item.textblock {
+    > .content-object-item.textblock {
       padding: 0.5rem;
 
       .removeContentObject,
@@ -3760,7 +3760,6 @@ body {
   }
 }
 
-.editor.trail,
 .editor.tour {
   .attribute-group.editor.trail_rating
     > .attribute-group-item

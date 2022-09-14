@@ -12,7 +12,7 @@
                 class: 'edit',
                 data: {
                   dc_tooltip: t('actions.edit_data', data: tree_label.name, locale: active_ui_locale)
-                } if can?(:update, tree_label) %>
+                } if can?(:edit, tree_label) %>
 
     <%= link_to tag.i(class: 'fa fa-trash-o'),
                 classifications_path(classification_tree_label_id: tree_label.id),
@@ -52,9 +52,7 @@
                 } %>
   </span>
 
-  <% if can?(:update, tree_label) %>
-    <%= render 'classification_tree_label_form', classification_tree_label: tree_label %>
-  <% end %>
+  <%= render('classification_tree_label_form', classification_tree_label: tree_label) if can?(:edit, tree_label) %>
 
   <ul class="children">
   </ul>

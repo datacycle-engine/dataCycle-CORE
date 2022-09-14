@@ -316,6 +316,7 @@ button.button-prime {
   }
 
   &.warning {
+    margin: 0;
     background-color: map-get($foundation-palette, warning);
 
     &:focus,

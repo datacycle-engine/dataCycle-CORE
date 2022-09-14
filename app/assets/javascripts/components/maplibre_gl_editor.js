@@ -258,7 +258,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
   setHiddenFieldValue(geoJson) {
     this.value = geoJson;
 
-    if (geoJson.geometry.type.startsWith('LineString')) {
+    if (geoJson && geoJson.geometry && geoJson.geometry.type && geoJson.geometry.type.startsWith('LineString')) {
       geoJson.geometry.type = 'Multi' + geoJson.geometry.type;
       geoJson.geometry.coordinates = [geoJson.geometry.coordinates];
     }

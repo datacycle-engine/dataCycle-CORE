@@ -36,13 +36,13 @@
         opacity: 0;
       }
     }
-  }
 
-  &.medium-score .attribute-content-score .content-score-icon::before {
-    content: '\f123';
-  }
+    &.medium-score .content-score-icon::before {
+      content: '\f123';
+    }
 
-  &.high-score .attribute-content-score .content-score-icon::before {
-    content: '\f005';
+    &.high-score .content-score-icon::before {
+      content: '\f005';
+    }
   }
 }

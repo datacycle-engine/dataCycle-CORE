@@ -129,6 +129,8 @@ class TourSprungEditor extends MapLibreGlEditor {
 
     MTK.event.addListener(this.editorGui.editor, 'update', () => {
       this.featurePolyLine = this.editorGui.editor.getPolyline();
+      this.feature = this.editorGui.editor.exportGeoJSON().features[0];
+
       this.setHiddenFieldValue(this.feature);
 
       if (this.showElevationProfile || this.elevationProfile) this._setElevationProfileFromFeature();

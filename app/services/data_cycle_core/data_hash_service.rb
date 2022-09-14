@@ -146,6 +146,19 @@ module DataCycleCore
       !blank?(data)
     end
 
+    def self.deep_blank?(data)
+      return true if blank?(data)
+
+      return data.all? { |v| deep_blank?(v) } if data.is_a?(::Array)
+      return data.all? { |_, v| deep_blank?(v) } if data.is_a?(::Hash)
+
+      false
+    end
+
+    def self.deep_present?(data)
+      !deep_blank?(data)
+    end
+
     def self.parse_translated_hash(datahash)
       return {} unless datahash.is_a?(::Hash)
 

@@ -11,6 +11,10 @@ module DataCycleCore
               definition.dig('content_score', 'score_matrix')
             )
           end
+
+          def by_presence(key:, parameters:, **_args)
+            Base.value_present?(parameters, key) ? 1 : 0
+          end
         end
       end
     end

@@ -95,11 +95,14 @@
         :xml:
           disabled: true
         :api:
-          :partial: property_value
-          :type: PropertyValue
-          :transformation:
-            :method: append
-            :name: dc:contentScore
+          :disabled: true
+          :v4:
+            :disabled: false
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: append
+              :name: dc:contentScore
         :ui:
           :show:
             :disabled: true
