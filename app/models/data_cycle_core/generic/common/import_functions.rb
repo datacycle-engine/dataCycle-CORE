@@ -9,14 +9,30 @@ module DataCycleCore
         def self.process_step(utility_object:, raw_data:, transformation:, default:, config:)
           template = config&.dig(:template) || default.dig(:template)
 
+          if config&.key?(:before)
+            whitelist = config.dig(:before, :whitelist)
+            raw_data = BlacklistWhitelistFunctions.apply_whitelist(raw_data, whitelist) if whitelist.present?
+            blacklist = config.dig(:before, :blacklist)
+            raw_data = BlacklistWhitelistFunctions.apply_blacklist(raw_data, blacklist) if blacklist.present?
+          end
+
+          data = merge_default_values(
+            config,
+            transformation.call(raw_data || {}),
+            utility_object
+          ).with_indifferent_access
+
+          if config&.key?(:after)
+            whitelist = config.dig(:after, :whitelist)
+            data = BlacklistWhitelistFunctions.apply_whitelist(data, whitelist) if whitelist.present?
+            blacklist = config.dig(:after, :blacklist)
+            data = BlacklistWhitelistFunctions.apply_blacklist(data, blacklist) if blacklist.present?
+          end
+
           create_or_update_content(
             utility_object: utility_object,
             template: load_template(template),
-            data: merge_default_values(
-              config,
-              transformation.call(raw_data),
-              utility_object
-            ).with_indifferent_access,
+            data: data,
             local: false,
             config: config
           )
