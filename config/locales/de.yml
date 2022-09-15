@@ -548,6 +548,7 @@ de:
     report_generator:
       downloads_popular: Top 50 Downloads
       downloads_content: Alle Downloads dieses Inhalts
+      stored_searches_usage: Verwendung Gespeicherte Suchen
       headings:
         id: ID
         name: Name
@@ -556,6 +557,13 @@ de:
         date_created: Heruntergeladen am
         email: E-Mail
         user_display_name: Account
+        creator: Ersteller
+        last_used_dashboard: Datum der letzten Verwendung am Dashboard
+        last_used_api: Datum der letzten Verwendung über die API
+        api_usage_current_week: Anzahl der Verwendungen über die API in der aktuellen Woche
+        api_usage_last_week: Anzahl der Verwendungen über die API in letzten Wochen
+        api_usage_current_month: Anzahl der Verwendungen über die API im aktuellen Monat
+        api_usage_last_month: Anzahl der Verwendungen über die API im letzten Monat
       mailer:
         subject:
           downloads_popular: TOP 50 Bild Downloads
