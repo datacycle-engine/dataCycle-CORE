@@ -14,7 +14,9 @@ module DataCycleCore
               data_hash_all = { locale => data_hash }
             end
           end
+
           modify_content(content_item)
+
           data_hash_all.each do |locale, data_hash|
             I18n.with_locale(locale) do
               error = write(content_item, data_hash, Time.zone.now)
@@ -24,6 +26,7 @@ module DataCycleCore
               end
             end
           end
+
           progressbar.increment
         end
       end
