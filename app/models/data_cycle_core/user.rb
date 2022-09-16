@@ -83,7 +83,7 @@ module DataCycleCore
     end
 
     def full_name
-      (name || "#{given_name} #{family_name}".presence || '__unnamed_user__').squish
+      (name || "#{given_name} #{family_name}").squish.presence || '__unnamed_user__'
     end
 
     def default_filter(filters = [], _scope = 'backend', _template_name = nil)
