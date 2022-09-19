@@ -218,6 +218,29 @@ module DataCycleCore
       }
     end
 
+    def self.custom_find_by_full_path(full_path)
+      all.includes(:classification_alias_path)
+      .where(
+        "array_to_string(classification_alias_paths.full_path_names, ' < ') ILIKE ?",
+        full_path.split('>').reverse.map(&:strip).join(' < ')
+      )
+      .references(:classification_alias_paths)
+      .first
+    end
+
+    def self.custom_find_by_full_path!(full_path)
+      custom_find_by_full_path(full_path) || raise(ActiveRecord::RecordNotFound)
+    end
+
+    def create_mapping_for_path!(full_path)
+      mapped_ca = DataCycleCore::ClassificationAlias.custom_find_by_full_path!(full_path)
+
+      raise ActiveRecord::RecordNotFound if mapped_ca.primary_classification.nil?
+
+      classification_ids << mapped_ca.primary_classification.id
+      save!
+    end
+
     def move_to_path(new_path, destroy_children = false)
       return if new_path.blank?
 

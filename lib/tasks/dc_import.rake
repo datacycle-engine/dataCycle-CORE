@@ -19,5 +19,41 @@ namespace :dc do
       task_name = 'db:maintenance:vacuum'
       DataCycleCore::RunTaskJobImport.perform_later(task_name, full) unless Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'rake_task_importers', delayed_reference_id: task_name)
     end
+
+    namespace :classifications do
+      require 'csv'
+
+      desc 'append vacuum job to importers Queue'
+      task mappings_from_csv: :environment do
+        error_count = 0
+        pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
+        futures = []
+
+        Dir[Rails.root.join('config', 'classification_mappings', '*.csv').to_s].each do |file_path|
+          CSV.foreach(file_path, encoding: 'utf-8') do |data|
+            next unless data&.[](0)&.include?('>') && data&.[](1)&.include?('>')
+
+            futures << Concurrent::Promise.execute({ executor: pool }) do
+              ca = DataCycleCore::ClassificationAlias.custom_find_by_full_path(data[0])
+
+              if ca.nil?
+                error_count += 1
+                puts("classification_alias not found (#{data[0]})")
+                next
+              end
+
+              ca.create_mapping_for_path!(data[1])
+            rescue ActiveRecord::RecordNotFound
+              error_count += 1
+              puts("mapped classification_alias not found (#{data[1]})")
+            end
+          end
+        end
+
+        futures.each(&:wait!)
+
+        puts "FINISHED IMPORTING MAPPINGS! (#{error_count} errors)"
+      end
+    end
   end
 end

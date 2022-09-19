@@ -79,9 +79,9 @@ module DataCycleCore
           ).where( # prefilter location
             content.location.blank? ? 'location IS NULL' : "ST_DWithin(location, ST_GeographyFromText('SRID=4326;#{content.location&.to_s}'), #{DISTANCE_METERS_NAME_GEO})"
           ).where.not(id: content.id)
-            .pluck(:id)
-            .map { |d| { thing_duplicate_id: d, method: 'data_metric_hamming', score: 83 } }
-            .compact
+          .pluck(:id)
+          .map { |d| { thing_duplicate_id: d, method: 'data_metric_name_geo', score: 83 } }
+          .compact
         end
       end
     end
