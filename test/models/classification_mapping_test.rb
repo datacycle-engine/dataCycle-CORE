@@ -95,12 +95,12 @@ module DataCycleCore
       assert @classification_group2.reload.destroyed?
     end
 
-    test 'create mapping with create_mapping_for_path!' do
-      assert_equal [@classification1.id].to_set, @classification_alias1.classification_ids.to_set
+    test 'create mapping with create_mapping_for_path' do
+      assert_equal [@classification1.id].to_set, @classification_alias1.reload.classification_ids.to_set
 
-      @classification_alias1.create_mapping_for_path!(@classification_alias2.full_path)
+      @classification_alias1.create_mapping_for_path(@classification_alias2.full_path)
 
-      assert_equal [@classification1.id, @classification2.id].to_set, @classification_alias1.classification_ids.to_set
+      assert_equal [@classification1.id, @classification2.id].to_set, @classification_alias1.reload.classification_ids.to_set
     end
 
     test 'custom_find_by_full_path' do

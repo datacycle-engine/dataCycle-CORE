@@ -232,13 +232,12 @@ module DataCycleCore
       custom_find_by_full_path(full_path) || raise(ActiveRecord::RecordNotFound)
     end
 
-    def create_mapping_for_path!(full_path)
+    def create_mapping_for_path(full_path)
       mapped_ca = DataCycleCore::ClassificationAlias.custom_find_by_full_path!(full_path)
 
       raise ActiveRecord::RecordNotFound if mapped_ca.primary_classification.nil?
 
-      classification_ids << mapped_ca.primary_classification.id
-      save!
+      self.classification_ids += [mapped_ca.primary_classification.id] unless mapped_ca.primary_classification.id.in?(classification_ids)
     end
 
     def move_to_path(new_path, destroy_children = false)

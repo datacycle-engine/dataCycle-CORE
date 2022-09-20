@@ -25,7 +25,7 @@ namespace :dc do
 
       desc 'append vacuum job to importers Queue'
       task mappings_from_csv: :environment do
-        error_count = 0
+        errors = []
         pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
         futures = []
 
@@ -37,22 +37,25 @@ namespace :dc do
               ca = DataCycleCore::ClassificationAlias.custom_find_by_full_path(data[0])
 
               if ca.nil?
-                error_count += 1
-                puts("classification_alias not found (#{data[0]})")
+                errors << "classification_alias not found (#{data[0]})"
+                print 'x'
                 next
               end
 
-              ca.create_mapping_for_path!(data[1])
+              ca.create_mapping_for_path(data[1])
+              print '.'
             rescue ActiveRecord::RecordNotFound
-              error_count += 1
-              puts("mapped classification_alias not found (#{data[1]})")
+              errors << "mapped classification_alias not found (#{data[1]})"
+              print 'x'
             end
           end
         end
 
         futures.each(&:wait!)
 
-        puts "FINISHED IMPORTING MAPPINGS! (#{error_count} errors)"
+        puts
+        puts errors.join("\n")
+        puts "FINISHED IMPORTING MAPPINGS! (#{errors.size} errors)"
       end
     end
   end
