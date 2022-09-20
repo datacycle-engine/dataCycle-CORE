@@ -208,19 +208,18 @@ module DataCycleCore
         return self.class.none if history?
 
         tree_query = <<-SQL.squish
-          WITH RECURSIVE paths(src, dest, path) AS (
-            SELECT DISTINCT ON (c.dest) c.src, c.dest, ARRAY[c.src, c.dest]
-            FROM content_content_relations c
-            WHERE c.src = :id
+          WITH RECURSIVE paths (content_b_id, content_a_id, PATH) AS (
+            SELECT DISTINCT ON (c.content_a_id) c.content_b_id, c.content_a_id, ARRAY[c.content_b_id, c.content_a_id]
+            FROM content_content_links c
+            WHERE c.content_b_id = :id
             UNION ALL
-            SELECT DISTINCT on (d.dest) d.src, d.dest, p.path || ARRAY[d.dest]
+            SELECT DISTINCT ON (d.content_a_id) d.content_b_id, d.content_a_id, p.path || ARRAY[d.content_a_id]
             FROM paths p
-            INNER JOIN content_content_relations d
-            ON p.dest = d.src
-            WHERE d.dest != ALL(p.path)
-            AND array_length(p.path, 1) <= :depth
+            INNER JOIN content_content_links d ON p.content_a_id = d.content_b_id
+            WHERE d.content_a_id != ALL (p.path)
+            AND ARRAY_LENGTH(p.path, 1) <= :depth
           )
-          SELECT DISTINCT paths.dest FROM paths
+          SELECT DISTINCT paths.content_a_id FROM paths
         SQL
 
         self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [tree_query, id: id, depth: DataCycleCore.cache_invalidation_depth])})")

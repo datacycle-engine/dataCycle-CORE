@@ -6,7 +6,7 @@
       assigns: { content: content, language: ['de'], fields_parameters: [], include_parameters: [], api_version: 4, permitted_params: {}, api_context: 'api' },
       template: 'data_cycle_core/api/v4/contents/show',
       layout: false
-    ) || {}
+    ) || {}.to_json
 %>
 
-<code data-json="<%= JSON[json_api_show].to_json %>"><%= JSON.pretty_generate(JSON[json_api_show]) %></code>
+<code data-json="<%= json_api_show %>"><%= JSON.pretty_generate(JSON[json_api_show]) %></code>
