@@ -47,8 +47,10 @@ namespace :dc do
 
       query.query.find_each do |content|
         futures << Concurrent::Promise.execute({ executor: pool }) do
-          duplicate_count += content.create_duplicate_candidates.to_i
-          progress.increment
+          ActiveRecord::Base.connection_pool.with_connection do
+            duplicate_count += content.create_duplicate_candidates.to_i
+            progress.increment
+          end
         end
       end
 

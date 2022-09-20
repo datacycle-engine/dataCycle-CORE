@@ -230,7 +230,7 @@ module DataCycleCore
       end
 
       def self.invalidate_all
-        all.update_all(cache_valid_since: Time.zone.now)
+        all.lock('FOR UPDATE SKIP LOCKED').update_all(cache_valid_since: Time.zone.now)
       end
 
       def self.update_search_all

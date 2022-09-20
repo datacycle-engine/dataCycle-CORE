@@ -34,19 +34,21 @@ namespace :dc do
             next unless data&.[](0)&.include?('>') && data&.[](1)&.include?('>')
 
             futures << Concurrent::Promise.execute({ executor: pool }) do
-              ca = DataCycleCore::ClassificationAlias.custom_find_by_full_path(data[0])
+              ActiveRecord::Base.connection_pool.with_connection do
+                ca = DataCycleCore::ClassificationAlias.custom_find_by_full_path(data[0])
 
-              if ca.nil?
-                errors << "classification_alias not found (#{data[0]})"
+                if ca.nil?
+                  errors << "classification_alias not found (#{data[0]})"
+                  print 'x'
+                  next
+                end
+
+                ca.create_mapping_for_path(data[1])
+                print '.'
+              rescue ActiveRecord::RecordNotFound
+                errors << "mapped classification_alias not found (#{data[1]})"
                 print 'x'
-                next
               end
-
-              ca.create_mapping_for_path(data[1])
-              print '.'
-            rescue ActiveRecord::RecordNotFound
-              errors << "mapped classification_alias not found (#{data[1]})"
-              print 'x'
             end
           end
         end
