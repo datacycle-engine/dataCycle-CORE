@@ -357,13 +357,50 @@ namespace :dc do
     task :external_to_univeral_classifications, [:stored_filter] => :environment do |_, args|
       contents = DataCycleCore::Thing.where(id: DataCycleCore::StoredFilter.find(args[:stored_filter]).apply.select(:id))
 
-      DataCycleCore::ClassificationContent.joins(:classification)
-        .where(content_data_id: contents.select(:id))
-        .where.not(relation: 'universal_classifications', classifications: { external_source_id: nil }).each do |relation|
-          relation.update!(relation: 'universal_classifications')
-      rescue ActiveRecord::RecordNotUnique
-        relation.destroy!
-        end
+      ActiveRecord::Base.connection.execute <<-SQL.squish
+        INSERT INTO
+          classification_contents (
+            content_data_id,
+            classification_id,
+            seen_at,
+            created_at,
+            updated_at,
+            relation
+          )
+        SELECT
+          cc.content_data_id,
+          cc.classification_id,
+          cc.seen_at,
+          cc.created_at,
+          cc.updated_at,
+          'universal_classifications'
+        FROM
+          classification_contents cc
+          INNER JOIN classifications ON classifications.deleted_at IS NULL
+          AND classifications.id = cc.classification_id
+        WHERE
+          cc.content_data_id IN (#{contents.select(:id).to_sql})
+          AND cc.relation != 'universal_classifications'
+          AND classifications.external_source_id IS NOT NULL ON CONFLICT
+        DO
+          NOTHING;
+
+        DELETE FROM
+          classification_contents
+        WHERE
+          classification_contents.id IN (
+            SELECT
+              classification_contents.id
+            FROM
+              classification_contents
+              INNER JOIN classifications ON classifications.deleted_at IS NULL
+              AND classifications.id = classification_contents.classification_id
+            WHERE
+              classification_contents.content_data_id IN (#{contents.select(:id).to_sql})
+              AND classification_contents.relation != 'universal_classifications'
+              AND classifications.external_source_id IS NOT NULL
+          );
+      SQL
     end
 
     task :universal_to_attribute_classifications, [:stored_filter_id, :tree_name, :attribute_key] => :environment do |_, args|
