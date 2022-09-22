@@ -62,7 +62,7 @@ module DataCycleCore
           ).reject { |_k, v| v.blank? }
         end
 
-        def job_status_request(data:, external_system_data:)
+        def job_status_request(data:, external_system_data:) # rubocop:disable Lint/unusedMethodArgument
           job_id = external_system_data.dig('job_id')
           url = [@host, @end_point, job_id].join('/')
           response = connection.get do |req|
@@ -79,7 +79,6 @@ module DataCycleCore
           # ap status
 
           if status['running']
-
             # {
             # 	"id": "c180b387-3668-4289-af77-00962336e886",
             # 	"customer": "85fe4214-24ba-4980-a33c-4f05f4b3e9e8",
