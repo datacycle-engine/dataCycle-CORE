@@ -5,6 +5,8 @@ class MigrateTours < ActiveRecord::Migration[6.1]
   # disable_ddl_transaction!
 
   def up
+    return unless DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_internal_name('Tour').exists?
+
     filter = DataCycleCore::StoredFilter.new.parameters_from_hash(
       [with_classification_aliases_and_treename: { treeLabel: 'Inhaltstypen', aliases: ['Tour'] }]
     ).tap(&:save!)

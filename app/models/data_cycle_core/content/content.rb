@@ -113,6 +113,17 @@ module DataCycleCore
         !i18n_errors&.any? { |(_k, v)| v.present? }
       end
 
+      def self.human_attribute_name(attribute, options = {})
+        return super unless options[:base]&.property_names&.include?(attribute)
+
+        DataCycleCore::LocalizationService.view_helpers.translated_attribute_label(
+          attribute,
+          options[:base].properties_for(attribute),
+          options[:base],
+          {}
+        )
+      end
+
       def content_template
         return @content_template if defined? @content_template
         @content_template = DataCycleCore::Thing.find_by(template: true, template_name: template_name)
