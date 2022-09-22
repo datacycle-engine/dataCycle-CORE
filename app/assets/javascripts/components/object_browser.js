@@ -551,6 +551,9 @@ class ObjectBrowser {
     });
   }
   setPreselected() {
+    this.overlay
+      .find('.chosen-items-container')
+      .html(this.cloneHtml(this.element.find('> .media-thumbs > .object-thumbs > li.item')));
     this.chosen = $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'));
   }
   openOverlay(_ev) {

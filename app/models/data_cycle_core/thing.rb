@@ -5,11 +5,13 @@ module DataCycleCore
     include Content::ContentLoader
     include Content::Extensions::Thing
     include Content::ExternalData
+    prepend Content::ContentOverlay
 
     class History < Content::Content
       include Content::ContentHistoryLoader
       include Content::Extensions::Thing
       include Content::Restorable
+      prepend Content::ContentOverlay
 
       extend ::Translations
       translates :name, :description, :slug, :content, :history_valid, backend: :table

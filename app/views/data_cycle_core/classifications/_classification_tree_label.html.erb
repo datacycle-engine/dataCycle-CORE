@@ -12,7 +12,7 @@
                 class: 'edit',
                 data: {
                   dc_tooltip: t('actions.edit_data', data: tree_label.name, locale: active_ui_locale)
-                } if can?(:update, tree_label) %>
+                } if can?(:edit, tree_label) %>
 
     <%= link_to tag.i(class: 'fa fa-trash-o'),
                 classifications_path(classification_tree_label_id: tree_label.id),
@@ -39,6 +39,13 @@
                   data: {
                     dc_tooltip: t('data_cycle_core.classifications_adminitration.download_tree_with_contents', locale: active_ui_locale)
                   } %>
+
+      <%= link_to tag.i(class: 'fa fa-download') + tag.i(class: 'fa fa-arrows-h'),
+                  download_classifications_path(classification_tree_label_id: tree_label.id, format: :csv, for_mapping_import: true),
+                  class: 'download download-for-mapping',
+                  data: {
+                    dc_tooltip: t('data_cycle_core.classifications_adminitration.download_tree_for_mappings', locale: active_ui_locale)
+                  } %>
     <% end %>
 
     <%= link_to tag.i(class: 'fa fa-clipboard'), '#', class: 'copy-to-clipboard', data: { value: tree_label.id, dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale) } %>
@@ -52,9 +59,7 @@
                 } %>
   </span>
 
-  <% if can?(:update, tree_label) %>
-    <%= render 'classification_tree_label_form', classification_tree_label: tree_label %>
-  <% end %>
+  <%= render('classification_tree_label_form', classification_tree_label: tree_label) if can?(:edit, tree_label) %>
 
   <ul class="children">
   </ul>

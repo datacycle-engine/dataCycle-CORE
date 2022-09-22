@@ -6,6 +6,7 @@ module DataCycleCore
       class ApiBaseController < ActionController::API
         include ActionController::MimeResponds
         include ActionController::Caching
+        include ActionController::RequestForgeryProtection
         include ActionView::Rendering
         include CanCan::ControllerAdditions
         include ActiveSupport::Rescuable

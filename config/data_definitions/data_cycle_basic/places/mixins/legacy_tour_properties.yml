@@ -1,0 +1,507 @@
+---
+- :data:
+    :name: legacy_tour_properties
+    :type: mixin
+    :properties:
+      :text:
+        :label: Beschreibung
+        :type: string
+        :storage_location: translated_value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            -
+              :attribute: additional_information
+              :name: import.outdoor_active.tour.text
+            -
+              :attribute: description
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :primary_image:
+        :label: Hauptbild
+        :type: linked
+        :template_name: Bild
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: take_first_linked
+          :parameters:
+            - 'image'
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+        :api:
+          :minimal: true
+          :v4:
+            :name: photo
+      :directions_public_transport:
+        :label: Anfahrt mit öffentlichen Verkehrsmitteln
+        :type: string
+        :storage_location: translated_value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            -
+              :attribute: additional_information
+              :name: import.outdoor_active.tour.directions_public_transport
+            -
+              :attribute: description
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :instructions:
+        :label: Wegbeschreibung
+        :type: string
+        :storage_location: translated_value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            -
+              :attribute: additional_information
+              :name: import.outdoor_active.tour.instructions
+            -
+              :attribute: description
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :safety_instructions:
+        :label: Sicherheitshinweis
+        :type: string
+        :storage_location: translated_value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            -
+              :attribute: additional_information
+              :name: import.outdoor_active.tour.safety_instructions
+            -
+              :attribute: description
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :equipment:
+        :label: Ausrüstung
+        :type: string
+        :storage_location: translated_value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            -
+              :attribute: additional_information
+              :name: import.outdoor_active.tour.equipment
+            -
+              :attribute: description
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :suggestion:
+        :label: Tipps
+        :type: string
+        :storage_location: translated_value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            -
+              :attribute: additional_information
+              :name: import.outdoor_active.tour.suggestion
+            -
+              :attribute: description
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :maps:
+        :label: Literatur
+        :type: string
+        :storage_location: translated_value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            -
+              :attribute: additional_information
+              :name: import.outdoor_active.tour.maps
+            -
+              :attribute: description
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :directions:
+        :label: Anfahrtsbeschreibung
+        :type: string
+        :storage_location: translated_value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            -
+              :attribute: additional_information
+              :name: import.outdoor_active.tour.directions
+            -
+              :attribute: description
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+      :parking:
+        :label: Parkmöglichkeit
+        :type: string
+        :storage_location: translated_value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            -
+              :attribute: additional_information
+              :name: import.outdoor_active.tour.parking
+            -
+              :attribute: description
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+      :difficulty_rating:
+        :label: Bewertung - Schwierigkeit
+        :type: number
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            -
+              :attribute: aggregate_rating
+              :name: import.outdoor_active.ratings.difficulty_rating
+            -
+              :attribute: rating_value
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :condition_rating:
+        :label: Bewertung - Kondition
+        :type: number
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            -
+              :attribute: aggregate_rating
+              :name: import.outdoor_active.ratings.condition_rating
+            -
+              :attribute: rating_value
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :experience_rating:
+        :label: Bewertung - Erlebnis
+        :type: number
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            -
+              :attribute: aggregate_rating
+              :name: import.outdoor_active.ratings.experience_rating
+            -
+              :attribute: rating_value
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :landscape_rating:
+        :label: Bewertung - Landschaft
+        :type: number
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            -
+              :attribute: aggregate_rating
+              :name: import.outdoor_active.ratings.landscape_rating
+            -
+              :attribute: rating_value
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :technique_rating:
+        :label: Bewertung - Technik
+        :type: number
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            -
+              :attribute: aggregate_rating
+              :name: import.outdoor_active.ratings.technique_rating
+            -
+              :attribute: rating_value
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :poi:
+        :label: POIS
+        :type: linked
+        :template_name: POI
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - waypoint
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :ascent_legacy:
+        :label: Aufstieg (m)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - ascent
+        :api:
+          :name: ascent
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :descent_legacy:
+        :label: Abstieg (m)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - descent
+        :api:
+          :name: descent
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :min_altitude_legacy:
+        :label: Minimale Seehöhe (m)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - min_altitude
+        :api:
+          :name: minAltitude
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :max_altitude_legacy:
+        :label: Maximale Seehöhe (m)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - max_altitude
+        :api:
+          :name: maxAltitude
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :dcls_length:
+        :label: Länge (m)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - length
+        :api:
+          :name: length
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :duration_legacy:
+        :label: Dauer (min)
+        :type: number
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: copy_plain
+          :parameters:
+            - duration
+        :api:
+          :name: duration
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :author_name:
+        :label: Autor
+        :type: string
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_first_linked
+          :parameters:
+            - author
+            - name
+        :api:
+          :name: author
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :frontend_type:
+        :label: OutdoorActive - FrontendTypes
+        :type: classification
+        :tree_label: OutdoorActive - FrontendTypes
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: content_classification_for_tree
+        :api:
+          :v4:
+            :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :tour_categories:
+        :label: OutdoorActive - Kategorie
+        :type: classification
+        :tree_label: OutdoorActive - Touren-Kategorien
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: content_classification_for_tree
+        :api:
+          :v4:
+            :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :outdoor_active_tags:
+        :label: OutdoorActive - Tags
+        :type: classification
+        :tree_label: OutdoorActive - Tags
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: content_classification_for_tree
+        :api:
+          :v4:
+            :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :regions:
+        :label: Regionen
+        :type: classification
+        :tree_label: OutdoorActive - Regionen
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: content_classification_for_tree
+        :api:
+          :v4:
+            :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :source:
+        :label: Quelle
+        :type: classification
+        :tree_label: OutdoorActive - Quellen
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: content_classification_for_tree
+        :api:
+          :v4:
+            :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :schedule:
+        :label: Saison (Monate)
+        :type: classification
+        :tree_label: Monate
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: content_classification_for_tree
+        :api:
+          :v4:
+            :partial: classification_nested
+            :types:
+              - Intangible
+              - Schedule
+              - dcls:Schedule
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true

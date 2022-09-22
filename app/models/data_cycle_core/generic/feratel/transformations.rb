@@ -355,7 +355,7 @@ module DataCycleCore
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('ChangeDate').in_time_zone })
           .>> t(:add_field, 'name', ->(s) { I18n.t("import.feratel.#{type}.#{s.dig('Name') || s.dig('Type')}", default: [s.dig('Name') || s.dig('Type')]) })
           .>> t(:universal_classifications, ->(s) { parse_system_letters(s.dig('Systems')) })
-          .>> t(:universal_classifications, ->(s) { Array.wrap(s.dig('Type')).map { |desc| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', desc) } })
+          .>> t(:universal_classifications, ->(s) { Array.wrap(s.dig('Type')).map { |desc| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', desc) }&.compact })
           .>> t(:add_links, 'additional_classifications', DataCycleCore::Classification, external_source_id, ->(_s) { additional_classifications || [] })
           .>> t(:merge_array_values, 'universal_classifications', 'additional_classifications')
           .>> t(:merge_array_values, 'universal_classifications', 'feratel_creative_commons')
@@ -1094,7 +1094,7 @@ module DataCycleCore
           return [] if string.blank? || string.strip.blank?
           systems = []
           string.strip.delete(' ').each_char { |i| systems.push(systems_hash[i]) if systems_hash[i].present? }
-          systems
+          systems.compact
         end
       end
     end

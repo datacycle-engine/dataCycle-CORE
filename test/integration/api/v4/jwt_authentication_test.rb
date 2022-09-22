@@ -25,6 +25,7 @@ module DataCycleCore
           rsa_private = OpenSSL::PKey::RSA.generate 2048
           rsa_public = rsa_private.public_key
           DataCycleCore.features[:user_api][:public_keys] = { 'datacycle.at': rsa_public.to_s }
+          DataCycleCore::Feature::UserApi.reload
           rsa_private
         end
 

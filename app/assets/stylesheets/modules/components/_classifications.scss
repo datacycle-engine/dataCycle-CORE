@@ -962,3 +962,17 @@ ul.backend-treeview-list,
 #search-results > ul.tree {
   margin: 0 1rem;
 }
+
+.download-with-contents {
+  .fa-plus {
+    font-size: 0.7rem;
+    vertical-align: text-top;
+  }
+}
+
+.download-for-mapping {
+  .fa-arrows-h {
+    font-size: 0.8rem;
+    vertical-align: text-top;
+  }
+}

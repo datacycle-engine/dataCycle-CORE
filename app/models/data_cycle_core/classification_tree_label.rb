@@ -123,7 +123,7 @@ module DataCycleCore
     def to_csv(include_contents: false)
       CSV.generate do |csv|
         csv << [name]
-        classification_aliases.sort_by(&:full_path).each do |classification_alias|
+        classification_aliases.includes(:classification_alias_path, :classifications).sort_by(&:full_path).each do |classification_alias|
           csv << Array.new(classification_alias.ancestors.count) + [classification_alias.name]
 
           next unless include_contents
@@ -140,6 +140,13 @@ module DataCycleCore
             end
           end
         end
+      end
+    end
+
+    def to_csv_for_mappings
+      CSV.generate do |csv|
+        csv << ['Pfad zur Klassifizierung', 'Pfad zu gemappter Klassifizierung']
+        classification_aliases.includes(:classification_alias_path).map(&:full_path).sort.each { |fp| csv << [fp] }
       end
     end
 
