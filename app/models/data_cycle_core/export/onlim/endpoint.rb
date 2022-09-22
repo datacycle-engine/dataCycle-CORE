@@ -8,11 +8,6 @@ module DataCycleCore
           'POI' => [['id'], ['name'], ['description'], ['geo'], ['address']]
         }.freeze
 
-        COMPLIES = {
-          'POI' => 'https://semantify.it/ds/sloejGAwT',
-          'Event' => 'https://semantify.it/ds/mhpmBCJJt'
-        }.freeze
-
         def initialize(**options)
           super
 
@@ -28,12 +23,16 @@ module DataCycleCore
           verb = :post
           url = [@host, @end_point].join('/')
           body = serialize_data(data)
-          # if external_system_data.present?
-          #   body = replace_ids(data: body, external_system_data: external_system_data)
+
+          # if external_system_data.present? # update, not insert
+          #   # body = replace_ids(data: body, external_system_data: external_system_data)
           #   url = [url, "imports/#{external_system_data['external_key']}"].join('/')
           #   verb = :put
+          #   # ns = [ENV.fetch('APP_PROTOCOL', 'http'), ENV.fetch('APP_HOST', 'localhost:3000').to_s].join('://')
+          #   ns = api_v4_universal_url(id: nil) + '/'
+          # else
+          #
           # end
-          binding.pry
 
           response = connection.send(verb) do |req|
             req.url(url)
@@ -42,6 +41,9 @@ module DataCycleCore
             req.headers['X-PUBLISHER'] = @publisher_id
             req.headers['X-DATASOURCE'] = @source_id
             req.headers['x-api-key'] = @api_key
+
+            req.params['ns'] = ns if ns.present?
+
             req.body = body.to_json
           end
 
@@ -74,7 +76,7 @@ module DataCycleCore
 
           status = JSON.parse(response.body)
 
-          ap status
+          # ap status
 
           if status['running']
 
@@ -185,35 +187,15 @@ module DataCycleCore
 
           hash = JSON[json]
           hash = DataCycleCore::Export::Onlim::Transformations.to_poi.call(hash)
-
-          # context = hash['@context']
-          # context = Array.wrap(
-          #   context[1].merge(
-          #     {
-          #       'rdfs' => 'http://www.w3.org/2000/01/rdf-schema#',
-          #       'rdf' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-          #       'xsd' => 'http://www.w3.org/2001/XMLSchema#',
-          #       'odta' => 'https://odta.io/voc/',
-          #       'ds' => 'https://vocab.sti2.at/ds/'
-          #     }
-          #   ).reject { |k, _| k.in?('dcls') }
-          # )
-
-          graph = hash['@graph'].first
-          graph['@type'] += [ODTA_TYPE[data.template_name]]
-          graph['ds:compliesWith'] = { '@id' => COMPLIES[data.template_name] }
-
-          # hash['@context'] = context
-          hash['@graph'][0] = graph
           hash
         end
 
-        def replace_ids(data:, external_system_data:)
-          key = external_system_data['external_key']
-
-          data['@graph'][0]['@id'] = "http://onlim.com/entity/#{key}"
-          data
-        end
+        # def replace_ids(data:, external_system_data:)
+        #   key = external_system_data['external_key']
+        #
+        #   data['@graph'][0]['@id'] = "http://onlim.com/entity/#{key}"
+        #   data
+        # end
       end
     end
   end

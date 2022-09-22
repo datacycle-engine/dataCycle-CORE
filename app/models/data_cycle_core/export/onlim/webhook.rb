@@ -45,7 +45,7 @@ module DataCycleCore
         end
 
         def reference_type
-          "onlim_#{@data.id}"
+          "onlim_#{@request}_#{@data.id}"
         end
 
         def log(message, id)

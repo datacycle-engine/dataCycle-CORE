@@ -4,9 +4,9 @@ module DataCycleCore
   module Export
     module Onlim
       module Functions
-        def self.transformations
-          DataCycleCore::Export::Common::Transformations
-        end
+        # def self.transformations
+        #   DataCycleCore::Export::Common::Transformations
+        # end
 
         def self.update(utility_object:, data:)
           external_system = utility_object.external_system
