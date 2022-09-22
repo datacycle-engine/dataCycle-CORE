@@ -46,6 +46,6 @@
     "url": "^0.11.0",
     "video.js": "^7.19.2",
     "vite": "^2.6.13",
-    "vite-plugin-ruby": "^3.0.12"
+    "vite-plugin-ruby": "3.0.12"
   }
 }
