@@ -139,7 +139,7 @@ module DataCycleCore
 
         @content = DataCycleCore::DataHashService.create_internal_object(params[:template], object_params, current_user, parent_params[:parent_id], source)
 
-        redirect_back(fallback_location: root_path) && return if @content.try(:errors).present?
+        redirect_back(fallback_location: root_path, alert: @content.errors.full_messages) && return if @content.try(:errors).present?
 
         respond_to do |format|
           if @content.present?
