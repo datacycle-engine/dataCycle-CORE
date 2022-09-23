@@ -76,7 +76,13 @@ module DataCycleCore
 
     def add_content_header_classification_alias(allowed_properties:, classification_aliases:, key:, classification_alias:, scope:, context:, content:, options: {}, type: :value)
       return if classification_alias.nil?
-      return if !allowed_properties.dig(key, 'ui', scope.to_s)&.key?('disabled') && !allowed_properties.dig(key, 'ui')&.key?('disabled') && !classification_alias.classification_tree_label.visibility&.include?(context.to_s)
+
+      ui_config = allowed_properties.dig(key, 'ui').to_h.merge(allowed_properties.dig(key, 'ui', scope.to_s).to_h)
+      if context == :show && ui_config.key?('disabled')
+        return if ui_config['disabled'].to_s == 'true'
+      else
+        return unless classification_alias.classification_tree_label.visibility&.include?(context.to_s)
+      end
 
       definition = allowed_properties[key]&.deep_dup || {}
       definition['tree_label'] ||= classification_alias.classification_tree_label.name
