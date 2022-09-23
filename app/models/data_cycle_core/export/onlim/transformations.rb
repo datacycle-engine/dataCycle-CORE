@@ -14,7 +14,7 @@ module DataCycleCore
             'Person' => ['name', 'url', 'ds:compliesWith'],
             'TouristAttraction' => ['name', 'description', 'address', 'geo', 'ds:compliesWith'], # POI
             'Event' => ['name', 'description', 'address', 'geo', 'ds:compliesWith'],
-            'Tour' => ['name', 'description', 'address', 'ds:compliesWith'],
+            'dcls:Tour' => ['name', 'description', 'address', 'ds:compliesWith'],
             'Gastronomischer Betrieb' => ['name', 'description', 'address', 'geo', 'ds:compliesWith'],
             'LodgingBusiness' => ['name', 'description', 'address', 'geo', 'ds:compliesWith'] # Unterkunft
           }

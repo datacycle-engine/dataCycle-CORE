@@ -80,6 +80,8 @@ module DataCycleCore
 
           status = JSON.parse(response.body)
 
+          status = status.first if status.is_a?(::Array)
+
           # ap status
 
           if status['running']

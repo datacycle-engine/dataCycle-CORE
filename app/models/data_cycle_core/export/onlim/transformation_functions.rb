@@ -12,7 +12,7 @@ module DataCycleCore
 
         ODTA_TYPE = {
           'TouristAttraction' => 'odta:PointOfInterest',
-          'Tour' => 'Trail'
+          'dcls:Tour' => 'Trail'
         }.freeze
 
         COMPLIES = {
@@ -21,7 +21,7 @@ module DataCycleCore
           'FoodEstablishment' => 'https://semantify.it/ds/SyCG2WVzkz',
           'LodgingBusiness' => 'https://semantify.it/ds/Sypf3bVG1z', # Unterkunft
           'Person' => 'https://semantify.it/ds/iB4eyYN5K',
-          'Tour' => 'https://semantify.it/ds/nBTyKDsKX',
+          'Trail' => 'https://semantify.it/ds/nBTyKDsKX', # Tour
           'GeoCoordinates' => 'https://semantify.it/ds/2NErTNGpd',
           'PostalAddress' => 'https://semantify.it/ds/NP8df6sKy',
           'OpeningHoursSpecification' => 'https://semantify.it/ds/rpOsHCyrE',
