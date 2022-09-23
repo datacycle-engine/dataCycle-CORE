@@ -749,10 +749,6 @@ ul.footer-links {
       transition: $global-transition;
       text-shadow: none;
     }
-
-    &:hover::before {
-      color: darken($medium-gray, 5%);
-    }
   }
 
   > input:checked + label {
@@ -773,5 +769,24 @@ ul.footer-links {
       color: $alert-color;
       text-shadow: none;
     }
+  }
+
+  > input:not(:disabled) + label:hover::before {
+    color: darken($medium-gray, 5%);
+  }
+
+  > input:disabled + label {
+    cursor: not-allowed;
+
+    &::before {
+      color: $light-gray;
+      background-color: $light-gray;
+    }
+  }
+
+  > input:checked:disabled + label::before {
+    color: $light-gray;
+    background-color: $dark-gray;
+    border-color: $dark-gray;
   }
 }

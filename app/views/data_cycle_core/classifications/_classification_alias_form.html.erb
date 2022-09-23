@@ -53,12 +53,14 @@
 </div>
 
 <div class="ca-input checkbox">
-  <span class="ca-checkbox">
+  <span class="dc-checkbox">
     <%= f.check_box :internal, disabled: classification_alias&.id.present? ? !can?(:update, classification_alias) : !can?(:create, DataCycleCore::ClassificationAlias) %>
     <%= f.label :internal %>
   </span>
+</div>
 
-  <span class="ca-checkbox">
+<div class="ca-input checkbox">
+  <span class="dc-checkbox">
     <%= f.check_box :assignable, disabled: classification_alias&.id.present? ? !can?(:update, classification_alias) : !can?(:create, DataCycleCore::ClassificationAlias) %>
     <%= f.label :assignable %>
   </span>

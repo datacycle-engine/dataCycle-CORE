@@ -7,17 +7,15 @@
 
 <%= f.hidden_field :id %>
 
-<div class="ca-input">
+<div class="ca-input required">
   <%= f.label :name, class: 'ca-label' %>
-  <%= f.text_field :name, class: 'ca-input-field', disabled: !can?(:update, classification_tree_label) %>
+  <%= f.text_field :name, class: 'ca-input-field', disabled: !can?(:update, classification_tree_label), required: true %>
 </div>
 
 <div class="ca-input checkbox">
-  <span class="ca-checkbox">
-    <%= f.label :internal do |l| %>
-      <%= f.check_box :internal, disabled: !can?(:update, classification_tree_label) %>
-      <%= l.translation %>
-    <% end %>
+  <span class="dc-checkbox">
+    <%= f.check_box :internal, disabled: !can?(:update, classification_tree_label) %>
+    <%= f.label :internal %>
   </span>
 </div>
 
@@ -34,7 +32,7 @@
         },
         :name,
         :title do |l| %>
-      <span class="ca-checkbox">
+      <span class="dc-checkbox">
         <%= l.check_box %>
         <%= l.label %>
       </span>
@@ -56,7 +54,7 @@
           },
           :name,
           :title do |l| %>
-        <span class="ca-checkbox">
+        <span class="dc-checkbox">
           <%= l.check_box %>
           <%= l.label %>
         </span>
