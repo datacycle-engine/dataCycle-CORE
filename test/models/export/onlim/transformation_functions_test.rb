@@ -187,8 +187,8 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
     end
 
     it 'adds apporpriate complies_with' do
-      hash = subject.add_complies_with({ '@type' => 'POI' })
-      assert_equal({ '@type' => 'POI', 'ds:compliesWith' => { '@id' => 'https://semantify.it/ds/sloejGAwT' } }, hash)
+      hash = subject.add_complies_with({ '@type' => 'TouristAttraction' })
+      assert_equal({ '@type' => 'TouristAttraction', 'ds:compliesWith' => { '@id' => 'https://semantify.it/ds/sloejGAwT' } }, hash)
     end
 
     it 'does not alter unknown types' do
@@ -197,8 +197,8 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
     end
 
     it 'adds apporpriate complies_with also if for type arrays' do
-      hash = subject.add_complies_with({ '@type' => ['POI', 'irrelevant'] })
-      assert_equal({ '@type' => ['POI', 'irrelevant'], 'ds:compliesWith' => { '@id' => 'https://semantify.it/ds/sloejGAwT' } }, hash)
+      hash = subject.add_complies_with({ '@type' => ['TouristAttraction', 'irrelevant'] })
+      assert_equal({ '@type' => ['TouristAttraction', 'irrelevant'], 'ds:compliesWith' => { '@id' => 'https://semantify.it/ds/sloejGAwT' } }, hash)
     end
 
     it 'also handles embedded data in subarrays' do
@@ -208,8 +208,8 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
           'a' => 1,
           'b' => [
             { '@type' => ['POI', 'TouristAttraction', 'odta:PointOfInterest'], 'ds:compliesWith' => { '@id' => 'https://semantify.it/ds/sloejGAwT' } },
-            { '@type' => 'POI', 'ds:compliesWith' => { '@id' => 'https://semantify.it/ds/sloejGAwT' } },
-            { '@type' => ['TouristAttraction', 'odta:PointOfInterest'] }
+            { '@type' => 'POI' },
+            { '@type' => ['TouristAttraction', 'odta:PointOfInterest'], 'ds:compliesWith' => { '@id' => 'https://semantify.it/ds/sloejGAwT' } }
           ]
         },
         hash
