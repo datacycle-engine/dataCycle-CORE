@@ -16,10 +16,10 @@ module DataCycleCore
         }.freeze
 
         COMPLIES = {
-          'POI' => 'https://semantify.it/ds/sloejGAwT',
+          'TouristAttraction' => 'https://semantify.it/ds/sloejGAwT', # 'POI'
           'Event' => 'https://semantify.it/ds/mhpmBCJJt',
           'FoodEstablishment' => 'https://semantify.it/ds/SyCG2WVzkz',
-          'LodgingBusiness' => 'https://semantify.it/ds/Sypf3bVG1z',
+          'LodgingBusiness' => 'https://semantify.it/ds/Sypf3bVG1z', # Unterkunft
           'Person' => 'https://semantify.it/ds/iB4eyYN5K',
           'Tour' => 'https://semantify.it/ds/nBTyKDsKX',
           'GeoCoordinates' => 'https://semantify.it/ds/2NErTNGpd',

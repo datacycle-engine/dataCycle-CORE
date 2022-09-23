@@ -10,13 +10,13 @@ module DataCycleCore
 
         def self.whitelist
           {
-            'Organisation' => ['name', 'url'],
-            'Person' => ['name', 'url'],
-            'POI' => ['name', 'description', 'address', 'geo', 'ds:compliesWith'],
+            'Organisation' => ['name', 'url', 'ds:compliesWith'],
+            'Person' => ['name', 'url', 'ds:compliesWith'],
+            'TouristAttraction' => ['name', 'description', 'address', 'geo', 'ds:compliesWith'], # POI
             'Event' => ['name', 'description', 'address', 'geo', 'ds:compliesWith'],
             'Tour' => ['name', 'description', 'address', 'ds:compliesWith'],
             'Gastronomischer Betrieb' => ['name', 'description', 'address', 'geo', 'ds:compliesWith'],
-            'Unterkunft' => ['name', 'description', 'address', 'geo', 'ds:compliesWith']
+            'Unterkunft' => ['name', 'description', 'address', 'geo', 'ds:compliesWith'] # LodgingBusiness
           }
         end
 
@@ -34,8 +34,9 @@ module DataCycleCore
         end
 
         def self.to_poi
-          t(:context_to_onlim)
-          .>> t(:remove_namespaced_data)
+          t(:remove_namespaced_data)
+          .>> t(:add_complies_with)
+          .>> t(:context_to_onlim)
           .>> t(:remove_thing_stubs)
           .>> t(:type_to_onlim)
           .>> t(:apply_whitelist, whitelist)
