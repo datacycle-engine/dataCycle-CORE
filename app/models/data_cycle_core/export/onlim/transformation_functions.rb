@@ -98,7 +98,13 @@ module DataCycleCore
             .map { |i| [i, ODTA_TYPE[i]].compact }
             .flatten
             .reject { |i| i.start_with?('dcls:') }
-          types.size == 1 ? types.first : types
+          if types.size == 1
+            types.first
+          elsif types.include?('Organization')
+            types.reject { |i| i == 'Organization' } # remove Organization (conflicts with whiet/blacklist)
+          else
+            types
+          end
         end
 
         def self.add_complies_with(data)

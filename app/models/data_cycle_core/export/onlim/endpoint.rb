@@ -5,7 +5,11 @@ module DataCycleCore
     module Onlim
       class Endpoint < DataCycleCore::Export::Common::Endpoint::GenericEndpoint
         ATTRIBUTE_FILTER = {
-          'POI' => [['id'], ['name'], ['description'], ['geo'], ['address']]
+          'POI' => [['id'], ['name'], ['description'], ['geo'], ['address']],
+          'Unterkunft' => [['id'], ['name'], ['description'], ['geo'], ['address']],
+          'Event' => [['id'], ['name'], ['description'], ['geo'], ['address']],
+          'Gastronomischer Betrieb' => [['id'], ['name'], ['description'], ['geo'], ['address']],
+          'Tour' => [['id'], ['name'], ['description'], ['address']]
         }.freeze
 
         def initialize(**options)
