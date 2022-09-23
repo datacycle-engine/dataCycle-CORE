@@ -42,7 +42,7 @@ module DataCycleCore
             req.headers['X-DATASOURCE'] = @source_id
             req.headers['x-api-key'] = @api_key
 
-            req.params['ns'] = ns if ns.present?
+            # req.params['ns'] = ns if ns.present?
 
             req.body = body.to_json
           end
