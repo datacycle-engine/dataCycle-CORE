@@ -4,9 +4,9 @@
         editor: "classification"
       }) do %>
   <span class="detail-content tags">
-    <% objects = value.presence&.includes(primary_classification_alias: [:classification_alias_path, :classification_tree_label, :primary_classification])&.map(&:primary_classification_alias)&.compact || [] %>
+    <% objects = value&.primary_classification_aliases&.includes(:classification_alias_path, :classification_tree_label, :primary_classification) || [] %>
 
-    <% objects = objects.concat(new_relations(options.dig(:item_diff), 'classifications').includes(primary_classification_alias: [:classification_alias_path, :classification_tree_label, :primary_classification]).map(&:primary_classification_alias)&.compact) if changes_by_mode(options.dig(:item_diff), '+').present? %>
+    <% objects = objects.concat(new_relations(options.dig(:item_diff), 'classifications')&.primary_classification_aliases&.includes(:classification_alias_path, :classification_tree_label, :primary_classification)) if changes_by_mode(options.dig(:item_diff), '+').present? %>
 
     <% objects.presence&.each do |a| %>
       <span class="tag <%= changes_class(options.dig(:item_diff), a.primary_classification.id) %>" data-dc-tooltip="<%= classification_tooltip(a) %>">

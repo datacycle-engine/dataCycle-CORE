@@ -1,0 +1,23 @@
+<% content_header_classification_aliases(content: content, context: local_assigns[:context])&.each do |tree_name, tree_value| %>
+  <%= tag.div(
+      class: attribute_viewer_html_classes(**tree_value.slice(:key, :definition, :options)),
+      data: attribute_viewer_data_attributes(**tree_value.slice(:key, :definition, :options).merge(content: content))
+    ) do %>
+
+    <%= attribute_viewer_label_tag(**tree_value.slice(:key, :definition, :options).merge(content: content)) %>
+
+    <span class="detail-content tags">
+      <% tree_value[:value].each do |a| %>
+        <span class="tag" data-dc-tooltip="<%= classification_tooltip(a) %>">
+          <%= a.internal_name %>
+        </span>
+      <% end %>
+
+      <% tree_value[:mapped_value].each do |a| %>
+        <span class="tag mapped" data-dc-tooltip="<%= classification_tooltip(a) %>">
+          <%= a.internal_name %>
+        </span>
+      <% end %>
+    </span>
+  <% end %>
+<% end %>

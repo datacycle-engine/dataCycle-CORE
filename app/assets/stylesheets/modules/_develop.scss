@@ -366,16 +366,16 @@
         }
       }
 
-      &.is-active .accordion-title span {
-        .closed {
+      &.is-active > .accordion-title > span {
+        > .closed {
           display: none;
         }
 
-        .open {
+        > .open {
           display: inline-block;
         }
 
-        i::before {
+        > i::before {
           content: '\f077';
         }
       }

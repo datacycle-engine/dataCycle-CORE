@@ -32,6 +32,7 @@ module DataCycleCore
           has_many :classification_aliases, through: :classification_groups
           has_many :primary_classification_groups, through: :classifications
           has_many :primary_classification_aliases, through: :primary_classification_groups, source: :classification_alias
+          has_many :classification_alias_paths_transitive, through: :primary_classification_aliases
 
           # relation content to all other contents
           has_many :content_content_b, -> { order(order_a: :asc, content_a_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :destroy, inverse_of: :content_b
@@ -77,7 +78,11 @@ module DataCycleCore
       end
 
       def mapped_classification_aliases
-        classification_aliases.where.not(id: primary_classification_aliases.select(:id))
+        if DataCycleCore.transitive_classification_paths
+          classification_alias_paths_transitive.mapped_classification_aliases
+        else
+          classification_aliases.where.not(id: primary_classification_aliases.select(:id))
+        end
       end
 
       def classification_aliases_for_tree(tree_name:)

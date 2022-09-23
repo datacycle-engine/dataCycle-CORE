@@ -452,7 +452,7 @@ namespace :dc do
 
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING')
 
-      contents.map do |thing|
+      contents.each do |thing|
         embedded_contents = DataCycleCore::ContentContent.where(content_a: thing.id, relation_a: args[:embedded])
 
         DataCycleCore::ClassificationContent
@@ -470,7 +470,7 @@ namespace :dc do
 
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING')
 
-      contents.includes(:translations).map do |content|
+      contents.includes(:translations).each do |content|
         translation = content.translations.first
 
         if translation&.content&.dig('author')
@@ -517,7 +517,7 @@ namespace :dc do
                             end
         }
 
-        unless content.set_data_hash(data_hash: data, partial_update: true)
+        unless content.set_data_hash(data_hash: data)
           puts "Cannot migrate ##{content.id}:"
           puts content.errors.full_messages.map { |m| "  #{m}" }.join("\n")
           puts

@@ -21,7 +21,7 @@ module DataCycleCore
 
           timestamp = Time.zone.now
 
-          duplicates.present? ? thing_duplicates.upsert_all(duplicates.each { |v| v.merge!({ created_at: timestamp, updated_at: timestamp }) }, unique_by: :unique_thing_duplicate_idx).count : 0
+          duplicates.present? ? thing_duplicates.insert_all(duplicates.each { |v| v.merge!({ created_at: timestamp, updated_at: timestamp }) }, unique_by: :unique_thing_duplicate_idx).count : 0
         end
 
         def merge_with_duplicate(duplicate)

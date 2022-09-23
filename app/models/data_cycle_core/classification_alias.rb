@@ -68,6 +68,7 @@ module DataCycleCore
     has_one :statistics, class_name: 'Statistics', foreign_key: 'id' # rubocop:disable Rails/HasManyOrHasOneDependent
 
     has_many :classification_polygons, dependent: :destroy
+    has_many :classification_alias_paths_transitive
 
     delegate :visible?, to: :classification_tree_label
 

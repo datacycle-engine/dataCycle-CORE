@@ -19,12 +19,6 @@ module DataCycleCore
         hash&.map { |directory, templates| { directory => templates.map { |template, file_list| { template => file_list.map { |item| item.dig(:file) } } } } } || {}
       end
 
-      def self.import_template_list(template_paths: nil)
-        template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
-        import_hash, _duplicates = check_for_duplicates(template_paths, CONTENT_SETS)
-        import_hash.map { |_key, value| value }.reduce([], :+).pluck(:name).uniq.sort
-      end
-
       def self.check_for_duplicates(template_paths, content_sets)
         import_list = {}
         collisions = {}
@@ -218,7 +212,7 @@ module DataCycleCore
 
       class TemplatePropertyContract < DataCycleCore::MasterData::Contracts::GeneralContract
         schema do
-          required(:label) { str? }
+          optional(:label) { str? }
           required(:type) do
             str? & included_in?(
               ['key', 'string', 'text', 'number', 'boolean',
