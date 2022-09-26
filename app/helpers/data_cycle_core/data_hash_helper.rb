@@ -71,6 +71,11 @@ module DataCycleCore
         add_content_header_classification_alias(**parameters.merge(key: '', classification_alias: ca, type: :mapped_value))
       end
 
+      classification_aliases.each_value do |v|
+        v[:value].uniq!(&:id)
+        v[:mapped_value].uniq!(&:id)
+      end
+
       classification_aliases.sort_by { |_, v| v.dig(:definition, 'sorting') || 999 }.to_h
     end
 
