@@ -35,6 +35,7 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::Geojson
       include DataCycleCore::Content::Extensions::DefaultValue
       include DataCycleCore::Content::Extensions::ComputedValue
+      prepend DataCycleCore::Content::Extensions::Translation
 
       after_save :reload_memoized
 
@@ -111,17 +112,6 @@ module DataCycleCore
 
       def i18n_valid?
         !i18n_errors&.any? { |(_k, v)| v.present? }
-      end
-
-      def self.human_attribute_name(attribute, options = {})
-        return super unless options[:base]&.property_names&.include?(attribute)
-
-        DataCycleCore::LocalizationService.view_helpers.translated_attribute_label(
-          attribute,
-          options[:base].properties_for(attribute),
-          options[:base],
-          {}
-        )
       end
 
       def content_template
@@ -226,9 +216,9 @@ module DataCycleCore
           else
             definition.dig('api', 'transformation', 'method') == 'unwrap'
           end
-        }.map { |k, v|
+        }.to_h do |k, v|
           [k, v.dig('properties').keys.map { |prop_key| prop_key.camelize(:lower) }]
-        }.to_h
+        end
       end
 
       def plain_property_names(include_overlay = false)
@@ -300,7 +290,7 @@ module DataCycleCore
       end
 
       def advanced_search_property_names
-        name_property_selector { |definition| !['embedded', 'object', 'linked', 'classification'].include?(definition['type']) && definition['advanced_search'] == true }
+        name_property_selector { |definition| ['embedded', 'object', 'linked', 'classification'].exclude?(definition['type']) && definition['advanced_search'] == true }
       end
 
       def advanced_included_search_property_names

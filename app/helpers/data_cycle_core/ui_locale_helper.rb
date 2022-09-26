@@ -34,39 +34,9 @@ module DataCycleCore
     end
 
     def translated_attribute_label(key, definition, content, options, count = 1)
-      @translated_attribute_label ||= Hash.new do |h, k|
-        h[k] = begin
-          label = if k[0].present? && I18n.exists?("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", count: k[5], locale: k[4])
-                    I18n.t("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", count: k[5], locale: k[4])
-                  elsif k[0].present? && I18n.exists?("attribute_labels.#{k[2]&.template_name}.#{k[0]}", count: k[5], locale: k[4])
-                    I18n.t("attribute_labels.#{k[2]&.template_name}.#{k[0]}", count: k[5], locale: k[4])
-                  elsif k[0].present? && I18n.exists?("attribute_labels.#{k[3]}.#{k[0]}", count: k[5], locale: k[4])
-                    I18n.t("attribute_labels.#{k[3]}.#{k[0]}", count: k[5], locale: k[4])
-                  elsif k[0].present? && I18n.exists?("attribute_labels.#{k[0]}", count: k[5], locale: k[4])
-                    I18n.t("attribute_labels.#{k[0]}", count: k[5], locale: k[4])
-                  else
-                    k.dig(1, 'ui', k[3], 'label').presence ||
-                      k.dig(1, 'label').presence ||
-                      k.dig(1, 'tree_label').presence ||
-                      k[0].titleize
-                  end
-
-          label += " (#{I18n.locale})" if attribute_translatable?(k[0], k[1], k[2])
-
-          label
-        end
+      I18n.with_locale(active_ui_locale) do
+        DataCycleCore::Thing.human_property_name(key.attribute_name_from_key.to_s, (options || {}).merge({ base: content, count: count, definition: definition }))
       end
-
-      @translated_attribute_label[
-        [
-          key.attribute_name_from_key.to_s,
-          definition,
-          content,
-          options&.dig(:ui_scope).to_s,
-          active_ui_locale,
-          count
-        ]
-      ]
     end
 
     def object_has_translatable_attributes?(content, definition)
@@ -76,18 +46,7 @@ module DataCycleCore
     end
 
     def attribute_translatable?(key, definition, content)
-      I18n.available_locales.many? &&
-        content&.translatable? &&
-        (
-          (
-            content&.translatable_property?(key.attribute_name_from_key, definition) &&
-            definition&.dig('type') != 'object'
-          ) ||
-          (
-            definition&.dig('type') == 'embedded' &&
-            !definition&.dig('translated')
-          )
-        )
+      content&.attribute_translatable?(key.attribute_name_from_key, definition)
     end
 
     def attribute_viewer_label_tag(key:, definition:, content:, options: nil, accordion_controls: false, i18n_count: 1, **args)
