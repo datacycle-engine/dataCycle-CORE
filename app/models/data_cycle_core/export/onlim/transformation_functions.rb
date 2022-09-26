@@ -12,7 +12,7 @@ module DataCycleCore
 
         ODTA_TYPE = {
           'TouristAttraction' => 'odta:PointOfInterest',
-          'dcls:Tour' => 'Trail'
+          'dcls:Tour' => 'odta:Trail'
         }.freeze
 
         COMPLIES = {
@@ -21,7 +21,8 @@ module DataCycleCore
           'FoodEstablishment' => 'https://semantify.it/ds/SyCG2WVzkz',
           'LodgingBusiness' => 'https://semantify.it/ds/Sypf3bVG1z', # Unterkunft
           'Person' => 'https://semantify.it/ds/iB4eyYN5K',
-          'Trail' => 'https://semantify.it/ds/nBTyKDsKX', # Tour
+          'odta:Trail' => 'https://semantify.it/ds/nBTyKDsKX', # Tour
+          'GeoShape' => 'https://semantify.it/ds/puYUsMkUP',
           'GeoCoordinates' => 'https://semantify.it/ds/2NErTNGpd',
           'PostalAddress' => 'https://semantify.it/ds/NP8df6sKy',
           'OpeningHoursSpecification' => 'https://semantify.it/ds/rpOsHCyrE',
@@ -200,6 +201,18 @@ module DataCycleCore
           else
             nil
           end
+        end
+
+        def self.add_time_sec(data)
+          return data if data.dig('@graph', 0, 'eventSchedule').blank?
+          schedules = data.dig('@graph', 0, 'eventSchedule')
+          new_schedules = schedules.map do |i|
+            i['startTime'] += ':00' if i['startTime'].present? && i['startTime'].split(':').size == 2
+            i['endTime'] += ':00' if i['endTime'].present? && i['endTime'].split(':').size == 2
+            i
+          end
+          data['@graph'][0]['eventSchedule'] = new_schedules
+          data
         end
       end
     end

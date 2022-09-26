@@ -7,9 +7,13 @@ module DataCycleCore
         ATTRIBUTE_FILTER = {
           'POI' => [['id'], ['name'], ['description'], ['geo'], ['address']],
           'Unterkunft' => [['id'], ['name'], ['description'], ['geo'], ['address']],
-          'Event' => [['id'], ['name'], ['description'], ['geo'], ['address']],
+          'Event' => [['id'], ['name'], ['description'], ['geo'], ['address'], ['eventSchedule']],
           'Gastronomischer Betrieb' => [['id'], ['name'], ['description'], ['geo'], ['address']],
-          'Tour' => [['id'], ['name'], ['description'], ['address']]
+          'Tour' => [['id'], ['name'], ['description'], ['geo'], ['address']]
+        }.freeze
+
+        INCLUDE_FILTER = {
+          'Event' => [['eventSchedule']]
         }.freeze
 
         def initialize(**options)
@@ -181,7 +185,7 @@ module DataCycleCore
               fields_parameters: ATTRIBUTE_FILTER[data.template_name] || [],
               expand_language: true,
               field_filter: true,
-              include_parameters: [], # included data
+              include_parameters: INCLUDE_FILTER[data.template_name] || [], # included data
               api_version: 4,
               permitted_params: {},
               api_context: 'api'
@@ -191,7 +195,15 @@ module DataCycleCore
           )
 
           hash = JSON[json]
-          hash = DataCycleCore::Export::Onlim::Transformations.to_poi.call(hash)
+
+          transformation =
+            case data.template_name
+            when 'Event'
+              :to_event
+            else
+              :to_poi
+            end
+          hash = DataCycleCore::Export::Onlim::Transformations.send(transformation).call(hash)
           hash
         end
 

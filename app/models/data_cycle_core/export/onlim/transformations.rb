@@ -13,8 +13,8 @@ module DataCycleCore
             # 'Organization' => ['name', 'url', 'ds:compliesWith'],
             'Person' => ['name', 'url', 'ds:compliesWith'],
             'TouristAttraction' => ['name', 'description', 'address', 'geo', 'ds:compliesWith'], # POI
-            'Event' => ['name', 'description', 'address', 'geo', 'ds:compliesWith'],
-            'dcls:Tour' => ['name', 'description', 'address', 'ds:compliesWith'],
+            'Event' => ['name', 'description', 'address', 'geo', 'ds:compliesWith', 'eventSchedule'],
+            'odta:Trail' => ['name', 'description', 'address', 'geo', 'ds:compliesWith'],
             'Gastronomischer Betrieb' => ['name', 'description', 'address', 'geo', 'ds:compliesWith'],
             'LodgingBusiness' => ['name', 'description', 'address', 'geo', 'ds:compliesWith'] # Unterkunft
           }
@@ -33,7 +33,7 @@ module DataCycleCore
           }
         end
 
-        def self.to_poi
+        def self.default_transformations
           t(:remove_namespaced_data)
           .>> t(:context_to_onlim)
           .>> t(:type_to_onlim)
@@ -42,6 +42,15 @@ module DataCycleCore
           .>> t(:apply_whitelist, whitelist)
           .>> t(:apply_blacklist, blacklist)
           .>> t(:strip_all)
+        end
+
+        def self.to_poi
+          default_transformations
+        end
+
+        def self.to_event
+          default_transformations
+          .>> t(:add_time_sec)
         end
       end
     end
