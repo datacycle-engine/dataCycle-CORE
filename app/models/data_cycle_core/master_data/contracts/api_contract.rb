@@ -110,6 +110,10 @@ module DataCycleCore
             optional(:in).filled(:array)
             optional(:notIn).filled(:array)
           end
+          optional(:endpointId).hash do
+            optional(:in).filled(:array)
+            optional(:notIn).filled(:array)
+          end
           optional(:filterId).hash do
             optional(:in).filled(:array)
             optional(:notIn).filled(:array)

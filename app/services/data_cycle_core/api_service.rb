@@ -146,7 +146,7 @@ module DataCycleCore
         linked_query = DataCycleCore::StoredFilter.new(language: @language).apply
 
         # add error handling for invalid methods
-        attribute_filter.delete_if { |k, _v| ![:classifications, :'dc:classification', :geo, :attribute, :contentId, :filterId, :watchListId].include?(k) }
+        attribute_filter.delete_if { |k, _v| ![:classifications, :'dc:classification', :geo, :attribute, :contentId, :filterId, :watchListId, :endpointId].include?(k) }
 
         linked_query = apply_filters(linked_query, attribute_filter)
         query = query.relation_filter(linked_query, linked_attribute_mapping(linked_name)) if linked_query.present?
@@ -183,6 +183,10 @@ module DataCycleCore
 
     def apply_watch_list_id_filters(query, filters)
       apply_union_filter_methods(query, filters, 'watch_list_ids')
+    end
+
+    def apply_endpoint_id_filters(query, filters)
+      apply_union_filter_methods(query, filters, 'union_filter_ids')
     end
 
     def apply_union_filter_methods(query, filters, query_method)
@@ -322,7 +326,6 @@ module DataCycleCore
         union_validation_errors = validate_api_union_params(union_parameters)
         validation_errors += union_validation_errors if union_validation_errors.present?
       end
-
       raise DataCycleCore::Error::Api::BadRequestError.new(validation_errors), 'API Bad Request Error' if validation_errors.present?
     end
 
