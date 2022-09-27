@@ -230,7 +230,7 @@ module DataCycleCore
       end
 
       def self.invalidate_all
-        all.update_all(cache_valid_since: Time.zone.now)
+        all.lock('FOR UPDATE SKIP LOCKED').update_all(cache_valid_since: Time.zone.now)
       end
 
       def self.update_search_all
@@ -346,30 +346,21 @@ module DataCycleCore
         return if properties['link_direction'] == 'inverse' # inverse direction is read_only
         relation_b = properties['inverse_of']
 
-        item_ids_before_update = send(field_name).ids
+        item_ids_before_update = send(field_name).pluck(:id)
         item_ids_after_update = parse_linked_ids(input_data)
 
-        item_ids_after_update.each_index do |index|
-          update_relation = DataCycleCore::ContentContent.find_or_create_by({
-            content_a_id: id,
-            relation_a: field_name,
-            content_b_id: item_ids_after_update[index]
-          })
-          update_relation.order_a = index
-          update_relation.relation_b = relation_b
-          update_relation.save!
+        if DataCycleCore::DataHashService.present?(item_ids_after_update)
+          content_content_a.upsert_all(
+            item_ids_after_update
+              .map
+              .with_index do |content_b_id, index|
+                { relation_a: field_name, content_b_id: content_b_id, order_a: index, relation_b: relation_b, updated_at: Time.zone.now }
+              end,
+            unique_by: :by_content_relation_a
+          )
         end
 
-        item_ids_to_delete = item_ids_before_update - item_ids_after_update
-        return if item_ids_to_delete.size.zero?
-
-        DataCycleCore::ContentContent
-          .where({
-            content_a_id: id,
-            relation_a: field_name,
-            content_b_id: item_ids_to_delete
-          })
-          .destroy_all
+        content_content_a.where(relation_a: field_name, content_b_id: item_ids_before_update - item_ids_after_update).delete_all
       end
 
       def parse_linked_ids(a)
@@ -455,30 +446,26 @@ module DataCycleCore
         upsert_item
       end
 
-      def set_classification_relation_ids(ids, relation_name, _tree_label, default_value, not_translated, universal)
+      def set_classification_relation_ids(ids, relation_name, _tree_label, default_value, not_translated, _universal)
         return if not_translated && I18n.available_locales.first != I18n.locale && default_value.blank?
-        present_relation_ids = send(relation_name).pluck(:classification_id) || []
-        ids ||= []
-        unless is_blank?(ids) && !universal
-          ids.each do |classification_id_value|
-            next if present_relation_ids.include?(classification_id_value)
-            DataCycleCore::ClassificationContent.find_or_create_by!(
-              'content_data_id' => id,
-              classification_id: classification_id_value,
-              relation: relation_name
-            )
-          end
+
+        present_relation_ids = send(relation_name).pluck(:id)
+        ids = Array.wrap(ids)
+
+        if DataCycleCore::DataHashService.present?(ids)
+          classification_content.upsert_all(
+            ids.map do |classification_id|
+              {
+                classification_id: classification_id,
+                relation: relation_name,
+                updated_at: Time.zone.now
+              }
+            end,
+            unique_by: :index_classification_contents_on_unique_constraint
+          )
         end
 
-        to_delete = present_relation_ids - ids
-
-        return if to_delete.empty?
-
-        DataCycleCore::ClassificationContent
-          .with_content(id)
-          .with_classification_ids(to_delete)
-          .with_relation(relation_name)
-          .destroy_all
+        classification_content.where(relation: relation_name, classification_id: present_relation_ids - ids).delete_all
       end
 
       def set_asset_id(asset_id, relation_name, asset_type)

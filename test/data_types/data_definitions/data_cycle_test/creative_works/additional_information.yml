@@ -15,6 +15,8 @@
         :ui:
           :show:
             :content_area: header
+          :edit:
+            :disabled: true
       :name:
         :label: Name
         :type: string
@@ -26,6 +28,9 @@
         :storage_location: translated_value
         :search: true
         :advanced_search: true
+        :ui:
+          :edit:
+            :disabled: true
       :additional_information_classifications:
         :type: mixin
         :name: additional_information_classifications
@@ -38,7 +43,7 @@
           :edit:
             :type: text_editor
             :options:
-              :data-size: basic
+              :data-size: full
         :advanced_search: true
       :validity_schedule:
         :label: Publikationsplan
@@ -48,6 +53,9 @@
           :v4:
             :disabled: false
             :name: dc:validitySchedule
+        :ui:
+          :edit:
+            :disabled: true
       :image:
         :label: Bilder
         :type: linked

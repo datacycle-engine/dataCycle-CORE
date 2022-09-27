@@ -125,8 +125,8 @@ module DataCycleCore
     def apply_attribute_filters(query, filters)
       filters.each do |attribute_key, operator|
         attribute_path = attribute_path_mapping(attribute_key)
-        query_method = query_method_mapping(attribute_key)
         operator.each do |k, v|
+          query_method = query_method_mapping(attribute_key, v)
           query_method = 'not_' + query_method if k == :notIn
           next unless query.respond_to?(query_method)
 
@@ -145,7 +145,7 @@ module DataCycleCore
       linked_filter.each do |linked_name, attribute_filter|
         linked_query = DataCycleCore::StoredFilter.new(language: @language).apply
 
-        attribute_filter.delete_if { |k, _v| ![:classifications, :'dc:classification', :geo, :attribute, :contentId, :filterId, :watchListId].include?(k) }
+        attribute_filter.delete_if { |k, _v| ![:classifications, :'dc:classification', :geo, :attribute, :contentId, :filterId, :watchListId, :endpointId].include?(k) }
 
         linked_query = apply_filters(linked_query, attribute_filter)
         query = query.relation_filter(linked_query, linked_attribute_mapping(linked_name)) if linked_query.present?
@@ -183,6 +183,10 @@ module DataCycleCore
       apply_union_filter_methods(query, filters, 'watch_list_ids')
     end
 
+    def apply_endpoint_id_filters(query, filters)
+      apply_union_filter_methods(query, filters, 'union_filter_ids')
+    end
+
     def apply_union_filter_methods(query, filters, query_method)
       filters.each do |operator, values|
         query_method = 'not_' + query_method if operator == :notIn
@@ -196,10 +200,12 @@ module DataCycleCore
 
     def transform_values_for_query(value, key)
       return { 'from' => value.dig(:min), 'until' => value.dig(:max) } if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') == 'date'
+      return value&.values&.first if key == :translatedName && value&.values&.first.present?
+      return { 'text' => value.values.first } if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') == 'string' && value&.values&.first.present?
       value
     end
 
-    def query_method_mapping(key)
+    def query_method_mapping(key, value = nil)
       return 'date_range' if API_DATE_RANGE_ATTRIBUTES.include?(key)
       return 'equals_advanced_numeric' if API_NUMERIC_ATTRIBUTES.include?(key)
       return 'in_schedule' if API_SCHEDULE_ATTRIBUTES.include?(key)
@@ -207,7 +213,8 @@ module DataCycleCore
       return 'geo_radius' if key == :perimeter
       return 'geo_within_classification' if key == :shapes
       return 'equals_advanced_slug' if key == :slug
-      return "equals_advanced_#{DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type')}" if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym).present?
+      return "#{value.keys.first}_translated_name" if key == :translatedName
+      return "#{value.keys.first}_advanced_#{DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type')}" if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym).present?
       key.to_s
     end
 
@@ -317,7 +324,6 @@ module DataCycleCore
         union_validation_errors = validate_api_union_params(union_parameters)
         validation_errors += union_validation_errors if union_validation_errors.present?
       end
-
       raise DataCycleCore::Error::Api::BadRequestError.new(validation_errors), 'API Bad Request Error' if validation_errors.present?
     end
 

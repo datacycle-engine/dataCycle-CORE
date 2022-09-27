@@ -22,7 +22,6 @@ module DataCycleCore
     private
 
     def create_locks
-      # TODO: move translation to JS
       ActionCable.server.broadcast(
         "content_lock_#{activitiable.id}",
         {

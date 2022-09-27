@@ -256,6 +256,38 @@ module DataCycleCore
             json_data = JSON.parse(response.body)
             assert_api_count_result(1)
             assert_equal([@event.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                endpointId: {
+                  in: [
+                    @watch_list_event_poi1.id
+                  ]
+                }
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(2)
+            assert_equal([@event.id, @poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                linked: {
+                  content_location: {
+                    endpointId: {
+                      in: [
+                        @watch_list_event_poi.id
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(1)
+            assert_equal([@event.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
           end
 
           test 'api/v4/endpoints parameter union with contentId' do
@@ -854,6 +886,49 @@ module DataCycleCore
                     filterId: {
                       in: [
                         @stored_filter_poi.id
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(5)
+            assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id, @person.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                union: [
+                  {
+                    endpointId: {
+                      in: [
+                        "#{@watch_list_event_poi1.id},#{@stored_filter_poi.id}"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
+            json_data = JSON.parse(response.body)
+            assert_api_count_result(4)
+            assert_equal([@event.id, @poi.id, @poi2.id, @event_poi.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+
+            params = {
+              filter: {
+                union: [
+                  {
+                    contentId: {
+                      in: [
+                        @person.id
+                      ]
+                    }
+                  },
+                  {
+                    endpointId: {
+                      in: [
+                        "#{@watch_list_event_poi1.id},#{@stored_filter_poi.id}"
                       ]
                     }
                   }

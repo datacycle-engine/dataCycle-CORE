@@ -1,4 +1,5 @@
 import DomElementHelpers from '../helpers/dom_element_helpers';
+import ContentScore from '../components/content_score';
 
 async function setContentScoreClass(item) {
   item.dcContentScoreClass = true;
@@ -50,7 +51,35 @@ async function setContentScoreClass(item) {
   else if (value > rangePart * 2) icon.classList.add('high-score');
 }
 
+function checkForNewVisibleElements(entries, observer) {
+  for (const entry of entries) {
+    if (!entry.isIntersecting) continue;
+
+    observer.unobserve(entry.target);
+    entry.target.contentScore.loadScore();
+  }
+}
+
 export default function () {
+  const intersectionObserver = new IntersectionObserver(checkForNewVisibleElements, {
+    rootMargin: '0px 0px 50px 0px',
+    threshold: 0.1
+  });
+
+  for (const elem of document.getElementsByClassName('attribute-content-score')) {
+    new ContentScore(elem);
+    intersectionObserver.observe(elem);
+  }
+
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('attribute-content-score') && !e.hasOwnProperty('dcContentScore'),
+    e => {
+      new ContentScore(e);
+      intersectionObserver.observe(e);
+    }
+  ]);
+
+  // legacy content_score
   for (const element of document.querySelectorAll('.detail-type.content_score')) setContentScoreClass(element);
 
   DataCycle.htmlObserver.addCallbacks.push([

@@ -30,12 +30,8 @@ module DataCycleCore
         overlay_property_definitions[overlay_property_name]
       end
 
-      def overlay_data(locale)
-        return unless overlay?
-        @overlay_data ||= ActiveSupport::HashWithIndifferentAccess.new do |h, key|
-          h[key] = send(overlay_name).first.try(:get_data_hash)
-        end
-        @overlay_data[locale]
+      def overlay_content
+        send(overlay_name).first
       end
 
       def add_overlay_property_names
@@ -47,12 +43,40 @@ module DataCycleCore
         @add_overlay_property_definitions ||= Hash[*add_overlay_property_names.map { |prop| [prop, overlay_properties_for(prop)] }&.flatten]
       end
 
-      def all_overlay_data
-        @overlay_data
-      end
-
       def property_names_with_overlay
         property_names + add_overlay_property_names
+      end
+
+      def value_from_overlay(method_name, *args)
+        overlay_content.send(method_name, *args) if overlay? && overlay_content.respond_to?(method_name)
+      end
+
+      # attribute_getter_method Extensions
+      def load_json_attribute(*args)
+        value = value_from_overlay(__method__, *args) if args[2]
+        value || value.is_a?(FalseClass) ? value : super
+      end
+
+      def load_included_data(*args)
+        value = super.to_h
+        value.merge!(value_from_overlay(__method__, *args).to_h) if args[2]
+
+        OpenStructHash.new(value).freeze
+      end
+
+      def load_relation(*args)
+        value = value_from_overlay(__method__, *args) if args[6]
+        value.presence || super
+      end
+
+      def load_classifications(*args)
+        value = value_from_overlay(__method__, *args) if args[1]
+        value.presence || super
+      end
+
+      def load_schedule(*args)
+        value = value_from_overlay(__method__, *args) if args[1]
+        value.presence || super
       end
     end
   end

@@ -355,10 +355,11 @@ $filter-border: #aaa;
     .search {
       .input-group {
         background-color: lighten($light-gray, 7%);
-        padding: 0 2.6rem 0 1rem;
+        padding: 0;
         transition: background ease-out 0.25s;
         margin-bottom: 0;
         border-radius: $global-radius;
+        display: flex;
 
         > * {
           background-color: transparent;
@@ -366,8 +367,10 @@ $filter-border: #aaa;
 
         .input-group-field,
         .input-group-button {
-          border: $search-border;
-          padding: 0.3rem;
+          display: flex;
+          flex: auto;
+          height: 2.9rem;
+          padding: 0;
           color: $black;
           border: 0;
         }
@@ -375,8 +378,8 @@ $filter-border: #aaa;
         .input-group-field {
           font-size: 1.2rem;
           line-height: 1.2rem;
-          margin-top: 0.3rem;
           box-shadow: none;
+          padding: 0.3rem 0.3rem 0.3rem 1rem;
 
           &::placeholder {
             font-weight: 200;
@@ -391,10 +394,26 @@ $filter-border: #aaa;
         }
 
         .input-group-button {
+          width: 4rem;
+          align-items: center;
+          justify-content: center;
+          background-color: $success-color;
+          color: $white;
+          transition: $global-transition;
+
           i {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             line-height: 1.2;
-            font-weight: bold;
+          }
+
+          &:hover {
+            background-color: scale-color($success-color, $lightness: -15%);
+          }
+
+          &[disabled] {
+            opacity: 0.5;
+            background-color: scale-color($success-color, $lightness: +15%);
+            cursor: not-allowed;
           }
         }
 
@@ -1160,16 +1179,13 @@ $filter-border: #aaa;
                   display: flex;
                   align-items: center;
                 }
-
-                .fa-external-link {
-                  margin-top: 0.2rem;
-                }
               }
 
               .preview-widget-list {
                 display: flex;
                 align-items: center;
                 justify-content: flex-end;
+                gap: 0.2rem;
               }
             }
           }
@@ -1533,16 +1549,10 @@ $filter-border: #aaa;
 
   @keyframes progress-bar {
     0% {
-      margin-left: 0.25rem;
-      width: 0;
-    }
-    50% {
-      margin-left: 25%;
-      width: calc(75% - 0.25rem);
+      left: -50%;
     }
     100% {
-      margin-left: calc(100% - 0.25rem);
-      width: 0;
+      left: 100%;
     }
   }
 
@@ -1583,15 +1593,16 @@ $filter-border: #aaa;
 
       &::before {
         height: 1.5rem;
-        background-color: rgba($light-gray, 0.9);
+        background-color: rgba(lighten($light-gray, 4%), 0.9);
         box-shadow: 0 0 0 1px $light-gray inset;
       }
 
       &::after {
-        height: 1rem;
-        top: 0.25rem;
-        background-color: rgba($dark-gray, 0.5);
-        animation: progress-bar 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        height: 1.5rem;
+        right: unset;
+        width: 100%;
+        background: linear-gradient(to right, rgba(white, 0) 0%, rgba(white, 0.5) 25%, rgba(white, 0) 50%);
+        animation: progress-bar 1s linear infinite forwards;
       }
 
       > * {
@@ -1616,9 +1627,10 @@ $filter-border: #aaa;
     flex-flow: row nowrap;
     align-items: center;
     margin: 0;
+    gap: 0.5rem;
 
     li {
-      margin: 0 0.5rem 0 0;
+      margin: 0;
 
       &:last-child {
         margin-right: 0;

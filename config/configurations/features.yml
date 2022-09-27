@@ -445,6 +445,14 @@
           - 'tsv'
           - 'json'
           - 'xlsx'
+      :stored_searches_usage:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::StoredSearchesUsage
+        :allowed_formats:
+          - 'csv'
+          - 'tsv'
+          - 'json'
+          - 'xlsx'
     :content:
       :downloads_content:
         :enabled: false
@@ -533,3 +541,6 @@
   # attribute_keys:
   #   :output_channels:
   #     :tree_label: "Ausgabekanäle"
+
+:content_score:
+  :enabled: true

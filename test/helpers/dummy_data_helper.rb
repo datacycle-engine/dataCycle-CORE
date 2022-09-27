@@ -12,22 +12,16 @@ module DataCycleCore
     end
 
     def tour
-      # schedule
-      schedule = [
-        {
-          by_month: (['Juni'].map { |m| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Monate', m) })
-        }
-      ]
-
       poi_data = poi
       image_data = image
 
       tour_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_tour')
-      tour_data_hash[:image] = image_data.id
-      tour_data_hash[:primary_image] = image_data.id
-      tour_data_hash[:logo] = image_data.id
-      tour_data_hash[:poi] = poi_data.id
-      tour_data_hash[:schedule] = schedule
+      tour_data_hash[:image] = [image_data.id]
+      tour_data_hash[:primary_image] = [image_data.id]
+      tour_data_hash[:logo] = [image_data.id]
+      tour_data_hash[:waypoint] = [poi_data.id]
+      tour_data_hash[:author] = [organization.id]
+      tour_data_hash[:universal_classifications] = ['Juni'].map { |m| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Monate', m) }
       tour_data_hash.deep_stringify_keys!
 
       content = DataCycleCore::Thing.find_by(tour_data_hash.slice('name').merge(template_name: 'Tour'))
@@ -42,6 +36,7 @@ module DataCycleCore
       content.save!
       I18n.with_locale(:de) do
         content.set_data_hash(data_hash: tour_data_hash, new_content: true, current_user: @user)
+        raise 'INVALID CONTENT' unless content.valid?
       end
       content.reload
     end
@@ -62,9 +57,9 @@ module DataCycleCore
       poi_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', "api_poi_#{I18n.locale}")
       country_classification = DataCycleCore::Classification.find_by(name: 'AT', description: 'Österreich')
       poi_data_hash[:country_code] = [country_classification.id]
-      poi_data_hash[:image] = image_data.id
-      poi_data_hash[:primary_image] = image_data.id
-      poi_data_hash[:logo] = image_data.id
+      poi_data_hash[:image] = [image_data.id]
+      poi_data_hash[:primary_image] = [image_data.id]
+      poi_data_hash[:logo] = [image_data.id]
 
       poi_data_hash[:opening_hours_specification] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
       poi_data_hash[:opening_hours_description] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_description')
@@ -181,10 +176,10 @@ module DataCycleCore
 
     def creative_work_dummy_hash(fixture_name)
       creative_work_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', fixture_name)
-      creative_work_data_hash[:author] = person.id
-      creative_work_data_hash[:about] = organization.id
-      creative_work_data_hash[:image] = image.id
-      creative_work_data_hash[:content_location] = poi.id
+      creative_work_data_hash[:author] = [person.id]
+      creative_work_data_hash[:about] = [organization.id]
+      creative_work_data_hash[:image] = [image.id]
+      creative_work_data_hash[:content_location] = [poi.id]
       tag_classification = DataCycleCore::Classification.find_by(name: 'Tag 1')
       creative_work_data_hash[:tags] = [tag_classification.id]
       creative_work_data_hash[:validity_period] = validity_period

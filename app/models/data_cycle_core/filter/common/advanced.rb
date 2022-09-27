@@ -155,6 +155,18 @@ module DataCycleCore
           )
         end
 
+        def like_translated_name(value = nil, _attribute_path = nil)
+          return self if value.blank?
+          reflect(
+            @query.where(
+              DataCycleCore::Thing::Translation.where(
+                thing_translations[:name].lower.matches("%#{value}%")
+                  .and(thing[:id].eq(thing_translations[:thing_id]))
+              ).arel.exists
+            )
+          )
+        end
+
         def equals_advanced_classification_alias_ids(value = nil, attribute_path = nil)
           advanced_classification_alias_ids(value, attribute_path, :equals)
         end

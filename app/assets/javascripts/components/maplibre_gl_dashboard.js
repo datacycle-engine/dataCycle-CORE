@@ -1,5 +1,4 @@
 import MapLibreGlViewer from './maplibre_gl_viewer';
-import maplibregl from 'maplibre-gl/dist/maplibre-gl';
 
 class MapLibreGlDashboard extends MapLibreGlViewer {
   constructor(container) {
@@ -17,8 +16,8 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
       gray: '#767676'
     };
   }
-  setup() {
-    super.setup();
+  async setup() {
+    await super.setup();
 
     const $element = $(
       '<div class="loading-overlay"><div class="loading-overlay-text"><i class="fa fa-spinner fa-spin fa-fw fa-2xl"></i></div></div>'
@@ -70,7 +69,7 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
     this._addClickHandler();
   }
   _addPopup() {
-    const popup = new maplibregl.Popup({
+    const popup = new this.maplibreGl.Popup({
       closeButton: false,
       closeOnClick: false,
       className: 'additional-feature-popup'

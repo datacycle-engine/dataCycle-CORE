@@ -17,11 +17,11 @@ module DataCycleCore
         def create_duplicate_candidates
           duplicates = duplicate_method
 
-          duplicate_candidates.where.not(duplicate_id: duplicates&.map { |d| d[:content]&.id }&.compact).thing_duplicates.delete_all
+          duplicate_candidates.where.not(duplicate_id: duplicates&.pluck(:thing_duplicate_id)&.compact).thing_duplicates.delete_all
 
-          duplicates&.each do |duplicate|
-            thing_duplicates.create!(thing_duplicate_id: duplicate[:content]&.id, method: duplicate[:method], score: duplicate[:score]) unless duplicate_candidates.with_fp.any? { |c| c.duplicate_id == duplicate[:content]&.id }
-          end
+          timestamp = Time.zone.now
+
+          duplicates.present? ? thing_duplicates.insert_all(duplicates.each { |v| v.merge!({ created_at: timestamp, updated_at: timestamp }) }, unique_by: :unique_thing_duplicate_idx).count : 0
         end
 
         def merge_with_duplicate(duplicate)

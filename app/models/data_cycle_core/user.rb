@@ -9,7 +9,7 @@ module DataCycleCore
 
     WEBHOOK_ACCESSORS = [:raw_password, :synchronous_webhooks, :mailer_layout, :viewer_layout, :redirect_url].freeze
 
-    attr_accessor :skip_callbacks, :forward_to_url, *WEBHOOK_ACCESSORS
+    attr_accessor :skip_callbacks, :token_issuer, :forward_to_url, *WEBHOOK_ACCESSORS
 
     WEBHOOKS_ATTRIBUTES = [
       'access_token',
@@ -83,7 +83,7 @@ module DataCycleCore
     end
 
     def full_name
-      (name || "#{given_name} #{family_name}".presence || '__unnamed_user__').squish
+      (name || "#{given_name} #{family_name}").squish.presence || '__unnamed_user__'
     end
 
     def default_filter(filters = [], _scope = 'backend', _template_name = nil)

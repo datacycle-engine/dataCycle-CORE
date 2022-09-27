@@ -29,7 +29,7 @@
             :disabled: true
             :options:
               :additional_value_paths:
-                :poi:
+                :waypoint:
                   :geo: location
                   :title: title
                 :contains_place:

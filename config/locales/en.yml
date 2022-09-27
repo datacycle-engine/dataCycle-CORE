@@ -20,8 +20,18 @@ en:
   submit: Create
 
   attribute_labels:
-    additional_information: Description block
-    key_figures_container: Key Figures
+    additional_information:
+      one: Description block
+      other: Description blocks
+    aggregate_rating:
+      one: Tour rating
+      other: Tour ratings
+    key_figures_container: Key figures
+
+  footer_links:
+    privacy_policy: Privacy policy
+    imprint: Imprint
+    terms_and_conditions: Terms & Conditions
 
   locales:
     de: German
@@ -500,8 +510,9 @@ en:
     full_size: open full-size
     media_archive: open in the media archive
   feature:
-    quality_score:
+    content_score:
       tooltip:
+        title_html: '<b>Content score</b>'
         min: 'minimal: %{value}'
         optimal: 'optimal: %{value}'
         max: 'maximal: %{value}'
@@ -1183,6 +1194,7 @@ en:
         submit_loading_message: Saving may take several minutes, please be patient
       download_tree: download classification tree as CSV
       download_tree_with_contents: download classification tree including contents as CSV
+      download_tree_for_mappings: download classification tree for defining mappings as CSV
     this_classification: This classification
     this_classification_tree: This classification tree
     show_contents_for_tree_label: List contents in %{data}

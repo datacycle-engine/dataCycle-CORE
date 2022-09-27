@@ -14,7 +14,7 @@ module DataCycleCore
               }.map do |rating_config|
                 external_key = [data['external_key'], rating_config[0]].join(' - ')
                 {
-                  'id' => (ExternalReferenceTransformations::ExternalReference.new(:content, external_source_id, external_key) if external_source_id && external_key),
+                  'id' => (DataReferenceTransformations::ExternalReference.new(:content, external_source_id, external_key) if external_source_id && external_key),
                   'external_key' => external_key,
                   'name' => I18n.t(translation_key_prefix + rating_config[0], default: rating_config[0]),
                   'rating_value' => data[rating_config[0]],

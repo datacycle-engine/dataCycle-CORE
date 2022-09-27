@@ -58,14 +58,31 @@ const DomElementHelpers = {
       confirmationCallback: confirmationCallback
     });
   },
-  getFormData(container) {
-    if (container.nodeName === 'FORM') return new FormData(container);
+  getFormData(container, filterByPrefix = '', removeEmbeddedPrefix = false) {
+    let formData = new FormData();
+    if (container.nodeName === 'FORM') formData = new FormData(container);
+    else
+      for (const element of $(container).find(':input').serializeArray()) formData.append(element.name, element.value);
 
-    const formData = new FormData();
-
-    for (const element of $(container).find(':input').serializeArray()) formData.append(element.name, element.value);
+    if (removeEmbeddedPrefix) formData = this.removeEmbeddedPrefixFromFormdata(formData);
+    if (filterByPrefix) this.rejectFormdataByPrefix(formData, filterByPrefix);
 
     return formData;
+  },
+  removeEmbeddedPrefixFromFormdata(formData) {
+    if (!formData) return;
+
+    const newFormData = new FormData();
+
+    for (const [key, value] of Array.from(formData))
+      newFormData.append(key.replace(/(datahash|translations)+.+(datahash|translations)+/, `$2`), value);
+
+    return newFormData;
+  },
+  rejectFormdataByPrefix(formData, prefix) {
+    if (!formData) return;
+
+    for (const [key, _value] of Array.from(formData)) if (!key.startsWith(prefix)) formData.delete(key);
   }
 };
 

@@ -1,4 +1,4 @@
-import TuiImageEditor from 'tui-image-editor';
+const TuiImageEditor = () => import('tui-image-editor').then(mod => mod.default);
 import CalloutHelpers from './../helpers/callout_helpers';
 
 class ImageEditor {
@@ -161,7 +161,10 @@ class ImageEditor {
         rotatingPointOffset: 70
       }
     };
-    this.editor = new TuiImageEditor(this.$reveal.find('.tui-image-editor').get(0), options);
+
+    TuiImageEditor().then(tuiImageEditor => {
+      this.editor = new tuiImageEditor(this.$reveal.find('.tui-image-editor').get(0), options);
+    });
   }
   handleSave(event) {
     event.preventDefault();

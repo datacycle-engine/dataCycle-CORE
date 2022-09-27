@@ -36,12 +36,13 @@ module DataCycleCore
       label_html
     end
 
-    def ordered_validation_properties(validation:, type: nil, content_area: nil, scope: :edit)
+    def ordered_validation_properties(validation:, type: nil, content_area: nil, scope: :edit, exclude_types: [])
       return if validation.nil? || validation['properties'].blank?
 
       ordered_props = {}
 
       validation['properties'].sort_by { |_, prop| prop['sorting'] }.each do |key, prop|
+        next if Array.wrap(exclude_types).include?(prop['type'])
         next if INTERNAL_PROPERTIES.include?(key) || prop['sorting'].blank?
         next if type.present? && prop['type'] != type
         next if content_area.presence&.!=('content') && prop.dig('ui', scope.to_s, 'content_area') != content_area
@@ -51,6 +52,61 @@ module DataCycleCore
       end
 
       ordered_props
+    end
+
+    def content_header_classification_aliases(content:, scope: :show, context: :show)
+      classification_aliases = {}
+      parameters = {
+        allowed_properties: ordered_header_classification_properties(content: content, scope: scope),
+        classification_aliases: classification_aliases,
+        options: { ui_scope: :show },
+        scope: scope,
+        context: context,
+        content: content
+      }
+
+      content.classification_content.preload(classification: [primary_classification_alias: [:classification_tree_label, :classification_alias_path]]).group_by(&:relation).each { |key, ccs| ccs.each { |cc| add_content_header_classification_alias(**parameters.merge(key: key, classification_alias: cc.classification.primary_classification_alias)) } }
+
+      content.mapped_classification_aliases.preload(:classification_tree_label, :classification_alias_path).each do |ca|
+        add_content_header_classification_alias(**parameters.merge(key: '', classification_alias: ca, type: :mapped_value))
+      end
+
+      classification_aliases.each_value do |v|
+        v[:value].uniq!(&:id)
+        v[:mapped_value].uniq!(&:id)
+      end
+
+      classification_aliases.sort_by { |_, v| v.dig(:definition, 'sorting') || 999 }.to_h
+    end
+
+    def add_content_header_classification_alias(allowed_properties:, classification_aliases:, key:, classification_alias:, scope:, context:, content:, options: {}, type: :value)
+      return if classification_alias.nil?
+
+      ui_config = allowed_properties.dig(key, 'ui').to_h.merge(allowed_properties.dig(key, 'ui', scope.to_s).to_h)
+      if context == :show && ui_config.key?('disabled')
+        return if ui_config['disabled'].to_s == 'true'
+      else
+        return unless classification_alias.classification_tree_label.visibility&.include?(context.to_s)
+      end
+
+      definition = allowed_properties[key]&.deep_dup || {}
+      definition['tree_label'] ||= classification_alias.classification_tree_label.name
+      definition['type'] ||= 'classification'
+      label = translated_attribute_label(key, definition, content, options)
+      classification_aliases[label] ||= { key: key, definition: definition, options: options, value: [], mapped_value: [] }
+      classification_aliases[label][type] << classification_alias
+    end
+
+    def ordered_header_classification_properties(content:, scope: :show)
+      content.property_definitions
+        .slice(*content.classification_property_names)
+        .select do |k, v|
+          next false if INTERNAL_PROPERTIES.include?(k)
+          next false unless v.key?('sorting')
+          next false if v.dig('ui', scope.to_s, 'disabled').to_s == 'true'
+          next false if !v.dig('ui', scope.to_s)&.key?('disabled') && v.dig('ui', 'disabled').to_s == 'true'
+          true
+        end
     end
 
     def add_attribute_config(key, prop, scope, content_area, ordered_props)

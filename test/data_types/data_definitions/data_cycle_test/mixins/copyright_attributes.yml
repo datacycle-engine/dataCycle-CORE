@@ -147,6 +147,7 @@
         :label: Urheberrechtsvermerk
         :type: string
         :storage_location: value
+        :advanced_search: true
         :virtual:
           :module: Utility::Virtual::Common
           :method: take_first

@@ -366,11 +366,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
       assert !validate_header.call(test_hash).success?
     end
 
-    it 'checks properties for presence of label' do
-      test_hash = simple_property_hash.except(:label)
-      assert !validate_property.call(test_hash).success?
-    end
-
     it 'checks properties for label is a string' do
       test_hash = simple_property_hash
       test_hash[:label] = nil

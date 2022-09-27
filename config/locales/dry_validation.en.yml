@@ -12,7 +12,7 @@ en:
           invalid_computed: 'invalid_computed: module and method combination not found.'
         virtual:
           invalid_virtual: 'invalid_virtual: module and method combination not found.'
-        quality_score:
-          invalid_quality_score: 'invalid_quality_score: module and method combination not found.'
+        content_score:
+          invalid_content_score: 'invalid_content_score: module and method combination not found.'
         properties:
           invalid_object: "invalid included_object: type must be 'object' and must have properties defined. storage_location must be a jsonb field (translated_value for translated fields, value for not translatable data)."

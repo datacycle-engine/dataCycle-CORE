@@ -243,7 +243,7 @@ CREATE FUNCTION public.generate_classification_alias_paths(classification_alias_
 
 CREATE FUNCTION public.generate_classification_alias_paths_trigger_1() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_classification_alias_paths(NEW.id || '{}'::UUID[]); RETURN NEW; END;$$;
+    AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(id) || ARRAY[NEW.id]::UUID[]) FROM ( SELECT id FROM classification_alias_paths WHERE NEW.id = ANY (ancestor_ids)) "new_child_classification_aliases"; RETURN NEW; END; $$;
 
 
 --
@@ -252,7 +252,7 @@ CREATE FUNCTION public.generate_classification_alias_paths_trigger_1() RETURNS t
 
 CREATE FUNCTION public.generate_classification_alias_paths_trigger_2() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(id) || NEW.classification_alias_id) FROM ( SELECT id FROM classification_alias_paths WHERE NEW.classification_alias_id = ANY (ancestor_ids)) "changed_child_classification_aliasese"; RETURN NEW; END; $$;
+    AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(id) || ARRAY[NEW.classification_alias_id]::UUID[]) FROM ( SELECT id FROM classification_alias_paths WHERE NEW.classification_alias_id = ANY (ancestor_ids)) "changed_child_classification_aliases"; RETURN NEW; END; $$;
 
 
 --
@@ -261,7 +261,7 @@ CREATE FUNCTION public.generate_classification_alias_paths_trigger_2() RETURNS t
 
 CREATE FUNCTION public.generate_classification_alias_paths_trigger_3() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ DECLARE classification_alias_ids UUID[]; BEGIN SELECT ARRAY_AGG(classification_trees.classification_alias_id) INTO classification_alias_ids FROM classification_trees WHERE classification_trees.classification_tree_label_id = NEW.id; PERFORM generate_classification_alias_paths(classification_alias_ids); RETURN NEW; END;$$;
+    AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(classification_alias_id)) FROM ( SELECT classification_alias_id FROM classification_trees WHERE classification_trees.classification_tree_label_id = NEW.id) "changed_tree_classification_aliases"; RETURN NEW; END; $$;
 
 
 --
@@ -279,7 +279,7 @@ CREATE FUNCTION public.generate_collected_cl_content_relations_transitive(conten
 
 CREATE FUNCTION public.generate_collected_classification_content_relations(content_ids uuid[], excluded_classification_ids uuid[]) RETURNS uuid[]
     LANGUAGE plpgsql
-    AS $$ BEGIN DELETE FROM collected_classification_content_relations WHERE content_id = ANY (content_ids); WITH direct_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", classification_groups.classification_alias_id "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL WHERE things.id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids) ), full_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", UNNEST(classification_alias_paths.full_path_ids) "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id WHERE things.id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids)) INSERT INTO collected_classification_content_relations (content_id, direct_classification_alias_ids, full_classification_alias_ids) SELECT things.id "content_id", direct_content_classification_ids "direct_classification_alias_ids", full_content_classification_ids "full_classification_alias_ids" FROM things JOIN ( SELECT thing_id, ARRAY_AGG(direct_classification_content_relations.classification_alias_id) "direct_content_classification_ids" FROM direct_classification_content_relations GROUP BY thing_id) "direct_relations" ON direct_relations.thing_id = things.id JOIN ( SELECT thing_id, ARRAY_AGG(full_classification_content_relations.classification_alias_id) "full_content_classification_ids" FROM full_classification_content_relations GROUP BY thing_id) "full_relations" ON full_relations.thing_id = things.id; RETURN content_ids; END; $$;
+    AS $$ BEGIN DELETE FROM collected_classification_content_relations WHERE content_id IN ( SELECT cccr.content_id FROM collected_classification_content_relations cccr WHERE cccr.content_id = ANY (content_ids) FOR UPDATE SKIP LOCKED ); WITH direct_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", classification_groups.classification_alias_id "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL WHERE things.id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids) ), full_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", UNNEST(classification_alias_paths.full_path_ids) "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id WHERE things.id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids)) INSERT INTO collected_classification_content_relations (content_id, direct_classification_alias_ids, full_classification_alias_ids) SELECT things.id "content_id", direct_content_classification_ids "direct_classification_alias_ids", full_content_classification_ids "full_classification_alias_ids" FROM things JOIN ( SELECT thing_id, ARRAY_AGG(direct_classification_content_relations.classification_alias_id) "direct_content_classification_ids" FROM direct_classification_content_relations GROUP BY thing_id) "direct_relations" ON direct_relations.thing_id = things.id JOIN ( SELECT thing_id, ARRAY_AGG(full_classification_content_relations.classification_alias_id) "full_content_classification_ids" FROM full_classification_content_relations GROUP BY thing_id) "full_relations" ON full_relations.thing_id = things.id; RETURN content_ids; END; $$;
 
 
 --
@@ -618,8 +618,8 @@ CREATE TABLE public.classification_contents (
     content_data_id uuid,
     classification_id uuid,
     seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
+    updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     relation character varying
 );
 
@@ -680,8 +680,8 @@ CREATE TABLE public.classification_content_histories (
     content_data_history_id uuid,
     classification_id uuid,
     seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
+    updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     relation character varying
 );
 
@@ -890,8 +890,8 @@ CREATE TABLE public.content_content_histories (
     content_b_history_id uuid,
     content_b_history_type character varying,
     history_valid tstzrange,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
+    updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     order_a integer,
     relation_b character varying
 );
@@ -916,8 +916,8 @@ CREATE TABLE public.content_contents (
     content_a_id uuid,
     relation_a character varying,
     content_b_id uuid,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
+    updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     order_a integer,
     relation_b character varying
 );
@@ -1866,6 +1866,13 @@ ALTER TABLE ONLY public.watch_list_shares
 
 ALTER TABLE ONLY public.watch_lists
     ADD CONSTRAINT watch_lists_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: activities_data_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX activities_data_id_idx ON public.activities USING btree (((data ->> 'id'::text)));
 
 
 --
@@ -2898,6 +2905,13 @@ CREATE UNIQUE INDEX unique_duplicate_index ON public.thing_duplicates USING btre
 
 
 --
+-- Name: unique_thing_duplicate_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX unique_thing_duplicate_idx ON public.thing_duplicates USING btree (LEAST(thing_id, thing_duplicate_id), GREATEST(thing_id, thing_duplicate_id));
+
+
+--
 -- Name: user_group_users_on_user_id_user_group_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3514,6 +3528,12 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220615085015'),
 ('20220615104611'),
 ('20220617113231'),
-('20220715173507');
+('20220715173507'),
+('20220905101007'),
+('20220914090315'),
+('20220915081205'),
+('20220919112419'),
+('20220920083836'),
+('20220922061116');
 
 

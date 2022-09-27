@@ -46,7 +46,8 @@ module DataCycleCore
         ALTER TABLE classification_groups #{non_transitive_triggers} TRIGGER update_collected_classification_content_relations_trigger_4;
       SQL
 
-      DataCycleCore::RunTaskJob.set(queue: 'default').perform_later('db:configure:rebuild_ccc_relations')
+      DataCycleCore::RunTaskJob.perform_later(DataCycleCore.transitive_classification_paths ? 'db:configure:rebuild_cap_transitive' : 'db:configure:rebuild_ca_paths')
+      DataCycleCore::RunTaskJob.perform_later('db:configure:rebuild_ccc_relations')
     rescue ActiveRecord::NoDatabaseError
       nil
     end

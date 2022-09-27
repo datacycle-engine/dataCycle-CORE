@@ -39,7 +39,7 @@ module DataCycleCore
       def self.validate(data_hash)
         validation_hash = data_hash.deep_symbolize_keys
         validate_header = ExternalSystemHeaderContract.new
-        errors = validate_header.call(validation_hash).errors.to_h || {}
+        errors = {}.merge!(validate_header.call(validation_hash).errors.to_h)
         errors[:import_config] = {}
         errors[:download_config] = {}
 

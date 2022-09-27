@@ -1,7 +1,7 @@
 import pick from 'lodash/pick';
 import isEmpty from 'lodash/isEmpty';
 
-import maplibregl from 'maplibre-gl/dist/maplibre-gl';
+const MaplibreGl = () => import('maplibre-gl/dist/maplibre-gl').then(mod => mod.default);
 
 const iconPaths = {
   start:
@@ -13,6 +13,7 @@ class MapLibreGlViewer {
     this.$container = $(container);
     this.$parentContainer = this.$container.parent('.geographic');
     this.containerId = this.$container.attr('id');
+    this.maplibreGl;
     this.map;
     this.value = this.$container.data('value');
     this.beforeValue = this.$container.data('before-position');
@@ -56,8 +57,9 @@ class MapLibreGlViewer {
     this.allRenderedLayers = [];
     this.hoveredStateId = {};
   }
-  setup() {
+  async setup() {
     try {
+      this.maplibreGl = await MaplibreGl();
       this.initMap();
       this.map.on('load', this.configureMap.bind(this));
     } catch (error) {
@@ -65,23 +67,26 @@ class MapLibreGlViewer {
     }
   }
   initMap() {
-    this.map = new maplibregl.Map({
-      container: this.containerId,
-      style: this.mapBaseLayer(),
-      center: this.defaultCenter(),
-      zoom: this.defaultZoom(),
-      transformRequest: (url, resourceType) => {
-        if (url.includes('tiles.pixelmap.at/')) {
-          return {
-            headers: {
-              Authorization: `Bearer ${this.credentials.api_key}`
-            },
-            url: url
-          };
-        }
-        return;
-      }
-    });
+    this.map = new this.maplibreGl.Map(
+      Object.assign(
+        {
+          container: this.containerId,
+          style: this.mapBaseLayer(),
+          transformRequest: (url, _resourceType) => {
+            if (url.includes('tiles.pixelmap.at/')) {
+              return {
+                headers: {
+                  Authorization: `Bearer ${this.credentials.api_key}`
+                },
+                url: url
+              };
+            }
+            return;
+          }
+        },
+        this.defaultView()
+      )
+    );
   }
   configureMap() {
     this.initControls();
@@ -191,14 +196,17 @@ class MapLibreGlViewer {
       ]
     };
   }
-  defaultCenter() {
+  defaultView() {
+    const viewOptions = {
+      zoom: 7,
+      center: [13.34576, 47.69642]
+    };
+
+    if (this.defaultPosition && this.defaultPosition.zoom) viewOptions.zoom = this.defaultPosition.zoom;
     if (this.defaultPosition && this.defaultPosition.longitude && this.defaultPosition.latitude)
-      return [this.defaultPosition.longitude, this.defaultPosition.latitude];
-    else return [13.34576, 47.69642];
-  }
-  defaultZoom() {
-    if (this.defaultPosition && this.defaultPosition.zoom) return this.defaultPosition.zoom;
-    else return 7;
+      viewOptions.center = [this.defaultPosition.longitude, this.defaultPosition.latitude];
+
+    return viewOptions;
   }
   setZoomMethod() {
     const platform = window.navigator.platform;
@@ -380,7 +388,7 @@ class MapLibreGlViewer {
     return layerId;
   }
   _addPopup() {
-    const popup = new maplibregl.Popup({
+    const popup = new this.maplibreGl.Popup({
       closeButton: false,
       closeOnClick: false,
       className: 'additional-feature-popup'
@@ -450,8 +458,8 @@ class MapLibreGlViewer {
     });
   }
   initControls() {
-    this.map.addControl(new maplibregl.NavigationControl(), 'top-left');
-    this.map.addControl(new maplibregl.FullscreenControl(), 'top-right');
+    this.map.addControl(new this.maplibreGl.NavigationControl(), 'top-left');
+    this.map.addControl(new this.maplibreGl.FullscreenControl(), 'top-right');
   }
   initMouseWheelZoom() {
     this.map.scrollZoom.disable();
@@ -506,7 +514,7 @@ class MapLibreGlViewer {
     });
   }
   updateMapPosition() {
-    let bounds = new maplibregl.LngLatBounds();
+    let bounds = new this.maplibreGl.LngLatBounds();
 
     if (this.feature) bounds.extend(this.getBoundsForGeojson(this.feature));
 
@@ -523,9 +531,9 @@ class MapLibreGlViewer {
     });
   }
   getBoundsForGeojson(geoJson) {
-    const bounds = new maplibregl.LngLatBounds();
+    const bounds = new this.maplibreGl.LngLatBounds();
 
-    if (geoJson.hasOwnProperty('features')) {
+    if (geoJson.hasOwnProperty('features') && geoJson.features) {
       for (const feature of geoJson.features) {
         if (!feature || !feature.geometry) continue;
 
@@ -534,13 +542,16 @@ class MapLibreGlViewer {
     } else {
       return this.addBoundsForFeature(bounds, geoJson);
     }
+
     return bounds;
   }
   addBoundsForFeature(bounds, feature) {
-    if (feature.geometry.type === 'Point') bounds.extend(feature.geometry.coordinates);
-    else if (feature.geometry.type === 'MultiLineString') {
-      for (const lineStrings of feature.geometry.coordinates) {
-        for (const coords of lineStrings) bounds.extend([coords[0], coords[1]]);
+    if (feature.hasOwnProperty('geometry')) {
+      if (feature.geometry.type === 'Point') bounds.extend(feature.geometry.coordinates);
+      else if (feature.geometry.type === 'MultiLineString') {
+        for (const lineStrings of feature.geometry.coordinates) {
+          for (const coords of lineStrings) bounds.extend([coords[0], coords[1]]);
+        }
       }
     }
     return bounds;

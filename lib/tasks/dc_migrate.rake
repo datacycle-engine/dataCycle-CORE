@@ -1,47 +1,82 @@
 # frozen_string_literal: true
 
-def find_or_create_content(external_source: nil, external_key: nil, template_name: nil, data: nil)
-  content = DataCycleCore::Thing.where(template_name: template_name,
-                                       external_source_id: external_source.id, external_key: external_key).first
-
-  unless content
-    content = DataCycleCore::Thing.find_by!(template_name: template_name, template: true).dup
-
-    content.template = false
-    content.created_at = Time.zone.now
-    content.updated_at = content.created_at
-    content.created_by = nil
-    content.external_source_id = external_source.id
-    content.external_key = external_key
-    content.save!(touch: false)
-
-    content.set_data_hash(data_hash: data, new_content: true)
-  end
-
-  content
-end
+require 'rake_helpers/content_helper'
 
 namespace :dc do
   namespace :migrate do
     desc 'move external_source_id and external_key from things to external_system_syncs'
-    task :external_source_to_system, [:external_system_id] => :environment do |_, args|
-      external_system_id = args[:external_system_id]
+    task :external_source_to_system, [:external_system_or_stored_filter_id] => :environment do |_, args|
+      external_system_or_stored_filter_id = args.external_system_or_stored_filter_id
 
-      abort('External System Id missing!') if external_system_id.blank?
+      abort('ExternalSystem- or StoredFilter-Id missing!') if external_system_or_stored_filter_id.blank?
 
-      contents = DataCycleCore::Thing.where(external_source_id: external_system_id)
+      stored_filter = DataCycleCore::StoredFilter.find_by(id: external_system_or_stored_filter_id)
+      external_system = DataCycleCore::ExternalSystem.find_by(id: external_system_or_stored_filter_id)
+
+      abort('ExternalSystem or StoredFilter not found!') if stored_filter.nil? && external_system.nil?
+
+      stored_filter = DataCycleCore::StoredFilter.new if stored_filter.nil?
+      query = stored_filter.apply(skip_ordering: true)
+      query = query.external_system(external_system.id, 'import') if external_system.present?
+
+      raw_sql = <<-SQL.squish
+        WITH RECURSIVE
+          content_dependencies AS (
+            SELECT
+              t.id
+            FROM
+              things AS t
+            WHERE
+              t.id IN (#{query.query.except(:order).select(:id).to_sql})
+              AND t.content_type != 'embedded'
+            UNION
+            SELECT
+              t.id
+            FROM
+              content_dependencies,
+              content_content_links
+              JOIN things AS t ON t.id = content_content_links.content_b_id
+              AND t.content_type = 'embedded'
+            WHERE
+              content_content_links.content_a_id = content_dependencies.id
+          )
+        SELECT
+          id
+        FROM
+          content_dependencies
+      SQL
+
+      embeddeds = DataCycleCore::Thing.where("things.id IN (#{raw_sql})").where(content_type: 'embedded')
+      progressbar1 = ProgressBar.create(total: embeddeds.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: embeddeds')
+
+      embeddeds.each do |embedded|
+        embedded.external_source_to_external_system_syncs
+
+        progressbar1.increment
+      end
+
+      contents = query.query.except(:order)
+
+      schedules = DataCycleCore::Schedule.where(thing_id: contents.select(:id))
+      puts "MIGRATING: schedules (#{schedules.size})..."
+      schedules.update_all(external_source_id: nil, external_key: nil)
 
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: things')
 
-      contents.find_each do |content|
+      contents.each do |content|
         content.external_source_to_external_system_syncs
 
         progressbar.increment
       end
 
-      schedules = DataCycleCore::Schedule.where(external_source_id: external_system_id)
-      puts "MIGRATING: schedules (#{schedules.size})..."
-      schedules.update_all(external_source_id: nil, external_key: nil)
+      puts 'MIGRATION SUCCESSFUL'
+    end
+
+    desc 'move external_source_id and external_key from things to external_system_syncs'
+    task :remove_external_source_from_classifications, [:external_system_id] => :environment do |_, args|
+      external_system_id = args.external_system_id
+
+      abort('ExternalSystemId missing!') if external_system_id.blank?
 
       classifications = DataCycleCore::Classification.where(external_source_id: external_system_id)
       puts "MIGRATING: classifications (#{classifications.size})..."
@@ -322,13 +357,94 @@ namespace :dc do
     task :external_to_univeral_classifications, [:stored_filter] => :environment do |_, args|
       contents = DataCycleCore::Thing.where(id: DataCycleCore::StoredFilter.find(args[:stored_filter]).apply.select(:id))
 
-      DataCycleCore::ClassificationContent.joins(:classification)
-        .where(content_data_id: contents.select(:id))
-        .where.not(relation: 'universal_classifications', classifications: { external_source_id: nil }).each do |relation|
-          relation.update!(relation: 'universal_classifications')
-      rescue ActiveRecord::RecordNotUnique
-        relation.destroy!
-        end
+      ActiveRecord::Base.connection.execute <<-SQL.squish
+        INSERT INTO
+          classification_contents (
+            content_data_id,
+            classification_id,
+            seen_at,
+            created_at,
+            updated_at,
+            relation
+          )
+        SELECT
+          cc.content_data_id,
+          cc.classification_id,
+          cc.seen_at,
+          cc.created_at,
+          cc.updated_at,
+          'universal_classifications'
+        FROM
+          classification_contents cc
+          INNER JOIN classifications ON classifications.deleted_at IS NULL
+          AND classifications.id = cc.classification_id
+        WHERE
+          cc.content_data_id IN (#{contents.select(:id).to_sql})
+          AND cc.relation != 'universal_classifications'
+          AND classifications.external_source_id IS NOT NULL ON CONFLICT
+        DO
+          NOTHING;
+
+        DELETE FROM
+          classification_contents
+        WHERE
+          classification_contents.id IN (
+            SELECT
+              classification_contents.id
+            FROM
+              classification_contents
+              INNER JOIN classifications ON classifications.deleted_at IS NULL
+              AND classifications.id = classification_contents.classification_id
+            WHERE
+              classification_contents.content_data_id IN (#{contents.select(:id).to_sql})
+              AND classification_contents.relation != 'universal_classifications'
+              AND classifications.external_source_id IS NOT NULL
+          );
+      SQL
+    end
+
+    task :universal_to_attribute_classifications, [:stored_filter_id, :tree_name, :attribute_key] => :environment do |_, args|
+      abort('missing stored_filter_id') if args.stored_filter_id.blank?
+      abort('missing attribute_key') if args.attribute_key.blank?
+
+      tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: args.tree_name)
+
+      abort('missing tree_label') if tree_label.nil?
+
+      contents = DataCycleCore::StoredFilter.find(args.stored_filter_id).apply.query
+
+      query = DataCycleCore::ClassificationContent
+        .joins(classification: [primary_classification_alias: :classification_tree_label])
+        .where(
+          content_data_id: contents.select(:id),
+          relation: 'universal_classifications',
+          classifications: { primary_classification_aliases: { classification_tree_labels: { id: tree_label.id } } }
+        )
+
+      raw_query = <<-SQL.squish
+        UPDATE
+          classification_contents
+        SET
+          relation = :relation
+        WHERE
+          classification_contents.id IN (#{query.select(:id).to_sql})
+          AND NOT EXISTS (
+            SELECT
+              1
+            FROM
+              classification_contents c1
+            WHERE
+              classification_contents.content_data_id = c1.content_data_id
+              AND classification_contents.classification_id = c1.classification_id
+              AND c1.relation = :relation
+          );
+      SQL
+
+      ActiveRecord::Base.connection.execute(
+        ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query, relation: args.attribute_key])
+      )
+
+      query.delete_all
     end
 
     task :pull_classifications_from_embedded, [:stored_filter, :embedded, :source_relation, :target_relation] => :environment do |_, args|
@@ -336,7 +452,7 @@ namespace :dc do
 
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING')
 
-      contents.map do |thing|
+      contents.each do |thing|
         embedded_contents = DataCycleCore::ContentContent.where(content_a: thing.id, relation_a: args[:embedded])
 
         DataCycleCore::ClassificationContent
@@ -347,20 +463,19 @@ namespace :dc do
       end
     end
 
-    task :outdooractive_tours, [:stored_filter] => :environment do |_, args|
-      contents = DataCycleCore::Thing.joins(:external_source)
-        .where(template_name: 'Tour', external_systems: { identifier: 'outdooractive' })
+    task :tours, [:stored_filter] => :environment do |_, args|
+      contents = DataCycleCore::Thing.where(template_name: 'Tour')
 
       contents = contents.where(id: DataCycleCore::StoredFilter.find(args[:stored_filter]).apply.select(:id)) if args[:stored_filter]
 
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING')
 
-      contents.includes(:translations).map do |content|
+      contents.includes(:translations).each do |content|
         translation = content.translations.first
 
-        if translation.content['author']
+        if translation&.content&.dig('author')
           author = I18n.with_locale(translation.locale) do
-            find_or_create_content(
+            ContentHelper.find_or_create_content(
               external_source: content.external_source,
               external_key: Digest::MD5.hexdigest(translation.content['author']),
               template_name: 'Organization',
@@ -370,7 +485,7 @@ namespace :dc do
         end
 
         publishers = content.classifications_for_tree(tree_name: 'OutdoorActive - Quellen').map do |classification|
-          find_or_create_content(
+          ContentHelper.find_or_create_content(
             external_source: content.external_source,
             external_key: Digest::MD5.hexdigest(classification.name),
             template_name: 'Organization',
@@ -402,7 +517,7 @@ namespace :dc do
                             end
         }
 
-        unless content.set_data_hash(data_hash: data, partial_update: true)
+        unless content.set_data_hash(data_hash: data)
           puts "Cannot migrate ##{content.id}:"
           puts content.errors.full_messages.map { |m| "  #{m}" }.join("\n")
           puts
@@ -413,7 +528,9 @@ namespace :dc do
         content.additional_information.select { |c| c.name == I18n.t('import.outdoor_active.tour.description') }.each(&:destroy!)
 
         DataCycleCore::ContentContent.where(content_a: content.id, relation_a: 'aggregate_rating').map(&:content_b).each do |rating|
-          rating_key = rating.external_key.split(' - ')[1]
+          rating_key = [
+            'technique_rating', 'condition_rating', 'experience_rating', 'landscape_rating', 'difficulty_rating'
+          ].find { |k| rating.name == I18n.t('import.outdoor_active.ratings.' + k, default: k) }
 
           next unless rating_key
 

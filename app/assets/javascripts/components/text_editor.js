@@ -155,7 +155,7 @@ class TextEditor {
     }
   }
   addEventHandlers() {
-    this.editor.on('selection-change', this.updateEditorHander.bind(this));
+    this.editor.on('selection-change', this.updateEditorHandler.bind(this));
     $(this.editor.container).closest('form').on('reset', this.resetEditor.bind(this));
     $(this.editor.container).on('dc:import:data', this.importData.bind(this)).addClass('dc-import-data');
   }
@@ -172,10 +172,10 @@ class TextEditor {
   }
   resetEditor(_event) {
     this.editor.clipboard.dangerouslyPasteHTML(this.editor.container.dataset.defaultValue || '');
-    quillHelpers.updateEditors(this.editor.container);
+    quillHelpers.updateEditors(this.editor.container, true);
   }
-  updateEditorHander(range, _oldRange, _source) {
-    if (range == null) quillHelpers.updateEditors(this.editor.container);
+  updateEditorHandler(range, _oldRange, _source) {
+    if (range == null) quillHelpers.updateEditors(this.editor.container, true);
   }
   removeInitialExtraLines() {
     let length = this.editor.getLength();

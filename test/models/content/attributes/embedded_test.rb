@@ -42,7 +42,7 @@ module DataCycleCore
             expected_hash['embedded_creative_work'].first.except('linked_place'),
             returned_data_hash['embedded_creative_work'].first.except('linked_place', *DataCycleCore::TestPreparations.excepted_attributes)
           )
-          assert_equal([linked_id], returned_data_hash['embedded_creative_work'].first['linked_place']&.ids)
+          assert_equal([linked_id], returned_data_hash['embedded_creative_work'].first['linked_place'])
 
           # check consistency of data in DB
           assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Creative-Work-2').count)
@@ -108,7 +108,7 @@ module DataCycleCore
             expected_hash['embedded_creative_work'].first.except('linked_place'),
             returned_data_hash['embedded_creative_work'].first.except('linked_place', *DataCycleCore::TestPreparations.excepted_attributes)
           )
-          assert_equal([linked_id], returned_data_hash['embedded_creative_work'].first['linked_place'].ids)
+          assert_equal([linked_id], returned_data_hash['embedded_creative_work'].first['linked_place'])
 
           # check consistency of data in DB
           assert_equal(4, DataCycleCore::Thing.where(template: false).count)

@@ -8,11 +8,8 @@ namespace :dc do
     task :computed_attributes, [:template_name, :webhooks, :computed_name, :dry_run] => [:environment] do |_, args|
       dry_run = args.fetch(:dry_run, false)
       webhooks = args.fetch(:webhooks, 'true').to_s
-      template_name = args.fetch(:template_name, false).to_s
-      template_names = template_name.present? && template_name != 'false' ? template_name.split('|') : false
-      computed_name = args.fetch(:computed_name, false).to_s
-      computed_names = computed_name.present? && computed_name != 'false' ? computed_name.split('|') : false
-
+      template_names = args.fetch(:template_name, false).to_s.then { |t| t.present? && t != 'false' ? t.split('|') : false }
+      computed_names = args.fetch(:computed_name, false).to_s.then { |c| c.present? && c != 'false' ? c.split('|') : false }
       selected_things = DataCycleCore::Thing.where(template: true)
       selected_things = selected_things.where(template_name: template_names) if template_names.present?
 
@@ -23,32 +20,36 @@ namespace :dc do
         items = DataCycleCore::Thing.where(template: false, template_name: template.template_name)
         translated_computed = (template.computed_property_names & template.translatable_property_names).present?
         keys_for_data_hash = template.property_names.difference(template.computed_property_names)
-        keys_for_data_hash = keys_for_data_hash.intersection(template.property_definitions.slice(*computed_names).values.map { |d| d.dig('compute', 'parameters') }.flatten.map { |p| p.split('.').first }.uniq.compact) if computed_names.present?
+
+        if computed_names.present?
+          computed_keys = template.property_definitions.slice(*computed_names).values.map! { |d| d.dig('compute', 'parameters') }.tap(&:flatten!).tap(&:compact!).map! { |p| p.split('.').first }.tap(&:uniq!)
+          keys_for_data_hash = keys_for_data_hash.intersection(computed_keys)
+        end
 
         progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
 
+        update_proc = lambda { |content|
+          computed_hash = content.get_data_hash_partial(keys_for_data_hash)
+          content.add_computed_values(data_hash: computed_hash)
+          content.set_data_hash(data_hash: computed_hash, update_computed: false)
+        }
+
         items.find_each do |item|
-          next if dry_run
+          next progressbar.increment if dry_run
 
           item.prevent_webhooks = true if webhooks == 'false'
 
           if translated_computed
             item.available_locales.each do |locale|
-              I18n.with_locale(locale) do
-                item.set_data_hash(data_hash: item.get_data_hash_partial(keys_for_data_hash))
-              end
+              I18n.with_locale(locale) { update_proc.call(item) }
             end
           else
-            I18n.with_locale(item.first_available_locale) do
-              item.set_data_hash(data_hash: item.get_data_hash_partial(keys_for_data_hash))
-            end
+            I18n.with_locale(item.first_available_locale) { update_proc.call(item) }
           end
-
-          progressbar.increment
         rescue StandardError => e
-          progressbar.increment
-
           puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
+        ensure
+          progressbar.increment
         end
       end
 

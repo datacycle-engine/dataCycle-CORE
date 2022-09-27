@@ -43,15 +43,15 @@ module DataCycleCore
     end
 
     def self.things
-      DataCycleCore::Thing.includes(:classifications).where(classifications: { id: all })
+      DataCycleCore::Thing.includes(:classifications).where(classifications: { id: all.select(:id) })
     end
 
     def self.classification_aliases
-      DataCycleCore::ClassificationAlias.includes(:classifications).where(classifications: { id: all })
+      DataCycleCore::ClassificationAlias.includes(:classifications).where(classifications: { id: all.select(:id) })
     end
 
     def self.primary_classification_aliases
-      DataCycleCore::ClassificationAlias.includes(:primary_classification).where(classifications: { id: all })
+      DataCycleCore::ClassificationAlias.includes(:primary_classification).where(classifications: { id: all.select(:id) })
     end
 
     def ancestors

@@ -18,12 +18,6 @@ module DataCycleCore
         hash&.map { |directory, templates| { directory => templates.map { |template, file_list| { template => file_list.map { |item| item.dig(:file) } } } } } || {}
       end
 
-      def self.import_template_list(template_paths: nil)
-        template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
-        import_hash, _duplicates = check_for_duplicates(template_paths, CONTENT_SETS)
-        import_hash.map { |_key, value| value }.reduce([], :+).pluck(:name).uniq.sort
-      end
-
       def self.check_for_duplicates(template_paths, content_sets)
         import_list = {}
         collisions = {}
@@ -100,8 +94,10 @@ module DataCycleCore
       end
 
       def self.transform_features(schema: {}, content_set: nil)
-        return schema[:features].deep_merge(DataCycleCore.main_config.dig(:templates, content_set.to_sym, schema.dig(:name).to_sym, :features)&.deep_symbolize_keys) if DataCycleCore.main_config.dig(:templates, content_set.to_sym, schema.dig(:name).to_sym, :features).present?
-        schema.dig(:features) || {}
+        schema[:features] ||= {}
+        schema[:features].deep_merge!(DataCycleCore.main_config.dig(:templates, content_set.to_sym, schema.dig(:name).to_sym, :features)&.deep_symbolize_keys) if DataCycleCore.main_config.dig(:templates, content_set.to_sym, schema.dig(:name).to_sym, :features).present?
+
+        schema[:features]
       end
 
       def self.transform_api_properties(schema: {}, content_set: nil)
@@ -186,7 +182,7 @@ module DataCycleCore
         errors = {}
         template[:properties].each do |property_name, property_definition|
           result_property = validate_property.call(property_definition)
-          error = result_property.errors.to_h
+          error = {}.merge!(result_property.errors.to_h)
           error.merge!(validate_properties(property_definition)) if property_definition.key?(:properties)
           errors[property_name] = error if error.present?
         end
@@ -214,7 +210,7 @@ module DataCycleCore
 
       class TemplatePropertyContract < DataCycleCore::MasterData::Contracts::GeneralContract
         schema do
-          required(:label) { str? }
+          optional(:label) { str? }
           required(:type) do
             str? & included_in?(
               ['key', 'string', 'text', 'number', 'boolean',
@@ -313,7 +309,7 @@ module DataCycleCore
             optional(:parameters) { array? }
           end
 
-          optional(:quality_score).hash do
+          optional(:content_score).hash do
             required(:module) { str? }
             required(:method) { str? }
             optional(:parameters) { array? }
@@ -348,10 +344,10 @@ module DataCycleCore
           key.failure(:invalid_virtual) unless "DataCycleCore::#{values.dig(:virtual, :module)}".classify.safe_constantize.respond_to?(values.dig(:virtual, :method))
         end
 
-        rule(:quality_score) do
+        rule(:content_score) do
           next unless key? && value.present?
 
-          key.failure(:invalid_quality_score) unless values.dig(:quality_score, :module)&.classify&.safe_constantize.respond_to?(values.dig(:quality_score, :method))
+          key.failure(:invalid_content_score) unless values.dig(:content_score, :module)&.classify&.safe_constantize.respond_to?(values.dig(:content_score, :method))
         end
 
         rule(:properties) do

@@ -23,6 +23,7 @@ module DataCycleCore
         origin_table = self.class.to_s.split('::')[1].tableize
         data_set_history = (self.class.to_s + '::History').safe_constantize.new
 
+        # cc self to history
         data_set_history.send(origin_table.singularize.foreign_key + '=', id)
 
         I18n.with_locale(last_updated_locale) do
@@ -50,15 +51,7 @@ module DataCycleCore
           data_set_history.updated_at = lower_bound
           data_set_history.save(touch: false)
 
-          classification_content.all.find_each do |item|
-            classification_history = DataCycleCore::ClassificationContent::History.new
-            classification_history.content_data_history_id = data_set_history.id
-            item.attributes.except(*CLASSIFICATION_CONTENT_HISTORY_ATTRIBUTE_EXCEPTIONS).each do |key, value|
-              classification_history.send("#{key}=", value)
-            end
-            classification_history.classification_id = item.classification_id
-            classification_history.save
-          end
+          data_set_history.classification_content_history.insert_all(classification_content.map { |cc| cc.attributes.except(*CLASSIFICATION_CONTENT_HISTORY_ATTRIBUTE_EXCEPTIONS) }) if classification_content.any?
 
           embedded_property_names.each do |content_name|
             load_embedded_objects(content_name, nil, !all_translations).each_with_index do |content_item, index|
@@ -77,17 +70,21 @@ module DataCycleCore
           linked_property_names.each do |content_name|
             properties = properties_for(content_name)
             next if properties.dig('link_direction') == 'inverse'
-            load_linked_objects(content_name).each_with_index do |content_item, index|
-              DataCycleCore::ContentContent::History.create!({
-                content_a_history_id: data_set_history.id,
-                relation_a: content_name,
-                order_a: index,
-                relation_b: properties.dig('inverse_of'),
-                content_b_history_id: content_item.id,
-                content_b_history_type: 'DataCycleCore::Thing',
-                history_valid: ((lower_bound || content_item.created_at)...)
-              })
-            end
+
+            next unless load_linked_objects(content_name).any?
+
+            data_set_history.content_content_a_history.insert_all(
+              load_linked_objects(content_name).map.with_index do |content_item, index|
+                {
+                  relation_a: content_name,
+                  order_a: index,
+                  relation_b: properties.dig('inverse_of'),
+                  content_b_history_id: content_item.id,
+                  content_b_history_type: 'DataCycleCore::Thing',
+                  history_valid: ((lower_bound || content_item.created_at)...)
+                }
+              end
+            )
           end
 
           schedule_property_names.each do |content_name|

@@ -1,5 +1,5 @@
 export default {
-  updateEditors: (container = document) => {
+  updateEditors: (container = document, triggerChangeEvent = false) => {
     $(container)
       .find('.quill-editor')
       .addBack('.quill-editor')
@@ -9,9 +9,8 @@ export default {
         if (text == '<p><br></p>') text = '';
         var changed = hidden_field.val() != text;
 
-        if (changed) {
-          $(hidden_field).val(text).trigger('change');
-        }
+        if (changed) $(hidden_field).val(text);
+        if (changed && triggerChangeEvent) $(hidden_field).trigger('change');
       });
   }
 };

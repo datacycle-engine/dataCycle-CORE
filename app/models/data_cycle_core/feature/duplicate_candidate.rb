@@ -44,9 +44,9 @@ module DataCycleCore
             template_name: content.template_name,
             name: content.name
           ).where.not(id: content.id)
-            .map { |d|
-              { content: d, method: 'only_title', score: 83 }
-            }.compact
+            .pluck(:id)
+            .map { |d| { thing_duplicate_id: d, method: 'only_title', score: 83 } }
+            .compact
         end
 
         def data_metric_hamming(content)
@@ -67,7 +67,7 @@ module DataCycleCore
             .map { |d|
               diff = content.diff(d.get_data_hash.except(*except), relevant_schema)
               score = [0, 100 * (total - diff.size * WEIGHTING) / total].max
-              { content: d, method: 'data_metric_hamming', score: score } if score > 80
+              { thing_duplicate_id: d.id, method: 'data_metric_hamming', score: score } if score > 80
             }.compact
         end
 
@@ -79,9 +79,9 @@ module DataCycleCore
           ).where( # prefilter location
             content.location.blank? ? 'location IS NULL' : "ST_DWithin(location, ST_GeographyFromText('SRID=4326;#{content.location&.to_s}'), #{DISTANCE_METERS_NAME_GEO})"
           ).where.not(id: content.id)
-            .map { |d|
-              { content: d, method: 'data_metric_hamming', score: 83 }
-            }.compact
+          .pluck(:id)
+          .map { |d| { thing_duplicate_id: d, method: 'data_metric_name_geo', score: 83 } }
+          .compact
         end
       end
     end

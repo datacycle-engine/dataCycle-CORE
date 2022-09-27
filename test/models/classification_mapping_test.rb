@@ -94,5 +94,24 @@ module DataCycleCore
       assert @classification_alias2.reload.destroyed?
       assert @classification_group2.reload.destroyed?
     end
+
+    test 'create mapping with create_mapping_for_path' do
+      assert_equal [@classification1.id].to_set, @classification_alias1.reload.classification_ids.to_set
+
+      @classification_alias1.create_mapping_for_path(@classification_alias2.full_path)
+
+      assert_equal [@classification1.id, @classification2.id].to_set, @classification_alias1.reload.classification_ids.to_set
+    end
+
+    test 'custom_find_by_full_path' do
+      assert_equal @classification_alias1.id, DataCycleCore::ClassificationAlias.custom_find_by_full_path(@classification_alias1.full_path)&.id
+      assert_equal @classification_alias1.id, DataCycleCore::ClassificationAlias.custom_find_by_full_path!(@classification_alias1.full_path)&.id
+
+      assert_nil DataCycleCore::ClassificationAlias.custom_find_by_full_path('NON > Existant > Path')
+
+      assert_raises ActiveRecord::RecordNotFound do
+        DataCycleCore::ClassificationAlias.custom_find_by_full_path!('NON > Existant > Path')
+      end
+    end
   end
 end

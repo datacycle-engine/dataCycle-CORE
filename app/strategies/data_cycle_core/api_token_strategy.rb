@@ -24,6 +24,7 @@ module DataCycleCore
 
       decoded = DataCycleCore::JsonWebToken.decode(token)
       user = DataCycleCore::User.find_with_token(decoded)
+      user&.token_issuer = DataCycleCore::Feature::UserApi.allowed_token_issuer(decoded)
 
       user.nil? ? fail!('invalid authentication token') : success!(user)
     rescue JSON::ParserError, JWT::DecodeError

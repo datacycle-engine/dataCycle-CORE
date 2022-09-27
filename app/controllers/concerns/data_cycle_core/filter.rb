@@ -141,7 +141,7 @@ module DataCycleCore
         @stored_filter = DataCycleCore::StoredFilter.find_by(id: endpoint_id)
 
         if @stored_filter
-          authorize! :api, @stored_filter
+          authorize! :api, @stored_filter unless any_authenticity_token_valid?
           @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
           @classification_trees_parameters |= Array.wrap(@stored_filter.classification_tree_labels)
           @classification_trees_filter = @classification_trees_parameters.present?

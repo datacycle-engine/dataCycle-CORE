@@ -199,13 +199,19 @@ module DataCycleCore
     end
 
     def download
-      params.permit(:classification_tree_label_id, :include_contents)
+      params.permit(:classification_tree_label_id, :include_contents, :for_mapping_import)
 
       object = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
 
       respond_to do |format|
         format.csv do
-          raw_csv = params[:include_contents] ? object.to_csv(include_contents: true) : object.to_csv
+          if params[:include_contents]
+            raw_csv = object.to_csv(include_contents: true)
+          elsif params[:for_mapping_import]
+            raw_csv = object.to_csv_for_mappings
+          else
+            raw_csv = object.to_csv
+          end
 
           send_data "sep=,\n" + raw_csv.encode('ISO-8859-1', invalid: :replace, undef: :replace),
                     type: 'text/csv; charset=iso-8859-1;',

@@ -138,7 +138,7 @@ module DataCycleCore
 
         @content = DataCycleCore::DataHashService.create_internal_object(params[:template], object_params, current_user, parent_params[:parent_id], source)
 
-        redirect_back(fallback_location: root_path) && return if @content.try(:errors).present?
+        redirect_back(fallback_location: root_path, alert: @content.errors.full_messages) && return if @content.try(:errors).present?
 
         respond_to do |format|
           if @content.present?
@@ -561,23 +561,26 @@ module DataCycleCore
       redirect_back(fallback_location: root_path, alert: I18n.t('content_external_data.duplicate_record_html', url: @existing ? thing_path(@existing) : nil, locale: helpers.active_ui_locale)) && return
     end
 
-    def quality_score
+    def content_score
       authorize! :show, DataCycleCore::Thing
 
-      content = DataCycleCore::Thing.find_by(id: quality_score_params[:id]) || DataCycleCore::Thing.find_by(template: true, template_name: quality_score_params[:template_name])
+      raise ActiveRecord::RecordNotFound unless DataCycleCore::Feature::ContentScore.enabled?
+
+      content = DataCycleCore::Thing.find_by(id: content_score_params[:id]) || DataCycleCore::Thing.find_by(template: true, template_name: content_score_params[:template_name])
 
       raise ActiveRecord::RecordNotFound if content.nil?
 
       object_params = content_params(content.template_name, params[:thing])
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, content.schema)
+
       _locale, values = datahash[:translations]&.first
       datahash = (datahash[:datahash] || {}).merge(values || {})
 
-      I18n.with_locale(quality_score_params[:locale]) do
+      I18n.with_locale(content_score_params[:locale]) do
         render(
           json: {
-            value: content.calculate_quality_score(
-              quality_score_params[:attribute_key],
+            value: content.calculate_content_score(
+              content_score_params[:attribute_key],
               datahash
             )
           }
@@ -587,7 +590,7 @@ module DataCycleCore
 
     private
 
-    def quality_score_params
+    def content_score_params
       params.permit(:id, :template_name, :attribute_key, :locale)
     end
 

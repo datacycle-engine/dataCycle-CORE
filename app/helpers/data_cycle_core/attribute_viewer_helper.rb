@@ -182,7 +182,6 @@ module DataCycleCore
         options.dig('class')
       ]
 
-      html_classes.push('dc-quality-score') if definition.key?('quality_score')
       html_classes.push(definition.dig('ui', 'show', 'type').underscore) if definition.dig('ui', 'show', 'type').present?
       html_classes.push(options.dig(:mode) || 'has-changes edit') if options.dig(:item_diff).present?
       html_classes.push('is-embedded-title') if parent&.embedded_title_property_name.present? && key.attribute_name_from_key == parent.embedded_title_property_name

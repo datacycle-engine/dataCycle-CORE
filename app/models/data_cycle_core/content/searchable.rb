@@ -20,7 +20,6 @@ module DataCycleCore
       end
 
       def with_default_data_type(classification_alias_names)
-        # Performance-Impact of 300ms * number of linked attributes in edit view
         template_types = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').where(internal_name: classification_alias_names).with_descendants.pluck(:internal_name)
 
         where("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_types)

@@ -45,7 +45,7 @@
         :advanced_search: true
         :default_value: 'false'
         :api:
-          :name: dcls:trailClosed
+          :name: dc:trailClosed
           :disabled: true
         :xml:
           :disabled: true
@@ -63,18 +63,7 @@
           :edit:
             :type: text_editor
             :options:
-              :data-size: basic
-        :advanced_search: true
-      :text:
-        :label: Beschreibung
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: basic
+              :data-size: full
         :advanced_search: true
       :additional_information:
         :label: Ergänzende Information
@@ -83,16 +72,6 @@
         :api:
           :v4:
             :name: dc:additionalInformation
-      :primary_image:
-        :label: Hauptbild
-        :type: linked
-        :template_name: Bild
-        :validations:
-          :max: 1
-        :api:
-          :minimal: true
-          :v4:
-            :name: photo
       :image:
         :label: Bilder
         :type: linked
@@ -110,7 +89,7 @@
         :type: linked
         :template_name: Video
         :api:
-          :name: dcls:video
+          :name: dc:video
           :minimal: true
           :disabled: true
         :xml:
@@ -125,7 +104,7 @@
         :type: linked
         :template_name: Audio
         :api:
-          :name: dcls:audioObject
+          :name: dc:audioObject
           :minimal: true
           :disabled: true
         :xml:
@@ -135,17 +114,9 @@
             :disabled: true
           :show:
             :disabled: true
-      :schedule:
-        :label: Season
-        :type: embedded
-        :template_name: Schedule
-        :translated: true
-      :outdoor_active:
-        :type: mixin
-        :name: outdoor_active
-      :outdoor_active_categories:
-        :type: mixin
-        :name: outdoor_active_categories
+      # :outdoor_active_categories:
+      #   :type: mixin
+      #   :name: outdoor_active_categories
       :location:
         :label: GPS-Startkoordinaten
         :type: geographic
@@ -158,30 +129,13 @@
       :geo_shape:
         :type: mixin
         :name: geo_shape
-      :poi:
-        :label: POIS
-        :type: linked
-        :template_name: POI
-        :inverse_of: tour
-      :odta_waypoint:
+      :waypoint:
         :label: POIs
         :type: linked
         :template_name: POI
-        :virtual:
-          :module: Utility::Virtual::Common
-          :method: copy_plain
-          :parameters:
-            - poi
+        :inverse_of: tour
         :api:
           :name: odta:wayPoint
-          :disabled: true
-        :xml:
-          :disabled: true
-        :ui:
-          :edit:
-            :disabled: true
-          :show:
-            :disabled: true
       :geo_contains:
         :type: mixin
         :name: geo_contains
@@ -223,215 +177,75 @@
                 - POI
         :xml:
           :disabled: true
-      :directions_public_transport:
-        :label: Anfahrt mit öffentlichen Verkehrsmitteln
-        :type: string
-        :storage_location: translated_value
-        :search: true
-      :instructions:
-        :label: Wegbeschreibung
-        :type: string
-        :storage_location: translated_value
-        :search: true
-      :safety_instructions:
-        :label: Sicherheitshinweis
-        :type: string
-        :storage_location: translated_value
-        :search: true
-      :equipment:
-        :label: Ausrüstung
-        :type: string
-        :storage_location: translated_value
-        :search: true
-      :suggestion:
-        :label: Tipps
-        :type: string
-        :storage_location: translated_value
-        :search: true
-      :maps:
-        :label: Literatur
-        :type: string
-        :storage_location: translated_value
-        :search: true
-      # :additional_information:
-      #   :label: Zusatzinformation
-      #   :type: string
-      #   :storage_location: translated_value
-      #   :search: true
       :ascent:
         :label: Aufstieg (m)
         :type: number
         :storage_location: value
+        :api:
+          :name: dc:ascent
         :ui:
           :attribute_group:
             - key_figures_container_collapsible
             - key_figures_second_line_one_line
-      :dcls_ascent:
-        :label: Aufstieg (m)
-        :type: number
-        :storage_location: value
-        :virtual:
-          :module: Utility::Virtual::Common
-          :method: copy_plain
-          :parameters:
-            - ascent
-        :api:
-          :name: dcls:ascent
-        :ui:
-          :edit:
-            :disabled: true
-          :show:
-            :disabled: true
       :descent:
         :label: Abstieg (m)
         :type: number
         :storage_location: value
+        :api:
+          :name: dc:descent
         :ui:
           :attribute_group:
             - key_figures_container_collapsible
             - key_figures_second_line_one_line
-      :dcls_descent:
-        :label: Abstieg (m)
-        :type: number
-        :storage_location: value
-        :virtual:
-          :module: Utility::Virtual::Common
-          :method: copy_plain
-          :parameters:
-            - descent
-        :api:
-          :name: dcls:descent
-        :ui:
-          :edit:
-            :disabled: true
-          :show:
-            :disabled: true
       :min_altitude:
         :label: Minimale Seehöhe (m)
         :type: number
         :storage_location: value
+        :api:
+          :name: dc:minAltitude
         :ui:
           :attribute_group:
             - key_figures_container_collapsible
             - key_figures_second_line_one_line
-      :dcls_min_altitude:
-        :label: Minimale Seehöhe (m)
-        :type: number
-        :storage_location: value
-        :virtual:
-          :module: Utility::Virtual::Common
-          :method: copy_plain
-          :parameters:
-            - min_altitude
-        :api:
-          :name: dcls:minAltitude
-        :ui:
-          :edit:
-            :disabled: true
-          :show:
-            :disabled: true
       :max_altitude:
         :label: Maximale Seehöhe (m)
         :type: number
         :storage_location: value
+        :api:
+          :name: dc:maxAltitude
         :ui:
           :attribute_group:
             - key_figures_container_collapsible
             - key_figures_second_line_one_line
-      :dcls_max_altitude:
-        :label: Maximale Seehöhe (m)
-        :type: number
-        :storage_location: value
-        :virtual:
-          :module: Utility::Virtual::Common
-          :method: copy_plain
-          :parameters:
-            - max_altitude
-        :api:
-          :name: dcls:maxAltitude
-        :ui:
-          :edit:
-            :disabled: true
-          :show:
-            :disabled: true
       :length:
         :label: Länge (m)
         :type: number
         :storage_location: value
+        :api:
+          :name: dc:length
         :ui:
           :attribute_group:
             - key_figures_container_collapsible
             - key_figures_first_line_one_line
-      :dcls_length:
-        :label: Länge (m)
-        :type: number
-        :storage_location: value
-        :virtual:
-          :module: Utility::Virtual::Common
-          :method: copy_plain
-          :parameters:
-            - length
-        :api:
-          :name: dcls:length
-        :ui:
-          :edit:
-            :disabled: true
-          :show:
-            :disabled: true
       :duration:
         :label: Dauer (min)
         :type: number
         :storage_location: value
+        :api:
+          :name: dc:duration
         :ui:
           :attribute_group:
             - key_figures_container_collapsible
             - key_figures_first_line_one_line
-      :dcls_duration:
-        :label: Dauer (min)
-        :type: number
-        :storage_location: value
-        :virtual:
-          :module: Utility::Virtual::Common
-          :method: copy_plain
-          :parameters:
-            - duration
-        :api:
-          :name: dcls:duration
-        :ui:
-          :edit:
-            :disabled: true
-          :show:
-            :disabled: true
-      :condition_rating:
-        :label: Bewertung - Kondition
-        :type: number
-        :storage_location: value
-      :difficulty_rating:
-        :label: Bewertung - Schwierigkeit
-        :type: number
-        :storage_location: value
-      :experience_rating:
-        :label: Bewertung - Erlebnis
-        :type: number
-        :storage_location: value
-      :landscape_rating:
-        :label: Bewertung - Landschaft
-        :type: number
-        :storage_location: value
-      :technique_rating:
-        :label: Bewertung - Technik
-        :type: number
-        :storage_location: value
       :opening_hours_specification:
         :type: mixin
         :name: opening_hours_specification
       :season:
-        :label: Empfohlene Jahreszeiten
+        :label: Empfohlene Jahreszeit
         :type: classification
         :tree_label: Jahreszeiten
         :ui:
           :show:
-            :content_area: header
             :disabled: true
           :edit:
             :disabled: true
@@ -458,15 +272,6 @@
         :label: Tourenbewertung
         :type: embedded
         :template_name: Tourenbewertung
-        :api:
-          :disabled: true
-        :xml:
-          :disabled: true
-        :ui:
-          :edit:
-            :disabled: true
-          :show:
-            :disabled: true
       :potential_actions:
         :type: mixin
         :name: potential_actions
@@ -484,6 +289,31 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: 'Tour'
+      :author:
+        :label: Autor
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+
+        :ui:
+          :attribute_group:
+            - copyright_attributes_one_line
+      :sd_publisher:
+        :label: Inhaber / Herausgeber
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+        :ui:
+          :attribute_group:
+            - copyright_attributes_one_line
       :copyright_attributes:
         :type: mixin
         :name: copyright_attributes
@@ -499,3 +329,6 @@
       :additional_tour_properties:
         :type: mixin
         :name: additional_tour_properties
+      :legacy_tour_properties:
+        :type: mixin
+        :name: legacy_tour_properties

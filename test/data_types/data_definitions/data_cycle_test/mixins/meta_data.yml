@@ -4,7 +4,6 @@
     :type: mixin
     :properties:
       :universal_classifications:
-        :label: Classifications
         :type: classification
         :external: true
         :universal: true
@@ -89,15 +88,20 @@
         :type: number
         :storage_location: translated_value
         :advanced_search: true
+        :compute:
+          :module: Utility::Compute::ContentScore
+          :method: calculate_from_feature
         :xml:
           disabled: true
         :api:
           :disabled: true
-          :partial: property_value
-          :type: PropertyValue
-          :transformation:
-            :method: append
-            :name: dc:contentScore
+          :v4:
+            :disabled: false
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: append
+              :name: dc:contentScore
         :ui:
           :show:
             :disabled: true

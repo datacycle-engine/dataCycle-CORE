@@ -89,7 +89,7 @@ module DataCycleCore
 
         def create_exists_query_for_classification_alias_ids_with_subtree(ids)
           raw_query = <<-SQL.squish
-            SELECT
+            SELECT 1
           	FROM collected_classification_content_relations
           	WHERE collected_classification_content_relations.content_id = things.id AND
               collected_classification_content_relations.full_classification_alias_ids && ARRAY[?]::UUID[]
@@ -108,7 +108,7 @@ module DataCycleCore
 
         def create_exists_query_for_classification_alias_ids_without_subtree(ids)
           raw_query = <<-SQL.squish
-            SELECT
+            SELECT 1
             FROM collected_classification_content_relations
             WHERE collected_classification_content_relations.content_id = things.id AND
               collected_classification_content_relations.direct_classification_alias_ids && ARRAY[?]::UUID[]

@@ -9,7 +9,7 @@ module DataCycleCore
         import Transproc::Conditional
         import Transproc::Recursion
         import RatingTransformations
-        import ExternalReferenceTransformations
+        import DataReferenceTransformations
 
         def self.underscore_keys(data_hash)
           data_hash.to_h.deep_transform_keys { |k| k.to_s.underscore }
@@ -213,6 +213,10 @@ module DataCycleCore
           return data_hash if extension.blank?
 
           data_hash.merge({ name => MiniMime.lookup_by_extension(extension.to_s)&.content_type&.then { |s| specific_type.present? ? s.gsub('application', specific_type.to_s) : s } }.compact)
+        end
+
+        def self.add_universal_classifications(data_hash, function)
+          universal_classifications(data_hash, function)
         end
 
         def self.universal_classifications(data_hash, function)

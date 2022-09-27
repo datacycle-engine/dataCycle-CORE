@@ -7,6 +7,8 @@
         <% else %>
           <i class="fa fa-pencil" aria-hidden="true"></i> <%= t('actions.edit_data', data: content.translated_template_name(active_ui_locale), locale: active_ui_locale) %>
         <% end %>
+
+        <%= render('data_cycle_core/contents/content_score', key: nil, content: content, definition: content.content_score_definition(nil)) if content.try(:content_score_allowed?) %>
       </div>
       <ul>
         <%= render 'agbs' if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>

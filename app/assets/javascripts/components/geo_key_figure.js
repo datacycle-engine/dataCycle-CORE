@@ -96,7 +96,7 @@ class GeoKeyFigure {
 
     return attributeKey;
   }
-  _getAttributeKey() {
+  _attributeNameFromKey() {
     let attributeKey;
 
     if (this.attributeKeyMapping && typeof this.attributeKeyMapping === 'string')
@@ -110,7 +110,7 @@ class GeoKeyFigure {
     await $(this.partSelectorString())
       .find(DataCycle.config.EditorSelectors.join(', '))
       .triggerHandler('dc:geoKeyFigure:compute', {
-        attributeKey: this._getAttributeKey(),
+        attributeKey: this._attributeNameFromKey(),
         callback: this.setNewValue.bind(this)
       });
 
@@ -125,7 +125,7 @@ class GeoKeyFigure {
       url: this.url,
       method: 'POST',
       data: {
-        key: this._getAttributeKey(),
+        key: this._attributeNameFromKey(),
         part_ids: value
       }
     })

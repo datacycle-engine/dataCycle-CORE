@@ -10,6 +10,10 @@
             "in": "[UUID]",
             "notIn": "[UUID]"
         },
+        "endpointId": {
+            "in": "[UUID]",
+            "notIn": "[UUID]"
+        },
         "filterId": {
             "in": "[UUID]",
             "notIn": "[UUID]"
@@ -77,6 +81,10 @@
                     "in": "[UUID]",
                     "notIn": "[UUID]"
                 },
+                "endpointId": {
+                    "in": "[UUID]",
+                    "notIn": "[UUID]"
+                },
                 "filterId": {
                     "in": "[UUID]",
                     "notIn": "[UUID]"
@@ -136,6 +144,10 @@
                     "in": "[UUID]",
                     "notIn": "[UUID]"
                 },
+                "endpointId": {
+                    "in": "[UUID]",
+                    "notIn": "[UUID]"
+                },
                 "filterId": {
                     "in": "[UUID]",
                     "notIn": "[UUID]"
@@ -190,6 +202,10 @@
                 "linked": {
                     "{attributeName(,attributeName)}": {
                         "contentId": {
+                            "in": "[UUID]",
+                            "notIn": "[UUID]"
+                        },
+                        "endpointId": {
                             "in": "[UUID]",
                             "notIn": "[UUID]"
                         },

@@ -5,7 +5,7 @@ require 'minitest/spec'
 require 'minitest/autorun'
 
 module SharedExamplesForContent
-  def self.for_properties(storage_location, &data_provider)
+  def self.for_properties(storage_location)
     describe "for properties with storage location '#{storage_location}'" do
       data_definition = {
         properties: {
@@ -22,7 +22,7 @@ module SharedExamplesForContent
         }
       }
 
-      property_value = data_provider.call
+      property_value = yield
 
       subject do
         convert_storage_location = { 'value' => 'metadata', 'translated_value' => 'content' }

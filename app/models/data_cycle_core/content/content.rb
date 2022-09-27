@@ -25,7 +25,6 @@ module DataCycleCore
       end
       extend  DataCycleCore::Common::ArelBuilder
       include DataCycleCore::Content::ContentRelations
-      include DataCycleCore::Content::ContentOverlay
       extend  DataCycleCore::Content::Searchable
       include DataCycleCore::Content::DestroyContent
       include DataCycleCore::Content::DataHashUtility
@@ -36,14 +35,12 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::Geojson
       include DataCycleCore::Content::Extensions::DefaultValue
       include DataCycleCore::Content::Extensions::ComputedValue
-      include DataCycleCore::Content::Extensions::QualityScore
+      prepend DataCycleCore::Content::Extensions::Translation
 
       after_save :reload_memoized
-      after_save :reload_memoized_overlay
 
       def reload(options = nil)
         reload_memoized
-        reload_memoized_overlay
 
         super(options)
       end
@@ -65,7 +62,7 @@ module DataCycleCore
           overlay_flag = original_name.ends_with?(overlay_name)
           original_name = original_name.delete_suffix("_#{overlay_name}") if DataCycleCore::Feature::Overlay.enabled? && original_name.ends_with?(overlay_name)
 
-          if original_name.in?(embedded_property_names + linked_property_names)
+          if original_name.in?(embedded_property_names) || original_name.in?(linked_property_names)
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
             get_property_value(original_name, property_definition, args.first, overlay_flag & original_name.in?(overlay_property_names))
           elsif original_name.in?(timeseries_property_names)
@@ -78,6 +75,11 @@ module DataCycleCore
         else
           super
         end
+      end
+
+      def respond_to?(method_name, include_all = false)
+        (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym, (item.to_s + "_#{overlay_name}").to_sym] }.flatten +
+          linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
       end
 
       def errors
@@ -110,11 +112,6 @@ module DataCycleCore
 
       def i18n_valid?
         !i18n_errors&.any? { |(_k, v)| v.present? }
-      end
-
-      def respond_to?(method_name, include_all = false)
-        (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym, (item.to_s + "_#{overlay_name}").to_sym] }.flatten +
-          linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
       end
 
       def content_template
@@ -212,15 +209,16 @@ module DataCycleCore
       end
 
       def attribute_transformation_mapping(api_version = nil)
+        # find transformation method: unwrap
         property_definitions.select { |_, definition|
           if api_version.present? && definition.dig('api', api_version).present?
             definition.dig('api', api_version, 'transformation', 'method') == 'unwrap'
           else
             definition.dig('api', 'transformation', 'method') == 'unwrap'
           end
-        }.map { |k, v|
+        }.to_h do |k, v|
           [k, v.dig('properties').keys.map { |prop_key| prop_key.camelize(:lower) }]
-        }.to_h
+        end
       end
 
       def plain_property_names(include_overlay = false)
@@ -248,10 +246,6 @@ module DataCycleCore
           h[key] = name_property_selector(key) { |definition| definition['compute'].present? }
         end
         @computed_property_names[include_overlay]
-      end
-
-      def quality_score_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['quality_score'].present? }
       end
 
       def default_value_property_names(include_overlay = false)
@@ -296,7 +290,7 @@ module DataCycleCore
       end
 
       def advanced_search_property_names
-        name_property_selector { |definition| !['embedded', 'object', 'linked', 'classification'].include?(definition['type']) && definition['advanced_search'] == true }
+        name_property_selector { |definition| ['embedded', 'object', 'linked', 'classification'].exclude?(definition['type']) && definition['advanced_search'] == true }
       end
 
       def advanced_included_search_property_names
@@ -337,6 +331,7 @@ module DataCycleCore
         schema.deep_dup.merge({ 'properties' => sorted_properties })
       end
 
+      # returns data the same way, as .as_json
       def to_h(timestamp = Time.zone.now)
         Array.wrap(property_names)
           .difference(virtual_property_names)
@@ -344,6 +339,7 @@ module DataCycleCore
           .deep_stringify_keys
       end
 
+      # returns data the same way, as .as_json
       def to_h_partial(partial_properties, timestamp = Time.zone.now)
         Array.wrap(partial_properties)
           .intersection(property_names)
@@ -352,20 +348,14 @@ module DataCycleCore
           .deep_stringify_keys
       end
 
+      # returns data the same way, as .as_json
       def attribute_to_h(property_name, timestamp = Time.zone.now)
         if property_name == 'id' && history?
           send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
-        elsif virtual_property_names.include?(property_name)
-          []
-        # elsif computed_property_names.include?(property_name)
-        #   send(property_name)
         elsif plain_property_names.include?(property_name)
-          send(property_name)
-        elsif classification_property_names.include?(property_name)
+          send(property_name)&.as_json
+        elsif classification_property_names.include?(property_name) || linked_property_names.include?(property_name)
           send(property_name).try(:pluck, :id)
-        elsif linked_property_names.include?(property_name)
-          linked_array = get_property_value(property_name, property_definitions[property_name])
-          linked_array.presence || []
         elsif included_property_names.include?(property_name)
           embedded_hash = send(property_name).to_h
           embedded_hash.presence
@@ -374,7 +364,7 @@ module DataCycleCore
           embedded_array = embedded_array.map { |item| item.get_data_hash(timestamp) } if embedded_array.present?
           embedded_array.blank? ? [] : embedded_array.compact
         elsif asset_property_names.include?(property_name)
-          send(property_name)
+          send(property_name)&.id
         elsif schedule_property_names.include?(property_name)
           schedule_array = send(property_name)
           schedule_array = schedule_array.map(&:to_h).presence
@@ -441,55 +431,33 @@ module DataCycleCore
         @get_property_value[[property_name, property_definition, I18n.locale, filter, overlay_flag]]
       end
 
-      def property_value_for_set_datahash(property_name)
-        get_property_value(property_name, properties_for(property_name))&.then do |value|
-          if property_name.in?(included_property_names)
-            value.to_h
-          elsif property_name.in?(schedule_property_names)
-            value.map(&:to_h)
-          elsif property_name.in?(embedded_property_names)
-            value.map(&:get_data_hash)
-          elsif value.is_a?(ActiveRecord::Relation)
-            value.pluck(:id)
-          elsif value.is_a?(::Array) && value.first.is_a?(ActiveRecord)
-            value.map(&:id)
-          else
-            value
-          end
-        end
-      end
-
       def load_virtual_attribute(property_name, locale = I18n.locale)
         DataCycleCore::Utility::Virtual::Base.virtual_values(property_name, self, locale)
       end
 
-      def load_json_attribute(property_name, property_definition, overlay_flag)
-        value = overlay_data(I18n.locale).try(:[], property_name) if overlay_flag
-        value ||
-          if property_definition['storage_location'] == 'column'
-            send(property_name)
-          else
-            convert_to_type(
-              property_definition['type'],
-              send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s),
-              property_definition
-            )
-          end
+      def load_json_attribute(property_name, property_definition, _overlay_flag)
+        if property_definition['storage_location'] == 'column'
+          send(property_name)
+        else
+          convert_to_type(
+            property_definition['type'],
+            send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s),
+            property_definition
+          )
+        end
       end
 
-      def load_included_data(property_name, property_definition, overlay_flag)
+      def load_included_data(property_name, property_definition, _overlay_flag)
         sub_property_definitions = property_definition.try(:[], 'properties')
         raise StandardError, "Template for included data #{property_name} has no Subproperties defined." if sub_property_definitions.blank?
+
         thing_data = load_subproperty_hash(
           sub_property_definitions,
           property_definition['storage_location'],
           send(NEW_STORAGE_LOCATION[property_definition['storage_location']]).try(:[], property_name)
         )
-        overlayed_data = {}
-        overlayed_data = overlay_data(I18n.locale).try(:[], property_name) || {} if overlay_flag
-        OpenStructHash.new(
-          thing_data.merge(overlayed_data)
-        ).freeze
+
+        OpenStructHash.new(thing_data).freeze
       end
 
       def load_subproperty_hash(sub_properties, storage_location, sub_properties_data)
@@ -621,14 +589,6 @@ module DataCycleCore
         @get_property_value.delete(key) && return if key.present?
 
         remove_instance_variable(:@get_property_value) if instance_variable_defined?(:@get_property_value)
-      end
-
-      def reload_memoized_overlay(locale = nil)
-        return unless instance_variable_defined?(:@overlay_data)
-
-        @overlay_data.delete(locale) && return if locale.present?
-
-        remove_instance_variable(:@overlay_data) if instance_variable_defined?(:@overlay_data)
       end
     end
   end

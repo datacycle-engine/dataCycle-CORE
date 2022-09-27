@@ -51,7 +51,7 @@ module DataCycleCore
         'name' => 'Dies ist ein Test!',
         'longitude' => 40.56,
         'latitude' => 13.13,
-        'location' => point,
+        'location' => point.as_text,
         'tags' => [],
         'output_channel' => [],
         'image' => [],
@@ -66,9 +66,7 @@ module DataCycleCore
       resulted_hash = data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('place'))
       # location object deserializes with the RGeo::Geos::CAPIFactory != RGeo::Geographic.spherical_factory
       assert_equal(expected_hash.except('location', 'opening_hours_specification', 'opening_hours_description', 'opening_hours'), resulted_hash.except('location', 'opening_hours_specification', 'opening_hours', 'opening_hours_description', 'potential_action'))
-      assert_equal(true, expected_hash['location'].x == resulted_hash['location'].x)
-      assert_equal(true, expected_hash['location'].y == resulted_hash['location'].y)
-      assert_equal(true, expected_hash['location'].srid == resulted_hash['location'].srid)
+      assert_equal(expected_hash['location'], resulted_hash['location'])
     end
 
     test 'tour has correct WKT 1.2 string representation' do

@@ -152,8 +152,8 @@ class AssetFile {
       );
 
       if (attribute.type == 'boolean') {
-        const otherAttributeFieldValues = this.attributeFieldValues.filter(v => v.name.getAttributeKey() != key);
-        const attributeFieldValue = this.attributeFieldValues.filter(v => v.name.getAttributeKey() == key).pop();
+        const otherAttributeFieldValues = this.attributeFieldValues.filter(v => v.name.attributeNameFromKey() != key);
+        const attributeFieldValue = this.attributeFieldValues.filter(v => v.name.attributeNameFromKey() == key).pop();
         this.attributeFieldValues = otherAttributeFieldValues;
         if (attributeFieldValue) this.attributeFieldValues.push(attributeFieldValue);
 

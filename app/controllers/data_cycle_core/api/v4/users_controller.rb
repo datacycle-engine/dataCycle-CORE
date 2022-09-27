@@ -120,11 +120,20 @@ module DataCycleCore
             .permit(:mailerLayout, :viewerLayout, :redirectUrl, :forwardToUrl).to_h
             .deep_transform_keys(&:underscore)
             .with_indifferent_access
-            .tap { |u|
-              u[:mailer_layout].presence&.prepend('data_cycle_core/')
-              u[:viewer_layout].presence&.prepend('data_cycle_core/')
-            }
+            .tap { |u| merge_user_layout_params!(u) }
             .compact_blank
+        end
+
+        def merge_user_layout_params!(params)
+          if current_user&.token_issuer.present?
+            params[:mailer_layout] = current_user.token_issuer + '_mailer' if params[:mailer_layout].blank?
+            params[:viewer_layout] = current_user.token_issuer + '_viewer' if params[:viewer_layout].blank?
+          end
+
+          params.delete(:mailer_layout) unless params[:mailer_layout].present? && lookup_context.exists?(params[:mailer_layout].prepend('data_cycle_core/').to_s, ['layouts'], false, [], formats: [:html])
+          params.delete(:viewer_layout) unless params[:viewer_layout].present? && lookup_context.exists?(params[:viewer_layout].prepend('data_cycle_core/').to_s, ['layouts'], false, [], formats: [:html])
+
+          params
         end
 
         def password_params

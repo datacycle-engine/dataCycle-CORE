@@ -2,6 +2,12 @@
 
 module DataCycleCore
   class OpenStructHash < OpenStruct
+    def initialize(hash = nil)
+      hash = hash.to_h { |k, v| [k, v.is_a?(::Hash) ? DataCycleCore::OpenStructHash.new(v) : v] } if hash
+
+      super(hash)
+    end
+
     def to_h
       if table.blank?
         as_hash = {}

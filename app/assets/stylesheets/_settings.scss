@@ -80,6 +80,7 @@ $print-transparent-backgrounds: true;
 $color-transition: color 0.25s ease-out;
 $opacity-transition: opacity 0.25s ease-out;
 $global-transition: all 0.25s ease-out;
+$global-backdrop-filter: saturate(0.5) blur(5px);
 
 @include add-foundation-colors;
 

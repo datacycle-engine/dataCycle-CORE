@@ -48,7 +48,7 @@ module DataCycleCore
         load_relation(relation_name, nil, same_language, languages, filter, false, overlay_flag)
       end
 
-      def load_relation(relation_a, relation_b, same_language, languages, filter = nil, inverse = false, overlay_flag = false)
+      def load_relation(relation_a, relation_b, same_language, languages, filter = nil, inverse = false, _overlay_flag = false)
         if inverse
           relation_name = :content_a
           relation_a_name = relation_b
@@ -61,9 +61,6 @@ module DataCycleCore
           content_filter = :content_b_id
         end
 
-        overwritten = overlay_data(I18n.locale).try(:[], relation_a) if overlay_flag
-        root_object = overwritten.present? ? overlay.first : self
-
         content_contents_condition = {
           relation_a: relation_a_name,
           relation_b: relation_b_name
@@ -71,23 +68,15 @@ module DataCycleCore
         content_contents_condition[content_filter] = filter.apply.select(:id).except(:order) if filter.present?
 
         relation_contents = self.class.unscoped do
-          root_object.send(relation_name).where(content_contents: content_contents_condition).i18n
+          send(relation_name).where(content_contents: content_contents_condition).i18n
         end
 
         relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: languages }) if same_language
         relation_contents
       end
 
-      def load_classifications(relation_name, overlay_flag = false)
-        value = overlay_data(I18n.locale).try(:[], relation_name) if overlay_flag
-        content_data_id = value.present? ? overlay_data(I18n.locale).dig('id') : id
-        DataCycleCore::Classification
-          .joins(:classification_contents)
-          .where(
-            classification_contents: {
-              content_data_id: content_data_id, relation: relation_name
-            }
-          )
+      def load_classifications(relation_name, _overlay_flag = false)
+        classification_content.with_relation(relation_name).classifications
       end
 
       def load_default_classification(tree_label, alias_name)
@@ -99,10 +88,8 @@ module DataCycleCore
           .where(asset_contents: { content_data_id: id, relation: relation_name })
       end
 
-      def load_schedule(relation_name, overlay_flag = false)
-        value = overlay_data(I18n.locale).try(:[], relation_name) if overlay_flag
-        thing_id = value.present? ? overlay_data(I18n.locale).dig('id') : id
-        DataCycleCore::Schedule.where(thing_id: thing_id, relation: relation_name).order(created_at: :asc)
+      def load_schedule(relation_name, _overlay_flag = false)
+        DataCycleCore::Schedule.where(thing_id: id, relation: relation_name).order(created_at: :asc)
       end
 
       def load_timeseries(property_name, from = nil, to = nil)

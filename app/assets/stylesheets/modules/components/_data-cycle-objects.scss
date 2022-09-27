@@ -606,6 +606,7 @@
     padding: 0.6rem;
     background: rgba($light-gray, 0.9);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    backdrop-filter: $global-backdrop-filter;
 
     .object-browser-filter-form {
       display: flex;
@@ -793,6 +794,7 @@
     left: 0;
     bottom: 0;
     box-shadow: 0 -3px 7px rgba(0, 0, 0, 0.1);
+    backdrop-filter: $global-backdrop-filter;
 
     .chosen-items {
       overflow-x: auto;
@@ -1476,7 +1478,7 @@ span.single_error.object-browser-error {
     .content-object-item {
       position: relative;
       background-color: $white;
-      padding: 1rem;
+      padding: 0.5rem;
 
       &:not(:last-child) {
         margin-bottom: 1rem;
@@ -1558,7 +1560,7 @@ span.single_error.object-browser-error {
         border: none;
         background: transparent;
         padding: 0;
-        margin-top: 1rem;
+        margin: 1rem 0.5rem 0.5rem 0.5rem;
       }
 
       .removeContentObject {
@@ -1578,6 +1580,11 @@ span.single_error.object-browser-error {
         font-size: 1.2rem;
       }
     }
+
+    &.detail_object .content-object-item {
+      padding: 1rem;
+    }
+
     .translated + .content-object-item {
       .embedded-header {
         left: 2.5rem;

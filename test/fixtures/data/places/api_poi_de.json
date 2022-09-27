@@ -21,5 +21,11 @@
   "potential_action": [{
     "name": "Action - Test",
     "url": "https://url.com/action"
-  }]
+  }],
+  "additional_information": [
+    {
+      "name": "Beschreibung",
+      "description": "<p>Text</p>"
+    }
+  ]
 }

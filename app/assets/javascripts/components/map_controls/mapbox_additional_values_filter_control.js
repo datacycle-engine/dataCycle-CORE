@@ -68,12 +68,13 @@ class AdditionalValuesFilterControl {
   _reloadOverlayData(_event = undefined) {
     for (const key of Object.keys(this.config)) {
       this._addGeoJsonSource(key, this.geojsonValues[key]);
+      this._updateLayerVisibilities(key);
     }
   }
   _addEventHandlers() {
     this.controlButton.addEventListener('click', this._toggleOverlay.bind(this));
 
-    this.editor.map.on('maptypechanged', this._reloadOverlayData.bind(this));
+    this.editor.mtkMap.on('maptypechanged', this._reloadOverlayData.bind(this));
 
     this._addOverlayTargetEvents();
   }
@@ -93,7 +94,7 @@ class AdditionalValuesFilterControl {
     event.preventDefault();
     event.stopPropagation();
 
-    const key = data.key.getAttributeKey();
+    const key = data.key.attributeNameFromKey();
     let changedFeatures = [];
 
     if (data.ids && data.ids.length) {
@@ -213,12 +214,14 @@ class AdditionalValuesFilterControl {
     if (this.controlOverlay.classList.contains('active')) {
       this.enabled = false;
       this.controlOverlay.classList.remove('active');
+      this.controlButton.classList.remove('active');
       this.editor.editorGui.editor.clickable = true;
       this.editor.editorGui.editor._enabled = true;
       this.editor.editorGui.editor.visibility = 'visible';
     } else {
       this.enabled = true;
       this.controlOverlay.classList.add('active');
+      this.controlButton.classList.add('active');
       this.editor.editorGui.editor.clickable = false;
       this.editor.editorGui.editor._enabled = false;
       this.editor.editorGui.editor.visibility = 'none';
