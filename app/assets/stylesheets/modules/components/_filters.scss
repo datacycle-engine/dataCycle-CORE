@@ -355,10 +355,11 @@ $filter-border: #aaa;
     .search {
       .input-group {
         background-color: lighten($light-gray, 7%);
-        padding: 0 2.6rem 0 1rem;
+        padding: 0;
         transition: background ease-out 0.25s;
         margin-bottom: 0;
         border-radius: $global-radius;
+        display: flex;
 
         > * {
           background-color: transparent;
@@ -366,8 +367,10 @@ $filter-border: #aaa;
 
         .input-group-field,
         .input-group-button {
-          border: $search-border;
-          padding: 0.3rem;
+          display: flex;
+          flex: auto;
+          height: 2.7rem;
+          padding: 0;
           color: $black;
           border: 0;
         }
@@ -375,8 +378,8 @@ $filter-border: #aaa;
         .input-group-field {
           font-size: 1.2rem;
           line-height: 1.2rem;
-          margin-top: 0.3rem;
           box-shadow: none;
+          padding: 0.3rem 0.3rem 0.3rem 1rem;
 
           &::placeholder {
             font-weight: 200;
@@ -391,10 +394,26 @@ $filter-border: #aaa;
         }
 
         .input-group-button {
+          width: 4rem;
+          align-items: center;
+          justify-content: center;
+          background-color: $success-color;
+          color: $white;
+          transition: $global-transition;
+
           i {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             line-height: 1.2;
-            font-weight: bold;
+          }
+
+          &:hover {
+            background-color: scale-color($success-color, $lightness: -15%);
+          }
+
+          &[disabled] {
+            opacity: 0.5;
+            background-color: scale-color($success-color, $lightness: +15%);
+            cursor: not-allowed;
           }
         }
 
