@@ -23,5 +23,11 @@
   "condition_rating": 7,
   "difficulty_rating": 8,
   "experience_rating": 9,
-  "landscape_rating": 10
+  "landscape_rating": 10,
+  "aggregate_rating": [
+    {
+      "name": "rating",
+      "rating_value": 3
+    }
+  ]
 }

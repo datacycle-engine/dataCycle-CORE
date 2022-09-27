@@ -28,6 +28,8 @@ module DataCycleCore
           optional(:token).filled(:string)
           optional(:id).filled(:string)
           optional(:timeseries).filled(:string)
+          optional(:search).value(:string)
+          optional(:limit).value(:integer)
         end
 
         CONTENT = Dry::Schema.Params do
@@ -105,6 +107,10 @@ module DataCycleCore
 
         FILTER = Dry::Schema.Params do
           optional(:contentId).hash do
+            optional(:in).filled(:array)
+            optional(:notIn).filled(:array)
+          end
+          optional(:endpointId).hash do
             optional(:in).filled(:array)
             optional(:notIn).filled(:array)
           end

@@ -1,8 +1,43 @@
 import AsyncSelect2 from '../components/async_select2';
 import QuillHelpers from './../helpers/quill_helpers';
 
+function addVisibilitySwitchEventHandler(item) {
+  item.dcVisibilitySwitchEventHandler = true;
+
+  item.addEventListener('change', switchVisibilitiesInForm.bind(this));
+}
+
+function switchVisibilitiesInForm(event) {
+  const item = event.currentTarget;
+
+  if (!item.checked) return;
+
+  let siblingValue = 'show_more';
+  if (item.value == 'show_more') siblingValue = 'show';
+
+  const sibling = item
+    .closest('.ca-collection-checkboxes')
+    .querySelector(`[name="classification_tree_label[visibility][]"][value="${siblingValue}"]`);
+
+  if (sibling) sibling.checked = false;
+}
+
 export default function () {
   if ($('#classification-administration').length) {
+    for (const element of document.querySelectorAll(
+      '[name="classification_tree_label[visibility][]"][value="show"], [name="classification_tree_label[visibility][]"][value="show_more"]'
+    ))
+      addVisibilitySwitchEventHandler(element);
+
+    DataCycle.htmlObserver.addCallbacks.push([
+      e =>
+        e.nodeName == 'INPUT' &&
+        !e.hasOwnProperty('dcVisibilitySwitchEventHandler') &&
+        e.name == 'classification_tree_label[visibility][]' &&
+        ['show', 'show_more'].includes(e.value),
+      e => addVisibilitySwitchEventHandler(e)
+    ]);
+
     $('#classification-administration').on('ajax:beforeSend', 'a:not(.destroy)', function (event) {
       var childrenContainer = $(event.currentTarget).closest('li').children('ul:not(.classifications)');
 

@@ -22,6 +22,10 @@ module DataCycleCore
       def with_classification_ids(ids)
         where(classification_id: ids)
       end
+
+      def classifications
+        DataCycleCore::Classification.where(id: all.select(:classification_id))
+      end
     end
   end
 end

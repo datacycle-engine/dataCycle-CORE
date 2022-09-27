@@ -23,10 +23,10 @@ module DataCycleCore
       payload = JSON.parse(Base64.decode64(token.split('.')[1]))
       algorithm = header_fields['alg'] if ALGORITHMS.include?(header_fields['alg'])
 
-      if algorithm&.start_with?('RS')
-        secret = DataCycleCore.features.dig(:user_api, :public_keys, payload['iss']).present? ? OpenSSL::PKey::RSA.new(DataCycleCore.features.dig(:user_api, :public_keys, payload['iss'])) : nil
-      else
+      if !algorithm&.start_with?('RS')
         secret = SECRET_KEY
+      elsif DataCycleCore::Feature::UserApi.public_key_for_issuer?(payload['iss'])
+        secret = DataCycleCore::Feature::UserApi.public_key_for_issuer(payload['iss'])
       end
 
       raise JWT::DecodeError, 'secret cannot be blank' if secret.blank?

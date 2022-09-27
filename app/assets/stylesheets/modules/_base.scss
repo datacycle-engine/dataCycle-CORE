@@ -150,15 +150,12 @@ label.attribute-edit-label {
   z-index: 21;
   width: 100%;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
   background-color: lighten($primary-color, 50%);
   height: 3.5rem;
   line-height: 3.5rem;
 
   .edit-name {
     color: $primary-color;
-    position: absolute;
-    left: 1.5rem;
   }
 }
 
@@ -312,6 +309,7 @@ footer {
     background: $light-gray;
     margin-top: 0;
     padding: 0 1rem 1rem;
+    gap: 1rem 2rem;
   }
 
   > .content-scores {
@@ -359,7 +357,7 @@ footer {
   > .external-connections {
     .external-connection {
       position: relative;
-      margin: 0 1rem;
+      margin: 0;
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
