@@ -369,7 +369,7 @@ $filter-border: #aaa;
         .input-group-button {
           display: flex;
           flex: auto;
-          height: 2.7rem;
+          height: 2.9rem;
           padding: 0;
           color: $black;
           border: 0;
@@ -1627,9 +1627,10 @@ $filter-border: #aaa;
     flex-flow: row nowrap;
     align-items: center;
     margin: 0;
+    gap: 0.5rem;
 
     li {
-      margin: 0 0.5rem 0 0;
+      margin: 0;
 
       &:last-child {
         margin-right: 0;
