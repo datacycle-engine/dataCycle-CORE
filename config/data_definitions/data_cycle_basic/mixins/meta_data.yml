@@ -4,7 +4,6 @@
     :type: mixin
     :properties:
       :universal_classifications:
-        :label: Classifications
         :type: classification
         :external: true
         :universal: true
