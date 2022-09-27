@@ -7,6 +7,8 @@ module DataCycleCore
     module V4
       module Content
         class ThingDataTest < DataCycleCore::V4::Base
+          include DataCycleCore::ApiHelper
+
           before(:all) do
             @content = DataCycleCore::V4::DummyDataHelper.create_data('event')
           end
@@ -56,6 +58,7 @@ module DataCycleCore
                 'description' => @content.description,
                 'potentialAction' => [
                   {
+                    '@id' => generate_uuid(@content.id, 'potential_action'),
                     '@type' => 'ViewAction',
                     'name' => 'potential_action',
                     'url' => @content.potential_action
@@ -125,18 +128,21 @@ module DataCycleCore
               {
                 'additionalProperty' => [
                   {
+                    '@id' => generate_uuid(@content.id, 'same_as'),
                     '@type' => 'PropertyValue',
                     'identifier' => 'link',
                     'value' => @content.same_as,
                     'name' => 'Link'
                   },
                   {
+                    '@id' => generate_uuid(@content.id, 'feratel_content_score'),
                     '@type' => 'PropertyValue',
                     'identifier' => 'feratelContentScore',
                     'name' => 'ContentScore (Feratel)',
                     'value' => @content.feratel_content_score
                   },
                   {
+                    '@id' => generate_uuid(@content.id, 'content_score'),
                     '@type' => 'PropertyValue',
                     'identifier' => 'contentScore',
                     'name' => 'ContentScore',
@@ -230,6 +236,7 @@ module DataCycleCore
                 'description' => @content.description,
                 'potentialAction' => [
                   {
+                    '@id' => generate_uuid(@content.id, 'potential_action'),
                     '@type' => 'ViewAction',
                     'name' => 'potential_action',
                     'url' => @content.potential_action
@@ -329,6 +336,7 @@ module DataCycleCore
               'dc:slug' => item_offered_object.slug,
               'additionalProperty' => [
                 {
+                  '@id' => generate_uuid(item_offered_object.id, 'text'),
                   '@type' => 'PropertyValue',
                   'identifier' => 'text',
                   'name' => 'Beschreibung (lang)',
@@ -360,12 +368,14 @@ module DataCycleCore
               'validFrom' => offer_object.offer_period.valid_from.as_json,
               'validThrough' => offer_object.offer_period.valid_through.as_json,
               'potentialAction' => {
+                '@id' => generate_uuid(offer_object.id, 'potential_action'),
                 '@type' => 'Action',
                 'name' => offer_object.potential_action.action_name,
                 'url' => offer_object.potential_action.action_url
               },
               'additionalProperty' => [
                 {
+                  '@id' => generate_uuid(offer_object.id, 'text'),
                   '@type' => 'PropertyValue',
                   'identifier' => 'text',
                   'name' => 'Beschreibung (lang)',
@@ -387,18 +397,21 @@ module DataCycleCore
               {
                 'additionalProperty' => [
                   {
+                    '@id' => generate_uuid(@content.id, 'same_as'),
                     '@type' => 'PropertyValue',
                     'identifier' => 'link',
                     'value' => @content.same_as,
                     'name' => 'Link'
                   },
                   {
+                    '@id' => generate_uuid(@content.id, 'feratel_content_score'),
                     '@type' => 'PropertyValue',
                     'identifier' => 'feratelContentScore',
                     'name' => 'ContentScore (Feratel)',
                     'value' => @content.feratel_content_score
                   },
                   {
+                    '@id' => generate_uuid(@content.id, 'content_score'),
                     '@type' => 'PropertyValue',
                     'identifier' => 'contentScore',
                     'name' => 'ContentScore',

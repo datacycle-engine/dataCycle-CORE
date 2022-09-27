@@ -31,7 +31,9 @@ module DataCycleCore
       def self.get_webhooks_for(action, data)
         DataCycleCore::ExternalSystem
           .where(name: available_system_names(data))
-          .collect { |external_system| validate_webhook(external_system, action, data) }.compact
+          .collect { |external_system|
+            validate_webhook(external_system, action, data)
+          }.compact
       end
 
       def self.validate_webhook(external_system, action, data)

@@ -5,6 +5,7 @@ def serialize_opening_hours_description(description, filter, fields, options, in
     schedule_hash = description&.validity_schedule&.first&.schedule_object&.to_hash || {}
 
     data = {
+      '@id' => description&.id,
       '@type' => description&.api_type,
       'validFrom' => schedule_hash.dig(:start_time, :time)&.in_time_zone&.to_s(:only_date),
       'validThrough' => schedule_hash&.dig(:rrules, 0, :until)&.to_s(:only_date) || schedule_hash&.dig(:end_time, :time)&.in_time_zone&.to_s(:only_date),

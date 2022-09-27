@@ -197,7 +197,8 @@ module DataCycleCore
                           DataCycleCore::V4::Validation::Thing::DEFAULT_HEADER.merge(
                             Dry::Schema.JSON do
                               required(:address).hash do
-                                required(:'@type').value(:string)
+                                required(:@id).value(:uuid_v4?)
+                                required(:@type).value(:string)
                                 required(:streetAddress).value(:string)
                                 required(:postalCode).value(:string)
                                 required(:addressLocality).value(:string)
@@ -263,7 +264,8 @@ module DataCycleCore
                               required(:givenName).value(:string)
                               required(:familyName).value(:string)
                               required(:address).hash do
-                                required(:'@type').value(:string)
+                                required(:@id).value(:uuid_v4?)
+                                required(:@type).value(:string)
                                 required(:streetAddress).value(:string)
                                 required(:postalCode).value(:string)
                                 required(:addressLocality).value(:string)

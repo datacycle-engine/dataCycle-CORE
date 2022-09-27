@@ -9,6 +9,8 @@ module DataCycleCore
         module Extensions
           module Events
             class EventSeriesDataTest < DataCycleCore::V4::Base
+              include DataCycleCore::ApiHelper
+
               before(:all) do
                 @content = DataCycleCore::V4::DummyDataHelper.create_data('event_series')
               end
@@ -53,6 +55,7 @@ module DataCycleCore
                     'description' => @content.description,
                     'potentialAction' => [
                       {
+                        '@id' => generate_uuid(@content.id, 'potential_action'),
                         '@type' => 'ViewAction',
                         'name' => 'potential_action',
                         'url' => @content.potential_action

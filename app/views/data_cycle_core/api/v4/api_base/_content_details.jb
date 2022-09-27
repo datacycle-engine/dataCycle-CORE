@@ -6,6 +6,7 @@ default_options = {
   include: @include_parameters,
   fields: @fields_parameters,
   languages: @language,
+  expand_language: @expand_language || false,
   field_filter: @field_filter,
   classification_trees: @classification_trees_parameters,
   classification_trees_filter: @classification_trees_filter,

@@ -96,12 +96,12 @@ module DataCycleCore
         end
     end
 
-    def load_value_object(content, key, value, languages, definition = nil)
+    def load_value_object(content, key, value, languages, definition = nil, expand_language = false)
       data_value = nil
 
       return api_value_format(value, definition) unless content.translatable_property_names.include?(key)
       single_value = (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first))
-      if single_value
+      if single_value && !expand_language
         data_value = I18n.with_locale(Array.wrap(languages).first) { api_value_format(content.send(key + '_overlay'), definition) }
       else
         data_value = []
@@ -116,11 +116,11 @@ module DataCycleCore
       data_value
     end
 
-    def load_object_value_object(content, key, o_key, value, languages, definition)
+    def load_object_value_object(content, key, o_key, value, languages, definition, expand_language = false)
       data_value = nil
       api_property_definition = api_definition(definition)
 
-      single_value = definition['storage_location'] != 'translated_value' || (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first))
+      single_value = definition['storage_location'] != 'translated_value' || ((languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first)) && !expand_language)
       if single_value
         data_value = api_value_format(value, api_property_definition)
       else
@@ -179,9 +179,11 @@ module DataCycleCore
       tree_params = classification_trees&.compact&.sort&.join(',')
 
       if item.is_a?(DataCycleCore::Thing) || item.is_a?(DataCycleCore::Thing::History)
-        key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{item.cache_valid_since.to_i}_include/#{include_params}_fields/#{field_params}_lsf/#{linked_stored_filter_id}_trees/#{tree_params}"
+        add_params = Digest::MD5.hexdigest("include/#{include_params}_fields/#{field_params}_lsf/#{linked_stored_filter_id}_trees/#{tree_params}_expand_language/#{@expand_language}")
+        key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{item.cache_valid_since.to_i}_#{add_params}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias) || item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
-        key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_include/#{include_params}_fields/#{field_params}_trees/#{tree_params}_#{full}"
+        add_params = Digest::MD5.hexdigest("include/#{include_params}_fields/#{field_params}_trees/#{tree_params}_#{full}_expand_language/#{@expand_language}")
+        key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at.to_i}_#{add_params}"
       else
         raise NotImplementedError
       end
@@ -189,11 +191,12 @@ module DataCycleCore
       key
     end
 
-    def api_plain_context(languages)
+    def api_plain_context(languages, expanded = false)
       display_language = nil
       display_language = languages if languages.is_a?(::String)
       display_language = languages.first if languages.is_a?(::Array) && languages.size == 1 && languages.first.is_a?(::String)
       display_language = I18n.default_locale if languages.blank?
+      display_language = nil if expanded
 
       [
         'https://schema.org/',
@@ -205,7 +208,7 @@ module DataCycleCore
           'cc' => 'http://creativecommons.org/ns#',
           'dc' => 'https://schema.datacycle.at/',
           'dcls' => schema_url + '/',
-          'odta' => 'https://ds.sti2.org/'
+          'odta' => 'https://odta.io/voc/' # 'https://ds.sti2.org/'
         }.compact
       ]
     end
@@ -245,6 +248,13 @@ module DataCycleCore
           { key => data[key].reject { |item| item.dig('identifier').in?(value.map { |i| i.dig('identifier') }) } + overlay[key] }
         end
       }.reject(&:blank?).inject(&:merge) || {}
+    end
+
+    def generate_uuid(id, key)
+      [
+        id.sub(/(.*)-(\w+)$/, '\1'),
+        (id.sub(/(.*)-(\w+)$/, '\2').hex ^ Digest::MD5.hexdigest(key)[0..11].hex).to_s(16).rjust(12, '0')
+      ].join('-')
     end
   end
 end

@@ -96,6 +96,7 @@ module DataCycleCore
           @live_data = permitted_params.dig(:'dc:liveData')
           @section_parameters = section_parameters
           @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
+          @expand_language = false # TODO: language_mode = 'expanded' --> true, 'compact' --> false
           @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))
           @full_text_search = permitted_params.dig(:filter, :search) || permitted_params.dig(:filter, :q)
           @api_version = 4
