@@ -20,6 +20,9 @@ module DataCycleCore
 
       class ExpiredContentError < BadRequestError
       end
+
+      class UserApiRankError < StandardError
+      end
     end
 
     module Download

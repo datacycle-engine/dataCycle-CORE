@@ -41,9 +41,9 @@
     </div>
   <% end %>
 
-  <% if DataCycleCore::Feature::UserApi.additional_tile_values(item).present? %>
+  <% if item.user_api_feature.additional_tile_values(item).present? %>
     <ul class="user-additional-attributes no-bullet">
-      <% DataCycleCore::Feature::UserApi.additional_tile_values(item).each do |key, value| %>
+      <% item.user_api_feature.additional_tile_values(item).each do |key, value| %>
         <li>
           <span class="attribute-label"><%= DataCycleCore::User.human_attribute_name(key, default: key&.split('/').last, locale: active_ui_locale) %></span>
           <span class="attribute-value"><%= value %></span>
