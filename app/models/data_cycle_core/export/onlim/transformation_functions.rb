@@ -10,6 +10,8 @@ module DataCycleCore
         import Transproc::Recursion
         import DataCycleCore::Generic::Common::Functions
 
+        extend DataCycleCore::ContentHelper
+
         ODTA_TYPE = {
           'TouristAttraction' => 'odta:PointOfInterest',
           'dcls:Tour' => 'odta:Trail'
@@ -209,7 +211,7 @@ module DataCycleCore
           new_schedules = schedules.map do |i|
             i['startTime'] += ':00' if i['startTime'].present? && i['startTime'].split(':').size == 2
             i['endTime'] += ':00' if i['endTime'].present? && i['endTime'].split(':').size == 2
-            i['duration'] = { '@type' => 'Duration', 'name' => i['duration'] } if i['duration'].present?
+            i['duration'] = { '@id' => generate_uuid(i['@id'], 'duration'), '@type' => 'Duration', 'name' => i['duration'] } if i['duration'].present?
             i
           end
           data['@graph'][0]['eventSchedule'] = new_schedules

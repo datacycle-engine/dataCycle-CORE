@@ -632,7 +632,11 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
         'endDate' => '2022-10-14',
         'startTime' => '20:00:00',
         'endTime' => '22:00:00',
-        'duration' => { '@type' => 'Duration', 'name' => 'PT2H' },
+        'duration' => {
+          '@id' => '13454614-f317-41b8-9a03-f513b91c07f1', # generate_uuid('13454614-f317-41b8-9a03-4d4d7a08b8b5', 'duration')
+          '@type' => 'Duration',
+          'name' => 'PT2H'
+        },
         'repeatFrequency' => 'P1W',
         'byDay' => [
           'https://schema.org/Friday'
