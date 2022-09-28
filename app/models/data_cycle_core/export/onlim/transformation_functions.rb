@@ -203,12 +203,13 @@ module DataCycleCore
           end
         end
 
-        def self.add_time_sec(data)
+        def self.transform_schedule(data)
           return data if data.dig('@graph', 0, 'eventSchedule').blank?
           schedules = data.dig('@graph', 0, 'eventSchedule')
           new_schedules = schedules.map do |i|
             i['startTime'] += ':00' if i['startTime'].present? && i['startTime'].split(':').size == 2
             i['endTime'] += ':00' if i['endTime'].present? && i['endTime'].split(':').size == 2
+            i['duration'] = { '@type' => 'Duration', 'name' => i['duration'] } if i['duration'].present?
             i
           end
           data['@graph'][0]['eventSchedule'] = new_schedules

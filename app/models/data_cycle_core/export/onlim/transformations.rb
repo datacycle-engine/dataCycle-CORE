@@ -50,7 +50,7 @@ module DataCycleCore
 
         def self.to_event
           default_transformations
-          .>> t(:add_time_sec)
+          .>> t(:transform_schedule)
         end
       end
     end

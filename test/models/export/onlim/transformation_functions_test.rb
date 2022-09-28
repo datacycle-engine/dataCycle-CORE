@@ -597,4 +597,54 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
       assert_equal(cleaned_hash, hash)
     end
   end
+
+  describe 'transform_schedule' do
+    let(:event) do
+      {
+        '@graph' => [{
+          'eventSchedule' => [{
+            '@id' => '13454614-f317-41b8-9a03-4d4d7a08b8b5',
+            '@type' => 'Schedule',
+            '@context' => 'https://schema.org/',
+            'inLanguage' => 'de',
+            'startDate' => '2022-10-14',
+            'endDate' => '2022-10-14',
+            'startTime' => '20:00',
+            'endTime' => '22:00',
+            'duration' => 'PT2H',
+            'repeatFrequency' => 'P1W',
+            'byDay' => [
+              'https://schema.org/Friday'
+            ],
+            'scheduleTimezone' => 'Europe/Vienna'
+          }]
+        }]
+      }
+    end
+
+    let(:correct_schedule) do
+      {
+        '@id' => '13454614-f317-41b8-9a03-4d4d7a08b8b5',
+        '@type' => 'Schedule',
+        '@context' => 'https://schema.org/',
+        'inLanguage' => 'de',
+        'startDate' => '2022-10-14',
+        'endDate' => '2022-10-14',
+        'startTime' => '20:00:00',
+        'endTime' => '22:00:00',
+        'duration' => { '@type' => 'Duration', 'name' => 'PT2H' },
+        'repeatFrequency' => 'P1W',
+        'byDay' => [
+          'https://schema.org/Friday'
+        ],
+        'scheduleTimezone' => 'Europe/Vienna'
+      }
+    end
+
+    it 'transforms event_schedule to correct_schedule' do
+      hash = subject.transform_schedule(event)
+      schedule = hash.dig('@graph', 0, 'eventSchedule', 0)
+      assert_equal(correct_schedule, schedule)
+    end
+  end
 end
