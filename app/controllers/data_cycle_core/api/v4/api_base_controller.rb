@@ -6,6 +6,7 @@ module DataCycleCore
       class ApiBaseController < ActionController::API
         include ActionController::MimeResponds
         include ActionController::Caching
+        include ActionController::RequestForgeryProtection
         include ActionView::Rendering
         include CanCan::ControllerAdditions
         include ActiveSupport::Rescuable
@@ -96,6 +97,7 @@ module DataCycleCore
           @live_data = permitted_params.dig(:'dc:liveData')
           @section_parameters = section_parameters
           @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
+          @expand_language = false # TODO: language_mode = 'expanded' --> true, 'compact' --> false
           @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))
           @full_text_search = permitted_params.dig(:filter, :search) || permitted_params.dig(:filter, :q)
           @api_version = 4
@@ -104,7 +106,7 @@ module DataCycleCore
         private
 
         def set_default_response_format
-          return request.format = :geojson if request.format.geojson? || permitted_params[:format].to_s == 'geojson' || Mime::Type.parse(request.accept).include?(:geojson)
+          return request.format = :geojson if request.format.geojson? || permitted_params[:format].to_s == 'geojson' || Mime::Type.parse(request.accept.to_s)&.include?(:geojson)
 
           request.format = :json unless permitted_params[:format]
         end

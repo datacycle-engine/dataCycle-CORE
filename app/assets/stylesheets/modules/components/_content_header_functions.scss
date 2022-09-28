@@ -1,10 +1,15 @@
 .edit-header-functions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+
   > ul {
     display: flex;
     flex-flow: row;
     justify-content: flex-end;
     align-items: center;
     height: 3.5rem;
+    flex: auto;
 
     > li > a {
       display: block;
@@ -17,7 +22,7 @@
 
     .save-content-button {
       opacity: 0.3;
-      transition: all ease-in-out 0.25s;
+      transition: $global-transition;
       outline: none;
       padding: 0.75rem;
 
@@ -119,7 +124,7 @@
             box-shadow: 1px 3px 5px 0px rgba($black, 0.3);
             text-align: left;
             overflow: hidden;
-            transition: all 0.25s;
+            transition: $global-transition;
             visibility: hidden;
 
             .progress-filled {
@@ -130,7 +135,7 @@
               background: lighten($color: $primary-color, $amount: 15%);
               width: 0;
               min-width: 3rem;
-              transition: width 0.1s;
+              transition: width 0.25s ease-out;
             }
           }
           &:hover {
@@ -179,7 +184,7 @@
       > span[title] {
         color: $body-font-color;
         opacity: 0.3;
-        transition: all ease-in-out 0.25s;
+        transition: $global-transition;
         padding: 0 0.5rem;
         cursor: help;
       }
@@ -188,7 +193,7 @@
         display: inline-block;
         color: $body-font-color;
         opacity: 0.3;
-        transition: all ease-in-out 0.25s;
+        transition: $global-transition;
         padding: 0 0.5rem;
         border: none;
         cursor: pointer;

@@ -26,7 +26,7 @@ module DataCycleCore
       index = 0
       content_ids = []
 
-      ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", progress: 0, items: item_count
+      ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { progress: 0, items: item_count })
 
       new_thing_params.each do |_key, thing_params|
         thing_hash = content_params(params[:template], thing_params)
@@ -35,13 +35,13 @@ module DataCycleCore
           content = DataCycleCore::DataHashService.create_internal_object(params[:template], thing_hash, current_user)
           content_ids << { id: content.id, field_id: thing_params[:uploader_field_id] } if content.try(:id).present?
 
-          ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", progress: index += 1, items: item_count, errors: content.try(:errors).presence
+          ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { progress: index += 1, items: item_count, errors: content.try(:errors).presence })
         end
       end
 
       flash.now[:success] = I18n.t :bulk_created, scope: [:controllers, :success], count: item_count, locale: helpers.active_ui_locale
 
-      ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", redirect_path: root_path, flash: flash.to_hash, created: true, content_ids: content_ids
+      ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { redirect_path: root_path, flash: flash.to_hash, created: true, content_ids: content_ids })
 
       head(:ok)
     end
@@ -93,12 +93,16 @@ module DataCycleCore
 
       raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
 
-      if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && DataCycleCore.experimental_features.dig('active_storage', 'asset_types')&.include?(content.asset.class.name)
+      if content.try(:asset)&.class&.active_storage_activated? && content.try(:asset)&.class&.name != 'DataCycleCore::Image'
         content.asset.file.preview(resize_to_limit: [300, 300]).processed unless content.asset.file.preview_image.attached?
         rendered_attribute = content.asset.file.preview_image.url
-      elsif content.template_name == 'Video'
+      elsif content.template_name == 'Video' || content.template_name == 'PDF'
         # no active storage
-        rendered_attribute = content.send(:thumbnail_url)
+        if content.asset.present?
+          rendered_attribute = content.asset&.thumb_preview&.url
+        else
+          rendered_attribute = content.send(:thumbnail_url)
+        end
       elsif content.template_name == 'Webcam' && content.send(attribute).blank?
         rendered_attribute = content.try(:image)&.first&.send(attribute)
       else
@@ -135,7 +139,7 @@ module DataCycleCore
 
         @content = DataCycleCore::DataHashService.create_internal_object(params[:template], object_params, current_user, parent_params[:parent_id], source)
 
-        redirect_back(fallback_location: root_path) && return if @content.try(:errors).present?
+        redirect_back(fallback_location: root_path, alert: @content.errors.full_messages) && return if @content.try(:errors).present?
 
         respond_to do |format|
           if @content.present?
@@ -240,7 +244,7 @@ module DataCycleCore
 
         destroy_content_params[:destroy_locale] = destroy_params[:locale].present?
 
-        @content.destroy_content(destroy_content_params)
+        @content.destroy_content(**destroy_content_params)
 
         flash[:success] = @content.destroyed? ? I18n.t(:destroyed, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale) : I18n.t(:destroyed_translation, scope: [:controllers, :success], data: @content.template_name, language: I18n.locale, locale: helpers.active_ui_locale)
 
@@ -558,23 +562,26 @@ module DataCycleCore
       redirect_back(fallback_location: root_path, alert: I18n.t('content_external_data.duplicate_record_html', url: @existing ? thing_path(@existing) : nil, locale: helpers.active_ui_locale)) && return
     end
 
-    def quality_score
+    def content_score
       authorize! :show, DataCycleCore::Thing
 
-      content = DataCycleCore::Thing.find_by(id: quality_score_params[:id]) || DataCycleCore::Thing.find_by(template: true, template_name: quality_score_params[:template_name])
+      raise ActiveRecord::RecordNotFound unless DataCycleCore::Feature::ContentScore.enabled?
+
+      content = DataCycleCore::Thing.find_by(id: content_score_params[:id]) || DataCycleCore::Thing.find_by(template: true, template_name: content_score_params[:template_name])
 
       raise ActiveRecord::RecordNotFound if content.nil?
 
       object_params = content_params(content.template_name, params[:thing])
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, content.schema)
+
       _locale, values = datahash[:translations]&.first
       datahash = (datahash[:datahash] || {}).merge(values || {})
 
-      I18n.with_locale(quality_score_params[:locale]) do
+      I18n.with_locale(content_score_params[:locale]) do
         render(
           json: {
-            value: content.calculate_quality_score(
-              quality_score_params[:attribute_key],
+            value: content.calculate_content_score(
+              content_score_params[:attribute_key],
               datahash
             )
           }
@@ -584,7 +591,7 @@ module DataCycleCore
 
     private
 
-    def quality_score_params
+    def content_score_params
       params.permit(:id, :template_name, :attribute_key, :locale)
     end
 

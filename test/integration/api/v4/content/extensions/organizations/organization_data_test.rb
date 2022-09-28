@@ -9,6 +9,8 @@ module DataCycleCore
         module Extensions
           module Organizations
             class OrganizationDataTest < DataCycleCore::V4::Base
+              include DataCycleCore::ApiHelper
+
               before(:all) do
                 # create a person to make sure person and organization are connected
                 @person = DataCycleCore::V4::DummyDataHelper.create_data('person')
@@ -78,6 +80,7 @@ module DataCycleCore
                   # license is overwritten by license_classification
                   {
                     'address' => {
+                      '@id' => generate_uuid(@content.id, 'address'),
                       '@type' => 'PostalAddress',
                       'streetAddress' => @content.address.street_address,
                       'postalCode' => @content.address.postal_code,

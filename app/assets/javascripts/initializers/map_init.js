@@ -1,11 +1,9 @@
-import OpenLayersEditor from './../components/open_layers_editor';
 import TourSprungEditor from './../components/tour_sprung_editor';
 import MapLibreGlViewer from './../components/maplibre_gl_viewer';
 import MapLibreGlEditor from './../components/maplibre_gl_editor';
 import MapLibreGlDashboard from './../components/maplibre_gl_dashboard';
 
 const mapEditors = {
-  OpenLayers: OpenLayersEditor,
   TourSprung: TourSprungEditor,
   MapLibreGl: MapLibreGlEditor
 };

@@ -20,8 +20,18 @@ de:
   settings:
 
   attribute_labels:
-    additional_information: Beschreibungsblock
+    additional_information:
+      one: Beschreibungsblock
+      other: Beschreibungsblöcke
+    aggregate_rating:
+      one: Tourenbewertung
+      other: Tourenbewertungen
     key_figures_container: Kennzahlen
+
+  footer_links:
+    privacy_policy: Datenschutz
+    imprint: Impressum
+    terms_and_conditions: Allgemeine Geschäftsbedingungen (AGB)
 
   locales:
     de: deutsch
@@ -96,6 +106,9 @@ de:
 
   classifications:
     tooltip_translations: Übersetzungen
+
+  user:
+    user_not_confirmed: Die E-Mail Adresse wurde noch nicht bestätigt
 
   frontend:
     load_error: Fehler beim Laden des Inhalts.
@@ -438,6 +451,7 @@ de:
     widgets:
       list: Listenansicht
       map: Kartenansicht
+      gallery: Bildergalerie
     user_registration:
       terms_conditions: 'Ich aktzeptiere die <a href="%{url}" target="_blank">Allgemeinen Geschäftsbedingungen</a>.'
       privacy_policy: 'Ich bin mit der Verarbeitung meiner Daten laut  <a href="%{url}" target="_blank">Datenschutzerklärung</a> einverstanden.'
@@ -467,7 +481,7 @@ de:
     system_dialog: Bilder über Systemdialog auswählen
     or: oder
     select_from_datacycle: 'Bereits hochgeladene %{data} verwenden'
-    copy_all_title: "Alle Attribute von diesem %{single} für alle %{multiple} übernehmen"
+    copy_all_title: 'Alle Attribute von diesem %{single} für alle %{multiple} übernehmen'
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -493,8 +507,9 @@ de:
     media_archive: im Medienarchiv öffnen
 
   feature:
-    quality_score:
+    content_score:
       tooltip:
+        title_html: '<b>Content-Score</b>'
         min: 'Minimal: %{value}'
         optimal: 'Optimal: %{value}'
         max: 'Maximal: %{value}'
@@ -516,11 +531,12 @@ de:
           file_name: nutzungsbedingungen
         introducton:
           file_name: einleitungstext
-          text: 'Überschrift
+          text: |
+            Überschrift
 
-          Hier könnte Ihre Enleitung stehen
+            Hier könnte Ihre Enleitung stehen
 
-          COPYRIGHT dataCycle'
+            COPYRIGHT dataCycle
     geo_key_figure:
       button_title: Ermittlung des Wertes für %{data} über ein Web-Service auf Basis der zugrundeliegenden Geo-Daten
       button_title_all: Ermittlung der Werte über ein Web-Service auf Basis der zugrundeliegenden Geo-Daten
@@ -532,6 +548,7 @@ de:
     report_generator:
       downloads_popular: Top 50 Downloads
       downloads_content: Alle Downloads dieses Inhalts
+      stored_searches_usage: Verwendung Gespeicherte Suchen
       headings:
         id: ID
         name: Name
@@ -540,11 +557,18 @@ de:
         date_created: Heruntergeladen am
         email: E-Mail
         user_display_name: Account
+        creator: Ersteller
+        last_used_dashboard: Datum der letzten Verwendung am Dashboard
+        last_used_api: Datum der letzten Verwendung über die API
+        api_usage_current_week: Anzahl der Verwendungen über die API in der aktuellen Woche
+        api_usage_last_week: Anzahl der Verwendungen über die API in letzten Wochen
+        api_usage_current_month: Anzahl der Verwendungen über die API im aktuellen Monat
+        api_usage_last_month: Anzahl der Verwendungen über die API im letzten Monat
       mailer:
         subject:
           downloads_popular: TOP 50 Bild Downloads
         text_html:
-         downloads_popular: Im Anhang finden Sie die TOP 50 Bild Downloads.
+          downloads_popular: Im Anhang finden Sie die TOP 50 Bild Downloads.
 
   compare:
     switch_contents: Inhalte tauschen
@@ -597,6 +621,7 @@ de:
     external_system: Externe Systeme
     creator: Ersteller
     classification_tree_ids: Klassifizierungsbaum
+    copyright_notice: Urheberrechtsvermerk
     created_at: Erstellungsdatum
     updated_at: Aktualisierungsdatum
     validity_period: Gültigkeitszeitraum
@@ -1209,6 +1234,7 @@ de:
         submit_loading_message: Das Speichern kann mehrere Minuten dauern, bitte haben Sie etwas Geduld
       download_tree: Klassifizierungsbaum als CSV herunterladen
       download_tree_with_contents: Klassifizierungsbaum inklusive Inhalten als CSV herunterladen
+      download_tree_for_mappings: Klassifizierungsbaum zum Definieren von Mappings als CSV herunterladen
     this_classification: Dieser Klassifizierung
     this_classification_tree: Diesem Klassifizierungsbaum
     show_contents_for_tree_label: 'Inhalte in %{data} auflisten'
@@ -1231,7 +1257,7 @@ de:
     stored_searches:
       my_searches: Meine Suchen
       my_saved: Meine gespeicherten Suchen
-      show_in_my_saved_searches: in meinen gespeicherten Suchen anzeigen
+      show_in_my_saved_searches: Details anzeigen
       last: Zuletzt gesucht
       saved:
         one: Gepeicherte Suche
@@ -1278,6 +1304,9 @@ de:
         contents:
           root: Inhalte
           specification: Spezifikation
+        webhooks:
+          root: Webhooks
+          json_ld: JSON-LD
 
     schema:
       root: Schema

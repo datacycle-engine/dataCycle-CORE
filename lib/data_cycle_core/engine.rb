@@ -113,7 +113,8 @@ module DataCycleCore
     'DataCycleCore::Generic::Sulu::Webhook',
     'DataCycleCore::Generic::ExternalLink::Webhook',
     'DataCycleCore::Generic::Amtangee::Webhook',
-    'DataCycleCore::Generic::ExternalContentForm::Webhook'
+    'DataCycleCore::Generic::ExternalContentForm::Webhook',
+    'DataCycleCore::Generic::DataCycleApiV4::Webhook'
   ]
 
   mattr_accessor :excluded_filter_classifications
@@ -191,7 +192,7 @@ module DataCycleCore
   self.content_warnings = {}
 
   mattr_accessor :classification_visibilities
-  self.classification_visibilities = ['show', 'show_more', 'edit', 'api', 'xml', 'filter', 'tile', 'list', 'tree_view']
+  self.classification_visibilities = ['show', 'api', 'tile', 'show_more', 'xml', 'list', 'edit', 'filter', 'tree_view']
 
   mattr_accessor :classification_change_behaviour
   self.classification_change_behaviour = ['trigger_webhooks', 'clear_cache']
@@ -316,6 +317,15 @@ module DataCycleCore
         config.paths['db/migrate'].expanded.each do |expanded_path|
           app.config.paths['db/migrate'] << expanded_path
         end
+      end
+    end
+
+    initializer :append_cable_configurations do |app|
+      app.paths['config/cable'] << root.join('config', 'cable.yml').to_s
+
+      ActiveSupport.on_load(:action_cable) do
+        config_path = Pathname.new(app.config.paths['config/cable'].find { |p| Pathname.new(p).exist? })
+        self.cable = Rails.application.config_for(config_path).to_h.with_indifferent_access if config_path
       end
     end
 

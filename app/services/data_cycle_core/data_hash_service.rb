@@ -22,6 +22,28 @@ module DataCycleCore
       datahash
     end
 
+    def self.flatten_datahash_translations_recursive(datahash, flatten_arrays = false)
+      return datahash unless datahash.is_a?(::Hash)
+
+      datahash = datahash.dc_deep_dup.with_indifferent_access
+
+      if datahash.key?(:translations) || datahash.key?(:datahash)
+        datahash.merge!(datahash.delete(:datahash).to_h)
+        datahash.merge!(datahash.dig(:translations, I18n.locale).to_h)
+        datahash.delete(:translations)
+      end
+
+      return datahash[:id] if flatten_arrays && datahash.keys.except('id').none?
+
+      datahash.each do |_key, value|
+        next unless value.is_a?(::Array)
+
+        value.map! { |v| flatten_datahash_translations_recursive(v, true) }
+      end
+
+      datahash
+    end
+
     def self.get_internal_template(name)
       DataCycleCore::Thing.find_by!(template: true, template_name: name)
     end
@@ -61,26 +83,28 @@ module DataCycleCore
       locale = object_hash[:translations]&.keys&.first || I18n.locale
       save_time = Time.zone.now
 
-      I18n.with_locale(locale) do
-        object.schema = template.schema
-        object.template_name = template.template_name
-        object.is_part_of = is_part_of if is_part_of.present?
-        object.created_at = save_time
-        object.updated_at = save_time
-        object.created_by = current_user&.id
-        object.save(touch: false)
+      DataCycleCore::Thing.transaction do
+        I18n.with_locale(locale) do
+          object.schema = template.schema
+          object.template_name = template.template_name
+          object.is_part_of = is_part_of if is_part_of.present?
+          object.created_at = save_time
+          object.updated_at = save_time
+          object.created_by = current_user&.id
+          object.save(touch: false)
+        end
+
+        next if object_hash[:datahash].blank? && object_hash[:translations].blank?
+
+        raise ActiveRecord::Rollback unless object.set_data_hash_with_translations(
+          data_hash: object_hash,
+          current_user: current_user,
+          source: source,
+          new_content: true,
+          save_time: save_time,
+          check_for_duplicates: true
+        )
       end
-
-      return object if object_hash[:datahash].blank? && object_hash[:translations].blank?
-
-      object.set_data_hash_with_translations(
-        data_hash: object_hash,
-        current_user: current_user,
-        source: source,
-        new_content: true,
-        save_time: save_time,
-        check_for_duplicates: true
-      )
 
       object
     end
@@ -120,6 +144,19 @@ module DataCycleCore
 
     def self.present?(data)
       !blank?(data)
+    end
+
+    def self.deep_blank?(data)
+      return true if blank?(data)
+
+      return data.all? { |v| deep_blank?(v) } if data.is_a?(::Array)
+      return data.all? { |_, v| deep_blank?(v) } if data.is_a?(::Hash)
+
+      false
+    end
+
+    def self.deep_present?(data)
+      !deep_blank?(data)
     end
 
     def self.parse_translated_hash(datahash)

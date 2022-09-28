@@ -18,7 +18,7 @@ module DataCycleCore
 
         # method to show a particular WatchList
         def show
-          redirect_to api_v4_stored_filter_path(id: permitted_params[:id], sl: 1, format: request.format.symbol)
+          redirect_to api_v4_stored_filter_path(format: request.format.symbol, **permitted_params.except(:id).merge(sl: 1))
         end
 
         def create

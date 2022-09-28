@@ -47,7 +47,7 @@ $filter-border: #aaa;
         right: 1rem;
         font-size: 1.2rem;
         line-height: 1.5em;
-        transition: all ease-in-out 0.1s;
+        transition: $global-transition;
       }
 
       li[data-children]:hover > label:after,
@@ -84,10 +84,51 @@ $filter-border: #aaa;
     .permanent-advanced-filters,
     .publication-date-filter {
       .add-advanced-filter-container {
-        background-color: lighten($dark-gray, 32%);
-        box-shadow: 0 0 0 2px lighten($dark-gray, 12%);
-        padding: 0.5rem;
+        background-color: lighten($primary-color, 55%);
+        box-shadow: 0 0 0 2px lighten($primary-color, 5%) inset, 0 1px 3px darken($light-gray, 10%);
         border-radius: $global-radius;
+
+        .select2-selection {
+          min-height: 2.5rem;
+          background: transparent;
+          border: none;
+          padding: 0.3rem;
+
+          .select2-selection__rendered {
+            height: 100%;
+            padding-right: 2rem;
+            font-weight: 600;
+          }
+
+          .select2-selection__arrow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            height: 100%;
+            top: 0;
+            right: 0;
+            width: 3rem;
+
+            > * {
+              display: none;
+            }
+
+            &::before {
+              content: '\f067';
+              font-family: FontAwesome;
+              font-style: normal;
+              font-weight: normal;
+              font-size: 1.3rem;
+              line-height: 1.3rem;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              color: $primary-color;
+              margin-top: 1px;
+            }
+          }
+        }
       }
 
       .advanced-filter {
@@ -95,8 +136,8 @@ $filter-border: #aaa;
         display: flex;
         margin: 1rem 0;
         background-color: lighten($dark-gray, 32%);
-        box-shadow: 0 0 0 2px lighten($dark-gray, 12%);
-        transition: all 0.5s ease;
+        box-shadow: 0 0 0 2px lighten($dark-gray, 12%) inset, 0 1px 3px darken($light-gray, 10%);
+        transition: $global-transition;
         border-radius: $global-radius;
 
         select {
@@ -134,19 +175,19 @@ $filter-border: #aaa;
         &.s,
         &.p {
           background-color: lighten($success-color, 36%);
-          box-shadow: 0 0 0 2px lighten($success-color, 3%);
+          box-shadow: 0 0 0 2px lighten($success-color, 3%) inset, 0 1px 3px darken($light-gray, 10%);
         }
 
         &.e,
         &.u,
         &.b {
           background-color: lighten($alert-color, 41%);
-          box-shadow: 0 0 0 2px lighten($alert-color, 20%);
+          box-shadow: 0 0 0 2px lighten($alert-color, 20%) inset, 0 1px 3px darken($light-gray, 10%);
         }
 
         &.highlight {
           background-color: $white;
-          box-shadow: 0 0 0 2px darken($white, 15%);
+          box-shadow: 0 0 0 2px darken($white, 15%) inset, 0 1px 3px darken($light-gray, 10%);
         }
 
         > div {
@@ -314,10 +355,11 @@ $filter-border: #aaa;
     .search {
       .input-group {
         background-color: lighten($light-gray, 7%);
-        padding: 0 2.6rem 0 1rem;
-        transition: background ease-in-out 0.2s;
+        padding: 0;
+        transition: background ease-out 0.25s;
         margin-bottom: 0;
         border-radius: $global-radius;
+        display: flex;
 
         > * {
           background-color: transparent;
@@ -325,8 +367,10 @@ $filter-border: #aaa;
 
         .input-group-field,
         .input-group-button {
-          border: $search-border;
-          padding: 0.3rem;
+          display: flex;
+          flex: auto;
+          height: 2.9rem;
+          padding: 0;
           color: $black;
           border: 0;
         }
@@ -334,8 +378,8 @@ $filter-border: #aaa;
         .input-group-field {
           font-size: 1.2rem;
           line-height: 1.2rem;
-          margin-top: 0.3rem;
           box-shadow: none;
+          padding: 0.3rem 0.3rem 0.3rem 1rem;
 
           &::placeholder {
             font-weight: 200;
@@ -350,10 +394,26 @@ $filter-border: #aaa;
         }
 
         .input-group-button {
+          width: 4rem;
+          align-items: center;
+          justify-content: center;
+          background-color: $success-color;
+          color: $white;
+          transition: $global-transition;
+
           i {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             line-height: 1.2;
-            font-weight: bold;
+          }
+
+          &:hover {
+            background-color: scale-color($success-color, $lightness: -15%);
+          }
+
+          &[disabled] {
+            opacity: 0.5;
+            background-color: scale-color($success-color, $lightness: +15%);
+            cursor: not-allowed;
           }
         }
 
@@ -449,7 +509,7 @@ $filter-border: #aaa;
         label {
           display: block;
           padding: 0.3rem 0.5rem 0.3rem 2.5rem;
-          transition: all 0.4s ease;
+          transition: $global-transition;
           position: relative;
           overflow: hidden;
           cursor: pointer;
@@ -468,7 +528,7 @@ $filter-border: #aaa;
           position: absolute;
           top: 0;
           left: 0;
-          transition: all 0.4s ease;
+          transition: $global-transition;
           opacity: 1;
         }
 
@@ -494,7 +554,7 @@ $filter-border: #aaa;
           i {
             position: absolute;
             line-height: 1.5em;
-            transition: all ease-in-out 0.1s;
+            transition: $global-transition;
           }
         }
 
@@ -616,7 +676,7 @@ $filter-border: #aaa;
           }
 
           a.tag {
-            transition: background-color 0.2s ease-in;
+            transition: background-color 0.25s ease-out;
             background-color: lighten($primary-color, 2%);
 
             .fa {
@@ -751,7 +811,7 @@ $filter-border: #aaa;
       }
 
       a.tag {
-        transition: background-color 0.2s ease-in;
+        transition: background-color 0.25s ease-out;
       }
 
       a.tag:hover {
@@ -809,7 +869,7 @@ $filter-border: #aaa;
             label {
               display: block;
               padding: 0.3rem 0.5rem 0.3rem 2.5rem;
-              transition: all 0.4s ease;
+              transition: $global-transition;
               position: relative;
               overflow: hidden;
               cursor: pointer;
@@ -828,7 +888,7 @@ $filter-border: #aaa;
               position: absolute;
               top: 0;
               left: 0;
-              transition: all 0.4s ease;
+              transition: $global-transition;
               opacity: 1;
             }
 
@@ -950,7 +1010,7 @@ $filter-border: #aaa;
           border-radius: 1.4rem;
           white-space: nowrap;
           overflow: hidden;
-          transition: background ease 0.2s;
+          transition: background ease-out 0.25s;
 
           i,
           .fa-stack {
@@ -996,7 +1056,7 @@ $filter-border: #aaa;
         height: 2.8rem;
 
         i {
-          transition: all ease-in-out 0.25s;
+          transition: $global-transition;
           font-size: 1.1rem;
           line-height: 1.2;
           margin-right: 0.5rem;
@@ -1020,6 +1080,22 @@ $filter-border: #aaa;
         text-align: left;
         cursor: pointer;
         border-radius: $global-radius;
+        gap: 0.3rem;
+
+        .search-history-short-link,
+        .search-favorites-short-link {
+          color: inherit;
+          order: 2;
+
+          &:hover {
+            color: $primary-color;
+          }
+
+          i {
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+          }
+        }
 
         &.search-favorites-short {
           > ul li {
@@ -1066,7 +1142,7 @@ $filter-border: #aaa;
                   cursor: wait;
 
                   > * {
-                    transition: opacity 0.1s ease;
+                    transition: $opacity-transition;
                     opacity: 0.1;
                     pointer-events: none;
                   }
@@ -1097,14 +1173,19 @@ $filter-border: #aaa;
                 position: relative;
                 padding: 0.2rem;
                 display: flex;
-                align-items: center;
-                justify-content: center;
+                gap: 0.3rem;
+
+                > * {
+                  display: flex;
+                  align-items: center;
+                }
               }
 
               .preview-widget-list {
                 display: flex;
                 align-items: center;
                 justify-content: flex-end;
+                gap: 0.2rem;
               }
             }
           }
@@ -1151,10 +1232,10 @@ $filter-border: #aaa;
               display: flex;
               height: 100%;
               width: 100%;
-              transition: background-color ease-in-out 0.25s, color ease-in-out 0.25s;
+              transition: background-color ease-out 0.25s, color ease-out 0.25s;
 
               span {
-                transition: background-color ease-in-out 0.25s, color ease-in-out 0.25s;
+                transition: background-color ease-out 0.25s, color ease-out 0.25s;
 
                 &.title {
                   font-weight: 600;
@@ -1316,6 +1397,8 @@ $filter-border: #aaa;
           text-decoration: inherit;
           font-size: 0.8rem;
           flex: 1;
+          order: 1;
+          padding-right: 0.3rem;
         }
       }
     }
@@ -1351,7 +1434,7 @@ $filter-border: #aaa;
       text-align: center;
       color: $dark-gray;
       padding: 0;
-      transition: color ease-in-out 0.25s;
+      transition: $color-transition;
       display: block;
       border: none !important;
       background: transparent;
@@ -1455,7 +1538,7 @@ $filter-border: #aaa;
     > a,
     > span[data-toggle]:not(.selected) {
       color: lighten($dark-gray, 20%);
-      transition: color 0.3s;
+      transition: $color-transition;
       cursor: pointer;
 
       &:hover {
@@ -1466,16 +1549,10 @@ $filter-border: #aaa;
 
   @keyframes progress-bar {
     0% {
-      margin-left: 0.25rem;
-      width: 0;
-    }
-    50% {
-      margin-left: 25%;
-      width: calc(75% - 0.25rem);
+      left: -50%;
     }
     100% {
-      margin-left: calc(100% - 0.25rem);
-      width: 0;
+      left: 100%;
     }
   }
 
@@ -1516,15 +1593,16 @@ $filter-border: #aaa;
 
       &::before {
         height: 1.5rem;
-        background-color: rgba($light-gray, 0.9);
+        background-color: rgba(lighten($light-gray, 4%), 0.9);
         box-shadow: 0 0 0 1px $light-gray inset;
       }
 
       &::after {
-        height: 1rem;
-        top: 0.25rem;
-        background-color: rgba($dark-gray, 0.5);
-        animation: progress-bar 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        height: 1.5rem;
+        right: unset;
+        width: 100%;
+        background: linear-gradient(to right, rgba(white, 0) 0%, rgba(white, 0.5) 25%, rgba(white, 0) 50%);
+        animation: progress-bar 1s linear infinite forwards;
       }
 
       > * {
@@ -1549,9 +1627,10 @@ $filter-border: #aaa;
     flex-flow: row nowrap;
     align-items: center;
     margin: 0;
+    gap: 0.5rem;
 
     li {
-      margin: 0 0.5rem 0 0;
+      margin: 0;
 
       &:last-child {
         margin-right: 0;
@@ -1560,7 +1639,7 @@ $filter-border: #aaa;
       label {
         display: block;
         padding: 0.5rem 0.8rem;
-        transition: all 0.4s ease;
+        transition: $global-transition;
         position: relative;
         overflow: hidden;
         cursor: pointer;
@@ -1610,7 +1689,7 @@ $filter-border: #aaa;
   }
 
   > li {
-    transition: background 0.4s ease;
+    transition: background 0.25s ease-out;
 
     &:hover {
       background: lighten($light-gray, 5%);

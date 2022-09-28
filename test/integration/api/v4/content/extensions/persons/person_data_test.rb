@@ -9,6 +9,8 @@ module DataCycleCore
         module Extensions
           module Persons
             class PersonDataTest < DataCycleCore::V4::Base
+              include DataCycleCore::ApiHelper
+
               before(:all) do
                 @content = DataCycleCore::V4::DummyDataHelper.create_data('person')
                 @content.reload
@@ -80,6 +82,7 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['address', 'contact_info']) do
                   {
                     'address' => {
+                      '@id' => generate_uuid(@content.id, 'address'),
                       '@type' => 'PostalAddress',
                       'streetAddress' => @content.address.street_address,
                       'postalCode' => @content.address.postal_code,
@@ -281,6 +284,7 @@ module DataCycleCore
                   assert_attributes(json_validate, required_attributes, ['address', 'contact_info']) do
                     {
                       'address' => {
+                        '@id' => generate_uuid(@content.id, 'address'),
                         '@type' => 'PostalAddress',
                         'streetAddress' => @content.address.street_address,
                         'postalCode' => @content.address.postal_code,
@@ -387,6 +391,7 @@ module DataCycleCore
                 assert_translated_attributes(json_validate, required_attributes, ['address', 'contact_info']) do
                   {
                     'address' => {
+                      '@id' => generate_uuid(@content.id, 'address'),
                       '@type' => 'PostalAddress',
                       'streetAddress' => @content.address.street_address,
                       'postalCode' => @content.address.postal_code,
@@ -513,6 +518,7 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['address', 'contact_info']) do
                   {
                     'address' => {
+                      '@id' => generate_uuid(@content.id, 'address'),
                       '@type' => 'PostalAddress',
                       'streetAddress' => content_overlay.address.street_address,
                       'postalCode' => content_overlay.address.postal_code,
@@ -627,6 +633,7 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['address', 'contact_info']) do
                   {
                     'address' => {
+                      '@id' => generate_uuid(@content.id, 'address'),
                       '@type' => 'PostalAddress',
                       'streetAddress' => content_overlay.address.street_address,
                       'postalCode' => @content.address.postal_code,

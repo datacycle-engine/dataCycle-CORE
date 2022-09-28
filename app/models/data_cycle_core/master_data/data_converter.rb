@@ -163,22 +163,27 @@ module DataCycleCore
       end
 
       def self.generate_slug(value, content, data_hash = nil)
-        return nil if content.embedded?
+        return if content&.embedded?
+
         base_slug = value&.to_slug
-        base_slug ||= content.title(data_hash: data_hash)&.to_slug
+        base_slug ||= content&.title(data_hash: data_hash)&.to_slug
         base_slug ||= I18n.t('common.no_name')
         slug = base_slug
         uniq_slug = nil
         count = 0
+
         while uniq_slug.nil?
           found = DataCycleCore::Thing::Translation.find_by(slug: slug)
-          if found.blank? || (found.present? && found.thing_id == content.id && found.locale == I18n.locale.to_s)
+
+          if found.blank? || (found.present? && found.thing_id == content&.id && found.locale == I18n.locale.to_s)
             uniq_slug = slug
             break
           end
+
           count += 1
           slug = "#{base_slug}-#{count}"
         end
+
         uniq_slug
       end
     end

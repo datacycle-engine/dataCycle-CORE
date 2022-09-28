@@ -30,7 +30,7 @@ module DataCycleCore
       return if options.definition['compute'].present?
       return render('data_cycle_core/contents/editors/attribute_group', options.render_params) if options.type?('attribute_group')
 
-      return render_linked_viewer(options.to_h.slice(:key, :definition, :value, :parameters, :content)) if options.type?('linked') && options.definition['link_direction'] == 'inverse'
+      return render_linked_viewer(**options.to_h.slice(:key, :definition, :value, :parameters, :content)) if options.type?('linked') && options.definition['link_direction'] == 'inverse'
 
       return unless can?(:edit, DataCycleCore::DataAttribute.new(
                                   options.key,
@@ -56,9 +56,9 @@ module DataCycleCore
       return allowed unless allowed.is_a?(TrueClass)
 
       if (attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values) && !options.parameters&.dig(:parent_translatable)) || object_has_translatable_attributes?(options.content, options.definition)
-        render_translatable_attribute_editor options.to_h
+        render_translatable_attribute_editor(**options.to_h)
       else
-        render_untranslatable_attribute_editor options.to_h
+        render_untranslatable_attribute_editor(**options.to_h)
       end
     end
 
@@ -109,7 +109,7 @@ module DataCycleCore
       "#{key}[#{index}]#{ATTRIBUTE_DATAHASH_PREFIX}"
     end
 
-    def attribute_editor_html_classes(key:, definition:, options:, parent: nil, **_args)
+    def attribute_editor_html_classes(key:, definition:, options:, content: nil, parent: nil, **_args)
       html_classes = [
         'clearfix',
         'form-element',
@@ -119,8 +119,8 @@ module DataCycleCore
         options&.dig('class')
       ]
 
+      html_classes.push('disabled') unless attribute_editable?(key, definition, options, content)
       html_classes.push('validation-container') if definition.key?('validations')
-      html_classes.push('dc-quality-score') if definition.key?('quality_score')
       html_classes.push(definition.dig('ui', 'edit', 'type')&.underscore) if definition&.dig('ui', options[:edit_scope], 'partial').blank?
       html_classes.push('is-embedded-title') if parent&.embedded_title_property_name.present? && key.attribute_name_from_key == parent.embedded_title_property_name
 

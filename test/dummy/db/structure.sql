@@ -76,7 +76,7 @@ CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
 -- Name: EXTENSION postgis; Type: COMMENT; Schema: -; Owner: -
 --
 
-COMMENT ON EXTENSION postgis IS 'PostGIS geometry and geography spatial types and functions';
+COMMENT ON EXTENSION postgis IS 'PostGIS geometry, geography, and raster spatial types and functions';
 
 
 --
@@ -243,7 +243,7 @@ CREATE FUNCTION public.generate_classification_alias_paths(classification_alias_
 
 CREATE FUNCTION public.generate_classification_alias_paths_trigger_1() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_classification_alias_paths(NEW.id || '{}'::UUID[]); RETURN NEW; END;$$;
+    AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(id) || ARRAY[NEW.id]::UUID[]) FROM ( SELECT id FROM classification_alias_paths WHERE NEW.id = ANY (ancestor_ids)) "new_child_classification_aliases"; RETURN NEW; END; $$;
 
 
 --
@@ -252,7 +252,7 @@ CREATE FUNCTION public.generate_classification_alias_paths_trigger_1() RETURNS t
 
 CREATE FUNCTION public.generate_classification_alias_paths_trigger_2() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(id) || NEW.classification_alias_id) FROM ( SELECT id FROM classification_alias_paths WHERE NEW.classification_alias_id = ANY (ancestor_ids)) "changed_child_classification_aliasese"; RETURN NEW; END; $$;
+    AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(id) || ARRAY[NEW.classification_alias_id]::UUID[]) FROM ( SELECT id FROM classification_alias_paths WHERE NEW.classification_alias_id = ANY (ancestor_ids)) "changed_child_classification_aliases"; RETURN NEW; END; $$;
 
 
 --
@@ -261,7 +261,7 @@ CREATE FUNCTION public.generate_classification_alias_paths_trigger_2() RETURNS t
 
 CREATE FUNCTION public.generate_classification_alias_paths_trigger_3() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ DECLARE classification_alias_ids UUID[]; BEGIN SELECT ARRAY_AGG(classification_trees.classification_alias_id) INTO classification_alias_ids FROM classification_trees WHERE classification_trees.classification_tree_label_id = NEW.id; PERFORM generate_classification_alias_paths(classification_alias_ids); RETURN NEW; END;$$;
+    AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(classification_alias_id)) FROM ( SELECT classification_alias_id FROM classification_trees WHERE classification_trees.classification_tree_label_id = NEW.id) "changed_tree_classification_aliases"; RETURN NEW; END; $$;
 
 
 --
@@ -279,7 +279,7 @@ CREATE FUNCTION public.generate_collected_cl_content_relations_transitive(conten
 
 CREATE FUNCTION public.generate_collected_classification_content_relations(content_ids uuid[], excluded_classification_ids uuid[]) RETURNS uuid[]
     LANGUAGE plpgsql
-    AS $$ BEGIN DELETE FROM collected_classification_content_relations WHERE content_id = ANY (content_ids); WITH direct_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", classification_groups.classification_alias_id "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL WHERE things.id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids) ), full_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", UNNEST(classification_alias_paths.full_path_ids) "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id WHERE things.id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids)) INSERT INTO collected_classification_content_relations (content_id, direct_classification_alias_ids, full_classification_alias_ids) SELECT things.id "content_id", direct_content_classification_ids "direct_classification_alias_ids", full_content_classification_ids "full_classification_alias_ids" FROM things JOIN ( SELECT thing_id, ARRAY_AGG(direct_classification_content_relations.classification_alias_id) "direct_content_classification_ids" FROM direct_classification_content_relations GROUP BY thing_id) "direct_relations" ON direct_relations.thing_id = things.id JOIN ( SELECT thing_id, ARRAY_AGG(full_classification_content_relations.classification_alias_id) "full_content_classification_ids" FROM full_classification_content_relations GROUP BY thing_id) "full_relations" ON full_relations.thing_id = things.id; RETURN content_ids; END; $$;
+    AS $$ BEGIN DELETE FROM collected_classification_content_relations WHERE content_id IN ( SELECT cccr.content_id FROM collected_classification_content_relations cccr WHERE cccr.content_id = ANY (content_ids) FOR UPDATE SKIP LOCKED ); WITH direct_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", classification_groups.classification_alias_id "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL WHERE things.id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids) ), full_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", UNNEST(classification_alias_paths.full_path_ids) "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id WHERE things.id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids)) INSERT INTO collected_classification_content_relations (content_id, direct_classification_alias_ids, full_classification_alias_ids) SELECT things.id "content_id", direct_content_classification_ids "direct_classification_alias_ids", full_content_classification_ids "full_classification_alias_ids" FROM things JOIN ( SELECT thing_id, ARRAY_AGG(direct_classification_content_relations.classification_alias_id) "direct_content_classification_ids" FROM direct_classification_content_relations GROUP BY thing_id) "direct_relations" ON direct_relations.thing_id = things.id JOIN ( SELECT thing_id, ARRAY_AGG(full_classification_content_relations.classification_alias_id) "full_content_classification_ids" FROM full_classification_content_relations GROUP BY thing_id) "full_relations" ON full_relations.thing_id = things.id; RETURN content_ids; END; $$;
 
 
 --
@@ -403,7 +403,7 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.active_storage_attachments (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name character varying NOT NULL,
     record_type character varying NOT NULL,
     record_id uuid NOT NULL,
@@ -417,7 +417,7 @@ CREATE TABLE public.active_storage_attachments (
 --
 
 CREATE TABLE public.active_storage_blobs (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     key character varying NOT NULL,
     filename character varying NOT NULL,
     content_type character varying,
@@ -434,7 +434,7 @@ CREATE TABLE public.active_storage_blobs (
 --
 
 CREATE TABLE public.active_storage_variant_records (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     blob_id uuid NOT NULL,
     variation_digest character varying NOT NULL
 );
@@ -445,7 +445,7 @@ CREATE TABLE public.active_storage_variant_records (
 --
 
 CREATE TABLE public.activities (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     activitiable_type character varying,
     activitiable_id uuid,
     user_id uuid,
@@ -473,7 +473,7 @@ CREATE TABLE public.ar_internal_metadata (
 --
 
 CREATE TABLE public.asset_contents (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     content_data_id uuid,
     content_data_type character varying,
     asset_id uuid,
@@ -490,7 +490,7 @@ CREATE TABLE public.asset_contents (
 --
 
 CREATE TABLE public.assets (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     file character varying,
     type character varying,
     content_type character varying,
@@ -510,7 +510,7 @@ CREATE TABLE public.assets (
 --
 
 CREATE TABLE public.classification_groups (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     classification_id uuid,
     classification_alias_id uuid,
     external_source_id uuid,
@@ -526,7 +526,7 @@ CREATE TABLE public.classification_groups (
 --
 
 CREATE TABLE public.classification_trees (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     external_source_id uuid,
     parent_classification_alias_id uuid,
     classification_alias_id uuid,
@@ -594,7 +594,7 @@ CREATE TABLE public.classification_alias_paths_transitive (
 --
 
 CREATE TABLE public.classification_aliases (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     internal_name character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
@@ -614,12 +614,12 @@ CREATE TABLE public.classification_aliases (
 --
 
 CREATE TABLE public.classification_contents (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     content_data_id uuid,
     classification_id uuid,
     seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
+    updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     relation character varying
 );
 
@@ -676,12 +676,12 @@ CREATE VIEW public.classification_alias_statistics AS
 --
 
 CREATE TABLE public.classification_content_histories (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     content_data_history_id uuid,
     classification_id uuid,
     seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
+    updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     relation character varying
 );
 
@@ -691,7 +691,7 @@ CREATE TABLE public.classification_content_histories (
 --
 
 CREATE TABLE public.classification_polygons (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     admin_level integer,
     classification_alias_id uuid,
     geom public.geometry(MultiPolygon,3035),
@@ -706,7 +706,7 @@ CREATE TABLE public.classification_polygons (
 --
 
 CREATE TABLE public.classification_tree_labels (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     name character varying,
     external_source_id uuid,
     seen_at timestamp without time zone,
@@ -762,12 +762,12 @@ CREATE VIEW public.classification_tree_label_statistics AS
 --
 
 CREATE TABLE public.classification_user_groups (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     classification_id uuid,
     user_group_id uuid,
     seen_at timestamp without time zone,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -776,7 +776,7 @@ CREATE TABLE public.classification_user_groups (
 --
 
 CREATE TABLE public.classifications (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     name character varying,
     external_source_id uuid,
     external_key character varying,
@@ -810,7 +810,7 @@ CREATE TABLE public.collected_classification_content_relations (
 --
 
 CREATE TABLE public.things (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     metadata jsonb,
     template_name character varying,
     schema jsonb,
@@ -884,14 +884,14 @@ CREATE VIEW public.content_computed_properties AS
 --
 
 CREATE TABLE public.content_content_histories (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     content_a_history_id uuid,
     relation_a character varying,
     content_b_history_id uuid,
     content_b_history_type character varying,
     history_valid tstzrange,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
+    updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     order_a integer,
     relation_b character varying
 );
@@ -912,12 +912,12 @@ CREATE TABLE public.content_content_links (
 --
 
 CREATE TABLE public.content_contents (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     content_a_id uuid,
     relation_a character varying,
     content_b_id uuid,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
+    updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     order_a integer,
     relation_b character varying
 );
@@ -943,7 +943,7 @@ UNION ALL
 --
 
 CREATE TABLE public.data_links (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     item_id uuid,
     item_type character varying,
     creator_id uuid,
@@ -965,7 +965,7 @@ CREATE TABLE public.data_links (
 --
 
 CREATE TABLE public.watch_list_data_hashes (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     watch_list_id uuid,
     hashable_id uuid,
     hashable_type character varying,
@@ -1059,7 +1059,6 @@ CREATE TABLE public.delayed_jobs (
 --
 
 CREATE SEQUENCE public.delayed_jobs_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1079,7 +1078,7 @@ ALTER SEQUENCE public.delayed_jobs_id_seq OWNED BY public.delayed_jobs.id;
 --
 
 CREATE TABLE public.thing_duplicates (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     thing_id uuid,
     thing_duplicate_id uuid,
     method character varying,
@@ -1115,7 +1114,7 @@ UNION
 --
 
 CREATE TABLE public.external_system_syncs (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     syncable_id uuid,
     external_system_id uuid,
     data jsonb,
@@ -1135,7 +1134,7 @@ CREATE TABLE public.external_system_syncs (
 --
 
 CREATE TABLE public.external_systems (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name character varying,
     config jsonb,
     credentials jsonb,
@@ -1184,7 +1183,7 @@ CREATE VIEW public.primary_classification_groups AS
 --
 
 CREATE TABLE public.roles (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     name character varying,
     rank integer,
     created_at timestamp without time zone NOT NULL,
@@ -1197,7 +1196,7 @@ CREATE TABLE public.roles (
 --
 
 CREATE TABLE public.schedule_histories (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     thing_history_id uuid,
     relation character varying,
     dtstart timestamp with time zone,
@@ -1233,7 +1232,7 @@ CREATE TABLE public.schedule_occurrences (
 --
 
 CREATE TABLE public.schedules (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     thing_id uuid,
     relation character varying,
     dtstart timestamp with time zone,
@@ -1265,7 +1264,7 @@ CREATE TABLE public.schema_migrations (
 --
 
 CREATE TABLE public.searches (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     content_data_id uuid,
     locale character varying,
     words tsvector,
@@ -1291,7 +1290,7 @@ CREATE TABLE public.searches (
 --
 
 CREATE TABLE public.stored_filters (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     name character varying,
     user_id uuid,
     language character varying[],
@@ -1312,7 +1311,7 @@ CREATE TABLE public.stored_filters (
 --
 
 CREATE TABLE public.subscriptions (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     user_id uuid,
     subscribable_id uuid,
     subscribable_type character varying,
@@ -1326,7 +1325,7 @@ CREATE TABLE public.subscriptions (
 --
 
 CREATE TABLE public.thing_histories (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     thing_id uuid NOT NULL,
     metadata jsonb,
     template_name character varying,
@@ -1373,7 +1372,7 @@ CREATE TABLE public.thing_histories (
 --
 
 CREATE TABLE public.thing_history_translations (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     thing_history_id uuid NOT NULL,
     locale character varying NOT NULL,
     content jsonb,
@@ -1391,7 +1390,7 @@ CREATE TABLE public.thing_history_translations (
 --
 
 CREATE TABLE public.thing_translations (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     thing_id uuid NOT NULL,
     locale character varying NOT NULL,
     content jsonb,
@@ -1422,7 +1421,7 @@ CREATE TABLE public.timeseries (
 --
 
 CREATE TABLE public.user_group_users (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     user_group_id uuid,
     user_id uuid,
     seen_at timestamp without time zone,
@@ -1436,7 +1435,7 @@ CREATE TABLE public.user_group_users (
 --
 
 CREATE TABLE public.user_groups (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     name character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
@@ -1449,7 +1448,7 @@ CREATE TABLE public.user_groups (
 --
 
 CREATE TABLE public.users (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     given_name character varying DEFAULT ''::character varying NOT NULL,
     email character varying DEFAULT ''::character varying NOT NULL,
     encrypted_password character varying DEFAULT ''::character varying NOT NULL,
@@ -1463,6 +1462,8 @@ CREATE TABLE public.users (
     last_sign_in_ip character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
+    provider character varying,
+    uid character varying,
     family_name character varying DEFAULT ''::character varying NOT NULL,
     locked_at timestamp without time zone,
     external boolean DEFAULT false NOT NULL,
@@ -1472,8 +1473,6 @@ CREATE TABLE public.users (
     type character varying DEFAULT 'DataCycleCore::User'::character varying,
     name character varying,
     default_locale character varying DEFAULT 'de'::character varying,
-    provider character varying,
-    uid character varying,
     jti character varying,
     creator_id uuid,
     additional_attributes jsonb,
@@ -1490,7 +1489,7 @@ CREATE TABLE public.users (
 --
 
 CREATE TABLE public.watch_list_shares (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     shareable_id uuid,
     watch_list_id uuid,
     seen_at timestamp without time zone,
@@ -1505,7 +1504,7 @@ CREATE TABLE public.watch_list_shares (
 --
 
 CREATE TABLE public.watch_lists (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     name character varying,
     user_id uuid,
     seen_at timestamp without time zone,
@@ -1869,6 +1868,13 @@ ALTER TABLE ONLY public.watch_lists
 
 
 --
+-- Name: activities_data_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX activities_data_id_idx ON public.activities USING btree (((data ->> 'id'::text)));
+
+
+--
 -- Name: all_text_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2114,10 +2120,10 @@ CREATE UNIQUE INDEX index_active_storage_variant_records_uniqueness ON public.ac
 
 
 --
--- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_activities_on_activitiable; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
+CREATE INDEX index_activities_on_activitiable ON public.activities USING btree (activitiable_type, activitiable_id);
 
 
 --
@@ -2898,6 +2904,13 @@ CREATE UNIQUE INDEX unique_duplicate_index ON public.thing_duplicates USING btre
 
 
 --
+-- Name: unique_thing_duplicate_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX unique_thing_duplicate_idx ON public.thing_duplicates USING btree (LEAST(thing_id, thing_duplicate_id), GREATEST(thing_id, thing_duplicate_id));
+
+
+--
 -- Name: user_group_users_on_user_id_user_group_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3277,6 +3290,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20170524132123'),
 ('20170524144644'),
 ('20170612114242'),
+('20170619191047'),
 ('20170620143810'),
 ('20170621070615'),
 ('20170624083501'),
@@ -3302,6 +3316,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20170918093456'),
 ('20170919085841'),
 ('20170920071933'),
+('20170920141027'),
 ('20170921160600'),
 ('20170921161200'),
 ('20170929140328'),
@@ -3381,15 +3396,19 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190108154224'),
 ('20190110092936'),
 ('20190110151543'),
+('20190115090642'),
 ('20190117135807'),
 ('20190118113621'),
 ('20190118145915'),
+('20190123111440'),
 ('20190129083607'),
+('20190129083632'),
 ('20190312141313'),
 ('20190314094528'),
 ('20190325122951'),
 ('20190423083517'),
 ('20190423103601'),
+('20190517072206'),
 ('20190520124223'),
 ('20190531093158'),
 ('20190612084614'),
@@ -3401,10 +3420,17 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190716130050'),
 ('20190801120456'),
 ('20190805085313'),
+('20190812135957'),
 ('20190821101746'),
+('20190823063642'),
+('20190902065050'),
 ('20190920075014'),
 ('20190926131653'),
+('20191002124900'),
+('20191022060303'),
+('20191106140320'),
 ('20191113092141'),
+('20191115091130'),
 ('20191119110348'),
 ('20191129131046'),
 ('20191204141710'),
@@ -3413,6 +3439,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20191219143016'),
 ('20200116143539'),
 ('20200117095949'),
+('20200120095316'),
 ('20200131103229'),
 ('20200205143630'),
 ('20200213132354'),
@@ -3423,7 +3450,10 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200221115053'),
 ('20200224143507'),
 ('20200226121349'),
+('20200304135433'),
+('20200318142010'),
 ('20200410064408'),
+('20200415060808'),
 ('20200420130554'),
 ('20200514064724'),
 ('20200525104244'),
@@ -3432,14 +3462,18 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200721111525'),
 ('20200724094112'),
 ('20200728062727'),
+('20200805073855'),
 ('20200812110341'),
 ('20200812111137'),
+('20200819082238'),
 ('20200824121824'),
 ('20200824140802'),
 ('20200826082051'),
 ('20200903102806'),
+('20200910140148'),
 ('20200922112719'),
 ('20200928122555'),
+('20201013063831'),
 ('20201014110327'),
 ('20201016100223'),
 ('20201022061044'),
@@ -3449,11 +3483,17 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20201201103630'),
 ('20201207151843'),
 ('20201208210141'),
+('20210205074513'),
 ('20210208130744'),
 ('20210215102758'),
+('20210216071143'),
 ('20210217125404'),
+('20210222100047'),
+('20210222111132'),
+('20210222121215'),
 ('20210305080429'),
 ('20210310141132'),
+('20210316092338'),
 ('20210410183240'),
 ('20210413105611'),
 ('20210416120714'),
@@ -3471,12 +3511,16 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210625202737'),
 ('20210628202054'),
 ('20210629094413'),
+('20210705103500'),
 ('20210709121013'),
 ('20210731090959'),
 ('20210802095013'),
 ('20210804140504'),
+('20210813101055'),
 ('20210817101040'),
 ('20210908095952'),
+('20210917105456'),
+('20210920071244'),
 ('20211001085525'),
 ('20211005125306'),
 ('20211005134137'),
@@ -3485,22 +3529,35 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211014062654'),
 ('20211021062347'),
 ('20211021111915'),
+('20211110092804'),
+('20211115140202'),
+('20211119080843'),
 ('20211122075759'),
 ('20211123081845'),
 ('20211130111352'),
+('20211209080815'),
 ('20211214135559'),
 ('20211216110505'),
 ('20211217094832'),
 ('20220105142232'),
+('20220111121209'),
 ('20220111132413'),
 ('20220113113445'),
+('20220113150316'),
+('20220119101040'),
+('20220125101015'),
+('20220203130112'),
 ('20220218095025'),
 ('20220221123152'),
+('20220221133540'),
 ('20220304071341'),
 ('20220316115212'),
 ('20220317105304'),
 ('20220317131316'),
 ('20220322104259'),
+('20220323090941'),
+('20220328064324'),
+('20220328090933'),
 ('20220426105827'),
 ('20220505135021'),
 ('20220513075644'),
@@ -3514,6 +3571,13 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220615085015'),
 ('20220615104611'),
 ('20220617113231'),
-('20220715173507');
-
-
+('20220715173507'),
+('20220801080835'),
+('20220829102251'),
+('20220905101007'),
+('20220914090315'),
+('20220915081205'),
+('20220919112419'),
+('20220919130156'),
+('20220920083836'),
+('20220922061116');

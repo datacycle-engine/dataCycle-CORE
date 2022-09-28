@@ -9,7 +9,7 @@ module DataCycleCore
         import Transproc::Conditional
         import Transproc::Recursion
         import RatingTransformations
-        import ExternalReferenceTransformations
+        import DataReferenceTransformations
 
         def self.underscore_keys(data_hash)
           data_hash.to_h.deep_transform_keys { |k| k.to_s.underscore }
@@ -152,11 +152,14 @@ module DataCycleCore
           )
         end
 
-        def self.local_asset(data_hash, attribute, asset_type)
+        def self.local_asset(data_hash, attribute, asset_type, creator_id = nil)
           return data_hash if data_hash[attribute].blank?
 
           begin
-            asset = "DataCycleCore::#{asset_type&.classify}".safe_constantize.new(remote_file_url: data_hash[attribute])
+            asset_hash = data_hash[attribute].is_a?(::Hash) ? data_hash[attribute] : { 'remote_file_url' => data_hash[attribute] }
+            asset = "DataCycleCore::#{asset_type&.classify}".safe_constantize.new(asset_hash)
+            asset.name = asset_hash['file'].try(:original_filename) if asset_hash['name'].blank?
+            asset.creator_id = creator_id
             asset.save!
             data_hash[attribute] = asset.try(:id)
           rescue StandardError => e
@@ -211,6 +214,10 @@ module DataCycleCore
           return data_hash if extension.blank?
 
           data_hash.merge({ name => MiniMime.lookup_by_extension(extension.to_s)&.content_type&.then { |s| specific_type.present? ? s.gsub('application', specific_type.to_s) : s } }.compact)
+        end
+
+        def self.add_universal_classifications(data_hash, function)
+          universal_classifications(data_hash, function)
         end
 
         def self.universal_classifications(data_hash, function)
@@ -284,6 +291,27 @@ module DataCycleCore
           )
 
           data
+        end
+
+        # split and nest data_hash into { datahash: {}, translations: {} }
+        def self.json_ld_to_translated_data_hash(data_hash)
+          return data_hash if data_hash.blank?
+
+          data_hash = { datahash: data_hash, translations: {} }
+          data_hash[:datahash]&.each do |key, value|
+            next unless value.is_a?(::Array) && value.first.key?('@language')
+
+            while value.present?
+              v = value.shift
+
+              data_hash[:translations][v['@language']] ||= {}
+              data_hash[:translations][v['@language']][key] = v['@value']
+            end
+
+            data_hash[:datahash].delete(key)
+          end
+
+          data_hash
         end
       end
     end

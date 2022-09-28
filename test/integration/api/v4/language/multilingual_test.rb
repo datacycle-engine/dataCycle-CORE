@@ -7,6 +7,8 @@ module DataCycleCore
     module V4
       module Language
         class MultilingualTest < DataCycleCore::V4::Base
+          include DataCycleCore::ApiHelper
+
           before(:all) do
             @content = DataCycleCore::V4::DummyDataHelper.create_data('event')
             @article = DataCycleCore::V4::DummyDataHelper.create_data('structured_article')
@@ -175,6 +177,7 @@ module DataCycleCore
               {
                 'potentialAction' => [
                   {
+                    '@id' => generate_uuid(@content.id, 'potential_action'),
                     '@type' => 'ViewAction',
                     'name' => 'potential_action',
                     'url' => translated_value(@content, 'potential_action', ['de'])
@@ -212,18 +215,21 @@ module DataCycleCore
               {
                 'additionalProperty' => [
                   {
+                    '@id' => generate_uuid(@content.id, 'same_as'),
                     '@type' => 'PropertyValue',
                     'identifier' => 'link',
                     'value' => translated_value(@content, 'same_as', ['de']),
                     'name' => 'Link'
                   },
                   {
+                    '@id' => generate_uuid(@content.id, 'feratel_content_score'),
                     '@type' => 'PropertyValue',
                     'identifier' => 'feratelContentScore',
                     'name' => 'ContentScore (Feratel)',
                     'value' => translated_value(@content, 'feratel_content_score', ['de'])
                   },
                   {
+                    '@id' => generate_uuid(@content.id, 'content_score'),
                     '@type' => 'PropertyValue',
                     'identifier' => 'contentScore',
                     'name' => 'ContentScore',
@@ -567,6 +573,7 @@ module DataCycleCore
               {
                 'potentialAction' => [
                   {
+                    '@id' => generate_uuid(@content.id, 'potential_action'),
                     '@type' => 'ViewAction',
                     'name' => 'potential_action',
                     'url' => translated_value(@content, 'potential_action', ['de', 'en'])
@@ -604,18 +611,21 @@ module DataCycleCore
               {
                 'additionalProperty' => [
                   {
+                    '@id' => generate_uuid(@content.id, 'same_as'),
                     '@type' => 'PropertyValue',
                     'identifier' => 'link',
                     'value' => translated_value(@content, 'same_as', ['de', 'en']),
                     'name' => 'Link'
                   },
                   {
+                    '@id' => generate_uuid(@content.id, 'feratel_content_score'),
                     '@type' => 'PropertyValue',
                     'identifier' => 'feratelContentScore',
                     'name' => 'ContentScore (Feratel)',
                     'value' => translated_value(@content, 'feratel_content_score', ['de', 'en'])
                   },
                   {
+                    '@id' => generate_uuid(@content.id, 'content_score'),
                     '@type' => 'PropertyValue',
                     'identifier' => 'contentScore',
                     'name' => 'ContentScore',

@@ -10,7 +10,7 @@
   align-items: center;
   justify-content: center;
   margin: 0.5rem 0 1rem 0;
-  transition: all 0.3s;
+  transition: $global-transition;
   border-radius: $global-radius;
 
   &.is-dragover {
@@ -138,7 +138,7 @@
       display: block;
     }
     .progress-filled {
-      transition: all 0.1s;
+      transition: $global-transition;
       width: 0;
       background: rgba($success-color, 1);
     }

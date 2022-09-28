@@ -64,7 +64,7 @@
           align-items: center;
           justify-content: center;
           color: $dark-gray;
-          transition: color 0.2s ease;
+          transition: $color-transition;
 
           &:hover {
             color: $black;

@@ -152,8 +152,8 @@ class AssetFile {
       );
 
       if (attribute.type == 'boolean') {
-        const otherAttributeFieldValues = this.attributeFieldValues.filter(v => v.name.getAttributeKey() != key);
-        const attributeFieldValue = this.attributeFieldValues.filter(v => v.name.getAttributeKey() == key).pop();
+        const otherAttributeFieldValues = this.attributeFieldValues.filter(v => v.name.attributeNameFromKey() != key);
+        const attributeFieldValue = this.attributeFieldValues.filter(v => v.name.attributeNameFromKey() == key).pop();
         this.attributeFieldValues = otherAttributeFieldValues;
         if (attributeFieldValue) this.attributeFieldValues.push(attributeFieldValue);
 
@@ -483,9 +483,13 @@ class AssetFile {
 
     promise
       .then(data => {
+        if (!document.querySelector(`[data-id="${this.id}"]`)) return;
+
         this._updateFileAttributes(data);
       })
       .catch(data => {
+        if (!document.querySelector(`[data-id="${this.id}"]`)) return;
+
         this.retryUpload = true;
         this._resetFileField();
         let error = data.statusText;
@@ -493,6 +497,8 @@ class AssetFile {
         this._renderError(error);
       })
       .finally(() => {
+        if (!document.querySelector(`[data-id="${this.id}"]`)) return;
+
         this._updateOverlayButtons();
         DataCycle.enableElement(this.uploader.assetReloadButton);
       });

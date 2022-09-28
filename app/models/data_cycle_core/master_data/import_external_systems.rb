@@ -23,7 +23,7 @@ module DataCycleCore
           if error.blank?
             external_system = DataCycleCore::ExternalSystem.find_by(identifier: data['identifier']) || DataCycleCore::ExternalSystem.find_or_initialize_by(name: data['name'])
             data['identifier'] ||= data['name']
-            external_system.attributes = data.slice('name', 'identifier', 'credentials', 'config', 'default_options', 'deactivated')
+            external_system.attributes = data.slice('name', 'identifier', 'credentials', 'config', 'default_options', 'deactivated').reverse_merge!({ 'name' => nil, 'identifier' => nil, 'credentials' => nil, 'config' => nil, 'default_options' => nil, 'deactivated' => nil })
             external_system.save
           else
             errors[data['name']] = error
@@ -39,7 +39,7 @@ module DataCycleCore
       def self.validate(data_hash)
         validation_hash = data_hash.deep_symbolize_keys
         validate_header = ExternalSystemHeaderContract.new
-        errors = validate_header.call(validation_hash).errors.to_h || {}
+        errors = {}.merge!(validate_header.call(validation_hash).errors.to_h)
         errors[:import_config] = {}
         errors[:download_config] = {}
 

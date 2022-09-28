@@ -18,6 +18,20 @@ module DataCycleCore
           emails.compact
         end
 
+        def public_key_for_issuer?(issuer)
+          configuration[:public_keys]&.key?(issuer)
+        end
+
+        def public_key_for_issuer(issuer)
+          OpenSSL::PKey::RSA.new(configuration.dig(:public_keys, issuer))
+        end
+
+        def allowed_token_issuer(decoded)
+          return unless public_key_for_issuer?(decoded['iss'])
+
+          decoded['iss']
+        end
+
         def json_additional_attributes
           (user_params['additional_attributes'] || {}).keys
         end

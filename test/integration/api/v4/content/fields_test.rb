@@ -85,7 +85,7 @@ module DataCycleCore
             json_data = load_api_data(fields)
 
             assert_equal((fields + default_fields).sort, json_data.keys.sort)
-            assert_equal(['@type', 'identifier', 'name', 'value'], json_data.dig('additionalProperty', 0).keys)
+            assert_equal(['@type', 'identifier', 'name', '@id', 'value'], json_data.dig('additionalProperty', 0).keys)
             assert_equal('PropertyValue', json_data.dig('additionalProperty', 0, '@type'))
           end
 
@@ -94,7 +94,7 @@ module DataCycleCore
             json_data = load_api_data(fields)
 
             assert_equal((['additionalProperty'] + default_fields).sort, json_data.keys.sort)
-            assert_equal(['@type', 'name'], json_data.dig('additionalProperty', 0).keys)
+            assert_equal(['@type', 'name', '@id'], json_data.dig('additionalProperty', 0).keys)
             assert_equal('PropertyValue', json_data.dig('additionalProperty', 0, '@type'))
           end
 

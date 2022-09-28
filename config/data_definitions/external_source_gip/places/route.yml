@@ -44,7 +44,7 @@
           :edit:
             :type: text_editor
             :options:
-              :data-size: basic
+              :data-size: full
       :route_number:
         :label: Nummer der Radroute
         :type: string

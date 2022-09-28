@@ -1,4 +1,4 @@
-image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:dockerize-1.0
+image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:dockerize-1.1
 
 variables:
   PRODUCTION_URL: ''
@@ -7,6 +7,18 @@ variables:
   DOCKER_URL_DEVELOPMENT: ''
   GITLAB_ENVIRONMENT: ''
   GITLAB_ENVIRONMENT_DEVELOPMENT: ''
+
+.docker_login_and_ssh_agent: &docker_login_and_ssh_agent
+  # Configure SSH
+  - eval $(ssh-agent -s)
+  - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+
+.copy_production_env: &copy_production_env
+  - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
+  - echo -e "\nPIXELPOINT_AAD_V2_CLIENT_ID=$PIXELPOINT_AAD_V2_CLIENT_ID\nPIXELPOINT_AAD_V2_TENANT_ID=$PIXELPOINT_AAD_V2_TENANT_ID\nPIXELPOINT_AAD_V2_CLIENT_SECRET=$PIXELPOINT_AAD_V2_CLIENT_SECRET\nAPPSIGNAL_APP_REVISION=$CI_COMMIT_SHA" >> $(pwd)/.env.production
+  - set -o allexport; eval $(cat $PRODUCTION_ENVIRONMENT | sed -e '/^#/d;/^\s*$/d' -e 's/\(\w*\)[ \t]*=[ \t]*\(.*\)/\1=\2/' -e "s/=['\"]\(.*\)['\"]/=\1/g" -e "s/'/'\\\''/g" -e "s/=\(.*\)/='\1'/g"); set +o allexport
+  - echo "$RAILS_ENV"
 
 .local_test_vars: &local_test_vars
   variables:
@@ -74,7 +86,7 @@ services:
     - bundle exec bundle-audit update
     - bundle exec bundle audit check --ignore CVE-2021-21288 CVE-2021-21305
     - bundle exec brakeman -c vendor/gems/data-cycle-core/config/brakeman.yml
-    - bundle exec rubocop --format fuubar
+    - bundle exec rubocop --format fuubar -P
     - bundle exec fasterer
 
 .rails_test_config:
@@ -113,9 +125,13 @@ services:
   services:
     - docker:dind
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - *docker_login_and_ssh_agent
+    - *copy_production_env
   script:
     - docker build --pull -f vendor/gems/data-cycle-core/Dockerfile -t "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG" --target production .
+      --build-arg APP_DOCKER_ENV
+      --build-arg NODE_ENV
+      --build-arg RAILS_ENV
     - docker push "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG"
   after_script:
     - docker logout $CI_REGISTRY
@@ -128,12 +144,8 @@ services:
     DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
     GIT_SUBMODULE_STRATEGY: recursive
   before_script:
-    # Configure SSH
-    - eval $(ssh-agent -s)
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-    - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
-    - echo -e "\nPIXELPOINT_AAD_V2_CLIENT_ID=$PIXELPOINT_AAD_V2_CLIENT_ID\nPIXELPOINT_AAD_V2_TENANT_ID=$PIXELPOINT_AAD_V2_TENANT_ID\nPIXELPOINT_AAD_V2_CLIENT_SECRET=$PIXELPOINT_AAD_V2_CLIENT_SECRET\nAPPSIGNAL_APP_REVISION=$CI_COMMIT_SHA" >> $(pwd)/.env.production
+    - *docker_login_and_ssh_agent
+    - *copy_production_env
   script:
     # update ssh config of deployment target to support bigger number of active sessions
     # e.g. MaxSessions 20
@@ -155,11 +167,8 @@ services:
     DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
     GIT_SUBMODULE_STRATEGY: recursive
   before_script:
-    # Configure SSH
-    - eval $(ssh-agent -s)
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-    - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
+    - *docker_login_and_ssh_agent
+    - *copy_production_env
   script:
     # update ssh config of deployment target to support bigger number of active sessions
     # e.g. MaxSessions 20
@@ -177,11 +186,8 @@ services:
     DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
     GIT_SUBMODULE_STRATEGY: recursive
   before_script:
-    # Configure SSH
-    - eval $(ssh-agent -s)
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-    - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
+    - *docker_login_and_ssh_agent
+    - *copy_production_env
   script:
     # update ssh config of deployment target to support bigger number of active sessions
     # e.g. MaxSessions 20
@@ -199,12 +205,8 @@ services:
     DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
     GIT_SUBMODULE_STRATEGY: recursive
   before_script:
-    # Configure SSH
-    - eval $(ssh-agent -s)
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-    - cp $PRODUCTION_ENVIRONMENT $(pwd)/.env.production
-    - echo -e "\nPIXELPOINT_AAD_V2_CLIENT_ID=$PIXELPOINT_AAD_V2_CLIENT_ID\nPIXELPOINT_AAD_V2_TENANT_ID=$PIXELPOINT_AAD_V2_TENANT_ID\nPIXELPOINT_AAD_V2_CLIENT_SECRET=$PIXELPOINT_AAD_V2_CLIENT_SECRET\nAPPSIGNAL_APP_REVISION=$CI_COMMIT_SHA" >> $(pwd)/.env.production
+    - *docker_login_and_ssh_agent
+    - *copy_production_env
   script:
     # update ssh config of deployment target to support bigger number of active sessions
     # e.g. MaxSessions 20

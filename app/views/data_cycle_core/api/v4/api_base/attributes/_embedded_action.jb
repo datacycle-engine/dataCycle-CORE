@@ -23,8 +23,8 @@ if data.present?
       end
     end
   }.compact.presence
-  json[key_new]&.map! { |h| h.except('@id', 'dc:classification') }&.each { |h| h['@type'] = h['@type'].split('/').last }
-  json.delete(key_new) if json[key_new].blank?
+  json[key_new]&.map! { |h| h.except('dc:classification') }&.each { |h| h['@type'] = h['@type'].split('/').last }
+  json.delete(key_new) if json[key_new]&.map { |h| h.except('@id') }.blank?
 end
 
 json.compact
