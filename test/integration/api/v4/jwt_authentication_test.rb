@@ -111,7 +111,7 @@ module DataCycleCore
 
         test '/api/v4/auth/login - login with JWT, signed with Private Key ' do
           rsa_private = generate_private_key
-          token = DataCycleCore::JsonWebToken.encode(payload: { token: @current_user.access_token }, alg: 'RS256', key: rsa_private).token
+          token = DataCycleCore::JsonWebToken.encode(payload: { token: @current_user.access_token, iss: 'datacycle.at' }, alg: 'RS256', key: rsa_private).token
 
           post api_v4_authentication_login_path, headers: {
             Authorization: "Bearer #{token}"
