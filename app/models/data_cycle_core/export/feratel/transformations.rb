@@ -61,6 +61,9 @@ module DataCycleCore
                       end
                     end
                   end
+                  # include Visibility(https://fdcwiki.deskline.net/display/CONNECTIVITY/Import+Events Details->Visiblity) default: Region
+                  # Enumeration: Local, Town, Region, Subregion, Country
+                  xml.Visibility('Country')
                   if data.event_schedule.present?
                     schedules = load_schedules(data)
                     xml.Dates do
@@ -70,7 +73,7 @@ module DataCycleCore
                     end
                     xml.StartTimes do
                       schedules[:start_times].each do |time|
-                        xml.StartTime('Time' => time['Time'], **time['Days'])
+                        xml.StartTime('Time' => time['Time'], **(time['Days'] || {}))
                       end
                     end
                     xml.Duration(schedules.dig(:duration, 'value'), { 'Type' => schedules.dig(:duration, 'Type') })
@@ -80,7 +83,7 @@ module DataCycleCore
                   if location.present?
                     xml.Address('Type' => 'Venue') do
                       xml.Company(location.name)
-                      xml.Salutation(DataCycleCore::ClassificationAlias.for_tree('Feratel - Salutations').with_name('unknown')&.first&.primary_classification&.external_key)
+                      xml.Salutation(DataCycleCore::ClassificationAlias.for_tree('Feratel - Salutations').with_name(['unknown', 'Diverse'])&.first&.primary_classification&.external_key)
                       xml.FirstName
                       xml.LastName
                       xml.AddressLine1(location.address.street_address)

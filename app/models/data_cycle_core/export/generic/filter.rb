@@ -9,7 +9,9 @@ module DataCycleCore
           :filter_template_names,
           :filter_external_system_names,
           :filter_classifications,
-          :filter_tree_labels
+          :filter_tree_labels,
+          :filter_watch_lists,
+          :filter_stored_filters
         ].freeze
 
         def self.filter(**args)
@@ -65,6 +67,25 @@ module DataCycleCore
           classification_ids = Array.wrap(external_system.export_config_by_filter_key(method_name, 'classifications')).map { |f| DataCycleCore::ClassificationAlias.classification_for_tree_with_name(f['tree_label'], f['aliases']) }
 
           classification_ids.present? ? classification_ids.all? { |c| data.classifications.map(&:id).include?(c) } : true
+        end
+
+        def self.filter_watch_lists(data:, external_system:, method_name:)
+          filter_conf = external_system.export_config_by_filter_key(method_name, 'watch_lists')
+          return true if filter_conf.blank?
+
+          Array.wrap(filter_conf)
+            .map { |f| DataCycleCore::WatchList.find(f).things.exists?(id: data.id) }
+            .reduce(&:|)
+        end
+
+        # use preferably filter_endpoints
+        def self.filter_stored_filters(data:, external_system:, method_name:)
+          filter_conf = external_system.export_config_by_filter_key(method_name, 'stored_filters')
+          return true if filter_conf.blank?
+
+          Array.wrap(filter_conf)
+            .map { |f| DataCycleCore::StoredFilter.find(f).apply.query.exists?(id: data.id) }
+            .reduce(&:|)
         end
 
         def self.filter_tree_labels(data:, external_system:, method_name:)
