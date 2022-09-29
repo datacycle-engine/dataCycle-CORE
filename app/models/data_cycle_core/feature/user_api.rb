@@ -3,10 +3,16 @@
 module DataCycleCore
   module Feature
     class UserApi < Base
-      attr_accessor :current_issuer
+      attr_reader :current_issuer
+      attr_accessor :user
 
-      def initialize(current_issuer = nil)
-        @current_issuer = current_issuer.to_s unless self.class.secret_for_issuer(current_issuer).nil?
+      def initialize(current_issuer = nil, user = nil)
+        self.user = user
+        self.current_issuer = current_issuer
+      end
+
+      def current_issuer=(iss)
+        @current_issuer = iss.to_s unless self.class.secret_for_issuer(iss).nil?
       end
 
       def configuration
@@ -88,12 +94,28 @@ module DataCycleCore
         emails.compact
       end
 
-      def notify_users(new_user)
-        DataCycleCore::UserApiMailer.notify(users_to_notify, new_user, current_issuer).deliver_later
+      def notify_users
+        DataCycleCore::UserApiMailer.notify(users_to_notify, user, current_issuer).deliver_later
+      end
+
+      def notify_confirmed_user
+        DataCycleCore::UserApiMailer.notify_confirmed(user, current_issuer).deliver_later
       end
 
       def user_mailer_from
-        configuration[:user_mailer_from].presence || Rails.configuration.action_mailer.default_options&.dig(:from)
+        configuration.dig(:user_mailer, :from).presence || Rails.configuration.action_mailer.default_options&.dig(:from)
+      end
+
+      def user_mailer_logo
+        configuration.dig(:user_mailer, :logo).presence
+      end
+
+      def user_mailer_customercolor
+        configuration.dig(:user_mailer, :customercolor).presence
+      end
+
+      def user_confirmed_for_api?
+        configuration.dig(:new_user_confirmation, :user_group)&.then { |g| user&.has_user_group?(g) } || false
       end
 
       def json_additional_attributes
@@ -142,6 +164,14 @@ module DataCycleCore
       end
 
       class << self
+        def new_user_confirmation?
+          configuration[:allowed_issuers]&.any? { |_, v| v.dig(:new_user_confirmation, :user_group).present? } || configuration[:new_user_confirmation].present?
+        end
+
+        def new_user_confirmations_issuer(group_name)
+          configuration[:allowed_issuers]&.find { |_, v| v.dig(:new_user_confirmation, :user_group) == group_name }&.first.presence || configuration.dig(:new_user_confirmation, :user_group).presence&.then { |g| g == group_name ? 'internal' : nil }
+        end
+
         def secret_key
           Rails.application.secrets.secret_key_base.to_s
         end

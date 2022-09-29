@@ -536,6 +536,8 @@ en:
         subject: A new user has been created
         text_html: The new user %{name} (%{email}) has been created.
         user_link: Edit user
+        unlocked_subject: User unlocked
+        unlocked_html: You can now log in with your login data and use the released content! If you have any questions, please contact us directly.
 
   compare:
     switch_contents: switch contents

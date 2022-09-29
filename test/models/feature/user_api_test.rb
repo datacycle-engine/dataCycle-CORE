@@ -28,7 +28,7 @@ module DataCycleCore
     end
 
     test 'configuration with issuer and specific config' do
-      update_user_api_config({ test1: { user_mailer_from: 'test@test.at' } })
+      update_user_api_config({ test1: { user_mailer: { from: 'test@test.at' } } })
       user_api = DataCycleCore::Feature::UserApi.new('test1')
 
       assert_equal 'test1', user_api.current_issuer

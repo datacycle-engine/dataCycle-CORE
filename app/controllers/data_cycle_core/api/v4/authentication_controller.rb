@@ -4,8 +4,8 @@ module DataCycleCore
   module Api
     module V4
       class AuthenticationController < ::DataCycleCore::Api::V4::ApiBaseController
-        skip_before_action :authenticate_user!, only: :login
-        prepend_before_action :authenticate_user_by_params!, only: :login
+        prepend_before_action :force_email_password_authentication!, only: :login
+        before_action :set_original_issuer, only: :login
         before_action :init_user_api_feature
 
         def permitted_params
@@ -13,7 +13,7 @@ module DataCycleCore
         end
 
         def login
-          current_user.user_groups = (current_user.user_groups + @user_api_feature.default_user_groups).uniq if @user_api_feature.default_user_groups.present?
+          current_user.user_groups = (current_user.user_groups + current_user.user_api_feature.default_user_groups).uniq if current_user.user_api_feature.default_user_groups.present?
 
           render json: current_user.generate_user_token(true).to_h.merge({
             user: current_user.as_user_api_json
@@ -41,14 +41,25 @@ module DataCycleCore
         def init_user_api_feature
           raise CanCan::AccessDenied, 'user_not_allowed' unless can?(:login, :user_api)
 
-          @user_api_feature = DataCycleCore::Feature::UserApi.new(request.env['data_cycle.feature.user_api.issuer'])
+          current_user.user_api_feature.current_issuer ||= request.env['data_cycle.feature.user_api.issuer']
         end
 
-        def authenticate_user_by_params!
-          user = User.find_by(email: login_params[:email])
-          raise CanCan::AccessDenied, 'invalid_login' unless user&.valid_password?(login_params[:password])
+        def force_email_password_authentication!
+          request.env['warden.force_strategy'] = :email_password
+        end
 
-          sign_in(user, store: false)
+        def set_original_issuer
+          token = ActionController::HttpAuthentication::Token.token_and_options(request)&.first
+
+          return if token.blank?
+
+          decoded = DataCycleCore::JsonWebToken.decode(token)
+
+          return if decoded.blank?
+
+          current_user.user_api_feature.current_issuer ||= decoded['original_iss'].presence || decoded['iss'].presence
+        rescue JSON::ParserError, JWT::DecodeError
+          nil
         end
       end
     end

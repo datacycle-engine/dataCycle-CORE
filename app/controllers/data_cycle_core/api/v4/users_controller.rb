@@ -31,13 +31,14 @@ module DataCycleCore
 
           @user = DataCycleCore::User.new(user_params.merge(creator: current_user))
           @user.user_api_feature = @user_api_feature
+          @user.user_api_feature.user = @user
           @user.role = @user.user_api_feature.allowed_role!(role_params[:rank])
           @user.user_groups = @user.user_api_feature.default_user_groups if @user.user_groups.none?
           @user.jti = SecureRandom.uuid
           @user.attributes = layout_params
 
           if @user.save
-            @user.user_api_feature.notify_users(@user) if @user.user_api_feature.new_user_notification?
+            @user.user_api_feature.notify_users if @user.user_api_feature.new_user_notification?
 
             render json: @user.as_user_api_json.merge(@user.generate_user_token.to_h).deep_transform_keys { |k| k.to_s.camelize(:lower) }, status: :created
           else

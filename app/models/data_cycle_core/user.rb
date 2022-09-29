@@ -69,7 +69,7 @@ module DataCycleCore
     after_destroy :execute_delete_webhooks, unless: :skip_callbacks
 
     def user_api_feature
-      @user_api_feature ||= DataCycleCore::Feature::UserApi.new
+      @user_api_feature ||= DataCycleCore::Feature::UserApi.new(nil, self)
     end
 
     def recoverable?
@@ -127,7 +127,7 @@ module DataCycleCore
     def generate_user_token(refresh_jti = false)
       update_columns(jti: SecureRandom.uuid) if refresh_jti || jti.blank?
 
-      DataCycleCore::JsonWebToken.encode(payload: { user_id: id, jti: jti })
+      DataCycleCore::JsonWebToken.encode(payload: { user_id: id, jti: jti, original_iss: user_api_feature.current_issuer }.compact_blank)
     end
 
     def update_with_token(token)
