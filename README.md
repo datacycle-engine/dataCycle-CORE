@@ -3,7 +3,7 @@
 ## Setup
 
 To setup a new dataCycle instance follow the instructions provided by the base project:
-https://git.pixelpoint.biz/datacycle/datacycle-plain
+https://github.com/datacycle-engine/dataCycle-PLAIN
 
 ## License
 
