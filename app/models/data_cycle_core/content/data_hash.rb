@@ -230,7 +230,9 @@ module DataCycleCore
       end
 
       def self.invalidate_all
-        unscoped.where(id: all.lock('FOR UPDATE SKIP LOCKED').select(:id)).update_all(cache_valid_since: Time.zone.now)
+        unscoped
+          .where(id: all.except(:distinct).lock('FOR UPDATE SKIP LOCKED').select(:id))
+          .update_all(cache_valid_since: Time.zone.now)
       end
 
       def self.update_search_all
