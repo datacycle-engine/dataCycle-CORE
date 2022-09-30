@@ -11,7 +11,7 @@ module DataCycleCore
         def initialize(**options)
           @pos_code = options.dig(:pos_code)
           @company_code = options.dig(:company_code)
-          @endpoint_url = options.dig(:endpoint_url)
+          @endpoint_url = options.dig(:endpoint_url) || 'http://interface.deskline.net/DSI/%<item>s.asmx/Import'
         end
 
         def content_request(transformation:, utility_object:, data:, method: :post, **_options)
@@ -26,7 +26,7 @@ module DataCycleCore
             when 'POI'
               'Infrastructure'
             end
-          url = format(@endpoint_url, { item: item }) || "http://interface.deskline.net/DSI/#{item}.asmx/Import"
+          url = format(@endpoint_url, { item: item })
 
           begin
             body = transformations.try(transformation, data, utility_object)
