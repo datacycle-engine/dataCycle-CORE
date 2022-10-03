@@ -449,6 +449,7 @@ de:
       distance: Radius in Metern
     available_widgets: Verfügbare Widgets
     widgets:
+      event_list: Events - Listenansicht
       list: Listenansicht
       map: Kartenansicht
       gallery: Bildergalerie
