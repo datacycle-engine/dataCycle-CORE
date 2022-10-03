@@ -82,6 +82,7 @@ server {
     try_files $uri @puma_data_cycle;
     gzip_static on;
     expires max;
+    proxy_max_temp_file_size 4096m;
     add_header Cache-Control public;
   }
 
