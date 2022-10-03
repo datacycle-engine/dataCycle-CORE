@@ -33,7 +33,7 @@ server {
   try_files $uri/index.html $uri /assets/$uri @puma_data_cycle;
 
   client_max_body_size 4G;
-  keepalive_timeout 90;
+  keepalive_timeout 180;
 
   # increase proxy buffer size for large headers
   proxy_buffer_size 16k;
