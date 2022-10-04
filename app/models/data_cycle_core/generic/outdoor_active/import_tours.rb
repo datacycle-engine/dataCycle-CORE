@@ -39,6 +39,16 @@ module DataCycleCore
               raw_data,
               options.dig(:import, :transformations, :image)
             )
+            DataCycleCore::Generic::OutdoorActive::Processing.process_author(
+              utility_object,
+              raw_data,
+              {}
+            )
+            DataCycleCore::Generic::OutdoorActive::Processing.process_publisher(
+              utility_object,
+              raw_data,
+              {}
+            )
             DataCycleCore::Generic::OutdoorActive::Processing.process_tour(
               utility_object,
               raw_data,

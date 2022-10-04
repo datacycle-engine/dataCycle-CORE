@@ -68,6 +68,7 @@ module DataCycleCore
     has_one :statistics, class_name: 'Statistics', foreign_key: 'id' # rubocop:disable Rails/HasManyOrHasOneDependent
 
     has_many :classification_polygons, dependent: :destroy
+    has_many :classification_alias_paths_transitive
 
     delegate :visible?, to: :classification_tree_label
 
@@ -144,7 +145,7 @@ module DataCycleCore
     end
 
     def self.in_context(context)
-      all.to_a.select { |ca| (Array(ca.classification_tree_label&.visibility) & Array(context)).size.positive? }
+      all.includes(:classification_tree_label).where('classification_tree_labels.visibility && ARRAY[?]::varchar[]', Array.wrap(context)).references(:classification_tree_label)
     end
 
     def primary_classification_id
@@ -216,6 +217,28 @@ module DataCycleCore
         '@id' => id,
         '@type' => 'skos:Concept'
       }
+    end
+
+    def self.custom_find_by_full_path(full_path)
+      all.includes(:classification_alias_path)
+      .where(
+        "array_to_string(classification_alias_paths.full_path_names, ' < ') ILIKE ?",
+        full_path.split('>').reverse.map(&:strip).join(' < ')
+      )
+      .references(:classification_alias_paths)
+      .first
+    end
+
+    def self.custom_find_by_full_path!(full_path)
+      custom_find_by_full_path(full_path) || raise(ActiveRecord::RecordNotFound)
+    end
+
+    def create_mapping_for_path(full_path)
+      mapped_ca = DataCycleCore::ClassificationAlias.custom_find_by_full_path!(full_path)
+
+      raise ActiveRecord::RecordNotFound if mapped_ca.primary_classification.nil?
+
+      self.classification_ids += [mapped_ca.primary_classification.id] unless mapped_ca.primary_classification.id.in?(classification_ids)
     end
 
     def move_to_path(new_path, destroy_children = false)

@@ -35,7 +35,7 @@
                    button_class: 'new-object-circle' if new_content_select_options(query_methods: DataCycleCore::Feature::Container.query_methods(@content), scope: 'container').present? %>
   <% end %>
 <% else %>
-  <%= render_content_partial 'details', content: @content %>
+  <%= render_content_partial 'details', content: @content, options: { exclude_types: 'classification' } %>
 
   <%= render 'data_cycle_core/duplicate_candidates/duplicate_candidates', content: @content, prefix: local_assigns.dig(:options, :prefix) if @content.try(:duplicate_method?) && can?(:merge_duplicates, @content) %>
 

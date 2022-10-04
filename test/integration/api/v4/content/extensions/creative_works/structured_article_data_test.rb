@@ -9,6 +9,8 @@ module DataCycleCore
         module Extensions
           module CreativeWorks
             class StructuredArticleDataTest < DataCycleCore::V4::Base
+              include DataCycleCore::ApiHelper
+
               before(:all) do
                 @content = DataCycleCore::V4::DummyDataHelper.create_data('structured_article')
                 assert_full_thing_datahash(@content)
@@ -90,6 +92,7 @@ module DataCycleCore
                   {
                     'potentialAction' => [
                       {
+                        '@id' => @content.potential_action.first.id,
                         '@type' => @content.potential_action.first.api_type,
                         'dc:multilingual' => true,
                         'dc:translation' => [
@@ -107,6 +110,7 @@ module DataCycleCore
                   {
                     'additionalProperty' => [
                       {
+                        '@id' => generate_uuid(@content.id, 'link_name'),
                         '@type' => 'PropertyValue',
                         'identifier' => 'linkName',
                         'value' => @content.link_name,

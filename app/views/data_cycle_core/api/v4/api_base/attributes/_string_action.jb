@@ -3,7 +3,7 @@
 json ||= {}
 api_property_definition = api_definition(definition)
 
-value = load_value_object(content, key, value, options[:languages], api_property_definition)
+value = load_value_object(content, key, value, options[:languages], api_property_definition, options[:expand_language])
 
 if value.present?
   property_definition = api_definition(definition)
@@ -12,6 +12,7 @@ if value.present?
   key_new = property_definition.dig('transformation', 'name') if property_definition.dig('transformation', 'method') == 'append'
 
   data = {
+    '@id' => generate_uuid(content.id, key),
     '@type' => property_definition.dig('type').to_s || 'ViewAction',
     'name' => property_definition.dig('action', 'platform') || key,
     'url' => value

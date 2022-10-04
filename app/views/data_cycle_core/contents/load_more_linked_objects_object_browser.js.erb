@@ -1,5 +1,5 @@
 (function(){
-  let load_more_button = $('#load_more_<%= @content.id %>_<%= sanitize_to_id(@params[:complete_key]) %>');
+  let load_more_button = $('#load_more_<%= @content.id %>_<%= sanitize_to_id(@params[:complete_key]) %>').parent('.clear-both');
 
   <% content_for :rendered_items, flush: true do %>
     <% I18n.with_locale(@params[:locale] || I18n.locale) do %>

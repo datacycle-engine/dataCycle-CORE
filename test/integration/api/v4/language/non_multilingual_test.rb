@@ -7,6 +7,7 @@ module DataCycleCore
     module V4
       module Language
         class NonMultilingualTest < DataCycleCore::V4::Base
+          include DataCycleCore::ApiHelper
           # Testing not mulitlingual thing (Article)
           # only available in language de
           before(:all) do
@@ -130,6 +131,7 @@ module DataCycleCore
               {
                 'potentialAction' => [
                   {
+                    '@id' => @content.potential_action.first.id,
                     '@type' => @content.potential_action.first.api_type,
                     'dc:multilingual' => true,
                     'dc:translation' => [
@@ -147,6 +149,7 @@ module DataCycleCore
               {
                 'additionalProperty' => [
                   {
+                    '@id' => generate_uuid(@content.id, 'link_name'),
                     '@type' => 'PropertyValue',
                     'identifier' => 'linkName',
                     'value' => translated_value(@content, 'link_name', ['de']),
@@ -326,6 +329,7 @@ module DataCycleCore
               {
                 'potentialAction' => [
                   {
+                    '@id' => @content.potential_action.first.id,
                     '@type' => @content.potential_action.first.api_type,
                     'dc:multilingual' => true,
                     'dc:translation' => [
@@ -343,6 +347,7 @@ module DataCycleCore
               {
                 'additionalProperty' => [
                   {
+                    '@id' => generate_uuid(@content.id, 'link_name'),
                     '@type' => 'PropertyValue',
                     'identifier' => 'linkName',
                     'value' => translated_value(@content, 'link_name', ['de']),

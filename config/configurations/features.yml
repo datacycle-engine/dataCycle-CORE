@@ -189,7 +189,7 @@
     :schedule_exceptions:
       - validity_schedule
   :classification_alias_ids: all
-#  :related_to: true
+  #  :related_to: true
   :external_source: false
   :external_system: true
   :id: true
@@ -207,35 +207,36 @@
     :relative: true
   :geo_filter:
     :geo_radius: false
-    :geo_within_classification:
-      false
-      # - Administrative Einheiten
+    :geo_within_classification: false
+  # :boolean:
+  #   - duplicate_candidates
+  #     - Administrative Einheiten
   # :union_filter_ids: true
   # :relation_filter:
   #   :event_location: content_location
-#  :advanced_attributes:
-#    :width:
-#      :type: numeric
-#    :contact_info.email:
-#      :type: string
-#    :upload_date:
-#      :type: date
-#    :mandatory_license:
-#      :type: boolean
-    # :upload_date:
-    #   :type: date
-    # :live_date_from:
-    #   :type: date
-    # :publication_date:
-    #   :type: date
-    # :live_stream_start_end:
-    #   :type: date_range
-    #   # default query_operator: overlaps
-    #   :query_operator: 'overlaps'
-    #   # :query_operator: 'contains'
-    #   :attribute_keys:
-    #     - live_date_from
-    #     - live_date_until
+  # :advanced_attributes:
+  #   :width:
+  #     :type: numeric
+  #   :contact_info.email:
+  #     :type: string
+  #   :upload_date:
+  #     :type: date
+  #   :mandatory_license:
+  #     :type: boolean
+  #   :upload_date:
+  #     :type: date
+  #   :live_date_from:
+  #     :type: date
+  #   :publication_date:
+  #     :type: date
+  #   :live_stream_start_end:
+  #     :type: date_range
+  #     # default query_operator: overlaps
+  #     :query_operator: 'overlaps'
+  #     # :query_operator: 'contains'
+  #     :attribute_keys:
+  #       - live_date_from
+  #       - live_date_until
 
 :geocode:
   :enabled: false
@@ -314,7 +315,6 @@
 
 :user_api:
   :enabled: false
-  :only_config: true
   :expiration_time: <%= 24.hours %>
   :default_rank: 0
   :allowed_ranks:
@@ -326,7 +326,7 @@
     :default_locale:
     :password:
     :confirmed_at:
-  :issuer: datacycle.at
+  :issuer: datacycle.info
 
 :copy_embedded_locale:
   :enabled: false
@@ -428,6 +428,14 @@
           - 'tsv'
           - 'json'
           - 'xlsx'
+      :stored_searches_usage:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::StoredSearchesUsage
+        :allowed_formats:
+          - 'csv'
+          - 'tsv'
+          - 'json'
+          - 'xlsx'
     :content:
       :downloads_content:
         :enabled: false
@@ -516,3 +524,6 @@
   # attribute_keys:
   #   :output_channels:
   #     :tree_label: "Ausgabekanäle"
+
+:content_score:
+  :enabled: true

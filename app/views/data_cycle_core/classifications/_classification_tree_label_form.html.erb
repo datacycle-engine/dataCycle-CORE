@@ -2,29 +2,27 @@
 
   <div class="ca-buttons">
     <button class="button-prime small success update" data-disable-with='<i class="fa fa-spinner fa-spin fa-fw"></i>'><i aria-hidden="true" class="fa fa-check"></i></button>
-    <button class="button-prime small discard"><i aria-hidden="true" class="fa fa-times"></i></button>
-  </div>
+  <button class="button-prime small discard"><i aria-hidden="true" class="fa fa-times"></i></button>
+</div>
 
-  <%= f.hidden_field :id %>
+<%= f.hidden_field :id %>
 
-  <div class="ca-input">
-    <%= f.label :name, class: 'ca-label' %>
-    <%= f.text_field :name, class: 'ca-input-field' %>
-  </div>
+<div class="ca-input required">
+  <%= f.label :name, class: 'ca-label' %>
+  <%= f.text_field :name, class: 'ca-input-field', disabled: !can?(:update, classification_tree_label), required: true %>
+</div>
 
-  <div class="ca-input checkbox">
-    <span class="ca-checkbox">
-      <%= f.label :internal do |l| %>
-          <%= f.check_box :internal %>
-          <%= l.translation %>
-      <% end %>
-    </span>
-  </div>
+<div class="ca-input checkbox">
+  <span class="dc-checkbox">
+    <%= f.check_box :internal, disabled: !can?(:update, classification_tree_label) %>
+    <%= f.label :internal %>
+  </span>
+</div>
 
-  <div class="ca-input">
-    <div class="ca-collection-checkboxes">
-      <%= f.label :visibility %>
-      <%= f.collection_check_boxes :visibility,
+<div class="ca-input">
+  <div class="ca-collection-checkboxes">
+    <%= f.label :visibility %>
+    <%= f.collection_check_boxes :visibility,
         DataCycleCore.classification_visibilities.map { |v|
           OpenStruct.new(
             name: v,
@@ -34,19 +32,19 @@
         },
         :name,
         :title do |l| %>
-        <span class="ca-checkbox">
-          <%= l.check_box %>
-          <%= l.label %>
-        </span>
-      <% end %>
-    </div>
+      <span class="dc-checkbox">
+        <%= l.check_box %>
+        <%= l.label %>
+      </span>
+    <% end %>
   </div>
+</div>
 
-  <% if current_user&.is_role?('super_admin') %>
-    <div class="ca-input">
-      <div class="ca-collection-checkboxes">
-        <%= f.label :change_behaviour %>
-        <%= f.collection_check_boxes :change_behaviour,
+<% if current_user&.is_role?('super_admin') %>
+  <div class="ca-input">
+    <div class="ca-collection-checkboxes">
+      <%= f.label :change_behaviour %>
+      <%= f.collection_check_boxes :change_behaviour,
           DataCycleCore.classification_change_behaviour.map { |v|
             OpenStruct.new(
               name: v,
@@ -56,14 +54,14 @@
           },
           :name,
           :title do |l| %>
-          <span class="ca-checkbox">
-            <%= l.check_box %>
-            <%= l.label %>
-          </span>
-        <% end %>
-      </div>
+        <span class="dc-checkbox">
+          <%= l.check_box %>
+          <%= l.label %>
+        </span>
+      <% end %>
     </div>
-  <% end %>
+  </div>
+<% end %>
 
-  <%= f.submit class: 'success button' %>
+<%= f.submit class: 'success button' %>
 <% end %>

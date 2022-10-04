@@ -23,7 +23,8 @@ class CollectionForm {
     this.searchFormPart.innerHTML = '';
 
     let formDataHtml = '';
-    for (const [name, value] of formData) formDataHtml += `<input type="hidden" name="${name}" value="${value}">`;
+    for (const [name, value] of Array.from(formData))
+      formDataHtml += `<input type="hidden" name="${name}" value="${value}">`;
 
     this.searchFormPart.insertAdjacentHTML('beforeend', formDataHtml);
 

@@ -366,16 +366,16 @@
         }
       }
 
-      &.is-active .accordion-title span {
-        .closed {
+      &.is-active > .accordion-title > span {
+        > .closed {
           display: none;
         }
 
-        .open {
+        > .open {
           display: inline-block;
         }
 
-        i::before {
+        > i::before {
           content: '\f077';
         }
       }
@@ -1902,7 +1902,7 @@ label[for='user_access_token'] {
   }
 
   .embedded_object {
-    .content-object-item.textblock {
+    > .content-object-item.textblock {
       padding: 0.5rem;
 
       .removeContentObject,
@@ -3547,16 +3547,10 @@ button.button-prime.small.bulk-delete-button {
 
 @keyframes progress-bar {
   0% {
-    left: 0.25rem;
-    right: calc(100% - 0.25rem);
-  }
-  50% {
-    left: 25%;
-    right: 0.25rem;
+    left: -50%;
   }
   100% {
-    left: calc(100% - 0.25rem);
-    right: 0.25rem;
+    left: 100%;
   }
 }
 
@@ -3590,10 +3584,11 @@ body {
     }
 
     &::after {
-      height: 1rem;
-      top: 0.25rem;
-      background-color: rgba($dark-gray, 0.5);
-      animation: progress-bar 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      height: 1.5rem;
+      right: unset;
+      width: 100%;
+      background: linear-gradient(to right, rgba(white, 0) 0%, rgba(white, 0.5) 25%, rgba(white, 0) 50%);
+      animation: progress-bar 1.5s linear infinite forwards;
     }
 
     > * {
@@ -3765,7 +3760,6 @@ body {
   }
 }
 
-.editor.trail,
 .editor.tour {
   .attribute-group.editor.trail_rating
     > .attribute-group-item
@@ -3780,13 +3774,6 @@ body {
   > .attribute-group-content
   > .attribute-group-content-element {
   grid-template-columns: 65fr 35fr;
-}
-
-.download-with-contents {
-  .fa-plus {
-    font-size: 0.7rem;
-    vertical-align: text-top;
-  }
 }
 
 #classification-administration {

@@ -1,8 +1,5 @@
 <div class="search" data-id="<%= filter[:identifier] %>">
   <div class="input-group">
-    <div class="input-group-button">
-      <button type="submit" class="search_icon"><i class="fa fa-search" aria-hidden="true"></i></button>
-    </div>
     <%= hidden_field_tag "f[#{filter[:identifier]}][n]", t('common.searchterm', locale: active_ui_locale) %>
     <%= hidden_field_tag "f[#{filter[:identifier]}][t]", :fulltext_search %>
     <%= hidden_field_tag "f[#{filter[:identifier]}][c]", 'a' %>
@@ -10,5 +7,6 @@
         filter[:value],
         placeholder: t('common.searchterm', locale: active_ui_locale),
         class:"input-group-field fulltext-search-field" %>
+    <button type="submit" class="search_icon input-group-button" data-dc-tooltip="<%= t('actions.filter', locale: active_ui_locale) %>" data-disable><i class="fa fa-search" aria-hidden="true"></i></button>
   </div>
 </div>

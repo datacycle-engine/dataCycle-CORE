@@ -1,10 +1,15 @@
 .edit-header-functions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+
   > ul {
     display: flex;
     flex-flow: row;
     justify-content: flex-end;
     align-items: center;
     height: 3.5rem;
+    flex: auto;
 
     > li > a {
       display: block;

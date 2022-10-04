@@ -4,13 +4,11 @@
       <div class="column filter-body">
         <div class="search">
           <div class="input-group">
-            <div class="input-group-button">
-              <button type="submit" class="search_icon"><i class="fa fa-search" aria-hidden="true"></i></button>
-            </div>
             <%= text_field_tag :q,
               @search_param,
               placeholder: t('common.searchterm', locale: active_ui_locale),
               class:"input-group-field fulltext-search-field" %>
+            <button type="submit" class="search_icon input-group-button" data-dc-tooltip="<%= t('actions.filter', locale: active_ui_locale) %>" data-disable><i class="fa fa-search" aria-hidden="true"></i></button>
           </div>
         </div>
 

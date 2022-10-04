@@ -1,0 +1,88 @@
+# frozen_string_literal: true
+
+module DataCycleCore
+  module Export
+    module Onlim
+      module Functions
+        # def self.transformations
+        #   DataCycleCore::Export::Common::Transformations
+        # end
+
+        def self.update(utility_object:, data:)
+          external_system = utility_object.external_system
+          external_system_data = data.external_system_data(external_system, 'export', nil, false)
+          data.add_external_system_data(external_system, nil, 'running', 'export', nil, false)
+          log("update -> Export | Onlim | #{utility_object.external_system.id}", data&.id)
+
+          unless external_system_data&.dig('job_status')&.in?(['waiting'])
+            Delayed::Job.enqueue(
+              DataCycleCore::Export::Onlim::Webhook.new(
+                data: OpenStruct.new(id: data.id, template_name: data.template_name), # rubocop:disable Style/OpenStructUse
+                external_system: external_system,
+                external_system_data: external_system_data,
+                endpoint: utility_object.endpoint,
+                request: :update_request
+              )
+            )
+          end
+
+          # ask for job_status (already running):
+          update_job_status(utility_object: utility_object, data: data)
+        end
+
+        def self.update_job_status(utility_object:, data:)
+          external_system = utility_object.external_system
+          external_system_data = data.external_system_data(external_system, 'export', nil, false)
+          log("update_job_status -> Export | Onlim | #{utility_object.external_system.id}", data&.id)
+
+          Delayed::Job.enqueue(
+            DataCycleCore::Export::Onlim::Webhook.new(
+              data: OpenStruct.new(id: data.id, template_name: data.template_name), # rubocop:disable Style/OpenStructUse
+              external_system: external_system,
+              external_system_data: external_system_data,
+              endpoint: utility_object.endpoint,
+              request: :job_status_request
+            )
+          )
+        end
+
+        def self.delete(utility_object:, data:)
+          external_system = utility_object.external_system
+          external_system_data = data.external_system_data(external_system, 'export', nil, false)
+          data.add_external_system_data(external_system, nil, 'deleting', 'export', nil, false)
+          log("delete -> Export | Onlim | #{utility_object.external_system.id}", data&.id)
+
+          Delayed::Job.enqueue(
+            DataCycleCore::Export::Onlim::Webhook.new(
+              data: OpenStruct.new(id: data.id, template_name: data.template_name), # rubocop:disable Style/OpenStructUse
+              external_system: external_system,
+              external_system_data: external_system_data,
+              endpoint: utility_object.endpoint,
+              request: :update_request
+            )
+          )
+        end
+
+        def self.filter(data:, external_system:, method_name:)
+          # sync_data = data.external_system_data_all(external_system, 'export', nil, false)
+          # job_id = sync_data&.data&.dig('job_id')
+          # updated_at = sync_data&.updated_at || Time::LONG_AGO
+          DataCycleCore::Export::Generic::Functions.filter(data: data, external_system: external_system, method_name: method_name)
+        end
+
+        def self.log(message, id)
+          init_logging do |logger|
+            logger.info(message, id)
+          end
+        end
+
+        def self.init_logging
+          logging = DataCycleCore::Generic::Logger::LogFile.new(:export)
+          yield(logging)
+        ensure
+          logging.close if logging.respond_to?(:close)
+        end
+      end
+    end
+  end
+end

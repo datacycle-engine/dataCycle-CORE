@@ -54,6 +54,7 @@ module DataCycleCore
           end
           optional(:additionalProperty).value(:array).each do
             hash do
+              required(:@id).value(:uuid_v4?)
               required(:@type).value(:string)
               required(:identifier).value(:string)
               required(:name).value(:string)
@@ -68,6 +69,7 @@ module DataCycleCore
           end
           optional(:potentialAction).value(:array).each do
             hash do
+              required(:@id).value(:uuid_v4?)
               required(:@type).value(:string)
               required(:name).value(:string)
               required(:url).value(:string)
@@ -94,7 +96,8 @@ module DataCycleCore
           required(:jobTitle).value(:string)
           required(:description).value(:string)
           required(:address).hash do
-            required(:'@type').value(:string)
+            required(:@id).value(:uuid_v4?)
+            required(:@type).value(:string)
             required(:streetAddress).value(:string)
             required(:postalCode).value(:string)
             required(:addressLocality).value(:string)

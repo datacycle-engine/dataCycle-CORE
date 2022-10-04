@@ -25,7 +25,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
     this.$elevationField = this.$mapInfoContainer.find('.elevation input').first();
     this.$locationField = this.$parentContainer.siblings('input.location-data:hidden').first();
   }
-  static isAllowedType(type) {
+  static isAllowedType(_type) {
     return true;
   }
   configureMap() {
@@ -128,7 +128,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
       .find('.form-element')
       .find('input')
       .each((_index, elem) => {
-        address[elem.name.getAttributeKey()] = elem.value;
+        address[elem.name.attributeNameFromKey()] = elem.value;
       });
 
     const promise = DataCycle.httpRequest({
@@ -258,7 +258,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
   setHiddenFieldValue(geoJson) {
     this.value = geoJson;
 
-    if (geoJson.geometry.type.startsWith('LineString')) {
+    if (geoJson && geoJson.geometry && geoJson.geometry.type && geoJson.geometry.type.startsWith('LineString')) {
       geoJson.geometry.type = 'Multi' + geoJson.geometry.type;
       geoJson.geometry.coordinates = [geoJson.geometry.coordinates];
     }

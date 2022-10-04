@@ -9,6 +9,8 @@ module DataCycleCore
         module Extensions
           module MediaObjects
             class ImageDataTest < DataCycleCore::V4::Base
+              include DataCycleCore::ApiHelper
+
               before(:all) do
                 @content = DataCycleCore::V4::DummyDataHelper.create_data('full_image')
                 @image_proxy_config = DataCycleCore.features[:image_proxy].deep_dup
@@ -73,6 +75,7 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['width', 'height']) do
                   {
                     'width' => {
+                      '@id' => generate_uuid(@content.id, 'width'),
                       '@type' => 'QuantitativeValue',
                       'identifier' => 'width',
                       'name' => 'Breite',
@@ -81,6 +84,7 @@ module DataCycleCore
                       'value' => @content.width
                     },
                     'height' => {
+                      '@id' => generate_uuid(@content.id, 'height'),
                       '@type' => 'QuantitativeValue',
                       'identifier' => 'height',
                       'name' => 'Höhe',
@@ -186,6 +190,7 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['width', 'height']) do
                   {
                     'width' => {
+                      '@id' => generate_uuid(@content.id, 'width'),
                       '@type' => 'QuantitativeValue',
                       'identifier' => 'width',
                       'name' => 'Breite',
@@ -194,6 +199,7 @@ module DataCycleCore
                       'value' => @content.width
                     },
                     'height' => {
+                      '@id' => generate_uuid(@content.id, 'height'),
                       '@type' => 'QuantitativeValue',
                       'identifier' => 'height',
                       'name' => 'Höhe',

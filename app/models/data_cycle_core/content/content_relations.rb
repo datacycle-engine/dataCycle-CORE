@@ -32,6 +32,7 @@ module DataCycleCore
           has_many :classification_aliases, through: :classification_groups
           has_many :primary_classification_groups, through: :classifications
           has_many :primary_classification_aliases, through: :primary_classification_groups, source: :classification_alias
+          has_many :classification_alias_paths_transitive, through: :primary_classification_aliases
 
           # relation content to all other contents
           has_many :content_content_b, -> { order(order_a: :asc, content_a_id: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :destroy, inverse_of: :content_b
@@ -77,7 +78,11 @@ module DataCycleCore
       end
 
       def mapped_classification_aliases
-        classification_aliases.where.not(id: primary_classification_aliases.pluck(:id))
+        if DataCycleCore.transitive_classification_paths
+          classification_alias_paths_transitive.mapped_classification_aliases
+        else
+          classification_aliases.where.not(id: primary_classification_aliases.select(:id))
+        end
       end
 
       def classification_aliases_for_tree(tree_name:)
@@ -88,16 +93,16 @@ module DataCycleCore
         classification_aliases_for_tree(tree_name: tree_name).primary_classifications
       end
 
-      def is_related?
+      def is_related? # rubocop:disable Naming/PredicateName(RuboCop)
         content_content_b.except(:order).exists?
       end
 
-      def has_related?
+      def has_related? # rubocop:disable Naming/PredicateName(RuboCop)
         content_content_a.except(:order).exists?
       end
 
-      def has_cached_related_contents?
-        content_content_a.where.not(relation_b: nil).except(:order).or(content_content_b.except(:order)).exists?
+      def has_cached_related_contents? # rubocop:disable Naming/PredicateName(RuboCop)
+        cached_related_contents.exists?
       end
 
       def related_contents(embedded: false)
@@ -208,19 +213,18 @@ module DataCycleCore
         return self.class.none if history?
 
         tree_query = <<-SQL.squish
-          WITH RECURSIVE paths(src, dest, path) AS (
-            SELECT DISTINCT ON (c.dest) c.src, c.dest, ARRAY[c.src, c.dest]
-            FROM content_content_relations c
-            WHERE c.src = :id
+          WITH RECURSIVE paths (content_b_id, content_a_id, PATH) AS (
+            SELECT DISTINCT ON (c.content_a_id) c.content_b_id, c.content_a_id, ARRAY[c.content_b_id, c.content_a_id]
+            FROM content_content_links c
+            WHERE c.content_b_id = :id
             UNION ALL
-            SELECT DISTINCT on (d.dest) d.src, d.dest, p.path || ARRAY[d.dest]
+            SELECT DISTINCT ON (d.content_a_id) d.content_b_id, d.content_a_id, p.path || ARRAY[d.content_a_id]
             FROM paths p
-            INNER JOIN content_content_relations d
-            ON p.dest = d.src
-            WHERE d.dest != ALL(p.path)
-            AND array_length(p.path, 1) <= :depth
+            INNER JOIN content_content_links d ON p.content_a_id = d.content_b_id
+            WHERE d.content_a_id != ALL (p.path)
+            AND ARRAY_LENGTH(p.path, 1) <= :depth
           )
-          SELECT DISTINCT paths.dest FROM paths
+          SELECT DISTINCT paths.content_a_id FROM paths
         SQL
 
         self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [tree_query, id: id, depth: DataCycleCore.cache_invalidation_depth])})")
