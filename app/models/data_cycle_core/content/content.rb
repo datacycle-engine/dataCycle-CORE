@@ -66,8 +66,8 @@ module DataCycleCore
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
             get_property_value(original_name, property_definition, args.first, overlay_flag & original_name.in?(overlay_property_names))
           elsif original_name.in?(timeseries_property_names)
-            raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 2
-            get_property_value(original_name, property_definition, args.first, args&.try(:second))
+            raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 3
+            get_property_value(original_name, property_definition, args.first, args&.try(:second), args&.try(:third))
           else
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
             get_property_value(original_name, property_definition, nil, overlay_flag & original_name.in?(overlay_property_names))
@@ -402,7 +402,7 @@ module DataCycleCore
         @enabled_features ||= DataCycleCore::FeatureService.enabled_features(schema)
       end
 
-      def get_property_value(property_name, property_definition, filter = nil, overlay_flag = false)
+      def get_property_value(property_name, property_definition, filter = nil, overlay_flag = false, add_filter = nil)
         @get_property_value ||= Hash.new do |h, key|
           h[key] =
             if virtual_property_names.include?(key[0])
@@ -422,13 +422,13 @@ module DataCycleCore
             elsif schedule_property_names(true).include?(key[0])
               load_schedule(key[0], key[4])
             elsif timeseries_property_names.include?(key[0])
-              load_timeseries(key[0], key[3], key[4])
+              load_timeseries(key[0], key[3], key[4], key[5])
             else
               raise NotImplementedError
             end
         end
 
-        @get_property_value[[property_name, property_definition, I18n.locale, filter, overlay_flag]]
+        @get_property_value[[property_name, property_definition, I18n.locale, filter, overlay_flag, add_filter]]
       end
 
       def load_virtual_attribute(property_name, locale = I18n.locale)
@@ -569,7 +569,7 @@ module DataCycleCore
         if plain_property_names.include?(key)
           value = convert_to_type(definition['type'], value, definition)
         elsif value.is_a?(ActiveRecord::Relation) || (value.is_a?(::Array) && value.first.is_a?(ActiveRecord::Base))
-          return (@get_property_value ||= {})[[key, definition, I18n.locale, nil, false]] = value
+          return (@get_property_value ||= {})[[key, definition, I18n.locale, nil, false, nil]] = value
         elsif linked_property_names.include?(key) || embedded_property_names.include?(key)
           value = DataCycleCore::Thing.where(id: value)
         elsif classification_property_names.include?(key)
@@ -578,7 +578,7 @@ module DataCycleCore
           value = DataCycleCore::Asset.where(id: value)
         end
 
-        (@get_property_value ||= {})[[key, definition, I18n.locale, nil, false]] = value
+        (@get_property_value ||= {})[[key, definition, I18n.locale, nil, false, nil]] = value
       end
 
       private

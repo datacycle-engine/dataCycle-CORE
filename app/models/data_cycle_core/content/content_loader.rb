@@ -102,11 +102,43 @@ module DataCycleCore
         DataCycleCore::Schedule.where(thing_id: id, relation: relation_name).order(created_at: :asc)
       end
 
-      def load_timeseries(property_name, from = nil, to = nil)
-        query = DataCycleCore::Timeseries.where(thing_id: id, property: property_name)
-        query = query.where('timestamp >= ?', from) if from.present?
-        query = query.where('timestamp <= ?', to) if to.present?
-        query.order(timestamp: :asc)
+      def load_timeseries(property_name, from = nil, to = nil, group_by = nil)
+        if group_by.nil?
+          query = DataCycleCore::Timeseries.where(thing_id: id, property: property_name)
+          query = query.where('timestamp >= ?', from) if from.present?
+          query = query.where('timestamp <= ?', to) if to.present?
+          query.order(timestamp: :asc)
+        else
+          min =
+            if from.present?
+              "DATE_TRUNC('#{group_by}', '#{from.to_s(:long_datetime)}'::timestamp)"
+            else
+              "(SELECT DATE_TRUNC('#{group_by}', 'MIN(timestamp)') FROM timeseries)"
+            end
+          max =
+            if to.present?
+              "DATE_TRUNC('#{group_by}', '#{to.to_s(:long_datetime)}'::timestamp)"
+            else
+              # 'CURRENT_DATE'
+              "(SELECT DATE_TRUNC('#{group_by}', 'MAX(timestamp)') FROM timeseries)"
+            end
+
+          ActiveRecord::Base.connection.execute <<-SQL.squish
+            SELECT
+            	buckets AS timestamp,
+            	SUM(timeseries.value) as value
+            	FROM GENERATE_SERIES(
+                #{min},
+                #{max},
+                '1 #{group_by}'::INTERVAL
+              ) buckets
+            	LEFT JOIN timeseries ON DATE_TRUNC('#{group_by}', timeseries.timestamp) = buckets
+            WHERE timeseries.thing_id = '#{id}'
+            AND timeseries.property = '#{property_name}'
+            GROUP BY buckets
+            ORDER BY buckets ASC;
+          SQL
+        end
       end
 
       def as_of(timestamp)
