@@ -30,7 +30,7 @@ namespace :dc do
         futures = []
 
         Dir[Rails.root.join('config', 'classification_mappings', '*.csv').to_s].each do |file_path|
-          CSV.foreach(file_path, encoding: 'utf-8') do |data|
+          CSV.foreach(file_path, encoding: 'utf-8', quote_char: nil) do |data|
             next unless data&.[](0)&.include?('>') && data&.[](1)&.include?('>')
 
             futures << Concurrent::Promise.execute({ executor: pool }) do
