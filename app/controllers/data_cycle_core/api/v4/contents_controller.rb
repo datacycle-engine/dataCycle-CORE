@@ -78,7 +78,7 @@ module DataCycleCore
               json =
                 case @contents
                 in PG::Result
-                  { data: @contents }
+                  { data: @contents.map(&:values) }
                 in ActiveRecord::Relation
                   { data: @contents.pluck(:timestamp, :value) }
                 else

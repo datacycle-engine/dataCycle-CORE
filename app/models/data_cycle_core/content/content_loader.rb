@@ -111,16 +111,16 @@ module DataCycleCore
         else
           min =
             if from.present?
-              "DATE_TRUNC('#{group_by}', '#{from.to_s(:long_datetime)}'::timestamp)"
+              "(DATE_TRUNC('#{group_by}', '#{from.to_s(:long_datetime)}'::timestamp))"
             else
-              "(SELECT DATE_TRUNC('#{group_by}', 'MIN(timestamp)') FROM timeseries)"
+              "(SELECT DATE_TRUNC('#{group_by}', MIN(timestamp)) FROM timeseries)"
             end
           max =
             if to.present?
-              "DATE_TRUNC('#{group_by}', '#{to.to_s(:long_datetime)}'::timestamp)"
+              "(DATE_TRUNC('#{group_by}', '#{to.to_s(:long_datetime)}'::timestamp))"
             else
               # 'CURRENT_DATE'
-              "(SELECT DATE_TRUNC('#{group_by}', 'MAX(timestamp)') FROM timeseries)"
+              "(SELECT DATE_TRUNC('#{group_by}', MAX(timestamp)) FROM timeseries)"
             end
 
           ActiveRecord::Base.connection.execute <<-SQL.squish
