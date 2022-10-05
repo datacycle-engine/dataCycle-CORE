@@ -80,7 +80,7 @@ module DataCycleCore
                 in PG::Result
                   { data: @contents.map(&:values) }
                 in ActiveRecord::Relation
-                  { data: @contents.pluck(:timestamp, :value) }
+                  { data: @contents.map { |i| [i.timestamp.utc.strftime('%Y-%m-%dT%H:%M:%S.%3N%:z'), i.value] } }
                 else
                   { error: "something went terribliy wrong #{content.name}(#{content.id}/#{permitted_params[:timeseries]}/#{permitted_params[:time]}/#{permitted_params[:groupBy]})" }
                 end
