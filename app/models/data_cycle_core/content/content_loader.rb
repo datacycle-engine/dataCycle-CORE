@@ -120,7 +120,7 @@ module DataCycleCore
               "DATE_TRUNC('#{group_by}', '#{to}'::timestamp with time zone AT time zone 'UTC')"
             else
               # 'CURRENT_DATE'
-              "(SELECT DATE_TRUNC('#{group_by}', MAX(timestamp) AT time zone 'UTC'}) FROM timeseries)"
+              "(SELECT DATE_TRUNC('#{group_by}', MAX(timestamp) AT time zone 'UTC') FROM timeseries)"
             end
 
           ActiveRecord::Base.connection.execute <<-SQL.squish
