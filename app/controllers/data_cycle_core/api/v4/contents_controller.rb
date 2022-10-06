@@ -52,9 +52,9 @@ module DataCycleCore
           error = nil
 
           from = nil
-          from = Time.parse(permitted_params.dig(:time, :in, :min)).in_time_zone if permitted_params.dig(:time, :in, :min).present?
+          from = Time.zone.parse(permitted_params.dig(:time, :in, :min)) if permitted_params.dig(:time, :in, :min).present?
           to = nil
-          to = Time.parse(permitted_params.dig(:time, :in, :max)).in_time_zone if permitted_params.dig(:time, :in, :max).present?
+          to = Time.zone.parse(permitted_params.dig(:time, :in, :max)) if permitted_params.dig(:time, :in, :max).present?
 
           group_by = permitted_params[:groupBy]
           if group_by.present? && !group_by.in?(TIMESERIES_GROUP_BY)
@@ -78,9 +78,9 @@ module DataCycleCore
               json =
                 case @contents
                 in PG::Result
-                  { data: @contents.map(&:values) }
+                  { data: @contents.map(&:values).map { |timestamp, value| [timestamp.utc.in_time_zone, value] } }
                 in ActiveRecord::Relation
-                  { data: @contents.map { |i| [i.timestamp.utc.strftime('%Y-%m-%dT%H:%M:%S.%3N%:z'), i.value] } }
+                  { data: @contents.map { |i| [i.timestamp.strftime('%Y-%m-%dT%H:%M:%S.%3N%:z'), i.value] } }
                 else
                   { error: "something went terribliy wrong #{content.name}(#{content.id}/#{permitted_params[:timeseries]}/#{permitted_params[:time]}/#{permitted_params[:groupBy]})" }
                 end

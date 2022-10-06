@@ -111,13 +111,13 @@ module DataCycleCore
         else
           min =
             if from.present?
-              "(DATE_TRUNC('#{group_by}', '#{from.to_s(:long_datetime)}'::timestamp))"
+              "(DATE_TRUNC('#{group_by}', '#{from}'::timestamp with time zone))"
             else
               "(SELECT DATE_TRUNC('#{group_by}', MIN(timestamp)) FROM timeseries)"
             end
           max =
             if to.present?
-              "(DATE_TRUNC('#{group_by}', '#{to.to_s(:long_datetime)}'::timestamp))"
+              "(DATE_TRUNC('#{group_by}', '#{to}'::timestamp with time zone))"
             else
               # 'CURRENT_DATE'
               "(SELECT DATE_TRUNC('#{group_by}', MAX(timestamp)) FROM timeseries)"
