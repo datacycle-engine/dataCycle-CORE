@@ -109,18 +109,19 @@ module DataCycleCore
           query = query.where('timestamp <= ?', to) if to.present?
           query.order(timestamp: :asc)
         else
+          timezone = "'#{Time.zone.now.time_zone.name}'"
           min =
             if from.present?
-              "(DATE_TRUNC('#{group_by}', '#{from}'::timestamp with time zone))"
+              "DATE_TRUNC('#{group_by}', '#{from}'::timestamp with time zone, #{timezone})"
             else
-              "(SELECT DATE_TRUNC('#{group_by}', MIN(timestamp)) FROM timeseries)"
+              "(SELECT DATE_TRUNC('#{group_by}', MIN(timestamp), #{timezone}) FROM timeseries)"
             end
           max =
             if to.present?
-              "(DATE_TRUNC('#{group_by}', '#{to}'::timestamp with time zone))"
+              "DATE_TRUNC('#{group_by}', '#{to}'::timestamp with time zone, #{timezone})"
             else
               # 'CURRENT_DATE'
-              "(SELECT DATE_TRUNC('#{group_by}', MAX(timestamp)) FROM timeseries)"
+              "(SELECT DATE_TRUNC('#{group_by}', MAX(timestamp), #{timezone}) FROM timeseries)"
             end
 
           ActiveRecord::Base.connection.execute <<-SQL.squish
@@ -132,7 +133,7 @@ module DataCycleCore
                 #{max},
                 '1 #{group_by}'::INTERVAL
               ) buckets
-            	LEFT JOIN timeseries ON DATE_TRUNC('#{group_by}', timeseries.timestamp) = buckets
+            	LEFT JOIN timeseries ON DATE_TRUNC('#{group_by}', timeseries.timestamp, #{timezone}) = buckets
             WHERE timeseries.thing_id = '#{id}'
             AND timeseries.property = '#{property_name}'
             GROUP BY buckets
