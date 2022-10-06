@@ -103,27 +103,18 @@ module DataCycleCore
       end
 
       def load_timeseries(property_name, from = nil, to = nil, group_by = nil)
+        query = DataCycleCore::Timeseries.where(thing_id: id, property: property_name)
+        query = query.where('timestamp >= ?', from) if from.present?
+        query = query.where('timestamp <= ?', to) if to.present?
         if group_by.nil?
-          query = DataCycleCore::Timeseries.where(thing_id: id, property: property_name)
-          query = query.where('timestamp >= ?', from) if from.present?
-          query = query.where('timestamp <= ?', to) if to.present?
-          query.order(timestamp: :asc)
+          query
+            .order(timestamp: :asc)
         else
           timezone = "'#{Time.zone.now.time_zone.name}'"
-          min = from.present? ? "AND timeseries.timestamp >= '#{from}'::timestamp with time zone" : ''
-          max = to.present? ? "AND timeseries.timestamp < '#{to}'::timestamp with time zone" : ''
-          ActiveRecord::Base.connection.execute <<-SQL.squish
-            SELECT
-            	DATE_TRUNC('#{group_by}', timeseries.timestamp, #{timezone}) AS ts,
-            	SUM(timeseries.value) as value
-            FROM timeseries
-            WHERE timeseries.thing_id = '#{id}'
-            AND timeseries.property = '#{property_name}'
-            #{min}
-            #{max}
-            GROUP BY ts
-            ORDER BY ts ASC;
-          SQL
+          query
+            .select("DATE_TRUNC('#{group_by}', timeseries.timestamp, #{timezone}) AS ts, SUM(timeseries.value) as value")
+            .group(:ts)
+            .order(ts: :asc)
         end
       end
 

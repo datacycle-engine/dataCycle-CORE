@@ -5,7 +5,7 @@ module DataCycleCore
     module V4
       class ContentsController < ::DataCycleCore::Api::V4::ApiBaseController
         PUMA_MAX_TIMEOUT = 60
-        TIMESERIES_GROUP_BY = ['hour', 'day', 'week', 'month', 'year'].freeze
+        TIMESERIES_GROUP_BY = ['hour', 'day', 'week', 'month', 'quarter', 'year'].freeze
         include DataCycleCore::Filter
         include DataCycleCore::ApiHelper
         before_action :prepare_url_parameters
@@ -74,17 +74,7 @@ module DataCycleCore
           when :json
             # render template: 'data_cycle_core/api/v4/timeseries/show', layout: false
             json = { error: error }
-            unless @contents.nil?
-              json =
-                case @contents
-                in PG::Result
-                  { data: @contents.map(&:values).map { |timestamp, value| [timestamp.utc.in_time_zone, value] } }
-                in ActiveRecord::Relation
-                  { data: @contents.map { |i| [i.timestamp.strftime('%Y-%m-%dT%H:%M:%S.%3N%:z'), i.value] } }
-                else
-                  { error: "something went terribliy wrong #{content.name}(#{content.id}/#{permitted_params[:timeseries]}/#{permitted_params[:time]}/#{permitted_params[:groupBy]})" }
-                end
-            end
+            json = { data: @contents.map { |i| [(i.try(:timestamp)&.strftime('%Y-%m-%dT%H:%M:%S.%3N%:z') || i.try(:ts).in_time_zone), i.value] } } unless @contents.nil?
             render json: json
           when :csv
             response.headers['Content-Type'] = 'text/csv'
