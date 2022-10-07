@@ -685,6 +685,7 @@ de:
         collection_or_stored_filter: '%{collection} oder %{stored_filter}'
     related_to: ist verknüpft mit
     feratel_content_score: Feratel - Content Score
+    internal_content_score: Content Score (intern)
     union_filter_ids: in gespeicherten Suchen / %{collections}
     related_to_method:
       related: verknüpft mit

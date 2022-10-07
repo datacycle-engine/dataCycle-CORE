@@ -643,6 +643,7 @@ en:
         collection_or_stored_filter: '%{collection} or %{stored_filter}'
     related_to: is linked to
     feratel_content_score: Feratel - Content Score
+    internal_content_score: Content Score (internal)
     union_filter_ids: in stored searches / %{collections}
     related_to_method:
       related: contingent on
