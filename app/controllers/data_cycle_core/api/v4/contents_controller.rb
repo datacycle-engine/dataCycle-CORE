@@ -81,13 +81,10 @@ module DataCycleCore
             response.headers['Content-Disposition'] = "attachment; filename=#{content.id}_#{permitted_params[:timeseries]}.csv"
             csv = ['timestamp; value']
             unless @contents.nil?
-              csv =
-                case @contents
-                in PG::Result
-                  (csv + @contents.to_a.map(&:values).map { |line| line.join('; ') }).join("\n")
-                in ActiveRecord::Relation
-                  (csv + @contents.pluck(:timestamp, :value).map { |line| line.join('; ') }).join("\n")
-                end
+              csv += @contents
+                .map { |i| [(i.try(:timestamp)&.strftime('%Y-%m-%dT%H:%M:%S.%3N%:z') || i.try(:ts).in_time_zone).to_json, i.value] }
+                .map { |line| line.join('; ') }
+              csv = csv.join("\n")
             end
             render plain: csv
           end
