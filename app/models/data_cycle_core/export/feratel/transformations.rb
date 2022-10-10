@@ -107,7 +107,7 @@ module DataCycleCore
                       xml.LastName
                       xml.AddressLine1(organizer.address.street_address)
                       xml.AddressLine2
-                      xml.Country(organizer.address.address_country)
+                      xml.Country(filter_country(organizer.address.address_country))
                       xml.ZipCode(organizer.address.postal_code)
                       xml.Town(organizer.address.address_locality)
                       xml.Email(organizer.contact_info.email)
@@ -125,7 +125,7 @@ module DataCycleCore
                 end
                 xml.Documents do
                   data.image.each do |image|
-                    xml.Document({ 'Class' => 'Image', 'Name' => image.name, 'Extension' => image&.file_type&.first&.name, 'Size' => image&.content_size&.to_i&.to_s, 'Copyright' => image.copyright_notice }) do
+                    xml.Document({ 'Class' => 'Image', 'Name' => image.name[0..30], 'Extension' => image&.file_type&.first&.name, 'Size' => image&.content_size&.to_i&.to_s, 'Copyright' => image.copyright_notice }) do
                       xml.URL(image.content_url)
                     end
                   end
@@ -241,6 +241,13 @@ module DataCycleCore
               end
             end
           end
+          if infos.blank?
+            type = 'EventHeader'
+            data.available_locales.each do |locale|
+              next if data.description.blank?
+              infos.push({ locale: locale.to_s, type: type, info: data.description })
+            end
+          end
           infos
         end
 
@@ -251,6 +258,12 @@ module DataCycleCore
               { locale => location&.title }
             end
           }.inject(:merge)
+        end
+
+        def self.filter_country(string)
+          return if string.blank?
+          return unless string.in?(['AT', 'DE', 'IT', 'FR', 'CH', 'NL'])
+          string
         end
       end
     end
