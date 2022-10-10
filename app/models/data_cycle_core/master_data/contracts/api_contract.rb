@@ -159,6 +159,7 @@ module DataCycleCore
           optional(:section).hash(SECTION)
           optional(:filter).hash(FILTER)
           optional(:time).hash(TIME_FILTER)
+          optional(:groupBy).filled(:string)
         end
       end
 

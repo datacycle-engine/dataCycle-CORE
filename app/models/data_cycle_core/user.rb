@@ -9,8 +9,8 @@ module DataCycleCore
 
     WEBHOOK_ACCESSORS = [:raw_password, :synchronous_webhooks, :mailer_layout, :viewer_layout, :redirect_url].freeze
 
-    attr_accessor :skip_callbacks, :token_issuer, :forward_to_url, *WEBHOOK_ACCESSORS
-
+    attr_accessor :skip_callbacks, :forward_to_url, *WEBHOOK_ACCESSORS
+    attr_writer :user_api_feature
     WEBHOOKS_ATTRIBUTES = [
       'access_token',
       'email',
@@ -68,6 +68,10 @@ module DataCycleCore
     after_update_commit :execute_update_webhooks, if: proc { |u| !u.skip_callbacks && (u.saved_changes.keys & u.allowed_webhook_attributes).present? }
     after_destroy :execute_delete_webhooks, unless: :skip_callbacks
 
+    def user_api_feature
+      @user_api_feature ||= DataCycleCore::Feature::UserApi.new(nil, self)
+    end
+
     def recoverable?
       !(external? || is_rank?(0))
     end
@@ -123,25 +127,20 @@ module DataCycleCore
     def generate_user_token(refresh_jti = false)
       update_columns(jti: SecureRandom.uuid) if refresh_jti || jti.blank?
 
-      DataCycleCore::JsonWebToken.encode(payload: { user_id: id, jti: jti })
+      DataCycleCore::JsonWebToken.encode(payload: { user_id: id, jti: jti, original_iss: user_api_feature.current_issuer }.compact_blank)
     end
 
     def update_with_token(token)
-      if token.dig(:user, :rank).present?
-        rank = DataCycleCore.features.dig(:user_api, :allowed_ranks)&.include?(token.dig(:user, :rank).to_i) ? token.dig(:user, :rank).to_i : DataCycleCore.features.dig(:user_api, :default_rank).to_i
-      end
+      self.role = user_api_feature.allowed_role(token.dig(:user, :rank)) if user_api_feature.rank_allowed?(token.dig(:user, :rank))
+      self.attributes = user_api_feature.parsed_user_params(ActionController::Parameters.new(token.dig(:user) || {}))
 
-      user_keys = DataCycleCore.features.dig(:user_api, :user_params).deep_transform_keys { |k| k.camelize(:lower) }
-      authorized_attributes = Array(user_keys.select { |_, v| v.nil? }.keys)
-      authorized_attributes.concat(Array(user_keys.compact.keys.map { |k| "#{k}Ids" }))
-
-      self.attributes = token.dig(:user).slice(*authorized_attributes).deep_transform_keys(&:underscore).merge(rank.present? ? { role: DataCycleCore::Role.find_by(rank: rank) } : {})
       save
+
       self
     end
 
     def self.find_with_token(token)
-      if token[:iss] == DataCycleCore::JsonWebToken::ISSUER && token[:jti].present?
+      if token[:iss] == DataCycleCore::Feature::UserApi.issuer && token[:jti].present?
         User.find_by(id: token[:user_id], jti: token[:jti])
       elsif token[:token].present?
         User.find_by(access_token: token[:token])
@@ -149,7 +148,7 @@ module DataCycleCore
         User.find_by(id: token[:user_id])
       elsif token[:external_user_id].present?
         User.find_by(uid: token[:external_user_id])
-      elsif token[:user].present? && token.dig(:user, :email).present? && DataCycleCore.features.dig(:user_api, :enabled)
+      elsif token[:user].present? && token.dig(:user, :email).present? && DataCycleCore::Feature::UserApi.enabled?
         User.find_or_initialize_by(email: token.dig(:user, :email).downcase).update_with_token(token)
       end
     end
@@ -183,8 +182,8 @@ module DataCycleCore
     end
 
     def as_user_api_json
-      as_json(DataCycleCore::Feature::UserApi.json_params)
-      .merge(as_json(only: [:additional_attributes]).tap { |u| u['additional_attributes']&.slice!(*DataCycleCore::Feature::UserApi.json_additional_attributes) })
+      as_json(user_api_feature.json_params)
+      .merge(as_json(only: [:additional_attributes]).tap { |u| u['additional_attributes']&.slice!(*user_api_feature.json_additional_attributes) })
       .deep_transform_keys { |k| k.to_s.camelize(:lower) }
     end
 

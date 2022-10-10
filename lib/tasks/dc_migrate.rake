@@ -112,7 +112,7 @@ namespace :dc do
 
       asset_sql = <<-SQL.squish
         NOT EXISTS (
-          SELECT FROM assets
+          SELECT 1 FROM assets
           INNER JOIN asset_contents
           ON asset_contents.asset_id = assets.id
           WHERE asset_contents.content_data_id = things.id
@@ -136,7 +136,7 @@ namespace :dc do
 
           logger.error("asset for #{content.id} not saved: #{asset.errors&.full_messages}") && next unless asset&.save
 
-          content.external_source_to_external_system_syncs('duplicate')
+          content.external_source_to_external_system_syncs('import')
 
           valid = content.set_data_hash(
             data_hash: {

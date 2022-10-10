@@ -111,7 +111,7 @@ module DataCycleCore
 
         test '/api/v4/auth/login - login with JWT, signed with Private Key ' do
           rsa_private = generate_private_key
-          token = DataCycleCore::JsonWebToken.encode(payload: { token: @current_user.access_token }, alg: 'RS256', key: rsa_private).token
+          token = DataCycleCore::JsonWebToken.encode(payload: { token: @current_user.access_token, iss: 'datacycle.at' }, alg: 'RS256', key: rsa_private).token
 
           post api_v4_authentication_login_path, headers: {
             Authorization: "Bearer #{token}"
@@ -187,7 +187,7 @@ module DataCycleCore
 
         test '/api/v4/users/update - update user' do
           rsa_private = generate_private_key
-          token = DataCycleCore::JsonWebToken.encode(payload: { user: @user_data.deep_transform_keys { |k| k.to_s.camelize(:lower) } }, alg: 'RS256', key: rsa_private).token
+          token = DataCycleCore::JsonWebToken.encode(payload: { user: @user_data.deep_transform_keys { |k| k.to_s.camelize(:lower) }, iss: 'datacycle.at' }, alg: 'RS256', key: rsa_private).token
 
           patch api_v4_users_update_path, params: { givenName: 'Test', familyName: 'Er' }, headers: {
             Authorization: "Bearer #{token}"
@@ -208,7 +208,7 @@ module DataCycleCore
             confirmed_at: Time.zone.now - 1.day
           })
           rsa_private = generate_private_key
-          token = DataCycleCore::JsonWebToken.encode(payload: { user: user_data.deep_transform_keys { |k| k.to_s.camelize(:lower) } }, alg: 'RS256', key: rsa_private).token
+          token = DataCycleCore::JsonWebToken.encode(payload: { user: user_data.deep_transform_keys { |k| k.to_s.camelize(:lower) }, iss: 'datacycle.at' }, alg: 'RS256', key: rsa_private).token
 
           get api_v4_users_path, headers: {
             Authorization: "Bearer #{token}"
@@ -219,10 +219,10 @@ module DataCycleCore
           assert_equal response.content_type, 'application/json; charset=utf-8'
           json_data = JSON.parse(response.body)
           assert_equal user_data['email'], json_data.dig('@graph', 'userData', 'email')
-          assert DataCycleCore::User.where(email: user_data['email']).exists?
+          assert DataCycleCore::User.exists?(email: user_data['email'])
 
           user_data['family_name'] = 'Tester2'
-          token = DataCycleCore::JsonWebToken.encode(payload: { user: user_data.deep_transform_keys { |k| k.camelize(:lower) } }, alg: 'RS256', key: rsa_private).token
+          token = DataCycleCore::JsonWebToken.encode(payload: { user: user_data.deep_transform_keys { |k| k.camelize(:lower) }, iss: 'datacycle.at' }, alg: 'RS256', key: rsa_private).token
 
           get api_v4_users_path, headers: {
             Authorization: "Bearer #{token}"
@@ -240,7 +240,7 @@ module DataCycleCore
 
         test 'POST /api/v4/users/password - reset password for user - not found' do
           rsa_private = generate_private_key
-          token = DataCycleCore::JsonWebToken.encode(payload: { token: @current_user.access_token }, alg: 'RS256', key: rsa_private).token
+          token = DataCycleCore::JsonWebToken.encode(payload: { token: @current_user.access_token, iss: 'datacycle.at' }, alg: 'RS256', key: rsa_private).token
 
           post api_v4_users_password_path, headers: {
             Authorization: "Bearer #{token}"

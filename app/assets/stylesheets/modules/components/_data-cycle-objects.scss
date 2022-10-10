@@ -1362,6 +1362,12 @@ span.single_error.object-browser-error {
 
 /* embedded Objects */
 
+.detail-header.editor {
+  .detail_object:hover > .content-object-item > .embedded-header > label {
+    color: $primary-color;
+  }
+}
+
 .detail-header {
   .form-element.embedded_object {
     &:hover {
@@ -1577,7 +1583,11 @@ span.single_error.object-browser-error {
       }
 
       .embedded-header {
-        font-size: 1.2rem;
+        color: $dark-gray;
+        font-size: 0.9rem;
+        line-height: 1rem;
+        font-weight: normal;
+        transition: $color-transition;
       }
     }
 

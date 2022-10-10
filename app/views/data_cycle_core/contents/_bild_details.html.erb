@@ -52,12 +52,12 @@
               </dd>
             <% end %>
 
-            <% if ['copyright_notice_override', 'copyright_notice_computed', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'restrictions', 'use_guidelines', 'licensing_agreement', 'attribution_url'].any?{|val| content.try(val.to_sym).present? } %>
+            <% if ['copyright_notice_override', 'copyright_notice_computed', 'copyright_notice', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'restrictions', 'use_guidelines', 'licensing_agreement', 'attribution_url'].any?{|val| content.try(val.to_sym).present? } %>
               <dt>
                 <i class="fa fa-copyright" aria-hidden="true"></i> Copyright
               </dt>
 
-              <% ['copyright_notice_override','copyright_notice_computed', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'use_guidelines', 'licensing_agreement', 'attribution_url'].each do |property_name| %>
+              <% ['copyright_notice_override', 'copyright_notice_computed', 'copyright_notice', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'use_guidelines', 'licensing_agreement', 'attribution_url'].each do |property_name| %>
                 <% next if content.try(property_name.to_sym).blank? %>
                 <dd>
                   <%= render_attribute_viewer key: property_name,
@@ -157,6 +157,39 @@
 
     </div>
 
+  </div>
+
+  <div class="detail-content detail-content-wrapper">
+    <div class="row align-center">
+      <div class="type properties">
+        <% ordered_validation_properties(
+            validation: content.schema,
+            content_area: local_assigns.dig(:options, :force_render).to_s == 'true' ? '' : 'content',
+            scope: :show,
+            exclude_types: local_assigns.dig(:options, :exclude_types)
+          ).except(DataCycleCore::Feature::LifeCycle.attribute_keys(content)&.first).each do |key, prop| %>
+          <% next if ['overlay', 'asset', 'thumbnail_url', 'alternative_headline', 'caption', 'description',
+                      'content_location', 'comment', 'source', 'image_id', 'visibility', 'validity_schedule',
+                      'copyright_notice_override', 'copyright_notice_computed', 'copyright_notice', 'photographer',
+                      'author', 'copyright_holder', 'copyright_year', 'restrictions', 'use_guidelines',
+                      'licensing_agreement', 'attribution_url', 'width', 'height', 'content_size', 'file_format',
+                      'date_created', 'date_modified', 'upload_date', 'slug', 'mandatory_license'].include?(key) %>
+
+          <% next if prop.dig('ui', 'show', 'disabled') || prop.dig('type') == 'attribute_group' %>
+
+          <% value = content.try(key.to_sym) %>
+          <% value = value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if value.is_a?(ActiveRecord::Relation) && prop&.dig('type')&.in?(['linked', 'embedded']) %>
+
+          <%= render_attribute_viewer key: "#{DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX}[#{key}]",
+                                      definition: prop,
+                                      value: value,
+                                      parameters: {
+                                        options: options
+                                      },
+                                      content: content %>
+        <% end %>
+      </div>
+    </div>
   </div>
 
 <% end %>

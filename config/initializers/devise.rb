@@ -33,7 +33,7 @@ Devise.setup do |config|
   end
 
   config.warden do |manager|
-    manager.default_strategies(scope: :user).unshift :guest_user, :api_bearer_token, :api_token, :download_token
+    manager.default_strategies(scope: :user).unshift :email_password, :guest_user, :api_bearer_token, :api_token, :download_token
     manager.failure_app = DataCycleCore::CustomDeviseFailureApp
   end
 end
