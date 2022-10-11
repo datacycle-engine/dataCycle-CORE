@@ -19,7 +19,7 @@ module DataCycleCore
             Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
               query = build_search_query
 
-              render(plain: query.query.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters), content_type: request.format.to_s) && next if request.format.geojson?
+              render(plain: query.query.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format.to_s) && next if request.format.geojson?
 
               query = apply_ordering(query)
 
@@ -41,7 +41,7 @@ module DataCycleCore
             .find(permitted_params[:id])
           raise DataCycleCore::Error::Api::ExpiredContentError.new([{ pointer_path: request.path, type: 'expired_content', detail: 'is expired' }]), 'API Expired Content Error' unless @content.is_valid?
 
-          render(plain: @content.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters), content_type: request.format.to_s) && return if request.format.geojson?
+          render(plain: @content.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format.to_s) && return if request.format.geojson?
         end
 
         def timeseries
