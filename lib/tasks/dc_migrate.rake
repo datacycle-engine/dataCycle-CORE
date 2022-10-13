@@ -50,7 +50,7 @@ namespace :dc do
       progressbar1 = ProgressBar.create(total: embeddeds.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: embeddeds')
 
       embeddeds.each do |embedded|
-        embedded.external_source_to_external_system_syncs
+        embedded.external_source_to_external_system_syncs('duplicate')
 
         progressbar1.increment
       end
@@ -64,7 +64,7 @@ namespace :dc do
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: things')
 
       contents.each do |content|
-        content.external_source_to_external_system_syncs
+        content.external_source_to_external_system_syncs('duplicate')
 
         progressbar.increment
       end
