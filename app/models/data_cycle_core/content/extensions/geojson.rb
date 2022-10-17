@@ -110,7 +110,7 @@ module DataCycleCore
           def geojson_detail_select_sql
             <<-SQL.squish
               json_build_object('type', 'Feature', 'id', t.id, 'geometry', ST_AsGeoJSON (t.geometry, #{GEOMETRY_PRECISION})::json, 'properties',
-                json_build_object(#{geojson_include_config.pluck(:identifier).prepend('id').map { |p| "'#{p}', t.#{p}" }.join(', ')}))
+                json_build_object('@id', t.id, #{geojson_include_config.pluck(:identifier).map { |p| "'#{p.delete('"')}', t.#{p}" }.join(', ')}))
             SQL
           end
 
@@ -122,6 +122,22 @@ module DataCycleCore
 
           def geojson_include_config
             config = []
+
+            config << {
+              identifier: '"@type"',
+              select: 'array_append(
+                      CASE
+                      WHEN things."schema"->\'api\'->\'type\' IS NOT NULL THEN
+                      ARRAY(
+                      SELECT
+                        jsonb_array_elements_text(things."schema"->\'api\'->\'type\')
+                      )
+                      WHEN things."schema"->\'schema_type\' IS NOT NULL THEN
+                      ARRAY(SELECT things."schema"->>\'schema_type\')
+                      ELSE \'{"Thing"}\'
+                      END,
+                      \'dcls:\' || things.template_name)'
+            }
 
             if @fields_parameters.blank? || @fields_parameters&.any? { |p| p.first == 'name' }
               config << {

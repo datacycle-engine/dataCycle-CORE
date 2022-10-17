@@ -426,7 +426,7 @@ class MapLibreGlViewer {
     this.map.addSource(this.sources[key], {
       type: 'geojson',
       data: data,
-      promoteId: 'id'
+      promoteId: '@id'
     });
 
     this.layers[key] = {
@@ -440,7 +440,7 @@ class MapLibreGlViewer {
     this.map.addSource(this.selectedAdditionalSources[key], {
       type: 'geojson',
       data: data,
-      promoteId: 'id'
+      promoteId: '@id'
     });
 
     this.selectedAdditionalLayers[key] = {
