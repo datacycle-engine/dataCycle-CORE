@@ -454,7 +454,7 @@ module DataCycleCore
         return if not_translated && I18n.available_locales.first != I18n.locale && default_value.blank?
 
         present_relation_ids = send(relation_name).pluck(:id)
-        ids = Array.wrap(ids)
+        ids = Array.wrap(ids).uniq
 
         if DataCycleCore::DataHashService.present?(ids)
           classification_content.upsert_all(
