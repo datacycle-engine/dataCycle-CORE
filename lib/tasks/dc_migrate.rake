@@ -97,7 +97,7 @@ namespace :dc do
       puts 'MIGRATION SUCCESSFUL'
     end
 
-    desc 'make external_system_sync to primary external_source' # 661c930f-a0b2-4421-a4bc-d3c29cc00e9d, v-cloud-bodensee
+    desc 'make external_system_sync to primary external_source'
     task :make_external_system_sync_primary, [:stored_filter_id, :external_system_identifier] => :environment do |_, args|
       sf = DataCycleCore::StoredFilter.find(args.stored_filter_id)
       abort('No Stored Filter found!') if sf.blank?
