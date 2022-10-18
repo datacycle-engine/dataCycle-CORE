@@ -25,9 +25,16 @@ DataCycleCore::Engine.routes.draw do
 
   root to: redirect('users/sign_in')
 
-  get '/docs/*path/:file', to: 'documentation#image', constraints: ->(request) { request.path.match?(/\.(gif|jpg|png|svg)$/) }
-  get '/docs/*path', to: 'documentation#show', as: :docs_with_path
-  get '/docs', to: 'documentation#show'
+  scope module: 'static', path: 'docs', as: :docs, defaults: { root_path: 'docs' } do
+    get '/', action: :show
+    get '/*path/:file', action: :image, constraints: ->(request) { request.path.match?(/\.(gif|jpg|png|svg)$/) }
+    get '/*path', action: :show, as: :with
+  end
+
+  scope module: 'static', path: 'static', as: :static, defaults: { root_path: 'static' } do
+    get '/*path/:file', action: :image, constraints: ->(request) { request.path.match?(/\.(gif|jpg|png|svg)$/) }
+    get '/*path', action: :show, as: :with
+  end
 
   get :clear_all_caches, controller: :application
   get '/i18n/translate', to: 'application#translate'
