@@ -39,11 +39,15 @@ module DataCycleCore
             transformation = options[:transformations].constantize
               .method(options.dig(:import, :main_content, :transformation))
 
+            # ap transformation.call(utility_object.external_source.id).call(raw_data).with_indifferent_access
+            # byebug
+
             process_single_content(utility_object, options.dig(:import, :main_content, :template), transformation, raw_data)
           end
         end
 
         def self.process_single_content(utility_object, template_name, transformation, raw_data)
+          return if raw_data.blank?
           template = DataCycleCore::Generic::Common::ImportFunctions.load_template(template_name)
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
