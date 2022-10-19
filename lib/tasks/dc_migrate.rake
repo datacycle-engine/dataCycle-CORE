@@ -50,7 +50,7 @@ namespace :dc do
       progressbar1 = ProgressBar.create(total: embeddeds.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: embeddeds')
 
       embeddeds.each do |embedded|
-        embedded.external_source_to_external_system_syncs
+        embedded.external_source_to_external_system_syncs('duplicate')
 
         progressbar1.increment
       end
@@ -64,7 +64,7 @@ namespace :dc do
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING: things')
 
       contents.each do |content|
-        content.external_source_to_external_system_syncs
+        content.external_source_to_external_system_syncs('duplicate')
 
         progressbar.increment
       end
@@ -72,7 +72,7 @@ namespace :dc do
       puts 'MIGRATION SUCCESSFUL'
     end
 
-    desc 'move external_source_id and external_key from things to external_system_syncs'
+    desc 'remove external_source_id and external_key from things to external_system_syncs'
     task :remove_external_source_from_classifications, [:external_system_id] => :environment do |_, args|
       external_system_id = args.external_system_id
 
@@ -97,6 +97,27 @@ namespace :dc do
       puts 'MIGRATION SUCCESSFUL'
     end
 
+    desc 'make external_system_sync to primary external_source'
+    task :make_external_system_sync_primary, [:stored_filter_id, :external_system_identifier] => :environment do |_, args|
+      sf = DataCycleCore::StoredFilter.find(args.stored_filter_id)
+      abort('No Stored Filter found!') if sf.blank?
+
+      es = DataCycleCore::ExternalSystem.find_by(identifier: args.external_system_identifier)
+      abort('No External System found!') if es.blank?
+
+      iterator = sf.apply
+      progressbar = ProgressBar.create(total: iterator.count, format: '%t |%w>%i| %a - %c/%C', title: 'Switching sources...')
+
+      iterator.each do |thing|
+        sync = thing.external_system_syncs.find_by(external_system_id: es.id)
+        progressbar.increment
+        next if sync.blank?
+        thing.switch_primary_external_system(sync)
+      end
+
+      puts "DONE: #{es.name} is now primary System for all Things provided."
+    end
+
     desc 'download external assets into dataCycle for things with external_system_id'
     task :download_external_assets, [:external_system_id] => :environment do |_, args|
       logger = Logger.new('log/download_assets.log')
@@ -112,7 +133,7 @@ namespace :dc do
 
       asset_sql = <<-SQL.squish
         NOT EXISTS (
-          SELECT FROM assets
+          SELECT 1 FROM assets
           INNER JOIN asset_contents
           ON asset_contents.asset_id = assets.id
           WHERE asset_contents.content_data_id = things.id
@@ -136,7 +157,7 @@ namespace :dc do
 
           logger.error("asset for #{content.id} not saved: #{asset.errors&.full_messages}") && next unless asset&.save
 
-          content.external_source_to_external_system_syncs('duplicate')
+          content.external_source_to_external_system_syncs('import')
 
           valid = content.set_data_hash(
             data_hash: {

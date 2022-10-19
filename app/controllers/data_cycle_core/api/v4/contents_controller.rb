@@ -5,6 +5,7 @@ module DataCycleCore
     module V4
       class ContentsController < ::DataCycleCore::Api::V4::ApiBaseController
         PUMA_MAX_TIMEOUT = 60
+        TIMESERIES_GROUP_BY = ['hour', 'day', 'week', 'month', 'quarter', 'year'].freeze
         include DataCycleCore::Filter
         include DataCycleCore::ApiHelper
         before_action :prepare_url_parameters
@@ -18,7 +19,7 @@ module DataCycleCore
             Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
               query = build_search_query
 
-              render(plain: query.query.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters), content_type: request.format.to_s) && next if request.format.geojson?
+              render(plain: query.query.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format.to_s) && next if request.format.geojson?
 
               query = apply_ordering(query)
 
@@ -40,7 +41,7 @@ module DataCycleCore
             .find(permitted_params[:id])
           raise DataCycleCore::Error::Api::ExpiredContentError.new([{ pointer_path: request.path, type: 'expired_content', detail: 'is expired' }]), 'API Expired Content Error' unless @content.is_valid?
 
-          render(plain: @content.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters), content_type: request.format.to_s) && return if request.format.geojson?
+          render(plain: @content.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format.to_s) && return if request.format.geojson?
         end
 
         def timeseries
@@ -48,27 +49,43 @@ module DataCycleCore
             .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
             .find(permitted_params[:content_id] || permitted_params[:id])
 
+          error = nil
+
           from = nil
-          from = Time.parse(permitted_params.dig(:time, :in, :min)).in_time_zone if permitted_params.dig(:time, :in, :min).present?
+          from = Time.zone.parse(permitted_params.dig(:time, :in, :min)) if permitted_params.dig(:time, :in, :min).present?
           to = nil
-          to = Time.parse(permitted_params.dig(:time, :in, :max)).in_time_zone if permitted_params.dig(:time, :in, :max).present?
-          if permitted_params[:timeseries].in?(content.timeseries_property_names)
+          to = Time.zone.parse(permitted_params.dig(:time, :in, :max)) if permitted_params.dig(:time, :in, :max).present?
+
+          group_by = permitted_params[:groupBy]
+          if group_by.present? && !group_by.in?(TIMESERIES_GROUP_BY)
+            error = "wrong group_by parameter #{content.name}(#{content.id}) -> #{group_by}"
+            group_by = nil
+          end
+
+          if error.nil? && permitted_params[:timeseries].in?(content.timeseries_property_names)
             method = permitted_params[:timeseries]
-            @contents = content.send(method, from, to)
+            @contents = content.send(method, from, to, group_by)
           else
             @contents = nil
+            error ||= "no timeseries data found for #{content.name}(#{content.id})"
           end
 
           case permitted_params[:format].to_sym
           when :json
-            json = { error: "no timeseries data found for #{content.name}(#{content.id})" }
-            json = { data: @contents.pluck(:timestamp, :value) } unless @contents.nil?
+            # render template: 'data_cycle_core/api/v4/timeseries/show', layout: false
+            json = { error: error }
+            json = { data: @contents.map { |i| [(i.try(:timestamp)&.strftime('%Y-%m-%dT%H:%M:%S.%3N%:z') || i.try(:ts).in_time_zone), i.value] } } unless @contents.nil?
             render json: json
           when :csv
             response.headers['Content-Type'] = 'text/csv'
             response.headers['Content-Disposition'] = "attachment; filename=#{content.id}_#{permitted_params[:timeseries]}.csv"
             csv = ['timestamp; value']
-            csv = (csv + @contents.pluck(:timestamp, :value).map { |line| line.join('; ') }).join("\n") if @contents.present?
+            unless @contents.nil?
+              csv += @contents
+                .map { |i| [(i.try(:timestamp)&.strftime('%Y-%m-%dT%H:%M:%S.%3N%:z') || i.try(:ts).in_time_zone).to_json, i.value] }
+                .map { |line| line.join('; ') }
+              csv = csv.join("\n")
+            end
             render plain: csv
           end
         end
@@ -122,7 +139,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :uuids, :search, :limit, :timeseries, uuid: []] + [filter: {}] + [time: {}] + ['dc:liveData': [:'@id', :minPrice]]
+          super + [:id, :language, :uuids, :search, :limit, :timeseries, :groupBy, uuid: []] + [filter: {}] + [time: {}] + ['dc:liveData': [:'@id', :minPrice]]
         end
 
         def permitted_filter_parameters

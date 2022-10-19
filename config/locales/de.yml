@@ -449,6 +449,7 @@ de:
       distance: Radius in Metern
     available_widgets: Verfügbare Widgets
     widgets:
+      event_list: Events - Listenansicht
       list: Listenansicht
       map: Kartenansicht
       gallery: Bildergalerie
@@ -545,6 +546,9 @@ de:
         subject: Ein neuer Benutzer wurde erstellt
         text_html: Der neue Benutzer %{name} (%{email}) wurde erstellt.
         user_link: Benutzer bearbeiten
+        unlocked_subject: Freigabe erfolgt
+        unlocked_html: Sie können sich ab sofort mit Ihren Zugangsdaten einloggen und die freigegebenen Inhalte nutzen! Bei Fragen wenden Sie sich bitte direkt an uns.
+
     report_generator:
       downloads_popular: Top 50 Downloads
       downloads_content: Alle Downloads dieses Inhalts
@@ -681,6 +685,7 @@ de:
         collection_or_stored_filter: '%{collection} oder %{stored_filter}'
     related_to: ist verknüpft mit
     feratel_content_score: Feratel - Content Score
+    internal_content_score: Content Score - dataCycle
     union_filter_ids: in gespeicherten Suchen / %{collections}
     related_to_method:
       related: verknüpft mit
@@ -1292,7 +1297,11 @@ de:
       download_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong> hat %{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” mit Ihnen geteilt.<br><br>%{n_type} steht nun zum Download bereit.</span>'
       updated_watchlist_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333">%{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” wurde aktualisiert. Es wurden Inhalte hinzugefügt oder entfernt.</span>'
       create_link: Neuen Link erstellen
-    documentation:
+    static:
+      imprint: Impressum
+      privacy_policy: Datenschutzerklärung
+      terms_and_conditions: Allgemeine Geschäftsbedingungen
+    docs:
       root: Dokumentation
       overview: Übersicht
       architecture: Systemarchitektur

@@ -111,7 +111,7 @@ namespace :dc do
       items.find_each do |item|
         next(progressbar.increment) if dry_run
 
-        duplicates = (item.duplicate_candidates.where('score >= ?', score).duplicates + [item]).sort
+        duplicates = (item.duplicate_candidates.where('score >= ?', score).duplicates + [item]).sort_by { |v| v.try(:updated_at) }
         original = duplicates.pop
 
         duplicates.each { |duplicate| original.merge_with_duplicate(duplicate) }

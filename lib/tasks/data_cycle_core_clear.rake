@@ -30,15 +30,6 @@ delete_assets = <<-EOS
   DELETE FROM asset_contents;
 EOS
 
-delete_content_histories = <<-EOS
-  DELETE FROM thing_histories;
-  DELETE FROM thing_history_translations;
-
-  DELETE FROM content_content_histories;
-
-  DELETE FROM classification_content_histories;
-EOS
-
 delete_soft_deleted_classifications = <<-EOS
   DELETE FROM classifications WHERE deleted_at IS NOT NULL;
   DELETE FROM classification_groups WHERE deleted_at IS NOT NULL;
@@ -71,8 +62,22 @@ namespace :data_cycle_core do
     end
 
     desc 'Remove the history of all content data'
-    task history: :environment do
-      ActiveRecord::Base.connection.execute(delete_content_histories)
+    task :history, [:keep_internal, :imported_only] => [:environment] do |_, args|
+      keep_internal = args.keep_internal.to_s == 'true'
+      imported_only = args.imported_only.to_s == 'true'
+      histories_to_delete = DataCycleCore::Thing::History.where(deleted_at: nil, version_name: nil)
+      histories_to_delete = histories_to_delete.where.not(external_source_id: nil) if imported_only
+      histories_to_delete = histories_to_delete.where(updated_by: nil) if keep_internal
+      histories_to_delete_sql = histories_to_delete.select(:id)
+
+      DataCycleCore::ContentContent::History.where(content_a_history_id: histories_to_delete_sql).delete_all
+      DataCycleCore::ClassificationContent::History.where(content_data_history_id: histories_to_delete_sql).delete_all
+      DataCycleCore::Schedule::History.where(thing_history_id: histories_to_delete_sql).delete_all
+      DataCycleCore::Thing::History::Translation.where(thing_history_id: histories_to_delete_sql).delete_all
+
+      histories_to_delete.delete_all
+
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].invoke
     end
 
     desc 'Remove all soft-deleted classification data (paranoid)'
