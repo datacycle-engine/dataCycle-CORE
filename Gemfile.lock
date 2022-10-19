@@ -62,6 +62,7 @@ PATH
       transproc (~> 1.0)
       vite_rails (>= 3.0.0)
       whenever
+      zip_tricks
 
 PATH
   remote: vendor/gems/translations
@@ -584,6 +585,8 @@ GEM
       unicode-display_width (>= 1.4.0, < 3.0)
     rubocop-ast (1.21.0)
       parser (>= 3.1.1.0)
+    rubocop-minitest (0.22.2)
+      rubocop (>= 0.90, < 2.0)
     rubocop-performance (1.14.3)
       rubocop (>= 1.7.0, < 2.0)
       rubocop-ast (>= 0.4.0)
@@ -591,6 +594,8 @@ GEM
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.7.0, < 2.0)
+    rubocop-rake (0.6.0)
+      rubocop (~> 1.0)
     ruby-progressbar (1.11.0)
     ruby-rc4 (0.1.5)
     ruby-vips (2.1.4)
@@ -663,6 +668,7 @@ GEM
     whenever (1.0.0)
       chronic (>= 0.6.3)
     zeitwerk (2.6.0)
+    zip_tricks (5.6.0)
 
 PLATFORMS
   ruby
@@ -700,8 +706,10 @@ DEPENDENCIES
   rgeo-proj4
   rubocop (= 1.28.2)
   rubocop-ast
+  rubocop-minitest
   rubocop-performance
   rubocop-rails (= 2.13.2)
+  rubocop-rake
   seed_dump
   simplecov
   spring
