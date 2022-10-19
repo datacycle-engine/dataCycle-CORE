@@ -32,6 +32,8 @@ module DataCycleCore
                 .method(nested_contents_config[:transformation])
 
               Array.wrap(resolve_attribute_path(raw_data, nested_contents_config[:path])).each do |nested_data|
+                # ap transformation.call(utility_object.external_source.id).call(nested_data)
+
                 process_single_content(utility_object, nested_contents_config[:template], transformation, nested_data)
               end
             end
@@ -39,8 +41,7 @@ module DataCycleCore
             transformation = options[:transformations].constantize
               .method(options.dig(:import, :main_content, :transformation))
 
-            # ap transformation.call(utility_object.external_source.id).call(raw_data).with_indifferent_access
-            # byebug
+            # ap transformation.call(utility_object.external_source.id).call(raw_data)
 
             process_single_content(utility_object, options.dig(:import, :main_content, :template), transformation, raw_data)
           end
@@ -48,6 +49,8 @@ module DataCycleCore
 
         def self.process_single_content(utility_object, template_name, transformation, raw_data)
           return if raw_data.blank?
+          return if raw_data.keys.size == 1 && raw_data.keys.first.in?(['id', '@id'])
+
           template = DataCycleCore::Generic::Common::ImportFunctions.load_template(template_name)
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
