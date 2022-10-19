@@ -10,7 +10,7 @@
 
     .header .header_top td {
       height: 5px;
-      background: <%= DataCycleCore.logo.dig('customercolor') || '#009fe3' %>;
+      background: <%= @resource.try(:user_api_feature)&.user_mailer_customercolor || DataCycleCore.logo.dig('customercolor') || '#009fe3' %>;
     }
 
     .header .header_main td {
@@ -52,7 +52,7 @@
 
       <tr class="header_main">
         <td colspan="3" width="100%" align="center">
-          <%= email_image_tag DataCycleCore.logo['email'], style: DataCycleCore.logo.dig('mail_dimensions').map{ |k, v| "#{k.dasherize}: #{v};" }.join(' ') %>
+          <%= email_image_tag @resource.try(:user_api_feature)&.user_mailer_logo || DataCycleCore.logo['email'], style: DataCycleCore.logo.dig('mail_dimensions').map{ |k, v| "#{k.dasherize}: #{v};" }.join(' ') %>
         </td>
       </tr>
     </table>

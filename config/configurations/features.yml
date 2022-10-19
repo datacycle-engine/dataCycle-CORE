@@ -330,7 +330,6 @@
 
 :user_api:
   :enabled: false
-  :only_config: true
   :expiration_time: <%= 24.hours %>
   :default_rank: 0
   :allowed_ranks:
@@ -342,7 +341,7 @@
     :default_locale:
     :password:
     :confirmed_at:
-  :issuer: datacycle.at
+  :issuer: datacycle.info
 
 :copy_embedded_locale:
   :enabled: false

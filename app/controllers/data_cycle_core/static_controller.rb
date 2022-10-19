@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class DocumentationController < ApplicationController
+  class StaticController < ApplicationController
+    ROOT_PATHS = [Rails.root, DataCycleCore::Engine.root].freeze
     HTML_OPTIONS = {
       with_toc_data: true
     }.freeze
@@ -12,17 +13,13 @@ module DataCycleCore
     }.freeze
 
     def show
+      @root_path = params[:root_path] || 'docs'
       @markdown = render_markdown
     end
 
     def image
-      image_path = view_paths.map(&:to_path).map { |p|
-        p.split('/')[0..-3].join('/')
-      }.map { |p|
-        File.join(p, request.path)
-      }.detect do |p|
-        File.file?(p)
-      end
+      root_paths = ROOT_PATHS.map { |p| p.join(*request.path.split('/')) }
+      image_path = root_paths.detect(&:exist?)
 
       raise ActiveRecord::RecordNotFound unless image_path
 
@@ -30,18 +27,12 @@ module DataCycleCore
     end
 
     def render_markdown
-      markdown_path = view_paths.map(&:to_path).map { |p|
-        (p.split('/')[0..-3] + ['docs']).join('/')
-      }.map { |p|
-        File.join(p, sanitized_path + '.md')
-      }.detect do |p|
-        File.file?(p)
-      end
-
-      markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(HTML_OPTIONS), MARKDOWN_OPTIONS)
+      root_paths = ROOT_PATHS.map { |p| p.join(@root_path, sanitized_path + '.md') }
+      markdown_path = root_paths.detect(&:exist?)
 
       raise ActiveRecord::RecordNotFound if markdown_path.nil?
 
+      markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(HTML_OPTIONS), MARKDOWN_OPTIONS)
       markdown.render(File.read(markdown_path))
     end
 

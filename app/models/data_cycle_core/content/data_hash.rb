@@ -230,7 +230,9 @@ module DataCycleCore
       end
 
       def self.invalidate_all
-        all.lock('FOR UPDATE SKIP LOCKED').update_all(cache_valid_since: Time.zone.now)
+        unscoped
+          .where(id: all.except(:distinct).lock('FOR UPDATE SKIP LOCKED').order(id: :asc).select(:id))
+          .update_all(cache_valid_since: Time.zone.now)
       end
 
       def self.update_search_all
@@ -269,6 +271,7 @@ module DataCycleCore
 
       def storage_cases_set(options, key, properties)
         value = options.data_hash[key]
+        # puts "#{key}, #{value}, #{properties.dig('type')}"
         case properties['type']
         when 'linked'
           set_linked(key, value, properties)
@@ -430,6 +433,7 @@ module DataCycleCore
         end
         upsert_item.schema = template.schema
         upsert_item.template_name = template.template_name
+        # TODO: check if external_source_id is required
         upsert_item.external_source_id = external_source_id
         created = upsert_item.new_record?
         upsert_item.created_at = options.save_time if created
@@ -450,7 +454,7 @@ module DataCycleCore
         return if not_translated && I18n.available_locales.first != I18n.locale && default_value.blank?
 
         present_relation_ids = send(relation_name).pluck(:id)
-        ids = Array.wrap(ids)
+        ids = Array.wrap(ids).uniq
 
         if DataCycleCore::DataHashService.present?(ids)
           classification_content.upsert_all(

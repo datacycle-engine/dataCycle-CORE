@@ -21,8 +21,8 @@ module DataCycleCore
           RGeo::GeoJSON.encode(geojson_feature)
         end
 
-        def to_geojson(simplify_factor: SIMPLIFY_FACTOR, include_parameters: [], fields_parameters: [])
-          self.class.where(id: id).limit(1).to_geojson(simplify_factor: simplify_factor, include_parameters: include_parameters, fields_parameters: fields_parameters, single_item: true)
+        def to_geojson(simplify_factor: SIMPLIFY_FACTOR, include_parameters: [], fields_parameters: [], classification_trees_parameters: [])
+          self.class.where(id: id).limit(1).to_geojson(simplify_factor: simplify_factor, include_parameters: include_parameters, fields_parameters: fields_parameters, classification_trees_parameters: classification_trees_parameters, single_item: true)
         end
 
         def geojson_geometry(content = self)
@@ -59,11 +59,12 @@ module DataCycleCore
             RGeo::GeoJSON.encode(feature_collection)
           end
 
-          def to_geojson(include_without_geometry: true, simplify_factor: SIMPLIFY_FACTOR, include_parameters: [], fields_parameters: [], single_item: false)
+          def to_geojson(include_without_geometry: true, simplify_factor: SIMPLIFY_FACTOR, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false)
             @include_without_geometry = include_without_geometry
             @simplify_factor = simplify_factor
             @include_parameters = include_parameters
             @fields_parameters = fields_parameters
+            @classification_trees_parameters = classification_trees_parameters
             @single_item = single_item
 
             geojson_result(
@@ -161,6 +162,7 @@ module DataCycleCore
                   WHERE
                     classification_aliases.deleted_at IS NULL
                     AND 'api' = ANY(classification_tree_labels.visibility)
+                    #{"AND classification_trees.classification_tree_label_id IN (\'#{@classification_trees_parameters.join('\',\'')}\')" if @classification_trees_parameters.present?}
                   GROUP BY
                     classification_contents.content_data_id
                 ) AS tmp1 ON tmp1.content_data_id = things.id"

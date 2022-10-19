@@ -283,12 +283,27 @@ class SplitView {
 
     const parent = target.closest(this.allButtonParentSelector);
 
+    await this.loadAllVisibleAttributes();
+
     if (
       target.classList.contains('copy-all') &&
       domElementHelpers.parseDataAttribute(parent.dataset.copyAllTranslations)
     )
       await this.showCopyAllConditionOverlay(target, parent);
     else await this.triggerSingleButtons(target, parent);
+  }
+  async loadAllVisibleAttributes() {
+    for (const item of Array.from(this.rightContainer.querySelectorAll('.remote-render')).filter(elem =>
+      domElementHelpers.isVisible(elem)
+    )) {
+      await $(item).triggerHandler('dc:remote:forceRenderTranslations');
+    }
+
+    for (const item of Array.from(this.leftContainer.querySelectorAll('.remote-render')).filter(elem =>
+      domElementHelpers.isVisible(elem)
+    )) {
+      await $(item).triggerHandler('dc:remote:forceRenderTranslations');
+    }
   }
   async showCopyAllConditionOverlay(target, parent) {
     new ConfirmationModal({
