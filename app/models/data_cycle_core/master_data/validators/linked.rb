@@ -65,7 +65,18 @@ module DataCycleCore
         def check_reference(key, template)
           return unless uuid?(key)
 
-          data_set = DataCycleCore::Thing.where(id: key)
+          data_set =
+            if template['stored_filter'].present?
+              template_name_restrictions = Array
+                .wrap(template['stored_filter'])
+                .select { |i| i.key?('with_classification_aliases_and_treename') && i.dig('with_classification_aliases_and_treename', 'treeLabel') == 'Inhaltstypen' }
+                .map { |i| i.dig('with_classification_aliases_and_treename', 'aliases') }
+                .flatten
+                .uniq
+              DataCycleCore::Thing.where(id: key, template_name: template_name_restrictions)
+            else
+              DataCycleCore::Thing.where(id: key)
+            end
 
           return unless data_set.count < 1
 

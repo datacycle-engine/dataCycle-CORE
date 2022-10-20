@@ -28,6 +28,23 @@ module DataCycleCore
       }
     end
 
+    def stored_filter_hash
+      {
+        'label' => 'Veranstalter',
+        'type' => 'linked',
+        'stored_filter' => [{
+          'with_classification_aliases_and_treename' => {
+            'treeLabel' => 'Inhaltstypen',
+            'aliases' => [
+              'Person',
+              'Organisation',
+              'LocalBusiness'
+            ]
+          }
+        }]
+      }
+    end
+
     def no_error_hash
       { error: {}, warning: {} }
     end
@@ -96,6 +113,13 @@ module DataCycleCore
     test 'errors out if an invalid uuid is given in an array' do
       template_hash = creator_hash.deep_dup
       validator = subject.new([SecureRandom.uuid, 5], template_hash)
+      assert_equal(1, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
+    end
+
+    test 'errors out if a wrong template type ist given to stored_filter' do
+      template_hash = stored_filter_hash
+      validator = subject.new([@person1.id], template_hash)
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end
