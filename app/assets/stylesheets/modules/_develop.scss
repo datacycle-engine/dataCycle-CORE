@@ -3410,6 +3410,7 @@ button.button-prime.small.bulk-delete-button {
     border-bottom: 1px solid $light-gray;
     display: block;
     padding: 1rem 0;
+
     span {
       margin-left: 0.5rem;
     }
@@ -3420,11 +3421,20 @@ button.button-prime.small.bulk-delete-button {
   fieldset {
     margin-bottom: 1rem;
   }
+
   .active.version,
   .active.transformation {
     display: block;
+
     &.hidden {
       display: none;
+    }
+  }
+
+  button[type='submit'].button {
+    &:focus,
+    &:active {
+      background-color: $dark-gray;
     }
   }
 }
