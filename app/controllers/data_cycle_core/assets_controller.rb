@@ -73,7 +73,7 @@ module DataCycleCore
       authorize! :update, @asset
 
       if @asset.update(asset_params)
-        render json: @asset
+        render json: @asset.as_json(only: [:id, :name, :file_size, :content_type], methods: :duplicate_candidates)
       else
         render(json: {
           error: @asset
