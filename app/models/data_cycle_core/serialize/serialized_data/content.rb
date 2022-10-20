@@ -84,7 +84,6 @@ module DataCycleCore
           if local_file?
             yield(data&.read)
           elsif active_storage?
-            # binding.pry
             data&.blob&.download(&block)
           elsif remote?
             load_remote_file(&block)
