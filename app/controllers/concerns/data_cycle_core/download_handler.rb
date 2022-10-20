@@ -18,23 +18,9 @@ module DataCycleCore
 
     def download_collection(object, items, serialize_format, languages, versions = nil)
       languages ||= [I18n.locale]
-      download_dir = Rails.root.join('public', 'downloads')
-      Dir.mkdir(download_dir) unless File.exist?(download_dir)
-      cleanup_files(download_dir)
-
-      zipfile_name = "#{object.name&.parameterize(separator: '_')}-#{Time.now.to_i}.zip"
       zip_filenames = []
-      send_file_headers!(
-        type: 'application/zip',
-        disposition: 'attachment',
-        filename: zipfile_name
-      )
-      response.headers['Last-Modified'] = Time.now.httpdate.to_s
-      response.headers['X-Accel-Buffering'] = 'no'
-
-      writer = ZipTricks::BlockWrite.new do |chunk|
-        response.stream.write(chunk)
-      end
+      zipfile_name = "#{object.name&.parameterize(separator: '_')}-#{Time.now.to_i}.zip"
+      writer = init_stream_writer(zipfile_name)
 
       ZipTricks::Streamer.open(writer) do |zip|
         languages.each do |language|
@@ -91,51 +77,54 @@ module DataCycleCore
 
     def download_indesign_collection(object, items, serialize_format, languages, serialize_method = :serialize_thing)
       languages ||= [I18n.locale]
-      download_dir = Rails.root.join('public', 'downloads')
-      Dir.mkdir(download_dir) unless File.exist?(download_dir)
-      cleanup_files(download_dir)
-
+      zip_filenames = []
       zipfile_name = "#{object.name&.parameterize(separator: '_')}-#{Time.now.to_i}.zip"
-      zipfile_fullname = File.join(download_dir, zipfile_name)
+      writer = init_stream_writer(zipfile_name)
+      ZipTricks::Streamer.open(writer) do |zip|
+        languages.each do |language|
+          serialize_format.each do |format|
+            serializer = serializer_for_content(object, [:archive, :indesign], format)
+            next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
 
-      unless File.exist?(zipfile_fullname)
-        Zip::File.open(zipfile_fullname, Zip::File::CREATE) do |zipfile|
-          languages.each do |language|
-            serialize_format.each do |format|
-              serializer = serializer_for_content(object, [:archive, :indesign], format)
-              next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
+            collection = serializer.try(serialize_method, content: object, language: language)
+            raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
+            collection.each do |serialized_content|
+              raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content.is_a?(DataCycleCore::Serialize::SerializedData::Content)
 
-              collection = serializer.try(serialize_method, content: object, language: language)
-              raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
-              collection.each do |serialized_content|
-                raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content.is_a?(DataCycleCore::Serialize::SerializedData::Content)
+              file_name = serialized_content.file_name_with_extension
+              file_name = "#{file_name.split('.')[0...-1].join('.')}_#{SecureRandom.uuid}#{serialized_content.file_extension}" if zip_filenames.include?(file_name)
 
-                file_name = serialized_content.file_name_with_extension
-                file_name = "#{file_name.split('.')[0...-1].join('.')}_#{SecureRandom.uuid}#{serialized_content.file_extension}" if zipfile.find_entry(file_name)
-
-                download_file = create_download_file(serialized_content, file_name)
-                zipfile.add(file_name, download_file)
+              zip_filenames << file_name
+              zip.write_deflated_file(file_name.to_s) do |file_writer|
+                serialized_content.stream_data do |chunk|
+                  file_writer << chunk
+                end
               end
             end
-            DataCycleCore::Feature::Download.mandatory_serializers_for_download(object, [:archive, :indesign]).each_key do |format|
-              serializer = ('DataCycleCore::Serialize::Serializer::' + format.to_s.classify).constantize
-              next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
-              collection = serializer.serialize_thing(content: items, language: language)
-              raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
-              collection.each do |serialized_content|
-                raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content.is_a?(DataCycleCore::Serialize::SerializedData::Content)
+          end
 
-                if format == 'asset'
-                  processed_file_name = "#{serialized_content.id}#{serialized_content.file_extension}"
-                  file_name = "images/#{processed_file_name}"
-                  next if zipfile.find_entry(file_name)
-                  download_file = create_download_file(serialized_content, processed_file_name)
-                else
-                  file_name = serialized_content.file_name_with_extension
-                  file_name = "#{file_name.split('.')[0...-1].join('.')}_#{SecureRandom.uuid}#{serialized_content.file_extension}" if zipfile.find_entry(file_name)
-                  download_file = create_download_file(serialized_content, file_name)
+          DataCycleCore::Feature::Download.mandatory_serializers_for_download(object, [:archive, :indesign]).each_key do |format|
+            serializer = ('DataCycleCore::Serialize::Serializer::' + format.to_s.classify).constantize
+            next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
+            collection = serializer.serialize_thing(content: items, language: language)
+            raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
+            collection.each do |serialized_content|
+              raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content.is_a?(DataCycleCore::Serialize::SerializedData::Content)
+
+              if format == 'asset'
+                processed_file_name = "#{serialized_content.id}#{serialized_content.file_extension}"
+                file_name = "images/#{processed_file_name}"
+                next if zip_filenames.include?(file_name)
+              else
+                file_name = serialized_content.file_name_with_extension
+                file_name = "#{file_name.split('.')[0...-1].join('.')}_#{SecureRandom.uuid}#{serialized_content.file_extension}" if zip_filenames.include?(file_name)
+              end
+
+              zip_filenames << file_name
+              zip.write_deflated_file(file_name.to_s) do |file_writer|
+                serialized_content.stream_data do |chunk|
+                  file_writer << chunk
                 end
-                zipfile.add(file_name, download_file)
               end
             end
           end
@@ -143,12 +132,26 @@ module DataCycleCore
       end
 
       object.activities.create(user: current_user, activity_type: 'download', data: { collection_items: items.map(&:id) })
-
-      response.headers['X-Accel-Buffering'] = 'no'
-      send_file zipfile_fullname, filename: zipfile_name, disposition: 'attachment', type: 'application/zip'
+    ensure
+      response.stream.close
     end
 
     protected
+
+    def init_stream_writer(file_name)
+      send_file_headers!(
+        type: 'application/zip',
+        disposition: 'attachment',
+        filename: file_name
+      )
+
+      response.headers['Last-Modified'] = Time.now.httpdate.to_s
+      response.headers['X-Accel-Buffering'] = 'no'
+
+      ZipTricks::BlockWrite.new do |chunk|
+        response.stream.write(chunk)
+      end
+    end
 
     def download_generic(content:, serializer:, languages:, version: nil, serialize_method: :serialize_thing, transformation: nil)
       language = languages&.first&.to_sym || I18n.locale
@@ -159,39 +162,18 @@ module DataCycleCore
       serialized_content = collection.first
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content.is_a?(DataCycleCore::Serialize::SerializedData::Content)
 
-      mime_type = serialized_content.mime_type
-      file_name = serialized_content.file_name_with_extension
-
-      download_file = create_download_file(serialized_content, file_name)
-      content.activities.create(user: current_user, activity_type: 'download')
-
+      send_file_headers!(
+        type: serialized_content.mime_type,
+        disposition: 'attachment',
+        filename: serialized_content.file_name_with_extension
+      )
+      response.headers['Last-Modified'] = content.cache_valid_since&.httpdate.to_s
       response.headers['X-Accel-Buffering'] = 'no'
-      send_file download_file, filename: file_name, disposition: 'attachment', type: mime_type
-    end
 
-    # remove all files older than 2 hours
-    def cleanup_files(dir)
-      max_age = 2
-      pattern = '*.*'
-      logger.info "DataCycleCore::DownloadHanlder: directory does not exist: #{dir}" unless File.directory?(dir)
-
-      Dir.glob(File.join(File.expand_path(dir), pattern)).each do |file_name|
-        File.delete(file_name) if ((Time.zone.now - File.ctime(file_name)) / 1.hour) > max_age
-      end
-    end
-
-    def create_download_file(serialized_content, file_name)
-      return serialized_content.data.path if serialized_content.local_file?
-      return serialized_content.active_storage_file_path if serialized_content.active_storage?
-
-      download_dir = Rails.root.join('public', 'downloads')
-      Dir.mkdir(download_dir) unless File.exist?(download_dir)
-      download_file = File.join(download_dir, file_name)
-      file_mode = 'wb' if serialized_content.remote?
-      File.open(File.join(download_file), file_mode || 'w') do |f|
-        f.write serialized_content.data
-      end
-      download_file
+      self.response_body = serialized_content.each_data
+      content.activities.create(user: current_user, activity_type: 'download')
+    ensure
+      response.stream.close
     end
 
     def serializer_for_content(content, scope = [:content], serialize_format = nil)

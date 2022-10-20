@@ -31,6 +31,7 @@ module DataCycleCore
             con.request :retry, { max: 2 }
             con.use FaradayMiddleware::FollowRedirects, limit: 5
             con.adapter Faraday.default_adapter
+            con.ssl.verify = false
           end
         end
 
@@ -60,7 +61,7 @@ module DataCycleCore
         end
 
         def active_storage?
-          return false if remote? || data.is_a?(::String) || data.is_a?(DataCycleCore::CommonUploader)
+          return false if remote? || data.is_a?(Proc) || data.is_a?(::String) || data.is_a?(DataCycleCore::CommonUploader)
           record = record_for_active_storage_file
           record&.class&.active_storage_activated? && record&.file&.try(:attached?)
         end
@@ -83,11 +84,22 @@ module DataCycleCore
           if local_file?
             yield(data&.read)
           elsif active_storage?
+            # binding.pry
             data&.blob&.download(&block)
           elsif remote?
             load_remote_file(&block)
+          elsif data.is_a?(Proc)
+            yield(data.call)
           else
             yield(data)
+          end
+        end
+
+        def each_data
+          Enumerator.new do |yielder|
+            stream_data do |chunk|
+              yielder << chunk
+            end
           end
         end
 
@@ -101,8 +113,8 @@ module DataCycleCore
 
           response = faraday_connection.get(parsed_data_uri) do |req|
             req.options.on_data = lambda { |chunk, _|
-              yield(chunk)
               streamed << chunk
+              yield(chunk)
             }
           end
 
