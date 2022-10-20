@@ -68,7 +68,8 @@ module DataCycleCore
                 value = values.dig(key) || values.dig('datahash', key) || values.dig('translations', I18n.locale.to_s, key)
               else
                 id = values.dig('id') || values.dig('datahash', 'id') || values.dig('translations', I18n.locale.to_s, 'id')
-                value = DataCycleCore::Thing.find_by(id: id)&.attribute_to_h(key)
+                item = DataCycleCore::Thing.find_by(id: id)
+                value = item.respond_to?(key) ? item.attribute_to_h(key) : nil
               end
 
               get_values_from_embedded(key_path.drop(1), value)
