@@ -65,8 +65,6 @@ module DataCycleCore
         def check_reference(key, template)
           return unless uuid?(key)
 
-          template_name_restrictions = nil
-
           data_set = DataCycleCore::Thing.where(id: key)
 
           return unless data_set.count < 1
