@@ -10,7 +10,7 @@ module DataCycleCore
         ALLOWED_MODE_PARAMETERS = ['compact', 'minimal', 'strict'].freeze
 
         def index
-          @classification_tree_labels = ClassificationTreeLabel.where(internal: false).visible('xml')
+          @classification_tree_labels = ClassificationTreeLabel.where(internal: false)
 
           if permitted_params.dig(:filter, :modified_since)
             @classification_tree_labels = @classification_tree_labels.where(
