@@ -47,9 +47,7 @@ module DataCycleCore
     def overwritten_properties(content, overlay_name)
       return [] if overlay_name.blank? || content.send(overlay_name).blank?
       overlay = content.send(overlay_name).first
-      overlay.property_names.map { |item|
-        item if overlay.try(:send, item).present?
-      }.compact.uniq - ['id']
+      overlay.property_names.select { |item| overlay.try(:send, item).present? }.uniq - ['id']
     end
 
     def normalize_string(data)
