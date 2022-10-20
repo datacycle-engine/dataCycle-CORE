@@ -3750,10 +3750,10 @@ body {
       .button {
         padding: 0.8rem 2.5rem;
 
-        // &:active,
-        // &:focus {
-        //   background-color: $dark-gray;
-        // }
+        &:active,
+        &:focus {
+          background-color: $dark-gray;
+        }
       }
     }
   }
