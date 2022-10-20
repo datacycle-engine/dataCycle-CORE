@@ -107,17 +107,15 @@ module DataCycleCore
           return if remote_file_loaded
 
           @remote_file_loaded = true
-
-          streamed = []
+          @data = +''
 
           response = faraday_connection.get(parsed_data_uri) do |req|
             req.options.on_data = lambda { |chunk, _|
-              streamed << chunk
+              @data << chunk
               yield(chunk)
             }
           end
 
-          @data = streamed.join
           @mime_type = response.headers&.dig('content-type')
         end
       end

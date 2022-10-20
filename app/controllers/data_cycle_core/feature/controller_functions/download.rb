@@ -4,7 +4,11 @@ module DataCycleCore
   module Feature
     module ControllerFunctions
       module Download
-        include DataCycleCore::DownloadHandler
+        extend ActiveSupport::Concern
+
+        included do
+          include DataCycleCore::DownloadHandler
+        end
 
         def download
           @object = DataCycleCore::Thing.find_by(id: permitted_download_params[:id])

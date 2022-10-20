@@ -71,6 +71,9 @@ module DataCycleCore
       end
 
       object.activities.create(user: current_user, activity_type: 'download', data: { collection_items: items.map(&:id) })
+    rescue ActionController::Live::ClientDisconnected
+      # ignore client disconnections
+      nil
     ensure
       response.stream.close
     end
@@ -132,6 +135,9 @@ module DataCycleCore
       end
 
       object.activities.create(user: current_user, activity_type: 'download', data: { collection_items: items.map(&:id) })
+    rescue ActionController::Live::ClientDisconnected
+      # ignore client disconnections
+      nil
     ensure
       response.stream.close
     end
@@ -167,11 +173,17 @@ module DataCycleCore
         disposition: 'attachment',
         filename: serialized_content.file_name_with_extension
       )
-      response.headers['Last-Modified'] = content.cache_valid_since&.httpdate.to_s
+      response.headers['Last-Modified'] = content.try(:cache_valid_since)&.httpdate || Time.now.httpdate
       response.headers['X-Accel-Buffering'] = 'no'
 
-      self.response_body = serialized_content.each_data
+      serialized_content.stream_data do |chunk|
+        response.stream.write chunk
+      end
+
       content.activities.create(user: current_user, activity_type: 'download')
+    rescue ActionController::Live::ClientDisconnected
+      # ignore client disconnections
+      nil
     ensure
       response.stream.close
     end

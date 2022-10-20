@@ -11,7 +11,7 @@ module DataCycleCore
 
           def remote?(content)
             (
-              content.asset.class.active_storage_activated? ? !ActiveStorage::Blob.service.exist?(content.asset.file.blob.key) : content.asset&.file.blank?
+              content.asset&.class&.active_storage_activated? ? !ActiveStorage::Blob.service.exist?(content.asset.file.blob.key) : content.asset&.file.blank?
             ) && content.content_url.present?
           end
 
