@@ -36,7 +36,6 @@ module DataCycleCore
           'with_classification_aliases_and_treename' => {
             'treeLabel' => 'Inhaltstypen',
             'aliases' => [
-              'Person',
               'Organisation',
               'LocalBusiness'
             ]
