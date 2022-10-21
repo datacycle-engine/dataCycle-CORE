@@ -192,6 +192,9 @@ Rails/SkipsModelValidations:
 Rails/DotSeparatedKeys:
   Enabled: false
 
+Rails/DeprecatedActiveModelErrorsMethods:
+  Enabled: false
+
 #######################################################
 ########## Rake
 Rake/Desc:

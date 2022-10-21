@@ -12,7 +12,7 @@ namespace :data_cycle_core do
         puts 'Error: domain not set!'
         exit(-1)
       end
-      File.open(Rails.root.join('tmp', '.env'), 'w') do |file|
+      Rails.root.join('tmp', '.env').open('w') do |file|
         file << "POSTGRES_DATABASE=#{args[:database_name]}\n"
         file << "APP_HOST=#{args[:domain]}\n"
         file << "APP_PROTOCOL=http\n"

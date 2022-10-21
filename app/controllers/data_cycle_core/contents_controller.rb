@@ -333,7 +333,7 @@ module DataCycleCore
       respond_to do |format|
         format.js do
           if params[:render_html]
-            flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale
+            flash.now[:success] = I18n.t :created, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale
             render js: "document.location = '#{thing_path(@content)}'"
           end
         end

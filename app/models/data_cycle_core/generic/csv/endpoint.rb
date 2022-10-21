@@ -25,7 +25,7 @@ module DataCycleCore
         protected
 
         def load_data(csv_file, _lang = :de)
-          csv_text = File.read(Rails.root.join(DataCycleCore.external_sources_path, 'csv', csv_file))
+          csv_text = Rails.root.join(DataCycleCore.external_sources_path, 'csv', csv_file).read
           csv = CSV.parse(csv_text, { headers: true, col_sep: ';' })
 
           all_items = []
