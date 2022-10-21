@@ -30,7 +30,7 @@ module DataCycleCore
             if raw_data.dig('venue').present? || raw_data.dig('address').present?
               DataCycleCore::Generic::Gem2go::Processing.process_content_location(
                 utility_object,
-                raw_data.slice('title', 'id', 'venue', 'address'),
+                raw_data.slice('title', 'id', 'venue', 'venueID', 'address'),
                 options.dig(:import, :transformations, :place)
               )
             end
