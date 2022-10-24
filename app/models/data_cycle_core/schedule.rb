@@ -276,7 +276,7 @@ module DataCycleCore
     end
 
     def load_schedule_object
-      options = { duration: duration.presence&.to_i }.compact
+      options = { duration: duration.presence }.compact
       @schedule_object = IceCube::Schedule.new(dtstart.presence || Time.zone.now, options) do |s|
         s.add_recurrence_rule(IceCube::Rule.from_ical(rrule)) if rrule.present? # allow only one rrule!!
         rdate.each do |rd|
