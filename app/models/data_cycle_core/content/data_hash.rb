@@ -231,7 +231,7 @@ module DataCycleCore
 
       def self.invalidate_all
         unscoped
-          .where(id: all.except(:distinct).lock('FOR UPDATE SKIP LOCKED').select(:id))
+          .where(id: all.except(:distinct).lock('FOR UPDATE SKIP LOCKED').order(id: :asc).select(:id))
           .update_all(cache_valid_since: Time.zone.now)
       end
 
@@ -454,7 +454,7 @@ module DataCycleCore
         return if not_translated && I18n.available_locales.first != I18n.locale && default_value.blank?
 
         present_relation_ids = send(relation_name).pluck(:id)
-        ids = Array.wrap(ids)
+        ids = Array.wrap(ids).uniq
 
         if DataCycleCore::DataHashService.present?(ids)
           classification_content.upsert_all(

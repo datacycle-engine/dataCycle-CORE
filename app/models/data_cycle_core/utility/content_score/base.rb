@@ -14,7 +14,7 @@ module DataCycleCore
 
             parameters = Array.wrap(properties&.dig('content_score', 'parameters')).map { |p| p.split('.').first }.concat([key]).uniq.compact.intersection(content.property_names)
 
-            data_hash = load_missing_values(data_hash, content, parameters)
+            data_hash = load_missing_values(data_hash.try(:dc_deep_dup), content, parameters)
 
             properties.dig('content_score', 'module')&.classify&.safe_constantize&.try(
               properties.dig('content_score', 'method'),
@@ -90,9 +90,7 @@ module DataCycleCore
           end
 
           def load_linked(parameters, key)
-            parameters[key]&.map! do |value|
-              DataCycleCore::Thing.where(id: value)
-            end
+            parameters[key] = DataCycleCore::Thing.where(id: parameters[key]).order([Arel.sql('array_position(ARRAY[?]::uuid[], things.id)'), parameters[key]]) if parameters[key].present?
           end
         end
       end

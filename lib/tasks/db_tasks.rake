@@ -36,9 +36,11 @@ namespace :db do
     task :vacuum, [:full, :reindex] => [:environment] do |_, args|
       full = args.fetch(:full, false)
       reindex = args.fetch(:reindex, false)
-      sql = 'VACUUM'
-      sql += ' FULL' if full.to_s == 'true'
-      sql += ' ANALYZE;'
+
+      options = []
+      options << 'FULL' if full.to_s == 'true'
+      options << 'ANALYZE'
+      sql = "VACUUM (#{options.join(', ')});"
 
       ActiveRecord::Base.connection.execute(sql)
 

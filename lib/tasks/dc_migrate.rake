@@ -72,7 +72,7 @@ namespace :dc do
       puts 'MIGRATION SUCCESSFUL'
     end
 
-    desc 'move external_source_id and external_key from things to external_system_syncs'
+    desc 'remove external_source_id and external_key from things to external_system_syncs'
     task :remove_external_source_from_classifications, [:external_system_id] => :environment do |_, args|
       external_system_id = args.external_system_id
 
@@ -95,6 +95,27 @@ namespace :dc do
       classification_aliases.update_all(external_source_id: nil)
 
       puts 'MIGRATION SUCCESSFUL'
+    end
+
+    desc 'make external_system_sync to primary external_source'
+    task :make_external_system_sync_primary, [:stored_filter_id, :external_system_identifier] => :environment do |_, args|
+      sf = DataCycleCore::StoredFilter.find(args.stored_filter_id)
+      abort('No Stored Filter found!') if sf.blank?
+
+      es = DataCycleCore::ExternalSystem.find_by(identifier: args.external_system_identifier)
+      abort('No External System found!') if es.blank?
+
+      iterator = sf.apply
+      progressbar = ProgressBar.create(total: iterator.count, format: '%t |%w>%i| %a - %c/%C', title: 'Switching sources...')
+
+      iterator.each do |thing|
+        sync = thing.external_system_syncs.find_by(external_system_id: es.id)
+        progressbar.increment
+        next if sync.blank?
+        thing.switch_primary_external_system(sync)
+      end
+
+      puts "DONE: #{es.name} is now primary System for all Things provided."
     end
 
     desc 'download external assets into dataCycle for things with external_system_id'

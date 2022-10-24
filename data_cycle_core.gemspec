@@ -30,7 +30,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'rake'
   # Frontend Asset Handling
   # s.add_dependency 'sprockets', '4.0.0'
-  s.add_dependency 'vite_rails', '>= 3.0.0'
+  s.add_dependency 'vite_rails', '>= 3.0.12'
   # database
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'
@@ -134,4 +134,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'mini_exiftool_vendored'
 
   s.add_dependency 'image_processing', '>= 1.2'
+
+  s.add_dependency 'zip_tricks'
 end

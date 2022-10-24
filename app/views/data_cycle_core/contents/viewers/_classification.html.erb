@@ -4,8 +4,7 @@
         editor: "classification"
       }) do %>
   <span class="detail-content tags">
-    <% objects = value&.primary_classification_aliases&.includes(:classification_alias_path, :classification_tree_label, :primary_classification) || [] %>
-
+    <% objects = value&.primary_classification_aliases&.includes(:classification_alias_path, :classification_tree_label, :primary_classification).to_a %>
     <% objects = objects.concat(new_relations(options.dig(:item_diff), 'classifications')&.primary_classification_aliases&.includes(:classification_alias_path, :classification_tree_label, :primary_classification)) if changes_by_mode(options.dig(:item_diff), '+').present? %>
 
     <% objects.presence&.each do |a| %>

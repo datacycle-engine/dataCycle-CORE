@@ -121,17 +121,28 @@ crumb :saved_searches do
 end
 
 # Documentation
-crumb :documentation do
-  link t('data_cycle_core.documentation.root', locale: active_ui_locale), docs_path, authorized: true
+crumb :docs do
+  link t('data_cycle_core.docs.root', locale: active_ui_locale), docs_path, authorized: true
 
   path_segments = (params['path'] || '').split('/')
 
   (0..path_segments.length - 1).each do |i|
-    translation_key = (['data_cycle_core', 'documentation'] + path_segments[0..i]).join('.')
-
+    translation_key = (['data_cycle_core', 'docs'] + path_segments[0..i]).join('.')
     translation_key += '.root' if t(translation_key, locale: active_ui_locale).is_a? Hash
 
-    link t(translation_key, locale: active_ui_locale), docs_with_path_path(path_segments[0..i]), authorized: true
+    link t(translation_key, locale: active_ui_locale), docs_with_path(path_segments[0..i]), authorized: true
+  end
+end
+
+# Static
+crumb :static do
+  path_segments = (params['path'] || '').split('/')
+
+  (0..path_segments.length - 1).each do |i|
+    translation_key = (['data_cycle_core', 'static'] + path_segments[0..i]).join('.')
+    translation_key += '.root' if t(translation_key, locale: active_ui_locale).is_a? Hash
+
+    link t(translation_key, locale: active_ui_locale), static_with_path(path_segments[0..i]), authorized: true
   end
 end
 

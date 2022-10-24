@@ -1297,7 +1297,11 @@ de:
       download_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong> hat %{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” mit Ihnen geteilt.<br><br>%{n_type} steht nun zum Download bereit.</span>'
       updated_watchlist_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333">%{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” wurde aktualisiert. Es wurden Inhalte hinzugefügt oder entfernt.</span>'
       create_link: Neuen Link erstellen
-    documentation:
+    static:
+      imprint: Impressum
+      privacy_policy: Datenschutzerklärung
+      terms_and_conditions: Allgemeine Geschäftsbedingungen
+    docs:
       root: Dokumentation
       overview: Übersicht
       architecture: Systemarchitektur

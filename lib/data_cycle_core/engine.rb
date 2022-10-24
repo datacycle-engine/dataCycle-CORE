@@ -215,6 +215,9 @@ module DataCycleCore
   mattr_accessor :user_filters
   self.user_filters = []
 
+  mattr_accessor :header_title
+  self.header_title = nil
+
   def self.setup
     yield self
   end

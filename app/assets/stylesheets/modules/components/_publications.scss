@@ -7,41 +7,7 @@
 }
 
 .form-element.publication_schedule {
-  padding-top: 3rem;
   text-align: left;
-
-  .add-content-object {
-    position: relative;
-    font-size: 0;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    box-shadow: 1px 3px 5px 0px rgba(0, 1, 1, 0.38);
-    overflow: hidden;
-    margin-left: 1rem;
-
-    &:after {
-      font-family: FontAwesome;
-      content: '\f067';
-      display: block;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      font-size: 1.2rem;
-      line-height: 3rem;
-      background-color: $primary-color;
-      transition: background ease-out 0.25s;
-    }
-
-    &:hover,
-    &:focus {
-      &:after {
-        background-color: darken($primary-color, 10%);
-      }
-    }
-  }
 
   .content-object-item {
     text-align: left;
@@ -49,6 +15,10 @@
     width: 100%;
     padding-right: 4rem;
     margin-bottom: 1rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
 
     .embedded-header,
     .accordion-title {
@@ -58,7 +28,6 @@
     .removeContentObject {
       right: 0;
       z-index: 1;
-      box-shadow: 1px 3px 5px 0px rgba(0, 1, 1, 0.38);
       border-radius: 50%;
       position: absolute;
       right: 0;
@@ -67,6 +36,7 @@
 
     .accordion-content {
       display: flex;
+      gap: 1rem;
       padding: 0;
       border: none;
       background: transparent;
@@ -74,7 +44,7 @@
       > .form-element {
         display: flex;
         flex: 1;
-        margin: 0 1px 0 0;
+        margin: 0;
 
         &.publish_at {
           .form-element.publish_at {
