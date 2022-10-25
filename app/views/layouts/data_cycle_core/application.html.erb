@@ -14,7 +14,7 @@
 
       <div class="off-canvas-content" data-off-canvas-content>
 
-        <%= render 'breadcrumb' if user_signed_in? || controller.is_a?(DataCycleCore::StaticController) || controller.is_a?(DataCycleCore::ExceptionsController) %>
+        <%= render 'breadcrumb' %>
 
         <%= yield :new_button %>
 

@@ -1,25 +1,27 @@
 <% breadcrumb :schema, autoroot: false %>
 
-<h1>
-  <%= t('data_cycle_core.schema.root', locale: active_ui_locale)%>
+<main role="index">
+  <h1>
+    <%= t('data_cycle_core.schema.root', locale: active_ui_locale) %>
 
-  <a class="download" href="<%= schema_path + '.xlsx' %>">
-    <i class="fa fa-download"></i>
-  </a>
-</h1>
+    <a class="download" href="<%= schema_path + '.xlsx' %>">
+      <i class="fa fa-download"></i>
+    </a>
+  </h1>
 
-<ul>
-  <% ['container', 'entity'].each do |content_type| %>
-    <li><%= t("data_cycle_core.schema.#{content_type.pluralize}", locale: active_ui_locale) %></li>
+  <ul>
+    <% ['container', 'entity'].each do |content_type| %>
+      <li><%= t("data_cycle_core.schema.#{content_type.pluralize}", locale: active_ui_locale) %></li>
 
-    <ul class="<%= content_type %>_templates">
-      <% @schema.templates_with_content_type(content_type).sort_by { |item| item.schema_name.is_a?(::Array) ? item.schema_name.first : item.schema_name }.each do |template| %>
-        <li>
-          <a href="/schema/<%= template.template_name %>">
-            <%= Array.wrap(template.schema_name).join(' / ') %> (<em><%= template.template_name %></em>)
-          </a>
-        </li>
-      <% end %>
-    </ul>
-  <% end %>
-</ul>
+      <ul class="<%= content_type %>_templates">
+        <% @schema.templates_with_content_type(content_type).sort_by { |item| item.schema_name.is_a?(::Array) ? item.schema_name.first : item.schema_name }.each do |template| %>
+          <li>
+            <a href="/schema/<%= template.template_name %>">
+              <%= Array.wrap(template.schema_name).join(' / ') %> (<em><%= template.template_name %></em>)
+            </a>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </ul>
+</main>

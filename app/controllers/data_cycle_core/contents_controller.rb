@@ -3,7 +3,6 @@
 module DataCycleCore
   class ContentsController < ApplicationController
     include DataCycleCore::Filter
-    before_action :authenticate_user!, except: [:asset]
     before_action :set_watch_list, except: [:asset]
 
     DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|

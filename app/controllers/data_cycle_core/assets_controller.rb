@@ -2,8 +2,6 @@
 
 module DataCycleCore
   class AssetsController < ApplicationController
-    before_action :authenticate_user! # from devise (authenticate)
-
     def index
       if permitted_params[:html_target].present?
         @html_target = permitted_params[:html_target]

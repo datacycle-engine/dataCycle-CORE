@@ -5,7 +5,6 @@ module DataCycleCore
     include DataCycleCore::Filter
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
 
-    before_action :authenticate_user! # from devise (authenticate)
     after_action :reset_watch_list, only: :watch_list_collections, if: -> { params[:reset].present? }
 
     def things

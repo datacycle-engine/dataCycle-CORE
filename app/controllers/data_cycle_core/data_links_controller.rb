@@ -4,7 +4,6 @@ module DataCycleCore
   class DataLinksController < ApplicationController
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
 
-    before_action :authenticate_user!, except: [:show, :get_text_file, :download] # from devise (authenticate)
     load_and_authorize_resource except: [:show, :get_text_file, :download, :render_update_form, :unlock] # from cancancan (authorize)
     after_action :update_receiver_locale, only: [:create, :update]
 
