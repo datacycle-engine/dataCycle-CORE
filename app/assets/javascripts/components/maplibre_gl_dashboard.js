@@ -15,6 +15,26 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
       yellow: '#ffae00',
       gray: '#767676'
     };
+
+    this.typeColors = {
+      default: '#cc4b37',
+      'dcls:POI': '#1779ba',
+      'dcls:Örtlichkeit': '#1dbde5',
+      'dcls:Unterkunft': '#1dbde5',
+      'dcls:Tour': '#9ab762',
+      'dcls:Gastronomischer Betrieb': '#90c062',
+      'dcls:Unterkunft': '#ECF3FD',
+      'dcls:Event': '#ffae00',
+      'dcls:Organization': '#767676'
+    };
+    // default: '#cc4b37',
+    //   'dcls:LocalBusiness': '#1779ba',
+    //   'dcls:Örtlichkeit': '#1dbde5',
+    //   'dcls:Tour': '#cc4b37',
+    //   'dcls:Gastronomischer Betrieb': '#90c062',
+    //   'dcls:Unterkunft': '#ffffff',
+    //   'dcls:Event': '#ffae00',
+    //   'dcls:Organization': '#767676'
   }
   async setup() {
     await super.setup();
@@ -101,6 +121,21 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
         window.open(`${url}things/${feature.id}`, '_blank');
       }
     });
+  }
+  // getStyleCaseExpression(property, output, fallback) {
+  //   return ['case', ['in', 'dcls:POI', ['get', '@type']], '#1779ba', '#cc4b37'];
+  // }
+  getColorMatchHexExpression() {
+    let matchEx = ['case'];
+
+    for (const [name, value] of Object.entries(this.typeColors)) {
+      matchEx.push(['in', name, ['get', '@type']]);
+      matchEx.push(value);
+    }
+
+    matchEx.push(this.definedColors.default);
+
+    return matchEx;
   }
 }
 

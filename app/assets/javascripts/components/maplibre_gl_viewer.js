@@ -299,13 +299,14 @@ class MapLibreGlViewer {
           'line-join': 'round'
         },
         paint: {
-          'line-color': this.getStyleCaseExpression('color', this.getColorMatchHexExpression(), lineColor),
+          'line-color': this.getStyleCaseExpression('@type', this.getColorMatchHexExpression(), lineColor),
           'line-opacity': iconColor === 'gray' ? 0.75 : 1,
           'line-width': this.getStyleCaseExpression('width', ['get', 'width'], 5)
         }
       }
       // this._getLastLineLayerId() // TODO:
     );
+    console.log('line-color: ', this.getStyleCaseExpression('@type', this.getColorMatchHexExpression(), lineColor));
     // we are adding only start point, because then we can use symbol-placement point
     this.map.addLayer(
       {
@@ -357,7 +358,7 @@ class MapLibreGlViewer {
         paint: {
           'circle-radius': circleRadius,
           'circle-stroke-width': 4,
-          'circle-color': this.getStyleCaseExpression('color', this.getColorMatchHexExpression(), pointColor),
+          'circle-color': this.getStyleCaseExpression('@type', this.getColorMatchHexExpression(), pointColor),
           'circle-stroke-color': this.definedColors.white
         }
       }
