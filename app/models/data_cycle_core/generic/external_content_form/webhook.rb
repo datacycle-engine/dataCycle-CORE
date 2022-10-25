@@ -59,17 +59,20 @@ module DataCycleCore
           data_link.comment = data['comment']
           data_link.save
 
-          send_mail = data['send_mail'] if data.key?('send_mail')
-          send_mail = @external_source.default_options['send_mail'] if send_mail.nil? && @external_source.default_options&.key?('send_mail')
-          send_mail = true if send_mail.nil?
-
-          DataCycleCore::DataLinkMailer.mail_external_link(data_link, data_link_url(data_link), @external_source.default_options&.[]('instructions_url')).deliver_later if send_mail
+          DataCycleCore::DataLinkMailer.mail_external_link(data_link, data_link_url(data_link), @external_source.default_options&.[]('instructions_url')).deliver_later if send_mail?(data)
 
           {
             content: content,
             data_link: data_link,
             error: receiver.valid? && content.valid? && data_link.valid? ? nil : 'Es ist ein Fehler aufgetreten'
           }
+        end
+
+        def send_mail?(data)
+          return data['send_mail'] if data.key?('send_mail')
+          return @external_source.default_options['send_mail'] if @external_source.default_options&.key?('send_mail')
+
+          true
         end
 
         def default_url_options
