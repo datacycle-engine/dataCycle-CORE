@@ -14,7 +14,7 @@ module DataCycleCore
           .>> t(:rename_keys, {
             'title' => 'name'
           })
-          .>> t(:accept_keys, ['email', 'given_name', 'family_name', 'name'])
+          .>> t(:accept_keys, ['email', 'given_name', 'family_name', 'name', '@id', 'comment'])
         end
       end
     end
