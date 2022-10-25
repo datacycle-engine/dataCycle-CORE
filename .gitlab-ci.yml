@@ -69,6 +69,8 @@ build_docker_job:
       --build-arg APP_DOCKER_ENV
       --build-arg NODE_ENV
       --build-arg RAILS_ENV
+      --build-arg APP_HOST
+      --build-arg APP_PROTOCOL
     - docker push "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG"
 
 deploy_docker_job:
@@ -137,7 +139,6 @@ code_review_validation:
 rails_review_test:
   <<: *review_ci
   extends: .rails_test_config
-
 #deploy_review:
 #  <<: *review_ci
 #  extends: .job_cache_config
