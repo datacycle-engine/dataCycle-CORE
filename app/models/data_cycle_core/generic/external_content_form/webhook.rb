@@ -59,7 +59,7 @@ module DataCycleCore
           data_link.comment = data['comment']
           data_link.save
 
-          DataCycleCore::DataLinkMailer.mail_external_link(data_link, data_link_url(data_link), @external_source.default_options&.[]('instructions_url')).deliver_later if send_mail?(data)
+          DataCycleCore::DataLinkMailer.mail_external_link(data_link, data_link_url(data_link), @external_source.default_options&.[]('instructions_url'), @external_source.identifier).deliver_later if send_mail?(data)
 
           {
             content: content,

@@ -44,6 +44,16 @@
           </tr>
         <% end %>
 
+        <% if I18n.exists?("data_link_mailer.#{@webhook_source}.instructions_html", locale: @locale) %>
+          <tr>
+            <td style="padding:12pt 0 0 0">
+              <span style="font-size: 12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif; color:#333333">
+                <%= t("data_link_mailer.#{@webhook_source}.instructions_html", locale: @locale) %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
+
         <% if @data_link.valid_from.present? || @data_link.valid_until.present? %>
           <tr>
           </tr>
