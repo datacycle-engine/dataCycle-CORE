@@ -34,7 +34,7 @@ namespace :dc do
           content.set_data_hash(data_hash: computed_hash, update_computed: false)
         }
 
-        items.find_each do |item|
+        items.find_each(batch_size: 100) do |item|
           next progressbar.increment if dry_run
 
           item.prevent_webhooks = true if webhooks == 'false'
@@ -82,7 +82,7 @@ namespace :dc do
 
         progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
 
-        items.find_each do |item|
+        items.find_each(batch_size: 100) do |item|
           item.prevent_webhooks = args.webhooks&.to_s&.downcase == 'false'
 
           if translated_properties
