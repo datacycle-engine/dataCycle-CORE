@@ -13,6 +13,8 @@ namespace :dc do
       selected_things = DataCycleCore::Thing.where(template: true)
       selected_things = selected_things.where(template_name: template_names) if template_names.present?
 
+      puts "ATTRIBUTES TO UPDATE: #{computed_names.present? ? computed_names.join(', ') : 'all'}"
+
       selected_things.find_each do |template|
         next if template.computed_property_names.blank?
         next if computed_names.present? && computed_names.any? && (computed_names & template.computed_property_names).none?
@@ -58,6 +60,8 @@ namespace :dc do
       selected_things = DataCycleCore::Thing.where(template: true)
       selected_things = selected_things.where(template_name: template_names) if template_names.present?
       default_value_names = args.fetch(:default_value_names, false).to_s.then { |c| c.present? && c != 'false' ? c.split('|') : false }
+
+      puts "ATTRIBUTES TO UPDATE: #{default_value_names.present? ? default_value_names.join(', ') : 'all'}"
 
       selected_things.find_each do |template|
         next if template.default_value_property_names.blank?
