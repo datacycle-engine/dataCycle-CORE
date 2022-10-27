@@ -22,7 +22,6 @@ namespace :dc do
         items = DataCycleCore::Thing.where(template: false, template_name: template.template_name)
         translated_computed = (template.computed_property_names & template.translatable_property_names).present?
         progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
-        pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
 
         update_proc = lambda { |content|
           data_hash = {}
@@ -33,31 +32,24 @@ namespace :dc do
         items.find_in_batches.with_index do |batch, index|
           pid = Process.fork do
             progressbar.progress = index * 1000
-            futures = []
 
             batch.each do |item|
-              futures << Concurrent::Promise.execute({ executor: pool }) do
-                ActiveRecord::Base.connection_pool.with_connection do
-                  next progressbar.increment if dry_run
+              next progressbar.increment if dry_run
 
-                  item.prevent_webhooks = true if webhooks == 'false'
+              item.prevent_webhooks = true if webhooks == 'false'
 
-                  if translated_computed
-                    item.available_locales.each do |locale|
-                      I18n.with_locale(locale) { update_proc.call(item) }
-                    end
-                  else
-                    I18n.with_locale(item.first_available_locale) { update_proc.call(item) }
-                  end
-                rescue StandardError => e
-                  puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
-                ensure
-                  progressbar.increment
+              if translated_computed
+                item.available_locales.each do |locale|
+                  I18n.with_locale(locale) { update_proc.call(item) }
                 end
+              else
+                I18n.with_locale(item.first_available_locale) { update_proc.call(item) }
               end
+            rescue StandardError => e
+              puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
+            ensure
+              progressbar.increment
             end
-
-            futures.each(&:wait!)
           end
 
           Process.waitpid(pid)
