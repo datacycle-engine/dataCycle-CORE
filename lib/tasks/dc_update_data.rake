@@ -22,6 +22,7 @@ namespace :dc do
         items = DataCycleCore::Thing.where(template: false, template_name: template.template_name)
         translated_computed = (template.computed_property_names & template.translatable_property_names).present?
         progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
+        pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
 
         update_proc = lambda { |content|
           data_hash = {}
@@ -29,22 +30,37 @@ namespace :dc do
           content.set_data_hash(data_hash: data_hash, update_computed: false)
         }
 
-        items.find_each(batch_size: 100) do |item|
-          next progressbar.increment if dry_run
+        items.find_in_batches.with_index do |batch, index|
+          pid = Process.fork do
+            progressbar.progress = index * 1000
+            futures = []
 
-          item.prevent_webhooks = true if webhooks == 'false'
+            batch.each do |item|
+              futures << Concurrent::Promise.execute({ executor: pool }) do
+                ActiveRecord::Base.connection_pool.with_connection do
+                  next progressbar.increment if dry_run
 
-          if translated_computed
-            item.available_locales.each do |locale|
-              I18n.with_locale(locale) { update_proc.call(item) }
+                  item.prevent_webhooks = true if webhooks == 'false'
+
+                  if translated_computed
+                    item.available_locales.each do |locale|
+                      I18n.with_locale(locale) { update_proc.call(item) }
+                    end
+                  else
+                    I18n.with_locale(item.first_available_locale) { update_proc.call(item) }
+                  end
+                rescue StandardError => e
+                  puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
+                ensure
+                  progressbar.increment
+                end
+              end
             end
-          else
-            I18n.with_locale(item.first_available_locale) { update_proc.call(item) }
+
+            futures.each(&:wait!)
           end
-        rescue StandardError => e
-          puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
-        ensure
-          progressbar.increment
+
+          Process.waitpid(pid)
         end
       end
 
@@ -78,6 +94,8 @@ namespace :dc do
           .flatten
           .uniq
           .compact
+        progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
+        pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
 
         update_proc = lambda { |content|
           data_hash = content.get_data_hash_partial(keys_for_data_hash)
@@ -85,24 +103,35 @@ namespace :dc do
           content.set_data_hash(data_hash: data_hash)
         }
 
-        progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
+        items.find_in_batches.with_index do |batch, index|
+          pid = Process.fork do
+            progressbar.progress = index * 1000
+            futures = []
 
-        items.find_each(batch_size: 100) do |item|
-          item.prevent_webhooks = args.webhooks&.to_s&.downcase == 'false'
+            batch.each do |item|
+              futures << Concurrent::Promise.execute({ executor: pool }) do
+                ActiveRecord::Base.connection_pool.with_connection do
+                  item.prevent_webhooks = args.webhooks&.to_s&.downcase == 'false'
 
-          if translated_properties
-            item.translated_locales.each do |locale|
-              I18n.with_locale(locale) { update_proc.call(item) }
+                  if translated_properties
+                    item.translated_locales.each do |locale|
+                      I18n.with_locale(locale) { update_proc.call(item) }
+                    end
+                  else
+                    I18n.with_locale(item.first_available_locale) { update_proc.call(item) }
+                  end
+                rescue StandardError => e
+                  puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
+                ensure
+                  progressbar.increment
+                end
+              end
             end
-          else
-            I18n.with_locale(item.first_available_locale) { update_proc.call(item) }
+
+            futures.each(&:wait!)
           end
 
-          progressbar.increment
-        rescue StandardError => e
-          progressbar.increment
-
-          puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
+          Process.waitpid(pid)
         end
       end
     end
