@@ -5,20 +5,20 @@ module DataCycleCore
     module Extensions
       module DefaultValue
         def add_default_values(data_hash:, current_user: nil, new_content: false, force: false, partial: false, keys: nil)
-          default_keys = keys.presence || default_value_property_names
+          default_value_keys = (keys.presence || default_value_property_names).dup
 
           if new_content || force
-            keys = default_keys.select { |k| attribute_blank?(data_hash, k) }
+            default_value_keys.select! { |k| attribute_blank?(data_hash, k) }
           elsif !partial && translated_locales.presence&.exclude?(I18n.locale)
-            keys = default_keys.select { |k| attribute_blank?(data_hash, k) }.intersection(translatable_property_names)
+            default_value_keys.select! { |k| attribute_blank?(data_hash, k) }.intersection(translatable_property_names)
           else
-            keys = default_keys.select { |k| attribute_blank?(data_hash, k) }.intersection(data_hash.keys)
+            default_value_keys.select! { |k| attribute_blank?(data_hash, k) }.intersection(data_hash.keys)
           end
 
-          return data_hash if keys.blank?
+          return data_hash if default_value_keys.blank?
 
-          keys.each do |property_name|
-            DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, data_hash, self, current_user)
+          default_value_keys.each do |property_name|
+            DataCycleCore::Utility::DefaultValue::Base.default_values(property_name, data_hash, self, current_user, force)
           end
 
           data_hash

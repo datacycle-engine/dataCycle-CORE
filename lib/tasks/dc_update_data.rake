@@ -67,7 +67,7 @@ namespace :dc do
       template_names = args.template_names&.split('|')&.map(&:squish)
       selected_things = DataCycleCore::Thing.where(template: true)
       selected_things = selected_things.where(template_name: template_names) if template_names.present?
-      default_value_names = args.fetch(:default_value_names, false).to_s.then { |c| c.present? && c != 'false' ? c.split('|') : false }
+      default_value_names = args.fetch(:default_value_names, false).to_s.then { |c| c.present? && c != 'false' ? c.split('|') : false }.freeze
 
       puts "ATTRIBUTES TO UPDATE: #{default_value_names.present? ? default_value_names.join(', ') : 'all'}"
 
@@ -79,18 +79,11 @@ namespace :dc do
         items = items.where(external_source_id: nil) if args.imported&.to_s&.downcase == 'false'
 
         translated_properties = (template.default_value_property_names & template.translatable_property_names).present?
-        keys_for_data_hash = template
-          .property_definitions
-          .slice(*(default_value_names.presence || template.default_value_property_names))
-          .map { |k, d| [k, d.dig('default_value').is_a?(::Hash) ? d.dig('default_value', 'parameters') : nil] }
-          .flatten
-          .uniq
-          .compact
         progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
         pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
 
         update_proc = lambda { |content|
-          data_hash = content.get_data_hash_partial(keys_for_data_hash)
+          data_hash = {}
           content.add_default_values(data_hash: data_hash, force: true, keys: default_value_names)
           content.set_data_hash(data_hash: data_hash)
         }
