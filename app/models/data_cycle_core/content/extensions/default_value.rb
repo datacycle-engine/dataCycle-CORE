@@ -4,13 +4,15 @@ module DataCycleCore
   module Content
     module Extensions
       module DefaultValue
-        def add_default_values(data_hash:, current_user: nil, new_content: false, force: false, partial: false)
+        def add_default_values(data_hash:, current_user: nil, new_content: false, force: false, partial: false, keys: nil)
+          default_keys = keys.presence || default_value_property_names
+
           if new_content || force
-            keys = default_value_property_names.select { |k| attribute_blank?(data_hash, k) }
+            keys = default_keys.select { |k| attribute_blank?(data_hash, k) }
           elsif !partial && translated_locales.presence&.exclude?(I18n.locale)
-            keys = default_value_property_names.select { |k| attribute_blank?(data_hash, k) }.intersection(translatable_property_names)
+            keys = default_keys.select { |k| attribute_blank?(data_hash, k) }.intersection(translatable_property_names)
           else
-            keys = default_value_property_names.select { |k| attribute_blank?(data_hash, k) }.intersection(data_hash.keys)
+            keys = default_keys.select { |k| attribute_blank?(data_hash, k) }.intersection(data_hash.keys)
           end
 
           return data_hash if keys.blank?

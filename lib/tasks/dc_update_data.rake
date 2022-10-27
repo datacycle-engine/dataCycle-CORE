@@ -15,23 +15,16 @@ namespace :dc do
 
       selected_things.find_each do |template|
         next if template.computed_property_names.blank?
-        next if computed_names.present? && computed_names.size.positive? && !(computed_names & template.computed_property_names).size.positive?
+        next if computed_names.present? && computed_names.any? && (computed_names & template.computed_property_names).none?
 
         items = DataCycleCore::Thing.where(template: false, template_name: template.template_name)
         translated_computed = (template.computed_property_names & template.translatable_property_names).present?
-        keys_for_data_hash = template.property_names.difference(template.computed_property_names)
-
-        if computed_names.present?
-          computed_keys = template.property_definitions.slice(*computed_names).values.map! { |d| d.dig('compute', 'parameters') }.tap(&:flatten!).tap(&:compact!).map! { |p| p.split('.').first }.tap(&:uniq!)
-          keys_for_data_hash = keys_for_data_hash.intersection(computed_keys)
-        end
-
         progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
 
         update_proc = lambda { |content|
-          computed_hash = content.get_data_hash_partial(keys_for_data_hash)
-          content.add_computed_values(data_hash: computed_hash)
-          content.set_data_hash(data_hash: computed_hash, update_computed: false)
+          data_hash = {}
+          content.add_computed_values(data_hash: data_hash, keys: computed_names, force: true)
+          content.set_data_hash(data_hash: data_hash, update_computed: false)
         }
 
         items.find_each(batch_size: 100) do |item|
@@ -60,13 +53,15 @@ namespace :dc do
     end
 
     desc 'add default values for all attributes'
-    task :add_defaults, [:template_names, :webhooks, :imported] => [:environment] do |_, args|
+    task :add_defaults, [:template_names, :webhooks, :default_value_names, :imported] => [:environment] do |_, args|
       template_names = args.template_names&.split('|')&.map(&:squish)
       selected_things = DataCycleCore::Thing.where(template: true)
       selected_things = selected_things.where(template_name: template_names) if template_names.present?
+      default_value_names = args.fetch(:default_value_names, false).to_s.then { |c| c.present? && c != 'false' ? c.split('|') : false }
 
       selected_things.find_each do |template|
         next if template.default_value_property_names.blank?
+        next if default_value_names.present? && default_value_names.any? && (default_value_names & template.default_value_property_names).none?
 
         items = DataCycleCore::Thing.where(template: false, template_name: template.template_name)
         items = items.where(external_source_id: nil) if args.imported&.to_s&.downcase == 'false'
@@ -74,11 +69,17 @@ namespace :dc do
         translated_properties = (template.default_value_property_names & template.translatable_property_names).present?
         keys_for_data_hash = template
           .property_definitions
-          .slice(*template.default_value_property_names)
+          .slice(*(default_value_names.presence || template.default_value_property_names))
           .map { |k, d| [k, d.dig('default_value').is_a?(::Hash) ? d.dig('default_value', 'parameters') : nil] }
           .flatten
           .uniq
           .compact
+
+        update_proc = lambda { |content|
+          data_hash = content.get_data_hash_partial(keys_for_data_hash)
+          content.add_default_values(data_hash: data_hash, force: true, keys: default_value_names)
+          content.set_data_hash(data_hash: data_hash)
+        }
 
         progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
 
@@ -87,18 +88,10 @@ namespace :dc do
 
           if translated_properties
             item.translated_locales.each do |locale|
-              I18n.with_locale(locale) do
-                data_hash = item.get_data_hash_partial(keys_for_data_hash)
-                item.add_default_values(data_hash: data_hash, force: true)
-                item.set_data_hash(data_hash: data_hash)
-              end
+              I18n.with_locale(locale) { update_proc.call(item) }
             end
           else
-            I18n.with_locale(item.first_available_locale) do
-              data_hash = item.get_data_hash_partial(keys_for_data_hash)
-              item.add_default_values(data_hash: data_hash, force: true)
-              item.set_data_hash(data_hash: data_hash)
-            end
+            I18n.with_locale(item.first_available_locale) { update_proc.call(item) }
           end
 
           progressbar.increment
