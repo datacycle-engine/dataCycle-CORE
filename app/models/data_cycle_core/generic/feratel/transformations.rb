@@ -547,7 +547,7 @@ module DataCycleCore
           .>> t(:add_field, 'content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
           .>> t(:add_field, 'feratel_content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
           .>> t(:add_links, 'linked_thing', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s.dig('Details', 'ConnectedEntries', 'ConnectedEntry'))&.flatten&.map { |item| item&.dig('Id') } || [] })
-          .>> t(:add_field, 'dc_potential_action', ->(s) { parse_links(s.dig('Links', 'Link'), external_source_id) })
+          .>> t(:add_field, 'potential_action', ->(s) { parse_links(s.dig('Links', 'Link'), external_source_id) })
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
           .>> t(:unwrap_description, ['EventHeader'])
