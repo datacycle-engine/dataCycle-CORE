@@ -5,7 +5,7 @@ module DataCycleCore
     module Extensions
       module ComputedValue
         def add_computed_values(data_hash:, keys: nil, force: false)
-          (keys.presence || computed_property_names).each do |computed_property|
+          Array.wrap(keys.presence || computed_property_names).each do |computed_property|
             DataCycleCore::Utility::Compute::Base.compute_values(computed_property, data_hash, self, force)
           end
         end
