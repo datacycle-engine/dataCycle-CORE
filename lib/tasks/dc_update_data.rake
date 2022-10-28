@@ -13,6 +13,8 @@ namespace :dc do
       selected_things = DataCycleCore::Thing.where(template: true)
       selected_things = selected_things.where(template_name: template_names) if template_names.present?
 
+      puts "ATTRIBUTES TO UPDATE: #{computed_names.present? ? computed_names.join(', ') : 'all'}"
+
       selected_things.find_each do |template|
         next if template.computed_property_names.blank?
         next if computed_names.present? && computed_names.any? && (computed_names & template.computed_property_names).none?
@@ -27,22 +29,30 @@ namespace :dc do
           content.set_data_hash(data_hash: data_hash, update_computed: false)
         }
 
-        items.find_each(batch_size: 100) do |item|
-          next progressbar.increment if dry_run
+        items.find_in_batches.with_index do |batch, index|
+          pid = Process.fork do
+            progressbar.progress = index * 1000
 
-          item.prevent_webhooks = true if webhooks == 'false'
+            batch.each do |item|
+              next progressbar.increment if dry_run
 
-          if translated_computed
-            item.available_locales.each do |locale|
-              I18n.with_locale(locale) { update_proc.call(item) }
+              item.prevent_webhooks = true if webhooks == 'false'
+
+              if translated_computed
+                item.available_locales.each do |locale|
+                  I18n.with_locale(locale) { update_proc.call(item) }
+                end
+              else
+                I18n.with_locale(item.first_available_locale) { update_proc.call(item) }
+              end
+            rescue StandardError => e
+              puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
+            ensure
+              progressbar.increment
             end
-          else
-            I18n.with_locale(item.first_available_locale) { update_proc.call(item) }
           end
-        rescue StandardError => e
-          puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
-        ensure
-          progressbar.increment
+
+          Process.waitpid(pid)
         end
       end
 
@@ -57,7 +67,9 @@ namespace :dc do
       template_names = args.template_names&.split('|')&.map(&:squish)
       selected_things = DataCycleCore::Thing.where(template: true)
       selected_things = selected_things.where(template_name: template_names) if template_names.present?
-      default_value_names = args.fetch(:default_value_names, false).to_s.then { |c| c.present? && c != 'false' ? c.split('|') : false }
+      default_value_names = args.fetch(:default_value_names, false).to_s.then { |c| c.present? && c != 'false' ? c.split('|') : false }.freeze
+
+      puts "ATTRIBUTES TO UPDATE: #{default_value_names.present? ? default_value_names.join(', ') : 'all'}"
 
       selected_things.find_each do |template|
         next if template.default_value_property_names.blank?
@@ -67,38 +79,44 @@ namespace :dc do
         items = items.where(external_source_id: nil) if args.imported&.to_s&.downcase == 'false'
 
         translated_properties = (template.default_value_property_names & template.translatable_property_names).present?
-        keys_for_data_hash = template
-          .property_definitions
-          .slice(*(default_value_names.presence || template.default_value_property_names))
-          .map { |k, d| [k, d.dig('default_value').is_a?(::Hash) ? d.dig('default_value', 'parameters') : nil] }
-          .flatten
-          .uniq
-          .compact
+        progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
+        pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
 
         update_proc = lambda { |content|
-          data_hash = content.get_data_hash_partial(keys_for_data_hash)
+          data_hash = {}
           content.add_default_values(data_hash: data_hash, force: true, keys: default_value_names)
           content.set_data_hash(data_hash: data_hash)
         }
 
-        progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
+        items.find_in_batches.with_index do |batch, index|
+          pid = Process.fork do
+            progressbar.progress = index * 1000
+            futures = []
 
-        items.find_each(batch_size: 100) do |item|
-          item.prevent_webhooks = args.webhooks&.to_s&.downcase == 'false'
+            batch.each do |item|
+              futures << Concurrent::Promise.execute({ executor: pool }) do
+                ActiveRecord::Base.connection_pool.with_connection do
+                  item.prevent_webhooks = args.webhooks&.to_s&.downcase == 'false'
 
-          if translated_properties
-            item.translated_locales.each do |locale|
-              I18n.with_locale(locale) { update_proc.call(item) }
+                  if translated_properties
+                    item.translated_locales.each do |locale|
+                      I18n.with_locale(locale) { update_proc.call(item) }
+                    end
+                  else
+                    I18n.with_locale(item.first_available_locale) { update_proc.call(item) }
+                  end
+                rescue StandardError => e
+                  puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
+                ensure
+                  progressbar.increment
+                end
+              end
             end
-          else
-            I18n.with_locale(item.first_available_locale) { update_proc.call(item) }
+
+            futures.each(&:wait!)
           end
 
-          progressbar.increment
-        rescue StandardError => e
-          progressbar.increment
-
-          puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
+          Process.waitpid(pid)
         end
       end
     end
