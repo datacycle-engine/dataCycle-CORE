@@ -193,7 +193,10 @@
   :external_source: false
   :external_system: true
   :id: true
-  :creator: true
+  :user:
+    :creator: true
+    :editor: false
+    :last_editor: false
   :classification_tree_ids: true
   :date_range: all
   :validity_period:

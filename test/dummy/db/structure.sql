@@ -2591,6 +2591,13 @@ CREATE INDEX index_thing_histories_on_representation_of_id ON public.thing_histo
 
 
 --
+-- Name: index_thing_histories_on_updated_by; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_histories_on_updated_by ON public.thing_histories USING btree (updated_by);
+
+
+--
 -- Name: index_thing_history_id_locale; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2742,6 +2749,13 @@ CREATE INDEX index_things_on_schema_type ON public.things USING btree (((schema 
 --
 
 CREATE INDEX index_things_on_template_content_type_validity_range ON public.things USING btree (id, template, content_type, validity_range, template_name);
+
+
+--
+-- Name: index_things_on_updated_by; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_updated_by ON public.things USING btree (updated_by);
 
 
 --
@@ -3613,4 +3627,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220922061116'),
 ('20220923130110'),
 ('20220929150327'),
-('20221017094112');
+('20221017094112'),
+('20221028074348'),
+('20221028090936');
+
+
