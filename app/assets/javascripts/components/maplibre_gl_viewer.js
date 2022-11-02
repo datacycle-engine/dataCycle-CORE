@@ -64,6 +64,7 @@ class MapLibreGlViewer {
     this.mapOptions = this.$container.data('map-options');
     this.mapStyles = this.mapOptions.styles;
     this.mapBackend = this.mapOptions.viewer || this.mapOptions.editor;
+    this.typeColors = this.mapOptions.type_colors;
     this.defaultPosition = pick(this.mapOptions, ['latitude', 'longitude', 'zoom']);
     this.highDpi = window.devicePixelRatio > 1;
 

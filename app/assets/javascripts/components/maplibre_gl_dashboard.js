@@ -4,20 +4,7 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
   constructor(container) {
     super(container);
     this.language = this.$container.data('language');
-
     this.styleCaseProperty = '@type';
-
-    this.typeColors = {
-      default: '#1D6996', // dark blue
-      hover: '#EDAD08', // yellow
-      'dcls:Tour': '#73AF48', // light green
-      'dcls:POI': '#1D6996', // dark blue
-      'dcls:Örtlichkeit': '#0F8554', // dark green
-      'dcls:Gastronomischer Betrieb': '#666666', // gray
-      'dcls:Unterkunft': '#CC503E', // red
-      'dcls:Event': '#994E95' // pastel purple
-    };
-
     this.iconColorBase = this.typeColors;
   }
   async setup() {
