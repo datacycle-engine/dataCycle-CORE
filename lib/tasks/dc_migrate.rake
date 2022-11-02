@@ -670,7 +670,7 @@ namespace :dc do
       contents.find_each do |content|
         I18n.with_locale(content.first_available_locale) do
           data_hash = {
-            'potential_action' => content.attribute_to_h('potential_action')
+            'potential_action' => content.reload.attribute_to_h('potential_action')
           }
           new_action = {
             datahash: {
