@@ -2,8 +2,6 @@
 
 module DataCycleCore
   class ObjectBrowserController < ApplicationController
-    before_action :authenticate_user! # from devise (authenticate)
-
     DEFAULT_PER = 50
 
     def show

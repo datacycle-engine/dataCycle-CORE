@@ -2,7 +2,6 @@
 
 module DataCycleCore
   class UserGroupsController < ApplicationController
-    before_action :authenticate_user!   # from devise (authenticate)
     load_and_authorize_resource         # from cancancan (authorize)
     before_action :set_user_group, only: [:edit, :update, :destroy]
 

@@ -4,7 +4,6 @@ module DataCycleCore
   class StoredFiltersController < ApplicationController
     include DataCycleCore::Filter
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
-    before_action :authenticate_user! # from devise (authenticate)
     load_and_authorize_resource except: [:create, :search, :select_search_or_collection, :add_to_watchlist, :saved_searches, :render_update_form] # from cancancan (authorize)
 
     def index

@@ -25,7 +25,17 @@ module DataCycleCore
             end
           end
 
-          errors.present? ? { error: errors } : { create: result[:content]&.id, title: result[:content].try(:title), link: data_link_url(result[:data_link]) }
+          if errors.present?
+            {
+              error: errors
+            }
+          else
+            {
+              create: result[:content]&.id,
+              title: result[:content].try(:title),
+              link: data_link_url(result[:data_link])
+            }
+          end
         end
 
         private
@@ -47,16 +57,22 @@ module DataCycleCore
           data_link.valid_from = ERB.new(@external_source.default_options['valid_from']).result&.in_time_zone if @external_source.default_options&.key?('valid_from')
           data_link.valid_until = ERB.new(@external_source.default_options['valid_until']).result&.in_time_zone if @external_source.default_options&.key?('valid_until')
           data_link.comment = data['comment']
-
           data_link.save
 
-          DataCycleCore::DataLinkMailer.mail_external_link(data_link, data_link_url(data_link), @external_source.default_options&.[]('instructions_url')).deliver_later
+          DataCycleCore::DataLinkMailer.mail_external_link(data_link, data_link_url(data_link), @external_source.default_options&.[]('instructions_url'), @external_source.identifier).deliver_later if send_mail?(data)
 
           {
             content: content,
             data_link: data_link,
             error: receiver.valid? && content.valid? && data_link.valid? ? nil : 'Es ist ein Fehler aufgetreten'
           }
+        end
+
+        def send_mail?(data)
+          return data['send_mail'] if data.key?('send_mail')
+          return @external_source.default_options['send_mail'] if @external_source.default_options&.key?('send_mail')
+
+          true
         end
 
         def default_url_options
@@ -79,6 +95,7 @@ module DataCycleCore
           optional(:title).filled(:string)
           optional(:@id).filled(:string)
           optional(:comment).filled(:string)
+          optional(:sendMail).filled(:bool)
         end
 
         rule(:email) do

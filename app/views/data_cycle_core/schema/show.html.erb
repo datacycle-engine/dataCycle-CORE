@@ -1,6 +1,6 @@
 <% breadcrumb :schema, autoroot: false %>
 
-<main>
+<main role="schema">
   <h1 typeof="rdfs:Class" resource="<%= schema_url(@template_schema.schema_name) %>">
     <%= Array.wrap(@template_schema.schema_name).join(' / ') %> (<em><%= @template_schema.template_name %></em>)
   </h1>

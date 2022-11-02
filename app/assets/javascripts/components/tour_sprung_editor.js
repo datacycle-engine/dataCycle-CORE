@@ -336,11 +336,6 @@ class TourSprungEditor extends MapLibreGlEditor {
       }
       onAdd(b) {
         const container = super.onAdd(b);
-
-        b.addControl(new maplibregl.NavigationControl(), 'top-left');
-
-        container.querySelector('.mtk-editor-routing').remove(); // remove bike/car/foot icons
-
         const buttons = container.querySelectorAll('.mtk-editor-button');
 
         for (let i = 0; i < buttons.length; ++i) {
@@ -393,7 +388,7 @@ class TourSprungEditor extends MapLibreGlEditor {
     this.$container.trigger('dc:map:elevationProfileInitialized');
   }
   configureEditor() {
-    this.map.addControl(new maplibregl.NavigationControl(), 'top-left');
+    this.map.addControl(new maplibregl.NavigationControl(), 'bottom-left');
     new MTK.GeocoderControl().addTo(this.mtkMap, 'top-right');
     this.map.addControl(new maplibregl.FullscreenControl(), 'top-right');
     this._styleControlWithOptions().addTo(this.mtkMap, 'bottom-right');

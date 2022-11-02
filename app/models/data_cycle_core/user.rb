@@ -190,9 +190,9 @@ module DataCycleCore
     def to_select_option(locale = DataCycleCore.ui_locales.first)
       DataCycleCore::Filter::SelectOption.new(
         id,
-        email,
+        full_name,
         model_name.param_key,
-        locked? ? "#{full_name} <span class=\"alert-color\"><i class=\"fa fa-ban\"></i> #{self.class.human_attribute_name(:locked_at, locale: locale)}</span>" : full_name,
+        locked? ? "#{email} <span class=\"alert-color\"><i class=\"fa fa-ban\"></i> #{self.class.human_attribute_name(:locked_at, locale: locale)}</span>" : email,
         locked?
       )
     end

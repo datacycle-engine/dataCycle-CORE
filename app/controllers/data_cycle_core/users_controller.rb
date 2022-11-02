@@ -2,7 +2,6 @@
 
 module DataCycleCore
   class UsersController < ApplicationController
-    before_action :authenticate_user! # from devise (authenticate)
     load_and_authorize_resource except: :search # from cancancan (authorize)
     before_action :set_user, only: [:edit, :update, :destroy, :unlock]
 
