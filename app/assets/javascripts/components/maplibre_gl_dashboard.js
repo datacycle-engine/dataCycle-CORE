@@ -5,36 +5,20 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
     super(container);
     this.language = this.$container.data('language');
 
-    this.definedColors = {
-      default: '#cc4b37',
-      blue: '#1779ba',
-      lightBlue: '#1dbde5',
-      red: '#cc4b37',
-      green: '#90c062',
-      white: '#ffffff',
-      yellow: '#ffae00',
-      gray: '#767676'
-    };
+    this.styleCaseProperty = '@type';
 
     this.typeColors = {
-      default: '#cc4b37',
-      'dcls:POI': '#1779ba',
-      'dcls:Örtlichkeit': '#1dbde5',
-      'dcls:Unterkunft': '#1dbde5',
-      'dcls:Tour': '#9ab762',
-      'dcls:Gastronomischer Betrieb': '#90c062',
-      'dcls:Unterkunft': '#ECF3FD',
-      'dcls:Event': '#ffae00',
-      'dcls:Organization': '#767676'
+      default: '#1D6996', // dark blue
+      hover: '#EDAD08', // yellow
+      'dcls:Tour': '#73AF48', // light green
+      'dcls:POI': '#1D6996', // dark blue
+      'dcls:Örtlichkeit': '#0F8554', // dark green
+      'dcls:Gastronomischer Betrieb': '#666666', // gray
+      'dcls:Unterkunft': '#CC503E', // red
+      'dcls:Event': '#994E95' // pastel purple
     };
-    // default: '#cc4b37',
-    //   'dcls:LocalBusiness': '#1779ba',
-    //   'dcls:Örtlichkeit': '#1dbde5',
-    //   'dcls:Tour': '#cc4b37',
-    //   'dcls:Gastronomischer Betrieb': '#90c062',
-    //   'dcls:Unterkunft': '#ffffff',
-    //   'dcls:Event': '#ffae00',
-    //   'dcls:Organization': '#767676'
+
+    this.iconColorBase = this.typeColors;
   }
   async setup() {
     await super.setup();
@@ -100,9 +84,11 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
 
       if (feature && feature.source == 'feature_source_primary') {
         this.map.getCanvas().style.cursor = 'pointer';
+        let types = JSON.parse(feature.properties['@type']);
+        let type = types[types.length - 1].replace('dcls:', '');
         popup
           .setLngLat(feature.geometry.type !== 'Point' ? e.lngLat : feature.geometry.coordinates)
-          .setHTML(feature.properties.name)
+          .setHTML(`<b>${type}</b><br> ${feature.properties.name}`)
           .addTo(this.map);
 
         this._highlightLinked(feature);
@@ -122,9 +108,6 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
       }
     });
   }
-  // getStyleCaseExpression(property, output, fallback) {
-  //   return ['case', ['in', 'dcls:POI', ['get', '@type']], '#1779ba', '#cc4b37'];
-  // }
   getColorMatchHexExpression() {
     let matchEx = ['case'];
 
@@ -133,9 +116,14 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
       matchEx.push(value);
     }
 
-    matchEx.push(this.definedColors.default);
-
+    matchEx.push(this.typeColors.default);
     return matchEx;
+  }
+  getHoverColorMatchHexExpression() {
+    return this.typeColors.hover;
+  }
+  getLineHoverColorExpression() {
+    return 'start_hover';
   }
 }
 

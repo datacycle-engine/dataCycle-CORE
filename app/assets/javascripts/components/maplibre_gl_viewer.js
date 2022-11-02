@@ -31,16 +31,34 @@ class MapLibreGlViewer {
         else target['default'];
       }
     };
+
+    // https://carto.com/carto-colors/, Pastel Qualitative Scheme
+    // #5F4690, // violet
+    // #1D6996, // dark blue
+    // #38A6A5, // light blue
+    // #0F8554, // dark green
+    // #73AF48, // light green
+    // #EDAD08, // yellow
+    // #E17C05, // orange
+    // #CC503E, // red
+    // #94346E, // purple
+    // #6F4070, // dark purple
+    // #994E95, // pastel purple
+    // #666666 // gray
+
     this.definedColors = {
-      default: '#1779ba',
-      lightBlue: '#1dbde5',
-      red: '#cc4b37',
-      green: '#90c062',
+      default: '#1D6996',
+      lightBlue: '#38A6A5',
+      red: '#CC503E',
+      green: '#0F8554',
       white: '#ffffff',
-      yellow: '#ffae00',
-      gray: '#767676'
+      yellow: '#EDAD08',
+      gray: '#666666'
     };
+
+    this.iconColorBase = this.definedColors;
     this.colors = new Proxy(this.definedColors, this.colorsHandler);
+    this.styleCaseProperty = 'color';
     this.zoomMethod = 'ctrlKey';
     this.mouseZoomTimeout;
     this.mapOptions = this.$container.data('map-options');
@@ -219,7 +237,7 @@ class MapLibreGlViewer {
   }
   setIcons() {
     for (const [iconKey, iconValue] of Object.entries(this.icons)) {
-      for (const [colorKey, colorValue] of Object.entries(this.definedColors)) {
+      for (const [colorKey, colorValue] of Object.entries(this.iconColorBase)) {
         let icon = new Image(21, 33);
         icon.onload = () => this.map.addImage(`${iconKey}_${colorKey}`, icon);
         icon.src = iconValue.interpolate({
@@ -299,14 +317,40 @@ class MapLibreGlViewer {
           'line-join': 'round'
         },
         paint: {
-          'line-color': this.getStyleCaseExpression('@type', this.getColorMatchHexExpression(), lineColor),
+          'line-color': this.getStyleCaseExpression(
+            this.styleCaseProperty,
+            this.getColorMatchHexExpression(),
+            lineColor
+          ),
           'line-opacity': iconColor === 'gray' ? 0.75 : 1,
           'line-width': this.getStyleCaseExpression('width', ['get', 'width'], 5)
         }
       }
       // this._getLastLineLayerId() // TODO:
     );
-    console.log('line-color: ', this.getStyleCaseExpression('@type', this.getColorMatchHexExpression(), lineColor));
+
+    this.map.addLayer(
+      {
+        id: `${layerId}_hover_foreground`,
+        type: 'line',
+        source: source,
+        filter: ['==', ['geometry-type'], 'LineString'],
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round'
+        },
+        paint: {
+          'line-color': this.getStyleCaseExpression(
+            this.styleCaseProperty,
+            this.getHoverColorMatchHexExpression(),
+            lineColor
+          ),
+          'line-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0],
+          'line-width': this.getStyleCaseExpression('width', ['get', 'width'], 5)
+        }
+      }
+      // this._getLastLineLayerId() // TODO:
+    );
     // we are adding only start point, because then we can use symbol-placement point
     this.map.addLayer(
       {
@@ -316,8 +360,8 @@ class MapLibreGlViewer {
         filter: ['==', ['geometry-type'], 'LineString'],
         layout: {
           'icon-image': this.getStyleCaseExpression(
-            'color',
-            ['concat', 'start_', ['get', 'color']],
+            this.styleCaseProperty,
+            this.getLineHoverColorExpression(),
             `start_${iconColor}`
           ),
           'icon-offset': [0, -15],
@@ -358,7 +402,11 @@ class MapLibreGlViewer {
         paint: {
           'circle-radius': circleRadius,
           'circle-stroke-width': 4,
-          'circle-color': this.getStyleCaseExpression('@type', this.getColorMatchHexExpression(), pointColor),
+          'circle-color': this.getStyleCaseExpression(
+            this.styleCaseProperty,
+            this.getColorMatchHexExpression(),
+            pointColor
+          ),
           'circle-stroke-color': this.definedColors.white
         }
       }
@@ -374,7 +422,11 @@ class MapLibreGlViewer {
         paint: {
           'circle-radius': circleRadius + 2,
           'circle-stroke-width': 4,
-          'circle-color': this.getStyleCaseExpression('color', this.getColorMatchHexExpression(), pointColor),
+          'circle-color': this.getStyleCaseExpression(
+            this.styleCaseProperty,
+            this.getHoverColorMatchHexExpression(),
+            pointColor
+          ),
           'circle-stroke-color': this.definedColors.white,
           'circle-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0],
           'circle-stroke-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0]
@@ -431,8 +483,8 @@ class MapLibreGlViewer {
     });
 
     this.layers[key] = {
-      point: this._pointLayer(`feature_point_${key}`, this.sources[key]),
-      line: this._lineLayer(`feature_line_${key}`, this.sources[key])
+      line: this._lineLayer(`feature_line_${key}`, this.sources[key]),
+      point: this._pointLayer(`feature_point_${key}`, this.sources[key])
     };
   }
   _addSelectedSourceAndLayers(key, data) {
@@ -445,8 +497,8 @@ class MapLibreGlViewer {
     });
 
     this.selectedAdditionalLayers[key] = {
-      point: this._pointLayer(`additional_values_point_selected_${key}`, this.selectedAdditionalSources[key]),
-      line: this._lineLayer(`additional_values_line_selected_${key}`, this.selectedAdditionalSources[key])
+      line: this._lineLayer(`additional_values_line_selected_${key}`, this.selectedAdditionalSources[key]),
+      point: this._pointLayer(`additional_values_point_selected_${key}`, this.selectedAdditionalSources[key])
     };
   }
   _disableScrollingOnMapOverlays() {
@@ -570,6 +622,12 @@ class MapLibreGlViewer {
     matchEx.push(this.definedColors.default);
 
     return matchEx;
+  }
+  getHoverColorMatchHexExpression() {
+    return this.getColorMatchHexExpression();
+  }
+  getLineHoverColorExpression() {
+    return ['concat', 'start_', ['get', 'color']];
   }
   isPoint() {
     return this.type.includes('Point');
