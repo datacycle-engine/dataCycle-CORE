@@ -21,8 +21,8 @@ class FixDuplicatePotentialActionForEvents < ActiveRecord::Migration[6.1]
         }
 
         content.set_data_hash(data_hash: data_hash, prevent_history: true)
-      rescue StandardError => e
-        puts e.message.to_s
+      rescue StandardError
+        nil
       ensure
         progressbar.increment
       end
