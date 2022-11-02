@@ -74,7 +74,13 @@ module DataCycleCore
           when :json
             # render template: 'data_cycle_core/api/v4/timeseries/show', layout: false
             json = { error: error }
-            json = { data: @contents.map { |i| [(i.try(:timestamp)&.strftime('%Y-%m-%dT%H:%M:%S.%3N%:z') || i.try(:ts).in_time_zone), i.value] } } unless @contents.nil?
+            if permitted_params[:dataFormat] == 'object'
+              data_transformation = ->(i) { { x: (i.try(:timestamp)&.strftime('%Y-%m-%dT%H:%M:%S.%3N%:z') || i.try(:ts).in_time_zone), y: i.value } }
+            else
+              data_transformation = ->(i) { [(i.try(:timestamp)&.strftime('%Y-%m-%dT%H:%M:%S.%3N%:z') || i.try(:ts).in_time_zone), i.value] }
+            end
+
+            json = { data: @contents.map(&data_transformation) } unless @contents.nil?
             render json: json
           when :csv
             response.headers['Content-Type'] = 'text/csv'
@@ -139,7 +145,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :uuids, :search, :limit, :timeseries, :groupBy, uuid: []] + [filter: {}] + [time: {}] + ['dc:liveData': [:'@id', :minPrice]]
+          super + [:id, :language, :uuids, :search, :limit, :timeseries, :dataFormat, :groupBy, uuid: []] + [filter: {}] + [time: {}] + ['dc:liveData': [:'@id', :minPrice]]
         end
 
         def permitted_filter_parameters
