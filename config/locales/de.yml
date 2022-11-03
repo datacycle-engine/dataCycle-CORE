@@ -1439,6 +1439,19 @@ de:
       currentInformation: Aktuelle Informationen
       additionalLocationInformation: Zusatzinformationen zum Veranstaltungsort
       additionalHostInformation: Zusatzinformationen zum Veranstalter
+      directions: Anfahrt
+      publicTransit: Öffentliche Verkehrsmittel
+      parking: Parken
+      literature: Literatur
+      authorTip: Tip
+      endPoint: Zielpunkt
+      endPointParking: Parken am Ziel
+      endPointToStartPoint: Rückfahrt vom Endpunkt zum Startpunkt
+      gear: Ausrüstung
+      moreInformation: Zusatzinformationen
+      safetyInformation: Sicherheitshinweis
+      startPoint: Startpunkt
+      startpointGettingThere: Wegbeschreibung Startpunkt
     destination_one:
       facility_unterhaltung: Facility Unterhaltung
       info_wegbelag: Info Wegbelag
