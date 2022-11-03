@@ -247,6 +247,21 @@ de:
       hours_available: Termine (Services/Experiences)
       validity_schedule: Gültigkeitszeitraum
 
+  timeseries:
+    grouping_options:
+      default: Nicht gruppieren
+      hour: Stunde
+      day: Tag
+      week: Woche
+      month: Monat
+      year: Jahr
+    chart_type_options:
+      bar: Balken
+      line: Linie
+      scatter: Punkt
+    from: von
+    until: bis
+
   opening_time:
     valid_from: Gültigkeit von
     valid_until: bis
