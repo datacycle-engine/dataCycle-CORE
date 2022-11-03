@@ -72,6 +72,10 @@ module DataCycleCore
       @user_api_feature ||= DataCycleCore::Feature::UserApi.new(nil, self)
     end
 
+    def mailer_from
+      user_api_feature.user_mailer_from
+    end
+
     def recoverable?
       !(external? || is_rank?(0))
     end
@@ -88,6 +92,10 @@ module DataCycleCore
 
     def full_name
       (name || "#{given_name} #{family_name}").squish.presence || '__unnamed_user__'
+    end
+
+    def full_name_or_email
+      (name || "#{given_name} #{family_name}").squish.presence || email
     end
 
     def default_filter(filters = [], _scope = 'backend', _template_name = nil)
