@@ -86,6 +86,20 @@ $global-backdrop-filter: saturate(0.5) blur(5px);
 
 $customercolor: #009fe3;
 
+:root {
+  --customer-color: #{$customercolor};
+  --primary-color: #{$primary-color};
+  --secondary-color: #{$secondary-color};
+  --success-color: #{$success-color};
+  --warning-color: #{$warning-color};
+  --alert-color: #{$alert-color};
+  --light-gray: #{$light-gray};
+  --medium-gray: #{$medium-gray};
+  --dark-gray: #{$dark-gray};
+  --black: #{$black};
+  --white: #{$white};
+}
+
 // 2. Breakpoints
 // --------------
 

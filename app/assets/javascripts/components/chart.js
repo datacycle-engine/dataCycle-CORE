@@ -14,7 +14,7 @@ class Chart {
     this.container = this.element.closest('.detail-type.timeseries');
     this.thingId = this.container.dataset.thingId;
     this.key = this.container.dataset.key.attributeNameFromKey();
-    this.backgroundColor = '#e6e6e6';
+    this.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--dark-gray');
     this.datasets = [];
     this.chartLabels;
     this.chartOptions = {
