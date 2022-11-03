@@ -99,6 +99,10 @@ module DataCycleCore
         can :api, DataCycleCore::StoredFilter, ['api = ? AND ? = ANY(api_users)', true, user.id] do |sf|
           sf.api && sf.api_users&.include?(user.id)
         end
+
+        return unless user.is_role?('guest')
+
+        can :auto_login, DataCycleCore::DataLink, receiver_id: user&.id
       end
     end
   end

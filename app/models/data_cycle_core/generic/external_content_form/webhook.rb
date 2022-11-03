@@ -41,7 +41,7 @@ module DataCycleCore
         private
 
         def create_data_link(data)
-          receiver = DataCycleCore::User.where(email: data['email']).first_or_create!(data.slice('email', 'given_name', 'family_name').merge(password: SecureRandom.hex, role: DataCycleCore::Role.find_by(name: 'guest')))
+          receiver = DataCycleCore::User.where(email: data['email']).first_or_create!(data.slice('email', 'given_name', 'family_name').merge(password: SecureRandom.hex, role: DataCycleCore::Role.find_by(name: @external_source.default_options&.[]('receiver_role') || 'guest')))
 
           if data['@id'].present?
             content = DataCycleCore::Thing.find(data['@id'])
