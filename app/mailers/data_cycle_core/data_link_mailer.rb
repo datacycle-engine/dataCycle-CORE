@@ -9,7 +9,7 @@ module DataCycleCore
       @locale ||= @data_link.locale.presence || @receiver.ui_locale
       @title ||= data_link_item_title
       @url ||= url
-      @subject ||= t('data_link_mailer.send_subject', locale: @locale)
+      @subject ||= first_available_i18n_t("data_link_mailer.#{@webhook_source}.send_subject", @webhook_source, { title: @title, locale: @local })
 
       mail(to: @receiver.email, cc: @user.email, from: t('data_link_mailer.from', from: self.class.default[:from], locale: @locale, default: self.class.default[:from]), subject: @subject)
     end
@@ -23,7 +23,6 @@ module DataCycleCore
       @locale = @data_link.locale.presence || @receiver.ui_locale
       @title = data_link_item_title
       @url = url
-      @subject = I18n.t("data_link_mailer.#{@webhook_source}.send_subject", title: @title, locale: @locale) if I18n.exists?("data_link_mailer.#{@webhook_source}.send_subject", title: @title, locale: @locale)
 
       mail_link(data_link, url)
     end

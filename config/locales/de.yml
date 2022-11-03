@@ -247,6 +247,21 @@ de:
       hours_available: Termine (Services/Experiences)
       validity_schedule: Gültigkeitszeitraum
 
+  timeseries:
+    grouping_options:
+      default: Nicht gruppieren
+      hour: Stunde
+      day: Tag
+      week: Woche
+      month: Monat
+      year: Jahr
+    chart_type_options:
+      bar: Balken
+      line: Linie
+      scatter: Punkt
+    from: von
+    until: bis
+
   opening_time:
     valid_from: Gültigkeit von
     valid_until: bis
@@ -615,7 +630,8 @@ de:
     update_subject: Geteilte Inhaltssammlung wurde aktualisiert
     notice: Hinweis
     from: '%{from}'
-    external_link_text_html: 'Sie haben einen neuen Inhalt mit dem Titel "%{title}" angelegt.<br><br>Über den folgenden Link können Sie noch fehlende Details ergänzen.'
+    external_link_text_html: 'Sie haben einen neuen Inhalt mit dem Titel "%{title}" angelegt.'
+    external_link_button_notice: Über den folgenden Link können Sie noch fehlende Details ergänzen.
     external_link_instructions: Anleitung zum Erfassen von Inhalten
 
   filter:

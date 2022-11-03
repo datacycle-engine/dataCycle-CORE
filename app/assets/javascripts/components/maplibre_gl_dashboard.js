@@ -4,17 +4,8 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
   constructor(container) {
     super(container);
     this.language = this.$container.data('language');
-
-    this.definedColors = {
-      default: '#cc4b37',
-      blue: '#1779ba',
-      lightBlue: '#1dbde5',
-      red: '#cc4b37',
-      green: '#90c062',
-      white: '#ffffff',
-      yellow: '#ffae00',
-      gray: '#767676'
-    };
+    this.styleCaseProperty = '@type';
+    this.iconColorBase = this.typeColors;
   }
   async setup() {
     await super.setup();
@@ -80,9 +71,11 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
 
       if (feature && feature.source == 'feature_source_primary') {
         this.map.getCanvas().style.cursor = 'pointer';
+        let types = JSON.parse(feature.properties['@type']);
+        let type = types[types.length - 1].replace('dcls:', '');
         popup
           .setLngLat(feature.geometry.type !== 'Point' ? e.lngLat : feature.geometry.coordinates)
-          .setHTML(feature.properties.name)
+          .setHTML(`<b>${type}</b><br> ${feature.properties.name}`)
           .addTo(this.map);
 
         this._highlightLinked(feature);
@@ -101,6 +94,23 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
         window.open(`${url}things/${feature.id}`, '_blank');
       }
     });
+  }
+  getColorMatchHexExpression() {
+    let matchEx = ['case'];
+
+    for (const [name, value] of Object.entries(this.typeColors)) {
+      matchEx.push(['in', name, ['get', '@type']]);
+      matchEx.push(value);
+    }
+
+    matchEx.push(this.typeColors.default);
+    return matchEx;
+  }
+  getHoverColorMatchHexExpression() {
+    return this.typeColors.hover;
+  }
+  getLineHoverColorExpression() {
+    return 'start_hover';
   }
 }
 
