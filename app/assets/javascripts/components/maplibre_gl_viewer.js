@@ -32,28 +32,14 @@ class MapLibreGlViewer {
       }
     };
 
-    // https://carto.com/carto-colors/, Pastel Qualitative Scheme
-    // #5F4690, // violet
-    // #1D6996, // dark blue
-    // #38A6A5, // light blue
-    // #0F8554, // dark green
-    // #73AF48, // light green
-    // #EDAD08, // yellow
-    // #E17C05, // orange
-    // #CC503E, // red
-    // #94346E, // purple
-    // #6F4070, // dark purple
-    // #994E95, // pastel purple
-    // #666666 // gray
-
     this.definedColors = {
-      default: '#1D6996',
-      lightBlue: '#38A6A5',
-      red: '#CC503E',
-      green: '#0F8554',
-      white: '#ffffff',
-      yellow: '#EDAD08',
-      gray: '#666666'
+      default: getComputedStyle(document.documentElement).getPropertyValue('--dark-blue'),
+      lightBlue: getComputedStyle(document.documentElement).getPropertyValue('--light-blue'),
+      red: getComputedStyle(document.documentElement).getPropertyValue('--red'),
+      green: getComputedStyle(document.documentElement).getPropertyValue('--dark-green'),
+      white: getComputedStyle(document.documentElement).getPropertyValue('--white'),
+      yellow: getComputedStyle(document.documentElement).getPropertyValue('--yellow'),
+      gray: getComputedStyle(document.documentElement).getPropertyValue('--gray')
     };
 
     this.iconColorBase = this.definedColors;
