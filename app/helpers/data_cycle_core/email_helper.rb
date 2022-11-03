@@ -11,7 +11,7 @@ module DataCycleCore
     end
 
     def first_available_i18n_t(i18n_path, dynamic_part, i18n_options = {})
-      I18n.exists?(i18n_path, **i18n_options) ? I18n.t(i18n_path, **i18n_options) : I18n.t(i18n_path.gsub(".#{dynamic_part}.", '.').delete_prefix('.').delete_suffix('.'), **i18n_options)
+      I18n.exists?(i18n_path, **i18n_options) ? I18n.t(i18n_path, **i18n_options) : I18n.t(i18n_path.sub(".#{dynamic_part}.", '.').delete_prefix('.').delete_suffix('.'), **i18n_options)
     end
   end
 end
