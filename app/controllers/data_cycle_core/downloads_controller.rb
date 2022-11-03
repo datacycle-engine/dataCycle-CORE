@@ -5,7 +5,6 @@ module DataCycleCore
     include DataCycleCore::Filter
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
 
-    before_action :authenticate_user! # from devise (authenticate)
     after_action :reset_watch_list, only: :watch_list_collections, if: -> { params[:reset].present? }
 
     def things
@@ -14,7 +13,7 @@ module DataCycleCore
       version = permitted_download_params[:version]
       languages = permitted_download_params[:language]
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.allowed?(@object, :content) && DataCycleCore::Feature::Download.enabled_serializer_for_download?(@object, :content, serialize_format)
-      download_content(@object, serialize_format, [languages], version)
+      download_content(@object, serialize_format, Array.wrap(languages), version)
     end
 
     def watch_lists
@@ -22,7 +21,7 @@ module DataCycleCore
       serialize_format = permitted_download_params[:serialize_format]
       languages = permitted_download_params[:language]
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.allowed?(@watch_list, :content) && DataCycleCore::Feature::Download.enabled_serializer_for_download?(@watch_list, :content, serialize_format)
-      download_content(@watch_list, serialize_format, [languages])
+      download_content(@watch_list, serialize_format, Array.wrap(languages))
     end
 
     def stored_filters
@@ -30,7 +29,7 @@ module DataCycleCore
       serialize_format = permitted_download_params[:serialize_format]
       languages = permitted_download_params[:language]
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.allowed?(@stored_filter, :content) && DataCycleCore::Feature::Download.enabled_serializer_for_download?(@stored_filter, :content, serialize_format)
-      download_content(@stored_filter, serialize_format, [languages])
+      download_content(@stored_filter, serialize_format, Array.wrap(languages))
     end
 
     def thing_collections

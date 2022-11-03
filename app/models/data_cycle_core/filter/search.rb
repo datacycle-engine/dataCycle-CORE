@@ -12,6 +12,7 @@ module DataCycleCore
       include DataCycleCore::Filter::Common::Typeahead
       include DataCycleCore::Filter::Common::Geo
       include DataCycleCore::Filter::Common::Union
+      include DataCycleCore::Filter::Common::User
       include DataCycleCore::Filter::Sortable
 
       def initialize(locale = ['de'], query = nil, include_embedded = false)
@@ -40,22 +41,6 @@ module DataCycleCore
 
         reflect(
           @query.where(subscription.where(subscription[:subscribable_id].eq(thing[:id]).and(subscription[:user_id].eq(id))).exists)
-        )
-      end
-
-      def creator(ids = nil)
-        return self if ids.blank?
-
-        reflect(
-          @query.where(thing[:created_by].in(ids))
-        )
-      end
-
-      def not_creator(ids = nil)
-        return self if ids.blank?
-
-        reflect(
-          @query.where.not(thing[:created_by].in(ids))
         )
       end
 

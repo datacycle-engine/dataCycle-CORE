@@ -19,7 +19,7 @@ module DataCycleCore
             Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
               query = build_search_query
 
-              render(plain: query.query.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters), content_type: request.format.to_s) && next if request.format.geojson?
+              render(plain: query.query.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format.to_s) && next if request.format.geojson?
 
               query = apply_ordering(query)
 
@@ -41,7 +41,7 @@ module DataCycleCore
             .find(permitted_params[:id])
           raise DataCycleCore::Error::Api::ExpiredContentError.new([{ pointer_path: request.path, type: 'expired_content', detail: 'is expired' }]), 'API Expired Content Error' unless @content.is_valid?
 
-          render(plain: @content.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters), content_type: request.format.to_s) && return if request.format.geojson?
+          render(plain: @content.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format.to_s) && return if request.format.geojson?
         end
 
         def timeseries
@@ -74,7 +74,13 @@ module DataCycleCore
           when :json
             # render template: 'data_cycle_core/api/v4/timeseries/show', layout: false
             json = { error: error }
-            json = { data: @contents.map { |i| [(i.try(:timestamp)&.strftime('%Y-%m-%dT%H:%M:%S.%3N%:z') || i.try(:ts).in_time_zone), i.value] } } unless @contents.nil?
+            if permitted_params[:dataFormat] == 'object'
+              data_transformation = ->(i) { { x: (i.try(:timestamp)&.strftime('%Y-%m-%dT%H:%M:%S.%3N%:z') || i.try(:ts).in_time_zone), y: i.value } }
+            else
+              data_transformation = ->(i) { [(i.try(:timestamp)&.strftime('%Y-%m-%dT%H:%M:%S.%3N%:z') || i.try(:ts).in_time_zone), i.value] }
+            end
+
+            json = { data: @contents.map(&data_transformation) } unless @contents.nil?
             render json: json
           when :csv
             response.headers['Content-Type'] = 'text/csv'
@@ -139,7 +145,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :uuids, :search, :limit, :timeseries, :groupBy, uuid: []] + [filter: {}] + [time: {}] + ['dc:liveData': [:'@id', :minPrice]]
+          super + [:id, :language, :uuids, :search, :limit, :timeseries, :dataFormat, :groupBy, uuid: []] + [filter: {}] + [time: {}] + ['dc:liveData': [:'@id', :minPrice]]
         end
 
         def permitted_filter_parameters

@@ -8,7 +8,7 @@ def serialize_opening_hours_description(description, filter, fields, options, in
       '@id' => description&.id,
       '@type' => description&.api_type,
       'validFrom' => schedule_hash.dig(:start_time, :time)&.in_time_zone&.to_s(:only_date),
-      'validThrough' => schedule_hash&.dig(:rrules, 0, :until)&.to_s(:only_date) || schedule_hash&.dig(:end_time, :time)&.in_time_zone&.to_s(:only_date),
+      'validThrough' => (schedule_hash&.dig(:rrules, 0, :until) || schedule_hash&.dig(:end_time, :time)&.in_time_zone&.then { |t| t - 1.second })&.to_s(:only_date),
       'description' => description&.description
     }.compact.merge(render('content_translations', content: description, options: { include: includes, fields: fields, field_filter:
       options[:field_filter] && fields.present? ? options[:field_filter] : false, languages: options[:languages], translatable_embedded: translatable_embedded }))

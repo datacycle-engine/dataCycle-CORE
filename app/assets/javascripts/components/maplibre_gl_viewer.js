@@ -31,21 +31,26 @@ class MapLibreGlViewer {
         else target['default'];
       }
     };
+
     this.definedColors = {
-      default: '#1779ba',
-      lightBlue: '#1dbde5',
-      red: '#cc4b37',
-      green: '#90c062',
-      white: '#ffffff',
-      yellow: '#ffae00',
-      gray: '#767676'
+      default: getComputedStyle(document.documentElement).getPropertyValue('--dark-blue'),
+      lightBlue: getComputedStyle(document.documentElement).getPropertyValue('--light-blue'),
+      red: getComputedStyle(document.documentElement).getPropertyValue('--red'),
+      green: getComputedStyle(document.documentElement).getPropertyValue('--dark-green'),
+      white: getComputedStyle(document.documentElement).getPropertyValue('--white'),
+      yellow: getComputedStyle(document.documentElement).getPropertyValue('--yellow'),
+      gray: getComputedStyle(document.documentElement).getPropertyValue('--gray')
     };
+
+    this.iconColorBase = this.definedColors;
     this.colors = new Proxy(this.definedColors, this.colorsHandler);
+    this.styleCaseProperty = 'color';
     this.zoomMethod = 'ctrlKey';
     this.mouseZoomTimeout;
     this.mapOptions = this.$container.data('map-options');
     this.mapStyles = this.mapOptions.styles;
     this.mapBackend = this.mapOptions.viewer || this.mapOptions.editor;
+    this.typeColors = this.mapOptions.type_colors;
     this.defaultPosition = pick(this.mapOptions, ['latitude', 'longitude', 'zoom']);
     this.highDpi = window.devicePixelRatio > 1;
 
@@ -219,7 +224,7 @@ class MapLibreGlViewer {
   }
   setIcons() {
     for (const [iconKey, iconValue] of Object.entries(this.icons)) {
-      for (const [colorKey, colorValue] of Object.entries(this.definedColors)) {
+      for (const [colorKey, colorValue] of Object.entries(this.iconColorBase)) {
         let icon = new Image(21, 33);
         icon.onload = () => this.map.addImage(`${iconKey}_${colorKey}`, icon);
         icon.src = iconValue.interpolate({
@@ -299,8 +304,35 @@ class MapLibreGlViewer {
           'line-join': 'round'
         },
         paint: {
-          'line-color': this.getStyleCaseExpression('color', this.getColorMatchHexExpression(), lineColor),
+          'line-color': this.getStyleCaseExpression(
+            this.styleCaseProperty,
+            this.getColorMatchHexExpression(),
+            lineColor
+          ),
           'line-opacity': iconColor === 'gray' ? 0.75 : 1,
+          'line-width': this.getStyleCaseExpression('width', ['get', 'width'], 5)
+        }
+      }
+      // this._getLastLineLayerId() // TODO:
+    );
+
+    this.map.addLayer(
+      {
+        id: `${layerId}_hover_foreground`,
+        type: 'line',
+        source: source,
+        filter: ['==', ['geometry-type'], 'LineString'],
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round'
+        },
+        paint: {
+          'line-color': this.getStyleCaseExpression(
+            this.styleCaseProperty,
+            this.getHoverColorMatchHexExpression(),
+            lineColor
+          ),
+          'line-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0],
           'line-width': this.getStyleCaseExpression('width', ['get', 'width'], 5)
         }
       }
@@ -315,8 +347,8 @@ class MapLibreGlViewer {
         filter: ['==', ['geometry-type'], 'LineString'],
         layout: {
           'icon-image': this.getStyleCaseExpression(
-            'color',
-            ['concat', 'start_', ['get', 'color']],
+            this.styleCaseProperty,
+            this.getLineHoverColorExpression(),
             `start_${iconColor}`
           ),
           'icon-offset': [0, -15],
@@ -357,7 +389,11 @@ class MapLibreGlViewer {
         paint: {
           'circle-radius': circleRadius,
           'circle-stroke-width': 4,
-          'circle-color': this.getStyleCaseExpression('color', this.getColorMatchHexExpression(), pointColor),
+          'circle-color': this.getStyleCaseExpression(
+            this.styleCaseProperty,
+            this.getColorMatchHexExpression(),
+            pointColor
+          ),
           'circle-stroke-color': this.definedColors.white
         }
       }
@@ -373,7 +409,11 @@ class MapLibreGlViewer {
         paint: {
           'circle-radius': circleRadius + 2,
           'circle-stroke-width': 4,
-          'circle-color': this.getStyleCaseExpression('color', this.getColorMatchHexExpression(), pointColor),
+          'circle-color': this.getStyleCaseExpression(
+            this.styleCaseProperty,
+            this.getHoverColorMatchHexExpression(),
+            pointColor
+          ),
           'circle-stroke-color': this.definedColors.white,
           'circle-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0],
           'circle-stroke-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0]
@@ -426,12 +466,12 @@ class MapLibreGlViewer {
     this.map.addSource(this.sources[key], {
       type: 'geojson',
       data: data,
-      promoteId: 'id'
+      promoteId: '@id'
     });
 
     this.layers[key] = {
-      point: this._pointLayer(`feature_point_${key}`, this.sources[key]),
-      line: this._lineLayer(`feature_line_${key}`, this.sources[key])
+      line: this._lineLayer(`feature_line_${key}`, this.sources[key]),
+      point: this._pointLayer(`feature_point_${key}`, this.sources[key])
     };
   }
   _addSelectedSourceAndLayers(key, data) {
@@ -440,12 +480,12 @@ class MapLibreGlViewer {
     this.map.addSource(this.selectedAdditionalSources[key], {
       type: 'geojson',
       data: data,
-      promoteId: 'id'
+      promoteId: '@id'
     });
 
     this.selectedAdditionalLayers[key] = {
-      point: this._pointLayer(`additional_values_point_selected_${key}`, this.selectedAdditionalSources[key]),
-      line: this._lineLayer(`additional_values_line_selected_${key}`, this.selectedAdditionalSources[key])
+      line: this._lineLayer(`additional_values_line_selected_${key}`, this.selectedAdditionalSources[key]),
+      point: this._pointLayer(`additional_values_point_selected_${key}`, this.selectedAdditionalSources[key])
     };
   }
   _disableScrollingOnMapOverlays() {
@@ -569,6 +609,12 @@ class MapLibreGlViewer {
     matchEx.push(this.definedColors.default);
 
     return matchEx;
+  }
+  getHoverColorMatchHexExpression() {
+    return this.getColorMatchHexExpression();
+  }
+  getLineHoverColorExpression() {
+    return ['concat', 'start_', ['get', 'color']];
   }
   isPoint() {
     return this.type.includes('Point');

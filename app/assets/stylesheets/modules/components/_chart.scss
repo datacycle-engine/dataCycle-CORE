@@ -1,0 +1,34 @@
+.dc-chart {
+  width: 100%;
+
+  .dc-chart-inputs {
+    display: flex;
+    gap: 0.1rem;
+    max-width: 60%;
+    right: -0.9rem;
+    bottom: 100%;
+    position: absolute;
+    height: 2rem;
+
+    input,
+    select {
+      margin: 0;
+      height: 2rem;
+      font-size: 0.9rem;
+    }
+
+    .flatpickr-wrapper {
+      min-width: 10rem;
+    }
+
+    > select:disabled,
+    > .disabled {
+      display: none;
+    }
+  }
+
+  .dc-chart-canvas {
+    width: 100%;
+    margin-top: 1rem;
+  }
+}

@@ -34,9 +34,7 @@ module DataCycleCore
     end
 
     def translated_attribute_label(key, definition, content, options, count = 1)
-      I18n.with_locale(active_ui_locale) do
-        DataCycleCore::Thing.human_property_name(key.attribute_name_from_key.to_s, (options || {}).merge({ base: content, count: count, definition: definition }))
-      end
+      DataCycleCore::Thing.human_property_name(key.attribute_name_from_key.to_s, (options || {}).merge({ base: content, count: count, definition: definition }))
     end
 
     def object_has_translatable_attributes?(content, definition)

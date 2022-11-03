@@ -26,20 +26,34 @@ module DataCycleCore
           end
         end
 
+        def self.add_uc_references(data, external_source_id, key_resolver)
+          add_external_classification_references(data, 'universal_classifications', external_source_id, key_resolver)
+        end
+
         def self.add_classification_name_references(data, property_name, tree_name, key_resolver, name_mapping_table = ->(v) { v })
           add_reference(data, property_name, key_resolver) do |key|
             ClassificationNameReference.new(tree_name, name_mapping_table.to_proc.call(key))
           end
         end
 
-        def self.add_reference(data, property_name, key_resolver, &reference_factory)
+        def self.get_classification_name_references(data, tree_name, key_resolver, name_mapping_table = ->(v) { v })
+          get_reference(data, key_resolver) do |key|
+            ClassificationNameReference.new(tree_name, name_mapping_table.to_proc.call(key))
+          end
+        end
+
+        def self.get_reference(data, key_resolver, &reference_factory)
           reference_keys = if key_resolver.respond_to?(:to_proc)
-                             key_resolver.to_proc.call(data) || []
+                             Array.wrap(key_resolver.to_proc.call(data)) || []
                            else
                              Array(resolve_attribute_path(data, key_resolver))
                            end
 
-          references = reference_keys.map(&reference_factory)
+          reference_keys.map(&reference_factory)
+        end
+
+        def self.add_reference(data, property_name, key_resolver, &reference_factory)
+          references = get_reference(data, key_resolver, &reference_factory)
 
           if property_name == 'universal_classifications'
             data.merge({ property_name => (data[property_name] || []) + references })

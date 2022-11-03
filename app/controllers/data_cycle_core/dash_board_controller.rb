@@ -2,7 +2,6 @@
 
 module DataCycleCore
   class DashBoardController < ApplicationController
-    before_action :authenticate_user! # from devise (authenticate)
     authorize_resource class: false # from cancancan (authorize)
 
     def home

@@ -28,6 +28,7 @@ module DataCycleCore
           optional(:token).filled(:string)
           optional(:id).filled(:string)
           optional(:timeseries).filled(:string)
+          optional(:dataFormat).filled(:string)
           optional(:search).value(:string)
           optional(:limit).value(:integer)
         end

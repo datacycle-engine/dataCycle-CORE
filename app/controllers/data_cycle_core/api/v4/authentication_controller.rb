@@ -4,7 +4,7 @@ module DataCycleCore
   module Api
     module V4
       class AuthenticationController < ::DataCycleCore::Api::V4::ApiBaseController
-        prepend_before_action :force_email_password_authentication!, only: :login
+        # prepend_before_action :force_email_password_authentication!, only: :login
         before_action :set_original_issuer, only: :login
         before_action :init_user_api_feature
 
@@ -44,9 +44,9 @@ module DataCycleCore
           current_user.user_api_feature.current_issuer ||= request.env['data_cycle.feature.user_api.issuer']
         end
 
-        def force_email_password_authentication!
-          request.env['warden.force_strategy'] = :email_password
-        end
+        # def force_email_password_authentication!
+        #   request.env['warden.force_strategy'] = :email_password
+        # end
 
         def set_original_issuer
           token = ActionController::HttpAuthentication::Token.token_and_options(request)&.first

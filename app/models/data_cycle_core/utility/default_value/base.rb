@@ -5,7 +5,7 @@ module DataCycleCore
     module DefaultValue
       module Base
         class << self
-          def default_values(key, data_hash, content, current_user = nil)
+          def default_values(key, data_hash, content, current_user = nil, force = false)
             return unless DataCycleCore::DataHashService.blank?(data_hash[key])
 
             properties = content.properties_for(key)&.with_indifferent_access
@@ -26,12 +26,14 @@ module DataCycleCore
 
             property_parameters = Array.wrap(properties&.dig('default_value', 'parameters')).intersection(content.property_names) if properties['default_value'].is_a?(::Hash)
 
-            return if skip_default_value?(key, data_hash, content, property_parameters, current_user)
+            default_value_hash = data_hash.dc_deep_dup
+
+            return if skip_default_value?(key, default_value_hash, content, property_parameters, current_user, false, force)
 
             data_hash[key] = method_name.try(:call, **{
-              property_parameters: property_parameters&.index_with { |v| data_hash[v] },
+              property_parameters: property_parameters&.index_with { |v| default_value_hash[v] },
               key: key,
-              data_hash: data_hash,
+              data_hash: default_value_hash,
               content: content,
               property_definition: properties,
               current_user: current_user
@@ -52,24 +54,24 @@ module DataCycleCore
             content.schema.key?(config)
           end
 
-          def skip_default_value?(key, data_hash, content, property_parameters, user, checked = false)
+          def skip_default_value?(key, data_hash, content, property_parameters, user, checked = false, force = false)
             return false if property_parameters.blank?
 
             missing_keys = property_parameters.difference(data_hash.slice(*property_parameters).keys)
 
             return false if missing_keys.blank?
             return true if checked && missing_keys.present?
-            return true if missing_keys.size == property_parameters.size && missing_keys.difference(content.default_value_property_names).present?
+            return true if !force && missing_keys.size == property_parameters.size && missing_keys.difference(content.default_value_property_names).present?
 
             missing_keys.intersection(content.default_value_property_names).each do |missing_default_key|
-              default_values(missing_default_key, data_hash, content, user)
+              default_values(missing_default_key, data_hash, content, user, force)
             end
 
             missing_keys.difference(content.default_value_property_names).each do |missing_key|
               data_hash[missing_key] = content.attribute_to_h(missing_key)
             end
 
-            skip_default_value?(key, data_hash, content, property_parameters, user, true)
+            skip_default_value?(key, data_hash, content, property_parameters, user, true, force)
           end
         end
       end
