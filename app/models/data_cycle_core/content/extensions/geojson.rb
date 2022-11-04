@@ -41,17 +41,17 @@ module DataCycleCore
         end
 
         class_methods do
-          def geojson_default_scope
-            query = all.except(:order).select(geojson_content_select_sql)
+          # def geojson_default_scope
+          #   query = all.except(:order).select(geojson_content_select_sql)
 
-            joins = geojson_include_config.pluck(:joins)
-            joins.uniq!
-            joins.compact!
+          #   joins = geojson_include_config.pluck(:joins)
+          #   joins.uniq!
+          #   joins.compact!
 
-            joins.each { |join| query = query.joins(join.squish) }
+          #   joins.each { |join| query = query.joins(join.squish) }
 
-            query
-          end
+          #   query
+          # end
 
           def as_geojson
             factory = RGeo::GeoJSON::EntityFactory.instance

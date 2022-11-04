@@ -70,7 +70,7 @@ module DataCycleCore
             # def to_mvt(include_without_geometry: true, simplify_factor: SIMPLIFY_FACTOR, geojson_query: mvt_sql(mvt_select_sql))
             # binding.pry
             mvt_result(
-              all.mvt_default_scope(simplify_factor: simplify_factor),
+              all.mvt_default_scope(simplify_factor: 1 / (2**z.to_f)),
               mvt_sql(x, y, z),
               # geojson_query,
               include_without_geometry

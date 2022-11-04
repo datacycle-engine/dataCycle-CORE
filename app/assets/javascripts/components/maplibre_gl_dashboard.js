@@ -20,7 +20,7 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
     this.initEventHandlers();
   }
   initMvt() {
-    // TODO: add Popup, zoom to full extent?
+    // TODO: add Popup, zoom to full extent -> via controller endpoint
 
     const searchForm = document.getElementById('search-form');
     if (!searchForm) return;

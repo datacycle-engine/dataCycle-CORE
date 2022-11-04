@@ -379,7 +379,7 @@ class MapLibreGlViewer {
       pointColor = this.definedColors.lightBlue;
       circleRadius = 7;
     }
-
+    // TODO: circle-radius by zoom-step https://docs.mapbox.com/mapbox-gl-js/example/data-driven-circle-colors/
     this.map.addLayer(
       {
         id: layerId,
