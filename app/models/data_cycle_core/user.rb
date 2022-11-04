@@ -90,12 +90,20 @@ module DataCycleCore
       WEBHOOKS_ATTRIBUTES
     end
 
+    def concatenated_name
+      (name || "#{given_name} #{family_name}").squish.presence
+    end
+
     def full_name
-      (name || "#{given_name} #{family_name}").squish.presence || '__unnamed_user__'
+      concatenated_name || '__unnamed_user__'
     end
 
     def full_name_or_email
-      (name || "#{given_name} #{family_name}").squish.presence || email
+      concatenated_name || email
+    end
+
+    def full_name_with_email
+      concatenated_name ? "#{concatenated_name} <#{email}>" : email
     end
 
     def default_filter(filters = [], _scope = 'backend', _template_name = nil)
@@ -198,9 +206,9 @@ module DataCycleCore
     def to_select_option(locale = DataCycleCore.ui_locales.first)
       DataCycleCore::Filter::SelectOption.new(
         id,
-        full_name,
+        email,
         model_name.param_key,
-        locked? ? "#{email} <span class=\"alert-color\"><i class=\"fa fa-ban\"></i> #{self.class.human_attribute_name(:locked_at, locale: locale)}</span>" : email,
+        locked? ? "#{full_name} <span class=\"alert-color\"><i class=\"fa fa-ban\"></i> #{self.class.human_attribute_name(:locked_at, locale: locale)}</span>" : full_name,
         locked?
       )
     end

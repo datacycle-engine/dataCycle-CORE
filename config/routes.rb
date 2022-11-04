@@ -151,6 +151,12 @@ DataCycleCore::Engine.routes.draw do
       get '/stored_filters(/:id)(/:serialize_format)', on: :member, action: 'stored_filters'
       get '/stored_filter_collections(/:id)', on: :member, action: 'stored_filter_collections'
     end
+
+    resources :data_links, except: [:show] do
+      post :send_mail, on: :member
+      patch :unlock, on: :member
+      get :render_update_form, on: :collection
+    end
   end
 
   resources :data_links, only: [:show] do
@@ -159,12 +165,6 @@ DataCycleCore::Engine.routes.draw do
   end
 
   authenticate do
-    resources :data_links, except: [:show] do
-      post :send_mail, on: :member
-      patch :unlock, on: :member
-      get :render_update_form, on: :collection
-    end
-
     resources :watch_lists do
       delete :remove_item, on: :member
       get :add_item, on: :member

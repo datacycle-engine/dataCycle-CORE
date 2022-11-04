@@ -1163,7 +1163,7 @@ en:
         elevation: Sea level (m)
       data_cycle_core/data_link:
         comment: Comment
-        permissions: Authorizations
+        permissions: Permissions
         validity_period: Validity period (from - to)
         valid_from: Valid from
         valid_until: By
