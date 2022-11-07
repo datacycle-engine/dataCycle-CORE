@@ -66,7 +66,7 @@ module DataCycleCore
           #   RGeo::GeoJSON.encode(feature_collection)
           # end
 
-          def to_mvt(x, y, z, include_without_geometry: true, simplify_factor: SIMPLIFY_FACTOR)
+          def to_mvt(x, y, z, include_without_geometry: true, simplify_factor: SIMPLIFY_FACTOR) # rubocop:disable Lint/unusedMethodArgument
             # def to_mvt(include_without_geometry: true, simplify_factor: SIMPLIFY_FACTOR, geojson_query: mvt_sql(mvt_select_sql))
             # binding.pry
             mvt_result(
