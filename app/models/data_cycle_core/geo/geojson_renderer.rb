@@ -2,27 +2,29 @@
 
 module DataCycleCore
   module Geo
-    class GeojsonRenderer < ::DataCycleCore::Geo::Base
-      # def initialize(host: nil, end_point: nil, partner: nil, **options)
-      #   # ???
-      #   # @host = host
-      #   # @end_point = end_point
-      #   # @partner = partner
-      #   # @partner_lakes = options.dig(:partner_lakes)
-      # end
+    class GeojsonRenderer < ::DataCycleCore::Geo::BaseRenderer
+      SIMPLIFY_FACTOR = 0.00001
+      GEOMETRY_PRECISION = 5
+      CRS_SQL = ", 'crs', json_build_object('type', 'name', 'properties', json_build_object('name', 'urn:ogc:def:crs:EPSG::4326'))"
 
-      def to_geojson(include_without_geometry: true, simplify_factor: SIMPLIFY_FACTOR, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false)
-        @include_without_geometry = include_without_geometry
-        @simplify_factor = simplify_factor
-        @include_parameters = include_parameters
-        @fields_parameters = fields_parameters
-        @classification_trees_parameters = classification_trees_parameters
-        @single_item = single_item
-
-        geojson_result(
-          all.geojson_default_scope,
-          geojson_sql(@single_item ? geojson_detail_select_sql : geojson_select_sql)
+      def render
+        result(
+          contents_with_default_scope(simplify_factor: @simplify_factor.presence || SIMPLIFY_FACTOR),
+          main_sql(@single_item ? geojson_detail_select_sql : geojson_select_sql)
         )
+      end
+
+      def geojson_detail_select_sql
+        <<-SQL.squish
+              json_build_object('type', 'Feature', 'id', t.id, 'geometry', ST_AsGeoJSON (t.geometry, #{GEOMETRY_PRECISION})::json, 'properties',
+                json_build_object('@id', t.id, #{include_config.pluck(:identifier).map { |p| "'#{p.delete('"')}', t.#{p}" }.join(', ')}))
+        SQL
+      end
+
+      def geojson_select_sql
+        <<-SQL.squish
+              json_build_object('type', 'FeatureCollection'#{CRS_SQL}, 'features', json_agg(#{geojson_detail_select_sql}))
+        SQL
       end
     end
   end

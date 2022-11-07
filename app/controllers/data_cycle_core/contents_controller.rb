@@ -526,8 +526,9 @@ module DataCycleCore
       query = query.where(template_name: template_name.to_s) if template_name && filter_hash.blank?
       query = query.where(id: map_editor_params[:ids]) if map_editor_params[:ids].present?
       query = query.in_validity_period
+      query = query.with_geometry
 
-      render plain: query.query.to_geojson(include_without_geometry: false), content_type: 'application/vnd.geo+json'
+      render plain: query.query.to_geojson, content_type: 'application/geo+json'
     end
 
     def attribute_default_value

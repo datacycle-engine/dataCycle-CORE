@@ -66,20 +66,18 @@ module DataCycleCore
           #   RGeo::GeoJSON.encode(feature_collection)
           # end
 
-          def to_mvt(x, y, z, include_without_geometry: true, simplify_factor: SIMPLIFY_FACTOR) # rubocop:disable Lint/unusedMethodArgument
-            # def to_mvt(include_without_geometry: true, simplify_factor: SIMPLIFY_FACTOR, geojson_query: mvt_sql(mvt_select_sql))
+          def to_mvt(x, y, z, simplify_factor: SIMPLIFY_FACTOR) # rubocop:disable Lint/unusedMethodArgument
+            # def to_mvt(simplify_factor: SIMPLIFY_FACTOR, geojson_query: mvt_sql(mvt_select_sql))
             # binding.pry
             mvt_result(
               all.mvt_default_scope(simplify_factor: 1 / (2**z.to_f)),
-              mvt_sql(x, y, z),
+              mvt_sql(x, y, z)
               # geojson_query,
-              include_without_geometry
+
             )
           end
 
-          def mvt_result(things_query, geojson_query, _include_without_geometry)
-            # geojson_query += ' WHERE t.geometry IS NOT NULL' unless include_without_geometry
-
+          def mvt_result(things_query, geojson_query)
             ActiveRecord::Base.connection.unescape_bytea(
               ActiveRecord::Base.connection.execute(
                 Arel.sql(geojson_query.gsub(':from_query', things_query.to_sql))
