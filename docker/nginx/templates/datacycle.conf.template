@@ -65,6 +65,7 @@ server {
       application/xml
       application/rss+xml
       image/svg+xml
+      application/geo+json
       application/vnd.geo+json;
 
   location @puma_data_cycle {

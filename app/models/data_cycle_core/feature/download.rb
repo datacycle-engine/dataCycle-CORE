@@ -4,10 +4,6 @@ module DataCycleCore
   module Feature
     class Download < Base
       class << self
-        def controller_module
-          DataCycleCore::Feature::ControllerFunctions::Download
-        end
-
         def allowed?(content, scope = [:content])
           return false unless enabled?
           return false unless dependencies_enabled?

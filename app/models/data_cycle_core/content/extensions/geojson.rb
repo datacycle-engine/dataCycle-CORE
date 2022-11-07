@@ -21,8 +21,8 @@ module DataCycleCore
           RGeo::GeoJSON.encode(geojson_feature)
         end
 
-        def to_geojson(simplify_factor: SIMPLIFY_FACTOR, include_parameters: [], fields_parameters: [])
-          self.class.where(id: id).limit(1).to_geojson(simplify_factor: simplify_factor, include_parameters: include_parameters, fields_parameters: fields_parameters, single_item: true)
+        def to_geojson(simplify_factor: SIMPLIFY_FACTOR, include_parameters: [], fields_parameters: [], classification_trees_parameters: [])
+          self.class.where(id: id).limit(1).to_geojson(simplify_factor: simplify_factor, include_parameters: include_parameters, fields_parameters: fields_parameters, classification_trees_parameters: classification_trees_parameters, single_item: true)
         end
 
         def geojson_geometry(content = self)
@@ -59,11 +59,12 @@ module DataCycleCore
             RGeo::GeoJSON.encode(feature_collection)
           end
 
-          def to_geojson(include_without_geometry: true, simplify_factor: SIMPLIFY_FACTOR, include_parameters: [], fields_parameters: [], single_item: false)
+          def to_geojson(include_without_geometry: true, simplify_factor: SIMPLIFY_FACTOR, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false)
             @include_without_geometry = include_without_geometry
             @simplify_factor = simplify_factor
             @include_parameters = include_parameters
             @fields_parameters = fields_parameters
+            @classification_trees_parameters = classification_trees_parameters
             @single_item = single_item
 
             geojson_result(
@@ -109,7 +110,7 @@ module DataCycleCore
           def geojson_detail_select_sql
             <<-SQL.squish
               json_build_object('type', 'Feature', 'id', t.id, 'geometry', ST_AsGeoJSON (t.geometry, #{GEOMETRY_PRECISION})::json, 'properties',
-                json_build_object(#{geojson_include_config.pluck(:identifier).prepend('id').map { |p| "'#{p}', t.#{p}" }.join(', ')}))
+                json_build_object('@id', t.id, #{geojson_include_config.pluck(:identifier).map { |p| "'#{p.delete('"')}', t.#{p}" }.join(', ')}))
             SQL
           end
 
@@ -121,6 +122,22 @@ module DataCycleCore
 
           def geojson_include_config
             config = []
+
+            config << {
+              identifier: '"@type"',
+              select: 'array_append(
+                      CASE
+                      WHEN things."schema"->\'api\'->\'type\' IS NOT NULL THEN
+                      ARRAY(
+                      SELECT
+                        jsonb_array_elements_text(things."schema"->\'api\'->\'type\')
+                      )
+                      WHEN things."schema"->\'schema_type\' IS NOT NULL THEN
+                      ARRAY(SELECT things."schema"->>\'schema_type\')
+                      ELSE \'{"Thing"}\'
+                      END,
+                      \'dcls:\' || things.template_name)'
+            }
 
             if @fields_parameters.blank? || @fields_parameters&.any? { |p| p.first == 'name' }
               config << {
@@ -161,6 +178,7 @@ module DataCycleCore
                   WHERE
                     classification_aliases.deleted_at IS NULL
                     AND 'api' = ANY(classification_tree_labels.visibility)
+                    #{"AND classification_trees.classification_tree_label_id IN (\'#{@classification_trees_parameters.join('\',\'')}\')" if @classification_trees_parameters.present?}
                   GROUP BY
                     classification_contents.content_data_id
                 ) AS tmp1 ON tmp1.content_data_id = things.id"

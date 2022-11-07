@@ -270,7 +270,7 @@ CREATE FUNCTION public.generate_classification_alias_paths_trigger_3() RETURNS t
 
 CREATE FUNCTION public.generate_collected_cl_content_relations_transitive(content_ids uuid[], excluded_classification_ids uuid[]) RETURNS SETOF uuid
     LANGUAGE plpgsql
-    AS $$ BEGIN DELETE FROM collected_classification_content_relations WHERE content_id = ANY (content_ids); RETURN QUERY WITH direct_classification_content_relations AS ( SELECT DISTINCT classification_contents.content_data_id "thing_id", classification_groups.classification_alias_id "classification_alias_id" FROM classification_contents JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL WHERE classification_contents.content_data_id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids) ), full_classification_content_relations AS ( SELECT DISTINCT classification_contents.content_data_id "thing_id", classification_alias_paths_transitive.full_path_ids "classification_alias_id" FROM classification_contents JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL JOIN classification_alias_paths_transitive ON classification_groups.classification_alias_id = classification_alias_paths_transitive.classification_alias_id WHERE classification_contents.content_data_id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids)) INSERT INTO collected_classification_content_relations ( content_id, direct_classification_alias_ids, full_classification_alias_ids) SELECT things.id "content_id", direct_content_classification_ids "direct_classification_alias_ids", full_content_classification_ids "full_classification_alias_ids" FROM things JOIN ( SELECT thing_id, ARRAY_AGG(DISTINCT direct_classification_content_relations.classification_alias_id) "direct_content_classification_ids" FROM direct_classification_content_relations GROUP BY thing_id) "direct_relations" ON direct_relations.thing_id = things.id JOIN ( SELECT t.thing_id, ARRAY_AGG(t.classification_alias_id) "full_content_classification_ids" FROM ( SELECT DISTINCT unnest(full_classification_content_relations.classification_alias_id) AS classification_alias_id, full_classification_content_relations.thing_id AS thing_id FROM full_classification_content_relations) t GROUP BY t.thing_id) "full_relations" ON full_relations.thing_id = things.id RETURNING content_id; RETURN; END; $$;
+    AS $$ BEGIN DELETE FROM collected_classification_content_relations WHERE content_id IN ( SELECT cccr.content_id FROM collected_classification_content_relations cccr WHERE cccr.content_id = ANY (content_ids) ORDER BY cccr.content_id ASC FOR UPDATE SKIP LOCKED ); RETURN QUERY WITH direct_classification_content_relations AS ( SELECT DISTINCT classification_contents.content_data_id "thing_id", classification_groups.classification_alias_id "classification_alias_id" FROM classification_contents JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL WHERE classification_contents.content_data_id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids) ), full_classification_content_relations AS ( SELECT DISTINCT classification_contents.content_data_id "thing_id", classification_alias_paths_transitive.full_path_ids "classification_alias_id" FROM classification_contents JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL JOIN classification_alias_paths_transitive ON classification_groups.classification_alias_id = classification_alias_paths_transitive.classification_alias_id WHERE classification_contents.content_data_id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids)) INSERT INTO collected_classification_content_relations ( content_id, direct_classification_alias_ids, full_classification_alias_ids) SELECT things.id "content_id", direct_content_classification_ids "direct_classification_alias_ids", full_content_classification_ids "full_classification_alias_ids" FROM things JOIN ( SELECT thing_id, ARRAY_AGG(DISTINCT direct_classification_content_relations.classification_alias_id) "direct_content_classification_ids" FROM direct_classification_content_relations GROUP BY thing_id) "direct_relations" ON direct_relations.thing_id = things.id JOIN ( SELECT t.thing_id, ARRAY_AGG(t.classification_alias_id) "full_content_classification_ids" FROM ( SELECT DISTINCT unnest(full_classification_content_relations.classification_alias_id) AS classification_alias_id, full_classification_content_relations.thing_id AS thing_id FROM full_classification_content_relations) t GROUP BY t.thing_id) "full_relations" ON full_relations.thing_id = things.id RETURNING content_id; RETURN; END; $$;
 
 
 --
@@ -279,7 +279,7 @@ CREATE FUNCTION public.generate_collected_cl_content_relations_transitive(conten
 
 CREATE FUNCTION public.generate_collected_classification_content_relations(content_ids uuid[], excluded_classification_ids uuid[]) RETURNS uuid[]
     LANGUAGE plpgsql
-    AS $$ BEGIN DELETE FROM collected_classification_content_relations WHERE content_id IN ( SELECT cccr.content_id FROM collected_classification_content_relations cccr WHERE cccr.content_id = ANY (content_ids) FOR UPDATE SKIP LOCKED ); WITH direct_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", classification_groups.classification_alias_id "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL WHERE things.id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids) ), full_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", UNNEST(classification_alias_paths.full_path_ids) "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id WHERE things.id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids)) INSERT INTO collected_classification_content_relations (content_id, direct_classification_alias_ids, full_classification_alias_ids) SELECT things.id "content_id", direct_content_classification_ids "direct_classification_alias_ids", full_content_classification_ids "full_classification_alias_ids" FROM things JOIN ( SELECT thing_id, ARRAY_AGG(direct_classification_content_relations.classification_alias_id) "direct_content_classification_ids" FROM direct_classification_content_relations GROUP BY thing_id) "direct_relations" ON direct_relations.thing_id = things.id JOIN ( SELECT thing_id, ARRAY_AGG(full_classification_content_relations.classification_alias_id) "full_content_classification_ids" FROM full_classification_content_relations GROUP BY thing_id) "full_relations" ON full_relations.thing_id = things.id; RETURN content_ids; END; $$;
+    AS $$ BEGIN DELETE FROM collected_classification_content_relations WHERE content_id IN ( SELECT cccr.content_id FROM collected_classification_content_relations cccr WHERE cccr.content_id = ANY (content_ids) ORDER BY cccr.content_id ASC FOR UPDATE SKIP LOCKED ); WITH direct_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", classification_groups.classification_alias_id "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL WHERE things.id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids) ), full_classification_content_relations AS ( SELECT DISTINCT things.id "thing_id", UNNEST(classification_alias_paths.full_path_ids) "classification_alias_id" FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id WHERE things.id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids)) INSERT INTO collected_classification_content_relations (content_id, direct_classification_alias_ids, full_classification_alias_ids) SELECT things.id "content_id", direct_content_classification_ids "direct_classification_alias_ids", full_content_classification_ids "full_classification_alias_ids" FROM things JOIN ( SELECT thing_id, ARRAY_AGG(direct_classification_content_relations.classification_alias_id) "direct_content_classification_ids" FROM direct_classification_content_relations GROUP BY thing_id) "direct_relations" ON direct_relations.thing_id = things.id JOIN ( SELECT thing_id, ARRAY_AGG(full_classification_content_relations.classification_alias_id) "full_content_classification_ids" FROM full_classification_content_relations GROUP BY thing_id) "full_relations" ON full_relations.thing_id = things.id; RETURN content_ids; END; $$;
 
 
 --
@@ -394,6 +394,15 @@ CREATE FUNCTION public.update_template_definitions_trigger() RETURNS trigger
     AS $$ BEGIN UPDATE things SET "schema" = NEW.schema, boost = (NEW.schema -> 'boost')::numeric, content_type = NEW.schema ->> 'content_type', cache_valid_since = NOW() WHERE things.template_name = NEW.template_name AND things.template = FALSE; RETURN new; END; $$;
 
 
+--
+-- Name: basic_german; Type: TEXT SEARCH DICTIONARY; Schema: public; Owner: -
+--
+
+CREATE TEXT SEARCH DICTIONARY public.basic_german (
+    TEMPLATE = pg_catalog.thesaurus,
+    dictfile = 'basic_german', dictionary = 'pg_catalog.german_stem' );
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -403,7 +412,7 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.active_storage_attachments (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying NOT NULL,
     record_type character varying NOT NULL,
     record_id uuid NOT NULL,
@@ -417,7 +426,7 @@ CREATE TABLE public.active_storage_attachments (
 --
 
 CREATE TABLE public.active_storage_blobs (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     key character varying NOT NULL,
     filename character varying NOT NULL,
     content_type character varying,
@@ -434,7 +443,7 @@ CREATE TABLE public.active_storage_blobs (
 --
 
 CREATE TABLE public.active_storage_variant_records (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     blob_id uuid NOT NULL,
     variation_digest character varying NOT NULL
 );
@@ -463,8 +472,8 @@ CREATE TABLE public.activities (
 CREATE TABLE public.ar_internal_metadata (
     key character varying NOT NULL,
     value character varying,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -2120,10 +2129,10 @@ CREATE UNIQUE INDEX index_active_storage_variant_records_uniqueness ON public.ac
 
 
 --
--- Name: index_activities_on_activitiable; Type: INDEX; Schema: public; Owner: -
+-- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_activities_on_activitiable ON public.activities USING btree (activitiable_type, activitiable_id);
+CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
 
 
 --
@@ -2582,6 +2591,13 @@ CREATE INDEX index_thing_histories_on_representation_of_id ON public.thing_histo
 
 
 --
+-- Name: index_thing_histories_on_updated_by; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_histories_on_updated_by ON public.thing_histories USING btree (updated_by);
+
+
+--
 -- Name: index_thing_history_id_locale; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2733,6 +2749,13 @@ CREATE INDEX index_things_on_schema_type ON public.things USING btree (((schema 
 --
 
 CREATE INDEX index_things_on_template_content_type_validity_range ON public.things USING btree (id, template, content_type, validity_range, template_name);
+
+
+--
+-- Name: index_things_on_updated_by; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_updated_by ON public.things USING btree (updated_by);
 
 
 --
@@ -3502,6 +3525,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210510120343'),
 ('20210518074537'),
 ('20210518133349'),
+('20210520121223'),
 ('20210520123323'),
 ('20210522171126'),
 ('20210527121641'),
@@ -3515,6 +3539,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210709121013'),
 ('20210731090959'),
 ('20210802095013'),
+('20210802130128'),
+('20210803170527'),
 ('20210804140504'),
 ('20210813101055'),
 ('20210817101040'),
@@ -3522,9 +3548,12 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210917105456'),
 ('20210920071244'),
 ('20211001085525'),
+('20211004160440'),
 ('20211005125306'),
 ('20211005134137'),
 ('20211007123156'),
+('20211007150305'),
+('20211011060931'),
 ('20211011123517'),
 ('20211014062654'),
 ('20211021062347'),
@@ -3539,6 +3568,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20211214135559'),
 ('20211216110505'),
 ('20211217094832'),
+('20211217111102'),
 ('20220105142232'),
 ('20220111121209'),
 ('20220111132413'),
@@ -3551,26 +3581,40 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220221123152'),
 ('20220221133540'),
 ('20220304071341'),
+('20220308150335'),
+('20220308150336'),
 ('20220316115212'),
+('20220316130143'),
+('20220316140219'),
 ('20220317105304'),
 ('20220317131316'),
+('20220317140209'),
+('20220317150319'),
 ('20220322104259'),
 ('20220323090941'),
 ('20220328064324'),
 ('20220328090933'),
 ('20220426105827'),
+('20220502150336'),
 ('20220505135021'),
+('20220510085119'),
 ('20220513075644'),
 ('20220516134326'),
+('20220518121205'),
 ('20220520065309'),
 ('20220524095157'),
 ('20220530063350'),
+('20220530140254'),
+('20220531080830'),
+('20220531140218'),
 ('20220602074421'),
+('20220602130139'),
 ('20220613074116'),
 ('20220614085121'),
 ('20220615085015'),
 ('20220615104611'),
 ('20220617113231'),
+('20220712090957'),
 ('20220715173507'),
 ('20220801080835'),
 ('20220829102251'),
@@ -3580,4 +3624,11 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220919112419'),
 ('20220919130156'),
 ('20220920083836'),
-('20220922061116');
+('20220922061116'),
+('20220923130110'),
+('20220929150327'),
+('20221017094112'),
+('20221028074348'),
+('20221028090936');
+
+

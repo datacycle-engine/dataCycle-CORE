@@ -81,9 +81,9 @@
     - abstract | mein.toubiz
     - description_long | imx_platform
     - text | OutdoorActive
-    - directions | OutdoorActive/destination.one/Pimcore ATS
+    - directions | OutdoorActive/destination.one/Pimcore ATS/mein.toubiz
     - directions_public_transport | OutdoorActive
-    - parking | OutdoorActive/Pimcore ATS
+    - parking | OutdoorActive/Pimcore ATS/mein.toubiz
     - hours_available | OutdoorActive
     - price | OutdoorActive
     - instructions | OutdoorActive
@@ -168,10 +168,19 @@
     - additionalInformation | Pimcore ATS
     - destination | Pimcore ATS
     - gettingThere | Pimcore ATS
-    - literature | Pimcore ATS
+    - literature | Pimcore ATS/mein.toubiz
     - startingPointDescr | Pimcore ATS
     - tip | Pimcore ATS
-    - publicTransit | Pimcore ATS
+    - publicTransit | Pimcore ATS/mein.toubiz
+    - authorTip | mein.toubiz
+    - endPoint | mein.toubiz
+    - endPointParking | mein.toubiz
+    - endPointToStartPoint | mein.toubiz
+    - gear | mein.toubiz
+    - moreInformation | mein.toubiz
+    - safetyInformation | mein.toubiz
+    - startPoint | mein.toubiz
+    - startpointGettingThere | mein.toubiz
 
 - POI - Kategorien | all:
 
@@ -507,17 +516,17 @@
         - Creative Commons:
             - Public Domain Mark **https://creativecommons.org/publicdomain/mark/1.0/
             - CC0 **https://creativecommons.org/publicdomain/zero/1.0/
-            - CC BY:
+            - CC BY **https://creativecommons.org/licenses/by/4.0/:
                 - CC BY 4.0 **https://creativecommons.org/licenses/by/4.0/
-            - CC BY-SA:
+            - CC BY-SA **https://creativecommons.org/licenses/by-sa/4.0/:
                 - CC BY-SA 4.0 **https://creativecommons.org/licenses/by-sa/4.0/
-            - CC BY-ND:
+            - CC BY-ND **https://creativecommons.org/licenses/by-nd/4.0/:
                 - CC BY-ND 4.0 **https://creativecommons.org/licenses/by-nd/4.0/
-            - CC BY-NC:
+            - CC BY-NC **https://creativecommons.org/licenses/by-nc/4.0/:
                 - CC BY-NC 4.0 **https://creativecommons.org/licenses/by-nc/4.0/
-            - CC BY-NC-SA:
+            - CC BY-NC-SA **https://creativecommons.org/licenses/by-nc-sa/4.0/:
                 - CC BY-NC-SA 4.0 **https://creativecommons.org/licenses/by-nc-sa/4.0/
-            - CC BY-NC-ND:
+            - CC BY-NC-ND **https://creativecommons.org/licenses/by-nc-nd/4.0/:
                 - CC BY-NC-ND 4.0 **https://creativecommons.org/licenses/by-nc-nd/4.0/
     - Sonstiges
 

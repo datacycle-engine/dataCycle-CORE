@@ -8,8 +8,7 @@ variables:
   GITLAB_ENVIRONMENT: ''
   GITLAB_ENVIRONMENT_DEVELOPMENT: ''
 
-.docker_login_and_ssh_agent: &docker_login_and_ssh_agent
-  # Configure SSH
+.docker_login_and_ssh_agent: &docker_login_and_ssh_agent # Configure SSH
   - eval $(ssh-agent -s)
   - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
@@ -132,6 +131,8 @@ services:
       --build-arg APP_DOCKER_ENV
       --build-arg NODE_ENV
       --build-arg RAILS_ENV
+      --build-arg APP_HOST
+      --build-arg APP_PROTOCOL
     - docker push "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG"
   after_script:
     - docker logout $CI_REGISTRY

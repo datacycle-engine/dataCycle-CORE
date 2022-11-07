@@ -28,6 +28,7 @@ module DataCycleCore
           optional(:token).filled(:string)
           optional(:id).filled(:string)
           optional(:timeseries).filled(:string)
+          optional(:dataFormat).filled(:string)
           optional(:search).value(:string)
           optional(:limit).value(:integer)
         end
@@ -159,6 +160,7 @@ module DataCycleCore
           optional(:section).hash(SECTION)
           optional(:filter).hash(FILTER)
           optional(:time).hash(TIME_FILTER)
+          optional(:groupBy).filled(:string)
         end
       end
 

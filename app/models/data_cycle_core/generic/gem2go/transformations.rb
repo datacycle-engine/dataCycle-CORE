@@ -17,14 +17,14 @@ module DataCycleCore
           .>> t(:add_field, 'date_created', ->(s) { s.dig('created', 'text') })
           .>> t(:add_links, 'gem2go_category', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('category')).map { |i| "GEM2GO - Event - Kategorie - #{i.dig('id')}" } })
           .>> t(:universal_classifications, ->(s) { s.dig('gem2go_category') })
-          .>> t(:add_links, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap("GEM2GO - EventLocation - #{s.dig('id', 'text')}") })
+          .>> t(:add_links, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap("GEM2GO - EventLocation - #{s.dig('venueID', 'text') || s.dig('id', 'text')}") })
           .>> t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap("GEM2GO - Organizer - #{s.dig('id', 'text')}") })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s&.dig('image')).map { |i| "GEM2GO - Image - #{Digest::MD5.hexdigest(i.dig('url', 'text'))}" } })
           .>> t(:reject_keys, ['id'])
         end
 
         def self.to_content_location
-          t(:add_field, 'external_key', ->(s) { "GEM2GO - EventLocation - #{s.dig('id', 'text')}" })
+          t(:add_field, 'external_key', ->(s) { "GEM2GO - EventLocation - #{s.dig('venueID', 'text') || s.dig('id', 'text')}" })
           .>> t(:add_field, 'name', ->(s) { s.dig('venue', 'text') || "Veranstaltungsort: #{s.dig('title', 'text')}" })
           .>> t(:add_field, 'latitude', ->(s) { s.dig('address', 'lat', 'text')&.to_f })
           .>> t(:add_field, 'longitude', ->(s) { s.dig('address', 'long', 'text')&.to_f })

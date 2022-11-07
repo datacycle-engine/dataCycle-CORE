@@ -168,15 +168,14 @@
             scope: :show,
             exclude_types: local_assigns.dig(:options, :exclude_types)
           ).except(DataCycleCore::Feature::LifeCycle.attribute_keys(content)&.first).each do |key, prop| %>
-
           <% next if ['overlay', 'asset', 'thumbnail_url', 'alternative_headline', 'caption', 'description',
                       'content_location', 'comment', 'source', 'image_id', 'visibility', 'validity_schedule',
                       'copyright_notice_override', 'copyright_notice_computed', 'copyright_notice', 'photographer',
                       'author', 'copyright_holder', 'copyright_year', 'restrictions', 'use_guidelines',
                       'licensing_agreement', 'attribution_url', 'width', 'height', 'content_size', 'file_format',
-                      'date_created', 'date_modified', 'upload_date', 'slug'].include?(key) %>
+                      'date_created', 'date_modified', 'upload_date', 'slug', 'mandatory_license'].include?(key) %>
 
-          <% next if prop.dig('ui', 'show', 'disabled') %>
+          <% next if prop.dig('ui', 'show', 'disabled') || prop.dig('type') == 'attribute_group' %>
 
           <% value = content.try(key.to_sym) %>
           <% value = value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if value.is_a?(ActiveRecord::Relation) && prop&.dig('type')&.in?(['linked', 'embedded']) %>

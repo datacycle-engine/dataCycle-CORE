@@ -5,7 +5,6 @@ module DataCycleCore
     include DataCycleCore::Filter
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
 
-    before_action :authenticate_user! # from devise (authenticate)
     after_action :reset_watch_list, only: :watch_list_collections, if: -> { params[:reset].present? }
 
     def things
@@ -14,7 +13,7 @@ module DataCycleCore
       version = permitted_download_params[:version]
       languages = permitted_download_params[:language]
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.allowed?(@object, :content) && DataCycleCore::Feature::Download.enabled_serializer_for_download?(@object, :content, serialize_format)
-      download_content(@object, serialize_format, [languages], version)
+      download_content(@object, serialize_format, Array.wrap(languages), version)
     end
 
     def watch_lists
@@ -22,7 +21,7 @@ module DataCycleCore
       serialize_format = permitted_download_params[:serialize_format]
       languages = permitted_download_params[:language]
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.allowed?(@watch_list, :content) && DataCycleCore::Feature::Download.enabled_serializer_for_download?(@watch_list, :content, serialize_format)
-      download_content(@watch_list, serialize_format, [languages])
+      download_content(@watch_list, serialize_format, Array.wrap(languages))
     end
 
     def stored_filters
@@ -30,7 +29,7 @@ module DataCycleCore
       serialize_format = permitted_download_params[:serialize_format]
       languages = permitted_download_params[:language]
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.allowed?(@stored_filter, :content) && DataCycleCore::Feature::Download.enabled_serializer_for_download?(@stored_filter, :content, serialize_format)
-      download_content(@stored_filter, serialize_format, [languages])
+      download_content(@stored_filter, serialize_format, Array.wrap(languages))
     end
 
     def thing_collections
@@ -76,6 +75,137 @@ module DataCycleCore
       download_collection(@stored_filter, download_items, serialize_formats, languages)
     end
 
+    # previous download feature actions, moved for ActionController::Live functionality
+
+    def download_thing
+      @object = DataCycleCore::Thing.find_by(id: permitted_download_params[:id])
+      serialize_format = permitted_download_params[:serialize_format]
+      languages = permitted_download_params[:language]
+      version = permitted_download_params[:version]
+      transformation = permitted_download_params.dig(:transformation, version)&.reject { |_k, v| v == 'none' }
+      authorize! :download, @object
+
+      download_content(@object, serialize_format, languages, version, transformation)
+    end
+
+    def download_thing_zip
+      @object = DataCycleCore::Thing.find(permitted_download_params[:id])
+      authorize! :download_zip, @object
+      serialize_formats = permitted_download_params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
+      languages = permitted_download_params[:language]
+
+      redirect_back(fallback_location: root_path, alert: I18n.t('feature.download.missing_serialize_format', locale: helpers.active_ui_locale)) && return if serialize_formats.blank?
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@object, [:archive, :zip], serialize_formats)
+
+      download_items = ([@object] + @object.content_b_linked).to_a.select do |thing|
+        can? :download, thing
+      end
+
+      download_collection(@object, download_items, serialize_formats, languages)
+    end
+
+    def download_thing_indesign
+      @object = DataCycleCore::Thing.find(permitted_download_params[:id])
+      authorize! :download_indesign, @object
+      serialize_formats = permitted_download_params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
+      languages = permitted_download_params[:language]
+
+      redirect_back(fallback_location: root_path, alert: I18n.t('feature.download.missing_serialize_format', locale: helpers.active_ui_locale)) && return if serialize_formats.blank?
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@object, [:archive, :indesign], serialize_formats)
+
+      asset_items = @object.linked_contents.where(template_name: 'Bild').to_a.select do |thing|
+        can? :download, thing
+      end
+
+      download_indesign_collection(@object, ([@object] + asset_items), serialize_formats, languages)
+    end
+
+    def download_data_link
+      @data_link = DataCycleCore::DataLink.find_by(id: data_link_params[:id])
+
+      raise CanCan::AccessDenied unless @data_link.try(:is_valid?) && @data_link.downloadable?
+
+      redirect_back(fallback_location: root_path, alert: I18n.t('common.download.confirmation.terms_not_checked', locale: helpers.active_ui_locale)) && return if DataCycleCore::Feature::Download.confirmation_required? && data_link_params[:terms_of_use].to_s != '1'
+
+      sign_in(@data_link.receiver, store: false)
+
+      download_data_link_item(@data_link.item)
+    end
+
+    def download_stored_filter
+      @stored_filter = DataCycleCore::StoredFilter.find(permitted_download_params[:id])
+      serialize_format = permitted_download_params[:serialize_format]
+      languages = permitted_download_params[:language]
+      authorize! :download, @stored_filter
+      download_content(@stored_filter, serialize_format, languages)
+    end
+
+    def download_stored_filter_zip
+      @stored_filter = DataCycleCore::StoredFilter.find(permitted_download_params[:id])
+      authorize! :download_zip, @stored_filter
+      serialize_formats = permitted_download_params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
+      languages = permitted_download_params[:language]
+
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@stored_filter, [:archive, :zip], serialize_formats)
+
+      items = @stored_filter.apply
+      download_items = items.to_a.select do |thing|
+        can? :download, thing
+      end
+
+      download_collection(@stored_filter, download_items, serialize_formats, languages)
+    end
+
+    def download_watch_list
+      @watch_list = DataCycleCore::WatchList.find(permitted_download_params[:id])
+      serialize_format = permitted_download_params[:serialize_format]
+      languages = permitted_download_params[:language]
+      authorize! :download, @watch_list
+      download_content(@watch_list, serialize_format, languages)
+    end
+
+    def download_watch_list_zip
+      @watch_list = DataCycleCore::WatchList.find(permitted_download_params[:id])
+      authorize! :download_zip, @watch_list
+      serialize_formats = permitted_download_params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
+      languages = permitted_download_params[:language]
+
+      redirect_back(fallback_location: root_path, alert: I18n.t('feature.download.missing_serialize_format', locale: helpers.active_ui_locale)) && return if serialize_formats.blank?
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@watch_list, [:archive, :zip], serialize_formats)
+
+      download_items = @watch_list.things.all.to_a.select do |thing|
+        can? :download, thing
+      end
+
+      download_collection(@watch_list, download_items, serialize_formats, languages)
+    end
+
+    def download_watch_list_indesign
+      @watch_list = DataCycleCore::WatchList.find(permitted_download_params[:id])
+      authorize! :download_indesign, @watch_list
+      serialize_formats = permitted_download_params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
+      languages = permitted_download_params[:language]
+
+      redirect_back(fallback_location: root_path, alert: I18n.t('feature.download.missing_serialize_format', locale: helpers.active_ui_locale)) && return if serialize_formats.blank?
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@watch_list, [:archive, :indesign], serialize_formats)
+
+      download_items = []
+      @watch_list.things.all.to_a.select do |thing|
+        download_items += [thing] if thing.template_name == 'Bild' && can?(:download, thing)
+        items = thing.linked_contents.where(template_name: 'Bild').to_a.select do |linked_item|
+          can? :download, linked_item
+        end
+        download_items += items
+      end
+
+      download_indesign_collection(@watch_list, download_items, serialize_formats, languages, :serialize_watch_list)
+    end
+
+    def download_gpx
+      @object = DataCycleCore::Thing.find_by(id: permitted_download_params[:id])
+      download_content(@object, 'gpx', nil)
+    end
+
     private
 
     def reset_watch_list
@@ -83,7 +213,23 @@ module DataCycleCore
     end
 
     def permitted_download_params
-      params.permit(:id, :serialize_format, :version, :language)
+      params.permit(:id, :serialize_format, :version, :language, transformation: [params[:version]&.to_sym => [:format]], serialize_format: {}, language: [])
+    end
+
+    def data_link_params
+      params.permit(:id, :terms_of_use)
+    end
+
+    def download_data_link_item(item)
+      if item.is_a?(DataCycleCore::Thing)
+        download_content(item, 'asset', nil, nil)
+      elsif item.is_a?(DataCycleCore::WatchList)
+        download_items = item.things.to_a.select do |thing|
+          DataCycleCore::Feature::Download.allowed?(thing)
+        end
+
+        download_collection(item, download_items, ['asset'], nil, nil)
+      end
     end
   end
 end
