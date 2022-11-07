@@ -245,6 +245,9 @@ Minitest/AssertionInLifecycleHook:
 Minitest/AssertRespondTo:
   Enabled: false
 
+Minitest/EmptyLineBeforeAssertionMethods:
+  Enabled: false
+
 #######################################################
 ########## Security
 

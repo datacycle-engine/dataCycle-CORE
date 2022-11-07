@@ -9,9 +9,14 @@ module DataCycleCore
       @locale ||= @data_link.locale.presence || @receiver.ui_locale
       @title ||= data_link_item_title
       @url ||= url
-      @subject ||= t('data_link_mailer.send_subject', locale: @locale)
+      @subject ||= first_available_i18n_t("data_link_mailer.#{@webhook_source}.send_subject", @webhook_source, { title: @title, locale: @locale })
 
-      mail(to: @receiver.email, cc: @user.email, from: t('data_link_mailer.from', from: self.class.default[:from], locale: @locale, default: self.class.default[:from]), subject: @subject)
+      mail(
+        to: @receiver.email,
+        cc: @user.email,
+        from: t('data_link_mailer.from', from: self.class.default[:from], locale: @locale, default: self.class.default[:from]),
+        subject: @subject
+      )
     end
 
     def mail_external_link(data_link, url, instructions_url = nil, webhook_source = nil)
@@ -20,10 +25,11 @@ module DataCycleCore
       @webhook_source = webhook_source
       @user = @data_link.creator
       @receiver = @data_link.receiver
+      @resource = @receiver
+      @resource.mailer_layout = "data_cycle_core/#{@webhook_source}_mailer" if @webhook_source.present? && lookup_context.exists?("data_cycle_core/#{@webhook_source}_mailer", ['layouts'], false, [], formats: [:html])
       @locale = @data_link.locale.presence || @receiver.ui_locale
       @title = data_link_item_title
       @url = url
-      @subject = I18n.t("data_link_mailer.#{@webhook_source}.send_subject", title: @title, locale: @locale) if I18n.exists?("data_link_mailer.#{@webhook_source}.send_subject", title: @title, locale: @locale)
 
       mail_link(data_link, url)
     end
@@ -38,7 +44,12 @@ module DataCycleCore
       @title = data_link.item.try(:name)
       @url = data_link_url(data_link)
 
-      mail(to: @receiver.email, cc: @user.email, from: t('data_link_mailer.from', from: self.class.default[:from], locale: @locale, default: self.class.default[:from]), subject: t('data_link_mailer.update_subject', locale: @locale))
+      mail(
+        to: @receiver.email,
+        cc: @user.email,
+        from: t('data_link_mailer.from', from: self.class.default[:from], locale: @locale, default: self.class.default[:from]),
+        subject: t('data_link_mailer.update_subject', locale: @locale)
+      )
     end
 
     private

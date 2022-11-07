@@ -392,6 +392,23 @@ module DataCycleCore
           end
         end
 
+        def self.aggregate_collection(utility_object, aggregation_function, options)
+          init_logging(utility_object) do |logging|
+            init_mongo_db(utility_object) do
+              download_name = options.dig(:download, :name)
+              phase_name = utility_object.source_type.collection_name
+              logging.preparing_phase("#{utility_object.external_source.name} #{download_name}")
+              logging.phase_started("#{download_name}(#{phase_name})")
+              utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                aggregation_function.call(mongo_item, logging, utility_object, options.merge({ download_name: download_name, phase_name: phase_name })).to_a
+              end
+              logging.phase_finished("#{download_name}(#{phase_name})", 0)
+            ensure
+              logging.phase_finished("#{download_name}(#{phase_name})", 0)
+            end
+          end
+        end
+
         def self.import_paging(utility_object:, iterator:, data_processor:, options:)
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do

@@ -81,9 +81,9 @@
     - abstract | mein.toubiz
     - description_long | imx_platform
     - text | OutdoorActive
-    - directions | OutdoorActive/destination.one/Pimcore ATS
+    - directions | OutdoorActive/destination.one/Pimcore ATS/mein.toubiz
     - directions_public_transport | OutdoorActive
-    - parking | OutdoorActive/Pimcore ATS
+    - parking | OutdoorActive/Pimcore ATS/mein.toubiz
     - hours_available | OutdoorActive
     - price | OutdoorActive
     - instructions | OutdoorActive
@@ -168,10 +168,19 @@
     - additionalInformation | Pimcore ATS
     - destination | Pimcore ATS
     - gettingThere | Pimcore ATS
-    - literature | Pimcore ATS
+    - literature | Pimcore ATS/mein.toubiz
     - startingPointDescr | Pimcore ATS
     - tip | Pimcore ATS
-    - publicTransit | Pimcore ATS
+    - publicTransit | Pimcore ATS/mein.toubiz
+    - authorTip | mein.toubiz
+    - endPoint | mein.toubiz
+    - endPointParking | mein.toubiz
+    - endPointToStartPoint | mein.toubiz
+    - gear | mein.toubiz
+    - moreInformation | mein.toubiz
+    - safetyInformation | mein.toubiz
+    - startPoint | mein.toubiz
+    - startpointGettingThere | mein.toubiz
 
 - POI - Kategorien | all:
 
