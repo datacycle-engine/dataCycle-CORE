@@ -18,14 +18,17 @@ module DataCycleCore
 
             Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
               query = build_search_query
-              @contents = query
+              # @contents = query
 
               I18n.with_locale(@language.first || I18n.locale) do
-                render plain: @contents.query.to_mvt(permitted_params[:x], permitted_params[:y], permitted_params[:z]), content_type: request.format
+                # render plain: query.query.to_mvt(permitted_params[:x], permitted_params[:y], permitted_params[:z], include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format
+                render plain: query.query.to_mvt(permitted_params[:x], permitted_params[:y], permitted_params[:z]), content_type: request.format
               end
             end
           end
         end
+
+        # TODO: show
 
         # For now we are disabling filter-parameters
 

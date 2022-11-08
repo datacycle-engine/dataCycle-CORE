@@ -66,6 +66,10 @@ module DataCycleCore
           #   RGeo::GeoJSON.encode(feature_collection)
           # end
 
+          # def to_mvt(x, y, z, include_parameters: [], fields_parameters: [], classification_trees_parameters: [])
+          #   DataCycleCore::Geo::MvtRenderer.new(x, y, z, contents: all, simplify_factor: simplify_factor, include_parameters: include_parameters, fields_parameters: fields_parameters, classification_trees_parameters: classification_trees_parameters, single_item: single_item).render
+          # end
+
           def to_mvt(x, y, z, simplify_factor: SIMPLIFY_FACTOR) # rubocop:disable Lint/unusedMethodArgument
             # def to_mvt(simplify_factor: SIMPLIFY_FACTOR, geojson_query: mvt_sql(mvt_select_sql))
             # binding.pry
