@@ -366,7 +366,13 @@ module DataCycleCore
         load c
       end
 
-      Devise::Mailer.layout 'data_cycle_core/email' # email.haml or email.erb
+      ActionMailer::Base.layout -> { @resource.try(:mailer_layout) || 'data_cycle_core/mailer' }
+      ActionMailer::Base.default from: ->(_) { @resource.try(:mailer_from) || Rails.configuration.action_mailer.default_options[:from] }
+      ActionMailer::Base.helper 'data_cycle_core/email'
+      ActiveSupport.on_load :action_mailer do
+        include DataCycleCore::EmailHelper
+      end
+
       Devise::SessionsController.layout 'data_cycle_core/devise'
       Devise::RegistrationsController.layout 'data_cycle_core/devise'
       Devise::ConfirmationsController.layout 'data_cycle_core/devise'

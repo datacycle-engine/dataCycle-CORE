@@ -86,6 +86,47 @@ $global-backdrop-filter: saturate(0.5) blur(5px);
 
 $customercolor: #009fe3;
 
+// Map colors
+// https://carto.com/carto-colors/, Pastel Qualitative Scheme
+$violet: #5f4690;
+$dark-blue: #1d6996;
+$light-blue: #38a6a5;
+$dark-green: #0f8554;
+$light-green: #73af48;
+$yellow: #edad08;
+$orange: #e17c05;
+$red: #cc503e;
+$purple: #94346e;
+$dark-purple: #6f4070;
+$pastel-purple: #994e95;
+$gray: #666666;
+
+:root {
+  --customer-color: #{$customercolor};
+  --primary-color: #{$primary-color};
+  --secondary-color: #{$secondary-color};
+  --success-color: #{$success-color};
+  --warning-color: #{$warning-color};
+  --alert-color: #{$alert-color};
+  --light-gray: #{$light-gray};
+  --medium-gray: #{$medium-gray};
+  --dark-gray: #{$dark-gray};
+  --black: #{$black};
+  --white: #{$white};
+  --violet: #{$violet};
+  --dark-blue: #{$dark-blue};
+  --light-blue: #{$light-blue};
+  --dark-green: #{$dark-green};
+  --light-green: #{$light-green};
+  --yellow: #{$yellow};
+  --orange: #{$orange};
+  --red: #{$red};
+  --purple: #{$purple};
+  --dark-purple: #{$dark-purple};
+  --pastel-purple: #{$pastel-purple};
+  --gray: #{$gray};
+}
+
 // 2. Breakpoints
 // --------------
 

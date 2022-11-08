@@ -47,14 +47,16 @@ class DatePicker {
       from: ['until', '_through'],
       _start: '_end',
       start_time: 'end_time',
-      opens: 'closes'
+      opens: 'closes',
+      min: 'max'
     };
     this.endKeys = {
       _through: 'from',
       until: 'from',
       _end: '_start',
       end_time: 'start_time',
-      closes: 'opens'
+      closes: 'opens',
+      max: 'min'
     };
     this.keyMappings = Object.assign({}, this.startKeys, this.endKeys);
     this.keyRegExp = new RegExp(`(${Object.keys(this.keyMappings).join('|')})`, 'gi');

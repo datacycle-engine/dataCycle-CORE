@@ -53,10 +53,10 @@ DataCycleCore::Engine.routes.draw do
   get '/schema', to: 'schema#index'
   get '/schema/:id', to: 'schema#show', as: :schema_details
   get '/info', to: 'frontend#info', as: :info
+  get '/i18n/translate', to: 'application#translate'
 
   authenticate do
     get :clear_all_caches, controller: :application
-    get '/i18n/translate', to: 'application#translate'
 
     resources :users, only: [:index, :edit, :update, :destroy] do
       post :unlock, on: :member
@@ -84,9 +84,9 @@ DataCycleCore::Engine.routes.draw do
         get :load_more_linked_objects, on: :member
         get :load_more_related, on: :member
         get :load_more_duplicates, on: :member
-        get :download_zip, on: :member
-        get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
-        get :download_indesign, on: :member
+        get 'download/(:serialize_format)', on: :member, as: 'download', to: '/data_cycle_core/downloads#download_thing'
+        get :download_zip, on: :member, to: '/data_cycle_core/downloads#download_thing_zip'
+        get :download_indesign, on: :member, to: '/data_cycle_core/downloads#download_thing_indesign'
         get :create_duplication, on: :member
         get :clear_cache, on: :member
         get :destroy_auto_translate, on: :member
@@ -123,8 +123,8 @@ DataCycleCore::Engine.routes.draw do
     resources :stored_filters, only: [:index, :show, :create, :destroy], path: :search_history do
       get :search, on: :collection
       get :select_search_or_collection, on: :collection
-      get :download_zip, on: :member
-      get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
+      get :download_zip, on: :member, to: '/data_cycle_core/downloads#download_stored_filter_zip'
+      get 'download/(:serialize_format)', on: :member, to: '/data_cycle_core/downloads#download_stored_filter', as: 'download'
       post :add_to_watchlist, on: :collection
       get :saved_searches, on: :collection
       get :render_update_form, on: :collection
@@ -151,20 +151,20 @@ DataCycleCore::Engine.routes.draw do
       get '/stored_filters(/:id)(/:serialize_format)', on: :member, action: 'stored_filters'
       get '/stored_filter_collections(/:id)', on: :member, action: 'stored_filter_collections'
     end
-  end
 
-  resources :data_links, only: [:show] do
-    post :download, on: :member
-    get :get_text_file, on: :member
-  end
-
-  authenticate do
     resources :data_links, except: [:show] do
       post :send_mail, on: :member
       patch :unlock, on: :member
       get :render_update_form, on: :collection
     end
+  end
 
+  resources :data_links, only: [:show] do
+    match :download, on: :member, to: '/data_cycle_core/downloads#download_data_link', via: [:get, :post]
+    get :get_text_file, on: :member
+  end
+
+  authenticate do
     resources :watch_lists do
       delete :remove_item, on: :member
       get :add_item, on: :member
@@ -172,9 +172,9 @@ DataCycleCore::Engine.routes.draw do
       get :bulk_edit, on: :member
       patch :bulk_update, on: :member
       post :validate, on: :member
-      get :download_zip, on: :member
-      get :download_indesign, on: :member
-      get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
+      get :download_zip, on: :member, to: '/data_cycle_core/downloads#download_watch_list_zip'
+      get :download_indesign, on: :member, to: '/data_cycle_core/downloads#download_watch_list_indesign'
+      get 'download/(:serialize_format)', on: :member, to: '/data_cycle_core/downloads#download_watch_list', as: 'download'
       delete :bulk_delete, on: :member
       delete :clear, on: :member
       get :search, on: :collection
@@ -257,7 +257,7 @@ DataCycleCore::Engine.routes.draw do
                 get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
 
                 resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
-                  get :gpx, on: :member
+                  get :gpx, on: :member, to: '/data_cycle_core/downloads#download_gpx'
                 end
 
                 get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
@@ -284,7 +284,7 @@ DataCycleCore::Engine.routes.draw do
                 match 'endpoints/:id(/:type)(/:content_id)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter', via: [:get, :post]
 
                 resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: []) do
-                  get :gpx, on: :member
+                  get :gpx, on: :member, to: '/data_cycle_core/downloads#download_gpx'
                 end
 
                 (CONTENT_TABLES_FALLBACK + CONTENT_TABLE).each do |content_type|

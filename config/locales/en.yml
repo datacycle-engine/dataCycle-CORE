@@ -1163,7 +1163,7 @@ en:
         elevation: Sea level (m)
       data_cycle_core/data_link:
         comment: Comment
-        permissions: Authorizations
+        permissions: Permissions
         validity_period: Validity period (from - to)
         valid_from: Valid from
         valid_until: By
@@ -1417,6 +1417,19 @@ en:
       currentInformation: Current information
       additionalLocationInformation: Additional location information
       additionalHostInformation: Additional host information
+      directions: Directions
+      publicTransit: Public transit
+      parking: Parking
+      literature: Literature
+      authorTip: Tip
+      endPoint: End point
+      endPointParking: Parking end point
+      endPointToStartPoint: End point to start point
+      gear: Gear
+      moreInformation: More information
+      safetyInformation: Safety information
+      startPoint: Start point
+      startpointGettingThere: Start point getting there
     destination_one:
       facility_unterhaltung: Facility upkeep
       info_wegbelag: Info pavement
