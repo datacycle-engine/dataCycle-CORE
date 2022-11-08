@@ -42,7 +42,7 @@
           </div>
         </div>
 
-        <div class="form-element input">
+        <div class="form-element input validation-container">
           <%= f.label :email do %>
             <%= tag.i(class: 'fa fa-ban', aria_hidden: true) if content.external %>
             <%= DataCycleCore::User.human_attribute_name(:email, locale: active_ui_locale) %>
@@ -74,7 +74,7 @@
         <% end %>
 
         <% unless content.external %>
-          <div class="form-element input password-field">
+          <div class="form-element input password-field validation-container">
             <%= f.label :password, DataCycleCore::User.human_attribute_name(:new_password, locale: active_ui_locale) %>
             <%= f.password_field :password, autocomplete: 'off' %>
           </div>

@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class UsersController < ApplicationController
-    load_and_authorize_resource except: :search # from cancancan (authorize)
+    load_and_authorize_resource except: [:search, :validate] # from cancancan (authorize)
     before_action :set_user, only: [:edit, :update, :destroy, :unlock]
 
     BLOCKED_COLUMNS ||= ['encrypted_password', 'reset_password_token', 'current_sign_in_ip', 'last_sign_in_ip', 'provider', 'default_locale', 'type'].freeze
@@ -116,6 +116,23 @@ module DataCycleCore
       flash[:success] = I18n.t :become_user, scope: [:controllers, :success], data: @user.email, locale: helpers.active_ui_locale
 
       redirect_to authorized_root_path(@user)
+    end
+
+    def validate
+      user_type = "DataCycleCore::#{controller_name.classify}".safe_constantize
+      @user = user_type.find_by(id: params[:id]) || user_type.new
+
+      authorize! :show, @user
+
+      @user.attributes = permitted_params
+      @user.valid?
+      @messages = @user.errors.messages.slice(*permitted_params.keys.map(&:to_sym))
+
+      render json: {
+        valid: @messages.blank?,
+        errors: @messages,
+        warnings: {}
+      }.to_json
     end
 
     private

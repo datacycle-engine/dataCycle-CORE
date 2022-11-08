@@ -62,12 +62,16 @@ DataCycleCore::Engine.routes.draw do
       post :unlock, on: :member
       post :create_user, on: :collection
       get :search, on: :collection
+      post :validate, on: :member
+      post :validate, on: :collection
       get :become
       match '/index', via: [:get, :post], on: :collection, action: :index
     end
 
     resources :user_organizations do
       post :create_user, on: :collection
+      post :validate, on: :member
+      post :validate, on: :collection
     end
 
     resources :user_groups, only: [:index, :edit, :update, :destroy] do
