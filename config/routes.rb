@@ -53,10 +53,10 @@ DataCycleCore::Engine.routes.draw do
   get '/schema', to: 'schema#index'
   get '/schema/:id', to: 'schema#show', as: :schema_details
   get '/info', to: 'frontend#info', as: :info
+  get '/i18n/translate', to: 'application#translate'
 
   authenticate do
     get :clear_all_caches, controller: :application
-    get '/i18n/translate', to: 'application#translate'
 
     resources :users, only: [:index, :edit, :update, :destroy] do
       post :unlock, on: :member
