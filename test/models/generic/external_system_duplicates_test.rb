@@ -41,7 +41,7 @@ module DataCycleCore
           mode: 'full'
         }
         @external_source_f = DataCycleCore::ExternalSystem.find_by(name: 'Feratel')
-        @external_source_oa = DataCycleCore::ExternalSystem.find_by(name: 'OutdoorActive')
+        @external_source_oa = DataCycleCore::ExternalSystem.find_by(identifier: 'outdooractive')
 
         download_from_local_json(@external_source_f, 'feratel', true)
         download_from_local_json(@external_source_oa, 'outdoor_active')

@@ -46,7 +46,7 @@ module DataCycleCore
           mode: 'full'
         }
 
-        external_source = DataCycleCore::ExternalSystem.find_by(name: 'OutdoorActive')
+        external_source = DataCycleCore::ExternalSystem.find_by(identifier: 'outdooractive')
         download_from_local_json(external_source)
         external_source.import(options)
 
