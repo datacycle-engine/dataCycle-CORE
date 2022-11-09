@@ -131,7 +131,7 @@ module DataCycleCore
                   end
                 end
                 xml.Links do
-                  data.dc_potential_action&.each do |action|
+                  data.potential_action&.each do |action|
                     xml.Link({ 'Name' => action.name, 'URL' => action.url })
                   end
                 end

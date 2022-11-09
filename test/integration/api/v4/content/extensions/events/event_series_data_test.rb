@@ -50,18 +50,19 @@ module DataCycleCore
                 end
 
                 # plain attributes without transformation
-                assert_attributes(json_validate, required_attributes, ['description', 'potential_action', 'dc:slug']) do
+                assert_attributes(json_validate, required_attributes, ['description', 'dc:slug']) do
                   {
                     'description' => @content.description,
-                    'potentialAction' => [
-                      {
-                        '@id' => generate_uuid(@content.id, 'potential_action'),
-                        '@type' => 'ViewAction',
-                        'name' => 'potential_action',
-                        'url' => @content.potential_action
-                      }
-                    ],
                     'dc:slug' => @content.slug
+                  }
+                end
+
+                # potential_action
+                assert_attributes(json_validate, required_attributes, ['potential_action']) do
+                  {
+                    'potentialAction' => [
+                      @content.potential_action.first.to_api_default_values
+                    ]
                   }
                 end
 

@@ -68,7 +68,7 @@ class TourSprungEditor extends MapLibreGlEditor {
     return new MTK.StyleControl(controlConfig);
   }
   initMap() {
-    MTK.init({ apiKey: this.credentials.api_key, language: document.documentElement.lang }).createMap(
+    MTK.init({ apiKey: this.credentials.api_key, language: DataCycle.uiLocale }).createMap(
       this.containerId,
       {
         map: {

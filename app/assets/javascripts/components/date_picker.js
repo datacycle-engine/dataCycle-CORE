@@ -64,7 +64,8 @@ class DatePicker {
       change: this.updateDatePicker.bind(this),
       reInit: this.reInit.bind(this),
       setDate: this.setDate.bind(this),
-      import: this.importData.bind(this)
+      import: this.importData.bind(this),
+      fixTimeElementValueUpdate: this.fixTimeElementValueUpdate.bind(this)
     };
     this.cacheNamespace = 'dcDatepickerCache';
 
@@ -76,16 +77,35 @@ class DatePicker {
     this.initCalInstance();
   }
   initEvents() {
+    if (this.calInstance.hourElement)
+      this.calInstance.hourElement.addEventListener('input', this.eventHandlers.fixTimeElementValueUpdate);
+    if (this.calInstance.minuteElement)
+      this.calInstance.minuteElement.addEventListener('input', this.eventHandlers.fixTimeElementValueUpdate);
+
     $(this.calInstance.altInput).on('change', this.eventHandlers.change);
     $(this.calInstance.altInput).on('dc:flatpickr:reInit', this.eventHandlers.reInit);
     $(this.calInstance.altInput).on('dc:flatpickr:setDate', this.eventHandlers.setDate);
     $(this.calInstance.altInput).on('dc:import:data', this.eventHandlers.import).addClass('dc-import-data');
   }
   removeEvents() {
+    if (this.calInstance.hourElement)
+      this.calInstance.hourElement.removeEventListener('input', this.eventHandlers.fixTimeElementValueUpdate);
+    if (this.calInstance.minuteElement)
+      this.calInstance.minuteElement.removeEventListener('input', this.eventHandlers.fixTimeElementValueUpdate);
+
     $(this.calInstance.altInput).off('change', this.eventHandlers.change);
     $(this.calInstance.altInput).off('dc:flatpickr:reInit', this.eventHandlers.reInit);
     $(this.calInstance.altInput).off('dc:flatpickr:setDate', this.eventHandlers.setDate);
     $(this.calInstance.altInput).off('dc:import:data', this.eventHandlers.import).removeClass('dc-import-data');
+  }
+  fixTimeElementValueUpdate(event) {
+    event.target.blur();
+    event.target.focus();
+
+    const { value } = event.target;
+
+    event.target.value = '';
+    event.target.value = value;
   }
   initCalInstance() {
     this.calInstance = Flatpickr(this.element, this.options());
