@@ -396,7 +396,10 @@ class TourSprungEditor extends MapLibreGlEditor {
     this.extendEditorInterface();
     this._captureClickEvents();
 
-    this.editorGui = new this.extendedEditorInterface().addTo(this.mtkMap);
+    const options = { editor: {} };
+    if (this.mapOptions.editor_default_routing) options.editor.routeType = this.mapOptions.editor_default_routing;
+
+    this.editorGui = new this.extendedEditorInterface(options).addTo(this.mtkMap);
 
     if (!isEmpty(this.additionalValuesOverlay))
       this.map.addControl(new AdditionalValuesFilterControl(this), 'top-left');
