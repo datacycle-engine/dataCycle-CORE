@@ -69,7 +69,7 @@ module DataCycleCore
 
         config << {
           identifier: '"@type"',
-          select: 'array_append(
+          select: 'array_to_json(array_append(
                       CASE
                       WHEN things."schema"->\'api\'->\'type\' IS NOT NULL THEN
                       ARRAY(
@@ -80,7 +80,7 @@ module DataCycleCore
                       ARRAY(SELECT things."schema"->>\'schema_type\')
                       ELSE \'{"Thing"}\'
                       END,
-                      \'dcls:\' || things.template_name)'
+                      \'dcls:\' || things.template_name))'
         }
 
         if @fields_parameters.blank? || @fields_parameters&.any? { |p| p.first == 'name' }

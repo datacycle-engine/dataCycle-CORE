@@ -1,5 +1,4 @@
 import MapLibreGlViewer from './maplibre_gl_viewer';
-import maplibregl from 'maplibre-gl/dist/maplibre-gl';
 
 class MapLibreGlDashboard extends MapLibreGlViewer {
   constructor(container) {
@@ -7,81 +6,37 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
     this.language = this.$container.data('language');
     this.styleCaseProperty = '@type';
     this.iconColorBase = this.typeColors;
+    this.sourceLayer = 'dataCycle';
   }
   configureMap() {
-    this.initMvt();
-
-    this.initControls();
-    this.setZoomMethod();
-    this.setIcons();
-
-    this._disableScrollingOnMapOverlays();
-    this.initMouseWheelZoom();
+    super.configureMap();
     this.initEventHandlers();
-  }
-  initMvt() {
-    // TODO: add Popup, zoom to full extent -> via controller endpoint
-
-    const searchForm = document.getElementById('search-form');
-    if (!searchForm) return;
-    const currentStoredFilterId = searchForm.dataset.storedFilter;
-
-    this.map.addSource('mvt-source', {
-      type: 'vector',
-      tiles: [`http://localhost:3003/mvt/v1/endpoints/${currentStoredFilterId}/{z}/{x}/{y}.pbf`],
-      minzoom: 0,
-      maxzoom: 22
-    });
-
-    this.map.addLayer({
-      id: 'mvt-points',
-      type: 'circle',
-      source: 'mvt-source',
-      'source-layer': 'dataCycle',
-      filter: ['==', '$type', 'Point'],
-      paint: {
-        'circle-radius': 5,
-        'circle-stroke-width': 4,
-        'circle-color': this.getStyleCaseExpression(
-          'color',
-          this.getColorMatchHexExpression(),
-          this.definedColors.default
-        ),
-        'circle-stroke-color': this.definedColors.white
-      }
-    });
-    this.map.addLayer({
-      id: 'mvt-line',
-      type: 'line',
-      source: 'mvt-source',
-      'source-layer': 'dataCycle',
-      filter: ['==', '$type', 'LineString'],
-      layout: {
-        'line-cap': 'round',
-        'line-join': 'round'
-      },
-      paint: {
-        'line-color': this.getStyleCaseExpression(
-          'color',
-          this.getColorMatchHexExpression(),
-          this.definedColors.default
-        ),
-        'line-opacity': 1,
-        'line-width': this.getStyleCaseExpression('width', ['get', 'width'], 5)
-      }
-    });
   }
   initFeatures() {
     this.drawFeatures();
-    this.drawAdditionalFeatures();
-    this.updateMapPosition();
   }
   initEventHandlers() {
     this._addPopup();
     this._addClickHandler();
   }
+  drawFeatures() {
+    this._addSourceAndLayer('primary', null);
+  }
+  _addSourceType(name, _data) {
+    const searchForm = document.getElementById('search-form');
+    if (!searchForm) return; // TODO: how to return correctly?
+    const currentStoredFilterId = searchForm.dataset.storedFilter;
+
+    this.map.addSource(name, {
+      type: 'vector',
+      tiles: [`${location.protocol}//${location.host}/mvt/v1/endpoints/${currentStoredFilterId}/{z}/{x}/{y}.pbf`],
+      promoteId: '@id',
+      minzoom: 0,
+      maxzoom: 22
+    });
+  }
   _addPopup() {
-    const popup = new maplibregl.Popup({
+    const popup = new this.maplibreGl.Popup({
       closeButton: false,
       closeOnClick: false,
       className: 'additional-feature-popup'
@@ -115,6 +70,20 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
         window.open(`${url}things/${feature.id}`, '_blank');
       }
     });
+  }
+  // TODO: zoom to full extent -> via controller endpoint
+  updateMapPosition() {
+    // let bounds = new this.maplibreGl.LngLatBounds();
+    // if (this.feature) bounds.extend(this.getBoundsForGeojson(this.feature));
+    // for (const geoJson of Object.values(this.additionalFeatures)) {
+    //   bounds.extend(this.getBoundsForGeojson(geoJson));
+    // }
+    // // TODO: how do AdditionalValues fit here?
+    // if (isEmpty(bounds)) return;
+    // this.map.fitBounds(bounds, {
+    //   padding: 50,
+    //   maxZoom: 15
+    // });
   }
   getColorMatchHexExpression() {
     let matchEx = ['case'];
