@@ -1501,6 +1501,11 @@ de:
       station: Bahnhof
       subtitle: Untertitel
       teaser: Teaser
+    bierfinder:
+      book: Beschreibung
+      tipp: Tip
+      essenUndSpezial: Essen und Spezialitäten
+      biersorten: Biersorten
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
