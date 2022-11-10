@@ -54,12 +54,6 @@ Layout/EmptyLinesAroundAttributeAccessor:
 Style/RedundantInitialize:
   Enabled: false
 
-Style/OperatorMethodCall:
-  Enabled: false
-
-Style/RedundantStringEscape:
-  Enabled: false
-
 Layout/SpaceInsideHashLiteralBraces:
   Enabled: false
 
@@ -133,6 +127,12 @@ Style/HashTransformKeys:
 
 # test
 Style/HashTransformValues:
+  Enabled: false
+
+Style/RedundantStringEscape:
+  Enabled: false
+
+Style/OperatorMethodCall:
   Enabled: false
 
 #######################################################

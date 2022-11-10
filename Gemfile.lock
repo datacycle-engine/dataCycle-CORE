@@ -502,7 +502,7 @@ GEM
     rb-readline (0.5.5)
     redcarpet (3.5.1)
     redis (4.8.0)
-    regexp_parser (2.5.0)
+    regexp_parser (2.6.0)
     request_store (1.5.1)
       rack (>= 1.4)
     responders (3.0.1)
@@ -520,19 +520,19 @@ GEM
     rgeo-shapefile (3.0.0)
       dbf (~> 4.0)
       rgeo (>= 1.0)
-    rubocop (1.35.1)
+    rubocop (1.38.0)
       json (~> 2.3)
       parallel (~> 1.10)
       parser (>= 3.1.2.1)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 1.8, < 3.0)
       rexml (>= 3.2.5, < 4.0)
-      rubocop-ast (>= 1.20.1, < 2.0)
+      rubocop-ast (>= 1.23.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 3.0)
-    rubocop-ast (1.21.0)
+    rubocop-ast (1.23.0)
       parser (>= 3.1.1.0)
-    rubocop-minitest (0.22.2)
+    rubocop-minitest (0.23.1)
       rubocop (>= 0.90, < 2.0)
     rubocop-performance (1.14.3)
       rubocop (>= 1.7.0, < 2.0)
@@ -590,7 +590,7 @@ GEM
     ttfunk (1.7.0)
     tzinfo (2.0.5)
       concurrent-ruby (~> 1.0)
-    unicode-display_width (2.2.0)
+    unicode-display_width (2.3.0)
     version_gem (1.1.0)
     vite_rails (3.0.12)
       railties (>= 5.1, < 8)
@@ -641,7 +641,7 @@ DEPENDENCIES
   rgeo-proj4
   rubocop
   rubocop-ast
-  rubocop-minitest
+  rubocop-minitest (>= 0.23.0)
   rubocop-performance
   rubocop-rails
   rubocop-rake
@@ -657,4 +657,4 @@ RUBY VERSION
    ruby 2.7.1p83
 
 BUNDLED WITH
-   2.3.24
+   2.3.25
