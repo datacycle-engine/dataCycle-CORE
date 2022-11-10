@@ -44,7 +44,7 @@ module DataCycleCore
       assert_response :not_found
       assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = JSON.parse(response.body)
-      assert_equal 'TRANSLATION_MISSING (not.existing.path)', json_data['error']
+      assert_equal 'not.existing.path', json_data['error']
     end
 
     test '/i18n/translate returns translated string with different locale' do
