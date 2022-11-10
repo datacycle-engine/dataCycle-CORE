@@ -33,7 +33,7 @@ const I18n = {
     return compiled(substitutions);
   },
   _errorObject(path, e = {}) {
-    return { error: get(e, 'responseJSON.error', `TRANSLATION_MISSING (${path})`) };
+    return { error: get(e, 'responseJSON.error', path) };
   },
   async _loadTranslation(path) {
     const promise = DataCycle.httpRequest({
