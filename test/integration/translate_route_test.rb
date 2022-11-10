@@ -34,7 +34,7 @@ module DataCycleCore
       assert_response :bad_request
       assert_equal 'application/json; charset=utf-8', response.content_type
       json_data = JSON.parse(response.body)
-      assert_equal 'PATH_MISSING', json_data['error']
+      assert_equal 'error', json_data['error']
 
       get i18n_translate_path, xhr: true, params: {
         path: 'not.existing.path'
