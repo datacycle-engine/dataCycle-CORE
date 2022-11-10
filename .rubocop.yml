@@ -54,6 +54,15 @@ Layout/EmptyLinesAroundAttributeAccessor:
 Style/RedundantInitialize:
   Enabled: false
 
+Style/OperatorMethodCall:
+  Enabled: false
+
+Style/RedundantStringEscape:
+  Enabled: false
+
+Layout/SpaceInsideHashLiteralBraces:
+  Enabled: false
+
 #######################################################
 ########## Lint
 
@@ -245,6 +254,9 @@ Minitest/AssertionInLifecycleHook:
   Enabled: false
 
 Minitest/AssertRespondTo:
+  Enabled: false
+
+Minitest/EmptyLineBeforeAssertionMethods:
   Enabled: false
 
 #######################################################
