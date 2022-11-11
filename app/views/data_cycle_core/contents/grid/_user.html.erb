@@ -74,6 +74,10 @@
     <% end %>
   <% end %>
 
+  <% if can? :become, item %>
+    <%= link_to tag.i(class: 'fa fa-sign-in', aria_hidden: true), user_become_path(item), class: 'become-link', data: { dc_tooltip: t('actions.become', data: item.email, locale: active_ui_locale) } %>
+  <% end %>
+
   <% if can? :edit, item %>
     <%= link_to tag.i(class: 'fa fa-pencil', aria_hidden: true), edit_user_path(item), class: 'edit-link', data: { dc_tooltip: t('actions.edit', locale: active_ui_locale) } %>
   <% end %>
