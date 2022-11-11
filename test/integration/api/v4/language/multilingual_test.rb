@@ -112,6 +112,15 @@ module DataCycleCore
               }
             end
 
+            # potential_action
+            assert_attributes(json_validate, required_attributes, ['potential_action']) do
+              {
+                'potentialAction' => [
+                  @content.potential_action.first.to_api_default_values
+                ]
+              }
+            end
+
             # locations content_location, virtual_location=not translatable embedded
             assert_attributes(json_validate, required_attributes, ['content_location', 'virtual_location']) do
               {
@@ -172,16 +181,10 @@ module DataCycleCore
               }
             end
 
-            # TODO: migrate to action
-            assert_translated_attributes(json_validate, required_attributes, ['potential_action']) do
+            assert_attributes(json_validate, required_attributes, ['potential_action']) do
               {
                 'potentialAction' => [
-                  {
-                    '@id' => generate_uuid(@content.id, 'potential_action'),
-                    '@type' => 'ViewAction',
-                    'name' => 'potential_action',
-                    'url' => translated_value(@content, 'potential_action', ['de'])
-                  }
+                  @content.potential_action.first.to_api_default_values
                 ]
               }
             end
@@ -568,16 +571,10 @@ module DataCycleCore
               }
             end
 
-            # TODO: migrate to action
-            assert_translated_attributes(json_validate, required_attributes, ['potential_action']) do
+            assert_attributes(json_validate, required_attributes, ['potential_action']) do
               {
                 'potentialAction' => [
-                  {
-                    '@id' => generate_uuid(@content.id, 'potential_action'),
-                    '@type' => 'ViewAction',
-                    'name' => 'potential_action',
-                    'url' => translated_value(@content, 'potential_action', ['de', 'en'])
-                  }
+                  @content.potential_action.first.to_api_default_values
                 ]
               }
             end

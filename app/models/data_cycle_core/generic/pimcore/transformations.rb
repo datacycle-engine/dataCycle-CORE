@@ -5,7 +5,7 @@ module DataCycleCore
     module Pimcore
       module Transformations
         def self.t(*args)
-          DataCycleCore::Generic::Common::Functions[*args]
+          DataCycleCore::Generic::Pimcore::TransformationFunctions[*args]
         end
 
         def self.pimcore_to_poi(external_source_id)
@@ -45,7 +45,7 @@ module DataCycleCore
           .>> t(:add_links, 'pimcore_locations', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('locations'))&.map { |name| "Pimcore - Location - #{name}" } || [] })
           .>> t(:add_links, 'pimcore_categories', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('categories'))&.map { |name| "Pimcore - Event-Category - #{name}" } || [] })
           .>> t(:add_field, 'name', ->(s) { s.dig('localizedData', 'name').presence })
-          .>> t(:add_field, 'potential_action', ->(s) { s.dig('localizedData', 'bookingLink') })
+          .>> t(:add_potential_action, external_source_id)
           .>> t(:add_field, 'description', ->(s) { [s.dig('localizedData', 'shortText').presence, s.dig('localizedData', 'longText').presence].compact.join('<br/>') })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { get_image_external_keys(s.dig('images')) })
           .>> t(:add_field, 'start_date', ->(s) { get_time(s.dig('localizedData', 'dateInfo', 'dateFrom')) })
@@ -146,7 +146,7 @@ module DataCycleCore
 
         def self.day_nr(day)
           return nil unless weekdays.include?(day)
-          Hash[weekdays.zip([1, 2, 3, 4, 5, 6, 0])][day]
+          weekdays.zip([1, 2, 3, 4, 5, 6, 0]).to_h[day]
         end
 
         def self.load_schedules(array)

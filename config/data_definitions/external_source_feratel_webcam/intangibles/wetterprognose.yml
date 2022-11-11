@@ -10,7 +10,7 @@
         :allowed: true
     :api:
       :type:
-        - Intangibles
+        - Intangible
         - 'dcls:Wetterprognose'
     :properties:
       :id:
@@ -100,7 +100,6 @@
       :additional_properties:
         :type: mixin
         :name: additional_properties
-
 
 - :data:
     :name: Wetterdetailprognose

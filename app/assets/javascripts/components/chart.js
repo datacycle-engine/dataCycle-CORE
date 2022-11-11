@@ -20,7 +20,7 @@ class Chart {
     this.chartOptions = {
       responsive: true,
       maintainAspectRatio: true,
-      locale: document.documentElement.lang,
+      locale: DataCycle.uiLocale,
       elements: {
         bar: {
           borderRadius: 999

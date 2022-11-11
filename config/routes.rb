@@ -53,21 +53,25 @@ DataCycleCore::Engine.routes.draw do
   get '/schema', to: 'schema#index'
   get '/schema/:id', to: 'schema#show', as: :schema_details
   get '/info', to: 'frontend#info', as: :info
+  get '/i18n/translate', to: 'application#translate'
 
   authenticate do
     get :clear_all_caches, controller: :application
-    get '/i18n/translate', to: 'application#translate'
 
     resources :users, only: [:index, :edit, :update, :destroy] do
       post :unlock, on: :member
       post :create_user, on: :collection
       get :search, on: :collection
+      post :validate, on: :member
+      post :validate, on: :collection
       get :become
       match '/index', via: [:get, :post], on: :collection, action: :index
     end
 
     resources :user_organizations do
       post :create_user, on: :collection
+      post :validate, on: :member
+      post :validate, on: :collection
     end
 
     resources :user_groups, only: [:index, :edit, :update, :destroy] do

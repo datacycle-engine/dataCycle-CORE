@@ -181,6 +181,10 @@
     - safetyInformation | mein.toubiz
     - startPoint | mein.toubiz
     - startpointGettingThere | mein.toubiz
+    - book | Bierfinder
+    - tipp | Bierfinder
+    - essenUndSpezial | Bierfinder
+    - biersorten | Bierfinder
 
 - POI - Kategorien | all:
 

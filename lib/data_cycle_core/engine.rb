@@ -156,7 +156,7 @@ module DataCycleCore
   mattr_accessor :inheritable_attributes
   self.inheritable_attributes = ['validity_period']
 
-  # embedded_objects in show
+  # number of preloaded embedded_objects and linked in show and edit views
   mattr_accessor :linked_objects_page_size
   self.linked_objects_page_size = 5
 

@@ -616,5 +616,89 @@ namespace :dc do
         progressbar.increment
       end
     end
+
+    desc 'migrate potential_action string to embedded'
+    task potential_action_string_to_embedded: :environment do
+      # migrate Pimcore Events
+      external_source = DataCycleCore::ExternalSystem.find_by(identifier: 'pimcore')
+      if external_source.present?
+        contents = DataCycleCore::Thing.includes(:external_source).where(template: false, template_name: 'Event', external_source_id: external_source.id).where("EXISTS(SELECT 1 FROM thing_translations WHERE thing_translations.thing_id = things.id AND thing_translations.content ->> 'potential_action' IS NOT NULL AND thing_translations.content ->> 'potential_action' != '')")
+        action_type = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('ActionTypes', 'View')
+        progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+        contents.find_each do |content|
+          I18n.with_locale(content.first_available_locale) do
+            data_hash = {
+              'potential_action' => content.attribute_to_h('potential_action')
+            }
+            new_action = {
+              datahash: {
+                'external_key' => "#{content.external_key} - #{content.content&.dig('potential_action')}",
+                'external_source_id' => external_source.id,
+                'action_type' => action_type
+              },
+              translations: {}
+            }
+
+            content.translated_locales.each do |locale|
+              I18n.with_locale(locale) do
+                next if content.content&.dig('potential_action').blank?
+
+                new_action[:translations][locale] ||= {}
+                new_action[:translations][locale]['name'] = 'potential_action'
+                new_action[:translations][locale]['url'] = content.content&.dig('potential_action')
+
+                DataCycleCore::Thing::Translation.find_by(locale: I18n.locale, thing_id: content.id).update_columns(content: content.content&.except('potential_action'))
+              end
+            end
+
+            data_hash['potential_action'] << new_action if new_action[:translations].present?
+
+            content.set_data_hash_with_translations(data_hash: data_hash, prevent_history: true)
+          rescue StandardError => e
+            puts e.message.to_s
+          ensure
+            progressbar.increment
+          end
+        end
+      end
+
+      contents = DataCycleCore::Thing.where(template: false, template_name: ['Event', 'Eventserie']).where("EXISTS(SELECT 1 FROM thing_translations WHERE thing_translations.thing_id = things.id AND thing_translations.content ->> 'potential_action' IS NOT NULL AND thing_translations.content ->> 'potential_action' != '')")
+      action_type = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('ActionTypes', 'View')
+      progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+
+      contents.find_each do |content|
+        I18n.with_locale(content.first_available_locale) do
+          data_hash = {
+            'potential_action' => content.reload.attribute_to_h('potential_action')
+          }
+          new_action = {
+            datahash: {
+              'action_type' => action_type
+            },
+            translations: {}
+          }
+
+          content.translated_locales.each do |locale|
+            I18n.with_locale(locale) do
+              next if content.content&.dig('potential_action').blank?
+
+              new_action[:translations][locale] ||= {}
+              new_action[:translations][locale]['name'] = 'potential_action'
+              new_action[:translations][locale]['url'] = content.content&.dig('potential_action')
+
+              DataCycleCore::Thing::Translation.find_by(locale: I18n.locale, thing_id: content.id).update_columns(content: content.content&.except('potential_action'))
+            end
+          end
+
+          data_hash['potential_action'] << new_action if new_action[:translations].present?
+          content.set_data_hash_with_translations(data_hash: data_hash, prevent_history: true)
+        rescue StandardError => e
+          puts e.message.to_s
+        ensure
+          progressbar.increment
+        end
+      end
+    end
   end
 end

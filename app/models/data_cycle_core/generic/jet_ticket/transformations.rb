@@ -25,7 +25,7 @@ module DataCycleCore
           .>> t(:add_links, 'super_event', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(['JetTicket - EventSeriesID: ', s.dig('EventSetID')].join) })
           .>> t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s&.dig('EventManager', 'EventManagerID'))&.map { |i| "JetTicket - EventManagerID: #{i}" } })
           .>> t(:add_links, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s&.dig('Venue', 'VenueID'))&.map { |i| "JetTicket - VenueID: #{i}" } })
-          .>> t(:add_field, 'dc_potential_action', ->(s) { parse_potential_action(s, external_source_id) })
+          .>> t(:add_field, 'potential_action', ->(s) { parse_potential_action(s, external_source_id) })
           .>> t(:universal_classifications, ->(s) { event_status(s.dig('Status')) })
           .>> t(:universal_classifications, ->(s) { event_flags(s.dig('EventFlags')) })
           .>> t(:universal_classifications, ->(s) { [s.dig('EventType', 'EventTypeID')].compact.map { |i| 'JetTicket - EventTyp - ' + i.to_s }.map { |i| DataCycleCore::Classification.find_by(external_source_id: external_source_id, external_key: i)&.id }.compact })

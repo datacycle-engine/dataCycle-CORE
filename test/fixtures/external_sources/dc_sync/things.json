@@ -53,7 +53,6 @@
           }
         ],
         "content_location": ["a0818c4c-306d-4d15-963a-21f31f64e77e"],
-        "potential_action": "https://shop.bergbahnen-gargellen.at/de/webshop/experience/abend-schneeschuhwanderung~7306",
         "virtual_location": [
           {
             "de": {
@@ -71,7 +70,7 @@
             "included": []
           }
         ],
-        "dc_potential_action": [],
+        "potential_action": [],
         "additional_information": [
           {
             "de": {
@@ -241,7 +240,7 @@
             "included": []
           }
         ],
-        "dc_potential_action": [],
+        "potential_action": [],
         "additional_information": [
           {
             "en": {
