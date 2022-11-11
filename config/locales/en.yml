@@ -1174,7 +1174,7 @@ en:
         text_file: Further information (%{file_types})
         locale: E-mail language
       data_cycle_core/stored_filter:
-        system: Visible for all users
+        system: Visible for all users (also applies to the API)
         api: Retrievable via API
         api_users: Users permitted for API
         linked_stored_filter_id: Filter for linked content

@@ -1231,7 +1231,7 @@ de:
         text_file: Weitere Infos (%{file_types})
         locale: 'E-Mail Sprache'
       data_cycle_core/stored_filter:
-        system: Für alle Benutzer sichtbar
+        system: Für alle Benutzer sichtbar (gilt auch für die API)
         api: Über API abrufbar
         api_users: Für API zugelassene Benutzer
         linked_stored_filter_id: Filter für verknüpfte Inhalte
