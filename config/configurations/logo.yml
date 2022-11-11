@@ -5,7 +5,7 @@ print: 'dc-logo.png'
 alt_text: 'dataCycle Logo'
 mail_dimensions:
   height: '65px'
-customercolor: '#009fe3'
+customercolor: '#FFCC00'
 background_images:
   - dc-bg.jpg
 # footer_logo: 'dc-logo.svg'
