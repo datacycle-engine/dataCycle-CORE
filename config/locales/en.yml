@@ -102,7 +102,8 @@ en:
     tooltip_translations: Translations
 
   user:
-    user_not_confirmed: The email address has not been confirmed yet
+    user_not_confirmed: email address has not been confirmed yet
+    confirm: confirm email
 
   frontend:
     load_error: Error loading content.

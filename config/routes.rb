@@ -60,6 +60,7 @@ DataCycleCore::Engine.routes.draw do
 
     resources :users, only: [:index, :edit, :update, :destroy] do
       post :unlock, on: :member
+      post :confirm, on: :member
       post :create_user, on: :collection
       get :search, on: :collection
       post :validate, on: :member

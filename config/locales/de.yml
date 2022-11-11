@@ -108,7 +108,8 @@ de:
     tooltip_translations: Übersetzungen
 
   user:
-    user_not_confirmed: Die E-Mail Adresse wurde noch nicht bestätigt
+    user_not_confirmed: E-Mail Adresse wurde noch nicht bestätigt
+    confirm: E-Mail Adresse bestätigen
 
   frontend:
     load_error: Fehler beim Laden des Inhalts.
@@ -1024,6 +1025,7 @@ de:
         other: '<b>%{count}</b> Inhalte wurden erstellt'
       removed_lock: Inhalt wurde freigegeben
       cleared_collection: 'Alle Inhalte wurden aus %{data} entfernt'
+      confirmed: '%{data} wurde bestätigt.'
     warning:
       no_changes: Es wurde keine neue Version angelegt, da keine Änderungen am Inhalt gemacht worden sind.
     info:

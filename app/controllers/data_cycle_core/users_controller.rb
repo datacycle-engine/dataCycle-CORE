@@ -100,6 +100,12 @@ module DataCycleCore
       redirect_back(fallback_location: root_path, notice: I18n.t(:unlocked, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
     end
 
+    def confirm
+      @user.confirm
+
+      redirect_back(fallback_location: root_path, notice: I18n.t('controllers.success.confirmed', data: @user.email, locale: helpers.active_ui_locale))
+    end
+
     def search
       authorize! :show, DataCycleCore::User
 
