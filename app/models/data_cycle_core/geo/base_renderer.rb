@@ -26,9 +26,6 @@ module DataCycleCore
       def contents_with_default_scope(simplify_factor:)
         query = @contents.except(:order).select(content_select_sql(simplify_factor))
 
-        # TODO: really?
-        query = query.where.not(line: nil, location: nil)
-
         joins = include_config.pluck(:joins)
         joins.uniq!
         joins.compact!

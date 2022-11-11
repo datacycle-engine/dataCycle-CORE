@@ -14,6 +14,14 @@ module DataCycleCore
         )
       end
 
+      def contents_with_default_scope(simplify_factor:)
+        query = super(simplify_factor: simplify_factor)
+
+        query = query.where.not(line: nil, location: nil)
+
+        query
+      end
+
       def geojson_detail_select_sql
         <<-SQL.squish
               json_build_object('type', 'Feature', 'id', t.id, 'geometry', ST_AsGeoJSON (t.geometry, #{GEOMETRY_PRECISION})::json, 'properties',

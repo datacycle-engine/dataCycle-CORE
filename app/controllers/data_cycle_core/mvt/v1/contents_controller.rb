@@ -60,7 +60,8 @@ module DataCycleCore
         # end
 
         def permitted_parameter_keys
-          [:id, :token, :content_id, :format, :language, :x, :y, :z]
+          super.union([:x, :y, :z])
+          # [:id, :token, :content_id, :format, :language, :x, :y, :z]
         end
       end
     end

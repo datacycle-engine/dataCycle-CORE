@@ -32,6 +32,15 @@ module DataCycleCore
         )
       end
 
+      def contents_with_default_scope(simplify_factor:)
+        query = super(simplify_factor: simplify_factor)
+
+        query = query.from('bounds, things')
+        query = query.where('ST_Intersects(line, ST_Transform(bounds.geom, 4326)) OR ST_Intersects(location, ST_Transform(bounds.geom, 4326))')
+
+        query
+      end
+
       def main_sql(select_sql)
         <<-SQL.squish
               WITH
@@ -41,7 +50,6 @@ module DataCycleCore
               mvtgeom AS (
                 SELECT #{select_sql}
                 FROM (:from_query) as t, bounds
-                WHERE ST_Intersects(t.geometry, ST_Transform(bounds.geom, 4326))
               )
               SELECT ST_AsMVT(mvtgeom, 'dataCycle') FROM mvtgeom;
         SQL
