@@ -26,7 +26,9 @@ module DataCycleCore
                 lambda { |s|
                   Array.wrap(s.dig('grouped_search_criteria')).map { |g|
                     g['search_criteria']
-                  }.flatten.map do |c|
+                  }.flatten
+                  .compact_blank
+                  .map do |c|
                     Constants::SEARCH_CRITERIA_CLASSIFICATION_PREFIX + c['id']
                   end || []
                 })
