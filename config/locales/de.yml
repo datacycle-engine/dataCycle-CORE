@@ -109,7 +109,7 @@ de:
 
   user:
     user_not_confirmed: E-Mail Adresse wurde noch nicht bestätigt
-    confirm: E-Mail Adresse bestätigen
+    confirm: E-Mail Adresse wurde noch nicht bestätigt, jetzt bestätigen!
 
   frontend:
     load_error: Fehler beim Laden des Inhalts.
