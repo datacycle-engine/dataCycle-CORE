@@ -4,7 +4,6 @@ module DataCycleCore
   module Geo
     class BaseRenderer
       def initialize(contents:, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, **_options)
-        # TODO: **options??
         @contents = contents
         @simplify_factor = simplify_factor
         @include_parameters = include_parameters
@@ -13,9 +12,9 @@ module DataCycleCore
         @single_item = single_item
       end
 
-      # def render
-      # TODO: not defined
-      # end
+      def render
+        raise NotImplementedError
+      end
 
       def result(things_query, geometry_query)
         ActiveRecord::Base.connection.execute(
