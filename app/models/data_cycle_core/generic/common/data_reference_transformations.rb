@@ -20,6 +20,24 @@ module DataCycleCore
           end
         end
 
+        def self.get_external_content_references(data, external_source_id, key_resolver)
+          get_reference(data, key_resolver) do |key|
+            ExternalReference.new(:content, external_source_id, key)
+          end
+        end
+
+        def self.add_external_schedule_references(data, property_name, external_source_id, key_resolver)
+          add_reference(data, property_name, key_resolver) do |key|
+            ExternalReference.new(:schedule, external_source_id, key)
+          end
+        end
+
+        def self.get_external_schedule_references(data, external_source_id, key_resolver)
+          get_reference(data, key_resolver) do |key|
+            ExternalReference.new(:schedule, external_source_id, key)
+          end
+        end
+
         def self.add_external_classification_references(data, property_name, external_source_id, key_resolver)
           add_reference(data, property_name, key_resolver) do |key|
             ExternalReference.new(:classification, external_source_id, key)
@@ -131,6 +149,8 @@ module DataCycleCore
             load_things(external_source_id, external_keys)
           when :classification
             load_classifications(external_source_id, external_keys)
+          when :schedule
+            load_schedules(external_source_id, external_keys)
           else
             raise "Unknown reference type: #{reference_type}"
           end
@@ -142,6 +162,11 @@ module DataCycleCore
             DataCycleCore::ExternalSystemSync.where(external_system_id: external_source_id, external_key: external_keys)
                                              .pluck(:external_key, :syncable_id)
           ).uniq.to_h
+        end
+
+        def self.load_schedules(external_source_id, external_keys)
+          DataCycleCore::Schedule.where(external_source_id: external_source_id, external_key: external_keys)
+                                 .pluck(:external_key, :id).to_h
         end
 
         def self.load_classifications(external_source_id, external_keys)
