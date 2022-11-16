@@ -9,7 +9,7 @@ module DataCycleCore
       @locale ||= @data_link.locale.presence || @receiver.ui_locale
       @title ||= data_link_item_title
       @url ||= url
-      @subject ||= first_available_i18n_t("data_link_mailer.#{@webhook_source}.send_subject", @webhook_source, { title: @title, locale: @locale })
+      @subject ||= first_available_i18n_t("data_link_mailer.#{@current_issuer}.send_subject", @current_issuer, { title: @title, locale: @locale })
 
       mail(
         to: @receiver.email,
@@ -22,11 +22,11 @@ module DataCycleCore
     def mail_external_link(data_link, url, instructions_url = nil, webhook_source = nil)
       @instructions_url = instructions_url
       @data_link = data_link
-      @webhook_source = webhook_source
+      @current_issuer = webhook_source
       @user = @data_link.creator
       @receiver = @data_link.receiver
       @resource = @receiver
-      @resource.mailer_layout = "data_cycle_core/#{@webhook_source}_mailer" if @webhook_source.present? && lookup_context.exists?("data_cycle_core/#{@webhook_source}_mailer", ['layouts'], false, [], formats: [:html])
+      @resource.mailer_layout = "data_cycle_core/#{@current_issuer}_mailer" if @current_issuer.present? && lookup_context.exists?("data_cycle_core/#{@current_issuer}_mailer", ['layouts'], false, [], formats: [:html])
       @locale = @data_link.locale.presence || @receiver.ui_locale
       @title = data_link_item_title
       @url = url

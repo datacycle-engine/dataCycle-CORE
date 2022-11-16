@@ -15,7 +15,7 @@
 
         <tr>
           <td width="100%" style="width:100%;padding:12pt 0 0 0;">
-            <%= first_available_i18n_t("data_link_mailer.#{@webhook_source}.external_link_button_notice", @webhook_source, { locale: @locale }) %>
+            <%= first_available_i18n_t("data_link_mailer.#{@current_issuer}.external_link_button_notice", @current_issuer, { locale: @locale }) %>
           </td>
         </tr>
 
@@ -50,11 +50,11 @@
           </tr>
         <% end %>
 
-        <% if I18n.exists?("data_link_mailer.#{@webhook_source}.instructions_html", locale: @locale) %>
+        <% if I18n.exists?("data_link_mailer.#{@current_issuer}.instructions_html", locale: @locale) %>
           <tr>
             <td style="padding:12pt 0 0 0">
               <span style="font-size: 12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;">
-                <%= t("data_link_mailer.#{@webhook_source}.instructions_html", locale: @locale) %>
+                <%= t("data_link_mailer.#{@current_issuer}.instructions_html", locale: @locale) %>
               </span>
             </td>
           </tr>
