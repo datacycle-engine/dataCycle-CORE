@@ -61,7 +61,7 @@ module DataCycleCore
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
             utility_object: utility_object,
             template: template,
-            data: transformation.call(utility_object.external_source.id).call(raw_data).with_indifferent_access
+            data: transformation.call(transformation.parameters.dig(0, 1).to_s.end_with?('_id') ? utility_object.external_source.id : utility_object.external_source).call(raw_data).with_indifferent_access
           )
         end
       end
