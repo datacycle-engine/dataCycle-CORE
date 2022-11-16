@@ -17,6 +17,20 @@ module DummyTransformations
     ->(data) { data }
   end
 
+  def self.get_external_source_id(external_source_id)
+    lambda { |data|
+      data['param'] = external_source_id
+      data
+    }
+  end
+
+  def self.get_external_source(external_source)
+    lambda { |data|
+      data['param'] = external_source
+      data
+    }
+  end
+
   def self.filter_true(_data, _options)
     true
   end
@@ -255,5 +269,65 @@ describe DataCycleCore::Generic::Common::ImportContents do
     assert_equal('Thing', arguments.dig(0, 1))
     assert_equal(DummyTransformations.method(:do_nothing_one), arguments.dig(0, 2))
     assert_equal(data, arguments.dig(0, 3))
+  end
+
+  it 'should give the external_source id as parameter to the transformation' do
+    configuration = {
+      transformations: 'DummyTransformations',
+      import: {
+        main_content: {
+          template: 'Thing',
+          transformation: 'get_external_source_id'
+        }
+      }
+    }
+
+    data = {
+      'external_key' => 'SOME KEY'
+    }
+    arguments = []
+
+    get_dummy_template = ->(template_name) { template_name }
+    collect_arguments = lambda do |*args|
+      arguments << args
+    end
+
+    DataCycleCore::Generic::Common::ImportFunctions.stub :load_template, get_dummy_template do
+      DataCycleCore::Generic::Common::ImportFunctions.stub :create_or_update_content, collect_arguments do
+        subject.process_content(utility_object: utility_object, raw_data: data, locale: :de, options: configuration)
+      end
+    end
+
+    assert(data['param'].uuid?)
+  end
+
+  it 'should give the external_source as parameter to the transformation' do
+    configuration = {
+      transformations: 'DummyTransformations',
+      import: {
+        main_content: {
+          template: 'Thing',
+          transformation: 'get_external_source'
+        }
+      }
+    }
+
+    data = {
+      'external_key' => 'SOME KEY'
+    }
+    arguments = []
+
+    get_dummy_template = ->(template_name) { template_name }
+    collect_arguments = lambda do |*args|
+      arguments << args
+    end
+
+    DataCycleCore::Generic::Common::ImportFunctions.stub :load_template, get_dummy_template do
+      DataCycleCore::Generic::Common::ImportFunctions.stub :create_or_update_content, collect_arguments do
+        subject.process_content(utility_object: utility_object, raw_data: data, locale: :de, options: configuration)
+      end
+    end
+
+    assert(data['param'].is_a?(Struct::ExternalSystemDummy))
   end
 end
