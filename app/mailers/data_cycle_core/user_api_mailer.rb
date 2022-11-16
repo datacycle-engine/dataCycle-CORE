@@ -7,6 +7,7 @@ module DataCycleCore
 
       @new_user = new_user
       @new_user.user_api_feature.current_issuer = current_issuer
+      @current_issuer = current_issuer
       @resource = @new_user
       @locale = DataCycleCore.ui_locales.first
 
@@ -18,6 +19,7 @@ module DataCycleCore
 
       @new_user = user
       @new_user.user_api_feature.current_issuer = current_issuer
+      @current_issuer = current_issuer
       @resource = @new_user
       @locale = @new_user.ui_locale
 

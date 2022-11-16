@@ -232,6 +232,144 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
     assert_includes(transformed_data['universal_classifications'].map(&:classification_path).uniq, ['Another Tree', 'Another Name'])
   end
 
+  it 'should create external reference for single schedule' do
+    raw_data = {
+      'schedule_id' => 'SOME EXTERNAL ID'
+    }
+
+    transformed_data = subject.add_external_schedule_references(raw_data, 'schedule', 'EXTERNAL SOURCE ID', 'schedule_id')
+
+    assert_equal(1, transformed_data['schedule'].size)
+
+    assert_equal('EXTERNAL SOURCE ID', transformed_data['schedule'].first.external_source_id)
+    assert_equal('SOME EXTERNAL ID', transformed_data['schedule'].first.external_key)
+  end
+
+  it 'should create external references for multiple schedules' do
+    raw_data = {
+      'schedules' => [
+        { 'id' => 'EXTERNAL ID ONE' },
+        { 'id' => 'EXTERNAL ID TWO' },
+        { 'id' => 'EXTERNAL ID THREE' }
+      ]
+    }
+
+    transformed_data = subject.add_external_schedule_references(raw_data, 'schedule', 'EXTERNAL SOURCE ID', ['schedules', 'id'])
+
+    assert_equal(3, transformed_data['schedule'].size)
+
+    assert_equal(1, transformed_data['schedule'].map(&:external_source_id).uniq.size)
+    assert_equal('EXTERNAL SOURCE ID', transformed_data['schedule'].map(&:external_source_id).first)
+
+    assert_equal(3, transformed_data['schedule'].map(&:external_key).uniq.size)
+    assert_includes(transformed_data['schedule'].map(&:external_key).uniq, 'EXTERNAL ID ONE')
+    assert_includes(transformed_data['schedule'].map(&:external_key).uniq, 'EXTERNAL ID TWO')
+    assert_includes(transformed_data['schedule'].map(&:external_key).uniq, 'EXTERNAL ID THREE')
+  end
+
+  it 'should create external references for deeply nested schedules' do
+    raw_data = {
+      'contents_1' => [
+        {
+          'contents_2' => [
+            {
+              'schedules' => [
+                { 'id' => 'SOME EXTERNAL ID' },
+                { 'id' => 'ANOTHER EXTERNAL ID' }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+
+    transformed_data = subject.add_external_schedule_references(raw_data, 'schedule', 'EXTERNAL SOURCE ID',
+                                                                ['contents_1', 'contents_2', 'schedules', 'id'])
+
+    assert_equal(2, transformed_data['schedule'].size)
+
+    assert_equal(1, transformed_data['schedule'].map(&:external_source_id).uniq.size)
+    assert_equal('EXTERNAL SOURCE ID', transformed_data['schedule'].map(&:external_source_id).first)
+
+    assert_equal(2, transformed_data['schedule'].map(&:external_key).uniq.size)
+    assert_includes(transformed_data['schedule'].map(&:external_key).uniq, 'SOME EXTERNAL ID')
+    assert_includes(transformed_data['schedule'].map(&:external_key).uniq, 'ANOTHER EXTERNAL ID')
+  end
+
+  it 'should return external reference for single schedule' do
+    raw_data = {
+      'schedule_id' => 'SOME EXTERNAL ID'
+    }
+
+    transformed_data = subject.get_external_schedule_references(raw_data, 'EXTERNAL SOURCE ID', 'schedule_id')
+
+    assert(transformed_data.present?)
+
+    assert_equal('EXTERNAL SOURCE ID', transformed_data.first.external_source_id)
+    assert_equal('SOME EXTERNAL ID', transformed_data.first.external_key)
+  end
+
+  it 'should return external reference for single content' do
+    raw_data = {
+      'content_id' => 'SOME EXTERNAL ID'
+    }
+
+    transformed_data = subject.get_external_content_references(raw_data, 'EXTERNAL SOURCE ID', 'content_id')
+
+    assert(transformed_data.present?)
+
+    assert_equal('EXTERNAL SOURCE ID', transformed_data.first.external_source_id)
+    assert_equal('SOME EXTERNAL ID', transformed_data.first.external_key)
+  end
+
+  it 'should return external reference for single classification' do
+    raw_data = {
+      'classifications' => 'SOME EXTERNAL ID'
+    }
+
+    transformed_data = subject.get_classification_name_references(raw_data, 'Jahreszeiten', 'classifications')
+
+    assert(transformed_data.present?)
+
+    assert_equal('Jahreszeiten', transformed_data.first.tree_name)
+    assert_equal('SOME EXTERNAL ID', transformed_data.first.classification_name)
+  end
+
+  it 'should resolve external schedule references' do
+    raw_data = {
+      'contents_1' => [
+        {
+          'contents_2' => [
+            {
+              'schedules' => [
+                { 'id' => 'SOME EXTERNAL ID' },
+                { 'id' => 'ANOTHER EXTERNAL ID' }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+
+    transformed_data = subject.add_external_schedule_references(raw_data, 'schedule', 'EXTERNAL SOURCE ID',
+                                                                ['contents_1', 'contents_2', 'schedules', 'id'])
+
+    load_schedules_stub = lambda do |_external_source_id, _external_keys|
+      {
+        'SOME EXTERNAL ID' => '00000000-0000-0000-0000-000000000001',
+        'ANOTHER EXTERNAL ID' => '00000000-0000-0000-0000-000000000002'
+      }
+    end
+
+    subject.stub :load_schedules, load_schedules_stub do
+      transformed_data = subject.resolve_references(transformed_data)
+
+      assert_equal(2, transformed_data['schedule'].size)
+      assert_includes(transformed_data['schedule'], '00000000-0000-0000-0000-000000000001')
+      assert_includes(transformed_data['schedule'], '00000000-0000-0000-0000-000000000002')
+    end
+  end
+
   it 'should resolve external content references' do
     raw_data = {
       'contents_1' => [

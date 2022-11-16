@@ -108,7 +108,8 @@ de:
     tooltip_translations: Übersetzungen
 
   user:
-    user_not_confirmed: Die E-Mail Adresse wurde noch nicht bestätigt
+    user_not_confirmed: E-Mail Adresse wurde noch nicht bestätigt
+    confirm: E-Mail Adresse wurde noch nicht bestätigt, jetzt bestätigen!
 
   frontend:
     load_error: Fehler beim Laden des Inhalts.
@@ -1024,6 +1025,7 @@ de:
         other: '<b>%{count}</b> Inhalte wurden erstellt'
       removed_lock: Inhalt wurde freigegeben
       cleared_collection: 'Alle Inhalte wurden aus %{data} entfernt'
+      confirmed: '%{data} wurde bestätigt.'
     warning:
       no_changes: Es wurde keine neue Version angelegt, da keine Änderungen am Inhalt gemacht worden sind.
     info:
@@ -1229,7 +1231,7 @@ de:
         text_file: Weitere Infos (%{file_types})
         locale: 'E-Mail Sprache'
       data_cycle_core/stored_filter:
-        system: Für alle Benutzer sichtbar
+        system: Für alle Benutzer sichtbar (gilt auch für die API)
         api: Über API abrufbar
         api_users: Für API zugelassene Benutzer
         linked_stored_filter_id: Filter für verknüpfte Inhalte

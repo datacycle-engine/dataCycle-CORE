@@ -102,7 +102,8 @@ en:
     tooltip_translations: Translations
 
   user:
-    user_not_confirmed: The email address has not been confirmed yet
+    user_not_confirmed: email address has not been confirmed yet
+    confirm: confirm email
 
   frontend:
     load_error: Error loading content.
@@ -1173,7 +1174,7 @@ en:
         text_file: Further information (%{file_types})
         locale: E-mail language
       data_cycle_core/stored_filter:
-        system: Visible for all users
+        system: Visible for all users (also applies to the API)
         api: Retrievable via API
         api_users: Users permitted for API
         linked_stored_filter_id: Filter for linked content
