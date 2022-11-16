@@ -83,6 +83,8 @@
     :indesign: false
     :json: false
     :xml: false
+    :geojson: false
+    :mvt: false
 
 :overlay:
   :enabled: true

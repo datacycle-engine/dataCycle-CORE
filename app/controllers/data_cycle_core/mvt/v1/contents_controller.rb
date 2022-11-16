@@ -4,6 +4,8 @@ module DataCycleCore
   module Mvt
     module V1
       class ContentsController < ::DataCycleCore::Api::V4::ContentsController
+        before_action :check_feature_enabled
+
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
 
@@ -45,6 +47,10 @@ module DataCycleCore
         end
 
         def log_activity
+        end
+
+        def check_feature_enabled
+          raise ActiveRecord::RecordNotFound if DataCycleCore.features.dig(:serialize, :serializers, :mvt) != true && !request.referer&.start_with?(Rails.application.config.action_mailer.default_url_options.slice(:protocol, :host)&.values&.join('://'))
         end
       end
     end
