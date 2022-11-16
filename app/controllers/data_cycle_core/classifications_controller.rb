@@ -5,6 +5,7 @@ module DataCycleCore
     FIXNUM_MAX = (2**(0.size * 8 - 2) - 1)
 
     DEFAULT_CLASSIFICATION_SEARCH_LIMIT = 128
+    DEFAULT_PAGE_SIZE = 25
 
     def index
       respond_to do |format|
@@ -13,15 +14,12 @@ module DataCycleCore
 
           @classification_tree_labels = DataCycleCore::ClassificationTreeLabel
             .accessible_by(current_ability)
-            .includes(:statistics)
             .order(:created_at)
             .distinct
         end
 
         format.js do
-          authorize! :index, DataCycleCore::ClassificationTree
-
-          permitted_params = params.permit(:classification_tree_label_id, :classification_tree_id)
+          permitted_params = params.permit(:classification_tree_label_id, :classification_tree_id, :page, :load_all)
 
           if permitted_params.include?(:classification_tree_label_id)
             @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
@@ -35,22 +33,29 @@ module DataCycleCore
             raise 'Missing parameter; either classification_tree_label_id or classification_tree_id must be provided'
           end
 
+          authorize! :index, @classification_tree_label
+
           @classification_trees = @classification_trees
-            .accessible_by(current_ability)
             .joins(:sub_classification_alias)
             .includes(
-              sub_classification_alias: {
-                classifications: { primary_classification_alias: :classification_alias_path },
-                primary_classification: {},
-                additional_classifications: {},
-                statistics: {}
-              }
-            ).order('classification_aliases.internal_name')
-            .page(params[:page])
+              sub_classification_alias: [
+                additional_classifications: [primary_classification_alias: :classification_alias_path],
+                primary_classification: [additional_classification_aliases: :classification_alias_path],
+                classifications: [primary_classification_alias: :classification_alias_path]
+              ]
+            )
+            .order('classification_aliases.internal_name')
 
-          @page = @classification_trees.current_page
+          @page = permitted_params[:page].to_i
 
-          @total_pages = @classification_trees.total_pages
+          if permitted_params[:load_all].present?
+            @classification_trees = @classification_trees.offset(DEFAULT_PAGE_SIZE * (@page - 1))
+            @last_page = true
+          else
+            @classification_trees = @classification_trees.page(@page).per(DEFAULT_PAGE_SIZE)
+            @page = @classification_trees.current_page
+            @last_page = @classification_trees.last_page?
+          end
         end
       end
     end
@@ -241,6 +246,7 @@ module DataCycleCore
 
     def update_params
       return @update_params if defined? @update_params
+
       @update_params = begin
         params.dig(:classification_tree_label, :visibility)&.delete_if(&:blank?)
         params.dig(:classification_tree_label, :change_behaviour)&.delete_if(&:blank?)

@@ -247,6 +247,13 @@ module DataCycleCore
               DataCycleCore::Abilities::Segments::SubjectByUserAndConditions.new(DataCycleCore::User, :id)
             )
 
+            # Classification Overview
+            add_permission(
+              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+              :can, :read,
+              DataCycleCore::Abilities::Segments::TreeLabelByVisibility.new('classification_overview')
+            )
+
             ### Features
             # ViewMode
             add_permission(

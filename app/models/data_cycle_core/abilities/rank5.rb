@@ -19,6 +19,10 @@ module DataCycleCore
             content.global_property_names.present?
         end
 
+        can :read, DataCycleCore::ClassificationTreeLabel, ['classification_tree_labels.visibility && ARRAY[?]::VARCHAR[]', ['classification_overview']] do |ctl|
+          ctl.visibility&.intersection(['classification_overview'])&.any?
+        end
+
         can :create, DataCycleCore::Thing do |template, scope|
           template&.creatable?(scope)
         end

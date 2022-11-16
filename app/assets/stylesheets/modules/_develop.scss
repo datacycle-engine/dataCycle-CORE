@@ -3223,8 +3223,13 @@ a {
   &.alert {
     color: $alert-color;
   }
+
   &.success {
     color: $success-color;
+  }
+
+  &.secondary {
+    color: $secondary-color;
   }
 }
 

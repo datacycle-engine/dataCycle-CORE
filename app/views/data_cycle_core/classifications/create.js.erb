@@ -1,19 +1,19 @@
 $('#classification-administration li.active').removeClass('active');
 
 <% if @object.is_a?(DataCycleCore::ClassificationTreeLabel) %>
-  $('.new-classification-tree-label form')
-    .replaceWith('<%= escape_javascript(render 'classification_tree_label_form', classification_tree_label: DataCycleCore::ClassificationTreeLabel.new) %>');
+  $('.classification-tree-label-form-container.new')
+    .replaceWith('<%= escape_javascript(tag.div(class: 'remote-render classification-tree-label-form-container new', data: { remote_path: 'data_cycle_core/classifications/classification_tree_label_form', remote_options: to_query_params(classification_tree_label: DataCycleCore::ClassificationTreeLabel.new).to_json })) %>');
 
   $('.new-classification-tree-label')
     .before($('<%= escape_javascript(render 'classification_tree_label', tree_label: @object) %>'));
 
   $('#classification-administration li.active').removeClass('active');
 <% elsif @object.is_a?(DataCycleCore::ClassificationTree) && @parent_classification_tree %>
-  $('<%= escape_javascript(render 'classification_alias_form', classification_tree_label: @classification_tree_label, classification_tree: @parent_classification_tree, classification_alias: DataCycleCore::ClassificationAlias.new) %>').replaceAll('#<%= @parent_classification_tree.id %> form.new_classification_alias');
+  $('<%= escape_javascript(tag.div(class: 'remote-render classification-alias-form-container new', data: { remote_path: 'data_cycle_core/classifications/classification_alias_form', remote_options: to_query_params(classification_tree_label: @classification_tree_label, classification_tree: @parent_classification_tree, classification_alias: DataCycleCore::ClassificationAlias.new).to_json })) %>').replaceAll('#<%= @parent_classification_tree.id %> form.new_classification_alias');
 
   $('<%= escape_javascript(render 'classification_tree', classification_tree_label: @classification_tree_label, classification_tree: @object, ancestors: @object.present? ? @object.ancestors.pluck(:id).reverse : []) %>').insertBefore('#<%= @parent_classification_tree.id %> > ul.children > li:last');
 <% elsif @object.is_a?(DataCycleCore::ClassificationTree) %>
-  $('<%= escape_javascript(render 'classification_alias_form', classification_tree_label: @classification_tree_label, classification_tree: @parent_classification_tree, classification_alias: DataCycleCore::ClassificationAlias.new) %>').replaceAll('#<%= @classification_tree_label.id %> form.new_classification_alias');
+  $('<%= escape_javascript(tag.div(class: 'remote-render classification-alias-form-container new', data: { remote_path: 'data_cycle_core/classifications/classification_alias_form', remote_options: to_query_params(classification_tree_label: @classification_tree_label, classification_tree: @parent_classification_tree, classification_alias: DataCycleCore::ClassificationAlias.new).to_json })) %>').replaceAll('#<%= @classification_tree_label.id %> form.new_classification_alias');
 
   $('<%= escape_javascript(render 'classification_tree', classification_tree_label: @classification_tree_label, classification_tree: @object, ancestors: @object.present? ? @object.ancestors.pluck(:id).reverse : []) %>').insertBefore('#<%= @classification_tree_label.id %> > ul.children > li:last');
 <% else %>

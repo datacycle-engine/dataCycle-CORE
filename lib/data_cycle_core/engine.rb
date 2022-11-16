@@ -192,7 +192,7 @@ module DataCycleCore
   self.content_warnings = {}
 
   mattr_accessor :classification_visibilities
-  self.classification_visibilities = ['show', 'api', 'tile', 'show_more', 'xml', 'list', 'edit', 'filter', 'tree_view']
+  self.classification_visibilities = ['show', 'api', 'tile', 'show_more', 'xml', 'list', 'edit', 'filter', 'tree_view', 'classification_overview', 'classification_administration']
 
   mattr_accessor :classification_change_behaviour
   self.classification_change_behaviour = ['trigger_webhooks', 'clear_cache']
@@ -223,7 +223,7 @@ module DataCycleCore
   end
 
   def self.default_classification_visibilities
-    classification_visibilities.except(['show_more', 'tree_view'])
+    classification_visibilities.except(['show_more', 'tree_view', 'classification_overview'])
   end
 
   def self.load_configurations(path, include_environments = true)

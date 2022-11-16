@@ -205,11 +205,11 @@ module DataCycleCore
     end
 
     def mapped_to_string
-      primary_classification&.classification_aliases&.where&.not(id: id)&.map(&:name)&.join(',')
+      primary_classification&.additional_classification_aliases&.map(&:name)&.join(',')
     end
 
     def mapped_to
-      primary_classification&.classification_aliases&.where&.not(id: id)
+      primary_classification&.additional_classification_aliases
     end
 
     def to_api_default_values

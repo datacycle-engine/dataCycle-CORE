@@ -1,4 +1,3 @@
-import AsyncSelect2 from '../components/async_select2';
 import QuillHelpers from './../helpers/quill_helpers';
 
 function addVisibilitySwitchEventHandler(item) {
@@ -38,44 +37,32 @@ export default function () {
       e => addVisibilitySwitchEventHandler(e)
     ]);
 
-    $('#classification-administration').on('ajax:beforeSend', 'a:not(.destroy)', function (event) {
+    $('#classification-administration').on('ajax:beforeSend', 'a.name', function (event) {
+      event.currentTarget.classList.toggle('open');
+
       var childrenContainer = $(event.currentTarget).closest('li').children('ul:not(.classifications)');
 
-      if (childrenContainer.children().length > 0 && event.detail[1].type != 'POST') {
+      if (event.currentTarget.classList.contains('loaded') && event.detail[1].type != 'POST') {
         childrenContainer.toggle();
 
         return false;
+      } else {
+        event.currentTarget.classList.add('loading-children');
       }
     });
 
-    $('#classification-administration').on(
-      'ajax:before',
-      '.edit_classification_alias, .new_classification_alias',
-      event => {
-        QuillHelpers.updateEditors(event.currentTarget);
-      }
-    );
+    $('#classification-administration').on('ajax:complete', 'a.name', function (event) {
+      event.currentTarget.classList.remove('loading-children');
+    });
+
+    $('#classification-administration').on('ajax:before', '.classification-alias-form-container > form', event => {
+      QuillHelpers.updateEditors(event.currentTarget);
+    });
 
     $('#classification-administration').on('click', 'a.create, a.edit', function (event) {
       $('#classification-administration li.active').removeClass('active');
 
       $(event.currentTarget).closest('li').addClass('active');
-
-      var select = $(event.currentTarget)
-        .closest('li')
-        .find('select[name="classification_alias[classification_ids][]"]');
-
-      if (select.length && !select.data('select2')) {
-        let newAsyncSelect = new AsyncSelect2(select);
-        newAsyncSelect.init();
-      }
-
-      var select = $(event.currentTarget).closest('li').find('select[name="classification_alias[mapped_to][]"]');
-
-      if (select.length && !select.data('select2')) {
-        let newAsyncSelect = new AsyncSelect2(select);
-        newAsyncSelect.init();
-      }
 
       return false;
     });
