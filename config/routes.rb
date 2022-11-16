@@ -412,6 +412,7 @@ DataCycleCore::Engine.routes.draw do
           namespace :v1 do
             scope path: '(/:api_subversion)' do
               match 'endpoints/:id/:z/:x/:y', to: 'contents#index', via: [:get, :post]
+              match 'endpoints/:id', to: 'contents#index', defaults: { bbox: true }, via: [:get, :post]
               match 'things/:id/:z/:x/:y', to: 'contents#show', via: [:get, :post]
             end
           end

@@ -7,6 +7,9 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
     this.styleCaseProperty = '@type';
     this.iconColorBase = this.typeColors;
     this.sourceLayer = 'dataCycle';
+
+    this.searchForm = document.getElementById('search-form');
+    this.currentStoredFilterId = this.searchForm.dataset.storedFilter;
   }
   configureMap() {
     super.configureMap();
@@ -23,13 +26,9 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
     this._addSourceAndLayer('primary', null);
   }
   _addSourceType(name, _data) {
-    const searchForm = document.getElementById('search-form');
-    if (!searchForm) return; // TODO: how to return correctly?
-    const currentStoredFilterId = searchForm.dataset.storedFilter;
-
     this.map.addSource(name, {
       type: 'vector',
-      tiles: [`${location.protocol}//${location.host}/mvt/v1/endpoints/${currentStoredFilterId}/{z}/{x}/{y}.pbf`],
+      tiles: [`${location.protocol}//${location.host}/mvt/v1/endpoints/${this.currentStoredFilterId}/{z}/{x}/{y}.pbf`],
       promoteId: '@id',
       minzoom: 0,
       maxzoom: 22
@@ -71,19 +70,30 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
       }
     });
   }
-  // TODO: zoom to full extent -> via controller endpoint
   updateMapPosition() {
-    // let bounds = new this.maplibreGl.LngLatBounds();
-    // if (this.feature) bounds.extend(this.getBoundsForGeojson(this.feature));
-    // for (const geoJson of Object.values(this.additionalFeatures)) {
-    //   bounds.extend(this.getBoundsForGeojson(geoJson));
-    // }
-    // // TODO: how do AdditionalValues fit here?
-    // if (isEmpty(bounds)) return;
-    // this.map.fitBounds(bounds, {
-    //   padding: 50,
-    //   maxZoom: 15
-    // });
+    this.bboxForCurrentStoredFilter().then(bbox => {
+      const sw = new this.maplibreGl.LngLat(bbox.xmin, bbox.ymin);
+      const ne = new this.maplibreGl.LngLat(bbox.xmax, bbox.ymax);
+      const bounds = new this.maplibreGl.LngLatBounds(sw, ne);
+
+      this.map.fitBounds(bounds, {
+        padding: 50,
+        maxZoom: 15
+      });
+    });
+  }
+  async bboxForCurrentStoredFilter() {
+    const params = {
+      bbox: true
+    };
+
+    let data = await DataCycle.httpRequest({
+      url: `/mvt/v1/endpoints/${this.currentStoredFilterId}`,
+      method: 'POST',
+      data: params,
+      dataType: 'json'
+    });
+    return data;
   }
   getColorMatchHexExpression() {
     let matchEx = ['case'];

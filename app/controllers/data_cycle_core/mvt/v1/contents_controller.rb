@@ -13,6 +13,8 @@ module DataCycleCore
             Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
               query = build_search_query
 
+              render(json: query.query.to_bbox) && return if permitted_params[:bbox]
+
               I18n.with_locale(@language.first || I18n.locale) do
                 render(plain: query.query.to_mvt(@x, @y, @z, include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format)
               end
@@ -30,7 +32,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super.union([:x, :y, :z])
+          super.union([:x, :y, :z, :bbox])
         end
 
         def prepare_url_parameters
