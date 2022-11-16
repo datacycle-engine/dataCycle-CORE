@@ -78,6 +78,13 @@
             :options:
               :data-size: full
         :advanced_search: true
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        :api:
+          :v4:
+            :name: dc:additionalInformation
       :url:
         :label: Inhalt URL
         :type: string
@@ -249,13 +256,6 @@
             :disabled: true
           :show:
             :disabled: true
-      :additional_information:
-        :label: Ergänzende Information
-        :type: embedded
-        :template_name: Ergänzende Information
-        :api:
-          :v4:
-            :name: dc:additionalInformation
       :linked_data:
         :type: mixin
         :name: linked_data
