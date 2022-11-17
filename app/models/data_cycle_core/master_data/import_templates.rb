@@ -186,6 +186,8 @@ module DataCycleCore
           result_property = validate_property.call(property_definition)
           error = {}.merge!(result_property.errors.to_h)
           error.merge!(validate_properties(property_definition)) if property_definition.key?(:properties)
+          error[:key] = ['must be underscored string'] if property_name != property_name.underscore
+
           errors[property_name] = error if error.present?
         end
         errors
