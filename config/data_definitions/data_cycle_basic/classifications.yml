@@ -77,7 +77,7 @@
 - Informationstypen | all:
 
 - $$Externe Informationstypen | all:
-    - description | OutdoorActive/imx_platform/TIMM4/GEM2GO/mein.toubiz/pimcore_ats
+    - description | OutdoorActive/imx_platform/TIMM4/GEM2GO/mein.toubiz/pimcore_ats/Venus
     - abstract | mein.toubiz
     - description_long | imx_platform
     - text | OutdoorActive
@@ -162,7 +162,7 @@
     - additionalLocationInformation | mein.toubiz
     - additionalHostInformation | mein.toubiz
     - longDescription | pimcore_ats
-    - shortDescription | pimcore_ats
+    - shortDescription | pimcore_ats/Venus
     - shortText | Pimcore ATS
     - longText | Pimcore ATS
     - additionalInformation | Pimcore ATS
@@ -185,6 +185,12 @@
     - tipp | Bierfinder
     - essenUndSpezial | Bierfinder
     - biersorten | Bierfinder
+    - accessibilityDescription | Venus
+    - arrivalDescription | Venus
+    - specialDescription | Venus
+    - sellsBrands | Venus
+    - startingPointDescription | Venus
+    - character | Venus
 
 - POI - Kategorien | all:
 

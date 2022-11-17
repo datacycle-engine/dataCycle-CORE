@@ -338,6 +338,8 @@ module DataCycleCore
     end
 
     config.autoload_once_paths << "#{root}/app/middlewares"
+    config.autoload_paths += Dir['vendor/gems/datacycle-*/lib']
+    config.eager_load_paths += Dir['vendor/gems/datacycle-*/lib']
 
     config.before_initialize do |app|
       ### used for backward compatibility (Rails < 5.0)

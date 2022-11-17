@@ -117,42 +117,25 @@ module DataCycleCore
           .>> t(:add_external_content_references, 'contains_place', external_source_id, ['contains_place'])
           .>> t(:add_field, 'contained_in_place', ->(s) { Array(s.dig('stageTour')).compact })
           .>> t(:add_external_content_references, 'contained_in_place', external_source_id, ['contained_in_place'])
-          .>> t(:add_field, 'image',
-                lambda { |s|
-                  (
-                    Array(s&.dig('primaryImage', 'id')) +
-                    Array(s&.dig('images', 'image')&.map { |item| item&.dig('id') })
-                  ).uniq || []
-                })
+          .>> t(:add_field, 'image', ->(s) { (Array(s&.dig('primaryImage', 'id')) + Array(s&.dig('images', 'image')&.map { |item| item&.dig('id') })).uniq || [] })
           .>> t(:add_external_content_references, 'image', external_source_id, ['image'])
           .>> t(:universal_classifications, ->(s) { Array(load_frontend_type(s&.dig('frontendtype'))) })
-          .>> t(:add_field, 'tour_category_references',
-                lambda { |s|
-                  Array(s&.dig('category', 'id')).compact.map { |v| 'CATEGORY:' + v }
-                })
+          .>> t(:add_field, 'tour_category_references', ->(s) { Array(s&.dig('category', 'id')).compact.map { |v| 'CATEGORY:' + v } })
           .>> t(:add_external_classification_references, 'tour_category_references', external_source_id, ['tour_category_references'])
           .>> t(:universal_classifications, ->(s) { Array(s['tour_category_references']) })
           .>> t(:reject_keys, ['tour_category_references'])
-          .>> t(:add_field, 'tag_references',
-                lambda { |s|
-                  s&.dig('properties', 'property')&.map { |p| p['tag'] }&.compact&.map { |v| 'TAG:' + v }
-                })
+          .>> t(:add_field, 'tag_references', ->(s) { s&.dig('properties', 'property')&.map { |p| p['tag'] }&.compact&.map { |v| 'TAG:' + v } })
           .>> t(:add_external_classification_references, 'tag_references', external_source_id, ['tag_references'])
           .>> t(:universal_classifications, ->(s) { Array(s['tag_references']) })
-          .>> t(:add_field, 'region_references',
-                lambda { |s|
-                  s&.dig('regions', 'region')&.map { |p| p['id'] }&.compact&.map { |v| 'REGION:' + v }
-                })
+          .>> t(:add_field, 'region_references', ->(s) { s&.dig('regions', 'region')&.map { |p| p['id'] }&.compact&.map { |v| 'REGION:' + v } })
           .>> t(:add_external_classification_references, 'region_references', external_source_id, ['region_references'])
           .>> t(:universal_classifications, ->(s) { Array(s['region_references']) })
-          .>> t(:add_field, 'source_references',
-                lambda { |s|
-                  Array(s&.dig('meta', 'source', 'id')).compact.map { |v| 'SOURCE:' + v }
-                })
+          .>> t(:add_field, 'source_references', ->(s) { Array(s&.dig('meta', 'source', 'id')).compact.map { |v| 'SOURCE:' + v } })
           .>> t(:add_external_classification_references, 'source_references', external_source_id, ['source_references'])
           .>> t(:universal_classifications, ->(s) { Array(s['source_references']) })
           .>> t(:add_field, 'season_months', ->(s) { s.dig('season').select { |_, v| v }.keys.map { |m| by_month_id(m) } })
           .>> t(:universal_classifications, ->(s) { Array(s['season_months']) })
+          .>> t(:universal_classifications, ->(s) { Array.wrap(classification_id_by_tree_and_name(tree_name: 'Lizenzen', classification_name: s.dig('meta', 'license', 'short'))) || [] })
           .>> t(:reject_keys, ['season', 'season_months', 'category', 'tour_categories', 'frontendtype', 'outdoor_active_tags', 'regions', 'source'])
           .>> t(:resolve_references)
           .>> t(:strip_all)
@@ -207,10 +190,7 @@ module DataCycleCore
           .>> t(:add_external_content_references, 'copyright_holder', external_source_id, ['copyright_holder'])
           .>> t(:add_field, 'author', ->(s) { to_author.call(s)['external_key'] })
           .>> t(:add_external_content_references, 'author', external_source_id, ['author'])
-          .>> t(:universal_classifications,
-                lambda { |s|
-                  classification_id_by_tree_and_name(tree_name: 'OutdoorActive - Lizenzen', classification_name: s.dig('license', 'short')) || []
-                })
+          .>> t(:universal_classifications, ->(s) { Array.wrap(classification_id_by_tree_and_name(tree_name: 'Lizenzen', classification_name: s.dig('license', 'short'))) || [] })
           .>> t(:add_field, 'copyright_notice_override', ->(s) { s.dig('license', 'url').presence })
           .>> t(:rename_keys, { 'id' => 'external_key', 'title' => 'name' })
           .>> t(:map_value, 'name', ->(v) { v || '__NO_NAME__' })

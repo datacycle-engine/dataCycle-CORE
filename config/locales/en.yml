@@ -102,7 +102,8 @@ en:
     tooltip_translations: Translations
 
   user:
-    user_not_confirmed: The email address has not been confirmed yet
+    user_not_confirmed: email address has not been confirmed yet
+    confirm: confirm email
 
   frontend:
     load_error: Error loading content.
@@ -1175,7 +1176,7 @@ en:
         text_file: Further information (%{file_types})
         locale: E-mail language
       data_cycle_core/stored_filter:
-        system: Visible for all users
+        system: Visible for all users (also applies to the API)
         api: Retrievable via API
         api_users: Users permitted for API
         linked_stored_filter_id: Filter for linked content
@@ -1450,8 +1451,8 @@ en:
       web_seo_beschreibung: web_seo_beschreibung
       web_seo_keywords: web_seo_keywords
       web_seo_titel: web_seo_titel
-      additionaltext_feature_barrierefreiheit: Accessiblity
-      additionaltext_feature_eignung: Accessiblity levels
+      additionaltext_feature_barrierefreiheit: Accessibility
+      additionaltext_feature_eignung: Accessibility levels
       additionaltext_feature_hygiene- und infektionsschutzmaßnahmen: hygiene and anti infection measures
       dayoff: Day off
       details: Details
@@ -1466,6 +1467,20 @@ en:
       station: Station
       subtitle: Subtitle
       teaser: Teaser
+    bierfinder:
+      book: Description
+      tipp: Tip
+      essenUndSpezial: Food and Specials
+      biersorten: Brand of Beer
+    venus:
+      accessibilityDescription: Accessibility
+      arrivalDescription: Arrival
+      shortDescription: Short description
+      description: Description
+      specialDescription: Special Description
+      sellsBrands: Sells brands
+      startingPointDescription: Starting point description
+      character: Tour character
 
   media_archive:
     allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>
