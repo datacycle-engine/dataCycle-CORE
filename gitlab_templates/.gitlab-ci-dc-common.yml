@@ -87,6 +87,7 @@ services:
     - bundle exec brakeman -c vendor/gems/data-cycle-core/config/brakeman.yml
     - bundle exec rubocop --format fuubar -P
     - bundle exec fasterer
+    - echo "$CORE_RAKE_PREFIX, ${CORE_RAKE_PREFIX}data_cycle_core:update:validate_templates, $CORE_RAKE_PREFIXdata_cycle_core:update:validate_templates"
     - bundle exec rake "$CORE_RAKE_PREFIXdata_cycle_core:update:validate_templates"
 
 .rails_test_config:
