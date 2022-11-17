@@ -1448,8 +1448,8 @@ en:
       web_seo_beschreibung: web_seo_beschreibung
       web_seo_keywords: web_seo_keywords
       web_seo_titel: web_seo_titel
-      additionaltext_feature_barrierefreiheit: Accessiblity
-      additionaltext_feature_eignung: Accessiblity levels
+      additionaltext_feature_barrierefreiheit: Accessibility
+      additionaltext_feature_eignung: Accessibility levels
       additionaltext_feature_hygiene- und infektionsschutzmaßnahmen: hygiene and anti infection measures
       dayoff: Day off
       details: Details
@@ -1464,6 +1464,20 @@ en:
       station: Station
       subtitle: Subtitle
       teaser: Teaser
+    bierfinder:
+      book: Description
+      tipp: Tip
+      essenUndSpezial: Food and Specials
+      biersorten: Brand of Beer
+    venus:
+      accessibilityDescription: Accessibility
+      arrivalDescription: Arrival
+      shortDescription: Short description
+      description: Description
+      specialDescription: Special Description
+      sellsBrands: Sells brands
+      startingPointDescription: Starting point description
+      character: Tour character
 
   media_archive:
     allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>

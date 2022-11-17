@@ -93,7 +93,7 @@ module DataCycleCore
     #   data_set.set_data_hash(
     #     data_hash: {
     #       'name' => 'Main',
-    #       'testPlace' => place_array
+    #       'test_place' => place_array
     #     },
     #     prevent_history: true
     #   )
@@ -106,12 +106,12 @@ module DataCycleCore
     #   assert_equal(0, DataCycleCore::Place::History.count)
     #   assert_equal(0, DataCycleCore::ContentContent::History.count)
     #
-    #   stored_places = data_set.testPlace.map(&:name)
+    #   stored_places = data_set.test_place.map(&:name)
     #   place_array.each_index do |index|
     #     assert_equal(place_array[index]['name'], stored_places[index])
     #   end
     #
-    #   stored_ids = data_set.testPlace.map(&:id)
+    #   stored_ids = data_set.test_place.map(&:id)
     #   new_array = []
     #   (1..3).each do |number|
     #     new_array.push({ 'id' => stored_ids[number - 1] })
@@ -121,7 +121,7 @@ module DataCycleCore
     #   data_set.set_data_hash(
     #     data_hash: {
     #       'name' => 'Main',
-    #       'testPlace' => [
+    #       'test_place' => [
     #         new_array[2],
     #         new_array[1],
     #         new_array[0]
@@ -137,7 +137,7 @@ module DataCycleCore
     #   assert_equal(3, DataCycleCore::Place::History.count)
     #   assert_equal(3, DataCycleCore::ContentContent::History.count)
     #
-    #   linked_data = data_set.testPlace.map(&:id)
+    #   linked_data = data_set.test_place.map(&:id)
     #   new_array.each_index do |index|
     #     assert_equal(new_array[-(index + 1)]['id'], linked_data[index])
     #   end
