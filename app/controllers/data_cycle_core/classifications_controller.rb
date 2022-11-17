@@ -19,42 +19,57 @@ module DataCycleCore
         end
 
         format.js do
-          permitted_params = params.permit(:classification_tree_label_id, :classification_tree_id, :page, :load_all)
-
-          if permitted_params.include?(:classification_tree_label_id)
-            @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
-            @classification_trees = @classification_tree_label.classification_trees.where(parent_classification_alias: nil)
-
-          elsif permitted_params.include?(:classification_tree_id)
-            @classification_tree = DataCycleCore::ClassificationTree.find(params[:classification_tree_id])
+          if index_params.include?(:mapped_classification_alias_id)
+            @mapped_classification_alias = DataCycleCore::ClassificationAlias.find(index_params[:mapped_classification_alias_id])
+            @mapped_classification_aliases = @mapped_classification_alias.additional_classifications.primary_classification_aliases
+            @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(index_params[:classification_tree_label_id])
+            @classification_trees = @mapped_classification_alias.sub_classification_alias
+          elsif index_params.include?(:classification_tree_id)
+            @classification_tree = DataCycleCore::ClassificationTree.find(index_params[:classification_tree_id])
             @classification_tree_label = @classification_tree.classification_tree_label
             @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees
+            @mapped_classification_aliases = @classification_tree.sub_classification_alias&.additional_classifications&.primary_classification_aliases || DataCycleCore::ClassificationAlias.none
+          elsif index_params.include?(:classification_tree_label_id)
+            @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(index_params[:classification_tree_label_id])
+            @classification_trees = @classification_tree_label.classification_trees.where(parent_classification_alias: nil)
+            @mapped_classification_aliases = DataCycleCore::ClassificationAlias.none
           else
             raise 'Missing parameter; either classification_tree_label_id or classification_tree_id must be provided'
           end
 
           authorize! :index, @classification_tree_label
 
+          @mapped_classification_aliases = @mapped_classification_aliases
+            &.order('classification_aliases.internal_name')
+
           @classification_trees = @classification_trees
-            .joins(:sub_classification_alias)
-            .includes(
+            &.joins(:sub_classification_alias)
+            &.includes(
               sub_classification_alias: [
                 additional_classifications: [primary_classification_alias: :classification_alias_path],
                 primary_classification: [additional_classification_aliases: :classification_alias_path],
                 classifications: [primary_classification_alias: :classification_alias_path]
               ]
             )
-            .order('classification_aliases.internal_name')
+            &.order('classification_aliases.internal_name')
 
-          @page = permitted_params[:page].to_i
+          @direct_page = index_params[:direct_page].to_i
+          @mapped_page = index_params[:mapped_page].to_i
 
-          if permitted_params[:load_all].present?
-            @classification_trees = @classification_trees.offset(DEFAULT_PAGE_SIZE * (@page - 1))
-            @last_page = true
+          if index_params[:load_all_direct].present? || index_params[:load_all_mapped].present?
+            @classification_trees = @classification_trees.offset(DEFAULT_PAGE_SIZE * (@direct_page - 1))
+            @last_direct_page = true
+
+            @mapped_classification_aliases = @mapped_classification_aliases.offset(DEFAULT_PAGE_SIZE * (@mapped_page - 1))
+            @last_mapped_page = true
           else
-            @classification_trees = @classification_trees.page(@page).per(DEFAULT_PAGE_SIZE)
-            @page = @classification_trees.current_page
-            @last_page = @classification_trees.last_page?
+            @classification_trees = @classification_trees&.page(@direct_page)&.per(DEFAULT_PAGE_SIZE)
+            @direct_page = @classification_trees&.current_page
+            @last_direct_page = @classification_trees&.last_page?
+
+            @mapped_classification_aliases = @mapped_classification_aliases&.page(@mapped_page)&.per(DEFAULT_PAGE_SIZE)
+            @mapped_page = @mapped_classification_aliases&.current_page
+            @last_mapped_page = @mapped_classification_aliases&.last_page?
           end
         end
       end
@@ -228,6 +243,10 @@ module DataCycleCore
     end
 
     private
+
+    def index_params
+      params.permit(:classification_tree_label_id, :classification_tree_id, :mapped_classification_alias_id, :direct_page, :mapped_page, :load_all_direct, :load_all_mapped)
+    end
 
     def create_params
       return @create_params if defined? @create_params

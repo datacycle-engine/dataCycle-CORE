@@ -22,15 +22,22 @@ ul.backend-treeview-list,
   .classification-alias-form-container {
     margin-left: 1rem;
 
-    &::before {
-      content: '';
-      position: absolute;
-      left: calc(-1rem - 2px);
-      top: 50%;
-      width: calc(1rem + 2px);
-      border: 1px solid $medium-gray;
-      border-top: 0 none transparent;
-      border-right: 0 none transparent;
+    &.remote-render,
+    &.remote-rendering {
+      min-height: 1.6rem;
+      padding: 0;
+
+      &::before {
+        display: none;
+      }
+
+      &::after {
+        height: 1.6rem;
+        top: 0;
+        left: 0;
+        right: 0;
+        border: none;
+      }
     }
   }
 
@@ -284,7 +291,7 @@ ul.backend-treeview-list,
     a:not(.button):not(.ca-translation-link) {
       display: flex;
       margin: 0;
-      color: $dark-gray;
+      color: lighten($dark-gray, 10%);
       cursor: pointer;
       align-items: center;
       transition: $color-transition;
@@ -340,9 +347,31 @@ ul.backend-treeview-list,
 
       > li {
         list-style-type: none;
-        border-left: 1px solid $medium-gray;
+        border-left: 1px solid lighten($dark-gray, 10%);
         margin-left: 1.5rem;
         line-height: 1;
+      }
+
+      li.mapped-classification-alias {
+        > span.inner-item > a.name {
+          color: $dark-gray;
+        }
+      }
+
+      li.active {
+        position: relative;
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -1px;
+          bottom: 50%;
+          width: 0.75em;
+          border: 1px solid lighten($dark-gray, 10%);
+          border-top: 0 none transparent;
+          border-right: 0 none transparent;
+        }
       }
 
       li:not(.active) {
@@ -363,7 +392,7 @@ ul.backend-treeview-list,
             left: -1px;
             bottom: 50%;
             width: 0.75em;
-            border: 1px solid $medium-gray;
+            border: 1px solid lighten($dark-gray, 10%);
             border-top: 0 none transparent;
             border-right: 0 none transparent;
           }
@@ -386,7 +415,7 @@ ul.backend-treeview-list,
             left: -1px;
             bottom: 50%;
             width: 0.75em;
-            border: 1px solid $medium-gray;
+            border: 1px solid lighten($dark-gray, 10%);
             border-top: 0 none transparent;
             border-right: 0 none transparent;
           }
@@ -404,19 +433,6 @@ ul.backend-treeview-list,
         .classification-alias-form-container {
           padding: 1rem;
           margin-left: 1rem;
-          margin-bottom: 1rem;
-
-          &::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: calc(-1rem - 2px);
-            bottom: 50%;
-            width: calc(1rem + 2px);
-            border: 1px solid $medium-gray;
-            border-top: 0 none transparent;
-            border-right: 0 none transparent;
-          }
         }
       }
     }
@@ -478,11 +494,11 @@ ul.backend-treeview-list,
   .classification-tree-label-form-container {
     &.remote-render,
     &.remote-rendering {
-      min-height: 3rem;
+      min-height: 2.4rem;
 
       &::before,
       &::after {
-        height: 3rem;
+        height: 2.4rem;
       }
     }
   }
@@ -865,7 +881,7 @@ ul.backend-treeview-list,
         }
 
         &:nth-last-child(2) {
-          border-left: 1px solid $medium-gray;
+          border-left: 1px solid lighten($dark-gray, 10%);
         }
 
         &:last-child {
@@ -876,7 +892,7 @@ ul.backend-treeview-list,
 
       &.has-contents {
         > li:last-child {
-          border-left: 1px solid $medium-gray;
+          border-left: 1px solid lighten($dark-gray, 10%);
         }
       }
     }
@@ -937,7 +953,7 @@ ul.backend-treeview-list,
         }
 
         &:not(:last-child) {
-          border-left: 1px solid $medium-gray;
+          border-left: 1px solid lighten($dark-gray, 10%);
         }
 
         &::before {
@@ -948,7 +964,7 @@ ul.backend-treeview-list,
           left: -1px;
           height: 1rem;
           width: 0.75em;
-          border: 1px solid $medium-gray;
+          border: 1px solid lighten($dark-gray, 10%);
           border-top: 0 none transparent;
           border-right: 0 none transparent;
         }

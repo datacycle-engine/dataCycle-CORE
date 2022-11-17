@@ -3580,7 +3580,6 @@ body {
     &::before,
     &::after {
       content: '';
-      width: 100%;
       display: flex;
       top: 0;
       left: 0;
@@ -3598,12 +3597,25 @@ body {
       box-shadow: 0 0 0 1px $light-gray inset;
     }
 
+    &.inverted::before {
+      background-color: rgba(white, 0.9);
+    }
+
     &::after {
       height: 1.5rem;
       right: unset;
       width: 100%;
       background: linear-gradient(to right, rgba(white, 0) 0%, rgba(white, 0.5) 25%, rgba(white, 0) 50%);
       animation: progress-bar 1.5s linear infinite forwards;
+    }
+
+    &.inverted::after {
+      background: linear-gradient(
+        to right,
+        rgba(white, 0) 0%,
+        rgba(lighten($light-gray, 4%), 0.9) 25%,
+        rgba(white, 0) 50%
+      );
     }
 
     > * {

@@ -61,7 +61,7 @@
                 } %>
   </span>
 
-  <%= tag.div(class: 'remote-render classification-tree-label-form-container', data: { remote_path: 'data_cycle_core/classifications/classification_tree_label_form', remote_options: to_query_params(classification_tree_label: tree_label).to_json }) if can?(:edit, tree_label) %>
+  <%= tag.div(class: 'remote-render inverted classification-tree-label-form-container', data: { remote_path: 'data_cycle_core/classifications/classification_tree_label_form', remote_options: to_query_params(classification_tree_label: tree_label).to_json }) if can?(:edit, tree_label) %>
 
   <ul class="children">
   </ul>

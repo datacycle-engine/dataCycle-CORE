@@ -1,0 +1,14 @@
+<li id="<%= mapped_classification_alias.id %>" class="mapped-classification-alias">
+  <span class="inner-item">
+    <%= link_to classification_title(mapped_classification_alias),
+                classifications_path(mapped_classification_alias_id: mapped_classification_alias.id, classification_tree_label_id: classification_tree_label.id),
+                class: 'name',
+                data: {
+                  remote: true,
+                  dc_tooltip: mapped_classification_alias.full_path
+                } %>
+  </span>
+
+  <ul class="children">
+  </ul>
+</li>
