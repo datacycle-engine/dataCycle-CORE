@@ -9,6 +9,7 @@ include:
 variables:
   DOCKER_URL: 'https://core-develop.datacycle.at'
   GITLAB_ENVIRONMENT: 'develop'
+  CORE_RAKE_PREFIX: 'app:'
 
 stages:
   - build
