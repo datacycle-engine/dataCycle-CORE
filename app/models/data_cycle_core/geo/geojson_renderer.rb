@@ -14,6 +14,10 @@ module DataCycleCore
         )
       end
 
+      def result(things_query, geometry_query)
+        super(things_query, geometry_query) || empty_geojson
+      end
+
       def contents_with_default_scope(simplify_factor:)
         query = super(simplify_factor: simplify_factor)
 
@@ -33,6 +37,14 @@ module DataCycleCore
         <<-SQL.squish
               json_build_object('type', 'FeatureCollection'#{CRS_SQL}, 'features', json_agg(#{geojson_detail_select_sql}))
         SQL
+      end
+
+      def empty_geojson
+        {
+          'type': 'Feature',
+          'geometry': nil,
+          'properties': nil
+        }.to_json
       end
     end
   end
