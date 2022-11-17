@@ -72,6 +72,8 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
   }
   updateMapPosition() {
     this.bboxForCurrentStoredFilter().then(bbox => {
+      if (Object.values(bbox).includes(null)) return;
+
       const sw = new this.maplibreGl.LngLat(bbox.xmin, bbox.ymin);
       const ne = new this.maplibreGl.LngLat(bbox.xmax, bbox.ymax);
       const bounds = new this.maplibreGl.LngLatBounds(sw, ne);
