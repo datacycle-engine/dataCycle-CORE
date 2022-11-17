@@ -1,5 +1,4 @@
 ---
-
 - :data:
     :name: TestSimple
     :type: object
@@ -27,7 +26,7 @@
         :label: Titel
         :type: string
         :storage_location: column
-      :includedData:
+      :included_data:
         :label: embeddedDataLabel
         :type: object
         :storage_location: translated_value
@@ -58,7 +57,7 @@
         :label: Inhaltspools
         :type: classification
         :tree_label: Inhaltspools
-        :default_value: "Aktuelle Inhalte"
+        :default_value: 'Aktuelle Inhalte'
         :ui:
           :show:
             :content_area: header
@@ -78,7 +77,7 @@
         :label: Titel
         :type: string
         :storage_location: column
-      :testPlace:
+      :test_place:
         :label: Ort
         :type: embedded
         :template_name: testPlace
@@ -96,7 +95,7 @@
         :label: Titel
         :type: string
         :storage_location: column
-      :testCW:
+      :test_cw:
         :label: Kreativdaten
         :type: embedded
         :template_name: EmbeddedCreativeWork
@@ -118,7 +117,7 @@
         :label: Inhaltspool
         :type: classification
         :tree_label: Inhaltspools
-        :default_value: "Aktuelle Inhalte"
+        :default_value: 'Aktuelle Inhalte'
         :ui:
           :show:
             :content_area: header

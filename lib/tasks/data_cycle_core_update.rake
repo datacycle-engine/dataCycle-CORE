@@ -43,6 +43,19 @@ namespace :data_cycle_core do
       puts "\n"
     end
 
+    desc 'validate all template definitions'
+    task validate_templates: [:environment] do
+      puts "validating new template definitions\n"
+      errors = DataCycleCore::MasterData::ImportTemplates.validate_all
+
+      if errors.present?
+        puts 'the following errors were encountered during validatiion:'
+        ap errors
+      end
+
+      errors.blank? ? puts('[done] ... looks good') : exit(-1)
+    end
+
     desc 'import all template definitions'
     task import_templates: [:environment] do
       before_import = Time.zone.now
