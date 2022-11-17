@@ -38,7 +38,7 @@
         :translated: true
         :validations:
           :max: 1
-      :additionalInformation:
+      :additional_information:
         :label: Ergänzende Information
         :type: embedded
         :template_name: Ergänzende Information
