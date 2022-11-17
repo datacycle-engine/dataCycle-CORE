@@ -9,7 +9,6 @@ include:
 variables:
   DOCKER_URL: 'https://core-develop.datacycle.at'
   GITLAB_ENVIRONMENT: 'develop'
-  CORE_RAKE_PREFIX: 'app:'
 
 stages:
   - build
@@ -57,6 +56,8 @@ build_caches:
 code_validation:
   <<: *docker_ci
   extends: .code_validation_config
+  variables:
+    CORE_RAKE_PREFIX: 'app:'
 
 rails_test:
   <<: *docker_ci
