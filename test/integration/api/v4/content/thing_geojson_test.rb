@@ -8,6 +8,8 @@ module DataCycleCore
       module Content
         class ThingGeojsonTest < DataCycleCore::V4::Base
           before(:all) do
+            DataCycleCore.features[:serialize][:serializers][:geojson] = true
+
             @test_tour = DataCycleCore::DummyDataHelper.create_data('tour')
             tour_data_hash = @test_tour.get_data_hash
             tour_data_hash['universal_classifications'].concat(['Freitag'].map { |m| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Wochentage', m) })
@@ -23,6 +25,10 @@ module DataCycleCore
             @test_poi.save
 
             @test_article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
+          end
+
+          test 'validate feature is enabled' do
+            assert(DataCycleCore::Feature::Serialize.available_serializers.include?('geojson'))
           end
 
           test 'geojson of stored tour exists' do
