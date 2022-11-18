@@ -79,7 +79,7 @@ class MapLibreGlViewer {
           container: this.containerId,
           style: this.mapBaseLayer(),
           transformRequest: (url, _resourceType) => {
-            if (url.includes('tiles.pixelmap.at/')) {
+            if (url.includes('tiles.pixelmap.at/') || url.includes('tiles.pixelpoint.at/')) {
               return {
                 headers: {
                   Authorization: `Bearer ${this.credentials.api_key}`
