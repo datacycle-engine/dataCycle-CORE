@@ -1,8 +1,8 @@
-<li id="<%= classification_tree.id %>">
+<li id="<%= classification_tree.id %>" class="<%= type %>">
   <span class="inner-item">
     <%= link_to classification_title(classification_tree.sub_classification_alias),
                 classifications_path(classification_tree_id: classification_tree.id),
-                class: "name #{'internal' if classification_tree.sub_classification_alias.internal?}",
+                class: "name",
                 data: {
                   remote: true
                 } %>
@@ -44,6 +44,5 @@
     <%= tag.div(class: 'remote-render inverted classification-alias-form-container', data: { remote_path: 'data_cycle_core/classifications/classification_alias_form', remote_options: to_query_params(classification_tree_label: classification_tree_label, classification_tree: classification_tree).to_json }) %>
   <% end %>
 
-  <ul class="children">
-  </ul>
+  <ul class="children"></ul>
 </li>

@@ -1,7 +1,7 @@
 <li id="<%= tree_label.id %>" class="classification_tree_label">
   <span class="inner-item">
     <%= link_to tree_label.name, classifications_path(classification_tree_label_id: tree_label.id),
-            class: "name #{'internal' if tree_label.internal?}",
+            class: "name",
             data: {
                 remote: true
             } %>
@@ -63,6 +63,5 @@
 
   <%= tag.div(class: 'remote-render inverted classification-tree-label-form-container', data: { remote_path: 'data_cycle_core/classifications/classification_tree_label_form', remote_options: to_query_params(classification_tree_label: tree_label).to_json }) if can?(:edit, tree_label) %>
 
-  <ul class="children">
-  </ul>
+  <ul class="children"></ul>
 </li>

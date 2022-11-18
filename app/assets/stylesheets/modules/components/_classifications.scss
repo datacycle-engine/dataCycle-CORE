@@ -353,7 +353,7 @@ ul.backend-treeview-list,
       }
 
       li.mapped-classification-alias {
-        > span.inner-item > a.name {
+        > span.inner-item > .name {
           color: $dark-gray;
         }
       }

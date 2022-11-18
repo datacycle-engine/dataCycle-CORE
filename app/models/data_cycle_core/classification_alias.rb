@@ -12,16 +12,6 @@ module DataCycleCore
       end
     end
 
-    class Statistics < ApplicationRecord
-      self.table_name = 'classification_alias_statistics'
-
-      belongs_to :classification_alias, foreign_key: 'id'
-
-      def readonly?
-        true
-      end
-    end
-
     extend ::Translations
     translates :name, :description, column_suffix: '_i18n', backend: :jsonb
     default_scope { i18n }
@@ -64,8 +54,6 @@ module DataCycleCore
       where.not(id: DataCycleCore::ClassificationGroup::PrimaryClassificationGroup.all)
     }, class_name: 'DataCycleCore::ClassificationGroup'
     has_many :additional_classifications, through: :additional_classification_groups, source: :classification
-
-    has_one :statistics, class_name: 'Statistics', foreign_key: 'id' # rubocop:disable Rails/HasManyOrHasOneDependent
 
     has_many :classification_polygons, dependent: :destroy
     has_many :classification_alias_paths_transitive
