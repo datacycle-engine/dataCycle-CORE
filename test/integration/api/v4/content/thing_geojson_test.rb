@@ -8,7 +8,9 @@ module DataCycleCore
       module Content
         class ThingGeojsonTest < DataCycleCore::V4::Base
           before(:all) do
+            @geojson_feature_state = DataCycleCore.features[:serialize][:serializers][:geojson]
             DataCycleCore.features[:serialize][:serializers][:geojson] = true
+            DataCycleCore::Feature::Serialize.reload
 
             @test_tour = DataCycleCore::DummyDataHelper.create_data('tour')
             tour_data_hash = @test_tour.get_data_hash
@@ -25,6 +27,11 @@ module DataCycleCore
             @test_poi.save
 
             @test_article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
+          end
+
+          after(:all) do
+            DataCycleCore.features[:serialize][:serializers][:geojson] = @geojson_feature_state
+            DataCycleCore::Feature::Serialize.reload
           end
 
           test 'validate feature is enabled' do
