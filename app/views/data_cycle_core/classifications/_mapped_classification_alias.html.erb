@@ -1,5 +1,4 @@
-<% html_id = SecureRandom.uuid %>
-<li id="<%= html_id %>" data-id="<%= mapped_classification_alias.id %>" class="<%= type %>">
+<li data-id="<%= mapped_classification_alias.id %>" class="<%= type %>">
   <span class="inner-item">
     <%= link_to_if DataCycleCore.transitive_classification_paths,
                 tag.span(
@@ -11,13 +10,9 @@
                   ),
                 classifications_path(
                   mapped_classification_alias_id: mapped_classification_alias.id,
-                  classification_tree_label_id: classification_tree_label.id,
-                  html_id: html_id
+                  classification_tree_label_id: classification_tree_label.id
                 ),
-                class: 'name',
-                data: {
-                  remote: true
-                } %>
+                class: 'name' %>
   </span>
 
   <ul class="children"></ul>

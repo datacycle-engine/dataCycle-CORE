@@ -2,10 +2,7 @@
   <span class="inner-item">
     <%= link_to classification_title(classification_tree.sub_classification_alias),
                 classifications_path(classification_tree_id: classification_tree.id),
-                class: "name",
-                data: {
-                  remote: true
-                } %>
+                class: "name" %>
 
     <%= link_to tag.i(class: 'fa fa-pencil'), '#',
                 class: 'edit',
@@ -17,8 +14,6 @@
                 classifications_path(classification_tree_id: classification_tree.id),
                 class: 'destroy',
                 data: {
-                  remote: true,
-                  method: :delete,
                   confirm: tag.div(class: 'remote-render', data: { remote_path: 'data_cycle_core/classifications/classification_alias_removal_warning', remote_options: CGI::escapeHTML(to_query_params(classification_alias: classification_tree.sub_classification_alias).to_json) }),
                   disable_with: tag.i(class: 'fa fa-spinner fa-spin'),
                   dc_tooltip: t('actions.delete_with_data', data: classification_tree.sub_classification_alias.try(:internal_name), locale: active_ui_locale)
@@ -40,9 +35,7 @@
               } %>
   </span>
 
-  <% if can?(:update, classification_tree.sub_classification_alias) || can?(:map_classifications, classification_tree.sub_classification_alias) %>
-    <%= tag.div(class: 'remote-render inverted classification-alias-form-container', data: { remote_path: 'data_cycle_core/classifications/classification_alias_form', remote_options: to_query_params(classification_tree_label: classification_tree_label, classification_tree: classification_tree).to_json }) %>
-  <% end %>
+  <%= tag.div(class: 'remote-render inverted classification-alias-form-container', data: { remote_path: 'data_cycle_core/classifications/classification_alias_form', remote_options: to_query_params(classification_tree_label: classification_tree_label, classification_tree: classification_tree).to_json }) if can?(:update, classification_tree.sub_classification_alias) || can?(:map_classifications, classification_tree.sub_classification_alias) %>
 
   <ul class="children"></ul>
 </li>

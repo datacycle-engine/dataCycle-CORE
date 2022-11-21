@@ -1,6 +1,6 @@
 <% classification_alias ||= classification_tree.sub_classification_alias %>
 
-<%= form_with(model: classification_alias, url: classifications_path, namespace: classification_alias&.id, local: false) do |f| %>
+<%= form_with(model: classification_alias, url: classifications_path, namespace: classification_alias&.id, local: true, class: 'classification-alias-form') do |f| %>
   <%= hidden_field(nil, :classification_tree_label_id, value: classification_tree_label.id) %>
   <%= hidden_field(nil, :classification_tree_id, value: classification_tree.id) if classification_tree %>
   <%= f.hidden_field :id %>
@@ -22,8 +22,8 @@
       </div>
     </div>
 
-    <%= tag.button(tag.i(class: 'fa fa-check'), class: 'button-prime small success update', data: { disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw', title: t('data_cycle_core.classifications_adminitration.classification.submit_loading_message', locale: active_ui_locale)) }) %>
-    <button class="button-prime small discard secondary"><i aria-hidden="true" class="fa fa-times"></i></button>
+    <%= tag.button(tag.i(class: 'fa fa-check'), class: 'button-prime small success update submit-button', data: { disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw', title: t('data_cycle_core.classifications_adminitration.classification.submit_loading_message', locale: active_ui_locale)) }) %>
+    <button class="button-prime small discard secondary" type="reset"><i aria-hidden="true" class="fa fa-times"></i></button>
   </div>
 
   <div class="ca-input">
@@ -74,7 +74,7 @@
     <div class="v-select">
       <%= f.label :classification_ids %>
       <%= f.select(:classification_ids,
-        async_classification_select_options(classification_alias.additional_classifications, DataCycleCore::Classification),
+        async_classification_select_options(classification_alias.additional_classifications.includes(primary_classification_alias: :classification_alias_path), DataCycleCore::Classification),
         {},
         {
           class: 'async-select',

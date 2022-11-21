@@ -20,11 +20,7 @@
         <%= render partial: 'classification_tree_label', collection: tree_labels, as: :tree_label %>
 
         <% if !external_source_id && can?(:create, DataCycleCore::ClassificationTreeLabel) %>
-          <li class="new-classification-tree-label">
-            <a href="#" class="create button-prime small success"><i class="fa fa-plus"></i></a>
-
-            <%= tag.div(class: 'remote-render inverted classification-tree-label-form-container new', data: { remote_path: 'data_cycle_core/classifications/classification_tree_label_form', remote_options: to_query_params(classification_tree_label: DataCycleCore::ClassificationTreeLabel.new).to_json })  %>
-          </li>
+          <%= render 'data_cycle_core/classifications/new_classification_tree_label' %>
         <% end %>
       </ul>
     <% end %>

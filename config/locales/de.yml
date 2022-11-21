@@ -106,6 +106,8 @@ de:
 
   classifications:
     tooltip_translations: Übersetzungen
+    new_classification_tree_label: Neuen Klassifzierungsbaum anlegen
+    new_classification: Neue Klassifzierung anlegen
 
   user:
     user_not_confirmed: E-Mail Adresse wurde noch nicht bestätigt
@@ -1520,7 +1522,7 @@ de:
       sellsBrands: Verkauft Marken
       startingPointDescription: Startpunkt Beschreibung
       character: Tour Charakter
- 
+
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
       <ul class="no-bullet">

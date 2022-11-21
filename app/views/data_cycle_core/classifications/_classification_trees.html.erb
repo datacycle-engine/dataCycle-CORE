@@ -8,26 +8,18 @@
       <%= link_to t('common.load_all', locale: active_ui_locale),
                   classifications_path(**id_param, load_all: true, page: (page + 1), type: type),
                   data: {
-                    remote: true,
                     disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}"
                   },
-                  class: 'button small secondary' %>
+                  class: 'button small primary load-more-button load-all' %>
 
-      <%= link_to t('common.load_more', locale: active_ui_locale),
+      <%#= link_to t('common.load_more', locale: active_ui_locale),
                   classifications_path(**id_param, page: (page + 1), type: type),
                   data: {
-                    remote: true,
                     disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}"
                   },
-                  class: 'button small secondary' %>
+                  class: 'button small secondary load-more-button' %>
     </span>
   </li>
 <% end %>
 
-<% if can?(:create, classification_tree_label) %>
-  <li class="new-button">
-    <div class="new-button-spacer"><a href="#" class="button-prime small create success"><i class="fa fa-plus"></i></a></div>
-
-    <%= tag.div(class: 'remote-render inverted classification-alias-form-container new', data: { remote_path: 'data_cycle_core/classifications/classification_alias_form', remote_options: to_query_params(classification_tree_label: classification_tree_label, classification_tree: classification_tree, classification_alias: DataCycleCore::ClassificationAlias.new).to_json }) %>
-  </li>
-<% end %>
+<%= render('data_cycle_core/classifications/new_classification_alias', classification_tree_label: classification_tree_label, classification_tree: classification_tree) if can?(:create, classification_tree_label) && page == 1 %>

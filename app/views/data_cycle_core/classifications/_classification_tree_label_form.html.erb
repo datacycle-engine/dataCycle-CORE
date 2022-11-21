@@ -1,8 +1,8 @@
-<%= form_with(model: classification_tree_label, url: classifications_path, namespace: classification_tree_label&.id, local: false) do |f| %>
+<%= form_with(model: classification_tree_label, url: classifications_path, namespace: classification_tree_label&.id, local: true, class: 'classification-tree-label-form') do |f| %>
 
   <div class="ca-buttons">
-    <%= tag.button(tag.i(class: 'fa fa-check'), class: 'button-prime small success update', data: { disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw') }) %>
-    <button class="button-prime small discard secondary"><i aria-hidden="true" class="fa fa-times"></i></button>
+    <%= tag.button(tag.i(class: 'fa fa-check'), class: 'button-prime small success update submit-button', data: { disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw') }) %>
+    <button class="button-prime small discard secondary" type="reset"><i aria-hidden="true" class="fa fa-times"></i></button>
   </div>
 
   <%= f.hidden_field :id %>

@@ -20,8 +20,6 @@ ul.backend-treeview-list,
   }
 
   .classification-alias-form-container {
-    margin-left: 1rem;
-
     &.remote-render,
     &.remote-rendering {
       min-height: 1.6rem;
@@ -242,6 +240,10 @@ ul.backend-treeview-list,
   > li {
     border-top: 1px solid $medium-gray;
 
+    &.classification_tree_label > ul.children.open {
+      margin-left: 1rem;
+    }
+
     span.inner-item {
       position: relative;
       padding: 0.5rem 0.7rem;
@@ -326,7 +328,7 @@ ul.backend-treeview-list,
           line-height: 1rem;
         }
 
-        &.loading-children {
+        &.disabled {
           pointer-events: none;
 
           &::after {
@@ -335,7 +337,7 @@ ul.backend-treeview-list,
           }
         }
 
-        &.open:not(.loading-children)::after {
+        &.open:not(.disabled)::after {
           content: '\f106';
         }
       }
@@ -344,21 +346,18 @@ ul.backend-treeview-list,
     ul.children {
       list-style-type: none;
       margin: 0;
+      display: none;
+
+      &.open {
+        display: block;
+      }
 
       > li {
         list-style-type: none;
         border-left: 1px solid lighten($dark-gray, 10%);
-        margin-left: 1.5rem;
+        margin-left: 0.5rem;
+        padding-left: 1rem;
         line-height: 1;
-      }
-
-      li.mapped-classification-alias {
-        > span.inner-item > .name {
-          color: $dark-gray;
-        }
-      }
-
-      li.active {
         position: relative;
 
         &::before {
@@ -366,17 +365,31 @@ ul.backend-treeview-list,
           position: absolute;
           top: 0;
           left: -1px;
-          bottom: 50%;
-          width: 0.75em;
+          height: 0.8rem;
+          width: 0.75rem;
           border: 1px solid lighten($dark-gray, 10%);
           border-top: 0 none transparent;
           border-right: 0 none transparent;
+        }
+
+        &.mapped {
+          padding-left: 1rem;
+
+          &::before {
+            width: 0.75rem;
+          }
+        }
+      }
+
+      li.mapped {
+        span.inner-item > .name {
+          color: $dark-gray;
         }
       }
 
       li:not(.active) {
         > span.inner-item {
-          padding: 0 0 0 1rem;
+          padding: 0;
           font-size: 1rem;
           font-weight: normal;
           line-height: 1.6;
@@ -384,55 +397,37 @@ ul.backend-treeview-list,
           .clipboard-notice {
             top: 6px;
           }
-
-          &::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -1px;
-            bottom: 50%;
-            width: 0.75em;
-            border: 1px solid lighten($dark-gray, 10%);
-            border-top: 0 none transparent;
-            border-right: 0 none transparent;
-          }
         }
       }
 
       > li:last-child {
         border-left: 1px solid transparent;
+        padding-bottom: 0.5rem !important;
       }
 
       > li.new-button {
+        padding: 0.1rem 0 0.1rem 1rem;
+
         .new-button-spacer {
           position: relative;
-          padding: 0.3rem 1rem;
-
-          &::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -1px;
-            bottom: 50%;
-            width: 0.75em;
-            border: 1px solid lighten($dark-gray, 10%);
-            border-top: 0 none transparent;
-            border-right: 0 none transparent;
-          }
 
           .create {
-            height: 2.5rem;
-            width: 2.5rem;
+            font-weight: 600;
+            padding: 0.15rem 0.4rem;
+            display: inline-flex;
+            gap: 0.3rem;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+
             .fa {
-              line-height: 2.5rem;
-              font-size: 1.4rem;
+              font-size: 0.9rem;
             }
           }
         }
 
         .classification-alias-form-container {
           padding: 1rem;
-          margin-left: 1rem;
         }
       }
     }
@@ -487,6 +482,7 @@ ul.backend-treeview-list,
   .classification-tree-label-form-container,
   .classification-alias-form-container {
     box-shadow: 0 3px 3px $medium-gray;
+    border-top-left-radius: $global-radius;
     border-bottom-left-radius: $global-radius;
     border-bottom-right-radius: $global-radius;
   }
@@ -494,11 +490,11 @@ ul.backend-treeview-list,
   .classification-tree-label-form-container {
     &.remote-render,
     &.remote-rendering {
-      min-height: 2.4rem;
+      min-height: 2.2rem;
 
       &::before,
       &::after {
-        height: 2.4rem;
+        height: 2.2rem;
       }
     }
   }
@@ -664,14 +660,25 @@ ul.backend-treeview-list,
   }
 
   .new-classification-tree-label {
-    padding: 1rem 0;
+    padding: 0.1rem 0;
 
     &.active {
       padding: 0;
     }
 
     > a {
-      margin-left: 0.5rem;
+      font-weight: 600;
+      display: inline-flex;
+      gap: 0.3rem;
+      align-items: center;
+      justify-content: center;
+      padding: 0.3rem 0.5rem;
+      margin: 0.2rem 0;
+      font-size: 0.85rem;
+
+      .fa {
+        font-size: 1rem;
+      }
     }
   }
 
@@ -681,8 +688,8 @@ ul.backend-treeview-list,
         font-style: italic;
 
         > span.inner-item {
-          padding-bottom: 0.3rem;
-          padding-top: 0.3rem;
+          padding-bottom: 0.1rem;
+          padding-top: 0.1rem;
 
           .fa {
             font-size: 0.75rem;
@@ -696,7 +703,9 @@ ul.backend-treeview-list,
         .button {
           margin: 0;
           width: unset;
-          padding: 0.75rem 1rem;
+          font-weight: 600;
+          padding: 0.15rem 0.4rem;
+          font-style: normal;
         }
       }
     }
@@ -866,12 +875,16 @@ ul.backend-treeview-list,
       }
     }
 
+    > ul.children {
+      margin-left: 1rem;
+    }
+
     ul.children {
       display: none;
 
       > li {
         .inner-item {
-          padding: 0 0 0 1rem;
+          padding: 0;
           display: block;
           line-height: 1.6;
 
@@ -881,17 +894,6 @@ ul.backend-treeview-list,
         }
 
         &:nth-last-child(2) {
-          border-left: 1px solid lighten($dark-gray, 10%);
-        }
-
-        &:last-child {
-          margin-left: 1.5rem;
-          padding: 0;
-        }
-      }
-
-      &.has-contents {
-        > li:last-child {
           border-left: 1px solid lighten($dark-gray, 10%);
         }
       }
@@ -905,7 +907,7 @@ ul.backend-treeview-list,
         transition: background-color 0.25s ease-out;
         position: relative;
         width: calc(100% - 2rem);
-        margin-left: 1.5rem;
+        margin-left: 0.5rem;
         background-color: $white;
         border-left: 1px solid $white;
         display: block;
@@ -945,6 +947,7 @@ ul.backend-treeview-list,
             margin-bottom: 0.5rem;
           }
         }
+
         &::after {
           content: '';
           display: block;
@@ -1029,17 +1032,23 @@ ul.backend-treeview-list,
           }
 
           .inner-item {
-            padding-top: 0.3rem;
-            padding-bottom: 0.3rem;
+            padding-top: 0.1rem;
+            padding-bottom: 0.1rem;
             text-align: left;
+            display: flex;
           }
 
           a {
             font-size: 0.75rem;
-            font-style: italic;
             margin: 0;
             width: unset;
-            padding: 0.75rem 1rem;
+            padding: 0.15rem 0.4rem;
+            font-style: normal;
+            display: inline-flex;
+            font-weight: 600;
+            gap: 0.3rem;
+            align-items: center;
+            justify-content: center;
           }
         }
       }

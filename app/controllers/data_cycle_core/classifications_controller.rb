@@ -18,7 +18,7 @@ module DataCycleCore
             .distinct
         end
 
-        format.js do
+        format.json do
           @mapped_classification_aliases = DataCycleCore::ClassificationAlias.none.page(1)
           @classification_trees = DataCycleCore::ClassificationTree.none.page(1)
           @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find_by(id: index_params[:classification_tree_label_id])
@@ -44,7 +44,6 @@ module DataCycleCore
 
           authorize! :index, @classification_tree_label
 
-          @html_id = index_params[:html_id]
           @mapped_classification_aliases = @mapped_classification_aliases
             .includes(:classification_alias_path)
             .order('classification_aliases.internal_name')
@@ -86,6 +85,8 @@ module DataCycleCore
             @mapped_classification_aliases = @mapped_classification_aliases&.page(@page)&.per(DEFAULT_PAGE_SIZE)
             @page = 1
           end
+
+          render json: { html: render_to_string(formats: [:html], layout: false, action: 'children').squish }
         end
       end
     end
@@ -144,95 +145,75 @@ module DataCycleCore
     end
 
     def create
-      respond_to do |format|
-        format.html do
-          raise NotImplemented
+      if create_params[:classification_tree_label]
+        @object = DataCycleCore::ClassificationTreeLabel.create!(create_params[:classification_tree_label])
+      else
+        @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(create_params[:classification_tree_label_id])
+
+        if create_params['classification_tree_id']
+          @parent_classification_tree = DataCycleCore::ClassificationTree.find(create_params['classification_tree_id'])
+        else
+          @parent_classification_tree = nil
         end
 
-        format.js do
-          if create_params[:classification_tree_label]
-            @object = DataCycleCore::ClassificationTreeLabel.create!(create_params[:classification_tree_label])
-          else
-            @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(create_params[:classification_tree_label_id])
-
-            if create_params['classification_tree_id']
-              @parent_classification_tree = DataCycleCore::ClassificationTree.find(create_params['classification_tree_id'])
-            else
-              @parent_classification_tree = nil
-            end
-
-            ActiveRecord::Base.transaction do
-              @classification_alias = DataCycleCore::ClassificationAlias.new(create_params[:classification_alias].except(:translation))
-              create_params.dig(:classification_alias, :translation).presence&.each do |locale, values|
-                I18n.with_locale(locale.to_sym) do
-                  @classification_alias.attributes = values
-                end
-              end
-              @classification_alias.save!
-              @classification = DataCycleCore::Classification.create!(name: @classification_alias.internal_name)
-              @classification_group = DataCycleCore::ClassificationGroup.create!(
-                classification: @classification,
-                classification_alias: @classification_alias
-              )
-              @object = DataCycleCore::ClassificationTree.create!({
-                classification_tree_label: @classification_tree_label,
-                parent_classification_alias: @parent_classification_tree.try(:sub_classification_alias),
-                sub_classification_alias: @classification_alias
-              })
+        ActiveRecord::Base.transaction do
+          @classification_alias = DataCycleCore::ClassificationAlias.new(create_params[:classification_alias].except(:translation))
+          create_params.dig(:classification_alias, :translation).presence&.each do |locale, values|
+            I18n.with_locale(locale.to_sym) do
+              @classification_alias.attributes = values
             end
           end
+          @classification_alias.save!
+          @classification = DataCycleCore::Classification.create!(name: @classification_alias.internal_name)
+          @classification_group = DataCycleCore::ClassificationGroup.create!(
+            classification: @classification,
+            classification_alias: @classification_alias
+          )
+          @object = DataCycleCore::ClassificationTree.create!({
+            classification_tree_label: @classification_tree_label,
+            parent_classification_alias: @parent_classification_tree.try(:sub_classification_alias),
+            sub_classification_alias: @classification_alias
+          })
         end
       end
+
+      render json: { html: render_to_string(formats: [:html], layout: false, action: 'create').squish }
     end
 
     def update
-      respond_to do |format|
-        format.html do
-          raise NotImplemented
-        end
+      if update_params[:classification_tree_label]
+        @object = DataCycleCore::ClassificationTreeLabel.find(update_params[:classification_tree_label][:id])
+        @object.update!(update_params[:classification_tree_label])
+      else
+        @object = DataCycleCore::ClassificationAlias.find(update_params[:classification_alias][:id])
 
-        format.js do
-          if update_params[:classification_tree_label]
-            @object = DataCycleCore::ClassificationTreeLabel.find(update_params[:classification_tree_label][:id])
-            @object.update!(update_params[:classification_tree_label])
-          else
-            @object = DataCycleCore::ClassificationAlias.find(update_params[:classification_alias][:id])
-
-            update_params.dig(:classification_alias, :translation).presence&.each do |locale, values|
-              I18n.with_locale(locale.to_sym) do
-                @object.attributes = values
-              end
-            end
-
-            @object.attributes = update_params[:classification_alias].except(:translation)
-            @object.save!
+        update_params.dig(:classification_alias, :translation).presence&.each do |locale, values|
+          I18n.with_locale(locale.to_sym) do
+            @object.attributes = values
           end
         end
+
+        @object.attributes = update_params[:classification_alias].except(:translation)
+        @object.save!
       end
+
+      render json: { html: render_to_string(formats: [:html], layout: false, action: 'update').squish }
     end
 
     def destroy
-      permitted_params = params.permit(:classification_tree_label_id, :classification_tree_id)
-
-      respond_to do |format|
-        format.html do
-          raise NotImplemented
-        end
-
-        format.js do
-          if permitted_params.include?(:classification_tree_label_id)
-            @object = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
-          elsif permitted_params.include?(:classification_tree_id)
-            @object = DataCycleCore::ClassificationTree.find(params[:classification_tree_id])
-          else
-            raise 'Missing parameter; either classification_tree_label_id or classification_tree_id must be provided'
-          end
-
-          authorize! :destroy, @object
-
-          @object.destroy
-        end
+      if destroy_params.include?(:classification_tree_label_id)
+        @object = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
+      elsif destroy_params.include?(:classification_tree_id)
+        @object = DataCycleCore::ClassificationTree.find(params[:classification_tree_id])
+      else
+        raise 'Missing parameter; either classification_tree_label_id or classification_tree_id must be provided'
       end
+
+      authorize! :destroy, @object
+
+      @object.destroy
+
+      render json: { deleted: true }
     end
 
     def download
@@ -258,6 +239,10 @@ module DataCycleCore
     end
 
     private
+
+    def destroy_params
+      params.permit(:classification_tree_label_id, :classification_tree_id)
+    end
 
     def index_params
       params.permit(:classification_tree_label_id, :classification_tree_id, :mapped_classification_alias_id, :page, :load_all, :html_id, :type)
