@@ -298,6 +298,7 @@ Lint/EmptyConditionalBody:
     - 'app/controllers/concerns/data_cycle_core/filter.rb'
     - 'app/controllers/data_cycle_core/geojson/v1/contents_controller.rb'
     - 'app/controllers/data_cycle_core/sync_api/v1/contents_controller.rb'
+    - 'app/controllers/data_cycle_core/mvt/v1/contents_controller.rb'
     - 'lib/tasks/dc_debug.rake'
 
 # Offense count: 3
