@@ -369,12 +369,14 @@ module DataCycleCore
         def self.make_season(from, to)
           raise ArgumentError if from.blank? || to.blank?
           return [] if from == '101' && to == '1231' # no schedule, is valid all year long
-          from_date = Time.zone.local(2010, from.to_i / 100, from.to_i % 100, 0, 0)
-          to_date = Time.zone.local(2010, to.to_i / 100, to.to_i % 100, 23, 59, 59).end_of_day
+          from_date = Time.local(2010, from.to_i / 100, from.to_i % 100, 0, 0).in_time_zone
+          to_date = Time.local(2010, to.to_i / 100, to.to_i % 100, 0, 0).in_time_zone + 1.day
           to_date += 1.year if from_date > to_date
           from_yday = from_date.to_date.yday
           rrule = IceCube::Rule.yearly.day_of_year(from_yday)
-          options = { end_time: to_date.end_of_day }
+          duration = DataCycleCore::Schedule.iso8601_duration(from_date.to_date, to_date.to_date)
+          options = { duration: duration }
+          # options = { end_time: to_date }
           schedule_object = IceCube::Schedule.new(from_date, options) do |s|
             s.add_recurrence_rule(rrule)
           end
@@ -383,7 +385,8 @@ module DataCycleCore
 
         def self.make_term(from, to)
           raise ArgumentError if from.blank? || to.blank?
-          options = { end_time: to }
+          duration = DataCycleCore::Schedule.iso8601_duration(from.to_date, to.to_date + 1.day)
+          options = { duration: duration }
           schedule_object = IceCube::Schedule.new(from, options)
           schedule_object.to_hash.merge(dtstart: from)
         end
