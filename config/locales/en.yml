@@ -1288,6 +1288,7 @@ en:
       architecture: System architecture
       data_structure: Data structure
       classifications: Classifications
+      geo_formats: Geodata
       api:
         root: Data interface
         classifications: Classifications
