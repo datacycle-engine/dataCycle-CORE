@@ -1,43 +1,41 @@
-# Geodaten
+# GeoJSON
 
-Mit Geodaten angereicherte Daten wie z.B. POIs oder Touren, können in zwei Formaten angefragt werden, als GeoJSON und als Mapbox Vector Tiles (MVT).
+Das GeoJSON-Format eignet sich am besten dazu die Daten für eine weitere Prozessierung zu verwenden. Da es kein Paging gibt, kann die Dateigröße sehr anwachsen, was sich bei direkter Einbindung im Frontend nachteilig auf die Performance auswirken kann.
 
 ## Voraussetzungen
 
 **Es muss eine Konfiguration hinterlegt werden, damit die Anfrage von Geodaten aktiviert ist.**
 
-## GeoJSON
-
-Das GeoJSON-Format eignet sich am besten dazu die Daten für eine weitere Prozessierung zu verwenden. Da es kein Paging gibt, kann die Dateigröße sehr anwachsen, was sich bei direkter Einbindung im Frontend nachteilig auf die Performance auswirken kann.
-
-### Allgemeines
+## Allgemeines
 
 Anfragen von Daten im Format GeoJSON werden über die API v4 Schnittstelle durchgeführt. Dafür muss für die Anfrage der Header `Accept: application/geo+json` gesetzt werden.
 
-Im Allgemeinen sind alle Filter der v4 auch für die Ausgabe als GeoJSON anwendbar. In dieser Dokumentation werden drei Parameter hervorgehoben, mit denen man den den Inhalt der Attribute beeinflussen kann - `include`, `fields` und `classification_trees`.
+Im Allgemeinen sind alle Filter der [allgemeinen Datenschnittstelle](/docs/api/contents) auch für die Ausgabe als GeoJSON anwendbar. In dieser Dokumentation werden drei Parameter hervorgehoben, mit denen man den den Inhalt der Attribute beeinflussen kann - `include`, `fields` und `classification_trees`.
+
+Zur Authentifizierung muss das API-Token, als URL-Parameter, im JSON-Body oder als Bearer-Token im HTTP-Header mitgesendet werden.
 
 **Zu beachten ist, dass eine implizite Filterung auf Geo-Objekte aktiv ist. Es werden keine Daten ohne Koordinaten ausgegeben.**
 
-### Anfragen
+## Anfragen
 
-Es können Einzelobjekte oder Ergebnisse von Suchen bzw. Inhaltssammlungen abgefragt werden. Dafür sind die Routen `/things/<THING-ID>` respektive `/endpoints/<ENDPOINT-ID>` vorgesehen. Folgend werden Beispiele für die Anfrage angeführt, wobei bei den Endpoints Beispiele für die Einschränkung der Attribute und Filterung angeführt werden.
+Es können Einzelobjekte oder Ergebnisse von Suchen bzw. Inhaltssammlungen abgefragt werden. Dafür sind die Routen `/things/<THING-ID>` und `/endpoints/<ENDPOINT-ID>` vorgesehen. Folgend werden Beispiele für die Anfrage angeführt, wobei bei den Endpoints Beispiele für die Einschränkung der Attribute und Filterung angeführt werden.
 
 Anfragen können als GET oder POST-Methoden gesendet werden.
 
-#### Einzelobjekte
+### Einzelobjekte
 
 Die Anfrage eines Einzelobjektes liefert ein GeoJSON mit einem Feature.
 
-**Anfrage**
+#### Anfrage
 
 ```bash
 curl --request GET \
-  --url _/api/v4/things/<THING-ID> \
+  --url https://<URL>/api/v4/things/<THING-ID> \
   --header 'Accept: application/geo+json' \
   --header 'Authorization: Bearer <TOKEN>'
 ```
 
-**Antwort**
+#### Antwort
 
 ```json
 {
@@ -59,29 +57,28 @@ curl --request GET \
     "name": "dataCycle"
   }
 }
-
 ```
 
-#### Endpoints
+### Endpoints
 
 Endpoints beinhalten Elemente einer gespeicherten Suche oder Inhaltssammlung und liefern eine FeatureCollection mit den Inhalten.
 
-**Anfrage**
+#### Anfrage
 
 ```bash
 curl --request POST \
-  --url http://localhost:3003/api/v4/endpoints/<ENDPOINT-ID> \
+  --url https://<URL>/api/v4/endpoints/<ENDPOINT-ID> \
   --header 'Accept: application/geo+json' \
   --header 'Authorization: Bearer <TOKEN>' \
   --header 'Content-Type: application/json' \
   --data '{
-	"filter": {
-		"search": "Rosentaler"
-	}
+    "filter": {
+        "search": "Rosentaler"
+    }
 }'
 ```
 
-**Antwort**
+#### Antwort
 
 ```json
 {
@@ -143,7 +140,7 @@ curl --request POST \
 }
 ```
 
-##### Beeinflussung der Attribute
+#### Beeinflussung der Attribute
 
 Die Attribute können mit folgenden Parameter beeinflusst werden:
 
@@ -153,25 +150,25 @@ Die Attribute können mit folgenden Parameter beeinflusst werden:
 
 - `fields`  - schränkt die Ausgabe auf die angegebenen Felder ein
 
-**Anfrage**
+#### Anfrage
 
 ```bash
 curl --request POST \
-  --url http://localhost:3003/api/v4/endpoints/<ENDPOINT-ID> \
+  --url https://<URL>/api/v4/endpoints/<ENDPOINT-ID> \
   --header 'Accept: application/geo+json' \
   --header 'Authorization: Bearer <TOKEN>' \
   --header 'Content-Type: application/json' \
   --data '{
     "include": "dc:classification",
-	"classification_trees": "<CLASSIFICATION-TREE-ID>",
-	"fields": "@id,dc:classification.@id",
-	"filter": {
+    "classification_trees": "<CLASSIFICATION-TREE-ID>",
+    "fields": "@id,dc:classification.@id",
+    "filter": {
         "search": "Rosentaler"
     }
 }'
 ```
 
-**Antwort**
+#### Antwort
 
 ```json
 {

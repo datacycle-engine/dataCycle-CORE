@@ -1332,7 +1332,6 @@ de:
       architecture: Systemarchitektur
       data_structure: Datenstruktur
       classifications: Klassifizierungen
-      geo_formats: Geodaten
       api:
         root: Datenschnittstelle
         classifications: Klassifizierungen
@@ -1342,6 +1341,10 @@ de:
         webhooks:
           root: Webhooks
           json_ld: JSON-LD
+        geodata: 
+          root: Geodaten
+          geojson: GeoJSON
+          mvt: Mapbox Vector Tiles
 
     schema:
       root: Schema
