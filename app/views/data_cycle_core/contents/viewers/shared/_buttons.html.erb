@@ -8,4 +8,4 @@
 
 <%= link_to tag.i(class: 'fa fa-pencil'), edit_thing_path(content, locale: I18n.locale), target: :_blank, class: "edit-link", data: { dc_tooltip: t('actions.edit', locale: active_ui_locale) } if local_assigns[:definition] && definition['type'] == "linked" && @diff_source.nil? && can?(:update, content, :tile_buttons) %>
 
-<%= tag.span(tag.i(class: 'fa fa-times'), class: 'delete-thumbnail') if local_assigns[:removable] %>
+<%= tag.span(tag.i(class: 'fa fa-times'), class: 'delete-thumbnail alert-color') if local_assigns[:removable] %>

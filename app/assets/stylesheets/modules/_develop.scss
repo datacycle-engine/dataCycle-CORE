@@ -1901,9 +1901,10 @@ label[for='user_access_token'] {
     padding: 2.5rem 0.5rem 0.5rem 0.5rem;
   }
 
-  .embedded_object {
+  .embedded-object {
     > .content-object-item.textblock {
-      padding: 0.5rem;
+      padding: 0;
+      border: none;
 
       .removeContentObject,
       .embedded-header {
@@ -1913,19 +1914,22 @@ label[for='user_access_token'] {
         top: 55px;
         z-index: 12;
         height: 3rem;
+        background-color: $white;
       }
 
       .removeContentObject {
         justify-content: center;
         order: 10;
-        width: 3rem;
+        padding: 0.3rem 0.5rem;
+        width: 1.9rem;
+        height: 1.9rem;
+        margin: 0.3rem;
       }
 
       .embedded-header {
         display: flex;
         flex-flow: row nowrap;
         align-items: center;
-        background: $light-gray;
         margin: 0;
         flex: auto;
         order: 1;
@@ -1959,13 +1963,6 @@ label[for='user_access_token'] {
         .counter,
         label {
           display: none !important;
-        }
-      }
-
-      .form-element.focus > .editor-block {
-        > .embedded-header {
-          background: $white;
-          border-bottom: 1px solid rgba($dark-gray, 0.3);
         }
       }
 
