@@ -17,9 +17,7 @@ module DataCycleCore
         # Contents
         can [:set_life_cycle, :view_life_cycle, :move_content], DataCycleCore::Thing
 
-        can :destroy, DataCycleCore::Thing do |content|
-          content.try(:external_source_id).blank?
-        end
+        can :destroy, DataCycleCore::Thing, external_source_id: nil
 
         # Advanced filter
         can :advanced_filter, :backend do |_t, _k, v|
