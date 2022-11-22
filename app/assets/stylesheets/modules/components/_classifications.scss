@@ -179,6 +179,7 @@ ul.backend-treeview-list,
           display: none;
         }
       }
+
       .ca-collection-checkboxes {
         display: flex;
         flex-flow: row wrap;
@@ -360,6 +361,10 @@ ul.backend-treeview-list,
         line-height: 1;
         position: relative;
 
+        &.active {
+          padding-bottom: 0.5rem;
+        }
+
         &::before {
           content: '';
           position: absolute;
@@ -373,10 +378,14 @@ ul.backend-treeview-list,
         }
 
         &.mapped {
-          padding-left: 1rem;
+          > .inner-item > .name {
+            font-style: italic;
+          }
+
+          // padding-left: 1rem;
 
           &::before {
-            width: 0.75rem;
+            // width: 0.75rem;
           }
         }
       }
@@ -400,7 +409,7 @@ ul.backend-treeview-list,
         }
       }
 
-      > li:last-child {
+      &:not(.has-contents) > li:last-child {
         border-left: 1px solid transparent;
         padding-bottom: 0.5rem !important;
       }
@@ -911,11 +920,11 @@ ul.backend-treeview-list,
         background-color: $white;
         border-left: 1px solid $white;
         display: block;
-        padding: 0;
+        padding-left: 1rem;
 
         .inner-item {
           display: block;
-          padding: 0 0 0 1rem;
+          padding: 0;
 
           &.container {
             display: flex;
@@ -943,8 +952,6 @@ ul.backend-treeview-list,
             border-radius: $global-radius;
             box-shadow: 0 3px 3px $light-gray;
             padding: 1rem;
-            margin-left: 0.75rem;
-            margin-bottom: 0.5rem;
           }
         }
 
@@ -965,7 +972,7 @@ ul.backend-treeview-list,
           position: absolute;
           top: 0;
           left: -1px;
-          height: 1rem;
+          height: 0.9rem;
           width: 0.75em;
           border: 1px solid lighten($dark-gray, 10%);
           border-top: 0 none transparent;
@@ -1024,7 +1031,7 @@ ul.backend-treeview-list,
           }
         }
         &.button-row {
-          padding: 0;
+          padding: 0.1rem 0 0.1rem 1rem;
           text-align: center;
 
           &::before {
@@ -1032,8 +1039,6 @@ ul.backend-treeview-list,
           }
 
           .inner-item {
-            padding-top: 0.1rem;
-            padding-bottom: 0.1rem;
             text-align: left;
             display: flex;
           }

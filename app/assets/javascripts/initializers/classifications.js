@@ -4,6 +4,7 @@ import ClassificationLoadMoreButton from '../components/classification_administr
 import ClassificationEditButton from '../components/classification_administration/classification_edit_button';
 import ClassificationEditForm from '../components/classification_administration/classification_edit_form';
 import ClassificationDestroyButton from '../components/classification_administration/classification_delete_button';
+import ClassificationDetailToggler from '../components/classification_administration/classification_detail_toggler';
 
 export default function () {
   if ($('#classification-administration').length) {
@@ -60,9 +61,9 @@ export default function () {
     ]);
   }
 
-  $(document).on('click', '.toggle-details', event => {
-    event.preventDefault();
-
-    $(event.currentTarget).closest('.inner-item').toggleClass('open').trigger('dc:remote:render');
-  });
+  for (const element of document.querySelectorAll('.toggle-details')) new ClassificationDetailToggler(element);
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('toggle-details') && !e.hasOwnProperty('dcClassificationDetailToggler'),
+    e => new ClassificationDetailToggler(e)
+  ]);
 }
