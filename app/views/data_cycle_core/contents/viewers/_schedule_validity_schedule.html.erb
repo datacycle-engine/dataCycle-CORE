@@ -29,7 +29,7 @@
     <span class="detail-content events-calender-view">
       <span><%= l(object.try(:dtstart)&.try(:to_date), format: t(date_format, locale: active_ui_locale), locale: active_ui_locale) %></span>
       <span>-</span>
-      <span><%= l(object.try(:dtstart)&.-(1.second)&.+(object.try(:duration) || 0)&.try(:to_date), format: t(date_format, locale: active_ui_locale), locale: active_ui_locale) %></span>
+      <span><%= l(object.try(:dtstart)&.+(object.try(:duration) || 0)&.-(1.second)&.try(:to_date), format: t(date_format, locale: active_ui_locale), locale: active_ui_locale) %></span>
     </span>
 
   <% end %>

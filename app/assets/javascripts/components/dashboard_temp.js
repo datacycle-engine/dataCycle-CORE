@@ -6,33 +6,58 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
     this.language = this.$container.data('language');
     this.styleCaseProperty = '@type';
     this.iconColorBase = this.typeColors;
-    this.sourceLayer = 'dataCycle';
+  }
+  async setup() {
+    await super.setup();
 
-    this.searchForm = document.getElementById('search-form');
-    this.currentStoredFilterId = this.searchForm.dataset.storedFilter;
+    const $element = $(
+      '<div class="loading-overlay"><div class="loading-overlay-text"><i class="fa fa-spinner fa-spin fa-fw fa-2xl"></i></div></div>'
+    );
+    this.$container.append($element);
   }
   configureMap() {
-    super.configureMap();
+    this.storedFilterGeoJson().then(() => {
+      this.$container.find('.loading-overlay').fadeOut(100);
+      this.initFeatures();
+    });
+
+    this.initControls();
+    this.setZoomMethod();
+    this.setIcons();
+
+    this._disableScrollingOnMapOverlays();
+    this.initMouseWheelZoom();
     this.initEventHandlers();
   }
   initFeatures() {
     this.drawFeatures();
+    this.drawAdditionalFeatures();
+    this.updateMapPosition();
+  }
+  async storedFilterGeoJson() {
+    const searchForm = document.getElementById('search-form');
+    if (!searchForm) return;
+    const currentStoredFilterId = searchForm.dataset.storedFilter;
+    const params = {
+      language: this.language.join(',')
+      // filter: { geo: { withGeometry: 'true' } }
+    };
+
+    let data = await DataCycle.httpRequest({
+      url: `/api/v4/endpoints/${currentStoredFilterId}`,
+      method: 'POST',
+      data: params,
+      dataType: 'json',
+      headers: {
+        Accept: 'application/vnd.geo+json'
+      }
+    });
+    this.value = this.feature = data;
+    return;
   }
   initEventHandlers() {
     this._addPopup();
     this._addClickHandler();
-  }
-  drawFeatures() {
-    this._addSourceAndLayer('primary', null);
-  }
-  _addSourceType(name, _data) {
-    this.map.addSource(name, {
-      type: 'vector',
-      tiles: [`${location.protocol}//${location.host}/mvt/v1/endpoints/${this.currentStoredFilterId}/{z}/{x}/{y}.pbf`],
-      promoteId: '@id',
-      minzoom: 0,
-      maxzoom: 22
-    });
   }
   _addPopup() {
     const popup = new this.maplibreGl.Popup({
@@ -69,33 +94,6 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
         window.open(`${url}things/${feature.id}`, '_blank');
       }
     });
-  }
-  updateMapPosition() {
-    this.bboxForCurrentStoredFilter().then(bbox => {
-      if (Object.values(bbox).includes(null)) return;
-
-      const sw = new this.maplibreGl.LngLat(bbox.xmin, bbox.ymin);
-      const ne = new this.maplibreGl.LngLat(bbox.xmax, bbox.ymax);
-      const bounds = new this.maplibreGl.LngLatBounds(sw, ne);
-
-      this.map.fitBounds(bounds, {
-        padding: 50,
-        maxZoom: 15
-      });
-    });
-  }
-  async bboxForCurrentStoredFilter() {
-    const params = {
-      bbox: true
-    };
-
-    let data = await DataCycle.httpRequest({
-      url: `/mvt/v1/endpoints/${this.currentStoredFilterId}`,
-      method: 'POST',
-      data: params,
-      dataType: 'json'
-    });
-    return data;
   }
   getColorMatchHexExpression() {
     let matchEx = ['case'];

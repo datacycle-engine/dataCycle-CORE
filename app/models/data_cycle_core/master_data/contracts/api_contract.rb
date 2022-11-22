@@ -31,6 +31,10 @@ module DataCycleCore
           optional(:dataFormat).filled(:string)
           optional(:search).value(:string)
           optional(:limit).value(:integer)
+          optional(:x).value(:integer)
+          optional(:y).value(:integer)
+          optional(:z).value(:integer)
+          optional(:bbox).value(:bool)
         end
 
         CONTENT = Dry::Schema.Params do

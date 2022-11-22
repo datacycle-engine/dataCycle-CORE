@@ -78,6 +78,8 @@
     :indesign: true
     :json: true
     :xml: true
+    :geojson: true
+    :mvt: true
 
 :overlay:
   :enabled: true
