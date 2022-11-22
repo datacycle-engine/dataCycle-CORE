@@ -64,28 +64,6 @@ module DataCycleCore
 
           @classification_trees = @classification_trees.order('classification_aliases.internal_name')
 
-          @page = index_params[:page].to_i
-
-          if index_params[:load_all].present? && index_params[:page].present? && @type == 'direct'
-            @classification_trees = @classification_trees.page(@page).per(DEFAULT_PAGE_SIZE).limit(999_999)
-            @mapped_classification_aliases = DataCycleCore::ClassificationAlias.none.page(1)
-          elsif index_params[:load_all].present? && index_params[:page].present? && @type == 'mapped'
-            @mapped_classification_aliases = @mapped_classification_aliases.page(@page).per(DEFAULT_PAGE_SIZE).limit(999_999)
-            @classification_trees = DataCycleCore::ClassificationTree.none.page(1)
-          elsif index_params[:page].present? && @type == 'direct'
-            @classification_trees = @classification_trees&.page(@page)&.per(DEFAULT_PAGE_SIZE)
-            @page = @classification_trees&.current_page
-            @mapped_classification_aliases = DataCycleCore::ClassificationAlias.none.page(1)
-          elsif index_params[:page].present? && @type == 'mapped'
-            @mapped_classification_aliases = @mapped_classification_aliases&.page(@page)&.per(DEFAULT_PAGE_SIZE)
-            @page = @mapped_classification_aliases&.current_page
-            @classification_trees = DataCycleCore::ClassificationTree.none.page(1)
-          else
-            @classification_trees = @classification_trees&.page(@page)&.per(DEFAULT_PAGE_SIZE)
-            @mapped_classification_aliases = @mapped_classification_aliases&.page(@page)&.per(DEFAULT_PAGE_SIZE)
-            @page = 1
-          end
-
           render json: { html: render_to_string(formats: [:html], layout: false, action: 'children').squish }
         end
       end
@@ -245,7 +223,7 @@ module DataCycleCore
     end
 
     def index_params
-      params.permit(:classification_tree_label_id, :classification_tree_id, :mapped_classification_alias_id, :page, :load_all, :html_id, :type)
+      params.permit(:classification_tree_label_id, :classification_tree_id, :mapped_classification_alias_id, :type)
     end
 
     def create_params

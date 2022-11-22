@@ -1,25 +1,3 @@
 <%= render partial: 'classification_tree', collection: classification_trees.includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source]), locals: { classification_tree_label: classification_tree_label, ancestors: classification_tree.present? ? classification_tree.ancestors.pluck(:id).reverse + [classification_tree.id] : [], type: type } %>
 
-<% if classification_trees.present? && !last_page %>
-  <li class="load-more-link direct">
-    <span class="inner-item">
-      <% id_param = classification_tree.present? ? { classification_tree_id: classification_tree&.id } : { classification_tree_label_id: classification_tree_label&.id } %>
-
-      <%= link_to t('common.load_all', locale: active_ui_locale),
-                  classifications_path(**id_param, load_all: true, page: (page + 1), type: type),
-                  data: {
-                    disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}"
-                  },
-                  class: 'button small primary load-more-button load-all' %>
-
-      <%#= link_to t('common.load_more', locale: active_ui_locale),
-                  classifications_path(**id_param, page: (page + 1), type: type),
-                  data: {
-                    disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}"
-                  },
-                  class: 'button small secondary load-more-button' %>
-    </span>
-  </li>
-<% end %>
-
-<%= render('data_cycle_core/classifications/new_classification_alias', classification_tree_label: classification_tree_label, classification_tree: classification_tree) if can?(:create, classification_tree_label) && page == 1 %>
+<%= render('data_cycle_core/classifications/new_classification_alias', classification_tree_label: classification_tree_label, classification_tree: classification_tree) if can?(:create, classification_tree_label) %>
