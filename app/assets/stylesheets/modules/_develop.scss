@@ -1914,7 +1914,6 @@ label[for='user_access_token'] {
         top: 55px;
         z-index: 12;
         height: 3rem;
-        background-color: $white;
       }
 
       .removeContentObject {
@@ -1934,6 +1933,7 @@ label[for='user_access_token'] {
         flex: auto;
         order: 1;
         padding-left: 0.5rem;
+        background-color: $white;
 
         .draggable-handle {
           display: inline-block;
