@@ -138,10 +138,27 @@
 
     &.content_location,
     &.ortlichkeit,
-    &.poi,
-    &.unterkunft {
+    &.poi {
       &::before {
         content: '\f041';
+      }
+    }
+
+    &.unterkunft {
+      &::before {
+        content: '\f236';
+      }
+    }
+
+    &.gastronomischer_betrieb {
+      &::before {
+        content: '\f0f5';
+      }
+    }
+
+    &.local_business {
+      &::before {
+        content: '\f0f7';
       }
     }
 
