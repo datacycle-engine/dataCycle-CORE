@@ -23,7 +23,7 @@ ul.backend-treeview-list,
     &.remote-render,
     &.remote-rendering {
       min-height: 1.6rem;
-      padding: 0;
+      padding: 0 !important;
 
       &::before {
         display: none;

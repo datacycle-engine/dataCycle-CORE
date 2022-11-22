@@ -6,7 +6,7 @@ module DataCycleCore
       class TreeLabelByVisibility < Base
         attr_reader :subject, :visibilities
 
-        def initialize(visibilities:, **_additional_conditions)
+        def initialize(visibilities)
           @visibilities = Array.wrap(visibilities)
           @subject = DataCycleCore::ClassificationTreeLabel
         end

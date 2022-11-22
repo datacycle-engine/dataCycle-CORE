@@ -3,9 +3,7 @@
 module DataCycleCore
   class ClassificationsController < ApplicationController
     FIXNUM_MAX = (2**(0.size * 8 - 2) - 1)
-
     DEFAULT_CLASSIFICATION_SEARCH_LIMIT = 128
-    DEFAULT_PAGE_SIZE = 5
 
     def index
       respond_to do |format|
