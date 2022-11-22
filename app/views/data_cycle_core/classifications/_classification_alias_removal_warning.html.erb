@@ -1,19 +1,19 @@
 <%= t('common.are_you_sure', locale: active_ui_locale) %>
 
-<% if classification_alias.statistics.linked_content_count.positive? %>
+<% if classification_alias.linked_contents.exists? %>
   <span class='warning'>
     <i class='fa fa-exclamation-triangle' aria-hidden='true'></i>
-    <%= t('data_cycle_core.classification_relations',
-          count: classification_alias.statistics.linked_content_count,
+    <%= t('data_cycle_core.classification_relations_html',
+          count: classification_alias.linked_contents.size,
           locale: active_ui_locale) %>
   </span>
 <% end %>
 
-<% if classification_alias.statistics.descendant_count.positive? %>
+<% if classification_alias.sub_classification_alias.exists? %>
   <span class='warning'>
     <i class='fa fa-exclamation-triangle' aria-hidden='true'></i>
-    <%= t('data_cycle_core.child_classification_relations',
-          count: classification_alias.statistics.descendant_count,
+    <%= t('data_cycle_core.child_classification_relations_html',
+          count: classification_alias.sub_classification_alias.size,
           data: t('data_cycle_core.this_classification', locale: active_ui_locale),
           locale: active_ui_locale) %>
   </span>

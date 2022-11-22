@@ -1,6 +1,0 @@
-<% if c_type = @classification_tree || @classification_tree_label %>
-  $('#<%= c_type.id %> > ul.children > li.new-button, #<%= c_type.id %> > ul.children > li.load-more-link').remove();
-  $('<%= escape_javascript(render 'classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees) %>').appendTo('#<%= c_type.id %> > ul.children');
-<% else %>
-  <% raise 'Something unexpected has happend' %>
-<% end %>

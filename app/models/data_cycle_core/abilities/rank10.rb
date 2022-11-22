@@ -31,7 +31,10 @@ module DataCycleCore
 
         # Classifications
         can :manage, [DataCycleCore::Classification, DataCycleCore::ClassificationTree], external_source_id: nil
-        can :read, DataCycleCore::ClassificationTreeLabel, internal: false
+
+        can :read, DataCycleCore::ClassificationTreeLabel, ['classification_tree_labels.visibility && ARRAY[?]::VARCHAR[]', ['classification_overview', 'classification_administration']] do |ctl|
+          ctl.visibility&.intersection(['classification_overview', 'classification_administration'])&.any?
+        end
         can [:download, :create, :edit], DataCycleCore::ClassificationTreeLabel
         can :update, DataCycleCore::ClassificationTreeLabel, external_source_id: nil, internal: false
 

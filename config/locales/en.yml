@@ -728,6 +728,8 @@ en:
     list: List view
     tree_view: Root in the tree view
     xml: XML
+    classification_overview: Classification overview
+    classification_administration: Classification administration
 
   classification_change_behaviour:
     trigger_webhooks: trigger webhooks for contents
@@ -1198,9 +1200,10 @@ en:
     classifications_adminitration:
       classification:
         submit_loading_message: Saving may take several minutes, please be patient
-      download_tree: download classification tree as CSV
-      download_tree_with_contents: download classification tree including contents as CSV
-      download_tree_for_mappings: download classification tree for defining mappings as CSV
+      download_tree_csv: download classification tree as CSV
+      download_tree: Classification tree without contents (csv)
+      download_tree_with_contents: Classification tree with contents (csv)
+      download_tree_for_mappings: Classification tree for defining mappings (csv)
     this_classification: This classification
     this_classification_tree: This classification tree
     show_contents_for_tree_label: List contents in %{data}
@@ -1215,10 +1218,10 @@ en:
       auto: All translations were automatically generated
     classification_tree_relations: 'ATTENTION: There are contents linked to this classification
       tree!'
-    classification_relations:
+    classification_relations_html:
       one: 'ATTENTION: <b>1</b> content is linked to this classification!'
       other: 'ATTENTION: <b>%{count}</b> contents are linked to this classification!'
-    child_classification_relations:
+    child_classification_relations_html:
       one: 'ATTENTION: <b>1</b> classification is assigned to %{data}. This is also
         deleted!'
       other: 'ATTENTION: %{data} are assigned to <b>%{count}</b> classifications.<br>These

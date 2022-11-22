@@ -19,31 +19,39 @@ ul.backend-treeview-list,
     }
   }
 
-  .edit_classification_alias {
-    margin-left: 1rem;
+  .classification-alias-form-container {
+    &.remote-render,
+    &.remote-rendering {
+      min-height: 1.6rem;
+      padding: 0 !important;
 
-    &::before {
-      content: '';
-      position: absolute;
-      left: calc(-1rem - 2px);
-      top: 50%;
-      width: calc(1rem + 2px);
-      border: 1px solid $medium-gray;
-      border-top: 0 none transparent;
-      border-right: 0 none transparent;
+      &::before {
+        display: none;
+      }
+
+      &::after {
+        height: 1.6rem;
+        top: 0;
+        left: 0;
+        right: 0;
+        border: none;
+      }
     }
   }
 
-  .edit_classification_alias,
-  .edit_classification_tree_label,
-  .new_classification_alias,
-  .new_classification_tree_label {
+  .classification-alias-form-container,
+  .classification-tree-label-form-container {
+    position: relative;
+    display: block;
+    border: 1px solid $medium-gray;
+    padding: 1rem;
+  }
+
+  .classification-alias-form-container > form,
+  .classification-tree-label-form-container > form {
     display: flex;
     flex-flow: column nowrap;
     gap: 1rem;
-    position: relative;
-    border: 1px solid $medium-gray;
-    padding: 1rem;
 
     .ca-buttons {
       position: absolute;
@@ -171,6 +179,7 @@ ul.backend-treeview-list,
           display: none;
         }
       }
+
       .ca-collection-checkboxes {
         display: flex;
         flex-flow: row wrap;
@@ -224,7 +233,7 @@ ul.backend-treeview-list,
     }
   }
 
-  .edit_classification_tree_label {
+  .classification-tree-label-form-container > form {
     border-top: none;
     border-bottom: none;
   }
@@ -232,10 +241,17 @@ ul.backend-treeview-list,
   > li {
     border-top: 1px solid $medium-gray;
 
-    > span.inner-item {
+    &.classification_tree_label > ul.children.open {
+      margin-left: 1rem;
+    }
+
+    span.inner-item {
       position: relative;
-      padding: 0.7rem 1rem;
-      display: inline-block;
+      padding: 0.5rem 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      line-height: 1.4;
 
       .clipboard-notice {
         right: auto;
@@ -244,122 +260,205 @@ ul.backend-treeview-list,
       }
     }
 
-    a.edit,
-    a.destroy,
-    a.download,
-    a.copy-to-clipboard,
-    a.contents-list {
-      display: inline;
-      margin: 0 0 0 0.2rem;
-      color: $dark-gray;
+    .download-container {
+      position: relative;
+    }
+
+    .download-tree-container {
+      text-align: left;
+
+      ul {
+        li {
+          &:not(:last-of-type) {
+            border-bottom: 1px solid $light-gray;
+          }
+
+          a {
+            justify-content: flex-start;
+            white-space: nowrap;
+
+            span.download-icon {
+              display: flex;
+              align-items: center;
+              width: 2.1rem;
+            }
+
+            span.download-link-text {
+              flex: auto;
+            }
+          }
+        }
+      }
+    }
+
+    a:not(.button):not(.ca-translation-link) {
+      display: flex;
+      margin: 0;
+      color: lighten($dark-gray, 10%);
       cursor: pointer;
-    }
+      align-items: center;
+      transition: $color-transition;
 
-    a.edit:hover,
-    a.download:hover,
-    a.copy-to-clipboard:hover,
-    a.contents-list:hover {
-      color: $primary-color;
-    }
+      &:hover {
+        color: $primary-color;
+      }
 
-    a.destroy:hover {
-      color: map-get($foundation-palette, alert);
+      &.destroy:hover {
+        color: map-get($foundation-palette, alert);
+      }
+
+      &.name {
+        color: $primary-color;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+
+        &::after {
+          content: '\f107';
+          font-family: FontAwesome;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-style: normal;
+          font-weight: normal;
+          text-decoration: inherit;
+          position: relative;
+          height: 1rem;
+          width: 1rem;
+          background-color: transparent;
+          line-height: 1rem;
+        }
+
+        &.disabled {
+          pointer-events: none;
+
+          &::after {
+            content: '\f110';
+            animation: fa-spin 2s infinite linear;
+          }
+        }
+
+        &.open:not(.disabled)::after {
+          content: '\f106';
+        }
+      }
     }
 
     ul.children {
       list-style-type: none;
       margin: 0;
+      display: none;
 
-      form {
-        &.edit_classification_alias,
-        &.new_classification_alias {
-          // padding: 0 1rem 1rem 1rem;
-          box-shadow: 0 3px 3px $medium-gray;
-          border-radius: $global-radius 0 $global-radius $global-radius;
-        }
+      &.open {
+        display: block;
       }
 
       > li {
         list-style-type: none;
-        border-left: 1px solid $medium-gray;
-        margin-left: 2em;
+        border-left: 1px solid lighten($dark-gray, 10%);
+        margin-left: 0.5rem;
+        padding-left: 1rem;
         line-height: 1;
+        position: relative;
+
+        &.active {
+          padding-bottom: 0.5rem;
+        }
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -1px;
+          height: 0.9rem;
+          width: 0.75rem;
+          border: 1px solid lighten($dark-gray, 10%);
+          border-top: 0 none transparent;
+          border-right: 0 none transparent;
+        }
+
+        &.mapped {
+          padding-top: 1.5rem;
+
+          &::before {
+            height: 2.4rem;
+          }
+
+          &::after {
+            content: '';
+            position: absolute;
+            top: 0.75rem;
+            left: 0;
+            width: 10rem;
+            height: 0;
+            border-top: 3px double lighten($dark-gray, 10%);
+          }
+
+          & ~ li.mapped {
+            padding-top: 0;
+
+            &::before {
+              height: 0.9rem;
+            }
+
+            &::after {
+              display: none;
+            }
+          }
+
+          > .inner-item > .name {
+            font-style: italic;
+          }
+        }
+      }
+
+      li.mapped {
+        span.inner-item > .name {
+          color: $dark-gray;
+        }
       }
 
       li:not(.active) {
         > span.inner-item {
-          position: relative;
-          padding: 0.5rem 0 0 1rem;
-          display: inline-block;
+          padding: 0;
+          font-size: 1rem;
+          font-weight: normal;
+          line-height: 1.6;
 
           .clipboard-notice {
-            right: auto;
-            left: 1rem;
             top: 6px;
-          }
-
-          &::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -1px;
-            bottom: 30%;
-            width: 0.75em;
-            border: 1px solid $medium-gray;
-            border-top: 0 none transparent;
-            border-right: 0 none transparent;
           }
         }
       }
 
-      > li:last-child {
+      &:not(.has-contents) > li:last-child {
         border-left: 1px solid transparent;
+        padding-bottom: 0.5rem !important;
       }
 
       > li.new-button {
+        padding: 0.1rem 0 0.1rem 1rem;
+
         .new-button-spacer {
           position: relative;
-          padding: 0.5rem 1rem;
-
-          &::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -1px;
-            bottom: 50%;
-            width: 0.75em;
-            border: 1px solid $medium-gray;
-            border-top: 0 none transparent;
-            border-right: 0 none transparent;
-          }
 
           .create {
-            height: 2.5rem;
-            width: 2.5rem;
+            font-weight: 600;
+            padding: 0.15rem 0.4rem;
+            display: inline-flex;
+            gap: 0.3rem;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+
             .fa {
-              line-height: 2.5rem;
-              font-size: 1.4rem;
+              font-size: 0.9rem;
             }
           }
         }
 
-        form.new_classification_alias {
-          position: relative;
+        .classification-alias-form-container {
           padding: 1rem;
-          margin-left: 1rem;
-          margin-bottom: 1rem;
-
-          &::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: calc(-1rem - 2px);
-            bottom: 50%;
-            width: calc(1rem + 2px);
-            border: 1px solid $medium-gray;
-            border-top: 0 none transparent;
-            border-right: 0 none transparent;
-          }
         }
       }
     }
@@ -390,11 +489,16 @@ ul.backend-treeview-list,
     }
   }
 
-  li:not(.active) > form {
+  &.tree > li a:not(.button) {
+    color: $primary-color;
+  }
+
+  li:not(.active) > .classification-tree-label-form-container,
+  li:not(.active) > .classification-alias-form-container {
     display: none;
   }
 
-  li.active > :not(form) {
+  li.active > :not(.classification-tree-label-form-container):not(.classification-alias-form-container) {
     display: none;
   }
 
@@ -406,18 +510,27 @@ ul.backend-treeview-list,
     }
   }
 
+  .classification-tree-label-form-container,
+  .classification-alias-form-container {
+    box-shadow: 0 3px 3px $medium-gray;
+    border-top-left-radius: $global-radius;
+    border-bottom-left-radius: $global-radius;
+    border-bottom-right-radius: $global-radius;
+  }
+
+  .classification-tree-label-form-container {
+    &.remote-render,
+    &.remote-rendering {
+      min-height: 2.2rem;
+
+      &::before,
+      &::after {
+        height: 2.2rem;
+      }
+    }
+  }
+
   form:not(.add-watchlist-form) {
-    &.edit_classification_tree_label,
-    &.new_classification_tree_label {
-      box-shadow: 0 3px 3px $medium-gray;
-      border-bottom-left-radius: $global-radius;
-      border-bottom-right-radius: $global-radius;
-    }
-
-    &.new-classification-tree-label {
-      padding: 0 1rem 1rem 1rem;
-    }
-
     input[type='text'] {
       max-width: 400px;
       display: inline-block;
@@ -578,9 +691,25 @@ ul.backend-treeview-list,
   }
 
   .new-classification-tree-label {
-    padding: 1rem 0;
+    padding: 0.1rem 0;
+
+    &.active {
+      padding: 0;
+    }
+
     > a {
-      margin-left: 0.5rem;
+      font-weight: 600;
+      display: inline-flex;
+      gap: 0.3rem;
+      align-items: center;
+      justify-content: center;
+      padding: 0.3rem 0.5rem;
+      margin: 0.2rem 0;
+      font-size: 0.85rem;
+
+      .fa {
+        font-size: 1rem;
+      }
     }
   }
 
@@ -590,8 +719,8 @@ ul.backend-treeview-list,
         font-style: italic;
 
         > span.inner-item {
-          padding-bottom: 0.5rem;
-          padding-top: 0.5rem;
+          padding-bottom: 0.1rem;
+          padding-top: 0.1rem;
 
           .fa {
             font-size: 0.75rem;
@@ -605,7 +734,9 @@ ul.backend-treeview-list,
         .button {
           margin: 0;
           width: unset;
-          padding: 0.75rem 1rem;
+          font-weight: 600;
+          padding: 0.15rem 0.4rem;
+          font-style: normal;
         }
       }
     }
@@ -634,9 +765,10 @@ ul.backend-treeview-list,
     justify-content: flex-end;
     right: 0;
     top: 0;
+    gap: 0.3rem;
+
     > a,
     > i {
-      margin: 0 2px;
       padding: 0 3px;
     }
   }
@@ -774,12 +906,16 @@ ul.backend-treeview-list,
       }
     }
 
+    > ul.children {
+      margin-left: 1rem;
+    }
+
     ul.children {
       display: none;
 
       > li {
         .inner-item {
-          padding: 0 0 0 1rem;
+          padding: 0;
           display: block;
           line-height: 1.6;
 
@@ -789,18 +925,7 @@ ul.backend-treeview-list,
         }
 
         &:nth-last-child(2) {
-          border-left: 1px solid $medium-gray;
-        }
-
-        &:last-child {
-          margin-left: 2em;
-          padding: 0;
-        }
-      }
-
-      &.has-contents {
-        > li:last-child {
-          border-left: 1px solid $medium-gray;
+          border-left: 1px solid lighten($dark-gray, 10%);
         }
       }
     }
@@ -813,15 +938,15 @@ ul.backend-treeview-list,
         transition: background-color 0.25s ease-out;
         position: relative;
         width: calc(100% - 2rem);
-        margin-left: 2rem;
+        margin-left: 0.5rem;
         background-color: $white;
         border-left: 1px solid $white;
         display: block;
-        padding: 0;
+        padding-left: 1rem;
 
         .inner-item {
           display: block;
-          padding: 0 0 0 1rem;
+          padding: 0;
 
           &.container {
             display: flex;
@@ -843,19 +968,15 @@ ul.backend-treeview-list,
             }
           }
 
-          .link-to-item {
-            margin-left: 0.5rem;
-          }
           &:not(.container).open {
             background-color: $white;
             border: 1px solid $light-gray;
             border-radius: $global-radius;
             box-shadow: 0 3px 3px $light-gray;
             padding: 1rem;
-            margin-left: 0.75rem;
-            margin-bottom: 0.5rem;
           }
         }
+
         &::after {
           content: '';
           display: block;
@@ -864,7 +985,7 @@ ul.backend-treeview-list,
         }
 
         &:not(:last-child) {
-          border-left: 1px solid $medium-gray;
+          border-left: 1px solid lighten($dark-gray, 10%);
         }
 
         &::before {
@@ -873,9 +994,9 @@ ul.backend-treeview-list,
           position: absolute;
           top: 0;
           left: -1px;
-          height: 1rem;
+          height: 0.9rem;
           width: 0.75em;
-          border: 1px solid $medium-gray;
+          border: 1px solid lighten($dark-gray, 10%);
           border-top: 0 none transparent;
           border-right: 0 none transparent;
         }
@@ -932,7 +1053,7 @@ ul.backend-treeview-list,
           }
         }
         &.button-row {
-          padding: 0;
+          padding: 0.1rem 0 0.1rem 1rem;
           text-align: center;
 
           &::before {
@@ -940,17 +1061,21 @@ ul.backend-treeview-list,
           }
 
           .inner-item {
-            padding-top: 0.3rem;
-            padding-bottom: 0.3rem;
             text-align: left;
+            display: flex;
           }
 
           a {
             font-size: 0.75rem;
-            font-style: italic;
             margin: 0;
             width: unset;
-            padding: 0.75rem 1rem;
+            padding: 0.15rem 0.4rem;
+            font-style: normal;
+            display: inline-flex;
+            font-weight: 600;
+            gap: 0.3rem;
+            align-items: center;
+            justify-content: center;
           }
         }
       }
@@ -964,6 +1089,7 @@ ul.backend-treeview-list,
     }
   }
 }
+
 #search-results > ul.tree {
   margin: 0 1rem;
 }
@@ -971,13 +1097,15 @@ ul.backend-treeview-list,
 .download-with-contents {
   .fa-plus {
     font-size: 0.7rem;
-    vertical-align: text-top;
+    margin-left: 0.1rem;
+    align-self: flex-start;
   }
 }
 
 .download-for-mapping {
   .fa-arrows-h {
     font-size: 0.8rem;
-    vertical-align: text-top;
+    margin-left: 0.1rem;
+    align-self: flex-start;
   }
 }

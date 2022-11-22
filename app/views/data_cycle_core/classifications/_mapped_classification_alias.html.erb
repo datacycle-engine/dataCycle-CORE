@@ -1,0 +1,19 @@
+<li data-id="<%= mapped_classification_alias.id %>" class="<%= type %>">
+  <span class="inner-item">
+    <%= link_to_if DataCycleCore.transitive_classification_paths,
+                tag.span(
+                  classification_title(mapped_classification_alias),
+                  class: 'name',
+                  data: {
+                    dc_tooltip: mapped_classification_alias.full_path
+                    }
+                  ),
+                classifications_path(
+                  mapped_classification_alias_id: mapped_classification_alias.id,
+                  classification_tree_label_id: classification_tree_label.id
+                ),
+                class: 'name' %>
+  </span>
+
+  <ul class="children"></ul>
+</li>

@@ -1,4 +1,4 @@
-- Inhaltstypen | filter:
+- Inhaltstypen | filter, classification_administration:
     - $$Asset:
         - $$Audio
         - $$Bild
@@ -267,7 +267,7 @@
 
 - Dateiformate | all:
 
-- Ländercodes | show, edit, api, xml:
+- Ländercodes | show, edit, api, xml, classification_administration:
     - AF | Afghanistan
     - EG | Ägypten
     - AL | Albanien
@@ -521,7 +521,7 @@
     - PLN | Polnische Złoty
     - DKK | Dänische Kronen
 
-- Lizenzen | show, edit, api, xml:
+- Lizenzen | show, edit, api, xml, classification_administration:
     - Open Data:
         - Creative Commons:
             - Public Domain Mark **https://creativecommons.org/publicdomain/mark/1.0/

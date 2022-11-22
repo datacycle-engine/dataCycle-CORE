@@ -30,9 +30,9 @@
     <% end %>
 
     <div class="buttons">
-      <%= link_to tag.i(class: 'fa fa-external-link'), thing_path(item, watch_list_id: @watch_list&.id), target: :_blank, class: 'link-to-item' %>
-
       <%= yield_content!(:media_buttons) %>
+
+      <%= link_to tag.i(class: 'fa fa-eye'), thing_path(item, locale: I18n.locale), target: :_blank, class: "link-to-item", data: { dc_tooltip: t('actions.show', locale: active_ui_locale) } %>
     </div>
   </div>
 

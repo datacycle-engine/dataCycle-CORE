@@ -1,5 +1,5 @@
-- Inhaltspools | api, xml, filter:
-  - $$Vorschläge
-  - $$Recherche
-  - $$Aktuelle Inhalte
-  - $$Archiv
+- Inhaltspools | api, xml, filter, classification_administration:
+    - $$Vorschläge
+    - $$Recherche
+    - $$Aktuelle Inhalte
+    - $$Archiv
