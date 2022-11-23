@@ -498,6 +498,17 @@ en:
       A fatal error has occurred.
       The content cannot be synchronized.
     export: External system
+
+  external_connections:
+    new_form:
+      title: Create link to external system
+      created: Link to external system was created
+      duplicate_error: There is already a link to this external system
+    remove_external_system_sync:
+      tooltip: Remove link to external system
+      success: Link to external system was removed
+      warning_html: 'Remove link to external system?<br><br><i class="alert-color">This may affect the function of an importer!</i>'
+
   duplicate:
     candidates: Possible duplicates
     score: Score
@@ -1300,7 +1311,7 @@ en:
         webhooks:
           root: Webhooks
           json_ld: JSON-LD
-        geodata: 
+        geodata:
           root: Geodata
           geojson: GeoJSON
           mvt: Mapbox Vector Tiles
