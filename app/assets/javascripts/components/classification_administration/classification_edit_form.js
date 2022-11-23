@@ -35,20 +35,25 @@ class ClassificationEditForm {
   isParentClassificationAlias(elem) {
     return elem.nodeName == 'LI' && elem.hasAttribute('data-id');
   }
-  hideAncestors() {
-    const ancestors = DomElementHelpers.findAncestors(this.liElement, this.isParentClassificationAlias.bind(this));
+  reloadOnNextOpen(elem) {
+    if (elem.nodeName != 'LI') return;
 
-    for (const elem of document.querySelectorAll(
-      ancestors.map(e => `li.mapped[data-id="${e.dataset.id}"]`).join(', ')
-    )) {
-      elem.querySelector(':scope > .inner-item > a.name').classList.remove('open', 'loaded');
-      elem.querySelector(':scope > ul.children').classList.remove('open');
+    elem.querySelector(':scope > .inner-item > .name').classList.remove('open', 'loaded');
+    elem.querySelector(':scope > ul.children').classList.remove('open');
+  }
+  hideAncestors() {
+    const oldTop = this.liElement.getBoundingClientRect().top;
+    const isNew = !this.liElement.dataset.id;
+    const id = this.liElement.dataset.id || this.liElement.parentElement.parentElement.dataset.id;
+
+    for (const elem of document.querySelectorAll(`li[data-id="${id}"]`)) {
+      if (elem.id) continue;
+
+      this.reloadOnNextOpen(elem);
+      if (!isNew) this.reloadOnNextOpen(elem.parentElement.parentElement);
     }
 
-    this.liElement.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center'
-    });
+    window.scrollTo({ top: window.scrollY - (oldTop - this.liElement.getBoundingClientRect().top) });
   }
   submitForm(event) {
     event.preventDefault();
@@ -72,7 +77,7 @@ class ClassificationEditForm {
 
     promise
       .then(data => {
-        if (data && data.html) this.liElement.insertAdjacentHTML('afterend', data.html);
+        if (data && data.html) this.liElement.insertAdjacentHTML('beforebegin', data.html);
 
         this.hideAncestors();
 
