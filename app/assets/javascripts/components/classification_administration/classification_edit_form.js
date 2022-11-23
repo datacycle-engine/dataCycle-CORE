@@ -32,6 +32,24 @@ class ClassificationEditForm {
   resetForm(_event) {
     this.liElement.classList.remove('active');
   }
+  isParentClassificationAlias(elem) {
+    return elem.nodeName == 'LI' && elem.hasAttribute('data-id');
+  }
+  hideAncestors() {
+    const ancestors = DomElementHelpers.findAncestors(this.liElement, this.isParentClassificationAlias.bind(this));
+
+    for (const elem of document.querySelectorAll(
+      ancestors.map(e => `li.mapped[data-id="${e.dataset.id}"]`).join(', ')
+    )) {
+      elem.querySelector(':scope > .inner-item > a.name').classList.remove('open', 'loaded');
+      elem.querySelector(':scope > ul.children').classList.remove('open');
+    }
+
+    this.liElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+  }
   submitForm(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -55,6 +73,8 @@ class ClassificationEditForm {
     promise
       .then(data => {
         if (data && data.html) this.liElement.insertAdjacentHTML('afterend', data.html);
+
+        this.hideAncestors();
 
         this.liElement.remove();
 

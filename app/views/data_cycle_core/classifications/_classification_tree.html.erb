@@ -1,4 +1,4 @@
-<li id="<%= classification_tree.id %>" class="<%= type %>">
+<li id="<%= classification_tree.id %>" class="<%= type %>" data-id="<%= classification_tree.sub_classification_alias.try(:id) %>">
   <span class="inner-item">
     <%= link_to classification_title(classification_tree.sub_classification_alias),
                 classifications_path(classification_tree_id: classification_tree.id),
