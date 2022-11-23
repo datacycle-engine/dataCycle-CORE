@@ -25,7 +25,7 @@
 
   <div class="advanced-filter-selector">
     <%= select_tag("f[#{identifier}][v]",
-      options_for_select(DataCycleCore::ExternalSystem.all.map { |e| [e.name_with_types, e.id] }, value),
+      options_for_select(DataCycleCore::ExternalSystem.all.order(:name).map { |e| [e.name_with_types, e.id] }, value),
       {
         multiple: true,
         class: 'multi-select',

@@ -31,7 +31,8 @@
                             class: 'switch-primary-external-system-link',
                             data: {
                               method: :post,
-                              dc_tooltip: t('content_external_data.tooltip', locale: active_ui_locale)
+                              dc_tooltip: t('content_external_data.tooltip', locale: active_ui_locale),
+                              disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw')
                             } if sync[:id].present? && sync[:sync_type] == 'duplicate' && can?(:switch_primary_external_system, content) %>
               </li>
             <% end %>
@@ -39,5 +40,7 @@
         </div>
       </div>
     <% end %>
+
+    <%= render 'data_cycle_core/contents/external_connections/new_external_connection_overlay', content: content if can?(:create_external_connection, content) %>
   </div>
 <% end %>

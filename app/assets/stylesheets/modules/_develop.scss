@@ -3808,3 +3808,17 @@ body {
 #classification-administration {
   padding-top: 1.5rem;
 }
+
+.new-external-connection-form {
+  .form-element {
+    &.required > label::after {
+      content: '*';
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 0.1rem;
+      color: $alert-color;
+      text-shadow: none;
+    }
+  }
+}

@@ -36,7 +36,7 @@ class ContentScore {
     if (this.locale) formData.set('locale', this.locale);
 
     DataCycle.httpRequest({
-      type: 'POST',
+      method: 'POST',
       url: url,
       enctype: 'multipart/form-data',
       data: formData,

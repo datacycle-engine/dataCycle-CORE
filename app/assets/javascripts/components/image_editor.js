@@ -193,7 +193,7 @@ class ImageEditor {
         const type = 'POST';
         const promise = DataCycle.httpRequest({
           url: url,
-          type: type,
+          method: type,
           enctype: 'multipart/form-data',
           data: data,
           dataType: 'json',

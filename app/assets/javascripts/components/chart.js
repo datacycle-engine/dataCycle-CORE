@@ -210,7 +210,7 @@ class Chart {
     this.datasets = [];
 
     const promise = DataCycle.httpRequest({
-      type: 'POST',
+      method: 'POST',
       url: url,
       data: formData,
       enctype: 'multipart/form-data',

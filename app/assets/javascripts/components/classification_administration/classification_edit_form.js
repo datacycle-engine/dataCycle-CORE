@@ -42,7 +42,7 @@ class ClassificationEditForm {
     const formData = DomElementHelpers.getFormData(this.item);
 
     const promise = DataCycle.httpRequest({
-      type: formData.get('_method') || 'POST',
+      method: formData.get('_method') || 'POST',
       url: this.item.action,
       data: formData,
       enctype: 'multipart/form-data',

@@ -1,0 +1,33 @@
+<%= form_with(
+  model: DataCycleCore::ExternalSystemSync.new,
+  url: create_external_connection_thing_path(content),
+  local: true,
+  class: 'new-external-connection-form',
+  namespace: SecureRandom.hex(10)
+) do |f| %>
+  <div class="form-element required">
+    <%= f.label :external_system_id, DataCycleCore::ExternalSystemSync.human_attribute_name(:external_system_id, locale: active_ui_locale) %>
+    <div class="v-select white">
+      <% external_systems = DataCycleCore::ExternalSystem.all.order(:name) %>
+      <%= f.select :external_system_id,
+                  options_for_select(external_systems.map { |e| [e.name_with_types, e.id] }, external_systems.first.id),
+                  {},
+                  {
+                    required: true,
+                    class: 'single-select',
+                    data: {
+                      allow_clear: false
+                    }
+                  } %>
+    </div>
+  </div>
+
+  <div class="form-element required">
+    <%= f.label :external_key, DataCycleCore::ExternalSystemSync.human_attribute_name(:external_key, locale: active_ui_locale) %>
+    <%= f.text_field :external_key, required: true %>
+  </div>
+
+  <div class="buttons">
+    <%= f.button t('actions.save', locale: active_ui_locale), type: :submit, class: 'button success', data: { disable_with: '<i class="fa fa-spinner fa-spin fa-fw"></i> ' + t('actions.save', locale: active_ui_locale) } %>
+  </div>
+<% end %>

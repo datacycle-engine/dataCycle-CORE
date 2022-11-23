@@ -108,6 +108,7 @@ DataCycleCore::Engine.routes.draw do
         post :attribute_default_value, on: :collection, defaults: { format: 'application/json' }
         post :switch_primary_external_system, on: :member
         post :content_score, on: :collection
+        post :create_external_connection, on: :member
         post '/', on: :member, action: :show
       end
     end

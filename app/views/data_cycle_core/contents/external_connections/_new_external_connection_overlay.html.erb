@@ -1,0 +1,19 @@
+<% html_id = SecureRandom.hex(10) %>
+
+<div class="external-connection-with-dropdown new">
+  <a href="#" class="new-external-connection-button" data-open="<%= html_id %>" data-dc-tooltip="<%= t('external_connections.new_form.title', locale: active_ui_locale) %>">
+    <i class="fa fa-plus"></i>
+  </a>
+
+  <div class="reveal new-external-connection-overlay" id="<%= html_id %>" data-reveal>
+    <h3><%= t('external_connections.new_form.title', locale: active_ui_locale) %></h3>
+    <div class="remote-render"
+          data-remote-path="data_cycle_core/contents/external_connections/new_external_connection_form"
+          data-remote-options="<%= to_query_params({ content: content }).to_json %>">
+    </div>
+
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+</div>

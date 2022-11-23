@@ -509,6 +509,12 @@ de:
     failure: "Es ist ein schwerer Fehler aufgetreten.\nDer Inhalt kann nich synchronisiert werden."
     export: Externes System
 
+  external_connections:
+    new_form:
+      title: Externe Verknüpfung erstellen
+      created: Externe Verknüpfung wurde erstellt
+      duplicate_error: Es existiert schon eine Verknüpfung zu diesem System
+
   duplicate:
     candidates: Mögliche Duplikate
     score: Score
@@ -1099,6 +1105,11 @@ de:
           attributes:
             name:
               blank: Name darf nicht leer sein.
+        data_cycle_core/external_system_sync:
+          attributes:
+            external_system_id:
+              blank: darf nicht leer sein.
+
     models:
       data_cycle_core/user: Benutzer
       data_cycle_core/user_organization: Organisation
@@ -1246,6 +1257,9 @@ de:
         file: Datei
       data_cycle_core/external_source:
         name: Name
+      data_cycle_core/external_system_sync:
+        external_system_id: Externes System
+        external_key: Externer Identifier
 
   unauthorized:
     manage:
