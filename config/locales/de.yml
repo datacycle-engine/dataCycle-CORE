@@ -514,6 +514,10 @@ de:
       title: Externe Verknüpfung erstellen
       created: Externe Verknüpfung wurde erstellt
       duplicate_error: Es existiert schon eine Verknüpfung zu diesem System
+    remove_external_system_sync:
+      tooltip: Externe Verknüpfung entfernen
+      success: Externe Verknüpfung wurde entfernt
+      warning_html: 'Externe Verknüpfung entfernen?<br><br><i class="alert-color">Das beeinflusst möglicherweise die Funktion eines Importers!</i>'
 
   duplicate:
     candidates: Mögliche Duplikate
@@ -1355,7 +1359,7 @@ de:
         webhooks:
           root: Webhooks
           json_ld: JSON-LD
-        geodata: 
+        geodata:
           root: Geodaten
           geojson: GeoJSON
           mvt: Mapbox Vector Tiles

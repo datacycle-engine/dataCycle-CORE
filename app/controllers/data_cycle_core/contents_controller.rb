@@ -602,6 +602,7 @@ module DataCycleCore
 
       begin
         external_system_sync = @content.external_system_syncs.create(external_connection_params.merge(sync_type: 'duplicate'))
+        @content.invalidate_self
 
         if external_system_sync.valid?
           flash[:success] = I18n.t('external_connections.new_form.created', locale: helpers.active_ui_locale)
@@ -611,6 +612,27 @@ module DataCycleCore
       rescue ActiveRecord::RecordNotUnique
         flash[:error] = I18n.t('external_connections.new_form.duplicate_error', locale: helpers.active_ui_locale)
       end
+
+      respond_to do |format|
+        format.html { redirect_back(fallback_location: root_path) }
+        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).squish, **flash.discard.to_h } }
+      end
+    end
+
+    def remove_external_connection
+      @content = DataCycleCore::Thing.find(params[:id])
+
+      authorize! :remove_external_connection, @content
+
+      if switch_system_params[:external_system_sync_id].present?
+        @content.external_system_syncs.find_by(id: switch_system_params[:external_system_sync_id])&.destroy
+      else
+        @content.update_columns(external_source_id: nil, external_key: nil)
+      end
+
+      @content.invalidate_self
+
+      flash[:success] = I18n.t('external_connections.remove_external_system_sync.success', locale: helpers.active_ui_locale)
 
       respond_to do |format|
         format.html { redirect_back(fallback_location: root_path) }

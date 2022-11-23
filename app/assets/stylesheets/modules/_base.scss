@@ -427,6 +427,21 @@ footer {
               pointer-events: none;
             }
           }
+
+          .remove-external-system-link {
+            font-size: 1rem;
+            color: $alert-color;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            width: 1rem;
+            height: 1rem;
+
+            &:hover {
+              color: darken($alert-color, 10%);
+            }
+          }
         }
       }
     }
