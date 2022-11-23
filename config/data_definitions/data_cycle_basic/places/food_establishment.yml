@@ -92,6 +92,13 @@
       :place_attributes:
         :type: mixin
         :name: place_attributes
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        :api:
+          :v4:
+            :name: dc:additionalInformation
       :linked_data:
         :type: mixin
         :name: linked_data
@@ -128,6 +135,9 @@
       :feratel:
         :type: mixin
         :name: feratel_categories
+      :external_source_attributes:
+        :type: mixin
+        :name: external_source_attributes
       :feratel_cps:
         :type: mixin
         :name: feratel_cps
