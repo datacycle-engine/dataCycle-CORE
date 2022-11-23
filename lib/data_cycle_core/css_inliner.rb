@@ -3,16 +3,22 @@
 module DataCycleCore
   class CssInliner
     def self.delivering_email(message)
+      transformation = lambda { |body|
+        Premailer.new(
+          body.decoded,
+          {
+            with_html_string: true,
+            css_to_attributes: true,
+            preserve_style_attribute: false,
+            preserve_styles: true
+          }
+        ).to_inline_css
+      }
+
       if message.multipart?
-        if message.html_part
-          message.html_part.body = Premailer.new(message.html_part.body.decoded, with_html_string: true,
-                                                                                 css_to_attributes: true,
-                                                                                 preserve_styles: true).to_inline_css
-        end
+        message.html_part.body = transformation.call(message.html_part.body) if message.html_part
       else
-        message.body = Premailer.new(message.decoded, with_html_string: true,
-                                                      css_to_attributes: true,
-                                                      preserve_styles: true).to_inline_css
+        message.body = transformation.call(message.body)
       end
 
       message

@@ -9,6 +9,47 @@ namespace :dc do
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_templates"].invoke
     end
 
+    namespace :classifications do
+      require 'csv'
+
+      desc 'append vacuum job to importers Queue'
+      task mappings_from_csv: :environment do
+        errors = []
+        pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
+        futures = []
+
+        Dir[Rails.root.join('config', 'classification_mappings', '*.csv').to_s].each do |file_path|
+          CSV.foreach(file_path, encoding: 'utf-8', quote_char: nil) do |data|
+            next unless data&.[](0)&.include?('>') && data&.[](1)&.include?('>')
+
+            futures << Concurrent::Promise.execute({ executor: pool }) do
+              ActiveRecord::Base.connection_pool.with_connection do
+                ca = DataCycleCore::ClassificationAlias.custom_find_by_full_path(data[0])
+
+                if ca.nil?
+                  errors << "classification_alias not found (#{data[0]})"
+                  print 'x'
+                  next
+                end
+
+                ca.create_mapping_for_path(data[1])
+                print '.'
+              rescue ActiveRecord::RecordNotFound
+                errors << "mapped classification_alias not found (#{data[1]})"
+                print 'x'
+              end
+            end
+          end
+        end
+
+        futures.each(&:wait!)
+
+        puts
+        puts errors.join("\n")
+        puts "FINISHED IMPORTING MAPPINGS! (#{errors.size} errors)"
+      end
+    end
+
     namespace :search do
       desc 'rebuild the searches table'
       task :rebuild, [:template_names] => :environment do |_, args|

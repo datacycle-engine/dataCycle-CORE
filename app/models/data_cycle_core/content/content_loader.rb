@@ -92,11 +92,20 @@ module DataCycleCore
         DataCycleCore::Schedule.where(thing_id: id, relation: relation_name).order(created_at: :asc)
       end
 
-      def load_timeseries(property_name, from = nil, to = nil)
+      def load_timeseries(property_name, from = nil, to = nil, group_by = nil)
         query = DataCycleCore::Timeseries.where(thing_id: id, property: property_name)
         query = query.where('timestamp >= ?', from) if from.present?
         query = query.where('timestamp <= ?', to) if to.present?
-        query.order(timestamp: :asc)
+        if group_by.nil?
+          query
+            .order(timestamp: :asc)
+        else
+          timezone = "'#{Time.zone.now.time_zone.name}'"
+          query
+            .select("DATE_TRUNC('#{group_by}', timeseries.timestamp, #{timezone}) AS ts, SUM(timeseries.value) as value")
+            .group(:ts)
+            .order(ts: :asc)
+        end
       end
 
       def as_of(timestamp)

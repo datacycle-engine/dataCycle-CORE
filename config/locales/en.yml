@@ -451,8 +451,10 @@ en:
       distance: Radius in meters
     available_widgets: Available widgets
     widgets:
+      event_list: Events - List view
       list: List view
       map: Map view
+      gallery: Gallery view
     user_registration:
       terms_conditions: I accept the <a href="%{url}" target="_blank">general terms
         and conditions</a>.
@@ -536,6 +538,8 @@ en:
         subject: A new user has been created
         text_html: The new user %{name} (%{email}) has been created.
         user_link: Edit user
+        unlocked_subject: User unlocked
+        unlocked_html: You can now log in with your login data and use the released content! If you have any questions, please contact us directly.
 
   compare:
     switch_contents: switch contents
@@ -639,6 +643,7 @@ en:
         collection_or_stored_filter: '%{collection} or %{stored_filter}'
     related_to: is linked to
     feratel_content_score: Feratel - Content Score
+    internal_content_score: Content Score - dataCycle
     union_filter_ids: in stored searches / %{collections}
     related_to_method:
       related: contingent on
@@ -1272,7 +1277,11 @@ en:
         font-weight: bold;font-style: italic">%{title}</span></a>" has been updated.
         Content has been added or removed.</span>'
       create_link: create new link
-    documentation:
+    static:
+      imprint: Imprint
+      privacy_policy: Privacy policy
+      terms_and_conditions: Terms & Conditions
+    docs:
       root: Documentation
       overview: Overview
       architecture: System architecture

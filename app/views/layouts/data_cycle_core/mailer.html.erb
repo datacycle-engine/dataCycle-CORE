@@ -3,7 +3,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -11,18 +11,17 @@
     <title>Mailer</title>
 
     <!--[if mso]>
-        <style>
-            * {
-                font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif !important;
-            }
-        </style>
+      <style>
+        * {
+            font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif !important;
+        }
+      </style>
     <![endif]-->
     <!--[if !mso]><!-->
     <link href='https://fonts.googleapis.com/css?family=Lato:300,400,700,700italic' rel='stylesheet' type='text/css'>
     <!--<![endif]-->
 
-    <style>
-
+      <style>
         html,
         body {
             margin: 0 auto !important;
@@ -112,76 +111,74 @@
             text-decoration: underline;
             text-underline: underline;
         }
-    </style>
-    <!--[if mso]>
-    <style type="text/css">
-      ul,
-      ol {
-        margin: 0 !important;
-      }
-      li {
-        margin-left: 30px !important;
-      }
-      li.list-item-first {
-        margin-top: 0 !important;
-      }
-      li.list-item-last {
-        margin-bottom: 10px !important;
-      }
-    </style>
-    <![endif]-->
-
-    <style>
-
-      /* Media Queries */
-      @media screen and (max-width: 600px) {
-
-          /* What it does: Adjust typography on small screens to improve readability */
-          .email-container p {
-              font-size: 17px !important;
+      </style>
+      <!--[if mso]>
+        <style type="text/css">
+          ul,
+          ol {
+            margin: 0 !important;
           }
+          li {
+            margin-left: 30px !important;
+          }
+          li.list-item-first {
+            margin-top: 0 !important;
+          }
+          li.list-item-last {
+            margin-bottom: 10px !important;
+          }
+        </style>
+      <![endif]-->
 
-      }
+      <style>
+        /* Media Queries */
+        @media screen and (max-width: 600px) {
 
-    </style>
-    <!--[if gte mso 9]>
-    <xml>
-        <o:OfficeDocumentSettings>
-            <o:AllowPNG/>
-            <o:PixelsPerInch>96</o:PixelsPerInch>
-        </o:OfficeDocumentSettings>
-    </xml>
-    <![endif]-->
+            /* What it does: Adjust typography on small screens to improve readability */
+            .email-container p {
+                font-size: 17px !important;
+            }
 
-    <%= yield :head %>
-</head>
-<body>
-<div align="center">
+        }
+      </style>
 
-<table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%;">
+      <!--[if gte mso 9]>
+      <xml>
+          <o:OfficeDocumentSettings>
+              <o:AllowPNG/>
+              <o:PixelsPerInch>96</o:PixelsPerInch>
+          </o:OfficeDocumentSettings>
+      </xml>
+      <![endif]-->
 
- <%= header %>
+      <%= yield :head %>
+    </head>
+    <body>
+      <div align="center">
 
- <tr>
-  <td style='background:#d6d6d6;padding:36pt'>
-<!-- content starts here -->
+        <table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%;">
 
-    <%= yield %>
+          <%= header %>
 
-<!-- content ends here -->
-  </td>
- </tr>
- <tr>
-  <td style="background:#b8b8b8;padding:24pt 24pt 24pt 36pt">
-    <table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%;">
-      <%= footer %>
-    </table>
-  </td>
- </tr>
-</table>
+          <tr>
+            <td style='background:#d6d6d6;padding:36pt'>
+              <!-- content starts here -->
 
-</div>
+              <%= yield %>
 
+              <!-- content ends here -->
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#b8b8b8;padding:24pt 24pt 24pt 36pt">
+              <table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%;">
+                <%= footer %>
+              </table>
+            </td>
+          </tr>
+        </table>
 
-</body>
-</html>
+      </div>
+
+    </body>
+  </html>

@@ -44,6 +44,9 @@ module DataCycleCore
         end
 
         def self.process_single_content(utility_object, template_name, transformation, raw_data)
+          return if raw_data.blank?
+          return if raw_data.keys.size == 1 && raw_data.keys.first.in?(['id', '@id'])
+
           template = DataCycleCore::Generic::Common::ImportFunctions.load_template(template_name)
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(

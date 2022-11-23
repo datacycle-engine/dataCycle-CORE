@@ -4,5 +4,6 @@ module DataCycleCore
   class UserMailer < Devise::Mailer
     helper DataCycleCore::EmailHelper
     layout -> { @resource.try(:mailer_layout) || 'data_cycle_core/mailer' }
+    default from: ->(_) { @resource.user_api_feature.user_mailer_from }
   end
 end

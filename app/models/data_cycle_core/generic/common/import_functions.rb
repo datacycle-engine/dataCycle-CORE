@@ -117,7 +117,7 @@ module DataCycleCore
                 tempfile.write(data.dig('binary_file'))
                 tempfile.close
                 asset = config.dig(:asset_type).constantize.new(file: Pathname.new(Rails.root.join('tmp', data.dig('binary_file_name'))).open)
-                File.delete(Rails.root.join('tmp', data.dig('binary_file_name')))
+                Rails.root.join('tmp', data.dig('binary_file_name')).delete
               else
                 asset = config.dig(:asset_type).constantize.new(remote_file_url: data.dig('remote_file_url'))
               end

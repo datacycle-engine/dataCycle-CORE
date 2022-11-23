@@ -29,7 +29,7 @@ namespace :dc do
       input = ShellHelper.prompt 'Please enter Postgres Password'
 
       if input.present?
-        File.open(Rails.root.join('tmp', '.env'), 'w') do |file|
+        Rails.root.join('tmp', '.env').open('w') do |file|
           file << "POSTGRES_USER=#{args[:application_name]}\n"
           file << "POSTGRES_DATABASE=#{args[:application_name]}_production\n"
           file << "POSTGRES_PASSWORD=#{input}\n"

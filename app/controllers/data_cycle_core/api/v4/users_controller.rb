@@ -5,7 +5,7 @@ module DataCycleCore
     module V4
       class UsersController < ::DataCycleCore::Api::V4::ContentsController
         before_action :prepare_url_parameters
-        before_action :check_feature_enabled, except: :index
+        before_action :init_user_api_feature, except: :index
 
         def permitted_params
           @permitted_params ||= params.permit(*permitted_parameter_keys)
@@ -21,6 +21,8 @@ module DataCycleCore
           @user = DataCycleCore::User.find(params[:id])
           authorize! :show, @user
 
+          @user.user_api_feature = @user_api_feature
+
           render json: @user.as_user_api_json.deep_transform_keys { |k| k.camelize(:lower) }
         end
 
@@ -28,31 +30,28 @@ module DataCycleCore
           authorize! :create_user, current_user
 
           @user = DataCycleCore::User.new(user_params.merge(creator: current_user))
-          rank = DataCycleCore.features.dig(:user_api, :default_rank).to_i
-
-          if role_params[:rank].present? && DataCycleCore.features.dig(:user_api, :allowed_ranks)&.include?(role_params[:rank].to_i)
-            rank = role_params[:rank].to_i
-          elsif role_params[:rank].present?
-            render(json: { errors: { rank: ['RANK_NOT_ALLOWED'] } }, status: :unprocessable_entity) && return
-          end
-
-          @user.role = DataCycleCore::Role.find_by(rank: rank)
-          @user.user_groups = DataCycleCore::Feature::UserApi.default_user_groups unless DataCycleCore::Feature::UserApi.default_user_groups.nil?
+          @user.user_api_feature = @user_api_feature
+          @user.user_api_feature.user = @user
+          @user.role = @user.user_api_feature.allowed_role!(role_params[:rank])
+          @user.user_groups = @user.user_api_feature.default_user_groups if @user.user_groups.none?
           @user.jti = SecureRandom.uuid
           @user.attributes = layout_params
 
           if @user.save
-            DataCycleCore::Feature::UserApi.notify_users(@user) if DataCycleCore::Feature::UserApi.new_user_notification?
+            @user.user_api_feature.notify_users if @user.user_api_feature.new_user_notification?
 
             render json: @user.as_user_api_json.merge(@user.generate_user_token.to_h).deep_transform_keys { |k| k.to_s.camelize(:lower) }, status: :created
           else
             render json: { errors: @user.errors }, status: :unprocessable_entity
           end
+        rescue DataCycleCore::Error::Api::UserApiRankError => e
+          render(json: { errors: { rank: [e.message] } }, status: :unprocessable_entity)
         end
 
         def update
           authorize! :update, current_user
 
+          current_user.user_api_feature = @user_api_feature
           current_user.attributes = user_params.except(:additional_attributes)
           (current_user.additional_attributes ||= {}).merge!(user_params[:additional_attributes] || {})
 
@@ -67,9 +66,9 @@ module DataCycleCore
 
         def password
           authorize! :reset_password, :user_api
-          raise CanCan::AccessDenied, 'not_recoverable' unless DataCycleCore::Feature::UserApi.enabled?
 
           user = DataCycleCore::User.find_by!(email: password_params[:email])
+          user.user_api_feature = @user_api_feature
           user.attributes = layout_params
 
           user.send_reset_password_instructions
@@ -79,6 +78,7 @@ module DataCycleCore
           authorize! :confirm, :user_api
 
           user = DataCycleCore::User.find_by!(email: password_params[:email])
+          user.user_api_feature = @user_api_feature
           user.attributes = layout_params
           user.resend_confirmation_instructions if DataCycleCore::User.reconfirmable
 
@@ -93,6 +93,7 @@ module DataCycleCore
           authorize! :reset_password, :user_api
 
           user = User.reset_password_by_token(password_params.slice(:password, :reset_password_token))
+          user.user_api_feature = @user_api_feature
 
           if user.errors.present?
             render json: { errors: user.errors }, status: :unprocessable_entity
@@ -105,6 +106,7 @@ module DataCycleCore
           authorize! :confirm, :user_api
 
           user = User.confirm_by_token(password_params[:confirmation_token])
+          user.user_api_feature = @user_api_feature
 
           if user.errors.present?
             render json: { errors: user.errors }, status: :unprocessable_entity
@@ -125,9 +127,9 @@ module DataCycleCore
         end
 
         def merge_user_layout_params!(params)
-          if current_user&.token_issuer.present?
-            params[:mailer_layout] = current_user.token_issuer + '_mailer' if params[:mailer_layout].blank?
-            params[:viewer_layout] = current_user.token_issuer + '_viewer' if params[:viewer_layout].blank?
+          if @user_api_feature&.current_issuer.present?
+            params[:mailer_layout] = @user_api_feature.current_issuer + '_mailer' if params[:mailer_layout].blank?
+            params[:viewer_layout] = @user_api_feature.current_issuer + '_viewer' if params[:viewer_layout].blank?
           end
 
           params.delete(:mailer_layout) unless params[:mailer_layout].present? && lookup_context.exists?(params[:mailer_layout].prepend('data_cycle_core/').to_s, ['layouts'], false, [], formats: [:html])
@@ -144,18 +146,17 @@ module DataCycleCore
         end
 
         def user_params
-          params
-            .permit(DataCycleCore::Feature::UserApi.allowed_user_params).to_h
-            .deep_transform_keys(&:underscore)
-            .with_indifferent_access
+          @user_api_feature.parsed_user_params(params)
         end
 
         def role_params
           params.permit(:rank)
         end
 
-        def check_feature_enabled
-          raise CanCan::AccessDenied, 'feature not activated' unless DataCycleCore.features.dig(:user_api, :enabled)
+        def init_user_api_feature
+          raise CanCan::AccessDenied, 'feature not activated' unless DataCycleCore::Feature::UserApi.enabled?
+
+          @user_api_feature = DataCycleCore::Feature::UserApi.new(request.env['data_cycle.feature.user_api.issuer'])
         end
       end
     end
