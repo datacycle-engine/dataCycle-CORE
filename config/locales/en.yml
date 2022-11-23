@@ -1255,24 +1255,24 @@ en:
           other: 'The following contents were added/removed to/from %{link}:'
     upload: Upload new media
     data_links:
-      write_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida
+      write_link_html: '<span style="font-size:12pt; font-family: ''Lucida
         Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong>
         has shared %{a_type} "<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
         font-weight: bold;font-style: italic">%{title}</span></a>" with you and asks
         for your additions and feedback. <br><br>Please make any changes to text,
         images and videos directly in the form.</span>'
-      read_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida
+      read_link_html: '<span style="font-size:12pt; font-family: ''Lucida
         Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong>
         has shared %{a_type} "<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
         font-weight: bold;font-style: italic">%{title}</span></a>" with you and asks
         for your feedback.</span>'
-      download_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida
+      download_link_html: '<span style="font-size:12pt; font-family: ''Lucida
         Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong>
         has shared %{a_type} "<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
         font-weight: bold;font-style: italic">%{title}</span></a>" with you.<br><br>%{n_type}
         is now available for download.</span>'
-      updated_watchlist_html: '<span style="font-size:12pt; font-family: ''Lato'',
-        ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333">%{a_type} "<a
+      updated_watchlist_html: '<span style="font-size:12pt; font-family: ''Lucida 
+        Grande'', ''Segoe'', Arial, sans-serif;color:#333333">%{a_type} "<a
         href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
         font-weight: bold;font-style: italic">%{title}</span></a>" has been updated.
         Content has been added or removed.</span>'
