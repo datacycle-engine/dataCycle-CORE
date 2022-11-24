@@ -394,7 +394,7 @@ class Validator {
         },
         cancelCallback: () => this.enable()
       });
-    } else if (confirmations.finalize) {
+    } else if (confirmations.finalize && this.$form.find(':input[name="finalize"]').length) {
       const finalizeText = this.$form.find('label[for="finalize"]').text();
       this.$form.find('.form-element.finalize-button-container').addClass('has-warning');
 
