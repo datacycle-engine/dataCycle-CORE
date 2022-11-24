@@ -573,6 +573,7 @@ en:
         api_usage_last_week: Number of uses via the API in recent weeks
         api_usage_current_month: Number of uses via the API in the current month
         api_usage_last_month: Number of uses via the API in the last month
+        api_usage_last_12_months: Number of uses via the API in the last 12 months
       mailer:
         subject:
           downloads_popular: TOP 50 Image Downloads
