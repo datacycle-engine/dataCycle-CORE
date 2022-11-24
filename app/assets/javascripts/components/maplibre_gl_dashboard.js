@@ -1,4 +1,5 @@
 import MapLibreGlViewer from './maplibre_gl_viewer';
+import urlJoin from 'url-join';
 
 class MapLibreGlDashboard extends MapLibreGlViewer {
   constructor(container) {
@@ -66,7 +67,7 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
       if (feature && feature.source == 'feature_source_primary') {
         const url = new URL(window.location);
         url.search = '';
-        window.open(`${url}things/${feature.id}`, '_blank');
+        window.open(urlJoin(url.toString(), `things/${feature.id}`), '_blank');
       }
     });
   }
