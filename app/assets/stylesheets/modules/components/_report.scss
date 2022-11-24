@@ -1,15 +1,92 @@
-ul.report-list{
+ul.available-reports {
   list-style: none;
   margin-left: 0;
   margin-top: 1rem;
+
   li {
     border-top: 1px solid #e5e5e5;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0.5rem;
+
     a {
-      display: block;
-      padding: 0.5rem;
-      span.icon{
-        padding-right: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0.5rem;
+
+      .fa {
+        font-size: inherit;
+        line-height: inherit;
       }
+    }
+  }
+}
+
+body.reports {
+  section.breadcrumb {
+    margin-bottom: 2rem;
+  }
+
+  section.reports {
+    max-width: min(60rem, 100vw - 4rem);
+    margin: auto;
+
+    ul.available-reports {
+      margin-top: 2rem;
+    }
+
+    .report-overlay-link {
+      font-size: 1.1rem;
+    }
+  }
+}
+
+.report-overlay-form {
+  ul.download-type {
+    margin-left: 0.5rem;
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0.5rem;
+
+      label {
+        flex: auto;
+        margin: 0;
+      }
+    }
+  }
+
+  .form-element {
+    > label {
+      font-size: 1rem;
+    }
+
+    &.required > label::after {
+      content: '*';
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 0.1rem;
+      color: $alert-color;
+      text-shadow: none;
+    }
+  }
+
+  .buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+
+    button.success {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
     }
   }
 }

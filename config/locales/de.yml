@@ -586,6 +586,7 @@ de:
         name: Name
         downloads_all: Anzahl der Downloads (Gesamt)
         downloads_by_month: Anzahl der Downloads (%{date})
+        downloads_by_previous_month: Anzahl der Downloads (%{date})
         date_created: Heruntergeladen am
         email: E-Mail
         user_display_name: Account
@@ -601,6 +602,8 @@ de:
           downloads_popular: TOP 50 Bild Downloads
         text_html:
           downloads_popular: Im Anhang finden Sie die TOP 50 Bild Downloads.
+      download_form:
+        type: Format
 
   compare:
     switch_contents: Inhalte tauschen
@@ -870,7 +873,7 @@ de:
     upload_gpx: 'GPX-Datei hochladen'
     remove_feature: 'Geometrie löschen'
     open_asset: 'Datei öffnen'
-    download: 'herunterlanden'
+    download: 'herunterladen'
     download_content: 'Inhalt herunterladen'
     download_indesign: 'Inhalt für Adobe InDesign herunterladen'
     download_zip: 'Inhalte als ZIP-Archiv herunterladen'
