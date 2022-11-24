@@ -85,6 +85,8 @@
     :indesign: false
     :json: false
     :xml: false
+    :geojson: false
+    :mvt: false
 
 :overlay:
   :enabled: true
@@ -182,7 +184,10 @@
   :external_source: false
   :external_system: true
   :id: true
-  :creator: true
+  :user:
+    :creator: true
+    :editor: false
+    :last_editor: false
   :classification_tree_ids: true
   :date_range: all
   :validity_period:
@@ -196,9 +201,7 @@
     :relative: true
   :geo_filter:
     :geo_radius: false
-    :geo_within_classification:
-      false
-      - Administrative Einheiten
+    :geo_within_classification: false
   # :union_filter_ids: true
   # :relation_filter:
   #   :linked_image: image
@@ -314,8 +317,6 @@
 
 :normalize:
   :enabled: false
-  :external_source: Econob Normalize
-  :endpoint: DataCycleCore::MasterData::Normalizer::Endpoint
 
 :duplicate_content:
   :enabled: false

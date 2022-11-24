@@ -38,7 +38,7 @@ module DataCycleCore
             if content.try(:asset)&.file&.path&.present?
               File.basename(content.try(:asset)&.file&.path)
             else
-              "#{content.template_name}_#{SecureRandom.uuid}"
+              "#{content.try(:template_name)}_#{SecureRandom.uuid}"
             end
           end
 

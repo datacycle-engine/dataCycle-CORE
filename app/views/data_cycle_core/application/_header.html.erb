@@ -3,6 +3,7 @@
     <div class="top-bar-title">
       <%= link_to root_path do %>
         <%= render 'logo', inverted: true %>
+        <%= header_title %>
         <%= yield :menu_title %>
       <% end %>
     </div>
@@ -15,16 +16,11 @@
         </li>
         <li>
           <% if DataCycleCore.info_link.blank? %>
-            <a href="https://datacycle.info/" title="datacycle.info" target="_blank">
-              <i class="fa fa-question" aria-hidden="true"></i>
-              <span>Info</span>
-            </a>
+            <%= link_to tag.i(class: 'fa fa-question') + tag.span('Info'), 'https://datacycle.info/', title: 'datacycle.info', target: :_blank %>
+          <% elsif DataCycleCore.info_link.is_a?(::String) %>
+            <%= link_to tag.i(class: 'fa fa-question') + tag.span('Info'), DataCycleCore.info_link, target: :_blank %>
           <% else %>
-            <%= link_to info_path  do %>
-              <span><i class="fa fa-question" aria-hidden="true"></i>
-                <span>Info</span>
-              </span>
-            <% end %>
+            <%= link_to tag.i(class: 'fa fa-question') + tag.span('Info'), info_path, target: :_blank %>
           <% end %>
         </li>
         <% if user_signed_in? %>

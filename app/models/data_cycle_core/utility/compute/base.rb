@@ -15,15 +15,18 @@ module DataCycleCore
             computed_parameters = Array.wrap(properties&.dig('compute', 'parameters')).map { |p| p.split('.').first }.uniq.intersection(content.property_names)
 
             return unless conditions_satisfied?(content, properties)
-            return if skip_compute_value?(key, data_hash, content, computed_parameters, false, force)
+
+            computed_value_hash = data_hash.dc_deep_dup
+
+            return if skip_compute_value?(key, computed_value_hash, content, computed_parameters, false, force)
 
             module_name = ('DataCycleCore::' + properties.dig('compute', 'module').classify).safe_constantize
             method_name = module_name.method(properties.dig('compute', 'method'))
 
             data_hash[key] = method_name.try(:call, **{
-              computed_parameters: computed_parameters.index_with { |v| data_hash[v] },
+              computed_parameters: computed_parameters.index_with { |v| computed_value_hash[v] },
               key: key,
-              data_hash: data_hash,
+              data_hash: computed_value_hash,
               content: content,
               computed_definition: properties
             })

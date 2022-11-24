@@ -32,7 +32,7 @@ module DataCycleCore
 
       raise ActiveRecord::RecordNotFound if markdown_path.nil?
 
-      markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(HTML_OPTIONS), MARKDOWN_OPTIONS)
+      markdown = Redcarpet::Markdown.new(DataCycleCore::Static::MarkdownHtmlRenderer.new(HTML_OPTIONS), MARKDOWN_OPTIONS)
       markdown.render(File.read(markdown_path))
     end
 

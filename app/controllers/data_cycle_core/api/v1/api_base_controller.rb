@@ -15,7 +15,7 @@ module DataCycleCore
 
         DEFAULT_PAGE_SIZE = 25
 
-        before_action :authenticate_user!, :set_default_response_format # from devise (authenticate)
+        before_action :set_default_response_format
 
         def permitted_params
           params.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }

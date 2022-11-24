@@ -2,7 +2,7 @@
 <% footer = render 'data_cycle_core/application/mailer/footer' %>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%= (@locale || I18n.available_locales.first).to_s %>">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
@@ -17,9 +17,6 @@
         }
       </style>
     <![endif]-->
-    <!--[if !mso]><!-->
-    <link href='https://fonts.googleapis.com/css?family=Lato:300,400,700,700italic' rel='stylesheet' type='text/css'>
-    <!--<![endif]-->
 
       <style>
         html,
@@ -28,7 +25,7 @@
             padding: 0 !important;
             height: 100% !important;
             width: 100% !important;
-            font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;
+            font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;
         }
 
         * {
@@ -155,9 +152,7 @@
     </head>
     <body>
       <div align="center">
-
         <table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%;">
-
           <%= header %>
 
           <tr>
@@ -169,16 +164,9 @@
               <!-- content ends here -->
             </td>
           </tr>
-          <tr>
-            <td style="background:#b8b8b8;padding:24pt 24pt 24pt 36pt">
-              <table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%;">
-                <%= footer %>
-              </table>
-            </td>
-          </tr>
+
+          <%= footer %>
         </table>
-
       </div>
-
     </body>
   </html>

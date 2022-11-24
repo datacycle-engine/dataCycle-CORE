@@ -24,6 +24,7 @@ module DataCycleCore
             )
           end
 
+          # legacy method for indesign downloader
           def file_extension(mime_type)
             ext = MiniMime.lookup_by_content_type(mime_type.to_s)&.extension
             return if ext.blank?
@@ -32,7 +33,8 @@ module DataCycleCore
           end
 
           def serialize_thing(content:, language:, **options)
-            content = content.is_a?(Array) ? content : [content]
+            content = Array.wrap(content)
+
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               content
                 .select { |item| serializable?(item) }
@@ -78,33 +80,10 @@ module DataCycleCore
                 )
               end
 
-              uri = URI.parse(data_url)
-              # used for local development and docker env.
-              uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && ENV.fetch('APP_DOCKER_ENV') { nil } != 'production' && uri.hostname == 'localhost'
-
-              conn = Faraday.new do |con|
-                con.use FaradayMiddleware::FollowRedirects, limit: 5
-                con.adapter Faraday.default_adapter
-              end
-              response = conn.get uri
-              if response.success?
-                data = response.body
-                mime_type = response.headers&.dig('content-type')
-                remote = true
-              end
+              remote = true
             elsif remote?(content)
-              conn = Faraday.new do |f|
-                f.request :retry, {
-                  max: 2
-                }
-                f.response :follow_redirects
-              end
-              response = conn.get content.content_url
-              if response.success?
-                data = response.body
-                mime_type = response.headers&.dig('content-type')
-                remote = true
-              end
+              data_url = content.content_url
+              remote = true
             else
               data = create_asset(content, version, transformation)
               mime_type = mime_type(serialized_content: data, content: content)
@@ -115,7 +94,8 @@ module DataCycleCore
               mime_type: mime_type,
               file_name: file_name(content: content, language: language, version: content.asset&.versions&.key?(version.to_sym) ? version : 'original'),
               is_remote: remote,
-              id: content.id
+              id: content.id,
+              data_url: data_url
             )
           end
 

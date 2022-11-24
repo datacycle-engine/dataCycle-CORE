@@ -20,7 +20,15 @@ module DataCycleCore
       end
 
       def permissions
-        raise 'core abilities not implemented yet, please override the permissions in each project'
+        ###############################################################################################################
+        ################################### Core permissions
+        ###############################################################################################################
+        load_common_permissions
+        load_guest_permissions
+        load_external_user_permissions
+        load_standard_permissions
+        load_admin_permissions
+        load_super_admin_permissions
       end
 
       def add_permission(condition, *actions, definition)

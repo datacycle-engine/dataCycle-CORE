@@ -20,10 +20,32 @@ module DataCycleCore
           end
         end
 
+        def self.get_external_content_references(data, external_source_id, key_resolver)
+          get_reference(data, key_resolver) do |key|
+            ExternalReference.new(:content, external_source_id, key)
+          end
+        end
+
+        def self.add_external_schedule_references(data, property_name, external_source_id, key_resolver)
+          add_reference(data, property_name, key_resolver) do |key|
+            ExternalReference.new(:schedule, external_source_id, key)
+          end
+        end
+
+        def self.get_external_schedule_references(data, external_source_id, key_resolver)
+          get_reference(data, key_resolver) do |key|
+            ExternalReference.new(:schedule, external_source_id, key)
+          end
+        end
+
         def self.add_external_classification_references(data, property_name, external_source_id, key_resolver)
           add_reference(data, property_name, key_resolver) do |key|
             ExternalReference.new(:classification, external_source_id, key)
           end
+        end
+
+        def self.add_uc_references(data, external_source_id, key_resolver)
+          add_external_classification_references(data, 'universal_classifications', external_source_id, key_resolver)
         end
 
         def self.add_classification_name_references(data, property_name, tree_name, key_resolver, name_mapping_table = ->(v) { v })
@@ -32,14 +54,24 @@ module DataCycleCore
           end
         end
 
-        def self.add_reference(data, property_name, key_resolver, &reference_factory)
+        def self.get_classification_name_references(data, tree_name, key_resolver, name_mapping_table = ->(v) { v })
+          get_reference(data, key_resolver) do |key|
+            ClassificationNameReference.new(tree_name, name_mapping_table.to_proc.call(key))
+          end
+        end
+
+        def self.get_reference(data, key_resolver, &reference_factory)
           reference_keys = if key_resolver.respond_to?(:to_proc)
-                             key_resolver.to_proc.call(data) || []
+                             Array.wrap(key_resolver.to_proc.call(data)) || []
                            else
                              Array(resolve_attribute_path(data, key_resolver))
                            end
 
-          references = reference_keys.map(&reference_factory)
+          reference_keys.map(&reference_factory)
+        end
+
+        def self.add_reference(data, property_name, key_resolver, &reference_factory)
+          references = get_reference(data, key_resolver, &reference_factory)
 
           if property_name == 'universal_classifications'
             data.merge({ property_name => (data[property_name] || []) + references })
@@ -117,6 +149,8 @@ module DataCycleCore
             load_things(external_source_id, external_keys)
           when :classification
             load_classifications(external_source_id, external_keys)
+          when :schedule
+            load_schedules(external_source_id, external_keys)
           else
             raise "Unknown reference type: #{reference_type}"
           end
@@ -128,6 +162,11 @@ module DataCycleCore
             DataCycleCore::ExternalSystemSync.where(external_system_id: external_source_id, external_key: external_keys)
                                              .pluck(:external_key, :syncable_id)
           ).uniq.to_h
+        end
+
+        def self.load_schedules(external_source_id, external_keys)
+          DataCycleCore::Schedule.where(external_source_id: external_source_id, external_key: external_keys)
+                                 .pluck(:external_key, :id).to_h
         end
 
         def self.load_classifications(external_source_id, external_keys)

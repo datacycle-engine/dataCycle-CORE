@@ -22,7 +22,7 @@ module DataCycleCore
         }.freeze
 
         after_action :log_activity, unless: -> { params[:sl] }
-        before_action :authenticate_user!, :set_default_response_format
+        before_action :set_default_response_format
 
         def permitted_params
           # validate_api_params(params.to_unsafe_hash)

@@ -1,7 +1,9 @@
 <div class="reveal new-item" id="new_<%= sanitize_to_id(type.name.underscore) %>" data-reveal data-multiple-opened="true">
   <h3><%= t('actions.new', data: type.model_name.human(locale: active_ui_locale), locale: active_ui_locale ) %></h3>
 
-  <%= form_for type.new, url: { controller: type.name.tableize, action: :create_user } do |f| %>
+  <%= form_with model: type.new, local: true, url: { controller: type.name.tableize, action: :create_user }, class: 'validation-form' do |f| %>
+
+    <%= hidden_field_tag :table, type.name.demodulize.tableize %>
 
     <div class="form-element validation-container">
       <%= f.label :email %>
@@ -30,7 +32,7 @@
       <%= f.password_field :password, required: true %>
     </div>
 
-    <div class="form-element validation-container">
+    <div class="form-element">
       <%= f.label :role_id %>
       <%= f.select :role_id, DataCycleCore::Role.accessible_by(current_ability).order(:rank).collect{|r| [t('roles.'+r.name, locale: active_ui_locale), r.id]}, {}, class: 'no-margin' %>
     </div>

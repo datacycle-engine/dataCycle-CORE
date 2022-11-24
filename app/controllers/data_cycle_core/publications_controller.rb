@@ -3,7 +3,6 @@
 module DataCycleCore
   class PublicationsController < ApplicationController
     include DataCycleCore::Filter
-    before_action :authenticate_user! # from devise (authenticate)
     authorize_resource class: false # from cancancan (authorize)
 
     def index

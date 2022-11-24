@@ -80,8 +80,8 @@ module DataCycleCore
     end
 
     def translate
-      render(json: { error: 'PATH_MISSING' }.to_json, status: :bad_request) && return if translate_params[:path].blank?
-      render(json: { error: "TRANSLATION_MISSING (#{translate_params[:path]})" }.to_json, status: :not_found) && return unless I18n.exists?(translate_params[:path], locale: helpers.active_ui_locale)
+      render(json: { error: 'error' }.to_json, status: :bad_request) && return if translate_params[:path].blank?
+      render(json: { error: translate_params[:path] }.to_json, status: :not_found) && return unless I18n.exists?(translate_params[:path], locale: helpers.active_ui_locale)
 
       render json: { text: I18n.t(translate_params[:path], locale: helpers.active_ui_locale) }.to_json
     end

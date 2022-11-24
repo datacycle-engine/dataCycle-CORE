@@ -68,7 +68,7 @@ class TourSprungEditor extends MapLibreGlEditor {
     return new MTK.StyleControl(controlConfig);
   }
   initMap() {
-    MTK.init({ apiKey: this.credentials.api_key, language: document.documentElement.lang }).createMap(
+    MTK.init({ apiKey: this.credentials.api_key, language: DataCycle.uiLocale }).createMap(
       this.containerId,
       {
         map: {
@@ -336,11 +336,6 @@ class TourSprungEditor extends MapLibreGlEditor {
       }
       onAdd(b) {
         const container = super.onAdd(b);
-
-        b.addControl(new maplibregl.NavigationControl(), 'top-left');
-
-        container.querySelector('.mtk-editor-routing').remove(); // remove bike/car/foot icons
-
         const buttons = container.querySelectorAll('.mtk-editor-button');
 
         for (let i = 0; i < buttons.length; ++i) {
@@ -393,7 +388,7 @@ class TourSprungEditor extends MapLibreGlEditor {
     this.$container.trigger('dc:map:elevationProfileInitialized');
   }
   configureEditor() {
-    this.map.addControl(new maplibregl.NavigationControl(), 'top-left');
+    this.map.addControl(new maplibregl.NavigationControl(), 'bottom-left');
     new MTK.GeocoderControl().addTo(this.mtkMap, 'top-right');
     this.map.addControl(new maplibregl.FullscreenControl(), 'top-right');
     this._styleControlWithOptions().addTo(this.mtkMap, 'bottom-right');
@@ -401,7 +396,10 @@ class TourSprungEditor extends MapLibreGlEditor {
     this.extendEditorInterface();
     this._captureClickEvents();
 
-    this.editorGui = new this.extendedEditorInterface().addTo(this.mtkMap);
+    const options = { editor: {} };
+    if (this.mapOptions.editor_default_routing) options.editor.routeType = this.mapOptions.editor_default_routing;
+
+    this.editorGui = new this.extendedEditorInterface(options).addTo(this.mtkMap);
 
     if (!isEmpty(this.additionalValuesOverlay))
       this.map.addControl(new AdditionalValuesFilterControl(this), 'top-left');

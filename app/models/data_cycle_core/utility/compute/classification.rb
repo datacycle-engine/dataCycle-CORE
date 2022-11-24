@@ -56,29 +56,6 @@ module DataCycleCore
             end).flatten.compact.uniq
           end
 
-          private
-
-          def get_values_from_embedded(key_path, values)
-            return values if key_path.blank?
-
-            if values.is_a?(::Hash)
-              key = key_path.first
-
-              if values.key?(key) || values.dig('datahash')&.key?(key) || values.dig('translations', I18n.locale.to_s)&.key?(key)
-                value = values.dig(key) || values.dig('datahash', key) || values.dig('translations', I18n.locale.to_s, key)
-              else
-                id = values.dig('id') || values.dig('datahash', 'id') || values.dig('translations', I18n.locale.to_s, 'id')
-                value = DataCycleCore::Thing.find_by(id: id)&.attribute_to_h(key)
-              end
-
-              get_values_from_embedded(key_path.drop(1), value)
-            elsif values.is_a?(::Array)
-              values.map { |v| get_values_from_embedded(key_path, v) }
-            else
-              values
-            end
-          end
-
           def get_ids_from_geometry(tree_label:, geometry:)
             query_sql = <<-SQL.squish
               WITH filtered_classifications AS (
@@ -125,6 +102,30 @@ module DataCycleCore
                                         geo: geometry
                                       ])
             ).values.flatten
+          end
+
+          private
+
+          def get_values_from_embedded(key_path, values)
+            return values if key_path.blank?
+
+            if values.is_a?(::Hash)
+              key = key_path.first
+
+              if values.key?(key) || values.dig('datahash')&.key?(key) || values.dig('translations', I18n.locale.to_s)&.key?(key)
+                value = values.dig(key) || values.dig('datahash', key) || values.dig('translations', I18n.locale.to_s, key)
+              else
+                id = values.dig('id') || values.dig('datahash', 'id') || values.dig('translations', I18n.locale.to_s, 'id')
+                item = DataCycleCore::Thing.find_by(id: id)
+                value = item.respond_to?(key) ? item.attribute_to_h(key) : nil
+              end
+
+              get_values_from_embedded(key_path.drop(1), value)
+            elsif values.is_a?(::Array)
+              values.map { |v| get_values_from_embedded(key_path, v) }
+            else
+              values
+            end
           end
         end
       end

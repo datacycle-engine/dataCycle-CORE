@@ -1,4 +1,4 @@
-## Voraussetungen
+## Voraussetzungen
 
 **Es muss eine Konfiguration hinterlegt werden, damit eingehende Webhooks aktiviert sind.**
 

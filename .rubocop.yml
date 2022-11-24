@@ -54,6 +54,9 @@ Layout/EmptyLinesAroundAttributeAccessor:
 Style/RedundantInitialize:
   Enabled: false
 
+Layout/SpaceInsideHashLiteralBraces:
+  Enabled: false
+
 #######################################################
 ########## Lint
 
@@ -126,6 +129,12 @@ Style/HashTransformKeys:
 Style/HashTransformValues:
   Enabled: false
 
+Style/RedundantStringEscape:
+  Enabled: false
+
+Style/OperatorMethodCall:
+  Enabled: false
+
 #######################################################
 ########## Metrics
 Metrics/AbcSize:
@@ -195,6 +204,9 @@ Rails/DotSeparatedKeys:
 Rails/DeprecatedActiveModelErrorsMethods:
   Enabled: false
 
+Rails/TransactionExitStatement:
+  Enabled: false
+
 #######################################################
 ########## Rake
 Rake/Desc:
@@ -245,6 +257,9 @@ Minitest/AssertionInLifecycleHook:
   Enabled: false
 
 Minitest/AssertRespondTo:
+  Enabled: false
+
+Minitest/EmptyLineBeforeAssertionMethods:
   Enabled: false
 
 #######################################################

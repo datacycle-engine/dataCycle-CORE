@@ -308,7 +308,7 @@ module DataCycleCore
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
               :can, :read,
-              DataCycleCore::Abilities::Segments::SubjectNotInternal.new(DataCycleCore::ClassificationTreeLabel)
+              DataCycleCore::Abilities::Segments::TreeLabelByVisibility.new(['classification_overview', 'classification_administration'])
             )
 
             add_permission(
@@ -320,7 +320,7 @@ module DataCycleCore
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
               :can, :update,
-              DataCycleCore::Abilities::Segments::SubjectNotExternalAndNotInternal.new(DataCycleCore::ClassificationTreeLabel)
+              DataCycleCore::Abilities::Segments::SubjectNotExternal.new(DataCycleCore::ClassificationTreeLabel)
             )
 
             add_permission(

@@ -4,16 +4,6 @@ require 'csv'
 
 module DataCycleCore
   class ClassificationTreeLabel < ApplicationRecord
-    class Statistics < ApplicationRecord
-      self.table_name = 'classification_tree_label_statistics'
-
-      belongs_to :classification_tree_label, foreign_key: 'id', inverse_of: :statistics
-
-      def readonly?
-        true
-      end
-    end
-
     validates :name, presence: true
 
     after_update :add_things_cache_invalidation_job_update, if: :trigger_things_cache_invalidation?
@@ -34,7 +24,6 @@ module DataCycleCore
 
     has_many :classifications, through: :classification_aliases
     has_many :things, -> { unscope(:order).distinct }, through: :classifications
-    has_one :statistics, -> { readonly }, class_name: 'Statistics', foreign_key: 'id', inverse_of: :classification_tree_label
 
     def create_classification_alias(*classification_attributes)
       parent_classification_alias = nil

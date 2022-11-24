@@ -16,7 +16,7 @@ module DataCycleCore
           @user_data = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
             email: "tester_#{Time.now.getutc.to_i}@datacycle.at",
             confirmed_at: Time.zone.now - 1.day,
-            role_id: DataCycleCore::Role.find_by(rank: 5)&.id
+            role_id: DataCycleCore::Role.find_by(rank: 2)&.id
           })
           @new_user = DataCycleCore::User.create(@user_data)
         end
@@ -74,7 +74,6 @@ module DataCycleCore
             email: @user_data[:email],
             password: @user_data[:password]
           }
-
           assert_response :success
 
           assert_equal response.content_type, 'application/json; charset=utf-8'

@@ -215,6 +215,9 @@ module DataCycleCore
         hash['n'] = hash['t'].capitalize
         hash['q'] = 'import'
       when 'creator'
+        hash['t'] = 'user'
+        hash['n'] = 'creator'
+        hash['q'] = 'creator'
         hash['v'] = Array.wrap(hash['v']).map { |v| v == 'current_user' ? user&.id : v }
       when 'with_user_group_classifications_for_treename'
         raise StandardError, 'Missing data definition: treeLabel' if hash['v'].blank?

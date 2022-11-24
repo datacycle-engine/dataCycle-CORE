@@ -80,10 +80,7 @@ module DataCycleCore
           string_hash[:headline] = ''
           string_hash[:classification_string] = ''
         else
-          string_hash[:classification_string] = [
-            display_classification_aliases('show').map(&:name).try(:join, ' ').try(:gsub, /'/, "''"),
-            display_classification_aliases('show').pluck(:internal_name).try(:join, ' ').try(:gsub, /'/, "''")
-          ].compact.join(' ').squish
+          string_hash[:classification_string] = display_classification_aliases(['show', 'show_more']).map { |ca| [ca.name, ca.internal_name] }.flatten.compact.uniq.join(' ').gsub(/'/, "''").squish
         end
 
         string_hash[:all_text] = [string_hash[:headline].squish, string_hash[:classification_string], string_hash[:full_text].squish].join(' ')

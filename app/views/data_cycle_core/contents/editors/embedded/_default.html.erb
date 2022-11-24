@@ -29,7 +29,7 @@
     </div>
 
     <% if attribute_editable?(key, definition, options, content) %>
-      <%= button_tag tag.i(class: 'fa fa-times'), type: :button, class: 'button removeContentObject', data: {
+      <%= button_tag tag.i(class: 'fa fa-times'), type: :button, class: 'button removeContentObject alert', data: {
                 confirm_delete: !object&.template && content&.translatable? && definition&.dig('translated').to_s == 'true' && object&.translations&.many? ? t('actions.delete_with_translated_html', locale: active_ui_locale) : nil
               } %>
     <% end %>

@@ -52,18 +52,18 @@ module DataCycleCore
 
             @human_property_name[
               [
-                attribute,
+                attribute.to_s,
                 options[:definition] || options[:base].properties_for(attribute),
                 options[:base],
                 options[:ui_scope].to_s,
-                I18n.locale,
+                options[:locale] || I18n.locale,
                 options[:count] || 1
               ]
             ]
           end
 
           def human_attribute_name(attribute, options = {})
-            return super unless options[:base]&.property_names&.include?(attribute)
+            return super unless options[:base]&.property_names&.include?(attribute.to_s)
 
             human_property_name(attribute, options)
           end

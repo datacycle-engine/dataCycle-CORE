@@ -40,7 +40,7 @@ module DataCycleCore
           end
         end
 
-        # update references from DataCycleCore::ContentContent::History to DataCycleCore::Thing
+        # update update references from DataCycleCore::ContentContent::History to DataCycleCore::Thing
         return if (destroy_locale && available_locales.many?) || history?
 
         asset_contents&.destroy_all

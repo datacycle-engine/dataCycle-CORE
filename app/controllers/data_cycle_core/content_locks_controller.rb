@@ -3,7 +3,7 @@
 module DataCycleCore
   class ContentLocksController < ApplicationController
     skip_before_action :verify_authenticity_token
-    before_action :authenticate_user!, :decode_token # from devise (authenticate)
+    before_action :decode_token # from devise (authenticate)
 
     def update
       return(head :no_content) if @decoded[:lock_ids].blank?

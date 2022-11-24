@@ -106,9 +106,12 @@ de:
 
   classifications:
     tooltip_translations: Übersetzungen
+    new_classification_tree_label: Neuen Klassifzierungsbaum anlegen
+    new_classification: Neue Klassifzierung anlegen
 
   user:
-    user_not_confirmed: Die E-Mail Adresse wurde noch nicht bestätigt
+    user_not_confirmed: E-Mail Adresse wurde noch nicht bestätigt
+    confirm: E-Mail Adresse wurde noch nicht bestätigt, jetzt bestätigen!
 
   frontend:
     load_error: Fehler beim Laden des Inhalts.
@@ -246,6 +249,21 @@ de:
       dining_hours_specification: Warme Küche
       hours_available: Termine (Services/Experiences)
       validity_schedule: Gültigkeitszeitraum
+
+  timeseries:
+    grouping_options:
+      default: Nicht gruppieren
+      hour: Stunde
+      day: Tag
+      week: Woche
+      month: Monat
+      year: Jahr
+    chart_type_options:
+      bar: Balken
+      line: Linie
+      scatter: Punkt
+    from: von
+    until: bis
 
   opening_time:
     valid_from: Gültigkeit von
@@ -491,6 +509,16 @@ de:
     failure: "Es ist ein schwerer Fehler aufgetreten.\nDer Inhalt kann nich synchronisiert werden."
     export: Externes System
 
+  external_connections:
+    new_form:
+      title: Externe Verknüpfung erstellen
+      created: Externe Verknüpfung wurde erstellt
+      duplicate_error: Es existiert schon eine Verknüpfung zu diesem System
+    remove_external_system_sync:
+      tooltip: Externe Verknüpfung entfernen
+      success: Externe Verknüpfung wurde entfernt
+      warning_html: 'Externe Verknüpfung entfernen?<br><br><i class="alert-color">Das beeinflusst möglicherweise die Funktion eines Importers!</i>'
+
   duplicate:
     candidates: Mögliche Duplikate
     score: Score
@@ -615,7 +643,8 @@ de:
     update_subject: Geteilte Inhaltssammlung wurde aktualisiert
     notice: Hinweis
     from: '%{from}'
-    external_link_text_html: 'Sie haben einen neuen Inhalt mit dem Titel "%{title}" angelegt.<br><br>Über den folgenden Link können Sie noch fehlende Details ergänzen.'
+    external_link_text_html: 'Sie haben einen neuen Inhalt mit dem Titel "%{title}" angelegt.'
+    external_link_button_notice: Über den folgenden Link können Sie noch fehlende Details ergänzen.
     external_link_instructions: Anleitung zum Erfassen von Inhalten
 
   filter:
@@ -624,6 +653,8 @@ de:
     external_source: Externe Quelle
     external_system: Externe Systeme
     creator: Ersteller
+    editor: Bearbeiter
+    last_editor: Letzter Bearbeiter
     classification_tree_ids: Klassifizierungsbaum
     copyright_notice: Urheberrechtsvermerk
     created_at: Erstellungsdatum
@@ -710,7 +741,7 @@ de:
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...
     classification_tree_ids: nach Klassifizierungsbaum filtern ...
-    creator: nach Personen filtern ...
+    user: nach Personen filtern ...
     external_source: nach externen Quellen filtern ...
     external_system: nach externen Systemen filtern ...
     validity_period: nach Gültigkeitszeitraum filtern ...
@@ -778,6 +809,8 @@ de:
     list: Listenansicht
     tree_view: Wurzel in der Baumansicht
     xml: XML
+    classification_overview: Klassifizierungsübersicht
+    classification_administration: Klassifizierungsadministration
 
   classification_change_behaviour:
     trigger_webhooks: Webhooks für Inhalte auslösen
@@ -1006,6 +1039,7 @@ de:
         other: '<b>%{count}</b> Inhalte wurden erstellt'
       removed_lock: Inhalt wurde freigegeben
       cleared_collection: 'Alle Inhalte wurden aus %{data} entfernt'
+      confirmed: '%{data} wurde bestätigt.'
     warning:
       no_changes: Es wurde keine neue Version angelegt, da keine Änderungen am Inhalt gemacht worden sind.
     info:
@@ -1075,6 +1109,11 @@ de:
           attributes:
             name:
               blank: Name darf nicht leer sein.
+        data_cycle_core/external_system_sync:
+          attributes:
+            external_system_id:
+              blank: darf nicht leer sein.
+
     models:
       data_cycle_core/user: Benutzer
       data_cycle_core/user_organization: Organisation
@@ -1211,7 +1250,7 @@ de:
         text_file: Weitere Infos (%{file_types})
         locale: 'E-Mail Sprache'
       data_cycle_core/stored_filter:
-        system: Für alle Benutzer sichtbar
+        system: Für alle Benutzer sichtbar (gilt auch für die API)
         api: Über API abrufbar
         api_users: Für API zugelassene Benutzer
         linked_stored_filter_id: Filter für verknüpfte Inhalte
@@ -1222,6 +1261,9 @@ de:
         file: Datei
       data_cycle_core/external_source:
         name: Name
+      data_cycle_core/external_system_sync:
+        external_system_id: Externes System
+        external_key: Externer Identifier
 
   unauthorized:
     manage:
@@ -1237,9 +1279,10 @@ de:
     classifications_adminitration:
       classification:
         submit_loading_message: Das Speichern kann mehrere Minuten dauern, bitte haben Sie etwas Geduld
-      download_tree: Klassifizierungsbaum als CSV herunterladen
-      download_tree_with_contents: Klassifizierungsbaum inklusive Inhalten als CSV herunterladen
-      download_tree_for_mappings: Klassifizierungsbaum zum Definieren von Mappings als CSV herunterladen
+      download_tree_csv: Klassifizierungsbaum als CSV herunterladen
+      download_tree: Klassifizierungsbaum ohne Inhalte (csv)
+      download_tree_with_contents: Klassifizierungsbaum mit Inhalten (csv)
+      download_tree_for_mappings: Klassifizierungsbaum zum Definieren von Mappings (csv)
     this_classification: Dieser Klassifizierung
     this_classification_tree: Diesem Klassifizierungsbaum
     show_contents_for_tree_label: 'Inhalte in %{data} auflisten'
@@ -1253,10 +1296,10 @@ de:
       clear: Manuelle Übersetzungen löschen
       auto: Für diesen Datensatz wurden alle Übersetzungen automatisch angelegt.
     classification_tree_relations: 'ACHTUNG: Mit diesem Klassifizierungsbaum sind Inhalte verknüpft!'
-    classification_relations:
+    classification_relations_html:
       one: 'ACHTUNG: Mit dieser Klassifizierung ist <b>1</b> Inhalt verknüpft!'
       other: 'ACHTUNG: Mit dieser Klassifizierung sind <b>%{count}</b> Inhalte verknüpft!'
-    child_classification_relations:
+    child_classification_relations_html:
       one: 'ACHTUNG: %{data} ist <b>1</b> Klassifizierung zugeordnet. Diese wird mitgelöscht!'
       other: 'ACHTUNG: %{data} sind <b>%{count}</b> Klassifizierungen zugeordnet.<br>Diese werden mitgelöscht!'
     stored_searches:
@@ -1316,6 +1359,10 @@ de:
         webhooks:
           root: Webhooks
           json_ld: JSON-LD
+        geodata:
+          root: Geodaten
+          geojson: GeoJSON
+          mvt: Mapbox Vector Tiles
 
     schema:
       root: Schema
@@ -1437,6 +1484,19 @@ de:
       currentInformation: Aktuelle Informationen
       additionalLocationInformation: Zusatzinformationen zum Veranstaltungsort
       additionalHostInformation: Zusatzinformationen zum Veranstalter
+      directions: Anfahrt
+      publicTransit: Öffentliche Verkehrsmittel
+      parking: Parken
+      literature: Literatur
+      authorTip: Tip
+      endPoint: Zielpunkt
+      endPointParking: Parken am Ziel
+      endPointToStartPoint: Rückfahrt vom Endpunkt zum Startpunkt
+      gear: Ausrüstung
+      moreInformation: Zusatzinformationen
+      safetyInformation: Sicherheitshinweis
+      startPoint: Startpunkt
+      startpointGettingThere: Wegbeschreibung Startpunkt
     destination_one:
       facility_unterhaltung: Facility Unterhaltung
       info_wegbelag: Info Wegbelag
@@ -1470,6 +1530,20 @@ de:
       station: Bahnhof
       subtitle: Untertitel
       teaser: Teaser
+    bierfinder:
+      book: Beschreibung
+      tipp: Tip
+      essenUndSpezial: Essen und Spezialitäten
+      biersorten: Biersorten
+    venus:
+      accessibilityDescription: Barrierefreiheit
+      arrivalDescription: Ankunft
+      shortDescription: Kurzbeschreibung
+      description: Beschreibung
+      specialDescription: Zusatzbeschreibung
+      sellsBrands: Verkauft Marken
+      startingPointDescription: Startpunkt Beschreibung
+      character: Tour Charakter
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

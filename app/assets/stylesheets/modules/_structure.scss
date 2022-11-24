@@ -334,6 +334,15 @@ button.button-prime {
     }
   }
 
+  &.secondary {
+    background-color: map-get($foundation-palette, secondary);
+
+    &:focus,
+    &:hover {
+      background-color: lighten(map-get($foundation-palette, secondary), 10%);
+    }
+  }
+
   i {
     color: $white;
     position: relative;

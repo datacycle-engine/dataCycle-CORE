@@ -15,39 +15,6 @@ namespace :dc do
       Rake::Task['data_cycle_core:update:import_templates'].invoke
     end
 
-    desc 'init env file'
-    task :init_env, [:application_name, :domain] => :environment do |_, args|
-      if args[:application_name].nil?
-        puts 'Error: application_name not set!'
-        exit(-1)
-      end
-      if args[:domain].nil?
-        puts 'Error: domain not set!'
-        exit(-1)
-      end
-
-      input = ShellHelper.prompt 'Please enter Postgres Password'
-
-      if input.present?
-        Rails.root.join('tmp', '.env').open('w') do |file|
-          file << "POSTGRES_USER=#{args[:application_name]}\n"
-          file << "POSTGRES_DATABASE=#{args[:application_name]}_production\n"
-          file << "POSTGRES_PASSWORD=#{input}\n"
-          file << "SECRET_KEY_BASE=#{SecureRandom.hex(64)}\n"
-          file << "REDIS_SERVER=localhost\n"
-          file << "REDIS_PORT=6379\n"
-          file << "REDIS_CACHE_DATABASE=2\n"
-          file << "REDIS_CABLE_DATABASE=10\n"
-          file << "REDIS_CACHE_NAMESPACE=#{args[:application_name]}_production\n"
-
-          file << "APP_HOST=#{args[:domain]}\n"
-          file << "APP_PROTOCOL=http\n"
-
-          file << "APPSIGNAL_APP_NAME=#{args[:domain]}\n"
-        end
-      end
-    end
-
     desc 'translate I18n locale files'
     task :translate_i18n, [:new_locale, :source_files] => :environment do |_, args|
       abort('MISSING_LOCALE') if args.new_locale.blank?

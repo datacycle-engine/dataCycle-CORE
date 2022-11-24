@@ -140,15 +140,33 @@
             :disabled: false
             :partial: string
       :potential_action:
-        :label: Link mit weiterführenden Infos
+        :label: Weiterführende Links
+        :type: embedded
+        :template_name: Action
+        :translated: true
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+      :legacy_potential_action:
         :type: string
         :storage_location: translated_value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            - :attribute: potential_action
+              :name: potential_action
+            - :attribute: url
         :api:
-          :partial: action
-          :type: ViewAction
-          :transformation:
-            :method: append
-            :name: potentialAction
+          :name: potentialAction
+          :v4:
+            :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :additional_information:
         :label: Ergänzende Information
         :type: embedded

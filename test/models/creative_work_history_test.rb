@@ -47,7 +47,7 @@ module DataCycleCore
       template_cw_count = DataCycleCore::Thing.count
       template_cwt_count = DataCycleCore::Thing::Translation.count
 
-      data_hash = { 'name' => 'Dies ist ein Test!', 'includedData' => { 'item1' => 'Test item 1', 'item2' => 'Test item 2' } }
+      data_hash = { 'name' => 'Dies ist ein Test!', 'included_data' => { 'item1' => 'Test item 1', 'item2' => 'Test item 2' } }
       data_set = DataCycleCore::TestPreparations.create_content(template_name: 'TestIncludedData', data_hash: data_hash)
 
       save_time = Time.zone.now
@@ -121,13 +121,13 @@ module DataCycleCore
       data_set_place.set_data_hash(data_hash: { 'name' => 'Das it ein testPlace!' }, save_time: save_time + 2.seconds)
       data_set_place.save
 
-      data_hash = { 'name' => 'Dies ist ein Test!', 'testPlace' => [{ 'id' => data_set_place.id }] }
+      data_hash = { 'name' => 'Dies ist ein Test!', 'test_place' => [{ 'id' => data_set_place.id }] }
       data_set.set_data_hash(data_hash: data_hash, save_time: save_time + 4.seconds)
       data_set.save
 
       returned_data_hash = data_set.get_data_hash
       expected_hash = data_hash
-      expected_hash['testPlace'][0] = data_set_place.get_data_hash
+      expected_hash['test_place'][0] = data_set_place.get_data_hash
       assert_equal(data_hash, returned_data_hash.except('id'))
       assert_equal(0, data_set.errors.size)
 
@@ -168,19 +168,19 @@ module DataCycleCore
 
       data_set_cw.set_data_hash(data_hash: { 'name' => 'eingebettete Kreativdaten' }, current_user: nil, save_time: save_time + 2.seconds, new_content: true)
 
-      data_hash = { 'name' => 'Dies ist ein Test!', 'testCW' => [{ 'id' => data_set_cw.id }] }
+      data_hash = { 'name' => 'Dies ist ein Test!', 'test_cw' => [{ 'id' => data_set_cw.id }] }
       data_set.set_data_hash(data_hash: data_hash, current_user: nil, save_time: save_time + 4.seconds, new_content: true)
 
       returned_data_hash = data_set.get_data_hash
       expected_hash = data_hash
-      expected_hash['testCW'][0] = data_set_cw.get_data_hash
+      expected_hash['test_cw'][0] = data_set_cw.get_data_hash
       assert_equal(data_hash, returned_data_hash.except('id'))
       assert_equal(0, data_set.errors.size)
 
-      new_data_hash = { 'name' => 'Neuer aktueller Datensatz!', 'testCW' => [{ 'id' => data_set_cw.id }] }
+      new_data_hash = { 'name' => 'Neuer aktueller Datensatz!', 'test_cw' => [{ 'id' => data_set_cw.id }] }
       data_set.set_data_hash(data_hash: new_data_hash, current_user: nil, save_time: save_time + 8.seconds)
 
-      new_data_hash['testCW'][0] = data_set_cw.get_data_hash
+      new_data_hash['test_cw'][0] = data_set_cw.get_data_hash
       data_set_new = data_set.get_data_hash
       data_set_history = data_set.get_data_hash(save_time + 6.seconds)
 

@@ -1,4 +1,4 @@
-<%= form_for content, html: {class: 'edit-content-form validation-form'} do |f| %>
+<%= form_with model: content, local: true, html: { class: 'edit-content-form validation-form' } do |f| %>
   <%= hidden_field_tag 'uuid', content.id %>
   <%= hidden_field_tag :table, content.class.name.demodulize.tableize %>
 
@@ -42,33 +42,7 @@
           </div>
         </div>
 
-        <% if content.is_a?(DataCycleCore::UserOrganization) %>
-          <div class="form-element input">
-            <%= f.label :name do %>
-              <%= tag.i(class: 'fa fa-ban', aria_hidden: true) if content.external %>
-              <%= DataCycleCore::User.human_attribute_name(:name, locale: active_ui_locale) %>
-            <% end %>
-            <%= f.text_field :name, readonly: content.external %>
-          </div>
-        <% else %>
-          <div class="form-element input">
-            <%= f.label :given_name do %>
-              <%= tag.i(class: 'fa fa-ban', aria_hidden: true) if content.external %>
-              <%= DataCycleCore::User.human_attribute_name(:given_name, locale: active_ui_locale) %>
-            <% end %>
-            <%= f.text_field :given_name, readonly: content.external %>
-          </div>
-
-          <div class="form-element input">
-            <%= f.label :family_name do %>
-              <%= tag.i(class: 'fa fa-ban', aria_hidden: true) if content.external %>
-              <%= DataCycleCore::User.human_attribute_name(:family_name, locale: active_ui_locale) %>
-            <% end %>
-            <%= f.text_field :family_name, readonly: content.external %>
-          </div>
-        <% end %>
-
-        <div class="form-element input">
+        <div class="form-element input validation-container">
           <%= f.label :email do %>
             <%= tag.i(class: 'fa fa-ban', aria_hidden: true) if content.external %>
             <%= DataCycleCore::User.human_attribute_name(:email, locale: active_ui_locale) %>
@@ -76,8 +50,31 @@
           <%= f.email_field :email, required: true, readonly: content.external %>
         </div>
 
+        <% if content.is_a?(DataCycleCore::UserOrganization) %>
+          <div class="form-element input">
+            <%= f.label :name do %>
+              <%= DataCycleCore::User.human_attribute_name(:name, locale: active_ui_locale) %>
+            <% end %>
+            <%= f.text_field :name %>
+          </div>
+        <% else %>
+          <div class="form-element input">
+            <%= f.label :given_name do %>
+              <%= DataCycleCore::User.human_attribute_name(:given_name, locale: active_ui_locale) %>
+            <% end %>
+            <%= f.text_field :given_name %>
+          </div>
+
+          <div class="form-element input">
+            <%= f.label :family_name do %>
+              <%= DataCycleCore::User.human_attribute_name(:family_name, locale: active_ui_locale) %>
+            <% end %>
+            <%= f.text_field :family_name %>
+          </div>
+        <% end %>
+
         <% unless content.external %>
-          <div class="form-element input password-field">
+          <div class="form-element input password-field validation-container">
             <%= f.label :password, DataCycleCore::User.human_attribute_name(:new_password, locale: active_ui_locale) %>
             <%= f.password_field :password, autocomplete: 'off' %>
           </div>

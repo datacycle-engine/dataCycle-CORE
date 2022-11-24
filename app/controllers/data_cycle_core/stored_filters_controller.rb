@@ -3,8 +3,7 @@
 module DataCycleCore
   class StoredFiltersController < ApplicationController
     include DataCycleCore::Filter
-    include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
-    before_action :authenticate_user! # from devise (authenticate)
+
     load_and_authorize_resource except: [:create, :search, :select_search_or_collection, :add_to_watchlist, :saved_searches, :render_update_form] # from cancancan (authorize)
 
     def index
@@ -155,30 +154,6 @@ module DataCycleCore
       @watch_list.notify_subscribers(current_user, inserted_ids, 'add')
 
       redirect_to(root_path, notice: I18n.t('controllers.success.added_to', data: @watch_list.name, type: DataCycleCore::WatchList.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
-    end
-
-    def download
-      @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
-      serialize_format = params[:serialize_format]
-      languages = params[:language]
-      authorize! :download, @stored_filter
-      download_content(@stored_filter, serialize_format, languages)
-    end
-
-    def download_zip
-      @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
-      authorize! :download_zip, @stored_filter
-      serialize_formats = params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
-      languages = params[:language]
-
-      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@stored_filter, [:archive, :zip], serialize_formats)
-
-      items = @stored_filter.apply
-      download_items = items.to_a.select do |thing|
-        can? :download, thing
-      end
-
-      download_collection(@stored_filter, download_items, serialize_formats, languages)
     end
 
     private

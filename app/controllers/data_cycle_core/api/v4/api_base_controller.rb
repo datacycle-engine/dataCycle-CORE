@@ -32,7 +32,7 @@ module DataCycleCore
         }.freeze
 
         after_action :log_activity, unless: -> { params[:sl] }
-        before_action :authenticate_user!, :set_default_response_format
+        before_action :set_default_response_format
 
         def permitted_params
           validate_api_params(params.to_unsafe_hash)
@@ -83,7 +83,7 @@ module DataCycleCore
         end
 
         def log_activity
-          current_user.log_activity(type: "api_v#{@api_version}", data: permitted_params.to_h.merge(controller: params.dig('controller'), action: params.dig('action')))
+          current_user.log_activity(type: "api_v#{@api_version}", data: permitted_params.to_h.merge(controller: params.dig('controller'), action: params.dig('action'), format: request.format.to_sym))
         end
 
         def prepare_url_parameters

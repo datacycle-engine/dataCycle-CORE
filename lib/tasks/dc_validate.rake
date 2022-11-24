@@ -11,6 +11,7 @@ namespace :dc do
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:code:validate:brakeman"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:code:validate:rubocop"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:code:validate:fasterer"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:validate"].invoke
     end
 
     namespace :validate do
@@ -36,6 +37,21 @@ namespace :dc do
       task fasterer: :environment do
         sh 'bundle exec fasterer'
       end
+    end
+  end
+
+  namespace :templates do
+    desc 'validate template definitions'
+    task validate: :environment do
+      puts "validating new template definitions\n"
+      errors = DataCycleCore::MasterData::ImportTemplates.validate_all
+
+      if errors.present?
+        puts 'the following errors were encountered during validatiion:'
+        ap errors
+      end
+
+      errors.blank? ? puts('[done] ... looks good') : exit(-1)
     end
   end
 end

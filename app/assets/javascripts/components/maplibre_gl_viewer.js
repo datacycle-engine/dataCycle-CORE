@@ -31,21 +31,26 @@ class MapLibreGlViewer {
         else target['default'];
       }
     };
+
     this.definedColors = {
-      default: '#1779ba',
-      lightBlue: '#1dbde5',
-      red: '#cc4b37',
-      green: '#90c062',
-      white: '#ffffff',
-      yellow: '#ffae00',
-      gray: '#767676'
+      default: getComputedStyle(document.documentElement).getPropertyValue('--dark-blue'),
+      lightBlue: getComputedStyle(document.documentElement).getPropertyValue('--light-blue'),
+      red: getComputedStyle(document.documentElement).getPropertyValue('--red'),
+      green: getComputedStyle(document.documentElement).getPropertyValue('--dark-green'),
+      white: getComputedStyle(document.documentElement).getPropertyValue('--white'),
+      yellow: getComputedStyle(document.documentElement).getPropertyValue('--yellow'),
+      gray: getComputedStyle(document.documentElement).getPropertyValue('--gray')
     };
+
+    this.iconColorBase = this.definedColors;
     this.colors = new Proxy(this.definedColors, this.colorsHandler);
+    this.styleCaseProperty = 'color';
     this.zoomMethod = 'ctrlKey';
     this.mouseZoomTimeout;
     this.mapOptions = this.$container.data('map-options');
     this.mapStyles = this.mapOptions.styles;
     this.mapBackend = this.mapOptions.viewer || this.mapOptions.editor;
+    this.typeColors = this.mapOptions.type_colors;
     this.defaultPosition = pick(this.mapOptions, ['latitude', 'longitude', 'zoom']);
     this.highDpi = window.devicePixelRatio > 1;
 
@@ -56,6 +61,7 @@ class MapLibreGlViewer {
     this.layers = {};
     this.allRenderedLayers = [];
     this.hoveredStateId = {};
+    this.sourceLayer = '';
   }
   async setup() {
     try {
@@ -73,7 +79,7 @@ class MapLibreGlViewer {
           container: this.containerId,
           style: this.mapBaseLayer(),
           transformRequest: (url, _resourceType) => {
-            if (url.includes('tiles.pixelmap.at/')) {
+            if (url.includes('tiles.pixelmap.at/') || url.includes('tiles.pixelpoint.at/')) {
               return {
                 headers: {
                   Authorization: `Bearer ${this.credentials.api_key}`
@@ -219,7 +225,7 @@ class MapLibreGlViewer {
   }
   setIcons() {
     for (const [iconKey, iconValue] of Object.entries(this.icons)) {
-      for (const [colorKey, colorValue] of Object.entries(this.definedColors)) {
+      for (const [colorKey, colorValue] of Object.entries(this.iconColorBase)) {
         let icon = new Image(21, 33);
         icon.onload = () => this.map.addImage(`${iconKey}_${colorKey}`, icon);
         icon.src = iconValue.interpolate({
@@ -274,6 +280,7 @@ class MapLibreGlViewer {
         id: `${layerId}_hover`,
         type: 'line',
         source: source,
+        'source-layer': this.sourceLayer,
         filter: ['==', ['geometry-type'], 'LineString'],
         layout: {
           'line-cap': 'round',
@@ -293,14 +300,43 @@ class MapLibreGlViewer {
         id: layerId,
         type: 'line',
         source: source,
+        'source-layer': this.sourceLayer,
         filter: ['==', '$type', 'LineString'],
         layout: {
           'line-cap': 'round',
           'line-join': 'round'
         },
         paint: {
-          'line-color': this.getStyleCaseExpression('color', this.getColorMatchHexExpression(), lineColor),
+          'line-color': this.getStyleCaseExpression(
+            this.styleCaseProperty,
+            this.getColorMatchHexExpression(),
+            lineColor
+          ),
           'line-opacity': iconColor === 'gray' ? 0.75 : 1,
+          'line-width': this.getStyleCaseExpression('width', ['get', 'width'], 5)
+        }
+      }
+      // this._getLastLineLayerId() // TODO:
+    );
+
+    this.map.addLayer(
+      {
+        id: `${layerId}_hover_foreground`,
+        type: 'line',
+        source: source,
+        'source-layer': this.sourceLayer,
+        filter: ['==', ['geometry-type'], 'LineString'],
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round'
+        },
+        paint: {
+          'line-color': this.getStyleCaseExpression(
+            this.styleCaseProperty,
+            this.getHoverColorMatchHexExpression(),
+            lineColor
+          ),
+          'line-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0],
           'line-width': this.getStyleCaseExpression('width', ['get', 'width'], 5)
         }
       }
@@ -312,11 +348,12 @@ class MapLibreGlViewer {
         id: `${layerId}_hover_start`,
         type: 'symbol',
         source: source,
+        'source-layer': this.sourceLayer,
         filter: ['==', ['geometry-type'], 'LineString'],
         layout: {
           'icon-image': this.getStyleCaseExpression(
-            'color',
-            ['concat', 'start_', ['get', 'color']],
+            this.styleCaseProperty,
+            this.getLineHoverColorExpression(),
             `start_${iconColor}`
           ),
           'icon-offset': [0, -15],
@@ -347,17 +384,22 @@ class MapLibreGlViewer {
       pointColor = this.definedColors.lightBlue;
       circleRadius = 7;
     }
-
+    // TODO: circle-radius by zoom-step https://docs.mapbox.com/mapbox-gl-js/example/data-driven-circle-colors/
     this.map.addLayer(
       {
         id: layerId,
         type: 'circle',
         source: source,
+        'source-layer': this.sourceLayer,
         filter: ['==', '$type', 'Point'],
         paint: {
           'circle-radius': circleRadius,
           'circle-stroke-width': 4,
-          'circle-color': this.getStyleCaseExpression('color', this.getColorMatchHexExpression(), pointColor),
+          'circle-color': this.getStyleCaseExpression(
+            this.styleCaseProperty,
+            this.getColorMatchHexExpression(),
+            pointColor
+          ),
           'circle-stroke-color': this.definedColors.white
         }
       }
@@ -369,11 +411,16 @@ class MapLibreGlViewer {
         id: `${layerId}_hover`,
         type: 'circle',
         source: source,
+        'source-layer': this.sourceLayer,
         filter: ['==', '$type', 'Point'],
         paint: {
           'circle-radius': circleRadius + 2,
           'circle-stroke-width': 4,
-          'circle-color': this.getStyleCaseExpression('color', this.getColorMatchHexExpression(), pointColor),
+          'circle-color': this.getStyleCaseExpression(
+            this.styleCaseProperty,
+            this.getHoverColorMatchHexExpression(),
+            pointColor
+          ),
           'circle-stroke-color': this.definedColors.white,
           'circle-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0],
           'circle-stroke-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0]
@@ -423,30 +470,29 @@ class MapLibreGlViewer {
   _addSourceAndLayer(key, data) {
     this.sources[key] = `feature_source_${key}`;
 
-    this.map.addSource(this.sources[key], {
-      type: 'geojson',
-      data: data,
-      promoteId: 'id'
-    });
+    this._addSourceType(this.sources[key], data);
 
     this.layers[key] = {
-      point: this._pointLayer(`feature_point_${key}`, this.sources[key]),
-      line: this._lineLayer(`feature_line_${key}`, this.sources[key])
+      line: this._lineLayer(`feature_line_${key}`, this.sources[key]),
+      point: this._pointLayer(`feature_point_${key}`, this.sources[key])
     };
   }
   _addSelectedSourceAndLayers(key, data) {
     this.selectedAdditionalSources[key] = `additional_values_source_selected_${key}`;
 
-    this.map.addSource(this.selectedAdditionalSources[key], {
-      type: 'geojson',
-      data: data,
-      promoteId: 'id'
-    });
+    this._addSourceType(this.selectedAdditionalSources[key], data);
 
     this.selectedAdditionalLayers[key] = {
-      point: this._pointLayer(`additional_values_point_selected_${key}`, this.selectedAdditionalSources[key]),
-      line: this._lineLayer(`additional_values_line_selected_${key}`, this.selectedAdditionalSources[key])
+      line: this._lineLayer(`additional_values_line_selected_${key}`, this.selectedAdditionalSources[key]),
+      point: this._pointLayer(`additional_values_point_selected_${key}`, this.selectedAdditionalSources[key])
     };
+  }
+  _addSourceType(name, data) {
+    this.map.addSource(name, {
+      type: 'geojson',
+      data: data,
+      promoteId: '@id'
+    });
   }
   _disableScrollingOnMapOverlays() {
     this.$parentContainer.siblings('.map-info').on('wheel', event => {
@@ -500,15 +546,24 @@ class MapLibreGlViewer {
     this.map.on('mousemove', layerId, e => {
       if (e.features.length > 0) {
         if (this.hoveredStateId[layerId]) {
-          this.map.setFeatureState({ source: source, id: this.hoveredStateId[layerId] }, { hover: false });
+          this.map.setFeatureState(
+            { source: source, sourceLayer: this.sourceLayer, id: this.hoveredStateId[layerId] },
+            { hover: false }
+          );
         }
         this.hoveredStateId[layerId] = e.features[0].id;
-        this.map.setFeatureState({ source: source, id: this.hoveredStateId[layerId] }, { hover: true });
+        this.map.setFeatureState(
+          { source: source, sourceLayer: this.sourceLayer, id: this.hoveredStateId[layerId] },
+          { hover: true }
+        );
       }
     });
     this.map.on('mouseleave', layerId, () => {
       if (this.hoveredStateId[layerId] != null) {
-        this.map.setFeatureState({ source: source, id: this.hoveredStateId[layerId] }, { hover: false });
+        this.map.setFeatureState(
+          { source: source, sourceLayer: this.sourceLayer, id: this.hoveredStateId[layerId] },
+          { hover: false }
+        );
       }
       this.hoveredStateId[layerId] = null;
     });
@@ -569,6 +624,12 @@ class MapLibreGlViewer {
     matchEx.push(this.definedColors.default);
 
     return matchEx;
+  }
+  getHoverColorMatchHexExpression() {
+    return this.getColorMatchHexExpression();
+  }
+  getLineHoverColorExpression() {
+    return ['concat', 'start_', ['get', 'color']];
   }
   isPoint() {
     return this.type.includes('Point');

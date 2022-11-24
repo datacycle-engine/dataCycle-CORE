@@ -3,7 +3,6 @@
 module DataCycleCore
   class ContentsController < ApplicationController
     include DataCycleCore::Filter
-    before_action :authenticate_user!, except: [:asset]
     before_action :set_watch_list, except: [:asset]
 
     DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
@@ -526,8 +525,9 @@ module DataCycleCore
       query = query.where(template_name: template_name.to_s) if template_name && filter_hash.blank?
       query = query.where(id: map_editor_params[:ids]) if map_editor_params[:ids].present?
       query = query.in_validity_period
+      query = query.with_geometry
 
-      render plain: query.query.to_geojson(include_without_geometry: false), content_type: 'application/vnd.geo+json'
+      render plain: query.query.to_geojson, content_type: 'application/geo+json'
     end
 
     def attribute_default_value
@@ -548,17 +548,23 @@ module DataCycleCore
 
     def switch_primary_external_system
       @content = DataCycleCore::Thing.find(switch_system_params[:id])
+
       authorize! :switch_primary_external_system, @content
 
       @external_sync = @content.external_system_syncs.find(switch_system_params[:external_system_sync_id])
 
-      @content.switch_primary_external_system(@external_sync)
+      begin
+        @content.switch_primary_external_system(@external_sync)
+        flash[:success] = I18n.t('content_external_data.primary_system_switched', locale: helpers.active_ui_locale)
+      rescue ActiveRecord::RecordNotUnique
+        existing = DataCycleCore::Thing.find_by(external_source_id: @external_sync.external_system_id, external_key: @external_sync.external_key)
+        flash[:error] = I18n.t('content_external_data.duplicate_record_html', url: existing ? thing_path(existing) : nil, locale: helpers.active_ui_locale)
+      end
 
-      redirect_back(fallback_location: root_path, notice: I18n.t('content_external_data.primary_system_switched', locale: helpers.active_ui_locale)) && return
-    rescue ActiveRecord::RecordNotUnique
-      @existing = DataCycleCore::Thing.find_by(external_source_id: @external_sync.external_system_id, external_key: @external_sync.external_key)
-
-      redirect_back(fallback_location: root_path, alert: I18n.t('content_external_data.duplicate_record_html', url: @existing ? thing_path(@existing) : nil, locale: helpers.active_ui_locale)) && return
+      respond_to do |format|
+        format.html { redirect_back(fallback_location: root_path) }
+        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).squish, **flash.discard.to_h } }
+      end
     end
 
     def content_score
@@ -588,7 +594,56 @@ module DataCycleCore
       end
     end
 
+    def create_external_connection
+      @content = DataCycleCore::Thing.find(params[:id])
+
+      authorize! :create_external_connection, @content
+
+      begin
+        external_system_sync = @content.external_system_syncs.create(external_connection_params.merge(sync_type: 'duplicate'))
+        @content.invalidate_self
+
+        if external_system_sync.valid?
+          flash[:success] = I18n.t('external_connections.new_form.created', locale: helpers.active_ui_locale)
+        else
+          flash[:error] = I18n.with_locale(helpers.active_ui_locale) { external_system_sync.errors.full_messages }
+        end
+      rescue ActiveRecord::RecordNotUnique
+        flash[:error] = I18n.t('external_connections.new_form.duplicate_error', locale: helpers.active_ui_locale)
+      end
+
+      respond_to do |format|
+        format.html { redirect_back(fallback_location: root_path) }
+        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).squish, **flash.discard.to_h } }
+      end
+    end
+
+    def remove_external_connection
+      @content = DataCycleCore::Thing.find(params[:id])
+
+      authorize! :remove_external_connection, @content
+
+      if switch_system_params[:external_system_sync_id].present?
+        @content.external_system_syncs.find_by(id: switch_system_params[:external_system_sync_id])&.destroy
+      else
+        @content.update_columns(external_source_id: nil, external_key: nil)
+      end
+
+      @content.invalidate_self
+
+      flash[:success] = I18n.t('external_connections.remove_external_system_sync.success', locale: helpers.active_ui_locale)
+
+      respond_to do |format|
+        format.html { redirect_back(fallback_location: root_path) }
+        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).squish, **flash.discard.to_h } }
+      end
+    end
+
     private
+
+    def external_connection_params
+      params.require(:external_system_sync).permit(:external_system_id, :external_key)
+    end
 
     def content_score_params
       params.permit(:id, :template_name, :attribute_key, :locale)

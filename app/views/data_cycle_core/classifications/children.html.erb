@@ -1,0 +1,9 @@
+<% if @classification_type.is_a?(DataCycleCore::ClassificationAlias) %>
+  <%= render('mapped_classification_aliases', classification_tree_label: @classification_tree_label, mapped_classification_aliases: @classification_trees, classification_type: @classification_type, type: 'direct') if @type != 'mapped' %>
+
+  <%= render('mapped_classification_aliases', classification_tree_label: @classification_tree_label, mapped_classification_aliases: @mapped_classification_aliases, classification_type: @classification_type, type: 'mapped') if @type != 'direct' %>
+<% else %>
+  <%= render('classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees, classification_type: @classification_type, type: 'direct') if @type != 'mapped' %>
+
+  <%= render('mapped_classification_aliases', classification_tree_label: @classification_tree_label, mapped_classification_aliases: @mapped_classification_aliases, classification_type: @classification_type, type: 'mapped') if @type != 'direct' %>
+<% end %>

@@ -76,6 +76,9 @@ module DataCycleCore
           advanced_date(value, attribute_path, :equal)
         end
 
+        alias min_advanced_date equals_advanced_date
+        alias max_advanced_date equals_advanced_date
+
         def not_equals_advanced_date(value = nil, attribute_path = nil)
           advanced_date(value, attribute_path, :not_equal)
         end

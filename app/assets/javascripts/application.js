@@ -31,9 +31,7 @@ export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 
   try {
     Rails.start();
-  } catch {
-    console.warn('rails-ujs already started');
-  }
+  } catch {}
 
   if (typeof postDataCycleInit === 'function') postDataCycleInit();
   DataCycle.notifications.addEventListener('error', ({ detail }) => console.error(detail));

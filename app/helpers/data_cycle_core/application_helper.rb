@@ -14,6 +14,12 @@ module DataCycleCore
       primary: :primary
     }.freeze
 
+    def header_title
+      return if DataCycleCore.header_title.blank?
+
+      tag.span(DataCycleCore.header_title.is_a?(Proc) ? DataCycleCore.header_title.call : DataCycleCore.header_title, class: 'title')
+    end
+
     def ice_cube_select_options
       IceCube::Rule::INTERVAL_TYPES.except([:secondly, :minutely, :hourly, :monthly]).prepend(:single_occurrence).map { |r| [t("schedule.#{r}", locale: active_ui_locale), "IceCube::#{r.to_s.classify}Rule", { 'data-type': r }] }
     end

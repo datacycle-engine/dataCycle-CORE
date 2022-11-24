@@ -53,16 +53,17 @@ module DataCycleCore
             end
 
             # plain attributes without transformation
-            assert_attributes(json_validate, required_attributes, ['description', 'potential_action']) do
+            assert_attributes(json_validate, required_attributes, ['description']) do
               {
-                'description' => @content.description,
+                'description' => @content.description
+              }
+            end
+
+            # potential_action
+            assert_attributes(json_validate, required_attributes, ['potential_action']) do
+              {
                 'potentialAction' => [
-                  {
-                    '@id' => generate_uuid(@content.id, 'potential_action'),
-                    '@type' => 'ViewAction',
-                    'name' => 'potential_action',
-                    'url' => @content.potential_action
-                  }
+                  @content.potential_action.first.to_api_default_values
                 ]
               }
             end
@@ -231,16 +232,17 @@ module DataCycleCore
             end
 
             # plain attributes without transformation
-            assert_attributes(json_validate, required_attributes, ['description', 'potential_action']) do
+            assert_attributes(json_validate, required_attributes, ['description']) do
               {
-                'description' => @content.description,
+                'description' => @content.description
+              }
+            end
+
+            # potential_action
+            assert_attributes(json_validate, required_attributes, ['potential_action']) do
+              {
                 'potentialAction' => [
-                  {
-                    '@id' => generate_uuid(@content.id, 'potential_action'),
-                    '@type' => 'ViewAction',
-                    'name' => 'potential_action',
-                    'url' => @content.potential_action
-                  }
+                  @content.potential_action.first.to_api_default_values
                 ]
               }
             end

@@ -2,8 +2,6 @@
 
 module DataCycleCore
   class SchedulesController < ApplicationController
-    before_action :authenticate_user!
-
     def load_more
       @schedule = load_more_params[:class_name].safe_constantize.find(load_more_params[:id])
       @direction = load_more_params[:direction]

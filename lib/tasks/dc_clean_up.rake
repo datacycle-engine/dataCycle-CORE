@@ -55,7 +55,7 @@ namespace :dc do
       tree_label = DataCycleCore::ClassificationTreeLabel.where(external_source_id: external_source.id)
       puts "Found ClassificationTreeLabels: #{tree_label.count}"
       tree_label.each do |classification_tree_label|
-        if classification_tree_label.statistics.linked_content_count.positive?
+        if classification_tree_label.things.any?
           puts "Found ClassificationTreeLabel with linked content: #{classification_tree_label.id}"
         else
           classification_tree_label.destroy
@@ -79,7 +79,7 @@ namespace :dc do
       linked_data.each do |external_source|
         puts "\n#{external_source[:name]}"
         puts '-' * 70
-        external_source[:linked].map { |link_dep| link_dep[:template] }.uniq.each do |dependency|
+        external_source[:linked].pluck(:template).uniq.each do |dependency|
           all_items = DataCycleCore::Thing.where(
             external_source_id: external_source[:external_source_id],
             template_name: dependency
