@@ -102,7 +102,8 @@ en:
     tooltip_translations: Translations
 
   user:
-    user_not_confirmed: The email address has not been confirmed yet
+    user_not_confirmed: email address has not been confirmed yet
+    confirm: confirm email
 
   frontend:
     load_error: Error loading content.
@@ -497,6 +498,17 @@ en:
       A fatal error has occurred.
       The content cannot be synchronized.
     export: External system
+
+  external_connections:
+    new_form:
+      title: Create link to external system
+      created: Link to external system was created
+      duplicate_error: There is already a link to this external system
+    remove_external_system_sync:
+      tooltip: Remove link to external system
+      success: Link to external system was removed
+      warning_html: 'Remove link to external system?<br><br><i class="alert-color">This may affect the function of an importer!</i>'
+
   duplicate:
     candidates: Possible duplicates
     score: Score
@@ -727,6 +739,8 @@ en:
     list: List view
     tree_view: Root in the tree view
     xml: XML
+    classification_overview: Classification overview
+    classification_administration: Classification administration
 
   classification_change_behaviour:
     trigger_webhooks: trigger webhooks for contents
@@ -1163,7 +1177,7 @@ en:
         elevation: Sea level (m)
       data_cycle_core/data_link:
         comment: Comment
-        permissions: Authorizations
+        permissions: Permissions
         validity_period: Validity period (from - to)
         valid_from: Valid from
         valid_until: By
@@ -1173,7 +1187,7 @@ en:
         text_file: Further information (%{file_types})
         locale: E-mail language
       data_cycle_core/stored_filter:
-        system: Visible for all users
+        system: Visible for all users (also applies to the API)
         api: Retrievable via API
         api_users: Users permitted for API
         linked_stored_filter_id: Filter for linked content
@@ -1197,9 +1211,10 @@ en:
     classifications_adminitration:
       classification:
         submit_loading_message: Saving may take several minutes, please be patient
-      download_tree: download classification tree as CSV
-      download_tree_with_contents: download classification tree including contents as CSV
-      download_tree_for_mappings: download classification tree for defining mappings as CSV
+      download_tree_csv: download classification tree as CSV
+      download_tree: Classification tree without contents (csv)
+      download_tree_with_contents: Classification tree with contents (csv)
+      download_tree_for_mappings: Classification tree for defining mappings (csv)
     this_classification: This classification
     this_classification_tree: This classification tree
     show_contents_for_tree_label: List contents in %{data}
@@ -1214,10 +1229,10 @@ en:
       auto: All translations were automatically generated
     classification_tree_relations: 'ATTENTION: There are contents linked to this classification
       tree!'
-    classification_relations:
+    classification_relations_html:
       one: 'ATTENTION: <b>1</b> content is linked to this classification!'
       other: 'ATTENTION: <b>%{count}</b> contents are linked to this classification!'
-    child_classification_relations:
+    child_classification_relations_html:
       one: 'ATTENTION: <b>1</b> classification is assigned to %{data}. This is also
         deleted!'
       other: 'ATTENTION: %{data} are assigned to <b>%{count}</b> classifications.<br>These
@@ -1255,24 +1270,24 @@ en:
           other: 'The following contents were added/removed to/from %{link}:'
     upload: Upload new media
     data_links:
-      write_link_html: '<span style="font-size:12pt; font-family: ''Lucida
+      write_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida
         Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong>
         has shared %{a_type} "<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
         font-weight: bold;font-style: italic">%{title}</span></a>" with you and asks
         for your additions and feedback. <br><br>Please make any changes to text,
         images and videos directly in the form.</span>'
-      read_link_html: '<span style="font-size:12pt; font-family: ''Lucida
+      read_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida
         Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong>
         has shared %{a_type} "<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
         font-weight: bold;font-style: italic">%{title}</span></a>" with you and asks
         for your feedback.</span>'
-      download_link_html: '<span style="font-size:12pt; font-family: ''Lucida
+      download_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida
         Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong>
         has shared %{a_type} "<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
         font-weight: bold;font-style: italic">%{title}</span></a>" with you.<br><br>%{n_type}
         is now available for download.</span>'
-      updated_watchlist_html: '<span style="font-size:12pt; font-family: ''Lucida 
-        Grande'', ''Segoe'', Arial, sans-serif;color:#333333">%{a_type} "<a
+      updated_watchlist_html: '<span style="font-size:12pt; font-family: ''Lato'',
+        ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333">%{a_type} "<a
         href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline;
         font-weight: bold;font-style: italic">%{title}</span></a>" has been updated.
         Content has been added or removed.</span>'
@@ -1296,6 +1311,10 @@ en:
         webhooks:
           root: Webhooks
           json_ld: JSON-LD
+        geodata:
+          root: Geodata
+          geojson: GeoJSON
+          mvt: Mapbox Vector Tiles
 
     schema:
       root: Scheme
@@ -1417,6 +1436,19 @@ en:
       currentInformation: Current information
       additionalLocationInformation: Additional location information
       additionalHostInformation: Additional host information
+      directions: Directions
+      publicTransit: Public transit
+      parking: Parking
+      literature: Literature
+      authorTip: Tip
+      endPoint: End point
+      endPointParking: Parking end point
+      endPointToStartPoint: End point to start point
+      gear: Gear
+      moreInformation: More information
+      safetyInformation: Safety information
+      startPoint: Start point
+      startpointGettingThere: Start point getting there
     destination_one:
       facility_unterhaltung: Facility upkeep
       info_wegbelag: Info pavement
@@ -1434,8 +1466,8 @@ en:
       web_seo_beschreibung: web_seo_beschreibung
       web_seo_keywords: web_seo_keywords
       web_seo_titel: web_seo_titel
-      additionaltext_feature_barrierefreiheit: Accessiblity
-      additionaltext_feature_eignung: Accessiblity levels
+      additionaltext_feature_barrierefreiheit: Accessibility
+      additionaltext_feature_eignung: Accessibility levels
       additionaltext_feature_hygiene- und infektionsschutzmaßnahmen: hygiene and anti infection measures
       dayoff: Day off
       details: Details
@@ -1450,6 +1482,20 @@ en:
       station: Station
       subtitle: Subtitle
       teaser: Teaser
+    bierfinder:
+      book: Description
+      tipp: Tip
+      essenUndSpezial: Food and Specials
+      biersorten: Brand of Beer
+    venus:
+      accessibilityDescription: Accessibility
+      arrivalDescription: Arrival
+      shortDescription: Short description
+      description: Description
+      specialDescription: Special Description
+      sellsBrands: Sells brands
+      startingPointDescription: Starting point description
+      character: Tour character
 
   media_archive:
     allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>

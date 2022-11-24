@@ -188,6 +188,20 @@ module DataCycleCore
           ]
         end
 
+        def user(user, value)
+          return [] unless value
+
+          value.map { |k, v|
+            next unless v
+
+            [
+              I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: user.ui_locale),
+              'user',
+              data: { name: k, advancedType: k }
+            ]
+          }.compact
+        end
+
         def advanced_attributes(user, value)
           return [] unless value
           value.map do |k, v|

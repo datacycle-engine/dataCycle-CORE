@@ -78,6 +78,13 @@
             :options:
               :data-size: full
         :advanced_search: true
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        :api:
+          :v4:
+            :name: dc:additionalInformation
       :url:
         :label: Inhalt URL
         :type: string
@@ -221,32 +228,34 @@
         :type: embedded
         :template_name: Angebot
         :translated: true
-      :dc_potential_action:
+      :potential_action:
         :label: Weiterführende Links
         :type: embedded
         :template_name: Action
         :translated: true
         :api:
-          :transformation:
-            :method: append
-            :name: potentialAction
-      :potential_action:
-        :label: Link mit weiterführenden Infos
+          :disabled: true
+          :v4:
+            :disabled: false
+      :legacy_potential_action:
         :type: string
         :storage_location: translated_value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            - :attribute: potential_action
+              :name: potential_action
+            - :attribute: url
         :api:
-          :partial: action
-          :type: ViewAction
-          :transformation:
-            :method: append
-            :name: potentialAction
-      :additional_information:
-        :label: Ergänzende Information
-        :type: embedded
-        :template_name: Ergänzende Information
-        :api:
+          :name: potentialAction
           :v4:
-            :name: dc:additionalInformation
+            :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :linked_data:
         :type: mixin
         :name: linked_data

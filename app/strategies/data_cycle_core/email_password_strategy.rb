@@ -3,7 +3,7 @@
 module DataCycleCore
   class EmailPasswordStrategy < Warden::Strategies::Base
     def valid?
-      request.env['warden.force_strategy'] == :email_password && params[:email].present? && params[:password].present?
+      params[:warden_strategy] == 'email_password' && params[:email].present? && params[:password].present?
     end
 
     def authenticate!

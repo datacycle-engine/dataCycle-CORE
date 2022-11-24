@@ -130,7 +130,7 @@ crumb :docs do
     translation_key = (['data_cycle_core', 'docs'] + path_segments[0..i]).join('.')
     translation_key += '.root' if t(translation_key, locale: active_ui_locale).is_a? Hash
 
-    link t(translation_key, locale: active_ui_locale), docs_with_path(path_segments[0..i]), authorized: true
+    link t(translation_key, default: path_segments[i].to_s, locale: active_ui_locale), docs_with_path(path_segments[0..i]), authorized: true
   end
 end
 

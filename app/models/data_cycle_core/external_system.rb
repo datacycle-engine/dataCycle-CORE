@@ -151,7 +151,7 @@ module DataCycleCore
     def download_single(name, options = {})
       raise "unknown downloader name: #{name}" if download_config.dig(name).blank?
       success = true
-      full_options = (default_options || {}).deep_symbolize_keys.deep_merge({ download: download_config.dig(name).deep_symbolize_keys.except(:sorting) }).deep_merge(options.deep_symbolize_keys)
+      full_options = (default_options || {}).deep_symbolize_keys.deep_merge({ download: download_config.dig(name).merge({ name: name.to_s }).deep_symbolize_keys.except(:sorting) }).deep_merge(options.deep_symbolize_keys)
       locales = full_options.dig(:download, :locales) || full_options.dig(:locales) || I18n.available_locales
       raise "Missing download_strategy for #{name}, options given: #{options}" if full_options.dig(:download, :download_strategy).blank?
 

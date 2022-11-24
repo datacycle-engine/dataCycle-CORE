@@ -1,7 +1,7 @@
 import lodashEscape from 'lodash/escape';
 
-export default {
-  show: function (text, type = '') {
+const CalloutHelpers = {
+  show(text, type = '') {
     if (!$('.flash-messages').length) $('body').prepend('<div class="flash-messages"></div');
 
     let temp = $(
@@ -18,3 +18,7 @@ export default {
     }, 4000);
   }
 };
+
+Object.freeze(CalloutHelpers);
+
+export default CalloutHelpers;

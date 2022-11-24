@@ -1,13 +1,8 @@
-<li id="<%= classification_tree.id %>">
+<li id="<%= classification_tree.id %>" class="<%= type %>" data-id="<%= classification_tree.sub_classification_alias.try(:id) %>">
   <span class="inner-item">
-    <%= tag.i(class: 'fa fa-eye-slash') if classification_tree.sub_classification_alias.internal? %>
-
     <%= link_to classification_title(classification_tree.sub_classification_alias),
                 classifications_path(classification_tree_id: classification_tree.id),
-                data: {
-                  remote: true,
-                  disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}"
-                } %>
+                class: "name" %>
 
     <%= link_to tag.i(class: 'fa fa-pencil'), '#',
                 class: 'edit',
@@ -19,9 +14,7 @@
                 classifications_path(classification_tree_id: classification_tree.id),
                 class: 'destroy',
                 data: {
-                  remote: true,
-                  method: :delete,
-                  confirm: render('classification_alias_removal_warning', classification_alias: classification_tree.sub_classification_alias),
+                  confirm: tag.div(class: 'remote-render', data: { remote_path: 'data_cycle_core/classifications/classification_alias_removal_warning', remote_options: CGI::escapeHTML(to_query_params(classification_alias: classification_tree.sub_classification_alias).to_json) }),
                   disable_with: tag.i(class: 'fa fa-spinner fa-spin'),
                   dc_tooltip: t('actions.delete_with_data', data: classification_tree.sub_classification_alias.try(:internal_name), locale: active_ui_locale)
                 } if can?(:destroy, classification_tree.sub_classification_alias) %>
@@ -31,30 +24,18 @@
                 data: {
                   value: classification_tree.sub_classification_alias.try(:id),
                   dc_tooltip: t('actions.copy_classification_alias_id_to_clipboard', locale: active_ui_locale)
-                } %>
-  </span>
+                } if can?(:copy_to_clipboard, classification_tree.sub_classification_alias) %>
 
-  <% if can?(:update, classification_tree.sub_classification_alias) || can?(:map_classifications, classification_tree.sub_classification_alias) %>
-    <%= render 'classification_alias_form',
-          classification_tree_label: classification_tree_label,
-          classification_tree: classification_tree,
-          classification_alias: classification_tree.sub_classification_alias %>
-  <% end %>
-
-  <%= link_to tag.i(class: 'fa fa-list'),
+    <%= link_to tag.i(class: 'fa fa-list'),
               root_path(mode: 'tree', ctl_id: classification_tree_label.id, reset: true, anchor: (Array.wrap(ancestors) + [classification_tree.id]).join('+')),
               class: 'contents-list',
               target: :_blank,
               data: {
                 dc_tooltip: t('data_cycle_core.show_contents_for_tree_label', data: classification_tree.sub_classification_alias.try(:internal_name), locale: active_ui_locale)
               } %>
+  </span>
 
-  <ul class="classifications">
-    <% classification_tree.sub_classification_alias.classifications.each do |classification| %>
-      <li><%= classification_title(classification) %></li>
-    <% end %>
-  </ul>
+  <%= tag.div(class: 'remote-render inverted classification-alias-form-container', data: { remote_path: 'data_cycle_core/classifications/classification_alias_form', remote_options: to_query_params(classification_tree_label: classification_tree_label, classification_tree: classification_tree).to_json }) if can?(:update, classification_tree.sub_classification_alias) || can?(:map_classifications, classification_tree.sub_classification_alias) %>
 
-  <ul class="children">
-  </ul>
+  <ul class="children"></ul>
 </li>

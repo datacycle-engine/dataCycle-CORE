@@ -2,14 +2,12 @@
 
 module DataCycleCore
   class UserApiMailer < ApplicationMailer
-    layout -> { @resource.try(:mailer_layout) || 'data_cycle_core/mailer' }
-    default from: ->(_) { @resource.user_api_feature.user_mailer_from }
-
     def notify(emails, new_user, current_issuer = nil)
       return if emails.blank?
 
       @new_user = new_user
       @new_user.user_api_feature.current_issuer = current_issuer
+      @current_issuer = current_issuer
       @resource = @new_user
       @locale = DataCycleCore.ui_locales.first
 
@@ -21,6 +19,7 @@ module DataCycleCore
 
       @new_user = user
       @new_user.user_api_feature.current_issuer = current_issuer
+      @current_issuer = current_issuer
       @resource = @new_user
       @locale = @new_user.ui_locale
 

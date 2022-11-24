@@ -1,9 +1,5 @@
-<div class="settings-row">
-  <div class="row columns">
-    <h5><%= t('data_cycle_core.administration', locale: active_ui_locale) %></h5>
-  </div>
-
-  <% if can? :index, DataCycleCore::Classification %>
+<% content_for(:sidebar_administration, flush:true) do %>
+  <% if DataCycleCore::ClassificationTreeLabel.accessible_by(current_ability).exists? %>
     <div class="row columns">
       <%= link_to classifications_path, class: 'classifications-link' do %>
         <span class="icon"><i class="fa fa-sitemap" aria-hidden="true"></i></span>
@@ -52,4 +48,14 @@
       <% end %>
     </div>
   <% end %>
-</div>
+<% end %>
+
+<% if content_for?(:sidebar_administration) %>
+  <div class="settings-row">
+    <div class="row columns">
+      <h5><%= t('data_cycle_core.administration', locale: active_ui_locale) %></h5>
+    </div>
+
+    <%= yield_content!(:sidebar_administration) %>
+  </div>
+<% end %>

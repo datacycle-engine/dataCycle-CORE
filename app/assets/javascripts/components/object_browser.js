@@ -590,7 +590,7 @@ class ObjectBrowser {
     if (event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'import') {
       const authToken = $('meta[name=csrf-token]').attr('content');
       const promise = DataCycle.httpRequest({
-        type: 'POST',
+        method: 'POST',
         url: '/things/import',
         dataType: 'script',
         data: JSON.stringify({

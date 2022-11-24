@@ -25,7 +25,7 @@ module DataCycleCore
         DEFAULT_EVENT_ATTRIBUTES = Dry::Schema.JSON do
           optional(:'dc:multilingual').value(:bool)
           optional(:'dc:translation').array(:str?)
-          optional(:"dc:classification").value(:array).each do
+          optional(:'dc:classification').value(:array).each do
             hash(DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER)
           end
           required(:startDate).value(:date_time)
@@ -70,9 +70,7 @@ module DataCycleCore
           optional(:potentialAction).value(:array).each do
             hash do
               required(:@id).value(:uuid_v4?)
-              required(:@type).value(:string)
-              required(:name).value(:string)
-              required(:url).value(:string)
+              required(:@type).value(:array)
             end
           end
           optional(:'cc:license').value(:string)
@@ -86,7 +84,7 @@ module DataCycleCore
         DEFAULT_PERSON_ATTRIBUTES = Dry::Schema.JSON do
           optional(:'dc:multilingual').value(:bool)
           optional(:'dc:translation').array(:str?)
-          optional(:"dc:classification").value(:array).each do
+          optional(:'dc:classification').value(:array).each do
             hash(DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER)
           end
           required(:givenName).value(:string)

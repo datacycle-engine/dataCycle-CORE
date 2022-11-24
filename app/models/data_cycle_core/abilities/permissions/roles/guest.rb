@@ -12,8 +12,14 @@ module DataCycleCore
             # DataLink
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :create_editable_links,
+              :can, :create_editable_links, :auto_login,
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::DataLink)
+            )
+
+            add_permission(
+              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+              :can, :auto_login,
+              DataCycleCore::Abilities::Segments::DataLinkByReceiver.new
             )
 
             # ObjectBrowser

@@ -3,7 +3,6 @@
 module DataCycleCore
   class BackendController < ApplicationController
     include DataCycleCore::Filter
-    before_action :authenticate_user! # from devise (authenticate)
     authorize_resource class: false # from cancancan (authorize)
     before_action :load_last_filter, only: :index, if: proc {
       DataCycleCore::Feature::MainFilter.autoload_last_filter? &&

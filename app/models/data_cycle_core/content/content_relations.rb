@@ -67,10 +67,14 @@ module DataCycleCore
       end
 
       def display_classification_aliases(context)
-        ca_query = classification_aliases
-        ca_query = ca_query.includes(:classification_tree_label) unless classification_aliases.first&.association(:classification_tree_label)&.loaded?
-        ca_query = ca_query.includes(:classification_alias_path) unless classification_aliases.first&.association(:classification_alias_path)&.loaded?
-        ca_query.to_a.uniq.select { |ca| (Array(ca.classification_tree_label&.visibility) & Array(context)).size.positive? }
+        if classification_aliases.loaded?
+          ca_query = classification_aliases
+          ca_query = ca_query.includes(:classification_tree_label) unless classification_aliases.first&.association(:classification_tree_label)&.loaded?
+          ca_query = ca_query.includes(:classification_alias_path) unless classification_aliases.first&.association(:classification_alias_path)&.loaded?
+          ca_query.to_a.select { |ca| Array.wrap(ca.classification_tree_label&.visibility).intersection(Array.wrap(context)).any? }
+        else
+          classification_aliases.includes(:classification_alias_path).in_context(context)
+        end
       end
 
       def assigned_classification_aliases

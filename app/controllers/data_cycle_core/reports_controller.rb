@@ -2,7 +2,6 @@
 
 module DataCycleCore
   class ReportsController < ApplicationController
-    before_action :authenticate_user!
     authorize_resource class: false # from cancancan (authorize)
 
     def index

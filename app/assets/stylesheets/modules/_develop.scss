@@ -1901,9 +1901,10 @@ label[for='user_access_token'] {
     padding: 2.5rem 0.5rem 0.5rem 0.5rem;
   }
 
-  .embedded_object {
+  .embedded-object {
     > .content-object-item.textblock {
-      padding: 0.5rem;
+      padding: 0;
+      border: none;
 
       .removeContentObject,
       .embedded-header {
@@ -1918,18 +1919,21 @@ label[for='user_access_token'] {
       .removeContentObject {
         justify-content: center;
         order: 10;
-        width: 3rem;
+        padding: 0.3rem 0.5rem;
+        width: 1.9rem;
+        height: 1.9rem;
+        margin: 0.3rem;
       }
 
       .embedded-header {
         display: flex;
         flex-flow: row nowrap;
         align-items: center;
-        background: $light-gray;
         margin: 0;
         flex: auto;
         order: 1;
         padding-left: 0.5rem;
+        background-color: $white;
 
         .draggable-handle {
           display: inline-block;
@@ -1959,13 +1963,6 @@ label[for='user_access_token'] {
         .counter,
         label {
           display: none !important;
-        }
-      }
-
-      .form-element.focus > .editor-block {
-        > .embedded-header {
-          background: $white;
-          border-bottom: 1px solid rgba($dark-gray, 0.3);
         }
       }
 
@@ -3223,8 +3220,13 @@ a {
   &.alert {
     color: $alert-color;
   }
+
   &.success {
     color: $success-color;
+  }
+
+  &.secondary {
+    color: $secondary-color;
   }
 }
 
@@ -3410,6 +3412,7 @@ button.button-prime.small.bulk-delete-button {
     border-bottom: 1px solid $light-gray;
     display: block;
     padding: 1rem 0;
+
     span {
       margin-left: 0.5rem;
     }
@@ -3420,11 +3423,20 @@ button.button-prime.small.bulk-delete-button {
   fieldset {
     margin-bottom: 1rem;
   }
+
   .active.version,
   .active.transformation {
     display: block;
+
     &.hidden {
       display: none;
+    }
+  }
+
+  button[type='submit'].button {
+    &:focus,
+    &:active {
+      background-color: $dark-gray;
     }
   }
 }
@@ -3565,7 +3577,6 @@ body {
     &::before,
     &::after {
       content: '';
-      width: 100%;
       display: flex;
       top: 0;
       left: 0;
@@ -3583,12 +3594,25 @@ body {
       box-shadow: 0 0 0 1px $light-gray inset;
     }
 
+    &.inverted::before {
+      background-color: rgba(white, 0.9);
+    }
+
     &::after {
       height: 1.5rem;
       right: unset;
       width: 100%;
       background: linear-gradient(to right, rgba(white, 0) 0%, rgba(white, 0.5) 25%, rgba(white, 0) 50%);
       animation: progress-bar 1.5s linear infinite forwards;
+    }
+
+    &.inverted::after {
+      background: linear-gradient(
+        to right,
+        rgba(white, 0) 0%,
+        rgba(lighten($light-gray, 4%), 0.9) 25%,
+        rgba(white, 0) 50%
+      );
     }
 
     > * {
@@ -3749,6 +3773,11 @@ body {
 
       .button {
         padding: 0.8rem 2.5rem;
+
+        &:active,
+        &:focus {
+          background-color: $dark-gray;
+        }
       }
     }
   }
@@ -3778,4 +3807,18 @@ body {
 
 #classification-administration {
   padding-top: 1.5rem;
+}
+
+.new-external-connection-form {
+  .form-element {
+    &.required > label::after {
+      content: '*';
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 0.1rem;
+      color: $alert-color;
+      text-shadow: none;
+    }
+  }
 }

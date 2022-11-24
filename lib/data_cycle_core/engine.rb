@@ -150,7 +150,7 @@ module DataCycleCore
   mattr_accessor :inheritable_attributes
   self.inheritable_attributes = ['validity_period']
 
-  # embedded_objects in show
+  # number of preloaded embedded_objects and linked in show and edit views
   mattr_accessor :linked_objects_page_size
   self.linked_objects_page_size = 5
 
@@ -189,7 +189,7 @@ module DataCycleCore
   self.content_warnings = {}
 
   mattr_accessor :classification_visibilities
-  self.classification_visibilities = ['show', 'api', 'tile', 'show_more', 'xml', 'list', 'edit', 'filter', 'tree_view']
+  self.classification_visibilities = ['show', 'api', 'tile', 'show_more', 'xml', 'list', 'edit', 'filter', 'tree_view', 'classification_overview', 'classification_administration']
 
   mattr_accessor :classification_change_behaviour
   self.classification_change_behaviour = ['trigger_webhooks', 'clear_cache']
@@ -212,12 +212,15 @@ module DataCycleCore
   mattr_accessor :user_filters
   self.user_filters = []
 
+  mattr_accessor :header_title
+  self.header_title = nil
+
   def self.setup
     yield self
   end
 
   def self.default_classification_visibilities
-    classification_visibilities.except(['show_more', 'tree_view'])
+    classification_visibilities.except(['show_more', 'tree_view', 'classification_overview'])
   end
 
   def self.load_configurations(path, include_environments = true)
@@ -309,6 +312,8 @@ module DataCycleCore
     end
 
     config.autoload_once_paths << "#{root}/app/middlewares"
+    config.autoload_paths += Dir['vendor/gems/datacycle-*/lib']
+    config.eager_load_paths += Dir['vendor/gems/datacycle-*/lib']
 
     config.before_initialize do |app|
       ### used for backward compatibility (Rails < 5.0)
@@ -337,7 +342,13 @@ module DataCycleCore
         load c
       end
 
-      Devise::Mailer.layout 'data_cycle_core/email' # email.haml or email.erb
+      ActionMailer::Base.layout -> { @resource.try(:mailer_layout) || 'data_cycle_core/mailer' }
+      ActionMailer::Base.default from: ->(_) { @resource.try(:mailer_from) || Rails.configuration.action_mailer.default_options[:from] }
+      ActionMailer::Base.helper 'data_cycle_core/email'
+      ActiveSupport.on_load :action_mailer do
+        include DataCycleCore::EmailHelper
+      end
+
       Devise::SessionsController.layout 'data_cycle_core/devise'
       Devise::RegistrationsController.layout 'data_cycle_core/devise'
       Devise::ConfirmationsController.layout 'data_cycle_core/devise'

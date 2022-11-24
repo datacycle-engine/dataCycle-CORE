@@ -537,13 +537,11 @@
 }
 
 .delete-thumbnail {
-  color: $dark-gray;
   padding: 0 0.2rem;
   cursor: pointer;
 
-  &:focus,
   &:hover {
-    color: map-get($foundation-palette, alert) !important;
+    color: darken($alert-color, 10%) !important;
   }
 }
 
@@ -1580,6 +1578,7 @@ span.single_error.object-browser-error {
         margin: 0;
         opacity: 0;
         box-shadow: none;
+        border: none;
       }
 
       .embedded-header {

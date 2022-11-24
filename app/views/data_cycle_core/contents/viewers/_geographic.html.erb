@@ -18,10 +18,10 @@
   <div class="geographic">
     <div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map <%= is_line_string ? 'linestring' : 'point' %> <%= changes_mode(options.dig(:item_diff)) %>"
           data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
-          data-before-position="<%= value_to_geojson(options.dig(:item_diff, 1), { id:'beforeValue', name: t('history.active_source', locale: active_ui_locale), color: 'red', width: 6 })&.to_json if options.dig(:item_diff, 0) == '~' %>"
-          data-after-position="<%= value_to_geojson(options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2) : options.dig(:item_diff, 1), { id:'afterValue', name: t('history.active_target', locale: active_ui_locale), color: 'green' })&.to_json %>"
+          data-before-position="<%= value_to_geojson(options.dig(:item_diff, 1), { '@id':'beforeValue', name: t('history.active_source', locale: active_ui_locale), color: 'red', width: 6 })&.to_json if options.dig(:item_diff, 0) == '~' %>"
+          data-after-position="<%= value_to_geojson(options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2) : options.dig(:item_diff, 1), { '@id':'afterValue', name: t('history.active_target', locale: active_ui_locale), color: 'green' })&.to_json %>"
           data-type="<%= (value.presence&.geometry_type || (is_line_string ? 'MultiLineString' : 'Point')).to_s %>"
-          data-value="<%= value_to_geojson(value, {id: content.id})&.to_json %>"
+          data-value="<%= value_to_geojson(value, {'@id': content.id})&.to_json %>"
           data-additional-values="<%= additional_values&.to_json %>">
     </div>
   </div>

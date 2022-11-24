@@ -27,7 +27,7 @@ module DataCycleCore
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               [
                 DataCycleCore::Serialize::SerializedData::Content.new(
-                  data:
+                  data: lambda {
                     Nokogiri::XML(
                       DataCycleCore::Xml::V1::WatchListsController.renderer.new(
                         http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
@@ -38,7 +38,8 @@ module DataCycleCore
                         layout: false
                       ),
                       &:noblanks
-                    )&.to_xml,
+                    )&.to_xml
+                  },
                   mime_type: mime_type,
                   file_name: file_name(content: watch_list, language: language),
                   id: watch_list.id
@@ -54,7 +55,7 @@ module DataCycleCore
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               [
                 DataCycleCore::Serialize::SerializedData::Content.new(
-                  data:
+                  data: lambda {
                     Nokogiri::XML(
                       DataCycleCore::Xml::V1::ContentsController.renderer.new(
                         http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
@@ -65,7 +66,8 @@ module DataCycleCore
                         layout: false
                       ),
                       &:noblanks
-                    )&.to_xml,
+                    )&.to_xml
+                  },
                   mime_type: mime_type,
                   file_name: file_name(content: stored_filter, language: language),
                   id: stored_filter.id
@@ -82,7 +84,7 @@ module DataCycleCore
 
           def serialize(content, language)
             DataCycleCore::Serialize::SerializedData::Content.new(
-              data:
+              data: lambda {
                 Nokogiri::XML(
                   DataCycleCore::Xml::V1::ContentsController.renderer.new(
                     http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
@@ -93,7 +95,8 @@ module DataCycleCore
                     layout: false
                   ),
                   &:noblanks
-                )&.to_xml,
+                )&.to_xml
+              },
               mime_type: mime_type,
               file_name: file_name(content: content, language: language),
               id: content.id

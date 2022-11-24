@@ -14,6 +14,41 @@ module DataCycleCore
         return format_errors, reformat_duplicates(duplicates), reformat_duplicates(mixin_duplicates)
       end
 
+      def self.validate_all(template_paths: nil)
+        template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
+        import_hash, _duplicates = check_for_duplicates(template_paths, CONTENT_SETS)
+        mixin_list, _mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths, content_sets: CONTENT_SETS)
+        errors = validate_all_templates(template_hash: import_hash, mixins: mixin_list)
+
+        errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}
+      end
+
+      def self.validate_all_templates(template_hash:, mixins:)
+        errors = {}
+
+        template_hash.each do |content_set, template_list|
+          errors = errors.merge({ content_set => validate_content_template(template_list: template_list, content_set: content_set, mixins: mixins) })
+        end
+
+        errors
+      end
+
+      def self.validate_content_template(template_list:, content_set:, mixins:)
+        errors = {}
+        template_list.each do |template_location|
+          template = YAML.safe_load(File.open(template_location[:file]), [Symbol])[template_location[:position]]
+          template[:data] = transform_schema(schema: template[:data].dup, content_set: content_set, mixins: mixins)
+          error = validate(template)
+
+          errors[template[:data][:name]] = error if error.present?
+        end
+        errors
+      rescue StandardError => e
+        puts "could not access a YML File: #{template_list}"
+        puts e.message
+        puts e.backtrace
+      end
+
       def self.reformat_duplicates(hash)
         hash&.map { |directory, templates| { directory => templates.map { |template, file_list| { template => file_list.map { |item| item.dig(:file) } } } } } || {}
       end
@@ -184,6 +219,8 @@ module DataCycleCore
           result_property = validate_property.call(property_definition)
           error = {}.merge!(result_property.errors.to_h)
           error.merge!(validate_properties(property_definition)) if property_definition.key?(:properties)
+          error[:key] = ['must be underscored string'] if property_name.to_s != property_name.to_s.underscore
+
           errors[property_name] = error if error.present?
         end
         errors

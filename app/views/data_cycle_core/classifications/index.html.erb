@@ -19,11 +19,8 @@
       <ul class="classification_trees backend-treeview-list">
         <%= render partial: 'classification_tree_label', collection: tree_labels, as: :tree_label %>
 
-        <% unless external_source_id %>
-          <li class="new-classification-tree-label">
-            <a href="#" class="create button-prime small"><i class="fa fa-plus"></i></a>
-            <%= render 'classification_tree_label_form', classification_tree_label: DataCycleCore::ClassificationTreeLabel.new %>
-          </li>
+        <% if !external_source_id && can?(:create, DataCycleCore::ClassificationTreeLabel) %>
+          <%= render 'data_cycle_core/classifications/new_classification_tree_label' %>
         <% end %>
       </ul>
     <% end %>

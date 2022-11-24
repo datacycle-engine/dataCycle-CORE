@@ -20,7 +20,7 @@ class DataCycleNormalizer {
     });
 
     const promise = DataCycle.httpRequest({
-      type: 'POST',
+      method: 'POST',
       url: this.normalize_url,
       data: $.param(this.form_data),
       dataType: 'json'

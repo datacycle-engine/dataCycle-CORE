@@ -2,7 +2,6 @@
 
 module DataCycleCore
   class SubscriptionsController < ApplicationController
-    before_action :authenticate_user! # from devise (authenticate)
     include DataCycleCore::Filter
 
     def index

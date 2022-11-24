@@ -312,7 +312,7 @@ class Validator {
     if (locale) formData.set('locale', locale);
 
     const promise = DataCycle.httpRequest({
-      type: 'POST',
+      method: 'POST',
       url: url,
       enctype: 'multipart/form-data',
       data: formData,

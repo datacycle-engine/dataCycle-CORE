@@ -1,0 +1,19 @@
+<%= render 'data_cycle_core/contents/viewers/attribute',
+      local_assigns.merge(data_attributes: {
+        value: nil,
+        thing_id: content&.id,
+        min: definition.dig('validations', 'min'),
+        max: definition.dig('validations', 'max')
+      }.compact) do %>
+
+  <div class="detail-content dc-chart" data-id="">
+    <div class="dc-chart-inputs">
+      <%= datetime_field_tag 'time[in][min]', nil, { data: { type: 'datepicker' }, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[time][in][min]")}", placeholder: t('timeseries.from', locale: active_ui_locale), class: 'dc-chart-time-min-input' } %>
+      <%= datetime_field_tag 'time[in][max]', nil, { data: { type: 'datepicker' }, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[time][in][max]")}", placeholder: t('timeseries.until', locale: active_ui_locale), class: 'dc-chart-time-max-input' } %>
+      <%= select_tag 'groupBy', *grouping_options(definition) %>
+      <%= select_tag 'timeseries[chart_type]', *chart_type_options(definition) %>
+    </div>
+    <canvas class="dc-chart-canvas"></canvas>
+  </div>
+
+<% end %>

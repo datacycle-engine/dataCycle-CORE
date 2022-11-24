@@ -13,6 +13,12 @@
           </td>
         </tr>
 
+        <tr>
+          <td width="100%" style="width:100%;padding:12pt 0 0 0;">
+            <%= first_available_i18n_t("data_link_mailer.#{@current_issuer}.external_link_button_notice", @current_issuer, { locale: @locale }) %>
+          </td>
+        </tr>
+
         <% if @data_link.comment.present? %>
           <tr>
             <td style="padding:12pt 0 3pt 0">
@@ -39,6 +45,16 @@
             <td style="padding:12pt 0 0 0">
               <span style="font-size: 12pt; font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif; color:#333333">
                 <%= link_to t("data_link_mailer.external_link_instructions", locale: @locale), @instructions_url, target: :_blank %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
+
+        <% if I18n.exists?("data_link_mailer.#{@current_issuer}.instructions_html", locale: @locale) %>
+          <tr>
+            <td style="padding:12pt 0 0 0">
+              <span style="font-size: 12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;">
+                <%= t("data_link_mailer.#{@current_issuer}.instructions_html", locale: @locale) %>
               </span>
             </td>
           </tr>

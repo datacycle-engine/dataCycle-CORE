@@ -1,7 +1,12 @@
 {
   "name": "Headline",
   "description": "<p>Description</p>",
-  "potential_action": "https://potential-actions.link",
+  "potential_action": [
+    {
+      "url": "https://potential-actions.link",
+      "name": "potential_action"
+    }
+  ],
   "use_guidelines": "cc_use_guidlines",
   "license": "cc_license",
   "attribution_url": "attribution_url",

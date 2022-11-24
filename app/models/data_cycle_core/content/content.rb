@@ -33,6 +33,7 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::Api
       include DataCycleCore::Content::Extensions::SyncApi
       include DataCycleCore::Content::Extensions::Geojson
+      include DataCycleCore::Content::Extensions::Mvt
       include DataCycleCore::Content::Extensions::DefaultValue
       include DataCycleCore::Content::Extensions::ComputedValue
       prepend DataCycleCore::Content::Extensions::Translation

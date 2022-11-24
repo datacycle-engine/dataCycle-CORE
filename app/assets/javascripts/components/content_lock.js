@@ -213,7 +213,7 @@ class ContentLock {
       data: {
         token: this.token
       },
-      type: 'PATCH'
+      method: 'PATCH'
     }).catch(() => {
       console.error('CONTENT_LOCK_ERROR: error renewing the lock');
     });

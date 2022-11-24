@@ -610,12 +610,12 @@ CREATE TABLE public.classification_aliases (
 
 
 --
--- Name: classification_contents; Type: TABLE; Schema: public; Owner: -
+-- Name: classification_content_histories; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.classification_contents (
+CREATE TABLE public.classification_content_histories (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    content_data_id uuid,
+    content_data_history_id uuid,
     classification_id uuid,
     seen_at timestamp without time zone,
     created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
@@ -625,59 +625,12 @@ CREATE TABLE public.classification_contents (
 
 
 --
--- Name: classification_alias_statistics; Type: VIEW; Schema: public; Owner: -
+-- Name: classification_contents; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE VIEW public.classification_alias_statistics AS
- WITH descendant_counts AS (
-         SELECT classification_aliases_1.id,
-            count(
-                CASE
-                    WHEN (exploded_classification_ancestors.ancestor_id IS NOT NULL) THEN 1
-                    ELSE NULL::integer
-                END) AS descendant_count
-           FROM (public.classification_aliases classification_aliases_1
-             JOIN ( SELECT unnest(classification_alias_paths.ancestor_ids) AS ancestor_id
-                   FROM public.classification_alias_paths) exploded_classification_ancestors ON ((exploded_classification_ancestors.ancestor_id = classification_aliases_1.id)))
-          GROUP BY classification_aliases_1.id
-        ), linked_content_counts AS (
-         SELECT classification_aliases_1.id,
-            count(
-                CASE
-                    WHEN (classification_aliases_1.id IS NOT NULL) THEN 1
-                    ELSE NULL::integer
-                END) AS linked_content_count
-           FROM (((public.classification_aliases classification_aliases_1
-             JOIN public.classification_alias_paths ON ((classification_aliases_1.id = classification_alias_paths.id)))
-             JOIN public.classification_groups ON ((classification_aliases_1.id = classification_groups.classification_alias_id)))
-             JOIN public.classification_contents ON ((classification_groups.classification_id = classification_contents.classification_id)))
-          GROUP BY classification_aliases_1.id
-        ), descendants_linked_content_counts AS (
-         SELECT exploded_classification_ancestors.ancestor_id AS id,
-            count(*) AS linked_content_count
-           FROM ((( SELECT unnest(classification_alias_paths.ancestor_ids) AS ancestor_id,
-                    classification_alias_paths.id AS classification_alias_id
-                   FROM public.classification_alias_paths) exploded_classification_ancestors
-             JOIN public.classification_groups ON ((exploded_classification_ancestors.classification_alias_id = classification_groups.classification_alias_id)))
-             JOIN public.classification_contents ON ((classification_groups.classification_id = classification_contents.classification_id)))
-          GROUP BY exploded_classification_ancestors.ancestor_id
-        )
- SELECT classification_aliases.id,
-    COALESCE(descendant_counts.descendant_count, (0)::bigint) AS descendant_count,
-    (COALESCE(linked_content_counts.linked_content_count, (0)::bigint) + COALESCE(descendants_linked_content_counts.linked_content_count, (0)::bigint)) AS linked_content_count
-   FROM (((public.classification_aliases
-     LEFT JOIN descendant_counts ON ((descendant_counts.id = classification_aliases.id)))
-     LEFT JOIN linked_content_counts ON ((linked_content_counts.id = classification_aliases.id)))
-     LEFT JOIN descendants_linked_content_counts ON ((descendants_linked_content_counts.id = classification_aliases.id)));
-
-
---
--- Name: classification_content_histories; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.classification_content_histories (
+CREATE TABLE public.classification_contents (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    content_data_history_id uuid,
+    content_data_id uuid,
     classification_id uuid,
     seen_at timestamp without time zone,
     created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
@@ -717,44 +670,6 @@ CREATE TABLE public.classification_tree_labels (
     visibility character varying[] DEFAULT '{}'::character varying[],
     change_behaviour character varying[] DEFAULT '{trigger_webhooks,clear_cache}'::character varying[]
 );
-
-
---
--- Name: classification_tree_label_statistics; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.classification_tree_label_statistics AS
- WITH descendant_counts AS (
-         SELECT classification_tree_labels_1.id,
-            count(
-                CASE
-                    WHEN (classification_aliases.id IS NOT NULL) THEN 1
-                    ELSE NULL::integer
-                END) AS descendant_count
-           FROM ((public.classification_tree_labels classification_tree_labels_1
-             JOIN public.classification_trees ON ((classification_tree_labels_1.id = classification_trees.classification_tree_label_id)))
-             JOIN public.classification_aliases ON ((classification_trees.classification_alias_id = classification_aliases.id)))
-          GROUP BY classification_tree_labels_1.id
-        ), linked_content_counts AS (
-         SELECT classification_tree_labels_1.id,
-            count(
-                CASE
-                    WHEN (classification_aliases.id IS NOT NULL) THEN 1
-                    ELSE NULL::integer
-                END) AS linked_content_count
-           FROM ((((public.classification_tree_labels classification_tree_labels_1
-             JOIN public.classification_trees ON ((classification_tree_labels_1.id = classification_trees.classification_tree_label_id)))
-             JOIN public.classification_aliases ON ((classification_trees.classification_alias_id = classification_aliases.id)))
-             JOIN public.classification_groups ON ((classification_aliases.id = classification_groups.classification_alias_id)))
-             JOIN public.classification_contents ON ((classification_groups.classification_id = classification_contents.classification_id)))
-          GROUP BY classification_tree_labels_1.id
-        )
- SELECT classification_tree_labels.id,
-    COALESCE(descendant_counts.descendant_count, (0)::bigint) AS descendant_count,
-    COALESCE(linked_content_counts.linked_content_count, (0)::bigint) AS linked_content_count
-   FROM ((public.classification_tree_labels
-     LEFT JOIN descendant_counts ON ((descendant_counts.id = classification_tree_labels.id)))
-     LEFT JOIN linked_content_counts ON ((linked_content_counts.id = classification_tree_labels.id)));
 
 
 --
@@ -2583,6 +2498,13 @@ CREATE INDEX index_thing_histories_on_representation_of_id ON public.thing_histo
 
 
 --
+-- Name: index_thing_histories_on_updated_by; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_histories_on_updated_by ON public.thing_histories USING btree (updated_by);
+
+
+--
 -- Name: index_thing_history_id_locale; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2734,6 +2656,13 @@ CREATE INDEX index_things_on_schema_type ON public.things USING btree (((schema 
 --
 
 CREATE INDEX index_things_on_template_content_type_validity_range ON public.things USING btree (id, template, content_type, validity_range, template_name);
+
+
+--
+-- Name: index_things_on_updated_by; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_updated_by ON public.things USING btree (updated_by);
 
 
 --
@@ -3535,6 +3464,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220919112419'),
 ('20220920083836'),
 ('20220922061116'),
-('20221017094112');
+('20221017094112'),
+('20221028074348'),
+('20221118075303');
 
 

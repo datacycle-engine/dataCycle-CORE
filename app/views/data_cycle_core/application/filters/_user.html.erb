@@ -1,6 +1,7 @@
 <div data-id="<%= identifier %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
   <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
-  <%= hidden_field_tag "f[#{identifier}][t]", :creator %>
+  <%= hidden_field_tag "f[#{identifier}][t]", local_assigns[:filter_type] || :user %>
+  <%= hidden_field_tag "f[#{identifier}][q]", local_assigns[:filter_advanced_type] || filter_title %>
   <%= hidden_field_tag "f[#{identifier}][n]", filter_title %>
 
   <div class="advanced-filter-title">
@@ -14,12 +15,14 @@
 
   <div class="advanced-filter-selector">
     <%= select_tag("f[#{identifier}][v]",
-      options_for_select(DataCycleCore::User.all.map { |e| ["#{e.try(:full_name)} <#{e.email}>", e.id, { title: e.email }] }, value),
+      options_for_select(DataCycleCore::User.where(id: value).map { |u| u.to_select_option(active_ui_locale) }.map(&:to_option_for_select), value),
       {
         multiple: true,
-        class: 'multi-select',
+        class: 'async-select',
         data: {
-          placeholder: ''
+          max: 20,
+          placeholder: '',
+          search_path: search_users_path
         }
       }) %>
   </div>

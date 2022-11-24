@@ -32,7 +32,7 @@
   </a>
 
   <% unless readonly %>
-    <%= button_tag tag.i(class: 'fa fa-times'), type: :button, class: 'button removeContentObject', data: {
+    <%= button_tag tag.i(class: 'fa fa-times'), type: :button, class: 'button removeContentObject alert', data: {
           confirm_delete: definition&.dig('translated') && local_assigns[:object]&.translations&.many? ? t('actions.delete_with_translated_html', locale: active_ui_locale) : nil
         } %>
   <% end %>

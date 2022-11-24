@@ -21,7 +21,7 @@ module DataCycleCore
         }.freeze
 
         after_action :log_activity
-        before_action :authenticate_user!, :set_default_response_format
+        before_action :set_default_response_format
 
         def permitted_params
           @permitted_params ||= params.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }

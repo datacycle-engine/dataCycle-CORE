@@ -204,6 +204,9 @@ Rails/DotSeparatedKeys:
 Rails/DeprecatedActiveModelErrorsMethods:
   Enabled: false
 
+Rails/TransactionExitStatement:
+  Enabled: false
+
 #######################################################
 ########## Rake
 Rake/Desc:

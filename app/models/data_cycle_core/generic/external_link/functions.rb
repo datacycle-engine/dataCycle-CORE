@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'dry/transformer/all'
+require 'dry/transformer'
 
 module DataCycleCore
   module Generic

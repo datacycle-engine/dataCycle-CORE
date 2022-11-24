@@ -34,7 +34,7 @@
   </a>
 
   <% unless readonly %>
-    <%= button_tag tag.i(class: 'fa fa-times'), type: :button, class: 'button removeContentObject' %>
+    <%= button_tag tag.i(class: 'fa fa-times'), type: :button, class: 'button removeContentObject alert' %>
   <% end %>
 
   <% value = time_objects&.first.to_h %>

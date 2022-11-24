@@ -15,7 +15,10 @@ module DataCycleCore
 
     def self.included(klass)
       klass.extend(ClassMethods)
+      klass.extend(DOTIW::Methods)
     end
+
+    delegate :iso8601_duration, to: :class
 
     def to_h
       item_hash = @schedule_object&.to_hash || {}
@@ -276,7 +279,7 @@ module DataCycleCore
     end
 
     def load_schedule_object
-      options = { duration: duration.presence&.to_i }.compact
+      options = { duration: duration.presence }.compact
       @schedule_object = IceCube::Schedule.new(dtstart.presence || Time.zone.now, options) do |s|
         s.add_recurrence_rule(IceCube::Rule.from_ical(rrule)) if rrule.present? # allow only one rrule!!
         rdate.each do |rd|
@@ -298,14 +301,6 @@ module DataCycleCore
       self.rdate = @schedule_object.recurrence_times
       self.exdate = @schedule_object.extimes
       self
-    end
-
-    def iso8601_duration(start_time, end_time)
-      return ActiveSupport::Duration.build(0) if end_time.nil?
-
-      time_hash = distance_of_time_in_words_hash(start_time, end_time)
-
-      self.class.parts_to_iso8601_duration(time_hash)
     end
 
     def occurs_between?(from = dtstart, to = dtend)
@@ -404,6 +399,14 @@ module DataCycleCore
             }.deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }.with_indifferent_access).to_hash.except(:relation, :thing_id).merge(id: t['id']).with_indifferent_access.compact
           end
         }.flatten.compact
+      end
+
+      def iso8601_duration(start_time, end_time)
+        return ActiveSupport::Duration.build(0) if end_time.nil?
+
+        time_hash = distance_of_time_in_words_hash(start_time, end_time)
+
+        parts_to_iso8601_duration(time_hash)
       end
 
       def time_to_duration(start_time, end_time)

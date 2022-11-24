@@ -14,7 +14,7 @@ module DataCycleCore
         include DataCycleCore::ApiBeforeActions
         helper DataCycleCore::WebdavHelper
 
-        before_action :set_default_response_format, :authenticate_user!
+        before_action :set_default_response_format
 
         def permitted_params
           @permitted_params ||= params.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
