@@ -389,9 +389,9 @@ ul.backend-treeview-list,
             position: absolute;
             top: 0.75rem;
             left: 0;
-            width: 10rem;
+            width: 15rem;
             height: 0;
-            border-top: 3px double lighten($dark-gray, 10%);
+            border-top: 2px dotted lighten($dark-gray, 10%);
           }
 
           & ~ li.mapped {

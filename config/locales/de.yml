@@ -191,6 +191,7 @@ de:
       warning: 'Warnung:'
       ignore_warnings: Es sind Warnungen vorhanden (%{data}).<br>Soll der Inhalt trotzdem gespeichert werden?
       final_save: Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.
+      final_save_warning: 'Um den Inhalt final abzuschicken, muss die ensprechende Checkbox<br><i class="callout inline warning">%{text}</i> angeklickt werden.'
       errors:
         no_data: 'Keine Daten angegeben für %{data}.'
         key_figure_not_found: Kennzahl nicht gefunden.

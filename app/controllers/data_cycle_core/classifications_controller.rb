@@ -53,6 +53,7 @@ module DataCycleCore
             .joins(:sub_classification_alias)
             .includes(
               sub_classification_alias: [
+                :classification_alias_path,
                 additional_classifications: [primary_classification_alias: :classification_alias_path],
                 primary_classification: [additional_classification_aliases: :classification_alias_path],
                 classifications: [primary_classification_alias: :classification_alias_path]
