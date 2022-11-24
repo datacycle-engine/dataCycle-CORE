@@ -14,7 +14,7 @@ PATH
       delayed_job_active_record
       devise
       dotiw
-      dry-transformer
+      dry-transformer (>= 1.0)
       dry-validation
       faraday
       faraday_middleware
@@ -254,7 +254,8 @@ GEM
       dry-initializer (~> 3.0)
       dry-logic (~> 1.0)
       dry-types (~> 1.5)
-    dry-transformer (0.1.1)
+    dry-transformer (1.0.1)
+      zeitwerk (~> 2.6)
     dry-types (1.5.1)
       concurrent-ruby (~> 1.0)
       dry-container (~> 0.3)
@@ -736,4 +737,4 @@ RUBY VERSION
    ruby 2.7.1p83
 
 BUNDLED WITH
-   2.3.25
+   2.3.26
