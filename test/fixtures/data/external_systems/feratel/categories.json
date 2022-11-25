@@ -1,0 +1,137 @@
+[
+  {
+    "_id": {
+      "$oid": "5be5a17d32c88f093f806455"
+    },
+    "external_id": "361bf303-3009-4bc6-8b7e-06c7de10edfc",
+    "dump": {
+      "de": {
+        "_Type": "Category",
+        "Id": "361bf303-3009-4bc6-8b7e-06c7de10edfc",
+        "Order": "2",
+        "ChangeDate": "2008-09-10T11:22:00",
+        "Active": "true",
+        "Global": "true",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Gasthof"
+          }
+        }
+      },
+      "en": {
+        "_Type": "Category",
+        "Id": "361bf303-3009-4bc6-8b7e-06c7de10edfc",
+        "Order": "2",
+        "ChangeDate": "2008-09-10T11:22:00",
+        "Active": "true",
+        "Global": "true",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Gasthof"
+          }
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T15:02:21.598Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T15:02:21.598Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T15:02:21.332Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5a17d32c88f093f806456"
+    },
+    "external_id": "ab4f2086-f06d-4dac-8b99-09eda5577c67",
+    "dump": {
+      "de": {
+        "_Type": "Category",
+        "Id": "ab4f2086-f06d-4dac-8b99-09eda5577c67",
+        "Order": "1",
+        "ChangeDate": "2010-05-11T12:30:00",
+        "Active": "true",
+        "Global": "true",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Hotel"
+          }
+        }
+      },
+      "en": {
+        "_Type": "Category",
+        "Id": "ab4f2086-f06d-4dac-8b99-09eda5577c67",
+        "Order": "1",
+        "ChangeDate": "2010-05-11T12:30:00",
+        "Active": "true",
+        "Global": "true",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Hotel"
+          }
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T15:02:21.601Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T15:02:21.602Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T15:02:21.383Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5be5a17d32c88f093f806457"
+    },
+    "external_id": "a82b7fa2-c479-4bcc-9bb0-1c8ca45f91de",
+    "dump": {
+      "de": {
+        "_Type": "Category",
+        "Id": "a82b7fa2-c479-4bcc-9bb0-1c8ca45f91de",
+        "Order": "18",
+        "ChangeDate": "2009-08-12T10:06:00",
+        "Active": "true",
+        "Global": "true",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Feriendorf"
+          }
+        }
+      },
+      "en": {
+        "_Type": "Category",
+        "Id": "a82b7fa2-c479-4bcc-9bb0-1c8ca45f91de",
+        "Order": "18",
+        "ChangeDate": "2009-08-12T10:06:00",
+        "Active": "true",
+        "Global": "true",
+        "Name": {
+          "Translation": {
+            "Language": "de",
+            "text": "Feriendorf"
+          }
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T15:02:21.609Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T15:02:21.609Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T15:02:21.391Z"
+    }
+  }
+]

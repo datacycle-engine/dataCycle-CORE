@@ -97,6 +97,33 @@ module DataCycleCore
       extension_white_list.map { |extension| MiniMime.lookup_by_extension(extension)&.extension }
     end
 
+    def file_extension_validation
+      return unless self.class.active_storage_activated?
+      return if file.present? && self.class.content_type_white_list.include?(MiniMime.lookup_by_content_type(file.content_type)&.extension)
+      errors.add :file,
+                 path: 'uploader.validation.format_not_supported',
+                 substitutions: {
+                   data: {
+                     value: file.content_type
+                   }
+                 }
+    end
+
+    def file_size_validation(options)
+      return if self.class.active_storage_activated? && file.blob.byte_size <= options.dig(:max).to_i
+      return if file.size <= options.dig(:max).to_i
+
+      errors.add :file, {
+        path: 'uploader.validation.file_size.max',
+        substitutions: {
+          data: {
+            method: 'number_to_human_size',
+            value: options.dig(:max).to_i
+          }
+        }
+      }
+    end
+
     private
 
     # @todo: carrierwave specific method
@@ -123,34 +150,6 @@ module DataCycleCore
         sleep 5
         retry
       end
-    end
-
-    def file_extension_validation
-      return unless self.class.active_storage_activated?
-      return if self.class.content_type_white_list.include?(MiniMime.lookup_by_content_type(file.content_type)&.extension)
-
-      errors.add :file, {
-        path: 'uploader.validation.format_not_supported',
-        substitutions: {
-          data: {
-            value: file.content_type
-          }
-        }
-      }
-    end
-
-    def file_size_validation(options)
-      return unless file.size > options.dig(:file_size, :max).to_i
-
-      errors.add :file, {
-        path: 'uploader.validation.file_size.max',
-        substitutions: {
-          data: {
-            method: 'number_to_human_size',
-            value: options.dig(:file_size, :max).to_i
-          }
-        }
-      }
     end
 
     # @todo: carrierwave specific method

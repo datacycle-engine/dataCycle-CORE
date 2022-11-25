@@ -6,7 +6,7 @@ module DataCycleCore
   module Generic
     class ExternalSystemDuplicatesTest < DataCycleCore::TestCases::ActiveSupportTestCase
       def download_from_local_json(external_source, folder_name, credentials = false)
-        path = Rails.root.join('..', 'fixtures', 'external_sources', folder_name)
+        path = Rails.root.join('..', 'fixtures', 'data', 'external_systems', folder_name)
         files = path + '*.json'
         file_names = Dir[files]
         file_names.each do |file_name|

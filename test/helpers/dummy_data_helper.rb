@@ -87,10 +87,8 @@ module DataCycleCore
 
     def bergfex_snowresort
       snow_resort_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_bergfex_snowresort')
-
       snow_resort_data_hash[:opening_hours_specification] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
       snow_resort_data_hash[:opening_hours_description] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_description')
-
       DataCycleCore::TestPreparations.create_content(template_name: 'Skigebiet', data_hash: snow_resort_data_hash, user: @user)
     end
 

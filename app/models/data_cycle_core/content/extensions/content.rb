@@ -23,8 +23,8 @@ module DataCycleCore
             ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
               asset&.web&.url
             end
-          else
-            asset&.web&.url if try(:asset)&.versions&.key?(:web)
+          elsif try(:asset)&.versions&.key?(:web)
+            asset&.web&.url
           end
         end
 
