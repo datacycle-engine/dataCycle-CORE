@@ -12,6 +12,7 @@ namespace :dc do
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:code:validate:rubocop"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:code:validate:fasterer"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:validate"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}zeitwerk:check"].invoke
     end
 
     namespace :validate do

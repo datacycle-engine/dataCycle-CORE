@@ -11,7 +11,7 @@ module DataCycleCore
 
           inherit_life_cycle_attributes(data_hash: options.data_hash) if options.new_content && !parent.nil?
 
-          self.life_cycle_changed = true unless life_cycle_stage?(options.data_hash&.dig(DataCycleCore::Feature::LifeCycle.attribute_keys&.first)&.first)
+          self.life_cycle_changed = options.data_hash.key?(DataCycleCore::Feature::LifeCycle.attribute_keys&.first) && !life_cycle_stage?(options.data_hash&.dig(DataCycleCore::Feature::LifeCycle.attribute_keys&.first)&.first)
         end
 
         def after_save_data_hash(_options)
