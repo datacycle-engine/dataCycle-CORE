@@ -88,6 +88,7 @@ services:
     - bundle exec rubocop --format fuubar -P
     - bundle exec fasterer
     - bundle exec rake "${CORE_RAKE_PREFIX}dc:templates:validate"
+    - bundle exec rake "${CORE_RAKE_PREFIX}zeitwerk:check"
 
 .rails_test_config:
   <<: *local_test_vars
