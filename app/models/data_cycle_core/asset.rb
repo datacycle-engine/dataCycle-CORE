@@ -4,7 +4,7 @@
 # This class should not be used directly for any assets.
 module DataCycleCore
   class Asset < ApplicationRecord
-    attribute :type, :string, default: name
+    attribute :type, :string, default: -> { name }
     belongs_to :creator, class_name: 'DataCycleCore::User'
 
     before_create :update_asset_attributes

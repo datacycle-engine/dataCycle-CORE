@@ -4,7 +4,6 @@ module DataCycleCore
   module Feature
     module DataHash
       module AutoTranslation
-        # create/update translations
         def create_update_translations
           additional_infos = load_translated_content
           return { 'error' => 'Nothing to translate' } if additional_infos.blank?
@@ -63,7 +62,6 @@ module DataCycleCore
           return { 'error' => 'Data Type not found (Classification)!' } if data_type.blank?
 
           translatable_locales = Feature::Translate.allowed_languages & I18n.available_locales.map(&:to_s)
-          # translatable_locales = ['de', 'en', 'it', 'nl'] - [source_locale] # Remove!!!
           endpoint = Feature::Translate.endpoint
 
           translations_done = {}

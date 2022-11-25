@@ -75,7 +75,6 @@ module DataCycleCore
             email: @user_data[:email],
             password: @user_data[:password]
           }
-
           assert_response :success
 
           assert_equal response.content_type, 'application/json; charset=utf-8'

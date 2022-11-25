@@ -8,7 +8,7 @@ variables:
   GITLAB_ENVIRONMENT: ''
   GITLAB_ENVIRONMENT_DEVELOPMENT: ''
 
-.docker_login_and_ssh_agent: &docker_login_and_ssh_agent # Configure SSH
+.docker_login_and_ssh_agent: &docker_login_and_ssh_agent
   - eval $(ssh-agent -s)
   - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY

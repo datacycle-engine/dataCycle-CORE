@@ -41,7 +41,6 @@ module DataCycleCore
         t = filter['t'].dup
         t.prepend(FILTER_PREFIX[filter['m']].to_s)
 
-        # TODO: migrate stored filters to use latest classification filter methods
         t.concat('_with_subtree') if filter['t'].in?(['classification_alias_ids', 'not_classification_alias_ids'])
         next unless query.respond_to?(t)
 

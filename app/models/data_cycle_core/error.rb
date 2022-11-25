@@ -20,9 +20,6 @@ module DataCycleCore
 
       class ExpiredContentError < BadRequestError
       end
-
-      class UserApiRankError < StandardError
-      end
     end
 
     module Download
@@ -119,11 +116,6 @@ module DataCycleCore
         def message
           'stored filters cannot filter on themselves inside union filters (infinite recursion)'
         end
-      end
-    end
-
-    module Asset
-      class RemoteFileDownloadError < StandardError
       end
     end
   end

@@ -15,7 +15,12 @@ module DataCycleCore
           # TODO: add context test
 
           test 'api/v4/concept_schemes' do
-            post api_v4_concept_schemes_path
+            params = {
+              page: {
+                size: 100
+              }
+            }
+            post api_v4_concept_schemes_path(params)
 
             assert_api_count_result(@trees)
             json_data = JSON.parse(response.body)
@@ -27,7 +32,13 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes with fields=dct:modified' do
-            post api_v4_concept_schemes_path(fields: 'dc:entityUrl')
+            params = {
+              fields: 'dc:entityUrl',
+              page: {
+                size: 100
+              }
+            }
+            post api_v4_concept_schemes_path(params)
 
             assert_api_count_result(@trees)
             json_data = JSON.parse(response.body)
@@ -44,7 +55,13 @@ module DataCycleCore
 
           test 'api/v4/concept_schemes/(:id)' do
             tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
-            post api_v4_concept_scheme_path(id: tree.id)
+            params = {
+              id: tree.id,
+              page: {
+                size: 100
+              }
+            }
+            post api_v4_concept_scheme_path(params)
 
             assert_response :success
             assert_equal(response.content_type, 'application/json; charset=utf-8')
@@ -59,7 +76,10 @@ module DataCycleCore
             tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
             post_params = {
               id: tree.id,
-              fields: 'dc:entityUrl,dc:hasConcept'
+              fields: 'dc:entityUrl,dc:hasConcept',
+              page: {
+                size: 100
+              }
             }
             post api_v4_concept_scheme_path(post_params)
 
@@ -78,7 +98,10 @@ module DataCycleCore
             tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
             params = {
-              id: tree_id
+              id: tree_id,
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
 
@@ -95,7 +118,10 @@ module DataCycleCore
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
             params = {
               id: tree_id,
-              fields: 'skos:prefLabel,dct:description,dct:modified'
+              fields: 'skos:prefLabel,dct:description,dct:modified',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
 
@@ -130,7 +156,10 @@ module DataCycleCore
             params = {
               id: tree_id,
               classification_id: update_tag.id,
-              fields: 'skos:prefLabel,dct:description,dct:modified,identifier'
+              fields: 'skos:prefLabel,dct:description,dct:modified,identifier',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
 
@@ -158,7 +187,10 @@ module DataCycleCore
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
             params = {
               id: tree_id,
-              fields: 'skos:inScheme'
+              fields: 'skos:inScheme',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
 
@@ -179,7 +211,10 @@ module DataCycleCore
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
             params = {
               id: tree_id,
-              fields: 'skos:inScheme,skos:inScheme.skos:prefLabel'
+              fields: 'skos:inScheme,skos:inScheme.skos:prefLabel',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
 
@@ -206,7 +241,10 @@ module DataCycleCore
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
             params = {
               id: tree_id,
-              fields: 'skos:inScheme.skos:prefLabel'
+              fields: 'skos:inScheme.skos:prefLabel',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
 
@@ -233,7 +271,10 @@ module DataCycleCore
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
             params = {
               id: tree_id,
-              fields: 'skos:broader.skos:inScheme.skos:prefLabel'
+              fields: 'skos:broader.skos:inScheme.skos:prefLabel',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
 
@@ -271,7 +312,10 @@ module DataCycleCore
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
             params = {
               id: tree_id,
-              include: 'skos:inScheme'
+              include: 'skos:inScheme',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
 
@@ -334,7 +378,10 @@ module DataCycleCore
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
             params = {
               id: tree_id,
-              include: 'skos:ancestors'
+              include: 'skos:ancestors',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
 
@@ -366,7 +413,10 @@ module DataCycleCore
             params = {
               id: tree_id,
               include: 'skos:ancestors',
-              fields: 'skos:prefLabel'
+              fields: 'skos:prefLabel',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
 
@@ -399,7 +449,10 @@ module DataCycleCore
             params = {
               id: tree_id,
               include: 'skos:inScheme',
-              fields: 'skos:inScheme.skos:prefLabel'
+              fields: 'skos:inScheme.skos:prefLabel',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
 

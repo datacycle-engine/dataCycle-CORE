@@ -5,19 +5,19 @@
      width="100%" style="width:100%;">
         <tr>
           <td>
-            <span style="font-size:11.5pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><b><%= t('hello', locale: @user.ui_locale) %></b></span>
+            <span style="font-size:11.5pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><b><%= t('hello', locale: @user.ui_locale) %></b></span>
           </td>
         </tr>
         <% @watch_lists.slice(*@changed_items.keys).each do |watch_list_id, watch_list| %>
           <% changed_items = @changed_items[watch_list_id].select { |i| @contents.key?(i[:id]) } %>
           <tr>
             <td style="padding:12pt 0 0 0;">
-              <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><%= t("data_cycle_core.watch_list.mailer.text_html", link: link_to(watch_list.name, watch_list_url(watch_list)), count: changed_items.size, locale: @user.ui_locale) %></span>
+              <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><%= t("data_cycle_core.watch_list.mailer.text_html", link: link_to(watch_list.name, watch_list_url(watch_list)), count: changed_items.size, locale: @user.ui_locale) %></span>
             </td>
           </tr>
           <tr>
             <td width="100%" style="width:100%;padding:0;height:24pt">
-              <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333">
+              <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333">
 
                 <ul style="list-style:none;padding-left: 12pt;">
                   <% changed_items.each do |item| %>

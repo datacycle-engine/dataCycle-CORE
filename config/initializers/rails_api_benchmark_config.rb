@@ -30,25 +30,5 @@
 #   #     regexp: /Requests\s+per\s+second:\s+([0-9.]*).*\(mean\)/
 #   #   }
 #   # ]
-#   config.routes = [
-#     {
-#       name: 'test APIv2',
-#       route: '/api/v2/contents/search?token=63c4fbf71af585250fb5a8c088af3430',
-#       # route: '/api/v2/things/11779bd5-c5ec-4f52-ba26-a5c00cffc90e?token=63c4fbf71af585250fb5a8c088af3430\&include=linked',
-#       # route: '/api/v2/things/11779bd5-c5ec-4f52-ba26-a5c00cffc90e?token=63c4fbf71af585250fb5a8c088af3430',
-#       method: :get,
-#       title: 'GET APIv2 Article',
-#       description: 'APIv2 Article'
-#     },
-#     {
-#       name: 'test APIv3',
-#       route: '/api/v3/contents/search?token=63c4fbf71af585250fb5a8c088af3430',
-#       # route: '/api/v3/things/11779bd5-c5ec-4f52-ba26-a5c00cffc90e?token=63c4fbf71af585250fb5a8c088af3430\&include=linked',
-#       # route: '/api/v3/things/11779bd5-c5ec-4f52-ba26-a5c00cffc90e?token=63c4fbf71af585250fb5a8c088af3430',
-#       method: :get,
-#       title: 'GET APIv3 Article',
-#       description: 'APIv3 Article'
-#     }
-#   ].freeze
 # end
 # #end

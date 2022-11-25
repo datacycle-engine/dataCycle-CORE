@@ -127,7 +127,12 @@ module DataCycleCore
         end
 
         test '/api/v2/classification_trees' do
-          get api_v2_classification_trees_path
+          params = {
+            page: {
+              size: 100
+            }
+          }
+          get api_v2_classification_trees_path(params)
 
           count = DataCycleCore::ClassificationTreeLabel.where("ARRAY['api']::VARCHAR[] && visibility").count
 

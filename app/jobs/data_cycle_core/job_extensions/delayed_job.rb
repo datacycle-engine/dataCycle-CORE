@@ -7,19 +7,11 @@ module DataCycleCore
 
       module ClassMethods
         def queue_with_reference_id(ref_id = nil, &block)
-          if block
-            self.reference_id = block
-          else
-            self.reference_id = ref_id
-          end
+          self.reference_id = block || ref_id
         end
 
         def queue_with_reference_type(ref_type = nil, &block)
-          if block
-            self.reference_type = block
-          else
-            self.reference_type = ref_type
-          end
+          self.reference_type = block || ref_type
         end
 
         def find_by_identifiers(reference_id:, reference_type:, queue_name:)

@@ -45,6 +45,7 @@ Rails.application.configure do
 
   # Store uploaded files on the local file system in a temporary directory.
   config.active_storage.service = :test
+  config.active_storage.resolve_model_to_route = :rails_storage_proxy
 
   # Raise an error on page load if there are pending migrations.
   config.active_record.migration_error = :page_load

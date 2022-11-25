@@ -9,8 +9,6 @@ module DataCycleCore
       def create_data(type, user = nil)
         @user = user
         send(type)
-        # rescue StandardError
-        #   raise ArgumentError, 'Unknown type for ApiV4DummyDataHelper'
       end
 
       def minimal_poi

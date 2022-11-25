@@ -18,9 +18,6 @@ module DataCycleCore
           external_source = DataCycleCore::ExternalSystem.find_by(name: external_source_name)
           image_annotator = Google::Cloud::Vision.image_annotator
           translation_service = Google::Cloud::Translate.translation_v2_service(project_id: external_source.credentials.dig('project_id'))
-          # old gem version
-          # image_annotator = Google::Cloud::Vision::ImageAnnotator.new(credentials: external_source.credentials)
-          # translation_service = Google::Cloud::Translate.new(version: :v2, credentials: external_source.credentials)
 
           response = image_annotator.label_detection(
             image: file_path,
