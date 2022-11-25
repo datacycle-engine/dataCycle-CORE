@@ -1,0 +1,21 @@
+---
+- :data:
+    :name: content_classifications
+    :type: mixin
+    :properties:
+      :tags:
+        :label: Tags
+        :type: classification
+        :tree_label: Tags
+        :global: true
+        :ui:
+          :show:
+            :content_area: header
+      :output_channel:
+        :label: Ausgabekanal
+        :type: classification
+        :tree_label: Ausgabekanäle
+        :global: true
+        :ui:
+          :show:
+            :content_area: header

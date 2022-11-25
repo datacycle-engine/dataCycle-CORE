@@ -1,4 +1,4 @@
-# frozen-string-literal: true
+# frozen_string_literal: true
 
 require 'translations/arel/nodes'
 require 'translations/arel/visitor'

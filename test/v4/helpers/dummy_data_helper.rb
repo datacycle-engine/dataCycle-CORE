@@ -326,13 +326,12 @@ module DataCycleCore
       end
 
       def upload_image
-        DataCycleCore::ImageUploader.enable_processing = true
-        file_name = 'test_rgb.jpg'
+        file_name = 'test_rgb.jpeg'
         file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', file_name)
-        @image = DataCycleCore::Image.new(file: File.open(file_path))
+        @image = DataCycleCore::Image.new
+        @image.file.attach(io: File.open(file_path), filename: file_name)
         @image.save
         @image.reload
-        DataCycleCore::ImageUploader.enable_processing = false
         [@image]
       end
     end

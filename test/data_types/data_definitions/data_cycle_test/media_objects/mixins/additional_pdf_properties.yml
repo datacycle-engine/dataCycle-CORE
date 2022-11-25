@@ -1,0 +1,5 @@
+---
+- :data:
+    :name: additional_pdf_properties
+    :type: mixin
+    :properties: ~

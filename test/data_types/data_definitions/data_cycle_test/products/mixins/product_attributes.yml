@@ -1,0 +1,179 @@
+---
+- :data:
+    :name: product_attributes
+    :type: mixin
+    :properties:
+      :description:
+        :label: Kurzbeschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+      :text:
+        :label: Beschreibung
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        :api:
+          :v4:
+            :name: dc:additionalInformation                    
+      :logo:
+        :label: Logo
+        :type: linked
+        :template_name: Bild
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Bild
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Bild
+      :manufacturer:
+        :label: Hersteller
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Organisation
+      :offers:
+        :label: Angebote
+        :type: embedded
+        :template_name: Angebot
+        :translated: true
+        :advanced_search: true
+      :product_id:
+        :label: ProductID
+        :type: string
+        :storage_location: value
+        :search: true
+        :api:
+          :name: productID
+      :gtin:
+        :label: GTIN
+        :type: string
+        :storage_location: value
+        :search: true
+      :width:
+        :label: Breite
+        :storage_location: value
+        :type: number
+        :validations:
+          :format: float
+        :ui:
+          :show:
+            :options:
+              :data-unit: m
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: metre
+          :unit_code: MTR
+          :transformation:
+            :method: nest
+            :name: width
+        :advanced_search: true
+      :height:
+        :label: Höhe
+        :storage_location: value
+        :type: number
+        :validations:
+          :format: float
+        :ui:
+          :show:
+            :options:
+              :data-unit: m
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: metre
+          :unit_code: MTR
+          :transformation:
+            :method: nest
+            :name: height
+        :advanced_search: true
+      :depth:
+        :label: Tiefe
+        :storage_location: value
+        :type: number
+        :validations:
+          :format: float
+        :ui:
+          :show:
+            :options:
+              :data-unit: m
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: metre
+          :unit_code: MTR
+          :transformation:
+            :method: nest
+            :name: depth
+        :advanced_search: true
+      :weight:
+        :label: Gewicht
+        :storage_location: value
+        :type: number
+        :validations:
+          :format: float
+        :ui:
+          :show:
+            :options:
+              :data-unit: kg
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: kilogram
+          :unit_code: KGM
+          :transformation:
+            :method: nest
+            :name: weight
+        :advanced_search: true
+      :product_feature:
+        :label: Produkt Merkmale
+        :type: embedded
+        :template_name: ProductFeature
+        :translated: true
+        :advanced_search: true
+      :color:
+        :label: Farbe
+        :type: string
+        :storage_location: translated_value
+      :potential_actions:
+        :type: mixin
+        :name: potential_actions
+      :subject_of:
+        :label: Thema von
+        :type: linked
+        :inverse_of: about
+        :link_direction: inverse
+        :global: true

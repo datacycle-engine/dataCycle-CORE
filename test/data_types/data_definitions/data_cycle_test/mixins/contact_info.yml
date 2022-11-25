@@ -1,0 +1,47 @@
+---
+- :data:
+    :name: contact_info
+    :type: mixin
+    :properties:
+      :contact_info:
+        :label: Kontakt
+        :type: object
+        :storage_location: translated_value
+        :api:
+          :transformation:
+            :method: merge_object
+            :name: address
+        :advanced_search: true
+        :properties:
+          :contact_name:
+            :label: Ansprechpartner
+            :type: string
+            :storage_location: translated_value
+            :advanced_search: true
+            :api:
+              :v4:
+                :name: name
+          :telephone:
+            :label: Telefonnummer
+            :type: string
+            :storage_location: translated_value
+            :advanced_search: true
+          :fax_number:
+            :label: Fax
+            :type: string
+            :storage_location: translated_value
+            :advanced_search: true
+          :email:
+            :label: E-Mail
+            :type: string
+            :storage_location: translated_value
+            :normalize:
+              :id: email
+              :type: email
+            :advanced_search: true
+          :url:
+            :label: Web
+            :type: string
+            :storage_location: translated_value
+            :validations:
+              :format: soft_url

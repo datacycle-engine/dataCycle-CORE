@@ -91,7 +91,7 @@ module DataCycleCore
               date_to = Time.new(Time.zone.now.year, end_month, end_day).in_time_zone
 
               next_year = date_from > date_to ? 1 : 0
-              (0..5).each do |future|
+              6.times do |future|
                 processed = DataCycleCore::Generic::Common::OpeningHours.parse_opening_times({
                   'TimeFrom' => time['startTime'],
                   'DateFrom' => (date_from + future.years).to_date,

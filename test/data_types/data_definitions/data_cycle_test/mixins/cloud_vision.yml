@@ -1,0 +1,5 @@
+---
+- :data:
+    :name: cloud_vision
+    :type: mixin
+    :properties: ~

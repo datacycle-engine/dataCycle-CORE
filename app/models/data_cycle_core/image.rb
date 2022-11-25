@@ -185,11 +185,11 @@ module DataCycleCore
     end
 
     # carrierwave version
-    def thumb_preview(_transformation = {})
+    def thumb_preview(transformation = {})
       thumb = nil
       if self.class.active_storage_activated? && file&.attached?
         begin
-          thumb = file.variant(resize_to_fit: [300, 300], format: :jpeg, colorspace: 'sRGB', background: 'White', flatten: true).processed
+          thumb = file.variant(resize_to_fit: [300, 300], format: format_for_transformation(transformation.dig('format')), colorspace: 'sRGB', background: 'White', flatten: true).processed
         rescue ActiveStorage::FileNotFoundError
           # add some logging
           return nil
@@ -260,7 +260,7 @@ module DataCycleCore
 
     def set_phash
       return if duplicate_check&.dig('phash').present? && duplicate_check&.dig('phash')&.positive?
-      update_column(:duplicate_check, { phash: Phash::Image.new(file.service.path_for(thumb_preview.key)).try(:compute_phash).try(:data) })
+      update_column(:duplicate_check, { phash: Phash::Image.new(file.service.path_for(thumb_preview({ 'format' => 'jpeg' }).key)).try(:compute_phash).try(:data) })
     end
 
     def metadata_from_blob

@@ -63,7 +63,7 @@ module Translations
         end
 
         def clear_cache
-          model_cache && model_cache&.clear
+          model_cache&.clear
         end
 
         private

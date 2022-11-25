@@ -1,0 +1,52 @@
+---
+- :data:
+    :name: PersonOverlay
+    :type: object
+    :schema_type: Person
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :given_name:
+        :label: Vorname
+        :type: string
+        :storage_location: column
+        :search: true
+        :normalize:
+          :id: forename
+          :type: forename
+      :family_name:
+        :label: Nachname
+        :type: string
+        :storage_location: column
+        :search: true
+        :normalize:
+          :id: surname
+          :type: surname
+      :name:
+        :label: Name
+        :type: string
+        :storage_location: column
+        :compute:
+          :module: Utility::Compute::String
+          :method: concat
+          :separator: ' '
+          :parameters:
+            - given_name
+            - family_name
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :postal_address:
+        :type: mixin
+        :name: postal_address
+      :contact_info:
+        :type: mixin
+        :name: contact_info
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild

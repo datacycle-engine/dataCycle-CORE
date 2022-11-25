@@ -1,0 +1,6 @@
+---
+name: DeeplTranslate
+credentials:  # !!!! dataCycle intern !!!
+  host: HOST
+  end_point: ENDPOINT
+  key: KEY

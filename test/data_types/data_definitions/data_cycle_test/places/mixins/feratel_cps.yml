@@ -1,0 +1,21 @@
+---
+- :data:
+    :name: feratel_cps
+    :type: mixin
+    :properties:
+      :feratel_cps_status:
+        :label: Feratel CPS - Status
+        :type: classification
+        :tree_label: Feratel CPS - Stati
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_cps_type:
+        :label: Feratel CPS - Typ
+        :type: classification
+        :tree_label: Feratel CPS - Typen
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

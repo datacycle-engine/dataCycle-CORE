@@ -33,7 +33,7 @@ module DataCycleCore
         end
 
         def web_safe_mime_type?(type)
-          DataCycleCore::ImageUploader::WEB_SAVE_MIME_TYPES.include?(type)
+          DataCycleCore::Image::WEB_SAVE_MIME_TYPES.include?(type)
         end
       end
     end

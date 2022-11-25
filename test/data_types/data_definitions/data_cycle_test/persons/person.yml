@@ -1,0 +1,147 @@
+---
+- :data:
+    :name: Person
+    :type: object
+    :schema_type: Person
+    :content_type: entity
+    :boost: 1.0
+    :features:
+      :translatable:
+        :allowed: true
+      :creatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :overlay:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :indesign: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :job_title:
+        :label: Position / Berufsbezeichnung
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: PersonOverlay
+        :translated: true
+        :validations:
+          :max: 1
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :honorific_prefix:
+        :label: 'Anrede / Titel'
+        :type: string
+        :storage_location: translated_value
+        :normalize:
+          :id: degree
+          :type: degree
+      :honorific_suffix:
+        :label: 'Titel nachgestellt'
+        :type: string
+        :storage_location: translated_value
+      :postal_address:
+        :type: mixin
+        :name: postal_address
+      :contact_info:
+        :type: mixin
+        :name: contact_info
+      :description:
+        :label: Text
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :gender:
+        :label: Geschlecht
+        :type: classification
+        :tree_label: Geschlecht
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :partial: enumeration
+          :type: GenderType
+      :nationality:
+        :label: Nationalität
+        :type: classification
+        :tree_label: Länder
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :partial: enumeration
+          :type: Country
+      # legacy protpert for v2 / v3
+      :gender_api:
+        :label: Geschlecht
+        :type: string
+        :storage_location: value
+        :compute:
+          :module: Utility::Compute::Classification
+          :method: description
+          :parameters:
+            - gender
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+        :api:
+          :name: gender
+          :partial: gender
+          :v4:
+            :disabled: true
+      :member_of:
+        :label: Organisation
+        :type: linked
+        :template_name: Organization
+        :inverse_of: member
+      :linked_data:
+        :type: mixin
+        :name: linked_data
+      :subject_of:
+        :label: Thema von
+        :type: linked
+        :inverse_of: about
+        :link_direction: inverse
+        :global: true
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'Person'
+      :copyright_attributes:
+        :type: mixin
+        :name: copyright_attributes
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_person_properties:
+        :type: mixin
+        :name: additional_person_properties
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

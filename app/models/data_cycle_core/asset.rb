@@ -73,7 +73,11 @@ module DataCycleCore
 
     def duplicate
       new_asset = dup
-      new_asset.file = file
+      if self.class.active_storage_activated?
+        new_asset.file.attach(io: File.open(file.service.path_for(file.key)), filename: file.filename)
+      else
+        new_asset.file = file
+      end
       new_asset.save
       new_asset.persisted? ? new_asset : nil
     end

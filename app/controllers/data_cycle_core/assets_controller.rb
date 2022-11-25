@@ -75,7 +75,11 @@ module DataCycleCore
       authorize! :update, @asset
 
       if @asset.update(asset_params)
-        render json: @asset
+        if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+          render json: @asset.as_json(only: [:id, :name, :file_size, :content_type], methods: :duplicate_candidates)
+        else
+          render json: @asset
+        end
       else
         render(json: {
           error: @asset
