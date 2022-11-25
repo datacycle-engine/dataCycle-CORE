@@ -155,7 +155,7 @@ module DataCycleCore
     end
 
     def full_path
-      classification_alias_path.full_path_names.reverse.join(' > ')
+      classification_alias_path&.full_path_names&.reverse&.join(' > ')
     end
 
     def self.with_content_templates
