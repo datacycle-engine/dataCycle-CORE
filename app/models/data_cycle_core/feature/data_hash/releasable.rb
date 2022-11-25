@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Feature
-    module DataHash2
+    module DataHash
       module Releasable
         attr_accessor :finalize
 
