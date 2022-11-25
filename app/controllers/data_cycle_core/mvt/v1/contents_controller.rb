@@ -18,7 +18,7 @@ module DataCycleCore
               render(json: query.query.to_bbox) && return if permitted_params[:bbox]
 
               I18n.with_locale(@language.first || I18n.locale) do
-                render(plain: query.query.to_mvt(@x, @y, @z, include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format)
+                render(plain: query.query.to_mvt(@x, @y, @z, layer_name: @layer_name, include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format)
               end
             end
           end
@@ -34,7 +34,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super.union([:x, :y, :z, :bbox])
+          super.union([:x, :y, :z, :bbox, :layerName])
         end
 
         def prepare_url_parameters
@@ -43,6 +43,7 @@ module DataCycleCore
           @x = permitted_params[:x]
           @y = permitted_params[:y]
           @z = permitted_params[:z]
+          @layer_name = permitted_params[:layerName]
           @api_version = 1
         end
 

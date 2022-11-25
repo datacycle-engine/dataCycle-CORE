@@ -10,24 +10,18 @@ module DataCycleCore
       # https://www.crunchydata.com/blog/crunchy-spatial-tile-serving-with-postgresql-functions
       # https://www.crunchydata.com/blog/waiting-for-postgis-3-st_tileenvelopezxy
 
-      def initialize(x, y, z, contents:, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, **_options)
+      def initialize(x, y, z, contents:, layer_name: nil, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, **_options)
         super(contents: contents, simplify_factor: simplify_factor, include_parameters: include_parameters, fields_parameters: fields_parameters, classification_trees_parameters: classification_trees_parameters, single_item: single_item)
 
         @x = x
         @y = y
         @z = z
+        @layer_name = layer_name.presence || 'dataCycle'
       end
 
       def render
-        result(
-          contents_with_default_scope(simplify_factor: 1 / (2**@z.to_f)),
-          main_sql(mvt_select_sql)
-        )
-      end
-
-      def result(things_query, geometry_query)
         ActiveRecord::Base.connection.unescape_bytea(
-          super(things_query, geometry_query)
+          super
         )
       end
 
@@ -40,17 +34,19 @@ module DataCycleCore
         query
       end
 
-      def main_sql(select_sql)
+      def main_sql
+        as_mvt_select = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_AsMVT(mvtgeom, :layer_name) FROM mvtgeom', layer_name: @layer_name])
+
         <<-SQL.squish
               WITH
               bounds AS (
                 SELECT ST_TileEnvelope(#{@z}, #{@x}, #{@y}) AS geom
               ),
               mvtgeom AS (
-                SELECT #{select_sql}
-                FROM (:from_query) as t, bounds
+                SELECT #{mvt_select_sql}
+                FROM (#{contents_with_default_scope(simplify_factor: 1 / (2**@z.to_f)).to_sql}) as t, bounds
               )
-              SELECT ST_AsMVT(mvtgeom, 'dataCycle') FROM mvtgeom;
+              #{as_mvt_select};
         SQL
       end
 

@@ -191,6 +191,7 @@ de:
       warning: 'Warnung:'
       ignore_warnings: Es sind Warnungen vorhanden (%{data}).<br>Soll der Inhalt trotzdem gespeichert werden?
       final_save: Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.
+      final_save_warning: 'Um den Inhalt final abzuschicken, muss die ensprechende Checkbox<br><i class="callout inline warning">%{text}</i> angeklickt werden.'
       errors:
         no_data: 'Keine Daten angegeben für %{data}.'
         key_figure_not_found: Kennzahl nicht gefunden.
@@ -586,6 +587,7 @@ de:
         name: Name
         downloads_all: Anzahl der Downloads (Gesamt)
         downloads_by_month: Anzahl der Downloads (%{date})
+        downloads_by_previous_month: Anzahl der Downloads (%{date})
         date_created: Heruntergeladen am
         email: E-Mail
         user_display_name: Account
@@ -596,11 +598,14 @@ de:
         api_usage_last_week: Anzahl der Verwendungen über die API in letzten Wochen
         api_usage_current_month: Anzahl der Verwendungen über die API im aktuellen Monat
         api_usage_last_month: Anzahl der Verwendungen über die API im letzten Monat
+        api_usage_last_12_months: Anzahl der Verwendungen über die API in den letzten 12 Monaten
       mailer:
         subject:
           downloads_popular: TOP 50 Bild Downloads
         text_html:
           downloads_popular: Im Anhang finden Sie die TOP 50 Bild Downloads.
+      download_form:
+        type: Format
 
   compare:
     switch_contents: Inhalte tauschen
@@ -870,7 +875,7 @@ de:
     upload_gpx: 'GPX-Datei hochladen'
     remove_feature: 'Geometrie löschen'
     open_asset: 'Datei öffnen'
-    download: 'herunterlanden'
+    download: 'herunterladen'
     download_content: 'Inhalt herunterladen'
     download_indesign: 'Inhalt für Adobe InDesign herunterladen'
     download_zip: 'Inhalte als ZIP-Archiv herunterladen'

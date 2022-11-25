@@ -2,7 +2,10 @@
   <span class="inner-item">
     <%= link_to classification_title(classification_tree.sub_classification_alias),
                 classifications_path(classification_tree_id: classification_tree.id),
-                class: "name" %>
+                class: "name",
+                data: {
+                  dc_tooltip: classification_tree.sub_classification_alias.full_path
+                } %>
 
     <%= link_to tag.i(class: 'fa fa-pencil'), '#',
                 class: 'edit',

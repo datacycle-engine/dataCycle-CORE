@@ -841,6 +841,27 @@ footer {
     }
   }
 
+  .form-element.has-warning {
+    &.detail_object,
+    &.embedded_object,
+    &.linked,
+    &.boolean,
+    &.check_box,
+    &.asset,
+    &.radio_button,
+    &.geographic .geographic,
+    input,
+    .editor-block,
+    .daterange,
+    .embedded_object:not(.publication_schedule) .content-object-item,
+    .readonly-select,
+    .map-info.detail_object,
+    .select2 {
+      border-color: $warning-color;
+      background: mix(white, $warning-color, 85%);
+    }
+  }
+
   .form-element.check_box .dc-checkbox {
     [type='checkbox'] + label[for] {
       position: relative;
