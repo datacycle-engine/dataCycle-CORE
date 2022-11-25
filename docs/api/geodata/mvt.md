@@ -14,6 +14,8 @@ Anfragen von Daten im Format MVT werden über die MVT-Schnittstelle durchgeführ
 
 Anfragen mit Filtern und Einschränkungen funktionieren analog zu den [Anfragen von GeoJSONs](/docs/api/geodata/geojson). Die in den MVTs codierten Attribute entsprechen ebenfalls den Attributen der gesendeten GeoJSONs.
 
+Der Name des Daten-Layers in den Tiles lautet standardmäßig "dataCycle". Mit dem optionalen Parameter `layerName`, der bei Anfragen mitgeschickt werden kann, ist es mögliche einen eigenen Namen zu vergeben.
+
 Zur Authentifizierung muss das API-Token, als URL-Parameter, im JSON-Body oder als Bearer-Token im HTTP-Header mitgesendet werden.
 
 **Zu beachten ist, dass eine implizite Filterung auf Geo-Objekte aktiv ist. Es werden keine Daten ohne Koordinaten ausgegeben.**

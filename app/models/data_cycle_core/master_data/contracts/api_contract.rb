@@ -31,10 +31,6 @@ module DataCycleCore
           optional(:dataFormat).filled(:string)
           optional(:search).value(:string)
           optional(:limit).value(:integer)
-          optional(:x).value(:integer)
-          optional(:y).value(:integer)
-          optional(:z).value(:integer)
-          optional(:bbox).value(:bool)
         end
 
         CONTENT = Dry::Schema.Params do
@@ -53,6 +49,14 @@ module DataCycleCore
           optional(:fields).filled(:string)
           optional(:include).filled(:string)
           optional(:classification_trees) { str? | array? }
+        end
+
+        BASE_MVT_API = Dry::Schema.Params do
+          optional(:x).value(:integer)
+          optional(:y).value(:integer)
+          optional(:z).value(:integer)
+          optional(:bbox).value(:bool)
+          optional(:layerName).value(:string)
         end
 
         WATCHLIST = Dry::Schema.Params do
@@ -159,7 +163,7 @@ module DataCycleCore
           optional(:schedule).hash(ATTRIBUTE_FILTER)
         end
 
-        params(BASE, BASE_JSON_API, WATCHLIST, CLASSIFICATIONS, CONTENT) do
+        params(BASE, BASE_JSON_API, BASE_MVT_API, WATCHLIST, CLASSIFICATIONS, CONTENT) do
           optional(:page).hash(PAGE)
           optional(:section).hash(SECTION)
           optional(:filter).hash(FILTER)

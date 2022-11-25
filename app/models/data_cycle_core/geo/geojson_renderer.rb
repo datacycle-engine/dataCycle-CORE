@@ -8,14 +8,7 @@ module DataCycleCore
       CRS_SQL = ", 'crs', json_build_object('type', 'name', 'properties', json_build_object('name', 'urn:ogc:def:crs:EPSG::4326'))"
 
       def render
-        result(
-          contents_with_default_scope(simplify_factor: @simplify_factor.presence || SIMPLIFY_FACTOR),
-          main_sql(@single_item ? geojson_detail_select_sql : geojson_select_sql)
-        )
-      end
-
-      def result(things_query, geometry_query)
-        super(things_query, geometry_query) || empty_geojson
+        super || empty_geojson
       end
 
       def contents_with_default_scope(simplify_factor:)
@@ -24,6 +17,13 @@ module DataCycleCore
         query = query.where.not(line: nil, location: nil)
 
         query
+      end
+
+      def main_sql
+        <<-SQL.squish
+              SELECT #{@single_item ? geojson_detail_select_sql : geojson_select_sql}
+              FROM (#{contents_with_default_scope(simplify_factor: @simplify_factor.presence || SIMPLIFY_FACTOR).to_sql}) AS t
+        SQL
       end
 
       def geojson_detail_select_sql
