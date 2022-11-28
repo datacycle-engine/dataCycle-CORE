@@ -4,7 +4,7 @@
 # This class should not be used directly for any assets.
 module DataCycleCore
   class Asset < ApplicationRecord
-    attribute :type, :string, default: name
+    attribute :type, :string, default: -> { name }
     belongs_to :creator, class_name: 'DataCycleCore::User'
 
     before_create :update_asset_attributes
@@ -73,7 +73,11 @@ module DataCycleCore
 
     def duplicate
       new_asset = dup
-      new_asset.file = file
+      if self.class.active_storage_activated?
+        new_asset.file.attach(io: File.open(file.service.path_for(file.key)), filename: file.filename)
+      else
+        new_asset.file = file
+      end
       new_asset.save
       new_asset.persisted? ? new_asset : nil
     end
@@ -91,6 +95,33 @@ module DataCycleCore
     # @todo: refactor after active_storage migration
     def self.content_type_white_list
       extension_white_list.map { |extension| MiniMime.lookup_by_extension(extension)&.extension }
+    end
+
+    def file_extension_validation
+      return unless self.class.active_storage_activated?
+      return if file.present? && self.class.content_type_white_list.include?(MiniMime.lookup_by_content_type(file.content_type)&.extension)
+      errors.add :file,
+                 path: 'uploader.validation.format_not_supported',
+                 substitutions: {
+                   data: {
+                     value: file.content_type
+                   }
+                 }
+    end
+
+    def file_size_validation(options)
+      return if self.class.active_storage_activated? && file.blob.byte_size <= options.dig(:max).to_i
+      return if file.size <= options.dig(:max).to_i
+
+      errors.add :file, {
+        path: 'uploader.validation.file_size.max',
+        substitutions: {
+          data: {
+            method: 'number_to_human_size',
+            value: options.dig(:max).to_i
+          }
+        }
+      }
     end
 
     private
@@ -119,34 +150,6 @@ module DataCycleCore
         sleep 5
         retry
       end
-    end
-
-    def file_extension_validation
-      return unless self.class.active_storage_activated?
-      return if self.class.content_type_white_list.include?(MiniMime.lookup_by_content_type(file.content_type)&.extension)
-
-      errors.add :file, {
-        path: 'uploader.validation.format_not_supported',
-        substitutions: {
-          data: {
-            value: file.content_type
-          }
-        }
-      }
-    end
-
-    def file_size_validation(options)
-      return unless file.size > options.dig(:file_size, :max).to_i
-
-      errors.add :file, {
-        path: 'uploader.validation.file_size.max',
-        substitutions: {
-          data: {
-            method: 'number_to_human_size',
-            value: options.dig(:file_size, :max).to_i
-          }
-        }
-      }
     end
 
     # @todo: carrierwave specific method

@@ -1,0 +1,21 @@
+---
+- :data:
+    :name: wogehmahin
+    :type: mixin
+    :properties:
+      :wogehmahin_topics:
+        :label: Wogehmahin - Topics
+        :type: classification
+        :tree_label: Wogehmahin - Topics
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :wogehmahin_types:
+        :label: Wogehmahin - Types
+        :type: classification
+        :tree_label: Wogehmahin - Types
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

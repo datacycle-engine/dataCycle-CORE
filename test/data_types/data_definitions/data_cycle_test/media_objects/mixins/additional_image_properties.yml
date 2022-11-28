@@ -1,0 +1,5 @@
+---
+- :data:
+    :name: additional_image_properties
+    :type: mixin
+    :properties: ~

@@ -1,0 +1,34 @@
+---
+- :data:
+    :name: title
+    :type: mixin
+    :properties:
+      :name:
+        :label: Firmenname
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :required: true
+        :ui:
+          :show:
+            :content_area: none
+        :normalize:
+          :id: company
+          :type: company
+      :legal_name:
+        :label: Legal Name
+        :type: string
+        :storage_location: translated_value
+        :compute:
+          :module: Utility::Compute::String
+          :method: concat
+          :parameters:
+            - name
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+        :api:
+          :minimal: true

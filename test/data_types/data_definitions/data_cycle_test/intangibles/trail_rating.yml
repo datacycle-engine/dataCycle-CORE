@@ -1,0 +1,44 @@
+---
+- :data:
+    :name: Tourenbewertung
+    :type: object
+    :schema_type: Rating
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Bezeichnung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :attribute_group: trail_rating_one_line
+      :rating_value:
+        :label: Bewertung
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: integer
+        :ui:
+          :attribute_group: trail_rating_one_line
+      :worst_rating:
+        :label: Niedrigste zulässige Bewertung
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: integer
+        :ui:
+          :attribute_group: trail_rating_second_one_line
+      :best_rating:
+        :label: Höchste zulässige Bewertung
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: integer
+        :ui:
+          :attribute_group: trail_rating_second_one_line
+      :meta_data:
+        :type: mixin
+        :name: meta_data

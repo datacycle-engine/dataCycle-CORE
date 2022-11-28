@@ -1,0 +1,30 @@
+---
+- :data:
+    :name: BildOverlay
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :caption:
+        :label: Bildunterschrift
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :description:
+        :label: Beschreibung (ALT-Label)
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic

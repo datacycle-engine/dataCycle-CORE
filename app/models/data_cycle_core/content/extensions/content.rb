@@ -18,7 +18,14 @@ module DataCycleCore
         end
 
         def asset_web_url
-          asset&.web&.url if try(:asset)&.versions&.key?(:web)
+          return unless try(:asset)&.versions&.key?(:web)
+          if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
+            ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
+              asset&.web&.url
+            end
+          elsif try(:asset)&.versions&.key?(:web)
+            asset&.web&.url
+          end
         end
 
         def validation_messages_as_json

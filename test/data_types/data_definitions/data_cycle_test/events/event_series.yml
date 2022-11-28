@@ -1,0 +1,190 @@
+---
+- :data:
+    :name: Eventserie
+    :type: object
+    :schema_type: Event
+    :schema_ancestors:
+      - - Event
+        - EventSeries
+      - - Intangible
+        - Series
+        - EventSeries
+    :boost: 100.0
+    :content_type: entity
+    :api:
+      :type:
+        - Event
+        - Intangible
+        - Series
+        - EventSeries
+    :features:
+      :overlay:
+        :allowed: true
+      :translatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :indesign: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: EventserieOverlay
+        :translated: true
+        :validations:
+          :max: 1
+      :title:
+        :type: mixin
+        :name: title
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :sub_event:
+        :label: Veranstaltungen
+        :type: linked
+        :template_name: Event
+        :inverse_of: super_event
+        :link_direction: inverse
+      :content_location:
+        :label: Veranstaltungsort
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :api:
+          :name: location
+      :performer:
+        :label: Ausführende Person/Organisation
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :organizer:
+        :label: Veranstalter
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+                - LocalBusiness
+      :virtual_location:
+        :label: Virtueller Veranstaltungsort
+        :type: embedded
+        :template_name: VirtualLocation
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :transformation:
+              :method: append
+              :name: location
+      :event_attendance_mode:
+        :label: Veranstaltungsteilnahmemodus
+        :type: classification
+        :tree_label: Veranstaltungsteilnahmemodus
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :type: radio_button
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :partial: string
+      :event_status:
+        :label: Veranstaltungsstatus
+        :type: classification
+        :tree_label: Veranstaltungsstatus
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :type: radio_button
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :partial: string
+      :potential_action:
+        :label: Weiterführende Links
+        :type: embedded
+        :template_name: Action
+        :translated: true
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+      :legacy_potential_action:
+        :type: string
+        :storage_location: translated_value
+        :virtual:
+          :module: Utility::Virtual::Common
+          :method: attribute_value_from_named_embedded
+          :parameters:
+            - :attribute: potential_action
+              :name: potential_action
+            - :attribute: url
+        :api:
+          :name: potentialAction
+          :v4:
+            :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        :api:
+          :v4:
+            :name: dc:additionalInformation
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'Veranstaltungsserie'
+      :copyright_attributes:
+        :type: mixin
+        :name: copyright_attributes
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

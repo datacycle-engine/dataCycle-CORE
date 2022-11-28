@@ -7,9 +7,9 @@ module DataCycleCore
     module Attributes
       class DefaultValueEmbeddedTest < ActiveSupport::TestCase
         test 'default values for GIP Waypoints in Route Descriptions get set on new contents' do
-          content = DataCycleCore::TestPreparations.create_content(template_name: 'Radroutenbeschreibung', data_hash: { name: 'Test Radroutenbeschreibung 1' })
-          assert content.try('way_point').to_a.select { |wp| wp.name == 'Start' }.present?
-          assert content.try('way_point').to_a.select { |wp| wp.name == 'Ende' }.present?
+          content = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-With-Start-End-Default-Values', data_hash: { name: 'Test' })
+          assert content.try('embedded_creative_work').to_a.select { |wp| wp.name == 'Start' }.present?
+          assert content.try('embedded_creative_work').to_a.select { |wp| wp.name == 'Ende' }.present?
         end
       end
     end

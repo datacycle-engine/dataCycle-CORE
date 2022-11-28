@@ -91,16 +91,6 @@ module DataCycleCore
 
       def as_of(_timestamp)
         raise 'as_of in history is no longer possible (app/models/data_cycle_core/content/content_history_loader.rb)'
-        # content_table_id = self.class.table_name.split('_')[0..-2].join('_').foreign_key
-        # history_table_translation = "#{self.class}::Translation".safe_constantize.arel_table
-
-        # return_data = self.class.joins(:translations)
-        #   .where(content_table_id => send(content_table_id))
-        #   .where(history_table_translation[:locale].eq(first_available_locale))
-        #   .where(in_range(history_table_translation, timestamp))
-        #   .order(history_table_translation[:history_valid])
-
-        # return_data.last
       end
     end
   end

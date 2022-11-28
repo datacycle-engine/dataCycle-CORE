@@ -16,7 +16,7 @@ module DataCycleCore
           @asset_path = @asset_version&.blob&.attachments&.first&.record&.file&.service&.path_for(@asset_version.key)
 
           content_type = @asset_version.variation.content_type
-          filename = @asset_version.blob.filename.to_s
+          filename = @asset_version.blob.filename.base + '.' + MiniMime.lookup_by_content_type(content_type)&.extension
         elsif permitted_params[:version] == 'original'
           @asset_version = @asset.try(permitted_params[:version])
           @asset_path = @asset_version&.service&.path_for(@asset_version.key)
@@ -57,9 +57,6 @@ module DataCycleCore
     def processed
       id = permitted_params[:id]
       processed_asset_path = Rails.root.join('public/uploads' + request.path)
-
-      # file_name = File.basename(processed_asset_path)
-      # content_type = MiniMime.lookup_by_extension(File.extname(processed_asset_path).delete_prefix('.'))&.content_type
 
       @asset = DataCycleCore::Thing.find(id)&.try(:asset)
 

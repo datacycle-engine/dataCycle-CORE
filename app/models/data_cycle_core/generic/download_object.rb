@@ -7,7 +7,6 @@ module DataCycleCore
 
       def initialize(**options)
         raise "Missing source_type for #{self.class}, options given: #{options}"       if options&.dig(:download, :source_type).blank?
-        # raise "Missing endpoint for #{self.class}, options given: #{options}"          if options&.dig(:download, :endpoint).blank?
         raise "Missing external_source for #{self.class}, options given: #{options}"   if options&.dig(:external_source).blank?
 
         @options = options.with_indifferent_access

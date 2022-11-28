@@ -16,7 +16,6 @@ module DataCycleCore
 
           updated = strategy.update content
 
-          # FIXME: Jbuilder Bug: tries to render jbuilder partial
           render plain: { 'updated' => updated }.to_json, content_type: 'application/json'
         end
 
@@ -26,7 +25,6 @@ module DataCycleCore
 
           created = strategy.create content
 
-          # FIXME: Jbuilder Bug: tries to render jbuilder partial
           render plain: { 'created' => created }.to_json, content_type: 'application/json'
         end
 
@@ -36,7 +34,6 @@ module DataCycleCore
 
           deleted = strategy.delete content
 
-          # FIXME: Jbuilder Bug: tries to render jbuilder partial
           render plain: { 'deleted' => deleted }.to_json, content_type: 'application/json'
         end
 

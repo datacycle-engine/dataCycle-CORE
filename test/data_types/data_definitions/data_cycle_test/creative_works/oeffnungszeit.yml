@@ -1,0 +1,210 @@
+---
+- :data:
+    :name: Öffnungszeit
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: embedded
+    :api:
+      :type:
+        - Intangible
+        - StructuredValue
+        - OpeningHoursSpecification
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :validity:
+        :label: Gültigkeit
+        :type: object
+        :storage_location: value
+        :validations:
+          :daterange:
+            :from: valid_from
+            :to: valid_through
+        :ui:
+          :edit:
+            :type: daterange
+        :api:
+          :transformation:
+            :method: unwrap
+        :properties:
+          :valid_from:
+            :label: gültig von
+            :type: date
+            :storage_location: value
+            :ui:
+              :edit:
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
+          :valid_through:
+            :label: gültig bis
+            :type: date
+            :storage_location: value
+            :ui:
+              :edit:
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
+      :day_of_week:
+        :label: Wochentag
+        :type: classification
+        :tree_label: Wochentage
+        :api:
+          :partial: day_of_week
+          :v4:
+            :partial: array
+      :time:
+        :label: Zeit
+        :type: embedded
+        :template_name: Öffnungszeit - Zeitspanne
+        :translated: true
+      :description:
+        :label: Text
+        :type: string
+        :storage_location: column
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+
+- :data:
+    :name: Öffnungszeit - Zeitspanne
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :opens:
+        :label: geöffnet von
+        :type: string
+        :storage_location: value
+        :validations:
+          :pattern: '(^$|^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$|^24:00(:00)?$)'
+        :ui:
+          :edit:
+            :options:
+              :placeholder: hh:mm
+      :closes:
+        :label: geöffnet bis
+        :type: string
+        :storage_location: value
+        :validations:
+          :pattern: '(^$|^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$|^24:00(:00)?$)'
+        :ui:
+          :edit:
+            :options:
+              :placeholder: hh:mm
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+
+- :data:
+    :name: Öffnungszeit - Simple
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: embedded
+    :api:
+      :type: OpeningHoursSpecification
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :validity:
+        :label: Gültigkeit
+        :type: object
+        :storage_location: value
+        :validations:
+          :daterange:
+            :from: valid_from
+            :to: valid_through
+        :ui:
+          :edit:
+            :type: daterange
+        :api:
+          :transformation:
+            :method: unwrap
+        :properties:
+          :valid_from:
+            :label: gültig von
+            :type: date
+            :storage_location: value
+            :ui:
+              :edit:
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
+            :editor:
+              :options:
+                :data-type: datepicker
+                :data-validate: daterange
+                :placeholder: tt.mm.jjjj
+          :valid_through:
+            :label: gültig bis
+            :type: date
+            :storage_location: value
+            :ui:
+              :edit:
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
+      :day_of_week:
+        :label: Wochentag
+        :type: classification
+        :tree_label: Wochentage
+      :opens:
+        :label: geöffnet von
+        :type: string
+        :storage_location: value
+        :validations:
+          :pattern: '(^$|^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$)'
+        :ui:
+          :edit:
+            :options:
+              :placeholder: hh:mm:ss
+      :closes:
+        :label: geöffnet bis
+        :type: string
+        :storage_location: value
+        :validations:
+          :pattern: '(^$|^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$)'
+        :ui:
+          :edit:
+            :options:
+              :placeholder: hh:mm:ss
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+
+- :data:
+    :name: Öffnungszeit - Beschreibung
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: embedded
+    :api:
+      :type: OpeningHoursSpecification
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :validity_schedule:
+        :label: Publikationsplan
+        :type: schedule
+      :description:
+        :label: Text
+        :type: string
+        :storage_location: column
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+      :meta_data:
+        :type: mixin
+        :name: meta_data

@@ -202,7 +202,7 @@ module DataCycleCore
       assert_equal('Veranstaltung', event.data_type.first.name)
 
       # original Event
-      assert_equal(2, event.classifications.size)
+      assert_equal(3, event.classifications.size)
       assert_equal(1, event.data_type.size)
       assert_equal(1, event.event_status.size)
       assert_equal(['Test Veranstaltung geplant'], event.event_status.pluck(:name).sort)
@@ -212,7 +212,7 @@ module DataCycleCore
       assert_equal(['Test1'], DataCycleCore::Classification.where(id: serialized_event.dig('de', 'universal_classifications')).pluck(:name))
 
       # serialized_event classifications
-      assert_equal(3, serialized_event['classifications'].size)
+      assert_equal(4, serialized_event['classifications'].size)
       assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'] == 'event_status' })
       assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'] == 'universal_classifications' })
       assert_equal(['Test Veranstaltung geplant'], serialized_event['classifications'].select { |i| i['attribute_name'] == 'event_status' }.map { |i| i['name'] }.sort)
@@ -227,7 +227,7 @@ module DataCycleCore
       assert_equal(1, serialized_event.dig('de', 'universal_classifications').size)
       assert_equal(['Test2'], DataCycleCore::Classification.where(id: serialized_event.dig('de', 'universal_classifications')).pluck(:name))
 
-      assert_equal(3, serialized_event['classifications'].size)
+      assert_equal(4, serialized_event['classifications'].size)
       assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'] == 'event_status' })
       assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'] == 'universal_classifications' })
       assert_equal(['Test Veranstaltung abgesagt'], serialized_event['classifications'].select { |i| i['attribute_name'] == 'event_status' }.map { |i| i['name'] }.sort)

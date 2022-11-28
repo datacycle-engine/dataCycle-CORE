@@ -61,7 +61,7 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Thing.count - template)
       assert_equal(2, DataCycleCore::Thing::Translation.count - template_trans)
       assert_equal(0, DataCycleCore::ContentContent.count)
-      assert_equal(5, DataCycleCore::ClassificationContent.count)
+      assert_equal(6, DataCycleCore::ClassificationContent.count)
       assert_equal(2, DataCycleCore::Search.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
@@ -80,7 +80,7 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Thing::History.count)
       assert_equal(2, DataCycleCore::Thing::History::Translation.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
-      assert_equal(5, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(6, DataCycleCore::ClassificationContent::History.count)
 
       DataCycleCore::Thing::History.all.each do |item|
         assert_equal(current_user.id, item.updated_by)

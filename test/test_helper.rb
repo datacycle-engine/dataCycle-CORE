@@ -60,6 +60,7 @@ require 'helpers/data_helper'
 require 'helpers/mongo_helper'
 require 'helpers/api_v4_helper'
 require 'helpers/dummy_endpoint'
+require 'helpers/active_storage_helper'
 
 if DataCycleCore::TestPreparations.cli_options.dig(:ignore_preparations)
   Rails.backtrace_cleaner.remove_silencers!
@@ -67,30 +68,17 @@ else
   # DataCycleCore::TestPreparations.load_dictionaries
   DataCycleCore::TestPreparations.load_classifications(
     [
-      Rails.root.join('..', 'dummy', 'config', 'data_definitions'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_auto_translation')
+      Rails.root.join('..', 'data_types', 'data_definitions', 'data_cycle_test')
     ]
   )
-
   DataCycleCore::TestPreparations.load_external_systems(
     [
-      Rails.root.join('..', '..', 'config', 'external_sources'),
-      Rails.root.join('..', '..', 'config', 'external_systems')
+      Rails.root.join('..', 'fixtures', 'external_systems')
     ]
   )
   DataCycleCore::TestPreparations.load_templates(
     [
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_container'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_auto_translation'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_karriere_at'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_google_places'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_gip'),
+      Rails.root.join('..', 'data_types', 'data_definitions', 'data_cycle_test'),
       Rails.root.join('..', 'data_types', 'attributes'),
       Rails.root.join('..', 'data_types', 'models')
     ]
@@ -99,8 +87,8 @@ end
 
 DataCycleCore::TestPreparations.load_dummy_data(
   [
-    Rails.root.join('..', 'dummy_data'),
-    Rails.root.join('..', 'v4', 'dummy_data')
+    Rails.root.join('..', 'fixtures', 'data'),
+    Rails.root.join('..', 'v4', 'fixtures', 'data')
   ]
 )
 

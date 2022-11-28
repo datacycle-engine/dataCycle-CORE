@@ -83,7 +83,6 @@ module DataCycleCore
       end
 
       def sort_by_proximity(_ordering = '', value = {})
-        # sort_by_schedule_proximity('ASC', value)
         date = Time.zone.now
         if value.present? && value.is_a?(::Hash) && value.dig('q') == 'relative'
           date = relative_to_absolute_date(value.dig('in', 'min')) if value.dig('in', 'min').present?

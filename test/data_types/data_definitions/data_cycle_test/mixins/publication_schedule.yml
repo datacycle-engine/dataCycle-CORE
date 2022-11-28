@@ -1,0 +1,17 @@
+---
+- :data:
+    :name: publication_schedule
+    :type: mixin
+    :properties:
+      :publication_schedule:
+        :label: Geplante Publikation
+        :type: embedded
+        :template_name: Publikations-Plan
+        :translated: true
+        :validations:
+          :classifications: no_conflicts
+        :features:
+          :publication_schedule:
+            :allowed: true
+        :api:
+          :disabled: true

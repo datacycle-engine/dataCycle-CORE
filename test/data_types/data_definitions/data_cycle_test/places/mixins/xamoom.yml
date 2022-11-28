@@ -1,0 +1,13 @@
+---
+- :data:
+    :name: xamoom
+    :type: mixin
+    :properties:
+      :xamoom_tags:
+        :label: Xamoom - Tags
+        :type: classification
+        :tree_label: Xamoom - Tags
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

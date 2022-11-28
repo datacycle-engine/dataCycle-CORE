@@ -1,0 +1,141 @@
+---
+- :data:
+    :name: POI
+    :type: object
+    :schema_type: Place
+    :content_type: entity
+    :boost: 10.0
+    :features:
+      :geocode:
+        :allowed: true
+      :overlay:
+        :allowed: true
+      :translatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :gpx: true
+          :indesign: true
+    :api:
+      :type:
+        - Place
+        - TouristAttraction
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: PlaceOverlay
+        :translated: true
+        :validations:
+          :max: 1
+      :poi_category:
+        :label: Kategorie
+        :type: classification
+        :tree_label: 'POI - Kategorien'
+        :ui:
+          :show:
+            :content_area: header
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :place_attributes:
+        :type: mixin
+        :name: place_attributes
+      :additional_information:
+        :label: Ergänzende Information
+        :type: embedded
+        :template_name: Ergänzende Information
+        :api:
+          :v4:
+            :name: dc:additionalInformation
+      :opening_hours_specification:
+        :type: mixin
+        :name: opening_hours_specification
+      :postal_address:
+        :type: mixin
+        :name: postal_address
+      :geo:
+        :type: mixin
+        :name: geo
+      :contact_info:
+        :type: mixin
+        :name: contact_info
+      :linked_data:
+        :type: mixin
+        :name: linked_data
+      # move to dataCycleProperty
+      :price_range:
+        :label: Preis-Info
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+        :api:
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
+      :outdoor_active:
+        :type: mixin
+        :name: outdoor_active
+      :outdoor_active_link:
+        :type: mixin
+        :name: outdoor_active_link
+      :outdoor_active_categories:
+        :type: mixin
+        :name: outdoor_active_categories
+      :outdoor_active_external_system:
+        :type: mixin
+        :name: outdoor_active_external_system
+      :potential_actions:
+        :type: mixin
+        :name: potential_actions
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: 'POI'
+      :feratel:
+        :type: mixin
+        :name: feratel_categories
+      :external_source_attributes:
+        :type: mixin
+        :name: external_source_attributes
+      :feratel_cps:
+        :type: mixin
+        :name: feratel_cps
+      :pimcore_categories:
+        :type: mixin
+        :name: pimcore_categories
+      :wogehmahin:
+        :type: mixin
+        :name: wogehmahin
+      :copyright_attributes:
+        :type: mixin
+        :name: copyright_attributes
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties
+      :additional_poi_properties:
+        :type: mixin
+        :name: additional_poi_properties

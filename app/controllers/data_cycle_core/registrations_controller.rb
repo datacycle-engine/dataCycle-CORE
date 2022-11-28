@@ -7,7 +7,6 @@ module DataCycleCore
 
     layout 'data_cycle_core/devise'
 
-    # POST /resource
     def create
       build_resource(sign_up_params)
       resource.save if valid_additional_attributes?(params.dig('additional_attributes'))
