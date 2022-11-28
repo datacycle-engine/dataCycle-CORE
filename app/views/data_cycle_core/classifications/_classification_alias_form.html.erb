@@ -28,7 +28,7 @@
 
   <div class="ca-input">
     <%= f.label :internal_name, DataCycleCore::ClassificationAlias.human_attribute_name(:internal_name, locale: active_ui_locale), class: 'ca-label' %>
-    <%= f.text_field :internal_name, class: 'ca-input-field', readonly: true, placeholder: t('common.generated_value_placeholder', locale: active_ui_locale) %>
+    <%= f.text_field :internal_name, class: 'ca-input-field', readonly: true, placeholder: t('common.generated_value_placeholder', locale: active_ui_locale), data: { dc_tooltip: classification_alias.full_path } %>
   </div>
 
   <div class="ca-input translated">
@@ -95,7 +95,7 @@
   <% if can?(:view_all, classification_alias) %>
     <div class="ca-input">
       <%= f.label :external_keys, class: 'ca-label'%>
-      <%= f.text_field :external_keys, class: 'ca-input-field', readonly: true%>
+      <%= f.text_field :external_keys, class: 'ca-input-field', readonly: true %>
     </div>
 
     <%# to show classifications mapped to this ClassificationAlias %>

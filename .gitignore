@@ -21,6 +21,7 @@ coverage
 .env
 .env.production
 benchmark/
+test/dummy/storage
 
 # Vite Ruby
 **/public/vite

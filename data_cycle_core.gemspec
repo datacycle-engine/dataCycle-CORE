@@ -65,7 +65,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'jbuilder'
 
   s.add_dependency 'acts_as_paranoid'
-  s.add_dependency 'dry-transformer'
+  s.add_dependency 'dry-transformer', '>= 1.0'
   s.add_dependency 'dry-validation'
   s.add_dependency 'hashdiff', '>= 0.4.0'
   s.add_dependency 'transproc', '~> 1.0'

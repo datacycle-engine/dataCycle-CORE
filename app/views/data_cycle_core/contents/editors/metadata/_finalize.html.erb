@@ -1,8 +1,8 @@
 <div class="clearfix form-element finalize-container" data-key="finalize">
   <hr />
-  <div class="finalize-button-container">
+  <div class="finalize-button-container form-element boolean dc-checkbox">
     <%= check_box_tag 'finalize', true %>
-    <%= label_tag 'finalize', finalize_agbs_label %>
+    <%= label_tag 'finalize', finalize_agbs_label, class: 'attribute-edit-label' %>
   </div>
 
   <% if content.indirect_data_links.by_receiver(current_user).valid.map(&:text_file).compact.present? %>

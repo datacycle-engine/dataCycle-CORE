@@ -36,7 +36,7 @@ module DataCycleCore
       file_name_png = 'test_rgb.png'
       image = upload_image file_name
 
-      get local_asset_path(klass: 'image', id: image.id, version: 'thumb_preview'), params: {
+      get local_asset_path(klass: 'image', id: image.id, version: 'original'), params: {
         transformation: {
           format: 'png'
         }

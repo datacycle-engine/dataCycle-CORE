@@ -2,7 +2,7 @@
   <span class="inner-item">
     <%= link_to_if DataCycleCore.transitive_classification_paths,
                 tag.span(
-                  classification_title(mapped_classification_alias),
+                  type == 'direct' ? classification_title(mapped_classification_alias) : mapped_classification_alias.full_path,
                   class: 'name',
                   data: {
                     dc_tooltip: mapped_classification_alias.full_path

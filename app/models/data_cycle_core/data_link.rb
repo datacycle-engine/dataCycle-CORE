@@ -55,11 +55,11 @@ module DataCycleCore
     private
 
     def set_release_status
-      creator.subscriptions.find_or_create_by(subscribable_id: item.id, subscribable_type: item.class.name) if item.is_a?(DataCycleCore::Content::Content)
+      creator.subscriptions.find_or_create_by(subscribable_id: item.id, subscribable_type: item.class.name) if item.is_a?(DataCycleCore::Thing) && creator != receiver
 
       release_partner_stage_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('partner'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } })&.id
 
-      if item.is_a?(DataCycleCore::Content::Content) && DataCycleCore::Feature::Releasable.allowed?(item) && release_partner_stage_id.present? && !item.release_status_id&.ids&.include?(release_partner_stage_id)
+      if item.is_a?(DataCycleCore::Thing) && DataCycleCore::Feature::Releasable.allowed?(item) && release_partner_stage_id.present? && !item.release_status_id&.ids&.include?(release_partner_stage_id)
         I18n.with_locale(item.first_available_locale) do
           item.set_data_hash(data_hash: { DataCycleCore::Feature::Releasable.allowed_attribute_keys(item).first => [release_partner_stage_id] }, current_user: creator)
         end
