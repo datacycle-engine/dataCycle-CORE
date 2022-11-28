@@ -31,7 +31,7 @@ module DataCycleCore
 
           data = load_data(
             text: translate_hash.dig('text'),
-            source_locale: translate_hash.dig('source_locale').split('-').first,
+            source_locale: translate_hash.dig('source_locale')&.split('-')&.first,
             target_locale: translate_hash.dig('target_locale').split('-').first
           )['translations']
 
