@@ -742,6 +742,7 @@ de:
       in: in
       num: Anzahl
       unit: Einheit
+    translated_name: Name
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...

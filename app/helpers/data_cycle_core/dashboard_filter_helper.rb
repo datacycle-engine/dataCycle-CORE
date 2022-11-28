@@ -36,6 +36,8 @@ module DataCycleCore
       case filter_advanced_type
       when 'string'
         [
+          [t('common.is', locale: active_ui_locale), 'i'],
+          [t('common.is_not', locale: active_ui_locale), 'e'],
           [t('common.like', locale: active_ui_locale), 's'],
           [t('common.not_like', locale: active_ui_locale), 'u'],
           [t('common.blank', locale: active_ui_locale), 'b'],
