@@ -1,0 +1,12 @@
+---
+- :data:
+    :name: media_links
+    :type: mixin
+    :properties:
+      :dc_media_link:
+        :label: Medienlink
+        :type: embedded
+        :template_name: MediaLink
+        :translated: true
+        :api:
+          :name: dc:mediaLink

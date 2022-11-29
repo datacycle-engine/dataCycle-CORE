@@ -49,8 +49,10 @@ module DataCycleCore
           .>> t(:load_category, 'poi_categories', external_source_id, ->(s) { s&.dig('category', 'id').present? ? "CATEGORY:#{s&.dig('category', 'id')}" : nil })
           .>> t(:load_category, 'frontend_type', external_source_id, ->(s) { s&.dig('frontendtype').present? ? "FRONTENDTYPE:#{Digest::MD5.new.update(s.dig('frontendtype')).hexdigest}" : nil })
           .>> t(:category_key_to_ids, 'outdoor_active_tags', ->(s) { s&.dig('properties', 'property') }, nil, external_source_id, 'TAG:', 'tag')
+          .>> t(:add_field, 'dc_media_link', ->(s) { to_media_links(['media', 'audio'], s['external_key'], external_source_id).call(s)['dc_media_link'] })
           .>> t(:add_external_system_data, ['meta', 'externalSystem', 'name'], ['meta', 'externalId', 'id'])
           .>> t(:reject_keys, ['category', 'primaryImage', 'images', 'regions', 'meta'])
+          .>> t(:resolve_references)
           .>> t(:strip_all)
         end
 
@@ -136,6 +138,7 @@ module DataCycleCore
           .>> t(:add_field, 'season_months', ->(s) { s.dig('season').select { |_, v| v }.keys.map { |m| by_month_id(m) } })
           .>> t(:universal_classifications, ->(s) { Array(s['season_months']) })
           .>> t(:universal_classifications, ->(s) { Array.wrap(classification_id_by_tree_and_name(tree_name: 'Lizenzen', classification_name: s.dig('meta', 'license', 'short'))) || [] })
+          .>> t(:add_field, 'dc_media_link', ->(s) { to_media_links(['media', 'audio'], s['external_key'], external_source_id).call(s)['dc_media_link'] })
           .>> t(:reject_keys, ['season', 'season_months', 'category', 'tour_categories', 'frontendtype', 'outdoor_active_tags', 'regions', 'source'])
           .>> t(:resolve_references)
           .>> t(:strip_all)
@@ -231,6 +234,24 @@ module DataCycleCore
                   { 'url' => s['url'] }
                 })
           .>> t(:reject_keys, 'url')
+        end
+
+        def self.to_media_links(path, external_key, external_source_id)
+          t(:stringify_keys)
+          .>> t(:accept_keys, [path.first])
+          .>> t(:unwrap, path.first)
+          .>> t(:accept_keys, [path.last])
+          .>> t(:map_value, path.last, ->(s) { t(:map_array, ->(h) { to_media_link(external_key, external_source_id).call(h) }).call(s) })
+          .>> t(:rename_keys, { path.last => 'dc_media_link' })
+        end
+
+        def self.to_media_link(external_key, external_source_id)
+          t(:stringify_keys)
+          .>> t(:accept_keys, ['title', 'url'])
+          .>> t(:rename_keys, { 'title' => 'name' })
+          .>> t(:add_field, 'external_key', ->(s) { Digest::SHA1.hexdigest("#{external_key} - media_link - #{s.slice('name', 'url').to_json}") })
+          .>> t(:add_field, 'external_source_id', ->(*) { external_source_id })
+          .>> t(:add_field, 'id', ->(s) { DataCycleCore::Generic::Common::DataReferenceTransformations.get_external_content_references(s, external_source_id, ['external_key']).first })
         end
 
         def self.to_additional_information(hash, type, external_source_id)
