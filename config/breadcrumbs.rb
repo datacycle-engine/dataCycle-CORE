@@ -28,7 +28,6 @@ end
 
 crumb :classifications do
   link to_html_string(t('data_cycle_core.classifications', locale: active_ui_locale)), classifications_path, authorized: can?(:manage, DataCycleCore::Classification)
-  parent :admin if can?(:manage, :dash_board)
 end
 
 crumb :classification_tree_label do |label|
