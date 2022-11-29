@@ -1107,6 +1107,12 @@ video {
     margin: 0 1rem;
     cursor: initial;
 
+    .content-pool-button {
+      &.disabled {
+        pointer-events: none;
+      }
+    }
+
     &.button > a {
       padding: 0.5rem 0.7rem;
       margin: 0;
@@ -1120,7 +1126,6 @@ video {
     }
 
     &.button.disabled {
-      padding: 0.5rem 0.7rem;
       cursor: not-allowed;
     }
 

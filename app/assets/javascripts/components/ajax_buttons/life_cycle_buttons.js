@@ -16,7 +16,7 @@ class LifeCylceButton {
     event.preventDefault();
     event.stopPropagation();
 
-    DataCycle.disableElement(this.item);
+    this.disable();
 
     if (this.item.dataset.confirm) {
       new ConfirmationModal({
@@ -25,12 +25,20 @@ class LifeCylceButton {
         confirmationClass: 'alert',
         confirmationCallback: this.sendRequest.bind(this),
         cancelCallback: () => {
-          DataCycle.enableElement(this.item);
+          this.enable();
         }
       });
     } else {
       this.sendRequest();
     }
+  }
+  disable() {
+    DataCycle.disableElement(this.item);
+    this.item.closest('.content-pool').classList.add('disabled');
+  }
+  enable() {
+    DataCycle.enableElement(this.item);
+    this.item.closest('.content-pool').classList.remove('disabled');
   }
   sendRequest() {
     DataCycle.httpRequest({
@@ -48,7 +56,7 @@ class LifeCylceButton {
         if (data && data.success) CalloutHelpers.show(data.success, 'success');
       })
       .finally(() => {
-        DataCycle.enableElement(this.item);
+        this.enable();
       });
   }
 }
