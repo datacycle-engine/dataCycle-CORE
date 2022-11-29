@@ -1112,8 +1112,11 @@ video {
       margin: 0;
       font-weight: normal;
       color: inherit;
-      display: inline-block;
+      display: flex;
       position: relative;
+      align-items: center;
+      justify-content: center;
+      gap: 0.1rem;
     }
 
     &.button.disabled {
@@ -2560,7 +2563,17 @@ select {
   }
 }
 
-[data-disable-with]:not(.submit-edit-form, .normalize-content-button, .add-to-watchlist-link, .remove-from-watchlist-link, .bulk-delete-button, .save-content-button, .button-prime.small.translate, .button-prime.translate-all, .button-prime.copy-all)
+[data-disable-with]:not(
+    .submit-edit-form,
+    .normalize-content-button,
+    .add-to-watchlist-link,
+    .remove-from-watchlist-link,
+    .bulk-delete-button,
+    .save-content-button,
+    .button-prime.small.translate,
+    .button-prime.translate-all,
+    .button-prime.copy-all
+  )
   > .fa {
   font-size: inherit;
   line-height: inherit;

@@ -10,6 +10,7 @@
             name: stage_name
           }),
           method: :patch,
+          class: 'content-pool-button',
           title: t('actions.move_to', data: stage_name, locale: active_ui_locale),
           data: {
             confirm: local_assigns.dig(:confirm, stage_name.to_sym),
