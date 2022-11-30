@@ -1,16 +1,12 @@
 const DataTables = () => import('datatables.net-zf').then(mod => mod.default);
-const DataTableButtons = () => import('datatables.net-buttons-zf').then(mod => mod.default);
 
 export default async function () {
   if (document.querySelector('#activity_list, #activity_user_list, #activity_details')) {
-    const dataTables = await DataTables();
-    const buttons = await DataTableButtons();
+    const DataTable = await DataTables();
 
-    dataTables();
-    buttons(window, $);
-
-    $('#activity_list').DataTable({
+    new DataTable('#activity_list', {
       ajax: '/admin/activity_details/summary',
+      lengthChange: true,
       columns: [
         { title: 'Activity', data: 'activity_type' },
         { title: 'Count', data: 'data_count' }
@@ -18,8 +14,9 @@ export default async function () {
       order: [[1, 'desc']]
     });
 
-    $('#activity_user_list').DataTable({
+    new DataTable('#activity_user_list', {
       ajax: '/admin/activity_details/user_summary',
+      lengthChange: true,
       columns: [
         { title: 'User', data: 'user_id' },
         { title: 'E-Mail', data: 'email' },
@@ -29,8 +26,9 @@ export default async function () {
       order: [[3, 'desc']]
     });
 
-    $('#activity_details').DataTable({
+    new DataTable('#activity_details', {
       ajax: '/admin/activity_details/details',
+      lengthChange: true,
       columns: [
         { title: 'User', data: 'user_id' },
         { title: 'E-Mail', data: 'email' },
