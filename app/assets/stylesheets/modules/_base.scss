@@ -540,8 +540,13 @@ footer {
     position: relative;
   }
 
+  .content-header-classifications {
+    text-align: left;
+  }
+
   .hidden-classifications {
     text-align: left;
+
     .accordion-item {
       .accordion-content {
         position: relative;

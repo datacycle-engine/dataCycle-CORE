@@ -22,7 +22,7 @@
       </div>
     </div>
 
-    <%= tag.button(tag.i(class: 'fa fa-check'), class: 'button-prime small success update submit-button', data: { disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw', title: t('data_cycle_core.classifications_adminitration.classification.submit_loading_message', locale: active_ui_locale)) }) %>
+    <%= tag.button(tag.i(class: 'fa fa-check'), class: 'button-prime small success update submit-button', data: { disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw', data: { dc_tooltip: t('data_cycle_core.classifications_adminitration.classification.submit_loading_message', locale: active_ui_locale) }) }) %>
     <button class="button-prime small discard secondary" type="reset"><i aria-hidden="true" class="fa fa-times"></i></button>
   </div>
 
