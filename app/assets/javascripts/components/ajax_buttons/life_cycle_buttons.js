@@ -6,6 +6,7 @@ class LifeCylceButton {
     this.item = item;
     this.dcLifeCylceButton = true;
     this.lifeCycleContainer = this.item.closest('.content-pool-buttons');
+    this.classificationsContainer = this.lifeCycleContainer.previousElementSibling;
 
     this.setup();
   }
@@ -48,8 +49,16 @@ class LifeCylceButton {
       contentType: 'application/json'
     })
       .then(data => {
-        if (data && data.html) {
-          this.lifeCycleContainer.insertAdjacentHTML('beforebegin', data.html);
+        if (data && data.classifications_html) {
+          if (this.classificationsContainer.classList.contains('content-header-classifications')) {
+            this.classificationsContainer.insertAdjacentHTML('beforebegin', data.classifications_html);
+            this.classificationsContainer.remove();
+          } else {
+            this.lifeCycleContainer.insertAdjacentHTML('beforebegin', data.classifications_html);
+          }
+        }
+        if (data && data.life_cycle_html) {
+          this.lifeCycleContainer.insertAdjacentHTML('beforebegin', data.life_cycle_html);
           this.lifeCycleContainer.remove();
         }
         if (data && data.error) CalloutHelpers.show(data.error, 'alert');
