@@ -6,7 +6,7 @@ module DataCycleCore
       return [] if value.blank?
 
       filter_proc = ->(query, query_table) { query.where(query_table[:id].in(value)) }
-      query = DataCycleCore::StoredFilter.combine_with_collections(DataCycleCore::WatchList.all, filter_proc)
+      query = DataCycleCore::StoredFilter.combine_with_collections(DataCycleCore::WatchList.all, filter_proc, false)
 
       result = ActiveRecord::Base.connection.select_all query.to_sql
 
