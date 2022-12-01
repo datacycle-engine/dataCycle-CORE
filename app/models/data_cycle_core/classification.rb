@@ -28,13 +28,7 @@ module DataCycleCore
 
     def self.for_tree(tree_name)
       joins(primary_classification_alias: { classification_tree: :classification_tree_label })
-        .where('classification_aliases' => {
-          'classification_trees' => {
-            'classification_tree_labels' => {
-              'name' => tree_name
-            }
-          }
-        })
+        .where(classification_aliases: { classification_trees: { classification_tree_labels: { name: tree_name } } })
     end
 
     def to_hash
