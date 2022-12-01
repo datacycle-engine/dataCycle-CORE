@@ -182,6 +182,10 @@ class EmbeddedObject {
       if (ids.length > 0) this.ids = union(this.ids, ids);
       this.update();
       this.addEventHandlers();
+
+      this.element[0].querySelector(':scope > .content-object-item:last-of-type').scrollIntoView({
+        behavior: 'smooth'
+      });
     });
 
     return promise;
@@ -209,10 +213,6 @@ class EmbeddedObject {
     await this.renderEmbeddedObjects('new');
 
     this.element.trigger('change');
-    this.element.children('.content-object-item').last().get(0).scrollIntoView({
-      behavior: 'smooth',
-      block: 'center'
-    });
   }
   handleRemoveEvent(event) {
     event.preventDefault();
