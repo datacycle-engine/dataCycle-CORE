@@ -39,7 +39,7 @@ module DataCycleCore
         end
 
         def self.to_organizer
-          t(:add_field, 'external_key', ->(s) { "GEM2GO - Organizer - #{s.dig('id', 'text')}" })
+          t(:add_field, 'external_key', ->(s) { "GEM2GO - Organizer - #{s.dig('contact', 'contactid') || s.dig('id', 'text')}" })
           .>> t(:add_field, 'name', ->(s) { s.dig('contact', 'name', 'text') || "Veranstalter: #{s.dig('title', 'text')}" })
           .>> t(:add_field, 'street_address', ->(s) { [s.dig('contact', 'address', 'street', 'text'), s.dig('contact', 'address', 'houseno', 'text')].map(&:presence).compact.join(' ').presence })
           .>> t(:add_field, 'postal_code', ->(s) { s.dig('contact', 'address', 'postcode', 'text') })
