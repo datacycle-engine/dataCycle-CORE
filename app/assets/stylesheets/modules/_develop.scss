@@ -1098,22 +1098,19 @@ video {
 .content-pool-buttons {
   font-size: 0;
   margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
 
   .content-pool {
     position: relative;
     padding: 0;
-    vertical-align: middle;
     font-size: 0.8rem;
-    margin: 0 1rem;
+    margin: 0;
     cursor: initial;
 
     .content-pool-button {
-      &.disabled {
-        pointer-events: none;
-      }
-    }
-
-    &.button > a {
       padding: 0.5rem 0.7rem;
       margin: 0;
       font-weight: normal;
@@ -1123,6 +1120,10 @@ video {
       align-items: center;
       justify-content: center;
       gap: 0.1rem;
+
+      &.disabled {
+        pointer-events: none;
+      }
     }
 
     &.button.disabled {
@@ -1155,6 +1156,10 @@ video {
 
       &::after {
         display: none;
+      }
+
+      .content-pool-button {
+        padding: 0.5rem 0;
       }
     }
 
