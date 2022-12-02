@@ -564,24 +564,7 @@ data-urls@^1.1.0:
     whatwg-mimetype "^2.2.0"
     whatwg-url "^7.0.0"
 
-datatables.net-buttons-zf@^2.2.3:
-  version "2.3.3"
-  resolved "https://registry.yarnpkg.com/datatables.net-buttons-zf/-/datatables.net-buttons-zf-2.3.3.tgz#8fd17612bd743283a2405f5339826583a75f9c2b"
-  integrity sha512-EzxtKfRRmFuTv1eakE55xXDE8bXBGCCmODok6YCG2LPweRibpqGKLxw/DU+fqkK0rHnZYvszJc3diwcXFcjzog==
-  dependencies:
-    datatables.net-buttons ">=2.2.3"
-    datatables.net-zf ">=1.12.1"
-    jquery ">=1.7"
-
-datatables.net-buttons@>=2.2.3, datatables.net-buttons@^2.2.3:
-  version "2.3.3"
-  resolved "https://registry.yarnpkg.com/datatables.net-buttons/-/datatables.net-buttons-2.3.3.tgz#d54918ac82c681a0d58151d555ed690f40fef614"
-  integrity sha512-jK/hGF+NEj6CxDHKlpQiSu280G00VgL57SPyLbOA+DrmUd6wSGmdco0ztzYsbe9hzLJ3QnmB5LTpPPrBf8985Q==
-  dependencies:
-    datatables.net ">=1.12.1"
-    jquery ">=1.7"
-
-datatables.net-zf@>=1.12.1, datatables.net-zf@^1.10.20:
+datatables.net-zf@^1.10.20:
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/datatables.net-zf/-/datatables.net-zf-1.13.1.tgz#ad745e910504f8e43676acdd57d4f4b716490531"
   integrity sha512-GE0a4Cke5pff9sUOOqJwBK9kknmZKjc5V37zZtOLGWeCe51r81EKlv15tZUwUHtpxuoZ2APA/ZGpCuoR6Mxgug==

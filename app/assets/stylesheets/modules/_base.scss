@@ -1583,6 +1583,7 @@ body .v-select {
         }
       }
     }
+
     .set-all-attributes {
       .copy-icon {
         display: inline-block;
@@ -1644,6 +1645,10 @@ body .v-select {
       &.active:not(.iframe):last-of-type ~ .buttons {
         .submit {
           display: inline-block;
+
+          &.set-all-attributes {
+            display: none;
+          }
         }
       }
 
@@ -1661,6 +1666,7 @@ body .v-select {
       }
 
       .copy-attribute-to-all {
+        display: none;
         position: relative;
         float: right;
         width: 2.3rem;
@@ -1711,10 +1717,6 @@ body .v-select {
         box-shadow: 0 0 3px #ccc;
         line-height: 1.5rem;
         font-size: 0.9rem;
-      }
-
-      .copy-attribute-to-all + .form-element {
-        margin-right: 4rem;
       }
 
       .form-element {
@@ -1811,6 +1813,20 @@ body .v-select {
     fieldset.no-submit ~ .buttons {
       .submit {
         display: none !important;
+      }
+    }
+
+    &.show-copy-attribute-to-all {
+      .copy-attribute-to-all {
+        display: block;
+      }
+
+      .copy-attribute-to-all + .form-element {
+        margin-right: 4rem;
+      }
+
+      fieldset.active:not(.iframe):last-of-type ~ .buttons .submit.set-all-attributes {
+        display: inline-block;
       }
     }
   }

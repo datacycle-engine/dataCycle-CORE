@@ -51,31 +51,46 @@ module DataCycleCore
 
         def timeseries
           external_system = DataCycleCore::ExternalSystem.find(permitted_params[:external_source_id])
-          render(json: { error: 'unknown endpoint' }, status: :not_found) && return if external_system.blank?
-          if permitted_params[:external_key].uuid?
-            content = DataCycleCore::Thing.find_by('(external_source_id = ? AND external_key = ?) OR id = ?', external_system.id, permitted_params[:external_key], permitted_params[:external_key])
-          else
-            content = DataCycleCore::Thing.find_by('(external_source_id = ? AND external_key = ?)', external_system.id, permitted_params[:external_key])
-          end
-          render(json: { error: 'unknown endpoint' }, status: :not_found) && return if content.blank?
-          render(json: { error: 'unknown endpoint' }, status: :not_found) && return unless content.timeseries_property_names.include?(permitted_params[:attribute])
 
-          data =
-            case permitted_params[:format].to_sym
-            when :json
-              params[:data]
-            when :csv
-              csv = request.body
-              csv = CSV.parse(csv)
-              csv.presence
-            end
+          render(json: { error: 'unknown endpoint' }, status: :not_found) && return if external_system.blank?
+
+          content = DataCycleCore::Thing.first_by_external_key_or_id(permitted_params[:external_key], external_system.id)
+
+          render(json: { error: 'content not found' }, status: :not_found) && return if content.blank?
+          render(json: { error: 'attribute_name missing' }, status: :not_found) && return if permitted_params[:attribute].present? && content.timeseries_property_names.exclude?(permitted_params[:attribute])
+
+          data = data_from_request(content)
+
           render(json: { warning: 'no data given' }, status: :no_content) && return if data.blank?
 
-          response = Timeseries.create_all(content, permitted_params[:attribute], data)
+          response = Timeseries.create_all(content, data)
+
           render plain: response.to_json, content_type: 'application/json', status: response[:error].present? ? :bad_request : :accepted
         end
 
         private
+
+        def csv_request?
+          permitted_params[:format].to_sym == :csv || Mime::Type.parse(request.content_type.to_s)&.first&.to_sym == :csv
+        end
+
+        def data_from_request(content)
+          to_timeseries = ->(s) { { thing_id: content.id, property: s[0], timestamp: s[1], value: s[2] } }
+          mapper = ->(s, a) { s&.map { |v| to_timeseries.call(v.unshift(a)) } }
+
+          if csv_request?
+            csv = CSV.parse(request.body)
+            permitted_params[:attribute].present? ? mapper.call(csv, permitted_params[:attribute]) : csv&.select { |v| v[0].in?(content.timeseries_property_names) }&.map(&to_timeseries)
+          elsif permitted_params[:attribute].present?
+            mapper.call(params[:data], permitted_params[:attribute])
+          else
+            timeseries_params(content).to_h.flat_map { |k, v| mapper.call(v, k) }
+          end
+        end
+
+        def timeseries_params(content)
+          params.slice(*content.timeseries_property_names).permit!
+        end
 
         def content_request(type: :update)
           strategy, external_system = api_strategy
