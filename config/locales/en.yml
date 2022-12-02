@@ -1235,6 +1235,7 @@ en:
       all: No access authorization!
   data_cycle_core:
     administration: Administration
+    activities: Activities
     user_settings: User actions
     user_details: User details
     user_links: User links
