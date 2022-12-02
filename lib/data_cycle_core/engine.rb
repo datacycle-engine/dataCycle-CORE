@@ -59,6 +59,7 @@ require 'jbuilder'
 require 'acts_as_paranoid'
 
 require 'transproc/all'
+require 'dry-transformer'
 require 'dry-validation'
 
 # redcarpet (for markdown rendering)

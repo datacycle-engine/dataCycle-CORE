@@ -50,7 +50,7 @@ module DataCycleCore
       end
 
       def self.reformat_duplicates(hash)
-        hash&.map { |directory, templates| { directory => templates.map { |template, file_list| { template => file_list.map { |item| item.dig(:file) } } } } } || {}
+        hash&.map { |key, value| value&.map { |k, p| {"#{key}.#{k}" => p&.pluck(:file)} } }&.flatten&.reduce(&:merge)
       end
 
       def self.check_for_duplicates(template_paths, content_sets)

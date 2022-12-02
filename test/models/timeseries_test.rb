@@ -12,14 +12,16 @@ module DataCycleCore
       {
         meta: {
           thing_id: @timeseries.id,
-          property: 'series',
           processed: {
             inserted: 0,
-            duplicates: 0,
-            errors: 0
+            duplicates: 0
           }
         }
       }
+    end
+
+    def to_timeseries(s)
+      { thing_id: @timeseries.id, property: s[0], timestamp: s[1], value: s[2] }
     end
 
     test 'Timeseries callback to Thing' do
@@ -40,56 +42,37 @@ module DataCycleCore
       assert_equal(item.id, @timeseries.timeseries.first.id)
     end
 
-    test 'Timeseries::Status' do
-      DataCycleCore::Timeseries::Status.types.each do |type|
-        status = DataCycleCore::Timeseries::Status.new
-        msg = 'test'
-        status.send(type, msg)
-        assert_equal(true, status.send("#{type}?"))
-        assert_equal(msg, status.send("#{type}s").first)
-        assert_equal(msg, status.status_hash[type.to_sym].first)
-      end
-
-      type = DataCycleCore::Timeseries::Status.types.first
-      status = DataCycleCore::Timeseries::Status.new
-      msg = 'test'
-      5.times.each { status.send(type, msg) }
-      assert_equal(5, status.send("#{type}s").size)
-    end
-
     test 'create multiple timeseries points' do
       data = []
-      10.times { data.push([Time.zone.now, rand]) }
+      10.times { data.push(to_timeseries(['series', Time.zone.now, rand])) }
 
-      status = DataCycleCore::Timeseries.create_all(@timeseries, 'series', data)
+      result = DataCycleCore::Timeseries.create_all(@timeseries, data)
       expected = response
       expected[:meta][:processed][:inserted] = 10
 
-      assert_equal(expected, status)
+      assert_equal(expected, result)
     end
 
     test 'create datapoints more than once' do
       data = []
-      10.times { data.push([Time.zone.now, rand]) }
+      10.times { data.push(to_timeseries(['series', Time.zone.now, rand])) }
 
-      DataCycleCore::Timeseries.create_all(@timeseries, 'series', data)
-      status = DataCycleCore::Timeseries.create_all(@timeseries, 'series', data)
+      DataCycleCore::Timeseries.create_all(@timeseries, data)
+      result = DataCycleCore::Timeseries.create_all(@timeseries, data)
       expected = response
       expected[:meta][:processed][:duplicates] = 10
 
-      assert_equal(expected, status)
+      assert_equal(expected, result)
     end
 
     test 'create datapoints with errors' do
       data = []
-      10.times { data.push([nil, rand]) }
+      10.times { data.push(to_timeseries(['series', nil, rand])) }
 
-      status = DataCycleCore::Timeseries.create_all(@timeseries, 'series', data)
-      expected = response
-      expected[:meta][:processed][:errors] = 10
+      result = DataCycleCore::Timeseries.create_all(@timeseries, data)
 
-      assert_equal(expected, status.except(:error))
-      assert_equal(10, status[:error].size)
+      assert result.key?(:error)
+      assert result[:error].present?
     end
   end
 end

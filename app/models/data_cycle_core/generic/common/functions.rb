@@ -5,6 +5,8 @@ module DataCycleCore
     module Common
       module Functions
         extend Transproc::Registry
+
+        import Transproc::ArrayTransformations
         import Transproc::HashTransformations
         import Transproc::Conditional
         import Transproc::Recursion

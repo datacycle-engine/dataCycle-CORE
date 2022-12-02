@@ -639,11 +639,11 @@ DEPENDENCIES
   rb-readline
   rgeo
   rgeo-proj4
-  rubocop
+  rubocop (= 1.39.0)
   rubocop-ast
   rubocop-minitest (>= 0.23.0)
   rubocop-performance
-  rubocop-rails
+  rubocop-rails (= 2.15.2)
   rubocop-rake
   seed_dump
   simplecov

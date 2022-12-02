@@ -119,6 +119,7 @@ de:
       insertNbsp: Geschütztes Leerzeichen einfügen
       replaceAllNbsp: Alle geschützten Leerzeichen durch normale Leerzeichen ersetzen
       replaced_all_nbsp: Alle geschützten Leerzeichen wurden durch normale Leerzeichen ersetzt!
+      inlineTranslator: Text automatisch übersetzen
     override_warning: 'Soll das Feld %{data} überschrieben werden?'
     override_focus: Felder hervorheben
     reload_page: Seite neu laden
@@ -472,7 +473,6 @@ de:
       list: Listenansicht
       map: Kartenansicht
       gallery: Bildergalerie
-      calendar: Events - Kalender
     user_registration:
       terms_conditions: 'Ich aktzeptiere die <a href="%{url}" target="_blank">Allgemeinen Geschäftsbedingungen</a>.'
       privacy_policy: 'Ich bin mit der Verarbeitung meiner Daten laut  <a href="%{url}" target="_blank">Datenschutzerklärung</a> einverstanden.'
@@ -578,6 +578,8 @@ de:
         user_link: Benutzer bearbeiten
         unlocked_subject: Freigabe erfolgt
         unlocked_html: Sie können sich ab sofort mit Ihren Zugangsdaten einloggen und die freigegebenen Inhalte nutzen! Bei Fragen wenden Sie sich bitte direkt an uns.
+    translate:
+      inline_success: Der Text wurde von %{source_locale} nach %{target_locale} übersetzt.
 
     report_generator:
       downloads_popular: Top 50 Downloads
@@ -743,6 +745,7 @@ de:
       in: in
       num: Anzahl
       unit: Einheit
+    translated_name: Name
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...
@@ -1277,6 +1280,7 @@ de:
 
   data_cycle_core:
     administration: 'Administration'
+    activities: Aktivitäten
     user_settings: Benutzeraktionen
     user_details: Benutzerdetails
     user_links: Benutzerlinks
@@ -1550,6 +1554,8 @@ de:
       sellsBrands: Verkauft Marken
       startingPointDescription: Startpunkt Beschreibung
       character: Tour Charakter
+      parkingPossibilities: Parkmöglichkeiten
+      seasonDescription: Begehbare Monate
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

@@ -1,32 +1,31 @@
-<% external_connections = external_systems_with_details(content) if !content.try(:external_source).nil? || content.try(:external_system_syncs)&.any? %>
+<% content_for(:content_external_connections, flush: true) do %>
+  <% external_connections = external_systems_with_details(content) if show_external_connections?(content) %>
 
-<% if external_connections.present? %>
-  <div class="external-connections">
-    <% external_connections.each do |name, syncs| %>
-      <div class="external-connection-with-dropdown">
-        <span class="external-connection" data-toggle="external-connections-<%= name.underscore_blanks %>">
-          <i class="fa fa-external-link-square external-connections-icon <%= syncs.pluck(:status).compact.join(' ') %>"></i>
-          <%= name %>
-          <%= tag.span('*', class: 'primary-external-system', data: { dc_tooltip: t('content_external_data.primary_external_system_tooltip', locale: active_ui_locale) }) if syncs.any?{ |s| s[:primary] } %>
-          (<%= syncs.size %>)
-        </span>
-        <div class="dropdown-pane bottom external-connections-dropdown" id="external-connections-<%= name.underscore_blanks %>" data-dropdown>
-          <ul class="list-items no-bullet">
-            <% syncs.each do |sync| %>
-              <li>
-                <%= external_sync_status_icon(sync[:status], sync[:sync_type], true) %>
+  <% external_connections&.each do |name, syncs| %>
+    <div class="external-connection-with-dropdown">
+      <span class="external-connection" data-toggle="external-connections-<%= name.underscore_blanks %>">
+        <i class="fa fa-external-link-square external-connections-icon <%= syncs.pluck(:status).compact.join(' ') %>"></i>
+        <%= name %>
+        <%= tag.span('*', class: 'primary-external-system', data: { dc_tooltip: t('content_external_data.primary_external_system_tooltip', locale: active_ui_locale) }) if syncs.any?{ |s| s[:primary] } %>
+        (<%= syncs.size %>)
+      </span>
+      <div class="dropdown-pane bottom external-connections-dropdown" id="external-connections-<%= name.underscore_blanks %>" data-dropdown>
+        <ul class="list-items no-bullet">
+          <% syncs.each do |sync| %>
+            <li>
+              <%= external_sync_status_icon(sync[:status], sync[:sync_type], true) %>
 
-                <%= tag.span(class: 'sync-external-key') do %>
-                  <%= tag.span(sync[:name] || sync[:external_key], class: 'copy-to-clipboard', data: { value: sync[:external_key], dc_tooltip: sync[:title] }) %>
-                <% end %>
+              <%= tag.span(class: 'sync-external-key') do %>
+                <%= tag.span(sync[:name] || sync[:external_key], class: 'copy-to-clipboard', data: { value: sync[:external_key], dc_tooltip: sync[:title] }) %>
+              <% end %>
 
-                <%= tag.span(l(sync[:date], locale: active_ui_locale, format: :history), class: 'last-successful-sync-at') if sync[:date].present? %>
+              <%= tag.span(l(sync[:date], locale: active_ui_locale, format: :history), class: 'last-successful-sync-at') if sync[:date].present? %>
 
-                <%= link_to tag.i(class: 'external-link-icon fa fa-pencil-square-o'), sync[:external_edit_url], class: 'external-edit-link', target: :_blank, data: { dc_tooltip: t('actions.external_edit', locale: active_ui_locale) } if sync[:external_edit_url].present? %>
+              <%= link_to tag.i(class: 'external-link-icon fa fa-pencil-square-o'), sync[:external_edit_url], class: 'external-edit-link', target: :_blank, data: { dc_tooltip: t('actions.external_edit', locale: active_ui_locale) } if sync[:external_edit_url].present? %>
 
-                <%= link_to tag.i(class: 'external-link-icon fa fa-external-link'), sync[:external_detail_url], class: 'external-detail-link', target: :_blank, data: { dc_tooltip: t('actions.external_detail', locale: active_ui_locale) } if sync[:external_detail_url].present? %>
+              <%= link_to tag.i(class: 'external-link-icon fa fa-external-link'), sync[:external_detail_url], class: 'external-detail-link', target: :_blank, data: { dc_tooltip: t('actions.external_detail', locale: active_ui_locale) } if sync[:external_detail_url].present? %>
 
-                <%= link_to tag.i(class: 'switch-primary-external-system-icon fa fa-exchange'),
+              <%= link_to tag.i(class: 'switch-primary-external-system-icon fa fa-exchange'),
                             switch_primary_external_system_thing_path(content, external_system_sync_id: sync[:id]),
                             class: 'switch-primary-external-system-link',
                             data: {
@@ -35,7 +34,7 @@
                               disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw')
                             } if sync[:id].present? && sync[:sync_type] == 'duplicate' && can?(:switch_primary_external_system, content) %>
 
-                <%= link_to tag.i(class: 'remove-external-system-icon fa fa-trash'),
+              <%= link_to tag.i(class: 'remove-external-system-icon fa fa-trash'),
                             remove_external_connection_thing_path(content, external_system_sync_id: sync[:id]),
                             class: 'remove-external-system-link alert',
                             data: {
@@ -44,13 +43,18 @@
                               confirm: t('external_connections.remove_external_system_sync.warning_html', locale: active_ui_locale),
                               disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw')
                             } if sync[:id].present? && can?(:remove_external_connection, content) %>
-              </li>
-            <% end %>
-          </ul>
-        </div>
+            </li>
+          <% end %>
+        </ul>
       </div>
-    <% end %>
+    </div>
+  <% end %>
 
-    <%= render 'data_cycle_core/contents/external_connections/new_external_connection_overlay', content: content if can?(:create_external_connection, content) %>
+  <%= render 'data_cycle_core/contents/external_connections/new_external_connection_overlay', content: content if can?(:create_external_connection, content) %>
+<% end %>
+
+<% if content_for?(:content_external_connections) %>
+  <div class="external-connections">
+    <%= yield_content!(:content_external_connections) %>
   </div>
 <% end %>

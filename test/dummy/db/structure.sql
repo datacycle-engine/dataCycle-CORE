@@ -1327,8 +1327,8 @@ CREATE TABLE public.timeseries (
     property character varying NOT NULL,
     "timestamp" timestamp with time zone NOT NULL,
     value double precision,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    created_at timestamp(6) without time zone DEFAULT transaction_timestamp() NOT NULL,
+    updated_at timestamp(6) without time zone DEFAULT transaction_timestamp() NOT NULL
 );
 
 
@@ -3466,6 +3466,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220922061116'),
 ('20221017094112'),
 ('20221028074348'),
-('20221118075303');
+('20221118075303'),
+('20221202071928');
 
 

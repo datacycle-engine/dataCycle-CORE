@@ -1,12 +1,23 @@
 <div class="translatable-attribute-container" data-attribute-key="<%= key.attribute_name_from_key %>">
-  <% I18n.available_locales.each do |a_locale| %>
-    <div class="translatable-attribute remote-render <%= a_locale.to_s %> <%= 'active' if I18n.locale == a_locale %> <%= 'force-render-translation' if local_assigns.dig(:parameters, :force_render_locales)&.include?(a_locale) %>"
+  <div class="translatable-attribute active <%= I18n.locale.to_s %>">
+    <%= render_specific_translatable_attribute_editor(
+          key: key.sub(DataCycleCore::AttributeEditorHelper::ATTRIBUTE_DATAHASH_REGEX, "[translations][#{I18n.locale.to_s}]"),
+          locale: I18n.locale,
+          definition: definition&.dc_deep_dup,
+          value: local_assigns[:value],
+          content: content,
+          parameters: local_assigns[:parameters]&.dc_deep_dup
+        ) %>
+  </div>
+
+  <% I18n.available_locales.except(I18n.locale).each do |a_locale| %>
+    <div class="translatable-attribute remote-render <%= a_locale.to_s %> <%= 'force-render-translation' if local_assigns.dig(:parameters, :force_render_locales)&.include?(a_locale) %>"
       data-remote-render-function="render_specific_translatable_attribute_editor"
       data-remote-render-params="<%= to_query_params(
         key: key.sub(DataCycleCore::AttributeEditorHelper::ATTRIBUTE_DATAHASH_REGEX, "[translations][#{a_locale.to_s}]"),
         locale: a_locale,
         definition: definition,
-        value: (I18n.locale == a_locale ? (local_assigns[:value]) : nil),
+        value: nil,
         content: content
       ).to_json %>"
       data-remote-options="<%= to_query_params((local_assigns.dig(:parameters) || {}).merge({ disabled: true })).to_json %>">

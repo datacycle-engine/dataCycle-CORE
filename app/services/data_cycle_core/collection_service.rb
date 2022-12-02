@@ -6,9 +6,9 @@ module DataCycleCore
       def to_select_option(collection, locale)
         DataCycleCore::Filter::SelectOption.new(
           collection['id'],
-          collection['name'],
+          collection['name'].presence || '__DELETED__',
           collection['class_name'],
-          "#{I18n.t("activerecord.models.data_cycle_core/#{collection['class_name']}", count: 1, locale: locale)}: #{collection['name']}"
+          "#{I18n.t("activerecord.models.data_cycle_core/#{collection['class_name']}", count: 1, locale: locale)}: #{collection['name'].presence || '__DELETED__'}"
         )
       end
     end

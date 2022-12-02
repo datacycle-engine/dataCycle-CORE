@@ -6,7 +6,7 @@ module DataCycleCore
       return [] if value.blank?
 
       filter_proc = ->(query, query_table) { query.where(query_table[:id].in(value)) }
-      query = DataCycleCore::StoredFilter.combine_with_collections(DataCycleCore::WatchList.all, filter_proc)
+      query = DataCycleCore::StoredFilter.combine_with_collections(DataCycleCore::WatchList.all, filter_proc, false)
 
       result = ActiveRecord::Base.connection.select_all query.to_sql
 
@@ -36,6 +36,8 @@ module DataCycleCore
       case filter_advanced_type
       when 'string'
         [
+          [t('common.is', locale: active_ui_locale), 'i'],
+          [t('common.is_not', locale: active_ui_locale), 'e'],
           [t('common.like', locale: active_ui_locale), 's'],
           [t('common.not_like', locale: active_ui_locale), 'u'],
           [t('common.blank', locale: active_ui_locale), 'b'],

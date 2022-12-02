@@ -1098,26 +1098,35 @@ video {
 .content-pool-buttons {
   font-size: 0;
   margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
 
   .content-pool {
     position: relative;
     padding: 0;
-    vertical-align: middle;
     font-size: 0.8rem;
-    margin: 0 1rem;
+    margin: 0;
     cursor: initial;
 
-    &.button > a {
+    .content-pool-button {
       padding: 0.5rem 0.7rem;
       margin: 0;
       font-weight: normal;
       color: inherit;
-      display: inline-block;
+      display: flex;
       position: relative;
+      align-items: center;
+      justify-content: center;
+      gap: 0.1rem;
+
+      &.disabled {
+        pointer-events: none;
+      }
     }
 
     &.button.disabled {
-      padding: 0.5rem 0.7rem;
       cursor: not-allowed;
     }
 
@@ -1147,6 +1156,10 @@ video {
 
       &::after {
         display: none;
+      }
+
+      .content-pool-button {
+        padding: 0.5rem 0;
       }
     }
 
@@ -2560,7 +2573,17 @@ select {
   }
 }
 
-[data-disable-with]:not(.submit-edit-form, .normalize-content-button, .add-to-watchlist-link, .remove-from-watchlist-link, .bulk-delete-button, .save-content-button, .button-prime.small.translate, .button-prime.translate-all, .button-prime.copy-all)
+[data-disable-with]:not(
+    .submit-edit-form,
+    .normalize-content-button,
+    .add-to-watchlist-link,
+    .remove-from-watchlist-link,
+    .bulk-delete-button,
+    .save-content-button,
+    .button-prime.small.translate,
+    .button-prime.translate-all,
+    .button-prime.copy-all
+  )
   > .fa {
   font-size: inherit;
   line-height: inherit;
@@ -2718,8 +2741,9 @@ input.normalized {
   position: fixed;
   bottom: 0;
   width: 100%;
-  z-index: 1000;
+  z-index: 1010;
   max-height: 100vh;
+
   #admin-icons {
     background: none;
     border-top: 1px solid $primary-color;
