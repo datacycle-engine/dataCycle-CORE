@@ -1553,6 +1553,8 @@ de:
       sellsBrands: Verkauft Marken
       startingPointDescription: Startpunkt Beschreibung
       character: Tour Charakter
+      parkingPossibilities: Parkmöglichkeiten
+      seasonDescription: Begehbare Monate
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

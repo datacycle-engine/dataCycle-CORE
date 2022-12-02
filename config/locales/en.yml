@@ -1528,6 +1528,8 @@ en:
       sellsBrands: Sells brands
       startingPointDescription: Starting point description
       character: Tour character
+      parkingPossibilities: Parking
+      seasonDescription: Sesion
 
   media_archive:
     allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>
