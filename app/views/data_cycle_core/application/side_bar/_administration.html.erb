@@ -49,6 +49,15 @@
     </div>
   <% end %>
 
+  <% if can? :manage, :dash_board %>
+    <div class="row columns">
+      <%= link_to admin_path, class: 'admin-link' do %>
+        <span class="icon"><i class="fa fa-tachometer" aria-hidden="true"></i></span>
+        <span class="title"><%= t('data_cycle_core.administration', locale: active_ui_locale) %></span>
+      <% end %>
+    </div>
+  <% end %>
+
   <div class="row columns">
     <%= link_to docs_path, class: 'documentation-link' do %>
       <span class="icon"><i class="fa fa-book" aria-hidden="true"></i></span>
