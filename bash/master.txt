@@ -26,6 +26,8 @@ DataCycleVermieterWebsites;git@git.pixelpoint.biz:data-cycle/data-cycle-vermiete
 DataCycleLindner;git@git.pixelpoint.biz:data-cycle/data-cycle-lindner.git
 DataCycleHowTo;git@git.pixelpoint.biz:data-cycle/data-cycle-how-to.git
 DataCycleNockberge;git@git.pixelpoint.biz:data-cycle/data-cycle-nockberge.git
+DataCycleVTG;git@git.pixelpoint.biz:data-cycle/data-cycle-vtg.git
+DataCycleVtgBodensee;git@git.pixelpoint.biz:data-cycle/data-cycle-vtg-bodensee.git
 DataCycleVcloudLechZuers;git@git.pixelpoint.biz:data-cycle/data-cycle-vcloud-lech-zuers.git
 DataCycleGIP4Radrouting;git@git.pixelpoint.biz:data-cycle/data-cycle-gip4radrouting.git
 DataCycleGstaad;git@git.pixelpoint.biz:data-cycle/data-cycle-gstaad.git
@@ -36,3 +38,4 @@ DataCycleEnixi;git@git.pixelpoint.biz:data-cycle/data-cycle-enixi.git
 DataCyclePia;git@git.pixelpoint.biz:data-cycle/data-cycle-pia.git
 DataCyclePixelmap;git@git.pixelpoint.biz:data-cycle/data-cycle-pixelmap.git
 DataCycleBridgeDeutschland;git@git.pixelpoint.biz:data-cycle/data-cycle-bridge-feratel-deutschland.git
+DataCycleFlachau;git@git.pixelpoint.biz:data-cycle/data-cycle-flachau.git
