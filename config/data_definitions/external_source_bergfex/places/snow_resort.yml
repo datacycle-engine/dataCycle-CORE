@@ -351,6 +351,123 @@
         :ui:
           :show:
             :content_area: header
+      :dcls_snow_depth_place:
+        :label: Schneehöhe (Ort)
+        :type: timeseries
+        :api:
+          :name: dcls:snowDepthPlace
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :dcls_fresh_snow_place:
+        :label: Neuschnee (Ort)
+        :type: timeseries
+        :api:
+          :name: dcls:freshSnowPlace
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :dcls_snow_depth_valley_slope:
+        :label: Schneehöhe (Tal - Piste)
+        :type: timeseries
+        :api:
+          :name: dcls:snowDepthValleySlope
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :dcls_fresh_snow_valley_slope:
+        :label: Neuschnee (Tal - Piste)
+        :type: timeseries
+        :api:
+          :name: dcls:freshSnowValleySlope
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :dcls_snow_depth_mountain_slope:
+        :label: Schneehöhe (Berg - Piste)
+        :type: timeseries
+        :api:
+          :name: dcls:snowDepthMountainSlope
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :dcls_fresh_snow_mountain_slope:
+        :label: Neuschnee (Berg - Piste)
+        :type: timeseries
+        :api:
+          :name: dcls:freshSnowMountainSlope
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :dcls_open_lifts:
+        :label: Geöffnete Lifte
+        :type: timeseries
+        :api:
+          :name: dcls:openLifts
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :dcls_length_of_open_slopes:
+        :label: Pistenlänge (geöffnete Pisten)
+        :type: timeseries
+        :api:
+          :name: dcls:lengthOfOpenSlopes
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+      :dcls_open_slopes:
+        :label: Geöffnete Pisten
+        :type: timeseries
+        :api:
+          :name: dcls:openSlopes
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
       :data_type:
         :label: Inhaltstyp
         :type: classification
