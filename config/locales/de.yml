@@ -259,6 +259,7 @@ de:
       day: Tag
       week: Woche
       month: Monat
+      quarter: Quartal
       year: Jahr
     chart_type_options:
       bar: Balken
@@ -1280,6 +1281,7 @@ de:
 
   data_cycle_core:
     administration: 'Administration'
+    documentation: Dokumentation
     activities: Aktivitäten
     user_settings: Benutzeraktionen
     user_details: Benutzerdetails
