@@ -14,11 +14,7 @@ module DataCycleCore
         @assets = @assets.where(id: permitted_params[:asset_ids]) if permitted_params[:asset_ids].present?
         @assets = @assets.limit(25).offset((@page - 1) * 25 - permitted_params[:delete_count].to_i)
 
-        if DataCycleCore.experimental_features.dig('active_storage', 'enabled')
-          @asset_details = @assets.as_json(only: [:id, :name, :file_size, :content_type], methods: :duplicate_candidates)
-        else
-          @asset_details = @assets.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
-        end
+        @asset_details = @assets.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
         @total = @assets.except(:limit, :offset).count
 
         render json: {

@@ -124,6 +124,18 @@ module DataCycleCore
       }
     end
 
+    def as_json(options = {})
+      return super(options) unless self.class.active_storage_activated?
+
+      include_file = options[:only].delete(:file)
+
+      hash = super(options)
+
+      hash['file'] = { 'url' => Rails.application.routes.url_helpers.rails_storage_proxy_url(file, host: Rails.application.config.asset_host) } if include_file.present?
+
+      hash
+    end
+
     private
 
     # @todo: carrierwave specific method
