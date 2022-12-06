@@ -8,6 +8,7 @@ module DataCycleCore
       'day',
       'week',
       'month',
+      'quarter',
       'year'
     ].freeze
 

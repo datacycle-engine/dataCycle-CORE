@@ -259,6 +259,7 @@ de:
       day: Tag
       week: Woche
       month: Monat
+      quarter: Quartal
       year: Jahr
     chart_type_options:
       bar: Balken
