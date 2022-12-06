@@ -229,7 +229,7 @@ module DataCycleCore
 
     def advanced_attribute_type_for_key(key)
       return 'numeric' if API_NUMERIC_ATTRIBUTES.include?(key)
-      DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym)
+      DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type')
     end
 
     def linked_attribute_mapping(linked_name)
