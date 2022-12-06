@@ -1281,6 +1281,8 @@ de:
 
   data_cycle_core:
     administration: 'Administration'
+    documentation: Dokumentation
+    activities: Aktivitäten
     user_settings: Benutzeraktionen
     user_details: Benutzerdetails
     user_links: Benutzerlinks
