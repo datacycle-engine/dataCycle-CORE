@@ -37,7 +37,12 @@ module DataCycleCore
                 WHERE
                   activities.created_at >= (DATE_TRUNC('month', NOW()) - INTERVAL '1 month')
                   AND activities.created_at < DATE_TRUNC('month', NOW())
-              ) AS api_usage_last_month
+              ) AS api_usage_last_month,
+              COUNT(activities.id) FILTER (
+                WHERE
+                  activities.created_at >= (DATE_TRUNC('month', NOW()) - INTERVAL '12 months')
+                  AND activities.created_at < DATE_TRUNC('month', NOW())
+              ) AS api_usage_last_12_months
             FROM
               stored_filters
               LEFT OUTER JOIN users ON users.id = stored_filters.user_id

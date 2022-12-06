@@ -25,17 +25,17 @@ module DataCycleCore
         end
 
         def endpoint
-          @endpoint ||= begin
-            return if external_source.blank?
-
-            configuration.dig(:endpoint).constantize.new(**external_source.credentials.symbolize_keys)
-          end
+          @endpoint ||= (configuration.dig(:endpoint).constantize.new(**external_source.credentials.symbolize_keys) if external_source.present?)
         end
 
         def translate_text(translate_hash)
           return {} if endpoint.blank? || translate_hash.blank? || translate_hash.values.all?(&:blank?) || translate_hash['text'].blank?
 
           endpoint.translate(translate_hash.to_h)
+        end
+
+        def allowed_attribute?(content, key, locale)
+          enabled? && allowed_languages.include?(locale.to_s) && configuration(content, key).dig(:inline)
         end
 
         def allowed_languages

@@ -13,12 +13,8 @@ module DataCycleCore
       end
 
       def render
-        raise NotImplementedError
-      end
-
-      def result(things_query, geometry_query)
         ActiveRecord::Base.connection.execute(
-          Arel.sql(geometry_query.gsub(':from_query', things_query.to_sql))
+          Arel.sql(main_sql)
         ).first&.values&.first
       end
 
@@ -43,11 +39,8 @@ module DataCycleCore
           .join(', ').squish
       end
 
-      def main_sql(select_sql)
-        <<-SQL.squish
-              SELECT #{select_sql}
-              FROM (:from_query) AS t
-        SQL
+      def main_sql
+        raise NotImplementedError
       end
 
       def geometry_sql

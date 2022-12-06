@@ -4,10 +4,16 @@
   max-height: 100vh;
 
   .settings-row {
-    padding: 1rem;
-    margin: 0 0.1rem;
+    padding: 1.5rem;
     color: $black;
     border-bottom: 1px solid $medium-gray;
+    display: flex;
+    flex-flow: column;
+    gap: 0.75rem;
+
+    &:first-child {
+      padding-top: 1.5rem;
+    }
 
     .edit-user-link {
       width: 85%;
@@ -45,18 +51,22 @@
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
+      flex: auto;
+      transition: $color-transition;
+
+      &:hover {
+        color: #000;
+      }
     }
 
     .row {
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
+      padding: 0;
 
-      &:not(:first-child) {
-        padding-left: 1.5rem;
-      }
       position: relative;
-      margin-bottom: 1rem;
+
       &.access-token {
         white-space: nowrap;
       }

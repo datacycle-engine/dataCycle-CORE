@@ -59,6 +59,7 @@ module DataCycleCore
 
             h[key] = config.compact
           end
+
           @configuration[cache_key(content, attribute_key)]
         end
 

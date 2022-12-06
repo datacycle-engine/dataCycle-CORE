@@ -2,6 +2,7 @@
   <div class="content-pool-buttons">
     <% DataCycleCore::Feature::LifeCycle.ordered_classifications(content).each do |stage_name, stage| %>
       <% stage.merge!({ name: stage_name }) %>
+
       <span class="content-pool <%= stage_name.underscore_blanks %> <%= life_cycle_class(content, stage) %>">
         <%= link_to_if(!content.life_cycle_stage?(stage[:id]) && can?(:set_life_cycle, content, stage),
           stage_name,
@@ -10,12 +11,13 @@
             name: stage_name
           }),
           method: :patch,
+          class: 'content-pool-button',
           title: t('actions.move_to', data: stage_name, locale: active_ui_locale),
           data: {
             confirm: local_assigns.dig(:confirm, stage_name.to_sym),
             disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw') + stage_name
           }) do %>
-          <%= stage_name %>
+          <%= tag.span(stage_name, class: 'content-pool-button') %>
         <% end %>
       </span>
 

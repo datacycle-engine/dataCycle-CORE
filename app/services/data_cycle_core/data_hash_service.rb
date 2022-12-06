@@ -161,7 +161,7 @@ module DataCycleCore
     def self.parse_translated_hash(datahash)
       return {} unless datahash.is_a?(::Hash)
 
-      neutral_hash = datahash.key?(:datahash) ? datahash[:datahash] : datahash.except(:translations, :version_name)
+      neutral_hash = datahash.key?(:datahash) ? datahash[:datahash].to_h : datahash.except(:translations, :version_name).to_h
       keep_locales = find_locales_recursive(neutral_hash)
       translations = datahash[:translations]&.reject { |locale, value| keep_locales.exclude?(locale) && value.deep_reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }.blank? }.presence || { I18n.locale.to_s => {} }
 

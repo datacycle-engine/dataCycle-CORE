@@ -1,8 +1,5 @@
 <div class="settings-row">
   <div class="row columns">
-    <h5><%= t('data_cycle_core.user_details', locale: active_ui_locale) %></h5>
-  </div>
-  <div class="row columns">
     <% if can? :update, current_user %>
       <%= link_to edit_user_path(current_user), class: 'edit-user-link' do %>
         <span class="icon"><i class="fa fa-smile-o" aria-hidden="true"></i></span>

@@ -304,6 +304,10 @@ class NewContentDialog {
     if (this.referencedAssetField.siblings('.file-for-upload').length) {
       if (!this.nextAssetButton) this.createNextAssetButton();
       if (!this.prevAssetButton) this.createPrevAssetButton();
+
+      this.form.addClass('show-copy-attribute-to-all');
+    } else {
+      this.form.removeClass('show-copy-attribute-to-all');
     }
 
     if (this.nextAssetButton && this.prevAssetButton) {

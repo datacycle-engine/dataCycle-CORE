@@ -132,7 +132,11 @@ module DataCycleCore
 
           v = transform_values_for_query(v, attribute_key)
           if query.method(query_method)&.parameters&.size == 3
-            query = query.send(query_method, v, attribute_path, attribute_key.to_s.delete_prefix('dc:').underscore_blanks)
+            if advanced_attribute_filter?(attribute_key)
+              query = query.send(query_method, v, advanced_attribute_type_for_key(attribute_key), attribute_path)
+            else
+              query = query.send(query_method, v, attribute_path, attribute_key.to_s.delete_prefix('dc:').underscore_blanks)
+            end
           else
             query = query.send(query_method, v, attribute_path)
           end
@@ -200,22 +204,32 @@ module DataCycleCore
 
     def transform_values_for_query(value, key)
       return { 'from' => value.dig(:min), 'until' => value.dig(:max) } if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') == 'date'
-      return value&.values&.first if key == :translatedName && value&.values&.first.present?
       return { 'text' => value.values.first } if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type') == 'string' && value&.values&.first.present?
       value
     end
 
     def query_method_mapping(key, value = nil)
       return 'date_range' if API_DATE_RANGE_ATTRIBUTES.include?(key)
-      return 'equals_advanced_numeric' if API_NUMERIC_ATTRIBUTES.include?(key)
       return 'in_schedule' if API_SCHEDULE_ATTRIBUTES.include?(key)
       return 'within_box' if key == :box
       return 'geo_radius' if key == :perimeter
       return 'geo_within_classification' if key == :shapes
       return 'equals_advanced_slug' if key == :slug
-      return "#{value.keys.first}_translated_name" if key == :translatedName
-      return "#{value.keys.first}_advanced_#{DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type')}" if DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym).present?
+      return 'equals_advanced_attributes' if API_NUMERIC_ATTRIBUTES.include?(key)
+      return "#{value.keys.first}_advanced_attributes" if advanced_attribute_filter?(key)
       key.to_s
+    end
+
+    def advanced_attribute_filter?(key)
+      (
+        DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym).present? ||
+        API_NUMERIC_ATTRIBUTES.include?(key)
+      )
+    end
+
+    def advanced_attribute_type_for_key(key)
+      return 'numeric' if API_NUMERIC_ATTRIBUTES.include?(key)
+      DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym, 'type')
     end
 
     def linked_attribute_mapping(linked_name)

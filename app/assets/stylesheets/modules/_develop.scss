@@ -112,6 +112,7 @@
 
     .finalize-button-container {
       position: relative;
+
       input[type='checkbox'] {
         border: 0;
         background: inherit;
@@ -120,10 +121,18 @@
         transform: scale(1.1);
       }
 
-      label {
+      label.attribute-edit-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
         font-weight: bold;
         font-size: 1.5rem;
         line-height: 1.5rem;
+        overflow: visible;
+
+        > * {
+          margin: 0;
+        }
 
         .fa {
           font-size: inherit;
@@ -1089,26 +1098,35 @@ video {
 .content-pool-buttons {
   font-size: 0;
   margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
 
   .content-pool {
     position: relative;
     padding: 0;
-    vertical-align: middle;
     font-size: 0.8rem;
-    margin: 0 1rem;
+    margin: 0;
     cursor: initial;
 
-    &.button > a {
+    .content-pool-button {
       padding: 0.5rem 0.7rem;
       margin: 0;
       font-weight: normal;
       color: inherit;
-      display: inline-block;
+      display: flex;
       position: relative;
+      align-items: center;
+      justify-content: center;
+      gap: 0.1rem;
+
+      &.disabled {
+        pointer-events: none;
+      }
     }
 
     &.button.disabled {
-      padding: 0.5rem 0.7rem;
       cursor: not-allowed;
     }
 
@@ -1138,6 +1156,10 @@ video {
 
       &::after {
         display: none;
+      }
+
+      .content-pool-button {
+        padding: 0.5rem 0;
       }
     }
 
@@ -2551,7 +2573,17 @@ select {
   }
 }
 
-[data-disable-with]:not(.submit-edit-form, .normalize-content-button, .add-to-watchlist-link, .remove-from-watchlist-link, .bulk-delete-button, .save-content-button, .button-prime.small.translate, .button-prime.translate-all, .button-prime.copy-all)
+[data-disable-with]:not(
+    .submit-edit-form,
+    .normalize-content-button,
+    .add-to-watchlist-link,
+    .remove-from-watchlist-link,
+    .bulk-delete-button,
+    .save-content-button,
+    .button-prime.small.translate,
+    .button-prime.translate-all,
+    .button-prime.copy-all
+  )
   > .fa {
   font-size: inherit;
   line-height: inherit;
@@ -2709,8 +2741,9 @@ input.normalized {
   position: fixed;
   bottom: 0;
   width: 100%;
-  z-index: 1000;
+  z-index: 1010;
   max-height: 100vh;
+
   #admin-icons {
     background: none;
     border-top: 1px solid $primary-color;
@@ -3282,7 +3315,7 @@ button.button-prime.small.bulk-delete-button {
   &:hover {
     .progress-bar {
       visibility: visible;
-      width: calc(100vw - 4.5rem);
+      width: 20rem;
     }
   }
 }
@@ -3820,5 +3853,33 @@ body {
       color: $alert-color;
       text-shadow: none;
     }
+  }
+}
+
+.callout {
+  &.primary {
+    border-color: $primary-color;
+  }
+
+  &.secondary {
+    border-color: $secondary-color;
+  }
+
+  &.success {
+    border-color: $success-color;
+  }
+
+  &.warning {
+    border-color: $warning-color;
+  }
+
+  &.alert {
+    border-color: $alert-color;
+  }
+
+  &.inline {
+    display: inline-flex;
+    margin: 0;
+    padding: 0.1rem 0.3rem;
   }
 }

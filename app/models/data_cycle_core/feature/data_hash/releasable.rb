@@ -11,8 +11,8 @@ module DataCycleCore
 
           if finalize &&
              !options.current_user.nil? &&
-             (data_links.where(receiver_id: options.current_user.id, permissions: 'write').exists? ||
-             watch_lists.includes(:data_links).where(data_links: { receiver_id: options.current_user.id }).exists?)
+             (data_links.exists?(receiver_id: options.current_user.id, permissions: 'write') ||
+             watch_lists.includes(:data_links).exists?(data_links: { receiver_id: options.current_user.id }))
             update_release_status(**options.to_h.slice(:data_hash, :current_user))
           end
         end

@@ -12,7 +12,7 @@ PATH
       delayed_job_active_record
       devise
       dotiw
-      dry-transformer
+      dry-transformer (>= 1.0)
       dry-validation
       faraday
       faraday_middleware
@@ -311,6 +311,7 @@ GEM
       gapic-common (>= 0.10, < 2.a)
       google-cloud-errors (~> 1.0)
     google-protobuf (3.21.9)
+    google-protobuf (3.21.9-x86_64-linux)
     googleapis-common-protos (1.3.12)
       google-protobuf (~> 3.14)
       googleapis-common-protos-types (~> 1.2)
@@ -328,6 +329,9 @@ GEM
       actionview (>= 5.1, < 7.1)
       railties (>= 5.1, < 7.1)
     grpc (1.50.0)
+      google-protobuf (~> 3.21)
+      googleapis-common-protos-types (~> 1.0)
+    grpc (1.50.0-x86_64-linux)
       google-protobuf (~> 3.21)
       googleapis-common-protos-types (~> 1.0)
     hashdiff (1.0.1)
@@ -635,11 +639,11 @@ DEPENDENCIES
   rb-readline
   rgeo
   rgeo-proj4
-  rubocop
+  rubocop (= 1.39.0)
   rubocop-ast
   rubocop-minitest (>= 0.23.0)
   rubocop-performance
-  rubocop-rails
+  rubocop-rails (= 2.15.2)
   rubocop-rake
   seed_dump
   simplecov

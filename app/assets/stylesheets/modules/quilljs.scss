@@ -154,6 +154,17 @@ $fa-font-path: '/assets';
       margin-right: 0;
     }
 
+    .ql-inlineTranslator,
+    .ql-inlineTranslator > span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .fa {
+        font-size: 0.9rem;
+      }
+    }
+
     .ql-contentlink {
       path {
         transition: fill 0.25s ease-out;

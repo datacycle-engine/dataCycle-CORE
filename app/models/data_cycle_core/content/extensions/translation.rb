@@ -29,14 +29,14 @@ module DataCycleCore
           def human_property_name(attribute, options = {})
             @human_property_name ||= Hash.new do |h, k|
               h[k] = begin
-                label = if k[0].present? && I18n.exists?("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", count: k[5], locale: k[4])
-                          I18n.t("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", count: k[5], locale: k[4])
-                        elsif k[0].present? && I18n.exists?("attribute_labels.#{k[2]&.template_name}.#{k[0]}", count: k[5], locale: k[4])
-                          I18n.t("attribute_labels.#{k[2]&.template_name}.#{k[0]}", count: k[5], locale: k[4])
-                        elsif k[0].present? && I18n.exists?("attribute_labels.#{k[3]}.#{k[0]}", count: k[5], locale: k[4])
-                          I18n.t("attribute_labels.#{k[3]}.#{k[0]}", count: k[5], locale: k[4])
-                        elsif k[0].present? && I18n.exists?("attribute_labels.#{k[0]}", count: k[5], locale: k[4])
-                          I18n.t("attribute_labels.#{k[0]}", count: k[5], locale: k[4])
+                label = if k[0].present? && I18n.exists?("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", count: k[6], locale: k[4])
+                          I18n.t("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", count: k[6], locale: k[4])
+                        elsif k[0].present? && I18n.exists?("attribute_labels.#{k[2]&.template_name}.#{k[0]}", count: k[6], locale: k[4])
+                          I18n.t("attribute_labels.#{k[2]&.template_name}.#{k[0]}", count: k[6], locale: k[4])
+                        elsif k[0].present? && I18n.exists?("attribute_labels.#{k[3]}.#{k[0]}", count: k[6], locale: k[4])
+                          I18n.t("attribute_labels.#{k[3]}.#{k[0]}", count: k[6], locale: k[4])
+                        elsif k[0].present? && I18n.exists?("attribute_labels.#{k[0]}", count: k[6], locale: k[4])
+                          I18n.t("attribute_labels.#{k[0]}", count: k[6], locale: k[4])
                         else
                           k.dig(1, 'ui', k[3], 'label').presence ||
                             k.dig(1, 'label').presence ||
@@ -44,7 +44,7 @@ module DataCycleCore
                             k[0].titleize
                         end
 
-                label += " (#{I18n.locale})" if k[2].attribute_translatable?(k[0], k[1])
+                label += " (#{k[5]})" if k[2].attribute_translatable?(k[0], k[1])
 
                 label
               end
@@ -57,6 +57,7 @@ module DataCycleCore
                 options[:base],
                 options[:ui_scope].to_s,
                 options[:locale] || I18n.locale,
+                I18n.locale,
                 options[:count] || 1
               ]
             ]

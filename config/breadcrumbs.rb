@@ -21,6 +21,13 @@ crumb :admin do
   link to_html_string(t('data_cycle_core.administration', locale: active_ui_locale)), admin_path, authorized: can?(:manage, :dash_board)
 end
 
+# Activities
+crumb :activities do
+  link to_html_string(t('data_cycle_core.activities', locale: active_ui_locale)), admin_activities_path, authorized: can?(:manage, :dash_board)
+
+  parent :admin
+end
+
 # Administration
 crumb :reports do
   link to_html_string(t('data_cycle_core.reports.root', locale: active_ui_locale)), reports_path, authorized: can?(:manage, :reports)
@@ -28,7 +35,6 @@ end
 
 crumb :classifications do
   link to_html_string(t('data_cycle_core.classifications', locale: active_ui_locale)), classifications_path, authorized: can?(:manage, DataCycleCore::Classification)
-  parent :admin if can?(:manage, :dash_board)
 end
 
 crumb :classification_tree_label do |label|

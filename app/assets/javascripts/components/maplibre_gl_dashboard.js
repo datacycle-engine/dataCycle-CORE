@@ -1,4 +1,5 @@
 import MapLibreGlViewer from './maplibre_gl_viewer';
+import urlJoin from 'url-join';
 
 class MapLibreGlDashboard extends MapLibreGlViewer {
   constructor(container) {
@@ -9,7 +10,7 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
     this.sourceLayer = 'dataCycle';
 
     this.searchForm = document.getElementById('search-form');
-    this.currentStoredFilterId = this.searchForm.dataset.storedFilter;
+    this.currentEndpointId = this.searchForm.dataset.endpointId;
   }
   configureMap() {
     super.configureMap();
@@ -28,7 +29,7 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
   _addSourceType(name, _data) {
     this.map.addSource(name, {
       type: 'vector',
-      tiles: [`${location.protocol}//${location.host}/mvt/v1/endpoints/${this.currentStoredFilterId}/{z}/{x}/{y}.pbf`],
+      tiles: [`${location.protocol}//${location.host}/mvt/v1/endpoints/${this.currentEndpointId}/{z}/{x}/{y}.pbf`],
       promoteId: '@id',
       minzoom: 0,
       maxzoom: 22
@@ -66,7 +67,7 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
       if (feature && feature.source == 'feature_source_primary') {
         const url = new URL(window.location);
         url.search = '';
-        window.open(`${url}things/${feature.id}`, '_blank');
+        window.open(urlJoin(url.toString(), `things/${feature.id}`), '_blank');
       }
     });
   }
@@ -90,7 +91,7 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
     };
 
     let data = await DataCycle.httpRequest({
-      url: `/mvt/v1/endpoints/${this.currentStoredFilterId}`,
+      url: `/mvt/v1/endpoints/${this.currentEndpointId}`,
       method: 'POST',
       data: params,
       dataType: 'json'

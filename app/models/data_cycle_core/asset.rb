@@ -85,6 +85,16 @@ module DataCycleCore
                  }
     end
 
+    def as_json(options = {})
+      include_file = options[:only].delete(:file)
+
+      hash = super(options)
+
+      hash['file'] = { 'url' => Rails.application.routes.url_helpers.rails_storage_proxy_url(file, host: Rails.application.config.asset_host) } if include_file.present?
+
+      hash
+    end
+
     private
 
     def metadata_from_blob

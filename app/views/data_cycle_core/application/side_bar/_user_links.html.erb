@@ -43,10 +43,6 @@
 
 <% if content_for?(:user_links) %>
   <div class="settings-row">
-    <div class="row columns">
-      <h5><%= t('data_cycle_core.user_links', locale: active_ui_locale) %></h5>
-    </div>
-
     <%= yield_content!(:user_links) %>
   </div>
 <% end %>

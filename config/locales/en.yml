@@ -111,6 +111,7 @@ en:
       insertNbsp: Insert protected space
       replaceAllNbsp: replace all protected spaces with normal spaces
       replaced_all_nbsp: replaced all protected spaces with normal spaces!
+      inlineTranslator: translate text automatically
     override_warning: Should the field %{data} be overwritten?
     override_focus: highlight fields
     reload_page: Reload page
@@ -552,6 +553,37 @@ en:
         user_link: Edit user
         unlocked_subject: User unlocked
         unlocked_html: You can now log in with your login data and use the released content! If you have any questions, please contact us directly.
+    translate:
+      inline_success: The text was translated from %{source_locale} to %{target_locale}.
+
+    report_generator:
+      downloads_popular: Top 50 Downloads
+      downloads_content: All downloads of this content
+      stored_searches_usage: Usage of saved Searches
+      headings:
+        id: ID
+        name: Name
+        downloads_all: Number of downloads (total)
+        downloads_by_month: Number of downloads (%{date})
+        downloads_by_previous_month: Number of downloads (%{date})
+        date_created: Downloaded on
+        email: Email
+        user_display_name: Account
+        creator: Creator
+        last_used_dashboard: Date of last use on the dashboard
+        last_used_api: Date of last use via the API
+        api_usage_current_week: Number of uses via the API in the current week
+        api_usage_last_week: Number of uses via the API in recent weeks
+        api_usage_current_month: Number of uses via the API in the current month
+        api_usage_last_month: Number of uses via the API in the last month
+        api_usage_last_12_months: Number of uses via the API in the last 12 months
+      mailer:
+        subject:
+          downloads_popular: TOP 50 Image Downloads
+        text_html:
+          downloads_popular: Attached you will find the TOP 50 image downloads.
+      download_form:
+        type: Format
 
   compare:
     switch_contents: switch contents
@@ -1203,6 +1235,8 @@ en:
       all: No access authorization!
   data_cycle_core:
     administration: Administration
+    documentation: Documentation
+    activities: Activities
     user_settings: User actions
     user_details: User details
     user_links: User links
@@ -1496,6 +1530,8 @@ en:
       sellsBrands: Sells brands
       startingPointDescription: Starting point description
       character: Tour character
+      parkingPossibilities: Parking
+      seasonDescription: Sesion
 
   media_archive:
     allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>

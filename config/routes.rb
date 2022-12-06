@@ -225,7 +225,7 @@ DataCycleCore::Engine.routes.draw do
     get  '/admin/activity_details/:type', to: 'dash_board#activity_details', format: :json
 
     get  '/reports', to: 'reports#index'
-    get  '/download_reports', to: 'reports#download_report'
+    match '/download_reports', to: 'reports#download_report', via: [:get, :post]
 
     if DataCycleCore.main_config.dig(:api, :enabled)
       defaults format: :json do
@@ -372,6 +372,7 @@ DataCycleCore::Engine.routes.draw do
                 end
 
                 scope 'external_sources/:external_source_id', constraints: { external_source_id: %r{[^/]+} } do
+                  match '/:external_key/timeseries(/:attribute)', via: [:put, :patch], to: 'external_systems#timeseries'
                   match '/:external_key/:attribute(/:format)', via: [:put, :patch], to: 'external_systems#timeseries', as: 'external_source_timeseries'
                   match '/:external_key', via: [:get, :post], to: 'external_systems#show', as: 'external_sources'
                   match '', via: :post, to: 'external_systems#create'

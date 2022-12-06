@@ -363,6 +363,8 @@ class Validator {
     confirmations = { finalize: true, confirm: true, warnings: undefined, mergeConfirm: false, saveAndClose: false }
   ) {
     if (confirmations.warnings !== undefined) {
+      this.$form.find('.form-element .warning.counter').closest('.form-element').addClass('has-warning');
+
       return new ConfirmationModal({
         text: await I18n.translate('frontend.validate.ignore_warnings', {
           data: confirmations.warnings
@@ -385,6 +387,20 @@ class Validator {
       return new ConfirmationModal({
         text: await I18n.translate('frontend.validate.final_save'),
         confirmationClass: 'success',
+        cancelable: true,
+        confirmationCallback: () => {
+          confirmations.finalize = false;
+          this.submitForm(confirmations);
+        },
+        cancelCallback: () => this.enable()
+      });
+    } else if (confirmations.finalize && this.$form.find(':input[name="finalize"]').length) {
+      const finalizeText = this.$form.find('label[for="finalize"]').text();
+      this.$form.find('.form-element.finalize-button-container').addClass('has-warning');
+
+      return new ConfirmationModal({
+        text: await I18n.translate('frontend.validate.final_save_warning', { text: finalizeText }),
+        confirmationClass: 'warning',
         cancelable: true,
         confirmationCallback: () => {
           confirmations.finalize = false;

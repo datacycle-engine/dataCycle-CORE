@@ -10,14 +10,6 @@ import quillCustomHandlers from '../components/quill_custom_handlers';
 const icons = Quill.import('ui/icons');
 import castArray from 'lodash/castArray';
 
-icons[
-  'insertNbsp'
-] = `<span data-dc-tooltip><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M18 9v4H6V9H4v6h16V9z"/></svg></span>`;
-
-icons[
-  'replaceAllNbsp'
-] = `<span data-dc-tooltip><svg class="spacebar-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M18 9v4H6V9H4v6h16V9z"/></svg><svg class="times-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></span>`;
-
 Quill.register(SmartBreak);
 Quill.register('modules/contentlink', QuillContentlinkModule);
 Quill.register('formats/contentlink', ContentlinkBlot);
@@ -90,12 +82,17 @@ class TextEditor {
       }
     };
     this.mode = this.element.dataset.size || 'full';
+    const toolbarButtons = this.availableToolbarButtons[this.mode];
+
+    if (domElementHelpers.parseDataAttribute(this.element.dataset.translateInline))
+      toolbarButtons.container.push(['inlineTranslator']);
+
     this.options = {
       modules: {
         counter: true,
         contentlink: {},
         customlink: {},
-        toolbar: this.availableToolbarButtons[this.mode],
+        toolbar: toolbarButtons,
         clipboard: {
           matchers: [['BR', lineBreakMatcher]]
         },
@@ -140,12 +137,9 @@ class TextEditor {
 
     this.init();
   }
-  init() {
+  async init() {
     try {
-      if (this.mode != 'none') {
-        this.loadTranslation('insertNbsp');
-        this.loadTranslation('replaceAllNbsp');
-      }
+      await quillCustomHandlers.loadIconsWithTooltips(icons, this.options.modules.toolbar.container.flat());
 
       this.editor = new Quill(this.element, this.options);
       this.removeInitialExtraLines();
@@ -185,16 +179,6 @@ class TextEditor {
     if (text === '\n\n') {
       this.editor.deleteText(this.editor.getLength() - 2, 2);
     }
-  }
-  loadTranslation(key) {
-    const promise = I18n.translate(`frontend.text_editor.${key}`);
-
-    promise.then(text => {
-      icons[key] = icons[key].replace('data-dc-tooltip', `data-dc-tooltip="${text}"`);
-      document.querySelectorAll(`.ql-${key} [data-dc-tooltip=""]`).forEach(e => (e.dataset.dcTooltip = text));
-    });
-
-    return promise;
   }
 }
 

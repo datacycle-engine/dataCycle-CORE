@@ -6,6 +6,7 @@
   add_filter_path: add_filter_path,
   add_tag_group_path: add_tag_group_path,
   stored_filter: @stored_filter&.id,
+  endpoint_id: @stored_filter&.id || @watch_list&.id,
   mode: @mode,
   ctl_id: @classification_tree_label&.id,
   ct_id: @classification_tree&.id

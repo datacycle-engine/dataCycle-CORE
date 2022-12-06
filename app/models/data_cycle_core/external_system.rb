@@ -92,6 +92,10 @@ module DataCycleCore
       export_config&.dig(method_name.to_sym, 'filter', key) || export_config&.dig(:filter, key)
     end
 
+    def full_options(name, type = 'import', options = {})
+      (default_options(type) || {}).deep_symbolize_keys.deep_merge({ type.to_sym => send("#{type}_config").dig(name).merge({ name: name.to_s }).deep_symbolize_keys.except(:sorting) }).deep_merge(options.deep_symbolize_keys)
+    end
+
     def credentials(type = 'import')
       @credentials ||= Hash.new do |h, key|
         next h[key] = self[:credentials] unless self[:credentials].is_a?(Hash)
@@ -151,7 +155,7 @@ module DataCycleCore
     def download_single(name, options = {})
       raise "unknown downloader name: #{name}" if download_config.dig(name).blank?
       success = true
-      full_options = (default_options || {}).deep_symbolize_keys.deep_merge({ download: download_config.dig(name).merge({ name: name.to_s }).deep_symbolize_keys.except(:sorting) }).deep_merge(options.deep_symbolize_keys)
+      full_options = full_options(name, 'download', options)
       locales = full_options.dig(:download, :locales) || full_options.dig(:locales) || I18n.available_locales
       raise "Missing download_strategy for #{name}, options given: #{options}" if full_options.dig(:download, :download_strategy).blank?
 
@@ -200,8 +204,7 @@ module DataCycleCore
 
     def import_single(name, options = {})
       raise "unknown importer name: #{name}" if import_config.dig(name).blank?
-      full_options = (default_options || {}).deep_symbolize_keys.deep_merge({ import: import_config.dig(name).deep_symbolize_keys.except(:sorting) }).deep_merge(options.deep_symbolize_keys)
-      full_options[:import][:name] = name.to_s
+      full_options = full_options(name, 'import', options)
       locales = full_options[:import][:locales] || full_options[:locales] || I18n.available_locales
       utility_object = DataCycleCore::Generic::ImportObject.new(**full_options.merge(external_source: self, locales: locales))
       raise "Missing import_strategy for #{name}, options given: #{options}" if full_options.dig(:import, :import_strategy).blank?

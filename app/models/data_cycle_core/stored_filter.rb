@@ -146,11 +146,12 @@ module DataCycleCore
       end
     end
 
-    def self.combine_with_collections(collections, filter_proc)
+    def self.combine_with_collections(collections, filter_proc, name_filter = true)
       query1_table = all.arel_table
       query1 = all.arel
       query1.projections = []
-      query1 = query1.where(query1_table[:name].not_eq(nil)).project(query1_table[:id], query1_table[:name], Arel::Nodes::SqlLiteral.new("'#{all.klass.model_name.param_key}'").as('class_name'))
+      query1 = query1.where(query1_table[:name].not_eq(nil)) if name_filter
+      query1 = query1.project(query1_table[:id], query1_table[:name], Arel::Nodes::SqlLiteral.new("'#{all.klass.model_name.param_key}'").as('class_name'))
 
       query2_table = collections.arel_table
       query2 = collections.arel
@@ -168,9 +169,9 @@ module DataCycleCore
     def to_select_option
       DataCycleCore::Filter::SelectOption.new(
         id,
-        name,
+        name.presence || '__DELETED__',
         model_name.param_key,
-        name
+        name.presence || '__DELETED__'
       )
     end
 
