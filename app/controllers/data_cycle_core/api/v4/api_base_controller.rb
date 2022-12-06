@@ -34,7 +34,6 @@ module DataCycleCore
         after_action :log_activity, unless: -> { params[:sl] }
         before_action :set_default_response_format
 
-        # TODO: move validate_api_params to be called before permitted_params
         def permitted_params
           validate_api_params(params.to_unsafe_hash)
           @permitted_params ||= params.permit(*permitted_parameter_keys)
@@ -84,7 +83,7 @@ module DataCycleCore
         end
 
         def log_activity
-          current_user.log_activity(type: "api_v#{@api_version}", data: permitted_params.to_h.merge(controller: params.dig('controller'), action: params.dig('action')))
+          current_user.log_activity(type: "api_v#{@api_version}", data: permitted_params.to_h.merge(controller: params.dig('controller'), action: params.dig('action'), format: request.format.to_sym))
         end
 
         def prepare_url_parameters

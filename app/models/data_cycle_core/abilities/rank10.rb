@@ -17,9 +17,7 @@ module DataCycleCore
         # Contents
         can [:set_life_cycle, :view_life_cycle, :move_content], DataCycleCore::Thing
 
-        can :destroy, DataCycleCore::Thing do |content|
-          content.try(:external_source_id).blank?
-        end
+        can :destroy, DataCycleCore::Thing, external_source_id: nil
 
         # Advanced filter
         can :advanced_filter, :backend do |_t, _k, v|
@@ -31,19 +29,19 @@ module DataCycleCore
 
         # Classifications
         can :manage, [DataCycleCore::Classification, DataCycleCore::ClassificationTree], external_source_id: nil
-        can :read, DataCycleCore::ClassificationTreeLabel, internal: false
+
+        can :read, DataCycleCore::ClassificationTreeLabel, ['classification_tree_labels.visibility && ARRAY[?]::VARCHAR[]', ['classification_overview', 'classification_administration']] do |ctl|
+          ctl.visibility&.intersection(['classification_overview', 'classification_administration'])&.any?
+        end
         can [:download, :create, :edit], DataCycleCore::ClassificationTreeLabel
         can :update, DataCycleCore::ClassificationTreeLabel, external_source_id: nil, internal: false
 
         can [:create, :update, :download], DataCycleCore::ClassificationAlias, external_source_id: nil, internal: false
         can :map_classifications, DataCycleCore::ClassificationAlias, internal: false
 
-        can :destroy, DataCycleCore::ClassificationTreeLabel do |c|
-          c.external_source_id.nil? && !c.internal && !c.classification_aliases&.any?(&:internal) && !c.classification_aliases&.any?(&:external_source_id)
-        end
-        can :destroy, DataCycleCore::ClassificationAlias do |c|
-          c.external_source_id.nil? && !c.internal && !c.sub_classification_alias&.any?(&:internal) && !c.sub_classification_alias&.any?(&:external_source_id)
-        end
+        can :destroy, DataCycleCore::ClassificationTreeLabel, external_source_id: nil, internal: false, classification_aliases: { internal: false, external_source_id: nil }
+
+        can :destroy, DataCycleCore::ClassificationAlias, external_source_id: nil, internal: false, sub_classification_alias: { internal: false, external_source_id: nil }
 
         # Downloads
         can :download, [DataCycleCore::Thing, DataCycleCore::WatchList, DataCycleCore::StoredFilter] do |content|

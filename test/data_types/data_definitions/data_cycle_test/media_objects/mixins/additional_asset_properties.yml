@@ -1,0 +1,5 @@
+---
+- :data:
+    :name: additional_asset_properties
+    :type: mixin
+    :properties: ~

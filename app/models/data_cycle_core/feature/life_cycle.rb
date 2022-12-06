@@ -17,16 +17,19 @@ module DataCycleCore
         end
 
         def ordered_classifications(content = nil)
-          @ordered_classifications ||= DataCycleCore::Classification
-            .includes(classification_aliases: :classification_tree_label)
-            .where(name: ordered_items(content), classification_aliases: {
-              classification_tree_labels: {
-                name: tree_label(content)
-              }
-            })
-            .sort_by { |c| ordered_items(content)&.index c.name }
-            .map { |c| [c.name, { id: c.id, alias_id: c.primary_classification_alias&.id }] }
-            .to_h
+          @ordered_classifications ||= DataCycleCore::ClassificationAlias
+            .joins(:primary_classification)
+            .for_tree(tree_label(content))
+            .with_internal_name(ordered_items(content))
+            .order(
+              [
+                Arel.sql('array_position(ARRAY[?]::VARCHAR[], classification_aliases.internal_name)'),
+                ordered_items(content)
+              ]
+            )
+            .pluck(
+              Arel.sql("classification_aliases.internal_name, jsonb_build_object('id', classifications.id, 'alias_id', classification_aliases.id)")
+            ).to_h.with_indifferent_access
         end
 
         def ordered_items(content = nil)

@@ -77,6 +77,9 @@ module DataCycleCore
                     }
                   }
                 }
+              },
+              page: {
+                size: 100
               }
             }
             post api_v4_concept_schemes_path(params)
@@ -92,6 +95,9 @@ module DataCycleCore
                     }
                   }
                 }
+              },
+              page: {
+                size: 100
               }
             }
             post api_v4_concept_schemes_path(params)
@@ -107,6 +113,9 @@ module DataCycleCore
                     }
                   }
                 }
+              },
+              page: {
+                size: 100
               }
             }
             post api_v4_concept_schemes_path(params)
@@ -191,6 +200,9 @@ module DataCycleCore
                     }
                   }
                 }
+              },
+              page: {
+                size: 100
               }
             }
             post api_v4_concept_schemes_path(params)
@@ -206,6 +218,9 @@ module DataCycleCore
                     }
                   }
                 }
+              },
+              page: {
+                size: 100
               }
             }
             post api_v4_concept_schemes_path(params)
@@ -221,6 +236,9 @@ module DataCycleCore
                     }
                   }
                 }
+              },
+              page: {
+                size: 100
               }
             }
             post api_v4_concept_schemes_path(params)
@@ -261,7 +279,7 @@ module DataCycleCore
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(0)
 
-            DataCycleCore::MasterData::ImportClassifications.import_all(classification_paths: [Rails.root.join('..', 'dummy_data', 'classifications')])
+            DataCycleCore::MasterData::ImportClassifications.import_all(classification_paths: [Rails.root.join('..', 'fixtures', 'data', 'classifications')])
             DataCycleCore::ClassificationTreeLabel.find_by(name: 'Test').destroy
 
             post api_v4_concept_schemes_path(params)
@@ -531,7 +549,7 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes/id/concepts parameter filter[:dct:deleted]' do
-            DataCycleCore::MasterData::ImportClassifications.import_all(classification_paths: [Rails.root.join('..', 'dummy_data', 'classifications')])
+            DataCycleCore::MasterData::ImportClassifications.import_all(classification_paths: [Rails.root.join('..', 'fixtures', 'data', 'classifications')])
             tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Test').id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Test').count
             params = {

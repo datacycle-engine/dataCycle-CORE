@@ -83,7 +83,7 @@ module DataCycleCore
           url = validate_url(data.dig('booking', 'url').presence || data.dig('bookingUrl').presence)
           return data if url.blank?
           external_key = "#{data.dig('external_key')} - #{url}"
-          data['dc_potential_action'] = [{
+          data['potential_action'] = [{
             'id' => DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: external_key)&.id,
             'external_key' => external_key,
             'external_source_id' => external_source_id,

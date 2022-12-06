@@ -9,6 +9,7 @@ module DataCycleCore
           'overlay', # overlays must be tested in a spererate task
           'schedule', # legacy property for events
           'sub_event', # legacy property for events
+          'legacy_potential_action', # legacy property for events
           'about', # TODO: check if should be tested with full thing
           'subject_of', # TODO: check if should be tested with full thing
           'is_linked_to', # TODO: check if should be tested with full thing
@@ -23,7 +24,6 @@ module DataCycleCore
           'explicit_copyright_notice', # TODO: fix if final solution is in sight ... everywhere ... will change again ...
           'publication_schedule', # creativeWorks: publicationSchedule
           'release_status_comment', # creativeWorks: publicationSchedule
-          'dc_potential_action', # TODO: temporary attribute will be moded to potential_action,
           'validity_schedule', # TODO: check if should be tested with full thing
           'slug',
           'work_translation',

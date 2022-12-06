@@ -8,7 +8,7 @@ variables:
   GITLAB_ENVIRONMENT: ''
   GITLAB_ENVIRONMENT_DEVELOPMENT: ''
 
-.docker_login_and_ssh_agent: &docker_login_and_ssh_agent # Configure SSH
+.docker_login_and_ssh_agent: &docker_login_and_ssh_agent
   - eval $(ssh-agent -s)
   - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
@@ -87,6 +87,8 @@ services:
     - bundle exec brakeman -c vendor/gems/data-cycle-core/config/brakeman.yml
     - bundle exec rubocop --format fuubar -P
     - bundle exec fasterer
+    - bundle exec rake "${CORE_RAKE_PREFIX}dc:templates:validate"
+    - bundle exec rake "${CORE_RAKE_PREFIX}zeitwerk:check"
 
 .rails_test_config:
   <<: *local_test_vars

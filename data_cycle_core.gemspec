@@ -4,22 +4,17 @@ require 'date'
 
 $LOAD_PATH.push File.expand_path('lib', __dir__)
 
-# allows bundler to use the gemspec for dependencies
-# lib = File.expand_path('../lib', __FILE__)
-# $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-
-# Maintain your gem's version:
-require 'data_cycle_core/version'
+version = File.read(File.expand_path('./GEM_VERSION', __dir__)).strip
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
   s.name        = 'data_cycle_core'
-  s.version     = DataCycleCore::VERSION
-  s.authors     = ['Michael Dermastia', 'Manuel Mitterer', 'Martin Oehzelt', 'Patrick Rainer', 'Johannes Zlattinger']
+  s.version     = version
+  s.authors     = ['Manuel Mitterer', 'Martin Oehzelt', 'Benjamin Preisig', 'Patrick Rainer', 'Johannes Zlattinger']
   s.email       = ['office@datacycle.at']
-  s.homepage    = 'http://git.pixelpoint.biz/data-cycle/data-cycle-core'
-  s.summary     = 'dataCycle-Core. Rails engine for dataCycle'
-  s.license     = "Copyright 2016-#{Time.now.year} datacycle.at. All rights reserved."
+  s.homepage    = 'https://datacycle.info'
+  s.summary     = 'dataCycle CORE - management system for linked data'
+  s.license     = 'AGPLv3'
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.md']
 
@@ -29,12 +24,10 @@ Gem::Specification.new do |s|
   s.add_dependency 'rails', '~> 6.1'
   s.add_dependency 'rake'
   # Frontend Asset Handling
-  # s.add_dependency 'sprockets', '4.0.0'
   s.add_dependency 'vite_rails', '>= 3.0.12'
   # database
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'
-  # s.add_dependency 'pg', '~> 0.21'
   s.add_dependency 'pg'
   s.add_dependency 'rgeo'
   s.add_dependency 'rgeo-geojson'
@@ -72,7 +65,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'jbuilder'
 
   s.add_dependency 'acts_as_paranoid'
-  s.add_dependency 'dry-transformer'
+  s.add_dependency 'dry-transformer', '>= 1.0'
   s.add_dependency 'dry-validation'
   s.add_dependency 'hashdiff', '>= 0.4.0'
   s.add_dependency 'transproc', '~> 1.0'

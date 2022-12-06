@@ -11,7 +11,7 @@ module DataCycleCore
 
           inherit_life_cycle_attributes(data_hash: options.data_hash) if options.new_content && !parent.nil?
 
-          self.life_cycle_changed = true unless life_cycle_stage?(options.data_hash&.dig(DataCycleCore::Feature::LifeCycle.attribute_keys&.first)&.first)
+          self.life_cycle_changed = options.data_hash.key?(DataCycleCore::Feature::LifeCycle.attribute_keys&.first) && !life_cycle_stage?(options.data_hash&.dig(DataCycleCore::Feature::LifeCycle.attribute_keys&.first)&.first)
         end
 
         def after_save_data_hash(_options)
@@ -20,11 +20,11 @@ module DataCycleCore
           super
         end
 
-        def set_life_cycle_classification(classification_id, user)
+        def set_life_cycle_classification(classification_id, user, prevent_history = false, update_computed = true)
           valid = true
 
           I18n.with_locale(first_available_locale) do
-            valid = set_data_hash(data_hash: { DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(self).presence&.first => [classification_id] }, current_user: user)
+            valid = set_data_hash(data_hash: { DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(self).presence&.first => [classification_id] }, current_user: user, prevent_history: prevent_history, update_computed: update_computed)
           end
 
           return valid unless respond_to?(:children)
@@ -34,7 +34,7 @@ module DataCycleCore
               if child.life_cycle_classification?(classification_id)
                 child.set_data_hash(data_hash: {
                   DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(self).presence&.first => [classification_id]
-                }, current_user: user)
+                }, current_user: user, prevent_history: prevent_history, update_computed: update_computed)
               end
             end
           end

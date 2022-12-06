@@ -106,9 +106,12 @@ de:
 
   classifications:
     tooltip_translations: Übersetzungen
+    new_classification_tree_label: Neuen Klassifzierungsbaum anlegen
+    new_classification: Neue Klassifzierung anlegen
 
   user:
-    user_not_confirmed: Die E-Mail Adresse wurde noch nicht bestätigt
+    user_not_confirmed: E-Mail Adresse wurde noch nicht bestätigt
+    confirm: E-Mail Adresse wurde noch nicht bestätigt, jetzt bestätigen!
 
   frontend:
     load_error: Fehler beim Laden des Inhalts.
@@ -116,6 +119,7 @@ de:
       insertNbsp: Geschütztes Leerzeichen einfügen
       replaceAllNbsp: Alle geschützten Leerzeichen durch normale Leerzeichen ersetzen
       replaced_all_nbsp: Alle geschützten Leerzeichen wurden durch normale Leerzeichen ersetzt!
+      inlineTranslator: Text automatisch übersetzen
     override_warning: 'Soll das Feld %{data} überschrieben werden?'
     override_focus: Felder hervorheben
     reload_page: Seite neu laden
@@ -188,6 +192,7 @@ de:
       warning: 'Warnung:'
       ignore_warnings: Es sind Warnungen vorhanden (%{data}).<br>Soll der Inhalt trotzdem gespeichert werden?
       final_save: Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.
+      final_save_warning: 'Um den Inhalt final abzuschicken, muss die ensprechende Checkbox<br><i class="callout inline warning">%{text}</i> angeklickt werden.'
       errors:
         no_data: 'Keine Daten angegeben für %{data}.'
         key_figure_not_found: Kennzahl nicht gefunden.
@@ -254,6 +259,7 @@ de:
       day: Tag
       week: Woche
       month: Monat
+      quarter: Quartal
       year: Jahr
     chart_type_options:
       bar: Balken
@@ -506,6 +512,16 @@ de:
     failure: "Es ist ein schwerer Fehler aufgetreten.\nDer Inhalt kann nich synchronisiert werden."
     export: Externes System
 
+  external_connections:
+    new_form:
+      title: Externe Verknüpfung erstellen
+      created: Externe Verknüpfung wurde erstellt
+      duplicate_error: Es existiert schon eine Verknüpfung zu diesem System
+    remove_external_system_sync:
+      tooltip: Externe Verknüpfung entfernen
+      success: Externe Verknüpfung wurde entfernt
+      warning_html: 'Externe Verknüpfung entfernen?<br><br><i class="alert-color">Das beeinflusst möglicherweise die Funktion eines Importers!</i>'
+
   duplicate:
     candidates: Mögliche Duplikate
     score: Score
@@ -563,6 +579,8 @@ de:
         user_link: Benutzer bearbeiten
         unlocked_subject: Freigabe erfolgt
         unlocked_html: Sie können sich ab sofort mit Ihren Zugangsdaten einloggen und die freigegebenen Inhalte nutzen! Bei Fragen wenden Sie sich bitte direkt an uns.
+    translate:
+      inline_success: Der Text wurde von %{source_locale} nach %{target_locale} übersetzt.
 
     report_generator:
       downloads_popular: Top 50 Downloads
@@ -573,6 +591,7 @@ de:
         name: Name
         downloads_all: Anzahl der Downloads (Gesamt)
         downloads_by_month: Anzahl der Downloads (%{date})
+        downloads_by_previous_month: Anzahl der Downloads (%{date})
         date_created: Heruntergeladen am
         email: E-Mail
         user_display_name: Account
@@ -583,11 +602,14 @@ de:
         api_usage_last_week: Anzahl der Verwendungen über die API in letzten Wochen
         api_usage_current_month: Anzahl der Verwendungen über die API im aktuellen Monat
         api_usage_last_month: Anzahl der Verwendungen über die API im letzten Monat
+        api_usage_last_12_months: Anzahl der Verwendungen über die API in den letzten 12 Monaten
       mailer:
         subject:
           downloads_popular: TOP 50 Bild Downloads
         text_html:
           downloads_popular: Im Anhang finden Sie die TOP 50 Bild Downloads.
+      download_form:
+        type: Format
 
   compare:
     switch_contents: Inhalte tauschen
@@ -724,6 +746,7 @@ de:
       in: in
       num: Anzahl
       unit: Einheit
+    translated_name: Name
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...
@@ -796,6 +819,8 @@ de:
     list: Listenansicht
     tree_view: Wurzel in der Baumansicht
     xml: XML
+    classification_overview: Klassifizierungsübersicht
+    classification_administration: Klassifizierungsadministration
 
   classification_change_behaviour:
     trigger_webhooks: Webhooks für Inhalte auslösen
@@ -855,7 +880,7 @@ de:
     upload_gpx: 'GPX-Datei hochladen'
     remove_feature: 'Geometrie löschen'
     open_asset: 'Datei öffnen'
-    download: 'herunterlanden'
+    download: 'herunterladen'
     download_content: 'Inhalt herunterladen'
     download_indesign: 'Inhalt für Adobe InDesign herunterladen'
     download_zip: 'Inhalte als ZIP-Archiv herunterladen'
@@ -1024,6 +1049,7 @@ de:
         other: '<b>%{count}</b> Inhalte wurden erstellt'
       removed_lock: Inhalt wurde freigegeben
       cleared_collection: 'Alle Inhalte wurden aus %{data} entfernt'
+      confirmed: '%{data} wurde bestätigt.'
     warning:
       no_changes: Es wurde keine neue Version angelegt, da keine Änderungen am Inhalt gemacht worden sind.
     info:
@@ -1093,6 +1119,11 @@ de:
           attributes:
             name:
               blank: Name darf nicht leer sein.
+        data_cycle_core/external_system_sync:
+          attributes:
+            external_system_id:
+              blank: darf nicht leer sein.
+
     models:
       data_cycle_core/user: Benutzer
       data_cycle_core/user_organization: Organisation
@@ -1229,7 +1260,7 @@ de:
         text_file: Weitere Infos (%{file_types})
         locale: 'E-Mail Sprache'
       data_cycle_core/stored_filter:
-        system: Für alle Benutzer sichtbar
+        system: Für alle Benutzer sichtbar (gilt auch für die API)
         api: Über API abrufbar
         api_users: Für API zugelassene Benutzer
         linked_stored_filter_id: Filter für verknüpfte Inhalte
@@ -1240,6 +1271,9 @@ de:
         file: Datei
       data_cycle_core/external_source:
         name: Name
+      data_cycle_core/external_system_sync:
+        external_system_id: Externes System
+        external_key: Externer Identifier
 
   unauthorized:
     manage:
@@ -1247,6 +1281,8 @@ de:
 
   data_cycle_core:
     administration: 'Administration'
+    documentation: Dokumentation
+    activities: Aktivitäten
     user_settings: Benutzeraktionen
     user_details: Benutzerdetails
     user_links: Benutzerlinks
@@ -1255,9 +1291,10 @@ de:
     classifications_adminitration:
       classification:
         submit_loading_message: Das Speichern kann mehrere Minuten dauern, bitte haben Sie etwas Geduld
-      download_tree: Klassifizierungsbaum als CSV herunterladen
-      download_tree_with_contents: Klassifizierungsbaum inklusive Inhalten als CSV herunterladen
-      download_tree_for_mappings: Klassifizierungsbaum zum Definieren von Mappings als CSV herunterladen
+      download_tree_csv: Klassifizierungsbaum als CSV herunterladen
+      download_tree: Klassifizierungsbaum ohne Inhalte (csv)
+      download_tree_with_contents: Klassifizierungsbaum mit Inhalten (csv)
+      download_tree_for_mappings: Klassifizierungsbaum zum Definieren von Mappings (csv)
     this_classification: Dieser Klassifizierung
     this_classification_tree: Diesem Klassifizierungsbaum
     show_contents_for_tree_label: 'Inhalte in %{data} auflisten'
@@ -1271,10 +1308,10 @@ de:
       clear: Manuelle Übersetzungen löschen
       auto: Für diesen Datensatz wurden alle Übersetzungen automatisch angelegt.
     classification_tree_relations: 'ACHTUNG: Mit diesem Klassifizierungsbaum sind Inhalte verknüpft!'
-    classification_relations:
+    classification_relations_html:
       one: 'ACHTUNG: Mit dieser Klassifizierung ist <b>1</b> Inhalt verknüpft!'
       other: 'ACHTUNG: Mit dieser Klassifizierung sind <b>%{count}</b> Inhalte verknüpft!'
-    child_classification_relations:
+    child_classification_relations_html:
       one: 'ACHTUNG: %{data} ist <b>1</b> Klassifizierung zugeordnet. Diese wird mitgelöscht!'
       other: 'ACHTUNG: %{data} sind <b>%{count}</b> Klassifizierungen zugeordnet.<br>Diese werden mitgelöscht!'
     stored_searches:
@@ -1334,6 +1371,10 @@ de:
         webhooks:
           root: Webhooks
           json_ld: JSON-LD
+        geodata:
+          root: Geodaten
+          geojson: GeoJSON
+          mvt: Mapbox Vector Tiles
 
     schema:
       root: Schema
@@ -1501,6 +1542,22 @@ de:
       station: Bahnhof
       subtitle: Untertitel
       teaser: Teaser
+    bierfinder:
+      book: Beschreibung
+      tipp: Tip
+      essenUndSpezial: Essen und Spezialitäten
+      biersorten: Biersorten
+    venus:
+      accessibilityDescription: Barrierefreiheit
+      arrivalDescription: Ankunft
+      shortDescription: Kurzbeschreibung
+      description: Beschreibung
+      specialDescription: Zusatzbeschreibung
+      sellsBrands: Verkauft Marken
+      startingPointDescription: Startpunkt Beschreibung
+      character: Tour Charakter
+      parkingPossibilities: Parkmöglichkeiten
+      seasonDescription: Begehbare Monate
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

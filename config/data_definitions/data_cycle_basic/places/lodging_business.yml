@@ -65,6 +65,9 @@
       :potential_actions:
         :type: mixin
         :name: potential_actions
+      :media_links:
+        :type: mixin
+        :name: media_links
       :additional_lodging_business_properties:
         :type: mixin
         :name: additional_lodging_business_properties

@@ -4,12 +4,8 @@
 
 <%= tag.span(render('data_cycle_core/contents/grid/attributes/external_connections', content: content), class: 'tile-external-connections') if show_external_connections?(content) %>
 
-<%= link_to thing_path(content), target: :_blank, class: "show-link", data: { dc_tooltip: t('actions.show', locale: active_ui_locale) } do %>
-  <i class="fa fa-eye" aria-hidden="true"></i>
-<% end if local_assigns[:definition] && definition['type'] == "linked" && @diff_source.nil? && can?(:show, content, :tile_buttons) %>
+<%= link_to tag.i(class: 'fa fa-eye'), thing_path(content), target: :_blank, class: "show-link", data: { dc_tooltip: t('actions.show', locale: active_ui_locale) } if local_assigns[:definition] && definition['type'] == "linked" && @diff_source.nil? && can?(:show, content, :tile_buttons) %>
 
-<%= link_to edit_thing_path(content, locale: I18n.locale), target: :_blank, class: "edit-link", data: { dc_tooltip: t('actions.edit', locale: active_ui_locale) } do %>
-  <i class="fa fa-pencil" aria-hidden="true"></i>
-<% end if local_assigns[:definition] && definition['type'] == "linked" && @diff_source.nil? && can?(:update, content, :tile_buttons) %>
+<%= link_to tag.i(class: 'fa fa-pencil'), edit_thing_path(content, locale: I18n.locale), target: :_blank, class: "edit-link", data: { dc_tooltip: t('actions.edit', locale: active_ui_locale) } if local_assigns[:definition] && definition['type'] == "linked" && @diff_source.nil? && can?(:update, content, :tile_buttons) %>
 
-<%= tag.span(tag.i(class: 'fa fa-times'), class: 'delete-thumbnail') if local_assigns[:removable] %>
+<%= tag.span(tag.i(class: 'fa fa-times'), class: 'delete-thumbnail alert-color') if local_assigns[:removable] %>

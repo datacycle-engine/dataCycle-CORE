@@ -29,9 +29,6 @@ module DataCycleCore
           @content = DataCycleCore::Thing
             .includes({ classifications: [], translations: [] })
             .find(permitted_params[:id])
-
-          # @content.destroy
-          # render json: {"success" => @content.destroyed?}
         end
 
         def search

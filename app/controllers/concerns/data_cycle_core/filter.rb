@@ -82,8 +82,6 @@ module DataCycleCore
         if mode_params[:con_id].present? && request.xhr?
           @classification_parent_tree = DataCycleCore::ClassificationTree.find(mode_params[:cpt_id])
           @container = DataCycleCore::Thing.find(mode_params[:con_id])
-          # TODO: check if ordering is required
-          # @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
           @contents = get_filtered_results(query: query, user_filter: user_filter)
             .part_of(@container.id)
           tmp_count = @contents.count
@@ -100,9 +98,6 @@ module DataCycleCore
             .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
             .order('classification_aliases.internal_name')
             .page(params[:tree_page])
-
-          # TODO: check if ordering is required
-          # @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
           @contents = get_filtered_results(query: query, user_filter: user_filter)
             .classification_alias_ids_without_subtree(@classification_tree.sub_classification_alias.id)
           tmp_count = @contents.count

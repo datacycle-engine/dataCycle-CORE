@@ -66,7 +66,8 @@ server {
       application/rss+xml
       image/svg+xml
       application/geo+json
-      application/vnd.geo+json;
+      application/vnd.geo+json
+      application/x-protobuf;
 
   location @puma_data_cycle {
     proxy_http_version 1.1;

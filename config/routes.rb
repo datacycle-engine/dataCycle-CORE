@@ -53,21 +53,26 @@ DataCycleCore::Engine.routes.draw do
   get '/schema', to: 'schema#index'
   get '/schema/:id', to: 'schema#show', as: :schema_details
   get '/info', to: 'frontend#info', as: :info
+  get '/i18n/translate', to: 'application#translate'
 
   authenticate do
     get :clear_all_caches, controller: :application
-    get '/i18n/translate', to: 'application#translate'
 
     resources :users, only: [:index, :edit, :update, :destroy] do
       post :unlock, on: :member
+      post :confirm, on: :member
       post :create_user, on: :collection
       get :search, on: :collection
+      post :validate, on: :member
+      post :validate, on: :collection
       get :become
       match '/index', via: [:get, :post], on: :collection, action: :index
     end
 
     resources :user_organizations do
       post :create_user, on: :collection
+      post :validate, on: :member
+      post :validate, on: :collection
     end
 
     resources :user_groups, only: [:index, :edit, :update, :destroy] do
@@ -103,6 +108,8 @@ DataCycleCore::Engine.routes.draw do
         post :attribute_default_value, on: :collection, defaults: { format: 'application/json' }
         post :switch_primary_external_system, on: :member
         post :content_score, on: :collection
+        post :create_external_connection, on: :member
+        delete :remove_external_connection, on: :member
         post '/', on: :member, action: :show
       end
     end
@@ -218,7 +225,7 @@ DataCycleCore::Engine.routes.draw do
     get  '/admin/activity_details/:type', to: 'dash_board#activity_details', format: :json
 
     get  '/reports', to: 'reports#index'
-    get  '/download_reports', to: 'reports#download_report'
+    match '/download_reports', to: 'reports#download_report', via: [:get, :post]
 
     if DataCycleCore.main_config.dig(:api, :enabled)
       defaults format: :json do
@@ -365,6 +372,7 @@ DataCycleCore::Engine.routes.draw do
                 end
 
                 scope 'external_sources/:external_source_id', constraints: { external_source_id: %r{[^/]+} } do
+                  match '/:external_key/timeseries(/:attribute)', via: [:put, :patch], to: 'external_systems#timeseries'
                   match '/:external_key/:attribute(/:format)', via: [:put, :patch], to: 'external_systems#timeseries', as: 'external_source_timeseries'
                   match '/:external_key', via: [:get, :post], to: 'external_systems#show', as: 'external_sources'
                   match '', via: :post, to: 'external_systems#create'
@@ -398,6 +406,18 @@ DataCycleCore::Engine.routes.draw do
                   match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
                 end
               end
+            end
+          end
+        end
+      end
+
+      defaults format: :pbf do
+        namespace :mvt do
+          namespace :v1 do
+            scope path: '(/:api_subversion)' do
+              match 'endpoints/:id/:z/:x/:y', to: 'contents#index', via: [:get, :post]
+              match 'endpoints/:id', to: 'contents#index', defaults: { bbox: true }, via: [:get, :post]
+              match 'things/:id/:z/:x/:y', to: 'contents#show', via: [:get, :post]
             end
           end
         end

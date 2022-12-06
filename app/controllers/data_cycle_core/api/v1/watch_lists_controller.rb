@@ -12,7 +12,6 @@ module DataCycleCore
             @watch_lists = DataCycleCore::WatchList.accessible_by(current_ability).without_my_selection
           end
 
-          # FIXME: Jbuilder Bug: tries to render jbuilder partial
           render plain: {
             collections: @watch_lists.map do |l|
               {
@@ -25,7 +24,6 @@ module DataCycleCore
           }.to_json, content_type: 'application/json'
         end
 
-        # method to show a particular WatchList
         def show
           @watch_list = DataCycleCore::WatchList.find(permitted_params[:id])
         end

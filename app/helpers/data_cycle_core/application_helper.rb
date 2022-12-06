@@ -131,8 +131,7 @@ module DataCycleCore
 
     # Returns the full title on a per-page basis.
     def full_title
-      base_title = 'dataCycle'
-
+      base_title = I18n.t('title') || 'dataCycle'
       if content_for(:title).blank?
         base_title
       else

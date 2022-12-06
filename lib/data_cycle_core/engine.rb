@@ -59,6 +59,7 @@ require 'jbuilder'
 require 'acts_as_paranoid'
 
 require 'transproc/all'
+require 'dry-transformer'
 require 'dry-validation'
 
 # carrierwave
@@ -156,7 +157,7 @@ module DataCycleCore
   mattr_accessor :inheritable_attributes
   self.inheritable_attributes = ['validity_period']
 
-  # embedded_objects in show
+  # number of preloaded embedded_objects and linked in show and edit views
   mattr_accessor :linked_objects_page_size
   self.linked_objects_page_size = 5
 
@@ -169,14 +170,17 @@ module DataCycleCore
 
   # template directories
   mattr_accessor :template_path
+  self.template_path = []
   mattr_accessor :default_template_paths
   self.default_template_paths = []
 
   # location of import/download configs
   mattr_accessor :external_sources_path
+  self.external_sources_path = []
 
   # location of external_system configs
   mattr_accessor :external_systems_path
+  self.external_systems_path = []
 
   # obsolete: remove after projects initializer update
   mattr_accessor :allowed_content_api_classifications
@@ -192,7 +196,7 @@ module DataCycleCore
   self.content_warnings = {}
 
   mattr_accessor :classification_visibilities
-  self.classification_visibilities = ['show', 'api', 'tile', 'show_more', 'xml', 'list', 'edit', 'filter', 'tree_view']
+  self.classification_visibilities = ['show', 'api', 'tile', 'show_more', 'xml', 'list', 'edit', 'filter', 'tree_view', 'classification_overview', 'classification_administration']
 
   mattr_accessor :classification_change_behaviour
   self.classification_change_behaviour = ['trigger_webhooks', 'clear_cache']
@@ -223,7 +227,7 @@ module DataCycleCore
   end
 
   def self.default_classification_visibilities
-    classification_visibilities.except(['show_more', 'tree_view'])
+    classification_visibilities.except(['show_more', 'tree_view', 'classification_overview'])
   end
 
   def self.load_configurations(path, include_environments = true)
@@ -254,33 +258,11 @@ module DataCycleCore
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
 
-    # config.assets.enabled = false
-
-    # config.generators do |g|
-    #   g.assets false
-    # end
-
-    # config.assets.version = '1.0'
-    # config.assets.precompile += [
-    #   'data_cycle_core/*',
-    #   'eml-datacycle-border.png',
-    #   'eml-datacycle.png',
-    #   'location_after.svg',
-    #   'location_before.svg',
-    #   'location.svg',
-    #   'dc-logo_inverted.svg',
-    #   'dc-logo.svg',
-    #   'dc-logo.png'
-    # ]
     config.action_dispatch.cookies_serializer = :json
-    # TODO: check: raise_on_unfiltered_parameters never worked in main application
-    # config.action_controller.raise_on_unfiltered_parameters = true
     config.action_controller.per_form_csrf_tokens = true
     config.action_controller.forgery_protection_origin_check = true
     # Configure SSL options to enable HSTS with subdomains. Previous versions had false.
     config.ssl_options = { hsts: { subdomains: true } }
-    # Make Ruby 2.4 preserve the timezone of the receiver when calling `to_time`.
-    # Previous versions had false.
     ActiveSupport.to_time_preserves_timezone = true
     # Enable parameter wrapping for JSON. You can disable this by setting :format to an empty array.
     ActiveSupport.on_load(:action_controller) do
@@ -325,7 +307,6 @@ module DataCycleCore
 
     initializer :append_cable_configurations do |app|
       app.paths['config/cable'] << root.join('config', 'cable.yml').to_s
-
       ActiveSupport.on_load(:action_cable) do
         config_path = Pathname.new(app.config.paths['config/cable'].find { |p| Pathname.new(p).exist? })
         self.cable = Rails.application.config_for(config_path).to_h.with_indifferent_access if config_path
@@ -338,6 +319,8 @@ module DataCycleCore
     end
 
     config.autoload_once_paths << "#{root}/app/middlewares"
+    config.autoload_paths += Dir['vendor/gems/datacycle-*/lib']
+    config.eager_load_paths += Dir['vendor/gems/datacycle-*/lib']
 
     config.before_initialize do |app|
       ### used for backward compatibility (Rails < 5.0)
@@ -382,5 +365,3 @@ module DataCycleCore
     end
   end
 end
-
-require 'data_cycle_core/exceptions'

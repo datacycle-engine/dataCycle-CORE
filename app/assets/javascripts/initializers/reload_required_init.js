@@ -16,7 +16,7 @@ export default function () {
 
     function reloadRequiredHandler(_event) {
       DataCycle.httpRequest({
-        type: 'GET',
+        method: 'GET',
         url: '/reload_required',
         data: {
           id: id,

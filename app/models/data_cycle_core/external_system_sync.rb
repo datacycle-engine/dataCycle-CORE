@@ -5,6 +5,8 @@ module DataCycleCore
     belongs_to :syncable, polymorphic: true
     belongs_to :external_system
 
+    validates :external_system_id, presence: true # rubocop:disable Rails/RedundantPresenceValidationOnBelongsTo
+
     DUPLICATE_SYNC_TYPE = 'duplicate'
 
     def external_url

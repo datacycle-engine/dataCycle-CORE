@@ -1,0 +1,75 @@
+---
+- :data:
+    :name: geo
+    :type: mixin
+    :properties:
+      :longitude:
+        :label: Longitude
+        :type: number
+        :storage_location: column
+        :validations:
+          :format: float
+        :normalize:
+          :id: longitude
+          :type: longitude
+        :api:
+          :transformation:
+            :method: nest
+            :name: geo
+            :type: GeoCoordinates
+          :minimal: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :latitude:
+        :label: Latitude
+        :type: number
+        :storage_location: column
+        :validations:
+          :format: float
+        :normalize:
+          :id: latitude
+          :type: latitude
+        :api:
+          :transformation:
+            :method: nest
+            :name: geo
+            :type: GeoCoordinates
+          :minimal: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :elevation:
+        :label: Meereshöhe (m)
+        :type: number
+        :storage_location: column
+        :validations:
+          :format: float
+        :api:
+          :transformation:
+            :method: nest
+            :name: geo
+            :type: GeoCoordinates
+          :minimal: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :location:
+        :label: GPS-Koordinaten
+        :type: geographic
+        :storage_location: column
+        :api:
+          :disabled: true
+        :ui:
+          :edit:
+            :options:
+              :additional_value_paths:
+                :tour:
+                  :geo: line
+                  :title: title

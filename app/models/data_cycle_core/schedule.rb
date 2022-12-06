@@ -15,7 +15,10 @@ module DataCycleCore
 
     def self.included(klass)
       klass.extend(ClassMethods)
+      klass.extend(DOTIW::Methods)
     end
+
+    delegate :iso8601_duration, to: :class
 
     def to_h
       item_hash = @schedule_object&.to_hash || {}
@@ -300,14 +303,6 @@ module DataCycleCore
       self
     end
 
-    def iso8601_duration(start_time, end_time)
-      return ActiveSupport::Duration.build(0) if end_time.nil?
-
-      time_hash = distance_of_time_in_words_hash(start_time, end_time)
-
-      self.class.parts_to_iso8601_duration(time_hash)
-    end
-
     def occurs_between?(from = dtstart, to = dtend)
       @schedule_object.occurs_between?(from, to, spans: true) # consider also overlap of [from, to] with [starttime, starttime + duration]
     end
@@ -406,6 +401,14 @@ module DataCycleCore
         }.flatten.compact
       end
 
+      def iso8601_duration(start_time, end_time)
+        return ActiveSupport::Duration.build(0) if end_time.nil?
+
+        time_hash = distance_of_time_in_words_hash(start_time, end_time)
+
+        parts_to_iso8601_duration(time_hash)
+      end
+
       def time_to_duration(start_time, end_time)
         return 0 if start_time.blank? || end_time.blank?
 
@@ -485,20 +488,6 @@ module DataCycleCore
     before_save :serialize_schedule_object
 
     attr_accessor :schedule_object
-
-    # SELECT *
-    # FROM schedules
-    # WHERE
-    # tstzrange('2010-01-01 00:00:00+02'::timestamp with time zone - duration, '2020-12-31 00:00:00+02'::timestamp with time zone, '[]') && tstzrange(dtstart, dtend, '[]')
-    # AND
-    # tstzrange('2010-01-01 00:00:00+02'::timestamp with time zone - duration, '2020-12-31 00:00:00+02'::timestamp with time zone, '[]') @> ANY (
-    # SELECT event_date from unnest(rdate) AS event_date
-    # UNION
-    # SELECT event_date FROM unnest(get_occurrences(rrule::rrule, dtstart)) AS event_date
-    # EXCEPT
-    # SELECT event_date from unnest(exdate) AS event_date
-    # )
-
     def history?
       false
     end

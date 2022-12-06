@@ -4,8 +4,6 @@ module DataCycleCore
   module MasterData
     module Contracts
       class ApiContract < Dry::Validation::Contract
-        # config.messages.default_locale = :en
-        # config.messages.backend = :i18n
         config.validate_keys = true
 
         UUID_OR_STRING_OF_UUIDS_REGEX = /^(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*)?(,(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*))*$/i.freeze
@@ -49,6 +47,14 @@ module DataCycleCore
           optional(:fields).filled(:string)
           optional(:include).filled(:string)
           optional(:classification_trees) { str? | array? }
+        end
+
+        BASE_MVT_API = Dry::Schema.Params do
+          optional(:x).value(:integer)
+          optional(:y).value(:integer)
+          optional(:z).value(:integer)
+          optional(:bbox).value(:bool)
+          optional(:layerName).value(:string)
         end
 
         WATCHLIST = Dry::Schema.Params do
@@ -155,7 +161,7 @@ module DataCycleCore
           optional(:schedule).hash(ATTRIBUTE_FILTER)
         end
 
-        params(BASE, BASE_JSON_API, WATCHLIST, CLASSIFICATIONS, CONTENT) do
+        params(BASE, BASE_JSON_API, BASE_MVT_API, WATCHLIST, CLASSIFICATIONS, CONTENT) do
           optional(:page).hash(PAGE)
           optional(:section).hash(SECTION)
           optional(:filter).hash(FILTER)

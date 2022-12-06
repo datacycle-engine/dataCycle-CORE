@@ -2,7 +2,6 @@
 
 require 'active_support/duration'
 
-# activerecord/lib/active_record/connection_adapters/postgresql/oid/interval.rb
 module ActiveRecord
   module ConnectionAdapters
     module PostgreSQL
@@ -46,7 +45,6 @@ module ActiveRecord
   end
 end
 
-# activerecord/lib/active_record/connection_adapters/postgresql/schema_definitions.rb
 module ActiveRecord
   module ConnectionAdapters
     module PostgreSQL
@@ -59,7 +57,6 @@ module ActiveRecord
   end
 end
 
-# activerecord/lib/active_record/connection_adapters/postgresql/schema_statements.rb
 require 'active_record/connection_adapters/postgresql/schema_statements'
 module SchemaStatementsWithInterval
   def type_to_sql(type, limit: nil, precision: nil, scale: nil, array: nil, **)
@@ -77,8 +74,6 @@ module SchemaStatementsWithInterval
 end
 ActiveRecord::ConnectionAdapters::PostgreSQL::SchemaStatements.prepend SchemaStatementsWithInterval
 
-# activerecord/lib/active_record/connection_adapters/postgresql_adapter.rb
-# @todo update or replace
 require 'active_record/connection_adapters/postgresql_adapter'
 ActiveRecord::ConnectionAdapters::PostgreSQLAdapter::NATIVE_DATABASE_TYPES[:interval] = { name: 'interval' }
 ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.class_eval do

@@ -1,0 +1,5 @@
+---
+- :data:
+    :name: additional_person_properties
+    :type: mixin
+    :properties: ~

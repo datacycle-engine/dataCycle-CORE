@@ -100,6 +100,9 @@
       :potential_actions:
         :type: mixin
         :name: potential_actions
+      :media_links:
+        :type: mixin
+        :name: media_links
       :additional_information:
         :label: Ergänzende Information
         :type: embedded

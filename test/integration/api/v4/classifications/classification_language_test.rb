@@ -26,7 +26,10 @@ module DataCycleCore
 
           test 'api/v4/concept_schemes exists in language: de' do
             params = {
-              language: 'de'
+              language: 'de',
+              page: {
+                size: 100
+              }
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -43,7 +46,10 @@ module DataCycleCore
           test 'api/v4/concept_schemes for :en (exists als available_locales)' do
             params = {
               language: 'en',
-              fields: 'skos:prefLabel'
+              fields: 'skos:prefLabel',
+              page: {
+                size: 100
+              }
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -69,7 +75,10 @@ module DataCycleCore
           test 'api/v4/concept_schemes for :it (not in available_locales) defaulting to :de' do
             params = {
               language: 'it',
-              fields: 'skos:prefLabel'
+              fields: 'skos:prefLabel',
+              page: {
+                size: 100
+              }
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -89,7 +98,10 @@ module DataCycleCore
           test 'api/v4/concept_schemes test multilingual en,it,de -> selects only de' do
             params = {
               language: 'en,it,de',
-              fields: 'skos:prefLabel'
+              fields: 'skos:prefLabel',
+              page: {
+                size: 100
+              }
             }
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
@@ -116,7 +128,10 @@ module DataCycleCore
             params = {
               id: @tree.id,
               language: 'de',
-              fields: 'skos:prefLabel,dct:description'
+              fields: 'skos:prefLabel,dct:description',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(@tree.classification_aliases.count)
@@ -138,7 +153,10 @@ module DataCycleCore
             params = {
               id: @tree.id,
               language: 'hu,ab',
-              fields: 'skos:prefLabel,dct:description'
+              fields: 'skos:prefLabel,dct:description',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(@tree.classification_aliases.count)
@@ -160,7 +178,10 @@ module DataCycleCore
             params = {
               id: @tree.id,
               language: 'en',
-              fields: 'skos:prefLabel,dct:description'
+              fields: 'skos:prefLabel,dct:description',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(@tree.classification_aliases.count)
@@ -207,7 +228,10 @@ module DataCycleCore
             params = {
               id: @tree.id,
               language: 'en,it',
-              fields: 'skos:prefLabel,dct:description'
+              fields: 'skos:prefLabel,dct:description',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(@tree.classification_aliases.count)
@@ -255,7 +279,10 @@ module DataCycleCore
             params = {
               id: @tree.id,
               language: 'en,de',
-              fields: 'skos:prefLabel,dct:description'
+              fields: 'skos:prefLabel,dct:description',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(@tree.classification_aliases.count)
@@ -292,7 +319,10 @@ module DataCycleCore
             params = {
               id: @tree.id,
               language: 'en,it,de',
-              fields: 'skos:prefLabel,dct:description, dct:modified, skos:inScheme'
+              fields: 'skos:prefLabel,dct:description, dct:modified, skos:inScheme',
+              page: {
+                size: 100
+              }
             }
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(@tree.classification_aliases.count)

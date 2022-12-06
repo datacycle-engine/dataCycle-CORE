@@ -1,23 +1,24 @@
 <% breadcrumb :reports %>
 
-<section>
+<section class="reports">
   <h1><%= t('data_cycle_core.reports.available_reports', locale: active_ui_locale) %></h1>
-  <% @reports.each do |key, report| %>
-    <div class="row">
-      <h3><%= t("feature.report_generator.#{key}", locale: active_ui_locale) %></h3>
-      <div class="row">
-        <ul class="report-list">
-          <% report.dig('allowed_formats').each do |format| %>
-            <li>
-              <%= link_to download_reports_path(type: format, identifier: key), class: '' do %>
-                <span class="icon"><i class="fa fa-download" aria-hidden="true"></i></span>
-                <span class="title">Download <%= format %></span>
-              <% end %>
-            </li>
-          <% end %>
-        </ul>
-      </div>
-    </div>
-  <% end %>
+  <ul class="available-reports no-bullet">
+    <% @reports.each do |key, report| %>
+      <li>
+        <a href="#" class="report-overlay-link" data-open="report-overlay-<%= key %>"><%= t("feature.report_generator.#{key}", locale: active_ui_locale) %></a>
 
+        <div class="reveal" id="report-overlay-<%= key %>" data-reveal>
+          <h3><%= t("feature.report_generator.#{key}", locale: active_ui_locale) %></h3>
+          <div class="remote-render"
+              data-remote-path="data_cycle_core/reports/form"
+              data-remote-options="<%= to_query_params({ key: key, report: report }).to_json %>">
+          </div>
+
+          <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      </li>
+    <% end %>
+  </ul>
 </section>

@@ -275,6 +275,9 @@
       :potential_actions:
         :type: mixin
         :name: potential_actions
+      :media_links:
+        :type: mixin
+        :name: media_links
       :linked_data:
         :type: mixin
         :name: linked_data

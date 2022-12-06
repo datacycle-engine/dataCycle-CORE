@@ -8,7 +8,6 @@ module DataCycleCore
       return nil if diff.blank?
       item_path_array = key.split(/[\[\]]+/)
 
-      # diff.dig(*item_path_array)
       save_navigate(diff, item_path_array)
     end
 

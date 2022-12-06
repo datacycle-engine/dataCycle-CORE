@@ -102,7 +102,8 @@ en:
     tooltip_translations: Translations
 
   user:
-    user_not_confirmed: The email address has not been confirmed yet
+    user_not_confirmed: email address has not been confirmed yet
+    confirm: confirm email
 
   frontend:
     load_error: Error loading content.
@@ -110,6 +111,7 @@ en:
       insertNbsp: Insert protected space
       replaceAllNbsp: replace all protected spaces with normal spaces
       replaced_all_nbsp: replaced all protected spaces with normal spaces!
+      inlineTranslator: translate text automatically
     override_warning: Should the field %{data} be overwritten?
     override_focus: highlight fields
     reload_page: Reload page
@@ -497,6 +499,17 @@ en:
       A fatal error has occurred.
       The content cannot be synchronized.
     export: External system
+
+  external_connections:
+    new_form:
+      title: Create link to external system
+      created: Link to external system was created
+      duplicate_error: There is already a link to this external system
+    remove_external_system_sync:
+      tooltip: Remove link to external system
+      success: Link to external system was removed
+      warning_html: 'Remove link to external system?<br><br><i class="alert-color">This may affect the function of an importer!</i>'
+
   duplicate:
     candidates: Possible duplicates
     score: Score
@@ -540,6 +553,37 @@ en:
         user_link: Edit user
         unlocked_subject: User unlocked
         unlocked_html: You can now log in with your login data and use the released content! If you have any questions, please contact us directly.
+    translate:
+      inline_success: The text was translated from %{source_locale} to %{target_locale}.
+
+    report_generator:
+      downloads_popular: Top 50 Downloads
+      downloads_content: All downloads of this content
+      stored_searches_usage: Usage of saved Searches
+      headings:
+        id: ID
+        name: Name
+        downloads_all: Number of downloads (total)
+        downloads_by_month: Number of downloads (%{date})
+        downloads_by_previous_month: Number of downloads (%{date})
+        date_created: Downloaded on
+        email: Email
+        user_display_name: Account
+        creator: Creator
+        last_used_dashboard: Date of last use on the dashboard
+        last_used_api: Date of last use via the API
+        api_usage_current_week: Number of uses via the API in the current week
+        api_usage_last_week: Number of uses via the API in recent weeks
+        api_usage_current_month: Number of uses via the API in the current month
+        api_usage_last_month: Number of uses via the API in the last month
+        api_usage_last_12_months: Number of uses via the API in the last 12 months
+      mailer:
+        subject:
+          downloads_popular: TOP 50 Image Downloads
+        text_html:
+          downloads_popular: Attached you will find the TOP 50 image downloads.
+      download_form:
+        type: Format
 
   compare:
     switch_contents: switch contents
@@ -727,6 +771,8 @@ en:
     list: List view
     tree_view: Root in the tree view
     xml: XML
+    classification_overview: Classification overview
+    classification_administration: Classification administration
 
   classification_change_behaviour:
     trigger_webhooks: trigger webhooks for contents
@@ -1173,7 +1219,7 @@ en:
         text_file: Further information (%{file_types})
         locale: E-mail language
       data_cycle_core/stored_filter:
-        system: Visible for all users
+        system: Visible for all users (also applies to the API)
         api: Retrievable via API
         api_users: Users permitted for API
         linked_stored_filter_id: Filter for linked content
@@ -1189,6 +1235,8 @@ en:
       all: No access authorization!
   data_cycle_core:
     administration: Administration
+    documentation: Documentation
+    activities: Activities
     user_settings: User actions
     user_details: User details
     user_links: User links
@@ -1197,9 +1245,10 @@ en:
     classifications_adminitration:
       classification:
         submit_loading_message: Saving may take several minutes, please be patient
-      download_tree: download classification tree as CSV
-      download_tree_with_contents: download classification tree including contents as CSV
-      download_tree_for_mappings: download classification tree for defining mappings as CSV
+      download_tree_csv: download classification tree as CSV
+      download_tree: Classification tree without contents (csv)
+      download_tree_with_contents: Classification tree with contents (csv)
+      download_tree_for_mappings: Classification tree for defining mappings (csv)
     this_classification: This classification
     this_classification_tree: This classification tree
     show_contents_for_tree_label: List contents in %{data}
@@ -1214,10 +1263,10 @@ en:
       auto: All translations were automatically generated
     classification_tree_relations: 'ATTENTION: There are contents linked to this classification
       tree!'
-    classification_relations:
+    classification_relations_html:
       one: 'ATTENTION: <b>1</b> content is linked to this classification!'
       other: 'ATTENTION: <b>%{count}</b> contents are linked to this classification!'
-    child_classification_relations:
+    child_classification_relations_html:
       one: 'ATTENTION: <b>1</b> classification is assigned to %{data}. This is also
         deleted!'
       other: 'ATTENTION: %{data} are assigned to <b>%{count}</b> classifications.<br>These
@@ -1296,6 +1345,10 @@ en:
         webhooks:
           root: Webhooks
           json_ld: JSON-LD
+        geodata:
+          root: Geodata
+          geojson: GeoJSON
+          mvt: Mapbox Vector Tiles
 
     schema:
       root: Scheme
@@ -1447,8 +1500,8 @@ en:
       web_seo_beschreibung: web_seo_beschreibung
       web_seo_keywords: web_seo_keywords
       web_seo_titel: web_seo_titel
-      additionaltext_feature_barrierefreiheit: Accessiblity
-      additionaltext_feature_eignung: Accessiblity levels
+      additionaltext_feature_barrierefreiheit: Accessibility
+      additionaltext_feature_eignung: Accessibility levels
       additionaltext_feature_hygiene- und infektionsschutzmaßnahmen: hygiene and anti infection measures
       dayoff: Day off
       details: Details
@@ -1463,6 +1516,22 @@ en:
       station: Station
       subtitle: Subtitle
       teaser: Teaser
+    bierfinder:
+      book: Description
+      tipp: Tip
+      essenUndSpezial: Food and Specials
+      biersorten: Brand of Beer
+    venus:
+      accessibilityDescription: Accessibility
+      arrivalDescription: Arrival
+      shortDescription: Short description
+      description: Description
+      specialDescription: Special Description
+      sellsBrands: Sells brands
+      startingPointDescription: Starting point description
+      character: Tour character
+      parkingPossibilities: Parking
+      seasonDescription: Sesion
 
   media_archive:
     allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>

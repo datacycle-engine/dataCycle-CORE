@@ -143,7 +143,7 @@ class RemoteRenderer {
   }
   sendRequest(element, params) {
     const promise = DataCycle.httpRequest({
-      type: 'POST',
+      method: 'POST',
       url: '/remote_render',
       data: JSON.stringify(params),
       dataType: 'script',

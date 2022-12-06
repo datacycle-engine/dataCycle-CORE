@@ -1,5 +1,7 @@
 :publication_schedule:
   :enabled: false
+  :classification_keys:
+    - output_channel
 
 :download:
   :enabled: true
@@ -83,6 +85,8 @@
     :indesign: false
     :json: false
     :xml: false
+    :geojson: false
+    :mvt: false
 
 :overlay:
   :enabled: true

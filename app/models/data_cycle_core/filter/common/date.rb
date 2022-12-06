@@ -20,8 +20,6 @@ module DataCycleCore
 
           reflect(
             @query.where(
-              # overlap(tstzrange(from_node, to_node), tstzrange(thing[:start_date], thing[:end_date]))
-              # .and(
               Arel::Nodes::Exists.new(
                 Arel::SelectManager.new(schedule)
                   .join(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['JOIN schedule_occurrences on schedules.id = schedule_occurrences.schedule_id'])))
@@ -31,7 +29,6 @@ module DataCycleCore
                     .and(thing[:id].eq(schedule[:thing_id]))
                   )
               )
-              # )
             )
           )
         end
@@ -107,7 +104,6 @@ module DataCycleCore
           date_range(d, 'created_at')
         end
 
-        # TODO: remove legacy method (API v1,v2,v3)
         def event_end_time(time)
           time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
           reflect(
@@ -115,7 +111,6 @@ module DataCycleCore
           )
         end
 
-        # TODO: remove legacy method (API v1,v2,v3)
         def event_from_time(time)
           time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
           reflect(
@@ -123,9 +118,6 @@ module DataCycleCore
           )
         end
 
-        # TODO: check this values
-        # date helpers
-        # duplicate method
         def date_from_single_value(value)
           return if value.blank?
           return value if value.is_a?(::Date)

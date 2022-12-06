@@ -56,6 +56,8 @@ build_caches:
 code_validation:
   <<: *docker_ci
   extends: .code_validation_config
+  variables:
+    CORE_RAKE_PREFIX: 'app:'
 
 rails_test:
   <<: *docker_ci
@@ -121,6 +123,8 @@ build_caches_master:
 code_validation_master:
   <<: *master_ci
   extends: .code_validation_config
+  variables:
+    CORE_RAKE_PREFIX: 'app:'
 
 rails_test_master:
   <<: *master_ci
@@ -135,6 +139,8 @@ build_review_caches:
 code_review_validation:
   <<: *review_ci
   extends: .code_validation_config
+  variables:
+    CORE_RAKE_PREFIX: 'app:'
 
 rails_review_test:
   <<: *review_ci

@@ -1,0 +1,109 @@
+---
+- :data:
+    :name: SubEvent
+    :type: object
+    :schema_type: Event
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :event_period:
+        :label: Veranstaltungszeitraum
+        :type: object
+        :storage_location: value
+        :validations:
+          :daterange:
+            :from: start_date
+            :to: end_date
+        :ui:
+          :edit:
+            :type: daterange
+        :api:
+          :transformation:
+            :method: unwrap
+        :properties:
+          :start_date:
+            :label: Startzeitpunkt
+            :type: datetime
+            :storage_location: column
+            :validations:
+              :format: date_time
+            :ui:
+              :edit:
+                :type: datetime
+                :options:
+                  :data-validate: daterange
+                  :placeholder: "tt.mm.jjjj --:--"
+          :end_date:
+            :label: Endzeitpunkt
+            :type: datetime
+            :storage_location: column
+            :validations:
+              :format: date_time
+            :ui:
+              :edit:
+                :type: datetime
+                :options:
+                  :data-validate: daterange
+                  :placeholder: "tt.mm.jjjj --:--"
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_location: translated_value
+        :external: true
+        :validations:
+          :format: url
+        :api:
+          :name: sameAs
+        :xml:
+          :name: sameAs
+      :content_location:
+        :label: Veranstaltungsort
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :validations:
+          :max: 1
+        :api:
+          :name: location
+      :dummy:
+        :label: invisible
+        :type: string
+        :storage_location: translated_value
+        :default_value: do_not_show
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true          
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :meta_data:
+        :type: mixin
+        :name: meta_data

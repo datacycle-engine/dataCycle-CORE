@@ -115,7 +115,10 @@ class Tooltips {
     this.dataChangedObserver.disconnect();
   }
   updateTooltipContent() {
-    this.tooltipContent.innerHTML = this.referenceElement.dataset.dcTooltip.trim();
+    this.tooltipContent.innerHTML = this.referenceElement.dataset.dcTooltip
+      ? this.referenceElement.dataset.dcTooltip.trim()
+      : '';
+
     if (this.referenceElement.dataset.dcTooltipClass)
       this.tooltip.classList.add(this.referenceElement.dataset.dcTooltipClass.trim());
   }

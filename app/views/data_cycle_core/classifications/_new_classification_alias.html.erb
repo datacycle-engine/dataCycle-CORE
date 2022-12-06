@@ -1,0 +1,5 @@
+<li class="new-button">
+  <div class="new-button-spacer"><a href="#" class="button small create"><i class="fa fa-plus"></i> <%= t('classifications.new_classification', locale: active_ui_locale) %></a></div>
+
+  <%= tag.div(class: 'remote-render inverted classification-alias-form-container new', data: { remote_path: 'data_cycle_core/classifications/classification_alias_form', remote_options: to_query_params(classification_tree_label: classification_tree_label, classification_tree: classification_tree, classification_alias: DataCycleCore::ClassificationAlias.new).to_json }) %>
+</li>

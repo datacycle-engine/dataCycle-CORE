@@ -1,0 +1,39 @@
+---
+- :data:
+    :name: validity_period
+    :type: mixin
+    :properties:
+      :validity_period:
+        :label: Gültigkeitszeitraum
+        :type: object
+        :storage_location: value
+        :validations:
+          :daterange:
+            :from: valid_from
+            :to: valid_until
+        :ui:
+          :edit:
+            :type: daterange
+          :show:
+            :content_area: none
+        :api:
+          :disabled: true
+        :properties:
+          :valid_from:
+            :label: Gültigkeit
+            :type: date
+            :storage_location: value
+            :ui:
+              :edit:
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
+          :valid_until:
+            :label: bis
+            :type: date
+            :storage_location: value
+            :ui:
+              :edit:
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj

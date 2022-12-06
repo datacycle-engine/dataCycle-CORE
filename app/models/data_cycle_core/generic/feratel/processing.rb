@@ -46,8 +46,6 @@ module DataCycleCore
             raw_data.dig('Details', 'Position').present? ? { 'Position' => raw_data.dig('Details', 'Position') } : nil
           ].reject(&:blank?).reduce({}, :merge)
 
-          # binding.pry if raw_data.dig('Addresses', 'Address').blank?
-
           return if [
             place_hash.dig('Location', 'Translation', 'text'),
             place_hash.dig('Company', 'text'),

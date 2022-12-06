@@ -66,14 +66,16 @@
 </div>
 
 <% content_for :media_buttons do %>
-  <%= tag.i(class: 'fa fa-exclamation-triangle user-not-confirmed warning-color', data: { dc_tooltip: t('user.user_not_confirmed', locale: active_ui_locale) }) if DataCycleCore::Feature::UserRegistration.enabled? && !item.confirmed? %>
+  <% if DataCycleCore::Feature::UserRegistration.enabled? && !item.confirmed? %>
+    <%= link_to_if can?(:confirm, item), tag.span(tag.i(class: 'fa fa-check', aria_hidden: true), class: 'confirm-link-button', data: { dc_tooltip: t("user.#{can?(:confirm, item) ? 'confirm' : 'user_not_confirmed'}", locale: active_ui_locale) }), confirm_user_path(item), { method: :post, class: 'confirm-link' } %>
+  <% end %>
 
   <% if can? :become, item %>
     <%= link_to tag.i(class: 'fa fa-sign-in', aria_hidden: true), user_become_path(item), class: 'become-link', data: { dc_tooltip: t('actions.become', data: item.email, locale: active_ui_locale) } %>
   <% end %>
 
   <% if can? :edit, item %>
-    <%= link_to tag.i(class: 'fa fa-pencil', aria_hidden: true), edit_user_path(item, watch_list_id: @watch_list), class: 'edit-link', data: { dc_tooltip: t('actions.edit', locale: active_ui_locale) } %>
+    <%= link_to tag.i(class: 'fa fa-pencil', aria_hidden: true), edit_user_path(item), class: 'edit-link', data: { dc_tooltip: t('actions.edit', locale: active_ui_locale) } %>
   <% end %>
 
   <% if can?(:destroy, item) && !item.access_locked? %>

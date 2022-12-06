@@ -1,0 +1,47 @@
+<% breadcrumb :acknowledgments, autoroot: false %>
+
+<main role="main">
+  <h1>Acknowledgments</h1>
+
+  <ul>
+  <% @package_groups.each do |package_group| %>
+    <li>
+      <span class="package-group-name"><%= package_group[:name] %></span>
+      <ul>
+        <% package_group[:packages].each do |package| %>
+          <li>
+            <% if package['homepage'] %>
+              <a href="<%= package['homepage'] %>" class="package-name"><%= package['name'] %></a>
+            <% else %>
+              <span class="package-name"><%= package['name'] %></span>
+            <% end %>
+            <span class="package-version"><%= package['version'] %></span>
+            <span class="package-license"><%= package['license'] %></span>
+
+            <p class="package-description"><%= package['description'] %></p>
+
+            <ul class="package-links">
+              <% if package['license_files'] %>
+                <% package['license_files'].each do |license_file| %>
+                  <li>
+                    <a href="<%= acknowledgments_license_path(package: package['name'], version: package['version'], file: license_file) %>"><%= license_file %></a>
+                  </li>
+                <% end %>
+              <% end %>
+
+              <% if package['notice_files'] %>
+                <% package['notice_files'].each do |notice_file| %>
+                  <li>
+                    <a href="<%= acknowledgments_notice_path(package: package['name'], version: package['version'], file: notice_file) %>"><%= notice_file %></a>
+                  </li>
+                <% end %>
+              <% end %>
+            </ul>  
+          </li>
+        <% end %>
+      </ul>
+    </li>
+  <% end %>
+  <ul>
+</main>
+

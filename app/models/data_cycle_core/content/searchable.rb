@@ -20,7 +20,6 @@ module DataCycleCore
       end
 
       def with_default_data_type(classification_alias_names)
-        # Performance-Impact of 300ms * number of linked attributes in edit view for V-Cloud
         template_types = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').where(internal_name: classification_alias_names).with_descendants.pluck(:internal_name)
 
         where("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_types)
@@ -29,15 +28,15 @@ module DataCycleCore
       def expired_not_release_id(id)
         return unless DataCycleCore::Feature::Releasable.enabled?
         joins(:classifications)
-          .where('classification_contents.relation = ?', DataCycleCore::Feature::Releasable.attribute_keys.first)
-          .where.not('classification_contents.classification_id = ?', id)
+          .where(classification_contents: { relation: DataCycleCore::Feature::Releasable.attribute_keys.first })
+          .where.not(classification_contents: { classification_id: id })
       end
 
       def expired_not_life_cycle_id(id)
         return if DataCycleCore::Feature::LifeCycle.attribute_keys.blank?
         joins(:classifications)
-          .where('classification_contents.relation = ?', DataCycleCore::Feature::LifeCycle.attribute_keys.first)
-          .where.not('classification_contents.classification_id = ?', id)
+          .where(classification_contents: { relation: DataCycleCore::Feature::LifeCycle.attribute_keys.first })
+          .where.not(classification_contents: { classification_id: id })
       end
 
       def by_external_key(external_system_id, external_key, joined_name = 'merged_external_systems')
@@ -70,6 +69,15 @@ module DataCycleCore
         SQL
 
         joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [join_external_connections_query, external_system_id: external_system_id, external_key: external_key.is_a?(Array) ? external_key.map(&:to_s) : external_key.to_s]))
+      end
+
+      def first_by_external_key_or_id(external_key, external_system_id)
+        return if external_key.blank?
+
+        query = '(external_source_id = :external_system_id AND external_key = :external_key)'
+        query += ' OR id = :external_key' if external_key.uuid?
+
+        DataCycleCore::Thing.find_by(query, external_system_id: external_system_id, external_key: external_key)
       end
 
       def by_external_system(external_system_id, joined_name = 'merged_external_systems')

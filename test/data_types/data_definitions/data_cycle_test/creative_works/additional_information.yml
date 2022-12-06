@@ -1,0 +1,97 @@
+---
+- :data:
+    :name: Ergänzende Information
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :type_of_information:
+        :label: Informationstyp
+        :type: classification
+        :tree_label: Informationstypen
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :disabled: true
+      :name:
+        :label: Name
+        :type: string
+        :storage_location: column
+        :search: true
+      :alternative_headline:
+        :label: Alternativer Name
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :advanced_search: true
+        :ui:
+          :edit:
+            :disabled: true
+      :additional_information_classifications:
+        :type: mixin
+        :name: additional_information_classifications
+      :description:
+        :label: Text
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :advanced_search: true
+      :validity_schedule:
+        :label: Publikationsplan
+        :type: schedule
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :name: dc:validitySchedule
+        :ui:
+          :edit:
+            :disabled: true
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+        :ui:
+          :attribute_group: description_block_linked_one_line
+      :author:
+        :label: Autor
+        :type: linked
+        :validations:
+          :max: 1
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+        :ui:
+          :attribute_group: description_block_linked_one_line
+      :copyright_attributes:
+        :type: mixin
+        :name: copyright_attributes
+      :dummy:
+        :label: invisible
+        :type: string
+        :storage_location: translated_value
+        :default_value: do_not_show
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :meta_data:
+        :type: mixin
+        :name: meta_data

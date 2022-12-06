@@ -185,26 +185,6 @@ namespace :data_cycle_core do
       end
     end
 
-    # desc 'import db from [cap_environment]'
-    # task :import_remote_db, [:cap_environment] => [:environment] do |_, args|
-    #   logger = Logger.new('log/import_live_db.log')
-    #   logger.info('Started Importing Live DB...')
-
-    #   sh "cap #{args.fetch(:cap_environment, 'pre_release')} review:download_dev_db[true]"
-    #   sh "mkdir -p db/backups/#{ENV.fetch('RAILS_ENV', 'development')}/"
-    #   sh "mv tmp/dev_db.dump db/backups/#{ENV.fetch('RAILS_ENV', 'development')}/dev_db.dump"
-
-    #   Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:dump"].invoke
-    #   Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:restore"].invoke('dev_db.dump')
-
-    #   if ENV.fetch('RAILS_ENV', 'development') != 'development'
-    #     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].invoke
-    #     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update:configs"].invoke(true)
-    #   end
-
-    #   logger.info('Imported Live DB successfully')
-    # end
-
     desc 'reset database, import templates, classifications, external_sources'
     task reset: :environment do
       ENV['RAILS_ENV'] ||= Rails.env

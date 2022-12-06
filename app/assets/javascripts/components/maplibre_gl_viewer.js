@@ -61,6 +61,7 @@ class MapLibreGlViewer {
     this.layers = {};
     this.allRenderedLayers = [];
     this.hoveredStateId = {};
+    this.sourceLayer = '';
   }
   async setup() {
     try {
@@ -78,7 +79,7 @@ class MapLibreGlViewer {
           container: this.containerId,
           style: this.mapBaseLayer(),
           transformRequest: (url, _resourceType) => {
-            if (url.includes('tiles.pixelmap.at/')) {
+            if (url.includes('tiles.pixelmap.at/') || url.includes('tiles.pixelpoint.at/')) {
               return {
                 headers: {
                   Authorization: `Bearer ${this.credentials.api_key}`
@@ -279,6 +280,7 @@ class MapLibreGlViewer {
         id: `${layerId}_hover`,
         type: 'line',
         source: source,
+        'source-layer': this.sourceLayer,
         filter: ['==', ['geometry-type'], 'LineString'],
         layout: {
           'line-cap': 'round',
@@ -298,6 +300,7 @@ class MapLibreGlViewer {
         id: layerId,
         type: 'line',
         source: source,
+        'source-layer': this.sourceLayer,
         filter: ['==', '$type', 'LineString'],
         layout: {
           'line-cap': 'round',
@@ -321,6 +324,7 @@ class MapLibreGlViewer {
         id: `${layerId}_hover_foreground`,
         type: 'line',
         source: source,
+        'source-layer': this.sourceLayer,
         filter: ['==', ['geometry-type'], 'LineString'],
         layout: {
           'line-cap': 'round',
@@ -344,6 +348,7 @@ class MapLibreGlViewer {
         id: `${layerId}_hover_start`,
         type: 'symbol',
         source: source,
+        'source-layer': this.sourceLayer,
         filter: ['==', ['geometry-type'], 'LineString'],
         layout: {
           'icon-image': this.getStyleCaseExpression(
@@ -379,12 +384,13 @@ class MapLibreGlViewer {
       pointColor = this.definedColors.lightBlue;
       circleRadius = 7;
     }
-
+    // TODO: circle-radius by zoom-step https://docs.mapbox.com/mapbox-gl-js/example/data-driven-circle-colors/
     this.map.addLayer(
       {
         id: layerId,
         type: 'circle',
         source: source,
+        'source-layer': this.sourceLayer,
         filter: ['==', '$type', 'Point'],
         paint: {
           'circle-radius': circleRadius,
@@ -405,6 +411,7 @@ class MapLibreGlViewer {
         id: `${layerId}_hover`,
         type: 'circle',
         source: source,
+        'source-layer': this.sourceLayer,
         filter: ['==', '$type', 'Point'],
         paint: {
           'circle-radius': circleRadius + 2,
@@ -463,11 +470,7 @@ class MapLibreGlViewer {
   _addSourceAndLayer(key, data) {
     this.sources[key] = `feature_source_${key}`;
 
-    this.map.addSource(this.sources[key], {
-      type: 'geojson',
-      data: data,
-      promoteId: '@id'
-    });
+    this._addSourceType(this.sources[key], data);
 
     this.layers[key] = {
       line: this._lineLayer(`feature_line_${key}`, this.sources[key]),
@@ -477,16 +480,19 @@ class MapLibreGlViewer {
   _addSelectedSourceAndLayers(key, data) {
     this.selectedAdditionalSources[key] = `additional_values_source_selected_${key}`;
 
-    this.map.addSource(this.selectedAdditionalSources[key], {
-      type: 'geojson',
-      data: data,
-      promoteId: '@id'
-    });
+    this._addSourceType(this.selectedAdditionalSources[key], data);
 
     this.selectedAdditionalLayers[key] = {
       line: this._lineLayer(`additional_values_line_selected_${key}`, this.selectedAdditionalSources[key]),
       point: this._pointLayer(`additional_values_point_selected_${key}`, this.selectedAdditionalSources[key])
     };
+  }
+  _addSourceType(name, data) {
+    this.map.addSource(name, {
+      type: 'geojson',
+      data: data,
+      promoteId: '@id'
+    });
   }
   _disableScrollingOnMapOverlays() {
     this.$parentContainer.siblings('.map-info').on('wheel', event => {
@@ -540,15 +546,24 @@ class MapLibreGlViewer {
     this.map.on('mousemove', layerId, e => {
       if (e.features.length > 0) {
         if (this.hoveredStateId[layerId]) {
-          this.map.setFeatureState({ source: source, id: this.hoveredStateId[layerId] }, { hover: false });
+          this.map.setFeatureState(
+            { source: source, sourceLayer: this.sourceLayer, id: this.hoveredStateId[layerId] },
+            { hover: false }
+          );
         }
         this.hoveredStateId[layerId] = e.features[0].id;
-        this.map.setFeatureState({ source: source, id: this.hoveredStateId[layerId] }, { hover: true });
+        this.map.setFeatureState(
+          { source: source, sourceLayer: this.sourceLayer, id: this.hoveredStateId[layerId] },
+          { hover: true }
+        );
       }
     });
     this.map.on('mouseleave', layerId, () => {
       if (this.hoveredStateId[layerId] != null) {
-        this.map.setFeatureState({ source: source, id: this.hoveredStateId[layerId] }, { hover: false });
+        this.map.setFeatureState(
+          { source: source, sourceLayer: this.sourceLayer, id: this.hoveredStateId[layerId] },
+          { hover: false }
+        );
       }
       this.hoveredStateId[layerId] = null;
     });

@@ -237,7 +237,7 @@ module DataCycleCore
             assert_context(json_data.dig('@context'), 'de')
 
             fields = Dry::Schema.JSON do
-              required(:"dc:classification").value(:array, min_size?: 1).each do
+              required(:'dc:classification').value(:array, min_size?: 1).each do
                 hash(
                   DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
                     Dry::Schema.JSON do
@@ -349,7 +349,7 @@ module DataCycleCore
             assert_context(json_data.dig('@context'), 'de')
 
             fields = Dry::Schema.JSON do
-              optional(:"dc:classification").value(:array).each do
+              optional(:'dc:classification').value(:array).each do
                 hash(
                   DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
                     Dry::Schema.JSON do

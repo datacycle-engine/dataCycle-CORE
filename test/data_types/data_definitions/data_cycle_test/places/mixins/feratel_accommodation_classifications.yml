@@ -1,0 +1,23 @@
+---
+- :data:
+    :name: feratel_accommodation_classifications
+    :type: mixin
+    :properties:
+      :feratel_status:
+        :label: Feratel - Status
+        :type: classification
+        :tree_label: Feratel - Status
+        :external: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_product_type:
+        :label: Feratel - Produktarten
+        :type: classification
+        :tree_label: Feratel - Produktarten
+        :external: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header

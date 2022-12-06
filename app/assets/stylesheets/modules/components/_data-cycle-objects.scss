@@ -537,13 +537,11 @@
 }
 
 .delete-thumbnail {
-  color: $dark-gray;
   padding: 0 0.2rem;
   cursor: pointer;
 
-  &:focus,
   &:hover {
-    color: map-get($foundation-palette, alert) !important;
+    color: darken($alert-color, 10%) !important;
   }
 }
 
@@ -1096,6 +1094,7 @@
         &.media,
         .media {
           box-shadow: 0 0 5px $alert-color;
+
           .content-warning {
             color: $alert-color;
           }
@@ -1122,7 +1121,7 @@
       border-radius: $global-radius;
       background-color: rgba(white, 0.5);
       border: 0;
-      box-shadow: 0 0 1px rgba($black, 0.8);
+      box-shadow: 0 0 0 1px rgba($black, 0.2);
       transition: box-shadow 0.25s ease-out;
       line-height: 1.5;
       font-size: 0.9rem;
@@ -1580,6 +1579,7 @@ span.single_error.object-browser-error {
         margin: 0;
         opacity: 0;
         box-shadow: none;
+        border: none;
       }
 
       .embedded-header {

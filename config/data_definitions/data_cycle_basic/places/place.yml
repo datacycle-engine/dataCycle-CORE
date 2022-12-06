@@ -70,6 +70,9 @@
       :potential_actions:
         :type: mixin
         :name: potential_actions
+      :media_links:
+        :type: mixin
+        :name: media_links
       :outdoor_active:
         :type: mixin
         :name: outdoor_active

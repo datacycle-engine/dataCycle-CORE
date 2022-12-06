@@ -1,25 +1,37 @@
 const DataTables = () => import('datatables.net-zf').then(mod => mod.default);
-const DataTableButtons = () => import('datatables.net-buttons-zf').then(mod => mod.default);
 
-export default async function () {
-  if (document.querySelector('#activity_list, #activity_user_list, #activity_details')) {
-    const dataTables = await DataTables();
-    const buttons = await DataTableButtons();
-
-    dataTables();
-    buttons(window, $);
-
-    $('#activity_list').DataTable({
+class ActivityList {
+  constructor(
+    item,
+    options = {
       ajax: '/admin/activity_details/summary',
+      lengthChange: true,
       columns: [
         { title: 'Activity', data: 'activity_type' },
         { title: 'Count', data: 'data_count' }
       ],
       order: [[1, 'desc']]
-    });
+    }
+  ) {
+    this.item = item;
+    this.item.dcDataTable = true;
+    this.options = options;
+    this.dataTable;
 
-    $('#activity_user_list').DataTable({
+    this.setup();
+  }
+  async setup() {
+    const DataTable = await DataTables();
+
+    this.dataTable = new DataTable(this.item, this.options);
+  }
+}
+
+class ActivityUserList extends ActivityList {
+  constructor(item) {
+    super(item, {
       ajax: '/admin/activity_details/user_summary',
+      lengthChange: true,
       columns: [
         { title: 'User', data: 'user_id' },
         { title: 'E-Mail', data: 'email' },
@@ -28,9 +40,14 @@ export default async function () {
       ],
       order: [[3, 'desc']]
     });
+  }
+}
 
-    $('#activity_details').DataTable({
+class ActivityDetails extends ActivityList {
+  constructor(item) {
+    super(item, {
       ajax: '/admin/activity_details/details',
+      lengthChange: true,
       columns: [
         { title: 'User', data: 'user_id' },
         { title: 'E-Mail', data: 'email' },
@@ -50,4 +67,24 @@ export default async function () {
       order: [[10, 'desc']]
     });
   }
+}
+
+export default function () {
+  for (const e of document.querySelectorAll('#activity_list')) new ActivityList(e);
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.id == 'activity_list' && !e.hasOwnProperty('dcDataTable'),
+    e => new ActivityList(e)
+  ]);
+
+  for (const e of document.querySelectorAll('#activity_user_list')) new ActivityUserList(e);
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.id == 'activity_user_list' && !e.hasOwnProperty('dcDataTable'),
+    e => new ActivityUserList(e)
+  ]);
+
+  for (const e of document.querySelectorAll('#activity_details')) new ActivityDetails(e);
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.id == 'activity_details' && !e.hasOwnProperty('dcDataTable'),
+    e => new ActivityDetails(e)
+  ]);
 }

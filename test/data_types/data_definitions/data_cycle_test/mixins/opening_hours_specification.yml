@@ -1,0 +1,26 @@
+---
+- :data:
+    :name: opening_hours_specification
+    :type: mixin
+    :properties:
+      :opening_hours_specification:
+        :label: Öffnungszeit
+        :type: opening_time
+        :validations:
+          valid_dates: true
+          closed_range: true
+        :api:
+          :name: openingHoursSpecification
+      :opening_hours_description:
+        :label: Öffnungszeit - Beschreibung
+        :type: embedded
+        :template_name: Öffnungszeit - Beschreibung
+        :ui:
+          :edit:
+            :disabled: true
+        :api:
+          :name: dc:openingHoursDescription
+          :v4:
+            :transformation:
+              :method: append
+              :name: openingHoursSpecification

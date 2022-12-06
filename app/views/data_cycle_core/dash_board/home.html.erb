@@ -50,9 +50,9 @@
   </div>
 
   <div class="grid-external-modules">
-    <% grid_class = @stat_outdoor_active.import_modules.size < 3 ? 'grid-parent-few' : 'grid-parent' %>
+    <% grid_class = @stat_database.import_modules.size < 3 ? 'grid-parent-few' : 'grid-parent' %>
     <div class="<%= grid_class %>">
-      <% @stat_outdoor_active.import_modules.each do |import_modules| %>
+      <% @stat_database.import_modules.each do |import_modules| %>
         <%= render 'import_modules', locals: { import_data: import_modules } %>
       <% end %>
     </div>

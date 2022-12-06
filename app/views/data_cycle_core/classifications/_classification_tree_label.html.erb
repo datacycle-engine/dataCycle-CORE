@@ -1,12 +1,6 @@
 <li id="<%= tree_label.id %>" class="classification_tree_label">
   <span class="inner-item">
-    <%= tag.fa(class: 'fa fa-eye-slash') if tree_label.internal? %>
-    <%= link_to tree_label.name, classifications_path(classification_tree_label_id: tree_label.id),
-            class: 'name',
-            data: {
-                remote: true,
-                disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}"
-            } %>
+    <%= link_to tree_label.name, classifications_path(classification_tree_label_id: tree_label.id), class: "name" %>
 
     <%= link_to tag.i(class: 'fa fa-pencil'), '#',
                 class: 'edit',
@@ -18,37 +12,39 @@
                 classifications_path(classification_tree_label_id: tree_label.id),
                 class: 'destroy',
                 data: {
-                  remote: true,
-                  method: :delete,
-                  confirm: render('classification_tree_label_removal_warning', classification_tree_label: tree_label),
+                  confirm: tag.div(class: 'remote-render', data: { remote_path: 'data_cycle_core/classifications/classification_tree_label_removal_warning', remote_options: CGI::escapeHTML(to_query_params(classification_tree_label: tree_label).to_json) }),
                   disable_with: tag.i(class: 'fa fa-spinner fa-spin'),
                   dc_tooltip: t('actions.delete_with_data', data: tree_label.name, locale: active_ui_locale)
                 } if can?(:destroy, tree_label) %>
 
     <% if can?(:download, tree_label) %>
-      <%= link_to tag.i(class: 'fa fa-download'),
+      <div class="download-container">
+        <%= link_to tag.i(class: 'fa fa-download'), '#',
+                  class: 'download-dropdown-link',
+                  data: {
+                    toggle: "download-tree-#{tree_label.id}",
+                    dc_tooltip: t('data_cycle_core.classifications_adminitration.download_tree_csv', locale: active_ui_locale)
+                  } %>
+
+        <div id="<%= "download-tree-#{tree_label.id}" %>" class="download-tree-container dropdown-pane" data-dropdown>
+          <ul class="no-bullet list-items">
+            <li><%= link_to tag.span(tag.i(class: 'fa fa-table'), class: 'download-icon') + tag.span(t('data_cycle_core.classifications_adminitration.download_tree', locale: active_ui_locale), class: 'download-link-text'),
                   download_classifications_path(classification_tree_label_id: tree_label.id, format: :csv),
-                  class: 'download',
-                  data: {
-                    dc_tooltip: t('data_cycle_core.classifications_adminitration.download_tree', locale: active_ui_locale)
-                  } %>
+                  class: 'download' %></li>
 
-      <%= link_to tag.i(class: 'fa fa-download') + tag.i(class: 'fa fa-plus'),
+            <li><%= link_to tag.span(tag.i(class: 'fa fa-table') + tag.i(class: 'fa fa-plus'), class: 'download-icon') + tag.span(t('data_cycle_core.classifications_adminitration.download_tree_with_contents', locale: active_ui_locale), class: 'download-link-text'),
                   download_classifications_path(classification_tree_label_id: tree_label.id, format: :csv, include_contents: true),
-                  class: 'download download-with-contents',
-                  data: {
-                    dc_tooltip: t('data_cycle_core.classifications_adminitration.download_tree_with_contents', locale: active_ui_locale)
-                  } %>
+                  class: 'download download-with-contents' %></li>
 
-      <%= link_to tag.i(class: 'fa fa-download') + tag.i(class: 'fa fa-arrows-h'),
+            <li><%= link_to tag.span(tag.i(class: 'fa fa-table') + tag.i(class: 'fa fa-arrows-h'), class: 'download-icon') + tag.span(t('data_cycle_core.classifications_adminitration.download_tree_for_mappings', locale: active_ui_locale), class: 'download-link-text'),
                   download_classifications_path(classification_tree_label_id: tree_label.id, format: :csv, for_mapping_import: true),
-                  class: 'download download-for-mapping',
-                  data: {
-                    dc_tooltip: t('data_cycle_core.classifications_adminitration.download_tree_for_mappings', locale: active_ui_locale)
-                  } %>
+                  class: 'download download-for-mapping' %></li>
+          </ul>
+        </div>
+      </div>
     <% end %>
 
-    <%= link_to tag.i(class: 'fa fa-clipboard'), '#', class: 'copy-to-clipboard', data: { value: tree_label.id, dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale) } %>
+    <%= link_to tag.i(class: 'fa fa-clipboard'), '#', class: 'copy-to-clipboard', data: { value: tree_label.id, dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale) } if can?(:copy_to_clipboard, tree_label) %>
 
     <%= link_to tag.i(class: 'fa fa-list'),
                 root_path(mode: 'tree', ctl_id: tree_label.id, reset: true),
@@ -59,8 +55,7 @@
                 } %>
   </span>
 
-  <%= render('classification_tree_label_form', classification_tree_label: tree_label) if can?(:edit, tree_label) %>
+  <%= tag.div(class: 'remote-render inverted classification-tree-label-form-container', data: { remote_path: 'data_cycle_core/classifications/classification_tree_label_form', remote_options: to_query_params(classification_tree_label: tree_label).to_json }) if can?(:edit, tree_label) %>
 
-  <ul class="children">
-  </ul>
+  <ul class="children"></ul>
 </li>

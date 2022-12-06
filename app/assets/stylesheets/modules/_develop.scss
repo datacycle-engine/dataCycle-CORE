@@ -112,6 +112,7 @@
 
     .finalize-button-container {
       position: relative;
+
       input[type='checkbox'] {
         border: 0;
         background: inherit;
@@ -120,10 +121,18 @@
         transform: scale(1.1);
       }
 
-      label {
+      label.attribute-edit-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
         font-weight: bold;
         font-size: 1.5rem;
         line-height: 1.5rem;
+        overflow: visible;
+
+        > * {
+          margin: 0;
+        }
 
         .fa {
           font-size: inherit;
@@ -1089,26 +1098,35 @@ video {
 .content-pool-buttons {
   font-size: 0;
   margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
 
   .content-pool {
     position: relative;
     padding: 0;
-    vertical-align: middle;
     font-size: 0.8rem;
-    margin: 0 1rem;
+    margin: 0;
     cursor: initial;
 
-    &.button > a {
+    .content-pool-button {
       padding: 0.5rem 0.7rem;
       margin: 0;
       font-weight: normal;
       color: inherit;
-      display: inline-block;
+      display: flex;
       position: relative;
+      align-items: center;
+      justify-content: center;
+      gap: 0.1rem;
+
+      &.disabled {
+        pointer-events: none;
+      }
     }
 
     &.button.disabled {
-      padding: 0.5rem 0.7rem;
       cursor: not-allowed;
     }
 
@@ -1138,6 +1156,10 @@ video {
 
       &::after {
         display: none;
+      }
+
+      .content-pool-button {
+        padding: 0.5rem 0;
       }
     }
 
@@ -1901,9 +1923,10 @@ label[for='user_access_token'] {
     padding: 2.5rem 0.5rem 0.5rem 0.5rem;
   }
 
-  .embedded_object {
+  .embedded-object {
     > .content-object-item.textblock {
-      padding: 0.5rem;
+      padding: 0;
+      border: none;
 
       .removeContentObject,
       .embedded-header {
@@ -1918,18 +1941,21 @@ label[for='user_access_token'] {
       .removeContentObject {
         justify-content: center;
         order: 10;
-        width: 3rem;
+        padding: 0.3rem 0.5rem;
+        width: 1.9rem;
+        height: 1.9rem;
+        margin: 0.3rem;
       }
 
       .embedded-header {
         display: flex;
         flex-flow: row nowrap;
         align-items: center;
-        background: $light-gray;
         margin: 0;
         flex: auto;
         order: 1;
         padding-left: 0.5rem;
+        background-color: $white;
 
         .draggable-handle {
           display: inline-block;
@@ -1959,13 +1985,6 @@ label[for='user_access_token'] {
         .counter,
         label {
           display: none !important;
-        }
-      }
-
-      .form-element.focus > .editor-block {
-        > .embedded-header {
-          background: $white;
-          border-bottom: 1px solid rgba($dark-gray, 0.3);
         }
       }
 
@@ -2554,7 +2573,17 @@ select {
   }
 }
 
-[data-disable-with]:not(.submit-edit-form, .normalize-content-button, .add-to-watchlist-link, .remove-from-watchlist-link, .bulk-delete-button, .save-content-button, .button-prime.small.translate, .button-prime.translate-all, .button-prime.copy-all)
+[data-disable-with]:not(
+    .submit-edit-form,
+    .normalize-content-button,
+    .add-to-watchlist-link,
+    .remove-from-watchlist-link,
+    .bulk-delete-button,
+    .save-content-button,
+    .button-prime.small.translate,
+    .button-prime.translate-all,
+    .button-prime.copy-all
+  )
   > .fa {
   font-size: inherit;
   line-height: inherit;
@@ -2712,8 +2741,9 @@ input.normalized {
   position: fixed;
   bottom: 0;
   width: 100%;
-  z-index: 1000;
+  z-index: 1010;
   max-height: 100vh;
+
   #admin-icons {
     background: none;
     border-top: 1px solid $primary-color;
@@ -3223,8 +3253,13 @@ a {
   &.alert {
     color: $alert-color;
   }
+
   &.success {
     color: $success-color;
+  }
+
+  &.secondary {
+    color: $secondary-color;
   }
 }
 
@@ -3280,7 +3315,7 @@ button.button-prime.small.bulk-delete-button {
   &:hover {
     .progress-bar {
       visibility: visible;
-      width: calc(100vw - 4.5rem);
+      width: 20rem;
     }
   }
 }
@@ -3575,7 +3610,6 @@ body {
     &::before,
     &::after {
       content: '';
-      width: 100%;
       display: flex;
       top: 0;
       left: 0;
@@ -3593,12 +3627,25 @@ body {
       box-shadow: 0 0 0 1px $light-gray inset;
     }
 
+    &.inverted::before {
+      background-color: rgba(white, 0.9);
+    }
+
     &::after {
       height: 1.5rem;
       right: unset;
       width: 100%;
       background: linear-gradient(to right, rgba(white, 0) 0%, rgba(white, 0.5) 25%, rgba(white, 0) 50%);
       animation: progress-bar 1.5s linear infinite forwards;
+    }
+
+    &.inverted::after {
+      background: linear-gradient(
+        to right,
+        rgba(white, 0) 0%,
+        rgba(lighten($light-gray, 4%), 0.9) 25%,
+        rgba(white, 0) 50%
+      );
     }
 
     > * {
@@ -3793,4 +3840,46 @@ body {
 
 #classification-administration {
   padding-top: 1.5rem;
+}
+
+.new-external-connection-form {
+  .form-element {
+    &.required > label::after {
+      content: '*';
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 0.1rem;
+      color: $alert-color;
+      text-shadow: none;
+    }
+  }
+}
+
+.callout {
+  &.primary {
+    border-color: $primary-color;
+  }
+
+  &.secondary {
+    border-color: $secondary-color;
+  }
+
+  &.success {
+    border-color: $success-color;
+  }
+
+  &.warning {
+    border-color: $warning-color;
+  }
+
+  &.alert {
+    border-color: $alert-color;
+  }
+
+  &.inline {
+    display: inline-flex;
+    margin: 0;
+    padding: 0.1rem 0.3rem;
+  }
 }

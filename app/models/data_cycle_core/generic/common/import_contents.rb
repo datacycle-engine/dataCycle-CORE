@@ -27,6 +27,11 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
+            data_module = options.dig(:import, :data_filter, :module) || options[:transformations]
+            data_filter = options.dig(:import, :data_filter, :method)
+            return if data_module.blank?
+            return if data_filter.present? && !data_module.constantize.method(data_filter).call(raw_data, options.dig(:import, :data_filter))
+
             Array.wrap(options.dig(:import, :nested_contents)).each do |nested_contents_config|
               transformation = options[:transformations].constantize
                 .method(nested_contents_config[:transformation])
@@ -41,7 +46,7 @@ module DataCycleCore
             transformation = options[:transformations].constantize
               .method(options.dig(:import, :main_content, :transformation))
 
-            # ap transformation.call(utility_object.external_source.id).call(raw_data)
+            # ap transformation.call(utility_object.external_source.id).call(raw_data).with_indifferent_access
 
             process_single_content(utility_object, options.dig(:import, :main_content, :template), transformation, raw_data)
           end
@@ -56,7 +61,7 @@ module DataCycleCore
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
             utility_object: utility_object,
             template: template,
-            data: transformation.call(utility_object.external_source.id).call(raw_data).with_indifferent_access
+            data: transformation.call(transformation.parameters.dig(0, 1).to_s.end_with?('_id') ? utility_object.external_source.id : utility_object.external_source).call(raw_data).with_indifferent_access
           )
         end
       end

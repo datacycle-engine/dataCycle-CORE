@@ -1,0 +1,39 @@
+- :data:
+    :name: AmenityFeature
+    :type: object
+    :schema_type: Intangible
+    :content_type: embedded
+    :api:
+      :type:
+        - Intangible
+        - StructuredValue
+        - PropertyValue
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+      :value:
+        :label: Wert
+        :type: number
+        :storage_location: value
+      :dummy:
+        :label: invisible
+        :type: string
+        :storage_location: translated_value
+        :default_value: do_not_show
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :meta_data:
+        :type: mixin
+        :name: meta_data

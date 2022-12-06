@@ -107,6 +107,9 @@
       :potential_actions:
         :type: mixin
         :name: potential_actions
+      :media_links:
+        :type: mixin
+        :name: media_links
       :data_type:
         :label: Inhaltstyp
         :type: classification

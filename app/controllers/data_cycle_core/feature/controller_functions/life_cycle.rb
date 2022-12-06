@@ -21,16 +21,27 @@ module DataCycleCore
           if DataCycleCore::Feature::IdeaCollection.enabled? &&
              @object.content_type?('container') &&
              DataCycleCore::Feature::IdeaCollection.life_cycle_stage(@object) == life_cycle_params[:id] &&
-             !@object.children.where(template_name: DataCycleCore::Feature::IdeaCollection.template_name).exists?
+             !@object.children.exists?(template_name: DataCycleCore::Feature::IdeaCollection.template_name)
             idea_collection_params = ActionController::Parameters.new({ datahash: { name: @object.name } }).permit!
             DataCycleCore::DataHashService.create_internal_object(DataCycleCore::Feature::IdeaCollection.template_name, idea_collection_params, current_user, @object&.id)
           end
 
-          valid = @object.set_life_cycle_classification(life_cycle_params[:id], current_user)
+          if @object.set_life_cycle_classification(life_cycle_params[:id], current_user)
+            flash[:success] = I18n.t('controllers.success.moved_to', data: life_cycle_params[:name], locale: helpers.active_ui_locale)
+          else
+            flash[:error] = I18n.with_locale(active_ui_locale) { @object.errors.full_messages }
+          end
 
-          redirect_back(fallback_location: root_path, alert: @object.errors.messages) && return unless valid
-
-          redirect_back(fallback_location: root_path, notice: (I18n.t :moved_to, scope: [:controllers, :success], data: life_cycle_params[:name], locale: helpers.active_ui_locale))
+          respond_to do |format|
+            format.html { redirect_back(fallback_location: root_path) }
+            format.json do
+              render json: {
+                life_cycle_html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/viewers/life_cycle', locals: { content: @object }).squish,
+                classifications_html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/detail/content_header_classifications', locals: { content: @object }).squish,
+                **flash.discard.to_h
+              }
+            end
+          end
         end
       end
     end

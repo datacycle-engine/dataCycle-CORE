@@ -1,0 +1,13 @@
+---
+- :data:
+    :name: outdoor_active_link
+    :type: mixin
+    :properties:
+      :tour:
+        :label: Touren
+        :type: linked
+        :inverse_of: waypoint
+        :link_direction: inverse
+        :template_name: Tour
+        :api:
+          :disabled: true

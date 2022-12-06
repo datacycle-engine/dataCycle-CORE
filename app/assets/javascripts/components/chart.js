@@ -20,7 +20,7 @@ class Chart {
     this.chartOptions = {
       responsive: true,
       maintainAspectRatio: true,
-      locale: document.documentElement.lang,
+      locale: DataCycle.uiLocale,
       elements: {
         bar: {
           borderRadius: 999
@@ -118,7 +118,7 @@ class Chart {
     if (data.datasets.length) {
       let legendEntries = [];
 
-      data.datasets.forEach(dataSet => {
+      for (const dataSet of data.datasets) {
         let legendEntry = {
           fillStyle: dataSet.backgroundColor,
           hidden: false,
@@ -128,7 +128,7 @@ class Chart {
           text: dataSet.label
         };
         legendEntries.push(legendEntry);
-      });
+      }
 
       return legendEntries;
     }
@@ -188,9 +188,7 @@ class Chart {
     }
 
     this.chartLabels = this.chartLabels.sort((a, b) => {
-      var c = new Date(a);
-      var d = new Date(b);
-      return c - d;
+      return new Date(a) - new Date(b);
     });
 
     return this.chartLabels;
@@ -210,7 +208,7 @@ class Chart {
     this.datasets = [];
 
     const promise = DataCycle.httpRequest({
-      type: 'POST',
+      method: 'POST',
       url: url,
       data: formData,
       enctype: 'multipart/form-data',

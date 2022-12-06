@@ -1,0 +1,16 @@
+---
+name: Local-Text-File
+credentials:
+  log_file: filename_goes_here
+config:
+  export_config:
+    endpoint: DataCycleCore::Export::TextFile::Endpoint
+    create:
+      strategy: DataCycleCore::Export::TextFile::Create
+    update:
+      strategy: DataCycleCore::Export::TextFile::Update
+    delete:
+      strategy: DataCycleCore::Export::TextFile::Delete
+  refresh_config:
+    endpoint: DataCycleCore::Export::TextFile::Endpoint
+    strategy: DataCycleCore::Export::TextFile::Refresh

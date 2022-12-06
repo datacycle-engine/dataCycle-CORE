@@ -1,4 +1,4 @@
-- Inhaltstypen | filter:
+- Inhaltstypen | filter, classification_administration:
     - $$Asset:
         - $$Audio
         - $$Bild
@@ -77,7 +77,7 @@
 - Informationstypen | all:
 
 - $$Externe Informationstypen | all:
-    - description | OutdoorActive/imx_platform/TIMM4/GEM2GO/mein.toubiz/pimcore_ats
+    - description | OutdoorActive/imx_platform/TIMM4/GEM2GO/mein.toubiz/pimcore_ats/Venus
     - abstract | mein.toubiz
     - description_long | imx_platform
     - text | OutdoorActive
@@ -162,7 +162,7 @@
     - additionalLocationInformation | mein.toubiz
     - additionalHostInformation | mein.toubiz
     - longDescription | pimcore_ats
-    - shortDescription | pimcore_ats
+    - shortDescription | pimcore_ats/Venus
     - shortText | Pimcore ATS
     - longText | Pimcore ATS
     - additionalInformation | Pimcore ATS
@@ -181,6 +181,18 @@
     - safetyInformation | mein.toubiz
     - startPoint | mein.toubiz
     - startpointGettingThere | mein.toubiz
+    - book | Bierfinder
+    - tipp | Bierfinder
+    - essenUndSpezial | Bierfinder
+    - biersorten | Bierfinder
+    - accessibilityDescription | Venus
+    - arrivalDescription | Venus
+    - specialDescription | Venus
+    - sellsBrands | Venus
+    - startingPointDescription | Venus
+    - character | Venus
+    - parkingPossibilities | Venus
+    - seasonDescription | Venus
 
 - POI - Kategorien | all:
 
@@ -257,7 +269,7 @@
 
 - Dateiformate | all:
 
-- Ländercodes | show, edit, api, xml:
+- Ländercodes | show, edit, api, xml, classification_administration:
     - AF | Afghanistan
     - EG | Ägypten
     - AL | Albanien
@@ -511,7 +523,7 @@
     - PLN | Polnische Złoty
     - DKK | Dänische Kronen
 
-- Lizenzen | show, edit, api, xml:
+- Lizenzen | show, edit, api, xml, classification_administration:
     - Open Data:
         - Creative Commons:
             - Public Domain Mark **https://creativecommons.org/publicdomain/mark/1.0/

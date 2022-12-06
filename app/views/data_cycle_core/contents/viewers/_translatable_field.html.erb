@@ -1,6 +1,16 @@
 <div class="translatable-attribute-container" data-attribute-key="<%= key.attribute_name_from_key %>">
-  <% content&.translated_locales&.each do |a_locale| %>
-    <div class="translatable-attribute remote-render <%= a_locale.to_s %><%= ' active' if I18n.locale == a_locale %>"
+  <div class="translatable-attribute active <%= I18n.locale.to_s %>">
+    <%= render_specific_translatable_attribute_viewer(
+          key: key.sub(DataCycleCore::AttributeEditorHelper::ATTRIBUTE_DATAHASH_REGEX, "[translations][#{I18n.locale.to_s}]"),
+          locale: I18n.locale,
+          definition: definition&.dc_deep_dup,
+          content: content,
+          parameters: local_assigns.dig(:parameters)&.slice(:parent, :options)
+        ) %>
+  </div>
+
+  <% content&.translated_locales&.except(I18n.locale)&.each do |a_locale| %>
+    <div class="translatable-attribute remote-render <%= a_locale.to_s %>"
       data-remote-render-function="render_specific_translatable_attribute_viewer"
       data-remote-render-params="<%= to_query_params(
         key: key.sub(DataCycleCore::AttributeEditorHelper::ATTRIBUTE_DATAHASH_REGEX, "[translations][#{a_locale.to_s}]"),

@@ -39,8 +39,6 @@ module DataCycleCore
             content = args.dig(:content)
             original_value = content.try(args.dig(:key))
             return original_value if original_value.present? && original_value != DataCycleCore::Feature::VideoTranscoding.placeholder
-            # could be used for custom processing instructions via data definition
-            # video_processing = args.dig(:computed_definition, 'compute', 'processing')
 
             asset = args.dig(:computed_parameters)&.first || args.dig(:content).try(:asset)
             return if asset.blank?
