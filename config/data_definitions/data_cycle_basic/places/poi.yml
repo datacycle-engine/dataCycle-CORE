@@ -59,9 +59,6 @@
         :api:
           :v4:
             :name: dc:additionalInformation
-      :opening_hours_specification:
-        :type: mixin
-        :name: opening_hours_specification
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -71,9 +68,9 @@
       :contact_info:
         :type: mixin
         :name: contact_info
-      :linked_data:
+      :opening_hours_specification:
         :type: mixin
-        :name: linked_data
+        :name: opening_hours_specification
       # move to dataCycleProperty
       :price_range:
         :label: Preis-Info
@@ -92,6 +89,9 @@
             :transformation:
               :method: combine
               :name: additionalProperty
+      :linked_data:
+        :type: mixin
+        :name: linked_data
       :outdoor_active:
         :type: mixin
         :name: outdoor_active
