@@ -40,7 +40,7 @@ RUN bundle config set without 'development test' \
 # make sure docker-compose bind mount dirs exists inside the container
 RUN bash -c 'mkdir -p /app/{node_modules,log,public/uploads,private/import}'
 
-RUN yarn && bundle exec vite build && rm -Rf /app/node_modules
+RUN yarn && bundle exec vite build && rm -Rf /app/node_modules && yarn cache clean --all
 
 # create a temporary folder to update /app/public/assets in named volumes
 RUN mkdir -p /app/dc_volumes/public/assets \
