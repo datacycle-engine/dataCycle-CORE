@@ -58,7 +58,7 @@ module DataCycleCore
               external_system: external_system,
               external_system_data: external_system_data,
               endpoint: utility_object.endpoint,
-              request: :update_request
+              request: :delete_request
             )
           )
         end

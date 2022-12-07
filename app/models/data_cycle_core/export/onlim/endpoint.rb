@@ -4,6 +4,8 @@ module DataCycleCore
   module Export
     module Onlim
       class Endpoint < DataCycleCore::Export::Common::Endpoint::GenericEndpoint
+        include DataCycleCore::Engine.routes.url_helpers
+
         ATTRIBUTE_FILTER = {
           'POI' => [['id'], ['name'], ['description'], ['geo'], ['address']],
           'Unterkunft' => [['id'], ['name'], ['description'], ['geo'], ['address']],
@@ -28,19 +30,19 @@ module DataCycleCore
         end
 
         def update_request(data:, external_system_data: {})
-          verb = :post
           url = [@host, @end_point].join('/')
           body = serialize_data(data)
 
-          # if external_system_data.present? # update, not insert
-          #   # body = replace_ids(data: body, external_system_data: external_system_data)
-          #   url = [url, "imports/#{external_system_data['external_key']}"].join('/')
-          #   verb = :put
-          #   # ns = [ENV.fetch('APP_PROTOCOL', 'http'), ENV.fetch('APP_HOST', 'localhost:3000').to_s].join('://')
-          #   ns = api_v4_universal_url(id: nil) + '/'
-          # else
-          #
-          # end
+          if external_system_data.present? && external_system_data['job_status'] == 'success' # update, not insert
+            url = [url, "things/#{data.id}"].join('/')
+            verb = :put
+            default_url_options[:host] = ENV['APP_HOST']
+            default_url_options[:protocol] = ENV['APP_PROTOCOL']
+            ns = api_v4_universal_url + '/'
+          else
+            verb = :post
+            ns = nil
+          end
 
           response = connection.send(verb) do |req|
             req.url(url)
@@ -50,7 +52,7 @@ module DataCycleCore
             req.headers['X-DATASOURCE'] = @source_id
             req.headers['x-api-key'] = @api_key
 
-            # req.params['ns'] = ns if ns.present?
+            req.params['ns'] = ns if ns.present?
 
             req.body = body.to_json
           end
@@ -173,6 +175,33 @@ module DataCycleCore
           end
         end
 
+        def delete_request(data:, external_system_data: {}) # rubocop:disable Lint/UnusedMethodArgument
+          # for now only main Dataset will be deleted als dependent Data are not touched.
+          verb = :delete
+          url = [@host, "api/ts/v1/kg/things/#{data.id}"].join('/')
+          default_url_options[:host] = ENV['APP_HOST']
+          default_url_options[:protocol] = ENV['APP_PROTOCOL']
+          ns = api_v4_universal_url + '/'
+
+          response = connection.send(verb) do |req|
+            req.url(url)
+
+            req.headers['Content-Type'] = 'application/ld+json'
+            req.headers['X-PUBLISHER'] = @publisher_id
+            req.headers['X-DATASOURCE'] = @source_id
+            req.headers['x-api-key'] = @api_key
+
+            req.params['ns'] = ns if ns.present?
+            req.params['dryRun'] = false
+          end
+
+          if response.status.in?([204, 404, 200])
+            { 'job_status' => 'success' }
+          else
+            { 'job_status' => 'failed'}
+          end
+        end
+
         def serialize_data(data)
           json = DataCycleCore::Api::V4::ContentsController.renderer.new(
             http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
@@ -206,13 +235,6 @@ module DataCycleCore
           hash = DataCycleCore::Export::Onlim::Transformations.send(transformation).call(hash)
           hash
         end
-
-        # def replace_ids(data:, external_system_data:)
-        #   key = external_system_data['external_key']
-        #
-        #   data['@graph'][0]['@id'] = "http://onlim.com/entity/#{key}"
-        #   data
-        # end
       end
     end
   end

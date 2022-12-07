@@ -13,6 +13,7 @@ module DataCycleCore
         end
 
         def error(_job, _exception)
+          # binding.pry
           data = DataCycleCore::Thing.find(@data.id)
           data.add_external_system_data(@external_system, nil, 'error', 'export', nil, false)
         end
@@ -23,11 +24,15 @@ module DataCycleCore
         end
 
         def perform
-          data = DataCycleCore::Thing.find(@data.id)
+          # binding.pry
+          data = @data
+          load_data = DataCycleCore::Thing.where(id: data.id)
+          data = load_data&.first if load_data.present?
           job_result = @endpoint.send(@request, data: data, external_system_data: @external_system_data)
-          external_key = job_result.dig('outdoor_active_id')
+          return if @request == :delete_request # data is already deleted ...
 
-          log(job_result, @data.id) if job_result.dig('errors').present? || job_result.dig('warnings')
+          external_key = data.id
+          log(job_result, data.id) if job_result.dig('errors').present? || job_result.dig('warnings')
 
           case job_result.dig('job_status')
           when 'waiting'
