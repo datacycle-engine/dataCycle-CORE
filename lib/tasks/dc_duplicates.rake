@@ -25,13 +25,14 @@ namespace :dc do
     desc 'Create Duplicate-Candidates from a StoredFilter'
     task :create_duplicates, [:stored_filter] => [:environment] do |_, args|
       abort('Feature DuplicateCandidate has to be enabled!') unless DataCycleCore::Feature::DuplicateCandidate.enabled?
+      abort('A stored filter ID, or a stored filter Name has to be specified') if args.stored_filter.blank?
 
-      filter_param = args.fetch(:stored_filter, nil)
-      abort('A stored filter ID, or a stored filter Name has to be specified') if filter_param.blank?
+      query = []
+      query << 'id = :key' if args.stored_filter.uuid?
+      query << 'name = :key'
+      stored_filter = DataCycleCore::StoredFilter.find_by(query.join(' OR '), key: args.stored_filter)
 
-      stored_filter = DataCycleCore::StoredFilter.find_by(id: filter_param)
-      stored_filter = DataCycleCore::StoredFilter.find_by(name: filter_param) if stored_filter.blank?
-      abort("stored filter #{filter_param} does not exist!") if stored_filter.blank?
+      abort("stored filter #{args.stored_filter} does not exist!") if stored_filter.nil?
 
       stored_filter.language = Array(I18n.available_locales).map(&:to_s)
       query = stored_filter.apply
