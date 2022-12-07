@@ -86,6 +86,7 @@ module DataCycleCore
             .part_of(@container.id)
           tmp_count = @contents.count
           @contents = @contents.content_includes.page(params[:page])
+          ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:watch_list_shares))
 
           @page = @contents.current_page
           @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
@@ -102,6 +103,7 @@ module DataCycleCore
             .classification_alias_ids_without_subtree(@classification_tree.sub_classification_alias.id)
           tmp_count = @contents.count
           @contents = @contents.content_includes.page(params[:page])
+          ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:watch_list_shares))
 
           @page = @contents.current_page
           @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
@@ -124,6 +126,7 @@ module DataCycleCore
         page_size = DataCycleCore.main_config.dig(:ui, :dashboard, :page, :size)&.to_i || DEFAULT_PAGE_SIZE
         @contents = get_filtered_results(query: query, user_filter: user_filter)
         @contents = @contents.content_includes.page(params[:page]).per(page_size).without_count
+        ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:watch_list_shares))
       end
     end
 

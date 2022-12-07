@@ -1497,6 +1497,41 @@ $filter-border: #aaa;
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-end;
+  gap: 1rem;
+
+  .collection-manual-order-container {
+    position: relative;
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid $light-gray;
+    border-radius: $global-radius;
+    overflow: hidden;
+
+    .manual-order-button {
+      padding: 0.6rem 0.8rem;
+      margin: 0;
+      color: $black;
+      transition: $global-transition;
+
+      &:hover,
+      &.active {
+        color: $white;
+        background-color: $primary-color;
+        border-color: $primary-color;
+      }
+    }
+
+    &.disabled {
+      cursor: not-allowed;
+
+      .manual-order-button {
+        color: $dark-gray;
+        pointer-events: none;
+      }
+    }
+  }
 
   .mode-switcher {
     position: relative;
@@ -1727,10 +1762,6 @@ $filter-border: #aaa;
   flex-flow: row nowrap;
   align-items: center;
   justify-content: flex-end;
-
-  &:not(:last-child) {
-    margin-right: 1rem;
-  }
 
   > select {
     font-size: 0.9rem;

@@ -1,0 +1,10 @@
+<%= tag.div(
+  tag.a(
+    t('collection.manual_order.button', locale: active_ui_locale),
+    class: "manual-order-button"
+  ),
+  class: "collection-manual-order-container #{'disabled' if mode != 'list'}",
+  data: {
+    dc_tooltip: mode != 'list' ? t('collection.manual_order.tooltip', locale: active_ui_locale) : nil
+  }
+) %>

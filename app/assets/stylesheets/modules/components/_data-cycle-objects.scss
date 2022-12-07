@@ -1740,13 +1740,15 @@ ul.list {
         font-size: 1.2rem;
         vertical-align: middle;
       }
-      a.toggle-details.active::before {
+
+      &.open a.toggle-details::before {
         content: '\f106';
       }
     }
 
     .content-details {
       display: none;
+
       > div {
         margin-top: 1rem;
       }
@@ -1763,6 +1765,10 @@ ul.list {
           vertical-align: top;
         }
       }
+    }
+
+    .inner-item.open ~ .content-details {
+      display: block;
     }
   }
 }

@@ -340,7 +340,7 @@ module DataCycleCore
     private
 
     def watch_list_params
-      params.require(:watch_list).permit(:full_path, :user_id, user_group_ids: [], user_ids: [])
+      params.require(:watch_list).permit(:full_path, :user_id, :manual_order, user_group_ids: [], user_ids: [])
     end
 
     def create_form_params

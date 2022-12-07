@@ -74,9 +74,9 @@ module DataCycleCore
     def watch_list_link_icon(content)
       link_html = ActionView::OutputBuffer.new
 
-      if content.watch_lists.accessible_by(current_ability).exists?
+      if content.watch_lists.loaded? ? content.watch_lists.any? { |w| can?(:read, w) } : content.watch_lists.accessible_by(current_ability).exists?
         link_html << tag.i(class: 'fa fa-bookmark')
-        link_html << tag.i(class: 'fa fa-star my-collection-star-icon') if DataCycleCore::Feature::MySelection.enabled? && content.watch_lists.accessible_by(current_ability).my_selection.exists?
+        link_html << tag.i(class: 'fa fa-star my-collection-star-icon') if DataCycleCore::Feature::MySelection.enabled? && (content.watch_lists.loaded? ? content.watch_lists.any? { |w| w.my_selection && can?(:read, w) } : content.watch_lists.accessible_by(current_ability).my_selection.exists?)
       else
         link_html << tag.i(class: 'fa fa-bookmark-o')
       end
