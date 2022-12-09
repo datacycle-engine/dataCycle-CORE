@@ -282,8 +282,11 @@ de:
     new: Neue %{data}
     filter: '%{data} filtern ...'
     manual_order:
-      button: manuelle Sortierung anpassen
-      tooltip: Die manuelle Sortierung kann nur in der Listenansicht geändert werden
+      button: Sortierung manuell anpassen
+      button_active: manuelle Sortierung übernehmen
+      tooltip: Die manuelle Sortierung kann nur in der Listenansicht ohne aktive Filter angepasst werden
+      success: Die manuelle Sortierung wurde gespeichert
+      error: Die manuelle Sortierung konnte nicht gespeichert werden
 
   content_external_data:
     primary_external_system_tooltip: Dieses System ist das primäre externe System

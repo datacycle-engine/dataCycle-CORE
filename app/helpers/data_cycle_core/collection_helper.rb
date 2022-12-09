@@ -83,5 +83,9 @@ module DataCycleCore
 
       link_html
     end
+
+    def manual_order_allowed?(mode, language, filters)
+      mode == 'list' && Array.wrap(language).include?('all') && filters.blank?
+    end
   end
 end

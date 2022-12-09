@@ -1500,26 +1500,44 @@ $filter-border: #aaa;
   gap: 1rem;
 
   .collection-manual-order-container {
-    position: relative;
     display: flex;
-    flex-flow: row;
-    align-items: center;
-    justify-content: center;
+    position: relative;
     border: 1px solid $light-gray;
     border-radius: $global-radius;
     overflow: hidden;
 
     .manual-order-button {
-      padding: 0.6rem 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       margin: 0;
-      color: $black;
+      padding: 0.6rem 0.9rem;
+      color: $dark-gray;
       transition: $global-transition;
 
-      &:hover,
-      &.active {
-        color: $white;
-        background-color: $primary-color;
-        border-color: $primary-color;
+      .fa {
+        font-size: 1.3rem;
+        margin-right: -0.3rem;
+      }
+
+      &:hover {
+        color: $primary-color;
+      }
+    }
+
+    &.active {
+      border-color: $dark-gray;
+
+      .manual-order-button {
+        color: $black;
+
+        .fa {
+          margin-right: -0.2rem;
+
+          &::before {
+            content: '\f046';
+          }
+        }
       }
     }
 

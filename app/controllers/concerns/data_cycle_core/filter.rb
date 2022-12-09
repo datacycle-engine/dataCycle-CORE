@@ -5,7 +5,7 @@ module DataCycleCore
     extend ActiveSupport::Concern
     DEFAULT_PAGE_SIZE = 25
 
-    def get_filtered_results(query: nil, user_filter: { scope: 'backend' })
+    def get_filtered_results(query: nil, user_filter: { scope: 'backend' }, watch_list: nil)
       @stored_filter ||= DataCycleCore::StoredFilter.new
       @filters = pre_filters.dup
       @stored_filter.parameters ||= @filters || []
@@ -70,7 +70,7 @@ module DataCycleCore
       @sort_params ||= params[:s].presence&.values&.reject { |s| s.is_a?(Hash) ? s.any? { |_, v| v.blank? } : s.blank? } || []
     end
 
-    def set_instance_variables_by_view_mode(query: nil, user_filter: { scope: 'backend' })
+    def set_instance_variables_by_view_mode(query: nil, user_filter: { scope: 'backend' }, watch_list: nil)
       set_view_mode
 
       return @total_count = total_count(query: query, user_filter: user_filter) if count_only_params[:count_only].present?
@@ -124,7 +124,7 @@ module DataCycleCore
         @tree_total_pages = @classification_trees&.total_pages
       else
         page_size = DataCycleCore.main_config.dig(:ui, :dashboard, :page, :size)&.to_i || DEFAULT_PAGE_SIZE
-        @contents = get_filtered_results(query: query, user_filter: user_filter)
+        @contents = get_filtered_results(query: query, user_filter: user_filter, watch_list: watch_list)
         @contents = @contents.content_includes.page(params[:page]).per(page_size).without_count
         ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:watch_list_shares))
       end
