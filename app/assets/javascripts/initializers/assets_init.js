@@ -9,7 +9,7 @@ export default function () {
     assetSelectors.push(new AssetSelector(element));
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('asset-selector-reveal') && !e.hasOwnProperty('dcAssetSelector'),
+    e => e.classList.contains('asset-selector-reveal') && !e.classList.contains('dcjs-asset-selector'),
     e => assetSelectors.push(new AssetSelector(e))
   ]);
 
@@ -17,7 +17,7 @@ export default function () {
     assetUploaders.push(new AssetUploader(element));
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('asset-upload-reveal') && !e.hasOwnProperty('dcAssetUploader'),
+    e => e.classList.contains('asset-upload-reveal') && !e.classList.contains('dcjs-asset-uploader'),
     e => assetUploaders.push(new AssetUploader(e))
   ]);
 

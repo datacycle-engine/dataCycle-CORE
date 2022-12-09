@@ -17,8 +17,7 @@ function removeFoundationOverlays(element, type) {
 }
 
 function initReveal(element) {
-  element.dcFoundationReveal = true;
-  element.classList.add('dc-fd-reveal');
+  element.classList.add('dcjs-foundation-reveal');
   new Foundation.Reveal($(element));
 
   if (element.dataset.initialState == 'open') $(element).foundation('open');
@@ -86,7 +85,7 @@ export default function () {
   DataCycle.htmlObserver.addCallbacks.push([
     e =>
       'reveal' in e.dataset &&
-      !e.hasOwnProperty('dcFoundationReveal') &&
+      !e.classList.contains('dcjs-foundation-reveal') &&
       (!e.classList.contains('media-preview') || !e.closest('.object-browser-overlay')),
     e => initReveal(e)
   ]);
@@ -136,35 +135,6 @@ export default function () {
 
   $(document).on('remove', '*', event => {
     event.stopPropagation();
-  });
-
-  $(document).on('dc:html:remove', '*', event => {
-    event.stopPropagation();
-
-    const $target = $(event.currentTarget);
-
-    $target.find('[data-open]').each((i, elem) => {
-      if ($('#' + $(elem).data('open')).parent('.reveal-overlay').length)
-        $('#' + $(elem).data('open'))
-          .trigger('dc:html:remove')
-          .parent('.reveal-overlay')
-          .remove();
-      else
-        $('#' + $(elem).data('open'))
-          .trigger('dc:html:remove')
-          .remove();
-    });
-    $target.find('[data-toggle]').each((i, elem) => {
-      if ($('#' + $(elem).data('toggle')).parent('.reveal-overlay').length)
-        $('#' + $(elem).data('toggle'))
-          .trigger('dc:html:remove')
-          .parent('.reveal-overlay')
-          .remove();
-      else
-        $('#' + $(elem).data('toggle'))
-          .trigger('dc:html:remove')
-          .remove();
-    });
   });
 
   $(document).on('click', 'div.accordion-title', event => {

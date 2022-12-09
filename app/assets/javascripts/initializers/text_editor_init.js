@@ -11,7 +11,7 @@ export default function () {
     e =>
       e.classList.contains('quill-editor') &&
       !e.classList.contains('ql-container') &&
-      !e.hasOwnProperty('dcTextEditor'),
+      !e.classList.contains('dcjs-text-editor'),
     e => textEditors.push(new TextEditor(e))
   ]);
 
@@ -19,7 +19,7 @@ export default function () {
     textEditors.push(new InlineTranslator(element));
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('translate-inline-button') && !e.hasOwnProperty('dcInlineTranslator'),
+    e => e.classList.contains('translate-inline-button') && !e.classList.contains('dcjs-inline-translator'),
     e => textEditors.push(new InlineTranslator(e))
   ]);
 }

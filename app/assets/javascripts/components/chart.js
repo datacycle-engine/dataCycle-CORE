@@ -2,9 +2,9 @@ const ChartJs = () => import('chart.js');
 
 class Chart {
   constructor(element) {
-    element.dcChart = true;
     const instance = this;
     this.element = element;
+    this.element.classList.add('dcjs-chart');
     this.inputs = this.element.querySelector('.dc-chart-inputs');
     this.chartTypeInput = this.inputs.querySelector('.dc-chart-chart-type-input');
     this.groupingInput = this.inputs.querySelector('.dc-chart-grouping-input');

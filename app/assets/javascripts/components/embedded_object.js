@@ -46,7 +46,7 @@ class EmbeddedObject {
     this.setup();
   }
   setup() {
-    this.element[0].dcEmbeddedObject = true;
+    this.element[0].classList.add('dcjs-embedded-object');
 
     this.setupSwappableButtons();
     this.sortable = new Sortable(this.element[0], {

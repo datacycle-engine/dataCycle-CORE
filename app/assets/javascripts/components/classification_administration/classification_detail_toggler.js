@@ -1,9 +1,7 @@
-import ConfirmationModal from '../confirmation_modal';
-
 class ClassificationDetailToggler {
   constructor(item) {
     this.item = item;
-    this.dcClassificationDetailToggler = true;
+    this.item.classList.add('dcjs-classification-detail-toggler');
 
     this.setup();
   }
@@ -14,7 +12,7 @@ class ClassificationDetailToggler {
     event.preventDefault();
     event.stopPropagation();
 
-    event.currentTarget.closest('.inner-item').classList.toggle('open');
+    this.item.closest('.inner-item').classList.toggle('open');
   }
 }
 

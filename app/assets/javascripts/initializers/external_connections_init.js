@@ -9,7 +9,7 @@ export default function () {
     e =>
       e.nodeName == 'A' &&
       e.classList.contains('switch-primary-external-system-link') &&
-      !e.hasOwnProperty('dcSwitchPrimarySystemButton'),
+      !e.classList.contains('dcjs-switch-primary-system-button'),
     e => new SwitchPrimarySystemButton(e)
   ]);
 
@@ -19,7 +19,7 @@ export default function () {
     e =>
       e.nodeName == 'FORM' &&
       e.classList.contains('new-external-connection-form') &&
-      !e.hasOwnProperty('dcAddExternalSystemButton'),
+      !e.classList.contains('dcjs-add-external-system-button'),
     e => new AddExternalSystemButton(e)
   ]);
 
@@ -29,7 +29,7 @@ export default function () {
     e =>
       e.nodeName == 'A' &&
       e.classList.contains('remove-external-system-link') &&
-      !e.hasOwnProperty('dcRemoveExternalSystemButton'),
+      !e.classList.contains('dcjs-remove-external-system-button'),
     e => new RemoveExternalSystemButton(e)
   ]);
 }

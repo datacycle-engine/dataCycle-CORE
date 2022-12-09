@@ -1,6 +1,6 @@
 class GeoKeyFigure {
   constructor(element) {
-    element.dcGeoKeyFigure = true;
+    element.classList.add('dcjs-geo-key-figure');
     this.$element = $(element);
     this.url = this.$element.prop('href');
     this.$formElement = this.$element.closest('.form-element');

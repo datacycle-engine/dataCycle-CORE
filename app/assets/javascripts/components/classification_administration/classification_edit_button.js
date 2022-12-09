@@ -1,7 +1,7 @@
 class ClassificationEditButton {
   constructor(item) {
     this.item = item;
-    this.dcClassificationEditButton = true;
+    this.item.classList.add('dcjs-classification-edit-button');
     this.container = document.getElementById('classification-administration');
 
     this.setup();

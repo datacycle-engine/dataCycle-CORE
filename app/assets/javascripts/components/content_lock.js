@@ -25,7 +25,7 @@ class ContentLock {
     this.setup();
   }
   setup() {
-    this.button[0].dcContentLock = true;
+    this.button[0].classList.add('dcjs-content-lock');
     this.initActionCable();
     this.calculateLockedUntil(this.button.data('locks'));
 

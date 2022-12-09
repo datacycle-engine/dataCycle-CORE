@@ -10,7 +10,7 @@ import ObserverHelpers from '../helpers/observer_helpers';
 
 class ObjectBrowser {
   constructor(selector) {
-    selector.dcObjectBrowser = true;
+    selector.classList.add('dcjs-object-browser');
     this.element = $(selector);
     this.objectListElement = this.element.find('> .media-thumbs > .object-thumbs').get(0);
     this.id = this.element.prop('id');

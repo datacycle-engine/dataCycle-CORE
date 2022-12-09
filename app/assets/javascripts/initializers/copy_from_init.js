@@ -7,7 +7,7 @@ export default function () {
     copyFromAttributeFeatures.push(new CopyFromAttribute(element));
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('copy-from-attribute-feature') && !e.hasOwnProperty('dcCopyFromAttribute'),
+    e => e.classList.contains('copy-from-attribute-feature') && !e.classList.contains('dcjs-copy-from-attribute'),
     e => copyFromAttributeFeatures.push(new CopyFromAttribute(e))
   ]);
 }

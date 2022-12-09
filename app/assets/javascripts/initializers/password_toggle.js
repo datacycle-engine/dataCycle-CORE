@@ -6,7 +6,7 @@ export default function () {
   }
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('password-field') && !e.hasOwnProperty('dcPasswordToggler'),
+    e => e.classList.contains('password-field') && !e.classList.contains('dcjs-password-toggler'),
     e => new PasswordToggler(e)
   ]);
 }
