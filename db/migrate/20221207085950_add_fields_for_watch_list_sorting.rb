@@ -4,7 +4,7 @@ class AddFieldsForWatchListSorting < ActiveRecord::Migration[6.1]
   def up
     execute <<-SQL.squish
       ALTER TABLE watch_lists ADD COLUMN manual_order BOOLEAN NOT NULL DEFAULT FALSE;
-      ALTER TABLE watch_list_data_hashes ADD COLUMN order_a INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE watch_list_data_hashes ADD COLUMN order_a INTEGER NOT NULL DEFAULT 1;
       ALTER TABLE watch_list_data_hashes ALTER COLUMN created_at SET DEFAULT transaction_timestamp();
       ALTER TABLE watch_list_data_hashes ALTER COLUMN updated_at SET DEFAULT transaction_timestamp();
       CREATE INDEX wldh_order_a_idx ON watch_list_data_hashes(order_a);
@@ -14,7 +14,7 @@ class AddFieldsForWatchListSorting < ActiveRecord::Migration[6.1]
         LANGUAGE PLPGSQL
         AS $$
       BEGIN
-        NEW.order_a := (SELECT count(watch_list_data_hashes.id) FROM watch_list_data_hashes WHERE watch_list_data_hashes.watch_list_id = NEW.watch_list_id);
+        NEW.order_a := (SELECT (count(watch_list_data_hashes.id) + 1) FROM watch_list_data_hashes WHERE watch_list_data_hashes.watch_list_id = NEW.watch_list_id);
         RETURN NEW;
       END;
       $$;

@@ -24,10 +24,10 @@ module DataCycleCore
         reflect(
           @query
             .joins(
-              [
-                'watch_list_data_hashes ON watch_list_data_hashes.watch_list_id = ? AND watch_list_data_hashes.hashable_id = things.id',
-                watch_list_id
-              ]
+              ActiveRecord::Base.send(:sanitize_sql_array, [
+                                        'LEFT OUTER JOIN watch_list_data_hashes ON watch_list_data_hashes.watch_list_id = ? AND watch_list_data_hashes.hashable_id = things.id',
+                                        watch_list_id
+                                      ])
             )
             .reorder(
               sanitized_order_string('watch_list_data_hashes.order_a', ordering.presence || 'ASC')

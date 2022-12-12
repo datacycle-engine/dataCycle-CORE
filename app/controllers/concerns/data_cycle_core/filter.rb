@@ -14,13 +14,12 @@ module DataCycleCore
       @language ||= Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
       @stored_filter.language = @language
 
-      @sort_params = sort_params.dup
-      @stored_filter.sort_parameters ||= (@sort_params.presence || DataCycleCore::StoredFilter.sort_params_from_filter(@stored_filter.parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @stored_filter.parameters.find { |f| f['t'] == 'in_schedule' }))
+      @stored_filter.apply_sorting_from_parameters(sort_params: sort_params.dup, watch_list: watch_list)
       @sort_params = @stored_filter.sort_parameters
 
       @stored_filter.apply_user_filter(current_user, user_filter) if user_filter.present?
       @stored_filter.apply_params_for_data_links(session[:data_link_ids]) if current_user.is_role?('guest') && session[:data_link_ids].present?
-      query = @stored_filter.apply(query: query)
+      query = @stored_filter.apply(query: query, skip_ordering: @count_only)
 
       # used on dashboard
       @filters = @stored_filter.parameters.select { |f| f.key?('c') }.each { |f| f['identifier'] = SecureRandom.hex(10) }
@@ -132,10 +131,6 @@ module DataCycleCore
 
     private
 
-    def apply_ordering(query)
-      apply_order_query(query, permitted_params.dig(:sort), @full_text_search, raw_query_params: permitted_params.to_h)
-    end
-
     # used only in APIv4
     def build_search_query
       endpoint_id = permitted_params[:id]
@@ -157,8 +152,9 @@ module DataCycleCore
       filter = @stored_filter || DataCycleCore::StoredFilter.new
       filter.language = @language
       filter.apply_user_filter(current_user, { scope: 'api' })
+      filter.apply_sorting_from_api_parameters(full_text_search: @full_text_search, raw_query_params: permitted_params.to_h, watch_list: @watch_list)
 
-      query = filter.apply(skip_ordering: order_params_present?(permitted_params))
+      query = filter.apply
 
       query = query.watch_list_id(endpoint_id) unless @watch_list.nil?
 

@@ -1,5 +1,5 @@
 import ConfirmationModal from './../components/confirmation_modal';
-import Sortable from 'sortablejs/modular/sortable.core.esm.js';
+import { Sortable } from 'sortablejs';
 import difference from 'lodash/difference';
 import union from 'lodash/union';
 import intersection from 'lodash/intersection';
@@ -50,6 +50,8 @@ class EmbeddedObject {
 
     this.setupSwappableButtons();
     this.sortable = new Sortable(this.element[0], {
+      forceAutoScrollFallback: true,
+      scrollSpeed: 50,
       group: this.id,
       handle: '.draggable-handle',
       draggable: '.content-object-item.draggable_' + this.id
@@ -142,7 +144,7 @@ class EmbeddedObject {
           switchObject = currentObject.next('.content-object-item');
           switchObject.after(currentObject);
         }
-        currentObject.get(0).scrollIntoView({ behavior: 'smooth' });
+        currentObject.get(0).scrollIntoView({ behavior: 'smooth', block: 'center' });
 
         this.setSwapClasses(currentObject);
         this.setSwapClasses(switchObject);
@@ -184,7 +186,8 @@ class EmbeddedObject {
       this.addEventHandlers();
 
       this.element[0].querySelector(':scope > .content-object-item:last-of-type').scrollIntoView({
-        behavior: 'smooth'
+        behavior: 'smooth',
+        block: 'center'
       });
     });
 

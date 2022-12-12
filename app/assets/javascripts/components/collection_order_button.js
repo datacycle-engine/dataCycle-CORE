@@ -1,5 +1,5 @@
 import CalloutHelpers from '../helpers/callout_helpers';
-import Sortable from 'sortablejs/modular/sortable.core.esm.js';
+import { Sortable } from 'sortablejs';
 
 class CollectionOrderButton {
   constructor(button) {
@@ -8,6 +8,8 @@ class CollectionOrderButton {
     this.itemWrapper = this.item.closest('.collection-manual-order-container ');
     this.sortableList = document.getElementById('search-results').querySelector('ul');
     this.sortable = new Sortable(this.sortableList, {
+      forceAutoScrollFallback: true,
+      scrollSpeed: 50,
       group: 'manual-collection-order',
       handle: '.draggable-handle',
       draggable: 'li.list-item',
@@ -22,6 +24,9 @@ class CollectionOrderButton {
       childList: true,
       attributeOldValue: false,
       characterDataOldValue: false
+    };
+    this.eventHandlers = {
+      beforeunload: this.beforeunloadHandler.bind(this)
     };
 
     this.setup();
@@ -47,6 +52,8 @@ class CollectionOrderButton {
     this.newButtonObserver.observe(this.sortableList, this.observerConfig);
 
     this.sortable.option('disabled', false);
+
+    window.addEventListener('beforeunload', this.eventHandlers.beforeunload, { capture: true });
   }
   disableSortable() {
     this.itemWrapper.classList.remove('active');
@@ -58,7 +65,14 @@ class CollectionOrderButton {
 
     this.sortable.option('disabled', true);
 
+    window.removeEventListener('beforeunload', this.eventHandlers.beforeunload, { capture: true });
+
     this.setNewOrder();
+  }
+  beforeunloadHandler(event) {
+    event.preventDefault();
+
+    return (event.returnValue = '');
   }
   setNewOrder() {
     const newOrder = Array.from(this.sortableList.querySelectorAll(':scope > li.list-item')).map(e => e.dataset.id);

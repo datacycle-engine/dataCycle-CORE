@@ -1,5 +1,5 @@
 import ConfirmationModal from './../components/confirmation_modal';
-import Sortable from 'sortablejs/modular/sortable.core.esm.js';
+import { Sortable } from 'sortablejs';
 import difference from 'lodash/difference';
 import union from 'lodash/union';
 import castArray from 'lodash/castArray';
@@ -63,6 +63,8 @@ class ObjectBrowser {
   }
   setup() {
     this.sortable = new Sortable(this.element.find('> .media-thumbs > .object-thumbs').get(0), {
+      forceAutoScrollFallback: true,
+      scrollSpeed: 50,
       handle: '.draggable-handle',
       draggable: 'li.item'
     });

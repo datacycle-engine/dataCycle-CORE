@@ -126,24 +126,54 @@ module DataCycleCore
       parameters.push(filter) unless parameters.any? { |f| filter_equal?(f, filter) }
     end
 
-    def self.sort_params_from_filter(search = nil, schedule = nil)
-      if search.present?
-        [
-          {
-            'm': 'fulltext_search',
-            'o': 'DESC',
-            'v': search
-          }
-        ]
-      elsif schedule.present?
-        [
-          {
-            'm': 'by_proximity',
-            'o': 'ASC',
-            'v': schedule
-          }
-        ]
+    def apply_sorting_from_parameters(sort_params:, watch_list:)
+      if sort_params.present?
+        self.sort_parameters = sort_params
+      elsif (search_string = parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v')).present?
+        self.sort_parameters = [{ 'm' => 'fulltext_search', 'o' => 'DESC', 'v' => search_string }]
+      elsif (schedule_sort = parameters.find { |f| f['t'] == 'in_schedule' }&.dig('v')).present?
+        self.sort_parameters = [{ 'm' => 'by_proximity', 'o' => 'ASC', 'v' => schedule_sort }]
+      else
+        self.sort_parameters ||= [watch_list&.manual_order ? { 'm' => 'collection_manual_order', 'o' => 'ASC', 'v' => watch_list.id } : { 'm' => 'default', 'o' => 'DESC' }]
       end
+
+      self
+    end
+
+    def apply_sorting_from_api_parameters(full_text_search:, raw_query_params: {}, watch_list: nil)
+      sort_params = []
+
+      raw_query_params&.dig(:sort)&.split(',')&.each do |sort|
+        key, order = DataCycleCore::ApiService.order_key_with_value(sort)
+        value = DataCycleCore::ApiService.order_value_from_params(key, full_text_search, raw_query_params)
+
+        if DataCycleCore::Feature::Sortable.available_advanced_attribute_options.key?(key.underscore)
+          value = key.underscore
+          key = 'advanced_attribute'
+        end
+
+        sort_params << {
+          'm' => key.parameterize(separator: '_'),
+          'o' => order,
+          'v' => value.presence
+        }.compact
+      end
+
+      sort_params.compact_blank!
+
+      if sort_params.present?
+        self.sort_parameters = sort_params
+      elsif full_text_search.present?
+        self.sort_parameters = [{ 'm' => 'fulltext_search', 'o' => 'DESC', 'v' => full_text_search }]
+      elsif (geo_value = DataCycleCore::ApiService.order_value_from_params('proximity.geographic', full_text_search, raw_query_params))
+        self.sort_parameters = [{ 'm' => 'proximity_geographic', 'o' => 'ASC', 'v' => geo_value }]
+      elsif (proximity_value = DataCycleCore::ApiService.order_value_from_params('proximity.inTime', full_text_search, raw_query_params)).present?
+        self.sort_parameters = [{ 'm' => 'by_proximity', 'o' => 'ASC', 'v' => proximity_value }]
+      else
+        self.sort_parameters ||= [watch_list&.manual_order ? { 'm' => 'collection_manual_order', 'o' => 'ASC', 'v' => watch_list.id } : { 'm' => 'default', 'o' => 'DESC' }]
+      end
+
+      self
     end
 
     def self.combine_with_collections(collections, filter_proc, name_filter = true)

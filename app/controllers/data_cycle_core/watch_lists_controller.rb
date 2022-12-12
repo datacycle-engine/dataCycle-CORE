@@ -19,12 +19,7 @@ module DataCycleCore
 
       @language ||= params.fetch(:language) { ['all'] }
       pre_filters
-      @pre_filters.push(
-        {
-          't' => 'watch_list_id',
-          'v' => @watch_list.id
-        }
-      )
+      @pre_filters.push({ 't' => 'watch_list_id', 'v' => @watch_list.id })
 
       set_instance_variables_by_view_mode(query: @query, user_filter: { scope: 'watch_list' }, watch_list: @watch_list)
 
@@ -342,9 +337,7 @@ module DataCycleCore
 
       authorize! :edit, @watch_list
 
-      new_order = update_order_params[:order]
-
-      DataCycleCore::WatchListDataHash.where(watch_list_id: @watch_list.id, hashable_id: new_order).update_all(['order_a = array_position(ARRAY[?]::uuid[], hashable_id)', new_order])
+      @watch_list.update_order_by_array(update_order_params[:order])
 
       flash[:success] = I18n.t('collection.manual_order.success')
 

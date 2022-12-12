@@ -443,12 +443,12 @@ CREATE FUNCTION public.update_template_definitions_trigger() RETURNS trigger
 
 
 --
--- Name: basic_german; Type: TEXT SEARCH DICTIONARY; Schema: public; Owner: -
+-- Name: wldh_order_a_default_value(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE TEXT SEARCH DICTIONARY public.basic_german (
-    TEMPLATE = pg_catalog.thesaurus,
-    dictfile = 'basic_german', dictionary = 'pg_catalog.german_stem' );
+CREATE FUNCTION public.wldh_order_a_default_value() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN NEW.order_a := (SELECT (count(watch_list_data_hashes.id) + 1) FROM watch_list_data_hashes WHERE watch_list_data_hashes.watch_list_id = NEW.watch_list_id); RETURN NEW; END; $$;
 
 
 SET default_tablespace = '';
@@ -942,8 +942,9 @@ CREATE TABLE public.watch_list_data_hashes (
     hashable_id uuid,
     hashable_type character varying,
     seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
+    updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
+    order_a integer DEFAULT 1 NOT NULL
 );
 
 
@@ -1485,7 +1486,8 @@ CREATE TABLE public.watch_lists (
     updated_at timestamp without time zone NOT NULL,
     full_path character varying,
     full_path_names character varying[],
-    my_selection boolean DEFAULT false NOT NULL
+    my_selection boolean DEFAULT false NOT NULL,
+    manual_order boolean DEFAULT false NOT NULL
 );
 
 
@@ -2912,6 +2914,13 @@ CREATE INDEX validity_period_idx ON public.searches USING gist (validity_period)
 
 
 --
+-- Name: wldh_order_a_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX wldh_order_a_idx ON public.watch_list_data_hashes USING btree (order_a);
+
+
+--
 -- Name: words_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3212,6 +3221,13 @@ CREATE TRIGGER update_schedule_occurences_trigger AFTER UPDATE OF thing_id, dura
 --
 
 CREATE TRIGGER update_template_definitions_trigger AFTER UPDATE OF schema, boost, content_type ON public.things FOR EACH ROW WHEN (((new.template = true) AND ((old.schema IS DISTINCT FROM new.schema) OR (old.boost IS DISTINCT FROM new.boost) OR ((old.content_type)::text IS DISTINCT FROM (new.content_type)::text)))) EXECUTE FUNCTION public.update_template_definitions_trigger();
+
+
+--
+-- Name: watch_list_data_hashes wldh_order_a_default_value_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER wldh_order_a_default_value_trigger BEFORE INSERT ON public.watch_list_data_hashes FOR EACH ROW EXECUTE FUNCTION public.wldh_order_a_default_value();
 
 
 --
@@ -3566,6 +3582,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20221103103637'),
 ('20221114090938'),
 ('20221118075303'),
-('20221202071928');
+('20221202071928'),
+('20221207085950');
 
 

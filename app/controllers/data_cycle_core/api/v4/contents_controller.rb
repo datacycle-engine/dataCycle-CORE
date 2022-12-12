@@ -26,8 +26,6 @@ module DataCycleCore
                 return
               end
 
-              query = apply_ordering(query)
-
               @pagination_contents = apply_paging(query)
               @contents = @pagination_contents
 

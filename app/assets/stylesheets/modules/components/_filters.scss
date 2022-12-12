@@ -1511,17 +1511,54 @@ $filter-border: #aaa;
       align-items: center;
       justify-content: center;
       margin: 0;
-      padding: 0.6rem 0.9rem;
+      padding: 0 0.4rem 0 0.7rem;
       color: $dark-gray;
       transition: $global-transition;
 
-      .fa {
+      .fa,
+      .fa-stack {
         font-size: 1.3rem;
-        margin-right: -0.3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: auto;
+        position: relative;
+      }
+
+      .fa.fa-arrows-v {
+        width: 1rem;
+      }
+
+      .fa.fa-list-ul {
+        width: 1.5rem;
+        height: 1.5rem;
       }
 
       &:hover {
         color: $primary-color;
+      }
+
+      &.disabled {
+        cursor: progress;
+        pointer-events: none;
+
+        .fa.fa-list-ul {
+          &::before {
+            content: '\f110';
+            animation: fa-spin 2s infinite linear;
+          }
+        }
+      }
+    }
+
+    &.active .manual-order-button,
+    .manual-order-button.disabled {
+      .fa.fa-arrows-v {
+        font-size: 1rem;
+
+        &::before {
+          content: '\f00c';
+        }
       }
     }
 
@@ -1530,14 +1567,6 @@ $filter-border: #aaa;
 
       .manual-order-button {
         color: $black;
-
-        .fa {
-          margin-right: -0.2rem;
-
-          &::before {
-            content: '\f046';
-          }
-        }
       }
     }
 
