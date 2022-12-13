@@ -13,7 +13,7 @@ export default function () {
       !e.disabled &&
       e.classList.contains('form-control') &&
       !e.classList.contains('flatpickr-input') &&
-      !e.hasOwnProperty('dcCounter'),
+      !e.classList.contains('dcjs-counter'),
     e => new Counter(e).start()
   ]);
 }

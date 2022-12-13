@@ -6,7 +6,7 @@ export default function () {
   }
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('result-count') && !e.hasOwnProperty('dcResultCount'),
+    e => e.classList.contains('result-count') && !e.classList.contains('dcjs-result-count'),
     e => new ResultCount(e)
   ]);
 }

@@ -7,7 +7,7 @@ export default function () {
     schedule_editors.push(new ScheduleEditor($(element)));
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('schedule-editor') && !e.hasOwnProperty('dcScheduleEditor'),
+    e => e.classList.contains('schedule-editor') && !e.classList.contains('dcjs-schedule-editor'),
     e => schedule_editors.push(new ScheduleEditor($(e)))
   ]);
 }

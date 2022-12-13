@@ -19,14 +19,9 @@ module DataCycleCore
 
       @language ||= params.fetch(:language) { ['all'] }
       pre_filters
-      @pre_filters.push(
-        {
-          't' => 'watch_list_id',
-          'v' => @watch_list.id
-        }
-      )
+      @pre_filters.push({ 't' => 'watch_list_id', 'v' => @watch_list.id })
 
-      set_instance_variables_by_view_mode(query: @query, user_filter: { scope: 'watch_list' })
+      set_instance_variables_by_view_mode(query: @query, user_filter: { scope: 'watch_list' }, watch_list: @watch_list)
 
       respond_to do |format|
         format.html
@@ -337,10 +332,26 @@ module DataCycleCore
       render plain: watch_lists.map(&:to_select_option).to_json, content_type: 'application/json'
     end
 
+    def update_order
+      @watch_list = DataCycleCore::WatchList.find(update_order_params[:id])
+
+      authorize! :edit, @watch_list
+
+      @watch_list.update_order_by_array(update_order_params[:order])
+
+      flash[:success] = I18n.t('collection.manual_order.success')
+
+      render json: flash.discard.to_h
+    end
+
     private
 
+    def update_order_params
+      params.permit(:id, order: [])
+    end
+
     def watch_list_params
-      params.require(:watch_list).permit(:full_path, :user_id, user_group_ids: [], user_ids: [])
+      params.require(:watch_list).permit(:full_path, :user_id, :manual_order, user_group_ids: [], user_ids: [])
     end
 
     def create_form_params

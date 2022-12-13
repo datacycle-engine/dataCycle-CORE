@@ -145,7 +145,6 @@ module DataCycleCore
             @permitted_params = query_params
 
             query = build_search_query
-            query = apply_ordering(query)
             @pagination_contents = apply_paging(query)
             @contents = @pagination_contents
 

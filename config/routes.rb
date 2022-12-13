@@ -185,6 +185,7 @@ DataCycleCore::Engine.routes.draw do
       delete :bulk_delete, on: :member
       delete :clear, on: :member
       get :search, on: :collection
+      patch :update_order, on: :member
       post '/', on: :member, action: :show
     end
 

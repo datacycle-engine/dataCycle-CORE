@@ -26,7 +26,6 @@ module DataCycleCore
         reflect(
           @query.includes(
             :translations,
-            :watch_lists,
             :external_source,
             :external_systems,
             :parent,

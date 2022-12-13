@@ -1,7 +1,7 @@
 class StoredFilterForm {
   constructor(form) {
-    form.dcStoredFilterForm = true;
     this.form = form;
+    this.form.classList.add('dcjs-stored-filter-form');
     this.idSelector = this.form.querySelector('.update-search-id-selector');
     this.formSubmit = this.form.querySelector('.buttons [type="submit"]');
     this.dynamicFormPart = this.form.querySelector('.dynamic-form-parts');

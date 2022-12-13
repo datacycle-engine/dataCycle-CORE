@@ -9,6 +9,32 @@ module DataCycleCore
         )
       end
 
+      def sort_default(_ordering)
+        reflect(
+          @query
+            .reorder(
+              sanitized_order_string('things.boost', 'DESC'),
+              sanitized_order_string('things.updated_at', 'DESC'),
+              thing[:id].desc
+            )
+        )
+      end
+
+      def sort_collection_manual_order(ordering, watch_list_id)
+        reflect(
+          @query
+            .joins(
+              ActiveRecord::Base.send(:sanitize_sql_array, [
+                                        'LEFT OUTER JOIN watch_list_data_hashes ON watch_list_data_hashes.watch_list_id = ? AND watch_list_data_hashes.hashable_id = things.id',
+                                        watch_list_id
+                                      ])
+            )
+            .reorder(
+              sanitized_order_string('watch_list_data_hashes.order_a', ordering.presence || 'ASC')
+            )
+        )
+      end
+
       def sort_random(ordering)
         unless ordering.nil?
           random_seed_sql = <<-SQL.squish

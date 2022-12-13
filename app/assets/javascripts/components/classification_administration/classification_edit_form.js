@@ -4,7 +4,7 @@ import DomElementHelpers from '../../helpers/dom_element_helpers';
 class ClassificationEditForm {
   constructor(item) {
     this.item = item;
-    this.dcClassificationEditForm = true;
+    this.item.classList.add('dcjs-classification-edit-form');
     this.liElement = this.item.closest('li');
     this.container = document.getElementById('classification-administration');
     this.submitButton = this.item.querySelector('.submit-button');

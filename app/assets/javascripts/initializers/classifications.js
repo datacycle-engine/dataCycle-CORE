@@ -15,7 +15,7 @@ export default function () {
     DataCycle.htmlObserver.addCallbacks.push([
       e =>
         e.nodeName == 'INPUT' &&
-        !e.hasOwnProperty('dcClassificationVisibilitySwitcher') &&
+        !e.classList.contains('dcjs-classification-visibility-switcher') &&
         e.name == 'classification_tree_label[visibility][]' &&
         ['show', 'show_more'].includes(e.value),
       e => new ClassificationVisibilitySwitcher(e)
@@ -23,13 +23,14 @@ export default function () {
 
     for (const element of document.querySelectorAll('a.name')) new ClassificationNameButton(element);
     DataCycle.htmlObserver.addCallbacks.push([
-      e => e.nodeName == 'A' && e.classList.contains('name') && !e.hasOwnProperty('dcClassificationNameButton'),
+      e =>
+        e.nodeName == 'A' && e.classList.contains('name') && !e.classList.contains('dcjs-classification-name-button'),
       e => new ClassificationNameButton(e)
     ]);
 
     for (const element of document.querySelectorAll('.load-more-button')) new ClassificationLoadMoreButton(element);
     DataCycle.htmlObserver.addCallbacks.push([
-      e => e.classList.contains('load-more-button') && !e.hasOwnProperty('dcClassificationLoadMoreButton'),
+      e => e.classList.contains('load-more-button') && !e.classList.contains('dcjs-classification-load-more-button'),
       e => new ClassificationLoadMoreButton(e)
     ]);
 
@@ -38,7 +39,7 @@ export default function () {
       e =>
         e.nodeName == 'A' &&
         (e.classList.contains('create') || e.classList.contains('edit')) &&
-        !e.hasOwnProperty('dcClassificationEditButton'),
+        !e.classList.contains('dcjs-classification-edit-button'),
       e => new ClassificationEditButton(e)
     ]);
 
@@ -50,20 +51,23 @@ export default function () {
       e =>
         e.nodeName == 'FORM' &&
         (e.classList.contains('classification-tree-label-form') || e.classList.contains('classification-alias-form')) &&
-        !e.hasOwnProperty('dcClassificationEditForm'),
+        !e.classList.contains('dcjs-classification-edit-form'),
       e => new ClassificationEditForm(e)
     ]);
 
     for (const element of document.querySelectorAll('a.destroy')) new ClassificationDestroyButton(element);
     DataCycle.htmlObserver.addCallbacks.push([
-      e => e.nodeName == 'A' && e.classList.contains('destroy') && !e.hasOwnProperty('dcClassificationDestroyButton'),
+      e =>
+        e.nodeName == 'A' &&
+        e.classList.contains('destroy') &&
+        !e.classList.contains('dcjs-classification-destroy-button'),
       e => new ClassificationDestroyButton(e)
     ]);
   }
 
   for (const element of document.querySelectorAll('.toggle-details')) new ClassificationDetailToggler(element);
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('toggle-details') && !e.hasOwnProperty('dcClassificationDetailToggler'),
+    e => e.classList.contains('toggle-details') && !e.classList.contains('dcjs-classification-detail-toggler'),
     e => new ClassificationDetailToggler(e)
   ]);
 }

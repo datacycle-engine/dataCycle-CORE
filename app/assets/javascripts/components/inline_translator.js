@@ -3,7 +3,7 @@ import CalloutHelpers from '../helpers/callout_helpers';
 class InlineTranslator {
   constructor(item) {
     this.item = item;
-    this.dcInlineTranslator = true;
+    this.item.classList.add('dcjs-inline-translator');
 
     this.setup();
   }

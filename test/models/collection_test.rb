@@ -3,8 +3,8 @@
 require 'test_helper'
 
 module DataCycleCore
-  class CollectionTest < ActiveSupport::TestCase
-    setup do
+  class CollectionTest < DataCycleCore::TestCases::ActiveSupportTestCase
+    before(:all) do
       @collection = DataCycleCore::TestPreparations.create_watch_list(name: 'Inhaltssammlung 1')
       @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1 in Collection' }, prevent_history: true)
       @content.watch_lists << @collection

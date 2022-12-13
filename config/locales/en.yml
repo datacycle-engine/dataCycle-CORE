@@ -258,6 +258,11 @@ en:
   collection:
     new: new %{data}
     filter: 'filter %{data} ...'
+    manual_order:
+      button: customize manual order
+      tooltip: Manual order can only be changed in the list view without active filters
+      success: The manual order was saved
+      error: The manual order could not be saved
 
   content_external_data:
     primary_external_system_tooltip: This system is the primary external system
@@ -1145,6 +1150,7 @@ en:
         user_group_ids: User groups
         user_ids: User
         user_id: Owner
+        manual_order: Use manual order as default order
       data_cycle_core/classification_tree_label:
         visibility: Visibility
         change_behaviour: Change behavior

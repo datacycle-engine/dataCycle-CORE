@@ -118,7 +118,7 @@ function focusFirstInputField(element) {
 }
 
 function monitorNewContents(element) {
-  element.dcMonitorNewContents = true;
+  element.classList.add('dcjs-monitor-new-contents');
   const changeObserver = new MutationObserver(m => checkForChangedFormData(m, element));
   changeObserver.observe(element, ObserverHelpers.changedClassWithSubtreeConfig);
 }
@@ -126,7 +126,7 @@ function monitorNewContents(element) {
 export default function () {
   for (const element of document.querySelectorAll('.dropdown-pane')) monitorNewContents(element);
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('dropdown-pane') && !e.hasOwnProperty('dcMonitorNewContents'),
+    e => e.classList.contains('dropdown-pane') && !e.classList.contains('dcjs-monitor-new-contents'),
     e => monitorNewContents(e)
   ]);
 
