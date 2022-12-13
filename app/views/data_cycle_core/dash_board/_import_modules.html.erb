@@ -22,29 +22,17 @@
     </div>
     <div class="card-section">
       download (last try/success):
-      <ul>
-        <li><%= "#{locals[:import_data][:last_download]}".html_safe %> </li>
-        <% if (locals[:import_data][:last_successful_download] == 'never' && locals[:import_data][:last_download] == 'never') || locals[:import_data][:deactivated] %>
-          <li> <%= "#{locals[:import_data][:last_successful_download]}".html_safe %> </li>
-        <% elsif locals[:import_data][:last_download] == locals[:import_data][:last_successful_download] && locals[:import_data][:last_successful_download] != 'never' %>
-          <li class="success-color"> <%= "#{locals[:import_data][:last_successful_download]}".html_safe %> </li>
-        <% else %>
-          <li class="alert-color"> <%= "#{locals[:import_data][:last_successful_download]}".html_safe %> </li>
-        <% end %>
+      <ul class="no-bullet import-data-timestamps">
+        <li><%= import_data_time(locals.dig(:import_data, :last_download)) %> </li>
+        <li class="<%= locals.dig(:import_data, :last_successful_download_class) %>"><%= import_data_time(locals.dig(:import_data, :last_successful_download)) %></li>
       </ul>
       import (last try/success):
-      <ul>
-        <li><%= "#{locals[:import_data][:last_import]}".html_safe %> </li>
-        <% if (locals[:import_data][:last_successful_import] == 'never' && locals[:import_data][:last_import] == 'never') || locals[:import_data][:deactivated] %>
-          <li> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
-        <% elsif locals[:import_data][:last_import] == locals[:import_data][:last_successful_import] && locals[:import_data][:last_successful_import] != 'never' %>
-          <li class="success-color"> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
-        <% else %>
-          <li class="alert-color"> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
-        <% end %>
+      <ul class="no-bullet import-data-timestamps">
+        <li><%= import_data_time(locals.dig(:import_data, :last_import)) %> </li>
+        <li class="<%= locals.dig(:import_data, :last_successful_import_class) %>"><%= import_data_time(locals.dig(:import_data, :last_successful_import)) %></li>
       </ul>
     </div>
-    <% if locals[:import_data][:deactivated] %>
+    <% if locals.dig(:import_data, :deactivated) %>
       <div class="card-divider" style="padding: 1rem 1rem 0rem 1rem;">
         <div class="admin_full_size">
           deactivated <br/>

@@ -85,6 +85,36 @@
       }
     }
   }
+
+  ul.import-data-timestamps {
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0.3rem;
+
+      &::before {
+        font-family: 'FontAwesome';
+        content: '\f111';
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 1rem;
+        font-size: 0.4rem;
+      }
+
+      &.success-color::before {
+        font-size: 0.9rem;
+        content: '\f00c';
+      }
+
+      &.alert-color::before {
+        font-size: 0.9rem;
+        content: '\f00d';
+      }
+    }
+  }
 }
 
 .grid-buttons {
