@@ -9,12 +9,12 @@ module DataCycleCore
         )
       end
 
-      def sort_default(ordering)
+      def sort_default(_ordering)
         reflect(
           @query
             .reorder(
-              sanitized_order_string('things.boost', ordering.presence || 'DESC'),
-              sanitized_order_string('things.updated_at', ordering.presence || 'DESC'),
+              sanitized_order_string('things.boost', 'DESC'),
+              sanitized_order_string('things.updated_at', 'DESC'),
               thing[:id].desc
             )
         )

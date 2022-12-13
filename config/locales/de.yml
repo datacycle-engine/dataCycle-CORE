@@ -1192,7 +1192,7 @@ de:
         user_group_ids: Benutzergruppen
         user_ids: Benutzer
         user_id: Eigentümer
-        manual_order: Manuelle Sortierung verwenden
+        manual_order: Manuelle Sortierung als Standard-Sortierung verwenden
       data_cycle_core/classification_tree_label:
         visibility: Sichtbarkeit
         change_behaviour: Änderungsverhalten

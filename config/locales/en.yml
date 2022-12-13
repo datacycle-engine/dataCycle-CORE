@@ -1150,6 +1150,7 @@ en:
         user_group_ids: User groups
         user_ids: User
         user_id: Owner
+        manual_order: Use manual order as default order
       data_cycle_core/classification_tree_label:
         visibility: Visibility
         change_behaviour: Change behavior
