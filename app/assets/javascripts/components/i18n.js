@@ -11,7 +11,7 @@ const I18n = {
     else if (count === 1) return 'one';
     else return 'other';
   },
-  async translate(path, substitutions = {}, default_value = null) {
+  async translate(path, substitutions = {}) {
     let text = LocalStorageCache.get(this.config.namespace, path);
     if (text && typeof text.then === 'function') text = await text;
 
@@ -22,7 +22,7 @@ const I18n = {
         : await this._loadTranslation(path);
       if (result && !result.error && result.hasOwnProperty('text'))
         text = LocalStorageCache.set(this.config.namespace, path, result.text);
-      else if (result.hasOwnProperty('error') && default_value) text = default_value;
+      else if (result.hasOwnProperty('error') && substitutions.hasOwnProperty('default')) text = substitutions.default;
       else text = result.hasOwnProperty('error') ? result.error : this._errorObject(path).error;
     }
 

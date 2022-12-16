@@ -222,6 +222,13 @@ module DataCycleCore
               :can, :tree,
               DataCycleCore::Abilities::Segments::SubjectByEnabledFeature.new(:view_mode, DataCycleCore::Feature::ViewMode)
             )
+
+            # Classification Overview
+            add_permission(
+              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
+              :can, :read,
+              DataCycleCore::Abilities::Segments::TreeLabelByVisibility.new('classification_overview')
+            )
           end
         end
       end
