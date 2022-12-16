@@ -80,17 +80,17 @@ module DataCycleCore
           url = [@host, @end_point].join('/')
 
           job_operation = 'UPDATE'
-          if external_system_data.present? # update, not insert
+          if external_system_data.blank? || (external_system_data.present? && external_system_data.dig('job_operation') == 'CREATE' && external_system_data.dig('job_status') == 'failed')
+            existing_object_ids = external_system_data.dig('message', 'existingObjectIds')&.map { |id| id.split('/')&.last }
+            verb = :post
+            ns = nil
+            job_operation = 'CREATE'
+          else # update, not insert
             url = [url, "things/#{data.id}"].join('/')
             verb = :put
             default_url_options[:host] = ENV['APP_HOST']
             default_url_options[:protocol] = ENV['APP_PROTOCOL']
             ns = api_v4_universal_url + '/'
-          else
-            existing_object_ids = external_system_data.dig('message', 'existingObjectIds')&.map { |id| id.split('/')&.last }
-            verb = :post
-            ns = nil
-            job_operation = 'CREATE'
           end
 
           body = Endpoint.serialize_data(data, existing_object_ids || [])
@@ -155,7 +155,7 @@ module DataCycleCore
                 'job_id' => job_id,
                 'job_status' => 'pending',
                 'job_operation' => job_operation,
-                'external_source_id' => external_source_id,
+                'external_source_id' => external_source.id,
                 'operation' => operation,
                 'message' => status
               }
