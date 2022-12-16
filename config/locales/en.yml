@@ -245,6 +245,29 @@ en:
       dining_hours_specification: Hot kitchen
       hours_available: Dates (Services/Experiences)
       validity_schedule: Validity period
+
+  timeseries:
+    grouping_options:
+      default: Do not group
+      sum: Sum
+      min: Min
+      max: Max
+      avg: Average
+      other: Others
+      hour: Hour
+      day: Day
+      week: Week
+      month: Month
+      quarter: Quarter
+      year: Year
+      # weekday_hour: Wochentag/Stunde
+    chart_type_options:
+      bar: Bar
+      line: Line
+      scatter: Point
+    from: from
+    until: to
+
   opening_time:
     valid_from: Validity from
     valid_until: By

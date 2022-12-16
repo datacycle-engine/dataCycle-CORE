@@ -1,4 +1,4 @@
-<% if value.present? || options.dig(:force_render).to_s == 'true' || value.is_a?(FalseClass) %>
+<% if attribute_value_present?(value) || options.dig(:force_render).to_s == 'true' || value.is_a?(FalseClass) %>
 
   <%= tag.div(class: attribute_viewer_html_classes(**local_assigns), data: attribute_viewer_data_attributes(**local_assigns)) do %>
 

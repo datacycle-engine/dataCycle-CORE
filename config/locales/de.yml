@@ -255,18 +255,34 @@ de:
   timeseries:
     grouping_options:
       default: Nicht gruppieren
+      sum: Summe
+      min: Minimum
+      max: Maximum
+      avg: Durchschnitt
+      other: Andere
       hour: Stunde
       day: Tag
       week: Woche
       month: Monat
       quarter: Quartal
       year: Jahr
+      # weekday_hour: Wochentag/Stunde
     chart_type_options:
       bar: Balken
       line: Linie
       scatter: Punkt
     from: von
     until: bis
+    # chart_labels:
+    #   monday: Montag
+    #   tuesday: Dienstag
+    #   wednesday: Mittwoch
+    #   thursday: Donnerstag
+    #   friday: Freitag
+    #   saturday: Samstag
+    #   sunday: Sonntag
+    # axe_labels:
+    #   hour_of_day: Stunden (h)
 
   opening_time:
     valid_from: Gültigkeit von

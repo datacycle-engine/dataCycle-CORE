@@ -66,9 +66,6 @@ module DataCycleCore
           if original_name.in?(embedded_property_names) || original_name.in?(linked_property_names)
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
             get_property_value(original_name, property_definition, args.first, overlay_flag & original_name.in?(overlay_property_names))
-          elsif original_name.in?(timeseries_property_names)
-            raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 3
-            get_property_value(original_name, property_definition, args.first, args&.try(:second), args&.try(:third))
           else
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
             get_property_value(original_name, property_definition, nil, overlay_flag & original_name.in?(overlay_property_names))
@@ -423,7 +420,7 @@ module DataCycleCore
             elsif schedule_property_names(true).include?(key[0])
               load_schedule(key[0], key[4])
             elsif timeseries_property_names.include?(key[0])
-              load_timeseries(key[0], key[3], key[4], key[5])
+              load_timeseries(key[0])
             else
               raise NotImplementedError
             end

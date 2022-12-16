@@ -4,7 +4,7 @@
   .dc-chart-inputs {
     display: flex;
     gap: 0.1rem;
-    max-width: 60%;
+    max-width: 80%;
     right: -0.9rem;
     bottom: 100%;
     position: absolute;
@@ -17,8 +17,14 @@
       font-size: 0.9rem;
     }
 
-    .flatpickr-wrapper {
-      min-width: 10rem;
+    input.flatpickr-input {
+      width: 9rem;
+    }
+
+    select {
+      width: auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     > select:disabled,
