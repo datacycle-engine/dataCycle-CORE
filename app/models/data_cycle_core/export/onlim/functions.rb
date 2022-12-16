@@ -4,17 +4,13 @@ module DataCycleCore
   module Export
     module Onlim
       module Functions
-        # def self.transformations
-        #   DataCycleCore::Export::Common::Transformations
-        # end
-
         def self.update(utility_object:, data:)
           external_system = utility_object.external_system
-          external_system_data = data.external_system_data(external_system, 'export', nil, false)
+          external_system_data = load_external_system_data(data, external_system) # data.external_system_data(external_system, 'export', nil, false)
           data.add_external_system_data(external_system, nil, 'running', 'export', nil, false)
-          log("update -> Export | Onlim | #{utility_object.external_system.id}", data&.id)
+          log("update -> Export | Onlim | #{external_system.id}", data&.id)
 
-          unless external_system_data&.dig('job_status')&.in?(['waiting'])
+          unless external_system_data&.dig('job_status')&.in?(['pending'])
             Delayed::Job.enqueue(
               DataCycleCore::Export::Onlim::Webhook.new(
                 data: OpenStruct.new(id: data.id, template_name: data.template_name), # rubocop:disable Style/OpenStructUse
@@ -32,8 +28,8 @@ module DataCycleCore
 
         def self.update_job_status(utility_object:, data:)
           external_system = utility_object.external_system
-          external_system_data = data.external_system_data(external_system, 'export', nil, false)
-          log("update_job_status -> Export | Onlim | #{utility_object.external_system.id}", data&.id)
+          external_system_data = load_external_system_data(data, external_system) # data.external_system_data(external_system, 'export', nil, false)
+          log("update_job_status -> Export | Onlim | #{external_system.id}", data&.id)
 
           Delayed::Job.enqueue(
             DataCycleCore::Export::Onlim::Webhook.new(
@@ -50,7 +46,7 @@ module DataCycleCore
           external_system = utility_object.external_system
           external_system_data = data.external_system_data(external_system, 'export', nil, false)
           data.add_external_system_data(external_system, nil, 'deleting', 'export', nil, false)
-          log("delete -> Export | Onlim | #{utility_object.external_system.id}", data&.id)
+          log("delete -> Export | Onlim | #{external_system.id}", data&.id)
 
           Delayed::Job.enqueue(
             DataCycleCore::Export::Onlim::Webhook.new(
@@ -68,6 +64,12 @@ module DataCycleCore
           # job_id = sync_data&.data&.dig('job_id')
           # updated_at = sync_data&.updated_at || Time::LONG_AGO
           DataCycleCore::Export::Generic::Functions.filter(data: data, external_system: external_system, method_name: method_name)
+        end
+
+        def self.load_external_system_data(data, external_system)
+          sync_data_all = data.external_system_data_all(external_system, 'export', nil, false)
+          return if sync_data_all.blank?
+          (sync_data_all&.data || {}).merge({ 'external_system_syncs_id' => sync_data_all.id })
         end
 
         def self.log(message, id)

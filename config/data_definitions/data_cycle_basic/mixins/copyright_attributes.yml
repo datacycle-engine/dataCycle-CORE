@@ -160,3 +160,12 @@
         :ui:
           :edit:
             :disabled: true
+      :sd_publisher:
+        :label: Inhaber / Herausgeber
+        :type: linked
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation

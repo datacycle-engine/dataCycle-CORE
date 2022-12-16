@@ -305,6 +305,9 @@
         :ui:
           :attribute_group:
             - copyright_attributes_one_line
+      :copyright_attributes:
+        :type: mixin
+        :name: copyright_attributes
       :sd_publisher:
         :label: Inhaber / Herausgeber
         :type: linked
@@ -317,9 +320,6 @@
         :ui:
           :attribute_group:
             - copyright_attributes_one_line
-      :copyright_attributes:
-        :type: mixin
-        :name: copyright_attributes
       :external_source_attributes:
         :type: mixin
         :name: external_source_attributes
