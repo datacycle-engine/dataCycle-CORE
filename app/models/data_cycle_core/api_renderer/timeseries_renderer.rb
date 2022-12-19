@@ -110,3 +110,5 @@ module DataCycleCore
     end
   end
 end
+
+ActiveSupport.run_load_hooks :data_cycle_api_renderer_timeseries_renderer, DataCycleCore::ApiRenderer::TimeseriesRenderer
