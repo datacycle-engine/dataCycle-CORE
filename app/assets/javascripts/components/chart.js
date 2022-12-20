@@ -176,7 +176,25 @@ class Chart {
     this.datasets = await this.parseDatasets(datasets);
     this.chartOptions.plugins.legend.display = this.datasets.some(d => d.label);
   }
+  disableForm() {
+    this.element.classList.add('data-loading');
+
+    this.groupingInput.disabled = true;
+    this.chartTypeInput.disabled = true;
+    for (const datepicker of this.inputs.querySelectorAll('.flatpickr-wrapper .flatpickr-input'))
+      datepicker.disabled = true;
+  }
+  enableForm() {
+    this.element.classList.remove('data-loading');
+
+    this.groupingInput.disabled = false;
+    this.chartTypeInput.disabled = false;
+    for (const datepicker of this.inputs.querySelectorAll('.flatpickr-wrapper .flatpickr-input'))
+      datepicker.disabled = false;
+  }
   async fetchAndUpdateChartData(_event = null) {
+    this.disableForm();
+
     const url = `/api/v4/things/${this.thingId}/${this.key}`;
     const formData = new FormData();
     formData.append('dataFormat', 'object');
@@ -196,9 +214,11 @@ class Chart {
       processData: false,
       contentType: false,
       cache: false
-    });
+    }).catch(() => null);
 
     await this.parseAndUpdateData(data);
+
+    this.enableForm();
   }
 }
 
