@@ -48,6 +48,7 @@ module DataCycleCore
         end
 
         def self.context_to_onlim(data)
+          return data unless data.key?('@context')
           context = data['@context']
           context = Array.wrap(
             context[1].merge(
@@ -150,6 +151,7 @@ module DataCycleCore
         end
 
         def self.add_main_content_license(data)
+          return data unless data.key?('@graph')
           content_data = data['@graph'].first
 
           thing = DataCycleCore::Thing.find(content_data.dig('@id'))
@@ -159,9 +161,9 @@ module DataCycleCore
           publisher_data =
             case thing.template_name
             in 'POI'
-              content_data['author']&.first.presence
+              content_data['copyrightHolder']&.first.presence || content_data['author']&.first.presence
             in 'Tour'
-              content_data['sd_publisher']&.first.presence
+              content_data['sdPublisher']&.first.presence || content_data['copyrightHolder']&.first.presence
             else
               nil
             end
@@ -169,7 +171,7 @@ module DataCycleCore
           if publisher_data.present?
             content_data['sdPublisher'] =
               Array.wrap(
-                DataCycleCore::Export::Onlim.default_transformations.call(publisher_data)
+                DataCycleCore::Export::Onlim::Transformations.default_transformations.call(publisher_data)
               )
           end
 

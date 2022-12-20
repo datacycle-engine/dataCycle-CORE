@@ -20,7 +20,6 @@ Quill.register('modules/counter', Counter);
 class TextEditor {
   constructor(element) {
     this.element = element;
-    this.element.classList.add('dcjs-text-editor');
     this.$container = $(element.parentElement);
     this.editor;
     this.excludeFormats = this.element.dataset.excludeFormats ? castArray(this.element.dataset.excludeFormats) : [];

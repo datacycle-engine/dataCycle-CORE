@@ -51,7 +51,7 @@ module DataCycleCore
       options = definition&.dig('ui', 'show', 'timeseries')&.key?('chart_types') ? Array.wrap(definition.dig('ui', 'show', 'timeseries', 'chart_types')) : CHART_TYPE_OPTIONS
       options.unshift(CHART_TYPE_OPTIONS.first) if options.blank?
 
-      return options_for_select(options.map { |g| [I18n.t("timeseries.chart_type_options.#{g || 'default'}", locale: active_ui_locale), g] }, definition&.dig('ui', 'show', 'timeseries', 'default_chart_type') || options.first), disabled: !options.many?, class: 'dc-chart-chart-type-input', id: nil
+      return options_for_select(options.map { |g| [I18n.t("timeseries.chart_type_options.#{g || 'default'}", locale: active_ui_locale), g] }, definition&.dig('ui', 'show', 'timeseries', 'default_chart_type') || options.first), class: 'dc-chart-chart-type-input', id: nil
     end
   end
 end

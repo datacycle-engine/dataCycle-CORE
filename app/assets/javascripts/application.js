@@ -19,7 +19,7 @@ import 'lazysizes/plugins/unveilhooks/ls.unveilhooks.js';
 import './helpers/number_helpers';
 import './helpers/string_helpers';
 
-const initializers = import.meta.globEager('./initializers/*.js');
+const initializers = import.meta.glob('./initializers/*.js', { eager: true, import: 'default' });
 import foundationInit from './initializers/foundation_init';
 import validationInit from './initializers/validation_init';
 import UrlReplacer from './helpers/url_replacer';
@@ -40,7 +40,7 @@ export default (dataCycleConfig = {}, postDataCycleInit = null) => {
     for (const path in initializers) {
       if (!path.includes('foundation_init') && !path.includes('validation_init') && !path.includes('app_signal_init')) {
         try {
-          initializers[path].default();
+          initializers[path]();
         } catch (err) {
           DataCycle.notifications.dispatchEvent(new CustomEvent('error', { detail: err }));
         }

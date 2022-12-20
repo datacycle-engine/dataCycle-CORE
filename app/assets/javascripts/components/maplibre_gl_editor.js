@@ -1,5 +1,6 @@
 import MapLibreGlViewer from './maplibre_gl_viewer';
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
+const MapboxDrawLoader = () => import('@mapbox/mapbox-gl-draw').then(mod => mod.default);
+
 import UploadGpxControl from './map_controls/maplibre_upload_gpx_control';
 import domElementHelpers from '../helpers/dom_element_helpers';
 // import AdditionalValuesFilterControl from './map_controls/mapbox_additional_values_filter_control';
@@ -58,17 +59,21 @@ class MapLibreGlEditor extends MapLibreGlViewer {
     if (this.uploadable) this.map.addControl(new UploadGpxControl(this), 'top-left');
   }
   initDrawControl() {
-    this.draw = new MapboxDraw({
-      displayControlsDefault: false,
-      controls: {
-        trash: true
-      },
-      defaultMode: this.getMapDrawMode(),
-      styles: this.getMapDrawStyle()
-    });
-    this.map.addControl(this.draw);
+    MapboxDrawLoader()
+      .then(MapboxDraw => {
+        this.draw = new MapboxDraw({
+          displayControlsDefault: false,
+          controls: {
+            trash: true
+          },
+          defaultMode: this.getMapDrawMode(),
+          styles: this.getMapDrawStyle()
+        });
+        this.map.addControl(this.draw);
 
-    this.initDrawEventHandlers();
+        this.initDrawEventHandlers();
+      })
+      .catch(e => console.error('Error loading module:', e));
   }
   initDrawEventHandlers() {
     this.map.on('draw.create', event => {

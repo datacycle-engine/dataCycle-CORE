@@ -24,7 +24,7 @@ module DataCycleCore
             'LodgingBusiness' => default_place_attributes, # Unterkunft
             'odta:Trail' => default_place_attributes, # Tour
             'Event' => default_attributes + ['eventSchedule'],
-            'Gastronomischer Betrieb' => default_place_attributes
+            'FoodEstablishment' => default_place_attributes # Gastronomischer Betrieb
           }
         end
 
@@ -34,7 +34,7 @@ module DataCycleCore
           }
         end
 
-        def self.default_transformations(existing_ids)
+        def self.default_transformations(existing_ids = [])
           t(:add_main_content_license)
           .>> t(:remove_namespaced_data)
           .>> t(:context_to_onlim)
