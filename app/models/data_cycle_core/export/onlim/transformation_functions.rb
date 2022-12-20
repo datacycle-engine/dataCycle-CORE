@@ -48,6 +48,7 @@ module DataCycleCore
         end
 
         def self.context_to_onlim(data)
+          return data unless data.key?('@context')
           context = data['@context']
           context = Array.wrap(
             context[1].merge(
@@ -150,6 +151,7 @@ module DataCycleCore
         end
 
         def self.add_main_content_license(data)
+          return data unless data.key?('@graph')
           content_data = data['@graph'].first
 
           thing = DataCycleCore::Thing.find(content_data.dig('@id'))
