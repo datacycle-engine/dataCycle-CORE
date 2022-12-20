@@ -24,7 +24,7 @@ module DataCycleCore
             'LodgingBusiness' => default_place_attributes, # Unterkunft
             'odta:Trail' => default_place_attributes, # Tour
             'Event' => default_attributes + ['eventSchedule'],
-            'Gastronomischer Betrieb' => default_place_attributes
+            'FoodEstablishment' => default_place_attributes # Gastronomischer Betrieb
           }
         end
 
