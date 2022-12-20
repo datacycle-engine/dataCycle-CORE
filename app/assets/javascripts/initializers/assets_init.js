@@ -1,6 +1,11 @@
 import AssetSelector from './../components/asset_selector';
 const AssetUploader = () => import('./../components/asset_uploader');
 
+function initAssetUploader(item) {
+  item.classList.add('dcjs-asset-uploader');
+  AssetUploader().then(mod => new mod.default(item));
+}
+
 export default function () {
   for (const element of document.querySelectorAll('.asset-selector-reveal')) new AssetSelector(element);
 
@@ -9,12 +14,11 @@ export default function () {
     e => new AssetSelector(e)
   ]);
 
-  for (const element of document.querySelectorAll('.asset-upload-reveal'))
-    AssetUploader().then(mod => new mod.default(element));
+  for (const element of document.querySelectorAll('.asset-upload-reveal')) initAssetUploader(element);
 
   DataCycle.htmlObserver.addCallbacks.push([
     e => e.classList.contains('asset-upload-reveal') && !e.classList.contains('dcjs-asset-uploader'),
-    e => AssetUploader().then(mod => new mod.default(e))
+    e => initAssetUploader(e)
   ]);
 
   for (const element of document.querySelectorAll('.download-content-form')) initDownloadContentReveal(element);
