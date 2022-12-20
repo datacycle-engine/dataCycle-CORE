@@ -1,7 +1,7 @@
-class ClassificationDetailToggler {
+class DetailToggler {
   constructor(item) {
     this.item = item;
-    this.item.classList.add('dcjs-classification-detail-toggler');
+    this.item.classList.add('dcjs-detail-toggler');
 
     this.setup();
   }
@@ -16,4 +16,4 @@ class ClassificationDetailToggler {
   }
 }
 
-export default ClassificationDetailToggler;
+export default DetailToggler;

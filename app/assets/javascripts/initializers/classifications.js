@@ -4,7 +4,9 @@ import ClassificationLoadMoreButton from '../components/classification_administr
 import ClassificationEditButton from '../components/classification_administration/classification_edit_button';
 import ClassificationEditForm from '../components/classification_administration/classification_edit_form';
 import ClassificationDestroyButton from '../components/classification_administration/classification_delete_button';
-import ClassificationDetailToggler from '../components/classification_administration/classification_detail_toggler';
+import ClassificationLoadAllButton from '../components/classification_administration/classification_load_all_button';
+import ClassificationCloseAllButton from '../components/classification_administration/classification_close_all_button';
+import DetailToggler from '../components/detail_toggler';
 
 export default function () {
   if ($('#classification-administration').length) {
@@ -63,11 +65,29 @@ export default function () {
         !e.classList.contains('dcjs-classification-destroy-button'),
       e => new ClassificationDestroyButton(e)
     ]);
+
+    for (const element of document.querySelectorAll('.classification-load-all-children'))
+      new ClassificationLoadAllButton(element);
+    DataCycle.htmlObserver.addCallbacks.push([
+      e =>
+        e.classList.contains('classification-load-all-children') &&
+        !e.classList.contains('dcjs-classification-load-all-button'),
+      e => new ClassificationLoadAllButton(e)
+    ]);
+
+    for (const element of document.querySelectorAll('.classification-close-all-children'))
+      new ClassificationCloseAllButton(element);
+    DataCycle.htmlObserver.addCallbacks.push([
+      e =>
+        e.classList.contains('classification-close-all-children') &&
+        !e.classList.contains('dcjs-classification-load-all-button'),
+      e => new ClassificationCloseAllButton(e)
+    ]);
   }
 
-  for (const element of document.querySelectorAll('.toggle-details')) new ClassificationDetailToggler(element);
+  for (const element of document.querySelectorAll('.toggle-details')) new DetailToggler(element);
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('toggle-details') && !e.classList.contains('dcjs-classification-detail-toggler'),
-    e => new ClassificationDetailToggler(e)
+    e => e.classList.contains('toggle-details') && !e.classList.contains('dcjs-detail-toggler'),
+    e => new DetailToggler(e)
   ]);
 }
