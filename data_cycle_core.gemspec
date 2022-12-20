@@ -23,6 +23,8 @@ Gem::Specification.new do |s|
   # rails
   s.add_dependency 'rails', '~> 6.1'
   s.add_dependency 'rake'
+  # Translations
+  s.add_dependency 'mobility'
   # Frontend Asset Handling
   s.add_dependency 'vite_rails', '>= 3.0.12'
   # database

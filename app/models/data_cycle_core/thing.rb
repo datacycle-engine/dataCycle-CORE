@@ -13,7 +13,7 @@ module DataCycleCore
       include Content::Restorable
       prepend Content::ContentOverlay
 
-      extend ::Translations
+      extend ::Mobility
       translates :name, :description, :slug, :content, :history_valid, backend: :table
       default_scope { i18n }
 
@@ -21,6 +21,11 @@ module DataCycleCore
       has_many :scheduled_history_data, class_name: 'DataCycleCore::Schedule::History', foreign_key: 'thing_history_id', dependent: :destroy, inverse_of: :thing_history
 
       belongs_to :thing
+
+      def available_locales
+        I18n.available_locales.intersection(translations.select(&:persisted?).pluck(:locale).map(&:to_sym))
+      end
+      alias translated_locales available_locales
 
       def self.translated_locales
         DataCycleCore::Thing::History::Translation.where(translated_model: all).distinct.pluck(:locale).map(&:to_sym)
@@ -75,7 +80,7 @@ module DataCycleCore
 
     has_many :searches, foreign_key: :content_data_id, dependent: :destroy, inverse_of: :content_data
 
-    extend ::Translations
+    extend ::Mobility
     translates :name, :description, :slug, :content, backend: :table
     default_scope { i18n }
 
@@ -86,6 +91,11 @@ module DataCycleCore
 
     has_many :activities, as: :activitiable, dependent: :destroy
     has_many :timeseries, class_name: 'DataCycleCore::Timeseries', dependent: :destroy, inverse_of: :thing
+
+    def available_locales
+      I18n.available_locales.intersection(translations.select(&:persisted?).pluck(:locale).map(&:to_sym))
+    end
+    alias translated_locales available_locales
 
     def self.translated_locales
       DataCycleCore::Thing::Translation.where(translated_model: all).distinct.pluck(:locale)

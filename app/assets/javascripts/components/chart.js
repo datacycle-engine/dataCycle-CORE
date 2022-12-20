@@ -7,7 +7,6 @@ import capitalize from 'lodash/capitalize';
 class Chart {
   constructor(element) {
     this.element = element;
-    this.element.classList.add('dcjs-chart');
     this.inputs = this.element.querySelector('.dc-chart-inputs');
     this.chartTypeInput = this.inputs.querySelector('.dc-chart-chart-type-input');
     this.groupingInput = this.inputs.querySelector('.dc-chart-grouping-input');

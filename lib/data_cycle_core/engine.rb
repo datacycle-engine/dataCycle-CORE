@@ -81,6 +81,9 @@ require 'dotenv/load'
 # Frontend Asset Loader
 require 'vite_rails'
 
+# Translations
+require 'mobility'
+
 require 'holidays'
 
 module DataCycleCore
