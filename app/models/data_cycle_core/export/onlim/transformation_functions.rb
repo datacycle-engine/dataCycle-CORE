@@ -161,9 +161,9 @@ module DataCycleCore
           publisher_data =
             case thing.template_name
             in 'POI'
-              content_data['author']&.first.presence
+              content_data['copyrightHolder']&.first.presence || content_data['author']&.first.presence
             in 'Tour'
-              content_data['sd_publisher']&.first.presence || content_data['copyright_holder']&.first.presence
+              content_data['sdPublisher']&.first.presence || content_data['copyrightHolder']&.first.presence
             else
               nil
             end
