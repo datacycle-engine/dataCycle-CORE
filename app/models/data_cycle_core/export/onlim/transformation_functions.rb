@@ -161,7 +161,7 @@ module DataCycleCore
             in 'POI'
               content_data['author']&.first.presence
             in 'Tour'
-              content_data['sd_publisher']&.first.presence
+              content_data['sd_publisher']&.first.presence || content_data['copyright_holder']&.first.presence
             else
               nil
             end
@@ -169,7 +169,7 @@ module DataCycleCore
           if publisher_data.present?
             content_data['sdPublisher'] =
               Array.wrap(
-                DataCycleCore::Export::Onlim.default_transformations.call(publisher_data)
+                DataCycleCore::Export::Onlim::Transformations.default_transformations.call(publisher_data)
               )
           end
 
