@@ -20,10 +20,10 @@ class ActivityList {
 
     this.setup();
   }
-  async setup() {
-    const DataTable = await DataTables();
-
-    this.dataTable = new DataTable(this.item, this.options);
+  setup() {
+    DataTables().then(() => {
+      this.dataTable = $(this.item).DataTable(this.options);
+    });
   }
 }
 
