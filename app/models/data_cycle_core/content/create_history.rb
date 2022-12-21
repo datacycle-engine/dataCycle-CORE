@@ -46,17 +46,17 @@ module DataCycleCore
 
           lower_bound = update_previous_history_validity
           data_set_history.history_valid = (lower_bound...)
-          data_set_history.save
-
           update_hash = { created_at: lower_bound, updated_at: lower_bound }
-          data_set_history.translations.update_all(update_hash)
           update_hash[:deleted_at] = lower_bound if delete
-          data_set_history.update_columns(update_hash)
+          data_set_history.attributes = update_hash
+          data_set_history.save(touch: false)
+
+          data_set_history.translations.update_all(**update_hash.except(:deleted_at))
+          data_set_history.update_columns(**update_hash)
 
           # data_set_history.touch(:deleted_at) if delete
 
-          binding.pry
-
+          # binding.pry
 
           # data_set_history.save(touch: false)
 
@@ -122,10 +122,7 @@ module DataCycleCore
         end_time = updated_at
         end_time = start_time + 0.000001 if start_time >= end_time # ensure history_valid is a valid range
 
-        binding.pry
-
-        previous_history.history_valid = (start_time...end_time)
-        previous_history.save(touch: false)
+        previous_history.translations&.first&.update_columns(history_valid: (start_time...end_time))
 
         DataCycleCore::ContentContent::History.where(content_a_history_id: previous_history.id).update_all(["history_valid = tstzrange(lower(content_content_histories.history_valid), ?, '[)')", end_time])
 
