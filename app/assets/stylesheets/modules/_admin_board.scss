@@ -1,8 +1,11 @@
 .alert-color {
-  color: map-get($foundation-palette, alert);
+  color: var(--alert-color);
 }
 .success-color {
-  color: map-get($foundation-palette, success);
+  color: var(--success-color);
+}
+.primary-color {
+  color: var(--primary-color);
 }
 
 .grid-external-modules {
@@ -112,6 +115,12 @@
       &.alert-color::before {
         font-size: 0.9rem;
         content: '\f00d';
+      }
+
+      &.primary-color::before {
+        font-size: 0.9rem;
+        content: '\f110';
+        animation: fa-spin 2s infinite linear;
       }
     }
   }
