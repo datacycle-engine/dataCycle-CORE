@@ -46,10 +46,19 @@ module DataCycleCore
 
           lower_bound = update_previous_history_validity
           data_set_history.history_valid = (lower_bound...)
-          data_set_history.deleted_at = lower_bound if delete
-          data_set_history.created_at = lower_bound
-          data_set_history.updated_at = lower_bound
-          data_set_history.save(touch: false)
+          data_set_history.save
+
+          update_hash = { created_at: lower_bound, updated_at: lower_bound }
+          data_set_history.translations.update_all(update_hash)
+          update_hash[:deleted_at] = lower_bound if delete
+          data_set_history.update_columns(update_hash)
+
+          # data_set_history.touch(:deleted_at) if delete
+
+          binding.pry
+
+
+          # data_set_history.save(touch: false)
 
           data_set_history.classification_content_history.insert_all(classification_content.map { |cc| cc.attributes.except(*CLASSIFICATION_CONTENT_HISTORY_ATTRIBUTE_EXCEPTIONS) }) if classification_content.any?
 
@@ -112,6 +121,8 @@ module DataCycleCore
         start_time = [previous_history.history_valid&.first, previous_history.created_at].compact.max
         end_time = updated_at
         end_time = start_time + 0.000001 if start_time >= end_time # ensure history_valid is a valid range
+
+        binding.pry
 
         previous_history.history_valid = (start_time...end_time)
         previous_history.save(touch: false)

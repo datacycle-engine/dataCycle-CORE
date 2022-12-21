@@ -9,7 +9,5 @@ Mobility.configure do
     writer
 
     cache
-
-    attribute_methods
   end
 end
