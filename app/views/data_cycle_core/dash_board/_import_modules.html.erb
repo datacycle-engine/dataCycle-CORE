@@ -23,13 +23,25 @@
     <div class="card-section">
       download (last try/success):
       <ul class="no-bullet import-data-timestamps">
-        <li class="last-download <%= locals.dig(:import_data, :last_download_class) %>"><%= import_data_time(locals.dig(:import_data, :last_download)) %></li>
-        <li class="last-successful-download <%= 'check-icon' if locals.dig(:import_data, :last_successful_download) != 'never' %>"><%= import_data_time(locals.dig(:import_data, :last_successful_download)) %></li>
+        <li class="last-download <%= locals.dig(:import_data, :last_download_class) %>">
+          <%= import_data_time(locals.dig(:import_data, :last_download)) %>
+        </li>
+        <% if locals.dig(:import_data, :last_download) != locals.dig(:import_data, :last_successful_download) %>
+          <li class="last-successful-download <%= 'check-icon' if locals.dig(:import_data, :last_successful_download) != 'never' %>">
+            <%= import_data_time(locals.dig(:import_data, :last_successful_download)) %>
+          </li>
+        <% end %>
       </ul>
       import (last try/success):
       <ul class="no-bullet import-data-timestamps">
-        <li class="last-import <%= locals.dig(:import_data, :last_import_class) %>"><%= import_data_time(locals.dig(:import_data, :last_import)) %></li>
-        <li class="last-successful-import <%= 'check-icon' if locals.dig(:import_data, :last_successful_import) != 'never' %>"><%= import_data_time(locals.dig(:import_data, :last_successful_import)) %></li>
+        <li class="last-import <%= locals.dig(:import_data, :last_import_class) %>">
+          <%= import_data_time(locals.dig(:import_data, :last_import)) %>
+        </li>
+        <% if locals.dig(:import_data, :last_import) != locals.dig(:import_data, :last_successful_import) %>
+          <li class="last-successful-import <%= 'check-icon' if locals.dig(:import_data, :last_successful_import) != 'never' %>">
+            <%= import_data_time(locals.dig(:import_data, :last_successful_import)) %>
+          </li>
+        <% end %>
       </ul>
     </div>
     <% if locals.dig(:import_data, :deactivated) %>
