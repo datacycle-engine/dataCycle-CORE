@@ -11,7 +11,8 @@ module DataCycleCore
           @options = options
           @headers = {
             'Accept' => '*/*',
-            'User-Agent' => 'dataCycle'
+            'User-Agent' => 'dataCycle',
+            'Authorization' => "DeepL-Auth-Key #{@key}"
           }
           @retry_options = {
             max: 3,
@@ -47,7 +48,7 @@ module DataCycleCore
 
         def load_data(text: nil, source_locale: nil, target_locale: nil)
           connection = Faraday.new(
-            url: @host + @end_point,
+            url: URI.join(@host, @end_point),
             headers: @headers
           ) do |conn|
             conn.request :retry, @retry_options
@@ -58,7 +59,6 @@ module DataCycleCore
 
           response = connection.post do |req|
             req.body = {
-              auth_key: @key,
               text: Nokogiri::HTML5.fragment(text).to_xml, # transform HTML Entities to valid XML
               target_lang: target_locale.to_s.upcase,
               source_lang: source_locale.to_s.upcase,
@@ -69,9 +69,9 @@ module DataCycleCore
           if response.success?
             JSON.parse(response.body)
           elsif response.status == 456
-            raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{response.status}, Quota exceeded for #{@host + @end_point} / key:#{@key}", response)
+            raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{response.status}, Quota exceeded for #{URI.join(@host, @end_point)} / key:#{@key}", response)
           else
-            raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{response.status}, error loading data from #{@host + @end_point} / text:#{text} / source_locale:#{source_locale} / target_locale:#{target_locale}", response)
+            raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{response.status}, error loading data from #{URI.join(@host, @end_point)} / text:#{text} / source_locale:#{source_locale} / target_locale:#{target_locale}", response)
           end
         end
       end

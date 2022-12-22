@@ -179,7 +179,7 @@ de:
       copy_all: Alle übernehmen
       translate: übersetzen
       copy: übernehmen
-      translate_error: Fehler beim Laden der Übersetzung
+      translate_error: 'Fehler beim Laden der Übersetzung für %{label}'
       copy_all_translations:
         overlay_text: Sollen alle verfügbaren Sprachen übernommen werden?
         confirmation_text: Ja
@@ -603,6 +603,10 @@ de:
         unlocked_html: Sie können sich ab sofort mit Ihren Zugangsdaten einloggen und die freigegebenen Inhalte nutzen! Bei Fragen wenden Sie sich bitte direkt an uns.
     translate:
       inline_success: Der Text wurde von %{source_locale} nach %{target_locale} übersetzt.
+      error_code:
+        401: &translate_error_code_401 'Der Zugriff auf die DeepL API wurde verweigert'
+        403: *translate_error_code_401
+        456: 'Das Kontingent für die DeepL API wurde aufgebraucht'
 
     report_generator:
       downloads_popular: Top 50 Downloads
