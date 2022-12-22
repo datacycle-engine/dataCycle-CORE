@@ -94,15 +94,15 @@ class MapLibreGlViewer {
       )
     );
   }
-  configureMap() {
-    this.initControls();
-    this.setZoomMethod();
-    this.setIcons();
+  async configureMap() {
+    await this.initControls();
+    await this.setZoomMethod();
+    await this.setIcons();
 
-    this.initFeatures();
-    this._disableScrollingOnMapOverlays();
-    this.initMouseWheelZoom();
-    this.updateMapPosition();
+    await this.initFeatures();
+    await this._disableScrollingOnMapOverlays();
+    await this.initMouseWheelZoom();
+    await this.updateMapPosition();
   }
   initFeatures() {
     this.drawFeatures();
