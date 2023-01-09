@@ -122,24 +122,18 @@ module DataCycleCore
                   info += ["A:#{archived}"] if archived.positive?
                   info += [')']
                 end
-                [item.name.humanize, [item.count, info.join('')]]
+                [item.name.humanize, [item.count, info.join]]
               end
 
           last_download = external_source.last_download.presence || 'never'
           last_successful_download = external_source.last_successful_download.presence || 'never'
-          last_successful_download_class = last_download == last_successful_download ? 'success-color' : 'alert-color' if !external_source.deactivated && (last_download != 'never' || last_successful_download != 'never')
-          if last_successful_download_class == 'alert-color' && Delayed::Job.where("delayed_reference_type ILIKE '%download%'").where(queue: 'importers', delayed_reference_id: external_source.id, failed_at: nil, attempts: 0).where.not(locked_by: nil).exists?
-            last_successful_download = last_download
-            last_successful_download_class = 'primary-color'
-          end
+          last_download_class = last_download == last_successful_download ? 'success-color' : 'alert-color' if !external_source.deactivated && (last_download != 'never' || last_successful_download != 'never')
+          last_download_class = 'primary-color' if last_download_class == 'alert-color' && Delayed::Job.where("delayed_reference_type ILIKE '%download%'").where(queue: 'importers', delayed_reference_id: external_source.id, failed_at: nil).where.not(locked_by: nil).exists?
 
           last_import = external_source.last_import.presence || 'never'
           last_successful_import = external_source.last_successful_import.presence || 'never'
-          last_successful_import_class = last_import == last_successful_import ? 'success-color' : 'alert-color' if !external_source.deactivated && (last_import != 'never' || last_successful_import != 'never')
-          if last_successful_import_class == 'alert-color' && Delayed::Job.where("delayed_reference_type ILIKE '%import%'").where(queue: 'importers', delayed_reference_id: external_source.id, failed_at: nil, attempts: 0).where.not(locked_by: nil).exists?
-            last_successful_import = last_import
-            last_successful_import_class = 'primary-color'
-          end
+          last_import_class = last_import == last_successful_import ? 'success-color' : 'alert-color' if !external_source.deactivated && (last_import != 'never' || last_successful_import != 'never')
+          last_import_class = 'primary-color' if last_import_class == 'alert-color' && Delayed::Job.where("delayed_reference_type ILIKE '%import%'").where(queue: 'importers', delayed_reference_id: external_source.id, failed_at: nil).where.not(locked_by: nil).exists?
 
           @import_modules.push(
             {
@@ -155,8 +149,8 @@ module DataCycleCore
               last_import: last_import,
               last_successful_download: last_successful_download,
               last_successful_import: last_successful_import,
-              last_successful_download_class: last_successful_download_class,
-              last_successful_import_class: last_successful_import_class
+              last_download_class: last_download_class,
+              last_import_class: last_import_class
             }
           )
         end

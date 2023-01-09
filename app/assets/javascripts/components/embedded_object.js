@@ -1,3 +1,4 @@
+import CalloutHelpers from './../helpers/callout_helpers';
 import ConfirmationModal from './../components/confirmation_modal';
 import { Sortable } from 'sortablejs';
 import difference from 'lodash/difference';
@@ -180,16 +181,28 @@ class EmbeddedObject {
       }
     });
 
-    promise.then(_data => {
-      if (ids.length > 0) this.ids = union(this.ids, ids);
-      this.update();
-      this.addEventHandlers();
+    promise
+      .then(_data => {
+        if (ids.length > 0) this.ids = union(this.ids, ids);
+        this.update();
+        this.addEventHandlers();
 
-      this.element[0].querySelector(':scope > .content-object-item:last-of-type').scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
+        this.element[0].querySelector(':scope > .content-object-item:last-of-type').scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+      })
+      .catch(async error => {
+        if (translate)
+          CalloutHelpers.show(
+            await I18n.translate('frontend.split_view.translate_error', { label: this.label }),
+            'alert'
+          );
+        else console.error(error);
+      })
+      .finally(() => {
+        this.element.parent().removeClass('loading-embedded');
       });
-    });
 
     return promise;
   }

@@ -1,13 +1,3 @@
-.alert-color {
-  color: var(--alert-color);
-}
-.success-color {
-  color: var(--success-color);
-}
-.primary-color {
-  color: var(--primary-color);
-}
-
 .grid-external-modules {
   .card {
     width: 100%;
@@ -107,20 +97,39 @@
         font-size: 0.4rem;
       }
 
-      &.success-color::before {
-        font-size: 0.9rem;
-        content: '\f00c';
+      &.check-icon {
+        &::before {
+          font-size: 0.9rem;
+          content: '\f00c';
+        }
       }
 
-      &.alert-color::before {
-        font-size: 0.9rem;
-        content: '\f00d';
+      &.success-color {
+        color: var(--success-color);
+
+        &::before {
+          font-size: 0.9rem;
+          content: '\f00c';
+        }
       }
 
-      &.primary-color::before {
-        font-size: 0.9rem;
-        content: '\f110';
-        animation: fa-spin 2s infinite linear;
+      &.alert-color {
+        color: var(--alert-color);
+
+        &::before {
+          font-size: 0.9rem;
+          content: '\f00d';
+        }
+      }
+
+      &.primary-color {
+        color: var(--primary-color);
+
+        &::before {
+          font-size: 0.9rem;
+          content: '\f110';
+          animation: fa-spin 2s infinite linear;
+        }
       }
     }
   }
