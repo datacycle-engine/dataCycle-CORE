@@ -113,8 +113,7 @@ module DataCycleCore
         end_time = updated_at
         end_time = start_time + 0.000001 if start_time >= end_time # ensure history_valid is a valid range
 
-        previous_history.history_valid = (start_time...end_time)
-        previous_history.save(touch: false)
+        previous_history.translations&.first&.update_columns(history_valid: (start_time...end_time))
 
         DataCycleCore::ContentContent::History.where(content_a_history_id: previous_history.id).update_all(["history_valid = tstzrange(lower(content_content_histories.history_valid), ?, '[)')", end_time])
 

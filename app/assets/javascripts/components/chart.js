@@ -1,10 +1,13 @@
-const ChartJs = () => import('chart.js');
+import { Chart as ChartJs, registerables } from 'chart.js';
+import 'chartjs-adapter-luxon';
+ChartJs.register(...registerables);
+import pick from 'lodash/pick';
+import capitalize from 'lodash/capitalize';
 
 class Chart {
   constructor(element) {
-    element.dcChart = true;
-    const instance = this;
     this.element = element;
+    this.element.classList.add('dcjs-chart');
     this.inputs = this.element.querySelector('.dc-chart-inputs');
     this.chartTypeInput = this.inputs.querySelector('.dc-chart-chart-type-input');
     this.groupingInput = this.inputs.querySelector('.dc-chart-grouping-input');
@@ -14,7 +17,6 @@ class Chart {
     this.container = this.element.closest('.detail-type.timeseries');
     this.thingId = this.container.dataset.thingId;
     this.key = this.container.dataset.key.attributeNameFromKey();
-    this.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--dark-gray');
     this.datasets = [];
     this.chartLabels;
     this.chartOptions = {
@@ -22,48 +24,58 @@ class Chart {
       maintainAspectRatio: true,
       locale: DataCycle.uiLocale,
       elements: {
+        point: {
+          radius: 3,
+          borderWidth: 0
+        },
+        line: {
+          borderWidth: 2
+        },
         bar: {
-          borderRadius: 999
+          borderRadius: 999,
+          borderWidth: 0
         }
       },
       plugins: {
         legend: {
-          position: 'bottom',
-          display: false,
-          labels: {
-            generateLabels: this.generateChartLabels.bind(this)
-          }
+          position: 'right',
+          display: true
         },
         tooltip: {
           enabled: true,
           callbacks: {
-            title: function (value) {
-              return instance.generateXLabels(value[0].label);
-            }
+            title: this.formatTooltipTitle.bind(this)
           }
         }
       },
       scales: {
         x: {
-          stacked: false,
+          type: 'time',
           grid: {
             display: false
           },
-          ticks: {
-            callback: function (value, _index, _values) {
-              return instance.generateXLabels(this.getLabelForValue(value));
-            }
-          }
+          title: {
+            display: false
+          },
+          time: {}
         },
         y: {
-          stacked: false,
           grid: {
             drawBorder: false,
             borderDash: [5, 5]
-          },
-          ticks: {}
+          }
         }
       }
+    };
+    this.timeFormats = {
+      default: {},
+      year: { year: 'numeric' },
+      quarter: { year: 'numeric', month: 'numeric' },
+      month: { year: 'numeric', month: 'short' },
+      week: { dateStyle: 'medium' },
+      day: { dateStyle: 'medium' },
+      hour: { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric' },
+      hour_of_day: { hour: 'numeric' }
     };
     this.chartJs;
 
@@ -71,9 +83,7 @@ class Chart {
   }
   setup() {
     this.initEvents();
-    this.fetchChartData()
-      .then(() => this.initChart())
-      .catch(e => console.error('Could not init chart:', e));
+    this.updateChartData();
   }
   initEvents() {
     this.chartTypeInput.addEventListener('change', this.updateChartType.bind(this));
@@ -84,21 +94,25 @@ class Chart {
   initChart() {
     if (!this.chartCanvas || !this.datasets.length) return;
 
-    ChartJs().then(({ Chart, registerables }) => {
-      Chart.register(...registerables);
-
-      this.chartJs = new Chart(this.chartCanvas, {
-        type: this.getChartType(),
-        data: {
-          datasets: this.datasets,
-          labels: this.chartLabels
-        },
-        options: this.chartOptions
-      });
+    this.chartJs = new ChartJs(this.chartCanvas, {
+      parsing: false,
+      normalized: true,
+      type: this.getChartType(),
+      data: {
+        datasets: this.datasets,
+        labels: this.chartLabels
+      },
+      options: this.chartOptions
     });
   }
-  updateChartData(_event) {
-    this.fetchChartData().then(() => this.updateChart());
+  updateChartData(_event = null) {
+    this.fetchAndUpdateChartData()
+      .then(() => (this.chartJs ? this.updateChart() : this.initChart()))
+      .catch(this.errorHandler.bind(this));
+  }
+  errorHandler(e) {
+    if (this.chartJs) this.chartJs.destroy();
+    console.error('Could not init chart:', e);
   }
   updateChartType(_event) {
     for (const dataSet of this.datasets) {
@@ -112,91 +126,75 @@ class Chart {
     this.chartJs.data.labels = this.chartLabels;
     this.chartJs.update();
   }
-  generateChartLabels(chart) {
-    const data = chart.data;
+  formatTooltipTitle(context) {
+    const scaleUnit = this.scaleXKey || context[0].chart.config.options.scales.x.time.minUnit || 'default';
+    const date = new Date(context[0].parsed.x);
 
-    if (data.datasets.length) {
-      let legendEntries = [];
-
-      for (const dataSet of data.datasets) {
-        let legendEntry = {
-          fillStyle: dataSet.backgroundColor,
-          hidden: false,
-          index: 0,
-          lineWidth: 0,
-          strokeStyle: dataSet.backgroundColor,
-          text: dataSet.label
-        };
-        legendEntries.push(legendEntry);
-      }
-
-      return legendEntries;
-    }
-    return [];
-  }
-  generateXLabels(value) {
-    const date = new Date(value);
-
-    switch (this.groupingInput.value) {
-      case 'hour':
-        return date.toLocaleString([], {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit'
-        });
-      case 'day':
-        return date.toLocaleString([], {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit'
-        });
-      case 'week':
-        return date.toLocaleString([], {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit'
-        });
-      case 'month':
-        return date.toLocaleString([], {
-          year: 'numeric',
-          month: '2-digit'
-        });
-      case 'year':
-        return date.toLocaleString([], {
-          year: 'numeric'
-        });
-      default:
-        return date.toLocaleString([], {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
-        });
-    }
-  }
-  generateLabels() {
-    this.chartLabels = [];
-
-    for (const dataSet of this.datasets) {
-      for (const element of dataSet.data) {
-        if (!this.chartLabels.includes(element.x)) this.chartLabels.push(element.x);
-      }
-    }
-
-    this.chartLabels = this.chartLabels.sort((a, b) => {
-      return new Date(a) - new Date(b);
-    });
-
-    return this.chartLabels;
+    return date.toLocaleString([], this.timeFormats[scaleUnit]);
   }
   getChartType() {
     return this.chartTypeInput.value || 'bar';
   }
-  fetchChartData() {
+  async parseDatasets(datasets) {
+    for (let i = 0; i < datasets.length; ++i) {
+      if (datasets[i].meta && datasets[i].meta.label)
+        datasets[i].label = await I18n.t(`timeseries.chart_labels.${datasets[i].meta.label}`, {
+          default: capitalize(datasets[i].meta.label)
+        });
+
+      datasets[i].type = this.getChartType();
+      datasets[i].backgroundColor = getComputedStyle(document.documentElement).getPropertyValue(`--chart${i}`);
+      datasets[i].borderColor = datasets[i].backgroundColor;
+      datasets[i].fill = false;
+
+      datasets[i] = pick(datasets[i], ['data', 'label', 'type', 'backgroundColor', 'borderColor', 'fill']);
+    }
+
+    return datasets.filter(d => d.data && d.data.length);
+  }
+  async parseAndUpdateData(data) {
+    let datasets = [];
+
+    if (data && data.data) datasets = datasets.concat(data);
+    if (data && data.datasets) datasets = datasets.concat(data.datasets);
+
+    if (data.meta && data.meta.label_x) {
+      this.chartOptions.scales.x.title.display = true;
+      this.scaleXKey = data.meta.label_x;
+      this.chartOptions.scales.x.title.text = await I18n.t(`timeseries.axe_labels.${data.meta.label_x}`, {
+        default: capitalize(data.meta.label_x)
+      });
+    } else {
+      this.chartOptions.scales.x.title.display = false;
+      this.scaleXKey = null;
+      delete this.chartOptions.scales.x.title.text;
+    }
+
+    if (data.meta && data.meta.scale_x) this.chartOptions.scales.x.time.minUnit = data.meta.scale_x;
+    else delete this.chartOptions.scales.x.time.minUnit;
+
+    this.datasets = await this.parseDatasets(datasets);
+    this.chartOptions.plugins.legend.display = this.datasets.some(d => d.label);
+  }
+  disableForm() {
+    this.element.classList.add('data-loading');
+
+    this.groupingInput.disabled = true;
+    this.chartTypeInput.disabled = true;
+    for (const datepicker of this.inputs.querySelectorAll('.flatpickr-wrapper .flatpickr-input'))
+      datepicker.disabled = true;
+  }
+  enableForm() {
+    this.element.classList.remove('data-loading');
+
+    this.groupingInput.disabled = false;
+    this.chartTypeInput.disabled = false;
+    for (const datepicker of this.inputs.querySelectorAll('.flatpickr-wrapper .flatpickr-input'))
+      datepicker.disabled = false;
+  }
+  async fetchAndUpdateChartData(_event = null) {
+    this.disableForm();
+
     const url = `/api/v4/things/${this.thingId}/${this.key}`;
     const formData = new FormData();
     formData.append('dataFormat', 'object');
@@ -207,7 +205,7 @@ class Chart {
 
     this.datasets = [];
 
-    const promise = DataCycle.httpRequest({
+    const data = await DataCycle.httpRequest({
       method: 'POST',
       url: url,
       data: formData,
@@ -216,20 +214,11 @@ class Chart {
       processData: false,
       contentType: false,
       cache: false
-    });
+    }).catch(() => null);
 
-    promise.then(data => {
-      if (data && data.data && data.data.length) {
-        this.datasets.push({
-          data: data.data,
-          type: this.getChartType(),
-          backgroundColor: this.backgroundColor
-        });
-        this.generateLabels();
-      }
-    });
+    await this.parseAndUpdateData(data);
 
-    return promise;
+    this.enableForm();
   }
 }
 

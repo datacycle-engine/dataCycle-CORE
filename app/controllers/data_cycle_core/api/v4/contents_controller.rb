@@ -5,7 +5,6 @@ module DataCycleCore
     module V4
       class ContentsController < ::DataCycleCore::Api::V4::ApiBaseController
         PUMA_MAX_TIMEOUT = 60
-        TIMESERIES_GROUP_BY = ['hour', 'day', 'week', 'month', 'quarter', 'year'].freeze
         include DataCycleCore::Filter
         include DataCycleCore::ApiHelper
         before_action :prepare_url_parameters
@@ -25,8 +24,6 @@ module DataCycleCore
                 render(plain: query.query.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format.to_s)
                 return
               end
-
-              query = apply_ordering(query)
 
               @pagination_contents = apply_paging(query)
               @contents = @pagination_contents
@@ -54,54 +51,26 @@ module DataCycleCore
         end
 
         def timeseries
-          content = DataCycleCore::Thing
-            .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
-            .find(permitted_params[:content_id] || permitted_params[:id])
+          content = DataCycleCore::Thing.find(timeseries_params[:content_id] || timeseries_params[:id])
 
-          error = nil
-
-          from = nil
-          from = Time.zone.parse(permitted_params.dig(:time, :in, :min)) if permitted_params.dig(:time, :in, :min).present?
-          to = nil
-          to = Time.zone.parse(permitted_params.dig(:time, :in, :max)) if permitted_params.dig(:time, :in, :max).present?
-
-          group_by = permitted_params[:groupBy]
-          if group_by.present? && !group_by.in?(TIMESERIES_GROUP_BY)
-            error = "wrong group_by parameter #{content.name}(#{content.id}) -> #{group_by}"
-            group_by = nil
-          end
-
-          if error.nil? && permitted_params[:timeseries].in?(content.timeseries_property_names)
-            method = permitted_params[:timeseries]
-            @contents = content.send(method, from, to, group_by)
-          else
-            @contents = nil
-            error ||= "no timeseries data found for #{content.name}(#{content.id})"
-          end
+          @renderer = DataCycleCore::ApiRenderer::TimeseriesRenderer.new(content: content, **timeseries_params.slice(:timeseries, :group_by, :time, :data_format).to_h.deep_symbolize_keys)
 
           case permitted_params[:format].to_sym
           when :json
-            # render template: 'data_cycle_core/api/v4/timeseries/show', layout: false
-            json = { error: error }
-            if permitted_params[:dataFormat] == 'object'
-              data_transformation = ->(i) { { x: (i.try(:timestamp)&.strftime('%Y-%m-%dT%H:%M:%S.%3N%:z') || i.try(:ts).in_time_zone), y: i.value } }
-            else
-              data_transformation = ->(i) { [(i.try(:timestamp)&.strftime('%Y-%m-%dT%H:%M:%S.%3N%:z') || i.try(:ts).in_time_zone), i.value] }
+            begin
+              render json: @renderer.render(:json)
+            rescue DataCycleCore::ApiRenderer::Error::TimeseriesError => e
+              render json: { error: e.message }, status: :bad_request
             end
-
-            json = { data: @contents.map(&data_transformation) } unless @contents.nil?
-            render json: json
           when :csv
             response.headers['Content-Type'] = 'text/csv'
             response.headers['Content-Disposition'] = "attachment; filename=#{content.id}_#{permitted_params[:timeseries]}.csv"
-            csv = ['timestamp; value']
-            unless @contents.nil?
-              csv += @contents
-                .map { |i| [(i.try(:timestamp)&.strftime('%Y-%m-%dT%H:%M:%S.%3N%:z') || i.try(:ts).in_time_zone).to_json, i.value] }
-                .map { |line| line.join('; ') }
-              csv = csv.join("\n")
+
+            begin
+              render plain: @renderer.render(:csv)
+            rescue DataCycleCore::ApiRenderer::Error::TimeseriesError => e
+              render plain: ['error', e.message].join("\n"), status: :bad_request
             end
-            render plain: csv
           end
         end
 
@@ -153,8 +122,12 @@ module DataCycleCore
           render plain: list_api_deleted_request(apply_paging(deleted_contents)).to_json, content_type: 'application/json'
         end
 
+        def timeseries_params
+          params.permit(:id, :content_id, :timeseries, :dataFormat, :groupBy, time: {}).transform_keys(&:underscore)
+        end
+
         def permitted_parameter_keys
-          super + [:id, :language, :uuids, :search, :limit, :timeseries, :dataFormat, :groupBy, uuid: []] + [filter: {}] + [time: {}] + ['dc:liveData': [:'@id', :minPrice]]
+          super + [:id, :language, :uuids, :search, :limit, uuid: []] + [filter: {}] + ['dc:liveData': [:'@id', :minPrice]]
         end
 
         def permitted_filter_parameters

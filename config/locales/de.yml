@@ -179,7 +179,7 @@ de:
       copy_all: Alle übernehmen
       translate: übersetzen
       copy: übernehmen
-      translate_error: Fehler beim Laden der Übersetzung
+      translate_error: 'Fehler beim Laden der Übersetzung für %{label}'
       copy_all_translations:
         overlay_text: Sollen alle verfügbaren Sprachen übernommen werden?
         confirmation_text: Ja
@@ -255,18 +255,34 @@ de:
   timeseries:
     grouping_options:
       default: Nicht gruppieren
+      sum: Summe
+      min: Minimum
+      max: Maximum
+      avg: Durchschnitt
+      other: Andere
       hour: Stunde
       day: Tag
       week: Woche
       month: Monat
       quarter: Quartal
       year: Jahr
+      # weekday_hour: Wochentag/Stunde
     chart_type_options:
       bar: Balken
       line: Linie
       scatter: Punkt
     from: von
     until: bis
+    # chart_labels:
+    #   monday: Montag
+    #   tuesday: Dienstag
+    #   wednesday: Mittwoch
+    #   thursday: Donnerstag
+    #   friday: Freitag
+    #   saturday: Samstag
+    #   sunday: Sonntag
+    # axe_labels:
+    #   hour_of_day: Stunden (h)
 
   opening_time:
     valid_from: Gültigkeit von
@@ -281,6 +297,12 @@ de:
   collection:
     new: Neue %{data}
     filter: '%{data} filtern ...'
+    manual_order:
+      button: Sortierung manuell anpassen
+      button_active: manuelle Sortierung übernehmen
+      tooltip: Die manuelle Sortierung kann nur in der Listenansicht ohne aktive Filter angepasst werden
+      success: Die manuelle Sortierung wurde gespeichert
+      error: Die manuelle Sortierung konnte nicht gespeichert werden
 
   content_external_data:
     primary_external_system_tooltip: Dieses System ist das primäre externe System
@@ -581,6 +603,10 @@ de:
         unlocked_html: Sie können sich ab sofort mit Ihren Zugangsdaten einloggen und die freigegebenen Inhalte nutzen! Bei Fragen wenden Sie sich bitte direkt an uns.
     translate:
       inline_success: Der Text wurde von %{source_locale} nach %{target_locale} übersetzt.
+      error_code:
+        401: &translate_error_code_401 'Der Zugriff auf die DeepL API wurde verweigert'
+        403: *translate_error_code_401
+        456: 'Das Kontingent für die DeepL API wurde aufgebraucht'
 
     report_generator:
       downloads_popular: Top 50 Downloads
@@ -1186,6 +1212,7 @@ de:
         user_group_ids: Benutzergruppen
         user_ids: Benutzer
         user_id: Eigentümer
+        manual_order: Manuelle Sortierung als Standard-Sortierung verwenden
       data_cycle_core/classification_tree_label:
         visibility: Sichtbarkeit
         change_behaviour: Änderungsverhalten

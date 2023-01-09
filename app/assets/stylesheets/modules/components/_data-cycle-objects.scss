@@ -1679,6 +1679,8 @@ ul.list {
   li.list-item.data-cycle-object {
     .inner-item {
       display: flex;
+      align-items: center;
+      gap: 0.5rem;
 
       .content-row {
         flex: auto;
@@ -1707,46 +1709,49 @@ ul.list {
 
       .buttons {
         white-space: nowrap;
-        margin-left: 0.5rem;
         position: relative;
         top: 0;
         right: 0;
         display: flex;
         align-items: center;
         height: 1.5rem;
+        gap: 0.5rem;
 
         > * {
           position: relative;
           line-height: inherit;
-          padding: 0 3px;
-
-          &:last-child {
-            padding-right: 0;
-          }
+          padding: 0;
         }
       }
 
-      a.toggle-details::before {
-        content: '\f107';
-        font-family: FontAwesome;
-        font-style: normal;
-        font-weight: normal;
-        text-decoration: inherit;
-        position: relative;
-        display: inline-block;
-        width: 1rem;
-        text-align: center;
-        margin-left: 0.5rem;
-        font-size: 1.2rem;
-        vertical-align: middle;
+      a.toggle-details {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &::before {
+          content: '\f107';
+          font-family: FontAwesome;
+          font-style: normal;
+          font-weight: normal;
+          text-decoration: inherit;
+          position: relative;
+          display: inline-block;
+          width: 1rem;
+          text-align: center;
+          font-size: 1.2rem;
+          vertical-align: middle;
+        }
       }
-      a.toggle-details.active::before {
+
+      &.open a.toggle-details::before {
         content: '\f106';
       }
     }
 
     .content-details {
       display: none;
+
       > div {
         margin-top: 1rem;
       }
@@ -1763,6 +1768,10 @@ ul.list {
           vertical-align: top;
         }
       }
+    }
+
+    .inner-item.open ~ .content-details {
+      display: block;
     }
   }
 }

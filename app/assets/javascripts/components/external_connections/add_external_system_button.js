@@ -4,7 +4,7 @@ import DomElementHelpers from '../../helpers/dom_element_helpers';
 class AddExternalSystemButton {
   constructor(item) {
     this.item = item;
-    this.dcAddExternalSystemButton = true;
+    this.item.classList.add('dcjs-add-external-system-button');
     this.link = document.querySelector(`[data-open="${this.item.closest('.reveal').id}"]`);
     this.externalConnectionsContainer = this.link.closest('.external-connections');
 

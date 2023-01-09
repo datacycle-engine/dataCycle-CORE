@@ -32,26 +32,27 @@ export default function () {
 
   for (const element of document.querySelectorAll('.auto-tagging-button')) initAutoTagging(element);
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('auto-tagging-button') && !e.hasOwnProperty('dcAutoTagging'),
+    e => e.classList.contains('auto-tagging-button') && !e.classList.contains('dcjs-auto-tagging'),
     e => initAutoTagging(e)
   ]);
 
   for (const element of document.querySelectorAll('.async-select')) new AsyncSelect2(element).init();
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('async-select') && !e.hasOwnProperty('dcSelect2'),
+    e => e.classList.contains('async-select') && !e.classList.contains('dcjs-select2'),
     e => new AsyncSelect2(e).init()
   ]);
 
   for (const element of document.querySelectorAll('.single-select, .multi-select')) new SimpleSelect2(element).init();
   DataCycle.htmlObserver.addCallbacks.push([
     e =>
-      (e.classList.contains('single-select') || e.classList.contains('multi-select')) && !e.hasOwnProperty('dcSelect2'),
+      (e.classList.contains('single-select') || e.classList.contains('multi-select')) &&
+      !e.classList.contains('dcjs-select2'),
     e => new SimpleSelect2(e).init()
   ]);
 }
 
 function initAutoTagging(element) {
-  element.dcAutoTagging = true;
+  element.classList.add('dcjs-auto-tagging');
 
   $(element).on('click', event => {
     $(event.target).closest('.form-element').find('> .v-select > select').val(null).trigger('change');

@@ -2,16 +2,6 @@
 
 module DataCycleCore
   module TimeseriesHelper
-    GROUPING_OPTIONS = [
-      nil,
-      'hour',
-      'day',
-      'week',
-      'month',
-      'quarter',
-      'year'
-    ].freeze
-
     CHART_TYPE_OPTIONS = [
       'bar',
       'line',
@@ -19,17 +9,49 @@ module DataCycleCore
     ].freeze
 
     def grouping_options(definition)
-      options = definition&.dig('ui', 'show', 'timeseries')&.key?('groups') ? Array.wrap(definition.dig('ui', 'show', 'timeseries', 'groups')) : GROUPING_OPTIONS
-      options.unshift(GROUPING_OPTIONS.first) if options.blank?
+      default_options = {
+        I18n.t('timeseries.grouping_options.other', locale: active_ui_locale) => [[
+          "#{I18n.t('timeseries.grouping_options.default', locale: active_ui_locale)} (#{I18n.t('timeseries.grouping_options.other', locale: active_ui_locale)})",
+          nil
+        ]]
+      }
 
-      return options_for_select(options.map { |g| [I18n.t("timeseries.grouping_options.#{g || 'default'}", locale: active_ui_locale), g] }), disabled: !options.many?, class: 'dc-chart-grouping-input', id: nil
+      if definition&.dig('ui', 'show', 'timeseries')&.key?('groups')
+        options = definition.dig('ui', 'show', 'timeseries', 'groups').to_h do |k, v|
+          [
+            I18n.t("timeseries.grouping_options.#{k}", locale: active_ui_locale),
+            v.map! do |g|
+              [
+                "#{I18n.t("timeseries.grouping_options.#{g}", locale: active_ui_locale)} (#{I18n.t("timeseries.grouping_options.#{k}", locale: active_ui_locale)})",
+                "#{k.underscore}_#{g.underscore}"
+              ]
+            end
+          ]
+        end
+      else
+        options = DataCycleCore::ApiRenderer::TimeseriesRenderer::DEFAULT_AGGREGATE_FUNCTIONS.to_h do |aggregate_function|
+          [
+            I18n.t("timeseries.grouping_options.#{aggregate_function.underscore}", locale: active_ui_locale),
+            DataCycleCore::ApiRenderer::TimeseriesRenderer::DEFAULT_GROUPS.map do |group|
+              [
+                "#{I18n.t("timeseries.grouping_options.#{group.underscore}", locale: active_ui_locale)} (#{I18n.t("timeseries.grouping_options.#{aggregate_function.underscore}", locale: active_ui_locale)})",
+                "#{aggregate_function.underscore}_#{group.underscore}"
+              ]
+            end
+          ]
+        end
+      end
+
+      config = { class: 'dc-chart-grouping-input', id: nil }
+
+      return grouped_options_for_select(default_options.merge(options) { |_k, v1, v2| Array.wrap(v1).concat(Array.wrap(v2)) }, definition.dig('ui', 'show', 'timeseries', 'default_group') || 'avg_week'), **config
     end
 
     def chart_type_options(definition)
       options = definition&.dig('ui', 'show', 'timeseries')&.key?('chart_types') ? Array.wrap(definition.dig('ui', 'show', 'timeseries', 'chart_types')) : CHART_TYPE_OPTIONS
       options.unshift(CHART_TYPE_OPTIONS.first) if options.blank?
 
-      return options_for_select(options.map { |g| [I18n.t("timeseries.chart_type_options.#{g || 'default'}", locale: active_ui_locale), g] }), disabled: !options.many?, class: 'dc-chart-chart-type-input', id: nil
+      return options_for_select(options.map { |g| [I18n.t("timeseries.chart_type_options.#{g || 'default'}", locale: active_ui_locale), g] }, definition&.dig('ui', 'show', 'timeseries', 'default_chart_type') || options.first), class: 'dc-chart-chart-type-input', id: nil
     end
   end
 end

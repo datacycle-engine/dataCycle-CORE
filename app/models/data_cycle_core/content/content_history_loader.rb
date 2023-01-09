@@ -89,6 +89,11 @@ module DataCycleCore
         DataCycleCore::Schedule::History.where(thing_history_id: id, relation: relation_name).order(created_at: :asc)
       end
 
+      # timeseries don't have a history, load timeseries from related thing
+      def load_timeseries(relation_name, _from = nil, _to = nil, _group_by = nil)
+        DataCycleCore::Timeseries.where(thing_id: thing.id, property: relation_name).order(timestamp: :asc)
+      end
+
       def as_of(_timestamp)
         raise 'as_of in history is no longer possible (app/models/data_cycle_core/content/content_history_loader.rb)'
       end

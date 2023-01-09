@@ -222,10 +222,9 @@ module DataCycleCore
           if classification_data[:external_key].blank?
             # in case multiple classifications have the same name
             if tree_label.present?
-              classification = DataCycleCore::ClassificationAlias
+              classification = DataCycleCore::Classification
                 .for_tree(tree_label.name)
-                .find_by(internal_name: classification_data['name'])
-                &.primary_classification
+                .find_by(name: classification_data['name'])
             end
             if classification.blank?
               classification = DataCycleCore::Classification.new(
@@ -291,7 +290,7 @@ module DataCycleCore
           end
 
           classification.attributes = classification_data
-            .except('id', 'class_type', 'external_system')
+            .except('id', 'class_type', 'external_system', 'created_at', 'updated_at')
             .merge({ 'external_source_id' => external_system })
           classification.save!
           classification.id

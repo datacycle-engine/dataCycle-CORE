@@ -10,13 +10,13 @@ export default function () {
     embedded_objects.push(new EmbeddedObject($(element)));
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('embedded-object') && !e.hasOwnProperty('dcEmbeddedObject'),
+    e => e.classList.contains('embedded-object') && !e.classList.contains('dcjs-embedded-object'),
     e => embedded_objects.push(new EmbeddedObject($(e)))
   ]);
 
   for (const element of document.querySelectorAll('.is-embedded-title')) new EmbeddedTitle(element);
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('is-embedded-title') && !e.hasOwnProperty('dcEmbeddedTitle'),
+    e => e.classList.contains('is-embedded-title') && !e.classList.contains('dcjs-embedded-title'),
     e => new EmbeddedTitle(e)
   ]);
 }

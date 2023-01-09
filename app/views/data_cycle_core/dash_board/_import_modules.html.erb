@@ -21,30 +21,30 @@
       </ul>
     </div>
     <div class="card-section">
-      download (last try/success):
-      <ul>
-        <li><%= "#{locals[:import_data][:last_download]}".html_safe %> </li>
-        <% if (locals[:import_data][:last_successful_download] == 'never' && locals[:import_data][:last_download] == 'never') || locals[:import_data][:deactivated] %>
-          <li> <%= "#{locals[:import_data][:last_successful_download]}".html_safe %> </li>
-        <% elsif locals[:import_data][:last_download] == locals[:import_data][:last_successful_download] && locals[:import_data][:last_successful_download] != 'never' %>
-          <li class="success-color"> <%= "#{locals[:import_data][:last_successful_download]}".html_safe %> </li>
-        <% else %>
-          <li class="alert-color"> <%= "#{locals[:import_data][:last_successful_download]}".html_safe %> </li>
+      download (last success/try):
+      <ul class="no-bullet import-data-timestamps">
+        <% if locals.dig(:import_data, :last_download) != locals.dig(:import_data, :last_successful_download) %>
+          <li class="last-successful-download <%= 'check-icon' if locals.dig(:import_data, :last_successful_download) != 'never' %>">
+            <%= import_data_time(locals.dig(:import_data, :last_successful_download)) %>
+          </li>
         <% end %>
+        <li class="last-download <%= locals.dig(:import_data, :last_download_class) %>">
+          <%= import_data_time(locals.dig(:import_data, :last_download)) %>
+        </li>
       </ul>
-      import (last try/success):
-      <ul>
-        <li><%= "#{locals[:import_data][:last_import]}".html_safe %> </li>
-        <% if (locals[:import_data][:last_successful_import] == 'never' && locals[:import_data][:last_import] == 'never') || locals[:import_data][:deactivated] %>
-          <li> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
-        <% elsif locals[:import_data][:last_import] == locals[:import_data][:last_successful_import] && locals[:import_data][:last_successful_import] != 'never' %>
-          <li class="success-color"> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
-        <% else %>
-          <li class="alert-color"> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
+      import (last success/try):
+      <ul class="no-bullet import-data-timestamps">
+        <% if locals.dig(:import_data, :last_import) != locals.dig(:import_data, :last_successful_import) %>
+          <li class="last-successful-import <%= 'check-icon' if locals.dig(:import_data, :last_successful_import) != 'never' %>">
+            <%= import_data_time(locals.dig(:import_data, :last_successful_import)) %>
+          </li>
         <% end %>
+        <li class="last-import <%= locals.dig(:import_data, :last_import_class) %>">
+          <%= import_data_time(locals.dig(:import_data, :last_import)) %>
+        </li>
       </ul>
     </div>
-    <% if locals[:import_data][:deactivated] %>
+    <% if locals.dig(:import_data, :deactivated) %>
       <div class="card-divider" style="padding: 1rem 1rem 0rem 1rem;">
         <div class="admin_full_size">
           deactivated <br/>

@@ -12,6 +12,11 @@ module DataCycleCore
         can :advanced_filter, [:backend, :classification_tree, :publications, :subscriptions, :things, :collection] do |_t, _k, v|
           (v != 'classification_tree_ids' && v != 'advanced_attributes')
         end
+
+        can :read, DataCycleCore::ClassificationTreeLabel, ['classification_tree_labels.visibility && ARRAY[?]::VARCHAR[]', ['classification_overview']] do |ctl|
+          ctl.visibility&.intersection(['classification_overview'])&.any?
+        end
+
         can :update, DataCycleCore::User, id: user.id
         can [:read, :create, :update, :destroy, :show_history], DataCycleCore::StoredFilter, user_id: user.id
         can :read, DataCycleCore::StoredFilter, system: true

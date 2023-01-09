@@ -1,10 +1,3 @@
-.alert-color {
-  color: map-get($foundation-palette, alert);
-}
-.success-color {
-  color: map-get($foundation-palette, success);
-}
-
 .grid-external-modules {
   .card {
     width: 100%;
@@ -81,6 +74,61 @@
         .table-count,
         .table-size {
           white-space: nowrap;
+        }
+      }
+    }
+  }
+
+  ul.import-data-timestamps {
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0.3rem;
+
+      &::before {
+        font-family: 'FontAwesome';
+        content: '\f111';
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 1rem;
+        font-size: 0.4rem;
+      }
+
+      &.check-icon {
+        &::before {
+          font-size: 0.9rem;
+          content: '\f00c';
+        }
+      }
+
+      &.success-color {
+        color: var(--success-color);
+
+        &::before {
+          font-size: 0.9rem;
+          content: '\f00c';
+        }
+      }
+
+      &.alert-color {
+        color: var(--alert-color);
+
+        &::before {
+          font-size: 0.9rem;
+          content: '\f00d';
+        }
+      }
+
+      &.primary-color {
+        color: var(--primary-color);
+
+        &::before {
+          font-size: 0.9rem;
+          content: '\f110';
+          animation: fa-spin 2s infinite linear;
         }
       }
     }

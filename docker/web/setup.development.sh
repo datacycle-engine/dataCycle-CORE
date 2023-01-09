@@ -2,7 +2,7 @@
 
 gem install bundler
 
-bundle install
+bundle check || bundle install
 
 yarn && yarn upgrade
 bundle exec vite dev &> log/vite.log &

@@ -168,6 +168,8 @@
 <div class="detail-content watchlist">
 
   <div class="row">
+    <% content_for(:sortable, render('data_cycle_core/watch_lists/manual_order_button', collection: @watch_list, manual_order_allowed: manual_order_allowed?(@mode, @language, @filters)), flush: true) if can?(:edit, @watch_list) %>
+
     <%= render 'data_cycle_core/application/filter', view_type: 'collection' %>
 
     <%= render 'data_cycle_core/application/results', contents: @contents %>

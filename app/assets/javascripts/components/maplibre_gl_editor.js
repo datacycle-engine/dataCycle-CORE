@@ -1,5 +1,6 @@
 import MapLibreGlViewer from './maplibre_gl_viewer';
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
+const MapboxDrawLoader = () => import('@mapbox/mapbox-gl-draw').then(mod => mod.default);
+
 import UploadGpxControl from './map_controls/maplibre_upload_gpx_control';
 import domElementHelpers from '../helpers/dom_element_helpers';
 // import AdditionalValuesFilterControl from './map_controls/mapbox_additional_values_filter_control';
@@ -32,19 +33,11 @@ class MapLibreGlEditor extends MapLibreGlViewer {
     super.configureMap();
     this.initEventHandlers();
   }
-  initFeatures() {
+  async initFeatures() {
     if (!this.feature && this.value) this.feature = this.value;
     // to ensure additional features are drawn last, the editor is initiallized here
-    this.configureEditor();
+    await this.initAdditionalControls();
     this.drawAdditionalFeatures();
-  }
-  configureEditor() {
-    this.initAdditionalControls();
-
-    if (this.feature) this.initEditFeature();
-
-    // if (!isEmpty(this.additionalValuesOverlay))
-    //   this.map.addControl(new AdditionalValuesFilterControl(this), 'bottom-left'); // TODO: locally override called methods if neccessary
   }
   initEventHandlers() {
     this.$container.on('dc:import:data', this.importData.bind(this)).addClass('dc-import-data');
@@ -53,11 +46,13 @@ class MapLibreGlEditor extends MapLibreGlViewer {
     if (this.$geoCodeButton) this.$geoCodeButton.on('click', this.geoCodeAddress.bind(this));
   }
 
-  initAdditionalControls() {
-    this.initDrawControl();
+  async initAdditionalControls() {
+    await this.initDrawControl();
     if (this.uploadable) this.map.addControl(new UploadGpxControl(this), 'top-left');
   }
-  initDrawControl() {
+  async initDrawControl() {
+    const MapboxDraw = await MapboxDrawLoader().catch(e => console.error('Error loading module:', e));
+
     this.draw = new MapboxDraw({
       displayControlsDefault: false,
       controls: {
@@ -66,9 +61,11 @@ class MapLibreGlEditor extends MapLibreGlViewer {
       defaultMode: this.getMapDrawMode(),
       styles: this.getMapDrawStyle()
     });
+
     this.map.addControl(this.draw);
 
     this.initDrawEventHandlers();
+    if (this.feature) this.initEditFeature();
   }
   initDrawEventHandlers() {
     this.map.on('draw.create', event => {

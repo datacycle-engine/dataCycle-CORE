@@ -28,7 +28,9 @@ module DataCycleCore
           'GeoCoordinates' => 'https://semantify.it/ds/2NErTNGpd',
           'PostalAddress' => 'https://semantify.it/ds/NP8df6sKy',
           'OpeningHoursSpecification' => 'https://semantify.it/ds/rpOsHCyrE',
-          'PropertyValue' => 'https://semantify.it/ds/evJvhycX1'
+          'PropertyValue' => 'https://semantify.it/ds/evJvhycX1',
+          'ImageObject' => 'https://semantify.it/ds/ufjX_Cc5w',
+          'Organization' => 'https://semantify.it/ds/Wf-IXZvIo'
         }.freeze
 
         def self.remove_namespaced_data(data)
@@ -46,6 +48,7 @@ module DataCycleCore
         end
 
         def self.context_to_onlim(data)
+          return data unless data.key?('@context')
           context = data['@context']
           context = Array.wrap(
             context[1].merge(
@@ -67,7 +70,9 @@ module DataCycleCore
         def self.remove_thing_stubs(data)
           case data
           in Hash
-            if data.keys.sort != ['@id', '@type']
+            if data.keys == ['@id'] # for 'ds:compliesWith'
+              data
+            elsif (data.keys - ['@id', '@type', 'ds:compliesWith']).present?
               data
                 .transform_values { |v| remove_thing_stubs(v).presence }
                 &.compact
@@ -77,6 +82,23 @@ module DataCycleCore
               .map { |i| remove_thing_stubs(i) }
               &.compact
               &.presence
+          else
+            data
+          end
+        end
+
+        def self.remove_existing_object_data(data, existing_ids)
+          case data
+          in Hash
+            if data['@id'].in?(existing_ids)
+              { '@id' => data['@id'] }
+            else
+              data
+                .transform_values { |v| remove_existing_object_data(v, existing_ids) }
+                &.compact
+            end
+          in Array
+            data.map { |i| remove_existing_object_data(i, existing_ids) }
           else
             data
           end
@@ -104,13 +126,15 @@ module DataCycleCore
           if types.size == 1
             types.first
           elsif types.include?('Organization')
-            types.reject { |i| i == 'Organization' } # remove Organization (conflicts with whiet/blacklist)
+            types.reject { |i| i == 'Organization' } # remove Organization (conflicts with white/blacklist)
           else
             types
           end
         end
 
         def self.add_complies_with(data)
+          return data unless data.is_a?(Hash) || data.is_a?(Array)
+
           case data
           in Hash
             if data.key?('@type') && Array.wrap(data['@type']).any? { |i| i.in?(COMPLIES.keys) }
@@ -124,6 +148,35 @@ module DataCycleCore
           else
             data
           end
+        end
+
+        def self.add_main_content_license(data)
+          return data unless data.key?('@graph')
+          content_data = data['@graph'].first
+
+          thing = DataCycleCore::Thing.find(content_data.dig('@id'))
+          sd_license = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(thing.classification_aliases.pluck(:name)).pluck(:uri)
+          content_data['sdLicense'] = sd_license.first if sd_license.size.positive?
+
+          publisher_data =
+            case thing.template_name
+            in 'POI'
+              content_data['copyrightHolder']&.first.presence || content_data['author']&.first.presence
+            in 'Tour' | 'Gastronomischer Betrieb'
+              content_data['sdPublisher']&.first.presence || content_data['copyrightHolder']&.first.presence
+            else
+              nil
+            end
+
+          if publisher_data.present?
+            content_data['sdPublisher'] =
+              Array.wrap(
+                DataCycleCore::Export::Onlim::Transformations.default_transformations.call(publisher_data)
+              )
+          end
+
+          data['@graph'] = Array.wrap(content_data)
+          data
         end
 
         def self.apply_blacklist(data, list)

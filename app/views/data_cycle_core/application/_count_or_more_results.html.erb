@@ -6,7 +6,7 @@
   <% elsif @mode == 'tree' && params[:page].present? && !@classification_tree.nil? %>
     <%= render 'data_cycle_core/contents/tree/contents', contents: @contents, classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, language: @language %>
   <% elsif @mode == 'tree' && !@classification_tree.nil? %>
-    <ul class="children <%= 'has-contents' unless @contents.nil? %>">
+    <ul class="children <%= 'has-contents' if @contents&.size&.positive? %>">
       <%= render 'data_cycle_core/contents/tree/classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees %>
     </ul>
     <ul class="contents no-bullet">

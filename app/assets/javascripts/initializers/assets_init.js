@@ -1,24 +1,24 @@
 import AssetSelector from './../components/asset_selector';
-import AssetUploader from './../components/asset_uploader';
+const AssetUploader = () => import('./../components/asset_uploader');
+
+function initAssetUploader(item) {
+  item.classList.add('dcjs-asset-uploader');
+  AssetUploader().then(mod => new mod.default(item));
+}
 
 export default function () {
-  var assetSelectors = [];
-  var assetUploaders = [];
-
-  for (const element of document.querySelectorAll('.asset-selector-reveal'))
-    assetSelectors.push(new AssetSelector(element));
+  for (const element of document.querySelectorAll('.asset-selector-reveal')) new AssetSelector(element);
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('asset-selector-reveal') && !e.hasOwnProperty('dcAssetSelector'),
-    e => assetSelectors.push(new AssetSelector(e))
+    e => e.classList.contains('asset-selector-reveal') && !e.classList.contains('dcjs-asset-selector'),
+    e => new AssetSelector(e)
   ]);
 
-  for (const element of document.querySelectorAll('.asset-upload-reveal'))
-    assetUploaders.push(new AssetUploader(element));
+  for (const element of document.querySelectorAll('.asset-upload-reveal')) initAssetUploader(element);
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('asset-upload-reveal') && !e.hasOwnProperty('dcAssetUploader'),
-    e => assetUploaders.push(new AssetUploader(e))
+    e => e.classList.contains('asset-upload-reveal') && !e.classList.contains('dcjs-asset-uploader'),
+    e => initAssetUploader(e)
   ]);
 
   for (const element of document.querySelectorAll('.download-content-form')) initDownloadContentReveal(element);

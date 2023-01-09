@@ -22,6 +22,11 @@ module DataCycleCore
 
       belongs_to :thing
 
+      def available_locales
+        I18n.available_locales.intersection(translations.select(&:persisted?).pluck(:locale).map(&:to_sym))
+      end
+      alias translated_locales available_locales
+
       def self.translated_locales
         DataCycleCore::Thing::History::Translation.where(translated_model: all).distinct.pluck(:locale).map(&:to_sym)
       end
@@ -86,6 +91,11 @@ module DataCycleCore
 
     has_many :activities, as: :activitiable, dependent: :destroy
     has_many :timeseries, class_name: 'DataCycleCore::Timeseries', dependent: :destroy, inverse_of: :thing
+
+    def available_locales
+      I18n.available_locales.intersection(translations.select(&:persisted?).pluck(:locale).map(&:to_sym))
+    end
+    alias translated_locales available_locales
 
     def self.translated_locales
       DataCycleCore::Thing::Translation.where(translated_model: all).distinct.pluck(:locale)

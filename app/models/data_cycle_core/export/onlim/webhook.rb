@@ -13,6 +13,7 @@ module DataCycleCore
         end
 
         def error(_job, _exception)
+          # binding.pry
           data = DataCycleCore::Thing.find(@data.id)
           data.add_external_system_data(@external_system, nil, 'error', 'export', nil, false)
         end
@@ -23,20 +24,30 @@ module DataCycleCore
         end
 
         def perform
-          data = DataCycleCore::Thing.find(@data.id)
+          data = @data
+          load_data = DataCycleCore::Thing.where(id: data.id)
+          data = load_data&.first if load_data.present?
           job_result = @endpoint.send(@request, data: data, external_system_data: @external_system_data)
-          external_key = job_result.dig('outdoor_active_id')
 
-          log(job_result, @data.id) if job_result.dig('errors').present? || job_result.dig('warnings')
+          return if @request == :delete_request # data is already deleted ...
+
+          external_key = data.id
+          log(job_result, data.id) unless job_result.dig('message', 'verificationReport', 'isValid')
 
           case job_result.dig('job_status')
-          when 'waiting'
+          when 'pending'
             data.add_external_system_data(@external_system, job_result, 'pending', 'export', external_key, false)
-          when 'running'
-            data.add_external_system_data(@external_system, job_result, 'pending', 'export', external_key, false)
-            raise DataCycleCore::Generic::Common::Error::GenericError, "Onlim job is still running with id #{job_result.dig('job_id')}"
-          when 'jobnotfound', 'failed'
+            raise DataCycleCore::Generic::Common::Error::GenericError, "Onlim job is still running with id #{job_result.dig('job_id')}" if @request == :job_status_request
+          when 'failed'
             data.add_external_system_data(@external_system, job_result, 'failure', 'export', external_key, false)
+            if job_result.dig('message', 'existingObjects') && job_result.dig('job_operation') == 'CREATE'
+              existing_ids = job_result.dig('message', 'existingObjectIds').map { |id| id.split('/')&.last }
+              return if existing_ids.include?(data.id)
+              # --> do create again without already existingObjects
+              DataCycleCore::Export::Onlim::Functions.update(utility_object: DataCycleCore::Export::PushObject.new(external_system: @external_system), data: data)
+            elsif job_result.dig('message', 'existingObjects') && job_result.dig('job_operation') == 'UPDATE'
+              # --> Problem with update ...
+            end
           when 'success'
             data.add_external_system_data(@external_system, job_result, 'success', 'export', external_key, false)
           else

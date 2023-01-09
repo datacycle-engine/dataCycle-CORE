@@ -94,15 +94,15 @@ class MapLibreGlViewer {
       )
     );
   }
-  configureMap() {
-    this.initControls();
-    this.setZoomMethod();
-    this.setIcons();
+  async configureMap() {
+    await this.initControls();
+    await this.setZoomMethod();
+    await this.setIcons();
 
-    this.initFeatures();
-    this._disableScrollingOnMapOverlays();
-    this.initMouseWheelZoom();
-    this.updateMapPosition();
+    await this.initFeatures();
+    await this._disableScrollingOnMapOverlays();
+    await this.initMouseWheelZoom();
+    await this.updateMapPosition();
   }
   initFeatures() {
     this.drawFeatures();
@@ -289,7 +289,17 @@ class MapLibreGlViewer {
         paint: {
           'line-color': this.definedColors.white,
           'line-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0],
-          'line-width': this.getStyleCaseExpression('width', ['+', ['get', 'width'], 4], 9)
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            0,
+            3,
+            5,
+            5,
+            15,
+            this.getStyleCaseExpression('width', ['+', ['get', 'width'], 4], 9)
+          ]
         }
       }
       // this._getLastLineLayerId() // TODO:
@@ -313,7 +323,17 @@ class MapLibreGlViewer {
             lineColor
           ),
           'line-opacity': iconColor === 'gray' ? 0.75 : 1,
-          'line-width': this.getStyleCaseExpression('width', ['get', 'width'], 5)
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            0,
+            1.75,
+            5,
+            2,
+            15,
+            this.getStyleCaseExpression('width', ['get', 'width'], 5)
+          ]
         }
       }
       // this._getLastLineLayerId() // TODO:
@@ -337,7 +357,17 @@ class MapLibreGlViewer {
             lineColor
           ),
           'line-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0],
-          'line-width': this.getStyleCaseExpression('width', ['get', 'width'], 5)
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            0,
+            1.75,
+            5,
+            2,
+            15,
+            this.getStyleCaseExpression('width', ['get', 'width'], 5)
+          ]
         }
       }
       // this._getLastLineLayerId() // TODO:
@@ -393,8 +423,8 @@ class MapLibreGlViewer {
         'source-layer': this.sourceLayer,
         filter: ['==', '$type', 'Point'],
         paint: {
-          'circle-radius': circleRadius,
-          'circle-stroke-width': 4,
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 0, 1.75, 5, 2, 15, circleRadius],
+          'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 5, 0, 15, 4],
           'circle-color': this.getStyleCaseExpression(
             this.styleCaseProperty,
             this.getColorMatchHexExpression(),
@@ -414,8 +444,8 @@ class MapLibreGlViewer {
         'source-layer': this.sourceLayer,
         filter: ['==', '$type', 'Point'],
         paint: {
-          'circle-radius': circleRadius + 2,
-          'circle-stroke-width': 4,
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 0, 1.75, 5, 2, 15, circleRadius + 2],
+          'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 5, 0, 15, 4],
           'circle-color': this.getStyleCaseExpression(
             this.styleCaseProperty,
             this.getHoverColorMatchHexExpression(),
