@@ -563,6 +563,12 @@ en:
       manual_button: Select manually for merging
     releasable:
       version_and_status: Version & Status
+      mailer:
+        remind_receiver:
+          subject: 'Reminder: Finalize content editing'
+          first_line:
+            one: The following content has not been edited for more than a week and has not been finalized yet.
+            other: The following contents have not been edited for more than a week and have not been finalized yet.
     named_version:
       input_label: Version name
       version_name: 'Version: %{name}'
@@ -845,7 +851,7 @@ en:
     write: Write
     save_and_send: Send
     save_without_send: Save (no e-mail dispatch)
-    finalize: Complete processing
+    finalize: Finalize editing
     finalize_agbs_text: Terms & Conditions
     finalize_combined_html: '%{finalize} and accept %{agbs}'
     copy_to_clipboard: Copy to clipboard

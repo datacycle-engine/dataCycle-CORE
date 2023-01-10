@@ -571,6 +571,14 @@ de:
       manual_button: Manuell zum Zusammenführen auswählen
     releasable:
       version_and_status: Version & Status
+      mailer:
+        remind_receiver:
+          subject:
+            one: 'Erinnerung: Bearbeitung von Inhalt abschließen'
+            other: 'Erinnerung: Bearbeitung von Inhalten abschließen'
+          first_line:
+            one: Folgender Inhalt wurde seit mehr als einer Woche nicht bearbeitet und die Bearbeitung wurde noch nicht abgeschlossen.
+            other: Folgende Inhalte wurden seit mehr als einer Woche nicht bearbeitet und die Bearbeitung wurde noch nicht abgeschlossen.
     named_version:
       input_label: Versionsname
       version_name: 'Version: %{name}'
