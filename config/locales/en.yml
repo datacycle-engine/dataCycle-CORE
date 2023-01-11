@@ -566,9 +566,7 @@ en:
       mailer:
         remind_receiver:
           subject: 'Reminder: Finalize content editing'
-          first_line:
-            one: The following content has not been edited for more than a week and has not been finalized yet.
-            other: The following contents have not been edited for more than a week and have not been finalized yet.
+          first_line: Please add missing content and finalize the editing!
     named_version:
       input_label: Version name
       version_name: 'Version: %{name}'
