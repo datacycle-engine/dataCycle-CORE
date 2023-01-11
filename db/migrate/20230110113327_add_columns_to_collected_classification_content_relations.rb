@@ -18,12 +18,7 @@ class AddColumnsToCollectedClassificationContentRelations < ActiveRecord::Migrat
       CREATE INDEX IF NOT EXISTS ccc_direct_classification_alias_ids_idx ON collected_classification_contents USING gin(direct_classification_alias_ids);
       CREATE INDEX IF NOT EXISTS ccc_full_classification_alias_ids_idx ON collected_classification_contents USING gin(full_classification_alias_ids);
 
-      CREATE INDEX IF NOT EXISTS ccc_content_id_direct_classification_alias_ids_idx ON collected_classification_contents (thing_id, direct_classification_alias_ids);
-      CREATE INDEX IF NOT EXISTS ccc_content_id_full_classification_alias_ids_idx ON collected_classification_contents (thing_id, full_classification_alias_ids);
-      CREATE INDEX IF NOT EXISTS ccc_content_id_direct_tree_label_ids_idx ON collected_classification_contents (thing_id, direct_tree_label_ids);
-      CREATE INDEX IF NOT EXISTS ccc_content_id_full_tree_label_ids_idx ON collected_classification_contents (thing_id, full_tree_label_ids);
-
-      CREATE INDEX IF NOT EXISTS capt_classification_alias_id_idx ON classification_alias_paths_transitive(classification_alias_id);
+       CREATE INDEX IF NOT EXISTS capt_classification_alias_id_idx ON classification_alias_paths_transitive(classification_alias_id);
 
       DROP FUNCTION IF EXISTS generate_collected_classification_content_relations;
 
