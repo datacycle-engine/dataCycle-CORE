@@ -283,6 +283,10 @@
             > *:not(:last-child) {
               margin-right: 0.3rem;
             }
+
+            .copy-to-clipboard {
+              display: inline-flex;
+            }
           }
 
           .detail-content {

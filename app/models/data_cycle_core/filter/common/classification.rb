@@ -82,9 +82,9 @@ module DataCycleCore
         def exists_query_for_ccc_relations(ids, column_name)
           raw_query = <<-SQL.squish
             SELECT 1
-          	FROM collected_classification_content_relations
-          	WHERE collected_classification_content_relations.content_id = things.id AND
-              collected_classification_content_relations.#{column_name} && ARRAY[?]::UUID[]
+          	FROM collected_classification_contents
+          	WHERE collected_classification_contents.thing_id = things.id
+              AND collected_classification_contents.#{column_name} && ARRAY[?]::UUID[]
           SQL
 
           Arel::Nodes::Exists.new(Arel.sql(DataCycleCore::Thing.send(:sanitize_sql_for_conditions, [raw_query, ids])))

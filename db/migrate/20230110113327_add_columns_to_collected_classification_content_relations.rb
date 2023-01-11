@@ -3,16 +3,25 @@
 class AddColumnsToCollectedClassificationContentRelations < ActiveRecord::Migration[6.1]
   def up
     execute <<-SQL.squish
-      ALTER TABLE collected_classification_content_relations ADD COLUMN direct_tree_label_ids UUID[];
-      ALTER TABLE collected_classification_content_relations ADD COLUMN full_tree_label_ids UUID[];
+      DROP TABLE IF EXISTS collected_classification_content_relations;
 
-      CREATE INDEX IF NOT EXISTS cccr_direct_tree_label_ids_idx ON collected_classification_content_relations USING gin(direct_tree_label_ids);
-      CREATE INDEX IF NOT EXISTS cccr_full_tree_label_ids_idx ON collected_classification_content_relations USING gin(full_tree_label_ids);
+      CREATE TABLE collected_classification_contents (
+        thing_id UUID NOT NULL PRIMARY KEY REFERENCES things(id) ON DELETE CASCADE,
+        direct_classification_alias_ids UUID[],
+        full_classification_alias_ids UUID[],
+        direct_tree_label_ids UUID[],
+        full_tree_label_ids UUID[]
+      );
 
-      CREATE INDEX IF NOT EXISTS cccr_content_id_direct_classification_alias_ids_idx ON collected_classification_content_relations (content_id, direct_classification_alias_ids);
-      CREATE INDEX IF NOT EXISTS cccr_content_id_full_classification_alias_ids_idx ON collected_classification_content_relations (content_id, full_classification_alias_ids);
-      CREATE INDEX IF NOT EXISTS cccr_content_id_direct_tree_label_ids_idx ON collected_classification_content_relations (content_id, direct_tree_label_ids);
-      CREATE INDEX IF NOT EXISTS cccr_content_id_full_tree_label_ids_idx ON collected_classification_content_relations (content_id, full_tree_label_ids);
+      CREATE INDEX IF NOT EXISTS ccc_direct_tree_label_ids_idx ON collected_classification_contents USING gin(direct_tree_label_ids);
+      CREATE INDEX IF NOT EXISTS ccc_full_tree_label_ids_idx ON collected_classification_contents USING gin(full_tree_label_ids);
+      CREATE INDEX IF NOT EXISTS ccc_direct_classification_alias_ids_idx ON collected_classification_contents USING gin(direct_classification_alias_ids);
+      CREATE INDEX IF NOT EXISTS ccc_full_classification_alias_ids_idx ON collected_classification_contents USING gin(full_classification_alias_ids);
+
+      CREATE INDEX IF NOT EXISTS ccc_content_id_direct_classification_alias_ids_idx ON collected_classification_contents (thing_id, direct_classification_alias_ids);
+      CREATE INDEX IF NOT EXISTS ccc_content_id_full_classification_alias_ids_idx ON collected_classification_contents (thing_id, full_classification_alias_ids);
+      CREATE INDEX IF NOT EXISTS ccc_content_id_direct_tree_label_ids_idx ON collected_classification_contents (thing_id, direct_tree_label_ids);
+      CREATE INDEX IF NOT EXISTS ccc_content_id_full_tree_label_ids_idx ON collected_classification_contents (thing_id, full_tree_label_ids);
 
       CREATE INDEX IF NOT EXISTS capt_classification_alias_id_idx ON classification_alias_paths_transitive(classification_alias_id);
 
@@ -20,17 +29,17 @@ class AddColumnsToCollectedClassificationContentRelations < ActiveRecord::Migrat
 
       CREATE
       OR REPLACE FUNCTION generate_collected_classification_content_relations (content_ids UUID[], excluded_classification_ids UUID[]) RETURNS SETOF UUID LANGUAGE PLPGSQL AS $$ BEGIN
-        DELETE FROM collected_classification_content_relations
+        DELETE FROM collected_classification_contents
         WHERE
-          content_id IN (
+          thing_id IN (
             SELECT
-              cccr.content_id
+              cccr.thing_id
             FROM
-              collected_classification_content_relations cccr
+            collected_classification_contents cccr
             WHERE
-              cccr.content_id = ANY (content_ids)
+              cccr.thing_id = ANY (content_ids)
             ORDER BY
-              cccr.content_id ASC FOR
+              cccr.thing_id ASC FOR
             UPDATE SKIP LOCKED
           );
 
@@ -73,7 +82,7 @@ class AddColumnsToCollectedClassificationContentRelations < ActiveRecord::Migrat
               classification_contents.content_data_id
           )
         INSERT INTO
-          collected_classification_content_relations (content_id, direct_classification_alias_ids, full_classification_alias_ids, direct_tree_label_ids, full_tree_label_ids)
+          collected_classification_contents (thing_id, direct_classification_alias_ids, full_classification_alias_ids, direct_tree_label_ids, full_tree_label_ids)
         SELECT
           direct_classification_content_relations.thing_id,
           direct_classification_content_relations.direct_alias_ids,
@@ -84,7 +93,7 @@ class AddColumnsToCollectedClassificationContentRelations < ActiveRecord::Migrat
           direct_classification_content_relations
           JOIN full_classification_content_relations ON full_classification_content_relations.thing_id = direct_classification_content_relations.thing_id
         RETURNING
-          content_id;
+          thing_id;
 
         RETURN;
       END;
@@ -92,17 +101,17 @@ class AddColumnsToCollectedClassificationContentRelations < ActiveRecord::Migrat
 
       CREATE
       OR REPLACE FUNCTION generate_collected_cl_content_relations_transitive (content_ids UUID[], excluded_classification_ids UUID[]) RETURNS SETOF UUID LANGUAGE PLPGSQL AS $$ BEGIN
-        DELETE FROM collected_classification_content_relations
+        DELETE FROM collected_classification_contents
         WHERE
-          content_id IN (
+          thing_id IN (
             SELECT
-              cccr.content_id
+              cccr.thing_id
             FROM
-              collected_classification_content_relations cccr
+            collected_classification_contents cccr
             WHERE
-              cccr.content_id = ANY (content_ids)
+              cccr.thing_id = ANY (content_ids)
             ORDER BY
-              cccr.content_id ASC FOR
+              cccr.thing_id ASC FOR
             UPDATE SKIP LOCKED
           );
 
@@ -145,7 +154,7 @@ class AddColumnsToCollectedClassificationContentRelations < ActiveRecord::Migrat
               classification_contents.content_data_id
           )
         INSERT INTO
-          collected_classification_content_relations (content_id, direct_classification_alias_ids, full_classification_alias_ids, direct_tree_label_ids, full_tree_label_ids)
+          collected_classification_contents (thing_id, direct_classification_alias_ids, full_classification_alias_ids, direct_tree_label_ids, full_tree_label_ids)
         SELECT
           direct_classification_content_relations.thing_id,
           direct_classification_content_relations.direct_alias_ids,
@@ -156,7 +165,7 @@ class AddColumnsToCollectedClassificationContentRelations < ActiveRecord::Migrat
           direct_classification_content_relations
           JOIN full_classification_content_relations ON full_classification_content_relations.thing_id = direct_classification_content_relations.thing_id
         RETURNING
-          content_id;
+          thing_id;
 
         RETURN;
       END;
@@ -166,6 +175,13 @@ class AddColumnsToCollectedClassificationContentRelations < ActiveRecord::Migrat
 
   def down
     execute <<-SQL.squish
+      CREATE TABLE collected_classification_content_relations (
+        id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+        content_id uuid,
+        direct_classification_alias_ids uuid[],
+        full_classification_alias_ids uuid[]
+      );
+
       DROP FUNCTION IF EXISTS generate_collected_classification_content_relations;
 
       CREATE OR REPLACE FUNCTION generate_collected_classification_content_relations (content_ids uuid[], excluded_classification_ids uuid[])
@@ -304,6 +320,10 @@ class AddColumnsToCollectedClassificationContentRelations < ActiveRecord::Migrat
 
       DROP INDEX IF EXISTS cccr_direct_tree_label_ids_idx;
       DROP INDEX IF EXISTS cccr_full_tree_label_ids_idx;
+      DROP INDEX IF EXISTS ccc_direct_classification_alias_ids_idx;
+      DROP INDEX IF EXISTS ccc_full_classification_alias_ids_idx;
+
+      DROP TABLE IF EXISTS collected_classification_contents;
 
       DROP INDEX IF EXISTS cccr_content_id_direct_classification_alias_ids_idx;
       DROP INDEX IF EXISTS cccr_content_id_full_classification_alias_ids_idx;
