@@ -434,6 +434,33 @@ CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
 
 
 --
+-- Name: update_classification_aliases_order_a(uuid[]); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_classification_aliases_order_a(tree_label_ids uuid[]) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ BEGIN SET LOCAL dc.prevent_triggers to 'TRUE'; UPDATE classification_aliases SET order_a = w.order_a FROM ( WITH RECURSIVE paths (id, updated_at, full_order_a, tree_label_id) AS ( SELECT classification_aliases.id, classification_aliases.updated_at, ARRAY[classification_aliases.order_a], classification_trees.classification_tree_label_id FROM classification_trees JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id AND classification_aliases.deleted_at IS NULL WHERE classification_trees.parent_classification_alias_id IS NULL AND classification_trees.deleted_at IS NULL AND classification_trees.classification_tree_label_id = ANY (tree_label_ids) UNION SELECT classification_trees.classification_alias_id, classification_aliases.updated_at, full_order_a || classification_aliases.order_a, classification_trees.classification_tree_label_id FROM classification_trees JOIN paths ON paths.id = classification_trees.parent_classification_alias_id JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id AND classification_aliases.deleted_at IS NULL WHERE classification_trees.deleted_at IS NULL ) SELECT paths.id, ( ROW_NUMBER() OVER ( PARTITION BY classification_tree_labels.id ORDER BY paths.full_order_a ASC, paths.updated_at ASC ) ) AS order_a FROM paths JOIN classification_tree_labels ON classification_tree_labels.id = paths.tree_label_id ) w WHERE w.id = classification_aliases.id; END; $$;
+
+
+--
+-- Name: update_classification_aliases_order_a_trigger(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_classification_aliases_order_a_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM update_classification_aliases_order_a (ARRAY_AGG(id)) FROM ( SELECT DISTINCT classification_trees.classification_tree_label_id AS id FROM classification_trees WHERE classification_trees.classification_alias_id = NEW.id ) "updated_classification_aliases_alias"; RETURN NEW; END; $$;
+
+
+--
+-- Name: update_classification_trees_order_a_trigger(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_classification_trees_order_a_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM update_classification_aliases_order_a (ARRAY[OLD.classification_tree_label_id, NEW.classification_tree_label_id]::UUID[]); RETURN NEW; END; $$;
+
+
+--
 -- Name: update_template_definitions_trigger(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -654,15 +681,16 @@ CREATE TABLE public.classification_aliases (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     internal_name character varying,
     seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
+    updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     external_source_id uuid,
     internal boolean DEFAULT false,
     deleted_at timestamp without time zone,
     assignable boolean DEFAULT true,
     name_i18n jsonb DEFAULT '{}'::jsonb,
     description_i18n jsonb DEFAULT '{}'::jsonb,
-    uri character varying
+    uri character varying,
+    order_a integer
 );
 
 
@@ -2013,6 +2041,13 @@ CREATE INDEX classification_alias_paths_transitive_full_path_ids ON public.class
 
 
 --
+-- Name: classification_aliases_order_a_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX classification_aliases_order_a_idx ON public.classification_aliases USING btree (order_a);
+
+
+--
 -- Name: classification_content_data_history_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3145,6 +3180,13 @@ CREATE TRIGGER generate_schedule_occurences_trigger AFTER INSERT ON public.sched
 
 
 --
+-- Name: classification_trees insert_classification_tree_order_a_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER insert_classification_tree_order_a_trigger AFTER INSERT ON public.classification_trees FOR EACH ROW EXECUTE FUNCTION public.update_classification_trees_order_a_trigger();
+
+
+--
 -- Name: searches tsvectorsearchinsert; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -3230,6 +3272,20 @@ CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF name ON
 --
 
 CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF parent_classification_alias_id, classification_alias_id, classification_tree_label_id ON public.classification_trees FOR EACH ROW WHEN (((old.parent_classification_alias_id IS DISTINCT FROM new.parent_classification_alias_id) OR (old.classification_alias_id IS DISTINCT FROM new.classification_alias_id) OR (new.classification_tree_label_id IS DISTINCT FROM old.classification_tree_label_id))) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_2();
+
+
+--
+-- Name: classification_aliases update_classification_aliases_order_a_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_classification_aliases_order_a_trigger AFTER UPDATE OF order_a ON public.classification_aliases FOR EACH ROW WHEN (((old.order_a IS DISTINCT FROM new.order_a) AND (current_setting('dc.prevent_triggers'::text, true) <> 'TRUE'::text))) EXECUTE FUNCTION public.update_classification_aliases_order_a_trigger();
+
+
+--
+-- Name: classification_trees update_classification_tree_order_a_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_classification_tree_order_a_trigger AFTER UPDATE OF parent_classification_alias_id, classification_tree_label_id ON public.classification_trees FOR EACH ROW WHEN (((old.parent_classification_alias_id IS DISTINCT FROM new.parent_classification_alias_id) OR (old.classification_tree_label_id IS DISTINCT FROM new.classification_tree_label_id))) EXECUTE FUNCTION public.update_classification_trees_order_a_trigger();
 
 
 --
@@ -3643,6 +3699,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20221118075303'),
 ('20221202071928'),
 ('20221207085950'),
-('20230110113327');
+('20230110113327'),
+('20230111134615');
 
 

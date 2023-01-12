@@ -15,6 +15,7 @@ module DataCycleCore
     extend ::Translations
     translates :name, :description, column_suffix: '_i18n', backend: :jsonb
     default_scope { i18n }
+    default_scope { order(order_a: :asc) }
     before_save :set_internal_data
     after_destroy :clean_stored_filters
     before_destroy :add_things_cache_invalidation_job_destroy, :add_things_webhooks_job_destroy, -> { primary_classification&.destroy }
@@ -124,7 +125,7 @@ module DataCycleCore
 
       max_cardinality = Path.all.pluck(Arel.sql('MAX(CARDINALITY(full_path_names))')).max
 
-      joins(:classification_alias_path).order(
+      joins(:classification_alias_path).reorder(nil).order(
         Arel.sql(
           (1..max_cardinality).map { |c|
             "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> #{term})), 0)"
@@ -290,11 +291,12 @@ module DataCycleCore
 
     def merge_with(new_classification_alias)
       DataCycleCore::ClassificationContent.where(classification_id: primary_classification.id).find_each do |cc|
-        cc.update(classification_id: new_classification_alias.primary_classification.id) unless DataCycleCore::ClassificationContent.where(classification_id: new_classification_alias.primary_classification.id, relation: cc.relation, content_data_id: cc.content_data_id).exists?
+        cc.update(classification_id: new_classification_alias.primary_classification.id) unless
+        DataCycleCore::ClassificationContent.exists?(classification_id: new_classification_alias.primary_classification.id, relation: cc.relation, content_data_id: cc.content_data_id)
       end
 
       DataCycleCore::ClassificationContent::History.where(classification_id: primary_classification.id).find_each do |cc|
-        cc.update(classification_id: new_classification_alias.primary_classification.id) unless DataCycleCore::ClassificationContent::History.where(classification_id: new_classification_alias.primary_classification.id, relation: cc.relation, content_data_history_id: cc.content_data_history_id).exists?
+        cc.update(classification_id: new_classification_alias.primary_classification.id) unless DataCycleCore::ClassificationContent::History.exists?(classification_id: new_classification_alias.primary_classification.id, relation: cc.relation, content_data_history_id: cc.content_data_history_id)
       end
 
       DataCycleCore::StoredFilter.where('parameters::TEXT ILIKE ?', "%#{id}%").lock('FOR UPDATE SKIP LOCKED').order(:id).update_all("parameters = replace(parameters::text, '#{id}', '#{new_classification_alias.id}')::jsonb")

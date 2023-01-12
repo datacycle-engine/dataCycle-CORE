@@ -44,7 +44,7 @@ module DataCycleCore
 
           @mapped_classification_aliases = @mapped_classification_aliases
             .includes(:classification_alias_path)
-            .order('classification_aliases.internal_name')
+            .order('classification_aliases.order_a ASC')
 
           if @classification_type.is_a?(DataCycleCore::ClassificationAlias)
             @classification_trees = @classification_trees.includes(:classification_alias_path)
@@ -61,7 +61,7 @@ module DataCycleCore
             )
           end
 
-          @classification_trees = @classification_trees.order('classification_aliases.internal_name')
+          @classification_trees = @classification_trees.order('classification_aliases.order_a ASC')
 
           render json: { html: render_to_string(formats: [:html], layout: false, action: 'children').squish }
         end
