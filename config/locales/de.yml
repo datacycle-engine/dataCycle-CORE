@@ -1593,6 +1593,11 @@ de:
       character: Tour Charakter
       parkingPossibilities: Parkmöglichkeiten
       seasonDescription: Begehbare Monate
+    wintop:
+      beschreibung: Beschreibung
+      teaser: Teaser
+      zusatzinfo: Zusatzinformationen
+      anreisebeschreibung: Anreisebeschreibung
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

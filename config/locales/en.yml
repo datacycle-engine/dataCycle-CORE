@@ -1571,6 +1571,11 @@ en:
       character: Tour character
       parkingPossibilities: Parking
       seasonDescription: Sesion
+    wintop:
+      beschreibung: Description
+      teaser: Teaser
+      zusatzinfo: Additional informationen
+      anreisebeschreibung: Directions
 
   media_archive:
     allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>
