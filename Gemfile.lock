@@ -729,7 +729,7 @@ DEPENDENCIES
   listen
   minitest-hooks
   omniauth-azure-activedirectory-v2
-  omniauth-rails_csrf_protection
+  omniauth-rails_csrf_protection (>= 1.0.1)
   pry
   pry-byebug
   rb-readline

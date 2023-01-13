@@ -1,29 +1,12 @@
 import ShowMoreLinkToggler from '../components/togglers/show_more_link_toggler';
+import CopyToClipboard from '../components/copy_to_clipboard';
 
 export default function () {
-  $(document).on('click', '.copy-to-clipboard', async event => {
-    event.preventDefault();
-    var text = $(event.currentTarget).data('value');
-    if ($(event.currentTarget).data('json-value')) text = JSON.stringify($(event.currentTarget).data('json-value'));
-
-    var inp = document.createElement('input');
-    document.body.appendChild(inp);
-    inp.value = text;
-    inp.select();
-    document.execCommand('copy', false);
-    inp.remove();
-
-    $(event.currentTarget).before(
-      `<span class="clipboard-notice">${await I18n.translate('actions.copied_to_clipboard')}</span>`
-    );
-    setTimeout(() => {
-      const $notice = $(event.currentTarget).siblings('.clipboard-notice');
-
-      $notice.fadeOut('fast', () => {
-        $notice.remove();
-      });
-    }, 1000);
-  });
+  for (const element of document.querySelectorAll('.copy-to-clipboard')) new CopyToClipboard(element);
+  DataCycle.htmlObserver.addCallbacks.push([
+    e => e.classList.contains('copy-to-clipboard') && !e.classList.contains('dcjs-copy-to-clipboard'),
+    e => new CopyToClipboard(e)
+  ]);
 
   for (const element of document.querySelectorAll('.show-more > .show-more-link')) new ShowMoreLinkToggler(element);
   DataCycle.htmlObserver.addCallbacks.push([

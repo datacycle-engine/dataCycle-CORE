@@ -1,1 +1,5 @@
-<%= render 'data_cycle_core/contents/viewers/string', local_assigns %>
+<%
+  options = local_assigns[:options] || {}
+  options[:copy_to_clipboard] = value
+%>
+<%= render 'data_cycle_core/contents/viewers/string', local_assigns.merge(options: options) %>

@@ -576,9 +576,7 @@ de:
           subject:
             one: 'Erinnerung: Bearbeitung von Inhalt abschließen'
             other: 'Erinnerung: Bearbeitung von Inhalten abschließen'
-          first_line:
-            one: Folgender Inhalt wurde seit mehr als einer Woche nicht bearbeitet und die Bearbeitung wurde noch nicht abgeschlossen.
-            other: Folgende Inhalte wurden seit mehr als einer Woche nicht bearbeitet und die Bearbeitung wurde noch nicht abgeschlossen.
+          first_line: Bitte ergänzen Sie fehlende Inhalte und schließen Sie die Bearbeitung ab!
     named_version:
       input_label: Versionsname
       version_name: 'Version: %{name}'
