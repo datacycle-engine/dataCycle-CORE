@@ -108,7 +108,7 @@
           :transformation:
             :version: dynamic
           :processing:
-            :preset: lossless
+            :preset: default
             :resize_type: fill
             :width: 1920
             :height: 1080
