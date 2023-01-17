@@ -47,15 +47,13 @@ class ClassificationDragAndDrop {
     const element = event.item;
     this.disableElement(element);
 
-    const data = {
+    this.sendUpdateRequest({
       classificationAliasId: element.dataset.id,
       classificationTreeLabelId: element.closest('li.classification_tree_label').id,
       previousAliasId: element.previousElementSibling && element.previousElementSibling.dataset.id,
       newParentAliasId:
         element.parentElement.closest('li.direct') && element.parentElement.closest('li.direct').dataset.id
-    };
-
-    this.sendUpdateRequest(data).finally(() => this.enableElement(element));
+    }).finally(() => this.enableElement(element));
   }
   enableElement(e) {
     e.classList.remove('saving-order');
@@ -68,8 +66,7 @@ class ClassificationDragAndDrop {
       url: '/classifications/move',
       method: 'patch',
       dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify(data)
+      data: data
     })
       .then(data => {
         if (data && data.error) CalloutHelpers.show(data.error, 'alert');
