@@ -101,6 +101,10 @@ module DataCycleCore
       end
     end
 
+    def attribute_value_present?(value)
+      value.is_a?(ActiveRecord::Relation) ? value.any? : value.present?
+    end
+
     def render_untranslatable_attribute_viewer(**args)
       options = RenderMethodOptions.new(**args, defaults: RENDER_VIEWER_ARGUMENTS)
 

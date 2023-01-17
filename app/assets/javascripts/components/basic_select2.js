@@ -27,7 +27,7 @@ class BasicSelect2 {
     };
   }
   init() {
-    this.$element[0].dcSelect2 = true;
+    this.$element[0].classList.add('dcjs-select2');
 
     if (!$.fn.select2) {
       Select2($);

@@ -1,6 +1,5 @@
 class DashboardFilter {
   constructor(element) {
-    element.dcDashboardFilter = true;
     this.$searchForm = $(element);
     this.$defaultFilterContainer = this.$searchForm.find('.main-filters').first();
     this.$classificationTreeFilterContainer = this.$searchForm.find('.classification-tree-filter').first();
@@ -35,7 +34,7 @@ class DashboardFilter {
     this.initClickableMenu();
 
     this.$searchForm[0].dataset.initialFormData = JSON.stringify(Array.from(new FormData(this.$searchForm[0])));
-    this.$searchForm[0].classList.add('dc-dashboard-filter');
+    this.$searchForm[0].classList.add('dcjs-dashboard-filter');
   }
   initDefaultFilters() {
     if (!this.$defaultFilterContainer.length) return;

@@ -2,8 +2,8 @@ import DomElementHelper from '../helpers/dom_element_helpers';
 
 class DashboardPagination {
   constructor(element) {
-    element.dcDashboardPagination = true;
     this.paginationElement = element;
+    this.paginationElement.classList.add('dcjs-dashboard-pagination');
     this.paginationContainer = this.paginationElement.closest('.pagination-container');
     this.form = document.getElementById('search-form');
     this.listContainer = document.querySelector('#search-results > ul');

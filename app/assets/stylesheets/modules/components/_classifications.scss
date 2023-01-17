@@ -860,6 +860,7 @@ ul.backend-treeview-list,
         text-decoration: inherit;
         position: relative;
       }
+
       .content-details {
         display: none;
 
@@ -1052,7 +1053,14 @@ ul.backend-treeview-list,
             }
           }
         }
-        &.button-row {
+      }
+    }
+
+    ul.children,
+    ul.contents {
+      > li {
+        &.load-more-link.pagination-container,
+        &.content-row.button-row {
           padding: 0.1rem 0 0.1rem 1rem;
           text-align: center;
 

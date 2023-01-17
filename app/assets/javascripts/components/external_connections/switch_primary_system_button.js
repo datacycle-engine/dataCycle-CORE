@@ -3,7 +3,7 @@ import CalloutHelpers from './../../helpers/callout_helpers';
 class SwitchPrimarySystemButton {
   constructor(item) {
     this.item = item;
-    this.dcSwitchPrimarySystemButton = true;
+    this.item.classList.add('dcjs-switch-primary-system-button');
     this.externalConnectionsContainer = this.item.closest('.external-connections');
 
     this.setup();

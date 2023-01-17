@@ -4,11 +4,18 @@ module DataCycleCore
   module Abilities
     module Segments
       class ClassificationTreeLabelAndClassificationAliasesNotExternalAndNotInternal < Base
-        attr_reader :subject, :conditions
+        attr_reader :subject
 
         def initialize
           @subject = DataCycleCore::ClassificationTreeLabel
-          @conditions = { external_source_id: nil, internal: false, classification_aliases: { internal: false, external_source_id: nil } }
+        end
+
+        def include?(classification_tree_label, *_args)
+          classification_tree_label.external_source_id.nil? && !classification_tree_label.internal && !classification_tree_label.classification_aliases&.any?(&:internal) && !classification_tree_label.classification_aliases&.any?(&:external_source_id)
+        end
+
+        def to_proc
+          ->(*args) { include?(*args) }
         end
       end
     end

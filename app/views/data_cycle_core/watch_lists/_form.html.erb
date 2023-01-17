@@ -49,6 +49,13 @@
           <%= f.text_field :full_path, data: { validate: 'text' } %>
         </div>
 
+        <% if !content.my_selection %>
+          <div class="form-element check_box manual_order dc-checkbox" data-key="watch_list[manual_order]">
+            <%= f.check_box :manual_order %>
+            <%= f.label :manual_order, DataCycleCore::WatchList.human_attribute_name(:manual_order, locale: active_ui_locale) %>
+          </div>
+        <% end %>
+
         <% if can? :change_owner, content %>
           <div class="form-element">
             <div class="v-select">

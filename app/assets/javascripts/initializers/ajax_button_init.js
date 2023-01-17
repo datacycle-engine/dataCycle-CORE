@@ -4,7 +4,10 @@ export default function () {
   for (const element of document.querySelectorAll('a.content-pool-button')) new LifeCylceButton(element);
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.nodeName === 'A' && e.classList.contains('content-pool-button') && !e.hasOwnProperty('dcLifeCylceButton'),
+    e =>
+      e.nodeName === 'A' &&
+      e.classList.contains('content-pool-button') &&
+      !e.classList.contains('dcjs-life-cycle-button'),
     e => new LifeCylceButton(e)
   ]);
 }

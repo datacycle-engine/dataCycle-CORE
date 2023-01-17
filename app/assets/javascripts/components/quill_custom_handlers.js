@@ -74,8 +74,13 @@ const QuillCustomHandlers = {
           'success'
         );
       })
-      .catch(async () => {
-        CalloutHelpers.show(await I18n.translate('frontend.split_view.translate_error'), 'alert');
+      .catch(async error => {
+        let errorMessage = await I18n.translate('frontend.split_view.translate_error', {
+          label: this.quill.root.closest('.form-element').dataset.label
+        });
+        if (error && error.responseJSON && error.responseJSON.error)
+          errorMessage += `<br><i>${error.responseJSON.error}</i>`;
+        CalloutHelpers.show(errorMessage, 'alert');
       })
       .finally(() => {
         DataCycle.enableElement(button);

@@ -20,7 +20,7 @@ export default function () {
         e.type == 'date' ||
         e.dataset.type == 'datepicker' ||
         e.dataset.type == 'timepicker') &&
-      !e.hasOwnProperty('dcDatePicker'),
+      !e.classList.contains('dcjs-date-picker'),
     e => new DatePicker(e)
   ]);
 }

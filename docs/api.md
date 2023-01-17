@@ -168,3 +168,4 @@ Für viele Anwendungen ist es nicht notwendig, Inhalte vollständig von der Date
   }]
 }
 ```
+Zusätzlich können mit ```fields=identifier``` oder alternativ ```include=identifier``` alle externen ids für z.B. Duplikate eingeblendet werden. Diese Informationen werden standardmäßig von der API ausgeblendet.

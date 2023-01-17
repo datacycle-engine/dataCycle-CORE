@@ -173,7 +173,7 @@ en:
       copy_all: All take over
       translate: Translate
       copy: accept
-      translate_error: Error loading the translation
+      translate_error: 'Error loading the translation for %{label}'
       copy_all_translations:
         overlay_text: Copy all available languages?
         confirmation_text: 'yes'
@@ -245,6 +245,29 @@ en:
       dining_hours_specification: Hot kitchen
       hours_available: Dates (Services/Experiences)
       validity_schedule: Validity period
+
+  timeseries:
+    grouping_options:
+      default: Do not group
+      sum: Sum
+      min: Min
+      max: Max
+      avg: Average
+      other: Others
+      hour: Hour
+      day: Day
+      week: Week
+      month: Month
+      quarter: Quarter
+      year: Year
+      # weekday_hour: Wochentag/Stunde
+    chart_type_options:
+      bar: Bar
+      line: Line
+      scatter: Point
+    from: from
+    until: to
+
   opening_time:
     valid_from: Validity from
     valid_until: By
@@ -258,6 +281,11 @@ en:
   collection:
     new: new %{data}
     filter: 'filter %{data} ...'
+    manual_order:
+      button: customize manual order
+      tooltip: Manual order can only be changed in the list view without active filters
+      success: The manual order was saved
+      error: The manual order could not be saved
 
   content_external_data:
     primary_external_system_tooltip: This system is the primary external system
@@ -555,6 +583,10 @@ en:
         unlocked_html: You can now log in with your login data and use the released content! If you have any questions, please contact us directly.
     translate:
       inline_success: The text was translated from %{source_locale} to %{target_locale}.
+      error_code:
+        401: &translate_error_code_401 'Access to the DeepL API has been denied'
+        403: *translate_error_code_401
+        456: 'The quota for the DeepL API has been used up'
 
     report_generator:
       downloads_popular: Top 50 Downloads
@@ -1145,6 +1177,7 @@ en:
         user_group_ids: User groups
         user_ids: User
         user_id: Owner
+        manual_order: Use manual order as default order
       data_cycle_core/classification_tree_label:
         visibility: Visibility
         change_behaviour: Change behavior

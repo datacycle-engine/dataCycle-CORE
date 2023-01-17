@@ -293,8 +293,8 @@ module DataCycleCore
         end
 
         render
-      rescue StandardError
-        redirect_back(fallback_location: root_path, alert: (I18n.t :definition_mismatch, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return
+      rescue StandardError => e
+        redirect_back(fallback_location: root_path, alert: helpers.tag.span(I18n.t('controllers.error.definition_mismatch', locale: helpers.active_ui_locale), title: "#{e.message.truncate(250)}\n\n#{e.backtrace.first(10).join("\n")}")) && return
       end
     end
 
@@ -332,7 +332,7 @@ module DataCycleCore
       respond_to do |format|
         format.js do
           if params[:render_html]
-            flash.now[:success] = I18n.t :created, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale
+            flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale
             render js: "document.location = '#{thing_path(@content)}'"
           end
         end

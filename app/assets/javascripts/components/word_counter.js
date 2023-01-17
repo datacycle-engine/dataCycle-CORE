@@ -1,6 +1,6 @@
 class Counter {
   constructor(selector) {
-    selector.dcCounter = true;
+    selector.classList.add('dcjs-counter');
     this.parentElem = $(selector);
     this.container;
     this.wrapperElem = this.parentElem.closest('.form-element').first();

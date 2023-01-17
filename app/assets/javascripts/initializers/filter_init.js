@@ -5,7 +5,7 @@ export default function () {
   if (searchForm) new DashboardFilter(searchForm);
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.id == 'search-form' && !e.hasOwnProperty('dcDashboardFilter'),
+    e => e.id == 'search-form' && !e.classList.contains('dcjs-dashboard-filter'),
     e => new DashboardFilter(e)
   ]);
 }

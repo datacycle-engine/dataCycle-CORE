@@ -50,6 +50,7 @@ module DataCycleCore
           assert_equal @user_data['email'], json_data.dig('user', 'email')
 
           new_token = json_data['token']
+
           post api_v4_authentication_login_path, headers: {
             Authorization: "Bearer #{new_token}"
           }, params: {

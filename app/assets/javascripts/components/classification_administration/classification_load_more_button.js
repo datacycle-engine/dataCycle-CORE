@@ -2,7 +2,7 @@ class ClassificationLoadMoreButton {
   constructor(item) {
     this.item = item;
     this.liElement = this.item.closest('li.load-more-link');
-    this.dcClassificationLoadMoreButton = true;
+    this.item.classList.add('dcjs-classification-load-more-button');
     this.sibling = this.item.nextElementSibling || this.item.previousElementSibling;
 
     this.setup();
