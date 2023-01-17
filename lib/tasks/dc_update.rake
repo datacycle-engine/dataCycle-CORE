@@ -12,7 +12,7 @@ namespace :dc do
     namespace :classifications do
       require 'csv'
 
-      desc 'append vacuum job to importers Queue'
+      desc 'import mappings from csv file'
       task mappings_from_csv: :environment do
         errors = []
         pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
@@ -47,6 +47,48 @@ namespace :dc do
         puts
         puts errors.join("\n")
         puts "FINISHED IMPORTING MAPPINGS! (#{errors.size} errors)"
+      end
+
+      desc 'import translations from csv file'
+      task :translations_from_csv, [:locale, :file_path] => :environment do |_, args|
+        abort('locale missing!') if args.locale.blank?
+        abort('locale not enabled in this system!') if I18n.available_locales.exclude?(args.locale.to_sym)
+
+        abort('file_path missing!') if args.file_path.blank?
+        abort('file at this path does not exist!') unless File.exist?(args.file_path)
+
+        errors = []
+        pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
+        futures = []
+
+        CSV.foreach(args.file_path, encoding: 'utf-8') do |data|
+          next unless data&.[](0)&.include?('>') && data&.[](1)&.squish.present?
+
+          futures << Concurrent::Promise.execute({ executor: pool }) do
+            ActiveRecord::Base.connection_pool.with_connection do
+              ca = DataCycleCore::ClassificationAlias.custom_find_by_full_path(data[0])
+
+              if ca.nil?
+                errors << "classification_alias not found (#{data[0]})"
+                print 'x'
+                next
+              end
+
+              I18n.with_locale(args.locale) { ca.update(name: data[1].squish) }
+
+              print '.'
+            rescue StandardError
+              errors << "unkown error occurred (#{data[0]})"
+              print 'x'
+            end
+          end
+        end
+
+        futures.each(&:wait!)
+
+        puts
+        puts errors.join("\n")
+        puts "FINISHED IMPORTING TRANSLATIONS! (#{errors.size} errors)"
       end
     end
 
