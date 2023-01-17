@@ -810,6 +810,14 @@ en:
     classification_overview: Classification overview
     classification_administration: Classification administration
 
+  classification_administration:
+    move:
+      success: The classification was moved successfully
+      error: The classification could not be moved
+      confirm_tree_label_id: The classification will be moved to another classificationtree
+      button:
+        tooltip: customize order
+
   classification_change_behaviour:
     trigger_webhooks: trigger webhooks for contents
     clear_cache: clear cache for contents

@@ -8,10 +8,8 @@ class AddOrderToClassificationAliases < ActiveRecord::Migration[6.1]
       ALTER TABLE classification_aliases ALTER COLUMN updated_at SET DEFAULT transaction_timestamp();
       CREATE INDEX IF NOT EXISTS classification_aliases_order_a_idx ON classification_aliases(order_a);
 
-      CREATE FUNCTION update_classification_aliases_order_a (tree_label_ids UUID[]) RETURNS void LANGUAGE plpgsql AS $$
+      CREATE OR REPLACE FUNCTION update_classification_aliases_order_a (tree_label_ids UUID[]) RETURNS void LANGUAGE plpgsql AS $$
         BEGIN
-        SET LOCAL dc.prevent_triggers to 'TRUE';
-
         UPDATE classification_aliases
         SET
           order_a = w.order_a
@@ -22,7 +20,17 @@ class AddOrderToClassificationAliases < ActiveRecord::Migration[6.1]
                 SELECT
                   classification_aliases.id,
                   classification_aliases.updated_at,
-                  ARRAY[classification_aliases.order_a],
+                  ARRAY[
+                    (
+                      ROW_NUMBER() OVER (
+                        PARTITION BY
+                          classification_trees.classification_tree_label_id
+                        ORDER BY
+                          classification_aliases.order_a ASC,
+                          classification_aliases.updated_at ASC
+                      )
+                    )
+                  ],
                   classification_trees.classification_tree_label_id
                 FROM
                   classification_trees
@@ -36,7 +44,15 @@ class AddOrderToClassificationAliases < ActiveRecord::Migration[6.1]
                 SELECT
                   classification_trees.classification_alias_id,
                   classification_aliases.updated_at,
-                  full_order_a || classification_aliases.order_a,
+                  paths.full_order_a || (
+                    ROW_NUMBER() OVER (
+                      PARTITION BY
+                        classification_trees.classification_tree_label_id
+                      ORDER BY
+                        paths.full_order_a || classification_aliases.order_a::BIGINT ASC,
+                        classification_aliases.updated_at ASC
+                    )
+                  ),
                   classification_trees.classification_tree_label_id
                 FROM
                   classification_trees
@@ -69,11 +85,11 @@ class AddOrderToClassificationAliases < ActiveRecord::Migration[6.1]
 
       CREATE
       OR REPLACE FUNCTION update_classification_aliases_order_a_trigger () RETURNS TRIGGER LANGUAGE PLPGSQL AS $$
-        BEGIN PERFORM update_classification_aliases_order_a (ARRAY_AGG(id))
+        BEGIN PERFORM update_classification_aliases_order_a (ARRAY_AGG(classification_tree_label_id))
         FROM
           (
             SELECT DISTINCT
-              classification_trees.classification_tree_label_id AS id
+              classification_trees.classification_tree_label_id
             FROM
               classification_trees
             WHERE
@@ -86,13 +102,19 @@ class AddOrderToClassificationAliases < ActiveRecord::Migration[6.1]
       $$;
 
       CREATE TRIGGER update_classification_aliases_order_a_trigger
-      AFTER UPDATE OF order_a ON classification_aliases FOR EACH ROW WHEN ((OLD.order_a IS DISTINCT FROM NEW.order_a) AND (current_setting('dc.prevent_triggers', 't') <> 'TRUE'))
+      AFTER UPDATE OF order_a ON classification_aliases FOR EACH ROW WHEN ((OLD.order_a IS DISTINCT FROM NEW.order_a) AND (OLD.updated_at IS DISTINCT FROM NEW.updated_at))
       EXECUTE FUNCTION update_classification_aliases_order_a_trigger ();
 
       CREATE
       OR REPLACE FUNCTION update_classification_trees_order_a_trigger () RETURNS TRIGGER LANGUAGE PLPGSQL AS $$
-        BEGIN PERFORM update_classification_aliases_order_a (ARRAY[OLD.classification_tree_label_id, NEW.classification_tree_label_id]::UUID[]);
-        RETURN NEW;
+        BEGIN
+          UPDATE classification_aliases
+          SET order_a = NULL
+          WHERE classification_aliases.id = NEW.classification_alias_id
+          AND classification_aliases.order_a IS NOT NULL;
+
+          PERFORM update_classification_aliases_order_a (ARRAY[OLD.classification_tree_label_id, NEW.classification_tree_label_id]::UUID[]);
+          RETURN NEW;
         END;
       $$;
 
@@ -104,11 +126,42 @@ class AddOrderToClassificationAliases < ActiveRecord::Migration[6.1]
       AFTER UPDATE OF parent_classification_alias_id, classification_tree_label_id ON classification_trees FOR EACH ROW
       WHEN ((OLD.parent_classification_alias_id IS DISTINCT FROM NEW.parent_classification_alias_id) OR (OLD.classification_tree_label_id IS DISTINCT FROM NEW.classification_tree_label_id))
       EXECUTE FUNCTION update_classification_trees_order_a_trigger ();
+
+      CREATE
+      OR REPLACE FUNCTION update_classification_tree_tree_label_id_trigger () RETURNS TRIGGER LANGUAGE PLPGSQL AS $$
+        BEGIN
+        UPDATE classification_trees
+        SET
+          classification_tree_label_id = NEW.classification_tree_label_id
+        WHERE
+          classification_trees.classification_alias_id IN (
+            SELECT
+              classification_alias_paths.id
+            FROM
+              classification_alias_paths
+            WHERE
+              classification_alias_paths.ancestor_ids @> ARRAY[NEW.classification_alias_id]::UUID[]
+          );
+        RETURN NEW;
+        END;
+      $$;
+
+      CREATE TRIGGER update_classification_tree_tree_label_id_trigger
+      AFTER
+      UPDATE OF classification_tree_label_id ON classification_trees FOR EACH ROW WHEN (
+        OLD.classification_tree_label_id IS DISTINCT
+        FROM
+          NEW.classification_tree_label_id
+      )
+      EXECUTE FUNCTION update_classification_tree_tree_label_id_trigger ();
     SQL
   end
 
   def down
     execute <<-SQL.squish
+      DROP TRIGGER IF EXISTS update_classification_tree_tree_label_id_trigger ON classification_trees;
+      DROP FUNCTION IF EXISTS update_classification_tree_tree_label_id_trigger;
+
       DROP TRIGGER IF EXISTS insert_classification_tree_order_a_trigger ON classification_trees;
       DROP TRIGGER IF EXISTS update_classification_tree_order_a_trigger ON classification_trees;
       DROP FUNCTION IF EXISTS update_classification_trees_order_a_trigger;

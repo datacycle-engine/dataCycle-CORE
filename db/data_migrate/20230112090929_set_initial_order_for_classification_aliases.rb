@@ -6,8 +6,6 @@ class SetInitialOrderForClassificationAliases < ActiveRecord::Migration[6.1]
 
   def up
     execute <<-SQL.squish
-      SET LOCAL dc.prevent_triggers to 'TRUE';
-
       UPDATE classification_aliases
       SET
         order_a = w.order_a

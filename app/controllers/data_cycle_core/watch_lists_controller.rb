@@ -339,7 +339,7 @@ module DataCycleCore
 
       @watch_list.update_order_by_array(update_order_params[:order])
 
-      flash[:success] = I18n.t('collection.manual_order.success')
+      flash[:success] = I18n.t('collection.manual_order.success', locale: helpers.active_ui_locale)
 
       render json: flash.discard.to_h
     end

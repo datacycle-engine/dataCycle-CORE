@@ -854,6 +854,14 @@ de:
     classification_overview: Klassifizierungsübersicht
     classification_administration: Klassifizierungsadministration
 
+  classification_administration:
+    move:
+      success: Die Klassifizierung wurde erfolgreich verschoben
+      error: Die Klassifizierung konnte nicht verschoben werden
+      confirm_tree_label_id: Die Klassifizierung wird in einen anderen Klassifizierungsbaum verschoben
+      button:
+        tooltip: Sortierung anpassen
+
   classification_change_behaviour:
     trigger_webhooks: Webhooks für Inhalte auslösen
     clear_cache: Cache für Inhalte leeren

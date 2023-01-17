@@ -6,10 +6,12 @@ import ClassificationEditForm from '../components/classification_administration/
 import ClassificationDestroyButton from '../components/classification_administration/classification_delete_button';
 import ClassificationLoadAllButton from '../components/classification_administration/classification_load_all_button';
 import ClassificationCloseAllButton from '../components/classification_administration/classification_close_all_button';
+import ClassificationDragAndDrop from '../components/classification_administration/classification_drag_and_drop';
+import ClassificationJumpToParent from '../components/classification_administration/classification_jump_to_parent';
 import DetailToggler from '../components/detail_toggler';
 
 export default function () {
-  if ($('#classification-administration').length) {
+  if (document.getElementById('classification-administration')) {
     for (const element of document.querySelectorAll(
       '[name="classification_tree_label[visibility][]"][value="show"], [name="classification_tree_label[visibility][]"][value="show_more"]'
     ))
@@ -82,6 +84,22 @@ export default function () {
         e.classList.contains('classification-close-all-children') &&
         !e.classList.contains('dcjs-classification-load-all-button'),
       e => new ClassificationCloseAllButton(e)
+    ]);
+
+    for (const element of document.querySelectorAll('.draggable-container')) new ClassificationDragAndDrop(element);
+    DataCycle.htmlObserver.addCallbacks.push([
+      e => e.classList.contains('draggable-container') && !e.classList.contains('dcjs-classification-drag-and-drop'),
+      e => new ClassificationDragAndDrop(e)
+    ]);
+
+    for (const element of document.querySelectorAll('li.direct, li.mapped, li.new-button'))
+      new ClassificationJumpToParent(element);
+    DataCycle.htmlObserver.addCallbacks.push([
+      e =>
+        e.nodeName == 'LI' &&
+        (e.classList.contains('direct') || e.classList.contains('mapped') || e.classList.contains('new-button')) &&
+        !e.classList.contains('dcjs-classification-jump-to-parent'),
+      e => new ClassificationJumpToParent(e)
     ]);
   }
 

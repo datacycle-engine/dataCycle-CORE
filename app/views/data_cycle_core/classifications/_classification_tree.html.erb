@@ -1,5 +1,7 @@
 <li id="<%= classification_tree.id %>" class="<%= type %>" data-id="<%= classification_tree.sub_classification_alias.try(:id) %>">
   <span class="inner-item">
+    <%= tag.span(tag.i(class: 'fa fa-bars'), class: 'draggable-handle') if can?(:edit, classification_tree_label) %>
+
     <%= link_to classification_title(classification_tree.sub_classification_alias),
                 classifications_path(classification_tree_id: classification_tree.id),
                 class: "name",
@@ -40,5 +42,5 @@
 
   <%= tag.div(class: 'remote-render inverted classification-alias-form-container', data: { remote_path: 'data_cycle_core/classifications/classification_alias_form', remote_options: to_query_params(classification_tree_label: classification_tree_label, classification_tree: classification_tree).to_json }) if can?(:update, classification_tree.sub_classification_alias) || can?(:map_classifications, classification_tree.sub_classification_alias) %>
 
-  <ul class="children"></ul>
+  <ul class="children <%= 'draggable-container' if can?(:edit, classification_tree_label) %> <%= 'move-to-tree' if can?(:move_to_tree, classification_tree_label) %>"></ul>
 </li>

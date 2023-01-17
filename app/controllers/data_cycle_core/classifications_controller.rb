@@ -213,7 +213,31 @@ module DataCycleCore
       end
     end
 
+    def move
+      classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(move_params[:classification_tree_label_id])
+
+      authorize! :edit, classification_tree_label
+
+      raise ActiveRecord::RecordNotFound if move_params[:classification_alias_id].blank?
+
+      aliases = DataCycleCore::ClassificationAlias.where(id: move_params.values_at(:classification_alias_id, :previous_alias_id, :new_parent_alias_id).compact).index_by(&:id)
+
+      aliases[move_params[:classification_alias_id]].move_after(
+        classification_tree_label,
+        move_params[:previous_alias_id]&.then { |pca| aliases[pca] },
+        move_params[:new_parent_alias_id]&.then { |npca| aliases[npca] }
+      )
+
+      flash[:success] = I18n.t('classification_administration.move.success', locale: helpers.active_ui_locale)
+
+      render json: flash.discard.to_h
+    end
+
     private
+
+    def move_params
+      params.transform_keys(&:underscore).permit(:classification_alias_id, :classification_tree_label_id, :previous_alias_id, :new_parent_alias_id)
+    end
 
     def destroy_params
       params.permit(:classification_tree_label_id, :classification_tree_id)

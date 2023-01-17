@@ -196,6 +196,7 @@ DataCycleCore::Engine.routes.draw do
       get :search, on: :collection
       get :find, on: :collection
       get :download, on: :collection
+      patch :move, on: :collection
     end
   end
 

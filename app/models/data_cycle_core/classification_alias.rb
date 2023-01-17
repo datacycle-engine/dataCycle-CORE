@@ -100,11 +100,11 @@ module DataCycleCore
     end
 
     def self.primary_classifications
-      DataCycleCore::Classification.includes(:primary_classification_alias).where(classification_aliases: { id: all&.pluck(:id) })
+      DataCycleCore::Classification.includes(:primary_classification_alias).where(classification_aliases: { id: all.select(:id) })
     end
 
     def self.classifications
-      DataCycleCore::Classification.includes(:classification_aliases).where(classification_aliases: { id: all&.pluck(:id) })
+      DataCycleCore::Classification.includes(:classification_aliases).where(classification_aliases: { id: all.select(:id) })
     end
 
     def self.with_descendants
@@ -143,7 +143,7 @@ module DataCycleCore
     end
 
     def linked_contents
-      DataCycleCore::Thing.includes(:classifications).where(classifications: { id: classifications.ids }).or(DataCycleCore::Thing.includes(:classifications).where(classifications: { id: sub_classification_alias.with_descendants.classifications.ids })).distinct
+      DataCycleCore::Thing.includes(:classifications).where(classifications: { id: classifications.pluck(:id) }).or(DataCycleCore::Thing.includes(:classifications).where(classifications: { id: sub_classification_alias.with_descendants.classifications.pluck(:id) })).distinct
     end
 
     def ancestors
@@ -258,7 +258,7 @@ module DataCycleCore
             end
           end
 
-          move_to_tree(new_parent, ctl.id)
+          move_to_tree(new_parent&.id, ctl.id)
           new_ca = self
         else
           if destroy_children
@@ -269,7 +269,7 @@ module DataCycleCore
           else
             descendants.find_each do |d|
               d.prevent_webhooks = prevent_webhooks
-              d.move_to_tree(new_ca, ctl.id)
+              d.move_to_tree(new_ca&.id, ctl.id)
             end
           end
 
@@ -280,10 +280,19 @@ module DataCycleCore
       new_ca
     end
 
-    def move_to_tree(parent_ca, tree_label_id)
+    def move_after(tree_label, previous_sibling, parent_ca = nil)
+      parent_ca = previous_sibling&.parent_classification_alias if parent_ca.nil?
+
+      move_to_tree(parent_ca&.id, tree_label.id)
+      update_columns(updated_at: Time.zone.now, order_a: previous_sibling&.reload&.order_a || parent_ca&.reload&.order_a || 0)
+    end
+
+    def move_to_tree(parent_ca_id, tree_label_id)
       return if tree_label_id.nil?
 
-      classification_tree&.update(parent_classification_alias_id: parent_ca&.id, classification_tree_label_id: tree_label_id)
+      classification_tree&.update(parent_classification_alias_id: parent_ca_id, classification_tree_label_id: tree_label_id)
+
+      return unless classification_tree&.changed?
 
       add_things_cache_invalidation_job_update
       add_things_webhooks_job_update unless prevent_webhooks
@@ -372,7 +381,7 @@ module DataCycleCore
     end
 
     def execute_things_webhooks
-      classifications.things.find_each do |content|
+      linked_contents.find_each do |content|
         content.send(:execute_update_webhooks)
       end
     end
