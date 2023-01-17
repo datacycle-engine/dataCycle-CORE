@@ -41,9 +41,11 @@ class DcStickyBar {
   }
   updateAllZIndizes() {
     const allElements = Array.from(document.querySelectorAll(this.constructor.joinedStickyHtmlClasses())).reverse();
+    let index = parseInt(window.getComputedStyle(allElements[0]).zIndex);
 
-    for (let i = parseInt(window.getComputedStyle(allElements[0]).zIndex); i < allElements.length; ++i) {
-      allElements[i].style.zIndex = i;
+    for (const elem of allElements) {
+      elem.style.zIndex = index;
+      ++index;
     }
   }
 }
