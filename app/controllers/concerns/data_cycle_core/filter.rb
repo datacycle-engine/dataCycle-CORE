@@ -5,7 +5,7 @@ module DataCycleCore
     extend ActiveSupport::Concern
     DEFAULT_PAGE_SIZE = 25
 
-    def get_filtered_results(query: nil, user_filter: { scope: 'backend' })
+    def get_filtered_results(query: nil, user_filter: { scope: 'backend' }, watch_list: nil)
       @stored_filter ||= DataCycleCore::StoredFilter.new
       @filters = pre_filters.dup
       @stored_filter.parameters ||= @filters || []
@@ -14,13 +14,12 @@ module DataCycleCore
       @language ||= Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
       @stored_filter.language = @language
 
-      @sort_params = sort_params.dup
-      @stored_filter.sort_parameters ||= (@sort_params.presence || DataCycleCore::StoredFilter.sort_params_from_filter(@stored_filter.parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @stored_filter.parameters.find { |f| f['t'] == 'in_schedule' }))
+      @stored_filter.apply_sorting_from_parameters(sort_params: sort_params.dup)
       @sort_params = @stored_filter.sort_parameters
 
       @stored_filter.apply_user_filter(current_user, user_filter) if user_filter.present?
       @stored_filter.apply_params_for_data_links(session[:data_link_ids]) if current_user.is_role?('guest') && session[:data_link_ids].present?
-      query = @stored_filter.apply(query: query)
+      query = @stored_filter.apply(query: query, skip_ordering: @count_only, watch_list: watch_list)
 
       # used on dashboard
       @filters = @stored_filter.parameters.select { |f| f.key?('c') }.each { |f| f['identifier'] = SecureRandom.hex(10) }
@@ -70,7 +69,7 @@ module DataCycleCore
       @sort_params ||= params[:s].presence&.values&.reject { |s| s.is_a?(Hash) ? s.any? { |_, v| v.blank? } : s.blank? } || []
     end
 
-    def set_instance_variables_by_view_mode(query: nil, user_filter: { scope: 'backend' })
+    def set_instance_variables_by_view_mode(query: nil, user_filter: { scope: 'backend' }, watch_list: nil)
       set_view_mode
 
       return @total_count = total_count(query: query, user_filter: user_filter) if count_only_params[:count_only].present?
@@ -86,6 +85,7 @@ module DataCycleCore
             .part_of(@container.id)
           tmp_count = @contents.count
           @contents = @contents.content_includes.page(params[:page])
+          ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:watch_list_shares))
 
           @page = @contents.current_page
           @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
@@ -102,6 +102,7 @@ module DataCycleCore
             .classification_alias_ids_without_subtree(@classification_tree.sub_classification_alias.id)
           tmp_count = @contents.count
           @contents = @contents.content_includes.page(params[:page])
+          ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:watch_list_shares))
 
           @page = @contents.current_page
           @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
@@ -122,16 +123,13 @@ module DataCycleCore
         @tree_total_pages = @classification_trees&.total_pages
       else
         page_size = DataCycleCore.main_config.dig(:ui, :dashboard, :page, :size)&.to_i || DEFAULT_PAGE_SIZE
-        @contents = get_filtered_results(query: query, user_filter: user_filter)
+        @contents = get_filtered_results(query: query, user_filter: user_filter, watch_list: watch_list)
         @contents = @contents.content_includes.page(params[:page]).per(page_size).without_count
+        ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:watch_list_shares))
       end
     end
 
     private
-
-    def apply_ordering(query)
-      apply_order_query(query, permitted_params.dig(:sort), @full_text_search, raw_query_params: permitted_params.to_h)
-    end
 
     # used only in APIv4
     def build_search_query
@@ -154,8 +152,9 @@ module DataCycleCore
       filter = @stored_filter || DataCycleCore::StoredFilter.new
       filter.language = @language
       filter.apply_user_filter(current_user, { scope: 'api' })
+      filter.apply_sorting_from_api_parameters(full_text_search: @full_text_search, raw_query_params: permitted_params.to_h)
 
-      query = filter.apply(skip_ordering: order_params_present?(permitted_params))
+      query = filter.apply(watch_list: @watch_list)
 
       query = query.watch_list_id(endpoint_id) unless @watch_list.nil?
 

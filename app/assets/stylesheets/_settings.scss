@@ -84,7 +84,7 @@ $global-backdrop-filter: saturate(0.5) blur(5px);
 
 @include add-foundation-colors;
 
-$customercolor: #FFCC00;
+$customercolor: #009fe3;
 
 // Map colors
 // https://carto.com/carto-colors/, Pastel Qualitative Scheme
@@ -125,6 +125,14 @@ $gray: #666666;
   --dark-purple: #{$dark-purple};
   --pastel-purple: #{$pastel-purple};
   --gray: #{$gray};
+  --chart0: #{$dark-gray};
+  --chart1: #0b84a5;
+  --chart2: #f6c85f;
+  --chart3: #6f4e7c;
+  --chart4: #9dd866;
+  --chart5: #ca472f;
+  --chart6: #ffa056;
+  --chart7: #8dddd0;
 }
 
 // 2. Breakpoints

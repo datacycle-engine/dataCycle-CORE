@@ -11,13 +11,13 @@ export default function () {
       e.classList.contains('string') &&
       e.classList.contains('has-changes') &&
       e.classList.contains('edit') &&
-      !e.hasOwnProperty('dcDiffContent'),
+      !e.classList.contains('dcjs-diff-content'),
     diffContent
   ]);
 }
 
 function diffContent(textField) {
-  textField.dcDiffContent = true;
+  textField.classList.add('dcjs-diff-content');
   const detailContent = textField.querySelector('.detail-content');
 
   if (!detailContent) return;

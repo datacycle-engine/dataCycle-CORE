@@ -1,6 +1,6 @@
 class DragAndDropField {
   constructor(container) {
-    container.dcDragAndDropField = true;
+    container.classList.add('dcjs-drag-and-drop-field');
     this.container = $(container);
     this.uploaderRevealId = this.container.data('asset-uploader');
     this.uploaderReveal = $('#' + this.container.data('asset-uploader'));

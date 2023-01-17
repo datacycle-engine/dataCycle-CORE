@@ -13,7 +13,7 @@
 <% end %>
 
 <% contents&.each do |content| %>
-  <li id="list-item-<%= content.id %>" class="list-item data-cycle-object <%= content&.template_name&.underscore if content.is_a?(DataCycleCore::Thing) %> <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %> <%= DataCycleCore::Feature::TileBorderColor.class_string(content) %>">
+  <li id="list-item-<%= content.id %>" class="list-item data-cycle-object <%= content&.template_name&.underscore if content.is_a?(DataCycleCore::Thing) %> <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %> <%= DataCycleCore::Feature::TileBorderColor.class_string(content) %>" data-id="<%= content.id %>">
     <% content_for :media_buttons, flush: true do %>
       <%= tag.i(class: 'has-overlay has-tip fa fa-window-restore', data: { dc_tooltip: t('common.has_overlay', locale: active_ui_locale) }) if content.try(:overlay?) %>
 

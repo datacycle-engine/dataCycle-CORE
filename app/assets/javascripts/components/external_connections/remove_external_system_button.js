@@ -4,7 +4,7 @@ import ConfirmationModal from '../confirmation_modal';
 class RemoveExternalSystemButton {
   constructor(item) {
     this.item = item;
-    this.dcRemoveExternalSystemButton = true;
+    this.item.classList.add('dcjs-remove-external-system-button');
     this.externalConnectionsContainer = this.item.closest('.external-connections');
 
     this.setup();

@@ -92,6 +92,16 @@ module DataCycleCore
       ids.pluck('hashable_id')
     end
 
+    def update_order_by_array(order_array)
+      return if order_array.blank?
+
+      update_column(:manual_order, true) unless manual_order
+
+      watch_list_data_hashes
+        .where(hashable_id: order_array)
+        .update_all(['order_a = array_position(ARRAY[?]::uuid[], hashable_id)', order_array])
+    end
+
     private
 
     def split_full_path

@@ -11,13 +11,13 @@ const mapEditors = {
 export default function () {
   for (const element of document.querySelectorAll('.geographic-map')) initMap(element);
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('geographic-map') && !e.hasOwnProperty('dcMap'),
+    e => e.classList.contains('geographic-map') && !e.classList.contains('dcjs-map'),
     e => initMap(e)
   ]);
 }
 
 function initMap(item) {
-  item.dcMap = true;
+  item.classList.add('dcjs-map');
   if ($(item).hasClass('editor')) {
     const editor = $(item).data('map-options').editor;
 

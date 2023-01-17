@@ -365,72 +365,17 @@ module DataCycleCore
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])
     end
 
-    def order_params_present?(params)
-      [
-        params[:sort]&.split(',').present?,
-        params.dig(:filter, :search).present?,
-        params.dig(:filter, :q).present?,
-        order_value_from_params('proximity.geographic', '', params.to_h).present?,
-        order_value_from_params('proximity.inTime', '', params.to_h).present?
-      ].any?
+    def key_with_ordering(sort)
+      DataCycleCore::ApiService.order_key_with_value(sort)
     end
 
-    def apply_order_query(query, order_params, full_text_search = '', raw_query_params: {})
-      order_query = []
-      order_params&.split(',')&.each do |sort|
-        key, order = key_with_ordering(sort)
-        value = order_value_from_params(key, full_text_search, raw_query_params)
-
-        if DataCycleCore::Feature::Sortable.available_advanced_attribute_options.key?(key.underscore)
-          value = key.underscore
-          key = 'advanced_attribute'
-        end
-
-        order_hash = {
-          'm' => key.parameterize(separator: '_'),
-          'o' => order
-        }
-        order_hash['v'] = value if value.present?
-        order_query << order_hash
-      end
-      order_query = order_query&.reject(&:blank?)
-
-      if order_query.blank?
-        # default order depending on filter parameter
-        query = query.sort_fulltext_search('DESC', full_text_search) if full_text_search.present?
-        query = query.sort_proximity_geographic('ASC', order_value_from_params('proximity.geographic', full_text_search, raw_query_params)) if order_value_from_params('proximity.geographic', full_text_search, raw_query_params)
-        query = query.sort_by_proximity('', order_value_from_params('proximity.inTime', full_text_search, raw_query_params)) if order_value_from_params('proximity.inTime', full_text_search, raw_query_params).present?
-        return query
-      end
-
-      query = query.reset_sort
-      order_query.each do |sort|
-        sort_method_name = 'sort_' + sort['m']
-        next unless query.respond_to?('sort_' + sort['m'])
-
-        if query.method(sort_method_name)&.parameters&.size == 2
-          query = query.send(sort_method_name, sort['o'].presence, sort['v'].presence)
-        elsif query.method(sort_method_name)&.parameters&.size == 1
-          query = query.send(sort_method_name, sort['o'].presence)
-        else
-          next
-        end
-      end
-
-      query
-    end
-
-    def order_value_from_params(key, full_text_search, raw_query_params)
+    def self.order_value_from_params(key, full_text_search, raw_query_params)
       schedule_order_params = order_constraints.dig(key)&.map { |c| raw_query_params.dig(*c) }&.compact
       return schedule_order_params.first if schedule_order_params.present?
       return full_text_search if key == 'similarity' && full_text_search.present?
     end
 
-    def key_with_ordering(sort)
-      DataCycleCore::ApiService.order_key_with_value(sort)
-    end
-
-    def order_constraints
+    def self.order_constraints
       {
         'proximity.geographic' => [['filter', 'geo', 'in', 'perimeter']],
         'proximity.inTime' => [

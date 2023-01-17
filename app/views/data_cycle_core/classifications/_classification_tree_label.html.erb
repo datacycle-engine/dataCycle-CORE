@@ -2,6 +2,18 @@
   <span class="inner-item">
     <%= link_to tree_label.name, classifications_path(classification_tree_label_id: tree_label.id), class: "name" %>
 
+    <%= link_to tag.i(class: 'fa fa-angle-double-down'), '#',
+                class: 'classification-load-all-children',
+                data: {
+                  dc_tooltip: t('embedded.open_all', locale: active_ui_locale)
+                } %>
+
+    <%= link_to tag.i(class: 'fa fa-angle-double-up'), '#',
+                class: 'classification-close-all-children',
+                data: {
+                  dc_tooltip: t('embedded.close_all', locale: active_ui_locale)
+                } %>
+
     <%= link_to tag.i(class: 'fa fa-pencil'), '#',
                 class: 'edit',
                 data: {

@@ -9,7 +9,7 @@ class DcStickyBar {
     return this.stickyHtmlClasses.map(c => `.${c}`).join(', ');
   }
   setup() {
-    this.element.dcStickyBar = true;
+    this.element.classList.add('dcjs-sticky-bar');
 
     this.calculateStickyOffset();
     this.updateAllZIndizes();

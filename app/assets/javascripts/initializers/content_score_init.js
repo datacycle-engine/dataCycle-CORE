@@ -2,7 +2,7 @@ import DomElementHelpers from '../helpers/dom_element_helpers';
 import ContentScore from '../components/content_score';
 
 async function setContentScoreClass(item) {
-  item.dcContentScoreClass = true;
+  item.classList.add('dcjs-content-score-class');
   const embeddedParent = item.closest('.detail-type.embedded');
   const value = parseInt(DomElementHelpers.parseDataAttribute(item.dataset.value));
   const icon = item.querySelector('.type-number-content_score, .type-string-content_score');
@@ -72,7 +72,7 @@ export default function () {
   }
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('attribute-content-score') && !e.hasOwnProperty('dcContentScore'),
+    e => e.classList.contains('attribute-content-score') && !e.classList.contains('dcjs-content-score'),
     e => {
       new ContentScore(e);
       intersectionObserver.observe(e);
@@ -86,7 +86,7 @@ export default function () {
     e =>
       e.classList.contains('detail-type') &&
       e.classList.contains('content_score') &&
-      !e.hasOwnProperty('dcContentScoreClass'),
+      !e.classList.contains('dcjs-content-score-class'),
     e => setContentScoreClass(e)
   ]);
 }

@@ -10,8 +10,9 @@
       }
     ) %>
 
-  <% if @mode != 'map' && (content_for?(:sortable) || local_assigns[:sortable].present?) %>
-    <%= yield :sortable %>
+  <%= yield_content!(:sortable) if @mode != 'map' && content_for?(:sortable) %>
+
+  <% if @mode != 'map' && local_assigns[:sortable].present? %>
     <span class="filter-sortable">
       <%= select_tag(
                       "s[v][m]",

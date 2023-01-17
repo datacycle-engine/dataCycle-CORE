@@ -18,7 +18,7 @@ module DataCycleCore
       end
 
       def overlay_property_names
-        @overlay_property_names ||= DataCycleCore::Thing.find_by(template_name: overlay_template_name, template: true)&.property_names || []
+        @overlay_property_names ||= overlay_template_name.present? ? Array.wrap(DataCycleCore::Thing.find_by(template_name: overlay_template_name, template: true)&.property_names) : []
       end
       alias overlay_properties overlay_property_names
 

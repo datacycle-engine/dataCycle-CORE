@@ -293,8 +293,8 @@ module DataCycleCore
         end
 
         render
-      rescue StandardError
-        redirect_back(fallback_location: root_path, alert: (I18n.t :definition_mismatch, scope: [:controllers, :error], locale: helpers.active_ui_locale)) && return
+      rescue StandardError => e
+        redirect_back(fallback_location: root_path, alert: helpers.tag.span(I18n.t('controllers.error.definition_mismatch', locale: helpers.active_ui_locale), title: "#{e.message.truncate(250)}\n\n#{e.backtrace.first(10).join("\n")}")) && return
       end
     end
 

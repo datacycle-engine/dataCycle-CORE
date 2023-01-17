@@ -429,8 +429,14 @@ class SplitView {
         data: formData,
         dataType: 'json',
         contentType: 'application/x-www-form-urlencoded'
-      }).catch(async _data => {
-        CalloutHelpers.show(await I18n.translate('frontend.split_view.translate_error'), 'alert');
+      }).catch(async error => {
+        const sourceElement = this.findFieldsByKey(sourceKey, this.leftContainer, false, false)[0];
+        let errorMessage = await I18n.translate('frontend.split_view.translate_error', {
+          label: sourceElement.dataset.label
+        });
+        if (error && error.responseJSON && error.responseJSON.error)
+          errorMessage += `<br><i>${error.responseJSON.error}</i>`;
+        CalloutHelpers.show(errorMessage, 'alert');
       });
 
       await this.copyContents(translatedValue.text, key, false, true, sourceKey);

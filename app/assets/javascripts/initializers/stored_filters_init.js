@@ -11,7 +11,7 @@ export default function () {
       e =>
         e.classList.contains('update-stored-search-form') &&
         e.dataset.updateParams == 'true' &&
-        !e.hasOwnProperty('dcStoredFilterForm'),
+        !e.classList.contains('dcjs-stored-filter-form'),
       e => new StoredFilterForm(e)
     ]);
   }
@@ -20,7 +20,7 @@ export default function () {
   if (storedSearchesFilter) new StoredSearchesFilter(storedSearchesFilter);
 
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.id === 'search-favorites-fulltext-filter' && !e.hasOwnProperty('dcStoredSearchesFilter'),
+    e => e.id === 'search-favorites-fulltext-filter' && !e.classList.contains('dcjs-stored-searches-filter'),
     e => new StoredSearchesFilter(e)
   ]);
 }

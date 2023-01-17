@@ -4,11 +4,12 @@
   .dc-chart-inputs {
     display: flex;
     gap: 0.1rem;
-    max-width: 60%;
+    max-width: 80%;
     right: -0.9rem;
     bottom: 100%;
     position: absolute;
     height: 2rem;
+    transition: $opacity-transition;
 
     input,
     select {
@@ -17,18 +18,27 @@
       font-size: 0.9rem;
     }
 
-    .flatpickr-wrapper {
-      min-width: 10rem;
+    input.flatpickr-input {
+      width: 9rem;
     }
 
-    > select:disabled,
-    > .disabled {
-      display: none;
+    select {
+      width: auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 
   .dc-chart-canvas {
     width: 100%;
     margin-top: 1rem;
+    transition: $opacity-transition;
+  }
+
+  &.data-loading {
+    .dc-chart-canvas,
+    .dc-chart-inputs {
+      opacity: 0.2;
+    }
   }
 }

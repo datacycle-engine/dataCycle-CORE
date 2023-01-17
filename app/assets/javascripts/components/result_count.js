@@ -3,8 +3,8 @@ import ObserverHelpers from '../helpers/observer_helpers';
 
 class ResultCount {
   constructor(element) {
-    element.dcResultCount = true;
     this.countContainer = element;
+    this.countContainer.classList.add('dcjs-result-count');
     this.form = document.getElementById('search-form');
     this.url = this.form && this.form.action;
     this.additionalFormParams =
@@ -15,7 +15,7 @@ class ResultCount {
   setup() {
     if (!this.form || !this.url) return;
 
-    if (this.form.classList.contains('dc-dashboard-filter')) this.loadCount();
+    if (this.form.classList.contains('dcjs-dashboard-filter')) this.loadCount();
     else this.waitForDashboardFilter();
   }
   waitForDashboardFilter() {
@@ -25,7 +25,7 @@ class ResultCount {
   checkFormForDashboardFilter(mutations) {
     if (
       mutations.some(
-        e => e.target.classList.contains('dc-dashboard-filter') && !e.oldValue.includes('dc-dashboard-filter')
+        e => e.target.classList.contains('dcjs-dashboard-filter') && !e.oldValue.includes('dcjs-dashboard-filter')
       )
     ) {
       this.waitForDashboardFilterObserver.disconnect();

@@ -6,5 +6,5 @@ api_property_definition = api_definition(definition)
 
 data_value = load_value_object(content, key, value, options[:languages], api_property_definition, options[:expand_language])
 
-json = { key_new.camelize(:lower) => data_value } if data_value.present?
+json = { key_new.camelize(:lower) => data_value } unless DataCycleCore::DataHashService.blank?(data_value)
 json

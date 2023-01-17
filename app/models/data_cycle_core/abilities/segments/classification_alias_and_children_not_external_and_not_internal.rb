@@ -4,11 +4,18 @@ module DataCycleCore
   module Abilities
     module Segments
       class ClassificationAliasAndChildrenNotExternalAndNotInternal < Base
-        attr_reader :subject, :conditions
+        attr_reader :subject
 
         def initialize
           @subject = DataCycleCore::ClassificationAlias
-          @conditions = { external_source_id: nil, internal: false, sub_classification_alias: { internal: false, external_source_id: nil } }
+        end
+
+        def include?(classification_alias, *_args)
+          classification_alias.external_source_id.nil? && !classification_alias.internal && !classification_alias.sub_classification_alias&.any?(&:internal) && !classification_alias.sub_classification_alias&.any?(&:external_source_id)
+        end
+
+        def to_proc
+          ->(*args) { include?(*args) }
         end
       end
     end

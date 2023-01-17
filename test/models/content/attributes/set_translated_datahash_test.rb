@@ -102,7 +102,7 @@ module DataCycleCore
           assert_nil(@content.offers.first.name)
           assert_equal('Test Offer 2', I18n.with_locale(:en) { @content.offers.first.name })
           assert_equal(1, @content.offers.size)
-          assert_equal(2, @content.offers.first.available_locales.size)
+          assert_equal(1, @content.offers.first.available_locales.size)
           assert_equal(2, @content.available_locales.size)
         end
 

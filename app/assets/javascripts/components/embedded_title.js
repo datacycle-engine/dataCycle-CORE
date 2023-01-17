@@ -9,7 +9,7 @@ class EmbeddedTitle {
     this.init();
   }
   init() {
-    this.$element[0].dcEmbeddedTitle = true;
+    this.$element[0].classList.add('dcjs-embedded-title');
 
     this.updateEmbeddedTitle();
 

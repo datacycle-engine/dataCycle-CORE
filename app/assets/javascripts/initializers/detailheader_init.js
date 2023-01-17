@@ -1,3 +1,5 @@
+import ShowMoreLinkToggler from '../components/togglers/show_more_link_toggler';
+
 export default function () {
   $(document).on('click', '.copy-to-clipboard', async event => {
     event.preventDefault();
@@ -23,25 +25,12 @@ export default function () {
     }, 1000);
   });
 
-  $(document).on('click', '.show-more .show-more-link', event => {
-    event.preventDefault();
-
-    $(event.currentTarget)
-      .parent('.show-more')
-      .toggleClass('active')
-      .get(0)
-      .scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
-  });
-
-  $(document).on('click', '.toggler', event => {
-    event.preventDefault();
-
-    $(event.currentTarget).toggleClass('active');
-
-    $('#' + $(event.currentTarget).data('toggle'))
-      .toggleClass('active')
-      .trigger('dc:toggler:show')
-      .get(0)
-      .scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
-  });
+  for (const element of document.querySelectorAll('.show-more > .show-more-link')) new ShowMoreLinkToggler(element);
+  DataCycle.htmlObserver.addCallbacks.push([
+    e =>
+      e.classList.contains('show-more-link') &&
+      e.parentElement.classList.contains('show-more') &&
+      !e.classList.contains('dcjs-show-more-link-toggler'),
+    e => new ShowMoreLinkToggler(e)
+  ]);
 }

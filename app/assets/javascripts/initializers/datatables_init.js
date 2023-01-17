@@ -14,16 +14,16 @@ class ActivityList {
     }
   ) {
     this.item = item;
-    this.item.dcDataTable = true;
+    this.item.classList.add('dcjs-data-table');
     this.options = options;
     this.dataTable;
 
     this.setup();
   }
-  async setup() {
-    const DataTable = await DataTables();
-
-    this.dataTable = new DataTable(this.item, this.options);
+  setup() {
+    DataTables().then(() => {
+      this.dataTable = $(this.item).DataTable(this.options);
+    });
   }
 }
 
@@ -72,19 +72,19 @@ class ActivityDetails extends ActivityList {
 export default function () {
   for (const e of document.querySelectorAll('#activity_list')) new ActivityList(e);
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.id == 'activity_list' && !e.hasOwnProperty('dcDataTable'),
+    e => e.id == 'activity_list' && !e.classList.contains('dcjs-data-table'),
     e => new ActivityList(e)
   ]);
 
   for (const e of document.querySelectorAll('#activity_user_list')) new ActivityUserList(e);
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.id == 'activity_user_list' && !e.hasOwnProperty('dcDataTable'),
+    e => e.id == 'activity_user_list' && !e.classList.contains('dcjs-data-table'),
     e => new ActivityUserList(e)
   ]);
 
   for (const e of document.querySelectorAll('#activity_details')) new ActivityDetails(e);
   DataCycle.htmlObserver.addCallbacks.push([
-    e => e.id == 'activity_details' && !e.hasOwnProperty('dcDataTable'),
+    e => e.id == 'activity_details' && !e.classList.contains('dcjs-data-table'),
     e => new ActivityDetails(e)
   ]);
 }

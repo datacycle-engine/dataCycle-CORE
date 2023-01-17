@@ -35,8 +35,6 @@
 <% end %>
 
 (function(){
-  $('#<%= sanitize_to_id(@key) %>').parent().removeClass('loading-embedded');
-
   let $followingEmbedded = $('#<%= sanitize_to_id(@key) %> > .content-object-item').filter(function(){
     return parseInt($(this).data('index')) > parseInt(<%= @index.presence&.to_i %>);
   }).first();

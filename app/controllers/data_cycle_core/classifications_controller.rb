@@ -126,9 +126,9 @@ module DataCycleCore
         @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(create_params[:classification_tree_label_id])
 
         if create_params['classification_tree_id']
-          @parent_classification_tree = DataCycleCore::ClassificationTree.find(create_params['classification_tree_id'])
+          @classification_tree = DataCycleCore::ClassificationTree.find(create_params['classification_tree_id'])
         else
-          @parent_classification_tree = nil
+          @classification_tree = nil
         end
 
         ActiveRecord::Base.transaction do
@@ -146,7 +146,7 @@ module DataCycleCore
           )
           @object = DataCycleCore::ClassificationTree.create!({
             classification_tree_label: @classification_tree_label,
-            parent_classification_alias: @parent_classification_tree.try(:sub_classification_alias),
+            parent_classification_alias: @classification_tree.try(:sub_classification_alias),
             sub_classification_alias: @classification_alias
           })
         end

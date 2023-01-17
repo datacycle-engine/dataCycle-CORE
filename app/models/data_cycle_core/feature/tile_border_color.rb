@@ -24,7 +24,11 @@ module DataCycleCore
         def tree_label_classes(content)
           return if configuration[:tree_label].blank?
 
-          content&.classification_aliases&.for_tree(configuration[:tree_label])&.map { |c| "#{c.classification_tree_label&.name}_#{c.internal_name}".underscore_blanks }
+          if content&.classification_aliases&.loaded?
+            content&.classification_aliases&.map { |ca| ca.classification_alias_path.full_path_names.values_at(-1, 0).join.underscore_blanks if ca.classification_alias_path&.full_path_names&.last == configuration[:tree_label] }
+          else
+            content&.classification_aliases&.for_tree(configuration[:tree_label])&.map { |c| "#{c.classification_tree_label&.name}_#{c.internal_name}".underscore_blanks }
+          end
         end
 
         def event_schedule_classes(content)

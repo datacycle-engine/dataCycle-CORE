@@ -128,7 +128,7 @@ module DataCycleCore
       user_type = "DataCycleCore::#{controller_name.classify}".safe_constantize
       @user = user_type.find_by(id: params[:id]) || user_type.new
 
-      authorize! :show, @user
+      authorize! :show, DataCycleCore::User
 
       @user.attributes = permitted_params
       @user.valid?

@@ -19,6 +19,10 @@ module DataCycleCore
             DataCycleCore::Thing.find_by(id: property_parameters.values.first)&.send(property_definition&.dig('default_value', 'linked_attribute').to_s)
           end
 
+          def copy_from_translation(content:, key:, **_additional_args)
+            I18n.with_locale(content.first_available_locale) { content.try(key) }
+          end
+
           private
 
           def user_string(user)

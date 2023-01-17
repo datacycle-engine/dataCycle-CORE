@@ -57,6 +57,7 @@ module DataCycleCore
 
     has_many :classification_polygons, dependent: :destroy
     has_many :classification_alias_paths_transitive
+    has_many :things, through: :primary_classification
 
     delegate :visible?, to: :classification_tree_label
 
@@ -296,7 +297,7 @@ module DataCycleCore
         cc.update(classification_id: new_classification_alias.primary_classification.id) unless DataCycleCore::ClassificationContent::History.where(classification_id: new_classification_alias.primary_classification.id, relation: cc.relation, content_data_history_id: cc.content_data_history_id).exists?
       end
 
-      DataCycleCore::StoredFilter.update_all("parameters = replace(parameters::text, '#{id}', '#{new_classification_alias.id}')::jsonb")
+      DataCycleCore::StoredFilter.where('parameters::TEXT ILIKE ?', "%#{id}%").lock('FOR UPDATE SKIP LOCKED').order(:id).update_all("parameters = replace(parameters::text, '#{id}', '#{new_classification_alias.id}')::jsonb")
 
       destroy
 
