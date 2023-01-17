@@ -33,10 +33,10 @@ module DataCycleCore
             return if data_filter.present? && !data_module.constantize.method(data_filter).call(raw_data, options.dig(:import, :data_filter))
 
             Array.wrap(options.dig(:import, :nested_contents)).each do |nested_contents_config|
-              next if nested_contents_config[:exists].present? && resolve_attribute_path(raw_data, nested_contents_config[:exists]).blank?
               transformation = options[:transformations].constantize.method(nested_contents_config[:transformation])
 
               Array.wrap(resolve_attribute_path(raw_data, nested_contents_config[:path])).each do |nested_data|
+                next if nested_contents_config[:exists].present? && resolve_attribute_path(nested_data, nested_contents_config[:exists]).blank?
                 # ap transformation.call(utility_object.external_source.id).call(nested_data)
                 process_single_content(utility_object, nested_contents_config[:template], transformation, nested_data)
               end
