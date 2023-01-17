@@ -1569,6 +1569,15 @@ $filter-border: #aaa;
         color: $white;
       }
     }
+
+    &.disabled {
+      cursor: not-allowed;
+
+      .manual-order-button {
+        color: $dark-gray;
+        pointer-events: none;
+      }
+    }
   }
 
   .mode-switcher {
