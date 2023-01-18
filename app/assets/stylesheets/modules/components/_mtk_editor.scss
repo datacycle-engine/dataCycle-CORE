@@ -77,6 +77,10 @@
     }
   }
 
+  .mtk-control-styles-groups {
+    overflow: auto;
+  }
+
   .mtk-control-styles-group {
     h2.mtk-control-styles-group-name {
       font-size: 1.2rem;
@@ -91,6 +95,7 @@
       text-align: center;
       color: $black;
       line-height: 1rem;
+      white-space: break-spaces;
     }
   }
 }
