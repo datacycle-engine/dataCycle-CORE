@@ -112,13 +112,13 @@ module DataCycleCore
         def filter_ids_query(ids)
           return if ids.blank?
 
-          DataCycleCore::StoredFilter.where(id: ids).map { |f| f.apply(skip_ordering: true).select(:id).except(*UNION_FILTER_EXCEPTS).to_sql }.join(' UNION ALL ')
+          DataCycleCore::StoredFilter.where(id: ids).map { |f| f.apply(skip_ordering: true).select(:id).except(*UNION_FILTER_EXCEPTS).to_sql }.join(' UNION ')
         rescue SystemStackError
           raise DataCycleCore::Error::Filter::UnionFilterRecursionError
         end
 
         def union_filter(filters = [])
-          filter_query_sql = filters.compact_blank.join(' UNION ALL ')
+          filter_query_sql = filters.compact_blank.join(' UNION ')
 
           return self if filter_query_sql.nil?
 
@@ -128,7 +128,7 @@ module DataCycleCore
         end
 
         def not_union_filter(filters = [])
-          filter_query_sql = filters.compact_blank.join(' UNION ALL ')
+          filter_query_sql = filters.compact_blank.join(' UNION ')
 
           return self if filter_query_sql.nil?
 
