@@ -29,7 +29,7 @@ module DataCycleCore
             filter_queries.push(filter_query_sql) if filter_query_sql.present?
           end
 
-          union_filter(filter_queries)
+          not_union_filter(filter_queries)
         end
 
         def content_ids(ids = nil)
@@ -124,6 +124,16 @@ module DataCycleCore
 
           reflect(
             @query.where(thing[:id].in(Arel.sql(filter_query_sql)))
+          )
+        end
+
+        def not_union_filter(filters = [])
+          filter_query_sql = filters.compact_blank.join(' UNION ALL ')
+
+          return self if filter_query_sql.nil?
+
+          reflect(
+            @query.where(thing[:id].not_in(Arel.sql(filter_query_sql)))
           )
         end
       end
