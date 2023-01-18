@@ -149,7 +149,7 @@ module DataCycleCore
       linked_filter.each do |linked_name, attribute_filter|
         linked_query = DataCycleCore::StoredFilter.new(language: @language).apply
 
-        attribute_filter.delete_if { |k, _v| ![:classifications, :'dc:classification', :geo, :attribute, :contentId, :filterId, :watchListId, :endpointId].include?(k) }
+        attribute_filter.delete_if { |k, _v| [:classifications, :'dc:classification', :geo, :attribute, :contentId, :filterId, :watchListId, :endpointId].exclude?(k) }
 
         linked_query = apply_filters(linked_query, attribute_filter)
         query = query.relation_filter(linked_query, linked_attribute_mapping(linked_name)) if linked_query.present?
@@ -169,8 +169,10 @@ module DataCycleCore
           next unless respond_to?(filter_method_name)
           union_query = send(filter_method_name, union_query, filter_v)
         end
-        all_filters += [union_query]
+
+        all_filters += [union_query.select(:id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).to_sql]
       end
+
       query = query.union_filter(all_filters)
       query
     end

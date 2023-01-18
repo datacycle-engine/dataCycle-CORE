@@ -28,6 +28,10 @@ module DataCycleCore
     delegate :translated_locales, to: :things
     alias available_locales translated_locales
 
+    def self.watch_list_data_hashes
+      DataCycleCore::WatchListDataHash.where(watch_list_id: all.select(:id))
+    end
+
     def valid_write_links?
       valid_write_links.present?
     end
