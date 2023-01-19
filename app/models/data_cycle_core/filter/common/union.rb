@@ -18,7 +18,11 @@ module DataCycleCore
             filter_queries.push(filter_query_sql) if filter_query_sql.present?
           end
 
-          union_filter(filter_queries)
+          return self if filter_queries.blank?
+
+          reflect(
+            @query.where(thing[:id].in(Arel.sql(filter_queries.join(' UNION '))))
+          )
         end
 
         def not_union_filter_ids(ids)
@@ -29,7 +33,11 @@ module DataCycleCore
             filter_queries.push(filter_query_sql) if filter_query_sql.present?
           end
 
-          not_union_filter(filter_queries)
+          return self if filter_queries.blank?
+
+          reflect(
+            @query.where(thing[:id].not_in(Arel.sql(filter_queries.join(' UNION '))))
+          )
         end
 
         def content_ids(ids = nil)
@@ -118,22 +126,12 @@ module DataCycleCore
         end
 
         def union_filter(filters = [])
-          filter_query_sql = filters.compact_blank.join(' UNION ')
+          filters = filters.map { |f| f.select(:id).except(*UNION_FILTER_EXCEPTS).to_sql }.compact_blank
 
-          return self if filter_query_sql.nil?
-
-          reflect(
-            @query.where(thing[:id].in(Arel.sql(filter_query_sql)))
-          )
-        end
-
-        def not_union_filter(filters = [])
-          filter_query_sql = filters.compact_blank.join(' UNION ')
-
-          return self if filter_query_sql.nil?
+          return self if filters.blank?
 
           reflect(
-            @query.where(thing[:id].not_in(Arel.sql(filter_query_sql)))
+            @query.where(thing[:id].in(Arel.sql(filters.join(' UNION '))))
           )
         end
       end

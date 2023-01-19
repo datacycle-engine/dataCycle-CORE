@@ -170,7 +170,7 @@ module DataCycleCore
           union_query = send(filter_method_name, union_query, filter_v)
         end
 
-        all_filters += [union_query.select(:id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).to_sql]
+        all_filters += [union_query]
       end
 
       query = query.union_filter(all_filters)
