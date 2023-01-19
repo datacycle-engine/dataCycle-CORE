@@ -77,10 +77,18 @@ module DataCycleCore
         def select
           uuid = permitted_params[:uuid] || permitted_params[:uuids]&.split(',')
           if uuid.present? && uuid.is_a?(::Array) && uuid.size.positive?
-            fetched_things = DataCycleCore::Thing
+            query = DataCycleCore::Thing
               .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
               .where(id: uuid)
-            @contents = apply_paging(fetched_things)
+
+            if request.format.geojson?
+              raise ActiveRecord::RecordNotFound unless DataCycleCore.features.dig(:serialize, :serializers, :geojson) == true
+
+              render(plain: query.to_geojson(include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format.to_s)
+              return
+            end
+
+            @contents = apply_paging(query)
             render 'index'
           else
             render json: { error: 'No ids given!' }, layout: false, status: :bad_request
