@@ -8,23 +8,36 @@ module DataCycleCore
       def self.import_all(validation: true, template_paths: nil)
         template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
         import_hash, duplicates = check_for_duplicates(template_paths, CONTENT_SETS)
-        mixin_list, mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths, content_sets: CONTENT_SETS)
-        errors = import_all_templates(template_hash: import_hash, validation: validation, mixins: mixin_list)
-        format_errors = errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}
-        return format_errors, reformat_duplicates(duplicates), reformat_duplicates(mixin_duplicates)
+        mixins, mixin_errors = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths, content_sets: CONTENT_SETS)
+        errors, mixin_usage = import_all_templates(template_hash: import_hash, validation: validation, mixins: mixins)
+        formatted_errors = errors.map { |k, v| format_errors(k, v) }.flatten.compact
+
+        return formatted_errors, reformat_duplicates(duplicates), mixin_errors, mixin_usage
       end
 
       def self.validate_all(template_paths: nil)
         template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
         import_hash, _duplicates = check_for_duplicates(template_paths, CONTENT_SETS)
-        mixin_list, _mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths, content_sets: CONTENT_SETS)
-        errors = validate_all_templates(template_hash: import_hash, mixins: mixin_list)
+        mixins, mixin_errors = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths, content_sets: CONTENT_SETS)
+        errors, mixin_usage = validate_all_templates(template_hash: import_hash, mixins: mixins)
+        formatted_errors = errors.map { |k, v| format_errors(k, v) }.flatten.compact
 
-        errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}
+        return formatted_errors, mixin_errors, mixin_usage
+      end
+
+      def self.format_errors(key, value)
+        return if value.blank?
+
+        return value.map { |k, v| format_errors("#{key}.#{k}", v) } if value.is_a?(::Hash)
+        return value.map { |v| format_errors(key, v) } if value.is_a?(::Array)
+
+        "#{key}: #{value}"
       end
 
       def self.validate_all_templates(template_hash:, mixins:)
         errors = {}
+
+        reload_main_config! if Rails.env.development?
 
         template_hash.each do |content_set, template_list|
           errors = errors.merge({ content_set => validate_content_template(template_list: template_list, content_set: content_set, mixins: mixins) })
@@ -86,6 +99,9 @@ module DataCycleCore
 
       def self.import_all_templates(template_hash:, mixins:, validation: true)
         errors = {}
+
+        reload_main_config! if Rails.env.development?
+
         template_hash.each do |content_set, template_list|
           errors = errors.merge({ content_set => import_content_templates(template_list: template_list, content_set: content_set, validation: validation, mixins: mixins) })
         end
@@ -100,7 +116,6 @@ module DataCycleCore
           error = {}
           error = validate(template) if validation
           if error.blank?
-            # puts "write data_set (#{content_set}): #{template[:data][:name]}"
             data_set = DataCycleCore::Thing
               .find_or_initialize_by(
                 template_name: template[:data][:name],
@@ -130,61 +145,72 @@ module DataCycleCore
 
       def self.transform_features(schema: {}, content_set: nil)
         schema[:features] ||= {}
-        schema[:features].deep_merge!(DataCycleCore.main_config.dig(:templates, content_set.to_sym, schema.dig(:name).to_sym, :features)&.deep_symbolize_keys) if DataCycleCore.main_config.dig(:templates, content_set.to_sym, schema.dig(:name).to_sym, :features).present?
-
+        schema[:features].deep_merge!(main_config_property(content_set, schema[:name], :features))
         schema[:features]
       end
 
       def self.transform_api_properties(schema: {}, content_set: nil)
-        return DataCycleCore.main_config.dig(:templates, content_set.to_sym, schema.dig(:name).to_sym, :api)&.deep_symbolize_keys if DataCycleCore.main_config.dig(:templates, content_set.to_sym, schema.dig(:name).to_sym, :api).present?
-        schema.dig(:api) || {}
+        main_config_property(content_set, schema[:name], :api).presence || schema.dig(:api).presence || {}
+      end
+
+      def self.reload_main_config!
+        DataCycleCore.load_configurations(Rails.root.join('config', 'configurations', Rails.env, 'main_config', '**', '*.yml'))
+        DataCycleCore.load_configurations(Rails.root.join('config', 'configurations', Rails.env, 'main_config.yml'))
+        DataCycleCore.load_configurations(Rails.root.join('config', 'configurations', 'main_config', '**', '*.yml'), false)
+        DataCycleCore.load_configurations(Rails.root.join('config', 'configurations', 'main_config.yml'))
+      end
+
+      def self.main_config_property(content_set, template_name, key)
+        DataCycleCore.main_config.dig(:templates, content_set, template_name, key) || {}
       end
 
       def self.transform_properties(schema: {}, content_set: nil, mixins: nil)
-        new_properties = {}.with_indifferent_access
-        sorting = 1
+        new_properties = ActiveSupport::HashWithIndifferentAccess.new
 
         schema[:properties].each do |property_name, property_value|
-          if property_value[:type] == 'mixin'
-            mixin_properties, sorting = add_mixin_properties(content_set, property_value[:name].to_sym, sorting, mixins)
-            new_properties.merge!(mixin_properties)
-          else
-            new_properties[property_name.to_sym], sorting = add_sorting(property_value, sorting)
-          end
+          next new_properties[property_name.to_sym] = property_value if property_value[:type] != 'mixin'
+
+          new_properties.merge!(replace_mixin_property(content_set, property_value[:name].to_sym, mixins, schema[:name].underscore_blanks))
         end
 
-        new_properties.deep_merge(DataCycleCore.main_config.dig(:templates, content_set, schema.dig(:name), :properties) || {})
+        new_properties.deep_merge!(main_config_property(content_set, schema[:name], :properties))
+        add_sorting_recursive!(new_properties)
+
+        new_properties
+      end
+
+      def self.add_sorting_recursive!(properties)
+        return properties if properties.blank?
+
+        properties.each_value.with_index(1) do |value, index|
+          value[:sorting] = index
+
+          add_sorting_recursive!(value[:properties]) if value[:type] == 'object' && value.key?(:properties)
+        end
+
+        properties
       end
 
       # add mixins recursively
-      def self.add_mixin_properties(content_set, property_name, sorting, mixins)
+      def self.replace_mixin_property(content_set, property_name, mixins, template_name)
         mixin_properties = {}
-        if !content_set.nil? && mixins.dig(content_set.to_sym, property_name).present?
-          mixin_set = content_set.to_sym
-        elsif mixins.dig(:default, property_name).present?
-          mixin_set = :default
-        else
-          raise "mixin for #{property_name} not found".inspect
+
+        mixin = mixins&.dig(property_name)&.find do |m|
+          (m[:set] == content_set.to_s || m[:set].nil?) &&
+            (m[:template_name] == template_name || m[:template_name].nil?)
         end
 
-        return {}, sorting if mixins.dig(mixin_set, property_name, :properties).blank?
+        return {} if mixin.nil?
+        # raise "mixin for #{property_name} not found" if mixin.nil?
+        return {} if mixin[:properties].blank?
 
-        mixins.dig(mixin_set, property_name, :properties).each do |key, prop|
-          if prop[:type] == 'mixin'
-            further_mixin_properties, sorting = add_mixin_properties(content_set, prop[:name].to_sym, sorting, mixins)
-            mixin_properties.merge!(further_mixin_properties)
-          else
-            mixin_properties[key.to_sym], sorting = add_sorting(prop, sorting)
-          end
+        mixin[:properties].each do |key, prop|
+          next mixin_properties[key.to_sym] = prop if prop[:type] != 'mixin'
+
+          mixin_properties.merge!(replace_mixin_property(content_set, prop[:name].to_sym, mixins, template_name))
         end
 
-        return mixin_properties, sorting
-      end
-
-      def self.add_sorting(hash, sorting)
-        hash[:properties] = transform_properties(schema: hash) if hash[:type] == 'object' && hash.key?(:properties).present?
-        hash[:sorting] = sorting
-        return hash, sorting + 1
+        mixin_properties
       end
 
       def self.validate(template)

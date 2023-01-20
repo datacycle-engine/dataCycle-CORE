@@ -295,7 +295,7 @@ module DataCycleCore
       return unless classification_tree&.changed?
 
       add_things_cache_invalidation_job_update
-      add_things_webhooks_job_update unless prevent_webhooks
+      add_things_webhooks_job_update
     end
 
     def merge_with(new_classification_alias)
@@ -313,7 +313,7 @@ module DataCycleCore
       destroy
 
       new_classification_alias.send(:add_things_cache_invalidation_job_update)
-      new_classification_alias.send(:add_things_webhooks_job_update) unless prevent_webhooks
+      new_classification_alias.send(:add_things_webhooks_job_update)
     end
 
     def to_hash
@@ -375,6 +375,7 @@ module DataCycleCore
     end
 
     def add_things_webhooks_job_update
+      return if prevent_webhooks
       return unless classification_tree_label&.change_behaviour&.include?('trigger_webhooks') && classifications.things.exists?
 
       DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'execute_things_webhooks')

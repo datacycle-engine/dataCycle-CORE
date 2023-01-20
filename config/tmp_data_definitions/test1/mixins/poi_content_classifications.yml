@@ -1,0 +1,10 @@
+---
+- :data:
+    :name: content_classifications
+    :type: mixin
+    :properties: ~
+
+- :data:
+    :name: content_classifications2
+    :type: mixin
+    :properties: ~
