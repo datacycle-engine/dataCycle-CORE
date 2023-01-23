@@ -155,6 +155,8 @@ en:
         pinch: Use two fingers to zoom/scroll the map
       filter:
         button_title: edit linked contents
+      undo: undo last change
+      redo: Reapply undone changes
       upload_gpx:
         button_title: Upload GPX file
       styles:

@@ -161,6 +161,8 @@ de:
         pinch: 'Verwende zwei Finger zum Zoomen/Scrollen der Karte'
       filter:
         button_title: Verknüpfte Inhalte bearbeiten
+      undo: Letzte Änderung rückgängig machen
+      redo: Rückgängig gemachte Änderungen erneut anwenden
       upload_gpx:
         button_title: 'GPX-Datei hochladen'
       styles:
