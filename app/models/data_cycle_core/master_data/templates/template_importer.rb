@@ -6,7 +6,7 @@ module DataCycleCore
       class TemplateImporter
         CONTENT_SETS = [:creative_works, :events, :media_objects, :organizations, :persons, :places, :products, :things, :intangibles].freeze
 
-        attr_reader :duplicates, :mixin_errors, :errors, :mixin_paths
+        attr_reader :duplicates, :mixin_errors, :errors, :mixin_paths, :templates
 
         def initialize(validation: true, template_paths: nil)
           @validation = validation
@@ -99,8 +99,8 @@ module DataCycleCore
 
           @template_paths.each do |core_template_path|
             CONTENT_SETS.each do |content_set_name|
-              Dir[File.join(core_template_path, content_set_name.to_s, '*.yml')].sort.each do |file_path|
-                data_templates = YAML.safe_load(File.open(file_path.to_s), [Symbol])
+              Dir[File.join(core_template_path, content_set_name.to_s, '*.yml')].sort.each do |path|
+                data_templates = YAML.safe_load(File.open(path.to_s), [Symbol])
 
                 data_templates.each do |template|
                   template = template[:data]
@@ -110,11 +110,11 @@ module DataCycleCore
                   if (duplicate = templates.dig(content_set_name)&.find { |v| v[:name] == template[:name] }).present?
                     key = "#{content_set_name}.#{template[:name]}"
                     @duplicates[key] ||= []
-                    @duplicates[key].push(duplicate[:file_path])
-                    @duplicates[key].push(file_path)
+                    @duplicates[key].push(duplicate[:path])
+                    @duplicates[key].push(path)
                     @duplicates[key].uniq!
 
-                    duplicate[:file_path] = file_path
+                    duplicate[:path] = path
                     duplicate[:data] = transformed_data
 
                     @mixin_paths.delete_if { |s| s.start_with?(key) }
@@ -122,7 +122,7 @@ module DataCycleCore
                     templates[content_set_name] ||= []
                     templates[content_set_name].push({
                       name: template[:name],
-                      file_path: file_path,
+                      path: path,
                       data: transformed_data
                     })
                   end
@@ -130,7 +130,7 @@ module DataCycleCore
                   @mixin_paths.concat(transformer.mixin_paths)
                 end
               rescue StandardError => e
-                @errors.push("error loading YML File (#{file_path}) => #{e.message}")
+                @errors.push("error loading YML File (#{path}) => #{e.message}")
               end
             end
           end

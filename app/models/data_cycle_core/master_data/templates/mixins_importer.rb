@@ -17,19 +17,19 @@ module DataCycleCore
         def import
           @template_paths.reverse_each do |core_template_path|
             @content_sets.each do |content_set_name|
-              Dir[File.join(core_template_path, content_set_name.to_s, @mixins_folder, '*.yml')].each do |file_path|
-                data_templates = YAML.safe_load(File.open(file_path.to_s), [Symbol])
+              Dir[File.join(core_template_path, content_set_name.to_s, @mixins_folder, '*.yml')].each do |path|
+                data_templates = YAML.safe_load(File.open(path.to_s), [Symbol])
 
-                next @errors.push(file_path) if data_templates.many?
+                next @errors.push(path) if data_templates.many?
 
                 name = data_templates.dig(0, :data, :name).to_sym
-                next @errors.push(file_path) if File.basename(file_path).exclude?(name.to_s)
+                next @errors.push(path) if File.basename(path).exclude?(name.to_s)
 
-                name_prefix = File.basename(file_path).delete_suffix("#{name}.yml").delete_suffix('_')
+                name_prefix = File.basename(path).delete_suffix("#{name}.yml").delete_suffix('_')
 
                 data = {
-                  path: file_path,
-                  relative_path: file_path.delete_prefix(core_template_path.to_s),
+                  path: path,
+                  relative_path: path.delete_prefix(core_template_path.to_s),
                   set: content_set_name,
                   specificity: 0,
                   properties: data_templates.dig(0, :data, :properties)

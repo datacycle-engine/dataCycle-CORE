@@ -832,8 +832,8 @@ CREATE TABLE public.things (
     updated_by uuid,
     deleted_by uuid,
     cache_valid_since timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
+    updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     deleted_at timestamp without time zone,
     given_name character varying,
     family_name character varying,
@@ -2974,6 +2974,13 @@ CREATE INDEX thing_translations_name_idx ON public.thing_translations USING gin 
 
 
 --
+-- Name: things_template_name_template_uq_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX things_template_name_template_uq_idx ON public.things USING btree (template_name, template) WHERE (template = true);
+
+
+--
 -- Name: unique_by_shareable; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3716,6 +3723,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20221202071928'),
 ('20221207085950'),
 ('20230110113327'),
-('20230111134615');
+('20230111134615'),
+('20230123071358');
 
 

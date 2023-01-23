@@ -19,7 +19,7 @@ module DataCycleCore
         end
 
         def validate
-          return if @templates.blank?
+          return [] if @templates.blank?
 
           @templates.each do |set, templates|
             templates.each do |template|
@@ -62,7 +62,7 @@ module DataCycleCore
 
             embedded_template = template_list.find { |t| t[:name] == value[:template_name] }
 
-            next if translatable_properties?(embedded_template.dig(:data, :properties))
+            next if embedded_template.nil? || translatable_properties?(embedded_template.dig(:data, :properties))
             next if value[:translated]
 
             @errors.push("#{[*prefix, :properties, key].join('.')} => uses not translatable embedded (HINT: add ':translated: true' to make it work)")
