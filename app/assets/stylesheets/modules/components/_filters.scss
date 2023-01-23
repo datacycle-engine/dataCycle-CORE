@@ -1241,6 +1241,15 @@ $filter-border: #aaa;
                   font-weight: 600;
                 }
 
+                &.content-title-api {
+                  border: 1px solid black;
+                  color: $black;
+                  line-height: 1.2;
+                  font-weight: 600;
+                  padding: 2px 4px;
+                  border-radius: $global-radius;
+                }
+
                 &.global {
                   font-weight: bold;
                 }

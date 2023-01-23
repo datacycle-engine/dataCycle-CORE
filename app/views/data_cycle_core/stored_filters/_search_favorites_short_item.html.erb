@@ -3,11 +3,15 @@
     <span class="title <%= 'global' if stored_filter.system %>" title="<%= stored_filter.name %>">
       <%= stored_filter.system ? tag.i(class: 'fa fa-globe') : tag.i(class: 'fa fa-filter') %> <%= stored_filter.name %>
     </span>
+    <% if stored_filter.api%>
+      <span class="content-title-api <%= 'global' if stored_filter.system %>">API</span>
+    <% end %>
+
     <span class="stored-date"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= l(Time.zone.at(stored_filter.created_at.to_datetime), format: :edit, locale: active_ui_locale) %></span>
   <% end %>
 
   <div class="buttons">
-    <%= render 'data_cycle_core/application/preview/widget_list', content: stored_filter if DataCycleCore::Feature::Preview.enabled? && stored_filter.api %>
+    <%= render 'data_cycle_core/application/preview/widget_list', content: stored_filter if DataCycleCore::Feature::Preview.enabled? || stored_filter.api %>
 
     <%= link_to tag.i(class: 'fa fa-external-link'), saved_searches_stored_filters_path(q: stored_filter.id), target: :_blank, data: { dc_tooltip: t('data_cycle_core.stored_searches.show_in_my_saved_searches', locale: active_ui_locale) } %>
   </div>
