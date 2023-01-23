@@ -4,13 +4,14 @@ module DataCycleCore
   module MasterData
     module Templates
       class TemplateValidator
+        TRANSLATED_COLUMS = ['content', 'name', 'description', 'slug'].freeze
+
         attr_reader :errors
 
         def initialize(templates:)
           @templates = templates
           @template_header_contract = TemplateHeaderContract.new
           @template_property_contract = TemplatePropertyContract.new
-          @translated_columns = DataCycleCore::Thing::Translation.column_names.except(['id', 'thing_id', 'locale', 'created_at', 'updated_at'])
           @errors = []
         end
 
@@ -47,7 +48,7 @@ module DataCycleCore
             next if property[:type].in?([:key, :classification, :asset, :linked, :embedded])
 
             return true if property[:storage_location] == 'translated_value'
-            return true if property[:storage_location] == 'column' && name.to_s.in?(@translated_columns)
+            return true if property[:storage_location] == 'column' && name.to_s.in?(TRANSLATED_COLUMS)
             return true if property.key?(:properties) && translatable_properties?(property.dig(:properties))
           end
 
