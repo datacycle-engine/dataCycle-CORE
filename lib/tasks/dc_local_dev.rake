@@ -12,7 +12,7 @@ namespace :dc do
       Rake::Task['db:seed'].invoke
       Rake::Task['data_cycle_core:update:import_classifications'].invoke
       Rake::Task['data_cycle_core:update:import_external_system_configs'].invoke
-      Rake::Task['data_cycle_core:update:import_templates'].invoke
+      Rake::Task['dc:templates:import'].invoke
     end
 
     desc 'translate I18n locale files'

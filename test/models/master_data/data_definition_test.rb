@@ -4,17 +4,17 @@ require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
 
-describe DataCycleCore::MasterData::ImportTemplates do
+describe DataCycleCore::MasterData::Templates::TemplateValidator do
   subject do
-    DataCycleCore::MasterData::ImportTemplates
+    DataCycleCore::MasterData::Templates::TemplateValidator
   end
 
   let(:validate_property) do
-    subject::TemplatePropertyContract.new
+    DataCycleCore::MasterData::Templates::TemplatePropertyContract.new
   end
 
   let(:validate_header) do
-    subject::TemplateHeaderContract.new
+    DataCycleCore::MasterData::Templates::TemplateHeaderContract.new
   end
 
   describe 'loaded template_data' do
@@ -332,8 +332,9 @@ describe DataCycleCore::MasterData::ImportTemplates do
     end
 
     it 'check a complex data_template' do
-      errors = subject.validate(data_template)
-      assert errors == {}
+      validator = subject.new(templates: { creative_works: [data_template] }.with_indifferent_access)
+      errors = validator.validate
+      assert_equal [], errors
     end
 
     it 'checks for valid value of name attribute in header' do

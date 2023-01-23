@@ -6,7 +6,7 @@ namespace :dc do
     task configs: :environment do
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_classifications"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_system_configs"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_templates"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:import"].invoke
     end
 
     namespace :classifications do
@@ -74,7 +74,10 @@ namespace :dc do
                 next
               end
 
-              I18n.with_locale(args.locale) { ca.update(name: data[1].squish) }
+              I18n.with_locale(args.locale) do
+                ca.prevent_webhooks = true
+                ca.update(name: data[1].squish)
+              end
 
               print '.'
             rescue StandardError

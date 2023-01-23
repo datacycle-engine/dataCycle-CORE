@@ -38,7 +38,7 @@
         :label: Währung
         :type: classification
         :tree_label: Preis-Währung
-        :default_value: "EUR"
+        :default_value: 'EUR'
       :unit_text:
         :label: Einheit
         :type: string
@@ -57,10 +57,10 @@
         :api:
           :transformation:
             :method: unwrap
-#        :advanced_search: true
+        #        :advanced_search: true
         :properties:
           :valid_from:
-            :label: "Gültig ab"
+            :label: 'Gültig ab'
             :type: date
             :storage_location: value
             :ui:
@@ -68,9 +68,9 @@
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
-#            :advanced_search: true
+          #            :advanced_search: true
           :valid_through:
-            :label: "bis"
+            :label: 'bis'
             :type: date
             :storage_location: value
             :ui:
@@ -80,14 +80,14 @@
                   :placeholder: tt.mm.jjjj
             :api:
               :name: validThrough
-#            :advanced_search: true
+      #            :advanced_search: true
       :price_category:
         :label: Preis - Kategorie
         :type: classification
         :tree_label: Preis - Kategorien
-      :feratel_price_sprecification_classifications:
+      :feratel_price_specification_classifications:
         :type: mixin
-        :name: feratel_price_sprecification_classifications
+        :name: feratel_price_specification_classifications
       :meta_data:
         :type: mixin
         :name: meta_data
