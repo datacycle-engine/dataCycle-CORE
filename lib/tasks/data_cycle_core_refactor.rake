@@ -58,8 +58,10 @@ namespace :data_cycle_core do
       temp = Time.zone.now
 
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:import"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:import"].reenable
 
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:check:invalid_overlay_definitions"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:check:invalid_overlay_definitions"].reenable
 
       puts 'END'
       puts "--> MIGRATION time: #{Time.zone.now - temp} sec"

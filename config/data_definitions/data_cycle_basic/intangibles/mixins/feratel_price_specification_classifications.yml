@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: feratel_price_sprecification_classifications
+    :name: feratel_price_specification_classifications
     :type: mixin
     :properties:
       :feratel_meal_code:

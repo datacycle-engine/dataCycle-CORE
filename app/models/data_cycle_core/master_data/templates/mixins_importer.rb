@@ -23,6 +23,8 @@ module DataCycleCore
                 next @errors.push(file_path) if data_templates.many?
 
                 name = data_templates.dig(0, :data, :name).to_sym
+                next @errors.push(file_path) if File.basename(file_path).exclude?(name.to_s)
+
                 name_prefix = File.basename(file_path).delete_suffix("#{name}.yml").delete_suffix('_')
 
                 data = {
@@ -33,7 +35,7 @@ module DataCycleCore
                   properties: data_templates.dig(0, :data, :properties)
                 }
 
-                if name_prefix&.to_sym&.in?(TemplateImporter::CONTENT_SETS)
+                if name_prefix&.to_sym&.in?(TemplateImporter::CONTENT_SETS) || data[:set].present?
                   data[:set] ||= name_prefix.to_sym
                   data[:specificity] = 1
                 elsif name_prefix.present?
@@ -49,7 +51,7 @@ module DataCycleCore
             end
           end
 
-          @mixins.each_value { |v| v.sort_by! { |h| [-h[:relative_path].count(File::SEPARATOR), -h[:specificity]] } }
+          @mixins.each_value { |v| v.sort_by! { |h| [-h[:specificity], -h[:relative_path].count(File::SEPARATOR)] } }
         end
       end
     end

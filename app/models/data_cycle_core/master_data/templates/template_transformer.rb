@@ -19,7 +19,7 @@ module DataCycleCore
 
         def transform
           @template[:boost] ||= 1.0
-          @template[:features].deep_merge!(main_config_property(:features))
+          (@template[:features] ||= {}).deep_merge!(main_config_property(:features))
           @template[:properties] = transform_properties
           @template[:api] = main_config_property(:api).presence || @template[:api].presence || {}
 
@@ -62,14 +62,14 @@ module DataCycleCore
         def replace_mixin_property(property_name)
           template_name = @template[:name].underscore_blanks
           mixin = @mixins&.dig(property_name)&.find do |m|
-            (m[:set] == @content_set.to_s || m[:set].nil?) &&
+            (m[:set] == @content_set || m[:set].nil?) &&
               (m[:template_name] == template_name || m[:template_name].nil?)
           end
 
           raise "mixin for #{property_name} not found!" if mixin.nil?
           return {} if mixin[:properties].blank?
 
-          @mixin_paths.push("#{@content_set}.#{@template[:name]}.#{property_name} => #{mixin[:file_path]}")
+          @mixin_paths.push("#{@content_set}.#{@template[:name]}.#{property_name} => #{mixin[:path]}")
 
           deep_transform_properties(mixin)
         end

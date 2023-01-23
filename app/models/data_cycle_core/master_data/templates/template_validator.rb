@@ -10,6 +10,7 @@ module DataCycleCore
           @templates = templates
           @template_header_contract = TemplateHeaderContract.new
           @template_property_contract = TemplatePropertyContract.new
+          @translated_columns = DataCycleCore::Thing.new.translated_attributes.keys
           @errors = []
         end
 
@@ -18,13 +19,16 @@ module DataCycleCore
         end
 
         def validate
-          @templates&.each do |set, templates|
+          return if @templates.blank?
+
+          @templates.each do |set, templates|
             templates.each do |template|
               prefix = [set, template[:name]]
               result_header = @template_header_contract.call(template)
               merge_errors!(result_header, prefix + [:header])
 
               validate_properties!(template[:data], prefix)
+              validate_translatable_embedded!(template, prefix)
               validate_property_names!(template.dig(:data, :properties), prefix)
             end
           end
@@ -35,6 +39,33 @@ module DataCycleCore
         def merge_errors!(contract, prefix)
           contract.errors.each do |error|
             @errors.push("#{[*prefix, *error.path].join('.')} => #{error.text}")
+          end
+        end
+
+        def translatable_properties?(properties)
+          properties.each do |name, property|
+            next if property[:type].in?([:key, :classification, :asset, :linked, :embedded])
+
+            return true if property[:storage_location] == 'translated_value'
+            return true if property[:storage_location] == 'column' && name.to_s.in?(@translated_columns)
+            return true if property.key?(:properties) && translatable_properties?(property.dig(:properties))
+          end
+
+          false
+        end
+
+        def validate_translatable_embedded!(template, prefix)
+          template_list = @templates.values.flatten
+
+          template.dig(:data, :properties).each do |key, value|
+            next if value[:type] != 'embedded'
+
+            embedded_template = template_list.find { |t| t[:name] == value[:template_name] }
+
+            next if translatable_properties?(embedded_template.dig(:data, :properties))
+            next if value[:translated]
+
+            @errors.push("#{[*prefix, :properties, key].join('.')} => uses not translatable embedded (HINT: add ':translated: true' to make it work)")
           end
         end
 

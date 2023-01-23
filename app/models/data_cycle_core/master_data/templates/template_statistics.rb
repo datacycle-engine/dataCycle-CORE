@@ -25,6 +25,19 @@ module DataCycleCore
               })
             end
         end
+
+        # rubocop:disable Rails/Output
+        def render_statistics
+          return if @outdated_templates.blank?
+
+          puts "\nWARNING: the following templates were not updated:"
+          puts "#{'template_name'.ljust(40)} | #{'cache_valid_since'.ljust(38)} | #{'#things'.ljust(12)} | #{'#things_hist'.ljust(12)}"
+          puts '-' * 112
+          @outdated_templates.each do |value|
+            puts "#{value[:name].to_s.ljust(40)} | #{value[:cache_valid_since].to_s(:long_usec).ljust(38)} | #{value[:count].to_s.rjust(12)} | #{value[:count_history].to_s.rjust(12)}"
+          end
+        end
+        # rubocop:enable Rails/Output
       end
     end
   end
