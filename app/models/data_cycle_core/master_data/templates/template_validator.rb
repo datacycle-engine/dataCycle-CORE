@@ -10,7 +10,7 @@ module DataCycleCore
           @templates = templates
           @template_header_contract = TemplateHeaderContract.new
           @template_property_contract = TemplatePropertyContract.new
-          @translated_columns = DataCycleCore::Thing.new.translated_attributes.keys
+          @translated_columns = DataCycleCore::Thing::Translation.column_names.except(['id', 'thing_id', 'locale', 'created_at', 'updated_at'])
           @errors = []
         end
 

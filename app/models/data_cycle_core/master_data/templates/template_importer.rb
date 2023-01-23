@@ -22,7 +22,7 @@ module DataCycleCore
 
           return if @mixin_errors.present?
 
-          # reload_main_config! if Rails.env.development?
+          reload_main_config! if Rails.env.development?
           @templates = load_templates
           @validator = TemplateValidator.new(templates: @templates)
         end
