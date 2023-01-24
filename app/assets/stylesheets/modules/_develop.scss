@@ -1966,6 +1966,7 @@ label[for='user_access_token'] {
 
         .swap-button.disabled {
           color: lighten($color: $dark-gray, $amount: 20%);
+          cursor: not-allowed !important;
         }
 
         .translated {
@@ -3517,7 +3518,7 @@ button.button-prime.small.bulk-delete-button {
     margin-right: 0.3rem;
     color: $dark-gray;
     text-shadow: 1px 1px 1px rgba($black, 0.3);
-    cursor: pointer;
+    cursor: pointer !important;
 
     &:hover {
       color: $black;
@@ -3526,7 +3527,7 @@ button.button-prime.small.bulk-delete-button {
     &.disabled {
       color: $light-gray;
       text-shadow: none;
-      cursor: not-allowed;
+      cursor: not-allowed !important;
     }
   }
 }
