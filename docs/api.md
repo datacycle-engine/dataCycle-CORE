@@ -63,7 +63,7 @@ Für die Authentifizierung stehen bei der Datenschnittstelle von dataCycle mehre
 
 Die einfachste reguläre Authentifizierungs-Variante ist ein sogenanntes _Authentifzierungs-Token_, das beim Aufruf eines Datenendpunktes mit übergeben werden muss. Eine Übersicht über alle in einem System vorhandenen Klassifizierungbäume erhält man beispielsweise über [/api/v4/concept_schemes?token=MY_TOKEN](/api/v4/concept_schemes).
 
-Eine weitere Varianten ist die Verwendung eines sogenannten [Bearer-Tokens](https://datatracker.ietf.org/doc/html/rfc6750). Dabei wird die Authentifizierung über einen HTTP-Header abgewickelt. Der Zugriff auf die vorhandenen Klassifizierungsbäume funktioniert dabei folgendermaßen:
+Eine weitere Variante ist die Verwendung eines sogenannten [Bearer-Tokens](https://datatracker.ietf.org/doc/html/rfc6750). Dabei wird die Authentifizierung über einen HTTP-Header abgewickelt. Der Zugriff auf die vorhandenen Klassifizierungsbäume funktioniert dabei folgendermaßen:
 
 ```bash
 curl --url https://MY_DATACYCLE_URL/api/v4/concept_schemes \
