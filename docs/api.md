@@ -59,7 +59,24 @@ Die Gesamtanzahl wird innerhalb des ```meta```-Attributs mit dem Namen ```total`
 
 ### Authentifizierung
 
-Die Authentifizierung erfolgt über ein sogenanntes _Authentifzierungs-Token_, das beim Aufruf eines Datenendpunktes mit übergeben werden muss. Ist ein Benutzer bereits über das Frontend eingeloggt, kann dieses Token weggelassen werden, da in diesem Fall bereits eine aktive Session existiert und diese auch für die API weiter verwendet werden kann. Eine Übersicht über alle in einem System vorhandenen Klassifizierungbäume erhält man beispielsweise über [/api/v4/concept_schemes?token=MY_TOKEN](/api/v4/concept_schemes).
+Für die Authentifizierung stehen bei der Datenschnittstelle von dataCycle mehrere Möglichkeiten zur Verfügung. Ist ein Benutzer bereits über das Frontend eingeloggt, ist eine Authentifzierung nicht notwendig, da in diesem Fall bereits eine aktive Session existiert und diese auch für die API weiter verwendet werden kann.
+
+Die einfachste reguläre Authentifizierungs-Variante ist ein sogenanntes _Authentifzierungs-Token_, das beim Aufruf eines Datenendpunktes mit übergeben werden muss. Eine Übersicht über alle in einem System vorhandenen Klassifizierungbäume erhält man beispielsweise über [/api/v4/concept_schemes?token=MY_TOKEN](/api/v4/concept_schemes).
+
+Eine weitere Varianten ist die Verwendung eines sogenannten [Bearer-Tokens](https://datatracker.ietf.org/doc/html/rfc6750). Dabei wird die Authentifizierung über einen HTTP-Header abgewickelt. Der Zugriff auf die vorhandenen Klassifizierungsbäume funktioniert dabei folgendermaßen:
+
+```bash
+curl --url https://MY_DATACYCLE_URL/api/v4/concept_schemes \
+     --header 'Authorization: Bearer MY_TOKEN' \
+     --header 'Content-Type: application/json'
+```
+
+Neben den beiden token-basierten Authentifizierungs-Varianten wird auch [Basic Auth](https://datatracker.ietf.org/doc/html/rfc7617) mit Benutzername (bzw. E-Mailadresse) und Passwort unterstützt.
+
+
+#### Authentifizierung über einen externen Dienst
+
+Häufig ist es so, dass in Organisationen, die auch dataCycle nutzen, ein zentraler Dienst für die Benutzerverwaltung verwendet wird. Um den so verwalteten Benutzern auch einen einfachen Zugang zur Datenschnittstelle von dataCycle zu ermöglichen, werden bei den tokenbasierten Authentifizierungs-Varianten neben den internen dataCycle-Tokens auch [JSON Web Tokens](https://www.rfc-editor.org/rfc/rfc7519) unterstützt.
 
 
 ### Verknüpfte Inhalte
@@ -101,7 +118,7 @@ Ohne eine speziell formulierte Abfrage, wird bei dataCycle nur die erste Ebene d
   "image": [{
     "@id": "a7336c10-5c7d-47de-9ca1-5c8c04fbe65e",
     "@type": "ImageObject",
-    "name": "Tim Berners-Lee, 2014",    
+    "name": "Tim Berners-Lee, 2014",
     "caption": "Tim Berners-Lee, 2014",
     "contentUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Sir_Tim_Berners-Lee.jpg",
     "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Sir_Tim_Berners-Lee.jpg/440px-Sir_Tim_Berners-Lee.jpg",
