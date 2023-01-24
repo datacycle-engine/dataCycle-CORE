@@ -143,9 +143,11 @@ class DataCycle {
     if (this.mutableNodes.includes(element.nodeName)) element.classList.remove('disabled');
   }
   _checkForConditionRecursive(node, type) {
-    for (const child of node.children) this._checkForConditionRecursive(child, type);
+    for (const child of Array.from(node.children)) this._checkForConditionRecursive(child, type);
 
-    for (const [condition, callback] of this.htmlObserver[`${type}Callbacks`]) if (condition(node)) callback(node);
+    for (const [condition, callback] of this.htmlObserver[`${type}Callbacks`]) {
+      if (condition(node)) callback(node);
+    }
   }
   _observeHtmlContent(mutations) {
     for (const mutation of mutations) {

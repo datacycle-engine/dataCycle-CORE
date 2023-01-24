@@ -28,11 +28,7 @@
     <%= render 'move_to_container_overlay', content: content %>
   <% end %>
 
-  <%= render 'data_cycle_core/application/downloads/download_indesign', content: content if can?(:download_indesign, content) %>
-
-  <%= render 'data_cycle_core/application/downloads/download_zip', content: content if can?(:download_zip, content) %>
-
-  <%= render 'data_cycle_core/application/downloads/download', content: content if can?(:download, content) %>
+  <%= render 'data_cycle_core/application/downloads/download_buttons', content: content %>
 
   <%= render 'data_cycle_core/contents/preview_links', content: content %>
 

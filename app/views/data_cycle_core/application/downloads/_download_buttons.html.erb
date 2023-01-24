@@ -1,0 +1,3 @@
+<%= render 'data_cycle_core/application/downloads/download_indesign', content: content if can?(:download_indesign, content) %>
+<%= render 'data_cycle_core/application/downloads/download_zip', content: content if can?(:download_zip, content) %>
+<%= render 'data_cycle_core/application/downloads/download', content: content if can?(:download, content) %>

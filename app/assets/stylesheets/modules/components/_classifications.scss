@@ -1140,7 +1140,7 @@ ul.backend-treeview-list,
 
   li.highlight > .inner-item {
     box-shadow: 0 0 2px 0px $primary-color;
-    border-radius: 3px;
+    border-radius: $global-radius;
     background: $primary-color;
 
     > a.name {

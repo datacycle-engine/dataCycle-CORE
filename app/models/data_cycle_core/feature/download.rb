@@ -8,7 +8,7 @@ module DataCycleCore
           return false unless enabled?
           return false unless dependencies_enabled?
           return false unless configuration.dig(:downloader, *scope, :enabled)
-          return false unless configuration.dig(:downloader, *scope, content.class.to_s.demodulize.underscore, :enabled)
+          return false unless configuration.dig(:downloader, *scope, content.model_name.param_key, :enabled)
           return false unless enabled_serializers_for_download(content, scope).size.positive?
 
           return configuration(content).dig('allowed') && dependencies_allowed?(content) if content.class.to_s == 'DataCycleCore::Thing' && scope&.first == :content
@@ -22,7 +22,8 @@ module DataCycleCore
           else
             available_serializers = DataCycleCore::Feature::Serialize.available_serializers
           end
-          available_download_serializers = configuration.dig(:downloader, *scope, content.class.to_s.demodulize.underscore, :serializers) || {}
+
+          available_download_serializers = configuration.dig(:downloader, *scope, content.model_name.param_key, :serializers) || {}
           # archive download inherit serializers from downloader.content.thing.serializers
           available_download_serializers = (configuration.dig(:downloader, :content, :thing, :serializers) || {}).merge(available_download_serializers) if scope&.first != :content
           available_download_serializers.select { |k, v| v.present? && available_serializers.dig(k).present? }
@@ -43,7 +44,7 @@ module DataCycleCore
           return [] unless allowed?(content, scope)
           available_serializers = DataCycleCore::Feature::Serialize.available_serializers
           configuration
-            .dig(:downloader, *scope, content.class.to_s.demodulize.underscore, :mandatory_serializers)
+            .dig(:downloader, *scope, content.model_name.param_key, :mandatory_serializers)
             &.select { |k, v| v.present? && available_serializers.dig(k).present? } || {}
         end
 
