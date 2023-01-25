@@ -6,9 +6,5 @@ function initChartJs(element) {
 }
 
 export default function () {
-  for (const element of document.querySelectorAll('.dc-chart')) initChartJs(element);
-  DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('dc-chart') && !e.classList.contains('dcjs-chart'),
-    e => initChartJs(e)
-  ]);
+  DataCycle.initNewElements('.dc-chart:not(.dcjs-chart)', initChartJs.bind(this));
 }

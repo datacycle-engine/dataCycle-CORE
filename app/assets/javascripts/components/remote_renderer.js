@@ -44,11 +44,7 @@ class RemoteRenderer {
       this.reloadAfterFail.bind(this)
     );
 
-    for (const element of document.querySelectorAll('.remote-render')) this.addRemoteRenderHandler(element);
-    DataCycle.htmlObserver.addCallbacks.push([
-      e => e.classList.contains('remote-render'),
-      this.addRemoteRenderHandler.bind(this)
-    ]);
+    DataCycle.initNewElements('.remote-render:not(.dc-remote-render)', this.addRemoteRenderHandler.bind(this));
   }
   observeElement(element) {
     this.intersectionObserver.observe(element);
@@ -65,6 +61,7 @@ class RemoteRenderer {
     for (const observer of this.globalObservers) observer.unobserve(element);
   }
   addRemoteRenderHandler(element) {
+    element.classList.add('dc-remote-render');
     this.observeElement(element);
 
     if (element.classList.contains('translatable-attribute')) this.addForceRenderTranslationHandler(element);

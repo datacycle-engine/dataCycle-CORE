@@ -74,19 +74,16 @@ class EmbeddedObject {
     this.addEventHandlers();
     this._updateContainerClass();
   }
-  _checkForConditionRecursive(node) {
-    for (const child of node.children) this._checkForConditionRecursive(child);
-
-    if (node.classList.contains('content-object-item') && !node.classList.contains('hidden')) this.setSwapClasses(node);
+  _runAddCallbacks(node) {
+    for (const e of node.querySelectorAll('.content-object-item:not(.hidden)')) this.setSwapClasses(e);
+    if (node.matches('.content-object-item:not(.hidden)')) this.setSwapClasses(node);
   }
   _checkForAddedNodes(mutations) {
     for (const mutation of mutations) {
       if (mutation.type !== 'childList') continue;
 
       for (const addedNode of mutation.addedNodes) {
-        if (addedNode.nodeType !== Node.ELEMENT_NODE) continue;
-
-        this._checkForConditionRecursive(addedNode);
+        if (addedNode.nodeType === Node.ELEMENT_NODE) this._runAddCallbacks(addedNode);
       }
     }
   }

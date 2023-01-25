@@ -13,7 +13,6 @@ class Tooltips {
   init() {
     if (!this.tooltip) this.createTooltip();
 
-    this.initialTooltips();
     this.initNewTooltips();
   }
   createTooltip() {
@@ -34,14 +33,8 @@ class Tooltips {
     this.tooltipContent = tooltipContent;
     this.tooltip = tooltip;
   }
-  initialTooltips() {
-    for (const tooltip of document.querySelectorAll('[data-dc-tooltip]')) this.addEventsForTooltip(tooltip);
-  }
   initNewTooltips() {
-    DataCycle.htmlObserver.addCallbacks.push([
-      e => e.hasAttribute('data-dc-tooltip') && !e.classList.contains('dc-tooltip'),
-      this.addEventsForTooltip.bind(this)
-    ]);
+    DataCycle.initNewElements('[data-dc-tooltip]:not(.dc-tooltip)', this.addEventsForTooltip.bind(this));
   }
   addEventsForTooltip(element) {
     element.classList.add('dc-tooltip');

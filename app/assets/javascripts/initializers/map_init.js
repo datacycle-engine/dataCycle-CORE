@@ -9,11 +9,7 @@ const mapEditors = {
 };
 
 export default function () {
-  for (const element of document.querySelectorAll('.geographic-map')) initMap(element);
-  DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('geographic-map') && !e.classList.contains('dcjs-map'),
-    e => initMap(e)
-  ]);
+  DataCycle.initNewElements('.geographic-map:not(.dcjs-map)', initMap.bind(this));
 }
 
 function initMap(item) {

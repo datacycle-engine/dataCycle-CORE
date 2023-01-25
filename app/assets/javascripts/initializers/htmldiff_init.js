@@ -1,19 +1,7 @@
 import htmldiff from 'htmldiff/src/htmldiff';
 
 export default function () {
-  for (const field of document.querySelectorAll('.detail-type.string.has-changes.edit')) {
-    diffContent(field);
-  }
-
-  DataCycle.htmlObserver.addCallbacks.push([
-    e =>
-      e.classList.contains('detail-type') &&
-      e.classList.contains('string') &&
-      e.classList.contains('has-changes') &&
-      e.classList.contains('edit') &&
-      !e.classList.contains('dcjs-diff-content'),
-    diffContent
-  ]);
+  DataCycle.initNewElements('.detail-type.string.has-changes.edit:not(.dcjs-diff-content)', diffContent.bind(this));
 }
 
 function diffContent(textField) {
