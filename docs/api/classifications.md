@@ -1,6 +1,6 @@
 # Abfragen von Klassifizierungen über die Datenschnittstelle
 
-Ein wesentlicher Baustein für die Verwendung der Datenschnittstelle von dataCycle sind Klassifizierungen. Über Klassifizierungen werden sämtliche Zuordnungen von Inhalten zu strukturierten Abstraktionen wie z.B. Kategorien sowie zu unstrukturierten Sammelbegriffen wie z.B. Schlagworten oder Tags abgebildet. Außerdem können Klassifizierungen für die Filterung von Inhalten verwendet werden ([Filtern von Inhalten mittels Klassifizierungen](/docs/api/contents#klassifizierungen-filter-classifications)).
+Ein wesentlicher Baustein für die Verwendung der Datenschnittstelle von dataCycle sind Klassifizierungen. Über Klassifizierungen werden sämtliche Zuordnungen von Inhalten zu strukturierten Abstraktionen (z.B. Kategorien) sowie zu unstrukturierten Sammelbegriffen (z.B. Schlagworte oder Tags) abgebildet. Außerdem können Klassifizierungen für die Filterung von Inhalten verwendet werden ([Filtern von Inhalten mittels Klassifizierungen](/docs/api/contents#klassifizierungen-filter-classifications)).
 
 Für die Nutzung im Rahmen eines Inhaltsfilters ist es in den meisten Fällen notwendig, die Klassifizierungen bereits vorab zum Aufbauen des gewünschten Filters zur Verfügung zu haben. Zu diesem Zweck können alle verfügbaren (und für die Datenschnittstelle freigegebenen) Klassifizierungsbäume und die zugehörigen Klassifizierungen über die Datenschnittstelle abgefragt werden. Alternativ dazu können die zu einem Klassifizierungsbaum gehörenden Klassifizierungen auch direkt abgerufen werden, wenn der Klassifizierungsbaum z.B. über eine vorherige Abfrage eines Inhalts bereits bekannt ist.
 
@@ -51,7 +51,7 @@ Die gelieferten Daten enthalten neben dem Namen (```skos:prefLabel```) und einig
 
 ## Abfragen von Klassifizierungen
 
-Klassifizierungen müssen immer im Kontext des zugehörigen Klassifizierungsbaumes abgefragt werden. Die URL zur Liste mit den Klassifizierungen kann entweder aus einer konkreten Klassifizierung, die zu einem Inhalt gehört, abgeleitet, oder über die Liste aller Klassifizierungsbäume direkt abgefragt werden.
+Klassifizierungen müssen immer im Kontext des zugehörigen Klassifizierungsbaums abgefragt werden. Die URL zur Liste mit den Klassifizierungen kann entweder aus einer konkreten Klassifizierung eines Inhalts abgeleitet oder über die Liste aller Klassifizierungsbäume direkt abgefragt werden.
 
 #### HTTP-GET:
 
