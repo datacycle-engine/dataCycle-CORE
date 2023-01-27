@@ -38,8 +38,14 @@ module DataCycleCore
         def add_sorting_recursive!(properties)
           return properties if properties.blank?
 
-          properties.each_value.with_index(1) do |value, index|
-            value[:sorting] = index
+          index = 0
+
+          properties.each do |key, value|
+            next properties.delete(key) if value.nil?
+
+            value[:sorting] = index += 1
+
+            properties.deep_reject! { |_, v| v.nil? }
 
             add_sorting_recursive!(value[:properties]) if value[:type] == 'object' && value.key?(:properties)
           end
