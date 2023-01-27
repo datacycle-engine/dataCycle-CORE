@@ -13,12 +13,12 @@ describe DataCycleCore::Schema::Template do
     end
 
     it 'should exclude properties which are disabled for api' do
-      assert(subject.property_definitions.map { |d| d[:label] }.exclude?('disabledProperty'))
+      assert(subject.property_definitions.pluck(:label).exclude?('disabledProperty'))
     end
 
     it 'should contain 4 property definitions' do
       assert(subject.property_definitions.count, 3)
-      assert(subject.property_definitions.map { |d| d[:label] }.sort, ['stringProperty', 'datetimeProperty', 'dateProperty', 'numberProperty'])
+      assert(subject.property_definitions.pluck(:label).sort, ['stringProperty', 'datetimeProperty', 'dateProperty', 'numberProperty'])
     end
 
     it 'should contain correct property definition for "stringProperty"' do
@@ -96,7 +96,7 @@ describe DataCycleCore::Schema::Template do
 
     it 'should expand nested properties' do
       assert(subject.property_definitions.count, 2)
-      assert(subject.property_definitions.map { |d| d[:label] }.sort, ['someProperty', 'anotherProperty'].sort)
+      assert(subject.property_definitions.pluck(:label).sort, ['someProperty', 'anotherProperty'].sort)
     end
 
     it 'should contain correct property definition for "someProperty"' do
