@@ -304,11 +304,12 @@ en:
     are_you_sure: Are you sure?
     language: Language
     all: All
-    import: Imported
-    export: Exports
+    import: imported from
+    export: exported to
     internal: internal
     external: external
     duplicate: Duplicates
+    link: Links
     auto_translation_submit: Automatic translation started
     source_language: Select source language
     choose_language: Select language
@@ -1533,7 +1534,7 @@ en:
       safetyInformation: Safety information
       startPoint: Start point
       startpointGettingThere: Start point getting there
-      seasonDescription: Sesion      
+      seasonDescription: Sesion
     destination_one:
       facility_unterhaltung: Facility upkeep
       info_wegbelag: Info pavement
