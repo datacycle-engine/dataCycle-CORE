@@ -16,17 +16,16 @@ namespace :dc do
     end
 
     desc 'translate I18n locale files'
-    task :translate_i18n, [:new_locale, :source_files] => :environment do |_, args|
+    task :translate_i18n, [:new_locale, :source_file_paths] => :environment do |_, args|
       abort('MISSING_LOCALE') if args.new_locale.blank?
       abort('TRANSLATE_FEATURE_DISABLED') unless DataCycleCore::Feature::Translate.enabled?
 
       new_locale = args.new_locale
-      source_files = args.source_files&.split('|')&.map(&:squish)
+      source_file_paths = args.source_file_paths&.split('|')&.map(&:squish)
 
       file_paths = Dir[DataCycleCore::Engine.root.join('config', 'locales', '{*.de,de}.yml')]
       file_paths.concat(Dir[Rails.root.join('config', 'locales', '{*.de,de}.yml')])
-
-      file_paths.select! { |p| File.basename(p).in?(source_files) } if source_files.present?
+      file_paths.select! { |p| p.in?(source_file_paths) } if source_file_paths.present?
 
       puts 'AUTOMATIC I18N TRANSLATION STARTED...'
 
@@ -55,7 +54,7 @@ namespace :dc do
           puts "FARADAY ERROR: #{e.message}"
         end
 
-        new_path = File.join(File.dirname(file_path), "deepl.#{File.basename(file_path).gsub('.de.', ".#{new_locale}.")}")
+        new_path = File.join(File.dirname(file_path), "deepl.#{File.basename(file_path).gsub('de.', "#{new_locale}.")}")
 
         File.write(new_path, new_translations.to_yaml)
       end
