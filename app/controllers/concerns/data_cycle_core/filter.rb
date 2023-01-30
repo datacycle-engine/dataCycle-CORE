@@ -143,9 +143,8 @@ module DataCycleCore
           @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
           @classification_trees_parameters |= Array.wrap(@stored_filter.classification_tree_labels)
           @classification_trees_filter = @classification_trees_parameters.present?
-        elsif (@watch_list = DataCycleCore::WatchList.without_my_selection.find_by(id: endpoint_id))
         else
-          raise ActiveRecord::RecordNotFound
+          raise ActiveRecord::RecordNotFound unless (@watch_list = DataCycleCore::WatchList.without_my_selection.find_by(id: endpoint_id))
         end
       end
 

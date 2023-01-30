@@ -135,7 +135,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :uuids, :search, :limit, uuid: []] + [filter: {}] + ['dc:liveData': [:'@id', :minPrice]]
+          super + [:id, :language, :uuids, :search, :limit, uuid: [], filter: {}, 'dc:liveData': [:'@id', :minPrice]]
         end
 
         def permitted_filter_parameters

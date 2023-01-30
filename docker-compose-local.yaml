@@ -86,9 +86,14 @@ services:
       DNSDOCK_ALIAS: localhost
     ports:
       - '127.0.0.1:${PUBLIC_MAILHOG_PORT:-1025}:8025'
+
 volumes:
   mongodb-data:
   mongodb-log:
   nginx-log:
   postgres-data:
   redis:
+
+networks:
+  default:
+    name: ${NETWORK_NAME:-dc-local-network}

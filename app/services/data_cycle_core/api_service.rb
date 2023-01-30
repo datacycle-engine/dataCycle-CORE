@@ -322,11 +322,11 @@ module DataCycleCore
       ]
     end
 
-    def validate_api_params(unpermitted_params)
+    def validate_api_params(unpermitted_params, exceptions = [])
       validator = DataCycleCore::MasterData::Contracts::ApiContract.new
       linked_validator = DataCycleCore::MasterData::Contracts::ApiLinkedContract.new
 
-      validation_params = unpermitted_params&.deep_symbolize_keys&.except(:'dc:liveData')
+      validation_params = unpermitted_params&.deep_symbolize_keys&.except(*exceptions.map(&:to_sym))
       linked_params = validation_params[:filter].delete(:linked) if validation_params.dig(:filter, :linked).present?
       union_params = validation_params[:filter].delete(:union) if validation_params.dig(:filter, :union).present?
 
