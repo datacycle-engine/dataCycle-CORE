@@ -4,3 +4,6 @@
   - app/models/generic/rubbish/convert_to_md.rb
   - node_modules/
   - cache/
+
+:skip_checks:
+  - CheckEOLRuby
