@@ -314,6 +314,8 @@ module DataCycleCore
 
     module ClassMethods
       def until_as_utc_iso8601(until_date, until_time)
+        return if until_date.blank? || until_time.blank?
+
         "#{until_date.in_time_zone.to_date.iso8601}T#{until_time.in_time_zone.strftime('%T')}+00:00"
       end
 
@@ -396,7 +398,7 @@ module DataCycleCore
                 },
                 until: until_as_utc_iso8601(s['valid_until'], t['opens'])
               }]
-            }.deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }.with_indifferent_access).to_hash.except(:relation, :thing_id).merge(id: t['id']).with_indifferent_access.compact
+            }.deep_reject { |_, v| DataCycleCore::DataHashService.blank?(v) }.with_indifferent_access).to_hash.except(:relation, :thing_id).merge(id: t['id']).with_indifferent_access.compact
           end
         }.flatten.compact
       end
