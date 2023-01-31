@@ -9,6 +9,8 @@ module DataCycleCore
       def create_data(type, user = nil)
         @user = user
         send(type)
+      rescue NoMethodError => e
+        raise ArgumentError, "Unknown type (#{type}) for V4::DummyDataHelper: #{e.message}"
       end
 
       def minimal_poi

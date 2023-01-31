@@ -7,7 +7,7 @@ module DataCycleCore
     def create_data(type, user = nil)
       @user = user
       send(type)
-    rescue StandardError => e
+    rescue NoMethodError => e
       raise ArgumentError, "Unknown type (#{type}) for DummyDataHelper: #{e.message}"
     end
 
