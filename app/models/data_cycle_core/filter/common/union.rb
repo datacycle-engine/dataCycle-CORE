@@ -61,6 +61,7 @@ module DataCycleCore
 
         def not_content_ids(ids = nil)
           return self if ids.blank?
+
           if Array.wrap(ids).all?(&:uuid?)
             reflect(
               @query.where.not(thing[:id].in(ids))
@@ -80,6 +81,7 @@ module DataCycleCore
         def filter_ids(ids = nil)
           filter_query_sql = filter_ids_query(ids)
           return self if filter_query_sql.blank?
+
           reflect(
             @query.where(thing[:id].in(Arel.sql(filter_query_sql)))
           )
@@ -88,6 +90,7 @@ module DataCycleCore
         def not_filter_ids(ids = nil)
           filter_query_sql = filter_ids_query(ids)
           return self if filter_query_sql.blank?
+
           reflect(
             @query.where.not(thing[:id].in(Arel.sql(filter_query_sql)))
           )
@@ -120,7 +123,9 @@ module DataCycleCore
         def filter_ids_query(ids)
           return if ids.blank?
 
-          DataCycleCore::StoredFilter.where(id: ids).map { |f| f.apply(skip_ordering: true).select(:id).except(*UNION_FILTER_EXCEPTS).to_sql }.join(' UNION ')
+          filters = DataCycleCore::StoredFilter.where(id: ids).index_by(&:id)
+
+          ids.map { |f| (filters[f]&.apply(skip_ordering: true) || DataCycleCore::Thing.where('1 = 0')).select(:id).except(*UNION_FILTER_EXCEPTS).to_sql }.join(' UNION ')
         rescue SystemStackError
           raise DataCycleCore::Error::Filter::UnionFilterRecursionError
         end
