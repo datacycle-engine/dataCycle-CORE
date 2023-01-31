@@ -8,7 +8,7 @@ module DataCycleCore
           return false unless enabled?
           return false unless dependencies_enabled?
           return false unless configuration.dig(:downloader, *download_scopes, :enabled)
-          return false unless configuration.dig(:downloader, *download_scopes, content.model_name.param_key, :enabled)
+          return false unless configuration.dig(:downloader, *download_scopes, content&.model_name&.param_key, :enabled)
           return false unless enabled_serializers_for_download(content, download_scopes).size.positive?
 
           return configuration(content).dig('allowed') && dependencies_allowed?(content) if content.class.to_s == 'DataCycleCore::Thing' && download_scopes&.first == :content
@@ -23,7 +23,7 @@ module DataCycleCore
             available_serializers = DataCycleCore::Feature::Serialize.available_serializers
           end
 
-          available_download_serializers = configuration.dig(:downloader, *download_scopes, content.model_name.param_key, :serializers) || {}
+          available_download_serializers = configuration.dig(:downloader, *download_scopes, content&.model_name&.param_key, :serializers) || {}
           # archive download inherit serializers from downloader.content.thing.serializers
           available_download_serializers = (configuration.dig(:downloader, :content, :thing, :serializers) || {}).merge(available_download_serializers) if download_scopes&.first != :content
           available_download_serializers.select { |k, v| v.present? && available_serializers.dig(k).present? }
@@ -45,7 +45,7 @@ module DataCycleCore
           return [] unless allowed?(content, download_scopes)
           available_serializers = DataCycleCore::Feature::Serialize.available_serializers
           configuration
-            .dig(:downloader, *download_scopes, content.model_name.param_key, :mandatory_serializers)
+            .dig(:downloader, *download_scopes, content&.model_name&.param_key, :mandatory_serializers)
             &.select { |k, v| v.present? && available_serializers.dig(k).present? } || {}
         end
 
