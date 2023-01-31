@@ -7,10 +7,10 @@ module DataCycleCore
 
       # TODO: add classifications more generic
       def create_data(type, user = nil)
+        raise ArgumentError, "Unknown type (#{type}) for DummyDataHelper" unless respond_to?(type)
+
         @user = user
         send(type)
-      rescue NoMethodError => e
-        raise ArgumentError, "Unknown type (#{type}) for V4::DummyDataHelper: #{e.message}"
       end
 
       def minimal_poi
