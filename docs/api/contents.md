@@ -4,7 +4,7 @@ In dataCycle gibt es zwei Möglichkeiten, wie Inhalte über die Datenschnittstel
 
 ## Filtern von Inhalten
 
-Häufig ist es so, dass neben der Einschränkung von Inhalten im Zuge der Erstellung eines Datenendpunkts auch eine nachträgliche Filterung direkt beim Abrufen der Inhalte wünschenswert bzw. notwendig ist. Bei dataCycle stehen deshalb unterschiedliche Filter zur Verfügung, die direkt über die API genutzt werden können. 
+Häufig ist es so, dass neben der Einschränkung von Inhalten im Zuge der Erstellung eines Datenendpunkts auch eine nachträgliche Filterung direkt beim Abrufen der Inhalte wünschenswert bzw. notwendig ist. Bei dataCycle stehen deshalb unterschiedliche Filter zur Verfügung, die direkt über die API genutzt werden können.
 
 Um unterschiedliche Anwendungsfälle möglichst gut abdecken zu können, stehen unterschiedliche Typen von Filtern zur Verfügung. Folgend werden die meisten Filtertypen abgedeckt, in der [Spezifikation](/docs/api/contents/specification) können alle Filtertypen nachgesehen werden.
 
@@ -172,7 +172,7 @@ Um beispielsweise alle Veranstaltungen im Herbst und im Winter außer den Verans
 }
 ```
 
-#### Aktualisierungen - **filter\[attribute\]\[dct:created|dct:modified|deletedAt\]**
+#### Aktualisierungen - **filter\[attribute\]\[dct:created|dct:modified|dct:deleted\]**
 
 Für einige Anwendungsfälle kann es hilfreich sein, herausfinden zu können, welche Datensätze innerhalb einer vorgegebenen Zeitspanne erstellt, geändert oder gelöscht worden sind. Zu diesem Zweck können bei allen API-Endpunkten, die sich aus statischen bzw. dynamischen Inhaltssammlungen ergeben, spezielle _Attribut-Filter_ genutzt werden. Dadurch kann die Anzahl der Datensätze, die geladen werden muss, erheblich reduziert werden. Außerdem muss die Prüfung, ob es seit dem letzten Update neue Änderungen gegeben hat, nicht client-seitig durchgeführt werden, wodurch die auf dataCycle aufbauenden Anwendungen noch einmal deutlich entlastet werden können. Für diese Art der Filterung werden die folgenden Attribute unterstützt:
 
