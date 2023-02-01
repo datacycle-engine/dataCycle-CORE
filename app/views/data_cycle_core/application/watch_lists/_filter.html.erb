@@ -1,6 +1,6 @@
 <div class="watch-lists-filter">
   <div class="form-element">
-    <%= text_field_tag :q, nil, class: 'form-control watch-list-filter-param', placeholder: t('collection.filter', data: DataCycleCore::WatchList.model_name.human(count: 2, locale: active_ui_locale), locale: active_ui_locale), autocomplete: 'off', id: nil %>
+    <%= text_field_tag :q, nil, class: 'watch-list-filter-param', placeholder: t('collection.filter', data: DataCycleCore::WatchList.model_name.human(count: 2, locale: active_ui_locale), locale: active_ui_locale), autocomplete: 'off', id: nil %>
     <%= button_tag(type: :reset, class: "reset-watch-list-filter", data: {
           disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw', aria_hidden: true)
         }) do %>

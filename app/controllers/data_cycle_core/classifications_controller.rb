@@ -43,8 +43,9 @@ module DataCycleCore
           authorize! :index, @classification_tree_label
 
           @mapped_classification_aliases = @mapped_classification_aliases
-            .includes(:classification_alias_path)
-            .order('classification_aliases.order_a ASC')
+            .includes(:classification_alias_path, :classification_tree_label)
+            .reorder(nil)
+            .order('classification_tree_labels.name ASC, classification_aliases.order_a ASC').references(:classification_tree_labels)
 
           if @classification_type.is_a?(DataCycleCore::ClassificationAlias)
             @classification_trees = @classification_trees.includes(:classification_alias_path)

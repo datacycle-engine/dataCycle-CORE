@@ -9,7 +9,7 @@
     <%= form_for(@new_watch_list, namespace: namespace, html: { class: "add-watchlist-form", id: identifier }, remote: true) do |f| %>
       <div class="validation-container form-element">
         <%= hidden_field_tag :new_form_id, identifier %>
-        <%= f.text_field :full_path, class: 'form-control', value:'', placeholder: t('collection.new', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale), locale: active_ui_locale), required: true %>
+        <%= f.text_field :full_path, value:'', placeholder: t('collection.new', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale), locale: active_ui_locale), required: true %>
         <%= button_tag(type: 'submit', class: "button primary") do %>
           <i class="fa fa-plus" aria-hidden="true"></i>
         <% end %>
