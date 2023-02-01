@@ -12,6 +12,7 @@ class ClassificationJumpToParent {
   }
   jumptToParent(event) {
     if (event.target !== this.item) return;
+    if (event.clientX - event.target.getBoundingClientRect().left > 15) return;
 
     event.preventDefault();
     event.stopPropagation();
@@ -28,6 +29,7 @@ class ClassificationJumpToParent {
   }
   hoverTree(event) {
     if (event.target !== this.item) return;
+    if (event.clientX - event.target.getBoundingClientRect().left > 15) return;
 
     event.preventDefault();
     event.stopPropagation();

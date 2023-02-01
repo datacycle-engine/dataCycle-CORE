@@ -776,6 +776,7 @@ de:
     linked_author: Verknüpfter Fotograf
     linked_copyright_holder: Verknüpfter Rechteinhaber
     linked_provider: Verknüpfter Dienstleister
+    linked_sd_publisher: Verknüpfter Inhaber / Herausgeber
     in_schedule_types:
       absolute: Fester Zeitraum
       relative: Relativer Zeitraum

@@ -743,6 +743,7 @@ en:
     linked_author: Linked photographer
     linked_copyright_holder: Related rights holder
     linked_provider: Linked service provider
+    linked_sd_publisher: Linked Owner / Publisher
     in_schedule_types:
       absolute: Fixed period
       relative: Relative period
