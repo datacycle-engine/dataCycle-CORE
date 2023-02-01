@@ -86,6 +86,14 @@ class MapLibreGlViewer {
                 },
                 url: url
               };
+            } else if (url.includes(location.host)) {
+              console.log('returning');
+              return {
+                headers: {
+                  'X-CSRF-Token': document.getElementsByName('csrf-token')[0].content
+                },
+                url: url
+              };
             }
             return;
           }
