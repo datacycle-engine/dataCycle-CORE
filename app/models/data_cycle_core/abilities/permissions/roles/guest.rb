@@ -12,74 +12,74 @@ module DataCycleCore
             # DataLink
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :create_editable_links, :auto_login,
+              :create_editable_links, :auto_login,
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::DataLink)
             )
 
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :auto_login,
+              :auto_login,
               DataCycleCore::Abilities::Segments::DataLinkByReceiver.new
             )
 
             # ObjectBrowser
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :show, :find,
+              :show, :find,
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(:object_browser)
             )
 
             # UserApi
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :login, :renew_login, :reset_password, :confirm,
+              :login, :renew_login, :reset_password, :confirm,
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(:user_api)
             )
 
             # Asset
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read,
+              :read,
               DataCycleCore::Abilities::Segments::AssetByUserAndNoContent.new
             )
 
             # Thing
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :create,
+              :create,
               DataCycleCore::Abilities::Segments::TemplateByCreatableScope.new('asset')
             )
 
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :print,
+              :print,
               DataCycleCore::Abilities::Segments::ThingByContentType.new('entity')
             )
 
             # StoredFilter
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :api,
+              :api,
               DataCycleCore::Abilities::Segments::SubjectByUserAndConditions.new(DataCycleCore::StoredFilter, :user_id, api: true)
             )
 
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :api,
+              :api,
               DataCycleCore::Abilities::Segments::StoredFilterByApiUsers.new
             )
 
             # WatchList
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :copy_api_link,
+              :copy_api_link,
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::WatchList, my_selection: false)
             )
 
             # DataAttributes
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read,
+              :read,
               DataCycleCore::Abilities::Segments::DataAttributeAllowedForShow.new(
                 [
                   :attribute_not_disabled?,
@@ -91,7 +91,7 @@ module DataCycleCore
 
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :edit,
+              :edit,
               DataCycleCore::Abilities::Segments::DataAttributeAllowedForEdit.new(
                 [
                   :attribute_not_included_in_publication_schedule?,
@@ -105,7 +105,7 @@ module DataCycleCore
 
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :update,
+              :update,
               DataCycleCore::Abilities::Segments::DataAttributeAllowedForUpdate.new(
                 [
                   :attribute_not_included_in_publication_schedule?,
@@ -121,7 +121,7 @@ module DataCycleCore
             # User
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :update,
+              :update,
               DataCycleCore::Abilities::Segments::SubjectByUserAndConditions.new(DataCycleCore::User, :id)
             )
           end

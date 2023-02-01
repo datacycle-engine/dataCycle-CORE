@@ -14,7 +14,7 @@ module DataCycleCore
             # StoredFilter
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :show,
+              :show,
               DataCycleCore::Abilities::Segments::SubjectByConditions.new(
                 [
                   DataCycleCore::Thing,
@@ -27,13 +27,13 @@ module DataCycleCore
             # DataLink for things, watch_lists
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :update, :import,
+              :update, :import,
               DataCycleCore::Abilities::Segments::ThingByDataLink.new
             )
             # DataLink for stored_filter
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read, :search, :classification_trees, :classification_tree, :permanent_advanced, :advanced,
+              :read, :search, :classification_trees, :classification_tree, :permanent_advanced, :advanced,
               DataCycleCore::Abilities::Segments::StoredFilterByDataLink.new('fulltext_search')
             )
 
@@ -41,7 +41,7 @@ module DataCycleCore
             # ViewMode
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :grid,
+              :grid,
               DataCycleCore::Abilities::Segments::SubjectByEnabledFeature.new(:view_mode, DataCycleCore::Feature::ViewMode)
             )
           end
