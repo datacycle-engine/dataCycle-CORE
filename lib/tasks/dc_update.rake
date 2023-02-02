@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rake_helpers/parallel_helper'
+
 namespace :dc do
   namespace :update do
     desc 'import and update all classifications, external_sources, external_systems and templates'
@@ -16,29 +18,31 @@ namespace :dc do
       desc 'import mappings from XLSX or CSV file'
       task :mappings_from_spreadsheet, [:file_path] => :environment do |_, args|
         abort('file_path missing!') if args.file_path.blank?
-        abort('file at this path does not exist!') unless File.exist?(args.file_path)
 
         errors = []
         pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
         futures = []
         imported = 0
         duplicates = 0
+        file_paths = Dir[args.file_path]
 
-        Roo::Spreadsheet.open(args.file_path).each_with_pagename do |_name, sheet|
-          sheet.each do |row|
-            next if row.blank?
+        abort('no files found at this path!') if file_paths.blank?
 
-            ca_path = row[0].to_s.strip
-            mapped_ca_path = row[1].to_s.strip
+        file_paths.each do |file_path|
+          Roo::Spreadsheet.open(file_path).each_with_pagename do |_name, sheet|
+            sheet.each do |row|
+              next if row.blank?
 
-            next unless ca_path.include?('>') && mapped_ca_path.include?('>')
+              ca_path = row[0].to_s.strip
+              mapped_ca_path = row[1].to_s.strip
 
-            futures << Concurrent::Promise.execute({ executor: pool }) do
-              ActiveRecord::Base.connection_pool.with_connection do
+              next unless ca_path.include?('>') && mapped_ca_path.include?('>')
+
+              ParallelHelper.run_in_parallel(futures, pool) do
                 ca = DataCycleCore::ClassificationAlias.custom_find_by_full_path(ca_path)
 
                 if ca.nil?
-                  errors << "classification_alias not found (#{ca_path})"
+                  errors << "classification_alias not found (#{File.basename(file_path)} => #{ca_path})"
                   print 'x'
                   next
                 end
@@ -51,13 +55,13 @@ namespace :dc do
                   print('.')
                 end
               rescue ActiveRecord::RecordNotFound
-                errors << "mapped classification_alias not found (#{mapped_ca_path})"
+                errors << "mapped classification_alias not found (#{File.basename(file_path)} => #{mapped_ca_path})"
                 print 'x'
               end
             end
-          end
 
-          futures.each(&:wait!)
+            futures.each(&:wait!)
+          end
         end
 
         puts
@@ -69,25 +73,26 @@ namespace :dc do
       task :translations_from_spreadsheet, [:locale, :file_path] => :environment do |_, args|
         abort('locale missing!') if args.locale.blank?
         abort('locale not enabled in this system!') if I18n.available_locales.exclude?(args.locale.to_sym)
-
         abort('file_path missing!') if args.file_path.blank?
-        abort('file at this path does not exist!') unless File.exist?(args.file_path)
 
         errors = []
         pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
         futures = []
+        file_paths = Dir[args.file_path]
 
-        Roo::Spreadsheet.open(file_path).each_with_pagename do |_name, sheet|
-          sheet.each do |row|
-            next if row.blank?
+        abort('no files found at this path!') if file_paths.blank?
 
-            ca_path = row[0].to_s.strip
-            ca_translation = row[1].to_s.strip
+        file_paths.each do |file_path|
+          Roo::Spreadsheet.open(file_path).each_with_pagename do |_name, sheet|
+            sheet.each do |row|
+              next if row.blank?
 
-            next unless ca_path.include?('>') && ca_translation.present?
+              ca_path = row[0].to_s.strip
+              ca_translation = row[1].to_s.strip
 
-            futures << Concurrent::Promise.execute({ executor: pool }) do
-              ActiveRecord::Base.connection_pool.with_connection do
+              next unless ca_path.include?('>') && ca_translation.present?
+
+              ParallelHelper.run_in_parallel(futures, pool) do
                 ca = DataCycleCore::ClassificationAlias.custom_find_by_full_path(ca_path)
 
                 if ca.nil?
@@ -107,9 +112,9 @@ namespace :dc do
                 print 'x'
               end
             end
-          end
 
-          futures.each(&:wait!)
+            futures.each(&:wait!)
+          end
         end
 
         puts
