@@ -6,18 +6,22 @@ module DataCycleCore
       class DataAttribute < Base
         attr_reader :subject, :method_names, :except_list
 
-        def initialize(method_names, except_list = {})
+        def initialize(method_names = [], except_list = {})
           @subject = DataCycleCore::DataAttribute
-          @method_names = Array.wrap(method_names).map(&:to_sym)
-          @except_list = except_list
+          @method_names = Array.wrap(method_names).map { |m| Array.wrap(m) }
+          @except_list = except_list.to_h
         end
 
         def include?(attribute)
-          method_names.all? { |method_name| send(method_name, attribute) }
+          method_names.all? { |m| send(m.first, attribute, *m[1..-1]) }
         end
 
         def to_proc
           ->(*args) { include?(*args) }
+        end
+
+        def attribute_content_not_external?(attribute)
+          !attribute.content.external?
         end
 
         def attribute_not_disabled?(attribute)
@@ -36,7 +40,7 @@ module DataCycleCore
         end
 
         def attribute_not_releasable?(attribute)
-          !DataCycleCore::Feature::Releasable.attribute_keys(attribute.content).include?(attribute.key.attribute_name_from_key)
+          DataCycleCore::Feature::Releasable.attribute_keys(attribute.content).exclude?(attribute.key.attribute_name_from_key)
         end
 
         def attribute_not_included_in_publication_schedule?(attribute)
@@ -64,6 +68,14 @@ module DataCycleCore
 
         def attribute_not_excluded?(attribute)
           except_list.dig(attribute.content.template_name.to_sym)&.include?(attribute.key.attribute_name_from_key) != true
+        end
+
+        def attribute_content_template_whitelisted?(attribute, template_names = [])
+          attribute.content.template_name.in?(Array.wrap(template_names))
+        end
+
+        def attribute_whitelisted?(attribute, attribute_names = [])
+          Array.wrap(attribute_names).any? { |a| attribute.key.include?(a) }
         end
       end
     end

@@ -134,7 +134,7 @@ module DataCycleCore
       end
 
       def external?
-        external_source.present?
+        external_source_id.present?
       end
 
       def schema_type
