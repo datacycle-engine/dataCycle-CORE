@@ -211,7 +211,7 @@ module DataCycleCore
             # User
             add_permission(
               DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :update,
+              :show, :update,
               DataCycleCore::Abilities::Segments::SubjectByUserAndConditions.new(DataCycleCore::User, :id)
             )
 
