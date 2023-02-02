@@ -3901,3 +3901,18 @@ body {
     padding: 0.1rem 0.3rem;
   }
 }
+
+#dc-tooltip {
+  .user-ui-locale,
+  .user-default-locale {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.3rem;
+
+    .user-default-locale-value,
+    .user-ui-locale-value {
+      font-weight: bold;
+    }
+  }
+}

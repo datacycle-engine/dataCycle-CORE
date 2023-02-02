@@ -10,7 +10,8 @@
         </tr>
         <tr>
           <td style="padding:12pt 0 0 0;">
-            <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><%= t('feature.user_api.mailer.unlocked_html', locale: @locale) %></span>
+            <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><%=
+            first_available_i18n_t("feature.user_api.mailer.#{@current_issuer}.unlocked_html", @current_issuer, { locale: @locale }) %></span>
           </td>
         </tr>
       </table>
