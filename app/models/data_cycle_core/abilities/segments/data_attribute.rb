@@ -24,6 +24,10 @@ module DataCycleCore
           !attribute.content.external?
         end
 
+        def attribute_content_external?(attribute)
+          attribute.content.external?
+        end
+
         def attribute_not_disabled?(attribute)
           attribute.definition.deep_stringify_keys.dig('ui', attribute.scope.to_s, 'disabled').to_s != 'true'
         end
@@ -32,9 +36,15 @@ module DataCycleCore
           attribute.definition.deep_stringify_keys.dig('ui', attribute.scope.to_s, 'readonly').to_s != 'true'
         end
 
+        def attribute_is_in_overlay?(attribute)
+          attribute.content&.external? &&
+            DataCycleCore::Feature::Overlay.allowed?(attribute.content) &&
+            DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
+        end
+
         def overlay_attribute_visible?(attribute)
           return true unless DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
-          return true if attribute.content.try(:external_source_id).present? && DataCycleCore::Feature::Overlay.allowed?(attribute.content)
+          return true if attribute.content&.external? && DataCycleCore::Feature::Overlay.allowed?(attribute.content)
 
           false
         end
@@ -75,7 +85,7 @@ module DataCycleCore
         end
 
         def attribute_whitelisted?(attribute, attribute_names = [])
-          Array.wrap(attribute_names).any? { |a| attribute.key.include?(a) }
+          Array.wrap(attribute_names).any? { |a| Array.wrap(a).all? { |v| attribute.key.attribute_path_from_key.include?(v) } }
         end
       end
     end

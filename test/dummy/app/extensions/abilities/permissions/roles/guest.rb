@@ -7,12 +7,12 @@ module Abilities
         def load_guest_permissions(role = :guest)
           super
 
-          add_permission(
+          permit(
             DataCycleCore::Abilities::Segments::UsersByRole.new(role),
             :can, :show_history,
             DataCycleCore::Abilities::Segments::SubjectByUserAndConditions.new(DataCycleCore::StoredFilter, :user_id)
           )
-          add_permission(
+          permit(
             DataCycleCore::Abilities::Segments::UsersByRole.new(role),
             :can, :show, :bulk_edit, :bulk_delete,
             DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::WatchList)

@@ -4,19 +4,11 @@ module DataCycleCore
   module Abilities
     module Segments
       class ThingByTemplateName < Base
-        attr_reader :subject, :template_names
+        attr_reader :subject, :conditions
 
         def initialize(template_names)
-          @template_names = Array.wrap(template_names).map(&:to_s)
           @subject = DataCycleCore::Thing
-        end
-
-        def include?(obj, _content = nil)
-          template_names.include?(obj.template_name)
-        end
-
-        def to_proc
-          ->(*args) { include?(*args) }
+          @conditions = { template_name: Array.wrap(template_names).map(&:to_s) }
         end
       end
     end
