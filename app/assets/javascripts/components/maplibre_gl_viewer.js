@@ -51,7 +51,11 @@ class MapLibreGlViewer {
     this.mapStyles = this.mapOptions.styles;
     this.mapBackend = this.mapOptions.viewer || this.mapOptions.editor;
     this.typeColors = this.mapOptions.type_colors;
-    this.defaultPosition = pick(this.mapOptions, ['latitude', 'longitude', 'zoom']);
+    this.defaultOptions = pick(this.mapOptions, ['center', 'zoom', 'minZoom', 'maxBounds']);
+    // fallback for old config files main projects
+    if (!('center' in this.defaultOptions)) {
+      this.defaultOptions.center = [this.mapOptions.longitude, this.mapOptions.latitude];
+    }
     this.highDpi = window.devicePixelRatio > 1;
 
     this.credentials = this.mapOptions.credentials;
@@ -97,7 +101,7 @@ class MapLibreGlViewer {
             return;
           }
         },
-        this.defaultView()
+        this.defaultOptions
       )
     );
   }
@@ -208,18 +212,6 @@ class MapLibreGlViewer {
         }
       ]
     };
-  }
-  defaultView() {
-    const viewOptions = {
-      zoom: 7,
-      center: [13.34576, 47.69642]
-    };
-
-    if (this.defaultPosition && this.defaultPosition.zoom) viewOptions.zoom = this.defaultPosition.zoom;
-    if (this.defaultPosition && this.defaultPosition.longitude && this.defaultPosition.latitude)
-      viewOptions.center = [this.defaultPosition.longitude, this.defaultPosition.latitude];
-
-    return viewOptions;
   }
   setZoomMethod() {
     const platform = window.navigator.platform;
