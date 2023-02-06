@@ -21,7 +21,7 @@ module DataCycleCore
           return self if filter_queries.blank?
 
           reflect(
-            @query.where(thing[:id].in(Arel.sql(DataCycleCore::Thing.send(:sanitize_sql_array, [filter_queries.join(' UNION ')]))))
+            @query.where(thing[:id].in(Arel.sql(filter_queries.join(' UNION '))))
           )
         end
 
@@ -36,7 +36,7 @@ module DataCycleCore
           return self if filter_queries.blank?
 
           reflect(
-            @query.where(thing[:id].not_in(Arel.sql(DataCycleCore::Thing.send(:sanitize_sql_array, [filter_queries.join(' UNION ')]))))
+            @query.where(thing[:id].not_in(Arel.sql(filter_queries.join(' UNION '))))
           )
         end
 
