@@ -46,6 +46,7 @@
         :label: Besitzer
         :type: classification
         :tree_label: Besitzer
+        :global: true
         :validations:
           :required: true
         :ui:
@@ -55,6 +56,7 @@
         :label: Typ des Verortungsobjektes
         :type: classification
         :tree_label: Typ des Verortungsobjektes
+        :global: true
         :validations:
           :required: true
         :ui:

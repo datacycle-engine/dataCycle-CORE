@@ -19,6 +19,7 @@ module DataCycleCore
     end
 
     delegate :iso8601_duration, to: :class
+    delegate :parse_iso8601_duration, to: :class
 
     def to_h
       item_hash = @schedule_object&.to_hash || {}
@@ -33,8 +34,17 @@ module DataCycleCore
 
     def from_h(hash)
       @schedule_object = nil
-      @schedule_object = IceCube::Schedule.from_hash(hash) if hash.except(:id, :thing_id, :thing_history_id, :dtstart, :dtend, :relation, :duration).present?
-      self.duration = hash[:duration]
+      hash = hash.with_indifferent_access
+      hash[:duration] = parse_iso8601_duration(hash[:duration]) if hash.key?(:duration)
+      if hash.except(:id, :thing_id, :thing_history_id, :dtstart, :dtend, :relation, :duration).present?
+        @schedule_object = IceCube::Schedule.from_hash(
+          hash.deep_dup.tap do |h|
+            h[:end_time] = h.dig(:start_time, :time).in_time_zone(h.dig(:start_time, :zone))&.advance(h.delete(:duration)&.parts.to_h) if h.key?(:duration)
+          end
+        )
+      end
+
+      self.duration = hash[:duration]&.iso8601
       self.dtstart = hash[:dtstart]
       self.dtend = hash[:dtend]
       self.holidays = hash[:holidays]
@@ -280,6 +290,7 @@ module DataCycleCore
 
     def load_schedule_object
       options = { duration: duration.presence }.compact
+
       @schedule_object = IceCube::Schedule.new(dtstart.presence || Time.zone.now, options) do |s|
         s.add_recurrence_rule(IceCube::Rule.from_ical(rrule)) if rrule.present? # allow only one rrule!!
         rdate.each do |rd|
@@ -295,8 +306,7 @@ module DataCycleCore
       return if @schedule_object.blank?
       self.rrule = @schedule_object.recurrence_rules&.first&.to_ical
       self.dtstart = @schedule_object.start_time
-      schedule_object_duration = iso8601_duration(@schedule_object.start_time, @schedule_object.end_time)
-      self.duration = schedule_object_duration.iso8601 if schedule_object_duration.positive?
+      self.duration ||= iso8601_duration(@schedule_object.start_time, @schedule_object.end_time)&.iso8601
       self.dtend = @schedule_object.terminating? ? (@schedule_object.last || @schedule_object.start_time) + (duration || 0) : nil
       self.rdate = @schedule_object.recurrence_times
       self.exdate = @schedule_object.extimes
@@ -314,6 +324,8 @@ module DataCycleCore
 
     module ClassMethods
       def until_as_utc_iso8601(until_date, until_time)
+        return if until_date.blank? || until_time.blank?
+
         "#{until_date.in_time_zone.to_date.iso8601}T#{until_time.in_time_zone.strftime('%T')}+00:00"
       end
 
@@ -325,9 +337,8 @@ module DataCycleCore
           next nil if s.dig('start_time', 'time').blank?
 
           start_time = s.dig('start_time', 'time')&.in_time_zone
-          duration = parts_to_iso8601_duration(s['duration'])
 
-          s['duration'] = duration.iso8601
+          s['duration'] = parts_to_iso8601_duration(s['duration']).iso8601
           s['start_time'] = {
             time: start_time.to_s,
             zone: start_time.time_zone.name
@@ -354,7 +365,7 @@ module DataCycleCore
             s.dig('rrules', 0, 'validations')&.delete('day')
           end
 
-          DataCycleCore::Schedule.new.from_hash(s.slice('id', 'start_time', 'duration', 'rrules', 'rtimes', 'extimes').deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }.with_indifferent_access).to_hash.except(:relation, :thing_id).merge(id: s['id']).with_indifferent_access.compact
+          DataCycleCore::Schedule.new.from_hash(s.slice('id', 'start_time', 'duration', 'rrules', 'rtimes', 'extimes').deep_reject { |_, v| DataCycleCore::DataHashService.blank?(v) }.with_indifferent_access).to_hash.except(:relation, :thing_id).merge(id: s['id']).with_indifferent_access.compact
         }.compact
       end
 
@@ -396,19 +407,20 @@ module DataCycleCore
                 },
                 until: until_as_utc_iso8601(s['valid_until'], t['opens'])
               }]
-            }.deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }.with_indifferent_access).to_hash.except(:relation, :thing_id).merge(id: t['id']).with_indifferent_access.compact
+            }.deep_reject { |_, v| DataCycleCore::DataHashService.blank?(v) }.with_indifferent_access).to_hash.except(:relation, :thing_id).merge(id: t['id']).with_indifferent_access.compact
           end
         }.flatten.compact
       end
 
       def iso8601_duration(start_time, end_time)
-        return ActiveSupport::Duration.build(0) if end_time.nil?
+        return if end_time.nil?
 
-        time_hash = distance_of_time_in_words_hash(start_time, end_time)
+        duration_hash = distance_of_time_in_words_hash(start_time, end_time)
 
-        parts_to_iso8601_duration(time_hash)
+        parts_to_iso8601_duration(duration_hash)
       end
 
+      # for time only
       def time_to_duration(start_time, end_time)
         return 0 if start_time.blank? || end_time.blank?
 
@@ -441,10 +453,18 @@ module DataCycleCore
         ActiveSupport::Duration.build(0)
       end
 
-      def iso8601_duration_to_parts(duration)
-        return {} if duration.blank?
+      def parse_iso8601_duration(duration_string)
+        return duration_string if duration_string.is_a?(ActiveSupport::Duration)
+        return ActiveSupport::Duration.build(0) if duration_string.blank?
+        return ActiveSupport::Duration.build(duration_string) if duration_string.is_a?(::Numeric)
 
-        ActiveSupport::Duration.parse(duration).parts
+        ActiveSupport::Duration.parse(duration_string)
+      end
+
+      def iso8601_duration_to_parts(duration_string)
+        duration = parse_iso8601_duration(duration_string)
+
+        duration.present? ? duration.parts : {}
       end
     end
   end

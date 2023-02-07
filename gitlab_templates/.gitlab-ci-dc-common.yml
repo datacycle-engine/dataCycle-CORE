@@ -82,8 +82,7 @@ services:
   extends: .job_cache_config
   stage: check
   script:
-    - bundle exec bundle-audit update
-    - bundle exec bundle audit check --ignore CVE-2021-21288 CVE-2021-21305
+    - bundle exec bundle audit check --update --ignore CVE-2021-21288 CVE-2021-21305
     - bundle exec brakeman -c vendor/gems/data-cycle-core/config/brakeman.yml
     - bundle exec rubocop --format fuubar -P
     - bundle exec fasterer

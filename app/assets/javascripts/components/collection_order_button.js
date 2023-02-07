@@ -13,7 +13,8 @@ class CollectionOrderButton {
       group: 'manual-collection-order',
       handle: '.draggable-handle',
       draggable: 'li.list-item',
-      disabled: true
+      disabled: true,
+      onEnd: this.updateOrder.bind(this)
     });
     this.handleHtml = '<span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>';
     this.newButtonObserver = new MutationObserver(this._observeHtmlContent.bind(this));
@@ -24,9 +25,6 @@ class CollectionOrderButton {
       childList: true,
       attributeOldValue: false,
       characterDataOldValue: false
-    };
-    this.eventHandlers = {
-      beforeunload: this.beforeunloadHandler.bind(this)
     };
 
     this.setup();
@@ -45,46 +43,34 @@ class CollectionOrderButton {
   }
   enableSortable() {
     this.itemWrapper.classList.add('active');
-    I18n.t('collection.manual_order.button_active').then(text => (this.itemWrapper.dataset.dcTooltip = text));
 
     for (const item of this.sortableList.querySelectorAll('li.list-item')) this.addDraggableHandle(item);
 
     this.newButtonObserver.observe(this.sortableList, this.observerConfig);
 
     this.sortable.option('disabled', false);
-
-    window.addEventListener('beforeunload', this.eventHandlers.beforeunload, { capture: true });
   }
   disableSortable() {
     this.itemWrapper.classList.remove('active');
-    I18n.t('collection.manual_order.button').then(text => (this.itemWrapper.dataset.dcTooltip = text));
 
     for (const item of this.sortableList.querySelectorAll('.draggable-handle')) item.remove();
 
     this.newButtonObserver.disconnect();
 
     this.sortable.option('disabled', true);
-
-    window.removeEventListener('beforeunload', this.eventHandlers.beforeunload, { capture: true });
-
-    this.setNewOrder();
   }
-  beforeunloadHandler(event) {
-    event.preventDefault();
+  updateOrder(event) {
+    if (event.from === event.to && event.oldIndex === event.newIndex) return;
 
-    return (event.returnValue = '');
-  }
-  setNewOrder() {
-    const newOrder = Array.from(this.sortableList.querySelectorAll(':scope > li.list-item')).map(e => e.dataset.id);
-
-    DataCycle.disableElement(this.item);
+    const element = event.item;
+    this.disableElement(element);
 
     DataCycle.httpRequest({
       url: this.item.dataset.url,
       method: 'patch',
       dataType: 'json',
       data: {
-        order: newOrder
+        order: this.sortable.toArray()
       }
     })
       .then(data => {
@@ -95,8 +81,14 @@ class CollectionOrderButton {
         I18n.t('collection.manual_order.error').then(text => CalloutHelpers.show(text, 'alert'));
       })
       .finally(() => {
-        DataCycle.enableElement(this.item);
+        this.enableElement(element);
       });
+  }
+  enableElement(e) {
+    e.classList.remove('saving-order');
+  }
+  disableElement(e) {
+    e.classList.add('saving-order');
   }
   _observeHtmlContent(mutations) {
     for (const mutation of mutations) {

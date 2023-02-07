@@ -155,6 +155,8 @@ en:
         pinch: Use two fingers to zoom/scroll the map
       filter:
         button_title: edit linked contents
+      undo: undo last change
+      redo: Reapply undone changes
       upload_gpx:
         button_title: Upload GPX file
       styles:
@@ -282,10 +284,10 @@ en:
     new: new %{data}
     filter: 'filter %{data} ...'
     manual_order:
-      button: customize manual order
-      tooltip: Manual order can only be changed in the list view without active filters
-      success: The manual order was saved
-      error: The manual order could not be saved
+      button: customize order
+      tooltip: The order can only be customized in the list view without active filters
+      success: The order was updated
+      error: The order could not be updated
 
   content_external_data:
     primary_external_system_tooltip: This system is the primary external system
@@ -302,11 +304,12 @@ en:
     are_you_sure: Are you sure?
     language: Language
     all: All
-    import: Imported
-    export: Exports
+    import: imported from
+    export: exported to
     internal: internal
     external: external
     duplicate: Duplicates
+    link: Links
     auto_translation_submit: Automatic translation started
     source_language: Select source language
     choose_language: Select language
@@ -563,6 +566,13 @@ en:
       manual_button: Select manually for merging
     releasable:
       version_and_status: Version & Status
+      mailer:
+        remind_receiver:
+          subject: 'Reminder: Finalize content editing'
+          first_line:
+            one: The following content has not been edited for more than a week and has not been finalized yet.
+            other: The following contents have not been edited for more than a week and have not been finalized yet.
+          second_line: Please add missing content and finalize the editing!
     named_version:
       input_label: Version name
       version_name: 'Version: %{name}'
@@ -733,6 +743,7 @@ en:
     linked_author: Linked photographer
     linked_copyright_holder: Related rights holder
     linked_provider: Linked service provider
+    linked_sd_publisher: Linked Owner / Publisher
     in_schedule_types:
       absolute: Fixed period
       relative: Relative period
@@ -806,6 +817,14 @@ en:
     classification_overview: Classification overview
     classification_administration: Classification administration
 
+  classification_administration:
+    move:
+      success: The classification was moved successfully
+      error: The classification could not be moved
+      confirm_tree_label_id: The classification will be moved to another classificationtree
+      button:
+        tooltip: customize order
+
   classification_change_behaviour:
     trigger_webhooks: trigger webhooks for contents
     clear_cache: clear cache for contents
@@ -845,7 +864,7 @@ en:
     write: Write
     save_and_send: Send
     save_without_send: Save (no e-mail dispatch)
-    finalize: Complete processing
+    finalize: Finalize editing
     finalize_agbs_text: Terms & Conditions
     finalize_combined_html: '%{finalize} and accept %{agbs}'
     copy_to_clipboard: Copy to clipboard
@@ -1516,6 +1535,7 @@ en:
       safetyInformation: Safety information
       startPoint: Start point
       startpointGettingThere: Start point getting there
+      seasonDescription: Sesion
     destination_one:
       facility_unterhaltung: Facility upkeep
       info_wegbelag: Info pavement
@@ -1565,6 +1585,11 @@ en:
       character: Tour character
       parkingPossibilities: Parking
       seasonDescription: Sesion
+    wintop:
+      beschreibung: Description
+      teaser: Teaser
+      zusatzinfo: Additional informationen
+      anreisebeschreibung: Directions
 
   media_archive:
     allowed_html: '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>

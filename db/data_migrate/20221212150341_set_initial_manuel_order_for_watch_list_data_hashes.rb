@@ -5,7 +5,7 @@ class SetInitialManuelOrderForWatchListDataHashes < ActiveRecord::Migration[6.1]
   # disable_ddl_transaction!
 
   def up
-    execute <<-SQL
+    execute <<-SQL.squish
       UPDATE watch_list_data_hashes
       SET
         order_a = w.order_a

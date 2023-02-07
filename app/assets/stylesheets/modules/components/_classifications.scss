@@ -355,9 +355,10 @@ ul.backend-treeview-list,
 
       > li {
         list-style-type: none;
+        transition: $border-color-transition;
         border-left: 1px solid lighten($dark-gray, 10%);
         margin-left: 0.5rem;
-        padding-left: 1rem;
+        padding-left: 0.75rem;
         line-height: 1;
         position: relative;
 
@@ -372,6 +373,7 @@ ul.backend-treeview-list,
           left: -1px;
           height: 0.9rem;
           width: 0.75rem;
+          transition: $border-color-transition;
           border: 1px solid lighten($dark-gray, 10%);
           border-top: 0 none transparent;
           border-right: 0 none transparent;
@@ -420,7 +422,7 @@ ul.backend-treeview-list,
 
       li:not(.active) {
         > span.inner-item {
-          padding: 0;
+          padding: 0 0 0 0.25rem;
           font-size: 1rem;
           font-weight: normal;
           line-height: 1.6;
@@ -458,6 +460,7 @@ ul.backend-treeview-list,
         }
 
         .classification-alias-form-container {
+          margin-left: 0;
           padding: 1rem;
         }
       }
@@ -516,6 +519,10 @@ ul.backend-treeview-list,
     border-top-left-radius: $global-radius;
     border-bottom-left-radius: $global-radius;
     border-bottom-right-radius: $global-radius;
+  }
+
+  .classification-alias-form-container {
+    margin-left: 0.25rem;
   }
 
   .classification-tree-label-form-container {
@@ -916,7 +923,7 @@ ul.backend-treeview-list,
 
       > li {
         .inner-item {
-          padding: 0;
+          padding: 0 0 0 0.25rem;
           display: block;
           line-height: 1.6;
 
@@ -1115,5 +1122,134 @@ ul.backend-treeview-list,
     font-size: 0.8rem;
     margin-left: 0.1rem;
     align-self: flex-start;
+  }
+}
+
+#classification-administration {
+  padding-top: 1.5rem;
+
+  // li.dcjs-classification-jump-to-parent {
+  //   cursor: pointer;
+
+  //   > * {
+  //     cursor: default;
+  //   }
+  // }
+
+  li > .inner-item {
+    transition: $global-transition;
+  }
+
+  li.highlight > .inner-item {
+    box-shadow: 0 0 2px 0px $primary-color;
+    border-radius: $global-radius;
+    background: $primary-color;
+
+    > a.name {
+      color: $white;
+    }
+  }
+
+  li.hover {
+    > ul.children > li {
+      &:not(:last-child) {
+        border-color: $primary-color;
+      }
+
+      &::before {
+        border-color: $primary-color;
+      }
+    }
+
+    li:hover {
+      cursor: pointer;
+
+      > * {
+        cursor: default;
+      }
+
+      &::before {
+        font-family: 'FontAwesome';
+        content: '\f149';
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        width: 1rem;
+        font-size: 1rem;
+        border: none;
+        transform: rotate(180deg);
+        left: -0.5rem;
+        color: $primary-color;
+      }
+    }
+  }
+
+  li.classification_tree_label {
+    .classification-order-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 0.2rem 0.1rem 0.2rem 0.3rem;
+      border-radius: $global-radius;
+
+      .fa,
+      .fa-stack {
+        font-size: 1rem;
+        height: 1rem;
+        line-height: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: auto;
+        position: relative;
+      }
+
+      .fa.fa-arrows-v {
+        width: 0.7rem;
+        height: 1rem;
+      }
+
+      .fa.fa-list-ul {
+        width: 1rem;
+        height: 1rem;
+      }
+    }
+
+    .draggable-handle {
+      align-items: center;
+      justify-content: center;
+      float: none;
+      display: none;
+
+      .fa {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    li.saving-order {
+      > .inner-item > .draggable-handle {
+        pointer-events: none;
+
+        > .fa::before {
+          font-size: 0.9rem;
+          content: '\f110';
+          animation: fa-spin 2s infinite linear;
+        }
+      }
+    }
+
+    &.sortable-active {
+      .draggable-handle {
+        display: flex;
+      }
+
+      .classification-order-button {
+        background-color: $primary-color;
+        color: $white;
+      }
+    }
   }
 }

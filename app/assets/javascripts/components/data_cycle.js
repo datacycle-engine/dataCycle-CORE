@@ -142,25 +142,30 @@ class DataCycle {
     Rails.enableElement(element);
     if (this.mutableNodes.includes(element.nodeName)) element.classList.remove('disabled');
   }
-  _checkForConditionRecursive(node, type) {
-    for (const child of node.children) this._checkForConditionRecursive(child, type);
-
-    for (const [condition, callback] of this.htmlObserver[`${type}Callbacks`]) if (condition(node)) callback(node);
+  initNewElements(selector, callback) {
+    for (const element of document.querySelectorAll(selector)) callback(element);
+    this.htmlObserver.addCallbacks.push([selector, callback]);
+  }
+  _runAddCallbacks(node) {
+    for (const [selector, callback] of this.htmlObserver.addCallbacks) {
+      for (const element of node.querySelectorAll(selector)) callback(element);
+      if (node.matches(selector)) callback(node);
+    }
+  }
+  _runRemoveCallbacks(node) {
+    for (const [selector, callback] of this.htmlObserver.removeCallbacks) {
+      for (const element of node.querySelectorAll(selector)) callback(element);
+      if (node.matches(selector)) callback(node);
+    }
   }
   _observeHtmlContent(mutations) {
     for (const mutation of mutations) {
-      if (mutation.type !== 'childList') continue;
-
       for (const addedNode of mutation.addedNodes) {
-        if (addedNode.nodeType !== Node.ELEMENT_NODE) continue;
-
-        this._checkForConditionRecursive(addedNode, 'add');
+        if (addedNode.nodeType === Node.ELEMENT_NODE) this._runAddCallbacks(addedNode);
       }
 
       for (const removedNode of mutation.removedNodes) {
-        if (removedNode.nodeType !== Node.ELEMENT_NODE) continue;
-
-        this._checkForConditionRecursive(removedNode, 'remove');
+        if (removedNode.nodeType === Node.ELEMENT_NODE) this._runRemoveCallbacks(removedNode);
       }
     }
   }

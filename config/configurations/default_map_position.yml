@@ -1,5 +1,6 @@
-:longitude: 13.34576
-:latitude: 47.69642
+:center: 
+  - 13.34576
+  - 47.69642
 :zoom: 7
 :editor: 'MapLibreGl'
 :styles:

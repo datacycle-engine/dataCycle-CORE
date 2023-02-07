@@ -7,10 +7,27 @@ class RemoteRenderer {
       rootMargin: '0px 0px 50px 0px',
       threshold: 0.1
     });
-    if (DataCycle.config.remoteRenderFull)
-      this.globalIntersectionObserver = new IntersectionObserver(this.checkForNewVisibleElements.bind(this), {
-        root: document.body
-      });
+    if (DataCycle.config.remoteRenderFull) {
+      this.globalObservers = [
+        new IntersectionObserver(this.checkForNewVisibleElements.bind(this), {
+          root: document.body
+        })
+      ];
+
+      if (document.querySelector('.row.split-content.detail-content'))
+        this.globalObservers.push(
+          new IntersectionObserver(this.checkForNewVisibleElements.bind(this), {
+            root: document.querySelector('.row.split-content.detail-content > .show-content')
+          })
+        );
+
+      if (document.querySelector('.row.split-content.edit-content'))
+        this.globalObservers.push(
+          new IntersectionObserver(this.checkForNewVisibleElements.bind(this), {
+            root: document.querySelector('.row.split-content.edit-content > .column')
+          })
+        );
+    }
 
     this.init();
   }
@@ -27,15 +44,25 @@ class RemoteRenderer {
       this.reloadAfterFail.bind(this)
     );
 
-    for (const element of document.querySelectorAll('.remote-render')) this.addRemoteRenderHandler(element);
-    DataCycle.htmlObserver.addCallbacks.push([
-      e => e.classList.contains('remote-render'),
-      this.addRemoteRenderHandler.bind(this)
-    ]);
+    DataCycle.initNewElements('.remote-render:not(.dc-remote-render)', this.addRemoteRenderHandler.bind(this));
+  }
+  observeElement(element) {
+    this.intersectionObserver.observe(element);
+
+    if (!DataCycle.config.remoteRenderFull) return;
+
+    for (const observer of this.globalObservers) observer.observe(element);
+  }
+  unobserveElement(element) {
+    this.intersectionObserver.unobserve(element);
+
+    if (!DataCycle.config.remoteRenderFull) return;
+
+    for (const observer of this.globalObservers) observer.unobserve(element);
   }
   addRemoteRenderHandler(element) {
-    this.intersectionObserver.observe(element);
-    if (this.globalIntersectionObserver) this.globalIntersectionObserver.observe(element);
+    element.classList.add('dc-remote-render');
+    this.observeElement(element);
 
     if (element.classList.contains('translatable-attribute')) this.addForceRenderTranslationHandler(element);
   }
@@ -49,8 +76,7 @@ class RemoteRenderer {
     for (const entry of entries) {
       if (!entry.isIntersecting) continue;
 
-      this.intersectionObserver.unobserve(entry.target);
-      if (this.globalIntersectionObserver) this.globalIntersectionObserver.unobserve(entry.target);
+      this.unobserveElement(entry.target);
       this.loadRemote(entry.target);
     }
   }

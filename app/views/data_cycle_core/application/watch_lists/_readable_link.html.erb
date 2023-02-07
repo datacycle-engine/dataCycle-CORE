@@ -5,8 +5,7 @@
     </span>
     <span class="change-link">
       <% if watch_list.my_selection %>
-        <%= render 'data_cycle_core/application/downloads/download_zip', content: watch_list if can?(:download_zip, watch_list) %>
-        <%= render 'data_cycle_core/application/downloads/download', content: watch_list if can?(:download, watch_list) %>
+        <%= render 'data_cycle_core/application/downloads/download_buttons', content: watch_list %>
         <%= render 'data_cycle_core/watch_lists/bulk_edit_button', collection: watch_list if can?(:bulk_edit, watch_list) %>
         <%= render 'data_cycle_core/watch_lists/clear_button', watch_list: watch_list if can?(:remove_item, watch_list) %>
       <% end %>

@@ -161,6 +161,8 @@ de:
         pinch: 'Verwende zwei Finger zum Zoomen/Scrollen der Karte'
       filter:
         button_title: Verknüpfte Inhalte bearbeiten
+      undo: Letzte Änderung rückgängig machen
+      redo: Rückgängig gemachte Änderungen erneut anwenden
       upload_gpx:
         button_title: 'GPX-Datei hochladen'
       styles:
@@ -298,11 +300,10 @@ de:
     new: Neue %{data}
     filter: '%{data} filtern ...'
     manual_order:
-      button: Sortierung manuell anpassen
-      button_active: manuelle Sortierung übernehmen
-      tooltip: Die manuelle Sortierung kann nur in der Listenansicht ohne aktive Filter angepasst werden
-      success: Die manuelle Sortierung wurde gespeichert
-      error: Die manuelle Sortierung konnte nicht gespeichert werden
+      button: Sortierung anpassen
+      tooltip: Die Sortierung kann nur in der Listenansicht ohne aktive Filter angepasst werden
+      success: Die Sortierung wurde aktualisiert
+      error: Die Sortierung konnte nicht aktualisiert werden
 
   content_external_data:
     primary_external_system_tooltip: Dieses System ist das primäre externe System
@@ -319,11 +320,12 @@ de:
     are_you_sure: 'Sind Sie sicher?'
     language: 'Sprache'
     all: Alle
-    import: Importiert
-    export: Exportiert
+    import: importiert von
+    export: exportiert nach
     internal: intern
     external: extern
     duplicate: Duplikate
+    link: Verlinkungen
     auto_translation_submit: Automatische Übersetzung gestartet
     source_language: 'Quellsprache wählen'
     choose_language: 'Sprache wählen'
@@ -571,6 +573,15 @@ de:
       manual_button: Manuell zum Zusammenführen auswählen
     releasable:
       version_and_status: Version & Status
+      mailer:
+        remind_receiver:
+          subject:
+            one: 'Erinnerung: Bearbeitung von Inhalt abschließen'
+            other: 'Erinnerung: Bearbeitung von Inhalten abschließen'
+          first_line:
+            one: Folgender Inhalt wurde seit mehr als einer Woche nicht bearbeitet und die Bearbeitung wurde noch nicht abgeschlossen.
+            other: Folgende Inhalte wurden seit mehr als einer Woche nicht bearbeitet und die Bearbeitung wurde noch nicht abgeschlossen.
+          second_line: Bitte ergänzen Sie fehlende Inhalte und schließen Sie die Bearbeitung ab!
     named_version:
       input_label: Versionsname
       version_name: 'Version: %{name}'
@@ -765,6 +776,7 @@ de:
     linked_author: Verknüpfter Fotograf
     linked_copyright_holder: Verknüpfter Rechteinhaber
     linked_provider: Verknüpfter Dienstleister
+    linked_sd_publisher: Verknüpfter Inhaber / Herausgeber
     in_schedule_types:
       absolute: Fester Zeitraum
       relative: Relativer Zeitraum
@@ -847,6 +859,14 @@ de:
     xml: XML
     classification_overview: Klassifizierungsübersicht
     classification_administration: Klassifizierungsadministration
+
+  classification_administration:
+    move:
+      success: Die Klassifizierung wurde erfolgreich verschoben
+      error: Die Klassifizierung konnte nicht verschoben werden
+      confirm_tree_label_id: Die Klassifizierung wird in einen anderen Klassifizierungsbaum verschoben
+      button:
+        tooltip: Sortierung anpassen
 
   classification_change_behaviour:
     trigger_webhooks: Webhooks für Inhalte auslösen
@@ -1536,6 +1556,7 @@ de:
       safetyInformation: Sicherheitshinweis
       startPoint: Startpunkt
       startpointGettingThere: Wegbeschreibung Startpunkt
+      seasonDescription: Begehbare Monate
     destination_one:
       facility_unterhaltung: Facility Unterhaltung
       info_wegbelag: Info Wegbelag
@@ -1585,6 +1606,11 @@ de:
       character: Tour Charakter
       parkingPossibilities: Parkmöglichkeiten
       seasonDescription: Begehbare Monate
+    wintop:
+      beschreibung: Beschreibung
+      teaser: Teaser
+      zusatzinfo: Zusatzinformationen
+      anreisebeschreibung: Anreisebeschreibung
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

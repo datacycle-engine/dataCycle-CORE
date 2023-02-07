@@ -6,6 +6,9 @@
         <%= stored_search.name %>
       <% end %>
     </span>
+    <% if stored_search.api%>
+      <span class="content-title-api <%= 'global' if stored_search.system %>">API</span>
+    <% end %>
 
     <% if stored_search.linked_stored_filter_id.present? %>
       <span class="content-title" title="<%= stored_search.linked_stored_filter.name %>">
@@ -49,11 +52,7 @@
           </li>
         <% end %>
 
-        <%= tag.li(render('data_cycle_core/application/downloads/download_indesign', content: stored_search)) if can?(:download_indesign, stored_search) %>
-
-        <%= tag.li(render('data_cycle_core/application/downloads/download_zip', content: stored_search)) if can?(:download_zip, stored_search) %>
-
-        <%= tag.li(render('data_cycle_core/application/downloads/download', content: stored_search)) if can?(:download, stored_search) %>
+        <%= render 'data_cycle_core/application/downloads/download_buttons', content: stored_search %>
 
         <%= tag.li(render('data_cycle_core/application/preview/widget', content: stored_search)) if DataCycleCore::Feature::Preview.enabled? && stored_search.api %>
 

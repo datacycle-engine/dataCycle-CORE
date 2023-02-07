@@ -9,13 +9,9 @@ function initValidator(elem) {
 }
 
 export default function () {
-  for (const element of document.querySelectorAll('.validation-form')) initValidator(element);
-  DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('validation-form') && !e.classList.contains('dcjs-validator'),
-    e => initValidator(e)
-  ]);
-
-  if ($('.normalize-content-button').length) {
-    new DataCycleNormalizer($('.normalize-content-button'), $('.edit-content-form'));
-  }
+  DataCycle.initNewElements('.validation-form:not(.dcjs-validator)', initValidator.bind(this));
+  DataCycle.initNewElements(
+    '.normalize-content-button:not(.dcjs-data-cycle-normalizer)',
+    e => new DataCycleNormalizer(e)
+  );
 }

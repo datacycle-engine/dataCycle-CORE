@@ -233,7 +233,7 @@ module DataCycleCore
               assert(a.dig('dct:modified').to_datetime >= b.dig('dct:modified').to_datetime)
             end
 
-            # make sure default is modified DESC
+            # make sure default is order_a ASC
             params = {
               id: tree_id,
               page: {
@@ -244,10 +244,12 @@ module DataCycleCore
             assert_api_count_result(classifications_count)
 
             json_data = JSON.parse(response.body)
-            assert_equal(classificaton_tag.id, json_data.dig('@graph').first.dig('@id'))
+            assert_equal(classifications.first.id, json_data.dig('@graph').first.dig('@id'))
+
+            classification_mappings = classifications.index_by(&:id)
 
             json_data.dig('@graph').each_cons(2) do |a, b|
-              assert(a.dig('dct:modified').to_datetime >= b.dig('dct:modified').to_datetime)
+              assert(classification_mappings[a['@id']].order_a < classification_mappings[b['@id']].order_a)
             end
 
             # muliple and invalid sort params

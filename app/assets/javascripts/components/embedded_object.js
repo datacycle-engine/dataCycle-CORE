@@ -4,6 +4,7 @@ import { Sortable } from 'sortablejs';
 import difference from 'lodash/difference';
 import union from 'lodash/union';
 import intersection from 'lodash/intersection';
+import DomElementHelpers from '../helpers/dom_element_helpers';
 
 class EmbeddedObject {
   constructor(selector) {
@@ -73,19 +74,16 @@ class EmbeddedObject {
     this.addEventHandlers();
     this._updateContainerClass();
   }
-  _checkForConditionRecursive(node) {
-    for (const child of node.children) this._checkForConditionRecursive(child);
-
-    if (node.classList.contains('content-object-item') && !node.classList.contains('hidden')) this.setSwapClasses(node);
+  _runAddCallbacks(node) {
+    for (const e of node.querySelectorAll('.content-object-item:not(.hidden)')) this.setSwapClasses(e);
+    if (node.matches('.content-object-item:not(.hidden)')) this.setSwapClasses(node);
   }
   _checkForAddedNodes(mutations) {
     for (const mutation of mutations) {
       if (mutation.type !== 'childList') continue;
 
       for (const addedNode of mutation.addedNodes) {
-        if (addedNode.nodeType !== Node.ELEMENT_NODE) continue;
-
-        this._checkForConditionRecursive(addedNode);
+        if (addedNode.nodeType === Node.ELEMENT_NODE) this._runAddCallbacks(addedNode);
       }
     }
   }
@@ -117,13 +115,14 @@ class EmbeddedObject {
       });
     }
   }
-  setSwapClasses(object) {
-    if ($(object).index() == 0) $(object).find('> .embedded-header > .swap-button.swap-prev').addClass('disabled');
-    else $(object).find('> .embedded-header > .swap-button.swap-prev').removeClass('disabled');
+  setSwapClasses(element) {
+    if (element instanceof $) element = element[0];
 
-    if ($(object).index() >= this.element.children('.content-object-item').length - 1)
-      $(object).find('> .embedded-header > .swap-button.swap-next').addClass('disabled');
-    else $(object).find('> .embedded-header > .swap-button.swap-next').removeClass('disabled');
+    const swapPrev = element.querySelector(':scope > .embedded-header > .swap-button.swap-prev');
+    if (swapPrev) swapPrev.classList.toggle('disabled', !element.previousElementSibling);
+
+    const swapNext = element.querySelector(':scope > .embedded-header > .swap-button.swap-next');
+    if (swapNext) swapNext.classList.toggle('disabled', !element.nextElementSibling);
   }
   setupSwappableButtons() {
     this.element.on(
@@ -145,7 +144,8 @@ class EmbeddedObject {
           switchObject = currentObject.next('.content-object-item');
           switchObject.after(currentObject);
         }
-        currentObject.get(0).scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        DomElementHelpers.scrollIntoViewWithStickyOffset(currentObject.get(0));
 
         this.setSwapClasses(currentObject);
         this.setSwapClasses(switchObject);
@@ -187,10 +187,9 @@ class EmbeddedObject {
         this.update();
         this.addEventHandlers();
 
-        this.element[0].querySelector(':scope > .content-object-item:last-of-type').scrollIntoView({
-          behavior: 'smooth',
-          block: 'center'
-        });
+        DomElementHelpers.scrollIntoViewWithStickyOffset(
+          this.element[0].querySelector(':scope > .content-object-item:last-of-type')
+        );
       })
       .catch(async error => {
         if (translate)

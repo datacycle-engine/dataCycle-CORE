@@ -31,6 +31,10 @@ module DataCycleCore
           filename = @asset_version.blob.filename.to_s
         end
         raise ActiveRecord::RecordNotFound if @asset_path.blank?
+      elsif @asset.class.active_storage_activated?
+        @asset_path = Rails.public_path.join('uploads', 'data_cycle_core', permitted_params[:klass], 'file', permitted_params[:id], @asset[:file])
+        filename = @asset[:file]
+        content_type = @asset.content_type
       else
         if permitted_params[:transformation]&.values.present?
           @asset_version = @asset.try(permitted_params[:version], recreate: true)&.dynamic_version(name: permitted_params[:version], options: permitted_params[:transformation], process: true)
@@ -38,7 +42,6 @@ module DataCycleCore
           @asset_version = @asset.try(permitted_params[:version], recreate: true)
         end
         @asset_path = @asset_version&.path
-
         raise ActiveRecord::RecordNotFound if @asset_path.blank?
 
         content_type = @asset_version.content_type

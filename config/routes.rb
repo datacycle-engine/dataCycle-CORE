@@ -196,6 +196,7 @@ DataCycleCore::Engine.routes.draw do
       get :search, on: :collection
       get :find, on: :collection
       get :download, on: :collection
+      patch :move, on: :collection
     end
   end
 
@@ -343,6 +344,7 @@ DataCycleCore::Engine.routes.draw do
 
                 match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
                 match 'endpoints/:id/suggest', to: 'contents#typeahead', as: 'typeahead', via: [:get, :post]
+                match 'endpoints/:id/download', to: 'downloads#endpoint', as: 'endpoint', via: [:get, :post]
                 match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
                 match 'endpoints/:id/:content_id/:timeseries(/:format)', to: 'contents#timeseries', as: 'content_timeseries', via: [:get, :post]
 
@@ -418,6 +420,7 @@ DataCycleCore::Engine.routes.draw do
             scope path: '(/:api_subversion)' do
               match 'endpoints/:id/:z/:x/:y', to: 'contents#index', via: [:get, :post]
               match 'endpoints/:id', to: 'contents#index', defaults: { bbox: true }, via: [:get, :post]
+              match 'things/select/:z/:x/:y(/:uuids)', to: 'contents#select', as: 'contents_select', via: [:get, :post]
               match 'things/:id/:z/:x/:y', to: 'contents#show', via: [:get, :post]
             end
           end

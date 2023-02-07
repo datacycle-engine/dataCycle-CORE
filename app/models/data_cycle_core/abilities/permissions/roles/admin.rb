@@ -10,74 +10,73 @@ module DataCycleCore
             ### admin
             ###################################################################################
             # DataLink
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :create_editable_links,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::DataLink)
+            permit(
+              segment(:UsersByRole).new(role),
+              :create_editable_links,
+              segment(:SubjectByConditions).new(DataCycleCore::DataLink)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read, :create, :update, :destroy,
-              DataCycleCore::Abilities::Segments::SubjectByUserAndConditions.new(DataCycleCore::DataLink, :creator_id)
+            permit(
+              segment(:UsersByRole).new(role),
+              :read, :create, :update, :destroy,
+              segment(:SubjectByUserAndConditions).new(DataCycleCore::DataLink, :creator_id)
             )
 
             # ObjectBrowser
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :show, :find,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(:object_browser)
+            permit(
+              segment(:UsersByRole).new(role),
+              :show, :find,
+              segment(:SubjectByConditions).new(:object_browser)
             )
 
             # Role
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :index,
-              DataCycleCore::Abilities::Segments::RolesExcept.new(:super_admin)
+            permit(
+              segment(:UsersByRole).new(role),
+              :index,
+              segment(:RolesExcept).new(:super_admin)
             )
 
             # UserApi
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :login, :renew_login, :reset_password, :confirm,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(:user_api)
+            permit(
+              segment(:UsersByRole).new(role),
+              :login, :renew_login, :reset_password, :confirm,
+              segment(:SubjectByConditions).new(:user_api)
             )
 
             # Asset
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read,
-              DataCycleCore::Abilities::Segments::AssetByUserAndNoContent.new
+            permit(
+              segment(:UsersByRole).new(role),
+              :read,
+              segment(:AssetByUserAndNoContent).new
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :create_duplicate,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::Asset)
+            permit(
+              segment(:UsersByRole).new(role),
+              :create_duplicate,
+              segment(:SubjectByConditions).new(DataCycleCore::Asset)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :create, :update, :destroy,
-              DataCycleCore::Abilities::Segments::SubjectByUserAndConditions.new(DataCycleCore::Asset, :creator_id)
+            permit(
+              segment(:UsersByRole).new(role),
+              :create, :update, :destroy,
+              segment(:SubjectByUserAndConditions).new(DataCycleCore::Asset, :creator_id)
             )
 
             # Thing
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :create,
-              DataCycleCore::Abilities::Segments::TemplateByCreatableScope.new(:all)
+            permit(
+              segment(:UsersByRole).new(role),
+              :create,
+              segment(:TemplateByCreatableScope).new(:all)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :print,
-              DataCycleCore::Abilities::Segments::ThingByContentType.new('entity')
+            permit(
+              segment(:UsersByRole).new(role),
+              :print,
+              segment(:ThingByContentType).new('entity')
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can,
+            permit(
+              segment(:UsersByRole).new(role),
               :show_related,
               :show_external_connections,
               :subscribe,
@@ -88,27 +87,25 @@ module DataCycleCore
               :set_life_cycle,
               :view_life_cycle,
               :move_content,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::Thing)
+              segment(:SubjectByConditions).new(DataCycleCore::Thing)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can,
+            permit(
+              segment(:UsersByRole).new(role),
               :subscribe,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::WatchList)
+              segment(:SubjectByConditions).new(DataCycleCore::WatchList)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can,
+            permit(
+              segment(:UsersByRole).new(role),
               :history,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::Thing::History)
+              segment(:SubjectByConditions).new(DataCycleCore::Thing::History)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read, :update, :import,
-              DataCycleCore::Abilities::Segments::ContentIsEditable.new(
+            permit(
+              segment(:UsersByRole).new(role),
+              :read, :update, :import,
+              segment(:ContentIsEditable).new(
                 [
                   :content_not_external?,
                   :content_overlay_allowed?,
@@ -117,73 +114,73 @@ module DataCycleCore
               )
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :destroy,
-              DataCycleCore::Abilities::Segments::SubjectNotExternal.new([DataCycleCore::Thing])
+            permit(
+              segment(:UsersByRole).new(role),
+              :destroy,
+              segment(:SubjectNotExternal).new([DataCycleCore::Thing])
             )
 
             # StoredFilter
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :api,
-              DataCycleCore::Abilities::Segments::SubjectByUserAndConditions.new(DataCycleCore::StoredFilter, :user_id, api: true)
+            permit(
+              segment(:UsersByRole).new(role),
+              :api,
+              segment(:SubjectByUserAndConditions).new(DataCycleCore::StoredFilter, :user_id, api: true)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :api,
-              DataCycleCore::Abilities::Segments::StoredFilterByApiUsers.new
+            permit(
+              segment(:UsersByRole).new(role),
+              :api,
+              segment(:StoredFilterByApiUsers).new
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read, :create, :update, :destroy, :show_history, :create_global, :create_api, :create_api_with_users,
-              DataCycleCore::Abilities::Segments::SubjectByUserAndConditions.new(DataCycleCore::StoredFilter, :user_id)
+            permit(
+              segment(:UsersByRole).new(role),
+              :read, :create, :update, :destroy, :show_history, :create_global, :create_api, :create_api_with_users,
+              segment(:SubjectByUserAndConditions).new(DataCycleCore::StoredFilter, :user_id)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::StoredFilter, system: true)
+            permit(
+              segment(:UsersByRole).new(role),
+              :read,
+              segment(:SubjectByConditions).new(DataCycleCore::StoredFilter, system: true)
             )
 
             # WatchList
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :copy_api_link,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::WatchList, my_selection: false)
+            permit(
+              segment(:UsersByRole).new(role),
+              :copy_api_link,
+              segment(:SubjectByConditions).new(DataCycleCore::WatchList, my_selection: false)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read, :create, :update, :add_item, :remove_item,
-              DataCycleCore::Abilities::Segments::SubjectByUserAndConditions.new(DataCycleCore::WatchList, :user_id)
+            permit(
+              segment(:UsersByRole).new(role),
+              :read, :create, :update, :add_item, :remove_item,
+              segment(:SubjectByUserAndConditions).new(DataCycleCore::WatchList, :user_id)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :destroy, :share, :change_owner,
-              DataCycleCore::Abilities::Segments::SubjectByUserAndConditions.new(DataCycleCore::WatchList, :user_id, my_selection: false)
+            permit(
+              segment(:UsersByRole).new(role),
+              :destroy, :share, :change_owner,
+              segment(:SubjectByUserAndConditions).new(DataCycleCore::WatchList, :user_id, my_selection: false)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read, :add_item, :remove_item,
-              DataCycleCore::Abilities::Segments::WatchListByGroupShares.new(my_selection: false)
+            permit(
+              segment(:UsersByRole).new(role),
+              :read, :add_item, :remove_item,
+              segment(:WatchListByGroupShares).new(my_selection: false)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read, :add_item, :remove_item,
-              DataCycleCore::Abilities::Segments::WatchListByUserShares.new(my_selection: false)
+            permit(
+              segment(:UsersByRole).new(role),
+              :read, :add_item, :remove_item,
+              segment(:WatchListByUserShares).new(my_selection: false)
             )
 
             # DataAttributes
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read,
-              DataCycleCore::Abilities::Segments::DataAttributeAllowedForShow.new(
+            permit(
+              segment(:UsersByRole).new(role),
+              :read,
+              segment(:DataAttributeAllowedForShow).new(
                 [
                   :attribute_not_disabled?,
                   :overlay_attribute_visible?,
@@ -192,10 +189,10 @@ module DataCycleCore
               )
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :edit,
-              DataCycleCore::Abilities::Segments::DataAttributeAllowedForEdit.new(
+            permit(
+              segment(:UsersByRole).new(role),
+              :edit,
+              segment(:DataAttributeAllowedForEdit).new(
                 [
                   :attribute_not_included_in_publication_schedule?,
                   :attribute_not_disabled?,
@@ -206,10 +203,10 @@ module DataCycleCore
               )
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :update,
-              DataCycleCore::Abilities::Segments::DataAttributeAllowedForUpdate.new(
+            permit(
+              segment(:UsersByRole).new(role),
+              :update,
+              segment(:DataAttributeAllowedForUpdate).new(
                 [
                   :attribute_not_included_in_publication_schedule?,
                   :attribute_not_disabled?,
@@ -222,151 +219,151 @@ module DataCycleCore
             )
 
             # Backend
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read, :settings, :sortable,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(:backend)
+            permit(
+              segment(:UsersByRole).new(role),
+              :read, :settings, :sortable,
+              segment(:SubjectByConditions).new(:backend)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :search, :classification_trees, :classification_tree, :permanent_advanced, :advanced, :publication_date,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(
+            permit(
+              segment(:UsersByRole).new(role),
+              :search, :classification_trees, :classification_tree, :permanent_advanced, :advanced, :publication_date,
+              segment(:SubjectByConditions).new(
                 [:backend, :classification_tree, :publications, :subscriptions, :things, :collection]
               )
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :advanced_filter,
-              DataCycleCore::Abilities::Segments::AdvancedFilterExceptType.new(
+            permit(
+              segment(:UsersByRole).new(role),
+              :advanced_filter,
+              segment(:AdvancedFilterExceptType).new(
                 [:backend, :classification_tree, :publications, :subscriptions, :things, :collection],
                 [:advanced_attributes]
               )
             )
 
             # Subscription
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new([DataCycleCore::Subscription, :publication])
+            permit(
+              segment(:UsersByRole).new(role),
+              :read,
+              segment(:SubjectByConditions).new([DataCycleCore::Subscription, :publication])
             )
 
             # User
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read, :create_user, :update, :destroy, :unlock, :generate_access_token, :set_role, :set_user_groups,
-              DataCycleCore::Abilities::Segments::UsersExceptRoles.new(:super_admin)
+            permit(
+              segment(:UsersByRole).new(role),
+              :read, :create_user, :update, :destroy, :unlock, :generate_access_token, :set_role, :set_user_groups,
+              segment(:UsersExceptRoles).new(:super_admin)
             )
 
             # UserGroup
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read, :create, :update, :destroy,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::UserGroup)
+            permit(
+              segment(:UsersByRole).new(role),
+              :read, :create, :update, :destroy,
+              segment(:SubjectByConditions).new(DataCycleCore::UserGroup)
             )
 
             # Download
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :download,
-              DataCycleCore::Abilities::Segments::DownloadAllowedByContentAndScope.new([DataCycleCore::Thing, DataCycleCore::WatchList, DataCycleCore::StoredFilter], [:content])
+            permit(
+              segment(:UsersByRole).new(role),
+              :download,
+              segment(:DownloadAllowedByContentAndScope).new([DataCycleCore::Thing, DataCycleCore::WatchList, DataCycleCore::StoredFilter], [:content])
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :download_zip,
-              DataCycleCore::Abilities::Segments::DownloadAllowedByContentAndScope.new([DataCycleCore::Thing, DataCycleCore::WatchList, DataCycleCore::StoredFilter], [:archive, :zip])
+            permit(
+              segment(:UsersByRole).new(role),
+              :download_zip,
+              segment(:DownloadAllowedByContentAndScope).new([DataCycleCore::Thing, DataCycleCore::WatchList, DataCycleCore::StoredFilter], [:archive, :zip])
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :download_indesign,
-              DataCycleCore::Abilities::Segments::DownloadAllowedByContentAndScope.new([DataCycleCore::Thing, DataCycleCore::WatchList, DataCycleCore::StoredFilter], [:archive, :indesign])
+            permit(
+              segment(:UsersByRole).new(role),
+              :download_indesign,
+              segment(:DownloadAllowedByContentAndScope).new([DataCycleCore::Thing, DataCycleCore::WatchList, DataCycleCore::StoredFilter], [:archive, :indesign])
             )
 
             # Report
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :index, :download_report, :download_global_report,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(:report)
+            permit(
+              segment(:UsersByRole).new(role),
+              :index, :download_report, :download_global_report,
+              segment(:SubjectByConditions).new(:report)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :download_content_report,
-              DataCycleCore::Abilities::Segments::ContentByReportGenerator.new
+            permit(
+              segment(:UsersByRole).new(role),
+              :download_content_report,
+              segment(:ContentByReportGenerator).new
             )
 
             # Classification
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :manage,
-              DataCycleCore::Abilities::Segments::SubjectNotExternal.new([DataCycleCore::Classification, DataCycleCore::ClassificationTree])
+            permit(
+              segment(:UsersByRole).new(role),
+              :manage,
+              segment(:SubjectNotExternal).new([DataCycleCore::Classification, DataCycleCore::ClassificationTree])
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read,
-              DataCycleCore::Abilities::Segments::TreeLabelByVisibility.new(['classification_overview', 'classification_administration'])
+            permit(
+              segment(:UsersByRole).new(role),
+              :read,
+              segment(:TreeLabelByVisibility).new(['classification_overview', 'classification_administration'])
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :download, :create, :edit,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::ClassificationTreeLabel)
+            permit(
+              segment(:UsersByRole).new(role),
+              :download, :create, :edit,
+              segment(:SubjectByConditions).new(DataCycleCore::ClassificationTreeLabel)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :update,
-              DataCycleCore::Abilities::Segments::SubjectNotExternal.new(DataCycleCore::ClassificationTreeLabel)
+            permit(
+              segment(:UsersByRole).new(role),
+              :update,
+              segment(:SubjectNotExternal).new(DataCycleCore::ClassificationTreeLabel)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :create, :update,
-              DataCycleCore::Abilities::Segments::SubjectNotExternalAndNotInternal.new(DataCycleCore::ClassificationAlias)
+            permit(
+              segment(:UsersByRole).new(role),
+              :create, :update,
+              segment(:SubjectNotExternalAndNotInternal).new(DataCycleCore::ClassificationAlias)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :map_classifications,
-              DataCycleCore::Abilities::Segments::SubjectNotInternal.new(DataCycleCore::ClassificationAlias)
+            permit(
+              segment(:UsersByRole).new(role),
+              :map_classifications,
+              segment(:SubjectNotInternal).new(DataCycleCore::ClassificationAlias)
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :destroy,
-              DataCycleCore::Abilities::Segments::ClassificationTreeLabelAndClassificationAliasesNotExternalAndNotInternal.new
+            permit(
+              segment(:UsersByRole).new(role),
+              :destroy,
+              segment(:ClassificationTreeLabelAndClassificationAliasesNotExternalAndNotInternal).new
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :destroy,
-              DataCycleCore::Abilities::Segments::ClassificationAliasAndChildrenNotExternalAndNotInternal.new
+            permit(
+              segment(:UsersByRole).new(role),
+              :destroy,
+              segment(:ClassificationAliasAndChildrenNotExternalAndNotInternal).new
             )
 
             # Cache
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :clear, :clear_all,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(:cache)
+            permit(
+              segment(:UsersByRole).new(role),
+              :clear, :clear_all,
+              segment(:SubjectByConditions).new(:cache)
             )
 
             ### Features
             # NamedVersion
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :remove_version_name,
-              DataCycleCore::Abilities::Segments::SubjectByEnabledFeature.new([DataCycleCore::Thing, DataCycleCore::Thing::History], DataCycleCore::Feature::NamedVersion)
+            permit(
+              segment(:UsersByRole).new(role),
+              :remove_version_name,
+              segment(:SubjectByEnabledFeature).new([DataCycleCore::Thing, DataCycleCore::Thing::History], DataCycleCore::Feature::NamedVersion)
             )
 
             # ViewMode
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, *DataCycleCore.features.dig('view_mode', 'allowed').map(&:to_sym),
-              DataCycleCore::Abilities::Segments::SubjectByEnabledFeature.new(:view_mode, DataCycleCore::Feature::ViewMode)
+            permit(
+              segment(:UsersByRole).new(role),
+              *DataCycleCore.features.dig('view_mode', 'allowed').map(&:to_sym),
+              segment(:SubjectByEnabledFeature).new(:view_mode, DataCycleCore::Feature::ViewMode)
             )
           end
         end
