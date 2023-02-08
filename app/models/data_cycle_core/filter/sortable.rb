@@ -141,7 +141,7 @@ module DataCycleCore
       end
 
       def sort_by_schedule_proximity(ordering = '', value = {})
-        start_date, end_date = date_from_filter_object(value['in'] || value['v'], value.dig('q')) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
+        start_date, end_date = date_from_filter_object(value['in'] || value['v'], value['q']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
 
         return self if start_date.nil? && end_date.nil?
 
@@ -171,7 +171,7 @@ module DataCycleCore
       def sort_fulltext_search(ordering, value)
         return self if value.blank?
         locale = @locale&.first || I18n.available_locales.first.to_s
-        search_string = (value || '').split(' ').join('%')
+        search_string = value.to_s.split.join('%')
 
         order_string = ActiveRecord::Base.send(
           :sanitize_sql_array,
@@ -184,7 +184,7 @@ module DataCycleCore
               1 * similarity(searches.full_text, :search_string))"
             ),
             search_string: "%#{search_string}%",
-            search: (value || '').squish
+            search: value.to_s.squish
           ]
         )
         reflect(

@@ -97,8 +97,8 @@ module DataCycleCore
         self.sort_parameters = sort_params
       elsif (search_string = parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v')).present?
         self.sort_parameters = [{ 'm' => 'fulltext_search', 'o' => 'DESC', 'v' => search_string }]
-      elsif (schedule_sort = parameters.find { |f| f['t'] == 'in_schedule' }&.dig('v')).present?
-        self.sort_parameters = [{ 'm' => 'by_proximity', 'o' => 'ASC', 'v' => schedule_sort }]
+      elsif (schedule_sort = parameters.find { |f| f['t'] == 'in_schedule' })&.dig('v').present?
+        self.sort_parameters = [{ 'm' => 'by_proximity', 'o' => 'ASC', 'v' => schedule_sort.slice('q', 'v') }]
       end
 
       self
@@ -221,8 +221,6 @@ module DataCycleCore
           self.query = query.send(sort_method_name, sort['o'].presence, sort['v'].presence)
         elsif query.method(sort_method_name)&.parameters&.size == 1
           self.query = query.send(sort_method_name, sort['o'].presence)
-        else
-          next
         end
       end
     end
