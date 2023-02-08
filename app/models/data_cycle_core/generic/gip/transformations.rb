@@ -53,7 +53,7 @@ module DataCycleCore
           .>> t(:add_field, 'external_key', ->(s) { parse_external_id(s) })
           .>> t(:add_field, 'line', ->(s) { parse_section(s.dig('geometry')) })
           .>> t(:add_links, 'bikeroute', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att1' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "Gip - BIKEROUTE - #{item}" }.presence || ['Gip - BIKEROUTE - 1'] })
-          .>> t(:add_links, 'owner', DataCycleCore::Classification, external_source_id, ->(s) { parse_owner(s) })
+          .>> t(:add_links, 'owner', DataCycleCore::Classification, external_source_id, ->(s) { s.dig('properties', 'owner') ? Array.wrap("Gip - DATABASE - #{s.dig('properties', 'owner')}") : [] })
           .>> t(:add_links, 'sustainer', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att2' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "Gip - SUSTAINER - #{item}" }.presence || [] })
           .>> t(:add_links, 'bikecomfort', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att4' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "Gip - BIKECOMFORT - #{item}" }.presence || [] })
           .>> t(:add_links, 'bikeroutestate', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('properties', 'attributes')&.detect { |i| i.dig('id') == 'StringAttribute_att5' }&.dig('properties', 'stringvalue'))&.flatten&.map { |item| "Gip - BIKEROUTESTATE - #{item}" }.presence || ['Gip - BIKEROUTESTATE - 0'] })
@@ -133,12 +133,6 @@ module DataCycleCore
             end
 
           RGeo::Feature.cast(source_coordinates, factory: longlat, project: true) # convert to longlat with z=0.0
-        end
-
-        def self.parse_owner(data)
-          owner = data.dig('properties', 'objectid')&.digits&.last
-          return Array.wrap("Gip - DATABASE - #{owner}") unless owner.nil?
-          []
         end
 
         def self.load_feature_routes(route_id, prefix, external_source_id)
