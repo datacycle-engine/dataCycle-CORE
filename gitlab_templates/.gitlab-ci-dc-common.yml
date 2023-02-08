@@ -154,9 +154,6 @@ cache:
   script:
     # update ssh config of deployment target to support bigger number of active sessions
     # e.g. MaxSessions 20
-    - ip a
-    - ping -4 -c 3 git.pixelpoint.biz
-    - ping -6 -c 3 git.pixelpoint.biz
     - echo "$DOCKER_HOST"
     - bash vendor/gems/data-cycle-core/docker/utility/ssh_helper.sh .env.production vendor/gems/data-cycle-core/docker/utility/check_bind_mounts.sh
     - docker-compose --env-file .env.production pull
