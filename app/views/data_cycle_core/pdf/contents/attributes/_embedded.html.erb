@@ -1,0 +1,5 @@
+<%= render 'data_cycle_core/pdf/contents/attributes/attribute', local_assigns.merge(type: 'embedded') do %>
+  <% value.each do |embedded| %>
+    <%= render_pdf_properties(content: embedded, options: { header_depth: header_depth + 1 }) %>
+  <% end %>
+<% end %>

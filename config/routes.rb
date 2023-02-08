@@ -151,12 +151,12 @@ DataCycleCore::Engine.routes.draw do
     end
 
     resource :downloads, only: [] do
-      get '/things(/:id)(/:serialize_format)(/:version)', on: :member, action: 'things'
-      get '/thing_collections(/:id)', on: :member, action: 'thing_collections'
-      get '/watch_lists(/:id)(/:serialize_format)', on: :member, action: 'watch_lists'
-      get '/watch_list_collections(/:id)', on: :member, action: 'watch_list_collections'
-      get '/stored_filters(/:id)(/:serialize_format)', on: :member, action: 'stored_filters'
-      get '/stored_filter_collections(/:id)', on: :member, action: 'stored_filter_collections'
+      get '/things(/:id)(/:serialize_format)(/:version)', on: :member, action: 'things', as: 'things'
+      get '/thing_collections(/:id)', on: :member, action: 'thing_collections', as: 'thing_collections'
+      get '/watch_lists(/:id)(/:serialize_format)', on: :member, action: 'watch_lists', as: 'watch_lists'
+      get '/watch_list_collections(/:id)', on: :member, action: 'watch_list_collections', as: 'watch_list_collections'
+      get '/stored_filters(/:id)(/:serialize_format)', on: :member, action: 'stored_filters', as: 'stored_filters'
+      get '/stored_filter_collections(/:id)', on: :member, action: 'stored_filter_collections', as: 'stored_filter_collections'
     end
 
     resources :data_links, except: [:show] do

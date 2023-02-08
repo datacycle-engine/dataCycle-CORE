@@ -102,7 +102,7 @@ module DataCycleCore
     end
 
     def attribute_value_present?(value)
-      value.is_a?(ActiveRecord::Relation) ? value.any? : value.present?
+      value.is_a?(ActiveRecord::Relation) ? value.any? : (value.present? || value.is_a?(FalseClass))
     end
 
     def render_untranslatable_attribute_viewer(**args)

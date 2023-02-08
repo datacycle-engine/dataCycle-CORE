@@ -139,12 +139,6 @@ module DataCycleCore
 
             permit(
               segment(:UsersByRole).new(role),
-              :copy_api_link,
-              segment(:SubjectByConditions).new(DataCycleCore::WatchList, my_selection: false)
-            )
-
-            permit(
-              segment(:UsersByRole).new(role),
               :read, :create, :add_item, :remove_item,
               segment(:SubjectByUserAndConditions).new(DataCycleCore::WatchList, :user_id)
             )

@@ -135,27 +135,39 @@ module DataCycleCore
       { datahash: allowed_params, translations: I18n.available_locales.index_with { |_l| allowed_params } }
     end
 
-    def self.blank?(data)
-      return false if data.is_a?(FalseClass)
-
-      data.is_a?(::Array) ? data.reject(&:blank?).empty? : data.blank?
+    def self.blank?(value)
+      !present?(value)
     end
 
-    def self.present?(data)
-      !blank?(data)
+    def self.present?(value)
+      case value
+      when FalseClass
+        true
+      when ActiveRecord::Relation
+        value.any?
+      when ::Array
+        value.any? { |v| present?(v) }
+      when ::Hash
+        value.any? { |_, v| present?(v) }
+      else
+        value.present?
+      end
     end
 
-    def self.deep_blank?(data)
-      return true if blank?(data)
+    def self.deep_blank?(value)
+      blank?(value)
 
-      return data.all? { |v| deep_blank?(v) } if data.is_a?(::Array)
-      return data.all? { |_, v| deep_blank?(v) } if data.is_a?(::Hash)
+      # return true if blank?(data)
 
-      false
+      # return data.all? { |v| deep_blank?(v) } if data.is_a?(::Array)
+      # return data.all? { |_, v| deep_blank?(v) } if data.is_a?(::Hash)
+
+      # false
     end
 
-    def self.deep_present?(data)
-      !deep_blank?(data)
+    def self.deep_present?(value)
+      present?(value)
+      # !deep_blank?(data)
     end
 
     def self.parse_translated_hash(datahash)

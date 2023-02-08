@@ -466,6 +466,7 @@ de:
       gpx: GPX-Datei
       xml: XML-Format
       indesign: Adobe InDesign
+      pdf: PDF
       version:
         original: Original
         default: Default

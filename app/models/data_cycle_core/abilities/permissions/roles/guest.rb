@@ -69,13 +69,6 @@ module DataCycleCore
               segment(:StoredFilterByApiUsers).new
             )
 
-            # WatchList
-            permit(
-              segment(:UsersByRole).new(role),
-              :copy_api_link,
-              segment(:SubjectByConditions).new(DataCycleCore::WatchList, my_selection: false)
-            )
-
             # DataAttributes
             permit(
               segment(:UsersByRole).new(role),

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="<%= active_ui_locale %>">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= "#{@content.try(:name)} [#{@content.id}]" %></title>
+    <%= dc_stylesheet_tag 'pdf.scss' %>
+  </head>
+  <body class="pdf-serializer">
+    <%= yield %>
+  </body>
+</html>

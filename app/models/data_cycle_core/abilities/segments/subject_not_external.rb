@@ -6,8 +6,8 @@ module DataCycleCore
       class SubjectNotExternal < Base
         attr_reader :subject, :conditions
 
-        def initialize(subject)
-          @subject = subject
+        def initialize(*subject)
+          @subject = Array.wrap(subject).flatten
           @conditions = { external_source_id: nil }
         end
       end
