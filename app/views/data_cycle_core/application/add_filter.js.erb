@@ -1,6 +1,6 @@
 $('<%= j render_advanced_filter_partial({
           filter_title: @params[:n],
-          filter_name: @params[:n].presence&.parameterize(separator: '_'),
+          filter_name: @params[:n].presence&.underscore_blanks,
           filter_method: @params[:m],
           filter_advanced_type: @params[:q],
           filter_type: @params[:t],

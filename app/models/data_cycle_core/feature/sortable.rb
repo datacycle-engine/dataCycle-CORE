@@ -25,7 +25,7 @@ module DataCycleCore
           return unless value
           [
             {
-              label: I18n.t("sortable.#{key.parameterize(separator: '_')}", default: key, locale: user.ui_locale),
+              label: I18n.t("sortable.#{key.underscore_blanks}", default: key, locale: user.ui_locale),
               'method': key
             }
           ]
@@ -35,7 +35,7 @@ module DataCycleCore
           return [] unless value
           value.map do |k, _v|
             {
-              label: I18n.t("sortable.#{k.parameterize(separator: '_')}", default: k, locale: user.ui_locale),
+              label: I18n.t("sortable.#{k.underscore_blanks}", default: k, locale: user.ui_locale),
               'method': "advanced_attribute_#{k}"
             }
           end
