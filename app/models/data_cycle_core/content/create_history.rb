@@ -7,7 +7,8 @@ module DataCycleCore
         'id',
         'created_at',
         'updated_at',
-        'write_history'
+        'write_history',
+        'geom_simple'
       ].freeze
       CLASSIFICATION_CONTENT_HISTORY_ATTRIBUTE_EXCEPTIONS = [
         'id',
