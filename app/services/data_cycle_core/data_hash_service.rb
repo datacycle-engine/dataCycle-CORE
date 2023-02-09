@@ -182,9 +182,11 @@ module DataCycleCore
 
     def self.find_locales_recursive(datahash, locales = [])
       datahash&.each_value do |v|
-        next unless v.is_a?(::Array) && v.first.is_a?(::Hash)
+        next unless v.is_a?(::Array)
 
         v.each do |h|
+          next unless h.is_a?(::Hash)
+
           find_locales_recursive(h['datahash'], locales) if h.key?('datahash')
 
           h['translations']&.each do |l, t|
