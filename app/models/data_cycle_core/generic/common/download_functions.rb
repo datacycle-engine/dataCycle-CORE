@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rake_helpers/parallel_helper'
+
 module DataCycleCore
   module Generic
     module Common
@@ -89,13 +91,20 @@ module DataCycleCore
                         download_object.endpoint.send(endpoint_method, lang: locale)
                       end
 
+                    if options.dig(:download, :run_in_parallel)
+                      pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
+                    else
+                      pool = nil
+                    end
+                    futures = []
+
                     items.each do |item_data|
                       break if options[:max_count] && item_count >= options[:max_count]
 
                       item_count += 1
                       next if item_data.nil?
 
-                      begin
+                      ParallelHelper.run_in_parallel(futures, pool) do
                         item_id = data_id.call(item_data)
                         item_name = data_name.call(item_data)
 
