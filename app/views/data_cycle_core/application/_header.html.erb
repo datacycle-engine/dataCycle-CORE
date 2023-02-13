@@ -1,7 +1,7 @@
 <header>
   <div class="top-bar">
     <div class="top-bar-title">
-      <%= link_to root_path do %>
+      <%= link_to_condition can?(:index, :backend), root_path do %>
         <%= render 'logo', inverted: true %>
         <%= header_title %>
         <%= yield :menu_title %>
