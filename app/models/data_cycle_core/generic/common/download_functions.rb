@@ -91,12 +91,9 @@ module DataCycleCore
                         download_object.endpoint.send(endpoint_method, lang: locale)
                       end
 
-                    if options.dig(:download, :run_in_parallel)
-                      pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 2)
-                      pool = nil if pool <= 1
-                    else
-                      pool = nil
-                    end
+                    pool = nil
+                    pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 2) if options.dig(:download, :run_in_parallel) && (ActiveRecord::Base.connection_pool.size - 1) >= 1
+
                     futures = []
 
                     items.each do |item_data|
