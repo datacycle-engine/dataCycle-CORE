@@ -6,15 +6,15 @@
       content: local_assigns[:content],
       parent: local_assigns[:parent],
       data_attributes: {
-        id: (value&.except(:limit, :offset).presence&.ids || [] ),
+        id: (value&.except(:limit, :offset)&.ids || [] ),
         editor: "object_browser"
       } do %>
 
   <ul class="content-tiles">
-    <% objects = value.presence&.includes(:translations) %>
+    <% objects = value&.includes(:translations) %>
     <% objects = (objects.to_a || []).concat(new_relations(options.dig(:item_diff), 'things').includes(:translations).to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
 
-    <% objects.presence&.each do |item| %>
+    <% objects&.each do |item| %>
       <%= render_linked_partial key: "#{key}[]",
                                 definition: definition,
                                 content: content,
