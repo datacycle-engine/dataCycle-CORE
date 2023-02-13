@@ -61,7 +61,10 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 	drawAdditionalFeatures() {
 		super.drawAdditionalFeatures();
 
-		for (const key of Object.keys(this.additionalValues)) {
+		for (const key of new Set([
+			...Object.keys(this.additionalValues),
+			...Object.keys(this.additionalValuesOverlay),
+		])) {
 			this.additionalValueTargets[key] = this.$parentContainer
 				.closest(".form-element.geographic")
 				.siblings(`.form-element[data-key*="[${key}]"]`)
