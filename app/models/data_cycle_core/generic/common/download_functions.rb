@@ -92,7 +92,8 @@ module DataCycleCore
                       end
 
                     if options.dig(:download, :run_in_parallel)
-                      pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 1)
+                      pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 2)
+                      pool = nil if pool <= 1
                     else
                       pool = nil
                     end
