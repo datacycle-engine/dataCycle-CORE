@@ -30,7 +30,7 @@ module DataCycleCore
         query = super
 
         query = query.from('bounds, things')
-        query = query.where('ST_Intersects(geom_simple, ST_Transform(bounds.geom, 3035))')
+        query = query.where('ST_Intersects(geom_simple, ST_Transform(bounds.geom, 4326))')
 
         query
       end

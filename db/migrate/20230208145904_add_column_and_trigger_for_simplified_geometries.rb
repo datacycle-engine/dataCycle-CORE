@@ -4,7 +4,7 @@ class AddColumnAndTriggerForSimplifiedGeometries < ActiveRecord::Migration[6.1]
   disable_ddl_transaction!
 
   def up
-    add_column :things, :geom_simple, :geometry, srid: 3035
+    add_column :things, :geom_simple, :geometry, srid: 4326
     add_index :things, :geom_simple, name: 'index_things_on_geom_simple_spatial', using: :gist
 
     ActiveRecord::Base.connection.execute('VACUUM ANALYZE things')
@@ -16,10 +16,9 @@ class AddColumnAndTriggerForSimplifiedGeometries < ActiveRecord::Migration[6.1]
         BEGIN
         NEW.geom_simple := (
       SELECT
-            st_transform(st_simplify(ST_Force2D (COALESCE(NEW."location" , NEW.line)),
+            st_simplify(ST_Force2D (COALESCE(NEW."location" , NEW.line)),
             0.00001,
-            TRUE ),
-            3035)
+            TRUE )
       FROM
             things
       WHERE

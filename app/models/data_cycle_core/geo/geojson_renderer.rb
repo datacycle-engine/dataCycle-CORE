@@ -27,7 +27,7 @@ module DataCycleCore
 
       def geojson_detail_select_sql
         <<-SQL.squish
-              json_build_object('type', 'Feature', 'id', t.id, 'geometry', ST_AsGeoJSON (st_transform(t.geometry, 4326), #{GEOMETRY_PRECISION})::json, 'properties',
+              json_build_object('type', 'Feature', 'id', t.id, 'geometry', ST_AsGeoJSON (t.geometry, #{GEOMETRY_PRECISION})::json, 'properties',
                 json_build_object('@id', t.id, #{include_config.pluck(:identifier).map { |p| "'#{p.delete('"')}', t.#{p}" }.join(', ')}))
         SQL
       end

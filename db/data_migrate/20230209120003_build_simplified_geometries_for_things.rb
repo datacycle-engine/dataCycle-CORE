@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class BuildSimplifiedGeometries < ActiveRecord::Migration[6.1]
+class BuildSimplifiedGeometriesForThings < ActiveRecord::Migration[6.1]
   # uncomment the following line to disable transactions
   # disable_ddl_transaction!
 
@@ -14,14 +14,13 @@ class BuildSimplifiedGeometries < ActiveRecord::Migration[6.1]
         (
         SELECT
           id,
-          st_transform(st_simplify(ST_Force2D (COALESCE(things."location" , things.line)),
+          st_simplify(ST_Force2D (COALESCE(things."location" , things.line)),
           0.00001,
-          TRUE ),
-          3035) AS geom
+          TRUE ) AS geom
         FROM
           things) g
       WHERE
-        t.id = g.id
+        t.id = g.id;
     SQL
   end
 
