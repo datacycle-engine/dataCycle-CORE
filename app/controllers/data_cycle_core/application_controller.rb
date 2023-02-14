@@ -11,8 +11,8 @@ module DataCycleCore
     before_action :better_errors_hack, if: -> { Rails.env.development? }
     before_action :flashes_from_params, if: -> { params[:flash].present? }
 
-    def after_sign_in_path_for(_resource)
-      session['user_return_to'] || authorized_root_path
+    def after_sign_in_path_for(resource)
+      stored_location_for(resource).presence || authorized_root_path
     end
 
     def load_watch_lists

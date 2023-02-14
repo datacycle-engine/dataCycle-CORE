@@ -70,7 +70,7 @@ module DataCycleCore
       filter1.slice(*KEYS_FOR_EQUALITY) == filter2.slice(*KEYS_FOR_EQUALITY)
     end
 
-    def apply_user_filter(user, options = nil)
+    def apply_user_filter(user, options = nil, shared_stored_filters = false)
       return self if user.nil?
 
       filter_options = { scope: 'backend' }
@@ -78,6 +78,7 @@ module DataCycleCore
 
       self.parameters ||= []
       applicable_filters = user_filters_from_hash(user, filter_options)
+      applicable_filters.push(param_from_definition({ shared_with: 'current_user' }, 'uf', user)) if shared_stored_filters && filter_options[:scope] == 'backend'
       parameters.each { |f| f['c'] = 'a' if f['c'].in?(['u', 'uf']) && applicable_filters.none? { |af| filter_equal?(af, f) } }
 
       self.parameters = user.default_filter(parameters, filter_options) # keep for backwards compatibility
@@ -171,18 +172,10 @@ module DataCycleCore
       valid_write_links.present?
     end
 
-    def apply_params_for_data_links(data_link_ids)
-      stored_filter_ids = DataCycleCore::DataLink.where(id: data_link_ids, permissions: 'read').valid_stored_filters.ids
-
-      return if stored_filter_ids.blank?
-
-      apply_specific_user_filter(param_from_definition({ union_filter_ids: stored_filter_ids }, 'uf'))
-    end
-
     private
 
     def apply_filter_parameters
-      parameters.presence&.each do |filter|
+      parameters&.each do |filter|
         t = filter['t'].dup
         t.prepend(FILTER_PREFIX[filter['m']].to_s)
 
@@ -255,6 +248,8 @@ module DataCycleCore
         hash['t'] = 'user'
         hash['n'] = 'creator'
         hash['q'] = 'creator'
+        hash['v'] = Array.wrap(hash['v']).map { |v| v == 'current_user' ? user&.id : v }
+      when 'shared_with'
         hash['v'] = Array.wrap(hash['v']).map { |v| v == 'current_user' ? user&.id : v }
       when 'with_user_group_classifications_for_treename'
         raise StandardError, 'Missing data definition: treeLabel' if hash['v'].blank?

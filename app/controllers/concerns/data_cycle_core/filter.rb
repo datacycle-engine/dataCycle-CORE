@@ -17,8 +17,7 @@ module DataCycleCore
       @stored_filter.apply_sorting_from_parameters(sort_params: sort_params.dup)
       @sort_params = @stored_filter.sort_parameters
 
-      @stored_filter.apply_user_filter(current_user, user_filter) if user_filter.present?
-      @stored_filter.apply_params_for_data_links(session[:data_link_ids]) if current_user.is_role?('guest') && session[:data_link_ids].present?
+      @stored_filter.apply_user_filter(current_user, user_filter, current_user.is_role?('guest')) if user_filter.present?
       query = @stored_filter.apply(query: query, skip_ordering: @count_only, watch_list: watch_list)
 
       # used on dashboard
