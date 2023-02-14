@@ -276,6 +276,14 @@ module DataCycleCore
       Mongoid.override_database(nil)
     end
 
+    def destroy_all(collection_name)
+      mongo_class = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: collection_name)
+      Mongoid.override_database("#{mongo_class.database_name}_#{id}")
+      DataCycleCore::Generic::Collection.with(mongo_class, &:destroy_all)
+    ensure
+      Mongoid.override_database(nil)
+    end
+
     def maintenance(collection_name)
       mongo_class = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: collection_name)
       Mongoid.override_database("#{mongo_class.database_name}_#{id}")
