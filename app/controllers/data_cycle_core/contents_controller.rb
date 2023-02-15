@@ -722,13 +722,8 @@ module DataCycleCore
     end
 
     def content_params(template_name, params_hash = nil)
-      allowed_content_params = DataCycleCore::DataHashService.get_object_params(template_name)
-
-      if params_hash.present?
-        params_hash.permit(allowed_content_params)
-      else
-        params.fetch(:thing) { {} }.permit(:version_name, allowed_content_params)
-      end
+      params_hash = params.fetch(:thing) { {} } if params_hash.blank?
+      params_hash.permit(:version_name, DataCycleCore::DataHashService.get_object_params(template_name, params_hash))
     end
 
     def new_params

@@ -1,4 +1,6 @@
 #!/bin/bash
+DUMP_FORMAT=$1
+
 set -e
 
 function print_header_message {
@@ -6,7 +8,7 @@ function print_header_message {
 ################## $1"
 }
 
-ENV_FILE=$1
+ENV_FILE=$2
 if [ -z "$ENV_FILE" ]; then ENV_FILE='.env'; fi
 
 set -eu
@@ -18,6 +20,8 @@ function read_var() {
   echo ${VAR[1]}
 }
 
+if [ -z "$DUMP_FORMAT" ]; then DUMP_FORMAT=review
+fi
 REMOTE_DOCKER_HOST=$(read_var REMOTE_DOCKER_HOST $ENV_FILE)
 REMOTE_DOCKER_ENV=$(read_var REMOTE_DOCKER_ENV $ENV_FILE)
 REMOTE_COMPOSER_PROJECT_NAME=$(read_var REMOTE_COMPOSER_PROJECT_NAME $ENV_FILE)
@@ -33,6 +37,7 @@ echo "REMOTE_DOCKER_ENV: $REMOTE_DOCKER_ENV"
 echo "REMOTE_COMPOSER_PROJECT_NAME: $REMOTE_COMPOSER_PROJECT_NAME"
 echo "LOCAL_COMPOSE_PROJECT_NAME: $LOCAL_COMPOSE_PROJECT_NAME"
 echo "LOCAL_WEB_CONTAINER: $LOCAL_WEB_CONTAINER"
+echo "DUMP_FORMAT: $DUMP_FORMAT"
 
 if [ ! -d ./db/backups/development ]; then
   echo "creating ./db/backups/development"
@@ -40,7 +45,7 @@ if [ ! -d ./db/backups/development ]; then
 fi
 
 echo "REMOTE: rake data_cycle_core:db:dump[local_dev_db]"
-DOCKER_HOST="$REMOTE_DOCKER_HOST" docker exec -it "$REMOTE_COMPOSER_PROJECT_NAME"_web_1 rake data_cycle_core:db:dump[local_dev_db,dir,review]
+DOCKER_HOST="$REMOTE_DOCKER_HOST" docker exec -it "$REMOTE_COMPOSER_PROJECT_NAME"_web_1 rake data_cycle_core:db:dump[local_dev_db,dir,"$DUMP_FORMAT"]
 
 echo "REMOTE --> LOCAL cp local_dev_db"
 DOCKER_HOST="$REMOTE_DOCKER_HOST" docker cp "$REMOTE_COMPOSER_PROJECT_NAME"_web_1:/app/db/backups/"$REMOTE_DOCKER_ENV"/local_dev_db.dir ./db/backups/development/.
