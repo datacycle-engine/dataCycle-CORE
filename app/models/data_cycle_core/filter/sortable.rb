@@ -87,7 +87,7 @@ module DataCycleCore
         locale = @locale&.first || I18n.available_locales.first.to_s
         reflect(
           @query
-            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = ?', locale]))
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = ?', locale]))
             .order(
               sanitized_order_string('thing_translations.name', ordering, true),
               thing[:id].desc
@@ -100,7 +100,7 @@ module DataCycleCore
         locale = @locale&.first || I18n.available_locales.first.to_s
         reflect(
           @query
-            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ?', locale]))
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT OUTER JOIN searches ON searches.content_data_id = things.id AND searches.locale = ?', locale]))
             .order(
               Arel.sql(sanitized_order_string("searches.advanced_attributes -> '#{attribute_path}'", ordering, true)),
               thing[:id].desc
