@@ -36,7 +36,9 @@ class DataCycle {
 		this.globalPromises = {};
 
 		this.htmlObserver = {
-			observer: new MutationObserver(this._observeHtmlContent.bind(this)),
+			observer: new MutationObserver(
+				this._addToMutationObserverQueue.bind(this),
+			),
 			newItemsConfig: {
 				attributes: false,
 				characterData: false,
@@ -49,6 +51,7 @@ class DataCycle {
 			removeCallbacks: [],
 		};
 
+		this.mutationQueue = [];
 		this.notifications = new Comment("dataCycle-notifications");
 		this.mutableNodes = ["A", "BUTTON"];
 
@@ -152,34 +155,47 @@ class DataCycle {
 			element.classList.remove("disabled");
 	}
 	initNewElements(selector, callback) {
-		for (const element of document.querySelectorAll(selector))
-			callback(element);
+		if (document.querySelector(selector))
+			for (const element of document.querySelectorAll(selector))
+				callback(element);
 		this.htmlObserver.addCallbacks.push([selector, callback]);
 	}
 	_runAddCallbacks(node) {
 		for (const [selector, callback] of this.htmlObserver.addCallbacks) {
-			for (const element of node.querySelectorAll(selector)) callback(element);
+			if (node.querySelector(selector))
+				for (const element of node.querySelectorAll(selector))
+					callback(element);
 			if (node.matches(selector)) callback(node);
 		}
 	}
 	_runRemoveCallbacks(node) {
 		for (const [selector, callback] of this.htmlObserver.removeCallbacks) {
-			for (const element of node.querySelectorAll(selector)) callback(element);
+			if (node.querySelector(selector))
+				for (const element of node.querySelectorAll(selector))
+					callback(element);
 			if (node.matches(selector)) callback(node);
 		}
 	}
-	_observeHtmlContent(mutations) {
-		for (const mutation of mutations) {
-			for (const addedNode of mutation.addedNodes) {
-				if (addedNode.nodeType === Node.ELEMENT_NODE)
-					this._runAddCallbacks(addedNode);
-			}
+	_addToMutationObserverQueue(mutations) {
+		if (!this.mutationQueue.length)
+			requestAnimationFrame(this._observeHtmlContent.bind(this));
 
-			for (const removedNode of mutation.removedNodes) {
-				if (removedNode.nodeType === Node.ELEMENT_NODE)
-					this._runRemoveCallbacks(removedNode);
+		this.mutationQueue.push(mutations);
+	}
+	_observeHtmlContent() {
+		for (const mutations of this.mutationQueue) {
+			for (const mutation of mutations) {
+				for (const addedNode of mutation.addedNodes)
+					if (addedNode.nodeType === Node.ELEMENT_NODE)
+						this._runAddCallbacks(addedNode);
+
+				for (const removedNode of mutation.removedNodes)
+					if (removedNode.nodeType === Node.ELEMENT_NODE)
+						this._runRemoveCallbacks(removedNode);
 			}
 		}
+
+		this.mutationQueue.length = 0;
 	}
 }
 

@@ -95,7 +95,7 @@ class RemoteRenderer {
 			if (!entry.isIntersecting) continue;
 
 			this.unobserveElement(entry.target);
-			this.loadRemote(entry.target);
+			requestAnimationFrame(this.loadRemote.bind(this, entry.target));
 		}
 	}
 	reloadAfterFail(event) {
@@ -135,18 +135,16 @@ class RemoteRenderer {
 		});
 	}
 	loadRemote(target, data = undefined) {
-		$(target)
-			.find(".remote-render, .remote-reload")
-			.addBack(".remote-render, .remote-reload")
-			.filter((_, elem) => {
-				return (
-					data?.force ||
-					($(elem).css("visibility") !== "hidden" && $(elem).is(":visible"))
-				);
-			})
-			.each((_, element) => {
-				this.loadRemotePartial(element);
-			});
+		if (
+			target.matches(".remote-render, .remote-reload") &&
+			(data?.force || domElementHelpers.isVisible(target))
+		)
+			this.loadRemotePartial(target);
+		if (target.querySelector(".remote-render, .remote-reload"))
+			for (const elem of target.querySelectorAll(
+				".remote-render, .remote-reload",
+			))
+				if (domElementHelpers.isVisible(elem)) this.loadRemotePartial(elem);
 	}
 	forceLoadRemote(event) {
 		event.preventDefault();
