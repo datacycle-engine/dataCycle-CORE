@@ -11,6 +11,8 @@ module DataCycleCore
     # n => String                                         | das Filterlabel (z.B. 'Inhaltspools')
     # q => String (Optional)                              | Ein spezifischer Query-Pfad für das Attribut (z.B. metadata ->> 'width') || type
 
+    include StoredFilterExtensions::SortParamTransformations
+
     scope :by_user, ->(user) { where user: user }
     belongs_to :user
 
@@ -93,52 +95,6 @@ module DataCycleCore
       parameters.push(filter) unless parameters.any? { |f| filter_equal?(f, filter) }
     end
 
-    def apply_sorting_from_parameters(filters:, sort_params:)
-      if sort_params.present?
-        self.sort_parameters = sort_params
-      elsif (search_string = filters&.find { |f| f['t'] == 'fulltext_search' }&.dig('v')).present?
-        self.sort_parameters = [{ 'm' => 'fulltext_search', 'o' => 'DESC', 'v' => search_string }]
-      elsif (schedule_sort = filters&.find { |f| f['t'] == 'in_schedule' })&.dig('v').present?
-        self.sort_parameters = [{ 'm' => 'by_proximity', 'o' => 'ASC', 'v' => schedule_sort.slice('q', 'v') }]
-      end
-
-      self
-    end
-
-    def apply_sorting_from_api_parameters(full_text_search:, raw_query_params: {})
-      sort_params = []
-
-      raw_query_params&.dig(:sort)&.split(',')&.each do |sort|
-        key, order = DataCycleCore::ApiService.order_key_with_value(sort)
-        value = DataCycleCore::ApiService.order_value_from_params(key, full_text_search, raw_query_params)
-
-        if DataCycleCore::Feature::Sortable.available_advanced_attribute_options.key?(key.underscore)
-          value = key.underscore
-          key = 'advanced_attribute'
-        end
-
-        sort_params << {
-          'm' => key.parameterize(separator: '_'),
-          'o' => order,
-          'v' => value.presence
-        }.compact
-      end
-
-      sort_params.compact_blank!
-
-      if sort_params.present?
-        self.sort_parameters = sort_params
-      elsif full_text_search.present?
-        self.sort_parameters = [{ 'm' => 'fulltext_search', 'o' => 'DESC', 'v' => full_text_search }]
-      elsif (geo_value = DataCycleCore::ApiService.order_value_from_params('proximity.geographic', full_text_search, raw_query_params))
-        self.sort_parameters = [{ 'm' => 'proximity_geographic', 'o' => 'ASC', 'v' => geo_value }]
-      elsif (proximity_value = DataCycleCore::ApiService.order_value_from_params('proximity.inTime', full_text_search, raw_query_params)).present?
-        self.sort_parameters = [{ 'm' => 'by_proximity', 'o' => 'ASC', 'v' => proximity_value }]
-      end
-
-      self
-    end
-
     def self.combine_with_collections(collections, filter_proc, name_filter = true)
       query1_table = all.arel_table
       query1 = all.arel
@@ -188,32 +144,6 @@ module DataCycleCore
           self.query = query.send(t, filter['v'], filter['q'].presence || filter['n'].presence)
         else
           self.query = query.send(t, filter['v'])
-        end
-      end
-    end
-
-    def apply_order_parameters(watch_list)
-      self.sort_parameters = [{ 'm' => 'default' }] if sort_parameters.blank?
-
-      self.query = query.reset_sort
-
-      sort_parameters.each do |sort|
-        sort_method_name = 'sort_' + sort['m']
-
-        if sort['m'].starts_with?('advanced_attribute_')
-          sort['v'] = sort['m'].gsub('advanced_attribute_', '')
-          sort_method_name = 'sort_advanced_attribute'
-        elsif sort['m'] == 'default' && watch_list&.manual_order
-          sort_method_name = 'sort_collection_manual_order'
-          sort['v'] = watch_list.id
-        end
-
-        next unless query.respond_to?(sort_method_name)
-
-        if query.method(sort_method_name)&.parameters&.size == 2
-          self.query = query.send(sort_method_name, sort['o'].presence, sort['v'].presence)
-        elsif query.method(sort_method_name)&.parameters&.size == 1
-          self.query = query.send(sort_method_name, sort['o'].presence)
         end
       end
     end
