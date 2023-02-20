@@ -7,19 +7,15 @@ module DataCycleCore
 
     def get_filtered_results(query: nil, user_filter: { scope: 'backend' }, watch_list: nil)
       @stored_filter ||= DataCycleCore::StoredFilter.new
-      @filters = pre_filters.dup
+      @filters = pre_filters.reject { |f| DataCycleCore::DataHashService.blank?(f['v']) }
+      @stored_filter.apply_sorting_from_parameters(sort_params: sort_params.dup, filters: @filters)
       @stored_filter.parameters ||= @filters || []
-      @stored_filter.parameters&.reject! { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? }
-      query = query&.dup
       @language ||= Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
       @stored_filter.language = @language
-
-      @stored_filter.apply_sorting_from_parameters(sort_params: sort_params.dup)
       @sort_params = @stored_filter.sort_parameters
 
-      @stored_filter.apply_user_filter(current_user, user_filter) if user_filter.present?
-      @stored_filter.apply_params_for_data_links(session[:data_link_ids]) if current_user.is_role?('guest') && session[:data_link_ids].present?
-      query = @stored_filter.apply(query: query, skip_ordering: @count_only, watch_list: watch_list)
+      @stored_filter.apply_user_filter(current_user, user_filter, current_user.is_role?('guest')) if user_filter.present?
+      query = @stored_filter.apply(query: query&.dup, skip_ordering: @count_only, watch_list: watch_list)
 
       # used on dashboard
       @filters = @stored_filter.parameters.select { |f| f.key?('c') }.each { |f| f['identifier'] = SecureRandom.hex(10) }

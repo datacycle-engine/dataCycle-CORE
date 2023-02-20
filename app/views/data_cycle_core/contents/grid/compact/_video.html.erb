@@ -6,17 +6,10 @@
   <%= render 'data_cycle_core/contents/grid/compact/tile_wrapper', local_assigns.except(:tile_links).merge(tile_classes: 'video asset') do %>
     <% render_locale = I18n.locale %>
     <% I18n.with_locale(object.first_available_locale) do %>
-      <div class="thumbnail media item <%= local_assigns[:class] %>" style="<%= "background-image: url(#{thumbnail_url})" if thumbnail_url.present? %>" data-open="media-reveal<%= local_assigns.dig(:options, :prefix) %>-<%= object.id %>">
-        <div class="show-for-print">
-          <img src="<%= thumbnail_url %>" />
-        </div>
+      <div class="thumbnail media item lazyload <%= local_assigns[:class] %>" data-open="media-reveal<%= local_assigns.dig(:options, :prefix) %>-<%= object.id %>" data-bg="<%= thumbnail_url %>">
         <% if object.title.present? %>
           <div class="description">
             <%= object.title %> (<%= I18n.locale.to_s %>)
-            <div class="show-for-print">
-              <br />
-              (ID: <%= object.id %>)
-            </div>
           </div>
         <% end %>
         <%= tag.span(tag.i(class: 'fa fa-bars'), class: 'draggable-handle') if local_assigns[:edit_buttons] && can?(:update, DataCycleCore::DataAttribute.new(key, definition, options, content, :update)) %>

@@ -48,7 +48,7 @@ const DomElementHelpers = {
 	) {
 		const container = field.closest(".form-element");
 		const label = container.getElementsByClassName("attribute-label-text")[0];
-		const labelText = label?.innerText;
+		const labelText = label?.textContent;
 		const fieldId = sourceId || this.randomId("focus-field");
 		container.dataset.focusId = fieldId;
 

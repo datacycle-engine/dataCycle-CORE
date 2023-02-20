@@ -64,7 +64,8 @@ module DataCycleCore
 
     def included_attribute?(name, attribute_list)
       return if attribute_list.blank?
-      attribute_list.map { |item| item.first == name }.inject(&:|)
+
+      attribute_list.pluck(0).intersection(Array.wrap(name)).any?
     end
 
     def subtree_for(name, attribute_list)

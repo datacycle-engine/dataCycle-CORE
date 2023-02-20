@@ -53,7 +53,7 @@ module DataCycleCore
     end
 
     def clear_if_not_active
-      return unless my_selection && !watch_list_data_hashes.where('updated_at >= ?', 12.hours.ago).exists? && watch_list_data_hashes.present?
+      return unless my_selection && !watch_list_data_hashes.exists?(['updated_at >= ?', 12.hours.ago]) && watch_list_data_hashes.present?
 
       watch_list_data_hashes.clear
     end
@@ -83,6 +83,8 @@ module DataCycleCore
         RETURNING hashable_id;
       SQL
 
+      update_column(:updated_at, Time.zone.now)
+
       ids.pluck('hashable_id')
     end
 
@@ -93,12 +95,15 @@ module DataCycleCore
         RETURNING hashable_id;
       SQL
 
+      update_column(:updated_at, Time.zone.now)
+
       ids.pluck('hashable_id')
     end
 
     def update_order_by_array(order_array)
       return if order_array.blank?
 
+      update_column(:updated_at, Time.zone.now)
       update_column(:manual_order, true) unless manual_order
 
       watch_list_data_hashes

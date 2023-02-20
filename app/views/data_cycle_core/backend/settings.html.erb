@@ -49,10 +49,11 @@
                 <span class="title"><%= "#{current_user.model_name.human(locale: active_ui_locale)}-#{t('data_cycle_core.settings', locale: active_ui_locale)}" %></span>
               </div>
 
-              <div class="form-element validation-container">
-                <%= f.label :notification_frequency, DataCycleCore::User.human_attribute_name(:notification_frequency, locale: active_ui_locale) %>
-                <div class="v-select">
-                  <%= f.select :notification_frequency,
+              <% if can?(:subscribe, DataCycleCore::Thing) || can?(:subscribe, DataCycleCore::WatchList) %>
+                <div class="form-element validation-container">
+                  <%= f.label :notification_frequency, DataCycleCore::User.human_attribute_name(:notification_frequency, locale: active_ui_locale) %>
+                  <div class="v-select">
+                    <%= f.select :notification_frequency,
                       DataCycleCore.notification_frequencies.except(DataCycleCore::Feature::NamedVersion.enabled? ? nil : 'named_version').map{ |f|
                         [
                           t("notification.frequency.#{f}", locale: active_ui_locale),
@@ -64,8 +65,9 @@
                       data: {
                         allow_clear: false
                       } %>
+                  </div>
                 </div>
-              </div>
+              <% end %>
 
               <div class="form-element">
                 <%= f.label :default_locale, DataCycleCore::User.human_attribute_name(:default_locale, locale: active_ui_locale) %>

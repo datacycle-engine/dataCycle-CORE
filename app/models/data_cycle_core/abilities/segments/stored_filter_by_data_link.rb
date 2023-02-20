@@ -12,7 +12,7 @@ module DataCycleCore
         end
 
         def include?(_t = nil, _k = nil, filter_type = nil, *_args)
-          return false unless session[:data_link_ids].present? && DataCycleCore::DataLink.where(id: session[:data_link_ids], item_type: 'DataCycleCore::StoredFilter').valid.exists?
+          return false unless valid_data_links?
 
           return true if filter_type.nil?
 
@@ -21,6 +21,12 @@ module DataCycleCore
 
         def to_proc
           ->(*args) { include?(*args) }
+        end
+
+        private
+
+        def valid_data_links?
+          user.valid_received_readable_stored_filter_data_links.any?
         end
       end
     end

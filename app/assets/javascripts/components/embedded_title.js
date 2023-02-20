@@ -1,44 +1,48 @@
 class EmbeddedTitle {
-  constructor(element) {
-    this.$element = $(element);
-    this.$sourceField = this.$element.find(':input, .detail-content').first();
-    this.$targetField = this.$element
-      .closest('.content-object-item, .detail-type.embedded')
-      .find('> .accordion-title > .title > .embedded-title');
+	constructor(element) {
+		this.$element = $(element);
+		this.$sourceField = this.$element.find(":input, .detail-content").first();
+		this.$targetField = this.$element
+			.closest(".content-object-item, .detail-type.embedded")
+			.find("> .accordion-title > .title > .embedded-title");
 
-    this.init();
-  }
-  init() {
-    this.$element[0].classList.add('dcjs-embedded-title');
+		this.init();
+	}
+	init() {
+		this.$element[0].classList.add("dcjs-embedded-title");
 
-    this.updateEmbeddedTitle();
+		this.updateEmbeddedTitle();
 
-    this.$element.on('change dc:embedded:changeTitle', this.updateEmbeddedTitle.bind(this));
-  }
-  getSourceValue() {
-    if (!this.$sourceField.length) return;
+		this.$element.on(
+			"change dc:embedded:changeTitle",
+			this.updateEmbeddedTitle.bind(this),
+		);
+	}
+	getSourceValue() {
+		if (!this.$sourceField.length) return;
 
-    let value;
-    const tempDivElement = document.createElement('div');
+		let value;
+		const tempDivElement = document.createElement("div");
 
-    if (this.$sourceField.hasClass('detail-content')) value = this.$sourceField.text();
-    else value = this.$sourceField.val();
+		if (this.$sourceField.hasClass("detail-content"))
+			value = this.$sourceField.text();
+		else value = this.$sourceField.val();
 
-    tempDivElement.innerHTML = value;
+		tempDivElement.innerHTML = value;
 
-    return (tempDivElement.textContent || tempDivElement.innerText || '').trim();
-  }
-  updateEmbeddedTitle(_event) {
-    if (!this.$targetField.length) return;
+		return (tempDivElement.textContent || "").trim();
+	}
+	updateEmbeddedTitle(_event) {
+		if (!this.$targetField.length) return;
 
-    let value = this.getSourceValue();
+		let value = this.getSourceValue();
 
-    this.$targetField.text(value);
-    this.$targetField.attr('title', value);
+		this.$targetField.text(value);
+		this.$targetField.attr("title", value);
 
-    if (value && value.length) this.$targetField.addClass('visible');
-    else this.$targetField.removeClass('visible');
-  }
+		if (value?.length) this.$targetField.addClass("visible");
+		else this.$targetField.removeClass("visible");
+	}
 }
 
 export default EmbeddedTitle;
