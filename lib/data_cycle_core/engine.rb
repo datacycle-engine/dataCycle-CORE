@@ -224,6 +224,18 @@ module DataCycleCore
     classification_visibilities.except(['show_more', 'tree_view', 'classification_overview'])
   end
 
+  def self.load_configurations_for_file(file_name)
+    load_configurations(Rails.root.join('config', 'configurations', Rails.env, file_name, '**', '*.yml'))
+    load_configurations(Rails.root.join('config', 'configurations', Rails.env, "#{file_name}.yml"))
+    load_configurations(Rails.root.join('config', 'configurations', file_name, '**', '*.yml'), false)
+    load_configurations(Rails.root.join('config', 'configurations', "#{file_name}.yml"))
+
+    load_configurations(DataCycleCore::Engine.root.join('config', 'configurations', Rails.env, file_name, '**', '*.yml'))
+    load_configurations(DataCycleCore::Engine.root.join('config', 'configurations', Rails.env, "#{file_name}.yml"))
+    load_configurations(DataCycleCore::Engine.root.join('config', 'configurations', file_name, '**', '*.yml'), false)
+    load_configurations(DataCycleCore::Engine.root.join('config', 'configurations', "#{file_name}.yml"))
+  end
+
   def self.load_configurations(path, include_environments = true)
     available_environments = ActiveRecord::Base.configurations.configurations.to_a.map(&:env_name).without('default').join('|')
     path_regex = include_environments ? %r{/configurations(?:/(?:#{available_environments}))?/(.*)} : %r{/configurations(?!/(?:#{available_environments}))/(.*)}

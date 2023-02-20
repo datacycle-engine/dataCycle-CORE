@@ -66,27 +66,11 @@ export default function () {
     threshold: 0.1
   });
 
-  for (const elem of document.getElementsByClassName('attribute-content-score')) {
-    new ContentScore(elem);
-    intersectionObserver.observe(elem);
-  }
-
-  DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('attribute-content-score') && !e.classList.contains('dcjs-content-score'),
-    e => {
-      new ContentScore(e);
-      intersectionObserver.observe(e);
-    }
-  ]);
+  DataCycle.initNewElements('.attribute-content-score:not(.dcjs-content-score)', e => {
+    new ContentScore(e);
+    intersectionObserver.observe(e);
+  });
 
   // legacy content_score
-  for (const element of document.querySelectorAll('.detail-type.content_score')) setContentScoreClass(element);
-
-  DataCycle.htmlObserver.addCallbacks.push([
-    e =>
-      e.classList.contains('detail-type') &&
-      e.classList.contains('content_score') &&
-      !e.classList.contains('dcjs-content-score-class'),
-    e => setContentScoreClass(e)
-  ]);
+  DataCycle.initNewElements('.detail-type.content_score:not(.dcjs-content-score-class)', e => setContentScoreClass(e));
 }

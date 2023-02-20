@@ -19,6 +19,12 @@ module DataCycleCore
         @list
       end
 
+      def segment(segment_name)
+        return ::Abilities::Segments.const_get(segment_name) if Module.const_defined?("::Abilities::Segments::#{segment_name}")
+
+        DataCycleCore::Abilities::Segments.const_get(segment_name)
+      end
+
       def permissions
         ###############################################################################################################
         ################################### Core permissions
@@ -31,7 +37,7 @@ module DataCycleCore
         load_super_admin_permissions
       end
 
-      def add_permission(condition, *actions, definition)
+      def permit(condition, *actions, definition)
         raise 'missing condition in permission' if condition.blank?
         raise 'missing actions in permission' if actions.blank?
         raise 'missing definition in permission' if definition.blank?
@@ -43,6 +49,8 @@ module DataCycleCore
         })
       end
 
+      alias add_permission permit
+
       def self.filtered_list(user)
         list.select { |l| l[:condition].include?(user) }
       end
@@ -53,7 +61,7 @@ module DataCycleCore
           definition.instance_variable_set(:@user, ability.user)
           definition.instance_variable_set(:@session, ability.session)
 
-          parameters = [permission[:actions].first.to_sym, permission[:actions].from(1), definition.subject]
+          parameters = [:can, permission[:actions], definition.subject]
           parameters.push(definition.scope) if definition.respond_to?(:scope)
           parameters.push(definition.conditions) if definition.respond_to?(:conditions)
           next ability.send(*parameters) unless definition.respond_to?(:to_proc)

@@ -78,8 +78,8 @@ describe DataCycleCore::ClassificationAlias do
           "CLASSIFICATION I - A - #{I18n.locale}",
           "CLASSIFICATION I - B - #{I18n.locale}"
         ]
-        assert(DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').order(name: :asc).pick(:name), classification_aliases.first)
-        assert(DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').where.not(name: nil).order(name: :desc).pick(:name), classification_aliases.last)
+        assert(DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').reorder(nil).order(name: :asc).pick(:name), classification_aliases.first)
+        assert(DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').where.not(name: nil).reorder(nil).order(name: :desc).pick(:name), classification_aliases.last)
       end
     end
   end

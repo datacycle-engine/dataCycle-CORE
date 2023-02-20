@@ -3,6 +3,7 @@ import loadingIcon from '../templates/loadingIcon';
 class StoredFilter {
   constructor(element) {
     this.element = element;
+    this.element.classList.add('dcjs-stored-filter');
     this.loadMoreButton = this.element.querySelector('.stored-searches-load-more-button');
     this.loadAllButton = this.element.querySelector('.stored-searches-load-all-button');
     this.fullTextForm = this.element.querySelector('.fulltext-search-form');
@@ -23,13 +24,19 @@ class StoredFilter {
     }
 
     DataCycle.htmlObserver.addCallbacks.push([
-      e => e.classList.contains('stored-searches-load-more-button'),
-      e => e.addEventListener('click', this.loadMore.bind(this))
+      '.stored-searches-load-more-button:not(.dc-stored-filter-load-more)',
+      e => {
+        e.classList.add('dc-stored-filter-load-more');
+        e.addEventListener('click', this.loadMore.bind(this));
+      }
     ]);
 
     DataCycle.htmlObserver.addCallbacks.push([
-      e => e.classList.contains('stored-searches-load-all-button'),
-      e => e.addEventListener('click', this.loadMore.bind(this))
+      '.stored-searches-load-all-button:not(.dc-stored-filter-load-all)',
+      e => {
+        e.classList.add('dc-stored-filter-load-all');
+        e.addEventListener('click', this.loadMore.bind(this));
+      }
     ]);
 
     window.addEventListener('popstate', this.reloadState.bind(this));

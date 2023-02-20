@@ -9,5 +9,13 @@ module DataCycleCore
 
       mail(to: @user.email, subject: t('common.abo_finalized_title', count: @contents.size, locale: @locale))
     end
+
+    def remind_receiver(user, data_link_ids)
+      @user = user
+      @data_links = DataCycleCore::DataLink.preload(:item).where(id: data_link_ids)
+      @locale = @user.ui_locale
+
+      mail(to: @user.email, subject: t('feature.releasable.mailer.remind_receiver.subject', count: @data_links.size, locale: @locale))
+    end
   end
 end

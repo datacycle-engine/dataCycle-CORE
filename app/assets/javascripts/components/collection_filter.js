@@ -12,7 +12,7 @@ class CollectionFilter {
     this.init();
   }
   init() {
-    this.selector[0].dcCollectionFilter = true;
+    this.selector[0].classList.add('dcjs-collection-filter');
     this.filterInput.on('input', debounce(this.filterCollection.bind(this), 500));
     this.filterResetButton.on('click', this.resetFilter.bind(this));
     this.selector.on('dc:collection:filter', this.setFilterInputValue.bind(this));

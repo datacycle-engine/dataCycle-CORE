@@ -103,10 +103,20 @@ module DataCycleCore
 
                         item = mongo_item.find_or_initialize_by('external_id': item_id)
                         item.dump ||= {}
-                        if delete.present? && delete.call(item_data, locale)
-                          item_data[:deleted_at] = item.dump[locale].try(:[], 'deleted_at') || Time.zone.now
-                          item_data[:delete_reason] = item.dump[locale].try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
+                        local_item = item.dump[locale]
+
+                        if options.dig(:download, :restorable).present? && local_item.present?
+                          local_item.delete('deleted_at')
+                          local_item.delete('delete_reason')
+                          local_item.delete('last_seen_before_delete')
+                          item.dump[locale] = local_item
                         end
+
+                        if delete.present? && delete.call(item_data, locale)
+                          item_data[:deleted_at] = local_item.try(:[], 'deleted_at') || Time.zone.now
+                          item_data[:delete_reason] = local_item.try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
+                        end
+
                         item_data[:updated_at] = modified.call(item_data) if modified.present?
                         item.data_has_changed = false if modified.present? && download_object.external_source.last_successful_download && modified.call(item_data) < download_object.external_source.last_successful_download
                         item.data_has_changed = true if options.dig(:download, :skip_diff) == true || item.dump.dig(locale, 'mark_for_update').present?

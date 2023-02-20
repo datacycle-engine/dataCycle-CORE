@@ -16,7 +16,8 @@ Anfragen mit Filtern und Einschränkungen funktionieren analog zu den [Anfragen 
 
 Der Name des Daten-Layers in den Tiles lautet standardmäßig "dataCycle". Mit dem optionalen Parameter `layerName`, der bei Anfragen mitgeschickt werden kann, ist es mögliche einen eigenen Namen zu vergeben.
 
-Zur Authentifizierung muss das API-Token, als URL-Parameter, im JSON-Body oder als Bearer-Token im HTTP-Header mitgesendet werden.
+Zur Authentifizierung empfiehlt sich die Verwendung eines API-Token, es können aber prinzipiell alle für die Datenschnittstelle angebotenen [Authentifizierung-Mechanismen](/docs/api#authentifizierung) genutzt werden.
+
 
 **Zu beachten ist, dass eine implizite Filterung auf Geo-Objekte aktiv ist. Es werden keine Daten ohne Koordinaten ausgegeben.**
 
@@ -26,7 +27,7 @@ Es können Einzelobjekte oder Ergebnisse von Suchen bzw. Inhaltssammlungen abgef
 
 Anfragen können als GET oder POST-Methoden gesendet werden.
 
-Für die Einbindung der MVT in eine Kartenanwendung muss dir URL nach folgendem Schema aufgebaut sein:
+Für die Einbindung der MVT in eine Kartenanwendung muss die URL nach folgendem Schema aufgebaut sein:
 
 ```url
 https://<URL>/mvt/v1/endpoints/<ENDPOINT-ID>/{z}/{x}/{y}.pbf

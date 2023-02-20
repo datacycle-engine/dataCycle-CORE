@@ -75,14 +75,21 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
     this.bboxForCurrentStoredFilter().then(bbox => {
       if (Object.values(bbox).includes(null)) return;
 
+      const maxBounds = this.map.getMaxBounds();
       const sw = new this.maplibreGl.LngLat(bbox.xmin, bbox.ymin);
       const ne = new this.maplibreGl.LngLat(bbox.xmax, bbox.ymax);
-      const bounds = new this.maplibreGl.LngLatBounds(sw, ne);
 
-      this.map.fitBounds(bounds, {
-        padding: 50,
-        maxZoom: 15
-      });
+      if (!maxBounds || (maxBounds.contains(sw) && maxBounds.contains(ne))) {
+        const bounds = new this.maplibreGl.LngLatBounds(sw, ne);
+
+        this.map.fitBounds(bounds, {
+          padding: 50,
+          maxZoom: 15
+        });
+      } else {
+        const minZoom = this.map.getMinZoom();
+        this.map.zoomTo(minZoom > 0 ? minZoom + 1 : 2, { duration: 2000 });
+      }
     });
   }
   async bboxForCurrentStoredFilter() {

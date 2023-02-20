@@ -5,10 +5,10 @@ module DataCycleCore
     module_function
 
     def create_data(type, user = nil)
+      raise ArgumentError, "Unknown type (#{type}) for DummyDataHelper" unless respond_to?(type)
+
       @user = user
       send(type)
-    rescue StandardError => e
-      raise ArgumentError, "Unknown type (#{type}) for DummyDataHelper: #{e.message}"
     end
 
     def tour
@@ -31,7 +31,7 @@ module DataCycleCore
       content.template = false
       content.created_by = @user&.id
       content.external_key = 'test1'
-      content.external_source_id = DataCycleCore::ExternalSystem.find_by(identifier: 'remote-system').id
+      content.external_source_id = DataCycleCore::ExternalSystem.find_by(identifier: 'remote-system')&.id
 
       content.save!
       I18n.with_locale(:de) do

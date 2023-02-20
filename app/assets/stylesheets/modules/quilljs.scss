@@ -53,7 +53,7 @@ $fa-font-path: '/assets';
   }
 
   .ql-tooltip {
-    z-index: 21;
+    z-index: 1000;
 
     input[type='text'] {
       padding: 0.5rem !important;

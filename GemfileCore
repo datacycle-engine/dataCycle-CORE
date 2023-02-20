@@ -28,7 +28,7 @@ gem 'dotenv-rails'
 gem 'jb'
 
 # OmniAuth Authentication
-gem 'omniauth-rails_csrf_protection'
+gem 'omniauth-rails_csrf_protection', '>= 1.0.1'
 gem 'omniauth-azure-activedirectory-v2'
 
 group :test do

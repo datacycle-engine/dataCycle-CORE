@@ -149,7 +149,7 @@ module DataCycleCore
       linked_filter.each do |linked_name, attribute_filter|
         linked_query = DataCycleCore::StoredFilter.new(language: @language).apply
 
-        attribute_filter.delete_if { |k, _v| ![:classifications, :'dc:classification', :geo, :attribute, :contentId, :filterId, :watchListId, :endpointId].include?(k) }
+        attribute_filter.delete_if { |k, _v| [:classifications, :'dc:classification', :geo, :attribute, :contentId, :filterId, :watchListId, :endpointId].exclude?(k) }
 
         linked_query = apply_filters(linked_query, attribute_filter)
         query = query.relation_filter(linked_query, linked_attribute_mapping(linked_name)) if linked_query.present?
@@ -169,8 +169,10 @@ module DataCycleCore
           next unless respond_to?(filter_method_name)
           union_query = send(filter_method_name, union_query, filter_v)
         end
+
         all_filters += [union_query]
       end
+
       query = query.union_filter(all_filters)
       query
     end
@@ -320,11 +322,11 @@ module DataCycleCore
       ]
     end
 
-    def validate_api_params(unpermitted_params)
+    def validate_api_params(unpermitted_params, exceptions = [])
       validator = DataCycleCore::MasterData::Contracts::ApiContract.new
       linked_validator = DataCycleCore::MasterData::Contracts::ApiLinkedContract.new
 
-      validation_params = unpermitted_params&.deep_symbolize_keys&.except(:'dc:liveData')
+      validation_params = unpermitted_params&.deep_symbolize_keys&.except(*exceptions.map(&:to_sym))
       linked_params = validation_params[:filter].delete(:linked) if validation_params.dig(:filter, :linked).present?
       union_params = validation_params[:filter].delete(:union) if validation_params.dig(:filter, :union).present?
 

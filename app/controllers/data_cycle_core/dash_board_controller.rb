@@ -75,31 +75,39 @@ module DataCycleCore
     def import_templates
       @errors = nil
       @duplicates = nil
-      errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
-      if errors.blank? && duplicates.blank?
+
+      template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new
+      template_importer.import
+
+      if template_importer.errors.blank? && template_importer.mixin_errors.blank? && template_importer.duplicates.blank?
         flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'data types', locale: helpers.active_ui_locale
       else
-        error_level = errors.blank? ? :notice : :error
-        @errors = errors
-        @duplicates = duplicates
+        error_level = template_importer.errors.blank? && template_importer.mixin_errors.blank? ? :notice : :error
+        @errors = [*template_importer.errors, *template_importer.mixin_errors]
+        @duplicates = template_importer.duplicates
         puts 'duplicates:'
-        ap duplicates
+        ap @duplicates
         puts 'errors:'
-        ap errors
-        flash[error_level] = "errors/warnings were encountered: ##{errors.count} / ##{duplicates.count}"
+        ap @errors
+
+        flash[error_level] = "#{@errors.size} errors/#{@duplicates.size} warnings were encountered"
       end
+
       redirect_to admin_path
     end
 
     def import_classifications
       MasterData::ImportClassifications.import_all
+
       flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'basic classification trees', locale: helpers.active_ui_locale
+
       redirect_to admin_path
     end
 
     def import_external_systems
       @errors = nil
       errors = MasterData::ImportExternalSystems.import_all
+
       if errors.blank?
         flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'import external systems', locale: helpers.active_ui_locale
       else
@@ -108,6 +116,7 @@ module DataCycleCore
         ap errors
         flash[:error] = I18n.t('dash_board.errors_were_encountered', locale: helpers.active_ui_locale)
       end
+
       redirect_to admin_path
     end
 

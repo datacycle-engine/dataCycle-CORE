@@ -66,6 +66,22 @@
 </div>
 
 <% content_for :media_buttons do %>
+  <%= tag.i(
+    class: 'fa fa-language user-locales',
+    data: {
+      dc_tooltip: tag.span(
+        tag.span("#{item.class.human_attribute_name(:default_locale, locale: active_ui_locale)}:", class: 'user-default-locale-title') +
+        tag.span(t("locales.#{item.default_locale || I18n.available_locales.first}", locale: active_ui_locale), class: 'user-default-locale-value'),
+        class: 'user-default-locale'
+      ) +
+      tag.span(
+        tag.span("#{item.class.human_attribute_name(:ui_locale, locale: active_ui_locale)}:", class: 'user-ui-locale-title') +
+        tag.span(t("locales.#{item.ui_locale || DataCycleCore.ui_locales.first}", locale: active_ui_locale), class: 'user-ui-locale-value'),
+        class: 'user-ui-locale'
+      )
+    }
+  ) %>
+
   <% if DataCycleCore::Feature::UserRegistration.enabled? && !item.confirmed? %>
     <%= link_to_if can?(:confirm, item), tag.span(tag.i(class: 'fa fa-check', aria_hidden: true), class: 'confirm-link-button', data: { dc_tooltip: t("user.#{can?(:confirm, item) ? 'confirm' : 'user_not_confirmed'}", locale: active_ui_locale) }), confirm_user_path(item), { method: :post, class: 'confirm-link' } %>
   <% end %>

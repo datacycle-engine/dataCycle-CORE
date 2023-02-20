@@ -1,13 +1,5 @@
 import ScheduleEditor from '../components/schedule_editor';
 
 export default function () {
-  var schedule_editors = [];
-
-  for (const element of document.querySelectorAll('.schedule-editor'))
-    schedule_editors.push(new ScheduleEditor($(element)));
-
-  DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('schedule-editor') && !e.classList.contains('dcjs-schedule-editor'),
-    e => schedule_editors.push(new ScheduleEditor($(e)))
-  ]);
+  DataCycle.initNewElements('.schedule-editor:not(.dcjs-schedule-editor)', e => new ScheduleEditor($(e)));
 }

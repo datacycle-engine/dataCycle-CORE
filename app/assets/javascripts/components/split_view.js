@@ -74,40 +74,41 @@ class SplitView {
   }
   addSingleClickHandler() {
     DataCycle.htmlObserver.addCallbacks.push([
-      e => e.tagName === 'A' && (e.classList.contains('copy') || e.classList.contains('translate')),
+      'a.copy, a.translate',
       e => $(e).on('click', this.handleButtonClick.bind(this))
     ]);
   }
   addAllClickHandler() {
-    DataCycle.htmlObserver.addCallbacks.push([
-      e => e.tagName === 'A' && (e.classList.contains('copy-all') || e.classList.contains('translate-all')),
-      e => {
-        e.addEventListener('click', this.triggerAllButtons.bind(this));
-        const parent = e.closest(this.allButtonParentSelector);
+    DataCycle.htmlObserver.addCallbacks.push(['a.copy-all, a.translate-all', this.addAllClickEventHandler.bind(this)]);
+  }
+  addAllClickEventHandler(e) {
+    e.addEventListener('click', this.triggerAllButtons.bind(this));
+    const parent = e.closest(this.allButtonParentSelector);
 
-        if (parent.classList.contains('split-content') && e.classList.contains('copy-all')) this.copyAllButton = e;
-        if (parent.classList.contains('split-content') && e.classList.contains('translate-all'))
-          this.translateAllButton = e;
-      }
-    ]);
+    if (parent.classList.contains('split-content') && e.classList.contains('copy-all')) this.copyAllButton = e;
+    if (parent.classList.contains('split-content') && e.classList.contains('translate-all'))
+      this.translateAllButton = e;
   }
   observeForNewFields() {
     DataCycle.htmlObserver.addCallbacks.push([
-      e =>
-        !e.classList.contains('dc-copyable-field') &&
-        e.dataset.editor &&
-        !e.closest('.detail-type.embedded:not(:scope)'),
-      e => this.setupButtons(e)
+      '[data-editor]:not(.dc-copyable-field)',
+      this.checkNewShowButtons.bind(this)
     ]);
-
-    DataCycle.htmlObserver.addCallbacks.push([
-      e => e.classList.contains('form-element') && e.dataset.key && !e.closest('.form-element.embedded:not(:scope)'),
-      e => this.addButtonsForEditFields(e)
-    ]);
+    DataCycle.htmlObserver.addCallbacks.push(['.form-element[data-key]', this.checkNewEditButtons.bind(this)]);
 
     this.addSingleClickHandler();
     this.addAllClickHandler();
     this.addSubcriberNoticeHandler();
+  }
+  checkNewShowButtons(element) {
+    if (element.closest('.detail-type.embedded:not(:scope)')) return;
+
+    this.setupButtons(element);
+  }
+  checkNewEditButtons(element) {
+    if (element.closest('.form-element.embedded:not(:scope)')) return;
+
+    this.addButtonsForEditFields(element);
   }
   setupButtons(container) {
     const availableEditors = this.availableEditors(container, this.copyableTypes);
@@ -163,7 +164,7 @@ class SplitView {
     const targetKey = this.transformKeyToTargetLocale(element.dataset.key, this.rightLocale());
     const editField = this.findFieldsByKey(targetKey, this.rightContainer)[0];
 
-    if (!editField || editField.dataset.readonly == 'true') return;
+    if (!editField || editField.matches(':disabled, .disabled, [data-readonly="true"]')) return;
 
     this.addElementClasses(element);
 

@@ -1,0 +1,43 @@
+<table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%">
+  <tr>
+    <td style="background:white;padding:24pt;border-radius: 7px;box-shadow: 0px 5px 18px 2px rgba(0, 0, 0, 0.15);">
+      <table border="0" cellspacing="0" cellpadding="0"
+     width="100%" style="width:100%;">
+        <tr>
+          <td>
+            <span style="font-size:11.5pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><b><%= t('hello', locale: @user.ui_locale) %></b></span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:12pt 0 0 0;">
+            <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><%= t('feature.releasable.mailer.remind_receiver.first_line', count: @data_links.size, locale: @user.ui_locale) %></span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:12pt 0 0 0;">
+            <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><%= t('feature.releasable.mailer.remind_receiver.second_line', count: @data_links.size, locale: @user.ui_locale) %></span>
+          </td>
+        </tr>
+        <tr>
+          <td width="100%" style="width:100%;padding:0;height:24pt">
+            <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333">
+
+              <% @data_links.each do |data_link| %>
+                <% I18n.with_locale(data_link.item.first_available_locale) do %>
+                  <p>
+                    <a href="<%= data_link_url(data_link) %>">
+                      <span style="color:#333333;text-decoration:underline;text-underline:underline">
+                        <%= data_link.item.template_name %> (<%= data_link.item.translated_locales&.join(', ') %>): <%= data_link.item.title.presence || data_link.item.id %>
+                      </span>
+                    </a>
+                  </p>
+                <% end %>
+              <% end %>
+
+            </span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

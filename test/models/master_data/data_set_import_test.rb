@@ -4,9 +4,9 @@ require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
 
-describe DataCycleCore::MasterData::ImportTemplates do
+describe DataCycleCore::MasterData::Templates::TemplateImporter do
   subject do
-    DataCycleCore::MasterData::ImportTemplates
+    DataCycleCore::MasterData::Templates::TemplateImporter
   end
 
   describe 'loaded template_data' do
@@ -68,42 +68,42 @@ describe DataCycleCore::MasterData::ImportTemplates do
 
     let(:duplicates_import_paths) do
       {
-        creative_works: {
-          'Entity-Creative-Work-1' => [
-            {
-              file: import_path2.join('creative_works', 'entity.yml').to_s
-            },
-            {
-              file: import_path.join('creative_works', 'entity.yml').to_s
-            }
-          ]
-        }
+        'creative_works.Entity-Creative-Work-1' => [
+          import_path2.join('creative_works', 'entity.yml').to_s,
+          import_path.join('creative_works', 'entity.yml').to_s
+        ]
       }
     end
 
     it 'gives empty list when wrong path is given for checking duplicates' do
-      import_list, _duplicates = subject.check_for_duplicates([non_existent_path], ['things'])
-      assert_equal({ things: [] }, import_list)
+      template_importer = subject.new(template_paths: [non_existent_path])
+      assert_equal({}, template_importer.templates)
     end
 
     it 'gives nil for duplicates when wrong path is given for checking duplicates' do
-      _import_list, duplicates = subject.check_for_duplicates([non_existent_path], ['things'])
-      assert_nil duplicates
+      template_importer = subject.new(template_paths: [non_existent_path])
+      assert_equal({}, template_importer.duplicates)
     end
 
     it 'gives appropriate list for test_folder' do
-      import_list, _duplicates = subject.check_for_duplicates([import_path], ['creative_works'])
-      assert_equal import_list_import_path, import_list
+      template_importer = subject.new(template_paths: [import_path])
+      assert_equal(
+        import_list_import_path[:creative_works].pluck(:name),
+        template_importer.templates[:creative_works].pluck(:name)
+      )
     end
 
     it 'gives appropriate list for test_folder and test_folder2' do
-      import_list, _duplicates = subject.check_for_duplicates([import_path2, import_path], ['creative_works'])
-      assert_equal import_list_import_paths, import_list
+      template_importer = subject.new(template_paths: [import_path2, import_path])
+      assert_equal(
+        import_list_import_paths[:creative_works].pluck(:name),
+        template_importer.templates[:creative_works].pluck(:name)
+      )
     end
 
     it 'gives appropriate duplicate_list for test_folder and test_folder2' do
-      _import_list, duplicates = subject.check_for_duplicates([import_path2, import_path], ['creative_works'])
-      assert_equal duplicates_import_paths, duplicates
+      template_importer = subject.new(template_paths: [import_path2, import_path])
+      assert_equal duplicates_import_paths, template_importer.duplicates
     end
   end
 end

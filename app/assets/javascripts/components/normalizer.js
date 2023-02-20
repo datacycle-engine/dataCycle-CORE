@@ -1,8 +1,9 @@
 class DataCycleNormalizer {
-  constructor(button, form_element) {
+  constructor(button) {
     this.normalize_button = $(button);
+    this.normalize_button[0].classList.add('dcjs-data-cycle-normalizer');
     this.normalize_url = this.normalize_button.data('url');
-    this.form_element = $(form_element);
+    this.form_element = $('.edit-content-form');
     this.form_data = [];
     this.normalized_data = {};
 

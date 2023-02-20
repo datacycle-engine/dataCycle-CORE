@@ -29,12 +29,14 @@ module DataCycleCore
       def self.load_template(path, template_index = 0)
         template = YAML.safe_load(File.open(path), [Symbol])[template_index]
 
-        template[:data] = DataCycleCore::MasterData::ImportTemplates.transform_schema(schema: template[:data].dup,
-                                                                                      content_set: DEFAULT_CONTENT_TABLE,
-                                                                                      mixins: nil)
-        errors = DataCycleCore::MasterData::ImportTemplates.validate(template)
+        transformer = DataCycleCore::MasterData::Templates::TemplateTransformer.new(template: template[:data].dup, content_set: DEFAULT_CONTENT_TABLE, mixins: nil)
+        template[:data] = transformer.transform
+        template[:path] = path
 
-        raise Error.new("'#{path}' contains invalid content template", errors) if errors.present?
+        validator = DataCycleCore::MasterData::Templates::TemplateValidator.new(templates: { DEFAULT_CONTENT_TABLE => [template] }.with_indifferent_access)
+        validator.validate
+
+        raise Error.new("'#{path}' contains invalid content template", validator.errors) unless validator.valid?
 
         new(template[:data].as_json)
       end
