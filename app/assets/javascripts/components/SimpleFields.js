@@ -7,39 +7,14 @@ class SimpleFields {
     this.setup();
   }
   setup() {
-    this.addEventHandlers('string', '.form-element.string:not(.text_editor) > input[type="text"]');
-    this.addEventHandlers('number', '.form-element.number > input[type="number"]');
-    this.addEventHandlers('checkbox', '.form-element.boolean input[type="checkbox"]');
-
-    this.watchForNewField(
-      'string',
-      e =>
-        e.classList.contains('form-element') && e.classList.contains('string') && !e.classList.contains('text_editor'),
-      '> input[type="text"]'
-    );
-    this.watchForNewField(
-      'number',
-      e => e.classList.contains('form-element') && e.classList.contains('number'),
-      '> input[type="number"]'
-    );
-    this.watchForNewField(
-      'checkbox',
-      e => e.classList.contains('form-element') && e.classList.contains('boolean'),
-      'input[type="checkbox"]'
-    );
+    this.watchForNewField('string', '.form-element.string:not(.text_editor) > input[type="text"]:not(.dc-import-data)');
+    this.watchForNewField('number', '.form-element.number > input[type="number"]:not(.dc-import-data)');
+    this.watchForNewField('checkbox', '.form-element.boolean input[type="checkbox"]:not(.dc-import-data)');
   }
-  watchForNewField(type, condition, subSelect) {
-    DataCycle.htmlObserver.addCallbacks.push([
-      e => condition(e),
-      e => $(e).find(subSelect).on('dc:import:data', this[`${type}EventHandler`].bind(this)).addClass('dc-import-data')
-    ]);
-  }
-  addEventHandlers(type, selector) {
-    const elements = this.container.querySelectorAll(selector);
-
-    for (let i = 0; i < elements.length; ++i) {
-      $(elements[i]).on('dc:import:data', this[`${type}EventHandler`].bind(this)).addClass('dc-import-data');
-    }
+  watchForNewField(type, selector) {
+    DataCycle.initNewElements(selector, e =>
+      $(e).on('dc:import:data', this[`${type}EventHandler`].bind(this)).addClass('dc-import-data')
+    );
   }
   stringEventHandler(event, data) {
     const target = event.currentTarget;

@@ -3,7 +3,7 @@
     <section id="schema" class="tabs-panel">
       <section class="schema-nav">
         <h5><%= t('admin_panel.schema', locale: active_ui_locale) %></h5>
-        <button class="copy-to-admin-clipboard">COPY</button>
+        <button class="copy-to-clipboard admin-clipboard">COPY</button>
         <button class="close-admin-panel"><i class="fa fa-times" aria-hidden="true"></i></button>
       </section>
       <pre id="admin_schema" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/schema" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
@@ -11,7 +11,7 @@
     <section id="datahash" class="tabs-panel">
       <section class="datahash-nav">
         <h5><%= t('admin_panel.datahash', locale: active_ui_locale) %></h5>
-        <button class="copy-to-admin-clipboard">COPY</button>
+        <button class="copy-to-clipboard admin-clipboard">COPY</button>
         <button class="close-admin-panel"><i class="fa fa-times" aria-hidden="true"></i></button>
       </section>
       <pre id="admin_datahash" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/datahash" data-remote-options="<%= to_query_params(content: content, locale: I18n.locale).to_json %>"></pre>
@@ -19,7 +19,7 @@
     <section id="json-api" class="tabs-panel">
       <section class="json-api-nav">
         <h5><%= t('admin_panel.api', locale: active_ui_locale) + " V4" %></h5>
-        <button class="copy-to-admin-clipboard">COPY</button>
+        <button class="copy-to-clipboard admin-clipboard">COPY</button>
         <button class="close-admin-panel"><i class="fa fa-times" aria-hidden="true"></i></button>
       </section>
       <pre id="admin_api" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/json_api" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
@@ -28,7 +28,7 @@
       <section id="meta-data" class="tabs-panel">
         <section class="meta-data-nav">
           <h5><%= t('admin_panel.meta-data', locale: active_ui_locale) %></h5>
-          <button class="copy-to-admin-clipboard">COPY</button>
+          <button class="copy-to-clipboard admin-clipboard">COPY</button>
           <button class="close-admin-panel"><i class="fa fa-times" aria-hidden="true"></i></button>
         </section>
         <pre id="admin_meta-data" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/meta_data" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>

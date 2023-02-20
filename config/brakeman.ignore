@@ -21,8 +21,51 @@
       "cwe_id": [
         22
       ]
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "7cb93fcd64772eb213a40f90c66b11642c164e83b7dd8de2ffafb80e6b26cdcd",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/data_cycle_core/filter/common/union.rb",
+      "line": 39,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Arel.sql(\"#{BRAKEMAN_SAFE_LITERAL(ids)}\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "DataCycleCore::Filter::Common::Union",
+        "method": "not_union_filter_ids"
+      },
+      "user_input": "BRAKEMAN_SAFE_LITERAL(ids)",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ]
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "f45378d01000581bce22d483625fe199df446013612a59aa490b7f1e84937999",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/data_cycle_core/filter/common/union.rb",
+      "line": 24,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Arel.sql(\"#{BRAKEMAN_SAFE_LITERAL(ids)}\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "DataCycleCore::Filter::Common::Union",
+        "method": "union_filter_ids"
+      },
+      "user_input": "BRAKEMAN_SAFE_LITERAL(ids)",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ]
     }
-
   ],
   "updated": "2022-08-29 12:32:51 +0200",
   "brakeman_version": "5.3.1"

@@ -121,11 +121,7 @@
       <% end %>
 
       <div class="edit">
-        <%= render 'data_cycle_core/application/downloads/download_indesign', content: @watch_list if can?(:download_indesign, @watch_list) %>
-
-        <%= render 'data_cycle_core/application/downloads/download_zip', content: @watch_list if can?(:download_zip, @watch_list) %>
-
-        <%= render 'data_cycle_core/application/downloads/download', content: @watch_list if can?(:download, @watch_list) %>
+        <%= render 'data_cycle_core/application/downloads/download_buttons', content: @watch_list %>
 
         <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small edit-content-link', data: { dc_tooltip: t('actions.edit', locale: active_ui_locale) } do %>
           <i class="fa fa-pencil" aria-hidden="true"></i>
@@ -168,7 +164,7 @@
 <div class="detail-content watchlist">
 
   <div class="row">
-    <% content_for(:sortable, render('data_cycle_core/watch_lists/manual_order_button', collection: @watch_list, manual_order_allowed: manual_order_allowed?(@mode, @language, @filters)), flush: true) if can?(:edit, @watch_list) %>
+    <% content_for(:sortable, render('data_cycle_core/watch_lists/manual_order_button', collection: @watch_list, manual_order_allowed: manual_order_allowed?(@mode, @language, @filters)), flush: true) if can?(:edit, @watch_list) && !@watch_list.my_selection %>
 
     <%= render 'data_cycle_core/application/filter', view_type: 'collection' %>
 

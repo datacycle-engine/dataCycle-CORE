@@ -54,6 +54,7 @@ module DataCycleCore
       label_html.prepend(tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-#{definition&.dig('type')} #{"type-#{definition&.dig('type')}-#{definition.dig('ui', 'show', 'type')}" if definition&.dig('ui', 'show', 'type').present?}"))
       label_html << render('data_cycle_core/contents/content_score', key: key, content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition) if definition.key?('content_score')
       label_html << render('data_cycle_core/contents/viewers/shared/accordion_toggle_buttons', button_type: 'children') if accordion_controls
+      label_html << tag.span(tag.i(class: 'fa fa-clipboard'), class: 'copy-to-clipboard', data: { value: options[:copy_to_clipboard], dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale) }) if options&.dig(:copy_to_clipboard).present?
 
       tag.span label_html, class: 'detail-label'
     end

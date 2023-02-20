@@ -96,8 +96,8 @@ module DataCycleCore
               },
               holidays: item['Holiday'],
               duration: duration,
-              rtimes: item['Holiday'] == true ? holidays : nil,
-              extimes: item['Holiday'] == false ? holidays : nil,
+              rtimes: item['Holiday'] == true ? holidays : item['rtimes']&.compact_blank.presence,
+              extimes: item['Holiday'] == false ? holidays : item['extimes']&.compact_blank.presence,
               rrules: [{
                 rule_type: 'IceCube::WeeklyRule',
                 validations: {

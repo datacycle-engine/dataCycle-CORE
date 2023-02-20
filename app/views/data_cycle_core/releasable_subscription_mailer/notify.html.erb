@@ -22,7 +22,7 @@
                   <p>
                     <a href="<%= polymorphic_url(content) %>">
                       <span style="color:#333333;text-decoration:underline;text-underline:underline">
-                        <%= content.template_name %> (<%= content.translated_locales&.join(', ') %>): <%= content.title.blank? ? content.id : content.title %>
+                        <%= content.template_name %> (<%= content.translated_locales&.join(', ') %>): <%= content.title.presence || content.id %>
                       </span>
                     </a>
                   </p>

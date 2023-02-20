@@ -14,34 +14,36 @@ module DataCycleCore
           filter_queries = []
 
           [:filter_ids_query, :watch_list_ids_query].each do |filter|
-            filter_query_sql_ids = send(filter, ids)
-            next if filter_query_sql_ids.nil?
-
-            union_query = DataCycleCore::StoredFilter.new(language: @locale).apply
-            filter_queries.push(union_query.where(thing[:id].in(Arel.sql(filter_query_sql_ids.to_sql))))
+            filter_query_sql = send(filter, ids)
+            filter_queries.push(filter_query_sql) if filter_query_sql.present?
           end
 
-          union_filter(filter_queries)
+          return self if filter_queries.blank?
+
+          reflect(
+            @query.where(thing[:id].in(Arel.sql(filter_queries.join(' UNION '))))
+          )
         end
 
         def not_union_filter_ids(ids)
           filter_queries = []
 
           [:filter_ids_query, :watch_list_ids_query].each do |filter|
-            filter_query_sql_ids = send(filter, ids)
-            next if filter_query_sql_ids.nil?
-
-            union_query = DataCycleCore::StoredFilter.new(language: @locale).apply
-            filter_queries.push(union_query.where(thing[:id].not_in(Arel.sql(filter_query_sql_ids.to_sql))))
+            filter_query_sql = send(filter, ids)
+            filter_queries.push(filter_query_sql) if filter_query_sql.present?
           end
 
-          union_filter(filter_queries)
+          return self if filter_queries.blank?
+
+          reflect(
+            @query.where(thing[:id].not_in(Arel.sql(filter_queries.join(' UNION '))))
+          )
         end
 
         def content_ids(ids = nil)
           return self if ids.blank?
 
-          if Array.wrap(ids).map(&:uuid?).inject(&:&)
+          if Array.wrap(ids).all?(&:uuid?)
             reflect(
               @query.where(thing[:id].in(ids))
             )
@@ -59,7 +61,8 @@ module DataCycleCore
 
         def not_content_ids(ids = nil)
           return self if ids.blank?
-          if Array.wrap(ids).map(&:uuid?).inject(&:&)
+
+          if Array.wrap(ids).all?(&:uuid?)
             reflect(
               @query.where.not(thing[:id].in(ids))
             )
@@ -76,85 +79,64 @@ module DataCycleCore
         end
 
         def filter_ids(ids = nil)
-          filter_query_sql_ids = filter_ids_query(ids)
-          return self if filter_query_sql_ids.nil?
+          filter_query_sql = filter_ids_query(ids)
+          return self if filter_query_sql.blank?
+
           reflect(
-            @query.where(thing[:id].in(Arel.sql(filter_query_sql_ids.to_sql)))
+            @query.where(thing[:id].in(Arel.sql(filter_query_sql)))
           )
         end
 
         def not_filter_ids(ids = nil)
-          filter_query_sql_ids = filter_ids_query(ids)
-          return self if filter_query_sql_ids.nil?
+          filter_query_sql = filter_ids_query(ids)
+          return self if filter_query_sql.blank?
+
           reflect(
-            @query.where.not(thing[:id].in(Arel.sql(filter_query_sql_ids.to_sql)))
+            @query.where.not(thing[:id].in(Arel.sql(filter_query_sql)))
           )
         end
 
         def watch_list_ids(ids = nil)
-          filter_query_sql_ids = watch_list_ids_query(ids)
-          return self if filter_query_sql_ids.nil?
+          filter_query_sql = watch_list_ids_query(ids)
+          return self if filter_query_sql.blank?
 
           reflect(
-            @query.where(thing[:id].in(Arel.sql(filter_query_sql_ids.to_sql)))
+            @query.where(thing[:id].in(Arel.sql(filter_query_sql)))
           )
         end
 
         def not_watch_list_ids(ids = nil)
-          filter_query_sql_ids = watch_list_ids_query(ids)
-          return self if filter_query_sql_ids.nil?
+          filter_query_sql = watch_list_ids_query(ids)
+          return self if filter_query_sql.blank?
 
           reflect(
-            @query.where.not(thing[:id].in(Arel.sql(filter_query_sql_ids.to_sql)))
+            @query.where.not(thing[:id].in(Arel.sql(filter_query_sql)))
           )
         end
 
         def watch_list_ids_query(ids)
           return if ids.blank?
 
-          filter_query_sql = nil
-          DataCycleCore::WatchList.where(id: ids).find_each do |collection|
-            if filter_query_sql.nil?
-              filter_query_sql = collection.watch_list_data_hashes.select(:hashable_id).except(*UNION_FILTER_EXCEPTS)
-            else
-              filter_query_sql = filter_query_sql.or(collection.watch_list_data_hashes.select(:hashable_id).except(*UNION_FILTER_EXCEPTS))
-            end
-          end
-          filter_query_sql
+          DataCycleCore::WatchList.where(id: ids).watch_list_data_hashes.select(:hashable_id).except(*UNION_FILTER_EXCEPTS).to_sql
         end
 
         def filter_ids_query(ids)
           return if ids.blank?
 
-          filter_query_sql = nil
-          DataCycleCore::StoredFilter.where(id: ids).find_each do |filter|
-            if filter_query_sql.nil?
-              filter_query_sql = filter.apply.select(:id).except(*UNION_FILTER_EXCEPTS)
-            else
-              filter_query_sql = filter_query_sql.or(filter.apply.select(:id).except(*UNION_FILTER_EXCEPTS))
-            end
-          rescue SystemStackError
-            raise DataCycleCore::Error::Filter::UnionFilterRecursionError
-          end
+          filters = DataCycleCore::StoredFilter.where(id: ids).index_by(&:id)
 
-          filter_query_sql
+          Array.wrap(ids).map { |f| (filters[f]&.apply(skip_ordering: true) || DataCycleCore::Thing.where('1 = 0')).select(:id).except(*UNION_FILTER_EXCEPTS).to_sql }.join(' UNION ')
+        rescue SystemStackError
+          raise DataCycleCore::Error::Filter::UnionFilterRecursionError
         end
 
         def union_filter(filters = [])
-          filter_query_sql = nil
+          filters = filters.map { |f| f.select(:id).except(*UNION_FILTER_EXCEPTS).to_sql }.compact_blank
 
-          filters.each do |filter|
-            if filter_query_sql.nil?
-              filter_query_sql = filter.select(:id).except(*UNION_FILTER_EXCEPTS)
-            else
-              filter_query_sql = filter_query_sql.or(filter.select(:id).except(*UNION_FILTER_EXCEPTS))
-            end
-          end
-
-          return self if filter_query_sql.nil?
+          return self if filters.blank?
 
           reflect(
-            @query.where(thing[:id].in(Arel.sql(filter_query_sql.to_sql)))
+            @query.where(thing[:id].in(Arel.sql(filters.join(' UNION '))))
           )
         end
       end

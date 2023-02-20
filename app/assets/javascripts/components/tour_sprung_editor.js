@@ -2,6 +2,7 @@ import MapLibreGlEditor from './maplibre_gl_editor';
 import isEmpty from 'lodash/isEmpty';
 import fetchInject from 'fetch-inject';
 import AdditionalValuesFilterControl from './map_controls/mapbox_additional_values_filter_control';
+import UndoRedoControl from './map_controls/mtk_maplibre_undo_redo_control';
 
 const mtkLibrary = ['https://static.maptoolkit.net/mtk/v10.0.1/mtk.js'];
 const defaultMtkScripts = [
@@ -400,6 +401,8 @@ class TourSprungEditor extends MapLibreGlEditor {
     if (this.mapOptions.editor_default_routing) options.editor.routeType = this.mapOptions.editor_default_routing;
 
     this.editorGui = new this.extendedEditorInterface(options).addTo(this.mtkMap);
+
+    this.map.addControl(new UndoRedoControl(this), 'top-left');
 
     if (!isEmpty(this.additionalValuesOverlay))
       this.map.addControl(new AdditionalValuesFilterControl(this), 'top-left');

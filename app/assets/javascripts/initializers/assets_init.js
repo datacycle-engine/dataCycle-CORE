@@ -7,28 +7,17 @@ function initAssetUploader(item) {
 }
 
 export default function () {
-  for (const element of document.querySelectorAll('.asset-selector-reveal')) new AssetSelector(element);
+  DataCycle.initNewElements('.asset-selector-reveal:not(.dcjs-asset-selector)', e => new AssetSelector(e));
 
-  DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('asset-selector-reveal') && !e.classList.contains('dcjs-asset-selector'),
-    e => new AssetSelector(e)
-  ]);
+  DataCycle.initNewElements('.asset-upload-reveal:not(.dcjs-asset-uploader)', initAssetUploader.bind(this));
 
-  for (const element of document.querySelectorAll('.asset-upload-reveal')) initAssetUploader(element);
-
-  DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('asset-upload-reveal') && !e.classList.contains('dcjs-asset-uploader'),
-    e => initAssetUploader(e)
-  ]);
-
-  for (const element of document.querySelectorAll('.download-content-form')) initDownloadContentReveal(element);
-
-  DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('download-content-form'),
-    e => initDownloadContentReveal(e)
-  ]);
+  DataCycle.initNewElements(
+    '.download-content-form:not(.dc-download-content-form)',
+    initDownloadContentReveal.bind(this)
+  );
 
   function initDownloadContentReveal(element) {
+    element.classList.add('dc-download-content-form');
     toggleAssetVersion(element);
     toggleAssetTransformation(element);
 

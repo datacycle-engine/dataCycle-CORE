@@ -24,6 +24,24 @@ module DataCycleCore
           end
         end
 
+        def select
+          uuid = permitted_params[:uuid] || permitted_params[:uuids]&.split(',')
+          if uuid.present? && uuid.is_a?(::Array) && uuid.size.positive?
+
+            query = DataCycleCore::Thing
+              .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
+              .where(id: uuid)
+
+            render(json: query.to_bbox) && return if permitted_params[:bbox]
+
+            I18n.with_locale(@language.first || I18n.locale) do
+              render(plain: query.to_mvt(@x, @y, @z, layer_name: @layer_name, include_parameters: @include_parameters, fields_parameters: @fields_parameters, classification_trees_parameters: @classification_trees_parameters), content_type: request.format.to_s)
+            end
+          else
+            render json: { error: 'No ids given!' }, layout: false, status: :bad_request
+          end
+        end
+
         def show
           @content = DataCycleCore::Thing
             .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])

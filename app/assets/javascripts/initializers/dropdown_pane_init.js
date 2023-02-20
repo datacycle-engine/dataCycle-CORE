@@ -124,11 +124,7 @@ function monitorNewContents(element) {
 }
 
 export default function () {
-  for (const element of document.querySelectorAll('.dropdown-pane')) monitorNewContents(element);
-  DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('dropdown-pane') && !e.classList.contains('dcjs-monitor-new-contents'),
-    e => monitorNewContents(e)
-  ]);
+  DataCycle.initNewElements('.dropdown-pane:not(.dcjs-monitor-new-contents)', e => monitorNewContents(e));
 
   $(document).on('show.zf.dropdown dc:dropdown:resize', '.dropdown-pane', event => {
     resizeDropdown(event.currentTarget);

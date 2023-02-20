@@ -13,7 +13,6 @@ class Tooltips {
   init() {
     if (!this.tooltip) this.createTooltip();
 
-    this.initialTooltips();
     this.initNewTooltips();
   }
   createTooltip() {
@@ -34,23 +33,15 @@ class Tooltips {
     this.tooltipContent = tooltipContent;
     this.tooltip = tooltip;
   }
-  initialTooltips() {
-    const tooltips = document.querySelectorAll('[data-dc-tooltip]');
-
-    for (const tooltip of tooltips) this.addEventsForTooltip(tooltip);
-  }
   initNewTooltips() {
-    DataCycle.htmlObserver.addCallbacks.push([
-      e => e.dataset.dcTooltip && !e.hasOwnProperty('dcTooltip'),
-      this.addEventsForTooltip.bind(this)
-    ]);
+    DataCycle.initNewElements('[data-dc-tooltip]:not(.dc-tooltip)', this.addEventsForTooltip.bind(this));
   }
-  addEventsForTooltip(tooltip) {
-    tooltip.dcTooltip = true;
-    tooltip.dataset.dcTooltipId = domElementHelpers.randomId();
+  addEventsForTooltip(element) {
+    element.classList.add('dc-tooltip');
+    element.dataset.dcTooltipId = domElementHelpers.randomId();
 
-    tooltip.addEventListener('mouseenter', this.showTooltipDelayed.bind(this));
-    tooltip.addEventListener('mouseleave', this.hideTooltip.bind(this));
+    element.addEventListener('mouseenter', this.showTooltipDelayed.bind(this));
+    element.addEventListener('mouseleave', this.hideTooltip.bind(this));
   }
   addAutoUpdate() {
     return autoUpdate(this.referenceElement, this.tooltip, this.updatePosition.bind(this));

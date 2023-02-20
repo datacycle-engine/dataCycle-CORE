@@ -142,6 +142,12 @@ module DataCycleCore
       response.stream.close
     end
 
+    def download_filtered_collection(content, query, serialize_format, languages, additional_data = {})
+      serializer = serializer_for_content(content, [:content], serialize_format)
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless serializer
+      download_generic(content: content, serializer: serializer, languages: languages, version: nil, serialize_method: serializer_method_for_content(content), transformation: nil, query: query, additional_data: additional_data)
+    end
+
     protected
 
     def init_stream_writer(file_name)
@@ -159,10 +165,10 @@ module DataCycleCore
       end
     end
 
-    def download_generic(content:, serializer:, languages:, version: nil, serialize_method: :serialize_thing, transformation: nil)
+    def download_generic(content:, serializer:, languages:, version: nil, serialize_method: :serialize_thing, transformation: nil, query: nil, additional_data: {})
       language = languages&.first&.to_sym || I18n.locale
 
-      collection = serializer.try(serialize_method, content: content, language: language, version: version, transformation: transformation)
+      collection = serializer.try(serialize_method, content: content, language: language, version: version, transformation: transformation, query: query, additional_data: additional_data)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
 
       serialized_content = collection.first
@@ -180,7 +186,7 @@ module DataCycleCore
         response.stream.write chunk
       end
 
-      content.activities.create(user: current_user, activity_type: 'download')
+      content.activities.create(user: current_user, activity_type: 'download', data: additional_data)
     rescue ActionController::Live::ClientDisconnected
       # ignore client disconnections
       nil

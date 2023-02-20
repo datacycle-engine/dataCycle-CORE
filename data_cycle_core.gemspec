@@ -121,4 +121,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'image_processing', '>= 1.2'
 
   s.add_dependency 'zip_tricks'
+
+  s.add_dependency 'roo'
 end

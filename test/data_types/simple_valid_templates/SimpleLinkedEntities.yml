@@ -16,8 +16,7 @@
         :label: Simple Linked Entity Based On Stored Filter
         :type: linked
         :stored_filter:
-          -
-
+          - :not_existing_filter:
 - :data:
     :name: Simple Linked Entity Two
     :type: object

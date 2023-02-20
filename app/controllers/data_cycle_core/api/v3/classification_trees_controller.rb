@@ -54,19 +54,19 @@ module DataCycleCore
           if permitted_params.dig(:filter, :modified_since)
             @classification_aliases = @classification_aliases.where(
               ClassificationAlias.arel_attribute(:updated_at).gteq(Time.zone.parse(permitted_params.dig(:filter, :modified_since)))
-            ).order(:updated_at)
+            ).reorder(nil).order(:updated_at)
           end
 
           if permitted_params.dig(:filter, :created_since)
             @classification_aliases = @classification_aliases.where(
               ClassificationAlias.arel_attribute(:created_at).gteq(Time.zone.parse(permitted_params.dig(:filter, :created_since)))
-            ).order(:created_at)
+            ).reorder(nil).order(:created_at)
           end
 
           if permitted_params.dig(:filter, :deleted_since)
             @classification_aliases = @classification_aliases.with_deleted.where(
               ClassificationAlias.arel_attribute(:deleted_at).gteq(Time.zone.parse(permitted_params.dig(:filter, :deleted_since)))
-            ).order(:deleted_at)
+            ).reorder(nil).order(:deleted_at)
           end
 
           @classification_aliases = apply_paging(@classification_aliases.order(:internal_name))

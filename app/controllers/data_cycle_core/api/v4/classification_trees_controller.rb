@@ -125,11 +125,14 @@ module DataCycleCore
           order_query = order_query&.reject(&:blank?)
 
           if order_query.blank?
+            query = query.reorder(nil)
             query = query.order_by_similarity(full_text_search) if full_text_search.present?
-            query = query.order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('updated_at DESC')))
+            query = query.is_a?(DataCycleCore::ClassificationAlias.const_get(:ActiveRecord_AssociationRelation)) ? query.order(order_a: :asc) : query.order(updated_at: :desc)
+
             return query
           end
-          query.except(:order).order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql(order_query.join(', '))))
+
+          query.reorder(nil).order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql(order_query.join(', '))))
         end
 
         def transform_sort_param(key, order)

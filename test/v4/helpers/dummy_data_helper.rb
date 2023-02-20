@@ -7,6 +7,8 @@ module DataCycleCore
 
       # TODO: add classifications more generic
       def create_data(type, user = nil)
+        raise ArgumentError, "Unknown type (#{type}) for DummyDataHelper" unless respond_to?(type)
+
         @user = user
         send(type)
       end

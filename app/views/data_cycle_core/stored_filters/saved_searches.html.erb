@@ -13,7 +13,7 @@
           <%= f.button tag.i(class: 'fa fa-times'), type: :reset, class: 'fulltext-search-reset' %>
         <% end %>
       </div>
-      <span class="pages"><span class="pages-count"><%= t('data_cycle_core.stored_searches.count_html', count: @saved_count.to_i, count_string: number_with_delimiter(@saved_count.to_i, locale: active_ui_locale), locale: active_ui_locale) %></span> <i class="fa fa-angle-down round" aria-hidden="true"></i></span>
+      <span class="pages"><span class="pages-count"><%= t('data_cycle_core.stored_searches.count_html', count: @saved_count.to_i, count_string: number_with_delimiter(@saved_count.to_i, locale: active_ui_locale), locale: active_ui_locale) %></span> </span>
     </div>
 
     <ul class="no-bullet content-list">

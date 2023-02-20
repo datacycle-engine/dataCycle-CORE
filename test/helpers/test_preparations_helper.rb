@@ -72,14 +72,12 @@ module DataCycleCore
     end
 
     def self.load_templates(paths)
-      errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all(validation: true, template_paths: paths)
-      if duplicates.present?
-        puts 'INFO: the following templates had multiple definitions:'
-        ap duplicates
-      end
-      return if errors.blank?
-      puts 'the following errors were encountered during import:'
-      ap errors
+      template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(template_paths: paths)
+      template_importer.import
+
+      template_importer.render_duplicates
+      template_importer.render_mixin_errors
+      template_importer.render_errors
     end
 
     def self.load_external_systems(paths)

@@ -64,6 +64,10 @@ module DataCycleCore
           has_many :asset_contents, dependent: :destroy, as: :content_data
           has_many :assets, through: :asset_contents
         end
+
+        def data_links
+          DataCycleCore::DataLink.where(item_id: all.select(:id))
+        end
       end
 
       def display_classification_aliases(context)

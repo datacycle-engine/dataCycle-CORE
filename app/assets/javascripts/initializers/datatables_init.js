@@ -70,21 +70,7 @@ class ActivityDetails extends ActivityList {
 }
 
 export default function () {
-  for (const e of document.querySelectorAll('#activity_list')) new ActivityList(e);
-  DataCycle.htmlObserver.addCallbacks.push([
-    e => e.id == 'activity_list' && !e.classList.contains('dcjs-data-table'),
-    e => new ActivityList(e)
-  ]);
-
-  for (const e of document.querySelectorAll('#activity_user_list')) new ActivityUserList(e);
-  DataCycle.htmlObserver.addCallbacks.push([
-    e => e.id == 'activity_user_list' && !e.classList.contains('dcjs-data-table'),
-    e => new ActivityUserList(e)
-  ]);
-
-  for (const e of document.querySelectorAll('#activity_details')) new ActivityDetails(e);
-  DataCycle.htmlObserver.addCallbacks.push([
-    e => e.id == 'activity_details' && !e.classList.contains('dcjs-data-table'),
-    e => new ActivityDetails(e)
-  ]);
+  DataCycle.initNewElements('#activity_list:not(.dcjs-data-table)', e => new ActivityList(e));
+  DataCycle.initNewElements('#activity_user_list:not(.dcjs-data-table)', e => new ActivityUserList(e));
+  DataCycle.initNewElements('#activity_details:not(.dcjs-data-table)', e => new ActivityDetails(e));
 }

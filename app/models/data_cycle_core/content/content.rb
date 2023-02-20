@@ -134,7 +134,7 @@ module DataCycleCore
       end
 
       def external?
-        external_source.present?
+        external_source_id.present?
       end
 
       def schema_type
@@ -401,32 +401,30 @@ module DataCycleCore
       end
 
       def get_property_value(property_name, property_definition, filter = nil, overlay_flag = false, add_filter = nil)
-        @get_property_value ||= Hash.new do |h, key|
-          h[key] =
-            if virtual_property_names.include?(key[0])
-              load_virtual_attribute(key[0], key[2])
-            elsif plain_property_names(true).include?(key[0])
-              load_json_attribute(key[0], key[1], key[4])
-            elsif included_property_names(true).include?(key[0])
-              load_included_data(key[0], key[1], key[4])
-            elsif classification_property_names(true).include?(key[0])
-              load_classifications(key[0], key[4])
-            elsif linked_property_names(true).include?(key[0])
-              load_linked_objects(key[0], key[3], false, [key[2]], key[4])
-            elsif embedded_property_names(true).include?(key[0])
-              load_embedded_objects(key[0], key[3], !key.dig(1, 'translated'), [key[2]], key[4])
-            elsif asset_property_names.include?(key[0]) # no overlay
-              load_asset_relation(key[0])&.first
-            elsif schedule_property_names(true).include?(key[0])
-              load_schedule(key[0], key[4])
-            elsif timeseries_property_names.include?(key[0])
-              load_timeseries(key[0])
-            else
-              raise NotImplementedError
-            end
-        end
+        key = [property_name, property_definition, I18n.locale, filter, overlay_flag, add_filter]
+        return @get_property_value[key] if @get_property_value&.key?(key)
 
-        @get_property_value[[property_name, property_definition, I18n.locale, filter, overlay_flag, add_filter]]
+        (@get_property_value ||= {})[key] = if virtual_property_names.include?(key[0])
+                                              load_virtual_attribute(key[0], key[2])
+                                            elsif plain_property_names(true).include?(key[0])
+                                              load_json_attribute(key[0], key[1], key[4])
+                                            elsif included_property_names(true).include?(key[0])
+                                              load_included_data(key[0], key[1], key[4])
+                                            elsif classification_property_names(true).include?(key[0])
+                                              load_classifications(key[0], key[4])
+                                            elsif linked_property_names(true).include?(key[0])
+                                              load_linked_objects(key[0], key[3], false, [key[2]], key[4])
+                                            elsif embedded_property_names(true).include?(key[0])
+                                              load_embedded_objects(key[0], key[3], !key.dig(1, 'translated'), [key[2]], key[4])
+                                            elsif asset_property_names.include?(key[0]) # no overlay
+                                              load_asset_relation(key[0])&.first
+                                            elsif schedule_property_names(true).include?(key[0])
+                                              load_schedule(key[0], key[4])
+                                            elsif timeseries_property_names.include?(key[0])
+                                              load_timeseries(key[0])
+                                            else
+                                              raise NotImplementedError
+                                            end
       end
 
       def load_virtual_attribute(property_name, locale = I18n.locale)
@@ -558,8 +556,6 @@ module DataCycleCore
       end
 
       def set_memoized_attribute(key, value)
-        return if DataCycleCore::DataHashService.blank?(value)
-
         definition = properties_for(key)
 
         return send("#{key}=", value) if definition['storage_location'] == 'column'
