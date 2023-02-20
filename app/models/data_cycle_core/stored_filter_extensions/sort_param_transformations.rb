@@ -63,7 +63,7 @@ module DataCycleCore
       def sort_proximity_geographic_value(params)
         return if params.blank?
 
-        params&.find { |f| f['t'] == 'geo_filter' }&.dig('v')&.then { |v| { 'm' => 'proximity_geographic', 'o' => 'DESC', 'v' => v.values_at('lon', 'lat', 'distance') } }
+        params&.find { |f| f['t'] == 'geo_filter' && f['q'] == 'geo_radius' }&.dig('v')&.then { |v| { 'm' => 'proximity_geographic', 'o' => 'DESC', 'v' => v.values_at('lon', 'lat', 'distance') } }
       end
 
       def sort_by_proximity_value(params)
