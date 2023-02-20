@@ -130,7 +130,6 @@ class ObjectBrowser {
 		}
 	}
 	setOverlayPosition(_event) {
-		console.log("setOverlayPosition");
 		if ($(".reveal:visible").not(this.overlay).length)
 			this.overlay.addClass("full-height");
 		else if (this.overlay.data("overlay") === false)
@@ -156,8 +155,6 @@ class ObjectBrowser {
 		);
 	}
 	resetOverlayPosition(_event) {
-		console.log("resetOverlayPosition");
-
 		this.overlay.removeClass("full-height");
 
 		if (
@@ -182,13 +179,10 @@ class ObjectBrowser {
 		if (mutations.some((e) => e.target.classList.contains("remote-rendered"))) {
 			this.overlayInitObserver.disconnect();
 
-			console.log("initOverlay");
 			this.initOverlayHandlers();
 		}
 	}
 	initOverlayHandlers(_element) {
-		console.log("initOverlayHandlers");
-
 		this.overlayFilter = this.overlay.find(".object-browser-filter");
 		this.overlayCount = this.overlayFilter.find(".item-count");
 		this.overlayFilterForm = this.overlayFilter.find(
