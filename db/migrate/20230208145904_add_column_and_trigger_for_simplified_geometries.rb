@@ -10,47 +10,34 @@ class AddColumnAndTriggerForSimplifiedGeometries < ActiveRecord::Migration[6.1]
     ActiveRecord::Base.connection.execute('VACUUM ANALYZE things')
 
     execute <<-SQL.squish
-      CREATE
-      OR REPLACE
-      FUNCTION geom_simple_update () RETURNS TRIGGER LANGUAGE PLPGSQL AS $$
-        BEGIN
-        NEW.geom_simple := (
-      SELECT
-            st_simplify(ST_Force2D (COALESCE(NEW."location" , NEW.line)),
-            0.00001,
-            TRUE )
-      FROM
-            things
-      WHERE
-            things.id = NEW.id);
+      CREATE OR REPLACE FUNCTION geom_simple_update () RETURNS TRIGGER LANGUAGE PLPGSQL AS $$ BEGIN NEW.geom_simple := (
+          SELECT st_simplify(
+              ST_Force2D (COALESCE(NEW."location", NEW.line)),
+              0.00001,
+              TRUE
+            )
+          FROM things
+          WHERE things.id = NEW.id
+        );
 
       RETURN NEW;
+
       END;
 
       $$;
 
-      CREATE TRIGGER geom_simple_insert_trigger
-      BEFORE
-      INSERT
-        ON
-        things
-      FOR EACH ROW
-      EXECUTE PROCEDURE geom_simple_update ();
+      CREATE TRIGGER geom_simple_insert_trigger BEFORE
+      INSERT ON things FOR EACH ROW EXECUTE PROCEDURE geom_simple_update ();
 
-      CREATE TRIGGER geom_simple_update_trigger
-      BEFORE
-      UPDATE
-        OF location,
-        line ON
-        things
-      FOR EACH ROW
-        WHEN (OLD.location IS DISTINCT
-      FROM
-        NEW.location
-        OR OLD.line IS DISTINCT
-      FROM
-        NEW.line)
-      EXECUTE PROCEDURE geom_simple_update ();
+      CREATE TRIGGER geom_simple_update_trigger BEFORE
+      UPDATE OF "location",
+        line ON things FOR EACH ROW
+        WHEN (
+          OLD."location"::TEXT IS DISTINCT
+          FROM NEW."location"::TEXT
+            OR OLD.line::TEXT IS DISTINCT
+          FROM NEW.line::TEXT
+        ) EXECUTE PROCEDURE geom_simple_update ();
     SQL
   end
 

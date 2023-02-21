@@ -234,55 +234,7 @@ CREATE FUNCTION public.generate_ccc_relations_transitive_trigger_2() RETURNS tri
 
 CREATE FUNCTION public.generate_classification_alias_paths(classification_alias_ids uuid[]) RETURNS uuid[]
     LANGUAGE plpgsql
-    AS $$
-      DECLARE
-        classification_alias_path_ids UUID[];
-      BEGIN
-        DELETE FROM classification_alias_paths WHERE id = ANY(classification_alias_ids);
-
-        WITH RECURSIVE paths( id, parent_id,ancestor_ids,full_path_ids,full_path_names, tree_label_id) AS
-        (
-            SELECT
-              classification_aliases.id,
-              classification_trees.parent_classification_alias_id,
-              ARRAY[]::uuid[],
-              ARRAY[classification_aliases.id],
-              ARRAY[classification_aliases.internal_name],
-              classification_trees.classification_tree_label_id
-            FROM
-              classification_trees
-            JOIN classification_aliases
-             ON classification_aliases.id = classification_trees.classification_alias_id
-            WHERE classification_trees.classification_alias_id = ANY(classification_alias_ids)
-                UNION ALL
-            SELECT
-              paths.id,
-              classification_trees.parent_classification_alias_id,
-              ancestor_ids || classification_aliases.id,
-              full_path_ids || classification_aliases.id,
-              full_path_names || classification_aliases.internal_name,
-              classification_trees.classification_tree_label_id
-            FROM
-              classification_trees
-            JOIN paths
-             ON paths.parent_id = classification_trees.classification_alias_id
-            JOIN classification_aliases
-             ON classification_aliases.id = classification_trees.classification_alias_id
-            WHERE NOT classification_aliases.id = ANY(full_path_ids)
-        ) INSERT INTO classification_alias_paths(id, ancestor_ids, full_path_ids, full_path_names)
-        SELECT
-          paths.id, paths.ancestor_ids, paths.full_path_ids, paths.full_path_names || classification_tree_labels.name
-        FROM
-          paths
-        JOIN classification_tree_labels
-        ON classification_tree_labels.id = paths.tree_label_id
-        WHERE paths.parent_id IS NULL;
-
-        SELECT ARRAY_AGG(id) INTO classification_alias_path_ids
-        FROM classification_alias_paths WHERE id = ANY(classification_alias_ids);
-
-        RETURN classification_alias_path_ids;
-      END;$$;
+    AS $$ DECLARE classification_alias_path_ids UUID[]; BEGIN DELETE FROM classification_alias_paths WHERE id = ANY(classification_alias_ids); WITH RECURSIVE paths( id, parent_id,ancestor_ids,full_path_ids,full_path_names, tree_label_id) AS ( SELECT classification_aliases.id, classification_trees.parent_classification_alias_id, ARRAY[]::uuid[], ARRAY[classification_aliases.id], ARRAY[classification_aliases.internal_name], classification_trees.classification_tree_label_id FROM classification_trees JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id WHERE classification_trees.classification_alias_id = ANY(classification_alias_ids) UNION ALL SELECT paths.id, classification_trees.parent_classification_alias_id, ancestor_ids || classification_aliases.id, full_path_ids || classification_aliases.id , full_path_names || classification_aliases.internal_name, classification_trees.classification_tree_label_id FROM classification_trees JOIN paths ON paths.parent_id = classification_trees.classification_alias_id JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id ) INSERT INTO classification_alias_paths(id, ancestor_ids, full_path_ids, full_path_names) SELECT paths.id, paths.ancestor_ids, paths.full_path_ids, paths.full_path_names || classification_tree_labels.name FROM paths JOIN classification_tree_labels ON classification_tree_labels.id = paths.tree_label_id WHERE paths.parent_id IS NULL; SELECT ARRAY_AGG(id) INTO classification_alias_path_ids FROM classification_alias_paths WHERE id = ANY(classification_alias_ids); RETURN classification_alias_path_ids; END;$$;
 
 
 --
@@ -409,6 +361,15 @@ CREATE FUNCTION public.generate_schedule_occurences(schedule_ids uuid[]) RETURNS
 CREATE FUNCTION public.generate_schedule_occurences_trigger() RETURNS trigger
     LANGUAGE plpgsql
     AS $$ BEGIN PERFORM generate_schedule_occurences(NEW.id || '{}'::UUID[]); RETURN NEW; END;$$;
+
+
+--
+-- Name: geom_simple_update(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.geom_simple_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN NEW.geom_simple := ( SELECT st_simplify( ST_Force2D (COALESCE(NEW."location", NEW.line)), 0.00001, TRUE ) FROM things WHERE things.id = NEW.id ); RETURN NEW; END; $$;
 
 
 --
@@ -556,8 +517,8 @@ CREATE TABLE public.activities (
 CREATE TABLE public.ar_internal_metadata (
     key character varying NOT NULL,
     value character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
 );
 
 
@@ -858,7 +819,8 @@ CREATE TABLE public.things (
     version_name character varying,
     line public.geometry(MultiLineStringZ,4326),
     last_updated_locale character varying,
-    write_history boolean DEFAULT false
+    write_history boolean DEFAULT false,
+    geom_simple public.geometry(Geometry,4326)
 );
 
 
@@ -1973,34 +1935,6 @@ CREATE INDEX capt_classification_alias_id_idx ON public.classification_alias_pat
 
 
 --
--- Name: ccc_content_id_direct_classification_alias_ids_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX ccc_content_id_direct_classification_alias_ids_idx ON public.collected_classification_contents USING btree (thing_id, direct_classification_alias_ids);
-
-
---
--- Name: ccc_content_id_direct_tree_label_ids_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX ccc_content_id_direct_tree_label_ids_idx ON public.collected_classification_contents USING btree (thing_id, direct_tree_label_ids);
-
-
---
--- Name: ccc_content_id_full_classification_alias_ids_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX ccc_content_id_full_classification_alias_ids_idx ON public.collected_classification_contents USING btree (thing_id, full_classification_alias_ids);
-
-
---
--- Name: ccc_content_id_full_tree_label_ids_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX ccc_content_id_full_tree_label_ids_idx ON public.collected_classification_contents USING btree (thing_id, full_tree_label_ids);
-
-
---
 -- Name: ccc_direct_classification_alias_ids_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2757,6 +2691,13 @@ CREATE UNIQUE INDEX index_things_on_external_source_id_and_external_key ON publi
 
 
 --
+-- Name: index_things_on_geom_simple_spatial; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_geom_simple_spatial ON public.things USING gist (geom_simple);
+
+
+--
 -- Name: index_things_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3203,6 +3144,20 @@ CREATE TRIGGER generate_schedule_occurences_trigger AFTER INSERT ON public.sched
 
 
 --
+-- Name: things geom_simple_insert_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER geom_simple_insert_trigger BEFORE INSERT ON public.things FOR EACH ROW EXECUTE FUNCTION public.geom_simple_update();
+
+
+--
+-- Name: things geom_simple_update_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER geom_simple_update_trigger BEFORE UPDATE OF location, line ON public.things FOR EACH ROW WHEN ((((old.location)::text IS DISTINCT FROM (new.location)::text) OR ((old.line)::text IS DISTINCT FROM (new.line)::text))) EXECUTE FUNCTION public.geom_simple_update();
+
+
+--
 -- Name: classification_trees insert_classification_tree_order_a_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -3623,7 +3578,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210510120343'),
 ('20210518074537'),
 ('20210518133349'),
-('20210520121223'),
 ('20210520123323'),
 ('20210522171126'),
 ('20210527121641'),
@@ -3636,102 +3590,62 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210709121013'),
 ('20210731090959'),
 ('20210802095013'),
-('20210802130128'),
-('20210803170527'),
 ('20210804140504'),
 ('20210817101040'),
 ('20210908095952'),
 ('20211001085525'),
-('20211004160440'),
 ('20211005125306'),
 ('20211005134137'),
 ('20211007123156'),
-('20211007150305'),
-('20211011060931'),
 ('20211011123517'),
 ('20211014062654'),
 ('20211021062347'),
 ('20211021111915'),
-('20211110092804'),
-('20211115140202'),
 ('20211122075759'),
 ('20211123081845'),
 ('20211130111352'),
 ('20211214135559'),
 ('20211216110505'),
 ('20211217094832'),
-('20211217111102'),
 ('20220105142232'),
 ('20220111132413'),
 ('20220113113445'),
-('20220113150316'),
-('20220119101040'),
-('20220125101015'),
 ('20220218095025'),
 ('20220221123152'),
 ('20220304071341'),
-('20220308150335'),
-('20220308150336'),
 ('20220316115212'),
-('20220316130143'),
-('20220316140219'),
 ('20220317105304'),
 ('20220317131316'),
-('20220317140209'),
-('20220317150319'),
 ('20220322104259'),
-('20220323090941'),
-('20220328090933'),
 ('20220426105827'),
-('20220502150336'),
 ('20220505135021'),
-('20220510085119'),
 ('20220513075644'),
 ('20220516134326'),
-('20220518121205'),
 ('20220520065309'),
 ('20220524095157'),
 ('20220530063350'),
-('20220530140254'),
-('20220531080830'),
-('20220531140218'),
 ('20220602074421'),
-('20220602130139'),
 ('20220613074116'),
 ('20220614085121'),
 ('20220615085015'),
 ('20220615104611'),
 ('20220617113231'),
-('20220712090957'),
 ('20220715173507'),
-('20220805132153'),
-('20220809144533'),
-('20220829102251'),
-('20220902095919'),
 ('20220905101007'),
 ('20220914090315'),
 ('20220915081205'),
 ('20220919112419'),
-('20220919130156'),
 ('20220920083836'),
 ('20220922061116'),
-('20220923130110'),
 ('20221017094112'),
-('20221024121233'),
-('20221024121234'),
-('20221024121235'),
-('20221027101008'),
 ('20221028074348'),
-('20221028090936'),
-('20221102101038'),
-('20221103103637'),
-('20221114090938'),
 ('20221118075303'),
 ('20221202071928'),
 ('20221207085950'),
 ('20230110113327'),
 ('20230111134615'),
 ('20230123071358'),
-('20230201083504');
+('20230201083504'),
+('20230208145904');
 
 
