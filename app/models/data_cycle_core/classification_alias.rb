@@ -63,6 +63,8 @@ module DataCycleCore
     delegate :visible?, to: :classification_tree_label
 
     def self.for_tree(tree_name)
+      return none if tree_name.blank?
+
       joins(classification_tree: :classification_tree_label)
         .where(classification_trees: { classification_tree_labels: { name: tree_name } })
     end
@@ -88,12 +90,16 @@ module DataCycleCore
     end
 
     def self.classification_for_tree_with_name(tree_name, *names)
+      return if names.blank? || tree_name.blank?
+
       for_tree(tree_name)
         .with_internal_name(names)
         .primary_classifications.pick(:id)
     end
 
     def self.classifications_for_tree_with_name(tree_name, *names)
+      return [] if names.blank? || tree_name.blank?
+
       for_tree(tree_name)
         .with_internal_name(names)
         .primary_classifications.pluck(:id)
