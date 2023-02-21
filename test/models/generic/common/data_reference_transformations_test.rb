@@ -412,6 +412,33 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
     end
   end
 
+  it 'should resolve external content references and handle duplicates' do
+    # possible when both external_keys are marked as duplicates
+    raw_data = {
+      'contents_1' => [
+        { 'id' => 'SOME EXTERNAL ID' },
+        { 'id' => 'ANOTHER EXTERNAL ID' }
+      ],
+      'additional_content' => { 'id' => 'SOME ADDITIONAL EXTERNAL ID' }
+    }
+
+    transformed_data = subject.add_external_content_references(raw_data, 'content', 'EXTERNAL SOURCE ID', ['contents_1', 'id'])
+
+    load_things_stub = lambda do |_external_source_id, _external_keys|
+      {
+        'SOME EXTERNAL ID' => '00000000-0000-0000-0000-000000000001',
+        'ANOTHER EXTERNAL ID' => '00000000-0000-0000-0000-000000000001'
+      }
+    end
+
+    subject.stub :load_things, load_things_stub do
+      transformed_data = subject.resolve_references(transformed_data)
+
+      assert_equal(1, transformed_data['content'].size)
+      assert_includes(transformed_data['content'], '00000000-0000-0000-0000-000000000001')
+    end
+  end
+
   it 'should resolve external classification references' do
     raw_data = {
       'classification_1' => [
