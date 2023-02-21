@@ -341,7 +341,6 @@ module DataCycleCore
       def to_h_partial(partial_properties, timestamp = Time.zone.now)
         Array.wrap(partial_properties)
           .intersection(property_names)
-          .difference(virtual_property_names)
           .index_with { |k| attribute_to_h(k, timestamp) }
           .deep_stringify_keys
       end
