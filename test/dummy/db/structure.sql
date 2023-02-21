@@ -76,7 +76,7 @@ CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
 -- Name: EXTENSION postgis; Type: COMMENT; Schema: -; Owner: -
 --
 
-COMMENT ON EXTENSION postgis IS 'PostGIS geometry and geography spatial types and functions';
+COMMENT ON EXTENSION postgis IS 'PostGIS geometry, geography, and raster spatial types and functions';
 
 
 --
@@ -382,6 +382,19 @@ CREATE FUNCTION public.get_dict(lang character varying) RETURNS regconfig
 
 
 --
+-- Name: trigger_function(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.trigger_function() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+   -- trigger logic
+END;
+$$;
+
+
+--
 -- Name: tsvectorsearchupdate(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -448,6 +461,15 @@ CREATE FUNCTION public.wldh_order_a_default_value() RETURNS trigger
     AS $$ BEGIN NEW.order_a := (SELECT (count(watch_list_data_hashes.id) + 1) FROM watch_list_data_hashes WHERE watch_list_data_hashes.watch_list_id = NEW.watch_list_id); RETURN NEW; END; $$;
 
 
+--
+-- Name: basic_german; Type: TEXT SEARCH DICTIONARY; Schema: public; Owner: -
+--
+
+CREATE TEXT SEARCH DICTIONARY public.basic_german (
+    TEMPLATE = pg_catalog.thesaurus,
+    dictfile = 'basic_german', dictionary = 'pg_catalog.german_stem' );
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -457,7 +479,7 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.active_storage_attachments (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name character varying NOT NULL,
     record_type character varying NOT NULL,
     record_id uuid NOT NULL,
@@ -471,7 +493,7 @@ CREATE TABLE public.active_storage_attachments (
 --
 
 CREATE TABLE public.active_storage_blobs (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     key character varying NOT NULL,
     filename character varying NOT NULL,
     content_type character varying,
@@ -488,7 +510,7 @@ CREATE TABLE public.active_storage_blobs (
 --
 
 CREATE TABLE public.active_storage_variant_records (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     blob_id uuid NOT NULL,
     variation_digest character varying NOT NULL
 );
@@ -499,7 +521,7 @@ CREATE TABLE public.active_storage_variant_records (
 --
 
 CREATE TABLE public.activities (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     activitiable_type character varying,
     activitiable_id uuid,
     user_id uuid,
@@ -517,8 +539,8 @@ CREATE TABLE public.activities (
 CREATE TABLE public.ar_internal_metadata (
     key character varying NOT NULL,
     value character varying,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -527,7 +549,7 @@ CREATE TABLE public.ar_internal_metadata (
 --
 
 CREATE TABLE public.asset_contents (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     content_data_id uuid,
     content_data_type character varying,
     asset_id uuid,
@@ -544,7 +566,7 @@ CREATE TABLE public.asset_contents (
 --
 
 CREATE TABLE public.assets (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     file character varying,
     type character varying,
     content_type character varying,
@@ -564,7 +586,7 @@ CREATE TABLE public.assets (
 --
 
 CREATE TABLE public.classification_groups (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     classification_id uuid,
     classification_alias_id uuid,
     external_source_id uuid,
@@ -580,7 +602,7 @@ CREATE TABLE public.classification_groups (
 --
 
 CREATE TABLE public.classification_trees (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     external_source_id uuid,
     parent_classification_alias_id uuid,
     classification_alias_id uuid,
@@ -648,7 +670,7 @@ CREATE TABLE public.classification_alias_paths_transitive (
 --
 
 CREATE TABLE public.classification_aliases (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     internal_name character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
@@ -669,7 +691,7 @@ CREATE TABLE public.classification_aliases (
 --
 
 CREATE TABLE public.classification_content_histories (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     content_data_history_id uuid,
     classification_id uuid,
     seen_at timestamp without time zone,
@@ -684,7 +706,7 @@ CREATE TABLE public.classification_content_histories (
 --
 
 CREATE TABLE public.classification_contents (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     content_data_id uuid,
     classification_id uuid,
     seen_at timestamp without time zone,
@@ -699,13 +721,13 @@ CREATE TABLE public.classification_contents (
 --
 
 CREATE TABLE public.classification_polygons (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     admin_level integer,
     classification_alias_id uuid,
-    geom public.geometry(MultiPolygon,3035),
     geog public.geography(MultiPolygon,4326),
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    geom public.geometry(Geometry,4326)
 );
 
 
@@ -714,7 +736,7 @@ CREATE TABLE public.classification_polygons (
 --
 
 CREATE TABLE public.classification_tree_labels (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     name character varying,
     external_source_id uuid,
     seen_at timestamp without time zone,
@@ -732,7 +754,7 @@ CREATE TABLE public.classification_tree_labels (
 --
 
 CREATE TABLE public.classification_user_groups (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     classification_id uuid,
     user_group_id uuid,
     seen_at timestamp without time zone,
@@ -746,7 +768,7 @@ CREATE TABLE public.classification_user_groups (
 --
 
 CREATE TABLE public.classifications (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     name character varying,
     external_source_id uuid,
     external_key character varying,
@@ -781,7 +803,7 @@ CREATE TABLE public.collected_classification_contents (
 --
 
 CREATE TABLE public.things (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     metadata jsonb,
     template_name character varying,
     schema jsonb,
@@ -856,7 +878,7 @@ CREATE VIEW public.content_computed_properties AS
 --
 
 CREATE TABLE public.content_content_histories (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     content_a_history_id uuid,
     relation_a character varying,
     content_b_history_id uuid,
@@ -884,7 +906,7 @@ CREATE TABLE public.content_content_links (
 --
 
 CREATE TABLE public.content_contents (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     content_a_id uuid,
     relation_a character varying,
     content_b_id uuid,
@@ -915,7 +937,7 @@ UNION ALL
 --
 
 CREATE TABLE public.data_links (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     item_id uuid,
     item_type character varying,
     creator_id uuid,
@@ -937,7 +959,7 @@ CREATE TABLE public.data_links (
 --
 
 CREATE TABLE public.watch_list_data_hashes (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     watch_list_id uuid,
     hashable_id uuid,
     hashable_type character varying,
@@ -1032,7 +1054,6 @@ CREATE TABLE public.delayed_jobs (
 --
 
 CREATE SEQUENCE public.delayed_jobs_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1052,7 +1073,7 @@ ALTER SEQUENCE public.delayed_jobs_id_seq OWNED BY public.delayed_jobs.id;
 --
 
 CREATE TABLE public.thing_duplicates (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     thing_id uuid,
     thing_duplicate_id uuid,
     method character varying,
@@ -1088,7 +1109,7 @@ UNION
 --
 
 CREATE TABLE public.external_system_syncs (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     syncable_id uuid,
     external_system_id uuid,
     data jsonb,
@@ -1108,7 +1129,7 @@ CREATE TABLE public.external_system_syncs (
 --
 
 CREATE TABLE public.external_systems (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name character varying,
     config jsonb,
     credentials jsonb,
@@ -1157,7 +1178,7 @@ CREATE VIEW public.primary_classification_groups AS
 --
 
 CREATE TABLE public.roles (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     name character varying,
     rank integer,
     created_at timestamp without time zone NOT NULL,
@@ -1170,7 +1191,7 @@ CREATE TABLE public.roles (
 --
 
 CREATE TABLE public.schedule_histories (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     thing_history_id uuid,
     relation character varying,
     dtstart timestamp with time zone,
@@ -1206,7 +1227,7 @@ CREATE TABLE public.schedule_occurrences (
 --
 
 CREATE TABLE public.schedules (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     thing_id uuid,
     relation character varying,
     dtstart timestamp with time zone,
@@ -1238,7 +1259,7 @@ CREATE TABLE public.schema_migrations (
 --
 
 CREATE TABLE public.searches (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     content_data_id uuid,
     locale character varying,
     words tsvector,
@@ -1264,7 +1285,7 @@ CREATE TABLE public.searches (
 --
 
 CREATE TABLE public.stored_filters (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     name character varying,
     user_id uuid,
     language character varying[],
@@ -1285,7 +1306,7 @@ CREATE TABLE public.stored_filters (
 --
 
 CREATE TABLE public.subscriptions (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     user_id uuid,
     subscribable_id uuid,
     subscribable_type character varying,
@@ -1299,7 +1320,7 @@ CREATE TABLE public.subscriptions (
 --
 
 CREATE TABLE public.thing_histories (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     thing_id uuid NOT NULL,
     metadata jsonb,
     template_name character varying,
@@ -1346,7 +1367,7 @@ CREATE TABLE public.thing_histories (
 --
 
 CREATE TABLE public.thing_history_translations (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     thing_history_id uuid NOT NULL,
     locale character varying NOT NULL,
     content jsonb,
@@ -1364,7 +1385,7 @@ CREATE TABLE public.thing_history_translations (
 --
 
 CREATE TABLE public.thing_translations (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     thing_id uuid NOT NULL,
     locale character varying NOT NULL,
     content jsonb,
@@ -1395,7 +1416,7 @@ CREATE TABLE public.timeseries (
 --
 
 CREATE TABLE public.user_group_users (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     user_group_id uuid,
     user_id uuid,
     seen_at timestamp without time zone,
@@ -1409,7 +1430,7 @@ CREATE TABLE public.user_group_users (
 --
 
 CREATE TABLE public.user_groups (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     name character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
@@ -1422,7 +1443,7 @@ CREATE TABLE public.user_groups (
 --
 
 CREATE TABLE public.users (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     given_name character varying DEFAULT ''::character varying NOT NULL,
     email character varying DEFAULT ''::character varying NOT NULL,
     encrypted_password character varying DEFAULT ''::character varying NOT NULL,
@@ -1449,11 +1470,11 @@ CREATE TABLE public.users (
     uid character varying,
     jti character varying,
     creator_id uuid,
-    additional_attributes jsonb,
     confirmation_token character varying,
     confirmed_at timestamp without time zone,
     confirmation_sent_at timestamp without time zone,
     unconfirmed_email character varying,
+    additional_attributes jsonb,
     ui_locale character varying DEFAULT 'de'::character varying NOT NULL
 );
 
@@ -1463,7 +1484,7 @@ CREATE TABLE public.users (
 --
 
 CREATE TABLE public.watch_list_shares (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     shareable_id uuid,
     watch_list_id uuid,
     seen_at timestamp without time zone,
@@ -1478,7 +1499,7 @@ CREATE TABLE public.watch_list_shares (
 --
 
 CREATE TABLE public.watch_lists (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     name character varying,
     user_id uuid,
     seen_at timestamp without time zone,
@@ -1851,6 +1872,13 @@ ALTER TABLE ONLY public.watch_lists
 
 
 --
+-- Name: TEST; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "TEST" ON public.schedule_occurrences USING btree (lower(occurrence));
+
+
+--
 -- Name: activities_data_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2002,6 +2030,13 @@ CREATE INDEX classification_content_data_history_id_idx ON public.classification
 --
 
 CREATE UNIQUE INDEX classification_groups_ca_id_c_id_uq_idx ON public.classification_groups USING btree (classification_alias_id, classification_id) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: classification_polygons_classification_alias_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX classification_polygons_classification_alias_id_idx ON public.classification_polygons USING btree (classification_alias_id);
 
 
 --
@@ -2712,6 +2747,13 @@ CREATE INDEX index_things_on_is_part_of ON public.things USING btree (is_part_of
 
 
 --
+-- Name: index_things_on_line_3035; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_line_3035 ON public.things USING gist (public.st_transform(line, 3035));
+
+
+--
 -- Name: index_things_on_line_geography_cast; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2723,6 +2765,13 @@ CREATE INDEX index_things_on_line_geography_cast ON public.things USING gist (pu
 --
 
 CREATE INDEX index_things_on_line_spatial ON public.things USING gist (line);
+
+
+--
+-- Name: index_things_on_location_3035; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_location_3035 ON public.things USING gist (public.st_transform(location, 3035));
 
 
 --
@@ -3508,6 +3557,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190423103601'),
 ('20190520124223'),
 ('20190531093158'),
+('20190612063517'),
 ('20190612084614'),
 ('20190613092317'),
 ('20190703082641'),
@@ -3543,6 +3593,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200420130554'),
 ('20200514064724'),
 ('20200525104244'),
+('20200528114752'),
 ('20200529140637'),
 ('20200602070145'),
 ('20200721111525'),
@@ -3557,14 +3608,17 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200922112719'),
 ('20200928122555'),
 ('20201014110327'),
+('20201016075857'),
 ('20201016100223'),
 ('20201022061044'),
 ('20201030111544'),
 ('20201103120727'),
 ('20201105145022'),
+('20201116091443'),
 ('20201201103630'),
 ('20201207151843'),
 ('20201208210141'),
+('20210125150001'),
 ('20210208130744'),
 ('20210215102758'),
 ('20210217125404'),
@@ -3573,79 +3627,137 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210410183240'),
 ('20210413105611'),
 ('20210416120714'),
+('20210419160440'),
 ('20210421180706'),
 ('20210422111740'),
 ('20210510120343'),
+('20210517120641'),
 ('20210518074537'),
 ('20210518133349'),
+('20210520121223'),
 ('20210520123323'),
 ('20210522171126'),
 ('20210527121641'),
 ('20210602112830'),
+('20210602113953'),
 ('20210608125638'),
 ('20210621063801'),
 ('20210625202737'),
 ('20210628202054'),
 ('20210629094413'),
+('20210629160427'),
 ('20210709121013'),
+('20210730121241'),
 ('20210731090959'),
 ('20210802095013'),
+('20210802130128'),
+('20210803170527'),
 ('20210804140504'),
 ('20210817101040'),
 ('20210908095952'),
 ('20211001085525'),
+('20211004160440'),
 ('20211005125306'),
 ('20211005134137'),
 ('20211007123156'),
+('20211007150305'),
+('20211011060931'),
+('20211011073121'),
 ('20211011123517'),
 ('20211014062654'),
 ('20211021062347'),
 ('20211021111915'),
+('20211110092804'),
+('20211115140202'),
 ('20211122075759'),
 ('20211123081845'),
 ('20211130111352'),
 ('20211214135559'),
 ('20211216110505'),
 ('20211217094832'),
+('20211217111102'),
 ('20220105142232'),
 ('20220111132413'),
 ('20220113113445'),
+('20220113150316'),
+('20220119101040'),
+('20220125101015'),
 ('20220218095025'),
 ('20220221123152'),
 ('20220304071341'),
+('20220308150335'),
+('20220308150336'),
 ('20220316115212'),
+('20220316130143'),
+('20220316140219'),
 ('20220317105304'),
 ('20220317131316'),
+('20220317140209'),
+('20220317150319'),
 ('20220322104259'),
+('20220323090941'),
+('20220328090933'),
 ('20220426105827'),
+('20220502150336'),
+('20220505122647'),
 ('20220505135021'),
+('20220510085119'),
 ('20220513075644'),
 ('20220516134326'),
+('20220518121205'),
 ('20220520065309'),
 ('20220524095157'),
 ('20220530063350'),
+('20220530140254'),
+('20220531080830'),
+('20220531140218'),
 ('20220602074421'),
+('20220602130139'),
 ('20220613074116'),
 ('20220614085121'),
 ('20220615085015'),
+('20220615090933'),
 ('20220615104611'),
+('20220617090926'),
 ('20220617113231'),
+('20220623102911'),
+('20220712090957'),
 ('20220715173507'),
+('20220719150337'),
+('20220829102251'),
 ('20220905101007'),
 ('20220914090315'),
+('20220914090919'),
+('20220914150356'),
 ('20220915081205'),
 ('20220919112419'),
+('20220919130156'),
 ('20220920083836'),
 ('20220922061116'),
+('20220923130110'),
 ('20221017094112'),
+('20221027101008'),
 ('20221028074348'),
+('20221028090936'),
+('20221102101038'),
+('20221114090938'),
 ('20221118075303'),
+('20221124150304'),
+('20221130150332'),
+('20221130150342'),
+('20221201121230'),
 ('20221202071928'),
 ('20221207085950'),
+('20221212150341'),
 ('20230110113327'),
+('20230110150343'),
 ('20230111134615'),
+('20230112090929'),
 ('20230123071358'),
 ('20230201083504'),
-('20230208145904');
+('20230208145904'),
+('20230208150324'),
+('20230209120003'),
+('20230214091138');
 
 

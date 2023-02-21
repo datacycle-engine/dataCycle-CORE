@@ -2,7 +2,7 @@
 
 class TransformClassificationPolygonsToWgs84 < ActiveRecord::Migration[6.1]
   # uncomment the following line to disable transactions
-  # disable_ddl_transaction!
+  disable_ddl_transaction!
 
   def up
     execute <<-SQL.squish
