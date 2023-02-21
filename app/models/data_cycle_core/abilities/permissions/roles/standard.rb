@@ -60,46 +60,34 @@ module DataCycleCore
             permit_user(role, :read, :add_item, :remove_item, WatchListByUserShares: [my_selection: false])
 
             # DataAttributes
-            permit_user(
-              role,
-              :read,
-              DataAttributeAllowedForShow: [
-                [
-                  :attribute_not_disabled?,
-                  :overlay_attribute_visible?,
-                  :attribute_not_releasable?
-                ]
-              ]
-            )
+            permit_user(role, :read, DataAttributeAllowedForShow: [
+                          [
+                            :attribute_not_disabled?,
+                            :overlay_attribute_visible?,
+                            :attribute_not_releasable?
+                          ]
+                        ])
 
-            permit_user(
-              role,
-              :edit,
-              DataAttributeAllowedForEdit: [
-                [
-                  :attribute_not_included_in_publication_schedule?,
-                  :attribute_not_disabled?,
-                  :overlay_attribute_visible?,
-                  :attribute_not_external?,
-                  :attribute_tree_label_visible?
-                ]
-              ]
-            )
+            permit_user(role, :edit, DataAttributeAllowedForEdit: [
+                          [
+                            :attribute_not_included_in_publication_schedule?,
+                            :attribute_not_disabled?,
+                            :overlay_attribute_visible?,
+                            :attribute_not_external?,
+                            :attribute_tree_label_visible?
+                          ]
+                        ])
 
-            permit_user(
-              role,
-              :update,
-              DataAttributeAllowedForUpdate: [
-                [
-                  :attribute_not_included_in_publication_schedule?,
-                  :attribute_not_disabled?,
-                  :attribute_not_read_only?,
-                  :overlay_attribute_visible?,
-                  :attribute_not_external?,
-                  :attribute_tree_label_visible?
-                ]
-              ]
-            )
+            permit_user(role, :update, DataAttributeAllowedForUpdate: [
+                          [
+                            :attribute_not_included_in_publication_schedule?,
+                            :attribute_not_disabled?,
+                            :attribute_not_read_only?,
+                            :overlay_attribute_visible?,
+                            :attribute_not_external?,
+                            :attribute_tree_label_visible?
+                          ]
+                        ])
 
             # Backend
             permit_user(role, :read, :settings, SubjectByConditions: :backend)

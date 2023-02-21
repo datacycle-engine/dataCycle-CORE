@@ -55,6 +55,19 @@ module DataCycleCore
         })
       end
 
+      def permit_user_group(group_name, roles, *actions, definition)
+        raise 'missing user_group name in permission' if group_name.blank?
+        raise 'missing roles in permission' if roles.blank?
+        raise 'missing actions in permission' if actions.blank?
+        raise 'missing definition in permission' if definition.blank?
+
+        self.class.list.push({
+          condition: segment(:UsersByUserGroup).new(group_name, roles),
+          actions: actions,
+          definition: definition_to_segment(definition)
+        })
+      end
+
       def definition_to_segment(definition)
         return segment(definition).new unless definition.is_a?(::Hash)
 
