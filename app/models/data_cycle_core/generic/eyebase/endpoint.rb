@@ -25,7 +25,7 @@ module DataCycleCore
             f.request :retry, @retry_options
 
             f.response :logger
-            f.response :follow_redirects, limit: 10
+            f.response :follow_redirects, limit: 20
 
             f.adapter Faraday.default_adapter
           end
