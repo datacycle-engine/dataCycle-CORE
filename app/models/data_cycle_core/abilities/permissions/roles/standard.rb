@@ -121,6 +121,9 @@ module DataCycleCore
             ### Features
             # ViewMode
             permit_user(role, *DataCycleCore.features.dig('view_mode', 'allowed').map(&:to_sym), SubjectByEnabledFeature: [:view_mode, DataCycleCore::Feature::ViewMode])
+
+            # auto_translate
+            permit_user(role, :create, :destroy, SubjectByConditions: :auto_translate)
           end
         end
       end

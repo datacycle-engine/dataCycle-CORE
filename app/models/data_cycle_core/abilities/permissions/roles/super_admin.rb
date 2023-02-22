@@ -293,6 +293,9 @@ module DataCycleCore
               :remove_version_name,
               SubjectByEnabledFeature: [[DataCycleCore::Thing, DataCycleCore::Thing::History], DataCycleCore::Feature::NamedVersion]
             )
+
+            # auto_translate
+            permit_user(role, :create, :destroy, SubjectByConditions: :auto_translate)
           end
         end
       end
