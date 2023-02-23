@@ -7,8 +7,7 @@ module DataCycleCore
         'id',
         'created_at',
         'updated_at',
-        'write_history',
-        'geom_simple'
+        'write_history'
       ].freeze
       CLASSIFICATION_CONTENT_HISTORY_ATTRIBUTE_EXCEPTIONS = [
         'id',
@@ -32,6 +31,7 @@ module DataCycleCore
             available_locales.except(last_updated_locale&.to_sym).each do |locale|
               I18n.with_locale(locale) do
                 attributes.except(*THING_HISTORY_ATTRIBUTE_EXCEPTIONS).each do |key, value|
+                  next unless key.in?(DataCycleCore::Thing::History.column_names + DataCycleCore::Thing::History::Translation.column_names)
                   data_set_history.send("#{key}=", value)
                 end
 
@@ -42,6 +42,7 @@ module DataCycleCore
           end
 
           attributes.except(*THING_HISTORY_ATTRIBUTE_EXCEPTIONS).each do |key, value|
+            next unless key.in?(DataCycleCore::Thing::History.column_names + DataCycleCore::Thing::History::Translation.column_names)
             data_set_history.send("#{key}=", value)
           end
 
