@@ -32,11 +32,11 @@ module DataCycleCore
       @alias_id1 = find_alias_ids('Tags', 'Tag 3')
       @alias_id2 = find_alias_ids('Tags', 'Tag 2')
 
-      # SELECT ST_Transform(st_Multi(ST_Polygon('LINESTRING(9 9, 25 9, 25 25, 9 25, 9 9)'::geometry, 4326)),3035) as poly;
-      DataCycleCore::ClassificationPolygon.create(admin_level: 2, geom: RGeo::Cartesian.factory(srid: 3035).parse_wkt('MULTIPOLYGON (((4202934.644239654 -1448504.9553259471, 6082457.555953258 -1295113.329555613, 5867526.512533029 384486.2303753854, 4217241.353822769 240196.7677504816, 4202934.644239654 -1448504.9553259471)))'), classification_alias_id: @alias_id1[0], id: 1)
+      # SELECT st_Multi(ST_Polygon('LINESTRING(9 9, 25 9, 25 25, 9 25, 9 9)'::geometry, 4326)) as poly;
+      DataCycleCore::ClassificationPolygon.create(admin_level: 2, geom: RGeo::Cartesian.factory(srid: 4326).parse_wkt('MULTIPOLYGON (((9 9, 25 9, 25 25, 9 25, 9 9)))'), classification_alias_id: @alias_id1[0], id: 1)
 
-      # SELECT ST_Transform(st_Multi(ST_Polygon('LINESTRING(40 40, 50 40, 50 50, 40 50, 40 40)'::geometry, 4326)),3035) as poly;
-      DataCycleCore::ClassificationPolygon.create(admin_level: 2, geom: RGeo::Cartesian.factory(srid: 3035).parse_wkt('MULTIPOLYGON (((6820695.788487785 2383032.902099507, 7575054.368527604 2770439.3715101797, 7025493.8290515 3755848.0891880086, 6403110.237464223 3422994.1930276593, 6820695.788487785 2383032.902099507)))'), classification_alias_id: @alias_id2[0], id: 2)
+      # SELECT st_Multi(ST_Polygon('LINESTRING(40 40, 50 40, 50 50, 40 50, 40 40)'::geometry, 4326)) as poly;
+      DataCycleCore::ClassificationPolygon.create(admin_level: 2, geom: RGeo::Cartesian.factory(srid: 4326).parse_wkt('MULTIPOLYGON (((40 40, 50 40, 50 50, 40 50, 40 40)))'), classification_alias_id: @alias_id2[0], id: 2)
     end
 
     test 'small helper functions' do
@@ -214,13 +214,13 @@ module DataCycleCore
     end
 
     test 'supports geo search within polygon' do
-      assert_equal(1, DataCycleCore::Filter::Search.new(:de).geo_within_classification(@alias_id1).count)
+      assert_equal(2, DataCycleCore::Filter::Search.new(:de).geo_within_classification(@alias_id1).count)
       assert_equal(0, DataCycleCore::Filter::Search.new(:de).geo_within_classification(@alias_id2).count)
     end
 
     test 'supports geo search not within polygon' do
       assert_equal(0, DataCycleCore::Filter::Search.new(:de).not_geo_within_classification(@alias_id1).count)
-      assert_equal(1, DataCycleCore::Filter::Search.new(:de).not_geo_within_classification(@alias_id2).count)
+      assert_equal(2, DataCycleCore::Filter::Search.new(:de).not_geo_within_classification(@alias_id2).count)
     end
 
     # test 'test thesaurus is installed' do
