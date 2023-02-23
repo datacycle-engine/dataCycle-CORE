@@ -6,13 +6,15 @@ en:
           invalid_object: "invalid included_object: type must be 'object' and must have properties defined. storage_location must be a jsonb field (translated_value for translated fields, value for not translatable data)."
           invalid_embedded: "invalid embedded_object: type must be 'embedded'. either define a stored_filter, or a template_name"
           invalid_linked: "invalid linked_object: type must be 'linked'. either define a stored_filter, or a template_name"
-          invalid_classification: 'invalid classification: tree_label must be set'
+          invalid_classification: "invalid classification: tree_label must be set"
           invalid_asset: "invalid asset: type must be 'asset' and asset_type must be one of: 'asset', 'image', 'video', 'data_cycle_file', 'pdf', 'audio'"
         compute:
-          invalid_computed: 'invalid_computed: module and method combination not found.'
+          invalid_computed: "invalid_computed: module and method combination not found."
         virtual:
-          invalid_virtual: 'invalid_virtual: module and method combination not found.'
+          invalid_virtual: "invalid_virtual: module and method combination not found."
         content_score:
-          invalid_content_score: 'invalid_content_score: module and method combination not found.'
+          invalid_content_score: "invalid_content_score: module and method combination not found."
+        default_value:
+          invalid_default_value: "invalid_default_value: module and method combination not found."
         properties:
           invalid_object: "invalid included_object: type must be 'object' and must have properties defined. storage_location must be a jsonb field (translated_value for translated fields, value for not translatable data)."
