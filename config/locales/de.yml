@@ -869,6 +869,11 @@ de:
       confirm_tree_label_id: Die Klassifizierung wird in einen anderen Klassifizierungsbaum verschoben
       button:
         tooltip: Sortierung anpassen
+    merge:
+      zone_tooltip: Eine andere Klassifizierung auf dieses Icon ziehen, um die Klassifizierungen zusammenzuführen
+      error: Die Klassifizierungen konnten nicht zusammengeführt werden
+      confirm_html: <b>%{source_path}</b> wird mit <b>%{target_path}</b> zusammengeführt.
+      success: Die Klassifizierungen wurden erfolgreich zusammengeführt
 
   classification_change_behaviour:
     trigger_webhooks: Webhooks für Inhalte auslösen

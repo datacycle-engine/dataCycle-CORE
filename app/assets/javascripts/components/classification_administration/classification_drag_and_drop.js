@@ -1,5 +1,8 @@
 import { Sortable } from "sortablejs";
+import { CancelSortPlugin } from "../sortable/cancel_sort_plugin";
+Sortable.mount(CancelSortPlugin());
 import CalloutHelpers from "../../helpers/callout_helpers";
+import ConfirmationModal from "../confirmation_modal";
 
 class ClassificationDragAndDrop {
 	constructor(item) {
@@ -9,6 +12,8 @@ class ClassificationDragAndDrop {
 		this.disableButton = this.treeLabel.querySelector(
 			":scope > .inner-item > .classification-order-button",
 		);
+		this.mergeDropZone =
+			this.item.parentElement.querySelector(".merge-dropzone");
 		this.sortable = new Sortable(this.item, {
 			forceAutoScrollFallback: true,
 			scrollSpeed: 50,
@@ -20,7 +25,7 @@ class ClassificationDragAndDrop {
 			handle: ".draggable-handle",
 			draggable: "li.direct, li.new-button, li.mapped",
 			disabled: !this.treeLabel.classList.contains("sortable-active"),
-			onEnd: this.updateOrder.bind(this),
+			onEnd: this.onEnd.bind(this),
 			onMove: this.checkNewButtonPosition.bind(this),
 		});
 
@@ -31,6 +36,21 @@ class ClassificationDragAndDrop {
 			"click",
 			this.toggleSortable.bind(this),
 		);
+
+		this.addMergeHoverEvents();
+	}
+	addMergeHoverEvents() {
+		if (this.mergeDropZone) {
+			for (const type of ["dragenter", "dragover"])
+				this.mergeDropZone.addEventListener(type, () => {
+					this.mergeDropZone.classList.add("is-dragover");
+				});
+
+			for (const type of ["dragleave", "dragend", "drop"])
+				this.mergeDropZone.addEventListener(type, () => {
+					this.mergeDropZone.classList.remove("is-dragover");
+				});
+		}
 	}
 	toggleSortable(event) {
 		event.preventDefault();
@@ -46,44 +66,140 @@ class ClassificationDragAndDrop {
 		this.treeLabel.classList.add("sortable-active");
 		this.sortable.option("disabled", false);
 	}
-	updateOrder(event) {
+	onEnd(event) {
+		const target = event.explicitOriginalTarget;
+		if (target instanceof Element && target.closest(".merge-dropzone")) {
+			this.mergeWithElement(event, target.closest("li"));
+			return;
+		}
+
+		this.updateOrder(event);
+	}
+	enableMoveElement(e) {
+		e.classList.remove("saving-order");
+	}
+	disableMoveElement(e) {
+		e.classList.add("saving-order");
+	}
+	enableMergeElements(source, target) {
+		source.classList.remove("merging", "merge-source");
+		target.classList.remove("merging", "merge-target");
+	}
+	disableMergeElements(source, target) {
+		source.classList.add("merging", "merge-source");
+		target.classList.add("merging", "merge-target");
+	}
+	revertMove(event) {
+		this.sortable.cancelSort.revertDrag({
+			dragEl: event.item,
+			cloneEl: event.clone,
+			...event,
+		});
+	}
+	async mergeWithElement(event, target) {
+		const source = event.item;
+
+		this.revertMove(event);
+		this.disableMergeElements(source, target);
+
+		new ConfirmationModal({
+			text: await I18n.translate(
+				"classification_administration.merge.confirm_html",
+				{
+					source_path: source.querySelector(":scope > .inner-item > .name")
+						?.dataset.dcTooltip,
+					target_path: target.querySelector(":scope > .inner-item > .name")
+						?.dataset.dcTooltip,
+				},
+			),
+			confirmationClass: "alert",
+			cancelable: true,
+			confirmationCallback: () => {
+				this.sendRequest(
+					{
+						sourceAliasId: source.dataset.id,
+						targetAliasId: target.dataset.id,
+					},
+					"merge",
+				)
+					.then(this.renderResponseMessage.bind(this))
+					.catch()
+
+					.then((data) => {
+						this.renderResponseMessage(data);
+						this.enableMergeElements(source, target);
+						source.remove();
+					})
+					.catch(() => {
+						this.renderGeneralError("merge");
+						this.enableMergeElements(source, target);
+					});
+			},
+			cancelCallback: this.enableMergeElements.bind(this, source, target),
+		});
+	}
+	async updateOrder(event) {
 		if (event.from === event.to && event.oldIndex === event.newIndex) return;
 
 		const element = event.item;
-		this.disableElement(element);
+		this.disableMoveElement(element);
 
-		this.sendUpdateRequest({
-			classificationAliasId: element.dataset.id,
-			classificationTreeLabelId: element.closest("li.classification_tree_label")
-				.id,
-			previousAliasId: element.previousElementSibling?.dataset.id,
-			newParentAliasId: element.parentElement.closest("li.direct")?.dataset.id,
-		}).finally(() => this.enableElement(element));
+		if (event.from !== event.to) {
+			new ConfirmationModal({
+				text: await I18n.translate(
+					"classification_administration.move.confirm_tree_label_id",
+				),
+				confirmationClass: "alert",
+				cancelable: true,
+				confirmationCallback: this.sendMoveRequest.bind(this, element),
+				cancelCallback: () => {
+					this.revertMove(event);
+					this.enableMoveElement(element);
+				},
+			});
+		} else this.sendMoveRequest(element);
 	}
-	enableElement(e) {
-		e.classList.remove("saving-order");
+	sendMoveRequest(element) {
+		this.sendRequest(
+			{
+				classificationAliasId: element.dataset.id,
+				classificationTreeLabelId: element.closest(
+					"li.classification_tree_label",
+				).id,
+				previousAliasId: element.previousElementSibling?.dataset.id,
+				newParentAliasId:
+					element.parentElement.closest("li.direct")?.dataset.id,
+			},
+			"move",
+		)
+			.then(this.renderResponseMessage.bind(this))
+			.catch(this.renderGeneralError.bind(this, "move"))
+			.finally(() => this.enableMoveElement(element));
 	}
-	disableElement(e) {
-		e.classList.add("saving-order");
+	renderResponseMessage(data) {
+		if (data?.error) CalloutHelpers.show(data.error, "alert");
+		if (data?.success) CalloutHelpers.show(data.success, "success");
 	}
-	sendUpdateRequest(data) {
+	async renderGeneralError(type) {
+		I18n.t(`classification_administration.${type}.error`).then((text) =>
+			CalloutHelpers.show(text, "alert"),
+		);
+	}
+	sendRequest(data, type) {
 		return DataCycle.httpRequest({
-			url: "/classifications/move",
+			url: `/classifications/${type}`,
 			method: "patch",
 			dataType: "json",
 			data: data,
-		})
-			.then((data) => {
-				if (data?.error) CalloutHelpers.show(data.error, "alert");
-				if (data?.success) CalloutHelpers.show(data.success, "success");
-			})
-			.catch(() =>
-				I18n.t("classification_administration.move.error").then((text) =>
-					CalloutHelpers.show(text, "alert"),
-				),
-			);
+		});
 	}
 	checkNewButtonPosition(event) {
+		if (
+			event.explicitOriginalTarget instanceof Element &&
+			event.explicitOriginalTarget.closest(".merge-dropzone")
+		)
+			return false;
+
 		if (
 			event.related.classList.contains("mapped") ||
 			event.related.classList.contains("new-button")

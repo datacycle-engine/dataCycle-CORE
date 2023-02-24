@@ -1,13 +1,15 @@
 ul.backend-treeview-list,
-.search-results > ul.tree {
+.search-results>ul.tree {
   list-style-type: none;
   margin: 2rem 0;
 
   .dropdown-pane {
     &.watch-lists {
       &.is-open {
+
         &.has-position-bottom,
         &.has-position-left {
+
           &.has-alignment-right,
           &.has-alignment-top {
             &::before {
@@ -20,6 +22,7 @@ ul.backend-treeview-list,
   }
 
   .classification-alias-form-container {
+
     &.remote-render,
     &.remote-rendering {
       min-height: 1.6rem;
@@ -47,8 +50,8 @@ ul.backend-treeview-list,
     padding: 1rem;
   }
 
-  .classification-alias-form-container > form,
-  .classification-tree-label-form-container > form {
+  .classification-alias-form-container>form,
+  .classification-tree-label-form-container>form {
     display: flex;
     flex-flow: column nowrap;
     gap: 1rem;
@@ -86,15 +89,18 @@ ul.backend-treeview-list,
         position: relative;
         display: inline-block;
         text-align: center;
-        > a {
+
+        >a {
           padding: 0;
           border-radius: 50%;
           background: $white;
-          > .fa {
+
+          >.fa {
             color: $primary-color;
           }
         }
       }
+
       .ca-translation-link.active {
         color: $black;
       }
@@ -111,7 +117,7 @@ ul.backend-treeview-list,
       position: relative;
       margin: 0;
 
-      &.required > label::after {
+      &.required>label::after {
         content: '*';
         display: inline-flex;
         align-items: center;
@@ -163,7 +169,7 @@ ul.backend-treeview-list,
         display: inherit;
       }
 
-      > input {
+      >input {
         margin: 0;
       }
 
@@ -175,7 +181,7 @@ ul.backend-treeview-list,
       }
 
       &.translated {
-        > .translated-fields:not(.active) {
+        >.translated-fields:not(.active) {
           display: none;
         }
       }
@@ -191,7 +197,7 @@ ul.backend-treeview-list,
         border-radius: $global-radius;
         background: $white;
 
-        > label {
+        >label {
           display: block;
           position: absolute;
           top: 0.5rem;
@@ -212,7 +218,7 @@ ul.backend-treeview-list,
           max-width: calc(33.3% - 0.5rem);
           display: flex;
 
-          > label {
+          >label {
             padding: 0.3rem 0.5rem;
             margin: 0;
             border-radius: $global-radius;
@@ -225,7 +231,7 @@ ul.backend-treeview-list,
             display: inline-flex;
           }
 
-          > input:checked + label {
+          >input:checked+label {
             background: rgba($light-gray, 0.9);
           }
         }
@@ -233,15 +239,15 @@ ul.backend-treeview-list,
     }
   }
 
-  .classification-tree-label-form-container > form {
+  .classification-tree-label-form-container>form {
     border-top: none;
     border-bottom: none;
   }
 
-  > li {
+  >li {
     border-top: 1px solid $medium-gray;
 
-    &.classification_tree_label > ul.children.open {
+    &.classification_tree_label>ul.children.open {
       margin-left: 1rem;
     }
 
@@ -353,7 +359,7 @@ ul.backend-treeview-list,
         display: block;
       }
 
-      > li {
+      >li {
         list-style-type: none;
         transition: $border-color-transition;
         border-left: 1px solid lighten($dark-gray, 10%);
@@ -396,7 +402,7 @@ ul.backend-treeview-list,
             border-top: 2px dotted lighten($dark-gray, 10%);
           }
 
-          & ~ li.mapped {
+          &~li.mapped {
             padding-top: 0;
 
             &::before {
@@ -408,20 +414,20 @@ ul.backend-treeview-list,
             }
           }
 
-          > .inner-item > .name {
+          >.inner-item>.name {
             font-style: italic;
           }
         }
       }
 
       li.mapped {
-        span.inner-item > .name {
+        span.inner-item>.name {
           color: $dark-gray;
         }
       }
 
       li:not(.active) {
-        > span.inner-item {
+        >span.inner-item {
           padding: 0 0 0 0.25rem;
           font-size: 1rem;
           font-weight: normal;
@@ -433,12 +439,12 @@ ul.backend-treeview-list,
         }
       }
 
-      &:not(.has-contents) > li:last-child {
+      &:not(.has-contents)>li:last-child {
         border-left: 1px solid transparent;
         padding-bottom: 0.5rem !important;
       }
 
-      > li.new-button {
+      >li.new-button {
         padding: 0.1rem 0 0.1rem 1rem;
 
         .new-button-spacer {
@@ -471,37 +477,37 @@ ul.backend-treeview-list,
       list-style: none;
       margin-left: 1rem;
 
-      > li {
+      >li {
         display: inline-block;
         color: $dark-gray;
         font-size: 0.8rem;
         padding-top: 0;
       }
 
-      > li:first-child:before {
+      >li:first-child:before {
         content: '(';
       }
 
-      > li:not(:last-child):after {
+      >li:not(:last-child):after {
         content: ', ';
       }
 
-      > li:last-child:after {
+      >li:last-child:after {
         content: ')';
       }
     }
   }
 
-  &.tree > li a:not(.button) {
+  &.tree>li a:not(.button) {
     color: $primary-color;
   }
 
-  li:not(.active) > .classification-tree-label-form-container,
-  li:not(.active) > .classification-alias-form-container {
+  li:not(.active)>.classification-tree-label-form-container,
+  li:not(.active)>.classification-alias-form-container {
     display: none;
   }
 
-  li.active > :not(.classification-tree-label-form-container):not(.classification-alias-form-container) {
+  li.active> :not(.classification-tree-label-form-container):not(.classification-alias-form-container) {
     display: none;
   }
 
@@ -526,6 +532,7 @@ ul.backend-treeview-list,
   }
 
   .classification-tree-label-form-container {
+
     &.remote-render,
     &.remote-rendering {
       min-height: 2.2rem;
@@ -659,7 +666,7 @@ ul.backend-treeview-list,
           background: lighten($light-gray, 5%) !important;
         }
 
-        & + .select2-container {
+        &+.select2-container {
           border: none;
           padding: 0;
         }
@@ -704,7 +711,7 @@ ul.backend-treeview-list,
       padding: 0;
     }
 
-    > a {
+    >a {
       font-weight: 600;
       display: inline-flex;
       gap: 0.3rem;
@@ -720,12 +727,12 @@ ul.backend-treeview-list,
     }
   }
 
-  > li {
+  >li {
     ul.children {
       li.load-more-link {
         font-style: italic;
 
-        > span.inner-item {
+        >span.inner-item {
           padding-bottom: 0.1rem;
           padding-top: 0.1rem;
 
@@ -750,7 +757,8 @@ ul.backend-treeview-list,
   }
 }
 
-#search-results > ul.tree {
+#search-results>ul.tree {
+
   .child-count-full,
   .child-count-direct {
     .loading {
@@ -774,13 +782,13 @@ ul.backend-treeview-list,
     top: 0;
     gap: 0.3rem;
 
-    > a,
-    > i {
+    >a,
+    >i {
       padding: 0 3px;
     }
   }
 
-  > li {
+  >li {
     border: none;
 
     .children-count {
@@ -818,11 +826,11 @@ ul.backend-treeview-list,
       flex-flow: row nowrap;
       align-items: center;
 
-      &:not(.type) > .children-count {
+      &:not(.type)>.children-count {
         margin-left: 5px;
       }
 
-      > .fa-spinner {
+      >.fa-spinner {
         margin-right: 0.3rem;
       }
 
@@ -871,7 +879,7 @@ ul.backend-treeview-list,
       .content-details {
         display: none;
 
-        > div {
+        >div {
           margin-top: 1rem;
         }
 
@@ -888,6 +896,7 @@ ul.backend-treeview-list,
             height: 2.6rem;
             vertical-align: top;
           }
+
           &.large {
             img {
               height: 10rem;
@@ -896,6 +905,7 @@ ul.backend-treeview-list,
           }
         }
       }
+
       &.open {
         .folder-icon::after {
           content: '\f07c';
@@ -908,20 +918,21 @@ ul.backend-treeview-list,
     }
 
     .open {
+
       .toggle-details:not(.loading):after,
       .tree-link:not(.loading):after {
         content: '\f106';
       }
     }
 
-    > ul.children {
+    >ul.children {
       margin-left: 1rem;
     }
 
     ul.children {
       display: none;
 
-      > li {
+      >li {
         .inner-item {
           padding: 0 0 0 0.25rem;
           display: block;
@@ -942,7 +953,7 @@ ul.backend-treeview-list,
       display: none;
       position: relative;
 
-      > li.content-row {
+      >li.content-row {
         transition: background-color 0.25s ease-out;
         position: relative;
         width: calc(100% - 2rem);
@@ -967,8 +978,9 @@ ul.backend-treeview-list,
             overflow: hidden;
             align-items: center;
 
-            > span {
+            >span {
               margin-right: 5px;
+
               &.title {
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -1009,7 +1021,7 @@ ul.backend-treeview-list,
           border-right: 0 none transparent;
         }
 
-        > div {
+        >div {
           position: relative;
 
           &:not(:last-child) {
@@ -1022,6 +1034,7 @@ ul.backend-treeview-list,
             a {
               color: inherit;
             }
+
             .dropdown-pane a {
               color: $primary-color;
             }
@@ -1065,7 +1078,8 @@ ul.backend-treeview-list,
 
     ul.children,
     ul.contents {
-      > li {
+      >li {
+
         &.load-more-link.pagination-container,
         &.content-row.button-row {
           padding: 0.1rem 0 0.1rem 1rem;
@@ -1096,16 +1110,16 @@ ul.backend-treeview-list,
       }
     }
 
-    .inner-item.open ~ ul.contents,
-    .inner-item.open ~ ul.children,
-    h5 ~ ul.contents,
-    h5 ~ ul.children {
+    .inner-item.open~ul.contents,
+    .inner-item.open~ul.children,
+    h5~ul.contents,
+    h5~ul.children {
       display: block;
     }
   }
 }
 
-#search-results > ul.tree {
+#search-results>ul.tree {
   margin: 0 1rem;
 }
 
@@ -1128,30 +1142,22 @@ ul.backend-treeview-list,
 #classification-administration {
   padding-top: 1.5rem;
 
-  // li.dcjs-classification-jump-to-parent {
-  //   cursor: pointer;
-
-  //   > * {
-  //     cursor: default;
-  //   }
-  // }
-
-  li > .inner-item {
+  li>.inner-item {
     transition: $global-transition;
   }
 
-  li.highlight > .inner-item {
+  li.highlight>.inner-item {
     box-shadow: 0 0 2px 0px $primary-color;
     border-radius: $global-radius;
     background: $primary-color;
 
-    > a.name {
+    >a.name {
       color: $white;
     }
   }
 
   li.hover {
-    > ul.children > li {
+    >ul.children>li {
       &:not(:last-child) {
         border-color: $primary-color;
       }
@@ -1164,7 +1170,7 @@ ul.backend-treeview-list,
     li:hover {
       cursor: pointer;
 
-      > * {
+      >* {
         cursor: default;
       }
 
@@ -1216,39 +1222,71 @@ ul.backend-treeview-list,
       }
     }
 
-    .draggable-handle {
+    .draggable-handle,
+    .merge-dropzone {
+      align-self: stretch;
       align-items: center;
       justify-content: center;
       float: none;
       display: none;
+      padding: 2px 5px;
+    }
 
-      .fa {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .merge-dropzone {
+      color: $dark-gray;
+      border-radius: $global-radius;
+
+      &.is-dragover {
+        color: $white;
+        background-color: $alert-color;
       }
     }
 
-    li.saving-order {
-      > .inner-item > .draggable-handle {
-        pointer-events: none;
+    .sortable-ghost>.inner-item>.merge-dropzone.is-dragover {
+      color: $dark-gray;
+      background-color: transparent;
+    }
 
-        > .fa::before {
-          font-size: 0.9rem;
-          content: '\f110';
-          animation: fa-spin 2s infinite linear;
+    li.saving-order,
+    li.merging {
+
+      >.inner-item {
+
+        >.draggable-handle,
+        >.merge-dropzone {
+          pointer-events: none;
         }
       }
     }
 
+    li.merging>.inner-item>.merge-dropzone,
+    li.saving-order>.inner-item>.draggable-handle {
+      &::before {
+        font-size: 0.9rem;
+        content: '\f110';
+        animation: fa-spin 2s infinite linear;
+      }
+    }
+
+    li.merging.merge-source {
+      opacity: 0.5;
+    }
+
     &.sortable-active {
-      .draggable-handle {
+
+      .draggable-handle,
+      .merge-dropzone {
         display: flex;
       }
 
       .classification-order-button {
         background-color: $primary-color;
         color: $white;
+      }
+
+      .inner-item>a:not(.name):not(.classification-load-all-children):not(.classification-close-all-children):not(.classification-order-button),
+      .inner-item>div.download-container {
+        display: none;
       }
     }
   }

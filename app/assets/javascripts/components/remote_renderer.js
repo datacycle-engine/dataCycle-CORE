@@ -95,7 +95,7 @@ class RemoteRenderer {
 			if (!entry.isIntersecting) continue;
 
 			this.unobserveElement(entry.target);
-			requestAnimationFrame(this.loadRemote.bind(this, entry.target));
+			this.loadRemote(entry.target);
 		}
 	}
 	reloadAfterFail(event) {
@@ -208,7 +208,7 @@ class RemoteRenderer {
 			contentType: "application/json",
 		});
 
-		promise.catch(async (_error) => {
+		promise.catch(async () => {
 			$(element)
 				.html(
 					`<div class="remote-render-error">${await I18n.translate(

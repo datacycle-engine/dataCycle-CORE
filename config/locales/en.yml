@@ -839,6 +839,11 @@ en:
       confirm_tree_label_id: The classification will be moved to another classificationtree
       button:
         tooltip: customize order
+    merge:
+      zone_tooltip: Drag another classification onto this icon to merge the classifications
+      error: The classifications could not be merged
+      confirm_html: <b>%{source_path}</b> will be merged with <b>%{target_path}</b>.
+      success: The classifications were successfully merged
 
   classification_change_behaviour:
     trigger_webhooks: trigger webhooks for contents

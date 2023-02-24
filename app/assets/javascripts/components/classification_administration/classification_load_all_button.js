@@ -4,6 +4,7 @@ class ClassificationLoadAllButton {
 	constructor(item) {
 		this.item = item;
 		this.item.classList.add("dcjs-classification-load-all-button");
+		this.mutationQueue = [];
 
 		this.setup();
 	}
@@ -27,59 +28,61 @@ class ClassificationLoadAllButton {
 			return;
 
 		if (element.classList.contains("loaded")) {
-			const children = liElement.querySelector(":scope > ul.children");
+			const childContainer = liElement.querySelector(":scope > ul.children");
 
-			if (children.querySelectorAll(":scope > li:not(.new-button)").length) {
-				if (!element.classList.contains("open")) element.click();
-
+			if (childContainer.querySelector(":scope > li:not(.new-button)")) {
+				this.openElement(element);
 				this.showChildrenRecursive(element);
 			}
 		} else {
-			const observer = new MutationObserver(
-				this.newChildrenCallback.bind(this),
-			);
-			observer.observe(
-				liElement.querySelector(":scope > ul.children"),
-				ObserverHelpers.newItemsConfig,
-			);
-
 			const classObserver = new MutationObserver(
-				this.loadedObserverCallback.bind(this, observer),
+				this.addToMutationObserverQueue.bind(this),
 			);
 			classObserver.observe(element, ObserverHelpers.changedClassConfig);
 
-			if (!element.classList.contains("open")) element.click();
+			this.openElement(element);
 		}
 	}
-	newChildrenCallback(mutations) {
-		for (const mutation of mutations) {
-			if (mutation.type !== "childList") continue;
-
-			for (const addedNode of mutation.addedNodes) {
-				if (addedNode.nodeType !== Node.ELEMENT_NODE) continue;
-
-				ObserverHelpers.checkForConditionRecursive(
-					addedNode,
-					(e) => e.classList.contains("dcjs-classification-name-button"),
-					this.loadDirectChildren.bind(this),
-				);
-			}
-		}
+	openElement(element) {
+		if (
+			element.classList.contains("dcjs-classification-name-button") &&
+			!element.classList.contains("open")
+		)
+			element.click();
 	}
-	loadedObserverCallback(newChildrenObserver, mutations, observer) {
-		for (const mutation of mutations) {
-			if (mutation.type !== "attributes") continue;
+	addToMutationObserverQueue(mutations, observer) {
+		if (!this.mutationQueue.length)
+			requestAnimationFrame(this.waitForLoadCallback.bind(this));
 
-			if (
-				mutation.target.classList.contains("loaded") &&
-				(!mutation.oldValue || mutation.oldValue.includes("loaded"))
-			) {
-				observer.disconnect();
-				newChildrenObserver.disconnect();
+		this.mutationQueue.push([mutations, observer]);
+	}
+	waitForLoadCallback() {
+		for (const [mutations, observer] of this.mutationQueue) {
+			for (const mutation of mutations) {
+				if (mutation.type !== "attributes") continue;
 
-				this.hideChildrenIfEmpty(mutation.target);
+				if (
+					mutation.target.classList.contains(
+						"dcjs-classification-name-button",
+					) &&
+					!mutation.oldValue?.includes("dcjs-classification-name-button")
+				) {
+					this.openElement(mutation.target);
+					this.hideChildrenIfEmpty(mutation.target);
+				}
+
+				if (
+					mutation.target.classList.contains("loaded") &&
+					!mutation.oldValue?.includes("loaded")
+				) {
+					observer.disconnect();
+					this.showChildrenRecursive(mutation.target);
+					this.hideChildrenIfEmpty(mutation.target);
+				}
 			}
 		}
+
+		this.mutationQueue.length = 0;
 	}
 	hideChildrenIfEmpty(element) {
 		const children = element
