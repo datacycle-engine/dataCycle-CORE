@@ -257,13 +257,33 @@ class DashboardFilter {
 		this.addTagGroup(params);
 	}
 	addTagGroup(params) {
-		return DataCycle.httpRequest({
+		DataCycle.httpRequest({
 			url: this.addTagGroupPath,
-			method: "GET",
-			data: params,
-			dataType: "script",
+			method: "POST",
+			data: JSON.stringify(params),
 			contentType: "application/json",
-		});
+		})
+			.then(this.renderTagGroupHtml.bind(this))
+			.catch((error) => console.error(error));
+	}
+	renderTagGroupHtml(data) {
+		const html = data?.html;
+		const identifier = data?.identifier;
+		const tagGroup = document.querySelector(
+			`.filters .tag-group[data-id="${identifier}"]`,
+		);
+
+		if (!html && tagGroup) {
+			tagGroup.remove();
+		} else if (tagGroup) tagGroup.outerHTML = html;
+		else if (identifier === "language")
+			document
+				.querySelector(".filters .languagetags")
+				?.insertAdjacentHTML("beforeend", html);
+		else
+			document
+				.querySelector(".filters .filtertags .filter-groups")
+				?.insertAdjacentHTML("beforeend", html);
 	}
 	addAdvancedFilter(event) {
 		event.preventDefault();
@@ -275,20 +295,45 @@ class DashboardFilter {
 
 		DataCycle.httpRequest({
 			url: this.addFilterPath,
-			method: "GET",
-			data: {
+			method: "POST",
+			data: JSON.stringify({
 				t: this.$addAdvancedFilterSelect.val(),
 				n: this.$addAdvancedFilterSelect.find(":selected").data("name"),
 				q: this.$addAdvancedFilterSelect.find(":selected").data("advancedtype"),
 				m: this.$addAdvancedFilterSelect.data("method"),
-			},
-			dataType: "script",
+			}),
 			contentType: "application/json",
-		}).finally(() => {
-			this.$addAdvancedFilterSelect.prop("disabled", false);
-		});
+		})
+			.then(this.renderAdvancedFilterHtml.bind(this))
+			.catch((error) => console.error(error))
+			.finally(() => {
+				this.$addAdvancedFilterSelect.prop("disabled", false);
+			});
 
 		this.$addAdvancedFilterSelect.val(null).trigger("change");
+	}
+	renderAdvancedFilterHtml(data) {
+		const addAdvancedFilterSelect = this.$addAdvancedFilterSelect[0];
+		const nextElement = addAdvancedFilterSelect.closest(
+			".add-advanced-filter-container",
+		);
+
+		nextElement.insertAdjacentHTML("beforebegin", data?.html);
+
+		const newElement = document.querySelector(
+			`.advanced-filter[data-id="${data?.identifier}"]`,
+		);
+		newElement.classList.add("hidden");
+		newElement.clientHeight; // trigger reflow for following transition
+		newElement.addEventListener(
+			"transitionend",
+			() => newElement.classList.remove("transitioning"),
+			{ once: true },
+		);
+		newElement.classList.add("transitioning");
+		newElement.classList.remove("hidden");
+
+		addAdvancedFilterSelect.dataset.index += 1;
 	}
 	removeAdvancedFilter(event) {
 		event.preventDefault();

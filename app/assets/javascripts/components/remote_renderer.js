@@ -1,8 +1,9 @@
-import domElementHelpers from "../helpers/dom_element_helpers";
+import DomElementHelpers from "../helpers/dom_element_helpers";
 
 class RemoteRenderer {
-	constructor(selector) {
-		this.selector = $(selector);
+	constructor() {
+		this.$container = $(document);
+		this.renderQueue = [];
 		this.intersectionObserver = new IntersectionObserver(
 			this.checkForNewVisibleElements.bind(this),
 			{
@@ -39,17 +40,17 @@ class RemoteRenderer {
 		this.init();
 	}
 	init() {
-		this.selector.on(
+		this.$container.on(
 			"dc:remote:reload",
 			".remote-rendered",
 			this.reload.bind(this),
 		);
-		this.selector.on(
+		this.$container.on(
 			"dc:remote:reloadOnNextOpen",
 			".remote-render, .remote-rendering, .remote-rendered",
 			this.reloadOnNextOpen.bind(this),
 		);
-		this.selector.on(
+		this.$container.on(
 			"click",
 			".remote-render-failed > .remote-render-error > .remote-reload-link",
 			this.reloadAfterFail.bind(this),
@@ -102,49 +103,45 @@ class RemoteRenderer {
 		event.preventDefault();
 		event.stopPropagation();
 
-		let remoteContainer = $(event.target).closest(".remote-render-failed");
-		remoteContainer
-			.addClass("remote-reload")
-			.removeClass("remote-render-failed");
+		let remoteContainer = event.target.closest(".remote-render-failed");
+		remoteContainer.classList.add("remote-reload");
+		remoteContainer.classList.remove("remote-render-failed");
+
 		this.loadRemotePartial(remoteContainer);
 	}
 	reload(event, data) {
 		event.stopPropagation();
 
-		$(event.target).removeClass("dc-fd-initialized");
+		event.target.classList.remove("dc-fd-initialized");
 		this.loadRemotePartial(event.target, data);
 	}
 	reloadOnNextOpen(event, data) {
 		event.stopPropagation();
 
 		if (data) {
-			let remoteOptions = $(event.target).data("remoteOptions");
-			$(event.target).attr(
-				"data-remote-options",
-				JSON.stringify(Object.assign(remoteOptions, data)),
+			let remoteOptions = DomElementHelpers.parseDataAttribute(
+				event.target.dataset.remoteOptions,
+			);
+			event.target.dataset.remoteOptions = JSON.stringify(
+				Object.assign({}, remoteOptions, data),
 			);
 		}
 
-		$(event.target).addClass("remote-reload").removeClass("dc-fd-initialized");
+		event.target.classList.add("remote-reload");
+		event.target.classList.remove("dc-fd-initialized");
 		this.intersectionObserver.observe(event.target);
-	}
-	loadInitial() {
-		this.selector.find(".remote-render:visible").each((_, element) => {
-			if (!$(element).closest(".dropdown-pane").length)
-				this.loadRemotePartial(element);
-		});
 	}
 	loadRemote(target, data = undefined) {
 		if (
 			target.matches(".remote-render, .remote-reload") &&
-			(data?.force || domElementHelpers.isVisible(target))
+			(data?.force || DomElementHelpers.isVisible(target))
 		)
 			this.loadRemotePartial(target);
 		if (target.querySelector(".remote-render, .remote-reload"))
 			for (const elem of target.querySelectorAll(
 				".remote-render, .remote-reload",
 			))
-				if (domElementHelpers.isVisible(elem)) this.loadRemotePartial(elem);
+				if (DomElementHelpers.isVisible(elem)) this.loadRemotePartial(elem);
 	}
 	forceLoadRemote(event) {
 		event.preventDefault();
@@ -155,71 +152,74 @@ class RemoteRenderer {
 		if (target.classList.contains("remote-render"))
 			return this.loadRemotePartial(target, null, true);
 	}
-	loadChangedTabs(event) {
-		event.stopPropagation();
-		$(event.target)
-			.siblings("[data-tabs-content]")
-			.find(".remote-render:visible")
-			.each((_, element) => {
-				this.loadRemotePartial(element);
-			});
-	}
 	loadRemotePartial(
 		element,
 		additionalParams = null,
 		forceRecursiveLoad = false,
 	) {
-		let id = $(element).data("remote-render-id");
-
-		if (id === undefined) {
-			id = domElementHelpers.randomId();
-			element.setAttribute("data-remote-render-id", id);
-		}
-
-		let params = {
-			target: id,
-			partial: $(element).data("remotePath"),
-			content_for: $(element).data("remoteContentFor"),
-			options: $(element).data("remoteOptions"),
-			render_function: $(element).data("remoteRenderFunction"),
-			render_params: $(element).data("remoteRenderParams"),
+		const params = {
+			partial: element.dataset.remotePath,
+			render_function: element.dataset.remoteRenderFunction,
 			force_recursive_load: forceRecursiveLoad,
+			options:
+				DomElementHelpers.parseDataAttribute(element.dataset.remoteOptions) ||
+				{},
+			render_params:
+				DomElementHelpers.parseDataAttribute(
+					element.dataset.remoteRenderParams,
+				) || {},
 		};
 
-		if (additionalParams) {
-			for (const [key, value] of Object.entries(additionalParams)) {
-				if (!params[key]) params[key] = {};
-				Object.assign(params[key], value);
-			}
-		}
+		if (additionalParams?.options)
+			Object.assign(params.options, additionalParams.options);
+		if (additionalParams?.render_params)
+			Object.assign(params.render_params, additionalParams.render_params);
 
-		$(element)
-			.removeClass("remote-render remote-rendered remote-reload")
-			.addClass("remote-rendering");
+		element.classList.add("remote-rendering");
+		element.classList.remove(
+			"remote-render",
+			"remote-rendered",
+			"remote-reload",
+		);
 
 		return this.sendRequest(element, params);
 	}
-	sendRequest(element, params) {
+	async renderError(element) {
+		element.innerHTML = `<div class="remote-render-error">${await I18n.translate(
+			"frontend.remote_render.error",
+		)}<a href="#" class="remote-reload-link"><i class="fa fa-repeat" aria-hidden="true"></i> ${await I18n.translate(
+			"frontend.remote_render.reload",
+		)}</a></div>`;
+
+		element.classList.add("remote-render-failed");
+		element.classList.remove("remote-rendering");
+	}
+	renderNewHtml() {
+		for (const [target, html] of this.renderQueue) {
+			target.innerHTML = html;
+			target.classList.add("remote-rendered");
+			target.classList.remove("remote-rendering");
+		}
+
+		this.renderQueue.length = 0;
+	}
+	addToRenderQueue(element, data) {
+		if (!this.renderQueue.length)
+			requestAnimationFrame(this.renderNewHtml.bind(this));
+
+		this.renderQueue.push([element, data?.html]);
+	}
+	sendRequest(element, data) {
 		const promise = DataCycle.httpRequest({
 			method: "POST",
 			url: "/remote_render",
-			data: JSON.stringify(params),
-			dataType: "script",
+			data: JSON.stringify(data),
 			contentType: "application/json",
 		});
 
-		promise.catch(async () => {
-			$(element)
-				.html(
-					`<div class="remote-render-error">${await I18n.translate(
-						"frontend.remote_render.error",
-					)}<a href="#" class="remote-reload-link"><i class="fa fa-repeat" aria-hidden="true"></i> ${await I18n.translate(
-						"frontend.remote_render.reload",
-					)}</a></div>`,
-				)
-				.removeClass("remote-rendering")
-				.addClass("remote-render-failed");
-		});
+		promise
+			.then(this.addToRenderQueue.bind(this, element))
+			.catch(this.renderError.bind(this, element));
 
 		return promise;
 	}

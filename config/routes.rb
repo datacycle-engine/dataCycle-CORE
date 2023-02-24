@@ -487,8 +487,8 @@ DataCycleCore::Engine.routes.draw do
   end
 
   authenticate do
-    get :add_filter, controller: :application
-    get :add_tag_group, controller: :application
+    post :add_filter, controller: :application
+    post :add_tag_group, controller: :application
     post :remote_render, controller: :application
     get :holidays, controller: :application
   end
