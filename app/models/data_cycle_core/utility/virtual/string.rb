@@ -26,7 +26,7 @@ module DataCycleCore
 
           def license_uri(content:, **_args)
             content
-              .universal_classifications
+              .classifications
               &.classification_aliases
               &.select { |ca| ca.classification_tree_label.name == 'Lizenzen' }
               &.map(&:uri)
