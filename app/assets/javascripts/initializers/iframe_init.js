@@ -4,16 +4,12 @@ export default function () {
 			$(".new-content-reveal:not(.in-object-browser):visible iframe").length &&
 			event.originalEvent.data.action === "import"
 		) {
-			var AUTH_TOKEN = $("meta[name=csrf-token]").attr("content");
-			DataCycle.httpRequest({
+			DataCycle.httpRequest("/things/import", {
 				method: "POST",
-				url: "/things/import",
-				data: JSON.stringify({
-					authenticity_token: AUTH_TOKEN,
+				body: {
 					data: event.originalEvent.data.data,
 					render_html: true,
-				}),
-				contentType: "application/json",
+				},
 			}).finally(() => {
 				$("iframe:visible").closest(".reveal").foundation("close");
 			});

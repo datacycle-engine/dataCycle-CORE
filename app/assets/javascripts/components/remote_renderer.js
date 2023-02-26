@@ -209,11 +209,9 @@ class RemoteRenderer {
 		this.renderQueue.push([element, data?.html]);
 	}
 	sendRequest(element, data) {
-		const promise = DataCycle.httpRequest({
+		const promise = DataCycle.httpRequest("/remote_render", {
 			method: "POST",
-			url: "/remote_render",
-			data: JSON.stringify(data),
-			contentType: "application/json",
+			body: data,
 		});
 
 		promise

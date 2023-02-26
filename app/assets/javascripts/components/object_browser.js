@@ -401,12 +401,9 @@ class ObjectBrowser {
 			new_overlay_id: `#new_${this.id}`,
 		});
 
-		DataCycle.httpRequest({
-			url: $(event.target).prop("action"),
+		DataCycle.httpRequest($(event.target).prop("action"), {
 			method: "POST",
-			data: JSON.stringify(formData),
-			dataType: "json",
-			contentType: "application/json",
+			body: formData,
 		})
 			.then(this.renderNewItems.bind(this))
 			.catch(this.renderLoadError.bind(this));
@@ -417,10 +414,9 @@ class ObjectBrowser {
 
 		if (!data?.contentIds?.length) return;
 
-		DataCycle.httpRequest({
-			url: "/object_browser/render_in_overlay",
+		DataCycle.httpRequest("/object_browser/render_in_overlay", {
 			method: "POST",
-			data: JSON.stringify({
+			body: {
 				ids: data.contentIds,
 				type: this.type,
 				locale: this.locale,
@@ -434,8 +430,7 @@ class ObjectBrowser {
 				prefix: this.prefix,
 				objects: this.chosen,
 				new_overlay_id: `#new_${this.id}`,
-			}),
-			contentType: "application/json",
+			},
 		})
 			.then(this.renderNewItems.bind(this))
 			.catch(this.renderLoadError.bind(this));
@@ -515,10 +510,9 @@ class ObjectBrowser {
 			);
 	}
 	findObjects(ids, external) {
-		const promise = DataCycle.httpRequest({
-			url: "/object_browser/find",
+		const promise = DataCycle.httpRequest("/object_browser/find", {
 			method: "POST",
-			data: JSON.stringify({
+			body: {
 				type: this.type,
 				locale: this.locale,
 				key: this.key,
@@ -532,8 +526,7 @@ class ObjectBrowser {
 				content_type: this.content_type,
 				objects: this.chosen,
 				external: external,
-			}),
-			contentType: "application/json",
+			},
 		});
 
 		promise
@@ -639,25 +632,26 @@ class ObjectBrowser {
 		this.$overlay.find(".chosen-counter").html(html);
 	}
 	loadMore(_loaded_ids) {
-		const promise = DataCycle.httpRequest({
-			url: `/things/${this.content_id}/load_more_linked_objects`,
-			method: "POST",
-			data: JSON.stringify({
-				key: this.object_key,
-				complete_key: this.key,
-				locale: this.locale,
-				definition: this.definition,
-				options: this.options,
-				class: this.class,
-				editable: this.editable,
-				content_id: this.content_id,
-				content_type: this.content_type,
-				load_more_action: "object_browser",
-				load_more_type: "all",
-				load_more_except: undefined,
-			}),
-			contentType: "application/json",
-		});
+		const promise = DataCycle.httpRequest(
+			`/things/${this.content_id}/load_more_linked_objects`,
+			{
+				method: "POST",
+				body: {
+					key: this.object_key,
+					complete_key: this.key,
+					locale: this.locale,
+					definition: this.definition,
+					options: this.options,
+					class: this.class,
+					editable: this.editable,
+					content_id: this.content_id,
+					content_type: this.content_type,
+					load_more_action: "object_browser",
+					load_more_type: "all",
+					load_more_except: undefined,
+				},
+			},
+		);
 
 		promise
 			.then(this.renderFoundItems.bind(this))
@@ -674,10 +668,9 @@ class ObjectBrowser {
 	}
 	loadDetails(id) {
 		this.selected = id;
-		DataCycle.httpRequest({
-			url: "/object_browser/details",
+		DataCycle.httpRequest("/object_browser/details", {
 			method: "POST",
-			data: JSON.stringify({
+			body: {
 				type: this.type,
 				locale: this.locale,
 				key: this.key,
@@ -686,8 +679,7 @@ class ObjectBrowser {
 				options: this.options,
 				class: this.class,
 				id: id,
-			}),
-			contentType: "application/json",
+			},
 		})
 			.then(this.renderDetailHtml.bind(this))
 			.catch(this.renderLoadError.bind(this));
@@ -758,10 +750,9 @@ class ObjectBrowser {
 	// import media from media_archive reveal
 	import(event) {
 		if (event.originalEvent?.data?.action === "import") {
-			const promise = DataCycle.httpRequest({
+			const promise = DataCycle.httpRequest("/things/import", {
 				method: "POST",
-				url: "/things/import",
-				data: JSON.stringify({
+				body: {
 					type: `${this.type}_object`,
 					data: event.originalEvent.data.data,
 					locale: this.locale,
@@ -772,8 +763,7 @@ class ObjectBrowser {
 					options: this.options,
 					editable: this.editable,
 					objects: this.chosen,
-				}),
-				contentType: "application/json",
+				},
 			});
 			promise
 				.then(this.renderNewItems.bind(this))
@@ -823,14 +813,9 @@ class ObjectBrowser {
 	loadCount() {
 		this.overlayCount.html(loadingIcon());
 
-		const promise = DataCycle.httpRequest({
-			url: "/object_browser/show",
+		const promise = DataCycle.httpRequest("/object_browser/show", {
 			method: "POST",
-			dataType: "json",
-			data: JSON.stringify(
-				Object.assign(this.showParams(), { count_only: true }),
-			),
-			contentType: "application/json",
+			body: Object.assign(this.showParams(), { count_only: true }),
 		});
 
 		this.activeCountRequest = promise;
@@ -862,14 +847,9 @@ class ObjectBrowser {
 		this.$overlay.find(".items .loading").show();
 		this.loading = true;
 
-		const promise = DataCycle.httpRequest({
-			url: "/object_browser/show",
+		const promise = DataCycle.httpRequest("/object_browser/show", {
 			method: "POST",
-			dataType: "json",
-			data: JSON.stringify(
-				Object.assign(this.showParams(), { append: append }),
-			),
-			contentType: "application/json",
+			body: Object.assign(this.showParams(), { append: append }),
 		});
 
 		this.activeRequest = promise;

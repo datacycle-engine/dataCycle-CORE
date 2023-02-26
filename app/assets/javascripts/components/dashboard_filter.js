@@ -257,11 +257,9 @@ class DashboardFilter {
 		this.addTagGroup(params);
 	}
 	addTagGroup(params) {
-		DataCycle.httpRequest({
-			url: this.addTagGroupPath,
+		DataCycle.httpRequest(this.addTagGroupPath, {
 			method: "POST",
-			data: JSON.stringify(params),
-			contentType: "application/json",
+			body: params,
 		})
 			.then(this.renderTagGroupHtml.bind(this))
 			.catch((error) => console.error(error));
@@ -293,16 +291,14 @@ class DashboardFilter {
 
 		this.$addAdvancedFilterSelect.prop("disabled", true);
 
-		DataCycle.httpRequest({
-			url: this.addFilterPath,
+		DataCycle.httpRequest(this.addFilterPath, {
 			method: "POST",
-			data: JSON.stringify({
+			body: {
 				t: this.$addAdvancedFilterSelect.val(),
 				n: this.$addAdvancedFilterSelect.find(":selected").data("name"),
 				q: this.$addAdvancedFilterSelect.find(":selected").data("advancedtype"),
 				m: this.$addAdvancedFilterSelect.data("method"),
-			}),
-			contentType: "application/json",
+			},
 		})
 			.then(this.renderAdvancedFilterHtml.bind(this))
 			.catch((error) => console.error(error))

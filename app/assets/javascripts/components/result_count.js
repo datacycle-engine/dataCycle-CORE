@@ -56,13 +56,9 @@ class ResultCount {
 		if (this.form.dataset.endpointId)
 			formData.set("stored_filter", this.form.dataset.endpointId);
 
-		DataCycle.httpRequest({
-			url: this.url,
+		DataCycle.httpRequest(this.url, {
 			method: "POST",
-			data: formData,
-			processData: false,
-			contentType: false,
-			dataType: "json",
+			body: formData,
 		})
 			.then((data) => {
 				this.countContainer.insertAdjacentHTML("beforeend", data.html);

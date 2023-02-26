@@ -58,15 +58,9 @@ class PublicationFilter {
 
 		this.yearList.insertAdjacentHTML("beforeend", loadingIcon());
 
-		const promise = DataCycle.httpRequest({
-			url: url,
+		const promise = DataCycle.httpRequest(url, {
 			method: method,
-			data: formData,
-			enctype: "multipart/form-data",
-			processData: false,
-			contentType: false,
-			cache: false,
-			dataType: "json",
+			body: formData,
 		});
 
 		this.activeRequest = promise;

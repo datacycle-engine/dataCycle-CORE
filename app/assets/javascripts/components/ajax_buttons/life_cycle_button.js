@@ -43,12 +43,7 @@ class LifeCylceButton {
 		this.item.closest(".content-pool").classList.remove("disabled");
 	}
 	sendRequest() {
-		DataCycle.httpRequest({
-			url: this.item.href,
-			method: "PATCH",
-			dataType: "json",
-			contentType: "application/json",
-		})
+		DataCycle.httpRequest(this.item.href, { method: "PATCH" })
 			.then((data) => {
 				if (data?.classifications_html) {
 					if (

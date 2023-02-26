@@ -121,11 +121,9 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		};
 	}
 	async _loadGeojson(additionalParams = {}) {
-		let data = await DataCycle.httpRequest({
-			url: "/things/geojson_for_map_editor",
+		let data = await DataCycle.httpRequest("/things/geojson_for_map_editor", {
 			method: "POST",
-			data: additionalParams,
-			dataType: "json",
+			body: additionalParams,
 		});
 
 		if (!data) data = this._createFeatureCollection();
@@ -240,10 +238,8 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 				address[elem.name.attributeNameFromKey()] = elem.value;
 			});
 
-		const promise = DataCycle.httpRequest({
-			url: "/things/geocode_address",
-			dataType: "json",
-			data: address,
+		const promise = DataCycle.httpRequest("/things/geocode_address", {
+			body: address,
 		});
 
 		promise

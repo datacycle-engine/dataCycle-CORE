@@ -74,11 +74,9 @@ class CollectionOrderButton {
 		const element = event.item;
 		this.disableElement(element);
 
-		DataCycle.httpRequest({
-			url: this.item.dataset.url,
-			method: "patch",
-			dataType: "json",
-			data: {
+		DataCycle.httpRequest(this.item.dataset.url, {
+			method: "PATCH",
+			body: {
 				order: this.sortable.toArray(),
 			},
 		})

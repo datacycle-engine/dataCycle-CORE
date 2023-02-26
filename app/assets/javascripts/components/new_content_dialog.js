@@ -214,10 +214,9 @@ class NewContentDialog {
 
 		formData.forEach((v, i) => {
 			if (v && UuidHelper.isUuid(v.value)) {
-				const promise = DataCycle.httpRequest({
-					url: `/api/v4/universal/${v.value}`,
+				const promise = DataCycle.httpRequest(`/api/v4/universal/${v.value}`, {
 					method: "POST",
-					data: { fields: "name,skos:prefLabel" },
+					body: { fields: "name,skos:prefLabel" },
 				});
 
 				promise.then((data) => {
@@ -577,11 +576,8 @@ class NewContentDialog {
 		params.template = template;
 		params.key = this.id;
 
-		const promise = DataCycle.httpRequest({
-			url: "/things/new",
-			method: "GET",
-			data: params,
-			contentType: "application/json",
+		const promise = DataCycle.httpRequest("/things/new", {
+			body: params,
 		})
 			.then(this.renderNewFormHtml.bind(this, template))
 			.catch(this.renderLoadError.bind(this));

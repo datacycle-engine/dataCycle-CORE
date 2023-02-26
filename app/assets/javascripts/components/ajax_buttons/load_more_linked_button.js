@@ -26,11 +26,9 @@ class LoadMoreLinkedButton {
 
 		DataCycle.disableElement(this.item);
 
-		DataCycle.httpRequest({
-			url: this.item.href,
+		DataCycle.httpRequest(this.item.href, {
 			method: "POST",
-			data: JSON.stringify(this.options),
-			contentType: "application/json",
+			body: this.options,
 		})
 			.then(this.renderLoadedItems.bind(this))
 			.catch(this.renderLoadError.bind(this));

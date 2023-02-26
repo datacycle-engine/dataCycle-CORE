@@ -193,24 +193,25 @@ class EmbeddedObject {
 
 		this.parent.classList.add("loading-embedded");
 
-		const promise = DataCycle.httpRequest({
-			url: `${this.url}/render_embedded_object`,
-			method: "POST",
-			contentType: "application/json",
-			data: JSON.stringify({
-				index: index,
-				locale: this.locale(),
-				attribute_locale: locale,
-				key: this.key,
-				definition: this.definition,
-				options: this.options,
-				content_id: this.content_id,
-				content_type: this.content_type,
-				object_ids: ids,
-				duplicated_content: type === "split_view",
-				translate: translate,
-			}),
-		});
+		const promise = DataCycle.httpRequest(
+			`${this.url}/render_embedded_object`,
+			{
+				method: "POST",
+				body: {
+					index: index,
+					locale: this.locale(),
+					attribute_locale: locale,
+					key: this.key,
+					definition: this.definition,
+					options: this.options,
+					content_id: this.content_id,
+					content_type: this.content_type,
+					object_ids: ids,
+					duplicated_content: type === "split_view",
+					translate: translate,
+				},
+			},
+		);
 
 		promise
 			.then(this.insertNewElements.bind(this, ids))
