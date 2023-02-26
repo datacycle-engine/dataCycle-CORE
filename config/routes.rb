@@ -86,7 +86,7 @@ DataCycleCore::Engine.routes.draw do
         get 'history/:history_id', action: :history, on: :member, as: :history
         post 'history/:history_id/restore_version', action: :restore_history_version, on: :member, as: :restore_history_version
         get 'external/:external_system_id/:external_key/edit', action: 'edit_by_external_key', on: :collection
-        get :load_more_linked_objects, on: :member
+        post :load_more_linked_objects, on: :member
         get :load_more_related, on: :member
         get :load_more_duplicates, on: :member
         get 'download/(:serialize_format)', on: :member, as: 'download', to: '/data_cycle_core/downloads#download_thing'
@@ -100,7 +100,7 @@ DataCycleCore::Engine.routes.draw do
         post :validate, on: :collection
         get :compare, on: :collection
         get :select_search, on: :collection
-        get :render_embedded_object, on: :member
+        post :render_embedded_object, on: :member
         post :bulk_create, on: :collection
         delete :remove_locks, on: :member
         get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'

@@ -319,31 +319,47 @@ class DashboardFilter {
 		);
 
 		nextElement.insertAdjacentHTML("beforebegin", data?.html);
-
-		const newElement = document.querySelector(
-			`.advanced-filter[data-id="${data?.identifier}"]`,
-		);
-		newElement.classList.add("hidden");
-		newElement.clientHeight; // trigger reflow for following transition
-		newElement.addEventListener(
-			"transitionend",
-			() => newElement.classList.remove("transitioning"),
-			{ once: true },
-		);
-		newElement.classList.add("transitioning");
-		newElement.classList.remove("hidden");
+		this.slideInAdvancedFilter(nextElement.previousElementSibling);
 
 		addAdvancedFilterSelect.dataset.index += 1;
+	}
+	slideInAdvancedFilter(element) {
+		element.classList.add("hidden");
+		element.clientHeight; // trigger reflow for following transition
+		element.addEventListener(
+			"transitionend",
+			() => element.classList.remove("transitioning"),
+			{ once: true },
+		);
+		element.classList.add("transitioning");
+		element.classList.remove("hidden");
+	}
+	slideOutAdvancedFilter(element) {
+		element.classList.add("transitioning-out");
+		element.clientHeight; // trigger reflow for following transition
+		element.addEventListener("transitionend", () => element.remove(), {
+			once: true,
+		});
+		element.classList.add("transitioned-out");
+		element.classList.remove("transitioning-out");
 	}
 	removeAdvancedFilter(event) {
 		event.preventDefault();
 		event.stopPropagation();
 
-		const target = $(event.currentTarget).data("target");
-		const $targetElem = $(`[data-id="${target}"]`);
+		const target = event.currentTarget.dataset.target;
+		const form = this.$searchForm[0];
+		form.querySelector(`.tag-group[data-id="${target}"]`)?.remove();
 
-		$targetElem.filter(".search").find(":text").val(null).trigger("change");
-		$targetElem.filter(":not(.search)").remove();
+		const filter = form.querySelector(`[data-id="${target}"]:not(.tag-group)`);
+
+		if (filter.classList.contains("search")) {
+			const textField = filter.querySelector('input[type="text"]');
+			textField.value = null;
+			textField.dispatchEvent(new Event("change"));
+		} else if (filter.classList.contains("advanced-filter"))
+			this.slideOutAdvancedFilter(filter);
+		else filter.remove();
 	}
 	focusAdvancedFilter(event) {
 		event.preventDefault();

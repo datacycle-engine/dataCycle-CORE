@@ -152,8 +152,19 @@ $filter-border: #aaa;
         &.transitioning {
           transition: height 0.2s, margin 0.2s;
           height: 3.2rem;
-          margin: 1rem 0;
           overflow: hidden;
+        }
+
+        &.transitioning-out {
+          max-height: 1000px;
+          overflow: hidden;
+        }
+
+        &.transitioned-out {
+          transition: max-height 0.2s cubic-bezier(0, 0.9, 0, 1), margin 0.2s;
+          margin: 0;
+          overflow: hidden;
+          max-height: 0;
         }
 
         input[type="date"],

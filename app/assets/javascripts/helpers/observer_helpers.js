@@ -1,4 +1,4 @@
-export default {
+const ObserverHelpers = {
 	newItemsConfig: {
 		attributes: false,
 		characterData: false,
@@ -25,9 +25,13 @@ export default {
 		attributeOldValue: true,
 		characterDataOldValue: false,
 	},
-	checkForConditionRecursive: function (node, selector, callback) {
+	checkForConditionRecursive(node, selector, callback) {
 		if (node.querySelector(selector))
 			for (const element of node.querySelectorAll(selector)) callback(element);
 		if (node.matches(selector)) callback(node);
 	},
 };
+
+Object.freeze(ObserverHelpers);
+
+export default ObserverHelpers;
