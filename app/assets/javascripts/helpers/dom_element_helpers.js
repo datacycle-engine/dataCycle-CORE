@@ -139,8 +139,10 @@ const DomElementHelpers = {
 	fadeAndRemove(elem) {
 		if (!(elem && elem instanceof Element)) return;
 
-		elem.addEventListener("transitionend", () => elem.remove());
-		elem.classList.add("dcjs-fadeout");
+		if (this.isVisible(elem)) {
+			elem.addEventListener("transitionend", () => elem.remove());
+			elem.classList.add("dcjs-fadeout");
+		} else elem.remove();
 	},
 };
 

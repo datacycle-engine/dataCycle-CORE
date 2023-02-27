@@ -62,7 +62,7 @@ module DataCycleCore
           @objects = DataCycleCore::Thing.where(id: permitted_params[:ids])
         end
 
-        render json: { html: render_to_string(formats: [:html], layout: false).squish, ids: @objects.pluck(:id) }
+        render json: { html: render_to_string(formats: [:html], layout: false).strip, ids: @objects.pluck(:id) }
       end
     end
 
@@ -76,8 +76,8 @@ module DataCycleCore
 
       I18n.with_locale(params[:locale]) do
         render json: {
-          html: render_to_string('data_cycle_core/contents/create', formats: [:html], layout: false).squish,
-          detail_html: render_to_string(formats: [:html], layout: false, action: 'details', locals: { :@object => @objects.first }).squish,
+          html: render_to_string('data_cycle_core/contents/create', formats: [:html], layout: false).strip,
+          detail_html: render_to_string(formats: [:html], layout: false, action: 'details', locals: { :@object => @objects.first }).strip,
           ids: @objects.pluck(:id)
         }
       end
@@ -89,7 +89,7 @@ module DataCycleCore
       I18n.with_locale(permitted_params[:locale]) do
         @object = DataCycleCore::Thing.find(permitted_params[:id])
 
-        render json: { detail_html: render_to_string(formats: [:html], layout: false).squish }
+        render json: { detail_html: render_to_string(formats: [:html], layout: false).strip }
       end
     end
 
