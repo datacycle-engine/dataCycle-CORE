@@ -4,8 +4,6 @@ import CheckBoxSelector from "../components/check_box_selector";
 import RadioButtonSelector from "../components/radio_button_selector";
 
 export default function () {
-	document.querySelector(":has(+ p)");
-
 	// FIXME: remove when https://github.com/select2/select2/issues/5993 is resolved
 	$(document).on("select2:open", (e) => {
 		const searchField = e.target.parentNode.querySelector(
