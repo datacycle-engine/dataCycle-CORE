@@ -470,6 +470,8 @@ module DataCycleCore
   end
 
   class Schedule < ApplicationRecord
+    attribute :duration, :interval
+
     require 'dotiw'
 
     include ActionView::Helpers::DateHelper
@@ -477,7 +479,10 @@ module DataCycleCore
     include ActionView::Helpers::NumberHelper
 
     class History < ApplicationRecord
+      attribute :duration, :interval
+
       include ScheduleHandler
+
       belongs_to :thing_history, class_name: 'DataCycleCore::Thing::History'
       belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
       after_find :load_schedule_object
