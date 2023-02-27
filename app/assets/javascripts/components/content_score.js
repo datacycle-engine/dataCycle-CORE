@@ -42,7 +42,7 @@ class ContentScore {
 		if (this.contentId) formData.set("id", this.contentId);
 		if (this.locale) formData.set("locale", this.locale);
 
-		DataCycle.httpRequest(url, { method: "POST" })
+		DataCycle.httpRequest(url, { method: "POST", body: formData })
 			.then(this.setNewScore.bind(this))
 			.catch((_e) => {
 				this.container.classList.remove("medium-score", "high-score");
