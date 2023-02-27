@@ -99,16 +99,13 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
 		});
 	}
 	async bboxForCurrentStoredFilter() {
-		const params = {
-			bbox: true,
-		};
-
-		let data = await DataCycle.httpRequest({
-			url: `/mvt/v1/endpoints/${this.currentEndpointId}`,
-			method: "POST",
-			data: params,
-			dataType: "json",
-		});
+		let data = await DataCycle.httpRequest(
+			`/mvt/v1/endpoints/${this.currentEndpointId}`,
+			{
+				method: "POST",
+				body: { bbox: true },
+			},
+		);
 		return data;
 	}
 	getColorMatchHexExpression() {

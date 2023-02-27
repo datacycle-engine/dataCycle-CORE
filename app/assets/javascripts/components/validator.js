@@ -388,15 +388,9 @@ class Validator {
 		if (template) formData.set("template", template);
 		if (locale) formData.set("locale", locale);
 
-		const promise = DataCycle.httpRequest({
+		const promise = DataCycle.httpRequest(url, {
 			method: "POST",
-			url: url,
-			enctype: "multipart/form-data",
-			data: formData,
-			dataType: "json",
-			processData: false,
-			contentType: false,
-			cache: false,
+			body: formData,
 		});
 
 		promise.then(async (data) => {

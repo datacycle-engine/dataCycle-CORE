@@ -1,5 +1,3 @@
-import merge from "lodash/merge";
-
 class DataCycle {
 	constructor(config = {}) {
 		if (DataCycle._instance) return DataCycle._instance;
@@ -90,36 +88,59 @@ class DataCycle {
 
 		return resultParts.join("/");
 	}
-	async httpRequest(options = {}) {
-		if (this.config.EnginePath && !options.url.includes(this.config.EnginePath))
-			options.url = this.joinPath(this.config.EnginePath, options.url);
-
-		const defaultOptions = {
-			headers: {
-				"X-CSRF-Token": document.getElementsByName("csrf-token")[0].content,
-			},
-			retries: 1,
-			retryCount: 3,
+	wait(delay) {
+		return new Promise((resolve) => setTimeout(resolve, delay));
+	}
+	defaultHttpHeaders() {
+		return {
+			"X-CSRF-Token": document.getElementsByName("csrf-token")[0].content,
+			Accept: "application/json",
 		};
+	}
+	mergeHttpOptions(url, options) {
+		if (!options.method) options.method = "GET";
+		else options.method = options.method.toUpperCase();
 
-		const mergedOptions = merge(defaultOptions, options);
-		let response;
+		options.headers = Object.assign(this.defaultHttpHeaders(), options.headers);
 
-		try {
-			response = await $.ajax(mergedOptions);
-		} catch (e) {
-			if (
-				!this.config.retryableHttpCodes.includes(e.status) ||
-				mergedOptions.retries >= mergedOptions.retryCount
-			)
-				throw e;
+		if (this.config.EnginePath && !url.includes(this.config.EnginePath))
+			url = this.joinPath(this.config.EnginePath, url);
 
-			mergedOptions.retries++;
+		if (!(options.body instanceof FormData || options.headers["Content-Type"]))
+			options.headers["Content-Type"] = "application/json";
 
-			response = await this.httpRequest(mergedOptions);
-		}
+		if (options.method === "GET" && options.body) {
+			url += `?${new URLSearchParams(options.body).toString()}`;
+			options.body = undefined;
+		} else if (
+			options.headers["Content-Type"] === "application/json" &&
+			options.body &&
+			typeof options.body !== "string" &&
+			!(options.body instanceof String)
+		)
+			options.body = JSON.stringify(options.body);
 
-		return response;
+		if (
+			(options.method !== "GET" && options.method !== "POST") ||
+			options.body instanceof FormData
+		)
+			options.cache = "no-cache";
+
+		return [url, options];
+	}
+	httpRequest(url, options = {}, retries = 3) {
+		[url, options] = this.mergeHttpOptions(url, options);
+
+		return fetch(url, options).then((res) => {
+			if (res.ok) return res.json();
+
+			if (retries > 0)
+				return this.wait(1000 * (3 / retries)).then(() =>
+					this.httpRequest(url, options, retries - 1),
+				);
+
+			throw new Error(res.status);
+		});
 	}
 	_prepareElement(element, innerHTML = undefined) {
 		if (element instanceof $) element = element[0];

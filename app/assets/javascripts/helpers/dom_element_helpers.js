@@ -28,24 +28,10 @@ const DomElementHelpers = {
 			return value;
 		}
 	},
-	elementDepth(elem) {
-		let depth = 0;
-
-		while (elem) {
-			depth++;
-			elem = elem.parentNode;
-		}
-
-		return depth;
-	},
 	randomId(prefix = "") {
 		return `${prefix}_${Math.random().toString(36).slice(2)}`;
 	},
-	renderImportConfirmationModal: async function (
-		field,
-		sourceId,
-		confirmationCallback,
-	) {
+	async renderImportConfirmationModal(field, sourceId, confirmationCallback) {
 		const container = field.closest(".form-element");
 		const label = container.getElementsByClassName("attribute-label-text")[0];
 		const labelText = label?.textContent;

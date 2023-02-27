@@ -257,13 +257,31 @@ class DashboardFilter {
 		this.addTagGroup(params);
 	}
 	addTagGroup(params) {
-		return DataCycle.httpRequest({
-			url: this.addTagGroupPath,
-			method: "GET",
-			data: params,
-			dataType: "script",
-			contentType: "application/json",
-		});
+		DataCycle.httpRequest(this.addTagGroupPath, {
+			method: "POST",
+			body: params,
+		})
+			.then(this.renderTagGroupHtml.bind(this))
+			.catch((error) => console.error(error));
+	}
+	renderTagGroupHtml(data) {
+		const html = data?.html;
+		const identifier = data?.identifier;
+		const tagGroup = document.querySelector(
+			`.filters .tag-group[data-id="${identifier}"]`,
+		);
+
+		if (!html && tagGroup) {
+			tagGroup.remove();
+		} else if (tagGroup) tagGroup.outerHTML = html;
+		else if (identifier === "language")
+			document
+				.querySelector(".filters .languagetags")
+				?.insertAdjacentHTML("beforeend", html);
+		else
+			document
+				.querySelector(".filters .filtertags .filter-groups")
+				?.insertAdjacentHTML("beforeend", html);
 	}
 	addAdvancedFilter(event) {
 		event.preventDefault();
@@ -273,32 +291,71 @@ class DashboardFilter {
 
 		this.$addAdvancedFilterSelect.prop("disabled", true);
 
-		DataCycle.httpRequest({
-			url: this.addFilterPath,
-			method: "GET",
-			data: {
+		DataCycle.httpRequest(this.addFilterPath, {
+			method: "POST",
+			body: {
 				t: this.$addAdvancedFilterSelect.val(),
 				n: this.$addAdvancedFilterSelect.find(":selected").data("name"),
 				q: this.$addAdvancedFilterSelect.find(":selected").data("advancedtype"),
 				m: this.$addAdvancedFilterSelect.data("method"),
 			},
-			dataType: "script",
-			contentType: "application/json",
-		}).finally(() => {
-			this.$addAdvancedFilterSelect.prop("disabled", false);
-		});
+		})
+			.then(this.renderAdvancedFilterHtml.bind(this))
+			.catch((error) => console.error(error))
+			.finally(() => {
+				this.$addAdvancedFilterSelect.prop("disabled", false);
+			});
 
 		this.$addAdvancedFilterSelect.val(null).trigger("change");
+	}
+	renderAdvancedFilterHtml(data) {
+		const addAdvancedFilterSelect = this.$addAdvancedFilterSelect[0];
+		const nextElement = addAdvancedFilterSelect.closest(
+			".add-advanced-filter-container",
+		);
+
+		nextElement.insertAdjacentHTML("beforebegin", data?.html);
+		this.slideInAdvancedFilter(nextElement.previousElementSibling);
+
+		addAdvancedFilterSelect.dataset.index += 1;
+	}
+	slideInAdvancedFilter(element) {
+		element.classList.add("hidden");
+		element.clientHeight; // trigger reflow for following transition
+		element.addEventListener(
+			"transitionend",
+			() => element.classList.remove("transitioning"),
+			{ once: true },
+		);
+		element.classList.add("transitioning");
+		element.classList.remove("hidden");
+	}
+	slideOutAdvancedFilter(element) {
+		element.classList.add("transitioning-out");
+		element.clientHeight; // trigger reflow for following transition
+		element.addEventListener("transitionend", () => element.remove(), {
+			once: true,
+		});
+		element.classList.add("transitioned-out");
+		element.classList.remove("transitioning-out");
 	}
 	removeAdvancedFilter(event) {
 		event.preventDefault();
 		event.stopPropagation();
 
-		const target = $(event.currentTarget).data("target");
-		const $targetElem = $(`[data-id="${target}"]`);
+		const target = event.currentTarget.dataset.target;
+		const form = this.$searchForm[0];
+		form.querySelector(`.tag-group[data-id="${target}"]`)?.remove();
 
-		$targetElem.filter(".search").find(":text").val(null).trigger("change");
-		$targetElem.filter(":not(.search)").remove();
+		const filter = form.querySelector(`[data-id="${target}"]:not(.tag-group)`);
+
+		if (filter.classList.contains("search")) {
+			const textField = filter.querySelector('input[type="text"]');
+			textField.value = null;
+			textField.dispatchEvent(new Event("change"));
+		} else if (filter.classList.contains("advanced-filter"))
+			this.slideOutAdvancedFilter(filter);
+		else filter.remove();
 	}
 	focusAdvancedFilter(event) {
 		event.preventDefault();

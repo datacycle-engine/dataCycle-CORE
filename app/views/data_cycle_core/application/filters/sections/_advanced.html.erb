@@ -12,7 +12,7 @@
           value: advanced_filter['v'] }) %>
   <% end %>
 
-  <% if can?(:advanced_filter, :backend) %>
+  <% if can?(:advanced_filter, config[:view_type]&.to_sym) %>
     <div class="add-advanced-filter-container">
       <%= select_tag :add_advanced_filter,
                       grouped_options_for_select(DataCycleCore::Feature::AdvancedFilter.available_filters(current_user, config[:view_type])),

@@ -1,0 +1,11 @@
+<%= render_advanced_filter_tags_partial({
+      filter_type: filter_params['t'],
+      title: filter_params['n'],
+      key: filter_params['n'].presence&.underscore_blanks,
+      target: filter_params['identifier'],
+      value: filter_params['v'] || [],
+      filter_advanced_type: filter_params['q'],
+      filter_method: filter_params['m'] || 'i',
+      container_classes: filter_params['c'] == 'a' ? 'advanced-tags' : nil,
+      buttons: filter_params['c'] == 'a' ? 'a' : 'd'
+    }) if filter_params['v'].present? %>

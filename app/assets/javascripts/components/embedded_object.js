@@ -9,109 +9,101 @@ import DomElementHelpers from "../helpers/dom_element_helpers";
 class EmbeddedObject {
 	constructor(selector) {
 		this.element = selector;
-		this.addButton = this.element
+		this.parent = this.element.parentElement;
+		this.$element = $(this.element);
+		this.addButton = this.$element
 			.siblings(".embedded-editor-header")
 			.find("> .add-content-object")
 			.first();
 		this.page = 1;
-		this.id = this.element.prop("id");
-		this.key = this.element.data("key");
-		this.label = this.element.data("label");
-		this.definition = this.element.data("definition");
-		this.options = this.element.data("options");
-		this.max = this.element.data("max") || 0;
-		this.min = this.element.data("min") || 0;
+		this.id = this.$element.prop("id");
+		this.key = this.$element.data("key");
+		this.label = this.$element.data("label");
+		this.definition = this.$element.data("definition");
+		this.options = this.$element.data("options");
+		this.max = this.$element.data("max") || 0;
+		this.min = this.$element.data("min") || 0;
 		this.write =
-			this.element.data("write") !== undefined
-				? this.element.data("write")
+			this.$element.data("write") !== undefined
+				? this.$element.data("write")
 				: true;
-		this.total = this.element.data("total") || 0;
+		this.total = this.$element.data("total") || 0;
 		this.index = this.total;
-		this.ids = this.element.data("ids") || [];
-		this.per = this.element.data("per") || 5;
-		this.url = this.element.data("url");
+		this.ids = this.$element.data("ids") || [];
+		this.per = this.$element.data("per") || 5;
+		this.url = this.$element.data("url");
 		this.sortable;
-		this.content_id = this.element.data("content-id");
-		this.content_type = this.element.data("content-type");
+		this.content_id = this.$element.data("content-id");
+		this.content_type = this.$element.data("content-type");
 		this.locationArray = location.hash.substr(1).split("+").filter(Boolean);
 		this.eventHandlers = {
-			reInit: this.addEventHandlers.bind(this),
 			import: this.import.bind(this),
 			addItem: this.addNewItem.bind(this),
 			removeItem: this.handleRemoveEvent.bind(this),
 			scrollToLocationHash: this.scrollToLocationHash.bind(this),
 		};
 		this.addedItemsObserver = new MutationObserver(
-			this._checkForAddedNodes.bind(this),
+			this.checkForAddedNodes.bind(this),
 		);
-		this.addedItemsObserverConfig = {
-			attributes: false,
-			characterData: false,
-			subtree: true,
-			childList: true,
-			attributeOldValue: false,
-			characterDataOldValue: false,
-		};
 
 		this.setup();
 	}
 	setup() {
-		this.element[0].classList.add("dcjs-embedded-object");
+		this.element.classList.add("dcjs-embedded-object");
 
-		this.setupSwappableButtons();
-		this.sortable = new Sortable(this.element[0], {
+		this.sortable = new Sortable(this.element, {
 			forceAutoScrollFallback: true,
 			scrollSpeed: 50,
 			group: this.id,
 			handle: ".draggable-handle",
 			draggable: `.content-object-item.draggable_${this.id}`,
 		});
-		if (
-			this.write &&
-			(this.max === 0 ||
-				this.element.children(".content-object-item").length < this.max)
-		)
-			this.addButton.show();
-		this.element
-			.off("reinit-event-handlers", this.eventHandlers.reInit)
-			.on("reinit-event-handlers", this.eventHandlers.reInit);
 
-		this.addedItemsObserver.observe(
-			this.element[0],
-			this.addedItemsObserverConfig,
-		);
-
-		this.element
+		this.$element
 			.off("dc:import:data", this.eventHandlers.import)
 			.on("dc:import:data", this.eventHandlers.import)
 			.addClass("dc-import-data");
 
 		this.addEventHandlers();
-		this._updateContainerClass();
+		this.update();
+		this.addedItemsObserver.observe(this.element, { childList: true });
 	}
-	_runAddCallbacks(node) {
-		for (const e of node.querySelectorAll(".content-object-item:not(.hidden)"))
-			this.setSwapClasses(e);
+	setupContentObjectItem(element) {
+		this.update();
+
+		element
+			.querySelector(this.selectorForRemoveContentObject())
+			?.addEventListener("click", this.eventHandlers.removeItem);
+
+		this.setupSwappableButtons(element);
+	}
+	runAddCallbacks(node) {
+		if (node.querySelector(".content-object-item:not(.hidden)"))
+			for (const e of node.querySelectorAll(
+				".content-object-item:not(.hidden)",
+			))
+				this.setupContentObjectItem(e);
+
 		if (node.matches(".content-object-item:not(.hidden)"))
-			this.setSwapClasses(node);
+			this.setupContentObjectItem(node);
 	}
-	_checkForAddedNodes(mutations) {
+	checkForAddedNodes(mutations) {
 		for (const mutation of mutations) {
 			if (mutation.type !== "childList") continue;
 
 			for (const addedNode of mutation.addedNodes) {
 				if (addedNode.nodeType === Node.ELEMENT_NODE)
-					this._runAddCallbacks(addedNode);
+					this.runAddCallbacks(addedNode);
 			}
 		}
 	}
 	locale() {
-		return this.element.data("locale") || "de";
+		return this.$element.data("locale") || "de";
 	}
 	async import(_event, data) {
 		let newItems = difference(
 			data.value,
-			this.element
+			this.$element
 				.children(".content-object-item")
 				.map((_index, elem) => $(elem).data("id"))
 				.get(),
@@ -120,7 +112,7 @@ class EmbeddedObject {
 		if (
 			this.write &&
 			(this.max === 0 ||
-				this.element.children(".content-object-item").length < this.max) &&
+				this.$element.children(".content-object-item").length < this.max) &&
 			newItems.length > 0
 		) {
 			await this.renderEmbeddedObjects(
@@ -148,128 +140,129 @@ class EmbeddedObject {
 			});
 		}
 	}
+	selectorForEmbeddedHeader(selector) {
+		return `:scope > .embedded-header > ${selector}, :scope > .form-element > .editor-block > .embedded-header > ${selector}`;
+	}
 	setSwapClasses(element) {
 		if (element instanceof $) element = element[0];
 
-		const swapPrev = element.querySelector(
-			":scope > .embedded-header > .swap-button.swap-prev",
-		);
-		if (swapPrev)
-			swapPrev.classList.toggle("disabled", !element.previousElementSibling);
+		element
+			.querySelector(this.selectorForEmbeddedHeader(".swap-button.swap-prev"))
+			?.classList.toggle("disabled", !element.previousElementSibling);
 
-		const swapNext = element.querySelector(
-			":scope > .embedded-header > .swap-button.swap-next",
-		);
-		if (swapNext)
-			swapNext.classList.toggle("disabled", !element.nextElementSibling);
+		element
+			.querySelector(this.selectorForEmbeddedHeader(".swap-button.swap-next"))
+			?.classList.toggle("disabled", !element.nextElementSibling);
 	}
-	setupSwappableButtons() {
-		this.element.on(
-			"click",
-			`> .content-object-item.draggable_${this.id} > .embedded-header > .swap-button:not(.disabled)`,
-			(event) => {
+	setupSwappableButtons(element) {
+		if (
+			!(
+				element.matches(`.draggable_${this.id}`) &&
+				element.querySelector(this.selectorForEmbeddedHeader(".swap-button"))
+			)
+		)
+			return;
+
+		for (const button of element.querySelectorAll(
+			this.selectorForEmbeddedHeader(".swap-button"),
+		))
+			button.addEventListener("click", (event) => {
 				event.preventDefault();
 				event.stopImmediatePropagation();
 
-				if ($(event.currentTarget).hasClass("has-tip"))
-					$(event.currentTarget).foundation("hide");
+				const currentTarget = event.currentTarget;
 
-				let currentObject = $(event.currentTarget).closest(
-					".content-object-item",
-				);
-				let switchObject;
+				if (currentTarget.classList.contains("disabled")) return;
 
-				if ($(event.currentTarget).hasClass("swap-prev")) {
-					switchObject = currentObject.prev(".content-object-item");
-					switchObject.before(currentObject);
-				} else if ($(event.currentTarget).hasClass("swap-next")) {
-					switchObject = currentObject.next(".content-object-item");
-					switchObject.after(currentObject);
-				}
+				const currentObject = currentTarget.closest(".content-object-item");
 
-				DomElementHelpers.scrollIntoViewWithStickyOffset(currentObject.get(0));
+				if (currentTarget.classList.contains("swap-prev"))
+					currentObject.previousElementSibling?.before(currentObject);
+				else if (currentTarget.classList.contains("swap-next"))
+					currentObject.nextElementSibling?.after(currentObject);
 
-				this.setSwapClasses(currentObject);
-				this.setSwapClasses(switchObject);
-			},
-		);
+				this.update();
 
-		this.element
-			.children(".content-object-item")
-			.each((_, elem) => this.setSwapClasses(elem));
+				DomElementHelpers.scrollIntoViewWithStickyOffset(currentObject);
+			});
 	}
 	renderEmbeddedObjects(type, ids = [], locale = null, translate = false) {
 		let index = this.index;
 		if (type === "split_view") this.index += difference(ids, this.ids).length;
 		else if (type === "new") this.index++;
 
-		this.element.parent().addClass("loading-embedded");
+		this.parent.classList.add("loading-embedded");
 
-		const promise = DataCycle.httpRequest({
-			url: `${this.url}/render_embedded_object`,
-			method: "GET",
-			dataType: "script",
-			contentType: "application/json",
-			data: {
-				index: index,
-				locale: this.locale(),
-				attribute_locale: locale,
-				key: this.key,
-				definition: this.definition,
-				options: this.options,
-				content_id: this.content_id,
-				content_type: this.content_type,
-				object_ids: ids,
-				duplicated_content: type === "split_view",
-				translate: translate,
+		const promise = DataCycle.httpRequest(
+			`${this.url}/render_embedded_object`,
+			{
+				method: "POST",
+				body: {
+					index: index,
+					locale: this.locale(),
+					attribute_locale: locale,
+					key: this.key,
+					definition: this.definition,
+					options: this.options,
+					content_id: this.content_id,
+					content_type: this.content_type,
+					object_ids: ids,
+					duplicated_content: type === "split_view",
+					translate: translate,
+				},
 			},
-		});
+		);
 
 		promise
-			.then((_data) => {
-				if (ids.length > 0) this.ids = union(this.ids, ids);
-				this.update();
-				this.addEventHandlers();
-
-				DomElementHelpers.scrollIntoViewWithStickyOffset(
-					this.element[0].querySelector(
-						":scope > .content-object-item:last-of-type",
-					),
-				);
-			})
-			.catch(async (error) => {
-				if (translate)
-					CalloutHelpers.show(
-						await I18n.translate("frontend.split_view.translate_error", {
-							label: this.label,
-						}),
-						"alert",
-					);
-				else console.error(error);
-			})
-			.finally(() => {
-				this.element.parent().removeClass("loading-embedded");
-			});
+			.then(this.insertNewElements.bind(this, ids))
+			.catch(this.renderEmbeddedError.bind(this, translate))
+			.finally(() => this.parent.classList.remove("loading-embedded"));
 
 		return promise;
 	}
-	findRemoveButton(element) {
-		return $(element).find(
-			"> .removeContentObject, > .form-element > .editor-block > .removeContentObject",
+	insertNewElements(ids, data) {
+		const loadMore = this.element.querySelector(
+			":scope > .load-more-linked-contents",
 		);
+
+		if (loadMore) loadMore.insertAdjacentHTML("beforebegin", data?.html);
+		else this.element.insertAdjacentHTML("beforeend", data?.html);
+
+		if (ids.length) this.ids = union(this.ids, ids);
+
+		DomElementHelpers.scrollIntoViewWithStickyOffset(
+			this.element.querySelector(":scope > .content-object-item:last-of-type"),
+		);
+	}
+	async renderEmbeddedError(translate, error) {
+		if (translate)
+			CalloutHelpers.show(
+				await I18n.translate("frontend.split_view.translate_error", {
+					label: this.label,
+				}),
+				"alert",
+			);
+		else console.error(error);
+	}
+	selectorForRemoveContentObject(parent = "") {
+		return `:scope ${parent} > .removeContentObject, :scope ${parent} > .form-element > .editor-block > .removeContentObject`;
 	}
 	addEventHandlers() {
 		this.addButton
 			.off("click", this.eventHandlers.addItem)
 			.on("click", this.eventHandlers.addItem);
 
-		this.element.children(".content-object-item").each((_index, element) => {
-			this.findRemoveButton(element)
-				.off("click", this.eventHandlers.removeItem)
-				.on("click", this.eventHandlers.removeItem);
-		});
+		if (
+			this.element.querySelector(
+				this.selectorForRemoveContentObject("> .content-object-item"),
+			)
+		)
+			for (const button of this.element.querySelectorAll(
+				this.selectorForRemoveContentObject("> .content-object-item"),
+			))
+				button.addEventListener("click", this.eventHandlers.removeItem);
 
-		this.element
+		this.$element
 			.off("init.zf.accordion", this.eventHandlers.scrollToLocationHash)
 			.on("init.zf.accordion", this.eventHandlers.scrollToLocationHash);
 	}
@@ -279,7 +272,7 @@ class EmbeddedObject {
 
 		await this.renderEmbeddedObjects("new");
 
-		this.element.trigger("change");
+		this.$element.trigger("change");
 	}
 	handleRemoveEvent(event) {
 		event.preventDefault();
@@ -298,11 +291,11 @@ class EmbeddedObject {
 		} else this.removeObject(element);
 	}
 	removeObject(element) {
-		element.trigger("dc:html:remove");
-
 		let id = element.data("id");
 		if (id !== undefined) {
-			this.element.find(`input:hidden[value="${id}"]`).remove();
+			this.element
+				.querySelector(`input[type="hidden"][value="${id}"]`)
+				?.remove();
 			this.ids = this.ids.filter((x) => x !== id);
 		}
 
@@ -310,48 +303,51 @@ class EmbeddedObject {
 
 		this.update();
 
-		this.element.trigger("change");
+		this.$element.trigger("change");
 	}
 	update() {
-		if (
-			this.max !== 0 &&
-			this.element.children(".content-object-item").length >= this.max
-		) {
-			this.addButton.hide();
-		} else if (this.write) {
-			this.addButton.show();
-		}
-		if (
-			this.min !== 0 &&
-			this.element.children(".content-object-item").length <= this.min
-		) {
-			this.findRemoveButton(
-				this.element.children(".content-object-item"),
-			).hide();
-		} else if (this.write) {
-			this.findRemoveButton(
-				this.element.children(".content-object-item"),
-			).show();
-		}
-		if (this.element.children(".content-object-item").length === 0) {
-			this.element.append(
-				`<input type="hidden" value="" id="${this.id}_default" name="${this.key}[]">`,
-			);
-		} else {
-			this.element.find(`input[type=hidden]#${this.id}_default`).remove();
-		}
+		const contentObjectItems = this.element.querySelectorAll(
+			":scope > .content-object-item",
+		);
+		const removeButtons = this.element.querySelectorAll(
+			this.selectorForRemoveContentObject("> .content-object-item"),
+		);
 
-		this.element
-			.children(".content-object-item")
-			.each((_, elem) => this.setSwapClasses(elem));
-		this._updateContainerClass();
+		if (this.max && contentObjectItems.length >= this.max)
+			this.addButton.hide();
+		else if (this.write) this.addButton.show();
+
+		if (this.min && contentObjectItems.length <= this.min)
+			for (const button of removeButtons) button.style.display = "none";
+		else if (this.write)
+			for (const button of removeButtons)
+				button.style.removeProperty("display");
+
+		if (contentObjectItems.length === 0) {
+			if (
+				!this.element.querySelector(
+					`:scope > input[type=hidden]#${this.id}_default`,
+				)
+			)
+				this.element.insertAdjacentHTML(
+					"beforeend",
+					`<input type="hidden" value="" id="${this.id}_default" name="${this.key}[]">`,
+				);
+		} else
+			this.element
+				.querySelector(`:scope > input[type=hidden]#${this.id}_default`)
+				?.remove();
+
+		for (const child of contentObjectItems) this.setSwapClasses(child);
+
+		this.updateContainerClass();
 	}
-	_updateContainerClass() {
-		this.element[0]
+	updateContainerClass() {
+		this.element
 			.closest(".form-element.embedded_object")
 			.classList.toggle(
 				"has-items",
-				this.element.children(".content-object-item").length > 0,
+				this.element.querySelector(":scope > .content-object-item"),
 			);
 	}
 	scrollToLocationHash(event) {
@@ -363,11 +359,9 @@ class EmbeddedObject {
 
 		if (!embeddedId) return;
 
-		let embeddedObject = this.element
+		let embeddedObject = this.$element
 			.find(`.content-object-item[data-id="${embeddedId}"]`)
 			.first();
-
-		let topOffset = embeddedObject.offset().top - 60;
 
 		if (embeddedObject.hasClass("hidden")) this.loadAllContents(embeddedObject);
 		else if (
@@ -378,7 +372,7 @@ class EmbeddedObject {
 				.closest("[data-accordion]")
 				.foundation("down", embeddedObject.find("> .accordion-content"));
 
-		this.element
+		this.$element
 			.find(
 				"> .accordion-item:not(.is-active) > .accordion-content.remote-render",
 			)
@@ -389,7 +383,7 @@ class EmbeddedObject {
 			});
 
 		window.requestAnimationFrame(() => {
-			window.scrollTo({ top: topOffset, behavior: "smooth" });
+			DomElementHelpers.scrollIntoViewWithStickyOffset(embeddedObject[0]);
 		});
 	}
 	loadAllContents(embeddedObject) {
@@ -411,16 +405,12 @@ class EmbeddedObject {
 			}
 		});
 
-		observer.observe(this.element[0], {
-			attributes: false,
-			characterData: false,
+		observer.observe(this.element, {
 			subtree: true,
 			childList: true,
-			attributeOldValue: false,
-			characterDataOldValue: false,
 		});
 
-		this.element.find("> .load-more-linked-contents").get(0).click();
+		this.element.querySelector(":scope > .load-more-linked-contents")?.click();
 	}
 }
 

@@ -186,11 +186,9 @@ class ClassificationDragAndDrop {
 		);
 	}
 	sendRequest(data, type) {
-		return DataCycle.httpRequest({
-			url: `/classifications/${type}`,
-			method: "patch",
-			dataType: "json",
-			data: data,
+		return DataCycle.httpRequest(`/classifications/${type}`, {
+			method: "PATCH",
+			body: data,
 		});
 	}
 	checkNewButtonPosition(event) {

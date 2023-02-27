@@ -253,15 +253,9 @@ class Chart {
 
 		this.datasets = [];
 
-		const data = await DataCycle.httpRequest({
+		const data = await DataCycle.httpRequest(url, {
 			method: "POST",
-			url: url,
-			data: formData,
-			enctype: "multipart/form-data",
-			dataType: "json",
-			processData: false,
-			contentType: false,
-			cache: false,
+			body: formData,
 		}).catch(() => null);
 
 		await this.parseAndUpdateData(data);

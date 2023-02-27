@@ -55,15 +55,12 @@ const QuillCustomHandlers = {
 			'<i class="fa fa-spinner fa-spin fa-fw"></i>',
 		);
 
-		DataCycle.httpRequest({
-			url: "/things/translate_text",
+		DataCycle.httpRequest("/things/translate_text", {
 			method: "POST",
-			data: {
+			body: {
 				text: typeof value === "string" ? value.trim() : value,
 				target_locale: this.quill.root.parentElement.dataset.locale,
 			},
-			dataType: "json",
-			contentType: "application/x-www-form-urlencoded",
 		})
 			.then(
 				async ({ text, detected_source_language: detectedSourceLocale }) => {

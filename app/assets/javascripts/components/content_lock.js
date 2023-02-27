@@ -58,10 +58,7 @@ class ContentLock {
 		if (!this.editable) this.checkInitialLockState();
 	}
 	checkInitialLockState() {
-		const promise = DataCycle.httpRequest({
-			url: this.checkLockPath,
-			dataType: "json",
-		});
+		const promise = DataCycle.httpRequest(this.checkLockPath);
 
 		promise.then((data) => {
 			if (data !== undefined) this.updateLocks(data.locks, data.texts);
@@ -242,9 +239,8 @@ class ContentLock {
 	}
 	triggerRenewLock() {
 		this.removeConfirmationModal(null);
-		DataCycle.httpRequest({
-			url: this.lockPath,
-			data: {
+		DataCycle.httpRequest(this.lockPath, {
+			body: {
 				token: this.token,
 			},
 			method: "PATCH",
