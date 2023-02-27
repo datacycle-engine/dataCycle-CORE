@@ -97,6 +97,25 @@ class DataCycle {
 			Accept: "application/json",
 		};
 	}
+	flattenParamsRecursive(key, value, params = []) {
+		if (Array.isArray(value))
+			for (const v of value) this.flattenParamsRecursive(`${key}[]`, v, params);
+		else if (typeof value === "object")
+			for (const [k, v] of Object.entries(value))
+				this.flattenParamsRecursive(`${key}[${k}]`, v, params);
+		else params.push([key, value]);
+
+		return params;
+	}
+	objectToUrlSearchParams(object) {
+		const params = new URLSearchParams();
+
+		for (const [key, value] of Object.entries(object))
+			for (const [k, v] of this.flattenParamsRecursive(key, value))
+				params.append(k, v);
+
+		return params;
+	}
 	mergeHttpOptions(url, options) {
 		if (!options.method) options.method = "GET";
 		else options.method = options.method.toUpperCase();
@@ -110,7 +129,7 @@ class DataCycle {
 			options.headers["Content-Type"] = "application/json";
 
 		if (options.method === "GET" && options.body) {
-			url += `?${new URLSearchParams(options.body).toString()}`;
+			url += `?${this.objectToUrlSearchParams(options.body).toString()}`;
 			options.body = undefined;
 		} else if (
 			options.headers["Content-Type"] === "application/json" &&

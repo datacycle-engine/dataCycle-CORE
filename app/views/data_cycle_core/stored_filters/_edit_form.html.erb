@@ -1,4 +1,4 @@
-<% stored_search ||= DataCycleCore::StoredFilter.new %>
+<% stored_search = DataCycleCore::StoredFilter.new if stored_search.nil? || cannot?(:update, stored_search) %>
 
 <%= form_with(model: stored_search, namespace: SecureRandom.hex(10), local: true, url: stored_filters_path, method: :post, class: 'update-stored-search-form', data: {
   update_params: local_assigns[:update_params]
