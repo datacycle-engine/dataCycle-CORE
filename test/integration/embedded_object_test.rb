@@ -73,7 +73,7 @@ module DataCycleCore
     end
 
     test 'render new embedded object (Zeitleiste in Artikel)' do
-      get render_embedded_object_thing_path(@content), xhr: true, as: :json, params: {
+      post render_embedded_object_thing_path(@content), xhr: true, as: :json, params: {
         content_id: @content.id,
         content_type: @content.class.table_name,
         definition: @content.schema.dig('properties', 'timeline_item'),
@@ -101,7 +101,7 @@ module DataCycleCore
 
       assert timeline_item.reload
 
-      get render_embedded_object_thing_path(@content), xhr: true, as: :json, params: {
+      post render_embedded_object_thing_path(@content), xhr: true, as: :json, params: {
         content_id: @content.id,
         content_type: @content.class.table_name,
         definition: @content.schema.dig('properties', 'timeline_item'),

@@ -38,7 +38,7 @@ module DataCycleCore
 
       assert_redirected_to edit_thing_path(content)
       # assert_equal 1, content.quotation.size
-      assert_equal I18n.t(:created, scope: [:controllers, :success], data: content.template_name, locale: DataCycleCore.ui_locales.first), flash[:notice]
+      assert_equal I18n.t(:created, scope: [:controllers, :success], data: content.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
     end
 
     test 'search content by fulltext' do
