@@ -82,7 +82,7 @@ module DataCycleCore
           format.html
           format.json do
             render json: {
-              html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/publications/publication_list', locals: { contents: @contents }).squish,
+              html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/publications/publication_list', locals: { contents: @contents }).strip,
               last_page: @last_page
             }
           end

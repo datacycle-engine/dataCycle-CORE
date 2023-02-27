@@ -1,3 +1,5 @@
+import DomElementHelpers from "../helpers/dom_element_helpers";
+
 class DashboardFilter {
 	constructor(element) {
 		this.$searchForm = $(element);
@@ -321,23 +323,25 @@ class DashboardFilter {
 	}
 	slideInAdvancedFilter(element) {
 		element.classList.add("hidden");
-		element.clientHeight; // trigger reflow for following transition
-		element.addEventListener(
-			"transitionend",
-			() => element.classList.remove("transitioning"),
-			{ once: true },
-		);
-		element.classList.add("transitioning");
-		element.classList.remove("hidden");
+		if (DomElementHelpers.isVisible(element)) {
+			element.addEventListener(
+				"transitionend",
+				() => element.classList.remove("transitioning"),
+				{ once: true },
+			);
+			element.classList.add("transitioning");
+			element.classList.remove("hidden");
+		} else element.classList.remove("hidden");
 	}
 	slideOutAdvancedFilter(element) {
 		element.classList.add("transitioning-out");
-		element.clientHeight; // trigger reflow for following transition
-		element.addEventListener("transitionend", () => element.remove(), {
-			once: true,
-		});
-		element.classList.add("transitioned-out");
-		element.classList.remove("transitioning-out");
+		if (DomElementHelpers.isVisible(element)) {
+			element.addEventListener("transitionend", () => element.remove(), {
+				once: true,
+			});
+			element.classList.add("transitioned-out");
+			element.classList.remove("transitioning-out");
+		} else element.remove();
 	}
 	removeAdvancedFilter(event) {
 		event.preventDefault();
