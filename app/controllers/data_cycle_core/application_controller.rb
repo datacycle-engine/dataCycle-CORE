@@ -37,13 +37,13 @@ module DataCycleCore
     def add_filter
       identifier = SecureRandom.hex(10)
 
-      render json: { identifier: identifier, html: render_to_string(formats: [:html], layout: false, locals: { filter_params: add_filter_params, identifier: identifier }).squish }
+      render json: { identifier: identifier, html: render_to_string(formats: [:html], layout: false, locals: { filter_params: add_filter_params, identifier: identifier }).strip }
     end
 
     def add_tag_group
       filter_params = tag_group_params
 
-      render json: { identifier: filter_params['identifier'], html: render_to_string(formats: [:html], layout: false, locals: { filter_params: filter_params }).squish }
+      render json: { identifier: filter_params['identifier'], html: render_to_string(formats: [:html], layout: false, locals: { filter_params: filter_params }).strip }
     end
 
     def remote_render
@@ -55,7 +55,7 @@ module DataCycleCore
 
       render(json: { error: I18n.t(:missing_parameter, scope: [:controllers, :error], locale: helpers.active_ui_locale) }, status: :bad_request) && return if @render_function.blank? && @partial.blank?
 
-      render json: { html: render_to_string(formats: [:html], layout: false).squish }
+      render json: { html: render_to_string(formats: [:html], layout: false).strip }
     end
 
     def reload_required

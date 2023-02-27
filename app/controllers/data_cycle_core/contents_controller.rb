@@ -67,7 +67,7 @@ module DataCycleCore
         respond_to do |format|
           format.json do
             if @count_only || params[:mode].present?
-              render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/application/count_or_more_results').squish }
+              render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/application/count_or_more_results').strip }
             else
               redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_thing_path", id: @content)
             end
@@ -118,7 +118,7 @@ module DataCycleCore
       @template = DataCycleCore::Thing.find_by!(template: true, template_name: @resolved_params[:template])
 
       render json: {
-        html: render_to_string(formats: [:html], layout: false).squish,
+        html: render_to_string(formats: [:html], layout: false).strip,
         enable: !@resolved_params[:search_required] || @resolved_params[:search_param].present? || can?(:create_without_search, @template)
       }
     end
@@ -156,8 +156,8 @@ module DataCycleCore
 
           format.json do
             render json: {
-              html: @content.present? ? render_to_string(formats: [:html], layout: false, locals: { :@objects => Array.wrap(@content) }).squish : nil,
-              detail_html: @content.present? ? render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, locals: { :@object => @content }).squish : nil,
+              html: @content.present? ? render_to_string(formats: [:html], layout: false, locals: { :@objects => Array.wrap(@content) }).strip : nil,
+              detail_html: @content.present? ? render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, locals: { :@object => @content }).strip : nil,
               ids: Array.wrap(@content&.id),
               **flash.discard.to_h
             }
@@ -349,8 +349,8 @@ module DataCycleCore
         render js: "document.location = '#{thing_path(@content)}'"
       else
         render json: {
-          html: render_to_string(formats: [:html], layout: false, action: 'create', locals: { :@objects => Array.wrap(@content) }).squish,
-          detail_html: render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, locals: { :@object => @content }).squish,
+          html: render_to_string(formats: [:html], layout: false, action: 'create', locals: { :@objects => Array.wrap(@content) }).strip,
+          detail_html: render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, locals: { :@object => @content }).strip,
           ids: Array.wrap(@content&.id),
           **flash.discard.to_h
         }
@@ -378,7 +378,7 @@ module DataCycleCore
       I18n.with_locale(@locale || I18n.locale) do
         @objects = DataCycleCore::Thing.where(id: render_embedded_object_params[:object_ids]).includes(:translations) if render_embedded_object_params[:object_ids].present?
 
-        render(json: { html: render_to_string(formats: [:html], layout: false).squish }) && return
+        render(json: { html: render_to_string(formats: [:html], layout: false).strip }) && return
       end
     end
 
@@ -418,7 +418,7 @@ module DataCycleCore
 
         respond_to do |format|
           format.json do
-            render json: { html: render_to_string(formats: [:html], layout: false, action: render_action).squish, ids: @linked_objects.pluck(:id) }
+            render json: { html: render_to_string(formats: [:html], layout: false, action: render_action).strip, ids: @linked_objects.pluck(:id) }
           end
         end
       end
@@ -580,7 +580,7 @@ module DataCycleCore
 
       respond_to do |format|
         format.html { redirect_back(fallback_location: root_path) }
-        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).squish, **flash.discard.to_h } }
+        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).strip, **flash.discard.to_h } }
       end
     end
 
@@ -631,7 +631,7 @@ module DataCycleCore
 
       respond_to do |format|
         format.html { redirect_back(fallback_location: root_path) }
-        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).squish, **flash.discard.to_h } }
+        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).strip, **flash.discard.to_h } }
       end
     end
 
@@ -652,7 +652,7 @@ module DataCycleCore
 
       respond_to do |format|
         format.html { redirect_back(fallback_location: root_path) }
-        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).squish, **flash.discard.to_h } }
+        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).strip, **flash.discard.to_h } }
       end
     end
 

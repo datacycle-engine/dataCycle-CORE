@@ -69,8 +69,6 @@ class EmbeddedObject {
 		this.addedItemsObserver.observe(this.element, { childList: true });
 	}
 	setupContentObjectItem(element) {
-		this.update();
-
 		element
 			.querySelector(this.selectorForRemoveContentObject())
 			?.addEventListener("click", this.eventHandlers.removeItem);
@@ -166,25 +164,26 @@ class EmbeddedObject {
 		for (const button of element.querySelectorAll(
 			this.selectorForEmbeddedHeader(".swap-button"),
 		))
-			button.addEventListener("click", (event) => {
-				event.preventDefault();
-				event.stopImmediatePropagation();
+			button.addEventListener("click", this.swapEmbedded.bind(this));
+	}
+	swapEmbedded(event) {
+		event.preventDefault();
+		event.stopImmediatePropagation();
 
-				const currentTarget = event.currentTarget;
+		const currentTarget = event.currentTarget;
 
-				if (currentTarget.classList.contains("disabled")) return;
+		if (currentTarget.classList.contains("disabled")) return;
 
-				const currentObject = currentTarget.closest(".content-object-item");
+		const currentObject = currentTarget.closest(".content-object-item");
 
-				if (currentTarget.classList.contains("swap-prev"))
-					currentObject.previousElementSibling?.before(currentObject);
-				else if (currentTarget.classList.contains("swap-next"))
-					currentObject.nextElementSibling?.after(currentObject);
+		if (currentTarget.classList.contains("swap-prev"))
+			currentObject.previousElementSibling?.before(currentObject);
+		else if (currentTarget.classList.contains("swap-next"))
+			currentObject.nextElementSibling?.after(currentObject);
 
-				this.update();
+		this.update();
 
-				DomElementHelpers.scrollIntoViewWithStickyOffset(currentObject);
-			});
+		DomElementHelpers.scrollIntoViewWithStickyOffset(currentObject);
 	}
 	renderEmbeddedObjects(type, ids = [], locale = null, translate = false) {
 		let index = this.index;
@@ -229,6 +228,8 @@ class EmbeddedObject {
 		else this.element.insertAdjacentHTML("beforeend", data?.html);
 
 		if (ids.length) this.ids = union(this.ids, ids);
+
+		this.update();
 
 		DomElementHelpers.scrollIntoViewWithStickyOffset(
 			this.element.querySelector(":scope > .content-object-item:last-of-type"),

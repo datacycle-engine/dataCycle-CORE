@@ -64,7 +64,7 @@ module DataCycleCore
 
           @classification_trees = @classification_trees.order('classification_aliases.order_a ASC')
 
-          render json: { html: render_to_string(formats: [:html], layout: false, action: 'children').squish }
+          render json: { html: render_to_string(formats: [:html], layout: false, action: 'children').strip }
         end
       end
     end
@@ -153,7 +153,7 @@ module DataCycleCore
         end
       end
 
-      render json: { html: render_to_string(formats: [:html], layout: false, action: 'create').squish }
+      render json: { html: render_to_string(formats: [:html], layout: false, action: 'create').strip }
     end
 
     def update
@@ -173,7 +173,7 @@ module DataCycleCore
         @object.save!
       end
 
-      render json: { html: render_to_string(formats: [:html], layout: false, action: 'update').squish }
+      render json: { html: render_to_string(formats: [:html], layout: false, action: 'update').strip }
     end
 
     def destroy
