@@ -115,6 +115,7 @@ de:
 
   frontend:
     load_error: Fehler beim Laden des Inhalts.
+    update_browser: "Ihr Webbrowser unterstützt noch nicht alle notwendingen Features!<br>Bitte aktualisieren Sie Ihren Webbrowser."
     text_editor:
       insertNbsp: Geschütztes Leerzeichen einfügen
       replaceAllNbsp: Alle geschützten Leerzeichen durch normale Leerzeichen ersetzen

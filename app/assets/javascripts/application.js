@@ -32,6 +32,7 @@ const initializers = import.meta.glob("./initializers/*.js", {
 import foundationInit from "./initializers/foundation_init";
 import validationInit from "./initializers/validation_init";
 import UrlReplacer from "./helpers/url_replacer";
+import CalloutHelpers from "./helpers/callout_helpers";
 
 export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 	DataCycle = window.DataCycle = new DataCycleSingleton(dataCycleConfig);
@@ -43,9 +44,14 @@ export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 	} catch {}
 
 	if (typeof postDataCycleInit === "function") postDataCycleInit();
-	DataCycle.notifications.addEventListener("error", ({ detail }) =>
-		console.error(detail),
-	);
+	DataCycle.notifications.addEventListener("error", ({ detail }) => {
+		if (detail.message?.includes("not a valid selector"))
+			I18n.t("frontend.update_browser").then((text) =>
+				CalloutHelpers.show(text, "alert"),
+			);
+
+		console.error(detail);
+	});
 
 	$(function () {
 		for (const path in initializers) {

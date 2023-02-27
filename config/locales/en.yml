@@ -107,6 +107,7 @@ en:
 
   frontend:
     load_error: Error loading content.
+    update_browser: "Your web browser does not yet support all necessary features!<br>Please update your web browser."
     text_editor:
       insertNbsp: Insert protected space
       replaceAllNbsp: replace all protected spaces with normal spaces
