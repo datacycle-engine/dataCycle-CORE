@@ -20,6 +20,7 @@
       :legacy_license:
         :label: LegacyLicense
         :type: string
+        :storage_location: value
         :virtual:
           :module: Utility::Virtual::Common
           :method: take_first
@@ -50,6 +51,7 @@
       :legacy_attribution_name:
         :label: LegacyAttributionName
         :type: string
+        :storage_location: value
         :virtual:
           :module: Utility::Virtual::Common
           :method: take_first
@@ -76,6 +78,7 @@
       :legacy_attribution_url:
         :label: LegacyAttributionName
         :type: string
+        :storage_location: value
         :virtual:
           :module: Utility::Virtual::Common
           :method: take_first
@@ -144,6 +147,7 @@
       :copyright_notice:
         :label: Urheberrechtsvermerk
         :type: string
+        :storage_location: value
         :advanced_search: true
         :virtual:
           :module: Utility::Virtual::Common
@@ -168,6 +172,7 @@
       :sd_license:
         :label: Lizenz-URL
         :type: string
+        :storage_location: value
         :virtual:
           :module: Utility::Virtual::String
           :method: license_uri
