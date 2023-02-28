@@ -95,7 +95,7 @@ module DataCycleCore
 
             stored_filter = DataCycleCore::StoredFilter.new.parameters_from_hash(property_definition.dig('stored_filter'))
             query = stored_filter.apply
-            query = query.equals_advanced_translated_name({'text': search_value})
+            query = query.equals_advanced_translated_name(search_value)
 
             return Array.wrap(query.first.id) if query.first.present?
           end
