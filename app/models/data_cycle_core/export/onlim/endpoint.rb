@@ -30,7 +30,7 @@ module DataCycleCore
           'Unterkunft' => []
         }.freeze
 
-        def self.serialize_data(data, existing_object_ids = [])
+        def self.serialize_data(data)
           json = DataCycleCore::Api::V4::ContentsController.renderer.new(
             http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
             https: Rails.application.config.force_ssl
@@ -61,7 +61,7 @@ module DataCycleCore
               :to_poi
             end
 
-          hash = DataCycleCore::Export::Onlim::Transformations.send(transformation, existing_object_ids).call(hash)
+          hash = DataCycleCore::Export::Onlim::Transformations.send(transformation, []).call(hash)
           hash
         end
 
@@ -77,23 +77,14 @@ module DataCycleCore
         end
 
         def update_request(data:, external_system_data: {})
+          # do a UPSERT
           url = [@host, @end_point].join('/')
+          verb = :put
+          default_url_options[:host] = ENV['APP_HOST']
+          default_url_options[:protocol] = ENV['APP_PROTOCOL']
+          ns = api_v4_universal_url + '/'
 
-          job_operation = 'UPDATE'
-          if external_system_data.blank? || (external_system_data.present? && external_system_data.dig('job_operation') == 'CREATE' && external_system_data.dig('job_status') == 'failed')
-            existing_object_ids = external_system_data.dig('message', 'existingObjectIds')&.map { |id| id.split('/')&.last }
-            verb = :post
-            ns = nil
-            job_operation = 'CREATE'
-          else # update, not insert
-            url = [url, "things/#{data.id}"].join('/')
-            verb = :put
-            default_url_options[:host] = ENV['APP_HOST']
-            default_url_options[:protocol] = ENV['APP_PROTOCOL']
-            ns = api_v4_universal_url + '/'
-          end
-
-          body = Endpoint.serialize_data(data, existing_object_ids || [])
+          body = Endpoint.serialize_data(data)
 
           response = connection.send(verb) do |req|
             req.url(url)
@@ -110,6 +101,8 @@ module DataCycleCore
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error sending data to #{url}, external_system_data: #{external_system_data}", response) unless response.success?
 
+          ap JSON.parse(response.body)
+
           job_id = JSON.parse(response.body)['message']
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("could not parse a valid job_id form the response of this request: #{url}, external_system_data: #{external_system_data}", response) if job_id.blank?
@@ -118,7 +111,6 @@ module DataCycleCore
             {
               'job_id' => job_id,
               'job_status' => 'pending',
-              'job_operation' => job_operation,
               'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: 'onlim').id
             }
           ).reject { |_k, v| v.blank? }
@@ -133,7 +125,6 @@ module DataCycleCore
           end
 
           job_id = external_system_data.dig('job_id')
-          job_operation = external_system_data.dig('job_operation')
           url = [@host, @end_point, job_id].join('/')
           response = connection.get do |req|
             req.url(url)
@@ -154,7 +145,6 @@ module DataCycleCore
               {
                 'job_id' => job_id,
                 'job_status' => 'pending',
-                'job_operation' => job_operation,
                 'external_source_id' => external_source.id,
                 'operation' => operation,
                 'message' => status
@@ -167,7 +157,6 @@ module DataCycleCore
               {
                 'job_id' => job_id,
                 'job_status' => 'success',
-                'job_operation' => job_operation,
                 'external_source_id' => external_source.id,
                 'operation' => operation,
                 'message' => status
@@ -178,7 +167,6 @@ module DataCycleCore
               {
                 'job_id' => job_id,
                 'job_status' => 'failed',
-                'job_operation' => job_operation,
                 'external_source_id' => external_source.id,
                 'operation' => operation,
                 'message' => status
