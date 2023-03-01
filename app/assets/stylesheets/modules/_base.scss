@@ -527,6 +527,11 @@ footer {
         }
       }
     }
+
+    .slug {
+      font-size: 1.1rem;
+      color: var(--darker-gray);
+    }
   }
 
   >.translatable-attribute-container>.translatable-attribute>.title,

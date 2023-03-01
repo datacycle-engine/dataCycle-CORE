@@ -9,6 +9,9 @@ class CollectionOrderButton {
 		this.sortableList = document
 			.getElementById("search-results")
 			.querySelector("ul");
+
+		if (!this.sortableList) return;
+
 		this.sortable = new Sortable(this.sortableList, {
 			forceAutoScrollFallback: true,
 			scrollSpeed: 50,

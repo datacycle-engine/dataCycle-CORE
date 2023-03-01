@@ -121,7 +121,7 @@ header {
     line-height: 4.1rem;
     height: 4.1rem;
 
-    > li {
+    >li {
       height: 4.1rem;
 
       a,
@@ -196,6 +196,7 @@ header {
     opacity: 0;
     box-shadow: none;
   }
+
   100% {
     opacity: 1;
     box-shadow: 0 3px 13px rgba(0, 0, 0, 0.3);
@@ -466,6 +467,7 @@ ul.footer-links {
       color: $black;
       text-decoration: underline;
     }
+
     .login-checkboxes {
       a {
         text-decoration: underline;
@@ -475,6 +477,7 @@ ul.footer-links {
 
     button[type='submit'].button {
       padding: 0.2rem 4.5rem;
+
       i {
         font-size: 3rem;
       }
@@ -488,6 +491,7 @@ ul.footer-links {
         font-weight: normal;
         text-align: center;
       }
+
       button[type='submit'].button {
         background-color: darken($dark-gray, 20%);
         padding: 0.8rem 1rem;
@@ -722,7 +726,7 @@ ul.footer-links {
 .dc-checkbox {
   position: relative;
 
-  > input {
+  >input {
     position: absolute;
     top: 0.4rem;
     opacity: 0;
@@ -731,7 +735,7 @@ ul.footer-links {
     z-index: -1;
   }
 
-  > label {
+  >label {
     display: inline-flex;
     align-items: center;
     justify-content: flex-start;
@@ -760,7 +764,7 @@ ul.footer-links {
     }
   }
 
-  > input:checked + label {
+  >input:checked+label {
     &::before {
       color: $white;
       background-color: $primary-color;
@@ -768,7 +772,7 @@ ul.footer-links {
     }
   }
 
-  > input[required] + label {
+  >input[required]+label {
     &::after {
       content: '*';
       display: inline-flex;
@@ -780,11 +784,11 @@ ul.footer-links {
     }
   }
 
-  > input:not(:disabled) + label:hover::before {
+  >input:not(:disabled)+label:hover::before {
     color: darken($medium-gray, 5%);
   }
 
-  > input:disabled + label {
+  >input:disabled+label {
     cursor: not-allowed;
 
     &::before {
@@ -793,9 +797,13 @@ ul.footer-links {
     }
   }
 
-  > input:checked:disabled + label::before {
+  >input:checked:disabled+label::before {
     color: $light-gray;
     background-color: $dark-gray;
     border-color: $dark-gray;
   }
+}
+
+.flex-column {
+  flex-flow: column;
 }

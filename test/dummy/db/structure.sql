@@ -704,6 +704,24 @@ $$;
 
 
 --
+-- Name: generate_collection_id_trigger(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_collection_id_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN NEW.id := COALESCE(NEW.watch_list_id, NEW.stored_filter_id); RETURN NEW; END; $$;
+
+
+--
+-- Name: generate_collection_slug_trigger(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_collection_slug_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN NEW.slug := generate_unique_collection_slug (NEW.slug); RETURN NEW; END; $$;
+
+
+--
 -- Name: generate_content_content_links(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -802,6 +820,15 @@ RETURN NEW;
 END;
 
 $$;
+
+
+--
+-- Name: generate_unique_collection_slug(character varying); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_unique_collection_slug(old_slug character varying, OUT new_slug character varying) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $_$ BEGIN WITH input AS ( SELECT old_slug::VARCHAR AS slug, regexp_replace(old_slug, '-\d*$', '')::VARCHAR || '-' AS base_slug ) SELECT i.slug FROM input i LEFT JOIN collection_configurations a USING (slug) WHERE a.slug IS NULL UNION ALL ( SELECT i.base_slug || COALESCE( right(a.slug, length(i.base_slug) * -1)::int + 1, 1 ) FROM input i LEFT JOIN collection_configurations a ON a.slug LIKE (i.base_slug || '%') AND right(a.slug, length(i.base_slug) * -1) ~ '^\d+$' ORDER BY right(a.slug, length(i.base_slug) * -1)::int DESC ) LIMIT 1 INTO new_slug; END; $_$;
 
 
 --
@@ -1396,6 +1423,18 @@ CREATE TABLE public.collected_classification_contents (
     full_classification_alias_ids uuid[],
     direct_tree_label_ids uuid[],
     full_tree_label_ids uuid[]
+);
+
+
+--
+-- Name: collection_configurations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.collection_configurations (
+    id uuid NOT NULL,
+    watch_list_id uuid,
+    stored_filter_id uuid,
+    slug character varying
 );
 
 
@@ -2275,6 +2314,22 @@ ALTER TABLE ONLY public.collected_classification_contents
 
 
 --
+-- Name: collection_configurations collection_configurations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collection_configurations
+    ADD CONSTRAINT collection_configurations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: collection_configurations collection_configurations_slug_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collection_configurations
+    ADD CONSTRAINT collection_configurations_slug_key UNIQUE (slug);
+
+
+--
 -- Name: content_content_histories content_content_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2647,6 +2702,20 @@ CREATE INDEX classification_string_idx ON public.searches USING gin (classificat
 --
 
 CREATE INDEX classified_name_idx ON public.stored_filters USING btree (api, system, name);
+
+
+--
+-- Name: collection_configurations_stored_filter_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX collection_configurations_stored_filter_id_idx ON public.collection_configurations USING btree (stored_filter_id);
+
+
+--
+-- Name: collection_configurations_watch_list_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX collection_configurations_watch_list_id_idx ON public.collection_configurations USING btree (watch_list_id);
 
 
 --
@@ -3761,6 +3830,20 @@ CREATE TRIGGER generate_collected_classification_content_relations_trigger_4 AFT
 
 
 --
+-- Name: collection_configurations generate_collection_id_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER generate_collection_id_trigger BEFORE INSERT ON public.collection_configurations FOR EACH ROW EXECUTE FUNCTION public.generate_collection_id_trigger();
+
+
+--
+-- Name: collection_configurations generate_collection_slug_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER generate_collection_slug_trigger BEFORE INSERT ON public.collection_configurations FOR EACH ROW EXECUTE FUNCTION public.generate_collection_slug_trigger();
+
+
+--
 -- Name: content_contents generate_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -3940,6 +4023,20 @@ CREATE TRIGGER update_collected_classification_content_relations_trigger_1 AFTER
 
 
 --
+-- Name: collection_configurations update_collection_id_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_collection_id_trigger BEFORE UPDATE OF watch_list_id, stored_filter_id ON public.collection_configurations FOR EACH ROW WHEN (((old.watch_list_id IS DISTINCT FROM new.watch_list_id) OR (old.stored_filter_id IS DISTINCT FROM new.stored_filter_id))) EXECUTE FUNCTION public.generate_collection_id_trigger();
+
+
+--
+-- Name: collection_configurations update_collection_slug_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_collection_slug_trigger BEFORE UPDATE OF slug ON public.collection_configurations FOR EACH ROW WHEN (((old.slug)::text IS DISTINCT FROM (new.slug)::text)) EXECUTE FUNCTION public.generate_collection_slug_trigger();
+
+
+--
 -- Name: content_contents update_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -3996,6 +4093,22 @@ CREATE TRIGGER wldh_order_a_default_value_trigger BEFORE INSERT ON public.watch_
 
 ALTER TABLE ONLY public.collected_classification_contents
     ADD CONSTRAINT collected_classification_contents_thing_id_fkey FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
+
+
+--
+-- Name: collection_configurations fk_collection_stored_filter; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collection_configurations
+    ADD CONSTRAINT fk_collection_stored_filter FOREIGN KEY (stored_filter_id) REFERENCES public.stored_filters(id) ON DELETE CASCADE;
+
+
+--
+-- Name: collection_configurations fk_collection_watch_list; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collection_configurations
+    ADD CONSTRAINT fk_collection_watch_list FOREIGN KEY (watch_list_id) REFERENCES public.watch_lists(id) ON DELETE CASCADE;
 
 
 --
@@ -4366,6 +4479,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230223112058'),
 ('20230223115656'),
 ('20230223132307'),
-('20230223133359');
+('20230223133359'),
+('20230228085431');
 
 

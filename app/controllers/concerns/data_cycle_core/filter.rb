@@ -132,7 +132,7 @@ module DataCycleCore
       endpoint_id = permitted_params[:id]
       @linked_stored_filter = nil
       if endpoint_id.present?
-        @stored_filter = DataCycleCore::StoredFilter.find_by(id: endpoint_id)
+        @stored_filter = DataCycleCore::StoredFilter.by_id_or_slug(endpoint_id).first
 
         if @stored_filter
           authorize! :api, @stored_filter unless any_authenticity_token_valid?
@@ -140,7 +140,7 @@ module DataCycleCore
           @classification_trees_parameters |= Array.wrap(@stored_filter.classification_tree_labels)
           @classification_trees_filter = @classification_trees_parameters.present?
         else
-          raise ActiveRecord::RecordNotFound unless (@watch_list = DataCycleCore::WatchList.without_my_selection.find_by(id: endpoint_id))
+          raise ActiveRecord::RecordNotFound unless (@watch_list = DataCycleCore::WatchList.without_my_selection.by_id_or_slug(endpoint_id).first)
         end
       end
 
@@ -151,7 +151,7 @@ module DataCycleCore
 
       query = filter.apply(watch_list: @watch_list)
 
-      query = query.watch_list_id(endpoint_id) unless @watch_list.nil?
+      query = query.watch_list_id(@watch_list.id) unless @watch_list.nil?
 
       query = query.fulltext_search(@full_text_search) if @full_text_search
 
