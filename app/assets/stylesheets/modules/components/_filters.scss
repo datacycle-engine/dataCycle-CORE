@@ -1245,6 +1245,12 @@ $filter-border: #aaa;
           }
         }
 
+        &.search-favorites-short>ul li .stored-date {
+          color: $dark-gray;
+          white-space: nowrap;
+          padding: 0.2rem 0.5rem;
+        }
+
         >ul {
           display: none;
           flex-flow: row wrap;
