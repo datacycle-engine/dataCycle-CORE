@@ -35,6 +35,16 @@
         <pre id="admin_data-send" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/data_send" data-remote-options="<%= to_query_params(content:  content.external_system_syncs.find_by(external_system: DataCycleCore::ExternalSystem.find_by(identifier: 'onlim'))&.try(:data)&.dig('data_send')).to_json %>"></pre>
       </section>
     <% end %>
+    <% if onlim_data&.try(:data)&.dig('job_result').present? %>
+      <section id="data-job" class="tabs-panel">
+        <section class="data-job-nav">
+          <h5>DZT job_status</h5>
+          <button class="copy-to-clipboard admin-clipboard">COPY</button>
+          <button class="close-admin-panel"><i class="fa fa-times" aria-hidden="true"></i></button>
+        </section>
+        <pre id="admin_data-job" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/data_send" data-remote-options="<%= to_query_params(content:  content.external_system_syncs.find_by(external_system: DataCycleCore::ExternalSystem.find_by(identifier: 'onlim'))&.try(:data)&.dig('job_result')).to_json %>"></pre>
+      </section>
+    <% end %>
     <% if content.try(:asset).present? && content&.asset&.metadata.present? %>
       <section id="meta-data" class="tabs-panel">
         <section class="meta-data-nav">
@@ -53,6 +63,7 @@
     <li class="tabs-title"><a href="#datahash"><i class="fa fa-hashtag"></i></a></li>
     <li class="tabs-title"><a href="#json-api"><i class="fa">json</i></a></li>
     <li class="tabs-title"><a href="#data-send"><i class="fa">onlim</i></a></li>
+    <li class="tabs-title"><a href="#data-job"><i class="fa">onlim job</i></a></li>
     <% if content.try(:asset).present? && content&.asset&.metadata.present? %>
       <li class="tabs-title"><a href="#meta-data"><i class="fa">metadata</i></a></li>
     <% end %>
