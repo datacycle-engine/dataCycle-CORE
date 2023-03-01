@@ -111,7 +111,8 @@ module DataCycleCore
               'job_id' => job_id,
               'job_status' => 'pending',
               'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: 'onlim').id,
-              'data_send' => body
+              'data_send' => body,
+              'data_send_at' => Time.zone.now.to_s
             }
           ).reject { |_k, v| v.blank? }
         end
