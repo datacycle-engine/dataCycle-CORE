@@ -101,17 +101,17 @@ module DataCycleCore
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error sending data to #{url}, external_system_data: #{external_system_data}", response) unless response.success?
 
-          ap JSON.parse(response.body)
+          # ap JSON.parse(response.body)
 
           job_id = JSON.parse(response.body)['message']
-
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("could not parse a valid job_id form the response of this request: #{url}, external_system_data: #{external_system_data}", response) if job_id.blank?
 
           external_system_data.merge(
             {
               'job_id' => job_id,
               'job_status' => 'pending',
-              'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: 'onlim').id
+              'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: 'onlim').id,
+              'data_send' => body
             }
           ).reject { |_k, v| v.blank? }
         end
@@ -137,17 +137,14 @@ module DataCycleCore
 
           status = JSON.parse(response.body)
           status = status.first if status.is_a?(::Array)
-          operation = status.dig('operation')
-          # ap status
 
           if status['running']
             external_system_data.merge(
               {
                 'job_id' => job_id,
                 'job_status' => 'pending',
-                'external_source_id' => external_source.id,
-                'operation' => operation,
-                'message' => status
+                'job_result' => status,
+                'external_source_id' => external_source.id
               }
             ).reject { |_k, v| v.blank? }
           elsif status['stored']
@@ -157,9 +154,8 @@ module DataCycleCore
               {
                 'job_id' => job_id,
                 'job_status' => 'success',
-                'external_source_id' => external_source.id,
-                'operation' => operation,
-                'message' => status
+                'job_result' => status,
+                'external_source_id' => external_source.id
               }
             ).reject { |_k, v| v.blank? }
           else
@@ -167,9 +163,8 @@ module DataCycleCore
               {
                 'job_id' => job_id,
                 'job_status' => 'failed',
-                'external_source_id' => external_source.id,
-                'operation' => operation,
-                'message' => status
+                'job_result' => status,
+                'external_source_id' => external_source.id
               }
             ).reject { |_k, v| v.blank? }
           end
