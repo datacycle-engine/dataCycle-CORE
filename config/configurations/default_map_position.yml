@@ -4,10 +4,10 @@
 :zoom: 7
 :editor: 'MapLibreGl'
 :styles:
-  # - :id: osm
-  #   :value: 'OSM'
-  - :id: basemap
-    :value: 'BaseMapAt'
+  - :id: osm
+    :value: 'OSM'
+  # - :id: basemap
+  #   :value: 'BaseMapAt'
 :type_colors:
   default: '#1D6996' # dark blue
   hover: '#EDAD08' # yellow
