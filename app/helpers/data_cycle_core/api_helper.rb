@@ -92,7 +92,7 @@ module DataCycleCore
         .filter do |key, prop|
           next false if INTERNAL_PROPERTIES.include?(key) || prop['sorting'].blank?
           next false if type.present? && prop['type'] != type
-          next false if attribute_disabled?(prop) && prop['type'] != 'linked'
+          next false if attribute_disabled?(prop) && prop['type'] != 'linked' # ignore linked disabled (legacy of bidirectional links)
 
           true
         end
