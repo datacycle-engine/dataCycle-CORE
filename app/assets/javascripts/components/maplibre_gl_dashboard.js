@@ -9,6 +9,15 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
 		this.iconColorBase = this.typeColors;
 		this.sourceLayer = "dataCycle";
 
+		this.mapBounds = this.$container.data("map-bounds");
+		this.defaultOptions.bounds = Object.values(this.mapBounds).includes(null)
+			? undefined
+			: Object.values(this.mapBounds);
+		this.defaultOptions.fitBoundsOptions = {
+			padding: 20,
+			maxZoom: 15,
+		};
+
 		this.searchForm = document.getElementById("search-form");
 		this.currentEndpointId = this.searchForm.dataset.endpointId;
 	}
@@ -78,35 +87,7 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
 		});
 	}
 	updateMapPosition() {
-		this.bboxForCurrentStoredFilter().then((bbox) => {
-			if (Object.values(bbox).includes(null)) return;
-
-			const maxBounds = this.map.getMaxBounds();
-			const sw = new this.maplibreGl.LngLat(bbox.xmin, bbox.ymin);
-			const ne = new this.maplibreGl.LngLat(bbox.xmax, bbox.ymax);
-
-			if (!maxBounds || (maxBounds.contains(sw) && maxBounds.contains(ne))) {
-				const bounds = new this.maplibreGl.LngLatBounds(sw, ne);
-
-				this.map.fitBounds(bounds, {
-					padding: 50,
-					maxZoom: 15,
-				});
-			} else {
-				const minZoom = this.map.getMinZoom();
-				this.map.zoomTo(minZoom > 0 ? minZoom + 1 : 2, { duration: 2000 });
-			}
-		});
-	}
-	async bboxForCurrentStoredFilter() {
-		let data = await DataCycle.httpRequest(
-			`/mvt/v1/endpoints/${this.currentEndpointId}`,
-			{
-				method: "POST",
-				body: { bbox: true },
-			},
-		);
-		return data;
+		// Using this.defaultOptions.bounds we are already setting the map extent
 	}
 	getColorMatchHexExpression() {
 		let matchEx = ["case"];
