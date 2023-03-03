@@ -6,7 +6,7 @@ require 'minitest/autorun'
 
 describe DataCycleCore::Export::Onlim::TransformationFunctions do
   subject do
-    DataCycleCore::Export::Onlim::TransformationFunctions
+    DataCycleCore::Export::Onlim::TransformationFunctionsGlobal
   end
 
   describe 'remove_namespaced_data' do
