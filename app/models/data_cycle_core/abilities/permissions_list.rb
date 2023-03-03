@@ -19,11 +19,17 @@ module DataCycleCore
         @list
       end
 
+      def segment(segment_name)
+        return ::Abilities::Segments.const_get(segment_name) if Module.const_defined?("::Abilities::Segments::#{segment_name}")
+
+        DataCycleCore::Abilities::Segments.const_get(segment_name)
+      end
+
       def permissions
         raise 'core abilities not implemented yet, please override the permissions in each project'
       end
 
-      def add_permission(condition, *actions, definition)
+      def permit(condition, *actions, definition)
         raise 'missing condition in permission' if condition.blank?
         raise 'missing actions in permission' if actions.blank?
         raise 'missing definition in permission' if definition.blank?
@@ -33,6 +39,39 @@ module DataCycleCore
           actions: actions,
           definition: definition
         })
+      end
+
+      alias add_permission permit
+
+      def permit_user(role, *actions, definition)
+        raise 'missing role in permission' if role.blank?
+        raise 'missing actions in permission' if actions.blank?
+        raise 'missing definition in permission' if definition.blank?
+
+        self.class.list.push({
+          condition: segment(:UsersByRole).new(role),
+          actions: actions,
+          definition: definition_to_segment(definition)
+        })
+      end
+
+      def permit_user_group(group_name, roles, *actions, definition)
+        raise 'missing user_group name in permission' if group_name.blank?
+        raise 'missing roles in permission' if roles.blank?
+        raise 'missing actions in permission' if actions.blank?
+        raise 'missing definition in permission' if definition.blank?
+
+        self.class.list.push({
+          condition: segment(:UsersByUserGroup).new(group_name, roles),
+          actions: actions,
+          definition: definition_to_segment(definition)
+        })
+      end
+
+      def definition_to_segment(definition)
+        return segment(definition).new unless definition.is_a?(::Hash)
+
+        segment(definition.keys.first).new(*definition.values.first)
       end
 
       def self.filtered_list(user)
@@ -45,7 +84,7 @@ module DataCycleCore
           definition.instance_variable_set(:@user, ability.user)
           definition.instance_variable_set(:@session, ability.session)
 
-          parameters = [permission[:actions].first.to_sym, permission[:actions].from(1), definition.subject]
+          parameters = [:can, permission[:actions], definition.subject]
           parameters.push(definition.scope) if definition.respond_to?(:scope)
           parameters.push(definition.conditions) if definition.respond_to?(:conditions)
           next ability.send(*parameters) unless definition.respond_to?(:to_proc)

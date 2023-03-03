@@ -192,6 +192,7 @@ services:
     env_file:
       - ${PWD}/.env.production
     restart: '${DOCKER_RESTART_POLICY:-unless-stopped}'
+
 volumes:
   app-docker:
   app-tmp:

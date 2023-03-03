@@ -2,7 +2,7 @@
 
   <%= attribute_edit_label_tag(**local_assigns) %>
 
-  <% classification_items = DataCycleCore::ClassificationAlias.includes(:classification_tree_label, :primary_classification).where(classification_trees: { parent_classification_alias_id: nil }, classification_tree_labels: { name: definition['tree_label'] }).order(created_at: :asc) %>
+  <% classification_items = DataCycleCore::ClassificationAlias.includes(:classification_tree_label, :primary_classification).where(classification_trees: { parent_classification_alias_id: nil }, classification_tree_labels: { name: definition['tree_label'] }) %>
 
   <ul class="no-bullet classification-checkbox-list">
     <%= collection_check_boxes(nil, key, classification_items, :primary_classification_id, :internal_name, {}, { namespace: local_assigns.dig(:options, :prefix) }) do |cb| %>

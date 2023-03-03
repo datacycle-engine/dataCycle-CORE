@@ -12,25 +12,11 @@ module DataCycleCore
 
     belongs_to :text_file, foreign_key: :asset_id
 
-    def self.by_creator(creator)
-      creator = DataCycleCore::User.find(creator) unless creator.is_a?(DataCycleCore::User)
-
-      where(creator: creator)
-    end
-
-    def self.by_receiver(receiver)
-      receiver = DataCycleCore::User.find(receiver) unless receiver.is_a?(DataCycleCore::User)
-
-      where(receiver: receiver)
-    end
-
-    def self.valid
-      where('(data_links.valid_from IS NULL OR data_links.valid_from <= :d) AND (data_links.valid_until IS NULL OR data_links.valid_until >= :d)', d: Time.zone.now.round)
-    end
-
-    def self.writable
-      where(permissions: 'write')
-    end
+    scope :by_creator, ->(creators) { where(creator_id: user_id_from_creators(creators)) }
+    scope :by_receiver, ->(receivers) { where(receiver_id: user_id_from_creators(receivers)) }
+    scope :valid, -> { where('(data_links.valid_from IS NULL OR data_links.valid_from <= :d) AND (data_links.valid_until IS NULL OR data_links.valid_until >= :d)', d: Time.zone.now.round) }
+    scope :readable, -> { where(permissions: ['read', 'write']) }
+    scope :writable, -> { where(permissions: 'write') }
 
     def writable?
       permissions == 'write'
@@ -50,6 +36,17 @@ module DataCycleCore
 
     def self.valid_stored_filters
       DataCycleCore::StoredFilter.where(id: all.where(item_type: 'DataCycleCore::StoredFilter').valid.pluck(:item_id))
+    end
+
+    def self.user_id_from_creators(users)
+      case users
+      when ActiveRecord::Relation
+        users.select(:id)
+      when ActiveRecord::Base
+        users.id
+      else
+        Array.wrap(users)
+      end
     end
 
     private

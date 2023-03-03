@@ -21,26 +21,38 @@
       </ul>
     </div>
     <div class="card-section">
-      download (last success/try):
+      download:
       <ul class="no-bullet import-data-timestamps">
         <% if locals.dig(:import_data, :last_download) != locals.dig(:import_data, :last_successful_download) %>
           <li class="last-successful-download <%= 'check-icon' if locals.dig(:import_data, :last_successful_download) != 'never' %>">
             <%= import_data_time(locals.dig(:import_data, :last_successful_download)) %>
+            <% if locals.dig(:import_data, :last_successful_download_time).present? %>
+              (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + locals.dig(:import_data, :last_successful_download_time), locale: active_ui_locale)%>)
+            <% end %>
           </li>
         <% end %>
         <li class="last-download <%= locals.dig(:import_data, :last_download_class) %>">
           <%= import_data_time(locals.dig(:import_data, :last_download)) %>
+          <% if locals.dig(:import_data, :last_download_time).present? %>
+            (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + locals.dig(:import_data, :last_download_time), locale: active_ui_locale)%>)
+          <% end %>
         </li>
       </ul>
-      import (last success/try):
+      import:
       <ul class="no-bullet import-data-timestamps">
         <% if locals.dig(:import_data, :last_import) != locals.dig(:import_data, :last_successful_import) %>
           <li class="last-successful-import <%= 'check-icon' if locals.dig(:import_data, :last_successful_import) != 'never' %>">
             <%= import_data_time(locals.dig(:import_data, :last_successful_import)) %>
+            <% if locals.dig(:import_data, :last_imlast_successful_import_timeport_time).present? %>
+              (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + locals.dig(:import_data, :last_successful_import_time), locale: active_ui_locale)%>)
+            <% end %>
           </li>
         <% end %>
         <li class="last-import <%= locals.dig(:import_data, :last_import_class) %>">
           <%= import_data_time(locals.dig(:import_data, :last_import)) %>
+          <% if locals.dig(:import_data, :last_import_time).present? %>
+            (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + locals.dig(:import_data, :last_import_time), locale: active_ui_locale)%>)
+          <% end %>
         </li>
       </ul>
     </div>

@@ -113,6 +113,7 @@ module DataCycleCore
   self.allowed_api_strategies = [
     'DataCycleCore::Generic::MediaArchive::Webhook',
     'DataCycleCore::Generic::Common::Webhook',
+    'DataCycleCore::Generic::Common::LoggingWebhook',
     'DataCycleCore::Generic::FeratelIdentityServer::Webhook',
     'DataCycleCore::Generic::Sulu::Webhook',
     'DataCycleCore::Generic::ExternalLink::Webhook',
@@ -231,6 +232,18 @@ module DataCycleCore
 
   def self.default_classification_visibilities
     classification_visibilities.except(['show_more', 'tree_view', 'classification_overview'])
+  end
+
+  def self.load_configurations_for_file(file_name)
+    load_configurations(Rails.root.join('config', 'configurations', Rails.env, file_name, '**', '*.yml'))
+    load_configurations(Rails.root.join('config', 'configurations', Rails.env, "#{file_name}.yml"))
+    load_configurations(Rails.root.join('config', 'configurations', file_name, '**', '*.yml'), false)
+    load_configurations(Rails.root.join('config', 'configurations', "#{file_name}.yml"))
+
+    load_configurations(DataCycleCore::Engine.root.join('config', 'configurations', Rails.env, file_name, '**', '*.yml'))
+    load_configurations(DataCycleCore::Engine.root.join('config', 'configurations', Rails.env, "#{file_name}.yml"))
+    load_configurations(DataCycleCore::Engine.root.join('config', 'configurations', file_name, '**', '*.yml'), false)
+    load_configurations(DataCycleCore::Engine.root.join('config', 'configurations', "#{file_name}.yml"))
   end
 
   def self.load_configurations(path, include_environments = true)

@@ -26,7 +26,7 @@ namespace :deploy do
         with rails_env: fetch(:rails_env) do
           execute :rake, "#{fetch(:cmd_prefix, '')}db:seed"
           execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:update:import_classifications"
-          execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:update:import_templates"
+          execute :rake, "#{fetch(:cmd_prefix, '')}dc:templates:import"
         end
       end
     end

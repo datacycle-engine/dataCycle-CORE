@@ -1,0 +1,7 @@
+<% if attribute_value_present?(value) %>
+  <%= tag.div(class: "attribute #{key} #{type}") do %>
+    <%= tag.send("h#{header_depth}", translated_attribute_label(key, definition, content, {}), class: 'attribute-label') %>
+
+    <div class="attribute-value"><%= yield %></div>
+  <% end %>
+<% end %>

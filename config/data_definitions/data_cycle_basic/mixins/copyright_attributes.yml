@@ -169,3 +169,20 @@
               :aliases:
                 - Person
                 - Organisation
+      :sd_license:
+        :label: Lizenz-URL
+        :type: string
+        :storage_location: value
+        :virtual:
+          :module: Utility::Virtual::String
+          :method: license_uri
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :partial: sd_license
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true

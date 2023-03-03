@@ -6,6 +6,7 @@ module DataCycleCore
       self.table_name = 'classification_alias_paths'
 
       belongs_to :classification_alias, foreign_key: 'id'
+      has_many :ancestor_classification_aliases, ->(p) { unscope(:where).where('id = ANY(ARRAY[?]::UUID[])', p.ancestor_ids) }, class_name: 'DataCycleCore::ClassificationAlias'
 
       def readonly?
         true
@@ -15,6 +16,7 @@ module DataCycleCore
     extend ::Mobility
     translates :name, :description, column_suffix: '_i18n', backend: :jsonb
     default_scope { i18n }
+    default_scope { order(order_a: :asc, id: :asc) }
     before_save :set_internal_data
     after_destroy :clean_stored_filters
     before_destroy :add_things_cache_invalidation_job_destroy, :add_things_webhooks_job_destroy, -> { primary_classification&.destroy }
@@ -62,6 +64,8 @@ module DataCycleCore
     delegate :visible?, to: :classification_tree_label
 
     def self.for_tree(tree_name)
+      return none if tree_name.blank?
+
       joins(classification_tree: :classification_tree_label)
         .where(classification_trees: { classification_tree_labels: { name: tree_name } })
     end
@@ -87,23 +91,27 @@ module DataCycleCore
     end
 
     def self.classification_for_tree_with_name(tree_name, *names)
+      return if names.blank? || tree_name.blank?
+
       for_tree(tree_name)
         .with_internal_name(names)
         .primary_classifications.pick(:id)
     end
 
     def self.classifications_for_tree_with_name(tree_name, *names)
+      return [] if names.blank? || tree_name.blank?
+
       for_tree(tree_name)
         .with_internal_name(names)
         .primary_classifications.pluck(:id)
     end
 
     def self.primary_classifications
-      DataCycleCore::Classification.includes(:primary_classification_alias).where(classification_aliases: { id: all&.pluck(:id) })
+      DataCycleCore::Classification.includes(:primary_classification_alias).where(classification_aliases: { id: all.select(:id) })
     end
 
     def self.classifications
-      DataCycleCore::Classification.includes(:classification_aliases).where(classification_aliases: { id: all&.pluck(:id) })
+      DataCycleCore::Classification.includes(:classification_aliases).where(classification_aliases: { id: all.select(:id) })
     end
 
     def self.with_descendants
@@ -124,7 +132,7 @@ module DataCycleCore
 
       max_cardinality = Path.all.pluck(Arel.sql('MAX(CARDINALITY(full_path_names))')).max
 
-      joins(:classification_alias_path).order(
+      joins(:classification_alias_path).reorder(nil).order(
         Arel.sql(
           (1..max_cardinality).map { |c|
             "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> #{term})), 0)"
@@ -142,7 +150,7 @@ module DataCycleCore
     end
 
     def linked_contents
-      DataCycleCore::Thing.includes(:classifications).where(classifications: { id: classifications.ids }).or(DataCycleCore::Thing.includes(:classifications).where(classifications: { id: sub_classification_alias.with_descendants.classifications.ids })).distinct
+      DataCycleCore::Thing.includes(:classifications).where(classifications: { id: classifications.pluck(:id) }).or(DataCycleCore::Thing.includes(:classifications).where(classifications: { id: sub_classification_alias.with_descendants.classifications.pluck(:id) })).distinct
     end
 
     def ancestors
@@ -209,13 +217,14 @@ module DataCycleCore
     end
 
     def self.custom_find_by_full_path(full_path)
-      all.includes(:classification_alias_path)
-      .where(
-        "array_to_string(classification_alias_paths.full_path_names, ' < ') ILIKE ?",
-        full_path.split('>').reverse.map(&:strip).join(' < ')
-      )
-      .references(:classification_alias_paths)
-      .first
+      all
+        .includes(:classification_alias_path)
+        .where(
+          "array_to_string(classification_alias_paths.full_path_names, ' < ') ILIKE ?",
+          full_path.split('>').reverse.map(&:strip).join(' < ')
+        )
+        .references(:classification_alias_paths)
+        .first
     end
 
     def self.custom_find_by_full_path!(full_path)
@@ -227,7 +236,7 @@ module DataCycleCore
 
       raise ActiveRecord::RecordNotFound if mapped_ca.primary_classification.nil?
 
-      self.classification_ids += [mapped_ca.primary_classification.id] unless mapped_ca.primary_classification.id.in?(classification_ids)
+      classification_groups.insert({ classification_id: mapped_ca.primary_classification.id, updated_at: Time.zone.now }, unique_by: :classification_groups_ca_id_c_id_uq_idx).count
     end
 
     def move_to_path(new_path, destroy_children = false)
@@ -246,63 +255,82 @@ module DataCycleCore
 
       return if ctl.nil?
 
-      ActiveRecord::Base.transaction do
+      transaction do
         if new_ca.nil?
           new_parent = ctl.create_classification_alias(*(new_path[1...-1].map { |c| { name: c } }))
 
-          if destroy_children
-            descendants.find_each do |d|
-              d.prevent_webhooks = prevent_webhooks
-              d.merge_with(self)
-            end
-          end
-
-          move_to_tree(new_parent, ctl.id)
+          merge_children_into_self if destroy_children
+          move_to_tree(new_parent&.id, ctl.id)
           new_ca = self
         else
-          if destroy_children
-            descendants.find_each do |d|
-              d.prevent_webhooks = prevent_webhooks
-              d.merge_with(new_ca)
-            end
-          else
-            descendants.find_each do |d|
-              d.prevent_webhooks = prevent_webhooks
-              d.move_to_tree(new_ca, ctl.id)
-            end
-          end
-
-          merge_with(new_ca)
+          merge_with_children(new_ca, destroy_children)
         end
       end
 
       new_ca
     end
 
-    def move_to_tree(parent_ca, tree_label_id)
+    def move_after(tree_label, previous_sibling, parent_ca = nil)
+      parent_ca = previous_sibling&.parent_classification_alias if parent_ca.nil?
+
+      move_to_tree(parent_ca&.id, tree_label.id)
+      update_columns(updated_at: Time.zone.now, order_a: previous_sibling&.reload&.order_a || parent_ca&.reload&.order_a || 0)
+    end
+
+    def move_to_tree(parent_ca_id, tree_label_id)
       return if tree_label_id.nil?
 
-      classification_tree&.update(parent_classification_alias_id: parent_ca&.id, classification_tree_label_id: tree_label_id)
+      classification_tree&.update(parent_classification_alias_id: parent_ca_id, classification_tree_label_id: tree_label_id)
+
+      return unless classification_tree&.changed?
 
       add_things_cache_invalidation_job_update
-      add_things_webhooks_job_update unless prevent_webhooks
+      add_things_webhooks_job_update
+    end
+
+    def merge_children_into_self
+      descendants.find_each do |d|
+        d.prevent_webhooks = prevent_webhooks
+        d.merge_with(self)
+      end
+    end
+
+    def merge_with_children(new_classification_alias, destroy_children = false)
+      transaction do
+        if destroy_children
+          merge_children_into_self
+        else
+          sub_classification_trees.update_all(parent_classification_alias_id: new_classification_alias.id, classification_tree_label_id: new_classification_alias.classification_tree_label)
+        end
+
+        merge_with(new_classification_alias)
+      end
     end
 
     def merge_with(new_classification_alias)
-      DataCycleCore::ClassificationContent.where(classification_id: primary_classification.id).find_each do |cc|
-        cc.update(classification_id: new_classification_alias.primary_classification.id) unless DataCycleCore::ClassificationContent.where(classification_id: new_classification_alias.primary_classification.id, relation: cc.relation, content_data_id: cc.content_data_id).exists?
-      end
+      # update Mappings
+      additional_classification_groups.where.not('EXISTS (SELECT 1 FROM classification_groups cg WHERE cg.classification_id = classification_groups.classification_id AND cg.classification_alias_id = ?)', new_classification_alias.id).update_all(classification_alias_id: new_classification_alias.id)
 
-      DataCycleCore::ClassificationContent::History.where(classification_id: primary_classification.id).find_each do |cc|
-        cc.update(classification_id: new_classification_alias.primary_classification.id) unless DataCycleCore::ClassificationContent::History.where(classification_id: new_classification_alias.primary_classification.id, relation: cc.relation, content_data_history_id: cc.content_data_history_id).exists?
-      end
+      primary_classification.additional_classification_groups.where.not('EXISTS (SELECT 1 FROM classification_groups cg WHERE cg.classification_alias_id = classification_groups.classification_alias_id AND cg.classification_id = ?)', new_classification_alias.primary_classification.id).update_all(classification_id: new_classification_alias.primary_classification.id)
 
+      # update classification_contents
+      primary_classification.classification_contents.where.not('EXISTS (SELECT 1 FROM classification_contents cc WHERE cc.content_data_id = classification_contents.content_data_id AND cc.relation = classification_contents.relation AND cc.classification_id = ?)', new_classification_alias.primary_classification.id).update_all(classification_id: new_classification_alias.primary_classification.id)
+
+      primary_classification.classification_content_histories.where.not('EXISTS (SELECT 1 FROM classification_content_histories cc WHERE cc.content_data_history_id = classification_content_histories.content_data_history_id AND cc.relation = classification_content_histories.relation AND cc.classification_id = ?)', new_classification_alias.primary_classification.id).update_all(classification_id: new_classification_alias.primary_classification.id)
+
+      # update classification_polygons
+      classification_polygons.update_all(classification_alias_id: new_classification_alias.id)
+
+      # update classification_user_groups
+      primary_classification.classification_user_groups.where.not('EXISTS (SELECT 1 FROM classification_user_groups cg WHERE cg.user_group_id = classification_user_groups.user_group_id AND cg.classification_id = ?)', new_classification_alias.primary_classification.id).update_all(classification_id: new_classification_alias.primary_classification.id)
+
+      # update stored_filters
       DataCycleCore::StoredFilter.where('parameters::TEXT ILIKE ?', "%#{id}%").lock('FOR UPDATE SKIP LOCKED').order(:id).update_all("parameters = replace(parameters::text, '#{id}', '#{new_classification_alias.id}')::jsonb")
 
       destroy
 
       new_classification_alias.send(:add_things_cache_invalidation_job_update)
-      new_classification_alias.send(:add_things_webhooks_job_update) unless prevent_webhooks
+      new_classification_alias.send(:add_things_webhooks_job_update)
     end
 
     def to_hash
@@ -364,13 +392,14 @@ module DataCycleCore
     end
 
     def add_things_webhooks_job_update
+      return if prevent_webhooks
       return unless classification_tree_label&.change_behaviour&.include?('trigger_webhooks') && classifications.things.exists?
 
       DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'execute_things_webhooks')
     end
 
     def execute_things_webhooks
-      classifications.things.find_each do |content|
+      linked_contents.find_each do |content|
         content.send(:execute_update_webhooks)
       end
     end

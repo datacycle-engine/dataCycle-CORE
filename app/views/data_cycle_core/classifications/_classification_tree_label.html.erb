@@ -14,6 +14,12 @@
                   dc_tooltip: t('embedded.close_all', locale: active_ui_locale)
                 } %>
 
+    <%= link_to tag.span(tag.i(class: 'fa fa-stack-2x fa-list-ul') + tag.i(class: 'fa fa-stack-1x fa-arrows-v'), class: 'fa-stack'), '#',
+                class: 'classification-order-button',
+                data: {
+                  dc_tooltip: t('classification_administration.move.button.tooltip', locale: active_ui_locale)
+                } if can?(:edit, tree_label) %>
+
     <%= link_to tag.i(class: 'fa fa-pencil'), '#',
                 class: 'edit',
                 data: {
@@ -69,5 +75,5 @@
 
   <%= tag.div(class: 'remote-render inverted classification-tree-label-form-container', data: { remote_path: 'data_cycle_core/classifications/classification_tree_label_form', remote_options: to_query_params(classification_tree_label: tree_label).to_json }) if can?(:edit, tree_label) %>
 
-  <ul class="children"></ul>
+  <ul class="children <%= 'draggable-container' if can?(:edit, tree_label) %> <%= 'move-to-tree' if can?(:move_to_tree, tree_label) %>"></ul>
 </li>

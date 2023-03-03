@@ -131,4 +131,11 @@ Gem::Specification.new do |s|
   s.add_dependency 'image_processing', '>= 1.2'
 
   s.add_dependency 'zip_tricks'
+
+  # read CSV and XLSX Files
+  s.add_dependency 'roo'
+
+  # render PDFs
+  s.add_dependency 'pdfkit'
+  s.add_dependency 'wkhtmltopdf-binary'
 end

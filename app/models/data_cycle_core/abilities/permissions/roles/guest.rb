@@ -10,89 +10,82 @@ module DataCycleCore
             ### guest
             ###################################################################################
             # DataLink
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :create_editable_links, :auto_login,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::DataLink)
+            permit_user(
+              role,
+              :create_editable_links, :auto_login,
+              SubjectByConditions: [DataCycleCore::DataLink]
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :auto_login,
-              DataCycleCore::Abilities::Segments::DataLinkByReceiver.new
+            permit_user(
+              role,
+              :auto_login,
+              :DataLinkByReceiver
             )
 
             # ObjectBrowser
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :show, :find,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(:object_browser)
+            permit_user(
+              role,
+              :show, :find,
+              SubjectByConditions: [:object_browser]
             )
 
             # UserApi
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :login, :renew_login, :reset_password, :confirm,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(:user_api)
+            permit_user(
+              role,
+              :login, :renew_login, :reset_password, :confirm,
+              SubjectByConditions: [:user_api]
             )
 
             # Asset
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read,
-              DataCycleCore::Abilities::Segments::AssetByUserAndNoContent.new
+            permit_user(
+              role,
+              :read,
+              :AssetByUserAndNoContent
             )
 
             # Thing
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :create,
-              DataCycleCore::Abilities::Segments::TemplateByCreatableScope.new('asset')
+            permit_user(
+              role,
+              :create,
+              TemplateByCreatableScope: ['asset']
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :print,
-              DataCycleCore::Abilities::Segments::ThingByContentType.new('entity')
+            permit_user(
+              role,
+              :print,
+              ThingByContentType: ['entity']
             )
 
             # StoredFilter
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :api,
-              DataCycleCore::Abilities::Segments::SubjectByUserAndConditions.new(DataCycleCore::StoredFilter, :user_id, api: true)
+            permit_user(
+              role,
+              :api,
+              SubjectByUserAndConditions: [DataCycleCore::StoredFilter, :user_id, api: true]
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :api,
-              DataCycleCore::Abilities::Segments::StoredFilterByApiUsers.new
-            )
-
-            # WatchList
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :copy_api_link,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(DataCycleCore::WatchList, my_selection: false)
+            permit_user(
+              role,
+              :api,
+              :StoredFilterByApiUsers
             )
 
             # DataAttributes
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read,
-              DataCycleCore::Abilities::Segments::DataAttributeAllowedForShow.new(
+            permit_user(
+              role,
+              :read,
+              DataAttributeAllowedForShow: [
                 [
                   :attribute_not_disabled?,
                   :overlay_attribute_visible?,
                   :attribute_not_releasable?
                 ]
-              )
+              ]
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :edit,
-              DataCycleCore::Abilities::Segments::DataAttributeAllowedForEdit.new(
+            permit_user(
+              role,
+              :edit,
+              DataAttributeAllowedForEdit: [
                 [
                   :attribute_not_included_in_publication_schedule?,
                   :attribute_not_disabled?,
@@ -100,13 +93,13 @@ module DataCycleCore
                   :attribute_not_external?,
                   :attribute_tree_label_visible?
                 ]
-              )
+              ]
             )
 
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :update,
-              DataCycleCore::Abilities::Segments::DataAttributeAllowedForUpdate.new(
+            permit_user(
+              role,
+              :update,
+              DataAttributeAllowedForUpdate: [
                 [
                   :attribute_not_included_in_publication_schedule?,
                   :attribute_not_disabled?,
@@ -115,14 +108,14 @@ module DataCycleCore
                   :attribute_not_external?,
                   :attribute_tree_label_visible?
                 ]
-              )
+              ]
             )
 
             # User
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :update,
-              DataCycleCore::Abilities::Segments::SubjectByUserAndConditions.new(DataCycleCore::User, :id)
+            permit_user(
+              role,
+              :update,
+              SubjectByUserAndConditions: [DataCycleCore::User, :id]
             )
           end
         end

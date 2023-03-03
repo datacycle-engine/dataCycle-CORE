@@ -21,7 +21,7 @@
           </a>
           <ul class="no-bullet accordion-content" data-tab-content>
             <% val.group_by { |c| l(c.publish_at&.to_date, format: :long, locale: active_ui_locale) }.each_with_index do |(p_day, v), idx| %>
-              <li class="publication-day <%= 'active' if v.first.publish_at&.to_date.today? %>"  data-day="<%= v.first.publish_at %>">
+              <li class="publication-day <%= 'active' if v.first.publish_at&.to_date.today? %>"  data-day="<%= v.first.publish_at&.to_date %>">
                 <div class="flex title-row">
                   <span class="title">
                     <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>

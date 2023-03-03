@@ -71,6 +71,7 @@ button,
   left: 0;
   background-color: rgba($black, 0.5);
   z-index: 999999999999;
+
   h2 {
     display: block;
     margin: 40% 3rem 0 3rem;
@@ -103,11 +104,11 @@ label.attribute-edit-label {
   display: flex;
   align-items: center;
 
-  > *:not(:last-child) {
+  >*:not(:last-child) {
     margin-right: 0.3rem;
   }
 
-  > .dc-type-icon {
+  >.dc-type-icon {
     margin-right: 0;
 
     &::before {
@@ -239,6 +240,7 @@ footer {
 }
 
 .external-system-icon {
+
   &.fa,
   &.fa-stack {
     font-size: 0.9rem;
@@ -259,6 +261,7 @@ footer {
         font-size: inherit;
         line-height: inherit;
       }
+
       .fa-long-arrow-right {
         font-size: inherit;
         line-height: inherit;
@@ -300,27 +303,27 @@ footer {
 }
 
 .detail-header-wrapper {
-  > .detail-header {
+  >.detail-header {
     margin-bottom: 1.5rem;
     border-top-left-radius: $global-radius;
     border-top-right-radius: $global-radius;
 
     .detail-type {
       .detail-label {
-        > *:not(:last-child) {
+        >*:not(:last-child) {
           margin-right: 0.3rem;
         }
       }
     }
   }
 
-  > *:last-child {
+  >*:last-child {
     border-bottom-left-radius: $global-radius;
     border-bottom-right-radius: $global-radius;
   }
 
-  > .content-scores,
-  > .external-connections {
+  >.content-scores,
+  >.external-connections {
     position: relative;
     border-bottom: 0px;
     font-size: 0.9rem;
@@ -334,22 +337,23 @@ footer {
     gap: 1rem 2rem;
   }
 
-  > .content-scores {
+  >.content-scores {
+
     .detail-type,
-    .detail-type > .detail-label {
+    .detail-type>.detail-label {
       display: flex;
       align-items: center;
 
-      > *:not(:last-child) {
+      >*:not(:last-child) {
         margin-right: 0.3rem;
       }
     }
 
-    .detail-type > .detail-content {
+    .detail-type>.detail-content {
       font-weight: bold;
     }
 
-    > *,
+    >*,
     .embedded-viewer {
       margin: 0 1rem;
     }
@@ -360,23 +364,23 @@ footer {
     }
 
     .detail-type.embedded {
-      > .accordion-title {
+      >.accordion-title {
         display: none;
       }
 
-      > .accordion-content {
+      >.accordion-content {
         display: flex;
         align-items: center;
         padding: 0;
       }
 
-      > .accordion-content > *:not([data-attribute-key='value']) {
+      >.accordion-content>*:not([data-attribute-key='value']) {
         display: none;
       }
     }
   }
 
-  > .external-connections {
+  >.external-connections {
     .external-connection {
       position: relative;
       margin: 0;
@@ -396,16 +400,16 @@ footer {
       left: auto !important;
 
       .list-items {
-        > li {
+        >li {
           display: flex;
           flex-flow: row nowrap;
           align-items: center;
 
-          > * {
+          >* {
             white-space: nowrap;
           }
 
-          > *:not(:last-child) {
+          >*:not(:last-child) {
             margin-right: 0.5rem;
           }
 
@@ -459,7 +463,7 @@ footer {
     }
   }
 
-  .detail-header + * {
+  .detail-header+* {
     margin-top: -1.5rem;
     padding-top: 2.5rem;
 
@@ -482,7 +486,7 @@ footer {
     align-items: center;
     transition: $opacity-transition;
 
-    > *:not(:last-child) {
+    >*:not(:last-child) {
       margin-right: 0.3rem;
     }
   }
@@ -503,7 +507,7 @@ footer {
     display: inline-block;
   }
 
-  > .title {
+  >.title {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -523,16 +527,21 @@ footer {
         }
       }
     }
+
+    .slug {
+      font-size: 1.1rem;
+      color: var(--darker-gray);
+    }
   }
 
-  > .translatable-attribute-container > .translatable-attribute > .title,
-  > .translatable-attribute-container > .translatable-attribute > .name input,
-  > .translatable-attribute-container > .translatable-attribute > .headline_external input,
-  > .translatable-attribute-container > .translatable-attribute > .headline input,
-  > .title,
-  > .name input,
-  > .headline_external input,
-  > .headline input {
+  >.translatable-attribute-container>.translatable-attribute>.title,
+  >.translatable-attribute-container>.translatable-attribute>.name input,
+  >.translatable-attribute-container>.translatable-attribute>.headline_external input,
+  >.translatable-attribute-container>.translatable-attribute>.headline input,
+  >.title,
+  >.name input,
+  >.headline_external input,
+  >.headline input {
     font-size: 1.6rem;
     font-weight: 300;
     padding: 1.7rem 1rem 1.2rem 1rem !important;
@@ -553,10 +562,12 @@ footer {
         background: none;
         padding: 0;
         margin-left: 1.5rem;
-        > .classification {
+
+        >.classification {
           position: relative;
         }
       }
+
       .accordion-title {
         display: inline-block;
         text-align: left;
@@ -577,13 +588,14 @@ footer {
           width: 1rem;
         }
       }
+
       &.is-active .accordion-title::before {
         content: '\f106';
       }
     }
   }
 
-  > .title {
+  >.title {
     padding: 0 5rem 1rem 5rem;
     word-break: break-word;
   }
@@ -601,8 +613,8 @@ footer {
     position: relative;
   }
 
-  > .detail-type,
-  > .hidden-classifications .detail-type {
+  >.detail-type,
+  >.hidden-classifications .detail-type {
     text-align: left;
 
     &.mapped-classification {
@@ -649,7 +661,7 @@ footer {
     }
   }
 
-  > .description {
+  >.description {
     position: relative;
     padding: 0 5rem 1rem 5rem;
   }
@@ -737,7 +749,7 @@ footer {
       overflow: unset;
     }
 
-    > label {
+    >label {
       padding-top: 0 !important;
       margin-top: -0.5rem;
     }
@@ -798,7 +810,7 @@ footer {
     }
   }
 
-  .translated + label {
+  .translated+label {
     left: 2.3rem;
   }
 
@@ -859,6 +871,7 @@ footer {
   }
 
   .form-element.has-warning {
+
     &.detail_object,
     &.embedded_object,
     &.linked,
@@ -880,7 +893,7 @@ footer {
   }
 
   .form-element.check_box .dc-checkbox {
-    [type='checkbox'] + label[for] {
+    [type='checkbox']+label[for] {
       position: relative;
       left: 0;
       top: 0;
@@ -889,7 +902,7 @@ footer {
     }
   }
 
-  .form-element.detail_object > .content-object-item {
+  .form-element.detail_object>.content-object-item {
     border: none;
     box-shadow: none;
   }
@@ -899,24 +912,26 @@ footer {
   }
 
   .form-element {
+
     &[readonly],
     &[data-readonly='true'],
     &[disabled],
     &.disabled {
-      > input,
-      > .editor-block,
-      > .daterange,
-      > .readonly-select,
-      > .v-select > .select2,
-      > .editor-block > .attribute-edit-label,
-      > .editor-block > .ql-toolbar {
+
+      >input,
+      >.editor-block,
+      >.daterange,
+      >.readonly-select,
+      >.v-select>.select2,
+      >.editor-block>.attribute-edit-label,
+      >.editor-block>.ql-toolbar {
         cursor: not-allowed !important;
         background: lighten($light-gray, 5%) !important;
       }
     }
   }
 
-  .form-element.focus > .editor-block {
+  .form-element.focus>.editor-block {
     border-color: $primary-color;
     background: $white;
   }
@@ -946,7 +961,7 @@ footer {
           margin: 1rem 0 1rem 1rem;
         }
 
-        input[type='checkbox'] + label[for] {
+        input[type='checkbox']+label[for] {
           position: relative;
           top: 0;
           left: 0;
@@ -962,7 +977,7 @@ footer {
           margin: 0;
         }
 
-        input[type='checkbox'] + label[for] {
+        input[type='checkbox']+label[for] {
           position: relative;
           top: unset;
           left: unset;
@@ -979,15 +994,16 @@ footer {
       }
 
       &.object {
-        > .translated {
+        >.translated {
           top: 1.5rem;
           left: 1.5rem;
           color: $black;
         }
+
         &:hover,
         &.focus,
         &:focus {
-          > .translated {
+          >.translated {
             color: $black;
           }
         }
@@ -999,8 +1015,8 @@ footer {
         color: $dark-gray;
       }
 
-      [type='checkbox'] + label[for],
-      [type='radio'] + label[for] {
+      [type='checkbox']+label[for],
+      [type='radio']+label[for] {
         margin-left: 0.5rem;
         left: 2rem;
         padding: 0;
@@ -1014,8 +1030,9 @@ footer {
       &:focus,
       &.focus,
       &:hover {
-        > label,
-        > .translated {
+
+        >label,
+        >.translated {
           color: $primary-color;
         }
       }
@@ -1023,6 +1040,7 @@ footer {
 
     .translatable-attribute-container {
       .translatable-attribute {
+
         &.remote-render,
         &.remote-rendering,
         &.remote-render-failed {
@@ -1048,6 +1066,7 @@ footer {
         top: -2rem;
         left: 0.5rem;
       }
+
       display: none;
     }
 
@@ -1061,7 +1080,7 @@ footer {
     }
 
     .publish_at {
-      > input.date.read-only {
+      >input.date.read-only {
         padding: 2.5rem 1rem 1rem 1rem;
         line-height: initial;
       }
@@ -1114,6 +1133,7 @@ footer {
 .edit-header-functions {
   .form-element.agbs {
     display: inline;
+
     .single_error {
       top: auto;
       bottom: -3.3rem;
@@ -1143,7 +1163,6 @@ span.single_warning,
   line-height: 1.5;
   text-align: left;
   font-size: 0.9rem;
-  text-align: right;
 
   .close-error {
     display: block;
@@ -1159,6 +1178,7 @@ span.single_warning,
 
 span.single_warning {
   background-color: map-get($foundation-palette, warning);
+
   .close-warning {
     display: block;
     width: 1.2rem;
@@ -1191,6 +1211,7 @@ span.single_warning:before {
 }
 
 .detail-header-wrapper {
+
   /*background: $white;
   box-shadow: 0 3px 3px rgba(0, 0, 0, 0.10);*/
   .infolist {
@@ -1243,13 +1264,11 @@ span.single_warning:before {
   }
 
   .stripes {
-    background: repeating-linear-gradient(
-      45deg,
-      lighten($light-gray, 6%),
-      lighten($light-gray, 6%) 10px,
-      #fcfcfc 10px,
-      #fcfcfc 20px
-    );
+    background: repeating-linear-gradient(45deg,
+        lighten($light-gray, 6%),
+        lighten($light-gray, 6%) 10px,
+        #fcfcfc 10px,
+        #fcfcfc 20px);
   }
 
   .images {
@@ -1310,6 +1329,7 @@ span.single_warning:before {
         .select2-selection__choice {
           padding-right: 0.3rem;
         }
+
         .select2-selection__clear {
           display: none;
         }
@@ -1322,6 +1342,7 @@ span.single_warning:before {
   }
 
   &.select2-container {
+
     .select2-selection--multiple,
     .select2-selection--single {
       border-radius: $global-radius;
@@ -1435,6 +1456,7 @@ span.single_warning:before {
 
 .tags,
 body .v-select {
+
   .tag,
   .selected-tag,
   .select2-selection__choice {
@@ -1571,6 +1593,7 @@ body .v-select {
       font-size: 0.8rem;
     }
   }
+
   .buttons .fa {
     font-size: 1rem;
   }
@@ -1595,7 +1618,7 @@ body .v-select {
       display: none;
     }
 
-    > .buttons {
+    >.buttons {
       padding-top: 1rem;
       border-top: 1px lighten($dark-gray, 20%) dashed;
       display: grid;
@@ -1608,12 +1631,12 @@ body .v-select {
       }
     }
 
-    fieldset.template.active ~ .translatable-attribute-locales,
-    fieldset.template.active ~ .form-thumbnail {
+    fieldset.template.active~.translatable-attribute-locales,
+    fieldset.template.active~.form-thumbnail {
       display: none;
     }
 
-    > .form-thumbnail {
+    >.form-thumbnail {
       position: absolute;
       height: 2.8rem;
       bottom: 1rem;
@@ -1628,21 +1651,23 @@ body .v-select {
     }
 
     fieldset {
-      > li {
+      >li {
         list-style: none;
       }
 
-      &.active:first-of-type ~ .buttons {
+      &.active:first-of-type~.buttons {
         .prev {
           display: none;
         }
       }
-      &.active:last-of-type ~ .buttons {
+
+      &.active:last-of-type~.buttons {
         .next {
           display: none;
         }
       }
-      &.active:not(.iframe):last-of-type ~ .buttons {
+
+      &.active:not(.iframe):last-of-type~.buttons {
         .submit {
           display: inline-block;
 
@@ -1659,6 +1684,7 @@ body .v-select {
       .form-loading {
         text-align: center;
         line-height: 5.5rem;
+
         .fa {
           font-size: 2rem;
           color: $light-gray;
@@ -1685,6 +1711,7 @@ body .v-select {
         &:hover {
           color: $dark-gray;
         }
+
         &.disabled {
           color: $light-gray;
           cursor: not-allowed;
@@ -1693,6 +1720,7 @@ body .v-select {
           .loading-icon {
             display: block;
           }
+
           .copy-icon {
             display: none;
           }
@@ -1736,9 +1764,11 @@ body .v-select {
         .translated {
           display: none;
         }
+
         input {
           margin: 0;
         }
+
         .editor-block {
           background-color: $white;
 
@@ -1747,17 +1777,17 @@ body .v-select {
             border: 1px solid $medium-gray;
           }
 
-          > label {
+          >label {
             padding-left: 0;
             padding-top: 8px;
           }
 
-          > .ql-toolbar {
+          >.ql-toolbar {
             padding-bottom: 0;
           }
 
-          > label,
-          > .ql-toolbar {
+          >label,
+          >.ql-toolbar {
             height: 2rem;
             background-color: $white;
             border: none;
@@ -1783,26 +1813,33 @@ body .v-select {
             background: $white;
           }
         }
+
         &.focus {
+
           .editor-block .ql-editor,
           .select2 {
             border: 1px solid $dark-gray;
             box-shadow: 0 0 5px $medium-gray;
           }
         }
+
         &.daterange {
+
           label,
           .form-element {
             margin: 0;
             display: inline-block;
+
             .icon i {
               display: none;
             }
           }
-          > label {
+
+          >label {
             display: block;
           }
         }
+
         &.agbs {
           label.agb-link {
             font-size: 1rem;
@@ -1810,7 +1847,8 @@ body .v-select {
         }
       }
     }
-    fieldset.no-submit ~ .buttons {
+
+    fieldset.no-submit~.buttons {
       .submit {
         display: none !important;
       }
@@ -1821,11 +1859,11 @@ body .v-select {
         display: block;
       }
 
-      .copy-attribute-to-all + .form-element {
+      .copy-attribute-to-all+.form-element {
         margin-right: 4rem;
       }
 
-      fieldset.active:not(.iframe):last-of-type ~ .buttons .submit.set-all-attributes {
+      fieldset.active:not(.iframe):last-of-type~.buttons .submit.set-all-attributes {
         display: inline-block;
       }
     }
@@ -1851,7 +1889,7 @@ body .v-select {
 .tabs {
   border: 0;
 
-  .tabs-title > a {
+  .tabs-title>a {
     span {
       color: $dark-gray;
       font-size: rem-calc(12);
@@ -1916,8 +1954,10 @@ a {
     min-width: 300px;
 
     &.is-open {
+
       &.has-position-bottom,
       &.has-position-left {
+
         &.has-alignment-right,
         &.has-alignment-top {
           right: -22px !important;
@@ -1926,7 +1966,7 @@ a {
     }
   }
 
-  > .loading {
+  >.loading {
     width: 250px;
     padding: 1rem 0;
   }
@@ -1968,7 +2008,7 @@ a {
       align-items: center;
       justify-content: flex-end;
 
-      > * {
+      >* {
         margin-left: 0.3rem;
       }
 
@@ -2004,10 +2044,10 @@ a {
     }
   }
 
-  > ul {
+  >ul {
     margin: 0;
 
-    > li {
+    >li {
       position: relative;
       text-align: left;
       font-size: 0.8rem;
@@ -2026,9 +2066,11 @@ a {
     li {
       text-align: left;
       display: flex;
+
       &.invalid {
         color: $dark-gray;
       }
+
       &:nth-child(even).invalid {
         color: darken($dark-gray, 10%);
       }
@@ -2054,7 +2096,7 @@ a {
     .buttons {
       text-align: right;
 
-      > *,
+      >*,
       i.fa {
         display: flex;
         align-items: center;
@@ -2082,6 +2124,7 @@ a {
   }
 
   &.is-open {
+
     &.has-position-bottom,
     &.has-position-left {
       &.has-alignment-left {
@@ -2150,6 +2193,7 @@ label.dc-foundation-tooltip {
   height: 1.5rem;
   font-size: 1.2rem;
   line-height: 1.5rem;
+
   .fa {
     display: inline-block;
     position: absolute;
@@ -2159,6 +2203,7 @@ label.dc-foundation-tooltip {
       font-size: 1.3rem;
       line-height: 1.5rem;
     }
+
     &.fa-arrow-right {
       font-size: 0.6rem;
       top: 3px;
@@ -2172,17 +2217,20 @@ label.dc-foundation-tooltip {
 
 body.object-browser-overlay-open {
   #main-menu {
+
     .watch-lists-link,
     .show-sidebar {
       pointer-events: none;
     }
   }
+
   header {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
   }
+
   section.breadcrumb {
     position: fixed;
     top: calc(4.1rem + 5px);

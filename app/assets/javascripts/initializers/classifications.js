@@ -6,88 +6,59 @@ import ClassificationEditForm from '../components/classification_administration/
 import ClassificationDestroyButton from '../components/classification_administration/classification_delete_button';
 import ClassificationLoadAllButton from '../components/classification_administration/classification_load_all_button';
 import ClassificationCloseAllButton from '../components/classification_administration/classification_close_all_button';
+import ClassificationDragAndDrop from '../components/classification_administration/classification_drag_and_drop';
+import ClassificationJumpToParent from '../components/classification_administration/classification_jump_to_parent';
 import DetailToggler from '../components/detail_toggler';
 
 export default function () {
-  if ($('#classification-administration').length) {
-    for (const element of document.querySelectorAll(
-      '[name="classification_tree_label[visibility][]"][value="show"], [name="classification_tree_label[visibility][]"][value="show_more"]'
-    ))
-      new ClassificationVisibilitySwitcher(element);
-    DataCycle.htmlObserver.addCallbacks.push([
-      e =>
-        e.nodeName == 'INPUT' &&
-        !e.classList.contains('dcjs-classification-visibility-switcher') &&
-        e.name == 'classification_tree_label[visibility][]' &&
-        ['show', 'show_more'].includes(e.value),
+  if (document.getElementById('classification-administration')) {
+    DataCycle.initNewElements(
+      'input[name="classification_tree_label[visibility][]"][value^="show"]:not(.dcjs-classification-visibility-switcher)',
       e => new ClassificationVisibilitySwitcher(e)
-    ]);
+    );
 
-    for (const element of document.querySelectorAll('a.name')) new ClassificationNameButton(element);
-    DataCycle.htmlObserver.addCallbacks.push([
-      e =>
-        e.nodeName == 'A' && e.classList.contains('name') && !e.classList.contains('dcjs-classification-name-button'),
-      e => new ClassificationNameButton(e)
-    ]);
+    DataCycle.initNewElements('a.name:not(.dcjs-classification-name-button)', e => new ClassificationNameButton(e));
 
-    for (const element of document.querySelectorAll('.load-more-button')) new ClassificationLoadMoreButton(element);
-    DataCycle.htmlObserver.addCallbacks.push([
-      e => e.classList.contains('load-more-button') && !e.classList.contains('dcjs-classification-load-more-button'),
+    DataCycle.initNewElements(
+      '.load-more-button:not(.dcjs-classification-load-more-button)',
       e => new ClassificationLoadMoreButton(e)
-    ]);
+    );
 
-    for (const element of document.querySelectorAll('a.create, a.edit')) new ClassificationEditButton(element);
-    DataCycle.htmlObserver.addCallbacks.push([
-      e =>
-        e.nodeName == 'A' &&
-        (e.classList.contains('create') || e.classList.contains('edit')) &&
-        !e.classList.contains('dcjs-classification-edit-button'),
+    DataCycle.initNewElements(
+      'a.create:not(.dcjs-classification-edit-button), a.edit:not(.dcjs-classification-edit-button)',
       e => new ClassificationEditButton(e)
-    ]);
+    );
 
-    for (const element of document.querySelectorAll(
-      'form.classification-tree-label-form, form.classification-alias-form'
-    ))
-      new ClassificationEditForm(element);
-    DataCycle.htmlObserver.addCallbacks.push([
-      e =>
-        e.nodeName == 'FORM' &&
-        (e.classList.contains('classification-tree-label-form') || e.classList.contains('classification-alias-form')) &&
-        !e.classList.contains('dcjs-classification-edit-form'),
+    DataCycle.initNewElements(
+      'form.classification-tree-label-form:not(.dcjs-classification-edit-form), form.classification-alias-form:not(.dcjs-classification-edit-form)',
       e => new ClassificationEditForm(e)
-    ]);
+    );
 
-    for (const element of document.querySelectorAll('a.destroy')) new ClassificationDestroyButton(element);
-    DataCycle.htmlObserver.addCallbacks.push([
-      e =>
-        e.nodeName == 'A' &&
-        e.classList.contains('destroy') &&
-        !e.classList.contains('dcjs-classification-destroy-button'),
+    DataCycle.initNewElements(
+      'a.destroy:not(.dcjs-classification-destroy-button)',
       e => new ClassificationDestroyButton(e)
-    ]);
+    );
 
-    for (const element of document.querySelectorAll('.classification-load-all-children'))
-      new ClassificationLoadAllButton(element);
-    DataCycle.htmlObserver.addCallbacks.push([
-      e =>
-        e.classList.contains('classification-load-all-children') &&
-        !e.classList.contains('dcjs-classification-load-all-button'),
+    DataCycle.initNewElements(
+      '.classification-load-all-children:not(.dcjs-classification-load-all-button)',
       e => new ClassificationLoadAllButton(e)
-    ]);
+    );
 
-    for (const element of document.querySelectorAll('.classification-close-all-children'))
-      new ClassificationCloseAllButton(element);
-    DataCycle.htmlObserver.addCallbacks.push([
-      e =>
-        e.classList.contains('classification-close-all-children') &&
-        !e.classList.contains('dcjs-classification-load-all-button'),
+    DataCycle.initNewElements(
+      '.classification-close-all-children:not(.dcjs-classification-load-all-button)',
       e => new ClassificationCloseAllButton(e)
-    ]);
+    );
+
+    DataCycle.initNewElements(
+      '.draggable-container:not(.dcjs-classification-drag-and-drop)',
+      e => new ClassificationDragAndDrop(e)
+    );
+
+    DataCycle.initNewElements(
+      'li.direct:not(.dcjs-classification-jump-to-parent), li.mapped:not(.dcjs-classification-jump-to-parent), li.new-button:not(.dcjs-classification-jump-to-parent)',
+      e => new ClassificationJumpToParent(e)
+    );
   }
 
-  for (const element of document.querySelectorAll('.toggle-details')) new DetailToggler(element);
-  DataCycle.htmlObserver.addCallbacks.push([
-    e => e.classList.contains('toggle-details') && !e.classList.contains('dcjs-detail-toggler'),
-    e => new DetailToggler(e)
-  ]);
+  DataCycle.initNewElements('.toggle-details:not(.dcjs-detail-toggler)', e => new DetailToggler(e));
 }

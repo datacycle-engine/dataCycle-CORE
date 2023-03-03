@@ -153,6 +153,7 @@ module DataCycleCore
           array.map { |schedule|
             dstart = get_time(schedule.dig('dateFrom'))
             dend = get_time(schedule.dig('dateTo'))
+            next if dstart.blank? || dend.blank?
             tstart = schedule.dig('timeFrom')&.in_time_zone&.to_datetime || Time.zone.now.beginning_of_day.to_datetime
             tend = schedule.dig('timeTo').in?(['00:00']) ? Time.zone.now.end_of_day.to_datetime : schedule.dig('timeTo')&.in_time_zone&.to_datetime || Time.zone.now.beginning_of_day.to_datetime
             tend = tstart if schedule.dig('timeTo').nil?
@@ -177,7 +178,7 @@ module DataCycleCore
               s.add_recurrence_rule(rrule)
             end
             schedule_object.to_hash.merge(dtstart: dtstart, dtend: dtend).compact
-          }.sort_by { |item| item[:dtstart] }
+          }&.compact_blank&.sort_by { |item| item[:dtstart] }
         end
 
         def self.next_day?(from, to)

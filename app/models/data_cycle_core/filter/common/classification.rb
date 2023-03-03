@@ -8,7 +8,7 @@ module DataCycleCore
           return self if ids.blank?
 
           reflect(
-            @query.where(create_exists_query_for_classification_alias_ids_with_subtree(ids))
+            @query.where(sub_query_for_ccc_relations(ids, 'full_classification_alias_ids'))
           )
         end
 
@@ -16,7 +16,7 @@ module DataCycleCore
           return self if ids.blank?
 
           reflect(
-            @query.where.not(create_exists_query_for_classification_alias_ids_with_subtree(ids))
+            @query.where.not(sub_query_for_ccc_relations(ids, 'full_classification_alias_ids'))
           )
         end
 
@@ -24,7 +24,7 @@ module DataCycleCore
           return self if ids.blank?
 
           reflect(
-            @query.where(create_exists_query_for_classification_alias_ids_without_subtree(ids))
+            @query.where(sub_query_for_ccc_relations(ids, 'direct_classification_alias_ids'))
           )
         end
 
@@ -32,7 +32,7 @@ module DataCycleCore
           return self if ids.blank?
 
           reflect(
-            @query.where.not(create_exists_query_for_classification_alias_ids_without_subtree(ids))
+            @query.where.not(sub_query_for_ccc_relations(ids, 'direct_classification_alias_ids'))
           )
         end
 
@@ -46,27 +46,19 @@ module DataCycleCore
             .with_internal_name(definition.dig('aliases')).pluck(:id))
         end
 
-        # TODO: Update with classification refactoring: SO SLOW !!!
         def classification_tree_ids(ids = nil)
           return self if ids.blank?
 
           reflect(
-            @query.where(
-              join_classification_trees_on_classification_content.where(classification_content[:content_data_id].eq(thing[:id]).and(classification_tree[:classification_tree_label_id].in(ids))).exists
-            )
+            @query.where(sub_query_for_ccc_relations(ids, 'full_tree_label_ids'))
           )
         end
 
-        # TODO: Update with classification refactoring: SO SLOW !!!
         def not_classification_tree_ids(ids = nil)
           return self if ids.blank?
 
           reflect(
-            @query.where(
-              thing[:id].not_in(
-                join_classification_trees.where(classification_tree[:classification_tree_label_id].in(ids))
-              )
-            )
+            @query.where.not(sub_query_for_ccc_relations(ids, 'full_tree_label_ids'))
           )
         end
 
@@ -87,42 +79,15 @@ module DataCycleCore
 
         private
 
-        def create_exists_query_for_classification_alias_ids_with_subtree(ids)
+        def sub_query_for_ccc_relations(ids, column_name)
           raw_query = <<-SQL.squish
             SELECT 1
-          	FROM collected_classification_content_relations
-          	WHERE collected_classification_content_relations.content_id = things.id AND
-              collected_classification_content_relations.full_classification_alias_ids && ARRAY[?]::UUID[]
+          	FROM collected_classification_contents
+            WHERE collected_classification_contents.thing_id = things.id
+              AND collected_classification_contents.#{column_name} && ARRAY[?]::UUID[]
           SQL
 
-          Arel::Nodes::Exists.new(
-            Arel.sql(
-              Thing.send(:sanitize_sql_for_conditions,
-                         [
-                           raw_query,
-                           ids
-                         ])
-            )
-          )
-        end
-
-        def create_exists_query_for_classification_alias_ids_without_subtree(ids)
-          raw_query = <<-SQL.squish
-            SELECT 1
-            FROM collected_classification_content_relations
-            WHERE collected_classification_content_relations.content_id = things.id AND
-              collected_classification_content_relations.direct_classification_alias_ids && ARRAY[?]::UUID[]
-          SQL
-
-          Arel::Nodes::Exists.new(
-            Arel.sql(
-              Thing.send(:sanitize_sql_for_conditions,
-                         [
-                           raw_query,
-                           ids
-                         ])
-            )
-          )
+          Arel::Nodes::Exists.new(Arel.sql(DataCycleCore::Thing.send(:sanitize_sql_for_conditions, [raw_query, ids])))
         end
       end
     end

@@ -55,15 +55,15 @@ module DataCycleCore
 
       @content = DataCycleCore::Thing.find(permitted_params[:content_id]) if permitted_params[:content_id].present?
 
-      I18n.with_locale(permitted_params[:locale] || I18n.locale) do
+      I18n.with_locale(permitted_params[:locale]) do
         if permitted_params[:external]
           @objects = DataCycleCore::Thing.where(external_key: permitted_params[:ids])
         else
           @objects = DataCycleCore::Thing.where(id: permitted_params[:ids])
         end
-      end
 
-      respond_to(:js)
+        render json: { html: render_to_string(formats: [:html], layout: false).strip, ids: @objects.pluck(:id) }
+      end
     end
 
     def render_in_overlay
@@ -74,19 +74,23 @@ module DataCycleCore
       @content = DataCycleCore::Thing.find(permitted_params[:content_id]) if permitted_params[:content_id].present?
       @objects = DataCycleCore::Thing.where(id: params[:ids])
 
-      render 'data_cycle_core/contents/create', format: :js
+      I18n.with_locale(params[:locale]) do
+        render json: {
+          html: render_to_string('data_cycle_core/contents/create', formats: [:html], layout: false).strip,
+          detail_html: render_to_string(formats: [:html], layout: false, action: 'details', locals: { :@object => @objects.first }).strip,
+          ids: @objects.pluck(:id)
+        }
+      end
     end
 
     def details
       authorize! :show, :object_browser
 
-      if permitted_params[:id].present?
-        I18n.with_locale(permitted_params[:locale] || I18n.locale) do
-          @object = DataCycleCore::Thing.find(permitted_params[:id])
-        end
-      end
+      I18n.with_locale(permitted_params[:locale]) do
+        @object = DataCycleCore::Thing.find(permitted_params[:id])
 
-      respond_to(:js)
+        render json: { detail_html: render_to_string(formats: [:html], layout: false).strip }
+      end
     end
 
     def permitted_params

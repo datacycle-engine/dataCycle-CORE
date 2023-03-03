@@ -6,8 +6,8 @@ module DataCycleCore
       class TreeLabelByVisibility < Base
         attr_reader :subject, :visibilities
 
-        def initialize(visibilities)
-          @visibilities = Array.wrap(visibilities)
+        def initialize(*visibilities)
+          @visibilities = Array.wrap(visibilities).flatten
           @subject = DataCycleCore::ClassificationTreeLabel
         end
 

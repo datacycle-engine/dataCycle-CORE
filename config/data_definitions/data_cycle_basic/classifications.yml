@@ -156,7 +156,7 @@
     - packagetripinfo | destination.one
     - station | destination.one
     - subtitle | destination.one
-    - teaser | destination.one
+    - teaser | destination.one/Wintop
     - additionalBookingInformation | mein.toubiz
     - currentInformation | mein.toubiz
     - additionalLocationInformation | mein.toubiz
@@ -193,6 +193,9 @@
     - character | Venus
     - parkingPossibilities | Venus
     - seasonDescription | Venus
+    - zusatzinfo | Wintop
+    - anreisebeschreibung | Wintop
+    - beschreibung | Wintop
 
 - POI - Kategorien | all:
 

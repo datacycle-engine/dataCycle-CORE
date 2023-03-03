@@ -33,7 +33,7 @@ module DataCycleCore
 
       respond_to do |format|
         format.html
-        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/application/count_or_more_results').squish } }
+        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/application/count_or_more_results').strip } }
       end
     end
 
@@ -148,7 +148,7 @@ module DataCycleCore
         .select { |c| (c.type == :string && BLOCKED_COLUMNS.exclude?(c.name)) || c.name == DataCycleCore::User.primary_key }
         .map { |c| "users.#{c.name}" }
 
-      search_term.to_s.split(' ').map { |term| "concat_ws(' ', #{search_columns.join(', ')}) ILIKE '%#{term.strip}%'" }.join(' AND ')
+      search_term.to_s.split.map { |term| "concat_ws(' ', #{search_columns.join(', ')}) ILIKE '%#{term.strip}%'" }.join(' AND ')
     end
 
     def search_params

@@ -21,8 +21,5 @@ json.merge! render 'pagination_links',
                    end)
 
 json.merge! render 'live_data'
-unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
-  (json['meta'] ||= {})['collection'] = @watch_list.as_json(only: [:id, :name]) unless @watch_list.nil?
-end
 
 json

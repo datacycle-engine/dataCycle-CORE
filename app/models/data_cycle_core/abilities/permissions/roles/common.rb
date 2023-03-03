@@ -12,38 +12,20 @@ module DataCycleCore
             # Thing
             # WatchList
             # StoredFilter
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :show,
-              DataCycleCore::Abilities::Segments::SubjectByConditions.new(
-                [
-                  DataCycleCore::Thing,
-                  DataCycleCore::WatchList,
-                  DataCycleCore::StoredFilter
-                ]
-              )
-            )
+            permit_user(role, :show, SubjectByConditions: [[DataCycleCore::Thing, DataCycleCore::WatchList, DataCycleCore::StoredFilter]])
 
             # DataLink for things, watch_lists
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :update, :import,
-              DataCycleCore::Abilities::Segments::ThingByDataLink.new
-            )
+            permit_user(role, :update, :import, :ThingByDataLink)
+
             # DataLink for stored_filter
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :read, :search, :classification_trees, :classification_tree, :permanent_advanced, :advanced,
-              DataCycleCore::Abilities::Segments::StoredFilterByDataLink.new('fulltext_search')
-            )
+            permit_user(role, :read, :search, :classification_trees, :classification_tree, :permanent_advanced, :advanced, StoredFilterByDataLink: 'fulltext_search')
+
+            # WatchList
+            permit_user(role, :copy_api_link, SubjectByConditions: [DataCycleCore::WatchList, my_selection: false])
 
             ### Features
             # ViewMode
-            add_permission(
-              DataCycleCore::Abilities::Segments::UsersByRole.new(role),
-              :can, :grid,
-              DataCycleCore::Abilities::Segments::SubjectByEnabledFeature.new(:view_mode, DataCycleCore::Feature::ViewMode)
-            )
+            permit_user(role, :grid, SubjectByEnabledFeature: [:view_mode, DataCycleCore::Feature::ViewMode])
           end
         end
       end

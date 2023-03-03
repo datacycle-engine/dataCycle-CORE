@@ -5,10 +5,10 @@ module DataCycleCore
     module_function
 
     def create_data(type, user = nil)
+      raise ArgumentError, "Unknown type (#{type}) for DummyDataHelper" unless respond_to?(type)
+
       @user = user
       send(type)
-    rescue StandardError => e
-      raise ArgumentError, "Unknown type (#{type}) for DummyDataHelper: #{e.message}"
     end
 
     def tour

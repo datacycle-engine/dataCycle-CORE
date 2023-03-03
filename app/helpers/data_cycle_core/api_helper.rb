@@ -64,7 +64,8 @@ module DataCycleCore
 
     def included_attribute?(name, attribute_list)
       return if attribute_list.blank?
-      attribute_list.map { |item| item.first == name }.inject(&:|)
+
+      attribute_list.pluck(0).intersection(Array.wrap(name)).any?
     end
 
     def subtree_for(name, attribute_list)
@@ -91,7 +92,7 @@ module DataCycleCore
         .filter do |key, prop|
           next false if INTERNAL_PROPERTIES.include?(key) || prop['sorting'].blank?
           next false if type.present? && prop['type'] != type
-          next false if attribute_disabled?(prop) && prop['type'] != 'linked'
+          next false if attribute_disabled?(prop) && prop['type'] != 'linked' # ignore linked disabled (legacy of bidirectional links)
 
           true
         end

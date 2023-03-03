@@ -68,10 +68,20 @@ module DataCycleCore
       new_content.reload
     end
 
-    def self.get_object_params(template_name)
+    def self.get_object_params(template_name, params_hash)
       template = get_internal_template(template_name)
-      datahash = get_params_from_hash(template.schema)
-      datahash
+      schema_hash = template.schema.deep_dup
+      keys = get_keys_from_hash(params_hash)
+      schema_hash['properties'].slice!(*keys) if keys.present?
+      get_params_from_hash(schema_hash)
+    end
+
+    def self.get_keys_from_hash(params_hash)
+      keys = []
+      keys.concat(params_hash[:datahash].keys) if params_hash&.[](:datahash).present?
+      keys.concat(params_hash[:translations].values.map(&:keys).flatten) if params_hash&.[](:translations).present?
+      keys.concat(params_hash.except(:datahash, :translations).keys) if params_hash.present?
+      keys.uniq.map(&:to_s)
     end
 
     def self.create_internal_object(template_name, object_params, current_user, is_part_of = nil, source = nil)
@@ -135,27 +145,31 @@ module DataCycleCore
       { datahash: allowed_params, translations: I18n.available_locales.index_with { |_l| allowed_params } }
     end
 
-    def self.blank?(data)
-      return false if data.is_a?(FalseClass)
-
-      data.is_a?(::Array) ? data.reject(&:blank?).empty? : data.blank?
+    def self.blank?(value)
+      !present?(value)
     end
 
-    def self.present?(data)
-      !blank?(data)
+    def self.present?(value)
+      case value
+      when FalseClass
+        true
+      when ActiveRecord::Relation
+        value.any?
+      when ::Array
+        value.any? { |v| present?(v) }
+      when ::Hash
+        value.any? { |_, v| present?(v) }
+      else
+        value.present?
+      end
     end
 
-    def self.deep_blank?(data)
-      return true if blank?(data)
-
-      return data.all? { |v| deep_blank?(v) } if data.is_a?(::Array)
-      return data.all? { |_, v| deep_blank?(v) } if data.is_a?(::Hash)
-
-      false
+    def self.deep_blank?(value)
+      blank?(value)
     end
 
-    def self.deep_present?(data)
-      !deep_blank?(data)
+    def self.deep_present?(value)
+      present?(value)
     end
 
     def self.parse_translated_hash(datahash)
@@ -163,16 +177,18 @@ module DataCycleCore
 
       neutral_hash = datahash.key?(:datahash) ? datahash[:datahash].to_h : datahash.except(:translations, :version_name).to_h
       keep_locales = find_locales_recursive(neutral_hash)
-      translations = datahash[:translations]&.reject { |locale, value| keep_locales.exclude?(locale) && value.deep_reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }.blank? }.presence || { I18n.locale.to_s => {} }
+      translations = datahash[:translations]&.reject { |locale, value| keep_locales.exclude?(locale) && value&.deep_reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }.blank? }.presence || { I18n.locale.to_s => {} }
 
       translations.transform_values { |value| neutral_hash.merge(value).with_indifferent_access }
     end
 
     def self.find_locales_recursive(datahash, locales = [])
       datahash&.each_value do |v|
-        next unless v.is_a?(::Array) && v.first.is_a?(::Hash)
+        next unless v.is_a?(::Array)
 
         v.each do |h|
+          next unless h.is_a?(::Hash)
+
           find_locales_recursive(h['datahash'], locales) if h.key?('datahash')
 
           h['translations']&.each do |l, t|

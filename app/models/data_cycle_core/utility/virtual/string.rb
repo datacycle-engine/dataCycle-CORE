@@ -23,6 +23,16 @@ module DataCycleCore
               raise 'Unknown type for string transformation'
             end
           end
+
+          def license_uri(content:, **_args)
+            content
+              .classifications
+              &.classification_aliases
+              &.select { |ca| ca.classification_tree_label.name == 'Lizenzen' }
+              &.map(&:uri)
+              &.compact_blank
+              &.first
+          end
         end
       end
     end

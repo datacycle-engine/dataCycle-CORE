@@ -17,6 +17,13 @@ module DataCycleCore
       minutes: 60
     }.freeze
 
+    def schedule_duration_values(duration)
+      duration = DataCycleCore::Schedule.iso8601_duration_to_parts(duration)
+      duration_hash = DURATION_UNITS.to_h { |k, v| [k, { max: v, value: duration[k] }] }
+      duration_hash[:months][:value] = duration_hash[:months][:value].to_i + 12 * duration[:years] if duration.key?(:years)
+      duration_hash
+    end
+
     def attribute_editable?(key, definition, options, content)
       @attribute_editable ||= Hash.new do |h, k|
         h[k] = can?(:update, DataCycleCore::DataAttribute.new(k[0], k[1], k[2], k[3], :update, k.dig(2, 'edit_scope')))

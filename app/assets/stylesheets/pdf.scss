@@ -1,0 +1,19 @@
+h1 {
+  text-align: center;
+}
+
+h3.attribute-label {
+  margin-bottom: 0.5rem;
+}
+
+.attribute .attribute {
+  margin-left: 1rem;
+}
+
+.tag.mapped {
+  color: #999;
+}
+
+.tag:not(:last-child)::after {
+  content: ', ';
+}

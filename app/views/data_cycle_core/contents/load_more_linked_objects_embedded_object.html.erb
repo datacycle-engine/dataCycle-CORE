@@ -1,0 +1,14 @@
+<% @linked_objects.each_with_index do |object, index| %>
+  <%= render_embedded_object_partial(key: @params[:complete_key],
+    definition: @params[:definition],
+    parameters: {
+      object: object,
+      index: DataCycleCore.linked_objects_page_size + index,
+      options: @params[:options],
+      new_content: false,
+      duplicated_content: @params[:duplicated_content].to_s == 'true',
+      hide_embedded: @params[:hide_embedded].to_s == 'true'
+    },
+    content: @content
+  ) %>
+<% end %>

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rake_helpers/parallel_helper'
+
 module DataCycleCore
   module Generic
     module Common
@@ -89,22 +91,37 @@ module DataCycleCore
                         download_object.endpoint.send(endpoint_method, lang: locale)
                       end
 
+                    pool = nil
+                    pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 2) if options.dig(:download, :run_in_parallel) && (ActiveRecord::Base.connection_pool.size - 1) >= 1
+
+                    futures = []
+
                     items.each do |item_data|
                       break if options[:max_count] && item_count >= options[:max_count]
 
                       item_count += 1
                       next if item_data.nil?
 
-                      begin
+                      ParallelHelper.run_in_parallel(futures, pool) do
                         item_id = data_id.call(item_data)
                         item_name = data_name.call(item_data)
 
                         item = mongo_item.find_or_initialize_by('external_id': item_id)
                         item.dump ||= {}
-                        if delete.present? && delete.call(item_data, locale)
-                          item_data[:deleted_at] = item.dump[locale].try(:[], 'deleted_at') || Time.zone.now
-                          item_data[:delete_reason] = item.dump[locale].try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
+                        local_item = item.dump[locale]
+
+                        if options.dig(:download, :restorable).present? && local_item.present?
+                          local_item.delete('deleted_at')
+                          local_item.delete('delete_reason')
+                          local_item.delete('last_seen_before_delete')
+                          item.dump[locale] = local_item
                         end
+
+                        if delete.present? && delete.call(item_data, locale)
+                          item_data[:deleted_at] = local_item.try(:[], 'deleted_at') || Time.zone.now
+                          item_data[:delete_reason] = local_item.try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
+                        end
+
                         item_data[:updated_at] = modified.call(item_data) if modified.present?
                         item.data_has_changed = false if modified.present? && download_object.external_source.last_successful_download && modified.call(item_data) < download_object.external_source.last_successful_download
                         item.data_has_changed = true if options.dig(:download, :skip_diff) == true || item.dump.dig(locale, 'mark_for_update').present?

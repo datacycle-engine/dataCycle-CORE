@@ -57,12 +57,21 @@ module DataCycleCore
         #   data_set_history.attributes = update_hash
         #   data_set_history.save(touch: false)
 
-        #   data_set_history.translations.update_all(**update_hash.except(:deleted_at))
-        #   data_set_history.update_columns(**update_hash)
+        I18n.with_locale(last_updated_locale) do
+          if all_translations
+            available_locales.except(last_updated_locale&.to_sym).each do |locale|
+              I18n.with_locale(locale) do
+                attributes.except(*THING_HISTORY_ATTRIBUTE_EXCEPTIONS).each do |key, value|
+                  next unless key.in?(DataCycleCore::Thing::History.column_names + DataCycleCore::Thing::History::Translation.column_names)
+                  data_set_history.send("#{key}=", value)
+                end
 
         #   # data_set_history.touch(:deleted_at) if delete
 
-        #   # binding.pry
+          attributes.except(*THING_HISTORY_ATTRIBUTE_EXCEPTIONS).each do |key, value|
+            next unless key.in?(DataCycleCore::Thing::History.column_names + DataCycleCore::Thing::History::Translation.column_names)
+            data_set_history.send("#{key}=", value)
+          end
 
         #   # data_set_history.save(touch: false)
 

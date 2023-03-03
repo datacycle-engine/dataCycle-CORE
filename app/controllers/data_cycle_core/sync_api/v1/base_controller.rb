@@ -25,7 +25,6 @@ module DataCycleCore
         before_action :set_default_response_format
 
         def permitted_params
-          # validate_api_params(params.to_unsafe_hash)
           @permitted_params ||= params.permit(*permitted_parameter_keys)
         end
 
