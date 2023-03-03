@@ -18,7 +18,8 @@
     </section>
     <section id="json-api" class="tabs-panel">
       <section class="json-api-nav">
-        <h5><%= t('admin_panel.api', locale: active_ui_locale) + " V4" %></h5>
+        <h5>JSON</h5>
+        <h6>API V4</h6>
         <button class="copy-to-clipboard admin-clipboard">COPY</button>
         <button class="close-admin-panel"><i class="fa fa-times" aria-hidden="true"></i></button>
       </section>
@@ -28,7 +29,8 @@
     <% if onlim_data&.try(:data)&.dig('data_send').present? %>
       <section id="data-send" class="tabs-panel">
         <section class="data-send-nav">
-          <h5>DZT (<%=onlim_data&.try(:data)&.dig('data_send_at')%>)</h5>
+          <h5>DZT</h5>
+          <h6><%=onlim_data&.try(:data)&.dig('data_send_at')%></h6>
           <button class="copy-to-clipboard admin-clipboard">COPY</button>
           <button class="close-admin-panel"><i class="fa fa-times" aria-hidden="true"></i></button>
         </section>
@@ -38,7 +40,8 @@
     <% if onlim_data&.try(:data)&.dig('job_result').present? %>
       <section id="data-job" class="tabs-panel">
         <section class="data-job-nav">
-          <h5>DZT job_status</h5>
+          <h5>DZT</h5>
+          <h6>export status</h6>
           <button class="copy-to-clipboard admin-clipboard">COPY</button>
           <button class="close-admin-panel"><i class="fa fa-times" aria-hidden="true"></i></button>
         </section>

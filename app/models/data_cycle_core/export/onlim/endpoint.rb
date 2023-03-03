@@ -10,7 +10,7 @@ module DataCycleCore
         ATTRIBUTE_FILTER = {
           'Event' => [['eventSchedule']],
           'Gastronomischer Betrieb' => [],
-          'POI' => [],
+          'POI' => [['sdLicense'], ['additionalProperty'], ['openingHoursSpecification']],
           'Tour' => [],
           'Unterkunft' => [],
           'Bild' => [
@@ -31,13 +31,14 @@ module DataCycleCore
         }.freeze
 
         def self.serialize_data(data)
+          language = data.available_locales.map(&:to_s)
           json = DataCycleCore::Api::V4::ContentsController.renderer.new(
             http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
             https: Rails.application.config.force_ssl
           ).render(
             assigns: {
               content: data,
-              language: ['de'], # TODO: Mehrsprachigkeit!
+              language: language,
               language_mode: 'expanded',
               fields_parameters: DEFAULT_ATTRIBUTES + (ATTRIBUTE_FILTER[data.template_name] || []).uniq,
               expand_language: true,
@@ -57,11 +58,13 @@ module DataCycleCore
             case data.template_name
             when 'Event'
               :to_event
+            when 'Tour'
+              :to_tour
             else
               :to_poi
             end
 
-          hash = DataCycleCore::Export::Onlim::Transformations.send(transformation, []).call(hash)
+          hash = DataCycleCore::Export::Onlim::Transformations.send(transformation, data).call(hash)
           hash
         end
 

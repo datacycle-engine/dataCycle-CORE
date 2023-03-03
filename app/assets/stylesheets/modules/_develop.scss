@@ -2791,6 +2791,11 @@ input.normalized {
         font-weight: bold;
       }
 
+      h6 {
+        flex: auto;
+        display: flex;
+      }
+
       &.expanded {
         display: block;
       }
@@ -2832,10 +2837,12 @@ input.normalized {
           padding: 0.5rem;
           text-align: right;
 
-          h5 {
+          h5,
+          h6 {
             float: left;
             margin: 0.5rem 0;
           }
+
         }
         /* Scrollbar styles */
         ::-webkit-scrollbar {

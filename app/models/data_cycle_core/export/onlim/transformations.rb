@@ -20,9 +20,9 @@ module DataCycleCore
               ['name', 'url', 'ds:compliesWith'],
             'ImageObject' =>
               ['name', 'contentUrl', 'thumbnailUrl', 'width', 'height', 'fileFormat', 'uploadDate', 'copyrightNotice', 'copyrightYear', 'copyrightHolder', 'ds:compliesWith'],
-            'TouristAttraction' => default_place_attributes, # POI
+            'TouristAttraction' => default_place_attributes + ['url', 'telephone', 'faxNumber', 'additionalProperty', 'openingHoursSpecification'], # POI
             'LodgingBusiness' => default_place_attributes, # Unterkunft
-            'odta:Trail' => default_place_attributes, # Tour
+            'odta:Trail' => default_place_attributes + ['url'], # Tour
             'Event' => default_attributes + ['eventSchedule'],
             'FoodEstablishment' => default_place_attributes # Gastronomischer Betrieb
           }
@@ -34,7 +34,7 @@ module DataCycleCore
           }
         end
 
-        def self.default_transformations(existing_ids = [])
+        def self.default_transformations
           t(:add_main_content_license)
           .>> t(:remove_namespaced_data)
           .>> t(:context_to_onlim)
@@ -43,16 +43,25 @@ module DataCycleCore
           .>> t(:apply_blacklist, blacklist)
           .>> t(:add_complies_with)
           .>> t(:remove_thing_stubs)
-          .>> t(:remove_existing_object_data, existing_ids)
           .>> t(:strip_all)
         end
 
-        def self.to_poi(existing_ids)
-          default_transformations(existing_ids)
+        def self.to_poi(content)
+          default_transformations
+          .>> t(:update_opening_hours_specifications)
+          .>> t(:add_contact_information, content)
+          .>> t(:add_description, content)
+          .>> t(:add_keywords, content)
         end
 
-        def self.to_event(existing_ids)
-          default_transformations(existing_ids)
+        def self.to_tour(content)
+          default_transformations
+          .>> t(:add_description, content)
+          .>> t(:add_keywords, content)
+        end
+
+        def self.to_event(_content)
+          default_transformations
           .>> t(:transform_schedule)
         end
       end
