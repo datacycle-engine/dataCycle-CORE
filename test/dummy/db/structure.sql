@@ -1,21 +1,12 @@
 SET statement_timeout = 0;
-
 SET lock_timeout = 0;
-
 SET idle_in_transaction_session_timeout = 0;
-
 SET client_encoding = 'UTF8';
-
-SET standard_conforming_strings = ON;
-
+SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
-
 SET check_function_bodies = false;
-
 SET xmloption = content;
-
 SET client_min_messages = warning;
-
 SET row_security = off;
 
 --
@@ -24,11 +15,13 @@ SET row_security = off;
 
 CREATE EXTENSION IF NOT EXISTS pg_phash WITH SCHEMA public;
 
+
 --
 -- Name: EXTENSION pg_phash; Type: COMMENT; Schema: -; Owner: -
 --
 
 COMMENT ON EXTENSION pg_phash IS 'support phash hamming distance calculation';
+
 
 --
 -- Name: pg_rrule; Type: EXTENSION; Schema: -; Owner: -
@@ -36,11 +29,13 @@ COMMENT ON EXTENSION pg_phash IS 'support phash hamming distance calculation';
 
 CREATE EXTENSION IF NOT EXISTS pg_rrule WITH SCHEMA public;
 
+
 --
 -- Name: EXTENSION pg_rrule; Type: COMMENT; Schema: -; Owner: -
 --
 
 COMMENT ON EXTENSION pg_rrule IS 'RRULE field type for PostgreSQL';
+
 
 --
 -- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
@@ -48,11 +43,13 @@ COMMENT ON EXTENSION pg_rrule IS 'RRULE field type for PostgreSQL';
 
 CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 
+
 --
 -- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: -
 --
 
 COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
+
 
 --
 -- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
@@ -60,11 +57,13 @@ COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
 
+
 --
 -- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: -
 --
 
 COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
+
 
 --
 -- Name: postgis; Type: EXTENSION; Schema: -; Owner: -
@@ -72,11 +71,13 @@ COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
 
 CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
 
+
 --
 -- Name: EXTENSION postgis; Type: COMMENT; Schema: -; Owner: -
 --
 
 COMMENT ON EXTENSION postgis IS 'PostGIS geometry and geography spatial types and functions';
+
 
 --
 -- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: -
@@ -84,1491 +85,462 @@ COMMENT ON EXTENSION postgis IS 'PostGIS geometry and geography spatial types an
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
 
+
 --
 -- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: -
 --
 
 COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
 
+
 --
 -- Name: delete_ca_paths_transitive_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.delete_ca_paths_transitive_trigger_1() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_ca_paths_transitive (ARRAY [OLD.classification_alias_id]::uuid []);
+CREATE FUNCTION public.delete_ca_paths_transitive_trigger_1() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_ca_paths_transitive (ARRAY[OLD.classification_alias_id]::uuid[]); RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: delete_ccc_relations_transitive_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.delete_ccc_relations_transitive_trigger_1() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive (
-    ARRAY [OLD.content_data_id]::uuid [],
-    ARRAY [OLD.classification_id]::uuid []
-);
+CREATE FUNCTION public.delete_ccc_relations_transitive_trigger_1() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive (ARRAY[OLD.content_data_id]::uuid[], ARRAY[OLD.classification_id]::uuid[]); RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: delete_ccc_relations_transitive_trigger_2(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.delete_ccc_relations_transitive_trigger_2() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive (ARRAY_AGG(content_data_id), ARRAY []::uuid [])
-FROM (
-        SELECT DISTINCT classification_contents.content_data_id
-        FROM old_classification_alias_paths_transitive
-            INNER JOIN classification_groups ON classification_groups.classification_alias_id = ANY (
-                old_classification_alias_paths_transitive.full_path_ids
-            )
-            AND classification_groups.deleted_at IS NULL
-            INNER JOIN classification_contents ON classification_contents.classification_id = classification_groups.classification_id
-    ) "collected_classification_content_relations_alias";
+CREATE FUNCTION public.delete_ccc_relations_transitive_trigger_2() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive (ARRAY_AGG(content_data_id), ARRAY[]::uuid[]) FROM ( SELECT DISTINCT classification_contents.content_data_id FROM old_classification_alias_paths_transitive INNER JOIN classification_groups ON classification_groups.classification_alias_id = ANY (old_classification_alias_paths_transitive.full_path_ids) AND classification_groups.deleted_at IS NULL INNER JOIN classification_contents ON classification_contents.classification_id = classification_groups.classification_id) "collected_classification_content_relations_alias"; RETURN NULL; END; $$;
 
-RETURN NULL;
-
-END;
-
-$$;
 
 --
 -- Name: delete_collected_classification_content_relations_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.delete_collected_classification_content_relations_trigger_1() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_collected_classification_content_relations (
-    (
-        SELECT ARRAY_AGG(DISTINCT things.id)
-        FROM things
-            JOIN classification_contents ON things.id = classification_contents.content_data_id
-            JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id
-            AND classification_groups.deleted_at IS NULL
-        WHERE classification_groups.classification_id = OLD.classification_id
-    ),
-    ARRAY []::uuid []
-);
+CREATE FUNCTION public.delete_collected_classification_content_relations_trigger_1() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_collected_classification_content_relations ( (SELECT ARRAY_AGG(DISTINCT things.id) FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL WHERE classification_groups.classification_id = OLD.classification_id), ARRAY[]::uuid[]); RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: delete_content_content_links(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.delete_content_content_links(a uuid, b uuid) RETURNS void LANGUAGE plpgsql AS $$ BEGIN
-DELETE FROM content_content_links
-WHERE content_a_id = a
-    AND content_b_id = b;
+CREATE FUNCTION public.delete_content_content_links(a uuid, b uuid) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ BEGIN DELETE FROM content_content_links WHERE content_a_id = a AND content_b_id = b; RETURN; END; $$;
 
-RETURN;
-
-END;
-
-$$;
 
 --
 -- Name: delete_content_content_links_trigger(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.delete_content_content_links_trigger() RETURNS TRIGGER LANGUAGE plpgsql AS $$
-DECLARE a_b INTEGER;
+CREATE FUNCTION public.delete_content_content_links_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ DECLARE a_b INTEGER; DECLARE b_a INTEGER; BEGIN a_b := ( SELECT COUNT(*) FROM content_contents WHERE ( content_a_id = OLD.content_a_id AND content_b_id = OLD.content_b_id ) OR ( content_a_id = OLD.content_b_id AND content_b_id = OLD.content_a_id AND relation_b IS NOT NULL ) ); b_a := ( SELECT COUNT(*) FROM content_contents WHERE ( content_a_id = OLD.content_a_id AND content_b_id = OLD.content_b_id AND OLD.relation_b IS NOT NULL ) OR ( content_a_id = OLD.content_b_id AND content_b_id = OLD.content_a_id ) ); IF a_b = 1 THEN PERFORM delete_content_content_links(OLD.content_a_id, OLD.content_b_id); END IF; IF b_a = 1 THEN PERFORM delete_content_content_links(OLD.content_b_id, OLD.content_a_id); END IF; RETURN OLD; END;$$;
 
-DECLARE b_a INTEGER;
-
-BEGIN a_b := (
-    SELECT COUNT(*)
-    FROM content_contents
-    WHERE (
-            content_a_id = OLD.content_a_id
-            AND content_b_id = OLD.content_b_id
-        )
-        OR (
-            content_a_id = OLD.content_b_id
-            AND content_b_id = OLD.content_a_id
-            AND relation_b IS NOT NULL
-        )
-);
-
-b_a := (
-    SELECT COUNT(*)
-    FROM content_contents
-    WHERE (
-            content_a_id = OLD.content_a_id
-            AND content_b_id = OLD.content_b_id
-            AND OLD.relation_b IS NOT NULL
-        )
-        OR (
-            content_a_id = OLD.content_b_id
-            AND content_b_id = OLD.content_a_id
-        )
-);
-
-IF a_b = 1 THEN PERFORM delete_content_content_links(OLD.content_a_id, OLD.content_b_id);
-
-END IF;
-
-IF b_a = 1 THEN PERFORM delete_content_content_links(OLD.content_b_id, OLD.content_a_id);
-
-END IF;
-
-RETURN OLD;
-
-END;
-
-$$;
 
 --
 -- Name: delete_schedule_occurences(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.delete_schedule_occurences(schedule_ids uuid []) RETURNS void LANGUAGE plpgsql AS $$ BEGIN
-DELETE FROM schedule_occurrences
-WHERE schedule_id = ANY (schedule_ids);
+CREATE FUNCTION public.delete_schedule_occurences(schedule_ids uuid[]) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ BEGIN DELETE FROM schedule_occurrences WHERE schedule_id = ANY (schedule_ids); END; $$;
 
-END;
-
-$$;
 
 --
 -- Name: delete_schedule_occurences_trigger(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.delete_schedule_occurences_trigger() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM delete_schedule_occurences (ARRAY_AGG(id))
-FROM (
-        SELECT DISTINCT old_schedules.id
-        FROM old_schedules
-    ) "old_schedules_alias";
+CREATE FUNCTION public.delete_schedule_occurences_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM delete_schedule_occurences (ARRAY_AGG(id)) FROM ( SELECT DISTINCT old_schedules.id FROM old_schedules) "old_schedules_alias"; RETURN NULL; END; $$;
 
-RETURN NULL;
-
-END;
-
-$$;
 
 --
 -- Name: generate_ca_paths_transitive(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_ca_paths_transitive(classification_alias_ids uuid []) RETURNS void LANGUAGE plpgsql AS $$ BEGIN
-DELETE FROM classification_alias_paths_transitive
-WHERE full_path_ids && classification_alias_ids;
+CREATE FUNCTION public.generate_ca_paths_transitive(classification_alias_ids uuid[]) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ BEGIN DELETE FROM classification_alias_paths_transitive WHERE full_path_ids && classification_alias_ids; WITH RECURSIVE paths ( id, ancestors_ids, full_path_ids, full_path_names, link_types ) AS ( SELECT ca1.id AS id, array_remove(ARRAY [ca2.id]::uuid [], NULL) AS ancestors_ids, array_remove(ARRAY [ca1.id, ca2.id]::uuid [], NULL) AS full_path_ids, array_remove( ARRAY [ca1.internal_name, ca2.internal_name, classification_tree_labels.name]::varchar [], NULL ) AS full_path_names, ( CASE WHEN ca2.id IS NULL THEN ARRAY []::text [] ELSE ARRAY [classification_alias_links.link_type]::text [] END ) AS link_types FROM classification_alias_links JOIN classification_aliases ca1 ON ca1.id = classification_alias_links.child_classification_alias_id JOIN classification_trees ON classification_trees.classification_alias_id = ca1.id JOIN classification_tree_labels ON classification_tree_labels.id = classification_trees.classification_tree_label_id LEFT OUTER JOIN classification_aliases ca2 ON ca2.id = classification_alias_links.parent_classification_alias_id WHERE ca1.id = ANY (classification_alias_ids) AND classification_alias_links.link_type = 'broader' UNION ALL SELECT classification_aliases.id AS id, ( classification_alias_links.parent_classification_alias_id || paths_1.ancestors_ids ) AS ancestors_ids, ( classification_aliases.id || paths_1.full_path_ids ) AS full_path_ids, ( classification_aliases.internal_name || paths_1.full_path_names ) AS full_path_names, ( classification_alias_links.link_type || paths_1.link_types ) AS link_types FROM classification_alias_links JOIN classification_aliases ON classification_aliases.id = classification_alias_links.child_classification_alias_id JOIN paths paths_1 ON paths_1.id = classification_alias_links.parent_classification_alias_id WHERE classification_aliases.id <> ALL (paths_1.full_path_ids) ) INSERT INTO classification_alias_paths_transitive ( classification_alias_id, ancestor_ids, full_path_ids, full_path_names, link_types ) SELECT DISTINCT paths.id, paths.ancestors_ids, paths.full_path_ids, paths.full_path_names, paths.link_types FROM paths; RETURN; END; $$;
 
-WITH RECURSIVE paths (
-    id,
-    ancestors_ids,
-    full_path_ids,
-    full_path_names,
-    link_types
-) AS (
-    SELECT ca1.id AS id,
-        array_remove(ARRAY [ca2.id]::uuid [], NULL) AS ancestors_ids,
-        array_remove(ARRAY [ca1.id, ca2.id]::uuid [], NULL) AS full_path_ids,
-        array_remove(
-            ARRAY [ca1.internal_name, ca2.internal_name, classification_tree_labels.name]::varchar [],
-            NULL
-        ) AS full_path_names,
-        (
-            CASE
-                WHEN ca2.id IS NULL THEN ARRAY []::text []
-                ELSE ARRAY [classification_alias_links.link_type]::text []
-            END
-        ) AS link_types
-    FROM classification_alias_links
-        JOIN classification_aliases ca1 ON ca1.id = classification_alias_links.child_classification_alias_id
-        JOIN classification_trees ON classification_trees.classification_alias_id = ca1.id
-        JOIN classification_tree_labels ON classification_tree_labels.id = classification_trees.classification_tree_label_id
-        LEFT OUTER JOIN classification_aliases ca2 ON ca2.id = classification_alias_links.parent_classification_alias_id
-    WHERE ca1.id = ANY (classification_alias_ids)
-        AND classification_alias_links.link_type = 'broader'
-    UNION ALL
-    SELECT classification_aliases.id AS id,
-        (
-            classification_alias_links.parent_classification_alias_id || paths_1.ancestors_ids
-        ) AS ancestors_ids,
-        (
-            classification_aliases.id || paths_1.full_path_ids
-        ) AS full_path_ids,
-        (
-            classification_aliases.internal_name || paths_1.full_path_names
-        ) AS full_path_names,
-        (
-            classification_alias_links.link_type || paths_1.link_types
-        ) AS link_types
-    FROM classification_alias_links
-        JOIN classification_aliases ON classification_aliases.id = classification_alias_links.child_classification_alias_id
-        JOIN paths paths_1 ON paths_1.id = classification_alias_links.parent_classification_alias_id
-    WHERE classification_aliases.id <> ALL (paths_1.full_path_ids)
-)
-INSERT INTO classification_alias_paths_transitive (
-        classification_alias_id,
-        ancestor_ids,
-        full_path_ids,
-        full_path_names,
-        link_types
-    )
-SELECT DISTINCT paths.id,
-    paths.ancestors_ids,
-    paths.full_path_ids,
-    paths.full_path_names,
-    paths.link_types
-FROM paths;
-
-RETURN;
-
-END;
-
-$$;
 
 --
 -- Name: generate_ca_paths_transitive_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_ca_paths_transitive_trigger_1() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_ca_paths_transitive (ARRAY [NEW.id]::uuid []);
+CREATE FUNCTION public.generate_ca_paths_transitive_trigger_1() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_ca_paths_transitive (ARRAY[NEW.id]::uuid[]); RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: generate_ca_paths_transitive_trigger_2(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_ca_paths_transitive_trigger_2() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_ca_paths_transitive (
-    NEW.parent_classification_alias_id || ARRAY [NEW.classification_alias_id]::uuid []
-);
+CREATE FUNCTION public.generate_ca_paths_transitive_trigger_2() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_ca_paths_transitive (NEW.parent_classification_alias_id || ARRAY[NEW.classification_alias_id]::uuid[]); RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: generate_ca_paths_transitive_trigger_3(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_ca_paths_transitive_trigger_3() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_ca_paths_transitive (ARRAY_AGG(classification_alias_id))
-FROM (
-        SELECT classification_trees.classification_alias_id
-        FROM classification_trees
-        WHERE classification_trees.classification_tree_label_id = NEW.id
-    ) "classification_trees_alias";
+CREATE FUNCTION public.generate_ca_paths_transitive_trigger_3() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_ca_paths_transitive (ARRAY_AGG(classification_alias_id)) FROM ( SELECT classification_trees.classification_alias_id FROM classification_trees WHERE classification_trees.classification_tree_label_id = NEW.id) "classification_trees_alias"; RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: generate_ca_paths_transitive_trigger_4(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_ca_paths_transitive_trigger_4() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_ca_paths_transitive (ARRAY [NEW.classification_alias_id]::uuid []);
+CREATE FUNCTION public.generate_ca_paths_transitive_trigger_4() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_ca_paths_transitive (ARRAY[NEW.classification_alias_id]::uuid[]); RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: generate_ccc_relations_transitive_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_ccc_relations_transitive_trigger_1() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive (ARRAY_AGG(content_data_id), ARRAY []::uuid [])
-FROM (
-        SELECT DISTINCT classification_contents.content_data_id
-        FROM new_classification_alias_paths_transitive
-            INNER JOIN classification_groups ON classification_groups.classification_alias_id = ANY (
-                new_classification_alias_paths_transitive.full_path_ids
-            )
-            AND classification_groups.deleted_at IS NULL
-            INNER JOIN classification_contents ON classification_contents.classification_id = classification_groups.classification_id
-    ) "collected_classification_content_relations_alias";
+CREATE FUNCTION public.generate_ccc_relations_transitive_trigger_1() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive (ARRAY_AGG(content_data_id), ARRAY[]::uuid[]) FROM ( SELECT DISTINCT classification_contents.content_data_id FROM new_classification_alias_paths_transitive INNER JOIN classification_groups ON classification_groups.classification_alias_id = ANY (new_classification_alias_paths_transitive.full_path_ids) AND classification_groups.deleted_at IS NULL INNER JOIN classification_contents ON classification_contents.classification_id = classification_groups.classification_id) "collected_classification_content_relations_alias"; RETURN NULL; END; $$;
 
-RETURN NULL;
-
-END;
-
-$$;
 
 --
 -- Name: generate_ccc_relations_transitive_trigger_2(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_ccc_relations_transitive_trigger_2() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive (
-    ARRAY [NEW.content_data_id]::uuid [],
-    ARRAY []::uuid []
-);
+CREATE FUNCTION public.generate_ccc_relations_transitive_trigger_2() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive (ARRAY[NEW.content_data_id]::uuid[], ARRAY[]::uuid[]); RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: generate_classification_alias_paths(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_classification_alias_paths(classification_alias_ids uuid []) RETURNS void LANGUAGE plpgsql AS $$ BEGIN
-DELETE FROM classification_alias_paths
-WHERE id = ANY(classification_alias_ids);
+CREATE FUNCTION public.generate_classification_alias_paths(classification_alias_ids uuid[]) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ BEGIN DELETE FROM classification_alias_paths WHERE id = ANY(classification_alias_ids); WITH RECURSIVE paths( id, parent_id, ancestor_ids, full_path_ids, full_path_names, tree_label_id ) AS ( SELECT classification_aliases.id, classification_trees.parent_classification_alias_id, ARRAY []::uuid [], ARRAY [classification_aliases.id], ARRAY [classification_aliases.internal_name], classification_trees.classification_tree_label_id FROM classification_trees JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id WHERE classification_trees.classification_alias_id = ANY(classification_alias_ids) UNION ALL SELECT paths.id, classification_trees.parent_classification_alias_id, ancestor_ids || classification_aliases.id, full_path_ids || classification_aliases.id, full_path_names || classification_aliases.internal_name, classification_trees.classification_tree_label_id FROM classification_trees JOIN paths ON paths.parent_id = classification_trees.classification_alias_id JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id ) INSERT INTO classification_alias_paths(id, ancestor_ids, full_path_ids, full_path_names) SELECT paths.id, paths.ancestor_ids, paths.full_path_ids, paths.full_path_names || classification_tree_labels.name FROM paths JOIN classification_tree_labels ON classification_tree_labels.id = paths.tree_label_id WHERE paths.parent_id IS NULL; RETURN; END; $$;
 
-WITH RECURSIVE paths(
-    id,
-    parent_id,
-    ancestor_ids,
-    full_path_ids,
-    full_path_names,
-    tree_label_id
-) AS (
-    SELECT classification_aliases.id,
-        classification_trees.parent_classification_alias_id,
-        ARRAY []::uuid [],
-        ARRAY [classification_aliases.id],
-        ARRAY [classification_aliases.internal_name],
-        classification_trees.classification_tree_label_id
-    FROM classification_trees
-        JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id
-    WHERE classification_trees.classification_alias_id = ANY(classification_alias_ids)
-    UNION ALL
-    SELECT paths.id,
-        classification_trees.parent_classification_alias_id,
-        ancestor_ids || classification_aliases.id,
-        full_path_ids || classification_aliases.id,
-        full_path_names || classification_aliases.internal_name,
-        classification_trees.classification_tree_label_id
-    FROM classification_trees
-        JOIN paths ON paths.parent_id = classification_trees.classification_alias_id
-        JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id
-)
-INSERT INTO classification_alias_paths(id, ancestor_ids, full_path_ids, full_path_names)
-SELECT paths.id,
-    paths.ancestor_ids,
-    paths.full_path_ids,
-    paths.full_path_names || classification_tree_labels.name
-FROM paths
-    JOIN classification_tree_labels ON classification_tree_labels.id = paths.tree_label_id
-WHERE paths.parent_id IS NULL;
-
-RETURN;
-
-END;
-
-$$;
 
 --
 -- Name: generate_classification_alias_paths_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_classification_alias_paths_trigger_1() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(id) || ARRAY [NEW.id]::UUID [])
-FROM (
-        SELECT id
-        FROM classification_alias_paths
-        WHERE NEW.id = ANY (ancestor_ids)
-    ) "new_child_classification_aliases";
+CREATE FUNCTION public.generate_classification_alias_paths_trigger_1() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(id) || ARRAY[NEW.id]::UUID[]) FROM ( SELECT id FROM classification_alias_paths WHERE NEW.id = ANY (ancestor_ids)) "new_child_classification_aliases"; RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: generate_classification_alias_paths_trigger_2(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_classification_alias_paths_trigger_2() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_classification_alias_paths (
-    array_agg(id) || ARRAY [NEW.classification_alias_id]::UUID []
-)
-FROM (
-        SELECT id
-        FROM classification_alias_paths
-        WHERE NEW.classification_alias_id = ANY (ancestor_ids)
-    ) "changed_child_classification_aliases";
+CREATE FUNCTION public.generate_classification_alias_paths_trigger_2() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(id) || ARRAY[NEW.classification_alias_id]::UUID[]) FROM ( SELECT id FROM classification_alias_paths WHERE NEW.classification_alias_id = ANY (ancestor_ids)) "changed_child_classification_aliases"; RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: generate_classification_alias_paths_trigger_3(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_classification_alias_paths_trigger_3() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(classification_alias_id))
-FROM (
-        SELECT classification_alias_id
-        FROM classification_trees
-        WHERE classification_trees.classification_tree_label_id = NEW.id
-    ) "changed_tree_classification_aliases";
+CREATE FUNCTION public.generate_classification_alias_paths_trigger_3() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(classification_alias_id)) FROM ( SELECT classification_alias_id FROM classification_trees WHERE classification_trees.classification_tree_label_id = NEW.id) "changed_tree_classification_aliases"; RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: generate_collected_cl_content_relations_transitive(uuid[], uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_collected_cl_content_relations_transitive(
-    content_ids uuid [],
-    excluded_classification_ids uuid []
-) RETURNS void LANGUAGE plpgsql AS $$ BEGIN
-DELETE FROM collected_classification_contents
-WHERE thing_id IN (
-        SELECT cccr.thing_id
-        FROM collected_classification_contents cccr
-        WHERE cccr.thing_id = ANY (content_ids)
-        ORDER BY cccr.thing_id ASC FOR
-        UPDATE SKIP LOCKED
-    );
+CREATE FUNCTION public.generate_collected_cl_content_relations_transitive(content_ids uuid[], excluded_classification_ids uuid[]) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ BEGIN DELETE FROM collected_classification_contents WHERE thing_id IN ( SELECT cccr.thing_id FROM collected_classification_contents cccr WHERE cccr.thing_id = ANY (content_ids) ORDER BY cccr.thing_id ASC FOR UPDATE SKIP LOCKED ); WITH direct_classification_content_relations AS ( SELECT classification_contents.content_data_id "thing_id", ARRAY_AGG(DISTINCT classification_groups.classification_alias_id) "direct_alias_ids", ARRAY_AGG(DISTINCT classification_trees.classification_tree_label_id) "direct_tree_label_ids" FROM classification_contents JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL JOIN classification_trees ON classification_trees.classification_alias_id = classification_groups.classification_alias_id AND classification_trees.deleted_at IS NULL WHERE classification_contents.content_data_id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids) GROUP BY classification_contents.content_data_id ), full_classification_content_relations AS ( SELECT classification_contents.content_data_id "thing_id", ARRAY_AGG(DISTINCT a.e) "full_alias_ids", ARRAY_AGG(DISTINCT classification_trees.classification_tree_label_id) "full_tree_label_ids" FROM classification_contents JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL JOIN classification_alias_paths_transitive ON classification_groups.classification_alias_id = classification_alias_paths_transitive.classification_alias_id JOIN classification_trees ON classification_trees.classification_alias_id = ANY (classification_alias_paths_transitive.full_path_ids) AND classification_trees.deleted_at IS NULL CROSS JOIN LATERAL UNNEST(classification_alias_paths_transitive.full_path_ids) AS a (e) WHERE classification_contents.content_data_id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids) GROUP BY classification_contents.content_data_id ) INSERT INTO collected_classification_contents (thing_id, direct_classification_alias_ids, full_classification_alias_ids, direct_tree_label_ids, full_tree_label_ids) SELECT direct_classification_content_relations.thing_id, direct_classification_content_relations.direct_alias_ids, full_classification_content_relations.full_alias_ids, direct_classification_content_relations.direct_tree_label_ids, full_classification_content_relations.full_tree_label_ids FROM direct_classification_content_relations JOIN full_classification_content_relations ON full_classification_content_relations.thing_id = direct_classification_content_relations.thing_id ON CONFLICT (thing_id) DO UPDATE SET direct_classification_alias_ids = EXCLUDED.direct_classification_alias_ids, full_classification_alias_ids = EXCLUDED.full_classification_alias_ids, direct_tree_label_ids = EXCLUDED.direct_tree_label_ids, full_tree_label_ids = EXCLUDED.full_tree_label_ids; RETURN; END; $$;
 
-WITH direct_classification_content_relations AS (
-    SELECT classification_contents.content_data_id "thing_id",
-        ARRAY_AGG(
-            DISTINCT classification_groups.classification_alias_id
-        ) "direct_alias_ids",
-        ARRAY_AGG(
-            DISTINCT classification_trees.classification_tree_label_id
-        ) "direct_tree_label_ids"
-    FROM classification_contents
-        JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id
-        AND classification_groups.deleted_at IS NULL
-        JOIN classification_trees ON classification_trees.classification_alias_id = classification_groups.classification_alias_id
-        AND classification_trees.deleted_at IS NULL
-    WHERE classification_contents.content_data_id = ANY (content_ids)
-        AND classification_contents.classification_id <> ALL (excluded_classification_ids)
-    GROUP BY classification_contents.content_data_id
-),
-full_classification_content_relations AS (
-    SELECT classification_contents.content_data_id "thing_id",
-        ARRAY_AGG(DISTINCT a.e) "full_alias_ids",
-        ARRAY_AGG(
-            DISTINCT classification_trees.classification_tree_label_id
-        ) "full_tree_label_ids"
-    FROM classification_contents
-        JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id
-        AND classification_groups.deleted_at IS NULL
-        JOIN classification_alias_paths_transitive ON classification_groups.classification_alias_id = classification_alias_paths_transitive.classification_alias_id
-        JOIN classification_trees ON classification_trees.classification_alias_id = ANY (
-            classification_alias_paths_transitive.full_path_ids
-        )
-        AND classification_trees.deleted_at IS NULL
-        CROSS JOIN LATERAL UNNEST(
-            classification_alias_paths_transitive.full_path_ids
-        ) AS a (e)
-    WHERE classification_contents.content_data_id = ANY (content_ids)
-        AND classification_contents.classification_id <> ALL (excluded_classification_ids)
-    GROUP BY classification_contents.content_data_id
-)
-INSERT INTO collected_classification_contents (
-        thing_id,
-        direct_classification_alias_ids,
-        full_classification_alias_ids,
-        direct_tree_label_ids,
-        full_tree_label_ids
-    )
-SELECT direct_classification_content_relations.thing_id,
-    direct_classification_content_relations.direct_alias_ids,
-    full_classification_content_relations.full_alias_ids,
-    direct_classification_content_relations.direct_tree_label_ids,
-    full_classification_content_relations.full_tree_label_ids
-FROM direct_classification_content_relations
-    JOIN full_classification_content_relations ON full_classification_content_relations.thing_id = direct_classification_content_relations.thing_id ON CONFLICT (thing_id) DO
-UPDATE
-SET direct_classification_alias_ids = EXCLUDED.direct_classification_alias_ids,
-    full_classification_alias_ids = EXCLUDED.full_classification_alias_ids,
-    direct_tree_label_ids = EXCLUDED.direct_tree_label_ids,
-    full_tree_label_ids = EXCLUDED.full_tree_label_ids;
-
-RETURN;
-
-END;
-
-$$;
 
 --
 -- Name: generate_collected_classification_content_relations(uuid[], uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_collected_classification_content_relations(
-    content_ids uuid [],
-    excluded_classification_ids uuid []
-) RETURNS void LANGUAGE plpgsql AS $$ BEGIN
-DELETE FROM collected_classification_contents
-WHERE thing_id IN (
-        SELECT cccr.thing_id
-        FROM collected_classification_contents cccr
-        WHERE cccr.thing_id = ANY (content_ids)
-        ORDER BY cccr.thing_id ASC FOR
-        UPDATE SKIP LOCKED
-    );
+CREATE FUNCTION public.generate_collected_classification_content_relations(content_ids uuid[], excluded_classification_ids uuid[]) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ BEGIN DELETE FROM collected_classification_contents WHERE thing_id IN ( SELECT cccr.thing_id FROM collected_classification_contents cccr WHERE cccr.thing_id = ANY (content_ids) ORDER BY cccr.thing_id ASC FOR UPDATE SKIP LOCKED ); WITH direct_classification_content_relations AS ( SELECT classification_contents.content_data_id "thing_id", ARRAY_AGG(DISTINCT classification_groups.classification_alias_id) "direct_alias_ids", ARRAY_AGG(DISTINCT classification_trees.classification_tree_label_id) "direct_tree_label_ids" FROM classification_contents JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL JOIN classification_trees ON classification_trees.classification_alias_id = classification_groups.classification_alias_id AND classification_trees.deleted_at IS NULL WHERE classification_contents.content_data_id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids) GROUP BY classification_contents.content_data_id ), full_classification_content_relations AS ( SELECT classification_contents.content_data_id "thing_id", ARRAY_AGG(DISTINCT a.e) "full_alias_ids", ARRAY_AGG(DISTINCT classification_trees.classification_tree_label_id) "full_tree_label_ids" FROM classification_contents JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id JOIN classification_trees ON classification_trees.classification_alias_id = ANY (classification_alias_paths.full_path_ids) AND classification_trees.deleted_at IS NULL CROSS JOIN LATERAL UNNEST(classification_alias_paths.full_path_ids) AS a (e) WHERE classification_contents.content_data_id = ANY (content_ids) AND classification_contents.classification_id <> ALL (excluded_classification_ids) GROUP BY classification_contents.content_data_id ) INSERT INTO collected_classification_contents (thing_id, direct_classification_alias_ids, full_classification_alias_ids, direct_tree_label_ids, full_tree_label_ids) SELECT direct_classification_content_relations.thing_id, direct_classification_content_relations.direct_alias_ids, full_classification_content_relations.full_alias_ids, direct_classification_content_relations.direct_tree_label_ids, full_classification_content_relations.full_tree_label_ids FROM direct_classification_content_relations JOIN full_classification_content_relations ON full_classification_content_relations.thing_id = direct_classification_content_relations.thing_id ON CONFLICT (thing_id) DO UPDATE SET direct_classification_alias_ids = EXCLUDED.direct_classification_alias_ids, full_classification_alias_ids = EXCLUDED.full_classification_alias_ids, direct_tree_label_ids = EXCLUDED.direct_tree_label_ids, full_tree_label_ids = EXCLUDED.full_tree_label_ids; RETURN; END; $$;
 
-WITH direct_classification_content_relations AS (
-    SELECT classification_contents.content_data_id "thing_id",
-        ARRAY_AGG(
-            DISTINCT classification_groups.classification_alias_id
-        ) "direct_alias_ids",
-        ARRAY_AGG(
-            DISTINCT classification_trees.classification_tree_label_id
-        ) "direct_tree_label_ids"
-    FROM classification_contents
-        JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id
-        AND classification_groups.deleted_at IS NULL
-        JOIN classification_trees ON classification_trees.classification_alias_id = classification_groups.classification_alias_id
-        AND classification_trees.deleted_at IS NULL
-    WHERE classification_contents.content_data_id = ANY (content_ids)
-        AND classification_contents.classification_id <> ALL (excluded_classification_ids)
-    GROUP BY classification_contents.content_data_id
-),
-full_classification_content_relations AS (
-    SELECT classification_contents.content_data_id "thing_id",
-        ARRAY_AGG(DISTINCT a.e) "full_alias_ids",
-        ARRAY_AGG(
-            DISTINCT classification_trees.classification_tree_label_id
-        ) "full_tree_label_ids"
-    FROM classification_contents
-        JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id
-        AND classification_groups.deleted_at IS NULL
-        JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id
-        JOIN classification_trees ON classification_trees.classification_alias_id = ANY (classification_alias_paths.full_path_ids)
-        AND classification_trees.deleted_at IS NULL
-        CROSS JOIN LATERAL UNNEST(classification_alias_paths.full_path_ids) AS a (e)
-    WHERE classification_contents.content_data_id = ANY (content_ids)
-        AND classification_contents.classification_id <> ALL (excluded_classification_ids)
-    GROUP BY classification_contents.content_data_id
-)
-INSERT INTO collected_classification_contents (
-        thing_id,
-        direct_classification_alias_ids,
-        full_classification_alias_ids,
-        direct_tree_label_ids,
-        full_tree_label_ids
-    )
-SELECT direct_classification_content_relations.thing_id,
-    direct_classification_content_relations.direct_alias_ids,
-    full_classification_content_relations.full_alias_ids,
-    direct_classification_content_relations.direct_tree_label_ids,
-    full_classification_content_relations.full_tree_label_ids
-FROM direct_classification_content_relations
-    JOIN full_classification_content_relations ON full_classification_content_relations.thing_id = direct_classification_content_relations.thing_id ON CONFLICT (thing_id) DO
-UPDATE
-SET direct_classification_alias_ids = EXCLUDED.direct_classification_alias_ids,
-    full_classification_alias_ids = EXCLUDED.full_classification_alias_ids,
-    direct_tree_label_ids = EXCLUDED.direct_tree_label_ids,
-    full_tree_label_ids = EXCLUDED.full_tree_label_ids;
-
-RETURN;
-
-END;
-
-$$;
 
 --
 -- Name: generate_collected_classification_content_relations_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_collected_classification_content_relations_trigger_1() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_collected_classification_content_relations(
-    ARRAY [NEW.content_data_id]::UUID [],
-    ARRAY []::UUID []
-);
+CREATE FUNCTION public.generate_collected_classification_content_relations_trigger_1() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_collected_classification_content_relations(ARRAY[NEW.content_data_id]::UUID[], ARRAY[]::UUID[]); RETURN NEW; END;$$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: generate_collected_classification_content_relations_trigger_2(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_collected_classification_content_relations_trigger_2() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_collected_classification_content_relations(
-    ARRAY [OLD.content_data_id]::UUID [],
-    ARRAY [OLD.classification_id]::UUID []
-);
+CREATE FUNCTION public.generate_collected_classification_content_relations_trigger_2() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_collected_classification_content_relations( ARRAY[OLD.content_data_id]::UUID[], ARRAY[OLD.classification_id]::UUID[] ); RETURN NEW; END;$$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: generate_collected_classification_content_relations_trigger_3(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_collected_classification_content_relations_trigger_3() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_collected_classification_content_relations (ARRAY_AGG(content_data_id), ARRAY []::uuid [])
-FROM (
-        SELECT DISTINCT classification_contents.content_data_id
-        FROM classification_alias_paths
-            INNER JOIN classification_groups ON classification_groups.classification_alias_id = classification_alias_paths.id
-            AND classification_groups.deleted_at IS NULL
-            INNER JOIN classification_contents ON classification_contents.classification_id = classification_groups.classification_id
-        WHERE classification_alias_paths.full_path_ids && ARRAY [NEW.id]::uuid []
-    ) "relevant_content_ids";
+CREATE FUNCTION public.generate_collected_classification_content_relations_trigger_3() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_collected_classification_content_relations (ARRAY_AGG(content_data_id), ARRAY[]::uuid[]) FROM ( SELECT DISTINCT classification_contents.content_data_id FROM classification_alias_paths INNER JOIN classification_groups ON classification_groups.classification_alias_id = classification_alias_paths.id AND classification_groups.deleted_at IS NULL INNER JOIN classification_contents ON classification_contents.classification_id = classification_groups.classification_id WHERE classification_alias_paths.full_path_ids && ARRAY[NEW.id]::uuid[]) "relevant_content_ids"; RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: generate_collected_classification_content_relations_trigger_4(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_collected_classification_content_relations_trigger_4() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_collected_classification_content_relations (
-    (
-        SELECT ARRAY_AGG(DISTINCT things.id)
-        FROM things
-            JOIN classification_contents ON things.id = classification_contents.content_data_id
-            JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id
-            AND classification_groups.deleted_at IS NULL
-        WHERE classification_groups.classification_id = NEW.classification_id
-    ),
-    ARRAY []::uuid []
-);
+CREATE FUNCTION public.generate_collected_classification_content_relations_trigger_4() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_collected_classification_content_relations ( (SELECT ARRAY_AGG(DISTINCT things.id) FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL WHERE classification_groups.classification_id = NEW.classification_id), ARRAY[]::uuid[]); RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: generate_collection_id_trigger(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_collection_id_trigger() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN NEW.id := COALESCE(NEW.watch_list_id, NEW.stored_filter_id);
+CREATE FUNCTION public.generate_collection_id_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN NEW.id := COALESCE(NEW.watch_list_id, NEW.stored_filter_id); RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: generate_collection_slug_trigger(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_collection_slug_trigger() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN NEW.slug := generate_unique_collection_slug (NEW.slug);
+CREATE FUNCTION public.generate_collection_slug_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN NEW.slug := generate_unique_collection_slug (NEW.slug); RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: generate_content_content_links(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_content_content_links(a uuid, b uuid) RETURNS void LANGUAGE plpgsql AS $$ BEGIN
-INSERT INTO content_content_links (content_a_id, content_b_id)
-SELECT content_a_id,
-    content_b_id
-FROM content_contents
-WHERE content_a_id = a
-    AND content_b_id = b ON CONFLICT DO NOTHING;
+CREATE FUNCTION public.generate_content_content_links(a uuid, b uuid) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ BEGIN INSERT INTO content_content_links (content_a_id, content_b_id) SELECT content_a_id, content_b_id FROM content_contents WHERE content_a_id = a AND content_b_id = b ON CONFLICT DO NOTHING; INSERT INTO content_content_links (content_a_id, content_b_id) SELECT content_b_id, content_a_id FROM content_contents WHERE content_a_id = a AND content_b_id = b AND relation_b IS NOT NULL ON CONFLICT DO NOTHING; RETURN; END; $$;
 
-INSERT INTO content_content_links (content_a_id, content_b_id)
-SELECT content_b_id,
-    content_a_id
-FROM content_contents
-WHERE content_a_id = a
-    AND content_b_id = b
-    AND relation_b IS NOT NULL ON CONFLICT DO NOTHING;
-
-RETURN;
-
-END;
-
-$$;
 
 --
 -- Name: generate_content_content_links_trigger(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_content_content_links_trigger() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_content_content_links(NEW.content_a_id, NEW.content_b_id);
+CREATE FUNCTION public.generate_content_content_links_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_content_content_links(NEW.content_a_id, NEW.content_b_id); RETURN NEW; END;$$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: generate_my_selection_watch_list(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_my_selection_watch_list() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN IF EXISTS (
-    SELECT
-    FROM roles
-    WHERE roles.id = NEW.role_id
-        AND roles.rank <> 0
-) THEN
-INSERT INTO watch_lists (
-        name,
-        user_id,
-        created_at,
-        updated_at,
-        full_path,
-        full_path_names,
-        my_selection
-    )
-SELECT 'Meine Auswahl',
-    users.id,
-    NOW(),
-    NOW(),
-    'Meine Auswahl',
-    ARRAY []::varchar [],
-    TRUE
-FROM users
-    INNER JOIN roles ON roles.id = users.role_id
-WHERE users.id = NEW.id
-    AND roles.rank <> 0
-    AND NOT EXISTS (
-        SELECT
-        FROM watch_lists
-        WHERE watch_lists.my_selection
-            AND watch_lists.user_id = users.id
-    );
+CREATE FUNCTION public.generate_my_selection_watch_list() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN IF EXISTS ( SELECT FROM roles WHERE roles.id = NEW.role_id AND roles.rank <> 0) THEN INSERT INTO watch_lists ( name, user_id, created_at, updated_at, full_path, full_path_names, my_selection) SELECT 'Meine Auswahl', users.id, NOW(), NOW(), 'Meine Auswahl', ARRAY[]::varchar[], TRUE FROM users INNER JOIN roles ON roles.id = users.role_id WHERE users.id = NEW.id AND roles.rank <> 0 AND NOT EXISTS ( SELECT FROM watch_lists WHERE watch_lists.my_selection AND watch_lists.user_id = users.id); ELSE DELETE FROM watch_lists WHERE watch_lists.user_id = NEW.id AND watch_lists.my_selection; END IF; RETURN NEW; END; $$;
 
-ELSE
-DELETE FROM watch_lists
-WHERE watch_lists.user_id = NEW.id
-    AND watch_lists.my_selection;
-
-END IF;
-
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: generate_schedule_occurences(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_schedule_occurences(schedule_ids uuid []) RETURNS void LANGUAGE plpgsql AS $$ BEGIN
-DELETE FROM schedule_occurrences
-WHERE schedule_id = ANY (schedule_ids);
+CREATE FUNCTION public.generate_schedule_occurences(schedule_ids uuid[]) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ BEGIN DELETE FROM schedule_occurrences WHERE schedule_id = ANY (schedule_ids); WITH occurences AS ( SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest( get_occurrences ( schedules.rrule::rrule, schedules.dtstart AT TIME ZONE 'Europe/Vienna' ) ) AT TIME ZONE 'Europe/Vienna' AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND rrule LIKE '%UNTIL%' AND id = ANY (schedule_ids) UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest( get_occurrences ( (schedules.rrule || ';UNTIL=2037-12-31')::rrule, schedules.dtstart AT TIME ZONE 'Europe/Vienna' ) ) AT TIME ZONE 'Europe/Vienna' AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND rrule NOT LIKE '%UNTIL%' AND id = ANY (schedule_ids) UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, schedules.dtstart AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND schedules.rrule IS NULL AND id = ANY (schedule_ids) UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest(schedules.rdate) AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND id = ANY (schedule_ids) ) INSERT INTO schedule_occurrences ( schedule_id, thing_id, duration, occurrence ) SELECT occurences.id, occurences.thing_id, occurences.duration, tstzrange( occurences.occurence, occurences.occurence + occurences.duration ) AS occurrence FROM occurences WHERE occurences.id = ANY (schedule_ids) AND NOT EXISTS ( SELECT 1 FROM ( SELECT id "schedule_id", UNNEST(exdate) "date" FROM schedules ) "exdates" WHERE exdates.schedule_id = occurences.id AND tstzrange( DATE_TRUNC('day', exdates.date), DATE_TRUNC('day', exdates.date) + INTERVAL '1 day' ) && tstzrange( occurences.occurence, occurences.occurence + occurences.duration ) ); RETURN; END; $$;
 
-WITH occurences AS (
-    SELECT schedules.id,
-        schedules.thing_id,
-        CASE
-            WHEN duration IS NULL THEN INTERVAL '1 seconds'
-            WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds'
-            ELSE duration
-        END AS duration,
-        unnest(
-            get_occurrences (
-                schedules.rrule::rrule,
-                schedules.dtstart AT TIME ZONE 'Europe/Vienna'
-            )
-        ) AT TIME ZONE 'Europe/Vienna' AS occurence
-    FROM schedules
-    WHERE schedules.relation IS NOT NULL
-        AND rrule LIKE '%UNTIL%'
-        AND id = ANY (schedule_ids)
-    UNION
-    SELECT schedules.id,
-        schedules.thing_id,
-        CASE
-            WHEN duration IS NULL THEN INTERVAL '1 seconds'
-            WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds'
-            ELSE duration
-        END AS duration,
-        unnest(
-            get_occurrences (
-                (schedules.rrule || ';UNTIL=2037-12-31')::rrule,
-                schedules.dtstart AT TIME ZONE 'Europe/Vienna'
-            )
-        ) AT TIME ZONE 'Europe/Vienna' AS occurence
-    FROM schedules
-    WHERE schedules.relation IS NOT NULL
-        AND rrule NOT LIKE '%UNTIL%'
-        AND id = ANY (schedule_ids)
-    UNION
-    SELECT schedules.id,
-        schedules.thing_id,
-        CASE
-            WHEN duration IS NULL THEN INTERVAL '1 seconds'
-            WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds'
-            ELSE duration
-        END AS duration,
-        schedules.dtstart AS occurence
-    FROM schedules
-    WHERE schedules.relation IS NOT NULL
-        AND schedules.rrule IS NULL
-        AND id = ANY (schedule_ids)
-    UNION
-    SELECT schedules.id,
-        schedules.thing_id,
-        CASE
-            WHEN duration IS NULL THEN INTERVAL '1 seconds'
-            WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds'
-            ELSE duration
-        END AS duration,
-        unnest(schedules.rdate) AS occurence
-    FROM schedules
-    WHERE schedules.relation IS NOT NULL
-        AND id = ANY (schedule_ids)
-)
-INSERT INTO schedule_occurrences (schedule_id, thing_id, duration, occurrence)
-SELECT occurences.id,
-    occurences.thing_id,
-    occurences.duration,
-    tstzrange(
-        occurences.occurence,
-        occurences.occurence + occurences.duration
-    ) AS occurrence
-FROM occurences
-WHERE occurences.id = ANY (schedule_ids)
-    AND NOT EXISTS (
-        SELECT 1
-        FROM (
-                SELECT id "schedule_id",
-                    UNNEST(exdate) "date"
-                FROM schedules
-            ) "exdates"
-        WHERE exdates.schedule_id = occurences.id
-            AND tstzrange(
-                DATE_TRUNC('day', exdates.date),
-                DATE_TRUNC('day', exdates.date) + INTERVAL '1 day'
-            ) && tstzrange(
-                occurences.occurence,
-                occurences.occurence + occurences.duration
-            )
-    );
-
-RETURN;
-
-END;
-
-$$;
 
 --
 -- Name: generate_schedule_occurences_trigger(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_schedule_occurences_trigger() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_schedule_occurences(NEW.id || '{}'::UUID []);
+CREATE FUNCTION public.generate_schedule_occurences_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_schedule_occurences(NEW.id || '{}'::UUID[]); RETURN NEW; END;$$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: generate_unique_collection_slug(character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_unique_collection_slug(
-    old_slug character varying,
-    OUT new_slug character varying
-) RETURNS character varying LANGUAGE plpgsql AS $_$ BEGIN WITH input AS (
-    SELECT old_slug::VARCHAR AS slug,
-        regexp_replace(old_slug, '-\d*$', '')::VARCHAR || '-' AS base_slug
-)
-SELECT i.slug
-FROM input i
-    LEFT JOIN collection_configurations a USING (slug)
-WHERE a.slug IS NULL
-UNION ALL
-(
-    SELECT i.base_slug || COALESCE(
-            right(a.slug, length(i.base_slug) * -1)::int + 1,
-            1
-        )
-    FROM input i
-        LEFT JOIN collection_configurations a ON a.slug LIKE (i.base_slug || '%')
-        AND right(a.slug, length(i.base_slug) * -1) ~ '^\d+$'
-    ORDER BY right(a.slug, length(i.base_slug) * -1)::int DESC
-)
-LIMIT 1 INTO new_slug;
+CREATE FUNCTION public.generate_unique_collection_slug(old_slug character varying, OUT new_slug character varying) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $_$ BEGIN WITH input AS ( SELECT old_slug::VARCHAR AS slug, regexp_replace(old_slug, '-\d*$', '')::VARCHAR || '-' AS base_slug ) SELECT i.slug FROM input i LEFT JOIN collection_configurations a USING (slug) WHERE a.slug IS NULL UNION ALL ( SELECT i.base_slug || COALESCE( right(a.slug, length(i.base_slug) * -1)::int + 1, 1 ) FROM input i LEFT JOIN collection_configurations a ON a.slug LIKE (i.base_slug || '%') AND right(a.slug, length(i.base_slug) * -1) ~ '^\d+$' ORDER BY right(a.slug, length(i.base_slug) * -1)::int DESC ) LIMIT 1 INTO new_slug; END; $_$;
 
-END;
-
-$_$;
 
 --
 -- Name: geom_simple_update(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.geom_simple_update() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN NEW.geom_simple := (
-    SELECT st_simplify(
-            ST_Force2D (COALESCE(NEW."location", NEW.line)),
-            0.00001,
-            TRUE
-        )
-    FROM things
-    WHERE things.id = NEW.id
-);
+CREATE FUNCTION public.geom_simple_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN NEW.geom_simple := ( SELECT st_simplify( ST_Force2D (COALESCE(NEW."location", NEW.line)), 0.00001, TRUE ) FROM things WHERE things.id = NEW.id ); RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: get_dict(character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.get_dict(lang character varying) RETURNS regconfig LANGUAGE SQL AS $$
-SELECT pg_dict_mappings.dict::regconfig
-FROM pg_dict_mappings
-WHERE pg_dict_mappings.locale IN (lang, 'simple')
-LIMIT 1;
+CREATE FUNCTION public.get_dict(lang character varying) RETURNS regconfig
+    LANGUAGE sql
+    AS $$ SELECT pg_dict_mappings.dict::regconfig FROM pg_dict_mappings WHERE pg_dict_mappings.locale IN (lang, 'simple') LIMIT 1; $$;
 
-$$;
 
 --
--- Name: to_classification_content_history(uuid, uuid, timestamp with time zone); Type: FUNCTION; Schema: public; Owner: -
+-- Name: to_classification_content_history(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.to_classification_content_history(
-    content_id uuid,
-    new_history_id uuid,
-    new_end_time timestamp WITH time zone
-) RETURNS SETOF uuid LANGUAGE plpgsql AS $$
-DECLARE BEGIN RETURN QUERY
-INSERT INTO classification_content_histories(
-        content_data_history_id,
-        classification_id,
-        seen_at,
-        relation,
-        created_at,
-        updated_at
-    )
-SELECT new_history_id AS content_data_history_id,
-    classification_contents.classification_id,
-    classification_contents.seen_at,
-    classification_contents.relation,
-    new_end_time AS created_at,
-    new_end_time AS updated_at
-FROM classification_contents
-WHERE classification_contents.content_data_id = content_id
-RETURNING id;
+CREATE FUNCTION public.to_classification_content_history(content_id uuid, new_history_id uuid) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ DECLARE insert_query TEXT; BEGIN SELECT 'INSERT INTO classification_content_histories (content_data_history_id, ' || string_agg(column_name, ', ') || ') SELECT ''' || new_history_id || '''::UUID, ' || string_agg('t.' || column_name, ', ') || ' FROM classification_contents t WHERE t.content_data_id = ''' || content_id || '''::UUID;' INTO insert_query FROM information_schema.columns WHERE table_name = 'classification_contents' AND column_name NOT IN ('id', 'content_data_id'); EXECUTE insert_query; RETURN; END; $$;
 
-END;
-
-$$;
 
 --
--- Name: to_content_content_history(uuid, uuid, character varying, boolean, timestamp with time zone, boolean); Type: FUNCTION; Schema: public; Owner: -
+-- Name: to_content_content_history(uuid, uuid, character varying, boolean, boolean); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.to_content_content_history(
-    content_id uuid,
-    new_history_id uuid,
-    current_locale character varying,
-    all_translations boolean,
-    new_end_time timestamp WITH time zone,
-    deleted boolean
-) RETURNS SETOF uuid LANGUAGE plpgsql AS $$
-DECLARE BEGIN
-INSERT INTO content_content_histories(
-        content_a_history_id,
-        relation_a,
-        content_b_history_id,
-        content_b_history_type,
-        order_a,
-        relation_b,
-        created_at,
-        updated_at,
-        history_valid
-    )
-SELECT new_history_id AS content_a_history_id,
-    content_contents.relation_a,
-    content_contents.content_b_id AS content_b_history_id,
-    'DataCycleCore::Thing' AS content_b_history_type,
-    content_contents.order_a,
-    content_contents.relation_b,
-    new_end_time AS created_at,
-    new_end_time AS updated_at,
-    tstzrange (new_end_time, NULL, '[)') AS history_valid
-FROM content_contents
-    INNER JOIN things ON things.id = content_contents.content_b_id
-WHERE content_contents.content_a_id = content_id
-    AND things.content_type != 'embedded';
+CREATE FUNCTION public.to_content_content_history(content_id uuid, new_history_id uuid, current_locale character varying, all_translations boolean DEFAULT false, deleted boolean DEFAULT false) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ DECLARE insert_linked_query TEXT; insert_embedded_query TEXT; BEGIN SELECT 'INSERT INTO content_content_histories (content_a_history_id, content_b_history_id, content_b_history_type, ' || string_agg(column_name, ', ') || ') SELECT ''' || new_history_id || '''::UUID, t.content_b_id, ''DataCycleCore::Thing'', ' || string_agg('t.' || column_name, ', ') || ' FROM content_contents t INNER JOIN things ON things.id = t.content_b_id WHERE t.content_a_id = ''' || content_id || '''::UUID AND things.content_type != ''embedded'';' INTO insert_linked_query FROM information_schema.columns WHERE table_name = 'content_contents' AND column_name NOT IN ('id', 'content_a_id', 'content_b_id'); EXECUTE insert_linked_query; SELECT 'INSERT INTO content_content_histories (content_a_history_id, content_b_history_id, content_b_history_type, ' || string_agg(column_name, ', ') || ') SELECT ''' || new_history_id || '''::UUID, to_thing_history (t.content_b_id, ''' || current_locale || '''::VARCHAR, ' || all_translations || '::BOOLEAN, ' || deleted || '::BOOLEAN), ''DataCycleCore::Thing::History'', ' || string_agg('t.' || column_name, ', ') || ' FROM content_contents t INNER JOIN things ON things.id = t.content_b_id WHERE t.content_a_id = ''' || content_id || '''::UUID AND things.content_type = ''embedded'';' INTO insert_embedded_query FROM information_schema.columns WHERE table_name = 'content_contents' AND column_name NOT IN ('id', 'content_a_id', 'content_b_id'); EXECUTE insert_embedded_query; RETURN; END; $$;
 
-RETURN QUERY
-INSERT INTO content_content_histories(
-        content_a_history_id,
-        relation_a,
-        content_b_history_id,
-        content_b_history_type,
-        order_a,
-        relation_b,
-        created_at,
-        updated_at,
-        history_valid
-    )
-SELECT new_history_id AS content_a_history_id,
-    content_contents.relation_a,
-    to_thing_history (
-        content_contents.content_b_id,
-        current_locale,
-        all_translations,
-        deleted
-    ) AS content_b_history_id,
-    'DataCycleCore::Thing::History' AS content_b_history_type,
-    content_contents.order_a,
-    content_contents.relation_b,
-    new_end_time AS created_at,
-    new_end_time AS updated_at,
-    tstzrange (new_end_time, NULL, '[)') AS history_valid
-FROM content_contents
-    INNER JOIN things ON things.id = content_contents.content_b_id
-WHERE content_contents.content_a_id = content_id
-    AND things.content_type = 'embedded'
-RETURNING id;
-
-END;
-
-$$;
 
 --
--- Name: to_schedule_history(uuid, uuid, timestamp with time zone); Type: FUNCTION; Schema: public; Owner: -
+-- Name: to_schedule_history(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.to_schedule_history(
-    content_id uuid,
-    new_history_id uuid,
-    new_end_time timestamp WITH time zone
-) RETURNS SETOF uuid LANGUAGE plpgsql AS $$
-DECLARE BEGIN RETURN QUERY
-INSERT INTO schedule_histories(
-        thing_history_id,
-        relation,
-        dtstart,
-        dtend,
-        duration,
-        rrule,
-        rdate,
-        exdate,
-        external_source_id,
-        external_key,
-        seen_at,
-        holidays,
-        created_at,
-        updated_at
-    )
-SELECT new_history_id AS thing_history_id,
-    schedules.relation,
-    schedules.dtstart,
-    schedules.dtend,
-    schedules.duration,
-    schedules.rrule,
-    schedules.rdate,
-    schedules.exdate,
-    schedules.external_source_id,
-    schedules.external_key,
-    schedules.seen_at,
-    schedules.holidays,
-    new_end_time AS created_at,
-    new_end_time AS updated_at
-FROM schedules
-WHERE schedules.thing_id = content_id
-RETURNING id;
+CREATE FUNCTION public.to_schedule_history(content_id uuid, new_history_id uuid) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ DECLARE insert_query TEXT; BEGIN SELECT 'INSERT INTO schedule_histories (thing_history_id, ' || string_agg(column_name, ', ') || ') SELECT ''' || new_history_id || '''::UUID, ' || string_agg('t.' || column_name, ', ') || ' FROM schedules t WHERE t.thing_id = ''' || content_id || '''::UUID;' INTO insert_query FROM information_schema.columns WHERE table_name = 'schedules' AND column_name NOT IN ('id', 'thing_id'); EXECUTE insert_query; RETURN; END; $$;
 
-END;
-
-$$;
 
 --
 -- Name: to_thing_history(uuid, character varying, boolean, boolean); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.to_thing_history(
-    content_id uuid,
-    current_locale character varying,
-    all_translations boolean,
-    deleted boolean
-) RETURNS uuid LANGUAGE plpgsql AS $$
-DECLARE new_end_time TIMESTAMP WITH TIME ZONE;
+CREATE FUNCTION public.to_thing_history(content_id uuid, current_locale character varying, all_translations boolean DEFAULT false, deleted boolean DEFAULT false) RETURNS uuid
+    LANGUAGE plpgsql
+    AS $$ DECLARE insert_query TEXT; new_history_id UUID; BEGIN SELECT 'INSERT INTO thing_histories (thing_id, deleted_at, ' || string_agg(column_name, ', ') || ') SELECT t.id, CASE WHEN t.deleted_at IS NOT NULL THEN t.deleted_at WHEN ' || deleted || '::BOOLEAN THEN transaction_timestamp() ELSE NULL END, ' || string_agg('t.' || column_name, ', ') || ' FROM things t WHERE t.id = ''' || content_id || '''::UUID LIMIT 1 RETURNING id;' INTO insert_query FROM information_schema.columns WHERE table_name = 'thing_histories' AND column_name NOT IN ('id', 'thing_id', 'deleted_at'); EXECUTE insert_query INTO new_history_id; PERFORM to_thing_history_translation ( content_id, new_history_id, current_locale, all_translations ); PERFORM to_classification_content_history (content_id, new_history_id); PERFORM to_content_content_history ( content_id, new_history_id, current_locale, all_translations, deleted ); PERFORM to_schedule_history (content_id, new_history_id); RETURN new_history_id; END; $$;
 
-new_history_id UUID;
-
-BEGIN
-SELECT update_previous_thing_history (content_id, current_locale) INTO new_end_time;
-
-INSERT INTO thing_histories(
-        thing_id,
-        metadata,
-        template_name,
-        schema,
-        template,
-        internal_name,
-        external_source_id,
-        external_key,
-        created_by,
-        updated_by,
-        deleted_by,
-        cache_valid_since,
-        created_at,
-        updated_at,
-        deleted_at,
-        given_name,
-        family_name,
-        start_date,
-        end_date,
-        longitude,
-        latitude,
-        elevation,
-        location,
-        address_locality,
-        street_address,
-        postal_code,
-        address_country,
-        fax_number,
-        telephone,
-        email,
-        is_part_of,
-        validity_range,
-        boost,
-        content_type,
-        representation_of_id,
-        version_name,
-        line,
-        last_updated_locale
-    )
-SELECT things.id AS thing_id,
-    things.metadata,
-    things.template_name,
-    things.schema,
-    things.template,
-    things.internal_name,
-    things.external_source_id,
-    things.external_key,
-    things.created_by,
-    things.updated_by,
-    things.deleted_by,
-    things.cache_valid_since,
-    new_end_time AS created_at,
-    new_end_time AS updated_at,
-    CASE
-        WHEN deleted THEN new_end_time
-        ELSE NULL
-    END AS deleted_at,
-    things.given_name,
-    things.family_name,
-    things.start_date,
-    things.end_date,
-    things.longitude,
-    things.latitude,
-    things.elevation,
-    things.location,
-    things.address_locality,
-    things.street_address,
-    things.postal_code,
-    things.address_country,
-    things.fax_number,
-    things.telephone,
-    things.email,
-    things.is_part_of,
-    things.validity_range,
-    things.boost,
-    things.content_type,
-    things.representation_of_id,
-    things.version_name,
-    things.line,
-    things.last_updated_locale
-FROM things
-WHERE things.id = content_id
-LIMIT 1
-RETURNING id INTO new_history_id;
-
-PERFORM to_thing_history_translation (
-    content_id,
-    new_history_id,
-    current_locale,
-    all_translations,
-    new_end_time
-);
-
-PERFORM to_classification_content_history (content_id, new_history_id, new_end_time);
-
-PERFORM to_content_content_history (
-    content_id,
-    new_history_id,
-    current_locale,
-    all_translations,
-    new_end_time,
-    deleted
-);
-
-PERFORM to_schedule_history (content_id, new_history_id, new_end_time);
-
-RETURN new_history_id;
-
-END;
-
-$$;
 
 --
--- Name: to_thing_history_translation(uuid, uuid, character varying, boolean, timestamp with time zone); Type: FUNCTION; Schema: public; Owner: -
+-- Name: to_thing_history_translation(uuid, uuid, character varying, boolean); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.to_thing_history_translation(
-    content_id uuid,
-    new_history_id uuid,
-    current_locale character varying,
-    all_translations boolean,
-    new_end_time timestamp WITH time zone
-) RETURNS SETOF uuid LANGUAGE plpgsql AS $$
-DECLARE BEGIN RETURN QUERY
-INSERT INTO thing_history_translations(
-        thing_history_id,
-        locale,
-        content,
-        name,
-        description,
-        slug,
-        created_at,
-        updated_at,
-        history_valid
-    )
-SELECT new_history_id AS thing_history_id,
-    thing_translations.locale,
-    thing_translations.content,
-    thing_translations.name,
-    thing_translations.description,
-    thing_translations.slug,
-    new_end_time AS created_at,
-    new_end_time AS updated_at,
-    tstzrange (new_end_time, NULL, '[)') AS history_valid
-FROM thing_translations
-WHERE thing_translations.thing_id = content_id
-    AND (
-        CASE
-            WHEN all_translations THEN thing_translations.locale IS NOT NULL
-            ELSE thing_translations.locale = current_locale
-        END
-    )
-RETURNING id;
+CREATE FUNCTION public.to_thing_history_translation(content_id uuid, new_history_id uuid, current_locale character varying, all_translations boolean DEFAULT false) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ DECLARE insert_query TEXT; BEGIN SELECT 'INSERT INTO thing_history_translations (thing_history_id, ' || string_agg(column_name, ', ') || ') SELECT ''' || new_history_id || '''::UUID, ' || string_agg('t.' || column_name, ', ') || ' FROM thing_translations t WHERE t.thing_id = ''' || content_id || '''::UUID AND (CASE WHEN ' || all_translations || '::BOOLEAN THEN t.locale IS NOT NULL ELSE t.locale = ''' || current_locale || '''::VARCHAR END);' INTO insert_query FROM information_schema.columns WHERE table_name = 'thing_translations' AND column_name NOT IN ('id', 'thing_id'); EXECUTE insert_query; RETURN; END; $$;
 
-END;
-
-$$;
 
 --
 -- Name: tsvectorsearchupdate(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.tsvectorsearchupdate() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN NEW.words := pg_catalog.to_tsvector(get_dict(NEW.locale), NEW.full_text::text);
+CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+      BEGIN
+      	NEW.words := pg_catalog.to_tsvector(get_dict(NEW.locale), NEW.full_text::text);
+        RETURN NEW;
+      END;$$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: update_ca_paths_transitive_trigger_4(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.update_ca_paths_transitive_trigger_4() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_ca_paths_transitive (
-    ARRAY [OLD.classification_alias_id, NEW.classification_alias_id]::uuid []
-);
+CREATE FUNCTION public.update_ca_paths_transitive_trigger_4() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_ca_paths_transitive ( ARRAY [OLD.classification_alias_id, NEW.classification_alias_id]::uuid [] ); RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: update_classification_aliases_order_a(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.update_classification_aliases_order_a(tree_label_ids uuid []) RETURNS void LANGUAGE plpgsql AS $$ BEGIN
-UPDATE classification_aliases
-SET order_a = w.order_a
-FROM (
-        WITH RECURSIVE paths (id, updated_at, full_order_a, tree_label_id) AS (
-            SELECT classification_aliases.id,
-                classification_aliases.updated_at,
-                ARRAY [ ( ROW_NUMBER() OVER ( PARTITION BY classification_trees.classification_tree_label_id ORDER BY classification_aliases.order_a ASC, classification_aliases.updated_at ASC ) ) ],
-                classification_trees.classification_tree_label_id
-            FROM classification_trees
-                JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id
-                AND classification_aliases.deleted_at IS NULL
-            WHERE classification_trees.parent_classification_alias_id IS NULL
-                AND classification_trees.deleted_at IS NULL
-                AND classification_trees.classification_tree_label_id = ANY (tree_label_ids)
-            UNION
-            SELECT classification_trees.classification_alias_id,
-                classification_aliases.updated_at,
-                paths.full_order_a || (
-                    ROW_NUMBER() OVER (
-                        PARTITION BY classification_trees.classification_tree_label_id
-                        ORDER BY paths.full_order_a || classification_aliases.order_a::BIGINT ASC,
-                            classification_aliases.updated_at ASC
-                    )
-                ),
-                classification_trees.classification_tree_label_id
-            FROM classification_trees
-                JOIN paths ON paths.id = classification_trees.parent_classification_alias_id
-                JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id
-                AND classification_aliases.deleted_at IS NULL
-            WHERE classification_trees.deleted_at IS NULL
-        )
-        SELECT paths.id,
-            (
-                ROW_NUMBER() OVER (
-                    PARTITION BY classification_tree_labels.id
-                    ORDER BY paths.full_order_a ASC,
-                        paths.updated_at ASC
-                )
-            ) AS order_a
-        FROM paths
-            JOIN classification_tree_labels ON classification_tree_labels.id = paths.tree_label_id
-    ) w
-WHERE w.id = classification_aliases.id;
+CREATE FUNCTION public.update_classification_aliases_order_a(tree_label_ids uuid[]) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ BEGIN UPDATE classification_aliases SET order_a = w.order_a FROM ( WITH RECURSIVE paths (id, updated_at, full_order_a, tree_label_id) AS ( SELECT classification_aliases.id, classification_aliases.updated_at, ARRAY[ ( ROW_NUMBER() OVER ( PARTITION BY classification_trees.classification_tree_label_id ORDER BY classification_aliases.order_a ASC, classification_aliases.updated_at ASC ) ) ], classification_trees.classification_tree_label_id FROM classification_trees JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id AND classification_aliases.deleted_at IS NULL WHERE classification_trees.parent_classification_alias_id IS NULL AND classification_trees.deleted_at IS NULL AND classification_trees.classification_tree_label_id = ANY (tree_label_ids) UNION SELECT classification_trees.classification_alias_id, classification_aliases.updated_at, paths.full_order_a || ( ROW_NUMBER() OVER ( PARTITION BY classification_trees.classification_tree_label_id ORDER BY paths.full_order_a || classification_aliases.order_a::BIGINT ASC, classification_aliases.updated_at ASC ) ), classification_trees.classification_tree_label_id FROM classification_trees JOIN paths ON paths.id = classification_trees.parent_classification_alias_id JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id AND classification_aliases.deleted_at IS NULL WHERE classification_trees.deleted_at IS NULL ) SELECT paths.id, ( ROW_NUMBER() OVER ( PARTITION BY classification_tree_labels.id ORDER BY paths.full_order_a ASC, paths.updated_at ASC ) ) AS order_a FROM paths JOIN classification_tree_labels ON classification_tree_labels.id = paths.tree_label_id ) w WHERE w.id = classification_aliases.id; END; $$;
 
-END;
-
-$$;
 
 --
 -- Name: update_classification_aliases_order_a_trigger(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.update_classification_aliases_order_a_trigger() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM update_classification_aliases_order_a (ARRAY_AGG(classification_tree_label_id))
-FROM (
-        SELECT DISTINCT classification_trees.classification_tree_label_id
-        FROM classification_trees
-        WHERE classification_trees.classification_alias_id = NEW.id
-    ) "updated_classification_aliases_alias";
+CREATE FUNCTION public.update_classification_aliases_order_a_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM update_classification_aliases_order_a (ARRAY_AGG(classification_tree_label_id)) FROM ( SELECT DISTINCT classification_trees.classification_tree_label_id FROM classification_trees WHERE classification_trees.classification_alias_id = NEW.id ) "updated_classification_aliases_alias"; RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: update_classification_tree_tree_label_id_trigger(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.update_classification_tree_tree_label_id_trigger() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN
-UPDATE classification_trees
-SET classification_tree_label_id = NEW.classification_tree_label_id
-WHERE classification_trees.classification_alias_id IN (
-        SELECT classification_alias_paths.id
-        FROM classification_alias_paths
-        WHERE classification_alias_paths.ancestor_ids @> ARRAY [NEW.classification_alias_id]::UUID []
-    );
+CREATE FUNCTION public.update_classification_tree_tree_label_id_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN UPDATE classification_trees SET classification_tree_label_id = NEW.classification_tree_label_id WHERE classification_trees.classification_alias_id IN ( SELECT classification_alias_paths.id FROM classification_alias_paths WHERE classification_alias_paths.ancestor_ids @> ARRAY[NEW.classification_alias_id]::UUID[] ); RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: update_classification_trees_order_a_trigger(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.update_classification_trees_order_a_trigger() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN
-UPDATE classification_aliases
-SET order_a = NULL
-WHERE classification_aliases.id = NEW.classification_alias_id
-    AND classification_aliases.order_a IS NOT NULL;
+CREATE FUNCTION public.update_classification_trees_order_a_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN UPDATE classification_aliases SET order_a = NULL WHERE classification_aliases.id = NEW.classification_alias_id AND classification_aliases.order_a IS NOT NULL; PERFORM update_classification_aliases_order_a (ARRAY[OLD.classification_tree_label_id, NEW.classification_tree_label_id]::UUID[]); RETURN NEW; END; $$;
 
-PERFORM update_classification_aliases_order_a (
-    ARRAY [OLD.classification_tree_label_id, NEW.classification_tree_label_id]::UUID []
-);
-
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: update_collected_classification_content_relations_trigger_4(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.update_collected_classification_content_relations_trigger_4() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_collected_classification_content_relations (
-    (
-        SELECT ARRAY_AGG(DISTINCT things.id)
-        FROM things
-            JOIN classification_contents ON things.id = classification_contents.content_data_id
-            JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id
-            AND classification_groups.deleted_at IS NULL
-        WHERE classification_groups.classification_id IN (NEW.classification_id, OLD.classification_id)
-    ),
-    ARRAY []::uuid []
-);
+CREATE FUNCTION public.update_collected_classification_content_relations_trigger_4() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_collected_classification_content_relations ( ( SELECT ARRAY_AGG(DISTINCT things.id) FROM things JOIN classification_contents ON things.id = classification_contents.content_data_id JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL WHERE classification_groups.classification_id IN (NEW.classification_id, OLD.classification_id)), ARRAY []::uuid [] ); RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 --
 -- Name: update_template_definitions_trigger(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.update_template_definitions_trigger() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN
-UPDATE things
-SET "schema" = NEW.schema,
-    boost = (NEW.schema->'boost')::numeric,
-    content_type = NEW.schema->>'content_type',
-    cache_valid_since = NOW()
-WHERE things.template_name = NEW.template_name
-    AND things.template = FALSE;
+CREATE FUNCTION public.update_template_definitions_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN UPDATE things SET "schema" = NEW.schema, boost = (NEW.schema -> 'boost')::numeric, content_type = NEW.schema ->> 'content_type', cache_valid_since = NOW() WHERE things.template_name = NEW.template_name AND things.template = FALSE; RETURN new; END; $$;
 
-RETURN new;
-
-END;
-
-$$;
 
 --
 -- Name: wldh_order_a_default_value(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.wldh_order_a_default_value() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN NEW.order_a := (
-    SELECT (COUNT(watch_list_data_hashes.id) + 1)
-    FROM watch_list_data_hashes
-    WHERE watch_list_data_hashes.watch_list_id = NEW.watch_list_id
-);
+CREATE FUNCTION public.wldh_order_a_default_value() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN NEW.order_a := (SELECT (count(watch_list_data_hashes.id) + 1) FROM watch_list_data_hashes WHERE watch_list_data_hashes.watch_list_id = NEW.watch_list_id); RETURN NEW; END; $$;
 
-RETURN NEW;
-
-END;
-
-$$;
 
 SET default_tablespace = '';
 
-SET default_table_access_method = HEAP;
+SET default_table_access_method = heap;
 
 --
 -- Name: active_storage_attachments; Type: TABLE; Schema: public; Owner: -
@@ -1583,21 +555,23 @@ CREATE TABLE public.active_storage_attachments (
     created_at timestamp without time zone NOT NULL
 );
 
+
 --
 -- Name: active_storage_blobs; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.active_storage_blobs (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    KEY character varying NOT NULL,
+    key character varying NOT NULL,
     filename character varying NOT NULL,
     content_type character varying,
     metadata text,
     service_name character varying NOT NULL,
     byte_size bigint NOT NULL,
-    CHECKSUM character varying NOT NULL,
+    checksum character varying NOT NULL,
     created_at timestamp without time zone NOT NULL
 );
+
 
 --
 -- Name: active_storage_variant_records; Type: TABLE; Schema: public; Owner: -
@@ -1608,6 +582,7 @@ CREATE TABLE public.active_storage_variant_records (
     blob_id uuid NOT NULL,
     variation_digest character varying NOT NULL
 );
+
 
 --
 -- Name: activities; Type: TABLE; Schema: public; Owner: -
@@ -1624,16 +599,18 @@ CREATE TABLE public.activities (
     updated_at timestamp without time zone NOT NULL
 );
 
+
 --
 -- Name: ar_internal_metadata; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.ar_internal_metadata (
-    KEY character varying NOT NULL,
+    key character varying NOT NULL,
     value character varying,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL
 );
+
 
 --
 -- Name: asset_contents; Type: TABLE; Schema: public; Owner: -
@@ -1651,14 +628,15 @@ CREATE TABLE public.asset_contents (
     updated_at timestamp without time zone NOT NULL
 );
 
+
 --
 -- Name: assets; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.assets (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    FILE character varying,
-    TYPE character varying,
+    file character varying,
+    type character varying,
     content_type character varying,
     file_size bigint,
     creator_id uuid,
@@ -1669,6 +647,7 @@ CREATE TABLE public.assets (
     metadata jsonb,
     duplicate_check jsonb
 );
+
 
 --
 -- Name: classification_groups; Type: TABLE; Schema: public; Owner: -
@@ -1684,6 +663,7 @@ CREATE TABLE public.classification_groups (
     updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     deleted_at timestamp without time zone
 );
+
 
 --
 -- Name: classification_trees; Type: TABLE; Schema: public; Owner: -
@@ -1702,44 +682,30 @@ CREATE TABLE public.classification_trees (
     deleted_at timestamp without time zone
 );
 
+
 --
 -- Name: classification_alias_links; Type: VIEW; Schema: public; Owner: -
 --
 
-CREATE VIEW public.classification_alias_links AS WITH primary_classification_groups AS (
-    SELECT DISTINCT classification_groups.classification_alias_id,
-        first_value(classification_groups.classification_id) OVER (
-            PARTITION BY classification_groups.classification_alias_id
-            ORDER BY classification_groups.created_at
-        ) AS classification_id
-    FROM public.classification_groups
-    WHERE (classification_groups.deleted_at IS NULL)
-)
-SELECT additional_classification_groups.classification_alias_id AS parent_classification_alias_id,
+CREATE VIEW public.classification_alias_links AS
+ WITH primary_classification_groups AS (
+         SELECT DISTINCT classification_groups.classification_alias_id,
+            first_value(classification_groups.classification_id) OVER (PARTITION BY classification_groups.classification_alias_id ORDER BY classification_groups.created_at) AS classification_id
+           FROM public.classification_groups
+          WHERE (classification_groups.deleted_at IS NULL)
+        )
+ SELECT additional_classification_groups.classification_alias_id AS parent_classification_alias_id,
     primary_classification_groups.classification_alias_id AS child_classification_alias_id,
     'related'::text AS link_type
-FROM (
-        primary_classification_groups
-        JOIN public.classification_groups additional_classification_groups ON (
-            (
-                (
-                    primary_classification_groups.classification_id = additional_classification_groups.classification_id
-                )
-                AND (
-                    additional_classification_groups.classification_alias_id <> primary_classification_groups.classification_alias_id
-                )
-                AND (
-                    additional_classification_groups.deleted_at IS NULL
-                )
-            )
-        )
-    )
+   FROM (primary_classification_groups
+     JOIN public.classification_groups additional_classification_groups ON (((primary_classification_groups.classification_id = additional_classification_groups.classification_id) AND (additional_classification_groups.classification_alias_id <> primary_classification_groups.classification_alias_id) AND (additional_classification_groups.deleted_at IS NULL))))
 UNION
-SELECT classification_trees.parent_classification_alias_id,
+ SELECT classification_trees.parent_classification_alias_id,
     classification_trees.classification_alias_id AS child_classification_alias_id,
     'broader'::text AS link_type
-FROM public.classification_trees
-WHERE (classification_trees.deleted_at IS NULL);
+   FROM public.classification_trees
+  WHERE (classification_trees.deleted_at IS NULL);
+
 
 --
 -- Name: classification_alias_paths; Type: TABLE; Schema: public; Owner: -
@@ -1747,10 +713,11 @@ WHERE (classification_trees.deleted_at IS NULL);
 
 CREATE TABLE public.classification_alias_paths (
     id uuid NOT NULL,
-    ancestor_ids uuid [],
-    full_path_ids uuid [],
-    full_path_names character varying []
+    ancestor_ids uuid[],
+    full_path_ids uuid[],
+    full_path_names character varying[]
 );
+
 
 --
 -- Name: classification_alias_paths_transitive; Type: TABLE; Schema: public; Owner: -
@@ -1759,11 +726,12 @@ CREATE TABLE public.classification_alias_paths (
 CREATE TABLE public.classification_alias_paths_transitive (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     classification_alias_id uuid NOT NULL,
-    ancestor_ids uuid [],
-    full_path_ids uuid [],
-    full_path_names character varying [],
-    link_types character varying []
+    ancestor_ids uuid[],
+    full_path_ids uuid[],
+    full_path_names character varying[],
+    link_types character varying[]
 );
+
 
 --
 -- Name: classification_aliases; Type: TABLE; Schema: public; Owner: -
@@ -1778,12 +746,13 @@ CREATE TABLE public.classification_aliases (
     external_source_id uuid,
     internal boolean DEFAULT false,
     deleted_at timestamp without time zone,
-    assignable boolean DEFAULT TRUE,
+    assignable boolean DEFAULT true,
     name_i18n jsonb DEFAULT '{}'::jsonb,
     description_i18n jsonb DEFAULT '{}'::jsonb,
     uri character varying,
     order_a integer
 );
+
 
 --
 -- Name: classification_content_histories; Type: TABLE; Schema: public; Owner: -
@@ -1799,6 +768,7 @@ CREATE TABLE public.classification_content_histories (
     relation character varying
 );
 
+
 --
 -- Name: classification_contents; Type: TABLE; Schema: public; Owner: -
 --
@@ -1813,6 +783,7 @@ CREATE TABLE public.classification_contents (
     relation character varying
 );
 
+
 --
 -- Name: classification_polygons; Type: TABLE; Schema: public; Owner: -
 --
@@ -1821,11 +792,12 @@ CREATE TABLE public.classification_polygons (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     admin_level integer,
     classification_alias_id uuid,
-    geog public.geography(MultiPolygon, 4326),
+    geog public.geography(MultiPolygon,4326),
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    geom public.geometry(Geometry, 4326)
+    geom public.geometry(Geometry,4326)
 );
+
 
 --
 -- Name: classification_tree_labels; Type: TABLE; Schema: public; Owner: -
@@ -1840,9 +812,10 @@ CREATE TABLE public.classification_tree_labels (
     updated_at timestamp without time zone NOT NULL,
     internal boolean DEFAULT false,
     deleted_at timestamp without time zone,
-    visibility character varying [] DEFAULT '{}'::character varying [],
-    change_behaviour character varying [] DEFAULT '{trigger_webhooks,clear_cache}'::character varying []
+    visibility character varying[] DEFAULT '{}'::character varying[],
+    change_behaviour character varying[] DEFAULT '{trigger_webhooks,clear_cache}'::character varying[]
 );
+
 
 --
 -- Name: classification_user_groups; Type: TABLE; Schema: public; Owner: -
@@ -1857,6 +830,7 @@ CREATE TABLE public.classification_user_groups (
     updated_at timestamp(6) without time zone NOT NULL
 );
 
+
 --
 -- Name: classifications; Type: TABLE; Schema: public; Owner: -
 --
@@ -1868,9 +842,9 @@ CREATE TABLE public.classifications (
     external_key character varying,
     description character varying,
     seen_at timestamp without time zone,
-    location public.geometry(Point, 4326),
-    bbox public.geometry(Polygon, 4326),
-    shape public.geometry(MultiPolygon, 4326),
+    location public.geometry(Point,4326),
+    bbox public.geometry(Polygon,4326),
+    shape public.geometry(MultiPolygon,4326),
     external_type character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
@@ -1878,17 +852,19 @@ CREATE TABLE public.classifications (
     uri character varying
 );
 
+
 --
 -- Name: collected_classification_contents; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.collected_classification_contents (
     thing_id uuid NOT NULL,
-    direct_classification_alias_ids uuid [],
-    full_classification_alias_ids uuid [],
-    direct_tree_label_ids uuid [],
-    full_tree_label_ids uuid []
+    direct_classification_alias_ids uuid[],
+    full_classification_alias_ids uuid[],
+    direct_tree_label_ids uuid[],
+    full_tree_label_ids uuid[]
 );
+
 
 --
 -- Name: collection_configurations; Type: TABLE; Schema: public; Owner: -
@@ -1900,6 +876,7 @@ CREATE TABLE public.collection_configurations (
     stored_filter_id uuid,
     slug character varying
 );
+
 
 --
 -- Name: things; Type: TABLE; Schema: public; Owner: -
@@ -1928,7 +905,7 @@ CREATE TABLE public.things (
     longitude double precision,
     latitude double precision,
     elevation double precision,
-    location public.geometry(Point, 4326),
+    location public.geometry(Point,4326),
     address_locality character varying,
     street_address character varying,
     postal_code character varying,
@@ -1942,44 +919,39 @@ CREATE TABLE public.things (
     content_type character varying,
     representation_of_id uuid,
     version_name character varying,
-    line public.geometry(MultiLineStringZ, 4326),
+    line public.geometry(MultiLineStringZ,4326),
     last_updated_locale character varying,
     write_history boolean DEFAULT false,
-    geom_simple public.geometry(Geometry, 4326)
+    geom_simple public.geometry(Geometry,4326)
 );
+
 
 --
 -- Name: content_properties; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.content_properties AS
-SELECT things.id AS content_id,
+ SELECT things.id AS content_id,
     things.template_name AS content_template_name,
     properties.key AS property_name,
     properties.value AS property_definition
-FROM public.things,
-    LATERAL jsonb_each((things.schema->'properties'::text)) properties(KEY, value);
+   FROM public.things,
+    LATERAL jsonb_each((things.schema -> 'properties'::text)) properties(key, value);
+
 
 --
 -- Name: content_computed_properties; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.content_computed_properties AS
-SELECT content_properties.content_id,
+ SELECT content_properties.content_id,
     content_properties.content_template_name,
     content_properties.property_name,
     split_part(parameters.value, '.'::text, 1) AS compute_parameter_property_name
-FROM public.content_properties,
-    LATERAL jsonb_array_elements_text(
-        (
-            (
-                content_properties.property_definition->'compute'::text
-            )->'parameters'::text
-        )
-    ) parameters(value)
-WHERE (
-        content_properties.property_definition ? 'compute'::text
-    );
+   FROM public.content_properties,
+    LATERAL jsonb_array_elements_text(((content_properties.property_definition -> 'compute'::text) -> 'parameters'::text)) parameters(value)
+  WHERE (content_properties.property_definition ? 'compute'::text);
+
 
 --
 -- Name: content_content_histories; Type: TABLE; Schema: public; Owner: -
@@ -1991,18 +963,22 @@ CREATE TABLE public.content_content_histories (
     relation_a character varying,
     content_b_history_id uuid,
     content_b_history_type character varying,
-    history_valid tstzrange,
     created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     order_a integer,
     relation_b character varying
 );
 
+
 --
 -- Name: content_content_links; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.content_content_links (content_a_id uuid, content_b_id uuid);
+CREATE TABLE public.content_content_links (
+    content_a_id uuid,
+    content_b_id uuid
+);
+
 
 --
 -- Name: content_contents; Type: TABLE; Schema: public; Owner: -
@@ -2019,19 +995,21 @@ CREATE TABLE public.content_contents (
     relation_b character varying
 );
 
+
 --
 -- Name: content_content_relations; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.content_content_relations AS
-SELECT e.content_b_id AS src,
+ SELECT e.content_b_id AS src,
     e.content_a_id AS dest
-FROM public.content_contents e
+   FROM public.content_contents e
 UNION ALL
-SELECT f.content_a_id AS src,
+ SELECT f.content_a_id AS src,
     f.content_b_id AS dest
-FROM public.content_contents f
-WHERE (f.relation_b IS NOT NULL);
+   FROM public.content_contents f
+  WHERE (f.relation_b IS NOT NULL);
+
 
 --
 -- Name: data_links; Type: TABLE; Schema: public; Owner: -
@@ -2047,12 +1025,13 @@ CREATE TABLE public.data_links (
     updated_at timestamp without time zone NOT NULL,
     permissions character varying,
     receiver_id uuid,
-    COMMENT text,
+    comment text,
     valid_from timestamp without time zone,
     valid_until timestamp without time zone,
     asset_id uuid,
     locale character varying
 );
+
 
 --
 -- Name: watch_list_data_hashes; Type: TABLE; Schema: public; Owner: -
@@ -2069,44 +1048,36 @@ CREATE TABLE public.watch_list_data_hashes (
     order_a integer DEFAULT 1 NOT NULL
 );
 
+
 --
 -- Name: content_items; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.content_items AS
-SELECT data_links.id AS data_link_id,
+ SELECT data_links.id AS data_link_id,
     watch_list_data_hashes.hashable_type AS content_type,
     watch_list_data_hashes.hashable_id AS content_id,
     data_links.creator_id,
     data_links.receiver_id
-FROM (
-        public.data_links
-        JOIN public.watch_list_data_hashes ON (
-            (
-                watch_list_data_hashes.watch_list_id = data_links.item_id
-            )
-        )
-    )
-WHERE (
-        (data_links.item_type)::text = 'DataCycleCore::WatchList'::text
-    )
+   FROM (public.data_links
+     JOIN public.watch_list_data_hashes ON ((watch_list_data_hashes.watch_list_id = data_links.item_id)))
+  WHERE ((data_links.item_type)::text = 'DataCycleCore::WatchList'::text)
 UNION
-SELECT data_links.id AS data_link_id,
+ SELECT data_links.id AS data_link_id,
     data_links.item_type AS content_type,
     data_links.item_id AS content_id,
     data_links.creator_id,
     data_links.receiver_id
-FROM public.data_links
-WHERE (
-        (data_links.item_type)::text <> 'DataCycleCore::WatchList'::text
-    );
+   FROM public.data_links
+  WHERE ((data_links.item_type)::text <> 'DataCycleCore::WatchList'::text);
+
 
 --
 -- Name: content_meta_items; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.content_meta_items AS
-SELECT things.id,
+ SELECT things.id,
     'DataCycleCore::Thing'::text AS content_type,
     things.template_name,
     things.schema,
@@ -2115,36 +1086,25 @@ SELECT things.id,
     things.created_by,
     things.updated_by,
     things.deleted_by
-FROM public.things
-WHERE (things.template IS FALSE);
+   FROM public.things
+  WHERE (things.template IS FALSE);
+
 
 --
 -- Name: content_property_dependencies; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.content_property_dependencies AS
-SELECT content_computed_properties.content_id,
+ SELECT content_computed_properties.content_id,
     content_computed_properties.content_template_name,
     content_computed_properties.property_name,
     content_computed_properties.compute_parameter_property_name,
     things.id AS dependent_content_id,
     things.template_name AS dependent_content_template_name
-FROM (
-        (
-            public.things
-            JOIN public.content_contents ON ((content_contents.content_b_id = things.id))
-        )
-        JOIN public.content_computed_properties ON (
-            (
-                (
-                    content_computed_properties.content_id = content_contents.content_a_id
-                )
-                AND (
-                    content_computed_properties.compute_parameter_property_name = (content_contents.relation_a)::text
-                )
-            )
-        )
-    );
+   FROM ((public.things
+     JOIN public.content_contents ON ((content_contents.content_b_id = things.id)))
+     JOIN public.content_computed_properties ON (((content_computed_properties.content_id = content_contents.content_a_id) AND (content_computed_properties.compute_parameter_property_name = (content_contents.relation_a)::text))));
+
 
 --
 -- Name: delayed_jobs; Type: TABLE; Schema: public; Owner: -
@@ -2167,17 +1127,26 @@ CREATE TABLE public.delayed_jobs (
     updated_at timestamp without time zone
 );
 
+
 --
 -- Name: delayed_jobs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE public.delayed_jobs_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+CREATE SEQUENCE public.delayed_jobs_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 
 --
 -- Name: delayed_jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.delayed_jobs_id_seq OWNED BY public.delayed_jobs.id;
+
 
 --
 -- Name: thing_duplicates; Type: TABLE; Schema: public; Owner: -
@@ -2194,24 +1163,26 @@ CREATE TABLE public.thing_duplicates (
     updated_at timestamp without time zone NOT NULL
 );
 
+
 --
 -- Name: duplicate_candidates; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.duplicate_candidates AS
-SELECT thing_duplicates.thing_duplicate_id AS duplicate_id,
+ SELECT thing_duplicates.thing_duplicate_id AS duplicate_id,
     thing_duplicates.thing_id AS original_id,
     thing_duplicates.score,
     thing_duplicates.id AS thing_duplicate_id,
     thing_duplicates.false_positive
-FROM public.thing_duplicates
+   FROM public.thing_duplicates
 UNION
-SELECT thing_duplicates.thing_id AS duplicate_id,
+ SELECT thing_duplicates.thing_id AS duplicate_id,
     thing_duplicates.thing_duplicate_id AS original_id,
     thing_duplicates.score,
     thing_duplicates.id AS thing_duplicate_id,
     thing_duplicates.false_positive
-FROM public.thing_duplicates;
+   FROM public.thing_duplicates;
+
 
 --
 -- Name: external_system_syncs; Type: TABLE; Schema: public; Owner: -
@@ -2224,13 +1195,14 @@ CREATE TABLE public.external_system_syncs (
     data jsonb,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    STATUS character varying,
+    status character varying,
     syncable_type character varying DEFAULT 'DataCycleCore::Thing'::character varying,
     last_sync_at timestamp without time zone,
     last_successful_sync_at timestamp without time zone,
     external_key character varying,
     sync_type character varying DEFAULT 'export'::character varying
 );
+
 
 --
 -- Name: external_systems; Type: TABLE; Schema: public; Owner: -
@@ -2251,11 +1223,12 @@ CREATE TABLE public.external_systems (
     last_import timestamp without time zone,
     last_successful_import timestamp without time zone,
     deactivated boolean DEFAULT false,
-    last_successful_download_time INTERVAL,
-    last_download_time INTERVAL,
-    last_successful_import_time INTERVAL,
-    last_import_time INTERVAL
+    last_successful_download_time interval,
+    last_download_time interval,
+    last_successful_import_time interval,
+    last_import_time interval
 );
+
 
 --
 -- Name: pg_dict_mappings; Type: TABLE; Schema: public; Owner: -
@@ -2266,12 +1239,13 @@ CREATE TABLE public.pg_dict_mappings (
     dict character varying NOT NULL
 );
 
+
 --
 -- Name: primary_classification_groups; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.primary_classification_groups AS
-SELECT DISTINCT ON (classification_groups.classification_id) classification_groups.id,
+ SELECT DISTINCT ON (classification_groups.classification_id) classification_groups.id,
     classification_groups.classification_id,
     classification_groups.classification_alias_id,
     classification_groups.external_source_id,
@@ -2279,9 +1253,9 @@ SELECT DISTINCT ON (classification_groups.classification_id) classification_grou
     classification_groups.created_at,
     classification_groups.updated_at,
     classification_groups.deleted_at
-FROM public.classification_groups
-ORDER BY classification_groups.classification_id,
-    classification_groups.created_at;
+   FROM public.classification_groups
+  ORDER BY classification_groups.classification_id, classification_groups.created_at;
+
 
 --
 -- Name: roles; Type: TABLE; Schema: public; Owner: -
@@ -2295,6 +1269,7 @@ CREATE TABLE public.roles (
     updated_at timestamp without time zone NOT NULL
 );
 
+
 --
 -- Name: schedule_histories; Type: TABLE; Schema: public; Owner: -
 --
@@ -2303,12 +1278,12 @@ CREATE TABLE public.schedule_histories (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     thing_history_id uuid,
     relation character varying,
-    dtstart timestamp WITH time zone,
-    dtend timestamp WITH time zone,
-    duration INTERVAL,
+    dtstart timestamp with time zone,
+    dtend timestamp with time zone,
+    duration interval,
     rrule character varying,
-    rdate timestamp WITH time zone [] DEFAULT '{}'::timestamp WITH time zone [],
-    exdate timestamp WITH time zone [] DEFAULT '{}'::timestamp WITH time zone [],
+    rdate timestamp with time zone[] DEFAULT '{}'::timestamp with time zone[],
+    exdate timestamp with time zone[] DEFAULT '{}'::timestamp with time zone[],
     external_source_id uuid,
     external_key character varying,
     seen_at timestamp without time zone,
@@ -2316,6 +1291,7 @@ CREATE TABLE public.schedule_histories (
     updated_at timestamp without time zone NOT NULL,
     holidays boolean
 );
+
 
 --
 -- Name: schedule_occurrences; Type: TABLE; Schema: public; Owner: -
@@ -2325,9 +1301,10 @@ CREATE TABLE public.schedule_occurrences (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     schedule_id uuid NOT NULL,
     thing_id uuid NOT NULL,
-    duration INTERVAL,
+    duration interval,
     occurrence tstzrange NOT NULL
 );
+
 
 --
 -- Name: schedules; Type: TABLE; Schema: public; Owner: -
@@ -2337,12 +1314,12 @@ CREATE TABLE public.schedules (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     thing_id uuid,
     relation character varying,
-    dtstart timestamp WITH time zone,
-    dtend timestamp WITH time zone,
-    duration INTERVAL,
+    dtstart timestamp with time zone,
+    dtend timestamp with time zone,
+    duration interval,
     rrule character varying,
-    rdate timestamp WITH time zone [] DEFAULT '{}'::timestamp WITH time zone [],
-    exdate timestamp WITH time zone [] DEFAULT '{}'::timestamp WITH time zone [],
+    rdate timestamp with time zone[] DEFAULT '{}'::timestamp with time zone[],
+    exdate timestamp with time zone[] DEFAULT '{}'::timestamp with time zone[],
     external_source_id uuid,
     external_key character varying,
     seen_at timestamp without time zone,
@@ -2351,11 +1328,15 @@ CREATE TABLE public.schedules (
     holidays boolean
 );
 
+
 --
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.schema_migrations (version character varying NOT NULL);
+CREATE TABLE public.schema_migrations (
+    version character varying NOT NULL
+);
+
 
 --
 -- Name: searches; Type: TABLE; Schema: public; Owner: -
@@ -2377,10 +1358,11 @@ CREATE TABLE public.searches (
     boost double precision DEFAULT 1.0 NOT NULL,
     schema_type character varying DEFAULT 'Thing'::character varying NOT NULL,
     advanced_attributes jsonb,
-    classification_aliases_mapping uuid [],
-    classification_ancestors_mapping uuid [],
+    classification_aliases_mapping uuid[],
+    classification_ancestors_mapping uuid[],
     words_typeahead tsvector
 );
+
 
 --
 -- Name: stored_filters; Type: TABLE; Schema: public; Owner: -
@@ -2390,17 +1372,18 @@ CREATE TABLE public.stored_filters (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying,
     user_id uuid,
-    language character varying [],
+    language character varying[],
     parameters jsonb,
     system boolean DEFAULT false,
     api boolean DEFAULT false,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    api_users text [],
+    api_users text[],
     linked_stored_filter_id uuid,
     sort_parameters jsonb,
-    classification_tree_labels uuid []
+    classification_tree_labels uuid[]
 );
+
 
 --
 -- Name: subscriptions; Type: TABLE; Schema: public; Owner: -
@@ -2414,6 +1397,7 @@ CREATE TABLE public.subscriptions (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
+
 
 --
 -- Name: thing_histories; Type: TABLE; Schema: public; Owner: -
@@ -2443,7 +1427,7 @@ CREATE TABLE public.thing_histories (
     longitude double precision,
     latitude double precision,
     elevation double precision,
-    location public.geometry(Point, 4326),
+    location public.geometry(Point,4326),
     address_locality character varying,
     street_address character varying,
     postal_code character varying,
@@ -2457,9 +1441,10 @@ CREATE TABLE public.thing_histories (
     content_type character varying,
     representation_of_id uuid,
     version_name character varying,
-    line public.geometry(MultiLineStringZ, 4326),
+    line public.geometry(MultiLineStringZ,4326),
     last_updated_locale character varying
 );
+
 
 --
 -- Name: thing_history_translations; Type: TABLE; Schema: public; Owner: -
@@ -2472,11 +1457,11 @@ CREATE TABLE public.thing_history_translations (
     content jsonb,
     name character varying,
     description text,
-    history_valid tstzrange,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     slug character varying
 );
+
 
 --
 -- Name: thing_translations; Type: TABLE; Schema: public; Owner: -
@@ -2494,6 +1479,7 @@ CREATE TABLE public.thing_translations (
     slug character varying
 );
 
+
 --
 -- Name: timeseries; Type: TABLE; Schema: public; Owner: -
 --
@@ -2501,11 +1487,12 @@ CREATE TABLE public.thing_translations (
 CREATE TABLE public.timeseries (
     thing_id uuid NOT NULL,
     property character varying NOT NULL,
-    "timestamp" timestamp WITH time zone NOT NULL,
+    "timestamp" timestamp with time zone NOT NULL,
     value double precision,
     created_at timestamp(6) without time zone DEFAULT transaction_timestamp() NOT NULL,
     updated_at timestamp(6) without time zone DEFAULT transaction_timestamp() NOT NULL
 );
+
 
 --
 -- Name: user_group_users; Type: TABLE; Schema: public; Owner: -
@@ -2520,6 +1507,7 @@ CREATE TABLE public.user_group_users (
     updated_at timestamp without time zone NOT NULL
 );
 
+
 --
 -- Name: user_groups; Type: TABLE; Schema: public; Owner: -
 --
@@ -2531,6 +1519,7 @@ CREATE TABLE public.user_groups (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
+
 
 --
 -- Name: users; Type: TABLE; Schema: public; Owner: -
@@ -2557,7 +1546,7 @@ CREATE TABLE public.users (
     role_id uuid,
     notification_frequency character varying DEFAULT 'always'::character varying,
     access_token character varying,
-    TYPE character varying DEFAULT 'DataCycleCore::User'::character varying,
+    type character varying DEFAULT 'DataCycleCore::User'::character varying,
     name character varying,
     default_locale character varying DEFAULT 'de'::character varying,
     provider character varying,
@@ -2571,6 +1560,7 @@ CREATE TABLE public.users (
     unconfirmed_email character varying,
     ui_locale character varying DEFAULT 'de'::character varying NOT NULL
 );
+
 
 --
 -- Name: watch_list_shares; Type: TABLE; Schema: public; Owner: -
@@ -2586,6 +1576,7 @@ CREATE TABLE public.watch_list_shares (
     shareable_type character varying DEFAULT 'DataCycleCore::UserGroup'::character varying
 );
 
+
 --
 -- Name: watch_lists; Type: TABLE; Schema: public; Owner: -
 --
@@ -2598,346 +1589,393 @@ CREATE TABLE public.watch_lists (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     full_path character varying,
-    full_path_names character varying [],
+    full_path_names character varying[],
     my_selection boolean DEFAULT false NOT NULL,
     manual_order boolean DEFAULT false NOT NULL
 );
+
 
 --
 -- Name: delayed_jobs id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.delayed_jobs
-ALTER COLUMN id
-SET DEFAULT nextval('public.delayed_jobs_id_seq'::regclass);
+ALTER TABLE ONLY public.delayed_jobs ALTER COLUMN id SET DEFAULT nextval('public.delayed_jobs_id_seq'::regclass);
+
 
 --
 -- Name: active_storage_attachments active_storage_attachments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.active_storage_attachments
-ADD CONSTRAINT active_storage_attachments_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT active_storage_attachments_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: active_storage_blobs active_storage_blobs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.active_storage_blobs
-ADD CONSTRAINT active_storage_blobs_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT active_storage_blobs_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: active_storage_variant_records active_storage_variant_records_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.active_storage_variant_records
-ADD CONSTRAINT active_storage_variant_records_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT active_storage_variant_records_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: activities activities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.activities
-ADD CONSTRAINT activities_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT activities_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: ar_internal_metadata ar_internal_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.ar_internal_metadata
-ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (KEY);
+    ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
+
 
 --
 -- Name: asset_contents asset_contents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.asset_contents
-ADD CONSTRAINT asset_contents_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT asset_contents_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: assets assets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.assets
-ADD CONSTRAINT assets_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT assets_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: classification_alias_paths classification_alias_paths_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.classification_alias_paths
-ADD CONSTRAINT classification_alias_paths_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT classification_alias_paths_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: classification_alias_paths_transitive classification_alias_paths_transitive_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.classification_alias_paths_transitive
-ADD CONSTRAINT classification_alias_paths_transitive_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT classification_alias_paths_transitive_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: classification_content_histories classification_content_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.classification_content_histories
-ADD CONSTRAINT classification_content_histories_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT classification_content_histories_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: classification_contents classification_contents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.classification_contents
-ADD CONSTRAINT classification_contents_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT classification_contents_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: classification_polygons classification_polygons_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.classification_polygons
-ADD CONSTRAINT classification_polygons_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT classification_polygons_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: classification_user_groups classification_user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.classification_user_groups
-ADD CONSTRAINT classification_user_groups_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT classification_user_groups_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: classification_aliases classifications_aliases_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.classification_aliases
-ADD CONSTRAINT classifications_aliases_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT classifications_aliases_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: classification_groups classifications_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.classification_groups
-ADD CONSTRAINT classifications_groups_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT classifications_groups_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: classifications classifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.classifications
-ADD CONSTRAINT classifications_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT classifications_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: classification_tree_labels classifications_trees_labels_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.classification_tree_labels
-ADD CONSTRAINT classifications_trees_labels_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT classifications_trees_labels_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: classification_trees classifications_trees_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.classification_trees
-ADD CONSTRAINT classifications_trees_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT classifications_trees_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: collected_classification_contents collected_classification_contents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.collected_classification_contents
-ADD CONSTRAINT collected_classification_contents_pkey PRIMARY KEY (thing_id);
+    ADD CONSTRAINT collected_classification_contents_pkey PRIMARY KEY (thing_id);
+
 
 --
 -- Name: collection_configurations collection_configurations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.collection_configurations
-ADD CONSTRAINT collection_configurations_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT collection_configurations_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: collection_configurations collection_configurations_slug_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.collection_configurations
-ADD CONSTRAINT collection_configurations_slug_key UNIQUE (slug);
+    ADD CONSTRAINT collection_configurations_slug_key UNIQUE (slug);
+
 
 --
 -- Name: content_content_histories content_content_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.content_content_histories
-ADD CONSTRAINT content_content_histories_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT content_content_histories_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: content_contents content_contents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.content_contents
-ADD CONSTRAINT content_contents_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT content_contents_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: delayed_jobs delayed_jobs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.delayed_jobs
-ADD CONSTRAINT delayed_jobs_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT delayed_jobs_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: data_links edit_links_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.data_links
-ADD CONSTRAINT edit_links_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT edit_links_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: external_systems external_systems_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.external_systems
-ADD CONSTRAINT external_systems_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT external_systems_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: roles roles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.roles
-ADD CONSTRAINT roles_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT roles_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: schedule_histories schedule_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.schedule_histories
-ADD CONSTRAINT schedule_histories_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT schedule_histories_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: schedule_occurrences schedule_occurrences_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.schedule_occurrences
-ADD CONSTRAINT schedule_occurrences_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT schedule_occurrences_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: schedules schedules_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.schedules
-ADD CONSTRAINT schedules_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT schedules_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.schema_migrations
-ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
+    ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
+
 
 --
 -- Name: searches searches_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.searches
-ADD CONSTRAINT searches_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT searches_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: stored_filters stored_filters_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.stored_filters
-ADD CONSTRAINT stored_filters_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT stored_filters_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.subscriptions
-ADD CONSTRAINT subscriptions_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT subscriptions_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: thing_duplicates thing_duplicates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.thing_duplicates
-ADD CONSTRAINT thing_duplicates_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT thing_duplicates_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: external_system_syncs thing_external_systems_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.external_system_syncs
-ADD CONSTRAINT thing_external_systems_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT thing_external_systems_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: thing_histories thing_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.thing_histories
-ADD CONSTRAINT thing_histories_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT thing_histories_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: thing_history_translations thing_history_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.thing_history_translations
-ADD CONSTRAINT thing_history_translations_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT thing_history_translations_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: thing_translations thing_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.thing_translations
-ADD CONSTRAINT thing_translations_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT thing_translations_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: things things_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.things
-ADD CONSTRAINT things_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT things_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: user_group_users user_group_users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.user_group_users
-ADD CONSTRAINT user_group_users_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT user_group_users_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: user_groups user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.user_groups
-ADD CONSTRAINT user_groups_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT user_groups_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.users
-ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: watch_list_data_hashes watch_list_data_hashes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.watch_list_data_hashes
-ADD CONSTRAINT watch_list_data_hashes_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT watch_list_data_hashes_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: watch_list_shares watch_list_user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.watch_list_shares
-ADD CONSTRAINT watch_list_user_groups_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT watch_list_user_groups_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: watch_lists watch_lists_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.watch_lists
-ADD CONSTRAINT watch_lists_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT watch_lists_pkey PRIMARY KEY (id);
+
 
 --
 -- Name: activities_data_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX activities_data_id_idx ON public.activities USING btree (((data->>'id'::text)));
+CREATE INDEX activities_data_id_idx ON public.activities USING btree (((data ->> 'id'::text)));
+
 
 --
 -- Name: all_text_idx; Type: INDEX; Schema: public; Owner: -
@@ -2945,11 +1983,13 @@ CREATE INDEX activities_data_id_idx ON public.activities USING btree (((data->>'
 
 CREATE INDEX all_text_idx ON public.searches USING gin (all_text public.gin_trgm_ops);
 
+
 --
 -- Name: by_content_relation_a; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX by_content_relation_a ON public.content_contents USING btree (content_a_id, relation_a, content_b_id);
+
 
 --
 -- Name: by_created_by_created_at; Type: INDEX; Schema: public; Owner: -
@@ -2957,11 +1997,13 @@ CREATE UNIQUE INDEX by_content_relation_a ON public.content_contents USING btree
 
 CREATE INDEX by_created_by_created_at ON public.things USING btree (created_by, created_at);
 
+
 --
 -- Name: by_ctl_esi; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX by_ctl_esi ON public.classification_tree_labels USING btree (external_source_id);
+
 
 --
 -- Name: by_external_connection_and_type; Type: INDEX; Schema: public; Owner: -
@@ -2969,11 +2011,13 @@ CREATE INDEX by_ctl_esi ON public.classification_tree_labels USING btree (extern
 
 CREATE INDEX by_external_connection_and_type ON public.external_system_syncs USING btree (external_system_id, external_key, sync_type);
 
+
 --
 -- Name: by_external_source_id_external_key; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX by_external_source_id_external_key ON public.schedules USING btree (external_source_id, external_key);
+
 
 --
 -- Name: by_external_system_id_syncable_id; Type: INDEX; Schema: public; Owner: -
@@ -2981,11 +2025,13 @@ CREATE INDEX by_external_source_id_external_key ON public.schedules USING btree 
 
 CREATE INDEX by_external_system_id_syncable_id ON public.external_system_syncs USING btree (external_system_id, syncable_id);
 
+
 --
 -- Name: by_template_name_template; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX by_template_name_template ON public.things USING btree (template_name, template);
+
 
 --
 -- Name: by_thing_id_version_name; Type: INDEX; Schema: public; Owner: -
@@ -2993,11 +2039,13 @@ CREATE INDEX by_template_name_template ON public.things USING btree (template_na
 
 CREATE INDEX by_thing_id_version_name ON public.thing_histories USING btree (thing_id, version_name);
 
+
 --
 -- Name: by_watch_list_hashable; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX by_watch_list_hashable ON public.watch_list_data_hashes USING btree (watch_list_id, hashable_id, hashable_type);
+
 
 --
 -- Name: capt_classification_alias_id_idx; Type: INDEX; Schema: public; Owner: -
@@ -3005,11 +2053,13 @@ CREATE UNIQUE INDEX by_watch_list_hashable ON public.watch_list_data_hashes USIN
 
 CREATE INDEX capt_classification_alias_id_idx ON public.classification_alias_paths_transitive USING btree (classification_alias_id);
 
+
 --
 -- Name: ccc_direct_classification_alias_ids_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX ccc_direct_classification_alias_ids_idx ON public.collected_classification_contents USING gin (direct_classification_alias_ids);
+
 
 --
 -- Name: ccc_direct_tree_label_ids_idx; Type: INDEX; Schema: public; Owner: -
@@ -3017,11 +2067,13 @@ CREATE INDEX ccc_direct_classification_alias_ids_idx ON public.collected_classif
 
 CREATE INDEX ccc_direct_tree_label_ids_idx ON public.collected_classification_contents USING gin (direct_tree_label_ids);
 
+
 --
 -- Name: ccc_full_classification_alias_ids_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX ccc_full_classification_alias_ids_idx ON public.collected_classification_contents USING gin (full_classification_alias_ids);
+
 
 --
 -- Name: ccc_full_tree_label_ids_idx; Type: INDEX; Schema: public; Owner: -
@@ -3029,14 +2081,13 @@ CREATE INDEX ccc_full_classification_alias_ids_idx ON public.collected_classific
 
 CREATE INDEX ccc_full_tree_label_ids_idx ON public.collected_classification_contents USING gin (full_tree_label_ids);
 
+
 --
 -- Name: child_parent_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX child_parent_index ON public.classification_trees USING btree (
-    classification_alias_id,
-    parent_classification_alias_id
-);
+CREATE UNIQUE INDEX child_parent_index ON public.classification_trees USING btree (classification_alias_id, parent_classification_alias_id);
+
 
 --
 -- Name: classification_alias_paths_full_path_ids; Type: INDEX; Schema: public; Owner: -
@@ -3044,11 +2095,13 @@ CREATE UNIQUE INDEX child_parent_index ON public.classification_trees USING btre
 
 CREATE INDEX classification_alias_paths_full_path_ids ON public.classification_alias_paths USING gin (full_path_ids);
 
+
 --
 -- Name: classification_alias_paths_transitive_full_path_ids; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX classification_alias_paths_transitive_full_path_ids ON public.classification_alias_paths_transitive USING gin (full_path_ids);
+
 
 --
 -- Name: classification_aliases_order_a_idx; Type: INDEX; Schema: public; Owner: -
@@ -3056,18 +2109,20 @@ CREATE INDEX classification_alias_paths_transitive_full_path_ids ON public.class
 
 CREATE INDEX classification_aliases_order_a_idx ON public.classification_aliases USING btree (order_a);
 
+
 --
 -- Name: classification_content_data_history_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX classification_content_data_history_id_idx ON public.classification_content_histories USING btree (content_data_history_id);
 
+
 --
 -- Name: classification_groups_ca_id_c_id_uq_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX classification_groups_ca_id_c_id_uq_idx ON public.classification_groups USING btree (classification_alias_id, classification_id)
-WHERE (deleted_at IS NULL);
+CREATE UNIQUE INDEX classification_groups_ca_id_c_id_uq_idx ON public.classification_groups USING btree (classification_alias_id, classification_id) WHERE (deleted_at IS NULL);
+
 
 --
 -- Name: classification_polygons_geom_idx; Type: INDEX; Schema: public; Owner: -
@@ -3075,11 +2130,13 @@ WHERE (deleted_at IS NULL);
 
 CREATE INDEX classification_polygons_geom_idx ON public.classification_polygons USING gist (geom);
 
+
 --
 -- Name: classification_string_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX classification_string_idx ON public.searches USING gin (classification_string public.gin_trgm_ops);
+
 
 --
 -- Name: classified_name_idx; Type: INDEX; Schema: public; Owner: -
@@ -3087,11 +2144,13 @@ CREATE INDEX classification_string_idx ON public.searches USING gin (classificat
 
 CREATE INDEX classified_name_idx ON public.stored_filters USING btree (api, system, name);
 
+
 --
 -- Name: collection_configurations_stored_filter_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX collection_configurations_stored_filter_id_idx ON public.collection_configurations USING btree (stored_filter_id);
+
 
 --
 -- Name: collection_configurations_watch_list_id_idx; Type: INDEX; Schema: public; Owner: -
@@ -3099,11 +2158,13 @@ CREATE INDEX collection_configurations_stored_filter_id_idx ON public.collection
 
 CREATE INDEX collection_configurations_watch_list_id_idx ON public.collection_configurations USING btree (watch_list_id);
 
+
 --
 -- Name: content_b_history_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX content_b_history_idx ON public.content_content_histories USING btree (content_b_history_type, content_b_history_id);
+
 
 --
 -- Name: delayed_jobs_delayed_reference_id; Type: INDEX; Schema: public; Owner: -
@@ -3111,11 +2172,13 @@ CREATE INDEX content_b_history_idx ON public.content_content_histories USING btr
 
 CREATE INDEX delayed_jobs_delayed_reference_id ON public.delayed_jobs USING btree (delayed_reference_id);
 
+
 --
 -- Name: delayed_jobs_delayed_reference_type; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX delayed_jobs_delayed_reference_type ON public.delayed_jobs USING btree (delayed_reference_type);
+
 
 --
 -- Name: delayed_jobs_priority; Type: INDEX; Schema: public; Owner: -
@@ -3123,11 +2186,13 @@ CREATE INDEX delayed_jobs_delayed_reference_type ON public.delayed_jobs USING bt
 
 CREATE INDEX delayed_jobs_priority ON public.delayed_jobs USING btree (priority, run_at);
 
+
 --
 -- Name: delayed_jobs_queue; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX delayed_jobs_queue ON public.delayed_jobs USING btree (queue);
+
 
 --
 -- Name: deleted_at_classification_alias_id_idx; Type: INDEX; Schema: public; Owner: -
@@ -3135,11 +2200,13 @@ CREATE INDEX delayed_jobs_queue ON public.delayed_jobs USING btree (queue);
 
 CREATE INDEX deleted_at_classification_alias_id_idx ON public.classification_trees USING btree (deleted_at, classification_alias_id);
 
+
 --
 -- Name: deleted_at_classification_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX deleted_at_classification_id_idx ON public.classification_groups USING btree (deleted_at, classification_id);
+
 
 --
 -- Name: deleted_at_id_idx; Type: INDEX; Schema: public; Owner: -
@@ -3147,11 +2214,13 @@ CREATE INDEX deleted_at_classification_id_idx ON public.classification_groups US
 
 CREATE INDEX deleted_at_id_idx ON public.classification_aliases USING btree (deleted_at, id);
 
+
 --
 -- Name: extid_extkey_del_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX extid_extkey_del_idx ON public.classifications USING btree (deleted_at, external_source_id, external_key);
+
 
 --
 -- Name: full_path_idx; Type: INDEX; Schema: public; Owner: -
@@ -3159,11 +2228,13 @@ CREATE INDEX extid_extkey_del_idx ON public.classifications USING btree (deleted
 
 CREATE INDEX full_path_idx ON public.watch_lists USING gin (full_path public.gin_trgm_ops);
 
+
 --
 -- Name: headline_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX headline_idx ON public.searches USING gin (headline public.gin_trgm_ops);
+
 
 --
 -- Name: index_active_storage_attachments_on_blob_id; Type: INDEX; Schema: public; Owner: -
@@ -3171,17 +2242,20 @@ CREATE INDEX headline_idx ON public.searches USING gin (headline public.gin_trgm
 
 CREATE INDEX index_active_storage_attachments_on_blob_id ON public.active_storage_attachments USING btree (blob_id);
 
+
 --
 -- Name: index_active_storage_attachments_uniqueness; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_active_storage_attachments_uniqueness ON public.active_storage_attachments USING btree (record_type, record_id, name, blob_id);
 
+
 --
 -- Name: index_active_storage_blobs_on_key; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_active_storage_blobs_on_key ON public.active_storage_blobs USING btree (KEY);
+CREATE UNIQUE INDEX index_active_storage_blobs_on_key ON public.active_storage_blobs USING btree (key);
+
 
 --
 -- Name: index_active_storage_variant_records_uniqueness; Type: INDEX; Schema: public; Owner: -
@@ -3189,11 +2263,13 @@ CREATE UNIQUE INDEX index_active_storage_blobs_on_key ON public.active_storage_b
 
 CREATE UNIQUE INDEX index_active_storage_variant_records_uniqueness ON public.active_storage_variant_records USING btree (blob_id, variation_digest);
 
+
 --
 -- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
+
 
 --
 -- Name: index_activities_on_activity_type_and_updated_at; Type: INDEX; Schema: public; Owner: -
@@ -3201,11 +2277,13 @@ CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public
 
 CREATE INDEX index_activities_on_activity_type_and_updated_at ON public.activities USING btree (activity_type, updated_at);
 
+
 --
 -- Name: index_activities_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_activities_on_user_id ON public.activities USING btree (user_id);
+
 
 --
 -- Name: index_activities_on_user_id_activity_type_created_at; Type: INDEX; Schema: public; Owner: -
@@ -3213,11 +2291,13 @@ CREATE INDEX index_activities_on_user_id ON public.activities USING btree (user_
 
 CREATE INDEX index_activities_on_user_id_activity_type_created_at ON public.activities USING btree (user_id, activity_type, created_at);
 
+
 --
 -- Name: index_asset_contents_on_asset_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_asset_contents_on_asset_id ON public.asset_contents USING btree (asset_id);
+
 
 --
 -- Name: index_asset_contents_on_content_data_id; Type: INDEX; Schema: public; Owner: -
@@ -3225,17 +2305,20 @@ CREATE INDEX index_asset_contents_on_asset_id ON public.asset_contents USING btr
 
 CREATE INDEX index_asset_contents_on_content_data_id ON public.asset_contents USING btree (content_data_id);
 
+
 --
 -- Name: index_assets_on_creator_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_assets_on_creator_id ON public.assets USING btree (creator_id);
 
+
 --
 -- Name: index_assets_on_type; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_assets_on_type ON public.assets USING btree (TYPE);
+CREATE INDEX index_assets_on_type ON public.assets USING btree (type);
+
 
 --
 -- Name: index_classification_alias_paths_on_ancestor_ids; Type: INDEX; Schema: public; Owner: -
@@ -3243,11 +2326,13 @@ CREATE INDEX index_assets_on_type ON public.assets USING btree (TYPE);
 
 CREATE INDEX index_classification_alias_paths_on_ancestor_ids ON public.classification_alias_paths USING gin (ancestor_ids);
 
+
 --
 -- Name: index_classification_aliases_on_deleted_at; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_classification_aliases_on_deleted_at ON public.classification_aliases USING btree (deleted_at);
+
 
 --
 -- Name: index_classification_aliases_on_id; Type: INDEX; Schema: public; Owner: -
@@ -3255,11 +2340,13 @@ CREATE INDEX index_classification_aliases_on_deleted_at ON public.classification
 
 CREATE UNIQUE INDEX index_classification_aliases_on_id ON public.classification_aliases USING btree (id);
 
+
 --
 -- Name: index_classification_content_histories_on_classification_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_classification_content_histories_on_classification_id ON public.classification_content_histories USING btree (classification_id);
+
 
 --
 -- Name: index_classification_contents_on_classification_id; Type: INDEX; Schema: public; Owner: -
@@ -3267,11 +2354,13 @@ CREATE INDEX index_classification_content_histories_on_classification_id ON publ
 
 CREATE INDEX index_classification_contents_on_classification_id ON public.classification_contents USING btree (classification_id, content_data_id);
 
+
 --
 -- Name: index_classification_contents_on_content_data_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_classification_contents_on_content_data_id ON public.classification_contents USING btree (content_data_id);
+
 
 --
 -- Name: index_classification_contents_on_unique_constraint; Type: INDEX; Schema: public; Owner: -
@@ -3279,11 +2368,13 @@ CREATE INDEX index_classification_contents_on_content_data_id ON public.classifi
 
 CREATE UNIQUE INDEX index_classification_contents_on_unique_constraint ON public.classification_contents USING btree (content_data_id, classification_id, relation);
 
+
 --
 -- Name: index_classification_groups_on_classification_alias_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_classification_groups_on_classification_alias_id ON public.classification_groups USING btree (classification_alias_id);
+
 
 --
 -- Name: index_classification_groups_on_classification_id; Type: INDEX; Schema: public; Owner: -
@@ -3291,11 +2382,13 @@ CREATE INDEX index_classification_groups_on_classification_alias_id ON public.cl
 
 CREATE INDEX index_classification_groups_on_classification_id ON public.classification_groups USING btree (classification_id);
 
+
 --
 -- Name: index_classification_groups_on_classification_id_and_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_classification_groups_on_classification_id_and_created_at ON public.classification_groups USING btree (classification_id, created_at);
+
 
 --
 -- Name: index_classification_groups_on_deleted_at; Type: INDEX; Schema: public; Owner: -
@@ -3303,11 +2396,13 @@ CREATE INDEX index_classification_groups_on_classification_id_and_created_at ON 
 
 CREATE INDEX index_classification_groups_on_deleted_at ON public.classification_groups USING btree (deleted_at);
 
+
 --
 -- Name: index_classification_groups_on_external_source_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_classification_groups_on_external_source_id ON public.classification_groups USING btree (external_source_id);
+
 
 --
 -- Name: index_classification_tree_labels_on_deleted_at; Type: INDEX; Schema: public; Owner: -
@@ -3315,11 +2410,13 @@ CREATE INDEX index_classification_groups_on_external_source_id ON public.classif
 
 CREATE INDEX index_classification_tree_labels_on_deleted_at ON public.classification_tree_labels USING btree (deleted_at);
 
+
 --
 -- Name: index_classification_tree_labels_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_classification_tree_labels_on_id ON public.classification_tree_labels USING btree (id);
+
 
 --
 -- Name: index_classification_tree_labels_on_name; Type: INDEX; Schema: public; Owner: -
@@ -3327,11 +2424,13 @@ CREATE UNIQUE INDEX index_classification_tree_labels_on_id ON public.classificat
 
 CREATE INDEX index_classification_tree_labels_on_name ON public.classification_tree_labels USING btree (name);
 
+
 --
 -- Name: index_classification_trees_on_classification_alias_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_classification_trees_on_classification_alias_id ON public.classification_trees USING btree (classification_alias_id);
+
 
 --
 -- Name: index_classification_trees_on_classification_tree_label_id; Type: INDEX; Schema: public; Owner: -
@@ -3339,11 +2438,13 @@ CREATE INDEX index_classification_trees_on_classification_alias_id ON public.cla
 
 CREATE INDEX index_classification_trees_on_classification_tree_label_id ON public.classification_trees USING btree (classification_tree_label_id);
 
+
 --
 -- Name: index_classification_trees_on_deleted_at; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_classification_trees_on_deleted_at ON public.classification_trees USING btree (deleted_at);
+
 
 --
 -- Name: index_classification_trees_on_parent_classification_alias_id; Type: INDEX; Schema: public; Owner: -
@@ -3351,11 +2452,13 @@ CREATE INDEX index_classification_trees_on_deleted_at ON public.classification_t
 
 CREATE INDEX index_classification_trees_on_parent_classification_alias_id ON public.classification_trees USING btree (parent_classification_alias_id);
 
+
 --
 -- Name: index_classification_user_groups_on_classification_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_classification_user_groups_on_classification_id ON public.classification_user_groups USING btree (classification_id);
+
 
 --
 -- Name: index_classification_user_groups_on_user_group_id; Type: INDEX; Schema: public; Owner: -
@@ -3363,11 +2466,13 @@ CREATE INDEX index_classification_user_groups_on_classification_id ON public.cla
 
 CREATE INDEX index_classification_user_groups_on_user_group_id ON public.classification_user_groups USING btree (user_group_id);
 
+
 --
 -- Name: index_classifications_on_deleted_at; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_classifications_on_deleted_at ON public.classifications USING btree (deleted_at);
+
 
 --
 -- Name: index_classifications_on_external_key; Type: INDEX; Schema: public; Owner: -
@@ -3375,11 +2480,13 @@ CREATE INDEX index_classifications_on_deleted_at ON public.classifications USING
 
 CREATE INDEX index_classifications_on_external_key ON public.classifications USING btree (external_key);
 
+
 --
 -- Name: index_classifications_on_external_source_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_classifications_on_external_source_id ON public.classifications USING btree (external_source_id);
+
 
 --
 -- Name: index_classifications_on_id; Type: INDEX; Schema: public; Owner: -
@@ -3387,11 +2494,13 @@ CREATE INDEX index_classifications_on_external_source_id ON public.classificatio
 
 CREATE UNIQUE INDEX index_classifications_on_id ON public.classifications USING btree (id);
 
+
 --
 -- Name: index_content_content_histories_on_content_a_history_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_content_content_histories_on_content_a_history_id ON public.content_content_histories USING btree (content_a_history_id);
+
 
 --
 -- Name: index_content_content_links_on_content_b_id; Type: INDEX; Schema: public; Owner: -
@@ -3399,11 +2508,13 @@ CREATE INDEX index_content_content_histories_on_content_a_history_id ON public.c
 
 CREATE INDEX index_content_content_links_on_content_b_id ON public.content_content_links USING btree (content_b_id);
 
+
 --
 -- Name: index_content_contents_on_content_b_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_content_contents_on_content_b_id ON public.content_contents USING btree (content_b_id);
+
 
 --
 -- Name: index_contents_a_b; Type: INDEX; Schema: public; Owner: -
@@ -3411,11 +2522,13 @@ CREATE INDEX index_content_contents_on_content_b_id ON public.content_contents U
 
 CREATE UNIQUE INDEX index_contents_a_b ON public.content_content_links USING btree (content_a_id, content_b_id);
 
+
 --
 -- Name: index_data_links_on_asset_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_data_links_on_asset_id ON public.data_links USING btree (asset_id);
+
 
 --
 -- Name: index_data_links_on_item_id; Type: INDEX; Schema: public; Owner: -
@@ -3423,11 +2536,13 @@ CREATE INDEX index_data_links_on_asset_id ON public.data_links USING btree (asse
 
 CREATE INDEX index_data_links_on_item_id ON public.data_links USING btree (item_id);
 
+
 --
 -- Name: index_data_links_on_item_type; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_data_links_on_item_type ON public.data_links USING btree (item_type);
+
 
 --
 -- Name: index_external_system_syncs_on_syncalbe_id_and_external_key; Type: INDEX; Schema: public; Owner: -
@@ -3435,17 +2550,13 @@ CREATE INDEX index_data_links_on_item_type ON public.data_links USING btree (ite
 
 CREATE INDEX index_external_system_syncs_on_syncalbe_id_and_external_key ON public.external_system_syncs USING btree (syncable_id, external_key);
 
+
 --
 -- Name: index_external_system_syncs_on_unique_attributes; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_external_system_syncs_on_unique_attributes ON public.external_system_syncs USING btree (
-    syncable_type,
-    syncable_id,
-    external_system_id,
-    sync_type,
-    external_key
-);
+CREATE UNIQUE INDEX index_external_system_syncs_on_unique_attributes ON public.external_system_syncs USING btree (syncable_type, syncable_id, external_system_id, sync_type, external_key);
+
 
 --
 -- Name: index_external_systems_on_id; Type: INDEX; Schema: public; Owner: -
@@ -3453,11 +2564,13 @@ CREATE UNIQUE INDEX index_external_system_syncs_on_unique_attributes ON public.e
 
 CREATE UNIQUE INDEX index_external_systems_on_id ON public.external_systems USING btree (id);
 
+
 --
 -- Name: index_occurrence; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_occurrence ON public.schedule_occurrences USING gist (occurrence);
+
 
 --
 -- Name: index_roles_on_name; Type: INDEX; Schema: public; Owner: -
@@ -3465,11 +2578,13 @@ CREATE INDEX index_occurrence ON public.schedule_occurrences USING gist (occurre
 
 CREATE INDEX index_roles_on_name ON public.roles USING btree (name);
 
+
 --
 -- Name: index_roles_on_rank; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_roles_on_rank ON public.roles USING btree (rank);
+
 
 --
 -- Name: index_schedule_histories_on_from_to; Type: INDEX; Schema: public; Owner: -
@@ -3477,11 +2592,13 @@ CREATE INDEX index_roles_on_rank ON public.roles USING btree (rank);
 
 CREATE INDEX index_schedule_histories_on_from_to ON public.schedule_histories USING gist (tstzrange(dtstart, dtend, '[]'::text));
 
+
 --
 -- Name: index_schedule_histories_on_thing_history_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_schedule_histories_on_thing_history_id ON public.schedule_histories USING btree (thing_history_id);
+
 
 --
 -- Name: index_schedule_occurrences_on_schedule_id; Type: INDEX; Schema: public; Owner: -
@@ -3489,11 +2606,13 @@ CREATE INDEX index_schedule_histories_on_thing_history_id ON public.schedule_his
 
 CREATE INDEX index_schedule_occurrences_on_schedule_id ON public.schedule_occurrences USING btree (schedule_id);
 
+
 --
 -- Name: index_schedule_occurrences_on_thing_id_occurrence; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_schedule_occurrences_on_thing_id_occurrence ON public.schedule_occurrences USING btree (thing_id, occurrence);
+
 
 --
 -- Name: index_schedules_on_from_to; Type: INDEX; Schema: public; Owner: -
@@ -3501,11 +2620,13 @@ CREATE INDEX index_schedule_occurrences_on_thing_id_occurrence ON public.schedul
 
 CREATE INDEX index_schedules_on_from_to ON public.schedules USING gist (tstzrange(dtstart, dtend, '[]'::text));
 
+
 --
 -- Name: index_schedules_on_relation; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_schedules_on_relation ON public.schedules USING btree (relation);
+
 
 --
 -- Name: index_schedules_on_thing_id; Type: INDEX; Schema: public; Owner: -
@@ -3513,11 +2634,13 @@ CREATE INDEX index_schedules_on_relation ON public.schedules USING btree (relati
 
 CREATE INDEX index_schedules_on_thing_id ON public.schedules USING btree (thing_id);
 
+
 --
 -- Name: index_searches_on_advanced_attributes; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_searches_on_advanced_attributes ON public.searches USING gin (advanced_attributes);
+
 
 --
 -- Name: index_searches_on_classification_aliases_mapping; Type: INDEX; Schema: public; Owner: -
@@ -3525,11 +2648,13 @@ CREATE INDEX index_searches_on_advanced_attributes ON public.searches USING gin 
 
 CREATE INDEX index_searches_on_classification_aliases_mapping ON public.searches USING gin (classification_aliases_mapping);
 
+
 --
 -- Name: index_searches_on_classification_ancestors_mapping; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_searches_on_classification_ancestors_mapping ON public.searches USING gin (classification_ancestors_mapping);
+
 
 --
 -- Name: index_searches_on_content_data_id_and_locale; Type: INDEX; Schema: public; Owner: -
@@ -3537,11 +2662,13 @@ CREATE INDEX index_searches_on_classification_ancestors_mapping ON public.search
 
 CREATE UNIQUE INDEX index_searches_on_content_data_id_and_locale ON public.searches USING btree (content_data_id, locale);
 
+
 --
 -- Name: index_searches_on_locale; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_searches_on_locale ON public.searches USING btree (locale);
+
 
 --
 -- Name: index_searches_on_words; Type: INDEX; Schema: public; Owner: -
@@ -3549,11 +2676,13 @@ CREATE INDEX index_searches_on_locale ON public.searches USING btree (locale);
 
 CREATE INDEX index_searches_on_words ON public.searches USING gin (words);
 
+
 --
 -- Name: index_stored_filters_on_updated_at; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_stored_filters_on_updated_at ON public.stored_filters USING btree (updated_at);
+
 
 --
 -- Name: index_stored_filters_on_user_id; Type: INDEX; Schema: public; Owner: -
@@ -3561,11 +2690,13 @@ CREATE INDEX index_stored_filters_on_updated_at ON public.stored_filters USING b
 
 CREATE INDEX index_stored_filters_on_user_id ON public.stored_filters USING btree (user_id);
 
+
 --
 -- Name: index_subscriptions_on_subscribable_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_subscriptions_on_subscribable_id ON public.subscriptions USING btree (subscribable_id);
+
 
 --
 -- Name: index_subscriptions_on_subscribable_type; Type: INDEX; Schema: public; Owner: -
@@ -3573,11 +2704,13 @@ CREATE INDEX index_subscriptions_on_subscribable_id ON public.subscriptions USIN
 
 CREATE INDEX index_subscriptions_on_subscribable_type ON public.subscriptions USING btree (subscribable_type);
 
+
 --
 -- Name: index_subscriptions_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_subscriptions_on_user_id ON public.subscriptions USING btree (user_id);
+
 
 --
 -- Name: index_thing_histories_on_id; Type: INDEX; Schema: public; Owner: -
@@ -3585,11 +2718,13 @@ CREATE INDEX index_subscriptions_on_user_id ON public.subscriptions USING btree 
 
 CREATE UNIQUE INDEX index_thing_histories_on_id ON public.thing_histories USING btree (id);
 
+
 --
 -- Name: index_thing_histories_on_representation_of_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_thing_histories_on_representation_of_id ON public.thing_histories USING btree (representation_of_id);
+
 
 --
 -- Name: index_thing_histories_on_updated_by; Type: INDEX; Schema: public; Owner: -
@@ -3597,11 +2732,13 @@ CREATE INDEX index_thing_histories_on_representation_of_id ON public.thing_histo
 
 CREATE INDEX index_thing_histories_on_updated_by ON public.thing_histories USING btree (updated_by);
 
+
 --
 -- Name: index_thing_history_id_locale; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_thing_history_id_locale ON public.thing_history_translations USING btree (thing_history_id, locale);
+
 
 --
 -- Name: index_thing_history_translations_on_id; Type: INDEX; Schema: public; Owner: -
@@ -3609,11 +2746,13 @@ CREATE INDEX index_thing_history_id_locale ON public.thing_history_translations 
 
 CREATE UNIQUE INDEX index_thing_history_translations_on_id ON public.thing_history_translations USING btree (id);
 
+
 --
 -- Name: index_thing_history_translations_on_locale; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_thing_history_translations_on_locale ON public.thing_history_translations USING btree (locale);
+
 
 --
 -- Name: index_thing_history_translations_on_thing_history_id; Type: INDEX; Schema: public; Owner: -
@@ -3621,11 +2760,13 @@ CREATE INDEX index_thing_history_translations_on_locale ON public.thing_history_
 
 CREATE INDEX index_thing_history_translations_on_thing_history_id ON public.thing_history_translations USING btree (thing_history_id);
 
+
 --
 -- Name: index_thing_id_locale; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_thing_id_locale ON public.thing_translations USING btree (thing_id, locale);
+
 
 --
 -- Name: index_thing_translations_on_id; Type: INDEX; Schema: public; Owner: -
@@ -3633,11 +2774,13 @@ CREATE UNIQUE INDEX index_thing_id_locale ON public.thing_translations USING btr
 
 CREATE UNIQUE INDEX index_thing_translations_on_id ON public.thing_translations USING btree (id);
 
+
 --
 -- Name: index_thing_translations_on_locale; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_thing_translations_on_locale ON public.thing_translations USING btree (locale);
+
 
 --
 -- Name: index_thing_translations_on_slug; Type: INDEX; Schema: public; Owner: -
@@ -3645,11 +2788,13 @@ CREATE INDEX index_thing_translations_on_locale ON public.thing_translations USI
 
 CREATE UNIQUE INDEX index_thing_translations_on_slug ON public.thing_translations USING btree (slug);
 
+
 --
 -- Name: index_thing_translations_on_thing_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_thing_translations_on_thing_id ON public.thing_translations USING btree (thing_id);
+
 
 --
 -- Name: index_things_on_boost_updated_at_id; Type: INDEX; Schema: public; Owner: -
@@ -3657,11 +2802,13 @@ CREATE INDEX index_thing_translations_on_thing_id ON public.thing_translations U
 
 CREATE INDEX index_things_on_boost_updated_at_id ON public.things USING btree (boost, updated_at, id);
 
+
 --
 -- Name: index_things_on_content_type; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_things_on_content_type ON public.things USING btree (((schema->>'content_type'::text)));
+CREATE INDEX index_things_on_content_type ON public.things USING btree (((schema ->> 'content_type'::text)));
+
 
 --
 -- Name: index_things_on_external_key; Type: INDEX; Schema: public; Owner: -
@@ -3669,11 +2816,13 @@ CREATE INDEX index_things_on_content_type ON public.things USING btree (((schema
 
 CREATE INDEX index_things_on_external_key ON public.things USING btree (external_key);
 
+
 --
 -- Name: index_things_on_external_source_id_and_external_key; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_things_on_external_source_id_and_external_key ON public.things USING btree (external_source_id, external_key);
+
 
 --
 -- Name: index_things_on_geom_simple_spatial; Type: INDEX; Schema: public; Owner: -
@@ -3681,11 +2830,13 @@ CREATE UNIQUE INDEX index_things_on_external_source_id_and_external_key ON publi
 
 CREATE INDEX index_things_on_geom_simple_spatial ON public.things USING gist (geom_simple);
 
+
 --
 -- Name: index_things_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_things_on_id ON public.things USING btree (id);
+
 
 --
 -- Name: index_things_on_is_part_of; Type: INDEX; Schema: public; Owner: -
@@ -3693,11 +2844,13 @@ CREATE UNIQUE INDEX index_things_on_id ON public.things USING btree (id);
 
 CREATE INDEX index_things_on_is_part_of ON public.things USING btree (is_part_of);
 
+
 --
 -- Name: index_things_on_line_geography_cast; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_things_on_line_geography_cast ON public.things USING gist (public.geography(line));
+
 
 --
 -- Name: index_things_on_line_spatial; Type: INDEX; Schema: public; Owner: -
@@ -3705,11 +2858,13 @@ CREATE INDEX index_things_on_line_geography_cast ON public.things USING gist (pu
 
 CREATE INDEX index_things_on_line_spatial ON public.things USING gist (line);
 
+
 --
 -- Name: index_things_on_location_geography_cast; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_things_on_location_geography_cast ON public.things USING gist (public.geography(location));
+
 
 --
 -- Name: index_things_on_location_spatial; Type: INDEX; Schema: public; Owner: -
@@ -3717,29 +2872,27 @@ CREATE INDEX index_things_on_location_geography_cast ON public.things USING gist
 
 CREATE INDEX index_things_on_location_spatial ON public.things USING gist (location);
 
+
 --
 -- Name: index_things_on_representation_of_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_things_on_representation_of_id ON public.things USING btree (representation_of_id);
 
+
 --
 -- Name: index_things_on_schema_type; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_things_on_schema_type ON public.things USING btree (((schema->>'schema_type'::text)));
+CREATE INDEX index_things_on_schema_type ON public.things USING btree (((schema ->> 'schema_type'::text)));
+
 
 --
 -- Name: index_things_on_template_content_type_validity_range; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_things_on_template_content_type_validity_range ON public.things USING btree (
-    id,
-    template,
-    content_type,
-    validity_range,
-    template_name
-);
+CREATE INDEX index_things_on_template_content_type_validity_range ON public.things USING btree (id, template, content_type, validity_range, template_name);
+
 
 --
 -- Name: index_things_on_updated_by; Type: INDEX; Schema: public; Owner: -
@@ -3747,11 +2900,13 @@ CREATE INDEX index_things_on_template_content_type_validity_range ON public.thin
 
 CREATE INDEX index_things_on_updated_by ON public.things USING btree (updated_by);
 
+
 --
 -- Name: index_things_template_template_name_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_things_template_template_name_idx ON public.things USING btree (template, template_name);
+
 
 --
 -- Name: index_user_group_users_on_user_group_id; Type: INDEX; Schema: public; Owner: -
@@ -3759,11 +2914,13 @@ CREATE INDEX index_things_template_template_name_idx ON public.things USING btre
 
 CREATE INDEX index_user_group_users_on_user_group_id ON public.user_group_users USING btree (user_group_id);
 
+
 --
 -- Name: index_user_group_users_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_user_group_users_on_user_id ON public.user_group_users USING btree (user_id);
+
 
 --
 -- Name: index_user_groups_on_id; Type: INDEX; Schema: public; Owner: -
@@ -3771,11 +2928,13 @@ CREATE INDEX index_user_group_users_on_user_id ON public.user_group_users USING 
 
 CREATE INDEX index_user_groups_on_id ON public.user_groups USING btree (id);
 
+
 --
 -- Name: index_user_groups_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_user_groups_on_name ON public.user_groups USING btree (name);
+
 
 --
 -- Name: index_users_on_creator_id; Type: INDEX; Schema: public; Owner: -
@@ -3783,11 +2942,13 @@ CREATE INDEX index_user_groups_on_name ON public.user_groups USING btree (name);
 
 CREATE INDEX index_users_on_creator_id ON public.users USING btree (creator_id);
 
+
 --
 -- Name: index_users_on_email; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_users_on_email ON public.users USING btree (email);
+
 
 --
 -- Name: index_users_on_id; Type: INDEX; Schema: public; Owner: -
@@ -3795,11 +2956,13 @@ CREATE UNIQUE INDEX index_users_on_email ON public.users USING btree (email);
 
 CREATE UNIQUE INDEX index_users_on_id ON public.users USING btree (id);
 
+
 --
 -- Name: index_users_on_jti; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_users_on_jti ON public.users USING btree (jti);
+
 
 --
 -- Name: index_users_on_reset_password_token; Type: INDEX; Schema: public; Owner: -
@@ -3807,11 +2970,13 @@ CREATE UNIQUE INDEX index_users_on_jti ON public.users USING btree (jti);
 
 CREATE UNIQUE INDEX index_users_on_reset_password_token ON public.users USING btree (reset_password_token);
 
+
 --
 -- Name: index_validity_range; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_validity_range ON public.things USING gist (validity_range);
+
 
 --
 -- Name: index_watch_list_data_hashes_on_hashable_id; Type: INDEX; Schema: public; Owner: -
@@ -3819,11 +2984,13 @@ CREATE INDEX index_validity_range ON public.things USING gist (validity_range);
 
 CREATE INDEX index_watch_list_data_hashes_on_hashable_id ON public.watch_list_data_hashes USING btree (hashable_id);
 
+
 --
 -- Name: index_watch_list_data_hashes_on_hashable_type; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_watch_list_data_hashes_on_hashable_type ON public.watch_list_data_hashes USING btree (hashable_type);
+
 
 --
 -- Name: index_watch_list_data_hashes_on_watch_list_id; Type: INDEX; Schema: public; Owner: -
@@ -3831,11 +2998,13 @@ CREATE INDEX index_watch_list_data_hashes_on_hashable_type ON public.watch_list_
 
 CREATE INDEX index_watch_list_data_hashes_on_watch_list_id ON public.watch_list_data_hashes USING btree (watch_list_id);
 
+
 --
 -- Name: index_watch_list_shares_on_watch_list_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_watch_list_shares_on_watch_list_id ON public.watch_list_shares USING btree (watch_list_id);
+
 
 --
 -- Name: index_watch_lists_on_id; Type: INDEX; Schema: public; Owner: -
@@ -3843,11 +3012,13 @@ CREATE INDEX index_watch_list_shares_on_watch_list_id ON public.watch_list_share
 
 CREATE INDEX index_watch_lists_on_id ON public.watch_lists USING btree (id);
 
+
 --
 -- Name: index_watch_lists_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_watch_lists_on_user_id ON public.watch_lists USING btree (user_id);
+
 
 --
 -- Name: name_idx; Type: INDEX; Schema: public; Owner: -
@@ -3855,14 +3026,13 @@ CREATE INDEX index_watch_lists_on_user_id ON public.watch_lists USING btree (use
 
 CREATE INDEX name_idx ON public.classification_aliases USING gin (internal_name public.gin_trgm_ops);
 
+
 --
 -- Name: parent_child_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX parent_child_index ON public.classification_trees USING btree (
-    parent_classification_alias_id,
-    classification_alias_id
-);
+CREATE UNIQUE INDEX parent_child_index ON public.classification_trees USING btree (parent_classification_alias_id, classification_alias_id);
+
 
 --
 -- Name: pg_dict_mappings_locale_dict_idx; Type: INDEX; Schema: public; Owner: -
@@ -3870,11 +3040,13 @@ CREATE UNIQUE INDEX parent_child_index ON public.classification_trees USING btre
 
 CREATE UNIQUE INDEX pg_dict_mappings_locale_dict_idx ON public.pg_dict_mappings USING btree (locale, dict);
 
+
 --
 -- Name: thing_attribute_timestamp_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX thing_attribute_timestamp_idx ON public.timeseries USING btree (thing_id, property, "timestamp");
+
 
 --
 -- Name: thing_translations_name_idx; Type: INDEX; Schema: public; Owner: -
@@ -3882,12 +3054,13 @@ CREATE UNIQUE INDEX thing_attribute_timestamp_idx ON public.timeseries USING btr
 
 CREATE INDEX thing_translations_name_idx ON public.thing_translations USING gin (name public.gin_trgm_ops);
 
+
 --
 -- Name: things_template_name_template_uq_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX things_template_name_template_uq_idx ON public.things USING btree (template_name, template)
-WHERE (template = TRUE);
+CREATE UNIQUE INDEX things_template_name_template_uq_idx ON public.things USING btree (template_name, template) WHERE (template = true);
+
 
 --
 -- Name: unique_by_shareable; Type: INDEX; Schema: public; Owner: -
@@ -3895,20 +3068,20 @@ WHERE (template = TRUE);
 
 CREATE UNIQUE INDEX unique_by_shareable ON public.watch_list_shares USING btree (shareable_id, shareable_type, watch_list_id);
 
+
 --
 -- Name: unique_duplicate_index; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX unique_duplicate_index ON public.thing_duplicates USING btree (thing_id, thing_duplicate_id, method);
 
+
 --
 -- Name: unique_thing_duplicate_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX unique_thing_duplicate_idx ON public.thing_duplicates USING btree (
-    LEAST(thing_id, thing_duplicate_id),
-    GREATEST(thing_id, thing_duplicate_id)
-);
+CREATE UNIQUE INDEX unique_thing_duplicate_idx ON public.thing_duplicates USING btree (LEAST(thing_id, thing_duplicate_id), GREATEST(thing_id, thing_duplicate_id));
+
 
 --
 -- Name: user_group_users_on_user_id_user_group_id; Type: INDEX; Schema: public; Owner: -
@@ -3916,11 +3089,13 @@ CREATE UNIQUE INDEX unique_thing_duplicate_idx ON public.thing_duplicates USING 
 
 CREATE UNIQUE INDEX user_group_users_on_user_id_user_group_id ON public.user_group_users USING btree (user_id, user_group_id);
 
+
 --
 -- Name: validity_period_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX validity_period_idx ON public.searches USING gist (validity_period);
+
 
 --
 -- Name: wldh_order_a_idx; Type: INDEX; Schema: public; Owner: -
@@ -3928,45 +3103,47 @@ CREATE INDEX validity_period_idx ON public.searches USING gist (validity_period)
 
 CREATE INDEX wldh_order_a_idx ON public.watch_list_data_hashes USING btree (order_a);
 
+
 --
 -- Name: words_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX words_idx ON public.searches USING gin (full_text public.gin_trgm_ops);
 
+
 --
 -- Name: classification_alias_paths_transitive delete_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER delete_ccc_relations_transitive_trigger
-AFTER DELETE ON public.classification_alias_paths_transitive REFERENCING OLD TABLE AS old_classification_alias_paths_transitive FOR EACH STATEMENT EXECUTE FUNCTION public.delete_ccc_relations_transitive_trigger_2();
+CREATE TRIGGER delete_ccc_relations_transitive_trigger AFTER DELETE ON public.classification_alias_paths_transitive REFERENCING OLD TABLE AS old_classification_alias_paths_transitive FOR EACH STATEMENT EXECUTE FUNCTION public.delete_ccc_relations_transitive_trigger_2();
 
 ALTER TABLE public.classification_alias_paths_transitive DISABLE TRIGGER delete_ccc_relations_transitive_trigger;
+
 
 --
 -- Name: classification_contents delete_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER delete_ccc_relations_transitive_trigger
-AFTER DELETE ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.delete_ccc_relations_transitive_trigger_1();
+CREATE TRIGGER delete_ccc_relations_transitive_trigger AFTER DELETE ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.delete_ccc_relations_transitive_trigger_1();
 
 ALTER TABLE public.classification_contents DISABLE TRIGGER delete_ccc_relations_transitive_trigger;
+
 
 --
 -- Name: classification_groups delete_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER delete_ccc_relations_transitive_trigger
-AFTER DELETE ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION public.delete_ca_paths_transitive_trigger_1();
+CREATE TRIGGER delete_ccc_relations_transitive_trigger AFTER DELETE ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION public.delete_ca_paths_transitive_trigger_1();
 
 ALTER TABLE public.classification_groups DISABLE TRIGGER delete_ccc_relations_transitive_trigger;
+
 
 --
 -- Name: classification_groups delete_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER delete_collected_classification_content_relations_trigger_1
-AFTER DELETE ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION public.delete_collected_classification_content_relations_trigger_1();
+CREATE TRIGGER delete_collected_classification_content_relations_trigger_1 AFTER DELETE ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION public.delete_collected_classification_content_relations_trigger_1();
+
 
 --
 -- Name: content_contents delete_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
@@ -3974,1039 +3151,701 @@ AFTER DELETE ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION publi
 
 CREATE TRIGGER delete_content_content_links_trigger BEFORE DELETE ON public.content_contents FOR EACH ROW EXECUTE FUNCTION public.delete_content_content_links_trigger();
 
+
 --
 -- Name: schedules delete_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER delete_schedule_occurences_trigger
-AFTER DELETE ON public.schedules REFERENCING OLD TABLE AS old_schedules FOR EACH STATEMENT EXECUTE FUNCTION public.delete_schedule_occurences_trigger();
+CREATE TRIGGER delete_schedule_occurences_trigger AFTER DELETE ON public.schedules REFERENCING OLD TABLE AS old_schedules FOR EACH STATEMENT EXECUTE FUNCTION public.delete_schedule_occurences_trigger();
+
 
 --
 -- Name: classification_aliases generate_ca_paths_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_ca_paths_transitive_trigger
-AFTER
-INSERT ON public.classification_aliases FOR EACH ROW EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_1();
+CREATE TRIGGER generate_ca_paths_transitive_trigger AFTER INSERT ON public.classification_aliases FOR EACH ROW EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_1();
+
 
 --
 -- Name: classification_tree_labels generate_ca_paths_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_ca_paths_transitive_trigger
-AFTER
-INSERT ON public.classification_tree_labels FOR EACH ROW EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_3();
+CREATE TRIGGER generate_ca_paths_transitive_trigger AFTER INSERT ON public.classification_tree_labels FOR EACH ROW EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_3();
+
 
 --
 -- Name: classification_trees generate_ca_paths_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_ca_paths_transitive_trigger
-AFTER
-INSERT ON public.classification_trees FOR EACH ROW EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_2();
+CREATE TRIGGER generate_ca_paths_transitive_trigger AFTER INSERT ON public.classification_trees FOR EACH ROW EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_2();
+
 
 --
 -- Name: classification_alias_paths_transitive generate_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_ccc_relations_transitive_trigger
-AFTER
-INSERT ON public.classification_alias_paths_transitive REFERENCING NEW TABLE AS new_classification_alias_paths_transitive FOR EACH STATEMENT EXECUTE FUNCTION public.generate_ccc_relations_transitive_trigger_1();
+CREATE TRIGGER generate_ccc_relations_transitive_trigger AFTER INSERT ON public.classification_alias_paths_transitive REFERENCING NEW TABLE AS new_classification_alias_paths_transitive FOR EACH STATEMENT EXECUTE FUNCTION public.generate_ccc_relations_transitive_trigger_1();
 
 ALTER TABLE public.classification_alias_paths_transitive DISABLE TRIGGER generate_ccc_relations_transitive_trigger;
+
 
 --
 -- Name: classification_contents generate_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_ccc_relations_transitive_trigger
-AFTER
-INSERT ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.generate_ccc_relations_transitive_trigger_2();
+CREATE TRIGGER generate_ccc_relations_transitive_trigger AFTER INSERT ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.generate_ccc_relations_transitive_trigger_2();
 
 ALTER TABLE public.classification_contents DISABLE TRIGGER generate_ccc_relations_transitive_trigger;
+
 
 --
 -- Name: classification_groups generate_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_ccc_relations_transitive_trigger
-AFTER
-INSERT ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_4();
+CREATE TRIGGER generate_ccc_relations_transitive_trigger AFTER INSERT ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_4();
 
 ALTER TABLE public.classification_groups DISABLE TRIGGER generate_ccc_relations_transitive_trigger;
+
 
 --
 -- Name: classification_aliases generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_classification_alias_paths_trigger
-AFTER
-INSERT ON public.classification_aliases FOR EACH ROW EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_1();
+CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_aliases FOR EACH ROW EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_1();
+
 
 --
 -- Name: classification_tree_labels generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_classification_alias_paths_trigger
-AFTER
-INSERT ON public.classification_tree_labels FOR EACH ROW EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_3();
+CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_tree_labels FOR EACH ROW EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_3();
+
 
 --
 -- Name: classification_trees generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_classification_alias_paths_trigger
-AFTER
-INSERT ON public.classification_trees FOR EACH ROW EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_2();
+CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_trees FOR EACH ROW EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_2();
+
 
 --
 -- Name: classification_alias_paths generate_collected_classification_content_relations_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_collected_classification_content_relations_trigger
-AFTER
-INSERT
-    OR
-UPDATE ON public.classification_alias_paths FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_3();
+CREATE TRIGGER generate_collected_classification_content_relations_trigger AFTER INSERT OR UPDATE ON public.classification_alias_paths FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_3();
+
 
 --
 -- Name: classification_contents generate_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_collected_classification_content_relations_trigger_1
-AFTER
-INSERT ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_1();
+CREATE TRIGGER generate_collected_classification_content_relations_trigger_1 AFTER INSERT ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_1();
+
 
 --
 -- Name: classification_contents generate_collected_classification_content_relations_trigger_2; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_collected_classification_content_relations_trigger_2
-AFTER DELETE ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_2();
+CREATE TRIGGER generate_collected_classification_content_relations_trigger_2 AFTER DELETE ON public.classification_contents FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_2();
+
 
 --
 -- Name: classification_groups generate_collected_classification_content_relations_trigger_4; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_collected_classification_content_relations_trigger_4
-AFTER
-INSERT ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_4();
+CREATE TRIGGER generate_collected_classification_content_relations_trigger_4 AFTER INSERT ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_4();
+
 
 --
 -- Name: collection_configurations generate_collection_id_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_collection_id_trigger BEFORE
-INSERT ON public.collection_configurations FOR EACH ROW EXECUTE FUNCTION public.generate_collection_id_trigger();
+CREATE TRIGGER generate_collection_id_trigger BEFORE INSERT ON public.collection_configurations FOR EACH ROW EXECUTE FUNCTION public.generate_collection_id_trigger();
+
 
 --
 -- Name: collection_configurations generate_collection_slug_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_collection_slug_trigger BEFORE
-INSERT ON public.collection_configurations FOR EACH ROW EXECUTE FUNCTION public.generate_collection_slug_trigger();
+CREATE TRIGGER generate_collection_slug_trigger BEFORE INSERT ON public.collection_configurations FOR EACH ROW EXECUTE FUNCTION public.generate_collection_slug_trigger();
+
 
 --
 -- Name: content_contents generate_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_content_content_links_trigger
-AFTER
-INSERT ON public.content_contents FOR EACH ROW EXECUTE FUNCTION public.generate_content_content_links_trigger();
+CREATE TRIGGER generate_content_content_links_trigger AFTER INSERT ON public.content_contents FOR EACH ROW EXECUTE FUNCTION public.generate_content_content_links_trigger();
+
 
 --
 -- Name: users generate_my_selection_watch_list; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_my_selection_watch_list
-AFTER
-INSERT ON public.users FOR EACH ROW EXECUTE FUNCTION public.generate_my_selection_watch_list();
+CREATE TRIGGER generate_my_selection_watch_list AFTER INSERT ON public.users FOR EACH ROW EXECUTE FUNCTION public.generate_my_selection_watch_list();
+
 
 --
 -- Name: schedules generate_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_schedule_occurences_trigger
-AFTER
-INSERT ON public.schedules FOR EACH ROW EXECUTE FUNCTION public.generate_schedule_occurences_trigger();
+CREATE TRIGGER generate_schedule_occurences_trigger AFTER INSERT ON public.schedules FOR EACH ROW EXECUTE FUNCTION public.generate_schedule_occurences_trigger();
+
 
 --
 -- Name: things geom_simple_insert_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER geom_simple_insert_trigger BEFORE
-INSERT ON public.things FOR EACH ROW EXECUTE FUNCTION public.geom_simple_update();
+CREATE TRIGGER geom_simple_insert_trigger BEFORE INSERT ON public.things FOR EACH ROW EXECUTE FUNCTION public.geom_simple_update();
+
 
 --
 -- Name: things geom_simple_update_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER geom_simple_update_trigger BEFORE
-UPDATE OF location,
-    line ON public.things FOR EACH ROW
-    WHEN (
-        (
-            (
-                (old.location)::text IS DISTINCT
-                FROM (new.location)::text
-            )
-            OR (
-                (old.line)::text IS DISTINCT
-                FROM (new.line)::text
-            )
-        )
-    ) EXECUTE FUNCTION public.geom_simple_update();
+CREATE TRIGGER geom_simple_update_trigger BEFORE UPDATE OF location, line ON public.things FOR EACH ROW WHEN ((((old.location)::text IS DISTINCT FROM (new.location)::text) OR ((old.line)::text IS DISTINCT FROM (new.line)::text))) EXECUTE FUNCTION public.geom_simple_update();
+
 
 --
 -- Name: classification_trees insert_classification_tree_order_a_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER insert_classification_tree_order_a_trigger
-AFTER
-INSERT ON public.classification_trees FOR EACH ROW EXECUTE FUNCTION public.update_classification_trees_order_a_trigger();
+CREATE TRIGGER insert_classification_tree_order_a_trigger AFTER INSERT ON public.classification_trees FOR EACH ROW EXECUTE FUNCTION public.update_classification_trees_order_a_trigger();
+
 
 --
 -- Name: searches tsvectorsearchinsert; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER tsvectorsearchinsert BEFORE
-INSERT ON public.searches FOR EACH ROW EXECUTE FUNCTION public.tsvectorsearchupdate();
+CREATE TRIGGER tsvectorsearchinsert BEFORE INSERT ON public.searches FOR EACH ROW EXECUTE FUNCTION public.tsvectorsearchupdate();
+
 
 --
 -- Name: searches tsvectorsearchupdate; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER tsvectorsearchupdate BEFORE
-UPDATE OF words,
-    locale,
-    full_text ON public.searches FOR EACH ROW
-    WHEN (
-        (
-            (
-                old.words IS DISTINCT
-                FROM new.words
-            )
-            OR (
-                (old.locale)::text IS DISTINCT
-                FROM (new.locale)::text
-            )
-            OR (
-                old.full_text IS DISTINCT
-                FROM new.full_text
-            )
-        )
-    ) EXECUTE FUNCTION public.tsvectorsearchupdate();
+CREATE TRIGGER tsvectorsearchupdate BEFORE UPDATE OF words, locale, full_text ON public.searches FOR EACH ROW WHEN (((old.words IS DISTINCT FROM new.words) OR ((old.locale)::text IS DISTINCT FROM (new.locale)::text) OR (old.full_text IS DISTINCT FROM new.full_text))) EXECUTE FUNCTION public.tsvectorsearchupdate();
+
 
 --
 -- Name: searches tsvectortypeaheadsearchinsert; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER tsvectortypeaheadsearchinsert BEFORE
-INSERT ON public.searches FOR EACH ROW EXECUTE FUNCTION tsvector_update_trigger(
-        'words_typeahead',
-        'pg_catalog.simple',
-        'full_text'
-    );
+CREATE TRIGGER tsvectortypeaheadsearchinsert BEFORE INSERT ON public.searches FOR EACH ROW EXECUTE FUNCTION tsvector_update_trigger('words_typeahead', 'pg_catalog.simple', 'full_text');
+
 
 --
 -- Name: searches tsvectortypeaheadsearchupdate; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER tsvectortypeaheadsearchupdate BEFORE
-UPDATE OF full_text ON public.searches FOR EACH ROW
-    WHEN (
-        (
-            old.full_text IS DISTINCT
-            FROM new.full_text
-        )
-    ) EXECUTE FUNCTION tsvector_update_trigger(
-        'words_typeahead',
-        'pg_catalog.simple',
-        'full_text'
-    );
+CREATE TRIGGER tsvectortypeaheadsearchupdate BEFORE UPDATE OF full_text ON public.searches FOR EACH ROW WHEN ((old.full_text IS DISTINCT FROM new.full_text)) EXECUTE FUNCTION tsvector_update_trigger('words_typeahead', 'pg_catalog.simple', 'full_text');
+
 
 --
 -- Name: classification_aliases update_ca_paths_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_ca_paths_transitive_trigger
-AFTER
-UPDATE OF internal_name ON public.classification_aliases FOR EACH ROW
-    WHEN (
-        (
-            (old.internal_name)::text IS DISTINCT
-            FROM (new.internal_name)::text
-        )
-    ) EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_1();
+CREATE TRIGGER update_ca_paths_transitive_trigger AFTER UPDATE OF internal_name ON public.classification_aliases FOR EACH ROW WHEN (((old.internal_name)::text IS DISTINCT FROM (new.internal_name)::text)) EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_1();
+
 
 --
 -- Name: classification_tree_labels update_ca_paths_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_ca_paths_transitive_trigger
-AFTER
-UPDATE OF name ON public.classification_tree_labels FOR EACH ROW
-    WHEN (
-        (
-            (old.name)::text IS DISTINCT
-            FROM (new.name)::text
-        )
-    ) EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_3();
+CREATE TRIGGER update_ca_paths_transitive_trigger AFTER UPDATE OF name ON public.classification_tree_labels FOR EACH ROW WHEN (((old.name)::text IS DISTINCT FROM (new.name)::text)) EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_3();
+
 
 --
 -- Name: classification_trees update_ca_paths_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_ca_paths_transitive_trigger
-AFTER
-UPDATE OF parent_classification_alias_id,
-    classification_alias_id,
-    classification_tree_label_id ON public.classification_trees FOR EACH ROW
-    WHEN (
-        (
-            (
-                old.parent_classification_alias_id IS DISTINCT
-                FROM new.parent_classification_alias_id
-            )
-            OR (
-                old.classification_alias_id IS DISTINCT
-                FROM new.classification_alias_id
-            )
-            OR (
-                new.classification_tree_label_id IS DISTINCT
-                FROM old.classification_tree_label_id
-            )
-        )
-    ) EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_2();
+CREATE TRIGGER update_ca_paths_transitive_trigger AFTER UPDATE OF parent_classification_alias_id, classification_alias_id, classification_tree_label_id ON public.classification_trees FOR EACH ROW WHEN (((old.parent_classification_alias_id IS DISTINCT FROM new.parent_classification_alias_id) OR (old.classification_alias_id IS DISTINCT FROM new.classification_alias_id) OR (new.classification_tree_label_id IS DISTINCT FROM old.classification_tree_label_id))) EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_2();
+
 
 --
 -- Name: classification_contents update_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_ccc_relations_transitive_trigger
-AFTER
-UPDATE OF content_data_id,
-    classification_id,
-    relation ON public.classification_contents FOR EACH ROW
-    WHEN (
-        (
-            (
-                old.content_data_id IS DISTINCT
-                FROM new.content_data_id
-            )
-            OR (
-                old.classification_id IS DISTINCT
-                FROM new.classification_id
-            )
-            OR (
-                (old.relation)::text IS DISTINCT
-                FROM (new.relation)::text
-            )
-        )
-    ) EXECUTE FUNCTION public.generate_ccc_relations_transitive_trigger_2();
+CREATE TRIGGER update_ccc_relations_transitive_trigger AFTER UPDATE OF content_data_id, classification_id, relation ON public.classification_contents FOR EACH ROW WHEN (((old.content_data_id IS DISTINCT FROM new.content_data_id) OR (old.classification_id IS DISTINCT FROM new.classification_id) OR ((old.relation)::text IS DISTINCT FROM (new.relation)::text))) EXECUTE FUNCTION public.generate_ccc_relations_transitive_trigger_2();
 
 ALTER TABLE public.classification_contents DISABLE TRIGGER update_ccc_relations_transitive_trigger;
+
 
 --
 -- Name: classification_groups update_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_ccc_relations_transitive_trigger
-AFTER
-UPDATE OF classification_id,
-    classification_alias_id ON public.classification_groups FOR EACH ROW
-    WHEN (
-        (
-            (
-                old.classification_id IS DISTINCT
-                FROM new.classification_id
-            )
-            OR (
-                old.classification_alias_id IS DISTINCT
-                FROM new.classification_alias_id
-            )
-        )
-    ) EXECUTE FUNCTION public.update_ca_paths_transitive_trigger_4();
+CREATE TRIGGER update_ccc_relations_transitive_trigger AFTER UPDATE OF classification_id, classification_alias_id ON public.classification_groups FOR EACH ROW WHEN (((old.classification_id IS DISTINCT FROM new.classification_id) OR (old.classification_alias_id IS DISTINCT FROM new.classification_alias_id))) EXECUTE FUNCTION public.update_ca_paths_transitive_trigger_4();
 
 ALTER TABLE public.classification_groups DISABLE TRIGGER update_ccc_relations_transitive_trigger;
+
 
 --
 -- Name: classification_groups update_ccc_relations_trigger_4; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_ccc_relations_trigger_4
-AFTER
-UPDATE OF classification_id,
-    classification_alias_id ON public.classification_groups FOR EACH ROW
-    WHEN (
-        (
-            (
-                old.classification_id IS DISTINCT
-                FROM new.classification_id
-            )
-            OR (
-                old.classification_alias_id IS DISTINCT
-                FROM new.classification_alias_id
-            )
-        )
-    ) EXECUTE FUNCTION public.update_collected_classification_content_relations_trigger_4();
+CREATE TRIGGER update_ccc_relations_trigger_4 AFTER UPDATE OF classification_id, classification_alias_id ON public.classification_groups FOR EACH ROW WHEN (((old.classification_id IS DISTINCT FROM new.classification_id) OR (old.classification_alias_id IS DISTINCT FROM new.classification_alias_id))) EXECUTE FUNCTION public.update_collected_classification_content_relations_trigger_4();
+
 
 --
 -- Name: classification_aliases update_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_classification_alias_paths_trigger
-AFTER
-UPDATE OF internal_name ON public.classification_aliases FOR EACH ROW
-    WHEN (
-        (
-            (old.internal_name)::text IS DISTINCT
-            FROM (new.internal_name)::text
-        )
-    ) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_1();
+CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF internal_name ON public.classification_aliases FOR EACH ROW WHEN (((old.internal_name)::text IS DISTINCT FROM (new.internal_name)::text)) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_1();
+
 
 --
 -- Name: classification_tree_labels update_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_classification_alias_paths_trigger
-AFTER
-UPDATE OF name ON public.classification_tree_labels FOR EACH ROW
-    WHEN (
-        (
-            (old.name)::text IS DISTINCT
-            FROM (new.name)::text
-        )
-    ) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_3();
+CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF name ON public.classification_tree_labels FOR EACH ROW WHEN (((old.name)::text IS DISTINCT FROM (new.name)::text)) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_3();
+
 
 --
 -- Name: classification_trees update_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_classification_alias_paths_trigger
-AFTER
-UPDATE OF parent_classification_alias_id,
-    classification_alias_id,
-    classification_tree_label_id ON public.classification_trees FOR EACH ROW
-    WHEN (
-        (
-            (
-                old.parent_classification_alias_id IS DISTINCT
-                FROM new.parent_classification_alias_id
-            )
-            OR (
-                old.classification_alias_id IS DISTINCT
-                FROM new.classification_alias_id
-            )
-            OR (
-                new.classification_tree_label_id IS DISTINCT
-                FROM old.classification_tree_label_id
-            )
-        )
-    ) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_2();
+CREATE TRIGGER update_classification_alias_paths_trigger AFTER UPDATE OF parent_classification_alias_id, classification_alias_id, classification_tree_label_id ON public.classification_trees FOR EACH ROW WHEN (((old.parent_classification_alias_id IS DISTINCT FROM new.parent_classification_alias_id) OR (old.classification_alias_id IS DISTINCT FROM new.classification_alias_id) OR (new.classification_tree_label_id IS DISTINCT FROM old.classification_tree_label_id))) EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_2();
+
 
 --
 -- Name: classification_aliases update_classification_aliases_order_a_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_classification_aliases_order_a_trigger
-AFTER
-UPDATE OF order_a ON public.classification_aliases FOR EACH ROW
-    WHEN (
-        (
-            (
-                old.order_a IS DISTINCT
-                FROM new.order_a
-            )
-            AND (
-                old.updated_at IS DISTINCT
-                FROM new.updated_at
-            )
-        )
-    ) EXECUTE FUNCTION public.update_classification_aliases_order_a_trigger();
+CREATE TRIGGER update_classification_aliases_order_a_trigger AFTER UPDATE OF order_a ON public.classification_aliases FOR EACH ROW WHEN (((old.order_a IS DISTINCT FROM new.order_a) AND (old.updated_at IS DISTINCT FROM new.updated_at))) EXECUTE FUNCTION public.update_classification_aliases_order_a_trigger();
+
 
 --
 -- Name: classification_trees update_classification_tree_order_a_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_classification_tree_order_a_trigger
-AFTER
-UPDATE OF parent_classification_alias_id,
-    classification_tree_label_id ON public.classification_trees FOR EACH ROW
-    WHEN (
-        (
-            (
-                old.parent_classification_alias_id IS DISTINCT
-                FROM new.parent_classification_alias_id
-            )
-            OR (
-                old.classification_tree_label_id IS DISTINCT
-                FROM new.classification_tree_label_id
-            )
-        )
-    ) EXECUTE FUNCTION public.update_classification_trees_order_a_trigger();
+CREATE TRIGGER update_classification_tree_order_a_trigger AFTER UPDATE OF parent_classification_alias_id, classification_tree_label_id ON public.classification_trees FOR EACH ROW WHEN (((old.parent_classification_alias_id IS DISTINCT FROM new.parent_classification_alias_id) OR (old.classification_tree_label_id IS DISTINCT FROM new.classification_tree_label_id))) EXECUTE FUNCTION public.update_classification_trees_order_a_trigger();
+
 
 --
 -- Name: classification_trees update_classification_tree_tree_label_id_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_classification_tree_tree_label_id_trigger
-AFTER
-UPDATE OF classification_tree_label_id ON public.classification_trees FOR EACH ROW
-    WHEN (
-        (
-            old.classification_tree_label_id IS DISTINCT
-            FROM new.classification_tree_label_id
-        )
-    ) EXECUTE FUNCTION public.update_classification_tree_tree_label_id_trigger();
+CREATE TRIGGER update_classification_tree_tree_label_id_trigger AFTER UPDATE OF classification_tree_label_id ON public.classification_trees FOR EACH ROW WHEN ((old.classification_tree_label_id IS DISTINCT FROM new.classification_tree_label_id)) EXECUTE FUNCTION public.update_classification_tree_tree_label_id_trigger();
+
 
 --
 -- Name: classification_contents update_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_collected_classification_content_relations_trigger_1
-AFTER
-UPDATE OF content_data_id,
-    classification_id,
-    relation ON public.classification_contents FOR EACH ROW
-    WHEN (
-        (
-            (
-                old.content_data_id IS DISTINCT
-                FROM new.content_data_id
-            )
-            OR (
-                old.classification_id IS DISTINCT
-                FROM new.classification_id
-            )
-            OR (
-                (old.relation)::text IS DISTINCT
-                FROM (new.relation)::text
-            )
-        )
-    ) EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_1();
+CREATE TRIGGER update_collected_classification_content_relations_trigger_1 AFTER UPDATE OF content_data_id, classification_id, relation ON public.classification_contents FOR EACH ROW WHEN (((old.content_data_id IS DISTINCT FROM new.content_data_id) OR (old.classification_id IS DISTINCT FROM new.classification_id) OR ((old.relation)::text IS DISTINCT FROM (new.relation)::text))) EXECUTE FUNCTION public.generate_collected_classification_content_relations_trigger_1();
+
 
 --
 -- Name: collection_configurations update_collection_id_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_collection_id_trigger BEFORE
-UPDATE OF watch_list_id,
-    stored_filter_id ON public.collection_configurations FOR EACH ROW
-    WHEN (
-        (
-            (
-                old.watch_list_id IS DISTINCT
-                FROM new.watch_list_id
-            )
-            OR (
-                old.stored_filter_id IS DISTINCT
-                FROM new.stored_filter_id
-            )
-        )
-    ) EXECUTE FUNCTION public.generate_collection_id_trigger();
+CREATE TRIGGER update_collection_id_trigger BEFORE UPDATE OF watch_list_id, stored_filter_id ON public.collection_configurations FOR EACH ROW WHEN (((old.watch_list_id IS DISTINCT FROM new.watch_list_id) OR (old.stored_filter_id IS DISTINCT FROM new.stored_filter_id))) EXECUTE FUNCTION public.generate_collection_id_trigger();
+
 
 --
 -- Name: collection_configurations update_collection_slug_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_collection_slug_trigger BEFORE
-UPDATE OF slug ON public.collection_configurations FOR EACH ROW
-    WHEN (
-        (
-            (old.slug)::text IS DISTINCT
-            FROM (new.slug)::text
-        )
-    ) EXECUTE FUNCTION public.generate_collection_slug_trigger();
+CREATE TRIGGER update_collection_slug_trigger BEFORE UPDATE OF slug ON public.collection_configurations FOR EACH ROW WHEN (((old.slug)::text IS DISTINCT FROM (new.slug)::text)) EXECUTE FUNCTION public.generate_collection_slug_trigger();
+
 
 --
 -- Name: content_contents update_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_content_content_links_trigger
-AFTER
-UPDATE OF content_a_id,
-    content_b_id,
-    relation_b ON public.content_contents FOR EACH ROW
-    WHEN (
-        (
-            (
-                old.content_a_id IS DISTINCT
-                FROM new.content_a_id
-            )
-            OR (
-                old.content_b_id IS DISTINCT
-                FROM new.content_b_id
-            )
-            OR (
-                (old.relation_b)::text IS DISTINCT
-                FROM (new.relation_b)::text
-            )
-        )
-    ) EXECUTE FUNCTION public.generate_content_content_links_trigger();
+CREATE TRIGGER update_content_content_links_trigger AFTER UPDATE OF content_a_id, content_b_id, relation_b ON public.content_contents FOR EACH ROW WHEN (((old.content_a_id IS DISTINCT FROM new.content_a_id) OR (old.content_b_id IS DISTINCT FROM new.content_b_id) OR ((old.relation_b)::text IS DISTINCT FROM (new.relation_b)::text))) EXECUTE FUNCTION public.generate_content_content_links_trigger();
+
 
 --
 -- Name: classification_groups update_deleted_at_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_deleted_at_ccc_relations_transitive_trigger
-AFTER
-UPDATE OF deleted_at ON public.classification_groups FOR EACH ROW
-    WHEN (
-        (
-            (old.deleted_at IS NULL)
-            AND (new.deleted_at IS NOT NULL)
-        )
-    ) EXECUTE FUNCTION public.delete_ca_paths_transitive_trigger_1();
+CREATE TRIGGER update_deleted_at_ccc_relations_transitive_trigger AFTER UPDATE OF deleted_at ON public.classification_groups FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_ca_paths_transitive_trigger_1();
 
 ALTER TABLE public.classification_groups DISABLE TRIGGER update_deleted_at_ccc_relations_transitive_trigger;
+
 
 --
 -- Name: classification_groups update_deleted_at_ccc_relations_trigger_4; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_deleted_at_ccc_relations_trigger_4
-AFTER
-UPDATE OF deleted_at ON public.classification_groups FOR EACH ROW
-    WHEN (
-        (
-            (old.deleted_at IS NULL)
-            AND (new.deleted_at IS NOT NULL)
-        )
-    ) EXECUTE FUNCTION public.delete_collected_classification_content_relations_trigger_1();
+CREATE TRIGGER update_deleted_at_ccc_relations_trigger_4 AFTER UPDATE OF deleted_at ON public.classification_groups FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_collected_classification_content_relations_trigger_1();
+
 
 --
 -- Name: users update_my_selection_watch_list; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_my_selection_watch_list
-AFTER
-UPDATE OF role_id ON public.users FOR EACH ROW
-    WHEN (
-        (
-            old.role_id IS DISTINCT
-            FROM new.role_id
-        )
-    ) EXECUTE FUNCTION public.generate_my_selection_watch_list();
+CREATE TRIGGER update_my_selection_watch_list AFTER UPDATE OF role_id ON public.users FOR EACH ROW WHEN ((old.role_id IS DISTINCT FROM new.role_id)) EXECUTE FUNCTION public.generate_my_selection_watch_list();
+
 
 --
 -- Name: schedules update_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_schedule_occurences_trigger
-AFTER
-UPDATE OF thing_id,
-    duration,
-    rrule,
-    dtstart,
-    relation,
-    exdate,
-    rdate ON public.schedules FOR EACH ROW
-    WHEN (
-        (
-            (
-                old.thing_id IS DISTINCT
-                FROM new.thing_id
-            )
-            OR (
-                old.duration IS DISTINCT
-                FROM new.duration
-            )
-            OR (
-                (old.rrule)::text IS DISTINCT
-                FROM (new.rrule)::text
-            )
-            OR (
-                old.dtstart IS DISTINCT
-                FROM new.dtstart
-            )
-            OR (
-                (old.relation)::text IS DISTINCT
-                FROM (new.relation)::text
-            )
-            OR (
-                old.rdate IS DISTINCT
-                FROM new.rdate
-            )
-            OR (
-                old.exdate IS DISTINCT
-                FROM new.exdate
-            )
-        )
-    ) EXECUTE FUNCTION public.generate_schedule_occurences_trigger();
+CREATE TRIGGER update_schedule_occurences_trigger AFTER UPDATE OF thing_id, duration, rrule, dtstart, relation, exdate, rdate ON public.schedules FOR EACH ROW WHEN (((old.thing_id IS DISTINCT FROM new.thing_id) OR (old.duration IS DISTINCT FROM new.duration) OR ((old.rrule)::text IS DISTINCT FROM (new.rrule)::text) OR (old.dtstart IS DISTINCT FROM new.dtstart) OR ((old.relation)::text IS DISTINCT FROM (new.relation)::text) OR (old.rdate IS DISTINCT FROM new.rdate) OR (old.exdate IS DISTINCT FROM new.exdate))) EXECUTE FUNCTION public.generate_schedule_occurences_trigger();
+
 
 --
 -- Name: things update_template_definitions_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_template_definitions_trigger
-AFTER
-UPDATE OF schema,
-    boost,
-    content_type ON public.things FOR EACH ROW
-    WHEN (
-        (
-            (new.template = TRUE)
-            AND (
-                (
-                    old.schema IS DISTINCT
-                    FROM new.schema
-                )
-                OR (
-                    old.boost IS DISTINCT
-                    FROM new.boost
-                )
-                OR (
-                    (old.content_type)::text IS DISTINCT
-                    FROM (new.content_type)::text
-                )
-            )
-        )
-    ) EXECUTE FUNCTION public.update_template_definitions_trigger();
+CREATE TRIGGER update_template_definitions_trigger AFTER UPDATE OF schema, boost, content_type ON public.things FOR EACH ROW WHEN (((new.template = true) AND ((old.schema IS DISTINCT FROM new.schema) OR (old.boost IS DISTINCT FROM new.boost) OR ((old.content_type)::text IS DISTINCT FROM (new.content_type)::text)))) EXECUTE FUNCTION public.update_template_definitions_trigger();
+
 
 --
 -- Name: watch_list_data_hashes wldh_order_a_default_value_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER wldh_order_a_default_value_trigger BEFORE
-INSERT ON public.watch_list_data_hashes FOR EACH ROW EXECUTE FUNCTION public.wldh_order_a_default_value();
+CREATE TRIGGER wldh_order_a_default_value_trigger BEFORE INSERT ON public.watch_list_data_hashes FOR EACH ROW EXECUTE FUNCTION public.wldh_order_a_default_value();
+
 
 --
 -- Name: collected_classification_contents collected_classification_contents_thing_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.collected_classification_contents
-ADD CONSTRAINT collected_classification_contents_thing_id_fkey FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
+    ADD CONSTRAINT collected_classification_contents_thing_id_fkey FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
+
 
 --
 -- Name: collection_configurations fk_collection_stored_filter; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.collection_configurations
-ADD CONSTRAINT fk_collection_stored_filter FOREIGN KEY (stored_filter_id) REFERENCES public.stored_filters(id) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_collection_stored_filter FOREIGN KEY (stored_filter_id) REFERENCES public.stored_filters(id) ON DELETE CASCADE;
+
 
 --
 -- Name: collection_configurations fk_collection_watch_list; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.collection_configurations
-ADD CONSTRAINT fk_collection_watch_list FOREIGN KEY (watch_list_id) REFERENCES public.watch_lists(id) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_collection_watch_list FOREIGN KEY (watch_list_id) REFERENCES public.watch_lists(id) ON DELETE CASCADE;
+
 
 --
 -- Name: timeseries fk_rails_53ff16144f; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.timeseries
-ADD CONSTRAINT fk_rails_53ff16144f FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_rails_53ff16144f FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
+
 
 --
 -- Name: active_storage_variant_records fk_rails_993965df05; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.active_storage_variant_records
-ADD CONSTRAINT fk_rails_993965df05 FOREIGN KEY (blob_id) REFERENCES public.active_storage_blobs(id);
+    ADD CONSTRAINT fk_rails_993965df05 FOREIGN KEY (blob_id) REFERENCES public.active_storage_blobs(id);
+
 
 --
 -- Name: active_storage_attachments fk_rails_c3b3935057; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.active_storage_attachments
-ADD CONSTRAINT fk_rails_c3b3935057 FOREIGN KEY (blob_id) REFERENCES public.active_storage_blobs(id);
+    ADD CONSTRAINT fk_rails_c3b3935057 FOREIGN KEY (blob_id) REFERENCES public.active_storage_blobs(id);
+
 
 --
 -- Name: schedule_occurrences schedule_occurrences_schedule_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.schedule_occurrences
-ADD CONSTRAINT schedule_occurrences_schedule_id_fkey FOREIGN KEY (schedule_id) REFERENCES public.schedules(id) ON DELETE CASCADE;
+    ADD CONSTRAINT schedule_occurrences_schedule_id_fkey FOREIGN KEY (schedule_id) REFERENCES public.schedules(id) ON DELETE CASCADE;
+
 
 --
 -- Name: schedule_occurrences schedule_occurrences_thing_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.schedule_occurrences
-ADD CONSTRAINT schedule_occurrences_thing_id_fkey FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
+    ADD CONSTRAINT schedule_occurrences_thing_id_fkey FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
+
 
 --
 -- PostgreSQL database dump complete
 --
 
-SET search_path TO public,
-    postgis;
+SET search_path TO public, postgis;
 
-INSERT INTO "schema_migrations" (version)
-VALUES ('20170116165448'),
-    ('20170118091809'),
-    ('20170131141857'),
-    ('20170131145138'),
-    ('20170202142906'),
-    ('20170209101956'),
-    ('20170209115919'),
-    ('20170213144933'),
-    ('20170307094512'),
-    ('20170406115252'),
-    ('20170412124816'),
-    ('20170418141539'),
-    ('20170523115242'),
-    ('20170524132123'),
-    ('20170524144644'),
-    ('20170612114242'),
-    ('20170620143810'),
-    ('20170621070615'),
-    ('20170624083501'),
-    ('20170714114037'),
-    ('20170720130827'),
-    ('20170806152208'),
-    ('20170807100953'),
-    ('20170807131053'),
-    ('20170808071705'),
-    ('20170816140348'),
-    ('20170817090756'),
-    ('20170817151049'),
-    ('20170821072749'),
-    ('20170828102436'),
-    ('20170905152134'),
-    ('20170906131340'),
-    ('20170908143555'),
-    ('20170912133931'),
-    ('20170915000001'),
-    ('20170915000002'),
-    ('20170915000003'),
-    ('20170915000004'),
-    ('20170918093456'),
-    ('20170919085841'),
-    ('20170920071933'),
-    ('20170921160600'),
-    ('20170921161200'),
-    ('20170929140328'),
-    ('20171000124018'),
-    ('20171001084323'),
-    ('20171001123612'),
-    ('20171002085329'),
-    ('20171002132936'),
-    ('20171003142621'),
-    ('20171004072726'),
-    ('20171004114524'),
-    ('20171004120235'),
-    ('20171004125221'),
-    ('20171004132930'),
-    ('20171009130405'),
-    ('20171102091700'),
-    ('20171115121939'),
-    ('20171121084202'),
-    ('20171123083228'),
-    ('20171128091456'),
-    ('20171204092716'),
-    ('20171206163333'),
-    ('20180103144809'),
-    ('20180105085118'),
-    ('20180109095257'),
-    ('20180111111106'),
-    ('20180117073708'),
-    ('20180122153121'),
-    ('20180124091123'),
-    ('20180222091614'),
-    ('20180328122539'),
-    ('20180329064133'),
-    ('20180330063016'),
-    ('20180410220414'),
-    ('20180417130441'),
-    ('20180421162723'),
-    ('20180425110943'),
-    ('20180430064709'),
-    ('20180503125925'),
-    ('20180507073804'),
-    ('20180509130533'),
-    ('20180525083121'),
-    ('20180525084148'),
-    ('20180529105933'),
-    ('20180703135948'),
-    ('20180705133931'),
-    ('20180809084405'),
-    ('20180811125951'),
-    ('20180812123536'),
-    ('20180813133739'),
-    ('20180814141924'),
-    ('20180815132305'),
-    ('20180820064823'),
-    ('20180907080412'),
-    ('20180914085848'),
-    ('20180917085622'),
-    ('20180917103214'),
-    ('20180918085636'),
-    ('20180918135618'),
-    ('20180921083454'),
-    ('20180927090624'),
-    ('20180928084042'),
-    ('20181001000001'),
-    ('20181001085516'),
-    ('20181009131613'),
-    ('20181011125030'),
-    ('20181019075437'),
-    ('20181106113333'),
-    ('20181116090243'),
-    ('20181123113811'),
-    ('20181126000001'),
-    ('20181127142527'),
-    ('20181130130052'),
-    ('20181229111741'),
-    ('20181231081526'),
-    ('20190107074405'),
-    ('20190108154224'),
-    ('20190110092936'),
-    ('20190110151543'),
-    ('20190117135807'),
-    ('20190118113621'),
-    ('20190118145915'),
-    ('20190129083607'),
-    ('20190312141313'),
-    ('20190314094528'),
-    ('20190325122951'),
-    ('20190423083517'),
-    ('20190423103601'),
-    ('20190520124223'),
-    ('20190531093158'),
-    ('20190612084614'),
-    ('20190613092317'),
-    ('20190703082641'),
-    ('20190704114636'),
-    ('20190712074413'),
-    ('20190716081614'),
-    ('20190716130050'),
-    ('20190801120456'),
-    ('20190805085313'),
-    ('20190821101746'),
-    ('20190920075014'),
-    ('20190926131653'),
-    ('20191113092141'),
-    ('20191119110348'),
-    ('20191129131046'),
-    ('20191204141710'),
-    ('20191205123950'),
-    ('20191219123847'),
-    ('20191219143016'),
-    ('20200116143539'),
-    ('20200117095949'),
-    ('20200131103229'),
-    ('20200205143630'),
-    ('20200213132354'),
-    ('20200217100339'),
-    ('20200218132801'),
-    ('20200218151417'),
-    ('20200219111406'),
-    ('20200221115053'),
-    ('20200224143507'),
-    ('20200226121349'),
-    ('20200410064408'),
-    ('20200420130554'),
-    ('20200514064724'),
-    ('20200525104244'),
-    ('20200529140637'),
-    ('20200602070145'),
-    ('20200721111525'),
-    ('20200724094112'),
-    ('20200728062727'),
-    ('20200812110341'),
-    ('20200812111137'),
-    ('20200824121824'),
-    ('20200824140802'),
-    ('20200826082051'),
-    ('20200903102806'),
-    ('20200922112719'),
-    ('20200928122555'),
-    ('20201014110327'),
-    ('20201016100223'),
-    ('20201022061044'),
-    ('20201030111544'),
-    ('20201103120727'),
-    ('20201105145022'),
-    ('20201201103630'),
-    ('20201207151843'),
-    ('20201208210141'),
-    ('20210208130744'),
-    ('20210215102758'),
-    ('20210217125404'),
-    ('20210305080429'),
-    ('20210310141132'),
-    ('20210410183240'),
-    ('20210413105611'),
-    ('20210416120714'),
-    ('20210421180706'),
-    ('20210422111740'),
-    ('20210510120343'),
-    ('20210518074537'),
-    ('20210518133349'),
-    ('20210520123323'),
-    ('20210522171126'),
-    ('20210527121641'),
-    ('20210602112830'),
-    ('20210608125638'),
-    ('20210621063801'),
-    ('20210625202737'),
-    ('20210628202054'),
-    ('20210629094413'),
-    ('20210709121013'),
-    ('20210731090959'),
-    ('20210802095013'),
-    ('20210804140504'),
-    ('20210817101040'),
-    ('20210908095952'),
-    ('20211001085525'),
-    ('20211005125306'),
-    ('20211005134137'),
-    ('20211007123156'),
-    ('20211011123517'),
-    ('20211014062654'),
-    ('20211021062347'),
-    ('20211021111915'),
-    ('20211122075759'),
-    ('20211123081845'),
-    ('20211130111352'),
-    ('20211214135559'),
-    ('20211216110505'),
-    ('20211217094832'),
-    ('20220105142232'),
-    ('20220111132413'),
-    ('20220113113445'),
-    ('20220218095025'),
-    ('20220221123152'),
-    ('20220304071341'),
-    ('20220316115212'),
-    ('20220317105304'),
-    ('20220317131316'),
-    ('20220322104259'),
-    ('20220426105827'),
-    ('20220505135021'),
-    ('20220513075644'),
-    ('20220516134326'),
-    ('20220520065309'),
-    ('20220524095157'),
-    ('20220530063350'),
-    ('20220602074421'),
-    ('20220613074116'),
-    ('20220614085121'),
-    ('20220615085015'),
-    ('20220615104611'),
-    ('20220617113231'),
-    ('20220715173507'),
-    ('20220905101007'),
-    ('20220914090315'),
-    ('20220915081205'),
-    ('20220919112419'),
-    ('20220920083836'),
-    ('20220922061116'),
-    ('20221017094112'),
-    ('20221028074348'),
-    ('20221118075303'),
-    ('20221202071928'),
-    ('20221207085950'),
-    ('20230110113327'),
-    ('20230111134615'),
-    ('20230123071358'),
-    ('20230201083504'),
-    ('20230208145904'),
-    ('20230214091138'),
-    ('20230223112058'),
-    ('20230223115656'),
-    ('20230224185643'),
-    ('20230228085431');
+INSERT INTO "schema_migrations" (version) VALUES
+('20170116165448'),
+('20170118091809'),
+('20170131141857'),
+('20170131145138'),
+('20170202142906'),
+('20170209101956'),
+('20170209115919'),
+('20170213144933'),
+('20170307094512'),
+('20170406115252'),
+('20170412124816'),
+('20170418141539'),
+('20170523115242'),
+('20170524132123'),
+('20170524144644'),
+('20170612114242'),
+('20170620143810'),
+('20170621070615'),
+('20170624083501'),
+('20170714114037'),
+('20170720130827'),
+('20170806152208'),
+('20170807100953'),
+('20170807131053'),
+('20170808071705'),
+('20170816140348'),
+('20170817090756'),
+('20170817151049'),
+('20170821072749'),
+('20170828102436'),
+('20170905152134'),
+('20170906131340'),
+('20170908143555'),
+('20170912133931'),
+('20170915000001'),
+('20170915000002'),
+('20170915000003'),
+('20170915000004'),
+('20170918093456'),
+('20170919085841'),
+('20170920071933'),
+('20170921160600'),
+('20170921161200'),
+('20170929140328'),
+('20171000124018'),
+('20171001084323'),
+('20171001123612'),
+('20171002085329'),
+('20171002132936'),
+('20171003142621'),
+('20171004072726'),
+('20171004114524'),
+('20171004120235'),
+('20171004125221'),
+('20171004132930'),
+('20171009130405'),
+('20171102091700'),
+('20171115121939'),
+('20171121084202'),
+('20171123083228'),
+('20171128091456'),
+('20171204092716'),
+('20171206163333'),
+('20180103144809'),
+('20180105085118'),
+('20180109095257'),
+('20180111111106'),
+('20180117073708'),
+('20180122153121'),
+('20180124091123'),
+('20180222091614'),
+('20180328122539'),
+('20180329064133'),
+('20180330063016'),
+('20180410220414'),
+('20180417130441'),
+('20180421162723'),
+('20180425110943'),
+('20180430064709'),
+('20180503125925'),
+('20180507073804'),
+('20180509130533'),
+('20180525083121'),
+('20180525084148'),
+('20180529105933'),
+('20180703135948'),
+('20180705133931'),
+('20180809084405'),
+('20180811125951'),
+('20180812123536'),
+('20180813133739'),
+('20180814141924'),
+('20180815132305'),
+('20180820064823'),
+('20180907080412'),
+('20180914085848'),
+('20180917085622'),
+('20180917103214'),
+('20180918085636'),
+('20180918135618'),
+('20180921083454'),
+('20180927090624'),
+('20180928084042'),
+('20181001000001'),
+('20181001085516'),
+('20181009131613'),
+('20181011125030'),
+('20181019075437'),
+('20181106113333'),
+('20181116090243'),
+('20181123113811'),
+('20181126000001'),
+('20181127142527'),
+('20181130130052'),
+('20181229111741'),
+('20181231081526'),
+('20190107074405'),
+('20190108154224'),
+('20190110092936'),
+('20190110151543'),
+('20190117135807'),
+('20190118113621'),
+('20190118145915'),
+('20190129083607'),
+('20190312141313'),
+('20190314094528'),
+('20190325122951'),
+('20190423083517'),
+('20190423103601'),
+('20190520124223'),
+('20190531093158'),
+('20190612084614'),
+('20190613092317'),
+('20190703082641'),
+('20190704114636'),
+('20190712074413'),
+('20190716081614'),
+('20190716130050'),
+('20190801120456'),
+('20190805085313'),
+('20190821101746'),
+('20190920075014'),
+('20190926131653'),
+('20191113092141'),
+('20191119110348'),
+('20191129131046'),
+('20191204141710'),
+('20191205123950'),
+('20191219123847'),
+('20191219143016'),
+('20200116143539'),
+('20200117095949'),
+('20200131103229'),
+('20200205143630'),
+('20200213132354'),
+('20200217100339'),
+('20200218132801'),
+('20200218151417'),
+('20200219111406'),
+('20200221115053'),
+('20200224143507'),
+('20200226121349'),
+('20200410064408'),
+('20200420130554'),
+('20200514064724'),
+('20200525104244'),
+('20200529140637'),
+('20200602070145'),
+('20200721111525'),
+('20200724094112'),
+('20200728062727'),
+('20200812110341'),
+('20200812111137'),
+('20200824121824'),
+('20200824140802'),
+('20200826082051'),
+('20200903102806'),
+('20200922112719'),
+('20200928122555'),
+('20201014110327'),
+('20201016100223'),
+('20201022061044'),
+('20201030111544'),
+('20201103120727'),
+('20201105145022'),
+('20201201103630'),
+('20201207151843'),
+('20201208210141'),
+('20210208130744'),
+('20210215102758'),
+('20210217125404'),
+('20210305080429'),
+('20210310141132'),
+('20210410183240'),
+('20210413105611'),
+('20210416120714'),
+('20210421180706'),
+('20210422111740'),
+('20210510120343'),
+('20210518074537'),
+('20210518133349'),
+('20210520123323'),
+('20210522171126'),
+('20210527121641'),
+('20210602112830'),
+('20210608125638'),
+('20210621063801'),
+('20210625202737'),
+('20210628202054'),
+('20210629094413'),
+('20210709121013'),
+('20210731090959'),
+('20210802095013'),
+('20210804140504'),
+('20210817101040'),
+('20210908095952'),
+('20211001085525'),
+('20211005125306'),
+('20211005134137'),
+('20211007123156'),
+('20211011123517'),
+('20211014062654'),
+('20211021062347'),
+('20211021111915'),
+('20211122075759'),
+('20211123081845'),
+('20211130111352'),
+('20211214135559'),
+('20211216110505'),
+('20211217094832'),
+('20220105142232'),
+('20220111132413'),
+('20220113113445'),
+('20220218095025'),
+('20220221123152'),
+('20220304071341'),
+('20220316115212'),
+('20220317105304'),
+('20220317131316'),
+('20220322104259'),
+('20220426105827'),
+('20220505135021'),
+('20220513075644'),
+('20220516134326'),
+('20220520065309'),
+('20220524095157'),
+('20220530063350'),
+('20220602074421'),
+('20220613074116'),
+('20220614085121'),
+('20220615085015'),
+('20220615104611'),
+('20220617113231'),
+('20220715173507'),
+('20220905101007'),
+('20220914090315'),
+('20220915081205'),
+('20220919112419'),
+('20220920083836'),
+('20220922061116'),
+('20221017094112'),
+('20221028074348'),
+('20221118075303'),
+('20221202071928'),
+('20221207085950'),
+('20230110113327'),
+('20230111134615'),
+('20230123071358'),
+('20230201083504'),
+('20230208145904'),
+('20230214091138'),
+('20230223112058'),
+('20230223115656'),
+('20230224185643'),
+('20230228085431'),
+('20230303150323');
+
+

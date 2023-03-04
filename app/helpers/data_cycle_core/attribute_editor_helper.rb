@@ -75,8 +75,6 @@ module DataCycleCore
       I18n.with_locale(options.locale) do
         content = options.parameters[:parent] || options.content
 
-        # binding.pry if options.key == 'thing[translations][en][name]'
-
         if DataCycleCore::DataHashService.blank?(options.value)
           content.default_value(options.key.attribute_name_from_key, current_user) if content.is_a?(DataCycleCore::Thing) && (content.template || (content.persisted? && content.available_locales.exclude?(I18n.locale)))
           options.value = content.try(options.key.attribute_name_from_key)

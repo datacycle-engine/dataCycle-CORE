@@ -10,7 +10,6 @@ module DataCycleCore
 
       data_hash = { 'name' => 'Dies ist ein Test!' }
       data_set = DataCycleCore::TestPreparations.create_content(template_name: 'TestSimple', data_hash: data_hash, prevent_history: true)
-      save_time = Time.zone.now
       returned_data_hash = data_set.get_data_hash
       assert_equal(data_hash, returned_data_hash.except('id').compact)
       assert_equal(0, data_set.errors.messages.size)
@@ -21,7 +20,7 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
 
-      assert_equal(data_set.get_data_hash(Time.zone.now), data_set.as_of(save_time).get_data_hash(save_time))
+      assert_equal(data_set.get_data_hash, data_set.get_data_hash)
     end
 
     test 'create CreativeWork and store History' do
@@ -40,7 +39,7 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
 
-      assert_equal(data_set.get_data_hash(Time.zone.now), data_set.as_of(save_time).get_data_hash(save_time))
+      assert_equal(data_set.get_data_hash, data_set.as_of(Time.zone.now).get_data_hash)
     end
 
     test 'save data to History with included Object data in translated jsonb field' do
@@ -60,7 +59,7 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
 
-      assert_equal(data_set.get_data_hash, data_set.as_of(save_time).get_data_hash(save_time))
+      assert_equal(data_set.get_data_hash, data_set.as_of(save_time).get_data_hash)
     end
 
     test 'save data to History with classification' do
@@ -76,17 +75,14 @@ module DataCycleCore
       data_set.created_at = save_time
       data_set.updated_at = save_time
       data_set.save
-
       data_hash = { 'name' => 'Dies ist ein Test!' }
-      data_set.set_data_hash(data_hash: data_hash, save_time: save_time + 5.seconds, new_content: true)
-      data_set.save
+      data_set.set_data_hash(data_hash: data_hash, new_content: true)
 
       returned_data_hash = data_set.get_data_hash
       assert_equal(data_hash, returned_data_hash.except('id', 'data_pool').compact)
 
       assert_equal(1, returned_data_hash['data_pool'].count)
       assert_equal(0, data_set.errors.size)
-      assert_not_equal(data_set.get_data_hash(Time.zone.now), data_set.get_data_hash(save_time + 2.seconds))
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - template_count)
@@ -131,7 +127,7 @@ module DataCycleCore
       assert_equal(data_hash, returned_data_hash.except('id'))
       assert_equal(0, data_set.errors.size)
 
-      returned_data_hash = data_set.get_data_hash(data_set.updated_at + 3.seconds)
+      returned_data_hash = data_set.as_of(data_set.updated_at + 3.seconds).get_data_hash
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::Thing.count - template_count)
@@ -166,10 +162,10 @@ module DataCycleCore
       data_set_cw.updated_at = save_time
       data_set_cw.save
 
-      data_set_cw.set_data_hash(data_hash: { 'name' => 'eingebettete Kreativdaten' }, current_user: nil, save_time: save_time + 2.seconds, new_content: true)
+      data_set_cw.set_data_hash(data_hash: { 'name' => 'eingebettete Kreativdaten' }, save_time: save_time + 2.seconds, new_content: true)
 
       data_hash = { 'name' => 'Dies ist ein Test!', 'test_cw' => [{ 'id' => data_set_cw.id }] }
-      data_set.set_data_hash(data_hash: data_hash, current_user: nil, save_time: save_time + 4.seconds, new_content: true)
+      data_set.set_data_hash(data_hash: data_hash, save_time: save_time + 4.seconds, new_content: true)
 
       returned_data_hash = data_set.get_data_hash
       expected_hash = data_hash
@@ -178,11 +174,10 @@ module DataCycleCore
       assert_equal(0, data_set.errors.size)
 
       new_data_hash = { 'name' => 'Neuer aktueller Datensatz!', 'test_cw' => [{ 'id' => data_set_cw.id }] }
-      data_set.set_data_hash(data_hash: new_data_hash, current_user: nil, save_time: save_time + 8.seconds)
-
+      data_set.set_data_hash(data_hash: new_data_hash, save_time: save_time + 8.seconds)
       new_data_hash['test_cw'][0] = data_set_cw.get_data_hash
       data_set_new = data_set.get_data_hash
-      data_set_history = data_set.get_data_hash(save_time + 6.seconds)
+      data_set_history = data_set.as_of(save_time + 6.seconds).get_data_hash
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::Thing.count - template_count)
@@ -240,16 +235,14 @@ module DataCycleCore
       assert_equal(3, DataCycleCore::Thing::History::Translation.count)
 
       assert_equal(data_hash_1w, data_set.get_data_hash.except('id'))
-      assert_equal(data_hash_1w, data_set.get_data_hash(Time.zone.now).except('id'))
-      assert_equal(data_hash_2w, data_set.get_data_hash(weeks1ago - 1.day).except('id'))
-      assert_equal(data_hash_3w, data_set.get_data_hash(weeks2ago - 1.day).except('id'))
-      assert_equal(data_hash_4w, data_set.get_data_hash(weeks3ago - 1.day).except('id'))
-      assert_equal(data_hash_4w, data_set.get_data_hash(weeks4ago + 1.day).except('id'))
+      assert_equal(data_hash_1w, data_set.get_data_hash.except('id'))
+      assert_equal(data_hash_2w, data_set.as_of(weeks1ago - 1.day).get_data_hash.except('id'))
+      assert_equal(data_hash_3w, data_set.as_of(weeks2ago - 1.day).get_data_hash.except('id'))
+      assert_equal(data_hash_4w, data_set.as_of(weeks3ago - 1.day).get_data_hash.except('id'))
+      assert_equal(data_hash_4w, data_set.as_of(weeks4ago - 1.day).get_data_hash.except('id'))
       assert_nil(data_set.as_of(weeks4ago - 2.weeks))
       assert_nil(data_set.as_of(Time.zone.now - 3.months))
-      assert_equal(data_hash_1w, data_set.get_data_hash(Time.zone.now + 1.month).except('id'))
-      # assert_equal({ 'name' => ['~', 'Test 1.weeks.ago!', 'Test 4.weeks.ago!'] }, data_set.diff(data_set.get_data_hash(weeks4ago + 1.day)))
-      # assert_equal({ 'name' => ['~', 'Test 2.weeks.ago!', 'Test 3.weeks.ago!'] }, data_set.as_of(weeks1ago - 1.day).diff(data_set.get_data_hash(weeks2ago - 1.day)))
+      assert_equal(data_hash_1w, data_set.as_of(Time.zone.now + 1.month).get_data_hash.except('id'))
     end
 
     test 'save creative work with embeddedLink to history' do

@@ -1,6 +1,6 @@
 import cloneDeep from "lodash/cloneDeep";
 import unionBy from "lodash/unionBy";
-import domElementHelpers from "../../helpers/dom_element_helpers";
+import DomElementHelpers from "../../helpers/dom_element_helpers";
 import uploadDuplicate from "../../templates/uploadDuplicate";
 import MimeTypes from "mime";
 import AssetDetailLoader from "./asset_detail_loader";
@@ -9,7 +9,7 @@ import DurationHelpers from "../../helpers/duration_helpers";
 
 class AssetFile {
 	constructor(uploader, config = {}) {
-		this.id = domElementHelpers.randomId("asset");
+		this.id = DomElementHelpers.randomId("asset");
 		this.uploaded = config.uploaded;
 		this.file = config.file || {};
 		this.fileUrl = config.fileUrl;
@@ -318,7 +318,7 @@ class AssetFile {
 		this._updateOverlayButtons();
 	}
 	_updateIdsInClonedErrors(errorText) {
-		let randomId = domElementHelpers.randomId("cloned_asset");
+		let randomId = DomElementHelpers.randomId("cloned_asset");
 
 		errorText = errorText.replaceAll(
 			/(")([^"-]*)(-duplicates-list)/gi,
@@ -346,7 +346,7 @@ class AssetFile {
 		}
 	}
 	async _renderDuplicateHtml(duplicates) {
-		let randomId = domElementHelpers.randomId("duplicate");
+		let randomId = DomElementHelpers.randomId("duplicate");
 		return await uploadDuplicate(randomId, duplicates);
 	}
 	_attributesWithBlankDefaultValues() {
@@ -490,6 +490,43 @@ class AssetFile {
 
 		this.uploader.updateCreateButton(error);
 	}
+	async updateProgress(startTime, e) {
+		if (!e.lengthComputable) return;
+
+		const elapsedtime = (new Date().getTime() - startTime) / 1000;
+		const eta = Math.round((e.total / e.loaded) * elapsedtime - elapsedtime);
+		this.fileField
+			.add(this.fileFormField)
+			.find(".upload-progress-bar")
+			.css("width", `${(e.loaded / e.total) * 100}%`);
+		this.fileField
+			.add(this.fileFormField)
+			.find(".upload-number")
+			.html(
+				`${Math.round(
+					(e.loaded / e.total) * 100,
+				)}%, <span class="eta">${DurationHelpers.seconds_to_human_time(
+					eta,
+				)}</span>`,
+			);
+		if (e.loaded === e.total) {
+			this.fileField
+				.add(this.fileFormField)
+				.find(".upload-number")
+				.html(
+					`<i class="fa fa-cog fa-spin fa-fw working-spinner"></i>${await I18n.translate(
+						"frontend.upload.processing",
+					)}`,
+				);
+		}
+	}
+	uploadFailed(req) {
+		return {
+			status: req.status,
+			statusText: req.statusText,
+			responseJSON: DomElementHelpers.parseDataAttribute(req.response),
+		};
+	}
 	_uploadFile() {
 		if (this.uploaded)
 			return this._updateFileAttributes(this.dataImported || {});
@@ -505,63 +542,32 @@ class AssetFile {
 		var startTime = new Date().getTime();
 
 		const promise = new Promise((resolve, reject) => {
-			$.ajax({
-				url: this.uploader.uploadForm.data("url"),
-				type: "POST",
-				headers: {
-					"X-CSRF-Token": document.getElementsByName("csrf-token")[0].content,
-				},
-				enctype: "multipart/form-data",
-				data: data,
-				dataType: "json",
-				processData: false,
-				contentType: false,
-				cache: false,
-				xhr: () => {
-					var myXhr = $.ajaxSettings.xhr();
-					if (myXhr.upload) {
-						myXhr.upload.addEventListener(
-							"progress",
-							async (e) => {
-								if (e.lengthComputable) {
-									var elapsedtime = (new Date().getTime() - startTime) / 1000;
-									var eta = Math.round(
-										(e.total / e.loaded) * elapsedtime - elapsedtime,
-									);
-									this.fileField
-										.add(this.fileFormField)
-										.find(".upload-progress-bar")
-										.css("width", `${(e.loaded / e.total) * 100}%`);
-									this.fileField
-										.add(this.fileFormField)
-										.find(".upload-number")
-										.html(
-											`${Math.round(
-												(e.loaded / e.total) * 100,
-											)}%, <span class="eta">${DurationHelpers.seconds_to_human_time(
-												eta,
-											)}</span>`,
-										);
-									if (e.loaded === e.total) {
-										this.fileField
-											.add(this.fileFormField)
-											.find(".upload-number")
-											.html(
-												`<i class="fa fa-cog fa-spin fa-fw working-spinner"></i>${await I18n.translate(
-													"frontend.upload.processing",
-												)}`,
-											);
-									}
-								}
-							},
-							false,
-						);
-					}
-					return myXhr;
-				},
-				success: (data) => resolve(data),
-				error: (error) => reject(error),
+			const req = new XMLHttpRequest();
+
+			req.addEventListener(
+				"progress",
+				this.updateProgress.bind(this, startTime),
+				false,
+			);
+			req.upload.addEventListener(
+				"progress",
+				this.updateProgress.bind(this, startTime),
+				false,
+			);
+			req.addEventListener("load", () => {
+				if (req.status >= 200 && req.status < 300)
+					resolve(DomElementHelpers.parseDataAttribute(req.response));
+				else reject(this.uploadFailed(req));
 			});
+			req.addEventListener("error", () => reject(this.uploadFailed(req)));
+			req.addEventListener("abort", () => reject(this.uploadFailed(req)));
+			req.open("POST", this.uploader.uploadForm.data("url"));
+			req.setRequestHeader("Accept", "application/json");
+			req.setRequestHeader(
+				"X-CSRF-Token",
+				document.getElementsByName("csrf-token")[0].content,
+			);
+			req.send(data);
 		});
 
 		promise

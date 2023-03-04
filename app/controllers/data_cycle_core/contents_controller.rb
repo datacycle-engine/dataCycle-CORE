@@ -276,12 +276,20 @@ module DataCycleCore
 
       redirect_back(fallback_location: root_path) && return if @diff_source.nil? || @content.nil?
 
-      I18n.with_locale(@content.first_available_locale) do
-        @data_schema = @content.get_data_hash
-      end
-
-      I18n.with_locale(@diff_source.first_available_locale) do
+      I18n.with_locale(@source_locale) do
+        @target_locale = @content.first_available_locale
+        I18n.with_locale(@target_locale) { @data_schema = @content.get_data_hash }
         @diff_schema = @diff_source.diff(@data_schema)
+
+        if @source_locale.to_s != @target_locale.to_s
+          @content.translatable_property_names.each do |key|
+            @diff_schema[key] = ['0', nil]
+          end
+        end
+
+        render
+      rescue StandardError => e
+        redirect_back(fallback_location: root_path, alert: helpers.tag.span(I18n.t('controllers.error.definition_mismatch', locale: helpers.active_ui_locale), title: "#{e.message.truncate(250)}\n\n#{e.backtrace.first(10).join("\n")}")) && return
       end
     end
 
@@ -297,7 +305,7 @@ module DataCycleCore
 
       I18n.with_locale(@source_locale) do
         @target_locale = @content.last_updated_locale || @content.first_available_locale
-        @data_schema = @content.get_data_hash
+        I18n.with_locale(@target_locale) { @data_schema = @content.get_data_hash }
         @diff_schema = @diff_source.diff(@data_schema) || {}
 
         if @source_locale.to_s != @target_locale.to_s
@@ -320,7 +328,7 @@ module DataCycleCore
 
       I18n.with_locale(@history.first_available_locale) do
         history_hash = @history.get_data_hash
-        history_date = (@history.try(:history_valid)&.first || @history.try(:updated_at))&.in_time_zone
+        history_date = @history.try(:updated_at)&.in_time_zone
         history_date_string = I18n.l(history_date, locale: helpers.active_ui_locale, format: :history) if history_date.present?
 
         if @content.set_data_hash(data_hash: history_hash, version_name: I18n.t(:restored_version_name, scope: [:history, :restore, :version], locale: helpers.active_ui_locale, date: history_date_string), partial_update: false)
