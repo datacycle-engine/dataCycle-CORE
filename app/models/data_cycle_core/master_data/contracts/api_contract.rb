@@ -39,6 +39,7 @@ module DataCycleCore
 
         CLASSIFICATIONS = Dry::Schema.Params do
           optional(:classification_id).filled(:string)
+          optional(:classification_tree_label_id).filled(:str?, format?: UUID_OR_STRING_OF_UUIDS_REGEX)
         end
 
         BASE_JSON_API = Dry::Schema.Params do

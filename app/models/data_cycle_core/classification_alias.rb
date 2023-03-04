@@ -6,6 +6,7 @@ module DataCycleCore
       self.table_name = 'classification_alias_paths'
 
       belongs_to :classification_alias, foreign_key: 'id'
+      has_many :ancestor_classification_aliases, ->(p) { unscope(:where).where('id = ANY(ARRAY[?]::UUID[])', p.ancestor_ids) }, class_name: 'DataCycleCore::ClassificationAlias'
 
       def readonly?
         true
@@ -15,7 +16,7 @@ module DataCycleCore
     extend ::Translations
     translates :name, :description, column_suffix: '_i18n', backend: :jsonb
     default_scope { i18n }
-    default_scope { order(order_a: :asc) }
+    default_scope { order(order_a: :asc, id: :asc) }
     before_save :set_internal_data
     after_destroy :clean_stored_filters
     before_destroy :add_things_cache_invalidation_job_destroy, :add_things_webhooks_job_destroy, -> { primary_classification&.destroy }

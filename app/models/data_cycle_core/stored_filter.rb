@@ -13,6 +13,8 @@ module DataCycleCore
 
     include StoredFilterExtensions::SortParamTransformations
 
+    default_scope { includes(:collection_configuration) }
+
     scope :by_user, ->(user) { where user: user }
     belongs_to :user
 
@@ -23,6 +25,12 @@ module DataCycleCore
 
     has_many :data_links, as: :item, dependent: :destroy
     has_many :valid_write_links, -> { valid.writable }, class_name: 'DataCycleCore::DataLink', as: :item
+
+    has_one :collection_configuration
+    accepts_nested_attributes_for :collection_configuration, update_only: true
+    delegate :slug, to: :collection_configuration, allow_nil: true
+
+    before_save :update_slug, if: :update_slug?
 
     attr_accessor :query
 
@@ -128,6 +136,12 @@ module DataCycleCore
       valid_write_links.present?
     end
 
+    def self.by_id_or_slug(value)
+      return none if value.blank?
+
+      value.to_s.uuid? ? where(id: value) : where(collection_configuration: { slug: value })
+    end
+
     private
 
     def apply_filter_parameters
@@ -196,6 +210,14 @@ module DataCycleCore
       f_method, f_prefix = FILTER_PREFIX.to_a.reverse.find { |_, prefix| filter_type.starts_with?(prefix) }
 
       return filter_type.delete_prefix(f_prefix.to_s), f_method || 'i'
+    end
+
+    def update_slug?
+      name_changed? && slug.blank?
+    end
+
+    def update_slug
+      self.collection_configuration_attributes = { slug: name&.to_slug }
     end
   end
 end

@@ -142,7 +142,7 @@ class MapLibreGlViewer {
 		await this.initFeatures();
 		await this._disableScrollingOnMapOverlays();
 		await this.initMouseWheelZoom();
-		await this.updateMapPosition();
+		await this.updateMapPosition(); // TODO: Replace with this.defaultOptions.bounds-logic as used in dashboard
 	}
 	initFeatures() {
 		this.drawFeatures();

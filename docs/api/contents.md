@@ -1,6 +1,6 @@
 # Abfragen von Inhalten über die Datenschnittstelle
 
-In dataCycle gibt es zwei Möglichkeiten, wie Inhalte über die Datenschnittstelle verfügbar gemacht werden können. Für eine von Hand ausgewählte Selektion von Inhalten können (statische) Inhaltssammlungen genutzt werden. Sollen Inhalte auf Basis von unterschiedlichen Filterkriterien automatisch ausgewählt werden, können gespeicherte Suchen bzw. "dynamische" Inhaltssammlungen verwendet werden. Über die Datenschnittstelle werden statische und dynamische Inhaltssammlungen über ein einheitliches URL-Schema (_**/api/v4/endpoints/ENDPOINT_ID**_) bereitgestellt. Die konkrete URL kann über die Benutzeroberfläche direkt bei der jeweiligen Inhaltssammlung bzw. bei der gespeicherten Suche in die Zwischenablage übernommen werden.
+In dataCycle gibt es zwei Möglichkeiten, wie Inhalte über die Datenschnittstelle verfügbar gemacht werden können. Für eine von Hand ausgewählte Selektion von Inhalten können (statische) Inhaltssammlungen genutzt werden. Sollen Inhalte auf Basis von unterschiedlichen Filterkriterien automatisch ausgewählt werden, können gespeicherte Suchen bzw. "dynamische" Inhaltssammlungen verwendet werden. Über die Datenschnittstelle werden statische und dynamische Inhaltssammlungen über ein einheitliches URL-Schema (_**/api/v4/endpoints/ENDPOINT_ID|ENDPOINT_SLUG**_) bereitgestellt. Die konkrete URL kann über die Benutzeroberfläche direkt bei der jeweiligen Inhaltssammlung bzw. bei der gespeicherten Suche in die Zwischenablage übernommen werden.
 
 ## Filtern von Inhalten
 

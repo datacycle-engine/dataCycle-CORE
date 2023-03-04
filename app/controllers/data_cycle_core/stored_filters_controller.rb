@@ -26,7 +26,13 @@ module DataCycleCore
 
       @stored_searches = DataCycleCore::StoredFilter.accessible_by(current_ability).where.not(name: nil).order(:name)
       @search_param = index_params[:q]
-      @stored_searches = @stored_searches.where(DataCycleCore::StoredFilter.arel_table[:name].matches("%#{@search_param}%").or(DataCycleCore::StoredFilter.arel_table[:id].eq(@search_param.to_s))) if @search_param.present?
+      if @search_param.present?
+        @stored_searches = @stored_searches.joins(:collection_configuration).where(
+          DataCycleCore::StoredFilter.arel_table[:name].matches("%#{@search_param}%")
+            .or(DataCycleCore::StoredFilter.arel_table[:id].eq(@search_param.to_s))
+            .or(DataCycleCore::CollectionConfiguration.arel_table[:slug].matches("%#{@search_param}%"))
+        )
+      end
       @page = (index_params[:page] || 1).to_i
 
       if index_params[:load_all].present?
@@ -161,7 +167,7 @@ module DataCycleCore
     def stored_filter_params
       params
         .require(:stored_filter)
-        .permit(:id, :name, :system, :api, :linked_stored_filter_id, classification_tree_labels: [], api_users: [])
+        .permit(:id, :name, :system, :api, :linked_stored_filter_id, classification_tree_labels: [], api_users: [], collection_configuration_attributes: [:id, :slug])
         .tap do |p|
           p[:name] ||= p.delete(:id) unless p[:id].to_s.uuid?
           p[:classification_tree_labels]&.reject!(&:blank?)
