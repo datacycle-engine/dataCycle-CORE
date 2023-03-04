@@ -48,7 +48,7 @@ module DataCycleCore
 
         def self.to_poi(content)
           default_transformations
-          .>> t(:update_opening_hours_specifications)
+          .>> t(:transform_opening_hours_specifications)
           .>> t(:add_contact_information, content)
           .>> t(:add_description, content)
           .>> t(:add_keywords, content)

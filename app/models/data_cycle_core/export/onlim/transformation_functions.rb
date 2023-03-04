@@ -13,7 +13,7 @@ module DataCycleCore
 
         extend DataCycleCore::ContentHelper
 
-        def self.update_opening_hours_specifications(data)
+        def self.transform_opening_hours_specifications(data)
           add_node(data) do |gdata|
             return data if gdata.dig('openingHoursSpecification').blank?
             gdata['openingHoursSpecification'] = gdata
@@ -24,6 +24,19 @@ module DataCycleCore
                 s
               end
           end
+        end
+
+        def self.transform_schedule(data)
+          return data if data.dig('@graph', 0, 'eventSchedule').blank?
+          schedules = data.dig('@graph', 0, 'eventSchedule')
+          new_schedules = schedules.map do |i|
+            i['startTime'] += ':00' if i['startTime'].present? && i['startTime'].split(':').size == 2
+            i['endTime'] += ':00' if i['endTime'].present? && i['endTime'].split(':').size == 2
+            i['duration'] = { '@id' => generate_uuid(i['@id'], 'duration'), '@type' => 'Duration', 'name' => i['duration'] } if i['duration'].present?
+            i
+          end
+          data['@graph'][0]['eventSchedule'] = new_schedules
+          data
         end
 
         def self.add_contact_information(data, content)
