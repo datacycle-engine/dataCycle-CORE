@@ -33,7 +33,10 @@ if @classification_tree_label.present?
   end
 
   aliases = @classification_aliases.index_by(&:id)
-  json['@graph'].each { |c| c['dc:thingCount'] = aliases[c['@id']].thing_count }
+  json['@graph'].each do |c|
+    c['dc:thingCountWithSubtree'] = aliases[c['@id']].thing_count_with_subtree
+    c['dc:thingCountwithoutSubtree'] = aliases[c['@id']].thing_count_without_subtree
+  end
 end
 
 json
