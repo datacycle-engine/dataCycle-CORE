@@ -58,7 +58,9 @@ class Chart {
 					title: {
 						display: false,
 					},
-					time: {},
+					time: {
+						minUnit: "second",
+					},
 				},
 				y: {
 					grid: {
@@ -203,13 +205,12 @@ class Chart {
 		} else {
 			this.chartOptions.scales.x.title.display = false;
 			this.scaleXKey = null;
-			this.chartOptions.scales.x.title.text = undefined;
+			this.chartOptions.scales.x.title.text = "";
 		}
 
 		if (data.meta?.scale_x)
 			this.chartOptions.scales.x.time.minUnit = data.meta.scale_x;
-		// rome-ignore lint/performance/noDelete: ChartJS fails with minUnit undefined
-		else delete this.chartOptions.scales.x.time.minUnit;
+		else this.chartOptions.scales.x.time.minUnit = "second";
 
 		this.datasets = await this.parseDatasets(datasets);
 		this.chartOptions.plugins.legend.display = this.datasets.some(
