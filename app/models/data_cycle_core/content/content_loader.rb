@@ -103,7 +103,6 @@ module DataCycleCore
 
         history = histories
           .includes(:translations)
-          .order(updated_at: :desc)
           .where(translations: { locale: first_available_locale })
           .find_by('thing_histories.updated_at <= ?', timestamp)
 
@@ -111,7 +110,6 @@ module DataCycleCore
 
         first_history = histories
           .includes(:translations)
-          .order(updated_at: :desc)
           .where(translations: { locale: first_available_locale })
           .last
 
