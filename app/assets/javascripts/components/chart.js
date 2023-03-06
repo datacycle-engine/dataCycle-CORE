@@ -7,7 +7,6 @@ import capitalize from "lodash/capitalize";
 class Chart {
 	constructor(element) {
 		this.element = element;
-		this.element.classList.add("dcjs-chart");
 		this.inputs = this.element.querySelector(".dc-chart-inputs");
 		this.chartTypeInput = this.inputs.querySelector(
 			".dc-chart-chart-type-input",
@@ -209,7 +208,8 @@ class Chart {
 
 		if (data.meta?.scale_x)
 			this.chartOptions.scales.x.time.minUnit = data.meta.scale_x;
-		else this.chartOptions.scales.x.time.minUnit = undefined;
+		// rome-ignore lint/performance/noDelete: ChartJS fails with minUnit undefined
+		else delete this.chartOptions.scales.x.time.minUnit;
 
 		this.datasets = await this.parseDatasets(datasets);
 		this.chartOptions.plugins.legend.display = this.datasets.some(
