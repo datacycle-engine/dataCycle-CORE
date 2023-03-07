@@ -10,6 +10,7 @@ module DataCycleCore
 
         ALLOWED_FILTER_ATTRIBUTES = [:'dct:modified', :'dct:created', :'dct:deleted'].freeze
         ALLOWED_SORT_ATTRIBUTES = { 'dct:created' => 'created_at', 'dct:modified' => 'updated_at' }.freeze
+        ALLOWED_FACET_SORT_ATTRIBUTES = { 'dc:thingCountWithSubtree' => 'thing_count_with_subtree', 'dc:thingCountwithoutSubtree' => 'thing_count_without_subtree' }.freeze
 
         def index
           @classification_tree_labels = ClassificationTreeLabel.where(internal: false).visible('api')
@@ -64,7 +65,7 @@ module DataCycleCore
             .joins(
               "LEFT OUTER JOIN collected_classification_contents ccc ON classification_aliases.id = ANY(ccc.full_classification_alias_ids) AND EXISTS (#{query.query.where('things.id = ccc.thing_id').except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).select(1).to_sql})"
             )
-            .select('classification_aliases.*, COUNT(DISTINCT ccc.thing_id) AS thing_count')
+            .select('classification_aliases.*, COUNT(DISTINCT ccc.thing_id) AS thing_count_with_subtree, COUNT(DISTINCT ccc.thing_id) filter (where classification_aliases.id = ANY(ccc.direct_classification_alias_ids)) AS thing_count_without_subtree')
             .group(:id)
 
           @classification_id = permitted_params[:classification_id]
@@ -177,7 +178,7 @@ module DataCycleCore
 
         def transform_sort_param(key, order)
           allowed_sort_attributes = ALLOWED_SORT_ATTRIBUTES.dup
-          allowed_sort_attributes['dc:thingCount'] = 'thing_count' if action_name == 'facets'
+          allowed_sort_attributes.merge!(ALLOWED_FACET_SORT_ATTRIBUTES) if action_name == 'facets'
 
           return unless allowed_sort_attributes.key?(key)
           "#{allowed_sort_attributes.dig(key)} #{order} NULLS LAST, id ASC"

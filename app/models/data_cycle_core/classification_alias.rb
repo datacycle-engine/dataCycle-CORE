@@ -58,6 +58,8 @@ module DataCycleCore
     has_many :additional_classifications, through: :additional_classification_groups, source: :classification
 
     has_many :classification_polygons, dependent: :destroy
+    accepts_nested_attributes_for :classification_polygons
+
     has_many :classification_alias_paths_transitive
     has_many :things, through: :primary_classification
 
