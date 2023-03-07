@@ -7,7 +7,8 @@ module DataCycleCore
         ODTA_TYPE = {
           'TouristAttraction' => 'odta:PointOfInterest',
           'dcls:Tour' => 'odta:Trail',
-          'Rating' => 'aggregateRating'
+          'Rating' => 'aggregateRating',
+          'https://schema.org/ViewAction' => 'Action'
         }.freeze
 
         COMPLIES = {
@@ -15,7 +16,7 @@ module DataCycleCore
           'Event' => 'https://semantify.it/ds/mhpmBCJJt',
           'FoodEstablishment' => 'https://semantify.it/ds/SyCG2WVzkz',
           'LodgingBusiness' => 'https://semantify.it/ds/Sypf3bVG1z', # Unterkunft
-          'Person' => 'https://semantify.it/ds/iB4eyYN5K',
+          'Person' => 'https://semantify.it/ds/iB4eyYN5K', # https://semantify.it/ds/luBQ_A5Y- (copyright/license Author)
           'odta:Trail' => 'https://semantify.it/ds/nBTyKDsKX', # Tour
           'GeoShape' => 'https://semantify.it/ds/puYUsMkUP',
           'GeoCoordinates' => 'https://semantify.it/ds/2NErTNGpd',
@@ -24,7 +25,8 @@ module DataCycleCore
           'OpeningHoursSpecification' => 'https://semantify.it/ds/rpOsHCyrE',
           'PropertyValue' => 'https://semantify.it/ds/evJvhycX1',
           'ImageObject' => 'https://semantify.it/ds/ufjX_Cc5w',
-          'Organization' => 'https://semantify.it/ds/Wf-IXZvIo'
+          'Organization' => 'https://semantify.it/ds/Wf-IXZvIo',
+          'Action' => 'https://semantify.it/ds/mhpmBCJJt#ChFfq'
         }.freeze
 
         WHITELIST_NAMESPACED_DATA = ['odta:wayPoint'].freeze
@@ -119,6 +121,8 @@ module DataCycleCore
             .map { |i| [i, ODTA_TYPE[i]].compact }
             .flatten
             .reject { |i| i.start_with?('dcls:') }
+            .reject { |i| i.start_with?('https://') }
+            .uniq
           if types.size == 1
             types.first
           elsif types.include?('Organization')

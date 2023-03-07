@@ -14,8 +14,8 @@ module DataCycleCore
         extend DataCycleCore::ContentHelper
 
         TRANSFORMATION_TYPES = {
-          # 'Organization' => :to_organization,
-          # 'Person' => :to_person,
+          'Organization' => :to_organization,
+          'Person' => :to_person,
           # 'ImageObject' => :to_image,
           'TouristAttraction' => :to_poi,
           'LodgingBusiness' => :to_lodging_business,
@@ -23,6 +23,11 @@ module DataCycleCore
           'odta:Trail' => :to_tour,
           'Event' => :to_event
         }.freeze
+
+        def self.debug(data)
+          # binding.pry
+          data
+        end
 
         def self.transform_thing_to_onlim(data)
           transform_onlim_type(data)
@@ -47,9 +52,34 @@ module DataCycleCore
           end
         end
 
-        def self.debug(data)
-          # binding.pry
-          data
+        def self.transform_action(data)
+          case data
+          in Hash
+            data
+              .map { |k, v|
+                if k == 'potentialAction'
+                  v_new = v.map do |adata|
+                    adata
+                      .slice('name', 'url', '@type', '@id')
+                      .map { |attk, attv|
+                        if attk.in?(['@type', '@id'])
+                          { attk => attv }
+                        else
+                          new_attv = Array.wrap(attv).detect { |i| i['@language'] == 'de' }&.dig('@value')
+                          { attk => new_attv || Array.wrap(attv).first.dig('@value') }
+                        end
+                      }.reduce(&:merge)
+                  end
+                  { k => v_new }
+                else
+                  { k => transform_action(v) }
+                end
+              }&.reduce(&:merge)
+          in Array
+            data.map { |i| transform_action(i) }
+          else
+            data
+          end
         end
 
         def self.transform_time(data, keys)
@@ -85,14 +115,16 @@ module DataCycleCore
 
         def self.add_contact_information(data, attributes = [])
           add_node(data) do |gdata|
-            contact_info = gdata
-              .dig('address')
-              .select { |k, _v| k.in?(attributes) }
-              .map { |k, v|
-                new_v = Array.wrap(v).detect { |i| i['@language'] == 'de' }&.dig('@value')
-                { k => new_v || Array.wrap(v).first.dig('@value') }
-              }.reduce(&:merge)
-            gdata.merge!(contact_info) if contact_info.present?
+            if gdata.dig('address').present?
+              contact_info = gdata
+                .dig('address')
+                .select { |k, _v| k.in?(attributes) }
+                .map { |k, v|
+                  new_v = Array.wrap(v).detect { |i| i['@language'] == 'de' }&.dig('@value')
+                  { k => new_v || Array.wrap(v).first.dig('@value') }
+                }.reduce(&:merge)
+              gdata.merge!(contact_info) if contact_info.present?
+            end
           end
         end
 
@@ -108,15 +140,10 @@ module DataCycleCore
           end
         end
 
-        def self.add_identifier(data, content)
-          add_node(data) do |gdata|
-            gdata['identifier'] = content.id
-          end
-        end
-
         def self.rename_graph_keys(data, key_map)
           add_node(data) do |gdata|
             key_map.each_key do |k|
+              next if gdata[k].blank?
               gdata[key_map[k]] = gdata[k]
               gdata.delete(k)
             end
@@ -133,56 +160,6 @@ module DataCycleCore
           end
           data
         end
-
-        # def self.add_contact_information(data, content, block_attributes = [])
-        #   return data if !content.respond_to?(:contact_info) || content.contact_info.blank?
-        #   block_attributes += ['contactName']
-        #   add_node(data) do |gdata|
-        #     contact_info = content
-        #       .contact_info
-        #       .to_h
-        #       .transform_keys { |k| k.camelize(:lower) }
-        #       .except(*block_attributes)
-        #     gdata.merge!(contact_info) if contact_info.present?
-        #   end
-        # end
-
-        # def self.add_keywords(data, content)
-        #   add_node(data) do |gdata|
-        #     gdata['keywords'] = add_lnode_array(content) { content.classification_aliases.pluck(:name).compact }
-        #   end
-        # end
-
-        # def self.add_lnode(content)
-        #   locales = content.available_locales.map(&:to_s)
-        #   locales.map { |l|
-        #     I18n.with_locale(l) do
-        #       value = yield
-        #       next if value.blank?
-        #       {
-        #         '@value' => value,
-        #         '@language' => l
-        #       }
-        #     end
-        #   }.compact_blank
-        # end
-        #
-        # def self.add_lnode_array(content)
-        #   locales = content.available_locales.map(&:to_s)
-        #   locales.map { |l|
-        #     I18n.with_locale(l) do
-        #       values = yield
-        #       next if values.blank?
-        #       values.map do |value|
-        #         {
-        #           '@value' => value,
-        #           '@language' => l
-        #         }
-        #       end
-        #     end
-        #   }.compact_blank
-        #   .flatten
-        # end
       end
     end
   end

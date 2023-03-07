@@ -13,7 +13,7 @@ module DataCycleCore
           default_place_attributes = default_attributes + ['geo']
           {
             'Organization' =>
-              ['name', 'url', 'address', 'ds:compliesWith'],
+              ['name', 'description', 'address', 'url', 'telephone', 'email', 'ds:compliesWith'],
             'PostalAddress' =>
               ['streetAddress', 'addressLocality', 'postalCode', 'ds:compliesWith'],
             'Person' =>
@@ -31,7 +31,7 @@ module DataCycleCore
                 ['url', 'odta:wayPoint'], # , 'aggregateRating'
             'Event' =>
               default_attributes +
-                ['eventSchedule', 'startDate', 'endDate', 'duration'],
+                ['eventSchedule', 'startDate', 'endDate', 'inLanguage', 'location', 'organizer', 'performer', 'potentialAction'],
             'FoodEstablishment' => # Gastronomischer Betrieb
               default_place_attributes +
                 ['url', 'telephone', 'faxNumber', 'additionalProperty', 'openingHoursSpecification']
@@ -58,6 +58,7 @@ module DataCycleCore
 
         def self.to_lodging_business
           t(:add_contact_information, ['telephone', 'email', 'faxNumber', 'url'])
+          .>> t(:rename_graph_keys, {'dc:translation' => 'availableLanguage'})
           .>> t(:add_keywords)
           .>> default_transformations
         end
@@ -70,8 +71,19 @@ module DataCycleCore
 
         def self.to_event
           t(:transform_duration)
+          .>> t(:rename_graph_keys, {'dc:translation' => 'inLanguage'})
           .>> t(:add_keywords)
+          .>> t(:transform_action)
           .>> default_transformations
+        end
+
+        def self.to_organization
+          t(:add_contact_information, ['telephone', 'email', 'url'])
+          .>> default_transformations
+        end
+
+        def self.to_person
+          t(:strip_all)
         end
 
         def self.to_onlim
@@ -80,9 +92,8 @@ module DataCycleCore
         end
 
         def self.default_transformations
-          t(:add_main_content_license)
-          .>> t(:transform_time, ['opens', 'closes', 'startTime', 'endTime'])
-          .>> t(:rename_graph_keys, {'dc:translation' => 'availableLanguage'})
+          t(:transform_time, ['opens', 'closes', 'startTime', 'endTime'])
+          .>> t(:add_main_content_license)
           .>> t(:remove_namespaced_data)
           .>> t(:context_to_onlim)
           .>> t(:type_to_onlim)

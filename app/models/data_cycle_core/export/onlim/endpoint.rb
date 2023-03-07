@@ -6,7 +6,7 @@ module DataCycleCore
       class Endpoint < DataCycleCore::Export::Common::Endpoint::GenericEndpoint
         include DataCycleCore::Engine.routes.url_helpers
 
-        DEFAULT_ATTRIBUTES = [['id'], ['name'], ['description'], ['geo'], ['address']].freeze
+        DEFAULT_ATTRIBUTES = [['name'], ['description'], ['geo'], ['address']].freeze
         ATTRIBUTE_FILTER = {
           'POI' => [
             ['sdLicense'], ['additionalProperty'], ['openingHoursSpecification']
@@ -20,7 +20,7 @@ module DataCycleCore
           ],
           'Tour' => [],
           'Event' => [
-            ['eventSchedule'], ['startDate'], ['endDate']
+            ['startDate'], ['endDate']
           ],
           'Bild' => [
             ['name'], ['contentUrl'], ['thumbnailUrl'], ['width'], ['height'],
@@ -30,13 +30,30 @@ module DataCycleCore
           'Organization' => []
         }.freeze
 
-        DEFAULT_INCLUDE = [['image', 'copyrightHolder'], ['sdPublisher'], ['copyrightHolder'], ['dc:classification']].freeze # ['dc:classification', 'skos:inScheme'],
+        DEFAULT_INCLUDE = [
+          ['image', 'copyrightHolder'], ['sdPublisher'], ['copyrightHolder'],
+          ['dc:classification'], ['dc:translation']
+        ].freeze
         INCLUDE_FILTER = {
-          'Event' => [['eventSchedule']],
+          'Event' => [
+            ['potentialAction'], ['eventSchedule'], ['organizer'], ['performer'], ['location'],
+            ['location', 'author'], ['location', 'sdPublisher'], ['location', 'copyrightHolder'],
+            ['location', 'image'], ['location', 'image', 'copyrightHolder'],
+            ['location', 'dc:classification'], ['location', 'dc:translation']
+          ],
           'Gastronomischer Betrieb' => [],
-          'POI' => [['author']],
-          'Tour' => [['odta:wayPoint']], # ['aggregateRating'], ['odta:startLocation']
-          'Unterkunft' => [['photo']]
+          'POI' => [
+            ['author']
+          ],
+          'Tour' => [
+            ['odta:wayPoint'],
+            ['odta:wayPoint', 'author'], ['odta:wayPoint', 'sdPublisher'], ['odta:wayPoint', 'copyrightHolder'],
+            ['odta:wayPoint', 'image'], ['odta:wayPoint', 'image', 'copyrightHolder'],
+            ['odta:wayPoint', 'dc:classification'], ['odta:wayPoint', 'dc:translation']
+          ], # ['aggregateRating'], ['odta:startLocation']
+          'Unterkunft' => [
+            ['photo'], ['photo', 'copyrightHolder']
+          ]
         }.freeze
 
         def self.serialize_data(data)
@@ -62,25 +79,6 @@ module DataCycleCore
           )
 
           hash = JSON[json]
-
-          # transformation =
-          #   case data.template_name
-          #   when 'Event'
-          #     :to_event
-          #   when 'Tour'
-          #     :to_tour
-          #   when 'Gastronomischer Betrieb'
-          #     :to_food_establishment
-          #   when 'Unterkunft'
-          #     :to_lodging_business
-          #   when 'POI'
-          #     :to_poi
-          #   else
-          #     raise DataCycleCore::Generic::Common::Error::GenericError, "Try to serialize Data of unsupported Type: #{data.template_name} for Onlim export!"
-          #   end
-          #
-          # hash = DataCycleCore::Export::Onlim::Transformations.send(transformation, data).call(hash)
-
           hash = DataCycleCore::Export::Onlim::Transformations.send(:to_onlim).call(hash)
           hash
         end
