@@ -1,3 +1,5 @@
+import ObserverHelpers from "../helpers/observer_helpers";
+
 class DataCycle {
 	constructor(config = {}) {
 		if (DataCycle._instance) return DataCycle._instance;
@@ -34,22 +36,11 @@ class DataCycle {
 		this.globalPromises = {};
 
 		this.htmlObserver = {
-			observer: new MutationObserver(
-				this._addToMutationObserverQueue.bind(this),
-			),
-			newItemsConfig: {
-				attributes: false,
-				characterData: false,
-				subtree: true,
-				childList: true,
-				attributeOldValue: false,
-				characterDataOldValue: false,
-			},
+			observer: new MutationObserver(this._observeHtmlContent.bind(this)),
 			addCallbacks: [],
 			removeCallbacks: [],
 		};
 
-		this.mutationQueue = [];
 		this.notifications = new Comment("dataCycle-notifications");
 		this.mutableNodes = ["A", "BUTTON"];
 
@@ -60,7 +51,7 @@ class DataCycle {
 		Object.freeze(this.config);
 		this.htmlObserver.observer.observe(
 			document.body,
-			this.htmlObserver.newItemsConfig,
+			ObserverHelpers.newItemsConfig,
 		);
 	}
 	joinPath(...segments) {
@@ -216,26 +207,16 @@ class DataCycle {
 			if (node.matches(selector)) callback(node);
 		}
 	}
-	_addToMutationObserverQueue(mutations) {
-		if (!this.mutationQueue.length)
-			requestAnimationFrame(this._observeHtmlContent.bind(this));
+	_observeHtmlContent(mutations) {
+		for (const mutation of mutations) {
+			for (const addedNode of mutation.addedNodes)
+				if (addedNode.nodeType === Node.ELEMENT_NODE)
+					this._runAddCallbacks(addedNode);
 
-		this.mutationQueue.push(mutations);
-	}
-	_observeHtmlContent() {
-		for (const mutations of this.mutationQueue) {
-			for (const mutation of mutations) {
-				for (const addedNode of mutation.addedNodes)
-					if (addedNode.nodeType === Node.ELEMENT_NODE)
-						this._runAddCallbacks(addedNode);
-
-				for (const removedNode of mutation.removedNodes)
-					if (removedNode.nodeType === Node.ELEMENT_NODE)
-						this._runRemoveCallbacks(removedNode);
-			}
+			for (const removedNode of mutation.removedNodes)
+				if (removedNode.nodeType === Node.ELEMENT_NODE)
+					this._runRemoveCallbacks(removedNode);
 		}
-
-		this.mutationQueue.length = 0;
 	}
 }
 

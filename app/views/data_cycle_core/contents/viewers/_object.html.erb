@@ -10,12 +10,8 @@
                                 value: o_value,
                                 parameters: {
                                   parent: value,
-                                  options: options.merge(
-                                    {
-                                      item_diff: attribute_changes(options['item_diff'], o_key),
-                                      mode: changes_mode(attribute_changes(options['item_diff'], o_key))
-                                    }
-                                  )
+                                  diff_target: diff_target_by_key(local_assigns),
+                                  options: object_viewer_history_options(local_assigns.merge({ object: value, key: o_key }))
                                 },
                                 content: content unless o_value.nil? %>
   <% end %>

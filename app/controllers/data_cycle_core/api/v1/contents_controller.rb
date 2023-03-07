@@ -44,9 +44,7 @@ module DataCycleCore
         end
 
         def deleted
-          deleted_contents = DataCycleCore::Thing::History.where(
-            DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
-          )
+          deleted_contents = DataCycleCore::Thing::History.where.not(deleted_at: nil).where.not(content_type: 'embedded')
 
           @language = permitted_params.fetch(:language) { current_user.default_locale }
 

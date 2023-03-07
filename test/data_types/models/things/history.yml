@@ -57,7 +57,7 @@
         :label: Inhaltspools
         :type: classification
         :tree_label: Inhaltspools
-        :default_value: 'Aktuelle Inhalte'
+        :default_value: "Aktuelle Inhalte"
         :ui:
           :show:
             :content_area: header
@@ -103,7 +103,7 @@
 - :data:
     :name: EmbeddedCreativeWork
     :type: object
-    :content_type: entity
+    :content_type: embedded
     :schema_type: CreativeWork
     :properties:
       :id:
@@ -117,7 +117,7 @@
         :label: Inhaltspool
         :type: classification
         :tree_label: Inhaltspools
-        :default_value: 'Aktuelle Inhalte'
+        :default_value: "Aktuelle Inhalte"
         :ui:
           :show:
             :content_area: header

@@ -11,43 +11,54 @@ class ConfirmationModal {
 		this.confirmationText = config.confirmationText;
 		this.cancelText = config.cancelText;
 		this.confirmationIndex = 1;
-		this.wrapperHtml =
-			'<div class="reveal confirmation-modal" data-multiple-opened="true" data-reveal data-initial-state="open"><button class="close-button" data-close aria-label="Close modal" type="button"><span aria-hidden="true">&times;</span></button></div>';
 		this.overlay;
 		this.closed = false;
 		this.section;
 
-		this.setup();
+		this.show();
 	}
-	async setup() {
-		this.section = $(await this.renderSectionHtml());
+	async show() {
+		const sectionId = domElementHelpers.randomId("confirmation-section");
+		const sectionHtml = await this.renderSectionHtml(sectionId);
 
 		window.requestAnimationFrame(() => {
-			if ($(".confirmation-modal:visible").length) {
-				this.overlay = $(".confirmation-modal:visible")
-					.first()
-					.append(this.section);
-				this.confirmationIndex = this.overlay.find(
-					"section.confirmation-section",
+			const modal = document.querySelector(".confirmation-modal");
+
+			if (modal) {
+				this.overlay = modal;
+				this.overlay.insertAdjacentHTML("beforeend", sectionHtml);
+				this.section = document.getElementById(sectionId);
+
+				this.confirmationIndex = this.overlay.getElementsByClassName(
+					"confirmation-section",
 				).length;
 
-				if (this.overlay.find(".confirmation-info").length)
-					this.overlay.find(".confirmation-count").text(this.confirmationIndex);
+				const confirmationCount = this.overlay.querySelector(
+					".confirmation-info .confirmation-count",
+				);
+
+				if (confirmationCount)
+					confirmationCount.textContent = this.confirmationIndex;
 				else
-					this.overlay.append(
+					this.overlay.insertAdjacentHTML(
+						"beforeend",
 						`<div class="confirmation-info"><span class="confirmation-index">1</span> / <span class="confirmation-count">${this.confirmationIndex}</span></div>`,
 					);
 			} else {
-				this.overlay = $(this.wrapperHtml)
-					.append(this.section)
-					.appendTo("body");
+				document.body.insertAdjacentHTML("beforeend", this.renderWrapperHtml());
+				this.overlay = document.querySelector(".confirmation-modal");
+				this.overlay.insertAdjacentHTML("beforeend", sectionHtml);
+				this.section = document.getElementById(sectionId);
 			}
 
 			this.addEvents();
 		});
 	}
-	async renderSectionHtml() {
-		return `<section class="confirmation-section"><div class="confirmation-text">${
+	renderWrapperHtml() {
+		return '<div class="reveal confirmation-modal" data-multiple-opened="true" data-reveal data-initial-state="open"><button class="close-button" data-close aria-label="Close modal" type="button"><span aria-hidden="true">&times;</span></button></div>';
+	}
+	async renderSectionHtml(sectionId) {
+		return `<section id="${sectionId}" class="confirmation-section"><div class="confirmation-text">${
 			this.text
 		}</div><div class="confirmation-buttons">${
 			this.cancelable
@@ -62,25 +73,28 @@ class ConfirmationModal {
 		}</a></div></section>`;
 	}
 	updateConfirmationIndex(_event) {
-		this.overlay.find(".confirmation-index").text(this.confirmationIndex);
+		this.overlay.querySelector(".confirmation-index").textContent =
+			this.confirmationIndex;
 	}
 	addEvents() {
-		this.section
-			.find(".confirmation-confirm")
-			.on("click", this.confirm.bind(this));
-		this.section
-			.find(".confirmation-cancel")
-			.on("click", this.cancel.bind(this));
-		this.overlay.on("closed.zf.reveal", (_event) => {
+		const confirmButton = this.section.querySelector(".confirmation-confirm");
+		if (confirmButton)
+			confirmButton.addEventListener("click", this.confirm.bind(this));
+
+		const cancelButton = this.section.querySelector(".confirmation-cancel");
+		if (cancelButton)
+			cancelButton.addEventListener("click", this.cancel.bind(this));
+
+		$(this.overlay).on("closed.zf.reveal", (_event) => {
 			if (!(this.closed || this.preventCancelOnAbort))
 				this.close("cancelCallback", true);
 		});
 
-		this.section.on(
+		$(this.section).on(
 			"dc:confirmation_count:update",
 			this.updateConfirmationIndex.bind(this),
 		);
-		this.section.on(
+		$(this.section).on(
 			{
 				mouseenter: this.focusSpecificFields.bind(this),
 				mouseleave: this.focusSpecificFields.bind(this),
@@ -91,26 +105,29 @@ class ConfirmationModal {
 	cancel(event) {
 		event.preventDefault();
 		event.stopImmediatePropagation();
+
 		this.close("cancelCallback");
 	}
 	confirm(event) {
 		event.preventDefault();
 		event.stopImmediatePropagation();
+
 		this.close("confirmationCallback");
 	}
 	close(method_name, closeAll = false) {
 		if (
-			this.overlay.is(":visible") &&
+			domElementHelpers.isVisible(this.overlay) &&
 			(closeAll ||
-				this.overlay.children("section.confirmation-section").length === 1)
+				this.overlay.querySelectorAll(":scope > section.confirmation-section")
+					.length === 1)
 		) {
 			this.closed = true;
-			this.overlay.foundation("close").parent(".reveal-overlay").remove();
-		} else if (this.overlay.is(":visible")) {
+			this.overlay.parentElement.remove();
+		} else if (domElementHelpers.isVisible(this.overlay)) {
 			this.section.remove();
-			this.overlay
-				.find("section.confirmation-section:visible")
-				.trigger("dc:confirmation_count:update");
+			$(this.overlay.querySelector("section.confirmation-section")).trigger(
+				"dc:confirmation_count:update",
+			);
 		}
 
 		if (typeof this[method_name] === "function") {
@@ -126,7 +143,7 @@ class ConfirmationModal {
 			event.type === "mouseenter"
 				? this._showSpecificField
 				: this._hideSpecificField;
-		const overlayRect = this.overlay[0].getBoundingClientRect();
+		const overlayRect = this.overlay.getBoundingClientRect();
 		const fieldOffset = overlayRect.top + overlayRect.height + 20;
 
 		for (let i = 0; i < elements.length; ++i) {

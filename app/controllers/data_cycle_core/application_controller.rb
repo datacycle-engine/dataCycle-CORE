@@ -92,7 +92,7 @@ module DataCycleCore
     end
 
     def remote_render_params
-      params.permit(:partial, :render_function, :force_recursive_load, render_params: {}, options: {})
+      params.slice(:partial, :render_function, :force_recursive_load, :render_params, :options).permit!
     end
 
     def reload_params

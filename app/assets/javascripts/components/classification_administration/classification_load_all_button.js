@@ -4,7 +4,6 @@ class ClassificationLoadAllButton {
 	constructor(item) {
 		this.item = item;
 		this.item.classList.add("dcjs-classification-load-all-button");
-		this.mutationQueue = [];
 
 		this.setup();
 	}
@@ -36,7 +35,7 @@ class ClassificationLoadAllButton {
 			}
 		} else {
 			const classObserver = new MutationObserver(
-				this.addToMutationObserverQueue.bind(this),
+				this.waitForLoadCallback.bind(this),
 			);
 			classObserver.observe(element, ObserverHelpers.changedClassConfig);
 
@@ -50,39 +49,27 @@ class ClassificationLoadAllButton {
 		)
 			element.click();
 	}
-	addToMutationObserverQueue(mutations, observer) {
-		if (!this.mutationQueue.length)
-			requestAnimationFrame(this.waitForLoadCallback.bind(this));
+	waitForLoadCallback(mutations, observer) {
+		for (const mutation of mutations) {
+			if (mutation.type !== "attributes") continue;
 
-		this.mutationQueue.push([mutations, observer]);
-	}
-	waitForLoadCallback() {
-		for (const [mutations, observer] of this.mutationQueue) {
-			for (const mutation of mutations) {
-				if (mutation.type !== "attributes") continue;
+			if (
+				mutation.target.classList.contains("dcjs-classification-name-button") &&
+				!mutation.oldValue?.includes("dcjs-classification-name-button")
+			) {
+				this.openElement(mutation.target);
+				this.hideChildrenIfEmpty(mutation.target);
+			}
 
-				if (
-					mutation.target.classList.contains(
-						"dcjs-classification-name-button",
-					) &&
-					!mutation.oldValue?.includes("dcjs-classification-name-button")
-				) {
-					this.openElement(mutation.target);
-					this.hideChildrenIfEmpty(mutation.target);
-				}
-
-				if (
-					mutation.target.classList.contains("loaded") &&
-					!mutation.oldValue?.includes("loaded")
-				) {
-					observer.disconnect();
-					this.showChildrenRecursive(mutation.target);
-					this.hideChildrenIfEmpty(mutation.target);
-				}
+			if (
+				mutation.target.classList.contains("loaded") &&
+				!mutation.oldValue?.includes("loaded")
+			) {
+				observer.disconnect();
+				this.showChildrenRecursive(mutation.target);
+				this.hideChildrenIfEmpty(mutation.target);
 			}
 		}
-
-		this.mutationQueue.length = 0;
 	}
 	hideChildrenIfEmpty(element) {
 		const children = element
