@@ -1,29 +1,18 @@
 const ObserverHelpers = {
 	newItemsConfig: {
-		attributes: false,
-		characterData: false,
 		subtree: true,
 		childList: true,
-		attributeOldValue: false,
-		characterDataOldValue: false,
 	},
 	changedClassConfig: {
-		subtree: false,
 		attributes: true,
 		attributeFilter: ["class"],
-		characterData: false,
-		childList: false,
 		attributeOldValue: true,
-		characterDataOldValue: false,
 	},
 	changedClassWithSubtreeConfig: {
 		subtree: true,
 		attributes: true,
 		attributeFilter: ["class"],
-		characterData: false,
-		childList: false,
 		attributeOldValue: true,
-		characterDataOldValue: false,
 	},
 	checkForConditionRecursive(node, selector, callback) {
 		if (node.querySelector(selector))

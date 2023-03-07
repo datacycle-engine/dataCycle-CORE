@@ -1,5 +1,5 @@
 import CalloutHelpers from "./../helpers/callout_helpers";
-import domElementHelpers from "../helpers/dom_element_helpers";
+import DomElementHelpers from "../helpers/dom_element_helpers";
 import ConfirmationModal from "./confirmation_modal";
 import isEqual from "lodash/isEqual";
 import uniqWith from "lodash/uniqWith";
@@ -17,10 +17,10 @@ class SplitView {
 		this.leftLocaleSwitcher = this.leftContainer.getElementsByClassName(
 			"attribute-locale-switcher",
 		)[0];
-		this.leftAvailableLocales = domElementHelpers.parseDataAttribute(
+		this.leftAvailableLocales = DomElementHelpers.parseDataAttribute(
 			this.leftContainer.dataset.availableLocales,
 		);
-		this.enableTranslateButtons = domElementHelpers.parseDataAttribute(
+		this.enableTranslateButtons = DomElementHelpers.parseDataAttribute(
 			this.leftContainer.dataset.enableTranslateButtons,
 		);
 		this.copyAllButton;
@@ -92,7 +92,9 @@ class SplitView {
 	addSingleClickHandler() {
 		DataCycle.htmlObserver.addCallbacks.push([
 			"a.copy, a.translate",
-			(e) => $(e).on("click", this.handleButtonClick.bind(this)),
+			(e) => {
+				e.addEventListener("click", this.handleButtonClick.bind(this));
+			},
 		]);
 	}
 	addAllClickHandler() {
@@ -182,7 +184,7 @@ class SplitView {
 		const fields = Array.from(container.querySelectorAll(selectorString));
 
 		if (visibleOnly)
-			return fields.filter(domElementHelpers.isVisible.bind(this));
+			return fields.filter(DomElementHelpers.isVisible.bind(this));
 		else return fields;
 	}
 	findRemoteRenderFieldByKey(key, container) {
@@ -324,7 +326,7 @@ class SplitView {
 
 		if (linkedOrEmbedded) {
 			if (linkedOrEmbedded)
-				value = domElementHelpers.parseDataAttribute(
+				value = DomElementHelpers.parseDataAttribute(
 					linkedOrEmbedded.dataset.id,
 				);
 		} else {
@@ -363,7 +365,7 @@ class SplitView {
 
 		if (
 			target.classList.contains("copy-all") &&
-			domElementHelpers.parseDataAttribute(parent.dataset.copyAllTranslations)
+			DomElementHelpers.parseDataAttribute(parent.dataset.copyAllTranslations)
 		)
 			await this.showCopyAllConditionOverlay(target, parent);
 		else await this.triggerSingleButtons(target, parent);
@@ -371,13 +373,13 @@ class SplitView {
 	async loadAllVisibleAttributes() {
 		for (const item of Array.from(
 			this.rightContainer.querySelectorAll(".remote-render"),
-		).filter((elem) => domElementHelpers.isVisible(elem))) {
+		).filter((elem) => DomElementHelpers.isVisible(elem))) {
 			await $(item).triggerHandler("dc:remote:forceRenderTranslations");
 		}
 
 		for (const item of Array.from(
 			this.leftContainer.querySelectorAll(".remote-render"),
-		).filter((elem) => domElementHelpers.isVisible(elem))) {
+		).filter((elem) => DomElementHelpers.isVisible(elem))) {
 			await $(item).triggerHandler("dc:remote:forceRenderTranslations");
 		}
 	}
@@ -486,10 +488,10 @@ class SplitView {
 
 		DataCycle.disableElement(buttonToDisable);
 
-		for (let i = 0; i < items.length; ++i) {
-			if (!domElementHelpers.isVisible(items[i])) continue;
+		for (const item of items) {
+			if (DomElementHelpers.isHidden(item)) continue;
 
-			triggeredRequests.push($(items[i]).triggerHandler("click"));
+			triggeredRequests.push(item.dispatchEvent(new Event("click")));
 		}
 
 		await Promise.all(triggeredRequests);
@@ -523,7 +525,7 @@ class SplitView {
 		let sourceId;
 
 		if (sourceElement) {
-			sourceId = domElementHelpers.randomId("focus-field");
+			sourceId = DomElementHelpers.randomId("focus-field");
 			sourceElement.dataset.focusId = sourceId;
 		}
 
