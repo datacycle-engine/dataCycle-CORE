@@ -13,61 +13,98 @@ module DataCycleCore
 
         extend DataCycleCore::ContentHelper
 
-        def self.transform_opening_hours_specifications(data)
-          add_node(data) do |gdata|
-            return data if gdata.dig('openingHoursSpecification').blank?
-            gdata['openingHoursSpecification'] = gdata
-              .dig('openingHoursSpecification')
-              .map do |s|
-                s['opens'] += ':00' if s.dig('opens').present?
-                s['closes'] += ':00' if s.dig('closes').present?
-                s
-              end
+        TRANSFORMATION_TYPES = {
+          # 'Organization' => :to_organization,
+          # 'Person' => :to_person,
+          # 'ImageObject' => :to_image,
+          'TouristAttraction' => :to_poi,
+          'LodgingBusiness' => :to_lodging_business,
+          'FoodEstablishment' => :to_lodging_business,
+          'odta:Trail' => :to_tour,
+          'Event' => :to_event
+        }.freeze
+
+        def self.transform_thing_to_onlim(data)
+          transform_onlim_type(data)
+        end
+
+        def self.transform_onlim_type(data)
+          case data
+          in Hash
+            transformed_data = nil
+            transformation = Array.wrap(data['@type'])
+              .select { |i| i.in?(TRANSFORMATION_TYPES.keys) }
+              .map { |i| TRANSFORMATION_TYPES[i] }
+              .first
+            transformed_data = DataCycleCore::Export::Onlim::Transformations.send(transformation).call(data) if transformation.present?
+            (transformed_data || data).map { |k, v|
+              { k => transform_onlim_type(v) }
+            }&.reduce(&:merge)
+          in Array
+            data.map { |i| transform_onlim_type(i) }
+          else
+            data
           end
         end
 
-        def self.transform_schedule(data)
-          return data if data.dig('@graph', 0, 'eventSchedule').blank?
-          schedules = data.dig('@graph', 0, 'eventSchedule')
-          new_schedules = schedules.map do |i|
-            i['startTime'] += ':00' if i['startTime'].present? && i['startTime'].split(':').size == 2
-            i['endTime'] += ':00' if i['endTime'].present? && i['endTime'].split(':').size == 2
-            i['duration'] = { '@id' => generate_uuid(i['@id'], 'duration'), '@type' => 'Duration', 'name' => i['duration'] } if i['duration'].present?
-            i
-          end
-          data['@graph'][0]['eventSchedule'] = new_schedules
+        def self.debug(data)
+          # binding.pry
           data
         end
 
-        def self.add_contact_information(data, content)
-          return data if !content.respond_to?(:contact_info) || content.contact_info.blank?
+        def self.transform_time(data, keys)
+          case data
+          in Hash
+            data
+              .map { |k, v| k.in?(keys) && v.present? && v.split(':').size == 2 ? { k => v + ':00' } : { k => transform_time(v, keys) } }
+              &.reduce(&:merge)
+          in Array
+            data.map { |i| transform_time(i, keys) }
+          else
+            data
+          end
+        end
+
+        def self.transform_duration(data)
+          case data
+          in Hash
+            data
+              .map { |k, v|
+                if k == 'duration' && v.present?
+                  { k => { '@id' => generate_uuid(data['@id'], 'duration'), '@type' => 'Duration', 'name' => v } }
+                else
+                  { k => transform_duration(v) }
+                end
+              }&.reduce(&:merge)
+          in Array
+            data.map { |i| transform_duration(i) }
+          else
+            data
+          end
+        end
+
+        def self.add_contact_information(data, attributes = [])
           add_node(data) do |gdata|
-            contact_info = content
-              .contact_info
-              .to_h
-              .except('contact_name', 'email')
-              .transform_keys { |k| k.camelize(:lower) }
+            contact_info = gdata
+              .dig('address')
+              .select { |k, _v| k.in?(attributes) }
+              .map { |k, v|
+                new_v = Array.wrap(v).detect { |i| i['@language'] == 'de' }&.dig('@value')
+                { k => new_v || Array.wrap(v).first.dig('@value') }
+              }.reduce(&:merge)
             gdata.merge!(contact_info) if contact_info.present?
           end
         end
 
-        def self.add_url(data, content)
-          return data if !content.respond_to?(:contact_info) || content.contact_info.url.blank?
+        def self.add_keywords(data)
           add_node(data) do |gdata|
-            gdata['url'] = content.contact_info.url
-          end
-        end
-
-        def self.add_description(data, content)
-          return data if !content.respond_to?(:description) || content.description.blank?
-          add_node(data) do |gdata|
-            gdata['description'] = add_lnode(content) { content.description }
-          end
-        end
-
-        def self.add_keywords(data, content)
-          add_node(data) do |gdata|
-            gdata['keywords'] = add_lnode_array(content) { content.classification_aliases.pluck(:name).compact }
+            if gdata.dig('dc:classification').present?
+              gdata['keywords'] = gdata
+                .dig('dc:classification')
+                .map { |i| i['skos:prefLabel'] }
+                .flatten
+                .uniq
+            end
           end
         end
 
@@ -77,43 +114,75 @@ module DataCycleCore
           end
         end
 
+        def self.rename_graph_keys(data, key_map)
+          add_node(data) do |gdata|
+            key_map.each_key do |k|
+              gdata[key_map[k]] = gdata[k]
+              gdata.delete(k)
+            end
+          end
+        end
+
         def self.add_node(data, &block)
-          graphdata = data['@graph'].first
-          graphdata.tap(&block)
-          data['@graph'] = [graphdata]
+          if data.key?('@graph')
+            graphdata = data['@graph'].first
+            graphdata.tap(&block)
+            data['@graph'] = [graphdata]
+          else
+            data.tap(&block)
+          end
           data
         end
 
-        def self.add_lnode(content)
-          locales = content.available_locales.map(&:to_s)
-          locales.map { |l|
-            I18n.with_locale(l) do
-              value = yield
-              next if value.blank?
-              {
-                '@value' => value,
-                '@language' => l
-              }
-            end
-          }.compact_blank
-        end
+        # def self.add_contact_information(data, content, block_attributes = [])
+        #   return data if !content.respond_to?(:contact_info) || content.contact_info.blank?
+        #   block_attributes += ['contactName']
+        #   add_node(data) do |gdata|
+        #     contact_info = content
+        #       .contact_info
+        #       .to_h
+        #       .transform_keys { |k| k.camelize(:lower) }
+        #       .except(*block_attributes)
+        #     gdata.merge!(contact_info) if contact_info.present?
+        #   end
+        # end
 
-        def self.add_lnode_array(content)
-          locales = content.available_locales.map(&:to_s)
-          locales.map { |l|
-            I18n.with_locale(l) do
-              values = yield
-              next if values.blank?
-              values.map do |value|
-                {
-                  '@value' => value,
-                  '@language' => l
-                }
-              end
-            end
-          }.compact_blank
-          .flatten
-        end
+        # def self.add_keywords(data, content)
+        #   add_node(data) do |gdata|
+        #     gdata['keywords'] = add_lnode_array(content) { content.classification_aliases.pluck(:name).compact }
+        #   end
+        # end
+
+        # def self.add_lnode(content)
+        #   locales = content.available_locales.map(&:to_s)
+        #   locales.map { |l|
+        #     I18n.with_locale(l) do
+        #       value = yield
+        #       next if value.blank?
+        #       {
+        #         '@value' => value,
+        #         '@language' => l
+        #       }
+        #     end
+        #   }.compact_blank
+        # end
+        #
+        # def self.add_lnode_array(content)
+        #   locales = content.available_locales.map(&:to_s)
+        #   locales.map { |l|
+        #     I18n.with_locale(l) do
+        #       values = yield
+        #       next if values.blank?
+        #       values.map do |value|
+        #         {
+        #           '@value' => value,
+        #           '@language' => l
+        #         }
+        #       end
+        #     end
+        #   }.compact_blank
+        #   .flatten
+        # end
       end
     end
   end

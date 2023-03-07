@@ -6,7 +6,8 @@ module DataCycleCore
       module TransformationsGlobal
         ODTA_TYPE = {
           'TouristAttraction' => 'odta:PointOfInterest',
-          'dcls:Tour' => 'odta:Trail'
+          'dcls:Tour' => 'odta:Trail',
+          'Rating' => 'aggregateRating'
         }.freeze
 
         COMPLIES = {
@@ -18,6 +19,7 @@ module DataCycleCore
           'odta:Trail' => 'https://semantify.it/ds/nBTyKDsKX', # Tour
           'GeoShape' => 'https://semantify.it/ds/puYUsMkUP',
           'GeoCoordinates' => 'https://semantify.it/ds/2NErTNGpd',
+          'aggregateRating' => 'https://semantify.it/ds/d6ZpC7eZo',
           'PostalAddress' => 'https://semantify.it/ds/NP8df6sKy',
           'OpeningHoursSpecification' => 'https://semantify.it/ds/rpOsHCyrE',
           'PropertyValue' => 'https://semantify.it/ds/evJvhycX1',
@@ -25,11 +27,13 @@ module DataCycleCore
           'Organization' => 'https://semantify.it/ds/Wf-IXZvIo'
         }.freeze
 
+        WHITELIST_NAMESPACED_DATA = ['odta:wayPoint'].freeze
+
         def self.remove_namespaced_data(data)
           case data
           in Hash
             data
-              .reject { |k, _v| k.count(':').positive? }
+              .reject { |k, _v| !k.in?(WHITELIST_NAMESPACED_DATA) && k.count(':').positive? }
               &.transform_values { |v| remove_namespaced_data(v).presence }
               &.compact
           in Array

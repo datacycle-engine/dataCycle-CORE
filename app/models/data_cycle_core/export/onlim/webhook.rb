@@ -47,8 +47,8 @@ module DataCycleCore
             update_sync_data(content: data, external_system: @external_system, status: 'pending', metadata: job_result)
             # data.add_external_system_data(@external_system, job_result, 'pending', 'export', external_key, false)
             raise DataCycleCore::Generic::Common::Error::GenericError, "Onlim job is still running with id #{job_result.dig('job_id')}" if @request == :job_status_request
-          when 'failed'
-            update_sync_data(content: data, external_system: @external_system, status: 'failed', metadata: job_result)
+          when 'error'
+            update_sync_data(content: data, external_system: @external_system, status: 'error', metadata: job_result)
             # data.add_external_system_data(@external_system, job_result, 'failure', 'export', external_key, false)
           when 'success'
             update_sync_data(content: data, external_system: @external_system, status: 'success', metadata: job_result)

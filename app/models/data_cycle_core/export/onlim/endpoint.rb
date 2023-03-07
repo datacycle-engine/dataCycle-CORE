@@ -6,13 +6,22 @@ module DataCycleCore
       class Endpoint < DataCycleCore::Export::Common::Endpoint::GenericEndpoint
         include DataCycleCore::Engine.routes.url_helpers
 
-        DEFAULT_ATTRIBUTES = [['id'], ['name'], ['geo'], ['address']].freeze # , ['description']
+        DEFAULT_ATTRIBUTES = [['id'], ['name'], ['description'], ['geo'], ['address']].freeze
         ATTRIBUTE_FILTER = {
-          'Event' => [['eventSchedule']],
-          'Gastronomischer Betrieb' => [],
-          'POI' => [['sdLicense'], ['additionalProperty'], ['openingHoursSpecification']],
+          'POI' => [
+            ['sdLicense'], ['additionalProperty'], ['openingHoursSpecification']
+          ],
+          'Gastronomischer Betrieb' => [
+            ['sdLicense'], ['additionalProperty'], ['openingHoursSpecification']
+          ],
+          'Unterkunft' => [
+            ['sdLicense'], ['additionalProperty'], ['openingHoursSpecification'],
+            ['priceRange'], ['dc:translation']
+          ],
           'Tour' => [],
-          'Unterkunft' => [],
+          'Event' => [
+            ['eventSchedule'], ['startDate'], ['endDate']
+          ],
           'Bild' => [
             ['name'], ['contentUrl'], ['thumbnailUrl'], ['width'], ['height'],
             ['fileFormat'], ['uploadDate'], ['copyrightNotice'], ['copyrightYear']
@@ -21,13 +30,13 @@ module DataCycleCore
           'Organization' => []
         }.freeze
 
-        DEFAULT_INCLUDE = [['image', 'copyrightHolder'], ['sdPublisher'], ['copyrightHolder']].freeze # ['dc:classification', 'skos:inScheme'],
+        DEFAULT_INCLUDE = [['image', 'copyrightHolder'], ['sdPublisher'], ['copyrightHolder'], ['dc:classification']].freeze # ['dc:classification', 'skos:inScheme'],
         INCLUDE_FILTER = {
           'Event' => [['eventSchedule']],
           'Gastronomischer Betrieb' => [],
           'POI' => [['author']],
-          'Tour' => [],
-          'Unterkunft' => []
+          'Tour' => [['odta:wayPoint']], # ['aggregateRating'], ['odta:startLocation']
+          'Unterkunft' => [['photo']]
         }.freeze
 
         def self.serialize_data(data)
@@ -54,17 +63,25 @@ module DataCycleCore
 
           hash = JSON[json]
 
-          transformation =
-            case data.template_name
-            when 'Event'
-              :to_event
-            when 'Tour'
-              :to_tour
-            else
-              :to_poi
-            end
+          # transformation =
+          #   case data.template_name
+          #   when 'Event'
+          #     :to_event
+          #   when 'Tour'
+          #     :to_tour
+          #   when 'Gastronomischer Betrieb'
+          #     :to_food_establishment
+          #   when 'Unterkunft'
+          #     :to_lodging_business
+          #   when 'POI'
+          #     :to_poi
+          #   else
+          #     raise DataCycleCore::Generic::Common::Error::GenericError, "Try to serialize Data of unsupported Type: #{data.template_name} for Onlim export!"
+          #   end
+          #
+          # hash = DataCycleCore::Export::Onlim::Transformations.send(transformation, data).call(hash)
 
-          hash = DataCycleCore::Export::Onlim::Transformations.send(transformation, data).call(hash)
+          hash = DataCycleCore::Export::Onlim::Transformations.send(:to_onlim).call(hash)
           hash
         end
 
@@ -113,6 +130,7 @@ module DataCycleCore
             {
               'job_id' => job_id,
               'job_status' => 'pending',
+              'job_result' => {},
               'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: 'onlim').id,
               'data_send' => body,
               'data_send_at' => Time.zone.now.to_s
@@ -166,7 +184,7 @@ module DataCycleCore
             external_system_data.merge(
               {
                 'job_id' => job_id,
-                'job_status' => 'failed',
+                'job_status' => 'error',
                 'job_result' => status,
                 'external_source_id' => external_source.id
               }

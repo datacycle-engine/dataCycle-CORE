@@ -65,8 +65,12 @@
     <li class="tabs-title"><a href="#schema"><i class="fa fa-code"></i></a></li>
     <li class="tabs-title"><a href="#datahash"><i class="fa fa-hashtag"></i></a></li>
     <li class="tabs-title"><a href="#json-api"><i class="fa">json</i></a></li>
-    <li class="tabs-title"><a href="#data-send"><i class="fa">onlim</i></a></li>
-    <li class="tabs-title"><a href="#data-job"><i class="fa">onlim job</i></a></li>
+    <% if onlim_data&.try(:data)&.dig('data_send').present? %>
+      <li class="tabs-title"><a href="#data-send"><i class="fa">onlim</i></a></li>
+    <% end %>
+    <% if onlim_data&.try(:data)&.dig('job_result').present? %>
+      <li class="tabs-title"><a href="#data-job"><i class="fa">onlim job</i></a></li>
+    <% end %>
     <% if content.try(:asset).present? && content&.asset&.metadata.present? %>
       <li class="tabs-title"><a href="#meta-data"><i class="fa">metadata</i></a></li>
     <% end %>

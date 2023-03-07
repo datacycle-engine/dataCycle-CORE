@@ -57,7 +57,7 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
     end
 
     it 'transforms event_schedule to correct_schedule' do
-      hash = subject.transform_schedule(event)
+      hash = subject.transform_duration(subject.transform_time(event, ['startTime', 'endTime']))
       schedule = hash.dig('@graph', 0, 'eventSchedule', 0)
       assert_equal(correct_schedule, schedule)
     end
@@ -95,7 +95,7 @@ describe DataCycleCore::Export::Onlim::TransformationFunctions do
     end
 
     it 'transforms event_schedule to correct_schedule' do
-      hash = subject.transform_opening_hours_specifications(poi)
+      hash = subject.transform_time(poi, ['opens', 'closes'])
       ohs = hash.dig('@graph', 0, 'openingHoursSpecification', 0)
       assert_equal(correct_opening_hours_specifications, ohs)
     end
