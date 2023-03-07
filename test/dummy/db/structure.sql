@@ -396,7 +396,7 @@ CREATE FUNCTION public.generate_unique_collection_slug(old_slug character varyin
 
 CREATE FUNCTION public.geom_simple_update() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN NEW.geom_simple := ( SELECT st_simplify( ST_Force2D (COALESCE(NEW."location", NEW.line)), 0.00001, TRUE ) FROM things WHERE things.id = NEW.id ); RETURN NEW; END; $$;
+    AS $$ BEGIN NEW.geom_simple := ( st_simplify( ST_Force2D (COALESCE(NEW."location", NEW.line)), 0.00001, TRUE ) ); RETURN NEW; END; $$;
 
 
 --
@@ -3802,6 +3802,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230223112058'),
 ('20230223115656'),
 ('20230224185643'),
-('20230228085431');
+('20230228085431'),
+('20230306092709');
 
 
