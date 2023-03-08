@@ -152,9 +152,9 @@ module DataCycleCore
         end
 
         rule(:content_score) do
-          next unless key? && value.present?
+          next unless key? && values.present?
 
-          key.failure(:invalid_content_score) unless DataCycleCore::ModuleService.load_module(value.dig(:content_score, :module).classify, 'Utility::ContentScore').respond_to?(value.dig(:content_score, :method))
+          key.failure(:invalid_content_score) unless DataCycleCore::ModuleService.load_module(values.dig(:content_score, :module).classify, 'Utility::ContentScore').respond_to?(values.dig(:content_score, :method))
         rescue NameError
           key.failure(:invalid_content_score)
         end
