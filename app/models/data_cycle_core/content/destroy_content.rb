@@ -4,13 +4,12 @@ module DataCycleCore
   module Content
     module DestroyContent
       def destroy_content(current_user: nil, save_time: Time.zone.now, save_history: true, destroy_locale: false, destroy_linked: false)
-        return self if destroy_locale && !available_locales.include?(I18n.locale)
+        return self if destroy_locale && available_locales.exclude?(I18n.locale)
 
-        ActiveRecord::Base.transaction do
+        transaction(joinable: false, requires_new: true) do
           children.each { |item| item.destroy_content(current_user: current_user, save_time: save_time) } if respond_to?(:children)
           if save_history && !history?
-            self.deleted_at = save_time
-            self.deleted_by = current_user&.id
+            update_columns(deleted_at: save_time, deleted_by: current_user&.id)
             to_history(delete: true, all_translations: !(destroy_locale && available_locales.many?))
           end
 
@@ -56,6 +55,8 @@ module DataCycleCore
         linked_property_names.each do |name|
           properties = properties_for(name)
           next if properties.dig('link_direction') == 'inverse'
+          next if properties.dig('cascade_delete').to_s == 'false'
+
           load_linked_objects(name).each do |item|
             next if number_of_unique_links(item.id) > 1
             item.destroy_content(current_user: current_user, save_time: save_time, save_history: save_history, destroy_linked: destroy_linked)

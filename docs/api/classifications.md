@@ -133,11 +133,11 @@ _/api/v4/endpoints/ENDPOINT_ID|ENDPOINT_SLUG/facets/CONCEPT_SCHEME_ID
 }
 ```
 
-Dabei wird bei jeder Klassifizierung die Anzahl der indirekt verknüpften Inhalte (Mappings und untergeordnete Klassifizierungen werden berücksichtigt) unter dem Attribut ```dc:thingCount``` ausgegeben.
+Dabei wird bei jeder Klassifizierung die Anzahl der indirekt verknüpften Inhalte (Mappings und untergeordnete Klassifizierungen werden berücksichtigt) unter ```dc:thingCountWithSubtree```, sowie die Anzahl der direkt verknüpften Inhalte unter ```dc:thingCountwithoutSubtree``` ausgegeben.
 
-Bei diesem Endpunkt werden verwendete Filter auf die Inhalte direkt angewendet, die verwendete Sortierung wird allerdings auf die Klassifizierungen angewendet.
+Bei diesem Endpunkt werden verwendete ```filter``` auf die Inhalte direkt angewendet, verwendete ```sort```, ```fields``` und ```includes``` werden auf die Klassifizierungen angewendet.
 
-Die übergebene Sprache ```language``` wird auf Inhalte und Klassifizierungen angewendet.
+Die übergebene ```language``` wird auf Inhalte und Klassifizierungen angewendet.
 
 ```javascript
 {
@@ -156,7 +156,8 @@ Die übergebene Sprache ```language``` wird auf Inhalte und Klassifizierungen an
           "@type": "skos:Concept"
         }
       ],
-      "dc:thingCount": 55
+      "dc:thingCountWithSubtree": 55,
+      "dc:thingCountwithoutSubtree": 25
     },
     {
       "@id": "a12a869d-892a-4224-861e-06492b7c63fa",
@@ -181,7 +182,8 @@ Die übergebene Sprache ```language``` wird auf Inhalte und Klassifizierungen an
           "@type": "skos:Concept"
         }
       ],
-      "dc:thingCount": 0
+      "dc:thingCountWithSubtree": 11,
+      "dc:thingCountwithoutSubtree": 0
     }
   ],
 }
@@ -189,7 +191,12 @@ Die übergebene Sprache ```language``` wird auf Inhalte und Klassifizierungen an
 
 ### Sortierung
 
-Es gibt auch die Möglichkeit über ```sort=+dc:thingCount``` (aufsteigend) oder ```sort=-dc:thingCount``` (absteigend) nach der Anzahl der verknüpften Inhalte zu [sortieren](/docs/api/contents#sortieren-von-inhalten).
+Es gibt auch die Möglichkeit über diese beiden Attribute nach der Anzahl der verknüpften Inhalte zu [sortieren](/docs/api/contents#sortieren-von-inhalten):
+
+* ```sort=+dc:thingCountWithSubtree``` (aufsteigend)
+* ```sort=-dc:thingCountWithSubtree``` (absteigend)
+* ```sort=+dc:thingCountwithoutSubtree``` (aufsteigend)
+* ```sort=-dc:thingCountwithoutSubtree``` (absteigend)
 
 <!--
 

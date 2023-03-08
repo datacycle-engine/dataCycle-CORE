@@ -16,6 +16,7 @@ class CopyToClipboard {
 	}
 	copyValueToClipboard(event) {
 		event.preventDefault();
+		event.stopPropagation();
 
 		let currentTarget = event.currentTarget;
 		if (currentTarget.classList.contains("admin-clipboard"))

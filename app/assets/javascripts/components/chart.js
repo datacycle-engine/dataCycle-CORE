@@ -7,7 +7,6 @@ import capitalize from "lodash/capitalize";
 class Chart {
 	constructor(element) {
 		this.element = element;
-		this.element.classList.add("dcjs-chart");
 		this.inputs = this.element.querySelector(".dc-chart-inputs");
 		this.chartTypeInput = this.inputs.querySelector(
 			".dc-chart-chart-type-input",
@@ -59,7 +58,9 @@ class Chart {
 					title: {
 						display: false,
 					},
-					time: {},
+					time: {
+						minUnit: "second",
+					},
 				},
 				y: {
 					grid: {
@@ -204,12 +205,12 @@ class Chart {
 		} else {
 			this.chartOptions.scales.x.title.display = false;
 			this.scaleXKey = null;
-			this.chartOptions.scales.x.title.text = undefined;
+			this.chartOptions.scales.x.title.text = "";
 		}
 
 		if (data.meta?.scale_x)
 			this.chartOptions.scales.x.time.minUnit = data.meta.scale_x;
-		else this.chartOptions.scales.x.time.minUnit = undefined;
+		else this.chartOptions.scales.x.time.minUnit = "second";
 
 		this.datasets = await this.parseDatasets(datasets);
 		this.chartOptions.plugins.legend.display = this.datasets.some(

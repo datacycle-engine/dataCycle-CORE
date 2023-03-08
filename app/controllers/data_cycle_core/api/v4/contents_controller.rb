@@ -109,9 +109,7 @@ module DataCycleCore
         end
 
         def deleted
-          deleted_contents = DataCycleCore::Thing::History.where(
-            DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
-          )
+          deleted_contents = DataCycleCore::Thing::History.where.not(deleted_at: nil).where.not(content_type: 'embedded')
 
           if permitted_params&.dig(:filter, :attribute, :'dct:deleted').present?
             filter = permitted_params[:filter][:attribute][:'dct:deleted'].to_h.deep_symbolize_keys
@@ -125,7 +123,7 @@ module DataCycleCore
             end
           end
 
-          deleted_contents = deleted_contents.except(:order).order('deleted_at DESC')
+          deleted_contents = deleted_contents.reorder(nil).order('deleted_at DESC')
 
           render plain: list_api_deleted_request(apply_paging(deleted_contents)).to_json, content_type: 'application/json'
         end

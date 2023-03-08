@@ -330,23 +330,23 @@ module DataCycleCore
       end
 
       # returns data the same way, as .as_json
-      def to_h(timestamp = Time.zone.now)
+      def to_h
         Array.wrap(property_names)
           .difference(virtual_property_names)
-          .index_with { |k| attribute_to_h(k, timestamp) }
+          .index_with { |k| attribute_to_h(k) }
           .deep_stringify_keys
       end
 
       # returns data the same way, as .as_json
-      def to_h_partial(partial_properties, timestamp = Time.zone.now)
+      def to_h_partial(partial_properties)
         Array.wrap(partial_properties)
           .intersection(property_names)
-          .index_with { |k| attribute_to_h(k, timestamp) }
+          .index_with { |k| attribute_to_h(k) }
           .deep_stringify_keys
       end
 
       # returns data the same way, as .as_json
-      def attribute_to_h(property_name, timestamp = Time.zone.now)
+      def attribute_to_h(property_name)
         if property_name == 'id' && history?
           send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
         elsif plain_property_names.include?(property_name)
@@ -358,7 +358,7 @@ module DataCycleCore
           embedded_hash.presence
         elsif embedded_property_names.include?(property_name)
           embedded_array = send(property_name)
-          embedded_array = embedded_array.map { |item| item.get_data_hash(timestamp) } if embedded_array.present?
+          embedded_array = embedded_array.map(&:get_data_hash) if embedded_array.present?
           embedded_array.blank? ? [] : embedded_array.compact
         elsif asset_property_names.include?(property_name)
           send(property_name)&.id
@@ -380,7 +380,7 @@ module DataCycleCore
       end
 
       def history?
-        respond_to?(:history_valid)
+        is_a?(DataCycleCore::Thing::History)
       end
 
       def collect_properties(definition = schema, parents = [])
