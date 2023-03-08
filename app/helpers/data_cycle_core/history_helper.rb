@@ -309,7 +309,7 @@ module DataCycleCore
       object.is_a?(DataCycleCore::Thing::History) ? object.try(:thing_id) : object.id
     end
 
-    def diff_target_by_key(diff_target:, key:, **_args)
+    def diff_target_by_key(diff_target: nil, key:, **_args)
       return if diff_target.nil?
 
       diff_target.try(key&.attribute_name_from_key)
