@@ -34,6 +34,4 @@ DataCycleDemoCloud;git@git.pixelpoint.biz:data-cycle/data-cycle-demo-cloud.git
 DataCycleEnixi;git@git.pixelpoint.biz:data-cycle/data-cycle-enixi.git
 DataCyclePia;git@git.pixelpoint.biz:data-cycle/data-cycle-pia.git
 DataCyclePixelmap;git@git.pixelpoint.biz:data-cycle/data-cycle-pixelmap.git
-DataCycleBridgeDeutschland;git@git.pixelpoint.biz:data-cycle/data-cycle-bridge-feratel-deutschland.git
 DataCycleFlachau;git@git.pixelpoint.biz:data-cycle/data-cycle-flachau.git
-DataCycleLausitz;git@git.pixelpoint.biz:data-cycle/data-cycle-lausitz.git
