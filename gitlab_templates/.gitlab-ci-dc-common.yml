@@ -1,12 +1,12 @@
 image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:dockerize-1.1
 
 variables:
-  PRODUCTION_URL: ''
-  DEVELOPMENT_URL: ''
-  DOCKER_URL: ''
-  DOCKER_URL_DEVELOPMENT: ''
-  GITLAB_ENVIRONMENT: ''
-  GITLAB_ENVIRONMENT_DEVELOPMENT: ''
+  PRODUCTION_URL: ""
+  DEVELOPMENT_URL: ""
+  DOCKER_URL: ""
+  DOCKER_URL_DEVELOPMENT: ""
+  GITLAB_ENVIRONMENT: ""
+  GITLAB_ENVIRONMENT_DEVELOPMENT: ""
 
 .docker_login_and_ssh_agent: &docker_login_and_ssh_agent
   - eval $(ssh-agent -s)
@@ -22,10 +22,10 @@ variables:
 .local_test_vars: &local_test_vars
   variables:
     POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: 'password'
+    POSTGRES_PASSWORD: "password"
     POSTGRES_HOST: postgres
     POSTGRES_DB: data-cycle-base_test
-    POSTGRES_PORT: '5432'
+    POSTGRES_PORT: "5432"
     MONGODB_HOST: mongodb
     #    POSTGRES_VERSION: 13
     RAILS_ENV: test
@@ -43,13 +43,6 @@ cache:
     # Enable for local rails test
     # - vendor/gems/data-cycle-core/node_modules
     # - vendor/gems/data-cycle-core/lib/assets
-
-services:
-  - name: 'git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:13.4'
-    alias: postgres
-    command: ['postgres']
-  - name: mongo:4.4.8-focal
-    alias: mongodb
 
 ########################################################################
 ######################### Job Configuration
@@ -81,6 +74,10 @@ services:
   <<: *local_test_vars
   extends: .job_cache_config
   stage: check
+  services:
+    - name: "git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:13.4"
+      alias: postgres
+      command: ["postgres"]
   script:
     - bundle exec bundle audit check --update --ignore CVE-2021-21288 CVE-2021-21305
     - bundle exec brakeman -c vendor/gems/data-cycle-core/config/brakeman.yml
@@ -94,10 +91,16 @@ services:
   extends: .job_cache_config
   stage: test
   artifacts:
-    name: '$CI_JOB_NAME'
+    name: "$CI_JOB_NAME"
     expire_in: 1 week
     paths:
       - coverage/
+  services:
+    - name: "git.pixelpoint.biz:5050/data-cycle/data-cycle-core/postgres:13.4"
+      alias: postgres
+      command: ["postgres"]
+    - name: mongo:4.4.8-focal
+      alias: mongodb
   script:
     - bundle exec rake db:drop
     - bundle exec rake db:create
@@ -143,7 +146,7 @@ services:
   image: git.pixelpoint.biz:5050/gitlab-utilities/docker-deploy-image:stable
   allow_failure: false
   variables:
-    DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
+    DOCKER_HOST: "ssh://$DEPLOY_USER@$DEPLOY_TARGET"
     GIT_SUBMODULE_STRATEGY: recursive
   before_script:
     - *docker_login_and_ssh_agent
@@ -166,7 +169,7 @@ services:
   image: git.pixelpoint.biz:5050/gitlab-utilities/docker-deploy-image:stable
   allow_failure: false
   variables:
-    DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
+    DOCKER_HOST: "ssh://$DEPLOY_USER@$DEPLOY_TARGET"
     GIT_SUBMODULE_STRATEGY: recursive
   before_script:
     - *docker_login_and_ssh_agent
@@ -185,7 +188,7 @@ services:
   image: git.pixelpoint.biz:5050/gitlab-utilities/docker-deploy-image:stable
   allow_failure: false
   variables:
-    DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
+    DOCKER_HOST: "ssh://$DEPLOY_USER@$DEPLOY_TARGET"
     GIT_SUBMODULE_STRATEGY: recursive
   before_script:
     - *docker_login_and_ssh_agent
@@ -204,7 +207,7 @@ services:
   image: git.pixelpoint.biz:5050/gitlab-utilities/docker-deploy-image:stable
   allow_failure: false
   variables:
-    DOCKER_HOST: 'ssh://$DEPLOY_USER@$DEPLOY_TARGET'
+    DOCKER_HOST: "ssh://$DEPLOY_USER@$DEPLOY_TARGET"
     GIT_SUBMODULE_STRATEGY: recursive
   before_script:
     - *docker_login_and_ssh_agent

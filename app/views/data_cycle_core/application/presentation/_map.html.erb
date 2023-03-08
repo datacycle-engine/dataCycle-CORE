@@ -1,6 +1,7 @@
 <div class="geographic">
   <div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map dashboard"
           data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
+          data-map-bounds=<%= JSON.parse(contents.to_bbox).to_json %>
           data-language="<%= @language %>"
           >
   </div>

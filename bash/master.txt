@@ -4,7 +4,6 @@ DataCycleOpenCloud;git@git.pixelpoint.biz:data-cycle/open-data-cycle.git
 DataCycleFeuerberg;git@git.pixelpoint.biz:data-cycle/feuerberg.git
 DataCycleNLW;git@git.pixelpoint.biz:data-cycle/data-cycle-nlw.git
 DataCyclePublicPixel;git@git.pixelpoint.biz:data-cycle/data-cycle-public-pixel.git
-DataCycleUrlaubAmBauernhof;git@git.pixelpoint.biz:data-cycle/data-cycle-urlaub-am-bauernhof.git
 DataCycleNeusiedlersee;git@git.pixelpoint.biz:data-cycle/data-cycle-neusiedlersee.git
 DataCycleRheinlandPfalz;git@git.pixelpoint.biz:data-cycle/data-cycle-rheinland-pfalz.git
 DataCycleKlagenfurt;git@git.pixelpoint.biz:data-cycle/data-cycle-klagenfurt.git
@@ -18,12 +17,10 @@ DataCycleKaerntnerEventDB;git@git.pixelpoint.biz:data-cycle/data-cycle-kaerntner
 DataCycleMillstaetterSee;git@git.pixelpoint.biz:data-cycle/data-cycle-millstaetter-see.git
 DataCycleBadKleinkirchheim;git@git.pixelpoint.biz:data-cycle/data-cycle-bad-kleinkirchheim.git
 DataCycleRegionKlopeinersee;git@git.pixelpoint.biz:data-cycle/data-cycle-region-klopeinersee.git
-DataCycleRegionLavanttal;git@git.pixelpoint.biz:data-cycle/data-cycle-region-lavanttal.git
 DataCycleHoheTauern;git@git.pixelpoint.biz:data-cycle/data-cycle-hohe-tauern.git
 DataCycleRegionVillach;git@git.pixelpoint.biz:data-cycle/data-cycle-region-villach.git
 DataCycleKaernten;git@git.pixelpoint.biz:data-cycle/data-cycle-kw.git
 DataCycleVermieterWebsites;git@git.pixelpoint.biz:data-cycle/data-cycle-vermieterwebsites.git
-DataCycleLindner;git@git.pixelpoint.biz:data-cycle/data-cycle-lindner.git
 DataCycleHowTo;git@git.pixelpoint.biz:data-cycle/data-cycle-how-to.git
 DataCycleNockberge;git@git.pixelpoint.biz:data-cycle/data-cycle-nockberge.git
 DataCycleVTG;git@git.pixelpoint.biz:data-cycle/data-cycle-vtg.git

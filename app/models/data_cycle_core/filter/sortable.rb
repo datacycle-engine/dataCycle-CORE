@@ -4,23 +4,24 @@ module DataCycleCore
   module Filter
     module Sortable
       def reset_sort
-        reflect(
-          @query.except(:order)
-        )
+        reflect(@query.reorder(nil))
       end
 
-      def sort_default(_ordering)
+      def sort_default(_ordering = 'DESC')
         reflect(
           @query
-            .reorder(
+            .reorder(nil)
+            .order(
               sanitized_order_string('things.boost', 'DESC'),
               sanitized_order_string('things.updated_at', 'DESC'),
-              thing[:id].desc
+              sanitized_order_string('things.id', 'DESC')
             )
         )
       end
 
       def sort_collection_manual_order(ordering, watch_list_id)
+        return self if watch_list_id.nil?
+
         reflect(
           @query
             .joins(
@@ -29,7 +30,8 @@ module DataCycleCore
                                         watch_list_id
                                       ])
             )
-            .reorder(
+            .reorder(nil)
+            .order(
               sanitized_order_string('watch_list_data_hashes.order_a', ordering.presence || 'ASC')
             )
         )
@@ -47,6 +49,7 @@ module DataCycleCore
         reflect(
           @query
             .joins(random_join_query)
+            .reorder(nil)
             .order(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_order, 'random()')))
         )
       end
@@ -54,9 +57,10 @@ module DataCycleCore
       def sort_boost(ordering)
         reflect(
           @query
+            .reorder(nil)
             .order(
               sanitized_order_string('things.boost', ordering),
-              thing[:id].desc
+              sanitized_order_string('things.id', 'DESC')
             )
         )
       end
@@ -64,9 +68,10 @@ module DataCycleCore
       def sort_updated_at(ordering)
         reflect(
           @query
+            .reorder(nil)
             .order(
               sanitized_order_string('things.updated_at', ordering),
-              thing[:id].desc
+              sanitized_order_string('things.id', 'DESC')
             )
         )
       end
@@ -75,9 +80,10 @@ module DataCycleCore
       def sort_created_at(ordering)
         reflect(
           @query
+            .reorder(nil)
             .order(
               sanitized_order_string('things.created_at', ordering),
-              thing[:id].desc
+              sanitized_order_string('things.id', 'DESC')
             )
         )
       end
@@ -85,12 +91,14 @@ module DataCycleCore
 
       def sort_translated_name(ordering)
         locale = @locale&.first || I18n.available_locales.first.to_s
+
         reflect(
           @query
-            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = ?', locale]))
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = ?', locale]))
+            .reorder(nil)
             .order(
               sanitized_order_string('thing_translations.name', ordering, true),
-              thing[:id].desc
+              sanitized_order_string('things.id', 'DESC')
             )
         )
       end
@@ -100,15 +108,16 @@ module DataCycleCore
         locale = @locale&.first || I18n.available_locales.first.to_s
         reflect(
           @query
-            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ?', locale]))
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT OUTER JOIN searches ON searches.content_data_id = things.id AND searches.locale = ?', locale]))
+            .reorder(nil)
             .order(
-              Arel.sql(sanitized_order_string("searches.advanced_attributes -> '#{attribute_path}'", ordering, true)),
-              thing[:id].desc
+              sanitized_order_string("searches.advanced_attributes -> '#{attribute_path}'", ordering, true),
+              sanitized_order_string('things.id', 'DESC')
             )
         )
       end
 
-      def sort_by_proximity(_ordering = '', value = {})
+      def sort_proximity_in_time(_ordering = '', value = {})
         date = Time.zone.now
         if value.present? && value.is_a?(::Hash) && value.dig('q') == 'relative'
           date = relative_to_absolute_date(value.dig('in', 'min')) if value.dig('in', 'min').present?
@@ -118,30 +127,19 @@ module DataCycleCore
           date = date_from_single_value(value.dig('v', 'from')) if value.dig('v', 'from').present?
         end
         reflect(
-          @query.reorder(
-            absolute_date_diff(thing[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
-            absolute_date_diff(thing[:start_date], Arel::Nodes.build_quoted(date.iso8601)),
-            thing[:start_date],
-            thing[:id].desc
-          )
-        )
-      end
-      alias sort_proximity_intime sort_by_proximity
-
-      def sort_proximity_geographic(ordering = '', value = {})
-        return self if value&.first.blank? || value&.second.blank?
-        order_string = "things.location <-> 'SRID=4326;POINT (#{value.first} #{value.second})'::geometry"
-        reflect(
-          @query.reorder(
-            Arel.sql(sanitized_order_string(order_string, ordering, true)),
-            Arel.sql('things.updated_at DESC'),
-            Arel.sql('things.id DESC')
-          )
+          @query
+            .reorder(nil)
+            .order(
+              absolute_date_diff(thing[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
+              absolute_date_diff(thing[:start_date], Arel::Nodes.build_quoted(date.iso8601)),
+              thing[:start_date],
+              sanitized_order_string('things.id', 'DESC')
+            )
         )
       end
 
-      def sort_by_schedule_proximity(ordering = '', value = {})
-        start_date, end_date = date_from_filter_object(value['in'] || value['v'], value.dig('q')) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
+      def sort_by_proximity(ordering = '', value = {})
+        start_date, end_date = date_from_filter_object(value['in'] || value['v'], value['q']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
 
         return self if start_date.nil? && end_date.nil?
 
@@ -159,19 +157,37 @@ module DataCycleCore
         reflect(
           @query
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
-            .reorder(
-              Arel.sql(sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true)),
-              Arel.sql('things.updated_at DESC'),
-              Arel.sql('things.id DESC')
+            .reorder(nil)
+            .order(
+              sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
+              sanitized_order_string('things.updated_at', 'DESC'),
+              sanitized_order_string('things.id', 'DESC')
             )
         )
       end
-      alias sort_proximity_occurrence sort_by_schedule_proximity
+      alias sort_by_schedule_proximity sort_by_proximity
+      alias sort_proximity_occurrence sort_by_proximity
+
+      def sort_proximity_geographic(ordering = '', value = {})
+        return self if value&.first.blank? || value&.second.blank?
+
+        order_string = "things.location <-> 'SRID=4326;POINT (#{value.first} #{value.second})'::geometry"
+
+        reflect(
+          @query
+            .reorder(nil)
+            .order(
+              sanitized_order_string(order_string, ordering, true),
+              sanitized_order_string('things.updated_at', 'DESC'),
+              sanitized_order_string('things.id', 'DESC')
+            )
+        )
+      end
 
       def sort_fulltext_search(ordering, value)
         return self if value.blank?
         locale = @locale&.first || I18n.available_locales.first.to_s
-        search_string = (value || '').split(' ').join('%')
+        search_string = value.to_s.split.join('%')
 
         order_string = ActiveRecord::Base.send(
           :sanitize_sql_array,
@@ -184,16 +200,17 @@ module DataCycleCore
               1 * similarity(searches.full_text, :search_string))"
             ),
             search_string: "%#{search_string}%",
-            search: (value || '').squish
+            search: value.to_s.squish
           ]
         )
         reflect(
           @query
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ? LEFT JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale', locale]))
-            .reorder(
-              Arel.sql(sanitized_order_string(order_string, ordering, true)),
-              Arel.sql('things.updated_at DESC'),
-              Arel.sql('things.id DESC')
+            .reorder(nil)
+            .order(
+              sanitized_order_string(order_string, ordering, true),
+              sanitized_order_string('things.updated_at', 'DESC'),
+              sanitized_order_string('things.id', 'DESC')
             )
         )
       end
@@ -203,10 +220,11 @@ module DataCycleCore
       def sort_fulltext_search_with_cte(ordering)
         reflect(
           @query
-            .reorder(
-              Arel.sql(sanitized_order_string('fulltext_boost', ordering, true)),
-              Arel.sql('things.updated_at DESC'),
-              Arel.sql('things.id DESC')
+            .reorder(nil)
+            .order(
+              sanitized_order_string('fulltext_boost', ordering, true),
+              sanitized_order_string('things.updated_at', 'DESC'),
+              sanitized_order_string('things.id', 'DESC')
             )
         )
       end
@@ -216,7 +234,7 @@ module DataCycleCore
         raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for order string: #{order_string}" if order_string.blank?
 
         order_nulls = nulls_last ? ' NULLS LAST' : ''
-        ActiveRecord::Base.send(:sanitize_sql_for_order, "#{order_string} #{order}#{order_nulls}")
+        Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_order, "#{order_string} #{order}#{order_nulls}"))
       end
     end
   end

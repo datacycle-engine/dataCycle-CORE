@@ -4,11 +4,10 @@ module DataCycleCore
   module HistoryHelper
     INDICATOR_CLASSES = { '+' => 'has-changes new', '-' => 'has-changes remove', '~' => 'has-changes edit', '0' => 'has-changes irrelevant' }.freeze
 
-    def attribute_changes(diff, key)
-      return nil if diff.blank?
-      item_path_array = key.split(/[\[\]]+/)
+    def attribute_changes(content, diff, key)
+      return diff unless diff.present? && content.respond_to?(key)
 
-      save_navigate(diff, item_path_array)
+      save_navigate(diff, [key])
     end
 
     def save_navigate(diff, item_path)
@@ -279,10 +278,8 @@ module DataCycleCore
     end
 
     def history_version_html(content)
-      date = content.try(:history_valid)&.first || content.try(:updated_at)
-
       history_html = ActionView::OutputBuffer.new
-      history_html << t('history.updated_at_html', locale: active_ui_locale, language: content.last_updated_locale || content.first_available_locale, date: l(date.in_time_zone, locale: active_ui_locale, format: :history)) if date.present?
+      content.try(:updated_at)&.then { |date| history_html << t('history.updated_at_html', locale: active_ui_locale, language: content.last_updated_locale || content.first_available_locale, date: l(date.in_time_zone, locale: active_ui_locale, format: :history)) }
       history_html << ' '
       history_html << history_by_link(content.updated_by_user)
 
@@ -306,6 +303,37 @@ module DataCycleCore
       else
         l(publication&.publish_at&.to_date, format: :long, locale: active_ui_locale)
       end
+    end
+
+    def diff_target_id(object)
+      object.is_a?(DataCycleCore::Thing::History) ? object.try(:thing_id) : object.id
+    end
+
+    def diff_target_by_key(key:, diff_target: nil, **_args)
+      return if diff_target.nil?
+
+      diff_target.try(key&.attribute_name_from_key)
+    end
+
+    def diff_target_by_id(object:, **args)
+      diff_objects = diff_target_by_key(args)
+
+      return if diff_objects.nil?
+
+      case diff_objects
+      when DataCycleCore::Thing::History.const_get(:ActiveRecord_AssociationRelation), DataCycleCore::Thing::History.const_get(:ActiveRecord_Relation)
+        diff_objects.find_by(thing_id: diff_target_id(object))
+      else
+        diff_objects.find_by(id: diff_target_id(object))
+      end
+    end
+
+    def object_viewer_history_options(object:, key:, options: {}, item_diff: nil, **_args)
+      object_options = (options.deep_dup || {}).merge({ item_diff: attribute_changes(object, item_diff || options&.dig('item_diff'), key) }).with_indifferent_access
+      object_options[:mode] = changes_mode(object_options[:item_diff])
+      object_options[:force_render] = true if object.template_name == 'Publikations-Plan'
+
+      object_options
     end
   end
 end

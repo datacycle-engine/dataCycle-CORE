@@ -7,19 +7,15 @@ module DataCycleCore
 
     def get_filtered_results(query: nil, user_filter: { scope: 'backend' }, watch_list: nil)
       @stored_filter ||= DataCycleCore::StoredFilter.new
-      @filters = pre_filters.dup
+      @filters = pre_filters.reject { |f| DataCycleCore::DataHashService.blank?(f['v']) }
+      @stored_filter.apply_sorting_from_parameters(sort_params: sort_params.dup, filters: @filters)
       @stored_filter.parameters ||= @filters || []
-      @stored_filter.parameters&.reject! { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? }
-      query = query&.dup
       @language ||= Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
       @stored_filter.language = @language
-
-      @stored_filter.apply_sorting_from_parameters(sort_params: sort_params.dup)
       @sort_params = @stored_filter.sort_parameters
 
-      @stored_filter.apply_user_filter(current_user, user_filter) if user_filter.present?
-      @stored_filter.apply_params_for_data_links(session[:data_link_ids]) if current_user.is_role?('guest') && session[:data_link_ids].present?
-      query = @stored_filter.apply(query: query, skip_ordering: @count_only, watch_list: watch_list)
+      @stored_filter.apply_user_filter(current_user, user_filter, current_user.is_role?('guest')) if user_filter.present?
+      query = @stored_filter.apply(query: query&.dup, skip_ordering: @count_only, watch_list: watch_list)
 
       # used on dashboard
       @filters = @stored_filter.parameters.select { |f| f.key?('c') }.each { |f| f['identifier'] = SecureRandom.hex(10) }
@@ -136,7 +132,7 @@ module DataCycleCore
       endpoint_id = permitted_params[:id]
       @linked_stored_filter = nil
       if endpoint_id.present?
-        @stored_filter = DataCycleCore::StoredFilter.find_by(id: endpoint_id)
+        @stored_filter = DataCycleCore::StoredFilter.by_id_or_slug(endpoint_id).first
 
         if @stored_filter
           authorize! :api, @stored_filter unless any_authenticity_token_valid?
@@ -144,7 +140,7 @@ module DataCycleCore
           @classification_trees_parameters |= Array.wrap(@stored_filter.classification_tree_labels)
           @classification_trees_filter = @classification_trees_parameters.present?
         else
-          raise ActiveRecord::RecordNotFound unless (@watch_list = DataCycleCore::WatchList.without_my_selection.find_by(id: endpoint_id))
+          raise ActiveRecord::RecordNotFound unless (@watch_list = DataCycleCore::WatchList.without_my_selection.by_id_or_slug(endpoint_id).first)
         end
       end
 
@@ -155,7 +151,7 @@ module DataCycleCore
 
       query = filter.apply(watch_list: @watch_list)
 
-      query = query.watch_list_id(endpoint_id) unless @watch_list.nil?
+      query = query.watch_list_id(@watch_list.id) unless @watch_list.nil?
 
       query = query.fulltext_search(@full_text_search) if @full_text_search
 

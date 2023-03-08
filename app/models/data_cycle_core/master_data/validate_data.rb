@@ -13,11 +13,11 @@ module DataCycleCore
       # keys of the data-hash defined as keys in the template
       def validate(data, validation_hash, strict = false, verbose = false)
         if data.blank?
-          (@error[:error][validation_hash['name']&.parameterize(separator: '_')] ||= []) << { path: 'validation.errors.no_data' }
+          (@error[:error][validation_hash['name']&.underscore_blanks] ||= []) << { path: 'validation.errors.no_data' }
           return @error
         end
         if validation_hash.blank?
-          (@error[:error][validation_hash['name']&.parameterize(separator: '_')] ||= []) << { path: 'validation.errors.no_validation' }
+          (@error[:error][validation_hash['name']&.underscore_blanks] ||= []) << { path: 'validation.errors.no_validation' }
           return @error
         end
 

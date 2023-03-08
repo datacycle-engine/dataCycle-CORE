@@ -3,16 +3,24 @@
     <span class="title <%= 'global' if stored_filter.system %>" title="<%= stored_filter.name %>">
       <%= stored_filter.system ? tag.i(class: 'fa fa-globe') : tag.i(class: 'fa fa-filter') %> <%= stored_filter.name %>
     </span>
-    <% if stored_filter.api%>
-      <span class="content-title-api <%= 'global' if stored_filter.system %>">API</span>
-    <% end %>
 
-    <span class="stored-date"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= l(Time.zone.at(stored_filter.created_at.to_datetime), format: :edit, locale: active_ui_locale) %></span>
+    <%= tag.span(
+      'API',
+      class: "content-title-api copy-to-clipboard #{'global' if stored_filter.system}",
+      data: {
+        value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_url", id: stored_filter),
+        dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale)
+      }
+    ) if stored_filter.api %>
+
+    <%= tag.span(stored_filter.slug, class: 'slug copy-to-clipboard', data: { dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale) }) if stored_filter.slug.present? %>
   <% end %>
 
   <div class="buttons">
+    <span class="stored-date"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= l(Time.zone.at(stored_filter.created_at.to_datetime), format: :edit, locale: active_ui_locale) %></span>
+
     <%= render 'data_cycle_core/application/preview/widget_list', content: stored_filter if DataCycleCore::Feature::Preview.enabled? || stored_filter.api %>
 
-    <%= link_to tag.i(class: 'fa fa-external-link'), saved_searches_stored_filters_path(q: stored_filter.id), target: :_blank, data: { dc_tooltip: t('data_cycle_core.stored_searches.show_in_my_saved_searches', locale: active_ui_locale) } %>
+    <%= link_to tag.i(class: 'fa fa-external-link'), saved_searches_stored_filters_path(q: stored_filter.slug.presence || stored_filter.id), target: :_blank, data: { dc_tooltip: t('data_cycle_core.stored_searches.show_in_my_saved_searches', locale: active_ui_locale) } %>
   </div>
 </li>

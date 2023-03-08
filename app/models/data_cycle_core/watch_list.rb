@@ -4,6 +4,8 @@ module DataCycleCore
   class WatchList < ApplicationRecord
     validates :full_path, presence: true
 
+    default_scope { includes(:collection_configuration) }
+
     scope :by_user, ->(user) { where(user: user) }
     scope :my_selection, -> { unscope(where: :my_selection).where(my_selection: true) }
     scope :without_my_selection, -> { unscope(where: :my_selection).where(my_selection: false) }
@@ -23,13 +25,24 @@ module DataCycleCore
 
     has_many :activities, as: :activitiable, dependent: :destroy
 
+    has_one :collection_configuration
+    accepts_nested_attributes_for :collection_configuration, update_only: true
+    delegate :slug, to: :collection_configuration, allow_nil: true
+
     before_save :split_full_path, if: :full_path_changed?
+    before_save :update_slug, if: :update_slug?
 
     delegate :translated_locales, to: :things
     alias available_locales translated_locales
 
     def self.watch_list_data_hashes
       DataCycleCore::WatchListDataHash.where(watch_list_id: all.select(:id))
+    end
+
+    def self.by_id_or_slug(value)
+      return none if value.blank?
+
+      value.to_s.uuid? ? where(id: value) : where(collection_configuration: { slug: value })
     end
 
     def valid_write_links?
@@ -53,7 +66,7 @@ module DataCycleCore
     end
 
     def clear_if_not_active
-      return unless my_selection && !watch_list_data_hashes.where('updated_at >= ?', 12.hours.ago).exists? && watch_list_data_hashes.present?
+      return unless my_selection && !watch_list_data_hashes.exists?(['updated_at >= ?', 12.hours.ago]) && watch_list_data_hashes.present?
 
       watch_list_data_hashes.clear
     end
@@ -83,6 +96,8 @@ module DataCycleCore
         RETURNING hashable_id;
       SQL
 
+      update_column(:updated_at, Time.zone.now)
+
       ids.pluck('hashable_id')
     end
 
@@ -93,12 +108,15 @@ module DataCycleCore
         RETURNING hashable_id;
       SQL
 
+      update_column(:updated_at, Time.zone.now)
+
       ids.pluck('hashable_id')
     end
 
     def update_order_by_array(order_array)
       return if order_array.blank?
 
+      update_column(:updated_at, Time.zone.now)
       update_column(:manual_order, true) unless manual_order
 
       watch_list_data_hashes
@@ -117,6 +135,14 @@ module DataCycleCore
 
       self.full_path_names = path_items[0...-1]
       self.name = path_items.last
+    end
+
+    def update_slug?
+      name_changed? && slug.blank?
+    end
+
+    def update_slug
+      self.collection_configuration_attributes = { slug: name&.to_slug }
     end
   end
 end

@@ -1,5 +1,5 @@
 <ul class="pg-table-stats">
-  <% DataCycleCore::StatsDatabase.new(current_user.id, true)&.pg_tables&.each do |table, data| %>
+  <% DataCycleCore::StatsDatabase.new.load_pg_stats&.each do |table, data| %>
     <li class="table-stat">
       <span class="table-name" title="<%= table.classify %>"><%= table.classify %></span>
       <span class="table-count"><%= number_with_delimiter(data['count'], locale: active_ui_locale) %></span>

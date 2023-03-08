@@ -330,24 +330,23 @@ module DataCycleCore
       end
 
       # returns data the same way, as .as_json
-      def to_h(timestamp = Time.zone.now)
+      def to_h
         Array.wrap(property_names)
           .difference(virtual_property_names)
-          .index_with { |k| attribute_to_h(k, timestamp) }
+          .index_with { |k| attribute_to_h(k) }
           .deep_stringify_keys
       end
 
       # returns data the same way, as .as_json
-      def to_h_partial(partial_properties, timestamp = Time.zone.now)
+      def to_h_partial(partial_properties)
         Array.wrap(partial_properties)
           .intersection(property_names)
-          .difference(virtual_property_names)
-          .index_with { |k| attribute_to_h(k, timestamp) }
+          .index_with { |k| attribute_to_h(k) }
           .deep_stringify_keys
       end
 
       # returns data the same way, as .as_json
-      def attribute_to_h(property_name, timestamp = Time.zone.now)
+      def attribute_to_h(property_name)
         if property_name == 'id' && history?
           send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
         elsif plain_property_names.include?(property_name)
@@ -359,7 +358,7 @@ module DataCycleCore
           embedded_hash.presence
         elsif embedded_property_names.include?(property_name)
           embedded_array = send(property_name)
-          embedded_array = embedded_array.map { |item| item.get_data_hash(timestamp) } if embedded_array.present?
+          embedded_array = embedded_array.map(&:get_data_hash) if embedded_array.present?
           embedded_array.blank? ? [] : embedded_array.compact
         elsif asset_property_names.include?(property_name)
           send(property_name)&.id
@@ -381,7 +380,7 @@ module DataCycleCore
       end
 
       def history?
-        respond_to?(:history_valid)
+        is_a?(DataCycleCore::Thing::History)
       end
 
       def collect_properties(definition = schema, parents = [])
@@ -400,28 +399,29 @@ module DataCycleCore
         @enabled_features ||= DataCycleCore::FeatureService.enabled_features(schema)
       end
 
-      def get_property_value(property_name, property_definition, filter = nil, overlay_flag = false, add_filter = nil)
-        key = [property_name, property_definition, I18n.locale, filter, overlay_flag, add_filter]
+      def get_property_value(property_name, property_definition, filter = nil, overlay_flag = false)
+        key = attibute_cache_key(property_name, filter, overlay_flag)
+
         return @get_property_value[key] if @get_property_value&.key?(key)
 
-        (@get_property_value ||= {})[key] = if virtual_property_names.include?(key[0])
-                                              load_virtual_attribute(key[0], key[2])
-                                            elsif plain_property_names(true).include?(key[0])
-                                              load_json_attribute(key[0], key[1], key[4])
-                                            elsif included_property_names(true).include?(key[0])
-                                              load_included_data(key[0], key[1], key[4])
-                                            elsif classification_property_names(true).include?(key[0])
-                                              load_classifications(key[0], key[4])
-                                            elsif linked_property_names(true).include?(key[0])
-                                              load_linked_objects(key[0], key[3], false, [key[2]], key[4])
-                                            elsif embedded_property_names(true).include?(key[0])
-                                              load_embedded_objects(key[0], key[3], !key.dig(1, 'translated'), [key[2]], key[4])
-                                            elsif asset_property_names.include?(key[0]) # no overlay
-                                              load_asset_relation(key[0])&.first
-                                            elsif schedule_property_names(true).include?(key[0])
-                                              load_schedule(key[0], key[4])
-                                            elsif timeseries_property_names.include?(key[0])
-                                              load_timeseries(key[0])
+        (@get_property_value ||= {})[key] = if virtual_property_names.include?(property_name)
+                                              load_virtual_attribute(property_name, I18n.locale)
+                                            elsif plain_property_names(true).include?(property_name)
+                                              load_json_attribute(property_name, property_definition, overlay_flag)
+                                            elsif included_property_names(true).include?(property_name)
+                                              load_included_data(property_name, property_definition, overlay_flag)
+                                            elsif classification_property_names(true).include?(property_name)
+                                              load_classifications(property_name, overlay_flag)
+                                            elsif linked_property_names(true).include?(property_name)
+                                              load_linked_objects(property_name, filter, false, [I18n.locale], overlay_flag)
+                                            elsif embedded_property_names(true).include?(property_name)
+                                              load_embedded_objects(property_name, filter, !property_definition&.dig('translated'), [I18n.locale], overlay_flag)
+                                            elsif asset_property_names.include?(property_name) # no overlay
+                                              load_asset_relation(property_name)&.first
+                                            elsif schedule_property_names(true).include?(property_name)
+                                              load_schedule(property_name, overlay_flag)
+                                            elsif timeseries_property_names.include?(property_name)
+                                              load_timeseries(property_name)
                                             else
                                               raise NotImplementedError
                                             end
@@ -548,34 +548,46 @@ module DataCycleCore
         Appsignal.send_error(e) do |transaction|
           transaction.set_namespace("method set_property_value is deprecated use set_data_hash instead. Thing: #{id}(#{template_name}) - #{property_name}")
         end
+
         raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
+
         ActiveSupport::Deprecation.warn("DataCycleCore::Content::Content setter should not be used any more! property_name: #{property_name}, property_definition: #{property_definition}, value: #{value}")
-        send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
-             (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value }))
-        reload_memoized [property_name, property_definition]
+
+        send(
+          NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
+          (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value })
+        )
+
+        reload_memoized attibute_cache_key(property_name)
       end
 
-      def set_memoized_attribute(key, value)
+      def set_memoized_attribute(key, value, filter = nil, overlay_flag = false)
         definition = properties_for(key)
 
         return send("#{key}=", value) if definition['storage_location'] == 'column'
 
-        if plain_property_names.include?(key)
-          value = convert_to_type(definition['type'], value, definition)
-        elsif value.is_a?(ActiveRecord::Relation) || (value.is_a?(::Array) && value.first.is_a?(ActiveRecord::Base))
-          return (@get_property_value ||= {})[[key, definition, I18n.locale, nil, false, nil]] = value
-        elsif linked_property_names.include?(key) || embedded_property_names.include?(key)
-          value = DataCycleCore::Thing.where(id: value)
-        elsif classification_property_names.include?(key)
-          value = DataCycleCore::Classification.where(id: value)
-        elsif asset_property_names.include?(key)
-          value = DataCycleCore::Asset.where(id: value)
-        end
+        attibute_cache_key = attibute_cache_key(key, filter, overlay_flag)
 
-        (@get_property_value ||= {})[[key, definition, I18n.locale, nil, false, nil]] = value
+        (@get_property_value ||= {})[attibute_cache_key] = if plain_property_names.include?(key)
+                                                             convert_to_type(definition['type'], value, definition)
+                                                           elsif value.is_a?(ActiveRecord::Relation) || (value.is_a?(::Array) && value.first.is_a?(ActiveRecord::Base))
+                                                             value
+                                                           elsif linked_property_names.include?(key) || embedded_property_names.include?(key)
+                                                             DataCycleCore::Thing.where(id: value)
+                                                           elsif classification_property_names.include?(key)
+                                                             DataCycleCore::Classification.where(id: value)
+                                                           elsif asset_property_names.include?(key)
+                                                             DataCycleCore::Asset.where(id: value)
+                                                           else # rubocop:disable Lint/DuplicateBranch
+                                                             value
+                                                           end
       end
 
       private
+
+      def attibute_cache_key(key, filter = nil, overlay_flag = false)
+        "#{key}_#{I18n.locale}_#{filter.hash}_#{overlay_flag}"
+      end
 
       def reload_memoized(key = nil)
         return unless instance_variable_defined?(:@get_property_value)

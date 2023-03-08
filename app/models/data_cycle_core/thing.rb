@@ -13,8 +13,8 @@ module DataCycleCore
       include Content::Restorable
       prepend Content::ContentOverlay
 
-      extend ::Translations
-      translates :name, :description, :slug, :content, :history_valid, backend: :table
+      extend ::Mobility
+      translates :name, :description, :slug, :content, backend: :table
       default_scope { i18n }
 
       content_relations table_name: 'things', postfix: 'history'
@@ -70,7 +70,7 @@ module DataCycleCore
     has_many :property_dependencies, class_name: 'PropertyDependency', inverse_of: :thing, foreign_key: :content_id
     has_many :dependent_properties, class_name: 'PropertyDependency', inverse_of: :dependent_thing, foreign_key: :dependent_content_id
 
-    has_many :histories, -> { joins(:translations).order(Arel.sql('LOWER(thing_history_translations.history_valid) DESC, thing_history_translations.created_at DESC')) }, class_name: 'DataCycleCore::Thing::History', foreign_key: :thing_id, inverse_of: :thing
+    has_many :histories, -> { joins(:translations).order(updated_at: :desc, created_at: :desc) }, class_name: 'DataCycleCore::Thing::History', foreign_key: :thing_id, inverse_of: :thing
     has_many :scheduled_data, class_name: 'DataCycleCore::Schedule', dependent: :destroy, inverse_of: :thing
 
     has_many :duplicate_candidates, -> { where(false_positive: false).order(score: :desc) }, class_name: 'DuplicateCandidate', foreign_key: :original_id, inverse_of: :original
@@ -80,7 +80,7 @@ module DataCycleCore
 
     has_many :searches, foreign_key: :content_data_id, dependent: :destroy, inverse_of: :content_data
 
-    extend ::Translations
+    extend ::Mobility
     translates :name, :description, :slug, :content, backend: :table
     default_scope { i18n }
 

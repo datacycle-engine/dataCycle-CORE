@@ -3,7 +3,6 @@
 module DataCycleCore
   module Geo
     class GeojsonRenderer < ::DataCycleCore::Geo::BaseRenderer
-      SIMPLIFY_FACTOR = 0.00001
       GEOMETRY_PRECISION = 5
       CRS_SQL = ", 'crs', json_build_object('type', 'name', 'properties', json_build_object('name', 'urn:ogc:def:crs:EPSG::4326'))"
 
@@ -11,10 +10,10 @@ module DataCycleCore
         super || empty_geojson
       end
 
-      def contents_with_default_scope(simplify_factor:)
-        query = super(simplify_factor: simplify_factor)
+      def contents_with_default_scope
+        query = super
 
-        query = query.where.not(line: nil, location: nil)
+        query = query.where.not(geom_simple: nil)
 
         query
       end
@@ -22,7 +21,7 @@ module DataCycleCore
       def main_sql
         <<-SQL.squish
               SELECT #{@single_item ? geojson_detail_select_sql : geojson_select_sql}
-              FROM (#{contents_with_default_scope(simplify_factor: @simplify_factor.presence || SIMPLIFY_FACTOR).to_sql}) AS t
+              FROM (#{contents_with_default_scope.to_sql}) AS t
         SQL
       end
 

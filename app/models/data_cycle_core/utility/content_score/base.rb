@@ -12,7 +12,7 @@ module DataCycleCore
 
             return unless properties&.key?('content_score')
 
-            parameters = Array.wrap(properties&.dig('content_score', 'parameters')).map { |p| p.split('.').first }.concat([key]).uniq.compact.intersection(content.property_names)
+            parameters = Array.wrap(properties&.dig('content_score', 'parameters')).map { |p| p.split('.').first }.concat([key]).compact.uniq.intersection(content.property_names)
 
             data_hash = load_missing_values(data_hash.try(:dc_deep_dup), content, parameters)
 

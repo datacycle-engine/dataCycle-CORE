@@ -1,0 +1,33 @@
+<% if @objects.nil? %>
+  <%= render_embedded_object_partial(
+          key: @key,
+          definition: @definition,
+          parameters: {
+            index: @index,
+            options: @options,
+            locale: @locale,
+            new_content: true
+          },
+          content: @content
+        ) %>
+<% else %>
+  <% @objects.presence&.each_with_index do |object, index| %>
+    <%= render_embedded_object_partial(
+            key: @key,
+            definition: @definition,
+            parameters: {
+              index: @index.presence&.to_i + index,
+              options: @options,
+              object: object,
+              locale: @locale,
+              duplicated_content: @duplicated_content.to_s == 'true',
+              force_render_child_locales: true,
+              force_render_locales: object.available_locales,
+              hide_embedded: @hide_embedded.to_s == 'true',
+              attribute_locale: @attribute_locale,
+              translate: @translate
+            },
+            content: @content
+      ) %>
+  <% end %>
+<% end %>

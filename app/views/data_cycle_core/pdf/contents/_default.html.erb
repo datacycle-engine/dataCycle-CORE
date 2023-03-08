@@ -1,0 +1,7 @@
+<div class="content">
+  <%= tag.send("h#{header_depth}", content.try(:name)) %>
+  <div class="attributes">
+    <%= render 'data_cycle_core/pdf/contents/attributes/classifications', content: content, header_depth: 2 %>
+    <%= render_pdf_properties(content: content, blacklist: ['name'], options: { header_depth: 2 }) %>
+  </div>
+</div>

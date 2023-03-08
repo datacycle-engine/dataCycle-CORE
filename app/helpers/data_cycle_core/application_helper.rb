@@ -131,7 +131,7 @@ module DataCycleCore
 
     # Returns the full title on a per-page basis.
     def full_title
-      base_title = I18n.t('title') || 'dataCycle'
+      base_title = I18n.t('title', locale: active_ui_locale) || 'dataCycle'
       if content_for(:title).blank?
         base_title
       else
@@ -289,7 +289,7 @@ module DataCycleCore
     end
 
     def render_content_partial(partial, parameters)
-      raise "try to render content_partial that is not a thing: #{partial} || #{parameters}" unless ['thing', 'thing_history'].include?(parameters[:content].class.class_name.underscore)
+      raise "try to render content_partial that is not a thing: #{partial} || #{parameters}" unless ['data_cycle_core/thing', 'data_cycle_core/thing/history'].include?(parameters[:content].class.name.underscore)
 
       partials = [
         'content'

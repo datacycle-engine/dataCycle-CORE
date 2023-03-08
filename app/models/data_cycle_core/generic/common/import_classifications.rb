@@ -196,9 +196,7 @@ module DataCycleCore
           if classification.new_record?
             classification_alias = DataCycleCore::ClassificationAlias.create!(
               external_source_id: external_source_id,
-              name: classification_data[:name],
-              description: classification_data[:description],
-              uri: classification_data[:uri]
+              **classification_data.slice(:name, :description, :uri, :classification_polygons_attributes)
             )
 
             DataCycleCore::ClassificationGroup.create!(
@@ -223,10 +221,12 @@ module DataCycleCore
             )
           else
             primary_classification_alias = classification.primary_classification_alias
-            primary_classification_alias.name = classification_data[:name]
-            primary_classification_alias.description = classification_data[:description] if classification_data[:description].present?
-            primary_classification_alias.uri = classification_data[:uri] if classification_data[:uri].present?
-            primary_classification_alias.save!
+
+            if classification_data[:classification_polygons_attributes].present? && (polygon = primary_classification_alias.classification_polygons.first)
+              classification_data[:classification_polygons_attributes].first[:id] = polygon.id
+            end
+
+            primary_classification_alias.update!(name: classification_data[:name], **classification_data.slice(:description, :uri, :classification_polygons_attributes).compact_blank)
 
             classification_tree = primary_classification_alias.classification_tree
             classification_tree.parent_classification_alias = parent_classification_alias

@@ -1,0 +1,42 @@
+# frozen_string_literal: true
+
+default_options = {
+  include: @include_parameters,
+  fields: @fields_parameters,
+  field_filter: @field_filter,
+  languages: @language,
+  full: true
+}
+options = default_options.merge(defined?(options) ? options || {} : {})
+options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
+
+json ||= {}
+
+if @classification_tree_label.present?
+  json.merge! render 'context', languages: options[:languages]
+
+  if @classification_id.present?
+    unless @permitted_params.dig(:section, :'@graph')&.to_i&.zero?
+      json['@graph'] = []
+      json['@graph'] << Rails.cache.fetch(api_v4_cache_key(@classification_aliases.first, options[:languages], options[:include], options[:fields], @api_subversion, options[:full]), expires_in: 1.year + Random.rand(7.days)) do
+        I18n.with_locale(@classification_aliases.first.first_available_locale(options[:languages])) do
+          render 'classification', content: @classification_aliases.first, options: options.dup
+        end
+      end
+    end
+  else
+    json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options: options, show_all_concepts: true
+
+    json.merge! render 'pagination_links',
+                       objects: @classification_aliases,
+                       object_url: ->(params) { classifications_api_v4_concept_scheme_url(@api_subversion, @classification_tree_label, params.merge(classification_id: @classification_id)) }
+  end
+
+  aliases = @classification_aliases.index_by(&:id)
+  json['@graph'].each do |c|
+    c['dc:thingCountWithSubtree'] = aliases[c['@id']].thing_count_with_subtree
+    c['dc:thingCountwithoutSubtree'] = aliases[c['@id']].thing_count_without_subtree
+  end
+end
+
+json

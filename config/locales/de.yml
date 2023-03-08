@@ -10,13 +10,13 @@ de:
         ü: ue
         ß: ss
   title: dataCycle
-  hello: 'Guten Tag!'
-  welcome: 'Willkommen!'
+  hello: "Guten Tag!"
+  welcome: "Willkommen!"
   order:
-    header: 'Sortierung'
-    title: 'Titel'
-    updated: 'Bearbeitet'
-  submit: 'Erstellen'
+    header: "Sortierung"
+    title: "Titel"
+    updated: "Bearbeitet"
+  submit: "Erstellen"
   settings:
 
   attribute_labels:
@@ -58,8 +58,8 @@ de:
     sv: schwedisch
     tr: türkisch
     uk: ukrainisch
-    'de-CH': schweizer-deutsch
-    'nl-BE': flämisch
+    "de-CH": schweizer-deutsch
+    "nl-BE": flämisch
     zh: chinesisch
 
   roles:
@@ -115,12 +115,13 @@ de:
 
   frontend:
     load_error: Fehler beim Laden des Inhalts.
+    update_browser: "Ihr Webbrowser unterstützt noch nicht alle notwendingen Features!<br>Bitte aktualisieren Sie Ihren Webbrowser."
     text_editor:
       insertNbsp: Geschütztes Leerzeichen einfügen
       replaceAllNbsp: Alle geschützten Leerzeichen durch normale Leerzeichen ersetzen
       replaced_all_nbsp: Alle geschützten Leerzeichen wurden durch normale Leerzeichen ersetzt!
       inlineTranslator: Text automatisch übersetzen
-    override_warning: 'Soll das Feld %{data} überschrieben werden?'
+    override_warning: "Soll das Feld %{data} überschrieben werden?"
     override_focus: Felder hervorheben
     reload_page: Seite neu laden
     upload:
@@ -141,30 +142,30 @@ de:
       error: Fehler
       remove_file: Datei entfernen
       file: Datei
-      confirm_single_to_all_html: '%{label} wirklich für alle %{template} übernehmen?'
-      confirm_all_to_all_html: '<h5>Alle Attribute für alle %{template} übernehmen</h5><p>Soll auch <b>%{label}</b> für alle %{template} übernommen werden?</p>'
+      confirm_single_to_all_html: "%{label} wirklich für alle %{template} übernehmen?"
+      confirm_all_to_all_html: "<h5>Alle Attribute für alle %{template} übernehmen</h5><p>Soll auch <b>%{label}</b> für alle %{template} übernommen werden?</p>"
     cancel: Abbrechen
     ok: Ok
     content_lock:
       renew_lock: Der Inhalt wird in %{min}min wieder freigegeben.<br><br>Wollen Sie die Sperre um %{renew}min verlängern?
       released: Der Inhalt wurde wieder freigegeben und kann nicht mehr gespeichert werden.
-    update_stored_filter: 'Filterparameter aktualisieren?<br><br>Warnung: Beeinflusst auch gespeicherte Suchen, die diese Suche verwenden.'
-    maximum_embedded: 'Maximalanzahl: %{data}'
-    minimum_embedded: 'Mindestanzahl: %{data}'
+    update_stored_filter: "Filterparameter aktualisieren?<br><br>Warnung: Beeinflusst auch gespeicherte Suchen, die diese Suche verwenden."
+    maximum_embedded: "Maximalanzahl: %{data}"
+    minimum_embedded: "Mindestanzahl: %{data}"
     gpx:
       file_missing: Datei nicht gefunden!
       empty: Die GPX-Datei beinhaltet keinen Track.
     map:
       scroll_notice:
         ctrlKey: Verwende Strg+Scrollen zum Zoomen der Karte
-        metaKey: 'Verwende ⌘+Scrollen zum Zoomen der Karte'
-        pinch: 'Verwende zwei Finger zum Zoomen/Scrollen der Karte'
+        metaKey: "Verwende ⌘+Scrollen zum Zoomen der Karte"
+        pinch: "Verwende zwei Finger zum Zoomen/Scrollen der Karte"
       filter:
         button_title: Verknüpfte Inhalte bearbeiten
       undo: Letzte Änderung rückgängig machen
       redo: Rückgängig gemachte Änderungen erneut anwenden
       upload_gpx:
-        button_title: 'GPX-Datei hochladen'
+        button_title: "GPX-Datei hochladen"
       styles:
         osm: OpenStreetMap
         topo: Topo
@@ -181,22 +182,22 @@ de:
       copy_all: Alle übernehmen
       translate: übersetzen
       copy: übernehmen
-      translate_error: 'Fehler beim Laden der Übersetzung für %{label}'
+      translate_error: "Fehler beim Laden der Übersetzung für %{label}"
       copy_all_translations:
         overlay_text: Sollen alle verfügbaren Sprachen übernommen werden?
         confirmation_text: Ja
         cancel_text: Nein, nur die aktuelle Sprache
-      copy_linked_error: 'Das Attribut konnte nicht übernommen werden: '
+      copy_linked_error: "Das Attribut konnte nicht übernommen werden: "
     validate:
       save_and_change_language: Wollen Sie speichern und auf die neue Sprache wechseln?
       agbs: AGBs müssen akzeptiert werden!
-      error: 'Fehler:'
-      warning: 'Warnung:'
+      error: "Fehler:"
+      warning: "Warnung:"
       ignore_warnings: Es sind Warnungen vorhanden (%{data}).<br>Soll der Inhalt trotzdem gespeichert werden?
       final_save: Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.
       final_save_warning: 'Um den Inhalt final abzuschicken, muss die ensprechende Checkbox<br><i class="callout inline warning">%{text}</i> angeklickt werden.'
       errors:
-        no_data: 'Keine Daten angegeben für %{data}.'
+        no_data: "Keine Daten angegeben für %{data}."
         key_figure_not_found: Kennzahl nicht gefunden.
         endpoint_error: Fehler bei der Verbindung zum Server.
         gip_no_plausible_route: Keine geeignete Route für die Berechnung der Kennzahlen gefunden. Bitte stellen Sie sicher, dass genau eine Hauptroute in Richtung hinzugefügt wurde.
@@ -236,7 +237,7 @@ de:
       neutrum: jedes
     day: Tag
     week: Woche
-    'on': am
+    "on": am
     month: Monat
     weekday: Wochentag
     dayofmonth: Tag des Monats
@@ -298,7 +299,7 @@ de:
 
   collection:
     new: Neue %{data}
-    filter: '%{data} filtern ...'
+    filter: "%{data} filtern ..."
     manual_order:
       button: Sortierung anpassen
       tooltip: Die Sortierung kann nur in der Listenansicht ohne aktive Filter angepasst werden
@@ -312,13 +313,13 @@ de:
     duplicate_record_html: Es existiert bereits ein <a href="%{url}" target="_blank">Inhalt</a> im externen Zielsystem
 
   common:
-    'true': Ja
-    'false': Nein
-    loading: 'Laden ...'
+    "true": Ja
+    "false": Nein
+    loading: "Laden ..."
     load_more: ... weitere Inhalte anzeigen
     load_all: ... alle Inhalte anzeigen
-    are_you_sure: 'Sind Sie sicher?'
-    language: 'Sprache'
+    are_you_sure: "Sind Sie sicher?"
+    language: "Sprache"
     all: Alle
     import: importiert von
     export: exportiert nach
@@ -327,11 +328,11 @@ de:
     duplicate: Duplikate
     link: Verlinkungen
     auto_translation_submit: Automatische Übersetzung gestartet
-    source_language: 'Quellsprache wählen'
-    choose_language: 'Sprache wählen'
-    searchterm: 'Suchbegriff'
+    source_language: "Quellsprache wählen"
+    choose_language: "Sprache wählen"
+    searchterm: "Suchbegriff"
     active_filters: Aktive Filter
-    no_results: 'Es wurden keine Inhalte für Ihre Filterkriterien gefunden.'
+    no_results: "Es wurden keine Inhalte für Ihre Filterkriterien gefunden."
     additional_filters:
       show: weitere Filter anzeigen
       hide: weitere Filter ausblenden
@@ -387,8 +388,8 @@ de:
     not_like: enthält nicht
     blank: ist leer
     present: ist ausgefüllt
-    is_true: 'TRUE'
-    is_false: 'FALSE'
+    is_true: "TRUE"
+    is_false: "FALSE"
     has: enthält
     has_not: enthält nicht
     assigned: zugeordnet
@@ -403,7 +404,7 @@ de:
     height: Höhe
     width: Breite
     exclude: Ausnahme
-    children_present_html: '<br><br><b>Achtung!</b><p>Es gibt verknüpfte Inhalte, diese werden mitgelöscht!</p>'
+    children_present_html: "<br><br><b>Achtung!</b><p>Es gibt verknüpfte Inhalte, diese werden mitgelöscht!</p>"
     creator: Ersteller
     abo_changed_title:
       one: Ein abonnierter Inhalt (%{title}) wurde geändert
@@ -412,18 +413,18 @@ de:
       one: Bearbeitung eines abonnierten Inhalts abgeschlossen
       other: Bearbeitung von abonnierten Inhalten abgeschlossen
     abo_changed:
-      one: 'Ein abonnierter Inhalt hat sich geändert.'
-      other: 'Folgende abonnierte Inhalte haben sich geändert:'
+      one: "Ein abonnierter Inhalt hat sich geändert."
+      other: "Folgende abonnierte Inhalte haben sich geändert:"
     abo_finalized:
-      one: 'Die Bearbeitung eines geteilten Inhalts durch einen Externen wurde abgeschlossen.'
-      other: 'Die Bearbeitung von geteilten Inhalten durch Externe wurde abgeschlossen.'
+      one: "Die Bearbeitung eines geteilten Inhalts durch einen Externen wurde abgeschlossen."
+      other: "Die Bearbeitung von geteilten Inhalten durch Externe wurde abgeschlossen."
     parent: Container
     subscribe_text: Klicken Sie hier um regelmäßig über Änderungen informiert zu werden.
     unsubscribe_text: Bereits abonniert.
     life_cycle: Lebenszyklus
     create_new_content: Neuen Inhalt erstellen
     data_type: Inhaltstyp
-    select_asset: '%{data} auswählen'
+    select_asset: "%{data} auswählen"
     select_asset_title: Hochgeladene Dateien
     my_assets: Meine Dateien
     select_assets: Dateien verknüpfen
@@ -432,20 +433,20 @@ de:
     external_connections:
       one: Externe Verknüpfung
       other: Externe Verknüpfungen
-    create_via_mediaarchive: '%{data} über Medienarchiv erstellen'
+    create_via_mediaarchive: "%{data} über Medienarchiv erstellen"
     normalize: Normalisieren
     required_field: Dieses Feld ist ein Pflichtfeld
     preview: Vorschau
     duplicates: Duplikate
     duplicates_exist:
-      one: '%{data} mögliches Duplikat'
-      other: '%{data} mögliche Duplikate'
+      one: "%{data} mögliches Duplikat"
+      other: "%{data} mögliche Duplikate"
     cant_create_duplicate: Datei kann nicht importiert werden, da es sich um ein Duplikat handelt
     related_items: Verknüpfte Inhalte
     generated_value_placeholder: Dieser Wert wird automatisch gesetzt
-    merge_warning_html: 'Das Duplikat wir gelöscht.<br>Fortfahren?'
+    merge_warning_html: "Das Duplikat wir gelöscht.<br>Fortfahren?"
     additional_classifications: weitere Klassifizierungen
-    bulk_edit_locked_html: '<br><br>Mindestens ein Inhalt kann von Ihnen nicht bearbeitet werden, deshalb ist die Bulk-Bearbeitung gesperrt.'
+    bulk_edit_locked_html: "<br><br>Mindestens ein Inhalt kann von Ihnen nicht bearbeitet werden, deshalb ist die Bulk-Bearbeitung gesperrt."
     bulk_update:
       check_box_labels:
         override_html: '<span class="attribute-title">%{data}</span> überschreiben'
@@ -453,7 +454,7 @@ de:
         remove_html: 'Ausgewählte <span class="attribute-title">%{data}</span> entfernen'
       button:
         limited: Es können maximal %{data} Inhalte gleichzeitig bearbeitet werden.
-    watch_list_external_things_locked_html: '<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>'
+    watch_list_external_things_locked_html: "<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>"
     content_locked_html: 'Der Inhalt wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
     content_locked_with_name_html: '%{name} wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
     multiple_content_locks_html: '<span class="lock-count">%{data}</span> Inhalte werden gerade bearbeitet'
@@ -466,6 +467,7 @@ de:
       gpx: GPX-Datei
       xml: XML-Format
       indesign: Adobe InDesign
+      pdf: PDF
       version:
         original: Original
         default: Default
@@ -476,8 +478,8 @@ de:
       confirmation:
         download: Download
         terms_not_checked: Die Nutzungsbedingungen müssen akzeptiert werden
-        terms_of_use_html: 'Nutzungsbedingungen'
-        terms_of_use_link_html: 'Ich akzeptiere die %{link}'
+        terms_of_use_html: "Nutzungsbedingungen"
+        terms_of_use_link_html: "Ich akzeptiere die %{link}"
         terms_of_use_link_text: Nutzungsbedingungen
         download_start: Download starten
         download_preparing: Download wird vorbereitet ...
@@ -511,23 +513,23 @@ de:
     no_name: unbenannt
     o_clock: Uhr
     and: und
-    'yes': Ja
-    'no': Nein
-    merged_with_version_name: 'zusammengeführt mit %{name} (#%{id})'
+    "yes": Ja
+    "no": Nein
+    merged_with_version_name: "zusammengeführt mit %{name} (#%{id})"
 
   embedded:
     move_down: nach unten verschieben
     move_up: nach oben verschieben
     open_all: Alle aufklappen
     close_all: Alle zuklappen
-    button_title: '%{title} hinzufügen'
+    button_title: "%{title} hinzufügen"
 
   upload:
-    drag_and_drop_html: '<p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>über Systemdialog auswählen</b></u></p>'
+    drag_and_drop_html: "<p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>über Systemdialog auswählen</b></u></p>"
     system_dialog: Bilder über Systemdialog auswählen
     or: oder
-    select_from_datacycle: 'Bereits hochgeladene %{data} verwenden'
-    copy_all_title: 'Alle Attribute von diesem %{single} für alle %{multiple} übernehmen'
+    select_from_datacycle: "Bereits hochgeladene %{data} verwenden"
+    copy_all_title: "Alle Attribute von diesem %{single} für alle %{multiple} übernehmen"
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -550,7 +552,7 @@ de:
     candidates: Mögliche Duplikate
     score: Score
     merge: zusammenführen
-    merge_with: '%{data} zusammenführen'
+    merge_with: "%{data} zusammenführen"
     merge_content: Inhalte zusammenführen
     mark_false_positive: kein Duplikat
     switch: Original und Duplikat vertauschen
@@ -565,10 +567,10 @@ de:
   feature:
     content_score:
       tooltip:
-        title_html: '<b>Content-Score</b>'
-        min: 'Minimal: %{value}'
-        optimal: 'Optimal: %{value}'
-        max: 'Maximal: %{value}'
+        title_html: "<b>Content-Score</b>"
+        min: "Minimal: %{value}"
+        optimal: "Optimal: %{value}"
+        max: "Maximal: %{value}"
     duplicate_candidate:
       manual_button: Manuell zum Zusammenführen auswählen
     releasable:
@@ -576,15 +578,15 @@ de:
       mailer:
         remind_receiver:
           subject:
-            one: 'Erinnerung: Bearbeitung von Inhalt abschließen'
-            other: 'Erinnerung: Bearbeitung von Inhalten abschließen'
+            one: "Erinnerung: Bearbeitung von Inhalt abschließen"
+            other: "Erinnerung: Bearbeitung von Inhalten abschließen"
           first_line:
             one: Folgender Inhalt wurde seit mehr als einer Woche nicht bearbeitet und die Bearbeitung wurde noch nicht abgeschlossen.
             other: Folgende Inhalte wurden seit mehr als einer Woche nicht bearbeitet und die Bearbeitung wurde noch nicht abgeschlossen.
           second_line: Bitte ergänzen Sie fehlende Inhalte und schließen Sie die Bearbeitung ab!
     named_version:
       input_label: Versionsname
-      version_name: 'Version: %{name}'
+      version_name: "Version: %{name}"
       remove_version_name: Versionsname entfernen
       confirm_remove: 'Versionsname "%{name}" entfernen?'
       version_name_removed: Der Versionsname wurde entfernt!
@@ -615,9 +617,9 @@ de:
     translate:
       inline_success: Der Text wurde von %{source_locale} nach %{target_locale} übersetzt.
       error_code:
-        401: &translate_error_code_401 'Der Zugriff auf die DeepL API wurde verweigert'
+        401: &translate_error_code_401 "Der Zugriff auf die DeepL API wurde verweigert"
         403: *translate_error_code_401
-        456: 'Das Kontingent für die DeepL API wurde aufgebraucht'
+        456: "Das Kontingent für die DeepL API wurde aufgebraucht"
 
     report_generator:
       downloads_popular: Top 50 Downloads
@@ -688,7 +690,7 @@ de:
     send_subject: Geteilter Link zu einem Inhalt
     update_subject: Geteilte Inhaltssammlung wurde aktualisiert
     notice: Hinweis
-    from: '%{from}'
+    from: "%{from}"
     external_link_text_html: 'Sie haben einen neuen Inhalt mit dem Titel "%{title}" angelegt.'
     external_link_button_notice: Über den folgenden Link können Sie noch fehlende Details ergänzen.
     external_link_instructions: Anleitung zum Erfassen von Inhalten
@@ -759,7 +761,7 @@ de:
       not_exists: ist nicht vorhanden
       placeholder:
         thing: Inhalt
-        collection_or_stored_filter: '%{collection} oder %{stored_filter}'
+        collection_or_stored_filter: "%{collection} oder %{stored_filter}"
     related_to: ist verknüpft mit
     feratel_content_score: Feratel - Content Score
     internal_content_score: Content Score - dataCycle
@@ -785,6 +787,7 @@ de:
       num: Anzahl
       unit: Einheit
     translated_name: Name
+    shared_with: Geteilt mit
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...
@@ -867,6 +870,11 @@ de:
       confirm_tree_label_id: Die Klassifizierung wird in einen anderen Klassifizierungsbaum verschoben
       button:
         tooltip: Sortierung anpassen
+    merge:
+      zone_tooltip: Eine andere Klassifizierung auf dieses Icon ziehen, um die Klassifizierungen zusammenzuführen
+      error: Die Klassifizierungen konnten nicht zusammengeführt werden
+      confirm_html: <b>%{source_path}</b> wird mit <b>%{target_path}</b> zusammengeführt.
+      success: Die Klassifizierungen wurden erfolgreich zusammengeführt
 
   classification_change_behaviour:
     trigger_webhooks: Webhooks für Inhalte auslösen
@@ -879,38 +887,38 @@ de:
   actions:
     show: anzeigen
     edit: bearbeiten
-    edit_data: '%{data} bearbeiten'
-    manage: '%{data} verwalten'
+    edit_data: "%{data} bearbeiten"
+    manage: "%{data} verwalten"
     lock: sperren
     unlock: freischalten
     delete: löschen
-    choose_type: 'Inhaltstyp wählen'
-    new: '%{data} erstellen'
-    new_asset: '%{data} speichern'
-    generate: '%{data} generieren'
+    choose_type: "Inhaltstyp wählen"
+    new: "%{data} erstellen"
+    new_asset: "%{data} speichern"
+    generate: "%{data} generieren"
     send: versenden
-    send_with_data: '%{data} versenden'
-    delete_with_data: '%{data} löschen'
-    subscribe: 'abonnieren'
-    subscribe_to: '%{data} abonnieren'
-    unsubscribe: 'Abonnement löschen'
-    subscribed_to: '%{data} abonniert'
-    auto_translate: 'automatisch Übersetzen'
-    translate: 'übersetzen'
-    translate_create: 'Übersetzungen anlegen'
+    send_with_data: "%{data} versenden"
+    delete_with_data: "%{data} löschen"
+    subscribe: "abonnieren"
+    subscribe_to: "%{data} abonnieren"
+    unsubscribe: "Abonnement löschen"
+    subscribed_to: "%{data} abonniert"
+    auto_translate: "automatisch Übersetzen"
+    translate: "übersetzen"
+    translate_create: "Übersetzungen anlegen"
     reset:
-      one: 'Zurücksetzen'
-      other: 'Suche zurücksetzen'
+      one: "Zurücksetzen"
+      other: "Suche zurücksetzen"
     filter: jetzt suchen
-    move_to: 'In %{data} verschieben'
-    duplicate_content: 'duplizieren'
+    move_to: "In %{data} verschieben"
+    duplicate_content: "duplizieren"
     read: lesen
     write: schreiben
     save_and_send: Senden
     save_without_send: Speichern (kein E-Mail-Versand)
     finalize: Bearbeitung final abschließen
     finalize_agbs_text: AGBs
-    finalize_combined_html: '%{finalize} und %{agbs} akzeptieren'
+    finalize_combined_html: "%{finalize} und %{agbs} akzeptieren"
     copy_to_clipboard: In die Zwischenablage kopieren
     copy_webdav_to_clipboard: WebDAV Link in die Zwischenablage kopieren
     copy_classification_alias_id_to_clipboard: Klassifizierungs-Alias-ID in die Zwischenablage kopieren
@@ -918,23 +926,23 @@ de:
     save: Speichern
     update: Aktualisieren
     upload: Dateien hochladen
-    become: 'Als %{data} anmelden'
-    create_from_existing: 'Inhalt anhand dieser Vorlage erstellen'
-    move_to_container: 'Inhalt verschieben'
+    become: "Als %{data} anmelden"
+    create_from_existing: "Inhalt anhand dieser Vorlage erstellen"
+    move_to_container: "Inhalt verschieben"
     move: verschieben
-    geocode: 'Geokoordinaten von %{title} übernehmen'
-    upload_gpx: 'GPX-Datei hochladen'
-    remove_feature: 'Geometrie löschen'
-    open_asset: 'Datei öffnen'
-    download: 'herunterladen'
-    download_content: 'Inhalt herunterladen'
-    download_indesign: 'Inhalt für Adobe InDesign herunterladen'
-    download_zip: 'Inhalte als ZIP-Archiv herunterladen'
-    download_asset: 'Datei herunterladen'
-    download_asset_version: 'Datei herunterladen (%{data}-Version)'
+    geocode: "Geokoordinaten von %{title} übernehmen"
+    upload_gpx: "GPX-Datei hochladen"
+    remove_feature: "Geometrie löschen"
+    open_asset: "Datei öffnen"
+    download: "herunterladen"
+    download_content: "Inhalt herunterladen"
+    download_indesign: "Inhalt für Adobe InDesign herunterladen"
+    download_zip: "Inhalte als ZIP-Archiv herunterladen"
+    download_asset: "Datei herunterladen"
+    download_asset_version: "Datei herunterladen (%{data}-Version)"
     preview_content: Vorschau anzeigen
-    processing_asset: 'Datei wird verarbeitet ...'
-    processing_image: 'Bild wird verarbeitet ...'
+    processing_asset: "Datei wird verarbeitet ..."
+    processing_image: "Bild wird verarbeitet ..."
     searching: suche
     next: Weiter
     back: Zurück
@@ -942,8 +950,8 @@ de:
     delete_file: Datei wirklich löschen?
     uploaded: hochgeladen
     back_to_select: Zurück zur Auswahl
-    delete_translation: 'Übersetzung (%{data}) löschen'
-    delete_with_translated_html: 'Eingebetteten Datensatz löschen?<br><br>Es werden auch vorhandene Übersetzungen dieses eingebetteten Datensatzes gelöscht!'
+    delete_translation: "Übersetzung (%{data}) löschen"
+    delete_with_translated_html: "Eingebetteten Datensatz löschen?<br><br>Es werden auch vorhandene Übersetzungen dieses eingebetteten Datensatzes gelöscht!"
     discard_changes: Änderungen verwerfen
     save_changes: Speichern und schließen
     merge_with_duplicate: Änderungen speichern, Duplikat löschen und Ansicht schließen
@@ -954,104 +962,104 @@ de:
     open_as_source: Als Vorlage laden
     close_source: Vorlage schließen
     bulk_edit: im Bulk bearbeiten
-    add_items_to_watch_list: 'zu %{data} hinzufügen'
+    add_items_to_watch_list: "zu %{data} hinzufügen"
     add: hinzufügen
     delete_items_in_watch_list: Alle Inhalte dieser Inhaltssammlung löschen
     save_without_redirect: Zwischenspeichern
-    set_and_next: 'übernehmen und weiter'
-    set_all_attributes: 'für alle übernehmen'
+    set_and_next: "übernehmen und weiter"
+    set_all_attributes: "für alle übernehmen"
     close_overlay: schließen
     remove_locks: Inhalt zur Bearbeitung freigeben (Sperre entfernen)
-    copyable_from: '%{data} übernehmen'
-    copyable_from_clear: '%{data} verwerfen'
+    copyable_from: "%{data} übernehmen"
+    copyable_from_clear: "%{data} verwerfen"
     logout: Abmelden
-    clear: 'Alle Inhalte aus %{data} entfernen'
-    remove_content_from: '%{name} aus %{collection} entfernen?'
-    remove_from: 'aus %{collection} entfernen'
+    clear: "Alle Inhalte aus %{data} entfernen"
+    remove_content_from: "%{name} aus %{collection} entfernen?"
+    remove_from: "aus %{collection} entfernen"
 
   validation:
     errors:
-      slug: '%{data} ist bereits der slug von einem anderen Datensatz.'
-      min: '%{data} zu kurz, sollte mindestens %{min} lang sein, ist aber nur %{length} lang.'
-      max: '%{data} zu lang, sollte maximal %{max} lang sein, ist aber %{length} lang.'
-      min_number: '%{data} zu klein, sollte %{value} sein, ist aber nur %{data}.'
-      max_number: '%{data} zu hoch, sollte %{value} sein, ist aber %{data}.'
-      min_datetime: 'Zeitpunkt %{data} sollte nach %{min} liegen.'
-      min_date: 'Datum %{data} sollte nach %{min} liegen.'
-      match: '%{data} stimmt nicht mit %{expression} überein.'
-      format: 'Format-String %{format_string} für %{data} unbekannt.'
-      uuid: 'Erwarte uuid für %{data}. Format: 12345678-9abc-def0-1234-56789abcdef0'
-      date_time: '%{data} ist kein gültiges Zeit/Datum Format.'
-      date: '%{data} ist kein gültiges Datums Format.'
-      key: '%{data} ist kein gültiges uuid Format.'
+      slug: "%{data} ist bereits der slug von einem anderen Datensatz."
+      min: "%{data} zu kurz, sollte mindestens %{min} lang sein, ist aber nur %{length} lang."
+      max: "%{data} zu lang, sollte maximal %{max} lang sein, ist aber %{length} lang."
+      min_number: "%{data} zu klein, sollte %{value} sein, ist aber nur %{data}."
+      max_number: "%{data} zu hoch, sollte %{value} sein, ist aber %{data}."
+      min_datetime: "Zeitpunkt %{data} sollte nach %{min} liegen."
+      min_date: "Datum %{data} sollte nach %{min} liegen."
+      match: "%{data} stimmt nicht mit %{expression} überein."
+      format: "Format-String %{format_string} für %{data} unbekannt."
+      uuid: "Erwarte uuid für %{data}. Format: 12345678-9abc-def0-1234-56789abcdef0"
+      date_time: "%{data} ist kein gültiges Zeit/Datum Format."
+      date: "%{data} ist kein gültiges Datums Format."
+      key: "%{data} ist kein gültiges uuid Format."
       boolean: "%{data} ist kein gültiges Boolean Format. (Nur 'true' oder 'false' erlaubt)"
       url: "%{data} ist keine gültige Url (gültiges Beispiel: 'https://www.example.com')."
-      string: '%{template} ist kein String, sondern %{label}.'
-      geo: 'Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ, oder einen WKT formatierten String.'
-      geo_no_linestring: 'Für diesen Typ müssen mindestens zwei Punkte angegeben werden'
+      string: "%{template} ist kein String, sondern %{label}."
+      geo: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ, oder einen WKT formatierten String."
+      geo_no_linestring: "Für diesen Typ müssen mindestens zwei Punkte angegeben werden"
       schedule:
-        general: 'Falschen Datentyp angegeben für %{template} (%{data}). Erwarte DataCycleCore::Schedule, oder einen gültigen Hash.'
+        general: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte DataCycleCore::Schedule, oder einen gültigen Hash."
         time: "DateTime Format falsch für %{template} (%{data}), erwarte einen Hash mit { time: 2019-11-20 08:00:00 UTC, zone: 'Vienna'}"
-        date_time_array: 'DateTimeArray format falsch für %{template} (%{data}), erwarte ein Array von ActiveSupport::TimeWithZone'
-        rrule: 'RRULE format falsch für %{template} (%{data}).'
-        thing_id: 'thing_id ist ein Pflichtfeld.'
-        relation: 'relation ist ein Pflichtfeld.'
-        invalid: 'Der Eintrag mit Startzeitpunkt %{data} enthält keine gültigen Termine'
-        until_missing: 'Für den Eintrag mit Startzeitpunkt %{data} muss ein Endzeitpunkt angegeben werden'
-      number: '%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data}).'
-      no_data: 'Keine Daten angegeben.'
-      no_validation: 'Keine Validierungs-Daten angegeben.'
-      data_type: 'Falschen Daten-Typ angegeben für %{template} %{data}. Erwartet wurde UUID oder UUID Array.'
-      data_format_embedded: 'Daten in falschem Fromat angegeben für %{template} %{data}. Erwartet wurde ein Hash oder ein Array von Hashes.'
-      data_array_format: 'Elemente des Daten-Arrays für %{template} haben falsches Format %{key}.'
+        date_time_array: "DateTimeArray format falsch für %{template} (%{data}), erwarte ein Array von ActiveSupport::TimeWithZone"
+        rrule: "RRULE format falsch für %{template} (%{data})."
+        thing_id: "thing_id ist ein Pflichtfeld."
+        relation: "relation ist ein Pflichtfeld."
+        invalid: "Der Eintrag mit Startzeitpunkt %{data} enthält keine gültigen Termine"
+        until_missing: "Für den Eintrag mit Startzeitpunkt %{data} muss ein Endzeitpunkt angegeben werden"
+      number: "%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data})."
+      no_data: "Keine Daten angegeben."
+      no_validation: "Keine Validierungs-Daten angegeben."
+      data_type: "Falschen Daten-Typ angegeben für %{template} %{data}. Erwartet wurde UUID oder UUID Array."
+      data_format_embedded: "Daten in falschem Fromat angegeben für %{template} %{data}. Erwartet wurde ein Hash oder ein Array von Hashes."
+      data_array_format: "Elemente des Daten-Arrays für %{template} haben falsches Format %{key}."
       classification: "Keine Classification gefunden für %{key} in classification_tree mit dem Label: '%{label}' und tree_label '%{tree_label}'"
-      asset_upload: 'Datei konnte nicht hochgeladen werden'
-      asset_convert: 'Datei konnte nicht verarbeitet werden'
-      min_ref: 'Zu wenig Referezen angegeben, %{data} sollte mindestens %{value} sein.'
-      max_ref: 'Zu viele Referezen angegeben, %{data} sollte maximal %{value} sein.'
-      data_format: 'Elemente des Link-Arrays für %{template} haben das falsche Format %{key}.'
-      not_found: 'Daten für %{template} mit uuid %{key} nicht gefunden in Tabelle %{table}.'
-      integer: '%{data} ist kein Integer.'
-      float: '%{data} ist kein Float.'
-      object_type: 'Falscher Datentyp für %{data}. Typ %{type} ist nicht definiert.'
+      asset_upload: "Datei konnte nicht hochgeladen werden"
+      asset_convert: "Datei konnte nicht verarbeitet werden"
+      min_ref: "Zu wenig Referezen angegeben, %{data} sollte mindestens %{value} sein."
+      max_ref: "Zu viele Referezen angegeben, %{data} sollte maximal %{value} sein."
+      data_format: "Elemente des Link-Arrays für %{template} haben das falsche Format %{key}."
+      not_found: "Daten für %{template} mit uuid %{key} nicht gefunden in Tabelle %{table}."
+      integer: "%{data} ist kein Integer."
+      float: "%{data} ist kein Float."
+      object_type: "Falscher Datentyp für %{data}. Typ %{type} ist nicht definiert."
       wrong_object_type: "Objekt Type %{data} ist kein embedded Datentyp und hat keine 'properties'."
-      no_template: 'Kein passendes Datentyp Template gefunden für %{name}.'
+      no_template: "Kein passendes Datentyp Template gefunden für %{name}."
       no_fields: "Keine Felder für 'from-date' und/oder 'to-date' angegeben."
-      convert_date: 'Datum konnte nicht konvertiert werden, um die Zeitspanne zu validieren.'
+      convert_date: "Datum konnte nicht konvertiert werden, um die Zeitspanne zu validieren."
       daterange: "Ungültige Zeitspanne, 'von' (%{from}) ist nach 'bis' (%{to})."
       classification_conflict: Es gibt Konflikte bei den Publikationsdaten.
-      not_deleted: 'Beim Löschen von %{data} ist ein Fehler aufgetreten.'
-      not_saved: 'Beim Speichern von %{data} ist ein Fehler aufgetreten.'
-      file_too_large: 'Datei zu groß (max. %{max}).'
-      wrong_content_type: '%{content_type} Dateien sind nicht erlaubt.'
-      required: 'ist ein Pflichtfeld und muss ausgefüllt werden.'
-      unknown_activity_type: 'Unbekannter Typ für Activity'
+      not_deleted: "Beim Löschen von %{data} ist ein Fehler aufgetreten."
+      not_saved: "Beim Speichern von %{data} ist ein Fehler aufgetreten."
+      file_too_large: "Datei zu groß (max. %{max})."
+      wrong_content_type: "%{content_type} Dateien sind nicht erlaubt."
+      required: "ist ein Pflichtfeld und muss ausgefüllt werden."
+      unknown_activity_type: "Unbekannter Typ für Activity"
     warnings:
-      string: '%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}'
-      no_data: 'Keine Daten angegeben für %{data}'
-      no_evaluate: '%{data} nicht bei den Evaluierungsdaten angegeben.'
-      keyword: '%{key} ist kein gültiges Keyword für %{type}'
+      string: "%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}"
+      no_data: "Keine Daten angegeben für %{data}"
+      no_evaluate: "%{data} nicht bei den Evaluierungsdaten angegeben."
+      keyword: "%{key} ist kein gültiges Keyword für %{type}"
       convert: "Konvertieren von %{data} zu 'date_time' Format für die Zeitspannen-Validierung fehlgeschlagen."
-      end_date: 'Kein End-Datum angegeben, setze auf 9999-12-31.'
-      start_date: 'Kein Start-Datum angegeben, setze auf 1970-01-01.'
+      end_date: "Kein End-Datum angegeben, setze auf 9999-12-31."
+      start_date: "Kein Start-Datum angegeben, setze auf 1970-01-01."
       address_not_found: Adresse nicht gefunden
       address_ambiguous: Adresse nicht eindeutig
       telephone_din5008: Das Format der Telefonnummer ist nicht laut DIN 5008, gültiges Beispiel +43 1 123456
-      required: 'sollte ausgefüllt werden.'
+      required: "sollte ausgefüllt werden."
       schedule:
-        duration_too_long: 'Der Termin mit Startzeitpunkt %{data} dauert länger als %{max} (Das könnte wahrscheinlich auch über Wiederholungen abgebildet werden)'
+        duration_too_long: "Der Termin mit Startzeitpunkt %{data} dauert länger als %{max} (Das könnte wahrscheinlich auch über Wiederholungen abgebildet werden)"
   controllers:
     error:
-      invalid_parent: 'Ungültiges Eltern Objekt.'
-      invalid_parent_attr: 'Ungültige Eltern Attribute.'
-      no_permission: 'Keine Berechtigung.'
-      invalid: '%{data} konnte nicht erstellt werden.'
-      email_exists: 'Für diese E-Mail existiert bereits ein Link'
-      no_source: 'Keine gültige Vorlage angegeben'
+      invalid_parent: "Ungültiges Eltern Objekt."
+      invalid_parent_attr: "Ungültige Eltern Attribute."
+      no_permission: "Keine Berechtigung."
+      invalid: "%{data} konnte nicht erstellt werden."
+      email_exists: "Für diese E-Mail existiert bereits ein Link"
+      no_source: "Keine gültige Vorlage angegeben"
       wrong_content_type: Nicht unterstützter Datei-Typ
       missing_parameter: Parameter fehlt!
       duplicate:
-        type_mismatch: 'Inhalte unterschiedlichen Typs können nicht zusammengeführt werden!'
+        type_mismatch: "Inhalte unterschiedlichen Typs können nicht zusammengeführt werden!"
         cannot_merge_self: Der Inhalt kann nicht mit sich selbst zusammengeführt werden!
       session_expired: Die Sitzung ist abgelaufen, bitte melden Sie sich erneut an.
       token_invalid: Die Sitzung ist abgelaufen, bitte laden Sie die Seite neu.
@@ -1059,102 +1067,102 @@ de:
       no_selected_attributes: Es wurden keine Attribute zum Überschreiben ausgewählt
       external_items: Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!
       no_watchlist: Es wurde keine Inhaltssammlung gewählt
-      content_duplication_invalid: 'Das Duplikat konnte nicht erstellt werden!'
+      content_duplication_invalid: "Das Duplikat konnte nicht erstellt werden!"
       bulk_update_error: Beim Speichern ist ein Fehler aufgetreten, bitte versuchen Sie es erneut
       definition_mismatch: Die Versionen können nicht verglichen werden, weil die Datendefinitionen nicht überein stimmen
       user_locked: Ein Benutzer mit dieser E-Mail existiert bereits und ist gesperrt. Bitte wenden Sie sich an einen Administrator, um den Benutzer freizuschalten.
     success:
-      created: '%{data} wurde erfolgreich erstellt.'
-      ready_to_send: '%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden.'
-      updated: '%{data} wurde aktualisiert.'
-      destroyed: '%{data} wurde gelöscht.'
-      destroyed_translation: 'Übersetzung %{language} von %{data} wurde gelöscht.'
-      added_to: 'Zu %{type}: %{data} hinzugefügt.'
-      removed_from: 'Von %{type}: %{data} entfernt.'
-      sent: 'E-Mail wurde versandt.'
-      saved: '%{data} wurde erstellt.'
-      saved_and_sent: '%{data} wurde erstellt und verschickt.'
-      updated_and_sent: '%{data} wurde aktualisiert und verschickt.'
-      invalid_mail: 'Keine gültige E-Mail Adresse.'
-      locked: '%{data} wurde gesperrt.'
-      unlocked: '%{data} wurde freigegeben.'
-      invalidated: '%{data} wurde deaktiviert.'
-      updated_user_settings: 'Benutzereinstellungen wurden aktualisiert.'
-      moved_to: 'Inhalt in %{data} verschoben'
-      become_user: 'Eingeloggt als %{data}.'
-      duplicate_false_positive: '%{data} wurde von den möglichen Duplikaten entfernt'
+      created: "%{data} wurde erfolgreich erstellt."
+      ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."
+      updated: "%{data} wurde aktualisiert."
+      destroyed: "%{data} wurde gelöscht."
+      destroyed_translation: "Übersetzung %{language} von %{data} wurde gelöscht."
+      added_to: "Zu %{type}: %{data} hinzugefügt."
+      removed_from: "Von %{type}: %{data} entfernt."
+      sent: "E-Mail wurde versandt."
+      saved: "%{data} wurde erstellt."
+      saved_and_sent: "%{data} wurde erstellt und verschickt."
+      updated_and_sent: "%{data} wurde aktualisiert und verschickt."
+      invalid_mail: "Keine gültige E-Mail Adresse."
+      locked: "%{data} wurde gesperrt."
+      unlocked: "%{data} wurde freigegeben."
+      invalidated: "%{data} wurde deaktiviert."
+      updated_user_settings: "Benutzereinstellungen wurden aktualisiert."
+      moved_to: "Inhalt in %{data} verschoben"
+      become_user: "Eingeloggt als %{data}."
+      duplicate_false_positive: "%{data} wurde von den möglichen Duplikaten entfernt"
       merged_with_duplicate: Inhalte werden im Hintergrund zusammengeführt
       bulk_updated:
-        one: '<b>%{count}</b> Inhalt wurde aktualisiert'
-        other: '<b>%{count}</b> Inhalte wurden aktualisiert'
+        one: "<b>%{count}</b> Inhalt wurde aktualisiert"
+        other: "<b>%{count}</b> Inhalte wurden aktualisiert"
       bulk_deleted:
-        one: '<b>%{count}</b> Inhalt wurde gelöscht'
-        other: '<b>%{count}</b> Inhalte wurden gelöscht'
+        one: "<b>%{count}</b> Inhalt wurde gelöscht"
+        other: "<b>%{count}</b> Inhalte wurden gelöscht"
       bulk_created:
-        one: '<b>%{count}</b> Inhalt wurde erstellt'
-        other: '<b>%{count}</b> Inhalte wurden erstellt'
+        one: "<b>%{count}</b> Inhalt wurde erstellt"
+        other: "<b>%{count}</b> Inhalte wurden erstellt"
       removed_lock: Inhalt wurde freigegeben
-      cleared_collection: 'Alle Inhalte wurden aus %{data} entfernt'
-      confirmed: '%{data} wurde bestätigt.'
+      cleared_collection: "Alle Inhalte wurden aus %{data} entfernt"
+      confirmed: "%{data} wurde bestätigt."
     warning:
       no_changes: Es wurde keine neue Version angelegt, da keine Änderungen am Inhalt gemacht worden sind.
     info:
-      not_modified: '%{data} wurde nicht geändert.'
-      created_duplication: '%{data} wurde erfolgreich dupliziert.'
-      content_updated: 'Der Inhalt wurde geändert.<br>Bitte laden Sie die Seite neu, um sicherzustellen, dass diese Änderungen nicht überschrieben werden.'
-      bulk_updated_skipped_html: '<br>Es wurden keine Übersetzungen angelegt, wenn ein Inhalt in der Sprache nicht vorhanden ist: %{counts}'
+      not_modified: "%{data} wurde nicht geändert."
+      created_duplication: "%{data} wurde erfolgreich dupliziert."
+      content_updated: "Der Inhalt wurde geändert.<br>Bitte laden Sie die Seite neu, um sicherzustellen, dass diese Änderungen nicht überschrieben werden."
+      bulk_updated_skipped_html: "<br>Es wurden keine Übersetzungen angelegt, wenn ein Inhalt in der Sprache nicht vorhanden ist: %{counts}"
       bulk_deleted_external_html:
-        one: '<br><b>%{count}</b> Inhalt wurde nicht gelöscht, da dieser von einem externen System importiert wurden.'
-        other: '<br><b>%{count}</b> Inhalte wurden nicht gelöscht, da diese von einem externen System importiert wurden.'
+        one: "<br><b>%{count}</b> Inhalt wurde nicht gelöscht, da dieser von einem externen System importiert wurden."
+        other: "<br><b>%{count}</b> Inhalte wurden nicht gelöscht, da diese von einem externen System importiert wurden."
       bulk_deleted_not_allowed_html:
-        one: '<br><b>%{count}</b> Inhalt wurde nicht gelöscht, da Sie keine Berechtigung dafür haben.'
-        other: '<br><b>%{count}</b> Inhalte wurden nicht gelöscht, da Sie keine Berechtigung dafür haben.'
+        one: "<br><b>%{count}</b> Inhalt wurde nicht gelöscht, da Sie keine Berechtigung dafür haben."
+        other: "<br><b>%{count}</b> Inhalte wurden nicht gelöscht, da Sie keine Berechtigung dafür haben."
     job:
-      added: '%{data}/%{uuid} zur Job-Queue hinzugefügt.'
+      added: "%{data}/%{uuid} zur Job-Queue hinzugefügt."
       imported: "'%{data}' wurden aus YAML Datei importiert."
-      running: 'Job befindet sich bereits in der Job-Queue.'
+      running: "Job befindet sich bereits in der Job-Queue."
 
   activerecord:
     errors:
       messages:
-        record_invalid: 'Ungültiger Eintrag'
+        record_invalid: "Ungültiger Eintrag"
       models:
         data_cycle_core/asset:
           attributes:
             file:
-              blank: 'Datei darf nicht leer sein'
+              blank: "Datei darf nicht leer sein"
         data_cycle_core/image:
           attributes:
             file:
-              blank: 'Datei darf nicht leer sein'
+              blank: "Datei darf nicht leer sein"
         data_cycle_core/audio:
           attributes:
             file:
-              blank: 'Datei darf nicht leer sein'
+              blank: "Datei darf nicht leer sein"
         data_cycle_core/video:
           attributes:
             file:
-              blank: 'Datei darf nicht leer sein'
+              blank: "Datei darf nicht leer sein"
         data_cycle_core/pdf:
           attributes:
             file:
-              blank: 'Datei darf nicht leer sein'
+              blank: "Datei darf nicht leer sein"
         data_cycle_core/watch_list:
           attributes:
             full_path:
-              blank: 'darf nicht leer sein.'
+              blank: "darf nicht leer sein."
         data_cycle_core/user:
           attributes:
             password:
-              blank: 'Passwort darf nicht leer sein.'
-              too_short: 'Passwort zu kurz.'
+              blank: "Passwort darf nicht leer sein."
+              too_short: "Passwort zu kurz."
             current_password:
-              blank: 'Aktuelles Passwort zur Bestätigung eingeben.'
-              invalid: 'Falsches Passwort.'
+              blank: "Aktuelles Passwort zur Bestätigung eingeben."
+              invalid: "Falsches Passwort."
             email:
-              blank: 'E-Mail darf nicht leer sein.'
-              taken: 'Für diese E-Mail existiert schon ein Benutzer.'
-              invalid: 'Keine gültige E-Mail.'
+              blank: "E-Mail darf nicht leer sein."
+              taken: "Für diese E-Mail existiert schon ein Benutzer."
+              invalid: "Keine gültige E-Mail."
             reset_password_token:
               blank: Das Token darf nicht leer sein
               invalid: Das Token ist nicht mehr gültig
@@ -1177,7 +1185,7 @@ de:
         one: Benutzergruppe
         other: Benutzergruppen
       data_cycle_core/subscription:
-        zero: 'Keine Abos (nur Inhalte)'
+        zero: "Keine Abos (nur Inhalte)"
         one: Abo (nur Inhalte)
         other: Abos (nur Inhalte)
       data_cycle_core/watch_list:
@@ -1238,7 +1246,7 @@ de:
         change_behaviour: Änderungsverhalten
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
-        description: 'Beschreibungstext'
+        description: "Beschreibungstext"
         classification_ids: Klassifizierungs-Mapping
         internal_name: Sprachneutraler Name
         uri: Externe URI
@@ -1254,14 +1262,14 @@ de:
         family_name: Familienname
         password: Passwort
         new_password: Neues Passwort
-        current_password: 'Aktuelles Passwort'
+        current_password: "Aktuelles Passwort"
         email: E-Mail
         role_id: Rolle
         user_group_ids: Benutzergruppen
         external: SSO
         notification_frequency: Benachrichtigung von Abos
         access_token: API Token
-        default_locale: 'Default-Sprache für Suchen und neue Inhalte'
+        default_locale: "Default-Sprache für Suchen und neue Inhalte"
         represented_by: Repräsentiert durch
         ui_locale: Sprache der Benutzeroberfläche
         locked_at: gesperrt
@@ -1305,7 +1313,7 @@ de:
         permissions_read: lesen
         permissions_write: bearbeiten
         text_file: Weitere Infos (%{file_types})
-        locale: 'E-Mail Sprache'
+        locale: "E-Mail Sprache"
       data_cycle_core/stored_filter:
         system: Für alle Benutzer sichtbar (gilt auch für die API)
         api: Über API abrufbar
@@ -1324,16 +1332,16 @@ de:
 
   unauthorized:
     manage:
-      all: 'Keine Zugriffsberechtigung!'
+      all: "Keine Zugriffsberechtigung!"
 
   data_cycle_core:
-    administration: 'Administration'
+    administration: "Administration"
     documentation: Dokumentation
     activities: Aktivitäten
     user_settings: Benutzeraktionen
     user_details: Benutzerdetails
     user_links: Benutzerlinks
-    classifications: 'Klassifizierungen'
+    classifications: "Klassifizierungen"
     dashboard: Dashboard
     classifications_adminitration:
       classification:
@@ -1344,7 +1352,7 @@ de:
       download_tree_for_mappings: Klassifizierungsbaum zum Definieren von Mappings (csv)
     this_classification: Dieser Klassifizierung
     this_classification_tree: Diesem Klassifizierungsbaum
-    show_contents_for_tree_label: 'Inhalte in %{data} auflisten'
+    show_contents_for_tree_label: "Inhalte in %{data} auflisten"
     settings: Einstellungen
     publication_date: Publikationsdatum
     publications_calendar: Publikationskalender
@@ -1354,13 +1362,13 @@ de:
     autotranslate:
       clear: Manuelle Übersetzungen löschen
       auto: Für diesen Datensatz wurden alle Übersetzungen automatisch angelegt.
-    classification_tree_relations: 'ACHTUNG: Mit diesem Klassifizierungsbaum sind Inhalte verknüpft!'
+    classification_tree_relations: "ACHTUNG: Mit diesem Klassifizierungsbaum sind Inhalte verknüpft!"
     classification_relations_html:
-      one: 'ACHTUNG: Mit dieser Klassifizierung ist <b>1</b> Inhalt verknüpft!'
-      other: 'ACHTUNG: Mit dieser Klassifizierung sind <b>%{count}</b> Inhalte verknüpft!'
+      one: "ACHTUNG: Mit dieser Klassifizierung ist <b>1</b> Inhalt verknüpft!"
+      other: "ACHTUNG: Mit dieser Klassifizierung sind <b>%{count}</b> Inhalte verknüpft!"
     child_classification_relations_html:
-      one: 'ACHTUNG: %{data} ist <b>1</b> Klassifizierung zugeordnet. Diese wird mitgelöscht!'
-      other: 'ACHTUNG: %{data} sind <b>%{count}</b> Klassifizierungen zugeordnet.<br>Diese werden mitgelöscht!'
+      one: "ACHTUNG: %{data} ist <b>1</b> Klassifizierung zugeordnet. Diese wird mitgelöscht!"
+      other: "ACHTUNG: %{data} sind <b>%{count}</b> Klassifizierungen zugeordnet.<br>Diese werden mitgelöscht!"
     stored_searches:
       my_searches: Meine Suchen
       my_saved: Meine gespeicherten Suchen
@@ -1377,9 +1385,9 @@ de:
       load_all: alle Suchen anzeigen
       filter_searches: Suchen filtern ...
       count_html:
-        zero: '<b>Keine</b> Suchen'
-        one: '<b>%{count_string}</b> Suche'
-        other: '<b>%{count_string}</b> Suchen'
+        zero: "<b>Keine</b> Suchen"
+        one: "<b>%{count_string}</b> Suche"
+        other: "<b>%{count_string}</b> Suchen"
       update_params: speichern und Suchparameter übernehmen
       form:
         api: API
@@ -1387,11 +1395,11 @@ de:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
       mailer:
         subject:
-          one: 'Inhalte wurden zu/von einer %{type} hinzugefügt/entfernt'
-          other: 'Inhalte wurden zu/von mehreren %{type} hinzugefügt/entfernt'
+          one: "Inhalte wurden zu/von einer %{type} hinzugefügt/entfernt"
+          other: "Inhalte wurden zu/von mehreren %{type} hinzugefügt/entfernt"
         text_html:
-          one: 'Folgender Inhalt wurde zu/von %{link} hinzugefügt/entfernt:'
-          other: 'Folgende Inhalte wurden zu/von %{link} hinzugefügt/entfernt:'
+          one: "Folgender Inhalt wurde zu/von %{link} hinzugefügt/entfernt:"
+          other: "Folgende Inhalte wurden zu/von %{link} hinzugefügt/entfernt:"
     upload: Neue Medien hochladen
     data_links:
       write_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong> hat %{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihre Ergänzungen und Ihr Feedback. <br><br>Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor.</span>'
@@ -1429,8 +1437,8 @@ de:
       entities: Inhalte
       embeddeds: Eingebettete Inhalte
     reports:
-      root: 'Reports'
-      available_reports: 'Verfügbare Reports'
+      root: "Reports"
+      available_reports: "Verfügbare Reports"
 
     warning:
       common:
@@ -1448,7 +1456,7 @@ de:
         Cancellation Information: Stornierungsregelungen
         Difficulty: Schwierigkeitsgrad
         Equipment: Ausrüstung
-        'FAQ / good to know': FAQ / nützliche Hinweise
+        "FAQ / good to know": FAQ / nützliche Hinweise
         Included Services: Enthaltene Leistungen
         Meeting Point: Treffpunkt
         Opening hours: Öffnungszeiten
@@ -1630,7 +1638,7 @@ de:
       </ul>'
 
   uploader:
-    restrictions: 'Einschränkungen'
+    restrictions: "Einschränkungen"
     validation:
       format: 'Erlaubte Formate: <span class="value">%{data}</span>'
       format_not_supported: Nicht unterstütztes Format (%{data})
@@ -1661,8 +1669,9 @@ de:
         max: 'Maximale Dateigröße: <span class="value">%{data}</span>'
         min: 'Minimale Dateigröße: <span class="value">%{data}</span>'
 
-    close_warning_html: '<p>Während dem Upload muss dieses Fenster geöffnet bleiben!<br>
-      Es kann aber parallel in einem neuen Tab weitergearbeitet werden.</p>'
+    close_warning_html:
+      "<p>Während dem Upload muss dieses Fenster geöffnet bleiben!<br>
+      Es kann aber parallel in einem neuen Tab weitergearbeitet werden.</p>"
     continue_in_new_tab: In neuem Tab weiterarbeiten
 
   date:
@@ -1697,11 +1706,11 @@ de:
       - Freitag
       - Samstag
     formats:
-      default: '%d.%m.%Y'
-      long: '%e. %B %Y'
-      short: '%e. %b'
-      full: '%A, %e. %B %Y'
-      edit: '%d.%m.%Y'
+      default: "%d.%m.%Y"
+      long: "%e. %B %Y"
+      short: "%e. %b"
+      full: "%A, %e. %B %Y"
+      edit: "%d.%m.%Y"
     month_names:
       -
       - Januar
@@ -1747,22 +1756,22 @@ de:
         other: mehr als %{count} Jahre
       x_seconds:
         one: einer Sekunde
-        other: '%{count} Sekunden'
+        other: "%{count} Sekunden"
       x_minutes:
         one: einer Minute
-        other: '%{count} Minuten'
+        other: "%{count} Minuten"
       x_hours:
         one: einer Stunde
-        other: '%{count} Stunden'
+        other: "%{count} Stunden"
       x_days:
         one: einem Tag
-        other: '%{count} Tagen'
+        other: "%{count} Tagen"
       x_months:
         one: einem Monat
-        other: '%{count} Monaten'
+        other: "%{count} Monaten"
       x_years:
         one: einem Jahr
-        other: '%{count} Jahren'
+        other: "%{count} Jahren"
     prompts:
       day: Tag
       hour: Stunden
@@ -1775,22 +1784,22 @@ de:
   number:
     currency:
       format:
-        delimiter: '.'
-        format: '%n %u'
+        delimiter: "."
+        format: "%n %u"
         precision: 2
-        separator: ','
+        separator: ","
         significant: false
         strip_insignificant_zeros: false
-        unit: '€'
+        unit: "€"
     format:
-      delimiter: '.'
+      delimiter: "."
       precision: 2
-      separator: ','
+      separator: ","
       significant: false
       strip_insignificant_zeros: false
     human:
       decimal_units:
-        format: '%n %u'
+        format: "%n %u"
         units:
           billion:
             one: Milliarde
@@ -1805,14 +1814,14 @@ de:
           trillion:
             one: Billion
             other: Billionen
-          unit: ''
+          unit: ""
       format:
-        delimiter: ''
+        delimiter: ""
         precision: 3
         significant: true
         strip_insignificant_zeros: true
       storage_units:
-        format: '%n %u'
+        format: "%n %u"
         units:
           byte:
             one: Byte
@@ -1823,27 +1832,27 @@ de:
           tb: TB
     percentage:
       format:
-        delimiter: ''
-        format: '%n %'
+        delimiter: ""
+        format: "%n %"
     precision:
       format:
-        delimiter: ''
+        delimiter: ""
 
   support:
     array:
-      last_word_connector: ' und '
-      two_words_connector: ' und '
-      words_connector: ', '
+      last_word_connector: " und "
+      two_words_connector: " und "
+      words_connector: ", "
 
   time:
     am: vormittags
     formats:
-      default: '%A, %d. %B %Y, %H:%M Uhr'
-      long: '%A, %d. %B %Y, %H:%M Uhr'
-      short: '%d. %B, %H:%M Uhr'
-      edit: '%d.%m.%Y %H:%M'
-      history: '%d.%m.%Y, %H:%M Uhr'
-      time_only: '%H:%M'
+      default: "%A, %d. %B %Y, %H:%M Uhr"
+      long: "%A, %d. %B %Y, %H:%M Uhr"
+      short: "%d. %B, %H:%M Uhr"
+      edit: "%d.%m.%Y %H:%M"
+      history: "%d.%m.%Y, %H:%M Uhr"
+      time_only: "%H:%M"
     pm: nachmittags
 
   external_sources:
@@ -1867,8 +1876,8 @@ de:
     data_cycle_core/error/api/expired_content_error:
       expired_content: Inhalt ist abgelaufen
     active_record/record_not_found: Nicht gefunden
-    data_cycle_core/error/filter/date_filter_range_error: 'Fehler bei Suchparametern: das Enddatum bei Datumsfiltern muss nach dem Startdatum liegen.'
-    data_cycle_core/error/filter/union_filter_recursion_error: 'Fehler bei Suchparametern: Gespeicherte Suchen können nicht auf sich selbst filtern (unendliche Rekursion).'
+    data_cycle_core/error/filter/date_filter_range_error: "Fehler bei Suchparametern: das Enddatum bei Datumsfiltern muss nach dem Startdatum liegen."
+    data_cycle_core/error/filter/union_filter_recursion_error: "Fehler bei Suchparametern: Gespeicherte Suchen können nicht auf sich selbst filtern (unendliche Rekursion)."
 
   details:
     bild:

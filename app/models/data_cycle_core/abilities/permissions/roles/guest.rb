@@ -10,89 +10,82 @@ module DataCycleCore
             ### guest
             ###################################################################################
             # DataLink
-            permit(
-              segment(:UsersByRole).new(role),
+            permit_user(
+              role,
               :create_editable_links, :auto_login,
-              segment(:SubjectByConditions).new(DataCycleCore::DataLink)
+              SubjectByConditions: [DataCycleCore::DataLink]
             )
 
-            permit(
-              segment(:UsersByRole).new(role),
+            permit_user(
+              role,
               :auto_login,
-              segment(:DataLinkByReceiver).new
+              :DataLinkByReceiver
             )
 
             # ObjectBrowser
-            permit(
-              segment(:UsersByRole).new(role),
+            permit_user(
+              role,
               :show, :find,
-              segment(:SubjectByConditions).new(:object_browser)
+              SubjectByConditions: [:object_browser]
             )
 
             # UserApi
-            permit(
-              segment(:UsersByRole).new(role),
+            permit_user(
+              role,
               :login, :renew_login, :reset_password, :confirm,
-              segment(:SubjectByConditions).new(:user_api)
+              SubjectByConditions: [:user_api]
             )
 
             # Asset
-            permit(
-              segment(:UsersByRole).new(role),
+            permit_user(
+              role,
               :read,
-              segment(:AssetByUserAndNoContent).new
+              :AssetByUserAndNoContent
             )
 
             # Thing
-            permit(
-              segment(:UsersByRole).new(role),
+            permit_user(
+              role,
               :create,
-              segment(:TemplateByCreatableScope).new('asset')
+              TemplateByCreatableScope: ['asset']
             )
 
-            permit(
-              segment(:UsersByRole).new(role),
+            permit_user(
+              role,
               :print,
-              segment(:ThingByContentType).new('entity')
+              ThingByContentType: ['entity']
             )
 
             # StoredFilter
-            permit(
-              segment(:UsersByRole).new(role),
+            permit_user(
+              role,
               :api,
-              segment(:SubjectByUserAndConditions).new(DataCycleCore::StoredFilter, :user_id, api: true)
+              SubjectByUserAndConditions: [DataCycleCore::StoredFilter, :user_id, api: true]
             )
 
-            permit(
-              segment(:UsersByRole).new(role),
+            permit_user(
+              role,
               :api,
-              segment(:StoredFilterByApiUsers).new
-            )
-
-            # WatchList
-            permit(
-              segment(:UsersByRole).new(role),
-              :copy_api_link,
-              segment(:SubjectByConditions).new(DataCycleCore::WatchList, my_selection: false)
+              :StoredFilterByApiUsers
             )
 
             # DataAttributes
-            permit(
-              segment(:UsersByRole).new(role),
+            permit_user(
+              role,
               :read,
-              segment(:DataAttributeAllowedForShow).new(
+              DataAttributeAllowedForShow: [
                 [
                   :attribute_not_disabled?,
                   :overlay_attribute_visible?,
                   :attribute_not_releasable?
                 ]
-              )
+              ]
             )
 
-            permit(
-              segment(:UsersByRole).new(role),
+            permit_user(
+              role,
               :edit,
-              segment(:DataAttributeAllowedForEdit).new(
+              DataAttributeAllowedForEdit: [
                 [
                   :attribute_not_included_in_publication_schedule?,
                   :attribute_not_disabled?,
@@ -100,13 +93,13 @@ module DataCycleCore
                   :attribute_not_external?,
                   :attribute_tree_label_visible?
                 ]
-              )
+              ]
             )
 
-            permit(
-              segment(:UsersByRole).new(role),
+            permit_user(
+              role,
               :update,
-              segment(:DataAttributeAllowedForUpdate).new(
+              DataAttributeAllowedForUpdate: [
                 [
                   :attribute_not_included_in_publication_schedule?,
                   :attribute_not_disabled?,
@@ -115,14 +108,14 @@ module DataCycleCore
                   :attribute_not_external?,
                   :attribute_tree_label_visible?
                 ]
-              )
+              ]
             )
 
             # User
-            permit(
-              segment(:UsersByRole).new(role),
+            permit_user(
+              role,
               :update,
-              segment(:SubjectByUserAndConditions).new(DataCycleCore::User, :id)
+              SubjectByUserAndConditions: [DataCycleCore::User, :id]
             )
           end
         end

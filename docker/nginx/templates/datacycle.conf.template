@@ -32,13 +32,13 @@ server {
   root ${APPLICATION_ROOT}/public;
   try_files $uri/index.html $uri /assets/$uri @puma_data_cycle;
 
-  client_max_body_size 4G;
+  client_max_body_size 6G;
   keepalive_timeout 180;
 
   # increase proxy buffer size for large headers
   proxy_buffer_size 16k;
   proxy_busy_buffers_size 16k;
-  proxy_max_temp_file_size 4096m;
+  proxy_max_temp_file_size 6144m;
 
   error_page 500 502 504 /500.html;
   error_page 503 @503;
@@ -84,7 +84,7 @@ server {
     try_files $uri @puma_data_cycle;
     gzip_static on;
     expires max;
-    proxy_max_temp_file_size 4096m;
+    proxy_max_temp_file_size 6144m;
     add_header Cache-Control public;
   }
 

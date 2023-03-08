@@ -4,12 +4,12 @@
         editor: 'embedded_object'
       }) do %>
 
-  <% objects = value.presence&.order(Arel.sql("(metadata ->> 'publish_at')::timestamptz ASC"))&.to_a || [] %>
-  <% objects = objects.concat(new_relations(options.dig(:item_diff), 'things').order(Arel.sql("(metadata ->> 'publish_at')::timestamptz ASC")).to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
+  <% objects = value&.order(Arel.sql("(metadata ->> 'publish_at')::timestamptz ASC"))&.to_a || [] %>
+  <% objects = objects.concat(new_relations(options.dig('item_diff'), 'things').order(Arel.sql("(metadata ->> 'publish_at')::timestamptz ASC")).to_a) if changes_by_mode(options.dig('item_diff'), '+').present? %>
 
   <div class="publication-list">
     <!-- # TODO: move to value after final refactor_data_definition migration -->
-    <% objects.presence&.each_with_index do |publication, idx| %>
+    <% objects&.each_with_index do |publication, idx| %>
       <% classification_attributes = ordered_validation_properties(validation: publication.schema, scope: :show)
                   &.select { |k, v| v['type'] == 'classification' && (Array(DataCycleCore::ClassificationTreeLabel.find_by(name: v['tree_label'])&.visibility) & ['show', 'show_more']).size.positive? }
                   &.map { |k, v| [k, v['label']] }
@@ -24,10 +24,11 @@
         </div>
       <% end %>
 
-      <% publication_changes = publication.diff(publication.try('thing')&.get_data_hash) if changes_by_mode(changes_by_value(options.dig(:item_diff), publication.try('thing_id') || publication.id), '~').present? %>
+      <% mode_changes = changes_by_mode(changes_by_value(options.dig('item_diff'), diff_target_id(publication)), '~') %>
+      <% publication_changes = publication.diff(diff_target_by_id(local_assigns.merge({ object: publication }))&.get_data_hash) if mode_changes.present? %>
 
-      <div class="publication-row detail-type embedded <%= changes_class(options.dig(:item_diff), publication.try('thing_id') || publication.id) %>">
-        <% date_changes = attribute_changes(publication_changes, 'publish_at') if changes_by_mode(changes_by_value(options.dig(:item_diff), publication.try('thing_id') || publication.id), '~').present? %>
+      <div class="publication-row detail-type embedded <%= changes_class(options.dig('item_diff'), publication.try('thing_id') || publication.id) %>">
+        <% date_changes = attribute_changes(publication, publication_changes, 'publish_at') if mode_changes.present? %>
 
         <span class="publication-attribute publication-date <%= changes_mode(date_changes) %>">
           <%= publication_attribute_changes(date_changes, publication) %>
@@ -35,7 +36,7 @@
 
         <% classification_attributes.each_key do |c_attribute| %>
           <% publication_changes = [] %>
-          <% publication_changes = attribute_changes(publication.diff(publication.try('thing')&.get_data_hash), c_attribute) if changes_by_mode(changes_by_value(options.dig(:item_diff), publication.try('thing_id') || publication.id), '~').present? %>
+          <% publication_changes = attribute_changes(publication, publication_changes, c_attribute) if mode_changes.present? %>
 
           <span class="detail-content tags publication-attribute">
             <% objects = publication.send(c_attribute).presence&.map(&:primary_classification_alias) || [] %>

@@ -1,6 +1,7 @@
 <li id="<%= classification_tree.id %>" class="<%= type %>" data-id="<%= classification_tree.sub_classification_alias.try(:id) %>">
   <span class="inner-item">
-    <%= tag.span(tag.i(class: 'fa fa-bars'), class: 'draggable-handle') if can?(:edit, classification_tree_label) %>
+    <%= tag.i(class: 'fa fa-bars draggable-handle') if can?(:edit, classification_tree_label) %>
+    <%= tag.i(class: 'fa fa-compress merge-dropzone', data: { dc_tooltip: t('classification_administration.merge.zone_tooltip', locale: active_ui_locale) }) if can?(:edit, classification_tree_label) && can?(:merge, classification_tree.sub_classification_alias) %>
 
     <%= link_to classification_title(classification_tree.sub_classification_alias),
                 classifications_path(classification_tree_id: classification_tree.id),

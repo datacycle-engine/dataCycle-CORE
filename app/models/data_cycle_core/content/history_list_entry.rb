@@ -34,7 +34,7 @@ module DataCycleCore
           I18n.with_locale(args[:item].first_available_locale) do
             args[:id] ||= args[:item].id
             args[:updated_by] ||= args[:item].try("#{args[:attribute_type]}_by")
-            args[:updated_at] ||= args[:item].try(:history_valid)&.first || args[:item].try("#{args[:attribute_type]}_at")
+            args[:updated_at] ||= args[:item].try("#{args[:attribute_type]}_at")
             args[:class_name] ||= args[:item].class.name
             args[:version_name] ||= args[:include_version_name] ? args[:item].version_name : nil
             args[:updated_by_user] ||= args[:item].try("#{args[:attribute_type]}_by_user")
