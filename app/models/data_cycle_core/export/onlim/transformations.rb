@@ -9,7 +9,9 @@ module DataCycleCore
         end
 
         def self.whitelist
-          default_attributes = ['name', 'description', 'address', 'ds:compliesWith', 'image', 'sdLicense', 'sdPublisher', 'keywords']
+          default_attributes =
+            ['name', 'description', 'address', 'ds:compliesWith',
+             'image', 'sdLicense', 'sdPublisher', 'keywords']
           default_place_attributes = default_attributes + ['geo']
           {
             'Organization' =>
@@ -19,54 +21,54 @@ module DataCycleCore
             'Person' =>
               ['name', 'url', 'ds:compliesWith'],
             'ImageObject' =>
-              ['name', 'contentUrl', 'thumbnailUrl', 'width', 'height', 'fileFormat', 'uploadDate', 'copyrightNotice', 'copyrightYear', 'copyrightHolder', 'ds:compliesWith'],
+              ['name', 'caption', 'contentUrl', 'thumbnailUrl', 'url', 'uploadDate',
+               'copyrightNotice', 'copyrightYear', 'copyrightHolder', 'author',
+               'width', 'height', 'contentSize', 'ds:compliesWith'],
             'TouristAttraction' => # POI
+              default_place_attributes +
+                ['url', 'telephone', 'faxNumber', 'additionalProperty',
+                 'openingHoursSpecification'],
+            'FoodEstablishment' => # Gastronomischer Betrieb
               default_place_attributes +
                 ['url', 'telephone', 'faxNumber', 'additionalProperty', 'openingHoursSpecification'],
             'LodgingBusiness' => # Unterkunft
               default_place_attributes +
-                ['url', 'telephone', 'faxNumber', 'email', 'additionalProperty', 'openingHoursSpecification', 'priceRange', 'availableLanguage', 'photo'],
+                ['url', 'telephone', 'faxNumber', 'email', 'additionalProperty',
+                 'openingHoursSpecification', 'priceRange', 'availableLanguage',
+                 'photo'],
             'odta:Trail' => # Tour
               default_place_attributes +
                 ['url', 'odta:wayPoint'], # , 'aggregateRating'
             'Event' =>
               default_attributes +
-                ['eventSchedule', 'startDate', 'endDate', 'inLanguage', 'location', 'organizer', 'performer', 'potentialAction'],
-            'FoodEstablishment' => # Gastronomischer Betrieb
-              default_place_attributes +
-                ['url', 'telephone', 'faxNumber', 'additionalProperty', 'openingHoursSpecification']
+                ['eventSchedule', 'startDate', 'endDate', 'inLanguage', 'location',
+                 'organizer', 'performer', 'potentialAction']
           }
         end
 
         def self.blacklist
-          {
-            # 'Rating' => ['@type']
-          }
+          {}
         end
 
         def self.to_poi
           t(:add_contact_information, ['telephone', 'faxNumber', 'url'])
           .>> t(:add_keywords)
-          .>> default_transformations
         end
 
         def self.to_food_establishment
           t(:add_contact_information, ['telephone', 'email', 'url'])
           .>> t(:add_keywords)
-          .>> default_transformations
         end
 
         def self.to_lodging_business
           t(:add_contact_information, ['telephone', 'email', 'faxNumber', 'url'])
           .>> t(:rename_graph_keys, {'dc:translation' => 'availableLanguage'})
           .>> t(:add_keywords)
-          .>> default_transformations
         end
 
         def self.to_tour
           t(:add_contact_information, ['url'])
           .>> t(:add_keywords)
-          .>> default_transformations
         end
 
         def self.to_event
@@ -74,16 +76,18 @@ module DataCycleCore
           .>> t(:rename_graph_keys, {'dc:translation' => 'inLanguage'})
           .>> t(:add_keywords)
           .>> t(:transform_action)
-          .>> default_transformations
         end
 
         def self.to_organization
           t(:add_contact_information, ['telephone', 'email', 'url'])
-          .>> default_transformations
         end
 
         def self.to_person
-          t(:strip_all)
+          t(:identity)
+        end
+
+        def self.to_image
+          t(:rename_graph_keys, { 'dc:webUrl' => 'url' })
         end
 
         def self.to_onlim

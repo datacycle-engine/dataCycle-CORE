@@ -6,39 +6,16 @@ module DataCycleCore
       class Endpoint < DataCycleCore::Export::Common::Endpoint::GenericEndpoint
         include DataCycleCore::Engine.routes.url_helpers
 
-        DEFAULT_ATTRIBUTES = [['name'], ['description'], ['geo'], ['address']].freeze
-        ATTRIBUTE_FILTER = {
-          'POI' => [
-            ['sdLicense'], ['additionalProperty'], ['openingHoursSpecification']
-          ],
-          'Gastronomischer Betrieb' => [
-            ['sdLicense'], ['additionalProperty'], ['openingHoursSpecification']
-          ],
-          'Unterkunft' => [
-            ['sdLicense'], ['additionalProperty'], ['openingHoursSpecification'],
-            ['priceRange'], ['dc:translation']
-          ],
-          'Tour' => [],
-          'Event' => [
-            ['startDate'], ['endDate']
-          ],
-          'Bild' => [
-            ['name'], ['contentUrl'], ['thumbnailUrl'], ['width'], ['height'],
-            ['fileFormat'], ['uploadDate'], ['copyrightNotice'], ['copyrightYear']
-          ],
-          'Person' => [],
-          'Organization' => []
-        }.freeze
-
         DEFAULT_INCLUDE = [
-          ['image', 'copyrightHolder'], ['sdPublisher'], ['copyrightHolder'],
+          ['image', 'copyrightHolder'], ['image', 'author'],
+          ['sdPublisher'], ['copyrightHolder'],
           ['dc:classification'], ['dc:translation']
         ].freeze
         INCLUDE_FILTER = {
           'Event' => [
             ['potentialAction'], ['eventSchedule'], ['organizer'], ['performer'], ['location'],
             ['location', 'author'], ['location', 'sdPublisher'], ['location', 'copyrightHolder'],
-            ['location', 'image'], ['location', 'image', 'copyrightHolder'],
+            ['location', 'image'], ['location', 'image', 'copyrightHolder'], ['location', 'image', 'author'],
             ['location', 'dc:classification'], ['location', 'dc:translation']
           ],
           'Gastronomischer Betrieb' => [],
@@ -48,11 +25,14 @@ module DataCycleCore
           'Tour' => [
             ['odta:wayPoint'],
             ['odta:wayPoint', 'author'], ['odta:wayPoint', 'sdPublisher'], ['odta:wayPoint', 'copyrightHolder'],
-            ['odta:wayPoint', 'image'], ['odta:wayPoint', 'image', 'copyrightHolder'],
+            ['odta:wayPoint', 'image'], ['odta:wayPoint', 'image', 'copyrightHolder'], ['odta:wayPoint', 'image', 'author'],
             ['odta:wayPoint', 'dc:classification'], ['odta:wayPoint', 'dc:translation']
-          ], # ['aggregateRating'], ['odta:startLocation']
+          ], # ['aggregateRating'], ['odta:startLocation'], ['odta:endLocation']
           'Unterkunft' => [
-            ['photo'], ['photo', 'copyrightHolder']
+            ['photo'], ['photo', 'copyrightHolder'], ['photo', 'author']
+          ],
+          'Bild' => [
+            ['copyrightHolder'], ['author']
           ]
         }.freeze
 
@@ -66,10 +46,10 @@ module DataCycleCore
               content: data,
               language: language,
               language_mode: 'expanded',
-              fields_parameters: DEFAULT_ATTRIBUTES + (ATTRIBUTE_FILTER[data.template_name] || []).uniq,
+              fields_parameters: [],
               expand_language: true,
-              field_filter: true,
-              include_parameters: DEFAULT_INCLUDE + (INCLUDE_FILTER[data.template_name] || []).uniq, # included data
+              field_filter: false,
+              include_parameters: DEFAULT_INCLUDE + (INCLUDE_FILTER[data.template_name] || []).uniq,
               api_version: 4,
               permitted_params: {},
               api_context: 'api'
@@ -169,7 +149,7 @@ module DataCycleCore
             ).reject { |_k, v| v.blank? }
           elsif status['stored']
             # save all external_data
-            update_children_external_system_data(status['affectedEntries'], data.id, external_source)
+            update_children_external_system_data(status['affectedEntities'], data.id, external_source)
             external_system_data.merge(
               {
                 'job_id' => job_id,

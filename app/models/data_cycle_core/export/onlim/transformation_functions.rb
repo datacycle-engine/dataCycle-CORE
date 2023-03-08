@@ -16,7 +16,7 @@ module DataCycleCore
         TRANSFORMATION_TYPES = {
           'Organization' => :to_organization,
           'Person' => :to_person,
-          # 'ImageObject' => :to_image,
+          'ImageObject' => :to_image,
           'TouristAttraction' => :to_poi,
           'LodgingBusiness' => :to_lodging_business,
           'FoodEstablishment' => :to_lodging_business,
@@ -24,8 +24,12 @@ module DataCycleCore
           'Event' => :to_event
         }.freeze
 
-        def self.debug(data)
-          # binding.pry
+        # def self.debug(data)
+        #   binding.pry
+        #   data
+        # end
+
+        def self.identity(data)
           data
         end
 
