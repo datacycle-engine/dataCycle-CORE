@@ -55,6 +55,8 @@ module DataCycleCore
         linked_property_names.each do |name|
           properties = properties_for(name)
           next if properties.dig('link_direction') == 'inverse'
+          next if properties.dig('cascade_delete').to_s == 'false'
+
           load_linked_objects(name).each do |item|
             next if number_of_unique_links(item.id) > 1
             item.destroy_content(current_user: current_user, save_time: save_time, save_history: save_history, destroy_linked: destroy_linked)
