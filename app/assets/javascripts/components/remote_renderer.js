@@ -11,31 +11,6 @@ class RemoteRenderer {
 				threshold: 0.1,
 			},
 		);
-		if (DataCycle.config.remoteRenderFull) {
-			this.globalObservers = [
-				new IntersectionObserver(this.checkForNewVisibleElements.bind(this), {
-					root: document.body,
-				}),
-			];
-
-			if (document.querySelector(".row.split-content.detail-content"))
-				this.globalObservers.push(
-					new IntersectionObserver(this.checkForNewVisibleElements.bind(this), {
-						root: document.querySelector(
-							".row.split-content.detail-content > .show-content",
-						),
-					}),
-				);
-
-			if (document.querySelector(".row.split-content.edit-content"))
-				this.globalObservers.push(
-					new IntersectionObserver(this.checkForNewVisibleElements.bind(this), {
-						root: document.querySelector(
-							".row.split-content.edit-content > .column",
-						),
-					}),
-				);
-		}
 
 		this.init();
 	}
@@ -63,23 +38,18 @@ class RemoteRenderer {
 	}
 	observeElement(element) {
 		this.intersectionObserver.observe(element);
-
-		if (!DataCycle.config.remoteRenderFull) return;
-
-		for (const observer of this.globalObservers) observer.observe(element);
 	}
 	unobserveElement(element) {
 		this.intersectionObserver.unobserve(element);
-
-		if (!DataCycle.config.remoteRenderFull) return;
-
-		for (const observer of this.globalObservers) observer.unobserve(element);
 	}
 	addRemoteRenderHandler(element) {
 		this.observeElement(element);
 
 		if (element.classList.contains("translatable-attribute"))
 			this.addForceRenderTranslationHandler(element);
+
+		if (DataCycle.config.remoteRenderFull)
+			requestAnimationFrame(this.loadRemote.bind(this, element));
 	}
 	addForceRenderTranslationHandler(element) {
 		$(element).on(
@@ -94,7 +64,6 @@ class RemoteRenderer {
 		for (const entry of entries) {
 			if (!entry.isIntersecting) continue;
 
-			this.unobserveElement(entry.target);
 			this.loadRemote(entry.target);
 		}
 	}
@@ -156,6 +125,8 @@ class RemoteRenderer {
 		additionalParams = null,
 		forceRecursiveLoad = false,
 	) {
+		this.unobserveElement(element);
+
 		const params = {
 			partial: element.dataset.remotePath,
 			render_function: element.dataset.remoteRenderFunction,
