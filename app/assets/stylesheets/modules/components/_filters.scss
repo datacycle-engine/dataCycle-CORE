@@ -28,11 +28,12 @@ $filter-border: #aaa;
       display: flex;
       flex-flow: row wrap;
       align-items: center;
-      padding-bottom: 1rem;
+      padding: 1rem;
+      gap: 1rem;
 
       >* {
         width: 100%;
-        margin: 1rem 0 0 0;
+        margin: 0;
       }
     }
 
@@ -53,6 +54,26 @@ $filter-border: #aaa;
       li[data-children]:hover>label:after,
       li[data-children]:focus>label:after {
         right: 0.8rem;
+      }
+    }
+
+    .permanent-advanced-filters {
+      display: flex;
+      flex-flow: column;
+      gap: 1rem;
+
+      >* {
+        margin: 0;
+      }
+    }
+
+    .advanced-filters>.accordion-item .accordion-content {
+      >*:not(:first-child) {
+        margin-top: 1rem;
+      }
+
+      >*:not(:last-child) {
+        margin-bottom: 1rem;
       }
     }
 
@@ -139,7 +160,7 @@ $filter-border: #aaa;
         box-shadow: 0 0 0 2px lighten($dark-gray, 12%) inset, 0 1px 3px darken($light-gray, 10%);
         transition: $global-transition;
         border-radius: $global-radius;
-        margin: 1rem 0;
+        margin: 0;
         height: auto;
         overflow: unset;
 
