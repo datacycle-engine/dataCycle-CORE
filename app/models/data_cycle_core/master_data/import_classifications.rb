@@ -82,7 +82,7 @@ module DataCycleCore
         find_alias = DataCycleCore::ClassificationAlias
           .joins(:classification_tree)
           .find_by(
-            classification_aliases: { name: data },
+            name: data,
             classification_trees: {
               classification_tree_label_id: label_id
             }.merge(allow_duplicates ? { parent_classification_alias_id: parent.try(:id) } : {})

@@ -4,6 +4,7 @@ module DataCycleCore
   class PublicationsController < ApplicationController
     include DataCycleCore::Filter
     authorize_resource class: false # from cancancan (authorize)
+    before_action :check_feature_enabled
 
     def index
       @publication_classifications = DataCycleCore::Thing
@@ -46,15 +47,9 @@ module DataCycleCore
 
       query2 = DataCycleCore::Thing.joins(:content_content_b).where(template: false, template_name: 'Publikations-Plan', content_contents: { content_a_id: query.pluck(:id) })
 
-      value_storage_location = 'metadata'
+      query2 = query2.where("(things.metadata ->> 'publish_at')::date >= ?", params[:publications_from].presence || Date.current)
 
-      if params[:publications_from].present?
-        query2 = query2.where("(#{value_storage_location} ->> 'publish_at')::date >= ?", params[:publications_from])
-      else
-        query2 = query2.where("(#{value_storage_location} ->> 'publish_at')::date >= ?", Date.current)
-      end
-
-      query2 = query2.where("(#{value_storage_location} ->> 'publish_at')::date <= ?", params[:publications_until]) if params[:publications_until].present?
+      query2 = query2.where("(things.metadata ->> 'publish_at')::date <= ?", params[:publications_until]) if params[:publications_until].present?
 
       @publication_classification_alias_ids = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' && @publication_classifications.values&.include?(f['n']) }
 
@@ -75,18 +70,30 @@ module DataCycleCore
         @content_class = params[:content_class]
         @target = params[:target]
         @count_only = true
-        @total_count = query2.includes(:content_content_b).map(&:content_content_b).map { |c| c.first.content_a_id }.size
+        @total_count = query2.size
 
         render json: { html: helpers.result_count(@count_mode, @total_count, @content_class || 'things') }
       else
-        @contents = query2.order(Arel.sql("(#{value_storage_location} ->> 'publish_at')::date ASC")).page(params[:page]).per(10).includes(:classifications, content_content_b: [content_a: :translations])
+        @contents = query2.order(Arel.sql("(things.metadata ->> 'publish_at')::date ASC")).page(params[:page]).per(25).includes(:classifications, content_content_b: [content_a: :translations]).without_count
 
-        @total = @contents.map(&:content_content_b).map { |c| c.first.content_a_id }.uniq.size
+        @last_page = @contents.last_page?
 
-        @pages = @contents.total_pages
-
-        respond_to(:html, :js)
+        respond_to do |format|
+          format.html
+          format.json do
+            render json: {
+              html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/publications/publication_list', locals: { contents: @contents }).strip,
+              last_page: @last_page
+            }
+          end
+        end
       end
+    end
+
+    private
+
+    def check_feature_enabled
+      raise ActiveRecord::RecordNotFound unless DataCycleCore::Feature::PublicationSchedule.enabled?
     end
   end
 end

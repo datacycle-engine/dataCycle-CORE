@@ -6,7 +6,7 @@
   <%= render 'filter', view_type: 'publications', additional_classes: 'column-padding', additional_request_params: [:publications_from, :publications_until] %>
 <% end %>
 
-<section class="search-results publications-list" data-pages="<%= @pages %>">
+<section class="search-results publications-list" data-last-page="<%= @last_page %>">
   <div class="row">
     <% if @contents&.size&.zero? %>
       <div class="small-12">

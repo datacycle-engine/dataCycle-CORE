@@ -35,12 +35,12 @@ module DataCycleCore
                   properties: data_templates.dig(0, :data, :properties)
                 }
 
-                if name_prefix&.to_sym&.in?(TemplateImporter::CONTENT_SETS) || data[:set].present?
-                  data[:set] ||= name_prefix.to_sym
-                  data[:specificity] = 1
-                elsif name_prefix.present?
+                if name_prefix.present? && TemplateImporter::CONTENT_SETS.exclude?(name_prefix)
                   data[:template_name] = name_prefix
                   data[:specificity] = 2
+                elsif name_prefix.present? || data[:set].present?
+                  data[:set] ||= name_prefix.to_sym
+                  data[:specificity] = 1
                 end
 
                 unless @mixins[name]&.any? { |v| v[:relative_path] == data[:relative_path] && v[:set] == data[:set] }

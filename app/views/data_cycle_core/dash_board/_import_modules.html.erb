@@ -1,86 +1,53 @@
 <div>
-  <div class="card">
-    <div class="card-divider">
-      <h5><%= locals[:import_data][:name] %></h5>
-      <h6 style="font-size: 0.8rem; position:relative;" >
-        <span class="copy-to-clipboard" data-value="<%= locals[:import_data][:uuid] %>" ><%= locals[:import_data][:uuid] %></span>
-      </h6>
-    </div>
-    <div class="card-section">
-      <%= truncate(locals[:import_data][:database], length: 35)%>
-      <ul>
-        <%= content_tag(:li, "size: #{number_to_human_size(locals[:import_data][:db_size])}")%>
-      </ul>
-    </div>
-    <div class="card-section">
-      Collections: <br />
-      <ul>
-        <% locals[:import_data][:tables].each do |key, value| %>
-          <%= content_tag(:li, "#{key}: #{value[0]} #{value[1]}") %>
-        <% end %>
-      </ul>
-    </div>
-    <div class="card-section">
-      download (last success/try):
-      <ul class="no-bullet import-data-timestamps">
-        <% if locals.dig(:import_data, :last_download) != locals.dig(:import_data, :last_successful_download) %>
-          <li class="last-successful-download <%= 'check-icon' if locals.dig(:import_data, :last_successful_download) != 'never' %>">
-            <%= import_data_time(locals.dig(:import_data, :last_successful_download)) %>
-          </li>
-        <% end %>
-        <li class="last-download <%= locals.dig(:import_data, :last_download_class) %>">
-          <%= import_data_time(locals.dig(:import_data, :last_download)) %>
-        </li>
-      </ul>
-      import (last success/try):
-      <ul class="no-bullet import-data-timestamps">
-        <% if locals.dig(:import_data, :last_import) != locals.dig(:import_data, :last_successful_import) %>
-          <li class="last-successful-import <%= 'check-icon' if locals.dig(:import_data, :last_successful_import) != 'never' %>">
-            <%= import_data_time(locals.dig(:import_data, :last_successful_import)) %>
-          </li>
-        <% end %>
-        <li class="last-import <%= locals.dig(:import_data, :last_import_class) %>">
-          <%= import_data_time(locals.dig(:import_data, :last_import)) %>
-        </li>
-      </ul>
-    </div>
-    <% if locals.dig(:import_data, :deactivated) %>
-      <div class="card-divider" style="padding: 1rem 1rem 0rem 1rem;">
-        <div class="admin_full_size">
-          deactivated <br/>
-          &nbsp;
+  <div class="card import-module accordion" data-accordion data-allow-all-closed="true">
+    <div class="accordion-item" data-accordion-item>
+      <div class="card-divider accordion-title">
+        <div class="header">
+          <h5><%= locals[:import_data][:name] %></h5>
+          <ul class="import-data-timestamps">
+            <li class="download <%= locals.dig(:import_data, :last_download_class) %>" data-dc-tooltip="<%= timestamp_tooltip(locals.dig(:import_data), 'download') %>"></li>
+            <li class="import <%= locals.dig(:import_data, :last_import_class) %>" data-dc-tooltip="<%= timestamp_tooltip(locals.dig(:import_data), 'import') %>"></li>
+          </ul>
         </div>
+
+        <h6 style="font-size: 0.8rem; position:relative;" >
+          <span class="copy-to-clipboard" data-value="<%= locals[:import_data][:uuid] %>" ><%= locals[:import_data][:uuid] %></span>
+        </h6>
       </div>
-    <% else %>
-      <div class="card-divider" style="padding: 1rem 1rem 0rem 1rem;">
-        <div class="grid-buttons">
-          <div class="grid-parent">
-            <div class="admin_full_size">
-              <%= link_to(t('dash_board.download_import', locale: active_ui_locale), admin_download_import_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :downloadable) %>
-            </div>
-          </div>
+      <div class="accordion-content remote-render" data-tab-content data-remote-path="data_cycle_core/dash_board/import_module" data-remote-options="<%= to_query_params({ external_source_id: locals.dig(:import_data, :uuid) }).to_json %>"></div>
+      <% if locals.dig(:import_data, :deactivated) %>
+        <div class="card-divider buttons">
+          <span class="deactivated">DEACTIVATED</span>
         </div>
-        <div class="grid-buttons">
-          <div class="grid-parent">
-            <div class="admin_full_size">
-              <%= link_to(t('dash_board.download', locale: active_ui_locale), admin_download_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :downloadable) %>
-            </div>
-            <div class="admin_full_size">
-              <%= link_to(t('dash_board.import', locale: active_ui_locale), admin_import_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :importable) %>
-            </div>
-          </div>
+      <% else %>
+        <div class="card-divider buttons">
+          <%= link_to_condition(
+          locals.dig(:import_data, :downloadable),
+          tag.span(t('dash_board.download_import', locale: active_ui_locale), class: 'button small download-import'),
+          admin_download_import_path(id: locals[:import_data][:uuid]),
+          class: 'download-import') %>
+
+          <%= link_to_condition(
+          locals.dig(:import_data, :downloadable),
+          tag.span(t('dash_board.download', locale: active_ui_locale), class: "button small"),
+          admin_download_path(id: locals[:import_data][:uuid])) %>
+
+          <%= link_to_condition(
+          locals.dig(:import_data, :importable),
+          tag.span(t('dash_board.import', locale: active_ui_locale), class: "button small"),
+          admin_import_path(id: locals[:import_data][:uuid])) %>
+
+          <%= link_to_condition(
+          locals.dig(:import_data, :downloadable),
+          tag.span(t('dash_board.download_full', locale: active_ui_locale), class: "button small"),
+          admin_download_full_path(id: locals[:import_data][:uuid])) %>
+
+          <%= link_to_condition(
+          locals.dig(:import_data, :importable),
+          tag.span(t('dash_board.import_full', locale: active_ui_locale), class: "button small"),
+          admin_import_full_path(id: locals[:import_data][:uuid])) %>
         </div>
-        <div class="grid-buttons">
-          <div class="grid-parent">
-            <div class="admin_full_size">
-              <%= link_to(t('dash_board.download_full', locale: active_ui_locale), admin_download_full_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :downloadable) %>
-            </div>
-            <div class="admin_full_size">
-              <%= link_to(t('dash_board.import_full', locale: active_ui_locale), admin_import_full_path(id: locals[:import_data][:uuid]), class: 'button small admin_inherit') if locals.dig(:import_data, :importable) %>
-            </div>
-          </div>
-        </div>
-      </div>
-    <% end %>
+      <% end %>
+    </div>
   </div>
 </div>

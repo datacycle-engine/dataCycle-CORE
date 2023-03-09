@@ -60,7 +60,7 @@ module DataCycleCore
           has_many :data_link_content_items, as: :content
           has_many :indirect_data_links, through: :data_link_content_items
           has_many :data_links, as: :item, dependent: :destroy
-
+          has_many :valid_write_links, -> { valid.writable }, class_name: 'DataCycleCore::DataLink', as: :item
           has_many :asset_contents, dependent: :destroy, as: :content_data
           has_many :assets, through: :asset_contents
         end
@@ -68,6 +68,15 @@ module DataCycleCore
         def data_links
           DataCycleCore::DataLink.where(item_id: all.select(:id))
         end
+      end
+
+      def valid_writable_links_by_receiver?(user)
+        data_links = DataCycleCore::DataLink.valid.writable.by_receiver(user).joins("LEFT OUTER JOIN watch_list_data_hashes ON watch_list_data_hashes.watch_list_id = data_links.item_id AND watch_list_data_hashes.hashable_type = 'DataCycleCore::Thing'")
+
+        data_links
+          .where(item_type: 'DataCycleCore::Thing', item_id: id)
+          .or(data_links.where(item_type: 'DataCycleCore::WatchList', watch_list_data_hashes: { hashable_id: id }))
+          .any?
       end
 
       def display_classification_aliases(context)

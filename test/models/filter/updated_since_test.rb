@@ -37,8 +37,8 @@ module DataCycleCore
       end
 
       test 'sanity check for updated_since' do
-        assert_equal(6, DataCycleCore::Thing.where("things.template = false AND things.updated_at >= '#{@timestamp.utc}'").count)
-        assert_equal(0, DataCycleCore::Thing.where("things.template = false AND things.updated_at > '#{Time.zone.now.utc}'").count)
+        assert_equal(6, DataCycleCore::Thing.where('things.template = false AND things.updated_at >= ?', @timestamp).count)
+        assert_equal(0, DataCycleCore::Thing.where('things.template = false AND things.updated_at > ?', Time.zone.now).count)
         assert_equal(6, DataCycleCore::Filter::Search.new.updated_since(@timestamp - 1.minute).count)
         assert_equal(0, DataCycleCore::Filter::Search.new.updated_since(Time.zone.now).count)
       end

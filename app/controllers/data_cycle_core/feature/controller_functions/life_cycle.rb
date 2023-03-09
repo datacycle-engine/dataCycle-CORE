@@ -36,8 +36,8 @@ module DataCycleCore
             format.html { redirect_back(fallback_location: root_path) }
             format.json do
               render json: {
-                life_cycle_html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/viewers/life_cycle', locals: { content: @object }).squish,
-                classifications_html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/detail/content_header_classifications', locals: { content: @object }).squish,
+                life_cycle_html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/viewers/life_cycle', locals: { content: @object }).strip,
+                classifications_html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/detail/content_header_classifications', locals: { content: @object }).strip,
                 **flash.discard.to_h
               }
             end

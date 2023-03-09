@@ -46,7 +46,7 @@ module DataCycleCore
             virtual_parameters.reduce(content) do |content_part, attribute_name|
               if content_part.is_a?(Enumerable) && content_part.first.respond_to?(attribute_name)
                 content_part.first&.send(attribute_name)
-              elsif content_part.respond_to?(attribute_name)
+              elsif content_part.is_a?(DataCycleCore::Thing) && content_part.respond_to?(attribute_name)
                 content_part&.send(attribute_name)
               end
             end

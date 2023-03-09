@@ -127,22 +127,36 @@ module DataCycleCore
           end
         end
 
+        rule(:default_value) do
+          next unless key? && values.present? && values.is_a?(::Hash)
+
+          key.failure(:invalid_default_value) unless DataCycleCore::ModuleService.load_module(values.dig(:default_value, :module).classify, 'Utility::DefaultValue').respond_to?(values.dig(:default_value, :method))
+        rescue NameError
+          key.failure(:invalid_default_value)
+        end
+
         rule(:compute) do
           next unless key? && values.present?
 
-          key.failure(:invalid_computed) unless "DataCycleCore::#{values.dig(:compute, :module)}".classify.safe_constantize.respond_to?(values.dig(:compute, :method))
+          key.failure(:invalid_computed) unless DataCycleCore::ModuleService.load_module(values.dig(:compute, :module).classify, 'Utility::Compute').respond_to?(values.dig(:compute, :method))
+        rescue NameError
+          key.failure(:invalid_computed)
         end
 
         rule(:virtual) do
           next unless key? && values.present?
 
-          key.failure(:invalid_virtual) unless "DataCycleCore::#{values.dig(:virtual, :module)}".classify.safe_constantize.respond_to?(values.dig(:virtual, :method))
+          key.failure(:invalid_virtual) unless DataCycleCore::ModuleService.load_module(values.dig(:virtual, :module).classify, 'Utility::Virtual').respond_to?(values.dig(:virtual, :method))
+        rescue NameError
+          key.failure(:invalid_virtual)
         end
 
         rule(:content_score) do
-          next unless key? && value.present?
+          next unless key? && values.present?
 
-          key.failure(:invalid_content_score) unless values.dig(:content_score, :module)&.classify&.safe_constantize.respond_to?(values.dig(:content_score, :method))
+          key.failure(:invalid_content_score) unless DataCycleCore::ModuleService.load_module(values.dig(:content_score, :module).classify, 'Utility::ContentScore').respond_to?(values.dig(:content_score, :method))
+        rescue NameError
+          key.failure(:invalid_content_score)
         end
 
         rule(:properties) do

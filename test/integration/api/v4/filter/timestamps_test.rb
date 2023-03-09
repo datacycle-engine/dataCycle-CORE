@@ -278,7 +278,8 @@ module DataCycleCore
             food_establishment_a_id = @food_establishment_a.id
             food_establishment_b_id = @food_establishment_b.id
 
-            @food_establishment_a.destroy_content
+            @food_establishment_a.destroy_content(save_time: 1.minute.ago)
+
             post api_v4_contents_deleted_path(params)
             assert_api_count_result(1)
 

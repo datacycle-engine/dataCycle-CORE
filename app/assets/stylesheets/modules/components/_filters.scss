@@ -30,14 +30,14 @@ $filter-border: #aaa;
       align-items: center;
       padding-bottom: 1rem;
 
-      > * {
+      >* {
         width: 100%;
         margin: 1rem 0 0 0;
       }
     }
 
     .main-filters {
-      li[data-children] > label:after {
+      li[data-children]>label:after {
         content: '\f105';
         font-family: FontAwesome;
         font-style: normal;
@@ -50,8 +50,8 @@ $filter-border: #aaa;
         transition: $global-transition;
       }
 
-      li[data-children]:hover > label:after,
-      li[data-children]:focus > label:after {
+      li[data-children]:hover>label:after,
+      li[data-children]:focus>label:after {
         right: 0.8rem;
       }
     }
@@ -87,6 +87,7 @@ $filter-border: #aaa;
         background-color: lighten($primary-color, 55%);
         box-shadow: 0 0 0 2px lighten($primary-color, 5%) inset, 0 1px 3px darken($light-gray, 10%);
         border-radius: $global-radius;
+        min-height: 2.5rem;
 
         .select2-selection {
           min-height: 2.5rem;
@@ -110,7 +111,7 @@ $filter-border: #aaa;
             right: 0;
             width: 3rem;
 
-            > * {
+            >* {
               display: none;
             }
 
@@ -134,11 +135,45 @@ $filter-border: #aaa;
       .advanced-filter {
         position: relative;
         display: flex;
-        margin: 1rem 0;
         background-color: lighten($dark-gray, 32%);
         box-shadow: 0 0 0 2px lighten($dark-gray, 12%) inset, 0 1px 3px darken($light-gray, 10%);
         transition: $global-transition;
         border-radius: $global-radius;
+        margin: 1rem 0;
+        height: auto;
+        overflow: unset;
+
+        &.hidden {
+          margin: 0;
+          height: 0;
+          overflow: hidden;
+        }
+
+        &.transitioning {
+          transition: height 0.2s, margin 0.2s;
+          height: 3.2rem;
+          overflow: hidden;
+        }
+
+        &.transitioning-out {
+          max-height: 1000px;
+          overflow: hidden;
+        }
+
+        &.transitioned-out {
+          transition: max-height 0.2s cubic-bezier(0, 0.9, 0, 1), margin 0.2s;
+          margin: 0;
+          overflow: hidden;
+          max-height: 0;
+        }
+
+        input[type="date"],
+        input[type="datetime-local"] {
+          margin: 0;
+          height: 2.2rem;
+          line-height: 2.2rem;
+          padding: 0.3rem 0.5rem;
+        }
 
         select {
           border: 1px solid $filter-border;
@@ -154,7 +189,7 @@ $filter-border: #aaa;
             display: block;
 
             select[disabled],
-            select[disabled] + .select2 {
+            select[disabled]+.select2 {
               display: none;
             }
           }
@@ -166,6 +201,7 @@ $filter-border: #aaa;
           &:last-child {
             padding-right: 0;
           }
+
           &:first-child {
             padding-left: 0;
           }
@@ -190,7 +226,7 @@ $filter-border: #aaa;
           box-shadow: 0 0 0 2px darken($white, 15%) inset, 0 1px 3px darken($light-gray, 10%);
         }
 
-        > div {
+        >div {
           position: relative;
           top: unset;
           left: unset;
@@ -215,6 +251,7 @@ $filter-border: #aaa;
               justify-content: center;
               height: 100%;
               width: 3rem;
+
               .fa {
                 color: $alert-color;
                 font-size: 1.3rem;
@@ -261,6 +298,7 @@ $filter-border: #aaa;
             .select2-selection__arrow {
               height: 32px;
             }
+
             .select2-selection__rendered {
               line-height: 32px;
             }
@@ -273,6 +311,7 @@ $filter-border: #aaa;
 
         .advanced-filter-mode {
           flex: unset;
+
           select {
             border-radius: $global-radius;
             height: 2.2rem;
@@ -312,9 +351,11 @@ $filter-border: #aaa;
           }
         }
       }
+
       .advanced-filter.in-schedule {
         .advanced-filter-selector {
-          > select,
+
+          >select,
           input {
             margin-right: 0.5rem;
             height: 2.4375rem;
@@ -340,6 +381,7 @@ $filter-border: #aaa;
 
     .select2-container,
     .tag {
+
       strong,
       b {
         color: inherit;
@@ -361,7 +403,7 @@ $filter-border: #aaa;
         border-radius: $global-radius;
         display: flex;
 
-        > * {
+        >* {
           background-color: transparent;
         }
 
@@ -464,7 +506,7 @@ $filter-border: #aaa;
         }
 
         /* :: CHECKED :: */
-        input:checked ~ label {
+        input:checked~label {
           background-color: $primary-color;
           color: $white;
 
@@ -473,7 +515,7 @@ $filter-border: #aaa;
           }
         }
 
-        input:checked ~ label:before {
+        input:checked~label:before {
           animation: throw 0.2s linear;
           top: 0px;
           color: $white;
@@ -486,7 +528,7 @@ $filter-border: #aaa;
           background: #ddd;
         }
 
-        > div {
+        >div {
           display: none;
           z-index: 3;
           position: absolute;
@@ -542,7 +584,7 @@ $filter-border: #aaa;
             box-shadow: none;
             background: lighten($light-gray, 4%);
 
-            > label i {
+            >label i {
               left: 16.7rem;
             }
           }
@@ -596,22 +638,23 @@ $filter-border: #aaa;
         }
       }
 
-      ul > li:hover > {
+      ul>li:hover> {
+
         div,
         ul,
-        div > ul {
+        div>ul {
           display: block;
         }
       }
     }
 
-    > ul {
+    >ul {
       display: flex;
       position: relative;
       width: 100%;
       line-height: 1;
 
-      > li {
+      >li {
         padding: 1rem;
         float: none;
         position: initial;
@@ -628,7 +671,7 @@ $filter-border: #aaa;
           white-space: normal;
         }
 
-        > .title {
+        >.title {
           white-space: nowrap;
           word-break: break-word;
         }
@@ -656,7 +699,7 @@ $filter-border: #aaa;
       display: flex;
       align-items: flex-start;
 
-      > .tags-container {
+      >.tags-container {
         flex: auto;
         display: flex;
         flex-flow: row wrap;
@@ -685,7 +728,8 @@ $filter-border: #aaa;
           }
         }
       }
-      > .tag-group-label {
+
+      >.tag-group-label {
         display: inline-flex;
         align-items: center;
         white-space: nowrap;
@@ -706,10 +750,11 @@ $filter-border: #aaa;
     font-size: 0.8rem;
     display: flex;
 
-    > .filter-groups {
+    >.filter-groups {
       flex: auto;
     }
-    > .icon {
+
+    >.icon {
       white-space: nowrap;
       margin: 0 0.5rem 0.5rem 0;
       padding-top: 2px;
@@ -859,7 +904,7 @@ $filter-border: #aaa;
           cursor: pointer;
           border-radius: $global-radius;
 
-          > ul {
+          >ul {
             display: none;
             padding: 0;
             position: relative;
@@ -916,7 +961,7 @@ $filter-border: #aaa;
               }
 
               /* :: CHECKED :: */
-              input:checked ~ label {
+              input:checked~label {
                 background-color: $primary-color;
                 color: $white;
 
@@ -925,7 +970,7 @@ $filter-border: #aaa;
                 }
               }
 
-              input:checked ~ label:before {
+              input:checked~label:before {
                 animation: throw 0.2s linear;
                 top: 0px;
                 color: $white;
@@ -953,14 +998,14 @@ $filter-border: #aaa;
             }
           }
 
-          > span,
-          > i {
+          >span,
+          >i {
             flex: 1;
             white-space: nowrap;
             padding-right: 5px;
           }
 
-          > i {
+          >i {
             line-height: inherit;
           }
 
@@ -970,7 +1015,7 @@ $filter-border: #aaa;
             color: $black;
             border-radius: $global-radius $global-radius 0 0;
 
-            > ul {
+            >ul {
               position: absolute;
               left: 0;
               top: calc(100% - 1px);
@@ -1023,6 +1068,7 @@ $filter-border: #aaa;
             .fa-stack-2x {
               font-size: 1.4rem;
             }
+
             .fa-stack-1x {
               font-size: 0.6rem;
               top: -2px;
@@ -1098,7 +1144,7 @@ $filter-border: #aaa;
         }
 
         &.search-favorites-short {
-          > ul li {
+          >ul li {
             gap: 1rem;
 
             &.search-favorites-list-input {
@@ -1141,7 +1187,7 @@ $filter-border: #aaa;
                 &.list-loading {
                   cursor: wait;
 
-                  > * {
+                  >* {
                     transition: $opacity-transition;
                     opacity: 0.1;
                     pointer-events: none;
@@ -1175,7 +1221,7 @@ $filter-border: #aaa;
                 display: flex;
                 gap: 0.3rem;
 
-                > * {
+                >* {
                   display: flex;
                   align-items: center;
                 }
@@ -1191,7 +1237,7 @@ $filter-border: #aaa;
           }
         }
 
-        &.search-history-short > ul li {
+        &.search-history-short>ul li {
           .stored-date {
             color: $dark-gray;
             min-width: 10rem;
@@ -1199,7 +1245,13 @@ $filter-border: #aaa;
           }
         }
 
-        > ul {
+        &.search-favorites-short>ul li .stored-date {
+          color: $dark-gray;
+          white-space: nowrap;
+          padding: 0.2rem 0.5rem;
+        }
+
+        >ul {
           display: none;
           flex-flow: row wrap;
           justify-content: flex-start;
@@ -1355,20 +1407,20 @@ $filter-border: #aaa;
             }
           }
 
-          > li:last-child {
+          >li:last-child {
             justify-content: flex-end;
             background: transparent;
           }
         }
 
-        > span,
-        > i {
+        >span,
+        >i {
           flex: 1;
           white-space: nowrap;
           padding-right: 5px;
         }
 
-        > i {
+        >i {
           line-height: inherit;
         }
 
@@ -1378,11 +1430,11 @@ $filter-border: #aaa;
           color: $black;
           border-radius: $global-radius $global-radius 0 0;
 
-          &.search-favorites-short > ul {
+          &.search-favorites-short>ul {
             border-radius: $global-radius 0 $global-radius $global-radius;
           }
 
-          > ul {
+          >ul {
             display: flex !important;
             position: absolute;
             left: 0;
@@ -1428,11 +1480,11 @@ $filter-border: #aaa;
       padding: 0;
     }
 
-    > .accordion-item.is-active > .accordion-title {
+    >.accordion-item.is-active>.accordion-title {
       margin-top: 1rem;
 
-      > span {
-        > i::before {
+      >span {
+        >i::before {
           content: '\f077';
         }
       }
@@ -1501,17 +1553,17 @@ $filter-border: #aaa;
 
 #search-results ul.list {
   li.list-item {
-    > .inner-item > .draggable-handle > .fa {
+    >.inner-item>.draggable-handle>.fa {
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
     &.saving-order {
-      > .inner-item > .draggable-handle {
+      >.inner-item>.draggable-handle {
         pointer-events: none;
 
-        > .fa::before {
+        >.fa::before {
           font-size: 0.9rem;
           content: '\f110';
           animation: fa-spin 2s infinite linear;
@@ -1609,9 +1661,9 @@ $filter-border: #aaa;
       line-height: 1.5rem;
     }
 
-    > i,
-    > span[data-toggle],
-    > a {
+    >i,
+    >span[data-toggle],
+    >a {
       height: 1.5rem;
       padding: 0 0.2rem;
 
@@ -1620,14 +1672,14 @@ $filter-border: #aaa;
       }
     }
 
-    > i,
+    >i,
     a.selected {
       color: $black;
       text-shadow: 1px 1px 1px #ccc;
     }
 
-    > a,
-    > span[data-toggle]:not(.selected) {
+    >a,
+    >span[data-toggle]:not(.selected) {
       color: lighten($dark-gray, 20%);
       transition: $color-transition;
       cursor: pointer;
@@ -1642,6 +1694,7 @@ $filter-border: #aaa;
     0% {
       left: -50%;
     }
+
     100% {
       left: 100%;
     }
@@ -1696,7 +1749,7 @@ $filter-border: #aaa;
         animation: progress-bar 1s linear infinite forwards;
       }
 
-      > * {
+      >* {
         opacity: 0.1;
         pointer-events: none;
       }
@@ -1706,7 +1759,7 @@ $filter-border: #aaa;
       margin-right: 0.3rem;
     }
 
-    > *:not(:last-child) {
+    >*:not(:last-child) {
       margin-right: 0.3rem;
     }
   }
@@ -1755,7 +1808,7 @@ $filter-border: #aaa;
       }
 
       /* :: CHECKED :: */
-      input:checked ~ label {
+      input:checked~label {
         background-color: $primary-color;
         color: $white;
         border-color: $primary-color;
@@ -1771,15 +1824,16 @@ $filter-border: #aaa;
 .clickable-menu {
   margin: 0;
 
-  > li.active {
-    > div,
-    > ul,
-    > div > ul {
+  >li.active {
+
+    >div,
+    >ul,
+    >div>ul {
       display: block !important;
     }
   }
 
-  > li {
+  >li {
     transition: background 0.25s ease-out;
 
     &:hover {
@@ -1819,7 +1873,7 @@ $filter-border: #aaa;
   align-items: center;
   justify-content: flex-end;
 
-  > select {
+  >select {
     font-size: 0.9rem;
     margin: 0;
     height: 100%;
@@ -1868,7 +1922,7 @@ $filter-border: #aaa;
       }
     }
 
-    input:checked + label {
+    input:checked+label {
       .fa {
         &.sort-asc {
           color: $black;
@@ -1880,7 +1934,7 @@ $filter-border: #aaa;
       }
     }
 
-    input:disabled + label {
+    input:disabled+label {
       cursor: not-allowed;
 
       .fa {

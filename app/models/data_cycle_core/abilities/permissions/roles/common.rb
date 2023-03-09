@@ -12,38 +12,20 @@ module DataCycleCore
             # Thing
             # WatchList
             # StoredFilter
-            permit(
-              segment(:UsersByRole).new(role),
-              :show,
-              segment(:SubjectByConditions).new(
-                [
-                  DataCycleCore::Thing,
-                  DataCycleCore::WatchList,
-                  DataCycleCore::StoredFilter
-                ]
-              )
-            )
+            permit_user(role, :show, SubjectByConditions: [[DataCycleCore::Thing, DataCycleCore::WatchList, DataCycleCore::StoredFilter]])
 
             # DataLink for things, watch_lists
-            permit(
-              segment(:UsersByRole).new(role),
-              :update, :import,
-              segment(:ThingByDataLink).new
-            )
+            permit_user(role, :update, :import, :ThingByDataLink)
+
             # DataLink for stored_filter
-            permit(
-              segment(:UsersByRole).new(role),
-              :read, :search, :classification_trees, :classification_tree, :permanent_advanced, :advanced,
-              segment(:StoredFilterByDataLink).new('fulltext_search')
-            )
+            permit_user(role, :read, :search, :classification_trees, :classification_tree, :permanent_advanced, :advanced, StoredFilterByDataLink: 'fulltext_search')
+
+            # WatchList
+            permit_user(role, :copy_api_link, SubjectByConditions: [DataCycleCore::WatchList, my_selection: false])
 
             ### Features
             # ViewMode
-            permit(
-              segment(:UsersByRole).new(role),
-              :grid,
-              segment(:SubjectByEnabledFeature).new(:view_mode, DataCycleCore::Feature::ViewMode)
-            )
+            permit_user(role, :grid, SubjectByEnabledFeature: [:view_mode, DataCycleCore::Feature::ViewMode])
           end
         end
       end

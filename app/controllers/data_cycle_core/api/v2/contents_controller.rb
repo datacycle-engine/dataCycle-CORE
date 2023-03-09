@@ -34,9 +34,7 @@ module DataCycleCore
         end
 
         def deleted
-          deleted_contents = DataCycleCore::Thing::History.where(
-            DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
-          )
+          deleted_contents = DataCycleCore::Thing::History.where.not(deleted_at: nil).where.not(content_type: 'embedded')
 
           if permitted_params.dig(:filter, :deleted_since)
             deleted_contents = deleted_contents.where(

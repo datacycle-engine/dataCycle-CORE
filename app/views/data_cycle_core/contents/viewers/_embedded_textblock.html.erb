@@ -1,22 +1,24 @@
-<% objects = value.presence&.includes(:translations).to_a || [] %>
+<% objects = value&.includes(:translations).to_a || [] %>
 <% objects = objects.concat(new_relations(options.dig(:item_diff), 'things').includes(:translations).to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
 
-<% objects.presence&.each_with_index do |object, index| %>
+<% objects&.each_with_index do |object, index| %>
   <% I18n.with_locale(object.first_available_locale) do %>
     <% validation_properties = ordered_validation_properties(validation: object.schema, scope: :show) %>
     <% validation_properties['text']['label'] = object.try(:name) if object.try(:name).present? %>
+    <% merged_options = options.merge({
+        item_diff: changes_by_value,
+        mode: changes_class(options.dig('item_diff'), diff_target_id(object)),
+        class: "embedded"
+      }).with_indifferent_access %>
 
     <%= render 'data_cycle_core/contents/viewers/attribute',
           key: key,
           definition: validation_properties['text'],
           value: object.try(:text),
-          options: options.merge({
-            item_diff: changes_by_value(options.dig(:item_diff), object.id),
-            mode: changes_class(options.dig(:item_diff), object.id),
-            class: 'embedded'
-          }),
+          options: merged_options,
           content: content,
           parent: local_assigns[:parent],
+          diff_target: changes_by_mode(changes_by_value, '~').present? ? diff_target_by_id(local_assigns.merge({ object: object })) : nil,
           data_attributes: {
             editor: 'embedded_object',
             id: [object.id],
@@ -29,19 +31,17 @@
 <% end %>
 
 <div class="clear-both">
-  <%= link_to t('common.load_all', locale: active_ui_locale), load_more_linked_objects_thing_path(
-    content,
-    key: key,
-    complete_key: key,
-    definition: definition,
-    options: options,
-    page: params.fetch(:page, 1).to_i + 1,
-    load_more_action: :show
-  ),
-  remote: true,
-  id: "load_more_#{content&.id}_#{sanitize_to_id(key)}",
-  class: 'load-more-linked-contents button small secondary',
-  data: {
-    disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}"
-  } if value.try(:total_pages)&.positive? && !value&.last_page? %>
+  <%= link_to t('common.load_all', locale: active_ui_locale),
+        load_more_linked_objects_thing_path(content),
+        id: "load_more_#{content&.id}_#{sanitize_to_id(key)}",
+        class: 'load-more-linked-contents button small secondary',
+        data: {
+          disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}",
+          key: key,
+          complete_key: key,
+          definition: definition&.to_json,
+          options: options&.to_json,
+          page: params.fetch(:page, 1).to_i + 1,
+          load_more_action: :show
+        } if value.try(:total_pages)&.positive? && !value&.last_page? %>
 </div>

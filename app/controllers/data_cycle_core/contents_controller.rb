@@ -67,7 +67,7 @@ module DataCycleCore
         respond_to do |format|
           format.json do
             if @count_only || params[:mode].present?
-              render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/application/count_or_more_results').squish }
+              render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/application/count_or_more_results').strip }
             else
               redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_thing_path", id: @content)
             end
@@ -114,11 +114,12 @@ module DataCycleCore
 
     def new
       @resolved_params = resolve_params(new_params).symbolize_keys
-      @template = DataCycleCore::Thing.find_by(template: true, template_name: @resolved_params[:template])
+      @template = DataCycleCore::Thing.find_by!(template: true, template_name: @resolved_params[:template])
 
-      return if @template.nil?
-
-      respond_to :js
+      render json: {
+        html: render_to_string(formats: [:html], layout: false).strip,
+        enable: !@resolved_params[:search_required] || @resolved_params[:search_param].present? || can?(:create_without_search, @template)
+      }
     end
 
     def create
@@ -137,16 +138,28 @@ module DataCycleCore
 
         @content = DataCycleCore::DataHashService.create_internal_object(params[:template], object_params, current_user, parent_params[:parent_id], source)
 
-        redirect_back(fallback_location: root_path, alert: @content.errors.full_messages) && return if @content.try(:errors).present?
+        if @content.try(:errors).present?
+          flash[:error] = @content.errors.full_messages
+        elsif @content.present?
+          flash[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale)
+        end
 
         respond_to do |format|
-          if @content.present?
-            format.html do
-              redirect_to edit_thing_path(@content, source_params.merge(watch_list_params)), notice: I18n.t(:created, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale)
+          format.html do
+            if @content.present?
+              redirect_to edit_thing_path(@content, source_params.merge(watch_list_params))
+            else
+              redirect_back(fallback_location: root_path)
             end
-            format.js
-          else
-            redirect_back(fallback_location: root_path)
+          end
+
+          format.json do
+            render json: {
+              html: @content.present? ? render_to_string(formats: [:html], layout: false, locals: { :@objects => Array.wrap(@content) }).strip : nil,
+              detail_html: @content.present? ? render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, locals: { :@object => @content }).strip : nil,
+              ids: Array.wrap(@content&.id),
+              **flash.discard.to_h
+            }
           end
         end
       end
@@ -262,12 +275,20 @@ module DataCycleCore
 
       redirect_back(fallback_location: root_path) && return if @diff_source.nil? || @content.nil?
 
-      I18n.with_locale(@content.first_available_locale) do
-        @data_schema = @content.get_data_hash
-      end
-
-      I18n.with_locale(@diff_source.first_available_locale) do
+      I18n.with_locale(@source_locale) do
+        @target_locale = @content.first_available_locale
+        I18n.with_locale(@target_locale) { @data_schema = @content.get_data_hash }
         @diff_schema = @diff_source.diff(@data_schema)
+
+        if @source_locale.to_s != @target_locale.to_s
+          @content.translatable_property_names.each do |key|
+            @diff_schema[key] = ['0', nil]
+          end
+        end
+
+        render
+      rescue StandardError => e
+        redirect_back(fallback_location: root_path, alert: helpers.tag.span(I18n.t('controllers.error.definition_mismatch', locale: helpers.active_ui_locale), title: "#{e.message.truncate(250)}\n\n#{e.backtrace.first(10).join("\n")}")) && return
       end
     end
 
@@ -283,7 +304,7 @@ module DataCycleCore
 
       I18n.with_locale(@source_locale) do
         @target_locale = @content.last_updated_locale || @content.first_available_locale
-        @data_schema = @content.get_data_hash
+        I18n.with_locale(@target_locale) { @data_schema = @content.get_data_hash }
         @diff_schema = @diff_source.diff(@data_schema) || {}
 
         if @source_locale.to_s != @target_locale.to_s
@@ -306,7 +327,7 @@ module DataCycleCore
 
       I18n.with_locale(@history.first_available_locale) do
         history_hash = @history.get_data_hash
-        history_date = (@history.try(:history_valid)&.first || @history.try(:updated_at))&.in_time_zone
+        history_date = @history.try(:updated_at)&.in_time_zone
         history_date_string = I18n.l(history_date, locale: helpers.active_ui_locale, format: :history) if history_date.present?
 
         if @content.set_data_hash(data_hash: history_hash, version_name: I18n.t(:restored_version_name, scope: [:history, :restore, :version], locale: helpers.active_ui_locale, date: history_date_string), partial_update: false)
@@ -329,13 +350,17 @@ module DataCycleCore
       @content = api_strategy.create(content.except('source_key'))
       @content = @content.try(:first)
 
-      respond_to do |format|
-        format.js do
-          if params[:render_html]
-            flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale
-            render js: "document.location = '#{thing_path(@content)}'"
-          end
-        end
+      flash[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale)
+
+      if params[:render_html]
+        render js: "document.location = '#{thing_path(@content)}'"
+      else
+        render json: {
+          html: render_to_string(formats: [:html], layout: false, action: 'create', locals: { :@objects => Array.wrap(@content) }).strip,
+          detail_html: render_to_string('data_cycle_core/object_browser/details', formats: [:html], layout: false, locals: { :@object => @content }).strip,
+          ids: Array.wrap(@content&.id),
+          **flash.discard.to_h
+        }
       end
     end
 
@@ -360,8 +385,7 @@ module DataCycleCore
       I18n.with_locale(@locale || I18n.locale) do
         @objects = DataCycleCore::Thing.where(id: render_embedded_object_params[:object_ids]).includes(:translations) if render_embedded_object_params[:object_ids].present?
 
-        respond_to(:js)
-        render && return
+        render(json: { html: render_to_string(formats: [:html], layout: false).strip }) && return
       end
     end
 
@@ -389,19 +413,19 @@ module DataCycleCore
       @object = DataCycleCore::Thing.find(linked_object_params[:id])
       authorize! :show, @object
 
-      I18n.with_locale(linked_object_params[:locale] || I18n.locale) do
+      I18n.with_locale(linked_object_params[:locale]) do
         @linked_objects = @object.try(linked_object_params[:key])&.where&.not(id: linked_object_params[:load_more_except])&.offset(DataCycleCore.linked_objects_page_size)&.includes(:translations)
         @params = linked_object_params.to_h
 
+        render_action = case linked_object_params[:load_more_action]
+                        when 'object_browser' then :load_more_linked_objects_object_browser
+                        when 'embedded_object' then :load_more_linked_objects_embedded_object
+                        else :load_more_linked_objects_show
+                        end
+
         respond_to do |format|
-          format.js do
-            if linked_object_params[:load_more_action] == 'object_browser'
-              render(:load_more_linked_objects_object_browser) && return
-            elsif linked_object_params[:load_more_action] == 'embedded_object'
-              render(:load_more_linked_objects_embedded_object) && return
-            else
-              render(:load_more_linked_objects_show) && return
-            end
+          format.json do
+            render json: { html: render_to_string(formats: [:html], layout: false, action: render_action).strip, ids: @linked_objects.pluck(:id) }
           end
         end
       end
@@ -563,7 +587,7 @@ module DataCycleCore
 
       respond_to do |format|
         format.html { redirect_back(fallback_location: root_path) }
-        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).squish, **flash.discard.to_h } }
+        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).strip, **flash.discard.to_h } }
       end
     end
 
@@ -614,7 +638,7 @@ module DataCycleCore
 
       respond_to do |format|
         format.html { redirect_back(fallback_location: root_path) }
-        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).squish, **flash.discard.to_h } }
+        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).strip, **flash.discard.to_h } }
       end
     end
 
@@ -635,7 +659,7 @@ module DataCycleCore
 
       respond_to do |format|
         format.html { redirect_back(fallback_location: root_path) }
-        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).squish, **flash.discard.to_h } }
+        format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).strip, **flash.discard.to_h } }
       end
     end
 
@@ -705,7 +729,7 @@ module DataCycleCore
     end
 
     def linked_object_params
-      params.permit(:id, :key, :page, :load_more_action, :locale, :load_more_type, :complete_key, :editable, :content_id, :content_type, :hide_embedded, definition: {}, load_more_except: [], options: {})
+      params.transform_keys(&:underscore).permit(:id, :key, :page, :load_more_action, :locale, :load_more_type, :complete_key, :editable, :content_id, :content_type, :hide_embedded, definition: {}, load_more_except: [], options: {})
     end
 
     def life_cycle_params
@@ -721,13 +745,8 @@ module DataCycleCore
     end
 
     def content_params(template_name, params_hash = nil)
-      allowed_content_params = DataCycleCore::DataHashService.get_object_params(template_name)
-
-      if params_hash.present?
-        params_hash.permit(allowed_content_params)
-      else
-        params.fetch(:thing) { {} }.permit(:version_name, allowed_content_params)
-      end
+      params_hash = params.fetch(:thing) { {} } if params_hash.blank?
+      params_hash.permit(:version_name, DataCycleCore::DataHashService.get_object_params(template_name, params_hash))
     end
 
     def new_params

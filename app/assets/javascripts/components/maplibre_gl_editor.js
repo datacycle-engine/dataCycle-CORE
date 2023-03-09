@@ -1,351 +1,488 @@
-import MapLibreGlViewer from './maplibre_gl_viewer';
-const MapboxDrawLoader = () => import('@mapbox/mapbox-gl-draw').then(mod => mod.default);
+import MapLibreGlViewer from "./maplibre_gl_viewer";
+const MapboxDrawLoader = () =>
+	import("@mapbox/mapbox-gl-draw").then((mod) => mod.default);
 
-import UploadGpxControl from './map_controls/maplibre_upload_gpx_control';
-import domElementHelpers from '../helpers/dom_element_helpers';
-// import AdditionalValuesFilterControl from './map_controls/mapbox_additional_values_filter_control';
+import isEmpty from "lodash/isEmpty";
+import UploadGpxControl from "./map_controls/maplibre_upload_gpx_control";
+import domElementHelpers from "../helpers/dom_element_helpers";
+import AdditionalValuesFilterControl from "./map_controls/maplibre_additional_values_filter_control";
 
 class MapLibreGlEditor extends MapLibreGlViewer {
-  constructor(container) {
-    super(container);
+	constructor(container) {
+		super(container);
 
-    this.uploadable = this.$container.data('allowUpload');
-    this.translateInteraction;
-    this.modifyInteraction;
-    this.drawableInteraction;
-    this.drawing = false;
-    this.draw;
-    this.precision = 5;
-    this.$geoCodeButton = $('.geocode-address-button').first();
-    this.$mapEditContainer = this.$parentContainer.siblings('.map-edit').first();
-    this.$mapInfoContainer = this.$parentContainer.siblings('.map-info').first();
-    this.$uploadButton = this.$mapEditContainer.children('.upload-gpx-button').first();
-    this.$uploadInput = this.$mapEditContainer.children('.upload-gpx-input').first();
-    this.$latitudeField = this.$mapInfoContainer.find('.latitude input').first();
-    this.$longitudeField = this.$mapInfoContainer.find('.longitude input').first();
-    this.$elevationField = this.$mapInfoContainer.find('.elevation input').first();
-    this.$locationField = this.$parentContainer.siblings('input.location-data:hidden').first();
-  }
-  static isAllowedType(_type) {
-    return true;
-  }
-  configureMap() {
-    super.configureMap();
-    this.initEventHandlers();
-  }
-  async initFeatures() {
-    if (!this.feature && this.value) this.feature = this.value;
-    // to ensure additional features are drawn last, the editor is initiallized here
-    await this.initAdditionalControls();
-    this.drawAdditionalFeatures();
-  }
-  initEventHandlers() {
-    this.$container.on('dc:import:data', this.importData.bind(this)).addClass('dc-import-data');
-    this.$latitudeField.on('change', this.updateMapMarker.bind(this));
-    this.$longitudeField.on('change', this.updateMapMarker.bind(this));
-    if (this.$geoCodeButton) this.$geoCodeButton.on('click', this.geoCodeAddress.bind(this));
-  }
+		this.uploadable = this.$container.data("allowUpload");
+		this.translateInteraction;
+		this.modifyInteraction;
+		this.drawableInteraction;
+		this.drawing = false;
+		this.draw;
+		this.precision = 5;
+		this.$geoCodeButton = $(".geocode-address-button").first();
+		this.additionalValueTargets = {};
+		this.$mapEditContainer = this.$parentContainer
+			.siblings(".map-edit")
+			.first();
+		this.$mapInfoContainer = this.$parentContainer
+			.siblings(".map-info")
+			.first();
+		this.$uploadButton = this.$mapEditContainer
+			.children(".upload-gpx-button")
+			.first();
+		this.$uploadInput = this.$mapEditContainer
+			.children(".upload-gpx-input")
+			.first();
+		this.$latitudeField = this.$mapInfoContainer
+			.find(".latitude input")
+			.first();
+		this.$longitudeField = this.$mapInfoContainer
+			.find(".longitude input")
+			.first();
+		this.$elevationField = this.$mapInfoContainer
+			.find(".elevation input")
+			.first();
+		this.$locationField = this.$parentContainer
+			.siblings("input.location-data:hidden")
+			.first();
+	}
+	static isAllowedType(_type) {
+		return true;
+	}
+	configureMap() {
+		super.configureMap();
+		this.initEventHandlers();
+	}
+	async initFeatures() {
+		if (!this.feature && this.value) this.feature = this.value;
+		// to ensure additional features are drawn last, the editor is initiallized here
+		await this.initAdditionalControls();
+		this.drawAdditionalFeatures();
+	}
+	drawAdditionalFeatures() {
+		super.drawAdditionalFeatures();
 
-  async initAdditionalControls() {
-    await this.initDrawControl();
-    if (this.uploadable) this.map.addControl(new UploadGpxControl(this), 'top-left');
-  }
-  async initDrawControl() {
-    const MapboxDraw = await MapboxDrawLoader().catch(e => console.error('Error loading module:', e));
+		for (const key of new Set([
+			...Object.keys(this.additionalValues),
+			...Object.keys(this.additionalValuesOverlay),
+		])) {
+			this.additionalValueTargets[key] = this.$parentContainer
+				.closest(".form-element.geographic")
+				.siblings(`.form-element[data-key*="[${key}]"]`)
+				.find(".object-browser");
 
-    this.draw = new MapboxDraw({
-      displayControlsDefault: false,
-      controls: {
-        trash: true
-      },
-      defaultMode: this.getMapDrawMode(),
-      styles: this.getMapDrawStyle()
-    });
+			if (!this.additionalValueTargets[key].length) continue;
 
-    this.map.addControl(this.draw);
+			this.additionalValueTargets[key].on(
+				"dc:objectBrowser:change",
+				this._linkedChangeHandler.bind(this),
+			);
+		}
+	}
+	async _linkedChangeHandler(event, data) {
+		event.preventDefault();
+		event.stopPropagation();
 
-    this.initDrawEventHandlers();
-    if (this.feature) this.initEditFeature();
-  }
-  initDrawEventHandlers() {
-    this.map.on('draw.create', event => {
-      this.feature = event.features[0];
-      this.setCoordinates();
-      this.setHiddenFieldValue(this.feature);
-    });
+		const key = data.key.attributeNameFromKey();
+		let changedFeatures = [];
 
-    this.map.on('draw.delete', _event => {
-      this.removeFeature();
-    });
+		if (data.ids?.length) {
+			const geoJson = await this._loadGeojson({ ids: data.ids });
+			changedFeatures = geoJson.features || [];
+		}
 
-    this.map.on('draw.update', event => {
-      this.feature = event.features[0];
-      this.setCoordinates();
-      this.setHiddenFieldValue(this.feature);
-    });
-  }
-  getMapDrawMode() {
-    if (this.feature) {
-      return 'simple_select';
-    }
-    return this.isPoint() ? 'draw_point' : 'draw_line_string';
-  }
-  getMapDrawStyle() {
-    return this.isPoint() ? this._getDrawPointStyle() : this._getDrawLineStyle();
-  }
-  initEditFeature() {
-    const featureIds = this.draw.add(this.feature);
-    if (this.isLineString()) this.draw.changeMode('direct_select', { featureId: featureIds[0] });
-    if (this.isPoint()) this.draw.changeMode('simple_select', { featureIds: featureIds });
-  }
-  async importData(event, data) {
-    if (!this.value || (data && data.force)) {
-      this.setUploadedFeature(data.value);
-    } else {
-      const target = event.currentTarget;
+		this._additionalValuesByKey(key).features = changedFeatures;
+		this._setSelectedAdditionalDataForSource(key);
+	}
+	_additionalValuesByKey(key) {
+		if (!this.additionalValues[key])
+			this.additionalValues[key] = this._createFeatureCollection();
 
-      domElementHelpers.renderImportConfirmationModal(target, data.sourceId, () => this.setUploadedFeature(data.value));
-    }
-  }
-  geoCodeAddress(event) {
-    event.preventDefault();
+		return this.additionalValues[key];
+	}
+	_additionalValueSourceByKey(key) {
+		if (!this.selectedAdditionalSources[key])
+			this._addAdditionalSourceAndLayers(
+				key,
+				this._createFeatureCollection(),
+				"_selected",
+			);
 
-    if (this.$geoCodeButton.hasClass('disabled')) return;
+		return this.selectedAdditionalSources[key];
+	}
+	_setSelectedAdditionalDataForSource(key) {
+		this.map
+			.getSource(this._additionalValueSourceByKey(key))
+			.setData(this._additionalValuesByKey(key));
+	}
+	_createFeatureCollection(data = []) {
+		return {
+			type: "FeatureCollection",
+			features: data,
+		};
+	}
+	async _loadGeojson(additionalParams = {}) {
+		let data = await DataCycle.httpRequest("/things/geojson_for_map_editor", {
+			method: "POST",
+			body: additionalParams,
+		});
 
-    this.$geoCodeButton.append(' <i class="fa fa-spinner fa-spin fa-fw"></i>');
-    this.$geoCodeButton.addClass('disabled');
+		if (!data) data = this._createFeatureCollection();
+		if (!data.features) data.features = [];
+		for (const feature of data.features) feature.properties.clickable = true;
 
-    let addressKey = this.$geoCodeButton.data('address-key');
-    let locale = this.$geoCodeButton.data('locale');
-    let address = {
-      locale: locale
-    };
+		return data;
+	}
+	initEventHandlers() {
+		this.$container
+			.on("dc:import:data", this.importData.bind(this))
+			.addClass("dc-import-data");
+		this.$latitudeField.on("change", this.updateMapMarker.bind(this));
+		this.$longitudeField.on("change", this.updateMapMarker.bind(this));
+		if (this.$geoCodeButton)
+			this.$geoCodeButton.on("click", this.geoCodeAddress.bind(this));
+	}
 
-    $('.form-element.object.' + addressKey)
-      .find('.form-element')
-      .find('input')
-      .each((_index, elem) => {
-        address[elem.name.attributeNameFromKey()] = elem.value;
-      });
+	async initAdditionalControls() {
+		await this.initDrawControl();
+		if (this.uploadable)
+			this.map.addControl(new UploadGpxControl(this), "top-left");
 
-    const promise = DataCycle.httpRequest({
-      url: '/things/geocode_address',
-      dataType: 'json',
-      data: address
-    });
+		if (!isEmpty(this.additionalValuesOverlay))
+			this.map.addControl(new AdditionalValuesFilterControl(this), "top-left");
+	}
+	async initDrawControl() {
+		const MapboxDraw = await MapboxDrawLoader().catch((e) =>
+			console.error("Error loading module:", e),
+		);
 
-    promise
-      .then(data => {
-        if (data.error) {
-          new ConfirmationModal({
-            text: data.error
-          });
-        } else if (data && data.length == 2) {
-          this.setGeocodedValue(data);
-        }
-      })
-      .catch((_jqxhr, textStatus, error) => {
-        console.error(textStatus + ', ' + error);
-      })
-      .finally(() => {
-        this.$geoCodeButton.find('i.fa').remove();
-        this.$geoCodeButton.removeClass('disabled');
-      });
+		this.draw = new MapboxDraw({
+			displayControlsDefault: false,
+			controls: {
+				trash: true,
+			},
+			defaultMode: this.getMapDrawMode(),
+			styles: this.getMapDrawStyle(),
+		});
 
-    return promise;
-  }
-  setGeocodedValue(data) {
-    if (!this.feature) {
-      this.updateFeature(this.getGeoJsonFromCoordinates(data, 'Point'));
-    } else {
-      this.feature.geometry.coordinates = data;
-      this.updateFeature(this.feature);
-      this.setNewCoordinates();
-    }
-  }
-  setUploadedFeature(geometry) {
-    this.updateFeature(this.getGeoJsonFromGeometry(geometry));
-  }
-  updateFeature(geoJson) {
-    if (this.feature) this.draw.deleteAll();
+		this.map.addControl(this.draw);
 
-    this.feature = geoJson;
-    this.initEditFeature();
-    this.setNewCoordinates();
-  }
-  updateMapMarker(_event) {
-    let valid = true;
-    const geoJson = this.getGeoJsonFromInputs();
-    const coords = geoJson.geometry.coordinates;
-    coords.forEach((element, index) => {
-      // TODO: catch error and show some warning "Uncaught Error: Invalid LngLat latitude value: must be between -90 and 90"
-      valid =
-        valid &&
-        !isNaN(element) &&
-        ((index == 0 && element >= -180.0 && element <= 180.0) || (index == 1 && element >= -90.0 && element <= 90.0));
-    });
+		this.initDrawEventHandlers();
+		if (this.feature) this.initEditFeature();
+	}
+	initDrawEventHandlers() {
+		this.map.on("draw.create", (event) => {
+			this.feature = event.features[0];
+			this.setCoordinates();
+			this.setHiddenFieldValue(this.feature);
+		});
 
-    if (valid) {
-      this.updateFeature(geoJson);
-    } else {
-      if (this.feature) {
-        this.draw.trash();
-      }
-    }
-  }
-  removeFeature() {
-    if (this.feature) {
-      this.feature = undefined;
-    }
+		this.map.on("draw.delete", (_event) => {
+			this.removeFeature();
+		});
 
-    this.resetCoordinates();
-    this.resetHiddenFieldValue();
-    this.draw.changeMode(this.getMapDrawMode());
-  }
-  shortenCoordinates(coords) {
-    for (let i = 0; i < coords.length; i++) {
-      if (Array.isArray(coords[i])) coords[i] = this.shortenCoordinates(coords[i]);
-      else coords[i] = Number(coords[i].toFixed(this.precision));
-    }
+		this.map.on("draw.update", (event) => {
+			this.feature = event.features[0];
+			this.setCoordinates();
+			this.setHiddenFieldValue(this.feature);
+		});
+	}
+	getMapDrawMode() {
+		if (this.feature) {
+			return "simple_select";
+		}
+		return this.isPoint() ? "draw_point" : "draw_line_string";
+	}
+	getMapDrawStyle() {
+		return this.isPoint()
+			? this._getDrawPointStyle()
+			: this._getDrawLineStyle();
+	}
+	initEditFeature() {
+		const featureIds = this.draw.add(this.feature);
+		if (this.isLineString())
+			this.draw.changeMode("direct_select", { featureId: featureIds[0] });
+		if (this.isPoint())
+			this.draw.changeMode("simple_select", { featureIds: featureIds });
+	}
+	async importData(event, data) {
+		if (!this.value || data?.force) {
+			this.setUploadedFeature(data.value);
+		} else {
+			const target = event.currentTarget;
 
-    return coords;
-  }
-  getFeatureLatLon() {
-    let coords = this.feature.geometry.coordinates;
+			domElementHelpers.renderImportConfirmationModal(
+				target,
+				data.sourceId,
+				() => this.setUploadedFeature(data.value),
+			);
+		}
+	}
+	geoCodeAddress(event) {
+		event.preventDefault();
 
-    return this.shortenCoordinates(coords);
-  }
-  setNewCoordinates() {
-    this.setCoordinates();
-    this.setHiddenFieldValue(this.feature);
-    if (this.feature) this.updateMapPosition();
-  }
-  setCoordinates() {
-    if (!this.feature || !this.isPoint()) return;
+		if (this.$geoCodeButton.hasClass("disabled")) return;
 
-    const latLon = this.getFeatureLatLon();
-    this.$latitudeField.val(latLon[1]);
-    this.$longitudeField.val(latLon[0]);
-  }
-  resetCoordinates() {
-    if (!this.isPoint()) return;
+		this.$geoCodeButton.append(' <i class="fa fa-spinner fa-spin fa-fw"></i>');
+		this.$geoCodeButton.addClass("disabled");
 
-    this.$latitudeField.val('');
-    this.$longitudeField.val('');
-  }
-  getGeoJsonFromInputs() {
-    return this.getGeoJsonFromCoordinates(
-      [parseFloat(this.$longitudeField.val()), parseFloat(this.$latitudeField.val())],
-      this.type
-    );
-  }
-  getGeoJsonFromGeometry(geometry) {
-    return this.getGeoJsonFromCoordinates(geometry.coordinates, geometry.type);
-  }
-  getGeoJsonFromCoordinates(coords, type) {
-    return {
-      type: 'Feature',
-      properties: {},
-      geometry: {
-        type: type,
-        coordinates: coords
-      }
-    };
-  }
-  setHiddenFieldValue(geoJson) {
-    this.value = geoJson;
+		let addressKey = this.$geoCodeButton.data("address-key");
+		let locale = this.$geoCodeButton.data("locale");
+		let address = {
+			locale: locale,
+		};
 
-    if (geoJson && geoJson.geometry && geoJson.geometry.type && geoJson.geometry.type.startsWith('LineString')) {
-      geoJson.geometry.type = 'Multi' + geoJson.geometry.type;
-      geoJson.geometry.coordinates = [geoJson.geometry.coordinates];
-    }
+		$(`.form-element.object.${addressKey}`)
+			.find(".form-element")
+			.find("input")
+			.each((_index, elem) => {
+				address[elem.name.attributeNameFromKey()] = elem.value;
+			});
 
-    this.$locationField.val(JSON.stringify(geoJson));
-  }
-  resetHiddenFieldValue() {
-    this.value = null;
-    this.$locationField.val('');
-  }
-  _getDrawPointStyle() {
-    return [
-      {
-        id: 'gl-draw-point-highlight',
-        type: 'circle',
-        filter: ['all', ['==', '$type', 'Point'], ['==', 'meta', 'feature'], ['==', 'active', 'true']],
-        paint: {
-          'circle-radius': 7,
-          'circle-color': this.definedColors.default,
-          'circle-stroke-width': 4,
-          'circle-stroke-color': this.definedColors.white
-        }
-      },
-      {
-        id: 'gl-draw-point',
-        type: 'circle',
-        filter: ['all', ['==', '$type', 'Point'], ['==', 'meta', 'feature'], ['==', 'active', 'false']],
-        paint: {
-          'circle-radius': 5,
-          'circle-color': this.definedColors.default,
-          'circle-stroke-width': 4,
-          'circle-stroke-color': this.definedColors.white
-        }
-      }
-    ];
-  }
-  _getDrawLineStyle() {
-    return [
-      {
-        id: 'gl-draw-line',
-        type: 'line',
-        filter: ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static']],
-        layout: {
-          'line-cap': 'round',
-          'line-join': 'round'
-        },
-        paint: {
-          'line-color': this.definedColors.default,
-          'line-dasharray': [0.2, 2],
-          'line-width': 5
-        }
-      },
-      {
-        id: 'gl-draw-polygon-midpoint-halo',
-        type: 'circle',
-        filter: ['all', ['==', '$type', 'Point'], ['==', 'meta', 'midpoint']],
-        paint: {
-          'circle-radius': 5,
-          'circle-color': this.definedColors.white
-        }
-      },
-      {
-        id: 'gl-draw-polygon-midpoint',
-        type: 'circle',
-        filter: ['all', ['==', '$type', 'Point'], ['==', 'meta', 'midpoint']],
-        paint: {
-          'circle-radius': 3,
-          'circle-color': this.definedColors.default
-        }
-      },
-      {
-        id: 'gl-draw-polygon-and-line-vertex-halo-active',
-        type: 'circle',
-        filter: ['all', ['==', 'meta', 'vertex'], ['==', '$type', 'Point'], ['!=', 'mode', 'static']],
-        paint: {
-          'circle-radius': 7,
-          'circle-color': this.definedColors.white
-        }
-      },
-      {
-        id: 'gl-draw-polygon-and-line-vertex-active',
-        type: 'circle',
-        filter: ['all', ['==', 'meta', 'vertex'], ['==', '$type', 'Point'], ['!=', 'mode', 'static']],
-        paint: {
-          'circle-radius': 5,
-          'circle-color': this.definedColors.default
-        }
-      }
-    ];
-  }
+		const promise = DataCycle.httpRequest("/things/geocode_address", {
+			body: address,
+		});
+
+		promise
+			.then((data) => {
+				if (data.error) {
+					new ConfirmationModal({
+						text: data.error,
+					});
+				} else if (data && data.length === 2) {
+					this.setGeocodedValue(data);
+				}
+			})
+			.catch((_jqxhr, textStatus, error) => {
+				console.error(`${textStatus}, ${error}`);
+			})
+			.finally(() => {
+				this.$geoCodeButton.find("i.fa").remove();
+				this.$geoCodeButton.removeClass("disabled");
+			});
+
+		return promise;
+	}
+	setGeocodedValue(data) {
+		if (!this.feature) {
+			this.updateFeature(this.getGeoJsonFromCoordinates(data, "Point"));
+		} else {
+			this.feature.geometry.coordinates = data;
+			this.updateFeature(this.feature);
+			this.setNewCoordinates();
+		}
+	}
+	setUploadedFeature(geometry) {
+		this.updateFeature(this.getGeoJsonFromGeometry(geometry));
+	}
+	updateFeature(geoJson) {
+		if (this.feature) this.draw.deleteAll();
+
+		this.feature = geoJson;
+		this.initEditFeature();
+		this.setNewCoordinates();
+	}
+	updateMapMarker(_event) {
+		let valid = true;
+		const geoJson = this.getGeoJsonFromInputs();
+		const coords = geoJson.geometry.coordinates;
+		coords.forEach((element, index) => {
+			// TODO: catch error and show some warning "Uncaught Error: Invalid LngLat latitude value: must be between -90 and 90"
+			valid =
+				valid &&
+				!isNaN(element) &&
+				((index === 0 && element >= -180.0 && element <= 180.0) ||
+					(index === 1 && element >= -90.0 && element <= 90.0));
+		});
+
+		if (valid) {
+			this.updateFeature(geoJson);
+		} else {
+			if (this.feature) {
+				this.draw.trash();
+			}
+		}
+	}
+	removeFeature() {
+		if (this.feature) {
+			this.feature = undefined;
+		}
+
+		this.resetCoordinates();
+		this.resetHiddenFieldValue();
+		this.draw.changeMode(this.getMapDrawMode());
+	}
+	shortenCoordinates(coords) {
+		for (let i = 0; i < coords.length; i++) {
+			if (Array.isArray(coords[i]))
+				coords[i] = this.shortenCoordinates(coords[i]);
+			else coords[i] = Number(coords[i].toFixed(this.precision));
+		}
+
+		return coords;
+	}
+	getFeatureLatLon() {
+		let coords = this.feature.geometry.coordinates;
+
+		return this.shortenCoordinates(coords);
+	}
+	setNewCoordinates() {
+		this.setCoordinates();
+		this.setHiddenFieldValue(this.feature);
+		if (this.feature) this.updateMapPosition();
+	}
+	setCoordinates() {
+		if (!(this.feature && this.isPoint())) return;
+
+		const latLon = this.getFeatureLatLon();
+		this.$latitudeField.val(latLon[1]);
+		this.$longitudeField.val(latLon[0]);
+	}
+	resetCoordinates() {
+		if (!this.isPoint()) return;
+
+		this.$latitudeField.val("");
+		this.$longitudeField.val("");
+	}
+	getGeoJsonFromInputs() {
+		return this.getGeoJsonFromCoordinates(
+			[
+				parseFloat(this.$longitudeField.val()),
+				parseFloat(this.$latitudeField.val()),
+			],
+			this.type,
+		);
+	}
+	getGeoJsonFromGeometry(geometry) {
+		return this.getGeoJsonFromCoordinates(geometry.coordinates, geometry.type);
+	}
+	getGeoJsonFromCoordinates(coords, type) {
+		return {
+			type: "Feature",
+			properties: {},
+			geometry: {
+				type: type,
+				coordinates: coords,
+			},
+		};
+	}
+	setHiddenFieldValue(geoJson) {
+		this.value = geoJson;
+
+		if (geoJson?.geometry?.type?.startsWith("LineString")) {
+			geoJson.geometry.type = `Multi${geoJson.geometry.type}`;
+			geoJson.geometry.coordinates = [geoJson.geometry.coordinates];
+		}
+
+		this.$locationField.val(JSON.stringify(geoJson));
+	}
+	resetHiddenFieldValue() {
+		this.value = null;
+		this.$locationField.val("");
+	}
+	_getDrawPointStyle() {
+		return [
+			{
+				id: "gl-draw-point-highlight",
+				type: "circle",
+				filter: [
+					"all",
+					["==", "$type", "Point"],
+					["==", "meta", "feature"],
+					["==", "active", "true"],
+				],
+				paint: {
+					"circle-radius": 7,
+					"circle-color": this.definedColors.default,
+					"circle-stroke-width": 4,
+					"circle-stroke-color": this.definedColors.white,
+				},
+			},
+			{
+				id: "gl-draw-point",
+				type: "circle",
+				filter: [
+					"all",
+					["==", "$type", "Point"],
+					["==", "meta", "feature"],
+					["==", "active", "false"],
+				],
+				paint: {
+					"circle-radius": 5,
+					"circle-color": this.definedColors.default,
+					"circle-stroke-width": 4,
+					"circle-stroke-color": this.definedColors.white,
+				},
+			},
+		];
+	}
+	_getDrawLineStyle() {
+		return [
+			{
+				id: "gl-draw-line",
+				type: "line",
+				filter: [
+					"all",
+					["==", "$type", "LineString"],
+					["!=", "mode", "static"],
+				],
+				layout: {
+					"line-cap": "round",
+					"line-join": "round",
+				},
+				paint: {
+					"line-color": this.definedColors.default,
+					"line-dasharray": [0.2, 2],
+					"line-width": 5,
+				},
+			},
+			{
+				id: "gl-draw-polygon-midpoint-halo",
+				type: "circle",
+				filter: ["all", ["==", "$type", "Point"], ["==", "meta", "midpoint"]],
+				paint: {
+					"circle-radius": 5,
+					"circle-color": this.definedColors.white,
+				},
+			},
+			{
+				id: "gl-draw-polygon-midpoint",
+				type: "circle",
+				filter: ["all", ["==", "$type", "Point"], ["==", "meta", "midpoint"]],
+				paint: {
+					"circle-radius": 3,
+					"circle-color": this.definedColors.default,
+				},
+			},
+			{
+				id: "gl-draw-polygon-and-line-vertex-halo-active",
+				type: "circle",
+				filter: [
+					"all",
+					["==", "meta", "vertex"],
+					["==", "$type", "Point"],
+					["!=", "mode", "static"],
+				],
+				paint: {
+					"circle-radius": 7,
+					"circle-color": this.definedColors.white,
+				},
+			},
+			{
+				id: "gl-draw-polygon-and-line-vertex-active",
+				type: "circle",
+				filter: [
+					"all",
+					["==", "meta", "vertex"],
+					["==", "$type", "Point"],
+					["!=", "mode", "static"],
+				],
+				paint: {
+					"circle-radius": 5,
+					"circle-color": this.definedColors.default,
+				},
+			},
+		];
+	}
 }
 
 export default MapLibreGlEditor;

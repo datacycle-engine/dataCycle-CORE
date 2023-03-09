@@ -1,5 +1,5 @@
-import RemoteRenderer from '../components/remote_renderer';
+import RemoteRenderer from "../components/remote_renderer";
 
 export default function () {
-  new RemoteRenderer(document);
+	new RemoteRenderer();
 }

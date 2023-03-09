@@ -26,7 +26,7 @@ module DataCycleCore
             template: 'Artikel',
             locale: 'de'
           }
-          assert_equal 'Artikel wurde erfolgreich erstellt.', flash[:notice]
+          assert_equal 'Artikel wurde erfolgreich erstellt.', flash[:success]
 
           content = DataCycleCore::Thing.find_by(name: name)
 

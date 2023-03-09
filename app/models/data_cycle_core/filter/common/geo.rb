@@ -65,6 +65,10 @@ module DataCycleCore
         def geo_within_classification(ids)
           return self if ids.blank?
 
+          # The approach of chaining ORs is still the most efficient though not the prettiest
+          # Following variants where considered:
+          # * ST_Union of all classification-geometries -> does not use an index on the resulting multi-geometry
+          # * ST_Intersect on all classification-geometries whith pre-filter on classification_alias_id and a BBOX-filter on geometries (&&) -> inides not optimally used
           contains_queries = []
           ids.each do |id|
             sub_query = Arel::SelectManager.new
@@ -72,17 +76,15 @@ module DataCycleCore
               .from(classification_polygon)
               .where(classification_polygon[:classification_alias_id].eq(id))
 
-            contains_queries << st_intersects(sub_query, st_transform(thing[:location], 3035))
-            # contains_queries << st_intersects(sub_query, st_transform(thing[:line], 3035))
+            contains_queries << st_intersects(sub_query, thing[:geom_simple])
           end
 
           reflect(
             @query
               .where(
-                contains(thing[:location], st_makeenvelope(-90.0, -180.0, 90.0, 180.0, 4326))
-                # .or(contains(thing[:line], st_makeenvelope(-90.0, -180.0, 90.0, 180.0, 4326)))
+                contains(thing[:geom_simple], st_makeenvelope(-180.0, -90.0, 180.0, 90.0, 4326))
               )
-              .where(contains_queries.reduce(:or))
+            .where(contains_queries.reduce(:or))
           )
         end
 
@@ -96,15 +98,13 @@ module DataCycleCore
               .from(classification_polygon)
               .where(classification_polygon[:classification_alias_id].eq(id))
 
-            contains_queries << st_disjoint(sub_query, st_transform(thing[:location], 3035))
-            # contains_queries << st_disjoint(sub_query, st_transform(thing[:line], 3035))
+            contains_queries << st_disjoint(sub_query, thing[:geom_simple])
           end
 
           reflect(
             @query
               .where(
-                contains(thing[:location], st_makeenvelope(-90.0, -180.0, 90.0, 180.0, 4326))
-                # .or(contains(thing[:line], st_makeenvelope(-90.0, -180.0, 90.0, 180.0, 4326)))
+                contains(thing[:geom_simple], st_makeenvelope(-180.0, -90.0, 180.0, 90.0, 4326))
               )
               .where(contains_queries.reduce(:or))
           )

@@ -6,9 +6,9 @@ module DataCycleCore
       class ThingByTemplateName < Base
         attr_reader :subject, :conditions
 
-        def initialize(template_names)
+        def initialize(*template_names)
           @subject = DataCycleCore::Thing
-          @conditions = { template_name: Array.wrap(template_names).map(&:to_s) }
+          @conditions = { template_name: Array.wrap(template_names).flatten.map(&:to_s) }
         end
       end
     end

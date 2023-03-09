@@ -162,6 +162,7 @@ module DataCycleCore
         end
 
         module_function :date_from_filter_object
+        module_function :date_from_single_value
         module_function :relative_to_absolute_date
       end
     end

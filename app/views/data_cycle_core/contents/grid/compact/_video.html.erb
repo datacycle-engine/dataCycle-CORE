@@ -4,26 +4,22 @@
   <%= render 'data_cycle_core/contents/grid/compact/default', local_assigns %>
 <% else %>
   <%= render 'data_cycle_core/contents/grid/compact/tile_wrapper', local_assigns.except(:tile_links).merge(tile_classes: 'video asset') do %>
-    <% render_locale = I18n.locale %>
+    <%
+        render_locale = I18n.locale
+        random_id = SecureRandom.hex(10)
+    %>
     <% I18n.with_locale(object.first_available_locale) do %>
-      <div class="thumbnail media item <%= local_assigns[:class] %>" style="<%= "background-image: url(#{thumbnail_url})" if thumbnail_url.present? %>" data-open="media-reveal<%= local_assigns.dig(:options, :prefix) %>-<%= object.id %>">
-        <div class="show-for-print">
-          <img src="<%= thumbnail_url %>" />
-        </div>
+      <div class="thumbnail media item lazyload <%= local_assigns[:class] %>" data-open="<%= random_id %>" data-bg="<%= thumbnail_url %>">
         <% if object.title.present? %>
           <div class="description">
             <%= object.title %> (<%= I18n.locale.to_s %>)
-            <div class="show-for-print">
-              <br />
-              (ID: <%= object.id %>)
-            </div>
           </div>
         <% end %>
         <%= tag.span(tag.i(class: 'fa fa-bars'), class: 'draggable-handle') if local_assigns[:edit_buttons] && can?(:update, DataCycleCore::DataAttribute.new(key, definition, options, content, :update)) %>
         <%= render_linked_content_warnings(content, { content: object, locale: render_locale }) %>
       </div>
 
-      <div class="width-content reveal media-preview" id="media-reveal<%= local_assigns.dig(:options, :prefix) %>-<%= object.id %>" data-reveal>
+      <div class="width-content reveal media-preview" id="<%= random_id %>" data-reveal>
         <button class="close-button" data-close aria-label="Close modal" type="button">
           <span aria-hidden="true">&times;</span>
         </button>

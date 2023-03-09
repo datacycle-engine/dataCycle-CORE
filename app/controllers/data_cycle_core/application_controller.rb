@@ -11,8 +11,8 @@ module DataCycleCore
     before_action :better_errors_hack, if: -> { Rails.env.development? }
     before_action :flashes_from_params, if: -> { params[:flash].present? }
 
-    def after_sign_in_path_for(_resource)
-      session['user_return_to'] || authorized_root_path
+    def after_sign_in_path_for(resource)
+      stored_location_for(resource).presence || authorized_root_path
     end
 
     def load_watch_lists
@@ -35,32 +35,27 @@ module DataCycleCore
     end
 
     def add_filter
-      @identifier = SecureRandom.hex(10)
-      @params = add_filter_params
+      identifier = SecureRandom.hex(10)
 
-      respond_to(:js)
+      render json: { identifier: identifier, html: render_to_string(formats: [:html], layout: false, locals: { filter_params: add_filter_params, identifier: identifier }).strip }
     end
 
     def add_tag_group
-      @params = tag_group_params
+      filter_params = tag_group_params
 
-      respond_to(:js)
+      render json: { identifier: filter_params['identifier'], html: render_to_string(formats: [:html], layout: false, locals: { filter_params: filter_params }).strip }
     end
 
     def remote_render
-      @target = remote_render_params[:target]
       @partial = remote_render_params[:partial]
-      @content_for = remote_render_params[:content_for]
       @render_function = remote_render_params[:render_function]
-      @render_params = resolve_params(params[:render_params])
-      @options = resolve_params(params[:options])
+      @render_params = resolve_params(remote_render_params[:render_params])
+      @options = resolve_params(remote_render_params[:options])
       @force_recursive_load = remote_render_params[:force_recursive_load]
 
-      redirect_to(@render_params.merge(target: @target, partial: @partial)) && return if @render_params&.key?(:controller) && @render_params&.key?(:action)
+      render(json: { error: I18n.t(:missing_parameter, scope: [:controllers, :error], locale: helpers.active_ui_locale) }, status: :bad_request) && return if @render_function.blank? && @partial.blank?
 
-      render(json: I18n.t(:missing_parameter, scope: [:controllers, :error], locale: helpers.active_ui_locale), status: :bad_request) && return unless (@target.present? && @render_function.present?) || @partial.present?
-
-      respond_to(:js)
+      render json: { html: render_to_string(formats: [:html], layout: false).strip }
     end
 
     def reload_required
@@ -97,7 +92,7 @@ module DataCycleCore
     end
 
     def remote_render_params
-      params.permit(:target, :partial, :render_function, :force_recursive_load, content_for: [])
+      params.slice(:partial, :render_function, :force_recursive_load, :render_params, :options).permit!
     end
 
     def reload_params

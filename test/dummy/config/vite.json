@@ -1,8 +1,13 @@
 {
   "all": {
     "sourceCodeDir": "app/assets",
-    "additionalEntrypoints": ["app/assets/images/*", "../../app/assets/{images,fonts}/*"],
-    "watchAdditionalPaths": ["../../app/assets/**/*"],
+    "additionalEntrypoints": [
+      "app/assets/images/*",
+      "../../app/assets/{images,fonts,entrypoints}/*"
+    ],
+    "watchAdditionalPaths": [
+      "../../app/assets/**/*"
+    ],
     "publicOutputDir": "assets/build",
     "assetsDir": ""
   },

@@ -1,0 +1,5 @@
+<%= render 'data_cycle_core/pdf/contents/attributes/attribute', local_assigns.merge(type: 'linked') do %>
+  <% value.each do |linked| %>
+    <%= I18n.with_locale(linked.first_available_locale){ render_pdf_content(content: linked, path_prefix: 'attributes/linked', options: { header_depth: header_depth + 1 }) } %>
+  <% end %>
+<% end %>

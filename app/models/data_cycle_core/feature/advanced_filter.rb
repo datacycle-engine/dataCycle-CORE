@@ -48,7 +48,7 @@ module DataCycleCore
           query = query.where(name: value) if value.is_a?(Array)
           query.pluck(:name).map do |c|
             [
-              I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
+              I18n.t("filter.#{c.underscore_blanks}", default: c, locale: user.ui_locale),
               'classification_alias_ids',
               data: { name: c }
             ]
@@ -62,7 +62,7 @@ module DataCycleCore
             next unless v
 
             [
-              I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: user.ui_locale),
+              I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale),
               'relation_filter',
               data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
             ]
@@ -76,7 +76,7 @@ module DataCycleCore
             next unless v
 
             [
-              I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: user.ui_locale),
+              I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale),
               'relation_filter_inv',
               data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
             ]
@@ -102,14 +102,14 @@ module DataCycleCore
               if v.is_a?(Array)
                 v.map do |c|
                   value_arr << [
-                    I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
+                    I18n.t("filter.#{c.underscore_blanks}", default: c, locale: user.ui_locale),
                     'geo_filter',
                     data: { name: c, advancedType: k }
                   ]
                 end
               elsif v
                 value_arr << [
-                  I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: user.ui_locale),
+                  I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale),
                   'geo_filter',
                   data: { name: k, advancedType: k }
                 ]
@@ -125,7 +125,7 @@ module DataCycleCore
           if value == 'all'
             ['created_at', 'updated_at'].map do |c|
               [
-                I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
+                I18n.t("filter.#{c.underscore_blanks}", default: c, locale: user.ui_locale),
                 'date_range',
                 data: { name: c }
               ]
@@ -133,7 +133,7 @@ module DataCycleCore
           elsif value.is_a?(Hash)
             value.keys.map do |c|
               [
-                I18n.t("filter.#{c.to_s.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
+                I18n.t("filter.#{c.to_s.underscore_blanks}", default: c, locale: user.ui_locale),
                 'date_range',
                 data: { name: c }
               ]
@@ -141,7 +141,7 @@ module DataCycleCore
           elsif value.is_a?(Array)
             value.map do |c|
               [
-                I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
+                I18n.t("filter.#{c.underscore_blanks}", default: c, locale: user.ui_locale),
                 'date_range',
                 data: { name: c }
               ]
@@ -156,7 +156,7 @@ module DataCycleCore
 
           value.presence&.map do |c|
             [
-              I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: user.ui_locale),
+              I18n.t("filter.#{c.underscore_blanks}", default: c, locale: user.ui_locale),
               'boolean',
               data: { name: c }
             ]
@@ -170,7 +170,7 @@ module DataCycleCore
             next unless v
 
             [
-              I18n.t("filter.related_through_attribute.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: user.ui_locale),
+              I18n.t("filter.related_through_attribute.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale),
               'related_through_attribute',
               data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
             ]
@@ -181,7 +181,7 @@ module DataCycleCore
           return [] unless value
           [
             [
-              I18n.t("filter.#{key.parameterize(separator: '_')}", default: key.capitalize, locale: user.ui_locale),
+              I18n.t("filter.#{key.underscore_blanks}", default: key.capitalize, locale: user.ui_locale),
               key,
               data: { name: key.capitalize }
             ]
@@ -195,7 +195,7 @@ module DataCycleCore
             next unless v
 
             [
-              I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: user.ui_locale),
+              I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale),
               'user',
               data: { name: k, advancedType: k }
             ]
@@ -206,7 +206,7 @@ module DataCycleCore
           return [] unless value
           value.map do |k, v|
             [
-              I18n.t("filter.#{k.parameterize(separator: '_')}", default: k, locale: user.ui_locale),
+              I18n.t("filter.#{k.underscore_blanks}", default: k, locale: user.ui_locale),
               'advanced_attributes',
               data: { name: k, advancedType: v.dig('type') }
             ]
@@ -219,7 +219,7 @@ module DataCycleCore
             next unless v
 
             [
-              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: user.ui_locale),
+              I18n.t("filter.in_schedule_types.#{k.underscore_blanks}", default: k, locale: user.ui_locale),
               'inactive_things',
               data: { name: k, advancedType: k }
             ]
@@ -232,7 +232,7 @@ module DataCycleCore
             next unless v
 
             [
-              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: user.ui_locale),
+              I18n.t("filter.in_schedule_types.#{k.underscore_blanks}", default: k, locale: user.ui_locale),
               'in_schedule',
               data: { name: k, advancedType: k }
             ]
@@ -245,7 +245,7 @@ module DataCycleCore
             next unless v
 
             [
-              I18n.t("filter.in_schedule_types.#{k.parameterize(separator: '_')}", default: k, locale: user.ui_locale),
+              I18n.t("filter.in_schedule_types.#{k.underscore_blanks}", default: k, locale: user.ui_locale),
               'validity_period',
               data: { name: k, advancedType: k }
             ]

@@ -1,0 +1,14 @@
+<% @linked_objects.each do |content| %>
+  <%= render_linked_partial(
+        key: @params[:complete_key] + (@params[:definition]['type'] == "object" ? '[][id]' : '[]'),
+        definition: @params[:definition],
+        parameters: {
+          object: content,
+          options: @params[:options],
+          objects: @params[:objects],
+          editable: @params[:editable],
+          edit_buttons: true
+        },
+        content: @content
+      ) %>
+<% end %>

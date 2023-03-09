@@ -27,7 +27,7 @@ module DataCycleCore
         format.html
         format.json do
           if @count_only || params[:mode].present?
-            render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/application/count_or_more_results').squish }
+            render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/application/count_or_more_results').strip }
           else
             redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", id: @watch_list)
           end
@@ -351,7 +351,7 @@ module DataCycleCore
     end
 
     def watch_list_params
-      params.require(:watch_list).permit(:full_path, :user_id, :manual_order, user_group_ids: [], user_ids: [])
+      params.require(:watch_list).permit(:full_path, :user_id, :manual_order, user_group_ids: [], user_ids: [], collection_configuration_attributes: [:id, :slug])
     end
 
     def create_form_params

@@ -95,7 +95,7 @@ module DataCycleCore
 
             json_data = JSON.parse(response.body)
 
-            assert_equal(['A', 'B', 'C', 'D'], json_data.dig('@graph').map { |event| event['name'] })
+            assert_equal(['D', 'C', 'B', 'A'], json_data.dig('@graph').pluck('name'))
             # default = proximity.inTime
             params = {
               fields: 'name',
@@ -116,7 +116,7 @@ module DataCycleCore
 
             json_data = JSON.parse(response.body)
 
-            assert_equal(['A', 'B', 'C', 'D'], json_data.dig('@graph').map { |event| event['name'] })
+            assert_equal(['A', 'B', 'C', 'D'], json_data.dig('@graph').pluck('name'))
           end
 
           test 'api/v4/things with sort parameter: proximity.occurrence' do
@@ -140,7 +140,7 @@ module DataCycleCore
 
             json_data = JSON.parse(response.body)
 
-            assert_equal(['D', 'C', 'B', 'A'], json_data.dig('@graph').map { |event| event['name'] })
+            assert_equal(['D', 'C', 'B', 'A'], json_data.dig('@graph').pluck('name'))
           end
         end
       end

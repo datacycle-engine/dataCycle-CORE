@@ -12,6 +12,14 @@ unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
       pages: objects.total_pages
     }
   end
+
+  if (endpoint = @watch_list || @stored_filter)
+    json['meta']['collection'] = {
+      id: endpoint.id,
+      name: endpoint.name,
+      slug: endpoint.slug
+    }.compact_blank
+  end
 end
 if request.request_method == 'POST'
   common_params = {}

@@ -58,7 +58,7 @@ module DataCycleCore
       assert_redirected_to watch_list_path(@watch_list)
       assert_equal I18n.t(:updated, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_locales.first), locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
-      assert_select '.detail-header > .title', name
+      assert_equal @watch_list.reload.name, name
     end
 
     test 'validate Watchlist' do

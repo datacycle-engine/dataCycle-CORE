@@ -6,8 +6,11 @@ module DataCycleCore
       class ClassificationTreesController < ::DataCycleCore::Api::V4::ApiBaseController
         before_action :prepare_url_parameters
 
+        include DataCycleCore::Filter
+
         ALLOWED_FILTER_ATTRIBUTES = [:'dct:modified', :'dct:created', :'dct:deleted'].freeze
-        ALLOWED_SORT_ATTRIBUTES = { 'dct:created': 'created_at', 'dct:modified': 'updated_at' }.freeze
+        ALLOWED_SORT_ATTRIBUTES = { 'dct:created' => 'created_at', 'dct:modified' => 'updated_at' }.freeze
+        ALLOWED_FACET_SORT_ATTRIBUTES = { 'dc:thingCountWithSubtree' => 'thing_count_with_subtree', 'dc:thingCountwithoutSubtree' => 'thing_count_without_subtree' }.freeze
 
         def index
           @classification_tree_labels = ClassificationTreeLabel.where(internal: false).visible('api')
@@ -47,8 +50,38 @@ module DataCycleCore
           @classification_aliases = apply_paging(@classification_aliases)
         end
 
+        def facets
+          @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:classification_tree_label_id])
+
+          query = build_search_query
+
+          @classification_aliases = DataCycleCore::ClassificationAlias
+            .where(
+              DataCycleCore::ClassificationTree
+                .where('classification_trees.classification_alias_id = classification_aliases.id')
+                .where(classification_tree_label_id: @classification_tree_label.id)
+                .select(1).arel.exists
+            )
+            .joins(
+              "LEFT OUTER JOIN collected_classification_contents ccc ON classification_aliases.id = ANY(ccc.full_classification_alias_ids) AND EXISTS (#{query.query.where('things.id = ccc.thing_id').except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).select(1).to_sql})"
+            )
+            .select('classification_aliases.*, COUNT(DISTINCT ccc.thing_id) AS thing_count_with_subtree, COUNT(DISTINCT ccc.thing_id) filter (where classification_aliases.id = ANY(ccc.direct_classification_alias_ids)) AS thing_count_without_subtree')
+            .group(:id)
+
+          @classification_id = permitted_params[:classification_id]
+          if @classification_id.present?
+            @classification_aliases = @classification_aliases.where(id: @classification_id)
+            raise ActiveRecord::RecordNotFound if @classification_aliases.blank?
+          end
+
+          @classification_aliases = apply_order_query(@classification_aliases, permitted_params.dig(:sort))
+          @classification_aliases = apply_paging(@classification_aliases)
+          @classification_aliases = @classification_aliases.includes(:classification_tree_label)
+          @classification_aliases.instance_variable_set(:@total_count, @classification_aliases.except(:select, :joins, :order, :group, :limit, :offset).count)
+        end
+
         def permitted_parameter_keys
-          super + [:id, :language, :classification_id] + [permitted_filter_parameters]
+          super + [:id, :language, :classification_id, :classification_tree_label_id] + [permitted_filter_parameters]
         end
 
         def permitted_filter_parameters
@@ -84,6 +117,8 @@ module DataCycleCore
         private
 
         def apply_filters(query, filter)
+          return super if action_name == 'facets'
+
           filter.each do |attribute_key, operator|
             attribute_path = case attribute_key
                              when :'dct:modified'
@@ -127,7 +162,13 @@ module DataCycleCore
           if order_query.blank?
             query = query.reorder(nil)
             query = query.order_by_similarity(full_text_search) if full_text_search.present?
-            query = query.is_a?(DataCycleCore::ClassificationAlias.const_get(:ActiveRecord_AssociationRelation)) ? query.order(order_a: :asc) : query.order(updated_at: :desc)
+
+            query = case query
+                    when DataCycleCore::ClassificationAlias.const_get(:ActiveRecord_AssociationRelation), DataCycleCore::ClassificationAlias.const_get(:ActiveRecord_Relation)
+                      query.order(order_a: :asc, id: :asc)
+                    else
+                      query.order(updated_at: :desc, id: :asc)
+                    end
 
             return query
           end
@@ -136,8 +177,11 @@ module DataCycleCore
         end
 
         def transform_sort_param(key, order)
-          return unless ALLOWED_SORT_ATTRIBUTES.key?(key.to_sym)
-          "#{ALLOWED_SORT_ATTRIBUTES.dig(key.to_sym)} #{order} NULLS LAST"
+          allowed_sort_attributes = ALLOWED_SORT_ATTRIBUTES.dup
+          allowed_sort_attributes.merge!(ALLOWED_FACET_SORT_ATTRIBUTES) if action_name == 'facets'
+
+          return unless allowed_sort_attributes.key?(key)
+          "#{allowed_sort_attributes.dig(key)} #{order} NULLS LAST, id ASC"
         end
       end
     end

@@ -24,7 +24,7 @@ module DataCycleCore
     end
 
     def to_slug
-      I18n.transliterate(self).parameterize(preserve_case: false, separator: '-')
+      parameterize(separator: '-')
     end
 
     def uuid?

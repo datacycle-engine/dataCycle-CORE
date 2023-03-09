@@ -9,8 +9,9 @@ module DataCycleCore
 
       test 'sanity check for updated_since' do
         _, timestamp = data_setup(bi: 2)
-        assert_equal(3, DataCycleCore::Thing.where("things.template = false AND things.updated_at >= '#{timestamp.utc}'").count)
-        assert_equal(0, DataCycleCore::Thing.where("things.template = false AND things.updated_at > '#{Time.zone.now.utc}'").count)
+
+        assert_equal(3, DataCycleCore::Thing.where('things.template = false AND things.updated_at >= ?', timestamp).count)
+        assert_equal(0, DataCycleCore::Thing.where('things.template = false AND things.updated_at > ?', Time.zone.now).count)
         assert_equal(3, DataCycleCore::Filter::Search.new.updated_since(timestamp - 1.minute).count)
         assert_equal(0, DataCycleCore::Filter::Search.new.updated_since(Time.zone.now).count)
       end
@@ -115,7 +116,7 @@ module DataCycleCore
         data_hash = {}
         data_hash['linked_place'] = linked_bi_objects if linked_bi_objects.present?
         data_hash['linked_main_place'] = linked_objects if linked_objects.present?
-        data_set.set_data_hash(data_hash: data_hash, partial_update: true, save_time: timestamp)
+        data_set.set_data_hash(data_hash: data_hash, save_time: timestamp)
 
         return data_set, timestamp
       end

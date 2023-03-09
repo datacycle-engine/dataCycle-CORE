@@ -6,7 +6,7 @@ module DataCycleCore
       class DownloadAllowedByContentAndScope < Base
         attr_reader :subject, :scopes
 
-        def initialize(subject, scopes = [])
+        def initialize(subject, scopes = [:content])
           @scopes = Array.wrap(scopes).map(&:to_sym)
           @subject = subject
         end

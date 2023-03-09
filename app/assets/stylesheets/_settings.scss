@@ -112,6 +112,7 @@ $gray: #666666;
   --light-gray: #{$light-gray};
   --medium-gray: #{$medium-gray};
   --dark-gray: #{$dark-gray};
+  --darker-gray: #666666;
   --black: #{$black};
   --white: #{$white};
   --violet: #{$violet};
@@ -148,7 +149,9 @@ $breakpoints: (
   xxxlarge: 1660px
 );
 $print-breakpoint: large;
-$breakpoint-classes: (small medium large);
+$breakpoint-classes: (
+  small medium large
+);
 
 // 3. The Grid
 // -----------
@@ -173,46 +176,18 @@ $header-color: inherit;
 $header-lineheight: 1.4;
 $header-margin-bottom: 0.5rem;
 $header-styles: (
-  small: (
-    'h1': (
-      'font-size': 24
-    ),
-    'h2': (
-      'font-size': 20
-    ),
-    'h3': (
-      'font-size': 18
-    ),
-    'h4': (
-      'font-size': 16
-    ),
-    'h5': (
-      'font-size': 17
-    ),
-    'h6': (
-      'font-size': 16
-    )
-  ),
-  medium: (
-    'h1': (
-      'font-size': 48
-    ),
-    'h2': (
-      'font-size': 40
-    ),
-    'h3': (
-      'font-size': 31
-    ),
-    'h4': (
-      'font-size': 25
-    ),
-    'h5': (
-      'font-size': 1.2rem
-    ),
-    'h6': (
-      'font-size': 16
-    )
-  )
+  small: ('h1': ('font-size': 24),
+    'h2': ('font-size': 20),
+    'h3': ('font-size': 18),
+    'h4': ('font-size': 16),
+    'h5': ('font-size': 17),
+    'h6': ('font-size': 16)),
+  medium: ('h1': ('font-size': 48),
+    'h2': ('font-size': 40),
+    'h3': ('font-size': 31),
+    'h4': ('font-size': 25),
+    'h5': ('font-size': 1.2rem),
+    'h6': ('font-size': 16))
 );
 $header-text-rendering: optimizeLegibility;
 $small-font-size: 80%;
