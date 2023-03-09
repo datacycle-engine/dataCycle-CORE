@@ -142,7 +142,9 @@ class DataCycle {
 		[url, options] = this.mergeHttpOptions(url, options);
 
 		return fetch(url, options).then((res) => {
-			if (res.ok) return res.json();
+			if (res.ok) {
+				return res.json().catch(() => undefined);
+			}
 
 			if (retries > 0)
 				return this.wait(1000 * (3 / retries)).then(() =>
