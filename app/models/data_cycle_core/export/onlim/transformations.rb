@@ -88,6 +88,11 @@ module DataCycleCore
 
         def self.to_image
           t(:rename_graph_keys, { 'dc:webUrl' => 'url' })
+          .>> t(:transform_content_size)
+        end
+
+        def self.to_property_value
+          t(:transform_numbers)
         end
 
         def self.to_onlim

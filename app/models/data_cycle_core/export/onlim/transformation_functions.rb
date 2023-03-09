@@ -21,13 +21,9 @@ module DataCycleCore
           'LodgingBusiness' => :to_lodging_business,
           'FoodEstablishment' => :to_lodging_business,
           'odta:Trail' => :to_tour,
-          'Event' => :to_event
+          'Event' => :to_event,
+          'PropertyValue' => :to_property_value
         }.freeze
-
-        # def self.debug(data)
-        #   binding.pry
-        #   data
-        # end
 
         def self.identity(data)
           data
@@ -137,10 +133,31 @@ module DataCycleCore
             if gdata.dig('dc:classification').present?
               gdata['keywords'] = gdata
                 .dig('dc:classification')
-                .map { |i| i['skos:prefLabel'] }
-                .flatten
+                .map { |i|
+                  i['skos:prefLabel'].map do |item|
+                    if item.is_a?(::Hash)
+                      item.tap do |value_hash|
+                        value_hash['@value'] = value_hash['@value'].to_s
+                      end
+                    else
+                      item
+                    end
+                  end
+                }.flatten
                 .uniq
             end
+          end
+        end
+
+        def self.transform_content_size(data)
+          add_node(data) do |gdata|
+            gdata['contentSize'] = gdata['contentSize'].to_i.to_s if gdata['contentSize'].present?
+          end
+        end
+
+        def self.transform_numbers(data)
+          add_node(data) do |gdata|
+            gdata['value'] = gdata['value'].first['@value'] if gdata['value'].present? && gdata['value'].first['@value'].is_a?(::Numeric)
           end
         end
 

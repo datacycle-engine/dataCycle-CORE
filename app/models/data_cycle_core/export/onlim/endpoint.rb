@@ -37,14 +37,13 @@ module DataCycleCore
         }.freeze
 
         def self.serialize_data(data)
-          language = data.available_locales.map(&:to_s)
           json = DataCycleCore::Api::V4::ContentsController.renderer.new(
             http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
             https: Rails.application.config.force_ssl
           ).render(
             assigns: {
               content: data,
-              language: language,
+              language: I18n.available_locales.map(&:to_s),
               language_mode: 'expanded',
               fields_parameters: [],
               expand_language: true,
