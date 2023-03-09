@@ -18,8 +18,8 @@ module DataCycleCore
         ).first&.values&.first
       end
 
-      def contents_with_default_scope(simplify_factor:)
-        query = @contents.except(:order).select(content_select_sql(simplify_factor))
+      def contents_with_default_scope
+        query = @contents.except(:order).select(content_select_sql)
 
         joins = include_config.pluck(:joins)
         joins.uniq!
@@ -30,10 +30,10 @@ module DataCycleCore
         query
       end
 
-      def content_select_sql(simplify_factor)
+      def content_select_sql
         [
           'things.id AS id',
-          "ST_Simplify (ST_Force2D (#{geometry_sql}), #{simplify_factor}, TRUE) AS geometry"
+          'geom_simple AS geometry'
         ]
           .concat(include_config.map { |c| "#{c[:select]} AS #{c[:identifier]}" })
           .join(', ').squish
@@ -41,16 +41,6 @@ module DataCycleCore
 
       def main_sql
         raise NotImplementedError
-      end
-
-      def geometry_sql
-        <<-SQL.squish
-              CASE WHEN things.line IS NULL THEN
-                things.location
-              ELSE
-                things.line
-              END
-        SQL
       end
 
       def include_config

@@ -25,6 +25,13 @@ namespace :dc do
       task fasterer: :environment do
         sh 'bundle exec fasterer'
       end
+
+      desc 'audit JS packages'
+      task js_audit: :environment do
+        system('yarn audit --level high')
+
+        exit($CHILD_STATUS.exitstatus) if $CHILD_STATUS.exitstatus >= 16
+      end
     end
   end
 end

@@ -38,7 +38,7 @@ module DataCycleCore
 
       assert_redirected_to edit_thing_path(content)
       # assert_equal 1, content.quotation.size
-      assert_equal I18n.t(:created, scope: [:controllers, :success], data: content.template_name, locale: DataCycleCore.ui_locales.first), flash[:notice]
+      assert_equal I18n.t(:created, scope: [:controllers, :success], data: content.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
     end
 
     test 'search content by fulltext' do
@@ -139,7 +139,7 @@ module DataCycleCore
 
       assert valid
 
-      get load_more_linked_objects_thing_path(@content), xhr: true, params: {
+      post load_more_linked_objects_thing_path(@content), xhr: true, params: {
         definition: @content.schema.dig('properties', 'content_location'),
         key: 'content_location',
         load_more_action: 'show',
@@ -152,7 +152,7 @@ module DataCycleCore
       }
       assert(linked_pois[5..10].all? { |s| response.body.include?(s.name) })
 
-      get load_more_linked_objects_thing_path(@content), xhr: true, params: {
+      post load_more_linked_objects_thing_path(@content), xhr: true, params: {
         definition: @content.schema.dig('properties', 'content_location'),
         complete_key: 'thing[datahash][content_location]',
         key: 'content_location',

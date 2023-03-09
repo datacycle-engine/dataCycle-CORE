@@ -101,6 +101,15 @@
           </div>
         <% end %>
 
+        <%= f.fields_for :collection_configuration, content.collection_configuration || DataCycleCore::CollectionConfiguration.new do |cc_form| %>
+          <div class="form-element input slug" data-key="watch_list[collection_configuration][slug]">
+            <%= cc_form.label :slug do %>
+              <%= DataCycleCore::CollectionConfiguration.human_attribute_name(:slug, locale: active_ui_locale) %>
+            <% end %>
+
+            <%= cc_form.text_field :slug %>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>

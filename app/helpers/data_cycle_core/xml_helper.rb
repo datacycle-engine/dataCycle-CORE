@@ -24,7 +24,7 @@ module DataCycleCore
     end
 
     def content_partial(partial, parameters)
-      content_parameter = parameters[:content].class.class_name.underscore
+      content_parameter = parameters[:content].model_name.element
       partials = [
         "#{content_parameter}_#{parameters[:content].template_name.underscore}_#{partial}",
         "#{content_parameter}_#{partial}",

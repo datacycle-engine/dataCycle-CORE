@@ -86,7 +86,7 @@ DataCycleCore::Engine.routes.draw do
         get 'history/:history_id', action: :history, on: :member, as: :history
         post 'history/:history_id/restore_version', action: :restore_history_version, on: :member, as: :restore_history_version
         get 'external/:external_system_id/:external_key/edit', action: 'edit_by_external_key', on: :collection
-        get :load_more_linked_objects, on: :member
+        post :load_more_linked_objects, on: :member
         get :load_more_related, on: :member
         get :load_more_duplicates, on: :member
         get 'download/(:serialize_format)', on: :member, as: 'download', to: '/data_cycle_core/downloads#download_thing'
@@ -100,7 +100,7 @@ DataCycleCore::Engine.routes.draw do
         post :validate, on: :collection
         get :compare, on: :collection
         get :select_search, on: :collection
-        get :render_embedded_object, on: :member
+        post :render_embedded_object, on: :member
         post :bulk_create, on: :collection
         delete :remove_locks, on: :member
         get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'
@@ -151,12 +151,12 @@ DataCycleCore::Engine.routes.draw do
     end
 
     resource :downloads, only: [] do
-      get '/things(/:id)(/:serialize_format)(/:version)', on: :member, action: 'things'
-      get '/thing_collections(/:id)', on: :member, action: 'thing_collections'
-      get '/watch_lists(/:id)(/:serialize_format)', on: :member, action: 'watch_lists'
-      get '/watch_list_collections(/:id)', on: :member, action: 'watch_list_collections'
-      get '/stored_filters(/:id)(/:serialize_format)', on: :member, action: 'stored_filters'
-      get '/stored_filter_collections(/:id)', on: :member, action: 'stored_filter_collections'
+      get '/things(/:id)(/:serialize_format)(/:version)', on: :member, action: 'things', as: 'things'
+      get '/thing_collections(/:id)', on: :member, action: 'thing_collections', as: 'thing_collections'
+      get '/watch_lists(/:id)(/:serialize_format)', on: :member, action: 'watch_lists', as: 'watch_lists'
+      get '/watch_list_collections(/:id)', on: :member, action: 'watch_list_collections', as: 'watch_list_collections'
+      get '/stored_filters(/:id)(/:serialize_format)', on: :member, action: 'stored_filters', as: 'stored_filters'
+      get '/stored_filter_collections(/:id)', on: :member, action: 'stored_filter_collections', as: 'stored_filter_collections'
     end
 
     resources :data_links, except: [:show] do
@@ -197,6 +197,7 @@ DataCycleCore::Engine.routes.draw do
       get :find, on: :collection
       get :download, on: :collection
       patch :move, on: :collection
+      patch :merge, on: :collection
     end
   end
 
@@ -345,6 +346,7 @@ DataCycleCore::Engine.routes.draw do
                 match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
                 match 'endpoints/:id/suggest', to: 'contents#typeahead', as: 'typeahead', via: [:get, :post]
                 match 'endpoints/:id/download', to: 'downloads#endpoint', as: 'endpoint', via: [:get, :post]
+                match 'endpoints/:id/facets/:classification_tree_label_id(/:classification_id)', to: 'classification_trees#facets', as: 'facets', via: [:get, :post]
                 match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
                 match 'endpoints/:id/:content_id/:timeseries(/:format)', to: 'contents#timeseries', as: 'content_timeseries', via: [:get, :post]
 
@@ -421,6 +423,7 @@ DataCycleCore::Engine.routes.draw do
               match 'endpoints/:id/:z/:x/:y', to: 'contents#index', via: [:get, :post]
               match 'endpoints/:id', to: 'contents#index', defaults: { bbox: true }, via: [:get, :post]
               match 'things/select/:z/:x/:y(/:uuids)', to: 'contents#select', as: 'contents_select', via: [:get, :post]
+              match 'things/select(/:uuids)', to: 'contents#select', defaults: { bbox: true }, as: 'contents_select_bbox', via: [:get, :post]
               match 'things/:id/:z/:x/:y', to: 'contents#show', via: [:get, :post]
             end
           end
@@ -485,8 +488,8 @@ DataCycleCore::Engine.routes.draw do
   end
 
   authenticate do
-    get :add_filter, controller: :application
-    get :add_tag_group, controller: :application
+    post :add_filter, controller: :application
+    post :add_tag_group, controller: :application
     post :remote_render, controller: :application
     get :holidays, controller: :application
   end

@@ -1,0 +1,107 @@
+# frozen_string_literal: true
+
+module DataCycleCore
+  module StoredFilterExtensions
+    module SortParamTransformations
+      extend ActiveSupport::Concern
+
+      SORT_VALUE_API_MAPPING = {
+        'similarity' => 'sort_fulltext_value',
+        'proximity.geographic' => 'sort_proximity_geographic_value',
+        'proximity.inTime' => 'sort_by_proximity_value',
+        'proximity.occurrence' => 'sort_by_proximity_value'
+      }.freeze
+
+      def apply_sorting_from_parameters(filters:, sort_params:)
+        self.sort_parameters ||= []
+        sort_by_proximity_value(filters)&.then { |v| sort_parameters.unshift(v) }
+        sort_proximity_geographic_value(filters)&.then { |v| sort_parameters.unshift(v) }
+        sort_fulltext_value(filters)&.then { |v| sort_parameters.unshift(v) }
+
+        sort_parameters.unshift(*sort_params) if sort_params.present?
+
+        self
+      end
+
+      def apply_sorting_from_api_parameters(full_text_search:, raw_query_params: {})
+        self.sort_parameters ||= []
+
+        DataCycleCore::ApiService.order_value_from_params('proximity.inTime', full_text_search, raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'by_proximity', 'o' => 'ASC', 'v' => v }) }
+
+        DataCycleCore::ApiService.order_value_from_params('proximity.geographic', full_text_search, raw_query_params).presence&.then { |v| sort_parameters.unshift({ 'm' => 'proximity_geographic', 'o' => 'ASC', 'v' => v }) }
+
+        sort_parameters.unshift({ 'm' => 'fulltext_search', 'o' => 'DESC', 'v' => full_text_search }) if full_text_search.present?
+
+        raw_query_params&.dig(:sort)&.split(',')&.reverse_each do |sort|
+          key, order = DataCycleCore::ApiService.order_key_with_value(sort)
+          value = DataCycleCore::ApiService.order_value_from_params(key, full_text_search, raw_query_params)
+          value = send(SORT_VALUE_API_MAPPING[key], parameters)&.dig('v') if value.blank? && SORT_VALUE_API_MAPPING.key?(key)
+
+          if DataCycleCore::Feature::Sortable.available_advanced_attribute_options.key?(key.underscore)
+            value = key.underscore
+            key = 'advanced_attribute'
+          end
+
+          sort_parameters.unshift({
+            'm' => key.underscore_blanks,
+            'o' => order,
+            'v' => value.presence
+          }.compact)
+        end
+
+        self
+      end
+
+      private
+
+      def sort_fulltext_value(params)
+        return if params.blank?
+
+        params&.find { |f| f['t'] == 'fulltext_search' }&.dig('v')&.then { |v| { 'm' => 'fulltext_search', 'o' => 'DESC', 'v' => v } }
+      end
+
+      def sort_proximity_geographic_value(params)
+        return if params.blank?
+
+        params&.find { |f| f['t'] == 'geo_filter' && f['q'] == 'geo_radius' }&.dig('v')&.then { |v| { 'm' => 'proximity_geographic', 'o' => 'DESC', 'v' => v.values_at('lon', 'lat', 'distance') } }
+      end
+
+      def sort_by_proximity_value(params)
+        return if params.blank?
+
+        params&.find { |f| f['t'] == 'in_schedule' }&.then { |v| v['v'].present? ? { 'm' => 'by_proximity', 'o' => 'ASC', 'v' => v.slice('q', 'v') } : nil }
+      end
+
+      def transform_order_hash(sort_hash, watch_list)
+        return sort_hash['m'].gsub('advanced_attribute_', ''), 'sort_advanced_attribute' if sort_hash['m'].starts_with?('advanced_attribute_')
+        return watch_list.id, 'sort_collection_manual_order' if sort_hash['m'] == 'default' && watch_list&.manual_order
+
+        return sort_hash['v'].dup, 'sort_' + sort_hash['m']
+      end
+
+      def apply_order_parameters(watch_list)
+        self.sort_parameters = [{ 'm' => 'default' }] if sort_parameters.blank?
+
+        self.query = query.reset_sort
+
+        sort_parameters.each do |sort|
+          sort_value, sort_method_name = transform_order_hash(sort, watch_list)
+
+          next unless query.respond_to?(sort_method_name)
+
+          if query.method(sort_method_name)&.parameters&.size == 2
+            ordered_query = query.send(sort_method_name, sort['o'].presence, sort_value.presence)
+          elsif query.method(sort_method_name)&.parameters&.size == 1
+            ordered_query = query.send(sort_method_name, sort['o'].presence)
+          end
+
+          next if query == ordered_query
+
+          self.query = ordered_query
+          self.sort_parameters = [sort]
+          break
+        end
+      end
+    end
+  end
+end

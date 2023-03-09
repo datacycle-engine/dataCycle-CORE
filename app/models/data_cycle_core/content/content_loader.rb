@@ -3,12 +3,12 @@
 module DataCycleCore
   module Content
     module ContentLoader
-      def get_data_hash(timestamp = Time.zone.now)
-        as_of(timestamp).try(:to_h, timestamp)
+      def get_data_hash # rubocop:disable Naming/AccessorMethodName
+        try(:to_h)
       end
 
-      def get_data_hash_partial(keys, timestamp = Time.zone.now)
-        as_of(timestamp).try(:to_h_partial, keys, timestamp)
+      def get_data_hash_partial(keys)
+        try(:to_h_partial, keys)
       end
 
       def diff(data, template = nil, partial_update = false)
@@ -97,22 +97,25 @@ module DataCycleCore
       end
 
       def as_of(timestamp)
+        timestamp = timestamp.in_time_zone if timestamp.is_a?(::String)
+
         return self if updated_at.blank? || timestamp.blank? || timestamp >= updated_at
 
-        history_table = DataCycleCore::Thing::History.arel_table
-        history_table_translation = DataCycleCore::Thing::History::Translation.arel_table
+        history = histories
+          .includes(:translations)
+          .where(translations: { locale: first_available_locale })
+          .find_by('thing_histories.updated_at <= ?', timestamp)
 
-        return_data = histories.joins(
-          history_table
-            .join(history_table_translation)
-            .on(history_table[:id].eq(history_table_translation[:thing_history_id]))
-            .join_sources
-        )
-          .where(history_table_translation[:locale].eq(first_available_locale))
-          .where(in_range(history_table_translation, timestamp))
-          .order(history_table_translation[:history_valid])
+        return history unless history.nil?
 
-        return_data.last
+        first_history = histories
+          .includes(:translations)
+          .where(translations: { locale: first_available_locale })
+          .last
+
+        return if first_history.nil? || timestamp < first_history.created_at
+
+        first_history
       end
     end
   end

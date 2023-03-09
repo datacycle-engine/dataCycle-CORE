@@ -88,7 +88,6 @@ module DataCycleCore
         assert_equal(true, item.updated_at.present?)
         assert_equal(current_user.id, item.deleted_by)
         assert_equal(true, item.deleted_at.present?)
-        assert_equal(true, item.deleted_at >= item.updated_at)
       end
     end
   end

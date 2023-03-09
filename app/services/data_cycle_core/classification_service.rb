@@ -16,10 +16,10 @@ module DataCycleCore
         FROM
           pg_trigger
         WHERE
-          tgname IN ('delete_ccc_relations_transitive_trigger', 'generate_ccc_relations_transitive_trigger', 'update_ccc_relations_transitive_trigger');
+          tgname IN ('delete_ccc_relations_transitive_trigger', 'generate_ccc_relations_transitive_trigger', 'update_ccc_relations_transitive_trigger', 'update_deleted_at_ccc_relations_transitive_trigger');
       SQL
 
-      transitive_disabled_before = result.values.all? { |v| v.first.to_s.casecmp('d').zero? } # transitive triggers disabled
+      transitive_disabled_before = result.values.any? { |v| v.first.to_s.casecmp('d').zero? } # transitive triggers disabled
       transitive_config_changed = DataCycleCore.transitive_classification_paths == transitive_disabled_before
 
       return unless transitive_config_changed
@@ -36,6 +36,7 @@ module DataCycleCore
         ALTER TABLE classification_groups #{transitive_triggers} TRIGGER delete_ccc_relations_transitive_trigger;
         ALTER TABLE classification_groups #{transitive_triggers} TRIGGER generate_ccc_relations_transitive_trigger;
         ALTER TABLE classification_groups #{transitive_triggers} TRIGGER update_ccc_relations_transitive_trigger;
+        ALTER TABLE classification_groups #{transitive_triggers} TRIGGER update_deleted_at_ccc_relations_transitive_trigger;
 
         ALTER TABLE classification_alias_paths #{non_transitive_triggers} TRIGGER generate_collected_classification_content_relations_trigger;
         ALTER TABLE classification_contents #{non_transitive_triggers} TRIGGER generate_collected_classification_content_relations_trigger_1;
@@ -43,7 +44,8 @@ module DataCycleCore
         ALTER TABLE classification_contents #{non_transitive_triggers} TRIGGER update_collected_classification_content_relations_trigger_1;
         ALTER TABLE classification_groups #{non_transitive_triggers} TRIGGER delete_collected_classification_content_relations_trigger_1;
         ALTER TABLE classification_groups #{non_transitive_triggers} TRIGGER generate_collected_classification_content_relations_trigger_4;
-        ALTER TABLE classification_groups #{non_transitive_triggers} TRIGGER update_collected_classification_content_relations_trigger_4;
+        ALTER TABLE classification_groups #{non_transitive_triggers} TRIGGER update_ccc_relations_trigger_4;
+        ALTER TABLE classification_groups #{non_transitive_triggers} TRIGGER update_deleted_at_ccc_relations_trigger_4;
       SQL
 
       DataCycleCore::RunTaskJob.perform_later(DataCycleCore.transitive_classification_paths ? 'db:configure:rebuild_cap_transitive' : 'db:configure:rebuild_ca_paths')

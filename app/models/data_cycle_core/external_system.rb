@@ -2,6 +2,11 @@
 
 module DataCycleCore
   class ExternalSystem < ApplicationRecord
+    attribute :last_import_time, :interval
+    attribute :last_successful_import_time, :interval
+    attribute :last_download_time, :interval
+    attribute :last_successful_download_time, :interval
+
     has_many :external_system_syncs, dependent: :destroy
 
     # relations as external_system
@@ -93,7 +98,10 @@ module DataCycleCore
     end
 
     def full_options(name, type = 'import', options = {})
-      (default_options(type) || {}).deep_symbolize_keys.deep_merge({ type.to_sym => send("#{type}_config").dig(name).merge({ name: name.to_s }).deep_symbolize_keys.except(:sorting) }).deep_merge(options.deep_symbolize_keys)
+      (default_options(type) || {})
+        .deep_symbolize_keys
+        .deep_merge({ type.to_sym => send("#{type}_config").dig(name).merge({ name: name.to_s }).deep_symbolize_keys.except(:sorting) })
+        .deep_merge(options.deep_symbolize_keys)
     end
 
     def credentials(type = 'import')
@@ -131,7 +139,12 @@ module DataCycleCore
       }.each do |(name, _)|
         success &&= download_single(name, options, &block)
       end
-      self.last_successful_download = ts_start if success
+      ts_after = Time.zone.now
+      self.last_download_time = ts_after - ts_start
+      if success
+        self.last_successful_download = ts_start
+        self.last_successful_download_time = ts_after - ts_start
+      end
       save
       success
     end
@@ -182,9 +195,14 @@ module DataCycleCore
       import_config.sort_by { |v|
         v.second['sorting']
       }.each do |(name, _)|
+        self.last_import_time = Time.zone.now - ts_start
+        save
         import_single(name, options, &block)
+        self.last_import_time = Time.zone.now - ts_start
+        save
       end
       self.last_successful_import = ts_start
+      self.last_successful_import_time = Time.zone.now - ts_start
       save
     end
 
@@ -272,6 +290,14 @@ module DataCycleCore
       mongo_class = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: collection_name)
       Mongoid.override_database("#{mongo_class.database_name}_#{id}")
       DataCycleCore::Generic::Collection.with(mongo_class, &block)
+    ensure
+      Mongoid.override_database(nil)
+    end
+
+    def destroy_all(collection_name)
+      mongo_class = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: collection_name)
+      Mongoid.override_database("#{mongo_class.database_name}_#{id}")
+      DataCycleCore::Generic::Collection.with(mongo_class, &:destroy_all)
     ensure
       Mongoid.override_database(nil)
     end

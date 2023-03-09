@@ -165,7 +165,7 @@ module DataCycleCore
         filter.each do |filter_k, filter_v|
           filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys
           next if filter_v.blank?
-          filter_method_name = ('apply_' + filter_k.to_s.underscore.parameterize(separator: '_') + '_filters')
+          filter_method_name = ('apply_' + filter_k.to_s.underscore_blanks + '_filters')
           next unless respond_to?(filter_method_name)
           union_query = send(filter_method_name, union_query, filter_v)
         end

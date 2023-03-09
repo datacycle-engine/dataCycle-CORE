@@ -44,26 +44,30 @@ module DataCycleCore
 
         join_external_connections_query = <<-SQL.squish
           INNER JOIN (
-            SELECT
-              external_system_syncs.syncable_id AS thing_id,
-              external_system_syncs.external_system_id AS external_system_id,
-              external_system_syncs.external_key AS external_key
-            FROM
-              external_system_syncs
-            WHERE
-              external_system_syncs.syncable_type = 'DataCycleCore::Thing'
-              AND external_system_syncs.external_system_id = :external_system_id
-              AND external_system_syncs.external_key IN (:external_key)
-            UNION
-            SELECT
-              things.id AS thing_id,
-              things.external_source_id AS external_system_id,
-              things.external_key AS external_key
-            FROM
-              things
-            WHERE
-              things.external_source_id = :external_system_id
-              AND things.external_key IN (:external_key)
+            SELECT DISTINCT on (thing_id) *
+            FROM (
+              SELECT
+                external_system_syncs.syncable_id AS thing_id,
+                external_system_syncs.external_system_id AS external_system_id,
+                external_system_syncs.external_key AS external_key
+              FROM
+                external_system_syncs
+              WHERE
+                external_system_syncs.syncable_type = 'DataCycleCore::Thing'
+                AND external_system_syncs.external_system_id = :external_system_id
+                AND external_system_syncs.external_key IN (:external_key)
+              UNION
+              SELECT
+                things.id AS thing_id,
+                things.external_source_id AS external_system_id,
+                things.external_key AS external_key
+              FROM
+                things
+              WHERE
+                things.external_source_id = :external_system_id
+                AND things.external_key IN (:external_key)
+
+            ) union_external_keys
           ) #{joined_name}
           ON #{joined_name}.thing_id = things.id
         SQL
@@ -85,22 +89,25 @@ module DataCycleCore
 
         join_external_connections_query = <<-SQL.squish
           INNER JOIN (
-            SELECT
-              external_system_syncs.syncable_id AS thing_id,
-              external_system_syncs.external_system_id AS external_system_id
-            FROM
-              external_system_syncs
-            WHERE
-              external_system_syncs.syncable_type = 'DataCycleCore::Thing'
-              AND external_system_syncs.external_system_id = :external_system_id
-            UNION
-            SELECT
-              things.id AS thing_id,
-              things.external_source_id AS external_system_id
-            FROM
-              things
-            WHERE
-              things.external_source_id = :external_system_id
+            SELECT DISTINCT on (thing_id) *
+            FROM (
+              SELECT
+                external_system_syncs.syncable_id AS thing_id,
+                external_system_syncs.external_system_id AS external_system_id
+              FROM
+                external_system_syncs
+              WHERE
+                external_system_syncs.syncable_type = 'DataCycleCore::Thing'
+                AND external_system_syncs.external_system_id = :external_system_id
+              UNION
+              SELECT
+                things.id AS thing_id,
+                things.external_source_id AS external_system_id
+              FROM
+                things
+              WHERE
+                things.external_source_id = :external_system_id
+            ) union_external_keys
           ) #{joined_name}
           ON #{joined_name}.thing_id = things.id
         SQL

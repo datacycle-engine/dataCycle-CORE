@@ -1,9 +1,7 @@
 <% breadcrumb :show_compare, @content, @watch_list %>
 
 <% content_for :top_content do %>
-
   <div>
-
     <section class="edit-header">
       <div class="row expanded">
         <div class="column edit-header-functions">
@@ -15,9 +13,7 @@
     </section>
 
     <div class="column">
-
       <div class="content-diff-wrapper">
-
         <% I18n.with_locale(@diff_source.first_available_locale) do %>
           <div class="detail-content row content-diff-header">
             <div class="show-content">
@@ -37,14 +33,29 @@
             </div>
           </div>
 
-          <%= render_content_partial 'history', content: @diff_source, options: { compare: true, force_render: true } %>
-
+          <div class="detail-content detail-content-wrapper">
+            <div class="row align-center">
+              <div class="type properties">
+                <% ordered_validation_properties(validation: @diff_source.schema, scope: :show, exclude_types: ['timeseries']).each do |key, prop| %>
+                  <%= render_attribute_viewer key: key,
+                                              definition: prop,
+                                              value: @diff_source.try(key.to_sym),
+                                              parameters: {
+                                                options: object_viewer_history_options({
+                                                  object: @diff_source,
+                                                  key: key,
+                                                  options: { compare: true, force_render: true }.stringify_keys,
+                                                  item_diff: @diff_schema
+                                                }),
+                                                diff_target: @content
+                                              },
+                                              content: @diff_source %>
+                <% end %>
+              </div>
+            </div>
+          </div>
         <% end %>
-
       </div>
-
     </div>
-
   </div>
-
 <% end %>

@@ -16,6 +16,7 @@
           :json: false
           :indesign: false
           :xml: false
+          :pdf: false
       :watch_list:
         :enabled: false
         :serializers:
@@ -87,6 +88,7 @@
     :xml: false
     :geojson: false
     :mvt: false
+    :pdf: false
 
 :overlay:
   :enabled: true

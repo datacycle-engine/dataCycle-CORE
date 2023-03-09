@@ -1,0 +1,10 @@
+<%= render_advanced_filter_partial({
+      filter_title: filter_params[:n],
+      filter_name: filter_params[:n].presence&.underscore_blanks,
+      filter_method: filter_params[:m],
+      filter_advanced_type: filter_params[:q],
+      filter_type: filter_params[:t],
+      filter_buttons: true,
+      value: nil,
+      identifier: identifier
+    }) %>

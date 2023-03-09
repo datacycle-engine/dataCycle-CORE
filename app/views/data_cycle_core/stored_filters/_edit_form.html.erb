@@ -1,4 +1,4 @@
-<% stored_search ||= DataCycleCore::StoredFilter.new %>
+<% stored_search = DataCycleCore::StoredFilter.new if stored_search.nil? || cannot?(:update, stored_search) %>
 
 <%= form_with(model: stored_search, namespace: SecureRandom.hex(10), local: true, url: stored_filters_path, method: :post, class: 'update-stored-search-form', data: {
   update_params: local_assigns[:update_params]
@@ -39,6 +39,16 @@
   <% end %>
 
   <div class="dynamic-form-parts">
+    <%= f.fields_for :collection_configuration, stored_search.collection_configuration || DataCycleCore::CollectionConfiguration.new do |cc_form| %>
+      <div class="form-element slug" data-key="stored_filter[collection_configuration][slug]">
+        <%= cc_form.label :slug do %>
+          <%= DataCycleCore::CollectionConfiguration.human_attribute_name(:slug, locale: active_ui_locale) %>
+        <% end %>
+
+        <%= cc_form.text_field :slug %>
+      </div>
+    <% end %>
+
     <div class="form-element dc-checkbox">
       <%= f.check_box :system %>
       <%= f.label :system, DataCycleCore::StoredFilter.human_attribute_name(:system, locale: active_ui_locale) %>

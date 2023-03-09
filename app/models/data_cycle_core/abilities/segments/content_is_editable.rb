@@ -6,9 +6,9 @@ module DataCycleCore
       class ContentIsEditable < Base
         attr_reader :subject, :method_names
 
-        def initialize(method_names)
+        def initialize(*method_names)
           @subject = DataCycleCore::Thing
-          @method_names = Array.wrap(method_names).map(&:to_sym)
+          @method_names = Array.wrap(method_names).flatten.map(&:to_sym)
         end
 
         def include?(content, _scope = nil)

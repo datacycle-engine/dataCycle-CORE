@@ -20,8 +20,10 @@ module DataCycleCore
               data_hash[key] = properties['default_value']
               return
             else
-              module_name = properties.dig('default_value', 'module').classify.safe_constantize
-              method_name = module_name.method(properties.dig('default_value', 'method'))
+              method_name = DataCycleCore::ModuleService.load_module(
+                properties.dig('default_value', 'module').classify,
+                'Utility::DefaultValue'
+              ).method(properties.dig('default_value', 'method'))
             end
 
             property_parameters = Array.wrap(properties&.dig('default_value', 'parameters')).intersection(content.property_names) if properties['default_value'].is_a?(::Hash)

@@ -1,0 +1,48 @@
+<% data = DataCycleCore::StatsDatabase.new.load_mongo_stats(local_assigns[:external_source_id]) %>
+
+<div class="card-section">
+  <%= truncate(data[:database], length: 35)%>
+  <ul>
+    <%= content_tag(:li, "size: #{number_to_human_size(data[:db_size])}")%>
+  </ul>
+</div>
+<div class="card-section">
+  Collections: <br />
+  <ul>
+    <% data[:tables].each do |key, value| %>
+      <%= content_tag(:li, "#{key}: #{value[0]} #{value[1]}") %>
+    <% end %>
+  </ul>
+</div>
+<div class="card-section">
+  download:
+  <ul class="no-bullet import-data-timestamps">
+    <% if data.dig(:last_download) != data.dig(:last_successful_download) %>
+      <li class="last-successful-download <%= 'check-icon' if data.dig(:last_successful_download) != 'never' %>">
+        <%= import_data_time(data.dig(:last_successful_download)) %>
+        <% if data.dig(:last_successful_download_time).present? %>
+          (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + data.dig(:last_successful_download_time), locale: active_ui_locale)%>)
+        <% end %>
+      </li>
+    <% end %>
+    <li class="last-download <%= data.dig(:last_download_class) %>">
+      <%= import_data_time(data.dig(:last_download)) %>
+      <%= active_duration(data, 'download') %>
+    </li>
+  </ul>
+  import:
+  <ul class="no-bullet import-data-timestamps">
+    <% if data.dig(:last_import) != data.dig(:last_successful_import) %>
+      <li class="last-successful-import <%= 'check-icon' if data.dig(:last_successful_import) != 'never' %>">
+        <%= import_data_time(data.dig(:last_successful_import)) %>
+        <% if data.dig(:last_imlast_successful_import_timeport_time).present? %>
+          (<%= distance_of_time_in_words(Time.zone.now, Time.zone.now + data.dig(:last_successful_import_time), locale: active_ui_locale)%>)
+        <% end %>
+      </li>
+    <% end %>
+    <li class="last-import <%= data.dig(:last_import_class) %>">
+      <%= import_data_time(data.dig(:last_import)) %>
+      <%= active_duration(data, 'import') %>
+    </li>
+  </ul>
+</div>

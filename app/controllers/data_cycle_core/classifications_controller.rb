@@ -64,7 +64,7 @@ module DataCycleCore
 
           @classification_trees = @classification_trees.order('classification_aliases.order_a ASC')
 
-          render json: { html: render_to_string(formats: [:html], layout: false, action: 'children').squish }
+          render json: { html: render_to_string(formats: [:html], layout: false, action: 'children').strip }
         end
       end
     end
@@ -153,7 +153,7 @@ module DataCycleCore
         end
       end
 
-      render json: { html: render_to_string(formats: [:html], layout: false, action: 'create').squish }
+      render json: { html: render_to_string(formats: [:html], layout: false, action: 'create').strip }
     end
 
     def update
@@ -173,7 +173,7 @@ module DataCycleCore
         @object.save!
       end
 
-      render json: { html: render_to_string(formats: [:html], layout: false, action: 'update').squish }
+      render json: { html: render_to_string(formats: [:html], layout: false, action: 'update').strip }
     end
 
     def destroy
@@ -234,10 +234,30 @@ module DataCycleCore
       render json: flash.discard.to_h
     end
 
+    def merge
+      aliases = DataCycleCore::ClassificationAlias.where(id: merge_params.values_at(:source_alias_id, :target_alias_id).compact).index_by(&:id)
+      source_alias = aliases[merge_params[:source_alias_id]]
+      target_alias = aliases[merge_params[:target_alias_id]]
+
+      raise ActiveRecord::RecordNotFound if source_alias.nil? || target_alias.nil?
+      authorize! :edit, source_alias
+      authorize! :edit, target_alias
+
+      source_alias.merge_with_children(target_alias)
+
+      flash[:success] = I18n.t('classification_administration.merge.success', locale: helpers.active_ui_locale)
+
+      render json: flash.discard.to_h
+    end
+
     private
 
     def move_params
       params.transform_keys(&:underscore).permit(:classification_alias_id, :classification_tree_label_id, :previous_alias_id, :new_parent_alias_id)
+    end
+
+    def merge_params
+      params.transform_keys(&:underscore).permit(:source_alias_id, :target_alias_id)
     end
 
     def destroy_params

@@ -2744,7 +2744,7 @@ input.normalized {
   position: fixed;
   bottom: 0;
   width: 100%;
-  z-index: 1010;
+  z-index: 1007;
   max-height: 100vh;
 
   #admin-icons {
@@ -3915,4 +3915,9 @@ body {
       font-weight: bold;
     }
   }
+}
+
+.dcjs-fadeout {
+  transition: opacity 0.5s;
+  opacity: 0;
 }

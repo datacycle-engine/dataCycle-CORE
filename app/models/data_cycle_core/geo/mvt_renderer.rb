@@ -16,6 +16,7 @@ module DataCycleCore
         @x = x
         @y = y
         @z = z
+        @simplify_factor = 1 / (2**@z.to_f)
         @layer_name = layer_name.presence || 'dataCycle'
       end
 
@@ -25,13 +26,22 @@ module DataCycleCore
         )
       end
 
-      def contents_with_default_scope(simplify_factor:)
-        query = super(simplify_factor: simplify_factor)
+      def contents_with_default_scope
+        query = super
 
         query = query.from('bounds, things')
-        query = query.where('ST_Intersects(line, ST_Transform(bounds.geom, 4326)) OR ST_Intersects(location, ST_Transform(bounds.geom, 4326))')
+        query = query.where('ST_Intersects(geom_simple, ST_Transform(bounds.geom, 4326))')
 
         query
+      end
+
+      def content_select_sql
+        [
+          'things.id AS id',
+          "ST_Simplify (geom_simple, #{@simplify_factor}, TRUE) AS geometry"
+        ]
+          .concat(include_config.map { |c| "#{c[:select]} AS #{c[:identifier]}" })
+          .join(', ').squish
       end
 
       def main_sql
@@ -44,7 +54,7 @@ module DataCycleCore
               ),
               mvtgeom AS (
                 SELECT #{mvt_select_sql}
-                FROM (#{contents_with_default_scope(simplify_factor: 1 / (2**@z.to_f)).to_sql}) as t, bounds
+                FROM (#{contents_with_default_scope.to_sql}) as t, bounds
               )
               #{as_mvt_select};
         SQL

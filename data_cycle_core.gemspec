@@ -23,6 +23,8 @@ Gem::Specification.new do |s|
   # rails
   s.add_dependency 'rails', '~> 6.1'
   s.add_dependency 'rake'
+  # Translations
+  s.add_dependency 'mobility'
   # Frontend Asset Handling
   s.add_dependency 'vite_rails', '>= 3.0.12'
   # database
@@ -122,5 +124,10 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'zip_tricks'
 
+  # read CSV and XLSX Files
   s.add_dependency 'roo'
+
+  # render PDFs
+  s.add_dependency 'pdfkit'
+  s.add_dependency 'wkhtmltopdf-binary'
 end

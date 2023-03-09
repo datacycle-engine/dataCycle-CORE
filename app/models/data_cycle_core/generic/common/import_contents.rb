@@ -36,8 +36,10 @@ module DataCycleCore
               transformation = options[:transformations].constantize.method(nested_contents_config[:transformation])
 
               Array.wrap(resolve_attribute_path(raw_data, nested_contents_config[:path])).each do |nested_data|
-                next if nested_contents_config[:exists].present? && resolve_attribute_path(nested_data, nested_contents_config[:exists]).blank?
+                next if nested_contents_config[:exists].present? && Array.wrap(nested_contents_config[:exists]).map { |path| resolve_attribute_path(nested_data, path).blank? }.inject(:|)
+
                 # ap transformation.call(utility_object.external_source.id).call(nested_data)
+
                 process_single_content(utility_object, nested_contents_config[:template], transformation, nested_data)
               end
             end
@@ -52,7 +54,7 @@ module DataCycleCore
         end
 
         def self.process_single_content(utility_object, template_name, transformation, raw_data)
-          return if raw_data.blank?
+          return if DataCycleCore::DataHashService.deep_blank?(raw_data)
           return if raw_data.keys.size == 1 && raw_data.keys.first.in?(['id', '@id'])
 
           template = DataCycleCore::Generic::Common::ImportFunctions.load_template(template_name)

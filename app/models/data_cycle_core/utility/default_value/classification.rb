@@ -29,6 +29,15 @@ module DataCycleCore
             schema_types.compact
           end
 
+          def by_user_and_name(property_definition:, current_user:, **_additional_args)
+            Array.wrap(
+              DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(
+                property_definition&.dig('tree_label'),
+                property_definition&.dig('default_value', 'value', current_user&.role&.name) || property_definition&.dig('default_value', 'value', 'all')
+              )
+            )
+          end
+
           private
 
           def find_or_create_classification(path, tree_label_name, internal = false)

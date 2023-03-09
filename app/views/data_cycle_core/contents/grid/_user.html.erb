@@ -46,7 +46,7 @@
       <% item.user_api_feature.additional_tile_values(item).each do |key, value| %>
         <li>
           <span class="attribute-label"><%= DataCycleCore::User.human_attribute_name(key, default: key&.split('/').last, locale: active_ui_locale) %></span>
-          <span class="attribute-value"><%= value %></span>
+          <span class="attribute-value"><%= value.try(:in_time_zone).present? ? l(value.in_time_zone, locale: active_ui_locale, format: :edit) : value %></span>
         </li>
       <% end %>
     </ul>

@@ -79,7 +79,7 @@
       }
     }
 
-    > span {
+    >span {
       position: relative;
       background-color: $white;
       padding: 0 1rem;
@@ -179,7 +179,7 @@
           background: $white;
           white-space: nowrap;
 
-          > li > a {
+          >li>a {
             padding: 0 0.1rem;
           }
 
@@ -336,6 +336,13 @@
         font-weight: 600;
         padding: 2px 4px;
         border-radius: $global-radius;
+      }
+
+      .slug {
+        font-size: 0.9rem;
+        color: var(--dark-gray);
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .stored-filter-date-container {

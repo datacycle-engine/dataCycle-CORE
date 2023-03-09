@@ -75,6 +75,9 @@ require 'dotenv/load'
 # Frontend Asset Loader
 require 'vite_rails'
 
+# Translations
+require 'mobility'
+
 require 'holidays'
 
 module DataCycleCore
@@ -104,6 +107,7 @@ module DataCycleCore
   self.allowed_api_strategies = [
     'DataCycleCore::Generic::MediaArchive::Webhook',
     'DataCycleCore::Generic::Common::Webhook',
+    'DataCycleCore::Generic::Common::LoggingWebhook',
     'DataCycleCore::Generic::FeratelIdentityServer::Webhook',
     'DataCycleCore::Generic::Sulu::Webhook',
     'DataCycleCore::Generic::ExternalLink::Webhook',

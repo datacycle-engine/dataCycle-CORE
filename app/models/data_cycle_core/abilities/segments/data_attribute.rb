@@ -77,15 +77,31 @@ module DataCycleCore
         end
 
         def attribute_not_excluded?(attribute)
-          except_list.dig(attribute.content.template_name.to_sym)&.include?(attribute.key.attribute_name_from_key) != true
+          attribute_and_template_not_blacklisted?(attribute, except_list)
         end
 
-        def attribute_content_template_whitelisted?(attribute, template_names = [])
+        def template_whitelisted?(attribute, template_names = [])
           attribute.content.template_name.in?(Array.wrap(template_names))
+        end
+
+        def template_not_blacklisted?(attribute, template_names = [])
+          !template_whitelisted?(attribute, template_names)
         end
 
         def attribute_whitelisted?(attribute, attribute_names = [])
           Array.wrap(attribute_names).any? { |a| Array.wrap(a).all? { |v| attribute.key.attribute_path_from_key.include?(v) } }
+        end
+
+        def attribute_not_blacklisted?(attribute, attribute_names = [])
+          !attribute_whitelisted?(attribute, attribute_names)
+        end
+
+        def attribute_and_template_whitelisted?(attribute, whitelist = {})
+          whitelist.to_h.with_indifferent_access.dig(attribute.content.template_name)&.then { |v| Array.wrap(v).include?(attribute.key.attribute_name_from_key) }
+        end
+
+        def attribute_and_template_not_blacklisted?(attribute, blacklist = {})
+          !attribute_and_template_whitelisted?(attribute, blacklist)
         end
       end
     end

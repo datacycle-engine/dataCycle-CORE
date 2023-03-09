@@ -43,9 +43,7 @@ module DataCycleCore
         end
 
         def deleted
-          deleted_contents = DataCycleCore::Thing::History.where(
-            DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
-          )
+          deleted_contents = DataCycleCore::Thing::History.where.not(deleted_at: nil).where.not(content_type: 'embedded')
 
           if permitted_params&.dig(:deleted_at).present?
             filter = permitted_params[:deleted_at].to_h.deep_symbolize_keys

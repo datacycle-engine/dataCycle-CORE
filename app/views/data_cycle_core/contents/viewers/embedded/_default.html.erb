@@ -1,20 +1,17 @@
 <% I18n.with_locale(local_assigns[:locale]) do %>
   <% validation_properties = ordered_validation_properties(validation: object&.schema, scope: :show) %>
-  <% validation_properties.presence&.each do |embedded_key, prop| %>
+  <% item_diff = object.diff(local_assigns[:diff_target]&.get_data_hash) if changes_by_mode(options.dig('item_diff'), '~').present? %>
+  <% validation_properties&.each do |embedded_key, prop| %>
     <% object_value = object.try(embedded_key.to_sym) %>
     <% object_value = object_value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if object_value.is_a?(ActiveRecord::Relation) && !content.history? && ['linked', 'embedded'].include?(prop&.dig('type')) %>
-
-    <% object_options = options.merge({ item_diff: nil }) %>
-    <% object_options[:item_diff] = attribute_changes(object.diff(object.try('thing')&.get_data_hash), embedded_key) if changes_by_mode(changes_by_value(options.dig(:item_diff), object.try('thing_id') || object.id), '~').present? %>
-    <% object_options[:mode] = changes_mode(object_options[:item_diff]) %>
-    <% object_options[:force_render] = true if object.template_name == 'Publikations-Plan' %>
 
     <%= render_attribute_viewer key: "#{key}[#{index}][#{embedded_key}]",
                                 definition: prop,
                                 value: object_value,
                                 parameters: {
-                                  options: object_options,
-                                  parent: object
+                                  options: object_viewer_history_options(local_assigns.merge({ key: embedded_key, item_diff: item_diff })),
+                                  parent: object,
+                                  diff_target: local_assigns[:diff_target]
                                 },
                                 content: content %>
   <% end %>

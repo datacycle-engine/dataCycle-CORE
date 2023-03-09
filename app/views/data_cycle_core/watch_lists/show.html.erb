@@ -100,8 +100,9 @@
         </div>
       </div>
 
-      <div class="title">
+      <div class="title flex-column">
         <%= @watch_list&.name %>
+        <%= tag.div(@watch_list.slug, class: 'slug copy-to-clipboard', data: { dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale) }) if @watch_list.slug.present? %>
       </div>
 
       <%= tag.div(@watch_list.full_path, class: 'description watchlist') if @watch_list.full_path_names.present? %>
