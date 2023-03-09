@@ -28,6 +28,8 @@ class PublicationFilter {
 		if (lastElement) this.infiniteLoadingObserver.observe(lastElement);
 	}
 	lastRenderedElement() {
+		if (!this.yearList) return;
+
 		return Array.from(
 			this.yearList.getElementsByClassName("publication-content"),
 		).pop();
