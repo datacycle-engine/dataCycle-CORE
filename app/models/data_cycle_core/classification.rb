@@ -31,6 +31,12 @@ module DataCycleCore
         .where(classification_aliases: { classification_trees: { classification_tree_labels: { name: tree_name } } })
     end
 
+    def self.by_external_key(external_source_id, external_keys)
+      return none if external_source_id.blank? || external_keys.blank?
+
+      where(external_source_id: external_source_id, external_key: external_keys)
+    end
+
     def to_hash
       { 'class_type' => self.class.to_s }
         .merge({ 'external_system' => external_source&.identifier })

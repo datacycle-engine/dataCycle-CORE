@@ -77,7 +77,9 @@ module DataCycleCore
 
           test 'api/v4/things with unknown parameter' do
             params = {
-              my_field: 'test_field'
+              filter: {
+                my_field: 'test_field'
+              }
             }
             post api_v4_things_path(params)
             assert_response :bad_request
@@ -87,7 +89,7 @@ module DataCycleCore
             assert_equal(1, json_data['errors'].size)
             error_object = {
               'source' => {
-                'parameter' => 'my_field'
+                'parameter' => 'filter[my_field]'
               },
               'title' => 'Invalid Query Parameter',
               'detail' => 'is not allowed'

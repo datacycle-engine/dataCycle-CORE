@@ -383,6 +383,7 @@ DataCycleCore::Engine.routes.draw do
                   match '', via: :post, to: 'external_systems#create'
                   match '(/:external_key)', via: [:put, :patch], to: 'external_systems#update', as: 'external_sources_update'
                   match '(/:external_key)', via: [:delete], to: 'external_systems#destroy', as: 'external_sources_delete'
+                  match '/concepts/:external_key', via: [:get, :post], to: 'classification_trees#by_external_key', as: 'classification_trees_by_external_key'
                   match '/search/availability', via: [:get, :post], to: 'external_systems#search_availability', as: 'external_source_search_availability'
                   match '/search/additional_service', via: [:get, :post], to: 'external_systems#search_additional_service', as: 'external_source_search_additional_service'
                 end
