@@ -113,6 +113,12 @@ module DataCycleCore
           end
         end
 
+        def self.transform_copyright_notice(data)
+          add_node(data) do |gdata|
+            gdata['copyrightNotice'] = '(c) ' + gdata['copyrightNotice'] if gdata['copyrightNotice'].present? && gdata['copyrightNotice'].include?('://')
+          end
+        end
+
         def self.add_contact_information(data, attributes = [])
           add_node(data) do |gdata|
             if gdata.dig('address').present?

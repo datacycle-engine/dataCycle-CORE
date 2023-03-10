@@ -89,6 +89,7 @@ module DataCycleCore
         def self.to_image
           t(:rename_graph_keys, { 'dc:webUrl' => 'url' })
           .>> t(:transform_content_size)
+          .>> t(:transform_copyright_notice) # for now until fixed on DZT side
         end
 
         def self.to_property_value
