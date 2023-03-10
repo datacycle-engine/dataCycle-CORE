@@ -65,6 +65,7 @@ module DataCycleCore
         def initialize(**options)
           super
 
+          @external_system = DataCycleCore::ExternalSystem.find(options.dig(:external_system_id))
           @host = options.dig(:host)
           @end_point = options.dig(:end_point)
 
@@ -108,7 +109,7 @@ module DataCycleCore
               'job_id' => job_id,
               'job_status' => 'pending',
               'job_result' => {},
-              'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: 'onlim').id,
+              'external_source_id' => @external_system.id,
               'data_send' => body,
               'data_send_at' => Time.zone.now.to_s
             }
@@ -116,7 +117,6 @@ module DataCycleCore
         end
 
         def job_status_request(data:, external_system_data:)
-          external_source = DataCycleCore::ExternalSystem.find_by(identifier: 'onlim')
           external_system_syncs_id = external_system_data.dig('external_system_syncs_id')
           if external_system_syncs_id.present?
             esd = DataCycleCore::ExternalSystemSync.find_by(id: external_system_syncs_id)
@@ -143,18 +143,18 @@ module DataCycleCore
                 'job_id' => job_id,
                 'job_status' => 'pending',
                 'job_result' => status,
-                'external_source_id' => external_source.id
+                'external_source_id' => @external_system.id
               }
             ).reject { |_k, v| v.blank? }
           elsif status['stored']
             # save all external_data
-            update_children_external_system_data(status['affectedEntities'], data.id, external_source)
+            update_children_external_system_data(status['affectedEntities'], data.id)
             external_system_data.merge(
               {
                 'job_id' => job_id,
                 'job_status' => 'success',
                 'job_result' => status,
-                'external_source_id' => external_source.id
+                'external_source_id' => @external_system.id
               }
             ).reject { |_k, v| v.blank? }
           else
@@ -163,7 +163,7 @@ module DataCycleCore
                 'job_id' => job_id,
                 'job_status' => 'error',
                 'job_result' => status,
-                'external_source_id' => external_source.id
+                'external_source_id' => @external_system.id
               }
             ).reject { |_k, v| v.blank? }
           end
@@ -196,7 +196,7 @@ module DataCycleCore
           end
         end
 
-        def update_children_external_system_data(hash, thing_id, external_source)
+        def update_children_external_system_data(hash, thing_id)
           return if hash.blank?
           ids = hash
             .map { |i| i['id'] }
@@ -205,7 +205,7 @@ module DataCycleCore
           ids = Array.wrap(ids) - [thing_id]
           return if ids.blank?
           DataCycleCore::Thing.where(id: ids).find_each do |thing|
-            thing.add_external_system_data(external_source, {}, 'success', 'export', thing.id, false)
+            thing.add_external_system_data(@external_system, {}, 'success', 'export', thing.id, false)
           end
         end
       end

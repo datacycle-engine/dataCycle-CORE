@@ -35,6 +35,7 @@ module DataCycleCore
           data = @data
           load_data = DataCycleCore::Thing.where(id: data.id)
           data = load_data&.first if load_data.present?
+
           job_result = @endpoint.send(@request, data: data, external_system_data: @external_system_data)
 
           return if @request == :delete_request # data is already deleted ...
