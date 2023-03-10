@@ -766,6 +766,7 @@ en:
       num: Number
       unit: Unit
     shared_with: Shared with
+    user_group_classifications: shared via user_groups
 
   filter_groups:
     classification_alias_ids: filter by classifications ...

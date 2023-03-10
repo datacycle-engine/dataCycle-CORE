@@ -77,6 +77,18 @@ module DataCycleCore
           raise DataCycleCore::Error::DeprecatedMethodError, "Deprecated method not implemented: #{__method__}"
         end
 
+        def user_group_classifications(current_user)
+          return self if current_user.nil?
+
+          ids = current_user.user_groups.classification_aliases.pluck(:id)
+
+          if ids.blank?
+            reflect(@query.where('1 = 0'))
+          else
+            reflect(@query.where(sub_query_for_ccc_relations(ids, 'full_classification_alias_ids')))
+          end
+        end
+
         private
 
         def sub_query_for_ccc_relations(ids, column_name)

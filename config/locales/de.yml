@@ -788,6 +788,7 @@ de:
       unit: Einheit
     translated_name: Name
     shared_with: Geteilt mit
+    user_group_classifications: Geteilt über Benutzergruppen
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...

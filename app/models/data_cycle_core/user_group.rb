@@ -27,7 +27,7 @@ module DataCycleCore
     end
 
     def self.classification_aliases
-      DataCycleCore::ClassificationAlias.includes(classifications: :user_groups).where(classifications: { user_groups: all })
+      DataCycleCore::ClassificationAlias.includes(classifications: :user_groups).where(classifications: { user_groups: all.select(:id) })
     end
   end
 end

@@ -188,6 +188,8 @@ module DataCycleCore
         hash['t'] = 'external_system'
         hash['n'] = hash['t'].capitalize
         hash['q'] = 'import'
+      when 'user_group_classifications'
+        hash['v'] = user
       when 'creator'
         hash['t'] = 'user'
         hash['n'] = 'creator'
