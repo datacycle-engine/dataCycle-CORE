@@ -359,6 +359,8 @@ class SplitView {
 
 		const target = event.currentTarget;
 
+		DataCycle.disableElement(target);
+
 		const parent = target.closest(this.allButtonParentSelector);
 
 		await this.loadAllVisibleAttributes();
@@ -369,6 +371,8 @@ class SplitView {
 		)
 			await this.showCopyAllConditionOverlay(target, parent);
 		else await this.triggerSingleButtons(target, parent);
+
+		DataCycle.enableElement(target);
 	}
 	async loadAllVisibleAttributes() {
 		for (const item of Array.from(

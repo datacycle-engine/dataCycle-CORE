@@ -29,6 +29,8 @@ const DomElementHelpers = {
 		}
 	},
 	randomId(prefix = "") {
+		if (self.crypto.randomUUID !== undefined) return self.crypto.randomUUID();
+
 		return `${prefix}_${Math.random().toString(36).slice(2)}`;
 	},
 	async renderImportConfirmationModal(field, sourceId, confirmationCallback) {
