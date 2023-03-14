@@ -75,10 +75,10 @@ module DataCycleCore
             req.params['apiKey'] = @key
           end
 
-          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point + 'geocode/json'} / latlng:#{latlng} / address:#{address}", response) unless response.success?
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{URI.join(@host, @end_point) + ' -> geocode/json'} / latlng:#{latlng} / address:#{address}", response) unless response.success?
           data = JSON.parse(response.body)
 
-          raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{data['status']}, error loading data from #{@host + @end_point + 'geocode/json'} / latlng:#{latlng} / address:#{address}", response) unless data.try(:length)
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{data['status']}, error loading data from #{@URI.join(@host, @end_point) + ' -> geocode/json'} / latlng:#{latlng} / address:#{address}", response) unless data.try(:length)
           data
         end
       end

@@ -20,7 +20,7 @@ module DataCycleCore
           'TouristAttraction' => :to_poi,
           'LodgingBusiness' => :to_lodging_business,
           'FoodEstablishment' => :to_lodging_business,
-          'odta:Trail' => :to_tour,
+          'dcls:Tour' => :to_tour,
           'Event' => :to_event,
           'PropertyValue' => :to_property_value
         }.freeze
@@ -135,6 +135,47 @@ module DataCycleCore
                   { k => new_v || Array.wrap(v).first.dig('@value') }
                 }.reduce(&:merge)
               gdata.merge!(contact_info) if contact_info.present?
+            end
+          end
+        end
+
+        def self.add_tour_description(data)
+          add_node(data) do |gdata|
+            desc = gdata
+              .dig('description')
+              .presence
+              &.map { |i| { i['@language'] => i['@value'] } }
+              &.inject(&:merge) || {}
+            classification = DataCycleCore::ClassificationAlias.for_tree('Externe Informationstypen').with_name('text').first&.id
+            desc_long = gdata
+              .dig('dc:additionalInformation')
+              &.select { |i| i['dc:classification']&.first&.send(:[], '@id') == classification }
+              &.map { |i| i['description'].map { |d| { d['@language'] => d['@value'] } }.compact_blank }
+              &.flatten
+              &.compact_blank
+              &.inject(&:merge)
+            desc = desc.merge(desc_long) if desc_long.present?
+            gdata['description'] = desc.map { |k, v| { '@language' => k, '@value' => v } }
+          end
+        end
+
+        def self.add_place_description(data)
+          add_node(data) do |gdata|
+            if gdata['additionalProperty'].present?
+              desc = gdata
+                .dig('description')
+                .presence
+                &.map { |i| { i['@language'] => i['@value'] } }
+                &.inject(&:merge) || {}
+              desc_long = gdata
+                .dig('additionalProperty')
+                .select { |i| i['identifier'] == 'text' }
+                &.first
+                &.send(:[], 'value')
+                &.map { |i| { i['@language'] => i['@value'] } }
+                &.inject(&:merge)
+              desc = desc.merge(desc_long) if desc_long.present?
+              gdata['description'] = desc.map { |k, v| { '@language' => k, '@value' => v } }
             end
           end
         end
