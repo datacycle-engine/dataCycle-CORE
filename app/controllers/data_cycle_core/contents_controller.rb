@@ -414,7 +414,9 @@ module DataCycleCore
       @object = DataCycleCore::Thing.find(linked_object_params[:id])
       authorize! :show, @object
 
-      I18n.with_locale(linked_object_params[:locale]) do
+      @locale = linked_object_params[:locale]
+
+      I18n.with_locale(@locale) do
         @linked_objects = @object.try(linked_object_params[:key])&.where&.not(id: linked_object_params[:load_more_except])&.offset(DataCycleCore.linked_objects_page_size)&.includes(:translations)
         @params = linked_object_params.to_h
 

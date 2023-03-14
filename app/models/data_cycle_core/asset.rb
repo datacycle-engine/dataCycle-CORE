@@ -84,7 +84,7 @@ module DataCycleCore
 
     # @todo: refactor after active_storage migration
     def self.active_storage_activated?
-      true if DataCycleCore.experimental_features.dig('active_storage', 'enabled') && DataCycleCore.experimental_features.dig('active_storage', 'asset_types')&.include?(name)
+      DataCycleCore.experimental_features.dig('active_storage', 'enabled') && DataCycleCore.experimental_features.dig('active_storage', 'asset_types')&.include?(name)
     end
 
     # @todo: refactor after active_storage migration
