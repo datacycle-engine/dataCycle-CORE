@@ -922,7 +922,8 @@ CREATE TABLE public.things (
     line public.geometry(MultiLineStringZ,4326),
     last_updated_locale character varying,
     write_history boolean DEFAULT false,
-    geom_simple public.geometry(Geometry,4326)
+    geom_simple public.geometry(Geometry,4326),
+    schema_types character varying[]
 );
 
 
@@ -3847,6 +3848,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230224185643'),
 ('20230228085431'),
 ('20230303150323'),
-('20230306092709');
+('20230306092709'),
+('20230313072638');
 
 
