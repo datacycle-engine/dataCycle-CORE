@@ -52,6 +52,7 @@ module DataCycleCore
 
         def self.to_poi
           t(:add_contact_information, ['telephone', 'faxNumber', 'url'])
+          # .>> t(:add_place_description)
           .>> t(:add_keywords)
         end
 
@@ -68,6 +69,7 @@ module DataCycleCore
 
         def self.to_tour
           t(:add_contact_information, ['url'])
+          # .>> t(:add_tour_description)
           .>> t(:add_keywords)
         end
 
