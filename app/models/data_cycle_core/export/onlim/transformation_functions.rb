@@ -115,7 +115,12 @@ module DataCycleCore
 
         def self.transform_copyright_notice(data)
           add_node(data) do |gdata|
-            gdata['copyrightNotice'] = '(c) ' + gdata['copyrightNotice'] if gdata['copyrightNotice'].present? && gdata['copyrightNotice'].include?('://')
+            if gdata['copyrightNotice'].present?
+              gdata['copyrightNotice'] = {
+                '@value' => gdata['copyrightNotice'],
+                '@type' => 'http://www.w3.org/2001/XMLSchema#string'
+              }
+            end
           end
         end
 
