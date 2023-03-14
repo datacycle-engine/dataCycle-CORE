@@ -9,7 +9,7 @@ module DataCycleCore
         DEFAULT_INCLUDE = [
           ['image', 'copyrightHolder'], ['image', 'author'],
           ['sdPublisher'], ['copyrightHolder'],
-          ['dc:classification'], ['dc:translation']
+          ['dc:classification'], ['dc:translation'], ['dc:additionalInformation']
         ].freeze
         INCLUDE_FILTER = {
           'Event' => [
