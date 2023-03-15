@@ -1,3 +1,3 @@
 <% I18n.with_locale(content.first_available_locale(local_assigns[:locale])) do %>
-  <code><%= JSON.pretty_generate(content.as_json(only: [:external_key, :external_source_id, :created_at, :created_by, :updated_at, :cache_valid_since, :updated_by]).merge(content.get_data_hash || {})) %></code>
+  <code class="formatted-json" data-json="<%= content.as_json(only: [:external_key, :external_source_id, :created_at, :created_by, :updated_at, :cache_valid_since, :updated_by]).merge(content.get_data_hash || {}).to_json %>"></code>
 <% end %>

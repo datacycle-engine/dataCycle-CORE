@@ -224,15 +224,17 @@ class AdditionalValuesFilterControl {
 		if (this.controlOverlay.classList.contains("active")) this._hideOverlay();
 		else this._showOverlay();
 	}
-	_checkForChangedFormData(mutations) {
-		for (const mutation of mutations) {
-			if (mutation.type !== "attributes") continue;
-
-			if (
-				mutation.target.classList.contains("remote-rendered") &&
-				(!mutation.oldValue || mutation.oldValue.includes("remote-rendering"))
+	_checkForChangedFormData(mutations, observer) {
+		if (
+			mutations.some(
+				(m) =>
+					m.type === "attributes" &&
+					m.target.classList.contains("remote-rendered") &&
+					(!m.oldValue || m.oldValue.includes("remote-rendering")),
 			)
-				this._initializeOverlay();
+		) {
+			observer.disconnect();
+			this._initializeOverlay();
 		}
 	}
 	async _groupChanged(event) {
