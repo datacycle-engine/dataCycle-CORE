@@ -2,6 +2,6 @@
 
 {
   '@context': 'http://schema.org',
-  '@type': content.schema.dig('api', 'type') || content.try(:schema_type) || content.class.name.demodulize,
+  '@type': content.legacy_api_type,
   'contentType': content.template_name
 }

@@ -396,7 +396,7 @@ CREATE FUNCTION public.generate_schedule_occurences_trigger() RETURNS trigger
 
 CREATE FUNCTION public.generate_thing_schema_types() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN SELECT compute_thing_schema_types(NEW.schema->'schema_ancestors', NEW.template_name) INTO NEW.computed_schema_types; RETURN NEW; END; $$;
+    AS $$ BEGIN SELECT compute_thing_schema_types(NEW."schema"->'schema_ancestors', NEW.template_name) INTO NEW.computed_schema_types; RETURN NEW; END; $$;
 
 
 --

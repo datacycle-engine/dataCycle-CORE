@@ -142,7 +142,7 @@ module DataCycleCore
       end
 
       def schema_ancestors
-        Array.wrap(schema&.dig('schema_ancestors')).then { |p| p.present? && !p.first.is_a?(::Array) ? [p] : p }
+        Array.wrap(schema&.dig('schema_ancestors')).deep_dup.then { |a| a.present? && !a.all?(::Array) ? [a] : a }
       end
 
       def translatable?

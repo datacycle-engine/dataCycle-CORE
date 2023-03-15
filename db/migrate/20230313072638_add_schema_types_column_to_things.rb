@@ -44,7 +44,7 @@ class AddSchemaTypesColumnToThings < ActiveRecord::Migration[6.1]
       $$;
 
       CREATE OR REPLACE FUNCTION generate_thing_schema_types () RETURNS TRIGGER LANGUAGE PLPGSQL AS $$ BEGIN
-        SELECT compute_thing_schema_types(NEW.schema->'schema_ancestors', NEW.template_name) INTO NEW.computed_schema_types;
+        SELECT compute_thing_schema_types(NEW."schema"->'schema_ancestors', NEW.template_name) INTO NEW.computed_schema_types;
 
       RETURN NEW;
 
@@ -57,12 +57,12 @@ class AddSchemaTypesColumnToThings < ActiveRecord::Migration[6.1]
 
       CREATE TRIGGER update_thing_schema_types BEFORE
       UPDATE of template_name,
-        schema ON things FOR EACH ROW
+        "schema" ON things FOR EACH ROW
         WHEN (
           OLD.template_name IS DISTINCT
           FROM NEW.template_name
-            OR OLD.schema IS DISTINCT
-          FROM NEW.schema
+            OR OLD."schema" IS DISTINCT
+          FROM NEW."schema"
         ) EXECUTE FUNCTION generate_thing_schema_types ();
     SQL
   end

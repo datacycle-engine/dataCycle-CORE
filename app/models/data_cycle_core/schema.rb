@@ -171,7 +171,7 @@ module DataCycleCore
     end
 
     def template_by_schema_name(schema_name)
-      @templates.find { |t| t.schema_name == schema_name }&.clone_with_schema(self)
+      @templates.find { |t| t.schema_name.include?(schema_name) }&.clone_with_schema(self)
     end
 
     def template_by_classification(names)

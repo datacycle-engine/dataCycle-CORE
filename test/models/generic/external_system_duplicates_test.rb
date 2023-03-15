@@ -78,7 +78,7 @@ module DataCycleCore
         assert_equal 2, DataCycleCore::Thing.where(template: false, template_name: 'POI').with_schema_type('Place').size
         assert_equal 1, DataCycleCore::Thing.where(template: false, template_name: 'Unterkunft').with_schema_type('Place').size
         assert_equal 1, DataCycleCore::Thing.where(template: false, template_name: 'Event').with_schema_type('Event').size
-        assert_equal 1, DataCycleCore::Thing.where(template: false, template_name: 'EventSchedule').with_schema_type('Event').size
+        assert_equal 1, DataCycleCore::Thing.where(template: false, template_name: 'EventSchedule').with_schema_type('Schedule').size
         assert_equal 6, DataCycleCore::Thing.where(template: false, template_name: 'Bild').with_schema_type('CreativeWork').size
         assert_equal 1, DataCycleCore::Thing.where(template: false, template_name: 'Tour').with_schema_type('Place').size
       end
@@ -170,7 +170,7 @@ module DataCycleCore
           I18n.available_locales.each do |locale|
             mongo_item.where({
               "dump.#{locale}": { '$exists' => true },
-              "external_id": external_key
+              'external_id': external_key
             }).each do |item|
               if value.present?
                 item.dump[locale.to_s]['deleted_at'] = value
