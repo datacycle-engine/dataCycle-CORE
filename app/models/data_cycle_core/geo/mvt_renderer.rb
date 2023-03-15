@@ -29,7 +29,9 @@ module DataCycleCore
       def contents_with_default_scope
         query = super
 
-        query = query.where("ST_Intersects(geom_simple, ST_Transform(ST_TileEnvelope(#{@z}, #{@x}, #{@y}), 4326))")
+        query = query.where(
+          ActiveRecord::Base.send(:sanitize_sql_array, ["ST_Intersects(geom_simple, ST_Transform(ST_TileEnvelope(#{@z}, #{@x}, #{@y}), 4326))"])
+        )
 
         query
       end
