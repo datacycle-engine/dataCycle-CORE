@@ -20,10 +20,14 @@ module DataCycleCore
 
             if content.schema_ancestors.present?
               content.schema_ancestors.each do |path|
-                schema_types.concat(find_or_create_classification(path + [content.template_name], property_definition['tree_label'], true))
+                schema_types.concat(
+                  find_or_create_classification(transform_path(path, content), property_definition['tree_label'], true)
+                )
               end
-            else
-              schema_types.concat(find_or_create_classification([content.template_name], property_definition['tree_label'], true))
+            elsif content.schema_type.present?
+              schema_types.concat(
+                find_or_create_classification(transform_path([content.schema_type], content), property_definition['tree_label'], true)
+              )
             end
 
             schema_types.compact
@@ -39,6 +43,12 @@ module DataCycleCore
           end
 
           private
+
+          def transform_path(path, content)
+            path.push("dcls:#{content.template_name}") if path.last != content.template_name
+
+            path
+          end
 
           def find_or_create_classification(path, tree_label_name, internal = false)
             return [] if path.blank? || tree_label_name.blank?

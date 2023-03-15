@@ -7,11 +7,11 @@ class InitiallyCreateSchemaTypes < ActiveRecord::Migration[6.1]
   def up
     execute <<-SQL.squish
       UPDATE things
-      SET schema_types = compute_thing_schema_types(
+      SET computed_schema_types = compute_thing_schema_types(
           things.schema->'schema_ancestors',
           things.template_name
         )
-      WHERE things.schema_types IS NULL;
+      WHERE things.computed_schema_types IS NULL;
     SQL
   end
 

@@ -3,7 +3,8 @@
 class AddSchemaTypesColumnToThings < ActiveRecord::Migration[6.1]
   def up
     execute <<-SQL.squish
-      ALTER TABLE things ADD COLUMN schema_types VARCHAR[];
+      ALTER TABLE things ADD COLUMN computed_schema_types VARCHAR[];
+      CREATE INDEX things_computed_schema_types_idx ON things USING gin (computed_schema_types);
 
       CREATE OR REPLACE FUNCTION compute_thing_schema_types (
           schema_types jsonb,
@@ -43,7 +44,7 @@ class AddSchemaTypesColumnToThings < ActiveRecord::Migration[6.1]
       $$;
 
       CREATE OR REPLACE FUNCTION generate_thing_schema_types () RETURNS TRIGGER LANGUAGE PLPGSQL AS $$ BEGIN
-        SELECT compute_thing_schema_types(NEW.schema->'schema_ancestors', NEW.template_name) INTO NEW.schema_types;
+        SELECT compute_thing_schema_types(NEW.schema->'schema_ancestors', NEW.template_name) INTO NEW.computed_schema_types;
 
       RETURN NEW;
 
@@ -74,7 +75,7 @@ class AddSchemaTypesColumnToThings < ActiveRecord::Migration[6.1]
       DROP FUNCTION IF EXISTS generate_thing_schema_types;
       DROP FUNCTION IF EXISTS compute_thing_schema_types;
 
-      ALTER TABLE things DROP COLUMN schema_types;
+      ALTER TABLE things DROP COLUMN computed_schema_types;
     SQL
   end
 end

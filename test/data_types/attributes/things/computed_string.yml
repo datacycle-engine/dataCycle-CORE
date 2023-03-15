@@ -3,7 +3,8 @@
     :name: Computed-String
     :type: object
     :content_type: entity
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :boost: 100.0
     :properties:
       :id:
@@ -24,12 +25,12 @@
         :compute:
           :module: Utility::Compute::String
           :method: interpolate
-          :value: '-text-%{locale}-text-%{created_at}-text-%{value_2}'
+          :value: "-text-%{locale}-text-%{created_at}-text-%{value_2}"
           :condition:
             - :type: content
               :name: template_name
               :method: equals?
-              :value: 'NOT Computed-String'
+              :value: "NOT Computed-String"
           :parameters:
             - value_2
       :computed_value_correct:
@@ -39,11 +40,11 @@
         :compute:
           :module: Utility::Compute::String
           :method: interpolate
-          :value: '-text-%{locale}-text-%{created_at}-text-%{value_2}'
+          :value: "-text-%{locale}-text-%{created_at}-text-%{value_2}"
           :condition:
             - :type: content
               :name: template_name
               :method: equals?
-              :value: 'Computed-String'
+              :value: "Computed-String"
           :parameters:
             - value_2

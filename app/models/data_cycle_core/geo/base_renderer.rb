@@ -48,18 +48,27 @@ module DataCycleCore
 
         config << {
           identifier: '"@type"',
-          select: 'array_to_json(array_append(
-                      CASE
-                      WHEN things."schema"->\'api\'->\'type\' IS NOT NULL THEN
-                      ARRAY(
-                      SELECT
-                        jsonb_array_elements_text(\'[]\'::jsonb || (things."schema" -> \'api\' -> \'type\'))
+          select: <<-SQL.squish
+          array_to_json(
+            CASE
+              WHEN things.computed_schema_types IS NOT NULL THEN things.computed_schema_types
+              ELSE array_append(
+                CASE
+                  WHEN things."schema"->'api'->'type' IS NOT NULL THEN ARRAY(
+                    SELECT jsonb_array_elements_text(
+                        '[]'::jsonb || (things."schema"->'api'->'type')
                       )
-                      WHEN things."schema"->\'schema_type\' IS NOT NULL THEN
-                      ARRAY(SELECT things."schema"->>\'schema_type\')
-                      ELSE \'{"Thing"}\'
-                      END,
-                      \'dcls:\' || things.template_name))'
+                  )
+                  WHEN things."schema"->'schema_type' IS NOT NULL THEN ARRAY(
+                    SELECT things."schema"->>'schema_type'
+                  )
+                  ELSE '{"Thing"}'
+                END,
+                'dcls:' || things.template_name
+              )
+            END
+          )
+          SQL
         }
 
         if @fields_parameters.blank? || @fields_parameters&.any? { |p| p.first == 'name' }

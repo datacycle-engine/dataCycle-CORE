@@ -2,7 +2,6 @@
 - :data:
     :name: Produktgruppe
     :type: object
-    :schema_type: ProductGroup
     :content_type: entity
     :boost: 100.0
     :features:
@@ -10,10 +9,9 @@
         :allowed: false
       :translatable:
         :allowed: true
-    :api:
-      :type:
-        - Product
-        - ProductGroup
+    :schema_ancestors:
+      - Product
+      - ProductGroup
     :properties:
       :id:
         :label: id
@@ -46,7 +44,7 @@
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Produktgruppe'
+        :default_value: "Produktgruppe"
       :external_key:
         :label: external_key
         :type: string

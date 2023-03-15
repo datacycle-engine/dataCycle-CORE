@@ -50,7 +50,7 @@ module DataCycleCore
       end
 
       def schema_name
-        Array.wrap(@template_schema.dig('api', 'type')).reject { |s| s.start_with?('dc:', 'dcls:') }.presence || @template_schema['schema_type']
+        Array.wrap(@template_schema.dig('api', 'type')).reject { |s| s.start_with?('dc:', 'dcls:') }.presence || Array.wrap(@template_schema['schema_ancestors']).flatten.reject { |s| s.start_with?('dc:', 'dcls:') }
       end
 
       def content_type

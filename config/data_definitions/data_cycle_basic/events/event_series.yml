@@ -2,7 +2,6 @@
 - :data:
     :name: Eventserie
     :type: object
-    :schema_type: Event
     :schema_ancestors:
       - - Event
         - EventSeries
@@ -11,12 +10,6 @@
         - EventSeries
     :boost: 100.0
     :content_type: entity
-    :api:
-      :type:
-        - Event
-        - Intangible
-        - Series
-        - EventSeries
     :features:
       :overlay:
         :allowed: true
@@ -178,7 +171,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Veranstaltungsserie'
+        :default_value: "Veranstaltungsserie"
       :copyright_attributes:
         :type: mixin
         :name: copyright_attributes

@@ -76,7 +76,7 @@ CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
 -- Name: EXTENSION postgis; Type: COMMENT; Schema: -; Owner: -
 --
 
-COMMENT ON EXTENSION postgis IS 'PostGIS geometry, geography, and raster spatial types and functions';
+COMMENT ON EXTENSION postgis IS 'PostGIS geometry and geography spatial types and functions';
 
 
 --
@@ -91,6 +91,15 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
 --
 
 COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
+
+
+--
+-- Name: compute_thing_schema_types(jsonb, character varying); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.compute_thing_schema_types(schema_types jsonb, template_name character varying DEFAULT NULL::character varying) RETURNS character varying[]
+    LANGUAGE plpgsql
+    AS $$ DECLARE agg_schema_types varchar []; BEGIN WITH RECURSIVE schema_ancestors AS ( SELECT t.ancestors, t.idx FROM jsonb_array_elements(schema_types) WITH ordinality AS t(ancestors, idx) WHERE t.ancestors IS NOT NULL UNION SELECT t.ancestors, t.idx FROM schema_ancestors, jsonb_array_elements(schema_ancestors.ancestors) WITH ordinality AS t(ancestors, idx) WHERE jsonb_typeof(schema_ancestors.ancestors) = 'array' ) SELECT array_agg( (schema_ancestors.ancestors->>0)::varchar ORDER BY schema_ancestors.idx )::varchar [] INTO agg_schema_types AS ancestors FROM schema_ancestors WHERE jsonb_typeof(schema_ancestors.ancestors) != 'array'; IF template_name IS NOT NULL AND array_length(agg_schema_types, 1) > 0 AND agg_schema_types [array_length(agg_schema_types, 1)] != template_name THEN agg_schema_types := agg_schema_types || ('dcls:' || template_name)::varchar; END IF; RETURN agg_schema_types; END; $$;
 
 
 --
@@ -382,6 +391,15 @@ CREATE FUNCTION public.generate_schedule_occurences_trigger() RETURNS trigger
 
 
 --
+-- Name: generate_thing_schema_types(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_thing_schema_types() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN SELECT compute_thing_schema_types(NEW.schema->'schema_ancestors', NEW.template_name) INTO NEW.computed_schema_types; RETURN NEW; END; $$;
+
+
+--
 -- Name: generate_unique_collection_slug(character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -547,7 +565,7 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.active_storage_attachments (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying NOT NULL,
     record_type character varying NOT NULL,
     record_id uuid NOT NULL,
@@ -561,7 +579,7 @@ CREATE TABLE public.active_storage_attachments (
 --
 
 CREATE TABLE public.active_storage_blobs (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     key character varying NOT NULL,
     filename character varying NOT NULL,
     content_type character varying,
@@ -578,7 +596,7 @@ CREATE TABLE public.active_storage_blobs (
 --
 
 CREATE TABLE public.active_storage_variant_records (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     blob_id uuid NOT NULL,
     variation_digest character varying NOT NULL
 );
@@ -589,7 +607,7 @@ CREATE TABLE public.active_storage_variant_records (
 --
 
 CREATE TABLE public.activities (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     activitiable_type character varying,
     activitiable_id uuid,
     user_id uuid,
@@ -617,7 +635,7 @@ CREATE TABLE public.ar_internal_metadata (
 --
 
 CREATE TABLE public.asset_contents (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     content_data_id uuid,
     content_data_type character varying,
     asset_id uuid,
@@ -634,7 +652,7 @@ CREATE TABLE public.asset_contents (
 --
 
 CREATE TABLE public.assets (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     file character varying,
     type character varying,
     content_type character varying,
@@ -654,7 +672,7 @@ CREATE TABLE public.assets (
 --
 
 CREATE TABLE public.classification_groups (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     classification_id uuid,
     classification_alias_id uuid,
     external_source_id uuid,
@@ -670,7 +688,7 @@ CREATE TABLE public.classification_groups (
 --
 
 CREATE TABLE public.classification_trees (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     external_source_id uuid,
     parent_classification_alias_id uuid,
     classification_alias_id uuid,
@@ -738,7 +756,7 @@ CREATE TABLE public.classification_alias_paths_transitive (
 --
 
 CREATE TABLE public.classification_aliases (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     internal_name character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
@@ -759,7 +777,7 @@ CREATE TABLE public.classification_aliases (
 --
 
 CREATE TABLE public.classification_content_histories (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     content_data_history_id uuid,
     classification_id uuid,
     seen_at timestamp without time zone,
@@ -774,7 +792,7 @@ CREATE TABLE public.classification_content_histories (
 --
 
 CREATE TABLE public.classification_contents (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     content_data_id uuid,
     classification_id uuid,
     seen_at timestamp without time zone,
@@ -789,7 +807,7 @@ CREATE TABLE public.classification_contents (
 --
 
 CREATE TABLE public.classification_polygons (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     admin_level integer,
     classification_alias_id uuid,
     geog public.geography(MultiPolygon,4326),
@@ -804,7 +822,7 @@ CREATE TABLE public.classification_polygons (
 --
 
 CREATE TABLE public.classification_tree_labels (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying,
     external_source_id uuid,
     seen_at timestamp without time zone,
@@ -822,7 +840,7 @@ CREATE TABLE public.classification_tree_labels (
 --
 
 CREATE TABLE public.classification_user_groups (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     classification_id uuid,
     user_group_id uuid,
     seen_at timestamp without time zone,
@@ -836,7 +854,7 @@ CREATE TABLE public.classification_user_groups (
 --
 
 CREATE TABLE public.classifications (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying,
     external_source_id uuid,
     external_key character varying,
@@ -883,7 +901,7 @@ CREATE TABLE public.collection_configurations (
 --
 
 CREATE TABLE public.things (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     metadata jsonb,
     template_name character varying,
     schema jsonb,
@@ -923,7 +941,7 @@ CREATE TABLE public.things (
     last_updated_locale character varying,
     write_history boolean DEFAULT false,
     geom_simple public.geometry(Geometry,4326),
-    schema_types character varying[]
+    computed_schema_types character varying[]
 );
 
 
@@ -959,7 +977,7 @@ CREATE VIEW public.content_computed_properties AS
 --
 
 CREATE TABLE public.content_content_histories (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     content_a_history_id uuid,
     relation_a character varying,
     content_b_history_id uuid,
@@ -986,7 +1004,7 @@ CREATE TABLE public.content_content_links (
 --
 
 CREATE TABLE public.content_contents (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     content_a_id uuid,
     relation_a character varying,
     content_b_id uuid,
@@ -1017,7 +1035,7 @@ UNION ALL
 --
 
 CREATE TABLE public.data_links (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     item_id uuid,
     item_type character varying,
     creator_id uuid,
@@ -1039,7 +1057,7 @@ CREATE TABLE public.data_links (
 --
 
 CREATE TABLE public.watch_list_data_hashes (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     watch_list_id uuid,
     hashable_id uuid,
     hashable_type character varying,
@@ -1154,7 +1172,7 @@ ALTER SEQUENCE public.delayed_jobs_id_seq OWNED BY public.delayed_jobs.id;
 --
 
 CREATE TABLE public.thing_duplicates (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     thing_id uuid,
     thing_duplicate_id uuid,
     method character varying,
@@ -1190,7 +1208,7 @@ UNION
 --
 
 CREATE TABLE public.external_system_syncs (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     syncable_id uuid,
     external_system_id uuid,
     data jsonb,
@@ -1210,7 +1228,7 @@ CREATE TABLE public.external_system_syncs (
 --
 
 CREATE TABLE public.external_systems (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying,
     config jsonb,
     credentials jsonb,
@@ -1263,7 +1281,7 @@ CREATE VIEW public.primary_classification_groups AS
 --
 
 CREATE TABLE public.roles (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying,
     rank integer,
     created_at timestamp without time zone NOT NULL,
@@ -1276,7 +1294,7 @@ CREATE TABLE public.roles (
 --
 
 CREATE TABLE public.schedule_histories (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     thing_history_id uuid,
     relation character varying,
     dtstart timestamp with time zone,
@@ -1312,7 +1330,7 @@ CREATE TABLE public.schedule_occurrences (
 --
 
 CREATE TABLE public.schedules (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     thing_id uuid,
     relation character varying,
     dtstart timestamp with time zone,
@@ -1344,7 +1362,7 @@ CREATE TABLE public.schema_migrations (
 --
 
 CREATE TABLE public.searches (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     content_data_id uuid,
     locale character varying,
     words tsvector,
@@ -1370,7 +1388,7 @@ CREATE TABLE public.searches (
 --
 
 CREATE TABLE public.stored_filters (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying,
     user_id uuid,
     language character varying[],
@@ -1391,7 +1409,7 @@ CREATE TABLE public.stored_filters (
 --
 
 CREATE TABLE public.subscriptions (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid,
     subscribable_id uuid,
     subscribable_type character varying,
@@ -1405,7 +1423,7 @@ CREATE TABLE public.subscriptions (
 --
 
 CREATE TABLE public.thing_histories (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     thing_id uuid NOT NULL,
     metadata jsonb,
     template_name character varying,
@@ -1452,7 +1470,7 @@ CREATE TABLE public.thing_histories (
 --
 
 CREATE TABLE public.thing_history_translations (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     thing_history_id uuid NOT NULL,
     locale character varying NOT NULL,
     content jsonb,
@@ -1469,7 +1487,7 @@ CREATE TABLE public.thing_history_translations (
 --
 
 CREATE TABLE public.thing_translations (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     thing_id uuid NOT NULL,
     locale character varying NOT NULL,
     content jsonb,
@@ -1500,7 +1518,7 @@ CREATE TABLE public.timeseries (
 --
 
 CREATE TABLE public.user_group_users (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_group_id uuid,
     user_id uuid,
     seen_at timestamp without time zone,
@@ -1514,7 +1532,7 @@ CREATE TABLE public.user_group_users (
 --
 
 CREATE TABLE public.user_groups (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
@@ -1527,7 +1545,7 @@ CREATE TABLE public.user_groups (
 --
 
 CREATE TABLE public.users (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     given_name character varying DEFAULT ''::character varying NOT NULL,
     email character varying DEFAULT ''::character varying NOT NULL,
     encrypted_password character varying DEFAULT ''::character varying NOT NULL,
@@ -1568,7 +1586,7 @@ CREATE TABLE public.users (
 --
 
 CREATE TABLE public.watch_list_shares (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     shareable_id uuid,
     watch_list_id uuid,
     seen_at timestamp without time zone,
@@ -1583,7 +1601,7 @@ CREATE TABLE public.watch_list_shares (
 --
 
 CREATE TABLE public.watch_lists (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying,
     user_id uuid,
     seen_at timestamp without time zone,
@@ -2266,10 +2284,10 @@ CREATE UNIQUE INDEX index_active_storage_variant_records_uniqueness ON public.ac
 
 
 --
--- Name: index_activities_on_activitiable; Type: INDEX; Schema: public; Owner: -
+-- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_activities_on_activitiable ON public.activities USING btree (activitiable_type, activitiable_id);
+CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
 
 
 --
@@ -3057,6 +3075,13 @@ CREATE INDEX thing_translations_name_idx ON public.thing_translations USING gin 
 
 
 --
+-- Name: things_computed_schema_types_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX things_computed_schema_types_idx ON public.things USING gin (computed_schema_types);
+
+
+--
 -- Name: things_template_name_template_uq_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3314,6 +3339,13 @@ CREATE TRIGGER insert_classification_tree_order_a_trigger AFTER INSERT ON public
 
 
 --
+-- Name: things insert_thing_schema_types; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER insert_thing_schema_types BEFORE INSERT ON public.things FOR EACH ROW EXECUTE FUNCTION public.generate_thing_schema_types();
+
+
+--
 -- Name: searches tsvectorsearchinsert; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -3492,6 +3524,13 @@ CREATE TRIGGER update_schedule_occurences_trigger AFTER UPDATE OF thing_id, dura
 --
 
 CREATE TRIGGER update_template_definitions_trigger AFTER UPDATE OF schema, boost, content_type ON public.things FOR EACH ROW WHEN (((new.template = true) AND ((old.schema IS DISTINCT FROM new.schema) OR (old.boost IS DISTINCT FROM new.boost) OR ((old.content_type)::text IS DISTINCT FROM (new.content_type)::text)))) EXECUTE FUNCTION public.update_template_definitions_trigger();
+
+
+--
+-- Name: things update_thing_schema_types; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_thing_schema_types BEFORE UPDATE OF template_name, schema ON public.things FOR EACH ROW WHEN ((((old.template_name)::text IS DISTINCT FROM (new.template_name)::text) OR (old.schema IS DISTINCT FROM new.schema))) EXECUTE FUNCTION public.generate_thing_schema_types();
 
 
 --

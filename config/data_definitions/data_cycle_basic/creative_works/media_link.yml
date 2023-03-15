@@ -2,16 +2,11 @@
 - :data:
     :name: MediaLink
     :type: object
-    :schema_type: CreativeWork
     :schema_ancestors:
       - CreativeWork
       - MediaObject
     :content_type: embedded
     :boost: 1.0
-    :api:
-      :type:
-        - CreativeWork
-        - MediaObject
     :properties:
       :id:
         :label: id
@@ -27,7 +22,7 @@
         :validations:
           :format: url
       :embed_url:
-        :label: 'Url zur Verwendung in <embed>-Tags'
+        :label: "Url zur Verwendung in <embed>-Tags"
         :type: string
         :storage_location: translated_value
         :validations:

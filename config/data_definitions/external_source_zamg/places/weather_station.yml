@@ -2,16 +2,14 @@
 - :data:
     :name: Wetterstation
     :type: object
-    :schema_type: Place
     :content_type: entity
     :boost: 100.0
     :features:
       :translatable:
         :allowed: true
-    :api:
-      :type:
-        - Place
-        - 'dcls:WeatherStation'
+    :schema_ancestors:
+      - Place
+      - "dcls:WeatherStation"
     :properties:
       :id:
         :label: id
@@ -42,7 +40,7 @@
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Wetterstation'
+        :default_value: "Wetterstation"
       :content_classifications:
         :type: mixin
         :name: content_classifications
@@ -59,13 +57,11 @@
 - :data:
     :name: Wettervorhersage
     :type: object
-    :schema_type: Place
     :content_type: embedded
     :boost: 1.0
-    :api:
-      :type:
-        - Place
-        - 'dcls:WeatherForecast'
+    :schema_ancestors:
+      - Place
+      - "dcls:WeatherForecast"
     :properties:
       :id:
         :label: id
@@ -80,7 +76,7 @@
           :edit:
             :options:
               :class: daterange
-              :placeholder: 'tt.mm.jjjj'
+              :placeholder: "tt.mm.jjjj"
       :temperature_forecasts:
         :label: Wetterbericht
         :type: embedded
@@ -93,13 +89,11 @@
 - :data:
     :name: Wetterbericht
     :type: object
-    :schema_type: Place
     :content_type: embedded
     :boost: 1.0
-    :api:
-      :type:
-        - Place
-        - 'dcls:TemperatureForecasts'
+    :schema_ancestors:
+      - Place
+      - "dcls:TemperatureForecasts"
     :properties:
       :id:
         :label: id
@@ -146,13 +140,11 @@
 - :data:
     :name: Prognose
     :type: object
-    :schema_type: Place
     :content_type: embedded
     :boost: 1.0
-    :api:
-      :type:
-        - Place
-        - 'dcls:WeatherPrediction'
+    :schema_ancestors:
+      - Place
+      - "dcls:WeatherPrediction"
     :properties:
       :id:
         :label: id
@@ -180,13 +172,11 @@
 - :data:
     :name: Tagesprognose
     :type: object
-    :schema_type: Place
     :content_type: embedded
     :boost: 1.0
-    :api:
-      :type:
-        - Place
-        - 'dcls:DailyWeatherPrediction'
+    :schema_ancestors:
+      - Place
+      - "dcls:DailyWeatherPrediction"
     :properties:
       :id:
         :label: id

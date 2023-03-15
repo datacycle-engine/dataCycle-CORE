@@ -2,15 +2,13 @@
 - :data:
     :name: Gastronomischer Betrieb
     :type: object
-    :schema_type: Place
     :content_type: entity
     :boost: 10.0
-    :api:
-      :type:
-        - Place
-        - Organization
-        - LocalBusiness
-        - FoodEstablishment
+    :schema_ancestors:
+      - Place
+      - Organization
+      - LocalBusiness
+      - FoodEstablishment
     :features:
       :geocode:
         :allowed: true
@@ -134,7 +132,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Gastronomischer Betrieb'
+        :default_value: "Gastronomischer Betrieb"
       :feratel:
         :type: mixin
         :name: feratel_categories

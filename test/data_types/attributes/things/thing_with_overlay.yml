@@ -3,7 +3,8 @@
     :name: Thing-With-Overlay
     :type: object
     :content_type: entity
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :properties:
       :id:
         :label: id
@@ -22,7 +23,8 @@
     :name: Thing-Overlay
     :type: object
     :content_type: embedded
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :properties:
       :id:
         :label: id

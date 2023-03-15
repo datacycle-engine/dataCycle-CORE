@@ -2,7 +2,8 @@
 - :data:
     :name: Action
     :type: object
-    :schema_type: Action
+    :schema_ancestors:
+      - Action
     :boost: 1.0
     :content_type: embedded
     :properties:
@@ -29,7 +30,7 @@
         :type: classification
         :tree_label: ActionTypes
         :api:
-          :name: '@type'
+          :name: "@type"
           :partial: string
         :ui:
           :edit:

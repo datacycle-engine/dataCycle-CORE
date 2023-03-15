@@ -2,7 +2,8 @@
 - :data:
     :name: Person
     :type: object
-    :schema_type: Person
+    :schema_ancestors:
+      - Person
     :content_type: entity
     :boost: 1.0
     :features:
@@ -43,14 +44,14 @@
         :type: mixin
         :name: content_classifications
       :honorific_prefix:
-        :label: 'Anrede / Titel'
+        :label: "Anrede / Titel"
         :type: string
         :storage_location: translated_value
         :normalize:
           :id: degree
           :type: degree
       :honorific_suffix:
-        :label: 'Titel nachgestellt'
+        :label: "Titel nachgestellt"
         :type: string
         :storage_location: translated_value
       :postal_address:
@@ -132,7 +133,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Person'
+        :default_value: "Person"
       :copyright_attributes:
         :type: mixin
         :name: copyright_attributes

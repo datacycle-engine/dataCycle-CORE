@@ -2,12 +2,11 @@
 - :data:
     :name: LocalBusiness
     :type: object
-    :schema_type: Place
     :content_type: entity
-    :api:
-      :type:
-        - Place
-        - Organization
+    :schema_ancestors:
+      - - Place
+        - LocalBusiness
+      - - Organization
         - LocalBusiness
     :boost: 10.0
     :features:
@@ -111,7 +110,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'LocalBusiness'
+        :default_value: "LocalBusiness"
       :feratel:
         :type: mixin
         :name: feratel_categories

@@ -2,7 +2,6 @@
 - :data:
     :name: Piste
     :type: object
-    :schema_type: Place
     :content_type: entity
     :boost: 10.0
     :features:
@@ -21,11 +20,10 @@
           :json: true
           :gpx: true
           :indesign: true
-    :api:
-      :type:
-        - Place
-        - TouristAttraction
-        - 'odta:SkiSlope'
+    :schema_ancestors:
+      - Place
+      - TouristAttraction
+      - "odta:SkiSlope"
     :properties:
       :id:
         :label: id
@@ -62,7 +60,7 @@
           :v4:
             :name: odta:distance
             :format:
-              :append: ' m'
+              :append: " m"
       :geo_shape:
         :type: mixin
         :name: geo_shape
@@ -83,53 +81,51 @@
         :type: linked
         :inverse_of: slope_details
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Skigebiet
-        :inverse_of: slope_details
         :api:
           :name: containedInPlace
       :ski_slope_difficulty:
         :label: Schwierigkeitsgrad der Piste
         :type: classification
-        :tree_label: 'odta:SkiSlopeDifficulty'
+        :tree_label: "odta:SkiSlopeDifficulty"
         :ui:
           :show:
             :content_area: header
         :api:
-          :name: 'odta:skiSlopeDifficulty'
+          :name: "odta:skiSlopeDifficulty"
           :partial: string
       :ski_slope_type:
         :label: Pistentyp
         :type: classification
-        :tree_label: 'odta:SkiSlopeType'
+        :tree_label: "odta:SkiSlopeType"
         :ui:
           :show:
             :content_area: header
         :api:
-          :name: 'odta:skiSlopeType'
+          :name: "odta:skiSlopeType"
           :partial: string
       :ski_slope_condition:
         :label: Pistenqualität
         :type: classification
-        :tree_label: 'odta:SkiSlopeCondition'
+        :tree_label: "odta:SkiSlopeCondition"
         :ui:
           :show:
             :content_area: header
         :api:
-          :name: 'odta:skiSlopeCondition'
+          :name: "odta:skiSlopeCondition"
           :partial: string
       :ski_lift_status:
         :label: Liftstatus
         :type: classification
-        :tree_label: 'odta:OpeningStatus'
+        :tree_label: "odta:OpeningStatus"
         :ui:
           :show:
             :content_area: header
         :api:
-          :name: 'odta:skiSlopeStatus'
+          :name: "odta:skiSlopeStatus"
           :partial: string
       :linked_data:
         :type: mixin
@@ -141,7 +137,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Piste'
+        :default_value: "Piste"
       :feratel_cps:
         :type: mixin
         :name: feratel_cps

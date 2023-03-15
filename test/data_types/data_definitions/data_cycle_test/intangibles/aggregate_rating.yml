@@ -1,13 +1,11 @@
 - :data:
     :name: Durchschnittswertung
     :type: object
-    :schema_type: Intangible
     :content_type: embedded
-    :api:
-      :type:
-        - Intangible
-        - Rating
-        - AggregateRating
+    :schema_ancestors:
+      - Intangible
+      - Rating
+      - AggregateRating
     :properties:
       :id:
         :label: id

@@ -2,16 +2,13 @@
 - :data:
     :name: Wetterprognose
     :type: object
-    :schema_type: Intangible
     :content_type: entity
     :boost: 1.0
     :features:
       :translatable:
         :allowed: true
-    :api:
-      :type:
-        - Intangible
-        - 'dcls:Wetterprognose'
+    :schema_ancestors:
+      - Intangible
     :properties:
       :id:
         :label: id
@@ -32,7 +29,7 @@
         :label: Wetterstation
         :type: linked
         :inverse_of: forecasts
-        :template_name: 'Wetterstation Feratel'
+        :template_name: "Wetterstation Feratel"
         link_direction: inverse
       :forecast_date:
         :label: Wetterprognose für
@@ -44,7 +41,7 @@
           :edit:
             :options:
               :class: daterange
-              :placeholder: 'tt.mm.jjjj'
+              :placeholder: "tt.mm.jjjj"
       :elevation:
         :label: Meereshöhe (m)
         :type: number
@@ -87,7 +84,7 @@
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Wetterprognose'
+        :default_value: "Wetterprognose"
       :content_classifications:
         :type: mixin
         :name: content_classifications
@@ -104,12 +101,10 @@
 - :data:
     :name: Wetterdetailprognose
     :type: object
-    :schema_type: Intangible
+    :schema_ancestors:
+      - Intangible
     :content_type: embedded
     :boost: 1.0
-    :api:
-      :type:
-        - 'dcls:Wetterdetailprognose'
     :properties:
       :id:
         :label: id

@@ -3,7 +3,8 @@
     :name: All Simple Property Types
     :type: object
     :content_type: entity
-    :schema_type: Thing_WithAllSimplePropertyTypes
+    :schema_ancestors:
+      - Thing_WithAllSimplePropertyTypes
     :properties:
       :id:
         :label: id
