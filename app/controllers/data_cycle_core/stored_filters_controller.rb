@@ -26,13 +26,15 @@ module DataCycleCore
 
       @stored_searches = DataCycleCore::StoredFilter.accessible_by(current_ability).where.not(name: nil).order(:name)
       @search_param = index_params[:q]
+
       if @search_param.present?
-        @stored_searches = @stored_searches.joins(:collection_configuration).where(
+        @stored_searches = @stored_searches.left_outer_joins(:collection_configuration).where(
           DataCycleCore::StoredFilter.arel_table[:name].matches("%#{@search_param}%")
             .or(DataCycleCore::StoredFilter.arel_table[:id].eq(@search_param.to_s))
             .or(DataCycleCore::CollectionConfiguration.arel_table[:slug].matches("%#{@search_param}%"))
         )
       end
+
       @page = (index_params[:page] || 1).to_i
 
       if index_params[:load_all].present?
