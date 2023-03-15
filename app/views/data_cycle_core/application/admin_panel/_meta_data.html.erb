@@ -1,2 +1,2 @@
 <% meta_data = content&.asset&.metadata&.to_utf8 || {} %>
-<code data-json="<%= meta_data.to_json %>"><%= JSON.pretty_generate(meta_data) %></code>
+<code class="formatted-json" data-json="<%= meta_data.to_json %>"></code>
