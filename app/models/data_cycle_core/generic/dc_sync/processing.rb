@@ -202,13 +202,14 @@ module DataCycleCore
               classification_data: aliases_data['primary_classification'],
               alias_data: aliases_data.except('primary_classification'),
               tree_label_data: tree_label_data,
-              parent_id: parent_id
+              parent_id: parent_id,
+              ancestor_ids: classification_lookup.values_at(*parent_aliases.compact.map { |c| c['id'] }).compact
             )
           end
           classification_lookup[aliases_path.first.dig('id')]
         end
 
-        def self.import_classification(external_source:, classification_data:, alias_data:, tree_label_data:, parent_id:)
+        def self.import_classification(external_source:, classification_data:, alias_data:, tree_label_data:, parent_id:, ancestor_ids: [])
           parent_classification_alias = nil
           parent_classification_alias = DataCycleCore::Classification.find(parent_id).primary_classification_alias if parent_id.present?
 
@@ -224,6 +225,7 @@ module DataCycleCore
             if tree_label.present?
               classification = DataCycleCore::Classification
                 .for_tree(tree_label.name)
+                .where.not(id: ancestor_ids)
                 .find_by(name: classification_data['name'])
             end
             if classification.blank?
