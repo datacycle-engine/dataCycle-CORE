@@ -15,7 +15,8 @@ module DataCycleCore
         end
 
         def self.download_single(download_object:, data_id:, data_name:, modified: nil, delete: nil, raw_data:, _iterator: nil, options:)
-          init_mongo_db(download_object) do
+          database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+          init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
               locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
               begin
@@ -65,7 +66,8 @@ module DataCycleCore
               success &&= download_sequential(download_object: download_object, data_id: data_id, data_name: data_name, modified: modified, delete: delete, iterator: iterator, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
-            init_mongo_db(download_object) do
+            database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+            init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
                 locale = options[:locales].first
                 logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
@@ -82,7 +84,11 @@ module DataCycleCore
                     external_keys =
                       if iterator.present? && options[:mode] != 'full'
                         external_keys = options[:external_keys] || []
-                        iterator.call(mongo_item, locale, external_keys).find_all.map { |i| [i.external_id, i.dump.dig(locale, '_RangeCode'), i.dump.dig(locale, '_RangeId')] }.select { |i| i[1].present? && i[2].present? }
+                        iterator
+                          .call(mongo_item, locale, external_keys)
+                          .find_all
+                          .map { |i| [i.external_id, i.dump.dig(locale, '_RangeCode'), i.dump.dig(locale, '_RangeId')] }
+                          .select { |i| i[1].present? && i[2].present? }
                       else
                         []
                       end
@@ -105,32 +111,37 @@ module DataCycleCore
                       next if item_data.nil?
 
                       ParallelHelper.run_in_parallel(futures, pool) do
-                        item_id = data_id.call(item_data)
-                        item_name = data_name.call(item_data)
+                        init_mongo_db(database_name) do
+                          download_object.source_object.with(download_object.source_type) do |mongo_item_parallel|
+                            item_id = data_id.call(item_data)
+                            item_name = data_name.call(item_data)
 
-                        item = mongo_item.find_or_initialize_by('external_id': item_id)
-                        item.dump ||= {}
-                        local_item = item.dump[locale]
+                            item = mongo_item_parallel.find_or_initialize_by('external_id': item_id)
 
-                        if options.dig(:download, :restorable).present? && local_item.present?
-                          local_item.delete('deleted_at')
-                          local_item.delete('delete_reason')
-                          local_item.delete('last_seen_before_delete')
-                          item.dump[locale] = local_item
+                            item.dump ||= {}
+                            local_item = item.dump[locale]
+
+                            if options.dig(:download, :restorable).present? && local_item.present?
+                              local_item.delete('deleted_at')
+                              local_item.delete('delete_reason')
+                              local_item.delete('last_seen_before_delete')
+                              item.dump[locale] = local_item
+                            end
+
+                            if delete.present? && delete.call(item_data, locale)
+                              item_data[:deleted_at] = local_item.try(:[], 'deleted_at') || Time.zone.now
+                              item_data[:delete_reason] = local_item.try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
+                            end
+
+                            item_data[:updated_at] = modified.call(item_data) if modified.present?
+                            item.data_has_changed = false if modified.present? && download_object.external_source.last_successful_download && modified.call(item_data) < download_object.external_source.last_successful_download
+                            item.data_has_changed = true if options.dig(:download, :skip_diff) == true || item.dump.dig(locale, 'mark_for_update').present?
+                            item.data_has_changed = diff?(bson_to_hash(item.dump[locale]), item_data, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
+                            item.dump[locale] = item_data
+                            item.save!
+                            logging.item_processed(item_name, item_id, item_count, max_string)
+                          end
                         end
-
-                        if delete.present? && delete.call(item_data, locale)
-                          item_data[:deleted_at] = local_item.try(:[], 'deleted_at') || Time.zone.now
-                          item_data[:delete_reason] = local_item.try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
-                        end
-
-                        item_data[:updated_at] = modified.call(item_data) if modified.present?
-                        item.data_has_changed = false if modified.present? && download_object.external_source.last_successful_download && modified.call(item_data) < download_object.external_source.last_successful_download
-                        item.data_has_changed = true if options.dig(:download, :skip_diff) == true || item.dump.dig(locale, 'mark_for_update').present?
-                        item.data_has_changed = diff?(bson_to_hash(item.dump[locale]), item_data, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
-                        item.dump[locale] = item_data
-                        item.save!
-                        logging.item_processed(item_name, item_id, item_count, max_string)
                       rescue StandardError => e
                         ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
                           exception: e,
@@ -149,6 +160,8 @@ module DataCycleCore
 
                       logging.info("Downloaded #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
                     end
+
+                    futures.each(&:wait!)
                   end
                 rescue StandardError => e
                   ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
@@ -171,7 +184,8 @@ module DataCycleCore
           success = true
           delta = 100
 
-          init_mongo_db(download_object) do
+          database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+          init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
               locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
 
@@ -257,8 +271,9 @@ module DataCycleCore
         def self.download_all(download_object:, data_id:, data_name:, modified: nil, delete: nil, options:, **_unused)
           success = true
           delta = 100
+          database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
 
-          init_mongo_db(download_object) do
+          init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
               locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
 
@@ -347,7 +362,8 @@ module DataCycleCore
         end
 
         def self.dump_test_data(download_object:, data_id:, data_name:, raw_data:)
-          init_mongo_db(download_object) do
+          database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+          init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
               download_object.source_object.with(download_object.source_type) do |mongo_item|
                 item_id = data_id.call(raw_data.first[1])
@@ -371,7 +387,8 @@ module DataCycleCore
         end
 
         def self.dump_raw_data(download_object:, data_id:, data_name:, raw_data:, options:)
-          init_mongo_db(download_object) do
+          database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+          init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
               download_object.source_object.with(download_object.source_type) do |mongo_item|
                 locale = options.dig(:download, :locales)&.first || :de
@@ -405,7 +422,8 @@ module DataCycleCore
               success &&= mark_deleted(download_object: download_object, data_id: data_id, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
-            init_mongo_db(download_object) do
+            database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+            init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
                 locale = options[:locales].first
                 logging.preparing_phase("Mark deleted: #{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
@@ -491,7 +509,8 @@ module DataCycleCore
               success &&= mark_deleted_from_data(download_object: download_object, iterator: iterator, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
-            init_mongo_db(download_object) do
+            database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+            init_mongo_db(database_name) do
               init_logging(download_object) do |logging|
                 locale = options[:locales].first
                 logging.preparing_phase("Mark deleted: #{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
@@ -566,7 +585,8 @@ module DataCycleCore
           locales = (options[:locales] || I18n.available_locales).map(&:to_s)
           deleted_from = download_object.external_source.last_successful_download || Time.zone.local(2010)
 
-          init_mongo_db(download_object) do
+          database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+          init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
               logging.preparing_phase("Mark Updated: #{download_object.external_source.name} #{download_object.source_type.collection_name} #{locales}")
               item_count = 0
@@ -644,8 +664,8 @@ module DataCycleCore
           logging.close if logging.respond_to?(:close)
         end
 
-        def self.init_mongo_db(download_object)
-          Mongoid.override_database("#{download_object.source_type.database_name}_#{download_object.external_source.id}")
+        def self.init_mongo_db(database_name)
+          Mongoid.override_database(database_name)
           yield
         ensure
           Mongoid.override_database(nil)
