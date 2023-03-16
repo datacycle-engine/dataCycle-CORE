@@ -578,11 +578,17 @@ module DataCycleCore
         end
 
         def create_request_xml(range_code: 'RG', range_ids: @primary_range_id)
+          request_hash = {
+            'Originator' => @pos_code,
+            'Company' => @company_code
+          }
+          request_hash['DBCode'] = @db_code if @db_code.present?
+
           Nokogiri::XML::Builder.new { |xml|
             xml.FeratelDsiRQ('xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
                              'xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema',
                              'xmlns' => 'http://interface.deskline.net/DSI/XSD') do
-              xml.Request('Originator' => @pos_code, 'Company' => @company_code) do
+              xml.Request(request_hash) do
                 xml.Range('Code' => range_code) do
                   Array(range_ids).each do |range_id|
                     xml.Item('Id' => range_id)

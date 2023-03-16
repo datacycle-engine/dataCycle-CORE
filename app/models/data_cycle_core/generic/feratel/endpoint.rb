@@ -23,6 +23,7 @@ module DataCycleCore
           @params = @options[:params] || {}
           @endpoint_url = options[:endpoint_url] || 'http://interface.deskline.net'
           @usage = @options[:usage] if @options[:usage].present?
+          @db_code = @options[:db_code] if @options[:db_code].present?
         end
 
         def faraday
