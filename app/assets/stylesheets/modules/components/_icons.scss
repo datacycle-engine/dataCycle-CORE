@@ -138,6 +138,7 @@
 
     &.content_location,
     &.ortlichkeit,
+    &.pin,
     &.poi {
       &::before {
         content: '\f041';
