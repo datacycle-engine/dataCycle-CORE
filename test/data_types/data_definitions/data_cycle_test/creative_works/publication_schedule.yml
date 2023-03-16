@@ -2,7 +2,8 @@
 - :data:
     :name: Publikations-Plan
     :type: object
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :content_type: embedded
     :boost: 1.0
     :properties:

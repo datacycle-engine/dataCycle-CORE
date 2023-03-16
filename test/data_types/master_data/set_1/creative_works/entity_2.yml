@@ -3,7 +3,8 @@
     :name: Entity-Creative-Work-2
     :type: object
     :content_type: entity
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :boost: 100.0
     :properties:
       :id:

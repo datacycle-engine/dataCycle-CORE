@@ -2,7 +2,8 @@
 - :data:
     :name: Container
     :type: object
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :content_type: container
     :boost: 10000.0
     :features:
@@ -75,7 +76,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Container'
+        :default_value: "Container"
       :meta_data:
         :type: mixin
         :name: meta_data

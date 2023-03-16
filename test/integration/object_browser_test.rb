@@ -28,7 +28,7 @@ module DataCycleCore
         },
         page: 1,
         per: 25,
-        type: @biografy.schema.dig('schema_type'),
+        type: @biografy.schema_type,
         search: @person.family_name
       }, headers: {
         referer: thing_path(@biografy)
@@ -53,7 +53,7 @@ module DataCycleCore
         options: {
           readonly: false
         },
-        type: @person.schema.dig('schema_type')
+        type: @person.schema_type
       }, headers: {
         referer: edit_thing_path(@biografy)
       }
@@ -80,7 +80,7 @@ module DataCycleCore
         options: {
           readonly: false
         },
-        type: @person.schema.dig('schema_type')
+        type: @person.schema_type
       }, headers: {
         referer: edit_thing_path(@biografy)
       }
@@ -99,7 +99,7 @@ module DataCycleCore
         options: {
           readonly: false
         },
-        type: @person.schema.dig('schema_type')
+        type: @person.schema_type
       }, headers: {
         referer: edit_thing_path(@biografy)
       }

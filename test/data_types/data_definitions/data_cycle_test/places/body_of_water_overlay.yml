@@ -2,7 +2,8 @@
 - :data:
     :name: BodyOfWaterOverlay
     :type: object
-    :schema_type: Place
+    :schema_ancestors:
+      - Place
     :content_type: embedded
     :properties:
       :id:

@@ -2,7 +2,6 @@
 - :data:
     :name: Event
     :type: object
-    :schema_type: Event
     :schema_ancestors:
       - Event
     :boost: 100.0

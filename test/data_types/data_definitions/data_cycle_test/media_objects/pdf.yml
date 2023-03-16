@@ -2,7 +2,6 @@
 - :data:
     :name: PDF
     :type: object
-    :schema_type: CreativeWork
     :content_type: entity
     :boost: 10.0
     :features:
@@ -19,10 +18,9 @@
           :json: true
           :xml: true
           :indesign: true
-    :api:
-      :type:
-        - CreativeWork
-        - MediaObject
+    :schema_ancestors:
+      - CreativeWork
+      - MediaObject
     :properties:
       :id:
         :label: id
@@ -258,7 +256,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'PDF'
+        :default_value: "PDF"
       :copyright_attributes:
         :type: mixin
         :name: copyright_attributes

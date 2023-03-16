@@ -1,13 +1,11 @@
 - :data:
     :name: Zertifizierung
     :type: object
-    :schema_type: Intangible
     :content_type: entity
     :boost: 100.0
-    :api:
-      :type:
-        - Intangible
-        - 'dc:certification'
+    :schema_ancestors:
+      - Intangible
+      - "dc:certification"
     :features:
       :translatable:
         :allowed: true

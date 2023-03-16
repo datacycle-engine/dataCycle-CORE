@@ -146,7 +146,7 @@ module DataCycleCore
                       'closes' => '14:00'
                     }, {
                       '@id' => @content.opening_hours_description.first.id,
-                      '@type' => ['OpeningHoursSpecification', 'dcls:Öffnungszeit - Beschreibung'],
+                      '@type' => ['Intangible', 'StructuredValue', 'OpeningHoursSpecification', 'dcls:Öffnungszeit - Beschreibung'],
                       'validFrom' => '2019-10-10',
                       'description' => 'Description - Test',
                       'dc:multilingual' => false,

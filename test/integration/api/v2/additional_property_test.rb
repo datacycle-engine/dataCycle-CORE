@@ -24,7 +24,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
 
           assert_equal('http://schema.org', json_data['@context'])
-          assert_equal(@content.schema['schema_type'], json_data['@type'])
+          assert_equal(@content.schema_type, json_data['@type'])
           assert_equal(@content.template_name, json_data['contentType'])
           assert_equal("http://www.example.com/api/v2/things/#{@content.id}", json_data['@id'])
           assert_equal(@content.id, json_data['identifier'])
@@ -45,7 +45,7 @@ module DataCycleCore
           embedded_data = @content.embedded_data.first
           json_ed = json_data['embeddedData'].first
           assert_equal('http://schema.org', json_ed['@context'])
-          assert_equal(embedded_data.schema['schema_type'], json_ed['@type'])
+          assert_equal(embedded_data.schema_type, json_ed['@type'])
           assert_equal(embedded_data.template_name, json_ed['contentType'])
           assert_equal(embedded_data.name, json_ed['name'])
           assert_equal(embedded_data.add1, json_ed['add1'])

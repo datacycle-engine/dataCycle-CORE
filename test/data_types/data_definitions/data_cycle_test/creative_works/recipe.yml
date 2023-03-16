@@ -2,14 +2,12 @@
 - :data:
     :name: Rezept
     :type: object
-    :schema_type: CreativeWork
     :content_type: entity
     :boost: 100.0
-    :api:
-      :type:
-        - CreativeWork
-        - HowTo
-        - Recipe
+    :schema_ancestors:
+      - CreativeWork
+      - HowTo
+      - Recipe
     :features:
       :releasable:
         :allowed: true
@@ -144,10 +142,11 @@
 - :data:
     :name: Rezeptkomponente
     :type: object
-    :schema_type: CreativeWork
     :content_type: embedded
-    :api:
-      :type: Recipe
+    :schema_ancestors:
+      - CreativeWork
+      - HowTo
+      - Recipe
     :properties:
       :id:
         :label: id
@@ -181,7 +180,8 @@
 - :data:
     :name: Zutat
     :type: object
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :content_type: embedded
     :properties:
       :id:

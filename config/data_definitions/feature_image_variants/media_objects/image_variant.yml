@@ -2,16 +2,14 @@
 - :data:
     :name: ImageVariant
     :type: object
-    :schema_type: CreativeWork
     :content_type: embedded
     :features:
       :image_editor:
         :allowed: true
-    :api:
-      :type:
-        - CreativeWork
-        - MediaObject
-        - ImageObject
+    :schema_ancestors:
+      - CreativeWork
+      - MediaObject
+      - ImageObject
     :properties:
       :id:
         :label: id

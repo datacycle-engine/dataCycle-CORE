@@ -29,7 +29,6 @@ module DataCycleCore
           # TODO: remove hardcoded metadata
           validity_string = get_validity(metadata&.dig('validity_period'))
           boost = schema.dig('boost') || 1.0
-          schema_type = schema.dig('schema_type')
 
           begin
             DataCycleCore::Search.where(content_data_id: id, locale: language).first_or_initialize.tap do |s|

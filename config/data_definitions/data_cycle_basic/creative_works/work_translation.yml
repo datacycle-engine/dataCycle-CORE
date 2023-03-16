@@ -2,7 +2,8 @@
 - :data:
     :name: Sprachvariante
     :type: object
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :content_type: embedded
     :properties:
       :id:
@@ -46,7 +47,7 @@
         :template_name: Bild
       :potential_actions:
         :type: mixin
-        :name: potential_actions        
+        :name: potential_actions
       :dummy:
         :label: invisible
         :type: string

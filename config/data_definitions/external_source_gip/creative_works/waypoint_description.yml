@@ -2,13 +2,11 @@
 - :data:
     :name: Wegpunkt
     :type: object
-    :schema_type: CreativeWork
     :content_type: embedded
     :boost: 100.0
-    :api:
-      :type:
-        - CreativeWork
-        - Article
+    :schema_ancestors:
+      - CreativeWork
+      - Article
     :properties:
       :id:
         :label: id

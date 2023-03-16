@@ -4,11 +4,11 @@ module DataCycleCore
   module Content
     module Searchable
       def with_content_type(type)
-        where("schema ->> 'content_type' = ?", type)
+        where(content_type: type)
       end
 
       def with_schema_type(type)
-        where("schema ->> 'schema_type' = ?", type)
+        where("things.schema ->> 'schema_type' = :type OR things.computed_schema_types && ARRAY[:type]::VARCHAR[]", type: type)
       end
 
       def without_template_names(*names)

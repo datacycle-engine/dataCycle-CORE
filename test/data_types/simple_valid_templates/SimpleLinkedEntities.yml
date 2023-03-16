@@ -3,7 +3,8 @@
     :name: Simple Linked Entity One
     :type: object
     :content_type: entity
-    :schema_type: Thing_SimpleEntityLinkedOne
+    :schema_ancestors:
+      - Thing_SimpleEntityLinkedOne
     :properties:
       :id:
         :label: id
@@ -21,7 +22,8 @@
     :name: Simple Linked Entity Two
     :type: object
     :content_type: entity
-    :schema_type: Thing_SimpleEntityLinkedTwo
+    :schema_ancestors:
+      - Thing_SimpleEntityLinkedTwo
     :properties:
       :id:
         :label: id

@@ -1,17 +1,11 @@
 - :data:
     :name: ContentScore
     :type: object
-    :schema_type: Intangible
     :schema_ancestors:
       - Intangible
       - StructuredValue
       - PropertyValue
     :content_type: embedded
-    :api:
-      :type:
-        - Intangible
-        - StructuredValue
-        - PropertyValue
     :properties:
       :id:
         :label: id

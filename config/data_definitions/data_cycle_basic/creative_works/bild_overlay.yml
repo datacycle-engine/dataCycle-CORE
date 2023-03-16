@@ -2,7 +2,8 @@
 - :data:
     :name: BildOverlay
     :type: object
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :content_type: embedded
     :properties:
       :id:

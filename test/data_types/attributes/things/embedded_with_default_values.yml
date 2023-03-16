@@ -3,7 +3,8 @@
     :name: Embedded-Entity-With-Default-1
     :type: object
     :content_type: entity
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :boost: 100.0
     :features:
       :translatable:
@@ -37,7 +38,8 @@
     :name: Embedded-With-Default-1
     :type: object
     :content_type: embedded
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :boost: 100.0
     :properties:
       :id:
@@ -56,7 +58,8 @@
     :name: Embedded-Entity-With-Default-2
     :type: object
     :content_type: entity
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :boost: 100.0
     :features:
       :translatable:
@@ -89,7 +92,8 @@
     :name: Embedded-With-Default-2
     :type: object
     :content_type: embedded
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :boost: 100.0
     :properties:
       :id:
@@ -104,12 +108,12 @@
         :type: string
         :storage_location: translated_value
 
-
 - :data:
     :name: Embedded-Entity-With-Start-End-Default-Values
     :type: object
     :content_type: entity
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :boost: 100.0
     :features:
       :translatable:
@@ -145,7 +149,8 @@
     :name: Embedded-With-Start-End-Values
     :type: object
     :content_type: embedded
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :boost: 100.0
     :properties:
       :id:

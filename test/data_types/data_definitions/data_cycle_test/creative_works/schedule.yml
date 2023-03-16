@@ -2,12 +2,9 @@
 - :data:
     :name: Schedule
     :type: object
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - Intangible
     :content_type: embedded
-    :api:
-      :type:
-        - Intangible
-        - Schedule
     :features:
       :translatable:
         :allowed: true
