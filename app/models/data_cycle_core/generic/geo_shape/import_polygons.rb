@@ -16,16 +16,28 @@ module DataCycleCore
           )
         end
 
-        def self.load_root_classifications(mongo_item, locale, options)
-          if options.dig(:import, :tag_root_source_filter).present?
+        def self.load_root_classifications(mongo_item, locale, options, source_filter = nil)
+          if source_filter.present?
+            mongo_item.where(source_filter.with_evaluated_values)
+          elsif options.dig(:import, :tag_root_source_filter).present?
             mongo_item.where(options.dig(:import, :tag_root_source_filter).with_evaluated_values)
           elsif options.dig(:import, :tag_parent_id_path).present?
             mongo_item.where("dump.#{locale}.#{options.dig(:import, :tag_parent_id_path)}": nil)
           end
         end
 
-        def self.load_child_classifications(options, mongo_item, parent_data, locale = 'de')
-          mongo_item.where("dump.#{locale}.#{options.dig(:import, :tag_parent_id_path)}": parent_data.dig(options.dig(:import, :tag_id_path)))
+        def self.load_child_classifications(options, mongo_item, parent_data, locale = 'de', source_filter = nil)
+          if source_filter.present?
+            mongo_item.where(
+              source_filter.with_evaluated_values.merge(
+                "dump.#{locale}.#{options.dig(:import, :tag_parent_id_path)}": parent_data.dig(options.dig(:import, :tag_id_path))
+              )
+            )
+          else
+            mongo_item.where(
+              "dump.#{locale}.#{options.dig(:import, :tag_parent_id_path)}": parent_data.dig(options.dig(:import, :tag_id_path))
+            )
+          end
         end
 
         def self.load_parent_classification_alias(raw_data, external_source_id, options = {})
@@ -41,13 +53,12 @@ module DataCycleCore
         end
 
         def self.extract_data(options, raw_data)
+          geometry = raw_data.dig(options.dig(:import).key?(:tag_geom_path) ? options.dig(:import, :tag_geom_path) : 'geom')
+
           {
             external_key: "GeoShape - #{raw_data.dig(options.dig(:import, :tag_id_path))}",
-            name: raw_data.dig(options.dig(:import, :tag_name_path)),
-            classification_polygons_attributes: [
-              { geom: raw_data.dig('geom') }
-            ]
-          }
+            name: raw_data.dig(options.dig(:import, :tag_name_path))
+          }.merge(geometry.present? ? { classification_polygons_attributes: [{ geom: geometry }] } : { assignable: false })
         end
       end
     end
