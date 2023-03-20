@@ -12,6 +12,7 @@ module DataCycleCore
       @subject ||= first_available_i18n_t("data_link_mailer.#{@current_issuer}.send_subject", @current_issuer, { title: @title, locale: @locale })
 
       mail(
+        template_name: first_existing_partial(@current_issuer),
         to: @receiver.email,
         cc: @user.email,
         from: t('data_link_mailer.from', from: self.class.default[:from], locale: @locale, default: self.class.default[:from]),
