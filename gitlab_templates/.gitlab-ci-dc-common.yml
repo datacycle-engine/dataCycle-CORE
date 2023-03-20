@@ -167,7 +167,7 @@ cache:
 .stop_docker_config:
   stage: .post
   image: git.pixelpoint.biz:5050/gitlab-utilities/docker-deploy-image:stable
-  allow_failure: false
+  allow_failure: true
   variables:
     DOCKER_HOST: "ssh://$DEPLOY_USER@$DEPLOY_TARGET"
     GIT_SUBMODULE_STRATEGY: recursive
@@ -186,7 +186,7 @@ cache:
 .restart_docker_config:
   stage: .post
   image: git.pixelpoint.biz:5050/gitlab-utilities/docker-deploy-image:stable
-  allow_failure: false
+  allow_failure: true
   variables:
     DOCKER_HOST: "ssh://$DEPLOY_USER@$DEPLOY_TARGET"
     GIT_SUBMODULE_STRATEGY: recursive
