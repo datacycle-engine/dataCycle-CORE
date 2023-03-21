@@ -53,7 +53,7 @@ namespace :db do
   end
 
   namespace :configure do
-    desc 'rebuild collected_classification_content_relations according to configuration'
+    desc 'rebuild collected_classification_contents according to configuration'
     task rebuild_ccc_relations: :environment do
       function_to_rebuild = DataCycleCore.transitive_classification_paths ? 'generate_collected_cl_content_relations_transitive' : 'generate_collected_classification_content_relations'
 

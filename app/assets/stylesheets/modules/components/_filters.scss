@@ -110,6 +110,10 @@ $filter-border: #aaa;
         border-radius: $global-radius;
         min-height: 2.5rem;
 
+        .select2.select2-container.select2-container--open .select2-selection {
+          box-shadow: 0 0 0 2px $primary-color inset, 0 0 5px $black inset;
+        }
+
         .select2-selection {
           min-height: 2.5rem;
           background: transparent;
