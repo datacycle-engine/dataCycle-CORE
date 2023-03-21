@@ -573,6 +573,8 @@ de:
         max: "Maximal: %{value}"
     duplicate_candidate:
       manual_button: Manuell zum Zusammenführen auswählen
+      duplicate_methods:
+        data_metric_hamming: Geografische Nähe
     releasable:
       version_and_status: Version & Status
       mailer:
