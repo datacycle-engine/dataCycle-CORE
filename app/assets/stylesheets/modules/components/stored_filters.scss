@@ -331,6 +331,11 @@
       }
 
       .content-title-api {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2.3rem;
+        width: 2.3rem;
         border: 1px solid black;
         line-height: 1.2;
         font-weight: 600;
@@ -339,6 +344,7 @@
       }
 
       .slug {
+        display: inline;
         font-size: 0.9rem;
         color: var(--dark-gray);
         overflow: hidden;

@@ -1208,6 +1208,7 @@ $filter-border: #aaa;
                 display: flex;
                 flex-flow: column;
                 gap: 0.4rem;
+                overflow: hidden;
 
                 &.list-loading {
                   cursor: wait;
@@ -1232,6 +1233,13 @@ $filter-border: #aaa;
                 overflow: hidden;
                 text-overflow: ellipsis;
               }
+            }
+
+            .slug {
+              display: inline;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
             }
 
             .buttons {
@@ -1319,12 +1327,17 @@ $filter-border: #aaa;
                 }
 
                 &.content-title-api {
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
                   border: 1px solid black;
                   color: $black;
                   line-height: 1.2;
                   font-weight: 600;
                   padding: 2px 4px;
                   border-radius: $global-radius;
+                  min-width: 2.2rem;
+                  width: 2.2rem;
                 }
 
                 &.global {
