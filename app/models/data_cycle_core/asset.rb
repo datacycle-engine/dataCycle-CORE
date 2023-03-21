@@ -99,7 +99,12 @@ module DataCycleCore
 
     def file_extension_validation
       return unless self.class.active_storage_activated?
-      return if file.present? && self.class.content_type_white_list.include?(MiniMime.lookup_by_content_type(file.content_type)&.extension)
+      extension = nil
+      if file.present?
+        extension = MiniMime.lookup_by_content_type(file.content_type)&.extension
+        extension = 'bmp' if file.content_type == 'image/bmp'
+      end
+      return if file.present? && self.class.content_type_white_list.include?(extension)
       errors.add :file,
                  path: 'uploader.validation.format_not_supported',
                  substitutions: {
