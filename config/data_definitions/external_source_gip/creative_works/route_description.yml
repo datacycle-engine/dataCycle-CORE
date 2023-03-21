@@ -125,6 +125,10 @@
         :label: Bilder
         :type: linked
         :template_name: Bild
+      :preview_image:
+        :label: Vorschaubild
+        :type: linked
+        :template_name: Bild
       :way_point:
         :label: Wegpunkt
         :type: embedded
