@@ -190,7 +190,7 @@ module DataCycleCore
           .>> t(:merge_array_values, 'additional_information', 'feratel_guest_cards_descriptions')
           .>> t(:add_links, 'feratel_facilities_additional_services', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:ensure_classification_tree, 'feratel_facilities_additional_services', 'Feratel - Merkmale - Services')
-          .>> t(:add_field, 'hours_available', ->(s) { load_schedules(s.dig('Details').merge({ 'external_key' => s.dig('external_key') }), external_source_id) }) # .>> t(:add_field, 'hours_available', ->(s) { load_event_schedules(s.dig('Details')) })
+          .>> t(:add_field, 'hours_available', ->(s) { load_schedules(s.dig('Details').merge({ 'external_key' => s.dig('external_key') }), external_source_id) })
           .>> t(:strip_all)
         end
 
@@ -546,6 +546,7 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
+          .>> t(:transform_schedule) # transforms old EventSchedules to new Format (2023-04): for legacy data
           .>> t(:add_cc, external_source_id)
           .>> t(:add_field, 'content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
           .>> t(:add_field, 'feratel_content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
@@ -553,6 +554,8 @@ module DataCycleCore
           .>> t(:add_field, 'potential_action', ->(s) { parse_links(s.dig('Links', 'Link'), external_source_id) })
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
+          .>> t(:add_legacy_event_schedule, external_source_id) # deprecated as_of(16.3.2020)
+          .>> t(:add_schedules, external_source_id)
           .>> t(:unwrap_description, ['EventHeader'])
           .>> t(:add_field, 'description', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('EventHeader')) if v&.dig('EventHeader').present? })
           .>> t(:remove_description, ['GuestCardClassification'])
@@ -563,8 +566,6 @@ module DataCycleCore
           .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { "Location:#{s.dig('external_key')}" })
           .>> t(:add_field, 'feratel_super_events', ->(s) { s.dig('SerialEvents', 'SerialEvent').is_a?(Hash) ? [s.dig('SerialEvents', 'SerialEvent')] : s.dig('SerialEvents', 'SerialEvent') })
           .>> t(:add_links, 'super_event', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('feratel_super_events')&.map { |e| e&.dig('Id') } })
-          .>> t(:add_field, 'schedule', ->(s) { load_event_schedules(s, external_source_id) }) # deprecated as_of(16.3.2020)
-          .>> t(:add_field, 'event_schedule', ->(s) { load_schedules(s, external_source_id) })
           .>> t(:add_field, 'feratel_event_tags', ->(s) { load_feratel_event_tags([s.dig('Visibility'), (s.dig('IsTopEvent') == 'true' ? 'Top-Event' : nil)]) })
           .>> t(:add_links, 'holiday_themes', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('HolidayThemes', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('DataOwner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('DataOwner')).hexdigest}"] : [] })
@@ -839,20 +840,6 @@ module DataCycleCore
             &.min
         end
 
-        def self.load_day_of_week_id(day)
-          return nil unless ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].include?(day)
-          day_hash = {
-            'Mon' => 'Montag',
-            'Tue' => 'Dienstag',
-            'Wed' => 'Mittwoch',
-            'Thu' => 'Donnerstag',
-            'Fri' => 'Freitag',
-            'Sat' => 'Samstag',
-            'Sun' => 'Sonntag'
-          }
-          DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Wochentage', day_hash[day])
-        end
-
         def self.load_active(value)
           return unless ['true', 'false'].include?(value)
           classification = 'Aktiv' if value == 'true'
@@ -904,79 +891,6 @@ module DataCycleCore
         def self.load_feratel_event_tags(names)
           names.compact.map do |name|
             DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Feratel - Veranstaltungstags', name)
-          end
-        end
-
-        def self.load_event_schedules(data, external_source_id)
-          available_dates = Array.wrap(data.dig('Dates', 'Date')).uniq
-          available_start_times = Array.wrap(data.dig('StartTimes', 'StartTime')).uniq
-          duration = event_duration(data.dig('Duration', 'Type'), data.dig('Duration', 'text'))
-
-          res = []
-          return nil if available_dates.blank?
-
-          available_dates.each do |date|
-            start_date = date['From']
-            end_date = date['To']
-            if available_start_times.present?
-              available_start_times.each do |time_items|
-                start_time = time_items['Time'].to_datetime
-                active_days = time_items.except('Time').select { |_day, val| val == 'true' }.map { |key, _val|
-                  load_day_of_week_id(key)
-                }&.reject(&:blank?)
-                end_time = duration ? (start_time + duration.minutes).strftime('%H:%M') : nil
-
-                time_res = {
-                  event_date: {
-                    start_date: start_date,
-                    end_date: end_date
-                  },
-                  event_time: {
-                    start_time: start_time&.strftime('%H:%M'),
-                    end_time: end_time
-                  },
-                  day_of_week: active_days
-                }
-
-                res << time_res
-              end
-            else
-              res << {
-                event_date: {
-                  start_date: start_date,
-                  end_date: end_date
-                }
-              }
-            end
-          end
-          res
-            .flatten
-            .sort_by { |o| o[:event_date][:start_date] }
-            .map do |item|
-              schedule_key = Digest::SHA1.hexdigest "#{data.dig('external_key')}-#{item.to_json}"
-              item.merge({
-                id: DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: schedule_key)&.id,
-                external_source_id: external_source_id,
-                external_key: schedule_key
-              })
-            end
-        end
-
-        def self.event_duration(type, value)
-          case type
-          when nil
-            nil
-          when 'None'
-            nil
-          when 'Day'
-            nil
-          # value.to_f * 24 * 60
-          when 'Hour'
-            value.to_f * 60
-          when 'Minute'
-            value.to_f
-          else
-            raise "Unknown duration type '#{type}'"
           end
         end
 

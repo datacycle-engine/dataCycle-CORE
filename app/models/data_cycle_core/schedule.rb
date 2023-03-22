@@ -29,6 +29,8 @@ module DataCycleCore
       item_hash[:dtstart] = dtstart if dtstart.present?
       item_hash[:dtend] = dtend if dtstart.present?
       item_hash[:holidays] = holidays unless holidays.nil?
+      item_hash[:external_key] = external_key if external_key.present?
+      item_hash[:external_source_id] = external_source_id if external_source_id.present?
       item_hash
     end
 
@@ -49,6 +51,8 @@ module DataCycleCore
       self.dtend = hash[:dtend]
       self.holidays = hash[:holidays]
       self.relation = hash[:relation] || relation
+      self.external_key = hash[:external_key]
+      self.external_source_id = hash[:external_source_id]
       serialize_schedule_object
       self
     end
