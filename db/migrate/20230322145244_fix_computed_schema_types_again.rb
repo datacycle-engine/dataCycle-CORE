@@ -34,7 +34,10 @@ class FixComputedSchemaTypesAgain < ActiveRecord::Migration[6.1]
         )::varchar [] INTO agg_schema_types
       FROM collected_schema_types;
 
-      RETURN agg_schema_types || ('dcls:' || template_name)::varchar;
+      IF array_length(agg_schema_types, 1) > 0 THEN agg_schema_types := agg_schema_types || ('dcls:' || template_name)::varchar;
+      END IF;
+
+      RETURN agg_schema_types;
 
       END;
 
