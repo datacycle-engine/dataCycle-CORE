@@ -22,15 +22,24 @@ module DataCycleCore
         end
 
         def find_duplicates(content)
-          method = duplicate_method(content)
-          return nil if method.blank?
-          send(method, content)
+          duplicate_methods = duplicate_method(content)
+          return if duplicate_methods.blank?
+
+          duplicates = []
+          duplicate_methods.each do |dm|
+            duplicates.concat(Array.wrap(send(dm, content)))
+          end
+
+          duplicates.sort_by! { |t| -t[:score] }
+          duplicates.uniq! { |t| t[:thing_duplicate_id] }
+
+          duplicates
         end
 
         def duplicate_method(content)
           return unless enabled?
 
-          configuration(content).dig('method') || nil
+          Array.wrap(configuration(content).dig('method'))
         end
 
         # specific implementiations of duplicatemethods
