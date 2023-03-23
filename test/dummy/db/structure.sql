@@ -99,7 +99,7 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 
 CREATE FUNCTION public.compute_thing_schema_types(schema_types jsonb, template_name character varying DEFAULT NULL::character varying) RETURNS character varying[]
     LANGUAGE plpgsql
-    AS $$ DECLARE agg_schema_types varchar []; BEGIN WITH RECURSIVE schema_ancestors AS ( SELECT t.ancestors, t.idx FROM jsonb_array_elements(schema_types) WITH ordinality AS t(ancestors, idx) WHERE t.ancestors IS NOT NULL UNION ALL SELECT t.ancestors, schema_ancestors.idx + t.idx * 100 FROM schema_ancestors, jsonb_array_elements(schema_ancestors.ancestors) WITH ordinality AS t(ancestors, idx) WHERE jsonb_typeof(schema_ancestors.ancestors) = 'array' ), collected_schema_types AS ( SELECT (schema_ancestors.ancestors->>0)::varchar AS ancestors, max(schema_ancestors.idx) AS idx FROM schema_ancestors WHERE jsonb_typeof(schema_ancestors.ancestors) != 'array' GROUP BY schema_ancestors.ancestors ) SELECT array_agg( ancestors ORDER BY collected_schema_types.idx )::varchar [] INTO agg_schema_types FROM collected_schema_types; RETURN agg_schema_types || ('dcls:' || template_name)::varchar; END; $$;
+    AS $$ DECLARE agg_schema_types varchar []; BEGIN WITH RECURSIVE schema_ancestors AS ( SELECT t.ancestors, t.idx FROM jsonb_array_elements(schema_types) WITH ordinality AS t(ancestors, idx) WHERE t.ancestors IS NOT NULL UNION ALL SELECT t.ancestors, schema_ancestors.idx + t.idx * 100 FROM schema_ancestors, jsonb_array_elements(schema_ancestors.ancestors) WITH ordinality AS t(ancestors, idx) WHERE jsonb_typeof(schema_ancestors.ancestors) = 'array' ), collected_schema_types AS ( SELECT (schema_ancestors.ancestors->>0)::varchar AS ancestors, max(schema_ancestors.idx) AS idx FROM schema_ancestors WHERE jsonb_typeof(schema_ancestors.ancestors) != 'array' GROUP BY schema_ancestors.ancestors ) SELECT array_agg( ancestors ORDER BY collected_schema_types.idx )::varchar [] INTO agg_schema_types FROM collected_schema_types; IF array_length(agg_schema_types, 1) > 0 THEN agg_schema_types := agg_schema_types || ('dcls:' || template_name)::varchar; END IF; RETURN agg_schema_types; END; $$;
 
 
 --
@@ -3892,11 +3892,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230306092709'),
 ('20230313072638'),
 ('20230317083224'),
-<<<<<<< HEAD
 ('20230321085100'),
 ('20230322145244');
-=======
-('20230321085100');
->>>>>>> 104b8e011 ([User-Story #30156] refactor user_filters.yml for union filters)
 
 
