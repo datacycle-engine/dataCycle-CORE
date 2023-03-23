@@ -3,7 +3,7 @@
 <div class="dropdown-pane no-bullet bottom" id="generate_reports" data-dropdown>
   <h5><%= t('data_cycle_core.reports.available_reports', locale: active_ui_locale) %></h5>
   <ul class="available-reports no-bullet">
-    <% DataCycleCore::Feature::ReportGenerator.content_reports(content).each.each do |key, report| %>
+    <% DataCycleCore::Feature::ReportGenerator.content_reports(content).each do |key, report| %>
       <li>
         <a href="#" class="report-overlay-link" data-open="report-overlay-<%= key %>"><%= t("feature.report_generator.#{key}", locale: active_ui_locale) %></a>
 
