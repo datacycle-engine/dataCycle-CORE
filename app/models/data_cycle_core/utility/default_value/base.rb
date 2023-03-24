@@ -20,10 +20,9 @@ module DataCycleCore
               data_hash[key] = properties['default_value']
               return
             else
-              method_name = DataCycleCore::ModuleService.load_module(
-                properties.dig('default_value', 'module').classify,
-                'Utility::DefaultValue'
-              ).method(properties.dig('default_value', 'method'))
+              method_name = DataCycleCore::ModuleService
+                .load_module(properties.dig('default_value', 'module').classify, 'Utility::DefaultValue')
+                .method(properties.dig('default_value', 'method'))
             end
 
             property_parameters = Array.wrap(properties&.dig('default_value', 'parameters')).intersection(content.property_names) if properties['default_value'].is_a?(::Hash)
@@ -32,14 +31,14 @@ module DataCycleCore
 
             return if skip_default_value?(key, default_value_hash, content, property_parameters, current_user, false, force)
 
-            data_hash[key] = method_name.try(:call, **{
+            data_hash[key] = method_name.call(
               property_parameters: property_parameters&.index_with { |v| default_value_hash[v] },
               key: key,
               data_hash: default_value_hash,
               content: content,
               property_definition: properties,
               current_user: current_user
-            })
+            )
           end
 
           private
