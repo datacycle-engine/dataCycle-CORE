@@ -32,7 +32,7 @@ class RemoteRenderer {
 		);
 
 		DataCycle.initNewElements(
-			".remote-render",
+			".remote-render:not(.dcjs-remote-render)",
 			this.addRemoteRenderHandler.bind(this),
 		);
 	}
@@ -43,6 +43,7 @@ class RemoteRenderer {
 		this.intersectionObserver.unobserve(element);
 	}
 	addRemoteRenderHandler(element) {
+		element.classList.add("dcjs-remote-render");
 		this.observeElement(element);
 
 		if (element.classList.contains("translatable-attribute"))

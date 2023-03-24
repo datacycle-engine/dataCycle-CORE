@@ -8,6 +8,7 @@ import isEqual from "lodash/isEqual";
 import sortBy from "lodash/sortBy";
 import ObserverHelpers from "../helpers/observer_helpers";
 import CalloutHelpers from "../helpers/callout_helpers";
+import DomElementHelpers from "../helpers/dom_element_helpers";
 
 class ObjectBrowser {
 	constructor(selector) {
@@ -267,7 +268,22 @@ class ObjectBrowser {
 		$(`#new_${this.id}.in-object-browser form`).trigger("reset");
 	}
 	cloneHtml(html) {
-		return $(html).clone();
+		const $clone = $(html).clone();
+
+		$clone.find("[data-reveal]").each((_, e) => {
+			e.classList.remove("dcjs-foundation-reveal");
+			const newId = DomElementHelpers.randomId();
+			const elem = $clone.find(`[data-open="${e.id}"]`).get(0);
+
+			elem.dataset.open = newId;
+			e.id = newId;
+		});
+
+		$clone
+			.find(".dcjs-tooltip")
+			.each((_, e) => e.classList.remove("dcjs-tooltip"));
+
+		return $clone;
 	}
 	async importDataHandler(_event, data) {
 		let newItems = [];
