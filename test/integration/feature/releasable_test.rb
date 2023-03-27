@@ -16,12 +16,10 @@ module DataCycleCore
         })
       end
 
-      setup do
-        sign_in(User.find_by(email: 'tester@datacycle.at'))
-      end
-
       test 'change release status when creating external link' do
         user = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'data_link_user')
+
+        sign_in(User.find_by(email: 'tester@datacycle.at'))
 
         post data_links_path, params: {
           data_link: {
