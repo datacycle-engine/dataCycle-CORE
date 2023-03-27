@@ -1054,6 +1054,14 @@ a.dc-foundation-tooltip {
   }
 }
 
+.list-item,
+.grid-item {
+  .content-link.user.locked {
+    opacity: 0.5;
+
+  }
+}
+
 .grid-item {
   .content-link {
     position: relative;

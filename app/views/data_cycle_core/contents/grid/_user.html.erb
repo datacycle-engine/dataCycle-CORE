@@ -1,4 +1,4 @@
-<div class="inner content-link">
+<div class="inner content-link user <%= 'locked' if item.access_locked? %>">
   <div class="with-dropdown-pane">
     <div class="infoRow">
       <%= render 'data_cycle_core/shared/icon', icon_class: item.try(:icon_class) || item.class.name.demodulize.underscore_blanks %>
