@@ -155,7 +155,7 @@ module DataCycleCore
           content_data = data['@graph'].first
 
           thing = DataCycleCore::Thing.find(content_data.dig('@id'))
-          sd_license = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(thing.classification_aliases.pluck(:name)).pluck(:uri)
+          sd_license = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(thing.classification_aliases.reorder(nil).pluck(:name)).pluck(:uri)
           content_data['sdLicense'] = sd_license.first if sd_license.size.positive?
 
           publisher_data =
