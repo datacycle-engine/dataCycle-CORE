@@ -15,6 +15,7 @@ module DataCycleCore
         template_name: first_existing_partial(@current_issuer),
         to: @receiver.email,
         cc: @user.email,
+        bcc: DataCycleCore.data_link_bcc,
         from: t('data_link_mailer.from', from: self.class.default[:from], locale: @locale, default: self.class.default[:from]),
         subject: @subject
       )
@@ -48,6 +49,7 @@ module DataCycleCore
       mail(
         to: @receiver.email,
         cc: @user.email,
+        bcc: DataCycleCore.data_link_bcc,
         from: t('data_link_mailer.from', from: self.class.default[:from], locale: @locale, default: self.class.default[:from]),
         subject: t('data_link_mailer.update_subject', locale: @locale)
       )

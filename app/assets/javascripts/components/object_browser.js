@@ -280,8 +280,8 @@ class ObjectBrowser {
 		});
 
 		$clone
-			.find(".dcjs-tooltip")
-			.each((_, e) => e.classList.remove("dcjs-tooltip"));
+			.find("[data-dc-tooltip]")
+			.each((_, e) => e.removeAttribute("data-dc-tooltip-id"));
 
 		return $clone;
 	}
