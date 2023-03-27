@@ -15,7 +15,7 @@
           :asset: true
           :json: true
           :xml: true
-    schema_ancestors:
+    :schema_ancestors:
       - CreativeWork
       - MediaObject
     :properties:
