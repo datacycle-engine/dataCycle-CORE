@@ -17,7 +17,8 @@ module DataCycleCore
         receiver_id: User.find_by(email: 'guest@datacycle.at')&.id,
         permissions: 'write'
       })
-      sign_in(User.find_by(email: 'tester@datacycle.at'))
+      @current_user = User.find_by(email: 'tester@datacycle.at')
+      sign_in(@current_user)
     end
 
     test 'create new external link for content' do
@@ -221,6 +222,7 @@ module DataCycleCore
     end
 
     test 'set external link to readonly after finishing' do
+      sign_out(@current_user)
       get data_link_path(@data_link)
       assert_redirected_to edit_thing_path(@content)
       follow_redirect!
