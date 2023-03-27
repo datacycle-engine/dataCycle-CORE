@@ -49,6 +49,7 @@ module DataCycleCore
       @content = DataCycleCore::Thing.find(params[:id])
 
       redirect_back(fallback_location: root_path) && return if @content.nil?
+      redirect_to(thing_path(@content.related_contents.first)) && return if @content.embedded?
 
       I18n.with_locale(@locale = @content.first_available_locale(params[:locale])) do
         if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container')
@@ -170,6 +171,8 @@ module DataCycleCore
       @content ||= DataCycleCore::Thing.find(params[:id])
       @hide_embedded = params[:hide_embedded].present?
 
+      redirect_to(edit_thing_path(@content.related_contents.first)) && return if @content.embedded?
+
       # get show data for split view
       if source_params.present?
         @split_source = DataCycleCore::Thing.find(source_params[:source_id])
@@ -190,6 +193,8 @@ module DataCycleCore
       @content = DataCycleCore::Thing.by_external_key(params[:external_system_id], params[:external_key]).first
 
       raise ActiveRecord::RecordNotFound if @content.nil?
+
+      redirect_to(edit_thing_path(@content.related_contents.first)) && return if @content.embedded?
 
       authorize!(:edit, @content)
 
