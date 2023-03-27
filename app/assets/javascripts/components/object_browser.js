@@ -322,6 +322,7 @@ class ObjectBrowser {
 	}
 	updateChosenHandler(_event, data) {
 		this.chosen = union(this.chosen, data.chosen);
+		this.updateHasItemsClass();
 		this.updateChosenCounter();
 	}
 	async clickSaveHandler(event) {
@@ -507,6 +508,7 @@ class ObjectBrowser {
 		this.chosen = difference(this.chosen, castArray(elemId));
 		this.ids = difference(this.ids, castArray(elemId));
 		this.$element.children(`input:hidden[value="${elemId}"]`).remove();
+		this.updateHasItemsClass();
 		item.remove();
 		if (this.chosen.length === 0) this.renderHiddenField();
 		if (triggerChange) {
@@ -518,7 +520,6 @@ class ObjectBrowser {
 		}
 	}
 	renderHiddenField() {
-		this.objectListElement.classList.remove("has-items");
 		this.$element
 			.find("> .media-thumbs > .object-thumbs")
 			.html(
@@ -567,7 +568,8 @@ class ObjectBrowser {
 			for (const elem of this.objectListElement.querySelectorAll(idSelector))
 				elem.remove();
 		} else this.objectListElement.insertAdjacentHTML("beforeend", data.html);
-		this.overlaySelectedList.insertAdjacentHTML("beforeend", data.html);
+		if (this.overlaySelectedList)
+			this.overlaySelectedList.insertAdjacentHTML("beforeend", data.html);
 
 		this.$element.trigger("dc:update:chosen", { chosen: ids });
 	}
@@ -599,11 +601,16 @@ class ObjectBrowser {
 		}
 		return true;
 	}
+	updateHasItemsClass() {
+		this.objectListElement.classList.toggle(
+			"has-items",
+			this.chosen.length > 0,
+		);
+	}
 	setChosen() {
 		if (this.chosen.length === 0) {
 			this.renderHiddenField();
 		} else {
-			this.objectListElement.classList.add("has-items");
 			this.$element
 				.children(".media-thumbs")
 				.children(".object-thumbs")
@@ -611,6 +618,8 @@ class ObjectBrowser {
 					this.cloneHtml(this.$overlay.find(".chosen-items-container li.item")),
 				);
 		}
+
+		this.updateHasItemsClass();
 
 		this.$element.trigger("dc:objectBrowser:change", {
 			key: this.key,
@@ -636,6 +645,7 @@ class ObjectBrowser {
 			.children(".items")
 			.find(`li.item[data-id=${id}]`)
 			.removeClass("active");
+		this.updateHasItemsClass();
 		this.updateChosenCounter();
 	}
 	updateChosenCounter() {
