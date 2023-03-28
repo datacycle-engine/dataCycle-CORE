@@ -74,7 +74,8 @@ ENV RAILS_ENV=$RAILS_ENV \
   GEM_HOME=/app/.bundle \
   BUNDLE_PATH=/app/.bundle \
   BUNDLE_APP_CONFIG=/app/.bundle \
-  BUNDLE_BIN=/app/.bundle/bin
+  BUNDLE_BIN=/app/.bundle/bin \
+  PATH=/app/bin:/app/.bundle/bin:$PATH
 
 ENTRYPOINT ["/app/vendor/gems/data-cycle-core/docker/docker-entrypoint.sh"]
 
