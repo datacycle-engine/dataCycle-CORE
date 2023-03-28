@@ -2,8 +2,7 @@
 
 gem install bundler
 
-bundle check || bundle install --jobs $(nproc)
-bundle clean
+bundle check || bundle install --jobs $(nproc) && bundle clean --force
 
 yarn && yarn upgrade
 bundle exec vite dev &> log/vite.log &
