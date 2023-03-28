@@ -70,14 +70,11 @@ ARG RAILS_ENV=development \
 
 ENV RAILS_ENV=$RAILS_ENV \
   NODE_ENV=$NODE_ENV \
-  APP_DOCKER_ENV=$APP_DOCKER_ENV
-
-RUN bundle install --jobs $(nproc)
-
-RUN mkdir -p /app/node_modules \
-  && chown ruby:ruby -R /app/node_modules
-
-RUN yarn
+  APP_DOCKER_ENV=$APP_DOCKER_ENV \
+  GEM_HOME=/app/.bundle \
+  BUNDLE_PATH=/app/.bundle \
+  BUNDLE_APP_CONFIG=/app/.bundle \
+  BUNDLE_BIN=/app/.bundle/bin
 
 ENTRYPOINT ["/app/vendor/gems/data-cycle-core/docker/docker-entrypoint.sh"]
 
