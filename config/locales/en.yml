@@ -520,6 +520,8 @@ en:
     "yes": "Yes"
     "no": "No"
     merged_with_version_name: "merged with %{name} (#%{id})"
+    geolocation_from_browser: Use current position
+    geolocation_error: The current position could not be accessed
 
   embedded:
     move_down: move down

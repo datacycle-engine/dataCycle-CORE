@@ -517,6 +517,8 @@ de:
     "yes": Ja
     "no": Nein
     merged_with_version_name: "zusammengeführt mit %{name} (#%{id})"
+    geolocation_from_browser: Aktuelle Position verwenden
+    geolocation_error: Auf die aktuelle Position konnte nicht zugegriffen werden
 
   embedded:
     move_down: nach unten verschieben

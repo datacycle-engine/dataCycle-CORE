@@ -19,9 +19,12 @@
     <%= number_field_tag "f[#{identifier}][v][distance]", value&.dig('distance'), { placeholder: t('common.placeholder.distance', locale: active_ui_locale), class: 'filter-text' } %>
   </div>
 
-  <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
-    <div class="buttons">
+  <div class="buttons">
+    <a class="geolocation-button" data-dc-tooltip="<%= t('common.geolocation_from_browser', locale: active_ui_locale) %>"><i aria-hidden="true" class="fa fa-location-arrow"></i></a>
+
+    <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
       <a class="remove-advanced-filter" data-target="<%= identifier %>"><i aria-hidden="true" class="fa fa-times"></i></a>
-    </div>
-  <% end %>
+    <% end %>
+  </div>
+
 </div>
