@@ -72,7 +72,7 @@ ENV RAILS_ENV=$RAILS_ENV \
   NODE_ENV=$NODE_ENV \
   APP_DOCKER_ENV=$APP_DOCKER_ENV
 
-RUN bundle install --jobs $(nproc) && bundle clean --force
+RUN bundle install --jobs $(nproc)
 
 ENTRYPOINT ["/app/vendor/gems/data-cycle-core/docker/docker-entrypoint.sh"]
 
