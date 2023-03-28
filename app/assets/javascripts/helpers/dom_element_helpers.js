@@ -146,6 +146,29 @@ const DomElementHelpers = {
 			elem.classList.add("dcjs-fadeout");
 		} else elem.remove();
 	},
+	$cloneElement(element) {
+		const $clone = $(element).clone();
+
+		$clone.find(".reveal, .dropdown-pane").each((_, e) => {
+			const newId = DomElementHelpers.randomId();
+			const elem = $clone
+				.find(`[data-open="${e.id}"], [data-toggle="${e.id}"]`)
+				.get(0);
+
+			e.classList.remove("dcjs-foundation-reveal");
+			e.classList.remove("dcjs-fd-dropdown");
+			e.id = newId;
+
+			if (elem.dataset.open) elem.dataset.open = newId;
+			if (elem.dataset.toggle) elem.dataset.toggle = newId;
+		});
+
+		$clone
+			.find("[data-dc-tooltip]")
+			.each((_, e) => e.removeAttribute("data-dc-tooltip-id"));
+
+		return $clone;
+	},
 };
 
 Object.freeze(DomElementHelpers);

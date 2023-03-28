@@ -268,22 +268,7 @@ class ObjectBrowser {
 		$(`#new_${this.id}.in-object-browser form`).trigger("reset");
 	}
 	cloneHtml(html) {
-		const $clone = $(html).clone();
-
-		$clone.find("[data-reveal]").each((_, e) => {
-			e.classList.remove("dcjs-foundation-reveal");
-			const newId = DomElementHelpers.randomId();
-			const elem = $clone.find(`[data-open="${e.id}"]`).get(0);
-
-			elem.dataset.open = newId;
-			e.id = newId;
-		});
-
-		$clone
-			.find("[data-dc-tooltip]")
-			.each((_, e) => e.removeAttribute("data-dc-tooltip-id"));
-
-		return $clone;
+		return DomElementHelpers.$cloneElement(html);
 	}
 	async importDataHandler(_event, data) {
 		let newItems = [];
