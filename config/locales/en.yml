@@ -283,6 +283,7 @@ en:
     opens: open from
     closes: By
     closed: closed
+    except: except
 
   collection:
     new: new %{data}

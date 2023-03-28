@@ -296,6 +296,7 @@ de:
     opens: geöffnet von
     closes: bis
     closed: geschlossen
+    except: ausgenommen
 
   collection:
     new: Neue %{data}
