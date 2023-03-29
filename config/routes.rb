@@ -352,8 +352,8 @@ DataCycleCore::Engine.routes.draw do
 
                 post 'collections/create', to: 'watch_lists#create'
                 resources :collections, only: [], controller: :watch_lists do
-                  post '/add_item(/:thing_id)', action: :add_item, on: :member
-                  post '/remove_item(/:thing_id)', action: :remove_item, on: :member
+                  post '/add_item(/:thing_id)', action: :add_item, on: :member, as: :add_item
+                  post '/remove_item(/:thing_id)', action: :remove_item, on: :member, as: :remove_item
                   get :download_and_reset, on: :member
                 end
                 match 'collections', to: 'watch_lists#index', via: [:get, :post]
