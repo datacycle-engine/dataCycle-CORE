@@ -11,6 +11,9 @@ class GeolocationButton {
 		this.longitudeField = this.container.querySelector(
 			'.advanced-filter-selector input[name*="lon"]',
 		);
+		this.distanceField = this.container.querySelector(
+			'.advanced-filter-selector input[name*="distance"]',
+		);
 
 		this.init();
 	}
@@ -38,9 +41,15 @@ class GeolocationButton {
 			.finally(() => this.item.classList.remove("position-loading"));
 	}
 	setCurrentLocation(position) {
-		if (this.latitudeField) this.latitudeField.value = position.coords.latitude;
-		if (this.longitudeField)
+		if (this.latitudeField) {
+			this.latitudeField.value = position.coords.latitude;
+			this.latitudeField.dispatchEvent(new Event("change", { bubbles: true }));
+		}
+		if (this.longitudeField) {
 			this.longitudeField.value = position.coords.longitude;
+			this.longitudeField.dispatchEvent(new Event("change", { bubbles: true }));
+		}
+		if (this.distanceField) this.distanceField.focus();
 	}
 	renderError() {
 		I18n.t("common.geolocation_error").then((text) =>
