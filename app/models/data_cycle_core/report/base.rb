@@ -55,7 +55,7 @@ module DataCycleCore
         header = s.add_style bg_color: 'DD', sz: 16, b: true, alignment: { horizontal: :center }
         title = I18n.t "feature.report_generator.#{@params.dig(:key)}", default: @params.dig(:key), locale: @locale
 
-        wb.add_worksheet(name: title.truncate(31)) do |sheet|
+        wb.add_worksheet(name: title.parameterize(separator: ' ', preserve_case: true).truncate(31)) do |sheet|
           sheet.add_row translated_headings, style: header
           @data.to_a.each do |value|
             sheet.add_row value.values
