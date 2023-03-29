@@ -59,7 +59,7 @@ module DataCycleCore
           when :json
             begin
               render json: @renderer.render(:json)
-            rescue DataCycleCore::ApiRenderer::Error::TimeseriesError => e
+            rescue DataCycleCore::ApiRenderer::Error::RendererError => e
               render json: { error: e.message }, status: :bad_request
             end
           when :csv
@@ -68,7 +68,32 @@ module DataCycleCore
 
             begin
               render plain: @renderer.render(:csv)
-            rescue DataCycleCore::ApiRenderer::Error::TimeseriesError => e
+            rescue DataCycleCore::ApiRenderer::Error::RendererError => e
+              render plain: ['error', e.message].join("\n"), status: :bad_request
+            end
+          end
+        end
+
+        def statistics
+          query = build_search_query
+          endpoint = @watch_list || @stored_filter
+
+          @renderer = DataCycleCore::ApiRenderer::StatisticsRenderer.new(query: query.query, **statistics_params.slice(:attribute, :group_by, :time, :data_format).to_h.deep_symbolize_keys)
+
+          case permitted_params[:format].to_sym
+          when :json
+            begin
+              render json: @renderer.render(:json)
+            rescue DataCycleCore::ApiRenderer::Error::RendererError => e
+              render json: { error: e.message }, status: :bad_request
+            end
+          when :csv
+            response.headers['Content-Type'] = 'text/csv'
+            response.headers['Content-Disposition'] = "attachment; filename=#{endpoint.id}_#{permitted_params[:attribute]}.csv"
+
+            begin
+              render plain: @renderer.render(:csv)
+            rescue DataCycleCore::ApiRenderer::Error::RendererError => e
               render plain: ['error', e.message].join("\n"), status: :bad_request
             end
           end
@@ -126,6 +151,10 @@ module DataCycleCore
           deleted_contents = deleted_contents.reorder(nil).order('deleted_at DESC')
 
           render plain: list_api_deleted_request(apply_paging(deleted_contents)).to_json, content_type: 'application/json'
+        end
+
+        def statistics_params
+          params.transform_keys(&:underscore).permit(:id, :attribute, :data_format, :group_by, time: {})
         end
 
         def timeseries_params

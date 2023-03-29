@@ -347,6 +347,7 @@ DataCycleCore::Engine.routes.draw do
                 match 'endpoints/:id/suggest', to: 'contents#typeahead', as: 'typeahead', via: [:get, :post]
                 match 'endpoints/:id/download', to: 'downloads#endpoint', as: 'endpoint', via: [:get, :post]
                 match 'endpoints/:id/facets/:classification_tree_label_id(/:classification_id)', to: 'classification_trees#facets', as: 'facets', via: [:get, :post]
+                get 'endpoints/:id/statistics/:attribute(/:format)', to: 'contents#statistics', as: 'statistics'
                 match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
                 match 'endpoints/:id/:content_id/:timeseries(/:format)', to: 'contents#timeseries', as: 'content_timeseries', via: [:get, :post]
 

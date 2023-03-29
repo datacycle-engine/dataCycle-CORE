@@ -2,29 +2,34 @@
 
 module DataCycleCore
   module ApiRenderer
-    class TimeseriesRenderer
+    class StatisticsRenderer
       DEFAULT_GROUPS = ['hour', 'day', 'week', 'month', 'quarter', 'year'].freeze
-      DEFAULT_AGGREGATE_FUNCTIONS = ['SUM', 'MIN', 'MAX', 'AVG'].freeze
+      DEFAULT_AGGREGATE_FUNCTIONS = ['COUNT'].freeze
+      ALLOWED_ATTRIBUTES = {
+        'dct:created' => 'created_at',
+        'dct:modified' => 'updated_at'
+      }.freeze
 
-      attr_reader :query
+      attr_reader :query, :attribute
 
-      def initialize(content:, timeseries: nil, time: nil, group_by: nil, data_format: nil)
+      def initialize(query:, attribute: nil, time: nil, group_by: nil, data_format: nil)
         @from = time&.dig(:in, :min).presence&.then { |t| Time.zone.parse(t) }
         @to = time&.dig(:in, :max).presence&.then { |t| Time.zone.parse(t) }
         @data_format = data_format || 'array'
         @timezone = Time.zone.now.time_zone.name
 
-        unless content.timeseries_property_names.include?(timeseries)
-          @error = "no timeseries data found for #{content.name}(#{content.id})"
+        unless ALLOWED_ATTRIBUTES.key?(attribute)
+          @error = "attribute '#{attribute}' not found!"
           return
         end
 
-        @query = content.send(timeseries)
+        @attribute = ALLOWED_ATTRIBUTES[attribute]
+        @query = query.reorder(nil)
 
-        group_by.prepend('sum_') if group_by&.in?(DEFAULT_GROUPS) # required for legacy group_by without aggregeate_function prefix
+        group_by.prepend('count_') if group_by&.in?(DEFAULT_GROUPS)
 
         if group_by.present? && !respond_to?(group_by)
-          @error = "wrong groupBy parameter #{content.name}(#{content.id}) -> #{group_by}"
+          @error = "wrong groupBy parameter -> #{group_by}"
           return
         end
 
@@ -38,9 +43,8 @@ module DataCycleCore
       end
 
       def group_and_filter_query
-        @query = query.where('timestamp >= ?', @from) if @from.present?
-        @query = query.where('timestamp <= ?', @to) if @to.present?
-
+        @query = query.where("#{attribute} >= ?", @from) if @from.present?
+        @query = query.where("#{attribute} <= ?", @to) if @to.present?
         @query = send(@group_by)
       end
 
@@ -70,7 +74,7 @@ module DataCycleCore
       end
 
       def json_array
-        scale_sql = ", 'meta', JSON_BUILD_OBJECT('scale_x', '#{@scale_x}')" if @scale_x.present?
+        scale_sql = ", 'meta', JSON_BUILD_OBJECT('scaleX', '#{@scale_x}')" if @scale_x.present?
 
         <<-SQL.squish
           SELECT json_build_object('data', json_agg(json_build_array(ts.ts, ts.value))#{scale_sql})
@@ -79,7 +83,7 @@ module DataCycleCore
       end
 
       def json_object
-        scale_sql = ", 'meta', JSON_BUILD_OBJECT('scale_x', '#{@scale_x}')" if @scale_x.present?
+        scale_sql = ", 'meta', JSON_BUILD_OBJECT('scaleX', '#{@scale_x}')" if @scale_x.present?
 
         <<-SQL.squish
           SELECT json_build_object('data', json_agg(json_build_object('x', ts.ts, 'y', ts.value))#{scale_sql})
@@ -88,14 +92,16 @@ module DataCycleCore
       end
 
       def default
-        query.select('timeseries.timestamp AS ts, timeseries.value')
+        query
+          .select("things.#{attribute} AS ts, things.id AS value")
+          .reorder(attribute.to_sym => :asc)
       end
 
       def group_by_function(group, aggregate_function)
         @scale_x = group
 
         query
-          .select("DATE_TRUNC('#{group}', timeseries.timestamp, '#{@timezone}') AS ts, #{aggregate_function}(timeseries.value) AS value")
+          .select("DATE_TRUNC('#{group}', things.#{attribute}, '#{@timezone}') AS ts, #{aggregate_function}(things.id) AS value")
           .group(:ts)
           .reorder(ts: :asc)
       end
@@ -111,4 +117,4 @@ module DataCycleCore
   end
 end
 
-ActiveSupport.run_load_hooks :data_cycle_api_renderer_timeseries_renderer, DataCycleCore::ApiRenderer::TimeseriesRenderer
+ActiveSupport.run_load_hooks :data_cycle_api_renderer_statistics_renderer, DataCycleCore::ApiRenderer::StatisticsRenderer
