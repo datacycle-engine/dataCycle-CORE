@@ -43,8 +43,8 @@ module DataCycleCore
       end
 
       def group_and_filter_query
-        @query = query.where("#{attribute} >= ?", @from) if @from.present?
-        @query = query.where("#{attribute} <= ?", @to) if @to.present?
+        @query = query.where(ActiveRecord::Base.send(:sanitize_sql_array, ["#{attribute} >= ?", @from])) if @from.present?
+        @query = query.where(ActiveRecord::Base.send(:sanitize_sql_array, ["#{attribute} <= ?", @to])) if @to.present?
         @query = send(@group_by)
       end
 
