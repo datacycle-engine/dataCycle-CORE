@@ -147,27 +147,33 @@ const DomElementHelpers = {
 		} else elem.remove();
 	},
 	$cloneElement(element) {
-		const $clone = $(element).clone();
+		if (element instanceof $) element = element.get();
 
-		$clone.find(".reveal, .dropdown-pane").each((_, e) => {
-			const newId = DomElementHelpers.randomId();
-			const elem = $clone
-				.find(`[data-open="${e.id}"], [data-toggle="${e.id}"]`)
-				.get(0);
+		const fragment = new DocumentFragment();
 
-			e.classList.remove("dcjs-foundation-reveal");
-			e.classList.remove("dcjs-fd-dropdown");
-			e.id = newId;
+		if (Array.isArray(element))
+			for (const e of element) fragment.append(e.cloneNode(true));
+		else fragment.append(element.cloneNode(true));
 
-			if (elem.dataset.open) elem.dataset.open = newId;
-			if (elem.dataset.toggle) elem.dataset.toggle = newId;
-		});
+		for (const dcjsElem of fragment.querySelectorAll('[class*="dcjs"]')) {
+			for (const className of dcjsElem.classList)
+				if (className.startsWith("dcjs-")) dcjsElem.classList.remove(className);
 
-		$clone
-			.find("[data-dc-tooltip]")
-			.each((_, e) => e.removeAttribute("data-dc-tooltip-id"));
+			if (
+				dcjsElem.classList.contains("reveal") ||
+				dcjsElem.classList.contains("dropdown-pane")
+			) {
+				const newId = DomElementHelpers.randomId();
+				const elem = fragment.querySelector(
+					`[data-open="${dcjsElem.id}"], [data-toggle="${dcjsElem.id}"]`,
+				);
+				dcjsElem.id = newId;
+				if (elem.dataset.open) elem.dataset.open = newId;
+				if (elem.dataset.toggle) elem.dataset.toggle = newId;
+			}
+		}
 
-		return $clone;
+		return $(fragment.children);
 	},
 };
 

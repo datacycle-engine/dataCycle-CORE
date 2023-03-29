@@ -82,12 +82,12 @@ export default function () {
 	});
 
 	// Foundation Accordion
-	DataCycle.initNewElements("[data-accordion]:not(.dc-fd-accordion)", (e) => {
+	DataCycle.initNewElements("[data-accordion]:not(.dcjs-fd-accordion)", (e) => {
 		new Foundation.Accordion($(e));
-		e.classList.add("dc-fd-accordion");
+		e.classList.add("dcjs-fd-accordion");
 	});
 	DataCycle.initNewElements(
-		"[data-accordion].dc-fd-accordion .accordion-item:not(.dcjs-fd-accordion-item)",
+		"[data-accordion].dcjs-fd-accordion .accordion-item:not(.dcjs-fd-accordion-item)",
 		(e) => {
 			e.classList.add("dcjs-fd-accordion-item");
 			Foundation.reInit($(e.closest("[data-accordion]")));
