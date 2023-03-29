@@ -27,20 +27,24 @@ module DataCycleCore
         end
 
         def add_item
-          @watch_list = DataCycleCore::WatchList.find(permitted_params[:id])
-          @content_object = DataCycleCore::Thing.find(permitted_params[:thing_id])
+          @watch_list = DataCycleCore::WatchList.find(item_params[:id])
+          @content_object = DataCycleCore::Thing.find(item_params[:thing_id])
 
           @watch_list.things << @content_object unless @watch_list.things.include?(@content_object)
         end
 
         def remove_item
-          @watch_list = DataCycleCore::WatchList.find(permitted_params[:id])
-          @content_object = DataCycleCore::Thing.find(permitted_params[:thing_id])
+          @watch_list = DataCycleCore::WatchList.find(item_params[:id])
+          @content_object = DataCycleCore::Thing.find(item_params[:thing_id])
 
           @watch_list.things.destroy(@content_object) if @watch_list.things.include?(@content_object)
         end
 
         private
+
+        def item_params
+          params.transform_keys(&:underscore).permit(:thing_id, :id)
+        end
 
         def permitted_parameter_keys
           super + [:user_email, :id, :thing_id]
