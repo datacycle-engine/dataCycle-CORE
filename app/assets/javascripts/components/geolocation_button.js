@@ -49,7 +49,10 @@ class GeolocationButton {
 			this.longitudeField.value = position.coords.longitude;
 			this.longitudeField.dispatchEvent(new Event("change", { bubbles: true }));
 		}
-		if (this.distanceField) this.distanceField.focus();
+		if (this.distanceField) {
+			this.distanceField.focus();
+			this.distanceField.select();
+		}
 	}
 	renderError() {
 		I18n.t("common.geolocation_error").then((text) =>

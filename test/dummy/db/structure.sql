@@ -414,7 +414,7 @@ CREATE FUNCTION public.generate_unique_collection_slug(old_slug character varyin
 
 CREATE FUNCTION public.geom_simple_update() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN NEW.geom_simple := ( st_simplify( ST_Force2D (COALESCE(NEW."location", NEW.line)), 0.00001, TRUE ) ); RETURN NEW; END; $$;
+    AS $$ BEGIN NEW.geom_simple := ( st_simplify( ST_Force2D (COALESCE(NEW."geom", NEW."location", NEW.line)), 0.00001, TRUE ) ); RETURN NEW; END; $$;
 
 
 --
@@ -941,7 +941,8 @@ CREATE TABLE public.things (
     last_updated_locale character varying,
     write_history boolean DEFAULT false,
     geom_simple public.geometry(Geometry,4326),
-    computed_schema_types character varying[]
+    computed_schema_types character varying[],
+    geom public.geometry(GeometryZ,4326)
 );
 
 
@@ -3330,7 +3331,7 @@ CREATE TRIGGER geom_simple_insert_trigger BEFORE INSERT ON public.things FOR EAC
 -- Name: things geom_simple_update_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER geom_simple_update_trigger BEFORE UPDATE OF location, line ON public.things FOR EACH ROW WHEN ((((old.location)::text IS DISTINCT FROM (new.location)::text) OR ((old.line)::text IS DISTINCT FROM (new.line)::text))) EXECUTE FUNCTION public.geom_simple_update();
+CREATE TRIGGER geom_simple_update_trigger BEFORE UPDATE OF location, line, geom ON public.things FOR EACH ROW WHEN ((((old.location)::text IS DISTINCT FROM (new.location)::text) OR ((old.line)::text IS DISTINCT FROM (new.line)::text) OR ((old.geom)::text IS DISTINCT FROM (new.geom)::text))) EXECUTE FUNCTION public.geom_simple_update();
 
 
 --
@@ -3893,6 +3894,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230313072638'),
 ('20230317083224'),
 ('20230321085100'),
-('20230322145244');
+('20230322145244'),
+('20230330081538');
 
 
