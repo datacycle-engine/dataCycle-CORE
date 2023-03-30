@@ -67,7 +67,7 @@ module DataCycleCore
     end
 
     test 'default statistics for dct:created with watch_list' do
-      watch_list = DataCycleCore::WatchList.create(full_path: 'TEST1')
+      watch_list = DataCycleCore::WatchList.create(full_path: 'TEST1', api: true)
       watch_list.things.concat(@contents)
 
       renderer = DataCycleCore::ApiRenderer::StatisticsRenderer.new(query: watch_list.things, attribute: 'dct:created')

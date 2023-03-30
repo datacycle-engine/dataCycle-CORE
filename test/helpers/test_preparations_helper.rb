@@ -190,7 +190,9 @@ module DataCycleCore
     def self.create_watch_list(name: nil)
       return if name.blank?
 
-      DataCycleCore::WatchList.find_or_create_by(full_path: name, user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id)
+      DataCycleCore::WatchList.find_or_create_by(full_path: name, user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id) do |wl|
+        wl.api = true
+      end
     end
 
     def self.excepted_attributes(model = nil)

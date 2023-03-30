@@ -522,6 +522,7 @@ en:
     merged_with_version_name: "merged with %{name} (#%{id})"
     geolocation_from_browser: Use current position
     geolocation_error: The current position could not be accessed
+    api_url: API Link
 
   embedded:
     move_down: move down
@@ -893,6 +894,7 @@ en:
     finalize_agbs_text: Terms & Conditions
     finalize_combined_html: "%{finalize} and accept %{agbs}"
     copy_to_clipboard: Copy to clipboard
+    copy_to_clipboard_data: "Copy %{data} to clipboard"
     copy_classification_alias_id_to_clipboard: Copy Classification-Alias-ID to clipboard
     copied_to_clipboard: Copied to clipboard.
     save: Save
@@ -1242,6 +1244,7 @@ en:
         user_ids: User
         user_id: Owner
         manual_order: Use manual order as default order
+        api: Retrievable via API
       data_cycle_core/classification_tree_label:
         visibility: Visibility
         change_behaviour: Change behavior

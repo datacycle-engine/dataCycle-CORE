@@ -139,8 +139,10 @@ module DataCycleCore
           @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
           @classification_trees_parameters |= Array.wrap(@stored_filter.classification_tree_labels)
           @classification_trees_filter = @classification_trees_parameters.present?
+        elsif (@watch_list = DataCycleCore::WatchList.without_my_selection.by_id_or_slug(endpoint_id).first).present?
+          authorize! :api, @watch_list unless any_authenticity_token_valid?
         else
-          raise ActiveRecord::RecordNotFound unless (@watch_list = DataCycleCore::WatchList.without_my_selection.by_id_or_slug(endpoint_id).first)
+          raise ActiveRecord::RecordNotFound
         end
       end
 

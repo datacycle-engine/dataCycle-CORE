@@ -519,6 +519,7 @@ de:
     merged_with_version_name: "zusammengeführt mit %{name} (#%{id})"
     geolocation_from_browser: Aktuelle Position verwenden
     geolocation_error: Auf die aktuelle Position konnte nicht zugegriffen werden
+    api_url: API Link
 
   embedded:
     move_down: nach unten verschieben
@@ -926,6 +927,7 @@ de:
     finalize_agbs_text: AGBs
     finalize_combined_html: "%{finalize} und %{agbs} akzeptieren"
     copy_to_clipboard: In die Zwischenablage kopieren
+    copy_to_clipboard_data: "%{data} in die Zwischenablage kopieren"
     copy_webdav_to_clipboard: WebDAV Link in die Zwischenablage kopieren
     copy_classification_alias_id_to_clipboard: Klassifizierungs-Alias-ID in die Zwischenablage kopieren
     copied_to_clipboard: In Zwischenablage kopiert.
@@ -1247,6 +1249,7 @@ de:
         user_ids: Benutzer
         user_id: Eigentümer
         manual_order: Manuelle Sortierung als Standard-Sortierung verwenden
+        api: Über API abrufbar
       data_cycle_core/classification_tree_label:
         visibility: Sichtbarkeit
         change_behaviour: Änderungsverhalten
