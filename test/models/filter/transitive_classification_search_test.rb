@@ -5,7 +5,7 @@ require 'test_helper'
 module DataCycleCore
   class TransitiveClassificationSearchTest < DataCycleCore::TestCases::ActiveSupportTestCase
     before(:all) do
-      @before_state = DataCycleCore.features[:transitive_classification_path].deep_dup
+      @before_state = DataCycleCore.features[:transitive_classification_path][:enabled]
       DataCycleCore.features[:transitive_classification_path][:enabled] = true
       DataCycleCore::Feature::TransitiveClassificationPath.reload
       DataCycleCore::Feature::TransitiveClassificationPath.update_triggers(false)
@@ -29,7 +29,7 @@ module DataCycleCore
     end
 
     after(:all) do
-      DataCycleCore.features[:transitive_classification_path] = @before_state
+      DataCycleCore.features[:transitive_classification_path][:enabled] = @before_state
       DataCycleCore::Feature::TransitiveClassificationPath.reload
       DataCycleCore::Feature::TransitiveClassificationPath.update_triggers(false)
       DataCycleCore::RunTaskJob.perform_now('db:configure:rebuild_transitive_tables')
