@@ -725,13 +725,17 @@ module DataCycleCore
           all_products = []
           data.each do |item|
             item_offered_id = t(:find_thing_ids).call(external_system_id: external_source_id, external_key: item.dig('Id'), limit: 1).first
-            all_products += parse_product(Array.wrap(item.dig('Products', 'Product')), external_source_id, item_offered_id)
+            all_products += parse_product(Array.wrap(item.dig('Products', 'Product')), Array.wrap(item.dig('Facilities', 'Facility')), external_source_id, item_offered_id)
           end
           all_products
         end
 
-        def self.parse_product(data, external_source_id, item_offered_id)
+        def self.parse_product(data, facilities, external_source_id, item_offered_id)
           return [] if data.blank?
+          facility_keys = facilities&.map { |i| i['Id'] }&.uniq
+          facility_classifications = DataCycleCore::Classification
+            .where(external_key: facility_keys)
+            &.pluck(:id)
           data.map { |item|
             thing_id = t(:find_thing_ids).call(external_system_id: external_source_id, external_key: item.dig('Id'), limit: 1).first
             data_hash = {}
@@ -752,8 +756,9 @@ module DataCycleCore
               item_offered: [item_offered_id],
               external_key: item.dig('Id'),
               price_specification: parse_simple_price(item.dig('Price'), external_source_id, item.dig('Id')),
-              feratel_product_type: Array(type_classification),
-              feratel_accommodation_type: Array(accommodation_classification),
+              feratel_product_type: Array.wrap(type_classification),
+              feratel_service_facilities: facility_classifications,
+              feratel_accommodation_type: Array.wrap(accommodation_classification),
               feratel_status: load_active(item.dig('Details', 'Active')),
               offer_period: parse_period(item.dig('Details', 'ValidDates'))
             })
