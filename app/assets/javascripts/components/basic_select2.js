@@ -130,14 +130,14 @@ class BasicSelect2 {
 
 		value = value.filter(Boolean);
 		data.value = data.value.filter(Boolean);
-		let diff = difference(data.value, value);
+		const diff = difference(data.value, value);
 
 		if (diff.length) await this.loadNewOptions(value, diff);
 	}
 	async loadNewOptions(_value, _options) {}
 	markMatch(text, term) {
-		let match = text.toLowerCase().lastIndexOf(term.toLowerCase());
-		let $result = $("<span></span>");
+		const match = text.toLowerCase().lastIndexOf(term.toLowerCase());
+		const $result = $("<span></span>");
 
 		if (!term.length || match < 0) {
 			return $result.html(text);
@@ -145,7 +145,7 @@ class BasicSelect2 {
 
 		$result.html(text.substring(0, match));
 
-		let $match = $('<span class="select2-highlight"></span>');
+		const $match = $('<span class="select2-highlight"></span>');
 		$match.html(text.substring(match, match + term.length));
 
 		$result.append($match);
@@ -194,7 +194,7 @@ class BasicSelect2 {
 	decorateResult(result) {
 		$(result).html(function (_index, value) {
 			if (value !== undefined) {
-				var text = value.split(" &gt; ");
+				const text = value.split(" &gt; ");
 				text[text.length - 1] = `<span class="select2-option-title">${
 					text[text.length - 1]
 				}</span>`;
@@ -221,6 +221,8 @@ class BasicSelect2 {
 			target.dataset.dcTooltip = source.dataset.dcTooltip;
 		else if (data.dc_tooltip) target.dataset.dcTooltip = data.dc_tooltip;
 
+		target.classList.remove("dcjs-tooltip");
+
 		if (source?.dataset.fullPath)
 			target.dataset.fullPath = source.dataset.fullPath;
 		else if (data.full_path) target.dataset.fullPath = data.full_path;
@@ -228,11 +230,11 @@ class BasicSelect2 {
 	templateResult(data) {
 		if (data.loading) return data.text;
 
-		let term = this.query.term || "";
-		let titleValue = data.element?.dataset.fullPath
+		const term = this.query.term || "";
+		const titleValue = data.element?.dataset.fullPath
 			? data.element.dataset.fullPath
 			: data.text;
-		let result = titleValue ? this.markMatch(titleValue, term) : null;
+		const result = titleValue ? this.markMatch(titleValue, term) : null;
 		if (this.config.showTreeLabel !== "true") this.removeTreeLabel(result);
 		this.decorateResult(result);
 		this.copyDataAttributes(data, result);
@@ -259,7 +261,7 @@ class BasicSelect2 {
 		return text.replace(`${this.config.treeLabel} > `, "");
 	}
 	createTag(params) {
-		let term = $.trim(params.term);
+		const term = $.trim(params.term);
 
 		if (term === "") {
 			return null;

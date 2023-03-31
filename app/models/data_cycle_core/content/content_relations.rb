@@ -95,7 +95,7 @@ module DataCycleCore
       end
 
       def mapped_classification_aliases
-        if DataCycleCore.transitive_classification_paths
+        if DataCycleCore::Feature::TransitiveClassificationPath.enabled?
           classification_alias_paths_transitive.mapped_classification_aliases
         else
           classification_aliases.where.not(id: primary_classification_aliases.select(:id))
