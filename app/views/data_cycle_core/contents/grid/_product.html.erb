@@ -1,0 +1,13 @@
+<% content_for :media_thumbs do %>
+  <div class="grid-thumbnails">
+    <img data-src="<%= item.primary_image.first.thumbnail_url %>" alt="<%= item.primary_image.first.title %>" class="lazyload grid-item-thumbnail" />
+  </div>
+<% end if item.try(:primary_image).present? %>
+<%= render 'data_cycle_core/contents/grid/default', local_assigns do %>
+  <% if item.try(:manufacturer).size.positive? %>
+    <div class="description">
+      <%= item.try(:manufacturer).first.name %>
+    </div>
+  <% end %>
+  <%= render 'data_cycle_core/contents/grid/attributes/address', local_assigns if item.try(:address_block).present? %>
+<% end %>
