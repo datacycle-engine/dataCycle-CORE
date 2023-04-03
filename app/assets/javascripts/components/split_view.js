@@ -7,6 +7,7 @@ import uniqWith from "lodash/uniqWith";
 class SplitView {
 	constructor(container = document) {
 		this.container = container;
+		this.container.classList.add("dcjs-split-view");
 		this.leftContainer = this.container.closest(
 			".split-content.detail-content",
 		);

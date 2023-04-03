@@ -5,6 +5,7 @@ import CalloutHelpers from "../helpers/callout_helpers";
 class PublicationFilter {
 	constructor(element) {
 		this.element = element;
+		this.element.classList.add("dcjs-publications-list");
 		this.searchForm = document.getElementById("search-form");
 		this.yearList = this.element.querySelector(":scope > .row > ul.accordion");
 		this.loading = false;
@@ -28,6 +29,8 @@ class PublicationFilter {
 		if (lastElement) this.infiniteLoadingObserver.observe(lastElement);
 	}
 	lastRenderedElement() {
+		if (!this.yearList) return;
+
 		return Array.from(
 			this.yearList.getElementsByClassName("publication-content"),
 		).pop();

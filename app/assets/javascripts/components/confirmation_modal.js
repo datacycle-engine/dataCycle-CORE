@@ -122,6 +122,8 @@ class ConfirmationModal {
 					.length === 1)
 		) {
 			this.closed = true;
+			if (typeof $(this.overlay).foundation === "function")
+				$(this.overlay).foundation("close");
 			this.overlay.parentElement.remove();
 		} else if (domElementHelpers.isVisible(this.overlay)) {
 			this.section.remove();

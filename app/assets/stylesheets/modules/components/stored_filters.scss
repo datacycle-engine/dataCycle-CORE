@@ -331,14 +331,12 @@
       }
 
       .content-title-api {
-        border: 1px solid black;
-        line-height: 1.2;
-        font-weight: 600;
-        padding: 2px 4px;
-        border-radius: $global-radius;
+        min-width: 2.3rem;
+        width: 2.3rem;
       }
 
       .slug {
+        display: inline;
         font-size: 0.9rem;
         color: var(--dark-gray);
         overflow: hidden;
@@ -463,5 +461,23 @@
     &:last-child {
       margin-bottom: 0;
     }
+  }
+}
+
+.content-title-api {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $black;
+  color: $black;
+  line-height: 1.2;
+  font-weight: 600;
+  padding: 2px 4px;
+  border-radius: $global-radius;
+  min-width: 2.2rem;
+  width: 2.2rem;
+
+  &.global {
+    font-weight: bold;
   }
 }

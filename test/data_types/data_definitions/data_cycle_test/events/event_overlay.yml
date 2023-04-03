@@ -2,7 +2,8 @@
 - :data:
     :name: EventOverlay
     :type: object
-    :schema_type: Event
+    :schema_ancestors:
+      - Event
     :content_type: embedded
     :properties:
       :id:

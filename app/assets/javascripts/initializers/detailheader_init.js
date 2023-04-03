@@ -3,7 +3,7 @@ import CopyToClipboard from "../components/copy_to_clipboard";
 
 export default function () {
 	DataCycle.initNewElements(
-		".copy-to-clipboard",
+		".copy-to-clipboard:not(.dcjs-copy-clipboard)",
 		(e) => new CopyToClipboard(e),
 	);
 

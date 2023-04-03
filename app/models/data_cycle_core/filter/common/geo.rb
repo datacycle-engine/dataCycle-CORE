@@ -21,8 +21,7 @@ module DataCycleCore
 
           reflect(
             @query.where(
-              intersects(thing[:location], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326))
-              .or(intersects(thing[:line], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326)))
+              intersects(thing[:geom_simple], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326))
             )
           )
         end
@@ -32,8 +31,7 @@ module DataCycleCore
 
           reflect(
             @query.where.not(
-              intersects(thing[:location], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326))
-              .and(intersects(thing[:line], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326)))
+              intersects(thing[:geom_simple], st_makeenvelope(sw_lon.to_f, sw_lat.to_f, ne_lon.to_f, ne_lat.to_f, 4326))
             )
           )
         end
@@ -43,10 +41,8 @@ module DataCycleCore
 
           reflect(
             @query
-              .where(
-                st_dwithin(cast_geography(thing[:location]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i)
-                .or(st_dwithin(cast_geography(thing[:line]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i))
-              )
+              .where.not(thing[:geom_simple].eq(nil))
+              .where(st_dwithin(cast_geography(thing[:geom_simple]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i))
           )
         end
 
@@ -55,10 +51,7 @@ module DataCycleCore
 
           reflect(
             @query
-              .where.not(
-                st_dwithin(cast_geography(thing[:location]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i)
-                .and(st_dwithin(cast_geography(thing[:line]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i))
-              )
+              .where.not(st_dwithin(cast_geography(thing[:geom_simple]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i))
           )
         end
 
@@ -114,8 +107,7 @@ module DataCycleCore
           reflect(
             @query
               .where.not(
-                thing[:location].eq(nil)
-                .and(thing[:line].eq(nil))
+                thing[:geom_simple].eq(nil)
               )
           )
         end
@@ -124,8 +116,7 @@ module DataCycleCore
           reflect(
             @query
               .where(
-                thing[:location].eq(nil)
-                .and(thing[:line].eq(nil))
+                thing[:geom_simple].eq(nil)
               )
           )
         end

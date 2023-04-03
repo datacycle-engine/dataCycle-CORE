@@ -2,14 +2,12 @@
 - :data:
     :name: Pauschalangebot
     :type: object
-    :schema_type: Intangible
     :content_type: entity
     :boost: 100.0
-    :api:
-      :type:
-        - Intangible
-        - Offer
-        - AggregateOffer
+    :schema_ancestors:
+      - Intangible
+      - Offer
+      - AggregateOffer
     :features:
       :translatable:
         :allowed: true
@@ -184,7 +182,7 @@
         #        :advanced_search: true
         :properties:
           :valid_from:
-            :label: 'Zeitraum von'
+            :label: "Zeitraum von"
             :type: date
             :storage_location: value
             :ui:
@@ -194,7 +192,7 @@
                   :placeholder: tt.mm.jjjj
           #            :advanced_search: true
           :valid_through:
-            :label: 'bis'
+            :label: "bis"
             :type: date
             :storage_location: value
             :ui:
@@ -251,7 +249,7 @@
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Pauschalangebot'
+        :default_value: "Pauschalangebot"
       :external_key:
         :label: external_key
         :type: string

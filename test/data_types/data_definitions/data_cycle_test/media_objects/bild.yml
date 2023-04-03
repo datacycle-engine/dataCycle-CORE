@@ -2,7 +2,6 @@
 - :data:
     :name: Bild
     :type: object
-    :schema_type: CreativeWork
     :content_type: entity
     :boost: 10.0
     :features:
@@ -33,11 +32,10 @@
           :indesign: true
       :report_generator:
         :allowed: true
-    :api:
-      :type:
-        - CreativeWork
-        - MediaObject
-        - ImageObject
+    :schema_ancestors:
+      - CreativeWork
+      - MediaObject
+      - ImageObject
     :properties:
       :id:
         :label: id
@@ -334,7 +332,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Bild'
+        :default_value: "Bild"
       :copyright_attributes:
         :type: mixin
         :name: copyright_attributes

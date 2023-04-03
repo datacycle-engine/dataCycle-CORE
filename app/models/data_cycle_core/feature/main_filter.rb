@@ -107,7 +107,7 @@ module DataCycleCore
 
           tree_label = tree_filter[:config]
           value = selected_filters.find { |f| f['c'] == 's' && f['n'] == tree_label }
-          tree_filter[:classification_aliases] = filterable_classification_aliases(tree_label, config[:excluded_types])&.dig(tree_label)
+          tree_filter[:classification_aliases] = filterable_classification_aliases(tree_label, config[:excluded_types], false)&.dig(tree_label)
           tree_filter[:value] = value&.dig('v')
           tree_filter[:identifier] = value&.dig('identifier') || SecureRandom.hex(10)
         end
@@ -116,12 +116,36 @@ module DataCycleCore
           configuration.dig('autoload_last_filter')
         end
 
-        def filterable_classification_aliases(allowed_labels, excluded = [])
+        def filterable_classification_aliases(allowed_labels, excluded = [], include_tree = true)
           query = DataCycleCore::ClassificationAlias
-            .includes(:classification_tree_label, :parent_classification_alias, :primary_classification, :classification_alias_path, :sub_classification_alias)
-            .where(classification_tree_labels: { name: allowed_labels }, classification_trees: { parent_classification_alias: nil })
-          query = query.where.not(classification_tree_labels: { name: 'Inhaltstypen' }).or(query.where.not(internal_name: excluded)).order(created_at: :asc)
-          query.group_by { |ca| ca.classification_tree_label&.name }.sort_by { |k, _v| allowed_labels.index(k) }.to_h
+            .preload(:primary_classification, :classification_alias_path)
+            .includes(:classification_tree_label, :parent_classification_alias)
+            .where(classification_tree_labels: { name: allowed_labels })
+          query = query.where(classification_trees: { parent_classification_alias: nil }) unless include_tree
+          query = query.where.not(classification_tree_labels: { name: 'Inhaltstypen' }).or(query.where.not(internal_name: excluded))
+
+          # preload children and parents with includes
+          ActiveRecord::Associations::Preloader.new.preload(query, :sub_classification_trees, DataCycleCore::ClassificationTree.select(:classification_alias_id, :parent_classification_alias_id, :deleted_at))
+          ActiveRecord::Associations::Preloader.new.preload(query, :classification_tree, DataCycleCore::ClassificationTree.select(:classification_alias_id, :parent_classification_alias_id, :deleted_at))
+
+          preloaded = query.index_by(&:id)
+
+          query.each do |ca|
+            # set preloaded sub_classification_alias
+            records = preloaded.slice(*ca.sub_classification_trees.pluck(:classification_alias_id)).values.flatten
+            association = ca.association(:sub_classification_alias)
+            association.loaded!
+            association.target.concat(records)
+            records.each { |record| association.set_inverse_instance(record) }
+
+            # set preloaded parent_classification_alias
+            record = preloaded[ca.classification_tree.parent_classification_alias_id]
+            association = ca.association(:parent_classification_alias)
+            association.target = record
+            association.set_inverse_instance(record) if record
+          end
+
+          query.filter { |ca| ca.parent_classification_alias.nil? }.group_by { |ca| ca.classification_tree_label&.name }.sort_by { |k, _v| allowed_labels.index(k) }.to_h
         end
       end
     end

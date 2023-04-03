@@ -4,6 +4,7 @@ import CalloutHelpers from "../../helpers/callout_helpers";
 class LoadMoreLinkedButton {
 	constructor(item) {
 		this.item = item;
+		this.item.classList.add("dcjs-load-more-linked");
 		this.parent = this.item.parentElement.classList.contains("clear-both")
 			? this.item.parentElement
 			: this.item;
@@ -41,7 +42,7 @@ class LoadMoreLinkedButton {
 
 		const ids = data.ids;
 		const idSelector = ids.map(this.hiddenIdSelector.bind(this)).join(", ");
-		const lastHiddenItem = this.objectListElement.querySelector(
+		const lastHiddenItem = this.objectListElement?.querySelector(
 			this.hiddenIdSelector(ids[ids.length - 1]),
 		);
 
@@ -49,9 +50,11 @@ class LoadMoreLinkedButton {
 			lastHiddenItem.insertAdjacentHTML("afterend", data.html);
 			for (const elem of this.objectListElement.querySelectorAll(idSelector))
 				elem.remove();
-		} else this.objectListElement.insertAdjacentHTML("beforeend", data.html);
-
-		this.parent.remove();
+			this.parent.remove();
+		} else if (this.objectListElement) {
+			this.objectListElement.insertAdjacentHTML("beforeend", data.html);
+			this.parent.remove();
+		} else this.parent.outerHTML = data.html;
 	}
 	renderLoadError() {
 		DataCycle.enableElement(this.item);

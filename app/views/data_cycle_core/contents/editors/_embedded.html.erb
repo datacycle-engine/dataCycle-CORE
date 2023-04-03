@@ -39,7 +39,8 @@
             hide_embedded: local_assigns[:hide_embedded].to_s == 'true',
             translate: local_assigns[:translate],
             force_render_child_locales: local_assigns.dig(:force_render_child_locales),
-            force_render_locales: object.available_locales
+            force_render_locales: object.available_locales,
+            locale: I18n.locale.to_s
           },
           content: content
         ) %>

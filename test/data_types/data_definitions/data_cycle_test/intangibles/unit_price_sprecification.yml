@@ -1,14 +1,12 @@
 - :data:
     :name: Preis
     :type: object
-    :schema_type: Intangible
     :content_type: embedded
-    :api:
-      :type:
-        - Intangible
-        - StructuredValue
-        - PriceSpecification
-        - UnitPriceSpecification
+    :schema_ancestors:
+      - Intangible
+      - StructuredValue
+      - PriceSpecification
+      - UnitPriceSpecification
     :properties:
       :id:
         :label: id
@@ -38,7 +36,7 @@
         :label: Währung
         :type: classification
         :tree_label: Preis-Währung
-        :default_value: 'EUR'
+        :default_value: "EUR"
       :unit_text:
         :label: Einheit
         :type: string
@@ -60,7 +58,7 @@
         #        :advanced_search: true
         :properties:
           :valid_from:
-            :label: 'Gültig ab'
+            :label: "Gültig ab"
             :type: date
             :storage_location: value
             :ui:
@@ -70,7 +68,7 @@
                   :placeholder: tt.mm.jjjj
           #            :advanced_search: true
           :valid_through:
-            :label: 'bis'
+            :label: "bis"
             :type: date
             :storage_location: value
             :ui:

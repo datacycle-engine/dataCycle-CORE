@@ -5,6 +5,7 @@ import difference from "lodash/difference";
 import union from "lodash/union";
 import intersection from "lodash/intersection";
 import DomElementHelpers from "../helpers/dom_element_helpers";
+import ObserverHelpers from "../helpers/observer_helpers";
 
 class EmbeddedObject {
 	constructor(selector) {
@@ -57,6 +58,7 @@ class EmbeddedObject {
 			group: this.id,
 			handle: ".draggable-handle",
 			draggable: `.content-object-item.draggable_${this.id}`,
+			onChange: this.update.bind(this),
 		});
 
 		this.$element
@@ -69,6 +71,8 @@ class EmbeddedObject {
 		this.addedItemsObserver.observe(this.element, { childList: true });
 	}
 	setupContentObjectItem(element) {
+		element.classList.add("dcjs-coi");
+
 		element
 			.querySelector(this.selectorForRemoveContentObject())
 			?.addEventListener("click", this.eventHandlers.removeItem);
@@ -76,14 +80,11 @@ class EmbeddedObject {
 		this.setupSwappableButtons(element);
 	}
 	runAddCallbacks(node) {
-		if (node.querySelector(".content-object-item:not(.hidden)"))
-			for (const e of node.querySelectorAll(
-				".content-object-item:not(.hidden)",
-			))
-				this.setupContentObjectItem(e);
-
-		if (node.matches(".content-object-item:not(.hidden)"))
-			this.setupContentObjectItem(node);
+		ObserverHelpers.checkForConditionRecursive(
+			node,
+			".content-object-item:not(.hidden):not(.dcjs-coi)",
+			this.setupContentObjectItem.bind(this),
+		);
 	}
 	checkForAddedNodes(mutations) {
 		for (const mutation of mutations) {
@@ -253,15 +254,7 @@ class EmbeddedObject {
 			.off("click", this.eventHandlers.addItem)
 			.on("click", this.eventHandlers.addItem);
 
-		if (
-			this.element.querySelector(
-				this.selectorForRemoveContentObject("> .content-object-item"),
-			)
-		)
-			for (const button of this.element.querySelectorAll(
-				this.selectorForRemoveContentObject("> .content-object-item"),
-			))
-				button.addEventListener("click", this.eventHandlers.removeItem);
+		this.runAddCallbacks(this.element);
 
 		this.$element
 			.off("init.zf.accordion", this.eventHandlers.scrollToLocationHash)

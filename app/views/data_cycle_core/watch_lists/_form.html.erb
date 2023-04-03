@@ -66,6 +66,13 @@
           </div>
         <% end %>
 
+        <% if can?(:create_api, content) %>
+          <div class="form-element check_box api dc-checkbox" data-key="watch_list[api]">
+            <%= f.check_box :api %>
+            <%= f.label :api, DataCycleCore::WatchList.human_attribute_name(:api, locale: active_ui_locale) %>
+          </div>
+        <% end %>
+
         <% if can? :share, content %>
           <div class="form-element">
             <div class="v-select">
@@ -109,7 +116,7 @@
 
             <%= cc_form.text_field :slug %>
           </div>
-        <% end %>
+        <% end unless content.my_selection %>
       </div>
     </div>
   </div>

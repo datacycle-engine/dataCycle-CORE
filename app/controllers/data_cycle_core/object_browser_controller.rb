@@ -25,7 +25,6 @@ module DataCycleCore
 
         query = filter.apply
         query = query.where(template_name: template_name.to_s) if template_name && stored_filter.blank?
-        query = query.in_validity_period
         query = query.where.not(things: { id: @content.id }) unless @content.nil?
         query = query.where.not(things: { id: permitted_params[:excluded] }) if permitted_params[:excluded].present?
         query = query.where(id: permitted_params[:filter_ids]) if permitted_params[:filter_ids].present?

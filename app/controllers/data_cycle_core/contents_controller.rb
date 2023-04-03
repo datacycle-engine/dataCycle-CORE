@@ -49,6 +49,7 @@ module DataCycleCore
       @content = DataCycleCore::Thing.find(params[:id])
 
       redirect_back(fallback_location: root_path) && return if @content.nil?
+      redirect_to(thing_path(@content.related_contents.first)) && return if @content.embedded?
 
       I18n.with_locale(@locale = @content.first_available_locale(params[:locale])) do
         if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container')
@@ -169,6 +170,8 @@ module DataCycleCore
       @content ||= DataCycleCore::Thing.find(params[:id])
       @hide_embedded = params[:hide_embedded].present?
 
+      redirect_to(edit_thing_path(@content.related_contents.first)) && return if @content.embedded?
+
       # get show data for split view
       if source_params.present?
         @split_source = DataCycleCore::Thing.find(source_params[:source_id])
@@ -189,6 +192,8 @@ module DataCycleCore
       @content = DataCycleCore::Thing.by_external_key(params[:external_system_id], params[:external_key]).first
 
       raise ActiveRecord::RecordNotFound if @content.nil?
+
+      redirect_to(edit_thing_path(@content.related_contents.first)) && return if @content.embedded?
 
       authorize!(:edit, @content)
 
@@ -413,7 +418,9 @@ module DataCycleCore
       @object = DataCycleCore::Thing.find(linked_object_params[:id])
       authorize! :show, @object
 
-      I18n.with_locale(linked_object_params[:locale]) do
+      @locale = linked_object_params[:locale]
+
+      I18n.with_locale(@locale) do
         @linked_objects = @object.try(linked_object_params[:key])&.where&.not(id: linked_object_params[:load_more_except])&.offset(DataCycleCore.linked_objects_page_size)&.includes(:translations)
         @params = linked_object_params.to_h
 
@@ -548,7 +555,6 @@ module DataCycleCore
       query = stored_filter.apply
       query = query.where(template_name: template_name.to_s) if template_name && filter_hash.blank?
       query = query.where(id: map_editor_params[:ids]) if map_editor_params[:ids].present?
-      query = query.in_validity_period
       query = query.with_geometry
 
       render plain: query.query.to_geojson, content_type: 'application/geo+json'
@@ -775,7 +781,7 @@ module DataCycleCore
     def map_editor_params
       return @map_editor_params if defined? @map_editor_params
 
-      @map_editor_params = DataCycleCore::NormalizeService.normalize_parameters(params.permit(:template_name, ids: [], filter: [], stored_filter: {}))
+      @map_editor_params = DataCycleCore::NormalizeService.normalize_parameters(params.permit(:template_name, ids: [], filter: []).merge(params.slice(:stored_filter).permit!))
     end
   end
 end

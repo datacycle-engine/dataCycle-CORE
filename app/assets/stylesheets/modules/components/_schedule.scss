@@ -24,7 +24,7 @@
     display: flex;
     flex-flow: row wrap;
 
-    > * {
+    >* {
       margin-bottom: 1rem;
     }
 
@@ -53,7 +53,7 @@
         }
       }
 
-      > *:not(:last-child) {
+      >*:not(:last-child) {
         margin-right: 1rem;
       }
     }
@@ -64,7 +64,7 @@
     flex-flow: row wrap;
     align-items: center;
 
-    > * {
+    >* {
       height: 3.5rem;
     }
 
@@ -117,6 +117,7 @@
     .special-dates {
       flex-basis: 100%;
     }
+
     input {
       min-width: 100px;
       width: auto;
@@ -202,17 +203,21 @@
       font-size: 7rem;
       text-align: center;
     }
+
     .leaf-month {
       font-size: 0.8rem;
     }
+
     .leaf-year {
       font-size: 0.8rem;
     }
+
     .leaf-day {
       font-weight: bold;
       font-size: 1.6rem;
       line-height: 1.6rem;
     }
+
     .leaf-duration {
       font-size: 0.8rem;
       border: 7px solid;
@@ -226,7 +231,7 @@
       left: 0.25rem;
     }
 
-    .leaf-duration ~ .leaf-date {
+    .leaf-duration~.leaf-date {
       margin-bottom: 2rem;
     }
   }
@@ -236,6 +241,7 @@
 .opening-time-editor .weekday {
   .weekday-checkbox {
     position: relative;
+
     input {
       visibility: hidden;
       position: absolute;
@@ -264,15 +270,16 @@
       max-width: unset;
     }
 
-    input:not(:disabled) ~ label:hover {
+    input:not(:disabled)~label:hover {
       box-shadow: 0 0 3px $primary-color;
     }
 
-    input:checked ~ label {
+    input:checked~label {
       background: rgba($success-color, 0.5);
       border-color: rgba($success-color, 0.5);
     }
-    input:disabled ~ label {
+
+    input:disabled~label {
       cursor: not-allowed;
     }
   }
@@ -311,15 +318,17 @@
 
       .weekday-checkbox {
         input[type='radio'] {
-          &.true_option:checked ~ label {
+          &.true_option:checked~label {
             background: rgba($success-color, 0.5);
             border-color: rgba($success-color, 0.5);
           }
-          &.false_option:checked ~ label {
+
+          &.false_option:checked~label {
             background: rgba($alert-color, 0.5);
             border-color: rgba($alert-color, 0.5);
           }
-          &.ignore_option:checked ~ label {
+
+          &.ignore_option:checked~label {
             background: transparent;
             border-color: rgba($dark-gray, 0.5);
           }
@@ -354,6 +363,11 @@
   .opening-time-group {
     padding-top: 1rem;
     margin: 0 !important;
+
+    .opening-time-ex-times {
+      color: var(--dark-gray);
+      font-size: 0.9rem;
+    }
 
     .opening-time-opening-hours {
       color: $dark-gray;

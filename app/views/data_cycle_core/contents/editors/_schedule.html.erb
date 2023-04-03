@@ -32,7 +32,8 @@
             options: options,
             new_content: local_assigns[:new_content].to_s == 'true',
             attribute_locale: local_assigns[:attribute_locale],
-            duplicated_content: local_assigns[:duplicated_content].to_s == 'true'
+            duplicated_content: local_assigns[:duplicated_content].to_s == 'true',
+            locale: I18n.locale.to_s
           },
           content: content
         ) %>

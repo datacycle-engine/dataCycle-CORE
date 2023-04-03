@@ -65,6 +65,8 @@ module DataCycleCore
 
     delegate :visible?, to: :classification_tree_label
 
+    scope :in_context, ->(context) { includes(:classification_tree_label).where('classification_tree_labels.visibility && ARRAY[?]::varchar[]', Array.wrap(context)).references(:classification_tree_label) }
+
     def self.for_tree(tree_name)
       return none if tree_name.blank?
 
@@ -109,11 +111,11 @@ module DataCycleCore
     end
 
     def self.primary_classifications
-      DataCycleCore::Classification.includes(:primary_classification_alias).where(classification_aliases: { id: all.select(:id) })
+      DataCycleCore::Classification.includes(:primary_classification_alias).where(classification_aliases: { id: reorder(nil).select(:id) })
     end
 
     def self.classifications
-      DataCycleCore::Classification.includes(:classification_aliases).where(classification_aliases: { id: all.select(:id) })
+      DataCycleCore::Classification.includes(:classification_aliases).where(classification_aliases: { id: reorder(nil).select(:id) })
     end
 
     def self.with_descendants
@@ -141,10 +143,6 @@ module DataCycleCore
           }.join(' + ') + ' DESC'.to_s
         )
       )
-    end
-
-    def self.in_context(context)
-      all.includes(:classification_tree_label).where('classification_tree_labels.visibility && ARRAY[?]::varchar[]', Array.wrap(context)).references(:classification_tree_label)
     end
 
     def primary_classification_id

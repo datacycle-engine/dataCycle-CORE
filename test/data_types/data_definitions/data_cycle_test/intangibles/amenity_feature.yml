@@ -1,13 +1,11 @@
 - :data:
     :name: AmenityFeature
     :type: object
-    :schema_type: Intangible
     :content_type: embedded
-    :api:
-      :type:
-        - Intangible
-        - StructuredValue
-        - PropertyValue
+    :schema_ancestors:
+      - Intangible
+      - StructuredValue
+      - PropertyValue
     :properties:
       :id:
         :label: id

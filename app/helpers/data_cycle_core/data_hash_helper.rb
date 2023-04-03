@@ -81,6 +81,7 @@ module DataCycleCore
 
     def add_content_header_classification_alias(allowed_properties:, classification_aliases:, key:, classification_alias:, scope:, context:, content:, options: {}, type: :value)
       return if classification_alias.nil?
+      return if DataCycleCore::Feature::LifeCycle.enabled? && can?(:show, DataCycleCore::Feature::LifeCycle.data_attribute(content)) && type == :value && key == DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(content)&.first
 
       ui_config = allowed_properties.dig(key, 'ui').to_h.merge(allowed_properties.dig(key, 'ui', scope.to_s).to_h)
       if context == :show && ui_config.key?('disabled')

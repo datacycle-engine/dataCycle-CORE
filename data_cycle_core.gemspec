@@ -106,10 +106,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'puma-status'
   s.add_dependency 'puma_worker_killer'
 
-  # Google Cloud Services
-  s.add_dependency 'google-cloud-translate'
-  s.add_dependency 'google-cloud-vision'
-
   # premailer
   s.add_dependency 'premailer'
 

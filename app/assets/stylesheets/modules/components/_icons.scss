@@ -138,7 +138,6 @@
 
     &.content_location,
     &.ortlichkeit,
-    &.pin,
     &.poi {
       &::before {
         content: '\f041';
@@ -168,7 +167,6 @@
     &.gesamtroute,
     &.donau_-_tour,
     &.etappe,
-    &.area,
     &.donau_tour {
       &::before {
         content: '\f279';

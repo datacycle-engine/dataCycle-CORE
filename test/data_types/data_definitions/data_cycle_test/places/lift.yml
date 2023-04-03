@@ -2,7 +2,6 @@
 - :data:
     :name: Lift
     :type: object
-    :schema_type: Place
     :content_type: entity
     :boost: 10.0
     :features:
@@ -21,11 +20,10 @@
           :json: true
           :gpx: true
           :indesign: true
-    :api:
-      :type:
-        - Place
-        - TouristAttraction
-        - 'odta:SkiLift'
+    :schema_ancestors:
+      - Place
+      - TouristAttraction
+      - "odta:SkiLift"
     :properties:
       :id:
         :label: id
@@ -62,7 +60,7 @@
           :v4:
             :name: odta:distance
             :format:
-              :append: ' m'
+              :append: " m"
       :geo_shape:
         :type: mixin
         :name: geo_shape
@@ -79,8 +77,8 @@
         :api:
           :partial: property_value
           :small_header: true
-          :unit_code: 'H10'
-          :unit_text: '1/h'
+          :unit_code: "H10"
+          :unit_text: "1/h"
           :transformation:
             :method: nest
             :name: dcls:hourlyTransportCapacity
@@ -99,7 +97,7 @@
         :api:
           :partial: property_value
           :small_header: true
-          :unit_code: 'C62'
+          :unit_code: "C62"
           :transformation:
             :method: nest
             :name: odta:transportCapacity
@@ -114,8 +112,7 @@
         :label: Skigebiet
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Skigebiet
@@ -125,22 +122,22 @@
       :ski_lift_type:
         :label: Lifttyp (odta)
         :type: classification
-        :tree_label: 'odta:SkiLiftType'
+        :tree_label: "odta:SkiLiftType"
         :ui:
           :show:
             :content_area: header
         :api:
-          :name: 'odta:skiLiftType'
+          :name: "odta:skiLiftType"
           :partial: string
       :ski_lift_status:
         :label: Liftstatus (odta)
         :type: classification
-        :tree_label: 'odta:OpeningStatus'
+        :tree_label: "odta:OpeningStatus"
         :ui:
           :show:
             :content_area: header
         :api:
-          :name: 'odta:skiLiftStatus'
+          :name: "odta:skiLiftStatus"
           :partial: string
       :linked_data:
         :type: mixin
@@ -152,7 +149,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Lift'
+        :default_value: "Lift"
       :feratel_cps:
         :type: mixin
         :name: feratel_cps

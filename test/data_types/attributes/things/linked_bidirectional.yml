@@ -3,7 +3,8 @@
     :name: Tour-Bi
     :type: object
     :content_type: entity
-    :schema_type: Place
+    :schema_ancestors:
+      - Place
     :boost: 100.0
     :properties:
       :id:
@@ -34,7 +35,8 @@
     :name: Place-Bi
     :type: object
     :content_type: entity
-    :schema_type: Place
+    :schema_ancestors:
+      - Place
     :boost: 100.0
     :properties:
       :id:

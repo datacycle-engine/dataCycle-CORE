@@ -94,6 +94,15 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 
 
 --
+-- Name: compute_thing_schema_types(jsonb, character varying); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.compute_thing_schema_types(schema_types jsonb, template_name character varying DEFAULT NULL::character varying) RETURNS character varying[]
+    LANGUAGE plpgsql
+    AS $$ DECLARE agg_schema_types varchar []; BEGIN WITH RECURSIVE schema_ancestors AS ( SELECT t.ancestors, t.idx FROM jsonb_array_elements(schema_types) WITH ordinality AS t(ancestors, idx) WHERE t.ancestors IS NOT NULL UNION ALL SELECT t.ancestors, schema_ancestors.idx + t.idx * 100 FROM schema_ancestors, jsonb_array_elements(schema_ancestors.ancestors) WITH ordinality AS t(ancestors, idx) WHERE jsonb_typeof(schema_ancestors.ancestors) = 'array' ), collected_schema_types AS ( SELECT (schema_ancestors.ancestors->>0)::varchar AS ancestors, max(schema_ancestors.idx) AS idx FROM schema_ancestors WHERE jsonb_typeof(schema_ancestors.ancestors) != 'array' GROUP BY schema_ancestors.ancestors ) SELECT array_agg( ancestors ORDER BY collected_schema_types.idx )::varchar [] INTO agg_schema_types FROM collected_schema_types; IF array_length(agg_schema_types, 1) > 0 THEN agg_schema_types := agg_schema_types || ('dcls:' || template_name)::varchar; END IF; RETURN agg_schema_types; END; $$;
+
+
+--
 -- Name: delete_ca_paths_transitive_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -382,6 +391,15 @@ CREATE FUNCTION public.generate_schedule_occurences_trigger() RETURNS trigger
 
 
 --
+-- Name: generate_thing_schema_types(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_thing_schema_types() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN SELECT compute_thing_schema_types(NEW."schema"->'schema_ancestors', NEW.template_name) INTO NEW.computed_schema_types; RETURN NEW; END; $$;
+
+
+--
 -- Name: generate_unique_collection_slug(character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -396,7 +414,7 @@ CREATE FUNCTION public.generate_unique_collection_slug(old_slug character varyin
 
 CREATE FUNCTION public.geom_simple_update() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN NEW.geom_simple := ( st_simplify( ST_Force2D (COALESCE(NEW."location", NEW.line)), 0.00001, TRUE ) ); RETURN NEW; END; $$;
+    AS $$ BEGIN NEW.geom_simple := ( st_simplify( ST_Force2D (COALESCE(NEW."geom", NEW."location", NEW.line)), 0.00001, TRUE ) ); RETURN NEW; END; $$;
 
 
 --
@@ -922,7 +940,9 @@ CREATE TABLE public.things (
     line public.geometry(MultiLineStringZ,4326),
     last_updated_locale character varying,
     write_history boolean DEFAULT false,
-    geom_simple public.geometry(Geometry,4326)
+    geom_simple public.geometry(Geometry,4326),
+    computed_schema_types character varying[],
+    geom public.geometry(GeometryZ,4326)
 );
 
 
@@ -1172,6 +1192,7 @@ CREATE VIEW public.duplicate_candidates AS
  SELECT thing_duplicates.thing_duplicate_id AS duplicate_id,
     thing_duplicates.thing_id AS original_id,
     thing_duplicates.score,
+    thing_duplicates.method AS duplicate_method,
     thing_duplicates.id AS thing_duplicate_id,
     thing_duplicates.false_positive
    FROM public.thing_duplicates
@@ -1179,6 +1200,7 @@ UNION
  SELECT thing_duplicates.thing_id AS duplicate_id,
     thing_duplicates.thing_duplicate_id AS original_id,
     thing_duplicates.score,
+    thing_duplicates.method AS duplicate_method,
     thing_duplicates.id AS thing_duplicate_id,
     thing_duplicates.false_positive
    FROM public.thing_duplicates;
@@ -1591,7 +1613,8 @@ CREATE TABLE public.watch_lists (
     full_path character varying,
     full_path_names character varying[],
     my_selection boolean DEFAULT false NOT NULL,
-    manual_order boolean DEFAULT false NOT NULL
+    manual_order boolean DEFAULT false NOT NULL,
+    api boolean DEFAULT false
 );
 
 
@@ -3056,6 +3079,13 @@ CREATE INDEX thing_translations_name_idx ON public.thing_translations USING gin 
 
 
 --
+-- Name: things_computed_schema_types_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX things_computed_schema_types_idx ON public.things USING gin (computed_schema_types);
+
+
+--
 -- Name: things_template_name_template_uq_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3302,7 +3332,7 @@ CREATE TRIGGER geom_simple_insert_trigger BEFORE INSERT ON public.things FOR EAC
 -- Name: things geom_simple_update_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER geom_simple_update_trigger BEFORE UPDATE OF location, line ON public.things FOR EACH ROW WHEN ((((old.location)::text IS DISTINCT FROM (new.location)::text) OR ((old.line)::text IS DISTINCT FROM (new.line)::text))) EXECUTE FUNCTION public.geom_simple_update();
+CREATE TRIGGER geom_simple_update_trigger BEFORE UPDATE OF location, line, geom ON public.things FOR EACH ROW WHEN ((((old.location)::text IS DISTINCT FROM (new.location)::text) OR ((old.line)::text IS DISTINCT FROM (new.line)::text) OR ((old.geom)::text IS DISTINCT FROM (new.geom)::text))) EXECUTE FUNCTION public.geom_simple_update();
 
 
 --
@@ -3310,6 +3340,13 @@ CREATE TRIGGER geom_simple_update_trigger BEFORE UPDATE OF location, line ON pub
 --
 
 CREATE TRIGGER insert_classification_tree_order_a_trigger AFTER INSERT ON public.classification_trees FOR EACH ROW EXECUTE FUNCTION public.update_classification_trees_order_a_trigger();
+
+
+--
+-- Name: things insert_thing_schema_types; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER insert_thing_schema_types BEFORE INSERT ON public.things FOR EACH ROW EXECUTE FUNCTION public.generate_thing_schema_types();
 
 
 --
@@ -3491,6 +3528,13 @@ CREATE TRIGGER update_schedule_occurences_trigger AFTER UPDATE OF thing_id, dura
 --
 
 CREATE TRIGGER update_template_definitions_trigger AFTER UPDATE OF schema, boost, content_type ON public.things FOR EACH ROW WHEN (((new.template = true) AND ((old.schema IS DISTINCT FROM new.schema) OR (old.boost IS DISTINCT FROM new.boost) OR ((old.content_type)::text IS DISTINCT FROM (new.content_type)::text)))) EXECUTE FUNCTION public.update_template_definitions_trigger();
+
+
+--
+-- Name: things update_thing_schema_types; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_thing_schema_types BEFORE UPDATE OF template_name, schema ON public.things FOR EACH ROW WHEN ((((old.template_name)::text IS DISTINCT FROM (new.template_name)::text) OR (old.schema IS DISTINCT FROM new.schema))) EXECUTE FUNCTION public.generate_thing_schema_types();
 
 
 --
@@ -3847,6 +3891,12 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230224185643'),
 ('20230228085431'),
 ('20230303150323'),
-('20230306092709');
+('20230306092709'),
+('20230313072638'),
+('20230317083224'),
+('20230321085100'),
+('20230322145244'),
+('20230329123152'),
+('20230330081538');
 
 

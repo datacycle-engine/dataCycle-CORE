@@ -160,7 +160,7 @@ module DataCycleCore
     def apply_union_filters(query, filters)
       all_filters = []
       filters.each do |filter|
-        union_query = DataCycleCore::StoredFilter.new(language: @language).apply
+        union_query = DataCycleCore::StoredFilter.new(language: @language).apply(skip_ordering: true)
 
         filter.each do |filter_k, filter_v|
           filter_v = filter_v&.try(:to_h)&.deep_symbolize_keys

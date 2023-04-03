@@ -18,12 +18,12 @@ export default function () {
 	);
 
 	DataCycle.initNewElements(
-		".download-content-form:not(.dc-download-content-form)",
+		".download-content-form:not(.dcjs-download-content-form)",
 		initDownloadContentReveal.bind(this),
 	);
 
 	function initDownloadContentReveal(element) {
-		element.classList.add("dc-download-content-form");
+		element.classList.add("dcjs-download-content-form");
 		toggleAssetVersion(element);
 		toggleAssetTransformation(element);
 
@@ -57,7 +57,7 @@ export default function () {
 	}
 
 	function toggleAssetTransformation(element) {
-		let selectedVal = $(element)
+		const selectedVal = $(element)
 			.find('.active.version :input[name="version"]:checked')
 			.val();
 		$(element).find(".active.transformation").addClass("hidden");

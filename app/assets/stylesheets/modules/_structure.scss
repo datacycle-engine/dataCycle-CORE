@@ -439,6 +439,12 @@ ul.footer-links {
   }
 
   .home-container-content {
+    color: $black;
+    overflow: hidden;
+    backface-visibility: hidden;
+    position: relative;
+    border-bottom: 1px solid;
+    border-bottom-color: rgba(255, 255, 255, 0.2);
     padding: rem-calc(15) 0;
 
     &.footer {
@@ -502,14 +508,6 @@ ul.footer-links {
         }
       }
     }
-
-    color: $black;
-    overflow: hidden;
-    backface-visibility: hidden;
-    position: relative;
-    border-bottom: 1px solid;
-    border-bottom-color: rgba(255, 255, 255, 0.2);
-    background-color: rgba(255, 255, 255, 0.5);
   }
 
   .home-logo {
@@ -584,23 +582,9 @@ ul.footer-links {
   position: relative;
   border-radius: 10px;
   overflow: hidden;
-
-  &::after {
-    backface-visibility: hidden;
-    position: absolute;
-    top: 0px;
-    left: 0;
-    z-index: -1;
-    width: 100%;
-    height: 100%;
-    background-position: center bottom;
-    background-attachment: fixed;
-    background-size: cover;
-    background-image: var(--dc-background-image-url);
-    content: '';
-    transition: $global-transition;
-    filter: blur(5px);
-  }
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
 
   input,
   button,

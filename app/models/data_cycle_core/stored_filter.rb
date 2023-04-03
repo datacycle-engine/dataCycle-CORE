@@ -12,6 +12,8 @@ module DataCycleCore
     # q => String (Optional)                              | Ein spezifischer Query-Pfad für das Attribut (z.B. metadata ->> 'width') || type
 
     include StoredFilterExtensions::SortParamTransformations
+    include StoredFilterExtensions::FilterParamsTransformations
+    include StoredFilterExtensions::FilterParamsHashParser
 
     default_scope { includes(:collection_configuration) }
 
@@ -35,15 +37,6 @@ module DataCycleCore
     attr_accessor :query
 
     KEYS_FOR_EQUALITY = ['t', 'c', 'n'].freeze
-    FILTER_PREFIX = {
-      'e' => 'not_',
-      'g' => 'greater_',
-      'l' => 'lower_',
-      's' => 'like_',
-      'u' => 'not_like_',
-      'b' => 'not_exists_',
-      'p' => 'exists_'
-    }.freeze
 
     def apply(query: nil, skip_ordering: false, watch_list: nil)
       self.query = query || DataCycleCore::Filter::Search.new(language&.exclude?('all') ? language : nil)
@@ -54,53 +47,8 @@ module DataCycleCore
       self.query
     end
 
-    def parameters_from_hash(params_array)
-      return self if params_array.blank?
-
-      self.parameters = params_array.map { |filter| param_from_definition(filter) }
-
-      self
-    end
-
-    def user_filters_from_hash(user, filter_options)
-      user_filters = []
-
-      Array.wrap(DataCycleCore.user_filters).each do |f|
-        next if Array.wrap(f['scope']).exclude?(filter_options[:scope])
-        next if Array.wrap(f['segments']).none? { |s| s['name'].safe_constantize.new(*Array.wrap(s['parameters'])).include?(user) }
-        next if filter_options[:scope] == 'object_browser' && f['object_browser_restriction'].to_h.none? { |k, v| filter_options[:content_template] == k && filter_options[:attribute_key]&.in?(Array.wrap(v)) }
-
-        user_filters.concat(Array.wrap(f['stored_filter']).map { |s| param_from_definition(s, f['force'] ? 'uf' : 'u', user) })
-      end
-
-      user_filters
-    end
-
     def filter_equal?(filter1, filter2)
       filter1.slice(*KEYS_FOR_EQUALITY) == filter2.slice(*KEYS_FOR_EQUALITY)
-    end
-
-    def apply_user_filter(user, options = nil, shared_stored_filters = false)
-      return self if user.nil?
-
-      filter_options = { scope: 'backend' }
-      filter_options.merge!(options) { |_k, v1, v2| v2.presence || v1 } if options.present?
-
-      self.parameters ||= []
-      applicable_filters = user_filters_from_hash(user, filter_options)
-      applicable_filters.push(param_from_definition({ shared_with: 'current_user' }, 'uf', user)) if shared_stored_filters && filter_options[:scope] == 'backend'
-      parameters.each { |f| f['c'] = 'a' if f['c'].in?(['u', 'uf']) && applicable_filters.none? { |af| filter_equal?(af, f) } }
-
-      self.parameters = user.default_filter(parameters, filter_options) # keep for backwards compatibility
-
-      applicable_filters.each { |f| apply_specific_user_filter(f) }
-
-      self
-    end
-
-    def apply_specific_user_filter(filter)
-      parameters.reject! { |f| filter_equal?(f, filter) } if filter['c'] == 'uf'
-      parameters.push(filter) unless parameters.any? { |f| filter_equal?(f, filter) }
     end
 
     def self.combine_with_collections(collections, filter_proc, name_filter = true)
@@ -143,74 +91,6 @@ module DataCycleCore
     end
 
     private
-
-    def apply_filter_parameters
-      parameters&.each do |filter|
-        t = filter['t'].dup
-        t.prepend(FILTER_PREFIX[filter['m']].to_s)
-
-        t.concat('_with_subtree') if filter['t'].in?(['classification_alias_ids', 'not_classification_alias_ids'])
-        next unless query.respond_to?(t)
-
-        if query.method(t)&.parameters&.size == 3
-          self.query = query.send(t, filter['v'], filter['q'].presence, filter['n'].presence)
-        elsif query.method(t)&.parameters&.size == 2
-          self.query = query.send(t, filter['v'], filter['q'].presence || filter['n'].presence)
-        else
-          self.query = query.send(t, filter['v'])
-        end
-      end
-    end
-
-    def param_from_definition(definition, type = 'a', user = nil)
-      definition.to_h.deep_stringify_keys.each_with_object({}) do |(k, v), hash|
-        hash['t'], hash['m'] = filter_method_from_prefix(k)
-        hash['v'] = v
-        hash['c'] = type
-        hash['n'] = hash['t'].capitalize
-
-        custom_param_transformation(hash, user)
-      end
-    end
-
-    def custom_param_transformation(hash, user)
-      case hash['t']
-      when 'with_classification_aliases_and_treename'
-        raise StandardError, 'Missing data definition: treeLabel' if hash.dig('v', 'treeLabel').blank?
-        raise StandardError, 'Missing data definition: aliases' if hash.dig('v', 'aliases').blank?
-
-        hash['t'] = 'classification_alias_ids'
-        hash['n'] = hash.dig('v', 'treeLabel')
-        hash['v'] = DataCycleCore::ClassificationAlias
-          .for_tree(hash.dig('v', 'treeLabel'))
-          .with_internal_name(hash.dig('v', 'aliases')).pluck(:id)
-      when 'external_source'
-        hash['t'] = 'external_system'
-        hash['n'] = hash['t'].capitalize
-        hash['q'] = 'import'
-      when 'creator'
-        hash['t'] = 'user'
-        hash['n'] = 'creator'
-        hash['q'] = 'creator'
-        hash['v'] = Array.wrap(hash['v']).map { |v| v == 'current_user' ? user&.id : v }
-      when 'shared_with'
-        hash['v'] = Array.wrap(hash['v']).map { |v| v == 'current_user' ? user&.id : v }
-      when 'with_user_group_classifications_for_treename'
-        raise StandardError, 'Missing data definition: treeLabel' if hash['v'].blank?
-        relation = DataCycleCore::Feature::UserGroupClassification.attribute_relations.find { |_k, v| v['tree_label'] == hash['v'] }&.first
-        raise StandardError, "relation not found for UserGroup and treelabel (#{hash['v']})" if relation.blank?
-
-        hash['t'] = 'classification_alias_ids'
-        hash['n'] = hash['v']
-        hash['v'] = user&.user_groups&.send(relation)&.pluck(:id)
-      end
-    end
-
-    def filter_method_from_prefix(filter_type)
-      f_method, f_prefix = FILTER_PREFIX.to_a.reverse.find { |_, prefix| filter_type.starts_with?(prefix) }
-
-      return filter_type.delete_prefix(f_prefix.to_s), f_method || 'i'
-    end
 
     def update_slug?
       name_changed? && slug.blank?

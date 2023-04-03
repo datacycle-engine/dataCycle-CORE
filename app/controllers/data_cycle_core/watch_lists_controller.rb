@@ -162,7 +162,7 @@ module DataCycleCore
       bulk_edit_types = bulk_update_type_params
       bulk_edit_allowed_keys = Array.wrap(bulk_edit_types.dig(:datahash)&.keys).concat(Array.wrap(bulk_edit_types.dig(:translations)&.values&.map(&:keys)&.flatten))
 
-      template_hash = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties.slice(*bulk_edit_allowed_keys) }.stringify_keys
+      template_hash = { name: 'Generic', type: 'object', schema_ancestors: ['Generic'], content_type: 'entity', features: @shared_template_features, properties: @shared_properties.slice(*bulk_edit_allowed_keys) }.stringify_keys
       object_params = content_params(template_hash)
 
       if object_params.dig(:datahash).blank? && object_params.dig(:translations).blank?
@@ -351,7 +351,7 @@ module DataCycleCore
     end
 
     def watch_list_params
-      params.require(:watch_list).permit(:full_path, :user_id, :manual_order, user_group_ids: [], user_ids: [], collection_configuration_attributes: [:id, :slug])
+      params.require(:watch_list).permit(:full_path, :user_id, :manual_order, :api, user_group_ids: [], user_ids: [], collection_configuration_attributes: [:id, :slug])
     end
 
     def create_form_params

@@ -32,7 +32,7 @@ module DataCycleCore
       end
 
       def render(render_format)
-        raise Error::TimeseriesError, @error if @error.present?
+        raise Error::RendererError, @error if @error.present?
 
         transform_data(render_format.to_s)
       end
@@ -49,7 +49,7 @@ module DataCycleCore
 
         return send(combined_format) if respond_to?(combined_format)
 
-        raise Error::TimeseriesError, "Combination Format/dataFormat not allowed: #{combined_format}"
+        raise Error::RendererError, "Combination Format/dataFormat not allowed: #{combined_format}"
       end
 
       def transform_data(data_format)

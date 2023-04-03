@@ -92,13 +92,13 @@ def convert_linked_attribute_to_rows(key, definition)
 end
 
 DataCycleCore::Schema.templates_with_content_type('container').each do |template|
-  workbook.add_worksheet(name: template.template_name) do |sheet|
+  workbook.add_worksheet(name: template.template_name.parameterize(separator: ' ', preserve_case: true).truncate(31)) do |sheet|
     render_template(sheet, template)
   end
 end
 
 DataCycleCore::Schema.templates_with_content_type('entity').each do |template|
-  workbook.add_worksheet(name: template.template_name) do |sheet|
+  workbook.add_worksheet(name: template.template_name.parameterize(separator: ' ', preserve_case: true).truncate(31)) do |sheet|
     render_template(sheet, template)
   end
 end

@@ -208,9 +208,6 @@ module DataCycleCore
   mattr_accessor :partial_update_improved
   self.partial_update_improved = false
 
-  mattr_accessor :transitive_classification_paths
-  self.transitive_classification_paths = false
-
   mattr_accessor :persistent_activities
   self.persistent_activities = ['downloads']
 
@@ -219,6 +216,9 @@ module DataCycleCore
 
   mattr_accessor :header_title
   self.header_title = nil
+
+  mattr_accessor :data_link_bcc
+  self.data_link_bcc = nil
 
   def self.setup
     yield self

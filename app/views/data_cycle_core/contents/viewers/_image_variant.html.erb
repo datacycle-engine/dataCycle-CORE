@@ -6,9 +6,9 @@
     <%= attribute_viewer_label_tag(**local_assigns.merge(accordion_controls: true)) if !local_assigns[:no_wrapper] %>
 
     <% objects&.each_with_index do |object, index| %>
-      <% changes_by_value = changes_by_value(options.dig('item_diff'), diff_target_id(object)) %>
+      <% changes_by_value_hash = changes_by_value(options.dig('item_diff'), diff_target_id(object)) %>
       <% merged_options = options.merge({
-          item_diff: changes_by_value,
+          item_diff: changes_by_value_hash,
           mode: changes_class(options.dig('item_diff'), diff_target_id(object))
         }).with_indifferent_access %>
 
@@ -41,7 +41,7 @@
 
         <div class="accordion-content remote-render" data-tab-content
              data-remote-path="data_cycle_core/contents/viewers/embedded/image_variant"
-             data-remote-options="<%= to_query_params(local_assigns.merge({ object: object, index: index, locale: I18n.locale, options: merged_options, diff_target: changes_by_mode(changes_by_value, '~').present? ? diff_target_by_id(local_assigns.merge({ object: object })) : nil })).to_json %>">
+             data-remote-options="<%= to_query_params(local_assigns.merge({ object: object, index: index, locale: I18n.locale, options: merged_options, diff_target: changes_by_mode(changes_by_value_hash, '~').present? ? diff_target_by_id(local_assigns.merge({ object: object })) : nil })).to_json %>">
         </div>
       <% end %>
     <% end %>

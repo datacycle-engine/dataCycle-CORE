@@ -14,7 +14,7 @@ module DataCycleCore
             c.id,
             {
               title: "#{"#{c.template_name}: " unless template_filter}#{I18n.with_locale(c.first_available_locale) { c.title }} (#{c.translated_locales.join(', ')})",
-              class: "#{c.template_name.underscore_blanks} #{c.schema.dig('schema_type').underscore_blanks}"
+              class: "#{c.template_name.underscore_blanks} #{c.schema_type&.underscore_blanks}"
             }
           ]
         end,

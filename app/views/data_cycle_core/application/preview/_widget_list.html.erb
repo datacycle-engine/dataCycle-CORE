@@ -1,19 +1,16 @@
-<div class="preview-widget-list">
-  <% DataCycleCore::Feature::Preview.available_widgets.each do |k,v| %>
-    <a href="<%= "#{v}?data_cycle_widget[endpoint]=#{content.id}" %>" data-dc-tooltip="<%= t("common.widgets.#{k}", locale: active_ui_locale) %>" class="copy-to-clipboard right" data-value="<%= "#{v}?data_cycle_widget[endpoint]=#{content.id}" %>">
-      <% case k %>
-      <% when 'list' %>
-      <i class="fa fa-list" aria-hidden="true"></i>
-      <% when 'map' %>
-      <i class="fa fa-map" aria-hidden="true"></i>
-      <% when 'event' %>
-      <i class="fa fa-calendar" aria-hidden="true"></i>
-    <% else %>
-      <i class="fa fa-columns" aria-hidden="true"></i>
+<% if DataCycleCore::Feature::Preview.enabled? %>
+  <div class="preview-widget-list">
+    <% DataCycleCore::Feature::Preview.available_widgets.each do |k,v| %>
+      <a href="<%= "#{v}?data_cycle_widget[endpoint]=#{content.id}" %>" data-dc-tooltip="<%= t("common.widgets.#{k}", locale: active_ui_locale) %>" class="copy-to-clipboard right" data-value="<%= "#{v}?data_cycle_widget[endpoint]=#{content.id}" %>">
+        <%=
+        case k
+        when 'list' then tag.i(class: 'fa fa-list')
+        when 'map' then tag.i(class: 'fa fa-map')
+        when 'event' then tag.i(class: 'fa fa-calendar')
+        else tag.i(class: 'fa fa-columns')
+        end
+      %>
+      </a>
     <% end %>
-  </a>
-<% end if DataCycleCore::Feature::Preview.enabled? %>
-<%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_path", id: content), class: 'copy-to-clipboard left', data: { value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_url", id: content), dc_tooltip: t('data_cycle_core.docs.api.root', locale: active_ui_locale) } do %>
-  <i class="fa fa-clipboard" aria-hidden="true"></i>
+  </div>
 <% end %>
-</div>

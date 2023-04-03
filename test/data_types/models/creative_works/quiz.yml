@@ -2,7 +2,8 @@
 - :data:
     :name: Quiz
     :type: object
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :content_type: entity
     :boost: 100.0
     :features:
@@ -61,7 +62,8 @@
 - :data:
     :name: Frage
     :type: object
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :content_type: embedded
     :api:
       :type: Question
@@ -113,7 +115,8 @@
 - :data:
     :name: Antwort
     :type: object
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :content_type: embedded
     :api:
       :type: Answer

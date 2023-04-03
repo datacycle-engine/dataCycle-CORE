@@ -60,7 +60,7 @@ module DataCycleCore
               I18n.with_locale(first_available_locale) { title },
               " (#{translated_locales.join(', ')})"
             ].compact),
-            "#{template_name.underscore_blanks} #{schema.dig('schema_type').underscore_blanks}",
+            "#{template_name.underscore_blanks} #{schema_type.underscore_blanks}",
             "#{"#{template_name}: " unless template_filter}#{I18n.with_locale(first_available_locale) { title }} (#{translated_locales.join(', ')})"
           )
         end

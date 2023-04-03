@@ -15,14 +15,17 @@
 
   <div class="advanced-filter-selector">
     <%= select_tag("f[#{identifier}][v]",
-      options_for_select(DataCycleCore::User.where(id: value).map { |u| u.to_select_option(active_ui_locale) }.map(&:to_option_for_select), value),
+      options_for_select(DataCycleCore::User.where(id: value).map { |u| u.to_select_option(active_ui_locale, false) }.map(&:to_option_for_select), value),
       {
         multiple: true,
         class: 'async-select',
         data: {
           max: 20,
           placeholder: '',
-          search_path: search_users_path
+          search_path: search_users_path,
+          query_params: {
+            disable_locked: false
+          }
         }
       }) %>
   </div>

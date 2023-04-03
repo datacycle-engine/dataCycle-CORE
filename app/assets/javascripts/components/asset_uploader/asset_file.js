@@ -421,7 +421,10 @@ class AssetFile {
 			.find(".new-content-form")
 			.attr("data-remote-options", JSON.stringify(this.uploader.remoteOptions));
 
-		const clonedHtml = this.fileField.clone().removeAttr("data-open");
+		const clonedHtml = DomElementHelpers.$cloneElement(
+			this.fileField,
+		).removeAttr("data-open");
+
 		clonedHtml.html(this._updateIdsInClonedErrors(clonedHtml.html()));
 		this.fileFormField = $(clonedHtml).prependTo(html);
 
