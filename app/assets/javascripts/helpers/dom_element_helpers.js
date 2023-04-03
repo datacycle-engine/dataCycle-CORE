@@ -29,6 +29,8 @@ const DomElementHelpers = {
 		}
 	},
 	randomId(prefix = "") {
+		if (self.crypto.randomUUID !== undefined) return self.crypto.randomUUID();
+
 		return `${prefix}_${Math.random().toString(36).slice(2)}`;
 	},
 	async renderImportConfirmationModal(field, sourceId, confirmationCallback) {
@@ -140,9 +142,40 @@ const DomElementHelpers = {
 		if (!(elem && elem instanceof Element)) return;
 
 		if (this.isVisible(elem)) {
-			elem.addEventListener("transitionend", () => elem.remove());
+			elem.addEventListener("transitionend", () => elem.remove(), {
+				once: true,
+			});
 			elem.classList.add("dcjs-fadeout");
 		} else elem.remove();
+	},
+	$cloneElement(element) {
+		if (element instanceof $) element = element.get();
+
+		const fragment = new DocumentFragment();
+
+		if (Array.isArray(element))
+			for (const e of element) fragment.append(e.cloneNode(true));
+		else fragment.append(element.cloneNode(true));
+
+		for (const dcjsElem of fragment.querySelectorAll('[class*="dcjs"]')) {
+			for (const className of dcjsElem.classList)
+				if (className.startsWith("dcjs-")) dcjsElem.classList.remove(className);
+
+			if (
+				dcjsElem.classList.contains("reveal") ||
+				dcjsElem.classList.contains("dropdown-pane")
+			) {
+				const newId = DomElementHelpers.randomId();
+				const elem = fragment.querySelector(
+					`[data-open="${dcjsElem.id}"], [data-toggle="${dcjsElem.id}"]`,
+				);
+				dcjsElem.id = newId;
+				if (elem.dataset.open) elem.dataset.open = newId;
+				if (elem.dataset.toggle) elem.dataset.toggle = newId;
+			}
+		}
+
+		return $(fragment.children);
 	},
 };
 

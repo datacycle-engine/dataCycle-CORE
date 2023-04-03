@@ -107,20 +107,18 @@ module DataCycleCore
         end
 
         def self.get_classification_id(leaf, parent)
-          I18n.with_locale(:de) do
-            parent_class = DataCycleCore::ClassificationAlias.for_tree('reisen-fuer-alle.de - Zertifikate').find_by(name: parent)
-            raise "reise-fuer-all.de importer: could not find classification_alias for #{parent} in tree (reisen-fuer-alle.de - Zertifikate)" if parent.blank?
-            class_alias = DataCycleCore::ClassificationAlias
-              .joins(:classification_tree)
-              .find_by(
-                classification_aliases: { name: leaf },
-                classification_trees: {
-                  parent_classification_alias_id: parent_class.try(:id)
-                }
-              )
-            raise "reise-fuer-all.de importer: could not find classification_alias for #{leaf} in tree (reisen-fuer-alle.de - Zertifikate) with parent_classification_alias #{parent}" if class_alias.blank?
-            class_alias.primary_classification.id
-          end
+          parent_class = DataCycleCore::ClassificationAlias.for_tree('reisen-fuer-alle.de - Zertifikate').find_by(internal_name: parent)
+          raise "reise-fuer-all.de importer: could not find classification_alias for #{parent} in tree (reisen-fuer-alle.de - Zertifikate)" if parent.blank?
+          class_alias = DataCycleCore::ClassificationAlias
+            .joins(:classification_tree)
+            .find_by(
+              classification_aliases: { internal_name: leaf },
+              classification_trees: {
+                parent_classification_alias_id: parent_class.try(:id)
+              }
+            )
+          raise "reise-fuer-all.de importer: could not find classification_alias for #{leaf} in tree (reisen-fuer-alle.de - Zertifikate) with parent_classification_alias #{parent}" if class_alias.blank?
+          class_alias.primary_classification.id
         end
 
         def self.add_external_links(data)

@@ -2,21 +2,19 @@
 ######################### DOCKER setup for DC core
 
 include:
-  - project: 'data-cycle/data-cycle-core'
+  - project: "data-cycle/data-cycle-core"
     ref: develop
-    file: '/gitlab_templates/.gitlab-ci-dc-common.yml'
+    file: "/gitlab_templates/.gitlab-ci-dc-common.yml"
 
 variables:
-  DOCKER_URL: 'https://core-develop.datacycle.at'
-  GITLAB_ENVIRONMENT: 'develop'
+  DOCKER_URL: "https://core-develop.datacycle.at"
+  GITLAB_ENVIRONMENT: "develop"
 
 stages:
   - build
   - check
   - test
   - build-docker
-  - deploy
-  - post-deploy
 
 before_script:
   - gem install bundler
@@ -57,7 +55,7 @@ code_validation:
   <<: *docker_ci
   extends: .code_validation_config
   variables:
-    CORE_RAKE_PREFIX: 'app:'
+    CORE_RAKE_PREFIX: "app:"
 
 rails_test:
   <<: *docker_ci
@@ -75,45 +73,6 @@ build_docker_job:
       --build-arg APP_PROTOCOL
     - docker push "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG"
 
-deploy_docker_job:
-  <<: *docker_ci
-  extends: .deploy_docker_config
-  script:
-    # update ssh config of deployment target to support bigger number of active sessions
-    # e.g. MaxSessions 20
-    - echo "$DOCKER_HOST"
-    - bash docker/utility/ssh_helper.sh .env.production docker/utility/check_bind_mounts.sh
-    - docker-compose --env-file .env.production pull
-    - docker-compose --env-file .env.production build
-    - docker-compose --env-file .env.production --profile migrate run migrate_project bash /app/docker/utility/migrate.sh
-    - docker-compose --env-file .env.production up --scale job_worker_cache_invalidation=2 --scale job_worker_search_update=3 -d --force-recreate
-  environment:
-    name: $GITLAB_ENVIRONMENT
-    url: $DOCKER_URL
-    on_stop: stop_docker_job
-  when: manual
-
-stop_docker_job:
-  <<: *docker_ci
-  extends: .stop_docker_config
-  environment:
-    name: $GITLAB_ENVIRONMENT
-    action: stop
-
-restart_docker_job:
-  <<: *docker_ci
-  extends: .restart_docker_config
-  environment:
-    name: $GITLAB_ENVIRONMENT
-    url: $DOCKER_URL
-
-post_deploy_docker_job:
-  <<: *docker_ci
-  extends: .post_deploy_docker_config
-  environment:
-    name: $GITLAB_ENVIRONMENT
-    url: $DOCKER_URL
-
 ########################################################################
 ######################### Master
 build_caches_master:
@@ -124,7 +83,7 @@ code_validation_master:
   <<: *master_ci
   extends: .code_validation_config
   variables:
-    CORE_RAKE_PREFIX: 'app:'
+    CORE_RAKE_PREFIX: "app:"
 
 rails_test_master:
   <<: *master_ci
@@ -140,7 +99,7 @@ code_review_validation:
   <<: *review_ci
   extends: .code_validation_config
   variables:
-    CORE_RAKE_PREFIX: 'app:'
+    CORE_RAKE_PREFIX: "app:"
 
 rails_review_test:
   <<: *review_ci

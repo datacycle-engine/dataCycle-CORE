@@ -28,8 +28,15 @@ module DataCycleCore
           }
         end
 
+        def legacy_api_type
+          computed_types = computed_schema_types&.reject { |t| t.start_with?('dcls:') }
+          return computed_types.first if computed_types&.size == 1
+
+          computed_types.presence || schema.dig('api', 'type') || try(:schema_type) || self.class.name.demodulize
+        end
+
         def api_type
-          [schema.dig('api', 'type') || try(:schema_type) || self.class.name.demodulize, 'dcls:' + template_name].flatten
+          computed_schema_types.presence || [schema.dig('api', 'type') || try(:schema_type) || self.class.name.demodulize, 'dcls:' + template_name].flatten
         end
       end
     end

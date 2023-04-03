@@ -1,0 +1,22 @@
+# frozen_string_literal: true
+
+default_options = {
+  include: @include_parameters,
+  fields: @fields_parameters,
+  field_filter: @field_filter,
+  languages: @language,
+  full: true
+}
+options = default_options.merge(defined?(options) ? options || {} : {})
+options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
+
+json ||= {}
+
+json.merge! render 'context', languages: options[:languages]
+json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options: options, show_all_concepts: true
+
+json.merge! render 'pagination_links',
+                   objects: @classification_aliases,
+                   object_url: ->(params) { api_v4_classification_trees_by_external_key(@api_subversion, params.merge(external_source_id: @external_source_id, external_key: @external_key)) }
+
+json

@@ -32,7 +32,7 @@ class RemoteRenderer {
 		);
 
 		DataCycle.initNewElements(
-			".remote-render",
+			".remote-render:not(.dcjs-remote-render)",
 			this.addRemoteRenderHandler.bind(this),
 		);
 	}
@@ -43,13 +43,18 @@ class RemoteRenderer {
 		this.intersectionObserver.unobserve(element);
 	}
 	addRemoteRenderHandler(element) {
+		element.classList.add("dcjs-remote-render");
 		this.observeElement(element);
+
+		$(element).on("dc:remote:render", () => {
+			if (DataCycle.config.remoteRenderFull) this.loadRemote(element);
+		});
 
 		if (element.classList.contains("translatable-attribute"))
 			this.addForceRenderTranslationHandler(element);
 
 		if (DataCycle.config.remoteRenderFull)
-			requestAnimationFrame(this.loadRemote.bind(this, element));
+			requestAnimationFrame(this.loadRemote.bind(this, element, null));
 	}
 	addForceRenderTranslationHandler(element) {
 		$(element).on(
@@ -71,7 +76,7 @@ class RemoteRenderer {
 		event.preventDefault();
 		event.stopPropagation();
 
-		let remoteContainer = event.target.closest(".remote-render-failed");
+		const remoteContainer = event.target.closest(".remote-render-failed");
 		remoteContainer.classList.add("remote-reload");
 		remoteContainer.classList.remove("remote-render-failed");
 
@@ -87,7 +92,7 @@ class RemoteRenderer {
 		event.stopPropagation();
 
 		if (data) {
-			let remoteOptions = DomElementHelpers.parseDataAttribute(
+			const remoteOptions = DomElementHelpers.parseDataAttribute(
 				event.target.dataset.remoteOptions,
 			);
 			event.target.dataset.remoteOptions = JSON.stringify(

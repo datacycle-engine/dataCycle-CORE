@@ -23,6 +23,7 @@ module DataCycleCore
           @params = @options[:params] || {}
           @endpoint_url = options[:endpoint_url] || 'http://interface.deskline.net'
           @usage = @options[:usage] if @options[:usage].present?
+          @db_code = @options[:db_code] if @options[:db_code].present?
         end
 
         def faraday
@@ -185,15 +186,15 @@ module DataCycleCore
           enumerate_two_stages(:accommodations, '//ServiceProviders/ServiceProvider', '//ChangedServiceProviders/ServiceProvider', lang: lang, forced_updates: forced_updates)
         end
 
-        def mark_deleted_accommodations(lang: :de, deleted_from:)
+        def mark_deleted_accommodations(deleted_from:, lang: :de)
           enumerate_items(:mark_deleted_accommodations, '//DeletedItems/Item', lang: lang, deleted_from: deleted_from)
         end
 
-        def mark_deleted_events(lang: :de, deleted_from:)
+        def mark_deleted_events(deleted_from:, lang: :de)
           enumerate_items(:mark_deleted_events, '//DeletedItems/Item', lang: lang, deleted_from: deleted_from)
         end
 
-        def mark_deleted_infrastructure_items(lang: :de, deleted_from:)
+        def mark_deleted_infrastructure_items(deleted_from:, lang: :de)
           enumerate_items(:mark_deleted_infrastructure_items, '//DeletedItems/Item', lang: lang, deleted_from: deleted_from)
         end
 
@@ -229,7 +230,7 @@ module DataCycleCore
 
         def load_updated_data(lang: :de, range_code: 'RG', range_ids: @primary_range_id, deleted_from: nil, retry_count: 0)
           url = "#{@endpoint_url}/DSI/BasicData.asmx/GetData"
-          request_parameters = send('create_mark_updated_request_xml', range_code: range_code, range_ids: range_ids, deleted_from: deleted_from)
+          request_parameters = send(:create_mark_updated_request_xml, range_code: range_code, range_ids: range_ids, deleted_from: deleted_from)
 
           # puts Nokogiri::XML(request_parameters, &:noblanks).to_xml(indent: 2)
           # puts
@@ -415,7 +416,7 @@ module DataCycleCore
           load_data(type, lang: lang, range_code: range_code, range_ids: range_ids, index: index, retry_count: retry_count + 1)
         end
 
-        def load_data_item(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, item_ids:, retry_count: 0)
+        def load_data_item(type, item_ids:, lang: :de, range_code: 'RG', range_ids: @primary_range_id, retry_count: 0)
           url = "#{@endpoint_url}/DSI/BasicData.asmx/GetData"
           request_parameters = send("create_#{type}_request_xml", lang: lang, range_code: range_code, range_ids: range_ids, item_ids: item_ids)
 
@@ -449,7 +450,7 @@ module DataCycleCore
           load_data_item(type, lang: lang, range_code: range_code, range_ids: range_ids, item_ids: item_ids, retry_count: retry_count + 1)
         end
 
-        def load_data_large(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, pattern:)
+        def load_data_large(type, pattern:, lang: :de, range_code: 'RG', range_ids: @primary_range_id)
           if [:additional_service_providers, :events, :infrastructure_items, :accommodations, :packages, :package_containers].include?(type)
             url = "#{@endpoint_url}/DSI/BasicData.asmx/GetData"
           else
@@ -488,7 +489,7 @@ module DataCycleCore
           data_array.compact
         end
 
-        def load_changed_data(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, changed_from:, retry_count: 0)
+        def load_changed_data(type, changed_from:, lang: :de, range_code: 'RG', range_ids: @primary_range_id, retry_count: 0)
           url = "#{@endpoint_url}/DSI/BasicData.asmx/GetData"
           request_parameters = send("updated_#{type}_request_xml", lang: lang, range_code: range_code, range_ids: range_ids, changed_from: changed_from)
 

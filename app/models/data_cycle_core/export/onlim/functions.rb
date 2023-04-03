@@ -11,35 +11,34 @@ module DataCycleCore
           log("update -> Export | Onlim | #{external_system.id}", data&.id)
 
           unless external_system_data&.dig('job_status')&.in?(['pending'])
-            Delayed::Job.enqueue(
-              DataCycleCore::Export::Onlim::Webhook.new(
-                data: OpenStruct.new(id: data.id, template_name: data.template_name), # rubocop:disable Style/OpenStructUse
-                external_system: external_system,
-                external_system_data: external_system_data,
-                endpoint: utility_object.endpoint,
-                request: :update_request
-              )
+            webhook = (external_system.config.dig('export_config', 'webhook').presence&.safe_constantize || DataCycleCore::Export::Generic::Webhook).new(
+              data: OpenStruct.new(id: data.id, template_name: data.template_name), # rubocop:disable Style/OpenStructUse
+              external_system: external_system,
+              external_system_data: external_system_data,
+              endpoint: utility_object.endpoint,
+              request: :update_request
             )
+            Delayed::Job.enqueue(webhook)
           end
 
-          # ask for job_status (already running):
+          # ask for job_status
           update_job_status(utility_object: utility_object, data: data)
         end
 
         def self.update_job_status(utility_object:, data:)
           external_system = utility_object.external_system
-          external_system_data = load_external_system_data(data, external_system) # data.external_system_data(external_system, 'export', nil, false)
+          external_system_data = load_external_system_data(data, external_system)
           log("update_job_status -> Export | Onlim | #{external_system.id}", data&.id)
 
-          Delayed::Job.enqueue(
-            DataCycleCore::Export::Onlim::Webhook.new(
-              data: OpenStruct.new(id: data.id, template_name: data.template_name), # rubocop:disable Style/OpenStructUse
-              external_system: external_system,
-              external_system_data: external_system_data,
-              endpoint: utility_object.endpoint,
-              request: :job_status_request
-            )
+          webhook = (external_system.config.dig('export_config', 'webhook').presence&.safe_constantize || DataCycleCore::Export::Generic::Webhook).new(
+            data: OpenStruct.new(id: data.id, template_name: data.template_name), # rubocop:disable Style/OpenStructUse
+            external_system: external_system,
+            external_system_data: external_system_data,
+            endpoint: utility_object.endpoint,
+            request: :job_status_request
           )
+
+          Delayed::Job.enqueue(webhook)
         end
 
         def self.delete(utility_object:, data:)
@@ -48,15 +47,15 @@ module DataCycleCore
           data.add_external_system_data(external_system, nil, 'deleting', 'export', nil, false)
           log("delete -> Export | Onlim | #{external_system.id}", data&.id)
 
-          Delayed::Job.enqueue(
-            DataCycleCore::Export::Onlim::Webhook.new(
-              data: OpenStruct.new(id: data.id, template_name: data.template_name), # rubocop:disable Style/OpenStructUse
-              external_system: external_system,
-              external_system_data: external_system_data,
-              endpoint: utility_object.endpoint,
-              request: :delete_request
-            )
+          webhook = (external_system.config.dig('export_config', 'webhook').presence&.safe_constantize || DataCycleCore::Export::Generic::Webhook).new(
+            data: OpenStruct.new(id: data.id, template_name: data.template_name), # rubocop:disable Style/OpenStructUse
+            external_system: external_system,
+            external_system_data: external_system_data,
+            endpoint: utility_object.endpoint,
+            request: :delete_request
           )
+
+          Delayed::Job.enqueue(webhook)
         end
 
         def self.filter(data:, external_system:, method_name:)

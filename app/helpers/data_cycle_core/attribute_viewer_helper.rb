@@ -58,9 +58,14 @@ module DataCycleCore
       true
     end
 
-    def render_specific_translatable_title_attribute_viewer(locale:, content:, key:, **_args)
+    def render_specific_translatable_title_attribute_viewer(locale:, content:, key:, **args)
       I18n.with_locale(locale) do
-        content.try(key)
+        label_html = ActionView::OutputBuffer.new
+        label_html << content.try(key)
+        definition = content.properties_for('name')
+        label_html << render('data_cycle_core/contents/content_score', key: 'name', content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition) if definition&.key?('content_score')
+
+        label_html
       end
     end
 

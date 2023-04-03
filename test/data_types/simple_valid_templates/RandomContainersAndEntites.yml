@@ -3,7 +3,8 @@
     :name: Container One
     :type: object
     :content_type: container
-    :schema_type: ContainerOne
+    :schema_ancestors:
+      - ContainerOne
     :properties:
       :id:
         :label: id
@@ -13,7 +14,8 @@
     :name: Container Two
     :type: object
     :content_type: container
-    :schema_type: ContainerTwo
+    :schema_ancestors:
+      - ContainerTwo
     :properties:
       :id:
         :label: id
@@ -23,7 +25,8 @@
     :name: Container Three
     :type: object
     :content_type: container
-    :schema_type: ContainerThree
+    :schema_ancestors:
+      - ContainerThree
     :properties:
       :id:
         :label: id
@@ -33,7 +36,8 @@
     :name: Entity One
     :type: object
     :content_type: entity
-    :schema_type: EntityOne
+    :schema_ancestors:
+      - EntityOne
     :properties:
       :id:
         :label: id
@@ -43,7 +47,8 @@
     :name: Entity Two
     :type: object
     :content_type: entity
-    :schema_type: EntityTwo
+    :schema_ancestors:
+      - EntityTwo
     :properties:
       :id:
         :label: id
@@ -53,7 +58,8 @@
     :name: Entity Three
     :type: object
     :content_type: entity
-    :schema_type: EntityThree
+    :schema_ancestors:
+      - EntityThree
     :properties:
       :id:
         :label: id
@@ -63,7 +69,8 @@
     :name: Entity Four
     :type: object
     :content_type: entity
-    :schema_type: EntityFour
+    :schema_ancestors:
+      - EntityFour
     :properties:
       :id:
         :label: id

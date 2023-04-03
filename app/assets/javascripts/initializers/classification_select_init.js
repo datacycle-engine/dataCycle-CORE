@@ -13,12 +13,12 @@ export default function () {
 	});
 
 	DataCycle.initNewElements(
-		".classification-checkbox-list:not(.dc-check-box-selector)",
+		".classification-checkbox-list:not(.dcjs-check-box-selector)",
 		(e) => new CheckBoxSelector(e).init(),
 	);
 
 	DataCycle.initNewElements(
-		".classification-radiobutton-list:not(.dc-radio-button-selector)",
+		".classification-radiobutton-list:not(.dcjs-radio-button-selector)",
 		(e) => new RadioButtonSelector(e).init(),
 	);
 

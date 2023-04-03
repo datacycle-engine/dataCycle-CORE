@@ -82,7 +82,10 @@
             <% end %>
 
             <% if ['width', 'height', 'content_size', 'file_format', 'date_created', 'date_modified', 'upload_date'].any?{|val| content.try(val.to_sym).present? } %>
-              <dt><i class="fa fa-info-circle" aria-hidden="true"></i> Bildinformationen</dt>
+              <dt class="detail-type">
+                <i class="fa fa-info-circle" aria-hidden="true"></i> Bildinformationen
+                <%= render('data_cycle_core/contents/content_score', key: 'asset', content: contextual_content(local_assigns), definition: content.properties_for('asset')) if content.properties_for('asset')&.key?('content_score') %>
+              </dt>
               <dd>
                 <% if content.width&.to_i&.positive? ||  content.height&.to_i&.positive? %>
                   <%= content.width&.to_i %>px/<%= content.height&.to_i %>px

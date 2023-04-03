@@ -263,8 +263,8 @@ module DataCycleCore
       "#{Generic::Collection.database_name}_#{id}"
     end
 
-    def reset
-      update!(last_import: nil, last_successful_import: nil, last_download: nil, last_successful_download: nil)
+    def reset(time = nil)
+      update!(last_import: time, last_successful_import: time, last_download: time, last_successful_download: time)
       reload
     end
 

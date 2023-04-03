@@ -33,6 +33,8 @@ function initReveal(element) {
 }
 
 function monitorSizeChanges(element) {
+	element.classList.add("dcjs-fd-reveal-updater");
+
 	const resizeObserver = new ResizeObserver((_) => {
 		if (domElementHelpers.isVisible(element))
 			$(element).foundation("_updatePosition");
@@ -68,31 +70,43 @@ export default function () {
 	]);
 
 	// Close Button
-	DataCycle.initNewElements("[data-close]", (e) => new CloseButton(e));
+	DataCycle.initNewElements(
+		"[data-close]:not(.dcjs-fd-close-button)",
+		(e) => new CloseButton(e),
+	);
 
 	// Foundation Slider
-	DataCycle.initNewElements(".slider", (e) => new Foundation.Slider($(e)));
+	DataCycle.initNewElements(".slider:not(.dcjs-fd-slider)", (e) => {
+		e.classList.add("dcjs-fd-slider");
+		new Foundation.Slider($(e));
+	});
 
 	// Foundation Accordion
-	DataCycle.initNewElements("[data-accordion]:not(.dc-fd-accordion)", (e) => {
+	DataCycle.initNewElements("[data-accordion]:not(.dcjs-fd-accordion)", (e) => {
 		new Foundation.Accordion($(e));
-		e.classList.add("dc-fd-accordion");
+		e.classList.add("dcjs-fd-accordion");
 	});
 	DataCycle.initNewElements(
-		"[data-accordion].dc-fd-accordion .accordion-item",
-		(e) => Foundation.reInit($(e.closest("[data-accordion]"))),
+		"[data-accordion].dcjs-fd-accordion .accordion-item:not(.dcjs-fd-accordion-item)",
+		(e) => {
+			e.classList.add("dcjs-fd-accordion-item");
+			Foundation.reInit($(e.closest("[data-accordion]")));
+		},
 	);
 
 	// Foundation Dropdown
-	DataCycle.initNewElements(
-		"[data-dropdown]",
-		(e) => new Foundation.Dropdown($(e)),
-	);
+	DataCycle.initNewElements("[data-dropdown]:not(.dcjs-fd-dropdown)", (e) => {
+		e.classList.add("dcjs-fd-dropdown");
+		new Foundation.Dropdown($(e));
+	});
 
 	// Foundation OffCanvas
 	DataCycle.initNewElements(
-		"[data-off-canvas]",
-		(e) => new Foundation.OffCanvas($(e)),
+		"[data-off-canvas]:not(.dcjs-fd-offcanvas)",
+		(e) => {
+			e.classList.add("dcjs-fd-offcanvas");
+			new Foundation.OffCanvas($(e));
+		},
 	);
 
 	// Foundation Reveal
@@ -103,12 +117,15 @@ export default function () {
 
 	// Foundation Reveal Position Updater
 	DataCycle.initNewElements(
-		'.reveal:not(.full)[data-v-offset="auto"], .reveal:not(.full):not([data-v-offset])',
+		'.reveal:not(.full)[data-v-offset="auto"]:not(.dcjs-fd-reveal-updater), .reveal:not(.full):not([data-v-offset]):not(.dcjs-fd-reveal-updater)',
 		(e) => monitorSizeChanges(e),
 	);
 
 	// Foundation Tabs
-	DataCycle.initNewElements("[data-tabs]", (e) => new Foundation.Tabs($(e)));
+	DataCycle.initNewElements("[data-tabs]:not(.dcjs-fd-tabs)", (e) => {
+		e.classList.add("dcjs-fd-tabs");
+		new Foundation.Tabs($(e));
+	});
 
 	$(document).on("open.zf.reveal", ".reveal", (event) => {
 		event.stopPropagation();

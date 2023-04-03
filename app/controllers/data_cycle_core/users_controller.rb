@@ -112,7 +112,7 @@ module DataCycleCore
       users = DataCycleCore::User.all.limit(20)
       users = users.where(sql_for_fulltext_search(search_params[:q])) if search_params[:q].present?
 
-      render plain: users.map { |u| u.to_select_option(helpers.active_ui_locale) }.to_json, content_type: 'application/json'
+      render plain: users.map { |u| u.to_select_option(helpers.active_ui_locale, search_params[:disable_locked].to_s != 'false') }.to_json, content_type: 'application/json'
     end
 
     def become
@@ -153,7 +153,7 @@ module DataCycleCore
 
     def search_params
       params
-        .permit(:q, roles: [], user_groups: [])
+        .permit(:q, :disable_locked, roles: [], user_groups: [])
         .tap { |p| p[:q]&.strip! }
     end
 

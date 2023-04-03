@@ -6,43 +6,49 @@ module DataCycleCore
       class Endpoint < DataCycleCore::Export::Common::Endpoint::GenericEndpoint
         include DataCycleCore::Engine.routes.url_helpers
 
-        DEFAULT_ATTRIBUTES = [['id'], ['name'], ['geo'], ['address']].freeze # , ['description']
-        ATTRIBUTE_FILTER = {
-          'Event' => [['eventSchedule']],
-          'Gastronomischer Betrieb' => [],
-          'POI' => [],
-          'Tour' => [],
-          'Unterkunft' => [],
-          'Bild' => [
-            ['name'], ['contentUrl'], ['thumbnailUrl'], ['width'], ['height'],
-            ['fileFormat'], ['uploadDate'], ['copyrightNotice'], ['copyrightYear']
-          ],
-          'Person' => [],
-          'Organization' => []
-        }.freeze
-
-        DEFAULT_INCLUDE = [['image', 'copyrightHolder'], ['sdPublisher'], ['copyrightHolder']].freeze # ['dc:classification', 'skos:inScheme'],
+        DEFAULT_INCLUDE = [
+          ['image', 'copyrightHolder'], ['image', 'author'],
+          ['sdPublisher'], ['copyrightHolder'],
+          ['dc:classification'], ['dc:translation'], ['dc:additionalInformation']
+        ].freeze
         INCLUDE_FILTER = {
-          'Event' => [['eventSchedule']],
+          'Event' => [
+            ['potentialAction'], ['eventSchedule'], ['organizer'], ['performer'], ['location'],
+            ['location', 'author'], ['location', 'sdPublisher'], ['location', 'copyrightHolder'],
+            ['location', 'image'], ['location', 'image', 'copyrightHolder'], ['location', 'image', 'author'],
+            ['location', 'dc:classification'], ['location', 'dc:translation']
+          ],
           'Gastronomischer Betrieb' => [],
-          'POI' => [['author']],
-          'Tour' => [],
-          'Unterkunft' => []
+          'POI' => [
+            ['author']
+          ],
+          'Tour' => [
+            ['odta:wayPoint'],
+            ['odta:wayPoint', 'author'], ['odta:wayPoint', 'sdPublisher'], ['odta:wayPoint', 'copyrightHolder'],
+            ['odta:wayPoint', 'image'], ['odta:wayPoint', 'image', 'copyrightHolder'], ['odta:wayPoint', 'image', 'author'],
+            ['odta:wayPoint', 'dc:classification'], ['odta:wayPoint', 'dc:translation']
+          ], # ['aggregateRating'], ['odta:startLocation'], ['odta:endLocation']
+          'Unterkunft' => [
+            ['photo'], ['photo', 'copyrightHolder'], ['photo', 'author']
+          ],
+          'Bild' => [
+            ['copyrightHolder'], ['author']
+          ]
         }.freeze
 
-        def self.serialize_data(data, existing_object_ids = [])
+        def self.serialize_data(data)
           json = DataCycleCore::Api::V4::ContentsController.renderer.new(
             http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
             https: Rails.application.config.force_ssl
           ).render(
             assigns: {
               content: data,
-              language: ['de'], # TODO: Mehrsprachigkeit!
+              language: I18n.available_locales.map(&:to_s),
               language_mode: 'expanded',
-              fields_parameters: DEFAULT_ATTRIBUTES + (ATTRIBUTE_FILTER[data.template_name] || []).uniq,
+              fields_parameters: [],
               expand_language: true,
-              field_filter: true,
-              include_parameters: DEFAULT_INCLUDE + (INCLUDE_FILTER[data.template_name] || []).uniq, # included data
+              field_filter: false,
+              include_parameters: DEFAULT_INCLUDE + (INCLUDE_FILTER[data.template_name] || []).uniq,
               api_version: 4,
               permitted_params: {},
               api_context: 'api'
@@ -52,22 +58,14 @@ module DataCycleCore
           )
 
           hash = JSON[json]
-
-          transformation =
-            case data.template_name
-            when 'Event'
-              :to_event
-            else
-              :to_poi
-            end
-
-          hash = DataCycleCore::Export::Onlim::Transformations.send(transformation, existing_object_ids).call(hash)
+          hash = DataCycleCore::Export::Onlim::Transformations.send(:to_onlim).call(hash)
           hash
         end
 
         def initialize(**options)
           super
 
+          @external_system = DataCycleCore::ExternalSystem.find(options.dig(:external_system_id))
           @host = options.dig(:host)
           @end_point = options.dig(:end_point)
 
@@ -77,23 +75,14 @@ module DataCycleCore
         end
 
         def update_request(data:, external_system_data: {})
+          # do a UPSERT
           url = [@host, @end_point].join('/')
+          verb = :put
+          default_url_options[:host] = ENV['APP_HOST']
+          default_url_options[:protocol] = ENV['APP_PROTOCOL']
+          ns = api_v4_universal_url + '/'
 
-          job_operation = 'UPDATE'
-          if external_system_data.blank? || (external_system_data.present? && external_system_data.dig('job_operation') == 'CREATE' && external_system_data.dig('job_status') == 'failed')
-            existing_object_ids = external_system_data.dig('message', 'existingObjectIds')&.map { |id| id.split('/')&.last }
-            verb = :post
-            ns = nil
-            job_operation = 'CREATE'
-          else # update, not insert
-            url = [url, "things/#{data.id}"].join('/')
-            verb = :put
-            default_url_options[:host] = ENV['APP_HOST']
-            default_url_options[:protocol] = ENV['APP_PROTOCOL']
-            ns = api_v4_universal_url + '/'
-          end
-
-          body = Endpoint.serialize_data(data, existing_object_ids || [])
+          body = Endpoint.serialize_data(data)
 
           response = connection.send(verb) do |req|
             req.url(url)
@@ -110,22 +99,24 @@ module DataCycleCore
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error sending data to #{url}, external_system_data: #{external_system_data}", response) unless response.success?
 
-          job_id = JSON.parse(response.body)['message']
+          # ap JSON.parse(response.body)
 
+          job_id = JSON.parse(response.body)['message']
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("could not parse a valid job_id form the response of this request: #{url}, external_system_data: #{external_system_data}", response) if job_id.blank?
 
           external_system_data.merge(
             {
               'job_id' => job_id,
               'job_status' => 'pending',
-              'job_operation' => job_operation,
-              'external_source_id' => DataCycleCore::ExternalSystem.find_by(identifier: 'onlim').id
+              'job_result' => {},
+              'external_source_id' => @external_system.id,
+              'data_send' => body,
+              'data_send_at' => Time.zone.now.to_s
             }
           ).reject { |_k, v| v.blank? }
         end
 
         def job_status_request(data:, external_system_data:)
-          external_source = DataCycleCore::ExternalSystem.find_by(identifier: 'onlim')
           external_system_syncs_id = external_system_data.dig('external_system_syncs_id')
           if external_system_syncs_id.present?
             esd = DataCycleCore::ExternalSystemSync.find_by(id: external_system_syncs_id)
@@ -133,7 +124,6 @@ module DataCycleCore
           end
 
           job_id = external_system_data.dig('job_id')
-          job_operation = external_system_data.dig('job_operation')
           url = [@host, @end_point, job_id].join('/')
           response = connection.get do |req|
             req.url(url)
@@ -146,42 +136,34 @@ module DataCycleCore
 
           status = JSON.parse(response.body)
           status = status.first if status.is_a?(::Array)
-          operation = status.dig('operation')
-          # ap status
 
           if status['running']
             external_system_data.merge(
               {
                 'job_id' => job_id,
                 'job_status' => 'pending',
-                'job_operation' => job_operation,
-                'external_source_id' => external_source.id,
-                'operation' => operation,
-                'message' => status
+                'job_result' => status,
+                'external_source_id' => @external_system.id
               }
             ).reject { |_k, v| v.blank? }
           elsif status['stored']
             # save all external_data
-            update_children_external_system_data(status['affectedEntries'], data.id, external_source)
+            update_children_external_system_data(status['affectedEntities'], data.id)
             external_system_data.merge(
               {
                 'job_id' => job_id,
                 'job_status' => 'success',
-                'job_operation' => job_operation,
-                'external_source_id' => external_source.id,
-                'operation' => operation,
-                'message' => status
+                'job_result' => status,
+                'external_source_id' => @external_system.id
               }
             ).reject { |_k, v| v.blank? }
           else
             external_system_data.merge(
               {
                 'job_id' => job_id,
-                'job_status' => 'failed',
-                'job_operation' => job_operation,
-                'external_source_id' => external_source.id,
-                'operation' => operation,
-                'message' => status
+                'job_status' => 'error',
+                'job_result' => status,
+                'external_source_id' => @external_system.id
               }
             ).reject { |_k, v| v.blank? }
           end
@@ -214,7 +196,7 @@ module DataCycleCore
           end
         end
 
-        def update_children_external_system_data(hash, thing_id, external_source)
+        def update_children_external_system_data(hash, thing_id)
           return if hash.blank?
           ids = hash
             .map { |i| i['id'] }
@@ -223,7 +205,7 @@ module DataCycleCore
           ids = Array.wrap(ids) - [thing_id]
           return if ids.blank?
           DataCycleCore::Thing.where(id: ids).find_each do |thing|
-            thing.add_external_system_data(external_source, {}, 'success', 'export', thing.id, false)
+            thing.add_external_system_data(@external_system, {}, 'success', 'export', thing.id, false)
           end
         end
       end

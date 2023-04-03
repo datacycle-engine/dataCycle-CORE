@@ -109,9 +109,17 @@ module DataCycleCore
 
           if config&.dig(:asset_type).present?
             if utility_object.asset_download
-              content.asset&.remove_file!
-
-              if data.dig('binary_file').present? && data.dig('binary_file_name').present?
+              content.asset.try(:remove_file!)
+              if data.dig('binary_file_blob').present? && data.dig('binary_file_name').present?
+                full_file_path = Rails.root.join('tmp', data.dig('binary_file_name'))
+                File.binwrite(full_file_path.to_s, [data.dig('binary_file_blob')].pack('H*'))
+                asset = config
+                  .dig(:asset_type)
+                  .constantize
+                  .new(name: data.dig('binary_file_name'))
+                asset.file.attach(io: File.open(full_file_path), filename: data.dig('binary_file_name'))
+                # full_file_path.delete
+              elsif data.dig('binary_file').present? && data.dig('binary_file_name').present?
                 tempfile = File.new(Rails.root.join('tmp', data.dig('binary_file_name')), 'w')
                 tempfile.binmode
                 tempfile.write(data.dig('binary_file'))
@@ -121,7 +129,7 @@ module DataCycleCore
               else
                 asset = config.dig(:asset_type).constantize.new(remote_file_url: data.dig('remote_file_url'))
               end
-              asset.save!
+              asset.save
               global_data['asset'] = asset.id
             else
               global_data['asset'] = content&.asset&.id

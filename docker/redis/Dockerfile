@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.2
+# syntax=docker/dockerfile:1
 FROM redis:6.2-buster
 
 RUN apt-get update

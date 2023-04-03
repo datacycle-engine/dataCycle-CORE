@@ -14,6 +14,7 @@ module DataCycleCore
 
         endpoint_options = options[:external_system].credentials(:export)
         endpoint_options[:data] = @external_system.data if @external_system.data.present?
+        endpoint_options[:external_system_id] = @external_system.id
         endpoint_options ||= {}
         @endpoint = @external_system.export_config[:endpoint].constantize.new(endpoint_options.symbolize_keys)
       end

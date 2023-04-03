@@ -2,9 +2,9 @@
 - :data:
     :name: Tour
     :type: object
-    :schema_type: Place
     :schema_ancestors:
       - Place
+      - "odta:Trail"
     :content_type: entity
     :boost: 100.0
     :features:
@@ -43,7 +43,7 @@
         :type: boolean
         :storage_location: value
         :advanced_search: true
-        :default_value: 'false'
+        :default_value: "false"
         :api:
           :name: dc:trailClosed
           :disabled: true
@@ -291,7 +291,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Tour'
+        :default_value: "Tour"
       :author:
         :label: Autor
         :type: linked

@@ -80,6 +80,30 @@ module DataCycleCore
           @classification_aliases.instance_variable_set(:@total_count, @classification_aliases.except(:select, :joins, :order, :group, :limit, :offset).count)
         end
 
+        def by_external_key
+          @external_key = external_params[:external_key]
+          external_keys = @external_key&.split(',')&.map(&:strip)
+          @external_source_id = external_params[:external_source_id]
+
+          @classification_aliases = DataCycleCore::Classification
+            .by_external_key(@external_source_id, external_keys)
+            .primary_classification_aliases
+
+          if permitted_params.dig(:filter, :attribute).present?
+            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
+            if filter.key?(:'dct:deleted')
+              @classification_aliases = DataCycleCore::Classification
+                .by_external_key(@external_source_id, external_keys).with_deleted
+                .primary_classification_aliases.with_deleted
+            end
+            @classification_aliases = apply_filters(@classification_aliases, filter)
+          end
+
+          @classification_aliases = @classification_aliases.search(@full_text_search) if @full_text_search
+          @classification_aliases = apply_ordering(@classification_aliases)
+          @classification_aliases = apply_paging(@classification_aliases)
+        end
+
         def permitted_parameter_keys
           super + [:id, :language, :classification_id, :classification_tree_label_id] + [permitted_filter_parameters]
         end
@@ -115,6 +139,10 @@ module DataCycleCore
         end
 
         private
+
+        def external_params
+          params.permit(:external_key, :external_source_id)
+        end
 
         def apply_filters(query, filter)
           return super if action_name == 'facets'

@@ -9,265 +9,228 @@ module DataCycleCore
         import Transproc::Conditional
         import Transproc::Recursion
         import DataCycleCore::Generic::Common::Functions
+        import DataCycleCore::Export::Onlim::TransformationsGlobal
 
         extend DataCycleCore::ContentHelper
 
-        ODTA_TYPE = {
-          'TouristAttraction' => 'odta:PointOfInterest',
-          'dcls:Tour' => 'odta:Trail'
+        TRANSFORMATION_TYPES = {
+          'Organization' => :to_organization,
+          'Person' => :to_person,
+          'ImageObject' => :to_image,
+          'TouristAttraction' => :to_poi,
+          'LodgingBusiness' => :to_lodging_business,
+          'FoodEstablishment' => :to_lodging_business,
+          'dcls:Tour' => :to_tour,
+          'Event' => :to_event,
+          'PropertyValue' => :to_property_value
         }.freeze
 
-        COMPLIES = {
-          'TouristAttraction' => 'https://semantify.it/ds/sloejGAwT', # 'POI'
-          'Event' => 'https://semantify.it/ds/mhpmBCJJt',
-          'FoodEstablishment' => 'https://semantify.it/ds/SyCG2WVzkz',
-          'LodgingBusiness' => 'https://semantify.it/ds/Sypf3bVG1z', # Unterkunft
-          'Person' => 'https://semantify.it/ds/iB4eyYN5K',
-          'odta:Trail' => 'https://semantify.it/ds/nBTyKDsKX', # Tour
-          'GeoShape' => 'https://semantify.it/ds/puYUsMkUP',
-          'GeoCoordinates' => 'https://semantify.it/ds/2NErTNGpd',
-          'PostalAddress' => 'https://semantify.it/ds/NP8df6sKy',
-          'OpeningHoursSpecification' => 'https://semantify.it/ds/rpOsHCyrE',
-          'PropertyValue' => 'https://semantify.it/ds/evJvhycX1',
-          'ImageObject' => 'https://semantify.it/ds/ufjX_Cc5w',
-          'Organization' => 'https://semantify.it/ds/Wf-IXZvIo'
-        }.freeze
-
-        def self.remove_namespaced_data(data)
-          case data
-          in Hash
-            data
-              .reject { |k, _v| k.count(':').positive? }
-              &.transform_values { |v| remove_namespaced_data(v).presence }
-              &.compact
-          in Array
-            data.map { |i| remove_namespaced_data(i) }
-          else
-            data
-          end
-        end
-
-        def self.context_to_onlim(data)
-          return data unless data.key?('@context')
-          context = data['@context']
-          context = Array.wrap(
-            context[1].merge(
-              {
-                '@vocab' => 'https://schema.org/',
-                'rdfs' => 'http://www.w3.org/2000/01/rdf-schema#',
-                'rdf' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-                'xsd' => 'http://www.w3.org/2001/XMLSchema#',
-                'odta' => 'https://odta.io/voc/',
-                'ds' => 'https://vocab.sti2.at/ds/'
-              }
-            ).reject { |k, _| k.in?('dcls') }
-          )
-          data['@context'] = context
-
+        def self.identity(data)
           data
         end
 
-        def self.remove_thing_stubs(data)
+        def self.transform_thing_to_onlim(data)
+          transform_onlim_type(data)
+        end
+
+        def self.transform_onlim_type(data)
           case data
           in Hash
-            if data.keys == ['@id'] # for 'ds:compliesWith'
-              data
-            elsif (data.keys - ['@id', '@type', 'ds:compliesWith']).present?
-              data
-                .transform_values { |v| remove_thing_stubs(v).presence }
-                &.compact
-            end
+            transformed_data = nil
+            transformation = Array.wrap(data['@type'])
+              .select { |i| i.in?(TRANSFORMATION_TYPES.keys) }
+              .map { |i| TRANSFORMATION_TYPES[i] }
+              .first
+            transformed_data = DataCycleCore::Export::Onlim::Transformations.send(transformation).call(data) if transformation.present?
+            (transformed_data || data).map { |k, v|
+              { k => transform_onlim_type(v) }
+            }&.reduce(&:merge)
           in Array
-            data
-              .map { |i| remove_thing_stubs(i) }
-              &.compact
-              &.presence
+            data.map { |i| transform_onlim_type(i) }
           else
             data
           end
         end
 
-        def self.remove_existing_object_data(data, existing_ids)
+        def self.transform_action(data)
           case data
           in Hash
-            if data['@id'].in?(existing_ids)
-              { '@id' => data['@id'] }
-            else
-              data
-                .transform_values { |v| remove_existing_object_data(v, existing_ids) }
-                &.compact
-            end
+            data
+              .map { |k, v|
+                if k == 'potentialAction'
+                  v_new = v.map do |adata|
+                    adata
+                      .slice('name', 'url', '@type', '@id')
+                      .map { |attk, attv|
+                        if attk.in?(['@type', '@id'])
+                          { attk => attv }
+                        else
+                          new_attv = Array.wrap(attv).detect { |i| i['@language'] == 'de' }&.dig('@value')
+                          { attk => new_attv || Array.wrap(attv).first.dig('@value') }
+                        end
+                      }.reduce(&:merge)
+                  end
+                  { k => v_new }
+                else
+                  { k => transform_action(v) }
+                end
+              }&.reduce(&:merge)
           in Array
-            data.map { |i| remove_existing_object_data(i, existing_ids) }
+            data.map { |i| transform_action(i) }
           else
             data
           end
         end
 
-        def self.type_to_onlim(data)
+        def self.transform_time(data, keys)
           case data
           in Hash
             data
-              .map { |k, v| k == '@type' ? { k => update_type(v) } : { k => type_to_onlim(v) } }
+              .map { |k, v| k.in?(keys) && v.present? && v.split(':').size == 2 ? { k => v + ':00' } : { k => transform_time(v, keys) } }
               &.reduce(&:merge)
           in Array
-            data.map { |i| type_to_onlim(i) }
+            data.map { |i| transform_time(i, keys) }
           else
             data
           end
         end
 
-        def self.update_type(type)
-          types = Array
-            .wrap(type)
-            .map { |i| [i, ODTA_TYPE[i]].compact }
-            .flatten
-            .reject { |i| i.start_with?('dcls:') }
-          if types.size == 1
-            types.first
-          elsif types.include?('Organization')
-            types.reject { |i| i == 'Organization' } # remove Organization (conflicts with white/blacklist)
-          else
-            types
-          end
-        end
-
-        def self.add_complies_with(data)
-          return data unless data.is_a?(Hash) || data.is_a?(Array)
-
-          case data
-          in Hash
-            if data.key?('@type') && Array.wrap(data['@type']).any? { |i| i.in?(COMPLIES.keys) }
-              complies_with = Array.wrap(data['@type']).detect { |i| COMPLIES[i].present? }.then { |i| COMPLIES[i] }
-              data.merge({ 'ds:compliesWith' => { '@id' => complies_with } })
-            else
-              data
-            end.transform_values { |v| add_complies_with(v) }
-          in Array
-            data.map { |i| add_complies_with(i) }
-          else
-            data
-          end
-        end
-
-        def self.add_main_content_license(data)
-          return data unless data.key?('@graph')
-          content_data = data['@graph'].first
-
-          thing = DataCycleCore::Thing.find(content_data.dig('@id'))
-          sd_license = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(thing.classification_aliases.pluck(:name)).pluck(:uri)
-          content_data['sdLicense'] = sd_license.first if sd_license.size.positive?
-
-          publisher_data =
-            case thing.template_name
-            in 'POI'
-              content_data['copyrightHolder']&.first.presence || content_data['author']&.first.presence
-            in 'Tour' | 'Gastronomischer Betrieb'
-              content_data['sdPublisher']&.first.presence || content_data['copyrightHolder']&.first.presence
-            else
-              nil
-            end
-
-          if publisher_data.present?
-            content_data['sdPublisher'] =
-              Array.wrap(
-                DataCycleCore::Export::Onlim::Transformations.default_transformations.call(publisher_data)
-              )
-          end
-
-          data['@graph'] = Array.wrap(content_data)
-          data
-        end
-
-        def self.apply_blacklist(data, list)
-          return data if data.blank? || list.blank?
-          raise "Function parameter <list> has to be a Hash { type => Array(attributes) } not #{list.class}." unless list.is_a?(Hash)
-          list.each_key { |type| data = apply_list_type(data, type, list[type], :reject_attributes) }
-          data
-        end
-
-        def self.apply_whitelist(data, list)
-          return data if data.blank? || list.blank?
-          raise "Function parameter <list> has to be a Hash { type => Array(attributes) } not #{list.class}." unless list.is_a?(Hash)
-          list.each_key { |type| data = apply_list_type(data, type, list[type], :select_attributes) }
-          data
-        end
-
-        def self.apply_list_type(data, type, list, hash_method)
-          return data if data.blank? || list.blank?
-          raise 'Function parameter <type> can not be empty.' if type.blank?
-
-          case data
-          in Hash
-            if data.key?('@type') && Array.wrap(data['@type']).any?(type)
-              send(hash_method, data, list)
-            else
-              data
-            end.transform_values { |v| apply_list_type(v, type, list, hash_method) }
-          in Array
-            data.map { |i| apply_list_type(i, type, list, hash_method) }
-          else
-            data
-          end
-        end
-
-        def self.reject_attributes(data, list)
-          return data if data.blank? || list.blank?
-          raise "Function parameter <list> has to be an Array not #{list.class}." unless list.is_a?(Array)
-          list.each do |path|
-            data = reject_attribute(data, path)
-          end
-          data
-        end
-
-        def self.reject_attribute(data, path)
-          return data if path.blank?
-          path = Array.wrap(path)
-          key = path[0]
-          leaf = path.size <= 1
-          case data
-          in Hash
-            data[key] = reject_attribute(data[key], path[1..-1]) if data.key?(key)
-            data.reject! { |k, _| k == key } if leaf
-            data.compact.presence
-          in Array
-            data.map { |i| reject_attribute(i, path) }.compact.presence
-          else
-            data
-          end
-        end
-
-        def self.select_attributes(data, list)
-          return data if list.blank? || data.blank?
-          list.map! { |i| Array.wrap(i) }
-          keys = list.map(&:first).uniq
+        def self.transform_duration(data)
           case data
           in Hash
             data
-              .select { |k, _| k.in?(keys) || k.starts_with?('@') }
               .map { |k, v|
-                next_level = list.select { |i| i[0] == k }.map { |i| i[1..-1].presence }.compact
-                { k => select_attributes(v, next_level) }
-              }.reduce(&:merge)
-              &.compact
-              &.presence
+                if k == 'duration' && v.present?
+                  { k => { '@id' => generate_uuid(data['@id'], 'duration'), '@type' => 'Duration', 'name' => v } }
+                else
+                  { k => transform_duration(v) }
+                end
+              }&.reduce(&:merge)
           in Array
-            data.map { |i| select_attributes(i, list) }&.compact&.presence
+            data.map { |i| transform_duration(i) }
           else
-            nil
+            data
           end
         end
 
-        def self.transform_schedule(data)
-          return data if data.dig('@graph', 0, 'eventSchedule').blank?
-          schedules = data.dig('@graph', 0, 'eventSchedule')
-          new_schedules = schedules.map do |i|
-            i['startTime'] += ':00' if i['startTime'].present? && i['startTime'].split(':').size == 2
-            i['endTime'] += ':00' if i['endTime'].present? && i['endTime'].split(':').size == 2
-            i['duration'] = { '@id' => generate_uuid(i['@id'], 'duration'), '@type' => 'Duration', 'name' => i['duration'] } if i['duration'].present?
-            i
+        def self.transform_copyright_notice(data)
+          add_node(data) do |gdata|
+            if gdata['copyrightNotice'].present?
+              gdata['copyrightNotice'] = {
+                '@value' => gdata['copyrightNotice'],
+                '@type' => 'http://www.w3.org/2001/XMLSchema#string'
+              }
+            end
           end
-          data['@graph'][0]['eventSchedule'] = new_schedules
+        end
+
+        def self.add_contact_information(data, attributes = [])
+          add_node(data) do |gdata|
+            if gdata.dig('address').present?
+              contact_info = gdata
+                .dig('address')
+                .select { |k, _v| k.in?(attributes) }
+                .map { |k, v|
+                  new_v = Array.wrap(v).detect { |i| i['@language'] == 'de' }&.dig('@value')
+                  { k => new_v || Array.wrap(v).first.dig('@value') }
+                }.reduce(&:merge)
+              gdata.merge!(contact_info) if contact_info.present?
+            end
+          end
+        end
+
+        def self.add_tour_description(data)
+          add_node(data) do |gdata|
+            desc = gdata
+              .dig('description')
+              .presence
+              &.map { |i| { i['@language'] => i['@value'] } }
+              &.inject(&:merge) || {}
+            classification = DataCycleCore::ClassificationAlias.for_tree('Externe Informationstypen').with_name('text').first&.id
+            desc_long = gdata
+              .dig('dc:additionalInformation')
+              &.select { |i| i['dc:classification']&.first&.send(:[], '@id') == classification }
+              &.map { |i| i['description'].map { |d| { d['@language'] => d['@value'] } }.compact_blank }
+              &.flatten
+              &.compact_blank
+              &.inject(&:merge)
+            desc = desc.merge(desc_long) if desc_long.present?
+            gdata['description'] = desc.map { |k, v| { '@language' => k, '@value' => v } }
+          end
+        end
+
+        def self.add_place_description(data)
+          add_node(data) do |gdata|
+            if gdata['additionalProperty'].present?
+              desc = gdata
+                .dig('description')
+                .presence
+                &.map { |i| { i['@language'] => i['@value'] } }
+                &.inject(&:merge) || {}
+              desc_long = gdata
+                .dig('additionalProperty')
+                .select { |i| i['identifier'] == 'text' }
+                &.first
+                &.send(:[], 'value')
+                &.map { |i| { i['@language'] => i['@value'] } }
+                &.inject(&:merge)
+              desc = desc.merge(desc_long) if desc_long.present?
+              gdata['description'] = desc.map { |k, v| { '@language' => k, '@value' => v } }
+            end
+          end
+        end
+
+        def self.add_keywords(data)
+          add_node(data) do |gdata|
+            if gdata.dig('dc:classification').present?
+              gdata['keywords'] = gdata
+                .dig('dc:classification')
+                .map { |i|
+                  i['skos:prefLabel'].map do |item|
+                    if item.is_a?(::Hash)
+                      item.tap do |value_hash|
+                        value_hash['@value'] = value_hash['@value'].to_s
+                      end
+                    else
+                      item
+                    end
+                  end
+                }.flatten
+                .uniq
+            end
+          end
+        end
+
+        def self.transform_content_size(data)
+          add_node(data) do |gdata|
+            gdata['contentSize'] = gdata['contentSize'].to_i.to_s if gdata['contentSize'].present?
+          end
+        end
+
+        def self.transform_numbers(data)
+          add_node(data) do |gdata|
+            gdata['value'] = gdata['value'].first['@value'] if gdata['value'].present? && gdata['value'].first['@value'].is_a?(::Numeric)
+          end
+        end
+
+        def self.rename_graph_keys(data, key_map)
+          add_node(data) do |gdata|
+            key_map.each_key do |k|
+              next if gdata[k].blank?
+              gdata[key_map[k]] = gdata[k]
+              gdata.delete(k)
+            end
+          end
+        end
+
+        def self.add_node(data, &block)
+          if data.key?('@graph')
+            graphdata = data['@graph'].first
+            graphdata.tap(&block)
+            data['@graph'] = [graphdata]
+          else
+            data.tap(&block)
+          end
           data
         end
       end

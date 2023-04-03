@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.2
+# syntax=docker/dockerfile:1
 
 FROM git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:dockerize-1.1 as base
 
@@ -73,11 +73,6 @@ ENV RAILS_ENV=$RAILS_ENV \
   APP_DOCKER_ENV=$APP_DOCKER_ENV
 
 RUN bundle install --jobs $(nproc)
-
-RUN mkdir -p /app/node_modules \
-  && chown ruby:ruby -R /app/node_modules
-
-RUN yarn
 
 ENTRYPOINT ["/app/vendor/gems/data-cycle-core/docker/docker-entrypoint.sh"]
 

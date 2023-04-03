@@ -2,7 +2,8 @@
 - :data:
     :name: SimplePlaceOverlay
     :type: object
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - Place
     :content_type: embedded
     :properties:
       :id:

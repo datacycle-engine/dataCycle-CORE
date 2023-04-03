@@ -1,12 +1,10 @@
 - :data:
     :name: VirtualLocation
     :type: object
-    :schema_type: Intangible
     :content_type: embedded
-    :api:
-      :type:
-        - Intangible
-        - VirtualLocation
+    :schema_ancestors:
+      - Intangible
+      - VirtualLocation
     :properties:
       :id:
         :label: id

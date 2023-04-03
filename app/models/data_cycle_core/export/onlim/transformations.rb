@@ -9,33 +9,103 @@ module DataCycleCore
         end
 
         def self.whitelist
-          default_attributes = ['name', 'description', 'address', 'ds:compliesWith', 'image', 'sdLicense', 'sdPublisher']
+          default_attributes =
+            ['name', 'description', 'address', 'ds:compliesWith',
+             'image', 'sdLicense', 'sdPublisher', 'keywords']
           default_place_attributes = default_attributes + ['geo']
           {
             'Organization' =>
-              ['name', 'url', 'address', 'ds:compliesWith'],
+              ['name', 'description', 'address', 'url', 'telephone', 'email', 'ds:compliesWith'],
             'PostalAddress' =>
               ['streetAddress', 'addressLocality', 'postalCode', 'ds:compliesWith'],
             'Person' =>
               ['name', 'url', 'ds:compliesWith'],
             'ImageObject' =>
-              ['name', 'contentUrl', 'thumbnailUrl', 'width', 'height', 'fileFormat', 'uploadDate', 'copyrightNotice', 'copyrightYear', 'copyrightHolder', 'ds:compliesWith'],
-            'TouristAttraction' => default_place_attributes, # POI
-            'LodgingBusiness' => default_place_attributes, # Unterkunft
-            'odta:Trail' => default_place_attributes, # Tour
-            'Event' => default_attributes + ['eventSchedule'],
-            'FoodEstablishment' => default_place_attributes # Gastronomischer Betrieb
+              ['name', 'caption', 'contentUrl', 'thumbnailUrl', 'url', 'uploadDate',
+               'copyrightNotice', 'copyrightYear', 'copyrightHolder', 'author',
+               'width', 'height', 'contentSize', 'ds:compliesWith'],
+            'TouristAttraction' => # POI
+              default_place_attributes +
+                ['url', 'telephone', 'faxNumber', 'additionalProperty',
+                 'openingHoursSpecification'],
+            'FoodEstablishment' => # Gastronomischer Betrieb
+              default_place_attributes +
+                ['url', 'telephone', 'faxNumber', 'additionalProperty', 'openingHoursSpecification'],
+            'LodgingBusiness' => # Unterkunft
+              default_place_attributes +
+                ['url', 'telephone', 'faxNumber', 'email', 'additionalProperty',
+                 'openingHoursSpecification', 'priceRange', 'availableLanguage',
+                 'photo'],
+            'odta:Trail' => # Tour
+              default_place_attributes +
+                ['url', 'odta:wayPoint'], # , 'aggregateRating'
+            'Event' =>
+              default_attributes +
+                ['eventSchedule', 'startDate', 'endDate', 'inLanguage', 'location',
+                 'organizer', 'performer', 'potentialAction']
           }
         end
 
         def self.blacklist
-          {
-            # 'PostalAddress' => ['telephone', 'faxNumber', 'email', 'url']
-          }
+          {}
         end
 
-        def self.default_transformations(existing_ids = [])
-          t(:add_main_content_license)
+        def self.to_poi
+          t(:add_contact_information, ['telephone', 'faxNumber', 'url'])
+          # .>> t(:add_place_description)
+          .>> t(:add_keywords)
+        end
+
+        def self.to_food_establishment
+          t(:add_contact_information, ['telephone', 'email', 'url'])
+          .>> t(:add_keywords)
+        end
+
+        def self.to_lodging_business
+          t(:add_contact_information, ['telephone', 'email', 'faxNumber', 'url'])
+          .>> t(:rename_graph_keys, {'dc:translation' => 'availableLanguage'})
+          .>> t(:add_keywords)
+        end
+
+        def self.to_tour
+          t(:add_contact_information, ['url'])
+          # .>> t(:add_tour_description)
+          .>> t(:add_keywords)
+        end
+
+        def self.to_event
+          t(:transform_duration)
+          .>> t(:rename_graph_keys, {'dc:translation' => 'inLanguage'})
+          .>> t(:add_keywords)
+          .>> t(:transform_action)
+        end
+
+        def self.to_organization
+          t(:add_contact_information, ['telephone', 'email', 'url'])
+        end
+
+        def self.to_person
+          t(:identity)
+        end
+
+        def self.to_image
+          t(:rename_graph_keys, { 'dc:webUrl' => 'url' })
+          .>> t(:transform_content_size)
+          .>> t(:transform_copyright_notice) # for now until fixed on DZT side
+        end
+
+        def self.to_property_value
+          t(:transform_numbers)
+        end
+
+        def self.to_onlim
+          t(:transform_thing_to_onlim)
+          .>> default_transformations
+        end
+
+        def self.default_transformations
+          t(:transform_time, ['opens', 'closes', 'startTime', 'endTime'])
+          .>> t(:add_main_content_license)
           .>> t(:remove_namespaced_data)
           .>> t(:context_to_onlim)
           .>> t(:type_to_onlim)
@@ -43,17 +113,7 @@ module DataCycleCore
           .>> t(:apply_blacklist, blacklist)
           .>> t(:add_complies_with)
           .>> t(:remove_thing_stubs)
-          .>> t(:remove_existing_object_data, existing_ids)
           .>> t(:strip_all)
-        end
-
-        def self.to_poi(existing_ids)
-          default_transformations(existing_ids)
-        end
-
-        def self.to_event(existing_ids)
-          default_transformations(existing_ids)
-          .>> t(:transform_schedule)
         end
       end
     end

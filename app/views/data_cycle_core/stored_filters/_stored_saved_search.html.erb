@@ -12,11 +12,11 @@
       class: "content-title-api copy-to-clipboard #{'global' if stored_search.system}",
       data: {
         value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_url", id: stored_search),
-        dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale)
+        dc_tooltip: t('actions.copy_to_clipboard_data', data: t('common.api_url', locale: active_ui_locale), locale: active_ui_locale)
       }
     ) if stored_search.api %>
 
-    <%= tag.span(stored_search.slug, class: 'slug copy-to-clipboard', data: { dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale) }) if stored_search.slug.present? %>
+    <%= tag.span(stored_search.slug, class: 'slug copy-to-clipboard', data: { dc_tooltip: t('actions.copy_to_clipboard_data', data: DataCycleCore::CollectionConfiguration.human_attribute_name(:slug, locale: active_ui_locale), locale: active_ui_locale) }) if stored_search.slug.present? %>
 
     <% if stored_search.linked_stored_filter_id.present? %>
       <span class="content-title" title="<%= stored_search.linked_stored_filter.name %>">
@@ -53,7 +53,7 @@
                       class: 'copy-to-clipboard',
                       data: {
                         value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_url", id: stored_search),
-                        dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale)
+                        dc_tooltip: t('actions.copy_to_clipboard_data', data: t('common.api_url', locale: active_ui_locale), locale: active_ui_locale)
                       } do %>
               <i class="fa fa-clipboard" aria-hidden="true"></i>
             <% end %>

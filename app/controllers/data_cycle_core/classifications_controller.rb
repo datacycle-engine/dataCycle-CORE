@@ -70,22 +70,21 @@ module DataCycleCore
     end
 
     def search
-      params.permit(:q, :max, :tree_label, :exclude)
-
-      query = if params[:tree_label].present? && params[:tree_label] == 'Inhaltstypen'
-                DataCycleCore::ClassificationAlias.for_tree(params[:tree_label]).where.not(name: DataCycleCore.excluded_filter_classifications)
-              elsif params[:tree_label].present?
-                DataCycleCore::ClassificationAlias.for_tree(params[:tree_label])
+      query = if search_params[:tree_label].present? && search_params[:tree_label] == 'Inhaltstypen'
+                DataCycleCore::ClassificationAlias.for_tree(search_params[:tree_label]).where.not(name: DataCycleCore.excluded_filter_classifications)
+              elsif search_params[:tree_label].present?
+                DataCycleCore::ClassificationAlias.for_tree(search_params[:tree_label])
               else
                 DataCycleCore::ClassificationAlias.all
               end
 
       I18n.with_locale(helpers.active_ui_locale) do
-        query = query.search(params[:q])
+        query = query.search(search_params[:q])
       end
-      query = query.order_by_similarity(params[:q])
-      query = query.limit(params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
-      query = query.where.not(id: params[:exclude]) if params[:exclude].present?
+      query = query.order_by_similarity(search_params[:q])
+      query = query.limit(search_params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
+      query = query.where.not(id: search_params[:exclude]) if search_params[:exclude].present?
+      query = query.preload(*Array.wrap(search_params[:preload])) if search_params[:preload].present?
       query = query.preload(:primary_classification, :classification_alias_path)
 
       render plain: query.map { |a|
@@ -97,7 +96,7 @@ module DataCycleCore
           name: a.internal_name,
           full_path: a.full_path,
           dc_tooltip: helpers.classification_tooltip(a),
-          disabled: !a.assignable
+          disabled: search_params[:disabled_unless_any?].present? ? a.try(search_params[:disabled_unless_any?]).none? : !a.assignable
         }
       }.compact.to_json, content_type: 'application/json'
     end
@@ -252,6 +251,10 @@ module DataCycleCore
 
     private
 
+    def search_params
+      params.permit(:q, :max, :tree_label, :exclude, :disabled_unless_any?, :preload, preload: [])
+    end
+
     def move_params
       params.transform_keys(&:underscore).permit(:classification_alias_id, :classification_tree_label_id, :previous_alias_id, :new_parent_alias_id)
     end
@@ -278,7 +281,7 @@ module DataCycleCore
           :classification_tree_label_id,
           :classification_tree_id,
           classification_tree_label: [:id, :name, :internal, visibility: [], change_behaviour: []],
-          classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
+          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, translation: locale_params, classification_ids: []]
         )
       end
     end
@@ -292,7 +295,7 @@ module DataCycleCore
 
         normalize_names(params).permit(
           classification_tree_label: [:id, :name, :internal, visibility: [], change_behaviour: []],
-          classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
+          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, translation: locale_params, classification_ids: []]
         )
       end
     end

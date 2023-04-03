@@ -53,31 +53,20 @@ namespace :db do
   end
 
   namespace :configure do
-    desc 'rebuild collected_classification_content_relations according to configuration'
-    task rebuild_ccc_relations: :environment do
-      function_to_rebuild = DataCycleCore.transitive_classification_paths ? 'generate_collected_cl_content_relations_transitive' : 'generate_collected_classification_content_relations'
+    desc 'rebuild all tables concerning transitive classifications'
+    task rebuild_transitive_tables: :environment do
+      function_for_paths = DataCycleCore::Feature::TransitiveClassificationPath.enabled? ? 'generate_ca_paths_transitive' : 'generate_classification_alias_paths'
+      function_for_things = DataCycleCore::Feature::TransitiveClassificationPath.enabled? ? 'generate_collected_cl_content_relations_transitive' : 'generate_collected_classification_content_relations'
 
       ActiveRecord::Base.connection.execute <<-SQL.squish
+        SELECT #{function_for_paths} (ARRAY_AGG(id)) FROM classification_aliases;
+
         SELECT
-          #{function_to_rebuild} (ARRAY_AGG(id), ARRAY[]::uuid[])
+          #{function_for_things} (ARRAY_AGG(id), ARRAY[]::uuid[])
         FROM
           things
         WHERE
           TEMPLATE = FALSE;
-      SQL
-    end
-
-    desc 'rebuild classification_alias_paths_transitive'
-    task rebuild_cap_transitive: :environment do
-      ActiveRecord::Base.connection.execute <<-SQL.squish
-        SELECT generate_ca_paths_transitive(ARRAY_AGG(id)) FROM classification_aliases;
-      SQL
-    end
-
-    desc 'rebuild classification_alias_paths'
-    task rebuild_ca_paths: :environment do
-      ActiveRecord::Base.connection.execute <<-SQL.squish
-        SELECT generate_classification_alias_paths(ARRAY_AGG(id)) FROM classification_aliases;
       SQL
     end
   end

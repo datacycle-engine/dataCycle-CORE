@@ -13,7 +13,15 @@ module DataCycleCore
       return data.dig('external_url') if data&.dig('external_url').present?
       return if !syncable.is_a?(DataCycleCore::Thing) || external_system&.default_options(:export)&.dig('external_url').blank? || external_key.blank?
 
-      format(external_system.default_options(:export).dig('external_url'), locale: I18n.locale, type: type, external_key: external_key)
+      if external_system.default_options(:export).dig('external_url_method').present?
+        send(external_system.default_options(:export).dig('external_url_method'))
+      else
+        format(external_system.default_options(:export).dig('external_url'), locale: I18n.locale, type: type, external_key: external_key)
+      end
+    end
+
+    def append_external_key
+      external_system.default_options(:export).dig('external_url') + external_key
     end
 
     def external_detail_url

@@ -1,12 +1,10 @@
 - :data:
     :name: Angebot
     :type: object
-    :schema_type: Intangible
     :content_type: embedded
-    :api:
-      :type:
-        - Intangible
-        - Offer
+    :schema_ancestors:
+      - Intangible
+      - Offer
     :properties:
       :id:
         :label: id
@@ -102,7 +100,7 @@
         #        :advanced_search: true
         :properties:
           :valid_from:
-            :label: 'Zeitraum von'
+            :label: "Zeitraum von"
             :type: date
             :storage_location: value
             :ui:
@@ -112,7 +110,7 @@
                   :placeholder: tt.mm.jjjj
           #              :advanced_search: true
           :valid_through:
-            :label: 'bis'
+            :label: "bis"
             :type: date
             :storage_location: value
             :ui:

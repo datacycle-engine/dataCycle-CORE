@@ -1,4 +1,4 @@
-<div class="inner content-link">
+<div class="inner content-link user <%= 'locked' if item.access_locked? %>">
   <div class="with-dropdown-pane">
     <div class="infoRow">
       <%= render 'data_cycle_core/shared/icon', icon_class: item.try(:icon_class) || item.class.name.demodulize.underscore_blanks %>
@@ -46,7 +46,7 @@
       <% item.user_api_feature.additional_tile_values(item).each do |key, value| %>
         <li>
           <span class="attribute-label"><%= DataCycleCore::User.human_attribute_name(key, default: key&.split('/').last, locale: active_ui_locale) %></span>
-          <span class="attribute-value"><%= value.try(:in_time_zone).present? ? l(value.in_time_zone, locale: active_ui_locale, format: :edit) : value %></span>
+          <span class="attribute-value"><%= user_additional_tile_attribute_value(key, value) %></span>
         </li>
       <% end %>
     </ul>

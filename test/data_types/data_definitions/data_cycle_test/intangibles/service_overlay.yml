@@ -2,7 +2,8 @@
 - :data:
     :name: ServiceOverlay
     :type: object
-    :schema_type: Service
+    :schema_ancestors:
+      - Service
     :content_type: embedded
     :properties:
       :id:

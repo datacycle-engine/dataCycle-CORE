@@ -1,7 +1,6 @@
 - :data:
     :name: Zusatzangebot
     :type: object
-    :schema_type: Place
     :content_type: entity
     :boost: 0.0
     :features:
@@ -15,10 +14,9 @@
           :xml: true
           :json: true
           :indesign: true
-    :api:
-      :type:
-        - Property
-        - amenityFeature
+    :schema_ancestors:
+      - Property
+      - amenityFeature
     :properties:
       :id:
         :label: id
@@ -30,7 +28,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Zusatzangebot'
+        :default_value: "Zusatzangebot"
       :meta_data:
         :type: mixin
         :name: meta_data

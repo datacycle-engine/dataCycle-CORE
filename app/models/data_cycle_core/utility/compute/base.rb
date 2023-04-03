@@ -20,16 +20,17 @@ module DataCycleCore
 
             return if skip_compute_value?(key, computed_value_hash, content, computed_parameters, false, force)
 
-            module_name = ('DataCycleCore::' + properties.dig('compute', 'module').classify).safe_constantize
-            method_name = module_name.method(properties.dig('compute', 'method'))
+            method_name = DataCycleCore::ModuleService
+              .load_module(properties.dig('compute', 'module').classify, 'Utility::Compute')
+              .method(properties.dig('compute', 'method'))
 
-            data_hash[key] = method_name.try(:call, **{
+            data_hash[key] = method_name.call(
               computed_parameters: computed_parameters.index_with { |v| computed_value_hash[v] },
               key: key,
               data_hash: computed_value_hash,
               content: content,
               computed_definition: properties
-            })
+            )
 
             # keep fallback for imported computed values
             data_hash[key] = content.attribute_to_h(key) if DataCycleCore::DataHashService.blank?(data_hash[key]) && properties.dig('compute', 'fallback').to_s != 'false'

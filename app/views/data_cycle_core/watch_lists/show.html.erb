@@ -32,14 +32,14 @@
             </li>
           <% end %>
 
-          <% if can?(:copy_api_link, @watch_list) %>
+          <% if can?(:copy_api_link, @watch_list) &&  @watch_list.api %>
             <li>
               <span class="link" aria_hidden="true">
                 <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", api_subversion: nil, id: @watch_list),
                                             class: 'copy-to-clipboard',
                                             data: {
                                                 value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_url", api_subversion: nil, id: @watch_list),
-                                                dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale)
+                                                dc_tooltip: t('actions.copy_to_clipboard_data', data: t('common.api_url', locale: active_ui_locale), locale: active_ui_locale)
                                             } do %>
                   <i class="fa fa-clipboard" aria-hidden="true"></i>
                 <% end %>
@@ -97,12 +97,21 @@
           <% if can?(:edit, @watch_list) && !can?(:remove_item, @watch_list) %>
             <i class="fa fa-exclamation-circle" data-dc-tooltip="<%= t('data_cycle_core.watch_list.locked_by_data_link', locale: active_ui_locale) %>" aria-hidden="true"></i>
           <% end %>
+
+          <%= can?(:copy_api_link, @watch_list) ? tag.span(
+            'API',
+            class: 'content-title-api copy-to-clipboard',
+            data: {
+              value: api_v4_stored_filter_url(id: @watch_list.id),
+              dc_tooltip: t('actions.copy_to_clipboard_data', data: t('common.api_url', locale: active_ui_locale), locale: active_ui_locale)
+            }
+          ) : tag.span('API', class: 'content-title-api') if @watch_list.api %>
         </div>
       </div>
 
       <div class="title flex-column">
         <%= @watch_list&.name %>
-        <%= tag.div(@watch_list.slug, class: 'slug copy-to-clipboard', data: { dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale) }) if @watch_list.slug.present? %>
+        <%= tag.div(@watch_list.slug, class: 'slug copy-to-clipboard', data: { dc_tooltip: t('actions.copy_to_clipboard_data', data: DataCycleCore::CollectionConfiguration.human_attribute_name(:slug, locale: active_ui_locale), locale: active_ui_locale) }) if @watch_list.slug.present? %>
       </div>
 
       <%= tag.div(@watch_list.full_path, class: 'description watchlist') if @watch_list.full_path_names.present? %>

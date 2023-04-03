@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.2
+# syntax=docker/dockerfile:1
 FROM mongo:4.4.8-focal
 
 RUN apt-get update

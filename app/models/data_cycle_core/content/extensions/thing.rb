@@ -10,33 +10,33 @@ module DataCycleCore
           data_hash ||= {}
 
           case schema_type
-          when 'Organization', 'Event', 'CreativeWork', 'Product', 'Intangible'
-            data_hash['name'].presence || name
           when 'Person'
             "#{data_hash['given_name']} #{data_hash['family_name']}".presence || "#{given_name} #{family_name}"
           when 'Place'
             data_hash['name'].presence || name.presence || 'NO_TRANSLATION'
+          else
+            data_hash['name'].presence || try(:name)
           end
         end
 
         def desc
           case schema_type
-          when 'Organization', 'Event', 'CreativeWork', 'Product', 'Intangible'
-            description
           when 'Person'
-            content&.dig('job_title')
+            try(:job_title)
+          else
+            try(:description)
           end
         end
 
         def object_browser_fields
           # title is shown by default
           case schema_type
-          when 'Organization', 'Event', 'CreativeWork', 'Product', 'Intangible'
-            []
           when 'Person'
             ['honorific_prefix', 'job_title', 'contact_info']
           when 'Place'
             ['address', 'location']
+          else
+            []
           end
         end
 

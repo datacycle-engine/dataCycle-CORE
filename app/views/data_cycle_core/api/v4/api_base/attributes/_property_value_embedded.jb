@@ -1,0 +1,8 @@
+# frozen_string_literal: true
+
+json = render("data_cycle_core/api/v#{@api_version}/api_base/attributes/property_value", local_assigns)
+
+json['dc:multilingual'] = false
+json['dc:translation'] = [I18n.locale.to_s]
+
+json

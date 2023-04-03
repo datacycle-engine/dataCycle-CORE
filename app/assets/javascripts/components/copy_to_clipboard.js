@@ -8,6 +8,7 @@ import {
 class CopyToClipboard {
 	constructor(item) {
 		this.item = item;
+		this.item.classList.add("dcjs-copy-clipboard");
 
 		this.setup();
 	}

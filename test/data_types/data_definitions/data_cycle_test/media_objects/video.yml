@@ -2,7 +2,6 @@
 - :data:
     :name: Video
     :type: object
-    :schema_type: CreativeWork
     :content_type: entity
     :boost: 10.0
     :features:
@@ -19,11 +18,10 @@
           :json: true
           :xml: true
           :indesign: true
-    :api:
-      :type:
-        - CreativeWork
-        - MediaObject
-        - VideoObject
+    :schema_ancestors:
+      - CreativeWork
+      - MediaObject
+      - VideoObject
     :properties:
       :id:
         :label: id
@@ -386,7 +384,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Video'
+        :default_value: "Video"
       :copyright_attributes:
         :type: mixin
         :name: copyright_attributes

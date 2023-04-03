@@ -2,7 +2,8 @@
 - :data:
     :name: Recherche
     :type: object
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :content_type: entity
     :boost: 9999.0
     :features:
@@ -51,7 +52,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Recherche'
+        :default_value: "Recherche"
       :meta_data:
         :type: mixin
         :name: meta_data

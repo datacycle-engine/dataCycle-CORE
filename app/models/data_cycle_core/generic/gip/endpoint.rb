@@ -163,7 +163,7 @@ module DataCycleCore
             }
           }
 
-          response = Faraday.new.post do |req|
+          response = Faraday.new(ssl: { verify: false }).post do |req|
             req.url File.join([@host] + url_path)
             req.headers['Content-Type'] = 'application/json'
             req.body = params.to_json
@@ -176,7 +176,7 @@ module DataCycleCore
         end
 
         def load_object_ids(url_path, params, retry_count = 0)
-          response = Faraday.new.post do |req|
+          response = Faraday.new(ssl: { verify: false }).post do |req|
             req.url File.join([@host] + url_path)
             req.headers['Content-Type'] = 'application/json'
             req.options.timeout = 300
@@ -191,7 +191,7 @@ module DataCycleCore
         end
 
         def load_feature(url_path, object_id, retry_count = 0)
-          response = Faraday.new.get do |req|
+          response = Faraday.new(ssl: { verify: false }).get do |req|
             req.url File.join([@host] + url_path)
             req.params['command'] = 'getfeature'
             req.params['objectid'] = object_id
@@ -209,7 +209,7 @@ module DataCycleCore
         end
 
         def load_data(url_path, params, retry_count = 0)
-          response = Faraday.new.post do |req|
+          response = Faraday.new(ssl: { verify: false }).post do |req|
             req.url File.join([@host, @end_point] + url_path)
             req.options[:timeout] = 1000 # open/read timeout in seconds
             req.options[:open_timeout] = 1000

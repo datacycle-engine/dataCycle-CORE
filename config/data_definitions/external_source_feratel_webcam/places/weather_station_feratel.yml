@@ -2,16 +2,13 @@
 - :data:
     :name: Wetterstation Feratel
     :type: object
-    :schema_type: Place
     :content_type: entity
     :boost: 100.0
     :features:
       :translatable:
         :allowed: true
-    :api:
-      :type:
-        - Place
-        - 'dcls:Wetterstation Feratel'
+    :schema_ancestors:
+      - Place
     :properties:
       :id:
         :label: id
@@ -36,8 +33,7 @@
         :label: Ort
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Ort
@@ -47,7 +43,7 @@
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Wetterstation Feratel'
+        :default_value: "Wetterstation Feratel"
       :content_classifications:
         :type: mixin
         :name: content_classifications

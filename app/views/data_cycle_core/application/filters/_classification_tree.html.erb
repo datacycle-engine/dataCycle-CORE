@@ -1,5 +1,7 @@
-<li class="filter <%= 'subtree' if classification_tree&.any? { |d| d.sub_classification_alias.present? } %>" data-id="<%= identifier %>">
-  <% excluded_types ||= [] %>
+<% excluded_types ||= [] %>
+<% has_children = classification_tree&.any? { |d| d.sub_classification_alias.reject { |ca| excluded_types.include?(ca.internal_name) }.present? } %>
+
+<li class="filter <%= 'subtree' if has_children %>" data-id="<%= identifier %>">
   <%= hidden_field_tag "f[#{identifier}][c]", 'd' %>
   <%= hidden_field_tag "f[#{identifier}][t]", :classification_alias_ids %>
   <%= hidden_field_tag "f[#{identifier}][n]", tree_label %>
@@ -8,7 +10,7 @@
   <%= render 'data_cycle_core/shared/icon', icon_type: tree_label.presence&.underscore_blanks, icon_class: 'classification_tree_label' %>
   <span class="title"><%= display_label %></span>
   <div>
-    <ul class="clearfix <%= 'split-list' unless classification_tree&.any? { |d| d.sub_classification_alias.present? } %>">
+    <ul class="clearfix <%= 'split-list' unless has_children %>">
       <%= render partial: 'data_cycle_core/application/filters/classification_items',
                   collection: classification_tree
                     .sort{ |a,b| I18n.with_locale(a.first_available_locale(active_ui_locale)){ a.name } <=> I18n.with_locale(b.first_available_locale(active_ui_locale)){ b.name } },

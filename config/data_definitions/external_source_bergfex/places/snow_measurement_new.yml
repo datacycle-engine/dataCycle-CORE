@@ -2,20 +2,19 @@
 - :data:
     :name: Schneehöhe - Messpunkt Bergfex
     :type: object
-    :schema_type: Place
     :content_type: entity
     :boost: 100.0
     :features:
       :creatable:
         :allowed: true
-    :api:
-      :type:
-        - Place
-        - 'dcls:SnowHeightMeasuringPoint'
-        - CreativeWork
+    :schema_ancestors:
+      - - Place
+        - "dcls:SnowHeightMeasuringPoint"
+      - - CreativeWork
         - Dataset
         - DataFeed
-        - 'odta:SnowConditionReport'
+        - "odta:SnowConditionReport"
+        - "dcls:SnowHeightMeasuringPoint"
     :properties:
       :id:
         :label: id
@@ -63,7 +62,7 @@
           :unit_text: cm
           :transformation:
             :method: nest
-            :name: 'odta:maxSnowHeight'
+            :name: "odta:maxSnowHeight"
             :type: QuantitativeValue
         :validations:
           :format: float
@@ -86,7 +85,7 @@
           :unit_text: cm
           :transformation:
             :method: nest
-            :name: 'odta:freshFallenSnow'
+            :name: "odta:freshFallenSnow"
             :type: QuantitativeValue
         :validations:
           :format: float
@@ -111,7 +110,7 @@
             :type: date
             :options:
               :class: daterange
-              :placeholder: 'tt.mm.jjjj'
+              :placeholder: "tt.mm.jjjj"
           :show:
             :type: date
       :date_time_measured:
@@ -125,9 +124,9 @@
             :type: datetime
             :options:
               :class: daterange
-              :placeholder: 'tt.mm.jjjj --:--'
+              :placeholder: "tt.mm.jjjj --:--"
         :api:
-          :name: 'dcls:dateTimeMeasured'
+          :name: "dcls:dateTimeMeasured"
       :snow_resort:
         :label: Skigebiet
         :type: linked
@@ -153,30 +152,30 @@
         :type: classification
         :tree_label: "Bergfex - Wetter - Meldung"
       :condition_snow:
-        :label: 'Schnee - Meldung'
+        :label: "Schnee - Meldung"
         :type: classification
-        :tree_label: 'odta:snowCondition'
+        :tree_label: "odta:snowCondition"
         :ui:
           :show:
             :content_area: header
         :api:
           :partial: string
-          :name: 'odta:snowCondition'
+          :name: "odta:snowCondition"
       :snow_type:
-        :label: 'Schnee - Art'
+        :label: "Schnee - Art"
         :type: classification
-        :tree_label: 'odta:snowType'
+        :tree_label: "odta:snowType"
         :ui:
           :show:
             :content_area: header
         :api:
           :partial: string
-          :name: 'odta:snowType'
+          :name: "odta:snowType"
       :data_type:
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Schneehöhe - Messpunkt'
+        :default_value: "Schneehöhe - Messpunkt"
       :meta_data:
         :type: mixin
         :name: meta_data

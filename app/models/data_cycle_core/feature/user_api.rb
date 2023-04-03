@@ -130,10 +130,10 @@ module DataCycleCore
         configuration[:additional_tile_attributes]&.each do |key, value|
           column = DataCycleCore::User.columns.find { |c| c.name == key }
 
-          if column.type == :string
-            tile_attributes[key] = user.try(key)
-          elsif column.type == :jsonb
+          if column.type == :jsonb
             tile_attributes.merge!(user.try(key)&.slice(*value.keys)&.transform_keys { |k| "#{key}/#{k}" } || {})
+          else
+            tile_attributes[key] = user.try(key)
           end
         end
 

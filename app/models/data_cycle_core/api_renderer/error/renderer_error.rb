@@ -3,7 +3,7 @@
 module DataCycleCore
   module ApiRenderer
     module Error
-      class TimeseriesError < StandardError
+      class RendererError < StandardError
         def initialize(msg = '')
           super
         end

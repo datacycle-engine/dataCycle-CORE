@@ -2,7 +2,8 @@
 - :data:
     :name: Tourenbewertung
     :type: object
-    :schema_type: Rating
+    :schema_ancestors:
+      - Rating
     :content_type: embedded
     :properties:
       :id:

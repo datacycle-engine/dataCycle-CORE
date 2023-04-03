@@ -2,26 +2,33 @@
 - :data:
     :name: Skigebiet Bergfex
     :type: object
-    :schema_type: Place
     :schema_ancestors:
-      - - Organization
-        - LocalBusiness
-        - LodgingBusiness
-        - Resort
-        - SkiResort
-      - - Organization
-        - LocalBusiness
-        - SportsActivityLocation
-        - SkiResort
       - - Place
         - LocalBusiness
         - LodgingBusiness
         - Resort
         - SkiResort
+        - "odta:SkiResort"
+        - "dcls:Skigebiet"
       - - Place
         - LocalBusiness
         - SportsActivityLocation
         - SkiResort
+        - "odta:SkiResort"
+        - "dcls:Skigebiet"
+      - - Organization
+        - LocalBusiness
+        - LodgingBusiness
+        - Resort
+        - SkiResort
+        - "odta:SkiResort"
+        - "dcls:Skigebiet"
+      - - Organization
+        - LocalBusiness
+        - SportsActivityLocation
+        - SkiResort
+        - "odta:SkiResort"
+        - "dcls:Skigebiet"
     :content_type: entity
     :boost: 100.0
     :features:
@@ -37,17 +44,6 @@
           :xml: true
           :json: true
           :indesign: true
-    :api:
-      :type:
-        - Place
-        - Organization
-        - LocalBusiness
-        - LodgingBusiness
-        - Resort
-        - SportActivityLocation
-        - SkiResort
-        - 'odta:SkiResort'
-        - 'dcls:Skigebiet'
     :properties:
       :id:
         :label: id
@@ -91,9 +87,9 @@
         :type: mixin
         :name: content_classifications
       :bergfex_status_icon:
-        :label: 'Status-Icon'
+        :label: "Status-Icon"
         :type: classification
-        :tree_label: 'Bergfex - Status - Icon'
+        :tree_label: "Bergfex - Status - Icon"
         :external: true
         :ui:
           :show:
@@ -104,7 +100,7 @@
         :storage_location: value
         :api:
           :v4:
-            :name: 'odta:seasonStart'
+            :name: "odta:seasonStart"
         :ui:
           :edit:
             :options:
@@ -115,7 +111,7 @@
         :storage_location: value
         :api:
           :v4:
-            :name: 'odta:seasonEnd'
+            :name: "odta:seasonEnd"
         :ui:
           :edit:
             :options:
@@ -123,28 +119,28 @@
       :status:
         :label: Status
         :type: classification
-        :tree_label: 'odta:OpeningStatus'
+        :tree_label: "odta:OpeningStatus"
         :ui:
           :show:
             :content_area: header
         :api:
-          :name: 'odta:status'
+          :name: "odta:status"
           :partial: enumeration
-          :type: 'odta:OpeningStatus'
+          :type: "odta:OpeningStatus"
       :min_elevation:
         :label: minElevation
         :type: number
         :storage_location: value
         :api:
           :v4:
-            :name: 'odta:minElevation'
+            :name: "odta:minElevation"
       :max_elevation:
         :label: maxElevation
         :type: number
         :storage_location: value
         :api:
           :v4:
-            :name: 'odta:maxElevation'
+            :name: "odta:maxElevation"
       :date_time_updated_at:
         :label: Zuletzt aktualisiert
         :type: datetime
@@ -162,7 +158,7 @@
             :type: datetime
             :options:
               :class: daterange
-              :placeholder: 'tt.mm.jjjj --:--'
+              :placeholder: "tt.mm.jjjj --:--"
       :line:
         :label: Pisten/Lifte
         :storage_location: column
@@ -187,7 +183,7 @@
         :link_direction: inverse
         :api:
           :v4:
-            :name: 'odta:hasSkiLift'
+            :name: "odta:hasSkiLift"
       :slope_details:
         :label: Pisten
         :template_name: Piste
@@ -196,7 +192,7 @@
         :link_direction: inverse
         :api:
           :v4:
-            :name: 'odta:hasSkiSlope'
+            :name: "odta:hasSkiSlope"
       :lifts:
         :label: Lifte
         :type: object
@@ -215,8 +211,8 @@
             :validations:
               :format: integer
             :api:
-              :unit_code: 'C62'
-              :unit_name: '1'
+              :unit_code: "C62"
+              :unit_name: "1"
           :max_value:
             :label: Lifte gesamt
             :type: number
@@ -224,8 +220,8 @@
             :validations:
               :format: integer
             :api:
-              :unit_code: 'C62'
-              :unit_name: '1'
+              :unit_code: "C62"
+              :unit_name: "1"
       :slopes:
         :label: Pistenlänge
         :type: object
@@ -244,8 +240,8 @@
             :validations:
               :format: float
             :api:
-              :unit_code: 'KMT'
-              :unit_name: 'km'
+              :unit_code: "KMT"
+              :unit_name: "km"
           :max_value:
             :label: Max Pistenlänge
             :type: number
@@ -253,8 +249,8 @@
             :validations:
               :format: float
             :api:
-              :unit_code: 'KMT'
-              :unit_name: 'km'
+              :unit_code: "KMT"
+              :unit_name: "km"
       :count_open_slopes:
         :label: Pisten
         :type: object
@@ -273,8 +269,8 @@
             :validations:
               :format: integer
             :api:
-              :unit_code: 'C62'
-              :unit_name: '1'
+              :unit_code: "C62"
+              :unit_name: "1"
           :max_value:
             :label: Pisten gesamt
             :type: number
@@ -282,8 +278,8 @@
             :validations:
               :format: integer
             :api:
-              :unit_code: 'C62'
-              :unit_name: '1'
+              :unit_code: "C62"
+              :unit_name: "1"
       :length_nordic_classic:
         :label: Loipenlänge Nordisch Klassisch
         :type: number
@@ -329,7 +325,7 @@
         :storage_location: translated_value
         :api:
           :v4:
-            :name: 'odta:webcam'
+            :name: "odta:webcam"
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -371,41 +367,41 @@
         :type: linked
         :template_name: Bild
       :condition_avalanche_warning_level:
-        :label: 'Lawinenwarnlevel'
+        :label: "Lawinenwarnlevel"
         :type: classification
-        :tree_label: 'Bergfex - Lawinenwarnlevel'
+        :tree_label: "Bergfex - Lawinenwarnlevel"
         :external: true
         :ui:
           :show:
             :content_area: header
       :condition_nordic_classic:
-        :label: 'NordicClassic - Meldung'
+        :label: "NordicClassic - Meldung"
         :type: classification
-        :tree_label: 'Bergfex - NordicClassic - Meldung'
+        :tree_label: "Bergfex - NordicClassic - Meldung"
         :external: true
         :ui:
           :show:
             :content_area: header
       :condition_nordic_skating:
-        :label: 'NordicSkating - Meldung'
+        :label: "NordicSkating - Meldung"
         :type: classification
-        :tree_label: 'Bergfex - NordicClassic - Meldung'
+        :tree_label: "Bergfex - NordicClassic - Meldung"
         :external: true
         :ui:
           :show:
             :content_area: header
       :condition_run_to_valley:
-        :label: 'Talfahrt - Meldung'
+        :label: "Talfahrt - Meldung"
         :type: classification
-        :tree_label: 'Bergfex - Talfahrt - Meldung'
+        :tree_label: "Bergfex - Talfahrt - Meldung"
         :external: true
         :ui:
           :show:
             :content_area: header
       :condition_slopes:
-        :label: 'Pisten - Meldung'
+        :label: "Pisten - Meldung"
         :type: classification
-        :tree_label: 'Bergfex - Pisten - Meldung'
+        :tree_label: "Bergfex - Pisten - Meldung"
         :external: true
         :ui:
           :show:
@@ -531,7 +527,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Skigebiet'
+        :default_value: "Skigebiet"
       :meta_data:
         :type: mixin
         :name: meta_data

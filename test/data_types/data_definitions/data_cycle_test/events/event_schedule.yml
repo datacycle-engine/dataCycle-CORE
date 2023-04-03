@@ -2,13 +2,11 @@
 - :data:
     :name: EventSchedule
     :type: object
-    :schema_type: Event
     :boost: 100.0
     :content_type: embedded
-    :api:
-      :type:
-        - Intangible
-        - Schedule
+    :schema_ancestors:
+      - Intangible
+      - Schedule
     :properties:
       :id:
         :label: id

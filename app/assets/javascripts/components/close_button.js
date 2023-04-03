@@ -3,7 +3,7 @@ import DomElementHelpers from "../helpers/dom_element_helpers";
 class CloseButton {
 	constructor(item) {
 		this.item = item;
-		this.item.classList.add("dcjs-close-button");
+		this.item.classList.add("dcjs-fd-close-button");
 		this.parent = this.item.closest("[data-closable]");
 
 		this.setup();
