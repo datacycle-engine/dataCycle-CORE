@@ -18,3 +18,5 @@ en:
           invalid_default_value: "invalid_default_value: module and method combination not found."
         properties:
           invalid_object: "invalid included_object: type must be 'object' and must have properties defined. storage_location must be a jsonb field (translated_value for translated fields, value for not translatable data)."
+        data:
+          missing_schema_type_or_ancestors: "schema_type or schema_ancestors have to be defined."

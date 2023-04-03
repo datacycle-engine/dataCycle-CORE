@@ -546,3 +546,6 @@
 
 :content_score:
   :enabled: true
+
+:transitive_classification_path:
+  :enabled: false

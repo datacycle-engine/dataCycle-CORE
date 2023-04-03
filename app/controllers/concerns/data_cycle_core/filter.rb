@@ -14,7 +14,7 @@ module DataCycleCore
       @stored_filter.language = @language
       @sort_params = @stored_filter.sort_parameters
 
-      @stored_filter.apply_user_filter(current_user, user_filter, current_user.is_role?('guest')) if user_filter.present?
+      @stored_filter.apply_user_filter(current_user, user_filter) if user_filter.present?
       query = @stored_filter.apply(query: query&.dup, skip_ordering: @count_only, watch_list: watch_list)
 
       # used on dashboard
@@ -139,8 +139,10 @@ module DataCycleCore
           @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
           @classification_trees_parameters |= Array.wrap(@stored_filter.classification_tree_labels)
           @classification_trees_filter = @classification_trees_parameters.present?
+        elsif (@watch_list = DataCycleCore::WatchList.without_my_selection.by_id_or_slug(endpoint_id).first).present?
+          authorize! :api, @watch_list unless any_authenticity_token_valid?
         else
-          raise ActiveRecord::RecordNotFound unless (@watch_list = DataCycleCore::WatchList.without_my_selection.by_id_or_slug(endpoint_id).first)
+          raise ActiveRecord::RecordNotFound
         end
       end
 
@@ -154,9 +156,6 @@ module DataCycleCore
       query = query.watch_list_id(@watch_list.id) unless @watch_list.nil?
 
       query = query.fulltext_search(@full_text_search) if @full_text_search
-
-      # backwards compatibility for projects without user_filters
-      query = query.in_validity_period if DataCycleCore.user_filters.blank?
 
       query = apply_filters(query, permitted_params&.dig(:filter))
       query = append_filters(query, permitted_params)

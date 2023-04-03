@@ -6,8 +6,8 @@ module DataCycleCore
       class UsersByRole < Base
         attr_accessor :roles
 
-        def initialize(roles)
-          @roles = Array.wrap(roles).map(&:to_s)
+        def initialize(*roles)
+          @roles = Array.wrap(roles).flatten.map(&:to_s)
         end
 
         def include?(user)

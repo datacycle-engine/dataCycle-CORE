@@ -9,8 +9,8 @@ module DataCycleCore
         require 'hashdiff'
 
         def self.download_data(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, options:)
-          iteration_strategy = options.dig(:iteration_strategy) || :download_sequential
-          raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel, :download_all].include?(iteration_strategy)
+          iteration_strategy = options.dig(:download, :iteration_strategy) || options.dig(:iteration_strategy) || :download_sequential
+          raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel, :download_all].include?(iteration_strategy.to_sym)
           send(iteration_strategy, download_object: download_object, data_id: data_id, data_name: data_name, modified: modified, delete: delete, iterator: iterator, options: options)
         end
 

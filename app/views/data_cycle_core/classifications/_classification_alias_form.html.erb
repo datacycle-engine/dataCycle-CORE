@@ -49,7 +49,7 @@
 
   <div class="ca-input">
     <%= f.label :uri, DataCycleCore::ClassificationAlias.human_attribute_name(:uri, locale: active_ui_locale), class: 'ca-label' %>
-    <%= f.text_field :uri, class: 'ca-input-field', readonly: true, placeholder: t('common.generated_value_placeholder', locale: active_ui_locale) %>
+    <%= f.text_field :uri, class: 'ca-input-field', readonly: classification_alias&.persisted? ? !can?(:update, classification_alias) : !can?(:create, DataCycleCore::ClassificationAlias), placeholder: t('common.generated_value_placeholder', locale: active_ui_locale) %>
   </div>
 
   <% if current_user&.is_role?('super_admin') %>

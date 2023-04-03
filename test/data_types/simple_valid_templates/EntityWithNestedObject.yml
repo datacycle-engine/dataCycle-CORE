@@ -3,7 +3,8 @@
     :name: Container
     :type: object
     :content_type: entity
-    :schema_type: Thing_Container
+    :schema_ancestors:
+      - Thing_Container
     :properties:
       :id:
         :label: id

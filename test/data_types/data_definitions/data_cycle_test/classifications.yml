@@ -14,6 +14,9 @@
         - $$Unterkunft
         - $$LocalBusiness
         - $$Gastronomischer Betrieb
+        - $$Badeseen
+        - $$Skigebiet
+        - $$freie Scheehöhenmesspunkte
     - $$Text:
         - $$Artikel
         - $$Beschreibungstext
@@ -22,6 +25,7 @@
         - $$Rezept
         - $$Biografie
         - $$Quiz
+        - $$Übersetzung
     - $$Organisation
     - $$Person
     - $$Pauschalangebot
@@ -49,6 +53,8 @@
     - $$Recherche
     - $$Frage
     - $$Antwort
+    - $$Schneehöhe - Messpunkt
+    - $$Skigebiet - Addon
 
 - Geschlecht | all:
     - Männlich | Male **https://schema.org/Male

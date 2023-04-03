@@ -2,14 +2,12 @@
 - :data:
     :name: Skigebiet - Addon
     :type: object
-    :schema_type: CreativeWork
     :content_type: embedded
-    :api:
-      :type: 
-        - Intangible
-        - StructuredValue
-        - PropertyValue
-        - LocationFeatureSpecification
+    :schema_ancestors:
+      - Intangible
+      - StructuredValue
+      - PropertyValue
+      - LocationFeatureSpecification
     :properties:
       :id:
         :label: id

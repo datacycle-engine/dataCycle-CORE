@@ -57,7 +57,7 @@ module DataCycleCore
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
           filter.language = @language.split(',')
-
+          filter.apply_user_filter(current_user, { scope: 'api' })
           query = filter.apply
           if content_schema_type
             query = query.schema_type(content_schema_type)
@@ -67,8 +67,6 @@ module DataCycleCore
           query = query.modified_at({ min: permitted_params.dig(:filter, :modified_since) }) if permitted_params.dig(:filter, :modified_since)
           query = query.created_at({ min: permitted_params.dig(:filter, :created_since) }) if permitted_params.dig(:filter, :created_since)
           query = query.fulltext_search(permitted_params[:q]) if permitted_params[:q]
-
-          query = query.in_validity_period
 
           if permitted_params&.dig(:filter, :classifications)
             permitted_params.dig(:filter, :classifications).map { |classifications|

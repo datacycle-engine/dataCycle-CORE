@@ -16,6 +16,22 @@ module DataCycleCore
       ).prepend("#{I18n.t('opening_time.valid_from', locale: active_ui_locale)} ")
     end
 
+    def opening_time_ex_dates(opening_times)
+      extimes = opening_times
+        .map { |o| o[:extimes]&.map { |e| e[:time] } }
+        .flatten
+        .uniq
+        .sort_by
+        .map { |e| l(e.to_date, format: :edit, locale: active_ui_locale) }
+
+      return if extimes.blank?
+
+      tag.span(
+        "(#{I18n.t('opening_time.except', locale: active_ui_locale)}: #{extimes.join(', ')})",
+        class: 'opening-time-ex-times'
+      )
+    end
+
     def opening_time_opening_hours(opening_times)
       days = [*(1..6), 0]
       days.push(99) if opening_times.any? { |d| !d.dig(:holidays).nil? }

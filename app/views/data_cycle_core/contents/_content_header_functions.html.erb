@@ -41,7 +41,7 @@
         <button class="link" onclick="window.print();"><i aria-hidden="true" class="fa fa-print"></i></button>
       </li>
     <% end %>
-    <% if can?(:download_content_report, content) %>
+    <% if can?(:download_content_report, content) && DataCycleCore::Feature::ReportGenerator.content_reports(content).present? %>
       <li class="has-dropdown">
         <%= render 'content_reports', content: content %>
       </li>

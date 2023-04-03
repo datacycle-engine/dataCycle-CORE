@@ -206,13 +206,13 @@ module DataCycleCore
       .deep_transform_keys { |k| k.to_s.camelize(:lower) }
     end
 
-    def to_select_option(locale = DataCycleCore.ui_locales.first)
+    def to_select_option(locale = DataCycleCore.ui_locales.first, disable_locked = true)
       DataCycleCore::Filter::SelectOption.new(
         id,
         email,
         model_name.param_key,
         locked? ? "#{full_name} <span class=\"alert-color\"><i class=\"fa fa-ban\"></i> #{self.class.human_attribute_name(:locked_at, locale: locale)}</span>" : full_name,
-        locked?
+        disable_locked && locked?
       )
     end
 

@@ -2,34 +2,43 @@
   <section id="admin-inner" data-tabs-content="admin-icons">
     <section id="schema" class="tabs-panel">
       <section class="schema-nav">
-        <h5><%= t('admin_panel.schema', locale: active_ui_locale) %></h5>
-        <button class="copy-to-clipboard admin-clipboard">COPY</button>
-        <button class="close-admin-panel"><i class="fa fa-times" aria-hidden="true"></i></button>
+        <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5(t('admin_panel.schema', locale: active_ui_locale)) %>
       </section>
       <pre id="admin_schema" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/schema" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
     </section>
     <section id="datahash" class="tabs-panel">
       <section class="datahash-nav">
-        <h5><%= t('admin_panel.datahash', locale: active_ui_locale) %></h5>
-        <button class="copy-to-clipboard admin-clipboard">COPY</button>
-        <button class="close-admin-panel"><i class="fa fa-times" aria-hidden="true"></i></button>
+        <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5(t('admin_panel.datahash', locale: active_ui_locale)) %>
       </section>
       <pre id="admin_datahash" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/datahash" data-remote-options="<%= to_query_params(content: content, locale: I18n.locale).to_json %>"></pre>
     </section>
     <section id="json-api" class="tabs-panel">
       <section class="json-api-nav">
-        <h5><%= t('admin_panel.api', locale: active_ui_locale) + " V4" %></h5>
-        <button class="copy-to-clipboard admin-clipboard">COPY</button>
-        <button class="close-admin-panel"><i class="fa fa-times" aria-hidden="true"></i></button>
+        <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5('JSON') + tag.h6('APIv4') %>
       </section>
       <pre id="admin_api" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/json_api" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
     </section>
+    <% dzt_data = content.external_system_syncs.find_by(external_system: DataCycleCore::ExternalSystem.find_by("identifier = 'dzt' OR identifier ILIKE 'onlim%' OR identifier ILIKE 'dzt%'")) %>
+    <% if dzt_data&.try(:data)&.dig('data_send').present? %>
+      <section id="data-send" class="tabs-panel">
+        <section class="data-send-nav">
+          <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5('DZT') + tag.h6(dzt_data&.try(:data)&.dig('data_send_at')) %>
+        </section>
+        <pre id="admin_data-send" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/data_send" data-remote-options="<%= to_query_params(content: dzt_data&.try(:data)&.dig('data_send')).to_json %>"></pre>
+      </section>
+    <% end %>
+    <% if dzt_data&.try(:data)&.dig('job_result').present? %>
+      <section id="data-job" class="tabs-panel">
+        <section class="data-job-nav">
+          <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5('DZT') + tag.h6('export status') %>
+        </section>
+        <pre id="admin_data-job" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/data_send" data-remote-options="<%= to_query_params(content: dzt_data&.try(:data)&.dig('job_result')).to_json %>"></pre>
+      </section>
+    <% end %>
     <% if content.try(:asset).present? && content&.asset&.metadata.present? %>
       <section id="meta-data" class="tabs-panel">
         <section class="meta-data-nav">
-          <h5><%= t('admin_panel.meta-data', locale: active_ui_locale) %></h5>
-          <button class="copy-to-clipboard admin-clipboard">COPY</button>
-          <button class="close-admin-panel"><i class="fa fa-times" aria-hidden="true"></i></button>
+          <%= render 'data_cycle_core/application/admin_panel/panel_header', title: tag.h5(t('admin_panel.meta-data', locale: active_ui_locale)) %>
         </section>
         <pre id="admin_meta-data" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/meta_data" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
       </section>
@@ -41,6 +50,12 @@
     <li class="tabs-title"><a href="#schema"><i class="fa fa-code"></i></a></li>
     <li class="tabs-title"><a href="#datahash"><i class="fa fa-hashtag"></i></a></li>
     <li class="tabs-title"><a href="#json-api"><i class="fa">json</i></a></li>
+    <% if dzt_data&.try(:data)&.dig('data_send').present? %>
+      <li class="tabs-title"><a href="#data-send"><i class="fa">DZT</i></a></li>
+    <% end %>
+    <% if dzt_data&.try(:data)&.dig('job_result').present? %>
+      <li class="tabs-title"><a href="#data-job"><i class="fa">DZT status</i></a></li>
+    <% end %>
     <% if content.try(:asset).present? && content&.asset&.metadata.present? %>
       <li class="tabs-title"><a href="#meta-data"><i class="fa">metadata</i></a></li>
     <% end %>

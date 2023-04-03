@@ -1,0 +1,22 @@
+valid_contents:
+  segments:
+    - name: DataCycleCore::Abilities::Segments::UsersByRole
+      parameters:
+        - all
+  scope:
+    - api
+    - object_browser
+  force: true
+  stored_filter:
+    - in_validity_period: ~
+
+guest_shared_contents:
+  segments:
+    - name: DataCycleCore::Abilities::Segments::UsersByRole
+      parameters:
+        - guest
+  scope:
+    - backend
+  force: true
+  stored_filter:
+    - shared_with: current_user

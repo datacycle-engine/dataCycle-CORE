@@ -136,7 +136,7 @@ module DataCycleCore
       )
     end
 
-    def simple_classification_select_options(value, classification_items, expected_type = DataCycleCore::ClassificationAlias)
+    def simple_classification_select_options(value, classification_items, expected_type = DataCycleCore::ClassificationAlias, disabled_proc = nil)
       value = Array.wrap(value).compact
 
       options_for_select(
@@ -154,7 +154,7 @@ module DataCycleCore
                   dc_tooltip: classification_tooltip(ca),
                   full_path: ca.full_path
                 },
-                disabled: !c.assignable
+                disabled: disabled_proc.present? ? disabled_proc.call(ca) : !ca.assignable
               }
             ]
           }

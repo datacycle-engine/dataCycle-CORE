@@ -2,7 +2,8 @@
 - :data:
     :name: PersonOverlay
     :type: object
-    :schema_type: Person
+    :schema_ancestors:
+      - Person
     :content_type: embedded
     :properties:
       :id:
@@ -31,7 +32,7 @@
         :compute:
           :module: Utility::Compute::String
           :method: concat
-          :separator: ' '
+          :separator: " "
           :parameters:
             - given_name
             - family_name

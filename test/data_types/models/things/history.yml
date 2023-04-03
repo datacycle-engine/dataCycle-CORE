@@ -3,7 +3,8 @@
     :name: TestSimple
     :type: object
     :content_type: entity
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :properties:
       :id:
         :label: id
@@ -17,7 +18,8 @@
     :name: TestIncludedData
     :type: object
     :content_type: entity
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :properties:
       :id:
         :label: id
@@ -44,7 +46,8 @@
     :name: TestClassificationData
     :type: object
     :content_type: entity
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :properties:
       :id:
         :label: id
@@ -68,7 +71,8 @@
     :name: TestEmbeddedPlaceData
     :type: object
     :content_type: entity
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :properties:
       :id:
         :label: id
@@ -86,7 +90,8 @@
     :name: TestEmbeddedCreativeWork
     :type: object
     :content_type: entity
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :properties:
       :id:
         :label: id
@@ -104,7 +109,8 @@
     :name: EmbeddedCreativeWork
     :type: object
     :content_type: embedded
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :properties:
       :id:
         :label: id
@@ -128,7 +134,8 @@
     :name: CreativeWorkEmbeddedLink
     :type: object
     :content_type: entity
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :properties:
       :id:
         :label: id

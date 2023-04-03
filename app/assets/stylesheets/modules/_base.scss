@@ -547,6 +547,12 @@ footer {
     padding: 1.7rem 1rem 1.2rem 1rem !important;
     text-align: center;
     position: relative;
+
+    .attribute-content-score {
+      font-size: 1rem;
+      vertical-align: text-top;
+      margin: 0 0.3rem;
+    }
   }
 
   .content-header-classifications {

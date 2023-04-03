@@ -80,7 +80,7 @@ describe DataCycleCore::MasterData::NormalizeData do
       {
         'name' => 'Person',
         'type' => 'object',
-        'schema_type' => 'Person',
+        'schema_ancestors' => ['Person'],
         'content_type' => 'entity',
         'properties' => {
           'id' => { 'type' => 'key', 'label' => 'id' },

@@ -5,6 +5,7 @@
       object: object,
       index: DataCycleCore.linked_objects_page_size + index,
       options: @params[:options],
+      locale: @locale,
       new_content: false,
       duplicated_content: @params[:duplicated_content].to_s == 'true',
       hide_embedded: @params[:hide_embedded].to_s == 'true'

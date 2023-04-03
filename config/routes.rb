@@ -347,13 +347,14 @@ DataCycleCore::Engine.routes.draw do
                 match 'endpoints/:id/suggest', to: 'contents#typeahead', as: 'typeahead', via: [:get, :post]
                 match 'endpoints/:id/download', to: 'downloads#endpoint', as: 'endpoint', via: [:get, :post]
                 match 'endpoints/:id/facets/:classification_tree_label_id(/:classification_id)', to: 'classification_trees#facets', as: 'facets', via: [:get, :post]
+                get 'endpoints/:id/statistics/:attribute(/:format)', to: 'contents#statistics', as: 'statistics'
                 match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
                 match 'endpoints/:id/:content_id/:timeseries(/:format)', to: 'contents#timeseries', as: 'content_timeseries', via: [:get, :post]
 
                 post 'collections/create', to: 'watch_lists#create'
                 resources :collections, only: [], controller: :watch_lists do
-                  post :add_item, on: :member
-                  post :remove_item, on: :member
+                  post '/add_item(/:thing_id)', action: :add_item, on: :member, as: :add_item
+                  post '/remove_item(/:thing_id)', action: :remove_item, on: :member, as: :remove_item
                   get :download_and_reset, on: :member
                 end
                 match 'collections', to: 'watch_lists#index', via: [:get, :post]
@@ -383,6 +384,7 @@ DataCycleCore::Engine.routes.draw do
                   match '', via: :post, to: 'external_systems#create'
                   match '(/:external_key)', via: [:put, :patch], to: 'external_systems#update', as: 'external_sources_update'
                   match '(/:external_key)', via: [:delete], to: 'external_systems#destroy', as: 'external_sources_delete'
+                  match '/concepts/:external_key', via: [:get, :post], to: 'classification_trees#by_external_key', as: 'classification_trees_by_external_key'
                   match '/search/availability', via: [:get, :post], to: 'external_systems#search_availability', as: 'external_source_search_availability'
                   match '/search/additional_service', via: [:get, :post], to: 'external_systems#search_additional_service', as: 'external_source_search_additional_service'
                 end

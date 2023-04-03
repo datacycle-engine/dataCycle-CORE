@@ -2,7 +2,7 @@
   <% content_for :tile_bottom_buttons, flush: true do %>
     <div class="duplicate-info-separator"></div>
     <div class="duplicate-info">
-      <div class="duplicate-score"><%= t('duplicate.score', locale: active_ui_locale) %>: <b><%= item.score.to_i %></b></div>
+      <div class="duplicate-score"><%= t('duplicate.score', locale: active_ui_locale) %>: <b data-duplicate-method="<%= item.duplicate_method %>" data-dc-tooltip="<%= item.duplicate_method.presence&.then { |d| t("feature.duplicate_candidate.duplicate_methods.#{d}", default: d, locale: active_ui_locale) } %>"><%= item.score.to_i %></b></div>
       <div class="duplicate-buttons">
         <%= link_to t('duplicate.merge', locale: active_ui_locale), merge_with_duplicate_thing_path(content, source_id: item.duplicate.id, locale: @locale), class: 'button small' %>
         <%= link_to t('duplicate.mark_false_positive', locale: active_ui_locale), false_positive_duplicate_thing_path(id: content.id, source_id: item.duplicate.id), method: :post, class: 'button secondary small' %>

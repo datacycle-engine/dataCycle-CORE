@@ -86,7 +86,17 @@ module DataCycleCore
 
       def schema_type(type)
         return self if type.blank?
-        query_string = Thing.send(:sanitize_sql_for_conditions, ['(schema -> :attribute_path)::jsonb ? :type', attribute_path: 'schema_type', type: type])
+
+        sql = <<-SQL.squish
+          (
+            CASE WHEN things.computed_schema_types IS NOT NULL THEN things.computed_schema_types && ARRAY[:type]::VARCHAR[]
+            ELSE (schema -> :attribute_path)::jsonb ? :type
+            END
+          )
+        SQL
+
+        query_string = Thing.send(:sanitize_sql_for_conditions, [sql, attribute_path: 'schema_type', type: type])
+
         reflect(
           @query.where(Arel.sql(query_string))
         )

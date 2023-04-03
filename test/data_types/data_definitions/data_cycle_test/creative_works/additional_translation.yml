@@ -2,7 +2,8 @@
 - :data:
     :name: Übersetzung
     :type: object
-    :schema_type: CreativeWork
+    :schema_ancestors:
+      - CreativeWork
     :content_type: entity
     :features:
       :translatable:
@@ -98,7 +99,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Übersetzung'
+        :default_value: "Übersetzung"
       :meta_data:
         :type: mixin
         :name: meta_data

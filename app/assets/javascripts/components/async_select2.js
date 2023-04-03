@@ -15,7 +15,7 @@ class AsyncSelect2 extends BasicSelect2 {
 		});
 	}
 	async loadNewOptions(_value, ids) {
-		let queryParams = {
+		const queryParams = {
 			ids: ids,
 		};
 
@@ -35,7 +35,7 @@ class AsyncSelect2 extends BasicSelect2 {
 			});
 
 			data.forEach((element) => {
-				let option = new Option(element.name, element.id, true, true);
+				const option = new Option(element.name, element.id, true, true);
 				option.title = element.title;
 				this.$element.append(option).trigger("change");
 
@@ -57,7 +57,7 @@ class AsyncSelect2 extends BasicSelect2 {
 	templateResult(data) {
 		if (data.loading) return;
 
-		let term = this.query.term || "";
+		const term = this.query.term || "";
 		let result = data.full_path || data.name;
 
 		result = this.markMatch(result, term);
@@ -79,7 +79,7 @@ class AsyncSelect2 extends BasicSelect2 {
 	ajaxDataHandler(params) {
 		this.select2Object.$container.addClass("select2-loading");
 		this.query = params;
-		let returnObject = {
+		const returnObject = {
 			q: params.term,
 			max: this.config.max,
 		};
@@ -97,7 +97,7 @@ class AsyncSelect2 extends BasicSelect2 {
 	ajaxProcessResults(data) {
 		this.select2Object.$container.removeClass("select2-loading");
 
-		let result = data.map((value) => {
+		const result = data.map((value) => {
 			if (this.aliasIds && value.classification_alias_id)
 				value.id = value.classification_alias_id;
 			else if (value.classification_id) value.id = value.classification_id;

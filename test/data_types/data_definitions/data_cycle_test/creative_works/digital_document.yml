@@ -2,16 +2,11 @@
 - :data:
     :name: Katalog
     :type: object
-    :schema_type: CreativeWork
     :schema_ancestors:
       - CreativeWork
       - DigitalDocument
     :content_type: entity
     :boost: 100.0
-    :api:
-      :type:
-        - CreativeWork
-        - DigitalDocument
     :features:
       :releasable:
         :allowed: true
@@ -46,7 +41,7 @@
         :storage_location: value
         :api:
           :v4:
-            :name: 'dc:order'
+            :name: "dc:order"
         :advanced_search: true
       :validity_period:
         :type: mixin
@@ -64,7 +59,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: 'Katalog'
+        :default_value: "Katalog"
       :publication_schedule:
         :type: mixin
         :name: publication_schedule

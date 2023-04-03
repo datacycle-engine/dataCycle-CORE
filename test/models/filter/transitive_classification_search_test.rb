@@ -5,10 +5,12 @@ require 'test_helper'
 module DataCycleCore
   class TransitiveClassificationSearchTest < DataCycleCore::TestCases::ActiveSupportTestCase
     before(:all) do
-      @before_state = DataCycleCore.transitive_classification_paths
-      DataCycleCore.transitive_classification_paths = true
-      DataCycleCore::ClassificationService.update_transitive_trigger_status
-      DataCycleCore::RunTaskJob.set(queue: 'default').perform_now('db:configure:rebuild_ccc_relations')
+      @before_state = DataCycleCore.features[:transitive_classification_path][:enabled]
+      DataCycleCore.features[:transitive_classification_path][:enabled] = true
+      DataCycleCore::Feature::TransitiveClassificationPath.reload
+      DataCycleCore::Feature::TransitiveClassificationPath.update_triggers(false)
+      DataCycleCore::RunTaskJob.perform_now('db:configure:rebuild_transitive_tables')
+
       @tags = DataCycleCore::ClassificationTreeLabel.find_by!(name: 'Tags')
       @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TEST 1 ARTIKEL', tags: fetch_classification_ids(@tags.name, 'Tag 1') })
 
@@ -27,9 +29,10 @@ module DataCycleCore
     end
 
     after(:all) do
-      DataCycleCore.transitive_classification_paths = @before_state
-      DataCycleCore::ClassificationService.update_transitive_trigger_status
-      DataCycleCore::RunTaskJob.set(queue: 'default').perform_now('db:configure:rebuild_ccc_relations')
+      DataCycleCore.features[:transitive_classification_path][:enabled] = @before_state
+      DataCycleCore::Feature::TransitiveClassificationPath.reload
+      DataCycleCore::Feature::TransitiveClassificationPath.update_triggers(false)
+      DataCycleCore::RunTaskJob.perform_now('db:configure:rebuild_transitive_tables')
     end
 
     test 'filter contents based on mapped (2 hops) classifications by id' do

@@ -21,7 +21,8 @@ module DataCycleCore
             permit_user(role, :read, :search, :classification_trees, :classification_tree, :permanent_advanced, :advanced, StoredFilterByDataLink: 'fulltext_search')
 
             # WatchList
-            permit_user(role, :copy_api_link, SubjectByConditions: [DataCycleCore::WatchList, my_selection: false])
+            permit_user(role, :api, :copy_api_link, :WatchListByApi)
+            permit_user(role, :create_api, SubjectByUserAndConditions: [DataCycleCore::WatchList, :user_id, my_selection: false])
 
             ### Features
             # ViewMode

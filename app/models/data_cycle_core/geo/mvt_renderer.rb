@@ -29,8 +29,9 @@ module DataCycleCore
       def contents_with_default_scope
         query = super
 
-        query = query.from('bounds, things')
-        query = query.where('ST_Intersects(geom_simple, ST_Transform(bounds.geom, 4326))')
+        query = query.where(
+          ActiveRecord::Base.send(:sanitize_sql_array, ["ST_Intersects(geom_simple, ST_Transform(ST_TileEnvelope(#{@z}, #{@x}, #{@y}), 4326))"])
+        )
 
         query
       end
@@ -48,13 +49,9 @@ module DataCycleCore
         as_mvt_select = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_AsMVT(mvtgeom, :layer_name) FROM mvtgeom', layer_name: @layer_name])
 
         <<-SQL.squish
-              WITH
-              bounds AS (
-                SELECT ST_TileEnvelope(#{@z}, #{@x}, #{@y}) AS geom
-              ),
-              mvtgeom AS (
+              WITH mvtgeom AS (
                 SELECT #{mvt_select_sql}
-                FROM (#{contents_with_default_scope.to_sql}) as t, bounds
+                FROM (#{contents_with_default_scope.to_sql}) as t
               )
               #{as_mvt_select};
         SQL
@@ -62,7 +59,7 @@ module DataCycleCore
 
       def mvt_select_sql
         <<-SQL.squish
-              ST_AsMVTGeom(ST_Transform(t.geometry, 3857), bounds.geom) AS geom,
+              ST_AsMVTGeom(ST_Transform(t.geometry, 3857), ST_TileEnvelope(#{@z}, #{@x}, #{@y})) AS geom,
                   t.id as "@id", #{include_config.pluck(:identifier).map { |p| "t.#{p} as #{p}" }.join(', ')}
         SQL
       end

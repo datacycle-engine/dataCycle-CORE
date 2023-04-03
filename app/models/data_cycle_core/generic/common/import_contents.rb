@@ -39,6 +39,7 @@ module DataCycleCore
                 next if nested_contents_config[:exists].present? && Array.wrap(nested_contents_config[:exists]).map { |path| resolve_attribute_path(nested_data, path).blank? }.inject(:|)
 
                 # ap transformation.call(utility_object.external_source.id).call(nested_data)
+
                 nested_content_config = nested_contents_config.except(:exists, :path, :template, :transformation)
                 process_single_content(utility_object, nested_contents_config[:template], transformation, nested_data, nested_content_config)
               end

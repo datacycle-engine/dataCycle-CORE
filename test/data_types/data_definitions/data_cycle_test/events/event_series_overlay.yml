@@ -2,7 +2,8 @@
 - :data:
     :name: EventserieOverlay
     :type: object
-    :schema_type: Event
+    :schema_ancestors:
+      - Event
     :content_type: embedded
     :properties:
       :id:
@@ -31,8 +32,7 @@
         :label: Veranstaltungsort
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Ort

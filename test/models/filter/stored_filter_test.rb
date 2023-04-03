@@ -10,6 +10,11 @@ module DataCycleCore
         .for_tree('Inhaltstypen')
         .with_internal_name(['Person', 'Organisation']).pluck(:id)
       @expected_parameters = [{ 't' => 'classification_alias_ids', 'm' => 'i', 'n' => 'Inhaltstypen', 'v' => @person_and_organization_ids, 'c' => 'a' }].to_set
+      @previous_user_filters = DataCycleCore.user_filters.deep_dup
+    end
+
+    after(:all) do
+      DataCycleCore.user_filters = @previous_user_filters
     end
 
     test 'parameters_from_hash with stringified hash' do
@@ -71,23 +76,21 @@ module DataCycleCore
     end
 
     test 'user_filters get set correctly' do
-      previous_user_filters = DataCycleCore.user_filters.deep_dup
-      DataCycleCore.user_filters = [{ 'segments' => [{ 'name' => 'DataCycleCore::Abilities::Segments::UsersByRole', 'parameters' => ['admin'] }], 'scope' => ['backend'], 'stored_filter' => [{ 'with_classification_aliases_and_treename' => { 'treeLabel' => 'Inhaltstypen', 'aliases' => ['Person', 'Organisation'] } }] }]
+      DataCycleCore.user_filters = { tmp1: { 'segments' => [{ 'name' => 'DataCycleCore::Abilities::Segments::UsersByRole', 'parameters' => ['admin'] }], 'scope' => ['backend'], 'stored_filter' => [{ 'with_classification_aliases_and_treename' => { 'treeLabel' => 'Inhaltstypen', 'aliases' => ['Person', 'Organisation'] } }] } }
 
       stored_filter = DataCycleCore::StoredFilter.new.apply_user_filter(@current_user, { scope: 'backend' })
       assert_equal [{ 't' => 'classification_alias_ids', 'm' => 'i', 'n' => 'Inhaltstypen', 'v' => @person_and_organization_ids, 'c' => 'u' }].to_set, stored_filter.parameters.to_set
 
-      DataCycleCore.user_filters = previous_user_filters
+      DataCycleCore.user_filters = @previous_user_filters
     end
 
     test 'forced user_filters get set correctly' do
-      previous_user_filters = DataCycleCore.user_filters.deep_dup
-      DataCycleCore.user_filters = [{ 'segments' => [{ 'name' => 'DataCycleCore::Abilities::Segments::UsersByRole', 'parameters' => ['admin'] }], 'force' => true, 'scope' => ['backend'], 'stored_filter' => [{ 'with_classification_aliases_and_treename' => { 'treeLabel' => 'Inhaltstypen', 'aliases' => ['Person', 'Organisation'] } }] }]
+      DataCycleCore.user_filters = { tmp1: { 'segments' => [{ 'name' => 'DataCycleCore::Abilities::Segments::UsersByRole', 'parameters' => ['admin'] }], 'force' => true, 'scope' => ['backend'], 'stored_filter' => [{ 'with_classification_aliases_and_treename' => { 'treeLabel' => 'Inhaltstypen', 'aliases' => ['Person', 'Organisation'] } }] } }
 
       stored_filter = DataCycleCore::StoredFilter.new.apply_user_filter(@current_user, { scope: 'backend' })
       assert_equal [{ 't' => 'classification_alias_ids', 'm' => 'i', 'n' => 'Inhaltstypen', 'v' => @person_and_organization_ids, 'c' => 'uf' }].to_set, stored_filter.parameters.to_set
 
-      DataCycleCore.user_filters = previous_user_filters
+      DataCycleCore.user_filters = @previous_user_filters
     end
   end
 end

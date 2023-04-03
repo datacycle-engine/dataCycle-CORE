@@ -12,24 +12,35 @@ module DataCycleCore
 
             return unless properties&.key?('content_score')
 
-            parameters = Array.wrap(properties&.dig('content_score', 'parameters')).map { |p| p.split('.').first }.concat([key]).compact.uniq.intersection(content.property_names)
+            parameter_keys = parameter_keys(content, key, properties)
+            data_hash = load_missing_values(data_hash.try(:dc_deep_dup), content, parameter_keys)
 
-            data_hash = load_missing_values(data_hash.try(:dc_deep_dup), content, parameters)
+            method_name = DataCycleCore::ModuleService
+              .load_module(properties.dig('content_score', 'module').classify, 'Utility::ContentScore')
+              .method(properties.dig('content_score', 'method'))
 
-            properties.dig('content_score', 'module')&.classify&.safe_constantize&.try(
-              properties.dig('content_score', 'method'),
+            data_hash[key] = method_name.call(
               key: key,
-              parameters: parameters.index_with { |v| data_hash[v] },
+              parameters: parameter_keys.index_with { |v| data_hash[v] },
               data_hash: data_hash || {},
               content: content,
               definition: properties
             )&.to_f
           end
 
-          def load_missing_values(datahash, content, parameters)
-            return datahash if parameters.blank?
+          def parameter_keys(content, key, properties)
+            Array.wrap(properties&.dig('content_score', 'parameters'))
+              .map { |p| p.split('.').first }
+              .concat([key])
+              .compact
+              .uniq
+              .intersection(content.property_names)
+          end
 
-            datahash.merge!(content.get_data_hash_partial(parameters.difference(datahash.keys)))
+          def load_missing_values(datahash, content, parameter_keys)
+            return datahash if parameter_keys.blank?
+
+            datahash.merge!(content.get_data_hash_partial(parameter_keys.difference(datahash.keys)))
             datahash = DataCycleCore::DataHashService.flatten_datahash_translations_recursive(datahash)
 
             datahash.keys.intersection(content.embedded_property_names).each do |key|

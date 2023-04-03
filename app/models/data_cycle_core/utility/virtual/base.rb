@@ -14,13 +14,13 @@ module DataCycleCore
             virtual_parameters = Array.wrap(properties&.dig('virtual', 'parameters'))
             language ||= content.first_available_locale
 
-            method_name.try(:call, **{
+            method_name.call(
               virtual_parameters: virtual_parameters,
               key: key,
               content: content,
               virtual_definition: properties,
               language: language
-            })
+            )
           end
         end
       end
