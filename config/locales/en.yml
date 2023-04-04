@@ -104,6 +104,7 @@ en:
   user:
     user_not_confirmed: email address has not been confirmed yet
     confirm: confirm email
+    delete_user_html: delete user?
 
   frontend:
     load_error: Error loading content.
