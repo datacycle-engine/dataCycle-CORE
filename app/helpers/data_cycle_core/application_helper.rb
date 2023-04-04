@@ -14,6 +14,12 @@ module DataCycleCore
       primary: :primary
     }.freeze
 
+    DATALINK_ICONS = {
+      'download' => 'fa-download',
+      'read' => 'fa-eye',
+      'write' => 'fa-pencil'
+    }.freeze
+
     def header_title
       return if DataCycleCore.header_title.blank?
 
@@ -44,14 +50,7 @@ module DataCycleCore
     end
 
     def data_link_permission_icon(permission)
-      case permission
-      when 'download'
-        tag.i(class: 'fa fa-download', aria_hidden: true)
-      when 'read'
-        tag.i(class: 'fa fa-eye', aria_hidden: true)
-      when 'write'
-        tag.i(class: 'fa fa-pencil', aria_hidden: true)
-      end
+      tag.i(class: "fa #{DATALINK_ICONS[permission]}", aria_hidden: true, data: { dc_tooltip: "<b>#{DataCycleCore::DataLink.human_attribute_name(:permissions, locale: active_ui_locale)}</b>: #{DataCycleCore::DataLink.human_attribute_name("permissions_#{permission}", locale: active_ui_locale)}" })
     end
 
     def mode_icon(mode, version = nil)

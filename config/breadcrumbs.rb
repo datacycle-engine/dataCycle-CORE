@@ -162,3 +162,15 @@ crumb :schema do
 
   link params[:id], '#', authorized: false if params[:id].present?
 end
+
+crumb :edit_user do |item|
+  link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>#{t('actions.edit', locale: active_ui_locale).capitalize}"), edit_user_path(item), authorized: can?(:edit, item)
+
+  parent :user, item
+end
+
+crumb :user do |item|
+  link to_html_string(item.model_name.human(locale: active_ui_locale), item.try(:full_name_or_email)), polymorphic_path(item), authorized: can?(:show, item)
+
+  parent :index, item.class.table_name
+end

@@ -520,6 +520,7 @@
   padding: 2px 5px;
   border-radius: $global-radius;
   box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+  font-weight: 200;
 
   &::after {
     content: '\f0ea';

@@ -71,6 +71,8 @@ module DataCycleCore
     after_update_commit :execute_update_webhooks, if: proc { |u| !u.skip_callbacks && (u.saved_changes.keys & u.allowed_webhook_attributes).present? }
     after_destroy :execute_delete_webhooks, unless: :skip_callbacks
 
+    default_scope { where(deleted_at: nil) }
+
     def user_api_feature
       @user_api_feature ||= DataCycleCore::Feature::UserApi.new(nil, self)
     end
@@ -211,7 +213,7 @@ module DataCycleCore
         id,
         email,
         model_name.param_key,
-        locked? ? "#{full_name} <span class=\"alert-color\"><i class=\"fa fa-ban\"></i> #{self.class.human_attribute_name(:locked_at, locale: locale)}</span>" : full_name,
+        locked? ? "#{full_name} <span class=\"alert-color\"><i class=\"fa fa-ban\"></i> #{self.class.human_attribute_name(deleted? ? :deleted_at : :locked_at, locale: locale)}</span>" : full_name,
         disable_locked && locked?
       )
     end
@@ -222,6 +224,38 @@ module DataCycleCore
         # activities.where('activities.activity_type = ? AND activities.created_at < ?', type, 3.months.ago).delete_all
         activities.create(activity_type: type, data: data)
       end
+    end
+
+    def deleted?
+      deleted_at.present?
+    end
+
+    def self.with_deleted
+      unscope(where: :deleted_at)
+    end
+
+    def destroy
+      attributes_hash = self.class.column_names.except(['id', 'email', 'encrypted_password', 'created_at', 'role_id', 'type', 'creator_id']).to_h { |v| [v.to_sym, nil] }
+
+      attributes_hash.merge!({
+        email: "u#{id}@ano.nym",
+        given_name: '',
+        family_name: "anonym_#{id.first(8)}",
+        password: SecureRandom.hex(10),
+        default_locale: I18n.available_locales.first,
+        ui_locale: I18n.available_locales.first,
+        updated_at: Time.zone.now,
+        locked_at: Time.zone.now,
+        sign_in_count: 0,
+        external: false,
+        deleted_at: Time.zone.now,
+        subscription_ids: nil
+      })
+
+      skip_confirmation_notification!
+      skip_reconfirmation!
+
+      update(attributes_hash)
     end
 
     private

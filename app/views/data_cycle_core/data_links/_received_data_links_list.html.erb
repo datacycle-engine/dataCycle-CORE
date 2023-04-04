@@ -1,0 +1,10 @@
+<% random_id = SecureRandom.hex(10) %>
+
+<a data-toggle="<%= random_id %>"><i class="fa fa-share" aria-hidden="true"></i><i class="fa fa-user" aria-hidden="true"></i></a>
+<div class="dropdown-pane no-bullet bottom data-links" id="<%= random_id %>" data-dropdown>
+  <h5><%= DataCycleCore::DataLink.model_name.human(count: 2, locale: active_ui_locale) %></h5>
+
+  <ul class="list-items">
+    <%= render partial: 'data_cycle_core/data_links/received_data_link', collection: content.received_data_links, as: :data_link, locals: { content: content } %>
+  </ul>
+</div>

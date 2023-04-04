@@ -8,7 +8,7 @@ module DataCycleCore
           h[key] = DataCycleCore::ClassificationTreeLabel.find_by(name: key)
         end
 
-        can :update, DataCycleCore::User, id: user.id
+        can :update, :destroy, DataCycleCore::User, id: user.id
         can [:show, :find], :object_browser
         can [:login, :renew_login, :reset_password, :confirm], :user_api
         can :create_editable_links, DataCycleCore::DataLink

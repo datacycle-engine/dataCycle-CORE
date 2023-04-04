@@ -528,7 +528,8 @@ footer {
       }
     }
 
-    .slug {
+    .slug,
+    .user-email {
       font-size: 1.1rem;
       color: var(--darker-gray);
     }
@@ -2079,6 +2080,19 @@ a {
 
       &:nth-child(even).invalid {
         color: darken($dark-gray, 10%);
+      }
+
+      .item-title {
+        white-space: nowrap;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+
+        >* {
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
       }
     }
 

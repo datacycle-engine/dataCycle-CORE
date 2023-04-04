@@ -112,11 +112,7 @@ module DataCycleCore
             )
 
             # User
-            permit_user(
-              role,
-              :update,
-              SubjectByUserAndConditions: [DataCycleCore::User, :id]
-            )
+            permit_user(role, :show, :update, :destroy, SubjectByUserAndConditions: [DataCycleCore::User, :id])
           end
         end
       end

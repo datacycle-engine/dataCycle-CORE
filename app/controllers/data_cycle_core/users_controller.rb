@@ -89,6 +89,13 @@ module DataCycleCore
     end
 
     def destroy
+      @user.destroy!
+      sign_out(@user) if current_user == @user
+
+      redirect_back(fallback_location: root_path, notice: I18n.t('controllers.success.destroyed', data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
+    end
+
+    def lock
       @user.lock_access!
 
       redirect_back(fallback_location: root_path, notice: I18n.t(:locked, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))

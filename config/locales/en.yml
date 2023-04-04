@@ -523,6 +523,7 @@ en:
     geolocation_from_browser: Use current position
     geolocation_error: The current position could not be accessed
     api_url: API Link
+    url: URL
 
   embedded:
     move_down: move down
@@ -1277,6 +1278,7 @@ en:
         represented_by: Represented by
         ui_locale: user interface language
         locked_at: locked
+        deleted_at: deleted
       data_cycle_core/thing:
         name: Name
         legal_name: Company name

@@ -96,7 +96,7 @@ module DataCycleCore
     test 'lock and unlock existing user' do
       user = User.find_by(email: 'guest@datacycle.at')
 
-      delete user_path(user), params: {}, headers: {
+      delete lock_user_path(user), params: {}, headers: {
         referer: users_path
       }
 

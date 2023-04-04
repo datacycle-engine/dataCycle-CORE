@@ -1580,7 +1580,8 @@ CREATE TABLE public.users (
     confirmed_at timestamp without time zone,
     confirmation_sent_at timestamp without time zone,
     unconfirmed_email character varying,
-    ui_locale character varying DEFAULT 'de'::character varying NOT NULL
+    ui_locale character varying DEFAULT 'de'::character varying NOT NULL,
+    deleted_at timestamp without time zone
 );
 
 
@@ -3897,6 +3898,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230321085100'),
 ('20230322145244'),
 ('20230329123152'),
-('20230330081538');
+('20230330081538'),
+('20230403113641');
 
 
