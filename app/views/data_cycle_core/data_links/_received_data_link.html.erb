@@ -1,9 +1,13 @@
 <% random_id = SecureRandom.hex(10) %>
 <li class="<%= "invalid" unless data_link.is_valid? %>" id="data-link-<%= data_link.id %>">
   <% I18n.with_locale(data_link.item.try(:first_available_locale)) do %>
-    <%= link_to polymorphic_path(data_link.item), class: 'item-title', target: :_blank, data: { dc_tooltip: data_link.item.try(:title).presence || data_link.item.try(:name) } do %>
-      <i class="fa dc-type-icon <%= data_link.item.class.name.demodulize.underscore_blanks %>-icon <%= data_link.item.try(:template_name)&.underscore_blanks %>"></i>
-      <%= tag.span(data_link.item.try(:title).presence || data_link.item.try(:name).presence || '__unnamed_content__') %>
+    <% if data_link.item.present? %>
+      <%= link_to polymorphic_path(data_link.item), class: 'item-title', target: :_blank, data: { dc_tooltip: data_link.item.try(:title).presence || data_link.item.try(:name) } do %>
+        <i class="fa dc-type-icon <%= data_link.item.class.name.demodulize.underscore_blanks %>-icon <%= data_link.item.try(:template_name)&.underscore_blanks %>"></i>
+        <%= tag.span(data_link.item.try(:title).presence || data_link.item.try(:name).presence || '__unnamed_content__') %>
+      <% end %>
+    <% else %>
+      <%= tag.span('__unnamed_content__', class: 'item-title') %>
     <% end %>
   <% end %>
 
