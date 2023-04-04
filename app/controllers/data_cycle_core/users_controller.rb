@@ -21,7 +21,14 @@ module DataCycleCore
       query = query.joins(:role).where(role: @roles.ids) if @roles.present?
       query = query.joins(:user_groups).where(user_groups: { id: @user_groups.ids }) if @user_groups.present?
 
-      @contents = query.preload(:role, :user_groups).order(:email).page(params[:page])
+      @sort_params = sort_params
+      if @sort_params.present?
+        query = query.order(*@sort_params.map { |s| { s[:m].to_sym => s[:o].to_sym } })
+      else
+        query = query.order(:email)
+      end
+
+      @contents = query.preload(:role, :user_groups).page(params[:page])
 
       if count_only_params[:count_only].present?
         @count_only = true
@@ -176,6 +183,10 @@ module DataCycleCore
 
     def count_only_params
       params.permit(:target, :count_only, :count_mode, :content_class)
+    end
+
+    def sort_params
+      params.permit(s: {}).to_h[:s].presence&.values&.reject { |s| DataCycleCore::DataHashService.blank?(s) }
     end
   end
 end

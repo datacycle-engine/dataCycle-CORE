@@ -804,6 +804,14 @@ en:
     ordering:
       asc: Ascending
       desc: Descending
+
+  user_sortable:
+    given_name: Given name
+    family_name: Family name
+    name: Organisation name
+    email: Email
+    created_at: Date of registration
+
   object_browser:
     details:
       created_at: created

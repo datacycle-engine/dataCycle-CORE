@@ -832,6 +832,13 @@ de:
       asc: Aufsteigend
       desc: Absteigend
 
+  user_sortable:
+    given_name: Vorname
+    family_name: Nachname
+    name: Name der Organisation
+    email: E-Mail
+    created_at: Registrierungsdatum
+
   object_browser:
     details:
       created_at: erstellt
