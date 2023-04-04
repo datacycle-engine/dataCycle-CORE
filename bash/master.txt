@@ -23,7 +23,7 @@ data-cycle-pia;git@git.pixelpoint.biz:data-cycle/data-cycle-pia.git
 data-cycle-pixelmap;git@git.pixelpoint.biz:data-cycle/data-cycle-pixelmap.git
 data-cycle-public-pixel;git@git.pixelpoint.biz:data-cycle/data-cycle-public-pixel.git
 data-cycle-rheinland-pfalz;git@git.pixelpoint.biz:data-cycle/data-cycle-rheinland-pfalz.git
-data-cycle-singkreis-porcia;git@git.pixelpoint.biz:data-cycle/data-cycle-porcia.git
+data-cycle-porcia;git@git.pixelpoint.biz:data-cycle/data-cycle-porcia.git
 data-cycle-spielberg;git@git.pixelpoint.biz:data-cycle/data-cycle-region-spielberg.git
 data-cycle-stadt-villach;git@git.pixelpoint.biz:data-cycle/data-cycle-stadt-villach.git
 data-cycle-thermostar;git@git.pixelpoint.biz:data-cycle/data-cycle-thermostar.git
