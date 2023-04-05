@@ -30,7 +30,7 @@ module DataCycleCore
                  'openingHoursSpecification'],
             'FoodEstablishment' => # Gastronomischer Betrieb
               default_place_attributes +
-                ['url', 'telephone', 'faxNumber', 'additionalProperty', 'openingHoursSpecification'],
+                ['url', 'email', 'telephone', 'faxNumber', 'additionalProperty', 'openingHoursSpecification'],
             'LodgingBusiness' => # Unterkunft
               default_place_attributes +
                 ['url', 'telephone', 'faxNumber', 'email', 'additionalProperty',
