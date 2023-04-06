@@ -52,25 +52,27 @@ module DataCycleCore
 
         def self.to_poi
           t(:add_contact_information, ['telephone', 'faxNumber', 'url'])
-          # .>> t(:add_place_description)
           .>> t(:add_keywords)
+          .>> t(:add_place_description)
         end
 
         def self.to_food_establishment
           t(:add_contact_information, ['telephone', 'email', 'url'])
           .>> t(:add_keywords)
+          .>> t(:add_food_establishment_description)
         end
 
         def self.to_lodging_business
           t(:add_contact_information, ['telephone', 'email', 'faxNumber', 'url'])
           .>> t(:rename_graph_keys, {'dc:translation' => 'availableLanguage'})
           .>> t(:add_keywords)
+          .>> t(:add_lodging_business_description)
         end
 
         def self.to_tour
           t(:add_contact_information, ['url'])
-          # .>> t(:add_tour_description)
           .>> t(:add_keywords)
+          .>> t(:add_tour_description)
         end
 
         def self.to_event
@@ -78,6 +80,7 @@ module DataCycleCore
           .>> t(:rename_graph_keys, {'dc:translation' => 'inLanguage'})
           .>> t(:add_keywords)
           .>> t(:transform_action)
+          .>> t(:add_event_description)
         end
 
         def self.to_organization
@@ -99,7 +102,7 @@ module DataCycleCore
         end
 
         def self.to_onlim
-          t(:transform_thing_to_onlim)
+          t(:transform_types)
           .>> default_transformations
         end
 

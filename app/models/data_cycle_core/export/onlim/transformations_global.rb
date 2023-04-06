@@ -31,6 +31,37 @@ module DataCycleCore
 
         WHITELIST_NAMESPACED_DATA = ['odta:wayPoint'].freeze
 
+        TRANSFORMATION_TYPES = {
+          'PropertyValue' => :to_property_value,
+          'dcls:Person' => :to_person,
+          'dcls:Organization' => :to_organization,
+          'dcls:Bild' => :to_image,
+          'dcls:POI' => :to_poi,
+          'dcls:Unterkunft' => :to_lodging_business,
+          'dcls:Gastronomischer Betrieb' => :to_food_establishment,
+          'dcls:Tour' => :to_tour,
+          'dcls:Event' => :to_event
+        }.freeze
+
+        def self.transform_types(data)
+          case data
+          in Hash
+            transformed_data = nil
+            transformation = TRANSFORMATION_TYPES
+              .values_at(*Array.wrap(data['@type']))
+              .compact
+              .last
+            transformed_data = DataCycleCore::Export::Onlim::Transformations.send(transformation).call(data) if transformation.present?
+            (transformed_data || data).map { |k, v|
+              { k => transform_types(v) }
+            }&.reduce(&:merge)
+          in Array
+            data.map { |i| transform_types(i) }
+          else
+            data
+          end
+        end
+
         def self.remove_namespaced_data(data)
           case data
           in Hash
@@ -162,7 +193,7 @@ module DataCycleCore
             case thing.template_name
             in 'POI'
               content_data['copyrightHolder']&.first.presence || content_data['author']&.first.presence
-            in 'Tour' | 'Gastronomischer Betrieb'
+            in 'Tour' | 'Gastronomischer Betrieb' | 'Unterkunft'
               content_data['sdPublisher']&.first.presence || content_data['copyrightHolder']&.first.presence
             else
               nil
