@@ -27,6 +27,10 @@ module DataCycleCore
             ### Features
             # ViewMode
             permit_user(role, :grid, SubjectByEnabledFeature: [:view_mode, DataCycleCore::Feature::ViewMode])
+
+            # User Filters
+            permit_user(role, :search, :user_dropdown, :user_advanced, :sortable, SubjectByConditions: :users)
+            permit_user(role, :search, SubjectByConditions: :user_groups)
           end
         end
       end

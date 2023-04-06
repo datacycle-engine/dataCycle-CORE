@@ -38,6 +38,34 @@ module DataCycleCore
           advanced_filters(user, config, selected_filters, :permanent_advanced, 'p', false)
           classification_tree_filters(user, config, selected_filters)
           advanced_user_filters(user, config, selected_filters)
+
+          return unless config[:view_type] == 'users'
+          user_dropdown_filters(user, config, selected_filters)
+          user_advanced_filters(user, config, selected_filters)
+        end
+
+        def user_dropdown_filters(_user, config, selected_filters)
+          user_dropdown_filter = config[:filter].find { |v| v[:type] == 'user_dropdown' }
+          return if user_dropdown_filter.blank?
+
+          user_dropdown_filter[:config].each do |name|
+            value = selected_filters.find { |f| f['c'] == 'd' && f['n'] == name }
+            user_dropdown_filter[:filters] ||= {}
+            user_dropdown_filter[:filters][name] = {
+              value: value&.dig('v'),
+              identifier: value&.dig('identifier') || SecureRandom.hex(10)
+            }
+          end
+        end
+
+        def user_advanced_filters(_user, config, selected_filters)
+          advanced_filter = config[:filter].find { |v| v[:type] == 'user_advanced' }
+          return if advanced_filter.blank?
+
+          advanced_filter[:filters] = selected_filters.select { |f| f['c'] == 'a' }
+          advanced_filter[:filters].each do |filter|
+            filter['buttons'] = true
+          end
         end
 
         def classification_trees_filters(_user, config, selected_filters)
@@ -146,6 +174,21 @@ module DataCycleCore
           end
 
           query.filter { |ca| ca.parent_classification_alias.nil? }.group_by { |ca| ca.classification_tree_label&.name }.sort_by { |k, _v| allowed_labels.index(k) }.to_h
+        end
+
+        def available_user_advanced_filters(user, view)
+          return {} unless enabled? && !user.nil?
+
+          filters = []
+
+          configuration.dig(:config, view, :filter).find { |f| f.key?('user_advanced') }&.values&.first&.each do |key, value|
+            filters.concat(DataCycleCore::Feature::AdvancedFilter.try(key.to_sym, user, value) || DataCycleCore::Feature::AdvancedFilter.default(user, key.to_s, value) || [])
+          end
+
+          filters
+            .sort
+            .group_by { |f| f[1] }
+            .transform_keys { |k| I18n.t("filter_groups.#{k}", default: k, locale: user.ui_locale) }
         end
       end
     end

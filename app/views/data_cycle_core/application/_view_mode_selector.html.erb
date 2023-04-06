@@ -49,7 +49,7 @@
 
   <% if DataCycleCore::Feature::ViewMode.enabled? && local_assigns[:mode_selector] %>
     <div class="mode-switcher">
-      <% DataCycleCore::Feature::ViewMode.allowed_modes(current_user).each do |mode| %>
+      <% DataCycleCore::Feature::ViewMode.allowed_modes(current_user, local_assigns[:filter_context]).each do |mode| %>
         <%= mode_link(mode, @mode == mode, request.params) %>
       <% end %>
     </div>

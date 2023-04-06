@@ -10,12 +10,12 @@
 
   <div class="advanced-filter-selector">
     <%= radio_button_tag "f[#{identifier}][v]", 'true', (value != 'false') %>
-    <%= label_tag "f_#{identifier}_v_true", t("filter.#{filter_name}", default: filter_title, locale: active_ui_locale) %>
+    <%= label_tag "f_#{identifier}_v_true", t("filter.#{local_assigns[:filter_type] || :boolean}.#{filter_name}", default: t("filter.#{filter_name}", default: filter_title, locale: active_ui_locale), locale: active_ui_locale) %>
   </div>
 
   <div class="advanced-filter-selector">
     <%= radio_button_tag "f[#{identifier}][v]", 'false', (value == 'false') %>
-    <%= label_tag "f_#{identifier}_v_false", t("filter.not_#{filter_name}", default: filter_title, locale: active_ui_locale) %>
+    <%= label_tag "f_#{identifier}_v_false", t("filter.#{local_assigns[:filter_type] || :boolean}.not_#{filter_name}", default: t("filter.not_#{filter_name}", default: filter_title, locale: active_ui_locale), locale: active_ui_locale) %>
   </div>
 
   <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>

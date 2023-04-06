@@ -16,6 +16,10 @@ module DataCycleCore
     has_many :classification_aliases, through: :classification_groups
     has_many :display_classification_aliases, -> { where(classification_aliases: { internal: false }) }, through: :classification_groups, source: :classification_alias
 
+    scope :fulltext_search, lambda { |search_term|
+                              where(search_term.to_s.split.map { |term| sanitize_sql_for_conditions(["concat_ws(' ', #{search_columns.join(', ')}) ILIKE ?", "%#{term.strip}%"]) }.join(' AND '))
+                            }
+
     DataCycleCore::Feature::UserGroupClassification.attribute_relations.each do |key, config|
       define_method key.to_sym do
         classification_aliases.includes(:classification_tree_label).where(classification_tree_labels: { name: config['tree_label'] })
@@ -28,6 +32,10 @@ module DataCycleCore
 
     def self.classification_aliases
       DataCycleCore::ClassificationAlias.includes(classifications: :user_groups).where(classifications: { user_groups: all.select(:id) })
+    end
+
+    def self.search_columns
+      columns.select { |c| c.type == :string }.map(&:name)
     end
   end
 end

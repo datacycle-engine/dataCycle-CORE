@@ -3,6 +3,7 @@
 module DataCycleCore
   class User < ApplicationRecord
     include Content::ExternalData
+    include DataCycleCore::UserExtensions::Filters
 
     devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable, :omniauthable, omniauth_providers: Devise.omniauth_configs.keys
     devise :registerable, :confirmable if DataCycleCore::Feature::UserRegistration.enabled?

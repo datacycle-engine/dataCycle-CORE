@@ -797,6 +797,11 @@ de:
     translated_name: Name
     shared_with: Geteilt mit
     user_group_classifications: Geteilt über Benutzergruppen
+    boolean:
+      access_token: API Token vorhanden
+      not_access_token: kein API Token vorhanden
+      confirmed_at: E-Mail bestätigt
+      not_confirmed_at: E-Mail nicht bestätigt
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...
@@ -828,16 +833,15 @@ de:
     width: Breite
     height: Höhe
     upload_date: Uploaddatum
+    users_context:
+      given_name: Vorname
+      family_name: Nachname
+      name: Name der Organisation
+      email: E-Mail
+      created_at: Registrierungsdatum
     ordering:
       asc: Aufsteigend
       desc: Absteigend
-
-  user_sortable:
-    given_name: Vorname
-    family_name: Nachname
-    name: Name der Organisation
-    email: E-Mail
-    created_at: Registrierungsdatum
 
   object_browser:
     details:
