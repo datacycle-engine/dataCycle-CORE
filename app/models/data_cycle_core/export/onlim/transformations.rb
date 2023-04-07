@@ -54,6 +54,7 @@ module DataCycleCore
           t(:add_contact_information, ['telephone', 'faxNumber', 'url'])
           .>> t(:add_keywords)
           .>> t(:add_place_description)
+          .>> t(:add_action_as_url)
         end
 
         def self.to_food_establishment

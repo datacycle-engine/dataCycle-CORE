@@ -228,12 +228,27 @@ module DataCycleCore
           desc_long
         end
 
+        def self.add_action_as_url(data)
+          add_node(data) do |gdata|
+            if gdata.dig('potentialAction').present? && gdata.dig('url').blank?
+              url = gdata
+                .dig('potentialAction')
+                .detect { |i| i['name'].detect { |j| j['@value'] == 'URL' }.present? }
+                .dig('url')
+                .first
+                .dig('@value')
+
+              gdata['url'] = url if url.present?
+            end
+          end
+        end
+
         def self.add_keywords(data)
           add_node(data) do |gdata|
-            if gdata.dig('dc:classification').present?
+            if gdata.dig('dc:classification')&.compact_blank.present?
               gdata['keywords'] = gdata
                 .dig('dc:classification')
-                .map { |i|
+                &.map { |i|
                   i['skos:prefLabel'].map do |item|
                     if item.is_a?(::Hash)
                       item.tap do |value_hash|
@@ -243,8 +258,8 @@ module DataCycleCore
                       item
                     end
                   end
-                }.flatten
-                .uniq
+                }&.flatten
+                &.uniq
             end
           end
         end
