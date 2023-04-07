@@ -78,6 +78,7 @@ module DataCycleCore
 
         def self.to_event
           t(:transform_duration)
+          .>> t(:remove_local_business_as_organizer) # TODO: handle local_business als orgnaizer properly.
           .>> t(:rename_graph_keys, {'dc:translation' => 'inLanguage'})
           .>> t(:add_keywords)
           .>> t(:transform_action)

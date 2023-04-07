@@ -249,7 +249,7 @@ module DataCycleCore
               gdata['keywords'] = gdata
                 .dig('dc:classification')
                 &.map { |i|
-                  i['skos:prefLabel'].map do |item|
+                  i['skos:prefLabel']&.map do |item|
                     if item.is_a?(::Hash)
                       item.tap do |value_hash|
                         value_hash['@value'] = value_hash['@value'].to_s
@@ -258,7 +258,8 @@ module DataCycleCore
                       item
                     end
                   end
-                }&.flatten
+                }&.compact_blank
+                &.flatten
                 &.uniq
             end
           end
@@ -273,6 +274,15 @@ module DataCycleCore
         def self.transform_numbers(data)
           add_node(data) do |gdata|
             gdata['value'] = gdata['value'].first['@value'] if gdata['value'].present? && gdata['value'].first['@value'].is_a?(::Numeric)
+          end
+        end
+
+        def self.remove_local_business_as_organizer(data)
+          add_node(data) do |gdata|
+            if gdata['organizer'].present?
+              gdata['organizer'] = gdata['organizer']
+                .reject { |i| i['@type'].include?('LocalBusiness') }
+            end
           end
         end
 
