@@ -80,17 +80,15 @@ module DataCycleCore
 
         def self.transform_linked_keys(data:, lookup:)
           lookup&.each_key do |property_name|
-            data[property_name] = Array.wrap(data[property_name])
-              .map { |item| lookup[property_name][item] }
-              .compact
+            data[property_name] = lookup[property_name]&.values_at(*Array.wrap(data[property_name]))&.compact&.uniq
           end
           data.except('include_translation')
         end
 
         def self.transform_classification_keys(data:, lookup:)
-          universal_classifications = lookup['universal_classifications']&.values || []
+          universal_classifications = lookup['universal_classifications']&.values&.compact&.uniq || []
           lookup&.each_key do |property_name|
-            data[property_name] = lookup[property_name]&.values&.compact || []
+            data[property_name] = lookup[property_name]&.values&.compact&.uniq || []
           end
           data['universal_classifications'] = universal_classifications
           data
