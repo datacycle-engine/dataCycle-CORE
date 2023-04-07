@@ -80,7 +80,7 @@ module DataCycleCore
 
         def self.transform_linked_keys(data:, lookup:)
           lookup&.each_key do |property_name|
-            data[property_name] = lookup[property_name]&.values_at(*Array.wrap(data[property_name])).compact.uniq
+            data[property_name] = lookup[property_name]&.values_at(*Array.wrap(data[property_name]))&.compact&.uniq
           end
           data.except('include_translation')
         end
