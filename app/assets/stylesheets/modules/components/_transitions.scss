@@ -1,0 +1,19 @@
+.sliding {
+  height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  overflow: hidden !important;
+}
+
+.sliding-base {
+  transition-property: height, margin, padding !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.fadeout {
+  transition-property: opacity;
+  opacity: 0;
+}

@@ -138,15 +138,54 @@ const DomElementHelpers = {
 
 		return this.calculateStickyOffset(elem.parentElement, elem, offset);
 	},
-	fadeAndRemove(elem) {
-		if (!(elem && elem instanceof Element)) return;
+	fadeOut(target, duration = 500) {
+		if (!(target && target instanceof Element)) return;
 
-		if (this.isVisible(elem)) {
-			elem.addEventListener("transitionend", () => elem.remove(), {
-				once: true,
-			});
-			elem.classList.add("dcjs-fadeout");
-		} else elem.remove();
+		target.style.transitionDuration = `${duration}ms`;
+		target.classList.add("fadeout");
+
+		return new Promise((resolve) =>
+			setTimeout(() => {
+				resolve(target);
+			}, duration),
+		);
+	},
+	slideDown(target, duration = 200) {
+		if (!(target && target instanceof Element)) return;
+
+		const height = target.offsetHeight;
+		target.classList.add("sliding");
+		target.offsetHeight;
+		target.classList.add("sliding-base");
+		target.style.cssText += `transition-duration: ${duration}ms; height: ${height}px;`;
+		target.classList.remove("sliding");
+
+		return new Promise((resolve) =>
+			setTimeout(() => {
+				target.style.removeProperty("height");
+				target.classList.remove("sliding-base");
+				target.style.removeProperty("transition-duration");
+				resolve(target);
+			}, duration),
+		);
+	},
+	slideUp(target, duration = 200) {
+		if (!(target && target instanceof Element)) return;
+
+		target.style.cssText += `transition-duration: ${duration}ms; height: ${target.offsetHeight}px;`;
+		target.classList.add("sliding-base");
+		target.offsetHeight;
+		target.classList.add("sliding");
+
+		return new Promise((resolve) =>
+			setTimeout(() => {
+				target.style.display = "none";
+				target.classList.remove("sliding-base", "sliding");
+				target.style.removeProperty("height");
+				target.style.removeProperty("transition-duration");
+				resolve(target);
+			}, duration),
+		);
 	},
 	$cloneElement(element) {
 		if (element instanceof $) element = element.get();
