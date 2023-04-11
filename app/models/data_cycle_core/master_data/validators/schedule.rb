@@ -129,7 +129,7 @@ module DataCycleCore
         end
 
         def check_closed_range(schedule_hash)
-          return if schedule_hash.dig('rrules', 0, 'until').present?
+          return if schedule_hash.dig('rrules', 0, 'until').present? || schedule_hash.dig('end_time', 'time').present?
 
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.schedule.until_missing',

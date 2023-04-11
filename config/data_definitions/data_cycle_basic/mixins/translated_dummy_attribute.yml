@@ -1,0 +1,18 @@
+---
+- :data:
+    :name: translated_dummy_attribute
+    :type: mixin
+    :properties:
+      :dummy:
+        :type: string
+        :storage_location: translated_value
+        :default_value: do_not_show
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true

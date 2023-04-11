@@ -1,0 +1,12 @@
+<%= render 'data_cycle_core/contents/viewers/attribute', local_assigns do %>
+
+  <% objects = value.presence&.map(&:to_h)&.compact %>
+  <% objects&.each do |s| %>
+    <div class="opening-time-group">
+      <span class="opening-time-validity-period">
+        <%= opening_time_validity_period([s.dig(:start_time, :time), s.dig(:end_time, :time)]) %>
+      </span>
+    </div>
+  <% end %>
+
+<% end %>
