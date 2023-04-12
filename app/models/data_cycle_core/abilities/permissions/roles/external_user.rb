@@ -97,7 +97,7 @@ module DataCycleCore
             permit_user(role, :read, SubjectByConditions: [[DataCycleCore::Subscription, :publication]])
 
             # User
-            permit_user(role, :show, :update, :destroy, SubjectByUserAndConditions: [DataCycleCore::User, :id])
+            permit_user(role, :show, :update, SubjectByUserAndConditions: [DataCycleCore::User, :id])
 
             ### Features
             # ViewMode
