@@ -218,8 +218,8 @@ module DataCycleCore
 
           ids.each do |classification|
             desc_long = information
-              .select { |i| i['dc:classification']&.first&.send(:[], '@id') == classification }
-              &.map { |i| i['description'].map { |d| { d['@language'] => d['@value'] } }.compact_blank }
+              .select { |i| i['dc:classification']&.first&.send(:[], '@id') == classification && i['description'].present? }
+              &.map { |i| i['description']&.map { |d| { d['@language'] => d['@value'] } }&.compact_blank }
               &.flatten
               &.compact_blank
               &.inject(&:merge)

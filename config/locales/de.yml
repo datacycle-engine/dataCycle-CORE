@@ -884,6 +884,7 @@ de:
     classification_administration: Klassifizierungsadministration
 
   classification_administration:
+    mapped_to: Klassifizierung wird von einer anderen Klassifizierung gemapped
     move:
       success: Die Klassifizierung wurde erfolgreich verschoben
       error: Die Klassifizierung konnte nicht verschoben werden
@@ -1546,6 +1547,7 @@ de:
         experience_rating: Erlebnis
         landscape_rating: Landschaft
         difficulty_rating: Schwierigkeit
+        panoramic_view_rating: Panoramaaussicht
     imx_platform:
       description: Beschreibung
       description_long: Detailbeschreibung
@@ -1637,6 +1639,7 @@ de:
       character: Tour Charakter
       parkingPossibilities: Parkmöglichkeiten
       seasonDescription: Begehbare Monate
+      priceSpecification: Preisbeschreibung
     wintop:
       beschreibung: Beschreibung
       teaser: Teaser

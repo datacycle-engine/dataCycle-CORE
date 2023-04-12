@@ -259,6 +259,9 @@ ul.backend-treeview-list,
       gap: 0.4rem;
       line-height: 1.4;
 
+      .primary-color {
+        color: var(--primary-color);
+      }
       .clipboard-notice {
         right: auto;
         left: 1rem;
