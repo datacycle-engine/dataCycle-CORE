@@ -17,7 +17,9 @@ module DataCycleCore
 
     default_scope { includes(:collection_configuration) }
 
-    scope :by_user, ->(user) { where user: user }
+    scope :by_user, ->(user) { where(user: user) }
+    scope :by_api_user, ->(user) { where("'#{user.id}' = ANY (api_users)") }
+    scope :named, -> { where.not(name: nil) }
     belongs_to :user
 
     has_many :activities, as: :activitiable, dependent: :destroy
