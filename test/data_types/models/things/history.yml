@@ -66,6 +66,8 @@
             :content_area: header
           :edit:
             :disabled: true
+        :validations:
+          :max: 1
 
 - :data:
     :name: TestEmbeddedPlaceData
@@ -129,6 +131,8 @@
             :content_area: header
           :edit:
             :disabled: true
+        :validations:
+          :max: 1
 
 - :data:
     :name: CreativeWorkEmbeddedLink

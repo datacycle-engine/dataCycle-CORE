@@ -34,3 +34,5 @@
             :allowed: true
         :api:
           :disabled: true
+        :validations:
+          :max: 1
