@@ -48,6 +48,10 @@
       &:hover {
         color: #000;
       }
+
+      &.delete-user-link:hover {
+        color: var(--alert-color);
+      }
     }
 
     a~a {
