@@ -33,12 +33,13 @@ module DataCycleCore
             forecast_hash['forecast_date'] = datum.to_date
             forecast_item = nil
             if update_item.present?
-              forecast_item_data = update_item.forecasts.map(&:get_data_hash).detect { |i| i.dig('forecast_date') == forecast_hash.dig('forecast_date') }
+              forecast_item_data = update_item.forecasts.map(&:get_data_hash).detect { |i| i.dig('forecast_date') == forecast_hash.dig('forecast_date').as_json }
               forecast_hash['id'] = forecast_item_data.dig('id') if forecast_item_data&.dig('id').present?
               forecast_item = DataCycleCore::Thing.find(forecast_hash['id']) if forecast_hash.dig('id').present?
             end
             single_forecast = {}
             temperature_forecast_item = nil
+
             if forecast_item.present?
               temperature_forecast_item = forecast_item.temperature_forecasts.first
               single_forecast['id'] = temperature_forecast_item&.id
