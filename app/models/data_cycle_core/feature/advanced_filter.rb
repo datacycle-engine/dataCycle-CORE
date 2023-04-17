@@ -13,7 +13,7 @@ module DataCycleCore
           end
 
           filters
-            .select { |k, v| user&.can?(:advanced_filter, view_type.to_sym, k, v) }
+            .select { |k, v, data| user&.can?(:advanced_filter, view_type.to_sym, k, v, data) }
             .sort
             .group_by { |f| f[1] }
             .transform_keys { |k| I18n.t("filter_groups.#{k}", default: k, locale: user.ui_locale) }
@@ -29,7 +29,7 @@ module DataCycleCore
             filters.concat(try(k.to_sym, user, v) || default(user, k.to_s, v) || [])
           end
 
-          filters.select { |k, v| user&.can?(:advanced_filter, view_type.to_sym, k, v) }.reverse
+          filters.select { |k, v, data| user&.can?(:advanced_filter, view_type.to_sym, k, v, data) }.reverse
         end
 
         def advanced_attribute_classification_tree_label(specific_type)
@@ -44,13 +44,13 @@ module DataCycleCore
         def classification_alias_ids(user, value)
           return [] unless value
 
-          query = DataCycleCore::ClassificationTreeLabel.where('? = ANY(classification_tree_labels.visibility)', 'filter')
+          query = DataCycleCore::ClassificationTreeLabel.all
           query = query.where(name: value) if value.is_a?(Array)
-          query.pluck(:name).map do |c|
+          query.map do |c|
             [
-              I18n.t("filter.classification_alias_ids.#{c.underscore_blanks}", default: I18n.t("filter.#{c.underscore_blanks}", default: c, locale: user.ui_locale), locale: user.ui_locale),
+              I18n.t("filter.classification_alias_ids.#{c.name.underscore_blanks}", default: I18n.t("filter.#{c.name.underscore_blanks}", default: c.name, locale: user.ui_locale), locale: user.ui_locale),
               'classification_alias_ids',
-              data: { name: c }
+              data: { name: c.name, visible: c.visibility&.include?('filter') }
             ]
           end
         end
