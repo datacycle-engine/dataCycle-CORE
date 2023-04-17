@@ -138,6 +138,7 @@ module DataCycleCore
           .>> t(:add_links, 'item_offered', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('service_id')] })
           .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
+          .>> t(:add_links, 'holiday_themes', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Details', 'HolidayThemes', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:unwrap_description, ['ProductDescription'])
           .>> t(:add_field, 'description', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('ProductDescription')) if v&.dig('ProductDescription').present? })
           .>> t(:add_field, 'price_specification', ->(s) { load_min_price(s, external_source_id) })
@@ -186,6 +187,21 @@ module DataCycleCore
           .>> t(:universal_classifications, ->(s) { s.dig('feratel_guest_cards') })
           .>> t(:add_links, 'feratel_as_code', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap("Feratel - Service Codes AdditionalService - #{s.dig('Details', 'Code')}") })
           .>> t(:universal_classifications, ->(s) { s.dig('feratel_as_code') })
+          .>> t(
+            :add_links,
+            'feratel_holiday_themes',
+            DataCycleCore::Classification,
+            external_source_id,
+            lambda { |s|
+              Array.wrap(s.dig('Products', 'Product'))
+                &.map { |i| Array.wrap(i.dig('Details', 'HolidayThemes', 'Item')) }
+                &.flatten
+                &.reject(&:nil?)
+                &.uniq
+                &.map { |item| item&.dig('Id')&.downcase } || []
+            }
+          )
+          .>> t(:universal_classifications, ->(s) { s.dig('feratel_holiday_themes') })
           .>> t(:add_field, 'feratel_guest_cards_descriptions', ->(s) { parse_guest_card_descriptions(Array.wrap(s&.dig('GuestCards', 'GuestCard'))&.flatten&.reject(&:nil?), s&.dig('external_key'), external_source_id) || [] })
           .>> t(:merge_array_values, 'additional_information', 'feratel_guest_cards_descriptions')
           .>> t(:add_links, 'feratel_facilities_additional_services', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
