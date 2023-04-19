@@ -4,6 +4,8 @@ module DataCycleCore
   module Utility
     module ContentScore
       module Content
+        extend Extensions::Tooltip
+
         class << self
           def by_minimum(content:, parameters:, **_args)
             scores = Base.calculate_scores_by_method_or_presence(content: content, parameters: parameters).values
@@ -36,6 +38,22 @@ module DataCycleCore
             actual, _required = Base.values_present(parameters, parameters.keys)
 
             [actual * rating_factor, max_value].min
+          end
+
+          def to_tooltip(content, definition, locale)
+            tooltip = [tooltip_base_string(definition.dig('content_score', 'method'), locale: locale)]
+
+            if definition.dig('content_score', 'weight_matrix').present?
+              subtips = ['<ul>']
+              definition.dig('content_score', 'weight_matrix')
+                .sort_by { |k, _v| content.properties_for(k)&.[]('sorting') }
+                .each do |k, v|
+                subtips.push("<li><b>#{content.class.human_attribute_name(k, { base: content, definition: content.properties_for(k), locale: locale })}</b> (#{(v.to_r * 100).round}%)</li>")
+              end
+              tooltip.push("#{subtips.join}</ul>")
+            end
+
+            tooltip.compact.join('<br>')
           end
         end
       end

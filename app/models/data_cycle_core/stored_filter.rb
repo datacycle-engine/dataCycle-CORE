@@ -92,6 +92,15 @@ module DataCycleCore
       value.to_s.uuid? ? where(id: value) : where(collection_configuration: { slug: value })
     end
 
+    def template_from_linked_definition(definition)
+      return if definition.blank?
+
+      query = parameters_from_hash(definition.dig('stored_filter')).apply(skip_ordering: true).query.reorder(nil)
+      query = query.where(template_name: definition.dig('template_name')) if definition.key?('template_name')
+
+      DataCycleCore::Thing.find_by(template: true, template_name: query.select(:template_name).first&.template_name)
+    end
+
     private
 
     def update_slug?

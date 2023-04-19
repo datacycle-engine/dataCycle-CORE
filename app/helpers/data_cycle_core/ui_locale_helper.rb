@@ -71,14 +71,32 @@ module DataCycleCore
       label_tag "#{options&.dig(:prefix)}#{sanitize_to_id(key)}", label_html, class: "attribute-edit-label #{html_classes}".strip
     end
 
-    def content_score_tooltip(definition)
-      tooltip_html = [t('feature.content_score.tooltip.title_html', locale: active_ui_locale)]
+    def content_score_tooltip(content, definition)
+      tooltip_html = [tag.div(t('feature.content_score.tooltip.title', locale: active_ui_locale), class: 'title')]
+      cc_module = DataCycleCore::ModuleService.load_module(definition.dig('content_score', 'module').classify, 'Utility::ContentScore')
+      tooltip_description = cc_module.try(:to_tooltip, content, definition, active_ui_locale)
+      tooltip_html.push(tooltip_description) if tooltip_description.present?
+      tag.div(tooltip_html.join, class: "content-score-tooltip #{'with-description' if tooltip_html.size > 1}")
+    end
 
-      tooltip_html.push(t('feature.content_score.tooltip.min', value: definition.dig('content_score', 'score_matrix', 'min'), locale: active_ui_locale)) if definition.dig('content_score', 'score_matrix', 'min').present?
-      tooltip_html.push(t('feature.content_score.tooltip.optimal', value: definition.dig('content_score', 'score_matrix', 'optimal'), locale: active_ui_locale)) if definition.dig('content_score', 'score_matrix', 'optimal').present?
-      tooltip_html.push(t('feature.content_score.tooltip.max', value: definition.dig('content_score', 'score_matrix', 'max'), locale: active_ui_locale)) if definition.dig('content_score', 'score_matrix', 'max').present?
+    def thing_content_score_class(content)
+      return unless content.respond_to?(:internal_content_score)
 
-      tooltip_html.join('<br>')
+      content.try(:internal_content_score)&.then { |s| "dc-content-score #{s > 66 ? 'high-score' : s > 33 ? 'medium-score' : nil}" }
+    end
+
+    def thing_content_score(content)
+      return unless content.respond_to?(:internal_content_score)
+
+      content_score = content.try(:internal_content_score)
+      return if content_score.nil?
+
+      content_score_class = content_score > 66 ? 'high-score' : content_score > 33 ? 'medium-score' : nil
+      tag.div(tag.span(class: 'content-score-icon') + tag.span(content_score.round, class: 'content-score-text'),
+              class: "thing-content-score #{content_score_class}",
+              data: {
+                dc_tooltip: t('feature.content_score.tooltip.title', locale: active_ui_locale)
+              })
     end
   end
 end

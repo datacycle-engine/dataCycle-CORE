@@ -139,7 +139,7 @@ const DomElementHelpers = {
 		return this.calculateStickyOffset(elem.parentElement, elem, offset);
 	},
 	fadeOut(target, duration = 500) {
-		if (!(target && target instanceof Element)) return;
+		if (!(target && target instanceof Element)) return Promise.reject();
 
 		target.style.transitionDuration = `${duration}ms`;
 		target.classList.add("fadeout");
@@ -151,7 +151,7 @@ const DomElementHelpers = {
 		);
 	},
 	slideDown(target, duration = 200) {
-		if (!(target && target instanceof Element)) return;
+		if (!(target && target instanceof Element)) return Promise.reject();
 
 		const height = target.offsetHeight;
 		target.classList.add("sliding");
@@ -170,7 +170,7 @@ const DomElementHelpers = {
 		);
 	},
 	slideUp(target, duration = 200) {
-		if (!(target && target instanceof Element)) return;
+		if (!(target && target instanceof Element)) return Promise.reject();
 
 		target.style.cssText += `transition-duration: ${duration}ms; height: ${target.offsetHeight}px;`;
 		target.classList.add("sliding-base");

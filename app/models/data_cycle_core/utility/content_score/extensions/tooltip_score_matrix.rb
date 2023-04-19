@@ -1,0 +1,23 @@
+# frozen_string_literal: true
+
+module DataCycleCore
+  module Utility
+    module ContentScore
+      module Extensions
+        module TooltipScoreMatrix
+          def to_tooltip(_content, definition, locale)
+            return super if definition.dig('content_score', 'score_matrix').blank?
+
+            tooltip = [tooltip_base_string(definition.dig('content_score', 'method'), locale: locale)]
+
+            definition.dig('content_score', 'score_matrix')&.each do |k, v|
+              tooltip.push(tooltip_string("score_matrix.#{k}", locale: locale, value: v))
+            end
+
+            tooltip.compact.join('<br>')
+          end
+        end
+      end
+    end
+  end
+end

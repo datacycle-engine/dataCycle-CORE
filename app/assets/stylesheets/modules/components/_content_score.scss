@@ -1,8 +1,11 @@
 .dc-content-score {
-  .attribute-content-score {
+
+  .attribute-content-score,
+  .thing-content-score {
     display: inline-flex;
     align-items: center;
     justify-content: flex-start;
+    pointer-events: auto;
 
     .content-score-icon,
     .content-score-text {
@@ -11,10 +14,15 @@
       justify-content: center;
     }
 
+    .content-score-icon {
+      font-size: 1rem;
+    }
+
     .content-score-text {
       font-weight: 600;
       margin-left: 0.2rem;
       transition: $opacity-transition;
+      font-size: 0.9rem;
     }
 
     .content-score-icon::before {
@@ -43,6 +51,25 @@
 
     &.high-score .content-score-icon::before {
       content: '\f005';
+    }
+  }
+}
+
+.content-score-tooltip {
+  >.title {
+    font-size: 0.9rem;
+    font-weight: bold;
+  }
+
+  &.with-description>.title {
+    margin-bottom: 0.5rem;
+  }
+
+  ul {
+    margin-bottom: 0.2rem;
+
+    &:last-child {
+      margin-bottom: 0;
     }
   }
 }

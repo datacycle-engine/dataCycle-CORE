@@ -4,6 +4,9 @@ module DataCycleCore
   module Utility
     module ContentScore
       module Common
+        extend Extensions::Tooltip
+        extend Extensions::TooltipScoreMatrix
+
         class << self
           def by_quantity(definition:, data_hash:, key:, **_args)
             Base.score_by_quantity(

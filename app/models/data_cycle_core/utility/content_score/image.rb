@@ -4,6 +4,8 @@ module DataCycleCore
   module Utility
     module ContentScore
       module Image
+        extend Extensions::Tooltip
+
         class << self
           def by_aspect_ratio(definition:, parameters:, **_args)
             aspect_ratio = definition.dig('content_score', 'aspect_ratio')

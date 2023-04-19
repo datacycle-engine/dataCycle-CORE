@@ -1,6 +1,6 @@
 <% content_for(:tile_header_buttons, tag.span(tag.i(class: 'fa fa-arrows-h'), class: 'inverse-linked has-tip', data: { dc_tooltip: t('common.inverse_linked', locale: active_ui_locale) })) if definition&.dig('link_direction') %>
 
-<% content_for(:tile_header_buttons, render('data_cycle_core/contents/viewers/shared/buttons', content: object, definition: definition, options: local_assigns[:options], removable: local_assigns[:options]&.[]('force_tile_buttons') || (local_assigns[:edit_buttons] && can?(:update, DataCycleCore::DataAttribute.new(key, definition, local_assigns[:options], content, :update))))) %>
+<% content_for(:tile_header_buttons, render('data_cycle_core/contents/viewers/shared/buttons', content: object, definition: definition, options: local_assigns[:options], removable: local_assigns[:options]&.[]('force_tile_buttons') || (local_assigns[:edit_buttons] && can?(:update, DataCycleCore::DataAttribute.new(key, definition, local_assigns[:options], object, :update))))) %>
 
 <li class="<%= [
     'item',
@@ -13,7 +13,8 @@
     local_assigns[:tile_classes],
     object.id.in?(local_assigns[:objects] || []) ? 'active' : nil,
     object.hard_content_warnings? ? 'hard-warnings' : nil,
-    DataCycleCore::Feature::TileBorderColor.class_string(object)
+    DataCycleCore::Feature::TileBorderColor.class_string(object),
+    thing_content_score_class(object)
   ].compact.join(' ') %>" data-id="<%= local_assigns[:object_id] || object.id %>">
   <div class="content-link">
     <i class="fa fa-check object-browser-tile-checkbox" aria-hidden="true"></i>

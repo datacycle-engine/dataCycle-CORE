@@ -4,6 +4,8 @@ module DataCycleCore
   module Utility
     module ContentScore
       module Linked
+        extend Extensions::Tooltip
+
         class << self
           def by_linked_weight_matrix(parameters:, definition:, key:, **_args)
             linked_items = DataCycleCore::Thing.where(id: parameters[key])
@@ -21,6 +23,23 @@ module DataCycleCore
             return 0 if scores.blank?
 
             scores.sum / scores.size
+          end
+
+          def to_tooltip(_content, definition, locale)
+            tooltip = [tooltip_base_string(definition.dig('content_score', 'method'), locale: locale)]
+            template = DataCycleCore::StoredFilter.new.template_from_linked_definition(definition)
+
+            if template.present? && definition.dig('content_score', 'weight_matrix').present?
+              subtips = ['<ul>']
+              definition.dig('content_score', 'weight_matrix')
+              .sort_by { |k, _v| template.properties_for(k)&.[]('sorting') }
+              .each do |k, v|
+                subtips.push("<li><b>#{template.class.human_attribute_name(k, { base: template, definition: template.properties_for(k), locale: locale })}</b> (#{(v.to_r * 100).round}%)</li>")
+              end
+              tooltip.push("#{subtips.join}</ul>")
+            end
+
+            tooltip.compact.join('<br>')
           end
         end
       end
