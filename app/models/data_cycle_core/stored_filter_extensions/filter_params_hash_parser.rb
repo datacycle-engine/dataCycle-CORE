@@ -29,7 +29,7 @@ module DataCycleCore
         DataCycleCore.user_filters&.each_value do |f|
           next if Array.wrap(f['scope']).exclude?(filter_options[:scope])
           next if Array.wrap(f['segments']).none? { |s| s['name'].safe_constantize.new(*Array.wrap(s['parameters'])).include?(user) }
-          next if filter_options[:scope] == 'object_browser' && f['object_browser_restriction'].to_h.none? { |k, v| filter_options[:content_template] == k && filter_options[:attribute_key]&.in?(Array.wrap(v)) }
+          next if filter_options[:scope] == 'object_browser' && f['object_browser_restriction']&.to_h&.none? { |k, v| filter_options[:content_template] == k && filter_options[:attribute_key]&.in?(Array.wrap(v)) }
 
           user_filters.concat(Array.wrap(f['stored_filter']).map { |s| param_from_definition(s, f['force'] ? 'uf' : 'u', user) })
         end
