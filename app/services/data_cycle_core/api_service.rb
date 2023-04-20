@@ -407,7 +407,7 @@ module DataCycleCore
     end
 
     def self.allowed_thread_count
-      ActiveRecord::Base.connection_pool.size == Rails.application.secrets.fetch(:puma_max_threads, 5) * 2 ? 2 : 1
+      (ActiveRecord::Base.connection_pool.size / (Rails.application.secrets.dig(:puma_max_threads) || 5)).to_i
     end
 
     private
