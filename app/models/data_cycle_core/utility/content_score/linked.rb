@@ -27,14 +27,13 @@ module DataCycleCore
 
           def to_tooltip(_content, definition, locale)
             tooltip = [tooltip_base_string(definition.dig('content_score', 'method'), locale: locale)]
-            template = DataCycleCore::StoredFilter.new.template_from_linked_definition(definition)
 
-            if template.present? && definition.dig('content_score', 'weight_matrix').present?
+            if definition.dig('content_score', 'weight_matrix').present?
               subtips = ['<ul>']
               definition.dig('content_score', 'weight_matrix')
-              .sort_by { |k, _v| template.properties_for(k)&.[]('sorting') }
+              .sort_by { |k, _v| k }
               .each do |k, v|
-                subtips.push("<li><b>#{template.class.human_attribute_name(k, { base: template, definition: template.properties_for(k), locale: locale })}</b> (#{(v.to_r * 100).round}%)</li>")
+                subtips.push("<li><b>#{tooltip_string("weight_matrix_keys.#{k}", locale: locale, default: k.capitalize)}</b> (#{(v.to_r * 100).round}%)</li>")
               end
               tooltip.push("#{subtips.join}</ul>")
             end
