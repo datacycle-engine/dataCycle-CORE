@@ -15,7 +15,6 @@ module DataCycleCore
         @assets = @assets.limit(25).offset((@page - 1) * 25 - permitted_params[:delete_count].to_i)
 
         @asset_details = @assets.map do |a|
-          a.add_logo_warning if a.is_a?(DataCycleCore::Image)
           a.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
            .merge(a.warnings? ? { 'warning' => a.full_warnings(helpers.active_ui_locale) } : {})
         end
