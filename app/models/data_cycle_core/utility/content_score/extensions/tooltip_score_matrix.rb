@@ -10,11 +10,13 @@ module DataCycleCore
 
             tooltip = [tooltip_base_string(definition.dig('content_score', 'method'), locale: locale)]
 
+            subtips = ['<ul>']
             definition.dig('content_score', 'score_matrix')&.each do |k, v|
-              tooltip.push(tooltip_string("score_matrix.#{k}", locale: locale, value: v))
+              subtips.push("<li>#{tooltip_string("score_matrix.#{k}", locale: locale, value: v)}</li>")
             end
+            tooltip.push("#{subtips.join}</ul>")
 
-            tooltip.compact.join('<br>')
+            tooltip.compact.join
           end
         end
       end

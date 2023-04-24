@@ -576,6 +576,8 @@ de:
         title: Content-Score
         criteria: "Kriterium: <b>%{text}</b>"
         by_presence: "ausgefüllt"
+        by_aspect_ratio: Seitenverhältnis
+        further_restricions: "Weitere Kriterien:"
         string:
           by_length: "Anzahl der Zeichen"
         common:
