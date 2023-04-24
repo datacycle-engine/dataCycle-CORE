@@ -588,8 +588,8 @@ de:
           by_linked_weight_matrix: "Score der Attribute nach Gewichtung"
         score_matrix:
           min: "Minimal: <b>%{value}</b>"
-          optimal: "Optimal: %{value}"
-          max: "Maximal: %{value}"
+          optimal: "Optimal: <b>%{value}</b>"
+          max: "Maximal: <b>%{value}</b>"
         content:
           by_weight_matrix: Score der Attribute nach Gewichtung
     duplicate_candidate:
