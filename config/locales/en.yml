@@ -578,10 +578,23 @@ en:
   feature:
     content_score:
       tooltip:
-        title_html: "<b>Content score</b>"
-        min: "minimal: %{value}"
-        optimal: "optimal: %{value}"
-        max: "maximal: %{value}"
+        title: Content-Score
+        criteria: "Criteria: <b>%{text}</b>"
+        by_presence: "filled"
+        string:
+          by_length: "Number of characters"
+        common:
+          by_quantity: "Quantity"
+        embedded:
+          by_name_and_length: "Number of characters"
+        linked:
+          by_linked_weight_matrix: "Score of attributes by weighting"
+        score_matrix:
+          min: "Minimal: <b>%{value}</b>"
+          optimal: "Optimal: %{value}"
+          max: "Maximal: %{value}"
+        content:
+          by_weight_matrix: Score of attributes by weighting
     duplicate_candidate:
       manual_button: Select manually for merging
     releasable:
