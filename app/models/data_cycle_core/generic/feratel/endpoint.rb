@@ -249,10 +249,10 @@ module DataCycleCore
           # puts
           # puts
 
-          if data.xpath('//@Status').first.value == '1' && data.xpath('//@Message').first.value == 'Organisation access denied.'
+          if data.xpath('//@Status').first&.value == '1' && data.xpath('//@Message').first&.value == 'Organisation access denied.'
             nil
-          elsif data.xpath('//@Status').first.value != '0'
-            raise data.xpath('//@Message').first.value
+          elsif data.xpath('//@Status').first&.value != '0'
+            raise data.xpath('//@Message').first&.value
           else
             data
               .xpath('//Result/DeletedItems')
@@ -403,10 +403,10 @@ module DataCycleCore
           # puts
           # puts
 
-          if data.xpath('//@Status').first.value == '1' && data.xpath('//@Message').first.value == 'Organisation access denied.'
+          if data.xpath('//@Status').first&.value == '1' && data.xpath('//@Message').first&.value == 'Organisation access denied.'
             nil
-          elsif data.xpath('//@Status').first.value != '0'
-            raise data.xpath('//@Message').first.value
+          elsif data.xpath('//@Status').first&.value != '0'
+            raise data.xpath('//@Message').first&.value
           else
             data
           end
@@ -437,10 +437,10 @@ module DataCycleCore
           # puts
           # puts
 
-          if data.xpath('//@Status').first.value == '1' && data.xpath('//@Message').first.value == 'Organisation access denied.'
+          if data.xpath('//@Status').first&.value == '1' && data.xpath('//@Message').first&.value == 'Organisation access denied.'
             nil
-          elsif data.xpath('//@Status').first.value != '0'
-            raise data.xpath('//@Message').first.value
+          elsif data.xpath('//@Status').first&.value != '0'
+            raise data.xpath('//@Message').first&.value
           else
             data
           end
@@ -484,7 +484,7 @@ module DataCycleCore
 
             data = Nokogiri::XML(envelop.children.first.content)
             data.remove_namespaces!
-            raise data.xpath('//@Message').first.value if data.xpath('//@Status').first.value != '0'
+            raise data.xpath('//@Message').first&.value if data.xpath('//@Status').first&.value != '0'
           end
           data_array.compact
         end
@@ -510,10 +510,10 @@ module DataCycleCore
           # puts
           # puts
 
-          if data.xpath('//@Status').first.value == '1' && data.xpath('//@Message').first.value == 'Organisation access denied.'
+          if data.xpath('//@Status').first&.value == '1' && data.xpath('//@Message').first&.value == 'Organisation access denied.'
             nil
-          elsif data.xpath('//@Status').first.value != '0'
-            raise data.xpath('//@Message').first.value
+          elsif data.xpath('//@Status').first&.value != '0'
+            raise data.xpath('//@Message').first&.value
           else
             data
           end
