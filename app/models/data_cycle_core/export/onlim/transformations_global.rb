@@ -195,6 +195,8 @@ module DataCycleCore
               content_data['copyrightHolder']&.first.presence || content_data['author']&.first.presence
             in 'Tour' | 'Gastronomischer Betrieb' | 'Unterkunft'
               content_data['sdPublisher']&.first.presence || content_data['copyrightHolder']&.first.presence
+            in 'Bild'
+              content_data['license'] = content_data['sdLicense']
             else
               nil
             end

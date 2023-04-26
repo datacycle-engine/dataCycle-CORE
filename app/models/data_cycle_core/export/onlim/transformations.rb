@@ -22,7 +22,7 @@ module DataCycleCore
               ['name', 'url', 'ds:compliesWith'],
             'ImageObject' =>
               ['name', 'caption', 'contentUrl', 'thumbnailUrl', 'url', 'uploadDate',
-               'copyrightNotice', 'copyrightYear', 'copyrightHolder', 'author',
+               'copyrightNotice', 'copyrightYear', 'copyrightHolder', 'author', 'license',
                'width', 'height', 'contentSize', 'ds:compliesWith'],
             'TouristAttraction' => # POI
               default_place_attributes +
