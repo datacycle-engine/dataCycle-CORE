@@ -6,6 +6,8 @@ DataCycleCore::Role.where(rank: 5).first_or_create({ name: 'standard' })
 DataCycleCore::Role.where(rank: 10).first_or_create({ name: 'admin' })
 DataCycleCore::Role.where(rank: 99).first_or_create({ name: 'super_admin' })
 
+DataCycleCore::Feature::TransitiveClassificationPath.update_triggers(false)
+
 return unless ['test', 'review'].include?(Rails.env)
 
 DataCycleCore::User.where(email: 'admin@datacycle.at').first_or_create({

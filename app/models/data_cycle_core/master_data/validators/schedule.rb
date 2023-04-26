@@ -129,7 +129,12 @@ module DataCycleCore
         end
 
         def check_closed_range(schedule_hash)
-          return if schedule_hash.dig('rrules', 0, 'until').present? || schedule_hash.dig('end_time', 'time').present?
+          return if schedule_hash.dig('rrules', 0, 'until').present? || (
+            (
+              schedule_hash.dig('rrules', 0, 'rule_type') == 'IceCube::SingleOccurrenceRule' ||
+              schedule_hash.dig('rrules', 0, 'rule_type').blank?
+            ) && schedule_hash.dig('end_time', 'time').present?
+          )
 
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.schedule.until_missing',

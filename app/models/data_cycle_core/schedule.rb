@@ -343,11 +343,12 @@ module DataCycleCore
           start_time = s.dig('start_time', 'time')&.in_time_zone
           start_time = start_time.beginning_of_day if s.dig('start_time', 'time')&.size == 10 # check if end_time is Date or DateTime by string size comparison xxxx-xx-xx == size 10
 
-          if (end_time = s.dig('end_time', 'time')&.in_time_zone).present?
+          if (end_time = s.dig('end_time', 'time').presence&.in_time_zone).present?
             s['duration'] = iso8601_duration(start_time, s.dig('end_time', 'time').size == 10 ? end_time.end_of_day : end_time).iso8601 # check if end_time is Date or DateTime by string size comparison xxxx-xx-xx == size 10
-          else
+          elsif s.dig('rrules', 0, 'rule_type')&.!=('IceCube::SingleOccurrenceRule')
             s['duration'] = parts_to_iso8601_duration(s['duration']).iso8601
           end
+
           s['start_time'] = {
             time: start_time.to_s,
             zone: start_time.time_zone.name

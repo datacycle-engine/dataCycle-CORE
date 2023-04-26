@@ -4,6 +4,7 @@
     "@type": "OpeningHoursSpecification",
     "contentType": "Öffnungszeit",
     "validFrom": "2019-10-10",
+    "validThrough": "2020-10-10",
     "description": "Description - Test"
   }
 ]
