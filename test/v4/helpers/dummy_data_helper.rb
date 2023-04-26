@@ -52,8 +52,8 @@ module DataCycleCore
         data_hash['image'] = [image_id]
         data_hash['logo'] = [image_id]
         data_hash['primary_image'] = [image_id]
-        data_hash[:opening_hours_specification] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
-        data_hash[:opening_hours_description] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_description')
+        data_hash['opening_hours_specification'] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
+        data_hash['opening_hours_description'] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_description')
         if data_hash.dig('license_classification').present?
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
           data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?

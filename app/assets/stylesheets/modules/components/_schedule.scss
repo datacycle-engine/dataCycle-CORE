@@ -285,6 +285,10 @@
   }
 }
 
+.opening-time-editor .opening-time-range.one-line>div.form-element {
+  margin-bottom: 0;
+}
+
 .opening-time-editor .opening-time-range {
   display: flex;
   flex-flow: row nowrap;

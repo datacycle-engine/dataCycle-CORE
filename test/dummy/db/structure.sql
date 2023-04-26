@@ -422,8 +422,8 @@ CREATE FUNCTION public.geom_simple_update() RETURNS trigger
 --
 
 CREATE FUNCTION public.get_dict(lang character varying) RETURNS regconfig
-    LANGUAGE sql
-    AS $$ SELECT pg_dict_mappings.dict::regconfig FROM pg_dict_mappings WHERE pg_dict_mappings.locale IN (lang, 'simple') LIMIT 1; $$;
+    LANGUAGE plpgsql
+    AS $$ DECLARE dict varchar; BEGIN SELECT pg_dict_mappings.dict::regconfig INTO dict FROM pg_dict_mappings WHERE pg_dict_mappings.locale IN (lang, 'simple') LIMIT 1; IF dict IS NULL THEN dict := 'pg_catalog.simple'::regconfig; END IF; RETURN dict; END; $$;
 
 
 --
@@ -3899,6 +3899,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230322145244'),
 ('20230329123152'),
 ('20230330081538'),
-('20230403113641');
+('20230403113641'),
+('20230425060228');
 
 
