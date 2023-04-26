@@ -148,7 +148,6 @@ module DataCycleCore
                       '@id' => @content.opening_hours_description.first.id,
                       '@type' => ['Intangible', 'StructuredValue', 'OpeningHoursSpecification', 'dcls:Öffnungszeit - Beschreibung'],
                       'validFrom' => '2019-10-10',
-                      'validThrough' => '2020-10-10',
                       'description' => 'Description - Test',
                       'dc:multilingual' => false,
                       'dc:translation' => ['de']

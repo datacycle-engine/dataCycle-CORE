@@ -5,12 +5,12 @@ module DataCycleCore
     module Validators
       class Schedule < BasicValidator
         def keywords
-          ['valid_dates', 'closed_range', 'soft_max_duration']
+          ['valid_dates', 'closed_range', 'soft_max_duration', 'required']
         end
 
         def validate(data, template, _strict = false)
           if data.blank?
-            # ignore
+            required(data, template.dig('validations', 'required')) if template.dig('validations', 'required')
           elsif data.is_a?(::Array)
             if template.key?('validations')
               template['validations'].each_key do |key|
@@ -218,6 +218,10 @@ module DataCycleCore
           data.each do |data_item|
             check_valid_duration(data_item, value)
           end
+        end
+
+        def required(data, value)
+          (@error[:error][@template_key] ||= []) << { path: 'validation.errors.required' } if value && blank?(data)
         end
       end
     end

@@ -46,23 +46,23 @@ class DatePicker {
 		this.startKeys = {
 			from: ["until", "_through"],
 			_start: "_end",
+			"[start_time][time]": ["[end_time][time]", "[rrules][][until]"],
 			start_time: "end_time",
 			opens: "closes",
 			min: "max",
 		};
 		this.endKeys = {
 			_through: "from",
-			until: "from",
+			"[rrules][][until]": "[start_time][time]",
+			"[end_time][time]": "[start_time][time]",
+			until: ["from", "start_time"],
 			_end: "_start",
 			end_time: "start_time",
 			closes: "opens",
 			max: "min",
 		};
 		this.keyMappings = Object.assign({}, this.startKeys, this.endKeys);
-		this.keyRegExp = new RegExp(
-			`(${Object.keys(this.keyMappings).join("|")})`,
-			"gi",
-		);
+		this.keyRegExp = this.toRegex(Object.keys(this.keyMappings));
 		this.eventHandlers = {
 			change: this.updateDatePicker.bind(this),
 			reInit: this.reInit.bind(this),
@@ -129,6 +129,14 @@ class DatePicker {
 			.off("dc:import:data", this.eventHandlers.import)
 			.removeClass("dc-import-data");
 	}
+	toRegex(values) {
+		if (!values?.length) return;
+
+		return new RegExp(
+			`(${values.join("|").replaceAll("[", "\\[").replaceAll("]", "\\]")})`,
+			"gi",
+		);
+	}
 	fixTimeElementValueUpdate(event) {
 		event.target.blur();
 		event.target.focus();
@@ -146,17 +154,9 @@ class DatePicker {
 		this.initEvents();
 	}
 	setCalType() {
-		if (
-			this.elementName.match(
-				new RegExp(`(${Object.keys(this.startKeys).join("|")})`, "gi"),
-			)
-		)
+		if (this.elementName.match(this.toRegex(Object.keys(this.startKeys))))
 			this.calType = "start";
-		if (
-			this.elementName.match(
-				new RegExp(`(${Object.keys(this.endKeys).join("|")})`, "gi"),
-			)
-		)
+		if (this.elementName.match(this.toRegex(Object.keys(this.endKeys))))
 			this.calType = "end";
 	}
 	updateDatePicker(event) {
@@ -194,6 +194,7 @@ class DatePicker {
 	}
 	findSibling() {
 		const foundMatch = this.elementName.match(this.keyRegExp);
+
 		this.sibling = castArray(this.keyMappings[foundMatch]).reduce(
 			(a, v) =>
 				a ||
@@ -258,7 +259,7 @@ class DatePicker {
 		}
 	}
 	options() {
-		let options = Object.assign({}, this.defaultOptions);
+		const options = Object.assign({}, this.defaultOptions);
 
 		if (
 			(this.element.getAttribute("type") === "datetime-local" &&

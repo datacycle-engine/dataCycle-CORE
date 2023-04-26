@@ -345,7 +345,7 @@ module DataCycleCore
 
           if (end_time = s.dig('end_time', 'time').presence&.in_time_zone).present?
             s['duration'] = iso8601_duration(start_time, s.dig('end_time', 'time').size == 10 ? end_time.end_of_day : end_time).iso8601 # check if end_time is Date or DateTime by string size comparison xxxx-xx-xx == size 10
-          elsif s.dig('rrules', 0, 'rule_type')&.!=('IceCube::SingleOccurrenceRule')
+          else
             s['duration'] = parts_to_iso8601_duration(s['duration']).iso8601
           end
 
@@ -385,7 +385,7 @@ module DataCycleCore
         value.values.map { |s|
           s = s['datahash'] if s.key?('datahash')
 
-          next if s&.dig('time')&.values.blank?
+          next if s&.dig('time').presence&.values.blank?
           next unless s.dig('rrules', 0, 'validations', 'day').present? || s['holiday'] == 'true'
           next if s['valid_from'].blank?
 

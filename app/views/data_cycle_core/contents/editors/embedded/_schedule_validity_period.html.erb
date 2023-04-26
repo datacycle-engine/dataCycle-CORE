@@ -35,10 +35,12 @@
   <% end %>
 
   <% value = local_assigns[:object].to_h %>
-  <%= hidden_field_tag "#{new_key}[rrules][][rule_type]", 'IceCube::SingleOccurrenceRule' %>
+  <%= hidden_field_tag "#{new_key}[rrules][][rule_type]", 'IceCube::DailyRule' %>
+  <%= hidden_field_tag "#{new_key}[duration][days]", 1 %>
+  <%= hidden_field_tag "#{new_key}[id]", value[:id] %>
 
   <div class="opening-time-editor embedded-properties accordion-content" data-tab-content>
-    <div class="opening-time-range">
+    <div class="opening-time-range one-line">
       <div class="form-element valid_from">
         <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[start_time][time]")}" do %>
           <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if readonly %>
@@ -55,18 +57,18 @@
       </div>
 
       <div class="form-element valid_until">
-        <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[end_time][time]")}" do %>
+        <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[rrules][][until]")}" do %>
           <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if readonly %>
           <%= t('opening_time.valid_until', locale: active_ui_locale) %>
         <% end %>
 
         <% if readonly %>
-          <%= text_field_tag "#{new_key}[end_time][time]",
-            l(value.dig(:end_time, :time)&.in_time_zone&.to_date, format: :edit, locale: active_ui_locale),
+          <%= text_field_tag "#{new_key}[rrules][][until]",
+            l(value.dig(:rrules, 0, :until)&.in_time_zone&.to_date, format: :edit, locale: active_ui_locale),
             class: 'read-only date',
-            id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[end_time][time]")}", readonly: true %>
+            id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[rrules][][until]")}", readonly: true %>
         <% else %>
-          <%= date_field_tag "#{new_key}[end_time][time]", value.dig(:end_time, :time)&.in_time_zone&.to_date, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[end_time][time]")}", data: { type: 'datepicker' } %>
+          <%= date_field_tag "#{new_key}[rrules][][until]", value.dig(:rrules, 0, :until)&.in_time_zone&.to_date, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{new_key}[rrules][][until]")}", data: { type: 'datepicker' } %>
         <% end %>
       </div>
     </div>
