@@ -1579,7 +1579,7 @@ en:
         difficulty_rating: Difficulty
     imx_platform:
       description: Description
-      description_long: Detailed description
+      text: Detailed description
     gem2go:
       description: Description
     timm4:

@@ -1565,7 +1565,7 @@ de:
         panoramic_view_rating: Panoramaaussicht
     imx_platform:
       description: Beschreibung
-      description_long: Detailbeschreibung
+      text: Detailbeschreibung
     gem2go:
       description: Beschreibung
     timm4:

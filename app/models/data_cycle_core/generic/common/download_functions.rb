@@ -97,10 +97,7 @@ module DataCycleCore
                         download_object.endpoint.send(endpoint_method, lang: locale)
                       end
 
-                    pool = nil
-                    pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 2) if options.dig(:download, :run_in_parallel) && (ActiveRecord::Base.connection_pool.size - 1) >= 1
-
-                    futures = []
+                    pool = DataCycleCore::WorkerPool.new(options.dig(:download, :run_in_parallel) ? 5 : 1)
 
                     items.each do |item_data|
                       break if options[:max_count] && item_count >= options[:max_count]
@@ -108,7 +105,7 @@ module DataCycleCore
                       item_count += 1
                       next if item_data.nil?
 
-                      ParallelHelper.run_in_parallel(futures, pool) do
+                      pool.append_without_db_connection do
                         init_mongo_db(database_name) do
                           download_object.source_object.with(download_object.source_type) do |mongo_item_parallel|
                             item_id = data_id.call(item_data)
@@ -157,7 +154,7 @@ module DataCycleCore
                       logging.info("Downloaded #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
                     end
 
-                    futures.each(&:wait!)
+                    pool.wait!
                   end
                 rescue StandardError => e
                   Appsignal.send_error(e) do |transaction|
