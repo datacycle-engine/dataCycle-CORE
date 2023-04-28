@@ -1,5 +1,4 @@
 import ConfirmationModal from "../components/confirmation_modal";
-import DcStickyBar from "../components/dc_sticky_bar";
 
 const DomElementHelpers = {
 	isVisible(elem) {
@@ -87,18 +86,6 @@ const DomElementHelpers = {
 		for (const [key, _value] of Array.from(formData))
 			if (!key.startsWith(prefix)) formData.delete(key);
 	},
-	scrollIntoViewWithStickyOffset(element) {
-		const { scrollableParent, offset, scrollElement } =
-			this.calculateStickyOffset(element);
-
-		scrollableParent.scrollTo({
-			behavior: "smooth",
-			top:
-				element.getBoundingClientRect().top -
-				(offset + 10) -
-				scrollElement.getBoundingClientRect().top,
-		});
-	},
 	isScrollable(elem) {
 		if (!(elem && elem instanceof Element)) return false;
 
@@ -106,37 +93,6 @@ const DomElementHelpers = {
 			.getComputedStyle(elem)
 			.overflow.split(" ")
 			.every((o) => o === "auto" || o === "scroll");
-	},
-	calculateStickyOffset(elem, previousElement = undefined, offset = 0) {
-		if (!(elem && elem instanceof Element))
-			return {
-				scrollableParent: window,
-				offset: offset,
-				scrollElement: document.body,
-			};
-		if (this.isScrollable(elem))
-			return {
-				scrollableParent: elem,
-				offset: offset,
-				scrollElement: previousElement,
-			};
-
-		let activeElem = elem;
-		while (activeElem.previousElementSibling) {
-			activeElem = activeElem.previousElementSibling;
-
-			if (
-				DcStickyBar.stickyHtmlClasses.some((c) =>
-					activeElem.classList.contains(c),
-				)
-			)
-				offset += activeElem.getBoundingClientRect().height;
-		}
-
-		if (DcStickyBar.stickyHtmlClasses.some((c) => elem.classList.contains(c)))
-			offset += elem.getBoundingClientRect().height;
-
-		return this.calculateStickyOffset(elem.parentElement, elem, offset);
 	},
 	fadeOut(target, duration = 500) {
 		if (!(target && target instanceof Element)) return Promise.reject();

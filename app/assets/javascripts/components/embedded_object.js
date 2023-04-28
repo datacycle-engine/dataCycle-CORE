@@ -4,7 +4,6 @@ import { Sortable } from "sortablejs";
 import difference from "lodash/difference";
 import union from "lodash/union";
 import intersection from "lodash/intersection";
-import DomElementHelpers from "../helpers/dom_element_helpers";
 import ObserverHelpers from "../helpers/observer_helpers";
 
 class EmbeddedObject {
@@ -100,7 +99,7 @@ class EmbeddedObject {
 		return this.$element.data("locale") || "de";
 	}
 	async import(_event, data) {
-		let newItems = difference(
+		const newItems = difference(
 			data.value,
 			this.$element
 				.children(".content-object-item")
@@ -187,7 +186,7 @@ class EmbeddedObject {
 		DomElementHelpers.scrollIntoViewWithStickyOffset(currentObject);
 	}
 	renderEmbeddedObjects(type, ids = [], locale = null, translate = false) {
-		let index = this.index;
+		const index = this.index;
 		if (type === "split_view") this.index += difference(ids, this.ids).length;
 		else if (type === "new") this.index++;
 
@@ -285,7 +284,7 @@ class EmbeddedObject {
 		} else this.removeObject(element);
 	}
 	removeObject(element) {
-		let id = element.data("id");
+		const id = element.data("id");
 		if (id !== undefined) {
 			this.element
 				.querySelector(`input[type="hidden"][value="${id}"]`)
@@ -349,11 +348,11 @@ class EmbeddedObject {
 
 		if (!(this.locationArray?.length && this.ids?.length)) return;
 
-		let embeddedId = intersection(this.locationArray, this.ids)[0];
+		const embeddedId = intersection(this.locationArray, this.ids)[0];
 
 		if (!embeddedId) return;
 
-		let embeddedObject = this.$element
+		const embeddedObject = this.$element
 			.find(`.content-object-item[data-id="${embeddedId}"]`)
 			.first();
 
@@ -371,7 +370,7 @@ class EmbeddedObject {
 				"> .accordion-item:not(.is-active) > .accordion-content.remote-render",
 			)
 			.each((_index, item) => {
-				let remoteOptions = $(item).data("remote-options");
+				const remoteOptions = $(item).data("remote-options");
 				remoteOptions.hide_embedded = undefined;
 				$(item).attr("data-remote-options", JSON.stringify(remoteOptions));
 			});
