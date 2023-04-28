@@ -51,6 +51,7 @@ module DataCycleCore
     has_many :created_data_links, class_name: :DataLink, foreign_key: :creator_id, dependent: :destroy
     has_many :valid_received_data_links, -> { valid }, class_name: :DataLink, foreign_key: :receiver_id
     has_many :valid_received_readable_data_links, -> { valid.readable }, class_name: :DataLink, foreign_key: :receiver_id
+    has_many :valid_received_writable_data_links, -> { valid.writable }, class_name: :DataLink, foreign_key: :receiver_id
     has_many :valid_received_readable_stored_filter_data_links, -> { valid.readable.where(item_type: 'DataCycleCore::StoredFilter') }, class_name: :DataLink, foreign_key: :receiver_id
 
     has_many :assets, foreign_key: :creator_id, class_name: 'DataCycleCore::Asset'
