@@ -467,9 +467,9 @@ module DataCycleCore
         if value.is_a?(::String)
           concat value.html_safe
         elsif value.is_a?(::Hash) || value.is_a?(ActiveModel::DeprecationHandlingMessageHash)
-          concat value.map { |k, v| tag.b(k.to_s.titleize + ': ') + v.join(', ') }.join(', ').html_safe
+          concat value.map { |k, v| tag.b(k.to_s.titleize + ': ') + v.join(', ') }.join('<br>').html_safe
         elsif value.is_a?(::Array)
-          concat value.join(', ').html_safe.to_s
+          concat value.join('<br>').html_safe.to_s
         else
           concat value.to_s.html_safe
         end

@@ -2274,3 +2274,7 @@ body.object-browser-overlay-open {
   position: sticky !important;
   top: var(--dc-sticky-bar-offset) !important;
 }
+
+button[disabled] {
+  cursor: not-allowed;
+}
