@@ -1,7 +1,9 @@
 <% random_id = SecureRandom.hex(10) %>
 <% if data_link.id.nil? %>
-  <button class="button new-data-link" data-open="<%= random_id %>"><%= t('data_cycle_core.data_links.create_link', locale: active_ui_locale) %></button>
-  <%= render 'data_cycle_core/data_links/form_reveal', local_assigns.merge({ random_id: random_id }) %>
+  <% if can?(:create, data_link) %>
+    <button class="button new-data-link" data-open="<%= random_id %>"><%= t('data_cycle_core.data_links.create_link', locale: active_ui_locale) %></button>
+    <%= render 'data_cycle_core/data_links/form_reveal', local_assigns.merge({ random_id: random_id }) %>
+  <% end %>
 <% else %>
   <li class="<%= "invalid" unless data_link.is_valid? %>" id="data-link-<%= data_link.id %>">
     <span class="email" data-dc-tooltip="<%= data_link.receiver&.email %>"><%= data_link_permission_icon(data_link.permissions) %><%= data_link.receiver&.email %></span>
