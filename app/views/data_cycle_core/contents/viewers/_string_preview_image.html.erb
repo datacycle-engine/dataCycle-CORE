@@ -6,6 +6,6 @@
       content: content,
       parent: local_assigns[:parent] do %>
 
-  <span class="detail-content"><img src="<%= value.try(:html_safe) %>" /></span>
+  <span class="detail-content"><img class="lazyload" data-src="<%= value.try(:html_safe) %>" /></span>
 
 <% end %>
