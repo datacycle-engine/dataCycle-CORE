@@ -5,6 +5,7 @@ import difference from "lodash/difference";
 import union from "lodash/union";
 import intersection from "lodash/intersection";
 import ObserverHelpers from "../helpers/observer_helpers";
+import DcStickyBar from "./dc_sticky_bar";
 
 class EmbeddedObject {
 	constructor(selector) {
@@ -183,7 +184,7 @@ class EmbeddedObject {
 
 		this.update();
 
-		DomElementHelpers.scrollIntoViewWithStickyOffset(currentObject);
+		DcStickyBar.scrollIntoViewWithStickyOffset(currentObject);
 	}
 	renderEmbeddedObjects(type, ids = [], locale = null, translate = false) {
 		const index = this.index;
@@ -231,7 +232,7 @@ class EmbeddedObject {
 
 		this.update();
 
-		DomElementHelpers.scrollIntoViewWithStickyOffset(
+		DcStickyBar.scrollIntoViewWithStickyOffset(
 			this.element.querySelector(":scope > .content-object-item:last-of-type"),
 		);
 	}
@@ -376,7 +377,7 @@ class EmbeddedObject {
 			});
 
 		window.requestAnimationFrame(() => {
-			DomElementHelpers.scrollIntoViewWithStickyOffset(embeddedObject[0]);
+			DcStickyBar.scrollIntoViewWithStickyOffset(embeddedObject[0]);
 		});
 	}
 	loadAllContents(embeddedObject) {
