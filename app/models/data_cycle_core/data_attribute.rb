@@ -4,7 +4,7 @@ module DataCycleCore
   DataAttribute = Struct.new(:key, :definition, :options, :content, :scope, :specific_scope) do
     def initialize(key, definition, options, content, scope, specific_scope = nil)
       if options.is_a?(ActionController::Parameters)
-        options = options.to_unsafe_hash
+        options = options.permit!.to_h
       elsif options.is_a?(Hash)
         options = options.with_indifferent_access
       elsif options.nil?
@@ -12,14 +12,22 @@ module DataCycleCore
       end
 
       if definition.is_a?(ActionController::Parameters)
-        definition = definition.to_unsafe_hash
+        definition = definition.permit!.to_h
       elsif definition.is_a?(Hash)
         definition = definition.with_indifferent_access
       elsif options.nil?
         definition = {}
+      else
+        definition = definition.deep_dup
       end
 
       specific_scope ||= scope
+
+      if specific_scope != scope && definition.dig('ui', specific_scope.to_s).present?
+        definition['ui'] ||= {}
+        definition['ui'][scope.to_s] ||= {}
+        definition['ui'][scope.to_s].merge!(definition.dig('ui', specific_scope.to_s))
+      end
 
       super
     end
