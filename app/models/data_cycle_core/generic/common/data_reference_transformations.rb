@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module Common
       module DataReferenceTransformations
-        extend TransformationUtilities
+        extend Transformations::TransformationUtilities
 
         ExternalReference = Struct.new(:reference_type, :external_source_id, :external_key)
 

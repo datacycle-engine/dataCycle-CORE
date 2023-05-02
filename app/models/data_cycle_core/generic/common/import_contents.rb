@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module Common
       module ImportContents
-        extend DataCycleCore::Generic::Common::TransformationUtilities
+        extend DataCycleCore::Generic::Common::Transformations::TransformationUtilities
 
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.import_contents(
