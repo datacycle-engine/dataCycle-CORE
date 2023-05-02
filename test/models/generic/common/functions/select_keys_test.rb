@@ -6,7 +6,7 @@ require 'minitest/autorun'
 
 describe 'DataCycleCore::Generic::Common::Functions#select_keys' do
   subject do
-    DataCycleCore::Generic::Common::Functions
+    DataCycleCore::Generic::Common::Transformations::BasicFunctions
   end
 
   it 'should select single key' do
