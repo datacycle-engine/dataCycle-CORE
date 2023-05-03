@@ -1461,7 +1461,7 @@ span.single_error.object-browser-error {
     }
   }
 
-  .embedded_object:not(.publication_schedule) .content-object-item {
+  .embedded_object:not(.publication_schedule)>.embedded-object>.content-object-item {
 
     &:focus-within,
     &:hover:focus-within {
@@ -1504,7 +1504,8 @@ span.single_error.object-browser-error {
       }
     }
 
-    .content-object-item {
+    >.embedded-object>.content-object-item,
+    >.content-object-item {
       position: relative;
       background-color: $white;
       padding: 0.5rem;
