@@ -191,7 +191,7 @@
   /* Normalize line height */
 }
 
-.v-select li > a {
+.v-select li>a {
   display: block;
   padding: 3px 20px;
   clear: both;
@@ -206,16 +206,12 @@
   cursor: pointer;
 }
 
-.v-select .dropdown-menu .active > a {
+.v-select .dropdown-menu .active>a {
   color: #333;
   background: rgba(50, 50, 50, 0.1);
 }
 
-.v-select .dropdown-menu > .highlight > a {
-  /*
-     * required to override bootstrap 3's
-     * .dropdown-menu > li > a:hover {} styles
-     */
+.v-select .dropdown-menu>.highlight>a {
   background: #5897fb;
   color: #fff;
 }
@@ -263,6 +259,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -272,6 +269,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }

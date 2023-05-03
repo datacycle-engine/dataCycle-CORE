@@ -1369,20 +1369,8 @@ span.single_error.object-browser-error {
 
 /* embedded Objects */
 
-.detail-header.editor {
-  .detail_object:hover>.content-object-item>.embedded-header>label {
-    color: $primary-color;
-  }
-}
-
 .detail-header {
   .form-element.embedded_object {
-    &:hover {
-      >.embedded-editor-header>.attribute-edit-label {
-        color: $primary-color;
-      }
-    }
-
     &.disabled {
       >.embedded-editor-header {
         cursor: not-allowed !important;
@@ -1461,6 +1449,33 @@ span.single_error.object-browser-error {
     }
   }
 
+  .embedded_object:not(.publication_schedule) {
+
+    &:focus-within,
+    &:hover:focus-within {
+      &:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+        >.embedded-editor-header>.attribute-edit-label {
+          color: $primary-color;
+        }
+      }
+    }
+  }
+
+  .embedded_object:not(.publication_schedule) .content-object-item {
+
+    &:focus-within,
+    &:hover:focus-within {
+      &:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+        border-color: var(--primary-color);
+        box-shadow: 0 1px 5px rgba($primary-color, 0.5);
+
+        >.accordion-title {
+          color: $primary-color;
+        }
+      }
+    }
+  }
+
   .embedded_object:not(.publication_schedule),
   .detail_object {
     &:not(:last-child) {
@@ -1522,10 +1537,6 @@ span.single_error.object-browser-error {
         text-overflow: ellipsis;
         display: flex;
         flex-flow: row nowrap;
-
-        &:hover {
-          color: $primary-color;
-        }
 
         .icon {
           margin-right: 0.5rem;

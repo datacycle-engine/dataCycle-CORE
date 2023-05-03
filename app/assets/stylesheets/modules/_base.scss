@@ -765,12 +765,15 @@ footer {
       min-width: 100px;
     }
 
-    &.focus {
-      border-color: $primary-color;
-      background: $white;
-
-      input {
+    &:focus,
+    &:focus-within {
+      &:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+        border-color: $primary-color;
         background: $white;
+
+        input {
+          background: $white;
+        }
       }
     }
   }
@@ -821,10 +824,9 @@ footer {
     left: 2.3rem;
   }
 
-  .focus {
-    .editor-block.disabled {
-      background: $light-gray;
-    }
+  .editor-block.disabled:focus,
+  .editor-block.disabled:focus-within {
+    background: $light-gray;
   }
 
   input,
@@ -854,13 +856,30 @@ footer {
     border-radius: $global-radius;
     background: $white;
 
-    &:hover {
-      border-color: $primary-color;
-      box-shadow: 0 1px 7px lighten($dark-gray, 12%);
+    &:hover:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+      box-shadow: 0 1px 5px rgba($dark-gray, 0.5);
     }
 
-    &:focus {
-      border-color: $primary-color;
+    &:focus:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field):not(.detail_object):not(.embedded_object) {
+      border-color: var(--primary-color);
+    }
+
+    &.form-element.radio_button,
+    &.form-element.check_box {
+      &:focus-within:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field):not(.detail_object):not(.embedded_object) {
+        border-color: var(--primary-color);
+      }
+    }
+
+    &.detail_object {
+      &:focus-within:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+        border-color: var(--primary-color);
+        box-shadow: 0 1px 5px rgba($primary-color, 0.5);
+
+        >.content-object-item>.embedded-header {
+          color: var(--primary-color);
+        }
+      }
     }
 
     &::placeholder {
@@ -874,6 +893,14 @@ footer {
     &.disabled {
       cursor: not-allowed !important;
       background: lighten($light-gray, 5%) !important;
+    }
+  }
+
+  .form-element.classification {
+    &:focus-within:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+      .select2 {
+        border-color: var(--primary-color);
+      }
     }
   }
 
@@ -938,9 +965,22 @@ footer {
     }
   }
 
-  .form-element.focus>.editor-block {
-    border-color: $primary-color;
-    background: $white;
+  .form-element {
+
+    &:focus,
+    &:focus-within {
+      &:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+        >.editor-block {
+          border-color: var(--primary-color);
+          background: $white;
+        }
+
+        >label,
+        >.linked-editor-header>label {
+          color: var(--primary-color);
+        }
+      }
+    }
   }
 
   &.editor {
@@ -1007,8 +1047,6 @@ footer {
           color: $black;
         }
 
-        &:hover,
-        &.focus,
         &:focus {
           >.translated {
             color: $black;
@@ -1034,9 +1072,7 @@ footer {
         }
       }
 
-      &:focus,
-      &.focus,
-      &:hover {
+      &:focus {
 
         >label,
         >.translated {
@@ -1821,12 +1857,15 @@ body .v-select {
           }
         }
 
-        &.focus {
+        .editor-block .ql-editor,
+        .select2 {
 
-          .editor-block .ql-editor,
-          .select2 {
-            border: 1px solid $dark-gray;
-            box-shadow: 0 0 5px $medium-gray;
+          &:focus,
+          &:focus-within {
+            &:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+              border: 1px solid $dark-gray;
+              box-shadow: 0 0 5px $medium-gray;
+            }
           }
         }
 
