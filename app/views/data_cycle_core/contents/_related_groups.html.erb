@@ -14,7 +14,8 @@
                             item.class.name.demodulize.underscore.dasherize,
                             item.schema_type&.underscore&.dasherize,
                             item.template_name.underscore.dasherize,
-                            (item.hard_content_warnings? ? 'hard-warnings' : nil)
+                            (item.hard_content_warnings? ? 'hard-warnings' : nil),
+                            thing_content_score_class(item),
                         ].compact.join(' ') %>" data-id="<%= [item.id] %>">
 
           <%= render_first_existing_partial [
