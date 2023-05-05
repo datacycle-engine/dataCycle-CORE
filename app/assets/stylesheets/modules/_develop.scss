@@ -35,7 +35,7 @@
     background: lighten($light-gray, 5%) !important;
 
     &:hover:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
-      box-shadow: 0 1px 5px rgba($dark-gray, 0.5);
+      box-shadow: 0 1px 5px rgba($dark-gray, 0.4);
     }
 
     &:focus:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
@@ -2411,7 +2411,7 @@ select {
     transition: $input-transition;
 
     &:hover:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
-      box-shadow: 0 1px 5px rgba($dark-gray, 0.5);
+      box-shadow: 0 1px 5px rgba($dark-gray, 0.4);
     }
   }
 
