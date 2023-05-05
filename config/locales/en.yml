@@ -1580,6 +1580,18 @@ en:
     imx_platform:
       description: Description
       text: Detailed description
+      startingPointDescr: Starting point description
+      destination: Destination
+      gettingThere: Getting there
+      parking: Parking
+      directions: Directions
+      trackSignage: Track signage
+      safetyGuidelines: Safety guidlines
+      equipment: Equipment
+      additionalInformation: Additional information
+      literature: Literture
+      publicTransit: Public transit
+      seasonDescription: Sesion      
     gem2go:
       description: Description
     timm4:

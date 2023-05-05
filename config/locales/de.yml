@@ -1566,6 +1566,18 @@ de:
     imx_platform:
       description: Beschreibung
       text: Detailbeschreibung
+      startingPointDescr: Beschreibung Startpunkt
+      destination: Ziel
+      gettingThere: Anreise
+      parking: Parken
+      directions: Wegbeschreibung
+      trackSignage: Ausschilderung
+      safetyGuidelines: Sicherheitshinweise
+      equipment: Ausrüstung
+      additionalInformation: Zusatzinformationen
+      literature: Literatur
+      publicTransit: Öffentlicher Transport
+      seasonDescription: Begehbare Monate
     gem2go:
       description: Beschreibung
     timm4:

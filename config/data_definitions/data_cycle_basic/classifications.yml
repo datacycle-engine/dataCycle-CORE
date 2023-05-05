@@ -84,7 +84,7 @@
     - additional_information | OutdoorActive
     - additionalBookingInformation | mein.toubiz
     - additionalHostInformation | mein.toubiz
-    - additionalInformation | Pimcore ATS
+    - additionalInformation | Pimcore ATS/imx.platform
     - additionalLocationInformation | mein.toubiz
     - AdditionalService | Feratel
     - additionaltext_feature_barrierefreiheit | destination.one
@@ -105,22 +105,22 @@
     - dayoff | destination.one
     - description | OutdoorActive/imx_platform/TIMM4/GEM2GO/mein.toubiz/pimcore_ats/Venus
     - description_long | imx_platform
-    - destination | Pimcore ATS
+    - destination | Pimcore ATS/imx.platform
     - details | destination.one
-    - directions | OutdoorActive/destination.one/Pimcore ATS/mein.toubiz
+    - directions | OutdoorActive/destination.one/Pimcore ATS/mein.toubiz/imx.platform
     - directions_public_transport | OutdoorActive
     - dishes | TIMM4
     - endPoint | mein.toubiz
     - endPointParking | mein.toubiz
     - endPointToStartPoint | mein.toubiz
-    - equipment | OutdoorActive
+    - equipment | OutdoorActive/imx.platform
     - essenUndSpezial | Bierfinder
     - EventHeader | Feratel
     - EventHeaderShort | Feratel
     - facility_unterhaltung | destination.one
     - furtherSpecialities | TIMM4
     - gear | mein.toubiz
-    - gettingThere | Pimcore ATS
+    - gettingThere | Pimcore ATS/imx.platform
     - GTC | Feratel
     - GuestCardClassification | Feratel
     - hours_available | OutdoorActive
@@ -139,7 +139,7 @@
     - keywords | TIMM4
     - kitchen_spezialitaeten | destination.one
     - kitchen_zeiten | destination.one
-    - literature | Pimcore ATS/mein.toubiz
+    - literature | Pimcore ATS/mein.toubiz/imx.platform
     - longDescription | pimcore_ats
     - longText | Pimcore ATS
     - maps | OutdoorActive/Pimcore ATS
@@ -148,7 +148,7 @@
     - moreInformation | mein.toubiz
     - object_betriebsurlaub | destination.one
     - openings | destination.one
-    - parking | OutdoorActive/Pimcore ATS/mein.toubiz
+    - parking | OutdoorActive/Pimcore ATS/mein.toubiz/imx.platform
     - Package | Feratel
     - PackageContentLong | Feratel
     - packagefeature | destination.one
@@ -162,14 +162,14 @@
     - price_info | destination.one
     - price_reducedinfo | destination.one
     - ProductDescription | Feratel
-    - publicTransit | Pimcore ATS/mein.toubiz
+    - publicTransit | Pimcore ATS/mein.toubiz/imx.platform
     - restDays | TIMM4
     - room_sonstige | destination.one
     - route_start | destination.one
     - route_start_ort | destination.one
     - route_ziel | destination.one
     - safety_instructions | OutdoorActive
-    - safetyGuidelines | thue_cat
+    - safetyGuidelines | thue_cat/imx.platform
     - safetyInformation | mein.toubiz
     - seasonDescription | Venus
     - sellsBrands | Venus
@@ -184,7 +184,7 @@
     - socialdescription | destination.one
     - socialtitle | destination.one
     - specialDescription | Venus
-    - startingPointDescr | Pimcore ATS
+    - startingPointDescr | Pimcore ATS/imx.platform
     - startingPointDescription | Venus
     - station | destination.one
     - startPoint | mein.toubiz
@@ -196,6 +196,7 @@
     - timesComment | TIMM4
     - tip | Pimcore ATS
     - tipp | Bierfinder
+    - trackSignage | imx.platform
     - web_seo_beschreibung | destination.one
     - web_seo_keywords | destination.one
     - web_seo_titel | destination.one
