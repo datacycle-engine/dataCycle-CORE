@@ -304,8 +304,6 @@ class MapLibreGlViewer {
 		this._addPopup();
 	}
 	_getLastLayerId(idRegex) {
-		console.log("_getLastLayerId", this.map.getStyle().layers);
-
 		return this.map
 			.getStyle()
 			.layers.find(
