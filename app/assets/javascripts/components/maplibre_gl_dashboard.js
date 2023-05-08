@@ -25,6 +25,7 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
 		super.configureMap();
 		this.initEventHandlers();
 	}
+	parseInitialFeatures() {}
 	initFeatures() {
 		this.drawFeatures();
 	}
@@ -58,8 +59,8 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
 
 			if (feature && feature.source === "feature_source_primary") {
 				this.map.getCanvas().style.cursor = "pointer";
-				let types = JSON.parse(feature.properties["@type"]);
-				let type = types[types.length - 1].replace("dcls:", "");
+				const types = JSON.parse(feature.properties["@type"]);
+				const type = types[types.length - 1].replace("dcls:", "");
 				popup
 					.setLngLat(
 						feature.geometry.type !== "Point"
@@ -86,11 +87,8 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
 			}
 		});
 	}
-	updateMapPosition() {
-		// Using this.defaultOptions.bounds we are already setting the map extent
-	}
 	getColorMatchHexExpression() {
-		let matchEx = ["case"];
+		const matchEx = ["case"];
 
 		for (const [name, value] of Object.entries(this.typeColors)) {
 			matchEx.push(["in", name, ["get", "@type"]]);

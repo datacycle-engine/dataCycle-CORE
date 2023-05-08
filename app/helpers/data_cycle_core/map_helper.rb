@@ -47,6 +47,25 @@ module DataCycleCore
       }.compact
     end
 
+    def classification_polygon_properties(classification_polygon)
+      {
+        '@id': classification_polygon.id,
+        classificationId: classification_polygon.classification_alias.id,
+        name: classification_polygon.classification_alias.internal_name
+      }
+    end
+
+    def classification_polygon_features(classification_alias)
+      {
+        classification_polygon: {
+          type: 'FeatureCollection',
+          features: classification_alias.classification_polygons.map do |p|
+            value_to_geojson(p.geom, classification_polygon_properties(p))
+          end
+        }
+      }.to_json
+    end
+
     def additional_map_values_overlay(content, definition, options)
       paths = definition&.dig('ui', 'edit', 'options', 'additional_value_paths')
       overlay_paths = definition&.dig('ui', 'edit', 'options', 'additional_values_overlay')

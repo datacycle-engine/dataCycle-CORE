@@ -1,5 +1,6 @@
 import pick from "lodash/pick";
 import isEmpty from "lodash/isEmpty";
+import turfBbox from "@turf/bbox";
 
 const MaplibreGl = () =>
 	import("maplibre-gl/dist/maplibre-gl").then((mod) => mod.default);
@@ -79,6 +80,10 @@ class MapLibreGlViewer {
 				this.mapOptions.latitude,
 			];
 		}
+		this.defaultOptions.fitBoundsOptions = {
+			padding: 50,
+			maxZoom: 15,
+		};
 		this.highDpi = window.devicePixelRatio > 1;
 
 		this.credentials = this.mapOptions.credentials;
@@ -102,36 +107,35 @@ class MapLibreGlViewer {
 		}
 	}
 	initMap() {
+		this.parseInitialFeatures();
+
 		this.map = new this.maplibreGl.Map(
-			Object.assign(
-				{
-					container: this.containerId,
-					style: this.mapBaseLayer(),
-					transformRequest: (url, _resourceType) => {
-						if (
-							url.includes("tiles.pixelmap.at/") ||
-							url.includes("tiles.pixelpoint.at/")
-						) {
-							return {
-								headers: {
-									Authorization: `Bearer ${this.credentials.api_key}`,
-								},
-								url: url,
-							};
-						} else if (url.includes(location.host)) {
-							return {
-								headers: {
-									"X-CSRF-Token":
-										document.getElementsByName("csrf-token")[0].content,
-								},
-								url: url,
-							};
-						}
-						return;
-					},
+			Object.assign(this.defaultOptions, {
+				container: this.containerId,
+				style: this.mapBaseLayer(),
+				transformRequest: (url, _resourceType) => {
+					if (
+						url.includes("tiles.pixelmap.at/") ||
+						url.includes("tiles.pixelpoint.at/")
+					) {
+						return {
+							headers: {
+								Authorization: `Bearer ${this.credentials.api_key}`,
+							},
+							url: url,
+						};
+					} else if (url.includes(location.host)) {
+						return {
+							headers: {
+								"X-CSRF-Token":
+									document.getElementsByName("csrf-token")[0].content,
+							},
+							url: url,
+						};
+					}
+					return;
 				},
-				this.defaultOptions,
-			),
+			}),
 		);
 	}
 	async configureMap() {
@@ -142,14 +146,33 @@ class MapLibreGlViewer {
 		await this.initFeatures();
 		await this._disableScrollingOnMapOverlays();
 		await this.initMouseWheelZoom();
-		await this.updateMapPosition(); // TODO: Replace with this.defaultOptions.bounds-logic as used in dashboard
 	}
 	initFeatures() {
 		this.drawFeatures();
 		this.drawAdditionalFeatures();
 	}
+	parseInitialFeatures() {
+		if (!this.feature && this.value) this.feature = this.value;
+
+		const beforeFeature = this.beforeValue
+			? { beforeValue: this.beforeValue }
+			: {};
+		const afterFeature = this.afterValue ? { afterValue: this.afterValue } : {};
+
+		this.additionalFeatures = {
+			...beforeFeature,
+			...afterFeature,
+			...this.additionalValues,
+		};
+
+		const bounds = this.getCurrentBounds();
+
+		if (isEmpty(bounds)) return;
+
+		this.defaultOptions.bounds = bounds;
+	}
 	mapBaseLayer() {
-		let baseStyle = this.mapStyles[0].value;
+		const baseStyle = this.mapStyles[0].value;
 
 		if (typeof this[`baseLayer${baseStyle}`] === "function")
 			return this[`baseLayer${baseStyle}`]();
@@ -256,7 +279,7 @@ class MapLibreGlViewer {
 	setIcons() {
 		for (const [iconKey, iconValue] of Object.entries(this.icons)) {
 			for (const [colorKey, colorValue] of Object.entries(this.iconColorBase)) {
-				let icon = new Image(21, 33);
+				const icon = new Image(21, 33);
 				icon.onload = () => this.map.addImage(`${iconKey}_${colorKey}`, icon);
 				icon.src = iconValue.interpolate({
 					color: escape(colorValue),
@@ -266,22 +289,10 @@ class MapLibreGlViewer {
 		}
 	}
 	drawFeatures() {
-		if (!this.feature && this.value) this.feature = this.value;
 		if (!this.afterValue && this.feature)
 			this._addSourceAndLayer("primary", this.feature);
 	}
 	drawAdditionalFeatures() {
-		const beforeFeature = this.beforeValue
-			? { beforeValue: this.beforeValue }
-			: {};
-		const afterFeature = this.afterValue ? { afterValue: this.afterValue } : {};
-
-		this.additionalFeatures = {
-			...beforeFeature,
-			...afterFeature,
-			...this.additionalValues,
-		};
-
 		for (const [key, value] of Object.entries(this.additionalFeatures)) {
 			this._addAdditionalSourceAndLayers(
 				key,
@@ -292,24 +303,14 @@ class MapLibreGlViewer {
 
 		this._addPopup();
 	}
-	_getLastLineLayerId() {
+	_getLastLayerId(idRegex) {
+		console.log("_getLastLayerId", this.map.getStyle().layers);
+
 		return this.map
 			.getStyle()
 			.layers.find(
-				(l) =>
-					l.type === "background" ||
-					(l.type === "line" && l.id.includes("feature")),
-			).id;
-	}
-	_getLastPointLayerId() {
-		return this.map
-			.getStyle()
-			.layers.find(
-				(l) =>
-					l.type === "background" ||
-					l.type === "symbol" ||
-					(l.type === "circle" && l.id.includes("feature")),
-			).id;
+				(l) => l.metadata?.namespace === "dataCycle" && l.id?.match(idRegex),
+			)?.id;
 	}
 	_lineLayer(layerId, source) {
 		let lineColor = this.definedColors.gray;
@@ -325,71 +326,33 @@ class MapLibreGlViewer {
 
 		this.map.addLayer(
 			{
-				id: `${layerId}_hover`,
-				type: "line",
+				id: `${layerId}_hover_start`,
+				type: "symbol",
 				source: source,
 				"source-layer": this.sourceLayer,
 				filter: ["==", ["geometry-type"], "LineString"],
 				layout: {
-					"line-cap": "round",
-					"line-join": "round",
+					"icon-image": this.getStyleCaseExpression(
+						this.styleCaseProperty,
+						this.getLineHoverColorExpression(),
+						`start_${iconColor}`,
+					),
+					"icon-offset": [0, -15],
+					"symbol-placement": "point",
 				},
 				paint: {
-					"line-color": this.definedColors.white,
-					"line-opacity": [
+					"icon-opacity": [
 						"case",
 						["boolean", ["feature-state", "hover"], false],
 						1,
 						0,
 					],
-					"line-width": [
-						"interpolate",
-						["linear"],
-						["zoom"],
-						0,
-						3,
-						5,
-						5,
-						15,
-						this.getStyleCaseExpression("width", ["+", ["get", "width"], 4], 9),
-					],
+				},
+				metadata: {
+					namespace: "dataCycle",
 				},
 			},
-			// this._getLastLineLayerId() // TODO:
-		);
-
-		this.map.addLayer(
-			{
-				id: layerId,
-				type: "line",
-				source: source,
-				"source-layer": this.sourceLayer,
-				filter: ["==", "$type", "LineString"],
-				layout: {
-					"line-cap": "round",
-					"line-join": "round",
-				},
-				paint: {
-					"line-color": this.getStyleCaseExpression(
-						this.styleCaseProperty,
-						this.getColorMatchHexExpression(),
-						lineColor,
-					),
-					"line-opacity": iconColor === "gray" ? 0.75 : 1,
-					"line-width": [
-						"interpolate",
-						["linear"],
-						["zoom"],
-						0,
-						1.75,
-						5,
-						2,
-						15,
-						this.getStyleCaseExpression("width", ["get", "width"], 5),
-					],
-				},
-			},
-			// this._getLastLineLayerId() // TODO:
+			this._getLastLayerId("point"),
 		);
 
 		this.map.addLayer(
@@ -427,36 +390,86 @@ class MapLibreGlViewer {
 						this.getStyleCaseExpression("width", ["get", "width"], 5),
 					],
 				},
+				metadata: {
+					namespace: "dataCycle",
+				},
 			},
-			// this._getLastLineLayerId() // TODO:
+			this._getLastLayerId(`${layerId}_hover_start`),
 		);
-		// we are adding only start point, because then we can use symbol-placement point
+
 		this.map.addLayer(
 			{
-				id: `${layerId}_hover_start`,
-				type: "symbol",
+				id: layerId,
+				type: "line",
+				source: source,
+				"source-layer": this.sourceLayer,
+				filter: ["==", "$type", "LineString"],
+				layout: {
+					"line-cap": "round",
+					"line-join": "round",
+				},
+				paint: {
+					"line-color": this.getStyleCaseExpression(
+						this.styleCaseProperty,
+						this.getColorMatchHexExpression(),
+						lineColor,
+					),
+					"line-opacity": iconColor === "gray" ? 0.75 : 1,
+					"line-width": [
+						"interpolate",
+						["linear"],
+						["zoom"],
+						0,
+						1.75,
+						5,
+						2,
+						15,
+						this.getStyleCaseExpression("width", ["get", "width"], 5),
+					],
+				},
+				metadata: {
+					namespace: "dataCycle",
+				},
+			},
+			this._getLastLayerId(`${layerId}_hover_foreground`),
+		);
+
+		this.map.addLayer(
+			{
+				id: `${layerId}_hover`,
+				type: "line",
 				source: source,
 				"source-layer": this.sourceLayer,
 				filter: ["==", ["geometry-type"], "LineString"],
 				layout: {
-					"icon-image": this.getStyleCaseExpression(
-						this.styleCaseProperty,
-						this.getLineHoverColorExpression(),
-						`start_${iconColor}`,
-					),
-					"icon-offset": [0, -15],
-					"symbol-placement": "point",
+					"line-cap": "round",
+					"line-join": "round",
 				},
 				paint: {
-					"icon-opacity": [
+					"line-color": this.definedColors.white,
+					"line-opacity": [
 						"case",
 						["boolean", ["feature-state", "hover"], false],
 						1,
 						0,
 					],
+					"line-width": [
+						"interpolate",
+						["linear"],
+						["zoom"],
+						0,
+						3,
+						5,
+						5,
+						15,
+						this.getStyleCaseExpression("width", ["+", ["get", "width"], 4], 9),
+					],
+				},
+				metadata: {
+					namespace: "dataCycle",
 				},
 			},
-			// this._getLastPointLayerId() // TODO:
+			this._getLastLayerId(layerId),
 		);
 
 		this.initMapHoverActions(`${layerId}_hover`, source);
@@ -482,7 +495,57 @@ class MapLibreGlViewer {
 			circleRadius = 7;
 		}
 
-		// TODO: circle-radius by zoom-step https://docs.mapbox.com/mapbox-gl-js/example/data-driven-circle-colors/
+		this.map.addLayer({
+			id: `${layerId}_hover`,
+			type: "circle",
+			source: source,
+			"source-layer": this.sourceLayer,
+			filter: ["==", "$type", "Point"],
+			paint: {
+				"circle-radius": [
+					"interpolate",
+					["linear"],
+					["zoom"],
+					0,
+					1.75,
+					5,
+					2,
+					15,
+					circleRadius + 2,
+				],
+				"circle-stroke-width": [
+					"interpolate",
+					["linear"],
+					["zoom"],
+					5,
+					0,
+					15,
+					4,
+				],
+				"circle-color": this.getStyleCaseExpression(
+					this.styleCaseProperty,
+					this.getHoverColorMatchHexExpression(),
+					pointColor,
+				),
+				"circle-stroke-color": this.definedColors.white,
+				"circle-opacity": [
+					"case",
+					["boolean", ["feature-state", "hover"], false],
+					1,
+					0,
+				],
+				"circle-stroke-opacity": [
+					"case",
+					["boolean", ["feature-state", "hover"], false],
+					1,
+					0,
+				],
+			},
+			metadata: {
+				namespace: "dataCycle",
+			},
+		});
+
 		this.map.addLayer(
 			{
 				id: layerId,
@@ -518,60 +581,73 @@ class MapLibreGlViewer {
 					),
 					"circle-stroke-color": this.definedColors.white,
 				},
+				metadata: {
+					namespace: "dataCycle",
+				},
 			},
-			// this._getLastPointLayerId() // TODO:
+			this._getLastLayerId(`${layerId}_hover`),
 		);
+
+		this.initMapHoverActions(`${layerId}_hover`, source);
+
+		if (layerId.includes("additional"))
+			this.allRenderedLayers.push(`${layerId}_hover`, layerId);
+
+		return layerId;
+	}
+	_polygonLayer(layerId, source) {
+		let polygonColor = this.definedColors.gray;
+
+		if (layerId.includes("feature")) {
+			polygonColor = this.definedColors.default;
+		} else if (layerId.includes("_selected")) {
+			polygonColor = this.definedColors.lightBlue;
+		}
 
 		this.map.addLayer(
 			{
 				id: `${layerId}_hover`,
-				type: "circle",
+				type: "fill",
 				source: source,
 				"source-layer": this.sourceLayer,
-				filter: ["==", "$type", "Point"],
+				filter: ["==", "$type", "Polygon"],
 				paint: {
-					"circle-radius": [
-						"interpolate",
-						["linear"],
-						["zoom"],
-						0,
-						1.75,
-						5,
-						2,
-						15,
-						circleRadius + 2,
-					],
-					"circle-stroke-width": [
-						"interpolate",
-						["linear"],
-						["zoom"],
-						5,
-						0,
-						15,
-						4,
-					],
-					"circle-color": this.getStyleCaseExpression(
+					"fill-color": this.getStyleCaseExpression(
 						this.styleCaseProperty,
 						this.getHoverColorMatchHexExpression(),
-						pointColor,
+						polygonColor,
 					),
-					"circle-stroke-color": this.definedColors.white,
-					"circle-opacity": [
-						"case",
-						["boolean", ["feature-state", "hover"], false],
-						1,
-						0,
-					],
-					"circle-stroke-opacity": [
-						"case",
-						["boolean", ["feature-state", "hover"], false],
-						1,
-						0,
-					],
+					"fill-opacity": 0.5,
+				},
+				metadata: {
+					namespace: "dataCycle",
 				},
 			},
-			// this._getLastPointLayerId() // TODO:
+			this._getLastLayerId("line"),
 		);
+
+		this.map.addLayer(
+			{
+				id: layerId,
+				type: "fill",
+				source: source,
+				"source-layer": this.sourceLayer,
+				filter: ["==", "$type", "Polygon"],
+				paint: {
+					"fill-color": this.getStyleCaseExpression(
+						this.styleCaseProperty,
+						this.getColorMatchHexExpression(),
+						polygonColor,
+					),
+					"fill-opacity": 0.5,
+				},
+				metadata: {
+					namespace: "dataCycle",
+				},
+			},
+			this._getLastLayerId(`${layerId}_hover`),
+		);
+
 		this.initMapHoverActions(`${layerId}_hover`, source);
 
 		if (layerId.includes("additional"))
@@ -610,7 +686,7 @@ class MapLibreGlViewer {
 	_highlightLinked(feature) {
 		if (!feature.properties["@id"]) return;
 
-		let listElement = $(`li[data-id*="${feature.properties["@id"]}"]`);
+		const listElement = $(`li[data-id*="${feature.properties["@id"]}"]`);
 
 		listElement.addClass("highlight");
 
@@ -624,6 +700,7 @@ class MapLibreGlViewer {
 		this._addSourceType(this.sources[key], data);
 
 		this.layers[key] = {
+			polygon: this._polygonLayer(`feature_polygon_${key}`, this.sources[key]),
 			line: this._lineLayer(`feature_line_${key}`, this.sources[key]),
 			point: this._pointLayer(`feature_point_${key}`, this.sources[key]),
 		};
@@ -640,6 +717,7 @@ class MapLibreGlViewer {
 			layerIds: {
 				line: `additional_values_line${postfix}_${key}`,
 				point: `additional_values_point${postfix}_${key}`,
+				polygon: `additional_values_polygon${postfix}_${key}`,
 			},
 		};
 
@@ -649,6 +727,10 @@ class MapLibreGlViewer {
 
 		this._addSourceType(additionalSources[key], data);
 		additionalLayers[key] = {
+			polygon: this._polygonLayer(
+				configs.layerIds.polygon,
+				additionalSources[key],
+			),
 			line: this._lineLayer(configs.layerIds.line, additionalSources[key]),
 			point: this._pointLayer(configs.layerIds.point, additionalSources[key]),
 		};
@@ -757,50 +839,26 @@ class MapLibreGlViewer {
 			this.hoveredStateId[layerId] = null;
 		});
 	}
-	updateMapPosition() {
-		let bounds = new this.maplibreGl.LngLatBounds();
+	getCurrentBounds() {
+		const bounds = new this.maplibreGl.LngLatBounds();
 
-		if (this.feature) bounds.extend(this.getBoundsForGeojson(this.feature));
-
-		for (const geoJson of Object.values(this.additionalFeatures)) {
-			bounds.extend(this.getBoundsForGeojson(geoJson));
-		}
-		// TODO: how do AdditionalValues fit here?
+		if (this.feature) bounds.extend(turfBbox(this.feature));
+		for (const geoJson of Object.values(this.additionalFeatures))
+			bounds.extend(turfBbox(geoJson));
 
 		if (isEmpty(bounds)) return;
 
-		this.map.fitBounds(bounds, {
+		return bounds;
+	}
+	updateMapPosition() {
+		const bounds = this.getCurrentBounds();
+
+		if (isEmpty(bounds)) return;
+
+		return this.map.fitBounds(bounds, {
 			padding: 50,
 			maxZoom: 15,
 		});
-	}
-	getBoundsForGeojson(geoJson) {
-		const bounds = new this.maplibreGl.LngLatBounds();
-
-		if (geoJson.hasOwnProperty("features") && geoJson.features) {
-			for (const feature of geoJson.features) {
-				if (!feature?.geometry) continue;
-
-				this.addBoundsForFeature(bounds, feature);
-			}
-		} else {
-			return this.addBoundsForFeature(bounds, geoJson);
-		}
-
-		return bounds;
-	}
-	addBoundsForFeature(bounds, feature) {
-		if (feature.hasOwnProperty("geometry")) {
-			if (feature.geometry.type === "Point")
-				bounds.extend(feature.geometry.coordinates);
-			else if (feature.geometry.type === "MultiLineString") {
-				for (const lineStrings of feature.geometry.coordinates) {
-					for (const coords of lineStrings)
-						bounds.extend([coords[0], coords[1]]);
-				}
-			}
-		}
-		return bounds;
 	}
 	getStyleCaseExpression(property, output, fallback) {
 		return [
@@ -811,7 +869,7 @@ class MapLibreGlViewer {
 		];
 	}
 	getColorMatchHexExpression() {
-		let matchEx = ["match", ["get", "color"]];
+		const matchEx = ["match", ["get", "color"]];
 
 		for (const [name, value] of Object.entries(this.definedColors)) {
 			matchEx.push(name, value);

@@ -136,7 +136,6 @@ class TourSprungEditor extends MapLibreGlEditor {
 		this.initMtkEvents();
 
 		this.drawAdditionalFeatures();
-		this.updateMapPosition();
 	}
 	initMtkEvents() {
 		this._disableScrollingOnMapOverlays();

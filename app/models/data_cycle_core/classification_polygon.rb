@@ -2,6 +2,6 @@
 
 module DataCycleCore
   class ClassificationPolygon < ApplicationRecord
-    belongs_to :classfication_alias
+    belongs_to :classification_alias
   end
 end

@@ -911,6 +911,8 @@ de:
       error: Die Klassifizierungen konnten nicht zusammengeführt werden
       confirm_html: <b>%{source_path}</b> wird mit <b>%{target_path}</b> zusammengeführt.
       success: Die Klassifizierungen wurden erfolgreich zusammengeführt
+    classification_polygon:
+      link_tooltip: verknüpfte GeoShape anzeigen
 
   classification_change_behaviour:
     trigger_webhooks: Webhooks für Inhalte auslösen

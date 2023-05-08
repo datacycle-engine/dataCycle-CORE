@@ -1313,3 +1313,11 @@ ul.backend-treeview-list,
     }
   }
 }
+
+.classification-polygon-reveal {
+  .geographic-map {
+    height: 450px;
+    max-height: 450px;
+    min-width: 800px;
+  }
+}
