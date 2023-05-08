@@ -1,7 +1,9 @@
 <% random_id = SecureRandom.hex(10) %>
 <% if data_link.id.nil? %>
-  <button class="button new-data-link" data-open="<%= random_id %>"><%= t('data_cycle_core.data_links.create_link', locale: active_ui_locale) %></button>
-  <%= render 'data_cycle_core/data_links/form_reveal', local_assigns.merge({ random_id: random_id }) %>
+  <% if can?(:create, data_link) %>
+    <button class="button new-data-link" data-open="<%= random_id %>"><%= t('data_cycle_core.data_links.create_link', locale: active_ui_locale) %></button>
+    <%= render 'data_cycle_core/data_links/form_reveal', local_assigns.merge({ random_id: random_id }) %>
+  <% end %>
 <% else %>
   <li class="<%= "invalid" unless data_link.is_valid? %>" id="data-link-<%= data_link.id %>">
     <span class="email" data-dc-tooltip="<%= data_link.receiver&.email %>"><%= data_link_permission_icon(data_link.permissions) %><%= data_link.receiver&.email %></span>
@@ -14,7 +16,7 @@
             (data_link.valid_until.present? ? " #{t('terms.until', locale: active_ui_locale)} #{l(data_link.valid_until.to_date, locale: active_ui_locale)}" : '') %>"></i>
       <% end %>
 
-      <span class="copy-to-clipboard" data-dc-tooltip="<%= t('actions.copy_to_clipboard', locale: active_ui_locale) %>" data-value="<%= data_link_url(data_link, source_table: @split_source&.class&.table_name, source_id: @split_source&.id) %>">
+      <span class="copy-to-clipboard" data-dc-tooltip="<%= t('actions.copy_to_clipboard_data', data: t('common.url', locale: active_ui_locale), locale: active_ui_locale) %>" data-value="<%= data_link_url(data_link, source_table: @split_source&.class&.table_name, source_id: @split_source&.id) %>">
         <i class="fa fa-clipboard" aria-hidden="true"></i>
       </span>
 

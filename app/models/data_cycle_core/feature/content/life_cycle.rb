@@ -9,7 +9,7 @@ module DataCycleCore
         end
 
         def life_cycle_stage
-          @life_cycle_stage ||= try(DataCycleCore::Feature::LifeCycle.attribute_keys&.first)&.first
+          @life_cycle_stage ||= try(DataCycleCore::Feature::LifeCycle.attribute_keys(self)&.first)&.first
         end
 
         def life_cycle_stage?(stage_id)

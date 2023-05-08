@@ -14,6 +14,12 @@ module DataCycleCore
       primary: :primary
     }.freeze
 
+    DATALINK_ICONS = {
+      'download' => 'fa-download',
+      'read' => 'fa-eye',
+      'write' => 'fa-pencil'
+    }.freeze
+
     def header_title
       return if DataCycleCore.header_title.blank?
 
@@ -44,14 +50,7 @@ module DataCycleCore
     end
 
     def data_link_permission_icon(permission)
-      case permission
-      when 'download'
-        tag.i(class: 'fa fa-download', aria_hidden: true)
-      when 'read'
-        tag.i(class: 'fa fa-eye', aria_hidden: true)
-      when 'write'
-        tag.i(class: 'fa fa-pencil', aria_hidden: true)
-      end
+      tag.i(class: "fa #{DATALINK_ICONS[permission]}", aria_hidden: true, data: { dc_tooltip: "<b>#{DataCycleCore::DataLink.human_attribute_name(:permissions, locale: active_ui_locale)}</b>: #{DataCycleCore::DataLink.human_attribute_name("permissions_#{permission}", locale: active_ui_locale)}" })
     end
 
     def mode_icon(mode, version = nil)
@@ -391,6 +390,7 @@ module DataCycleCore
     def render_embedded_object_partial(key:, definition:, parameters: {}, content: nil)
       partials = [
         "#{definition['type'].underscore_blanks}_#{key.attribute_name_from_key}",
+        definition&.dig('ui', 'edit', 'embedded_partial').presence,
         definition['type'].underscore_blanks.to_s,
         'default'
       ].compact.map { |p| "data_cycle_core/contents/editors/embedded/#{p}" }
@@ -467,9 +467,9 @@ module DataCycleCore
         if value.is_a?(::String)
           concat value.html_safe
         elsif value.is_a?(::Hash) || value.is_a?(ActiveModel::DeprecationHandlingMessageHash)
-          concat value.map { |k, v| tag.b(k.to_s.titleize + ': ') + v.join(', ') }.join(', ').html_safe
+          concat value.map { |k, v| tag.b(k.to_s.titleize + ': ') + v.join(', ') }.join('<br>').html_safe
         elsif value.is_a?(::Array)
-          concat value.join(', ').html_safe.to_s
+          concat value.join('<br>').html_safe.to_s
         else
           concat value.to_s.html_safe
         end

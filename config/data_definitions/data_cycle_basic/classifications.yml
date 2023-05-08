@@ -75,127 +75,132 @@
 - Beschreibungsarten | all:
 
 - Informationstypen | all:
+    - description | Kurzbeschreibung
+    - text | Detailbeschreibung
 
 - $$Externe Informationstypen | all:
-    - description | OutdoorActive/imx_platform/TIMM4/GEM2GO/mein.toubiz/pimcore_ats/Venus
     - abstract | mein.toubiz
-    - description_long | imx_platform
-    - text | OutdoorActive
-    - directions | OutdoorActive/destination.one/Pimcore ATS/mein.toubiz
-    - directions_public_transport | OutdoorActive
-    - parking | OutdoorActive/Pimcore ATS/mein.toubiz
-    - hours_available | OutdoorActive
-    - price | OutdoorActive
-    - instructions | OutdoorActive
-    - safety_instructions | OutdoorActive
-    - equipment | OutdoorActive
-    - suggestion | OutdoorActive
+    - accessibilityDescription | Venus
     - additional_information | OutdoorActive
-    - maps | OutdoorActive/Pimcore ATS
+    - additionalBookingInformation | mein.toubiz
+    - additionalHostInformation | mein.toubiz
+    - additionalInformation | Pimcore ATS/imx.platform
+    - additionalLocationInformation | mein.toubiz
     - AdditionalService | Feratel
+    - additionaltext_feature_barrierefreiheit | destination.one
+    - additionaltext_feature_eignung | destination.one
+    - additionaltext_feature_hygiene- und infektionsschutzmaßnahmen | destination.one
+    - anreisebeschreibung | Wintop
+    - arrivalDescription | Venus
+    - authorTip | mein.toubiz
+    - barrierFreeDescription | TIMM4
+    - beschreibung | Wintop
+    - biersorten | Bierfinder
+    - book | Bierfinder
+    - character | Venus
+    - companyHoliday | TIMM4
+    - culinarySpecialities | TIMM4
+    - currentInformation | mein.toubiz
     - CurrentInformation | Feratel
+    - dayoff | destination.one
+    - description | OutdoorActive/imx_platform/TIMM4/GEM2GO/mein.toubiz/pimcore_ats/Venus
+    - description_long | imx_platform
+    - destination | Pimcore ATS/imx.platform
+    - details | destination.one
+    - directions | OutdoorActive/destination.one/Pimcore ATS/mein.toubiz/imx.platform
+    - directions_public_transport | OutdoorActive
+    - dishes | TIMM4
+    - endPoint | mein.toubiz
+    - endPointParking | mein.toubiz
+    - endPointToStartPoint | mein.toubiz
+    - equipment | OutdoorActive/imx.platform
+    - essenUndSpezial | Bierfinder
     - EventHeader | Feratel
     - EventHeaderShort | Feratel
+    - facility_unterhaltung | destination.one
+    - furtherSpecialities | TIMM4
+    - gear | mein.toubiz
+    - gettingThere | Pimcore ATS/imx.platform
+    - GTC | Feratel
     - GuestCardClassification | Feratel
+    - hours_available | OutdoorActive
+    - hotel_description | Booking
+    - hotel_important_information | Booking
+    - iframe_height | destination.one
+    - iframe_titel | destination.one
+    - iframe_url | destination.one
+    - info_wegbelag | destination.one
     - InfrastructureLong | Feratel
     - InfrastructureOpeningTimes | Feratel
     - InfrastructurePriceInfo | Feratel
     - InfrastructureShort | Feratel
-    - Package | Feratel
-    - PackageContentLong | Feratel
-    - PackageShortText | Feratel
-    - ProductDescription | Feratel
-    - SEOKeywords | Feratel
-    - ShopItemDescription | Feratel
-    - ServiceDescription | Feratel
-    - ServiceProviderArrivalVoucher | Feratel
-    - ServiceProviderConditions | Feratel
-    - ServiceProviderDescription | Feratel
-    - GTC | Feratel
-    - hotel_important_information | Booking
-    - hotel_description | Booking
+    - instructions | OutdoorActive
     - intro | TIMM4
-    - positionDescription | TIMM4
-    - pricesDescription | TIMM4
     - keywords | TIMM4
-    - culinarySpecialities | TIMM4
-    - furtherSpecialities | TIMM4
-    - dishes | TIMM4
-    - barrierFreeDescription | TIMM4
-    - restDays | TIMM4
-    - companyHoliday | TIMM4
-    - meetingPoint | TIMM4
-    - timesComment | TIMM4
-    - facility_unterhaltung | destination.one
-    - info_wegbelag | destination.one
     - kitchen_spezialitaeten | destination.one
     - kitchen_zeiten | destination.one
+    - literature | Pimcore ATS/mein.toubiz/imx.platform
+    - longDescription | pimcore_ats
+    - longText | Pimcore ATS
+    - maps | OutdoorActive/Pimcore ATS
+    - meetingPoint | TIMM4
+    - moreinfo | destination.one
+    - moreInformation | mein.toubiz
     - object_betriebsurlaub | destination.one
+    - openings | destination.one
+    - parking | OutdoorActive/Pimcore ATS/mein.toubiz/imx.platform
+    - Package | Feratel
+    - PackageContentLong | Feratel
+    - packagefeature | destination.one
+    - PackageShortText | Feratel
+    - packagetripinfo | destination.one
+    - parkingPossibilities | Venus
+    - positionDescription | TIMM4
+    - price | OutdoorActive
+    - pricesDescription | TIMM4
+    - priceSpecification | Venus
     - price_info | destination.one
     - price_reducedinfo | destination.one
+    - ProductDescription | Feratel
+    - publicTransit | Pimcore ATS/mein.toubiz/imx.platform
+    - restDays | TIMM4
     - room_sonstige | destination.one
     - route_start | destination.one
     - route_start_ort | destination.one
     - route_ziel | destination.one
+    - safety_instructions | OutdoorActive
+    - safetyGuidelines | thue_cat/imx.platform
+    - safetyInformation | mein.toubiz
+    - seasonDescription | Venus
+    - sellsBrands | Venus
+    - SEOKeywords | Feratel
+    - ServiceDescription | Feratel
+    - ServiceProviderArrivalVoucher | Feratel
+    - ServiceProviderConditions | Feratel
+    - ServiceProviderDescription | Feratel
+    - ShopItemDescription | Feratel
+    - shortDescription | pimcore_ats/Venus
+    - shortText | Pimcore ATS
     - socialdescription | destination.one
     - socialtitle | destination.one
+    - specialDescription | Venus
+    - startingPointDescr | Pimcore ATS/imx.platform
+    - startingPointDescription | Venus
+    - station | destination.one
+    - startPoint | mein.toubiz
+    - startpointGettingThere | mein.toubiz
+    - subtitle | destination.one
+    - suggestion | OutdoorActive
+    - teaser | destination.one/Wintop
+    - text | OutdoorActive
+    - timesComment | TIMM4
+    - tip | Pimcore ATS
+    - tipp | Bierfinder
+    - trackSignage | imx.platform
     - web_seo_beschreibung | destination.one
     - web_seo_keywords | destination.one
     - web_seo_titel | destination.one
-    - additionaltext_feature_barrierefreiheit | destination.one
-    - additionaltext_feature_eignung | destination.one
-    - additionaltext_feature_hygiene- und infektionsschutzmaßnahmen | destination.one
-    - dayoff | destination.one
-    - details | destination.one
-    - iframe_height | destination.one
-    - iframe_titel | destination.one
-    - iframe_url | destination.one
-    - moreinfo | destination.one
-    - openings | destination.one
-    - packagefeature | destination.one
-    - packagetripinfo | destination.one
-    - station | destination.one
-    - subtitle | destination.one
-    - teaser | destination.one/Wintop
-    - additionalBookingInformation | mein.toubiz
-    - currentInformation | mein.toubiz
-    - additionalLocationInformation | mein.toubiz
-    - additionalHostInformation | mein.toubiz
-    - longDescription | pimcore_ats
-    - shortDescription | pimcore_ats/Venus
-    - shortText | Pimcore ATS
-    - longText | Pimcore ATS
-    - additionalInformation | Pimcore ATS
-    - destination | Pimcore ATS
-    - gettingThere | Pimcore ATS
-    - literature | Pimcore ATS/mein.toubiz
-    - startingPointDescr | Pimcore ATS
-    - tip | Pimcore ATS
-    - publicTransit | Pimcore ATS/mein.toubiz
-    - authorTip | mein.toubiz
-    - endPoint | mein.toubiz
-    - endPointParking | mein.toubiz
-    - endPointToStartPoint | mein.toubiz
-    - gear | mein.toubiz
-    - moreInformation | mein.toubiz
-    - safetyInformation | mein.toubiz
-    - startPoint | mein.toubiz
-    - startpointGettingThere | mein.toubiz
-    - book | Bierfinder
-    - tipp | Bierfinder
-    - essenUndSpezial | Bierfinder
-    - biersorten | Bierfinder
-    - accessibilityDescription | Venus
-    - arrivalDescription | Venus
-    - specialDescription | Venus
-    - sellsBrands | Venus
-    - startingPointDescription | Venus
-    - character | Venus
-    - parkingPossibilities | Venus
-    - seasonDescription | Venus
     - zusatzinfo | Wintop
-    - anreisebeschreibung | Wintop
-    - beschreibung | Wintop
 
 - POI - Kategorien | all:
 

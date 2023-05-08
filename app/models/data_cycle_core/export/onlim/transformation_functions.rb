@@ -13,43 +13,9 @@ module DataCycleCore
 
         extend DataCycleCore::ContentHelper
 
-        TRANSFORMATION_TYPES = {
-          'Organization' => :to_organization,
-          'Person' => :to_person,
-          'ImageObject' => :to_image,
-          'TouristAttraction' => :to_poi,
-          'LodgingBusiness' => :to_lodging_business,
-          'FoodEstablishment' => :to_lodging_business,
-          'dcls:Tour' => :to_tour,
-          'Event' => :to_event,
-          'PropertyValue' => :to_property_value
-        }.freeze
-
         def self.identity(data)
+          # binding.pry
           data
-        end
-
-        def self.transform_thing_to_onlim(data)
-          transform_onlim_type(data)
-        end
-
-        def self.transform_onlim_type(data)
-          case data
-          in Hash
-            transformed_data = nil
-            transformation = Array.wrap(data['@type'])
-              .select { |i| i.in?(TRANSFORMATION_TYPES.keys) }
-              .map { |i| TRANSFORMATION_TYPES[i] }
-              .first
-            transformed_data = DataCycleCore::Export::Onlim::Transformations.send(transformation).call(data) if transformation.present?
-            (transformed_data || data).map { |k, v|
-              { k => transform_onlim_type(v) }
-            }&.reduce(&:merge)
-          in Array
-            data.map { |i| transform_onlim_type(i) }
-          else
-            data
-          end
         end
 
         def self.transform_action(data)
@@ -139,54 +105,151 @@ module DataCycleCore
           end
         end
 
+        def self.add_place_description(data)
+          external_names = [
+            'description_long', # imx_platform
+            'text', # OutdoorActive & long text legacy
+            'book', # Bierfinder
+            'details', # destination.one
+            'beschreibung', 'teaser', # Wintop
+            'longText', 'longDescription', # dataHub ATS
+            'description', # several
+            'shortDescription', # Venus
+            'abstract', # mein.toubiz
+            'intro' # TIMM4
+          ]
+
+          add_description(data, external_names, true)
+        end
+
         def self.add_tour_description(data)
+          external_names = [
+            'description_long', # imx_platform
+            'text', # OutdoorActive & long text legacy
+            'details', # destination.one
+            'longText', 'longDescription', # dataHub ATS
+            'description', # several
+            'abstract', # mein.toubiz
+            'intro', # TIMM4
+            'shortDescription' # Venus
+          ]
+
+          add_description(data, external_names)
+        end
+
+        def self.add_food_establishment_description(data)
+          external_names = [
+            'description_long', # imx_platform
+            'book', # Bierfinder
+            'details', # destination_one
+            'beschreibung', 'teaser', # Wintop
+            'description', # several
+            'abstract', # mein.toubiz
+            'intro', # TIMM4
+            'shortDescription' # Venus
+          ]
+
+          add_description(data, external_names)
+        end
+
+        def self.add_lodging_business_description(data)
+          external_names = [
+            'text', # OutdoorActive & long text legacy
+            'description_long', # imx.platform
+            'details', # destination_one
+            'ServiceProviderDescription', # Feratel
+            'description', # mein.touzbiz &more
+            'shortDescription' # Venus
+          ]
+
+          add_description(data, external_names)
+        end
+
+        def self.add_event_description(data)
+          external_names = [
+            'details', # destination_one
+            'longText', 'longDescription', # dataHub ATS
+            'description', # mein.touzbiz &more
+            'abstract', # mein.toubiz
+            'intro', # TIMM4
+            'teaser', # destination_one
+            'shortDescription' # Venus
+          ]
+
+          add_description(data, external_names)
+        end
+
+        def self.add_description(data, external_names, additional_property = false)
           add_node(data) do |gdata|
             desc = gdata
               .dig('description')
               .presence
               &.map { |i| { i['@language'] => i['@value'] } }
               &.inject(&:merge) || {}
-            classification = DataCycleCore::ClassificationAlias.for_tree('Externe Informationstypen').with_name('text').first&.id
-            desc_long = gdata
-              .dig('dc:additionalInformation')
-              &.select { |i| i['dc:classification']&.first&.send(:[], '@id') == classification }
-              &.map { |i| i['description'].map { |d| { d['@language'] => d['@value'] } }.compact_blank }
-              &.flatten
-              &.compact_blank
-              &.inject(&:merge)
+
+            desc_long = nil
+            if additional_property
+              desc_long = gdata
+                .dig('additionalProperty')
+                &.select { |i| i['identifier'] == 'text' }
+                &.first
+                &.send(:[], 'value')
+                &.map { |i| { i['@language'] => i['@value'] } }
+                &.inject(&:merge)
+            end
+            desc_long ||= find_description_long(external_names, gdata.dig('dc:additionalInformation'))
+
             desc = desc.merge(desc_long) if desc_long.present?
             gdata['description'] = desc.map { |k, v| { '@language' => k, '@value' => v } }
           end
         end
 
-        def self.add_place_description(data)
+        def self.find_description_long(names, information)
+          return if information.blank?
+          return if names.blank?
+          desc_long = nil
+
+          ids = DataCycleCore::ClassificationAlias
+            .for_tree('Externe Informationstypen')
+            .with_name(names)
+            .pluck(:id, :name)
+            .sort_by { |_, name| names.index(name) }
+            .map { |id, _| id }
+
+          ids.each do |classification|
+            desc_long = information
+              .select { |i| i['dc:classification']&.first&.send(:[], '@id') == classification && i['description'].present? }
+              &.map { |i| i['description']&.map { |d| { d['@language'] => d['@value'] } }&.compact_blank }
+              &.flatten
+              &.compact_blank
+              &.inject(&:merge)
+            break if desc_long.present?
+          end
+          desc_long
+        end
+
+        def self.add_action_as_url(data)
           add_node(data) do |gdata|
-            if gdata['additionalProperty'].present?
-              desc = gdata
-                .dig('description')
-                .presence
-                &.map { |i| { i['@language'] => i['@value'] } }
-                &.inject(&:merge) || {}
-              desc_long = gdata
-                .dig('additionalProperty')
-                .select { |i| i['identifier'] == 'text' }
-                &.first
-                &.send(:[], 'value')
-                &.map { |i| { i['@language'] => i['@value'] } }
-                &.inject(&:merge)
-              desc = desc.merge(desc_long) if desc_long.present?
-              gdata['description'] = desc.map { |k, v| { '@language' => k, '@value' => v } }
+            if gdata.dig('potentialAction').present? && gdata.dig('url').blank?
+              url = gdata
+                .dig('potentialAction')
+                .detect { |i| i['name'].detect { |j| j['@value'] == 'URL' }.present? }
+                .dig('url')
+                .first
+                .dig('@value')
+
+              gdata['url'] = url if url.present?
             end
           end
         end
 
         def self.add_keywords(data)
           add_node(data) do |gdata|
-            if gdata.dig('dc:classification').present?
+            if gdata.dig('dc:classification')&.compact_blank.present?
               gdata['keywords'] = gdata
                 .dig('dc:classification')
-                .map { |i|
-                  i['skos:prefLabel'].map do |item|
+                &.map { |i|
+                  i['skos:prefLabel']&.map do |item|
                     if item.is_a?(::Hash)
                       item.tap do |value_hash|
                         value_hash['@value'] = value_hash['@value'].to_s
@@ -195,8 +258,9 @@ module DataCycleCore
                       item
                     end
                   end
-                }.flatten
-                .uniq
+                }&.compact_blank
+                &.flatten
+                &.uniq
             end
           end
         end
@@ -210,6 +274,15 @@ module DataCycleCore
         def self.transform_numbers(data)
           add_node(data) do |gdata|
             gdata['value'] = gdata['value'].first['@value'] if gdata['value'].present? && gdata['value'].first['@value'].is_a?(::Numeric)
+          end
+        end
+
+        def self.remove_local_business_as_organizer(data)
+          add_node(data) do |gdata|
+            if gdata['organizer'].present?
+              gdata['organizer'] = gdata['organizer']
+                .reject { |i| i['@type'].include?('LocalBusiness') }
+            end
           end
         end
 

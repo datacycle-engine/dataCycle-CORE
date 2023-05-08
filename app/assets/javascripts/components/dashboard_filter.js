@@ -63,27 +63,27 @@ class DashboardFilter {
 		this.$defaultFilterContainer
 			.find(`.${this.defaultFilterOptions.splitListClass}`)
 			.each((_, elem) => {
-				var itemsPerCol = new Array();
-				var items = $(elem).find(this.defaultFilterOptions.listItem);
-				var minItemsPerCol = Math.floor(
+				const itemsPerCol = new Array();
+				const items = $(elem).find(this.defaultFilterOptions.listItem);
+				const minItemsPerCol = Math.floor(
 					items.length / this.defaultFilterOptions.numCols,
 				);
-				var difference =
+				const difference =
 					items.length - minItemsPerCol * this.defaultFilterOptions.numCols;
-				for (var i = 0; i < this.defaultFilterOptions.numCols; i++) {
+				for (let i = 0; i < this.defaultFilterOptions.numCols; i++) {
 					if (i < difference) {
 						itemsPerCol[i] = minItemsPerCol + 1;
 					} else {
 						itemsPerCol[i] = minItemsPerCol;
 					}
 				}
-				for (var i = 0; i < this.defaultFilterOptions.numCols; i++) {
+				for (let i = 0; i < this.defaultFilterOptions.numCols; i++) {
 					$(elem).append(
 						$("<ul ></ul>").addClass(this.defaultFilterOptions.listClass),
 					);
-					for (var j = 0; j < itemsPerCol[i]; j++) {
-						var pointer = 0;
-						for (var k = 0; k < i; k++) {
+					for (let j = 0; j < itemsPerCol[i]; j++) {
+						let pointer = 0;
+						for (let k = 0; k < i; k++) {
 							pointer += itemsPerCol[k];
 						}
 						$(elem)
@@ -166,13 +166,13 @@ class DashboardFilter {
 		event.stopPropagation();
 
 		const $parent = $(event.currentTarget).closest(".filter");
-		let value = $parent.find(":input").serializeJSON();
+		const value = $parent.find(":input").serializeJSON();
 		if (!Object.keys(value).length) value[$parent.data("id")] = null;
 
 		this.addTagGroup(value);
 	}
 	defaultFilterMouseEnter(event) {
-		let childList = $(event.currentTarget).find("ul").first();
+		const childList = $(event.currentTarget).find("ul").first();
 		if (
 			childList.length &&
 			Math.round($(".off-canvas-wrapper").outerHeight()) <
@@ -187,7 +187,7 @@ class DashboardFilter {
 		this.categoryFilterHeights.push(
 			$(event.currentTarget).find("ul").height() || 0,
 		);
-		let height = Math.max.apply(null, this.categoryFilterHeights);
+		const height = Math.max.apply(null, this.categoryFilterHeights);
 		$(event.currentTarget)
 			.parentsUntil("#primary_nav_wrap")
 			.find("ul:visible")
@@ -197,7 +197,7 @@ class DashboardFilter {
 	}
 	defaultFilterMouseLeave(event) {
 		this.categoryFilterHeights.pop();
-		let height = Math.max.apply(null, this.categoryFilterHeights);
+		const height = Math.max.apply(null, this.categoryFilterHeights);
 		$(event.currentTarget)
 			.parentsUntil("#primary_nav_wrap")
 			.find("ul:visible")
@@ -206,8 +206,8 @@ class DashboardFilter {
 			});
 	}
 	switchAdvancedAttributesInput(elem) {
-		let newTarget = $(elem).find("> .advanced-filter-selector");
-		let selectValue = $(elem).find("> .advanced-filter-mode select").val();
+		const newTarget = $(elem).find("> .advanced-filter-selector");
+		const selectValue = $(elem).find("> .advanced-filter-mode select").val();
 
 		if (selectValue === "b" || selectValue === "p") {
 			newTarget
@@ -317,31 +317,9 @@ class DashboardFilter {
 		);
 
 		nextElement.insertAdjacentHTML("beforebegin", data?.html);
-		this.slideInAdvancedFilter(nextElement.previousElementSibling);
+		DomElementHelpers.slideDown(nextElement.previousElementSibling);
 
 		addAdvancedFilterSelect.dataset.index += 1;
-	}
-	slideInAdvancedFilter(element) {
-		element.classList.add("hidden");
-		if (DomElementHelpers.isVisible(element)) {
-			element.addEventListener(
-				"transitionend",
-				() => element.classList.remove("transitioning"),
-				{ once: true },
-			);
-			element.classList.add("transitioning");
-			element.classList.remove("hidden");
-		} else element.classList.remove("hidden");
-	}
-	slideOutAdvancedFilter(element) {
-		element.classList.add("transitioning-out");
-		if (DomElementHelpers.isVisible(element)) {
-			element.addEventListener("transitionend", () => element.remove(), {
-				once: true,
-			});
-			element.classList.add("transitioned-out");
-			element.classList.remove("transitioning-out");
-		} else element.remove();
 	}
 	removeAdvancedFilter(event) {
 		event.preventDefault();
@@ -358,7 +336,7 @@ class DashboardFilter {
 			textField.value = null;
 			textField.dispatchEvent(new Event("change"));
 		} else if (filter.classList.contains("advanced-filter"))
-			this.slideOutAdvancedFilter(filter);
+			DomElementHelpers.slideUp(filter).then(() => filter.remove());
 		else filter.remove();
 	}
 	focusAdvancedFilter(event) {
@@ -440,10 +418,10 @@ class DashboardFilter {
 				.addClass("active")
 				.trigger("mouseenter")
 				.trigger("dc:clickableMenu:show");
-			let list = $(event.currentTarget).find("> ul");
+			const list = $(event.currentTarget).find("> ul");
 			if (!list.length) return;
 
-			let availableHeight =
+			const availableHeight =
 				$(window).height() +
 				$(window).scrollTop() -
 				$(event.currentTarget).find("> ul").offset().top;

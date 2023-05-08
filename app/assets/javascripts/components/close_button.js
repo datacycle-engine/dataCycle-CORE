@@ -14,7 +14,9 @@ class CloseButton {
 	closeParent(event) {
 		event.preventDefault();
 
-		DomElementHelpers.fadeAndRemove(this.parent);
+		DomElementHelpers.fadeOut(this.parent)
+			.then(() => this.parent.remove())
+			.catch(() => {});
 	}
 }
 

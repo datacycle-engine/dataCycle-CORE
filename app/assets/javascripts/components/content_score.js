@@ -28,7 +28,6 @@ class ContentScore {
 		if (!this.container) return;
 
 		this.element.classList.add("score-loading");
-		this.contentScoreText.innerHTML = "-";
 
 		const formData = DomElementHelper.getFormData(
 			this.container,

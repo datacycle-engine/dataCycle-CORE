@@ -6,6 +6,7 @@ import MimeTypes from "mime";
 import AssetDetailLoader from "./asset_detail_loader";
 import AssetValidator from "../asset_validator";
 import DurationHelpers from "../../helpers/duration_helpers";
+import ConfirmationModal from "../confirmation_modal";
 
 class AssetFile {
 	constructor(uploader, config = {}) {
@@ -107,7 +108,7 @@ class AssetFile {
 		}
 	}
 	_updateNeighborForms() {
-		let neighbors = this.uploader.files.filter((file) => file.id !== this.id);
+		const neighbors = this.uploader.files.filter((file) => file.id !== this.id);
 
 		window.requestAnimationFrame(() => {
 			neighbors.forEach((file) => {
@@ -120,7 +121,7 @@ class AssetFile {
 	_getFileExtension() {
 		if (!this.file) return;
 
-		let mimeType = MimeTypes.getType(this.file.name) || this.file.type;
+		const mimeType = MimeTypes.getType(this.file.name) || this.file.type;
 
 		return MimeTypes.getExtension(mimeType) || this.file.type.split("/").pop();
 	}
@@ -168,7 +169,7 @@ class AssetFile {
 	}
 	async setAttributeValues() {
 		for (const [key, attribute] of Object.entries(this.attributeValues)) {
-			let values = this.attributeFieldValues.filter(
+			const values = this.attributeFieldValues.filter(
 				(f) =>
 					f.name.includes(key) &&
 					(!f.name.includes("[translations]") ||
@@ -219,7 +220,7 @@ class AssetFile {
 			value = new Date(value).toLocaleDateString();
 		}
 
-		let label = attribute.label;
+		const label = attribute.label;
 
 		return `<span class="file-label" title="${label}">${label}</span><span class="file-attribute-value" title="${$(
 			`<span>${value}</span>`,
@@ -317,8 +318,22 @@ class AssetFile {
 		this._renderErrorHtml("error", error);
 		this._updateOverlayButtons();
 	}
+	async _renderWarning(warning) {
+		new ConfirmationModal({
+			text: warning,
+			confirmationClass: "warning",
+			cancelable: true,
+			cancelCallback: this._warningCancelCallback.bind(this),
+		});
+	}
+	_warningCancelCallback() {
+		DataCycle.httpRequest(`/files/assets/${this.asset.id}`, {
+			method: "DELETE",
+		}).catch(() => console.warn("asset not destroyed"));
+		this.fileField.find(".cancel-upload-button").trigger("click");
+	}
 	_updateIdsInClonedErrors(errorText) {
-		let randomId = DomElementHelpers.randomId("cloned_asset");
+		const randomId = DomElementHelpers.randomId("cloned_asset");
 
 		errorText = errorText.replaceAll(
 			/(")([^"-]*)(-duplicates-list)/gi,
@@ -328,14 +343,14 @@ class AssetFile {
 		return errorText;
 	}
 	_renderErrorHtml(cssClass, message) {
-		let fileInfoField = this.fileField.find(".file-info");
+		const fileInfoField = this.fileField.find(".file-info");
 		if (fileInfoField.find(`.${cssClass}`).length)
 			fileInfoField.find(`.${cssClass}`).html(message);
 		else fileInfoField.append(`<span class="${cssClass}">${message}</span>`);
 
 		if (!this.fileFormField) return;
 
-		let fileFormInfoField = this.fileFormField.find(".file-info");
+		const fileFormInfoField = this.fileFormField.find(".file-info");
 		if (fileFormInfoField.length) {
 			if (!fileFormInfoField.find(`.${cssClass}`).length)
 				fileFormInfoField.append(`<span class="${cssClass}"></span>`);
@@ -346,7 +361,7 @@ class AssetFile {
 		}
 	}
 	async _renderDuplicateHtml(duplicates) {
-		let randomId = DomElementHelpers.randomId("duplicate");
+		const randomId = DomElementHelpers.randomId("duplicate");
 		return await uploadDuplicate(randomId, duplicates);
 	}
 	_attributesWithBlankDefaultValues() {
@@ -413,7 +428,7 @@ class AssetFile {
 			id: this.assetId(),
 		};
 
-		let html = $(
+		const html = $(
 			`<div class="reveal new-content-reveal" id="${this.id}_edit_overlay" data-reveal><button class="close-button" data-close aria-label="Close modal" type="button"><span aria-hidden="true">&times;</span></button><div class="new-content-form remote-render" id="${this.id}_new_form" data-remote-path="data_cycle_core/contents/new/shared/new_form"></div></div>`,
 		);
 
@@ -476,6 +491,8 @@ class AssetFile {
 					await this._renderDuplicateHtml(data.duplicateCandidates),
 				);
 
+			if (data.warning) this._renderWarning(data.warning);
+
 			this.uploaded = true;
 			this.fileField
 				.add(this.fileFormField)
@@ -537,12 +554,12 @@ class AssetFile {
 		this.uploader.uploadForm.find(".upload-file").attr("disabled", true);
 		DataCycle.disableElement(this.uploader.assetReloadButton);
 
-		var data = new FormData();
+		const data = new FormData();
 		data.append("asset[file]", this.file);
 		data.append("asset[type]", this.uploader.validation.class);
 		data.append("asset[name]", this.file.name);
 		this._prepareFileForUpload();
-		var startTime = new Date().getTime();
+		const startTime = new Date().getTime();
 
 		const promise = new Promise((resolve, reject) => {
 			const req = new XMLHttpRequest();

@@ -330,6 +330,12 @@ GEM
     image_optim_pack (0.9.1.20221104)
       fspath (>= 2.1, < 4)
       image_optim (~> 0.19)
+    image_optim_pack (0.9.1.20221104-x86_64-darwin)
+      fspath (>= 2.1, < 4)
+      image_optim (~> 0.19)
+    image_optim_pack (0.9.1.20221104-x86_64-linux)
+      fspath (>= 2.1, < 4)
+      image_optim (~> 0.19)
     image_processing (1.12.2)
       mini_magick (>= 4.9.5, < 5)
       ruby-vips (>= 2.0.17, < 3)
@@ -408,12 +414,12 @@ GEM
     net-ssh (7.0.1)
     net_http_unix (0.2.2)
     nio4r (2.5.8)
-    nokogiri (1.14.2)
+    nokogiri (1.14.3)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
-    nokogiri (1.14.2-x86_64-darwin)
+    nokogiri (1.14.3-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.14.2-x86_64-linux)
+    nokogiri (1.14.3-x86_64-linux)
       racc (~> 1.4)
     oauth2 (2.0.7)
       faraday (>= 0.17.3, < 3.0)
@@ -680,4 +686,4 @@ RUBY VERSION
    ruby 2.7.1p83
 
 BUNDLED WITH
-   2.4.7
+   2.4.12

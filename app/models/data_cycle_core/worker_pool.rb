@@ -7,11 +7,7 @@ module DataCycleCore
       @workers = Concurrent::FixedThreadPool.new(num_workers) if num_workers&.>(1)
     end
 
-    def <<(&block)
-      append(&block)
-    end
-
-    def append(&block)
+    def append_without_db_connection(&block)
       if @workers
         @queue << Concurrent::Promise.execute({ executor: @workers }, &block)
       else
@@ -19,7 +15,14 @@ module DataCycleCore
       end
     end
 
-    def wait
+    def append(&block)
+      append_without_db_connection do
+        ActiveRecord::Base.connection_pool.with_connection(&block)
+      end
+    end
+    alias << append
+
+    def wait!
       @queue.each(&:wait!) if @workers
     end
   end

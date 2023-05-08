@@ -1,0 +1,140 @@
+<% breadcrumb :user, @user %>
+
+<% content_for :title do %>
+  <%= "#{@user.model_name.human(locale: active_ui_locale)}: #{@user.name}" %>
+<% end %>
+
+<% content_for :top_content do %>
+
+  <div class="column detail-header-wrapper">
+
+    <div class="detail-header">
+
+      <div class="detail-header-functions">
+        <ul class="no-bullet">
+          <li>
+            <div id="show-history-link" class="link"><i class="fa fa-clock-o" aria-hidden="true"></i>
+              <%= t('history.created_at_html', locale: active_ui_locale, date: l(@user&.created_at&.in_time_zone, locale: active_ui_locale, format: :history)) %>
+              <span> <%= t('terms.from', locale: active_ui_locale) %> </span>
+              <span>
+                <strong>
+                  <% if @user.creator.present? %>
+                    <a class="email-link" data-dc-tooltip="<%= @user&.creator&.full_name %>" href="mailto:<%= "#{@user.creator&.email}" %>"><%= @user.creator&.full_name %></a>
+                  <% else %>
+                    System
+                  <% end %>
+                </strong>
+              </span>
+            </div>
+          </li>
+
+          <li>
+            <span class="link" aria_hidden="true">
+              <%= tag.i(
+                class: 'fa fa-language user-locales',
+                data: {
+                  dc_tooltip: tag.span(
+                    tag.span("#{@user.class.human_attribute_name(:default_locale, locale: active_ui_locale)}:", class: 'user-default-locale-title') +
+                    tag.span(t("locales.#{@user.default_locale || I18n.available_locales.first}", locale: active_ui_locale), class: 'user-default-locale-value'),
+                    class: 'user-default-locale'
+                  ) +
+                  tag.span(
+                    tag.span("#{@user.class.human_attribute_name(:ui_locale, locale: active_ui_locale)}:", class: 'user-ui-locale-title') +
+                    tag.span(t("locales.#{@user.ui_locale || DataCycleCore.ui_locales.first}", locale: active_ui_locale), class: 'user-ui-locale-value'),
+                    class: 'user-ui-locale'
+                  )
+                }
+              ) %>
+            </span>
+          </li>
+
+          <% if can?(:generate_access_token, @user) && @user.access_token.present? %>
+            <li>
+              <span class="link" aria_hidden="true">
+                <%= tag.i(
+                  class: 'fa fa-key copy-to-clipboard',
+                  data: {
+                    value: @user.access_token,
+                    dc_tooltip: t('actions.copy_to_clipboard_data', data: DataCycleCore::User.human_attribute_name(:access_token, locale: active_ui_locale), locale: active_ui_locale)
+                  }
+                ) %>
+              </span>
+            </li>
+          <% end %>
+
+          <%= tag.li render('data_cycle_core/data_links/received_data_links_list', content: @user) if can?(:index, DataCycleCore::DataLink) && @user.received_data_links.present? %>
+
+          <li class="buttons">
+            <%= link_to previous_authorized_crumb.url, class: 'has-content close-show-button' do %>
+              <i aria-hidden="true" class="fa fa-times"></i>
+            <% end if previous_authorized_crumb.present? %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="detail-header-info">
+        <div class="type watchlist">
+          <%= render 'data_cycle_core/shared/icon', icon_class: @user&.class&.name&.demodulize&.underscore_blanks %>
+
+          <span class="title"><%= @user.model_name.human(count: 1, locale: active_ui_locale) %></span>
+        </div>
+      </div>
+
+      <div class="title flex-column">
+        <%= @user&.full_name %>
+        <%= tag.div(@user.email, class: 'user-email') %>
+      </div>
+
+      <div class="edit">
+        <% if DataCycleCore::Feature::UserRegistration.enabled? && !@user.confirmed? && can?(:confirm, @user) %>
+          <%= link_to tag.i(class: 'fa fa-check confirm-link-button', aria_hidden: true, data: { dc_tooltip: t("user.confirm", locale: active_ui_locale) }), confirm_user_path(@user), { method: :post, class: 'button-prime small confirm-link' } %>
+        <% end %>
+
+        <% if can?(:become, @user) %>
+          <%= link_to tag.i(class: 'fa fa-sign-in', aria_hidden: true), user_become_path(@user), class: 'button-prime small become-link', data: { dc_tooltip: t('actions.become', data: @user.email, locale: active_ui_locale) } %>
+        <% end %>
+
+        <%= link_to edit_user_path(@user), class:'button-prime small edit-content-link', data: { dc_tooltip: t('actions.edit', locale: active_ui_locale) } do %>
+          <i class="fa fa-pencil" aria-hidden="true"></i>
+        <% end if can?(:edit, @user) %>
+
+        <% if can?(:lock, @user) && !@user.access_locked? %>
+          <%= link_to tag.i(class: 'fa fa-lock', aria_hidden: true), lock_user_path(@user), method: :delete, class:'button-prime small alert lock-link', data: { confirm: "#{@user.model_name.human(locale: active_ui_locale)} #{t('actions.lock', locale: active_ui_locale)}?", dc_tooltip: t('actions.lock', locale: active_ui_locale) } %>
+        <% elsif can?(:lock, @user) %>
+          <%= link_to tag.i(class: 'fa fa-unlock', aria_hidden: true), unlock_user_path(@user), method: :post, class:'button-prime small success unlock-link', data: { dc_tooltip: t('actions.unlock', locale: active_ui_locale) } %>
+        <% end %>
+
+        <%= link_to tag.i(class: 'fa fa-trash', aria_hidden: true), user_path(@user), method: :delete, class:'button-prime small alert delete-user-link', data: { confirm: t('user.delete_user_html', locale: active_ui_locale), dc_tooltip: t('actions.delete', locale: active_ui_locale) } if can?(:destroy, @user) && !@user.deleted?  %>
+      </div>
+    </div>
+
+  </div>
+
+<% end %>
+
+<div class="detail-content detail-content-wrapper user">
+  <div class="row">
+    <div class="type properties">
+      <div class="detail-type role_id">
+        <%= tag.span(@user.class.human_attribute_name(:role_id, locale: active_ui_locale), class: 'detail-label') %>
+        <%= tag.span(t("roles.#{@user.role.name}", locale: active_ui_locale), class: 'detail-content') %>
+      </div>
+
+      <% if @user.user_groups.present? %>
+        <div class="detail-type user_group_ids">
+          <%= tag.span(@user.class.human_attribute_name(:user_group_ids, locale: active_ui_locale), class: 'detail-label') %>
+          <%= tag.span(safe_join(@user.user_groups.map { |ug| tag.span(ug.name, class: 'tag') }), class: 'detail-content tags') %>
+        </div>
+      <% end %>
+
+      <% if @user.user_api_feature.additional_tile_values(@user).present? %>
+        <% @user.user_api_feature.additional_tile_values(@user).each do |key, value| %>
+          <div class="detail-type <%= key %>">
+            <span class="detail-label"><%= DataCycleCore::User.human_attribute_name(key, default: key&.split('/').last, locale: active_ui_locale) %></span>
+            <span class="detail-content"><%= user_additional_tile_attribute_value(key, value) %></span>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

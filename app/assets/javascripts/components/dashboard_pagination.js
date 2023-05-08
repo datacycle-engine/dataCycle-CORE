@@ -49,17 +49,24 @@ class DashboardPagination {
 			formData.set(key, value);
 
 		DataCycle.httpRequest(this.url, { method: "POST", body: formData })
-			.then(this.insertNewData.bind(this))
+			.then(this.insertNewData.bind(this, formData.get("page")))
 			.catch((e) => console.warn("Could not load page:", e));
 	}
-	insertNewData(data) {
+	insertNewData(page, data) {
 		this.paginationContainer.insertAdjacentHTML(
 			this.directionNext ? "afterend" : "beforebegin",
 			data.html,
 		);
-		$(this.paginationContainer)[this.directionNext ? "nextAll" : "prevAll"]();
 
 		this.paginationContainer.remove();
+
+		this.pushStateToHistory(page);
+	}
+	pushStateToHistory(page) {
+		const url = new URL(window.location);
+		if (page && page >= 2) url.searchParams.set("page", page);
+		else url.searchParams.delete("page");
+		history.pushState({ page: page }, "", url);
 	}
 	redirectToPage(formData) {
 		const form = document.createElement("form");
@@ -71,7 +78,7 @@ class DashboardPagination {
 		form.setAttribute("accept-charset", "UTF-8");
 
 		for (const [key, value] of formData) {
-			let hiddenField = document.createElement("input");
+			const hiddenField = document.createElement("input");
 			hiddenField.type = "hidden";
 			hiddenField.name = key;
 			hiddenField.value = value;

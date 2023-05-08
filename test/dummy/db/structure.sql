@@ -422,8 +422,8 @@ CREATE FUNCTION public.geom_simple_update() RETURNS trigger
 --
 
 CREATE FUNCTION public.get_dict(lang character varying) RETURNS regconfig
-    LANGUAGE sql
-    AS $$ SELECT pg_dict_mappings.dict::regconfig FROM pg_dict_mappings WHERE pg_dict_mappings.locale IN (lang, 'simple') LIMIT 1; $$;
+    LANGUAGE plpgsql
+    AS $$ DECLARE dict varchar; BEGIN SELECT pg_dict_mappings.dict::regconfig INTO dict FROM pg_dict_mappings WHERE pg_dict_mappings.locale IN (lang, 'simple') LIMIT 1; IF dict IS NULL THEN dict := 'pg_catalog.simple'::regconfig; END IF; RETURN dict; END; $$;
 
 
 --
@@ -1580,7 +1580,8 @@ CREATE TABLE public.users (
     confirmed_at timestamp without time zone,
     confirmation_sent_at timestamp without time zone,
     unconfirmed_email character varying,
-    ui_locale character varying DEFAULT 'de'::character varying NOT NULL
+    ui_locale character varying DEFAULT 'de'::character varying NOT NULL,
+    deleted_at timestamp without time zone
 );
 
 
@@ -3897,6 +3898,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230321085100'),
 ('20230322145244'),
 ('20230329123152'),
-('20230330081538');
+('20230330081538'),
+('20230403113641'),
+('20230425060228');
 
 

@@ -11,7 +11,9 @@ module DataCycleCore
           @subject = Array.wrap(subject).map(&:to_sym)
         end
 
-        def include?(_view, _name = nil, type = nil, *_args)
+        def include?(_view, _name = nil, type = nil, *args)
+          return false if type.to_s == 'classification_alias_ids' && !args.first&.dig(:data, :visible)
+
           except_types.exclude?(type.to_s)
         end
 

@@ -12,14 +12,6 @@ module DataCycleCore
 
           false
         end
-
-        def attribute_not_disabled?(attribute)
-          attribute.definition.deep_stringify_keys.dig('ui', 'edit', 'disabled').to_s != 'true'
-        end
-
-        def attribute_not_read_only?(attribute)
-          attribute.definition.deep_stringify_keys.dig('ui', 'edit', 'readonly').to_s != 'true'
-        end
       end
     end
   end

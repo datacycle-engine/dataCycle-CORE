@@ -15,6 +15,8 @@ module DataCycleCore
         can [:show, :index], DataCycleCore::Asset, creator_id: user.id, asset_content: { id: nil }
         can :create_api, DataCycleCore::WatchList, user_id: user.id, my_selection: false
         can [:copy_api_link, :api], DataCycleCore::WatchList, my_selection: false, api: true
+        can [:search, :user_dropdown, :user_advanced, :sortable], :users
+        can :search, :user_groups
 
         can :index, DataCycleCore::Role, rank: 0..user&.role&.rank.to_i
         can :create, DataCycleCore::Thing do |template, scope|

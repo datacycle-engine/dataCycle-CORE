@@ -171,6 +171,7 @@ class AssetSelector {
 	}
 	loadAssets(append = true) {
 		if (!append) {
+			this.deleteCount = 0;
 			this.page = 1;
 			this.assetList.html(loadingIcon);
 		} else this.assetList.append(loadingIcon);

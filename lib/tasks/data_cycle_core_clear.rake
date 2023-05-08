@@ -87,7 +87,7 @@ namespace :data_cycle_core do
 
     desc 'Remove activities except type donwload older than 3 monts [include_downloads=false, max_age=today-3months]'
     task :activities, [:include_downloads, :max_age] => [:environment] do |_, args|
-      max_age = args.fetch(:max_age, nil) || (Time.zone.now - 3.months).to_date.to_s
+      max_age = args.fetch(:max_age, nil) || 3.months.ago.to_date.to_s
       include_downloads = args.fetch(:include_downloads, false)
 
       persistent_activities = DataCycleCore.persistent_activities

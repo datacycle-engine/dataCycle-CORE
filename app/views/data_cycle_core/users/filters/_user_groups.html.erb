@@ -1,0 +1,25 @@
+<% if DataCycleCore::UserGroup.any? %>
+  <li class="filter" data-id="user_groups">
+    <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
+    <span class="title"><%= DataCycleCore::UserGroup.model_name.human(count: 2, locale: active_ui_locale) %></span>
+    <div>
+      <ul class="clearfix split-list">
+        <% DataCycleCore::UserGroup.all.each do |item| %>
+          <li>
+            <%= hidden_field_tag "f[#{identifier}][c]", 'd' %>
+            <%= hidden_field_tag "f[#{identifier}][t]", :user_dropdown %>
+            <%= hidden_field_tag "f[#{identifier}][n]", :user_groups %>
+            <%= hidden_field_tag "f[#{identifier}][m]", 'i' %>
+            <%= check_box_tag "f[#{identifier}][v][]", item.id, value.presence&.include?(item.id), id: item.id %>
+
+            <label for="<%= item.id %>">
+              <span class="title">
+                <span class="inner-title"><%= item.name %></span>
+              </span>
+            </label>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </li>
+<% end %>

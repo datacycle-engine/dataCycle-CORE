@@ -13,7 +13,7 @@ module DataCycleCore
           end
 
           filters
-            .select { |k, v| user&.can?(:advanced_filter, view_type.to_sym, k, v) }
+            .select { |k, v, data| user&.can?(:advanced_filter, view_type.to_sym, k, v, data) }
             .sort
             .group_by { |f| f[1] }
             .transform_keys { |k| I18n.t("filter_groups.#{k}", default: k, locale: user.ui_locale) }
@@ -29,7 +29,7 @@ module DataCycleCore
             filters.concat(try(k.to_sym, user, v) || default(user, k.to_s, v) || [])
           end
 
-          filters.select { |k, v| user&.can?(:advanced_filter, view_type.to_sym, k, v) }.reverse
+          filters.select { |k, v, data| user&.can?(:advanced_filter, view_type.to_sym, k, v, data) }.reverse
         end
 
         def advanced_attribute_classification_tree_label(specific_type)
@@ -44,13 +44,13 @@ module DataCycleCore
         def classification_alias_ids(user, value)
           return [] unless value
 
-          query = DataCycleCore::ClassificationTreeLabel.where('? = ANY(classification_tree_labels.visibility)', 'filter')
+          query = DataCycleCore::ClassificationTreeLabel.all
           query = query.where(name: value) if value.is_a?(Array)
-          query.pluck(:name).map do |c|
+          query.map do |c|
             [
-              I18n.t("filter.#{c.underscore_blanks}", default: c, locale: user.ui_locale),
+              I18n.t("filter.classification_alias_ids.#{c.name.underscore_blanks}", default: I18n.t("filter.#{c.name.underscore_blanks}", default: c.name, locale: user.ui_locale), locale: user.ui_locale),
               'classification_alias_ids',
-              data: { name: c }
+              data: { name: c.name, visible: c.visibility&.include?('filter') }
             ]
           end
         end
@@ -62,7 +62,7 @@ module DataCycleCore
             next unless v
 
             [
-              I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale),
+              I18n.t("filter.relation_filter.#{k.underscore_blanks}", default: I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale), locale: user.ui_locale),
               'relation_filter',
               data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
             ]
@@ -76,7 +76,7 @@ module DataCycleCore
             next unless v
 
             [
-              I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale),
+              I18n.t("filter.relation_filter_inv.#{k.underscore_blanks}", default: I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale), locale: user.ui_locale),
               'relation_filter_inv',
               data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
             ]
@@ -102,14 +102,14 @@ module DataCycleCore
               if v.is_a?(Array)
                 v.map do |c|
                   value_arr << [
-                    I18n.t("filter.#{c.underscore_blanks}", default: c, locale: user.ui_locale),
+                    I18n.t("filter.geo_filter.#{c.underscore_blanks}", default: I18n.t("filter.#{c.underscore_blanks}", default: c, locale: user.ui_locale), locale: user.ui_locale),
                     'geo_filter',
                     data: { name: c, advancedType: k }
                   ]
                 end
               elsif v
                 value_arr << [
-                  I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale),
+                  I18n.t("filter.geo_filter.#{k.underscore_blanks}", default: I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale), locale: user.ui_locale),
                   'geo_filter',
                   data: { name: k, advancedType: k }
                 ]
@@ -125,7 +125,7 @@ module DataCycleCore
           if value == 'all'
             ['created_at', 'updated_at'].map do |c|
               [
-                I18n.t("filter.#{c.underscore_blanks}", default: c, locale: user.ui_locale),
+                I18n.t("filter.date_range.#{c.underscore_blanks}", default: I18n.t("filter.#{c.underscore_blanks}", default: c, locale: user.ui_locale), locale: user.ui_locale),
                 'date_range',
                 data: { name: c }
               ]
@@ -133,7 +133,7 @@ module DataCycleCore
           elsif value.is_a?(Hash)
             value.keys.map do |c|
               [
-                I18n.t("filter.#{c.to_s.underscore_blanks}", default: c, locale: user.ui_locale),
+                I18n.t("filter.date_range.#{c.to_s.underscore_blanks}", default: I18n.t("filter.#{c.to_s.underscore_blanks}", default: c, locale: user.ui_locale), locale: user.ui_locale),
                 'date_range',
                 data: { name: c }
               ]
@@ -141,7 +141,7 @@ module DataCycleCore
           elsif value.is_a?(Array)
             value.map do |c|
               [
-                I18n.t("filter.#{c.underscore_blanks}", default: c, locale: user.ui_locale),
+                I18n.t("filter.date_range.#{c.underscore_blanks}", default: I18n.t("filter.#{c.underscore_blanks}", default: c, locale: user.ui_locale), locale: user.ui_locale),
                 'date_range',
                 data: { name: c }
               ]
@@ -156,7 +156,7 @@ module DataCycleCore
 
           value.presence&.map do |c|
             [
-              I18n.t("filter.#{c.underscore_blanks}", default: c, locale: user.ui_locale),
+              I18n.t("filter.boolean.#{c.underscore_blanks}", default: I18n.t("filter.#{c.underscore_blanks}", default: c, locale: user.ui_locale), locale: user.ui_locale),
               'boolean',
               data: { name: c }
             ]
@@ -195,7 +195,7 @@ module DataCycleCore
             next unless v
 
             [
-              I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale),
+              I18n.t("filter.user.#{k.underscore_blanks}", default: I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale), locale: user.ui_locale),
               'user',
               data: { name: k, advancedType: k }
             ]
@@ -206,7 +206,7 @@ module DataCycleCore
           return [] unless value
           value.map do |k, v|
             [
-              I18n.t("filter.#{k.underscore_blanks}", default: k, locale: user.ui_locale),
+              I18n.t("filter.advanced_attributes.#{k.underscore_blanks}", default: I18n.t("filter.#{k.underscore_blanks}", default: k, locale: user.ui_locale), locale: user.ui_locale),
               'advanced_attributes',
               data: { name: k, advancedType: v.dig('type') }
             ]

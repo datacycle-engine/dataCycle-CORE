@@ -70,7 +70,7 @@ namespace :dc do
       selected_things = selected_things.where(template_name: template_names) if template_names.present?
       default_value_names = args.fetch(:default_value_names, false).to_s.then { |c| c.present? && c != 'false' ? c.split('|') : false }.freeze
       thread_pool_size = [args.thread_pool_size&.to_i, ActiveRecord::Base.connection_pool.size - 1].compact.min
-      pool = Concurrent::FixedThreadPool.new(thread_pool_size) if thread_pool_size.positive?
+      queue = DataCycleCore::WorkerPool.new(thread_pool_size)
 
       puts "ATTRIBUTES TO UPDATE: #{default_value_names.present? ? default_value_names.join(', ') : 'all'}, THREADS: #{thread_pool_size}"
 
@@ -93,10 +93,9 @@ namespace :dc do
         items.find_in_batches.with_index do |batch, index|
           pid = Process.fork do
             progressbar.progress = index * 1000
-            futures = []
 
             batch.each do |item|
-              ParallelHelper.run_in_parallel(futures, pool) do
+              queue.append do
                 item.prevent_webhooks = args.webhooks&.to_s&.downcase == 'false'
 
                 if translated_properties
@@ -113,7 +112,7 @@ namespace :dc do
               end
             end
 
-            futures.each(&:wait!)
+            queue.wait!
           end
 
           Process.waitpid(pid)

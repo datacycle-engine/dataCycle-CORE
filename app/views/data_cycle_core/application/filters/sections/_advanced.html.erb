@@ -1,5 +1,5 @@
 <% content_for(:advanced_filters, flush:true) do %>
-  <% filter&.dig(:filters)&.each_with_index do |advanced_filter, idx| %>
+  <% filter&.dig(:filters)&.each do |advanced_filter| %>
     <%= render_advanced_filter_partial({
           filter_type: advanced_filter['t'],
           filter_title: advanced_filter['n'],

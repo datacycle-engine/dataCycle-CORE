@@ -1,0 +1,23 @@
+<li class="filter" data-id="roles">
+  <span class="icon"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>
+  <span class="title"><%= DataCycleCore::Role.model_name.human(count: 2, locale: active_ui_locale) %></span>
+  <div>
+    <ul class="clearfix split-list">
+      <% DataCycleCore::Role.accessible_by(current_ability).order(:rank).each do |item| %>
+        <li>
+          <%= hidden_field_tag "f[#{identifier}][c]", 'd' %>
+          <%= hidden_field_tag "f[#{identifier}][t]", :user_dropdown %>
+          <%= hidden_field_tag "f[#{identifier}][n]", :roles %>
+          <%= hidden_field_tag "f[#{identifier}][m]", 'i' %>
+          <%= check_box_tag "f[#{identifier}][v][]", item.id, value.presence&.include?(item.id), id: item.id %>
+
+          <label for="<%= item.id %>">
+            <span class="title">
+              <span class="inner-title"><%= t('roles.'+item.name, locale: active_ui_locale) %></span>
+            </span>
+          </label>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</li>

@@ -72,6 +72,3 @@
       :additional_properties:
         :type: mixin
         :name: additional_properties
-      :translation_of_work_mixin:
-        :type: mixin
-        :name: translation_of_work_mixin

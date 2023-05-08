@@ -6,20 +6,30 @@ module DataCycleCore
     before_action :set_user_group, only: [:edit, :update, :destroy]
 
     def index
-      @search_param = search_params[:q]
-
       query = DataCycleCore::UserGroup.all
 
-      search_columns = DataCycleCore::UserGroup.columns
-        .select { |c| c.type == :string }
-        .map(&:name)
+      @filters = filter_params
+      @filters&.select { |f| f.key?('c') }&.each { |f| f['identifier'] = SecureRandom.hex(10) }
 
-      if @search_param.present?
-        search_term = @search_param.split(' ').map { |item| "concat_ws(' ', #{search_columns.join(', ')}) ILIKE '%#{item.strip}%'" }.join(' AND ')
-        query = query.where(search_term)
+      @filters&.each do |filter|
+        filter_method = (filter['c'] == 'd' ? filter['n'] : filter['t']).dup
+        filter_method = +"#{filter['t']}_#{filter['n']}" if filter['c'] == 'a' && query.respond_to?("#{filter['t']}_#{filter['n']}")
+        filter_method.prepend(DataCycleCore::StoredFilterExtensions::FilterParamsHashParser::FILTER_PREFIX[filter['m']].to_s)
+
+        next unless query.respond_to?(filter_method)
+
+        query = query.send(filter_method, filter['v'])
       end
 
-      @contents = query.includes(:users).order(:name).page(params[:page])
+      @sort_params = sort_params
+      if @sort_params.present?
+        query = query.order(*@sort_params.map { |s| { s[:m].to_sym => s[:o].to_sym } })
+      else
+        query = query.order(:name)
+      end
+
+      @mode = mode_params[:mode].in?(['list', 'tree', 'map']) ? mode_params[:mode].to_s : 'grid'
+      @contents = query.includes(:users).page(params[:page])
 
       if count_only_params[:count_only].present?
         @count_only = true
@@ -89,6 +99,18 @@ module DataCycleCore
 
     def count_only_params
       params.permit(:target, :count_only, :count_mode, :content_class)
+    end
+
+    def sort_params
+      params.permit(s: {}).to_h[:s].presence&.values&.reject { |s| DataCycleCore::DataHashService.blank?(s) }
+    end
+
+    def mode_params
+      params.permit(:mode)
+    end
+
+    def filter_params
+      params.permit(f: {}).to_h[:f].presence&.values&.reject { |f| DataCycleCore::DataHashService.blank?(f) || DataCycleCore::DataHashService.blank?(f['v']) }
     end
   end
 end

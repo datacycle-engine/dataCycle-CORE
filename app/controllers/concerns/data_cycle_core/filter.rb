@@ -199,7 +199,9 @@ module DataCycleCore
     end
 
     def load_last_filter
-      apply_filter(filter_id: current_user.stored_filters.order(updated_at: :desc)&.first&.id)
+      last_id = current_user.stored_filters.order(updated_at: :desc)&.pick(:id)
+
+      apply_filter(filter_id: last_id) if last_id.present?
     end
 
     def filter_params

@@ -104,6 +104,7 @@ en:
   user:
     user_not_confirmed: email address has not been confirmed yet
     confirm: confirm email
+    delete_user_html: delete user?
 
   frontend:
     load_error: Error loading content.
@@ -523,6 +524,7 @@ en:
     geolocation_from_browser: Use current position
     geolocation_error: The current position could not be accessed
     api_url: API Link
+    url: URL
 
   embedded:
     move_down: move down
@@ -576,10 +578,23 @@ en:
   feature:
     content_score:
       tooltip:
-        title_html: "<b>Content score</b>"
-        min: "minimal: %{value}"
-        optimal: "optimal: %{value}"
-        max: "maximal: %{value}"
+        title: Content-Score
+        criteria: "Criteria: <b>%{text}</b>"
+        by_presence: "filled"
+        string:
+          by_length: "Number of characters"
+        common:
+          by_quantity: "Quantity"
+        embedded:
+          by_name_and_length: "Number of characters"
+        linked:
+          by_linked_weight_matrix: "Score of attributes by weighting"
+        score_matrix:
+          min: "Minimal: <b>%{value}</b>"
+          optimal: "Optimal: %{value}"
+          max: "Maximal: %{value}"
+        content:
+          by_weight_matrix: Score of attributes by weighting
     duplicate_candidate:
       manual_button: Select manually for merging
     releasable:
@@ -771,6 +786,11 @@ en:
       unit: Unit
     shared_with: Shared with
     user_group_classifications: shared via user_groups
+    boolean:
+      access_token: API token present
+      not_access_token: no API token present
+      confirmed_at: Email confirmed
+      not_confirmed_at: Email not confirmed
 
   filter_groups:
     classification_alias_ids: filter by classifications ...
@@ -799,9 +819,16 @@ en:
     width: Width
     height: Height
     upload_date: Upload date
+    users_context:
+      given_name: Given name
+      family_name: Family name
+      name: Organisation name
+      email: Email
+      created_at: Date of registration
     ordering:
       asc: Ascending
       desc: Descending
+
   object_browser:
     details:
       created_at: created
@@ -1277,6 +1304,7 @@ en:
         represented_by: Represented by
         ui_locale: user interface language
         locked_at: locked
+        deleted_at: deleted
       data_cycle_core/thing:
         name: Name
         legal_name: Company name
@@ -1551,7 +1579,19 @@ en:
         difficulty_rating: Difficulty
     imx_platform:
       description: Description
-      description_long: Detailed description
+      text: Detailed description
+      startingPointDescr: Starting point description
+      destination: Destination
+      gettingThere: Getting there
+      parking: Parking
+      directions: Directions
+      trackSignage: Track signage
+      safetyGuidelines: Safety guidlines
+      equipment: Equipment
+      additionalInformation: Additional information
+      literature: Literture
+      publicTransit: Public transit
+      seasonDescription: Sesion      
     gem2go:
       description: Description
     timm4:

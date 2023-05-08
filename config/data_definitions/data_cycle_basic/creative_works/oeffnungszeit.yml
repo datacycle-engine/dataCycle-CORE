@@ -206,6 +206,9 @@
             :type: text_editor
             :options:
               :data-size: full
+      :translated_dummy_attribute:
+        :type: mixin
+        :name: translated_dummy_attribute
       :meta_data:
         :type: mixin
         :name: meta_data

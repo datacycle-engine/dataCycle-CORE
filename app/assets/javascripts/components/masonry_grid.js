@@ -1,13 +1,14 @@
 import ObserverHelpers from "../helpers/observer_helpers";
+import DomElementHelpers from "../helpers/dom_element_helpers";
 
 class MasonryGrid {
-	constructor(selector, config = null) {
+	constructor(selector) {
 		selector.dcMasonryGrid = true;
-		this.grid = $(selector);
+		this.grid = selector;
 		this.rowHeight = parseInt(
-			window.getComputedStyle(this.grid[0]).getPropertyValue("grid-auto-rows"),
+			window.getComputedStyle(this.grid).getPropertyValue("grid-auto-rows"),
 		);
-		this.config = config || {
+		this.config = {
 			attributes: true,
 			childList: true,
 			subtree: true,
@@ -16,29 +17,37 @@ class MasonryGrid {
 		this.addedItemsObserver = new MutationObserver(
 			this._checkForAddedNodes.bind(this),
 		);
+		this.resizeQueue = [];
 
 		if (this.checkSupport()) this.setup();
 		else this.renderNotSupportedError();
 	}
 	setup() {
-		this.grid.children(".grid-loading").remove();
-		this.grid
-			.children(".grid-item")
-			.each((_index, item) => this.initializeItem(item));
+		this.removeLoadingAnimation();
+		this.initializeItems();
 
-		$(window).on("load resize", this.resizeAllMasonryItems.bind(this));
+		addEventListener("load", this.resizeAllMasonryItems.bind(this));
+		addEventListener("resize", this.resizeAllMasonryItems.bind(this));
 
-		this.addedItemsObserver.observe(
-			this.grid[0],
-			ObserverHelpers.newItemsConfig,
-		);
+		this.addedItemsObserver.observe(this.grid, ObserverHelpers.newItemsConfig);
+	}
+	removeLoadingAnimation() {
+		if (this.grid.querySelector(":scope > .grid-loading"))
+			for (const loader of this.grid.querySelectorAll(":scope > .grid-loading"))
+				loader.remove();
+	}
+	initializeItems() {
+		if (this.grid.querySelector(":scope > .grid-item"))
+			for (const item of this.grid.querySelectorAll(":scope > .grid-item"))
+				this.initializeItem(item);
 	}
 	checkSupport() {
-		let el = document.createElement("div");
+		const el = document.createElement("div");
 		return typeof el.style.grid === "string";
 	}
 	renderNotSupportedError() {
-		$("body").append(
+		document.body.insertAdjacentHTML(
+			"beforeend",
 			'<div class="html-feature-missing"><h2>Verwenden Sie bitte einen aktuellen Browser um diese Anwendung korrekt darstellen zu können!</h2></div>',
 		);
 	}
@@ -59,19 +68,22 @@ class MasonryGrid {
 	}
 	initializeItem(item) {
 		item.style.display = "block";
-		this.resizeMasonryItem(item);
+		this.addToResizeQueue(item);
 		this.observer.observe(item, this.config);
 	}
 	callbackFunction(mutationsList, _observer) {
 		for (const mutation of mutationsList) {
-			let item = $(mutation.target).closest(".grid-item");
+			if (mutation.target.nodeType !== Node.ELEMENT_NODE) continue;
+
+			const item = mutation.target.closest(".grid-item");
+
 			if (
-				item.length &&
+				item &&
 				!mutation.target.closest(".watch-lists") &&
 				!mutation.target.closest(".watch-lists-link") &&
 				this.heightChanged(item)
 			) {
-				this.resizeMasonryItem(item[0]);
+				this.addToResizeQueue(item);
 			}
 		}
 	}
@@ -80,19 +92,31 @@ class MasonryGrid {
 			? item.getBoundingClientRect().height
 			: item.querySelector(".content-link").getBoundingClientRect().height;
 	}
-	resizeMasonryItem(item) {
-		let newHeight = this.boundingHeight(item);
-		$(item).data("original-height", newHeight);
-		let rowSpan = Math.ceil(newHeight / this.rowHeight) + 1;
-		item.style.gridRow = `span ${rowSpan}`;
+	resizeMasonryItems() {
+		for (const item of this.resizeQueue) {
+			const newHeight = this.boundingHeight(item);
+			const rowSpan = Math.ceil(newHeight / this.rowHeight) + 1;
+			item.dataset.originalHeight = newHeight;
+			item.style.gridRow = `span ${rowSpan}`;
+		}
+
+		this.resizeQueue.length = 0;
+	}
+	addToResizeQueue(item) {
+		if (!this.resizeQueue.length)
+			requestAnimationFrame(this.resizeMasonryItems.bind(this));
+
+		this.resizeQueue.push(item);
 	}
 	resizeAllMasonryItems(_event) {
-		this.grid[0].querySelectorAll(":scope .grid-item").forEach((item) => {
-			this.resizeMasonryItem(item);
-		});
+		for (const item of this.grid.querySelectorAll(":scope > .grid-item"))
+			this.addToResizeQueue(item);
 	}
 	heightChanged(item) {
-		return $(item).data("original-height") !== this.boundingHeight(item[0]);
+		return (
+			DomElementHelpers.parseDataAttribute(item.dataset.originalHeight) !==
+			this.boundingHeight(item)
+		);
 	}
 }
 

@@ -10,25 +10,10 @@ module DataCycleCore
         import Transproc::HashTransformations
         import Transproc::Conditional
         import Transproc::Recursion
-        import RatingTransformations
+        import Transformations::BasicFunctions
+        import Transformations::LegacyLinkFunctions
+        import Transformations::RatingTransformations
         import DataReferenceTransformations
-
-        def self.underscore_keys(data_hash)
-          data_hash.to_h.deep_transform_keys { |k| k.to_s.underscore }
-        end
-
-        def self.strip_all(data_hash)
-          data_hash.to_h.deep_transform_values { |v| v.is_a?(::String) ? v.strip : v }
-        end
-
-        def self.select_keys(data, *keys)
-          data.select { |k, _| keys.include?(k) }
-        end
-
-        def self.location(data_hash)
-          location = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f) if data_hash['longitude'].present? && data_hash['latitude'].present? && !(data_hash['longitude'].zero? && data_hash['latitude'].zero?)
-          data_hash.nil? ? { 'location' => location.presence } : data_hash.merge({ 'location' => location.presence })
-        end
 
         def self.event_schedule(data_hash, sub_event_function)
           return data_hash if data_hash.dig('event_period').blank?
@@ -61,96 +46,6 @@ module DataCycleCore
             }
           end
           (data_hash || {}).merge({ 'event_schedule' => Array.wrap(schedule_hash.with_indifferent_access) })
-        end
-
-        def self.compact(data_hash)
-          data_hash.compact
-        end
-
-        def self.merge(data_hash, new_hash)
-          data_hash.merge(new_hash)
-        end
-
-        def self.merge_array_values(data_hash, key, merge_key)
-          data_hash[key] = Array(data_hash[key]) | Array(data_hash[merge_key])
-          data_hash
-        end
-
-        def self.tags_to_ids(data_hash, attribute, external_source_id, external_prefix, condition_function = nil)
-          return data_hash if condition_function.present? && !condition_function.call(data_hash)
-
-          if data_hash[attribute].blank?
-            data_hash[attribute] = []
-          else
-            data_hash[attribute] = DataCycleCore::Classification.where(external_source_id: external_source_id, external_key: data_hash[attribute].map { |a| "#{external_prefix}#{a}" }).pluck(:id)
-          end
-
-          data_hash
-        end
-
-        def self.tags_to_ids_by_name(data_hash, attribute, tree_label)
-          if data_hash[attribute].blank?
-            data_hash[attribute] = []
-          else
-            data_hash[attribute] = DataCycleCore::Classification.includes(primary_classification_alias: [classification_tree: :classification_tree_label]).where('lower(classifications.name) IN (?)', data_hash[attribute]&.map(&:downcase)).where(primary_classification_alias: { classification_trees: { classification_tree_labels: { name: tree_label } } }).ids
-          end
-          data_hash
-        end
-
-        def self.category_key_to_ids(data_hash, attribute, data_list, _name, external_source_id, external_prefix, key)
-          return data_hash if data_hash.blank? || data_list.blank?
-
-          data_hash.merge(
-            {
-              attribute =>
-                data_list.call(data_hash)&.map { |item_data|
-                  search_params = {
-                    external_source_id: external_source_id,
-                    external_key: external_prefix + item_data.dig(key)
-                  }
-                  DataCycleCore::Classification.find_by(search_params)&.id
-                }&.reject(&:nil?) || []
-            }
-          )
-        end
-
-        def self.load_category(data_hash, attribute, external_source_id, external_key)
-          data_hash.merge(
-            {
-              attribute => [
-                DataCycleCore::Classification.find_by(
-                  external_source_id: external_source_id, external_key: external_key.call(data_hash)
-                )&.id
-              ].compact.presence
-            }
-          )
-        end
-
-        def self.add_link(data_hash, attribute, content_type, external_source_id, key_function, condition_function = nil)
-          return data_hash if condition_function.present? && !condition_function.call(data_hash)
-
-          data_hash.merge(
-            {
-              attribute => find_thing_ids(external_system_id: external_source_id, external_key: key_function.call(data_hash), content_type: content_type, limit: 1).presence
-            }
-          )
-        end
-
-        def self.add_user_link(data_hash, attribute, key_function)
-          return data_hash if key_function.call(data_hash).blank?
-          data_hash.merge({ attribute => DataCycleCore::User.find_by(email: key_function.call(data_hash))&.id })
-        end
-
-        def self.add_links(data_hash, attribute, content_type, external_source_id, key_function, condition_function = nil)
-          return data_hash if condition_function.present? && !condition_function.call(data_hash)
-
-          key_function_values = key_function.call(data_hash) || []
-
-          data_hash.merge(
-            {
-              attribute => find_thing_ids(external_system_id: external_source_id, external_key: key_function_values, content_type: content_type)
-            }
-          )
         end
 
         def self.local_asset(data_hash, attribute, asset_type, creator_id = nil)
@@ -203,28 +98,12 @@ module DataCycleCore
           data_hash
         end
 
-        def self.add_field(data_hash, name, function, condition_function = nil)
-          return data_hash if condition_function.present? && !condition_function.call(data_hash)
-
-          data_hash.merge({ name => function.call(data_hash) })
-        end
-
         def self.extension_to_mimetype(data_hash, name, function, specific_type = nil)
           extension = function.call(data_hash)
 
           return data_hash if extension.blank?
 
           data_hash.merge({ name => MiniMime.lookup_by_extension(extension.to_s)&.content_type&.then { |s| specific_type.present? ? s.gsub('application', specific_type.to_s) : s } }.compact)
-        end
-
-        def self.add_universal_classifications(data_hash, function)
-          universal_classifications(data_hash, function)
-        end
-
-        def self.universal_classifications(data_hash, function)
-          data_hash['universal_classifications'] ||= []
-          data_hash['universal_classifications'] += (function.call(data_hash) || [])
-          data_hash
         end
 
         def self.geocode(data_hash, condition_function = nil)
@@ -249,34 +128,6 @@ module DataCycleCore
 
           attributes = DataCycleCore::Feature::Geocode.geodata_to_attributes(geocoded_data)
           data_hash.merge(attributes.deep_stringify_keys)
-        end
-
-        def self.find_thing_ids(external_system_id:, external_key:, content_type: DataCycleCore::Thing, limit: nil, pluck_id: true)
-          return [] if external_key.blank?
-
-          if content_type == DataCycleCore::Thing
-            query = DataCycleCore::Thing
-              .by_external_key(external_system_id, external_key, 'thing_external_systems')
-              .order(
-                [
-                  Arel.sql(
-                    'array_position(ARRAY[?]::varchar[], thing_external_systems.external_key::varchar)'
-                  ),
-                  external_key
-                ]
-              )
-          else
-            query = content_type.where(external_source_id: external_system_id, external_key: external_key).order(
-              [
-                Arel.sql("array_position(ARRAY[?]::varchar[], #{content_type.table_name}.external_key::varchar)"),
-                external_key
-              ]
-            )
-          end
-
-          query = query.limit(limit) if limit.present?
-          query = query.pluck(:id) if pluck_id
-          query
         end
 
         def self.add_external_system_data(data, name, key)

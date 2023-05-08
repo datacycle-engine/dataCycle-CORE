@@ -2,7 +2,7 @@
 
 <% unless image.nil? %>
   <% content_for :asset_thumb do %>
-    <img src="<%= image.try(:thumb_preview)&.url %>" />
+    <img class="lazyload" data-src="<%= image.try(:thumb_preview)&.url %>" />
   <% end %>
   <%= render 'data_cycle_core/contents/viewers/asset/default', local_assigns %>
 <% end %>

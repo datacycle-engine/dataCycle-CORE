@@ -22,7 +22,7 @@
 <% end %>
 
 <% contents&.each do |content| %>
-  <li class="grid-item data-cycle-object <%= content&.template_name&.underscore if content.is_a?(DataCycleCore::Thing) %> <%= ' expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %> <%= DataCycleCore::Feature::TileBorderColor.class_string(content) %>" id="grid-item-<%= content.id %>" data-id="<%= content.id %>">
+  <li class="grid-item data-cycle-object <%= content&.template_name&.underscore if content.is_a?(DataCycleCore::Thing) %> <%= ' expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %> <%= DataCycleCore::Feature::TileBorderColor.class_string(content) %> <%= thing_content_score_class(content) %>" id="grid-item-<%= content.id %>" data-id="<%= content.id %>">
     <% if content.is_a?(DataCycleCore::Thing) %>
 
       <% cache(content_view_cache_key(item: content, locale: @language, mode: 'grid', watch_list: @watch_list), expires_in: 1.year + Random.rand(7.days)) do %>
@@ -36,6 +36,8 @@
     <% end %>
 
     <div class="buttons">
+      <%= thing_content_score(content) %>
+
       <%= yield_content!(:media_buttons) %>
 
       <%= tag.i(class: 'has-overlay has-tip fa fa-window-restore', data: { dc_tooltip: t('common.has_overlay', locale: active_ui_locale) }) if content.try(:overlay?) %>

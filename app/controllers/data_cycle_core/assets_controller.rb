@@ -14,7 +14,10 @@ module DataCycleCore
         @assets = @assets.where(id: permitted_params[:asset_ids]) if permitted_params[:asset_ids].present?
         @assets = @assets.limit(25).offset((@page - 1) * 25 - permitted_params[:delete_count].to_i)
 
-        @asset_details = @assets.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
+        @asset_details = @assets.map do |a|
+          a.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
+           .merge(a.warnings? ? { 'warning' => a.full_warnings(helpers.active_ui_locale) } : {})
+        end
         @total = @assets.except(:limit, :offset).count
 
         render json: {
@@ -46,7 +49,7 @@ module DataCycleCore
 
       begin
         if @asset.save
-          render json: @asset.attributes.merge(duplicateCandidates: Array.wrap(@asset.try(:duplicate_candidates)&.as_json(only: [:id], methods: :thumbnail_url)))
+          render json: @asset.attributes.merge(duplicateCandidates: Array.wrap(@asset.try(:duplicate_candidates)&.as_json(only: [:id], methods: :thumbnail_url))).merge(@asset.warnings? ? { 'warning' => @asset.full_warnings(helpers.active_ui_locale) } : {})
         else
           render(json: {
             error: @asset

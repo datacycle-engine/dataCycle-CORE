@@ -4,7 +4,7 @@
     <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>:
   </span>
 
-  <% users = DataCycleCore::User.where(id: value).map { |c| [c.id, { title: c.email, text: c.try(:full_name) }] }.to_h %>
+  <% users = DataCycleCore::User.with_deleted.where(id: value).map { |c| [c.id, { title: c.email, text: c.try(:full_name) }] }.to_h %>
 
   <span class="tags-container">
     <% value.each do |user_id| %>

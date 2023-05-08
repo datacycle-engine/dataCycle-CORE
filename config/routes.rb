@@ -58,7 +58,8 @@ DataCycleCore::Engine.routes.draw do
   authenticate do
     get :clear_all_caches, controller: :application
 
-    resources :users, only: [:index, :edit, :update, :destroy] do
+    resources :users, only: [:index, :show, :edit, :update, :destroy] do
+      delete :lock, on: :member
       post :unlock, on: :member
       post :confirm, on: :member
       post :create_user, on: :collection

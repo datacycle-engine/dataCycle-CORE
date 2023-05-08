@@ -4,9 +4,9 @@ require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
 
-describe DataCycleCore::Generic::Common::BlacklistWhitelistFunctions do
+describe DataCycleCore::Generic::Common::Transformations::BlacklistWhitelistFunctions do
   subject do
-    DataCycleCore::Generic::Common::BlacklistWhitelistFunctions
+    DataCycleCore::Generic::Common::Transformations::BlacklistWhitelistFunctions
   end
 
   describe 'reject_attribute' do

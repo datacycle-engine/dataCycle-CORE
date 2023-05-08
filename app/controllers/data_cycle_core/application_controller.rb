@@ -8,6 +8,7 @@ module DataCycleCore
 
     protect_from_forgery with: :exception
     before_action :load_watch_lists, if: -> { params[:watch_list_id].present? }
+    before_action :clear_previous_page, if: -> { !is_a?(DataCycleCore::ThingsController) && request.format.html? }
     before_action :better_errors_hack, if: -> { Rails.env.development? }
     before_action :flashes_from_params, if: -> { params[:flash].present? }
 
@@ -143,6 +144,10 @@ module DataCycleCore
 
     def holidays_params
       params.permit(:year)
+    end
+
+    def clear_previous_page
+      session.delete(:previous_page)
     end
   end
 end

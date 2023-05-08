@@ -3,13 +3,19 @@
 def serialize_opening_hours_description(description, filter, fields, options, includes = [], translatable_embedded = false)
   I18n.with_locale(description.first_available_locale) do
     schedule_hash = description&.validity_schedule&.first&.schedule_object&.to_hash || {}
+    description_values = description&.property_definitions&.select { |k, v| attribute_key(k, v) == 'description' }&.sort_by { |_k, v| v['sorting'] }&.map { |k, _v| description.try(k) }
 
     data = {
       '@id' => description&.id,
       '@type' => description&.api_type,
       'validFrom' => schedule_hash.dig(:start_time, :time)&.in_time_zone&.to_s(:only_date),
-      'validThrough' => (schedule_hash&.dig(:rrules, 0, :until) || schedule_hash&.dig(:end_time, :time)&.in_time_zone&.then { |t| t - 1.second })&.to_s(:only_date),
-      'description' => description&.description
+      'validThrough' => (
+        schedule_hash&.dig(:rrules, 0, :until) ||
+        (
+          schedule_hash&.dig(:end_time, :time)&.then { |t| t - 1.second } if schedule_hash.dig(:rrules, 0, :rule_type).blank? || schedule_hash.dig(:rrules, 0, :rule_type) == 'IceCube::SingleOccurrenceRule'
+        )
+      )&.in_time_zone&.to_s(:only_date),
+      'description' => description_values&.compact_blank&.first
     }.compact.merge(render('content_translations', content: description, options: { include: includes, fields: fields, field_filter:
       options[:field_filter] && fields.present? ? options[:field_filter] : false, languages: options[:languages], translatable_embedded: translatable_embedded }))
 

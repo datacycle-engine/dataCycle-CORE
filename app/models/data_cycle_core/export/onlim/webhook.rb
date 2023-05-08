@@ -19,7 +19,7 @@ module DataCycleCore
             exception: {
               timestamp: Time.zone.now,
               message: exception.message.dup.force_encoding('UTF-8'),
-              text: exception.try(:response)&.dig(:body)&.dup&.force_encoding('UTF-8')
+              text: exception.try(:response)&.try(:dig, :body)&.dup&.force_encoding('UTF-8')
             }
           }
           update_sync_data(content: data, external_system: @external_system, status: status, metadata: metadata)

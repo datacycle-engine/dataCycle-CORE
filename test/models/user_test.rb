@@ -38,8 +38,32 @@ module DataCycleCore
         assert_equal([admin_user.id], admin_user.include_groups_user_ids.uniq)
       end
 
-      it 'return des correct role' do
+      it 'return the correct role' do
         assert_equal(admin_user.role, admin_user.send(:set_default_role))
+      end
+
+      it 'soft delete resets all attributes' do
+        user = DataCycleCore::User.create!(
+          given_name: 'Test',
+          family_name: 'TEST',
+          email: "#{SecureRandom.base64(12)}@pixelpoint.at",
+          password: 'password'
+        )
+
+        old_password = user.password
+        user.destroy!
+
+        assert_equal("u#{user.id}@ano.nym", user.email)
+        assert_equal('', user.given_name)
+        assert_equal("anonym_#{user.id.first(8)}", user.family_name)
+        assert_nil(user.current_sign_in_ip)
+        assert_nil(user.last_sign_in_ip)
+        assert(old_password != user.password)
+        assert(user.locked_at.present?)
+        assert(user.deleted_at.present?)
+
+        assert(user.persisted?)
+        assert(user.reload.id.present?)
       end
     end
   end

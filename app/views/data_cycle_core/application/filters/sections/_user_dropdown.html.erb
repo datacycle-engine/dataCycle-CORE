@@ -1,0 +1,12 @@
+<div class="main-filters">
+  <nav id="primary_nav_wrap">
+    <ul class="clickable-menu">
+      <% filter.presence&.dig(:filters)&.each do |key, config| %>
+        <%= render "data_cycle_core/users/filters/#{key}",
+                    display_label: t("filter.#{key.presence&.underscore_blanks}", default: key, locale: active_ui_locale),
+                    identifier: config[:identifier],
+                    value: config[:value] %>
+      <% end %>
+    </ul>
+  </nav>
+</div>
