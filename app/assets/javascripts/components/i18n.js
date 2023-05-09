@@ -26,7 +26,11 @@ const I18n = {
 				result.hasOwnProperty("error") &&
 				substitutions.hasOwnProperty("default")
 			)
-				text = substitutions.default;
+				text = LocalStorageCache.set(
+					this.config.namespace,
+					path,
+					substitutions.default,
+				);
 			else
 				text = result.hasOwnProperty("error")
 					? result.error
@@ -48,11 +52,15 @@ const I18n = {
 		return { error: get(e, "responseJSON.error", path) };
 	},
 	async _loadTranslation(path) {
-		const promise = DataCycle.httpRequest("/i18n/translate", {
-			body: {
-				path: path,
+		const promise = DataCycle.httpRequest(
+			"/i18n/translate",
+			{
+				body: {
+					path: path,
+				},
 			},
-		}).catch((e) => this._errorObject(path, e));
+			0,
+		).catch((e) => this._errorObject(path, e));
 
 		const promiseKey = `${this.config.namespace}/${path}`;
 		DataCycle.globalPromises[promiseKey] = promise;

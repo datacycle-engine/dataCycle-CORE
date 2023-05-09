@@ -1,21 +1,31 @@
 import MapLibreGlViewer from "./maplibre_gl_viewer";
 import urlJoin from "url-join";
+import DomElementHelpers from "../helpers/dom_element_helpers";
+import turfCircle from "@turf/circle";
+import turfBbox from "@turf/bbox";
+import isEmpty from "lodash/isEmpty";
 
 class MapLibreGlDashboard extends MapLibreGlViewer {
 	constructor(container) {
 		super(container);
-		this.language = this.$container.data("language");
-		this.styleCaseProperty = "@type";
-		this.iconColorBase = this.typeColors;
-		this.sourceLayer = "dataCycle";
-
-		this.mapBounds = this.$container.data("map-bounds");
-		this.defaultOptions.bounds = Object.values(this.mapBounds).includes(null)
-			? undefined
-			: Object.values(this.mapBounds);
+		this.filterLayers = DomElementHelpers.parseDataAttribute(
+			this.container.dataset.filterLayers,
+		);
+		this.filterFeatures;
+		this.mapBounds = DomElementHelpers.parseDataAttribute(
+			this.container.dataset.mapBounds,
+		);
+		this.defaultOptions.bounds =
+			!this.mapBounds || Object.values(this.mapBounds).includes(null)
+				? undefined
+				: Object.values(this.mapBounds);
 		this.defaultOptions.fitBoundsOptions = {
 			padding: 20,
 			maxZoom: 15,
+		};
+		this.turfCircleOptions = {
+			steps: 128,
+			units: "kilometers",
 		};
 
 		this.searchForm = document.getElementById("search-form");
@@ -25,7 +35,51 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
 		super.configureMap();
 		this.initEventHandlers();
 	}
-	parseInitialFeatures() {}
+	async parseInitialFeatures() {
+		const features = [];
+
+		if (this.filterLayers?.geo_radius) {
+			for (const filter of Object.values(this.filterLayers.geo_radius)) {
+				features.push(
+					Object.assign(
+						turfCircle(
+							[parseFloat(filter.lon), parseFloat(filter.lat)],
+							filter.unit === "km"
+								? parseFloat(filter.distance)
+								: parseFloat(filter.distance) / 1000,
+						),
+						{
+							properties: {
+								"@id": DomElementHelpers.randomId(),
+								"@type": [await I18n.t("filter.geo_radius")],
+								name: await I18n.t("frontend.map.filter.geo_radius.popup", {
+									lat: filter.lat,
+									lon: filter.lon,
+									radius: filter.distance,
+									unit: filter.unit || "m",
+								}),
+							},
+						},
+					),
+				);
+			}
+		}
+
+		if (features.length)
+			this.filterFeatures = this._createFeatureCollection(features);
+
+		const bounds = this.getCurrentBounds();
+
+		if (isEmpty(bounds)) return;
+
+		if (
+			this.filterLayers?.geo_within_classification &&
+			!isEmpty(this.defaultOptions.bounds)
+		)
+			bounds.extend(this.defaultOptions.bounds);
+
+		this.defaultOptions.bounds = bounds;
+	}
 	initFeatures() {
 		this.drawFeatures();
 	}
@@ -34,47 +88,62 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
 		this._addClickHandler();
 	}
 	drawFeatures() {
-		this._addSourceAndLayer("primary", null);
+		this._addSourceAndLayer({
+			key: "primary",
+			sourceLayer: "dataCycle",
+			popup: true,
+			styleProperty: "@type",
+		});
+
+		if (this.filterLayers?.geo_within_classification) {
+			const key = "filter_geo_within_classification";
+			this.sources[key] = `filter_source_${key}`;
+			this._addVectorSource(
+				this.sources[key],
+				`/concepts/select/${this.filterLayers.geo_within_classification.join(
+					",",
+				)}`,
+			);
+			this._polygonLayer({
+				layerId: `filter_polygon_${key}`,
+				source: this.sources[key],
+				sourceLayer: "dcConcepts",
+				popup: true,
+			});
+		}
+
+		if (this.filterFeatures) {
+			const key = "filter_geo";
+			this.sources[key] = `filter_source_${key}`;
+			this._addGeoJsonSource(this.sources[key], this.filterFeatures);
+			this._polygonLayer({
+				layerId: `filter_polygon_${key}`,
+				source: this.sources[key],
+				sourceLayer: "",
+				popup: true,
+			});
+		}
+	}
+	getCurrentBounds() {
+		let bounds = super.getCurrentBounds();
+		if (!bounds) bounds = new this.maplibreGl.LngLatBounds();
+		if (this.filterFeatures) bounds.extend(turfBbox(this.filterFeatures));
+		if (isEmpty(bounds)) return;
+
+		return bounds;
 	}
 	_addSourceType(name, _data) {
+		this._addVectorSource(name);
+	}
+	_addVectorSource(name, path = `/endpoints/${this.currentEndpointId}`) {
 		this.map.addSource(name, {
 			type: "vector",
 			tiles: [
-				`${location.protocol}//${location.host}/mvt/v1/endpoints/${this.currentEndpointId}/{z}/{x}/{y}.pbf`,
+				`${location.protocol}//${location.host}/mvt/v1/${path}/{z}/{x}/{y}.pbf`,
 			],
 			promoteId: "@id",
 			minzoom: 0,
 			maxzoom: 22,
-		});
-	}
-	_addPopup() {
-		const popup = new this.maplibreGl.Popup({
-			closeButton: false,
-			closeOnClick: false,
-			className: "additional-feature-popup",
-		});
-
-		this.map.on("mousemove", (e) => {
-			const feature = this.map.queryRenderedFeatures(e.point)[0];
-
-			if (feature && feature.source === "feature_source_primary") {
-				this.map.getCanvas().style.cursor = "pointer";
-				const types = JSON.parse(feature.properties["@type"]);
-				const type = types[types.length - 1].replace("dcls:", "");
-				popup
-					.setLngLat(
-						feature.geometry.type !== "Point"
-							? e.lngLat
-							: feature.geometry.coordinates,
-					)
-					.setHTML(`<b>${type}</b><br> ${feature.properties.name}`)
-					.addTo(this.map);
-
-				this._highlightLinked(feature);
-			} else {
-				this.map.getCanvas().style.cursor = "";
-				popup.remove();
-			}
 		});
 	}
 	_addClickHandler() {

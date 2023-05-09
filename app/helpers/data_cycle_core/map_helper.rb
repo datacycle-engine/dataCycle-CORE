@@ -95,5 +95,27 @@ module DataCycleCore
         .order(created_at: :asc)
         .group_by { |c| c.parent_classification_alias&.id }
     end
+
+    def query_bounding_box(contents, filter_layers = {})
+      return contents.to_bbox if filter_layers.blank?
+
+      return unless filter_layers.key?('geo_within_classification')
+
+      DataCycleCore::ClassificationPolygon.where(classification_alias_id: filter_layers['geo_within_classification']).to_bbox
+    end
+
+    def map_filter_layers(filters)
+      filter_layers = {}
+
+      if (geo_within_classification = filters&.select { |f| f['q'] == 'geo_within_classification' && f['t'] == 'geo_filter' }).present?
+        filter_layers['geo_within_classification'] = geo_within_classification.pluck('v').flatten.uniq
+      end
+
+      if (geo_radius = filters&.select { |f| f['q'] == 'geo_radius' && f['t'] == 'geo_filter' }).present?
+        filter_layers['geo_radius'] = geo_radius.pluck('v').flatten.uniq
+      end
+
+      filter_layers
+    end
   end
 end

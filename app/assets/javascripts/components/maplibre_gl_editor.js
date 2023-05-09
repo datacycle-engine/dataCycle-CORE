@@ -114,12 +114,6 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 			.getSource(this._additionalValueSourceByKey(key))
 			.setData(this._additionalValuesByKey(key));
 	}
-	_createFeatureCollection(data = []) {
-		return {
-			type: "FeatureCollection",
-			features: data,
-		};
-	}
 	async _loadGeojson(additionalParams = {}) {
 		let data = await DataCycle.httpRequest("/things/geojson_for_map_editor", {
 			method: "POST",

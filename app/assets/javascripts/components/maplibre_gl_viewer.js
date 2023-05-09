@@ -1,6 +1,7 @@
 import pick from "lodash/pick";
 import isEmpty from "lodash/isEmpty";
 import turfBbox from "@turf/bbox";
+import DomElementHelpers from "../helpers/dom_element_helpers";
 
 const MaplibreGl = () =>
 	import("maplibre-gl/dist/maplibre-gl").then((mod) => mod.default);
@@ -12,6 +13,7 @@ const iconPaths = {
 
 class MapLibreGlViewer {
 	constructor(container) {
+		this.container = container;
 		this.$container = $(container);
 		this.$parentContainer = this.$container.parent(".geographic");
 		this.containerId = this.$container.attr("id");
@@ -60,7 +62,6 @@ class MapLibreGlViewer {
 
 		this.iconColorBase = this.definedColors;
 		this.colors = new Proxy(this.definedColors, this.colorsHandler);
-		this.styleCaseProperty = "color";
 		this.zoomMethod = "ctrlKey";
 		this.mouseZoomTimeout;
 		this.mapOptions = this.$container.data("map-options");
@@ -95,19 +96,18 @@ class MapLibreGlViewer {
 		this.layers = {};
 		this.allRenderedLayers = [];
 		this.hoveredStateId = {};
-		this.sourceLayer = "";
 	}
 	async setup() {
 		try {
 			this.maplibreGl = await MaplibreGl();
-			this.initMap();
+			await this.initMap();
 			this.map.on("load", this.configureMap.bind(this));
 		} catch (error) {
 			console.error(error);
 		}
 	}
-	initMap() {
-		this.parseInitialFeatures();
+	async initMap() {
+		await this.parseInitialFeatures();
 
 		this.map = new this.maplibreGl.Map(
 			Object.assign(this.defaultOptions, {
@@ -290,7 +290,7 @@ class MapLibreGlViewer {
 	}
 	drawFeatures() {
 		if (!this.afterValue && this.feature)
-			this._addSourceAndLayer("primary", this.feature);
+			this._addSourceAndLayer({ key: "primary", data: this.feature });
 	}
 	drawAdditionalFeatures() {
 		for (const [key, value] of Object.entries(this.additionalFeatures)) {
@@ -310,7 +310,13 @@ class MapLibreGlViewer {
 				(l) => l.metadata?.namespace === "dataCycle" && l.id?.match(idRegex),
 			)?.id;
 	}
-	_lineLayer(layerId, source) {
+	_lineLayer({
+		layerId,
+		source,
+		sourceLayer = "",
+		popup = layerId.includes("additional"),
+		styleProperty = "color",
+	}) {
 		let lineColor = this.definedColors.gray;
 		let iconColor = "gray";
 
@@ -327,11 +333,11 @@ class MapLibreGlViewer {
 				id: `${layerId}_hover_start`,
 				type: "symbol",
 				source: source,
-				"source-layer": this.sourceLayer,
+				"source-layer": sourceLayer,
 				filter: ["==", ["geometry-type"], "LineString"],
 				layout: {
 					"icon-image": this.getStyleCaseExpression(
-						this.styleCaseProperty,
+						styleProperty,
 						this.getLineHoverColorExpression(),
 						`start_${iconColor}`,
 					),
@@ -358,7 +364,7 @@ class MapLibreGlViewer {
 				id: `${layerId}_hover_foreground`,
 				type: "line",
 				source: source,
-				"source-layer": this.sourceLayer,
+				"source-layer": sourceLayer,
 				filter: ["==", ["geometry-type"], "LineString"],
 				layout: {
 					"line-cap": "round",
@@ -366,7 +372,7 @@ class MapLibreGlViewer {
 				},
 				paint: {
 					"line-color": this.getStyleCaseExpression(
-						this.styleCaseProperty,
+						styleProperty,
 						this.getHoverColorMatchHexExpression(),
 						lineColor,
 					),
@@ -400,7 +406,7 @@ class MapLibreGlViewer {
 				id: layerId,
 				type: "line",
 				source: source,
-				"source-layer": this.sourceLayer,
+				"source-layer": sourceLayer,
 				filter: ["==", "$type", "LineString"],
 				layout: {
 					"line-cap": "round",
@@ -408,7 +414,7 @@ class MapLibreGlViewer {
 				},
 				paint: {
 					"line-color": this.getStyleCaseExpression(
-						this.styleCaseProperty,
+						styleProperty,
 						this.getColorMatchHexExpression(),
 						lineColor,
 					),
@@ -437,7 +443,7 @@ class MapLibreGlViewer {
 				id: `${layerId}_hover`,
 				type: "line",
 				source: source,
-				"source-layer": this.sourceLayer,
+				"source-layer": sourceLayer,
 				filter: ["==", ["geometry-type"], "LineString"],
 				layout: {
 					"line-cap": "round",
@@ -470,9 +476,9 @@ class MapLibreGlViewer {
 			this._getLastLayerId(layerId),
 		);
 
-		this.initMapHoverActions(`${layerId}_hover`, source);
+		this.initMapHoverActions(`${layerId}_hover`, source, sourceLayer);
 
-		if (layerId.includes("additional"))
+		if (popup)
 			this.allRenderedLayers.push(
 				`${layerId}_hover`,
 				layerId,
@@ -481,7 +487,13 @@ class MapLibreGlViewer {
 
 		return layerId;
 	}
-	_pointLayer(layerId, source) {
+	_pointLayer({
+		layerId,
+		source,
+		sourceLayer = "",
+		popup = layerId.includes("additional"),
+		styleProperty = "color",
+	}) {
 		let pointColor = this.definedColors.gray;
 		let circleRadius = 5;
 
@@ -497,7 +509,7 @@ class MapLibreGlViewer {
 			id: `${layerId}_hover`,
 			type: "circle",
 			source: source,
-			"source-layer": this.sourceLayer,
+			"source-layer": sourceLayer,
 			filter: ["==", "$type", "Point"],
 			paint: {
 				"circle-radius": [
@@ -521,7 +533,7 @@ class MapLibreGlViewer {
 					4,
 				],
 				"circle-color": this.getStyleCaseExpression(
-					this.styleCaseProperty,
+					styleProperty,
 					this.getHoverColorMatchHexExpression(),
 					pointColor,
 				),
@@ -549,7 +561,7 @@ class MapLibreGlViewer {
 				id: layerId,
 				type: "circle",
 				source: source,
-				"source-layer": this.sourceLayer,
+				"source-layer": sourceLayer,
 				filter: ["==", "$type", "Point"],
 				paint: {
 					"circle-radius": [
@@ -573,7 +585,7 @@ class MapLibreGlViewer {
 						4,
 					],
 					"circle-color": this.getStyleCaseExpression(
-						this.styleCaseProperty,
+						styleProperty,
 						this.getColorMatchHexExpression(),
 						pointColor,
 					),
@@ -586,20 +598,28 @@ class MapLibreGlViewer {
 			this._getLastLayerId(`${layerId}_hover`),
 		);
 
-		this.initMapHoverActions(`${layerId}_hover`, source);
+		this.initMapHoverActions(`${layerId}_hover`, source, sourceLayer);
 
-		if (layerId.includes("additional"))
-			this.allRenderedLayers.push(`${layerId}_hover`, layerId);
+		if (popup) this.allRenderedLayers.push(`${layerId}_hover`, layerId);
 
 		return layerId;
 	}
-	_polygonLayer(layerId, source) {
+	_polygonLayer({
+		layerId,
+		source,
+		sourceLayer = "",
+		popup = layerId.includes("additional"),
+		styleProperty = "color",
+	}) {
 		let polygonColor = this.definedColors.gray;
+		let opacity = 0.5;
 
 		if (layerId.includes("feature")) {
 			polygonColor = this.definedColors.default;
 		} else if (layerId.includes("_selected")) {
 			polygonColor = this.definedColors.lightBlue;
+		} else if (layerId.includes("filter")) {
+			opacity = 0.3;
 		}
 
 		this.map.addLayer(
@@ -607,15 +627,15 @@ class MapLibreGlViewer {
 				id: `${layerId}_hover`,
 				type: "fill",
 				source: source,
-				"source-layer": this.sourceLayer,
+				"source-layer": sourceLayer,
 				filter: ["==", "$type", "Polygon"],
 				paint: {
 					"fill-color": this.getStyleCaseExpression(
-						this.styleCaseProperty,
+						styleProperty,
 						this.getHoverColorMatchHexExpression(),
 						polygonColor,
 					),
-					"fill-opacity": 0.5,
+					"fill-opacity": opacity,
 				},
 				metadata: {
 					namespace: "dataCycle",
@@ -629,15 +649,15 @@ class MapLibreGlViewer {
 				id: layerId,
 				type: "fill",
 				source: source,
-				"source-layer": this.sourceLayer,
+				"source-layer": sourceLayer,
 				filter: ["==", "$type", "Polygon"],
 				paint: {
 					"fill-color": this.getStyleCaseExpression(
-						this.styleCaseProperty,
+						styleProperty,
 						this.getColorMatchHexExpression(),
 						polygonColor,
 					),
-					"fill-opacity": 0.5,
+					"fill-opacity": opacity,
 				},
 				metadata: {
 					namespace: "dataCycle",
@@ -646,10 +666,9 @@ class MapLibreGlViewer {
 			this._getLastLayerId(`${layerId}_hover`),
 		);
 
-		this.initMapHoverActions(`${layerId}_hover`, source);
+		this.initMapHoverActions(`${layerId}_hover`, source, sourceLayer);
 
-		if (layerId.includes("additional"))
-			this.allRenderedLayers.push(`${layerId}_hover`, layerId);
+		if (popup) this.allRenderedLayers.push(`${layerId}_hover`, layerId);
 
 		return layerId;
 	}
@@ -660,19 +679,33 @@ class MapLibreGlViewer {
 			className: "additional-feature-popup",
 		});
 
-		this.map.on("mousemove", (e) => {
+		this.map.on("mousemove", async (e) => {
 			const feature = this.map.queryRenderedFeatures(e.point, {
 				layers: this.allRenderedLayers,
 			})[0];
 
-			if (feature) {
+			if (feature?.properties?.name) {
+				let html = feature.properties.name;
+				if (feature.properties["@type"]) {
+					const types = DomElementHelpers.parseDataAttribute(
+						feature.properties["@type"],
+					);
+					if (Array.isArray(types) && types.length) {
+						const type = types[types.length - 1].replace("dcls:", "");
+
+						html = `<b>${await I18n.t(`template_names.${type}`, {
+							default: type,
+						})}</b><br>${html}`;
+					}
+				}
+
 				popup
 					.setLngLat(
 						feature.geometry.type !== "Point"
 							? e.lngLat
 							: feature.geometry.coordinates,
 					)
-					.setHTML(feature.properties.name)
+					.setHTML(html)
 					.addTo(this.map);
 
 				this._highlightLinked(feature);
@@ -692,15 +725,39 @@ class MapLibreGlViewer {
 			listElement.removeClass("highlight");
 		}, 1000);
 	}
-	_addSourceAndLayer(key, data) {
+	_addSourceAndLayer({
+		key,
+		data = null,
+		popup = key.includes("additional"),
+		styleProperty = "color",
+		sourceLayer = "",
+	}) {
 		this.sources[key] = `feature_source_${key}`;
 
 		this._addSourceType(this.sources[key], data);
 
 		this.layers[key] = {
-			polygon: this._polygonLayer(`feature_polygon_${key}`, this.sources[key]),
-			line: this._lineLayer(`feature_line_${key}`, this.sources[key]),
-			point: this._pointLayer(`feature_point_${key}`, this.sources[key]),
+			polygon: this._polygonLayer({
+				layerId: `feature_polygon_${key}`,
+				source: this.sources[key],
+				popup: popup,
+				styleProperty: styleProperty,
+				sourceLayer: sourceLayer,
+			}),
+			line: this._lineLayer({
+				layerId: `feature_line_${key}`,
+				source: this.sources[key],
+				popup: popup,
+				styleProperty: styleProperty,
+				sourceLayer: sourceLayer,
+			}),
+			point: this._pointLayer({
+				layerId: `feature_point_${key}`,
+				source: this.sources[key],
+				popup: popup,
+				styleProperty: styleProperty,
+				sourceLayer: sourceLayer,
+			}),
 		};
 	}
 	_addAdditionalSourceAndLayers(key, data, postfix = "") {
@@ -725,17 +782,26 @@ class MapLibreGlViewer {
 
 		this._addSourceType(additionalSources[key], data);
 		additionalLayers[key] = {
-			polygon: this._polygonLayer(
-				configs.layerIds.polygon,
-				additionalSources[key],
-			),
-			line: this._lineLayer(configs.layerIds.line, additionalSources[key]),
-			point: this._pointLayer(configs.layerIds.point, additionalSources[key]),
+			polygon: this._polygonLayer({
+				layerId: configs.layerIds.polygon,
+				source: additionalSources[key],
+			}),
+			line: this._lineLayer({
+				layerId: configs.layerIds.line,
+				source: additionalSources[key],
+			}),
+			point: this._pointLayer({
+				layerId: configs.layerIds.point,
+				source: additionalSources[key],
+			}),
 		};
 
 		return configs;
 	}
 	_addSourceType(name, data) {
+		this._addGeoJsonSource(name, data);
+	}
+	_addGeoJsonSource(name, data) {
 		this.map.addSource(name, {
 			type: "geojson",
 			data: data,
@@ -795,7 +861,13 @@ class MapLibreGlViewer {
 			}
 		});
 	}
-	initMapHoverActions(layerId, source) {
+	_createFeatureCollection(data = []) {
+		return {
+			type: "FeatureCollection",
+			features: data,
+		};
+	}
+	initMapHoverActions(layerId, source, sourceLayer = "") {
 		this.map.on("mousemove", layerId, (e) => {
 			this.map.getCanvas().style.cursor = e.features.length ? "pointer" : "";
 
@@ -804,7 +876,7 @@ class MapLibreGlViewer {
 					this.map.setFeatureState(
 						{
 							source: source,
-							sourceLayer: this.sourceLayer,
+							sourceLayer: sourceLayer,
 							id: this.hoveredStateId[layerId],
 						},
 						{ hover: false },
@@ -814,7 +886,7 @@ class MapLibreGlViewer {
 				this.map.setFeatureState(
 					{
 						source: source,
-						sourceLayer: this.sourceLayer,
+						sourceLayer: sourceLayer,
 						id: this.hoveredStateId[layerId],
 					},
 					{ hover: true },
@@ -828,7 +900,7 @@ class MapLibreGlViewer {
 				this.map.setFeatureState(
 					{
 						source: source,
-						sourceLayer: this.sourceLayer,
+						sourceLayer: sourceLayer,
 						id: this.hoveredStateId[layerId],
 					},
 					{ hover: false },
