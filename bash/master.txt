@@ -1,5 +1,4 @@
 data-cycle-bad-kleinkirchheim;git@git.pixelpoint.biz:data-cycle/data-cycle-bad-kleinkirchheim.git
-data-cycle-bayern-cloud;git@git.pixelpoint.biz:data-cycle/data-cycle-bayern-cloud.git
 data-cycle-brandenburg;git@git.pixelpoint.biz:data-cycle/data-cycle-brandenburg.git
 data-cycle-burgenland;git@git.pixelpoint.biz:data-cycle/data-cycle-burgenland.git
 data-cycle-donau-touristik;git@git.pixelpoint.biz:data-cycle/donau-touristik.git
@@ -19,7 +18,6 @@ data-cycle-neusiedlersee;git@git.pixelpoint.biz:data-cycle/data-cycle-neusiedler
 data-cycle-nlw;git@git.pixelpoint.biz:data-cycle/data-cycle-nlw.git
 data-cycle-nockberge;git@git.pixelpoint.biz:data-cycle/data-cycle-nockberge.git
 data-cycle-oewein;git@git.pixelpoint.biz:data-cycle/data-cycle-oewein.git
-data-cycle-pia;git@git.pixelpoint.biz:data-cycle/data-cycle-pia.git
 data-cycle-pixelmap;git@git.pixelpoint.biz:data-cycle/data-cycle-pixelmap.git
 data-cycle-public-pixel;git@git.pixelpoint.biz:data-cycle/data-cycle-public-pixel.git
 data-cycle-rheinland-pfalz;git@git.pixelpoint.biz:data-cycle/data-cycle-rheinland-pfalz.git

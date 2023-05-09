@@ -24,7 +24,7 @@ function init_git_repo {
     git clone $2 .
     git checkout $BRANCH_NAME
     git submodule sync --recursive
-    git submodule update --init --recursive --force
+    git submodule update --init --recursive --force --remote
 }
 
 function add_core_git_tag {
@@ -44,13 +44,6 @@ function add_core_git_tag {
     git push origin "$TAG_NAME"
     cd ".."
     rm -Rf "$dir_name"
-}
-
-function update_core_submodule {
-    cd vendor/gems/data-cycle-core
-    git status
-    git checkout origin/$BRANCH_NAME
-    git pull origin $BRANCH_NAME
 }
 
 BRANCH_NAME='master'
@@ -76,7 +69,6 @@ for project in "${PROJECTS[@]}"
     print_body_message "Init $name($git_url)"
 
     init_git_repo $project_dir $git_url
-    update_core_submodule $project_dir $git_url
     cd "$dir/$project_dir"
     if [ ! -z "$UPDATE_GEM" ] ; then
         echo "Updating gem: ${UPDATE_GEM}"
@@ -87,7 +79,7 @@ for project in "${PROJECTS[@]}"
     # cp "$dir/migrations/robots.txt" "$dir/$project_dir/public"
     git status
     ts=$(date +%s)
-    git commit -a -m "$ts: updated datacyclecore"
+    git commit -a -m "$ts: updated submodules"
     git push origin $BRANCH_NAME
     git tag -a "$TAG_NAME" -m "core $BRANCH_NAME"
     git push origin "$TAG_NAME"
