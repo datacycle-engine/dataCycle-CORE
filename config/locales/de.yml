@@ -19,6 +19,9 @@ de:
   submit: "Erstellen"
   settings:
 
+  template_names:
+    skos:Concept: Klassifizierung
+
   attribute_labels:
     additional_information:
       one: Beschreibungsblock
@@ -163,6 +166,8 @@ de:
         pinch: "Verwende zwei Finger zum Zoomen/Scrollen der Karte"
       filter:
         button_title: Verknüpfte Inhalte bearbeiten
+        geo_radius:
+          popup: "Mittelpunkt: %{lon}°, %{lat}°<br>Radius: %{radius} %{unit}"
       undo: Letzte Änderung rückgängig machen
       redo: Rückgängig gemachte Änderungen erneut anwenden
       upload_gpx:
@@ -495,7 +500,6 @@ de:
     placeholder:
       longitude: Längengrad, z.B. 14,30
       latitude: Breitengrad, z.B. 46,61
-      distance: Radius in Metern
     available_widgets: Verfügbare Widgets
     widgets:
       event_list: Events - Listenansicht
@@ -911,6 +915,8 @@ de:
       error: Die Klassifizierungen konnten nicht zusammengeführt werden
       confirm_html: <b>%{source_path}</b> wird mit <b>%{target_path}</b> zusammengeführt.
       success: Die Klassifizierungen wurden erfolgreich zusammengeführt
+    classification_polygon:
+      link_tooltip: verknüpfte GeoShape anzeigen
 
   classification_change_behaviour:
     trigger_webhooks: Webhooks für Inhalte auslösen

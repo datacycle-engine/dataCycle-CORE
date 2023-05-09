@@ -27,6 +27,32 @@
                   dc_tooltip: t('actions.delete_with_data', data: classification_tree.sub_classification_alias.try(:internal_name), locale: active_ui_locale)
                 } if can?(:destroy, classification_tree.sub_classification_alias) %>
 
+    <% if classification_tree.sub_classification_alias.classification_polygons.present? %>
+      <% overlay_id = SecureRandom.hex(10) %>
+      <%= link_to tag.i(class: 'fa fa-map'),
+                  '#',
+                  class: 'polygon-map-link',
+                  data: {
+                    toggle: overlay_id,
+                    dc_tooltip: t('classification_administration.classification_polygon.link_tooltip', locale: active_ui_locale)
+                  } %>
+
+      <div class="reveal classification-polygon-reveal" id="<%= overlay_id %>" data-reveal>
+        <h3><%= classification_title(classification_tree.sub_classification_alias) %></h3>
+
+        <div class="geographic">
+          <div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map polygon"
+                data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
+                data-additional-values="<%= classification_polygon_features(classification_tree.sub_classification_alias) %>">
+          </div>
+        </div>
+
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    <% end %>
+
     <%= link_to tag.i(class: 'fa fa-clipboard'), '#',
                 class: 'copy-to-clipboard',
                 data: {

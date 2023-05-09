@@ -19,6 +19,9 @@ en:
     updated: Edited
   submit: Create
 
+  template_names:
+    skos:Concept: Classification
+
   attribute_labels:
     additional_information:
       one: Description block
@@ -159,6 +162,8 @@ en:
         pinch: Use two fingers to zoom/scroll the map
       filter:
         button_title: edit linked contents
+        geo_radius:
+          popup: "Center: %{lon}°, %{lat}°<br>Radius: %{radius} %{unit}"
       undo: undo last change
       redo: Reapply undone changes
       upload_gpx:
@@ -494,7 +499,6 @@ en:
     placeholder:
       longitude: Longitude, e.g. 14.30
       latitude: Latitude, e.g. 46.61
-      distance: Radius in meters
     available_widgets: Available widgets
     widgets:
       event_list: Events - List view
@@ -1591,7 +1595,7 @@ en:
       additionalInformation: Additional information
       literature: Literture
       publicTransit: Public transit
-      seasonDescription: Sesion      
+      seasonDescription: Sesion
     gem2go:
       description: Description
     timm4:

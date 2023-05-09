@@ -39,19 +39,37 @@ module DataCycleCore
         def geo_radius(values)
           return self if values&.dig('lon').blank? || values&.dig('lat').blank? || values&.dig('distance').blank?
 
+          distance = values['distance'].to_i
+          distance *= 1000 if values&.dig('unit') == 'km'
+
           reflect(
             @query
               .where.not(thing[:geom_simple].eq(nil))
-              .where(st_dwithin(cast_geography(thing[:geom_simple]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i))
+              .where(
+                st_dwithin(
+                  cast_geography(thing[:geom_simple]),
+                  cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
+                  distance
+                )
+              )
           )
         end
 
         def not_geo_radius(values)
           return self if values&.dig('lon').blank? || values&.dig('lat').blank? || values&.dig('distance').blank?
 
+          distance = values['distance'].to_i
+          distance *= 1000 if values&.dig('unit') == 'km'
+
           reflect(
             @query
-              .where.not(st_dwithin(cast_geography(thing[:geom_simple]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)), values&.dig('distance').to_i))
+              .where.not(
+                st_dwithin(
+                  cast_geography(thing[:geom_simple]),
+                  cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
+                  distance
+                )
+              )
           )
         end
 
