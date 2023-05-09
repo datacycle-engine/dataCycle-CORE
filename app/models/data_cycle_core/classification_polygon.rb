@@ -23,7 +23,7 @@ module DataCycleCore
     def self.to_mvt(x, y, z, layer_name)
       select_sql = <<-SQL.squish
         classification_polygons.classification_alias_id AS id,
-        ST_Simplify (geom, 0.00390625, TRUE) AS geometry,
+        ST_Simplify (geom, 0.00001, TRUE) AS geometry,
         array_to_json(ARRAY ['skos:Concept']::VARCHAR []) AS "@type",
         classification_alias.internal_name AS name
       SQL
