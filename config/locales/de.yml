@@ -544,6 +544,7 @@ de:
   external_connection_states:
     success: Erfolgreich synchronisiert
     pending: wird synchronisiert
+    running: Export getriggert
     error: "Es ist ein Fehler aufgetreten.\nDie Synchronisation wird in bestimmten Intervallen erneut versucht."
     failure: "Es ist ein schwerer Fehler aufgetreten.\nDer Inhalt kann nich synchronisiert werden."
     export: Externes System

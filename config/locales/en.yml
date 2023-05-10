@@ -547,6 +547,7 @@ en:
   external_connection_states:
     success: Successfully synchronized
     pending: is synchronized
+    running: export is triggered
     error: |-
       An error has occurred.
       Synchronization will be retried at specified intervals.
