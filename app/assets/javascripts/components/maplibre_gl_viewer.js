@@ -1013,8 +1013,18 @@ class MapLibreGlViewer {
 		const bounds = new this.maplibreGl.LngLatBounds();
 
 		if (this.feature) bounds.extend(turfBbox(this.feature));
-		for (const geoJson of Object.values(this.additionalFeatures))
-			bounds.extend(turfBbox(geoJson));
+
+		for (const geoJson of Object.values(this.additionalFeatures)) {
+			const bbox = turfBbox(geoJson);
+
+			if (
+				Object.values(bbox).includes(Infinity) ||
+				Object.values(bbox).includes(-Infinity)
+			)
+				continue;
+
+			bounds.extend(bbox);
+		}
 		if (this.filterFeatures) bounds.extend(turfBbox(this.filterFeatures));
 
 		if (isEmpty(bounds)) return;
