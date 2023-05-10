@@ -55,12 +55,16 @@ module DataCycleCore
             .includes(
               sub_classification_alias: [
                 :classification_alias_path,
-                :classification_polygons,
                 additional_classifications: [primary_classification_alias: :classification_alias_path],
                 primary_classification: [additional_classification_aliases: :classification_alias_path],
                 classifications: [primary_classification_alias: :classification_alias_path]
               ]
             )
+
+            @classification_polygon_counts = @classification_trees
+              .joins(sub_classification_alias: :classification_polygons)
+              .group(:classification_alias_id)
+              .count
           end
 
           @classification_trees = @classification_trees.order('classification_aliases.order_a ASC')

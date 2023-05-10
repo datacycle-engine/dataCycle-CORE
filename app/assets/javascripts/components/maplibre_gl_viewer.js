@@ -1,7 +1,9 @@
 import pick from "lodash/pick";
 import isEmpty from "lodash/isEmpty";
 import turfBbox from "@turf/bbox";
+import turfCircle from "@turf/circle";
 import DomElementHelpers from "../helpers/dom_element_helpers";
+import throttle from "lodash/throttle";
 
 const MaplibreGl = () =>
 	import("maplibre-gl/dist/maplibre-gl").then((mod) => mod.default);
@@ -29,6 +31,13 @@ class MapLibreGlViewer {
 		);
 		this.feature;
 		this.additionalFeatures = {};
+		this.filterLayers = DomElementHelpers.parseDataAttribute(
+			this.container.dataset.filterLayers,
+		);
+		this.filterFeatures;
+		this.mapBounds = DomElementHelpers.parseDataAttribute(
+			this.container.dataset.mapBounds,
+		);
 		this.icons = iconPaths;
 		this.colorsHandler = {
 			get: function (target, name) {
@@ -37,7 +46,10 @@ class MapLibreGlViewer {
 				else target["default"];
 			},
 		};
-
+		this.turfCircleOptions = {
+			steps: 128,
+			units: "kilometers",
+		};
 		this.definedColors = {
 			default: getComputedStyle(document.documentElement).getPropertyValue(
 				"--dark-blue",
@@ -59,7 +71,6 @@ class MapLibreGlViewer {
 				"--gray",
 			),
 		};
-
 		this.iconColorBase = this.definedColors;
 		this.colors = new Proxy(this.definedColors, this.colorsHandler);
 		this.zoomMethod = "ctrlKey";
@@ -85,6 +96,10 @@ class MapLibreGlViewer {
 			padding: 50,
 			maxZoom: 15,
 		};
+		this.defaultOptions.bounds =
+			!this.mapBounds || Object.values(this.mapBounds).includes(null)
+				? undefined
+				: Object.values(this.mapBounds);
 		this.highDpi = window.devicePixelRatio > 1;
 
 		this.credentials = this.mapOptions.credentials;
@@ -96,6 +111,7 @@ class MapLibreGlViewer {
 		this.layers = {};
 		this.allRenderedLayers = [];
 		this.hoveredStateId = {};
+		this.throttledHighlight = throttle(this._highlightLinked.bind(this), 1000);
 	}
 	async setup() {
 		try {
@@ -151,7 +167,7 @@ class MapLibreGlViewer {
 		this.drawFeatures();
 		this.drawAdditionalFeatures();
 	}
-	parseInitialFeatures() {
+	async parseInitialFeatures() {
 		if (!this.feature && this.value) this.feature = this.value;
 
 		const beforeFeature = this.beforeValue
@@ -165,11 +181,52 @@ class MapLibreGlViewer {
 			...this.additionalValues,
 		};
 
+		await this.parseFilterFeatures();
+
 		const bounds = this.getCurrentBounds();
 
 		if (isEmpty(bounds)) return;
 
+		if (
+			this.filterLayers?.geo_within_classification &&
+			!isEmpty(this.defaultOptions.bounds)
+		)
+			bounds.extend(this.defaultOptions.bounds);
+
 		this.defaultOptions.bounds = bounds;
+	}
+	async parseFilterFeatures() {
+		const features = [];
+
+		if (this.filterLayers?.geo_radius) {
+			for (const filter of Object.values(this.filterLayers.geo_radius)) {
+				features.push(
+					Object.assign(
+						turfCircle(
+							[parseFloat(filter.lon), parseFloat(filter.lat)],
+							filter.unit === "km"
+								? parseFloat(filter.distance)
+								: parseFloat(filter.distance) / 1000,
+						),
+						{
+							properties: {
+								"@id": DomElementHelpers.randomId(),
+								"@type": [await I18n.t("filter.geo_radius")],
+								name: await I18n.t("frontend.map.filter.geo_radius.popup", {
+									lat: filter.lat,
+									lon: filter.lon,
+									radius: filter.distance,
+									unit: filter.unit || "m",
+								}),
+							},
+						},
+					),
+				);
+			}
+		}
+
+		if (features.length)
+			this.filterFeatures = this._createFeatureCollection(features);
 	}
 	mapBaseLayer() {
 		const baseStyle = this.mapStyles[0].value;
@@ -301,7 +358,39 @@ class MapLibreGlViewer {
 			);
 		}
 
+		this.drawFilterFeatures();
+
 		this._addPopup();
+	}
+	drawFilterFeatures() {
+		if (this.filterLayers?.geo_within_classification) {
+			const key = "filter_geo_within_classification";
+			this.sources[key] = `filter_source_${key}`;
+			this._addVectorSource(
+				this.sources[key],
+				`/concepts/select/${this.filterLayers.geo_within_classification.join(
+					",",
+				)}`,
+			);
+			this._polygonLayer({
+				layerId: `filter_polygon_${key}`,
+				source: this.sources[key],
+				sourceLayer: "dcConcepts",
+				popup: true,
+			});
+		}
+
+		if (this.filterFeatures) {
+			const key = "filter_geo";
+			this.sources[key] = `filter_source_${key}`;
+			this._addGeoJsonSource(this.sources[key], this.filterFeatures);
+			this._polygonLayer({
+				layerId: `filter_polygon_${key}`,
+				source: this.sources[key],
+				sourceLayer: "",
+				popup: true,
+			});
+		}
 	}
 	_getLastLayerId(idRegex) {
 		return this.map
@@ -708,7 +797,7 @@ class MapLibreGlViewer {
 					.setHTML(html)
 					.addTo(this.map);
 
-				this._highlightLinked(feature);
+				this.throttledHighlight(feature);
 			} else {
 				popup.remove();
 			}
@@ -806,6 +895,17 @@ class MapLibreGlViewer {
 			type: "geojson",
 			data: data,
 			promoteId: "@id",
+		});
+	}
+	_addVectorSource(name, path) {
+		this.map.addSource(name, {
+			type: "vector",
+			tiles: [
+				`${location.protocol}//${location.host}/mvt/v1/${path}/{z}/{x}/{y}.pbf`,
+			],
+			promoteId: "@id",
+			minzoom: 0,
+			maxzoom: 22,
 		});
 	}
 	_disableScrollingOnMapOverlays() {
@@ -915,6 +1015,7 @@ class MapLibreGlViewer {
 		if (this.feature) bounds.extend(turfBbox(this.feature));
 		for (const geoJson of Object.values(this.additionalFeatures))
 			bounds.extend(turfBbox(geoJson));
+		if (this.filterFeatures) bounds.extend(turfBbox(this.filterFeatures));
 
 		if (isEmpty(bounds)) return;
 
