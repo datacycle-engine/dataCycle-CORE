@@ -1700,6 +1700,7 @@ en:
   uploader:
     restrictions: Restrictions
     validation:
+      invalid_file: corrupted file
       format: 'Allowed formats: <span class="value">%{data}</span>'
       format_not_supported: Unsupported format (%{data})
       dimensions:
