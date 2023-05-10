@@ -581,6 +581,7 @@ en:
     media_archive: open in the media archive
   feature:
     content_score:
+      tooltip_score: "(%{score} of 100)"
       tooltip:
         title: Content-Score
         criteria: "Criteria: <b>%{text}</b>"
