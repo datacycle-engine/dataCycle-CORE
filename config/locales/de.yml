@@ -1701,6 +1701,7 @@ de:
   uploader:
     restrictions: "Einschränkungen"
     validation:
+      invalid_file: beschädigte Datei
       format: 'Erlaubte Formate: <span class="value">%{data}</span>'
       format_not_supported: Nicht unterstütztes Format (%{data})
       dimensions:

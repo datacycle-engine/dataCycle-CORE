@@ -14,6 +14,7 @@ module DataCycleCore
       mount_uploader :file, PdfUploader
       process_in_background :file
       validates_integrity_of :file
+      validate :valid_pdf
       after_destroy :remove_directory
       delegate :versions, to: :file
     end
@@ -48,6 +49,14 @@ module DataCycleCore
     end
 
     private
+
+    def valid_pdf
+      ::MiniMagick::Image.new("#{file.path}[0]").identify
+    rescue StandardError
+      errors.add :file, **{
+        path: 'uploader.validation.invalid_file'
+      }
+    end
 
     def metadata_from_blob
       if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable.dig(:io).present?
