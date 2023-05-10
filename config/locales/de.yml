@@ -576,6 +576,7 @@ de:
 
   feature:
     content_score:
+      tooltip_score: "(%{score} von 100)"
       tooltip:
         title: Content-Score
         criteria: "Kriterium: <b>%{text}</b>"
