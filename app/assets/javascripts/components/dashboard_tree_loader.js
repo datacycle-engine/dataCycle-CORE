@@ -32,7 +32,7 @@ class DashboardTreeLoader extends DashboardPagination {
 
     this.loadPageContent(formData);
   }
-  insertNewData(data) {
+  insertNewData(_page, data) {
     DataCycle.enableElement(this.paginationElement);
     this.paginationElement.classList.remove('loading');
     this.paginationElement.classList.add('loaded');
