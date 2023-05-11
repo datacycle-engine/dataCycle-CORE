@@ -85,9 +85,7 @@ module DataCycleCore
     end
 
     def thing_content_score_class(content)
-      return unless content.respond_to?(:internal_content_score)
-
-      content.try(:internal_content_score)&.then { |s| "dc-content-score #{s > 66 ? 'high-score' : s > 33 ? 'medium-score' : nil}" }
+      'dc-content-score' if content.try(:internal_content_score).present?
     end
 
     def thing_content_score(content)
@@ -96,11 +94,9 @@ module DataCycleCore
       content_score = content.try(:internal_content_score)&.round
       return if content_score.nil?
 
-      content_score_class = content_score > 66 ? 'high-score' : content_score > 33 ? 'medium-score' : nil
       tag.div(tag.span(class: 'content-score-icon') + tag.span(content_score, class: 'content-score-text'),
-              class: "thing-content-score #{content_score_class}",
+              class: 'thing-content-score',
               data: {
-                content_score: content_score,
                 dc_tooltip: t('feature.content_score.tooltip.title', locale: active_ui_locale) +
                   tag.span(t('feature.content_score.tooltip_score', score: content_score), class: 'tooltip-content-score')
               })

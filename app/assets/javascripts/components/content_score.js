@@ -6,7 +6,7 @@ class ContentScore {
 		this.element.classList.add("dcjs-content-score");
 		this.contentScoreText = this.element.querySelector(".content-score-text");
 		this.container = this.element.closest(
-			".form-element, .detail-type, #edit-form, .detail-header, .content-object-item",
+			".form-element, .detail-type, #edit-form, .detail-header, .content-object-item, .detail-header > .title",
 		);
 		this.contentId = this.element.dataset.contentScoreContentId;
 		this.contentEmbedded = DomElementHelper.parseDataAttribute(
@@ -44,8 +44,7 @@ class ContentScore {
 		DataCycle.httpRequest(url, { method: "POST", body: formData })
 			.then(this.setNewScore.bind(this))
 			.catch((_e) => {
-				this.container.classList.remove("medium-score", "high-score");
-				this.element.removeAttribute("data-content-score");
+				this.container.removeAttribute("data-content-score");
 				this.contentScoreText.innerHTML = "";
 				this.updateTooltip();
 			})
@@ -75,18 +74,8 @@ class ContentScore {
 		const score = Math.round(data.value * 100);
 
 		this.contentScoreText.innerHTML = score;
-		this.element.dataset.contentScore = score;
+		this.container.dataset.contentScore = score;
 		this.updateTooltip(score);
-		this.container.classList.remove("medium-score", "high-score");
-		this.element.classList.remove("medium-score", "high-score");
-
-		if (score > 66) {
-			this.container.classList.add("high-score");
-			this.element.classList.add("high-score");
-		} else if (score > 33) {
-			this.container.classList.add("medium-score");
-			this.element.classList.add("medium-score");
-		}
 	}
 }
 
