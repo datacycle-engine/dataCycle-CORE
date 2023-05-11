@@ -46,6 +46,10 @@ module DataCycleCore
       end
     end
 
+    def classification_path_classes(classification_alias)
+      classification_alias&.classification_alias_path&.full_path_names&.map(&:underscore_blanks)&.join(' ')
+    end
+
     def classification_tooltip(classification_alias)
       return if classification_alias.nil?
 
