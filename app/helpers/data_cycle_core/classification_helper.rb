@@ -47,7 +47,15 @@ module DataCycleCore
     end
 
     def classification_path_classes(classification_alias)
-      classification_alias&.classification_alias_path&.full_path_names&.map(&:underscore_blanks)&.join(' ')
+      return if classification_alias&.classification_alias_path&.full_path_names.nil?
+
+      tree_label = classification_alias.classification_alias_path.full_path_names.last
+      classification_alias
+        .classification_alias_path
+        .full_path_names
+        .except(tree_label)
+        .map { |c_name| "#{tree_label}_#{c_name}".underscore_blanks }
+        .join(' ')
     end
 
     def classification_tooltip(classification_alias)
