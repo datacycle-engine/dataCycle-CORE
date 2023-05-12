@@ -18,12 +18,14 @@ module DataCycleCore
           .>> t(:rename_keys, { 'contentText' => 'text', 'shortDescription' => 'description' })
           .>> t(:map_value, 'text', ->(s) { s&.gsub("\n", '<br/>') })
           .>> t(:map_value, 'description', ->(s) { s&.gsub("\n", '<br/>') })
+          .>> t(:add_info, ['description', 'text'], external_source_id)
           .>> t(:add_links, 'pimcore_city', DataCycleCore::Classification, external_source_id, ->(s) { Array(s&.dig('city'))&.map { |item| "Pimcore - City - #{item&.dig('id')}" } || [] })
           .>> t(:add_links, 'pimcore_categories', DataCycleCore::Classification, external_source_id, ->(s) { Array(s&.dig('categories'))&.map { |item| "Pimcore - Category - #{item.dig('id')}" } || [] })
           .>> t(:add_links, 'primary_image', DataCycleCore::Thing, external_source_id, ->(s) { Array("Pimcore - Image - #{s.dig('teaserImage', 'id')}") || [] }, ->(s) { s&.dig('teaserImage', 'id').present? })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { Array("Pimcore - Image - #{s.dig('imageGallery', 'id')}") || [] }, ->(s) { s&.dig('imageGallery', 'id').present? })
           .>> t(:reject_keys, ['id'])
           .>> t(:strip_all)
+          .>> t(:resolve_references)
         end
 
         def self.pimcore_to_image(url_prefix)

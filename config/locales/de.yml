@@ -1680,6 +1680,9 @@ de:
       teaser: Teaser
       zusatzinfo: Zusatzinformationen
       anreisebeschreibung: Anreisebeschreibung
+    pimcore:
+      description: Beschreibung
+      text: Detailbeschreibung
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

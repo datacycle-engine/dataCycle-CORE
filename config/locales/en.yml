@@ -1691,6 +1691,9 @@ en:
       teaser: Teaser
       zusatzinfo: Additional informationen
       anreisebeschreibung: Directions
+    pimcore:
+      description: Description
+      text: Detailed description
 
   media_archive:
     allowed_html:
