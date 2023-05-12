@@ -48,6 +48,11 @@ module DataCycleCore
               next if value.blank?
 
               template.dup.tap do |t|
+                type_of_information = DataCycleCore::ClassificationAlias
+                  .for_tree('Informationstypen')
+                  .with_internal_name(key)
+                  .primary_classifications
+
                 t.attributes = {
                   id: generate_uuid(content.id, key),
                   template: false,
@@ -56,6 +61,8 @@ module DataCycleCore
                   name: content.properties_for(key)&.dig('label'),
                   description: content.try(key)
                 }
+
+                t.set_memoized_attribute('type_of_information', type_of_information)
               end
             }.compact
           end
