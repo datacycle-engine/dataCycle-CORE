@@ -320,7 +320,7 @@ module DataCycleCore
         if v.is_a?(Hash) || v.is_a?(ActionController::Parameters)
           normalize_names v
         elsif v.is_a?(Array)
-          v.flatten.each { |x| normalize_names(x) if x.is_a?(Hash) }
+          v.compact_blank!.flatten.each { |x| normalize_names(x) if x.is_a?(Hash) }
         elsif k.to_s == 'name'
           v.squish!
         end
