@@ -4,14 +4,14 @@ module DataCycleCore
   module Feature
     module DataHash
       module AutoTranslation
-        def after_save_data_hash(options)
-          super
-
-          return if embedded?
-          return unless DataCycleCore::Feature::AutoTranslation.allowed?(self)
-          source_locale = DataCycleCore::Feature::AutoTranslation.configuration['source_lang'] || I18n.locale
-          DataCycleCore::AutoTranslationJob.perform_later(id, source_locale)
-        end
+        # def after_save_data_hash(options)
+        #   super
+        #
+        #   return if embedded?
+        #   return unless DataCycleCore::Feature::AutoTranslation.allowed?(self)
+        #   source_locale = DataCycleCore::Feature::AutoTranslation.configuration['source_lang'] || I18n.locale
+        #   DataCycleCore::AutoTranslationJob.perform_later(id, source_locale)
+        # end
 
         def create_update_translations
           additional_infos = load_translated_content
