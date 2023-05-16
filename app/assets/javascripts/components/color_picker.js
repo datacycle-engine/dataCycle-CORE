@@ -55,8 +55,11 @@ class ColorPicker {
 			"input",
 			debounce(this.updatePickrValue.bind(this), 500),
 		);
+		this.inputField
+			.closest("form")
+			.addEventListener("reset", this.resetPickrValue.bind(this));
 	}
-	setValue(color, source, _instance) {
+	setValue(color, _source, _instance) {
 		this.inputField.value = color.toHEXA();
 		this.updateNoColor();
 	}
@@ -67,6 +70,12 @@ class ColorPicker {
 	updateNoColor() {
 		if (this.inputField.value) this.container.classList.remove("no-color");
 		else this.container.classList.add("no-color");
+	}
+	resetPickrValue(_event) {
+		const value = this.inputField.defaultValue || null;
+
+		this.pickrInstance.setColor(value, true);
+		this.updateNoColor();
 	}
 	updatePickrValue(_event) {
 		const value = this.inputField.value;
