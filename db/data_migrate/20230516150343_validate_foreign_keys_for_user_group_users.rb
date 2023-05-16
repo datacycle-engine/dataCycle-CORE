@@ -4,7 +4,7 @@ class ValidateForeignKeysForUserGroupUsers < ActiveRecord::Migration[6.1]
   # uncomment the following line to disable transactions
   # disable_ddl_transaction!
 
-  def change
+  def up
     execute <<-SQL.squish
       DELETE FROM user_group_users
       WHERE NOT EXISTS (
