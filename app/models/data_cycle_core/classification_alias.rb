@@ -67,6 +67,8 @@ module DataCycleCore
 
     scope :in_context, ->(context) { includes(:classification_tree_label).where('classification_tree_labels.visibility && ARRAY[?]::varchar[]', Array.wrap(context)).references(:classification_tree_label) }
 
+    validate :validate_color_format
+
     def self.for_tree(tree_name)
       return none if tree_name.blank?
 
@@ -340,7 +342,25 @@ module DataCycleCore
         .merge({ 'primary_classification' => primary_classification.to_hash })
     end
 
+    def color
+      ui_configs&.dig('color')
+    end
+
+    def icon
+      icon = DataCycleCore.classification_icons[id] || DataCycleCore.classification_icons[classification_tree_label&.id]
+
+      return if icon.blank?
+
+      DataCycleCore::LocalizationService.view_helpers.dc_image_url("icons/#{icon}")
+    end
+
     private
+
+    def validate_color_format
+      return if color.blank?
+
+      errors.add(:ui_configs, :color_format) unless /^#((?:\h{1,2}){3,4})$/i.match?(color)
+    end
 
     def set_internal_data
       return unless name_i18n_changed? # && internal_name.blank?

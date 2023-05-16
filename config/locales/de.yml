@@ -1079,6 +1079,7 @@ de:
       wrong_content_type: "%{content_type} Dateien sind nicht erlaubt."
       required: "ist ein Pflichtfeld und muss ausgefüllt werden."
       unknown_activity_type: "Unbekannter Typ für Activity"
+      unknown: Unbekannter Fehler
     warnings:
       string: "%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}"
       no_data: "Keine Daten angegeben für %{data}"
@@ -1222,6 +1223,10 @@ de:
           attributes:
             external_system_id:
               blank: darf nicht leer sein.
+        data_cycle_core/classification_alias:
+          attributes:
+            ui_configs:
+              color_format: falsches Format für Farbe.
 
     models:
       data_cycle_core/user: Benutzer
@@ -1298,6 +1303,8 @@ de:
         uri: Externe URI
         external_keys: Externe Keys
         mapped_to_string: Klassifizierungen gemapped von
+        ui_configs: UI-Konfiguration
+        ui_configs/color: Farbe
       data_cycle_core/user_group:
         name: Name
         user_ids: Benutzer

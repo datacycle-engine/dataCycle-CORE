@@ -58,6 +58,12 @@ module DataCycleCore
         .join(' ')
     end
 
+    def classification_style(classification_alias)
+      return if classification_alias&.color.blank?
+
+      "--tag-background-color: #{classification_alias.color};"
+    end
+
     def classification_tooltip(classification_alias)
       return if classification_alias.nil?
 

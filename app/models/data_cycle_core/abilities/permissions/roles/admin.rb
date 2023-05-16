@@ -118,7 +118,7 @@ module DataCycleCore
             permit_user(role, :download, :create, :edit, SubjectByConditions: DataCycleCore::ClassificationTreeLabel)
             permit_user(role, :update, SubjectNotExternal: DataCycleCore::ClassificationTreeLabel)
             permit_user(role, :create, :update, SubjectNotExternalAndNotInternal: DataCycleCore::ClassificationAlias)
-            permit_user(role, :map_classifications, SubjectNotInternal: DataCycleCore::ClassificationAlias)
+            permit_user(role, :map_classifications, :set_color, SubjectNotInternal: DataCycleCore::ClassificationAlias)
             permit_user(role, :destroy, :ClassificationTreeLabelAndClassificationAliasesNotExternalAndNotInternal)
             permit_user(role, :destroy, :ClassificationAliasAndChildrenNotExternalAndNotInternal)
 

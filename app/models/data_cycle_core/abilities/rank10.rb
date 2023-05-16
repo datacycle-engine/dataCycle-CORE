@@ -37,7 +37,7 @@ module DataCycleCore
         can :update, DataCycleCore::ClassificationTreeLabel, external_source_id: nil, internal: false
 
         can [:create, :update, :download], DataCycleCore::ClassificationAlias, external_source_id: nil, internal: false
-        can :map_classifications, DataCycleCore::ClassificationAlias, internal: false
+        can [:map_classifications, :set_color], DataCycleCore::ClassificationAlias, internal: false
 
         can :destroy, DataCycleCore::ClassificationTreeLabel do |c|
           c.external_source_id.nil? && !c.internal && !c.classification_aliases&.any?(&:internal) && !c.classification_aliases&.any?(&:external_source_id)

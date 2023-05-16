@@ -1067,6 +1067,7 @@ en:
       wrong_content_type: "%{content_type} Files are not allowed."
       required: is a mandatory field and must be filled in.
       unknown_activity_type: Unknown type for Activity
+      unknown: unknown error
     warnings:
       string: "%{key} is not a valid keyword for string. Found for %{data} in %{template}"
       no_data: No data specified for %{data}
@@ -1212,6 +1213,10 @@ en:
           attributes:
             name:
               blank: Name must not be blank.
+        data_cycle_core/classification_alias:
+          attributes:
+            ui_configs:
+              color_format: wrong format for color.
     models:
       data_cycle_core/user:
         one: User
@@ -1289,6 +1294,8 @@ en:
         uri: External URI
         external_keys: External Keys
         mapped_to_string: Classifications mapped from
+        ui_configs: UI-Configuration
+        ui_configs/color: Color
       data_cycle_core/user_group:
         name: Name
         user_ids: User

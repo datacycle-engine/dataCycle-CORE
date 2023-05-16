@@ -226,6 +226,9 @@ module DataCycleCore
   mattr_accessor :data_link_bcc
   self.data_link_bcc = nil
 
+  mattr_accessor :classification_icons
+  self.classification_icons = {}
+
   def self.setup
     yield self
   end

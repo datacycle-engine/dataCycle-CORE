@@ -3,6 +3,7 @@
     <% item.display_classification_aliases(local_assigns[:classification_tree_visibility] || 'tile').each do |classification_alias| %>
       <%= tag.li(
         classification_alias.internal_name,
+        style: classification_style(classification_alias),
         class: "tag #{'mapped' unless item.assigned_classification_aliases.include?(classification_alias)} #{classification_path_classes(classification_alias)}",
         data: {
           dc_tooltip: classification_tooltip(classification_alias)
