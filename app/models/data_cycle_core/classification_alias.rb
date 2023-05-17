@@ -443,7 +443,7 @@ module DataCycleCore
     end
 
     def add_things_cache_invalidation_job
-      DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'invalidate_things_only_cache')
+      DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'invalidate_things_cache')
     end
 
     def add_things_search_update_job
