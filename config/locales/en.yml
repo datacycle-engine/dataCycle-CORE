@@ -886,7 +886,6 @@ en:
 
   classification_change_behaviour:
     trigger_webhooks: trigger webhooks for contents
-    clear_cache: clear cache for contents
 
   pagination:
     next: Further results

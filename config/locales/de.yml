@@ -922,7 +922,6 @@ de:
 
   classification_change_behaviour:
     trigger_webhooks: Webhooks für Inhalte auslösen
-    clear_cache: Cache für Inhalte leeren
 
   pagination:
     next: Weitere Ergebnisse
