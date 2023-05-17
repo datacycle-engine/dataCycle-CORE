@@ -346,6 +346,10 @@ module DataCycleCore
       ui_configs&.dig('color')
     end
 
+    def color?
+      color.present?
+    end
+
     def icon
       icon = DataCycleCore.classification_icons[id] || DataCycleCore.classification_icons[classification_tree_label&.id]
 
@@ -354,10 +358,14 @@ module DataCycleCore
       DataCycleCore::LocalizationService.view_helpers.dc_image_url("icons/#{icon}")
     end
 
+    def icon?
+      icon.present?
+    end
+
     private
 
     def validate_color_format
-      return if color.blank?
+      return unless color?
 
       errors.add(:ui_configs, :color_format) unless /^#((?:\h{1,2}){3,4})$/i.match?(color)
     end

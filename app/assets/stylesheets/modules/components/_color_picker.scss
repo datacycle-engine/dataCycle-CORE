@@ -22,6 +22,11 @@
   .pcr-interaction {
     align-items: stretch;
     gap: 0.3rem;
+    flex-wrap: nowrap;
+
+    >* {
+      flex: auto;
+    }
 
     .pcr-result,
     .pcr-save,
@@ -44,6 +49,19 @@
       background: var(--alert-color);
     }
   }
+
+  .pcr-swatches {
+    gap: 2px;
+
+    button {
+      padding: 0;
+    }
+  }
+}
+
+.pcr-app[data-theme="nano"] .pcr-interaction {
+  padding-top: 0.6em;
+
 }
 
 .color-picker-container.no-color .pickr .pcr-button {

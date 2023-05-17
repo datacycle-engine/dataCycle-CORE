@@ -43,6 +43,8 @@
               data: {
                 dc_tooltip: t('data_cycle_core.show_contents_for_tree_label', data: classification_tree.sub_classification_alias.try(:internal_name), locale: active_ui_locale)
               } %>
+
+    <%= tag.span(class: 'classification-color-icon copy-to-clipboard', style: classification_style(classification_tree.sub_classification_alias), data: { dc_tooltip: DataCycleCore::ClassificationAlias.human_attribute_name("ui_configs/color", locale: active_ui_locale), value: classification_tree.sub_classification_alias.color }) if classification_tree.sub_classification_alias.color? %>
   </span>
 
   <%= tag.div(class: 'remote-render inverted classification-alias-form-container', data: { remote_path: 'data_cycle_core/classifications/classification_alias_form', remote_options: to_query_params(classification_tree_label: classification_tree_label, classification_tree: classification_tree).to_json }) if can?(:update, classification_tree.sub_classification_alias) || can?(:map_classifications, classification_tree.sub_classification_alias) %>

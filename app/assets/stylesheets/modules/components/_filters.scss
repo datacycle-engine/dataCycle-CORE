@@ -1830,8 +1830,8 @@ $filter-border: #aaa;
         cursor: pointer;
         margin: 0;
         font-size: 1rem;
-        border: 1px solid $primary-color;
-        color: $primary-color;
+        border: 1px solid var(--classification-color, var(--primary-color));
+        color: var(--classification-color, var(--primary-color));
         border-radius: $global-radius;
 
         .title {
@@ -1850,9 +1850,9 @@ $filter-border: #aaa;
 
       /* :: CHECKED :: */
       input:checked~label {
-        background-color: $primary-color;
+        background-color: var(--classification-color, var(--primary-color));
         color: $white;
-        border-color: $primary-color;
+        border-color: var(--classification-color, var(--primary-color));
 
         strong {
           color: $white;

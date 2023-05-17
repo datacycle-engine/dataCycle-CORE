@@ -59,9 +59,9 @@ module DataCycleCore
     end
 
     def classification_style(classification_alias)
-      return if classification_alias&.color.blank?
+      return unless classification_alias&.color?
 
-      "--tag-background-color: #{classification_alias.color};"
+      "--classification-color: #{classification_alias.color};"
     end
 
     def classification_tooltip(classification_alias)

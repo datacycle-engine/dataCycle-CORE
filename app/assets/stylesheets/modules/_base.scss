@@ -1563,19 +1563,19 @@ body .v-select {
   }
 
   .tag {
-    background-color: var(--tag-background-color);
+    background-color: var(--classification-color, lighten($dark-gray, 6%));
 
     &.mapped {
-      --tag-background-color: #{lighten($dark-gray, 19%)};
+      --classification-color: #{lighten($dark-gray, 19%)};
     }
 
     &.has-changed {
       &.removed {
-        --tag-background-color: #{rgba($alert-color, 0.8)};
+        --classification-color: #{rgba($alert-color, 0.8)};
       }
 
       &.added {
-        --tag-background-color: #{rgba($success-color, 0.8)};
+        --classification-color: #{rgba($success-color, 0.8)};
       }
     }
   }
