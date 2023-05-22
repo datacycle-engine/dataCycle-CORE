@@ -832,7 +832,7 @@ CREATE TABLE public.classification_tree_labels (
     internal boolean DEFAULT false,
     deleted_at timestamp without time zone,
     visibility character varying[] DEFAULT '{}'::character varying[],
-    change_behaviour character varying[] DEFAULT '{trigger_webhooks,clear_cache}'::character varying[]
+    change_behaviour character varying[] DEFAULT '{trigger_webhooks}'::character varying[]
 );
 
 
@@ -3919,6 +3919,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230403113641'),
 ('20230425060228'),
 ('20230515081146'),
-('20230516132624');
+('20230516132624'),
+('20230517085644');
 
 
