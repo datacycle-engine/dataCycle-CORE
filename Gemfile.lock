@@ -322,7 +322,7 @@ GEM
       mini_exiftool (>= 1.6.0)
     mini_magick (4.11.0)
     mini_mime (1.1.2)
-    mini_portile2 (2.8.1)
+    mini_portile2 (2.8.2)
     minitest (5.18.0)
     minitest-hooks (1.5.0)
       minitest (> 5.3)
@@ -348,12 +348,12 @@ GEM
       net-protocol
     net_http_unix (0.2.2)
     nio4r (2.5.8)
-    nokogiri (1.14.2)
-      mini_portile2 (~> 2.8.0)
+    nokogiri (1.15.1)
+      mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.14.2-x86_64-darwin)
+    nokogiri (1.15.1-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.14.2-x86_64-linux)
+    nokogiri (1.15.1-x86_64-linux)
       racc (~> 1.4)
     oauth2 (2.0.7)
       faraday (>= 0.17.3, < 3.0)
@@ -608,4 +608,4 @@ RUBY VERSION
    ruby 2.7.1p83
 
 BUNDLED WITH
-   2.4.10
+   2.4.13
