@@ -1295,6 +1295,7 @@ en:
         mapped_to_string: Classifications mapped from
         ui_configs: UI-Configuration
         ui_configs/color: Color
+        ui_configs/icon: Icon
       data_cycle_core/user_group:
         name: Name
         user_ids: User

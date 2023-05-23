@@ -1304,6 +1304,7 @@ de:
         mapped_to_string: Klassifizierungen gemapped von
         ui_configs: UI-Konfiguration
         ui_configs/color: Farbe
+        ui_configs/icon: Icon
       data_cycle_core/user_group:
         name: Name
         user_ids: Benutzer
