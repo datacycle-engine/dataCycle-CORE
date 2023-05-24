@@ -1554,7 +1554,7 @@ make-dir@^3.1.0:
   dependencies:
     semver "^6.0.0"
 
-maplibre-gl@>=2.0.0:
+maplibre-gl@^2.0.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/maplibre-gl/-/maplibre-gl-2.4.0.tgz#2b53dbf526626bf4ee92ad4f33f13ef09e5af182"
   integrity sha512-csNFylzntPmHWidczfgCZpvbTSmhaWvLRj9e1ezUDBEPizGgshgm3ea1T5TCNEEBq0roauu7BPuRZjA3wO4KqA==
