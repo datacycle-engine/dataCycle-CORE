@@ -131,13 +131,13 @@ cache:
     - *docker_login_and_ssh_agent
     - *copy_production_env
   script:
-    - docker build --pull -f vendor/gems/data-cycle-core/Dockerfile -t "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG" --target production .
+    - docker build --pull -f vendor/gems/data-cycle-core/Dockerfile -t "$CI_REGISTRY_IMAGE/web:$CI_COMMIT_REF_SLUG" --target production .
       --build-arg APP_DOCKER_ENV
       --build-arg NODE_ENV
       --build-arg RAILS_ENV
       --build-arg APP_HOST
       --build-arg APP_PROTOCOL
-    - docker push "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG"
+    - docker push "$CI_REGISTRY_IMAGE/web:$CI_COMMIT_REF_SLUG"
   after_script:
     - docker logout $CI_REGISTRY
 
