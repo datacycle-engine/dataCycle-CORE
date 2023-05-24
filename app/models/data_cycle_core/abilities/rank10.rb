@@ -9,7 +9,7 @@ module DataCycleCore
         can [:merge_duplicates, :remove_lock, :translate], DataCycleCore::Thing
 
         # User Administraion
-        can [:read, :create_user, :update, :destroy, :unlock, :generate_access_token, :set_role, :set_user_groups], DataCycleCore::User, role: { rank: 0..user&.role&.rank.to_i }
+        can [:read, :create_user, :update, :destroy, :lock, :unlock, :generate_access_token, :set_role, :set_user_groups], DataCycleCore::User, role: { rank: 0..user&.role&.rank.to_i }
 
         can :clear_all, :cache
         can :clear, :cache
