@@ -4,12 +4,15 @@ module DataCycleCore
   class StaticController < ApplicationController
     ROOT_PATHS = [Rails.root, DataCycleCore::Engine.root].freeze
     HTML_OPTIONS = {
-      with_toc_data: true
+      with_toc_data: true,
+      hard_wrap: true
     }.freeze
 
     MARKDOWN_OPTIONS = {
       no_intra_emphasis: true,
-      fenced_code_blocks: true
+      fenced_code_blocks: true,
+      lax_spacing: true,
+      autolink: true
     }.freeze
 
     def show
@@ -27,13 +30,13 @@ module DataCycleCore
     end
 
     def render_markdown
-      root_paths = ROOT_PATHS.map { |p| p.join(@root_path, sanitized_path + '.md') }
-      markdown_path = root_paths.detect(&:exist?)
+      root_paths = ROOT_PATHS.map { |p| p.join(@root_path, sanitized_path + '.{md,md.erb}') }
+      markdown_path = Dir.glob(root_paths).first
 
       raise ActiveRecord::RecordNotFound if markdown_path.nil?
 
       markdown = Redcarpet::Markdown.new(DataCycleCore::Static::MarkdownHtmlRenderer.new(HTML_OPTIONS), MARKDOWN_OPTIONS)
-      markdown.render(File.read(markdown_path))
+      markdown.render(markdown_path.end_with?('.erb') ? ERB.new(File.read(markdown_path)).result(binding) : File.read(markdown_path))
     end
 
     def sanitized_path
