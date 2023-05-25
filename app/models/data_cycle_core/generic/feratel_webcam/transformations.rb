@@ -108,7 +108,6 @@ module DataCycleCore
           .>> t(:add_field, 'wind_velocity', ->(s) { s.dig('wid', '12')&.to_i })
           .>> t(:add_field, 'wind_velocity_knots', ->(s) { s.dig('wid', '13')&.to_i })
           .>> t(:add_field, 'forecast_details', ->(s) { parse_forecast_details(s.dig('wid', '8'), s.dig('weather_provider'), external_source_id, "#{s.dig('external_key')} - #{s.dig('forecast_date')}") })
-          .>> t(:add_field, 'debug', ->(s) { debug(s) })
         end
 
         def self.to_webcam(external_source_id)
@@ -121,7 +120,6 @@ module DataCycleCore
           .>> t(:add_field, 'name', ->(s) { 'Webcam: ' + (s.dig('pci', '1') || s.dig('pci', '2') || s.dig('pci', '4')) })
           .>> t(:add_field, 'content_url', ->(s) { "#{s.dig('cam_host')}&pg=#{s.dig('pg')}&cam=#{s.dig('rid')}" })
           .>> t(:add_field, 'url', ->(s) { s.dig('pci', '26', 'v') })
-          .>> t(:add_field, 'debug', ->(s) { debug(s) })
         end
 
         def self.to_video
