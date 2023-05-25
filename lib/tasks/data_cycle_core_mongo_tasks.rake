@@ -13,6 +13,21 @@ namespace :data_cycle_core do
     end
 
     desc 'Show the existing database archives'
+    task :dump_backup, [:name] => [:environment] do |_, args|
+      temp = Time.zone.now
+      backup_name = args[:name] || 'production'
+      backup_dir = DbHelper.backup_directory([Rails.env, 'mongo', backup_name])
+      puts backup_dir.to_s
+
+      cmd = "mongodump --host=mongodb -o #{backup_dir}"
+      sh cmd
+      puts ''
+      puts "Dumped to directory: #{backup_dir}"
+      puts "Duration: #{TimeHelper.format_time(Time.zone.now - temp, 0, 6, 's')}"
+      puts ''
+    end
+
+    desc 'Show the existing database archives'
     task dumps: :environment do
       backup_dir = DbHelper.backup_directory([Rails.env, 'mongo'])
       puts backup_dir.to_s
