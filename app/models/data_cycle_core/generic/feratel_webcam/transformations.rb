@@ -132,10 +132,6 @@ module DataCycleCore
           .>> t(:add_field, 'content_url', ->(s) { s.dig('url') })
         end
 
-        def self.debug(data)
-          # byebug
-        end
-
         def self.parse_forecast_details(s, provider, external_source_id, parent_external_key)
           return [] if s.blank?
           ['00', '03', '06', '09', '12', '15', '18', '21'].map { |time|
@@ -171,6 +167,34 @@ module DataCycleCore
         def self.day_index(day_name)
           index = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'].index(day_name)
           index || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].index(day_name)
+        end
+
+        ############## Transformations for endpoint infoxml.jsp
+        def self.to_webcam_xml(external_source_id)
+          t(:add_field, 'external_key', ->(s) { "Feratel Webcams - Webcam - #{s.dig('rid')}" })
+          .>> t(:add_field, 'name', ->(s) { s.dig('l') })
+          .>> t(:add_urls)
+          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { ["Feratel Webcams - Image - 44 - #{s.dig('rid')}", "Feratel Webcams - Image - 38 - #{s.dig('rid')}"].compact_blank })
+          .>> t(:add_links, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { ["Feratel Webcams - Standort - #{s.dig('rid')}"] })
+          .>> t(:reject_keys, ['tags'])
+        end
+
+        def self.to_image_xml
+          t(:add_field, 'external_key', ->(s) { "Feratel Webcams - Image - #{s.dig('type')} - #{s.dig('rid')}" })
+          .>> t(:add_field, 'name', ->(s) { "#{s.dig('l')} - #{s.dig('tn')}" })
+          .>> t(:add_field, 'url', ->(s) { format(s['url'], s.slice('rid', 'type').symbolize_keys) })
+          .>> t(:add_field, 'content_url', ->(s) { s['url'] })
+          .>> t(:add_field, 'thumbnail_url', ->(s) { s['url'] })
+        end
+
+        def self.to_place_xml
+          t(:add_field, 'external_key', ->(s) { "Feratel Webcams - Standort - #{s.dig('rid')}" })
+          .>> t(:add_field, 'elevation', ->(s) { s['h']&.to_f })
+          .>> t(:add_field, 'longitude', ->(s) { s['y']&.to_f })
+          .>> t(:add_field, 'latitude', ->(s) { s['x']&.to_f })
+          .>> t(:location)
+          .>> t(:add_field, 'name', ->(s) { "Standort: #{s['l']}" })
+          .>> t(:reject_keys, ['tags'])
         end
       end
     end
