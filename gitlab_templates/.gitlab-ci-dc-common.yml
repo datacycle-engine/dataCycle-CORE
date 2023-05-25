@@ -1,4 +1,4 @@
-image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:dockerize-1.1
+image: git.pixelpoint.biz:5050/data-cycle/data-cycle-core/base:dockerize-1.2
 
 variables:
   PRODUCTION_URL: ""
