@@ -260,8 +260,8 @@ module DataCycleCore
         subscription_ids: nil
       })
 
-      skip_confirmation_notification!
-      skip_reconfirmation!
+      skip_confirmation_notification! if respond_to?(:skip_confirmation_notification!)
+      skip_reconfirmation! if respond_to?(:skip_reconfirmation!)
 
       update(attributes_hash)
     end

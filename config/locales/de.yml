@@ -19,6 +19,9 @@ de:
   submit: "Erstellen"
   settings:
 
+  template_names:
+    skos:Concept: Klassifizierung
+
   attribute_labels:
     additional_information:
       one: Beschreibungsblock
@@ -163,6 +166,8 @@ de:
         pinch: "Verwende zwei Finger zum Zoomen/Scrollen der Karte"
       filter:
         button_title: Verknüpfte Inhalte bearbeiten
+        geo_radius:
+          popup: "Mittelpunkt: %{lon}°, %{lat}°<br>Radius: %{radius} %{unit}"
       undo: Letzte Änderung rückgängig machen
       redo: Rückgängig gemachte Änderungen erneut anwenden
       upload_gpx:
@@ -495,7 +500,6 @@ de:
     placeholder:
       longitude: Längengrad, z.B. 14,30
       latitude: Breitengrad, z.B. 46,61
-      distance: Radius in Metern
     available_widgets: Verfügbare Widgets
     widgets:
       event_list: Events - Listenansicht
@@ -540,6 +544,7 @@ de:
   external_connection_states:
     success: Erfolgreich synchronisiert
     pending: wird synchronisiert
+    running: Export getriggert
     error: "Es ist ein Fehler aufgetreten.\nDie Synchronisation wird in bestimmten Intervallen erneut versucht."
     failure: "Es ist ein schwerer Fehler aufgetreten.\nDer Inhalt kann nich synchronisiert werden."
     export: Externes System
@@ -572,6 +577,7 @@ de:
 
   feature:
     content_score:
+      tooltip_score: "(%{score} von 100)"
       tooltip:
         title: Content-Score
         criteria: "Kriterium: <b>%{text}</b>"
@@ -911,10 +917,11 @@ de:
       error: Die Klassifizierungen konnten nicht zusammengeführt werden
       confirm_html: <b>%{source_path}</b> wird mit <b>%{target_path}</b> zusammengeführt.
       success: Die Klassifizierungen wurden erfolgreich zusammengeführt
+    classification_polygon:
+      link_tooltip: verknüpfte GeoShape anzeigen
 
   classification_change_behaviour:
     trigger_webhooks: Webhooks für Inhalte auslösen
-    clear_cache: Cache für Inhalte leeren
 
   pagination:
     next: Weitere Ergebnisse
@@ -1071,6 +1078,7 @@ de:
       wrong_content_type: "%{content_type} Dateien sind nicht erlaubt."
       required: "ist ein Pflichtfeld und muss ausgefüllt werden."
       unknown_activity_type: "Unbekannter Typ für Activity"
+      unknown: Unbekannter Fehler
     warnings:
       string: "%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}"
       no_data: "Keine Daten angegeben für %{data}"
@@ -1214,6 +1222,10 @@ de:
           attributes:
             external_system_id:
               blank: darf nicht leer sein.
+        data_cycle_core/classification_alias:
+          attributes:
+            ui_configs:
+              color_format: falsches Format für Farbe.
 
     models:
       data_cycle_core/user: Benutzer
@@ -1290,6 +1302,9 @@ de:
         uri: Externe URI
         external_keys: Externe Keys
         mapped_to_string: Klassifizierungen gemapped von
+        ui_configs: UI-Konfiguration
+        ui_configs/color: Farbe
+        ui_configs/icon: Icon
       data_cycle_core/user_group:
         name: Name
         user_ids: Benutzer
@@ -1672,6 +1687,9 @@ de:
       teaser: Teaser
       zusatzinfo: Zusatzinformationen
       anreisebeschreibung: Anreisebeschreibung
+    pimcore:
+      description: Beschreibung
+      text: Detailbeschreibung
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
@@ -1693,6 +1711,7 @@ de:
   uploader:
     restrictions: "Einschränkungen"
     validation:
+      invalid_file: beschädigte Datei
       format: 'Erlaubte Formate: <span class="value">%{data}</span>'
       format_not_supported: Nicht unterstütztes Format (%{data})
       dimensions:

@@ -66,6 +66,9 @@
 @import 'modules/components/chart';
 @import 'modules/components/transitions';
 
+@import '@simonwep/pickr/dist/themes/nano.min';
+@import 'modules/components/color_picker';
+
 @import 'tabulator-tables/dist/css/tabulator.min';
 
 @import 'video.js/dist/video-js';

@@ -280,6 +280,21 @@ ul.backend-treeview-list,
         left: 1rem;
         top: 8px;
       }
+
+      .classification-color-icon {
+        display: block;
+        width: 1rem;
+        height: 1rem;
+        background: var(--classification-color);
+        box-shadow: 0 0 0 1px var(--dark-gray);
+        border-radius: var(--global-radius);
+      }
+
+      .classification-icon {
+        display: flex;
+        height: 1.4rem;
+        width: 1.4rem;
+      }
     }
 
     .download-container {
@@ -1311,5 +1326,13 @@ ul.backend-treeview-list,
         display: none;
       }
     }
+  }
+}
+
+.classification-polygon-reveal {
+  .geographic-map {
+    height: 450px;
+    max-height: 450px;
+    min-width: 800px;
   }
 }

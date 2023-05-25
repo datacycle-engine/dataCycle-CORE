@@ -37,6 +37,22 @@ module DataCycleCore
             nil
           end
         end
+
+        def self.add_info(data, fields, external_source_id)
+          additional_information = fields.map { |type|
+            next if data[type].blank?
+            text = {}
+            text['name'] = I18n.t("import.pimcore.#{type}", default: [type])
+            text['type_of_info'] = type
+            text['type'] = type
+            text['description'] = data[type]
+            text['external_key'] = "Pimcore - AdditionalInformation - #{data.dig('external_key')} - #{type}"
+            text
+          }.compact
+          data['additional_information'] ||= []
+          data['additional_information'] += DataCycleCore::Generic::Common::Transformations::AdditionalInformation.add_info(additional_information, external_source_id)
+          data
+        end
       end
     end
   end

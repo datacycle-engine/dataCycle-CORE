@@ -101,6 +101,9 @@ end
 
 json.merge!(external_identifier(content)) if included_attribute?('identifier', options[:include]) || included_attribute?('identifier', options[:fields])
 
+json['dc:color'] = content.color if included_attribute?('dc:color', options[:include] + options[:fields]) && content.color?
+json['dc:icon'] = content.icon if included_attribute?('dc:icon', options[:include] + options[:fields]) && content.icon?
+
 if options[:field_filter] && options[:fields].present?
   json.select { |key, _value| api_default_attributes.include?(key) || select_attributes(options[:fields]).include?(key) || select_attributes(options[:include]).include?(key) }
 else

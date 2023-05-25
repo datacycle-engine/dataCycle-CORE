@@ -1,5 +1,6 @@
 import QuillHelpers from "../../helpers/quill_helpers";
 import DomElementHelpers from "../../helpers/dom_element_helpers";
+import CalloutHelpers from "../../helpers/callout_helpers";
 
 class ClassificationEditForm {
 	constructor(item) {
@@ -82,6 +83,11 @@ class ClassificationEditForm {
 
 		promise
 			.then((data) => {
+				if (data?.error) {
+					CalloutHelpers.show(data.error, "alert");
+					return;
+				}
+
 				if (data?.html)
 					this.liElement.insertAdjacentHTML("beforebegin", data.html);
 
@@ -92,6 +98,11 @@ class ClassificationEditForm {
 				for (const li of this.container.querySelectorAll("li.active"))
 					li.classList.remove("active");
 			})
+			.catch(() =>
+				I18n.t("validation.errors.unknown").then((text) =>
+					CalloutHelpers.show(text, "alert"),
+				),
+			)
 			.finally(() => {
 				DataCycle.enableElement(this.item);
 			});

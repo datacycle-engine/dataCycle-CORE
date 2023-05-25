@@ -9,7 +9,7 @@ module DataCycleCore
         can [:merge_duplicates, :remove_lock, :translate], DataCycleCore::Thing
 
         # User Administraion
-        can [:read, :create_user, :update, :destroy, :unlock, :generate_access_token, :set_role, :set_user_groups], DataCycleCore::User, role: { rank: 0..user&.role&.rank.to_i }
+        can [:read, :create_user, :update, :destroy, :lock, :unlock, :generate_access_token, :set_role, :set_user_groups], DataCycleCore::User, role: { rank: 0..user&.role&.rank.to_i }
 
         can :clear_all, :cache
         can :clear, :cache
@@ -37,7 +37,7 @@ module DataCycleCore
         can :update, DataCycleCore::ClassificationTreeLabel, external_source_id: nil, internal: false
 
         can [:create, :update, :download], DataCycleCore::ClassificationAlias, external_source_id: nil, internal: false
-        can :map_classifications, DataCycleCore::ClassificationAlias, internal: false
+        can [:map_classifications, :set_color], DataCycleCore::ClassificationAlias, internal: false
 
         can :destroy, DataCycleCore::ClassificationTreeLabel do |c|
           c.external_source_id.nil? && !c.internal && !c.classification_aliases&.any?(&:internal) && !c.classification_aliases&.any?(&:external_source_id)

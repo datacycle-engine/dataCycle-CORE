@@ -82,6 +82,7 @@ services:
       - ${PWD}/.env
   mailhog:
     image: yappabe/mailhog
+    platform: linux/x86_64
     environment:
       DNSDOCK_ALIAS: localhost
     ports:

@@ -72,7 +72,12 @@ module DataCycleCore
     end
 
     def content_score_tooltip(content, definition)
-      tooltip_html = [tag.div(t('feature.content_score.tooltip.title', locale: active_ui_locale), class: 'title')]
+      tooltip_html = [
+        tag.div(safe_join([
+                            t('feature.content_score.tooltip.title', locale: active_ui_locale),
+                            tag.span(class: 'tooltip-content-score')
+                          ]), class: 'title')
+      ]
       cc_module = DataCycleCore::ModuleService.load_module(definition.dig('content_score', 'module').classify, 'Utility::ContentScore')
       tooltip_description = cc_module.try(:to_tooltip, content, definition, active_ui_locale)
       tooltip_html.push(tooltip_description) if tooltip_description.present?
@@ -80,22 +85,20 @@ module DataCycleCore
     end
 
     def thing_content_score_class(content)
-      return unless content.respond_to?(:internal_content_score)
-
-      content.try(:internal_content_score)&.then { |s| "dc-content-score #{s > 66 ? 'high-score' : s > 33 ? 'medium-score' : nil}" }
+      'dc-content-score' if content.try(:internal_content_score).present?
     end
 
     def thing_content_score(content)
       return unless content.respond_to?(:internal_content_score)
 
-      content_score = content.try(:internal_content_score)
+      content_score = content.try(:internal_content_score)&.round
       return if content_score.nil?
 
-      content_score_class = content_score > 66 ? 'high-score' : content_score > 33 ? 'medium-score' : nil
-      tag.div(tag.span(class: 'content-score-icon') + tag.span(content_score.round, class: 'content-score-text'),
-              class: "thing-content-score #{content_score_class}",
+      tag.div(tag.span(class: 'content-score-icon') + tag.span(content_score, class: 'content-score-text'),
+              class: 'thing-content-score',
               data: {
-                dc_tooltip: t('feature.content_score.tooltip.title', locale: active_ui_locale)
+                dc_tooltip: t('feature.content_score.tooltip.title', locale: active_ui_locale) +
+                  tag.span(t('feature.content_score.tooltip_score', score: content_score), class: 'tooltip-content-score')
               })
     end
   end

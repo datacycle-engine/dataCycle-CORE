@@ -17,7 +17,7 @@ _/api/v4/concept_schemes?token=YOUR_ACCESS_TOKEN_
 
 _/api/v4/concept_schemes_
 
-```javascript
+```json
 {
   "token": "YOUR_ACCESS_TOKEN"
 }
@@ -25,7 +25,7 @@ _/api/v4/concept_schemes_
 
 Die gelieferten Daten enthalten neben dem Namen (```skos:prefLabel```) und einige Meta-Daten (z.B. Erstellungs- und Änderungsdatum) auch einen Link, um die zu diesem Klassifizierungsbaum gehörigen Klassifizierungen abzufragen (```dc:hasConcept```).
 
-```javascript
+```json
 {
   "@graph": [
     {
@@ -61,7 +61,7 @@ _/api/v4/concept_schemes/1364702e-b39f-4c8b-ae2f-6ffd6acd12da/concepts?token=YOU
 
 _/api/v4/concept_schemes/1364702e-b39f-4c8b-ae2f-6ffd6acd12da/concepts_
 
-```javascript
+```json
 {
   "token": "YOUR_ACCESS_TOKEN"
 }
@@ -69,7 +69,7 @@ _/api/v4/concept_schemes/1364702e-b39f-4c8b-ae2f-6ffd6acd12da/concepts_
 
 Die ausgelieferten Klassifizierungen enthalten neben den Daten der Klassifizierung selbst auch Informationen über die hierarchische Struktur des Klassifizierungsbaums. Über das Attribute ```skos:broader``` ist die direkt übergeordnete Klassifizierung verfügbar, mit dem Attribut ```skos:ancestors``` kann der komplette Pfad innerhalb des Klassifizierungsbaums erstellt werden.
 
-```javascript
+```json
 {
   "@graph": [
     {
@@ -115,6 +115,26 @@ Die ausgelieferten Klassifizierungen enthalten neben den Daten der Klassifizieru
 }
 ```
 
+Über das Attribut ```dc:color``` kann der Farbwert als HEX, mit oder ohne Alpha-Kanal, für eine Klassifizierung inkludiert werden. Dieses Attribut wird standardmäßig nicht ausgeliefert.
+
+```json
+{
+  "@id": "6d9fbb75-1365-4edb-b470-56f8626d3a66",
+  "@type": "skos:Concept",
+  "dc:color": "#000000FF"
+}
+```
+
+Über das Attribut ```dc:icon``` kann die URL zu einem Icon für eine Klassifizierung inkludiert werden. Dieses Attribut wird standardmäßig nicht ausgeliefert.
+
+```json
+{
+  "@id": "6d9fbb75-1365-4edb-b470-56f8626d3a66",
+  "@type": "skos:Concept",
+  "dc:icon": "https://url.zu.einem.icon"
+}
+```
+
 ## Facettensuche
 
 Es kann im Context eines Inhalts-Endpunktes in Kombination mit einem Klassifizierungsbaums eine Facettierung angefordert werden.
@@ -127,7 +147,7 @@ _/api/v4/endpoints/ENDPOINT_ID|ENDPOINT_SLUG/facets/CONCEPT_SCHEME_ID?token=YOUR
 
 _/api/v4/endpoints/ENDPOINT_ID|ENDPOINT_SLUG/facets/CONCEPT_SCHEME_ID
 
-```javascript
+```json
 {
   "token": "YOUR_ACCESS_TOKEN"
 }
@@ -139,7 +159,7 @@ Bei diesem Endpunkt werden verwendete ```filter``` auf die Inhalte direkt angewe
 
 Die übergebene ```language``` wird auf Inhalte und Klassifizierungen angewendet.
 
-```javascript
+```json
 {
   "@graph": [
     {

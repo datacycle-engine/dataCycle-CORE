@@ -69,6 +69,9 @@ class TourSprungEditor extends MapLibreGlEditor {
 		return new MTK.StyleControl(controlConfig);
 	}
 	initMap() {
+		this.maplibreGl = window.maplibregl;
+		this.parseInitialFeatures();
+
 		MTK.init({
 			apiKey: this.credentials.api_key,
 			language: DataCycle.uiLocale,
@@ -77,7 +80,7 @@ class TourSprungEditor extends MapLibreGlEditor {
 			{
 				map: {
 					mapType: this.mapOptions.maptype || "toursprung-terrain",
-					location: pick(this.defaultOptions, ["center", "zoom"]),
+					location: pick(this.defaultOptions, ["center", "zoom", "bounds"]),
 					controls: [],
 				},
 			},
@@ -125,7 +128,6 @@ class TourSprungEditor extends MapLibreGlEditor {
 	configureMap(map) {
 		this.mtkMap = map;
 		this.map = this.mtkMap.gl;
-		this.maplibreGl = window.maplibregl;
 
 		if (this.mapOptions.i18n)
 			MTK.i18n = Object.assign({}, this.mapOptions.i18n);
@@ -136,7 +138,6 @@ class TourSprungEditor extends MapLibreGlEditor {
 		this.initMtkEvents();
 
 		this.drawAdditionalFeatures();
-		this.updateMapPosition();
 	}
 	initMtkEvents() {
 		this._disableScrollingOnMapOverlays();

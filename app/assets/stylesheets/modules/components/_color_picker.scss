@@ -1,0 +1,77 @@
+.pickr {
+  position: absolute;
+  right: 0.5rem;
+  top: 0.5rem;
+  height: calc(100% - 1rem);
+  width: 5rem;
+
+  button.pcr-button {
+    margin: 0px !important;
+    width: 100%;
+    height: 100%;
+    border-radius: 3px;
+    box-shadow: 0px 0px 0px 1px var(--dark-gray);
+
+    &::after {
+      transition: none;
+    }
+  }
+}
+
+.pcr-app {
+  .pcr-interaction {
+    align-items: stretch;
+    gap: 0.3rem;
+    flex-wrap: nowrap;
+
+    >* {
+      flex: auto;
+    }
+
+    .pcr-result,
+    .pcr-save,
+    .pcr-clear {
+      margin: 0;
+      height: auto;
+    }
+
+    .pcr-save,
+    .pcr-clear {
+      font-size: 1.5rem;
+      padding: 0 0.4rem;
+    }
+
+    .pcr-save {
+      background: var(--primary-color);
+    }
+
+    .pcr-clear {
+      background: var(--alert-color);
+    }
+  }
+
+  .pcr-swatches {
+    gap: 2px;
+
+    button {
+      padding: 0;
+    }
+  }
+}
+
+.pcr-app[data-theme="nano"] .pcr-interaction {
+  padding-top: 0.6em;
+
+}
+
+.color-picker-container.no-color .pickr .pcr-button {
+  background-size: 70%;
+
+  &::before {
+    opacity: 0;
+  }
+
+  &::after {
+    background: rgba(0, 0, 0, 0.15);
+  }
+}

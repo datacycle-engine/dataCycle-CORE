@@ -4,6 +4,8 @@ module DataCycleCore
   module Utility
     module Virtual
       module String
+        extend DataCycleCore::ContentHelper
+
         class << self
           def concat(virtual_parameters:, **args)
             virtual_parameters.map { |item|
@@ -32,6 +34,37 @@ module DataCycleCore
               &.map(&:uri)
               &.compact_blank
               &.first
+          end
+
+          # only works for sync_api
+          def to_additional_information(content:, virtual_parameters:, virtual_definition:, **_args)
+            template = DataCycleCore::Thing.find_by(template: true, template_name: virtual_definition&.dig('template_name'))
+
+            return if template.nil?
+
+            virtual_parameters.map { |key|
+              value = content.try(key)
+
+              next if value.blank?
+
+              template.dup.tap do |t|
+                type_of_information = DataCycleCore::ClassificationAlias
+                  .for_tree('Informationstypen')
+                  .with_internal_name(key)
+                  .primary_classifications
+
+                t.attributes = {
+                  id: generate_uuid(content.id, key),
+                  template: false,
+                  created_at: Time.zone.now,
+                  updated_at: Time.zone.now,
+                  name: content.properties_for(key)&.dig('label'),
+                  description: content.try(key)
+                }
+
+                t.set_memoized_attribute('type_of_information', type_of_information)
+              end
+            }.compact
           end
         end
       end

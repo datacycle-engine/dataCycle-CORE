@@ -36,7 +36,16 @@ module DataCycleCore
           ]
         }.freeze
 
-        def self.serialize_data(data)
+        def self.serialize_data(data, method_name, external_system)
+          linked_stored_filter = nil
+          stored_filter_ids = external_system.export_config_by_filter_key(method_name, 'stored_filters')
+          stored_filter = DataCycleCore::StoredFilter.by_id_or_slug(Array.wrap(stored_filter_ids)&.first).first
+          if stored_filter
+            linked_stored_filter = stored_filter.linked_stored_filter if stored_filter.linked_stored_filter_id.present?
+            classification_trees_parameters |= Array.wrap(stored_filter.classification_tree_labels)
+            classification_trees_filter = classification_trees_parameters.present?
+          end
+
           json = DataCycleCore::Api::V4::ContentsController.renderer.new(
             http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
             https: Rails.application.config.force_ssl
@@ -51,7 +60,9 @@ module DataCycleCore
               include_parameters: DEFAULT_INCLUDE + (INCLUDE_FILTER[data.template_name] || []).uniq,
               api_version: 4,
               permitted_params: {},
-              api_context: 'api'
+              api_context: 'api',
+              linked_stored_filter: linked_stored_filter,
+              classification_tree_filter: classification_trees_filter
             },
             template: 'data_cycle_core/api/v4/contents/show',
             layout: false
@@ -82,7 +93,7 @@ module DataCycleCore
           default_url_options[:protocol] = ENV['APP_PROTOCOL']
           ns = api_v4_universal_url + '/'
 
-          body = Endpoint.serialize_data(data)
+          body = Endpoint.serialize_data(data, 'update', @external_system)
 
           response = connection.send(verb) do |req|
             req.url(url)

@@ -18,7 +18,7 @@ module DataCycleCore
         end
 
         def to_sync_h(depth: 0, max_depth: DataCycleCore.main_config.dig(:sync_api, :max_depth), locales: nil)
-          (property_names - timeseries_property_names - virtual_property_names)
+          (property_names - timeseries_property_names)
             .map { |property_name| { property_name.to_s => attribute_to_sync_h(property_name, depth: depth, max_depth: max_depth, locales: locales) } }
             .inject(&:merge)
             .merge(sync_metadata)

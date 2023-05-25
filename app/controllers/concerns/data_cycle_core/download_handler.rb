@@ -28,7 +28,7 @@ module DataCycleCore
           serialize_format.each do |format|
             serializer = serializer_for_content(object, [:archive, :zip], format)
             next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
-            collection = serializer.serialize_thing(content: items, language: language, versions: versions)
+            collection = serializer.serialize_thing(content: items, language: language, versions: versions, user: current_user)
             serialized_collections << collection
             raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
 
@@ -50,7 +50,7 @@ module DataCycleCore
           DataCycleCore::Feature::Download.mandatory_serializers_for_download(object, [:archive, :zip]).each_key do |format|
             serializer = ('DataCycleCore::Serialize::Serializer::' + format.to_s.classify).constantize
             next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
-            collection = serializer.serialize_thing(content: items, language: language, serialized_collections: serialized_collections)
+            collection = serializer.serialize_thing(content: items, language: language, serialized_collections: serialized_collections, user: current_user)
             raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
 
             collection.each do |serialized_content|
@@ -89,7 +89,7 @@ module DataCycleCore
             serializer = serializer_for_content(object, [:archive, :indesign], format)
             next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
 
-            collection = serializer.try(serialize_method, content: object, language: language)
+            collection = serializer.try(serialize_method, content: object, language: language, user: current_user)
             raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
             collection.each do |serialized_content|
               raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content.is_a?(DataCycleCore::Serialize::SerializedData::Content)
@@ -109,7 +109,7 @@ module DataCycleCore
           DataCycleCore::Feature::Download.mandatory_serializers_for_download(object, [:archive, :indesign]).each_key do |format|
             serializer = ('DataCycleCore::Serialize::Serializer::' + format.to_s.classify).constantize
             next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
-            collection = serializer.serialize_thing(content: items, language: language)
+            collection = serializer.serialize_thing(content: items, language: language, user: current_user)
             raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
             collection.each do |serialized_content|
               raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content.is_a?(DataCycleCore::Serialize::SerializedData::Content)
@@ -168,7 +168,7 @@ module DataCycleCore
     def download_generic(content:, serializer:, languages:, version: nil, serialize_method: :serialize_thing, transformation: nil, query: nil, additional_data: {})
       language = languages&.first&.to_sym || I18n.locale
 
-      collection = serializer.try(serialize_method, content: content, language: language, version: version, transformation: transformation, query: query, additional_data: additional_data)
+      collection = serializer.try(serialize_method, content: content, language: language, version: version, transformation: transformation, query: query, additional_data: additional_data, user: current_user)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless collection.is_a?(DataCycleCore::Serialize::SerializedData::ContentCollection)
 
       serialized_content = collection.first

@@ -15,13 +15,16 @@ module DataCycleCore
             'application/pdf'
           end
 
-          def serialize_thing(content:, language:, **_options)
+          def serialize_thing(content:, language:, user:, **_options)
+            content = Array.wrap(content).first
+
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               [
                 DataCycleCore::Serialize::SerializedData::Content.new(
                   data: PDFKit.new(
                     I18n.with_locale(language) do
-                      DataCycleCore::ApplicationController.renderer.new(
+                      DataCycleCore::ApplicationController.renderer_with_user(
+                        user,
                         http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
                         https: Rails.application.config.force_ssl
                       ).render_to_string(

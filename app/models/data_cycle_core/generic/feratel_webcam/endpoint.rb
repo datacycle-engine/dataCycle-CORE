@@ -14,6 +14,20 @@ module DataCycleCore
           @read_type = options[:read_type] if options[:read_type].present?
         end
 
+        def infoxml_cams(lang: :de)
+          Enumerator.new do |yielder|
+            load_infoxml_cams(lang: lang).dig('content', 'portal', 'links', 'link').each do |all_data|
+              location = all_data.except('cams')
+              Array.wrap(all_data.dig('cams', 'cam')).each do |cam_data|
+                data = cam_data.merge('location' => location)
+                data['rid'] = data['panid']
+                data['name'] = data.dig('location', 'village', 'text')
+                yielder << data
+              end
+            end
+          end
+        end
+
         def load_cam_ids
           raise ArgumentError, 'missing read_type for loading cam_ids' if @read_type.nil?
           DataCycleCore::Generic::Collection2.with(@read_type) do |mongo|
@@ -95,6 +109,24 @@ module DataCycleCore
         end
 
         protected
+
+        def load_infoxml_cams(lang:)
+          connection = Faraday.new(@host) do |con|
+            con.use FaradayMiddleware::FollowRedirects, limit: 5
+            con.adapter Faraday.default_adapter
+          end
+          response = connection.get do |req|
+            req.params['pg'] = @pg
+            req.params['lg'] = lang.to_s
+            req.params['xmlv3'] = 1
+            req.params['geoXY'] = 1
+            req.params['nolg'] = 1
+            req.params['showKeywords'] = 1
+          end
+
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host}", response) unless response.success?
+          Nokogiri::XML(response.body).children.first.to_hash
+        end
 
         def load_data(cam:, pc:, lang:, pccd: nil)
           connection = Faraday.new(@host) do |con|

@@ -768,7 +768,8 @@ CREATE TABLE public.classification_aliases (
     name_i18n jsonb DEFAULT '{}'::jsonb,
     description_i18n jsonb DEFAULT '{}'::jsonb,
     uri character varying,
-    order_a integer
+    order_a integer,
+    ui_configs jsonb
 );
 
 
@@ -831,7 +832,7 @@ CREATE TABLE public.classification_tree_labels (
     internal boolean DEFAULT false,
     deleted_at timestamp without time zone,
     visibility character varying[] DEFAULT '{}'::character varying[],
-    change_behaviour character varying[] DEFAULT '{trigger_webhooks,clear_cache}'::character varying[]
+    change_behaviour character varying[] DEFAULT '{trigger_webhooks}'::character varying[]
 );
 
 
@@ -3570,6 +3571,14 @@ ALTER TABLE ONLY public.collection_configurations
 
 
 --
+-- Name: user_group_users fk_rails_485739ff03; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_group_users
+    ADD CONSTRAINT fk_rails_485739ff03 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE NOT VALID;
+
+
+--
 -- Name: timeseries fk_rails_53ff16144f; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3591,6 +3600,14 @@ ALTER TABLE ONLY public.active_storage_variant_records
 
 ALTER TABLE ONLY public.active_storage_attachments
     ADD CONSTRAINT fk_rails_c3b3935057 FOREIGN KEY (blob_id) REFERENCES public.active_storage_blobs(id);
+
+
+--
+-- Name: user_group_users fk_rails_da075980a7; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_group_users
+    ADD CONSTRAINT fk_rails_da075980a7 FOREIGN KEY (user_group_id) REFERENCES public.user_groups(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -3900,6 +3917,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230329123152'),
 ('20230330081538'),
 ('20230403113641'),
-('20230425060228');
+('20230425060228'),
+('20230515081146'),
+('20230516132624'),
+('20230517085644');
 
 

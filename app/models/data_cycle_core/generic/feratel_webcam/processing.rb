@@ -168,6 +168,37 @@ module DataCycleCore
             config: config
           )
         end
+
+        ############### Processing for endpoint infoxml.jsp
+        def self.process_webcam_xml(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::FeratelWebcam::Transformations.to_webcam_xml(utility_object.external_source.id),
+            default: { template: 'Webcam' },
+            config: config
+          )
+        end
+
+        def self.process_image_xml(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::FeratelWebcam::Transformations.to_image_xml,
+            default: { template: 'Bild' },
+            config: config
+          )
+        end
+
+        def self.process_place_xml(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::FeratelWebcam::Transformations.to_place_xml,
+            default: { template: 'Örtlichkeit' },
+            config: config
+          )
+        end
       end
     end
   end

@@ -102,6 +102,16 @@ module DataCycleCore
         end
       end
 
+      def classification_alias_for_tree(tree_name)
+        if classification_aliases.loaded?
+          ca_query = classification_aliases
+          ca_query = ca_query.includes(:classification_tree_label) unless classification_aliases.first&.association(:classification_tree_label)&.loaded?
+          ca_query.to_a.detect { |ca| ca.classification_tree_label&.name == tree_name }
+        else
+          classification_aliases.includes(:classification_tree_label).find_by(classification_tree_labels: { name: tree_name })
+        end
+      end
+
       def classification_aliases_for_tree(tree_name:)
         classification_aliases.joins(:classification_tree_label).where(classification_tree_labels: { name: tree_name })
       end

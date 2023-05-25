@@ -65,13 +65,13 @@ build_docker_job:
   <<: *docker_ci
   extends: .build_docker_config
   script:
-    - docker build --pull -f Dockerfile-core -t "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG" --target production .
+    - docker build --pull -f Dockerfile-core -t "$CI_REGISTRY_IMAGE/web:$CI_COMMIT_REF_SLUG" --target production .
       --build-arg APP_DOCKER_ENV
       --build-arg NODE_ENV
       --build-arg RAILS_ENV
       --build-arg APP_HOST
       --build-arg APP_PROTOCOL
-    - docker push "$CI_REGISTRY_IMAGE/web:$CI_BUILD_REF_SLUG"
+    - docker push "$CI_REGISTRY_IMAGE/web:$CI_COMMIT_REF_SLUG"
 
 ########################################################################
 ######################### Master

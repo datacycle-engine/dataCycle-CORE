@@ -19,6 +19,9 @@ en:
     updated: Edited
   submit: Create
 
+  template_names:
+    skos:Concept: Classification
+
   attribute_labels:
     additional_information:
       one: Description block
@@ -159,6 +162,8 @@ en:
         pinch: Use two fingers to zoom/scroll the map
       filter:
         button_title: edit linked contents
+        geo_radius:
+          popup: "Center: %{lon}°, %{lat}°<br>Radius: %{radius} %{unit}"
       undo: undo last change
       redo: Reapply undone changes
       upload_gpx:
@@ -494,7 +499,6 @@ en:
     placeholder:
       longitude: Longitude, e.g. 14.30
       latitude: Latitude, e.g. 46.61
-      distance: Radius in meters
     available_widgets: Available widgets
     widgets:
       event_list: Events - List view
@@ -543,6 +547,7 @@ en:
   external_connection_states:
     success: Successfully synchronized
     pending: is synchronized
+    running: export is triggered
     error: |-
       An error has occurred.
       Synchronization will be retried at specified intervals.
@@ -577,6 +582,7 @@ en:
     media_archive: open in the media archive
   feature:
     content_score:
+      tooltip_score: "(%{score} of 100)"
       tooltip:
         title: Content-Score
         criteria: "Criteria: <b>%{text}</b>"
@@ -880,7 +886,6 @@ en:
 
   classification_change_behaviour:
     trigger_webhooks: trigger webhooks for contents
-    clear_cache: clear cache for contents
 
   pagination:
     next: Further results
@@ -1061,6 +1066,7 @@ en:
       wrong_content_type: "%{content_type} Files are not allowed."
       required: is a mandatory field and must be filled in.
       unknown_activity_type: Unknown type for Activity
+      unknown: unknown error
     warnings:
       string: "%{key} is not a valid keyword for string. Found for %{data} in %{template}"
       no_data: No data specified for %{data}
@@ -1206,6 +1212,10 @@ en:
           attributes:
             name:
               blank: Name must not be blank.
+        data_cycle_core/classification_alias:
+          attributes:
+            ui_configs:
+              color_format: wrong format for color.
     models:
       data_cycle_core/user:
         one: User
@@ -1283,6 +1293,9 @@ en:
         uri: External URI
         external_keys: External Keys
         mapped_to_string: Classifications mapped from
+        ui_configs: UI-Configuration
+        ui_configs/color: Color
+        ui_configs/icon: Icon
       data_cycle_core/user_group:
         name: Name
         user_ids: User
@@ -1591,7 +1604,7 @@ en:
       additionalInformation: Additional information
       literature: Literture
       publicTransit: Public transit
-      seasonDescription: Sesion      
+      seasonDescription: Sesion
     gem2go:
       description: Description
     timm4:
@@ -1685,6 +1698,9 @@ en:
       teaser: Teaser
       zusatzinfo: Additional informationen
       anreisebeschreibung: Directions
+    pimcore:
+      description: Description
+      text: Detailed description
 
   media_archive:
     allowed_html:
@@ -1695,6 +1711,7 @@ en:
   uploader:
     restrictions: Restrictions
     validation:
+      invalid_file: corrupted file
       format: 'Allowed formats: <span class="value">%{data}</span>'
       format_not_supported: Unsupported format (%{data})
       dimensions:

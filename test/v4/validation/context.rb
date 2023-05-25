@@ -12,6 +12,7 @@ module DataCycleCore
           required(:dc) { eql?('https://schema.datacycle.at/') }
           required(:dcls).value(:string)
           required(:odta) { eql?('https://odta.io/voc/') }
+          required(:sdm) { eql?('https://smartdatamodels.org/') }
         end
 
         def self.build_language_attributes(languages)

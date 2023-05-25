@@ -234,9 +234,9 @@ module DataCycleCore
               url = gdata
                 .dig('potentialAction')
                 .detect { |i| i['name'].detect { |j| j['@value'] == 'URL' }.present? }
-                .dig('url')
-                .first
-                .dig('@value')
+                &.dig('url')
+                &.first
+                &.dig('@value')
 
               gdata['url'] = url if url.present?
             end

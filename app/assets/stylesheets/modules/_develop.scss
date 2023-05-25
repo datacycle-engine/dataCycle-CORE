@@ -2074,6 +2074,16 @@ select {
   }
 }
 
+.geographic-map {
+  .additional-feature-popup {
+    pointer-events: none;
+
+    * {
+      pointer-events: none;
+    }
+  }
+}
+
 .detail-type.geographic,
 .form-element.geographic {
   display: flex;
@@ -2100,10 +2110,7 @@ select {
       pointer-events: none;
       font-size: 0.9rem;
 
-      .maplibregl-popup-content,
-      .mapboxgl-popup-content,
-      .maplibregl-popup-tip,
-      .mapboxgl-popup-tip {
+      * {
         pointer-events: none;
       }
     }

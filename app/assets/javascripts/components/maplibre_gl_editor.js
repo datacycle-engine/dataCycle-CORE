@@ -114,12 +114,6 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 			.getSource(this._additionalValueSourceByKey(key))
 			.setData(this._additionalValuesByKey(key));
 	}
-	_createFeatureCollection(data = []) {
-		return {
-			type: "FeatureCollection",
-			features: data,
-		};
-	}
 	async _loadGeojson(additionalParams = {}) {
 		let data = await DataCycle.httpRequest("/things/geojson_for_map_editor", {
 			method: "POST",
@@ -225,9 +219,9 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		this.$geoCodeButton.append(' <i class="fa fa-spinner fa-spin fa-fw"></i>');
 		this.$geoCodeButton.addClass("disabled");
 
-		let addressKey = this.$geoCodeButton.data("address-key");
-		let locale = this.$geoCodeButton.data("locale");
-		let address = {
+		const addressKey = this.$geoCodeButton.data("address-key");
+		const locale = this.$geoCodeButton.data("locale");
+		const address = {
 			locale: locale,
 		};
 
@@ -321,7 +315,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		return coords;
 	}
 	getFeatureLatLon() {
-		let coords = this.feature.geometry.coordinates;
+		const coords = this.feature.geometry.coordinates;
 
 		return this.shortenCoordinates(coords);
 	}

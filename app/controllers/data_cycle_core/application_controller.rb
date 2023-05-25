@@ -5,6 +5,7 @@ module DataCycleCore
     include DataCycleCore::ParamsResolver
     include DataCycleCore::ErrorHandler
     include ActiveStorage::SetCurrent
+    include DataCycleCore::RendererWithUser
 
     protect_from_forgery with: :exception
     before_action :load_watch_lists, if: -> { params[:watch_list_id].present? }

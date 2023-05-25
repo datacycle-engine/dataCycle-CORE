@@ -10,6 +10,10 @@ module DataCycleCore
         import Transproc::Recursion
         import DataCycleCore::Generic::Common::Functions
 
+        def self.identity(data)
+          data
+        end
+
         def self.hashify_data(data, key)
           return data unless data.key?(key)
           data[key] = data[key].map { |i|
@@ -30,6 +34,20 @@ module DataCycleCore
             else
               data.dig("#{data['type']}i", id, data['url_key'])
             end
+          data
+        end
+
+        def self.add_urls(data)
+          return data if data['urllist'].blank?
+          urls = Array.wrap(data.dig('urllist', 'durl'))
+          content_url = urls
+            .detect { |i| i['t'] == 'MediaPlayer v4' }
+            &.dig('v')
+          data['content_url'] = content_url if content_url.present?
+          url = urls
+            .detect { |i| i['t'] == 'feratel.com' }
+            &.dig('v')
+          data['url'] = url if url.present?
           data
         end
       end

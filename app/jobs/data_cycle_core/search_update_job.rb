@@ -11,7 +11,7 @@ module DataCycleCore
     end
 
     def delayed_reference_id
-      "#{arguments[1]}_#{arguments[2] ? 'all' : arguments[2]}"
+      "#{arguments[1]}_#{arguments[2].presence || 'all'}"
     end
 
     def delayed_reference_type

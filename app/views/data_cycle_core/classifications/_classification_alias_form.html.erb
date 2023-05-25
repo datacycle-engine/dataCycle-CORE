@@ -52,6 +52,11 @@
     <%= f.text_field :uri, class: 'ca-input-field', readonly: classification_alias&.persisted? ? !can?(:update, classification_alias) : !can?(:create, DataCycleCore::ClassificationAlias), placeholder: t('common.generated_value_placeholder', locale: active_ui_locale) %>
   </div>
 
+  <div class="ca-input color-picker-container <%= 'no-color' unless classification_alias&.color? %>">
+    <%= label_tag "classification_alias[ui_configs][color]", DataCycleCore::ClassificationAlias.human_attribute_name("ui_configs/color", locale: active_ui_locale), class: 'ca-label' %>
+    <%= text_field_tag "classification_alias[ui_configs][color]", classification_alias&.color, class: 'ca-input-field dc-color-picker', disabled: !can?(:set_color, classification_alias) %>
+  </div>
+
   <% if current_user&.is_role?('super_admin') %>
     <div class="ca-input checkbox">
       <span class="dc-checkbox">

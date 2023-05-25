@@ -171,7 +171,7 @@ module DataCycleCore
     private
 
     def trigger_things_cache_invalidation?
-      change_behaviour&.include?('clear_cache') && cached_attributes_changed?
+      cached_attributes_changed?
     end
 
     def trigger_things_webhooks?
