@@ -63,6 +63,7 @@ module DataCycleCore
                       classification_path[classification_path.length - 1] = classification
                       classification_alias = tree_label&.create_or_update_classification_alias_by_name(*Array.wrap(classification_path))
 
+                      classification_alias.classification_polygons.delete_all
                       classification_polygon.classification_alias_id = classification_alias.id
                       classification_polygon.save!
 
