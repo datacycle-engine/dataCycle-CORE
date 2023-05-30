@@ -1,6 +1,7 @@
 version: '3.9'
 
-x-app-env: &default-app-env
+x-app-env:
+  &default-app-env
   APP_PROTOCOL: ${APP_PROTOCOL:-http}
   APP_HOST: ${APP_HOST:-localhost:3003}
   APPLICATION_ROOT: ${APPLICATION_ROOT:-/app}
@@ -17,7 +18,8 @@ x-app-env: &default-app-env
   VITE_RUBY_HOST: 0.0.0.0
   VITE_RUBY_PORT: ${PUBLIC_VITE_PORT:-3036}
 
-x-app: &default-app
+x-app:
+  &default-app
   build:
     context: ${PWD}
     target: development
@@ -57,9 +59,9 @@ services:
     <<: *default-app
     environment:
       <<: *default-app-env
-    command: ['/bin/bash']
+    command: [ '/bin/bash' ]
     restart: 'no'
-    profiles: ['migrate']
+    profiles: [ 'migrate' ]
   postgres:
     volumes:
       - '${PWD}:/app'
@@ -93,7 +95,3 @@ volumes:
   nginx-log:
   postgres-data:
   redis:
-
-networks:
-  default:
-    name: ${NETWORK_NAME:-dc-local-network}
