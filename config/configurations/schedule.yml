@@ -1,0 +1,4 @@
+- "0 0 * * 1":
+    - data_cycle_core:notifications:send[week]
+  "0 0 * * *":
+    - data_cycle_core:notifications:send[day]

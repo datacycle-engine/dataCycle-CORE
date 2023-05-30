@@ -1,0 +1,42 @@
+# frozen_string_literal: true
+
+require 'rufus-scheduler'
+require 'yaml'
+
+module DataCycleCore
+  class RufusYamlScheduler
+    def initialize
+      @scheduler = Rufus::Scheduler.new
+      @rails_env = ENV['RAILS_ENV'] || 'development'
+      @paths = [
+        Dir[File.join(Dir.pwd, 'vendor', 'gems', 'data-cycle-core', 'config', 'configurations', 'schedule.yml')],
+        Dir[File.join(Dir.pwd, 'vendor', 'gems', 'data-cycle-core', 'config', 'configurations', @rails_env, 'schedule.yml')],
+        Dir[File.join(Dir.pwd, 'config', 'configurations', 'schedule.yml')],
+        Dir[File.join(Dir.pwd, 'config', 'configurations', @rails_env, 'schedule.yml')]
+      ]
+    end
+
+    def run
+      configs = []
+
+      @paths.each do |path|
+        path.each do |file_path|
+          config = YAML.safe_load(File.read(file_path), [Symbol])
+          configs.concat(config) if config.is_a?(::Array)
+        end
+      end
+
+      configs.each do |config|
+        config.each do |cron_rule, tasks|
+          @scheduler.cron cron_rule do
+            tasks.each do |task|
+              system "rake #{task}"
+            end
+          end
+        end
+      end
+
+      @scheduler.join
+    end
+  end
+end
