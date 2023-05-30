@@ -148,7 +148,7 @@ module DataCycleCore
 
         respond_to do |format|
           format.html do
-            if @content.present?
+            if @content.valid?
               redirect_to edit_thing_path(@content, source_params.merge(watch_list_params))
             else
               redirect_back(fallback_location: root_path)
