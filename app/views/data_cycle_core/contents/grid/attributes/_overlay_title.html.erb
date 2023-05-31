@@ -1,0 +1,6 @@
+<% if (name_string = item.try(:overlay)&.first.try(:name)).present? %>
+  <span class="title overlay-title" title="<%= name_string %>">
+    <i class="fa fa-window-restore"></i>
+    <%= sanitize(strip_links(truncate(name_string, length: 70, separator: " ", escape: false))) %>
+  </span>
+<% end %>
