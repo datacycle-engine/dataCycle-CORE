@@ -33,7 +33,7 @@ module DataCycleCore
             .reorder(nil)
             .order(
               sanitized_order_string('watch_list_data_hashes.order_a', ordering.presence || 'ASC'),
-              sanitized_order_string('watch_list_data_hashes.created_at', 'DESC'),
+              sanitized_order_string('watch_list_data_hashes.created_at', 'ASC'),
               sanitized_order_string('things.id', 'DESC')
             )
         )
