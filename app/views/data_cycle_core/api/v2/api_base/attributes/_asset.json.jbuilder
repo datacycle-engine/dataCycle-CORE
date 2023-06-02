@@ -9,8 +9,8 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
       json.set! 'id', asset.id
       json.set! 'fileFormat', asset.content_type
       json.set! 'contentSize', asset.file_size
-      json.set! 'url', asset.file.url
-      json.set! 'thumbnailUrl', asset.thumbnail_url if asset.thumbnail_url?
+      json.set! 'url', asset.thing.content_url
+      json.set! 'thumbnailUrl', asset.thing.thumbnail_url if asset.thing.try(:thumbnail_url)
     end
   end
 end
