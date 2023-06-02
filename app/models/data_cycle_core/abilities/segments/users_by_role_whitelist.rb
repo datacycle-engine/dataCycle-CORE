@@ -8,7 +8,7 @@ module DataCycleCore
 
         def initialize(*whitelist)
           @subject = DataCycleCore::User
-          @conditions = whitelist.include?('all') ? {} : { role: { name: whitelist } }
+          @conditions = Array.wrap(whitelist).flatten.map(&:to_s).then { |wl| wl.include?('all') ? {} : { role: { name: wl } } }
         end
       end
     end
