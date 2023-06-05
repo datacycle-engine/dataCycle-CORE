@@ -103,6 +103,26 @@ module DataCycleCore
         def attribute_and_template_not_blacklisted?(attribute, blacklist = {})
           !attribute_and_template_whitelisted?(attribute, blacklist)
         end
+
+        def attribute_type_whitelisted?(attribute, whitelist = [])
+          attribute.definition&.[]('type')&.in?(whitelist)
+        end
+
+        def attribute_type_not_blacklisted?(attribute, blacklist = [])
+          !attribute.definition&.[]('type')&.in?(blacklist)
+        end
+
+        def content_created_by_user?(attribute)
+          attribute.content.try(:created_by) == user.id
+        end
+
+        def attribute_value_present?(attribute)
+          attribute.content.try(attribute.key.attribute_name_from_key)&.present?
+        end
+
+        def attribute_value_blank?(attribute)
+          !attribute_value_present?(attribute)
+        end
       end
     end
   end

@@ -100,6 +100,21 @@ module DataCycleCore
       hash
     end
 
+    def warnings?
+      warnings.present?
+    end
+
+    def full_warnings(locale)
+      warnings
+        .messages
+        .map { |k, v| I18n.t("activerecord.warnings.messages.#{k}", default: k, locale: locale, warnings: Array.wrap(v).join(', ')) }
+        .join(', ')
+    end
+
+    def warnings
+      @warnings ||= ActiveModel::Errors.new(self)
+    end
+
     private
 
     def metadata_from_blob

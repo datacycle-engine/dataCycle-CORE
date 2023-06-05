@@ -147,7 +147,7 @@ module DataCycleCore
 
         respond_to do |format|
           format.html do
-            if @content.present?
+            if @content.valid?
               redirect_to edit_thing_path(@content, source_params.merge(watch_list_params))
             else
               redirect_back(fallback_location: root_path)
@@ -266,6 +266,7 @@ module DataCycleCore
 
         redirect_to(thing_path(@content, watch_list_params)) && return unless @content.destroyed?
         redirect_to(thing_path(@content.parent, watch_list_params)) && return if @content.try(:parent).present?
+        redirect_to(watch_list_path(watch_list_params[:watch_list_id])) && return if watch_list_params[:watch_list_id].present?
         redirect_to root_path
       end
     end

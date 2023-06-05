@@ -260,12 +260,14 @@
     }
   }
 
-  &.wetterstation, // ZAMG
+  &.wetterstation,
+  // ZAMG
   &.wettervorhersage,
   &.wetterbericht,
   &.tagesprognose,
   &.prognose,
-  &.wetterstation_feratel, // FeratelWebcam
+  &.wetterstation_feratel,
+  // FeratelWebcam
   &.wetterprognose {
     &::before {
       content: '\f185';
@@ -364,10 +366,11 @@
   }
 
   &.watch_list-icon::before {
-    content: '\f022';
+    content: '\f0ca';
   }
 
   &.property-icon {
+
     &.type-date::before,
     &.type-daterange::before,
     &.type-object.key-duration::before {

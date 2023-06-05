@@ -34,16 +34,11 @@
     cursor: not-allowed !important;
     background: lighten($light-gray, 5%) !important;
 
-    &:hover {
-      border-color: $primary-color;
-      box-shadow: 0 1px 7px lighten($dark-gray, 12%);
-
-      >.detail-label {
-        color: $primary-color;
-      }
+    &:hover:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+      box-shadow: 0 1px 5px rgba($dark-gray, 0.4);
     }
 
-    &:focus {
+    &:focus:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
       border-color: $primary-color;
     }
 
@@ -97,7 +92,8 @@
       }
     }
 
-    &.focus {
+    &:focus:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field),
+    &:focus-within:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
 
       .geo-key-figure-button,
       .geo-key-figure-button-all {
@@ -520,6 +516,7 @@
   padding: 2px 5px;
   border-radius: $global-radius;
   box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+  font-weight: 200;
 
   &::after {
     content: '\f0ea';
@@ -1542,16 +1539,8 @@ a.email-link {
         outline: none;
       }
 
-      &:hover {
+      &:hover:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
         z-index: 1;
-        border-color: $primary-color;
-        box-shadow: 0 1px 7px lighten($dark-gray, 12%);
-      }
-
-      &:focus,
-      &.select2-container--focus,
-      &.select2-container--open {
-        border-color: $primary-color;
       }
 
       .select2-search__field {
@@ -2085,6 +2074,16 @@ select {
   }
 }
 
+.geographic-map {
+  .additional-feature-popup {
+    pointer-events: none;
+
+    * {
+      pointer-events: none;
+    }
+  }
+}
+
 .detail-type.geographic,
 .form-element.geographic {
   display: flex;
@@ -2111,10 +2110,7 @@ select {
       pointer-events: none;
       font-size: 0.9rem;
 
-      .maplibregl-popup-content,
-      .mapboxgl-popup-content,
-      .maplibregl-popup-tip,
-      .mapboxgl-popup-tip {
+      * {
         pointer-events: none;
       }
     }
@@ -2421,9 +2417,8 @@ select {
   .geographic {
     transition: $input-transition;
 
-    &:hover {
-      border-color: $primary-color;
-      box-shadow: 0 1px 7px lighten($dark-gray, 12%);
+    &:hover:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+      box-shadow: 0 1px 5px rgba($dark-gray, 0.4);
     }
   }
 
@@ -4072,7 +4067,10 @@ body {
   }
 }
 
-.dcjs-fadeout {
-  transition: opacity 0.5s;
-  opacity: 0;
+.select2-container--default {
+  .select2-search--dropdown {
+    .select2-search__field {
+      margin: 0;
+    }
+  }
 }

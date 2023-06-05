@@ -36,7 +36,7 @@ module DataCycleCore
             @classification_aliases = DataCycleCore::ClassificationAlias.where(id: @classification_id) # .with_descendants
             raise ActiveRecord::RecordNotFound if @classification_aliases.blank?
           else
-            @classification_aliases = @classification_tree_label.classification_aliases
+            @classification_aliases = @classification_tree_label.classification_aliases.includes(:classification_tree_label)
           end
 
           if permitted_params.dig(:filter, :attribute).present?
@@ -55,6 +55,14 @@ module DataCycleCore
 
           query = build_search_query
 
+          join_sql = "LEFT OUTER JOIN(SELECT ccc.thing_id, alias_id.full_alias_ids AS full_alias_id, alias_id.full_alias_ids = any(ccc.direct_classification_alias_ids) AS direct FROM collected_classification_contents ccc, unnest(ccc.full_classification_alias_ids) AS alias_id(full_alias_ids) WHERE EXISTS (#{query.query.where('things.id = ccc.thing_id').except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).select(1).to_sql})) ccc ON ccc.full_alias_id = classification_aliases.id"
+
+          select_sql = <<-SQL.squish
+            classification_aliases.*,
+            COUNT(DISTINCT ccc.thing_id) AS thing_count_with_subtree,
+            COUNT(DISTINCT ccc.thing_id) filter (WHERE ccc.direct = TRUE) AS thing_count_without_subtree
+          SQL
+
           @classification_aliases = DataCycleCore::ClassificationAlias
             .where(
               DataCycleCore::ClassificationTree
@@ -62,11 +70,9 @@ module DataCycleCore
                 .where(classification_tree_label_id: @classification_tree_label.id)
                 .select(1).arel.exists
             )
-            .joins(
-              "LEFT OUTER JOIN collected_classification_contents ccc ON classification_aliases.id = ANY(ccc.full_classification_alias_ids) AND EXISTS (#{query.query.where('things.id = ccc.thing_id').except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).select(1).to_sql})"
-            )
-            .select('classification_aliases.*, COUNT(DISTINCT ccc.thing_id) AS thing_count_with_subtree, COUNT(DISTINCT ccc.thing_id) filter (where classification_aliases.id = ANY(ccc.direct_classification_alias_ids)) AS thing_count_without_subtree')
-            .group(:id)
+            .joins(join_sql)
+            .select(select_sql)
+          .group(:id)
 
           @classification_id = permitted_params[:classification_id]
           if @classification_id.present?
@@ -77,7 +83,6 @@ module DataCycleCore
           @classification_aliases = apply_order_query(@classification_aliases, permitted_params.dig(:sort))
           @classification_aliases = apply_paging(@classification_aliases)
           @classification_aliases = @classification_aliases.includes(:classification_tree_label)
-          @classification_aliases.instance_variable_set(:@total_count, @classification_aliases.except(:select, :joins, :order, :group, :limit, :offset).count)
         end
 
         def by_external_key

@@ -1,4 +1,5 @@
 .form-element.linked {
+
   &[readonly],
   &[data-readonly='true'],
   &[disabled],
@@ -7,10 +8,6 @@
       cursor: not-allowed !important;
       background: lighten($light-gray, 5%) !important;
     }
-  }
-
-  &:hover > .linked-editor-header > .attribute-edit-label {
-    color: $primary-color;
   }
 
   .linked-editor-header {

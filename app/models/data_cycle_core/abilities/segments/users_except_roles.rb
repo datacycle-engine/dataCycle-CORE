@@ -4,17 +4,17 @@ module DataCycleCore
   module Abilities
     module Segments
       class UsersExceptRoles < Base
-        attr_reader :except_roles, :subject, :allowed, :conditions
+        attr_reader :subject, :conditions
 
-        def initialize(except = [])
-          @except_roles = Array.wrap(except).map(&:to_s)
+        def initialize(*roles)
+          @roles = Array.wrap(roles).flatten.map(&:to_s)
           @subject = DataCycleCore::User
-          @allowed = DataCycleCore::Role.where.not(name: except_roles).pluck(:name)
+          @allowed = DataCycleCore::Role.where.not(name: @roles).pluck(:name)
           @conditions = { role: { name: @allowed } }
         end
 
         def include?(user)
-          !user.is_role?(*except_roles)
+          user.is_role?(*@allowed)
         end
       end
     end

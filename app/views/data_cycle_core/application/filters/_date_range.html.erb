@@ -6,7 +6,7 @@
 
   <div class="advanced-filter-title">
     <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
-    <span><%= t("filter.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
+    <span><%= t("filter.#{local_assigns[:filter_type] || :date_range}.#{filter_name}", default: t("filter.#{filter_name}", default: filter_title, locale: active_ui_locale), locale: active_ui_locale) %></span>
   </div>
 
   <div class="advanced-filter-mode">

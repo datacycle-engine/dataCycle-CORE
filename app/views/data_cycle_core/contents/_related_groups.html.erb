@@ -8,22 +8,26 @@
 
     <ul>
       <% group.second.presence&.each do |item| %>
-        <li class="<%= [
-                            'list-item',
-                            'content',
-                            item.class.name.demodulize.underscore.dasherize,
-                            item.schema_type&.underscore&.dasherize,
-                            item.template_name.underscore.dasherize,
-                            (item.hard_content_warnings? ? 'hard-warnings' : nil)
-                        ].compact.join(' ') %>" data-id="<%= [item.id] %>">
-
+        <%= tag.li(class: [
+          'list-item',
+          'content',
+          item.class.name.demodulize.underscore.dasherize,
+          item.schema_type&.underscore&.dasherize,
+          item.template_name.underscore.dasherize,
+          (item.hard_content_warnings? ? 'hard-warnings' : nil),
+          thing_content_score_class(item),
+        ].compact_blank.join(' '),
+        data: {
+          id: [item.id],
+         content_score: item.try(:internal_content_score)&.round
+        }) do %>
           <%= render_first_existing_partial [
                                                 "data_cycle_core/contents/viewers/lists/#{item.template_name.underscore_blanks}",
                                                 "data_cycle_core/contents/viewers/lists/#{item.schema_type.underscore_blanks}",
                                                 'data_cycle_core/contents/viewers/lists/default'
                                             ], local_assigns.merge({content: item})
                 %>
-        </li>
+        <% end %>
       <% end %>
     </ul>
 

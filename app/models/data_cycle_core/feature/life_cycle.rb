@@ -17,19 +17,24 @@ module DataCycleCore
         end
 
         def ordered_classifications(content = nil)
-          @ordered_classifications ||= DataCycleCore::ClassificationAlias
-            .joins(:primary_classification)
-            .for_tree(tree_label(content))
-            .with_internal_name(ordered_items(content))
-            .order(
-              [
-                Arel.sql('array_position(ARRAY[?]::VARCHAR[], classification_aliases.internal_name)'),
-                ordered_items(content)
-              ]
-            )
-            .pluck(
-              Arel.sql("classification_aliases.internal_name, jsonb_build_object('id', classifications.id, 'alias_id', classification_aliases.id)")
-            ).to_h.with_indifferent_access
+          @ordered_classifications ||= Hash.new do |h, k|
+            h[k] = DataCycleCore::ClassificationAlias
+              .joins(:primary_classification)
+              .for_tree(k[0])
+              .with_internal_name(k[1])
+              .reorder(nil)
+              .order(
+                [
+                  Arel.sql('array_position(ARRAY[?]::VARCHAR[], classification_aliases.internal_name)'),
+                  k[1]
+                ]
+              )
+              .pluck(
+                Arel.sql("classification_aliases.internal_name, json_build_object('id', classifications.id, 'alias_id', classification_aliases.id)")
+              ).to_h.with_indifferent_access
+          end
+
+          @ordered_classifications[[tree_label(content), ordered_items(content)]]
         end
 
         def ordered_items(content = nil)

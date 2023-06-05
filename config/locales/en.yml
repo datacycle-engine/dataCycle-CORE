@@ -19,6 +19,9 @@ en:
     updated: Edited
   submit: Create
 
+  template_names:
+    skos:Concept: Classification
+
   attribute_labels:
     additional_information:
       one: Description block
@@ -104,6 +107,7 @@ en:
   user:
     user_not_confirmed: email address has not been confirmed yet
     confirm: confirm email
+    delete_user_html: delete user?
 
   frontend:
     load_error: Error loading content.
@@ -158,6 +162,8 @@ en:
         pinch: Use two fingers to zoom/scroll the map
       filter:
         button_title: edit linked contents
+        geo_radius:
+          popup: "Center: %{lon}°, %{lat}°<br>Radius: %{radius} %{unit}"
       undo: undo last change
       redo: Reapply undone changes
       upload_gpx:
@@ -493,7 +499,6 @@ en:
     placeholder:
       longitude: Longitude, e.g. 14.30
       latitude: Latitude, e.g. 46.61
-      distance: Radius in meters
     available_widgets: Available widgets
     widgets:
       event_list: Events - List view
@@ -523,6 +528,7 @@ en:
     geolocation_from_browser: Use current position
     geolocation_error: The current position could not be accessed
     api_url: API Link
+    url: URL
 
   embedded:
     move_down: move down
@@ -541,6 +547,7 @@ en:
   external_connection_states:
     success: Successfully synchronized
     pending: is synchronized
+    running: export is triggered
     error: |-
       An error has occurred.
       Synchronization will be retried at specified intervals.
@@ -575,11 +582,25 @@ en:
     media_archive: open in the media archive
   feature:
     content_score:
+      tooltip_score: "(%{score} of 100)"
       tooltip:
-        title_html: "<b>Content score</b>"
-        min: "minimal: %{value}"
-        optimal: "optimal: %{value}"
-        max: "maximal: %{value}"
+        title: Content-Score
+        criteria: "Criteria: <b>%{text}</b>"
+        by_presence: "filled"
+        string:
+          by_length: "Number of characters"
+        common:
+          by_quantity: "Quantity"
+        embedded:
+          by_name_and_length: "Number of characters"
+        linked:
+          by_linked_weight_matrix: "Score of attributes by weighting"
+        score_matrix:
+          min: "Minimal: <b>%{value}</b>"
+          optimal: "Optimal: %{value}"
+          max: "Maximal: %{value}"
+        content:
+          by_weight_matrix: Score of attributes by weighting
     duplicate_candidate:
       manual_button: Select manually for merging
     releasable:
@@ -771,6 +792,11 @@ en:
       unit: Unit
     shared_with: Shared with
     user_group_classifications: shared via user_groups
+    boolean:
+      access_token: API token present
+      not_access_token: no API token present
+      confirmed_at: Email confirmed
+      not_confirmed_at: Email not confirmed
 
   filter_groups:
     classification_alias_ids: filter by classifications ...
@@ -799,9 +825,16 @@ en:
     width: Width
     height: Height
     upload_date: Upload date
+    users_context:
+      given_name: Given name
+      family_name: Family name
+      name: Organisation name
+      email: Email
+      created_at: Date of registration
     ordering:
       asc: Ascending
       desc: Descending
+
   object_browser:
     details:
       created_at: created
@@ -853,7 +886,6 @@ en:
 
   classification_change_behaviour:
     trigger_webhooks: trigger webhooks for contents
-    clear_cache: clear cache for contents
 
   pagination:
     next: Further results
@@ -1034,6 +1066,7 @@ en:
       wrong_content_type: "%{content_type} Files are not allowed."
       required: is a mandatory field and must be filled in.
       unknown_activity_type: Unknown type for Activity
+      unknown: unknown error
     warnings:
       string: "%{key} is not a valid keyword for string. Found for %{data} in %{template}"
       no_data: No data specified for %{data}
@@ -1179,6 +1212,10 @@ en:
           attributes:
             name:
               blank: Name must not be blank.
+        data_cycle_core/classification_alias:
+          attributes:
+            ui_configs:
+              color_format: wrong format for color.
     models:
       data_cycle_core/user:
         one: User
@@ -1256,6 +1293,9 @@ en:
         uri: External URI
         external_keys: External Keys
         mapped_to_string: Classifications mapped from
+        ui_configs: UI-Configuration
+        ui_configs/color: Color
+        ui_configs/icon: Icon
       data_cycle_core/user_group:
         name: Name
         user_ids: User
@@ -1277,6 +1317,7 @@ en:
         represented_by: Represented by
         ui_locale: user interface language
         locked_at: locked
+        deleted_at: deleted
       data_cycle_core/thing:
         name: Name
         legal_name: Company name
@@ -1551,7 +1592,19 @@ en:
         difficulty_rating: Difficulty
     imx_platform:
       description: Description
-      description_long: Detailed description
+      text: Detailed description
+      startingPointDescr: Starting point description
+      destination: Destination
+      gettingThere: Getting there
+      parking: Parking
+      directions: Directions
+      trackSignage: Track signage
+      safetyGuidelines: Safety guidlines
+      equipment: Equipment
+      additionalInformation: Additional information
+      literature: Literture
+      publicTransit: Public transit
+      seasonDescription: Sesion
     gem2go:
       description: Description
     timm4:
@@ -1645,6 +1698,9 @@ en:
       teaser: Teaser
       zusatzinfo: Additional informationen
       anreisebeschreibung: Directions
+    pimcore:
+      description: Description
+      text: Detailed description
 
   media_archive:
     allowed_html:
@@ -1655,6 +1711,7 @@ en:
   uploader:
     restrictions: Restrictions
     validation:
+      invalid_file: corrupted file
       format: 'Allowed formats: <span class="value">%{data}</span>'
       format_not_supported: Unsupported format (%{data})
       dimensions:

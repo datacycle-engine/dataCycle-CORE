@@ -1,3 +1,9 @@
-<span class="icon">
-  <i class="fa dc-type-icon <%= "#{local_assigns[:icon_class] || 'thing'}-icon" %> <%= local_assigns[:icon_type] %>"></i>
-</span>
+<%= tag.span(
+  tag.i(
+    class: "fa dc-type-icon #{local_assigns[:icon_class] || 'thing'}-icon #{local_assigns[:icon_type]}",
+    data: {
+      dc_tooltip: local_assigns[:icon_tooltip]&.strip
+    }
+  ),
+  class: 'icon'
+) %>

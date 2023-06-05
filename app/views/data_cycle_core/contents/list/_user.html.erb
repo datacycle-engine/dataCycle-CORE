@@ -1,0 +1,97 @@
+<div class="inner-item user <%= 'locked' if item.access_locked? %>">
+  <div class="content-row">
+    <span class="type user">
+      <%= render 'data_cycle_core/shared/icon', icon_class: item.try(:icon_class) || item.class.name.demodulize.underscore_blanks %>
+
+      <%= tag.send(item.access_locked? ? :del : :span) do %>
+        <%= tag.span item.model_name.human(locale: active_ui_locale) + (item.try(:external) ? " (#{item.class.human_attribute_name('external', locale: active_ui_locale)})" : '') %>
+      <% end %>
+
+      <% if can?(:show_representation_of, DataCycleCore::User) && item.represented_by.present? %>
+        <a class="has-content represented-by-link" data-toggle="represented-by-<%= item.id %>">
+          <i class="fa fa-link" aria-hidden="true"></i>
+        </a>
+        <div class="dropdown-pane no-bullet bottom"
+              id="represented-by-<%= item.id %>"
+              data-dropdown>
+          <h5><%= DataCycleCore::User.human_attribute_name(:represented_by, locale: active_ui_locale) %></h5>
+          <ul class="list-items">
+            <% item.represented_by.each do |thing| %>
+              <li><%= link_to I18n.with_locale(thing.first_available_locale(local_assigns[:language], active_ui_locale)) { thing.title }, thing_path(thing.id), target: :_blank %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </span>
+
+    <span class="title">
+      <%= item.full_name %>
+    </span>
+
+    <span class="description" data-dc-tooltip="<%= item.email %>">
+      <%= item.email %>
+    </span>
+
+    <% if can?(:generate_access_token, item) && item.access_token.present? %>
+      <span class="token">
+        <%= content_tag :span, class: 'copy-to-clipboard with-shadow', data: { value: item.access_token } do %>
+          <i class="fa fa-key" aria-hidden="true"></i>
+          <%= item.access_token %>
+        <% end %>
+      </span>
+    <% end %>
+  </div>
+
+  <a class="toggle-details" data-toggle="content-details-<%= item.id %>"></a>
+
+  <div class="buttons">
+    <%= yield_content!(:media_buttons) %>
+
+    <%= tag.i(
+    class: 'fa fa-language user-locales',
+    data: {
+      dc_tooltip: tag.span(
+        tag.span("#{item.class.human_attribute_name(:default_locale, locale: active_ui_locale)}:", class: 'user-default-locale-title') +
+        tag.span(t("locales.#{item.default_locale || I18n.available_locales.first}", locale: active_ui_locale), class: 'user-default-locale-value'),
+        class: 'user-default-locale'
+      ) +
+      tag.span(
+        tag.span("#{item.class.human_attribute_name(:ui_locale, locale: active_ui_locale)}:", class: 'user-ui-locale-title') +
+        tag.span(t("locales.#{item.ui_locale || DataCycleCore.ui_locales.first}", locale: active_ui_locale), class: 'user-ui-locale-value'),
+        class: 'user-ui-locale'
+      )
+    }
+  ) %>
+
+    <% if DataCycleCore::Feature::UserRegistration.enabled? && !item.confirmed? %>
+      <%= link_to_if can?(:confirm, item), tag.span(tag.i(class: 'fa fa-check', aria_hidden: true), class: 'confirm-link-button', data: { dc_tooltip: t("user.#{can?(:confirm, item) ? 'confirm' : 'user_not_confirmed'}", locale: active_ui_locale) }), confirm_user_path(item), { method: :post, class: 'confirm-link' } %>
+    <% end %>
+
+    <% if can?(:become, item) %>
+      <%= link_to tag.i(class: 'fa fa-sign-in', aria_hidden: true), user_become_path(item), class: 'become-link', data: { dc_tooltip: t('actions.become', data: item.email, locale: active_ui_locale) } %>
+    <% end %>
+
+    <% if can?(:show, item) %>
+      <%= link_to tag.i(class: 'fa fa-eye', aria_hidden: true), user_path(item), class: 'show-link', data: { dc_tooltip: t('actions.show', locale: active_ui_locale) } %>
+    <% end %>
+
+    <% if can?(:edit, item) %>
+      <%= link_to tag.i(class: 'fa fa-pencil', aria_hidden: true), edit_user_path(item), class: 'edit-link', data: { dc_tooltip: t('actions.edit', locale: active_ui_locale) } %>
+    <% end %>
+
+    <% if can?(:lock, item) && !item.access_locked? %>
+      <%= link_to tag.i(class: 'fa fa-lock', aria_hidden: true), lock_user_path(item), method: :delete, class:'alert lock-link', data: { confirm: "#{item.model_name.human(locale: active_ui_locale)} #{t('actions.lock', locale: active_ui_locale)}?", dc_tooltip: t('actions.lock', locale: active_ui_locale) } %>
+    <% elsif can?(:lock, item) %>
+      <%= link_to tag.i(class: 'fa fa-unlock', aria_hidden: true), unlock_user_path(item), method: :post, class:'success unlock-link', data: { dc_tooltip: t('actions.unlock', locale: active_ui_locale) } %>
+    <% end %>
+
+    <%= link_to tag.i(class: 'fa fa-trash', aria_hidden: true), user_path(item), method: :delete, class:'alert delete-user-link', data: { confirm: t('user.delete_user_html', locale: active_ui_locale), dc_tooltip: t('actions.delete', locale: active_ui_locale) } if can?(:destroy, item) && !item.deleted? %>
+  </div>
+</div>
+
+<div class="content-details remote-render"
+    id="content-details-<%= item.id %>"
+    data-remote-render-function="render_content_tile_details"
+    data-remote-render-params="<%= to_query_params(item: item, mode: 'list').to_json %>"
+    data-remote-options="<%= to_query_params(locale: I18n.locale.to_s, language: local_assigns[:language]).to_json %>">
+</div>

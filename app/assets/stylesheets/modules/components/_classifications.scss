@@ -137,10 +137,16 @@ ul.backend-treeview-list,
         border-radius: $global-radius;
         background: $white;
 
-        &:hover {
+        &:hover:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
           z-index: 1;
-          border-color: $primary-color;
-          box-shadow: 0 1px 7px lighten($dark-gray, 12%);
+          box-shadow: 0 1px 5px rgba($dark-gray, 0.4);
+        }
+
+        &:focus,
+        &:focus-within {
+          &:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+            border-color: var(--primary-color);
+          }
         }
 
         .dc-checkbox {
@@ -206,10 +212,16 @@ ul.backend-treeview-list,
           color: $dark-gray;
         }
 
-        &:hover {
+        &:hover:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
           z-index: 1;
-          border-color: $primary-color;
-          box-shadow: 0 1px 7px lighten($dark-gray, 12%);
+          box-shadow: 0 1px 5px rgba($dark-gray, 0.4);
+        }
+
+        &:focus,
+        &:focus-within {
+          &:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+            border-color: var(--primary-color);
+          }
         }
 
         .dc-checkbox {
@@ -259,10 +271,29 @@ ul.backend-treeview-list,
       gap: 0.4rem;
       line-height: 1.4;
 
+      .primary-color {
+        color: var(--primary-color);
+      }
+
       .clipboard-notice {
         right: auto;
         left: 1rem;
         top: 8px;
+      }
+
+      .classification-color-icon {
+        display: block;
+        width: 1rem;
+        height: 1rem;
+        background: var(--classification-color);
+        box-shadow: 0 0 0 1px var(--dark-gray);
+        border-radius: var(--global-radius);
+      }
+
+      .classification-icon {
+        display: flex;
+        height: 1.4rem;
+        width: 1.4rem;
       }
     }
 
@@ -557,15 +588,16 @@ ul.backend-treeview-list,
       border-radius: $global-radius;
       background: $white;
 
-      &:hover {
+      &:hover:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
         z-index: 1;
-        border-color: $primary-color;
-        box-shadow: 0 1px 7px lighten($dark-gray, 12%);
+        box-shadow: 0 1px 5px rgba($dark-gray, 0.4);
       }
 
       &:focus,
-      &.focus {
-        border-color: $primary-color;
+      &:focus-within {
+        &:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+          border-color: var(--primary-color);
+        }
       }
 
       &::placeholder {
@@ -591,14 +623,17 @@ ul.backend-treeview-list,
         background: $white;
       }
 
-      &:hover .editor-block {
+      &:hover:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) .editor-block {
         z-index: 1;
-        border-color: $primary-color;
-        box-shadow: 0 1px 7px lighten($dark-gray, 12%);
+        box-shadow: 0 1px 5px rgba($dark-gray, 0.4);
       }
 
-      &.focus .editor-block {
-        border-color: $primary-color;
+      &:focus &:focus-within {
+        &:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+          .editor-block {
+            border-color: var(--primary-color);
+          }
+        }
       }
     }
 
@@ -650,15 +685,17 @@ ul.backend-treeview-list,
           background: none;
         }
 
-        &:hover {
-          border-color: $primary-color;
-          box-shadow: 0 1px 7px lighten($dark-gray, 12%);
+        &:hover:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+          box-shadow: 0 1px 5px rgba($dark-gray, 0.4);
         }
 
         &:focus,
+        &:focus-within,
         &.select2-container--focus,
         &.select2-container--open {
-          border-color: $primary-color;
+          &:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+            border-color: var(--primary-color);
+          }
         }
 
         &.select2-container--disabled {
@@ -1289,5 +1326,13 @@ ul.backend-treeview-list,
         display: none;
       }
     }
+  }
+}
+
+.classification-polygon-reveal {
+  .geographic-map {
+    height: 450px;
+    max-height: 450px;
+    min-width: 800px;
   }
 }

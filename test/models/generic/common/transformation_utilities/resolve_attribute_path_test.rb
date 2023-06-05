@@ -4,9 +4,9 @@ require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
 
-describe 'DataCycleCore::Generic::Common::TransformationUtilities#resolve_attribute_path' do
+describe 'DataCycleCore::Generic::Common::Trasnformations::TransformationUtilities#resolve_attribute_path' do
   subject do
-    Object.new.extend(DataCycleCore::Generic::Common::TransformationUtilities)
+    Object.new.extend(DataCycleCore::Generic::Common::Transformations::TransformationUtilities)
   end
 
   it 'should resolve simple attribute key' do

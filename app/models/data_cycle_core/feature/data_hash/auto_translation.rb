@@ -4,6 +4,15 @@ module DataCycleCore
   module Feature
     module DataHash
       module AutoTranslation
+        # def after_save_data_hash(options)
+        #   super
+        #
+        #   return if embedded?
+        #   return unless DataCycleCore::Feature::AutoTranslation.allowed?(self)
+        #   source_locale = DataCycleCore::Feature::AutoTranslation.configuration['source_lang'] || I18n.locale
+        #   DataCycleCore::AutoTranslationJob.perform_later(id, source_locale)
+        # end
+
         def create_update_translations
           additional_infos = load_translated_content
           return { 'error' => 'Nothing to translate' } if additional_infos.blank?
@@ -61,14 +70,14 @@ module DataCycleCore
           data_type = ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Übersetzung')
           return { 'error' => 'Data Type not found (Classification)!' } if data_type.blank?
 
-          translatable_locales = Feature::Translate.allowed_languages & I18n.available_locales.map(&:to_s)
+          tlocales = (Feature::Translate.allowed_languages & I18n.available_locales.map(&:to_s))
           endpoint = Feature::Translate.endpoint
 
           translations_done = {}
           additional_translations.each do |content|
             next if content.blank?
-            available_locales = content.available_locales.map(&:to_s)
-            next unless available_locales.include?(source_locale)
+            alocales = content.available_locales.map(&:to_s)
+            next unless alocales.include?(source_locale)
 
             source_data = {}
             classification = nil
@@ -79,7 +88,7 @@ module DataCycleCore
               translations_done[classification] = []
             end
 
-            translatable_locales.each do |target_locale|
+            tlocales.each do |target_locale|
               next if target_locale == source_locale
               I18n.with_locale(target_locale) do
                 if content.translation_type.present?

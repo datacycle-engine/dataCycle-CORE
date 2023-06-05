@@ -1,41 +1,43 @@
 <% I18n.with_locale(object.first_available_locale) do %>
-  <h5>Details (<%= I18n.locale %>)</h5>
-  <%= tag.div(render('data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object })), class: 'buttons') %>
+  <%= tag.div(class: "item-info-content #{thing_content_score_class(object)}", data: { content_score: object.try(:internal_content_score)&.round }) do %>
+    <h5>Details (<%= I18n.locale %>)</h5>
+    <%= tag.div(render('data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object })), class: 'buttons') %>
 
-  <% unless object.title.blank? %>
-    <dl>
-      <dt>Name: </dt>
-      <dd><%= object.title %></dd>
-    </dl>
-  <% end %>
-  <% unless object.schema.nil? %>
-    <dl>
-      <% if object.try(:asset)&.first&.thumbnail_url? %>
-        <dd><img class="lazyload" data-src="<%= object.try(:asset).first.thumbnail_url %>" /></dd>
-      <% end %>
+    <% unless object.title.blank? %>
+      <dl>
+        <dt>Name: </dt>
+        <dd><%= object.title %></dd>
+      </dl>
+    <% end %>
+    <% unless object.schema.nil? %>
+      <dl>
+        <% if object.try(:asset)&.first&.thumbnail_url? %>
+          <dd><img class="lazyload" data-src="<%= object.try(:asset).first.thumbnail_url %>" /></dd>
+        <% end %>
 
-      <% unless object.try(:content_url).nil? %>
-        <dt>Datei Url: </dt>
-        <dd><%= link_to object.try(:content_url), object.try(:content_url), target: :_blank %></dd>
-      <% end %>
+        <% unless object.try(:content_url).nil? %>
+          <dt>Datei Url: </dt>
+          <dd><%= link_to object.try(:content_url), object.try(:content_url), target: :_blank %></dd>
+        <% end %>
 
-      <% unless object.try(:file_format).nil? %>
-        <dt>Format: </dt>
-        <dd><%= object.try(:file_format) %></dd>
-      <% end %>
+        <% unless object.try(:file_format).nil? %>
+          <dt>Format: </dt>
+          <dd><%= object.try(:file_format) %></dd>
+        <% end %>
 
-      <% unless object.try(:width).to_i.zero? || object.try(:height).to_i.zero? %>
-        <dt>Abmessungen: </dt>
-        <dd><%= "#{object.try(:width)} x #{object.try(:height)}" %></dd>
-      <% end %>
+        <% unless object.try(:width).to_i.zero? || object.try(:height).to_i.zero? %>
+          <dt>Abmessungen: </dt>
+          <dd><%= "#{object.try(:width)} x #{object.try(:height)}" %></dd>
+        <% end %>
 
-      <% unless object.try(:content_size).nil? %>
-        <dt>Dateigröße: </dt>
-        <dd><%= number_to_human_size(object.try(:content_size)) %></dd>
-      <% end %>
+        <% unless object.try(:content_size).nil? %>
+          <dt>Dateigröße: </dt>
+          <dd><%= number_to_human_size(object.try(:content_size)) %></dd>
+        <% end %>
 
-      <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: object} %>
+        <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: object} %>
 
-    </dl>
+      </dl>
+    <% end %>
   <% end %>
 <% end %>

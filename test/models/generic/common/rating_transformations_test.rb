@@ -4,9 +4,9 @@ require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
 
-describe DataCycleCore::Generic::Common::RatingTransformations do
+describe DataCycleCore::Generic::Common::Transformations::RatingTransformations do
   subject do
-    DataCycleCore::Generic::Common::RatingTransformations
+    DataCycleCore::Generic::Common::Transformations::RatingTransformations
   end
 
   it 'should transform single rating value' do

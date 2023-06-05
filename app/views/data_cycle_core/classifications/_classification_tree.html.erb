@@ -3,6 +3,8 @@
     <%= tag.i(class: 'fa fa-bars draggable-handle') if can?(:edit, classification_tree_label) %>
     <%= tag.i(class: 'fa fa-compress merge-dropzone', data: { dc_tooltip: t('classification_administration.merge.zone_tooltip', locale: active_ui_locale) }) if can?(:edit, classification_tree_label) && can?(:merge, classification_tree.sub_classification_alias) %>
 
+    <%= tag.i(class: 'primary-color fa fa-paperclip', data: { dc_tooltip: t('classification_administration.mapped_to', locale: active_ui_locale) }) if classification_tree.sub_classification_alias.mapped_to.present? %>
+
     <%= link_to classification_title(classification_tree.sub_classification_alias),
                 classifications_path(classification_tree_id: classification_tree.id),
                 class: "name",
@@ -25,6 +27,8 @@
                   dc_tooltip: t('actions.delete_with_data', data: classification_tree.sub_classification_alias.try(:internal_name), locale: active_ui_locale)
                 } if can?(:destroy, classification_tree.sub_classification_alias) %>
 
+    <%= render 'data_cycle_core/classifications/classification_polygon_overlay', classification_alias: classification_tree.sub_classification_alias if @classification_polygon_counts&.key?(classification_tree.sub_classification_alias.id) %>
+
     <%= link_to tag.i(class: 'fa fa-clipboard'), '#',
                 class: 'copy-to-clipboard',
                 data: {
@@ -39,6 +43,10 @@
               data: {
                 dc_tooltip: t('data_cycle_core.show_contents_for_tree_label', data: classification_tree.sub_classification_alias.try(:internal_name), locale: active_ui_locale)
               } %>
+
+    <%= tag.span(class: 'classification-color-icon copy-to-clipboard', style: classification_style(classification_tree.sub_classification_alias), data: { dc_tooltip: DataCycleCore::ClassificationAlias.human_attribute_name("ui_configs/color", locale: active_ui_locale), value: classification_tree.sub_classification_alias.color }) if classification_tree.sub_classification_alias.color? %>
+
+    <%= tag.span(tag.img(class: 'lazyload', data: { src: classification_tree.sub_classification_alias.icon }), class: 'classification-icon copy-to-clipboard', data: { dc_tooltip: DataCycleCore::ClassificationAlias.human_attribute_name("ui_configs/icon", locale: active_ui_locale), value: classification_tree.sub_classification_alias.icon }) if classification_tree.sub_classification_alias.icon? %>
   </span>
 
   <%= tag.div(class: 'remote-render inverted classification-alias-form-container', data: { remote_path: 'data_cycle_core/classifications/classification_alias_form', remote_options: to_query_params(classification_tree_label: classification_tree_label, classification_tree: classification_tree).to_json }) if can?(:update, classification_tree.sub_classification_alias) || can?(:map_classifications, classification_tree.sub_classification_alias) %>

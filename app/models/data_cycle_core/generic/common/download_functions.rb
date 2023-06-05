@@ -99,10 +99,7 @@ module DataCycleCore
                         download_object.endpoint.send(endpoint_method, lang: locale)
                       end
 
-                    pool = nil
-                    pool = Concurrent::FixedThreadPool.new(ActiveRecord::Base.connection_pool.size - 2) if options.dig(:download, :run_in_parallel) && (ActiveRecord::Base.connection_pool.size - 1) >= 1
-
-                    futures = []
+                    pool = DataCycleCore::WorkerPool.new(options.dig(:download, :run_in_parallel) ? 5 : 1)
 
                     items.each do |item_data|
                       break if options[:max_count] && item_count >= options[:max_count]
@@ -110,7 +107,7 @@ module DataCycleCore
                       item_count += 1
                       next if item_data.nil?
 
-                      ParallelHelper.run_in_parallel(futures, pool) do
+                      pool.append_without_db_connection do
                         init_mongo_db(database_name) do
                           download_object.source_object.with(download_object.source_type) do |mongo_item_parallel|
                             item_id = data_id.call(item_data)
@@ -271,8 +268,8 @@ module DataCycleCore
         def self.download_all(download_object:, data_id:, data_name:, modified: nil, delete: nil, options:, **_unused)
           success = true
           delta = 100
-          database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
 
+          database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
               locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)

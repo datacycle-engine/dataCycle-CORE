@@ -4,6 +4,8 @@ module DataCycleCore
   module Utility
     module ContentScore
       module Embedded
+        extend Extensions::Tooltip
+
         class << self
           def minimum(definition:, parameters:, key:, **_args)
             scores = calculate_nested_scores(definition: definition, objects: parameters[key])
@@ -34,6 +36,32 @@ module DataCycleCore
             end
 
             score
+          end
+
+          def to_tooltip(_content, definition, locale)
+            case definition.dig('content_score', 'method')
+            when 'by_name_and_length'
+              tooltip = []
+              base_string = tooltip_base_string('by_name_and_length', locale: locale)
+
+              definition.dig('content_score', 'score_matrix')
+                &.sort_by { |k, v| [-v&.dig('weight')&.to_r, k] }
+                &.each do |k, v|
+                sub_tip = []
+                sub_tip.push("<b>#{k}</b> #{"(#{DataCycleCore::LocalizationService.view_helpers.number_with_precision(v['weight'].to_r * 100, precision: 1)}%)" if v.key?('weight')}")
+                sub_tip.push("<ul><li>#{base_string}</li>")
+
+                v.except('weight').each do |key, value|
+                  sub_tip.push("<li>#{tooltip_string("score_matrix.#{key}", locale: locale, value: value)}</li>")
+                end
+
+                tooltip.push("#{sub_tip.join}</ul>")
+              end
+
+              tooltip.join
+            else
+              super
+            end
           end
 
           private

@@ -6,7 +6,7 @@ class ContentScore {
 		this.element.classList.add("dcjs-content-score");
 		this.contentScoreText = this.element.querySelector(".content-score-text");
 		this.container = this.element.closest(
-			".form-element, .detail-type, #edit-form, .detail-header, .content-object-item",
+			".form-element, .detail-type, #edit-form, .detail-header, .content-object-item, .detail-header > .title",
 		);
 		this.contentId = this.element.dataset.contentScoreContentId;
 		this.contentEmbedded = DomElementHelper.parseDataAttribute(
@@ -28,7 +28,6 @@ class ContentScore {
 		if (!this.container) return;
 
 		this.element.classList.add("score-loading");
-		this.contentScoreText.innerHTML = "-";
 
 		const formData = DomElementHelper.getFormData(
 			this.container,
@@ -45,30 +44,38 @@ class ContentScore {
 		DataCycle.httpRequest(url, { method: "POST", body: formData })
 			.then(this.setNewScore.bind(this))
 			.catch((_e) => {
-				this.container.classList.remove("medium-score", "high-score");
+				this.container.removeAttribute("data-content-score");
 				this.contentScoreText.innerHTML = "";
+				this.updateTooltip();
 			})
 			.finally(() => {
 				this.element.classList.remove("score-loading");
 			});
+	}
+	async updateTooltip(score = undefined) {
+		const template = document.createElement("template");
+		template.innerHTML = this.element.dataset.dcTooltip;
+		const scoreHtml = template.content.querySelector(".tooltip-content-score");
+
+		if (!scoreHtml) return;
+
+		if (score !== undefined) {
+			scoreHtml.textContent = await I18n.t(
+				"feature.content_score.tooltip_score",
+				{ score: score },
+			);
+		} else scoreHtml.remove();
+
+		this.element.dataset.dcTooltip = template.innerHTML;
 	}
 	setNewScore(data) {
 		if (!data?.hasOwnProperty("value")) return;
 
 		const score = Math.round(data.value * 100);
 
-		if (data?.hasOwnProperty("value")) this.contentScoreText.innerHTML = score;
-
-		this.container.classList.remove("medium-score", "high-score");
-		this.element.classList.remove("medium-score", "high-score");
-
-		if (score > 66) {
-			this.container.classList.add("high-score");
-			this.element.classList.add("high-score");
-		} else if (score > 33) {
-			this.container.classList.add("medium-score");
-			this.element.classList.add("medium-score");
-		}
+		this.contentScoreText.innerHTML = score;
+		this.container.dataset.contentScore = score;
+		this.updateTooltip(score);
 	}
 }
 

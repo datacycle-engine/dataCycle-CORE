@@ -6,5 +6,5 @@
                 content_score_template: content&.template_name,
                 content_score_content_id: content&.id,
                 content_score_embedded: content&.embedded? || false,
-                dc_tooltip: content_score_tooltip(definition)
+                dc_tooltip: content_score_tooltip(content, definition)
               } %>

@@ -47,6 +47,25 @@ module DataCycleCore
       }.compact
     end
 
+    def classification_polygon_properties(classification_polygon)
+      {
+        '@id': classification_polygon.id,
+        classificationId: classification_polygon.classification_alias.id,
+        name: classification_polygon.classification_alias.internal_name
+      }
+    end
+
+    def classification_polygon_features(classification_alias)
+      {
+        classification_polygon: {
+          type: 'FeatureCollection',
+          features: classification_alias.classification_polygons.map do |p|
+            value_to_geojson(p.geom, classification_polygon_properties(p))
+          end
+        }
+      }.to_json
+    end
+
     def additional_map_values_overlay(content, definition, options)
       paths = definition&.dig('ui', 'edit', 'options', 'additional_value_paths')
       overlay_paths = definition&.dig('ui', 'edit', 'options', 'additional_values_overlay')
@@ -75,6 +94,28 @@ module DataCycleCore
         .where(classification_tree_labels: { name: tree_label })
         .order(created_at: :asc)
         .group_by { |c| c.parent_classification_alias&.id }
+    end
+
+    def query_bounding_box(contents, filter_layers = {})
+      return contents.to_bbox if filter_layers.blank?
+
+      return unless filter_layers.key?('geo_within_classification')
+
+      DataCycleCore::ClassificationPolygon.where(classification_alias_id: filter_layers['geo_within_classification']).to_bbox
+    end
+
+    def map_filter_layers(filters)
+      filter_layers = {}
+
+      if (geo_within_classification = filters&.select { |f| f['q'] == 'geo_within_classification' && f['t'] == 'geo_filter' }).present?
+        filter_layers['geo_within_classification'] = geo_within_classification.pluck('v').flatten.uniq
+      end
+
+      if (geo_radius = filters&.select { |f| f['q'] == 'geo_radius' && f['t'] == 'geo_filter' }).present?
+        filter_layers['geo_radius'] = geo_radius.pluck('v').flatten.uniq
+      end
+
+      filter_layers
     end
   end
 end

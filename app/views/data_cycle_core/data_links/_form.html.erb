@@ -1,4 +1,4 @@
-<% data_link ||= DataCycleCore::DataLink.new %>
+<% data_link ||= DataCycleCore::DataLink.new(item: content, creator: current_user) %>
 <% namespace = SecureRandom.hex(10) %>
 
 <%= form_with(model: data_link, namespace: namespace, class: "data-link-form", local: true, data: { namespace: namespace }) do |form| %>

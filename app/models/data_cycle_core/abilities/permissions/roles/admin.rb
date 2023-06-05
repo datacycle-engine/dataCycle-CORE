@@ -89,7 +89,7 @@ module DataCycleCore
             permit_user(role, :read, SubjectByConditions: [[DataCycleCore::Subscription, :publication]])
 
             # User
-            permit_user(role, :read, :create_user, :update, :destroy, :unlock, :generate_access_token, :set_role, :set_user_groups, UsersExceptRoles: :super_admin)
+            permit_user(role, :read, :create_user, :update, :destroy, :lock, :unlock, :generate_access_token, :set_role, :set_user_groups, UsersExceptRoles: :super_admin)
 
             # UserGroup
             permit_user(role, :read, :create, :update, :destroy, SubjectByConditions: DataCycleCore::UserGroup)
@@ -118,7 +118,7 @@ module DataCycleCore
             permit_user(role, :download, :create, :edit, SubjectByConditions: DataCycleCore::ClassificationTreeLabel)
             permit_user(role, :update, SubjectNotExternal: DataCycleCore::ClassificationTreeLabel)
             permit_user(role, :create, :update, SubjectNotExternalAndNotInternal: DataCycleCore::ClassificationAlias)
-            permit_user(role, :map_classifications, SubjectNotInternal: DataCycleCore::ClassificationAlias)
+            permit_user(role, :map_classifications, :set_color, SubjectNotInternal: DataCycleCore::ClassificationAlias)
             permit_user(role, :destroy, :ClassificationTreeLabelAndClassificationAliasesNotExternalAndNotInternal)
             permit_user(role, :destroy, :ClassificationAliasAndChildrenNotExternalAndNotInternal)
 

@@ -19,10 +19,11 @@ module DataCycleCore
     default_scope { order(order_a: :asc, id: :asc) }
     before_save :set_internal_data
     after_destroy :clean_stored_filters
-    before_destroy :add_things_cache_invalidation_job_destroy, :add_things_webhooks_job_destroy, -> { primary_classification&.destroy }
+    before_destroy :add_things_job_destroy, :add_things_webhooks_job_destroy, -> { primary_classification&.destroy }
     after_update :update_primary_classification
-    after_update :add_things_cache_invalidation_job_update, if: :cached_attributes_changed?
-    after_update :add_things_webhooks_job_update, if: :main_attributes_changed?
+    after_update :add_things_cache_invalidation_job, if: :cached_attributes_changed?
+    after_update :add_things_search_update_job, if: :search_attributes_changed?
+    after_update :add_things_webhooks_job_update, if: :webhook_attributes_changed?
 
     attr_accessor :content_template, :prevent_webhooks
 
@@ -66,6 +67,8 @@ module DataCycleCore
     delegate :visible?, to: :classification_tree_label
 
     scope :in_context, ->(context) { includes(:classification_tree_label).where('classification_tree_labels.visibility && ARRAY[?]::varchar[]', Array.wrap(context)).references(:classification_tree_label) }
+
+    validate :validate_color_format
 
     def self.for_tree(tree_name)
       return none if tree_name.blank?
@@ -284,7 +287,8 @@ module DataCycleCore
 
       return unless classification_tree&.changed?
 
-      add_things_cache_invalidation_job_update
+      add_things_cache_invalidation_job
+      add_things_search_update_job
       add_things_webhooks_job_update
     end
 
@@ -329,7 +333,8 @@ module DataCycleCore
 
       destroy
 
-      new_classification_alias.send(:add_things_cache_invalidation_job_update)
+      new_classification_alias.send(:add_things_cache_invalidation_job)
+      new_classification_alias.send(:add_things_search_update_job)
       new_classification_alias.send(:add_things_webhooks_job_update)
     end
 
@@ -340,7 +345,33 @@ module DataCycleCore
         .merge({ 'primary_classification' => primary_classification.to_hash })
     end
 
+    def color
+      ui_configs&.dig('color')
+    end
+
+    def color?
+      color.present?
+    end
+
+    def icon
+      icon = DataCycleCore.classification_icons[id] || DataCycleCore.classification_icons[classification_tree_label&.id]
+
+      return if icon.blank?
+
+      DataCycleCore::LocalizationService.view_helpers.dc_image_url("icons/#{icon}")
+    end
+
+    def icon?
+      icon.present?
+    end
+
     private
+
+    def validate_color_format
+      return unless color?
+
+      errors.add(:ui_configs, :color_format) unless /^#((?:\h{1,2}){3,4})$/i.match?(color)
+    end
 
     def set_internal_data
       return unless name_i18n_changed? # && internal_name.blank?
@@ -360,16 +391,23 @@ module DataCycleCore
       end
     end
 
-    def cached_attributes_changed?
-      main_attributes_changed? || @classifications_changed
+    def search_attributes_changed?
+      return @search_attributes_changed if defined? @search_attributes_changed
+
+      @search_attributes_changed = (saved_changes.keys & ['internal_name']).any? ||
+                                   saved_changes.dig('name_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
     end
 
-    def main_attributes_changed?
-      return @main_attributes_changed if defined? @main_attributes_changed
+    def cached_attributes_changed?
+      webhook_attributes_changed? || @classifications_changed || saved_changes.dig('ui_configs')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
+    end
 
-      @main_attributes_changed = (saved_changes.keys & ['internal_name', 'uri']).any? ||
-                                 saved_changes.dig('name_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present? ||
-                                 saved_changes.dig('description_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
+    def webhook_attributes_changed?
+      return @webhook_attributes_changed if defined? @webhook_attributes_changed
+
+      @webhook_attributes_changed = (saved_changes.keys & ['internal_name', 'uri']).any? ||
+                                    saved_changes.dig('name_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present? ||
+                                    saved_changes.dig('description_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
     end
 
     def classifications_added(_classification = nil)
@@ -378,7 +416,7 @@ module DataCycleCore
 
     def classifications_removed(classification = nil)
       unless classification.nil?
-        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'invalidate_things_cache', classification.things.ids) if classification_tree_label&.change_behaviour&.include?('clear_cache')
+        DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'invalidate_things_cache', classification.things.ids)
         DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'execute_things_webhooks_destroy', classification.things.ids) if classification_tree_label&.change_behaviour&.include?('trigger_webhooks')
       end
 
@@ -404,20 +442,30 @@ module DataCycleCore
       end
     end
 
-    def add_things_cache_invalidation_job_update
-      return unless classification_tree_label&.change_behaviour&.include?('clear_cache')
-
+    def add_things_cache_invalidation_job
       DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'invalidate_things_cache')
     end
 
-    def add_things_cache_invalidation_job_destroy
-      return unless classification_tree_label&.change_behaviour&.include?('clear_cache') && classifications.things.exists?
+    def add_things_search_update_job
+      DataCycleCore::CacheInvalidationJob.perform_later(self.class.name, id, 'update_things_search')
+    end
 
-      DataCycleCore::CacheInvalidationDestroyJob.perform_later(self.class.name, id, 'invalidate_things_cache', classifications.things.ids)
+    def add_things_job_destroy
+      return unless classifications.things.exists?
+
+      DataCycleCore::CacheInvalidationDestroyJob.perform_later(
+        self.class.name,
+        id,
+        'invalidate_things_cache',
+        classifications.things.ids
+      )
     end
 
     def invalidate_things_cache
       linked_contents.invalidate_all
+    end
+
+    def update_things_search
       linked_contents.update_search_all
     end
 

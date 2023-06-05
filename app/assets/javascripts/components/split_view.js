@@ -92,19 +92,26 @@ class SplitView {
 	}
 	addSingleClickHandler() {
 		DataCycle.htmlObserver.addCallbacks.push([
-			"a.copy, a.translate",
+			"a.copy:not(.dcjs-copy-split), a.translate:not(.dcjs-translate-split)",
 			(e) => {
+				if (e.classList.contains("copy")) e.classList.add("dcjs-copy-split");
+				if (e.classList.contains("translate"))
+					e.classList.add("dcjs-translate-split");
 				e.addEventListener("click", this.handleButtonClick.bind(this));
 			},
 		]);
 	}
 	addAllClickHandler() {
 		DataCycle.htmlObserver.addCallbacks.push([
-			"a.copy-all, a.translate-all",
+			"a.copy-all:not(.dcjs-copy-all-split), a.translate-all:not(.dcjs-translate-all-split)",
 			this.addAllClickEventHandler.bind(this),
 		]);
 	}
 	addAllClickEventHandler(e) {
+		if (e.classList.contains("copy-all"))
+			e.classList.add("dcjs-copy-all-split");
+		if (e.classList.contains("translate-all"))
+			e.classList.add("dcjs-translate-all-split");
 		e.addEventListener("click", this.triggerAllButtons.bind(this));
 		const parent = e.closest(this.allButtonParentSelector);
 
@@ -121,11 +128,11 @@ class SplitView {
 	}
 	observeForNewFields() {
 		DataCycle.htmlObserver.addCallbacks.push([
-			"[data-editor]:not(.dc-copyable-field)",
+			"[data-editor]:not(.dc-copyable-field):not(.dcjs-split-show-buttons)",
 			this.checkNewShowButtons.bind(this),
 		]);
 		DataCycle.htmlObserver.addCallbacks.push([
-			".form-element[data-key]",
+			".form-element[data-key]:not(.dcjs-split-edit-buttons)",
 			this.checkNewEditButtons.bind(this),
 		]);
 
@@ -134,11 +141,15 @@ class SplitView {
 		this.addSubcriberNoticeHandler();
 	}
 	checkNewShowButtons(element) {
+		element.classList.add("dcjs-split-show-buttons");
+
 		if (element.closest(".detail-type.embedded:not(:scope)")) return;
 
 		this.setupButtons(element);
 	}
 	checkNewEditButtons(element) {
+		element.classList.add("dcjs-split-edit-buttons");
+
 		if (element.closest(".form-element.embedded:not(:scope)")) return;
 
 		this.addButtonsForEditFields(element);
@@ -237,7 +248,7 @@ class SplitView {
 		} else this.renderButton(element, single);
 	}
 	async addAllButton(element, type) {
-		let container = element.closest(this.allButtonParentSelector);
+		const container = element.closest(this.allButtonParentSelector);
 
 		if (container.classList.contains(`show-${type}-all-button`)) return;
 
@@ -541,7 +552,7 @@ class SplitView {
 	}
 	async translateText(editor, value, key, sourceKey) {
 		if (this.translatableTypes.includes(editor)) {
-			let formData = {
+			const formData = {
 				text: typeof value === "string" ? value.trim() : value,
 				source_locale: this.leftLocale(),
 				target_locale: this.rightLocale(),

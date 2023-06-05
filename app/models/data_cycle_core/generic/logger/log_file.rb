@@ -7,6 +7,7 @@ module DataCycleCore
         def initialize(kind)
           @kind = kind
           @log = ::Logger.new("./log/#{kind}.log")
+          @log_data_lines = 20
         end
 
         def preparing_phase(label)
@@ -32,7 +33,14 @@ module DataCycleCore
           else
             @log.error "Error: #{error}"
           end
-          @log.error "  DATA: #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}" if data
+
+          if data
+            data_string = JSON.pretty_generate(data).split("\n")
+            data_string_size = data_string.size
+            data_string = data_string.first(@log_data_lines)
+            data_string += ["... MORE: + #{data_string_size - 20} lines \n"] if data_string_size > @log_data_lines
+            @log.error "  DATA: #{data_string.join("\n  ")}"
+          end
           @log.error error.full_message if error.respond_to?(:full_message)
         end
 

@@ -1,6 +1,6 @@
 <% content_for(:user_links, flush:true) do %>
   <% if user_signed_in? && current_user.role&.rank&.positive? %>
-    <div class="row columns">
+    <div>
       <%= link_to subscriptions_path, class: 'user-subscriptions-link' do %>
         <span class="icon"><i class="fa fa-bell" aria-hidden="true"></i></span>
         <span class="title"><%= DataCycleCore::Subscription.model_name.human(count: 2, locale: active_ui_locale) %></span>
@@ -9,7 +9,7 @@
   <% end %>
 
   <% if DataCycleCore::Feature::PublicationSchedule.enabled? && can?(:index, :publication) %>
-    <div class="row columns">
+    <div>
       <%= link_to publications_path, class: 'publications-link' do %>
         <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
         <span class="title"><%= t('data_cycle_core.publications_calendar', locale: active_ui_locale) %></span>
@@ -18,7 +18,7 @@
   <% end %>
 
   <% if DataCycleCore.asset_objects.any? { |a| can?(:create, a.classify.constantize) } %>
-    <div class="row columns">
+    <div>
       <a class="asset-selector-button" data-open="asset-selector-sidebar">
         <span class="icon"><i class="fa fa-files-o" aria-hidden="true"></i></span>
         <span class="title"><%= t('common.my_assets', locale: active_ui_locale) %></span>

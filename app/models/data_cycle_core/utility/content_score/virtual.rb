@@ -4,6 +4,8 @@ module DataCycleCore
   module Utility
     module ContentScore
       module Virtual
+        extend Extensions::Tooltip
+
         class << self
           def by_presence(content:, key:, **_args)
             return 0 unless content&.virtual_property_names&.include?(key)

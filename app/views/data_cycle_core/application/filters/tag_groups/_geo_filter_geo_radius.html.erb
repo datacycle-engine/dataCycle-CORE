@@ -10,7 +10,8 @@
     <% end %>
 
     <% unless value['distance'].empty? %>
-      <span class="tag"><%= t("common.distance", locale: active_ui_locale) %>: <%= value['distance'] %> m</span>
+      <span class="tag"><%= t("common.distance", locale: active_ui_locale) %>: <%= value['distance'] %> <%= value.present? ? (value&.dig('unit') || 'm') : 'km' %>
+      </span>
     <% end %>
   </span>
 

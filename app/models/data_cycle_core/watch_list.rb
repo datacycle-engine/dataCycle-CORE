@@ -90,8 +90,8 @@ module DataCycleCore
 
     def add_things_from_query(contents_query)
       ids = ActiveRecord::Base.connection.execute <<-SQL.squish
-        INSERT INTO watch_list_data_hashes (watch_list_id, hashable_id, hashable_type, created_at, updated_at)
-        #{contents_query.select("'#{id}', things.id, 'DataCycleCore::Thing', NOW(), NOW()").to_sql}
+        INSERT INTO watch_list_data_hashes (watch_list_id, hashable_id, hashable_type)
+        #{contents_query.select("'#{id}', things.id, 'DataCycleCore::Thing'").to_sql}
         ON CONFLICT DO NOTHING
         RETURNING hashable_id;
       SQL

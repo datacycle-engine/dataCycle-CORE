@@ -89,7 +89,8 @@
               sortable: filter_config[:sortable],
               mode_selector: filter_config[:mode_selector],
               additional_classes: local_assigns[:additional_classes],
-              additional_request_params: local_assigns[:additional_request_params] %>
+              additional_request_params: local_assigns[:additional_request_params],
+              filter_context: filter_config[:view_type] %>
 <% end %>
 
 <% if can?(:add_item, DataCycleCore::WatchList) && filter_config[:add_items_to_watch_list] %>

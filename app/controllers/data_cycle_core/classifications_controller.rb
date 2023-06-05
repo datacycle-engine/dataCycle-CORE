@@ -60,6 +60,11 @@ module DataCycleCore
                 classifications: [primary_classification_alias: :classification_alias_path]
               ]
             )
+
+            @classification_polygon_counts = @classification_trees
+              .joins(sub_classification_alias: :classification_polygons)
+              .group(:classification_alias_id)
+              .count
           end
 
           @classification_trees = @classification_trees.order('classification_aliases.order_a ASC')
@@ -153,6 +158,8 @@ module DataCycleCore
       end
 
       render json: { html: render_to_string(formats: [:html], layout: false, action: 'create').strip }
+    rescue ActiveRecord::RecordInvalid
+      render json: { error: I18n.with_locale(helpers.active_ui_locale) { @classification_alias.errors.full_messages.join(', ') } }
     end
 
     def update
@@ -173,6 +180,8 @@ module DataCycleCore
       end
 
       render json: { html: render_to_string(formats: [:html], layout: false, action: 'update').strip }
+    rescue ActiveRecord::RecordInvalid
+      render json: { error: I18n.with_locale(helpers.active_ui_locale) { @object.errors.full_messages.join(', ') } }
     end
 
     def destroy
@@ -281,7 +290,7 @@ module DataCycleCore
           :classification_tree_label_id,
           :classification_tree_id,
           classification_tree_label: [:id, :name, :internal, visibility: [], change_behaviour: []],
-          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, translation: locale_params, classification_ids: []]
+          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, translation: locale_params, classification_ids: [], ui_configs: [:color]]
         )
       end
     end
@@ -295,7 +304,7 @@ module DataCycleCore
 
         normalize_names(params).permit(
           classification_tree_label: [:id, :name, :internal, visibility: [], change_behaviour: []],
-          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, translation: locale_params, classification_ids: []]
+          classification_alias: [:id, :name, :internal, :uri, :assignable, :description, translation: locale_params, classification_ids: [], ui_configs: [:color]]
         )
       end
     end
@@ -315,7 +324,7 @@ module DataCycleCore
         if v.is_a?(Hash) || v.is_a?(ActionController::Parameters)
           normalize_names v
         elsif v.is_a?(Array)
-          v.flatten.each { |x| normalize_names(x) if x.is_a?(Hash) }
+          v.compact_blank!.flatten.each { |x| normalize_names(x) if x.is_a?(Hash) }
         elsif k.to_s == 'name'
           v.squish!
         end
