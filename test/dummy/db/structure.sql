@@ -547,15 +547,6 @@ CREATE FUNCTION public.update_template_definitions_trigger() RETURNS trigger
     AS $$ BEGIN UPDATE things SET "schema" = NEW.schema, boost = (NEW.schema -> 'boost')::numeric, content_type = NEW.schema ->> 'content_type', cache_valid_since = NOW() WHERE things.template_name = NEW.template_name AND things.template = FALSE; RETURN new; END; $$;
 
 
---
--- Name: wldh_order_a_default_value(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.wldh_order_a_default_value() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN NEW.order_a := (SELECT (count(watch_list_data_hashes.id) + 1) FROM watch_list_data_hashes WHERE watch_list_data_hashes.watch_list_id = NEW.watch_list_id); RETURN NEW; END; $$;
-
-
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -1066,7 +1057,7 @@ CREATE TABLE public.watch_list_data_hashes (
     seen_at timestamp without time zone,
     created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
-    order_a integer DEFAULT 1 NOT NULL
+    order_a integer
 );
 
 
@@ -3130,10 +3121,10 @@ CREATE INDEX validity_period_idx ON public.searches USING gist (validity_period)
 
 
 --
--- Name: wldh_order_a_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: wldh_order_a_brin_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX wldh_order_a_idx ON public.watch_list_data_hashes USING btree (order_a);
+CREATE INDEX wldh_order_a_brin_idx ON public.watch_list_data_hashes USING brin (order_a, created_at);
 
 
 --
@@ -3540,13 +3531,6 @@ CREATE TRIGGER update_thing_schema_types BEFORE UPDATE OF template_name, schema 
 
 
 --
--- Name: watch_list_data_hashes wldh_order_a_default_value_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER wldh_order_a_default_value_trigger BEFORE INSERT ON public.watch_list_data_hashes FOR EACH ROW EXECUTE FUNCTION public.wldh_order_a_default_value();
-
-
---
 -- Name: collected_classification_contents collected_classification_contents_thing_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3920,6 +3904,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230425060228'),
 ('20230515081146'),
 ('20230516132624'),
-('20230517085644');
+('20230517085644'),
+('20230531065846');
 
 

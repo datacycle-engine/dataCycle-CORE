@@ -37,6 +37,8 @@ module DataCycleCore
                           I18n.t("attribute_labels.#{k[3]}.#{k[0]}", count: k[6], locale: k[4])
                         elsif k[0].present? && I18n.exists?("attribute_labels.#{k[0]}", count: k[6], locale: k[4])
                           I18n.t("attribute_labels.#{k[0]}", count: k[6], locale: k[4])
+                        elsif k.dig(1, 'type') == 'classification' && k.dig(1, 'tree_label').present? && I18n.exists?("filter.#{k.dig(1, 'tree_label').underscore_blanks}", locale: k[4])
+                          I18n.t("filter.#{k.dig(1, 'tree_label').underscore_blanks}", locale: k[4])
                         else
                           k.dig(1, 'ui', k[3], 'label').presence ||
                             k.dig(1, 'label').presence ||

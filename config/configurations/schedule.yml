@@ -1,0 +1,12 @@
+- "0 0 * * 1":
+    - data_cycle_core:notifications:send[week]
+
+- "0 0 * * *":
+    - data_cycle_core:notifications:send[day]
+    - rake data_cycle_core:clear:activities # older than 3 months
+
+- "0 2 * * *":
+    - data_cycle_core:db:dump[backup_production]
+
+- "0 3 * * *":
+    - data_cycle_core:mongo:dump_backup

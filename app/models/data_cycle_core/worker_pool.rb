@@ -4,12 +4,12 @@ module DataCycleCore
   class WorkerPool
     def initialize(num_workers)
       @queue = []
-      @workers = Concurrent::FixedThreadPool.new(num_workers) if num_workers&.>(1)
+      @pool = Concurrent::FixedThreadPool.new(num_workers) if num_workers&.>(1)
     end
 
     def append_without_db_connection(&block)
-      if @workers
-        @queue << Concurrent::Promise.execute({ executor: @workers }, &block)
+      if @pool
+        @queue << Concurrent::Promise.execute({ executor: @pool }, &block)
       else
         yield
       end
@@ -23,7 +23,9 @@ module DataCycleCore
     alias << append
 
     def wait!
-      @queue.each(&:wait!) if @workers
+      @queue.each(&:wait!) if @pool
+    ensure
+      @pool&.shutdown
     end
   end
 end
