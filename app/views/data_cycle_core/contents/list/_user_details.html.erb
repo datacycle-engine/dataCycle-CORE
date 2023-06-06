@@ -1,0 +1,22 @@
+  <% if item.user_api_feature.additional_tile_values(item).present? %>
+  <ul class="user-additional-attributes no-bullet">
+    <% item.user_api_feature.additional_tile_values(item).each do |key, value| %>
+      <li>
+        <span class="attribute-label"><%= DataCycleCore::User.human_attribute_name(key, default: key&.split('/').last, locale: active_ui_locale) %></span>
+        <span class="attribute-value"><%= user_additional_tile_attribute_value(key, value) %></span>
+      </li>
+    <% end %>
+  </ul>
+<% end %>
+
+<div class="tags">
+  <ul class="no-bullet no-format">
+    <% if item.role %>
+      <li class="tag"><%= t('roles.'+item.role.name, locale: active_ui_locale) %></li>
+    <% end %>
+
+    <% item.user_groups.each do |user_group| %>
+      <li class="tag"><%= user_group.name %></li>
+    <% end %>
+  </ul>
+</div>

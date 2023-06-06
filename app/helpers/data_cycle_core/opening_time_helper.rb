@@ -11,7 +11,7 @@ module DataCycleCore
 
     def opening_time_validity_period(validity_period)
       safe_join(
-        validity_period.compact.map { |d| d.present? ? tag.b(l(d&.to_date, format: :edit, locale: active_ui_locale)) : nil },
+        validity_period.compact.map { |d| d.present? ? tag.b(l(d&.in_time_zone&.to_date, format: :edit, locale: active_ui_locale)) : nil },
         " #{I18n.t('opening_time.valid_until', locale: active_ui_locale)} "
       ).prepend("#{I18n.t('opening_time.valid_from', locale: active_ui_locale)} ")
     end

@@ -1,4 +1,9 @@
 .video-js {
   max-width: 100%;
   height: 400px;
+
+  .vjs-big-play-button {
+    left: calc(50% - 1.5em);
+    top: calc(50% - 0.8em);
+  }
 }

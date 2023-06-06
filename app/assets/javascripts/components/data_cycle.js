@@ -2,6 +2,7 @@ import ObserverHelpers from "../helpers/observer_helpers";
 
 class DataCycle {
 	constructor(config = {}) {
+		// rome-ignore lint/correctness/noConstructorReturn: <explanation>
 		if (DataCycle._instance) return DataCycle._instance;
 
 		DataCycle._instance = this;
@@ -36,13 +37,14 @@ class DataCycle {
 		this.globalPromises = {};
 
 		this.htmlObserver = {
-			observer: new MutationObserver(this._observeHtmlContent.bind(this)),
+			observer: new MutationObserver(this._addToCallbackQueue.bind(this)),
 			addCallbacks: [],
 			removeCallbacks: [],
 		};
 
 		this.notifications = new Comment("dataCycle-notifications");
 		this.mutableNodes = ["A", "BUTTON"];
+		this.callbackQueue = [];
 
 		this.init();
 	}
@@ -209,16 +211,26 @@ class DataCycle {
 			if (node.matches(selector)) callback(node);
 		}
 	}
-	_observeHtmlContent(mutations) {
-		for (const mutation of mutations) {
-			for (const addedNode of mutation.addedNodes)
-				if (addedNode.nodeType === Node.ELEMENT_NODE)
-					this._runAddCallbacks(addedNode);
+	_addToCallbackQueue(mutations) {
+		if (!this.callbackQueue.length)
+			requestAnimationFrame(this._observeHtmlContent.bind(this));
 
-			for (const removedNode of mutation.removedNodes)
-				if (removedNode.nodeType === Node.ELEMENT_NODE)
-					this._runRemoveCallbacks(removedNode);
+		this.callbackQueue.push(mutations);
+	}
+	_observeHtmlContent() {
+		for (const mutations of this.callbackQueue) {
+			for (const mutation of mutations) {
+				for (const addedNode of mutation.addedNodes)
+					if (addedNode.nodeType === Node.ELEMENT_NODE)
+						this._runAddCallbacks(addedNode);
+
+				for (const removedNode of mutation.removedNodes)
+					if (removedNode.nodeType === Node.ELEMENT_NODE)
+						this._runRemoveCallbacks(removedNode);
+			}
 		}
+
+		this.callbackQueue.length = 0;
 	}
 }
 

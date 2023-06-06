@@ -2,7 +2,7 @@
   <%= render partial, local_assigns %>
 <% end %>
 
-<%= tag.div(class: attribute_editor_html_classes(**local_assigns), data: attribute_editor_data_attributes(**local_assigns)) do %>
+<%= tag.div(class: attribute_editor_html_classes(**local_assigns), tabindex: 0, data: attribute_editor_data_attributes(**local_assigns)) do %>
   <% if attribute_editable?(key, definition, options, content) %>
     <%= render 'data_cycle_core/contents/editors/features/copyable_attribute', local_assigns if DataCycleCore::Feature::CopyableAttribute.copyable_attribute?(content, key) %>
 

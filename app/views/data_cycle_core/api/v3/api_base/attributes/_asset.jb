@@ -10,8 +10,8 @@ if asset.present?
     id: asset.id,
     fileFormat: asset.content_type,
     contentSize: asset.file_size,
-    url: asset.file.url
+    url: asset.thing.content_url
   }
-  json[key_new.camelize(:lower)]['thumbnailUrl'] = asset.thumbnail_url if asset.thumbnail_url?
+  json[key_new.camelize(:lower)]['thumbnailUrl'] = asset.thing.thumbnail_url if asset.thing.try(:thumbnail_url)
 end
 json

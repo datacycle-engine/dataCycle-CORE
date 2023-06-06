@@ -9,6 +9,6 @@ class AddDeviseConfirmableToUsers < ActiveRecord::Migration[5.2]
 
     DataCycleCore::User.connection.schema_cache.clear!
     DataCycleCore::User.reset_column_information
-    DataCycleCore::User.update_all(confirmed_at: Time.zone.now - 1.day)
+    DataCycleCore::User.with_deleted.update_all(confirmed_at: Time.zone.now - 1.day)
   end
 end

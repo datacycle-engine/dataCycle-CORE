@@ -11,6 +11,7 @@ import CloseButton from "../components/close_button";
 
 function removeFoundationOverlays(element, type) {
 	let overlay = document.getElementById(element.dataset[type]);
+
 	if (!overlay || document.querySelector(`[data-${type}="${overlay.id}"]`))
 		return;
 	if (overlay.parentElement.classList.contains("reveal-overlay"))

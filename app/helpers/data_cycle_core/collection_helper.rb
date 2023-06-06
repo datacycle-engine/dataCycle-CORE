@@ -37,7 +37,9 @@ module DataCycleCore
 
       type = prop.dig('ui', 'bulk_edit', 'partial') || prop.dig('ui', 'edit', 'partial') || prop.dig('ui', 'edit', 'type') || prop['type']
 
-      return check_boxes unless type == 'classification' && prop.dig('ui', 'edit', 'options', 'multiple').nil?
+      return check_boxes if type != 'classification' ||
+                            prop.dig('ui', 'edit', 'options', 'multiple').to_s == 'false' ||
+                            prop.dig('validations', 'max') == 1
 
       check_boxes.concat(
         [

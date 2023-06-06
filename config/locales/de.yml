@@ -19,6 +19,9 @@ de:
   submit: "Erstellen"
   settings:
 
+  template_names:
+    skos:Concept: Klassifizierung
+
   attribute_labels:
     additional_information:
       one: Beschreibungsblock
@@ -112,6 +115,7 @@ de:
   user:
     user_not_confirmed: E-Mail Adresse wurde noch nicht bestätigt
     confirm: E-Mail Adresse wurde noch nicht bestätigt, jetzt bestätigen!
+    delete_user_html: Benutzer löschen?
 
   frontend:
     load_error: Fehler beim Laden des Inhalts.
@@ -162,6 +166,8 @@ de:
         pinch: "Verwende zwei Finger zum Zoomen/Scrollen der Karte"
       filter:
         button_title: Verknüpfte Inhalte bearbeiten
+        geo_radius:
+          popup: "Mittelpunkt: %{lon}°, %{lat}°<br>Radius: %{radius} %{unit}"
       undo: Letzte Änderung rückgängig machen
       redo: Rückgängig gemachte Änderungen erneut anwenden
       upload_gpx:
@@ -494,7 +500,6 @@ de:
     placeholder:
       longitude: Längengrad, z.B. 14,30
       latitude: Breitengrad, z.B. 46,61
-      distance: Radius in Metern
     available_widgets: Verfügbare Widgets
     widgets:
       event_list: Events - Listenansicht
@@ -520,6 +525,7 @@ de:
     geolocation_from_browser: Aktuelle Position verwenden
     geolocation_error: Auf die aktuelle Position konnte nicht zugegriffen werden
     api_url: API Link
+    url: URL
 
   embedded:
     move_down: nach unten verschieben
@@ -538,6 +544,7 @@ de:
   external_connection_states:
     success: Erfolgreich synchronisiert
     pending: wird synchronisiert
+    running: Export getriggert
     error: "Es ist ein Fehler aufgetreten.\nDie Synchronisation wird in bestimmten Intervallen erneut versucht."
     failure: "Es ist ein schwerer Fehler aufgetreten.\nDer Inhalt kann nich synchronisiert werden."
     export: Externes System
@@ -570,11 +577,27 @@ de:
 
   feature:
     content_score:
+      tooltip_score: "(%{score} von 100)"
       tooltip:
-        title_html: "<b>Content-Score</b>"
-        min: "Minimal: %{value}"
-        optimal: "Optimal: %{value}"
-        max: "Maximal: %{value}"
+        title: Content-Score
+        criteria: "Kriterium: <b>%{text}</b>"
+        by_presence: "ausgefüllt"
+        by_aspect_ratio: Seitenverhältnis
+        further_restricions: "Weitere Kriterien:"
+        string:
+          by_length: "Anzahl der Zeichen"
+        common:
+          by_quantity: "Anzahl"
+        embedded:
+          by_name_and_length: "Anzahl der Zeichen"
+        linked:
+          by_linked_weight_matrix: "Score der Attribute nach Gewichtung"
+        score_matrix:
+          min: "Minimal: <b>%{value}</b>"
+          optimal: "Optimal: <b>%{value}</b>"
+          max: "Maximal: <b>%{value}</b>"
+        content:
+          by_weight_matrix: Score der Attribute nach Gewichtung
     duplicate_candidate:
       manual_button: Manuell zum Zusammenführen auswählen
       duplicate_methods:
@@ -795,6 +818,11 @@ de:
     translated_name: Name
     shared_with: Geteilt mit
     user_group_classifications: Geteilt über Benutzergruppen
+    boolean:
+      access_token: API Token vorhanden
+      not_access_token: kein API Token vorhanden
+      confirmed_at: E-Mail bestätigt
+      not_confirmed_at: E-Mail nicht bestätigt
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...
@@ -826,6 +854,12 @@ de:
     width: Breite
     height: Höhe
     upload_date: Uploaddatum
+    users_context:
+      given_name: Vorname
+      family_name: Nachname
+      name: Name der Organisation
+      email: E-Mail
+      created_at: Registrierungsdatum
     ordering:
       asc: Aufsteigend
       desc: Absteigend
@@ -871,6 +905,7 @@ de:
     classification_administration: Klassifizierungsadministration
 
   classification_administration:
+    mapped_to: Klassifizierung wird von einer anderen Klassifizierung gemapped
     move:
       success: Die Klassifizierung wurde erfolgreich verschoben
       error: Die Klassifizierung konnte nicht verschoben werden
@@ -882,10 +917,11 @@ de:
       error: Die Klassifizierungen konnten nicht zusammengeführt werden
       confirm_html: <b>%{source_path}</b> wird mit <b>%{target_path}</b> zusammengeführt.
       success: Die Klassifizierungen wurden erfolgreich zusammengeführt
+    classification_polygon:
+      link_tooltip: verknüpfte GeoShape anzeigen
 
   classification_change_behaviour:
     trigger_webhooks: Webhooks für Inhalte auslösen
-    clear_cache: Cache für Inhalte leeren
 
   pagination:
     next: Weitere Ergebnisse
@@ -1042,6 +1078,7 @@ de:
       wrong_content_type: "%{content_type} Dateien sind nicht erlaubt."
       required: "ist ein Pflichtfeld und muss ausgefüllt werden."
       unknown_activity_type: "Unbekannter Typ für Activity"
+      unknown: Unbekannter Fehler
     warnings:
       string: "%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}"
       no_data: "Keine Daten angegeben für %{data}"
@@ -1185,6 +1222,10 @@ de:
           attributes:
             external_system_id:
               blank: darf nicht leer sein.
+        data_cycle_core/classification_alias:
+          attributes:
+            ui_configs:
+              color_format: falsches Format für Farbe.
 
     models:
       data_cycle_core/user: Benutzer
@@ -1261,6 +1302,9 @@ de:
         uri: Externe URI
         external_keys: Externe Keys
         mapped_to_string: Klassifizierungen gemapped von
+        ui_configs: UI-Konfiguration
+        ui_configs/color: Farbe
+        ui_configs/icon: Icon
       data_cycle_core/user_group:
         name: Name
         user_ids: Benutzer
@@ -1282,6 +1326,7 @@ de:
         represented_by: Repräsentiert durch
         ui_locale: Sprache der Benutzeroberfläche
         locked_at: gesperrt
+        deleted_at: gelöscht
       data_cycle_core/thing:
         name: Name
         legal_name: Firmenname
@@ -1532,9 +1577,22 @@ de:
         experience_rating: Erlebnis
         landscape_rating: Landschaft
         difficulty_rating: Schwierigkeit
+        panoramic_view_rating: Panoramaaussicht
     imx_platform:
       description: Beschreibung
-      description_long: Detailbeschreibung
+      text: Detailbeschreibung
+      startingPointDescr: Beschreibung Startpunkt
+      destination: Ziel
+      gettingThere: Anreise
+      parking: Parken
+      directions: Wegbeschreibung
+      trackSignage: Ausschilderung
+      safetyGuidelines: Sicherheitshinweise
+      equipment: Ausrüstung
+      additionalInformation: Zusatzinformationen
+      literature: Literatur
+      publicTransit: Öffentlicher Transport
+      seasonDescription: Begehbare Monate
     gem2go:
       description: Beschreibung
     timm4:
@@ -1623,11 +1681,15 @@ de:
       character: Tour Charakter
       parkingPossibilities: Parkmöglichkeiten
       seasonDescription: Begehbare Monate
+      priceSpecification: Preisbeschreibung
     wintop:
       beschreibung: Beschreibung
       teaser: Teaser
       zusatzinfo: Zusatzinformationen
       anreisebeschreibung: Anreisebeschreibung
+    pimcore:
+      description: Beschreibung
+      text: Detailbeschreibung
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
@@ -1649,6 +1711,7 @@ de:
   uploader:
     restrictions: "Einschränkungen"
     validation:
+      invalid_file: beschädigte Datei
       format: 'Erlaubte Formate: <span class="value">%{data}</span>'
       format_not_supported: Nicht unterstütztes Format (%{data})
       dimensions:

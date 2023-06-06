@@ -11,9 +11,9 @@ module DataCycleCore
 
           if config&.key?(:before)
             whitelist = config.dig(:before, :whitelist)
-            raw_data = BlacklistWhitelistFunctions.apply_whitelist(raw_data, whitelist) if whitelist.present?
+            raw_data = Transformations::BlacklistWhitelistFunctions.apply_whitelist(raw_data, whitelist) if whitelist.present?
             blacklist = config.dig(:before, :blacklist)
-            raw_data = BlacklistWhitelistFunctions.apply_blacklist(raw_data, blacklist) if blacklist.present?
+            raw_data = Transformations::BlacklistWhitelistFunctions.apply_blacklist(raw_data, blacklist) if blacklist.present?
           end
 
           data = merge_default_values(
@@ -24,9 +24,9 @@ module DataCycleCore
 
           if config&.key?(:after)
             whitelist = config.dig(:after, :whitelist)
-            data = BlacklistWhitelistFunctions.apply_whitelist(data, whitelist) if whitelist.present?
+            data = Transformations::BlacklistWhitelistFunctions.apply_whitelist(data, whitelist) if whitelist.present?
             blacklist = config.dig(:after, :blacklist)
-            data = BlacklistWhitelistFunctions.apply_blacklist(data, blacklist) if blacklist.present?
+            data = Transformations::BlacklistWhitelistFunctions.apply_blacklist(data, blacklist) if blacklist.present?
           end
 
           create_or_update_content(

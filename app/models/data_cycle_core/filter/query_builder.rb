@@ -309,7 +309,7 @@ module DataCycleCore
       def search_exists(query_string, fulltext_search = false)
         search_query = search
 
-        search_query = search_query.join(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['JOIN pg_dict_mappings ON pg_dict_mappings.locale  = searches.locale']))) if fulltext_search
+        search_query = search_query.join(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale']))) if fulltext_search
 
         if @locale.present?
           search_query

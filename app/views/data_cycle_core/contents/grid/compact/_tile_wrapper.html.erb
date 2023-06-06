@@ -2,19 +2,24 @@
 
 <% content_for(:tile_header_buttons, render('data_cycle_core/contents/viewers/shared/buttons', content: object, definition: definition, options: local_assigns[:options], removable: local_assigns[:options]&.[]('force_tile_buttons') || (local_assigns[:edit_buttons] && can?(:update, DataCycleCore::DataAttribute.new(key, definition, local_assigns[:options], content, :update))))) %>
 
-<li class="<%= [
-    'item',
-    'content',
-    'copy-single',
-    object.class.name.demodulize.underscore_blanks.dasherize,
-    object.schema_type&.underscore&.dasherize,
-    object.template_name.underscore.dasherize,
-    changes_class(local_assigns.dig(:options, :item_diff), object.id),
-    local_assigns[:tile_classes],
-    object.id.in?(local_assigns[:objects] || []) ? 'active' : nil,
-    object.hard_content_warnings? ? 'hard-warnings' : nil,
-    DataCycleCore::Feature::TileBorderColor.class_string(object)
-  ].compact.join(' ') %>" data-id="<%= local_assigns[:object_id] || object.id %>">
+<%= tag.li(class: [
+  'item',
+  'content',
+  'copy-single',
+  object.class.name.demodulize.underscore_blanks.dasherize,
+  object.schema_type&.underscore&.dasherize,
+  object.template_name.underscore.dasherize,
+  changes_class(local_assigns.dig(:options, :item_diff), object.id),
+  local_assigns[:tile_classes],
+  object.id.in?(local_assigns[:objects] || []) ? 'active' : nil,
+  object.hard_content_warnings? ? 'hard-warnings' : nil,
+  DataCycleCore::Feature::TileBorderColor.class_string(object),
+  thing_content_score_class(object)
+].compact_blank.join(' '),
+data: {
+  id: local_assigns[:object_id] || object.id,
+  content_score: object.try(:internal_content_score)&.round
+}) do %>
   <div class="content-link">
     <i class="fa fa-check object-browser-tile-checkbox" aria-hidden="true"></i>
 
@@ -26,4 +31,4 @@
 
     <%= yield_content!(:tile_bottom_buttons) if content_for?(:tile_bottom_buttons) %>
   </div>
-</li>
+<% end %>

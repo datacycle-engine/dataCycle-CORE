@@ -1,5 +1,5 @@
 <div class="metadata">
-  <span class="type <%= content.template_name.underscore_blanks %>">
+  <span class="type <%= content.template_name.underscore_blanks %>" style="<%= classification_style(content.classification_alias_for_tree('Inhaltstypen')) %>">
     <%= render 'data_cycle_core/shared/icon', icon_type: content.template_name.underscore_blanks, icon_class: content.class.name.demodulize.underscore %>
     <span class="title"><%= content.translated_template_name(active_ui_locale) %></span>
     <span class="template-locale">(<%= I18n.locale %>)</span>

@@ -25,11 +25,20 @@ if @classification_tree_label.present?
       end
     end
   else
-    json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options: options, show_all_concepts: true
+    queue = DataCycleCore::WorkerPool.new(DataCycleCore::ApiService.allowed_thread_count)
+    queue.append do
+      json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options: options, show_all_concepts: true
+    end
 
-    json.merge! render 'pagination_links',
-                       objects: @classification_aliases,
-                       object_url: ->(params) { classifications_api_v4_concept_scheme_url(@api_subversion, @classification_tree_label, params.merge(classification_id: @classification_id)) }
+    queue.append do
+      @classification_aliases.instance_variable_set(:@total_count, @classification_aliases.except(:select, :joins, :order, :group, :limit, :offset).count)
+
+      json.merge! render 'pagination_links',
+                         objects: @classification_aliases,
+                         object_url: ->(params) { classifications_api_v4_concept_scheme_url(@api_subversion, @classification_tree_label, params.merge(classification_id: @classification_id)) }
+    end
+
+    queue.wait!
   end
 
   aliases = @classification_aliases.index_by(&:id)

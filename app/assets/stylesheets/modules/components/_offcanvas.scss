@@ -15,18 +15,8 @@
       padding-top: 1.5rem;
     }
 
-    .edit-user-link {
-      width: 85%;
-
-      .icon-edit {
-        padding: 0 0.3rem;
-        width: auto;
-        margin: 0 0 0 0.5rem;
-
-        .fa {
-          margin: 0;
-        }
-      }
+    .show-user-link {
+      overflow: hidden;
     }
 
     .user-settings-link,
@@ -51,21 +41,31 @@
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
+      gap: 0.5rem;
       flex: auto;
       transition: $color-transition;
 
       &:hover {
         color: #000;
       }
+
+      &.delete-user-link:hover {
+        color: var(--alert-color);
+      }
     }
 
-    .row {
+    a~a {
+      padding: 0 0.2rem;
+      flex: 0;
+    }
+
+    >div {
       display: flex;
+      position: relative;
       flex-flow: row nowrap;
       align-items: center;
       padding: 0;
-
-      position: relative;
+      gap: 0.3rem;
 
       &.access-token {
         white-space: nowrap;
@@ -74,18 +74,13 @@
 
     span {
       &.icon {
-        width: 2.2rem;
+        width: 1.5rem;
+        min-width: 1.5rem;
         flex: 0;
         flex-basis: auto;
         text-align: center;
-        i {
-          margin-right: 0.3rem;
-        }
-
-        &.icon-edit {
-          text-align: right;
-        }
       }
+
       &.title {
         position: relative;
         white-space: nowrap;
@@ -101,8 +96,10 @@
 
     .inner-content {
       font-size: 1.1rem;
+
       .more {
         text-align: center;
+
         i {
           font-size: 1.5rem;
           display: inline-block;
@@ -110,32 +107,40 @@
       }
     }
   }
+
   .named-stored-filters {
     li {
       position: relative;
       padding-right: 1rem;
+
       .stored-filter-link {
         margin-bottom: 1rem;
         font-size: 0.9rem;
         line-height: 1.4rem;
+
         i {
           color: $primary-color;
         }
       }
+
       &.system-filter {
         font-weight: bold;
       }
+
       &.more-link {
         padding-left: 2.3rem;
         font-size: 1.5rem;
         line-height: 1rem;
+
         a {
           color: $primary-color;
         }
       }
+
       .buttons {
         position: absolute;
         right: 0;
+
         .alert {
           color: map-get($foundation-palette, alert);
         }

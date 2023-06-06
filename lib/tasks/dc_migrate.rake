@@ -700,5 +700,52 @@ namespace :dc do
         end
       end
     end
+
+    desc 'migrate description and text string to additional_information'
+    task :strings_to_additional_information, [:template_names] => :environment do |_, args|
+      template_names = args.template_names&.split('|')
+      count = 0
+
+      template_names.each do |template_name|
+        contents = DataCycleCore::Thing.where(template: false, template_name: template_name, external_source_id: nil)
+        progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: template_name)
+
+        contents.find_each do |content|
+          content.translated_locales.each do |locale|
+            I18n.with_locale(locale) do
+              next if content.try('description').blank? && content.try('text').blank?
+
+              additional_information = content.to_h_partial('additional_information')&.[]('additional_information') || []
+              new_informations = []
+
+              ['description', 'text'].each do |key|
+                value = content.try(key)
+                next if value.blank?
+                next if additional_information.any? { |v| DataCycleCore::MasterData::DataConverter.string_to_string(v['description']&.strip_tags) == DataCycleCore::MasterData::DataConverter.string_to_string(value&.strip_tags) }
+
+                new_informations.push({
+                  'name' => I18n.t("import.pimcore.#{key}", locale: locale.to_s.in?(['de', 'en']) ? locale : 'de'),
+                  'description' => value,
+                  'type_of_information' => DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('Informationstypen', key)
+                })
+              end
+
+              next if new_informations.blank?
+
+              additional_information.each { |a| a.slice!('id') }
+              additional_information.concat(new_informations)
+
+              content.set_data_hash(data_hash: { additional_information: additional_information })
+
+              count += 1
+            end
+          end
+
+          progressbar.increment
+        end
+      end
+
+      puts "updated #{count} things"
+    end
   end
 end

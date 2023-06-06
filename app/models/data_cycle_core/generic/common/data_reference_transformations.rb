@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module Common
       module DataReferenceTransformations
-        extend TransformationUtilities
+        extend Transformations::TransformationUtilities
 
         ExternalReference = Struct.new(:reference_type, :external_source_id, :external_key)
 
@@ -48,12 +48,14 @@ module DataCycleCore
           add_external_classification_references(data, 'universal_classifications', external_source_id, key_resolver)
         end
 
+        # only works for flat trees!!!
         def self.add_classification_name_references(data, property_name, tree_name, key_resolver, name_mapping_table = ->(v) { v })
           add_reference(data, property_name, key_resolver) do |key|
             ClassificationNameReference.new(tree_name, name_mapping_table.to_proc.call(key))
           end
         end
 
+        # only works for flat trees!!!
         def self.get_classification_name_references(data, tree_name, key_resolver, name_mapping_table = ->(v) { v })
           get_reference(data, key_resolver) do |key|
             ClassificationNameReference.new(tree_name, name_mapping_table.to_proc.call(key))

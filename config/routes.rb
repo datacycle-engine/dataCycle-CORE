@@ -58,7 +58,8 @@ DataCycleCore::Engine.routes.draw do
   authenticate do
     get :clear_all_caches, controller: :application
 
-    resources :users, only: [:index, :edit, :update, :destroy] do
+    resources :users, only: [:index, :show, :edit, :update, :destroy] do
+      delete :lock, on: :member
       post :unlock, on: :member
       post :confirm, on: :member
       post :create_user, on: :collection
@@ -427,6 +428,7 @@ DataCycleCore::Engine.routes.draw do
               match 'things/select/:z/:x/:y(/:uuids)', to: 'contents#select', as: 'contents_select', via: [:get, :post]
               match 'things/select(/:uuids)', to: 'contents#select', defaults: { bbox: true }, as: 'contents_select_bbox', via: [:get, :post]
               match 'things/:id/:z/:x/:y', to: 'contents#show', via: [:get, :post]
+              match 'concepts/select/:uuids/:z/:x/:y', to: 'classification_trees#select', as: 'concepts_select', via: [:get, :post]
             end
           end
         end

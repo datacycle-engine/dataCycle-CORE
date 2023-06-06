@@ -53,9 +53,11 @@ module DataCycleCore
 
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@watch_list, [:archive, :zip], serialize_formats)
 
-      download_items = @watch_list.things.all.to_a.select do |thing|
-        DataCycleCore::Feature::Download.allowed?(thing)
-      end
+      filter = DataCycleCore::StoredFilter.new
+      filter.apply_user_filter(current_user, { scope: 'download' })
+      query = filter.apply(skip_ordering: true)
+      query = query.watch_list_id(@watch_list.id)
+      download_items = query.to_a.select { |thing| DataCycleCore::Feature::Download.allowed?(thing) }
 
       download_collection(@watch_list, download_items, serialize_formats, languages, versions)
     end
@@ -67,10 +69,9 @@ module DataCycleCore
 
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@stored_filter, [:archive, :zip], serialize_formats)
 
-      items = @stored_filter.apply
-      download_items = items.to_a.select do |thing|
-        DataCycleCore::Feature::Download.allowed?(thing)
-      end
+      @stored_filter.apply_user_filter(current_user, { scope: 'download' })
+      query = @stored_filter.apply(skip_ordering: true)
+      download_items = query.to_a.select { |thing| DataCycleCore::Feature::Download.allowed?(thing) }
 
       download_collection(@stored_filter, download_items, serialize_formats, languages)
     end
@@ -98,7 +99,7 @@ module DataCycleCore
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@object, [:archive, :zip], serialize_formats)
 
       download_items = ([@object] + @object.content_b_linked).to_a.select do |thing|
-        can? :download, thing
+        can?(:download, thing)
       end
 
       download_collection(@object, download_items, serialize_formats, languages)
@@ -114,7 +115,7 @@ module DataCycleCore
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@object, [:archive, :indesign], serialize_formats)
 
       asset_items = @object.linked_contents.where(template_name: 'Bild').to_a.select do |thing|
-        can? :download, thing
+        can?(:download, thing)
       end
 
       download_indesign_collection(@object, ([@object] + asset_items), serialize_formats, languages)
@@ -148,10 +149,9 @@ module DataCycleCore
 
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@stored_filter, [:archive, :zip], serialize_formats)
 
-      items = @stored_filter.apply
-      download_items = items.to_a.select do |thing|
-        can? :download, thing
-      end
+      @stored_filter.apply_user_filter(current_user, { scope: 'download' })
+      query = @stored_filter.apply(skip_ordering: true)
+      download_items = query.to_a.select { |thing| can?(:download, thing) }
 
       download_collection(@stored_filter, download_items, serialize_formats, languages)
     end
@@ -173,9 +173,11 @@ module DataCycleCore
       redirect_back(fallback_location: root_path, alert: I18n.t('feature.download.missing_serialize_format', locale: helpers.active_ui_locale)) && return if serialize_formats.blank?
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@watch_list, [:archive, :zip], serialize_formats)
 
-      download_items = @watch_list.things.all.to_a.select do |thing|
-        can? :download, thing
-      end
+      filter = DataCycleCore::StoredFilter.new
+      filter.apply_user_filter(current_user, { scope: 'download' })
+      query = filter.apply(skip_ordering: true)
+      query = query.watch_list_id(@watch_list.id)
+      download_items = query.to_a.select { |thing| can?(:download, thing) }
 
       download_collection(@watch_list, download_items, serialize_formats, languages)
     end
@@ -189,11 +191,15 @@ module DataCycleCore
       redirect_back(fallback_location: root_path, alert: I18n.t('feature.download.missing_serialize_format', locale: helpers.active_ui_locale)) && return if serialize_formats.blank?
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@watch_list, [:archive, :indesign], serialize_formats)
 
+      filter = DataCycleCore::StoredFilter.new
+      filter.apply_user_filter(current_user, { scope: 'download' })
+      query = filter.apply(skip_ordering: true)
+      query = query.watch_list_id(@watch_list.id)
       download_items = []
-      @watch_list.things.all.to_a.select do |thing|
+      query.to_a.select do |thing|
         download_items += [thing] if thing.template_name == 'Bild' && can?(:download, thing)
         items = thing.linked_contents.where(template_name: 'Bild').to_a.select do |linked_item|
-          can? :download, linked_item
+          can?(:download, linked_item)
         end
         download_items += items
       end

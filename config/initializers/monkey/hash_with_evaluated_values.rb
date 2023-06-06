@@ -5,7 +5,7 @@ Hash.class_eval do
   # This method is intendend to be used only for configuration files provided by developers. It is not intended to be
   # used for values provided by end users.
   def with_evaluated_values
-    map { |key, value|
+    to_h do |key, value|
       # allow also evaluated keys
       key = eval(key[2..-3]) if key.is_a?(String) && /{{.*}}/.match?(key) # rubocop:disable Security/Eval
       key = eval(key[2..-3]).to_sym if key.is_a?(Symbol) && /{{.*}}/.match?(key.to_s) # rubocop:disable Security/Eval
@@ -17,7 +17,7 @@ Hash.class_eval do
       else
         [key, value]
       end
-    }.to_h
+    end
   end
 end
 

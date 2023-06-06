@@ -1,3 +1,5 @@
+<%= thing_content_score(content) %>
+
 <% if content.try(:translated_locales)&.many? %>
   <span data-dc-tooltip="<%= content.translated_locales.map{ |t| t("locales.#{t}", locale: active_ui_locale) }.join('<br>') %>"><i class="fa fa-language" aria-hidden="true"></i></span>
 <% end %>

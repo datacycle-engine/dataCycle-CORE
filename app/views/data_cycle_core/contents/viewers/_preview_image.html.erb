@@ -4,10 +4,10 @@
     <div class="thumb">
       <% if content.try(:content_url).present? %>
         <a href="<%= content.try(:content_url) %>" target="_blank">
-          <img src="<%= value.try(:html_safe) %>" />
+          <img class="lazyload" data-src="<%= value.try(:html_safe) %>" />
         </a>
       <% else %>
-        <img src="<%= value.try(:html_safe) %>" />
+        <img class="lazyload" data-src="<%= value.try(:html_safe) %>" />
       <% end %>
     </div>
   </div>

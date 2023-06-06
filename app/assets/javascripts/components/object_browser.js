@@ -170,7 +170,9 @@ class ObjectBrowser {
 			return;
 
 		$(".breadcrumb ul li:last-child").remove();
-		var text = $(".breadcrumb ul li:last-child a.close-object-browser").html();
+		const text = $(
+			".breadcrumb ul li:last-child a.close-object-browser",
+		).html();
 		$(".breadcrumb ul li:last-child").html(text);
 		$(".breadcrumb ul li").off(
 			"click",
@@ -387,7 +389,7 @@ class ObjectBrowser {
 		event.preventDefault();
 		event.stopImmediatePropagation();
 
-		var formData = $(event.target).serializeJSON();
+		const formData = $(event.target).serializeJSON();
 		$.extend(formData, {
 			type: this.type,
 			locale: this.locale,
@@ -587,10 +589,14 @@ class ObjectBrowser {
 		return true;
 	}
 	updateHasItemsClass() {
-		this.objectListElement.classList.toggle(
-			"has-items",
-			this.chosen.length > 0,
-		);
+		requestAnimationFrame(() => {
+			this.objectListElement.classList.toggle(
+				"has-items",
+				this.objectListElement.querySelectorAll(
+					':scope > li:not([type="hidden"])',
+				).length > 0,
+			);
+		});
 	}
 	setChosen() {
 		if (this.chosen.length === 0) {
@@ -634,7 +640,7 @@ class ObjectBrowser {
 		this.updateChosenCounter();
 	}
 	updateChosenCounter() {
-		var html = "";
+		let html = "";
 		if (this.chosen.length > 1)
 			html = `<strong>${this.chosen.length}</strong> Elemente auswählen`;
 		else if (this.chosen.length === 1)
@@ -732,7 +738,7 @@ class ObjectBrowser {
 			"message.object_browser onmessage.object_browser",
 			this.eventHandlers.import,
 		);
-		let loaded = $.map(
+		const loaded = $.map(
 			this.$element.find("> .media-thumbs > .object-thumbs > li.item"),
 			(val, i) => $(val).data("id"),
 		);
@@ -769,7 +775,6 @@ class ObjectBrowser {
 					locale: this.locale,
 					key: this.key,
 					prefix: this.prefix,
-					editable: this.editable,
 					definition: this.definition,
 					options: this.options,
 					editable: this.editable,
@@ -890,7 +895,7 @@ class ObjectBrowser {
 	removeDeletedItem() {
 		if (!this.chosen.length) return;
 
-		let toRemove = difference(this.chosen, this.filteredIds());
+		const toRemove = difference(this.chosen, this.filteredIds());
 		if (toRemove.length) {
 			toRemove.forEach((item) => {
 				this.removeThumbObject(

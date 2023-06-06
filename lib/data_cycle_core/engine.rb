@@ -197,7 +197,7 @@ module DataCycleCore
   self.classification_visibilities = ['show', 'api', 'tile', 'show_more', 'xml', 'list', 'edit', 'filter', 'tree_view', 'classification_overview', 'classification_administration']
 
   mattr_accessor :classification_change_behaviour
-  self.classification_change_behaviour = ['trigger_webhooks', 'clear_cache']
+  self.classification_change_behaviour = ['trigger_webhooks']
 
   mattr_accessor :cache_invalidation_depth
   self.cache_invalidation_depth = 3
@@ -219,6 +219,9 @@ module DataCycleCore
 
   mattr_accessor :data_link_bcc
   self.data_link_bcc = nil
+
+  mattr_accessor :classification_icons
+  self.classification_icons = {}
 
   def self.setup
     yield self

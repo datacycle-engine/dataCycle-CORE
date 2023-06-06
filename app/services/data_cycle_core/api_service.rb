@@ -406,6 +406,10 @@ module DataCycleCore
       return sort, 'ASC'
     end
 
+    def self.allowed_thread_count
+      (ActiveRecord::Base.connection_pool.size / (Rails.application.secrets.dig(:puma_max_threads) || 5)).to_i
+    end
+
     private
 
     def api_errors(errors, linked_name = nil)

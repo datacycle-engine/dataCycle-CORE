@@ -2,8 +2,8 @@
   "all": {
     "sourceCodeDir": "app/assets",
     "additionalEntrypoints": [
-      "app/assets/images/*",
-      "../../app/assets/{images,fonts,entrypoints}/*"
+      "app/assets/images/**/*",
+      "../../app/assets/{images,fonts,entrypoints}/**/*"
     ],
     "watchAdditionalPaths": [
       "../../app/assets/**/*"

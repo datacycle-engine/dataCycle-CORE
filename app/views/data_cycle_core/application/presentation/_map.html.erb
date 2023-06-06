@@ -1,8 +1,11 @@
+<% map_filter_layers = map_filter_layers(@filters) %>
+
 <div class="geographic">
   <div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map dashboard"
           data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
-          data-map-bounds=<%= JSON.parse(contents.to_bbox).to_json %>
+          data-map-bounds="<%= query_bounding_box(contents, map_filter_layers) %>"
           data-language="<%= @language %>"
+          data-filter-layers="<%= map_filter_layers.presence&.to_json %>"
           >
   </div>
 </div>

@@ -13,8 +13,22 @@
 <% end %>
 
 <% contents&.each do |content| %>
-  <li id="list-item-<%= content.id %>" class="list-item data-cycle-object <%= content&.template_name&.underscore if content.is_a?(DataCycleCore::Thing) %> <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %> <%= DataCycleCore::Feature::TileBorderColor.class_string(content) %>" data-id="<%= content.id %>">
+  <%= tag.li(class: [
+    'list-item',
+    'data-cycle-object',
+    content.is_a?(DataCycleCore::Thing) ? content&.template_name&.underscore : nil,
+    content.respond_to?(:is_valid?) && !content.try(:is_valid?) ? 'expired-item' : nil,
+    DataCycleCore::Feature::TileBorderColor.class_string(content),
+    thing_content_score_class(content),
+  ].compact_blank.join(' '),
+  id: "list-item-#{content.id}",
+  data: {
+    id: content.id,
+    content_score: content.try(:internal_content_score)&.round
+  }) do %>
     <% content_for :media_buttons, flush: true do %>
+      <%= thing_content_score(content) %>
+
       <%= tag.i(class: 'has-overlay has-tip fa fa-window-restore', data: { dc_tooltip: t('common.has_overlay', locale: active_ui_locale) }) if content.try(:overlay?) %>
 
       <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if show_external_connections?(content) %>
@@ -39,7 +53,7 @@
       <%= render_content_tile(item: content, mode: 'list') %>
 
     <% end %>
-  </li>
+  <% end %>
 <% end %>
 
 <% unless local_assigns[:direction] == 'prev' || contents.last_page? %>

@@ -53,27 +53,27 @@ module DataCycleCore
 
       def permit_user(role, *actions, definition)
         raise 'missing role in permission' if role.blank?
-        raise 'missing actions in permission' if actions.blank?
-        raise 'missing definition in permission' if definition.blank?
 
-        self.class.list.push({
-          condition: segment(:UsersByRole).new(role),
-          actions: actions,
-          definition: definition_to_segment(definition)
-        })
+        permit(segment(:UsersByRole).new(role), *actions, definition_to_segment(definition))
+      end
+
+      def permit_user_except(roles, *actions, definition)
+        raise 'missing role in permission' if roles.blank?
+
+        permit(segment(:UsersExceptRoles).new(roles), *actions, definition_to_segment(definition))
+      end
+
+      def permit_by_email_domain(domain, *actions, definition)
+        raise 'missing domain in permission' if domain.blank?
+
+        permit(segment(:UsersByEmailDomain).new(domain), *actions, definition_to_segment(definition))
       end
 
       def permit_user_group(group_name, roles, *actions, definition)
         raise 'missing user_group name in permission' if group_name.blank?
         raise 'missing roles in permission' if roles.blank?
-        raise 'missing actions in permission' if actions.blank?
-        raise 'missing definition in permission' if definition.blank?
 
-        self.class.list.push({
-          condition: segment(:UsersByUserGroup).new(group_name, roles),
-          actions: actions,
-          definition: definition_to_segment(definition)
-        })
+        permit(segment(:UsersByUserGroup).new(group_name, roles), *actions, definition_to_segment(definition))
       end
 
       def definition_to_segment(definition)

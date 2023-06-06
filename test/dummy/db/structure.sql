@@ -422,8 +422,8 @@ CREATE FUNCTION public.geom_simple_update() RETURNS trigger
 --
 
 CREATE FUNCTION public.get_dict(lang character varying) RETURNS regconfig
-    LANGUAGE sql
-    AS $$ SELECT pg_dict_mappings.dict::regconfig FROM pg_dict_mappings WHERE pg_dict_mappings.locale IN (lang, 'simple') LIMIT 1; $$;
+    LANGUAGE plpgsql
+    AS $$ DECLARE dict varchar; BEGIN SELECT pg_dict_mappings.dict::regconfig INTO dict FROM pg_dict_mappings WHERE pg_dict_mappings.locale IN (lang, 'simple') LIMIT 1; IF dict IS NULL THEN dict := 'pg_catalog.simple'::regconfig; END IF; RETURN dict; END; $$;
 
 
 --
@@ -545,15 +545,6 @@ CREATE FUNCTION public.update_collected_classification_content_relations_trigger
 CREATE FUNCTION public.update_template_definitions_trigger() RETURNS trigger
     LANGUAGE plpgsql
     AS $$ BEGIN UPDATE things SET "schema" = NEW.schema, boost = (NEW.schema -> 'boost')::numeric, content_type = NEW.schema ->> 'content_type', cache_valid_since = NOW() WHERE things.template_name = NEW.template_name AND things.template = FALSE; RETURN new; END; $$;
-
-
---
--- Name: wldh_order_a_default_value(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.wldh_order_a_default_value() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN NEW.order_a := (SELECT (count(watch_list_data_hashes.id) + 1) FROM watch_list_data_hashes WHERE watch_list_data_hashes.watch_list_id = NEW.watch_list_id); RETURN NEW; END; $$;
 
 
 SET default_tablespace = '';
@@ -768,7 +759,8 @@ CREATE TABLE public.classification_aliases (
     name_i18n jsonb DEFAULT '{}'::jsonb,
     description_i18n jsonb DEFAULT '{}'::jsonb,
     uri character varying,
-    order_a integer
+    order_a integer,
+    ui_configs jsonb
 );
 
 
@@ -831,7 +823,7 @@ CREATE TABLE public.classification_tree_labels (
     internal boolean DEFAULT false,
     deleted_at timestamp without time zone,
     visibility character varying[] DEFAULT '{}'::character varying[],
-    change_behaviour character varying[] DEFAULT '{trigger_webhooks,clear_cache}'::character varying[]
+    change_behaviour character varying[] DEFAULT '{trigger_webhooks}'::character varying[]
 );
 
 
@@ -1065,7 +1057,7 @@ CREATE TABLE public.watch_list_data_hashes (
     seen_at timestamp without time zone,
     created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
-    order_a integer DEFAULT 1 NOT NULL
+    order_a integer
 );
 
 
@@ -1580,7 +1572,8 @@ CREATE TABLE public.users (
     confirmed_at timestamp without time zone,
     confirmation_sent_at timestamp without time zone,
     unconfirmed_email character varying,
-    ui_locale character varying DEFAULT 'de'::character varying NOT NULL
+    ui_locale character varying DEFAULT 'de'::character varying NOT NULL,
+    deleted_at timestamp without time zone
 );
 
 
@@ -3128,10 +3121,10 @@ CREATE INDEX validity_period_idx ON public.searches USING gist (validity_period)
 
 
 --
--- Name: wldh_order_a_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: wldh_order_a_brin_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX wldh_order_a_idx ON public.watch_list_data_hashes USING btree (order_a);
+CREATE INDEX wldh_order_a_brin_idx ON public.watch_list_data_hashes USING brin (order_a, created_at);
 
 
 --
@@ -3538,13 +3531,6 @@ CREATE TRIGGER update_thing_schema_types BEFORE UPDATE OF template_name, schema 
 
 
 --
--- Name: watch_list_data_hashes wldh_order_a_default_value_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER wldh_order_a_default_value_trigger BEFORE INSERT ON public.watch_list_data_hashes FOR EACH ROW EXECUTE FUNCTION public.wldh_order_a_default_value();
-
-
---
 -- Name: collected_classification_contents collected_classification_contents_thing_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3569,6 +3555,14 @@ ALTER TABLE ONLY public.collection_configurations
 
 
 --
+-- Name: user_group_users fk_rails_485739ff03; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_group_users
+    ADD CONSTRAINT fk_rails_485739ff03 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE NOT VALID;
+
+
+--
 -- Name: timeseries fk_rails_53ff16144f; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3590,6 +3584,14 @@ ALTER TABLE ONLY public.active_storage_variant_records
 
 ALTER TABLE ONLY public.active_storage_attachments
     ADD CONSTRAINT fk_rails_c3b3935057 FOREIGN KEY (blob_id) REFERENCES public.active_storage_blobs(id);
+
+
+--
+-- Name: user_group_users fk_rails_da075980a7; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_group_users
+    ADD CONSTRAINT fk_rails_da075980a7 FOREIGN KEY (user_group_id) REFERENCES public.user_groups(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -3897,6 +3899,12 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230321085100'),
 ('20230322145244'),
 ('20230329123152'),
-('20230330081538');
+('20230330081538'),
+('20230403113641'),
+('20230425060228'),
+('20230515081146'),
+('20230516132624'),
+('20230517085644'),
+('20230531065846');
 
 

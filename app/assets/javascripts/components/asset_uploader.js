@@ -63,7 +63,7 @@ class AssetUploader {
 		event.preventDefault();
 		event.stopPropagation();
 
-		let target = $(event.currentTarget).closest(".file-for-upload").remove();
+		const target = $(event.currentTarget).closest(".file-for-upload").remove();
 
 		this.files = this.files.filter((f) => f.id !== target.data("id"));
 		this.updateCreateButton();
@@ -74,7 +74,7 @@ class AssetUploader {
 
 		this.reveal.foundation("open");
 
-		let parsedAssets = this.parseAssetsForImport(data.assets);
+		const parsedAssets = this.parseAssetsForImport(data.assets);
 
 		if (parsedAssets.length) {
 			parsedAssets.forEach((f) => {
@@ -107,6 +107,7 @@ class AssetUploader {
 				asset: a,
 				dataImported: {
 					duplicateCandidates: duplicateCandidates,
+					warning: a.warning,
 				},
 			};
 		});
@@ -129,7 +130,7 @@ class AssetUploader {
 			{
 				received: (data) => {
 					if (data.progress && this.saving) {
-						let progress = Math.round((data.progress * 100) / data.items);
+						const progress = Math.round((data.progress * 100) / data.items);
 						this.createButton.find(".progress-value").text(`${progress}%`);
 						this.createButton
 							.find(".progress-bar > .progress-filled")

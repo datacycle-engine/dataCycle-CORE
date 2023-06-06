@@ -12,8 +12,8 @@ module DataCycleCore
             @query
               .where(
                 search_exists(
-                  search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" })
-                    .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish), Arel.sql('pg_dict_mappings.dict::regconfig')))),
+                  search[:all_text].matches_all(normalized_name.split.map { |item| "%#{item.strip}%" })
+                    .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish), Arel.sql("COALESCE(pg_dict_mappings.dict, 'pg_catalog.simple')::regconfig")))),
                   true
                 )
               )
@@ -45,7 +45,7 @@ module DataCycleCore
         end
 
         def fulltext_search_cte(normalized_name, name)
-          search_string = (name || '').split(' ').join('%')
+          search_string = (name || '').split.join('%')
           order_string = ActiveRecord::Base.send(
             :sanitize_sql_array,
             [
@@ -73,7 +73,7 @@ module DataCycleCore
               WHERE
                 #{search[:locale].in(@locale).to_sql}
                 AND (
-                  #{search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" }).to_sql}
+                  #{search[:all_text].matches_all(normalized_name.split.map { |item| "%#{item.strip}%" }).to_sql}
                   OR #{tsmatch(search[:words], tsquery(quoted(normalized_name.squish), Arel.sql('subquery.config'))).to_sql}
                 )
               ORDER BY
@@ -90,7 +90,7 @@ module DataCycleCore
                 "searches"
               JOIN (SELECT get_dict(searches.locale) AS config, searches.locale AS locale FROM searches GROUP BY searches.locale) as subquery ON subquery.locale = searches.locale
               WHERE
-                  #{search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" }).to_sql}
+                  #{search[:all_text].matches_all(normalized_name.split.map { |item| "%#{item.strip}%" }).to_sql}
                   OR #{tsmatch(search[:words], tsquery(quoted(normalized_name.squish), Arel.sql('subquery.config'))).to_sql}
               ORDER BY
                 content_data_id, fulltext_boost DESC

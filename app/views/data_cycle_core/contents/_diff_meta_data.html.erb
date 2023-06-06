@@ -2,7 +2,7 @@
 
 <div class="diff metadata">
   <div class="diff-header" data-toggle="<%= random_id %>">
-    <span class="type <%= local_assigns[source_parameter].template_name.underscore_blanks %>">
+    <span class="type <%= local_assigns[source_parameter].template_name.underscore_blanks %>" style="<%= classification_style(local_assigns[source_parameter].classification_alias_for_tree('Inhaltstypen')) %>">
       <%= local_assigns[source_parameter].translated_template_name(active_ui_locale) %> (<%= I18n.locale %>)
     </span>
 

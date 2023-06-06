@@ -1,15 +1,9 @@
-<% breadcrumb :edit_from_index, @user, :email %>
+<% breadcrumb :edit_user, @user %>
 
 <% content_for :top_content do %>
-
-<div>
-
+  <div>
     <div id="edit-form">
-
-        <%= render 'form', content: @user %>
-
+      <%= render 'form', content: @user %>
     </div>
-
-</div>
-
+  </div>
 <% end %>

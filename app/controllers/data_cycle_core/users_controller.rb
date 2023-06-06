@@ -5,23 +5,34 @@ module DataCycleCore
     load_and_authorize_resource except: [:search, :validate] # from cancancan (authorize)
     before_action :set_user, only: [:edit, :update, :destroy, :unlock]
 
-    BLOCKED_COLUMNS ||= ['encrypted_password', 'reset_password_token', 'current_sign_in_ip', 'last_sign_in_ip', 'provider', 'default_locale', 'type'].freeze
-
     def index
-      @search_param = search_params[:q]
-      @roles = DataCycleCore::Role.where(id: search_params[:roles]) if search_params[:roles].present?
-      @user_groups = DataCycleCore::UserGroup.where(id: search_params[:user_groups]) if search_params[:user_groups].present?
-
       query = DataCycleCore::User.accessible_by(current_ability).except(:left_outer_joins).includes(:represented_by, :external_systems)
 
       query = query.where(locked_at: nil) unless current_user.has_rank?(10)
 
-      query = query.where(sql_for_fulltext_search(@search_param)) if @search_param.present?
+      @filters = filter_params
+      @filters&.select { |f| f.key?('c') }&.each { |f| f['identifier'] = SecureRandom.hex(10) }
 
-      query = query.joins(:role).where(role: @roles.ids) if @roles.present?
-      query = query.joins(:user_groups).where(user_groups: { id: @user_groups.ids }) if @user_groups.present?
+      @filters&.each do |filter|
+        filter_method = (filter['c'] == 'd' ? filter['n'] : filter['t']).dup
+        filter_method = +"#{filter['t']}_#{filter['n']}" if filter['c'] == 'a' && query.respond_to?("#{filter['t']}_#{filter['n']}")
+        filter_method.prepend(DataCycleCore::StoredFilterExtensions::FilterParamsHashParser::FILTER_PREFIX[filter['m']].to_s)
 
-      @contents = query.preload(:role, :user_groups).order(:email).page(params[:page])
+        next unless query.respond_to?(filter_method)
+
+        query = query.send(filter_method, filter['v'])
+      end
+
+      @sort_params = sort_params
+      if @sort_params.present?
+        query = query.order(*@sort_params.map { |s| { s[:m].to_sym => s[:o].to_sym } })
+      else
+        query = query.order(:email)
+      end
+
+      @mode = mode_params[:mode].in?(['list', 'tree', 'map']) ? mode_params[:mode].to_s : 'grid'
+
+      @contents = query.preload(:role, :user_groups).page(params[:page])
 
       if count_only_params[:count_only].present?
         @count_only = true
@@ -89,6 +100,13 @@ module DataCycleCore
     end
 
     def destroy
+      @user.destroy!
+      sign_out(@user) if current_user == @user
+
+      redirect_back(fallback_location: root_path, notice: I18n.t('controllers.success.destroyed', data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
+    end
+
+    def lock
       @user.lock_access!
 
       redirect_back(fallback_location: root_path, notice: I18n.t(:locked, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
@@ -110,7 +128,7 @@ module DataCycleCore
       authorize! :show, DataCycleCore::User
 
       users = DataCycleCore::User.all.limit(20)
-      users = users.where(sql_for_fulltext_search(search_params[:q])) if search_params[:q].present?
+      users = users.fulltext_search(search_params[:q]) if search_params[:q].present?
 
       render plain: users.map { |u| u.to_select_option(helpers.active_ui_locale, search_params[:disable_locked].to_s != 'false') }.to_json, content_type: 'application/json'
     end
@@ -143,14 +161,6 @@ module DataCycleCore
 
     private
 
-    def sql_for_fulltext_search(search_term)
-      search_columns = DataCycleCore::User.columns
-        .select { |c| (c.type == :string && BLOCKED_COLUMNS.exclude?(c.name)) || c.name == DataCycleCore::User.primary_key }
-        .map { |c| "users.#{c.name}" }
-
-      search_term.to_s.split.map { |term| "concat_ws(' ', #{search_columns.join(', ')}) ILIKE '%#{term.strip}%'" }.join(' AND ')
-    end
-
     def search_params
       params
         .permit(:q, :disable_locked, roles: [], user_groups: [])
@@ -169,6 +179,18 @@ module DataCycleCore
 
     def count_only_params
       params.permit(:target, :count_only, :count_mode, :content_class)
+    end
+
+    def sort_params
+      params.permit(s: {}).to_h[:s].presence&.values&.reject { |s| DataCycleCore::DataHashService.blank?(s) }
+    end
+
+    def mode_params
+      params.permit(:mode)
+    end
+
+    def filter_params
+      params.permit(f: {}).to_h[:f].presence&.values&.reject { |f| DataCycleCore::DataHashService.blank?(f) || DataCycleCore::DataHashService.blank?(f['v']) }
     end
   end
 end

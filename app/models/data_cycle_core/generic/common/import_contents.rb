@@ -4,7 +4,7 @@ module DataCycleCore
   module Generic
     module Common
       module ImportContents
-        extend DataCycleCore::Generic::Common::TransformationUtilities
+        extend DataCycleCore::Generic::Common::Transformations::TransformationUtilities
 
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.import_contents(
@@ -41,6 +41,7 @@ module DataCycleCore
                 # ap transformation.call(utility_object.external_source.id).call(nested_data)
 
                 nested_content_config = nested_contents_config.except(:exists, :path, :template, :transformation)
+                raw_data = raw_data.merge(options.dig(:import, :main_content, :data)) if options.dig(:import, :main_content, :data).present?
                 process_single_content(utility_object, nested_contents_config[:template], transformation, nested_data, nested_content_config)
               end
             end
@@ -51,6 +52,7 @@ module DataCycleCore
             # ap transformation.call(utility_object.external_source.id).call(raw_data).with_indifferent_access
 
             main_content_config = options.dig(:import, :main_content).except(:template, :transformation)
+            raw_data = raw_data.merge(options.dig(:import, :main_content, :data)) if options.dig(:import, :main_content, :data).present?
             process_single_content(utility_object, options.dig(:import, :main_content, :template), transformation, raw_data, main_content_config)
           end
         end

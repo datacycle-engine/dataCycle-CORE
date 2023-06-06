@@ -5,7 +5,13 @@ module DataCycleCore
     def dc_image_path(filename)
       return if filename.blank?
 
-      dc_vite_asset_path("images/#{filename}")
+      dc_vite_asset_url("images/#{filename}", true)
+    end
+
+    def dc_image_url(filename)
+      return if filename.blank?
+
+      dc_vite_asset_url("images/#{filename}")
     end
 
     def dc_background_image_style
@@ -15,24 +21,26 @@ module DataCycleCore
     end
 
     def dc_stylesheet_tag(asset_name)
-      asset_path = dc_vite_asset_path("entrypoints/#{asset_name}")
+      asset_path = dc_vite_asset_url("entrypoints/#{asset_name}", true)
 
       tag.link(rel: 'stylesheet', media: 'screen', href: asset_path)
     end
 
-    def dc_vite_asset_path(asset_path)
+    def dc_vite_asset_url(asset_path, path_only = false)
       return if asset_path.blank?
 
-      if ViteRuby.instance.dev_server_running?
-        return vite_asset_path("/vendor/gems/data-cycle-core/app/assets/#{asset_path}") unless File.file?(ViteRuby.config.vite_root_dir.join(asset_path))
+      method_name = path_only ? :vite_asset_path : :vite_asset_url
 
-        vite_asset_path("/#{asset_path}")
+      if ViteRuby.instance.dev_server_running?
+        return send(method_name, "/vendor/gems/data-cycle-core/app/assets/#{asset_path}") unless File.file?(ViteRuby.config.vite_root_dir.join(asset_path))
+
+        send(method_name, "/#{asset_path}")
       end
 
-      vite_asset_path(asset_path)
+      send(method_name, asset_path)
     rescue ViteRuby::MissingEntrypointError
       begin
-        vite_asset_path("/vendor/gems/data-cycle-core/app/assets/#{asset_path}")
+        send(method_name, "/vendor/gems/data-cycle-core/app/assets/#{asset_path}")
       rescue ViteRuby::MissingEntrypointError => e
         ActiveSupport::Notifications.instrument 'vite_asset_path_error.datacycle', content: asset_path, exception: e
 

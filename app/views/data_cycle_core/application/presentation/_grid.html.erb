@@ -22,7 +22,19 @@
 <% end %>
 
 <% contents&.each do |content| %>
-  <li class="grid-item data-cycle-object <%= content&.template_name&.underscore if content.is_a?(DataCycleCore::Thing) %> <%= ' expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %> <%= DataCycleCore::Feature::TileBorderColor.class_string(content) %>" id="grid-item-<%= content.id %>" data-id="<%= content.id %>">
+  <%= tag.li(class: [
+    'grid-item',
+    'data-cycle-object',
+    content.is_a?(DataCycleCore::Thing) ? content&.template_name&.underscore : nil,
+    content.respond_to?(:is_valid?) && !content.try(:is_valid?) ? 'expired-item' : nil,
+    DataCycleCore::Feature::TileBorderColor.class_string(content),
+    thing_content_score_class(content),
+  ].compact_blank.join(' '),
+  id: "grid-item-#{content.id}",
+  data: {
+    id: content.id,
+    content_score: content.try(:internal_content_score)&.round
+  }) do %>
     <% if content.is_a?(DataCycleCore::Thing) %>
 
       <% cache(content_view_cache_key(item: content, locale: @language, mode: 'grid', watch_list: @watch_list), expires_in: 1.year + Random.rand(7.days)) do %>
@@ -36,6 +48,8 @@
     <% end %>
 
     <div class="buttons">
+      <%= thing_content_score(content) %>
+
       <%= yield_content!(:media_buttons) %>
 
       <%= tag.i(class: 'has-overlay has-tip fa fa-window-restore', data: { dc_tooltip: t('common.has_overlay', locale: active_ui_locale) }) if content.try(:overlay?) %>
@@ -50,7 +64,7 @@
         <%= render 'data_cycle_core/application/watch_lists', content: content %>
       <% end %>
     </div>
-  </li>
+  <% end %>
 <% end %>
 
 <% unless local_assigns[:direction] == 'prev' || contents.last_page? %>

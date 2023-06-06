@@ -154,7 +154,7 @@ module DataCycleCore
         end
 
         def init_user_api_feature
-          raise CanCan::AccessDenied, 'feature not activated' unless DataCycleCore::Feature::UserApi.enabled?
+          raise CanCan::AccessDenied, 'UserApi feature not activated' unless DataCycleCore::Feature::UserApi.enabled?
 
           @user_api_feature = DataCycleCore::Feature::UserApi.new(request.env['data_cycle.feature.user_api.issuer'])
         end

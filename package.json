@@ -1,6 +1,6 @@
 {
   "name": "data-cycle-core",
-  "version": "23.04.0",
+  "version": "23.06.0",
   "description": "data-cycle-core assets",
   "author": "Patrick Rainer",
   "engineStrict": true,
@@ -15,7 +15,10 @@
     "@mapbox/mapbox-gl-draw": "^1.3.0",
     "@rails/actioncable": "^7.0.3-1",
     "@rails/ujs": "^7.0.3-1",
+    "@simonwep/pickr": "^1.8.2",
     "@tmcw/togeojson": "^5.2.1",
+    "@turf/bbox": "^6.5.0",
+    "@turf/circle": "^6.5.0",
     "chart.js": "^4.2.1",
     "chartjs-adapter-luxon": "^1.3.1",
     "datatables.net-zf": "^1.10.20",

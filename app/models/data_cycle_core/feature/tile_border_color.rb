@@ -12,7 +12,7 @@ module DataCycleCore
           class_list = []
           class_list.concat(Array.wrap(tree_label_classes(content)))
           class_list.concat(Array.wrap(event_schedule_classes(content)))
-          class_list.concat.join(' ')
+          class_list.compact.join(' ')
         end
 
         private
@@ -25,16 +25,30 @@ module DataCycleCore
           return if configuration[:tree_label].blank?
 
           if content&.classification_aliases&.loaded?
-            content&.classification_aliases&.map { |ca| ca.classification_alias_path.full_path_names.values_at(-1, 0).join.underscore_blanks if ca.classification_alias_path&.full_path_names&.last == configuration[:tree_label] }
+            content
+              &.classification_aliases
+              &.map do |ca|
+                if ca.classification_alias_path&.full_path_names&.last == configuration[:tree_label]
+                  ca.classification_alias_path
+                    .full_path_names.values_at(-1, 0)
+                    .join('_')
+                    .underscore_blanks
+                end
+              end
           else
-            content&.classification_aliases&.for_tree(configuration[:tree_label])&.map { |c| "#{c.classification_tree_label&.name}_#{c.internal_name}".underscore_blanks }
+            content
+              &.classification_aliases
+              &.for_tree(configuration[:tree_label])
+              &.map { |c| "#{c.classification_tree_label&.name}_#{c.internal_name}".underscore_blanks }
           end
         end
 
         def event_schedule_classes(content)
           return if configuration[:event_schedule].blank? || !content.respond_to?(:event_schedule)
 
-          return ['event_schedule_past'] if content.event_schedule.presence&.none? { |es| es.schedule_object.next_occurrence(Time.zone.now, spans: true).present? }
+          return ['event_schedule_past'] if content.event_schedule.presence&.none? do |es|
+            es.schedule_object.next_occurrence(Time.zone.now, spans: true).present?
+          end
         end
       end
     end

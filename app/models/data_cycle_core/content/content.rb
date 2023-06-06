@@ -520,11 +520,15 @@ module DataCycleCore
                   v.dig('ui', 'bulk_edit', 'disabled').to_s != 'true'
               }
               .sort_by { |_, v| v['sorting'] }
-              .map! { |(k, v)| [k, v.except('sorting', 'api').deep_reject { |p_k, p_v| p_k == 'show' || (!p_v.is_a?(FalseClass) && p_v.blank?) }] }
+              .map! do |(k, v)|
+              [k, v.except('sorting', 'api').deep_reject { |p_k, p_v| p_k == 'show' || (!p_v.is_a?(FalseClass) && p_v.blank?) }]
+            end
           }
           .reduce(:&)
           .to_h
-          .keep_if { |_, v| (v['type'] != 'classification' || DataCycleCore::ClassificationService.visible_classification_tree?(v['tree_label'], 'edit')) }
+          .keep_if do |_, v|
+            (v['type'] != 'classification' || DataCycleCore::ClassificationService.visible_classification_tree?(v['tree_label'], 'edit'))
+          end
 
         contents.find_each do |t|
           ordered_properties.select! do |k, v|

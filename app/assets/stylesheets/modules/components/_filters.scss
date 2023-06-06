@@ -114,45 +114,52 @@ $filter-border: #aaa;
           box-shadow: 0 0 0 2px $primary-color inset, 0 0 3px $black inset;
         }
 
-        .select2-selection {
-          min-height: 2.5rem;
-          background: transparent;
-          border: none;
-          padding: 0.3rem;
+        .select2.select2-container {
+          .select2-selection {
+            min-height: 2.5rem;
+            background: transparent;
+            border: none;
+            padding: 0.3rem;
 
-          .select2-selection__rendered {
-            height: 100%;
-            padding-right: 2rem;
-            font-weight: 600;
-          }
-
-          .select2-selection__arrow {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: absolute;
-            height: 100%;
-            top: 0;
-            right: 0;
-            width: 3rem;
-
-            >* {
-              display: none;
+            .select2-selection__rendered {
+              height: 100%;
+              padding-right: 2rem;
+              font-weight: 600;
             }
 
-            &::before {
-              content: '\f067';
-              font-family: FontAwesome;
-              font-style: normal;
-              font-weight: normal;
-              font-size: 1.3rem;
-              line-height: 1.3rem;
+            .select2-selection__arrow {
               display: flex;
               justify-content: center;
               align-items: center;
-              color: $primary-color;
-              margin-top: 1px;
+              position: absolute;
+              height: 100%;
+              top: 0;
+              right: 0;
+              width: 3rem;
+
+              >* {
+                display: none;
+              }
+
+              &::before {
+                content: '\f067';
+                font-family: FontAwesome;
+                font-style: normal;
+                font-weight: normal;
+                font-size: 1.3rem;
+                line-height: 1.3rem;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: $primary-color;
+                margin-top: 1px;
+              }
             }
+          }
+
+          &.select2-container--disabled .select2-selection .select2-selection__arrow::before {
+            content: '\f110';
+            animation: fa-spin 2s infinite linear;
           }
         }
       }
@@ -162,37 +169,12 @@ $filter-border: #aaa;
         display: flex;
         background-color: lighten($dark-gray, 32%);
         box-shadow: 0 0 0 2px lighten($dark-gray, 12%) inset, 0 1px 3px darken($light-gray, 10%);
-        transition: $global-transition;
         border-radius: $global-radius;
-        margin: 0;
-        height: auto;
-        overflow: unset;
+        transition: background-color 0.25s, box-shadow 0.25s;
         gap: 0.5rem;
+        margin: 0;
         padding: 0.5rem;
-
-        &.hidden {
-          margin: 0;
-          height: 0;
-          overflow: hidden;
-        }
-
-        &.transitioning {
-          transition: height 0.2s, margin 0.2s;
-          height: 3.2rem;
-          overflow: hidden;
-        }
-
-        &.transitioning-out {
-          max-height: 1000px;
-          overflow: hidden;
-        }
-
-        &.transitioned-out {
-          transition: max-height 0.2s cubic-bezier(0, 0.9, 0, 1), margin 0.2s;
-          margin: 0;
-          overflow: hidden;
-          max-height: 0;
-        }
+        overflow: unset;
 
         input[type="date"],
         input[type="datetime-local"] {
@@ -390,6 +372,11 @@ $filter-border: #aaa;
               line-height: 1.5;
             }
           }
+        }
+
+        .geo-radius-unit-selector {
+          height: 2.2rem;
+          width: auto;
         }
       }
 
@@ -1843,8 +1830,8 @@ $filter-border: #aaa;
         cursor: pointer;
         margin: 0;
         font-size: 1rem;
-        border: 1px solid $primary-color;
-        color: $primary-color;
+        border: 1px solid var(--classification-color, var(--primary-color));
+        color: var(--classification-color, var(--primary-color));
         border-radius: $global-radius;
 
         .title {
@@ -1863,9 +1850,9 @@ $filter-border: #aaa;
 
       /* :: CHECKED :: */
       input:checked~label {
-        background-color: $primary-color;
+        background-color: var(--classification-color, var(--primary-color));
         color: $white;
-        border-color: $primary-color;
+        border-color: var(--classification-color, var(--primary-color));
 
         strong {
           color: $white;

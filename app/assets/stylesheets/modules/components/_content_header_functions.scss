@@ -3,7 +3,7 @@
   gap: 1rem;
   align-items: center;
 
-  > ul {
+  >ul {
     display: flex;
     flex-flow: row;
     justify-content: flex-end;
@@ -11,10 +11,11 @@
     height: 3.5rem;
     flex: auto;
 
-    > li > a {
+    >li>a {
       display: block;
     }
-    > li.buttons {
+
+    >li.buttons {
       display: flex;
       flex-flow: row;
       align-items: center;
@@ -48,10 +49,12 @@
 
 .detail-header-functions,
 .edit-header-functions {
+
   button,
   a {
     display: inline-block;
   }
+
   .button {
     margin: 1rem 0 0 0;
     font-weight: bold;
@@ -70,34 +73,46 @@
       }
     }
   }
+
   .fa {
     min-width: 1.2rem;
   }
-  > ul {
+
+  >ul {
     position: relative;
-    > li {
+
+    >li {
       &.buttons {
         .close-show-button {
           .fa {
             font-size: 1.5rem;
           }
         }
+
         .submit-edit-form {
           margin-left: 5px;
+
+          &[disabled]:not(.warning):not(.alert):not(.success) {
+            background-color: var(--dark-gray);
+          }
         }
+
         .submit {
           flex: 0;
           flex-basis: auto;
           flex-shrink: 0;
           z-index: 100;
           outline: none;
+
           i {
             display: block;
             z-index: 1;
           }
+
           &:disabled {
             cursor: not-allowed;
           }
+
           .progress-value {
             color: $white;
             display: block;
@@ -111,6 +126,7 @@
             text-align: center;
             z-index: 1;
           }
+
           .progress-bar {
             display: block;
             position: absolute;
@@ -138,6 +154,7 @@
               transition: width 0.25s ease-out;
             }
           }
+
           &:hover {
             .progress-bar {
               visibility: visible;
@@ -145,32 +162,40 @@
             }
           }
         }
+
         a {
           padding: 0;
         }
-        > .button,
-        > a > .button {
+
+        >.button,
+        >a>.button {
           margin: 0;
           display: block;
           background: none;
           outline: none;
           color: rgba($primary-color, 0.5);
+
           i {
             font-size: 1.5rem;
           }
+
           &:hover,
           &:focus {
             color: $primary-color;
           }
+
           &.discard {
             color: $black;
+
             &:hover,
             &:focus {
               color: $black;
             }
           }
+
           &.delete {
             color: rgba(map-get($foundation-palette, alert), 0.5);
+
             &:hover,
             &:focus {
               color: map-get($foundation-palette, alert);
@@ -178,18 +203,21 @@
           }
         }
       }
+
       display: inline;
       position: relative;
       vertical-align: top;
-      > span[title] {
+
+      >span[title] {
         color: $body-font-color;
         opacity: 0.3;
         transition: $global-transition;
         padding: 0 0.5rem;
         cursor: help;
       }
-      > a,
-      > .link {
+
+      >a,
+      >.link {
         display: inline-block;
         color: $body-font-color;
         opacity: 0.3;
@@ -202,7 +230,7 @@
         &.watch-list-dropdown {
           padding: 0;
 
-          > .watch-lists-link {
+          >.watch-lists-link {
             padding: 0 0.5rem;
           }
         }
@@ -220,7 +248,8 @@
           color: lighten($body-font-color, 30%);
         }
       }
-      > .link > a {
+
+      >.link>a {
         color: $body-font-color;
       }
     }
@@ -231,9 +260,11 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
+
   input {
     padding: 0 0.5rem;
     height: 2.2rem;
+
     &.copy-input {
       padding-right: 2.3rem;
       text-overflow: ellipsis;
@@ -247,23 +278,28 @@ label.agb-link {
   font-size: 1.25rem;
   margin-left: 0.2rem;
 }
+
 .edit-header-functions {
-  > ul {
+  >ul {
     text-align: right;
     margin: 0;
     list-style: none;
     line-height: 3.5rem;
     max-height: 3.5rem;
+
     &.no-bullet {
       margin: auto;
     }
-    > li {
+
+    >li {
       position: relative;
+
       button.has-tip:not([disabled]),
       button.dc-foundation-tooltip:not([disabled]) {
         border-bottom: none;
         cursor: pointer;
       }
+
       &.buttons {
         a {
           height: 100%;
@@ -276,6 +312,7 @@ label.agb-link {
             margin: 0;
             padding: 0;
             text-align: center;
+
             .fa {
               font-size: 1.5rem;
               line-height: 3.5rem;

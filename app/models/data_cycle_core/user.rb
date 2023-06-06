@@ -3,6 +3,7 @@
 module DataCycleCore
   class User < ApplicationRecord
     include Content::ExternalData
+    include DataCycleCore::UserExtensions::Filters
 
     devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable, :omniauthable, omniauth_providers: Devise.omniauth_configs.keys
     devise :registerable, :confirmable if DataCycleCore::Feature::UserRegistration.enabled?
@@ -28,6 +29,8 @@ module DataCycleCore
     has_many :stored_filters, dependent: :destroy
     has_many :watch_lists, dependent: :destroy
     has_one :my_selection, -> { where(my_selection: true) }, class_name: 'DataCycleCore::WatchList'
+    has_many :api_accessible_watch_lists, ->(user) { unscope(where: :user_id).accessible_by(user.send(:ability)).without_my_selection }, class_name: 'DataCycleCore::WatchList'
+    has_many :api_accessible_stored_filters, ->(user) { unscope(where: :user_id).accessible_by(user.send(:ability), :api).named.by_api_user(user) }, class_name: 'DataCycleCore::StoredFilter'
     has_many :subscriptions, dependent: :destroy
     has_many :things_subscribed, through: :subscriptions, source: :subscribable, source_type: 'DataCycleCore::Thing'
     belongs_to :role
@@ -48,6 +51,7 @@ module DataCycleCore
     has_many :created_data_links, class_name: :DataLink, foreign_key: :creator_id, dependent: :destroy
     has_many :valid_received_data_links, -> { valid }, class_name: :DataLink, foreign_key: :receiver_id
     has_many :valid_received_readable_data_links, -> { valid.readable }, class_name: :DataLink, foreign_key: :receiver_id
+    has_many :valid_received_writable_data_links, -> { valid.writable }, class_name: :DataLink, foreign_key: :receiver_id
     has_many :valid_received_readable_stored_filter_data_links, -> { valid.readable.where(item_type: 'DataCycleCore::StoredFilter') }, class_name: :DataLink, foreign_key: :receiver_id
 
     has_many :assets, foreign_key: :creator_id, class_name: 'DataCycleCore::Asset'
@@ -70,6 +74,8 @@ module DataCycleCore
     after_create :execute_create_webhooks, unless: :skip_callbacks
     after_update_commit :execute_update_webhooks, if: proc { |u| !u.skip_callbacks && (u.saved_changes.keys & u.allowed_webhook_attributes).present? }
     after_destroy :execute_delete_webhooks, unless: :skip_callbacks
+
+    default_scope { where(deleted_at: nil) }
 
     def user_api_feature
       @user_api_feature ||= DataCycleCore::Feature::UserApi.new(nil, self)
@@ -206,12 +212,16 @@ module DataCycleCore
       .deep_transform_keys { |k| k.to_s.camelize(:lower) }
     end
 
+    def self.as_user_api_json
+      all.map(&:as_user_api_json)
+    end
+
     def to_select_option(locale = DataCycleCore.ui_locales.first, disable_locked = true)
       DataCycleCore::Filter::SelectOption.new(
         id,
         email,
         model_name.param_key,
-        locked? ? "#{full_name} <span class=\"alert-color\"><i class=\"fa fa-ban\"></i> #{self.class.human_attribute_name(:locked_at, locale: locale)}</span>" : full_name,
+        locked? ? "#{full_name} <span class=\"alert-color\"><i class=\"fa fa-ban\"></i> #{self.class.human_attribute_name(deleted? ? :deleted_at : :locked_at, locale: locale)}</span>" : full_name,
         disable_locked && locked?
       )
     end
@@ -222,6 +232,38 @@ module DataCycleCore
         # activities.where('activities.activity_type = ? AND activities.created_at < ?', type, 3.months.ago).delete_all
         activities.create(activity_type: type, data: data)
       end
+    end
+
+    def deleted?
+      deleted_at.present?
+    end
+
+    def self.with_deleted
+      unscope(where: :deleted_at)
+    end
+
+    def destroy
+      attributes_hash = self.class.column_names.except(['id', 'email', 'encrypted_password', 'created_at', 'role_id', 'type', 'creator_id']).to_h { |v| [v.to_sym, nil] }
+
+      attributes_hash.merge!({
+        email: "u#{id}@ano.nym",
+        given_name: '',
+        family_name: "anonym_#{id.first(8)}",
+        password: SecureRandom.hex(10),
+        default_locale: I18n.available_locales.first,
+        ui_locale: I18n.available_locales.first,
+        updated_at: Time.zone.now,
+        locked_at: Time.zone.now,
+        sign_in_count: 0,
+        external: false,
+        deleted_at: Time.zone.now,
+        subscription_ids: nil
+      })
+
+      skip_confirmation_notification! if respond_to?(:skip_confirmation_notification!)
+      skip_reconfirmation! if respond_to?(:skip_reconfirmation!)
+
+      update(attributes_hash)
     end
 
     private

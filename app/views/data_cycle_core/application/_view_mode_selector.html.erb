@@ -27,15 +27,19 @@
                       {:include_blank => I18n.t('sortable.default', default: 'default', locale: active_ui_locale)}
                   ) %>
       <span class="filter-sortable-checkbox-wrapper">
+        <%
+          checked = @sort_params.presence&.first&.dig('o') != 'DESC'
+          disabled = !@sort_params.presence&.first&.dig('m')&.in?(sortable.map{ |v| v[:method] })
+        %>
         <%= check_box nil,
                               "s[v][o]",
                               {
-                                  checked: @sort_params.presence&.first&.dig('o') != 'DESC',
-                                  disabled: !@sort_params.presence&.first&.dig('m')&.in?(sortable.map{ |v| v[:method] })
+                                  checked: checked,
+                                  disabled: disabled
                               },
                               'ASC',
                               'DESC' %>
-        <label for="s[v][o]">
+        <label for="s[v][o]" data-dc-tooltip="<%= disabled ? nil : t("sortable.ordering.#{checked ? 'asc' : 'desc'}", locale: active_ui_locale)  %>">
           <%= tag.i(class: 'fa fa-sort-asc sort-asc') %>
           <%= tag.i(class: 'fa fa-sort-desc sort-desc') %>
         </label>
@@ -45,7 +49,7 @@
 
   <% if DataCycleCore::Feature::ViewMode.enabled? && local_assigns[:mode_selector] %>
     <div class="mode-switcher">
-      <% DataCycleCore::Feature::ViewMode.allowed_modes(current_user).each do |mode| %>
+      <% DataCycleCore::Feature::ViewMode.allowed_modes(current_user, local_assigns[:filter_context]).each do |mode| %>
         <%= mode_link(mode, @mode == mode, request.params) %>
       <% end %>
     </div>

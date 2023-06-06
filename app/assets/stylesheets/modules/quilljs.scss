@@ -5,28 +5,40 @@ $fa-font-path: '/assets';
   display: flex;
 }
 
-.form-element.focus,
-.detail-header.editor .form-element.focus {
-  > .editor-block {
-    background: $white;
-    border-color: $primary-color;
+.form-element,
+.detail-header.editor .form-element {
 
-    > label,
-    > .ql-toolbar {
-      background: $white;
-    }
+  &:focus,
+  &:focus-within {
+    &:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+      >.editor-block {
+        background: $white;
+        border-color: $primary-color;
 
-    > label {
-      color: $primary-color;
+        >label,
+        >.ql-toolbar {
+          background: $white;
+        }
+
+        >label {
+          color: $primary-color;
+        }
+      }
     }
   }
 }
 
-.form-element:hover,
-.detail-header.editor .form-element:hover {
-  > .editor-block {
-    > label {
-      color: $primary-color;
+.form-element,
+.detail-header.editor .form-element {
+  >.editor-block {
+
+    &:focus,
+    &:focus-within {
+      &:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+        >label {
+          color: $primary-color;
+        }
+      }
     }
   }
 }
@@ -38,7 +50,7 @@ $fa-font-path: '/assets';
   display: flex;
   flex-flow: row wrap;
 
-  > label {
+  >label {
     order: 5;
     padding: 0 0 0 1rem;
     transition: $color-transition;
@@ -94,7 +106,7 @@ $fa-font-path: '/assets';
         cursor: pointer;
       }
 
-      .dc--external-link:disabled ~ .dc--external-link-text {
+      .dc--external-link:disabled~.dc--external-link-text {
         cursor: not-allowed;
         color: $dark-gray;
       }
@@ -117,9 +129,11 @@ $fa-font-path: '/assets';
       .dc--external-link-label {
         display: flex;
       }
+
       span.ql-preview {
         display: none;
       }
+
       a.ql-action::after {
         content: 'Übernehmen';
       }
@@ -139,13 +153,14 @@ $fa-font-path: '/assets';
     .dc--contentlink {
       cursor: pointer;
     }
+
     a {
       border-bottom: 1px solid;
       text-decoration: none;
     }
   }
 
-  > .ql-toolbar {
+  >.ql-toolbar {
     order: 9;
     border: unset;
     justify-content: flex-end;
@@ -155,7 +170,7 @@ $fa-font-path: '/assets';
     }
 
     .ql-inlineTranslator,
-    .ql-inlineTranslator > span {
+    .ql-inlineTranslator>span {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -169,24 +184,29 @@ $fa-font-path: '/assets';
       path {
         transition: fill 0.25s ease-out;
       }
+
       .st1 {
         fill: #e6007e;
       }
+
       .st0 {
         fill: #009fe3;
       }
+
       .st3 {
         fill: #333;
       }
+
       &.ql-active,
       &:hover {
+
         .st0,
         .st3 {
           fill: #009fe3;
         }
       }
 
-      > span {
+      >span {
         position: relative;
         display: block;
 
@@ -199,6 +219,7 @@ $fa-font-path: '/assets';
         }
       }
     }
+
     .ql-insertNbsp,
     .ql-replaceAllNbsp {
       display: flex;
@@ -258,8 +279,8 @@ $fa-font-path: '/assets';
     }
   }
 
-  > label,
-  > .ql-toolbar {
+  >label,
+  >.ql-toolbar {
     display: flex;
     flex: auto;
     background-color: $white;
@@ -271,7 +292,7 @@ $fa-font-path: '/assets';
     border-radius: $global-radius;
   }
 
-  > .quill-editor {
+  >.quill-editor {
     order: 20;
     width: 100%;
   }
@@ -280,8 +301,9 @@ $fa-font-path: '/assets';
 .split-content,
 .ca-input {
   .form-element .editor-block {
-    > label,
-    > .ql-toolbar {
+
+    >label,
+    >.ql-toolbar {
       top: 0;
     }
   }

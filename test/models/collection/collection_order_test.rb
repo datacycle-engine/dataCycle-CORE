@@ -22,7 +22,7 @@ module DataCycleCore
 
       test 'default order for new elements' do
         assert_equal [@content.id, @content2.id, @content3.id, @content4.id, @content5.id], @collection.watch_list_data_hashes.order(order_a: :asc).pluck(:hashable_id)
-        assert_equal [1, 2, 3, 4, 5], @collection.watch_list_data_hashes.order(order_a: :asc).pluck(:order_a)
+        assert_equal [nil, nil, nil, nil, nil], @collection.watch_list_data_hashes.order(order_a: :asc).pluck(:order_a)
       end
 
       test 'set manual order flag if it is not set' do

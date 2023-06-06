@@ -5,8 +5,10 @@ module DataCycleCore
     module Virtual
       module Creator
         class << self
-          def object(content:, **_args)
-            content&.created_by_user&.as_json(only: [:email, :given_name, :family_name])&.deep_transform_keys { |k| k.camelize(:lower) }
+          def by_attribute_key(content:, virtual_definition:, **_args)
+            return if virtual_definition.dig('virtual', 'key').blank?
+
+            content&.created_by_user.try(virtual_definition.dig('virtual', 'key'))
           end
         end
       end

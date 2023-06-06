@@ -8,5 +8,5 @@
     <%= render partial: 'data_cycle_core/data_links/email_data_link', collection: content.data_links, as: :data_link, locals: { content: content } %>
   </ul>
 
-  <%= render 'data_cycle_core/data_links/email_data_link', content: content, data_link: DataCycleCore::DataLink.new %>
+  <%= render 'data_cycle_core/data_links/email_data_link', content: content, data_link: DataCycleCore::DataLink.new(item: content, creator: current_user) %>
 </div>

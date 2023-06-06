@@ -40,6 +40,7 @@ class Validator {
 			attributeOldValue: true,
 			characterDataOldValue: false,
 		};
+		this.updateQueue = [];
 
 		this.addEventHandlers();
 	}
@@ -165,27 +166,33 @@ class Validator {
 				mutation.type === "attributes" &&
 				mutation.target.classList.contains("remote-rendered") &&
 				(!mutation.oldValue || mutation.oldValue.includes("remote-rendering"))
-			)
-				this.updateInitialFormData(mutation.target);
+			) {
+				if (!this.updateQueue.length)
+					requestAnimationFrame(this.updateInitialFormData.bind(this));
+
+				this.updateQueue.push(mutation.target);
+			}
 		}
 	}
-	updateInitialFormData(target) {
+	updateInitialFormData() {
 		this.initialFormData = collectionReject(
 			unionWith(
 				this.initialFormData,
-				Array.from(DomElementHelpers.getFormData(target)),
+				Array.from(DomElementHelpers.getFormData(this.updateQueue)),
 				isEqual,
 			).sort(),
 			(v) => v[0] && ["authenticity_token"].includes(v[0]),
 		);
+
+		this.updateQueue.length = 0;
 	}
 	async validateAgbs(validationContainer) {
-		let error = {
+		const error = {
 			valid: true,
 			errors: {},
 			warnings: {},
 		};
-		let agbs = $(validationContainer).find(':checkbox[name="accept_agbs"]');
+		const agbs = $(validationContainer).find(':checkbox[name="accept_agbs"]');
 		if (agbs.length && !agbs.prop("checked")) {
 			const errorMessage = await I18n.translate("frontend.validate.agbs");
 			$(validationContainer)
@@ -559,7 +566,7 @@ class Validator {
 		if (eventData.hasOwnProperty("submit")) submit = eventData.submit;
 
 		this.queryCount++;
-		let requests = this.requests.slice();
+		const requests = this.requests.slice();
 		this.requests = [];
 
 		Promise.all(requests).then(
@@ -567,14 +574,14 @@ class Validator {
 				this.queryCount--;
 				this.valid = true;
 
-				let error = this.$form.find(".single_error").first();
+				const error = this.$form.find(".single_error").first();
 				values.filter(Boolean).forEach((validation) => {
 					if (!validation.valid) this.valid = false;
 				});
 
 				if (this.valid && submit) {
 					this.queryCount = 0;
-					let warnings = this.$form.find(".form-element .warning.counter");
+					const warnings = this.$form.find(".form-element .warning.counter");
 
 					eventData = Object.assign({}, eventData || {}, {
 						finalize: true,
@@ -623,7 +630,7 @@ class Validator {
 			async (error) => {
 				this.queryCount--;
 
-				let buttonText = `<span id="button_server_error" class="tooltip-error"><strong>${await I18n.translate(
+				const buttonText = `<span id="button_server_error" class="tooltip-error"><strong>${await I18n.translate(
 					"frontend.validate.error",
 				)}</strong><br>${error.statusText}<br></span>`;
 				this.enable();

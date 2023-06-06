@@ -11,20 +11,18 @@ namespace :dc do
 
       puts "RECREATE Duplicate Candidates (#{total_items})"
 
-      worker = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
+      queue = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
       progress = ProgressBar.create(total: total_items, format: '%t |%w>%i| %a - %c/%C', title: 'Items')
 
       duplicate_count = 0
       data_object.find_each do |content|
-        worker.append do
-          ActiveRecord::Base.connection_pool.with_connection do
-            duplicate_count += content.create_duplicate_candidates.to_i
-            progress.increment
-          end
+        queue.append do
+          duplicate_count += content.create_duplicate_candidates.to_i
+          progress.increment
         end
       end
 
-      worker.wait
+      queue.wait!
 
       puts "RECREATED Duplicate Candidates - #{duplicate_count} duplicates found"
     end
@@ -50,18 +48,16 @@ namespace :dc do
       progress = ProgressBar.create(total: total_items, format: '%t |%w>%i| %a - %c/%C', title: 'Items')
 
       duplicate_count = 0
-      worker = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
+      queue = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
 
       query.query.find_each do |content|
-        worker.append do
-          ActiveRecord::Base.connection_pool.with_connection do
-            duplicate_count += content.create_duplicate_candidates.to_i
-            progress.increment
-          end
+        queue.append do
+          duplicate_count += content.create_duplicate_candidates.to_i
+          progress.increment
         end
       end
 
-      worker.wait
+      queue.wait!
 
       puts "(RE)CREATED Duplicate Candidates - #{duplicate_count} duplicates found"
     end

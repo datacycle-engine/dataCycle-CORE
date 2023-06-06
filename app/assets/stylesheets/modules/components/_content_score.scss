@@ -1,48 +1,102 @@
 .dc-content-score {
-  .attribute-content-score {
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-start;
 
-    .content-score-icon,
-    .content-score-text {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+  &.detail-header>.detail-header-info,
+  &:not(.detail-header) {
 
-    .content-score-text {
-      font-weight: 600;
-      margin-left: 0.2rem;
-      transition: $opacity-transition;
-    }
-
-    .content-score-icon::before {
-      font-family: 'FontAwesome';
-      content: '\f006';
-      position: relative;
+    .attribute-content-score,
+    .thing-content-score {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-    }
+      justify-content: flex-start;
+      pointer-events: auto;
 
-    &.score-loading {
-      .content-score-icon::before {
-        content: '\f110' !important;
-        animation: fa-spin 2s infinite linear;
+      .content-score-icon,
+      .content-score-text {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .content-score-icon {
+        font-size: 1rem;
       }
 
       .content-score-text {
-        opacity: 0;
+        font-weight: 600;
+        margin-left: 0.2rem;
+        transition: $opacity-transition;
+        font-size: 0.9rem;
+      }
+
+      .content-score-icon::before {
+        font-family: 'FontAwesome';
+        content: '\f006';
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      &.score-loading {
+        .content-score-icon::before {
+          content: '\f110' !important;
+          animation: fa-spin 2s infinite linear;
+        }
+
+        .content-score-text {
+          opacity: 0;
+        }
       }
     }
+  }
 
-    &.medium-score .content-score-icon::before {
-      content: '\f123';
+  @for $i from 34 through 66 {
+    &[data-content-score="#{$i}"] {
+
+      &.detail-header>.detail-header-info,
+      &:not(.detail-header) {
+
+        .content-score-icon::before {
+          content: '\f123';
+        }
+      }
     }
+  }
 
-    &.high-score .content-score-icon::before {
-      content: '\f005';
+  @for $i from 67 through 100 {
+    &[data-content-score="#{$i}"] {
+
+      &.detail-header>.detail-header-info,
+      &:not(.detail-header) {
+
+        .content-score-icon::before {
+          content: '\f005';
+        }
+      }
+    }
+  }
+}
+
+.tooltip-content-score {
+  font-weight: bold;
+  margin-left: 0.3rem;
+}
+
+.content-score-tooltip {
+  >.title {
+    font-size: 0.9rem;
+    font-weight: bold;
+  }
+
+  &.with-description>.title {
+    margin-bottom: 0.5rem;
+  }
+
+  ul {
+    margin-bottom: 0.2rem;
+
+    &:last-child {
+      margin-bottom: 0;
     }
   }
 }

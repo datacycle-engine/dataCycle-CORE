@@ -41,7 +41,7 @@
       border: none;
       background: transparent;
 
-      > .form-element {
+      >.form-element {
         display: flex;
         flex: 1;
         margin: 0;
@@ -84,9 +84,8 @@
           }
         }
 
-        &:hover {
-          border-color: $primary-color;
-          box-shadow: 0 1px 7px lighten($dark-gray, 12%);
+        &:hover:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+          box-shadow: 0 1px 5px rgba($dark-gray, 0.4);
           z-index: 1;
         }
 
@@ -105,8 +104,8 @@
   .accordion {
     background-color: inherit;
 
-    > .accordion-item {
-      > .accordion-title {
+    >.accordion-item {
+      >.accordion-title {
         padding: 0;
         border: none;
         font-size: inherit;
@@ -122,12 +121,12 @@
           background-color: inherit;
         }
 
-        > .title > .title-container > .icon > .fa::before {
+        >.title>.title-container>.icon>.fa::before {
           content: '\f107';
         }
       }
 
-      > .accordion-content {
+      >.accordion-content {
         padding: 0;
         border: none;
         background-color: inherit;
@@ -135,7 +134,7 @@
       }
 
       &.is-active {
-        > .accordion-title > .title > .title-container > .icon > .fa::before {
+        >.accordion-title>.title>.title-container>.icon>.fa::before {
           content: '\f106';
         }
       }
@@ -145,7 +144,7 @@
   ul {
     position: relative;
 
-    > li {
+    >li {
       position: relative;
 
       &.publication-year {
@@ -155,7 +154,7 @@
           margin-bottom: 4rem;
         }
 
-        > .accordion-title > .title {
+        >.accordion-title>.title {
           position: relative;
           display: block;
 
@@ -215,11 +214,11 @@
           margin-bottom: 3rem;
         }
 
-        > .accordion-title > .title {
+        >.accordion-title>.title {
           position: relative;
           display: block;
 
-          > .title-container {
+          >.title-container {
             font-weight: 600;
             margin-left: 1.2rem;
 
@@ -280,8 +279,8 @@
             }
           }
 
-          > span,
-          > div {
+          >span,
+          >div {
             display: inline-block;
             flex: 1;
 
@@ -304,7 +303,7 @@
           }
         }
 
-        > div.title {
+        >div.title {
           a {
             color: $dark-gray;
             transition: $color-transition;
@@ -318,7 +317,7 @@
           color: $dark-gray;
         }
 
-        > ul {
+        >ul {
           box-shadow: 0 1px 3px $dark-gray;
         }
       }
@@ -351,6 +350,7 @@
 
 .detail-content:not(.imageobject) .type.properties .detail-type.publication_schedule {
   padding: 0;
+
   .publication-list {
     padding: 0 0.5rem 0;
 
@@ -360,9 +360,11 @@
       margin: 0;
       padding: 0;
       box-shadow: none;
+
       &:not(:last-of-type) {
         border-bottom: 1px solid $medium-gray;
       }
+
       .publication-attribute {
         flex: 1;
         padding: 0.3rem 0.5rem;
