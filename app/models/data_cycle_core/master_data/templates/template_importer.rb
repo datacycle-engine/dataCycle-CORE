@@ -89,7 +89,8 @@ module DataCycleCore
               template_name: t[:name],
               template: true,
               cache_valid_since: Time.zone.now,
-              schema: t[:data]
+              schema: t[:data],
+              content_type: t.dig(:data, :content_type)
             }
           end, unique_by: :things_template_name_template_uq_idx)
         end
