@@ -158,7 +158,7 @@ module DataCycleCore
                       logging.info("Downloaded #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
                     end
 
-                    futures.each(&:wait!)
+                    pool.wait!
                   end
                 rescue StandardError => e
                   ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
