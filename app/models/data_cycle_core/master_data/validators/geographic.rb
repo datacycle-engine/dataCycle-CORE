@@ -12,7 +12,7 @@ module DataCycleCore
             convert_2d = nil
             convert_3d = nil
             begin
-              RGeo::Geographic.spherical_factory(srid: 4326, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 }).parse_wkt(data)
+              RGeo::Geographic.simple_mercator_factory(srid: 4326, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 }).parse_wkt(data)
             rescue RGeo::Error::InvalidGeometry
               return (@error[:error][@template_key] ||= []) << { path: 'validation.errors.geo_no_linestring' }
             rescue RGeo::Error::ParseError
@@ -25,7 +25,7 @@ module DataCycleCore
               }
             end
             begin
-              RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 }).parse_wkt(data)
+              RGeo::Geographic.simple_mercator_factory(srid: 4326, has_z_coordinate: true, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 }).parse_wkt(data)
             rescue RGeo::Error::InvalidGeometry
               return (@error[:error][@template_key] ||= []) << { path: 'validation.errors.geo_no_linestring' }
             rescue RGeo::Error::ParseError

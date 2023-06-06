@@ -85,12 +85,12 @@ module DataCycleCore
         return value if value.methods.include?(:geometry_type)
         raise RGeo::Error::ParseError, 'expected a string containing geographic data of some sorts' unless value.is_a?(::String)
         begin
-          return RGeo::Geographic.spherical_factory(srid: 4326, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 }).parse_wkt(value)
+          return RGeo::Geographic.simple_mercator_factory(srid: 4326, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 }).parse_wkt(value)
         rescue RGeo::Error::ParseError => e
           e
         end
         begin
-          return RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 }).parse_wkt(value)
+          return RGeo::Geographic.simple_mercator_factory(srid: 4326, has_z_coordinate: true, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 }).parse_wkt(value)
         rescue RGeo::Error::ParseError => e
           e
         end
