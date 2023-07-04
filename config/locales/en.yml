@@ -1677,6 +1677,7 @@ en:
       station: Station
       subtitle: Subtitle
       teaser: Teaser
+      Persons: person
     bierfinder:
       book: Description
       tipp: Tip
