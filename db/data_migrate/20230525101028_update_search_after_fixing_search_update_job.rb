@@ -5,7 +5,6 @@ class UpdateSearchAfterFixingSearchUpdateJob < ActiveRecord::Migration[6.1]
   # disable_ddl_transaction!
 
   def up
-    DataCycleCore::RunTaskJob.perform_later('dc:update:search:rebuild')
   end
 
   def down

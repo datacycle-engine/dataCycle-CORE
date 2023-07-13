@@ -535,18 +535,18 @@ $filter-border: #aaa;
 
         /* :: CHECKED :: */
         input:checked~label {
-          background-color: $primary-color;
-          color: $white;
+          background-color: var(--classification-color, var(--primary-color));
+          color: var(--white);
 
           strong {
-            color: $white;
+            color: var(--white);
           }
         }
 
         input:checked~label:before {
           animation: throw 0.2s linear;
           top: 0px;
-          color: $white;
+          color: var(--white);
           opacity: 1;
           content: '✓';
           line-height: 2.3rem;
@@ -562,7 +562,7 @@ $filter-border: #aaa;
           position: absolute;
           top: 100%;
           left: 0;
-          background: $white;
+          background: var(--white);
           width: 100%;
           padding: 1rem 0 0 0;
           box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
@@ -586,6 +586,11 @@ $filter-border: #aaa;
           margin: 0;
           font-size: 1rem;
           border-radius: $global-radius;
+          background-color: var(--classification-color);
+
+          &.has-color {
+            color: var(--white);
+          }
         }
 
         label:before {
@@ -600,6 +605,12 @@ $filter-border: #aaa;
           left: 0;
           transition: $global-transition;
           opacity: 1;
+
+
+        }
+
+        label.has-color::before {
+          color: var(--white);
         }
 
         li {

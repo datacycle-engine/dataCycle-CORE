@@ -99,7 +99,7 @@ class EmbeddedObject {
 	locale() {
 		return this.$element.data("locale") || "de";
 	}
-	async import(_event, data) {
+	import(_event, data) {
 		const newItems = difference(
 			data.value,
 			this.$element
@@ -114,7 +114,7 @@ class EmbeddedObject {
 				this.$element.children(".content-object-item").length < this.max) &&
 			newItems.length > 0
 		) {
-			await this.renderEmbeddedObjects(
+			return this.renderEmbeddedObjects(
 				"split_view",
 				newItems,
 				data.locale,
@@ -125,33 +125,33 @@ class EmbeddedObject {
 			this.max !== 0 &&
 			ids.length + newItems.length > this.max
 		) {
-			const prefix = await I18n.translate(
-				"frontend.split_view.copy_linked_error",
-			);
-
-			new ConfirmationModal({
-				text: `${this.label}: ${prefix}${await I18n.translate(
-					"frontend.maximum_embedded",
-					{
+			return I18n.translate("frontend.split_view.copy_linked_error").then(
+				(prefix) =>
+					I18n.translate("frontend.maximum_embedded", {
 						data: this.max,
-					},
-				)}`,
-			});
+					}).then(
+						(text) =>
+							new ConfirmationModal({
+								text: `${this.label}: ${prefix}${text}`,
+							}),
+					),
+			);
 		}
 	}
 	selectorForEmbeddedHeader(selector) {
 		return `:scope > .embedded-header > ${selector}, :scope > .form-element > .editor-block > .embedded-header > ${selector}`;
 	}
 	setSwapClasses(element) {
-		if (element instanceof $) element = element[0];
+		let elem = element;
+		if (elem instanceof $) elem = elem[0];
 
-		element
+		elem
 			.querySelector(this.selectorForEmbeddedHeader(".swap-button.swap-prev"))
-			?.classList.toggle("disabled", !element.previousElementSibling);
+			?.classList.toggle("disabled", !elem.previousElementSibling);
 
-		element
+		elem
 			.querySelector(this.selectorForEmbeddedHeader(".swap-button.swap-next"))
-			?.classList.toggle("disabled", !element.nextElementSibling);
+			?.classList.toggle("disabled", !elem.nextElementSibling);
 	}
 	setupSwappableButtons(element) {
 		if (
@@ -188,10 +188,12 @@ class EmbeddedObject {
 	}
 	renderEmbeddedObjects(type, ids = [], locale = null, translate = false) {
 		const index = this.index;
-		if (type === "split_view") this.index += difference(ids, this.ids).length;
+		const newIds = difference(ids, this.ids);
+		if (type === "split_view") this.index += newIds.length;
 		else if (type === "new") this.index++;
 
 		this.parent.classList.add("loading-embedded");
+		this.ids.push(...newIds);
 
 		const promise = DataCycle.httpRequest(
 			`${this.url}/render_embedded_object`,
@@ -206,7 +208,7 @@ class EmbeddedObject {
 					options: this.options,
 					content_id: this.content_id,
 					content_type: this.content_type,
-					object_ids: ids,
+					object_ids: newIds,
 					duplicated_content: type === "split_view",
 					translate: translate,
 				},
@@ -214,8 +216,8 @@ class EmbeddedObject {
 		);
 
 		promise
-			.then(this.insertNewElements.bind(this, ids))
-			.catch(this.renderEmbeddedError.bind(this, translate))
+			.then(this.insertNewElements.bind(this, newIds))
+			.catch(this.renderEmbeddedError.bind(this, newIds, translate))
 			.finally(() => this.parent.classList.remove("loading-embedded"));
 
 		return promise;
@@ -224,11 +226,25 @@ class EmbeddedObject {
 		const loadMore = this.element.querySelector(
 			":scope > .load-more-linked-contents",
 		);
+		let insertAfterElement;
+		const activeIndex = this.ids.indexOf(ids[0]);
 
-		if (loadMore) loadMore.insertAdjacentHTML("beforebegin", data?.html);
+		if (activeIndex >= 0) {
+			const selector = this.ids
+				.slice(0, activeIndex)
+				.map((id) => `:scope > [data-id="${id}"]`)
+				.join(", ");
+
+			if (selector && this.element.querySelector(selector)) {
+				const previousElements = this.element.querySelectorAll(selector);
+				insertAfterElement = previousElements[previousElements.length - 1];
+			}
+		}
+
+		if (insertAfterElement) {
+			insertAfterElement.insertAdjacentHTML("afterend", data?.html);
+		} else if (loadMore) loadMore.insertAdjacentHTML("beforebegin", data?.html);
 		else this.element.insertAdjacentHTML("beforeend", data?.html);
-
-		if (ids.length) this.ids = union(this.ids, ids);
 
 		this.update();
 
@@ -236,7 +252,9 @@ class EmbeddedObject {
 			this.element.querySelector(":scope > .content-object-item:last-of-type"),
 		);
 	}
-	async renderEmbeddedError(translate, error) {
+	async renderEmbeddedError(ids, translate, error) {
+		this.ids = difference(this.ids, ids);
+
 		if (translate)
 			CalloutHelpers.show(
 				await I18n.translate("frontend.split_view.translate_error", {

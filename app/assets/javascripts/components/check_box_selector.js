@@ -13,13 +13,17 @@ class CheckBoxSelector {
 	initEventHandlers() {
 		this.$element
 			.closest(".form-element")
-			.on("dc:field:reset", this.reset.bind(this));
+			.on("dc:field:setToNull", this.setToNull.bind(this));
 		this.$element
 			.on("dc:import:data", this.import.bind(this))
 			.addClass("dc-import-data");
 	}
-	reset(_event) {
-		this.$inputFields.each((_, item) => $(item).prop("checked", false));
+	setToNull(_event) {
+		this.$inputFields.each((_, item) => {
+			$(item).prop("checked", false);
+			if (item.previousElementSibling?.matches('input[type="hidden"]'))
+				item.previousElementSibling.remove();
+		});
 		this.$element.closest(".form-element").children(":hidden").remove();
 	}
 	async import(event, data) {

@@ -1,0 +1,28 @@
+<div class="glass home-container consent-changed">
+  <div class="home-container-content">
+    <div class="columns">
+      <%= render 'logo' %>
+      <h4 class="consent-header"><%= I18n.t("user.consents.header.#{@type}", locale: active_ui_locale) %></h4>
+
+      <p><%= I18n.t("user.consents.info.#{@type}", locale: active_ui_locale) %></p>
+
+      <%= form_with(url: update_consent_users_path, local: true) do |f| %>
+        <%= f.hidden_field 'id', value: current_user.id, id: 'user_id' %>
+
+        <div class="check-consent dc-checkbox">
+          <%= check_box_tag "user[additional_attributes][#{@type}_at]", Time.zone.now.iso8601, false, { required: true } %>
+          <%= label_tag "user_additional_attributes_#{@type}_at", t("common.user_registration.#{@type}", url: DataCycleCore::Feature::UserRegistration.send("#{@type}_url"), locale: active_ui_locale).html_safe %>
+        </div>
+
+        <div class="buttons">
+          <%= f.button t('actions.save', locale: active_ui_locale),
+                      type: :submit,
+                      class: 'button',
+                      data: {
+                        disable: true
+                      } %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

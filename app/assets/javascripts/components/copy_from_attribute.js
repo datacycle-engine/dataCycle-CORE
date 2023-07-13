@@ -46,7 +46,7 @@ class CopyFromAttribute {
 			});
 
 		if (this.clearable) {
-			this.$target.trigger("dc:field:reset");
+			this.$target.trigger("dc:field:setToNull");
 			this.$element.fadeOut();
 		}
 	}
@@ -56,7 +56,7 @@ class CopyFromAttribute {
 
 		if (!this.$target.length) return;
 
-		this.$target.trigger("dc:field:reset");
+		this.$target.trigger("dc:field:setToNull");
 		this.$element.fadeOut();
 	}
 	getTargetValue() {

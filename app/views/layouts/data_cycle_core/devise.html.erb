@@ -8,7 +8,7 @@
 
     <%= yield %>
 
-    <% if ENV['PIXELPOINT_AAD_V2_CLIENT_ID'].present? %>
+    <% if ENV['PIXELPOINT_AAD_V2_CLIENT_ID'].present? && !user_signed_in? %>
       <%= link_to image_tag(dc_image_path('pixelpoint_logo.svg'), alt: 'Pixelpoint Logo', class: 'pixelpoint-sso-logo'), user_pixelpoint_aad_v2_omniauth_authorize_path, method: :post, class: 'pixelpoint-sso-login' %>
     <% end %>
   </body>

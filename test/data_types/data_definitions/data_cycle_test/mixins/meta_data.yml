@@ -89,7 +89,7 @@
         :storage_location: translated_value
         :advanced_search: true
         :compute:
-          :module: Utility::Compute::ContentScore
+          :module: ContentScore
           :method: calculate_from_feature
         :xml:
           disabled: true

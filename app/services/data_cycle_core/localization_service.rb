@@ -40,7 +40,7 @@ module DataCycleCore
     end
 
     def self.view_helpers
-      @view_helpers ||= ApplicationController.helpers
+      @view_helpers ||= ApplicationController.new.helpers
     end
   end
 end

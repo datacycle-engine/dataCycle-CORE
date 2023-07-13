@@ -27,13 +27,7 @@ module DataCycleCore
           end
 
           def license_uri(content:, **_args)
-            content
-              .classifications
-              &.classification_aliases
-              &.select { |ca| ca.classification_tree_label.name == 'Lizenzen' }
-              &.map(&:uri)
-              &.compact_blank
-              &.first
+            content.classification_aliases.for_tree('Lizenzen').reorder(nil).pick(:uri)
           end
 
           # only works for sync_api

@@ -6,8 +6,15 @@ class ContentScore {
 		this.element.classList.add("dcjs-content-score");
 		this.contentScoreText = this.element.querySelector(".content-score-text");
 		this.container = this.element.closest(
-			".form-element, .detail-type, #edit-form, .detail-header, .content-object-item, .detail-header > .title",
+			".form-element, .detail-property, .detail-type, #edit-form, .detail-header, .embedded-object > .content-object-item, .detail-header > .title",
 		);
+		this.stylingContainerMapping = {
+			"#edit-form": ":scope > .edit-header",
+			".detail-type":
+				":scope > .detail-label, :scope > .map-info > .detail-label",
+			".form-element": ".attribute-edit-label",
+		};
+		this.stylingContainer = this.getStylingContainer();
 		this.contentId = this.element.dataset.contentScoreContentId;
 		this.contentEmbedded = DomElementHelper.parseDataAttribute(
 			this.element.dataset.contentScoreEmbedded,
@@ -18,8 +25,18 @@ class ContentScore {
 
 		this.setup();
 	}
+	getStylingContainer() {
+		for (const [k, v] of Object.entries(this.stylingContainerMapping)) {
+			if (this.container.matches(k)) {
+				return this.container.querySelector(v);
+			}
+		}
+
+		return this.container;
+	}
 	setup() {
-		if (this.container) this.container.classList.add("dc-content-score");
+		if (this.stylingContainer)
+			this.stylingContainer.classList.add("dc-content-score");
 		$(this.container).on("change", this.loadScore.bind(this)); // not yet working with native 'change' event
 
 		this.loadScore();
@@ -44,7 +61,7 @@ class ContentScore {
 		DataCycle.httpRequest(url, { method: "POST", body: formData })
 			.then(this.setNewScore.bind(this))
 			.catch((_e) => {
-				this.container.removeAttribute("data-content-score");
+				this.stylingContainer.removeAttribute("data-content-score");
 				this.contentScoreText.innerHTML = "";
 				this.updateTooltip();
 			})
@@ -69,12 +86,12 @@ class ContentScore {
 		this.element.dataset.dcTooltip = template.innerHTML;
 	}
 	setNewScore(data) {
-		if (!data?.hasOwnProperty("value")) return;
+		if (!Object.hasOwn(data, "value")) return;
 
 		const score = Math.round(data.value * 100);
 
 		this.contentScoreText.innerHTML = score;
-		this.container.dataset.contentScore = score;
+		this.stylingContainer.dataset.contentScore = score;
 		this.updateTooltip(score);
 	}
 }

@@ -56,17 +56,15 @@ namespace :db do
     desc 'rebuild all tables concerning transitive classifications'
     task rebuild_transitive_tables: :environment do
       function_for_paths = DataCycleCore::Feature::TransitiveClassificationPath.enabled? ? 'generate_ca_paths_transitive' : 'generate_classification_alias_paths'
-      function_for_things = DataCycleCore::Feature::TransitiveClassificationPath.enabled? ? 'generate_collected_cl_content_relations_transitive' : 'generate_collected_classification_content_relations'
 
       ActiveRecord::Base.connection.execute <<-SQL.squish
         SELECT #{function_for_paths} (ARRAY_AGG(id)) FROM classification_aliases;
+      SQL
 
-        SELECT
-          #{function_for_things} (ARRAY_AGG(id), ARRAY[]::uuid[])
-        FROM
-          things
-        WHERE
-          TEMPLATE = FALSE;
+      next if Rails.env.test?
+
+      ActiveRecord::Base.connection.execute <<-SQL.squish
+        VACUUM (FULL, ANALYZE) classification_alias_paths, classification_alias_paths_transitive, collected_classification_contents;
       SQL
     end
   end

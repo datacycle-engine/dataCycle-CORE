@@ -13,6 +13,13 @@ module DataCycleCore
       99 => 'https://schema.org/PublicHolidays'
     }.freeze
 
+    REPEAT_FREQUENCY_MAPPING = {
+      'Y' => 'IceCube::YearlyRule',
+      'M' => 'IceCube::MonthlyRule',
+      'W' => 'IceCube::WeeklyRule',
+      'D' => 'IceCube::DailyRule'
+    }.freeze
+
     def self.included(klass)
       klass.extend(ClassMethods)
       klass.extend(DOTIW::Methods)
@@ -366,6 +373,24 @@ module DataCycleCore
             s.dig('rrules', 0, 'validations', 'day')&.map!(&:to_i)
           when 'IceCube::SingleOccurrenceRule'
             s.except!('rrules')
+          when 'IceCube::MonthlyRule'
+            s.dig('rrules', 0, 'validations', 'day')&.map!(&:to_i)
+
+            if s.dig('rrules', 0, 'validations', 'day_of_week').present?
+              begin
+                s['rrules'][0]['validations']['day_of_week'] = JSON.parse(s.dig('rrules', 0, 'validations', 'day_of_week'))
+              rescue JSON::ParserError
+                s.dig('rrules', 0, 'validations')&.delete('day_of_week')
+              end
+            end
+
+            if s.dig('rrules', 0, 'validations', 'day_of_month').present?
+              begin
+                s['rrules'][0]['validations']['day_of_month'] = JSON.parse(s.dig('rrules', 0, 'validations', 'day_of_month'))
+              rescue JSON::ParserError
+                s.dig('rrules', 0, 'validations')&.delete('day_of_month')
+              end
+            end
           when 'IceCube::YearlyRule'
             from_yday = start_time&.to_date&.yday
 
@@ -479,6 +504,52 @@ module DataCycleCore
 
         duration.present? ? duration.parts : {}
       end
+
+      def to_h_from_schema_org(data)
+        return if data.blank?
+
+        time_zone = data['scheduleTimezone'] || Time.zone_default.name
+
+        start_time = {
+          time: data.values_at('startDate', 'startTime').compact_blank.join('T')&.in_time_zone(time_zone),
+          zone: time_zone
+        }
+
+        return if start_time[:time].blank?
+
+        if data.key?('startTime') && data.key?('endTime') && !data.key?('duration')
+          data['duration'] = iso8601_duration(
+            data.values_at('startDate', 'startTime').compact_blank.join('T')&.in_time_zone(time_zone),
+            data.values_at('startDate', 'endTime').compact_blank.join('T')&.in_time_zone(time_zone)
+          )
+        end
+
+        rrule = {}
+        rrule[:rule_type] = REPEAT_FREQUENCY_MAPPING[data['repeatFrequency'].to_s[-1]]
+        if rrule[:rule_type].present?
+          rrule[:until] = data.values_at('endDate', 'endTime').compact_blank.join('T')&.in_time_zone(time_zone)
+          rrule[:interval] = data['repeatFrequency'].to_s[1..-2].to_i
+          rrule[:validations] = {}
+          rrule[:validations][:hour_of_day] = start_time[:time].to_datetime.hour
+          rrule[:validations][:minute_of_hour] = start_time[:time].to_datetime.minute
+
+          if data.key?('byMonthDay')
+            rrule[:validations][:day_of_month] = Array.wrap(data['byMonthDay'])
+          elsif data.key?('byMonthWeek') && data.key?('byDay')
+            rrule[:validations][:day_of_week] = DAY_OF_WEEK_MAPPING.select { |_k, v| v.in?(Array.wrap(data['byDay'])) }.keys.index_with { |_k| Array.wrap(data['byMonthWeek']) }
+          elsif data.key?('byDay')
+            rrule[:validations][:day] = DAY_OF_WEEK_MAPPING.select { |_k, v| v.in?(Array.wrap(data['byDay'])) }.keys
+          end
+        end
+
+        schedule_hash = {
+          start_time: start_time,
+          duration: data['duration'],
+          rrules: Array.wrap(rrule.deep_reject { |_, v| v.blank? }).compact_blank.presence
+        }
+
+        schedule_hash.with_indifferent_access
+      end
     end
   end
 
@@ -540,5 +611,14 @@ module DataCycleCore
       super
     end
     alias from_hash from_h
+
+    def self.first_by_external_key_or_id(external_key, external_system_id)
+      return if external_key.blank?
+
+      query = '(external_source_id = :external_system_id AND external_key = :external_key)'
+      query += ' OR id = :external_key' if external_key.uuid?
+
+      all.find_by(query, external_system_id: external_system_id, external_key: external_key)
+    end
   end
 end

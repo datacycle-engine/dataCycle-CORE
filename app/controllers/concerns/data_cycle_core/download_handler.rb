@@ -183,7 +183,7 @@ module DataCycleCore
       response.headers['X-Accel-Buffering'] = 'no'
 
       serialized_content.stream_data do |chunk|
-        response.stream.write chunk
+        response.stream.write(chunk)
       end
 
       content.activities.create(user: current_user, activity_type: 'download', data: additional_data)

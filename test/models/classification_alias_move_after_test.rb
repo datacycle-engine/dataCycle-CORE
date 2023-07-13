@@ -100,11 +100,11 @@ module DataCycleCore
       assert_equal 1, @alias00.reload.order_a
       assert_equal 8, @alias10.reload.order_a
       assert_equal 9, @alias11.reload.order_a
-      assert_equal 1, @alias07.reload.order_a
+      assert_equal 8, @alias07.reload.order_a
 
       @alias00.move_after(@tree_label1, nil, @alias09)
 
-      assert_equal 1, @alias10.reload.order_a
+      assert_equal 8, @alias10.reload.order_a
       assert_equal 4, @alias00.reload.order_a
       assert_equal 5, @alias01.reload.order_a
 

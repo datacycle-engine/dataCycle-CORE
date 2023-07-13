@@ -30,6 +30,7 @@ en:
       one: Tour rating
       other: Tour ratings
     key_figures_container: Key figures
+    universal_classifications: Classifications
 
   footer_links:
     privacy_policy: Privacy policy
@@ -103,11 +104,20 @@ en:
 
   classifications:
     tooltip_translations: Translations
+    new_classification_tree_label: create new classificationtree
+    new_classification: create new classification
 
   user:
     user_not_confirmed: email address has not been confirmed yet
     confirm: confirm email
     delete_user_html: delete user?
+    consents:
+      header:
+        terms_conditions: General Terms and Conditions (GTC) have been updated
+        privacy_policy: Privacy policy has been updated
+      info:
+        terms_conditions: The terms and conditions have been updated and must be accepted again.
+        privacy_policy: The privacy policy has been updated and must be accepted again.
 
   frontend:
     load_error: Error loading content.
@@ -176,6 +186,15 @@ en:
         basemap: BasemapAT
         winter: Winter
         toursprung: Toursprung
+      buttons:
+        trash: delete
+        draw_point: point
+        draw_line_string: line
+        draw_line_string_auto: car
+        draw_line_string_bicycle: bike
+        draw_line_string_pedestrian: pedestrian
+      routing:
+        error: error calculating route
     remote_render:
       error: Error loading content.
       reload: Reload
@@ -474,6 +493,7 @@ en:
       xml: XML format
       indesign: Adobe InDesign
       pdf: PDF
+      content_score: Content scores (zip)
       version:
         original: Original
         default: Default
@@ -587,20 +607,34 @@ en:
         title: Content-Score
         criteria: "Criteria: <b>%{text}</b>"
         by_presence: "filled"
+        by_quantity: "Quantity"
+        by_aspect_ratio: aspect ratio
+        further_restricions: "further restrictions:"
+        mime_types: MIME types
         string:
           by_length: "Number of characters"
         common:
-          by_quantity: "Quantity"
+          by_cc_license: CC license
         embedded:
           by_name_and_length: "Number of characters"
+          by_name_and_presence: "filled"
+          by_type_and_presence: "Informationstyp"
+        object:
+          by_attribute_and_presence: filled
         linked:
           by_linked_weight_matrix: "Score of attributes by weighting"
+          by_first_linked_score: Score of first linked content
         score_matrix:
           min: "Minimal: <b>%{value}</b>"
           optimal: "Optimal: %{value}"
           max: "Maximal: %{value}"
         content:
           by_weight_matrix: Score of attributes by weighting
+          by_field_presence: Score according to filled attributes
+          score_matrix: "Maximum score with missing attributes: %{max}"
+          by_field_presence_or_method: Score according to filled attributes
+        asset:
+          by_mime_types: Fileformat
     duplicate_candidate:
       manual_button: Select manually for merging
     releasable:
@@ -620,6 +654,26 @@ en:
       version_name_removed: The version name has been removed!
     download:
       missing_serialize_format: At least one format must be selected
+    serialize:
+      license:
+        copyright:
+          file_name: terms_of_use
+        introducton:
+          file_name: intro_text
+          text: |
+            Headline
+
+            Your caption could be here
+
+            COPYRIGHT dataCycle
+      content_score:
+        score_part: Subscore
+        id: ID
+        locale: Language
+        name: Name
+        external_source: Source system
+        external_key: ID in Source system
+        dc_link: URL
     geo_key_figure:
       button_title: Determination of the value for %{data} via a web service on the basis of the underlying geo-data
       button_title_all: Determination of the values via a web service on the basis of the underlying geo-data
@@ -636,6 +690,11 @@ en:
         401: &translate_error_code_401 "Access to the DeepL API has been denied"
         403: *translate_error_code_401
         456: "The quota for the DeepL API has been used up"
+    user_registration:
+      mailer:
+        subject: A new user was created
+        text_html: The new user %{name} (%{email}) has been created.
+        user_link: Show user
 
     report_generator:
       downloads_popular: Top 50 Downloads
@@ -1108,6 +1167,7 @@ en:
       bulk_update_error: An error occurred while saving, please try again
       definition_mismatch: the versions cannot be compared, because the data-definitions of these versions don't match
       user_locked: A user with this email already exists and is locked. Please contact an administrator to unlock the user.
+      classification_mappings_error: An error occurred while updating the classification mappings
     success:
       created: "%{data} was successfully created."
       ready_to_send: "%{data} has been successfully created and can now be sent."
@@ -1140,6 +1200,8 @@ en:
         other: "<b>%{count}</b> Contents were created"
       removed_lock: Content has been released
       cleared_collection: "removed all contents from %{data}"
+      confirmed: "%{data} has been confirmed."
+      classification_mappings_queued: classification mappings are updated in the background
     warning:
       no_changes: No new version was created because no changes were made to the content.
     info:
@@ -1220,7 +1282,6 @@ en:
       data_cycle_core/user:
         one: User
         other: Users
-      data_cycle_core/user_organization: Organization
       data_cycle_core/user_group:
         one: User group
         other: User groups
@@ -1273,6 +1334,9 @@ en:
       data_cycle_core/classification_alias:
         one: Classification
         other: Classifications
+      data_cycle_core/classification_tree_label:
+        one: Classification tree
+        other: Classification trees
     attributes:
       data_cycle_core/watch_list:
         name: Name
@@ -1302,6 +1366,7 @@ en:
         classification_ids_markets: Markets
         classification_ids_output_channels: Output channels
       data_cycle_core/user:
+        name: Organization
         given_name: First name
         family_name: Family name
         password: Password
@@ -1318,6 +1383,8 @@ en:
         ui_locale: user interface language
         locked_at: locked
         deleted_at: deleted
+        additional_attributes/terms_conditions_at: Terms & Conditions
+        additional_attributes/privacy_policy_at: Privacy Policy
       data_cycle_core/thing:
         name: Name
         legal_name: Company name
@@ -1513,6 +1580,9 @@ en:
       available_reports: "Available Reports"
 
   import:
+    generic:
+      description: Description
+      text: Detailed description
     booking:
       hotel_important_information: Important information
       hotel_description: Brief description
@@ -1608,8 +1678,8 @@ en:
     gem2go:
       description: Description
     timm4:
-      intro: Introduction
-      description: Description
+      intro: Description
+      description: Detailed description
       positionDescription: Position
       pricesDescription: Priceinformation
       keywords: Keywords
@@ -1644,6 +1714,7 @@ en:
       startPoint: Start point
       startpointGettingThere: Start point getting there
       seasonDescription: Sesion
+      price: Price information
     destination_one:
       facility_unterhaltung: Facility upkeep
       info_wegbelag: Info pavement
@@ -1677,6 +1748,7 @@ en:
       station: Station
       subtitle: Subtitle
       teaser: Teaser
+      Persons: person
     bierfinder:
       book: Description
       tipp: Tip

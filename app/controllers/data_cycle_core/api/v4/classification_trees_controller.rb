@@ -55,7 +55,7 @@ module DataCycleCore
 
           query = build_search_query
 
-          join_sql = "LEFT OUTER JOIN(SELECT ccc.thing_id, alias_id.full_alias_ids AS full_alias_id, alias_id.full_alias_ids = any(ccc.direct_classification_alias_ids) AS direct FROM collected_classification_contents ccc, unnest(ccc.full_classification_alias_ids) AS alias_id(full_alias_ids) WHERE EXISTS (#{query.query.where('things.id = ccc.thing_id').except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).select(1).to_sql})) ccc ON ccc.full_alias_id = classification_aliases.id"
+          join_sql = "LEFT OUTER JOIN (SELECT ccc1.* FROM collected_classification_contents ccc1 WHERE EXISTS (#{query.query.where('things.id = ccc1.thing_id').except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).select(1).to_sql})) ccc ON ccc.classification_alias_id = classification_aliases.id"
 
           select_sql = <<-SQL.squish
             classification_aliases.*,

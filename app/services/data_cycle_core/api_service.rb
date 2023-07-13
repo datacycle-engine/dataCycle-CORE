@@ -42,8 +42,27 @@ module DataCycleCore
     end
 
     def append_filters(query, parameters)
-      query = query.content_ids(parameters[:content_id]) if parameters&.dig(:content_id).present?
-      query
+      return query if parameters&.dig(:content_id).blank?
+
+      search = new_thing_search(@language, parameters[:content_id], true)
+
+      return search if search.none? || query.content_ids(parameters[:content_id]).query.exists?
+
+      related_content_ids = search.first.cached_related_contents.ids
+
+      return new_thing_search(@language, nil) if related_content_ids.blank?
+
+      if search.first.embedded?
+        return new_thing_search(@language, nil) unless query.content_ids(related_content_ids).query.exists?
+
+        search
+      elsif query.content_ids(related_content_ids).query.exists?
+        return new_thing_search(@language, nil) unless @linked_stored_filter.nil? || @linked_stored_filter.apply.content_ids(related_content_ids).query.exists?
+
+        search
+      else
+        new_thing_search(@language, nil)
+      end
     end
 
     def apply_filters(query, filters)
@@ -411,6 +430,12 @@ module DataCycleCore
     end
 
     private
+
+    def new_thing_search(language, ids, embedded = false)
+      DataCycleCore::Filter::Search
+        .new(language, ids.blank? ? DataCycleCore::Thing.none : DataCycleCore::Thing.all.limit(1), embedded)
+        .content_ids(ids)
+    end
 
     def api_errors(errors, linked_name = nil)
       errors.map do |error|

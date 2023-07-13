@@ -9,6 +9,16 @@ module DataCycleCore
             computed_parameters.values.first
           end
 
+          def take_first(computed_parameters:, computed_definition:, **_args)
+            computed_parameters.each do |_, val|
+              return val if val.present?
+            end
+
+            return [] if computed_definition.dig('type')&.in?(['embedded', 'linked', 'classification'])
+
+            nil
+          end
+
           def get_values_from_hash(data_hash, key_path)
             return data_hash if key_path.blank?
 

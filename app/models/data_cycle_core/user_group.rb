@@ -21,9 +21,7 @@ module DataCycleCore
                             }
 
     DataCycleCore::Feature::UserGroupClassification.attribute_relations.each do |key, config|
-      define_method key.to_sym do
-        classification_aliases.includes(:classification_tree_label).where(classification_tree_labels: { name: config['tree_label'] })
-      end
+      has_many key.to_sym, -> { for_tree(config['tree_label']) }, through: :classification_groups, source: :classification_alias
 
       define_singleton_method key.to_sym do
         classification_aliases.includes(:classification_tree_label).where(classification_tree_labels: { name: config['tree_label'] })
@@ -36,6 +34,10 @@ module DataCycleCore
 
     def self.search_columns
       columns.select { |c| c.type == :string }.map(&:name)
+    end
+
+    def self.users
+      DataCycleCore::User.where(id: all.joins('INNER JOIN user_group_users user_group_users_user_groups ON user_group_users_user_groups.user_group_id = user_groups.id').select('user_group_users_user_groups.user_id'))
     end
   end
 end

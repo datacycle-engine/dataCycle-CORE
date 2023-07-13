@@ -362,7 +362,7 @@ module DataCycleCore
         load c
       end
 
-      ActionMailer::Base.layout -> { @resource.try(:mailer_layout) || 'data_cycle_core/mailer' }
+      ActionMailer::Base.layout -> { @resource.try(:mailer_layout)&.then { |l| l.starts_with?('data_cycle_core/') ? l : "data_cycle_core/#{l}" } || 'data_cycle_core/mailer' }
       ActionMailer::Base.default from: ->(_) { @resource.try(:mailer_from) || Rails.configuration.action_mailer.default_options[:from] }
       ActionMailer::Base.helper 'data_cycle_core/email'
       ActiveSupport.on_load :action_mailer do

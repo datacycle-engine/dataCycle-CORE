@@ -6,6 +6,7 @@ module DataCycleCore
       class UsersController < ::DataCycleCore::Api::V4::ContentsController
         before_action :prepare_url_parameters
         before_action :init_user_api_feature, except: :index
+        helper 'data_cycle_core/email'
 
         def permitted_params
           @permitted_params ||= params.permit(*permitted_parameter_keys)
@@ -118,24 +119,12 @@ module DataCycleCore
         private
 
         def layout_params
-          params
+          layout_hash = params
             .permit(:mailerLayout, :viewerLayout, :redirectUrl, :forwardToUrl).to_h
             .deep_transform_keys(&:underscore)
             .with_indifferent_access
-            .tap { |u| merge_user_layout_params!(u) }
-            .compact_blank
-        end
 
-        def merge_user_layout_params!(params)
-          if @user_api_feature&.current_issuer.present?
-            params[:mailer_layout] = @user_api_feature.current_issuer + '_mailer' if params[:mailer_layout].blank?
-            params[:viewer_layout] = @user_api_feature.current_issuer + '_viewer' if params[:viewer_layout].blank?
-          end
-
-          params.delete(:mailer_layout) unless params[:mailer_layout].present? && lookup_context.exists?(params[:mailer_layout].prepend('data_cycle_core/').to_s, ['layouts'], false, [], formats: [:html])
-          params.delete(:viewer_layout) unless params[:viewer_layout].present? && lookup_context.exists?(params[:viewer_layout].prepend('data_cycle_core/').to_s, ['layouts'], false, [], formats: [:html])
-
-          params
+          helpers.layout_params(layout_hash, @user_api_feature&.current_issuer)
         end
 
         def password_params

@@ -9,13 +9,18 @@ module DataCycleCore
             content.try(virtual_parameters.first)
           end
 
-          def take_first(virtual_parameters:, content:, **_args)
+          def take_first(virtual_parameters:, virtual_definition:, content:, **_args)
             virtual_parameters.each do |virtual_key|
               val = content.try(virtual_key.to_sym)
               return val if val.present?
             end
 
-            nil
+            case virtual_definition.dig('type')
+            when 'embedded', 'linked'
+              DataCycleCore::Thing.none
+            when 'classification'
+              DataCycleCore::Classification.none
+            end
           end
 
           def value_from_definition(virtual_definition:, content:, **_args)

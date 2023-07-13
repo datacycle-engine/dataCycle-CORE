@@ -6,13 +6,14 @@ module DataCycleCore
       @data_link ||= data_link
       @user ||= @data_link.creator
       @receiver ||= @data_link.receiver
+      @resource ||= @receiver
       @locale ||= @data_link.locale.presence || @receiver.ui_locale
       @title ||= data_link_item_title
       @url ||= url
-      @subject ||= first_available_i18n_t("data_link_mailer.#{@current_issuer}.send_subject", @current_issuer, { title: @title, locale: @locale })
+      @subject ||= first_available_i18n_t('data_link_mailer.?.send_subject', @resource.template_namespaces, title: @title, locale: @locale)
 
       mail(
-        template_name: first_existing_partial(@current_issuer),
+        template_name: first_existing_action_template(@resource.template_namespaces),
         to: @receiver.email,
         cc: @user.email,
         bcc: DataCycleCore.data_link_bcc,
@@ -21,14 +22,13 @@ module DataCycleCore
       )
     end
 
-    def mail_external_link(data_link, url, instructions_url = nil, webhook_source = nil)
+    def mail_external_link(data_link, url, instructions_url = nil, receiver_attributes = {})
       @instructions_url = instructions_url
       @data_link = data_link
-      @current_issuer = webhook_source
       @user = @data_link.creator
       @receiver = @data_link.receiver
+      @receiver.attributes = receiver_attributes
       @resource = @receiver
-      @resource.mailer_layout = "data_cycle_core/#{@current_issuer}_mailer" if @current_issuer.present? && lookup_context.exists?("data_cycle_core/#{@current_issuer}_mailer", ['layouts'], false, [], formats: [:html])
       @locale = @data_link.locale.presence || @receiver.ui_locale
       @title = data_link_item_title
       @url = url

@@ -14,12 +14,12 @@ module DataCycleCore
           end
 
           def serialize_thing(content:, language:, **options)
-            content = content.is_a?(Array) ? content : [content]
+            content = Array.wrap(content)
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               [
                 copyright_file(content, language, file_names_by_content_id(options.dig(:serialized_collections) || [])),
                 introduction_file(language)
-              ]
+              ].compact_blank
             )
           end
 

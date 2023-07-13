@@ -21,17 +21,23 @@ module DataCycleCore
         end
 
         def endpoint
-          @endpoint ||= begin
-            return if external_source.blank?
+          return if external_source.blank?
 
-            configuration.dig(:endpoint).constantize.new(external_source.credentials.symbolize_keys)
-          end
+          @endpoint ||= configuration.dig(:endpoint).constantize.new(external_source.credentials.symbolize_keys)
         end
 
         def geocode_address(address_hash, locale = I18n.locale)
           return {} if endpoint.blank? || address_hash.blank? || address_hash.values.all?(&:blank?)
 
           endpoint.geocode(address_hash.to_h, locale)
+        end
+
+        def reverse_geocode(geo, locale = I18n.locale)
+          return {} if endpoint.blank? || !endpoint.respond_to?(:reverse_geocode) || geo.blank?
+
+          geo = DataCycleCore::MasterData::DataConverter.string_to_geographic(geo)
+
+          endpoint.reverse_geocode(geo, locale)
         end
 
         def geodata_to_attributes(geodata)

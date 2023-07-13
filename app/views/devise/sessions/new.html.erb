@@ -110,7 +110,10 @@
 
                 <div class="row">
                   <div class="small-4 columns">
-                    <label for="user_email" class="text-right middle">E-Mail:</label>
+                    <label for="user_email" class="text-right middle">
+                      <%= DataCycleCore::User.human_attribute_name(:email, locale: active_ui_locale) %>:
+                      <%= tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) }) %>
+                    </label>
                   </div>
                   <div class="small-7 columns end">
                     <%= f.input :email, required: true, autofocus: true, label: false %>
@@ -119,7 +122,10 @@
 
                 <div class="row">
                   <div class="small-4 columns">
-                    <label for="user_password" class="text-right middle">Passwort:</label>
+                    <label for="user_password" class="text-right middle">
+                      <%= DataCycleCore::User.human_attribute_name(:password, locale: active_ui_locale) %>:
+                      <%= tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) }) %>
+                    </label>
                   </div>
                   <div class="small-7 columns end password-field">
                     <%= f.input :password, required: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length), label: false %>
@@ -129,10 +135,10 @@
                 <% if DataCycleCore::Feature::UserRegistration.terms_conditions_url.present? %>
                   <div class="row login-checkboxes">
                     <div class="small-4 columns text-right">
-                      <%= check_box_tag "additional_attributes[terms_conditions]", 1, false, { class: '', required: true, id: "additional_attributes_terms_conditions" } %>
+                      <%= check_box_tag "user[additional_attributes][terms_conditions_at]", Time.zone.now.iso8601, false, { required: true } %>
                     </div>
                     <div class="small-7 columns end">
-                      <label><%= t('common.user_registration.terms_conditions', url: DataCycleCore::Feature::UserRegistration.terms_conditions_url, locale: active_ui_locale).html_safe %></label>
+                      <label for="user_additional_attributes_terms_conditions_at"><%= t('common.user_registration.terms_conditions', url: DataCycleCore::Feature::UserRegistration.terms_conditions_url, locale: active_ui_locale).html_safe %></label>
                     </div>
                   </div>
                 <% end %>
@@ -140,10 +146,10 @@
                 <% if DataCycleCore::Feature::UserRegistration.privacy_policy_url.present? %>
                   <div class="row login-checkboxes">
                     <div class="small-4 columns text-right">
-                      <%= check_box_tag "additional_attributes[privacy_policy]", 1, false, { class: '', required: true, id: "additional_attributes_privacy_policy" } %>
+                      <%= check_box_tag "user[additional_attributes][privacy_policy_at]", Time.zone.now.iso8601, false, { required: true }  %>
                     </div>
                     <div class="small-7 columns end">
-                      <label><%= t('common.user_registration.privacy_policy', url: DataCycleCore::Feature::UserRegistration.privacy_policy_url, locale: active_ui_locale).html_safe %> </label>
+                      <label for="user_additional_attributes_privacy_policy_at"><%= t('common.user_registration.privacy_policy', url: DataCycleCore::Feature::UserRegistration.privacy_policy_url, locale: active_ui_locale).html_safe %> </label>
                     </div>
                   </div>
                 <% end %>

@@ -9,10 +9,7 @@
 <% random_id = SecureRandom::hex(10) %>
 <% if can? :create, DataCycleCore::UserGroup %>
   <% content_for :new_button do %>
-    <a data-toggle="<%= random_id %>" class="button-prime new-object-circle"><i class="fa fa-plus" aria-hidden="true"></i></a>
-    <div class="reveal new-object" id="<%= random_id %>" data-reveal data-v-offset="auto" data-close-on-click="true">
-      <a class="option last" href="#" data-open="newContent"><i class="fa fa-folder-open-o" aria-hidden="true"></i><%= t('actions.new', data: DataCycleCore::UserGroup.model_name.human(locale: active_ui_locale), locale: active_ui_locale ) %></a>
-    </div>
+    <a class="button-prime new-object-circle" href="#" data-open="newContent"><i class="fa fa-plus" aria-hidden="true"></i></a>
     <%= render 'new' %>
   <% end %>
 <% end %>

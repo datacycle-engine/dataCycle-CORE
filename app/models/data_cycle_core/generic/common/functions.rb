@@ -13,6 +13,7 @@ module DataCycleCore
         import Transformations::BasicFunctions
         import Transformations::LegacyLinkFunctions
         import Transformations::RatingTransformations
+        import Transformations::AdditionalInformation
         import DataReferenceTransformations
 
         def self.event_schedule(data_hash, sub_event_function)
@@ -151,7 +152,7 @@ module DataCycleCore
 
           data_hash = { datahash: data_hash, translations: {} }
           data_hash[:datahash]&.each do |key, value|
-            next unless value.is_a?(::Array) && value.first.key?('@language')
+            next unless value.is_a?(::Array) && value.first.is_a?(::Hash) && value.first.key?('@language')
 
             while value.present?
               v = value.shift

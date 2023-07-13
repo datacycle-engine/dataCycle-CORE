@@ -1,6 +1,20 @@
 /* todo: merge styles */
 .detail-header.editor {
 
+  fieldset.with-border {
+    padding: 0.5rem 1rem 1rem;
+    border: 1px solid var(--dark-gray-05);
+    margin: 0 0 1rem 0;
+    border-radius: var(--global-radius);
+
+    legend {
+      color: var(--dark-gray);
+      padding: 0 0.5rem;
+      font-size: 0.9rem;
+      margin: 0;
+    }
+  }
+
   >.translatable-attribute-container>.translatable-attribute>.form-element,
   >.form-element {
 
@@ -412,6 +426,20 @@
       }
     }
 
+    .embedded-viewer>.detail-label {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+
+      .accordion-close-children {
+        margin: 0 0 0 auto;
+      }
+
+      .accordion-open-children {
+        margin: 0;
+      }
+    }
+
     .detail-type.encoding.embedded {
       position: relative;
       box-shadow: 0 0 1px #9d9d9d;
@@ -479,8 +507,10 @@
 
 .data-cycle-object {
   >.remove-from-watchlist-link {
-    float: right;
-    margin-left: 0.5rem;
+    position: absolute;
+    z-index: 1;
+    right: 0.5rem;
+    top: 0.4rem;
   }
 
   .token {
@@ -1079,6 +1109,22 @@ a.dc-foundation-tooltip {
       min-height: 10rem;
     }
   }
+
+  form {
+    fieldset.with-border {
+      padding: 0.5rem 1rem 0;
+      border: 1px solid var(--dark-gray-05);
+      margin: 0 0 1rem 0;
+      border-radius: var(--global-radius);
+
+      legend {
+        color: var(--dark-gray);
+        padding: 0 0.5rem;
+        font-size: 0.9rem;
+        margin: 0;
+      }
+    }
+  }
 }
 
 #subscribe li {
@@ -1447,7 +1493,12 @@ a.email-link {
   .form-element {
     &.grid-x {
       display: flex;
-      flex-flow: row;
+      flex-flow: row wrap;
+      gap: 1rem;
+
+      >* {
+        margin: 0;
+      }
 
       &.align-center {
         align-items: center;
@@ -1460,18 +1511,16 @@ a.email-link {
           flex-grow: 0;
         }
 
+        &.flex-auto {
+          flex: auto;
+        }
+
         .flatpickr-wrapper {
           display: block;
 
           input {
             margin: 0;
           }
-        }
-      }
-
-      &.grid-margin-x {
-        .cell:not(:last-of-type) {
-          margin-right: 1rem;
         }
       }
     }
@@ -2438,7 +2487,7 @@ select {
     justify-content: center;
 
     &:hover {
-      box-shadow: none;
+      box-shadow: none !important;
     }
 
     .content-object-item {
@@ -3957,8 +4006,19 @@ body {
   display: inline-block;
 }
 
-.home-container.download-confirmation {
-  .download-item-type {
+.home-container.consent-changed {
+  .dc-checkbox {
+    label {
+      display: block;
+    }
+  }
+}
+
+.home-container.download-confirmation,
+.home-container.consent-changed {
+
+  .download-item-type,
+  .consent-header {
     margin-top: 1rem;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -4073,4 +4133,8 @@ body {
       margin: 0;
     }
   }
+}
+
+.flex-auto {
+  flex: auto;
 }

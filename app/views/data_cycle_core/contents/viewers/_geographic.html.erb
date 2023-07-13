@@ -4,7 +4,7 @@
       key: key,
       definition: definition,
       value: value,
-      options: (options || {}).merge(additional_values.present? ? { force_render: true }: {}),
+      options: (options || {}).merge(additional_values.present? ? { force_render: true, hide_label: true }: { hide_label: true }),
       content: content,
       parent: local_assigns[:parent],
       data_attributes: {

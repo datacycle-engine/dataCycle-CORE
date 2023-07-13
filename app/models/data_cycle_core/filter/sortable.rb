@@ -173,7 +173,7 @@ module DataCycleCore
       def sort_proximity_geographic(ordering = '', value = {})
         return self if value&.first.blank? || value&.second.blank?
 
-        order_string = "things.location <-> 'SRID=4326;POINT (#{value.first} #{value.second})'::geometry"
+        order_string = "things.geom_simple <-> 'SRID=4326;POINT (#{value.first} #{value.second})'::geometry"
 
         reflect(
           @query

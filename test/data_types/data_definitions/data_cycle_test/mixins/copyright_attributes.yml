@@ -28,7 +28,7 @@
             - copyright_notice_override
         :api:
           :disabled: true
-          :name: 'cc:license'
+          :name: "cc:license"
         :ui:
           :edit:
             :disabled: true
@@ -59,7 +59,7 @@
             - copyright_notice_computed
         :api:
           :disabled: true
-          :name: 'cc:attributionName'
+          :name: "cc:attributionName"
         :ui:
           :edit:
             :disabled: true
@@ -73,7 +73,7 @@
         :external: true
         :api:
           :v4:
-            :name: 'url'
+            :name: "url"
       # legacy API Attribute
       :legacy_attribution_url:
         :label: LegacyAttributionName
@@ -86,7 +86,7 @@
             - attribution_url
         :api:
           :disabled: true
-          :name: 'cc:attributionUrl'
+          :name: "cc:attributionUrl"
         :ui:
           :edit:
             :disabled: true
@@ -100,7 +100,7 @@
         :external: true
         :api:
           :v4:
-            :name: 'cc:useGuidelines'
+            :name: "cc:useGuidelines"
       :license_classification:
         :label: Lizenzen
         :type: classification
@@ -112,7 +112,7 @@
         :api:
           :disabled: true
           :v4:
-            :name: 'cc:license'
+            :name: "cc:license"
             :disabled: false
             :partial: string
       :copyright_notice_computed:
@@ -149,8 +149,8 @@
         :type: string
         :storage_location: value
         :advanced_search: true
-        :virtual:
-          :module: Utility::Virtual::Common
+        :compute:
+          :module: Common
           :method: take_first
           :parameters:
             - copyright_notice_override

@@ -84,6 +84,22 @@ module DataCycleCore
       tag.div(tooltip_html.join, class: "content-score-tooltip #{'with-description' if tooltip_html.size > 1}")
     end
 
+    def content_score_tooltip_string(content, definition)
+      cc_module = DataCycleCore::ModuleService.load_module(definition.dig('content_score', 'module').classify, 'Utility::ContentScore')
+      tooltip = cc_module.try(:to_tooltip, content, definition, active_ui_locale)
+
+      return if tooltip.blank?
+
+      tooltip.gsub!(/\s*(<li[^>]*>)\s*/i, '* ')
+      tooltip.gsub!(%r{</li>\s*(?!\n)}i, "\n")
+      tooltip.gsub!(%r{</p>}i, "\n\n")
+      tooltip.gsub!(%r{<br[/ ]*>}i, "\n")
+      tooltip.gsub!(%r{</div>}i, "\n")
+      tooltip.gsub!(/<ul>/i, "\n")
+
+      tooltip.strip_tags.strip
+    end
+
     def thing_content_score_class(content)
       'dc-content-score' if content.try(:internal_content_score).present?
     end

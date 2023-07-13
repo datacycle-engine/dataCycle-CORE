@@ -13,7 +13,7 @@ module DataCycleCore
         end
 
         def definition(key, content)
-          return content.properties_for(key)&.with_indifferent_access unless key.nil?
+          return content.properties_for(key)&.with_indifferent_access if key.present?
 
           return unless allowed?(content)
 

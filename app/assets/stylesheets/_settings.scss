@@ -113,6 +113,7 @@ $gray: #666666;
   --medium-gray: #{$medium-gray};
   --dark-gray: #{$dark-gray};
   --darker-gray: #666666;
+  --dark-gray-05: rgba(157, 157, 157, 0.5);
   --black: #{$black};
   --white: #{$white};
   --violet: #{$violet};
@@ -136,6 +137,8 @@ $gray: #666666;
   --chart6: #ffa056;
   --chart7: #8dddd0;
   --global-radius: #{$global-radius};
+  --medium-radius: 5px;
+  --large-radius: 10px;
 }
 
 // 2. Breakpoints

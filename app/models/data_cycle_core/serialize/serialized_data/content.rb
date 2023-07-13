@@ -74,9 +74,13 @@ module DataCycleCore
           is_remote
         end
 
+        def enumerator?
+          @data.is_a?(Enumerator)
+        end
+
         def record_for_active_storage_file
           return data&.blob&.attachments&.first&.record if data.is_a?(ActiveStorage::VariantWithRecord)
-          data&.record
+          data.try(:record)
         end
 
         def stream_data(&block)
@@ -88,6 +92,8 @@ module DataCycleCore
             load_remote_file(&block)
           elsif data.is_a?(Proc)
             yield(data.call)
+          elsif enumerator?
+            @data.each(&block)
           else
             yield(data)
           end

@@ -1,0 +1,133 @@
+<table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%">
+  <tr>
+    <td style="background:white;padding:24pt;border-radius: 7px;box-shadow: 0px 5px 18px 2px rgba(0, 0, 0, 0.15);">
+      <table border="0" cellspacing="0" cellpadding="0"
+     width="100%" style="width:100%;">
+        <tr>
+          <td>
+            <span style="font-size:11.5pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><b><%= t('hello', locale: @locale) %></b></span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:12pt 0 0 0;">
+            <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><%= t('feature.user_registration.mailer.text_html', name: @resource.full_name, email: @resource.email, locale: @locale) %></span>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:12pt 0 0 0;">
+            <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">
+              <%= DataCycleCore::User.human_attribute_name('email', locale: @locale) %>:
+            </span>
+            <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333">
+              <%= @resource.email %>
+            </span>
+          </td>
+        </tr>
+
+        <% if @resource.given_name.present? %>
+          <tr>
+            <td>
+              <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">
+                <%= DataCycleCore::User.human_attribute_name('given_name', locale: @locale) %>:
+              </span>
+              <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333">
+                <%= @resource.given_name %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
+
+        <% if @resource.family_name.present? %>
+          <tr>
+            <td>
+              <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">
+                <%= DataCycleCore::User.human_attribute_name('family_name', locale: @locale) %>:
+              </span>
+              <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333">
+                <%= @resource.family_name %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
+
+        <% if @resource.name.present? %>
+          <tr>
+            <td>
+              <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">
+                <%= DataCycleCore::User.human_attribute_name('name', locale: @locale) %>:
+              </span>
+              <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333">
+                <%= @resource.name %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
+
+        <% if @resource.user_groups.present? %>
+          <tr>
+            <td>
+              <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">
+                <%= DataCycleCore::User.human_attribute_name('user_group_ids', locale: @locale) %>:
+              </span>
+              <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333">
+                <%= @resource.user_groups.map(&:name).join(', ') %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
+
+        <% @resource.user_api_feature.additional_tile_values(@resource)&.each do |key, value| %>
+          <tr>
+            <td>
+              <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">
+                <%= DataCycleCore::User.human_attribute_name(key, default: key&.split('/').last, locale: @locale) %>:
+              </span>
+              <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333">
+                <%= user_additional_tile_attribute_value(key, value, @locale) %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:24pt 0 0 0;">
+      <div align="center">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+          <tr>
+            <td align="center">
+              <table border="0" cellspacing="0" cellpadding="0" align="center">
+                <tr>
+                  <td align="center" style="box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.5);border-radius: 3px;" bgcolor="#90c062"><a href="<%= user_url(@resource) %>" target="_blank" style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:white;text-decoration:none;text-underline:none;border-radius: 3px; padding: 16px 0; border: 1px solid #90c062; display: inline-block;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= t("feature.user_registration.mailer.user_link", locale: @locale).upcase %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </td>
+  </tr>
+  <% if I18n.exists?('feature.user_registration.mailer.notice_html', locale: @locale) %>
+    <tr>
+      <td style="padding:24pt 0 0 0;">
+        <div align="center">
+          <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+            <tr>
+              <td align="center">
+                <table border="0" cellspacing="0" cellpadding="0" align="center">
+                  <tr>
+                    <td align="center" style="box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.15);border-radius: 7px;padding:24pt;color:#333333;" bgcolor="#fff3d9">
+                      <span style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;"><%= t('feature.user_registration.mailer.notice_html', locale: @locale) %></span>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </td>
+    </tr>
+  <% end %>
+</table>

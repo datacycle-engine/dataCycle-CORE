@@ -19,7 +19,7 @@ module DataCycleCore
       end
 
       def contents_with_default_scope
-        query = @contents.except(:order).select(content_select_sql)
+        query = @contents.except(:order).select(content_select_sql).group(:id)
 
         joins = include_config.pluck(:joins)
         joins.uniq!
@@ -74,7 +74,9 @@ module DataCycleCore
         if @fields_parameters.blank? || @fields_parameters&.any? { |p| p.first == 'name' }
           config << {
             identifier: 'name',
-            select: 'thing_translations.name',
+            select: 'MAX(thing_translations.name) FILTER (
+              WHERE thing_translations.name IS NOT NULL
+            )',
             joins: "LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = things.id
                         AND thing_translations.locale = '#{I18n.locale}'"
           }
@@ -88,32 +90,24 @@ module DataCycleCore
 
           config << {
             identifier: '"dc:classification"',
-            select: 'tmp1."dc:classification"',
+            select: 'json_agg(tmp1."dc:classification") FILTER (
+              WHERE tmp1."dc:classification" IS NOT NULL
+            )',
             joins: "LEFT OUTER JOIN (
                   SELECT
-                    classification_contents.content_data_id,
-                    json_agg(
-                      json_build_object(#{json_object.join(', ')})
-                    ) AS \"dc:classification\"
-                  FROM
-                    classification_aliases
-                    INNER JOIN classification_groups ON classification_groups.deleted_at IS NULL
-                    AND classification_groups.classification_alias_id = classification_aliases.id
-                    INNER JOIN classifications ON classifications.deleted_at IS NULL
-                    AND classifications.id = classification_groups.classification_id
-                    INNER JOIN classification_trees ON classification_trees.deleted_at IS NULL
-                    AND classification_trees.classification_alias_id = classification_aliases.id
-                    INNER JOIN classification_tree_labels ON classification_tree_labels.deleted_at IS NULL
-                    AND classification_tree_labels.id = classification_trees.classification_tree_label_id
-                    INNER JOIN classification_contents ON classification_contents.classification_id = classifications.id
+                  collected_classification_contents.thing_id,
+                  json_build_object(#{json_object.join(', ')}) AS \"dc:classification\"
+                  FROM collected_classification_contents
+                    INNER JOIN classification_aliases ON classification_aliases.id = collected_classification_contents.classification_alias_id
+                    AND classification_aliases.deleted_at IS NULL
+                    INNER JOIN classification_trees ON classification_trees.classification_alias_id = classification_aliases.id
+                    AND classification_trees.deleted_at IS NULL
+                    INNER JOIN classification_tree_labels ON classification_tree_labels.id = classification_trees.classification_tree_label_id
+                    AND classification_tree_labels.deleted_at IS NULL
                     #{'INNER JOIN classification_alias_paths ON classification_alias_paths.id = classification_aliases.id' if fields_parameters.blank? || fields_parameters.include?('dc:path')}
-                  WHERE
-                    classification_aliases.deleted_at IS NULL
-                    AND 'api' = ANY(classification_tree_labels.visibility)
+                  WHERE 'api' = ANY(classification_tree_labels.visibility)
                     #{"AND classification_trees.classification_tree_label_id IN (\'#{@classification_trees_parameters.join('\',\'')}\')" if @classification_trees_parameters.present?}
-                  GROUP BY
-                    classification_contents.content_data_id
-                ) AS tmp1 ON tmp1.content_data_id = things.id"
+                ) AS tmp1 ON tmp1.thing_id = things.id"
           }
         end
 

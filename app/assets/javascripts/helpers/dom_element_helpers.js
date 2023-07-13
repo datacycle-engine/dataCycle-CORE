@@ -144,13 +144,14 @@ const DomElementHelpers = {
 		);
 	},
 	$cloneElement(element) {
-		if (element instanceof $) element = element.get();
+    let elem = element;
+		if (elem instanceof $) elem = elem.get();
 
 		const fragment = new DocumentFragment();
 
-		if (Array.isArray(element))
-			for (const e of element) fragment.append(e.cloneNode(true));
-		else fragment.append(element.cloneNode(true));
+		if (Array.isArray(elem))
+			for (const e of elem) fragment.append(e.cloneNode(true));
+		else fragment.append(elem.cloneNode(true));
 
 		for (const dcjsElem of fragment.querySelectorAll('[class*="dcjs"]')) {
 			for (const className of dcjsElem.classList)

@@ -115,6 +115,13 @@
 <div class="detail-content detail-content-wrapper user">
   <div class="row">
     <div class="type properties">
+      <% if !@user.organization? && @user.name.present? %>
+        <div class="detail-type organization">
+          <%= tag.span(@user.class.human_attribute_name(:name, locale: active_ui_locale), class: 'detail-label') %>
+          <%= tag.span(@user.name, class: 'detail-content') %>
+        </div>
+      <% end %>
+
       <div class="detail-type role_id">
         <%= tag.span(@user.class.human_attribute_name(:role_id, locale: active_ui_locale), class: 'detail-label') %>
         <%= tag.span(t("roles.#{@user.role.name}", locale: active_ui_locale), class: 'detail-content') %>

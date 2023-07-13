@@ -8,7 +8,7 @@
 
     <% @classification_tree_labels.group_by { |tree_label|
         tree_label.external_source_id || external_systems.select { |s|
-          tree_label.name.downcase.start_with?(s.name.downcase) || tree_label.name.downcase.start_with?(s.identifier.downcase)
+          tree_label.name.to_s.downcase.start_with?(s.name.to_s.downcase) || tree_label.name.to_s.downcase.start_with?(s.identifier.to_s.downcase)
         }.first&.id
       }.each do |external_source_id, tree_labels| %>
 

@@ -65,8 +65,8 @@
         :label: Urheberrechtsvermerk
         :type: string
         :storage_location: value
-        :virtual:
-          :module: Utility::Virtual::Common
+        :compute:
+          :module: Common
           :method: take_first
           :parameters:
             - copyright_notice_override

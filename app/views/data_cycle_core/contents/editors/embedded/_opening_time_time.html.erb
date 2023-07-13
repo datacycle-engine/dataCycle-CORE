@@ -12,7 +12,7 @@
   %>
 
   <span class="embedded-header">
-    <% unless readonly %>
+    <% unless true # unless readonly -> disabled, schedules cant be ordered %>
       <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
       <span class="swap-prev swap-button disabled"
         data-dc-tooltip="<%= t('embedded.move_up', locale: active_ui_locale) %>"><i

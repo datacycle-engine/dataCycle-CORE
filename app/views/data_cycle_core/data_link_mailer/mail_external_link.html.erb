@@ -9,13 +9,13 @@
         </tr>
         <tr>
           <td width="100%" style="width:100%;padding:12pt 0 0 0;">
-            <%= t("data_link_mailer.external_link_text_html", locale: @locale, title: link_to(@title, @url, target: :_blank, style: 'color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic;')) %>
+            <%= first_available_i18n_t("data_link_mailer.?.external_link_text_html", @resource.template_namespaces, locale: @locale, title: link_to(@title, @url, target: :_blank, style: 'color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic;')) %>
           </td>
         </tr>
 
         <tr>
           <td width="100%" style="width:100%;padding:12pt 0 0 0;">
-            <%= first_available_i18n_t("data_link_mailer.#{@current_issuer}.external_link_button_notice", @current_issuer, { locale: @locale }) %>
+            <%= first_available_i18n_t("data_link_mailer.?.external_link_button_notice", @resource.template_namespaces, locale: @locale) %>
           </td>
         </tr>
 
@@ -44,17 +44,17 @@
           <tr>
             <td style="padding:12pt 0 0 0">
               <span style="font-size: 12pt; font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif; color:#333333">
-                <%= link_to t("data_link_mailer.external_link_instructions", locale: @locale), @instructions_url, target: :_blank %>
+                <%= link_to first_available_i18n_t("data_link_mailer.?.external_link_instructions", @resource.template_namespaces, locale: @locale), @instructions_url, target: :_blank %>
               </span>
             </td>
           </tr>
         <% end %>
 
-        <% if I18n.exists?("data_link_mailer.#{@current_issuer}.instructions_html", locale: @locale) %>
+        <% if (instructions_html = first_available_i18n_t("data_link_mailer.?.instructions_html", @resource.template_namespaces, locale: @locale)).present? %>
           <tr>
             <td style="padding:12pt 0 0 0">
               <span style="font-size: 12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;">
-                <%= t("data_link_mailer.#{@current_issuer}.instructions_html", locale: @locale) %>
+                <%= instructions_html %>
               </span>
             </td>
           </tr>
@@ -87,7 +87,7 @@
               <td align="center">
                 <table border="0" cellspacing="0" cellpadding="0" align="center">
                   <tr>
-                    <td align="center" style="box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.5);border-radius: 3px;" bgcolor="#90c062"><a href="<%= @url %>" target="_blank" style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:white;text-decoration:none;text-underline:none;border-radius: 3px; padding: 16px 0; border: 1px solid #90c062; display: inline-block;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= t("data_link_mailer.content_#{@data_link.permissions}", locale: @locale).upcase %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                    <td align="center" style="box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.5);border-radius: 3px;" bgcolor="#90c062"><a href="<%= @url %>" target="_blank" style="font-size:12pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;color:white;text-decoration:none;text-underline:none;border-radius: 3px; padding: 16px 0; border: 1px solid #90c062; display: inline-block;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= first_available_i18n_t("data_link_mailer.?.content_#{@data_link.permissions}", @resource.template_namespaces, locale: @locale).upcase %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
                   </tr>
                 </table>
               </td>
@@ -96,7 +96,7 @@
         </div>
       </td>
     </tr>
-    <% if I18n.exists?('data_cycle_core.data_links.notice', locale: @locale) %>
+    <% if (notice = first_available_i18n_t('data_cycle_core.data_links.?.notice', @resource.template_namespaces, button_text: first_available_i18n_t("data_link_mailer.?.content_#{@data_link.permissions}", @resource.template_namespaces, locale: @locale).upcase, locale: @locale)).present? %>
       <tr>
         <td style="padding:24pt 0 0 0;">
           <div align="center">
@@ -106,10 +106,10 @@
                   <table border="0" cellspacing="0" cellpadding="0" align="center">
                     <tr>
                       <td align="center" style="box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.15);border-radius: 7px;padding:24pt;color:#333333;" bgcolor="#fff3d9">
-                        <span style="font-size:15pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;"><%= t('data_link_mailer.notice', locale: @locale) %></span>
+                        <span style="font-size:15pt;font-family: 'Lucida Grande', 'Segoe', Arial, sans-serif;"><%= first_available_i18n_t('data_link_mailer.?.notice', @resource.template_namespaces, locale: @locale) %></span>
                         <br>
                         <br>
-                        <%= t('data_cycle_core.data_links.notice', button_text: t("data_link_mailer.content_#{@data_link.permissions}", locale: @locale).upcase, locale: @locale) %>
+                        <%= notice %>
                       </td>
                     </tr>
                   </table>

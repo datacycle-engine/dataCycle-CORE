@@ -19,6 +19,23 @@ module DataCycleCore
               text
             }.compact
           end
+
+          def self.add_description_to_additional_informations(data, external_source_id, importer_name)
+            type = 'description'
+            return data if data[type].blank?
+            return data if data['external_key'].blank?
+
+            additional_information = [{
+              'type' => type,
+              'type_of_info' => type,
+              'name' => I18n.t("import.generic.#{type}", default: [type]),
+              'external_key' => "#{importer_name} - AdditionalInformation - #{data.dig('external_key')} - #{type}",
+              'description' => data[type]
+            }]
+
+            data['additional_information'] = DataCycleCore::Generic::Common::Transformations::AdditionalInformation.add_info(additional_information, external_source_id)
+            data
+          end
         end
       end
     end

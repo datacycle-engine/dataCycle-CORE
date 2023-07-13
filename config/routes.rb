@@ -66,14 +66,10 @@ DataCycleCore::Engine.routes.draw do
       get :search, on: :collection
       post :validate, on: :member
       post :validate, on: :collection
+      get :consent, on: :collection
+      post :update_consent, on: :collection
       get :become
       match '/index', via: [:get, :post], on: :collection, action: :index
-    end
-
-    resources :user_organizations do
-      post :create_user, on: :collection
-      post :validate, on: :member
-      post :validate, on: :collection
     end
 
     resources :user_groups, only: [:index, :edit, :update, :destroy] do
@@ -381,11 +377,11 @@ DataCycleCore::Engine.routes.draw do
                 scope 'external_sources/:external_source_id', constraints: { external_source_id: %r{[^/]+} } do
                   match '/:external_key/timeseries(/:attribute)', via: [:put, :patch], to: 'external_systems#timeseries'
                   match '/:external_key/:attribute(/:format)', via: [:put, :patch], to: 'external_systems#timeseries', as: 'external_source_timeseries'
+                  match '/concepts(/:external_key)', via: [:get, :post], to: 'classification_trees#by_external_key', as: 'classification_trees_by_external_key'
                   match '/:external_key', via: [:get, :post], to: 'external_systems#show', as: 'external_sources'
                   match '', via: :post, to: 'external_systems#create'
                   match '(/:external_key)', via: [:put, :patch], to: 'external_systems#update', as: 'external_sources_update'
                   match '(/:external_key)', via: [:delete], to: 'external_systems#destroy', as: 'external_sources_delete'
-                  match '/concepts/:external_key', via: [:get, :post], to: 'classification_trees#by_external_key', as: 'classification_trees_by_external_key'
                   match '/search/availability', via: [:get, :post], to: 'external_systems#search_availability', as: 'external_source_search_availability'
                   match '/search/additional_service', via: [:get, :post], to: 'external_systems#search_additional_service', as: 'external_source_search_additional_service'
                 end

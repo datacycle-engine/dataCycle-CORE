@@ -18,6 +18,19 @@ module DataCycleCore
           def by_presence(key:, parameters:, **_args)
             Base.value_present?(parameters, key) ? 1 : 0
           end
+
+          def by_cc_license(content:, **_args)
+            license_classifications = content
+            &.classification_aliases
+            &.includes(:classification_tree_label)
+            &.where(classification_tree_labels: { name: content&.properties_for('license_classification')&.dig('tree_label') })
+
+            if license_classifications.present? && license_classifications&.all? { |c| c.try(:uri)&.starts_with?('https://creativecommons.org/') }
+              1
+            else
+              0
+            end
+          end
         end
       end
     end

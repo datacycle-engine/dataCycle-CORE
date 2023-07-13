@@ -82,7 +82,7 @@
             <% end %>
 
             <% if ['width', 'height', 'content_size', 'file_format', 'date_created', 'date_modified', 'upload_date'].any?{|val| content.try(val.to_sym).present? } %>
-              <dt class="detail-type">
+              <dt class="detail-property">
                 <i class="fa fa-info-circle" aria-hidden="true"></i> Bildinformationen
                 <%= render('data_cycle_core/contents/content_score', key: 'asset', content: contextual_content(local_assigns), definition: content.properties_for('asset')) if content.properties_for('asset')&.key?('content_score') %>
               </dt>
@@ -95,7 +95,11 @@
                 <% end %>
                 <% if content.file_format.present? %>
                   <br />
-                  <strong>Format:</strong> <%= content.file_format %>
+                  <div class="string file_format detail-property">
+                    <strong>Format:</strong>
+                    <%= render('data_cycle_core/contents/content_score', key: 'file_format', content: contextual_content(local_assigns), definition: content.properties_for('file_format')) if content.properties_for('file_format')&.key?('content_score') %>
+                    <%= content.file_format %>
+                  </div>
                 <% end %>
               </dd>
 
@@ -141,7 +145,7 @@
 
       <% if can? :show_exif_data, content %>
         <div class="<%= embedded_viewer_html_classes(**local_assigns) %>" data-accordion="true" data-allow-all-closed="true">
-          <div class="detail-type embedded accordion-item" data-accordion-item="true">
+          <div class="detail-property embedded accordion-item" data-accordion-item="true">
             <div class="accordion-title">
               <h3>
                 <span class="title">

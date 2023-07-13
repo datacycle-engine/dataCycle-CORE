@@ -46,32 +46,31 @@
           <%= f.label :email do %>
             <%= tag.i(class: 'fa fa-ban', aria_hidden: true) if content.external %>
             <%= DataCycleCore::User.human_attribute_name(:email, locale: active_ui_locale) %>
+            <%= tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) }) %>
           <% end %>
           <%= f.email_field :email, required: true, readonly: content.external %>
         </div>
 
-        <% if content.is_a?(DataCycleCore::UserOrganization) %>
-          <div class="form-element input">
-            <%= f.label :name do %>
-              <%= DataCycleCore::User.human_attribute_name(:name, locale: active_ui_locale) %>
-            <% end %>
-            <%= f.text_field :name %>
-          </div>
-        <% else %>
-          <div class="form-element input">
-            <%= f.label :given_name do %>
-              <%= DataCycleCore::User.human_attribute_name(:given_name, locale: active_ui_locale) %>
-            <% end %>
-            <%= f.text_field :given_name %>
-          </div>
+        <div class="form-element input">
+          <%= f.label :given_name do %>
+            <%= DataCycleCore::User.human_attribute_name(:given_name, locale: active_ui_locale) %>
+          <% end %>
+          <%= f.text_field :given_name %>
+        </div>
 
-          <div class="form-element input">
-            <%= f.label :family_name do %>
-              <%= DataCycleCore::User.human_attribute_name(:family_name, locale: active_ui_locale) %>
-            <% end %>
-            <%= f.text_field :family_name %>
-          </div>
-        <% end %>
+        <div class="form-element input">
+          <%= f.label :family_name do %>
+            <%= DataCycleCore::User.human_attribute_name(:family_name, locale: active_ui_locale) %>
+          <% end %>
+          <%= f.text_field :family_name %>
+        </div>
+
+        <div class="form-element input">
+          <%= f.label :name do %>
+            <%= DataCycleCore::User.human_attribute_name(:name, locale: active_ui_locale) %>
+          <% end %>
+          <%= f.text_field :name %>
+        </div>
 
         <% unless content.external %>
           <div class="form-element input password-field validation-container">

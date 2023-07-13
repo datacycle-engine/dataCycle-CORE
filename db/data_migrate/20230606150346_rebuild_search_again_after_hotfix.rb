@@ -5,7 +5,7 @@ class RebuildSearchAgainAfterHotfix < ActiveRecord::Migration[6.1]
   # disable_ddl_transaction!
 
   def up
-    DataCycleCore::RunTaskJob.perform_later('dc:update:search:rebuild')
+    DataCycleCore::RunTaskJob.perform_later('dc:update:search:rebuild') unless Rails.env.development?
   end
 
   def down

@@ -89,6 +89,7 @@
     :geojson: false
     :mvt: false
     :pdf: false
+    :content_score: false
 
 :overlay:
   :enabled: true

@@ -10,7 +10,7 @@ module DataCycleCore
 
     WEBHOOK_ACCESSORS = [:raw_password, :synchronous_webhooks, :mailer_layout, :viewer_layout, :redirect_url].freeze
 
-    attr_accessor :skip_callbacks, :forward_to_url, *WEBHOOK_ACCESSORS
+    attr_accessor :skip_callbacks, :template_namespaces, :forward_to_url, *WEBHOOK_ACCESSORS
     attr_writer :user_api_feature
     WEBHOOKS_ATTRIBUTES = [
       'access_token',
@@ -100,7 +100,7 @@ module DataCycleCore
     end
 
     def concatenated_name
-      (name || "#{given_name} #{family_name}").squish.presence
+      organization? ? name : "#{given_name} #{family_name}".squish.presence
     end
 
     def full_name
@@ -137,6 +137,10 @@ module DataCycleCore
 
     def locked?
       locked_at.present?
+    end
+
+    def organization?
+      name.present? && given_name.blank? && family_name.blank?
     end
 
     def include_groups_user_ids

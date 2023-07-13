@@ -246,6 +246,16 @@ module DataCycleCore
         @computed_property_names[include_overlay]
       end
 
+      def resolved_computed_dependencies(key)
+        if computed_property_names.include?(key)
+          Array.wrap(properties_for(key)&.dig('compute', 'parameters')).map { |p|
+            resolved_computed_dependencies(p.split('.').first)
+          }.flatten.uniq
+        else
+          [key]
+        end
+      end
+
       def default_value_property_names(include_overlay = false)
         @default_value_property_names ||= Hash.new do |h, key|
           h[key] = name_property_selector(key) { |definition| definition['default_value'].present? }
@@ -549,10 +559,6 @@ module DataCycleCore
       end
 
       def set_property_value(property_name, property_definition, value)
-        Appsignal.send_error(e) do |transaction|
-          transaction.set_namespace("method set_property_value is deprecated use set_data_hash instead. Thing: #{id}(#{template_name}) - #{property_name}")
-        end
-
         raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
 
         ActiveSupport::Deprecation.warn("DataCycleCore::Content::Content setter should not be used any more! property_name: #{property_name}, property_definition: #{property_definition}, value: #{value}")
@@ -574,14 +580,14 @@ module DataCycleCore
 
         (@get_property_value ||= {})[attibute_cache_key] = if plain_property_names.include?(key)
                                                              convert_to_type(definition['type'], value, definition)
-                                                           elsif value.is_a?(ActiveRecord::Relation) || (value.is_a?(::Array) && value.first.is_a?(ActiveRecord::Base))
+                                                           elsif value.is_a?(ActiveRecord::Relation) || (value.is_a?(::Array) && value.first.is_a?(ActiveRecord::Base)) || value.is_a?(ActiveRecord::Base)
                                                              value
                                                            elsif linked_property_names.include?(key) || embedded_property_names.include?(key)
-                                                             DataCycleCore::Thing.where(id: value)
+                                                             value.present? ? DataCycleCore::Thing.where(id: value) : DataCycleCore::Thing.none
                                                            elsif classification_property_names.include?(key)
-                                                             DataCycleCore::Classification.where(id: value)
+                                                             value.present? ? DataCycleCore::Classification.where(id: value) : DataCycleCore::Classification.none
                                                            elsif asset_property_names.include?(key)
-                                                             DataCycleCore::Asset.where(id: value)
+                                                             value.present? ? DataCycleCore::Asset.find_by(id: value) : nil
                                                            else # rubocop:disable Lint/DuplicateBranch
                                                              value
                                                            end
@@ -594,11 +600,13 @@ module DataCycleCore
       end
 
       def reload_memoized(key = nil)
-        return unless instance_variable_defined?(:@get_property_value)
+        remove_instance_variable(:@datahash_changes) if instance_variable_defined?(:@datahash_changes)
 
-        @get_property_value.delete(key) && return if key.present?
-
-        remove_instance_variable(:@get_property_value) if instance_variable_defined?(:@get_property_value)
+        if key.present?
+          @get_property_value&.delete(key)
+        elsif instance_variable_defined?(:@get_property_value)
+          remove_instance_variable(:@get_property_value)
+        end
       end
     end
   end

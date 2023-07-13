@@ -22,11 +22,20 @@ module DataCycleCore
             @query.where(
               Arel::Nodes::Exists.new(
                 Arel::SelectManager.new(schedule)
-                  .join(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['JOIN schedule_occurrences on schedules.id = schedule_occurrences.schedule_id'])))
+                  .project(1)
                   .where(
                     (relation.present? ? schedule[:relation].eq(Arel::Nodes.build_quoted(relation)) : schedule[:relation].not_in(DataCycleCore::Feature::AdvancedFilter.schedule_filter_exceptions))
-                    .and(overlap(tstzrange(from_node, to_node), Arel::Nodes::SqlLiteral.new('schedule_occurrences.occurrence')))
-                    .and(thing[:id].eq(schedule[:thing_id]))
+                    .and(schedule[:thing_id].eq(thing[:id]))
+                    .and(
+                      Arel::Nodes::Exists.new(
+                        Arel::SelectManager.new(schedule_occurrence)
+                          .project(1)
+                          .where(
+                            schedule_occurrence[:schedule_id].eq(schedule[:id])
+                            .and(overlap(tstzrange(from_node, to_node), schedule_occurrence[:occurrence]))
+                          )
+                      )
+                    )
                   )
               )
             )

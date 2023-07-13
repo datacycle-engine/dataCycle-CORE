@@ -1,0 +1,103 @@
+---
+- :data:
+    :name: Schneehöhe - Messpunkt
+    :type: object
+    :schema_ancestors:
+      - Place
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+        :api:
+          :minimal: true
+      :elevation:
+        :label: Meereshöhe (m)
+        :type: number
+        :storage_location: column
+        :validations:
+          :format: float
+        :api:
+          :transformation:
+            :method: nest
+            :name: geo
+            :type: GeoCoordinates
+          :minimal: true
+        :advanced_search: true
+      :depth_of_snow:
+        :label: Schneehöhe
+        :type: number
+        :storage_location: value
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+        :validations:
+          :format: float
+        :ui:
+          :edit:
+            :options:
+              :data-unit: cm
+          :show:
+            :options:
+              :data-unit: cm
+        :advanced_search: true
+      :depth_of_fresh_snow:
+        :label: Neuschnee
+        :type: number
+        :storage_location: value
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+        :validations:
+          :format: float
+        :ui:
+          :edit:
+            :options:
+              :data-unit: cm
+          :show:
+            :options:
+              :data-unit: cm
+        :advanced_search: true
+      :identifier:
+        :label: Identifier
+        :type: string
+        :storage_location: translated_value
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+        :api:
+          :disabled: true
+      :condition_weather:
+        :label: "Wetter - Meldung"
+        :type: classification
+        :tree_label: "Bergfex - Wetter - Meldung"
+      :dummy:
+        :label: invisible
+        :type: string
+        :storage_location: translated_value
+        :default_value: do_not_show
+        :api:
+          :disabled: true
+        :xml:
+          :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :meta_data:
+        :type: mixin
+        :name: meta_data

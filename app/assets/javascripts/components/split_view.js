@@ -61,6 +61,18 @@ class SplitView {
 		this.observeForNewFields();
 		this.setupButtons(this.container);
 	}
+	buttonContainerSelectors(scope, selector = "") {
+		let selectors = [
+			`${scope} > .buttons`,
+			`${scope} > .content-link > .buttons`,
+			`${scope}[data-editor="embedded_object"] > .detail-label`,
+			`${scope}.detail-type.embedded > .accordion-title`,
+		];
+
+		if (selector) selectors = selectors.map((v) => `${v} ${selector}`);
+
+		return selectors;
+	}
 	leftLocale() {
 		const selectedLocaleItem = this.leftLocaleSwitcher?.querySelector(
 			".list-items .active .available-attribute-locale",
@@ -135,6 +147,10 @@ class SplitView {
 			".form-element[data-key]:not(.dcjs-split-edit-buttons)",
 			this.checkNewEditButtons.bind(this),
 		]);
+		DataCycle.htmlObserver.addCallbacks.push([
+			'.dc-copyable-field[data-editor="object_browser"] > ul > .copy-single:not(.dcjs-copy-single), .dc-copyable-field[data-editor="embedded_object"] > .copy-single:not(.dcjs-copy-single)',
+			this.addCopySingleButton.bind(this),
+		]);
 
 		this.addSingleClickHandler();
 		this.addAllClickHandler();
@@ -166,9 +182,10 @@ class SplitView {
 
 		const availableLinkedEditors = this.availableEditors(container, [
 			"object_browser",
+			"embedded_object",
 		]);
-		for (let i = 0; i < availableLinkedEditors.length; ++i) {
-			this.addButtons(availableLinkedEditors[i], true);
+		for (const editor of availableLinkedEditors) {
+			this.addButtons(editor, true);
 		}
 	}
 	addButtonsForEditFields(element) {
@@ -241,11 +258,16 @@ class SplitView {
 		this.addElementClasses(element);
 
 		if (single && !element.classList.contains("copy-single")) {
-			const singleElements = element.getElementsByClassName("copy-single");
-			for (let i = 0; i < singleElements.length; i++) {
-				this.renderButton(singleElements[i], single);
-			}
+			const singleElements = element.querySelectorAll(
+				":scope > ul > .copy-single, :scope > .copy-single",
+			);
+
+			for (const elem of singleElements) this.addCopySingleButton(elem);
 		} else this.renderButton(element, single);
+	}
+	addCopySingleButton(element) {
+		element.classList.add("dcjs-copy-single");
+		this.renderButton(element, true);
 	}
 	async addAllButton(element, type) {
 		const container = element.closest(this.allButtonParentSelector);
@@ -277,20 +299,21 @@ class SplitView {
 		element.classList.add(this.buttonMappings["copy"].class);
 	}
 	isTranslatable(element) {
+		const elem = element.closest("[data-editor]");
+
 		return (
 			this.enableTranslateButtons &&
-			(this.translatableTypes.includes(element.dataset.editor) ||
-				(element.dataset.editor === "embedded_object" &&
-					element.dataset.translatable))
+			(this.translatableTypes.includes(elem.dataset.editor) ||
+				(elem.dataset.editor === "embedded_object" &&
+					elem.dataset.translatable))
 		);
 	}
 	async renderButton(element, single) {
-		let buttonContainer = element.querySelector(":scope > .buttons");
+		let buttonContainer = this.buttonContainerSelectors(":scope").reduce(
+			(r, v) => r || element.querySelector(v),
+			undefined,
+		);
 
-		if (!buttonContainer)
-			buttonContainer = element.querySelector(
-				":scope > .content-link > .buttons",
-			);
 		if (!buttonContainer) {
 			element.insertAdjacentHTML("beforeend", '<div class="buttons"></div');
 			buttonContainer = element.querySelector(":scope > .buttons");
@@ -343,7 +366,7 @@ class SplitView {
 				);
 		} else {
 			const response = await this.loadValue([key]);
-			if (response?.hasOwnProperty(key)) value = response[key];
+			if (Object.hasOwn(response, key)) value = response[key];
 		}
 
 		if (!value && value !== false) return DataCycle.enableElement(button);
@@ -485,16 +508,25 @@ class SplitView {
 			buttonToDisable = this.translateAllButton;
 			items = [
 				...parent.querySelectorAll(
-					":scope .dc-translatable-field > .buttons > a.translate",
+					this.buttonContainerSelectors(
+						":scope .dc-translatable-field",
+						"> a.translate",
+					),
 				),
 				...parent.querySelectorAll(
-					":scope .dc-copyable-field:not(.dc-translatable-field) > .buttons > a.copy:not(.copy-single-button)",
+					this.buttonContainerSelectors(
+						":scope .dc-copyable-field:not(.dc-translatable-field)",
+						"> a.copy:not(.copy-single-button)",
+					),
 				),
 			];
 		} else {
 			buttonToDisable = this.copyAllButton;
 			items = parent.querySelectorAll(
-				":scope .dc-copyable-field > .buttons > a.copy:not(.copy-single-button)",
+				this.buttonContainerSelectors(
+					":scope .dc-copyable-field",
+					"> a.copy:not(.copy-single-button)",
+				),
 			);
 		}
 
