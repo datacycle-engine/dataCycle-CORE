@@ -8,7 +8,7 @@ module DataCycleCore
           return self if ids.blank?
 
           reflect(
-            @query.where(sub_query_for_ccc_relations(ids, 'full_classification_alias_ids'))
+            @query.where(sub_query_for_classification_alias_ids(ids, false))
           )
         end
 
@@ -16,7 +16,7 @@ module DataCycleCore
           return self if ids.blank?
 
           reflect(
-            @query.where.not(sub_query_for_ccc_relations(ids, 'full_classification_alias_ids'))
+            @query.where.not(sub_query_for_classification_alias_ids(ids, false))
           )
         end
 
@@ -24,7 +24,7 @@ module DataCycleCore
           return self if ids.blank?
 
           reflect(
-            @query.where(sub_query_for_ccc_relations(ids, 'direct_classification_alias_ids'))
+            @query.where(sub_query_for_classification_alias_ids(ids, true))
           )
         end
 
@@ -32,7 +32,7 @@ module DataCycleCore
           return self if ids.blank?
 
           reflect(
-            @query.where.not(sub_query_for_ccc_relations(ids, 'direct_classification_alias_ids'))
+            @query.where.not(sub_query_for_classification_alias_ids(ids, true))
           )
         end
 
@@ -60,7 +60,7 @@ module DataCycleCore
           return self if ids.blank?
 
           reflect(
-            @query.where(sub_query_for_ccc_relations(ids, 'full_tree_label_ids'))
+            @query.where(sub_query_for_tree_label_ids(ids))
           )
         end
 
@@ -68,7 +68,7 @@ module DataCycleCore
           return self if ids.blank?
 
           reflect(
-            @query.where.not(sub_query_for_ccc_relations(ids, 'full_tree_label_ids'))
+            @query.where.not(sub_query_for_tree_label_ids(ids))
           )
         end
 
@@ -98,19 +98,34 @@ module DataCycleCore
           if ids.blank?
             reflect(@query.where('1 = 0'))
           else
-            reflect(@query.where(sub_query_for_ccc_relations(ids, 'full_classification_alias_ids')))
+            reflect(@query.where(sub_query_for_classification_alias_ids(ids, false)))
           end
         end
 
         private
 
-        def sub_query_for_ccc_relations(ids, column_name)
+        def sub_query_for_classification_alias_ids(ids, direct = false)
           raw_query = <<-SQL.squish
             SELECT 1
           	FROM collected_classification_contents
             WHERE collected_classification_contents.thing_id = things.id
-              AND collected_classification_contents.#{column_name} && ARRAY[?]::UUID[]
+              AND collected_classification_contents.classification_alias_id IN (?)
           SQL
+
+          raw_query << ' AND collected_classification_contents.direct = TRUE' if direct
+
+          Arel::Nodes::Exists.new(Arel.sql(DataCycleCore::Thing.send(:sanitize_sql_for_conditions, [raw_query, ids])))
+        end
+
+        def sub_query_for_tree_label_ids(ids, direct = false)
+          raw_query = <<-SQL.squish
+            SELECT 1
+          	FROM collected_classification_contents
+            WHERE collected_classification_contents.thing_id = things.id
+              AND collected_classification_contents.classification_tree_label_id IN (?)
+          SQL
+
+          raw_query << ' AND collected_classification_contents.direct = TRUE' if direct
 
           Arel::Nodes::Exists.new(Arel.sql(DataCycleCore::Thing.send(:sanitize_sql_for_conditions, [raw_query, ids])))
         end

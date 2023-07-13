@@ -9,6 +9,18 @@
       <%= render 'data_cycle_core/shared/template_title',
                  content: item,
                  languages: [I18n.locale.to_s] %>
+
+      <%= tag.i(class: 'has-overlay has-tip fa fa-window-restore', data: { dc_tooltip: t('common.has_overlay', locale: active_ui_locale) }) if item.try(:overlay?) %>
+
+      <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: item if show_external_connections?(item) %>
+
+      <% if item.try(:translated_locales)&.many? %>
+        <i class="fa fa-language" aria-hidden="true" data-dc-tooltip="<%= item.translated_locales.map {|t| t("locales.#{t}", locale: active_ui_locale)}&.join('<br>') %>"></i>
+      <% end %>
+
+      <%= yield_content!(:media_buttons) %>
+
+      <%= thing_content_score(item) %>
     </div>
   </div>
 

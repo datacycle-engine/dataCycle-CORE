@@ -1,3 +1,5 @@
+import DomElementHelpers from "../helpers/dom_element_helpers";
+
 class AttributeLocaleSwitcher {
 	constructor(localeSwitch) {
 		localeSwitch.classList.add("dcjs-attribute-locale-switcher");
@@ -85,7 +87,9 @@ class AttributeLocaleSwitcher {
 			);
 		else this.changeTranslationRecursive(this.$container);
 
-		this.updateLocaleRecursive();
+		this.updateLocaleRecursive(
+			this.$form.length ? this.$form : this.$container,
+		);
 
 		if (!data?.preventHistory) this.pushStateToHistory();
 	}
@@ -140,47 +144,63 @@ class AttributeLocaleSwitcher {
 			)
 			.trigger("click", { preventHistory: true });
 	}
-	updateLocaleRecursive(container = this.$form) {
-		$(container)
-			.find(".object-browser")
-			.each((_i, elem) => {
-				if ($(elem).data("locale") !== this.locale)
-					$(elem).data("locale", this.locale).trigger("dc:locale:changed");
-			});
-		$(container)
-			.find(
-				".remote-render:not(.translatable-attribute):not(.translatable-field)",
-			)
-			.each((_i, elem) => {
-				if ($(elem).data("remote-options").locale !== undefined)
-					$(elem).data("remote-options").locale = this.locale;
-			});
-		$(container)
-			.find(".form-crumbs .locale, form.multi-step fieldset legend .locale")
-			.each((_i, elem) => {
-				if ($(elem).text() !== this.locale) $(elem).text(`(${this.locale})`);
-			});
-		$(container)
-			.find(':input[name="locale"]')
-			.each((_i, elem) => {
-				if ($(elem).val() !== this.locale) $(elem).val(this.locale);
-			});
-		$(container)
-			.find("form.multi-step")
-			.each((_i, elem) => {
-				if ($(elem).data("locale") !== this.locale)
-					$(elem).data("locale", this.locale);
-			});
-		$(container)
-			.find("[data-open], [data-toggle]")
-			.each((_index, item) => {
-				this.updateLocaleRecursive(
-					$(`#${$(item).data("open") || $(item).data("toggle")}`),
+	updateLocaleRecursive(container) {
+		let element = container;
+		if (element instanceof $) element = element.get(0);
+
+		const objectBrowserSelector = ".object-browser";
+		if (element.querySelector(objectBrowserSelector))
+			for (const elem of element.querySelectorAll(objectBrowserSelector)) {
+				if (elem.dataset.locale !== this.locale) {
+					elem.dataset.locale = this.locale;
+					$(elem).trigger("dc:locale:changed");
+				}
+			}
+
+		const remoteRenderSelector =
+			".remote-render:not(.translatable-attribute):not(.translatable-field)";
+		if (element.querySelector(remoteRenderSelector))
+			for (const elem of element.querySelectorAll(remoteRenderSelector)) {
+				const remoteOptions = DomElementHelpers.parseDataAttribute(
+					elem.dataset.remoteOptions,
 				);
-			});
-		$(container)
-			.find(".form-element > .embedded-object")
-			.data("locale", this.locale);
+
+				if (
+					remoteOptions?.locale !== undefined &&
+					remoteOptions?.locale !== this.locale
+				) {
+					remoteOptions.locale = this.locale;
+					elem.dataset.remoteOptions = JSON.stringify(remoteOptions);
+				}
+			}
+
+		const inputSelector = 'input[name="locale"], select[name="locale"]';
+		if (element.querySelector(inputSelector))
+			for (const elem of element.querySelectorAll(inputSelector)) {
+				if (elem.value !== this.locale) elem.value = this.locale;
+			}
+
+		const multiStepFormSelector = "form.multi-step";
+		if (element.querySelector(multiStepFormSelector))
+			for (const elem of element.querySelectorAll(multiStepFormSelector)) {
+				if (elem.dataset.locale !== this.locale)
+					elem.dataset.locale = this.locale;
+			}
+
+		const dataOpenSelector = "[data-open], [data-toggle]";
+		if (element.querySelector(dataOpenSelector))
+			for (const elem of element.querySelectorAll(dataOpenSelector)) {
+				this.updateLocaleRecursive(
+					document.getElementById(elem.dataset.open || elem.dataset.toggle),
+				);
+			}
+
+		const embeddedSelector = ".form-element > .embedded-object";
+		if (element.querySelector(embeddedSelector))
+			for (const elem of element.querySelectorAll(embeddedSelector)) {
+				if (elem.dataset.locale !== this.locale)
+					elem.dataset.locale = this.locale;
+			}
 	}
 }
 

@@ -28,21 +28,18 @@
       <%= r.text_field :email, required: true, readonly: true, label: false %>
     <% end %>
   </div>
-  <div class="form-element grid-x grid-margin-x dynamic-form-parts">
-    <% if receiver.is_a?(DataCycleCore::UserOrganization) %>
-      <div class="cell small-12">
-        <%= r.label :name, DataCycleCore::User.human_attribute_name("name", locale: active_ui_locale) %>
-        <%= r.text_field :name, readonly: !r.object.new_record?, label: false %>
-      </div>
-    <% else %>
-      <div class="cell small-6">
-        <%= r.label :given_name, DataCycleCore::User.human_attribute_name("given_name", locale: active_ui_locale) %>
-        <%= r.text_field :given_name, readonly: !r.object.new_record?, label: false %>
-      </div>
-      <div class="cell small-6">
-        <%= r.label :family_name, DataCycleCore::User.human_attribute_name("family_name", locale: active_ui_locale) %>
-        <%= r.text_field :family_name, readonly: !r.object.new_record?, label: false %>
-      </div>
-    <% end %>
+  <div class="form-element grid-x dynamic-form-parts">
+    <div class="cell small-6">
+      <%= r.label :given_name, DataCycleCore::User.human_attribute_name("given_name", locale: active_ui_locale) %>
+      <%= r.text_field :given_name, readonly: !r.object.new_record?, label: false %>
+    </div>
+    <div class="cell small-6">
+      <%= r.label :family_name, DataCycleCore::User.human_attribute_name("family_name", locale: active_ui_locale) %>
+      <%= r.text_field :family_name, readonly: !r.object.new_record?, label: false %>
+    </div>
+    <div class="cell small-12 flex-auto">
+      <%= r.label :name, DataCycleCore::User.human_attribute_name("name", locale: active_ui_locale) %>
+      <%= r.text_field :name, readonly: !r.object.new_record?, label: false %>
+    </div>
   </div>
 <% end %>

@@ -87,7 +87,7 @@ class ClassificationEditForm {
 					CalloutHelpers.show(data.error, "alert");
 					return;
 				}
-
+				if (data?.success) CalloutHelpers.show(data.success, "success");
 				if (data?.html)
 					this.liElement.insertAdjacentHTML("beforebegin", data.html);
 

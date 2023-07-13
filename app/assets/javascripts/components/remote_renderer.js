@@ -85,7 +85,6 @@ class RemoteRenderer {
 	reload(event, data) {
 		event.stopPropagation();
 
-		event.target.classList.remove("dc-fd-initialized");
 		this.loadRemotePartial(event.target, data);
 	}
 	reloadOnNextOpen(event, data) {
@@ -101,7 +100,6 @@ class RemoteRenderer {
 		}
 
 		event.target.classList.add("remote-reload");
-		event.target.classList.remove("dc-fd-initialized");
 		this.intersectionObserver.observe(event.target);
 	}
 	loadRemote(target, data = undefined) {

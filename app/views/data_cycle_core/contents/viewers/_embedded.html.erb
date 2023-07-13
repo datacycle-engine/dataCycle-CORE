@@ -1,8 +1,9 @@
 <% objects = value&.includes(:translations) %>
-<% objects = Array(objects) + new_relations(options.dig('item_diff'), 'things').includes(:translations).to_a.concat if changes_by_mode(options.dig('item_diff'), '+').present? %>
+<% object_ids = objects.except(:limit, :offset).pluck(:id) if objects.present? %>
+<% objects = objects.to_a.concat(new_relations(options.dig('item_diff'), 'things').includes(:translations).to_a) if changes_by_mode(options.dig('item_diff'), '+').present? %>
 
 <% if objects.present? %>
-  <%= conditional_tag :div, !local_assigns[:no_wrapper], class: embedded_viewer_html_classes(**local_assigns), data: { accordion: true, allow_all_closed: true, multi_expand: true } do %>
+  <%= conditional_tag :div, !local_assigns[:no_wrapper], class: embedded_viewer_html_classes(**local_assigns), data: { accordion: true, allow_all_closed: true, multi_expand: true, id: object_ids, editor: 'embedded_object', key: key, translatable: !definition['translated'] || @content&.id != @split_source&.id } do %>
     <%= attribute_viewer_label_tag(**local_assigns.merge(accordion_controls: true, i18n_count: 2)) if !local_assigns[:no_wrapper] %>
 
     <% objects&.each_with_index do |object, index| %>
@@ -18,13 +19,11 @@
         value: value,
         options: merged_options.merge({
           hide_label: true,
-          class: "accordion-item #{'is-active' unless definition.dig('ui', 'show', 'hide_onload')}"
+          class: "accordion-item copy-single #{'is-active' unless definition.dig('ui', 'show', 'hide_onload')}"
         }),
         data_attributes: {
           id: [object.id],
-          editor: 'embedded_object',
-          accordion_item: true,
-          translatable: !definition['translated'] || @content&.id != @split_source&.id
+          accordion_item: true
         },
         content: content,
         parent: local_assigns[:parent] do %>
@@ -37,7 +36,25 @@
             <%= tag.span(object.send(object.embedded_title_property_name), title: object.send(object.embedded_title_property_name), class: 'embedded-title') if object.embedded_title_property_name.present? && object.try(object.embedded_title_property_name).present? %>
           </span>
 
-          <%= link_to tag.i(class: 'fa fa-pencil'), edit_thing_path(content, watch_list_id: @watch_list, locale: I18n.locale, hide_embedded: true, anchor: object.related_contents(embedded: true).ids.reverse.except(content.id).push(object.id).join('+')), class: 'edit-content-link', title: t('actions.edit', locale: active_ui_locale) if can?(:edit, content) %>
+          <% if object.embedded? || definition.dig('ui', 'edit', 'partial') == 'embedded' %>
+            <%= link_to tag.i(class: 'fa fa-pencil'),
+                        edit_thing_path(
+                          content,
+                          watch_list_id: @watch_list,
+                          locale: I18n.locale,
+                          hide_embedded: true,
+                          anchor: object.related_contents(embedded: true).ids.reverse.except(content.id).push(object.id).join('+')
+                        ),
+                        class: 'edit-content-link',
+                        title: t('actions.edit', locale: active_ui_locale) if can?(:edit, object.embedded? ? content : object) %>
+          <% else %>
+            <%= link_to tag.i(class: 'fa fa-pencil'),
+                        edit_thing_path(object, watch_list_id: @watch_list, locale: I18n.locale),
+                        target: :_blank,
+                        class: 'edit-content-link',
+                        title: t('actions.edit', locale: active_ui_locale) if can?(:edit, object) %>
+          <% end %>
+
         </div>
 
         <div class="accordion-content remote-render" data-tab-content

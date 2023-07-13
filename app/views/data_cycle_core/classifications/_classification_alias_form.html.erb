@@ -74,16 +74,26 @@
   </div>
 
   <% if classification_alias.persisted? && can?(:map_classifications, classification_alias) %>
+    <% locked = Delayed::Job.where(delayed_reference_type: 'data_cycle_core_classification_alias_update_mappings', delayed_reference_id: classification_alias.id).exists? %>
     <%= hidden_field_tag 'classification_alias[classification_ids][]', classification_alias&.primary_classification_id,
-                         class: 'default_classification_mapping' %>
-    <div class="v-select">
-      <%= f.label :classification_ids %>
+                         class: 'default_classification_mapping' unless locked %>
+    <div class="v-select classification-ids-field">
+      <%= f.label :classification_ids do |l| %>
+        <%= l.translation %>
+        <%= tag.i(
+          class: 'fa fa-exclamation-triangle warning-color classification-mappings-queued',
+          data: {
+            dc_tooltip: I18n.t('controllers.success.classification_mappings_queued', locale: active_ui_locale)
+          }
+        ) if locked %>
+      <% end %>
       <%= f.select(:classification_ids,
         async_classification_select_options(classification_alias.additional_classifications.includes(primary_classification_alias: :classification_alias_path), DataCycleCore::Classification),
         {},
         {
           class: 'async-select',
           multiple: true,
+          disabled: locked,
           data: {
             placeholder: '',
             search_path: search_classifications_path,

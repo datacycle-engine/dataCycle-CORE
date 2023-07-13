@@ -13,5 +13,16 @@ namespace :dc do
         user.save!
       end
     end
+
+    desc 'lock users after not consenting for specified duration'
+    task lock_users_without_consent: :environment do
+      next unless DataCycleCore::Feature::UserRegistration.enabled?
+
+      users = DataCycleCore::Feature::UserRegistration.users_outside_grace_period
+
+      puts "LOCK USERS OUTSIDE GRACE PERIOD (#{users.size})"
+
+      users.find_each(&:lock_access!)
+    end
   end
 end

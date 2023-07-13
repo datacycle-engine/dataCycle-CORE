@@ -35,6 +35,8 @@
     id: content.id,
     content_score: content.try(:internal_content_score)&.round
   }) do %>
+    <%= render 'data_cycle_core/application/watch_lists', content: content if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && !content.is_a?(DataCycleCore::WatchList) %>
+
     <% if content.is_a?(DataCycleCore::Thing) %>
 
       <% cache(content_view_cache_key(item: content, locale: @language, mode: 'grid', watch_list: @watch_list), expires_in: 1.year + Random.rand(7.days)) do %>
@@ -46,24 +48,6 @@
       <%= render_content_tile(item: content, mode: 'grid') %>
 
     <% end %>
-
-    <div class="buttons">
-      <%= thing_content_score(content) %>
-
-      <%= yield_content!(:media_buttons) %>
-
-      <%= tag.i(class: 'has-overlay has-tip fa fa-window-restore', data: { dc_tooltip: t('common.has_overlay', locale: active_ui_locale) }) if content.try(:overlay?) %>
-
-      <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if show_external_connections?(content) %>
-
-      <% if content.try(:translated_locales)&.many? %>
-        <i class="fa fa-language" aria-hidden="true" data-dc-tooltip="<%= content.translated_locales.map {|t| t("locales.#{t}", locale: active_ui_locale)}&.join('<br>') %>"></i>
-      <% end %>
-
-      <% if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && !content.is_a?(DataCycleCore::WatchList) %>
-        <%= render 'data_cycle_core/application/watch_lists', content: content %>
-      <% end %>
-    </div>
   <% end %>
 <% end %>
 

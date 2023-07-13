@@ -20,6 +20,9 @@ module DataCycleCore
 
       class ExpiredContentError < BadRequestError
       end
+
+      class UserApiRankError < StandardError
+      end
     end
 
     module Download
@@ -33,6 +36,11 @@ module DataCycleCore
     end
 
     class RecordNotFoundError < StandardError
+    end
+
+    module Asset
+      class RemoteFileDownloadError < StandardError
+      end
     end
 
     class DeprecatedMethodError < StandardError

@@ -399,7 +399,7 @@ module DataCycleCore
     end
 
     def cached_attributes_changed?
-      webhook_attributes_changed? || @classifications_changed || saved_changes.dig('ui_configs')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
+      webhook_attributes_changed? || @classifications_changed || saved_changes.dig('ui_configs')&.map { |attr| attr&.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
     end
 
     def webhook_attributes_changed?

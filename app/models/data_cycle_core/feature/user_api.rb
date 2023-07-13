@@ -95,11 +95,11 @@ module DataCycleCore
       end
 
       def notify_users
-        DataCycleCore::UserApiMailer.notify(users_to_notify, user, current_issuer).deliver_later
+        DataCycleCore::UserApiMailer.notify(users_to_notify, user, { issuer: current_issuer, template_namespaces: [current_issuer] }).deliver_later
       end
 
       def notify_confirmed_user
-        DataCycleCore::UserApiMailer.notify_confirmed(user, current_issuer).deliver_later
+        DataCycleCore::UserApiMailer.notify_confirmed(user, { issuer: current_issuer, template_namespaces: [current_issuer] }).deliver_later
       end
 
       def user_mailer_from

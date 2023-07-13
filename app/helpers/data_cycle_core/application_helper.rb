@@ -26,8 +26,11 @@ module DataCycleCore
       tag.span(DataCycleCore.header_title.is_a?(Proc) ? DataCycleCore.header_title.call : DataCycleCore.header_title, class: 'title')
     end
 
-    def ice_cube_select_options
-      IceCube::Rule::INTERVAL_TYPES.except([:secondly, :minutely, :hourly, :monthly]).prepend(:single_occurrence).map { |r| [t("schedule.#{r}", locale: active_ui_locale), "IceCube::#{r.to_s.classify}Rule", { 'data-type': r }] }
+    def ice_cube_select_options(readonly = false)
+      rule_types = [:single_occurrence] + IceCube::Rule::INTERVAL_TYPES.except([:secondly, :minutely, :hourly])
+      rule_types.delete(:monthly) unless readonly
+
+      rule_types.map { |r| [t("schedule.#{r}", locale: active_ui_locale), "IceCube::#{r.to_s.classify}Rule", { 'data-type': r }] }
     end
 
     def display_flash_messages_new(closable: true)

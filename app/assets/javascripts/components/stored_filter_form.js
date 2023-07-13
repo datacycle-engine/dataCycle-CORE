@@ -22,7 +22,6 @@ class StoredFilterForm {
 		DataCycle.disableElement(this.formSubmit, this.formSubmit.innerHTML);
 		this.idSelector.disabled = true;
 		this.dynamicFormPart.classList.add("dynamic-parts-loading");
-		this.dynamicFormPart.classList.remove("dc-fd-initialized");
 
 		DataCycle.httpRequest("/search_history/render_update_form", {
 			body: {

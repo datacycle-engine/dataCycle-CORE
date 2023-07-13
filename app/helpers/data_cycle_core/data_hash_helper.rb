@@ -74,6 +74,18 @@ module DataCycleCore
       classification_aliases.each_value do |v|
         v[:value].uniq!(&:id)
         v[:mapped_value].uniq!(&:id)
+
+        next unless v[:key] == 'universal_classifications'
+
+        tree_label = v.dig(:definition, 'tree_label')
+
+        next if tree_label.blank?
+
+        k, prop = content.property_definitions.detect { |_k, d| d.key?('content_score') && Array.wrap(d.dig('compute', 'parameters')).include?('universal_classifications') && d.dig('compute', 'tree_label') == tree_label }
+
+        next if k.blank? || prop.blank?
+
+        v[:definition]['content_score'] = prop['content_score'].merge({ 'key' => k })
       end
 
       classification_aliases.sort_by { |_, v| v.dig(:definition, 'sorting') || 999 }.to_h

@@ -1,0 +1,155 @@
+# frozen_string_literal: true
+
+workbook = xlsx_package.workbook
+styles = {
+  base: workbook.styles.add_style(sz: 11),
+  default: workbook.styles.add_style(sz: 11, alignment: { vertical: :top, wrap_text: true })
+}
+
+def infer_row_height(row)
+  physical_lines = row.each_with_index.map { |cell, column_index|
+    text = cell.value
+    column_width = row.worksheet.column_info[column_index].width
+
+    text_lines = text.to_s.lines # handle newlines entered by the user
+    text_lines.sum { |line| (string_width(line) / column_width.to_f).ceil }
+  }.max
+
+  row.height = (physical_lines * 11)
+end
+
+def string_width(string)
+  (string.to_s.size + 3) * 1.15
+end
+
+def render_score_for_template(sheet, template, styles)
+  sheet.add_row([
+                  I18n.t('feature.serialize.content_score.id', locale: active_ui_locale),
+                  I18n.t('feature.serialize.content_score.locale', locale: active_ui_locale),
+                  I18n.t('feature.serialize.content_score.name', locale: active_ui_locale),
+                  I18n.t('feature.serialize.content_score.external_source', locale: active_ui_locale),
+                  I18n.t('feature.serialize.content_score.external_key', locale: active_ui_locale),
+                  I18n.t('feature.serialize.content_score.dc_link', locale: active_ui_locale),
+                  template.class.human_attribute_name('content_score', { base: template, locale: active_ui_locale }),
+                  template.class.human_attribute_name('internal_content_score', { base: template, locale: active_ui_locale }),
+                  *template.ordered_content_score_property_names&.map do |k|
+                    [
+                      I18n.t('feature.serialize.content_score.score_part', locale: active_ui_locale),
+                      template.class.human_attribute_name(k, { base: template, locale: active_ui_locale })
+                    ].join(' ')
+                  end
+                ], style: styles[:base])
+
+  info_texts = template.ordered_content_score_property_names&.map { |k| content_score_tooltip_string(template, template.properties_for(k)) }
+
+  row = sheet.add_row([
+                        *Array.new(8),
+                        *info_texts
+                      ],
+                      widths: [*Array.new(8 + info_texts.size) { :ignore }], style: styles[:default])
+
+  infer_row_height(row)
+
+  contents = @contents.where(template_name: template.template_name).reorder(nil).reorder(id: :asc).preload(:translations, :external_source)
+
+  contents.find_in_batches(batch_size: 100) do |batch|
+    linked_attributes = template.content_score_property_names.intersection(template.linked_property_names + template.embedded_property_names)
+    schedule_attributes = template.content_score_property_names.intersection(template.schedule_property_names)
+    classification_attributes = template.content_score_property_names.intersection(template.classification_property_names)
+    asset_attributes = template.content_score_property_names.intersection(template.asset_property_names)
+    content_contents = []
+    related_things = []
+    schedules = []
+    classification_contents = []
+    classifications = []
+    asset_contents = []
+    assets = []
+    content_ids = batch.map(&:id)
+
+    if linked_attributes.present?
+      content_contents = DataCycleCore::ContentContent.where(
+        content_a_id: content_ids,
+        relation_a: linked_attributes
+      ).group_by { |v| [v.content_a_id, v.relation_a] }
+
+      related_things = DataCycleCore::Thing.preload(:translations, :external_source).where(id: content_contents.values.flatten.map(&:content_b_id))
+    end
+
+    if schedule_attributes.present?
+      schedules = DataCycleCore::Schedule.where(
+        thing_id: content_ids,
+        relation: schedule_attributes
+      ).group_by { |v| [v.thing_id, v.relation] }
+    end
+
+    if classification_attributes.present?
+      classification_contents = DataCycleCore::ClassificationContent.where(
+        content_data_id: content_ids,
+        relation: classification_attributes
+      ).group_by { |v| [v.content_data_id, v.relation] }
+
+      classifications = DataCycleCore::Classification.where(id: classification_contents.values.flatten.map(&:classification_id))
+    end
+
+    if asset_attributes.present?
+      asset_contents = DataCycleCore::AssetContent.where(
+        content_data_id: content_ids,
+        relation: asset_attributes
+      ).group_by { |v| [v.content_data_id, v.relation] }
+
+      assets = DataCycleCore::Asset.where(id: asset_contents.values.flatten.map(&:asset_id))
+    end
+
+    overlay_templates = DataCycleCore::Thing.where(template: true, template_name: batch.map(&:overlay_template_name).uniq + related_things.map(&:overlay_template_name).uniq).index_by(&:template_name)
+
+    related_things.each { |e| e.instance_variable_set(:@overlay_property_names, e.overlay_template_name.present? ? Array.wrap(overlay_templates[e.overlay_template_name]&.property_names) : []) }
+
+    batch.each do |content|
+      @txt_write << [content.id, I18n.with_locale(content.first_available_locale) { content.title }, thing_url(content)] if @txt_write
+
+      content.translated_locales.each do |locale|
+        I18n.with_locale(locale) do
+          content.instance_variable_set(:@overlay_property_names, content.overlay_template_name.present? ? Array.wrap(overlay_templates[content.overlay_template_name]&.property_names) : [])
+
+          linked_attributes.each do |a|
+            content.set_memoized_attribute(a, related_things.select { |c| content_contents[[content.id, a]]&.map(&:content_b_id)&.include?(c.id) })
+          end
+
+          schedule_attributes.each do |a|
+            content.set_memoized_attribute(a, Array.wrap(schedules[[content.id, a]]))
+          end
+
+          classification_attributes.each do |a|
+            content.set_memoized_attribute(a, classifications.select { |c| classification_contents[[content.id, a]]&.map(&:classification_id)&.include?(c.id) })
+          end
+
+          asset_attributes.each do |a|
+            content.set_memoized_attribute(a, assets.select { |c| asset_contents[[content.id, a]]&.map(&:asset_id)&.include?(c.id) }&.first)
+          end
+
+          sheet.add_row([
+                          content.id,
+                          locale,
+                          content.title,
+                          content.external_source&.name,
+                          content.external_key,
+                          thing_url(content),
+                          content.try(:content_score)&.round,
+                          content.try(:internal_content_score)&.round,
+                          *content.ordered_content_score_property_names&.map { |k| content.calculate_content_score(k, {})&.*(100)&.round }
+                        ], style: styles[:base])
+        end
+      end
+    end
+  end
+end
+
+DataCycleCore::Thing.where(template: true, template_name: @contents.distinct.reorder(nil).pluck(:template_name)).order(template_name: :asc).each do |template|
+  next unless template.content_score_allowed?
+
+  workbook.add_worksheet(name: template.template_name.parameterize(separator: ' ', preserve_case: true).truncate(31)) do |sheet|
+    render_score_for_template(sheet, template, styles)
+  end
+end
+
+xlsx_package.use_shared_strings = true

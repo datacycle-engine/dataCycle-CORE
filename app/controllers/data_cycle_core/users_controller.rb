@@ -2,8 +2,8 @@
 
 module DataCycleCore
   class UsersController < ApplicationController
-    load_and_authorize_resource except: [:search, :validate] # from cancancan (authorize)
-    before_action :set_user, only: [:edit, :update, :destroy, :unlock]
+    load_and_authorize_resource except: [:search, :validate, :consent, :update_consent] # from cancancan (authorize)
+    before_action :set_user, only: [:edit, :update, :destroy, :unlock, :update_consent]
 
     def index
       query = DataCycleCore::User.accessible_by(current_ability).except(:left_outer_joins).includes(:represented_by, :external_systems)
@@ -49,7 +49,7 @@ module DataCycleCore
     end
 
     def create_user
-      @user = ('DataCycleCore::' + controller_name.singularize.classify).constantize.new(permitted_params.merge(creator: current_user))
+      @user = DataCycleCore::User.new(permitted_params.merge(creator: current_user))
       @user.raw_password = permitted_params[:password] if permitted_params[:password].present?
 
       if @user.save
@@ -77,7 +77,9 @@ module DataCycleCore
         @permitted_params[:access_token] = nil
       end
 
-      if @user.send(method, @permitted_params)
+      (@user.additional_attributes ||= {}).merge!(permitted_params[:additional_attributes]) if @permitted_params[:additional_attributes].present?
+
+      if @user.send(method, @permitted_params.except(:additional_attributes))
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: DataCycleCore::User.model_name.human(locale: helpers.active_ui_locale), locale: helpers.active_ui_locale
 
         bypass_sign_in(@user) if current_user == @user && !@permitted_params[:password].nil?
@@ -146,7 +148,11 @@ module DataCycleCore
       user_type = "DataCycleCore::#{controller_name.classify}".safe_constantize
       @user = user_type.find_by(id: params[:id]) || user_type.new
 
-      authorize! :show, DataCycleCore::User
+      if @user.new_record?
+        authorize! :edit, DataCycleCore::User
+      else
+        authorize! :edit, @user
+      end
 
       @user.attributes = permitted_params
       @user.valid?
@@ -159,7 +165,29 @@ module DataCycleCore
       }.to_json
     end
 
+    def consent
+      authorize! :edit, current_user
+
+      @type = consent_params[:type]
+
+      render 'consent', layout: 'layouts/data_cycle_core/devise'
+    end
+
+    def update_consent
+      authorize! :update, @user
+
+      (@user.additional_attributes ||= {}).merge!(permitted_params[:additional_attributes]) if permitted_params[:additional_attributes].present?
+
+      flash[:error] = @user.errors.full_messages unless @user.save
+
+      redirect_to(session.delete(:return_to) || root_path)
+    end
+
     private
+
+    def consent_params
+      params.permit(:type)
+    end
 
     def search_params
       params
@@ -168,7 +196,7 @@ module DataCycleCore
     end
 
     def permitted_params
-      allowed_params = [:email, :family_name, :given_name, :name, :role_id, :notification_frequency, :default_locale, :ui_locale, :type, :external, user_group_ids: []]
+      allowed_params = [:email, :family_name, :given_name, :name, :role_id, :notification_frequency, :default_locale, :ui_locale, :type, :external, user_group_ids: [], additional_attributes: {}]
       allowed_params.push(:password, :current_password) if params.dig(controller_name.singularize.to_sym, :password).present?
       params.require(controller_name.singularize.to_sym).permit(allowed_params)
     end

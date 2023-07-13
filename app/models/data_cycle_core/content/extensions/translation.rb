@@ -26,24 +26,48 @@ module DataCycleCore
         end
 
         class_methods do
+          def translated_attribute_name(key, _definition, content, ui_scope, locale, _display_locale, count)
+            return if key.blank?
+
+            if I18n.exists?("attribute_labels.#{ui_scope}.#{content&.template_name}.#{key}", count: count, locale: locale)
+              I18n.t("attribute_labels.#{ui_scope}.#{content&.template_name}.#{key}", count: count, locale: locale)
+            elsif I18n.exists?("attribute_labels.#{content&.template_name}.#{key}", count: count, locale: locale)
+              I18n.t("attribute_labels.#{content&.template_name}.#{key}", count: count, locale: locale)
+            elsif I18n.exists?("attribute_labels.#{ui_scope}.#{key}", count: count, locale: locale)
+              I18n.t("attribute_labels.#{ui_scope}.#{key}", count: count, locale: locale)
+            elsif I18n.exists?("attribute_labels.#{key}", count: count, locale: locale)
+              I18n.t("attribute_labels.#{key}", count: count, locale: locale)
+            end
+          end
+
+          def translated_tree_label_name(_key, definition, _content, _ui_scope, locale, _display_locale, _count)
+            return unless definition&.dig('tree_label').present? && I18n.exists?("filter.#{definition.dig('tree_label').underscore_blanks}", locale: locale)
+
+            I18n.t("filter.#{definition.dig('tree_label').underscore_blanks}", locale: locale)
+          end
+
+          def translated_attribute_fallback_name(key, definition, _content, ui_scope, _locale, _display_locale, _count)
+            definition&.dig('ui', ui_scope, 'label').presence ||
+              definition&.dig('label').presence ||
+              definition&.dig('tree_label').presence ||
+              key&.titleize
+          end
+
           def human_property_name(attribute, options = {})
             @human_property_name ||= Hash.new do |h, k|
               h[k] = begin
-                label = if k[0].present? && I18n.exists?("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", count: k[6], locale: k[4])
-                          I18n.t("attribute_labels.#{k[3]}.#{k[2]&.template_name}.#{k[0]}", count: k[6], locale: k[4])
-                        elsif k[0].present? && I18n.exists?("attribute_labels.#{k[2]&.template_name}.#{k[0]}", count: k[6], locale: k[4])
-                          I18n.t("attribute_labels.#{k[2]&.template_name}.#{k[0]}", count: k[6], locale: k[4])
-                        elsif k[0].present? && I18n.exists?("attribute_labels.#{k[3]}.#{k[0]}", count: k[6], locale: k[4])
-                          I18n.t("attribute_labels.#{k[3]}.#{k[0]}", count: k[6], locale: k[4])
-                        elsif k[0].present? && I18n.exists?("attribute_labels.#{k[0]}", count: k[6], locale: k[4])
-                          I18n.t("attribute_labels.#{k[0]}", count: k[6], locale: k[4])
-                        elsif k.dig(1, 'type') == 'classification' && k.dig(1, 'tree_label').present? && I18n.exists?("filter.#{k.dig(1, 'tree_label').underscore_blanks}", locale: k[4])
-                          I18n.t("filter.#{k.dig(1, 'tree_label').underscore_blanks}", locale: k[4])
-                        else
-                          k.dig(1, 'ui', k[3], 'label').presence ||
-                            k.dig(1, 'label').presence ||
+                label = if k[0] == 'universal_classifications' && k.dig(1, 'type') == 'classification'
+                          translated_tree_label_name(*k).presence ||
                             k.dig(1, 'tree_label').presence ||
-                            k[0].titleize
+                            translated_attribute_name(*k).presence ||
+                            translated_attribute_fallback_name(*k)
+                        elsif k.dig(1, 'type') == 'classification'
+                          translated_attribute_name(*k).presence ||
+                            translated_tree_label_name(*k).presence ||
+                            translated_attribute_fallback_name(*k)
+                        else
+                          translated_attribute_name(*k).presence ||
+                            translated_attribute_fallback_name(*k)
                         end
 
                 label += " (#{k[5]})" if k[2].attribute_translatable?(k[0], k[1])

@@ -1,11 +1,15 @@
 import MapLibreGlViewer from "./maplibre_gl_viewer";
 const MapboxDrawLoader = () =>
 	import("@mapbox/mapbox-gl-draw").then((mod) => mod.default);
+import MaplibreDrawControl from "./map_controls/maplibre_draw_control";
+import MaplibreDrawRoutingMode from "./map_controls/maplibre_draw_routing_mode";
+import turfFlatten from "@turf/flatten";
 
 import isEmpty from "lodash/isEmpty";
 import UploadGpxControl from "./map_controls/maplibre_upload_gpx_control";
 import domElementHelpers from "../helpers/dom_element_helpers";
 import AdditionalValuesFilterControl from "./map_controls/maplibre_additional_values_filter_control";
+import ConfirmationModal from "./confirmation_modal";
 
 class MapLibreGlEditor extends MapLibreGlViewer {
 	constructor(container) {
@@ -20,6 +24,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		this.precision = 5;
 		this.$geoCodeButton = $(".geocode-address-button").first();
 		this.additionalValueTargets = {};
+		this.routingOptions = this.mapOptions.routing_options || {};
 		this.$mapEditContainer = this.$parentContainer
 			.siblings(".map-edit")
 			.first();
@@ -144,24 +149,51 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		if (!isEmpty(this.additionalValuesOverlay))
 			this.map.addControl(new AdditionalValuesFilterControl(this), "top-left");
 	}
+	availableControlsByType() {
+		if (this.isPoint()) return ["trash", "draw_point"];
+		else if (this.isLineString()) {
+			const options = ["trash", "draw_line_string"];
+
+			if (this.routingOptions?.type)
+				options.push(
+					"draw_line_string_auto",
+					"draw_line_string_bicycle",
+					"draw_line_string_pedestrian",
+				);
+
+			return options;
+		}
+	}
 	async initDrawControl() {
-		const MapboxDraw = await MapboxDrawLoader().catch((e) =>
-			console.error("Error loading module:", e),
-		);
+		const MapboxDraw = await MapboxDrawLoader().catch(console.error);
 
 		this.draw = new MapboxDraw({
 			displayControlsDefault: false,
-			controls: {
-				trash: true,
-			},
-			defaultMode: this.getMapDrawMode(),
+			defaultMode: this.getMapDrawMode().mode,
 			styles: this.getMapDrawStyle(),
+			routingOptions: this.routingOptions,
+			modes: {
+				...MapboxDraw.modes,
+				draw_line_string_auto: MaplibreDrawRoutingMode,
+				draw_line_string_bicycle: MaplibreDrawRoutingMode,
+				draw_line_string_pedestrian: MaplibreDrawRoutingMode,
+			},
 		});
 
-		this.map.addControl(this.draw);
+		this.map.addControl(
+			new MaplibreDrawControl({
+				editor: this,
+				draw: this.draw,
+				routingOptions: this.routingOptions,
+				controls: this.availableControlsByType(),
+			}),
+			"top-right",
+		);
 
 		this.initDrawEventHandlers();
-		if (this.feature) this.initEditFeature();
+		if (this.feature) {
+			this.initEditFeature();
+		}
 	}
 	initDrawEventHandlers() {
 		this.map.on("draw.create", (event) => {
@@ -180,11 +212,38 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 			this.setHiddenFieldValue(this.feature);
 		});
 	}
-	getMapDrawMode() {
-		if (this.feature) {
-			return "simple_select";
-		}
-		return this.isPoint() ? "draw_point" : "draw_line_string";
+	getMapDrawMode(mode = undefined) {
+		const modeConfig = {
+			mode: mode,
+			options: {},
+		};
+
+		if (this.feature && this.isPoint()) {
+			const feature = this.draw?.getAll()?.features[0];
+			modeConfig.mode = "simple_select";
+			if (feature?.id) modeConfig.options.featureIds = [feature.id];
+		} else if (this.feature && this.isLineString()) {
+			const feature = this.draw?.getAll()?.features[0];
+			if (!modeConfig.mode) modeConfig.mode = "simple_select";
+
+			if (modeConfig.mode !== "simple_select" && feature?.id) {
+				const coordinates = feature?.geometry?.coordinates || [];
+				modeConfig.options.featureId = feature.id;
+				modeConfig.options.from = coordinates[coordinates.length - 1].slice(
+					0,
+					2,
+				);
+			} else if (modeConfig.mode === "simple_select" && feature?.id) {
+				modeConfig.options.featureIds = [feature.id];
+			}
+		} else if (this.isPoint() && !modeConfig.mode)
+			modeConfig.mode = "draw_point";
+		else if (this.isLineString() && !modeConfig.mode)
+			modeConfig.mode = "draw_line_string";
+
+		modeConfig.options.mode = modeConfig.mode;
+
+		return modeConfig;
 	}
 	getMapDrawStyle() {
 		return this.isPoint()
@@ -192,11 +251,15 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 			: this._getDrawLineStyle();
 	}
 	initEditFeature() {
-		const featureIds = this.draw.add(this.feature);
-		if (this.isLineString())
-			this.draw.changeMode("direct_select", { featureId: featureIds[0] });
-		if (this.isPoint())
-			this.draw.changeMode("simple_select", { featureIds: featureIds });
+		this.draw.deleteAll();
+
+		this.draw.add(turfFlatten(this.feature));
+		this.changeDrawMode();
+	}
+	changeDrawMode() {
+		const { mode, options } = this.getMapDrawMode();
+		this.draw.changeMode(mode, options);
+		this.map.fire("draw.modechange", { mode: mode });
 	}
 	async importData(event, data) {
 		if (!this.value || data?.force) {
@@ -303,7 +366,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 
 		this.resetCoordinates();
 		this.resetHiddenFieldValue();
-		this.draw.changeMode(this.getMapDrawMode());
+		this.changeDrawMode();
 	}
 	shortenCoordinates(coords) {
 		for (let i = 0; i < coords.length; i++) {
@@ -368,10 +431,12 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		}
 
 		this.$locationField.val(JSON.stringify(geoJson));
+		this.$locationField.trigger("change");
 	}
 	resetHiddenFieldValue() {
 		this.value = null;
 		this.$locationField.val("");
+		this.$locationField.trigger("change");
 	}
 	_getDrawPointStyle() {
 		return [

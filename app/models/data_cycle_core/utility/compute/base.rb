@@ -11,11 +11,9 @@ module DataCycleCore
             properties = content.properties_for(key)&.with_indifferent_access
 
             return if properties.blank?
-
-            computed_parameters = Array.wrap(properties&.dig('compute', 'parameters')).map { |p| p.split('.').first }.uniq.intersection(content.property_names)
-
             return unless conditions_satisfied?(content, properties)
 
+            computed_parameters = parameter_keys(content, properties)
             computed_value_hash = data_hash.dc_deep_dup
 
             return if skip_compute_value?(key, computed_value_hash, content, computed_parameters, false, force)
@@ -34,6 +32,14 @@ module DataCycleCore
 
             # keep fallback for imported computed values
             data_hash[key] = content.attribute_to_h(key) if DataCycleCore::DataHashService.blank?(data_hash[key]) && properties.dig('compute', 'fallback').to_s != 'false'
+          end
+
+          def parameter_keys(content, properties)
+            if properties&.dig('compute', 'module')&.include?('ContentScore') && properties&.dig('compute', 'method') == 'calculate_from_feature'
+              Array.wrap(content.try(:content_score_parameters)).map { |p| p.split('.').first }.uniq.intersection(content.property_names)
+            else
+              Array.wrap(properties&.dig('compute', 'parameters')).map { |p| p.split('.').first }.uniq.intersection(content.property_names)
+            end
           end
 
           def conditions_satisfied?(content, properties)
@@ -80,7 +86,7 @@ module DataCycleCore
 
             return false if missing_keys.blank?
             return true if checked && missing_keys.present?
-            return true if !force && missing_keys.size == computed_parameters.size && missing_keys.any? { |k| content.computed_property_names.exclude?(k) }
+            return true if !force && datahash.keys.intersection(computed_parameters.map { |v| content.resolved_computed_dependencies(v) }.flatten.uniq).none?
 
             load_missing_values(missing_keys, content, datahash)
 

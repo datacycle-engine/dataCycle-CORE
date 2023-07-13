@@ -30,6 +30,8 @@ de:
       one: Tourenbewertung
       other: Tourenbewertungen
     key_figures_container: Kennzahlen
+    copyright_holder_or_sd_publisher: Rechteinhaber
+    universal_classifications: Klassifizierungen
 
   footer_links:
     privacy_policy: Datenschutz
@@ -116,6 +118,13 @@ de:
     user_not_confirmed: E-Mail Adresse wurde noch nicht bestätigt
     confirm: E-Mail Adresse wurde noch nicht bestätigt, jetzt bestätigen!
     delete_user_html: Benutzer löschen?
+    consents:
+      header:
+        terms_conditions: Allgemeine Geschäftsbedingungen (AGB) wurden aktualisiert
+        privacy_policy: Datenschutzerklärung wurde aktualisiert
+      info:
+        terms_conditions: Die Allgemeinen Geschäftsbedingungen wurden aktualisiert und müssen erneut akzeptiert werden.
+        privacy_policy: Die Datenschutzerklärung wurde aktualisiert und muss erneut akzeptiert werden.
 
   frontend:
     load_error: Fehler beim Laden des Inhalts.
@@ -180,6 +189,15 @@ de:
         basemap: BasemapAT
         winter: Winter
         toursprung: Toursprung
+      buttons:
+        trash: löschen
+        draw_point: Punkt
+        draw_line_string: Linie
+        draw_line_string_auto: Auto
+        draw_line_string_bicycle: Rad
+        draw_line_string_pedestrian: Fußgänger
+      routing:
+        error: Fehler beim Berechnen der Route
     remote_render:
       error: Fehler beim Laden des Inhalts.
       reload: Neu laden
@@ -475,6 +493,7 @@ de:
       xml: XML-Format
       indesign: Adobe InDesign
       pdf: PDF
+      content_score: Content Scores (zip)
       version:
         original: Original
         default: Default
@@ -505,6 +524,7 @@ de:
       event_list: Events - Listenansicht
       list: Listenansicht
       map: Kartenansicht
+      events: Events
       gallery: Bildergalerie
     user_registration:
       terms_conditions: 'Ich aktzeptiere die <a href="%{url}" target="_blank">Allgemeinen Geschäftsbedingungen</a>.'
@@ -582,22 +602,34 @@ de:
         title: Content-Score
         criteria: "Kriterium: <b>%{text}</b>"
         by_presence: "ausgefüllt"
+        by_quantity: "Anzahl"
         by_aspect_ratio: Seitenverhältnis
         further_restricions: "Weitere Kriterien:"
+        mime_types: MIME-Types
         string:
           by_length: "Anzahl der Zeichen"
         common:
-          by_quantity: "Anzahl"
+          by_cc_license: CC Lizenz
         embedded:
           by_name_and_length: "Anzahl der Zeichen"
+          by_name_and_presence: "ausgefüllt"
+          by_type_and_presence: "Informationstyp"
+        object:
+          by_attribute_and_presence: ausgefüllt
         linked:
           by_linked_weight_matrix: "Score der Attribute nach Gewichtung"
+          by_first_linked_score: Score des ersten verknüpften Inhalts
         score_matrix:
           min: "Minimal: <b>%{value}</b>"
           optimal: "Optimal: <b>%{value}</b>"
           max: "Maximal: <b>%{value}</b>"
         content:
           by_weight_matrix: Score der Attribute nach Gewichtung
+          by_field_presence: Score nach ausgefüllten Attributen
+          score_matrix: "Maximal-Score bei fehlenden Attributen: %{max}"
+          by_field_presence_or_method: Score nach ausgefüllten Attributen
+        asset:
+          by_mime_types: Dateiformat
     duplicate_candidate:
       manual_button: Manuell zum Zusammenführen auswählen
       duplicate_methods:
@@ -633,6 +665,14 @@ de:
             Hier könnte Ihre Enleitung stehen
 
             COPYRIGHT dataCycle
+      content_score:
+        score_part: Teilscore
+        id: ID
+        locale: Sprache
+        name: Name
+        external_source: Quellsystem
+        external_key: ID im Quellsystem
+        dc_link: URL
     geo_key_figure:
       button_title: Ermittlung des Wertes für %{data} über ein Web-Service auf Basis der zugrundeliegenden Geo-Daten
       button_title_all: Ermittlung der Werte über ein Web-Service auf Basis der zugrundeliegenden Geo-Daten
@@ -649,6 +689,11 @@ de:
         401: &translate_error_code_401 "Der Zugriff auf die DeepL API wurde verweigert"
         403: *translate_error_code_401
         456: "Das Kontingent für die DeepL API wurde aufgebraucht"
+    user_registration:
+      mailer:
+        subject: Ein neuer Benutzer wurde erstellt
+        text_html: Der neue Benutzer %{name} (%{email}) wurde erstellt.
+        user_link: Benutzer anzeigen
 
     report_generator:
       downloads_popular: Top 50 Downloads
@@ -1116,6 +1161,7 @@ de:
       bulk_update_error: Beim Speichern ist ein Fehler aufgetreten, bitte versuchen Sie es erneut
       definition_mismatch: Die Versionen können nicht verglichen werden, weil die Datendefinitionen nicht überein stimmen
       user_locked: Ein Benutzer mit dieser E-Mail existiert bereits und ist gesperrt. Bitte wenden Sie sich an einen Administrator, um den Benutzer freizuschalten.
+      classification_mappings_error: Beim Aktualisieren der Klassifizierungs-Mappings ist ein Fehler aufgetreten
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."
@@ -1149,6 +1195,7 @@ de:
       removed_lock: Inhalt wurde freigegeben
       cleared_collection: "Alle Inhalte wurden aus %{data} entfernt"
       confirmed: "%{data} wurde bestätigt."
+      classification_mappings_queued: Klassifizierungs-Mappings werden im Hintergrund aktualisiert
     warning:
       no_changes: Es wurde keine neue Version angelegt, da keine Änderungen am Inhalt gemacht worden sind.
     info:
@@ -1229,7 +1276,6 @@ de:
 
     models:
       data_cycle_core/user: Benutzer
-      data_cycle_core/user_organization: Organisation
       data_cycle_core/user_group:
         one: Benutzergruppe
         other: Benutzergruppen
@@ -1282,6 +1328,9 @@ de:
       data_cycle_core/classification_alias:
         one: Klassifizierung
         other: Klassifizierungen
+      data_cycle_core/classification_tree_label:
+        one: Klassifizierungsbaum
+        other: Klassifizierungsbäume
     attributes:
       data_cycle_core/watch_list:
         name: Name
@@ -1311,6 +1360,7 @@ de:
         classification_ids_markets: Märkte
         classification_ids_output_channels: Ausgabekanäle
       data_cycle_core/user:
+        name: Organisation
         given_name: Vorname
         family_name: Familienname
         password: Passwort
@@ -1327,6 +1377,8 @@ de:
         ui_locale: Sprache der Benutzeroberfläche
         locked_at: gesperrt
         deleted_at: gelöscht
+        additional_attributes/terms_conditions_at: AGB
+        additional_attributes/privacy_policy_at: Datenschutzerklärung
       data_cycle_core/thing:
         name: Name
         legal_name: Firmenname
@@ -1500,6 +1552,9 @@ de:
         translation_missing: Keine Übersetzung vorhanden
 
   import:
+    generic:
+      description: Beschreibung
+      text: Detailbeschreibung
     booking:
       hotel_important_information: Wichtige Informationen
       hotel_description: Kurzbeschreibung
@@ -1596,8 +1651,8 @@ de:
     gem2go:
       description: Beschreibung
     timm4:
-      intro: Einleitung
-      description: Beschreibung
+      intro: Beschribung
+      description: Detailbeschreibung
       positionDescription: Lage
       pricesDescription: Preisinformation
       keywords: Stichworte
@@ -1632,6 +1687,7 @@ de:
       startPoint: Startpunkt
       startpointGettingThere: Wegbeschreibung Startpunkt
       seasonDescription: Begehbare Monate
+      price: Preisinformation
     destination_one:
       facility_unterhaltung: Facility Unterhaltung
       info_wegbelag: Info Wegbelag

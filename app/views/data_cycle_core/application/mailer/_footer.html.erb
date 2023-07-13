@@ -19,8 +19,11 @@
           <table border="0" cellspacing="0" cellpadding="0" width="100%">
             <tr>
               <td>
-                <p>
+                <p style="text-align: center;">
                   © <%= Date.current.year %> <a href="https://datacycle.info" target="_blank"><span>dataCycle GmbH</span></a>
+                  <% DataCycleCore.logo.dig('footer_links')&.each do |text, url| %>
+                    <span style="padding: 0 5px;">|</span><%= link_to tag.span(I18n.t("footer_links.#{text}", default: text, locale: @resource.try(:ui_locale) || I18n.available_locales.first)), (/^https?:\/\/|^\/\//i.match?(url) ? url : URI.join(root_url, url).to_s), target: :_blank %>
+                  <% end %>
                 </p>
               </td>
             </tr>

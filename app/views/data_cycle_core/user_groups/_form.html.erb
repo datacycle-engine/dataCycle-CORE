@@ -40,7 +40,10 @@
         </div>
 
         <div class="form-element input">
-          <%= f.label :name, DataCycleCore::UserGroup.human_attribute_name(:name, locale: active_ui_locale) %>
+          <%= f.label :name do %>
+            <%= DataCycleCore::UserGroup.human_attribute_name(:name, locale: active_ui_locale) %>
+            <%= tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) }) %>
+          <% end %>
           <%= f.text_field :name, required: true %>
         </div>
 

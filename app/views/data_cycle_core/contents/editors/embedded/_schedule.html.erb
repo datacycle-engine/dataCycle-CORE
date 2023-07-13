@@ -12,7 +12,7 @@
   %>
 
   <span class="embedded-header">
-    <% unless readonly %>
+    <% unless true # unless readonly -> disabled, schedules cant be ordered %>
       <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
       <span class="swap-prev swap-button disabled"
         data-dc-tooltip="<%= t('embedded.move_up', locale: active_ui_locale) %>"><i
@@ -94,7 +94,7 @@
           <%= t('schedule.rrule', locale: active_ui_locale) %>
         <% end %>
         <%= hidden_field_tag "#{embedded_prefix}[rrules][][rule_type]", value.dig(:rrules, 0, :rule_type) || 'IceCube::SingleOccurrenceRule' if readonly %>
-        <%= select_tag "#{embedded_prefix}[rrules][][rule_type]", options_for_select(ice_cube_select_options, value.dig(:rrules, 0, :rule_type)), class: 'rrule-type-selector', disabled: readonly %>
+        <%= select_tag "#{embedded_prefix}[rrules][][rule_type]", options_for_select(ice_cube_select_options(readonly), value.dig(:rrules, 0, :rule_type)), class: 'rrule-type-selector', disabled: readonly %>
       </div>
 
       <div class="form-element daily weekly monthly yearly">
@@ -127,6 +127,9 @@
           </span>
         <% end %>
       </div>
+
+      <%= hidden_field_tag "#{embedded_prefix}[rrules][][validations][day_of_week]", value&.dig(:rrules, 0, :validations, :day_of_week)&.to_json if readonly && value&.dig(:rrules, 0, :validations, :day_of_week).present? %>
+      <%= hidden_field_tag "#{embedded_prefix}[rrules][][validations][day_of_month]", value&.dig(:rrules, 0, :validations, :day_of_month)&.to_json if readonly && value&.dig(:rrules, 0, :validations, :day_of_month).present? %>
 
       <div class="until daily weekly monthly yearly form-element">
         <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{embedded_prefix}[rrules][until]")}" do %>

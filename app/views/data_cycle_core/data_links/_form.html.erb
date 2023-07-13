@@ -12,7 +12,7 @@
 
   <div class="form-element">
     <%= form.label :validity_period, DataCycleCore::DataLink.human_attribute_name("validity_period", locale: active_ui_locale) %>
-    <div class="form-element grid-x grid-margin-x align-center">
+    <div class="form-element grid-x align-center">
       <div class="cell"><%= form.date_field :valid_from, {placeholder: "tt.mm.jjjj", label: false} %></div>
       <div class="cell no-grow">-</div>
       <div class="cell"><%= form.date_field :valid_until, {placeholder: "tt.mm.jjjj", label: false} %></div>

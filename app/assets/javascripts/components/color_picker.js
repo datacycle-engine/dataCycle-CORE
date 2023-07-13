@@ -39,7 +39,7 @@ class ColorPicker {
 				},
 			},
 			i18n: {
-				"btn:clear": "×",
+				"btn:clear": "\uf014",
 			},
 		};
 

@@ -67,7 +67,7 @@ class ClassificationDragAndDrop {
 		this.sortable.option("disabled", false);
 	}
 	onEnd(event) {
-		const target = event.explicitOriginalTarget;
+		const target = event.originalEvent.target;
 		if (target instanceof Element && target.closest(".merge-dropzone")) {
 			this.mergeWithElement(event, target.closest("li"));
 			return;
@@ -193,8 +193,8 @@ class ClassificationDragAndDrop {
 	}
 	checkNewButtonPosition(event) {
 		if (
-			event.explicitOriginalTarget instanceof Element &&
-			event.explicitOriginalTarget.closest(".merge-dropzone")
+			event.originalEvent.target instanceof Element &&
+			event.originalEvent.target.closest(".merge-dropzone")
 		)
 			return false;
 

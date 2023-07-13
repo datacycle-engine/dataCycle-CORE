@@ -9,7 +9,7 @@ module DataCycleCore
 
     def create
       build_resource(sign_up_params)
-      resource.save if valid_additional_attributes?(params.dig('additional_attributes'))
+      resource.save if valid_additional_attributes?(params.dig('user', 'additional_attributes'))
 
       yield resource if block_given?
       if resource.persisted?
@@ -22,6 +22,8 @@ module DataCycleCore
           expire_data_after_sign_in!
           respond_with resource, location: after_inactive_sign_up_path_for(resource)
         end
+
+        DataCycleCore::Feature::UserRegistration.notify_users(resource) if DataCycleCore::Feature::UserRegistration.new_user_notification?
       else
         clean_up_passwords resource
         set_minimum_password_length
@@ -32,7 +34,7 @@ module DataCycleCore
     protected
 
     def configure_permitted_parameters
-      update_attrs = [user_group_ids: []]
+      update_attrs = [:given_name, :family_name, :name, user_group_ids: [], additional_attributes: {}]
       devise_parameter_sanitizer.permit :sign_up, keys: update_attrs
       devise_parameter_sanitizer.permit :account_update, keys: update_attrs
     end
@@ -40,8 +42,8 @@ module DataCycleCore
     private
 
     def valid_additional_attributes?(additional_attributes)
-      (DataCycleCore::Feature::UserRegistration.terms_conditions_url.blank? || additional_attributes&.dig('terms_conditions') == '1') &&
-        (DataCycleCore::Feature::UserRegistration.privacy_policy_url.blank? || additional_attributes&.dig('privacy_policy') == '1')
+      (DataCycleCore::Feature::UserRegistration.terms_conditions_url.blank? || additional_attributes&.key?('terms_conditions_at')) &&
+        (DataCycleCore::Feature::UserRegistration.privacy_policy_url.blank? || additional_attributes&.key?('privacy_policy_at'))
     end
   end
 end

@@ -88,7 +88,6 @@ class StoredFilter {
 
 		if (!target.href) return;
 
-		this.list.classList.remove("dc-fd-initialized");
 		this.disableForm(target);
 
 		DataCycle.httpRequest(target.href, {
@@ -126,7 +125,6 @@ class StoredFilter {
 		this.disableForm();
 
 		this.list.innerHTML = loadingIcon();
-		this.list.classList.remove("dc-fd-initialized");
 		this.count.querySelector("b").innerHTML = loadingIcon();
 		this.search = this.fullTextSearchField.value;
 		if (history) this.pushStateToHistory();

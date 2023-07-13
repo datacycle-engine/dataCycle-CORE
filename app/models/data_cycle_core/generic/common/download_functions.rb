@@ -101,9 +101,6 @@ module DataCycleCore
 
                     pool = DataCycleCore::WorkerPool.new(options.dig(:download, :run_in_parallel) ? 5 : 1)
 
-                    item_id = nil
-                    item_name = nil
-
                     items.each do |item_data|
                       break if options[:max_count] && item_count >= options[:max_count]
 

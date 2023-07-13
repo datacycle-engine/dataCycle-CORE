@@ -28,6 +28,193 @@ describe DataCycleCore::ClassificationAlias do
     assert(classification_alias.primary_classification.name, 'UPDATED NAME')
   end
 
+  describe 'when creating external classifications from table' do
+    def external_system
+      @external_system ||= DataCycleCore::ExternalSystem.create!(name: 'SOME EXTERNAL SYSTEM', identifier: 'some_external_system')
+    end
+
+    def classification_tree
+      @classification_tree ||= DataCycleCore::ClassificationTreeLabel.create!(
+        name: 'EXTERNAL CLASSIFICATION TREE',
+        external_source: external_system
+      )
+    end
+
+    def another_classification_tree
+      @another_classification_tree ||= DataCycleCore::ClassificationTreeLabel.create!(
+        name: 'ANOTHER EXTERNAL CLASSIFICATION TREE',
+        external_source: external_system
+      )
+    end
+
+    after do
+      classification_tree.tap(&:reload).classification_aliases.map(&:classifications).each(&:delete_all!)
+      classification_tree.tap(&:reload).classification_aliases.map(&:classification_groups).each(&:delete_all!)
+      classification_tree.tap(&:reload).classification_aliases.delete_all!
+      classification_tree.tap(&:reload).classification_trees.delete_all!
+      classification_tree.tap(&:reload).destroy_fully!
+      @classification_tree = nil
+
+      another_classification_tree.tap(&:reload).classification_aliases.map(&:classifications).each(&:delete_all!)
+      another_classification_tree.tap(&:reload).classification_aliases.map(&:classification_groups).each(&:delete_all!)
+      another_classification_tree.tap(&:reload).classification_aliases.delete_all!
+      another_classification_tree.tap(&:reload).classification_trees.delete_all!
+      another_classification_tree.tap(&:reload).destroy_fully!
+      @another_classification_tree = nil
+
+      external_system.destroy!
+      @external_system = nil
+    end
+
+    it 'should create top level classifications' do
+      classification_tree.upsert_all_external_classifications(
+        [
+          {external_key: 'key:alpha', parent_external_key: nil, name: 'Alpha'},
+          {external_key: 'key:beta', parent_external_key: nil, name: 'Beta'}
+        ]
+      )
+
+      classification_alias_a = DataCycleCore::ClassificationAlias.for_tree('EXTERNAL CLASSIFICATION TREE').with_name('Alpha').first
+      refute_nil(classification_alias_a) # rubocop:disable Rails/RefuteMethods
+      assert_equal('Alpha', classification_alias_a.name)
+      assert_equal('Alpha', classification_alias_a.internal_name)
+      assert_equal('key:alpha', classification_alias_a.external_key)
+
+      classification_alias_a = DataCycleCore::ClassificationAlias.for_tree('EXTERNAL CLASSIFICATION TREE').with_name('Beta').first
+      refute_nil(classification_alias_a) # rubocop:disable Rails/RefuteMethods
+      assert_equal('Beta', classification_alias_a.name)
+      assert_equal('Beta', classification_alias_a.internal_name)
+      assert_equal('key:beta', classification_alias_a.external_key)
+    end
+
+    it 'should create nested classifications' do
+      classification_tree.upsert_all_external_classifications(
+        [
+          {external_key: 'key:alpha', parent_external_key: nil, name: 'Alpha'},
+          {external_key: 'key:alpha_1', parent_external_key: 'key:alpha', name: 'Alpha - 1'},
+          {external_key: 'key:alpha_1_a', parent_external_key: 'key:alpha_1', name: 'Alpha - 1 - a'},
+          {external_key: 'key:beta', parent_external_key: nil, name: 'Beta'},
+          {external_key: 'key:beta_1', parent_external_key: 'key:beta', name: 'Beta - 1'}
+        ]
+      )
+
+      paths = DataCycleCore::ClassificationAlias.for_tree('EXTERNAL CLASSIFICATION TREE').with_name('Alpha').with_descendants.map(&:full_path)
+      assert(paths.include?('EXTERNAL CLASSIFICATION TREE > Alpha'))
+      assert(paths.include?('EXTERNAL CLASSIFICATION TREE > Alpha > Alpha - 1'))
+      assert(paths.include?('EXTERNAL CLASSIFICATION TREE > Alpha > Alpha - 1 > Alpha - 1 - a'))
+
+      paths = DataCycleCore::ClassificationAlias.for_tree('EXTERNAL CLASSIFICATION TREE').with_name('Beta').with_descendants.map(&:full_path)
+      assert(paths.include?('EXTERNAL CLASSIFICATION TREE > Beta'))
+      assert(paths.include?('EXTERNAL CLASSIFICATION TREE > Beta > Beta - 1'))
+    end
+
+    it 'should update existing classifications' do
+      classification_tree.upsert_all_external_classifications(
+        [
+          {external_key: 'key:alpha', parent_external_key: nil, name: 'Alpha'},
+          {external_key: 'key:alpha_1', parent_external_key: 'key:alpha', name: 'Alpha - 1'},
+          {external_key: 'key:alpha_1_a', parent_external_key: 'key:alpha_1', name: 'Alpha - 1 - a'}
+        ]
+      )
+
+      classification_tree.upsert_all_external_classifications(
+        [
+          {external_key: 'key:alpha', parent_external_key: nil, name: 'Alpha'},
+          {external_key: 'key:alpha_1', parent_external_key: 'key:alpha', name: 'UPDATED - Alpha - 1'},
+          {external_key: 'key:alpha_1_a', parent_external_key: 'key:alpha_1', name: 'Alpha - 1 - a'}
+        ]
+      )
+
+      classification_alias = DataCycleCore::ClassificationAlias.for_tree('EXTERNAL CLASSIFICATION TREE').with_name('UPDATED - Alpha - 1').first
+      refute_nil(classification_alias)  # rubocop:disable Rails/RefuteMethods
+      assert_equal('UPDATED - Alpha - 1', classification_alias.name)
+      assert_equal('UPDATED - Alpha - 1', classification_alias.internal_name)
+      assert_equal('key:alpha_1', classification_alias.external_key)
+
+      paths = DataCycleCore::ClassificationAlias.for_tree('EXTERNAL CLASSIFICATION TREE').with_name('Alpha').with_descendants.map(&:full_path)
+
+      assert(paths.include?('EXTERNAL CLASSIFICATION TREE > Alpha'))
+      assert(paths.include?('EXTERNAL CLASSIFICATION TREE > Alpha > UPDATED - Alpha - 1'))
+      assert(paths.include?('EXTERNAL CLASSIFICATION TREE > Alpha > UPDATED - Alpha - 1 > Alpha - 1 - a'))
+    end
+
+    it 'should update classification hierarchies' do
+      classification_tree.upsert_all_external_classifications(
+        [
+          {external_key: 'key:alpha', parent_external_key: nil, name: 'Alpha'},
+          {external_key: 'key:alpha_1', parent_external_key: 'key:alpha', name: 'Alpha - 1'},
+          {external_key: 'key:alpha_1_a', parent_external_key: 'key:alpha_1', name: 'Alpha - 1 - a'},
+          {external_key: 'key:beta', parent_external_key: nil, name: 'Beta'}
+        ]
+      )
+
+      classification_tree.upsert_all_external_classifications(
+        [
+          {external_key: 'key:alpha', parent_external_key: nil, name: 'Alpha'},
+          {external_key: 'key:beta', parent_external_key: nil, name: 'Beta'},
+          {external_key: 'key:alpha_1', parent_external_key: 'key:beta', name: 'Alpha - 1'},
+          {external_key: 'key:alpha_1_a', parent_external_key: 'key:alpha_1', name: 'Alpha - 1 - a'}
+        ]
+      )
+
+      paths = DataCycleCore::ClassificationAlias.for_tree('EXTERNAL CLASSIFICATION TREE').with_name('Alpha').with_descendants.map(&:full_path)
+      assert_equal(1, paths.size)
+
+      paths = DataCycleCore::ClassificationAlias.for_tree('EXTERNAL CLASSIFICATION TREE').with_name('Beta').with_descendants.map(&:full_path)
+      assert(paths.include?('EXTERNAL CLASSIFICATION TREE > Beta'))
+      assert(paths.include?('EXTERNAL CLASSIFICATION TREE > Beta > Alpha - 1'))
+      assert(paths.include?('EXTERNAL CLASSIFICATION TREE > Beta > Alpha - 1 > Alpha - 1 - a'))
+    end
+
+    it 'should update internal name only for primary language' do
+      classification_tree.upsert_all_external_classifications(
+        [
+          {external_key: 'key:alpha', parent_external_key: nil, name: 'Alpha'},
+          {external_key: 'key:alpha_1', parent_external_key: 'key:alpha', name: 'Alpha - 1'},
+          {external_key: 'key:alpha_1_a', parent_external_key: 'key:alpha_1', name: 'Alpha - 1 - a'}
+        ]
+      )
+
+      I18n.with_locale(:en) do
+        classification_tree.upsert_all_external_classifications(
+          [
+            {external_key: 'key:alpha', parent_external_key: nil, name: 'EN: Alpha'},
+            {external_key: 'key:alpha_1', parent_external_key: 'key:alpha', name: 'EN: Alpha - 1'},
+            {external_key: 'key:alpha_1_a', parent_external_key: 'key:alpha_1', name: 'EN: Alpha - 1 - a'}
+          ]
+        )
+      end
+
+      paths = DataCycleCore::ClassificationAlias.for_tree('EXTERNAL CLASSIFICATION TREE').with_name('Alpha').with_descendants.map(&:full_path)
+      assert(paths.include?('EXTERNAL CLASSIFICATION TREE > Alpha'))
+      assert(paths.include?('EXTERNAL CLASSIFICATION TREE > Alpha > Alpha - 1'))
+      assert(paths.include?('EXTERNAL CLASSIFICATION TREE > Alpha > Alpha - 1 > Alpha - 1 - a'))
+    end
+
+    it 'should update classification tree (labels)' do
+      classification_tree.upsert_all_external_classifications(
+        [
+          {external_key: 'key:alpha', parent_external_key: nil, name: 'Alpha'},
+          {external_key: 'key:alpha_1', parent_external_key: 'key:alpha', name: 'Alpha - 1'},
+          {external_key: 'key:alpha_1_a', parent_external_key: 'key:alpha_1', name: 'Alpha - 1 - a'}
+        ]
+      )
+
+      another_classification_tree.upsert_all_external_classifications(
+        [
+          {external_key: 'key:alpha', parent_external_key: nil, name: 'Alpha'},
+          {external_key: 'key:alpha_1', parent_external_key: 'key:alpha', name: 'Alpha - 1'},
+          {external_key: 'key:alpha_1_a', parent_external_key: 'key:alpha_1', name: 'Alpha - 1 - a'}
+        ]
+      )
+
+      paths = DataCycleCore::ClassificationAlias.for_tree('ANOTHER EXTERNAL CLASSIFICATION TREE').with_name('Alpha').with_descendants.map(&:full_path)
+      assert(paths.include?('ANOTHER EXTERNAL CLASSIFICATION TREE > Alpha'))
+      assert(paths.include?('ANOTHER EXTERNAL CLASSIFICATION TREE > Alpha > Alpha - 1'))
+      assert(paths.include?('ANOTHER EXTERNAL CLASSIFICATION TREE > Alpha > Alpha - 1 > Alpha - 1 - a'))
+    end
+  end
+
   describe 'when searching' do
     before do
       classification_tree.create_classification_alias('A')

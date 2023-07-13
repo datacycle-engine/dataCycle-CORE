@@ -26,7 +26,10 @@ if data.present?
         render 'content_details', content: item, options: { include: new_include, fields: new_fields, field_filter: false, languages: options[:languages] }
       end
     else
-      render 'content_header', content: item, options: { fields: new_fields, field_filter: options[:field_filter], header_type: :minimal, languages: options[:languages] }
+      new_fields = [['@id'], ['@type']]
+      Rails.cache.fetch(api_v4_cache_key(item, options[:languages], new_include, new_fields, @api_subversion), expires_in: 1.year + Random.rand(7.days)) do
+        render 'content_details', content: item, options: { include: new_include, fields: new_fields, field_filter: true, languages: options[:languages] }
+      end
     end
   }.compact.presence
 end

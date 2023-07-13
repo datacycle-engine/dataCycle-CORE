@@ -17,7 +17,6 @@ class DataLinkForm {
 
 		this.idSelector.disabled = true;
 		this.dynamicFormPart.classList.add("dynamic-parts-loading");
-		this.dynamicFormPart.classList.remove("dc-fd-initialized");
 
 		DataCycle.httpRequest("/data_links/render_update_form", {
 			body: {

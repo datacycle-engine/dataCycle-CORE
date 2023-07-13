@@ -84,8 +84,8 @@ module DataCycleCore
       keys.uniq.map(&:to_s)
     end
 
-    def self.create_internal_object(template_name, object_params, current_user, is_part_of = nil, source = nil)
-      template = get_internal_template(template_name)
+    def self.create_internal_object(template, object_params, current_user, is_part_of = nil, source = nil)
+      template = get_internal_template(template) if template.is_a?(::String)
       object = DataCycleCore::Thing.new(object_params.except(:translations, :datahash))
       object_hash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, template.schema)
       object_hash[:translations]&.deep_reject! { |_, v| v.blank? && !v.is_a?(FalseClass) }
@@ -123,7 +123,7 @@ module DataCycleCore
 
       template_hash['properties'].each do |key, value|
         if value['type'] == 'schedule'
-          parameter = { key.to_sym => [datahash: [:id, :full_day, :rtimes, :extimes, start_time: [:time], duration: DataCycleCore::AttributeEditorHelper::DURATION_UNITS.keys, end_time: [:time], rrules: [:rule_type, :interval, :until, validations: [day: []]]]] }
+          parameter = { key.to_sym => [datahash: [:id, :full_day, :rtimes, :extimes, start_time: [:time], duration: DataCycleCore::AttributeEditorHelper::DURATION_UNITS.keys, end_time: [:time], rrules: [:rule_type, :interval, :until, validations: [:day_of_week, :day_of_month, day: [], day_of_month: [], day_of_week: {}]]]] }
         elsif value['type'] == 'opening_time'
           parameter = { key.to_sym => [datahash: [:valid_from, :valid_until, :holiday, time: [datahash: [:id, :opens, :closes]], rrules: [validations: [day: []]]]] }
         elsif value['type'] == 'embedded'
@@ -257,11 +257,14 @@ module DataCycleCore
               factory3d = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: true, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 })
               factory2d = RGeo::Cartesian.factory(srid: 4326, proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', has_z_coordinate: false, wkt_parser: { support_wkt12: true }, wkt_generator: { convert_case: :upper, tag_format: :wkt12 })
 
-              geom = RGeo::GeoJSON.decode(value, geo_factory: factory3d)
-              geom = RGeo::GeoJSON.decode(value, geo_factory: factory2d) if geom.geometry.geometry_type == RGeo::Feature::Point
-              value = geom.geometry.as_text
+              unless value.methods.include?(:geometry_type)
+                geom = RGeo::GeoJSON.decode(value, geo_factory: factory3d)
+                geom = RGeo::GeoJSON.decode(value, geo_factory: factory2d) if geom.geometry.geometry_type == RGeo::Feature::Point
+                value = geom.geometry.as_text
+              end
             end
           end
+
           temp_datahash[key] = value
         end
 

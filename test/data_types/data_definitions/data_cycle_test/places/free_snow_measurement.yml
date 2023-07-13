@@ -1,0 +1,43 @@
+---
+- :data:
+    :name: freie Scheehöhenmesspunkte
+    :type: object
+    :content_type: entity
+    :boost: 100.0
+    :features:
+      :creatable:
+        :allowed: true
+    :schema_ancestors:
+      - Place
+      - "dcls:SnowHeightMeasuringPoint"
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :snow_report:
+        :label: Schneehöhe - Messpunkt
+        :type: embedded
+        :template_name: Schneehöhe - Messpunkt
+        :api:
+          :name: containsPlace
+          :partial: to_linked
+        :advanced_search: true
+      :snow_resort:
+        :label: Skigebiet
+        :type: linked
+        :template_name: Skigebiet
+        :inverse_of: additional_snow_report
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "freie Scheehöhenmesspunkte"
+      :meta_data:
+        :type: mixin
+        :name: meta_data

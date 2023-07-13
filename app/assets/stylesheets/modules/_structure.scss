@@ -508,6 +508,20 @@ ul.footer-links {
         }
       }
     }
+
+    fieldset.with-border {
+      padding: 0.5rem 0 0 0;
+      border: 1px solid var(--darker-gray);
+      margin: 0 0 1rem 0;
+      border-radius: var(--medium-radius);
+
+      legend {
+        padding: 0 0.5rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin: 0 0.5rem;
+      }
+    }
   }
 
   .home-logo {

@@ -6,11 +6,14 @@
   <%= form_with(url: create_user_groups_path, local: true, scope: @user_group) do |f| %>
 
     <div class="form-element validation-container">
-      <%= f.label :name %>
+      <%= f.label :name do %>
+        <%= DataCycleCore::UserGroup.human_attribute_name(:name, locale: active_ui_locale) %>
+        <%= tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) }) %>
+      <% end %>
       <%= f.text_field :name, required: true %>
     </div>
 
-    <%= f.submit t(:submit, locale: active_ui_locale), class: "button primary", data: { disable_with: t(:submit, locale: active_ui_locale) } %>
+    <%= f.submit t(:submit, locale: active_ui_locale), class: "button primary", data: { disable: true } %>
 
   <% end %>
 

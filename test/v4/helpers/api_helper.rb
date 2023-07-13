@@ -29,6 +29,7 @@ module DataCycleCore
           'work_translation',
           'copyright_notice_override',
           'copyright_notice_computed',
+          'copyright_notice',
           'attribution_name',
           'translation_of_work',
           'source',

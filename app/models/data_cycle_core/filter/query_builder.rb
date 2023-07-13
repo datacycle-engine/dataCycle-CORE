@@ -282,6 +282,10 @@ module DataCycleCore
         DataCycleCore::Schedule.arel_table
       end
 
+      def schedule_occurrence
+        DataCycleCore::ScheduleOccurrence.arel_table
+      end
+
       def thing
         DataCycleCore::Thing.arel_table
       end

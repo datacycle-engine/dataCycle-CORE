@@ -25,6 +25,14 @@ module DataCycleCore
             scores.sum / scores.size
           end
 
+          def by_first_linked_score(parameters:, key:, **_args)
+            return 0 if parameters[key].blank?
+
+            linked_item = DataCycleCore::Thing.find_by(id: parameters[key]&.first)
+
+            linked_item.try(:internal_content_score).to_f / 100
+          end
+
           def to_tooltip(_content, definition, locale)
             tooltip = [tooltip_base_string(definition.dig('content_score', 'method'), locale: locale)]
 

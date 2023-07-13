@@ -3,7 +3,8 @@
 
 - "0 0 * * *":
     - data_cycle_core:notifications:send[day]
-    - rake data_cycle_core:clear:activities # older than 3 months
+    - dc:privacy:lock_users_without_consent
+    - data_cycle_core:clear:activities
 
 - "0 2 * * *":
     - data_cycle_core:db:dump[backup_production]

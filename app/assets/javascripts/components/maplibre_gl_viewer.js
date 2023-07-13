@@ -41,7 +41,7 @@ class MapLibreGlViewer {
 		this.icons = iconPaths;
 		this.colorsHandler = {
 			get: function (target, name) {
-				if (target.hasOwnProperty(name)) return target[name];
+				if (Object.hasOwn(target, name)) return target[name];
 				else if (name) return name;
 				else target["default"];
 			},

@@ -2,7 +2,7 @@
               class: 'attribute-content-score score-loading',
               data: {
                 locale: I18n.locale,
-                key: key&.attribute_name_from_key,
+                key: definition&.dig('content_score', 'key') || key&.attribute_name_from_key,
                 content_score_template: content&.template_name,
                 content_score_content_id: content&.id,
                 content_score_embedded: content&.embedded? || false,

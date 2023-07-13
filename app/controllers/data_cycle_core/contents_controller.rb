@@ -389,7 +389,16 @@ module DataCycleCore
       end
 
       I18n.with_locale(@locale || I18n.locale) do
-        @objects = DataCycleCore::Thing.where(id: render_embedded_object_params[:object_ids]).includes(:translations) if render_embedded_object_params[:object_ids].present?
+        if render_embedded_object_params[:object_ids].present?
+          @objects = DataCycleCore::Thing.where(id: render_embedded_object_params[:object_ids]).includes(:translations).order(
+            [
+              Arel.sql(
+                'array_position(ARRAY[?]::UUID[], things.id)'
+              ),
+              render_embedded_object_params[:object_ids]
+            ]
+          )
+        end
 
         render(json: { html: render_to_string(formats: [:html], layout: false).strip }) && return
       end

@@ -59,7 +59,7 @@ class BasicSelect2 {
 		this.$element.closest("form").on("reset", this.eventHandlers.reset);
 		this.$element
 			.closest(".form-element")
-			.on("dc:field:reset", this.eventHandlers.reset);
+			.on("dc:field:setToNull", this.eventHandlers.reset);
 		this.$element
 			.on("dc:import:data", this.eventHandlers.import)
 			.addClass("dc-import-data");
@@ -111,7 +111,7 @@ class BasicSelect2 {
 		this.$element.off("dc:select:destroy", this.eventHandlers.destroy);
 		this.$element
 			.closest(".form-element")
-			.off("dc:field:reset", this.eventHandlers.reset);
+			.off("dc:field:setToNull", this.eventHandlers.reset);
 		this.$element
 			.parent()
 			.off(
