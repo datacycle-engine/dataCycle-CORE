@@ -71,7 +71,8 @@ class ValidateForeignKeysForClassifications < ActiveRecord::Migration[6.1]
       );
 
       DELETE FROM classification_trees
-      WHERE NOT EXISTS (
+      WHERE classification_trees.parent_classification_alias_id IS NOT NULL
+      AND NOT EXISTS (
         SELECT 1
         FROM classification_aliases
         WHERE classification_aliases.id = classification_trees.parent_classification_alias_id
