@@ -4,20 +4,20 @@ class AddExternalKeyToClassificationAliases < ActiveRecord::Migration[6.1]
   def up
     add_column :classification_aliases, :external_key, :string
 
-    add_foreign_key :classifications, :external_systems, column: :external_source_id, on_delete: :nullify
+    add_foreign_key :classifications, :external_systems, column: :external_source_id, on_delete: :nullify, validate: false
 
-    add_foreign_key :classification_aliases, :external_systems, column: :external_source_id, on_delete: :nullify
+    add_foreign_key :classification_aliases, :external_systems, column: :external_source_id, on_delete: :nullify, validate: false
 
-    add_foreign_key :classification_groups, :external_systems, column: :external_source_id, on_delete: :nullify
-    add_foreign_key :classification_groups, :classifications, on_delete: :cascade
-    add_foreign_key :classification_groups, :classification_aliases, on_delete: :cascade
+    add_foreign_key :classification_groups, :external_systems, column: :external_source_id, on_delete: :nullify, validate: false
+    add_foreign_key :classification_groups, :classifications, on_delete: :cascade, validate: false
+    add_foreign_key :classification_groups, :classification_aliases, on_delete: :cascade, validate: false
 
-    add_foreign_key :classification_trees, :external_systems, column: :external_source_id, on_delete: :nullify
-    add_foreign_key :classification_trees, :classification_tree_labels, on_delete: :cascade
-    add_foreign_key :classification_trees, :classification_aliases, on_delete: :cascade
-    add_foreign_key :classification_trees, :classification_aliases, column: :parent_classification_alias_id, on_delete: :cascade
+    add_foreign_key :classification_trees, :external_systems, column: :external_source_id, on_delete: :nullify, validate: false
+    add_foreign_key :classification_trees, :classification_tree_labels, on_delete: :cascade, validate: false
+    add_foreign_key :classification_trees, :classification_aliases, on_delete: :cascade, validate: false
+    add_foreign_key :classification_trees, :classification_aliases, column: :parent_classification_alias_id, on_delete: :cascade, validate: false
 
-    add_foreign_key :classification_alias_paths_transitive, :classification_aliases, on_delete: :cascade
+    add_foreign_key :classification_alias_paths_transitive, :classification_aliases, on_delete: :cascade, validate: false
 
     execute <<-SQL.squish
       CREATE UNIQUE INDEX index_classification_aliases_unique_external_source_id_and_key
