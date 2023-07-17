@@ -109,7 +109,6 @@ module DataCycleCore
 
       uri = URI.parse(rendered_attribute)
       # used for local development and docker env.
-      uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && ENV.fetch('APP_DOCKER_ENV') { nil } != 'production' && uri.hostname == 'localhost'
       redirect_to(uri.to_s, allow_other_host: true)
     end
 
