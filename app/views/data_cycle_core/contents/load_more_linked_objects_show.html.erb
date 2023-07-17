@@ -1,18 +1,18 @@
-  <% if @params.dig(:definition, :type) == 'linked' %>
+<% if (@params.dig(:definition, :type) == 'linked' && @params.dig('definition', 'ui', @params['load_more_action'].presence || 'show', 'partial').blank?) || @params.dig('definition', 'ui', @params['load_more_action'].presence || 'show', 'partial') == 'linked' %>
   <% @linked_objects.each do |content| %>
     <%= render_linked_partial(
-          key: "#{@params[:complete_key]}[]",
-          definition: @params[:definition],
-          parameters: {
-            object: content,
-            options: @params[:options],
-            objects: @params[:objects],
-            object_id: [content.id],
-            tile_links: true,
-            parent: @object
-          },
-          content: @content
-        ) %>
+            key: "#{@params[:complete_key]}[]",
+            definition: @params[:definition],
+            parameters: {
+              object: content,
+              options: @params[:options],
+              objects: @params[:objects],
+              object_id: [content.id],
+              tile_links: true,
+              parent: @object
+            },
+            content: @content
+          ) %>
   <% end %>
 <% else %>
   <%= render_attribute_viewer(
