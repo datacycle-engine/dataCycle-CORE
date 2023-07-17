@@ -107,6 +107,8 @@ namespace :dc do
 
   desc 'run migrations, update all configs and run data_migrations'
   task update: :environment do
+    Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate:check"].invoke
+    Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate:check"].reenable
     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].invoke
     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].reenable
     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update:configs"].invoke

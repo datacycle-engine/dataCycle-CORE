@@ -14,6 +14,36 @@ namespace :db do
 
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].invoke
     end
+
+    desc 'check before migrations'
+    task check: :environment do
+      result = ActiveRecord::Base.connection.execute <<-SQL.squish
+        WITH duplicate_external_classification AS (
+          SELECT classifications.external_source_id,
+            classifications.external_key,
+            COUNT(*)
+          FROM classifications
+          WHERE classifications.external_source_id IS NOT NULL
+            AND classifications.external_key IS NOT NULL
+            AND classifications.deleted_at IS NULL
+          GROUP BY classifications.external_source_id,
+            classifications.external_key
+          HAVING COUNT(*) > 1
+        )
+        SELECT classifications.id,
+          full_path_names
+        FROM duplicate_external_classification
+          JOIN classifications ON duplicate_external_classification.external_source_id = classifications.external_source_id
+          AND duplicate_external_classification.external_key = classifications.external_key
+          JOIN classification_groups ON classifications.id = classification_groups.classification_id
+          JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id
+          JOIN classification_contents ON classification_contents.classification_id = classifications.id
+        ORDER BY CHAR_LENGTH(classifications.external_key),
+          classifications.external_key;
+      SQL
+
+      abort('duplicate external_classifications found!') if result.count.positive?
+    end
   end
 
   namespace :rollback do
