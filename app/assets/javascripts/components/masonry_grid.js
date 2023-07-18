@@ -26,10 +26,16 @@ class MasonryGrid {
 		this.removeLoadingAnimation();
 		this.initializeItems();
 
-		addEventListener("load", this.resizeAllMasonryItems.bind(this));
+		addEventListener("load", this.scrollToThingAndResize.bind(this));
 		addEventListener("resize", this.resizeAllMasonryItems.bind(this));
 
 		this.addedItemsObserver.observe(this.grid, ObserverHelpers.newItemsConfig);
+	}
+	scrollToThingAndResize(event) {
+		this.resizeAllMasonryItems(event);
+
+		const thing = document.getElementById(history.state?.thingId);
+		if (thing) requestAnimationFrame(() => thing.scrollIntoView());
 	}
 	removeLoadingAnimation() {
 		if (this.grid.querySelector(":scope > .grid-loading"))

@@ -33,9 +33,17 @@ module DataCycleCore
             @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees
             @mapped_classification_aliases = @classification_tree.sub_classification_alias&.additional_classifications&.primary_classification_aliases || DataCycleCore::ClassificationAlias.none.page(1)
             @classification_type = @classification_tree
+            @queue_classification_mappings = Delayed::Job.where(
+              delayed_reference_type: 'data_cycle_core_classification_alias_update_mappings',
+              delayed_reference_id: @classification_trees.pluck(:classification_alias_id)
+            ).pluck(:delayed_reference_id)
           elsif index_params.include?(:classification_tree_label_id)
             @classification_trees = @classification_tree_label.classification_trees.where(parent_classification_alias: nil)
             @classification_type = @classification_tree_label
+            @queue_classification_mappings = Delayed::Job.where(
+              delayed_reference_type: 'data_cycle_core_classification_alias_update_mappings',
+              delayed_reference_id: @classification_trees.pluck(:classification_alias_id)
+            ).pluck(:delayed_reference_id)
           else
             raise 'Missing parameter; either classification_tree_label_id or classification_tree_id must be provided'
           end
@@ -55,6 +63,7 @@ module DataCycleCore
             .includes(
               sub_classification_alias: [
                 :classification_alias_path,
+                :classification_tree_label,
                 additional_classifications: [primary_classification_alias: :classification_alias_path],
                 primary_classification: [additional_classification_aliases: :classification_alias_path],
                 classifications: [primary_classification_alias: :classification_alias_path]
@@ -175,11 +184,20 @@ module DataCycleCore
           end
         end
 
+        if update_params[:classification_alias]&.key?(:classification_ids)
+          classification_ids = Array.wrap(update_params[:classification_alias].delete('classification_ids'))
+
+          if classification_ids.sort != @object.classification_ids&.sort
+            DataCycleCore::ClassificationMappingJob.perform_later(@object.id, classification_ids)
+            flash[:success] = I18n.t('controllers.success.classification_mappings_queued', locale: helpers.active_ui_locale)
+          end
+        end
+
         @object.attributes = update_params[:classification_alias].except(:translation)
         @object.save!
       end
 
-      render json: { html: render_to_string(formats: [:html], layout: false, action: 'update').strip }
+      render json: { html: render_to_string(formats: [:html], layout: false, action: 'update', locals: { :@queue_classification_mappings => Delayed::Job.exists?(delayed_reference_type: 'data_cycle_core_classification_alias_update_mappings', delayed_reference_id: @object.id) ? [@object.id] : [] }).strip }.merge(flash.discard.to_h)
     rescue ActiveRecord::RecordInvalid
       render json: { error: I18n.with_locale(helpers.active_ui_locale) { @object.errors.full_messages.join(', ') } }
     end

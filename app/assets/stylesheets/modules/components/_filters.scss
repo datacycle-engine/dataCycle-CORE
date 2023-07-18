@@ -810,6 +810,7 @@ $filter-border: #aaa;
       margin: 0 0.5rem 0.5rem 0;
       background-color: lighten($dark-gray, 32%);
       box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
+      align-items: center;
 
       &.e,
       &.u,
@@ -1110,8 +1111,8 @@ $filter-border: #aaa;
 
             .fa-stack-1x {
               font-size: 0.6rem;
-              top: -2px;
-              color: $white;
+              top: -3px;
+              color: var(--primary-color);
             }
           }
 

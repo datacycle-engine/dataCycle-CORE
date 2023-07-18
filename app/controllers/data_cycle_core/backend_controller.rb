@@ -9,13 +9,7 @@ module DataCycleCore
         params.slice(:stored_filter, :f, :reset).blank?
     }
     before_action :load_stored_filter, only: :index, if: -> { params[:stored_filter].present? }
-    after_action :set_previous_page, only: :index, if: -> { params[:page].present? && params[:reset].blank? && @mode&.in?(['grid', 'list']) }
-    prepend_before_action :load_previous_page, only: :index, if: lambda {
-      DataCycleCore::Feature::MainFilter.autoload_last_filter? &&
-        params.slice(:stored_filter, :f, :reset).blank? &&
-        session[:previous_page].present? &&
-        request.format.html?
-    }
+    prepend_before_action :load_previous_page, only: :index, if: :load_previous_page?
 
     def index
       set_instance_variables_by_view_mode(query: @query)
@@ -28,16 +22,6 @@ module DataCycleCore
     end
 
     def settings
-    end
-
-    private
-
-    def set_previous_page
-      session[:previous_page] = params[:page]&.to_i
-    end
-
-    def load_previous_page
-      redirect_to(root_path(params.permit!.to_h.reverse_merge(page: session.delete(:previous_page)))) && return
     end
   end
 end

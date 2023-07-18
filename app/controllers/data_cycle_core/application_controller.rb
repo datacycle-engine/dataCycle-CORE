@@ -9,8 +9,8 @@ module DataCycleCore
     include DataCycleCore::UserRegistrationCheck if DataCycleCore::Feature::UserRegistration.enabled?
 
     protect_from_forgery with: :exception
-    before_action :load_watch_lists, if: -> { params[:watch_list_id].present? }
-    before_action :clear_previous_page, if: -> { !is_a?(DataCycleCore::ThingsController) && request.format.html? }
+    before_action :load_watch_list, if: -> { params[:watch_list_id].present? }
+    before_action :clear_previous_page, if: -> { request.format.html? && !is_a?(DataCycleCore::ThingsController) && [consent_users_path, update_consent_users_path].exclude?(request.path) }
     before_action :better_errors_hack, if: -> { Rails.env.development? }
     before_action :flashes_from_params, if: -> { params[:flash].present? }
 
@@ -18,7 +18,7 @@ module DataCycleCore
       stored_location_for(resource).presence || authorized_root_path
     end
 
-    def load_watch_lists
+    def load_watch_list
       @watch_list = DataCycleCore::WatchList.find_by(id: params[:watch_list_id])
     end
 
@@ -149,7 +149,7 @@ module DataCycleCore
     end
 
     def clear_previous_page
-      session.delete(:previous_page)
+      session.delete(:return_to)
     end
   end
 end

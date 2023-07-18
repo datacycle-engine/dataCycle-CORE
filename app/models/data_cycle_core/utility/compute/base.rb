@@ -10,7 +10,7 @@ module DataCycleCore
 
             properties = content.properties_for(key)&.with_indifferent_access
 
-            return if properties.blank?
+            return unless properties&.key?('compute')
             return unless conditions_satisfied?(content, properties)
 
             computed_parameters = parameter_keys(content, properties)

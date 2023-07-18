@@ -31,13 +31,22 @@ const initializers = import.meta.glob("./initializers/*.js", {
 });
 import foundationInit from "./initializers/foundation_init";
 import validationInit from "./initializers/validation_init";
+import masonryInit from "./initializers/masonry_init";
 import UrlReplacer from "./helpers/url_replacer";
 import CalloutHelpers from "./helpers/callout_helpers";
+
+const initializerExceptions = [
+	"foundation_init",
+	"validation_init",
+	"app_signal_init",
+	"masonry_init",
+];
 
 export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 	DataCycle = window.DataCycle = new DataCycleSingleton(dataCycleConfig);
 
-	UrlReplacer.paramsToStoredFilterId();
+	UrlReplacer.cleanSearchFormParams();
+	masonryInit();
 
 	try {
 		Rails.start();
@@ -55,13 +64,7 @@ export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 
 	$(function () {
 		for (const path in initializers) {
-			if (
-				!(
-					path.includes("foundation_init") ||
-					path.includes("validation_init") ||
-					path.includes("app_signal_init")
-				)
-			) {
+			if (!initializerExceptions.some((e) => path.includes(e))) {
 				try {
 					initializers[path]();
 				} catch (err) {

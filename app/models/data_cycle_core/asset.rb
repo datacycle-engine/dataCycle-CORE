@@ -91,7 +91,13 @@ module DataCycleCore
     end
 
     def as_json(options = {})
-      include_file = options[:only].delete(:file)
+      if options.key?(:only)
+        include_file = options[:only].delete(:file)
+      else
+        options[:except] ||= []
+        options[:except].push(:file)
+        include_file = true
+      end
 
       hash = super(options)
 
@@ -127,9 +133,14 @@ module DataCycleCore
       @retry_count = 0
 
       begin
-        tmp_uri = URI.parse(remote_file_url)
-        tmp_file = tmp_uri.open
-        filename = File.basename(tmp_uri.path)
+        if remote_file_url.starts_with?('/') && !remote_file_url.starts_with?('//')
+          tmp_file = File.open(remote_file_url)
+          filename = File.basename(tmp_file.path)
+        else
+          tmp_uri = URI.parse(remote_file_url)
+          tmp_file = tmp_uri.open
+          filename = File.basename(tmp_uri.path)
+        end
         file.attach(io: tmp_file, filename: filename)
       rescue StandardError => e
         raise DataCycleCore::Error::Asset::RemoteFileDownloadError, "could not download file: #{e.message}" if @retry_count >= 3

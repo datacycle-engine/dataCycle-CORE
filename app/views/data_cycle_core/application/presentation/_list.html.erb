@@ -21,9 +21,10 @@
     DataCycleCore::Feature::TileBorderColor.class_string(content),
     thing_content_score_class(content),
   ].compact_blank.join(' '),
-  id: "list-item-#{content.id}",
+  id: content.id,
   data: {
     id: content.id,
+    page: contents.current_page,
     content_score: content.try(:internal_content_score)&.round
   }) do %>
     <% content_for :media_buttons, flush: true do %>

@@ -7,6 +7,7 @@ module DataCycleCore
     include DataCycleCore::BulkUpdateTypes
 
     load_and_authorize_resource only: [:index, :show, :new, :create, :edit, :update, :destroy, :remove_item, :add_item] # from cancancan (authorize)
+    prepend_before_action :load_previous_page, only: :show, if: :load_previous_page?
 
     def index
       @contents = current_user.watch_lists.page(params[:page])
@@ -335,7 +336,7 @@ module DataCycleCore
     def update_order
       @watch_list = DataCycleCore::WatchList.find(update_order_params[:id])
 
-      authorize! :edit, @watch_list
+      authorize! :manual_order, @watch_list
 
       @watch_list.update_order_by_array(update_order_params[:order])
 

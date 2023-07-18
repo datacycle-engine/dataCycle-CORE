@@ -49,7 +49,7 @@ module DataCycleCore
             json_data = JSON.parse(response.body)
             json_data['@graph'].each do |item|
               assert_equal(@count_mapping[item['@id']].size, item['dc:thingCountWithSubtree'])
-              assert_equal(item['dc:thingCountWithSubtree'].positive? ? 1 : 0, item['dc:thingCountwithoutSubtree'])
+              assert_equal(item['dc:thingCountWithSubtree'].positive? ? 1 : 0, item['dc:thingCountWithoutSubtree'])
             end
           end
 

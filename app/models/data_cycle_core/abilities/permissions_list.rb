@@ -86,7 +86,13 @@ module DataCycleCore
         list.select { |l| l[:condition].include?(user) }
       end
 
+      def self.add_alias_actions(ability)
+        ability.alias_action :manual_order, to: :update
+      end
+
       def self.add_abilities_for_user(ability)
+        add_alias_actions(ability)
+
         filtered_list(ability.user).each do |permission|
           definition = permission[:definition].clone
           definition.instance_variable_set(:@user, ability.user)

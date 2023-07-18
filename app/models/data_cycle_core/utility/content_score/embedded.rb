@@ -51,9 +51,25 @@ module DataCycleCore
             score
           end
 
+          def by_type_and_length(definition:, parameters:, key:, **_args)
+            score = 0
+            part = Rational(1, definition.dig('content_score', 'score_matrix').size) unless definition.dig('content_score', 'score_matrix').values.all? { |v| v&.key?('weight') }
+
+            definition.dig('content_score', 'score_matrix').each do |k, v|
+              type_of_information = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Informationstypen', k)
+
+              score += Base.score_by_quantity(
+                ActionView::Base.full_sanitizer.sanitize(parameters&.[](key)&.find { |e| e['type_of_information']&.include?(type_of_information) || e['universal_classifications']&.include?(type_of_information) }&.[]('description').to_s).presence&.length.to_i,
+                v
+              ) * (part || (v['weight'].is_a?(::Float) ? v['weight'] : v['weight'].to_r))
+            end
+
+            score
+          end
+
           def to_tooltip(_content, definition, locale)
             case definition.dig('content_score', 'method')
-            when 'by_type_and_presence'
+            when 'by_type_and_length', 'by_type_and_presence'
               tooltip = [tooltip_base_string(definition.dig('content_score', 'method'), locale: locale)]
 
               if definition.dig('content_score', 'score_matrix').present?
@@ -62,10 +78,20 @@ module DataCycleCore
                 definition.dig('content_score', 'score_matrix')
                   &.sort_by { |k, v| [-v&.dig('weight')&.to_r, k] }
                   &.each do |k, v|
-                    subtips.push("<li><b>#{k}</b> #{"(#{DataCycleCore::LocalizationService.view_helpers.number_with_precision(v['weight'].to_r * 100, precision: 1)}%)" if v.key?('weight')}</li>")
+                    nested_tip = []
+                    nested_tip.push("<b>#{k}</b> #{"(#{DataCycleCore::LocalizationService.view_helpers.number_with_precision(v['weight'].to_r * 100, precision: 1)}%)" if v.key?('weight')}")
+
+                    nested_tip.push('<ul>')
+
+                    v.except('weight').each do |key, value|
+                      nested_tip.push("<li>#{tooltip_string("score_matrix.#{key}", locale: locale, value: value)}</li>")
+                    end
+
+                    subtips.push("<li>#{nested_tip.join}</ul></li>")
                   end
 
-                tooltip.push("#{subtips.join}</ul>")
+                subtips.push('</ul>')
+                tooltip.push(subtips.join)
               end
             when 'by_name_and_length', 'by_name_and_presence'
               tooltip = []

@@ -68,7 +68,7 @@
 
               <%= button_tag type: :button, class: 'add-items-to-watch-list', data: { open: "add-items-to-collection-#{add_to_collection_id}", dc_tooltip: t('actions.add_items_to_watch_list', data: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale), locale: active_ui_locale) } do %>
                 <span class="fa-stack">
-                  <i class="fa fa-bookmark fa-stack-2x"></i>
+                  <i class="fa fa-bookmark-o fa-stack-2x"></i>
                   <i class="fa fa-plus fa-stack-1x"></i>
                 </span>
               <% end if can?(:add_item, DataCycleCore::WatchList) && filter_config[:add_items_to_watch_list] %>

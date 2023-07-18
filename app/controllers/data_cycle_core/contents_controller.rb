@@ -4,6 +4,7 @@ module DataCycleCore
   class ContentsController < ApplicationController
     include DataCycleCore::Filter
     before_action :set_watch_list, except: [:asset]
+    before_action :set_return_to, only: [:show, :edit]
 
     DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
       feature = ('DataCycleCore::Feature::' + key.to_s.classify).constantize
@@ -47,8 +48,6 @@ module DataCycleCore
 
     def show
       @content = DataCycleCore::Thing.find(params[:id])
-
-      redirect_back(fallback_location: root_path) && return if @content.nil?
       redirect_to(thing_path(@content.related_contents.first)) && return if @content.embedded?
 
       I18n.with_locale(@locale = @content.first_available_locale(params[:locale])) do
@@ -702,6 +701,21 @@ module DataCycleCore
       watch_list = DataCycleCore::WatchList.find(params[:watch_list_id])
       authorize! :show, watch_list
       @watch_list = watch_list
+    end
+
+    def set_return_to
+      return if session[:return_to].present?
+
+      referer_url = URI.parse(request.referer.to_s)
+
+      return if referer_url.host != request.host
+
+      allowed_paths = [root_path]
+      allowed_paths = [watch_list_path(@watch_list.id)] if @watch_list.present?
+
+      return if allowed_paths.exclude?(referer_url.path)
+
+      session[:return_to] = request.referer
     end
 
     def attribute_value_params
