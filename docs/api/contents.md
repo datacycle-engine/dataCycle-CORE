@@ -226,6 +226,46 @@ Um z.B. alle Veranstaltungen im Zeitraum der letzten Weltraummission eines Space
 }
 ```
 
+#### ContentScore (dataCycle) - **filter\[attribute\]\[internalContentScore\]**
+
+Gibt es Inhalte mit einem ContentScore (dataCycle), können diese auch darüber gefiltert werden. Hier wird der "identifier" aus dem "dc:contentScore" als Attribut-Namen verwendet.
+
+Beispiel der API Ausgabe:
+
+```json
+{
+  "dc:contentScore": [
+    {
+      "@id": "4b0c9895-65b1-44d5-87bc-79863fe93c72",
+      "@type": "PropertyValue",
+      "identifier": "internalContentScore",
+      "name": "Interner Content Score",
+      "value": 90,
+      "minValue": 0,
+      "maxValue": 100
+    }
+  ]
+}
+```
+
+Dadurch ergibt sich dann folgende Definition für den Filter:
+
+```json
+{
+  "token": "YOUR_ACCESS_TOKEN",
+  "filter": {
+    "attribute": {
+      "internalContentScore": {
+        "in": {
+          "min": 80,
+          "max": 100
+        }
+      }
+    }
+  }
+}
+```
+
 ### Geobasierte Filterung - **filter\[geo\]**
 
 dataCycle wird in vielen Fällen verwendet, um geografisch verortete Inhalte zu verwalten. Um diese geografischen Eigenschaften auch bei der Filterung von Inhalten nutzen zu können, stehen spezielle Filter für das Einschränken von Inhalten auf Basis ihrer geografischen Lage zur Verfügung.
