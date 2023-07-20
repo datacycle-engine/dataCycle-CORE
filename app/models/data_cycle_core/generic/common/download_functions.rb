@@ -6,8 +6,6 @@ module DataCycleCore
   module Generic
     module Common
       module DownloadFunctions
-        require 'hashdiff'
-
         def self.download_data(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, options:)
           iteration_strategy = options.dig(:download, :iteration_strategy) || options.dig(:iteration_strategy) || :download_sequential
           raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel, :download_all].include?(iteration_strategy.to_sym)
@@ -107,6 +105,8 @@ module DataCycleCore
                       item_count += 1
                       next if item_data.nil?
 
+                      item_name = nil
+                      item_id = nil
                       pool.append_without_db_connection do
                         init_mongo_db(database_name) do
                           download_object.source_object.with(download_object.source_type) do |mongo_item_parallel|
@@ -134,8 +134,12 @@ module DataCycleCore
                             item.data_has_changed = false if modified.present? && download_object.external_source.last_successful_download && modified.call(item_data) < download_object.external_source.last_successful_download
                             item.data_has_changed = true if options.dig(:download, :skip_diff) == true || item.dump.dig(locale, 'mark_for_update').present?
                             item.data_has_changed = diff?(bson_to_hash(item.dump[locale]), item_data, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
-                            item.dump[locale] = item_data
-                            item.save!
+                            if item.data_has_changed
+                              item.dump[locale] = item_data
+                              item.save!
+                            else
+                              item.set('seen_at' => Time.zone.now)
+                            end
                             logging.item_processed(item_name, item_id, item_count, max_string)
                           end
                         end
@@ -673,16 +677,8 @@ module DataCycleCore
           Hash[item.to_a.map { |k, v| [k, v.is_a?(::Hash) ? bson_to_hash(v) : (v.is_a?(::Array) ? v.map { |i| bson_to_hash(i) } : v)] }]
         end
 
-        def self.diff?(a, b, options = {})
-          if options[:diff_base] && (a.try(:dig, *options[:diff_base].split('.')) || b.try(:dig, *options[:diff_base].split('.')))
-            diff(a.try(:dig, *options[:diff_base].split('.')), b.try(:dig, *options[:diff_base].split('.'))).count.positive?
-          else
-            diff(a, b).count.positive?
-          end
-        end
-
-        def self.diff(a, b)
-          ::Hashdiff.diff(a, b, { numeric_tolerance: 0.001 })
+        def self.diff?(a, b, _options = {})
+          !a.eql?(b)
         end
       end
     end

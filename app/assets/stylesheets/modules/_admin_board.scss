@@ -245,3 +245,20 @@ ul.import-data-timestamps li {
     }
   }
 }
+
+.dash_board {
+  h4 {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+
+    .fa {
+      font-size: inherit;
+    }
+
+    .add-external_system-button {
+      margin: 0 0 0 auto;
+    }
+  }
+}

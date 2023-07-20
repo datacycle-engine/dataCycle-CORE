@@ -73,5 +73,19 @@ module DataCycleCore
 
       tag.span(icon, data: { dc_tooltip: ("#{t('common.status', locale: active_ui_locale)}: #{t("external_connection_states.#{status}", locale: active_ui_locale)}" if status.present?) })
     end
+
+    def external_system_template_paths
+      DataCycleCore.external_system_template_paths.index_by { |k| File.basename(k, '.yml.erb') }
+    end
+
+    def external_system_template_options
+      external_system_identifiers = DataCycleCore::ExternalSystem.all.pluck(:identifier)
+      external_system_template_paths.select { |_k, v|
+        data = YAML.safe_load(File.open(v))
+        data['identifier'] ||= data['name']
+
+        external_system_identifiers.exclude?(data['identifier'])
+      }.keys
+    end
   end
 end

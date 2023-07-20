@@ -1169,6 +1169,7 @@ en:
       definition_mismatch: the versions cannot be compared, because the data-definitions of these versions don't match
       user_locked: A user with this email already exists and is locked. Please contact an administrator to unlock the user.
       classification_mappings_error: An error occurred while updating the classification mappings
+      external_system_already_exists: There already exists a configuration for this external system
     success:
       created: "%{data} was successfully created."
       ready_to_send: "%{data} has been successfully created and can now be sent."
@@ -1203,6 +1204,7 @@ en:
       cleared_collection: "removed all contents from %{data}"
       confirmed: "%{data} has been confirmed."
       classification_mappings_queued: classification mappings are updated in the background
+      external_system_created: The configuration for the external system has been created
     warning:
       no_changes: No new version was created because no changes were made to the content.
     info:
@@ -1641,6 +1643,7 @@ en:
         text: Description
         price: Price
         description: Brief description
+        directions_public_transport: Public transport
       tour:
         directions: Approach
         parking: Parking
