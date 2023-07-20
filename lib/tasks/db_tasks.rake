@@ -31,13 +31,14 @@ namespace :db do
           HAVING COUNT(*) > 1
         )
         SELECT classifications.id,
-          full_path_names
+          classification_alias_paths.full_path_names,
+          classification_contents.content_data_id
         FROM duplicate_external_classification
           JOIN classifications ON duplicate_external_classification.external_source_id = classifications.external_source_id
           AND duplicate_external_classification.external_key = classifications.external_key
           JOIN classification_groups ON classifications.id = classification_groups.classification_id
           JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id
-          JOIN classification_contents ON classification_contents.classification_id = classifications.id
+          LEFT OUTER JOIN classification_contents ON classification_contents.classification_id = classifications.id
         ORDER BY CHAR_LENGTH(classifications.external_key),
           classifications.external_key;
       SQL
