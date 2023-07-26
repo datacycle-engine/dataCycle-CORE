@@ -22,12 +22,12 @@ module DataCycleCore
           namespaced_options = i18n_options
         end
 
-        return t(namespaced_path, **namespaced_options) if I18n.exists?(namespaced_path, **namespaced_options)
+        return t(namespaced_path, **namespaced_options).html_safe if I18n.exists?(namespaced_path, **namespaced_options) # rubocop:disable Rails/OutputSafety
       end
 
       i18n_options[:scope] = i18n_options[:scope].except('?').compact_blank.join('.') if i18n_options.key?(:scope)
       clean_path = i18n_path.to_s.split('.').except('?').compact_blank.join('.')
-      t(clean_path, **i18n_options) if I18n.exists?(clean_path, **i18n_options)
+      t(clean_path, **i18n_options).html_safe if I18n.exists?(clean_path, **i18n_options) # rubocop:disable Rails/OutputSafety
     end
 
     def first_existing_action_template(namespaces)
