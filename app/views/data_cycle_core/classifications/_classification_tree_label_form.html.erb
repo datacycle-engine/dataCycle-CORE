@@ -21,6 +21,8 @@
     </div>
   <% end %>
 
+  <% classification_tree_label.visibility = DataCycleCore.default_classification_visibilities if classification_tree_label.new_record? %>
+
   <div class="ca-input">
     <div class="ca-collection-checkboxes">
       <%= f.label :visibility %>
