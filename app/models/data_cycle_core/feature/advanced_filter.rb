@@ -14,7 +14,7 @@ module DataCycleCore
 
           filters
             .select { |k, v, data| user&.can?(:advanced_filter, view_type.to_sym, k, v, data) }
-            .sort
+            .sort_by { |v| v[0] }
             .group_by { |f| f[1] }
             .transform_keys { |k| I18n.t("filter_groups.#{k}", default: k, locale: user.ui_locale) }
         end

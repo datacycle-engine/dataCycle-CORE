@@ -2,6 +2,8 @@
 
 module DataCycleCore
   class WorkerPool
+    attr_reader :queue
+
     def initialize(num_workers)
       @queue = []
       @pool = Concurrent::FixedThreadPool.new(num_workers) if num_workers&.>(1)

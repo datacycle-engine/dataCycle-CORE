@@ -33,7 +33,7 @@ if @classification_tree_label.present?
       end
     end
   else
-    queue = DataCycleCore::WorkerPool.new(DataCycleCore::ApiService.allowed_thread_count)
+    queue = DataCycleCore::WorkerPool.new(@permitted_params.dig(:section, :meta)&.to_i&.zero? ? 1 : DataCycleCore::ApiService.allowed_thread_count)
     queue.append do
       json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options: options, show_all_concepts: true
     end

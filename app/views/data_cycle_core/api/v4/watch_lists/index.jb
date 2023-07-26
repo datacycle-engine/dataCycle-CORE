@@ -3,7 +3,7 @@
 json = {}
 json.merge! render 'context', languages: @language
 
-queue = DataCycleCore::WorkerPool.new(DataCycleCore::ApiService.allowed_thread_count)
+queue = DataCycleCore::WorkerPool.new(@permitted_params.dig(:section, :meta)&.to_i&.zero? ? 1 : DataCycleCore::ApiService.allowed_thread_count)
 
 unless @permitted_params.dig(:section, :'@graph')&.to_i&.zero?
   queue.append do
