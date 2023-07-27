@@ -102,9 +102,7 @@ module DataCycleCore
             content.save!
           end
 
-          global_data = content.to_h_partial((content.global_property_names + DataCycleCore::Feature::OverlayAttributeService.call(content)))
-          global_data.reject! { |_, v| DataCycleCore::DataHashService.blank?(v) }
-          global_data.merge!(data)
+          global_data = data.except(*(content.global_property_names + DataCycleCore::Feature::OverlayAttributeService.call(content)))
           global_data.except!('external_key') unless created
 
           if config&.dig(:asset_type).present?
