@@ -90,10 +90,7 @@ module DataCycleCore
 
     test 'generate simple Quiz with one question, then delete history' do
       cw_temp = DataCycleCore::Thing.count
-      template = DataCycleCore::Thing.find_by(template: true, template_name: 'Quiz')
-      data_set = DataCycleCore::Thing.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
+      data_set = DataCycleCore::Thing.new(template_name: 'Quiz')
       data_set.save
 
       # check consistency of data in DB

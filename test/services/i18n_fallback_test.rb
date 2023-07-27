@@ -5,10 +5,7 @@ require 'test_helper'
 module DataCycleCore
   class I18nFallback < ActiveSupport::TestCase
     test 'make sure config.i18n.fallback is set to false' do
-      template = DataCycleCore::Thing.find_by(template: true, template_name: 'TestSimple')
-      validation = template.schema
-      data_set = DataCycleCore::Thing.new
-      data_set.schema = validation
+      data_set = DataCycleCore::Thing.new(template_name: 'TestSimple')
       data_set.save
 
       data_hash_de = { 'name' => 'Dies ist ein Test!' }

@@ -72,7 +72,7 @@ def convert_object_attribute_to_rows(key, definition)
 end
 
 def convert_embedded_attribute_to_rows(key, definition)
-  embedded_template = DataCycleCore::Thing.find_by(template: true, template_name: definition['template_name'])
+  embedded_template = DataCycleCore::ThingTemplate.find_by(template_name: definition['template_name'])
 
   # rubocop:disable Performance/FlatMap
   [[definition['label'], key, nil, nil]] + embedded_template.schema['properties'].map { |property_key, property_definition|

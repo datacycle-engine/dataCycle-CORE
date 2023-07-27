@@ -230,8 +230,8 @@ module DataCycleCore
       end
 
       def self.invalidate_all
-        unscoped
-          .where(id: all.except(:distinct).lock('FOR UPDATE SKIP LOCKED').order(id: :asc).select(:id))
+        unscoped.where(id: all.except(:distinct).order(id: :asc).select(:id))
+          .lock('FOR UPDATE SKIP LOCKED')
           .update_all(cache_valid_since: Time.zone.now)
       end
 
@@ -423,16 +423,15 @@ module DataCycleCore
       end
 
       def upsert_content(name, item, options)
-        template = DataCycleCore::Thing.find_by(template: true, template_name: name)
         item_id = item&.dig('datahash', 'id') || item&.dig('id')
 
         if item_id.present?
-          upsert_item = DataCycleCore::Thing.find_or_initialize_by(id: item_id)
+          upsert_item = DataCycleCore::Thing.find_or_initialize_by(id: item_id) do |c|
+            c.template_name = name
+          end
         else
-          upsert_item = DataCycleCore::Thing.new
+          upsert_item = DataCycleCore::Thing.new(template_name: name)
         end
-        upsert_item.schema = template.schema
-        upsert_item.template_name = template.template_name
         # TODO: check if external_source_id is required
         upsert_item.external_source_id = external_source_id
         created = upsert_item.new_record?

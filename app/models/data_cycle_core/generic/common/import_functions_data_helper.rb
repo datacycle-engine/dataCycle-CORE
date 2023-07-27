@@ -41,7 +41,8 @@ module DataCycleCore
 
           if local
             content = DataCycleCore::Thing.new(
-              local_import: true
+              local_import: true,
+              template_name: template.template_name
             )
           else
             # try to find already present content:
@@ -86,7 +87,8 @@ module DataCycleCore
             # no content found anywhere --> create new thing
             content ||= DataCycleCore::Thing.new(
               external_source_id: utility_object.external_source.id,
-              external_key: data['external_key']
+              external_key: data['external_key'],
+              template_name: template.template_name
             )
           end
 
@@ -95,8 +97,6 @@ module DataCycleCore
 
           if content.new_record?
             content.metadata ||= {}
-            content.schema = template.schema
-            content.template_name = template.template_name
             content.created_by = data['created_by']
             created = true
             content.save!
@@ -206,7 +206,7 @@ module DataCycleCore
 
         def load_template(template_name)
           I18n.with_locale(:de) do
-            DataCycleCore::Thing.find_by!(template: true, template_name: template_name)
+            DataCycleCore::Thing.new(template_name: template_name).require_template!
           end
         rescue ActiveRecord::RecordNotFound
           raise "Missing template #{template_name}"

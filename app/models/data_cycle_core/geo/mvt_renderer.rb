@@ -38,7 +38,7 @@ module DataCycleCore
 
       def content_select_sql
         [
-          'things.id AS id',
+          'DISTINCT ON (things.id) things.id AS id',
           "ST_Simplify (geom_simple, #{@simplify_factor}, TRUE) AS geometry"
         ]
           .concat(include_config.map { |c| "#{c[:select]} AS #{c[:identifier]}" })

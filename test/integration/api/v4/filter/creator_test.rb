@@ -14,7 +14,7 @@ module DataCycleCore
             @poi_b = DataCycleCore::V4::DummyDataHelper.create_data('poi', @creator)
             @food_establishment_a = DataCycleCore::V4::DummyDataHelper.create_data('food_establishment', @admin)
             @food_establishment_b = DataCycleCore::V4::DummyDataHelper.create_data('food_establishment', @creator)
-            @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').size
+            @thing_count = DataCycleCore::Thing.where.not(content_type: 'embedded').size
           end
 
           test 'api/v4/things parameter filter[creator]' do

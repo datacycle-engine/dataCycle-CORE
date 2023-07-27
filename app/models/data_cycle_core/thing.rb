@@ -15,7 +15,7 @@ module DataCycleCore
 
       extend ::Mobility
       translates :name, :description, :slug, :content, backend: :table
-      default_scope { i18n }
+      default_scope { i18n.includes(:thing_template) }
 
       content_relations table_name: 'things', postfix: 'history'
       has_many :scheduled_history_data, class_name: 'DataCycleCore::Schedule::History', foreign_key: 'thing_history_id', dependent: :destroy, inverse_of: :thing_history
@@ -82,7 +82,7 @@ module DataCycleCore
 
     extend ::Mobility
     translates :name, :description, :slug, :content, backend: :table
-    default_scope { i18n }
+    default_scope { i18n.includes(:thing_template) }
 
     content_relations table_name: table_name
 

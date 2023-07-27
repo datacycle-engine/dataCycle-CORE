@@ -40,10 +40,10 @@ namespace :dc do
     task invalid_overlay_definitions: :environment do
       puts "######## Check for invalid overlay data_definition\r"
       errors = false
-      DataCycleCore::Thing.where(template: true).to_a.select { |thing| thing.overlay_template_name.present? }.each do |thing|
+      DataCycleCore::ThingTemplate.to_a.map { |thing_template| DataCycleCore::Thing.new(thing_template: thing_template) }.select { |thing| thing.overlay_template_name.present? }.each do |thing|
         next if (thing.add_overlay_property_names - ['dummy']).blank?
         errors = true
-        found_things = DataCycleCore::Thing.where(template: false, template_name: thing.overlay_template_name).count
+        found_things = DataCycleCore::Thing.where(template_name: thing.overlay_template_name).count
         puts "#{('# ' + thing.template_name).ljust(41)} | #{thing.overlay_template_name}| #{found_things} | #{thing.add_overlay_property_names.join(',')} \r"
       end
       if errors
@@ -59,11 +59,11 @@ namespace :dc do
     task unused_templates: :environment do
       puts "######## Check for unused templates\r"
       warnings = false
-      DataCycleCore::Thing.where(template: true).each do |template|
-        count = DataCycleCore::Thing.where(template: false, template_name: template.template_name).count
+      DataCycleCore::ThingThing.each do |thing_template|
+        count = DataCycleCore::Thing.where(template_name: thing_template.template_name).count
         next if count.positive?
         warnings = true
-        puts "#{('# ' + template.template_name).ljust(41)} | #{template.content_type}| #{count} | #{template.cache_valid_since} \r"
+        puts "#{('# ' + thing_template.template_name).ljust(41)} | #{thing_template.content_type}| #{count} | #{thing_template.updated_at} \r"
       end
       if warnings
         puts "\n[warning] ... unused data_definitions found"

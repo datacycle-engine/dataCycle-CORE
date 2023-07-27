@@ -73,11 +73,8 @@ module DataCycleCore
         end
 
         def load_template(def_hash)
-          DataCycleCore::Thing
-            .find_by(
-              template: true,
-              template_name: def_hash.dig('template_name')
-            )
+          DataCycleCore::ThingTemplate
+            .find_by(template_name: def_hash.dig('template_name'))
             .schema
             .dig('properties')
         end

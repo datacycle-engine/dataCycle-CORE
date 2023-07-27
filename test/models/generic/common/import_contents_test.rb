@@ -3,6 +3,7 @@
 require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'helpers/minitest_spec_helper'
 
 module DummyTransformations
   def self.do_nothing_one(_external_source_id = nil)
@@ -41,6 +42,8 @@ module DummyTransformations
 end
 
 describe DataCycleCore::Generic::Common::ImportContents do
+  include DataCycleCore::MinitestSpecHelper
+
   subject do
     DataCycleCore::Generic::Common::ImportContents
   end

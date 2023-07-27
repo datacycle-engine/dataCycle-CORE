@@ -12,7 +12,7 @@ module DataCycleCore
           # 2 food_establishment CC BY 4.0 | CC BY-SA 4.0
           # 4 images CC0 | CC0 | CC0 | CC0
           before(:all) do
-            DataCycleCore::Thing.where(template: false).delete_all
+            DataCycleCore::Thing.delete_all
 
             @cc_by40 = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC BY 4.0').first
             @cc_by = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC BY').first

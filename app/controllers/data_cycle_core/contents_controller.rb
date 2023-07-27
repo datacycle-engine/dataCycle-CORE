@@ -113,7 +113,8 @@ module DataCycleCore
 
     def new
       @resolved_params = resolve_params(new_params).symbolize_keys
-      @template = DataCycleCore::Thing.find_by!(template: true, template_name: @resolved_params[:template])
+      @template = DataCycleCore::Thing.new(template_name: @resolved_params[:template])
+      raise ActiveRecord::RecordNotFound if @template.template_missing?
 
       render json: {
         html: render_to_string(formats: [:html], layout: false).strip,
@@ -122,7 +123,8 @@ module DataCycleCore
     end
 
     def create
-      authorize!(__method__, DataCycleCore::Thing.find_by(template: true, template_name: params[:template]), resolve_params(params, false).dig(:scope))
+      template = DataCycleCore::Thing.new(template_name: params[:template])
+      authorize!(__method__, template, resolve_params(params, false).dig(:scope))
 
       @object_browser_parent = DataCycleCore::Thing.find_by(id: params[:content_id]) || DataCycleCore::Thing.new { |t| t.id = params[:content_id] } if params[:content_id].present?
 
@@ -380,7 +382,7 @@ module DataCycleCore
       @hide_embedded = render_embedded_object_params[:hide_embedded]
       @translate = render_embedded_object_params[:translate]
 
-      if @content&.template
+      if @content&.persisted?
         authorize! :edit, @content
       else
         authorize! :edit, DataCycleCore::Thing
@@ -403,7 +405,7 @@ module DataCycleCore
     end
 
     def validate
-      @object = DataCycleCore::Thing.find_by(id: validation_params[:id]) || DataCycleCore::Thing.find_by(template: true, template_name: validation_params[:template])
+      @object = DataCycleCore::Thing.find_by(id: validation_params[:id]) || DataCycleCore::Thing.new(template_name: validation_params[:template])
 
       render(json: { warning: { content: ['content/template not found'] } }) && return if @object.nil?
 
@@ -570,8 +572,8 @@ module DataCycleCore
 
     def attribute_default_value
       authorize! :show, DataCycleCore::Thing
-
-      template = DataCycleCore::Thing.find_by!(template: true, template_name: default_value_params[:template_name])
+      template = DataCycleCore::Thing.new(template_name: default_value_params[:template_name])
+      raise ActiveRecord::RecordNotFound if template.template_missing?
 
       I18n.with_locale(default_value_params[:locale] || DataCycleCore.ui_locales.first) do
         render(
@@ -609,8 +611,7 @@ module DataCycleCore
       authorize! :show, DataCycleCore::Thing
 
       raise ActiveRecord::RecordNotFound unless DataCycleCore::Feature::ContentScore.enabled?
-
-      content = DataCycleCore::Thing.find_by(id: content_score_params[:id]) || DataCycleCore::Thing.find_by(template: true, template_name: content_score_params[:template_name])
+      content = DataCycleCore::Thing.find_by(id: content_score_params[:id]) || DataCycleCore::Thing.new(template_name: content_score_params[:template_name])
 
       raise ActiveRecord::RecordNotFound if content.nil?
 

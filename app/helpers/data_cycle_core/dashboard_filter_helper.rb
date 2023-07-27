@@ -14,7 +14,7 @@ module DataCycleCore
     end
 
     def thing_ids_to_value(value)
-      DataCycleCore::Thing.where(template: false, id: value)
+      DataCycleCore::Thing.where(id: value)
         .where.not(content_type: 'embedded')
         .includes(:translations)
         .map { |t| t.to_select_option(false, active_ui_locale) }

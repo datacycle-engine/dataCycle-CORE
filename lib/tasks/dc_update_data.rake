@@ -11,16 +11,17 @@ namespace :dc do
       webhooks = args.fetch(:webhooks, 'true').to_s
       template_names = args.fetch(:template_name, false).to_s.then { |t| t.present? && t != 'false' ? t.split('|') : false }
       computed_names = args.fetch(:computed_name, false).to_s.then { |c| c.present? && c != 'false' ? c.split('|') : false }
-      selected_things = DataCycleCore::Thing.where(template: true)
+      selected_things = DataCycleCore::ThingTemplate.all
       selected_things = selected_things.where(template_name: template_names) if template_names.present?
 
       puts "ATTRIBUTES TO UPDATE: #{computed_names.present? ? computed_names.join(', ') : 'all'}"
 
-      selected_things.find_each do |template|
+      selected_things.find_each do |thing_template|
+        template = DataCycleCore::Thing.new(thing_template: thing_template)
         next if template.computed_property_names.blank?
         next if computed_names.present? && computed_names.any? && (computed_names & template.computed_property_names).none?
 
-        items = DataCycleCore::Thing.where(template: false, template_name: template.template_name)
+        items = DataCycleCore::Thing.where(template_name: template.template_name)
         translated_computed = (template.computed_property_names & template.translatable_property_names).present?
         progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
 
@@ -66,7 +67,7 @@ namespace :dc do
     desc 'add default values for all attributes'
     task :add_defaults, [:template_names, :webhooks, :default_value_names, :imported, :thread_pool_size] => [:environment] do |_, args|
       template_names = args.template_names&.split('|')&.map(&:squish)
-      selected_things = DataCycleCore::Thing.where(template: true)
+      selected_things = DataCycleCore::ThingTemplate.all
       selected_things = selected_things.where(template_name: template_names) if template_names.present?
       default_value_names = args.fetch(:default_value_names, false).to_s.then { |c| c.present? && c != 'false' ? c.split('|') : false }.freeze
       thread_pool_size = [args.thread_pool_size&.to_i, ActiveRecord::Base.connection_pool.size - 1].compact.min
@@ -74,11 +75,12 @@ namespace :dc do
 
       puts "ATTRIBUTES TO UPDATE: #{default_value_names.present? ? default_value_names.join(', ') : 'all'}, THREADS: #{thread_pool_size}"
 
-      selected_things.find_each do |template|
+      selected_things.find_each do |thing_template|
+        template = DataCycleCore::Thing.new(thing_template: thing_template)
         next if template.default_value_property_names.blank?
         next if default_value_names.present? && default_value_names.any? && (default_value_names & template.default_value_property_names).none?
 
-        items = DataCycleCore::Thing.where(template: false, template_name: template.template_name)
+        items = DataCycleCore::Thing.where(template_name: template.template_name)
         items = items.where(external_source_id: nil) if args.imported&.to_s&.downcase == 'false'
 
         translated_properties = (template.default_value_property_names & template.translatable_property_names).present?

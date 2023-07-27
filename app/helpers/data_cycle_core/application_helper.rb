@@ -153,8 +153,8 @@ module DataCycleCore
       "#{item.class.name.underscore}_#{item.id}_#{locale}_#{item.updated_at&.to_i}_#{item.cache_valid_since&.to_i}_#{mode}_#{watch_list&.id}_#{active_ui_locale}"
     end
 
-    def new_content_select_options(query: DataCycleCore::Thing.all, query_methods: [], content: nil, scope: nil, limit: nil, ordered_array: nil)
-      query = query.where(template: true)
+    def new_content_select_options(query_methods: [], content: nil, scope: nil, limit: nil, ordered_array: nil)
+      query = DataCycleCore::ThingTemplate.all
       query_methods.presence&.map(&:stringify_keys)&.each do |query_method|
         if query.respond_to?(query_method['method_name']) && query_method.key?('value')
           query = query.try(query_method['method_name'], query_method['value'])
@@ -163,10 +163,15 @@ module DataCycleCore
         end
       end
 
-      query = query.each.select { |t| can?(:create, t, scope, { content: content }) }
-      query = query.sort_by { |t| ordered_array.index(t.template_name).to_i } if ordered_array.present?
+      query = query.template_things.each.select { |t| can?(:create, t, scope, { content: content }) }
+      if ordered_array.present?
+        query = query.sort_by { |t| ordered_array.index(t.template_name).to_i }
+      else
+        query = query.sort_by(&:template_name)
+      end
       query = query.first(limit.to_i) if limit.present?
-      query.sort_by(&:template_name)
+
+      query
     end
 
     def to_query_params(options_hash)
@@ -271,7 +276,14 @@ module DataCycleCore
         })
       end
 
-      templates = DataCycleCore::Thing.includes(:translations).select("DISTINCT ON (things.id, asset_type) *, property_name.value ->> 'asset_type' AS asset_type").from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND (value ->> 'asset_type' = ? OR things.template_name IN (?))", true, asset_type, DataCycleCore.features.dig(:external_media_archive, :enabled) ? DataCycleCore::Feature::ExternalMediaArchive.get_template_name(asset_type) : nil)
+      templates = DataCycleCore::ThingTemplate
+        .select("DISTINCT ON (thing_templates.template_name, asset_type) *, property_name.value ->> 'asset_type' AS asset_type")
+        .from("thing_templates, jsonb_each(schema -> 'properties') property_name")
+        .where(
+          "(property_name.value ->> 'asset_type' = ? OR thing_templates.template_name IN (?))",
+          asset_type,
+          DataCycleCore.features.dig(:external_media_archive, :enabled) ? DataCycleCore::Feature::ExternalMediaArchive.get_template_name(asset_type) : nil
+        ).template_things
 
       creatable = false
       templates.each do |t|

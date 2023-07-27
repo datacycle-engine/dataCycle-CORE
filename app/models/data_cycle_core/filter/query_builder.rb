@@ -310,6 +310,10 @@ module DataCycleCore
         DataCycleCore::Subscription.arel_table
       end
 
+      def thing_template
+        DataCycleCore::ThingTemplate.arel_table
+      end
+
       def search_exists(query_string, fulltext_search = false)
         search_query = search
 

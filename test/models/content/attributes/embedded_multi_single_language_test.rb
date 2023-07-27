@@ -21,8 +21,8 @@ module DataCycleCore
           assert_equal([:en], embedded_en.available_locales)
 
           # check consistency of data in DB
-          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Entity-Creative-Work-1').count)
-          assert_equal(2, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Creative-Work-2').count)
+          assert_equal(1, DataCycleCore::Thing.where(template_name: 'Embedded-Entity-Creative-Work-1').count)
+          assert_equal(2, DataCycleCore::Thing.where(template_name: 'Embedded-Creative-Work-2').count)
           assert_equal(2, DataCycleCore::ContentContent.count)
         end
 
@@ -31,8 +31,8 @@ module DataCycleCore
           data_set.destroy_content(save_history: false)
 
           # check consistency of data in DB
-          assert_equal(0, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Entity-Creative-Work-1').count)
-          assert_equal(0, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Creative-Work-2').count)
+          assert_equal(0, DataCycleCore::Thing.where(template_name: 'Embedded-Entity-Creative-Work-1').count)
+          assert_equal(0, DataCycleCore::Thing.where(template_name: 'Embedded-Creative-Work-2').count)
           assert_equal(0, DataCycleCore::ContentContent.count)
         end
 
@@ -41,8 +41,8 @@ module DataCycleCore
           data_set.destroy_content(save_history: false, destroy_locale: true)
 
           # check consistency of data in DB
-          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Entity-Creative-Work-1').count)
-          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Creative-Work-2').count)
+          assert_equal(1, DataCycleCore::Thing.where(template_name: 'Embedded-Entity-Creative-Work-1').count)
+          assert_equal(1, DataCycleCore::Thing.where(template_name: 'Embedded-Creative-Work-2').count)
           assert_equal(1, DataCycleCore::ContentContent.count)
         end
 
@@ -50,16 +50,16 @@ module DataCycleCore
           data_set = @data_set
           I18n.with_locale(:en) { data_set.destroy_content(save_history: false, destroy_locale: true) }
 
-          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Entity-Creative-Work-1').count)
-          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Creative-Work-2').count)
+          assert_equal(1, DataCycleCore::Thing.where(template_name: 'Embedded-Entity-Creative-Work-1').count)
+          assert_equal(1, DataCycleCore::Thing.where(template_name: 'Embedded-Creative-Work-2').count)
           assert_equal(1, DataCycleCore::ContentContent.count)
           assert_equal(1, data_set.available_locales.size)
-          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Entity-Creative-Work-1').first.available_locales.size)
+          assert_equal(1, DataCycleCore::Thing.where(template_name: 'Embedded-Entity-Creative-Work-1').first.available_locales.size)
 
           I18n.with_locale(:de) { data_set.destroy_content(save_history: false, destroy_locale: true) }
 
-          assert_equal(0, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Entity-Creative-Work-1').count)
-          assert_equal(0, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Creative-Work-2').count)
+          assert_equal(0, DataCycleCore::Thing.where(template_name: 'Embedded-Entity-Creative-Work-1').count)
+          assert_equal(0, DataCycleCore::Thing.where(template_name: 'Embedded-Creative-Work-2').count)
           assert_equal(0, DataCycleCore::ContentContent.count)
         end
 
@@ -72,8 +72,8 @@ module DataCycleCore
           assert_equal(3, data_set.load_relation('embedded_creative_work', nil, false, [I18n.locale]).size)
 
           # check consistency of data in DB
-          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Entity-Creative-Work-1').count)
-          assert_equal(3, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Creative-Work-2').count)
+          assert_equal(1, DataCycleCore::Thing.where(template_name: 'Embedded-Entity-Creative-Work-1').count)
+          assert_equal(3, DataCycleCore::Thing.where(template_name: 'Embedded-Creative-Work-2').count)
           assert_equal(3, DataCycleCore::ContentContent.count)
         end
 
@@ -90,8 +90,8 @@ module DataCycleCore
           I18n.with_locale(:en) { assert_equal(2, data_set.embedded_creative_work.size) }
 
           # check consistency of data in DB
-          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Entity-Creative-Work-1').count)
-          assert_equal(3, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Creative-Work-2').count)
+          assert_equal(1, DataCycleCore::Thing.where(template_name: 'Embedded-Entity-Creative-Work-1').count)
+          assert_equal(3, DataCycleCore::Thing.where(template_name: 'Embedded-Creative-Work-2').count)
           assert_equal(3, DataCycleCore::ContentContent.count)
         end
 

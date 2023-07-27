@@ -18,12 +18,12 @@ module DataCycleCore
       end
 
       def overlay_property_names
-        @overlay_property_names ||= overlay_template_name.present? ? Array.wrap(DataCycleCore::Thing.find_by(template_name: overlay_template_name, template: true)&.property_names) : []
+        @overlay_property_names ||= overlay_template_name.present? ? Array.wrap(DataCycleCore::ThingTemplate.find_by(template_name: overlay_template_name)&.property_names) : []
       end
       alias overlay_properties overlay_property_names
 
       def overlay_property_definitions
-        @overlay_property_definitions ||= DataCycleCore::Thing.find_by(template_name: overlay_template_name, template: true)&.schema&.dig('properties') || {}
+        @overlay_property_definitions ||= DataCycleCore::ThingTemplate.find_by(template_name: overlay_template_name)&.schema&.dig('properties') || {}
       end
 
       def overlay_properties_for(overlay_property_name)

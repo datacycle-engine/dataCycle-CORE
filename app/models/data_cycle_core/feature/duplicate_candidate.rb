@@ -49,7 +49,6 @@ module DataCycleCore
 
         def only_title_duplicate(content)
           DataCycleCore::Thing.where(
-            template: false,
             template_name: content.template_name,
             name: content.name
           ).where.not(id: content.id)
@@ -64,7 +63,6 @@ module DataCycleCore
           relevant_schema['properties'] = relevant_schema.dig('properties').except(*except)
           total = relevant_schema['properties'].size
           DataCycleCore::Thing.where(
-            template: false,
             template_name: content.template_name
           ).joins(:translations).where(
             "thing_translations.locale = 'de'"
@@ -82,7 +80,6 @@ module DataCycleCore
 
         def data_metric_name_geo(content)
           DataCycleCore::Thing.where(
-            template: false,
             template_name: content.template_name,
             name: content.name
           ).where( # prefilter location

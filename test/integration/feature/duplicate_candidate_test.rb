@@ -42,7 +42,7 @@ module DataCycleCore
         assert_empty @content2.duplicate_candidates
 
         DataCycleCore::Thing
-          .where(template: false, external_source_id: nil, external_key: nil, template_name: 'Bild')
+          .where(external_source_id: nil, external_key: nil, template_name: 'Bild')
           .where.not(content_type: 'embedded')
           .find_each(&:create_duplicate_candidates)
 

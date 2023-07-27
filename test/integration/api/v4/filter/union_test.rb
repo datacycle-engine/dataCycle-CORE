@@ -8,7 +8,7 @@ module DataCycleCore
       module Filter
         class UnionTest < DataCycleCore::V4::Base
           before(:all) do
-            DataCycleCore::Thing.where(template: false).delete_all
+            DataCycleCore::Thing.delete_all
 
             # name: Headline used for event, event_series and poi
             @event = DataCycleCore::V4::DummyDataHelper.create_data('minimal_event')
@@ -151,7 +151,7 @@ module DataCycleCore
             # 3 POI's
             # 1 Event
             # 1 Person
-            @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
+            @thing_count = DataCycleCore::Thing.where.not(content_type: 'embedded').count
           end
 
           test 'api/v4/endpoints make sure contentId,filterId and watch_list id are also available on filter root and linked' do

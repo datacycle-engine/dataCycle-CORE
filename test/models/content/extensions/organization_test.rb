@@ -5,10 +5,7 @@ require 'test_helper'
 module DataCycleCore
   class OrganizationTest < ActiveSupport::TestCase
     test 'create an organization and read all attributes' do
-      template = DataCycleCore::Thing.find_by(template: true, template_name: 'Organization')
-      data_set = DataCycleCore::Thing.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
+      data_set = DataCycleCore::Thing.new(template_name: 'Organization')
       data_set.save
       data_set.set_data_hash(
         data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('things', 'organization').merge(
@@ -30,11 +27,8 @@ module DataCycleCore
     end
 
     test 'expect an exception when template includes wrong data-type' do
-      template = DataCycleCore::Thing.find_by(template: true, template_name: 'Organization')
-      data_set = DataCycleCore::Thing.new
-      data_set.schema = template.schema.merge('properties' => { 'test' => { 'label' => 'test', 'type' => 'test' } })
-      data_set.template_name = template.template_name
-      data_set.save
+      data_set = DataCycleCore::Thing.new(template_name: 'Organization')
+      data_set.schema['properties'] = { 'test' => { 'label' => 'test', 'type' => 'test' } }
       assert_raises StandardError do
         data_set.set_data_hash(data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('things', 'organization'), partial_update: false)
       end

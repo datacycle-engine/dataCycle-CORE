@@ -5,7 +5,7 @@ require 'test_helper'
 module DataCycleCore
   class ClassificationSearchTest < DataCycleCore::TestCases::ActiveSupportTestCase
     before(:all) do
-      @things = DataCycleCore::Thing.where(template: false).count
+      @things = DataCycleCore::Thing.count
       create_content('Artikel', { name: 'HEADLINE - NO TAGS 1' })
       create_content('Artikel', { name: 'HEADLINE - NO TAGS 2' })
       create_content('Artikel', { name: 'HEADLINE - NO TAGS 3' })

@@ -14,7 +14,10 @@ module DataCycleCore
         value = parse_json_string(value) if value.is_a?(String)
 
         if resolve_instances && value.is_a?(::Hash) && value.key?('id') && value.key?('class')
-          return_hash[key] = value['class'].safe_constantize.find_by(id: value['id']) if defined?(value['class'])
+          next unless defined?(value['class'])
+
+          class_name = value['class'].safe_constantize
+          return_hash[key] = class_name.find_by(class_name.primary_key => value['id'])
         elsif resolve_instances && value.is_a?(::Hash) && value.key?('attributes') && value.key?('class')
           return_hash[key] = value['class'].safe_constantize.new(value['attributes']) if defined?(value['class'])
         elsif resolve_instances && value.is_a?(::Hash) && value.key?('ids') && value.key?('class')

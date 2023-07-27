@@ -8,7 +8,7 @@ module DataCycleCore
     module V4
       class JwtAuthenticationTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
         before(:all) do
-          DataCycleCore::Thing.where(template: false).delete_all
+          DataCycleCore::Thing.delete_all
           @routes = Engine.routes
           @current_user = User.find_by(email: 'tester@datacycle.at')
           @current_user.update_column(:access_token, SecureRandom.hex)

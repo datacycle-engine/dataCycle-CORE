@@ -8,7 +8,7 @@ module DataCycleCore
     module V1
       class RoutingTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
         before(:all) do
-          DataCycleCore::Thing.where(template: false).delete_all
+          DataCycleCore::Thing.delete_all
           @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'Merkliste 1')
         end
 

@@ -17,7 +17,7 @@ module DataCycleCore
         end
 
         def template(content = nil)
-          DataCycleCore::Thing.find_by(template: true, template_name: template_name(content))
+          DataCycleCore::Thing.new(template_name: template_name(content))
         end
 
         def life_cycle_stage(content = nil)

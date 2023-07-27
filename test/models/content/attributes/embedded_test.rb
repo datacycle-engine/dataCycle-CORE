@@ -45,9 +45,9 @@ module DataCycleCore
           assert_equal([linked_id], returned_data_hash['embedded_creative_work'].first['linked_place'])
 
           # check consistency of data in DB
-          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Creative-Work-2').count)
-          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Entity-Creative-Work-1').count)
-          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Linked-Place-1').count)
+          assert_equal(1, DataCycleCore::Thing.where(template_name: 'Embedded-Creative-Work-2').count)
+          assert_equal(1, DataCycleCore::Thing.where(template_name: 'Embedded-Entity-Creative-Work-1').count)
+          assert_equal(1, DataCycleCore::Thing.where(template_name: 'Linked-Place-1').count)
           assert_equal(2, DataCycleCore::ContentContent.count)
         end
 
@@ -71,7 +71,7 @@ module DataCycleCore
           assert_equal(expected_hash, returned_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
 
           # check consistency of data in DB
-          assert_equal(2, DataCycleCore::Thing.where(template: false).count)
+          assert_equal(2, DataCycleCore::Thing.count)
           assert_equal(0, DataCycleCore::ContentContent.count)
         end
 
@@ -111,7 +111,7 @@ module DataCycleCore
           assert_equal([linked_id], returned_data_hash['embedded_creative_work'].first['linked_place'])
 
           # check consistency of data in DB
-          assert_equal(4, DataCycleCore::Thing.where(template: false).count)
+          assert_equal(4, DataCycleCore::Thing.count)
           assert_equal(4, DataCycleCore::ContentContent.count)
 
           assert_equal(
@@ -131,7 +131,7 @@ module DataCycleCore
           assert_equal(expected_hash, returned_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
 
           # check consistency of data in DB
-          assert_equal(2, DataCycleCore::Thing.where(template: false).count)
+          assert_equal(2, DataCycleCore::Thing.count)
           assert_equal(0, DataCycleCore::ContentContent.count)
         end
 
@@ -166,7 +166,7 @@ module DataCycleCore
           assert_equal(2, returned_data_hash['embedded_creative_work'].count)
 
           # check consistency of data in DB
-          assert_equal(4, DataCycleCore::Thing.where(template: false).count)
+          assert_equal(4, DataCycleCore::Thing.count)
           assert_equal(4, DataCycleCore::ContentContent.count)
 
           data_hash['embedded_creative_work'].reverse!
@@ -182,7 +182,7 @@ module DataCycleCore
           assert_equal(2, returned_data_hash['embedded_creative_work'].count)
 
           # check consistency of data in DB
-          assert_equal(4, DataCycleCore::Thing.where(template: false).count)
+          assert_equal(4, DataCycleCore::Thing.count)
           assert_equal(2, data_set.content_content_a.where(relation_a: 'embedded_creative_work').size)
         end
       end

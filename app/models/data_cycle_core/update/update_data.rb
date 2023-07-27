@@ -4,7 +4,7 @@ module DataCycleCore
   module Update
     module UpdateData
       def query
-        @type.where(template: false)
+        @type
           .where(@type.arel_table[:template_name].eq(@template.template_name))
       end
 
@@ -16,7 +16,6 @@ module DataCycleCore
 
       def modify_content(content_item)
         content_item.template_name = @template.template_name
-        content_item.schema = @template.schema
         content_item.save
       end
 

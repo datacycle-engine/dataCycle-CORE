@@ -8,7 +8,7 @@ module DataCycleCore
       module General
         class ContextTest < DataCycleCore::V4::Base
           before(:all) do
-            DataCycleCore::Thing.where(template: false).delete_all
+            DataCycleCore::Thing.delete_all
           end
 
           test 'api/v4/concept_schemes' do

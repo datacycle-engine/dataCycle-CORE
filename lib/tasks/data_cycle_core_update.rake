@@ -45,14 +45,14 @@ namespace :data_cycle_core do
 
     desc 'delete history of a specific template_name'
     task :delete_history, [:template_name] => [:environment] do |_, args|
-      template = DataCycleCore::Thing.find_by(template_name: args[:template_name], template: true)
+      template = DataCycleCore::ThingTemplate.find_by(template_name: args[:template_name])
       if template.nil?
         puts 'ERROR: template not found. The following templates are known to the system:'
-        puts DataCycleCore::Thing.where(template: true).pluck(:template_name).sort
+        puts DataCycleCore::ThingTemplate.pluck(:template_name).sort
         exit(-1)
       end
 
-      data_object = DataCycleCore::Thing::History.where(template_name: args[:template_name], template: false)
+      data_object = DataCycleCore::Thing::History.where(template_name: args[:template_name])
       total_items = data_object.count
       puts "DELETE history for: #{args[:template_name]} (#{total_items}) - (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
       index = 0
@@ -83,7 +83,7 @@ namespace :data_cycle_core do
       taggable_templates = ['Bild']
       tag_property = :cloud_vision_tags
 
-      query = DataCycleCore::Thing.where(template: false, template_name: taggable_templates)
+      query = DataCycleCore::Thing.where(template_name: taggable_templates)
       max_items = query.count
 
       puts "AutoTagging all untagged Things with template #{taggable_templates} (#{max_items}) - (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"

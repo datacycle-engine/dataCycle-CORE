@@ -3,8 +3,11 @@
 require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'helpers/minitest_spec_helper'
 
 describe DataCycleCore::MasterData::Differs::Boolean do
+  include DataCycleCore::MinitestSpecHelper
+
   subject do
     DataCycleCore::MasterData::Differs::Boolean
   end
