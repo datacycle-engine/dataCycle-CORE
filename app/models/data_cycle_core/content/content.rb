@@ -319,6 +319,10 @@ module DataCycleCore
         name_property_selector(include_overlay) { |definition| definition['global'] == true }
       end
 
+      def local_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition['local'] == true }
+      end
+
       def search_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| definition['search'] == true }
       end

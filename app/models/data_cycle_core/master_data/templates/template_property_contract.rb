@@ -76,6 +76,7 @@ module DataCycleCore
           optional(:external) { bool? } # true -> only imported can not be manually edited
           optional(:universal) { bool? } # true -> only for universal_classifications... does not need a tree_label
           optional(:global) { bool? } # true -> edit is allowed for imported data
+          optional(:local) { bool? } # true -> edit is allowed, attribute will not be importet
 
           # for type asset
           optional(:asset_type) do
