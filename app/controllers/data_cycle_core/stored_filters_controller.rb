@@ -103,7 +103,7 @@ module DataCycleCore
     end
 
     def render_update_form
-      @stored_filter = stored_filter_params[:id].present? ? DataCycleCore::StoredFilter.find(stored_filter_params[:id]) : DataCycleCore::StoredFilter.new
+      @stored_filter = stored_filter_params[:id].present? ? DataCycleCore::StoredFilter.find(stored_filter_params[:id]) : DataCycleCore::StoredFilter.new(user_id: current_user&.id)
 
       authorize! @stored_filter.new_record? ? :create : :update, @stored_filter
 
