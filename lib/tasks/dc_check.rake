@@ -40,7 +40,7 @@ namespace :dc do
     task invalid_overlay_definitions: :environment do
       puts "######## Check for invalid overlay data_definition\r"
       errors = false
-      DataCycleCore::ThingTemplate.to_a.map { |thing_template| DataCycleCore::Thing.new(thing_template: thing_template) }.select { |thing| thing.overlay_template_name.present? }.each do |thing|
+      DataCycleCore::ThingTemplate.all.template_things.select { |thing| thing.overlay_template_name.present? }.each do |thing|
         next if (thing.add_overlay_property_names - ['dummy']).blank?
         errors = true
         found_things = DataCycleCore::Thing.where(template_name: thing.overlay_template_name).count
