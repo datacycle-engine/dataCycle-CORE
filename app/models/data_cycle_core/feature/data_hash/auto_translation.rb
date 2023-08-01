@@ -63,7 +63,7 @@ module DataCycleCore
 
         def create_update_auto_translations(source_locale = I18n.locale.to_s)
           source_locale = source_locale.to_s
-          additional_translations = subject_of
+          additional_translations = subject_of.where(template_name: 'Übersetzung')
           return { 'error' => 'Nothing to translate' } if additional_translations.blank?
           template = ThingTemplate.find_by(template_name: 'Übersetzung')
           return { 'error' => 'Data Type not found!' } if template.blank?
