@@ -3,12 +3,13 @@
 require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'helpers/minitest_spec_helper'
 
 module DataCycleCore
   module Content
     class TranslatedAttributeLabelTest < DataCycleCore::TestCases::ActiveSupportTestCase
       before(:all) do
-        @content = DataCycleCore::Thing.find_by(template: true, template_name: 'Artikel')
+        @content = DataCycleCore::Thing.new(template_name: 'Artikel')
       end
 
       test 'human_attribute_name for different languages' do

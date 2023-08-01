@@ -124,7 +124,7 @@ module DataCycleCore
       authorize!(:add_item, @watch_list)
 
       content = DataCycleCore::Thing.find(params[:content_id])
-      related_objects = content&.related_contents&.joins(:content_content_a)&.where(template: false, template_name: params[:template_name], content_contents: { content_b_id: params[:content_id], relation_a: params[:relation_a] })
+      related_objects = content&.related_contents&.joins(:content_content_a)&.where(template_name: params[:template_name], content_contents: { content_b_id: params[:content_id], relation_a: params[:relation_a] })
 
       inserted_ids = @watch_list.add_things_from_query(related_objects)
 

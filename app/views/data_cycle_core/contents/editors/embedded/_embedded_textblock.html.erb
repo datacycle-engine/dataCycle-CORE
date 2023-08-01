@@ -8,10 +8,10 @@
   <%= tag.div class: "content-object-item textblock draggable_#{sanitize_to_id(key)}",
     id: "#{sanitize_to_id(key)}_item_#{index}",
     data: {
-      id: object.template ? nil : object.id,
+      id: object.id,
       index: index
     } do %>
-    <%= hidden_field_tag("#{new_prefix}[id]", object.id) unless object.template || local_assigns[:duplicated_content] %>
+    <%= hidden_field_tag("#{new_prefix}[id]", object.id) unless object.new_record? || local_assigns[:duplicated_content] %>
 
     <% content_for(:text_editor_header) do %>
       <span class="embedded-header dc-sticky-bar form-element validation-container" data-key="<%= "#{new_prefix}[name]" %>">

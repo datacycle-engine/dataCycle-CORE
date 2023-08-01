@@ -9,7 +9,7 @@ module DataCycleCore
         class ThingTest < DataCycleCore::V4::Base
           before(:all) do
             @event = DataCycleCore::V4::DummyDataHelper.create_data('event')
-            @thing_count = DataCycleCore::Thing.where(template: false, content_type: 'entity').count
+            @thing_count = DataCycleCore::Thing.where(content_type: 'entity').count
           end
 
           test 'api/v4/thing default' do

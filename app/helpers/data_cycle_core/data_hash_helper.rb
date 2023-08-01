@@ -16,7 +16,7 @@ module DataCycleCore
       return nil if definition.blank? || definition.dig('template_name').nil?
 
       template_name = definition['template_name']
-      DataCycleCore::Thing.find_by("template = true AND schema ->> 'content_type' = ? AND template_name =?", 'entity', template_name)
+      DataCycleCore::Thing.new(template_name: template_name)
     end
 
     def attribute_group_title(content, key)

@@ -16,7 +16,7 @@ module DataCycleCore
         },
         tmp7: ['test5', 'test6', 'test7'],
         tmp8: Time.zone.now,
-        tmp9: DataCycleCore::Thing.where(template: true),
+        tmp9: DataCycleCore::ThingTemplate.all,
         tmp10: [
           {
             tmp11: 'test8'
@@ -32,7 +32,7 @@ module DataCycleCore
       assert_raise { @hash1[:tmp2][:tmp4] << 'fail' }
       assert_raise { @hash1[:tmp7] << 'fail' }
       assert_raise { @hash1[:tmp8] += 1.day }
-      assert_raise { @hash1[:tmp9] = @hash1[:tmp9].pluck(:id) }
+      assert_raise { @hash1[:tmp9] = @hash1[:tmp9].pluck(:template_name) }
       assert_raise { @hash1[:tmp10][0][:tmp11] << 'fail' }
     end
   end

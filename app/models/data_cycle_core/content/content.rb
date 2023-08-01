@@ -14,6 +14,8 @@ module DataCycleCore
       PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic', 'slug'].freeze
       WEBHOOK_ACCESSORS = [:webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks].freeze
 
+      after_initialize :add_template_properties, if: :new_record?
+
       self.abstract_class = true
 
       attr_accessor :datahash, :datahash_changes, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS
@@ -114,7 +116,7 @@ module DataCycleCore
 
       def content_template
         return @content_template if defined? @content_template
-        @content_template = DataCycleCore::Thing.find_by(template: true, template_name: template_name)
+        @content_template = DataCycleCore::Thing.new(template_name: template_name)
       end
 
       def content_type?(*types)
@@ -159,7 +161,7 @@ module DataCycleCore
       end
 
       def property_definitions
-        schema&.[]('properties') || {}
+        thing_template&.property_definitions || {}
       end
 
       def property_names
@@ -493,11 +495,16 @@ module DataCycleCore
       end
 
       def parent_templates
-        DataCycleCore::Thing
-          .from("things, jsonb_each(schema -> 'properties') property_name")
-          .where("things.template = ? AND value ->> 'type' = ? AND value ->> 'template_name' = ?", true, 'embedded', template_name)
-          .map { |t| t.content_type == 'embedded' ? t.parent_templates : t }
-          .flatten
+        DataCycleCore::ThingTemplate
+        .from("thing_templates, jsonb_each(schema -> 'properties') property_name")
+        .where(
+          "property_name.value ->> 'type' = ? AND property_name.value ->> 'template_name' = ?",
+          'embedded',
+          template_name
+        )
+        .template_things
+        .map { |t| t.content_type == 'embedded' ? t.parent_templates : t }
+        .flatten
       end
 
       def feature_attributes(prefix = '')
@@ -522,8 +529,7 @@ module DataCycleCore
       def self.shared_ordered_properties(user)
         contents = all.includes(:primary_classification_aliases, classification_aliases: [:classification_alias_path, :classification_tree_label])
 
-        ordered_properties = contents
-          .select('DISTINCT ON (things.template_name) things.schema')
+        ordered_properties = all.thing_templates.template_things
           .map { |t|
             t.schema['properties'].dc_deep_dup
               .except!(*(DataCycleCore.internal_data_attributes + ['id']))
@@ -555,8 +561,7 @@ module DataCycleCore
       end
 
       def self.shared_template_features
-        all
-          .select('DISTINCT ON (things.template_name) things.schema')
+        all.thing_templates.template_things
           .map { |t| t.schema['features'].to_a }
           .reduce(:&)
           .to_h
@@ -598,6 +603,19 @@ module DataCycleCore
       end
 
       private
+
+      def add_template_properties
+        if thing_template.present?
+          self.template_name ||= thing_template.template_name
+        elsif template_name.present?
+          self.thing_template ||= DataCycleCore::ThingTemplate.find_by(template_name: template_name)
+        end
+
+        raise ActiveModel::MissingAttributeError, ":thing_template or :template_name is required to initialize #{self.class.name}" if template_missing?
+
+        self.boost ||= thing_template.schema&.dig('boost').to_i
+        self.content_type ||= thing_template.schema&.dig('content_type')
+      end
 
       def attibute_cache_key(key, filter = nil, overlay_flag = false)
         "#{key}_#{I18n.locale}_#{filter.hash}_#{overlay_flag}"

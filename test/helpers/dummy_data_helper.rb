@@ -27,8 +27,7 @@ module DataCycleCore
       content = DataCycleCore::Thing.find_by(tour_data_hash.slice('name').merge(template_name: 'Tour'))
       return @content if @content.present?
 
-      content = DataCycleCore::Thing.find_by(template_name: 'Tour', template: true).dup
-      content.template = false
+      content = DataCycleCore::Thing.new(template_name: 'Tour')
       content.created_by = @user&.id
       content.external_key = 'test1'
       content.external_source_id = DataCycleCore::ExternalSystem.find_by(identifier: 'remote-system')&.id

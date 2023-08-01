@@ -170,15 +170,6 @@ module DataCycleCore
       classification_alias_path&.full_path_names&.reverse&.join(' > ')
     end
 
-    def self.with_content_templates
-      templates = DataCycleCore::Thing.where(template: true)
-
-      all.map do |c|
-        c.content_template = c.find_content_template(templates)
-        c
-      end
-    end
-
     def find_content_template(templates)
       template = templates.select { |t| t.schema&.dig('properties', 'data_type', 'default_value') == name }
 

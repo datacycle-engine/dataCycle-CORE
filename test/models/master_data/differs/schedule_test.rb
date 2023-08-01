@@ -3,8 +3,11 @@
 require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'helpers/minitest_spec_helper'
 
 describe DataCycleCore::MasterData::Differs::Schedule do
+  include DataCycleCore::MinitestSpecHelper
+
   subject do
     DataCycleCore::MasterData::Differs::Schedule
   end
@@ -69,7 +72,7 @@ describe DataCycleCore::MasterData::Differs::Schedule do
           'rrules' => [{ 'rule_type' => 'IceCube::DailyRule', 'interval' => '1' }]
         } } }
 
-      template = DataCycleCore::Thing.find_by(template: true, template_name: 'Event')
+      template = DataCycleCore::ThingTemplate.find_by(template_name: 'Event')
       transformed_schedule_hash = DataCycleCore::DataHashService.flatten_datahash_value(schedule_hash, template.schema).dig('event_schedule')
 
       assert_nil(subject.new(a_hash, transformed_schedule_hash).diff_hash)

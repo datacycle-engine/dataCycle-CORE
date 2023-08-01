@@ -8,7 +8,7 @@ module DataCycleCore
       module Sort
         class RandomTest < DataCycleCore::V4::Base
           before(:all) do
-            DataCycleCore::Thing.where(template: false).delete_all
+            DataCycleCore::Thing.delete_all
             @routes = Engine.routes
 
             @poi_a = DataCycleCore::V4::DummyDataHelper.create_data('poi')
@@ -16,7 +16,7 @@ module DataCycleCore
             @poi_c = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             @poi_d = DataCycleCore::V4::DummyDataHelper.create_data('poi')
 
-            @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
+            @thing_count = DataCycleCore::Thing.where.not(content_type: 'embedded').count
           end
 
           setup do

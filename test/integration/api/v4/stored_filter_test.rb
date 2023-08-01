@@ -8,7 +8,7 @@ module DataCycleCore
     module V4
       class StoredFilterTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
         before(:all) do
-          DataCycleCore::Thing.where(template: false).delete_all
+          DataCycleCore::Thing.delete_all
           @routes = Engine.routes
           @test_content = DataCycleCore::DummyDataHelper.create_data('tour')
         end

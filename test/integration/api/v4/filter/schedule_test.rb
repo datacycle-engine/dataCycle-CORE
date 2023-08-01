@@ -12,7 +12,7 @@ module DataCycleCore
           # today - tomorrow
           # 5.days - 10.days
           before(:all) do
-            DataCycleCore::Thing.where(template: false).delete_all
+            DataCycleCore::Thing.delete_all
 
             @event_a = DataCycleCore::V4::DummyDataHelper.create_data('minimal_event')
             schedule_a = DataCycleCore::TestPreparations.generate_schedule(8.days.ago.midday, 5.days.ago, 1.hour).serialize_schedule_object
@@ -39,7 +39,7 @@ module DataCycleCore
             schedule_g = DataCycleCore::TestPreparations.generate_schedule(Time.zone.now.beginning_of_day, 1.day.from_now, 1.hour).serialize_schedule_object
             @food_establishment_f.set_data_hash(partial_update: true, prevent_history: true, data_hash: { opening_hours_specification: [schedule_f.schedule_object.to_hash], dining_hours_specification: [schedule_g.schedule_object.to_hash] })
 
-            @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
+            @thing_count = DataCycleCore::Thing.where.not(content_type: 'embedded').count
           end
 
           test 'api/v4/things parameter filter[attribute][schedule]' do

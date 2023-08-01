@@ -5,7 +5,7 @@ require 'test_helper'
 module DataCycleCore
   class ExternalSystemSyncTest < ActiveSupport::TestCase
     def setup
-      @content_count = DataCycleCore::Thing.where(template: false).count
+      @content_count = DataCycleCore::Thing.count
       @external_system_count = DataCycleCore::ExternalSystem.count
 
       data = {
@@ -31,7 +31,7 @@ module DataCycleCore
     test 'add and update data for external system' do
       assert_equal({ 'key_1' => 'value_1' }, @data_set.external_system_data(@external_system))
 
-      assert_equal(DataCycleCore::Thing.where(template: false).count, (@content_count + 1))
+      assert_equal(DataCycleCore::Thing.count, (@content_count + 1))
       assert_equal(DataCycleCore::ExternalSystem.count, @external_system_count)
       assert_equal(@data_set.external_system_syncs.count, 1)
 
@@ -45,21 +45,21 @@ module DataCycleCore
       @data_set.remove_external_system_data(@external_system)
       assert_nil(@data_set.external_system_data(@external_system))
 
-      assert_equal(DataCycleCore::Thing.where(template: false).count, (@content_count + 1))
+      assert_equal(DataCycleCore::Thing.count, (@content_count + 1))
       assert_equal(DataCycleCore::ExternalSystem.count, @external_system_count)
       assert_equal(@data_set.external_system_syncs.count, 1)
     end
 
     test 'delete thing' do
       @data_set.destroy_content
-      assert_equal(DataCycleCore::Thing.where(template: false).count, @content_count)
+      assert_equal(DataCycleCore::Thing.count, @content_count)
       assert_equal(DataCycleCore::ExternalSystem.count, @external_system_count)
       assert_equal(@data_set.external_system_syncs.count, 0)
     end
 
     test 'delete external system' do
       @external_system.destroy
-      assert_equal(DataCycleCore::Thing.where(template: false).count, (@content_count + 1))
+      assert_equal(DataCycleCore::Thing.count, (@content_count + 1))
       assert_equal(DataCycleCore::ExternalSystem.count, (@external_system_count - 1))
       assert_equal(@data_set.external_system_syncs.count, 0)
     end

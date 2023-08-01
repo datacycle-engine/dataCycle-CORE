@@ -144,13 +144,13 @@ module DataCycleCore
     def self.create_content(template_name: nil, data_hash: nil, user: nil, prevent_history: false, save_time: Time.zone.now, version_name: nil, source: nil)
       return if template_name.blank? || data_hash.blank?
       data_hash = data_hash.dup.with_indifferent_access
-      @content = DataCycleCore::Thing.find_by(data_hash.slice('name', 'given_name', 'family_name').merge({ template_name: template_name, template: false }))
+      @content = DataCycleCore::Thing.find_by(data_hash.slice('name', 'given_name', 'family_name').merge({ template_name: template_name }))
       return @content if @content.present?
 
-      @content = DataCycleCore::Thing.find_by(template_name: template_name, template: true).dup
-      return if @content.nil?
+      @content = DataCycleCore::Thing.new(template_name: template_name)
 
-      @content.template = false
+      return if @content.template_missing?
+
       @content.created_at = save_time # - 1 / 1001.0 # use - 1 / 1001.0 to ensure history creation
       @content.updated_at = save_time # - 1 / 1001.0 # use - 1 / 1001.0 to ensure history creation
       @content.created_by = user&.id if user.present?
@@ -203,18 +203,5 @@ module DataCycleCore
     def self.load_dummy_data_hash(model, name)
       @dummy_data_hash.dig(model.to_sym, name.to_sym).dup
     end
-
-    # def self.load_dictionaries
-    #   Rails.application.load_tasks
-    #   Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update:dictionaries"].invoke
-    # end
-
-    # def self.data_set_object(template_name)
-    #   template = DataCycleCore::Thing.where(template: true, template_name: template_name).first
-    #   data_set = DataCycleCore::Thing.new
-    #   data_set.schema = template.schema
-    #   data_set.template_name = template.template_name
-    #   data_set
-    # end
   end
 end

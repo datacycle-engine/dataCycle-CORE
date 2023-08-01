@@ -63,10 +63,17 @@ module DataCycleCore
           has_many :valid_write_links, -> { valid.writable }, class_name: 'DataCycleCore::DataLink', as: :item
           has_many :asset_contents, dependent: :destroy, as: :content_data
           has_many :assets, through: :asset_contents
+
+          belongs_to :thing_template, inverse_of: :things, foreign_key: :template_name, primary_key: :template_name
+          delegate :schema, :computed_schema_types, to: :thing_template
         end
 
         def data_links
           DataCycleCore::DataLink.where(item_id: all.select(:id))
+        end
+
+        def thing_templates
+          DataCycleCore::ThingTemplate.where(template_name: all.reorder(nil).select(:template_name))
         end
       end
 
@@ -132,6 +139,20 @@ module DataCycleCore
         cached_related_contents.exists?
       end
 
+      def template_missing?
+        thing_template.nil?
+      end
+
+      def require_template!
+        raise ActiveRecord::RecordNotFound if thing_template.nil?
+
+        self
+      end
+
+      def thing_template?
+        !template_missing?
+      end
+
       def related_contents(embedded: false)
         tree_query = <<-SQL.squish
           WITH RECURSIVE content_tree(id) AS (
@@ -179,7 +200,7 @@ module DataCycleCore
         SQL
 
         self.class
-          .where(content_type: 'entity', template: false)
+          .where(content_type: 'entity')
           .where("things.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, id: id])})")
       end
 

@@ -5,10 +5,7 @@ require 'test_helper'
 module DataCycleCore
   class StandardArtikelContentLocationTest < ActiveSupport::TestCase
     test 'create a Örtlichkeit' do
-      place_template = DataCycleCore::Thing.find_by(template: true, template_name: 'Örtlichkeit')
-      data_set_place1 = DataCycleCore::Thing.new
-      data_set_place1.schema = place_template.schema
-      data_set_place1.template_name = place_template.template_name
+      data_set_place1 = DataCycleCore::Thing.new(template_name: 'Örtlichkeit')
       data_set_place1.save
       place_hash1 = {
         'name' => 'Wien',

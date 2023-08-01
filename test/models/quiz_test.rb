@@ -53,7 +53,7 @@ module DataCycleCore
       assert_equal(1, returned_data_hash['question'][1]['accepted_answer'].count)
 
       # check consistency of data in DB
-      assert_equal(13, DataCycleCore::Thing.where(template: false).count)
+      assert_equal(13, DataCycleCore::Thing.count)
       assert_equal(16, DataCycleCore::ClassificationContent.count)
 
       new_data_hash = returned_data_hash # .except("output_channels")
@@ -62,7 +62,7 @@ module DataCycleCore
       data_set.save
 
       # check consistency of data in DB
-      assert_equal(1, DataCycleCore::Thing.where(template: false).count)
+      assert_equal(1, DataCycleCore::Thing.count)
       assert_equal(4, DataCycleCore::ClassificationContent.count)
     end
 
@@ -115,7 +115,7 @@ module DataCycleCore
       assert_equal(1, returned_data_hash['question'][1]['accepted_answer'].count)
 
       # check consistency of data in DB
-      assert_equal(13, DataCycleCore::Thing.where(template: false).count)
+      assert_equal(13, DataCycleCore::Thing.count)
       assert_equal(16, DataCycleCore::ClassificationContent.count)
 
       # leave one question alone, delete the second one incl. all related answers and classification_relations
@@ -125,7 +125,7 @@ module DataCycleCore
       data_set.save
 
       # check consistency of data in DB
-      assert_equal(7, DataCycleCore::Thing.where(template: false).count)
+      assert_equal(7, DataCycleCore::Thing.count)
       assert_equal(10, DataCycleCore::ClassificationContent.count)
     end
   end

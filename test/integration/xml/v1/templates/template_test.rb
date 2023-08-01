@@ -20,7 +20,7 @@ module DataCycleCore
         test 'change type of data for xml' do
           new_type = 'hugo'
           @content.schema['xml'] = { 'type' => new_type }
-          @content.save!
+          @content.thing_template.update_column(:schema, @content.schema)
 
           get xml_v1_thing_path(id: @content)
           assert_response(:success)
@@ -33,7 +33,7 @@ module DataCycleCore
 
         test 'xml parameter name renames property when redered' do
           @content.schema['properties']['text']['xml'] = { 'name' => 'alternative' }
-          @content.save!
+          @content.thing_template.update_column(:schema, @content.schema)
 
           get xml_v1_thing_path(id: @content)
           assert_response(:success)
@@ -46,7 +46,7 @@ module DataCycleCore
 
         test 'xml parameter name renames property when redered and camelize output name' do
           @content.schema['properties']['text']['xml'] = { 'name' => 'new_name' }
-          @content.save!
+          @content.thing_template.update_column(:schema, @content.schema)
 
           get xml_v1_thing_path(id: @content)
           assert_response(:success)
@@ -59,7 +59,7 @@ module DataCycleCore
 
         test 'xml property can be disabled' do
           @content.schema['properties']['text']['xml'] = { 'disabled' => true }
-          @content.save!
+          @content.thing_template.update_column(:schema, @content.schema)
 
           get xml_v1_thing_path(id: @content)
           assert_response(:success)

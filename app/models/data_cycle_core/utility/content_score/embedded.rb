@@ -120,7 +120,7 @@ module DataCycleCore
           private
 
           def calculate_nested_scores(objects:, definition:)
-            template = DataCycleCore::Thing.find_by(template: true, template_name: definition['template_name'])
+            template = DataCycleCore::Thing.new(template_name: definition['template_name'])
             contents = DataCycleCore::Thing.where(id: objects.pluck(:id)).index_by(&:id)
 
             return [] if template.nil?

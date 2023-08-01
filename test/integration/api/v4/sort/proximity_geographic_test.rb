@@ -13,7 +13,7 @@ module DataCycleCore
           # 1 10
           # 1 1
           before(:all) do
-            DataCycleCore::Thing.where(template: false).delete_all
+            DataCycleCore::Thing.delete_all
 
             @poi_d = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             lat_long_d = {
@@ -51,7 +51,7 @@ module DataCycleCore
             @poi_a.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@poi_a.longitude, @poi_a.latitude)
             @poi_a.save
 
-            @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
+            @thing_count = DataCycleCore::Thing.where.not(content_type: 'embedded').count
           end
 
           # sw_lon, sw_lat, ne_lon, ne_lat

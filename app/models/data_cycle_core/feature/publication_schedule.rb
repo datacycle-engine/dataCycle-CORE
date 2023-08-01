@@ -13,7 +13,7 @@ module DataCycleCore
         end
 
         def publication_template(content)
-          @publication_template ||= DataCycleCore::Thing.find_by(template: true, template_name: content&.schema&.dig('properties', attribute_keys(content).first, 'template_name'))
+          @publication_template ||= DataCycleCore::Thing.new(template_name: content&.schema&.dig('properties', attribute_keys(content).first, 'template_name'))
         end
 
         def publication_date_key(content)

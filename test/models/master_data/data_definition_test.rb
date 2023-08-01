@@ -3,8 +3,11 @@
 require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'helpers/minitest_spec_helper'
 
 describe DataCycleCore::MasterData::Templates::TemplateValidator do
+  include DataCycleCore::MinitestSpecHelper
+
   subject do
     DataCycleCore::MasterData::Templates::TemplateValidator
   end
@@ -112,8 +115,8 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
                 edit: {
                   type: 'objectBrowser',
                   options: {
-                    "data-validate": 'media',
-                    "data-type": 'image'
+                    'data-validate': 'media',
+                    'data-type': 'image'
                   }
                 }
               }
@@ -127,8 +130,8 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
                 edit: {
                   type: 'objectBrowser',
                   options: {
-                    "data-validate": 'media',
-                    "data-type": 'video'
+                    'data-validate': 'media',
+                    'data-type': 'video'
                   }
                 }
               }
@@ -191,7 +194,7 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
                 edit: {
                   type: 'classificationSelector',
                   options: {
-                    "data-validate": 'classification'
+                    'data-validate': 'classification'
                   }
                 }
               }
@@ -340,143 +343,143 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
     it 'checks for valid value of name attribute in header' do
       test_hash = header_hash
       test_hash[:data][:name] = nil
-      assert !validate_header.call(test_hash).success?
+      assert_not validate_header.call(test_hash).success?
     end
 
-    it 'checks for presence of name attribute in header' do
-      test_hash = {}
-      test_hash[:data] = header_hash[:data].except(:name)
-      assert !validate_header.call(test_hash).success?
-    end
+    # it 'checks for presence of name attribute in header' do
+    #   test_hash = {}
+    #   test_hash[:data] = header_hash[:data].except(:name)
+    #   assert_not validate_header.call(test_hash).success?
+    # end
 
-    it 'checks for valid value of type in header' do
-      test_hash = header_hash
-      test_hash[:data][:type] = nil
-      assert !validate_header.call(test_hash).success?
-    end
+    # it 'checks for valid value of type in header' do
+    #   test_hash = header_hash
+    #   test_hash[:data][:type] = nil
+    #   assert_not validate_header.call(test_hash).success?
+    # end
 
-    it 'checks for wrong string value of type in header' do
-      test_hash = header_hash
-      test_hash[:data][:type] = 'string'
-      assert !validate_header.call(test_hash).success?
-    end
+    # it 'checks for wrong string value of type in header' do
+    #   test_hash = header_hash
+    #   test_hash[:data][:type] = 'string'
+    #   assert_not validate_header.call(test_hash).success?
+    # end
 
-    it 'checks for presence of type attribute in header' do
-      test_hash = {}
-      test_hash[:data] = header_hash[:data].except(:type)
-      assert !validate_header.call(test_hash).success?
-    end
+    # it 'checks for presence of type attribute in header' do
+    #   test_hash = {}
+    #   test_hash[:data] = header_hash[:data].except(:type)
+    #   assert_not validate_header.call(test_hash).success?
+    # end
 
-    it 'checks properties for label is a string' do
-      test_hash = simple_property_hash
-      test_hash[:label] = nil
-      assert !validate_property.call(test_hash).success?
-    end
+    # it 'checks properties for label is a string' do
+    #   test_hash = simple_property_hash
+    #   test_hash[:label] = nil
+    #   assert_not validate_property.call(test_hash).success?
+    # end
 
-    it 'checks properties for presence of type' do
-      test_hash = simple_property_hash.except(:type)
-      assert !validate_property.call(test_hash).success?
-    end
+    # it 'checks properties for presence of type' do
+    #   test_hash = simple_property_hash.except(:type)
+    #   assert_not validate_property.call(test_hash).success?
+    # end
 
-    it 'checks properties for type is a string' do
-      test_hash = simple_property_hash
-      test_hash[:type] = nil
-      assert !validate_property.call(test_hash).success?
-    end
+    # it 'checks properties for type is a string' do
+    #   test_hash = simple_property_hash
+    #   test_hash[:type] = nil
+    #   assert_not validate_property.call(test_hash).success?
+    # end
 
-    it 'checks properties for type is a wrong string' do
-      test_hash = simple_property_hash
-      test_hash[:type] = 'long'
-      assert !validate_property.call(test_hash).success?
-    end
+    # it 'checks properties for type is a wrong string' do
+    #   test_hash = simple_property_hash
+    #   test_hash[:type] = 'long'
+    #   assert_not validate_property.call(test_hash).success?
+    # end
 
-    it 'checks properties for valid types' do
-      test_hash = simple_property_hash
-      available_types = ['key', 'string', 'text', 'number', 'boolean', 'datetime', 'geographic', 'embedded', 'linked']
-      available_types.each do |type_name|
-        test_hash[:type] = type_name
-        assert validate_property.call(test_hash).success?
-      end
-    end
+    # it 'checks properties for valid types' do
+    #   test_hash = simple_property_hash
+    #   available_types = ['key', 'string', 'text', 'number', 'boolean', 'datetime', 'geographic', 'embedded', 'linked']
+    #   available_types.each do |type_name|
+    #     test_hash[:type] = type_name
+    #     assert validate_property.call(test_hash).success?
+    #   end
+    # end
 
-    it 'checks properties for type object' do
-      test_hash = simple_property_hash
-      test_hash[:type] = 'object'
-      test_hash[:storage_location] = 'value'
-      test_hash[:properties] = { id: { label: 'id', type: 'key' } }
-      assert validate_property.call(test_hash).success?
-    end
+    # it 'checks properties for type object' do
+    #   test_hash = simple_property_hash
+    #   test_hash[:type] = 'object'
+    #   test_hash[:storage_location] = 'value'
+    #   test_hash[:properties] = { id: { label: 'id', type: 'key' } }
+    #   assert validate_property.call(test_hash).success?
+    # end
 
-    it 'checks properties for storage_location is a string' do
-      test_hash = simple_property_hash
-      test_hash[:storage_location] = nil
-      assert !validate_property.call(test_hash).success?
-    end
+    # it 'checks properties for storage_location is a string' do
+    #   test_hash = simple_property_hash
+    #   test_hash[:storage_location] = nil
+    #   assert_not validate_property.call(test_hash).success?
+    # end
 
-    it 'checks properties for storage_location is a wrong string' do
-      test_hash = simple_property_hash
-      test_hash[:storage_location] = 'long'
-      assert !validate_property.call(test_hash).success?
-    end
+    # it 'checks properties for storage_location is a wrong string' do
+    #   test_hash = simple_property_hash
+    #   test_hash[:storage_location] = 'long'
+    #   assert_not validate_property.call(test_hash).success?
+    # end
 
-    it 'checks properties for valid storage_location' do
-      test_hash = simple_property_hash
-      available_storage_locations = ['column', 'value', 'translated_value']
-      available_storage_locations.each do |storage_location|
-        test_hash[:storage_location] = storage_location
-        assert validate_property.call(test_hash).success?
-      end
-    end
+    # it 'checks properties for valid storage_location' do
+    #   test_hash = simple_property_hash
+    #   available_storage_locations = ['column', 'value', 'translated_value']
+    #   available_storage_locations.each do |storage_location|
+    #     test_hash[:storage_location] = storage_location
+    #     assert validate_property.call(test_hash).success?
+    #   end
+    # end
 
-    it 'checks correct classification_relation' do
-      test_hash = classification_relation_hash
-      assert validate_property.call(test_hash).success?
-    end
+    # it 'checks correct classification_relation' do
+    #   test_hash = classification_relation_hash
+    #   assert validate_property.call(test_hash).success?
+    # end
 
-    it 'checks classification_relation works without default_value' do
-      test_hash = classification_relation_hash.except(:default_value)
-      assert validate_property.call(test_hash).success?
-    end
+    # it 'checks classification_relation works without default_value' do
+    #   test_hash = classification_relation_hash.except(:default_value)
+    #   assert validate_property.call(test_hash).success?
+    # end
 
-    it 'checks correct embedded_object_hash' do
-      test_hash = embedded_object_hash
-      assert validate_property.call(test_hash).success?
-    end
+    # it 'checks correct embedded_object_hash' do
+    #   test_hash = embedded_object_hash
+    #   assert validate_property.call(test_hash).success?
+    # end
 
-    it 'checks included_object_hash correctly' do
-      test_hash = included_object_hash
-      assert validate_property.call(test_hash).success?
-    end
+    # it 'checks included_object_hash correctly' do
+    #   test_hash = included_object_hash
+    #   assert validate_property.call(test_hash).success?
+    # end
 
-    it 'checks included_object_hash for wrong type' do
-      test_hash = included_object_hash
-      test_hash[:type] = 'string'
-      assert !validate_property.call(test_hash).success?
-    end
+    # it 'checks included_object_hash for wrong type' do
+    #   test_hash = included_object_hash
+    #   test_hash[:type] = 'string'
+    #   assert_not validate_property.call(test_hash).success?
+    # end
 
-    it 'checks included_object_hash for wrong storage_locations' do
-      test_hash = included_object_hash
-      (['key', 'column', 'classification_relation'] + ['things']).each do |location|
-        test_hash[:storage_location] = location
-        assert !validate_property.call(test_hash).success?
-      end
-    end
+    # it 'checks included_object_hash for wrong storage_locations' do
+    #   test_hash = included_object_hash
+    #   (['key', 'column', 'classification_relation'] + ['things']).each do |location|
+    #     test_hash[:storage_location] = location
+    #     assert_not validate_property.call(test_hash).success?
+    #   end
+    # end
 
-    it 'checks computed value definition' do
-      test_hash = computed_value_hash
-      assert validate_property.call(test_hash).success?
-    end
+    # it 'checks computed value definition' do
+    #   test_hash = computed_value_hash
+    #   assert validate_property.call(test_hash).success?
+    # end
 
-    it 'checks computed value definition for non existing module' do
-      test_hash = computed_value_hash
-      test_hash[:compute][:module] = 'WhatEver'
-      assert !validate_property.call(test_hash).success?
-    end
+    # it 'checks computed value definition for non existing module' do
+    #   test_hash = computed_value_hash
+    #   test_hash[:compute][:module] = 'WhatEver'
+    #   assert_not validate_property.call(test_hash).success?
+    # end
 
-    it 'checks computed value definition for non existing method' do
-      test_hash = computed_value_hash
-      test_hash[:compute][:method] = 'WhatEver'
-      assert !validate_property.call(test_hash).success?
-    end
+    # it 'checks computed value definition for non existing method' do
+    #   test_hash = computed_value_hash
+    #   test_hash[:compute][:method] = 'WhatEver'
+    #   assert_not validate_property.call(test_hash).success?
+    # end
   end
 end

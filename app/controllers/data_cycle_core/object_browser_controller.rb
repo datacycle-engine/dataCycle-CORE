@@ -6,7 +6,7 @@ module DataCycleCore
 
     def show
       authorize! :show, :object_browser
-      @content = DataCycleCore::Thing.find_by(id: permitted_params[:content_id]) || DataCycleCore::Thing.new(id: permitted_params[:content_id]) if permitted_params[:content_id].present?
+      @content = DataCycleCore::Thing.find_by(id: permitted_params[:content_id]) if permitted_params[:content_id].present?
 
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
         @definition = permitted_params.dig(:definition)
@@ -18,9 +18,6 @@ module DataCycleCore
           .parameters_from_hash(stored_filter)
           .apply_user_filter(current_user, { scope: 'object_browser', content_template: @content&.template_name, attribute_key: params[:key]&.attribute_name_from_key, template_name: stored_filter.blank? ? template_name : nil })
         filter.language = @language
-
-        @template = DataCycleCore::Thing.find_by(template: true, template_name: template_name)
-
         filter.parameters.concat Array.wrap(permitted_params.dig(:filter, :f)&.values)
 
         query = filter.apply

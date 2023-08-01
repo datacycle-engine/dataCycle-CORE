@@ -13,7 +13,7 @@ module DataCycleCore
         end
 
         def available_containers
-          @available_containers ||= DataCycleCore::Thing.where(template: true, content_type: 'container').order(:template_name)
+          @available_containers ||= DataCycleCore::ThingTemplate.where(content_type: 'container').template_things.sort_by(&:template_name)
         end
 
         def allowed_container_templates(content)

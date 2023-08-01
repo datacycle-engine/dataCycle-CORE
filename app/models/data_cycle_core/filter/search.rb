@@ -89,7 +89,7 @@ module DataCycleCore
 
         sql = <<-SQL.squish
           (
-            CASE WHEN things.computed_schema_types IS NOT NULL THEN things.computed_schema_types && ARRAY[:type]::VARCHAR[]
+            CASE WHEN thing_templates.computed_schema_types IS NOT NULL THEN thing_templates.computed_schema_types && ARRAY[:type]::VARCHAR[]
             ELSE (schema -> :attribute_path)::jsonb ? :type
             END
           )
@@ -98,7 +98,7 @@ module DataCycleCore
         query_string = Thing.send(:sanitize_sql_for_conditions, [sql, attribute_path: 'schema_type', type: type])
 
         reflect(
-          @query.where(Arel.sql(query_string))
+          @query.left_outer_joins(:thing_template).where(Arel.sql(query_string))
         )
       end
 
@@ -353,7 +353,7 @@ module DataCycleCore
       end
 
       def default_query
-        query = DataCycleCore::Thing.where(template: false)
+        query = DataCycleCore::Thing
         query = query.where.not(content_type: 'embedded') unless @include_embedded
         query = query.order(boost: :desc, updated_at: :desc, id: :desc)
         query = query.where(DataCycleCore::Search.select(1).where('searches.content_data_id = things.id').where(locale: @locale).arel.exists) if @locale.present?

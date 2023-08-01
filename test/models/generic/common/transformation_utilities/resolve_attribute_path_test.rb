@@ -3,6 +3,7 @@
 require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'helpers/minitest_spec_helper'
 
 describe 'DataCycleCore::Generic::Common::Trasnformations::TransformationUtilities#resolve_attribute_path' do
   subject do

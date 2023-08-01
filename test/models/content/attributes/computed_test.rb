@@ -24,7 +24,7 @@ module DataCycleCore
           assert_equal(6, data_set.value_2)
           assert_equal(11, data_set.math_sum)
 
-          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Calculation-Math').count)
+          assert_equal(1, DataCycleCore::Thing.where(template_name: 'Calculation-Math').count)
         end
 
         test 'Testing Utility::Calculation::Common methods' do
@@ -44,7 +44,7 @@ module DataCycleCore
           assert_equal(6, data_set.value_2)
           assert_equal(5, data_set.common_copy)
 
-          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Calculation-Common').count)
+          assert_equal(1, DataCycleCore::Thing.where(template_name: 'Calculation-Common').count)
         end
 
         test 'Testing Utility::Calculation::String methods' do
@@ -66,7 +66,7 @@ module DataCycleCore
           assert_equal("-text-de-text-#{data_set.created_at}-text-val_2", data_set.computed_value_correct)
           assert_nil(data_set.computed_value_incorrect)
 
-          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Computed-String').count)
+          assert_equal(1, DataCycleCore::Thing.where(template_name: 'Computed-String').count)
 
           I18n.with_locale(:en) do
             data_set.set_data_hash(
@@ -85,7 +85,7 @@ module DataCycleCore
             assert_equal('val_2', data_set.value_2)
             assert_equal("-text-en-text-#{data_set.created_at}-text-val_2", data_set.computed_value_correct)
 
-            assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Computed-String').count)
+            assert_equal(1, DataCycleCore::Thing.where(template_name: 'Computed-String').count)
           end
         end
       end

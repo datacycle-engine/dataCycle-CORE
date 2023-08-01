@@ -11,6 +11,7 @@ module DataCycleCore
       around(:all) do |&block|
         ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
           super(&block)
+        ensure
           raise ActiveRecord::Rollback
         end
       end
@@ -18,6 +19,7 @@ module DataCycleCore
       # around do |&block|
       #   ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
       #     super(&block)
+      #   ensure
       #     raise ActiveRecord::Rollback
       #   end
       # end
@@ -25,7 +27,7 @@ module DataCycleCore
       setup do
         instance_variables.each do |iv|
           tmp = instance_variable_get(iv)
-          next unless tmp.is_a?(ApplicationRecord)
+          next unless tmp.is_a?(ApplicationRecord) && !tmp.new_record?
 
           tmp.instance_variable_set(:@destroyed, false) if tmp.destroyed?
           tmp.reload

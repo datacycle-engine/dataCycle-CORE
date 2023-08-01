@@ -8,7 +8,7 @@ module DataCycleCore
       class RoutingTest < DataCycleCore::V4::Base
         before(:all) do
           @content = DataCycleCore::V4::DummyDataHelper.create_data('structured_article')
-          @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
+          @thing_count = DataCycleCore::Thing.where.not(content_type: 'embedded').count
           @stored_filter = DataCycleCore::StoredFilter.create(
             name: 'all_items_filter',
             user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id,

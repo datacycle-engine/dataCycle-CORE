@@ -8,7 +8,7 @@ module DataCycleCore
       module Classifications
         class ClassificationTest < DataCycleCore::V4::Base
           before(:all) do
-            DataCycleCore::Thing.where(template: false).delete_all
+            DataCycleCore::Thing.delete_all
             @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
           end
 

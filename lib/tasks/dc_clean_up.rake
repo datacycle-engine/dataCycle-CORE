@@ -115,7 +115,7 @@ namespace :dc do
 
     desc 'delete orphaned external_data'
     task :external_data, [:external_source_id, :template] => [:environment] do |_, args|
-      template = DataCycleCore::Thing.find_by(template: false, template_name: args.fetch(:template))
+      template = DataCycleCore::Thing.find_by(template_name: args.fetch(:template))
       ShellHelper.error('Error: No template found!') if template.blank?
 
       external_source = DataCycleCore::ExternalSystem.find_by(id: args.fetch(:external_source_id))
@@ -151,7 +151,7 @@ namespace :dc do
       orphaned_data = []
       CleanupHelper.embedded.each do |key, value|
         orphans = CleanupHelper.orphaned_embedded(value.uniq, key)
-        total = DataCycleCore::Thing.where(template: false, template_name: key).count
+        total = DataCycleCore::Thing.where(template_name: key).count
         puts "#{key.ljust(25)}  |   total: #{total.to_s.rjust(6)}   |   orphaned: #{orphans.size.to_s.rjust(6)}"
         orphaned_data.push(key) if orphans.size.positive?
       end
@@ -198,7 +198,7 @@ namespace :dc do
       ShellHelper.error 'invalid number of arguments' unless collection_name.present? && external_system_id.present? && template_name.present?
 
       external_system = DataCycleCore::ExternalSystem.find(external_system_id)
-      things = DataCycleCore::Thing.where(template: false, template_name: template_name, external_source_id: external_system.id)
+      things = DataCycleCore::Thing.where(template_name: template_name, external_source_id: external_system.id)
 
       puts "things (#{template_name}) found: #{things.size}\n"
 

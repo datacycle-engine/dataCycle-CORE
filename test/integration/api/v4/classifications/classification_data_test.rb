@@ -8,7 +8,7 @@ module DataCycleCore
       module Classifications
         class ClassificationDataTest < DataCycleCore::V4::Base
           before(:all) do
-            DataCycleCore::Thing.where(template: false).delete_all
+            DataCycleCore::Thing.delete_all
             @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
 
             @classification_tag = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Nested Tag 2').first

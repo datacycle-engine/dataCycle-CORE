@@ -11,7 +11,7 @@ module DataCycleCore
           module Events
             class Event < DataCycleCore::TestCases::ActionDispatchIntegrationTest
               before(:all) do
-                DataCycleCore::Thing.where(template: false).delete_all
+                DataCycleCore::Thing.delete_all
                 @content = DataCycleCore::DummyDataHelper.create_data('event')
                 event_schedule = @content.get_data_hash
                 event_schedule['event_schedule'] = [{

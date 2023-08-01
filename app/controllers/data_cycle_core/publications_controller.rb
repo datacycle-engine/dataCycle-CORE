@@ -7,8 +7,8 @@ module DataCycleCore
     before_action :check_feature_enabled
 
     def index
-      @publication_classifications = DataCycleCore::Thing
-        .find_by(template: true, template_name: 'Publikations-Plan')
+      @publication_classifications = DataCycleCore::ThingTemplate
+        .find_by(template_name: 'Publikations-Plan')
         &.schema
         &.dig('properties')
         &.select { |_, v| v['type'] == 'classification' && (Array(DataCycleCore::ClassificationTreeLabel.find_by(name: v['tree_label'])&.visibility) & ['show', 'show_more']).size.positive? }
@@ -45,7 +45,7 @@ module DataCycleCore
         .includes(:classification_alias_path)
         .index_by(&:id)
 
-      query2 = DataCycleCore::Thing.joins(:content_content_b).where(template: false, template_name: 'Publikations-Plan', content_contents: { content_a_id: query.pluck(:id) })
+      query2 = DataCycleCore::Thing.joins(:content_content_b).where(template_name: 'Publikations-Plan', content_contents: { content_a_id: query.pluck(:id) })
 
       query2 = query2.where("(things.metadata ->> 'publish_at')::date >= ?", params[:publications_from].presence || Date.current)
 

@@ -11,7 +11,7 @@ module DataCycleCore
           module CreativeWorks
             class Image < DataCycleCore::TestCases::ActionDispatchIntegrationTest
               before(:all) do
-                DataCycleCore::Thing.where(template: false).delete_all
+                DataCycleCore::Thing.delete_all
                 @content = DataCycleCore::DummyDataHelper.create_data('image')
               end
 

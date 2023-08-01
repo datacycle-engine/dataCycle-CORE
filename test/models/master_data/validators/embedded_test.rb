@@ -3,8 +3,11 @@
 require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'helpers/minitest_spec_helper'
 
 describe DataCycleCore::MasterData::Validators::Embedded do
+  include DataCycleCore::MinitestSpecHelper
+
   subject do
     DataCycleCore::MasterData::Validators::Embedded
   end
@@ -37,13 +40,13 @@ describe DataCycleCore::MasterData::Validators::Embedded do
     end
 
     let(:bild1) do
-      DataCycleCore::Thing.find_or_create_by!(id: '00000000-0000-0000-0000-000000000000') do |item|
+      DataCycleCore::Thing.find_or_create_by!(id: '00000000-0000-0000-0000-000000000000', template_name: 'Bild') do |item|
         item.name = 'Bild1'
       end
     end
 
     let(:bild2) do
-      DataCycleCore::Thing.find_or_create_by!(id: '00000000-0000-0000-0000-000000000001') do |item|
+      DataCycleCore::Thing.find_or_create_by!(id: '00000000-0000-0000-0000-000000000001', template_name: 'Bild') do |item|
         item.name = 'Bild2'
       end
     end

@@ -10,7 +10,7 @@ module DataCycleCore
           module Places
             class Poi < DataCycleCore::TestCases::ActionDispatchIntegrationTest
               before(:all) do
-                DataCycleCore::Thing.where(template: false).delete_all
+                DataCycleCore::Thing.delete_all
                 @content = DataCycleCore::DummyDataHelper.create_data('poi')
                 @content.set_data_hash(data_hash: { 'description' => 'some description', 'text' => 'some text' }, partial_update: true, prevent_history: true)
                 @content.save

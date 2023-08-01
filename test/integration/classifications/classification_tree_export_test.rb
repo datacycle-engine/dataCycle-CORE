@@ -6,7 +6,7 @@ module DataCycleCore
   module Classifications
     class ClassificationTreeExportTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
       before(:all) do
-        DataCycleCore::Thing.where(template: false).delete_all
+        DataCycleCore::Thing.delete_all
 
         TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel 1' })
         TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel 2' })

@@ -64,16 +64,18 @@ namespace :db do
 
   namespace :maintenance do
     desc 'run VACUUM (FULL) on DB, full(false|true)'
-    task :vacuum, [:full, :reindex] => [:environment] do |_, args|
+    task :vacuum, [:full, :reindex, :table_names] => [:environment] do |_, args|
       full = args.fetch(:full, false)
       reindex = args.fetch(:reindex, false)
+      table_names = args.fetch(:table_names, nil).to_s.split('|')
 
       options = []
       options << 'FULL' if full.to_s == 'true'
       options << 'ANALYZE'
-      sql = "VACUUM (#{options.join(', ')});"
+      sql = "VACUUM (#{options.join(', ')}) #{table_names.join(', ')}"
 
-      ActiveRecord::Base.connection.execute(sql)
+      ActiveRecord::Base.connection.execute("#{sql.squish};")
+      ActiveRecord::Base.connection.execute('VACUUM (ANALYZE);') if full.to_s == 'true'  # fix visibility tables
 
       next if full.to_s == 'true' || reindex.to_s != 'true'
 

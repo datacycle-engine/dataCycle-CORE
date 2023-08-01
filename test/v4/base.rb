@@ -16,7 +16,7 @@ module DataCycleCore
 
       before(:all) do
         @routes = Engine.routes
-        DataCycleCore::Thing.where(template: false).delete_all
+        DataCycleCore::Thing.delete_all
       end
 
       setup do

@@ -16,12 +16,12 @@ namespace :dc do
         template_names = args.template_names&.split('|')&.map(&:squish)
         puts 'UPDATING SEARCH ENTRIES'
 
-        query = DataCycleCore::Thing.where(template: true).where.not(content_type: 'embedded')
+        query = DataCycleCore::ThingTemplate.where.not(content_type: 'embedded')
         query = query.where(template_name: template_names) if template_names.present?
 
-        query.find_each do |template_object|
+        query.find_each do |thing_template|
           strategy = DataCycleCore::Update::UpdateSearch
-          DataCycleCore::Update::Update.new(type: DataCycleCore::Thing, template: template_object, strategy: strategy, transformation: nil)
+          DataCycleCore::Update::Update.new(type: DataCycleCore::Thing, template: DataCycleCore::Thing.new(thing_template: thing_template), strategy: strategy, transformation: nil)
         end
 
         clean_up_query = DataCycleCore::Search.where('searches.updated_at < ?', temp_time)

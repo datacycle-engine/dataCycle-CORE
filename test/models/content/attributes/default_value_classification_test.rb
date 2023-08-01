@@ -7,13 +7,16 @@ module DataCycleCore
     module Attributes
       class DefaultValueClassificationTest < ActiveSupport::TestCase
         def set_default_value(template_name, key, value, content = nil)
-          template = content || DataCycleCore::Thing.find_by(template: true, template_name: template_name)
-          if value.nil?
+          template = content || DataCycleCore::ThingTemplate.find_by(template_name: template_name)
+
+          if value.blank?
             template.schema['properties'][key].delete('default_value')
           else
             template.schema['properties'][key]['default_value'] = value
           end
-          template.save
+
+          template.update_column(:schema, template.schema) if template.is_a?(DataCycleCore::ThingTemplate)
+          template.remove_instance_variable(:@default_value_property_names) if template.instance_variable_defined?(:@default_value_property_names)
         end
 
         test 'default classifications get set on new contents' do

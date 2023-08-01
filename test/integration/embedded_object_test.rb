@@ -92,8 +92,7 @@ module DataCycleCore
     end
 
     test 'render existing embedded object (Zeitleiste in Artikel)' do
-      timeline_item = DataCycleCore::Thing.find_by(template_name: 'Zeitleiste', template: true).dup
-      timeline_item.template = false
+      timeline_item = DataCycleCore::Thing.new(template_name: 'Zeitleiste')
       timeline_item.save!
       I18n.with_locale(:de) do
         timeline_item.set_data_hash(data_hash: { 'name' => 'Test Zeitleiste' }, new_content: true, current_user: User.find_by(email: 'tester@datacycle.at'))

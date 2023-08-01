@@ -10,7 +10,7 @@ module DataCycleCore
           module CreativeWorks
             class Container < DataCycleCore::TestCases::ActionDispatchIntegrationTest
               before(:all) do
-                DataCycleCore::Thing.where(template: false).delete_all
+                DataCycleCore::Thing.delete_all
                 @content = DataCycleCore::DummyDataHelper.create_data('container')
 
                 @article = DataCycleCore::DummyDataHelper.create_data('article')

@@ -645,8 +645,7 @@ CREATE VIEW public.content_meta_items AS
     things.created_by,
     things.updated_by,
     things.deleted_by
-   FROM public.things
-  WHERE (things.template IS FALSE);
+   FROM public.things;
 
 
 --

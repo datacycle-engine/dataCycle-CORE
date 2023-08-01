@@ -84,15 +84,13 @@ module DataCycleCore
         end
 
         def update_templates
-          DataCycleCore::Thing.upsert_all(@templates.values.flatten.map do |t|
+          DataCycleCore::ThingTemplate.upsert_all(@templates.values.flatten.map do |t|
             {
               template_name: t[:name],
-              template: true,
-              cache_valid_since: Time.zone.now,
               schema: t[:data],
-              content_type: t.dig(:data, :content_type)
+              updated_at: Time.zone.now
             }
-          end, unique_by: :things_template_name_template_uq_idx)
+          end, unique_by: :template_name)
         end
 
         def load_templates

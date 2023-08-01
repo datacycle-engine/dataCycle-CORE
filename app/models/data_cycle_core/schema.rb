@@ -131,16 +131,16 @@ module DataCycleCore
     end
 
     def self.content_types
-      DataCycleCore::Thing.where(template: true).map(&:schema).map { |schema| schema['content_type'] }.uniq
+      DataCycleCore::ThingTemplate.map(&:schema).map { |schema| schema['content_type'] }.uniq
     end
 
     def self.templates_with_content_type(content_type)
-      DataCycleCore::Thing.where(template: true).where("schema ->> 'content_type' = ?", content_type)
+      DataCycleCore::ThingTemplate.where("schema ->> 'content_type' = ?", content_type).template_things
     end
 
     def self.load_schema_from_database
       new(
-        DataCycleCore::Thing.where(template: true).map { |t| Template.new(t.schema) }
+        DataCycleCore::ThingTemplate.all.map { |t| Template.new(t.schema) }
       )
     end
 

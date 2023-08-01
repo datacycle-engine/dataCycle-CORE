@@ -78,10 +78,7 @@ module DataCycleCore
     end
     # TODO: move to specific test
     # test 'save Recherche and read back' do
-    #   template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Recherche').first
-    #   data_set = DataCycleCore::CreativeWork.new
-    #   data_set.schema = template.schema
-    #   data_set.template_name = template.template_name
+    #   data_set = DataCycleCore::CreativeWork.new(template_name: 'Recherche')
     #   data_set.save
     #   DataCycleCore::CreativeWork.create!(headline: 'Test')
     #   uuid = DataCycleCore::CreativeWork.where(headline: 'Test').first.id

@@ -1,10 +1,10 @@
 <% I18n.with_locale(locale) do %>
   <% object = DataCycleCore::DataHashService.get_internal_template(definition['template_name']) if local_assigns[:object].blank? %>
 
-  <%= tag.div class: "content-object-item draggable_#{sanitize_to_id(key)} accordion-item#{ ' is-active' if (!local_assigns[:hide_embedded] && !definition.dig('ui', 'edit', 'hide_onload')) || object.template || local_assigns[:duplicated_content] }",
+  <%= tag.div class: "content-object-item draggable_#{sanitize_to_id(key)} accordion-item#{ ' is-active' if (!local_assigns[:hide_embedded] && !definition.dig('ui', 'edit', 'hide_onload')) || object.new_record? || local_assigns[:duplicated_content] }",
         id: "#{sanitize_to_id(key)}_item_#{index}",
         data: {
-          id: object.template ? nil : object.id,
+          id: object.id,
           index: index,
           accordion_item: true
         } do %>
@@ -30,20 +30,20 @@
 
     <% if attribute_editable?(key, definition, options, content) %>
       <%= button_tag tag.i(class: 'fa fa-times'), type: :button, class: 'button removeContentObject alert', data: {
-                confirm_delete: !object&.template && content&.translatable? && definition&.dig('translated').to_s == 'true' && object&.translations&.many? ? t('actions.delete_with_translated_html', locale: active_ui_locale) : nil
+                confirm_delete: content&.translatable? && definition&.dig('translated').to_s == 'true' && object&.translations&.many? ? t('actions.delete_with_translated_html', locale: active_ui_locale) : nil
               } %>
     <% end %>
 
-    <%= hidden_field_tag("#{embedded_key_prefix(key, index)}[id]", object.id) unless object.template || local_assigns[:duplicated_content] %>
+    <%= hidden_field_tag("#{embedded_key_prefix(key, index)}[id]", object.id) unless object.new_record? || local_assigns[:duplicated_content] %>
 
-    <% if object.template || local_assigns[:duplicated_content] %>
+    <% if object.new_record? || local_assigns[:duplicated_content] %>
       <div class="embedded-properties accordion-content" data-tab-content>
-        <%= render 'data_cycle_core/contents/editors/embedded/single_item', local_assigns.merge({ object: object, locale: I18n.locale, event_data: { newContent: object.template } }) %>
+        <%= render 'data_cycle_core/contents/editors/embedded/single_item', local_assigns.merge({ object: object, locale: I18n.locale, event_data: { newContent: object.new_record? } }) %>
       </div>
     <% else %>
       <div class="embedded-properties accordion-content remote-render" data-tab-content
         data-remote-path="data_cycle_core/contents/editors/embedded/single_item"
-        data-remote-options="<%= to_query_params(local_assigns.merge({ object: object, locale: I18n.locale, event_data: { newContent: object.template } })).to_json %>">
+        data-remote-options="<%= to_query_params(local_assigns.merge({ object: object, locale: I18n.locale, event_data: { newContent: object.new_record? } })).to_json %>">
       </div>
     <% end %>
   <% end %>

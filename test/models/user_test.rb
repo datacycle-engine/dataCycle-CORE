@@ -3,9 +3,12 @@
 require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'helpers/minitest_spec_helper'
 
 module DataCycleCore
   describe DataCycleCore::User do
+    include DataCycleCore::MinitestSpecHelper
+
     subject do
       DataCycleCore::User
     end

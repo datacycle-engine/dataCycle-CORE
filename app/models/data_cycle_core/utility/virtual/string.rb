@@ -32,9 +32,9 @@ module DataCycleCore
 
           # only works for sync_api
           def to_additional_information(content:, virtual_parameters:, virtual_definition:, **_args)
-            template = DataCycleCore::Thing.find_by(template: true, template_name: virtual_definition&.dig('template_name'))
+            template = DataCycleCore::Thing.new(template_name: virtual_definition&.dig('template_name'))
 
-            return if template.nil?
+            return if template.template_missing?
 
             virtual_parameters.map { |key|
               value = content.try(key)
@@ -49,7 +49,6 @@ module DataCycleCore
 
                 t.attributes = {
                   id: generate_uuid(content.id, key),
-                  template: false,
                   created_at: Time.zone.now,
                   updated_at: Time.zone.now,
                   name: content.properties_for(key)&.dig('label'),

@@ -3,6 +3,7 @@
 require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'helpers/minitest_spec_helper'
 
 describe Hash do
   describe '#with_evaluated_values' do
@@ -71,14 +72,14 @@ describe Hash do
 
       it 'should return evaluated values for mongo query' do
         hash = {
-          "$or": [
+          '$or': [
             {
-              "dump.de.meta.workflow.state": {
-                "$ne": 'published'
+              'dump.de.meta.workflow.state': {
+                '$ne': 'published'
               }
             }, {
-              "seen_at": {
-                "$lt": '{{ 3.days.ago.to_date }}'
+              'seen_at': {
+                '$lt': '{{ 3.days.ago.to_date }}'
               }
             }
           ]

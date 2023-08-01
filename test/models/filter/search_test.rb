@@ -5,7 +5,7 @@ require 'test_helper'
 module DataCycleCore
   class SearchTest < DataCycleCore::TestCases::ActiveSupportTestCase
     before(:all) do
-      @things = DataCycleCore::Thing.where(template: false).count
+      @things = DataCycleCore::Thing.count
       create_content('Artikel', { name: 'AAA' })
       create_content('Artikel', { name: 'HEADLINE 1', tags: get_classification_ids('Tags', ['Tag 3']) })
       create_content('Artikel', { name: 'HEADLINE 2', tags: get_classification_ids('Tags', ['Tag 2', 'Nested Tag 1']) })
@@ -114,7 +114,7 @@ module DataCycleCore
 
     test 'test query for subscriptions' do
       user = DataCycleCore::User.find_by(email: 'tester@datacycle.at')
-      user.things_subscribed << DataCycleCore::Thing.where(template: false, template_name: 'Artikel').first
+      user.things_subscribed << DataCycleCore::Thing.where(template_name: 'Artikel').first
 
       items = DataCycleCore::Filter::Search.new(:de).subscribed_user_id(user.id)
       assert_equal(1, items.count)
@@ -168,7 +168,7 @@ module DataCycleCore
       image3 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 3', asset: asset3.id })
 
       DataCycleCore::Thing
-        .where(template: false, external_source_id: nil, external_key: nil, template_name: 'Bild')
+        .where(external_source_id: nil, external_key: nil, template_name: 'Bild')
         .where.not(content_type: 'embedded')
         .find_each(&:create_duplicate_candidates)
 

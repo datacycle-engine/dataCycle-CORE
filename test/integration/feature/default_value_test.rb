@@ -15,10 +15,15 @@ module DataCycleCore
       end
 
       def set_schema_attribute_value(template_name, key, type_name, value, content = nil)
-        template = content || DataCycleCore::Thing.find_by(template: true, template_name: template_name)
-        template.schema['properties'][key][type_name] = value
-        template.save
-        template
+        template = content || DataCycleCore::ThingTemplate.find_by(template_name: template_name)
+
+        if value.blank?
+          template.schema['properties'][key].delete(type_name)
+        else
+          template.schema['properties'][key][type_name] = value
+        end
+
+        template.update_column(:schema, template.schema) if template.is_a?(DataCycleCore::ThingTemplate)
       end
 
       test 'validation works with default_values on creation' do

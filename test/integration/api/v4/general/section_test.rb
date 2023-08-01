@@ -11,7 +11,7 @@ module DataCycleCore
           include DataCycleCore::ApiV4Helper
 
           before(:all) do
-            DataCycleCore::Thing.where(template: false).delete_all
+            DataCycleCore::Thing.delete_all
             @routes = Engine.routes
             @content = DataCycleCore::DummyDataHelper.create_data('poi')
             @content.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@content.longitude, @content.latitude)

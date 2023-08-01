@@ -3,8 +3,11 @@
 require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'helpers/minitest_spec_helper'
 
 describe DataCycleCore::MasterData::Differs::Embedded do
+  include DataCycleCore::MinitestSpecHelper
+
   subject do
     DataCycleCore::MasterData::Differs::Embedded
   end
@@ -19,7 +22,7 @@ describe DataCycleCore::MasterData::Differs::Embedded do
     end
 
     it 'successfully recognizes these cases as equivalent' do
-      uuid = DataCycleCore::Thing.find_by(template_name: 'Bild').id
+      uuid = DataCycleCore::Thing.create(template_name: 'Bild').id
       data_cases = [
         [nil, nil],
         [uuid, uuid],
@@ -35,8 +38,8 @@ describe DataCycleCore::MasterData::Differs::Embedded do
     end
 
     it 'successfully recognizes order changes' do
-      uuid = DataCycleCore::Thing.find_by(template_name: 'Bild').id
-      uuid2 = DataCycleCore::Thing.find_by(template_name: 'Video').id
+      uuid = DataCycleCore::Thing.create(template_name: 'Bild').id
+      uuid2 = DataCycleCore::Thing.create(template_name: 'Video').id
       data_cases = [
         [[{ 'id' => uuid }, { 'id' => uuid2 }], [uuid2, uuid], [['>', uuid, 0, 1], ['<', uuid2, 1, 0]]],
         [[{ 'id' => uuid2 }, { 'id' => uuid }], [uuid, uuid2], [['>', uuid2, 0, 1], ['<', uuid, 1, 0]]]
@@ -79,10 +82,10 @@ describe DataCycleCore::MasterData::Differs::Embedded do
     end
 
     it 'successfully handles relation objects' do
-      uuid = DataCycleCore::Thing.find_by(template_name: 'Bild').id
-      uuid2 = DataCycleCore::Thing.find_by(template_name: 'PlaceOverlay').id
-      uuid3 = DataCycleCore::Thing.find_by(template_name: 'Video').id
-      uuids = DataCycleCore::Thing.where(template_name: ['Bild', 'Video', 'PlaceOverlay']).order(template_name: :asc)
+      uuid = DataCycleCore::Thing.create(template_name: 'Bild').id
+      uuid2 = DataCycleCore::Thing.create(template_name: 'PlaceOverlay').id
+      uuid3 = DataCycleCore::Thing.create(template_name: 'Video').id
+      uuids = [uuid, uuid2, uuid3]
       data_cases = [
         [[uuid2, uuid, uuid3], uuids, [['>', uuid2, 0, 1], ['<', uuid, 1, 0]]],
         [[uuid3, uuid2, uuid], uuids, [['>', uuid3, 0, 2], ['<', uuid, 2, 0]]]

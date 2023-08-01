@@ -8,7 +8,7 @@ module DataCycleCore
       module Filter
         class GeoWithGeometryTest < DataCycleCore::V4::Base
           before(:all) do
-            DataCycleCore::Thing.where(template: false).delete_all
+            DataCycleCore::Thing.delete_all
 
             @poi_a = DataCycleCore::V4::DummyDataHelper.create_data('minimal_poi')
             lat_long_a = {
@@ -41,7 +41,7 @@ module DataCycleCore
             lat_long_d = {}
             @poi_d.set_data_hash(partial_update: true, prevent_history: true, data_hash: lat_long_d)
 
-            @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
+            @thing_count = DataCycleCore::Thing.where.not(content_type: 'embedded').count
           end
 
           test 'api/v4/things parameter filter[:geo] with or without geometry' do
