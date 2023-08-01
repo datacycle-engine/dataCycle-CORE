@@ -16,7 +16,7 @@ class RenameSimpleObjectKeys < ActiveRecord::Migration[5.2]
     SQL
 
     # potentialAction: [name, url] --> potential_action: [action_name, action_url]
-    DataCycleCore::Thing.where(template: false, template_name: ['Angebot', 'Pauschalangebot']).each do |thing|
+    DataCycleCore::Thing.where(template_name: ['Angebot', 'Pauschalangebot']).each do |thing|
       thing.available_locales.each do |locale|
         I18n.with_locale(locale) do
           next unless thing.content&.key?('potentialAction')
@@ -31,7 +31,7 @@ class RenameSimpleObjectKeys < ActiveRecord::Migration[5.2]
     end
 
     # potential_action: [name, url] --> potential_action: [action_name, action_url]
-    DataCycleCore::Thing.where(template: false, template_name: ['JobPosting']).each do |thing|
+    DataCycleCore::Thing.where(template_name: ['JobPosting']).each do |thing|
       thing.available_locales.each do |locale|
         I18n.with_locale(locale) do
           next unless thing.content&.key?('potential_action')
@@ -45,7 +45,7 @@ class RenameSimpleObjectKeys < ActiveRecord::Migration[5.2]
     end
 
     # url -> same_as (main_object) for Skigebiet, SnowResortOverlay, Skigebiet Bergfex
-    DataCycleCore::Thing.where(template: false, template_name: ['Skigebiet', 'SnowResortOverlay', 'Skigebiet Bergfex']).each do |thing|
+    DataCycleCore::Thing.where(template_name: ['Skigebiet', 'SnowResortOverlay', 'Skigebiet Bergfex']).each do |thing|
       thing.available_locales.each do |locale|
         I18n.with_locale(locale) do
           next unless thing.content&.key?('url')
@@ -69,7 +69,7 @@ class RenameSimpleObjectKeys < ActiveRecord::Migration[5.2]
     SQL
 
     # potential_action: [action_name, action_url] --> potentialAction: [name, url]
-    DataCycleCore::Thing.where(template: false, template_name: ['Angebot', 'Pauschalangebot']).each do |thing|
+    DataCycleCore::Thing.where(template_name: ['Angebot', 'Pauschalangebot']).each do |thing|
       thing.available_locales.each do |locale|
         I18n.with_locale(locale) do
           next unless thing.content&.key?('potential_action')
@@ -84,7 +84,7 @@ class RenameSimpleObjectKeys < ActiveRecord::Migration[5.2]
     end
 
     # potential_action: [action_name, action_url] --> potential_pction: [name, url]
-    DataCycleCore::Thing.where(template: false, template_name: ['JobPosting']).each do |thing|
+    DataCycleCore::Thing.where(template_name: ['JobPosting']).each do |thing|
       thing.available_locales.each do |locale|
         I18n.with_locale(locale) do
           next unless thing.content&.key?('potential_action')
@@ -98,7 +98,7 @@ class RenameSimpleObjectKeys < ActiveRecord::Migration[5.2]
     end
 
     # same_as -> url (main_object) for Skigebiet, SnowResortOverlay, Skigebiet Bergfex
-    DataCycleCore::Thing.where(template: false, template_name: ['Skigebiet', 'SnowResortOverlay', 'Skigebiet Bergfex']).each do |thing|
+    DataCycleCore::Thing.where(template_name: ['Skigebiet', 'SnowResortOverlay', 'Skigebiet Bergfex']).each do |thing|
       thing.available_locales.each do |locale|
         I18n.with_locale(locale) do
           next unless thing.content&.key?('same_as')
