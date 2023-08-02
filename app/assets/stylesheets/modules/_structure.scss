@@ -742,6 +742,7 @@ ul.footer-links {
     cursor: pointer;
     font-weight: normal;
     line-height: normal;
+    gap: 0.3rem;
 
     &::before {
       content: '\f00c';
@@ -755,7 +756,7 @@ ul.footer-links {
       align-items: center;
       justify-content: center;
       font-size: 11px;
-      margin-right: 0.4rem;
+      margin-right: 0.1rem;
       color: $white;
       transition: $global-transition;
       text-shadow: none;
