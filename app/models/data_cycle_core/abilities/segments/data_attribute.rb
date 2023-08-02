@@ -65,6 +65,10 @@ module DataCycleCore
           attribute.definition.dig('global').to_s == 'true' || attribute.definition.dig('local').to_s == 'true' || attribute.definition.dig('external').to_s != 'true'
         end
 
+        def attribute_force_render?(attribute)
+          attribute.options&.dig('force_render').to_s == 'true'
+        end
+
         def attribute_tree_label_visible?(attribute)
           return true if attribute.definition.dig('global')
           return true if attribute.definition.dig('local')
