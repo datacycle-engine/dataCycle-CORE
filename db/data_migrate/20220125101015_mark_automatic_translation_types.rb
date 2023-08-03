@@ -5,7 +5,7 @@ class MarkAutomaticTranslationTypes < ActiveRecord::Migration[5.2]
   # disable_ddl_transaction!
 
   def up
-    DataCycleCore::Thing.where(template: false, template_name: 'Übersetzung').each do |content|
+    DataCycleCore::Thing.where(template_name: 'Übersetzung').each do |content|
       translated_classification = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('Übersetzungstyp', 'Automatisch')
       set_manual = content.translations.map { |t| t.content.dig('translation_type') == 'manual' }&.inject(&:|)
       translated_classification = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('Übersetzungstyp', 'Manuell') if set_manual

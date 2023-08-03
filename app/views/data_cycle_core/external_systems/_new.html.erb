@@ -1,0 +1,21 @@
+<h3><%= t('actions.new', data: DataCycleCore::ExternalSystem.model_name.human(locale: active_ui_locale), locale: active_ui_locale ) %></h3>
+
+<%= form_with model: DataCycleCore::ExternalSystem.new, local: true do |f| %>
+  <%= hidden_field_tag :table, DataCycleCore::ExternalSystem.name.demodulize.tableize %>
+
+  <div class="form-element">
+    <%= f.label :identifier, for: 'external_system_identifier' do %>
+      <%= DataCycleCore::ExternalSystem.human_attribute_name(:identifier, locale: active_ui_locale) %>
+      <%= tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) }) %>
+    <% end %>
+    <%= f.select :identifier, external_system_template_options, { include_blank: true }, { required: true, class: 'identifier-select', id: 'external_system_identifier' } %>
+  </div>
+
+  <dynamic-form-part url="<%= render_new_form_external_systems_path %>" dependent-on="external_system_identifier"></dynamic-form-part>
+
+  <%= f.submit t(:submit, locale: active_ui_locale), class: "button primary", data: { disable_with: t(:submit, locale: active_ui_locale) } %>
+<% end %>
+
+<button class="close-button" data-close aria-label="Close modal" type="button">
+  <span aria-hidden="true">&times;</span>
+</button>

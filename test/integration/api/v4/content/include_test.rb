@@ -11,7 +11,7 @@ module DataCycleCore
           include DataCycleCore::ApiV4Helper
 
           before(:all) do
-            DataCycleCore::Thing.where(template: false).delete_all
+            DataCycleCore::Thing.delete_all
             @routes = Engine.routes
             @content_tour = DataCycleCore::DummyDataHelper.create_data('tour')
           end

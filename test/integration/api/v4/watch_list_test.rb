@@ -9,7 +9,7 @@ module DataCycleCore
       class WatchListTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
         before(:all) do
           @user = User.find_by(email: 'tester@datacycle.at')
-          DataCycleCore::Thing.where(template: false).delete_all
+          DataCycleCore::Thing.delete_all
           @routes = Engine.routes
           @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' }, user: @user)
           @content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel2' }, user: @user)

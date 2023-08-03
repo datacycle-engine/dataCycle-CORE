@@ -1,0 +1,14 @@
+<%= fields_for :external_system do |f| %>
+  <div class="form-element password-field">
+    <%= f.label :token do %>
+      <%= DataCycleCore::ExternalSystem.human_attribute_name(:token, locale: active_ui_locale) %>
+      <%= tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) }) %>
+    <% end %>
+    <%= f.password_field :token, required: true %>
+  </div>
+
+  <div class="form-element">
+    <%= f.label :host, DataCycleCore::ExternalSystem.human_attribute_name(:host, locale: active_ui_locale) %>
+    <%= f.url_field :host %>
+  </div>
+<% end %>

@@ -20,7 +20,7 @@ module DataCycleCore
           return if data_url.blank?
 
           uri = URI.parse(data_url)
-          uri.hostname = 'nginx' if ENV['APP_DOCKER_ENV'].present? && ENV['APP_DOCKER_ENV'] != 'production' && uri.hostname == 'localhost'
+          uri.hostname = 'nginx' if Rails.env.development?
           uri
         rescue URI::InvalidURIError
           nil

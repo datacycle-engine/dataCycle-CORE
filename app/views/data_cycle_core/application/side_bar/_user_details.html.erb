@@ -1,6 +1,6 @@
 <div class="settings-row">
   <div>
-    <%= link_to user_path(current_user), class: 'show-user-link' do %>
+    <%= link_to_condition can?(:show, current_user), user_path(current_user), class: 'show-user-link' do %>
       <span class="icon"><i class="fa fa-smile-o" aria-hidden="true"></i></span>
       <span class="title" data-dc-tooltip="<%= current_user&.full_name %>"><%= current_user&.full_name %></span>
     <% end %>
@@ -31,8 +31,10 @@
 
   <% if DataCycleCore.logo.dig('footer_links', 'terms_and_conditions').present? %>
     <div class="terms-and-conditions-link">
-      <span class="icon"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
-      <span class="title" title="<%= I18n.t("footer_links.terms_and_conditions", default: 'terms_and_conditions', locale: active_ui_locale) %>"><%= link_to I18n.t("footer_links.terms_and_conditions", default: 'terms_and_conditions', locale: active_ui_locale), DataCycleCore.logo.dig('footer_links', 'terms_and_conditions'), target: :_blank %></span>
+      <%= link_to DataCycleCore.logo.dig('footer_links', 'terms_and_conditions'), target: :_blank do %>
+        <span class="icon"><i class="fa fa-file-text" aria-hidden="true"></i></span>
+        <span class="title" title="<%= I18n.t("footer_links.terms_and_conditions", default: 'terms_and_conditions', locale: active_ui_locale) %>"><%= I18n.t("footer_links.terms_and_conditions", default: 'terms_and_conditions', locale: active_ui_locale) %></span>
+      <% end %>
     </div>
   <% end %>
 

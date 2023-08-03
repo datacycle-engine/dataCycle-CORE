@@ -3,8 +3,11 @@
 require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'helpers/minitest_spec_helper'
 
 describe DataCycleCore::ClassificationTreeLabel do
+  include DataCycleCore::MinitestSpecHelper
+
   def tree_one
     @tree_one ||= DataCycleCore::ClassificationTreeLabel.create!(name: 'CLASSIFICATION TREE I')
   end

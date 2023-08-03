@@ -215,5 +215,17 @@ module DataCycleCore
     def count_only_params
       params.permit(:target, :count_only, :count_mode, :content_class)
     end
+
+    def load_previous_page?
+      DataCycleCore::Feature::MainFilter.autoload_last_filter? &&
+        request.format.html? &&
+        params.slice(:stored_filter, :f, :reset).blank? &&
+        session[:return_to].present? &&
+        request.path == URI.parse(session[:return_to].to_s).path
+    end
+
+    def load_previous_page
+      redirect_to(session.delete(:return_to)) && return
+    end
   end
 end

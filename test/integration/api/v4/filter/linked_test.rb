@@ -23,7 +23,7 @@ module DataCycleCore
           ## 2 images: ccby
 
           before(:all) do
-            DataCycleCore::Thing.where(template: false).delete_all
+            DataCycleCore::Thing.delete_all
 
             @cc0 = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC0').first
             @cc_by = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC BY').first
@@ -60,7 +60,7 @@ module DataCycleCore
             }
             @event_d = create_test_event(schedule_d, @cc_by.primary_classification.id, lat_long_d)
 
-            @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
+            @thing_count = DataCycleCore::Thing.where.not(content_type: 'embedded').count
           end
 
           test 'api/v4/things parameter filter[:linked]' do

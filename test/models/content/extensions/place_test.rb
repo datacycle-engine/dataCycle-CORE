@@ -5,10 +5,7 @@ require 'test_helper'
 module DataCycleCore
   class PlaceTest < ActiveSupport::TestCase
     test 'save proper Place data-set with hash method + test standard properties' do
-      template = DataCycleCore::Thing.find_by(template: true, template_name: 'Örtlichkeit')
-      data_set = DataCycleCore::Thing.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
+      data_set = DataCycleCore::Thing.new(template_name: 'Örtlichkeit')
       data_set.save
       data_set.set_data_hash(data_hash: { 'name' => 'Dies ist ein Test!', 'longitude' => 40.56, 'latitude' => 13.13 }, update_search_all: false)
       data_set.save
@@ -33,16 +30,13 @@ module DataCycleCore
       assert_equal(data_set.cache_key.to_s, "data_cycle_core/things/#{data_set.id}/data_cycle_core/thing/translations/#{data_set.translations.first.id}-de")
       assert_equal(data_set.cache_key_with_version.to_s, "data_cycle_core/things/#{data_set.id}/data_cycle_core/thing/translations/#{data_set.translations.first.id}-de-#{data_set.updated_at.utc.to_s(:usec)}")
 
-      assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Örtlichkeit').count)
+      assert_equal(1, DataCycleCore::Thing.where(template_name: 'Örtlichkeit').count)
       data_set.destroy
-      assert_equal(0, DataCycleCore::Thing.where(template: false, template_name: 'Örtlichkeit').count)
+      assert_equal(0, DataCycleCore::Thing.where(template_name: 'Örtlichkeit').count)
     end
 
     test 'save proper Place data-set with hash method, incl. geo-data' do
-      template = DataCycleCore::Thing.find_by(template: true, template_name: 'Örtlichkeit')
-      data_set = DataCycleCore::Thing.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
+      data_set = DataCycleCore::Thing.new(template_name: 'Örtlichkeit')
       data_set.save
       point = RGeo::Geographic.spherical_factory(srid: 4326).point(40.56, 13.13)
       data_set.set_data_hash(data_hash: { 'name' => 'Dies ist ein Test!', 'longitude' => 40.56, 'latitude' => 13.13, 'location' => point })

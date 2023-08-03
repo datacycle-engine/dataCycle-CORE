@@ -137,6 +137,8 @@ module DataCycleCore
 
             # auto_translate
             permit_user(role, :create, :destroy, SubjectByConditions: :auto_translate)
+
+            permit_user(role, :create, SubjectByConditions: [DataCycleCore::ExternalSystem])
           end
         end
       end

@@ -9,7 +9,7 @@ class FixDuplicatePotentialActionForEvents < ActiveRecord::Migration[6.1]
 
     return if external_source.blank?
 
-    contents = DataCycleCore::Thing.includes(:external_source).where(template: false, template_name: 'Event', external_source_id: external_source.id)
+    contents = DataCycleCore::Thing.includes(:external_source).where(template_name: 'Event', external_source_id: external_source.id)
     progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
 
     contents.find_each do |content|

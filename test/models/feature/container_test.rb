@@ -27,10 +27,7 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::ContentContent::History.count)
       assert_equal(0, DataCycleCore::ClassificationContent::History.count)
 
-      t_a = DataCycleCore::Thing.find_by(template: true, template_name: 'Artikel')
-      ds_a = DataCycleCore::Thing.new
-      ds_a.schema = t_a.schema
-      ds_a.template_name = t_a.template_name
+      ds_a = DataCycleCore::Thing.new(template_name: 'Artikel')
       ds_a.is_part_of = data_set.id
       ds_a.save
 

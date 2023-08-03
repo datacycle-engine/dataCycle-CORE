@@ -15,7 +15,7 @@ module DataCycleCore
           end
 
           before(:all) do
-            DataCycleCore::Thing.where(template: false).delete_all
+            DataCycleCore::Thing.delete_all
             @routes = Engine.routes
             @content = DataCycleCore::DummyDataHelper.create_data('poi')
           end

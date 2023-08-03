@@ -62,11 +62,16 @@ module DataCycleCore
         end
 
         def attribute_not_external?(attribute)
-          attribute.definition.dig('global').to_s == 'true' || attribute.definition.dig('external').to_s != 'true'
+          attribute.definition.dig('global').to_s == 'true' || attribute.definition.dig('local').to_s == 'true' || attribute.definition.dig('external').to_s != 'true'
+        end
+
+        def attribute_force_render?(attribute)
+          attribute.options&.dig('force_render').to_s == 'true'
         end
 
         def attribute_tree_label_visible?(attribute)
           return true if attribute.definition.dig('global')
+          return true if attribute.definition.dig('local')
           return true if attribute.definition.dig('tree_label').blank? # only for classification type attributes
 
           tree_label_external_id = DataCycleCore::ClassificationTreeLabel.find_by(name: attribute.definition['tree_label'])&.external_source_id

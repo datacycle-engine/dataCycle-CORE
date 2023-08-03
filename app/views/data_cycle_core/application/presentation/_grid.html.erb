@@ -30,9 +30,10 @@
     DataCycleCore::Feature::TileBorderColor.class_string(content),
     thing_content_score_class(content),
   ].compact_blank.join(' '),
-  id: "grid-item-#{content.id}",
+  id: content.id,
   data: {
     id: content.id,
+    page: contents.current_page,
     content_score: content.try(:internal_content_score)&.round
   }) do %>
     <%= render 'data_cycle_core/application/watch_lists', content: content if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && !content.is_a?(DataCycleCore::WatchList) %>

@@ -4,6 +4,7 @@ module DataCycleCore
   class ContentsController < ApplicationController
     include DataCycleCore::Filter
     before_action :set_watch_list, except: [:asset]
+    before_action :set_return_to, only: [:show, :edit]
 
     DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
       feature = ('DataCycleCore::Feature::' + key.to_s.classify).constantize
@@ -47,8 +48,6 @@ module DataCycleCore
 
     def show
       @content = DataCycleCore::Thing.find(params[:id])
-
-      redirect_back(fallback_location: root_path) && return if @content.nil?
       redirect_to(thing_path(@content.related_contents.first)) && return if @content.embedded?
 
       I18n.with_locale(@locale = @content.first_available_locale(params[:locale])) do
@@ -109,13 +108,13 @@ module DataCycleCore
 
       uri = URI.parse(rendered_attribute)
       # used for local development and docker env.
-      uri.hostname = 'nginx' if ENV.fetch('APP_DOCKER_ENV') { nil }.present? && ENV.fetch('APP_DOCKER_ENV') { nil } != 'production' && uri.hostname == 'localhost'
       redirect_to(uri.to_s, allow_other_host: true)
     end
 
     def new
       @resolved_params = resolve_params(new_params).symbolize_keys
-      @template = DataCycleCore::Thing.find_by!(template: true, template_name: @resolved_params[:template])
+      @template = DataCycleCore::Thing.new(template_name: @resolved_params[:template])
+      raise ActiveRecord::RecordNotFound if @template.template_missing?
 
       render json: {
         html: render_to_string(formats: [:html], layout: false).strip,
@@ -124,7 +123,8 @@ module DataCycleCore
     end
 
     def create
-      authorize!(__method__, DataCycleCore::Thing.find_by(template: true, template_name: params[:template]), resolve_params(params, false).dig(:scope))
+      template = DataCycleCore::Thing.new(template_name: params[:template])
+      authorize!(__method__, template, resolve_params(params, false).dig(:scope))
 
       @object_browser_parent = DataCycleCore::Thing.find_by(id: params[:content_id]) || DataCycleCore::Thing.new { |t| t.id = params[:content_id] } if params[:content_id].present?
 
@@ -382,7 +382,7 @@ module DataCycleCore
       @hide_embedded = render_embedded_object_params[:hide_embedded]
       @translate = render_embedded_object_params[:translate]
 
-      if @content&.template
+      if @content&.persisted?
         authorize! :edit, @content
       else
         authorize! :edit, DataCycleCore::Thing
@@ -405,7 +405,7 @@ module DataCycleCore
     end
 
     def validate
-      @object = DataCycleCore::Thing.find_by(id: validation_params[:id]) || DataCycleCore::Thing.find_by(template: true, template_name: validation_params[:template])
+      @object = DataCycleCore::Thing.find_by(id: validation_params[:id]) || DataCycleCore::Thing.new(template_name: validation_params[:template])
 
       render(json: { warning: { content: ['content/template not found'] } }) && return if @object.nil?
 
@@ -572,8 +572,8 @@ module DataCycleCore
 
     def attribute_default_value
       authorize! :show, DataCycleCore::Thing
-
-      template = DataCycleCore::Thing.find_by!(template: true, template_name: default_value_params[:template_name])
+      template = DataCycleCore::Thing.new(template_name: default_value_params[:template_name])
+      raise ActiveRecord::RecordNotFound if template.template_missing?
 
       I18n.with_locale(default_value_params[:locale] || DataCycleCore.ui_locales.first) do
         render(
@@ -611,8 +611,7 @@ module DataCycleCore
       authorize! :show, DataCycleCore::Thing
 
       raise ActiveRecord::RecordNotFound unless DataCycleCore::Feature::ContentScore.enabled?
-
-      content = DataCycleCore::Thing.find_by(id: content_score_params[:id]) || DataCycleCore::Thing.find_by(template: true, template_name: content_score_params[:template_name])
+      content = DataCycleCore::Thing.find_by(id: content_score_params[:id]) || DataCycleCore::Thing.new(template_name: content_score_params[:template_name])
 
       raise ActiveRecord::RecordNotFound if content.nil?
 
@@ -703,6 +702,21 @@ module DataCycleCore
       watch_list = DataCycleCore::WatchList.find(params[:watch_list_id])
       authorize! :show, watch_list
       @watch_list = watch_list
+    end
+
+    def set_return_to
+      return if session[:return_to].present?
+
+      referer_url = URI.parse(request.referer.to_s)
+
+      return if referer_url.host != request.host
+
+      allowed_paths = [root_path]
+      allowed_paths = [watch_list_path(@watch_list.id)] if @watch_list.present?
+
+      return if allowed_paths.exclude?(referer_url.path)
+
+      session[:return_to] = request.referer
     end
 
     def attribute_value_params

@@ -5,9 +5,7 @@
     <div class="row">
       <div class="small-12 columns">
         <h4>
-          <br/>
-          <i class='fa fa-arrow-circle-o-right' aria-hidden='true'></i>&nbsp; import configs<br/>
-          &nbsp;
+          <i class='fa fa-arrow-circle-o-right' aria-hidden='true'></i> import configs
         </h4>
         <%= link_to 'templates', admin_import_templates_path, class: 'button small' %>
         <%= link_to 'classifications', admin_import_classifications_path, class: 'button small' %>
@@ -19,9 +17,7 @@
   <div class="row">
     <div class="small-12 columns">
       <h4>
-        <br/>
-        <i class='fa fa-database' aria-hidden='true'></i>&nbsp;core database<br/>
-        &nbsp;
+        <i class='fa fa-database' aria-hidden='true'></i> core database
       </h4>
     </div>
     <% if can? :show_admin_activities, :dash_board %>
@@ -40,11 +36,13 @@
 
   <div class="row">
     <div class="small-12 columns">
-      <br/>
-      <br/>
       <h4>
-        <i class='fa fa-arrow-circle-o-down' aria-hidden='true'></i>&nbsp; import modules<br/>
-        &nbsp;
+        <i class='fa fa-arrow-circle-o-down' aria-hidden='true'></i> import modules
+        <% if can?(:create, DataCycleCore::ExternalSystem) && DataCycleCore.external_system_template_paths.present? %>
+          <% random_id = SecureRandom.hex(10) %>
+          <a href="#" class="button small add-external_system-button" data-open="<%= random_id %>"><i class="fa fa-plus"></i></a>
+          <div class="reveal new-item remote-render" id="<%= random_id %>" data-reveal data-remote-path="data_cycle_core/external_systems/new"></div>
+        <% end %>
       </h4>
     </div>
   </div>
@@ -60,11 +58,8 @@
 
   <div class="row">
     <div class="small-12 columns">
-      <br/>
-      <br/>
       <h4>
-        <i class='fa fa-arrow-circle-o-up' aria-hidden='true'></i>&nbsp; export modules<br/>
-        &nbsp;
+        <i class='fa fa-arrow-circle-o-up' aria-hidden='true'></i> export modules
       </h4>
     </div>
   </div>
@@ -78,11 +73,8 @@
 
   <div class="row">
     <div class="small-12 columns">
-      <br/>
-      <br/>
       <h4>
-        <i class='fa fa-arrow-circle-o-up' aria-hidden='true'></i>&nbsp; sync foreign modules<br/>
-        &nbsp;
+        <i class='fa fa-arrow-circle-o-up' aria-hidden='true'></i> sync foreign modules
       </h4>
     </div>
   </div>

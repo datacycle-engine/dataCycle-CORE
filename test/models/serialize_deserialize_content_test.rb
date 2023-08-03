@@ -5,10 +5,8 @@ require 'test_helper'
 module DataCycleCore
   class SerializeDeserializeContentTest < ActiveSupport::TestCase
     test 'read untranslatable data from a jsonb field and deserialize to proper objects' do
-      data_template = DataCycleCore::Thing.find_by(template_name: 'SimpleJsonTest', template: true)
       data = DataCycleCore::Thing.new(
-        schema: data_template.schema,
-        template_name: data_template.template_name,
+        template_name: 'SimpleJsonTest',
         metadata: { 'datum' => Time.zone.now.to_s, 'bool' => 'true', 'geo' => 'POINT (10.0 47.0)', 'text' => 'Text' },
         name: 'Test Data'
       )
@@ -20,10 +18,8 @@ module DataCycleCore
     end
 
     test 'read translatable data from a jsonb field and deserialize to proper objects' do
-      data_template = DataCycleCore::Thing.find_by(template_name: 'SimpleJsonTest', template: true)
       data = DataCycleCore::Thing.new(
-        schema: data_template.schema,
-        template_name: data_template.template_name,
+        template_name: 'SimpleJsonTest',
         content: { 'datum2' => Time.zone.now.to_s, 'bool2' => 'true', 'geo2' => 'POINT (10.0 47.0)', 'text2' => 'test' },
         name: 'Test Data'
       )
@@ -36,10 +32,8 @@ module DataCycleCore
     end
 
     test 'read untranslatable structured data from a jsonb field and deserialize to proper objects' do
-      data_template = DataCycleCore::Thing.find_by(template_name: 'ComplexJsonTest', template: true)
       data = DataCycleCore::Thing.new(
-        schema: data_template.schema,
-        template_name: data_template.template_name,
+        template_name: 'ComplexJsonTest',
         name: 'Test Data',
         metadata: { 'data_untrans' => {
           'datum_untrans' => Time.zone.now.to_s,
@@ -57,10 +51,8 @@ module DataCycleCore
     end
 
     test 'read translatable structured data from a jsonb field and deserialize to proper objects' do
-      data_template = DataCycleCore::Thing.find_by(template_name: 'ComplexJsonTest', template: true)
       data = DataCycleCore::Thing.new(
-        schema: data_template.schema,
-        template_name: data_template.template_name,
+        template_name: 'ComplexJsonTest',
         name: 'Test Data',
         content: { 'data_trans' => {
           'datum_trans' => Time.zone.now.to_s,
@@ -95,10 +87,8 @@ module DataCycleCore
     end
 
     test 'write translatable data to a jsonb field' do
-      data_template = DataCycleCore::Thing.find_by(template_name: 'SimpleJsonTest', template: true)
       data = DataCycleCore::Thing.new(
-        schema: data_template.schema,
-        template_name: data_template.template_name
+        template_name: 'SimpleJsonTest'
       )
       data.save
       data_hash = {
@@ -118,10 +108,8 @@ module DataCycleCore
     end
 
     test 'write structured data to a jsonb field' do
-      data_template = DataCycleCore::Thing.find_by(template_name: 'ComplexJsonTest', template: true)
       data = DataCycleCore::Thing.new(
-        schema: data_template.schema,
-        template_name: data_template.template_name
+        template_name: 'ComplexJsonTest'
       )
       data.save
       data_hash = {
@@ -143,10 +131,8 @@ module DataCycleCore
     end
 
     test 'write structured data to a translateable jsonb field' do
-      data_template = DataCycleCore::Thing.find_by(template_name: 'ComplexJsonTest', template: true)
       data = DataCycleCore::Thing.new(
-        schema: data_template.schema,
-        template_name: data_template.template_name
+        template_name: 'ComplexJsonTest'
       )
       data.save
       data_hash = {
@@ -168,10 +154,8 @@ module DataCycleCore
     end
 
     test 'serializer/deserializer can handle false, nil, not specified properties properly for bool' do
-      data_template = DataCycleCore::Thing.find_by(template_name: 'BoolJsonTest', template: true)
       data = DataCycleCore::Thing.new(
-        schema: data_template.schema,
-        template_name: data_template.template_name
+        template_name: 'BoolJsonTest'
       )
       data.save
       data_hash = {

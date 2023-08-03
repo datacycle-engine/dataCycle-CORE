@@ -11,6 +11,7 @@
 .remove-from-watchlist-link,
 .dropdown-pane .remove-from-watchlist-link {
   color: $alert-color !important;
+
   &:hover,
   &:focus {
     color: lighten($alert-color, 10%) !important;
@@ -27,6 +28,7 @@
 }
 
 .detail-header-functions {
+
   .add-to-watchlist-link,
   .add-to-watchlist-link {
     display: inline;
@@ -38,6 +40,7 @@
 .change-link .add-to-watchlist-link,
 .remove-from-watchlist-link {
   display: inline;
+
   .fa {
     font-size: 1rem;
     width: 1.1rem;
@@ -48,12 +51,15 @@
 }
 
 #main-menu {
+
   .watch-lists,
   .abos {
     background: $white;
+
     a {
       color: $black;
     }
+
     li {
       display: block;
 
@@ -69,6 +75,7 @@
         }
       }
     }
+
     .add-watchlist-to-menu {
       input {
         max-width: 100%;
@@ -96,18 +103,17 @@
       }
 
       &.fa-stack-1x {
-        color: $black;
         font-size: 0.6rem;
         top: -2px;
       }
     }
   }
 
-  .watch-lists .accordion > .accordion-item > .accordion-title::before {
+  .watch-lists .accordion>.accordion-item>.accordion-title::before {
     color: $black;
   }
 
-  .menu > li {
+  .menu>li {
     position: relative;
   }
 }
@@ -118,17 +124,18 @@
   }
 
   .accordion {
-    > .accordion-item {
+    >.accordion-item {
       padding: 0.2rem 0;
 
-      > .accordion-title,
-      > .accordion-content {
+      >.accordion-title,
+      >.accordion-content {
         font-size: 0.9rem;
         border: none;
         padding: 0 0 0 1.2rem;
         line-height: 1.4rem;
       }
-      > .accordion-title {
+
+      >.accordion-title {
         display: block;
         padding: 0 0 0.2rem 1.2rem;
         color: $black;
@@ -151,14 +158,14 @@
         }
       }
 
-      > .accordion-content {
-        > li:not(.collection-group-item) {
+      >.accordion-content {
+        >li:not(.collection-group-item) {
           padding: 0.2rem 0;
         }
       }
 
       &.is-active {
-        > .accordion-title {
+        >.accordion-title {
           background: none;
 
           &::before {
@@ -168,12 +175,12 @@
       }
 
       &.has-selected-collections {
-        > .accordion-title::before {
+        >.accordion-title::before {
           color: $primary-color;
         }
 
         &.is-active {
-          > .accordion-title::before {
+          >.accordion-title::before {
             color: $primary-color;
           }
         }
@@ -181,7 +188,7 @@
     }
   }
 
-  > ul {
+  >ul {
     margin: 0;
     text-align: left;
 
@@ -212,6 +219,7 @@
         &.private {
           font-weight: 600;
         }
+
         &.shared {
           font-style: italic;
         }
@@ -223,7 +231,7 @@
           display: flex;
           align-items: center;
 
-          > a {
+          >a {
             flex: auto;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -247,7 +255,7 @@
           display: flex;
           align-items: center;
 
-          > *:not(:last-child) {
+          >*:not(:last-child) {
             margin-right: 0.3rem;
           }
         }
@@ -303,12 +311,13 @@
           }
         }
 
-        > *:not(:last-child) {
+        >*:not(:last-child) {
           margin-right: 0.3rem;
         }
       }
     }
   }
+
   .add-watchlist,
   .add-watchlist-to-menu {
     position: relative;
@@ -373,13 +382,16 @@
       border: none;
       border-bottom: 1px solid $light-gray;
       box-shadow: none;
+
       &:focus {
         border-color: $dark-gray;
       }
+
       &::placeholder {
         color: $dark-gray;
       }
     }
+
     .reset-watch-list-filter {
       position: absolute;
       right: 0;
@@ -398,6 +410,7 @@
       &:hover {
         color: $black;
       }
+
       .fa {
         line-height: 1rem;
         font-size: 1rem;

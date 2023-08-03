@@ -4,6 +4,7 @@ require 'test_helper'
 require 'virtual_attributes_test_utilities'
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'helpers/minitest_spec_helper'
 
 describe 'DataCycleCore::Utility::Virtual::Common#attribute_value_from_named_embedded' do
   include VirtualAttributeTestUtilities

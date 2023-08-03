@@ -1,8 +1,8 @@
-<% if item.respond_to?(:internal_name) && item.internal_name.present? %>
-    <span class="title working-title" title="<%= item.internal_name %>">
-        <%= sanitize(strip_links(truncate(item.internal_name, length: 70, separator: " ", escape: false))) %>
-    </span>
-<% end %>
 <span class="title" title="<%= item.title %>">
-    <%= sanitize(strip_links(truncate(item.title, length: 70, separator: " ", escape: false))) %>
+  <%= sanitize(strip_links(truncate(item.title, length: 70, separator: " ", escape: false))) %>
 </span>
+<% if item.respond_to?(:internal_name) && item.internal_name.present? %>
+  <span class="title working-title" title="<%= item.internal_name %>">
+    <%= sanitize(strip_links(truncate(item.internal_name, length: 70, separator: " ", escape: false))) %>
+  </span>
+<% end %>

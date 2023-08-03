@@ -16,7 +16,7 @@ module DataCycleCore
         def create_update_translations
           additional_infos = load_translated_content
           return { 'error' => 'Nothing to translate' } if additional_infos.blank?
-          template = Thing.find_by(template_name: 'Übersetzung', template: true)
+          template = ThingTemplate.find_by(template_name: 'Übersetzung')
           return { 'error' => 'Data Type not found!' } if template.blank?
           data_type = ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Übersetzung')
           return { 'error' => 'Data Type not found (Classification)!' } if data_type.blank?
@@ -27,7 +27,7 @@ module DataCycleCore
           additional_infos.each do |classification, locale_data_hash|
             content = Thing.find_or_create_by(external_source_id: external_source_id, external_key: "#{classification}:#{external_key}") do |new_content|
               new_content.metadata ||= {}
-              new_content.schema = template.schema
+              new_content.thing_template = template
               new_content.template_name = template.template_name
               new_content.external_source_id = external_source_id
             end
@@ -63,9 +63,9 @@ module DataCycleCore
 
         def create_update_auto_translations(source_locale = I18n.locale.to_s)
           source_locale = source_locale.to_s
-          additional_translations = subject_of
+          additional_translations = subject_of.where(template_name: 'Übersetzung')
           return { 'error' => 'Nothing to translate' } if additional_translations.blank?
-          template = Thing.find_by(template_name: 'Übersetzung', template: true)
+          template = ThingTemplate.find_by(template_name: 'Übersetzung')
           return { 'error' => 'Data Type not found!' } if template.blank?
           data_type = ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Übersetzung')
           return { 'error' => 'Data Type not found (Classification)!' } if data_type.blank?

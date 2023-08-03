@@ -124,7 +124,7 @@ namespace :dc do
       logger.info('Started Downloading...')
 
       external_system_id = args[:external_system_id]
-      allowed_template_names = DataCycleCore::Thing.where(template: true).where("things.schema -> 'properties' ->> 'asset' IS NOT NULL").pluck(:template_name)
+      allowed_template_names = DataCycleCore::ThingTemplate.where("thing_templates.schema -> 'properties' ->> 'asset' IS NOT NULL").pluck(:template_name)
 
       if external_system_id.blank? || allowed_template_names.blank?
         error = 'external_system_id not given or no viable Templates found'
@@ -183,9 +183,9 @@ namespace :dc do
 
     desc 'migrate embedded Öffnungszeit to opening_time'
     task migrate_opening_hours: :environment do
-      description_template = DataCycleCore::Thing.find_by(template: true, template_name: 'Öffnungszeit - Beschreibung')
+      description_template = DataCycleCore::ThingTemplate.find_by(template_name: 'Öffnungszeit - Beschreibung')
 
-      contents = DataCycleCore::Thing.where(template: false, template_name: 'Öffnungszeit')
+      contents = DataCycleCore::Thing.where(template_name: 'Öffnungszeit')
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Öffnungszeit')
 
       contents.find_each do |content|
@@ -232,9 +232,7 @@ namespace :dc do
           I18n.with_locale(locale) do
             next if content.description.blank?
 
-            description_content = DataCycleCore::Thing.new
-            description_content.schema = description_template.schema
-            description_content.template_name = description_template.template_name
+            description_content = DataCycleCore::Thing.new(thing_template: description_template)
             description_content.save!
 
             from_date = content.validity&.valid_from&.in_time_zone&.beginning_of_day || Time.zone.now.beginning_of_day
@@ -280,7 +278,7 @@ namespace :dc do
     desc 'migrate event places from Örtlichkeit to POI'
     task ortlichkeit_to_poi: :environment do
       poi_class = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'POI')
-      poi_template = DataCycleCore::Thing.find_by(template: true, template_name: 'POI')
+      poi_template = DataCycleCore::ThingTemplate.find_by(template_name: 'POI')
 
       systems = ['feratel']
       systems.each do |identifier|
@@ -291,7 +289,6 @@ namespace :dc do
           DataCycleCore::ClassificationContent.where(content_data_id: place.id, relation: 'data_type').update_all(classification_id: poi_class)
           # update template, template definition
           place.template_name = poi_template.template_name
-          place.schema = poi_template.schema
           place.cache_valid_since = Time.zone.now
           place.save
           # update search table
@@ -355,23 +352,6 @@ namespace :dc do
         wl.send(:split_full_path)
         wl.save!(touch: false)
         progressbar.increment
-      end
-    end
-
-    desc 'migrate history definitions for computed, virtual and default_value properties'
-    task migrate_history_definitions: :environment do
-      DataCycleCore::Thing.where(template: true).find_each do |template|
-        new_definition = template.property_definitions.slice(*(template.virtual_property_names + template.computed_property_names + template.default_value_property_names)).to_json
-
-        next if new_definition.blank?
-
-        puts "MIGRATING #{template.template_name} ..."
-
-        ActiveRecord::Base.connection.execute <<-SQL.squish
-          UPDATE thing_histories
-          SET schema = jsonb_set(schema, '{properties}', thing_histories.schema -> 'properties' || '#{new_definition}', false)
-          WHERE template_name = '#{template.template_name}'
-        SQL
       end
     end
 
@@ -622,7 +602,7 @@ namespace :dc do
       # migrate Pimcore Events
       external_source = DataCycleCore::ExternalSystem.find_by(identifier: 'pimcore')
       if external_source.present?
-        contents = DataCycleCore::Thing.includes(:external_source).where(template: false, template_name: 'Event', external_source_id: external_source.id).where("EXISTS(SELECT 1 FROM thing_translations WHERE thing_translations.thing_id = things.id AND thing_translations.content ->> 'potential_action' IS NOT NULL AND thing_translations.content ->> 'potential_action' != '')")
+        contents = DataCycleCore::Thing.includes(:external_source).where(template_name: 'Event', external_source_id: external_source.id).where("EXISTS(SELECT 1 FROM thing_translations WHERE thing_translations.thing_id = things.id AND thing_translations.content ->> 'potential_action' IS NOT NULL AND thing_translations.content ->> 'potential_action' != '')")
         action_type = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('ActionTypes', 'View')
         progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
 
@@ -663,7 +643,7 @@ namespace :dc do
         end
       end
 
-      contents = DataCycleCore::Thing.where(template: false, template_name: ['Event', 'Eventserie']).where("EXISTS(SELECT 1 FROM thing_translations WHERE thing_translations.thing_id = things.id AND thing_translations.content ->> 'potential_action' IS NOT NULL AND thing_translations.content ->> 'potential_action' != '')")
+      contents = DataCycleCore::Thing.where(template_name: ['Event', 'Eventserie']).where("EXISTS(SELECT 1 FROM thing_translations WHERE thing_translations.thing_id = things.id AND thing_translations.content ->> 'potential_action' IS NOT NULL AND thing_translations.content ->> 'potential_action' != '')")
       action_type = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('ActionTypes', 'View')
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
 
@@ -707,7 +687,7 @@ namespace :dc do
       count = 0
 
       template_names.each do |template_name|
-        contents = DataCycleCore::Thing.where(template: false, template_name: template_name, external_source_id: nil)
+        contents = DataCycleCore::Thing.where(template_name: template_name, external_source_id: nil)
         progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: template_name)
 
         contents.find_each do |content|

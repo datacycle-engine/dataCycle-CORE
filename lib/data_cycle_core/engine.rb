@@ -223,6 +223,9 @@ module DataCycleCore
   mattr_accessor :classification_icons
   self.classification_icons = {}
 
+  mattr_accessor :external_system_template_paths
+  self.external_system_template_paths = []
+
   def self.setup
     yield self
   end

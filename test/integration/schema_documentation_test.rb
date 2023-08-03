@@ -18,11 +18,11 @@ module DataCycleCore
       assert_response :success
 
       assert_select 'ul.container_templates > li', {
-        count: DataCycleCore::Thing.where(template: true).where("schema ->> 'content_type' = 'container'").count
+        count: DataCycleCore::ThingTemplate.where(content_type: 'container').count
       }
 
       assert_select 'ul.entity_templates > li', {
-        count: DataCycleCore::Thing.where(template: true).where("schema ->> 'content_type' = 'entity'").count
+        count: DataCycleCore::ThingTemplate.where(content_type: 'entity').count
       }
     end
   end

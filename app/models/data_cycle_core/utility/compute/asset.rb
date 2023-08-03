@@ -45,7 +45,7 @@ module DataCycleCore
         def self.asset_url_with_transformation(computed_parameters:, computed_definition:, **_args)
           asset = DataCycleCore::Asset.find_by(id: computed_parameters.values.first)
 
-          asset.try(computed_definition.dig('compute', 'version') || 'original')&.url(computed_definition.dig('compute', 'transformation'))
+          asset.try(:dynamic, computed_definition.dig('compute', 'transformation'))&.url
         end
       end
     end

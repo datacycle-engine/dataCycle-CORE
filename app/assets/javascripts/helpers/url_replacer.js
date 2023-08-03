@@ -1,29 +1,52 @@
 export default {
-  persistedUrlParams: function () {
-    return ['mode', 'page', 'ctl_id', 'ct_id'];
-  },
-  paramsToStoredFilterId: function () {
-    const searchForm = document.getElementById('search-form');
-    if (!searchForm) return;
+	isPersistedUrlParam: function (key) {
+		return ["mode", "page", "ctl_id", "ct_id", "stored_filter"].includes(key);
+	},
+	cleanSearchFormParams: function () {
+		const searchForm = document.getElementById("search-form");
+		if (!searchForm) return;
 
-    const currentStoredFilterId = searchForm.dataset.storedFilter;
-    if (!currentStoredFilterId) return;
+		const url = new URL(window.location);
+		const params = url.searchParams;
+		const storedFilterId =
+			params.get("stored_filter") || searchForm.dataset.storedFilter;
+		const ctlId = params.get("ctl_id") || searchForm.dataset.ctlId;
+		const ctId = params.get("ct_id") || searchForm.dataset.ctId;
+		const mode = params.get("mode") || searchForm.dataset.mode || "grid";
+		const thingId = params.get("thing_id");
+		const page = params.get("page") || 1;
+		const state = {
+			mode: mode,
+			page: page,
+			storedFilterId: storedFilterId,
+		};
 
-    const mode = searchForm.dataset.mode;
-    const ctlId = searchForm.dataset.ctlId;
-    const ctId = searchForm.dataset.ctId;
+		if (!storedFilterId) params.delete("stored_filter");
+		else if (storedFilterId !== params.get("stored_filter"))
+			params.set("stored_filter", storedFilterId);
 
-    const url = new URL(window.location);
-    if (url.searchParams.get('stored_filter') == currentStoredFilterId) return;
+		if (mode !== "grid") params.set("mode", mode);
+		else params.delete("mode");
 
-    const newUrlParams = new URLSearchParams(`stored_filter=${currentStoredFilterId}`);
-    for (const param of this.persistedUrlParams())
-      if (url.searchParams.has(param)) newUrlParams.set(param, url.searchParams.get(param));
+		if (page <= 1) params.delete("page");
 
-    if (mode) newUrlParams.set('mode', mode);
-    if (ctlId) newUrlParams.set('ctl_id', ctlId);
-    if (ctId) newUrlParams.set('ct_id', ctId);
+		if (ctlId) {
+			params.set("ctl_id", ctlId);
+			state.ctlId = ctlId;
+		}
+		if (ctId) {
+			params.set("ct_id", ctId);
+			state.ctId = ctId;
+		}
+		if (thingId) {
+			window.location.hash = thingId;
+			state.thingId = thingId;
+		}
 
-    history.replaceState({}, '', `?${newUrlParams.toString()}${url.hash}`);
-  }
+		for (const key of params.keys())
+			if (!this.isPersistedUrlParam(key)) params.delete(key);
+
+		if (window.location.href !== url.toString())
+			history.replaceState(state, "", url);
+	},
 };

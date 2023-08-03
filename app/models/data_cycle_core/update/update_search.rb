@@ -4,7 +4,7 @@ module DataCycleCore
   module Update
     module UpdateSearch
       def query
-        @type.where(template: false)
+        @type
           .where(@type.arel_table[:template_name].eq(@template.template_name))
       end
 

@@ -89,10 +89,7 @@ module DataCycleCore
     #   template_p = DataCycleCore::Place.count
     #   template_pt = DataCycleCore::Place::Translation.count
     #
-    #   template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Bild')
-    #   content_data = DataCycleCore::CreativeWork.new
-    #   content_data.schema = template.schema
-    #   content_data.template_name = template.template_name
+    #   content_data = DataCycleCore::Thing.new(template_name: 'Bild')
     #   content_data.save
     #
     #   data_hash = {

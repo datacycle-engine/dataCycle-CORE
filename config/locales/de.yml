@@ -614,6 +614,7 @@ de:
           by_name_and_length: "Anzahl der Zeichen"
           by_name_and_presence: "ausgefüllt"
           by_type_and_presence: "Informationstyp"
+          by_type_and_length: "Informationstyp und Anzahl der Zeichen"
         object:
           by_attribute_and_presence: ausgefüllt
         linked:
@@ -1162,6 +1163,7 @@ de:
       definition_mismatch: Die Versionen können nicht verglichen werden, weil die Datendefinitionen nicht überein stimmen
       user_locked: Ein Benutzer mit dieser E-Mail existiert bereits und ist gesperrt. Bitte wenden Sie sich an einen Administrator, um den Benutzer freizuschalten.
       classification_mappings_error: Beim Aktualisieren der Klassifizierungs-Mappings ist ein Fehler aufgetreten
+      external_system_already_exists: Für dieses externe System gibt es bereits eine Konfiguration
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."
@@ -1196,6 +1198,7 @@ de:
       cleared_collection: "Alle Inhalte wurden aus %{data} entfernt"
       confirmed: "%{data} wurde bestätigt."
       classification_mappings_queued: Klassifizierungs-Mappings werden im Hintergrund aktualisiert
+      external_system_created: Die Konfiguration für das externe System wurde erstellt
     warning:
       no_changes: Es wurde keine neue Version angelegt, da keine Änderungen am Inhalt gemacht worden sind.
     info:
@@ -1612,6 +1615,7 @@ de:
         text: Beschreibung
         price: Preis
         description: Kurzbeschreibung
+        directions_public_transport: Öffentliche Verkehrsmittel
       tour:
         directions: Anfahrt
         parking: Parken

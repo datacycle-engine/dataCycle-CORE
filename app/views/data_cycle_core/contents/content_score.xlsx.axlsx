@@ -100,7 +100,7 @@ def render_score_for_template(sheet, template, styles)
       assets = DataCycleCore::Asset.where(id: asset_contents.values.flatten.map(&:asset_id))
     end
 
-    overlay_templates = DataCycleCore::Thing.where(template: true, template_name: batch.map(&:overlay_template_name).uniq + related_things.map(&:overlay_template_name).uniq).index_by(&:template_name)
+    overlay_templates = DataCycleCore::ThingTemplate.where(template_name: batch.map(&:overlay_template_name).uniq + related_things.map(&:overlay_template_name).uniq).index_by(&:template_name)
 
     related_things.each { |e| e.instance_variable_set(:@overlay_property_names, e.overlay_template_name.present? ? Array.wrap(overlay_templates[e.overlay_template_name]&.property_names) : []) }
 
@@ -144,7 +144,9 @@ def render_score_for_template(sheet, template, styles)
   end
 end
 
-DataCycleCore::Thing.where(template: true, template_name: @contents.distinct.reorder(nil).pluck(:template_name)).order(template_name: :asc).each do |template|
+DataCycleCore::ThingTemplate.where(template_name: @contents.distinct.reorder(nil).pluck(:template_name)).order(template_name: :asc).each do |thing_template|
+  template = DataCycleCore::Thing.new(thing_template: thing_template)
+
   next unless template.content_score_allowed?
 
   workbook.add_worksheet(name: template.template_name.parameterize(separator: ' ', preserve_case: true).truncate(31)) do |sheet|

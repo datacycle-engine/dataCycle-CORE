@@ -23,9 +23,9 @@ module DataCycleCore
 
         return form_parameters.merge(query_filter)
       elsif definition&.dig('template_name').present?
-        new_template = DataCycleCore::Thing.find_by(template: true, template_name: definition&.dig('template_name'))
+        new_template = DataCycleCore::ThingTemplate.find_by(template_name: definition&.dig('template_name'))
 
-        return if new_template.nil? || cannot?(:create, new_template, 'object_browser')
+        return if new_template.nil? || cannot?(:create, new_template.template_thing, 'object_browser')
 
         return form_parameters.merge(template: new_template)
       end

@@ -14,7 +14,7 @@
                                   duplicated_content: local_assigns[:duplicated_content],
                                   hide_embedded: local_assigns[:hide_embedded],
                                   translate: local_assigns[:translate],
-                                  new_content: object.template
+                                  new_content: object.new_record?
                                 },
                                 content: content %>
   <% end %>

@@ -3,8 +3,11 @@
 require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'helpers/minitest_spec_helper'
 
 describe DataCycleCore::Schema::Template do
+  include DataCycleCore::MinitestSpecHelper
+
   describe 'for simple properties' do
     subject do
       DataCycleCore::Schema::Template.load_template(

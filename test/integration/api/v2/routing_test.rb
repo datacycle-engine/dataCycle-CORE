@@ -8,7 +8,7 @@ module DataCycleCore
     module V2
       class RoutingTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
         before(:all) do
-          DataCycleCore::Thing.where(template: false).delete_all
+          DataCycleCore::Thing.delete_all
           @test_content = DataCycleCore::DummyDataHelper.create_data('tour')
         end
 

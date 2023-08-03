@@ -19,7 +19,7 @@ class CleanupHelper
       }.dig(external_source)
       return if core_data_templates.blank?
       core_data_templates&.map { |template|
-        thing_template = DataCycleCore::Thing.find_by(template_name: template, template: true)
+        thing_template = DataCycleCore::Thing.new(template_name: template)
         thing_template.linked_property_names.map do |linked_item|
           properties = thing_template.properties_for(linked_item)
           if properties.dig('template_name').present?
@@ -35,7 +35,8 @@ class CleanupHelper
 
     def embedded
       embedded_hash = {}
-      DataCycleCore::Thing.where(template: true).find_each.select { |temp| temp.content_type == 'entity' }.map do |main_temp|
+      DataCycleCore::ThingTemplate.where(content_type: 'entity').map do |main_thing_temp|
+        main_temp = DataCycleCore::Thing.new(thing_template: main_thing_temp)
         main_temp.embedded_property_names.map do |embedded_item|
           properties = main_temp.properties_for(embedded_item)
           if embedded_hash.key?(properties.dig('template_name'))
@@ -55,14 +56,12 @@ class CleanupHelper
           SELECT things.id FROM things
           INNER JOIN content_contents ON content_contents.content_b_id = things.id
           INNER JOIN things things2 ON content_contents.content_a_id = things2.id
-          WHERE things.template = false
-          AND things.template_name = '#{embedded_name}'
-          AND things2.template = false
+          WHERE things.template_name = '#{embedded_name}'
           AND things2.template_name IN (#{template_string})
         )
       SQL
 
-      DataCycleCore::Thing.where(template: false, template_name: embedded_name).where(ActiveRecord::Base.send(:sanitize_sql_for_conditions, where_string))
+      DataCycleCore::Thing.where(template_name: embedded_name).where(ActiveRecord::Base.send(:sanitize_sql_for_conditions, where_string))
     end
   end
 end

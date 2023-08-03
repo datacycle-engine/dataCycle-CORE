@@ -3,8 +3,11 @@
 require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'helpers/minitest_spec_helper'
 
 describe DataCycleCore::Utility::Compute::Math do
+  include DataCycleCore::MinitestSpecHelper
+
   subject do
     DataCycleCore::Utility::Compute::Math
   end

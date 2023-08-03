@@ -1,0 +1,31 @@
+dynamic-form-part {
+  position: relative;
+  display: block;
+
+  &.dynamic-part-loading {
+    pointer-events: none;
+
+    &::before {
+      content: '\f110';
+      font-family: FontAwesome;
+      font-style: normal;
+      font-weight: normal;
+      display: flex;
+      position: absolute;
+      animation: fa-spin 2s infinite linear;
+      font-size: 2.5rem;
+      line-height: 2.5rem;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+    }
+
+    >* {
+      filter: blur(3px);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+}

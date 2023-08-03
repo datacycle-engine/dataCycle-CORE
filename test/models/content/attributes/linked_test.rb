@@ -179,7 +179,7 @@ module DataCycleCore
               linked_places.push(DataCycleCore::TestPreparations.create_content(template_name: 'Linked-Place-1', data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'linked').merge({ 'name' => "CreativeWork Linked Headline #{i}" }), prevent_history: true).id)
             end
             assert_equal(place_count, linked_places.size)
-            assert_equal(DataCycleCore::Thing.where(template: false, template_name: 'Linked-Place-1').count, linked_places.size)
+            assert_equal(DataCycleCore::Thing.where(template_name: 'Linked-Place-1').count, linked_places.size)
           end
 
           count_things(diff: [0, 1, place_count - linked_cw_size, linked_cw_size]) do
@@ -192,7 +192,7 @@ module DataCycleCore
               partial_update: false
             )
             assert_equal(place_count, linked_places.size)
-            assert_equal(DataCycleCore::Thing.where(template: false, template_name: 'Linked-Place-1').count, linked_places.size)
+            assert_equal(DataCycleCore::Thing.where(template_name: 'Linked-Place-1').count, linked_places.size)
           end
         end
 

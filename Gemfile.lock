@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    data_cycle_core (23.06)
+    data_cycle_core (23.07)
       activerecord-postgis-adapter
       acts_as_paranoid
       acts_as_tree
@@ -610,4 +610,4 @@ RUBY VERSION
    ruby 2.7.1p83
 
 BUNDLED WITH
-   2.4.16
+   2.4.17

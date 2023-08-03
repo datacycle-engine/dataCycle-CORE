@@ -3,6 +3,7 @@
 require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'helpers/minitest_spec_helper'
 
 module SharedExamplesForContent
   def self.for_properties(storage_location)
@@ -27,7 +28,7 @@ module SharedExamplesForContent
       subject do
         convert_storage_location = { 'value' => 'metadata', 'translated_value' => 'content' }
         DataCycleCore::Thing.new(
-          schema: data_definition,
+          thing_template: DataCycleCore::ThingTemplate.new(schema: data_definition),
           convert_storage_location[storage_location] => { 'existing_property' => property_value }
         )
       end
@@ -55,7 +56,7 @@ module SharedExamplesForContent
       }
 
       subject do
-        DataCycleCore::Thing.new(schema: data_definition)
+        DataCycleCore::Thing.new(thing_template: DataCycleCore::ThingTemplate.new(schema: data_definition))
       end
 
       it 'provides names of plain properties' do
@@ -66,6 +67,8 @@ module SharedExamplesForContent
 end
 
 describe DataCycleCore::Content do
+  include DataCycleCore::MinitestSpecHelper
+
   SharedExamplesForContent.for_properties('value') { SecureRandom.hex }
 
   SharedExamplesForContent.for_properties_with_no_content_yet('translated_value')
@@ -74,7 +77,7 @@ describe DataCycleCore::Content do
   describe 'with translatable and untranslatable properties' do
     subject do
       DataCycleCore::Thing.new(
-        schema: {
+        thing_template: DataCycleCore::ThingTemplate.new(schema: {
           properties: {
             id: {
               label: 'id',
@@ -101,7 +104,7 @@ describe DataCycleCore::Content do
               storage_location: 'translated_value'
             }
           }
-        }
+        })
       )
     end
 
@@ -155,7 +158,7 @@ describe DataCycleCore::Content do
   describe 'with linked properties' do
     subject do
       DataCycleCore::Thing.new(
-        schema: {
+        thing_template: DataCycleCore::ThingTemplate.new(schema: {
           properties: {
             id: {
               label: 'id',
@@ -174,7 +177,7 @@ describe DataCycleCore::Content do
             existing_locations: [1, 2, 3],
             existing_main_location: 1
           }
-        }
+        })
       )
     end
 
@@ -203,7 +206,7 @@ describe DataCycleCore::Content do
   describe 'with embedded properties' do
     subject do
       DataCycleCore::Thing.new(
-        schema: {
+        thing_template: DataCycleCore::ThingTemplate.new(schema: {
           properties: {
             id: {
               label: 'id',
@@ -218,7 +221,7 @@ describe DataCycleCore::Content do
               type: 'embedded'
             }
           }
-        }
+        })
       )
     end
 
@@ -230,7 +233,7 @@ describe DataCycleCore::Content do
   describe 'with included properties' do
     subject do
       DataCycleCore::Thing.new(
-        schema: {
+        thing_template: DataCycleCore::ThingTemplate.new(schema: {
           properties: {
             id: {
               label: 'id',
@@ -259,7 +262,7 @@ describe DataCycleCore::Content do
               }
             }
           }
-        },
+        }),
         metadata: {
           'included_object' => {
             'property1' => 'data property1',
@@ -313,7 +316,7 @@ describe DataCycleCore::Content do
   describe 'with included properties, two ranks deep' do
     subject do
       DataCycleCore::Thing.new(
-        schema: {
+        thing_template: DataCycleCore::ThingTemplate.new(schema: {
           properties: {
             id: {
               label: 'id',
@@ -371,7 +374,7 @@ describe DataCycleCore::Content do
               }
             }
           }
-        },
+        }),
         metadata: {
           'included_object' => {
             'property1' => 'data property1',
@@ -456,7 +459,7 @@ describe DataCycleCore::Content do
   describe 'with included properties, different types' do
     subject do
       DataCycleCore::Thing.new(
-        schema: {
+        thing_template: DataCycleCore::ThingTemplate.new(schema: {
           properties: {
             id: {
               label: 'id',
@@ -485,7 +488,7 @@ describe DataCycleCore::Content do
               }
             }
           }
-        },
+        }),
         metadata: {
           'included_object' => {
             'property1' => 'data property1',

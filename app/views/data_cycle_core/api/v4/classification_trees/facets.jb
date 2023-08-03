@@ -25,7 +25,7 @@ if @classification_tree_label.present?
       end
     end
   else
-    queue = DataCycleCore::WorkerPool.new(DataCycleCore::ApiService.allowed_thread_count)
+    queue = DataCycleCore::WorkerPool.new(@permitted_params.dig(:section, :meta)&.to_i&.zero? ? 1 : DataCycleCore::ApiService.allowed_thread_count)
     queue.append do
       json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options: options, show_all_concepts: true
     end
@@ -44,7 +44,7 @@ if @classification_tree_label.present?
   aliases = @classification_aliases.index_by(&:id)
   json['@graph'].each do |c|
     c['dc:thingCountWithSubtree'] = aliases[c['@id']].thing_count_with_subtree
-    c['dc:thingCountwithoutSubtree'] = aliases[c['@id']].thing_count_without_subtree
+    c['dc:thingCountWithoutSubtree'] = aliases[c['@id']].thing_count_without_subtree
   end
 end
 

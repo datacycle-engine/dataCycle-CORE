@@ -8,14 +8,14 @@ module DataCycleCore
       module Filter
         class SearchTest < DataCycleCore::V4::Base
           before(:all) do
-            DataCycleCore::Thing.where(template: false).delete_all
+            DataCycleCore::Thing.delete_all
 
             # name: Headline used for event, event_series and poi
             @event = DataCycleCore::V4::DummyDataHelper.create_data('event')
             @poi = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             @poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: { name: 'Headline POI' })
 
-            @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
+            @thing_count = DataCycleCore::Thing.where.not(content_type: 'embedded').count
           end
 
           test 'api/v4/things parameter filter search' do

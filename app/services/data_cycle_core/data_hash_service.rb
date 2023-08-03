@@ -44,13 +44,12 @@ module DataCycleCore
     end
 
     def self.get_internal_template(name)
-      DataCycleCore::Thing.find_by!(template: true, template_name: name)
+      DataCycleCore::Thing.new(template_name: name).require_template!
     end
 
     def self.create_duplicate(content: nil, current_user: nil)
       return if content.blank? || !content.content_type?('entity')
-      new_content = DataCycleCore::Thing.find_by(template_name: content.template_name, template: true).dup
-      new_content.template = false
+      new_content = DataCycleCore::Thing.new(template_name: content.template_name)
 
       content.available_locales.each do |locale|
         I18n.with_locale(locale) do
@@ -85,17 +84,20 @@ module DataCycleCore
     end
 
     def self.create_internal_object(template, object_params, current_user, is_part_of = nil, source = nil)
-      template = get_internal_template(template) if template.is_a?(::String)
-      object = DataCycleCore::Thing.new(object_params.except(:translations, :datahash))
-      object_hash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, template.schema)
+      new_params = object_params.except(:translations, :datahash)
+      if template.is_a?(DataCycleCore::ThingTemplate)
+        new_params[:thing_template] = template
+      elsif template.is_a?(::String)
+        new_params[:template_name] = template
+      end
+      object = DataCycleCore::Thing.new(new_params).require_template!
+      object_hash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, object.schema)
       object_hash[:translations]&.deep_reject! { |_, v| v.blank? && !v.is_a?(FalseClass) }
       locale = object_hash[:translations]&.keys&.first || I18n.locale
       save_time = Time.zone.now
 
       DataCycleCore::Thing.transaction do
         I18n.with_locale(locale) do
-          object.schema = template.schema
-          object.template_name = template.template_name
           object.is_part_of = is_part_of if is_part_of.present?
           object.created_at = save_time
           object.updated_at = save_time

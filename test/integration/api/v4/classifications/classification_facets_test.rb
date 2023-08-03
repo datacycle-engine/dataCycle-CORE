@@ -8,7 +8,7 @@ module DataCycleCore
       module Classifications
         class ClassificationFacetsTest < DataCycleCore::V4::Base
           before(:all) do
-            DataCycleCore::Thing.where(template: false).delete_all
+            DataCycleCore::Thing.delete_all
             @tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
             @aliases = @tree_label.classification_aliases.order(internal_name: :asc)
             @current_user = User.find_by(email: 'tester@datacycle.at')
@@ -49,7 +49,7 @@ module DataCycleCore
             json_data = JSON.parse(response.body)
             json_data['@graph'].each do |item|
               assert_equal(@count_mapping[item['@id']].size, item['dc:thingCountWithSubtree'])
-              assert_equal(item['dc:thingCountWithSubtree'].positive? ? 1 : 0, item['dc:thingCountwithoutSubtree'])
+              assert_equal(item['dc:thingCountWithSubtree'].positive? ? 1 : 0, item['dc:thingCountWithoutSubtree'])
             end
           end
 

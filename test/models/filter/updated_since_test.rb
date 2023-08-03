@@ -10,7 +10,7 @@ module DataCycleCore
         # create entity and add 5 linked entities from the same table
         @things_before = DataCycleCore::Thing.count
         @linked_objects = []
-        @timestamp = Time.zone.now - 1.minute
+        @timestamp = Time.zone.now - 1.second
         5.times do |i|
           @linked_objects.push(
             DataCycleCore::TestPreparations.create_content(
@@ -37,8 +37,8 @@ module DataCycleCore
       end
 
       test 'sanity check for updated_since' do
-        assert_equal(6, DataCycleCore::Thing.where('things.template = false AND things.updated_at >= ?', @timestamp).count)
-        assert_equal(0, DataCycleCore::Thing.where('things.template = false AND things.updated_at > ?', Time.zone.now).count)
+        assert_equal(6, DataCycleCore::Thing.where('things.updated_at >= ?', @timestamp).count)
+        assert_equal(0, DataCycleCore::Thing.where('things.updated_at > ?', Time.zone.now).count)
         assert_equal(6, DataCycleCore::Filter::Search.new.updated_since(@timestamp - 1.minute).count)
         assert_equal(0, DataCycleCore::Filter::Search.new.updated_since(Time.zone.now).count)
       end

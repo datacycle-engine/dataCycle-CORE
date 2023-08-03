@@ -68,10 +68,7 @@ module DataCycleCore
 
       save_time = Time.zone.now - 10.seconds
 
-      template_data = DataCycleCore::Thing.find_by(template: true, template_name: 'TestClassificationData')
-      data_set = DataCycleCore::Thing.new
-      data_set.schema = template_data.schema
-      data_set.template_name = template_data.template_name
+      data_set = DataCycleCore::Thing.new(template_name: 'TestClassificationData')
       data_set.created_at = save_time
       data_set.updated_at = save_time
       data_set.save
@@ -99,18 +96,12 @@ module DataCycleCore
 
       save_time = Time.zone.now - 10.seconds
 
-      template_data = DataCycleCore::Thing.find_by(template: true, template_name: 'TestEmbeddedPlaceData')
-      data_set = DataCycleCore::Thing.new
-      data_set.schema = template_data.schema
-      data_set.template_name = template_data.template_name
+      data_set = DataCycleCore::Thing.new(template_name: 'TestEmbeddedPlaceData')
       data_set.created_at = save_time
       data_set.updated_at = save_time
       data_set.save
 
-      template_place = DataCycleCore::Thing.find_by(template: true, template_name: 'testPlace')
-      data_set_place = DataCycleCore::Thing.new
-      data_set_place.schema = template_place.schema
-      data_set_place.template_name = template_place.template_name
+      data_set_place = DataCycleCore::Thing.new(template_name: 'testPlace')
       data_set_place.created_at = save_time
       data_set_place.updated_at = save_time
       data_set_place.save
@@ -146,18 +137,12 @@ module DataCycleCore
 
       save_time = Time.zone.now - 64.seconds
 
-      template_data = DataCycleCore::Thing.find_by(template: true, template_name: 'TestEmbeddedCreativeWork')
-      data_set = DataCycleCore::Thing.new
-      data_set.schema = template_data.schema
-      data_set.template_name = template_data.template_name
+      data_set = DataCycleCore::Thing.new(template_name: 'TestEmbeddedCreativeWork')
       data_set.created_at = save_time
       data_set.updated_at = save_time
       data_set.save
 
-      template_cw = DataCycleCore::Thing.find_by(template: true, template_name: 'EmbeddedCreativeWork')
-      data_set_cw = DataCycleCore::Thing.new
-      data_set_cw.schema = template_cw.schema
-      data_set_cw.template_name = template_cw.template_name
+      data_set_cw = DataCycleCore::Thing.new(template_name: 'EmbeddedCreativeWork')
       data_set_cw.created_at = save_time
       data_set_cw.updated_at = save_time
       data_set_cw.save
@@ -195,10 +180,7 @@ module DataCycleCore
       template_count = DataCycleCore::Thing.count
       template_trans_count = DataCycleCore::Thing::Translation.count
 
-      template_data = DataCycleCore::Thing.find_by(template: true, template_name: 'TestSimple')
-      data_set = DataCycleCore::Thing.new
-      data_set.schema = template_data.schema
-      data_set.template_name = template_data.template_name
+      data_set = DataCycleCore::Thing.new(template_name: 'TestSimple')
       data_set.name = 'initial'
       data_set.updated_at = Time.zone.now - 5.weeks
       data_set.created_at = data_set.updated_at

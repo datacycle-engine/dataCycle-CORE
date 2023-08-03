@@ -4,7 +4,6 @@ port ENV['PORT'] || 3000
 environment ENV['RAILS_ENV'] || 'development'
 
 threads 1, Rails.application.secrets.dig(:puma_max_threads) || 5
-workers Rails.application.secrets.dig(:puma_max_workers) || 3
 
 preload_app!
 

@@ -8,7 +8,7 @@ module DataCycleCore
       module Sort
         class ScheduleProximityTest < DataCycleCore::V4::Base
           before(:all) do
-            DataCycleCore::Thing.where(template: false).delete_all
+            DataCycleCore::Thing.delete_all
             @routes = Engine.routes
 
             # reverse creation order to make sure default sorting does not distort the result
@@ -68,7 +68,7 @@ module DataCycleCore
                 ]
               })
 
-            @thing_count = DataCycleCore::Thing.where(template: false).where.not(content_type: 'embedded').count
+            @thing_count = DataCycleCore::Thing.where.not(content_type: 'embedded').count
           end
 
           setup do

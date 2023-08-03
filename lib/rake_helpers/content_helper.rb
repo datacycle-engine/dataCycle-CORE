@@ -10,9 +10,8 @@ class ContentHelper
       ).first
 
       unless content
-        content = DataCycleCore::Thing.find_by!(template_name: template_name, template: true).dup
+        content = DataCycleCore::Thing.new(template_name: template_name).require_template!
 
-        content.template = false
         content.created_at = Time.zone.now
         content.updated_at = content.created_at
         content.created_by = nil

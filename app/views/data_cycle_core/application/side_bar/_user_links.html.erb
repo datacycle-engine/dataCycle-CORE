@@ -20,7 +20,7 @@
   <% if DataCycleCore.asset_objects.any? { |a| can?(:create, a.classify.constantize) } %>
     <div>
       <a class="asset-selector-button" data-open="asset-selector-sidebar">
-        <span class="icon"><i class="fa fa-files-o" aria-hidden="true"></i></span>
+        <span class="icon"><i class="fa fa-file" aria-hidden="true"></i></span>
         <span class="title"><%= t('common.my_assets', locale: active_ui_locale) %></span>
       </a>
 

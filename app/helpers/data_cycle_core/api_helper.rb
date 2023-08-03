@@ -49,7 +49,7 @@ module DataCycleCore
     end
 
     def attribute_key(key, definition)
-      api_definition(definition)['name'] || key.camelize(:lower)
+      (api_definition(definition)['name'].presence || key).to_s.camelize(:lower)
     end
 
     def api_definition(definition, api_version = @api_version, api_context = @api_context)

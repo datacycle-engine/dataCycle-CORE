@@ -11,7 +11,7 @@ module DataCycleCore
     end
 
     test 'content_object without template' do
-      content = DataCycleCore::Thing.new
+      content = DataCycleCore::Thing.new(template_name: 'Artikel')
       assert_raise NoMethodError do
         content.servas
       end

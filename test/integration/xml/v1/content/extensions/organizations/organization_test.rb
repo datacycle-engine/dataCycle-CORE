@@ -10,7 +10,7 @@ module DataCycleCore
           module Organizations
             class Organization < DataCycleCore::TestCases::ActionDispatchIntegrationTest
               before(:all) do
-                DataCycleCore::Thing.where(template: false).delete_all
+                DataCycleCore::Thing.delete_all
                 @content = DataCycleCore::DummyDataHelper.create_data('organization')
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
                 @content.description = 'Random Description'

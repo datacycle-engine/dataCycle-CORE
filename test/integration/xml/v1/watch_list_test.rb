@@ -7,7 +7,7 @@ module DataCycleCore
     module V1
       class WatchListsTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
         before(:all) do
-          DataCycleCore::Thing.where(template: false).delete_all
+          DataCycleCore::Thing.delete_all
           @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
           @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList')
         end

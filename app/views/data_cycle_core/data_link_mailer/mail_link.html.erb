@@ -16,7 +16,7 @@
               a_type: first_available_i18n_t(:akkusativ, @resource.template_namespaces, scope: "data_link_mailer.?.#{@data_link.item.model_name.singular_route_key}", default: :default, locale: @locale),
               url: @url,
               title: @title,
-              n_type: first_available_i18n_t(:nominativ, @resource.template_namespaces, scope: "data_link_mailer.?.#{@data_link.item.model_name.singular_route_key}", default: :default, locale: @locale).upcase_first,
+              n_type: first_available_i18n_t(:nominativ, @resource.template_namespaces, scope: "data_link_mailer.?.#{@data_link.item.model_name.singular_route_key}", default: :default, locale: @locale)&.upcase_first,
               locale: @locale
             ) %>
           </td>

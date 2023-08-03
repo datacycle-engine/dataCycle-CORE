@@ -3,8 +3,11 @@
 require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'helpers/minitest_spec_helper'
 
 describe DataCycleCore::MasterData::DataConverter do
+  include DataCycleCore::MinitestSpecHelper
+
   subject do
     DataCycleCore::MasterData::DataConverter
   end
@@ -87,7 +90,7 @@ describe DataCycleCore::MasterData::DataConverter do
       [point, line, line3d, wkt_string, wkt_string3d].each do |test_case|
         converted_data = subject.string_to_geographic(test_case)
         assert(converted_data.methods.include?(:geometry_type))
-        assert(implies(test_case.class == converted_data.class, test_case == converted_data))
+        assert(implies(test_case.instance_of?(converted_data.class), test_case == converted_data))
         assert(implies(test_case.class != converted_data.class, test_case == converted_data.to_s))
       end
     end
@@ -163,7 +166,7 @@ describe DataCycleCore::MasterData::DataConverter do
       test_cases.each do |test_case|
         converted_data = subject.string_to_datetime(test_case)
         assert(converted_data.acts_like?(:time))
-        assert(implies(test_case.class == converted_data.class, test_case == converted_data))
+        assert(implies(test_case.instance_of?(converted_data.class), test_case == converted_data))
       end
     end
 
@@ -218,7 +221,7 @@ describe DataCycleCore::MasterData::DataConverter do
       test_cases.each do |test_case|
         converted_data = subject.string_to_date(test_case)
         assert(converted_data.acts_like?(:date))
-        assert(implies(test_case.class == converted_data.class, test_case == converted_data))
+        assert(implies(test_case.instance_of?(converted_data.class), test_case == converted_data))
       end
     end
 

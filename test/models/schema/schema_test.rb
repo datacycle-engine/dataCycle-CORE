@@ -3,8 +3,11 @@
 require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'helpers/minitest_spec_helper'
 
 describe DataCycleCore::Schema do
+  include DataCycleCore::MinitestSpecHelper
+
   subject do
     DataCycleCore::Schema.load_schema(
       File.expand_path('../../data_types/simple_valid_templates/RandomContainersAndEntites.yml', __dir__)

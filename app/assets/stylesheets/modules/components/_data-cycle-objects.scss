@@ -157,6 +157,10 @@
     font-weight: 200;
     color: $black;
     overflow: hidden;
+
+    &.working-title {
+      font-size: 1rem;
+    }
   }
 
   .description,

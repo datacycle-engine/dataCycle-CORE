@@ -35,9 +35,9 @@ module DataCycleCore
           end
 
           # validate references
-          embedded_template = DataCycleCore::Thing.find_by(template: true, template_name: template['template_name'])
+          embedded_template = DataCycleCore::Thing.new(template_name: template['template_name'])
 
-          if template.blank? || embedded_template.blank?
+          if template.blank? || embedded_template.template_missing?
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.no_template',
               substitutions: {
@@ -63,6 +63,13 @@ module DataCycleCore
               }
             end
           end
+        rescue ActiveModel::MissingAttributeError
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.no_template',
+            substitutions: {
+              name: 'things'
+            }
+          }
         end
 
         def validate_item(item, template)

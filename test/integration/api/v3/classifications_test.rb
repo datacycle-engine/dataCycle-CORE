@@ -7,7 +7,7 @@ module DataCycleCore
     module V3
       class ClassificationTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
         before(:all) do
-          DataCycleCore::Thing.where(template: false).delete_all
+          DataCycleCore::Thing.delete_all
         end
 
         setup do

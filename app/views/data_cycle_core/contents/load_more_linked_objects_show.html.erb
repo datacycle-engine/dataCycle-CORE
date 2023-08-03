@@ -1,4 +1,4 @@
-  <% if @params.dig(:definition, :type) == 'linked' %>
+  <% if (@params.dig(:definition, :type) == 'linked' && @params.dig('definition', 'ui', @params['load_more_action'].presence || 'show', 'partial').blank?) || @params.dig('definition', 'ui', @params['load_more_action'].presence || 'show', 'partial') == 'linked' %>
   <% @linked_objects.each do |content| %>
     <%= render_linked_partial(
           key: "#{@params[:complete_key]}[]",
