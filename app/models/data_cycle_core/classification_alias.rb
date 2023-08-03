@@ -295,7 +295,7 @@ module DataCycleCore
         if destroy_children
           merge_children_into_self
         else
-          sub_classification_trees.update_all(parent_classification_alias_id: new_classification_alias.id, classification_tree_label_id: new_classification_alias.classification_tree_label)
+          sub_classification_trees.update_all(parent_classification_alias_id: new_classification_alias.id, classification_tree_label_id: new_classification_alias.classification_tree_label.id)
         end
 
         merge_with(new_classification_alias)
