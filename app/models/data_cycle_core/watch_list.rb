@@ -6,7 +6,7 @@ module DataCycleCore
 
     default_scope { includes(:collection_configuration) }
 
-    scope :by_user, ->(user) { where(user: user) }
+    scope :by_user, ->(user) { where(user:) }
     scope :my_selection, -> { unscope(where: :my_selection).where(my_selection: true) }
     scope :without_my_selection, -> { unscope(where: :my_selection).where(my_selection: false) }
 

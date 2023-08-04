@@ -23,7 +23,7 @@ module DataCycleCore
     def perform(id)
       return unless DataCycleCore::Feature::DuplicateCandidate.enabled?
 
-      DataCycleCore::Thing.find_by(id: id)&.create_duplicate_candidates
+      DataCycleCore::Thing.find_by(id:)&.create_duplicate_candidates
     end
   end
 end

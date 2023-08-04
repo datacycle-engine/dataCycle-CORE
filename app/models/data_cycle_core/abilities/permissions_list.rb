@@ -43,9 +43,9 @@ module DataCycleCore
         raise 'missing definition in permission' if definition.blank?
 
         self.class.list.push({
-          condition: condition,
-          actions: actions,
-          definition: definition
+          condition:,
+          actions:,
+          definition:
         })
       end
 
@@ -79,6 +79,7 @@ module DataCycleCore
       def definition_to_segment(definition)
         return segment(definition).new unless definition.is_a?(::Hash)
 
+        binding.pry
         segment(definition.keys.first).new(*definition.values.first)
       end
 

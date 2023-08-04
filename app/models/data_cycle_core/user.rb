@@ -156,7 +156,7 @@ module DataCycleCore
     def generate_user_token(refresh_jti = false)
       update_columns(jti: SecureRandom.uuid) if refresh_jti || jti.blank?
 
-      DataCycleCore::JsonWebToken.encode(payload: { user_id: id, jti: jti, original_iss: user_api_feature.current_issuer }.compact_blank)
+      DataCycleCore::JsonWebToken.encode(payload: { user_id: id, jti:, original_iss: user_api_feature.current_issuer }.compact_blank)
     end
 
     def update_with_token(token)
@@ -225,7 +225,7 @@ module DataCycleCore
         id,
         email,
         model_name.param_key,
-        locked? ? "#{full_name} <span class=\"alert-color\"><i class=\"fa fa-ban\"></i> #{self.class.human_attribute_name(deleted? ? :deleted_at : :locked_at, locale: locale)}</span>" : full_name,
+        locked? ? "#{full_name} <span class=\"alert-color\"><i class=\"fa fa-ban\"></i> #{self.class.human_attribute_name(deleted? ? :deleted_at : :locked_at, locale:)}</span>" : full_name,
         disable_locked && locked?
       )
     end
@@ -234,7 +234,7 @@ module DataCycleCore
       transaction(joinable: true) do
         # disable cleanup for now, as performance is seriously impacted
         # activities.where('activities.activity_type = ? AND activities.created_at < ?', type, 3.months.ago).delete_all
-        activities.create(activity_type: type, data: data)
+        activities.create(activity_type: type, data:)
       end
     end
 

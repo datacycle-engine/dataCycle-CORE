@@ -24,7 +24,7 @@ end
 if request.request_method == 'POST'
   common_params = {}
 else
-  common_params = @permitted_params.to_h.reject { |k, _| ['id', 'format', 'page', 'api_subversion'].include?(k) }
+  common_params = @permitted_params.to_h.except('id', 'format', 'page', 'api_subversion')
 end
 
 common_params = common_params.merge(page: { offset: @permitted_params.dig(:page, :offset).to_i }) if @permitted_params.dig(:page, :offset)&.to_i&.positive?

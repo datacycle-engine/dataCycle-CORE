@@ -63,7 +63,7 @@ module DataCycleCore
         label_html = ActionView::OutputBuffer.new
         label_html << content.try(key)
         definition = content.properties_for('name')
-        label_html << render('data_cycle_core/contents/content_score', key: 'name', content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition) if definition&.key?('content_score')
+        label_html << render('data_cycle_core/contents/content_score', key: 'name', content: contextual_content({ content: }.merge(args.slice(:parent))), definition:) if definition&.key?('content_score')
 
         label_html
       end
@@ -162,7 +162,7 @@ module DataCycleCore
 
     def render_translatable_linked_field(content, partial, params)
       if I18n.available_locales.many? && content&.translatable?
-        render('data_cycle_core/contents/grid/compact/attributes/translatable_field', params: params, partial: partial)
+        render('data_cycle_core/contents/grid/compact/attributes/translatable_field', params:, partial:)
       else
         render(partial, params)
       end

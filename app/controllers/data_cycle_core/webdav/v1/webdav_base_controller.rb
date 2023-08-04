@@ -47,7 +47,7 @@ module DataCycleCore
         end
 
         def plain_error(status)
-          render 'error', status: status
+          render 'error', status:
         end
 
         def set_default_response_format

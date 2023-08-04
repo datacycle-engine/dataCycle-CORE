@@ -53,7 +53,7 @@ module DataCycleCore
       return value unless value.acts_like?(:time) || key.end_with?('_at')
       return value if (v = value.try(:in_time_zone)).blank?
 
-      l(v, locale: locale, format: :edit)
+      l(v, locale:, format: :edit)
     end
 
     def layout_params(params, issuer = nil)

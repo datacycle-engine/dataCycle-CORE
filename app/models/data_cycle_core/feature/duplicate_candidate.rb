@@ -74,7 +74,7 @@ module DataCycleCore
             .map { |d|
               diff = content.diff(d.get_data_hash.except(*except), relevant_schema)
               score = [0, 100 * (total - diff.size * WEIGHTING) / total].max
-              { thing_duplicate_id: d.id, method: 'data_metric_hamming', score: score } if score > 80
+              { thing_duplicate_id: d.id, method: 'data_metric_hamming', score: } if score > 80
             }.compact
         end
 

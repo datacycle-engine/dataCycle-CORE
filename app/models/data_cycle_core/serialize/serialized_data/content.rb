@@ -83,17 +83,17 @@ module DataCycleCore
           data.try(:record)
         end
 
-        def stream_data(&block)
+        def stream_data(&)
           if local_file?
             yield(data&.read)
           elsif active_storage?
-            data&.blob&.download(&block)
+            data&.blob&.download(&)
           elsif remote?
-            load_remote_file(&block)
+            load_remote_file(&)
           elsif data.is_a?(Proc)
             yield(data.call)
           elsif enumerator?
-            @data.each(&block)
+            @data.each(&)
           else
             yield(data)
           end

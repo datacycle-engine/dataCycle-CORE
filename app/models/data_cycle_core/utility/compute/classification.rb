@@ -98,7 +98,7 @@ module DataCycleCore
             ActiveRecord::Base.connection.execute(
               ActiveRecord::Base.send(:sanitize_sql_array, [
                                         query_sql,
-                                        tree_label: tree_label,
+                                        tree_label:,
                                         geo: geometry
                                       ])
             ).values.flatten
@@ -116,7 +116,7 @@ module DataCycleCore
                 value = values.dig(key) || values.dig('datahash', key) || values.dig('translations', I18n.locale.to_s, key)
               else
                 id = values.dig('id') || values.dig('datahash', 'id') || values.dig('translations', I18n.locale.to_s, 'id')
-                item = DataCycleCore::Thing.find_by(id: id)
+                item = DataCycleCore::Thing.find_by(id:)
                 value = item.respond_to?(key) ? item.attribute_to_h(key) : nil
               end
 

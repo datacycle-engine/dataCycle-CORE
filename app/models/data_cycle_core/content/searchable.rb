@@ -8,7 +8,7 @@ module DataCycleCore
       end
 
       def with_schema_type(type)
-        where("thing_templates.schema ->> 'schema_type' = :type OR thing_templates.computed_schema_types && ARRAY[:type]::VARCHAR[]", type: type)
+        where("thing_templates.schema ->> 'schema_type' = :type OR thing_templates.computed_schema_types && ARRAY[:type]::VARCHAR[]", type:)
       end
 
       def without_template_names(*names)
@@ -72,7 +72,7 @@ module DataCycleCore
           ON #{joined_name}.thing_id = things.id
         SQL
 
-        joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [join_external_connections_query, external_system_id: external_system_id, external_key: external_key.is_a?(Array) ? external_key.map(&:to_s) : external_key.to_s]))
+        joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [join_external_connections_query, external_system_id:, external_key: external_key.is_a?(Array) ? external_key.map(&:to_s) : external_key.to_s]))
       end
 
       def first_by_external_key_or_id(external_key, external_system_id)
@@ -81,7 +81,7 @@ module DataCycleCore
         query = '(external_source_id = :external_system_id AND external_key = :external_key)'
         query += ' OR id = :external_key' if external_key.uuid?
 
-        DataCycleCore::Thing.find_by(query, external_system_id: external_system_id, external_key: external_key)
+        DataCycleCore::Thing.find_by(query, external_system_id:, external_key:)
       end
 
       def by_external_system(external_system_id, joined_name = 'merged_external_systems')
@@ -112,7 +112,7 @@ module DataCycleCore
           ON #{joined_name}.thing_id = things.id
         SQL
 
-        joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [join_external_connections_query, external_system_id: external_system_id]))
+        joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [join_external_connections_query, external_system_id:]))
       end
 
       # TODO: currently not replaceable: used in PulicationsController

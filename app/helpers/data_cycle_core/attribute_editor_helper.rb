@@ -4,7 +4,7 @@ module DataCycleCore
   module AttributeEditorHelper
     ATTRIBUTE_DATAHASH_PREFIX = '[datahash]'
     ATTRIBUTE_DATAHASH_REGEX = Regexp.new(/.*\K(#{Regexp.quote(ATTRIBUTE_DATAHASH_PREFIX)}|\[translations\]\[[^\]]*\])/)
-    ATTRIBUTE_FIELD_PREFIX = "thing#{ATTRIBUTE_DATAHASH_PREFIX}"
+    ATTRIBUTE_FIELD_PREFIX = "thing#{ATTRIBUTE_DATAHASH_PREFIX}".freeze
     RENDER_EDITOR_ARGUMENTS = DataCycleCore::AttributeViewerHelper::RENDER_VIEWER_ARGUMENTS.deep_merge({
       parameters: { options: { edit_scope: 'edit' } },
       scope: :edit
@@ -139,7 +139,7 @@ module DataCycleCore
     def attribute_editor_data_attributes(key:, definition:, options:, content:, **_args)
       {
         label: translated_attribute_label(key, definition, content, options),
-        key: key,
+        key:,
         id: "#{options&.dig(:prefix)}#{sanitize_to_id(key)}"
       }
     end

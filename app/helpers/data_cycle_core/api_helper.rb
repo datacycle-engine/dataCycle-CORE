@@ -38,7 +38,7 @@ module DataCycleCore
         api_partials = subversion_partials + api_partials
       end
 
-      return first_existing_partial(api_partials), parameters.merge({ key: key, definition: definition, value: value, content: content })
+      return first_existing_partial(api_partials), parameters.merge({ key:, definition:, value:, content: })
     end
 
     def first_existing_partial(partials)
@@ -219,7 +219,7 @@ module DataCycleCore
     def api_plain_meta(count, pages)
       {
         total: count,
-        pages: pages
+        pages:
       }
     end
 
@@ -231,7 +231,7 @@ module DataCycleCore
       if request.request_method == 'POST'
         common_params = {}
       else
-        common_params = @permitted_params.to_h.reject { |k, _| ['id', 'format', 'page', 'api_subversion'].include?(k) }
+        common_params = @permitted_params.to_h.except('id', 'format', 'page', 'api_subversion')
       end
       links = {}
       links[:prev] = object_url.call(common_params.merge(page: { number: contents.prev_page, size: contents.limit_value })) if contents.prev_page

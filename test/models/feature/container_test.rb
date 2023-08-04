@@ -9,7 +9,7 @@ module DataCycleCore
       template_trans = DataCycleCore::Thing::Translation.count
       current_user = DataCycleCore::User.first
       data_hash = { 'name' => 'Test Container!', 'headline' => 'Test Container!' }
-      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: data_hash, prevent_history: true, user: current_user)
+      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash:, prevent_history: true, user: current_user)
 
       returned_data_hash = data_set.get_data_hash
       assert_equal(data_hash, returned_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
@@ -35,7 +35,7 @@ module DataCycleCore
         'name' => 'Test Artikel!',
         'date_modified' => Time.zone.now
       }
-      ds_a.set_data_hash(data_hash: dh_a, prevent_history: true, current_user: current_user, new_content: true)
+      ds_a.set_data_hash(data_hash: dh_a, prevent_history: true, current_user:, new_content: true)
       ds_a.save
 
       r_dh = ds_a.get_data_hash
@@ -67,7 +67,7 @@ module DataCycleCore
 
       assert_equal(1, data_set.children.count)
       save_time = Time.zone.now
-      data_set.destroy_content(current_user: current_user, save_time: save_time)
+      data_set.destroy_content(current_user:, save_time:)
 
       assert_equal(0, DataCycleCore::Thing.count - template)
       assert_equal(0, DataCycleCore::Thing::Translation.count - template_trans)

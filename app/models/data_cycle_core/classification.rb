@@ -34,7 +34,7 @@ module DataCycleCore
     def self.by_external_key(external_source_id, external_keys)
       return none if external_source_id.blank? || external_keys.blank?
 
-      where(external_source_id: external_source_id, external_key: external_keys)
+      where(external_source_id:, external_key: external_keys)
     end
 
     def to_hash

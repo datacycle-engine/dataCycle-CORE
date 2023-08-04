@@ -28,11 +28,11 @@ module DataCycleCore
           end
 
           create_or_update_content(
-            utility_object: utility_object,
+            utility_object:,
             template: load_template(template),
-            data: data,
+            data:,
             local: false,
-            config: config
+            config:
           )
         end
 
@@ -152,10 +152,10 @@ module DataCycleCore
             data_hash: normalized_data,
             prevent_history: !utility_object.history,
             update_search_all: true,
-            current_user: current_user,
-            partial_update_improved: partial_update_improved,
+            current_user:,
+            partial_update_improved:,
             new_content: created,
-            invalidate_related_cache: invalidate_related_cache
+            invalidate_related_cache:
           )
 
           if valid
@@ -204,7 +204,7 @@ module DataCycleCore
 
         def load_template(template_name)
           I18n.with_locale(:de) do
-            DataCycleCore::Thing.new(template_name: template_name).require_template!
+            DataCycleCore::Thing.new(template_name:).require_template!
           end
         rescue ActiveRecord::RecordNotFound
           raise "Missing template #{template_name}"

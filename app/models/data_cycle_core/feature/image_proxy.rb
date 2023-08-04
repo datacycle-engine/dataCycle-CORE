@@ -16,7 +16,7 @@ module DataCycleCore
 
         def mini_thumb_url(content:)
           process_image(
-            content: content,
+            content:,
             variant: 'dynamic',
             image_processing: {
               'preset' => 'default',
@@ -30,7 +30,7 @@ module DataCycleCore
         end
 
         def process_image(content:, variant:, image_processing: {})
-          return unless processable?(content: content, variant: variant)
+          return unless processable?(content:, variant:)
 
           image_processing = image_processing.presence || config.dig(variant, 'processing')
           target_url = [

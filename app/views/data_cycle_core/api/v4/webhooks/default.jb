@@ -14,7 +14,7 @@ if @content.is_a?(DataCycleCore::Thing)
     end
   end
 
-  raise DataCycleCore::Error::ApiCacheReadError.new({ cache_key: cache_key, cache_content: graph }) unless graph.is_a?(::Hash) && graph['@id'] == @content.id
+  raise DataCycleCore::Error::ApiCacheReadError.new({ cache_key:, cache_content: graph }) unless graph.is_a?(::Hash) && graph['@id'] == @content.id
 
   json.merge!(graph)
 end

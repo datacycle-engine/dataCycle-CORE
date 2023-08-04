@@ -180,7 +180,7 @@ module DataCycleCore
       end
 
       def validate(data_hash:, schema_hash: nil, strict: false, add_defaults: false, current_user: nil, add_warnings: true, add_errors: true)
-        data_hash = add_default_values(data_hash: data_hash, current_user: current_user, partial: !strict).dup if add_defaults && default_value_property_names.present?
+        data_hash = add_default_values(data_hash:, current_user:, partial: !strict).dup if add_defaults && default_value_property_names.present?
 
         validator = DataCycleCore::MasterData::ValidateData.new(self)
         valid = DataCycleCore::LocalizationService.localize_validation_errors(validator.validate(data_hash, schema_hash || schema, strict), current_user&.ui_locale || DataCycleCore.ui_locales.first)
@@ -242,7 +242,7 @@ module DataCycleCore
       private
 
       def no_changes(locale)
-        warnings&.add(translated_template_name(locale), I18n.t('controllers.warning.no_changes', locale: locale))
+        warnings&.add(translated_template_name(locale), I18n.t('controllers.warning.no_changes', locale:))
 
         true
       end
@@ -357,7 +357,7 @@ module DataCycleCore
             item_ids_after_update
               .map
               .with_index do |content_b_id, index|
-                { relation_a: field_name, content_b_id: content_b_id, order_a: index, relation_b: relation_b, updated_at: Time.zone.now }
+                { relation_a: field_name, content_b_id:, order_a: index, relation_b:, updated_at: Time.zone.now }
               end,
             unique_by: :by_content_relation_a
           )
@@ -459,7 +459,7 @@ module DataCycleCore
           classification_content.upsert_all(
             ids.map do |classification_id|
               {
-                classification_id: classification_id,
+                classification_id:,
                 relation: relation_name,
                 updated_at: Time.zone.now
               }
@@ -480,8 +480,8 @@ module DataCycleCore
           DataCycleCore::AssetContent.find_or_create_by(
             'content_data_id' => id,
             'content_data_type' => self.class.to_s,
-            asset_id: asset_id,
-            asset_type: asset_type,
+            asset_id:,
+            asset_type:,
             relation: relation_name
           )
         end

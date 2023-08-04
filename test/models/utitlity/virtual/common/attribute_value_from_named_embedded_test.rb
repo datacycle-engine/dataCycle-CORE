@@ -26,7 +26,7 @@ describe 'DataCycleCore::Utility::Virtual::Common#attribute_value_from_named_emb
       { 'attribute' => 'my_value' }
     ]
 
-    value = subject.attribute_value_from_named_embedded(virtual_parameters: virtual_attribute_parameters, content: content)
+    value = subject.attribute_value_from_named_embedded(virtual_parameters: virtual_attribute_parameters, content:)
 
     assert_equal('SOME VALUE', value)
   end
@@ -44,7 +44,7 @@ describe 'DataCycleCore::Utility::Virtual::Common#attribute_value_from_named_emb
       { 'attribute' => 'my_value' }
     ]
 
-    value = subject.attribute_value_from_named_embedded(virtual_parameters: virtual_attribute_parameters, content: content)
+    value = subject.attribute_value_from_named_embedded(virtual_parameters: virtual_attribute_parameters, content:)
 
     assert_equal(7, value)
   end
@@ -62,14 +62,14 @@ describe 'DataCycleCore::Utility::Virtual::Common#attribute_value_from_named_emb
       { 'attribute' => 'missing_value' }
     ]
 
-    assert_nil(subject.attribute_value_from_named_embedded(virtual_parameters: virtual_attribute_parameters, content: content))
+    assert_nil(subject.attribute_value_from_named_embedded(virtual_parameters: virtual_attribute_parameters, content:))
 
     virtual_attribute_parameters = [
       { 'attribute' => 'missing_value', 'name' => 'my.name' },
       { 'attribute' => 'my_value' }
     ]
 
-    assert_nil(subject.attribute_value_from_named_embedded(virtual_parameters: virtual_attribute_parameters, content: content))
+    assert_nil(subject.attribute_value_from_named_embedded(virtual_parameters: virtual_attribute_parameters, content:))
   end
 
   it 'should handle missing embedded' do
@@ -85,6 +85,6 @@ describe 'DataCycleCore::Utility::Virtual::Common#attribute_value_from_named_emb
       { 'attribute' => 'my_value' }
     ]
 
-    assert_nil(subject.attribute_value_from_named_embedded(virtual_parameters: virtual_attribute_parameters, content: content))
+    assert_nil(subject.attribute_value_from_named_embedded(virtual_parameters: virtual_attribute_parameters, content:))
   end
 end

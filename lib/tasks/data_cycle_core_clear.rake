@@ -106,8 +106,8 @@ namespace :data_cycle_core do
           :sanitize_sql_for_conditions,
           [
             raw_query,
-            max_age: max_age,
-            persistent_activities: persistent_activities
+            max_age:,
+            persistent_activities:
           ]
         )
       )

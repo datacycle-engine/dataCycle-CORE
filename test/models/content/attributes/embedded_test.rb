@@ -58,7 +58,7 @@ module DataCycleCore
           assert(data_set.has_related?)
           data_hash = data_set.get_data_hash
           data_hash['embedded_creative_work'] = []
-          data_set.set_data_hash(data_hash: data_hash)
+          data_set.set_data_hash(data_hash:)
           data_set.save
           returned_data_hash = data_set.get_data_hash
           expected_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge(
@@ -123,7 +123,7 @@ module DataCycleCore
           # delete embedded
           data_hash = data_set.get_data_hash
           data_hash['embedded_creative_work'] = []
-          data_set.set_data_hash(data_hash: data_hash)
+          data_set.set_data_hash(data_hash:)
           data_set.save
           returned_data_hash = data_set.get_data_hash
           expected_hash['embedded_creative_work'] = []
@@ -147,7 +147,7 @@ module DataCycleCore
             'description' => 'Description goes here juhu! 2',
             'linked_place' => [linked_id]
           })
-          data_set.set_data_hash(data_hash: data_hash)
+          data_set.set_data_hash(data_hash:)
           data_set.save
           returned_data_hash = data_set.get_data_hash
 
@@ -171,7 +171,7 @@ module DataCycleCore
 
           data_hash['embedded_creative_work'].reverse!
           expected_hash['embedded_creative_work'].reverse!
-          data_set.set_data_hash(data_hash: data_hash)
+          data_set.set_data_hash(data_hash:)
           returned_data_hash = data_set.get_data_hash
 
           assert data_set.errors.blank?

@@ -41,7 +41,7 @@ module DataCycleCore
 
       flash.now[:success] = I18n.t :bulk_created, scope: [:controllers, :success], count: item_count, locale: helpers.active_ui_locale
 
-      ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { redirect_path: root_path, flash: flash.to_hash, created: true, content_ids: content_ids })
+      ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { redirect_path: root_path, flash: flash.to_hash, created: true, content_ids: })
 
       head(:ok)
     end
@@ -225,7 +225,7 @@ module DataCycleCore
 
         version_name_for_merge(datahash) if merge_duplicate
 
-        unless @content.set_data_hash_with_translations(data_hash: datahash, current_user: current_user, force_update: merge_duplicate)
+        unless @content.set_data_hash_with_translations(data_hash: datahash, current_user:, force_update: merge_duplicate)
           flash[:error] = @content.i18n_errors.map { |k, v| v.full_messages.map { |m| "#{k}: #{m}" } }.flatten
           redirect_back(fallback_location: root_path) && return
         end
@@ -252,7 +252,7 @@ module DataCycleCore
       @content = DataCycleCore::Thing.find(params[:id])
 
       I18n.with_locale(@content.first_available_locale(destroy_params[:locale])) do
-        destroy_content_params = { current_user: current_user }
+        destroy_content_params = { current_user: }
         if @content.external_source_id.present?
           destroy_content_params[:save_history] = true
           destroy_content_params[:destroy_linked] = true
@@ -417,7 +417,7 @@ module DataCycleCore
       datahash = (datahash[:datahash] || {}).merge(values || {})
 
       I18n.with_locale(locale || validation_params[:locale]) do
-        @object.validate(data_hash: datahash, strict: validation_params[:strict] == '1', add_defaults: true, current_user: current_user)
+        @object.validate(data_hash: datahash, strict: validation_params[:strict] == '1', add_defaults: true, current_user:)
 
         render json: @object.validation_messages_as_json.to_json
       end

@@ -24,7 +24,7 @@ module DataCycleCore
     def embedded_editor_header(key:, content:, definition:, options: nil, **args)
       editable = attribute_editable?(key, definition, options, content)
 
-      html = attribute_edit_label_tag(**args.merge(key: key, content: content, definition: definition, options: options, i18n_count: 2))
+      html = attribute_edit_label_tag(**args.merge(key:, content:, definition:, options:, i18n_count: 2))
       html << render('data_cycle_core/contents/viewers/shared/accordion_toggle_buttons', button_type: 'children')
       html << tag.button(tag.i(class: 'fa fa-plus'), id: "add_#{options&.dig(:prefix)}#{sanitize_to_id(key)}", type: 'button', class: 'button add-content-object', disabled: !editable) if editable
 

@@ -5,7 +5,7 @@ module DataCycleCore
     class VideoTranscoding < Base
       class << self
         def process_video(content:, variant:)
-          return unless processable?(content: content, variant: variant)
+          return unless processable?(content:, variant:)
           video_processing = config.dig(variant, 'processing')
 
           processed_dir = Rails.public_path.join('uploads', 'processed', 'video', content.id)

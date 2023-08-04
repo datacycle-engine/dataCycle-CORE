@@ -37,8 +37,8 @@ module DataCycleCore
                     root_url: Rails.application.config.action_mailer.default_url_options.dig(:host),
                     protocol: Rails.application.config.force_ssl ? 'https' : 'http'
                   ).to_pdf,
-                  mime_type: mime_type,
-                  file_name: file_name(content: content, language: language),
+                  mime_type:,
+                  file_name: file_name(content:, language:),
                   id: content.id
                 )
               ]

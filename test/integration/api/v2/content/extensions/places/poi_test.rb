@@ -102,7 +102,7 @@ module DataCycleCore
                   }]
                 }
                 I18n.with_locale(:de) do
-                  @content.set_data_hash(data_hash: data_hash, partial_update: true, current_user: User.find_by(email: 'tester@datacycle.at'))
+                  @content.set_data_hash(data_hash:, partial_update: true, current_user: User.find_by(email: 'tester@datacycle.at'))
                 end
                 @content.reload
 

@@ -7,19 +7,19 @@ module DataCycleCore
         return self if destroy_locale && available_locales.exclude?(I18n.locale)
 
         transaction(joinable: false, requires_new: true) do
-          children.each { |item| item.destroy_content(current_user: current_user, save_time: save_time) } if respond_to?(:children)
+          children.each { |item| item.destroy_content(current_user:, save_time:) } if respond_to?(:children)
           if save_history && !history?
             update_columns(deleted_at: save_time, deleted_by: current_user&.id)
             to_history(delete: true, all_translations: !(destroy_locale && available_locales.many?))
           end
 
-          destroy_children(current_user: current_user, save_time: save_time, destroy_linked: destroy_linked, destroy_locale: destroy_locale)
-          destroy_linked_data(current_user: current_user, save_time: save_time, save_history: save_history, destroy_linked: destroy_linked) if destroy_linked
+          destroy_children(current_user:, save_time:, destroy_linked:, destroy_locale:)
+          destroy_linked_data(current_user:, save_time:, save_history:, destroy_linked:) if destroy_linked
           if destroy_locale && available_locales.many?
             destroy_translation(I18n.locale)
-            after_save_data_hash(DataCycleCore::Content::DataHashOptions.new(current_user: current_user, save_time: save_time)) unless history?
+            after_save_data_hash(DataCycleCore::Content::DataHashOptions.new(current_user:, save_time:)) unless history?
           else
-            before_destroy_data_hash(DataCycleCore::Content::DataHashOptions.new(current_user: current_user, save_time: save_time)) unless history?
+            before_destroy_data_hash(DataCycleCore::Content::DataHashOptions.new(current_user:, save_time:)) unless history?
             destroy
           end
         end
@@ -31,10 +31,10 @@ module DataCycleCore
         embedded_property_names.each do |name|
           load_embedded_objects(name, nil, destroy_locale).each do |item|
             if destroy_locale && item.available_locales.many?
-              item.destroy_children(current_user: current_user, save_time: save_time, destroy_linked: destroy_linked, destroy_locale: destroy_locale)
+              item.destroy_children(current_user:, save_time:, destroy_linked:, destroy_locale:)
               item.destroy_translation(I18n.locale)
             else
-              item.destroy_content(current_user: current_user, save_time: save_time, save_history: false, destroy_linked: destroy_linked, destroy_locale: destroy_locale)
+              item.destroy_content(current_user:, save_time:, save_history: false, destroy_linked:, destroy_locale:)
             end
           end
         end
@@ -59,7 +59,7 @@ module DataCycleCore
 
           load_linked_objects(name).each do |item|
             next if number_of_unique_links(item.id) > 1
-            item.destroy_content(current_user: current_user, save_time: save_time, save_history: save_history, destroy_linked: destroy_linked)
+            item.destroy_content(current_user:, save_time:, save_history:, destroy_linked:)
           end
         end
       end
@@ -73,7 +73,7 @@ module DataCycleCore
 
       def destroy_translation(locale)
         translations.in_locale(locale)&.destroy
-        searches.where(locale: locale).delete_all
+        searches.where(locale:).delete_all
         translations.reload # (rails cache still includes removed translations)
       end
     end

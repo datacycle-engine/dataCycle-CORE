@@ -19,7 +19,7 @@ module DataCycleCore
       post things_path, params: {
         thing: {
           datahash: {
-            name: name
+            name:
             # quotation: [
             #   {
             #     text: "test_zitat_#{Time.now.getutc.to_i}"
@@ -34,7 +34,7 @@ module DataCycleCore
         referer: root_path
       }
 
-      content = DataCycleCore::Thing.find_by(name: name)
+      content = DataCycleCore::Thing.find_by(name:)
 
       assert_redirected_to edit_thing_path(content)
       # assert_equal 1, content.quotation.size

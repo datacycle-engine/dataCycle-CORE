@@ -16,7 +16,7 @@ module DataCycleCore
       if external_system.default_options(:export).dig('external_url_method').present?
         send(external_system.default_options(:export).dig('external_url_method'))
       else
-        format(external_system.default_options(:export).dig('external_url'), locale: I18n.locale, type: type, external_key: external_key)
+        format(external_system.default_options(:export).dig('external_url'), locale: I18n.locale, type:, external_key:)
       end
     end
 
@@ -28,7 +28,7 @@ module DataCycleCore
       return data.dig('external_detail_url') if data&.dig('external_detail_url').present?
       return if !syncable.is_a?(DataCycleCore::Thing) || external_system&.default_options(:export)&.dig('external_detail_url').blank? || external_key.blank?
 
-      format(external_system.default_options(:export).dig('external_detail_url'), locale: I18n.locale, type: type, external_key: external_key)
+      format(external_system.default_options(:export).dig('external_detail_url'), locale: I18n.locale, type:, external_key:)
     end
 
     def type
@@ -40,7 +40,7 @@ module DataCycleCore
     end
 
     def self.with_external_system(external_system_id)
-      find_by(external_system_id: external_system_id)
+      find_by(external_system_id:)
     end
 
     def self.to_external_data_hash
@@ -51,11 +51,11 @@ module DataCycleCore
 
     def to_hash
       {
-        external_system_id: external_system_id,
+        external_system_id:,
         external_identifier: external_system.identifier,
-        created_at: created_at,
-        updated_at: updated_at,
-        external_key: external_key
+        created_at:,
+        updated_at:,
+        external_key:
       }
     end
   end

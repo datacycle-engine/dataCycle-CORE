@@ -10,19 +10,19 @@ module DataCycleCore
           languages = available_locales.presence || [I18n.locale]
           languages = locales if locales.present? && translated
           languages.map { |lang|
-            { lang => I18n.with_locale(lang) { to_sync_h(locales: locales, depth: depth, max_depth: max_depth) } }
+            { lang => I18n.with_locale(lang) { to_sync_h(locales:, depth:, max_depth:) } }
           }.inject(&:merge)
-          &.merge({ included: attribute_to_sync_h('included', depth: depth, max_depth: max_depth) })
-          &.merge({ classifications: attribute_to_sync_h('classifications', depth: depth, max_depth: max_depth) })
+          &.merge({ included: attribute_to_sync_h('included', depth:, max_depth:) })
+          &.merge({ classifications: attribute_to_sync_h('classifications', depth:, max_depth:) })
           &.deep_stringify_keys
         end
 
         def to_sync_h(depth: 0, max_depth: DataCycleCore.main_config.dig(:sync_api, :max_depth), locales: nil)
           (property_names - timeseries_property_names)
-            .map { |property_name| { property_name.to_s => attribute_to_sync_h(property_name, depth: depth, max_depth: max_depth, locales: locales) } }
+            .map { |property_name| { property_name.to_s => attribute_to_sync_h(property_name, depth:, max_depth:, locales:) } }
             .inject(&:merge)
             .merge(sync_metadata)
-            .tap { |sync_data| sync_data['universal_classifications'] += attribute_to_sync_h('mapped_classifications', depth: depth, max_depth: max_depth, locales: locales) }
+            .tap { |sync_data| sync_data['universal_classifications'] += attribute_to_sync_h('mapped_classifications', depth:, max_depth:, locales:) }
             .deep_stringify_keys
         end
 
@@ -48,7 +48,7 @@ module DataCycleCore
             return nil if property_name == overlay_name
             embedded_array = send(property_name_with_overlay)
             translated = property_definitions[property_name]['translated']
-            embedded_array = embedded_array&.map { |i| i.to_sync_data(translated: translated, locales: locales) }
+            embedded_array = embedded_array&.map { |i| i.to_sync_data(translated:, locales:) }
             embedded_array.blank? ? [] : embedded_array.compact
           elsif asset_property_names.include?(property_name)
             # send(property_name_with_overlay) # do nothing --> only import url not asset itself
@@ -67,7 +67,7 @@ module DataCycleCore
               property_name_with_overlay = "#{linked}_#{overlay_name}" if overlay_property_names.include?(linked)
               linked_array = get_property_value(linked, property_definitions[linked], nil, present_overlay)
               linked_array = linked_array
-                &.map { |i| i.to_sync_data(depth: depth)&.merge({ attribute_name: linked }) }
+                &.map { |i| i.to_sync_data(depth:)&.merge({ attribute_name: linked }) }
               linked_array.compact.presence || []
             }.compact.inject(:+)&.compact || []
           elsif property_name == 'classifications'
@@ -108,11 +108,11 @@ module DataCycleCore
 
         def sync_metadata
           sm = {
-            template_name: template_name,
-            updated_at: updated_at,
-            created_at: created_at,
-            external_key: external_key,
-            external_source_id: external_source_id,
+            template_name:,
+            updated_at:,
+            created_at:,
+            external_key:,
+            external_source_id:,
             external_source: external_source&.identifier
           }
           unless embedded?

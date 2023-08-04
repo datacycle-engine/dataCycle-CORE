@@ -36,7 +36,7 @@ module DataCycleCore
             definition = { 'content_score' => { 'aspect_ratio' => { 'min' => Rational(4, 3), 'max' => Rational(4, 3) } } }
 
             @image_hashes.each do |key, value|
-              value.each { |v| assert_equal(key, DataCycleCore::Utility::ContentScore::Image.by_aspect_ratio(parameters: v, definition: definition)) }
+              value.each { |v| assert_equal(key, DataCycleCore::Utility::ContentScore::Image.by_aspect_ratio(parameters: v, definition:)) }
             end
           end
 
@@ -44,7 +44,7 @@ module DataCycleCore
             definition = { 'content_score' => { 'aspect_ratio' => { 'min' => '4/3', 'max' => '4/3' } } }
 
             @image_hashes.each do |key, value|
-              value.each { |v| assert_equal(key, DataCycleCore::Utility::ContentScore::Image.by_aspect_ratio(parameters: v, definition: definition)) }
+              value.each { |v| assert_equal(key, DataCycleCore::Utility::ContentScore::Image.by_aspect_ratio(parameters: v, definition:)) }
             end
           end
 
@@ -52,7 +52,7 @@ module DataCycleCore
             definition = { 'content_score' => { 'aspect_ratio' => { 'min' => '4/3', 'max' => '4/3' } } }
 
             @image_hashes.each do |key, value|
-              value.each { |v| assert_equal(key, DataCycleCore::Utility::ContentScore::Image.by_aspect_ratio(parameters: v, definition: definition)) }
+              value.each { |v| assert_equal(key, DataCycleCore::Utility::ContentScore::Image.by_aspect_ratio(parameters: v, definition:)) }
             end
           end
 
@@ -60,7 +60,7 @@ module DataCycleCore
             definition = { 'content_score' => { 'score_matrix' => { 'width' => { 'min' => 450 } } } }
 
             @image_hashes.each do |key, value|
-              value.each { |v| assert_equal(key, DataCycleCore::Utility::ContentScore::Image.by_aspect_ratio(parameters: v, definition: definition)) }
+              value.each { |v| assert_equal(key, DataCycleCore::Utility::ContentScore::Image.by_aspect_ratio(parameters: v, definition:)) }
             end
           end
         end

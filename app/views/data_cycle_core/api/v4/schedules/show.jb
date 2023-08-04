@@ -17,7 +17,7 @@ unless @permitted_params.dig(:section, :'@graph')&.to_i&.zero?
   json['@graph'] = []
 
   json['@graph'] << Rails.cache.fetch(api_v4_cache_key(@content, @language, @include_parameters, @fields_parameters, @api_subversion), expires_in: 1.year + Random.rand(7.days)) do
-    render('data_cycle_core/api/v4/api_base/attributes/schedule', id: id, content: nil, options: options)
+    render('data_cycle_core/api/v4/api_base/attributes/schedule', id:, content: nil, options:)
   end
 end
 json

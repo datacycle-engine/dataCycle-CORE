@@ -34,7 +34,7 @@ describe 'DataCycleCore::Utility::Virtual::Common#take_first_linked' do
       end
     end)
 
-    value = subject.take_first_linked(virtual_parameters: ['my_linked'], content: content)
+    value = subject.take_first_linked(virtual_parameters: ['my_linked'], content:)
 
     assert_equal(1, value.size)
     assert_equal('00000000-0000-0000-0000-000000000001', value.first['id'])
@@ -51,7 +51,7 @@ describe 'DataCycleCore::Utility::Virtual::Common#take_first_linked' do
       end
     end)
 
-    value = subject.take_first_linked(virtual_parameters: ['my_linked'], content: content)
+    value = subject.take_first_linked(virtual_parameters: ['my_linked'], content:)
 
     assert_equal(0, value.size)
   end
@@ -61,7 +61,7 @@ describe 'DataCycleCore::Utility::Virtual::Common#take_first_linked' do
       different_linked: []
     })
 
-    value = subject.take_first_linked(virtual_parameters: ['my_linked'], content: content)
+    value = subject.take_first_linked(virtual_parameters: ['my_linked'], content:)
 
     assert_equal(0, value.size)
   end

@@ -40,13 +40,13 @@ module DataCycleCore
     def add_filter
       identifier = SecureRandom.hex(10)
 
-      render json: { identifier: identifier, html: render_to_string(formats: [:html], layout: false, locals: { filter_params: add_filter_params, identifier: identifier }).strip }
+      render json: { identifier:, html: render_to_string(formats: [:html], layout: false, locals: { filter_params: add_filter_params, identifier: }).strip }
     end
 
     def add_tag_group
       filter_params = tag_group_params
 
-      render json: { identifier: filter_params['identifier'], html: render_to_string(formats: [:html], layout: false, locals: { filter_params: filter_params }).strip }
+      render json: { identifier: filter_params['identifier'], html: render_to_string(formats: [:html], layout: false, locals: { filter_params: }).strip }
     end
 
     def remote_render

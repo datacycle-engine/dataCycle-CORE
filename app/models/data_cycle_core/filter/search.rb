@@ -95,7 +95,7 @@ module DataCycleCore
           )
         SQL
 
-        query_string = Thing.send(:sanitize_sql_for_conditions, [sql, attribute_path: 'schema_type', type: type])
+        query_string = Thing.send(:sanitize_sql_for_conditions, [sql, attribute_path: 'schema_type', type:])
 
         reflect(
           @query.left_outer_joins(:thing_template).where(Arel.sql(query_string))

@@ -35,7 +35,7 @@ module DataCycleCore
       headers['Last-Modified'] = File.mtime(@asset_path).httpdate
       headers.delete 'X-Frame-Options'
 
-      send_file @asset_path, disposition: 'inline', filename: filename, type: content_type
+      send_file @asset_path, disposition: 'inline', filename:, type: content_type
     rescue StandardError => e
       not_found(e)
     end

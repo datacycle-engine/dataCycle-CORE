@@ -72,7 +72,7 @@ module DataCycleCore
             uri = raw_data['uri']&.to_s
             value_hash = {
               external_key: "#{options.dig(:import, :external_id_prefix)}#{external_id}",
-              name: name
+              name:
             }
             value_hash[:description] = description if description.present?
             value_hash[:uri] = uri if uri.present?
@@ -99,8 +99,8 @@ module DataCycleCore
               keywords.each do |keyword_hash|
                 classification_data = extract_data(options, keyword_hash).merge(tree_name: tree_label)
                 DataCycleCore::Generic::Common::ImportFunctions.import_classification(
-                  utility_object: utility_object,
-                  classification_data: classification_data,
+                  utility_object:,
+                  classification_data:,
                   parent_classification_alias: nil
                 )
               end

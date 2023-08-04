@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.md']
 
-  s.required_ruby_version = '~> 2.7.1'
+  s.required_ruby_version = '~> 3.2.2'
 
   # rails
   s.add_dependency 'rails', '~> 6.1'
@@ -126,4 +126,10 @@ Gem::Specification.new do |s|
   # render PDFs
   s.add_dependency 'pdfkit'
   s.add_dependency 'wkhtmltopdf-binary'
+
+  # ruby 3.2
+  s.add_dependency 'net-ftp'
+  s.add_dependency 'net-imap'
+  s.add_dependency 'net-pop'
+  s.add_dependency 'net-smtp'
 end

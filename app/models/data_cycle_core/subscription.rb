@@ -8,7 +8,7 @@ module DataCycleCore
     scope :by_user, ->(user) { where(user_id: user.id) }
 
     def self.except_user_id(user_id)
-      where.not(user_id: user_id)
+      where.not(user_id:)
     end
 
     def self.things

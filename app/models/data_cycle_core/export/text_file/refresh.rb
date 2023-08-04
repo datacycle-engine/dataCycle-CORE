@@ -7,7 +7,7 @@ module DataCycleCore
         include Functions
 
         def self.process(utility_object:, options:)
-          Functions.refresh(utility_object: utility_object, options: options)
+          Functions.refresh(utility_object:, options:)
         end
       end
     end

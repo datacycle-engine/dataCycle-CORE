@@ -14,14 +14,14 @@ namespace :dc do
       used = []
       history_used = []
       removed_templates.each do |template_name|
-        items = DataCycleCore::Thing.where(template_name: template_name).count
+        items = DataCycleCore::Thing.where(template_name:).count
         if items < 2
           deleteable.push(template_name)
         else
           used.push({ template_name => items })
         end
 
-        history_items = DataCycleCore::Thing::History.where(template_name: template_name).count
+        history_items = DataCycleCore::Thing::History.where(template_name:).count
         history_used.push({ template_name => history_items }) if history_items.positive?
       end
 

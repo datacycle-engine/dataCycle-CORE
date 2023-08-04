@@ -33,14 +33,14 @@ module DataCycleCore
                         http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
                         https: Rails.application.config.force_ssl
                       ).render(
-                        assigns: { watch_list: watch_list, language: language, include_parameters: ['linked'], mode_parameters: [], api_version: 1, api_context: 'xml' },
+                        assigns: { watch_list:, language:, include_parameters: ['linked'], mode_parameters: [], api_version: 1, api_context: 'xml' },
                         template: 'data_cycle_core/xml/v1/watch_lists/show',
                         layout: false
                       ),
                       &:noblanks
                     )&.to_xml,
-                  mime_type: mime_type,
-                  file_name: file_name(content: watch_list, language: language),
+                  mime_type:,
+                  file_name: file_name(content: watch_list, language:),
                   id: watch_list.id
                 )
               ]
@@ -60,14 +60,14 @@ module DataCycleCore
                         http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
                         https: Rails.application.config.force_ssl
                       ).render(
-                        assigns: { contents: pagination_contents, language: language, include_parameters: ['linked'], mode_parameters: [], api_version: 1, api_context: 'xml' },
+                        assigns: { contents: pagination_contents, language:, include_parameters: ['linked'], mode_parameters: [], api_version: 1, api_context: 'xml' },
                         template: 'data_cycle_core/xml/v1/contents/index',
                         layout: false
                       ),
                       &:noblanks
                     )&.to_xml,
-                  mime_type: mime_type,
-                  file_name: file_name(content: stored_filter, language: language),
+                  mime_type:,
+                  file_name: file_name(content: stored_filter, language:),
                   id: stored_filter.id
                 )
               ]
@@ -84,14 +84,14 @@ module DataCycleCore
                     http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
                     https: Rails.application.config.force_ssl
                   ).render(
-                    assigns: { content: content, language: language, include_parameters: ['linked'], mode_parameters: [], api_version: 1, api_context: 'xml' },
+                    assigns: { content:, language:, include_parameters: ['linked'], mode_parameters: [], api_version: 1, api_context: 'xml' },
                     template: 'data_cycle_core/xml/v1/contents/show',
                     layout: false
                   ),
                   &:noblanks
                 )&.to_xml,
-              mime_type: mime_type,
-              file_name: file_name(content: content, language: language),
+              mime_type:,
+              file_name: file_name(content:, language:),
               id: content.id
             )
           end

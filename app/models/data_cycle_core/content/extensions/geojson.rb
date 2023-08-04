@@ -18,7 +18,7 @@ module DataCycleCore
         end
 
         def to_geojson(simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [])
-          DataCycleCore::Geo::GeojsonRenderer.new(contents: self.class.where(id: id).limit(1), simplify_factor: simplify_factor, include_parameters: include_parameters, fields_parameters: fields_parameters, classification_trees_parameters: classification_trees_parameters, single_item: true).render
+          DataCycleCore::Geo::GeojsonRenderer.new(contents: self.class.where(id:).limit(1), simplify_factor:, include_parameters:, fields_parameters:, classification_trees_parameters:, single_item: true).render
         end
 
         def geojson_geometry(content = self)
@@ -32,7 +32,7 @@ module DataCycleCore
         end
 
         def geojson_properties
-          { id: id, name: title }
+          { id:, name: title }
         end
 
         class_methods do
@@ -43,7 +43,7 @@ module DataCycleCore
           end
 
           def to_geojson(simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false)
-            DataCycleCore::Geo::GeojsonRenderer.new(contents: all, simplify_factor: simplify_factor, include_parameters: include_parameters, fields_parameters: fields_parameters, classification_trees_parameters: classification_trees_parameters, single_item: single_item).render
+            DataCycleCore::Geo::GeojsonRenderer.new(contents: all, simplify_factor:, include_parameters:, fields_parameters:, classification_trees_parameters:, single_item:).render
           end
         end
 

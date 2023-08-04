@@ -21,7 +21,7 @@ module DataCycleCore
           def to_tooltip(content, definition, locale)
             case definition.dig('content_score', 'method')
             when 'by_attribute_and_presence'
-              tooltip = [tooltip_base_string(definition.dig('content_score', 'method'), locale: locale)]
+              tooltip = [tooltip_base_string(definition.dig('content_score', 'method'), locale:)]
 
               if definition.dig('content_score', 'score_matrix').present?
                 subtips = ['<ul>']

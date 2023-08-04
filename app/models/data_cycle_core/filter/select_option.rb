@@ -16,9 +16,9 @@ module DataCycleCore
           id,
           {
             class: html_class,
-            disabled: disabled,
+            disabled:,
             data: data.merge({
-              dc_tooltip: dc_tooltip
+              dc_tooltip:
             })
           }
         ]

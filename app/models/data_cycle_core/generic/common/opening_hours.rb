@@ -87,15 +87,15 @@ module DataCycleCore
             end
 
             {
-              id: DataCycleCore::Schedule.find_by(external_source_id: external_source_id, external_key: external_schedule_key)&.id,
-              external_source_id: external_source_id,
+              id: DataCycleCore::Schedule.find_by(external_source_id:, external_key: external_schedule_key)&.id,
+              external_source_id:,
               external_key: external_schedule_key,
               start_time: {
                 time: start_time.to_s,
                 zone: start_time.time_zone.name
               },
               holidays: item['Holiday'],
-              duration: duration,
+              duration:,
               rtimes: item['Holiday'] == true ? holidays : item['rtimes']&.compact_blank.presence,
               extimes: item['Holiday'] == false ? holidays : item['extimes']&.compact_blank.presence,
               rrules: [{

@@ -262,7 +262,7 @@ module DataCycleCore
 
         def schedule_filter_exceptions_string(locale)
           schedule_filter_exceptions
-            &.map { |e| I18n.t("schedule.filter_labels.#{e}", locale: locale) }
+            &.map { |e| I18n.t("schedule.filter_labels.#{e}", locale:) }
             &.join(', ')
         end
 

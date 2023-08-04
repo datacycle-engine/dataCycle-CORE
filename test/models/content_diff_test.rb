@@ -11,7 +11,7 @@ module DataCycleCore
         'name' => 'Dies ist ein Test!',
         'description' => 'wtf is going on???'
       }
-      content_data = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data_hash)
+      content_data = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash:)
       content_hash = content_data.get_data_hash
 
       # diff = content_data.diff(content_hash)
@@ -188,7 +188,7 @@ module DataCycleCore
       template = DataCycleCore::Thing.count
       template_trans = DataCycleCore::Thing::Translation.count
       data_hash = { 'name' => 'Dies ist ein Test!', 'description' => 'wtf is going on???' }
-      content_data = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data_hash, prevent_history: true)
+      content_data = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash:, prevent_history: true)
       content_hash = content_data.get_data_hash
       updated_at = content_data.updated_at.to_s(:long_usec)
       created_at = content_data.created_at.to_s(:long_usec)

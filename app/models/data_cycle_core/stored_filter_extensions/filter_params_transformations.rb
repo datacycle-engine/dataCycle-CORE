@@ -31,7 +31,7 @@ module DataCycleCore
         all_filters = []
 
         filters.each do |filter|
-          union_sf = DataCycleCore::StoredFilter.new(language: language)
+          union_sf = DataCycleCore::StoredFilter.new(language:)
           union_sf.parameters = Array.wrap(filter)
           union_sf.apply(skip_ordering: true)
 

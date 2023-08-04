@@ -11,7 +11,7 @@ module DataCycleCore
       # https://www.crunchydata.com/blog/waiting-for-postgis-3-st_tileenvelopezxy
 
       def initialize(x, y, z, contents:, layer_name: nil, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, **_options)
-        super(contents: contents, simplify_factor: simplify_factor, include_parameters: include_parameters, fields_parameters: fields_parameters, classification_trees_parameters: classification_trees_parameters, single_item: single_item)
+        super(contents:, simplify_factor:, include_parameters:, fields_parameters:, classification_trees_parameters:, single_item:)
 
         @x = x
         @y = y

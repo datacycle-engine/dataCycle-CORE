@@ -12,7 +12,7 @@ unless @mode_parameters.include?('compact')
         end
       end
     else
-      json.partial! 'classifications', classification_aliases: classification_aliases, key: key_new, definition: definition
+      json.partial! 'classifications', classification_aliases:, key: key_new, definition:
     end
   end
 end

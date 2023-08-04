@@ -12,7 +12,7 @@ module DataCycleCore
       @locale = DataCycleCore.ui_locales.first
       subject = first_available_i18n_t('feature.user_api.mailer.?.subject', @resource.template_namespaces, locale: @locale)
 
-      mail(to: emails, subject: subject, template_name: first_existing_action_template(@resource.template_namespaces))
+      mail(to: emails, subject:, template_name: first_existing_action_template(@resource.template_namespaces))
     end
 
     def notify_confirmed(user, user_attributes = {})
@@ -25,7 +25,7 @@ module DataCycleCore
       @locale = @new_user.ui_locale
       subject = first_available_i18n_t('feature.user_api.mailer.?.unlocked_subject', @resource.template_namespaces, locale: @locale)
 
-      mail(to: @new_user.email, subject: subject, template_name: first_existing_action_template(@resource.template_namespaces))
+      mail(to: @new_user.email, subject:, template_name: first_existing_action_template(@resource.template_namespaces))
     end
   end
 end

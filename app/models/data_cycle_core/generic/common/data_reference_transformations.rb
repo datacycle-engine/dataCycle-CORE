@@ -62,18 +62,18 @@ module DataCycleCore
           end
         end
 
-        def self.get_reference(data, key_resolver, &reference_factory)
+        def self.get_reference(data, key_resolver, &)
           reference_keys = if key_resolver.respond_to?(:to_proc)
                              Array.wrap(key_resolver.to_proc.call(data)) || []
                            else
                              Array(resolve_attribute_path(data, key_resolver))
                            end
 
-          reference_keys.map(&reference_factory)
+          reference_keys.map(&)
         end
 
-        def self.add_reference(data, property_name, key_resolver, &reference_factory)
-          references = get_reference(data, key_resolver, &reference_factory)
+        def self.add_reference(data, property_name, key_resolver, &)
+          references = get_reference(data, key_resolver, &)
 
           if property_name == 'universal_classifications'
             data.merge({ property_name => (data[property_name] || []) + references })
@@ -167,12 +167,12 @@ module DataCycleCore
         end
 
         def self.load_schedules(external_source_id, external_keys)
-          DataCycleCore::Schedule.where(external_source_id: external_source_id, external_key: external_keys)
+          DataCycleCore::Schedule.where(external_source_id:, external_key: external_keys)
                                  .pluck(:external_key, :id).to_h
         end
 
         def self.load_classifications(external_source_id, external_keys)
-          DataCycleCore::Classification.where(external_source_id: external_source_id, external_key: external_keys)
+          DataCycleCore::Classification.where(external_source_id:, external_key: external_keys)
                                        .pluck(:external_key, :id).to_h
         end
 

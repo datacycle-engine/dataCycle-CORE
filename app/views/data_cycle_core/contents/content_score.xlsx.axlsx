@@ -145,7 +145,7 @@ def render_score_for_template(sheet, template, styles)
 end
 
 DataCycleCore::ThingTemplate.where(template_name: @contents.distinct.reorder(nil).pluck(:template_name)).order(template_name: :asc).each do |thing_template|
-  template = DataCycleCore::Thing.new(thing_template: thing_template)
+  template = DataCycleCore::Thing.new(thing_template:)
 
   next unless template.content_score_allowed?
 

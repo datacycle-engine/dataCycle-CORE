@@ -33,7 +33,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal DataCycleCore::WatchList.where(name: name).size, 1
+      assert_equal DataCycleCore::WatchList.where(name:).size, 1
 
       get api_v2_collections_path
       assert_response :success

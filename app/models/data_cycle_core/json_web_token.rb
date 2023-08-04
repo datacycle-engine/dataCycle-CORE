@@ -24,7 +24,7 @@ module DataCycleCore
 
       raise JWT::DecodeError, 'secret cannot be blank' if secret.blank?
 
-      decoded = JWT.decode(token, secret, true, { algorithm: algorithm }).first
+      decoded = JWT.decode(token, secret, true, { algorithm: }).first
       HashWithIndifferentAccess.new decoded
     end
   end

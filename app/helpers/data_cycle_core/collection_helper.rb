@@ -69,7 +69,7 @@ module DataCycleCore
       current_user.my_selection.clear_if_not_active
 
       render "data_cycle_core/application/watch_lists/#{type}_link",
-             content: content,
+             content:,
              watch_list: current_user.my_selection
     end
 

@@ -8,10 +8,10 @@ module DataCycleCore
 
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.import_contents(
-            utility_object: utility_object,
+            utility_object:,
             iterator: method(:load_contents).to_proc,
             data_processor: method(:process_content).to_proc,
-            options: options
+            options:
           )
         end
 
@@ -64,10 +64,10 @@ module DataCycleCore
           template = DataCycleCore::Generic::Common::ImportFunctions.load_template(template_name)
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
-            utility_object: utility_object,
-            template: template,
+            utility_object:,
+            template:,
             data: transformation.call(transformation.parameters.dig(0, 1).to_s.end_with?('_id') ? utility_object.external_source.id : utility_object.external_source).call(raw_data).with_indifferent_access,
-            config: config
+            config:
           )
         end
       end

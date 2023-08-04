@@ -448,8 +448,8 @@ module DataCycleCore
         error_path.prepend(:filter, :linked, linked_name) if linked_name.present?
         parameter_path = error_path.drop(1).inject(error_path.first.to_s) { |a, b| a << "[#{b}]" }
         {
-          parameter_path: parameter_path,
-          type: type,
+          parameter_path:,
+          type:,
           detail: error.to_s
         }
       end

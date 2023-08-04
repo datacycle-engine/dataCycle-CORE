@@ -15,7 +15,7 @@ module DataCycleCore
             @article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'LifeCycleTestArtikel' })
             @container = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: { name: 'TestContainer' })
             @article.is_part_of = @container.id
-            @article.set_data_hash(data_hash: { name: name }, prevent_history: true)
+            @article.set_data_hash(data_hash: { name: }, prevent_history: true)
             @article.save
           end
 

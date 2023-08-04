@@ -372,7 +372,7 @@ describe DataCycleCore::MasterData::NormalizeData do
 
     it 'does the whole normalization correctly' do
       logger = DataCycleCore::Generic::Logger::LogFile.new('normalize')
-      updated_data, diffs = subject.new(logger: logger).normalize(data_hash, person_template)
+      updated_data, diffs = subject.new(logger:).normalize(data_hash, person_template)
       assert(diffs, diff_hash.except('ERROR'))
       assert(updated_data, returned_data)
     end
@@ -380,15 +380,15 @@ describe DataCycleCore::MasterData::NormalizeData do
     it 'returns original data and a empty hash if no template, or no data a given' do
       logger = DataCycleCore::Generic::Logger::LogFile.new('normalize')
 
-      updated_data, diffs = subject.new(logger: logger).normalize(data_hash, nil)
+      updated_data, diffs = subject.new(logger:).normalize(data_hash, nil)
       assert(diffs == {})
       assert(updated_data, data_hash)
 
-      updated_data, diffs = subject.new(logger: logger).normalize(nil, person_template)
+      updated_data, diffs = subject.new(logger:).normalize(nil, person_template)
       assert(diffs == {})
       assert(updated_data.nil?)
 
-      updated_data, diffs = subject.new(logger: logger).normalize(nil, nil)
+      updated_data, diffs = subject.new(logger:).normalize(nil, nil)
       assert(diffs == {})
       assert(updated_data.nil?)
     end

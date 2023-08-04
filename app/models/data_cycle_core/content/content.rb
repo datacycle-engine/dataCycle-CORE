@@ -54,7 +54,7 @@ module DataCycleCore
         @webhook_data = OpenStruct.new
       end
 
-      def method_missing(name, *args, &block)
+      def method_missing(name, *args, &)
         original_name = name.to_s
         root_name = name.to_s.delete_suffix('=').delete_suffix("_#{overlay_name}")
         property_definition = property_definitions.try(:[], root_name)
@@ -116,7 +116,7 @@ module DataCycleCore
 
       def content_template
         return @content_template if defined? @content_template
-        @content_template = DataCycleCore::Thing.new(template_name: template_name)
+        @content_template = DataCycleCore::Thing.new(template_name:)
       end
 
       def content_type?(*types)
@@ -608,7 +608,7 @@ module DataCycleCore
         if thing_template.present?
           self.template_name ||= thing_template.template_name
         elsif template_name.present?
-          self.thing_template ||= DataCycleCore::ThingTemplate.find_by(template_name: template_name)
+          self.thing_template ||= DataCycleCore::ThingTemplate.find_by(template_name:)
         end
 
         raise ActiveModel::MissingAttributeError, ":thing_template or :template_name is required to initialize #{self.class.name}" if template_missing?

@@ -16,13 +16,13 @@ module DataCycleCore
       ]
     end
 
-    def deep_reject(&block)
+    def deep_reject(&)
       each_with_object({}) do |(k, v), memo|
         if v.is_a?(Hash)
-          memo[k] = v.deep_reject(&block)
+          memo[k] = v.deep_reject(&)
         elsif v.is_a?(Array)
           memo[k] = v.map { |val|
-            val.is_a?(Hash) ? val.deep_reject(&block) : val
+            val.is_a?(Hash) ? val.deep_reject(&) : val
           }.reject { |val| yield(k, val) }
         else
           memo[k] = v
@@ -32,13 +32,13 @@ module DataCycleCore
       end
     end
 
-    def deep_reject!(&block)
+    def deep_reject!(&)
       each do |k, v|
-        v.deep_reject!(&block) if v.is_a?(Hash)
+        v.deep_reject!(&) if v.is_a?(Hash)
 
         if v.is_a?(Array)
           v.each { |val|
-            val.deep_reject!(&block) if val.is_a?(Hash)
+            val.deep_reject!(&) if val.is_a?(Hash)
           }.reject! { |val| yield(k, val) }
         end
 
@@ -60,16 +60,16 @@ module DataCycleCore
       end
     end
 
-    def dc_deep_transform_values(&block)
-      _dc_deep_transform_values_with_self(self, &block)
+    def dc_deep_transform_values(&)
+      _dc_deep_transform_values_with_self(self, &)
     end
 
-    def _dc_deep_transform_values_with_self(object, &block)
+    def _dc_deep_transform_values_with_self(object, &)
       case object
       when Hash
-        yield(object.transform_values { |value| _dc_deep_transform_values_with_self(value, &block) })
+        yield(object.transform_values { |value| _dc_deep_transform_values_with_self(value, &) })
       when Array
-        yield(object.map { |e| _dc_deep_transform_values_with_self(e, &block) })
+        yield(object.map { |e| _dc_deep_transform_values_with_self(e, &) })
       else
         yield(object)
       end

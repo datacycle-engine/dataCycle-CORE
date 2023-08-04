@@ -24,7 +24,7 @@ module DataCycleCore
     end
 
     def perform(id, class_name, job_type, additional_attributes = {})
-      content = class_name.safe_constantize.find_by(id: id)
+      content = class_name.safe_constantize.find_by(id:)
 
       return if content.nil?
 

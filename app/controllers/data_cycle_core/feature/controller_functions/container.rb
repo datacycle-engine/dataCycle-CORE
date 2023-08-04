@@ -23,7 +23,7 @@ module DataCycleCore
 
           I18n.with_locale(@content.first_available_locale) do
             update_hash = {
-              current_user: current_user,
+              current_user:,
               save_time: Time.zone.now,
               data_hash: {
                 DataCycleCore::Feature::LifeCycle.attribute_keys(@content).first => [

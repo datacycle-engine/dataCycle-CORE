@@ -77,7 +77,7 @@ describe DataCycleCore::ClassificationTreeLabel do
   it 'should create nested classifications with external sources and keys' do
     classification_attributes = {
       name: 'CLASSIFICATION 1',
-      external_source: external_source,
+      external_source:,
       external_key: '1234'
     }
     tree_one.create_classification_alias(classification_attributes)

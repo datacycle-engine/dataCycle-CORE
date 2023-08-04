@@ -15,7 +15,7 @@ module DataCycleCore
       @sort_params = @stored_filter.sort_parameters
 
       @stored_filter.apply_user_filter(current_user, user_filter) if user_filter.present?
-      query = @stored_filter.apply(query: query&.dup, skip_ordering: @count_only, watch_list: watch_list)
+      query = @stored_filter.apply(query: query&.dup, skip_ordering: @count_only, watch_list:)
 
       # used on dashboard
       @filters = @stored_filter.parameters.select { |f| f.key?('c') }.each { |f| f['identifier'] = SecureRandom.hex(10) }
@@ -68,7 +68,7 @@ module DataCycleCore
     def set_instance_variables_by_view_mode(query: nil, user_filter: { scope: 'backend' }, watch_list: nil)
       set_view_mode
 
-      return @total_count = total_count(query: query, user_filter: user_filter) if count_only_params[:count_only].present?
+      return @total_count = total_count(query:, user_filter:) if count_only_params[:count_only].present?
 
       case @mode
       when 'tree'
@@ -77,7 +77,7 @@ module DataCycleCore
         if mode_params[:con_id].present? && request.xhr?
           @classification_parent_tree = DataCycleCore::ClassificationTree.find(mode_params[:cpt_id])
           @container = DataCycleCore::Thing.find(mode_params[:con_id])
-          @contents = get_filtered_results(query: query, user_filter: user_filter)
+          @contents = get_filtered_results(query:, user_filter:)
             .part_of(@container.id)
           tmp_count = @contents.count
           @contents = @contents.content_includes.page(params[:page])
@@ -94,7 +94,7 @@ module DataCycleCore
             .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
             .order('classification_aliases.internal_name')
             .page(params[:tree_page])
-          @contents = get_filtered_results(query: query, user_filter: user_filter)
+          @contents = get_filtered_results(query:, user_filter:)
             .classification_alias_ids_without_subtree(@classification_tree.sub_classification_alias.id)
           tmp_count = @contents.count
           @contents = @contents.content_includes.page(params[:page])
@@ -112,14 +112,14 @@ module DataCycleCore
             .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
             .order('classification_aliases.internal_name')
             .page(params[:tree_page])
-          get_filtered_results(query: query, user_filter: user_filter) # set default parameters for filters
+          get_filtered_results(query:, user_filter:) # set default parameters for filters
         end
 
         @tree_page = @classification_trees&.current_page
         @tree_total_pages = @classification_trees&.total_pages
       else
         page_size = DataCycleCore.main_config.dig(:ui, :dashboard, :page, :size)&.to_i || DEFAULT_PAGE_SIZE
-        @contents = get_filtered_results(query: query, user_filter: user_filter, watch_list: watch_list)
+        @contents = get_filtered_results(query:, user_filter:, watch_list:)
         @contents = @contents.content_includes.page(params[:page]).per(page_size).without_count
         ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:watch_list_shares))
       end
@@ -174,7 +174,7 @@ module DataCycleCore
       @count_only = true
       @target = count_only_params[:target]
       classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id]) if mode_params[:ct_id].present?
-      total_count = get_filtered_results(query: query, user_filter: user_filter)
+      total_count = get_filtered_results(query:, user_filter:)
       total_count = total_count.with_geometry if @mode == 'map'
       @count_mode = count_only_params[:count_mode]
       @content_class = count_only_params[:content_class]

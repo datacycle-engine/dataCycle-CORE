@@ -60,18 +60,18 @@ module DataCycleCore
       end
     end
 
-    def conditional_filter_accordion(filter_config, &block)
+    def conditional_filter_accordion(filter_config, &)
       return if filter_config[:filter].blank?
 
       if filter_config[:collapse]
         tag.div(class: 'accordion filter-collapse', data: { accordion: true, allow_all_closed: true }) do
           tag.div(class: "row accordion-item #{'is-active' if filter_config[:collapse] == 'open'}", data: { accordion_item: true }) do
-            tag.section(capture(&block), class: 'filters accordion-content', data: { tab_content: true }) +
+            tag.section(capture(&), class: 'filters accordion-content', data: { tab_content: true }) +
               tag.a(tag.span(tag.i(class: 'fa fa-chevron-down')), class: 'accordion-title')
           end
         end
       else
-        tag.section(capture(&block), class: 'filters')
+        tag.section(capture(&), class: 'filters')
       end
     end
 

@@ -12,8 +12,8 @@ module DataCycleCore
             type: 'object',
             schema_type: 'Generic',
             content_type: 'entity',
-            features: features,
-            properties: properties
+            features:,
+            properties:
           }.deep_stringify_keys!
         )
       )

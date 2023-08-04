@@ -40,8 +40,8 @@ module DataCycleCore
         [from, to]
       end
 
-      def name_property_selector(include_overlay = false, &block)
-        property_selector(include_overlay, &block).keys
+      def name_property_selector(include_overlay = false, &)
+        property_selector(include_overlay, &).keys
       end
 
       def property_selector(include_overlay = false)

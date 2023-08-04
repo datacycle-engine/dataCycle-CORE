@@ -14,7 +14,7 @@ module DataCycleCore
     end
 
     def create_content(template_name, data = {})
-      DataCycleCore::TestPreparations.create_content(template_name: template_name, data_hash: data)
+      DataCycleCore::TestPreparations.create_content(template_name:, data_hash: data)
     end
 
     def creator_hash

@@ -29,7 +29,7 @@ module DataCycleCore
         separator = "\t"
         mime_type = 'text/tab-separated-values'
         file_extension = 'tsv'
-        generate_csv(file_extension: file_extension, separator: separator, mime_type: mime_type)
+        generate_csv(file_extension:, separator:, mime_type:)
       end
 
       def to_json(*_args)

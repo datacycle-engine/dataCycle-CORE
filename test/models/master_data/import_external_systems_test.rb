@@ -22,7 +22,7 @@ describe DataCycleCore::MasterData::ImportExternalSystems do
     end
 
     let(:external_source_config) do
-      YAML.safe_load(File.open(external_source), [Symbol]).to_h
+      YAML.safe_load(File.open(external_source), permitted_classes: [Symbol]).to_h
     end
 
     let(:external_source_download_contract) do

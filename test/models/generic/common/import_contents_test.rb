@@ -76,7 +76,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
     end
 
     subject.stub :process_single_content, collect_arguments do
-      subject.process_content(utility_object: utility_object, raw_data: data, locale: :de, options: configuration)
+      subject.process_content(utility_object:, raw_data: data, locale: :de, options: configuration)
     end
 
     assert_equal(utility_object, arguments.dig(0, 0))
@@ -117,7 +117,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
     end
 
     subject.stub :process_single_content, collect_arguments do
-      subject.process_content(utility_object: utility_object, raw_data: data, locale: :de, options: configuration)
+      subject.process_content(utility_object:, raw_data: data, locale: :de, options: configuration)
     end
 
     assert_equal(2, arguments.size)
@@ -171,7 +171,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
     end
 
     subject.stub :process_single_content, collect_arguments do
-      subject.process_content(utility_object: utility_object, raw_data: data, locale: :de, options: configuration)
+      subject.process_content(utility_object:, raw_data: data, locale: :de, options: configuration)
     end
 
     assert_equal(4, arguments.size)
@@ -228,7 +228,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
     result = nil
 
     subject.stub(:process_single_content, collect_arguments) do
-      result = subject.process_content(utility_object: utility_object, raw_data: data, locale: :de, options: configuration)
+      result = subject.process_content(utility_object:, raw_data: data, locale: :de, options: configuration)
     end
 
     assert_nil(result)
@@ -265,7 +265,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
     result = nil
 
     subject.stub(:process_single_content, collect_arguments) do
-      result = subject.process_content(utility_object: utility_object, raw_data: data, locale: :de, options: configuration)
+      result = subject.process_content(utility_object:, raw_data: data, locale: :de, options: configuration)
     end
 
     assert_equal(utility_object, arguments.dig(0, 0))
@@ -297,7 +297,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
 
     DataCycleCore::Generic::Common::ImportFunctions.stub :load_template, get_dummy_template do
       DataCycleCore::Generic::Common::ImportFunctions.stub :create_or_update_content, collect_arguments do
-        subject.process_content(utility_object: utility_object, raw_data: data, locale: :de, options: configuration)
+        subject.process_content(utility_object:, raw_data: data, locale: :de, options: configuration)
       end
     end
 
@@ -327,7 +327,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
 
     DataCycleCore::Generic::Common::ImportFunctions.stub :load_template, get_dummy_template do
       DataCycleCore::Generic::Common::ImportFunctions.stub :create_or_update_content, collect_arguments do
-        subject.process_content(utility_object: utility_object, raw_data: data, locale: :de, options: configuration)
+        subject.process_content(utility_object:, raw_data: data, locale: :de, options: configuration)
       end
     end
 

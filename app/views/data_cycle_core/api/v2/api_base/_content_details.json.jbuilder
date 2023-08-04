@@ -22,4 +22,4 @@ json.content_partial! 'properties', content: content, options: options
 
 json.partial! 'overlay_properties', content: content, options: options
 
-json.partial! 'combined_properties', content: content, options: options
+json.partial! 'combined_properties', content:, options:

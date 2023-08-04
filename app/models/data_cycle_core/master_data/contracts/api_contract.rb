@@ -6,7 +6,7 @@ module DataCycleCore
       class ApiContract < Dry::Validation::Contract
         config.validate_keys = true
 
-        UUID_OR_STRING_OF_UUIDS_REGEX = /^(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*)?(,(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*))*$/i.freeze
+        UUID_OR_STRING_OF_UUIDS_REGEX = /^(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*)?(,(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*))*$/i
 
         SORTING_VALIDATION = Dry::Types['string'].constructor do |input|
           next input unless input&.starts_with?('random')

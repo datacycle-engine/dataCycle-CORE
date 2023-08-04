@@ -5,7 +5,7 @@ module DataCycleCore
     GERMAN_HASH = { 'Ä' => 'Ae', 'ä' => 'ae',
                     'Ö' => 'Oe', 'ö' => 'oe', 'Ü' => 'Ue',
                     'ü' => 'ue', 'ß' => 'ss' }.freeze
-    GERMAN_REGEXP = /[ÄäÖöÜüß]/.freeze
+    GERMAN_REGEXP = /[ÄäÖöÜüß]/
 
     def attribute_name_from_key
       split(/[\[\]]+/).last&.underscore

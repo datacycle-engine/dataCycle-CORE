@@ -21,15 +21,15 @@ module DataCycleCore
     end
 
     def perform(id, classification_ids)
-      classification_alias = DataCycleCore::ClassificationAlias.find_by(id: id)
+      classification_alias = DataCycleCore::ClassificationAlias.find_by(id:)
 
       return if classification_alias.nil?
 
       classification_alias.classification_ids = classification_ids
       if classification_alias.save
-        ActionCable.server.broadcast('classification_update', { type: 'unlock', id: id })
+        ActionCable.server.broadcast('classification_update', { type: 'unlock', id: })
       else
-        ActionCable.server.broadcast('classification_update', { type: 'error', id: id })
+        ActionCable.server.broadcast('classification_update', { type: 'error', id: })
       end
     end
 

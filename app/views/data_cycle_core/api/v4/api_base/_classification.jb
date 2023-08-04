@@ -24,7 +24,7 @@ def render_classification(attribute, partial, content, options)
   )
   Rails.cache.fetch(api_v4_cache_key(content, options[:languages], new_include, new_fields, @api_subversion, render_full), expires_in: 1.year + Random.rand(7.days)) do
     I18n.with_locale(content.first_available_locale(options[:languages])) do
-      render(partial, content: content, options: new_options.merge(full: render_full, fields: new_fields, include: new_include))
+      render(partial, content:, options: new_options.merge(full: render_full, fields: new_fields, include: new_include))
     end
   end
 end

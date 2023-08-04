@@ -14,7 +14,7 @@ module DataCycleCore
         'default'
       ].compact_blank.map { |p| File.join('data_cycle_core/pdf/contents', path_prefix, p) }
 
-      render_first_existing_partial(partials, options.merge({ content: content }))
+      render_first_existing_partial(partials, options.merge({ content: }))
     end
 
     def render_pdf_properties(content:, whitelist: [], blacklist: [], options: {})
@@ -28,7 +28,7 @@ module DataCycleCore
           next if Array.wrap(blacklist).presence&.include?(key)
           next if prop.dig('pdf', 'disabled').to_s == 'true'
 
-          concat render_pdf_property(content: content, key: key, prop: prop, options: options)
+          concat render_pdf_property(content:, key:, prop:, options:)
         end
       end
     end
@@ -46,7 +46,7 @@ module DataCycleCore
 
       return if value.blank?
 
-      render_first_existing_partial(partials, options.merge({ content: content, key: key, definition: prop, value: value }))
+      render_first_existing_partial(partials, options.merge({ content:, key:, definition: prop, value: }))
     end
   end
 end

@@ -15,11 +15,11 @@ module DataCycleCore
             language ||= content.first_available_locale
 
             method_name.call(
-              virtual_parameters: virtual_parameters,
-              key: key,
-              content: content,
+              virtual_parameters:,
+              key:,
+              content:,
               virtual_definition: properties,
-              language: language
+              language:
             )
           end
         end

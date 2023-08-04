@@ -19,7 +19,7 @@ module DataCycleCore
               convert_2d = {
                 path: 'validation.errors.geo',
                 substitutions: {
-                  data: data,
+                  data:,
                   template: template['label']
                 }
               }
@@ -32,7 +32,7 @@ module DataCycleCore
               convert_3d = {
                 path: 'validation.errors.geo',
                 substitutions: {
-                  data: data,
+                  data:,
                   template: template['label']
                 }
               }
@@ -44,7 +44,7 @@ module DataCycleCore
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.geo',
               substitutions: {
-                data: data,
+                data:,
                 template: template['label']
               }
             }

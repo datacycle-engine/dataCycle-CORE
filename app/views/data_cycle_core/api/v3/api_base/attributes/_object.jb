@@ -20,7 +20,7 @@ else
   non_translated_properties = {}
 
   ordered_api_properties(validation: definition).each do |o_key, o_definition|
-    partial_params = render_api_attribute key: o_key, definition: o_definition, value: value.try(o_key), parameters: { options: options }, content: content
+    partial_params = render_api_attribute key: o_key, definition: o_definition, value: value.try(o_key), parameters: { options: }, content: content
     non_translated_properties.merge!(render(*partial_params)) unless partial_params.nil?
   end
 end

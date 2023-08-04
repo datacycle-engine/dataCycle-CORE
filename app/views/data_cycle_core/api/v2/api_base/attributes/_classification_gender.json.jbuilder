@@ -11,6 +11,6 @@ if classification_aliases.present? && definition.dig('api', 'disabled').blank?
       end
     end
   else
-    json.partial! 'classifications', classification_aliases: classification_aliases, key: key_new
+    json.partial! 'classifications', classification_aliases:, key: key_new
   end
 end

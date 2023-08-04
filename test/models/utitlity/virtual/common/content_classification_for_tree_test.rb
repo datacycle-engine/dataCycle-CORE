@@ -17,7 +17,7 @@ describe 'DataCycleCore::Utility::Virtual::Common#content_classification_for_tre
     content = Minitest::Mock.new
     content.expect(:classifications_for_tree, [], tree_name: 'My Classificaton Tree')
 
-    subject.content_classification_for_tree(virtual_definition: { 'tree_label' => 'My Classificaton Tree' }, content: content)
+    subject.content_classification_for_tree(virtual_definition: { 'tree_label' => 'My Classificaton Tree' }, content:)
 
     assert_mock(content)
   end

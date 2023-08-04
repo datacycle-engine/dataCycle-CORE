@@ -19,9 +19,9 @@ module DataCycleCore
         end
 
         def perform(data, _external_system)
-          Activity.create!(activity_type: 'webhook', data: data)
+          Activity.create!(activity_type: 'webhook', data:)
 
-          data.reject { |k, _| INTERNAL_KEYS.include?(k) }
+          data.except(*INTERNAL_KEYS)
         end
       end
     end

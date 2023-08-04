@@ -32,7 +32,7 @@ module DataCycleCore
     end
 
     def self.for_shell(total_count = 0, title: nil)
-      pb = new(total_count, title: title)
+      pb = new(total_count, title:)
       pb.title
       yield(pb)
       pb.finish

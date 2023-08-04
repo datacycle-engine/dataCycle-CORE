@@ -66,7 +66,7 @@ module DataCycleCore
               end
             end
 
-            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
             end
@@ -89,7 +89,7 @@ module DataCycleCore
             fields = Dry::Schema.JSON do
               required(:'skos:prefLabel').value(:string)
             end
-            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
             end
@@ -118,7 +118,7 @@ module DataCycleCore
               end
             end
 
-            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
             end
@@ -143,7 +143,7 @@ module DataCycleCore
               required(:'skos:prefLabel').value(:string)
               optional(:'dct:description').value(:string)
             end
-            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
             end
@@ -168,7 +168,7 @@ module DataCycleCore
               required(:'skos:prefLabel').value(:string)
               optional(:'dct:description').value(:string)
             end
-            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
             end
@@ -305,7 +305,7 @@ module DataCycleCore
               end
             end
 
-            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: })
             concept_with_description = false
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
@@ -347,7 +347,7 @@ module DataCycleCore
               required(:'skos:inScheme').hash(DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER)
             end
 
-            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: })
             concept_with_description = false
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)

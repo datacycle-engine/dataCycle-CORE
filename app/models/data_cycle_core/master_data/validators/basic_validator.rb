@@ -30,7 +30,7 @@ module DataCycleCore
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.uuid',
               substitutions: {
-                data: data
+                data:
               }
             }
           end

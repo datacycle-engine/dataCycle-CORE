@@ -34,19 +34,19 @@ module DataCycleCore
         def update
           response, status = content_request(type: :update)
 
-          render plain: response.to_json, content_type: 'application/json', status: status
+          render plain: response.to_json, content_type: 'application/json', status:
         end
 
         def create
           response, status = content_request(type: :create)
 
-          render plain: response.to_json, content_type: 'application/json', status: status
+          render plain: response.to_json, content_type: 'application/json', status:
         end
 
         def destroy
           response, status = content_request(type: :delete)
 
-          render plain: response.to_json, content_type: 'application/json', status: status
+          render plain: response.to_json, content_type: 'application/json', status:
         end
 
         def timeseries
@@ -116,7 +116,7 @@ module DataCycleCore
           external_system = DataCycleCore::ExternalSystem.find_by(id: permitted_params[:external_source_id])
           if external_system.blank? || external_system&.identifier != 'feratel'
             error = 'Only available for Feratel data.'
-            render plain: { error: error }.to_json, content_type: 'application/json', status: :bad_request
+            render plain: { error: }.to_json, content_type: 'application/json', status: :bad_request
             return
           end
 
@@ -135,7 +135,7 @@ module DataCycleCore
           end
 
           if error.present?
-            render plain: { error: error }.to_json, content_type: 'application/json', status: :bad_request
+            render plain: { error: }.to_json, content_type: 'application/json', status: :bad_request
           else
             query_params = permitted_params
               .except(:external_source_id, :controller, :action, :format, :endpoint_id, *feratel_params)

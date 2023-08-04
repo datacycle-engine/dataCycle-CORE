@@ -15,7 +15,7 @@ module DataCycleCore
       end
 
       def set_schema_attribute_value(template_name, key, type_name, value, content = nil)
-        template = content || DataCycleCore::ThingTemplate.find_by(template_name: template_name)
+        template = content || DataCycleCore::ThingTemplate.find_by(template_name:)
 
         if value.blank?
           template.schema['properties'][key].delete(type_name)

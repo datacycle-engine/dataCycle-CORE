@@ -13,7 +13,7 @@ module DataCycleCore
           @logger = logger
         end
 
-        @endpoint = DataCycleCore::MasterData::Normalizer::Endpoint.new(host: host, end_point: end_point, **options)
+        @endpoint = DataCycleCore::MasterData::Normalizer::Endpoint.new(host:, end_point:, **options)
       end
 
       def normalize(data, template_hash, **options)

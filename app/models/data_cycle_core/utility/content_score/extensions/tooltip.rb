@@ -6,7 +6,7 @@ module DataCycleCore
       module Extensions
         module Tooltip
           def to_tooltip(_content, definition, locale)
-            tooltip_base_string(definition.dig('content_score', 'method'), locale: locale)
+            tooltip_base_string(definition.dig('content_score', 'method'), locale:)
           end
 
           def tooltip_base_string(path, **params)

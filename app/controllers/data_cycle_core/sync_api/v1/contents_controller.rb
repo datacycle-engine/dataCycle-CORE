@@ -119,7 +119,7 @@ module DataCycleCore
           if request.request_method == 'POST'
             common_params = {}
           else
-            common_params = @permitted_params.to_h.reject { |k, _| ['id', 'format', 'page', 'api_subversion'].include?(k) }
+            common_params = @permitted_params.to_h.except('id', 'format', 'page', 'api_subversion')
           end
           links = {}
           links[:prev] = object_url.call(common_params.merge(page: { number: contents.prev_page, size: contents.limit_value })) if contents.prev_page
@@ -130,7 +130,7 @@ module DataCycleCore
         def api_plain_meta(count, pages)
           {
             total: count,
-            pages: pages
+            pages:
           }
         end
       end

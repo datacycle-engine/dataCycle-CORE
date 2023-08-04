@@ -12,7 +12,7 @@ module DataCycleCore
 
     class << self
       def with_content(content_data_id)
-        where(content_data_id: content_data_id)
+        where(content_data_id:)
       end
 
       def with_relation(relation_name)

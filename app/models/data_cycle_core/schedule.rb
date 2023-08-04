@@ -435,7 +435,7 @@ module DataCycleCore
                 zone: start_time.time_zone.name
               },
               holidays: s['holiday'] == 'ignore' ? nil : s['holiday'] == 'true',
-              duration: duration,
+              duration:,
               rtimes: s['holiday'] == 'true' ? holidays : nil,
               extimes: s['holiday'] == 'false' ? holidays : nil,
               rrules: [{
@@ -543,7 +543,7 @@ module DataCycleCore
         end
 
         schedule_hash = {
-          start_time: start_time,
+          start_time:,
           duration: data['duration'],
           rrules: Array.wrap(rrule.deep_reject { |_, v| v.blank? }).compact_blank.presence
         }
@@ -579,7 +579,7 @@ module DataCycleCore
       end
 
       def to_h
-        super.merge(thing_history_id: thing_history_id)
+        super.merge(thing_history_id:)
       end
       alias to_hash to_h
 
@@ -602,7 +602,7 @@ module DataCycleCore
     end
 
     def to_h
-      super.merge(thing_id: thing_id)
+      super.merge(thing_id:)
     end
     alias to_hash to_h
 
@@ -618,7 +618,7 @@ module DataCycleCore
       query = '(external_source_id = :external_system_id AND external_key = :external_key)'
       query += ' OR id = :external_key' if external_key.uuid?
 
-      all.find_by(query, external_system_id: external_system_id, external_key: external_key)
+      all.find_by(query, external_system_id:, external_key:)
     end
   end
 end

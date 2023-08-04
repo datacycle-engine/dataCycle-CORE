@@ -10,7 +10,7 @@ module DataCycleCore
       duration = 7.hours
       @dtend = Time.parse('2020-01-04T16:00').in_time_zone
       end_time = @dtstart + duration
-      @schedule.schedule_object = IceCube::Schedule.new(@dtstart, end_time: end_time) do |s|
+      @schedule.schedule_object = IceCube::Schedule.new(@dtstart, end_time:) do |s|
         s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(9).until(@dtend))
       end
       @schedule.serialize_schedule_object

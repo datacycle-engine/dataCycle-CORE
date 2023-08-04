@@ -45,7 +45,7 @@ module DataCycleCore
               optional(:description).value(:string)
             end
 
-            validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: })
             assert_equal({}, validator.call(json_validate).errors.to_h)
           end
 
@@ -70,7 +70,7 @@ module DataCycleCore
               end
             end
 
-            validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: })
             assert_equal({}, validator.call(json_validate).errors.to_h)
           end
 
@@ -110,7 +110,7 @@ module DataCycleCore
               end
             end
 
-            validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: })
             assert_equal({}, validator.call(json_validate).errors.to_h)
           end
 
@@ -145,7 +145,7 @@ module DataCycleCore
               end
             end
 
-            validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: })
             assert_equal({}, validator.call(json_validate).errors.to_h)
           end
 
@@ -169,7 +169,7 @@ module DataCycleCore
               end
             end
 
-            validator = DataCycleCore::V4::Validation::Thing.event(params: { include: include })
+            validator = DataCycleCore::V4::Validation::Thing.event(params: { include: })
             assert_equal({}, validator.call(json_validate).errors.to_h)
           end
 
@@ -219,7 +219,7 @@ module DataCycleCore
               end
             end
 
-            validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: })
             assert_equal({}, validator.call(json_validate).errors.to_h)
           end
 
@@ -286,7 +286,7 @@ module DataCycleCore
               end
             end
 
-            validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: })
             assert_equal({}, validator.call(json_validate).errors.to_h)
           end
 
@@ -321,7 +321,7 @@ module DataCycleCore
             thing_with_description = false
             thing_with_thumbnail_url = false
             thing_with_image_thumbnail_url = false
-            validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
               thing_with_description = true if item.dig('description').present?
@@ -381,7 +381,7 @@ module DataCycleCore
             thing_with_image_thumbnail_url = false
             thing_with_classifications_in_scheme = false
             thing_with_classifications_pref_label = false
-            validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Thing.event(params: { fields: })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
               thing_with_description = true if item.dig('description').present?

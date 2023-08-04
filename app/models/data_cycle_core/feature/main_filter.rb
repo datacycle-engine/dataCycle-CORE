@@ -76,7 +76,7 @@ module DataCycleCore
             value = selected_filters.find { |f| f['c'] == 'd' && f['n'] == tree_label }
             classification_filter[:filters] ||= {}
             classification_filter[:filters][tree_label] = {
-              classification_aliases: classification_aliases,
+              classification_aliases:,
               value: value&.dig('v'),
               identifier: value&.dig('identifier') || SecureRandom.hex(10)
             }

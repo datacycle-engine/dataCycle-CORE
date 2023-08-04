@@ -81,7 +81,7 @@ module DataCycleCore
     def external_system_template_options
       external_system_identifiers = DataCycleCore::ExternalSystem.all.pluck(:identifier)
       external_system_template_paths.select { |_k, v|
-        data = YAML.safe_load(File.open(v))
+        data = YAML.safe_load(File.open(v), permitted_classes: [Symbol])
         data['identifier'] ||= data['name']
 
         external_system_identifiers.exclude?(data['identifier'])

@@ -9,7 +9,7 @@ module DataCycleCore
             utility_object: utility_object.tap { |obj| obj.mode = :full },
             iterator: method(:load_contents).to_proc,
             data_processor: method(:process_content).to_proc,
-            options: options
+            options:
           )
         end
 
@@ -44,14 +44,14 @@ module DataCycleCore
 
             content = DataCycleCore::Thing.find_by(
               external_source_id: utility_object.external_source.id,
-              external_key: external_key
+              external_key:
             )
 
             if content.nil?
               DataCycleCore::ExternalSystemSync.find_by(
                 external_system_id: utility_object.external_source.id,
                 sync_type: 'duplicate',
-                external_key: external_key,
+                external_key:,
                 syncable_type: 'DataCycleCore::Thing'
               )&.destroy
             else

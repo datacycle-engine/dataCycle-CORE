@@ -18,7 +18,7 @@ module DataCycleCore
         meta: {
           thing_id: content.id,
           processed: {
-            inserted: inserted,
+            inserted:,
             duplicates: data.size - inserted
           }
         }

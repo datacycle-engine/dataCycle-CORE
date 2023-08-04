@@ -124,7 +124,7 @@ module DataCycleCore
       end
 
       def classifications_for_tree(tree_name:)
-        classification_aliases_for_tree(tree_name: tree_name).primary_classifications
+        classification_aliases_for_tree(tree_name:).primary_classifications
       end
 
       def is_related? # rubocop:disable Naming/PredicateName(RuboCop)
@@ -171,7 +171,7 @@ module DataCycleCore
 
         query = self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
                                                                                               tree_query,
-                                                                                              id: id,
+                                                                                              id:,
                                                                                               content_type_embedded: CONTENT_TYPE_EMBEDDED
                                                                                             ])})")
         query = query.where.not(content_type: CONTENT_TYPE_EMBEDDED) unless embedded
@@ -201,7 +201,7 @@ module DataCycleCore
 
         self.class
           .where(content_type: 'entity')
-          .where("things.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, id: id])})")
+          .where("things.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, id:])})")
       end
 
       def linked_contents
@@ -226,7 +226,7 @@ module DataCycleCore
 
         self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
                                                                                       tree_query,
-                                                                                      id: id,
+                                                                                      id:,
                                                                                       content_type_embedded: CONTENT_TYPE_EMBEDDED
                                                                                     ])})")
       end
@@ -252,7 +252,7 @@ module DataCycleCore
 
         self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [
                                                                                       tree_query,
-                                                                                      id: id,
+                                                                                      id:,
                                                                                       content_type_embedded: CONTENT_TYPE_EMBEDDED
                                                                                     ])})")
       end
@@ -275,7 +275,7 @@ module DataCycleCore
           SELECT DISTINCT paths.content_a_id FROM paths
         SQL
 
-        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [tree_query, id: id, depth: DataCycleCore.cache_invalidation_depth])})")
+        self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [tree_query, id:, depth: DataCycleCore.cache_invalidation_depth])})")
       end
 
       private

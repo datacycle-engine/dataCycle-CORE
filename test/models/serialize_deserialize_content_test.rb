@@ -78,9 +78,9 @@ module DataCycleCore
         'text' => 'Servas'
       }
 
-      data = DataCycleCore::TestPreparations.create_content(template_name: 'SimpleJsonTest', data_hash: data_hash)
+      data = DataCycleCore::TestPreparations.create_content(template_name: 'SimpleJsonTest', data_hash:)
 
-      assert_equal(::String, data.name.class)
+      assert_instance_of(::String, data.name)
       assert_equal('ActiveSupport::TimeWithZone', data.datum.class.to_s)
       assert_equal('TrueClass', data.bool.class.to_s)
       assert_equal('RGeo::Geographic::ProjectedPointImpl', data.geo.class.to_s)
@@ -98,10 +98,10 @@ module DataCycleCore
         'geo2' => RGeo::Geographic.spherical_factory(srid: 4326).point(12.3, 40.344),
         'text2' => 'Servas'
       }
-      data.set_data_hash(data_hash: data_hash)
+      data.set_data_hash(data_hash:)
       data.save
 
-      assert_equal(::String, data.name.class)
+      assert_instance_of(::String, data.name)
       assert_equal('ActiveSupport::TimeWithZone', data.datum2.class.to_s)
       assert_equal('TrueClass', data.bool2.class.to_s)
       assert_equal('RGeo::Geographic::ProjectedPointImpl', data.geo2.class.to_s)
@@ -121,7 +121,7 @@ module DataCycleCore
           'text_untrans' => 'Servas'
         }
       }
-      data.set_data_hash(data_hash: data_hash)
+      data.set_data_hash(data_hash:)
       data.save
 
       assert_equal('ActiveSupport::TimeWithZone', data.data_untrans.datum_untrans.class.to_s)
@@ -144,7 +144,7 @@ module DataCycleCore
           'text_trans' => 'Servas'
         }
       }
-      data.set_data_hash(data_hash: data_hash)
+      data.set_data_hash(data_hash:)
       data.save
 
       assert_equal('ActiveSupport::TimeWithZone', data.data_trans.datum_trans.class.to_s)
@@ -165,7 +165,7 @@ module DataCycleCore
           'flag2' => nil
         }
       }
-      data.set_data_hash(data_hash: data_hash)
+      data.set_data_hash(data_hash:)
       data.save
 
       assert_equal(false, data.data.flag1)

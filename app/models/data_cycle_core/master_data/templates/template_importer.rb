@@ -98,12 +98,12 @@ module DataCycleCore
 
           @template_paths.each do |core_template_path|
             CONTENT_SETS.each do |content_set_name|
-              Dir[File.join(core_template_path, content_set_name.to_s, '*.yml')].sort.each do |path|
-                data_templates = YAML.safe_load(File.open(path.to_s), [Symbol])
+              Dir[File.join(core_template_path, content_set_name.to_s, '*.yml')].each do |path|
+                data_templates = YAML.safe_load(File.open(path.to_s), permitted_classes: [Symbol])
 
                 data_templates.each do |template|
                   template = template[:data]
-                  transformer = TemplateTransformer.new(template: template, content_set: content_set_name, mixins: @mixins)
+                  transformer = TemplateTransformer.new(template:, content_set: content_set_name, mixins: @mixins)
                   transformed_data = transformer.transform
 
                   if (duplicate = templates.dig(content_set_name)&.find { |v| v[:name] == template[:name] }).present?
@@ -121,7 +121,7 @@ module DataCycleCore
                     templates[content_set_name] ||= []
                     templates[content_set_name].push({
                       name: template[:name],
-                      path: path,
+                      path:,
                       data: transformed_data
                     })
                   end

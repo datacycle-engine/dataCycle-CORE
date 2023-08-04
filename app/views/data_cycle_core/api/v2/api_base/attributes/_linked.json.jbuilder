@@ -12,7 +12,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
 
         if @duplicate_linked_in_path.include?(item.id)
           json.cache!(api_cache_key(item, @language, @include_parameters, (@mode_parameters || []) + ['header_only'], @api_subversion), expires_in: 24.hours + Random.rand(12.hours)) do
-            json.content_partial! 'header', content: item, options: options
+            json.content_partial! 'header', content: item, options:
           end
         else
           @duplicate_linked_in_path << item.id

@@ -16,8 +16,8 @@ def serialize_opening_hours_description(description, filter, fields, options, in
         )
       )&.in_time_zone&.to_s(:only_date),
       'description' => description_values&.compact_blank&.first
-    }.compact.merge(render('content_translations', content: description, options: { include: includes, fields: fields, field_filter:
-      options[:field_filter] && fields.present? ? options[:field_filter] : false, languages: options[:languages], translatable_embedded: translatable_embedded }))
+    }.compact.merge(render('content_translations', content: description, options: { include: includes, fields:, field_filter:
+      options[:field_filter] && fields.present? ? options[:field_filter] : false, languages: options[:languages], translatable_embedded: }))
 
     return data unless filter
 

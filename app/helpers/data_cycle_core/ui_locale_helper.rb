@@ -34,7 +34,7 @@ module DataCycleCore
     end
 
     def translated_attribute_label(key, definition, content, options, count = 1)
-      DataCycleCore::Thing.human_property_name(key.attribute_name_from_key.to_s, (options || {}).merge({ base: content, count: count, definition: definition, locale: active_ui_locale }))
+      DataCycleCore::Thing.human_property_name(key.attribute_name_from_key.to_s, (options || {}).merge({ base: content, count:, definition:, locale: active_ui_locale }))
     end
 
     def object_has_translatable_attributes?(content, definition)
@@ -52,7 +52,7 @@ module DataCycleCore
 
       label_html.prepend(tag.i(class: 'fa fa-language translatable-attribute-icon')) if attribute_translatable?(key, definition, content)
       label_html.prepend(tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-#{definition&.dig('type')} #{"type-#{definition&.dig('type')}-#{definition.dig('ui', 'show', 'type')}" if definition&.dig('ui', 'show', 'type').present?}"))
-      label_html << render('data_cycle_core/contents/content_score', key: key, content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition) if definition.key?('content_score')
+      label_html << render('data_cycle_core/contents/content_score', key:, content: contextual_content({ content: }.merge(args.slice(:parent))), definition:) if definition.key?('content_score')
       label_html << render('data_cycle_core/contents/viewers/shared/accordion_toggle_buttons', button_type: 'children') if accordion_controls
       label_html << tag.span(tag.i(class: 'fa fa-clipboard'), class: 'copy-to-clipboard', data: { value: options[:copy_to_clipboard], dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale) }) if options&.dig(:copy_to_clipboard).present?
 
@@ -65,8 +65,8 @@ module DataCycleCore
       label_html.prepend(tag.i(class: 'fa fa-language translatable-attribute-icon')) if attribute_translatable?(key, definition, content)
       label_html.prepend(tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-#{definition&.dig('type')} #{"type-#{definition&.dig('type')}-#{definition.dig('ui', 'edit', 'type')}" if definition&.dig('ui', 'edit', 'type').present?}"))
       label_html.prepend(tag.i(class: 'fa fa-ban', aria_hidden: true)) unless attribute_editable?(key, definition, options, content)
-      label_html << render('data_cycle_core/contents/helper_text', key: key, content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition)
-      label_html << render('data_cycle_core/contents/content_score', key: key, content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition) if definition.key?('content_score')
+      label_html << render('data_cycle_core/contents/helper_text', key:, content: contextual_content({ content: }.merge(args.slice(:parent))), definition:)
+      label_html << render('data_cycle_core/contents/content_score', key:, content: contextual_content({ content: }.merge(args.slice(:parent))), definition:) if definition.key?('content_score')
 
       label_tag "#{options&.dig(:prefix)}#{sanitize_to_id(key)}", label_html, class: "attribute-edit-label #{html_classes}".strip
     end

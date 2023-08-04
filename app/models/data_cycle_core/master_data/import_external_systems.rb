@@ -18,7 +18,7 @@ module DataCycleCore
         end
 
         file_paths.each do |file_name|
-          data = YAML.safe_load(File.open(file_name), [Symbol])
+          data = YAML.safe_load(File.open(file_name), permitted_classes: [Symbol])
           error = validation ? validate(data.deep_symbolize_keys) : nil
           if error.blank?
             external_system = DataCycleCore::ExternalSystem.find_by(identifier: data['identifier']) || DataCycleCore::ExternalSystem.find_or_initialize_by(name: data['name'])

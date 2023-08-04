@@ -25,7 +25,7 @@ module DataCycleCore
             patch api_v4_users_password_path, headers: {
               Authorization: "Bearer #{@current_user.access_token}"
             }, params: {
-              password: password
+              password:
             }
 
             assert_response :unprocessable_entity
@@ -42,7 +42,7 @@ module DataCycleCore
               Authorization: "Bearer #{@current_user.access_token}"
             }, params: {
               resetPasswordToken: 'invalid',
-              password: password
+              password:
             }
 
             assert_response :unprocessable_entity
@@ -76,7 +76,7 @@ module DataCycleCore
               Authorization: "Bearer #{@current_user.access_token}"
             }, params: {
               resetPasswordToken: reset_token,
-              password: password
+              password:
             }
 
             assert_response :success
@@ -94,7 +94,7 @@ module DataCycleCore
               Authorization: "Bearer #{@current_user.access_token}"
             }, params: {
               resetPasswordToken: reset_token,
-              password: password,
+              password:,
               passwordConfirmation: password
             }
 
@@ -113,7 +113,7 @@ module DataCycleCore
               Authorization: "Bearer #{@current_user.access_token}"
             }, params: {
               resetPasswordToken: reset_token,
-              password: password
+              password:
             }
 
             assert_response :success

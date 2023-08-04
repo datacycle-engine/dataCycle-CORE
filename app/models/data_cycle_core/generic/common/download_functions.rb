@@ -9,7 +9,7 @@ module DataCycleCore
         def self.download_data(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, options:)
           iteration_strategy = options.dig(:download, :iteration_strategy) || options.dig(:iteration_strategy) || :download_sequential
           raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel, :download_all].include?(iteration_strategy.to_sym)
-          send(iteration_strategy, download_object: download_object, data_id: data_id, data_name: data_name, modified: modified, delete: delete, iterator: iterator, options: options)
+          send(iteration_strategy, download_object:, data_id:, data_name:, modified:, delete:, iterator:, options:)
         end
 
         def self.download_single(download_object:, data_id:, data_name:, modified: nil, delete: nil, raw_data:, _iterator: nil, options:)
@@ -61,7 +61,7 @@ module DataCycleCore
           options[:locales] ||= I18n.available_locales
           if options[:locales].size != 1
             options[:locales].each do |language|
-              success &&= download_sequential(download_object: download_object, data_id: data_id, data_name: data_name, modified: modified, delete: delete, iterator: iterator, options: options.except(:locales).merge({ locales: [language] }))
+              success &&= download_sequential(download_object:, data_id:, data_name:, modified:, delete:, iterator:, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
@@ -420,7 +420,7 @@ module DataCycleCore
           deleted_from = download_object.external_source.last_successful_download || Time.zone.local(2010)
           if options[:locales].size != 1
             options[:locales].each do |language|
-              success &&= mark_deleted(download_object: download_object, data_id: data_id, options: options.except(:locales).merge({ locales: [language] }))
+              success &&= mark_deleted(download_object:, data_id:, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
@@ -433,7 +433,7 @@ module DataCycleCore
                 begin
                   download_object.source_object.with(download_object.source_type) do |mongo_item|
                     endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
-                    items = download_object.endpoint.send(endpoint_method, lang: locale, deleted_from: deleted_from)
+                    items = download_object.endpoint.send(endpoint_method, lang: locale, deleted_from:)
 
                     max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
                     logging.phase_started("#{download_object.source_type.collection_name}_#{locale}", max_string)
@@ -507,7 +507,7 @@ module DataCycleCore
           options[:locales] ||= I18n.available_locales
           if options[:locales].size != 1
             options[:locales].each do |language|
-              success &&= mark_deleted_from_data(download_object: download_object, iterator: iterator, options: options.except(:locales).merge({ locales: [language] }))
+              success &&= mark_deleted_from_data(download_object:, iterator:, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
@@ -595,7 +595,7 @@ module DataCycleCore
               affected_keys = {}
               endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
               locales.each do |locale|
-                affected_keys[locale] = download_object.endpoint.send(endpoint_method, lang: locale, deleted_from: deleted_from)
+                affected_keys[locale] = download_object.endpoint.send(endpoint_method, lang: locale, deleted_from:)
               end
 
               source_filter = options&.dig(:download, :source_filter) || {}

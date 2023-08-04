@@ -69,13 +69,13 @@ module DataCycleCore
                 processing_instructions['format'] = proxy_format
 
                 data_url = DataCycleCore::Feature::ImageProxy.process_image(
-                  content: content,
+                  content:,
                   variant: 'dynamic',
                   image_processing: processing_instructions
                 )
               else
                 data_url = DataCycleCore::Feature::ImageProxy.process_image(
-                  content: content,
+                  content:,
                   variant: proxy_variant
                 )
               end
@@ -86,16 +86,16 @@ module DataCycleCore
               remote = true
             else
               data = create_asset(content, version, transformation)
-              mime_type = mime_type(serialized_content: data, content: content)
+              mime_type = mime_type(serialized_content: data, content:)
             end
 
             DataCycleCore::Serialize::SerializedData::Content.new(
-              data: data,
-              mime_type: mime_type,
-              file_name: file_name(content: content, language: language, version: content.asset&.versions&.key?(version.to_sym) ? version : 'original'),
+              data:,
+              mime_type:,
+              file_name: file_name(content:, language:, version: content.asset&.versions&.key?(version.to_sym) ? version : 'original'),
               is_remote: remote,
               id: content.id,
-              data_url: data_url
+              data_url:
             )
           end
 

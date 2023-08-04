@@ -18,7 +18,7 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 
       if @duplicate_linked_in_path.include?(item.id)
         json.cache!(api_cache_key(item, I18n.locale, [], ['header_only']), expires_in: 24.hours + Random.rand(12.hours)) do
-          json.content_partial! 'header', content: item, options: options
+          json.content_partial! 'header', content: item, options:
         end
       else
         @duplicate_linked_in_path << item.id

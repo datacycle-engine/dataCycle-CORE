@@ -21,7 +21,7 @@ module DataCycleCore
       params.merge!(permitted_params[:additional_params].to_h.symbolize_keys) if permitted_params.dig(:additional_params).present?
       report_class = DataCycleCore::Feature::ReportGenerator.by_identifier(permitted_params[:identifier], thing)
       begin
-        data, options = report_class.constantize.new(params: params, locale: helpers.active_ui_locale).send("to_#{permitted_params[:type]}")
+        data, options = report_class.constantize.new(params:, locale: helpers.active_ui_locale).send("to_#{permitted_params[:type]}")
         send_data data, options
       rescue StandardError => e
         raise DataCycleCore::Error::Report::ProcessingError, e

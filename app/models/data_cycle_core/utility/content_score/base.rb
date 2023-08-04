@@ -20,10 +20,10 @@ module DataCycleCore
               .method(properties.dig('content_score', 'method'))
 
             data_hash[key] = method_name.call(
-              key: key,
+              key:,
               parameters: parameter_keys.index_with { |v| data_hash[v] },
               data_hash: data_hash || {},
-              content: content,
+              content:,
               definition: properties
             )&.to_f
           end

@@ -202,7 +202,7 @@ module DataCycleCore
           if specific_datahash[:translations].present? || specific_datahash[:datahash].present?
             valid = content.set_data_hash_with_translations(
               data_hash: transform_exisiting_values(bulk_edit_types, template_hash, specific_datahash, content),
-              current_user: current_user
+              current_user:
             )
             errors.concat(Array.wrap(content.errors.full_messages)) unless valid
           end
@@ -292,7 +292,7 @@ module DataCycleCore
         datahash = (datahash[:datahash] || {}).merge(values || {})
 
         I18n.with_locale(locale) do
-          @object.validate(data_hash: datahash, current_user: current_user)
+          @object.validate(data_hash: datahash, current_user:)
 
           render json: @object.validation_messages_as_json.to_json
         end

@@ -30,7 +30,7 @@ module DataCycleCore
           )
 
           assert_response(:success)
-          assert_equal(DataCycleCore::WatchList.where(name: name).size, 1)
+          assert_equal(DataCycleCore::WatchList.where(name:).size, 1)
 
           # read watch_list as xml
           get(xml_v1_collections_path)

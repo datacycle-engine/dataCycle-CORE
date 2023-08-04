@@ -24,9 +24,9 @@ module DataCycleCore
 
             data_hash[key] = method_name.call(
               computed_parameters: computed_parameters.index_with { |v| computed_value_hash[v] },
-              key: key,
+              key:,
               data_hash: computed_value_hash,
-              content: content,
+              content:,
               computed_definition: properties
             )
 

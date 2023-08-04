@@ -9,12 +9,12 @@ json.hasPart(related_objects) do |part|
 
   if part.translations.reject { |t| t.id.nil? }.size == 1
     json.set! 'inLanguage', part.translations.first.locale
-    json.partial! 'translated_properties', content: part, locale: part.translations.first.locale, options: options
+    json.partial! 'translated_properties', content: part, locale: part.translations.first.locale, options:
   else
     json.set! 'translations' do
       part.translations.each do |translation|
         json.set! translation.locale do
-          json.partial! 'translated_properties', content: part, locale: translation.locale, options: options
+          json.partial! 'translated_properties', content: part, locale: translation.locale, options:
         end
       end
     end

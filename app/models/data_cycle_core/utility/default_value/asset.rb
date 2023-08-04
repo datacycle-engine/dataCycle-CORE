@@ -7,9 +7,9 @@ module DataCycleCore
         def self.file_type_classification(property_parameters:, property_definition:, content:, data_hash:, key:, **_args)
           DataCycleCore::Utility::Compute::Asset.file_type_classification(
             computed_parameters: property_parameters,
-            data_hash: data_hash,
-            key: key,
-            content: content,
+            data_hash:,
+            key:,
+            content:,
             computed_definition: property_definition
           )
         end
@@ -70,11 +70,11 @@ module DataCycleCore
         end
 
         def self.exif_to_headline(property_parameters:, property_definition:, **_args)
-          headline = exif_to_string(property_parameters: property_parameters, property_definition: property_definition)
+          headline = exif_to_string(property_parameters:, property_definition:)
 
           return headline if headline.present?
 
-          filename_to_string(property_parameters: property_parameters)
+          filename_to_string(property_parameters:)
         end
 
         def self.exif_to_linked(property_parameters:, property_definition:, content:, **_args)

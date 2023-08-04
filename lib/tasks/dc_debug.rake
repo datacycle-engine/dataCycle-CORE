@@ -21,7 +21,7 @@ namespace :dc do
         'Ergänzende Information', 'SubEvent', 'AmenityFeature', 'Offer',
         'VirtualLocation', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt'
       ].each do |template_name|
-        data.push(DataCycleCore::Thing.where(template_name: template_name).map { |i|
+        data.push(DataCycleCore::Thing.where(template_name:).map { |i|
           [i.id, template_name, i.available_locales] if i.available_locales.size != 1
         }.compact)
       end

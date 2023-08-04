@@ -6,7 +6,7 @@ json.meta do
 end
 
 json.links do
-  common_params = @permitted_params.to_h.reject { |k, _| ['id', 'format', 'page', 'api_subversion'].include?(k) }
+  common_params = @permitted_params.to_h.except('id', 'format', 'page', 'api_subversion')
 
   json.self object_url.call(common_params.merge(page: { number: objects.current_page, size: objects.limit_value }))
   json.first object_url.call(common_params.merge(page: { number: 1, size: objects.limit_value })) unless objects.first_page?

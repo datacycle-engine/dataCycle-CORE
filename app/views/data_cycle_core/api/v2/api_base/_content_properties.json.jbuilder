@@ -7,7 +7,7 @@ unless content.schema.nil?
     next if content.schema&.dig('properties', key, 'link_direction') == 'inverse'
     value = content.try(key.to_sym)
 
-    partial_params = render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content
+    partial_params = render_api_attribute key: key, definition: prop, value: value, parameters: { options: }, content: content
     json.partial!(*partial_params) unless partial_params.nil?
   end
 

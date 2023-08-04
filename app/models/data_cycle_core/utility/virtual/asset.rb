@@ -49,9 +49,9 @@ module DataCycleCore
             content = args.dig(:content)
 
             DataCycleCore::Feature::ImageProxy.process_image(
-              content: content,
-              variant: variant,
-              image_processing: image_processing
+              content:,
+              variant:,
+              image_processing:
             )
           end
         end

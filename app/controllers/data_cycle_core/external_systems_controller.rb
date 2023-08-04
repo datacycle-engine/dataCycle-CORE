@@ -48,7 +48,7 @@ module DataCycleCore
 
       data = YAML.safe_load(
         ERB.new(File.read(partial)).result_with_hash(params: params.require(:external_system).to_unsafe_hash),
-        [Symbol]
+        permitted_classes: [Symbol]
       )
 
       redirect_back(fallback_location: root_path, alert: I18n.t('controllers.error.external_system_already_exists', locale: helpers.active_ui_locale)) && return if DataCycleCore::ExternalSystem.exists?(identifier: data['identifier']) || DataCycleCore::ExternalSystem.exists?(name: data['name'])
@@ -79,7 +79,7 @@ module DataCycleCore
       partial = "external_systems/form_templates/#{identifier}"
       partial = 'data_cycle_core/external_systems/form_templates/default' unless lookup_context.exists?(partial, [], true, [], formats: [:html])
 
-      render json: { html: render_to_string(formats: [:html], layout: false, partial: partial) }
+      render json: { html: render_to_string(formats: [:html], layout: false, partial:) }
     end
 
     private
