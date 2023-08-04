@@ -304,9 +304,9 @@ module DataCycleCore
 
     def merge_with(new_classification_alias)
       # update Mappings
-      additional_classification_groups.where.not('EXISTS (SELECT 1 FROM classification_groups cg WHERE cg.classification_id = classification_groups.classification_id AND cg.classification_alias_id = ?)', new_classification_alias.id).update_all(classification_alias_id: new_classification_alias.id)
+      additional_classification_groups.where.not('EXISTS (SELECT 1 FROM classification_groups cg WHERE cg.classification_id = classification_groups.classification_id AND cg.classification_alias_id = ?)', new_classification_alias.id).update_all(classification_alias_id: new_classification_alias.id, created_at: Time.zone.now, updated_at: Time.zone.now)
 
-      primary_classification.additional_classification_groups.where.not('EXISTS (SELECT 1 FROM classification_groups cg WHERE cg.classification_alias_id = classification_groups.classification_alias_id AND cg.classification_id = ?)', new_classification_alias.primary_classification.id).update_all(classification_id: new_classification_alias.primary_classification.id)
+      primary_classification.additional_classification_groups.where.not('EXISTS (SELECT 1 FROM classification_groups cg WHERE cg.classification_alias_id = classification_groups.classification_alias_id AND cg.classification_id = ?)', new_classification_alias.primary_classification.id).update_all(classification_id: new_classification_alias.primary_classification.id, created_at: Time.zone.now, updated_at: Time.zone.now)
 
       # update classification_contents
       primary_classification.classification_contents.where.not('EXISTS (SELECT 1 FROM classification_contents cc WHERE cc.content_data_id = classification_contents.content_data_id AND cc.relation = classification_contents.relation AND cc.classification_id = ?)', new_classification_alias.primary_classification.id).update_all(classification_id: new_classification_alias.primary_classification.id)
