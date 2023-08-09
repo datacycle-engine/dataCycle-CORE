@@ -4,7 +4,7 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
   def up
     execute <<-SQL.squish
       UPDATE thing_translations
-      SET content = thing_translations.content || jsonb_strip_nulls(
+      SET content = coalesce(thing_translations.content, '{}') || jsonb_strip_nulls(
           jsonb_build_object(
             'name',
             thing_translations.name,
@@ -17,7 +17,7 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
         DROP COLUMN description;
 
       UPDATE thing_history_translations
-      SET content = thing_history_translations.content || jsonb_strip_nulls(
+      SET content = coalesce(thing_history_translations.content, '{}') || jsonb_strip_nulls(
           jsonb_build_object(
             'name',
             thing_history_translations.name,
@@ -30,7 +30,7 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
         DROP COLUMN description;
 
       UPDATE things
-      SET metadata = things.metadata || jsonb_strip_nulls(
+      SET metadata = coalesce(things.metadata, '{}') || jsonb_strip_nulls(
           jsonb_build_object(
             'address_country',
             things.address_country,
@@ -82,7 +82,7 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
         DROP COLUMN telephone;
 
       UPDATE thing_histories
-      SET metadata = thing_histories.metadata || jsonb_strip_nulls(
+      SET metadata = coalesce(thing_histories.metadata, '{}') || jsonb_strip_nulls(
           jsonb_build_object(
             'address_country',
             thing_histories.address_country,
