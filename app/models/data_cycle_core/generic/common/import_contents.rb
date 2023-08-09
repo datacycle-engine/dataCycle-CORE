@@ -61,12 +61,11 @@ module DataCycleCore
           return if DataCycleCore::DataHashService.deep_blank?(raw_data)
           return if raw_data.keys.size == 1 && raw_data.keys.first.in?(['id', '@id'])
 
-          template = DataCycleCore::Generic::Common::ImportFunctions.load_template(template_name)
-
-          DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
-            template: template,
-            data: transformation.call(transformation.parameters.dig(0, 1).to_s.end_with?('_id') ? utility_object.external_source.id : utility_object.external_source).call(raw_data).with_indifferent_access,
+            raw_data: raw_data,
+            transformation: transformation.call(transformation.parameters.dig(0, 1).to_s.end_with?('_id') ? utility_object.external_source.id : utility_object.external_source),
+            default: { template: template_name },
             config: config
           )
         end
