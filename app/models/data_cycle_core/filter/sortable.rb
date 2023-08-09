@@ -48,6 +48,8 @@ module DataCycleCore
           random_join_query = ActiveRecord::Base.send(:sanitize_sql_array, [random_seed_sql, seed_value: ordering])
         end
 
+        # TODO: fix random sorting with moving active query into exists subquery
+
         reflect(
           @query
             .joins(random_join_query)
@@ -99,7 +101,7 @@ module DataCycleCore
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = ?', locale]))
             .reorder(nil)
             .order(
-              sanitized_order_string('thing_translations.name', ordering, true),
+              sanitized_order_string("thing_translations.content ->> 'name'", ordering, true),
               sanitized_order_string('things.id', 'DESC')
             )
         )
@@ -132,9 +134,9 @@ module DataCycleCore
           @query
             .reorder(nil)
             .order(
-              absolute_date_diff(thing[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
-              absolute_date_diff(thing[:start_date], Arel::Nodes.build_quoted(date.iso8601)),
-              thing[:start_date],
+              absolute_date_diff(cast_ts(in_json(thing[:metadata], 'end_date')), Arel::Nodes.build_quoted(date.iso8601)),
+              absolute_date_diff(cast_ts(in_json(thing[:metadata], 'start_date')), Arel::Nodes.build_quoted(date.iso8601)),
+              cast_ts(in_json(thing[:metadata], 'start_date')),
               sanitized_order_string('things.id', 'DESC')
             )
         )

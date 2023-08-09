@@ -12,7 +12,7 @@
       :name:
         :label: Titel
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
       :caption:
         :label: Bildunterschrift
@@ -22,7 +22,7 @@
       :description:
         :label: Beschreibung (ALT-Label)
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
         :ui:
           :edit:

@@ -15,12 +15,12 @@
       :name:
         :label: Name
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
       :description:
         :label: Text
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
         :ui:
           :edit:

@@ -40,7 +40,21 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::ComputedValue
       prepend DataCycleCore::Content::Extensions::Translation
 
+      scope :where_value, ->(attributes) { where(value_condition(attributes), *attributes&.values) }
+      scope :where_not_value, ->(attributes) { where.not(value_condition(attributes), *attributes&.values) }
+
+      scope :where_translated_value, ->(attributes) { includes(:translations).where(translated_value_condition(attributes), *attributes&.values).references(attributes.blank? ? nil : :translations) }
+      scope :where_not_translated_value, ->(attributes) { includes(:translations).where.not(translated_value_condition(attributes), *attributes&.values).references(attributes.blank? ? nil : :translations) }
+
       after_save :reload_memoized
+
+      def self.value_condition(attributes)
+        attributes&.map { |k, v| "things.metadata ->> '#{k}' #{v.is_a?(::Array) ? 'IN (?)' : '= ?'}" }&.join(' AND ')
+      end
+
+      def self.translated_value_condition(attributes)
+        attributes&.map { |k, v| "thing_translations.content ->> '#{k}' #{v.is_a?(::Array) ? 'IN (?)' : '= ?'}" }&.join(' AND ')
+      end
 
       def reload(options = nil)
         reload_memoized

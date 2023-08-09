@@ -956,7 +956,6 @@ CREATE TABLE public.things (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     metadata jsonb,
     template_name character varying NOT NULL,
-    internal_name character varying,
     external_source_id uuid,
     external_key character varying,
     created_by uuid,
@@ -966,21 +965,7 @@ CREATE TABLE public.things (
     created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     deleted_at timestamp without time zone,
-    given_name character varying,
-    family_name character varying,
-    start_date timestamp without time zone,
-    end_date timestamp without time zone,
-    longitude double precision,
-    latitude double precision,
-    elevation double precision,
     location public.geometry(Point,4326),
-    address_locality character varying,
-    street_address character varying,
-    postal_code character varying,
-    address_country character varying,
-    fax_number character varying,
-    telephone character varying,
-    email character varying,
     is_part_of uuid,
     validity_range tstzrange,
     boost numeric,
@@ -1480,7 +1465,6 @@ CREATE TABLE public.thing_histories (
     thing_id uuid NOT NULL,
     metadata jsonb,
     template_name character varying,
-    internal_name character varying,
     external_source_id uuid,
     external_key character varying,
     created_by uuid,
@@ -1490,21 +1474,7 @@ CREATE TABLE public.thing_histories (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone,
-    given_name character varying,
-    family_name character varying,
-    start_date timestamp without time zone,
-    end_date timestamp without time zone,
-    longitude double precision,
-    latitude double precision,
-    elevation double precision,
     location public.geometry(Point,4326),
-    address_locality character varying,
-    street_address character varying,
-    postal_code character varying,
-    address_country character varying,
-    fax_number character varying,
-    telephone character varying,
-    email character varying,
     is_part_of uuid,
     validity_range tstzrange,
     boost numeric,
@@ -1525,8 +1495,6 @@ CREATE TABLE public.thing_history_translations (
     thing_history_id uuid NOT NULL,
     locale character varying NOT NULL,
     content jsonb,
-    name character varying,
-    description text,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     slug character varying
@@ -1542,8 +1510,6 @@ CREATE TABLE public.thing_translations (
     thing_id uuid NOT NULL,
     locale character varying NOT NULL,
     content jsonb,
-    name character varying,
-    description text,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     slug character varying
@@ -3131,7 +3097,7 @@ CREATE UNIQUE INDEX thing_attribute_timestamp_idx ON public.timeseries USING btr
 -- Name: thing_translations_name_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX thing_translations_name_idx ON public.thing_translations USING gin (name public.gin_trgm_ops);
+CREATE INDEX thing_translations_name_idx ON public.thing_translations USING btree (((content ->> 'name'::text)));
 
 
 --
@@ -4089,6 +4055,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230712062841'),
 ('20230718071217'),
 ('20230721072044'),
-('20230724083209');
+('20230724083209'),
+('20230802112843');
 
 

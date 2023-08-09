@@ -29,9 +29,8 @@ module DataCycleCore
               fields: 'name'
             }
             post api_v4_things_path(params)
-            assert_api_count_result(@thing_count)
             json_data = JSON.parse(response.body)
-            orig = json_data.dig('@graph').map { |a| a.dig('@id') }
+            orig = json_data.dig('@graph').pluck('@id')
 
             # random
             params = {
@@ -39,17 +38,13 @@ module DataCycleCore
               sort: 'random'
             }
 
-            diff_json_found = false
             100.times do
               post api_v4_things_path(params)
-              assert_api_count_result(@thing_count)
               json_data = JSON.parse(response.body)
-              t = json_data.dig('@graph').map { |a| a.dig('@id') }
-              next if t == orig
-              diff_json_found = true
-              break
+              t = json_data.dig('@graph').pluck('@id')
+
+              assert_not_equal(t, orig)
             end
-            assert(diff_json_found)
           end
 
           test 'api/v4/things with parameter sort: random with seed' do
@@ -59,23 +54,16 @@ module DataCycleCore
             }
 
             post api_v4_things_path(params)
-            assert_api_count_result(@thing_count)
             json_data = JSON.parse(response.body)
 
-            orig = json_data.dig('@graph').map { |a| a.dig('@id') }
+            orig = json_data.dig('@graph').pluck('@id')
 
-            diff_json_found = true
             100.times do
               post api_v4_things_path(params)
-              assert_api_count_result(@thing_count)
               json_data = JSON.parse(response.body)
-              t = json_data.dig('@graph').map { |a| a.dig('@id') }
-              next if t == orig
-              diff_json_found = false
-              break
+              t = json_data.dig('@graph').pluck('@id')
+              assert_equal(t, orig)
             end
-
-            assert(diff_json_found)
           end
         end
       end

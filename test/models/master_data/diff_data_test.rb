@@ -28,7 +28,7 @@ describe DataCycleCore::MasterData::DiffData do
           headline: {
             label: 'Arbeitstitel',
             type: 'string',
-            storage_location: 'column',
+            storage_location: 'translated_value',
             search: true,
             validations: { minLength: 1 }
           },

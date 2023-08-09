@@ -14,7 +14,7 @@ module DataCycleCore
       prepend Content::ContentOverlay
 
       extend ::Mobility
-      translates :name, :description, :slug, :content, backend: :table
+      translates :slug, :content, backend: :table
       default_scope { i18n.includes(:thing_template) }
 
       content_relations table_name: 'things', postfix: 'history'
@@ -81,7 +81,7 @@ module DataCycleCore
     has_many :searches, foreign_key: :content_data_id, dependent: :destroy, inverse_of: :content_data
 
     extend ::Mobility
-    translates :name, :description, :slug, :content, backend: :table
+    translates :slug, :content, backend: :table
     default_scope { i18n.includes(:thing_template) }
 
     content_relations table_name: table_name

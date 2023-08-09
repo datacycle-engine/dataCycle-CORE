@@ -96,8 +96,8 @@ module DataCycleCore
                     '@type' => 'Event',
                     'contentType' => 'SubEvent',
                     'inLanguage' => 'de',
-                    'startDate' => sub_event.start_date.to_s(:long_msec),
-                    'endDate' => sub_event.end_date.to_s(:long_msec)
+                    'startDate' => sub_event.event_period.start_date.to_s(:long_msec),
+                    'endDate' => sub_event.event_period.end_date.to_s(:long_msec)
                   }
                 end
                 assert_equal(sub_events, event_schedule_hash)
@@ -194,8 +194,8 @@ module DataCycleCore
                     'contentType' => 'SubEvent',
                     'inLanguage' => 'de',
                     'identifier' => sub_event.id,
-                    'startDate' => sub_event.start_date.to_s(:long_msec),
-                    'endDate' => sub_event.end_date.to_s(:long_msec)
+                    'startDate' => sub_event.event_period.start_date.to_s(:long_msec),
+                    'endDate' => sub_event.event_period.end_date.to_s(:long_msec)
                   }
                 end
                 v2_subevents = v3_subevents.map do |sub_event|

@@ -67,7 +67,7 @@ module DataCycleCore
           ).joins(:translations).where(
             "thing_translations.locale = 'de'"
           ).where( # prefilter with name
-            'similarity(thing_translations.name, ?) > 0.8', content.name
+            "similarity(thing_translations.content ->> 'name', ?) > 0.8", content.name
           ).where( # prefilter location
             content.location.blank? ? 'location IS NULL' : "ST_DWithin(location, ST_GeographyFromText('SRID=4326;#{content.location&.to_s}'), #{DISTANCE_METERS})"
           ).where.not(id: content.id)

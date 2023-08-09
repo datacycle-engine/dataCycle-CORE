@@ -144,7 +144,13 @@ module DataCycleCore
     def self.create_content(template_name: nil, data_hash: nil, user: nil, prevent_history: false, save_time: Time.zone.now, version_name: nil, source: nil)
       return if template_name.blank? || data_hash.blank?
       data_hash = data_hash.dup.with_indifferent_access
-      @content = DataCycleCore::Thing.find_by(data_hash.slice('name', 'given_name', 'family_name').merge({ template_name: template_name }))
+
+      @content  = DataCycleCore::Thing
+        .where({ template_name: template_name })
+        .where_value(data_hash.slice('given_name', 'family_name'))
+        .where_translated_value(data_hash.slice('name'))
+        .first
+
       return @content if @content.present?
 
       @content = DataCycleCore::Thing.new(template_name: template_name)

@@ -6,7 +6,7 @@
       :description:
         :label: Kurzbeschreibung
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
         :ui:
           :edit:

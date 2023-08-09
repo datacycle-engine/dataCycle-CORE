@@ -55,9 +55,9 @@ module DataCycleCore
         if @fields_parameters.blank? || @fields_parameters&.any? { |p| p.first == 'name' }
           config << {
             identifier: 'name',
-            select: 'MAX(thing_translations.name) FILTER (
-              WHERE thing_translations.name IS NOT NULL
-            )',
+            select: "MAX(thing_translations.content ->> 'name') FILTER (
+              WHERE thing_translations.content ->> 'name' IS NOT NULL
+            )",
             joins: "LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = things.id
                         AND thing_translations.locale = '#{I18n.locale}'"
           }
