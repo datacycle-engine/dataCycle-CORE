@@ -541,7 +541,7 @@ module DataCycleCore
               }
               .sort_by { |_, v| v['sorting'] }
               .map! do |(k, v)|
-              [k, v.except('sorting', 'api').deep_reject { |p_k, p_v| p_k == 'show' || (!p_v.is_a?(FalseClass) && p_v.blank?) }]
+              [k, v.except('sorting', 'api', 'content_score').deep_reject { |p_k, p_v| p_k == 'show' || (!p_v.is_a?(FalseClass) && p_v.blank?) }]
             end
           }
           .reduce(:&)
