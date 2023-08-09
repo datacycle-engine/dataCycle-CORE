@@ -5,6 +5,8 @@ class InitiallyCreateSchemaTypes < ActiveRecord::Migration[6.1]
   # disable_ddl_transaction!
 
   def up
+    return unless column_exists?(:things, :computed_schema_types)
+
     execute <<-SQL.squish
       UPDATE things
       SET computed_schema_types = compute_thing_schema_types(
