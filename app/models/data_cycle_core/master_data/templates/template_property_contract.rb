@@ -167,7 +167,7 @@ module DataCycleCore
         end
 
         rule(:storage_location) do
-          key.failure(:invalid_column) if key? && value == 'column' && ['external_key', 'slug', 'location', 'line'].exclude?(property_name.to_s)
+          key.failure(:invalid_column) if key? && value == 'column' && ['external_key', 'slug', 'location', 'line', 'geom'].exclude?(property_name.to_s)
         end
       end
     end
