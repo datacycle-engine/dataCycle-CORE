@@ -5,7 +5,7 @@ class VacuumFullThingsAgain < ActiveRecord::Migration[6.1]
   # disable_ddl_transaction!
 
   def up
-    DataCycleCore::RunTaskJob.set(queue: 'importers').perform_later('db:maintenance:vacuum', [true, false, 'things|thing_histories'])
+    DataCycleCore::RunTaskJob.set(wait_until: Time.zone.now.change(hour: 19), queue: 'importers').perform_later('db:maintenance:vacuum', [true, false, 'things|thing_histories'])
   end
 
   def down
