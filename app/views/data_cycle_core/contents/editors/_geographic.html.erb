@@ -58,7 +58,7 @@
         <%= render_attribute_editor key: 'elevation',
                                     prefix: key.delete_suffix("[#{key.attribute_name_from_key}]"),
                                     definition: content&.schema&.dig(*schema_path_from_key(key.gsub(key.attribute_name_from_key, 'elevation'))),
-                                    value: (content.elevation.blank? || content.elevation.zero?) ? nil : content.elevation,
+                                    value: (content.try(:elevation).blank? || content.try(:elevation).zero?) ? nil : content.elevation,
                                     parameters: { options: { force_render: true, prefix: local_assigns.dig(:options, :prefix) } },
                                     content: content if content.collect_properties.flatten.include?('elevation') %>
 

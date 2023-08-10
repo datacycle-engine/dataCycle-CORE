@@ -61,7 +61,7 @@
     </div>
   <% end %>
 
-  <% if content.elevation.present? && content.elevation.nonzero? %>
+  <% if content.try(:elevation).present? && content.elevation.nonzero? %>
     <div class="detail-type elevation number" data-label="<%= DataCycleCore::Thing.human_attribute_name(:elevation, locale: active_ui_locale) %>">
       <span class="detail-label">
         <%= DataCycleCore::Thing.human_attribute_name(:elevation, locale: active_ui_locale) %>
