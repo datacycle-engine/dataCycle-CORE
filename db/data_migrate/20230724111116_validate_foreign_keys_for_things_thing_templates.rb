@@ -32,7 +32,7 @@ class ValidateForeignKeysForThingsThingTemplates < ActiveRecord::Migration[6.1]
     validate_foreign_key :things, :thing_templates
     validate_foreign_key :thing_histories, :thing_templates
 
-    DataCycleCore::RunTaskJob.set(wait_until: Time.zone.now.change(hour: 19), queue: 'importers').perform_later('db:maintenance:vacuum', [true, false, 'things|thing_histories'])
+    DataCycleCore::RunTaskJob.set(queue: 'importers').perform_later('db:maintenance:vacuum', [true, false, 'things|thing_histories'])
   end
 
   def down
