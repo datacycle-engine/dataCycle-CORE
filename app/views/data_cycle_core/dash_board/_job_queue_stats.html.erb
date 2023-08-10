@@ -5,7 +5,7 @@
     </div>
     <div class="card-section">
       <% if @stat_job_queue[:queued].present? %>
-        <h5>in queue:</h5>
+        <h5 class="has-jobs">in queue:</h5>
         <ul>
           <% @stat_job_queue[:queued].each do |queue, count| %>
             <%= tag.li("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
@@ -16,7 +16,7 @@
       <% end %>
 
       <% if @stat_job_queue[:running].present? %>
-        <h5>running:</h5>
+        <h5 class="has-jobs">running:</h5>
         <ul>
           <% @stat_job_queue[:running].each do |queue, count| %>
             <%= tag.li("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
@@ -27,7 +27,7 @@
       <% end %>
 
       <% if @stat_job_queue[:importers].size.positive? %>
-        <h5>import/download:</h5>
+        <h5 class="has-jobs">import/download:</h5>
         <ul>
           <% @stat_job_queue[:importers].each do |job| %>
             <li>
@@ -44,7 +44,7 @@
       <% end %>
 
       <% if @stat_job_queue[:failed].present? %>
-        <h5>failed:</h5>
+        <h5 class="has-jobs">failed:</h5>
         <ul>
           <% @stat_job_queue[:failed].each do |queue, count| %>
             <%= tag.li("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
