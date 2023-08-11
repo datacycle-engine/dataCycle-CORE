@@ -5,7 +5,7 @@ class VacuumAfterCleanup < ActiveRecord::Migration[6.1]
 
   def up
     execute <<-SQL.squish
-      VACUUM;
+      VACUUM things, thing_translations, thing_histories, thing_history_translations;
     SQL
   end
 
