@@ -389,6 +389,8 @@ DataCycleCore::Engine.routes.draw do
                   match '/search/availability', via: [:get, :post], to: 'external_systems#search_availability', as: 'external_source_search_availability'
                   match '/search/additional_service', via: [:get, :post], to: 'external_systems#search_additional_service', as: 'external_source_search_additional_service'
                 end
+
+                match 'external_systems/:external_system_id/things/:id', to: 'external_systems_export#show', via: :get
               end
             end
           end
