@@ -53,6 +53,8 @@ module DataCycleCore
         def timeseries
           content = DataCycleCore::Thing.find(timeseries_params[:content_id] || timeseries_params[:id])
 
+          raise CanCan::AccessDenied unless DataCycleCore::StoredFilter.new.apply_user_filter(current_user, { scope: 'api' }).apply(skip_ordering: true).query.exists?(id: content.id)
+
           @renderer = DataCycleCore::ApiRenderer::TimeseriesRenderer.new(content: content, **timeseries_params.slice(:timeseries, :group_by, :time, :data_format).to_h.deep_symbolize_keys)
 
           case permitted_params[:format].to_sym

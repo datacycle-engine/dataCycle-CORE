@@ -210,6 +210,10 @@ module DataCycleCore
       new_user
     end
 
+    def self.user_groups
+      DataCycleCore::UserGroup.where(id: DataCycleCore::UserGroupUser.where(user_id: all.select(:id)))
+    end
+
     def as_user_api_json
       as_json(user_api_feature.json_params)
       .merge(as_json(only: [:additional_attributes]).tap { |u| u['additional_attributes']&.slice!(*user_api_feature.json_additional_attributes) })
