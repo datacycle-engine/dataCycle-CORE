@@ -6,7 +6,7 @@ module DataCycleCore
       class ExternalSystemsExportController < ApiBaseController
         def show
           external_system = DataCycleCore::ExternalSystem.find_by(identifier: permitted_params[:external_system_id]) ||
-            DataCycleCore::ExternalSystem.find(permitted_params[:external_system_id])
+                            DataCycleCore::ExternalSystem.find(permitted_params[:external_system_id])
 
           content = DataCycleCore::Thing.find(permitted_params[:id])
 
