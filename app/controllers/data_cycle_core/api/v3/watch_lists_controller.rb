@@ -17,7 +17,6 @@ module DataCycleCore
 
         def show
           @watch_list = DataCycleCore::WatchList.find(permitted_params[:id])
-
           query = DataCycleCore::Thing.joins(:watch_list_data_hashes).where(watch_list_data_hashes: { watch_list_id: @watch_list.id }).order('watch_list_data_hashes.order_a ASC, watch_list_data_hashes.created_at ASC, things.id DESC')
 
           @pagination_contents = apply_paging(query)

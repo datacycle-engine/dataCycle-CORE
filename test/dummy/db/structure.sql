@@ -117,7 +117,7 @@ CREATE FUNCTION public.delete_ca_paths_transitive_trigger_1() RETURNS trigger
 
 CREATE FUNCTION public.delete_ccc_relations_transitive_trigger_1() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive (OLD); RETURN NULL; END; $$;
+    AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive (ARRAY [OLD.content_data_id]::UUID []); RETURN NULL; END; $$;
 
 
 --
@@ -126,7 +126,7 @@ CREATE FUNCTION public.delete_ccc_relations_transitive_trigger_1() RETURNS trigg
 
 CREATE FUNCTION public.delete_ccc_relations_transitive_trigger_2() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive ( collected_classification_content_relations_alias.* ) FROM ( SELECT DISTINCT ON (classification_contents.content_data_id) classification_contents.* FROM old_classification_alias_paths_transitive INNER JOIN classification_groups ON classification_groups.classification_alias_id = ANY ( old_classification_alias_paths_transitive.full_path_ids ) AND classification_groups.deleted_at IS NULL INNER JOIN classification_contents ON classification_contents.classification_id = classification_groups.classification_id ) "collected_classification_content_relations_alias"; RETURN NULL; END; $$;
+    AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive ( array_agg( collected_classification_content_relations_alias.content_data_id ) ) FROM ( SELECT DISTINCT classification_contents.content_data_id FROM old_classification_alias_paths_transitive INNER JOIN classification_groups ON classification_groups.classification_alias_id = ANY ( old_classification_alias_paths_transitive.full_path_ids ) AND classification_groups.deleted_at IS NULL INNER JOIN classification_contents ON classification_contents.classification_id = classification_groups.classification_id ) "collected_classification_content_relations_alias"; RETURN NULL; END; $$;
 
 
 --
@@ -225,7 +225,7 @@ CREATE FUNCTION public.generate_ca_paths_transitive_trigger_4() RETURNS trigger
 
 CREATE FUNCTION public.generate_ccc_relations_transitive_trigger_1() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive ( collected_classification_content_relations_alias.* ) FROM ( SELECT DISTINCT ON (classification_contents.content_data_id) classification_contents.* FROM new_classification_alias_paths_transitive INNER JOIN classification_groups ON classification_groups.classification_alias_id = ANY ( new_classification_alias_paths_transitive.full_path_ids ) AND classification_groups.deleted_at IS NULL INNER JOIN classification_contents ON classification_contents.classification_id = classification_groups.classification_id ) "collected_classification_content_relations_alias"; RETURN NULL; END; $$;
+    AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive ( array_agg( collected_classification_content_relations_alias.content_data_id ) ) FROM ( SELECT DISTINCT classification_contents.content_data_id FROM new_classification_alias_paths_transitive INNER JOIN classification_groups ON classification_groups.classification_alias_id = ANY ( new_classification_alias_paths_transitive.full_path_ids ) AND classification_groups.deleted_at IS NULL INNER JOIN classification_contents ON classification_contents.classification_id = classification_groups.classification_id ) "collected_classification_content_relations_alias"; RETURN NULL; END; $$;
 
 
 --
@@ -234,7 +234,7 @@ CREATE FUNCTION public.generate_ccc_relations_transitive_trigger_1() RETURNS tri
 
 CREATE FUNCTION public.generate_ccc_relations_transitive_trigger_2() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive (NEW); RETURN NULL; END; $$;
+    AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive (ARRAY [NEW.content_data_id]::UUID []); RETURN NULL; END; $$;
 
 
 --
@@ -271,6 +271,15 @@ CREATE FUNCTION public.generate_classification_alias_paths_trigger_2() RETURNS t
 CREATE FUNCTION public.generate_classification_alias_paths_trigger_3() RETURNS trigger
     LANGUAGE plpgsql
     AS $$ BEGIN PERFORM generate_classification_alias_paths (array_agg(classification_alias_id)) FROM ( SELECT classification_alias_id FROM classification_trees WHERE classification_trees.classification_tree_label_id = NEW.id) "changed_tree_classification_aliases"; RETURN NEW; END; $$;
+
+
+--
+-- Name: generate_collected_cl_content_relations_transitive(uuid[]); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_collected_cl_content_relations_transitive(thing_ids uuid[]) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ BEGIN IF array_length(thing_ids, 1) > 0 THEN DELETE FROM collected_classification_contents WHERE collected_classification_contents.thing_id IN ( SELECT ccc.thing_id FROM collected_classification_contents ccc WHERE ccc.thing_id = ANY(thing_ids) ORDER BY ccc.thing_id ASC FOR UPDATE SKIP LOCKED ); WITH direct_classification_content_relations AS ( SELECT DISTINCT ON ( classification_contents.content_data_id, classification_aliases.id ) classification_contents.content_data_id "thing_id", classification_aliases.id "classification_alias_id", classification_trees.classification_tree_label_id, TRUE "direct" FROM classification_contents JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL JOIN classification_aliases ON classification_aliases.id = classification_groups.classification_alias_id JOIN classification_trees ON classification_trees.classification_alias_id = classification_aliases.id AND classification_trees.deleted_at IS NULL WHERE classification_contents.content_data_id = ANY(thing_ids) ), full_classification_content_relations AS ( SELECT DISTINCT ON (classification_contents.content_data_id, a.e) classification_contents.content_data_id "thing_id", a.e "classification_alias_id", classification_trees.classification_tree_label_id, FALSE "direct" FROM classification_contents JOIN classification_groups ON classification_contents.classification_id = classification_groups.classification_id AND classification_groups.deleted_at IS NULL JOIN classification_alias_paths_transitive ON classification_groups.classification_alias_id = classification_alias_paths_transitive.classification_alias_id JOIN classification_trees ON classification_trees.classification_alias_id = ANY ( classification_alias_paths_transitive.full_path_ids ) AND classification_trees.deleted_at IS NULL INNER JOIN LATERAL UNNEST( classification_alias_paths_transitive.full_path_ids ) AS a (e) ON a.e = classification_trees.classification_alias_id WHERE classification_contents.content_data_id = ANY(thing_ids) AND NOT EXISTS ( SELECT 1 FROM direct_classification_content_relations dccr WHERE dccr.thing_id = classification_contents.content_data_id AND dccr.classification_alias_id = a.e ) ) INSERT INTO collected_classification_contents ( thing_id, classification_alias_id, classification_tree_label_id, direct ) SELECT direct_classification_content_relations.thing_id, direct_classification_content_relations.classification_alias_id, direct_classification_content_relations.classification_tree_label_id, direct_classification_content_relations.direct FROM direct_classification_content_relations UNION SELECT full_classification_content_relations.thing_id, full_classification_content_relations.classification_alias_id, full_classification_content_relations.classification_tree_label_id, full_classification_content_relations.direct FROM full_classification_content_relations ON CONFLICT DO NOTHING; END IF; END; $$;
 
 
 SET default_tablespace = '';
@@ -758,8 +767,8 @@ CREATE TABLE public.classification_trees (
 
 CREATE VIEW public.classification_alias_links AS
  WITH primary_classification_groups AS (
-         SELECT DISTINCT classification_groups.classification_alias_id,
-            first_value(classification_groups.classification_id) OVER (PARTITION BY classification_groups.classification_alias_id ORDER BY classification_groups.created_at) AS classification_id
+         SELECT DISTINCT classification_groups.classification_id,
+            first_value(classification_groups.classification_alias_id) OVER (PARTITION BY classification_groups.classification_id ORDER BY classification_groups.created_at) AS classification_alias_id
            FROM public.classification_groups
           WHERE (classification_groups.deleted_at IS NULL)
         )
@@ -1005,7 +1014,7 @@ CREATE VIEW public.content_computed_properties AS
     split_part(parameters.value, '.'::text, 1) AS compute_parameter_property_name
    FROM public.content_properties,
     LATERAL jsonb_array_elements_text(((content_properties.property_definition -> 'compute'::text) -> 'parameters'::text)) parameters(value)
-  WHERE (content_properties.property_definition ? 'compute'::text);
+  WHERE (jsonb_typeof(((content_properties.property_definition -> 'compute'::text) -> 'parameters'::text)) = 'array'::text);
 
 
 --
@@ -4055,7 +4064,12 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230712062841'),
 ('20230718071217'),
 ('20230721072044'),
+('20230721072045'),
 ('20230724083209'),
-('20230802112843');
+('20230802112843'),
+('20230804062814'),
+('20230807063824'),
+('20230809085903'),
+('20230810101627');
 
 
