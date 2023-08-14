@@ -134,5 +134,17 @@ module DataCycleCore
 
       options_for_select(filter_options, filter_method)
     end
+
+    def selected_filter_params(filter, config)
+      if config[:hidden_filter]&.any?(filter)
+        { buttons: 'h', container_classes: 'hidden-filter' }
+      elsif filter['c'].in?(['a', 'u'])
+        { buttons: 'a', container_classes: 'advanced-tags' }
+      elsif filter['c'] == 'uf'
+        { buttons: false, container_classes: 'user-force-filter' }
+      else
+        { buttons: 'd' }
+      end
+    end
   end
 end

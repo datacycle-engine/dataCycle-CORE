@@ -5,6 +5,8 @@
 
   <span class="filter-groups">
     <% filters&.each do |filter| %>
+      <% filter_params = selected_filter_params(filter, config) %>
+
       <%= render_advanced_filter_tags_partial({
             filter_type: filter['t'],
             filter_method: filter['m'],
@@ -14,8 +16,8 @@
             target: filter['identifier'],
             value: filter['v'],
             classification_aliases: selected_classification_aliases&.slice(*filter['v']),
-            buttons: filter['c'].in?(['a', 'u']) ? 'a' : filter['c'] == 'uf' ? false : 'd',
-            container_classes: filter['c'].in?(['a', 'u']) ? 'advanced-tags' : filter['c'] == 'uf' ? 'user-force-filter' : nil,
+            buttons: filter_params[:buttons],
+            container_classes: filter_params[:container_classes],
         }) %>
     <% end %>
   </span>
