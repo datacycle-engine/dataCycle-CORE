@@ -15,11 +15,6 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
     SQL
 
     execute <<-SQL.squish
-      ALTER TABLE thing_translations DROP COLUMN name,
-        DROP COLUMN description;
-    SQL
-
-    execute <<-SQL.squish
       UPDATE thing_history_translations
       SET content = coalesce(thing_history_translations.content, '{}') || jsonb_strip_nulls(
           jsonb_build_object(
@@ -29,11 +24,6 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
             thing_history_translations.description
           )
         );
-    SQL
-
-    execute <<-SQL.squish
-      ALTER TABLE thing_history_translations DROP COLUMN name,
-        DROP COLUMN description;
     SQL
 
     execute <<-SQL.squish
@@ -75,24 +65,6 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
     SQL
 
     execute <<-SQL.squish
-      ALTER TABLE things DROP COLUMN address_country,
-        DROP COLUMN address_locality,
-        DROP COLUMN elevation,
-        DROP COLUMN email,
-        DROP COLUMN end_date,
-        DROP COLUMN family_name,
-        DROP COLUMN fax_number,
-        DROP COLUMN given_name,
-        DROP COLUMN internal_name,
-        DROP COLUMN latitude,
-        DROP COLUMN longitude,
-        DROP COLUMN postal_code,
-        DROP COLUMN start_date,
-        DROP COLUMN street_address,
-        DROP COLUMN telephone;
-    SQL
-
-    execute <<-SQL.squish
       UPDATE thing_histories
       SET metadata = coalesce(thing_histories.metadata, '{}') || jsonb_strip_nulls(
           jsonb_build_object(
@@ -128,6 +100,34 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
             thing_histories.telephone
           )
         );
+    SQL
+
+    execute <<-SQL.squish
+      ALTER TABLE thing_translations DROP COLUMN name,
+        DROP COLUMN description;
+    SQL
+
+    execute <<-SQL.squish
+      ALTER TABLE thing_history_translations DROP COLUMN name,
+        DROP COLUMN description;
+    SQL
+
+    execute <<-SQL.squish
+      ALTER TABLE things DROP COLUMN address_country,
+        DROP COLUMN address_locality,
+        DROP COLUMN elevation,
+        DROP COLUMN email,
+        DROP COLUMN end_date,
+        DROP COLUMN family_name,
+        DROP COLUMN fax_number,
+        DROP COLUMN given_name,
+        DROP COLUMN internal_name,
+        DROP COLUMN latitude,
+        DROP COLUMN longitude,
+        DROP COLUMN postal_code,
+        DROP COLUMN start_date,
+        DROP COLUMN street_address,
+        DROP COLUMN telephone;
     SQL
 
     execute <<-SQL.squish
