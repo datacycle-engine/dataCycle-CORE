@@ -92,15 +92,18 @@ module DataCycleCore
           search_filter = config[:filter].find { |v| v[:type] == 'search' }
           value = selected_filters.find { |f| f['t'] == 'fulltext_search' }
 
-          return config[:hidden_filter].push(value) if search_filter.blank?
+          if search_filter.blank?
+            config[:hidden_filter].push(value) if value.present?
+            return
+          end
 
           search_filter[:value] = value&.dig('v')
           search_filter[:identifier] = value&.dig('identifier') || SecureRandom.hex(10)
         end
 
         def advanced_filters(user, config, selected_filters, key = :advanced, c = 'a', buttons = true)
-          advanced_filter = config[:filter].find { |v| v[:type] == key.to_s } || {}
-          selected = selected_filters.select { |f| f['c'] == c }
+          advanced_filter = config[:filter].find { |v| v[:type] == key.to_s }
+          selected = selected_filters.select { |f| f['c'] == c && f['t'] != 'fulltext_search' }
 
           return config[:hidden_filter].concat(selected) if advanced_filter.blank?
 

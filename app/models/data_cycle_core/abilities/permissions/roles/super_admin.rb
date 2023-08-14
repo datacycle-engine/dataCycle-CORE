@@ -109,7 +109,11 @@ module DataCycleCore
             # end
 
             # Backend
-            permit_user(role, :search, :classification_trees, :classification_tree, :permanent_advanced, :advanced, :publication_date, SubjectByConditions: [[:classification_tree, :publications, :subscriptions, :things, :collection]])
+            permit_user(role, :search, :classification_trees, :classification_tree, :permanent_advanced, :advanced, :publication_date, SubjectByConditions: [[:backend, :classification_tree, :publications, :subscriptions, :things, :collection]])
+            permit_user(role, :advanced_filter, AdvancedFilterExceptType: [
+                          [:backend, :classification_tree, :publications, :subscriptions, :things, :collection],
+                          []
+                        ])
 
             # Subscription
             permit_user(role, :read, SubjectByConditions: [[DataCycleCore::Subscription, :publication]])
