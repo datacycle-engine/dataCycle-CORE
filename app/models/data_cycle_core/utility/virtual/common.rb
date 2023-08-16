@@ -69,7 +69,7 @@ module DataCycleCore
             content.classifications_for_tree(tree_name: virtual_definition['tree_label'])
           end
 
-          def attribute_value_by_first_match(virtual_definition:, language:, content:, **_args)
+          def attribute_value_by_first_match(virtual_definition:, content:, **_args)
             Array.wrap(virtual_definition.dig('virtual', 'value')).each do |config|
               value = get_value_by_filter(content, config['attribute'].split('.'), config['filter'])
 
@@ -106,7 +106,7 @@ module DataCycleCore
             Array.wrap(filter).each do |config|
               in_filter = case config['type']
                           when 'classification'
-                            content.classification_aliases.includes(:classification_alias_path).where(classification_alias_path: { full_path_names: config['value'].split('>').map(&:strip).reverse }).exists?
+                            content.classification_aliases.joins(:classification_alias_path).exists?(classification_alias_path: { full_path_names: config['value'].split('>').map(&:strip).reverse })
                           else
                             content.try(config['type']) == config['value']
                           end
