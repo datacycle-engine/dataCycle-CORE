@@ -29,6 +29,7 @@ module DataCycleCore
         page: 1,
         per: 25,
         type: @biografy.schema_type,
+        template_name: @biografy.template_name,
         search: @person.family_name
       }, headers: {
         referer: thing_path(@biografy)
