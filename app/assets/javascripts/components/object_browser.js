@@ -33,7 +33,7 @@ class ObjectBrowser {
 		this.definition = this.$element.data("definition");
 		this.options = this.$element.data("options");
 		this.class = this.$element.data("class");
-		this.table = this.$element.data("table");
+		this.templateName = this.$element.data("template-name");
 		this.max = this.$element.data("max");
 		this.min = this.$element.data("min");
 		this.limitedBy = this.$element.data("limited-by");
@@ -761,7 +761,9 @@ class ObjectBrowser {
 	pageLeaveHandler(e) {
 		if (!isEqual(sortBy(this.preselectedItems), sortBy(this.chosen))) {
 			e.preventDefault();
-			return (e.returnValue = "");
+			e.returnValue = "";
+
+			return e.returnValue;
 		}
 	}
 	// import media from media_archive reveal
@@ -822,6 +824,7 @@ class ObjectBrowser {
 			excluded: this.excluded,
 			content_id: this.content_id,
 			content_type: this.content_type,
+			template_name: this.templateName,
 			prefix: this.prefix,
 			filter_ids: this.filteredIds(),
 		};
