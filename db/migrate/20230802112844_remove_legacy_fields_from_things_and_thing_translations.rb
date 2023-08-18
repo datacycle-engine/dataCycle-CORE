@@ -31,7 +31,7 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
     SQL
 
     execute <<-SQL.squish
-      ALTER TABLE thing_histories DROP COLUMN address_country,
+      ALTER TABLE thing_histories DROP COLUMN IF EXISTS address_country,
         DROP COLUMN IF EXISTS address_locality,
         DROP COLUMN IF EXISTS elevation,
         DROP COLUMN IF EXISTS email,
