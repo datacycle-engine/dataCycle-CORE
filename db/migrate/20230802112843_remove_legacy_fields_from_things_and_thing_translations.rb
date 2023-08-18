@@ -12,9 +12,7 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
             thing_translations.description
           )
         );
-    SQL
 
-    execute <<-SQL.squish
       UPDATE thing_history_translations
       SET content = coalesce(thing_history_translations.content, '{}') || jsonb_strip_nulls(
           jsonb_build_object(
@@ -24,9 +22,7 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
             thing_history_translations.description
           )
         );
-    SQL
 
-    execute <<-SQL.squish
       UPDATE things
       SET metadata = coalesce(things.metadata, '{}') || jsonb_strip_nulls(
           jsonb_build_object(
@@ -62,9 +58,7 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
             things.telephone
           )
         );
-    SQL
 
-    execute <<-SQL.squish
       UPDATE thing_histories
       SET metadata = coalesce(thing_histories.metadata, '{}') || jsonb_strip_nulls(
           jsonb_build_object(
@@ -100,19 +94,13 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
             thing_histories.telephone
           )
         );
-    SQL
 
-    execute <<-SQL.squish
       ALTER TABLE thing_translations DROP COLUMN name,
         DROP COLUMN description;
-    SQL
 
-    execute <<-SQL.squish
       ALTER TABLE thing_history_translations DROP COLUMN name,
         DROP COLUMN description;
-    SQL
 
-    execute <<-SQL.squish
       ALTER TABLE things DROP COLUMN address_country,
         DROP COLUMN address_locality,
         DROP COLUMN elevation,
@@ -128,9 +116,7 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
         DROP COLUMN start_date,
         DROP COLUMN street_address,
         DROP COLUMN telephone;
-    SQL
 
-    execute <<-SQL.squish
       ALTER TABLE thing_histories DROP COLUMN address_country,
         DROP COLUMN address_locality,
         DROP COLUMN elevation,
@@ -146,9 +132,7 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
         DROP COLUMN start_date,
         DROP COLUMN street_address,
         DROP COLUMN telephone;
-    SQL
 
-    execute <<-SQL.squish
       CREATE INDEX IF NOT EXISTS thing_translations_name_idx ON thing_translations((content->>'name'));
     SQL
   end
