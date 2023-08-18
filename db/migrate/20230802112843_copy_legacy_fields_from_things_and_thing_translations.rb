@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration[6.1]
+class CopyLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration[6.1]
   def up
     execute <<-SQL.squish
       UPDATE thing_translations
@@ -101,92 +101,17 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
           )
         );
     SQL
-
-    execute <<-SQL.squish
-      ALTER TABLE thing_translations DROP COLUMN name,
-        DROP COLUMN description;
-    SQL
-
-    execute <<-SQL.squish
-      ALTER TABLE thing_history_translations DROP COLUMN name,
-        DROP COLUMN description;
-    SQL
-
-    execute <<-SQL.squish
-      ALTER TABLE things DROP COLUMN address_country,
-        DROP COLUMN address_locality,
-        DROP COLUMN elevation,
-        DROP COLUMN email,
-        DROP COLUMN end_date,
-        DROP COLUMN family_name,
-        DROP COLUMN fax_number,
-        DROP COLUMN given_name,
-        DROP COLUMN internal_name,
-        DROP COLUMN latitude,
-        DROP COLUMN longitude,
-        DROP COLUMN postal_code,
-        DROP COLUMN start_date,
-        DROP COLUMN street_address,
-        DROP COLUMN telephone;
-    SQL
-
-    execute <<-SQL.squish
-      ALTER TABLE thing_histories DROP COLUMN address_country,
-        DROP COLUMN address_locality,
-        DROP COLUMN elevation,
-        DROP COLUMN email,
-        DROP COLUMN end_date,
-        DROP COLUMN family_name,
-        DROP COLUMN fax_number,
-        DROP COLUMN given_name,
-        DROP COLUMN internal_name,
-        DROP COLUMN latitude,
-        DROP COLUMN longitude,
-        DROP COLUMN postal_code,
-        DROP COLUMN start_date,
-        DROP COLUMN street_address,
-        DROP COLUMN telephone;
-    SQL
-
-    execute <<-SQL.squish
-      CREATE INDEX IF NOT EXISTS thing_translations_name_idx ON thing_translations((content->>'name'));
-    SQL
   end
 
   def down
     execute <<-SQL.squish
-      ALTER TABLE thing_translations
-      ADD COLUMN name varchar,
-        ADD COLUMN description text;
-
       UPDATE thing_translations
       SET name = thing_translations.content->>'name',
         description = thing_translations.content->>'description';
 
-      ALTER TABLE thing_history_translations
-      ADD COLUMN name varchar,
-        ADD COLUMN description text;
-
       UPDATE thing_history_translations
       SET name = thing_history_translations.content->>'name',
         description = thing_history_translations.content->>'description';
-
-      ALTER TABLE things
-      ADD COLUMN address_country varchar,
-        ADD COLUMN address_locality varchar,
-        ADD COLUMN elevation double precision,
-        ADD COLUMN email varchar,
-        ADD COLUMN end_date timestamp without time zone,
-        ADD COLUMN family_name varchar,
-        ADD COLUMN fax_number varchar,
-        ADD COLUMN given_name varchar,
-        ADD COLUMN internal_name varchar,
-        ADD COLUMN latitude double precision,
-        ADD COLUMN longitude double precision,
-        ADD COLUMN postal_code varchar,
-        ADD COLUMN start_date timestamp without time zone,
-        ADD COLUMN street_address varchar,
-        ADD COLUMN telephone varchar;
 
       UPDATE things
       SET address_country = things.metadata->>'address_country',
@@ -204,23 +129,6 @@ class RemoveLegacyFieldsFromThingsAndThingTranslations < ActiveRecord::Migration
         start_date = (things.metadata->>'start_date')::timestamp without time zone,
         street_address = things.metadata->>'street_address',
         telephone = things.metadata->>'telephone';
-
-      ALTER TABLE thing_histories
-      ADD COLUMN address_country varchar,
-        ADD COLUMN address_locality varchar,
-        ADD COLUMN elevation double precision,
-        ADD COLUMN email varchar,
-        ADD COLUMN end_date timestamp without time zone,
-        ADD COLUMN family_name varchar,
-        ADD COLUMN fax_number varchar,
-        ADD COLUMN given_name varchar,
-        ADD COLUMN internal_name varchar,
-        ADD COLUMN latitude double precision,
-        ADD COLUMN longitude double precision,
-        ADD COLUMN postal_code varchar,
-        ADD COLUMN start_date timestamp without time zone,
-        ADD COLUMN street_address varchar,
-        ADD COLUMN telephone varchar;
 
       UPDATE thing_histories
       SET address_country = thing_histories.metadata->>'address_country',
