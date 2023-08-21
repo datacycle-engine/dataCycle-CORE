@@ -199,7 +199,7 @@ class AddIdColumnToCollectedClassificationContents < ActiveRecord::Migration[6.1
         new_collected_classification_contents.classification_alias_id,
         new_collected_classification_contents.classification_tree_label_id,
         new_collected_classification_contents.direct
-      FROM new_collected_classification_contents ON CONFLICT (ccc_unique_thing_id_classification_alias_id_idx) DO
+      FROM new_collected_classification_contents ON CONFLICT (thing_id, classification_alias_id) DO
       UPDATE
       SET classification_tree_label_id = EXCLUDED.classification_tree_label_id,
         direct = EXCLUDED.direct;
