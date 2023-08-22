@@ -11,6 +11,20 @@ class AddIdColumnToCollectedClassificationContents < ActiveRecord::Migration[6.1
       ALTER TABLE IF EXISTS collected_classification_contents
       ADD PRIMARY KEY (id);
 
+      DELETE FROM classification_alias_paths_transitive
+      WHERE classification_alias_paths_transitive.id IN (
+          SELECT t.id
+          FROM (
+              SELECT classification_alias_paths_transitive.*,
+                ROW_NUMBER() OVER(
+                  PARTITION BY classification_alias_paths_transitive.full_path_ids
+                  ORDER BY classification_alias_paths_transitive.id
+                ) AS row_num
+              FROM classification_alias_paths_transitive
+            ) t
+          WHERE t.row_num > 1
+        );
+
       CREATE UNIQUE INDEX ccc_unique_thing_id_classification_alias_id_idx ON collected_classification_contents(thing_id, classification_alias_id);
 
       ALTER TABLE classification_alias_paths_transitive
