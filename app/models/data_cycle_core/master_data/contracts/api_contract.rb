@@ -34,6 +34,8 @@ module DataCycleCore
         CONTENT = Dry::Schema.Params do
           optional(:uuid).filled(:array)
           optional(:uuids).filled(:string)
+          optional(:external_source_id).filled(:str?, format?: UUID_OR_STRING_OF_UUIDS_REGEX)
+          optional(:external_keys).filled(:string)
           optional(:content_id) { str? | array? }
         end
 
