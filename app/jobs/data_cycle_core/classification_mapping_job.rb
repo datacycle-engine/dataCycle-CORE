@@ -21,12 +21,30 @@ module DataCycleCore
     end
 
     def perform(id, classification_ids)
-      classification_alias = DataCycleCore::ClassificationAlias.find_by(id: id)
+      ca = DataCycleCore::ClassificationAlias.find_by(id: id)
 
-      return if classification_alias.nil?
+      return if ca.nil?
 
-      classification_alias.classification_ids = classification_ids
-      if classification_alias.save
+      to_insert = classification_ids - ca.classification_ids
+      to_delete = ca.classification_ids - classification_ids
+
+      if to_insert.present?
+        ca.classification_groups.insert_all(to_insert.map { |cid| { classification_id: cid } }, unique_by: :classification_groups_ca_id_c_id_uq_idx, returning: false)
+
+        DataCycleCore::Classification.where(id: to_insert).find_each do |c|
+          ca.send(:classifications_added, c)
+        end
+      end
+
+      if to_delete.present?
+        ca.classification_groups.where(classification_id: to_delete).delete_all
+
+        DataCycleCore::Classification.where(id: to_delete).find_each do |c|
+          ca.send(:classifications_removed, c)
+        end
+      end
+
+      if to_insert.present? || to_delete.present? ? ca.update(updated_at: Time.zone.now) : true
         ActionCable.server.broadcast('classification_update', { type: 'unlock', id: id })
       else
         ActionCable.server.broadcast('classification_update', { type: 'error', id: id })
