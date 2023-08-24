@@ -368,10 +368,17 @@ class MapLibreGlViewer {
 			this.sources[key] = `filter_source_${key}`;
 			this._addVectorSource(
 				this.sources[key],
-				`/concepts/select/${this.filterLayers.geo_within_classification.join(
+				`concepts/select/${this.filterLayers.geo_within_classification.join(
 					",",
 				)}`,
 			);
+
+			this._pointLayer({
+				layerId: `filter_point_${key}`,
+				source: this.sources[key],
+				sourceLayer: "dcConcepts",
+				popup: true,
+			});
 			this._polygonLayer({
 				layerId: `filter_polygon_${key}`,
 				source: this.sources[key],
