@@ -88,7 +88,7 @@ module DataCycleCore
         def shared_by_watch_list_shares(ids = nil)
           return self if ids.blank?
 
-          combined_ids = Array.wrap(ids) + DataCycleCore::User.where(id: ids).user_groups.pluck(:id)
+          combined_ids = Array.wrap(ids) + DataCycleCore::UserGroup.where(id: DataCycleCore::UserGroupUser.where(user_id: ids)).pluck(:id)
 
           raw_query = <<-SQL.squish
             SELECT 1
