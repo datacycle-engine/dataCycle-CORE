@@ -48,10 +48,11 @@ module DataCycleCore
         end
 
         def only_title_duplicate(content)
-          DataCycleCore::Thing.where(
-            template_name: content.template_name,
-            name: content.name
-          ).where.not(id: content.id)
+          DataCycleCore::Thing
+            .joins(:translations)
+            .where(template_name: content.template_name)
+            .where("thing_translations.content ->> 'name' = ?", content.name)
+            .where.not(id: content.id)
             .pluck(:id)
             .map { |d| { thing_duplicate_id: d, method: 'only_title', score: 83 } }
             .compact
