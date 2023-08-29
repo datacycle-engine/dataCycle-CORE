@@ -528,6 +528,7 @@ class ObjectBrowser {
 				class: this.class,
 				content_id: this.content_id,
 				content_type: this.content_type,
+				template_name: this.templateName,
 				objects: this.chosen,
 				external: external,
 			},
