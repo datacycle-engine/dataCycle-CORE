@@ -83,6 +83,10 @@ module DataCycleCore
           @classification_aliases = apply_order_query(@classification_aliases, permitted_params.dig(:sort))
           @classification_aliases = apply_paging(@classification_aliases)
           @classification_aliases = @classification_aliases.includes(:classification_tree_label)
+
+          # unset classification_trees_filter to render all classifications
+          @classification_trees_parameters = []
+          @classification_trees_filter = false
         end
 
         def by_external_key
