@@ -148,6 +148,10 @@ module DataCycleCore
       )
     end
 
+    def self.classification_polygons
+      DataCycleCore::ClassificationPolygon.where(classification_alias_id: all.select(:id))
+    end
+
     def primary_classification_id
       primary_classification&.id
     end

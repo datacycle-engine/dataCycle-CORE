@@ -66,7 +66,6 @@
           class: 'button geocode-address-button',
           title: t('actions.geocode', locale: active_ui_locale, title: content&.schema&.dig('properties', DataCycleCore::Feature::Geocode.address_source(content), 'label')),
           data: {
-            address_key: DataCycleCore::Feature::Geocode.address_source(content),
             locale: I18n.locale.to_s
           } if attribute_editable?(key, definition, options, content) && DataCycleCore::Feature::Geocode.allowed?(content) %>
       <% end %>

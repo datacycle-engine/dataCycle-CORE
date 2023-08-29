@@ -49,6 +49,12 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		this.$locationField = this.$parentContainer
 			.siblings("input.location-data:hidden")
 			.first();
+		this.geoCodeAttributes = [
+			"street_address",
+			"postal_code",
+			"address_locality",
+			"address_country",
+		];
 	}
 	static isAllowedType(_type) {
 		return true;
@@ -274,6 +280,38 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 			);
 		}
 	}
+	getNamesFromClassificationAttribute(elem) {
+		let value = elem.querySelector("select")?.value;
+
+		if (Array.isArray(value)) value = value.filter((x) => x)[0];
+
+		return elem.querySelector(`option[value="${value}"]`)?.textContent;
+	}
+	getAddressFromAttributes() {
+		const locale = this.$geoCodeButton.data("locale");
+		const address = {
+			locale: locale,
+		};
+
+		for (const key of this.geoCodeAttributes) {
+			const elem = document.querySelector(
+				`.form-element[data-key$="[${key}]"], .form-element[data-geocode-attribute-name="${key}"]`,
+			);
+
+			if (!elem) continue;
+
+			let value;
+
+			if (elem.classList.contains("classification"))
+				value = this.getNamesFromClassificationAttribute(elem);
+			else if (elem.classList.contains("string"))
+				value = elem.querySelector("input")?.value;
+
+			if (value) address[key] = value;
+		}
+
+		return address;
+	}
 	geoCodeAddress(event) {
 		event.preventDefault();
 
@@ -282,18 +320,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		this.$geoCodeButton.append(' <i class="fa fa-spinner fa-spin fa-fw"></i>');
 		this.$geoCodeButton.addClass("disabled");
 
-		const addressKey = this.$geoCodeButton.data("address-key");
-		const locale = this.$geoCodeButton.data("locale");
-		const address = {
-			locale: locale,
-		};
-
-		$(`.form-element.object.${addressKey}`)
-			.find(".form-element")
-			.find("input")
-			.each((_index, elem) => {
-				address[elem.name.attributeNameFromKey()] = elem.value;
-			});
+		const address = this.getAddressFromAttributes();
 
 		const promise = DataCycle.httpRequest("/things/geocode_address", {
 			body: address,

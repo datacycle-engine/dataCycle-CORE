@@ -1,10 +1,10 @@
 <% overlay_id = SecureRandom.hex(10) %>
 <%= link_to tag.i(class: 'fa fa-map'), '#', class: 'polygon-map-link', data: {
-                    toggle: overlay_id,
+                    open: overlay_id,
                     dc_tooltip: t('classification_administration.classification_polygon.link_tooltip', locale: active_ui_locale)
                   } %>
 
-<div class="reveal classification-polygon-reveal" id="<%= overlay_id %>" data-reveal>
+<div class="reveal classification-polygon-reveal" id="<%= overlay_id %>" data-reveal data-delayed-init>
   <h3><%= classification_title(classification_alias) %></h3>
 
   <div class="geographic remote-render"

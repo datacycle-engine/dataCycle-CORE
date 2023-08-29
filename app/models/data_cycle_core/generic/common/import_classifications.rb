@@ -177,70 +177,73 @@ module DataCycleCore
           external_source_id = utility_object.external_source.id
           external_source_id = nil if utility_object.options.dig('import', 'no_external_source_id')
 
-          if classification_data[:external_key].blank?
-            classification = DataCycleCore::Classification
-              .find_or_initialize_by(
+          ActiveRecord::Base.transaction do
+            if classification_data[:external_key].blank?
+              classification = DataCycleCore::Classification
+                .find_or_initialize_by(
+                  external_source_id: external_source_id,
+                  name: classification_data[:name]
+                )
+            else
+              classification = DataCycleCore::Classification
+                .find_or_initialize_by(
+                  external_source_id: external_source_id,
+                  external_key: classification_data[:external_key]
+                ) do |c|
+                  c.name = classification_data[:name]
+                end
+            end
+
+            if classification.new_record?
+              classification_alias = DataCycleCore::ClassificationAlias.create!(
                 external_source_id: external_source_id,
-                name: classification_data[:name]
+                **classification_data.slice(:name, :description, :uri, :classification_polygons_attributes, :assignable)
               )
-          else
-            classification = DataCycleCore::Classification
-              .find_or_initialize_by(
+
+              DataCycleCore::ClassificationGroup.create!(
+                classification: classification,
+                classification_alias: classification_alias,
+                external_source_id: external_source_id
+              )
+
+              tree_label = DataCycleCore::ClassificationTreeLabel.find_or_create_by(
                 external_source_id: external_source_id,
-                external_key: classification_data[:external_key]
-              ) do |c|
-                c.name = classification_data[:name]
+                name: classification_data[:tree_name]
+              ) do |item|
+                item.visibility = DataCycleCore.default_classification_visibilities
               end
-          end
 
-          if classification.new_record?
-            classification_alias = DataCycleCore::ClassificationAlias.create!(
-              external_source_id: external_source_id,
-              **classification_data.slice(:name, :description, :uri, :classification_polygons_attributes, :assignable)
-            )
+              DataCycleCore::ClassificationTree.create!(
+                {
+                  classification_tree_label: tree_label,
+                  parent_classification_alias: parent_classification_alias,
+                  sub_classification_alias: classification_alias
+                }
+              )
+            else
+              primary_classification_alias = classification.primary_classification_alias
 
-            DataCycleCore::ClassificationGroup.create!(
-              classification: classification,
-              classification_alias: classification_alias,
-              external_source_id: external_source_id
-            )
+              if classification_data[:classification_polygons_attributes].present? && (polygon = primary_classification_alias.classification_polygons.first)
+                classification_data[:classification_polygons_attributes].first[:id] = polygon.id
+              end
 
-            tree_label = DataCycleCore::ClassificationTreeLabel.find_or_create_by(
-              external_source_id: external_source_id,
-              name: classification_data[:tree_name]
-            ) do |item|
-              item.visibility = DataCycleCore.default_classification_visibilities
+              primary_classification_alias.update!(name: classification_data[:name], **classification_data.slice(:description, :uri, :classification_polygons_attributes, :assignable).compact_blank)
+
+              classification_tree = primary_classification_alias.classification_tree
+
+              classification_tree.parent_classification_alias = parent_classification_alias
+              classification_tree.save!
+
+              classification_alias = primary_classification_alias
             end
 
-            DataCycleCore::ClassificationTree.create!(
-              {
-                classification_tree_label: tree_label,
-                parent_classification_alias: parent_classification_alias,
-                sub_classification_alias: classification_alias
-              }
-            )
-          else
-            primary_classification_alias = classification.primary_classification_alias
-
-            if classification_data[:classification_polygons_attributes].present? && (polygon = primary_classification_alias.classification_polygons.first)
-              classification_data[:classification_polygons_attributes].first[:id] = polygon.id
-            end
-
-            primary_classification_alias.update!(name: classification_data[:name], **classification_data.slice(:description, :uri, :classification_polygons_attributes, :assignable).compact_blank)
-
-            classification_tree = primary_classification_alias.classification_tree
-            classification_tree.parent_classification_alias = parent_classification_alias
-            classification_tree.save!
-
-            classification_alias = primary_classification_alias
+            classification.name = classification_alias.internal_name # have a readable classification_name (esp. for multilanguage classification_aliases)
+            classification.description = classification_data[:description] if classification_data[:description].present?
+            classification.uri = classification_data[:uri] if classification_data[:uri].present?
+            classification.external_key = classification_data[:external_key]
+            classification.save!
+            classification_alias
           end
-
-          classification.name = classification_alias.internal_name # have a readable classification_name (esp. for multilanguage classification_aliases)
-          classification.description = classification_data[:description] if classification_data[:description].present?
-          classification.uri = classification_data[:uri] if classification_data[:uri].present?
-          classification.external_key = classification_data[:external_key]
-          classification.save!
-          classification_alias
         end
       end
     end
