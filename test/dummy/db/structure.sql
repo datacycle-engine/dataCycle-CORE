@@ -2183,6 +2183,13 @@ CREATE UNIQUE INDEX classification_groups_ca_id_c_id_uq_idx ON public.classifica
 
 
 --
+-- Name: classification_polygons_classification_alias_id_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX classification_polygons_classification_alias_id_id_idx ON public.classification_polygons USING btree (classification_alias_id, id);
+
+
+--
 -- Name: classification_polygons_geom_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4090,6 +4097,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230809085903'),
 ('20230810101627'),
 ('20230821094137'),
-('20230823081910');
+('20230823081910'),
+('20230824060920');
 
 

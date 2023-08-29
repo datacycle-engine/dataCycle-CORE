@@ -42,6 +42,7 @@ module DataCycleCore
     test 'copy persons in split view' do
       post object_browser_find_path, xhr: true, as: :json, params: {
         class: @person.class.name,
+        template_name: @person.template_name,
         definition: @biografy.schema.dig('properties', 'about'),
         editable: true,
         external: false,
@@ -69,6 +70,7 @@ module DataCycleCore
 
       post object_browser_find_path, xhr: true, as: :json, params: {
         class: @person.class.name,
+        template_name: @person.template_name,
         definition: @biografy.schema.dig('properties', 'about'),
         editable: true,
         external: true,
