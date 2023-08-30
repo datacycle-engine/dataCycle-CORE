@@ -52,7 +52,7 @@ module DataCycleCore
             permit_user(role, :read, :create, :update, :destroy, :show_history, :create_global, :create_api, :create_api_with_users, :api, SubjectByConditions: [DataCycleCore::StoredFilter])
 
             # WatchList
-            permit_user(role, :show, :bulk_edit, :bulk_delete, :update, :change_owner, SubjectByConditions: [DataCycleCore::WatchList])
+            permit_user(role, :show, :bulk_edit, :bulk_delete, :update, :change_owner, :create_api, SubjectByConditions: [DataCycleCore::WatchList])
             permit_user(role, :read, :create, :add_item, :remove_item, SubjectByUserAndConditions: [DataCycleCore::WatchList, :user_id])
             permit_user(role, :destroy, :share, SubjectByUserAndConditions: [DataCycleCore::WatchList, :user_id, my_selection: false])
             permit_user(role, :read, :add_item, :remove_item, WatchListByGroupShares: [my_selection: false])
