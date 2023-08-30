@@ -12,12 +12,6 @@ module DataCycleCore
       @user = user
       @session = session
 
-      load_abilities
-    end
-
-    private
-
-    def load_abilities
       DataCycleCore::Abilities::PermissionsList.add_abilities_for_user(self)
     end
   end
