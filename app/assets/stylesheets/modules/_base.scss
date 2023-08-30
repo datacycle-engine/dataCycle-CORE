@@ -1891,6 +1891,30 @@ body .v-select {
             font-size: 1rem;
           }
         }
+
+        &.disabled {
+          cursor: not-allowed;
+
+          * {
+            cursor: not-allowed;
+          }
+
+          label {
+            color: var(--dark-gray);
+          }
+
+          input {
+            background: var(--light-gray);
+          }
+
+          .select2.select2-container {
+            background-color: var(--light-gray);
+
+            .select2-search__field {
+              background: var(--light-gray);
+            }
+          }
+        }
       }
     }
 
