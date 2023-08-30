@@ -18,10 +18,10 @@ module DataCycleCore
           def to_bbox
             select_sql = <<-SQL.squish
               json_build_object(
-                'xmin', st_xmin(ST_Extent(ST_Collect(things."location", things."line"))),
-                'ymin', st_ymin(ST_Extent(ST_Collect(things."location", things."line"))),
-                'xmax', st_xmax(ST_Extent(ST_Collect(things."location", things."line"))),
-                'ymax', st_ymax(ST_Extent(ST_Collect(things."location", things."line")))
+                'xmin', st_xmin(ST_Extent(things.geom_simple)),
+                'ymin', st_ymin(ST_Extent(things.geom_simple)),
+                'xmax', st_xmax(ST_Extent(things.geom_simple)),
+                'ymax', st_ymax(ST_Extent(things.geom_simple))
               )
             SQL
             query = all.except(:order).select(select_sql).to_sql
