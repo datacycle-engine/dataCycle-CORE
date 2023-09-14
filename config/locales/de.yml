@@ -869,6 +869,7 @@ de:
       not_access_token: kein API Token vorhanden
       confirmed_at: E-Mail bestätigt
       not_confirmed_at: E-Mail nicht bestätigt
+    active: Aktiv
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...
