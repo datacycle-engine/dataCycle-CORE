@@ -128,6 +128,17 @@ module DataCycleCore
         )
       end
 
+      def cast_ts(date)
+        Arel::Nodes::NamedFunction.new(
+          'CAST', [
+            Arel::Nodes::As.new(
+              quoted(date),
+              Arel::Nodes::SqlLiteral.new('timestamp without time zone')
+            )
+          ]
+        )
+      end
+
       def cast_tstz(date)
         Arel::Nodes::NamedFunction.new(
           'CAST', [

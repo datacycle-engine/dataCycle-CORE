@@ -29,7 +29,7 @@
           :start_date:
             :label: Von
             :type: datetime
-            :storage_location: column
+            :storage_location: value
             :validations:
               :format: date_time
             :ui:
@@ -43,7 +43,7 @@
           :end_date:
             :label: Bis
             :type: datetime
-            :storage_location: column
+            :storage_location: value
             :validations:
               :format: date_time
             :ui:

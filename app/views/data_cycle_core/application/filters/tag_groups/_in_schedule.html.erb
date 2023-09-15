@@ -42,5 +42,5 @@
       <span class="tag"><%= l(value['until'].to_date, locale: active_ui_locale) %></span>
     <% end %>
   <% end %>
-  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons == 'a' %>
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons %>
 </span>

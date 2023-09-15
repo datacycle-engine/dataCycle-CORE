@@ -21,7 +21,7 @@
       :name:
         :label: Name
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
       :alternative_headline:
         :label: Alternativer Name
@@ -38,7 +38,7 @@
       :description:
         :label: Text
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
         :ui:
           :edit:

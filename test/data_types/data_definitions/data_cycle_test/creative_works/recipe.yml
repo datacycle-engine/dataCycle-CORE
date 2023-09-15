@@ -50,7 +50,7 @@
       :description:
         :label: Teasertext
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
         :ui:
           :edit:
@@ -154,7 +154,7 @@
       :name:
         :label: Name
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
       :recipe_instructions:
         :label: Anleitung
@@ -190,7 +190,7 @@
       :name:
         :label: Name und Menge
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
         :validations:
           :required: true

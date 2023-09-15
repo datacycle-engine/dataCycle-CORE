@@ -12,7 +12,7 @@
       :name:
         :label: Titel
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
 
 - :data:
     :name: TestIncludedData
@@ -27,7 +27,7 @@
       :name:
         :label: Titel
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
       :included_data:
         :label: embeddedDataLabel
         :type: object
@@ -55,7 +55,7 @@
       :name:
         :label: Titel
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
       :data_pool:
         :label: Inhaltspools
         :type: classification
@@ -82,7 +82,7 @@
       :name:
         :label: Titel
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
       :test_place:
         :label: Ort
         :type: embedded
@@ -101,7 +101,7 @@
       :name:
         :label: Titel
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
       :test_cw:
         :label: Kreativdaten
         :type: embedded
@@ -120,7 +120,7 @@
       :name:
         :label: Titel
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
       :data_pool:
         :label: Inhaltspool
         :type: classification
@@ -147,7 +147,7 @@
       :name:
         :label: Titel
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
       :linked:
         :label: Verlinkt
         :type: linked

@@ -208,7 +208,7 @@ module DataCycleCore
               row += [
                 content.template_name,
                 content_translation.locale,
-                content_translation.name
+                content_translation.content&.dig('name')
               ]
               csv << row
             end

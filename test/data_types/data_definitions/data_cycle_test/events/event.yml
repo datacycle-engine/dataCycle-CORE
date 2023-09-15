@@ -41,7 +41,7 @@
         :name: content_classifications
       :start_date:
         :label: Startzeitpunkt
-        :storage_location: column
+        :storage_location: value
         :type: datetime
         :compute:
           :module: Utility::Compute::Schedule
@@ -55,7 +55,7 @@
             :disabled: true
       :end_date:
         :label: Endzeitpunkt
-        :storage_location: column
+        :storage_location: value
         :type: datetime
         :compute:
           :module: Utility::Compute::Schedule
@@ -70,7 +70,7 @@
       :description:
         :label: Beschreibung
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
         :ui:
           :edit:

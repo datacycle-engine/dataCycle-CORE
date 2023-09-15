@@ -6,7 +6,7 @@
       :name:
         :label: Titel
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
         :validations:
           :required: true

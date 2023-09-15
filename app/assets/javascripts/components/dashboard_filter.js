@@ -138,6 +138,11 @@ class DashboardFilter {
 		);
 		this.$filterTagsContainer.on(
 			"click",
+			".remove-hidden-filter",
+			this.removeHiddenFilter.bind(this),
+		);
+		this.$filterTagsContainer.on(
+			"click",
 			".focus-advanced-filter",
 			this.focusAdvancedFilter.bind(this),
 		);
@@ -338,6 +343,17 @@ class DashboardFilter {
 		} else if (filter.classList.contains("advanced-filter"))
 			DomElementHelpers.slideUp(filter).then(() => filter.remove());
 		else filter.remove();
+	}
+	removeHiddenFilter(event) {
+		event.preventDefault();
+		event.stopPropagation();
+
+		const target = event.currentTarget.dataset.target;
+		const form = this.$searchForm[0];
+		form.querySelector(`.tag-group[data-id="${target}"]`)?.remove();
+		form
+			.querySelector(`.hidden-filters .hidden-filter[data-id="${target}"]`)
+			?.remove();
 	}
 	focusAdvancedFilter(event) {
 		event.preventDefault();

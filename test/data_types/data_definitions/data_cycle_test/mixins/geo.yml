@@ -6,7 +6,7 @@
       :longitude:
         :label: Longitude
         :type: number
-        :storage_location: column
+        :storage_location: value
         :validations:
           :format: float
         :normalize:
@@ -26,7 +26,7 @@
       :latitude:
         :label: Latitude
         :type: number
-        :storage_location: column
+        :storage_location: value
         :validations:
           :format: float
         :normalize:
@@ -46,7 +46,7 @@
       :elevation:
         :label: Meereshöhe (m)
         :type: number
-        :storage_location: column
+        :storage_location: value
         :validations:
           :format: float
         :api:

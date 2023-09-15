@@ -97,9 +97,6 @@ module DataCycleCore
           hash['t'] = 'user'
           hash['n'] = 'creator'
           hash['q'] = 'creator'
-          hash['v'] = Array.wrap(hash['v']).map { |v| v == 'current_user' ? user&.id : v }
-        when 'shared_with'
-          hash['v'] = Array.wrap(hash['v']).map { |v| v == 'current_user' ? user&.id : v }
         when 'with_user_group_classifications_for_treename'
           raise StandardError, 'Missing data definition: treeLabel' if hash['v'].blank?
           relation = DataCycleCore::Feature::UserGroupClassification.attribute_relations.find { |_k, v| v['tree_label'] == hash['v'] }&.first
@@ -108,6 +105,16 @@ module DataCycleCore
           hash['t'] = 'classification_alias_ids'
           hash['n'] = hash['v']
           hash['v'] = user&.user_groups&.send(relation)&.pluck(:id)
+        end
+
+        transform_placeholders(hash, user)
+      end
+
+      def transform_placeholders(hash, user)
+        if hash['v'].is_a?(::Array) && hash['v'].include?('current_user')
+          hash['v'] = hash['v'].map { |v| v == 'current_user' ? user&.id : v }
+        elsif hash['v'].is_a?(::String) && hash['v'] == 'current_user'
+          hash['v'] = user&.id
         end
       end
 

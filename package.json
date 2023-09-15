@@ -26,7 +26,7 @@
     "fetch-inject": "^3.2.0",
     "flatpickr": "^4.6.11",
     "font-awesome": "^4.7.0",
-    "foundation-sites": "^6.4.3",
+    "foundation-sites": "6.7.5",
     "htmldiff": "^0.0.4",
     "jquery": "^3.6.0",
     "jquery-serializejson": "^3.2.1",

@@ -84,6 +84,29 @@ module DataCycleCore
             @query.where(thing[:id].in(Arel.sql(filter_queries.compact_blank.join(' UNION '))))
           )
         end
+
+        def shared_by_watch_list_shares(ids = nil)
+          return self if ids.blank?
+
+          combined_ids = Array.wrap(ids) + DataCycleCore::UserGroup.where(id: DataCycleCore::UserGroupUser.where(user_id: ids)).pluck(:id)
+
+          raw_query = <<-SQL.squish
+            SELECT 1
+          	FROM watch_list_data_hashes
+            INNER JOIN watch_list_shares ON watch_list_shares.watch_list_id = watch_list_data_hashes.watch_list_id
+            WHERE watch_list_data_hashes.hashable_id = things.id
+              AND watch_list_data_hashes.hashable_type = 'DataCycleCore::Thing'
+              AND watch_list_shares.shareable_id IN (?)
+          SQL
+
+          reflect(
+            @query.where(
+              Arel::Nodes::Exists.new(
+                Arel.sql(DataCycleCore::Thing.send(:sanitize_sql_for_conditions, [raw_query, combined_ids]))
+              )
+            )
+          )
+        end
       end
     end
   end

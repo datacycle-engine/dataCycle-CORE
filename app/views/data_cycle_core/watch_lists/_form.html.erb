@@ -61,7 +61,7 @@
             <div class="v-select">
               <%= f.label :user_id, DataCycleCore::WatchList.human_attribute_name(:user_id, locale: active_ui_locale) %>
               <%= hidden_field_tag 'watch_list[user_id]', nil, id: 'hidden_watch_list_user_id' %>
-              <%= select_tag('watch_list[user_id]', options_for_select(DataCycleCore::User.includes(:role).where.not(roles: { rank: 0 }).map { |c| [c.full_name, c.id, { title: c.email }] }, content.user&.id), { class: 'single-select', data: { allow_clear: false } }) %>
+              <%= select_tag('watch_list[user_id]', options_for_select(DataCycleCore::User.includes(:role, :user_groups).order(email: :asc).filter { |u| u.can?(:create, DataCycleCore::WatchList) }.map { |c| [c.full_name, c.id, { title: c.email }] }, content.user&.id), { class: 'single-select', data: { allow_clear: false } }) %>
             </div>
           </div>
         <% end %>

@@ -68,6 +68,54 @@ module DataCycleCore
           def content_classification_for_tree(virtual_definition:, content:, **_args)
             content.classifications_for_tree(tree_name: virtual_definition['tree_label'])
           end
+
+          def attribute_value_by_first_match(virtual_definition:, content:, **_args)
+            Array.wrap(virtual_definition.dig('virtual', 'value')).each do |config|
+              value = get_value_by_filter(content, config['attribute'].split('.'), config['filter'])
+
+              return value if DataCycleCore::DataHashService.present?(value)
+            end
+
+            nil
+          end
+
+          private
+
+          def get_value_by_filter(content, path, filter)
+            I18n.with_locale(content.respond_to?(:first_available_locale) ? content.first_available_locale : I18n.locale) do
+              key, *new_path = path
+
+              return content.send(key) if new_path.blank? && DataCycleCore::DataHashService.present?(content.try(key))
+              return unless key.in?(content.embedded_property_names + content.linked_property_names + content.classification_property_names)
+
+              content.try(key)&.each do |item|
+                next if filter.present? && new_path.one? && !content_in_filter?(item, filter)
+
+                value = get_value_by_filter(item, new_path, filter)
+
+                next if DataCycleCore::DataHashService.blank?(value)
+
+                return value
+              end
+
+              nil
+            end
+          end
+
+          def content_in_filter?(content, filter)
+            Array.wrap(filter).each do |config|
+              in_filter = case config['type']
+                          when 'classification'
+                            content.classification_aliases.joins(:classification_alias_path).exists?(classification_alias_path: { full_path_names: config['value'].split('>').map(&:strip).reverse })
+                          else
+                            content.try(config['type']) == config['value']
+                          end
+
+              return false unless in_filter
+            end
+
+            true
+          end
         end
       end
     end

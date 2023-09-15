@@ -53,7 +53,9 @@ module DataCycleCore
         def timeseries
           content = DataCycleCore::Thing.find(timeseries_params[:content_id] || timeseries_params[:id])
 
-          @renderer = DataCycleCore::ApiRenderer::TimeseriesRenderer.new(content:, **timeseries_params.slice(:timeseries, :group_by, :time, :data_format).to_h.deep_symbolize_keys)
+          raise CanCan::AccessDenied unless DataCycleCore::StoredFilter.new.apply_user_filter(current_user, { scope: 'api' }).apply(skip_ordering: true).query.exists?(id: content.id)
+
+          @renderer = DataCycleCore::ApiRenderer::TimeseriesRenderer.new(content: content, **timeseries_params.slice(:timeseries, :group_by, :time, :data_format).to_h.deep_symbolize_keys)
 
           case permitted_params[:format].to_sym
           when :json
@@ -120,6 +122,22 @@ module DataCycleCore
           end
         end
 
+        def select_by_external_keys
+          external_system_id = DataCycleCore::ExternalSystem.find_by(identifier: permitted_params[:external_source_id])&.id || permitted_params[:external_source_id]
+
+          external_keys = permitted_params[:external_keys]&.split(',')
+          if external_keys.present? && external_keys.is_a?(::Array) && external_keys.size.positive?
+            query = DataCycleCore::Thing
+              .by_external_key(external_system_id, external_keys)
+              .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
+
+            @contents = apply_paging(query)
+            render 'index'
+          else
+            render json: { error: 'No ids given!' }, layout: false, status: :bad_request
+          end
+        end
+
         def typeahead
           query = build_search_query
           result = query.typeahead(permitted_params[:search], @language, permitted_params[:limit] || 10)
@@ -162,7 +180,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :uuids, :search, :limit, uuid: [], filter: {}, 'dc:liveData': [:'@id', :minPrice]]
+          super + [:id, :language, :uuids, :external_source_id, :external_keys, :search, :limit, uuid: [], filter: {}, 'dc:liveData': [:'@id', :minPrice]]
         end
 
         def permitted_filter_parameters

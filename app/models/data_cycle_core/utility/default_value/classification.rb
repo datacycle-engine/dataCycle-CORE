@@ -53,6 +53,20 @@ module DataCycleCore
             )
           end
 
+          def copy_from_string(property_definition:, data_hash:, **_additional_args)
+            names = Array.wrap(property_definition.dig('default_value', 'parameters')).map { |path|
+              data_hash.dig(*path.split('.'))
+            }.flatten.uniq
+
+            query = DataCycleCore::ClassificationAlias
+              .for_tree(property_definition['tree_label'])
+              .with_internal_name(names)
+              .primary_classifications
+            query = query.limit(1) if property_definition.dig('validations', 'max') == 1
+
+            query.pluck(:id)
+          end
+
           private
 
           def transform_path(path, content)

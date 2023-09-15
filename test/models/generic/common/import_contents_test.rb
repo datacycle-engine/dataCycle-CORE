@@ -50,7 +50,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
 
   let :utility_object do
     Struct.new('UtilityObjectDummy', :external_source).new(
-      Struct.new('ExternalSystemDummy', :id).new('53a82828-d3aa-4765-99ca-7aef176de1c2')
+      Struct.new('ExternalSystemDummy', :id, :default_options).new('53a82828-d3aa-4765-99ca-7aef176de1c2', {})
     )
   end
 

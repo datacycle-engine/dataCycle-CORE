@@ -93,7 +93,7 @@ module DataCycleCore
               I18n.with_locale(target_locale) do
                 if content.translation_type.present?
                   next if content.translation_type != 'automatic'
-                  next if content.modified >= source_data.dig('modified')
+                  next if source_data.dig('modified').blank? || content.modified >= source_data.dig('modified') # [TODO] check if source_data.dig('modified') should be allowed to be blank, and what should happen in this case
                 end
 
                 data = endpoint.translate({

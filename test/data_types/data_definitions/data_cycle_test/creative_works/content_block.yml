@@ -12,7 +12,7 @@
       :name:
         :label: Überschrift
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
       :alternative_headline:
         :label: Unterüberschrift

@@ -11,11 +11,14 @@
 
         next unless a_definition.present?
 
+        value = template.default_value(a_key.first.attribute_name_from_key, current_user, data_hash)
+        value = local_assigns[:search_param] if a_key.first == 'name' && local_assigns[:search_param].present? && !a_definition&.dig('default_value', 'override_search_param')
+
         concat render_attribute_editor(
           content: template,
           key: a_key,
           prefix: DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX,
-          value: a_key.first == 'name' && local_assigns[:search_param].present? ? local_assigns[:search_param] : template.default_value(a_key.first.attribute_name_from_key, current_user, data_hash),
+          value: value,
           definition: a_definition,
           parameters: { options: { edit_scope: 'new' }.merge(local_assigns[:options] || {}) }
         )

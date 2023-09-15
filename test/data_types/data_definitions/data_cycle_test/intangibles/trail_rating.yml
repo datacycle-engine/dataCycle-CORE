@@ -12,7 +12,7 @@
       :name:
         :label: Bezeichnung
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
         :ui:
           :attribute_group: trail_rating_one_line

@@ -12,14 +12,14 @@
       :name:
         :label: Titel
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
         :api:
           :minimal: true
       :elevation:
         :label: Meereshöhe (m)
         :type: number
-        :storage_location: column
+        :storage_location: value
         :validations:
           :format: float
         :api:

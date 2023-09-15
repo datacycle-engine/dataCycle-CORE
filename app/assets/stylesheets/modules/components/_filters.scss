@@ -867,7 +867,8 @@ $filter-border: #aaa;
           }
         }
 
-        &.remove-advanced-filter {
+        &.remove-advanced-filter,
+        &.remove-hidden-filter {
           color: $alert-color;
 
           &:hover {

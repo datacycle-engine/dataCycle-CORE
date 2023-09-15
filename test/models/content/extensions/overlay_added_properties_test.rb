@@ -54,7 +54,7 @@ module DataCycleCore
       thing = create_thing_with_overlay
       assert_equal('Test-Thing-With-Overlay', thing.name)
       assert_equal('Test Overlay', thing.name_overlay)
-      assert_nil(thing.description) # no exception as it is handled by active_record
+      assert_raise(NoMethodError) { thing.description }
       assert_raise(NoMethodError) { thing.description_overlay }
     end
 

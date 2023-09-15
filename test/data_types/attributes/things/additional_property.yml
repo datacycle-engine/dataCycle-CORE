@@ -12,7 +12,7 @@
       :name:
         :label: name
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
       :text:
         :label: text
         :type: string
@@ -41,7 +41,7 @@
       :name:
         :label: name
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
       :add1:
         :label: add1
         :type: string

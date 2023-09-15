@@ -13,12 +13,12 @@
       :name:
         :label: Titel
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
       :description:
         :label: Teasertext
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
         :ui:
           :edit:
@@ -37,11 +37,11 @@
           :created_at:
             :label: Gültigkeit
             :type: datetime
-            :storage_location: column
+            :storage_location: value
           :updated_at:
             :label: bis
             :type: datetime
-            :storage_location: column
+            :storage_location: value
 
 - :data:
     :name: Nested-Included-Object-Creative-Work
@@ -57,7 +57,7 @@
       :name:
         :label: Titel
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
       :period:
         :label: Gültigkeitszeitraum
@@ -71,11 +71,11 @@
           :created_at:
             :label: Gültigkeit
             :type: datetime
-            :storage_location: column
+            :storage_location: value
           :updated_at:
             :label: bis
             :type: datetime
-            :storage_location: column
+            :storage_location: value
           :description:
             :label: Beschreibung
             :type: string

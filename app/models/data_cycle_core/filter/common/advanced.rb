@@ -161,7 +161,7 @@ module DataCycleCore
           reflect(
             @query.where(
               DataCycleCore::Thing::Translation.where(
-                thing_translations[:name].lower.matches(search_value.downcase.to_s)
+                in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s)
                   .and(thing_translations[:locale].in(@locale))
                   .and(thing[:id].eq(thing_translations[:thing_id]))
               ).arel.exists
@@ -175,7 +175,7 @@ module DataCycleCore
           reflect(
             @query.where.not(
               DataCycleCore::Thing::Translation.where(
-                thing_translations[:name].lower.matches(search_value.downcase.to_s)
+                in_json(thing_translations[:content], 'name').matches(search_value.downcase.to_s)
                   .and(thing_translations[:locale].in(@locale))
                   .and(thing[:id].eq(thing_translations[:thing_id]))
               ).arel.exists
@@ -189,7 +189,7 @@ module DataCycleCore
           reflect(
             @query.where(
               DataCycleCore::Thing::Translation.where(
-                thing_translations[:name].lower.matches("%#{search_value}%")
+                in_json(thing_translations[:content], 'name').matches("%#{search_value}%")
                   .and(thing_translations[:locale].in(@locale))
                   .and(thing[:id].eq(thing_translations[:thing_id]))
               ).arel.exists
@@ -203,7 +203,7 @@ module DataCycleCore
           reflect(
             @query.where.not(
               DataCycleCore::Thing::Translation.where(
-                thing_translations[:name].lower.matches("%#{search_value}%")
+                in_json(thing_translations[:content], 'name').matches("%#{search_value}%")
                   .and(thing_translations[:locale].in(@locale))
                   .and(thing[:id].eq(thing_translations[:thing_id]))
               ).arel.exists
@@ -216,7 +216,7 @@ module DataCycleCore
           reflect(
             @query.where.not(
               DataCycleCore::Thing::Translation.where(
-                thing_translations[:name].eq(nil)
+                in_json(thing_translations[:content], 'name').eq(nil)
                   .and(thing_translations[:locale].in(@locale))
                   .and(thing[:id].eq(thing_translations[:thing_id]))
               ).arel.exists
@@ -229,7 +229,7 @@ module DataCycleCore
           reflect(
             @query.where(
               DataCycleCore::Thing::Translation.where(
-                thing_translations[:name].eq(nil)
+                in_json(thing_translations[:content], 'name').eq(nil)
                   .and(thing_translations[:locale].in(@locale))
                   .and(thing[:id].eq(thing_translations[:thing_id]))
               ).arel.exists

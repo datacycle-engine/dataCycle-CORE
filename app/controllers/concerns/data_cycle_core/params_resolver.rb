@@ -34,6 +34,8 @@ module DataCycleCore
           end
         elsif value.is_a?(::Hash) && value.key?('value') && value.key?('class')
           return_hash[key] = value['class'].safe_constantize.new(value['value'])
+        elsif value.is_a?(::Hash) && value.key?('class') && value.except('class').blank?
+          return_hash[key] = nil
         elsif value.is_a?(::Hash)
           return_hash[key] = resolve_params(value, resolve_instances, false).with_indifferent_access
         else
