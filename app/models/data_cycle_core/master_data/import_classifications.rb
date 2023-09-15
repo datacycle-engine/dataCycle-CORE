@@ -97,7 +97,7 @@ module DataCycleCore
           updated_data.update(update_hash)
         else
           # new Alias, create respective tree-entry
-          updated_data = DataCycleCore::ClassificationAlias.create(name: data, internal: internal, seen_at: Time.zone.now, description: description, uri: uri)
+          updated_data = DataCycleCore::ClassificationAlias.create(name: data, internal:, seen_at: Time.zone.now, description:, uri:)
 
           DataCycleCore::ClassificationTree.create(
             classification_alias_id: updated_data.id,

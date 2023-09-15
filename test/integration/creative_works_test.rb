@@ -34,7 +34,7 @@ module DataCycleCore
         referer: root_path
       }
 
-      content = DataCycleCore::Thing.where_translated_value(name: name).first
+      content = DataCycleCore::Thing.where_translated_value(name:).first
 
       assert_redirected_to edit_thing_path(content)
       # assert_equal 1, content.quotation.size

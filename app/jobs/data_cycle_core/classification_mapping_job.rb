@@ -21,7 +21,7 @@ module DataCycleCore
     end
 
     def perform(id, classification_ids)
-      ca = DataCycleCore::ClassificationAlias.find_by(id: id)
+      ca = DataCycleCore::ClassificationAlias.find_by(id:)
 
       return if ca.nil?
 
@@ -45,7 +45,7 @@ module DataCycleCore
       end
 
       if to_insert.present? || to_delete.present? ? ca.update(updated_at: Time.zone.now) : true
-        ActionCable.server.broadcast('classification_update', { type: 'unlock', id: id })
+        ActionCable.server.broadcast('classification_update', { type: 'unlock', id: })
       else
         ActionCable.server.broadcast('classification_update', { type: 'error', id: })
       end

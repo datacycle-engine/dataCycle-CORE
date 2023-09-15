@@ -32,6 +32,10 @@ PATH
       mobility
       mongoid (~> 7.0.6)
       multi_json
+      net-ftp
+      net-imap
+      net-pop
+      net-smtp
       nokogiri
       pHash
       pdf-reader
@@ -337,6 +341,9 @@ GEM
     multi_json (1.15.0)
     multi_xml (0.6.0)
     multipart-post (2.2.3)
+    net-ftp (0.2.0)
+      net-protocol
+      time
     net-imap (0.3.7)
       date
       net-protocol
@@ -537,6 +544,8 @@ GEM
       multi_json (~> 1.8)
     taglib-ruby (1.1.2)
     thor (1.2.2)
+    time (0.2.2)
+      date
     timeout (0.4.0)
     transproc (1.1.1)
     ttfunk (1.7.0)
@@ -607,7 +616,7 @@ DEPENDENCIES
   web-console
 
 RUBY VERSION
-   ruby 2.7.1p83
+   ruby 3.2.2p53
 
 BUNDLED WITH
    2.4.19

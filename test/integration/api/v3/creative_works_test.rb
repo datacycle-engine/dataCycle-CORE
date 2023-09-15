@@ -28,7 +28,7 @@ module DataCycleCore
           }
           assert_equal 'Artikel wurde erfolgreich erstellt.', flash[:success]
 
-          content = DataCycleCore::Thing.where_translated_value(name: name).first
+          content = DataCycleCore::Thing.where_translated_value(name:).first
 
           get api_v3_thing_path(id: content)
 

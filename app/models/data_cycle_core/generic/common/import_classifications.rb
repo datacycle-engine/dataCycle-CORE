@@ -181,13 +181,13 @@ module DataCycleCore
             if classification_data[:external_key].blank?
               classification = DataCycleCore::Classification
                 .find_or_initialize_by(
-                  external_source_id: external_source_id,
+                  external_source_id:,
                   name: classification_data[:name]
                 )
             else
               classification = DataCycleCore::Classification
                 .find_or_initialize_by(
-                  external_source_id: external_source_id,
+                  external_source_id:,
                   external_key: classification_data[:external_key]
                 ) do |c|
                   c.name = classification_data[:name]
@@ -196,18 +196,18 @@ module DataCycleCore
 
             if classification.new_record?
               classification_alias = DataCycleCore::ClassificationAlias.create!(
-                external_source_id: external_source_id,
+                external_source_id:,
                 **classification_data.slice(:name, :description, :uri, :classification_polygons_attributes, :assignable)
               )
 
               DataCycleCore::ClassificationGroup.create!(
-                classification: classification,
-                classification_alias: classification_alias,
-                external_source_id: external_source_id
+                classification:,
+                classification_alias:,
+                external_source_id:
               )
 
               tree_label = DataCycleCore::ClassificationTreeLabel.find_or_create_by(
-                external_source_id: external_source_id,
+                external_source_id:,
                 name: classification_data[:tree_name]
               ) do |item|
                 item.visibility = DataCycleCore.default_classification_visibilities
@@ -216,7 +216,7 @@ module DataCycleCore
               DataCycleCore::ClassificationTree.create!(
                 {
                   classification_tree_label: tree_label,
-                  parent_classification_alias: parent_classification_alias,
+                  parent_classification_alias:,
                   sub_classification_alias: classification_alias
                 }
               )

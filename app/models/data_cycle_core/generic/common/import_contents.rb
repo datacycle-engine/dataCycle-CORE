@@ -62,11 +62,11 @@ module DataCycleCore
           return if raw_data.keys.size == 1 && raw_data.keys.first.in?(['id', '@id'])
 
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
-            utility_object: utility_object,
-            raw_data: raw_data,
+            utility_object:,
+            raw_data:,
             transformation: transformation.call(transformation.parameters.dig(0, 1).to_s.end_with?('_id') ? utility_object.external_source.id : utility_object.external_source),
             default: { template: template_name },
-            config: config
+            config:
           )
         end
       end

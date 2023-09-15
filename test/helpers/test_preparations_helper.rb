@@ -146,7 +146,7 @@ module DataCycleCore
       data_hash = data_hash.dup.with_indifferent_access
 
       @content  = DataCycleCore::Thing
-        .where({ template_name: template_name })
+        .where({ template_name: })
         .where_value(data_hash.slice('given_name', 'family_name'))
         .where_translated_value(data_hash.slice('name'))
         .first
