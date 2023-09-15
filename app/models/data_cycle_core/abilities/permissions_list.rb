@@ -79,8 +79,16 @@ module DataCycleCore
       def definition_to_segment(definition)
         return segment(definition).new unless definition.is_a?(::Hash)
 
-        binding.pry
-        segment(definition.keys.first).new(*definition.values.first)
+        definition_values = definition.values.first
+        if definition_values.last.is_a?(::Hash)
+          if definition_values.length > 1
+            segment(definition.keys.first).new(*definition_values[0..-2], **definition_values[-1])
+          else
+            segment(definition.keys.first).new(**definition_values[0])
+          end
+        else
+          segment(definition.keys.first).new(*definition_values)
+        end
       end
 
       def self.filtered_list(user)
