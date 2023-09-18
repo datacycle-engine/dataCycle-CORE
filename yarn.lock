@@ -2424,7 +2424,7 @@ videojs-vtt.js@^0.15.5:
   dependencies:
     global "^4.3.1"
 
-vite-plugin-ruby@^3.2.2:
+vite-plugin-ruby@^3.2.0:
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/vite-plugin-ruby/-/vite-plugin-ruby-3.2.2.tgz#a174bc435b11350cfcb1b976342ca740d0bcaed2"
   integrity sha512-cuHG1MajRWPR8YdfF6lvgsQRnKFEBRwZF//asFbRiI1psacxB5aPlHSvYZYxAu5IflrAa0MdR0HxEq+g98M3iQ==
@@ -2432,7 +2432,7 @@ vite-plugin-ruby@^3.2.2:
     debug "^4.3.4"
     fast-glob "^3.2.12"
 
-vite@^4.4.9:
+vite@^4.3.0:
   version "4.4.9"
   resolved "https://registry.yarnpkg.com/vite/-/vite-4.4.9.tgz#1402423f1a2f8d66fd8d15e351127c7236d29d3d"
   integrity sha512-2mbUn2LlUmNASWwSCNSJ/EG2HuSRTnVNaydp6vMCm5VIqJsjMfbIWtbH2kDuwUVW5mMUKKZvGPX/rqeqVvv1XA==
