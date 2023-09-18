@@ -1,6 +1,7 @@
 ########################################################################
 ######################### DOCKER setup for DC core
 
+# @todo: update to latest ruby image in gitlab-utility
 include:
   - project: 'datacycle/utilities/datacycle-gitlab'
     ref: feature/ruby_3
