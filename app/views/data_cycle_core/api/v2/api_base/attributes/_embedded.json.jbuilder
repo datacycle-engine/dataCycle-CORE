@@ -13,7 +13,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
                 json.content_partial! 'context', content: translated_object
                 ordered_api_properties(validation: translated_object.schema).each do |key, prop|
                   object_value = translated_object.try(key.to_sym)
-                  partial_params = render_api_attribute key: key, definition: prop, value: object_value, parameters: { options: }, content: translated_object
+                  partial_params = render_api_attribute key: key, definition: prop, value: object_value, parameters: { options: options }, content: translated_object
                   json.partial!(*partial_params) unless partial_params.nil?
                 end
               end
@@ -28,7 +28,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
             json.content_partial! 'context', content: object
             ordered_api_properties(validation: object.schema).each do |key, prop|
               object_value = object.try(key.to_sym)
-              partial_params = render_api_attribute key: key, definition: prop, value: object_value, parameters: { options: }, content: object
+              partial_params = render_api_attribute key: key, definition: prop, value: object_value, parameters: { options: options }, content: object
               json.partial!(*partial_params) unless partial_params.nil?
             end
           end

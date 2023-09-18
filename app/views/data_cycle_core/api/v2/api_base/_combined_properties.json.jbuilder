@@ -47,7 +47,7 @@ combined.each do |combined_key, combined_value|
   else
     json.set! combined_key do
       json.array!(combined_value['items']) do |key, definition|
-        partial_params = render_api_attribute key: key, definition: definition, value: content.try(key.to_sym), parameters: { options: }, content: content
+        partial_params = render_api_attribute key: key, definition: definition, value: content.try(key.to_sym), parameters: { options: options }, content: content
         json.partial!(*partial_params) unless partial_params.nil?
       end
     end

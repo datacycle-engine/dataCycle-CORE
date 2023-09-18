@@ -309,7 +309,6 @@ module DataCycleCore
       authorize! :history, @content
 
       @source_locale = @diff_source.last_updated_locale || @diff_source.first_available_locale
-
       I18n.with_locale(@source_locale) do
         @target_locale = @content.last_updated_locale || @content.first_available_locale
         I18n.with_locale(@target_locale) { @data_schema = @content.get_data_hash }

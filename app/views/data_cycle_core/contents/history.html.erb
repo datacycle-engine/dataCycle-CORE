@@ -55,7 +55,7 @@
                                               definition: prop,
                                               value: @diff_source.try(key.to_sym),
                                               parameters: {
-                                                options: object_viewer_history_options({
+                                                options: object_viewer_history_options(**{
                                                   object: @diff_source,
                                                   key: key,
                                                   options: { compare: true, force_render: true }.stringify_keys,

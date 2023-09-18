@@ -93,6 +93,10 @@ Style/Documentation:
 Style/EmptyMethod:
   EnforcedStyle: expanded
 
+Style/HashSyntax:
+  Exclude:
+    - 'app/views/data_cycle_core/api/v2/api_base/**/*'
+
 Style/MixinUsage:
   Exclude:
     - 'bin/setup'

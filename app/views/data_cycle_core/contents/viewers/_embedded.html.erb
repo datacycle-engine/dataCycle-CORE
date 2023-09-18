@@ -59,7 +59,7 @@
 
         <div class="accordion-content remote-render" data-tab-content
         data-remote-path="data_cycle_core/contents/viewers/embedded/default"
-        data-remote-options="<%= to_query_params(local_assigns.merge({ object: object, index: index, locale: I18n.locale, options: merged_options, diff_target: changes_by_mode(changes_by_value_hash, '~').present? ? diff_target_by_id(local_assigns.merge({ object: object })) : nil })).to_json %>">
+        data-remote-options="<%= to_query_params(local_assigns.merge({ object: object, index: index, locale: I18n.locale, options: merged_options, diff_target: changes_by_mode(changes_by_value_hash, '~').present? ? diff_target_by_id(**local_assigns.merge({ object: object })) : nil })).to_json %>">
         </div>
       <% end %>
     <% end %>

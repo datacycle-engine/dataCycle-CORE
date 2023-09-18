@@ -83,7 +83,7 @@ module DataCycleCore
         allowed = attribute_editor_allowed(options)
         return allowed unless allowed.is_a?(TrueClass)
 
-        render_untranslatable_attribute_editor options.to_h
+        render_untranslatable_attribute_editor(**options.to_h)
       end
     end
 

@@ -25,7 +25,7 @@
       <% end %>
 
       <% mode_changes = changes_by_mode(changes_by_value(options.dig('item_diff'), diff_target_id(publication)), '~') %>
-      <% publication_changes = publication.diff(diff_target_by_id(local_assigns.merge({ object: publication }))&.get_data_hash) if mode_changes.present? %>
+      <% publication_changes = publication.diff(diff_target_by_id(**local_assigns.merge({ object: publication }))&.get_data_hash) if mode_changes.present? %>
 
       <div class="publication-row detail-type embedded <%= changes_class(options.dig('item_diff'), publication.try('thing_id') || publication.id) %>">
         <% date_changes = attribute_changes(publication, publication_changes, 'publish_at') if mode_changes.present? %>

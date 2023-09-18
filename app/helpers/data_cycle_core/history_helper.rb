@@ -316,7 +316,7 @@ module DataCycleCore
     end
 
     def diff_target_by_id(object:, **args)
-      diff_objects = diff_target_by_key(args)
+      diff_objects = diff_target_by_key(**args)
 
       return if diff_objects.nil?
 
