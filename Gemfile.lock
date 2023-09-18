@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    data_cycle_core (23.08)
+    data_cycle_core (23.09)
       activerecord-postgis-adapter
       acts_as_paranoid
       acts_as_tree
