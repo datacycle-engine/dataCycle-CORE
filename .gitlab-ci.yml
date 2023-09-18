@@ -3,7 +3,7 @@
 
 include:
   - project: 'datacycle/utilities/datacycle-gitlab'
-    ref: master
+    ref: feature/ruby_3
     file: '.gitlab-ci-dc-common.yml'
 
 stages:
@@ -23,6 +23,7 @@ before_script:
   only:
     - develop
     - master
+    - feature/ruby_3
   tags:
     - dc-opensource
 
