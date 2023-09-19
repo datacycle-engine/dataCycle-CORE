@@ -53,9 +53,8 @@ stages:
     - bundle install
     - yarn
     - yarn upgrade
-    - bundle exec rake -T
-    - bundle exec vite
-    - bundle exec app:vite
+    - bundle exec vite:info
+    - bundle exec app:vite:info
     - bundle exec rake db:drop
     - bundle exec rake db:create
     - bundle exec rake db:migrate
