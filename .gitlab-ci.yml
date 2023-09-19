@@ -56,8 +56,6 @@ stages:
     - yarn
     - yarn upgrade
     - bundle exec rake -T
-    - node_modules/.bin/vite info
-    - bundle exec rake app:vite:build
     - bundle exec rake db:drop
     - bundle exec rake db:create
     - bundle exec rake db:migrate
@@ -70,4 +68,6 @@ rails_test:
   <<: *master_ci
   extends: .rails_test_config
   variables:
-    CORE_RAKE_PREFIX: 'app:'
+    # CORE_RAKE_PREFIX: 'app:'
+    VITE_RUBY_VITE_BIN_PATH: 'node_modules/.bin/vite'
+    RAILS_ENV: 'test'
