@@ -5,7 +5,7 @@ module ActiveJobMetricsExtension
     # rubocop:disable Security/YAMLLoad, Style/GuardClause
     ActiveSupport::Notifications.instrument 'job_succeeded.datacycle', this: {
       job_queue: job.queue,
-      job_class: YAML.load(job.handler, permitted_classes: [Symbol]).class.name,
+      job_class: YAML.load(job.handler, permitted_classes: [Symbol, ActiveJob::QueueAdapters::DelayedJobAdapter::JobWrapper]).class.name,
       waiting_time: job.created_at ? (Time.zone.now - job.created_at) / 60 : nil,
       attempt_count: job.attempts
     }
