@@ -17,8 +17,10 @@ before_script:
   - bundle config set --local path 'cache/bundler'
   - bundle install
   - export RUBYOPT="-W:no-deprecated -W:no-experimental"
-  - yarn
-  - yarn upgrade
+  - NODE_ENV=development yarn
+  - NODE_ENV=development yarn upgrade
+  - whereis yarn
+  - yarn list
 
 ########################################################################
 ######################### Branch Configuration
