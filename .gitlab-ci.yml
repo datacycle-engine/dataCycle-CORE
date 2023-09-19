@@ -21,6 +21,9 @@ before_script:
   - yarn upgrade
   - whereis vite
   - env
+  - ls -la
+  - ls node_modules
+  - ls node_modules/.bin
 
 ########################################################################
 ######################### Branch Configuration
@@ -47,3 +50,5 @@ code_validation:
 rails_test:
   <<: *master_ci
   extends: .rails_test_config
+  variables:
+    VITE_RUBY_VITE_BIN_PATH: 'node_modules/.bin/vite'
