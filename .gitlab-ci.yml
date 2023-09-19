@@ -55,6 +55,9 @@ stages:
     - bundle list
     - yarn
     - yarn upgrade
+    - ls -la
+    - ls -la cache/bundler
+    - ls -la node_modules
     - bundle exec rake -T
     - bundle exec rake db:drop
     - bundle exec rake db:create
