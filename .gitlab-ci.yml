@@ -55,6 +55,7 @@ stages:
     - yarn
     - yarn upgrade
     - bundle exec rake -T
+    - node_modules/.bin/vite info
     - bundle exec rake app:vite:build
     - bundle exec rake db:drop
     - bundle exec rake db:create
