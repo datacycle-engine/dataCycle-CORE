@@ -60,7 +60,7 @@ stages:
     - bundle exec rake db:create
     - bundle exec rake db:migrate
     - bundle exec rake db:seed
-    - RUBYOPT=-W0 bundle exec rails test -b -f --pride
+    - VITE_RUBY_VITE_BIN_PATH=node_modules/.bin/vite RUBYOPT=-W0 bundle exec rails test -b -f --pride
 
 ########################################################################
 ######################### Docker / Develop
