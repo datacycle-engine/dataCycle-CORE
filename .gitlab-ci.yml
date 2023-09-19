@@ -49,6 +49,7 @@ stages:
       alias: mongodb
   script:
     - gem install bundler
+    - bundle --version
     - bundle config set --local path 'cache/bundler'
     - bundle install
     - bundle list
