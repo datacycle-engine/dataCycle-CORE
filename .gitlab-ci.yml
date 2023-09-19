@@ -8,22 +8,7 @@ include:
     file: '.gitlab-ci-dc-common.yml'
 
 stages:
-  - build
-  - check
   - test
-
-before_script:
-  - gem install bundler
-  - bundle config set --local path 'cache/bundler'
-  - bundle install
-  - export RUBYOPT="-W:no-deprecated -W:no-experimental"
-  - yarn
-  - yarn upgrade
-  - whereis vite
-  - env
-  - ls -la
-  - ls node_modules
-  - ls node_modules/.bin
 
 ########################################################################
 ######################### Branch Configuration
@@ -35,20 +20,52 @@ before_script:
   tags:
     - dc-opensource
 
+.local_test_vars: &local_test_vars
+  variables:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: "password"
+    POSTGRES_HOST: postgres
+    POSTGRES_DB: data-cycle-base_test
+    POSTGRES_PORT: "5432"
+    MONGODB_HOST: mongodb
+    #    POSTGRES_VERSION: 13
+    RAILS_ENV: test
+    TZ: Europe/Vienna
+
+.rails_test_config:
+  <<: *local_test_vars
+  extends: .job_cache_config
+  stage: test
+  artifacts:
+    name: "$CI_JOB_NAME"
+    expire_in: 1 week
+    paths:
+      - coverage/
+  services:
+    - name: "git.pixelpoint.biz:5050/datacycle/utilities/datacycle-docker/postgres:latest"
+      alias: postgres
+      command: ["postgres"]
+    - name: mongo:4.4.8-focal
+      alias: mongodb
+  script:
+    - gem install bundler
+    - bundle config set --local path 'cache/bundler'
+    - bundle install
+    - yarn
+    - yarn upgrade
+    - bundle exec rake -T
+    - bundle exec vite
+    - bundle exec app:vite
+    - bundle exec rake db:drop
+    - bundle exec rake db:create
+    - bundle exec rake db:migrate
+    - bundle exec rake db:seed
+    - RUBYOPT=-W0 bundle exec rails test -b -f --pride
+
 ########################################################################
 ######################### Docker / Develop
-build_caches:
-  <<: *master_ci
-  extends: .build_caches_config
-
-code_validation:
-  <<: *master_ci
-  extends: .code_validation_config
-  variables:
-    CORE_RAKE_PREFIX: 'app:'
-
 rails_test:
   <<: *master_ci
   extends: .rails_test_config
   variables:
-    VITE_RUBY_VITE_BIN_PATH: 'node_modules/.bin/vite'
+    CORE_RAKE_PREFIX: 'app:'
