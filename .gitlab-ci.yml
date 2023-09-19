@@ -12,11 +12,11 @@ stages:
   - check
   - test
 
-# before_script:
-#   - gem install bundler
-#   - bundle config set --local path 'cache/bundler'
-#   - bundle install
-#   - export RUBYOPT="-W:no-deprecated -W:no-experimental"
+before_script:
+  - gem install bundler
+  - bundle config set --local path 'cache/bundler'
+  - bundle install
+  - export RUBYOPT="-W:no-deprecated -W:no-experimental"
 
 ########################################################################
 ######################### Branch Configuration
