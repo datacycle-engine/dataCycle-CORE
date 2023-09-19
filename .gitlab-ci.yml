@@ -51,11 +51,11 @@ stages:
     - gem install bundler
     - bundle config set --local path 'cache/bundler'
     - bundle install
+    - bundle list
     - yarn
     - yarn upgrade
     - bundle exec rake -T
-    - bundle exec rake vite:info
-    - bundle exec rake app:vite:info
+    - bundle exec rake vite:build
     - bundle exec rake db:drop
     - bundle exec rake db:create
     - bundle exec rake db:migrate
