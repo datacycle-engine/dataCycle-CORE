@@ -52,18 +52,14 @@ stages:
     - bundle --version
     - bundle config set --local path 'cache/bundler'
     - bundle install
-    - bundle list
     - yarn
     - yarn upgrade
-    - ls -la
-    - ls -la cache/bundler
-    - ls -la node_modules
     - bundle exec rake -T
     - bundle exec rake db:drop
     - bundle exec rake db:create
     - bundle exec rake db:migrate
     - bundle exec rake db:seed
-    - VITE_RUBY_VITE_BIN_PATH=node_modules/.bin/vite RUBYOPT=-W0 bundle exec rails test -b -f --pride
+    - VITE_RUBY_VITE_BIN_PATH=$(pwd)/node_modules/.bin/vite RUBYOPT=-W0 bundle exec rails test -b -f --pride
 
 ########################################################################
 ######################### Docker / Develop
@@ -71,6 +67,4 @@ rails_test:
   <<: *master_ci
   extends: .rails_test_config
   variables:
-    # CORE_RAKE_PREFIX: 'app:'
-    VITE_RUBY_VITE_BIN_PATH: 'node_modules/.bin/vite'
     RAILS_ENV: 'test'
