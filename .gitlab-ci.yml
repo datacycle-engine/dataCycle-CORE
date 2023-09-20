@@ -1,6 +1,4 @@
-########################################################################
-######################### DOCKER setup for DC core
-
+# gitlab-ci setup
 include:
   - project: 'datacycle/utilities/datacycle-gitlab'
     ref: master
