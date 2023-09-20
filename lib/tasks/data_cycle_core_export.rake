@@ -33,11 +33,13 @@ namespace :data_cycle_core do
 
       webhook_class.new(
         data: contents.first,
-        type: 'update',
         method: (external_system.config.dig('export_config', 'update', 'method') || external_system.config.dig('export_config', 'method') || :put).to_sym,
+        body: nil,
+        endpoint: utility_object.endpoint,
         transformation: external_system.config.dig('export_config', 'update', 'transformation') || external_system.config.dig('export_config', 'transformation') || :json_partial,
         path: utility_object.endpoint.path_transformation(contents.first, external_system, 'update'),
         utility_object: utility_object,
+        type: 'update',
         locale: I18n.locale
       ).perform
     end
