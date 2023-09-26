@@ -607,7 +607,7 @@ DEPENDENCIES
   rgeo-proj4
   rubocop (= 1.39.0)
   rubocop-ast
-  rubocop-minitest (>= 0.23.0)
+  rubocop-minitest (= 0.31.1)
   rubocop-performance
   rubocop-rails (= 2.15.2)
   rubocop-rake

@@ -4,7 +4,7 @@ inherit_from: .rubocop_todo.yml
 require:
   - rubocop-performance
   - rubocop-rails
-  - rubocop-minitest
+  # - rubocop-minitest
   - rubocop-rake
 
 AllCops:
@@ -221,50 +221,50 @@ Rake/MethodDefinitionInTask:
 
 #######################################################
 ########## Minitest
-Minitest/AssertInDelta:
-  Enabled: false
+# Minitest/AssertInDelta:
+#   Enabled: false
 
-Minitest/AssertTruthy:
-  Enabled: false
+# Minitest/AssertTruthy:
+#   Enabled: false
 
-Minitest/AssertNil:
-  Enabled: false
+# Minitest/AssertNil:
+#   Enabled: false
 
-Minitest/RefuteFalse:
-  Enabled: false
+# Minitest/RefuteFalse:
+#   Enabled: false
 
-Minitest/RefuteEqual:
-  Enabled: false
+# Minitest/RefuteEqual:
+#   Enabled: false
 
-Minitest/AssertWithExpectedArgument:
-  Enabled: false
+# Minitest/AssertWithExpectedArgument:
+#   Enabled: false
 
-Minitest/AssertPredicate:
-  Enabled: false
+# Minitest/AssertPredicate:
+#   Enabled: false
 
-Minitest/AssertEmptyLiteral:
-  Enabled: false
+# Minitest/AssertEmptyLiteral:
+#   Enabled: false
 
-Minitest/MultipleAssertions:
-  Enabled: false
+# Minitest/MultipleAssertions:
+#   Enabled: false
 
-Minitest/AssertEqual:
-  Enabled: false
+# Minitest/AssertEqual:
+#   Enabled: false
 
-Minitest/LiteralAsActualArgument:
-  Enabled: false
+# Minitest/LiteralAsActualArgument:
+#   Enabled: false
 
-Minitest/AssertIncludes:
-  Enabled: false
+# Minitest/AssertIncludes:
+#   Enabled: false
 
-Minitest/AssertionInLifecycleHook:
-  Enabled: false
+# Minitest/AssertionInLifecycleHook:
+#   Enabled: false
 
-Minitest/AssertRespondTo:
-  Enabled: false
+# Minitest/AssertRespondTo:
+#   Enabled: false
 
-Minitest/EmptyLineBeforeAssertionMethods:
-  Enabled: false
+# Minitest/EmptyLineBeforeAssertionMethods:
+#   Enabled: false
 
 #######################################################
 ########## Security
