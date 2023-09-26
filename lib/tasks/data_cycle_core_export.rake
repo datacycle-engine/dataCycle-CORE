@@ -31,7 +31,7 @@ namespace :data_cycle_core do
 
       webhook_class = external_system.export_config.dig(:webhook).constantize
 
-      webhook_class.new(
+      webhook = webhook_class.new(
         data: contents.first.tap { |c| c.updated_at = Time.zone.now },
         method: (external_system.config.dig('export_config', 'update', 'method') || external_system.config.dig('export_config', 'method') || :put).to_sym,
         body: nil,
@@ -41,7 +41,9 @@ namespace :data_cycle_core do
         utility_object: utility_object,
         type: 'update',
         locale: I18n.locale
-      ).perform
+      )
+      webhook.perform
+      webhook.success(webhook)
     end
   end
 end
