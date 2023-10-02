@@ -9,6 +9,7 @@ module DataCycleCore
         def initialize(start_time: Time.zone.now)
           @start_time = start_time
           @outdated_templates = []
+          @contents_without_templates = {}
         end
 
         def update_statistics
@@ -23,10 +24,18 @@ module DataCycleCore
                 count_history: DataCycleCore::Thing::History.where(template_name: template.template_name).count
               })
             end
+
+          @contents_without_templates = {
+            things: DataCycleCore::Thing.where(template_name: nil).count,
+            thing_histories: DataCycleCore::Thing::History.where(template_name: nil).count
+          }
         end
 
         # rubocop:disable Rails/Output
         def render_statistics
+          puts "\nWARNING: things without template found: #{@contents_without_templates[:things]}" if @contents_without_templates[:things].positive?
+          puts "\nWARNING: thing_histories without template found: #{@contents_without_templates[:thing_histories]}" if @contents_without_templates[:thing_histories].positive?
+
           return if @outdated_templates.blank?
 
           puts "\nWARNING: the following templates were not updated:"
