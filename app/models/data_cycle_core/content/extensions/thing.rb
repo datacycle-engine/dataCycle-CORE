@@ -13,7 +13,7 @@ module DataCycleCore
           when 'Person'
             "#{data_hash['given_name']} #{data_hash['family_name']}".presence || "#{given_name} #{family_name}"
           when 'Place'
-            data_hash['name'].presence || name.presence || 'NO_TRANSLATION'
+            data_hash['name'].presence || try(:name).presence || 'NO_TRANSLATION'
           else
             data_hash['name'].presence || try(:name)
           end

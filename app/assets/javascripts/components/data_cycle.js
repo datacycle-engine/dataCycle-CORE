@@ -93,7 +93,7 @@ class DataCycle {
 	flattenParamsRecursive(key, value, params = []) {
 		if (Array.isArray(value))
 			for (const v of value) this.flattenParamsRecursive(`${key}[]`, v, params);
-		else if (typeof value === "object")
+		else if (typeof value === "object" && value !== null && value !== undefined)
 			for (const [k, v] of Object.entries(value))
 				this.flattenParamsRecursive(`${key}[${k}]`, v, params);
 		else params.push([key, value]);

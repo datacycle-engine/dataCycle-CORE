@@ -72,6 +72,7 @@ module DataCycleCore
 
         def validate_properties!(template, prefix)
           template[:properties].each do |key, definition|
+            @template_property_contract.property_name = key
             result_property = @template_property_contract.call(definition)
             merge_errors!(result_property, prefix + [:properties, key])
 

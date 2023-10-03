@@ -226,6 +226,16 @@ module DataCycleCore
   mattr_accessor :external_system_template_paths
   self.external_system_template_paths = []
 
+  mattr_accessor :job_queues
+  self.job_queues = {
+    default: 1,
+    importers: 1,
+    cache_invalidation: 2,
+    search_update: 3,
+    mailers: 1,
+    webhooks: 1
+  }
+
   def self.setup
     yield self
   end

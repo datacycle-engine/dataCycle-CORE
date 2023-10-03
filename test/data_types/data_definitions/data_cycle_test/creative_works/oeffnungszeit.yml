@@ -60,7 +60,7 @@
       :description:
         :label: Text
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :ui:
           :edit:
             :type: text_editor
@@ -200,7 +200,7 @@
       :description:
         :label: Text
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :ui:
           :edit:
             :type: text_editor

@@ -35,7 +35,7 @@ if @classification_tree_label.present?
 
       json.merge! render 'pagination_links',
                          objects: @classification_aliases,
-                         object_url: ->(params) { classifications_api_v4_concept_scheme_url(@api_subversion, @classification_tree_label, params.merge(classification_id: @classification_id)) }
+                         object_url: ->(params) { api_v4_facets_url(@api_subversion, params.merge(classification_id: @classification_id)) }
     end
 
     queue.wait!

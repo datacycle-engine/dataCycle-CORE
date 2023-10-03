@@ -148,6 +148,10 @@ module DataCycleCore
       )
     end
 
+    def self.classification_polygons
+      DataCycleCore::ClassificationPolygon.where(classification_alias_id: all.select(:id))
+    end
+
     def primary_classification_id
       primary_classification&.id
     end
@@ -295,7 +299,7 @@ module DataCycleCore
         if destroy_children
           merge_children_into_self
         else
-          sub_classification_trees.update_all(parent_classification_alias_id: new_classification_alias.id, classification_tree_label_id: new_classification_alias.classification_tree_label)
+          sub_classification_trees.update_all(parent_classification_alias_id: new_classification_alias.id, classification_tree_label_id: new_classification_alias.classification_tree_label.id)
         end
 
         merge_with(new_classification_alias)
@@ -304,9 +308,9 @@ module DataCycleCore
 
     def merge_with(new_classification_alias)
       # update Mappings
-      additional_classification_groups.where.not('EXISTS (SELECT 1 FROM classification_groups cg WHERE cg.classification_id = classification_groups.classification_id AND cg.classification_alias_id = ?)', new_classification_alias.id).update_all(classification_alias_id: new_classification_alias.id)
+      additional_classification_groups.where.not('EXISTS (SELECT 1 FROM classification_groups cg WHERE cg.classification_id = classification_groups.classification_id AND cg.classification_alias_id = ?)', new_classification_alias.id).update_all(classification_alias_id: new_classification_alias.id, created_at: Time.zone.now, updated_at: Time.zone.now)
 
-      primary_classification.additional_classification_groups.where.not('EXISTS (SELECT 1 FROM classification_groups cg WHERE cg.classification_alias_id = classification_groups.classification_alias_id AND cg.classification_id = ?)', new_classification_alias.primary_classification.id).update_all(classification_id: new_classification_alias.primary_classification.id)
+      primary_classification.additional_classification_groups.where.not('EXISTS (SELECT 1 FROM classification_groups cg WHERE cg.classification_alias_id = classification_groups.classification_alias_id AND cg.classification_id = ?)', new_classification_alias.primary_classification.id).update_all(classification_id: new_classification_alias.primary_classification.id, created_at: Time.zone.now, updated_at: Time.zone.now)
 
       # update classification_contents
       primary_classification.classification_contents.where.not('EXISTS (SELECT 1 FROM classification_contents cc WHERE cc.content_data_id = classification_contents.content_data_id AND cc.relation = classification_contents.relation AND cc.classification_id = ?)', new_classification_alias.primary_classification.id).update_all(classification_id: new_classification_alias.primary_classification.id)
@@ -320,7 +324,9 @@ module DataCycleCore
       primary_classification.classification_user_groups.where.not('EXISTS (SELECT 1 FROM classification_user_groups cg WHERE cg.user_group_id = classification_user_groups.user_group_id AND cg.classification_id = ?)', new_classification_alias.primary_classification.id).update_all(classification_id: new_classification_alias.primary_classification.id)
 
       # update stored_filters
-      DataCycleCore::StoredFilter.where('parameters::TEXT ILIKE ?', "%#{id}%").lock('FOR UPDATE SKIP LOCKED').order(:id).update_all("parameters = replace(parameters::text, '#{id}', '#{new_classification_alias.id}')::jsonb")
+      DataCycleCore::StoredFilter
+        .where(id: DataCycleCore::StoredFilter.where('parameters::TEXT ILIKE ?', "%#{id}%").lock('FOR UPDATE SKIP LOCKED').order(:id).select(:id))
+        .update_all("parameters = replace(parameters::text, '#{id}', '#{new_classification_alias.id}')::jsonb")
 
       destroy
 

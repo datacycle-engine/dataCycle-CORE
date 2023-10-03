@@ -28,9 +28,30 @@ function initReveal(element) {
 		return;
 
 	element.classList.add("dcjs-foundation-reveal");
-	new Foundation.Reveal($(element));
 
-	if (element.dataset.initialState === "open") $(element).foundation("open");
+	if (
+		element.hasAttribute("data-delayed-init") &&
+		element.dataset.initialState !== "open"
+	) {
+		setTimeout(() => {
+			const link = document.querySelector(`[data-open="${element.id}"]`);
+
+			link.addEventListener(
+				"click",
+				(e) => {
+					e.preventDefault();
+					e.stopPropagation();
+
+					new Foundation.Reveal($(element));
+					$(element).foundation("open");
+				},
+				{ once: true },
+			);
+		});
+	} else {
+		new Foundation.Reveal($(element));
+		if (element.dataset.initialState === "open") $(element).foundation("open");
+	}
 }
 
 function monitorSizeChanges(element) {

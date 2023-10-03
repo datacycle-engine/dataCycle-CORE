@@ -1,0 +1,15 @@
+<div class="hidden-filters">
+  <% hidden_filters.each do |filter| %>
+    <div class="hidden-filter" data-id="<%= filter['identifier'] %>">
+      <% filter.except('identifier').each do |key, value| %>
+        <% if value.is_a?(::Array) %>
+          <% value.each do |v| %>
+            <%= hidden_field_tag "f[#{filter['identifier']}][#{key}][]", v %>
+          <% end %>
+        <% else %>
+          <%= hidden_field_tag "f[#{filter['identifier']}][#{key}]", value %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

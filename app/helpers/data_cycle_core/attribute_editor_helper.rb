@@ -141,7 +141,7 @@ module DataCycleCore
         label: translated_attribute_label(key, definition, content, options),
         key: key,
         id: "#{options&.dig(:prefix)}#{sanitize_to_id(key)}"
-      }
+      }.merge(definition.dig('ui', 'edit', 'data_attributes')&.symbolize_keys&.transform_values { |v| v.is_a?(::Array) || v.is_a?(::Hash) ? v.to_json : v } || {})
     end
   end
 end

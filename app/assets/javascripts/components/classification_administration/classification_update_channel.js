@@ -86,8 +86,11 @@ class ClassificationUpdateChannel {
 			.querySelector(":scope > .inner-item > i.classification-mappings-queued")
 			?.remove();
 		const nameTag = liElement.querySelector(":scope > .inner-item > a.name");
+		const open = nameTag?.classList?.contains("open");
 		if (nameTag) nameTag.classList.remove("loaded");
-		if (nameTag?.classList?.contains("open")) nameTag.click();
+		if (open) nameTag.click();
+		if (nameTag) nameTag.classList.remove("loaded");
+		if (open) nameTag.click();
 	}
 }
 

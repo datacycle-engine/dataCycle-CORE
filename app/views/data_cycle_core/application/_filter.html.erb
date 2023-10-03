@@ -22,6 +22,8 @@
           <%= render "data_cycle_core/application/filters/sections/#{filter[:type]}", filter: filter, config: filter_config %>
         <% end %>
 
+        <%= render "data_cycle_core/application/filters/sections/hidden", hidden_filters: filter_config[:hidden_filter], config: filter_config if filter_config[:hidden_filter].present? %>
+
         <%= render 'data_cycle_core/application/filters/sections/tag_groups',
                     config: filter_config,
                     filters: @filters,

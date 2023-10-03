@@ -4,6 +4,8 @@ module DataCycleCore
   module MasterData
     module Templates
       class TemplatePropertyContract < DataCycleCore::MasterData::Contracts::GeneralContract
+        attr_accessor :property_name
+
         schema do
           optional(:label) { str? }
           required(:type) do
@@ -162,6 +164,10 @@ module DataCycleCore
 
         rule(:properties) do
           key.failure(:invalid_object) if key? && !(values.dig(:type) == 'object' && ['value', 'translated_value'].include?(values.dig(:storage_location)))
+        end
+
+        rule(:storage_location) do
+          key.failure(:invalid_column) if key? && value == 'column' && ['external_key', 'slug', 'location', 'line', 'geom'].exclude?(property_name.to_s)
         end
       end
     end

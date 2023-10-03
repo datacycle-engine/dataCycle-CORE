@@ -24,7 +24,7 @@ module DataCycleCore
       tour_data_hash[:universal_classifications] = ['Juni'].map { |m| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Monate', m) }
       tour_data_hash.deep_stringify_keys!
 
-      content = DataCycleCore::Thing.find_by(tour_data_hash.slice('name').merge(template_name: 'Tour'))
+      content = DataCycleCore::Thing.where(template_name: 'Tour').where_translated_value(tour_data_hash.slice('name')).first
       return @content if @content.present?
 
       content = DataCycleCore::Thing.new(template_name: 'Tour')

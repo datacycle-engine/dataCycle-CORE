@@ -5,6 +5,8 @@ class RebuildComputedSchemaTypes < ActiveRecord::Migration[6.1]
   # disable_ddl_transaction!
 
   def up
+    return unless column_exists?(:things, :computed_schema_types)
+
     execute <<-SQL.squish
       UPDATE things
       SET cache_valid_since = NOW(),

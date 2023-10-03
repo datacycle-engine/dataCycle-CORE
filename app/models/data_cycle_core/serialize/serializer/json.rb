@@ -24,7 +24,9 @@ module DataCycleCore
 
           def serialize_watch_list(content:, language:, **_options)
             watch_list = content.is_a?(Array) ? content.first : content
-            pagination_contents = watch_list.watch_list_data_hashes.order(created_at: :desc).page(1).per(watch_list.watch_list_data_hashes.count)
+            query = DataCycleCore::Thing.joins(:watch_list_data_hashes).where(watch_list_data_hashes: { watch_list_id: watch_list.id }).order('watch_list_data_hashes.order_a ASC, watch_list_data_hashes.created_at ASC, things.id DESC')
+            pagination_contents = query.page(1).per(query.count)
+
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               [
                 DataCycleCore::Serialize::SerializedData::Content.new(

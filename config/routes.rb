@@ -382,6 +382,7 @@ DataCycleCore::Engine.routes.draw do
                   match '/:external_key/timeseries(/:attribute)', via: [:put, :patch], to: 'external_systems#timeseries'
                   match '/:external_key/:attribute(/:format)', via: [:put, :patch], to: 'external_systems#timeseries', as: 'external_source_timeseries'
                   match '/concepts(/:external_key)', via: [:get, :post], to: 'classification_trees#by_external_key', as: 'classification_trees_by_external_key'
+                  match '/things/select(/:external_keys)', to: 'contents#select_by_external_keys', as: 'things_select_by_external_key', via: [:get, :post]
                   match '/:external_key', via: [:get, :post], to: 'external_systems#show', as: 'external_sources'
                   match '', via: :post, to: 'external_systems#create'
                   match '(/:external_key)', via: [:put, :patch], to: 'external_systems#update', as: 'external_sources_update'
@@ -389,6 +390,8 @@ DataCycleCore::Engine.routes.draw do
                   match '/search/availability', via: [:get, :post], to: 'external_systems#search_availability', as: 'external_source_search_availability'
                   match '/search/additional_service', via: [:get, :post], to: 'external_systems#search_additional_service', as: 'external_source_search_additional_service'
                 end
+
+                match 'external_systems/:external_system_id/things/:id', to: 'external_systems_export#show', via: :get
               end
             end
           end

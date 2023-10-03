@@ -37,7 +37,7 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
             headline: {
               label: 'Arbeitstitel',
               type: 'string',
-              storage_location: 'column',
+              storage_location: 'translated_value',
               search: true,
               validations: { minLength: 1 }
             },
@@ -103,7 +103,7 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
             description: {
               label: 'Teasertext',
               type: 'string',
-              storage_location: 'column',
+              storage_location: 'translated_value',
               search: true
             },
             image: {
@@ -276,7 +276,7 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
       {
         label: 'whatever',
         type: 'string',
-        storage_location: 'column',
+        storage_location: 'translated_value',
         template_name: 'another_template'
       }
     end

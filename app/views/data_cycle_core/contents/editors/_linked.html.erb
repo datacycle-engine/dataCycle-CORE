@@ -26,7 +26,7 @@
       data-options="<%= options.to_json %>"
       data-class="DataCycleCore::Thing"
       data-editable="<%= attribute_editable?(key, definition, options, content) %>"
-      data-table="things"
+      data-template-name="<%= content.template_name %>"
       data-per="<%= DataCycleCore.linked_objects_page_size %>"
       data-objects="<%= value&.ids %>"
       data-content-id="<%= contextual_content(local_assigns).id %>"

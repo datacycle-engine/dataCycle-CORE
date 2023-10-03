@@ -6,7 +6,7 @@
       :given_name:
         :label: Vorname
         :type: string
-        :storage_location: column
+        :storage_location: value
         :search: true
         :normalize:
           :id: forename
@@ -17,7 +17,7 @@
       :family_name:
         :label: Nachname
         :type: string
-        :storage_location: column
+        :storage_location: value
         :search: true
         :validations:
           :required: true
@@ -32,11 +32,11 @@
       :name:
         :label: Name
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :compute:
           :module: Utility::Compute::String
           :method: concat
-          :separator: ' '
+          :separator: " "
           :parameters:
             - given_name
             - family_name

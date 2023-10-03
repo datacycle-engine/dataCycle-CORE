@@ -31,7 +31,6 @@ const initializers = import.meta.glob("./initializers/*.js", {
 });
 import foundationInit from "./initializers/foundation_init";
 import validationInit from "./initializers/validation_init";
-import masonryInit from "./initializers/masonry_init";
 import CustomElementsInit from "./initializers/custom_elements_init";
 import UrlReplacer from "./helpers/url_replacer";
 import CalloutHelpers from "./helpers/callout_helpers";
@@ -40,7 +39,6 @@ const initializerExceptions = [
 	"foundation_init",
 	"validation_init",
 	"app_signal_init",
-	"masonry_init",
 	"custom_elements",
 ];
 
@@ -48,7 +46,6 @@ export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 	DataCycle = window.DataCycle = new DataCycleSingleton(dataCycleConfig);
 
 	UrlReplacer.cleanSearchFormParams();
-	masonryInit();
 	CustomElementsInit();
 
 	try {

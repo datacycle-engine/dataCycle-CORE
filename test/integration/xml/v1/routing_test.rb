@@ -112,7 +112,7 @@ module DataCycleCore
           }
           assert_equal('Artikel wurde erfolgreich erstellt.', flash[:success])
 
-          content = DataCycleCore::Thing.find_by(name: name)
+          content = DataCycleCore::Thing.where_translated_value(name: name).first
 
           get xml_v1_thing_path(id: content)
 

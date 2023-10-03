@@ -92,7 +92,12 @@ module DataCycleCore
     def forward_to_url_with_token(tokens)
       return if forward_to_url.blank?
 
-      "#{forward_to_url}#{tokens&.map { |k, v| "#{k.to_s.camelize(:lower)}=#{v}" }&.join('&')&.prepend(forward_to_url.include?('?') ? '&' : '?')}"
+      uri = URI.parse(forward_to_url.to_s)
+      uri.query = ([uri.query] + tokens.map { |k, v| "#{k.to_s.camelize(:lower)}=#{v}" }).compact.join('&') if tokens.present?
+
+      uri.to_s
+    rescue URI::Error
+      ''
     end
 
     def allowed_webhook_attributes

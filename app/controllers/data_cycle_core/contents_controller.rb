@@ -106,6 +106,8 @@ module DataCycleCore
         rendered_attribute = content.send(attribute)
       end
 
+      raise ActiveRecord::RecordNotFound if rendered_attribute.blank?
+
       uri = URI.parse(rendered_attribute)
       # used for local development and docker env.
       redirect_to(uri.to_s, allow_other_host: true)

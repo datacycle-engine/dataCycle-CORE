@@ -7,6 +7,7 @@ module DataCycleCore
         def available_filters(view:, user:, selected_filters:)
           config = configuration.dig(:config, view).deep_dup || {}
           config[:view_type] = view
+          config[:hidden_filter] = []
           config[:excluded_types] = DataCycleCore.excluded_filter_classifications
 
           transform_filter_configs!(config[:filter] ||= [], user, view)
@@ -32,7 +33,7 @@ module DataCycleCore
         end
 
         def merge_filter_values!(user, config, selected_filters)
-          classification_trees_filters(user, config, selected_filters)
+          classification_trees_filters(user, config, selected_filters) unless config[:view_type] == 'users'
           search_filters(user, config, selected_filters)
           advanced_filters(user, config, selected_filters)
           advanced_filters(user, config, selected_filters, :permanent_advanced, 'p', false)
@@ -40,6 +41,7 @@ module DataCycleCore
           advanced_user_filters(user, config, selected_filters)
 
           return unless config[:view_type] == 'users'
+
           user_dropdown_filters(user, config, selected_filters)
           user_advanced_filters(user, config, selected_filters)
         end
@@ -70,7 +72,8 @@ module DataCycleCore
 
         def classification_trees_filters(_user, config, selected_filters)
           classification_filter = config[:filter].find { |v| v[:type] == 'classification_trees' }
-          return if classification_filter.blank?
+
+          return config[:hidden_filter].concat(selected_filters.select { |f| f['c'] == 'd' }) if classification_filter.blank?
 
           filterable_classification_aliases(classification_filter[:config], config[:excluded_types]).each do |tree_label, classification_aliases|
             value = selected_filters.find { |f| f['c'] == 'd' && f['n'] == tree_label }
@@ -81,13 +84,18 @@ module DataCycleCore
               identifier: value&.dig('identifier') || SecureRandom.hex(10)
             }
           end
+
+          config[:hidden_filter].concat(selected_filters.select { |f| f['c'] == 'd' && classification_filter[:filters].keys.exclude?(f['n']) }) if classification_filter[:filters].present?
         end
 
         def search_filters(_user, config, selected_filters)
           search_filter = config[:filter].find { |v| v[:type] == 'search' }
-          return if search_filter.blank?
-
           value = selected_filters.find { |f| f['t'] == 'fulltext_search' }
+
+          if search_filter.blank?
+            config[:hidden_filter].push(value) if value.present?
+            return
+          end
 
           search_filter[:value] = value&.dig('v')
           search_filter[:identifier] = value&.dig('identifier') || SecureRandom.hex(10)
@@ -95,9 +103,11 @@ module DataCycleCore
 
         def advanced_filters(user, config, selected_filters, key = :advanced, c = 'a', buttons = true)
           advanced_filter = config[:filter].find { |v| v[:type] == key.to_s }
-          return if advanced_filter.blank?
+          selected = selected_filters.select { |f| f['c'] == c && f['t'] != 'fulltext_search' }
 
-          advanced_filter[:filters] = selected_filters.select { |f| f['c'] == c }
+          return config[:hidden_filter].concat(selected) if advanced_filter.blank?
+
+          advanced_filter[:filters] = selected
           visible_filters = DataCycleCore::Feature::AdvancedFilter.available_visible_filters(user, config[:view_type], advanced_filter[:config])
 
           visible_filters.each do |filter|
@@ -131,7 +141,8 @@ module DataCycleCore
 
         def classification_tree_filters(_user, config, selected_filters)
           tree_filter = config[:filter].find { |v| v[:type] == 'classification_tree' }
-          return if tree_filter.blank?
+
+          return config[:hidden_filter].concat(selected_filters.select { |f| f['c'] == 's' }) if tree_filter.blank?
 
           tree_label = tree_filter[:config]
           value = selected_filters.find { |f| f['c'] == 's' && f['n'] == tree_label }

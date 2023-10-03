@@ -89,7 +89,7 @@ module DataCycleCore
             permit_user(role, :read, SubjectByConditions: [[DataCycleCore::Subscription, :publication]])
 
             # User
-            permit_user(role, :read, :create_user, :update, :destroy, :lock, :unlock, :generate_access_token, :set_role, :set_user_groups, UsersExceptRoles: :super_admin)
+            permit_user(role, :read, :create_user, :update, :confirm, :destroy, :lock, :unlock, :generate_access_token, :set_role, :set_user_groups, UsersExceptRoles: :super_admin)
 
             # UserGroup
             permit_user(role, :read, :create, :update, :destroy, SubjectByConditions: DataCycleCore::UserGroup)

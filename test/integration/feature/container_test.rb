@@ -50,7 +50,7 @@ module DataCycleCore
           parent_id: @container.id
         }
 
-        child = DataCycleCore::Thing.find_by(name: name)
+        child = DataCycleCore::Thing.where_translated_value(name: name).first
 
         assert child
         assert_equal(child.parent.id, @container.id)

@@ -1,4 +1,5 @@
 import ConfirmationModal from "../components/confirmation_modal";
+import ObjectUtilities from "./object_utilities";
 
 const DomElementHelpers = {
 	isVisible(elem) {
@@ -66,6 +67,52 @@ const DomElementHelpers = {
 		if (filterByPrefix) this.rejectFormdataByPrefix(formData, filterByPrefix);
 
 		return formData;
+	},
+	getFormDataAsObject(container) {
+		return this.formDataToObject(this.getFormData(container));
+	},
+	formDataToObject(formData) {
+		const formDataObject = {};
+
+		for (const [key, value] of formData) {
+			if (key.endsWith("[]")) {
+				const v = ObjectUtilities.get(formDataObject, key, []);
+				v.push(value);
+				ObjectUtilities.set(formDataObject, key, v);
+			} else ObjectUtilities.set(formDataObject, key, value);
+		}
+
+		return formDataObject;
+	},
+	disableElement(element) {
+		element.dataset.previousDisabledState =
+			element.classList.contains("disabled");
+		element.classList.add("disabled");
+
+		for (const elem of element.querySelectorAll(
+			"input, select, textarea, button",
+		)) {
+			elem.dataset.previousDisabledState = elem.disabled;
+			elem.disabled = true;
+		}
+	},
+	enableElement(element) {
+		if (element.hasAttribute("data-previous-disabled-state"))
+			element.classList.toggle(
+				"disabled",
+				this.parseDataAttribute(element.dataset.previousDisabledState),
+			);
+		else element.classList.remove("disabled");
+
+		for (const elem of element.querySelectorAll(
+			"input, select, textarea, button",
+		)) {
+			if (elem.hasAttribute("data-previous-disabled-state"))
+				elem.disabled = this.parseDataAttribute(
+					elem.dataset.previousDisabledState,
+				);
+			else elem.disabled = false;
+		}
 	},
 	removeEmbeddedPrefixFromFormdata(formData) {
 		if (!formData) return;
@@ -144,7 +191,7 @@ const DomElementHelpers = {
 		);
 	},
 	$cloneElement(element) {
-    let elem = element;
+		let elem = element;
 		if (elem instanceof $) elem = elem.get();
 
 		const fragment = new DocumentFragment();

@@ -86,7 +86,7 @@ describe DataCycleCore::Content do
             name: {
               label: 'name',
               type: 'string',
-              storage_location: 'column'
+              storage_location: 'translated_value'
             },
             '1' => {
               label: '1',
@@ -242,7 +242,7 @@ describe DataCycleCore::Content do
             description: {
               label: 'description',
               type: 'string',
-              storage_location: 'column'
+              storage_location: 'translated_value'
             },
             included_object: {
               label: 'Nested Data',
@@ -325,7 +325,7 @@ describe DataCycleCore::Content do
             description: {
               label: 'description',
               type: 'string',
-              storage_location: 'column'
+              storage_location: 'translated_value'
             },
             included_object: {
               label: 'Nested Data',
@@ -468,7 +468,7 @@ describe DataCycleCore::Content do
             description: {
               label: 'description',
               type: 'string',
-              storage_location: 'column'
+              storage_location: 'translated_value'
             },
             included_object: {
               label: 'Nested Data',

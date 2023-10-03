@@ -1,27 +1,35 @@
 <div>
-  <div class="card" style="background-color:white;">
+  <div class="card background-jobs" style="background-color:white;">
     <div class="card-divider">
-      <h5>queued delayed jobs</h5>
+      <h5>background jobs</h5>
     </div>
     <div class="card-section">
-      <% failed_jobs = @stat_job_queue.pop %>
-      <% queued_jobs = @stat_job_queue.pop %>
-
-      <% if queued_jobs.map { |key, value| value.positive? }.inject(&:|) %>
-        in queue:
+      <% if @stat_job_queue[:queued].present? %>
+        <h5 class="has-jobs">in queue:</h5>
         <ul>
-          <% queued_jobs.each do |queue, count| %>
-            <%= content_tag(:li, "#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", class: queue == :wrong_queue ? 'alert-color' : '')  if count.positive? %>
+          <% @stat_job_queue[:queued].each do |queue, count| %>
+            <%= tag.li("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
           <% end %>
         </ul>
       <% else %>
-        0 waiting in queue
+        <h5>0 waiting in queue</h5>
       <% end %>
-      <br/>
-      <% if @stat_job_queue.size.positive? %>
-        import/download:
+
+      <% if @stat_job_queue[:running].present? %>
+        <h5 class="has-jobs">running:</h5>
         <ul>
-          <% @stat_job_queue.each do |job| %>
+          <% @stat_job_queue[:running].each do |queue, count| %>
+            <%= tag.li("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
+          <% end %>
+        </ul>
+      <% else %>
+        <h5>0 running</h5>
+      <% end %>
+
+      <% if @stat_job_queue[:importers].size.positive? %>
+        <h5 class="has-jobs">import/download:</h5>
+        <ul>
+          <% @stat_job_queue[:importers].each do |job| %>
             <li>
               <%= job['status'].html_safe %>
               <b><i> <%= link_to(t('dash_board.delete', locale: active_ui_locale), admin_delete_queue_path(id: job['id']))%> </i></b><br/>
@@ -32,18 +40,18 @@
           <% end %>
         </ul>
       <% else %>
-        0 running import/download
+        <h5>0 running import/download</h5>
       <% end %>
-      <br/>
-      <% if failed_jobs.map { |key, value| value.positive? }.inject(&:|) %>
-        failed:
+
+      <% if @stat_job_queue[:failed].present? %>
+        <h5 class="has-jobs">failed:</h5>
         <ul>
-          <% failed_jobs.each do |queue, count| %>
-            <%= content_tag(:li, "#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})") if count.positive? %>
+          <% @stat_job_queue[:failed].each do |queue, count| %>
+            <%= tag.li("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
           <% end %>
         </ul>
       <% else %>
-        0 failed
+        <h5>0 failed</h5>
       <% end %>
     </div>
   </div>

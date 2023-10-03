@@ -261,4 +261,19 @@ ul.import-data-timestamps li {
       margin: 0 0 0 auto;
     }
   }
+
+  .card.background-jobs {
+    .card-section {
+      h5 {
+        font-size: 1.1rem;
+        color: var(--dark-gray);
+        margin-bottom: 0.1rem;
+
+        &.has-jobs {
+          color: var(--black);
+          font-weight: normal;
+        }
+      }
+    }
+  }
 }

@@ -6,7 +6,7 @@
       :name:
         :label: Titel
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
         :validations:
           :required: true
@@ -16,7 +16,7 @@
       :internal_name:
         :label: Arbeitstitel
         :type: string
-        :storage_location: column
+        :storage_location: value
         :search: true
         :api:
           :disabled: true

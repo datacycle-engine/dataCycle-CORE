@@ -116,14 +116,14 @@ module DataCycleCore
         def event_end_time(time)
           time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
           reflect(
-            @query.where(thing[:start_date].lteq(Arel::Nodes.build_quoted(time.iso8601)))
+            @query.where(cast_ts(in_json(thing[:metadata], 'start_date')).lteq(Arel::Nodes.build_quoted(time.iso8601)))
           )
         end
 
         def event_from_time(time)
           time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
           reflect(
-            @query.where(thing[:end_date].gteq(Arel::Nodes.build_quoted(time.iso8601)))
+            @query.where(cast_ts(in_json(thing[:metadata], 'end_date')).gteq(Arel::Nodes.build_quoted(time.iso8601)))
           )
         end
 

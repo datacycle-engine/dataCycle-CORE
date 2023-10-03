@@ -34,10 +34,22 @@ module DataCycleCore
             values = []
             computed_definition.dig('compute', 'parameters')&.each do |parameter_key|
               location_value = Array.wrap(Common.get_values_from_hash(computed_parameters, parameter_key.split('.'))).first
-              value = DataCycleCore::MasterData::DataConverter.string_to_geographic(location_value)
+              if (location_value.is_a?(::String) && location_value.uuid?) || (location_value.is_a?(::Array) && location_value.first.to_s.uuid?)
+                polygons = DataCycleCore::Classification
+                  .where(id: Array.wrap(location_value).compact_blank)
+                  .primary_classification_aliases
+                  .classification_polygons
 
-              next if value.blank?
-              values << value
+                polygons.each do |polygon|
+                  value = DataCycleCore::MasterData::DataConverter.string_to_geographic(polygon.geom)
+                  next if value.blank?
+                  values << value
+                end
+              else
+                value = DataCycleCore::MasterData::DataConverter.string_to_geographic(location_value)
+                next if value.blank?
+                values << value
+              end
             end
 
             return if values.empty?
@@ -45,15 +57,21 @@ module DataCycleCore
             values.map { |value|
               get_ids_from_geometry(tree_label: computed_definition.dig('tree_label'), geometry: value.to_s)
             }.flatten
-            .compact
+            .compact_blank
             .uniq
           end
 
+          def copy_from_path(computed_parameters:, computed_definition:, **_args)
+            Array.wrap(computed_definition.dig('compute', 'parameters')&.map do |path|
+              Array.wrap(Common.get_values_from_hash(computed_parameters, path.split('.')))
+            end).flatten.compact_blank.uniq
+          end
+
           def from_embedded(computed_parameters:, computed_definition:, **_args)
-            Array.wrap(computed_definition.dig('compute', 'parameters')&.map do |p|
-              key_path = p.split('.')
+            Array.wrap(computed_definition.dig('compute', 'parameters')&.map do |path|
+              key_path = path.split('.')
               get_values_from_embedded(key_path.drop(1), computed_parameters.dig(key_path.first))
-            end).flatten.compact.uniq
+            end).flatten.compact_blank.uniq
           end
 
           def get_ids_from_geometry(tree_label:, geometry:)
