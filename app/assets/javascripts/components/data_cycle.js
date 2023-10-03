@@ -60,11 +60,13 @@ class DataCycle {
 		const parts = segments.reduce((parts, segment) => {
 			if (!segment) return parts;
 
-			if (parts.length > 0) segment = segment.replace(/^\//, "");
+			let s = segment;
 
-			segment = segment.replace(/\/$/, "");
+			if (parts.length > 0) s = s.replace(/^\//, "");
 
-			return parts.concat(segment.split("/"));
+			s = s.replace(/\/$/, "");
+
+			return parts.concat(s.split("/"));
 		}, []);
 
 		const resultParts = [];
@@ -109,7 +111,8 @@ class DataCycle {
 
 		return params;
 	}
-	mergeHttpOptions(url, options) {
+	mergeHttpOptions(urlParam, options) {
+		let url = urlParam;
 		if (!options.method) options.method = "GET";
 		else options.method = options.method.toUpperCase();
 
@@ -141,53 +144,53 @@ class DataCycle {
 		return [url, options];
 	}
 	httpRequest(url, options = {}, retries = 3) {
-		[url, options] = this.mergeHttpOptions(url, options);
+		const [mergedUrl, mergedOptions] = this.mergeHttpOptions(url, options);
 
-		return fetch(url, options).then((res) => {
+		return fetch(mergedUrl, mergedOptions).then((res) => {
 			if (res.ok) {
 				return res.json().catch(() => undefined);
 			}
 
 			if (retries > 0)
 				return this.wait(1000 * (3 / retries)).then(() =>
-					this.httpRequest(url, options, retries - 1),
+					this.httpRequest(mergedUrl, mergedOptions, retries - 1),
 				);
 
 			throw new Error(res.status);
 		});
 	}
 	_prepareElement(element, innerHTML = undefined) {
-		if (element instanceof $) element = element[0];
-		if (!element) return;
+		let el = element;
+		if (el instanceof $) el = el[0];
+		if (!el) return;
 
 		if (innerHTML !== undefined) {
-			element.dataset.dcDisableWith = element.dataset.disableWith;
-			element.dataset.disableWith = innerHTML;
-		} else if (element.dataset.dcDisableWith) {
-			element.dataset.disableWith = element.dataset.dcDisableWith;
-			element.dataset.dcDisableWith = undefined;
+			el.dataset.dcDisableWith = el.dataset.disableWith;
+			el.dataset.disableWith = innerHTML;
+		} else if (el.dataset.dcDisableWith) {
+			el.dataset.disableWith = el.dataset.dcDisableWith;
+			el.dataset.dcDisableWith = undefined;
 		}
 
-		if (!(element.dataset.disable || element.dataset.disableWith))
-			element.dataset.disable = true;
+		if (!(el.dataset.disable || el.dataset.disableWith))
+			el.dataset.disable = true;
 
-		return element;
+		return el;
 	}
 	disableElement(element, innerHTML = undefined) {
-		element = this._prepareElement(element, innerHTML);
-		if (!element) return;
+		const el = this._prepareElement(element, innerHTML);
+		if (!el) return;
 
-		Rails.disableElement(element);
-		if (this.mutableNodes.includes(element.nodeName))
-			element.classList.add("disabled");
+		Rails.disableElement(el);
+		if (this.mutableNodes.includes(el.nodeName)) el.classList.add("disabled");
 	}
 	enableElement(element) {
-		element = this._prepareElement(element);
-		if (!element) return;
+		const el = this._prepareElement(element);
+		if (!el) return;
 
-		Rails.enableElement(element);
-		if (this.mutableNodes.includes(element.nodeName))
-			element.classList.remove("disabled");
+		Rails.enableElement(el);
+		if (this.mutableNodes.includes(el.nodeName))
+			el.classList.remove("disabled");
 	}
 	initNewElements(selector, callback) {
 		if (document.querySelector(selector))

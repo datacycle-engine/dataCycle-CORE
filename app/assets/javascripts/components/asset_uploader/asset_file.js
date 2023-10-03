@@ -216,15 +216,16 @@ class AssetFile {
 		}
 	}
 	renderAttributeHtml(attribute, value = "") {
-		if (attribute.type === "datetime" && value && value.length) {
-			value = new Date(value).toLocaleDateString();
+		let v = value;
+		if (attribute.type === "datetime" && v && v.length) {
+			v = new Date(v).toLocaleDateString();
 		}
 
 		const label = attribute.label;
 
 		return `<span class="file-label" title="${label}">${label}</span><span class="file-attribute-value" title="${$(
-			`<span>${value}</span>`,
-		).text()}">${value}</span>`;
+			`<span>${v}</span>`,
+		).text()}">${v}</span>`;
 	}
 	async validateAttributes() {
 		if (this.uploader.showNewForm && !this.attributeFieldValues?.length) {
@@ -333,14 +334,15 @@ class AssetFile {
 		this.fileField.find(".cancel-upload-button").trigger("click");
 	}
 	_updateIdsInClonedErrors(errorText) {
+		let text = errorText;
 		const randomId = DomElementHelpers.randomId("cloned_asset");
 
-		errorText = errorText.replaceAll(
+		text = text.replaceAll(
 			/(")([^"-]*)(-duplicates-list)/gi,
 			`$1${randomId}$3`,
 		);
 
-		return errorText;
+		return text;
 	}
 	_renderErrorHtml(cssClass, message) {
 		const fileInfoField = this.fileField.find(".file-info");
