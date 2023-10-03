@@ -464,7 +464,7 @@ module DataCycleCore
         start_time = start_time.to_datetime
         if end_time > '24:00:00'
           et = end_time.split(':')
-          et[0] = (et[0]&.to_i - 24).to_s
+          et[0] = (et[0].to_i - 24).to_s
           end_time = et.join(':')
         end
         end_time = end_time.to_datetime
