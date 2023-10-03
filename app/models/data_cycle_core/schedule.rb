@@ -461,8 +461,12 @@ module DataCycleCore
       # for time only
       def time_to_duration(start_time, end_time)
         return 0 if start_time.blank? || end_time.blank?
-
         start_time = start_time.to_datetime
+        if end_time > '24:00:00'
+          et = end_time.split(':')
+          et[0] = (et[0]&.to_i - 24).to_s
+          end_time = et.join(':')
+        end
         end_time = end_time.to_datetime
         end_time += 1.day if end_time < start_time
 
