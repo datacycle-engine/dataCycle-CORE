@@ -367,7 +367,11 @@ module DataCycleCore
           )
         end
 
-        content_content_a.where(relation_a: field_name, content_b_id: item_ids_before_update - item_ids_after_update).delete_all
+        to_delete = item_ids_before_update - item_ids_after_update
+
+        return if to_delete.empty?
+
+        content_content_a.where(relation_a: field_name, content_b_id: to_delete).delete_all
       end
 
       def parse_linked_ids(a)
@@ -472,7 +476,11 @@ module DataCycleCore
           )
         end
 
-        classification_content.where(relation: relation_name, classification_id: present_relation_ids - ids).delete_all
+        to_delete = present_relation_ids - ids
+
+        return if to_delete.empty?
+
+        classification_content.where(relation: relation_name, classification_id: to_delete).delete_all
       end
 
       def set_asset_id(asset_id, relation_name, asset_type)
@@ -524,8 +532,11 @@ module DataCycleCore
           updated_item_keys << schedule.id
         end
 
-        delete = available_items - updated_item_keys
-        DataCycleCore::Schedule.where(id: delete).destroy_all
+        to_delete = available_items - updated_item_keys
+
+        return if to_delete.empty?
+
+        DataCycleCore::Schedule.where(id: to_delete).destroy_all
       end
     end
   end
