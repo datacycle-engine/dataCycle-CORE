@@ -1170,6 +1170,9 @@ en:
       user_locked: A user with this email already exists and is locked. Please contact an administrator to unlock the user.
       classification_mappings_error: An error occurred while updating the classification mappings
       external_system_already_exists: There already exists a configuration for this external system
+      bulk_created:
+        one: "<b>%{count}</b> Content could not be created!"
+        other: "<b>%{count}</b> Contents could not be created!"
     success:
       created: "%{data} was successfully created."
       ready_to_send: "%{data} has been successfully created and can now be sent."

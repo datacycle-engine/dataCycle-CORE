@@ -30,7 +30,7 @@ class AssetDetailLoader {
   }
   async imageLoader() {
     this.assetFile.prependHtml = this._fileThumbHtml(
-      '<object data="' +
+      '<object class="" data="' +
         this.assetFile.fileUrl +
         '" type="' +
         this.assetFile.file.type +

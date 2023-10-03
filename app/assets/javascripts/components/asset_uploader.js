@@ -1,5 +1,6 @@
 import cloneDeep from "lodash/cloneDeep";
 import AssetFile from "./asset_uploader/asset_file";
+import CalloutHelpers from "../helpers/callout_helpers";
 
 class AssetUploader {
 	constructor(reveal) {
@@ -57,7 +58,8 @@ class AssetUploader {
 	}
 	pageLeaveHandler(e) {
 		e.preventDefault();
-		return (e.returnValue = "");
+		e.returnValue = "";
+		return e.returnValue;
 	}
 	removeFileHandler(event) {
 		event.preventDefault();
@@ -129,44 +131,76 @@ class AssetUploader {
 			},
 			{
 				received: (data) => {
-					if (data.progress && this.saving) {
-						const progress = Math.round((data.progress * 100) / data.items);
-						this.createButton.find(".progress-value").text(`${progress}%`);
-						this.createButton
-							.find(".progress-bar > .progress-filled")
-							.css("width", `${progress}%`);
-					} else if (data.content_ids) {
-						this.reset(data.content_ids.map((i) => i.field_id));
-
-						if (
-							!this.files.length &&
-							data.created &&
-							this.contentUploaderField
-								.closest(".reveal.new-content-reveal")
-								.hasClass("in-object-browser") &&
-							this.contentUploaderField.length
-						) {
-							this.contentUploaderField
-								.closest("form.validation-form")
-								.trigger("dc:form:setContentIds", {
-									contentIds: data.content_ids.map((i) => i.id),
-								});
-							this.reveal.foundation("close");
-						} else if (!this.files.length && data.redirect_path) {
-							let redirect_path = data.redirect_path;
-							if (data?.flash) {
-								Object.keys(data.flash).forEach((item, index) => {
-									redirect_path += `${
-										index === 0 ? "?" : "&"
-									}flash[${item}]=${encodeURI(data.flash[item])}`;
-								});
-							}
-							window.location.href = redirect_path;
-						}
-					}
+					if (data.progress && this.saving) this.advanceProgress(data);
+					else if (data.content_ids) this.finishProgress(data);
 				},
 			},
 		);
+	}
+	advanceProgress(data) {
+		this.updateProgressBar(Math.round((data.progress * 100) / data.items));
+
+		if (data.error && data.field_id) {
+			const file = this.fileByFieldId(data.field_id);
+			file._renderError(data.error);
+			file.fileField.removeClass("creating");
+		} else if (!data.error && data.field_id) this.removeFiles(data.field_id);
+	}
+	async finishProgress(data) {
+		if (data.created) this.reset(data.content_ids.map((i) => i.field_id));
+		else this.removeFiles(data.content_ids.map((i) => i.field_id));
+
+		if (data.created) {
+			try {
+				const text = await I18n.t("controllers.success.bulk_created", {
+					count: data.content_ids?.length || 0,
+				});
+				CalloutHelpers.show(text, "success");
+			} catch (e) {
+				console.error(e);
+			}
+		}
+
+		if (
+			this.contentUploaderField
+				.closest(".reveal.new-content-reveal")
+				.hasClass("in-object-browser") &&
+			this.contentUploaderField.length
+		) {
+			this.contentUploaderField
+				.closest("form.validation-form")
+				.trigger("dc:form:setContentIds", {
+					contentIds: data.content_ids.map((i) => i.id),
+				});
+
+			if (data.created) this.reveal.foundation("close");
+		} else if (data.redirect_path) {
+			setTimeout(() => {
+				window.location.href = data.redirect_path;
+			}, 3000);
+		}
+
+		if (!data.created && data.error) {
+			this.resetProgress(data.error);
+		}
+	}
+	resetProgress(error) {
+		CalloutHelpers.show(error, "alert");
+		this.updateProgressBar(0);
+		this.updateCreateButton(error);
+	}
+	fileByFieldId(id) {
+		return this.files.find((f) => f.id === id);
+	}
+	removeFiles(fieldIds) {
+		let idArray = fieldIds;
+		if (!Array.isArray(idArray)) idArray = [idArray];
+		if (idArray.length === 0) return;
+
+		for (const f of this.files.filter((f) => idArray.includes(f.id)))
+			f.fileField.remove();
+
+		this.files = this.files.filter((f) => !idArray.includes(f.id));
 	}
 	createAssets(event) {
 		event.preventDefault();
@@ -209,37 +243,43 @@ class AssetUploader {
 
 		$(window).off("beforeunload", this.eventHandlers.pageLeave);
 
-		DataCycle.httpRequest("/things/bulk_create", {
-			method: "POST",
-			body: formData,
-		}).catch((e) => {
+		DataCycle.httpRequest(
+			"/things/bulk_create",
+			{
+				method: "POST",
+				body: formData,
+			},
+			0,
+		).catch((e) => {
 			if (e.status >= 400) console.error(e.statusText);
 		});
 	}
-	reset(ids = null) {
+	async reset(ids = null) {
 		if (ids) {
-			$(
-				this.files
-					.filter((f) => ids.includes(f.id))
-					.forEach((f) => f.fileField.remove()),
-			);
-			this.files = this.files.filter((f) => !ids.includes(f.id));
-			this.files.forEach(async (file) => {
-				file._renderError(
-					await I18n.translate("frontend.upload.error_saving_content"),
+			this.removeFiles(ids);
+
+			if (this.files.length) {
+				const error = await I18n.translate(
+					"frontend.upload.error_saving_content",
 				);
-			});
+				for (const f of this.files) f._renderError(error);
+			}
 		} else {
 			this.uploadForm.find(".file-for-upload").remove();
 			this.files = [];
 		}
 
 		this.saving = false;
-		this.createButton.find(".progress-value").html("");
+		this.updateProgressBar(0);
+		this.updateCreateButton();
+	}
+	updateProgressBar(progress) {
+		const p = progress || 0;
+
+		this.createButton.find(".progress-value").text(p > 0 ? `${p}%` : "");
 		this.createButton
 			.find(".progress-bar > .progress-filled")
-			.css("width", "0%");
-		this.updateCreateButton();
+			.css("width", `${p}%`);
 	}
 	enableButtons() {
 		this.uploadForm.find(".upload-file").attr("disabled", false);
@@ -252,6 +292,7 @@ class AssetUploader {
 		);
 	}
 	async validateFiles(fileList = undefined) {
+		if (this.saving) return;
 		if (!fileList?.length) return;
 
 		for (const file of fileList) {
@@ -261,9 +302,10 @@ class AssetUploader {
 	async checkFileAndQueue(file, fileOptions = {}) {
 		if (this.files.find((f) => f.file.name === file.name)) return;
 
-		fileOptions = Object.assign({ file: file }, fileOptions);
-
-		const assetFile = new AssetFile(this, fileOptions);
+		const assetFile = new AssetFile(
+			this,
+			Object.assign({ file: file }, fileOptions),
+		);
 		await assetFile.renderFile();
 
 		this.files.push(assetFile);
@@ -272,6 +314,8 @@ class AssetUploader {
 		);
 	}
 	async updateCreateButton(error = null) {
+		let e = error;
+
 		if (
 			this.files.length &&
 			!this.files.filter((f) => !(f.attributeFieldsValidated && f.uploaded))
@@ -280,14 +324,13 @@ class AssetUploader {
 			DataCycle.enableElement(this.createButton);
 		} else {
 			DataCycle.disableElement(this.createButton);
-			if (!error)
-				error = await I18n.translate("frontend.upload.missing_metadata");
+			if (!e) e = await I18n.translate("frontend.upload.missing_metadata");
 		}
 
-		if (error)
+		if (e)
 			this.createButton.attr(
 				"data-dc-tooltip",
-				`${await I18n.translate("frontend.upload.error")}: ${error}`,
+				`${await I18n.translate("frontend.upload.error")}: ${e}`,
 			);
 		else this.createButton.removeAttr("data-dc-tooltip");
 	}

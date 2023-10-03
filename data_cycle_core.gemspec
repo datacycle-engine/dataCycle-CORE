@@ -10,7 +10,7 @@ version = File.read(File.expand_path('./GEM_VERSION', __dir__)).strip
 Gem::Specification.new do |s|
   s.name        = 'data_cycle_core'
   s.version     = version
-  s.authors     = ['Manuel Mitterer', 'Martin Oehzelt', 'Benjamin Preisig', 'Patrick Rainer', 'Johannes Zlattinger']
+  s.authors     = ['dataCycle GmbH']
   s.email       = ['office@datacycle.at']
   s.homepage    = 'https://datacycle.info'
   s.summary     = 'dataCycle CORE - management system for linked data'

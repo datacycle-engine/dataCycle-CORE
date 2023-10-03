@@ -288,7 +288,19 @@ module DataCycleCore
 
     def query(collection_name, &)
       mongo_class = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: collection_name)
-      Mongoid.override_database("#{mongo_class.database_name}_#{id}")
+      db_name = mongo_class.database_name.to_s
+      db_name += "_#{id}" unless db_name.split('_') == id
+      Mongoid.override_database(db_name)
+      DataCycleCore::Generic::Collection.with(mongo_class, &block)
+    ensure
+      Mongoid.override_database(nil)
+    end
+
+    def query2(collection_name, &)
+      mongo_class = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: collection_name)
+      db_name = mongo_class.database_name.to_s
+      # db_name += "_#{id}" unless db_name.split('_') == id
+      Mongoid.override_database(db_name)
       DataCycleCore::Generic::Collection.with(mongo_class, &)
     ensure
       Mongoid.override_database(nil)

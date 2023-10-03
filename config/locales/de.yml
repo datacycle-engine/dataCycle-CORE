@@ -1165,6 +1165,9 @@ de:
       user_locked: Ein Benutzer mit dieser E-Mail existiert bereits und ist gesperrt. Bitte wenden Sie sich an einen Administrator, um den Benutzer freizuschalten.
       classification_mappings_error: Beim Aktualisieren der Klassifizierungs-Mappings ist ein Fehler aufgetreten
       external_system_already_exists: Für dieses externe System gibt es bereits eine Konfiguration
+      bulk_created:
+        one: "<b>%{count}</b> Inhalt konnte nicht erstellt werden!"
+        other: "<b>%{count}</b> Inhalte konnten nicht erstellt werden!"
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."
