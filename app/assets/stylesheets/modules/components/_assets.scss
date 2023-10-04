@@ -18,7 +18,7 @@
       top: 0.5rem;
       right: 0.5rem;
 
-      > * {
+      >* {
         margin-left: 0.5rem;
       }
     }
@@ -43,7 +43,7 @@
   flex-flow: column;
   height: calc(100vh - 2rem);
 
-  > h3 {
+  >h3 {
     margin: 0;
     box-shadow: 0 15px 10px #fff;
     z-index: 1;
@@ -71,6 +71,7 @@
     button {
       flex: 1;
       margin: 0;
+
       &:not(:last-child) {
         margin-right: 1rem;
       }
@@ -81,6 +82,7 @@
 .asset-selector-reveal .asset-list li {
   &.locked {
     .inner {
+
       .asset-type,
       .asset-upload-date,
       .asset-title,
@@ -91,20 +93,21 @@
     }
   }
 
-  .inner > span.asset-duplicate-warning {
+  .inner>span.asset-duplicate-warning {
     display: block;
     position: absolute;
     right: 0.5rem;
     bottom: 0;
 
-    > a[data-toggle] {
+    >a[data-toggle] {
       padding: 0;
     }
+
     ul.duplicates-list {
       display: flex;
       flex-flow: row wrap;
 
-      > li {
+      >li {
         flex: auto;
         width: 90px;
         max-width: 100px;
@@ -113,14 +116,14 @@
         background: $white;
         transition: $global-transition;
 
-        > a {
-          > img {
+        >a {
+          >img {
             box-shadow: 0 0 5px $dark-gray;
             transition: box-shadow 0.25s ease-out;
           }
 
           &:hover {
-            > img {
+            >img {
               box-shadow: 0 1px 7px $primary-color;
             }
           }
@@ -128,6 +131,7 @@
       }
     }
   }
+
   .content-warning {
     font-size: 2rem;
 
@@ -135,6 +139,7 @@
       font-size: 4.5rem;
     }
   }
+
   .content-warning-text.alert {
     font-size: 1.1rem;
     font-weight: bold;
@@ -172,7 +177,7 @@ ul.asset-list {
     }
   }
 
-  > li {
+  >li {
     position: relative;
     display: block;
     word-wrap: break-word;
@@ -194,7 +199,7 @@ ul.asset-list {
       color: $alert-color;
     }
 
-    .inner > span {
+    .inner>span {
       display: block;
 
       &.asset-title {
@@ -212,7 +217,8 @@ ul.asset-list {
         display: none;
       }
     }
-    .inner > .thumb {
+
+    .inner>.thumb {
       margin-top: 0.5rem;
       text-align: center;
 
@@ -246,7 +252,7 @@ ul.asset-list {
   }
 
   &.selectable {
-    > li:not(.locked) {
+    >li:not(.locked) {
       cursor: pointer;
 
       .asset-type {
@@ -271,6 +277,7 @@ ul.asset-list {
           color: $white;
         }
       }
+
       &:hover,
       &:focus {
         box-shadow: 0 0 8px rgba($primary-color, 0.7);
@@ -281,9 +288,10 @@ ul.asset-list {
 
 // File Upload Reveal
 .asset-upload-reveal {
-  > h2 {
+  >h2 {
     height: 3.5rem;
   }
+
   .upload-file {
     display: none;
   }
@@ -307,6 +315,7 @@ ul.asset-list {
         opacity: 1;
       }
     }
+
     .content-upload-form {
       .buttons {
         position: absolute;
@@ -371,6 +380,7 @@ ul.asset-list {
     .asset-reload-button {
       display: block;
     }
+
     .content-create-button {
       display: none;
       pointer-events: none;
@@ -430,7 +440,7 @@ ul.asset-list {
             width: 100%;
           }
 
-          > span {
+          >span {
             margin: 0 0.5rem 0 0;
 
             &:last-child {
@@ -489,6 +499,7 @@ ul.asset-list {
       max-height: 6rem;
     }
   }
+
   .upload-number-container {
     display: flex;
     flex-flow: column;
@@ -536,6 +547,7 @@ ul.asset-list {
       color: $primary-color;
     }
   }
+
   .file-title {
     display: inline-block;
     vertical-align: top;
@@ -572,8 +584,6 @@ ul.asset-list {
   }
 
   .asset-attribute {
-    display: flex;
-    flex-flow: column;
     font-size: 0.9rem;
     flex: 1;
     margin: 0;
@@ -583,7 +593,12 @@ ul.asset-list {
     &:not(:last-child) {
       border-right: 1px solid rgba($medium-gray, 0.4);
     }
+
+    .file-label {
+      margin-right: 0.3rem;
+    }
   }
+
   .file-info {
     .possible-duplicates {
       cursor: pointer;
@@ -596,6 +611,7 @@ ul.asset-list {
         text-decoration: underline;
       }
     }
+
     .dropdown-pane {
       .duplicates-list {
         li {
@@ -613,7 +629,7 @@ ul.asset-list {
             }
 
             &:hover {
-              > img {
+              >img {
                 box-shadow: 0 0 5px $primary-color;
               }
             }
@@ -622,26 +638,31 @@ ul.asset-list {
       }
     }
   }
+
   .file-label {
     font-size: 0.9rem;
     color: $dark-gray;
     margin-bottom: 0.3rem;
   }
+
   .file-name {
     font-size: 0.9rem;
     margin-bottom: 0.2rem;
     font-weight: 600;
   }
+
   .file-name,
   .file-attribute-value {
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
   .file-name,
   .file-label,
   .file-details {
     white-space: nowrap;
   }
+
   .file-details {
     color: $dark-gray;
   }
@@ -698,6 +719,7 @@ ul.asset-list {
       font-size: 0.8rem;
     }
   }
+
   .notice {
     display: block;
     color: $warning-color;
@@ -709,6 +731,7 @@ ul.asset-list {
       font-size: 0.8rem;
     }
   }
+
   &.error {
     border-color: $alert-color;
     background: rgba($alert-color, 0.05);
@@ -722,9 +745,11 @@ ul.asset-list {
     .upload-number {
       color: $alert-color;
     }
+
     .upload-progress {
       background: $alert-color;
     }
+
     .upload-progress {
       background: rgba($alert-color, 0.2);
     }
@@ -743,9 +768,11 @@ ul.asset-list {
     .upload-number {
       color: $primary-color;
     }
+
     .upload-progress-bar {
       background: $primary-color;
     }
+
     .upload-progress {
       background: rgba($primary-color, 0.2);
     }
@@ -764,6 +791,7 @@ ul.asset-list {
     .upload-number {
       color: $success-color;
     }
+
     .upload-progress {
       background: rgba($success-color, 0.2);
     }

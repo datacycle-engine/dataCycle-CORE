@@ -1,6 +1,7 @@
 import cloneDeep from "lodash/cloneDeep";
 import AssetFile from "./asset_uploader/asset_file";
 import CalloutHelpers from "../helpers/callout_helpers";
+import DomElementHelpers from "../helpers/dom_element_helpers";
 
 class AssetUploader {
 	constructor(reveal) {
@@ -34,7 +35,7 @@ class AssetUploader {
 		this.eventHandlers = {
 			pageLeave: this.pageLeaveHandler.bind(this),
 		};
-
+		this.renderQueue = [];
 		this.init();
 	}
 	init() {
@@ -197,8 +198,11 @@ class AssetUploader {
 		if (!Array.isArray(idArray)) idArray = [idArray];
 		if (idArray.length === 0) return;
 
-		for (const f of this.files.filter((f) => idArray.includes(f.id)))
-			f.fileField.remove();
+		for (const f of this.files.filter((f) => idArray.includes(f.id))) {
+			DomElementHelpers.slideUp(f.fileField.get(0)).then(() => {
+				f.fileField.remove();
+			});
+		}
 
 		this.files = this.files.filter((f) => !idArray.includes(f.id));
 	}
@@ -219,6 +223,10 @@ class AssetUploader {
 
 		if (!formData.has("template") && this.templateName)
 			formData.append("template", this.templateName);
+
+		this.files[0]?.fileField
+			?.get(0)
+			?.scrollIntoView({ behavior: "smooth", block: "start" });
 
 		this.files.forEach((file, i) => {
 			file.fileField.addClass("creating");
@@ -291,27 +299,48 @@ class AssetUploader {
 			() => this.enableButtons(),
 		);
 	}
-	async validateFiles(fileList = undefined) {
+	validateFiles(fileList = undefined) {
 		if (this.saving) return;
 		if (!fileList?.length) return;
 
 		for (const file of fileList) {
-			await this.checkFileAndQueue(file);
+			this.checkFileAndQueue(file);
 		}
 	}
 	async checkFileAndQueue(file, fileOptions = {}) {
 		if (this.files.find((f) => f.file.name === file.name)) return;
 
-		const assetFile = new AssetFile(
-			this,
-			Object.assign({ file: file }, fileOptions),
+		this.addToRenderQueue(
+			new AssetFile(this, Object.assign({ file: file }, fileOptions)),
 		);
-		await assetFile.renderFile();
 
-		this.files.push(assetFile);
 		this.updateCreateButton(
 			await I18n.translate("frontend.upload.metadata_warning.many"),
 		);
+	}
+	addToRenderQueue(file) {
+		if (!this.renderQueue.length)
+			requestAnimationFrame(this.renderFiles.bind(this));
+
+		this.renderQueue.push(file);
+	}
+	async renderFiles() {
+		for (const file of this.renderQueue) {
+			await file.renderFile();
+			this.files.push(file);
+			this.startNextFileUpload();
+		}
+
+		this.renderQueue.length = 0;
+	}
+	startNextFileUpload() {
+		if (this.files.filter((f) => f.uploading).length >= 20) return;
+
+		const nextFile = this.files.find((f) => !f.uploading && !f.uploaded);
+
+		if (!nextFile) return;
+
+		if (!nextFile.errors) nextFile._uploadFile();
 	}
 	async updateCreateButton(error = null) {
 		let e = error;

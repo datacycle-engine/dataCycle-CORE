@@ -204,18 +204,17 @@ module DataCycleCore
     def metadata_from_blob
       if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable.dig(:io).present?
         # import from local disc
-        path_to_tempfile = attachment_changes['file'].attachable.dig(:io).path
+        tempfile = attachment_changes['file'].attachable.dig(:io)
       else
-        path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
+        tempfile = attachment_changes['file'].attachable
       end
 
-      image = ::MiniMagick::Image.new(path_to_tempfile)
-      colorspace = { ImColorSpace: image.data.dig('colorspace') }
-      exif_data = MiniExiftool.new(path_to_tempfile, { replace_invalid_chars: true })
+      image = ::MiniMagick::Image.new(tempfile.path, tempfile)
+      exif_data = MiniExiftool.new(tempfile, { replace_invalid_chars: true })
       exif_data
         .to_hash
         .transform_values { |value| value.is_a?(String) ? value.delete("\u0000") : value }
-        .merge!(colorspace)
+        .merge!({ ImColorSpace: image.colorspace.to_s.gsub(/.*class|alpha/i, '').strip })
     end
 
     def set_duplicate_hash

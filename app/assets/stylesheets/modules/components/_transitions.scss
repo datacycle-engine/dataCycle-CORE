@@ -5,12 +5,15 @@
   margin-top: 0 !important;
   margin-bottom: 0 !important;
   overflow: hidden !important;
+  border-top-width: 0;
+  border-bottom-width: 0;
 }
 
 .sliding-base {
-  transition-property: height, margin, padding !important;
+  transition-property: height, margin, padding, border-top, border-bottom !important;
   box-sizing: border-box !important;
   overflow: hidden !important;
+  min-height: 0 !important;
 }
 
 .fadeout {

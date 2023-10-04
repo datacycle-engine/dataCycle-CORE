@@ -20,6 +20,7 @@ class AssetFile {
 		this.attributeFieldsValidated = false;
 		this.fileField;
 		this.fileFormField;
+		this.uploading = false;
 		this.valid = {
 			valid: false,
 		};
@@ -389,7 +390,7 @@ class AssetFile {
 		const data_hash = {};
 		data_hash[this.uploader.assetKey] = this.assetId();
 
-		DataCycle.httpRequest("/things/attribute_default_value", {
+		const promise = DataCycle.httpRequest("/things/attribute_default_value", {
 			method: "POST",
 			body: {
 				locale: this.uploader.locale,
@@ -397,7 +398,9 @@ class AssetFile {
 				keys: this._attributesWithBlankDefaultValues(),
 				data_hash: data_hash,
 			},
-		})
+		});
+
+		promise
 			.then((data) => {
 				const blankValues = this._attributesWithBlankDefaultValues();
 				const defaultValues = Object.fromEntries(
@@ -413,6 +416,8 @@ class AssetFile {
 			.catch((e) => {
 				if (e.status !== 404) console.error(e.statusText);
 			});
+
+		return promise;
 	}
 	_renderEditOverlay() {
 		this.uploader.remoteOptions.search_required = false;
@@ -553,6 +558,7 @@ class AssetFile {
 		if (this.uploaded)
 			return this._updateFileAttributes(this.dataImported || {});
 
+		this.uploading = true;
 		this.uploader.uploadForm.find(".upload-file").attr("disabled", true);
 		DataCycle.disableElement(this.uploader.assetReloadButton);
 
@@ -611,6 +617,8 @@ class AssetFile {
 				if (!document.querySelector(`[data-id="${this.id}"]`)) return;
 
 				this._updateOverlayButtons();
+				this.uploading = false;
+				this.uploader.startNextFileUpload();
 				DataCycle.enableElement(this.uploader.assetReloadButton);
 			});
 
@@ -715,8 +723,6 @@ class AssetFile {
 			);
 		}
 		this._renderFileField();
-
-		if (!this.errors) this._uploadFile();
 	}
 	_retryUpload(event) {
 		event.preventDefault();
