@@ -723,6 +723,8 @@ class AssetFile {
 			);
 		}
 		this._renderFileField();
+
+		if (this.uploaded) this._updateFileAttributes(this.dataImported || {});
 	}
 	_retryUpload(event) {
 		event.preventDefault();
