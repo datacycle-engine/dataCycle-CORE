@@ -211,10 +211,12 @@ module DataCycleCore
 
       image = ::MiniMagick::Image.new(tempfile.path, tempfile)
       exif_data = MiniExiftool.new(tempfile, { replace_invalid_chars: true })
-      exif_data
+      exif_data = exif_data
         .to_hash
         .transform_values { |value| value.is_a?(String) ? value.delete("\u0000") : value }
-        .merge!({ ImColorSpace: image.colorspace.to_s.gsub(/.*class|alpha/i, '').strip })
+      exif_data['ImColorSpace'] = image.colorspace.to_s.gsub(/.*class|alpha/i, '').strip
+
+      exif_data
     end
 
     def set_duplicate_hash
