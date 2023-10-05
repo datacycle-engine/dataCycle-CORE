@@ -216,6 +216,8 @@ module DataCycleCore
         .transform_values { |value| value.is_a?(String) ? value.delete("\u0000") : value }
       exif_data['ImColorSpace'] = image.colorspace.to_s.gsub(/.*class|alpha/i, '').strip
 
+      tempfile.rewind
+
       exif_data
     end
 
