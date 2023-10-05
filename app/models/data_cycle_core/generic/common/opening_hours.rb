@@ -90,8 +90,13 @@ module DataCycleCore
         end
 
         def self.preprocess_opening_time(data, external_source_id, external_key, day_transformation, schedule_id)
-          start_time = "#{data['DateFrom']} #{data['TimeFrom']}".in_time_zone
-          duration = DataCycleCore::Schedule.time_to_duration(data['TimeFrom'], data['TimeTo'])
+          if data['TimeFrom'].is_a?(ActiveSupport::TimeWithZone) && data['DateFrom'].is_a?(ActiveSupport::TimeWithZone) && data['TimeFrom'] == data['DateFrom']
+            start_time = data['TimeFrom']
+            duration = DataCycleCore::Schedule.time_to_duration(data['TimeFrom'].strftime("%k:%M:%S"), data['TimeTo'].strftime("%k:%M:%S"))
+          else
+            start_time = "#{data['DateFrom']} #{data['TimeFrom']}".in_time_zone
+            duration = DataCycleCore::Schedule.time_to_duration(data['TimeFrom'], data['TimeTo'])
+          end
           until_time = data['DateTo']&.to_datetime&.end_of_day&.utc || 3.years.from_now.to_datetime.end_of_day.utc # !! use :to_datetime (until has to be given in UTC of local time)
           days = day_transformation.present? ? day_transformation&.call(data) : data['WeekDays']
           days = (0...7).to_a if days.blank?
