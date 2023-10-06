@@ -133,10 +133,6 @@ module DataCycleCore
                                            end
     end
 
-    def original(_transformation = {})
-      file
-    end
-
     def thumb_preview(transformation = {})
       thumb = nil
       if file&.attached?
