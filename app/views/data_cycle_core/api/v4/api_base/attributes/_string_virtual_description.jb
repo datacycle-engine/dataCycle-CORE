@@ -2,15 +2,13 @@
 
 json ||= {}
 
-api_property_definition = api_definition(definition)
-
 if value.present?
   key_new = attribute_key(key, definition)
 
   if options[:expand_language] && options[:languages].include?('de')
     data = [{
       '@language' => locale.to_s,
-      '@value' => value,
+      '@value' => value
     }]
   else
     data = value
