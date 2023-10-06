@@ -1,15 +1,15 @@
 import DomElementHelpers from "../helpers/dom_element_helpers";
 
-class DisableIfAnyPresent {
+class DisableUnlessValue {
 	constructor(element) {
 		this.element = element;
-		this.element.classList.add("dcjs-disable-if-any-present");
+		this.element.classList.add("dcjs-disable-unless-value");
 		this.disabled = false;
 		this.dependentOnAttributes = DomElementHelpers.parseDataAttribute(
-			this.element.dataset.disableIfAnyPresent,
+			this.element.dataset.disableUnlessValue,
 		);
 		this.dependentOn = document.querySelectorAll(
-			this.dependentOnAttributes
+			Object.keys(this.dependentOnAttributes)
 				.map((v) => `.form-element[data-key$="[${v}]"]`)
 				.join(", "),
 		);
@@ -55,11 +55,34 @@ class DisableIfAnyPresent {
 			.querySelector('input[type="hidden"].disable-and-clear-dummy')
 			?.remove();
 	}
-	getStatus() {
-		const value = Array.from(DomElementHelpers.getFormData(this.dependentOn));
+	hasValue(element, expectedValue) {
+		if (element.classList.contains("radio_button"))
+			return this.hashCheckboxValue(element, expectedValue);
+		else return false;
+	}
+	hashCheckboxValue(element, expectedValue) {
+		const selected = element.querySelector('input[type="radio"]:checked');
 
-		return value.some((v) => v[1]);
+		if (!selected) return false;
+
+		if (typeof expectedValue === "string" && expectedValue.isUuid())
+			return selected.value === expectedValue;
+		else if (typeof expectedValue === "string")
+			return selected.nextElementSibling.textContent.trim() === expectedValue;
+		else return false;
+	}
+	getStatus() {
+		let disabled = true;
+
+		for (const element of this.dependentOn) {
+			const key = element.dataset.key.attributeNameFromKey();
+
+			if (this.hasValue(element, this.dependentOnAttributes[key]))
+				disabled = false;
+		}
+
+		return disabled;
 	}
 }
 
-export default DisableIfAnyPresent;
+export default DisableUnlessValue;
