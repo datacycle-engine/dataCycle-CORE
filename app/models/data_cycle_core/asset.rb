@@ -35,6 +35,12 @@ module DataCycleCore
       @duplicate_candidates_with_score ||= []
     end
 
+    DEFAULT_ASSET_VERSIONS.each do |method|
+      define_method(method) do |_transformation = {}|
+        file
+      end
+    end
+
     def update_asset_attributes
       return if file.blank?
       self.content_type = file.blob.content_type
