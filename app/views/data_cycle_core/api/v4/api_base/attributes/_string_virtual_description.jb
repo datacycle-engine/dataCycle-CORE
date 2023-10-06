@@ -5,16 +5,18 @@ json ||= {}
 if value.present?
   key_new = attribute_key(key, definition)
 
-  if options[:expand_language] && options[:languages].include?('de')
-    data = [{
-      '@language' => locale.to_s,
-      '@value' => value
-    }]
-  else
-    data = value
-  end
+  if options[:languages].include?('de')
+    if options[:expand_language]
+      data = [{
+        '@language' => locale.to_s,
+        '@value' => value
+      }]
+    else
+      data = value
+    end
 
-  json = { key_new => data }
+    json = { key_new => data }
+  end
 end
 
 json
