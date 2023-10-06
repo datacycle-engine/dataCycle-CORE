@@ -1,0 +1,22 @@
+# frozen_string_literal: true
+
+json ||= {}
+
+api_property_definition = api_definition(definition)
+
+if value.present?
+  key_new = attribute_key(key, definition)
+
+  if options[:expand_language] && options[:languages].include?('de')
+    data = [{
+      '@language' => locale.to_s,
+      '@value' => value,
+    }]
+  else
+    data = value
+  end
+
+  json = { key_new => data }
+end
+
+json
