@@ -91,6 +91,11 @@
         :compute:
           :module: ContentScore
           :method: calculate_from_feature
+          :condition:
+            - :type: content
+              :name: content_score_allowed?
+              :method: equals?
+              :value: true
         :xml:
           disabled: true
         :api:
