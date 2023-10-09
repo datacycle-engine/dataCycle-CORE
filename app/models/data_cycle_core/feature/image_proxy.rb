@@ -82,7 +82,7 @@ module DataCycleCore
         end
 
         def image_filename(content, variant, processing)
-          name = content.name&.parameterize(separator: '_') || content.id
+          name = content.name&.parameterize(separator: '_').presence || content.slug.presence || content.id
           file_extension = image_file_extension(content, variant, processing)
           file_extension.present? ? "#{name}.#{file_extension}" : name
         end
