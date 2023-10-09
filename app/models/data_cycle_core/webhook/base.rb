@@ -37,7 +37,7 @@ module DataCycleCore
       end
 
       def self.validate_webhook(external_system, action, data)
-        webhook = external_system.export_config.dig(action.to_sym)&.symbolize_keys
+        webhook = external_system.export_config&.dig(action.to_sym)&.symbolize_keys
         return unless webhook&.dig(:strategy)
 
         export_class = webhook.dig(:strategy).constantize
