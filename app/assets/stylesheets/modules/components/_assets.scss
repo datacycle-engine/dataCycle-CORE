@@ -589,6 +589,8 @@ ul.asset-list {
     margin: 0;
     min-width: 3rem;
     padding: 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     &:not(:last-child) {
       border-right: 1px solid rgba($medium-gray, 0.4);
@@ -655,6 +657,7 @@ ul.asset-list {
   .file-attribute-value {
     overflow: hidden;
     text-overflow: ellipsis;
+
   }
 
   .file-name,
