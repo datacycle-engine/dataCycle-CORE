@@ -1692,6 +1692,19 @@ a.email-link {
   }
 }
 
+.multi-step {
+  .form-element {
+    .v-select {
+      .select2 .select2-selection.select2-selection--single .select2-selection__arrow {
+        top: 1px;
+        height: 100%;
+        bottom: unset;
+        right: 1px;
+      }
+    }
+  }
+}
+
 .select2-container {
   color: $dark-gray;
   text-align: left;
