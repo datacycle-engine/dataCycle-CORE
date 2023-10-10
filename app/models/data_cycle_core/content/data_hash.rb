@@ -138,8 +138,7 @@ module DataCycleCore
 
       def inherit_source_attributes(data_hash:, source:)
         I18n.with_locale(source.first_available_locale) do
-          source_data_hash = source.get_data_hash
-          data_hash.reverse_merge!(source_data_hash.slice(*DataCycleCore.inheritable_attributes))
+          data_hash.reverse_merge!(source.get_data_hash_partial(DataCycleCore.inheritable_attributes))
         end
       end
 

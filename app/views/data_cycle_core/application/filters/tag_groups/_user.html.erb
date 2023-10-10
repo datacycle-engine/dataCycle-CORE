@@ -7,7 +7,7 @@
   <% users = DataCycleCore::User.with_deleted.where(id: value).map { |c| [c.id, { title: c.email, text: c.try(:full_name) }] }.to_h %>
 
   <span class="tags-container">
-    <% value.each do |user_id| %>
+    <% Array.wrap(value).each do |user_id| %>
       <span class="tag" data-dc-tooltip="<%= users.dig(user_id, :title) %>"><%= users.dig(user_id, :text) %></span>
     <% end %>
   </span>

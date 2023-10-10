@@ -180,10 +180,12 @@ module DataCycleCore
       return params_hash if options_hash.blank?
 
       options_hash.each do |key, value|
-        if value.is_a?(ActiveRecord::Base)
-          params_hash[key] = value.persisted? ? { id: value&.id, class: value&.class&.name } : { class: value&.class&.name, attributes: value.attributes }
+        if value.is_a?(DataCycleCore::Thing) && !value.persisted?
+          params_hash[key] = value.thing_template.persisted? ? { class: value.class.name, attributes: value.attributes } : { class: value.class.name, attributes: value.attributes.merge(thing_template: { class: value.thing_template.class.name, attributes: value.thing_template.attributes }) }
+        elsif value.is_a?(ActiveRecord::Base)
+          params_hash[key] = value.persisted? ? { value.class.primary_key.to_sym => value.try(value.class.primary_key), class: value.class.name } : { class: value.class.name, attributes: value.attributes }
         elsif value.is_a?(ActiveRecord::Relation)
-          params_hash[key] = { ids: value&.ids, class: value&.klass&.name }
+          params_hash[key] = { class: value.klass.name, value.klass.primary_key.to_sym => value.pluck(value.klass.primary_key), type: 'Collection' }
         elsif value.is_a?(OpenStruct)
           params_hash[key] = { value: value.to_h, class: 'OpenStruct' }
         elsif value.is_a?(::Hash)

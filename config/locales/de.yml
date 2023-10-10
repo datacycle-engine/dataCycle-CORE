@@ -527,7 +527,7 @@ de:
       events: Events
       gallery: Bildergalerie
     user_registration:
-      terms_conditions: 'Ich aktzeptiere die <a href="%{url}" target="_blank">Allgemeinen Geschäftsbedingungen</a>.'
+      terms_conditions: 'Ich akzeptiere die <a href="%{url}" target="_blank">Allgemeinen Geschäftsbedingungen</a>.'
       privacy_policy: 'Ich bin mit der Verarbeitung meiner Daten laut  <a href="%{url}" target="_blank">Datenschutzerklärung</a> einverstanden.'
     no_selection: keine Auswahl
     external_name: Titel
@@ -850,7 +850,7 @@ de:
     number_of_accommodations: Anzahl der Wohneinheiten
     linked_image: Verknüpftes Bild
     linked_location: Verknüpfter Ort
-    linked_author: Verknüpfter Fotograf
+    linked_author: Verknüpfter Autor
     linked_copyright_holder: Verknüpfter Rechteinhaber
     linked_provider: Verknüpfter Dienstleister
     linked_sd_publisher: Verknüpfter Inhaber / Herausgeber

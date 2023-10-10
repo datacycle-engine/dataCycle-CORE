@@ -5,12 +5,14 @@
   <% classification_items = DataCycleCore::ClassificationAlias.includes(:classification_tree_label, :primary_classification).where(classification_trees: { parent_classification_alias_id: nil }, classification_tree_labels: { name: definition['tree_label'] }) %>
 
   <ul class="no-bullet classification-radiobutton-list">
-    <li class="radiobutton-wrap">
-      <%= radio_button_tag key + '[]', '', true, id: sanitize_to_id(key + '[]') %>
-      <%= label_tag key + '[]', "#{t("common.no_selection", locale: active_ui_locale)}" %>
-    </li>
+    <% unless definition.dig('validations', 'required') %>
+      <li class="radiobutton-wrap" data-label="<%= t("common.no_selection", locale: active_ui_locale) %>">
+        <%= radio_button_tag key + '[]', '', true, id: sanitize_to_id(key + '[]') %>
+        <%= label_tag key + '[]', t("common.no_selection", locale: active_ui_locale) %>
+      </li>
+    <% end %>
     <%= collection_radio_buttons(nil, key + '[]', classification_items, :primary_classification_id, :internal_name, {}, { namespace: local_assigns.dig(:options, :prefix) }) do |rb| %>
-      <li class="radiobutton-wrap">
+      <li class="radiobutton-wrap"  data-label="<%= rb.text %>">
         <%= rb.radio_button value: rb.value,
                             checked: (value&.ids&.include?(rb.value) || (local_assigns.dig(:options, :edit_scope) == 'new' && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(rb.value))),
                             disabled: !rb.object.assignable || !attribute_editable?(key, definition, options, content)  %>

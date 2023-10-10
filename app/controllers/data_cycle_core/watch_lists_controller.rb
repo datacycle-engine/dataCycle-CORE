@@ -200,11 +200,13 @@ module DataCycleCore
           specific_datahash[:translations]&.slice!(*allowed_translations)
 
           if specific_datahash[:translations].present? || specific_datahash[:datahash].present?
-            valid = content.set_data_hash_with_translations(
-              data_hash: transform_exisiting_values(bulk_edit_types, template_hash, specific_datahash, content),
-              current_user:
-            )
-            errors.concat(Array.wrap(content.errors.full_messages)) unless valid
+            I18n.with_locale(content.first_available_locale(specific_datahash[:translations]&.keys&.first || params[:locale])) do
+              valid = content.set_data_hash_with_translations(
+                data_hash: transform_exisiting_values(bulk_edit_types, template_hash, specific_datahash, content),
+                current_user:
+              )
+              errors.concat(Array.wrap(content.errors.full_messages)) unless valid
+            end
           end
 
           ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", { progress: index + 1, items: item_count })
