@@ -14,7 +14,7 @@ module DataCycleCore
         value = parse_json_string(value) if value.is_a?(String)
 
         if resolve_instances && value.is_a?(::Hash) && value.key?('class') && !(class_name = value['class'].classify.safe_constantize).nil?
-          if value.key?(class_name.primary_key) && value[:type] == 'Collection'
+          if value.key?(class_name.try(:primary_key)) && value[:type] == 'Collection'
             return_hash[key] = class_name.where(id: value[class_name.primary_key])
             .order(
               [
@@ -22,7 +22,7 @@ module DataCycleCore
                 value[class_name.primary_key]
               ]
             )
-          elsif value.key?(class_name.primary_key)
+          elsif value.key?(class_name.try(:primary_key))
             return_hash[key] = class_name.find_by(class_name.primary_key => value[class_name.primary_key])
           elsif value.key?('attributes')
             return_hash[key] = class_name.new(resolve_params(value['attributes'], resolve_instances, false).with_indifferent_access)
