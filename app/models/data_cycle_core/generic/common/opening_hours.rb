@@ -70,11 +70,19 @@ module DataCycleCore
         def self.parse_opening_times(data, external_source_id, external_key, day_transformation = nil)
           return nil if data.blank?
 
+          transformed_data = Array.wrap(data).map { |item|
+            next if item.blank? || item['TimeFrom'].blank? || item['TimeTo'].blank?
+
+            item['external_key'] = Digest::SHA1.hexdigest "#{external_key}-#{item.to_json}"
+
+            item
+          }.compact
+
+          existing = DataCycleCore::Schedule.where(external_source_id:, external_key: transformed_data.pluck('external_key')).index_by(&:external_key)
+
           Array.wrap(data).map { |item|
             next if item.blank? || item['TimeFrom'].blank? || item['TimeTo'].blank?
-            external_schedule_key = Digest::SHA1.hexdigest "#{external_key}-#{data.to_json}"
-            schedule_id = DataCycleCore::Schedule.find_by(external_source_id:, external_key: external_schedule_key)&.id
-            preprocess_opening_time(data, external_source_id, external_schedule_key, day_transformation, schedule_id)
+            preprocess_opening_time(data, external_source_id, external_schedule_key, day_transformation, existing[item['external_key']]&.id)
           }.compact
         end
 
@@ -97,7 +105,7 @@ module DataCycleCore
             start_time = "#{data['DateFrom']} #{data['TimeFrom']}".in_time_zone
             duration = DataCycleCore::Schedule.time_to_duration(data['TimeFrom'], data['TimeTo'])
           end
-          until_time = data['DateTo']&.to_datetime&.end_of_day&.utc || 3.years.from_now.to_datetime.end_of_day.utc # !! use :to_datetime (until has to be given in UTC of local time)
+          until_time = data['DateTo']&.to_datetime&.end_of_day&.utc&.change(usec: 0) || 3.years.from_now.to_datetime.end_of_day.utc&.change(usec: 0) # !! use :to_datetime (until has to be given in UTC of local time)
           days = day_transformation.present? ? day_transformation&.call(data) : data['WeekDays']
           days = (0...7).to_a if days.blank?
 
@@ -107,8 +115,7 @@ module DataCycleCore
               .map { |d| { time: "#{d[:date]} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
           end
 
-          {
-            id: schedule_id,
+          DataCycleCore::Schedule.new.from_hash({
             external_source_id:,
             external_key:,
             start_time: {
@@ -126,7 +133,7 @@ module DataCycleCore
               },
               until: until_time
             }]
-          }.deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }.with_indifferent_access
+          }.deep_reject { |_, v| DataCycleCore::DataHashService.blank?(v) }.with_indifferent_access).to_hash.except(:relation, :thing_id).merge(id: schedule_id).with_indifferent_access.compact
         end
 
         private

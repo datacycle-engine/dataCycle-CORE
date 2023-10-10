@@ -14,12 +14,12 @@ module DataCycleCore
           end
 
           destroy_children(current_user:, save_time:, destroy_linked:, destroy_locale:)
-          destroy_linked_data(current_user:, save_time:, save_history:, destroy_linked:) if destroy_linked
           if destroy_locale && available_locales.many?
             destroy_translation(I18n.locale)
             after_save_data_hash(DataCycleCore::Content::DataHashOptions.new(current_user:, save_time:)) unless history?
           else
             before_destroy_data_hash(DataCycleCore::Content::DataHashOptions.new(current_user:, save_time:)) unless history?
+            destroy_linked_data(current_user:, save_time:, save_history:, destroy_linked:) if destroy_linked
             destroy
           end
         end
