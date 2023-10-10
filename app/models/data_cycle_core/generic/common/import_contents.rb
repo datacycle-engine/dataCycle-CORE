@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'jsonpath'
 module DataCycleCore
   module Generic
     module Common
@@ -35,12 +36,17 @@ module DataCycleCore
             Array.wrap(options.dig(:import, :nested_contents)).each do |nested_contents_config|
               transformation = options[:transformations].constantize.method(nested_contents_config[:transformation])
 
-              Array.wrap(resolve_attribute_path(raw_data, nested_contents_config[:path])).each do |nested_data|
+              nested_contents_items =
+                if nested_contents_config.dig(:json_path).present?
+                  JsonPath.new(nested_contents_config.dig(:json_path)).on(raw_data)
+                else
+                  resolve_attribute_path(raw_data, nested_contents_config[:path])
+                end
+
+              Array.wrap(nested_contents_items).each do |nested_data|
                 next if nested_contents_config[:exists].present? && Array.wrap(nested_contents_config[:exists]).map { |path| resolve_attribute_path(nested_data, path).blank? }.inject(:|)
 
-                # ap transformation.call(utility_object.external_source.id).call(nested_data)
-
-                nested_content_config = nested_contents_config.except(:exists, :path, :template, :transformation)
+                nested_content_config = nested_contents_config.except(:exists, :path, :json_path, :template, :transformation)
                 raw_data = raw_data.merge(options.dig(:import, :main_content, :data)) if options.dig(:import, :main_content, :data).present?
                 process_single_content(utility_object, nested_contents_config[:template], transformation, nested_data, nested_content_config)
               end
