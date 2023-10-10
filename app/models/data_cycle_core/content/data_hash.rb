@@ -515,12 +515,7 @@ module DataCycleCore
         data = input_data || []
 
         data.each do |item|
-          schedule =
-            if item['id'].present? && DataCycleCore::Schedule.find_by(id: item['id']).present?
-              DataCycleCore::Schedule.find_by(id: item['id'])
-            else
-              DataCycleCore::Schedule.new
-            end
+          schedule = item['id'].presence&.then { |sid| DataCycleCore::Schedule.find_by(id: sid) } || DataCycleCore::Schedule.new
           schedule.id = item['id'] if item['id'].present?
           schedule.external_source_id = item['external_source_id'] if item['external_source_id'].present?
           schedule.external_key = item['external_key'] if item['external_key'].present?
