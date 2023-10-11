@@ -4,9 +4,10 @@
 class CreateExternalHash < ActiveRecord::Migration[5.2]
   def change
     create_table :external_hashes, id: :uuid do |t|
-      t.uuid      :external_source_id
-      t.string    :external_key
+      t.uuid      :external_source_id, null: false
+      t.string    :external_key, null: false
       t.string    :hash_value
+      t.string    :locale, null: false
       t.datetime  :seen_at
       t.timestamps
 
