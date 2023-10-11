@@ -6,7 +6,6 @@ module DataCycleCore
       module ImportFunctionsDataHelper
         def process_step(utility_object:, raw_data:, transformation:, default:, config:)
           template = config&.dig(:template) || default.dig(:template)
-          # ts_start = Time.zone.now
 
           if config&.key?(:before)
             whitelist = config.dig(:before, :whitelist)
@@ -27,15 +26,12 @@ module DataCycleCore
             data = Transformations::BlacklistWhitelistFunctions.apply_blacklist(data, blacklist) if blacklist.present?
           end
 
-          # ts_start = Time.zone.now
-
           transformation_hash = Digest::SHA256.hexdigest(data.to_json)
           external_key = data.dig('external_key')
           external_source_id = utility_object.external_source.id
+          external_hash = DataCycleCore::ExternalHash.find_or_initialize_by(external_key:, external_source_id:, locale: I18n.locale)
 
-          found_hash = DataCycleCore::ExternalHash.find_or_create_by(external_key:, external_source_id:)
-
-          unless found_hash.hash_value == transformation_hash
+          unless external_hash.hash_value == transformation_hash
             content = create_or_update_content(
               utility_object:,
               template: load_template(template),
@@ -43,11 +39,10 @@ module DataCycleCore
               local: false,
               config:
             )
-            found_hash.hash_value = transformation_hash if content.present?
+            external_hash.hash_value = transformation_hash if content.present?
           end
-          found_hash.seen_at = Time.zone.now
-          found_hash.save
-          # puts "Duration: process_step - create_or_update_content #{Time.zone.now - ts_start} seconds"
+          external_hash.seen_at = Time.zone.now
+          external_hash.save
         end
 
         def create_or_update_content(utility_object:, template:, data:, local: false, config: {})
