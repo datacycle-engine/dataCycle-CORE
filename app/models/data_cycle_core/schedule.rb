@@ -36,6 +36,59 @@ module DataCycleCore
 
     def schedule_object=(value)
       @schedule_object = value
+      reload_memoized
+    end
+
+    def reload_memoized
+      remove_instance_variable(:@rrule) if instance_variable_defined?(:@rrule)
+      remove_instance_variable(:@dtstart) if instance_variable_defined?(:@dtstart)
+      remove_instance_variable(:@duration) if instance_variable_defined?(:@duration)
+      remove_instance_variable(:@dtend) if instance_variable_defined?(:@dtend)
+      remove_instance_variable(:@rdate) if instance_variable_defined?(:@rdate)
+      remove_instance_variable(:@exdate) if instance_variable_defined?(:@exdate)
+    end
+
+    def rrule
+      return @rrule if defined? @rrule
+
+      @rrule = schedule_object&.recurrence_rules&.first&.to_ical
+    end
+
+    def dtstart
+      return @dtstart if defined? @dtstart
+
+      @dtstart = schedule_object&.start_time
+    end
+
+    def duration
+      return @duration if defined? @duration
+
+      if self[:duration].present?
+        @duration = self[:duration]
+      elsif schedule_object.present?
+        @duration = iso8601_duration(schedule_object.start_time, schedule_object.end_time)
+      else
+        @duration = nil
+      end
+    end
+
+    def dtend
+      return @dtend if defined? @dtend
+      return @dtend = nil if schedule_object.blank?
+
+      @dtend = schedule_object.terminating? ? (schedule_object.last || schedule_object.start_time) + (duration || 0) : nil
+    end
+
+    def rdate
+      return @rdate if defined? @rdate
+
+      @rdate = schedule_object&.recurrence_times
+    end
+
+    def exdate
+      return @exdate if defined? @exdate
+
+      @exdate = schedule_object&.extimes
     end
 
     def to_h
@@ -63,7 +116,7 @@ module DataCycleCore
         )
       end
 
-      self.duration = hash[:duration]&.iso8601
+      self.duration = hash[:duration]
       self.dtstart = hash[:dtstart]
       self.dtend = hash[:dtend]
       self.holidays = hash[:holidays]
@@ -309,27 +362,26 @@ module DataCycleCore
     end
 
     def load_schedule_object
-      options = { duration: duration.presence }.compact
+      options = { duration: self[:duration].presence }.compact
 
-      IceCube::Schedule.new(dtstart.presence || Time.zone.now, options) do |s|
-        s.add_recurrence_rule(IceCube::Rule.from_ical(rrule)) if rrule.present? # allow only one rrule!!
-        rdate.each do |rd|
+      IceCube::Schedule.new(self[:dtstart].presence || Time.zone.now, options) do |s|
+        s.add_recurrence_rule(IceCube::Rule.from_ical(self[:rrule])) if self[:rrule].present? # allow only one rrule!!
+        self[:rdate].each do |rd|
           s.add_recurrence_time(rd)
         end
-        exdate.each do |exd|
+        self[:exdate].each do |exd|
           s.add_exception_time(exd)
         end
       end
     end
 
     def serialize_schedule_object
-      return if schedule_object.blank?
-      self.rrule = schedule_object.recurrence_rules&.first&.to_ical
-      self.dtstart = schedule_object.start_time
-      self.duration ||= iso8601_duration(schedule_object.start_time, schedule_object.end_time)&.iso8601
-      self.dtend = schedule_object.terminating? ? (schedule_object.last || schedule_object.start_time) + (duration || 0) : nil
-      self.rdate = schedule_object.recurrence_times
-      self.exdate = schedule_object.extimes
+      self.rrule = rrule
+      self.dtstart = dtstart
+      self.duration = duration
+      self.dtend = dtend
+      self.rdate = rdate
+      self.exdate = exdate
       self
     end
 
