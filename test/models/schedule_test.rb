@@ -45,13 +45,18 @@ module DataCycleCore
       schedule = DataCycleCore::Schedule.new
       dtstart = Time.parse('2019-11-20T9:00').in_time_zone
       dtend = Time.parse('2020-01-04T16:00').in_time_zone
-      schedule.schedule_object = IceCube::Schedule.new(dtstart, { duration: 7.hours.to_i }) do |s|
-        s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(9).until(dtend))
+      rrule = IceCube::Rule.daily.hour_of_day(9).until(dtend)
+      duration = 7.hours
+      schedule.schedule_object = IceCube::Schedule.new(dtstart, { duration: duration.to_i }) do |s|
+        s.add_recurrence_rule(rrule)
       end
 
-      [:id, :dtstart, :dtend, :duration, :rrule].each do |attribute|
-        assert_nil(schedule.send(attribute))
-      end
+      assert_equal(dtstart, schedule.dtstart)
+      assert_equal(dtend, schedule.dtend)
+      assert_equal(duration, schedule.duration)
+      assert_equal(rrule.to_ical, schedule.rrule)
+      assert_nil(schedule.id)
+
       [:rdate, :exdate].each do |attribute|
         assert_equal([], schedule.send(attribute))
       end
