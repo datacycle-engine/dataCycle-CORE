@@ -11,7 +11,7 @@ class CreateExternalHash < ActiveRecord::Migration[5.2]
       t.datetime  :seen_at
       t.timestamps
 
-      t.index [:external_source_id, :external_key], name: 'index_external_hash_on_external_source_id_and_external_key', unique: true, using: :btree
+      t.index [:external_source_id, :external_key, :locale], name: 'index_external_hash_on_external_source_id_external_key_locale', unique: true, using: :btree
     end
   end
 end
