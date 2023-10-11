@@ -72,17 +72,14 @@ module DataCycleCore
 
           transformed_data = Array.wrap(data).map { |item|
             next if item.blank? || item['TimeFrom'].blank? || item['TimeTo'].blank?
-
             item['external_key'] = Digest::SHA1.hexdigest "#{external_key}-#{item.to_json}"
-
             item
           }.compact
 
           existing = DataCycleCore::Schedule.where(external_source_id:, external_key: transformed_data.pluck('external_key')).index_by(&:external_key)
 
-          Array.wrap(data).map { |item|
-            next if item.blank? || item['TimeFrom'].blank? || item['TimeTo'].blank?
-            preprocess_opening_time(data, external_source_id, external_schedule_key, day_transformation, existing[item['external_key']]&.id)
+          transformed_data.map { |item|
+            preprocess_opening_time(data, external_source_id, item['external_key'], day_transformation, existing[item['external_key']]&.id)
           }.compact
         end
 
