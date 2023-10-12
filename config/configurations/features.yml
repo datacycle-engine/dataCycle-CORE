@@ -192,6 +192,7 @@
   # :boolean:
   #   - duplicate_candidates
   #   - with_geom
+  #   - with_external_source
   :config:
     :visible: false
     :schedule_exceptions:

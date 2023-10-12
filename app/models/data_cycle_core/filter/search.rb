@@ -273,6 +273,14 @@ module DataCycleCore
         end
       end
 
+      def with_external_source(value)
+        if value.to_s == 'true'
+          with_external_system
+        else
+          not_with_external_system
+        end
+      end
+
       def template_names(names)
         return self if names.blank?
 

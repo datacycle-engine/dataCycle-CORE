@@ -788,6 +788,8 @@ de:
     not_duplicate_candidates: keine potentiellen Duplikate vorhanden
     with_geom: Inhalte mit Geokoordinaten
     not_with_geom: Inhalte ohne Geokoordinaten
+    with_external_source: Importierte Inhalte
+    not_with_external_source: Nicht Importierte Inhalte
     bookable: buchbar
     not_bookable: nicht buchbar
     width: Breite
