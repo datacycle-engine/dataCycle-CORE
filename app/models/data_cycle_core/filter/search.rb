@@ -265,6 +265,14 @@ module DataCycleCore
         end
       end
 
+      def with_geom(value)
+        if value.to_s == 'true'
+          with_geometry
+        else
+          not_with_geometry
+        end
+      end
+
       def template_names(names)
         return self if names.blank?
 

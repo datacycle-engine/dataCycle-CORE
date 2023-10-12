@@ -786,6 +786,8 @@ de:
     upload_date: Uploaddatum
     duplicate_candidates: Potentielle Duplikate vorhanden
     not_duplicate_candidates: keine potentiellen Duplikate vorhanden
+    with_geom: Inhalte mit Geokoordinaten
+    not_with_geom: Inhalte ohne Geokoordinaten
     bookable: buchbar
     not_bookable: nicht buchbar
     width: Breite
