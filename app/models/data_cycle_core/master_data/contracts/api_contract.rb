@@ -132,6 +132,10 @@ module DataCycleCore
             optional(:in).filled(:array)
             optional(:notIn).filled(:array)
           end
+          optional(:classificationTreeId).hash do
+            optional(:in).filled(:array)
+            optional(:notIn).filled(:array)
+          end
           optional(:search).value(:string)
           optional(:q).value(:string)
           optional(:classifications).hash do
