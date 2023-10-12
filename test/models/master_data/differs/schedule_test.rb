@@ -63,7 +63,7 @@ describe DataCycleCore::MasterData::Differs::Schedule do
       end
       a = DataCycleCore::Schedule.new(id: SecureRandom.uuid)
       a.schedule_object = a_schedule
-      a_hash = [a.serialize_schedule_object.to_h.with_indifferent_access.compact]
+      a_hash = [a.to_h.with_indifferent_access]
 
       schedule_hash = { 'event_schedule' => { '0' =>
         {

@@ -93,6 +93,8 @@ module DataCycleCore
 
     def to_h
       item_hash = schedule_object&.to_hash || {}
+      item_hash[:rtimes] = nil if item_hash[:rtimes].blank?
+      item_hash[:extimes] = nil if item_hash[:extimes].blank?
       item_hash[:duration] = duration.iso8601 if duration&.positive?
       item_hash[:id] = id
       item_hash[:relation] = relation
@@ -121,8 +123,8 @@ module DataCycleCore
       self.dtend = hash[:dtend]
       self.holidays = hash[:holidays]
       self.relation = hash[:relation] || relation
-      self.external_key = hash[:external_key]
-      self.external_source_id = hash[:external_source_id]
+      self.external_key = hash[:external_key] if hash.key?(:external_key)
+      self.external_source_id = hash[:external_source_id] if hash.key?(:external_source_id)
       self
     end
 
@@ -461,7 +463,7 @@ module DataCycleCore
             s.dig('rrules', 0, 'validations')&.delete('day')
           end
 
-          DataCycleCore::Schedule.new.from_hash(s.slice('id', 'start_time', 'duration', 'rrules', 'rtimes', 'extimes').deep_reject { |_, v| DataCycleCore::DataHashService.blank?(v) }.with_indifferent_access).to_hash.except(:relation, :thing_id).merge(id: s['id']).with_indifferent_access.compact
+          transform_data_for_data_hash(s.deep_reject { |_, v| DataCycleCore::DataHashService.blank?(v) }).merge(id: s['id'])
         }.compact
       end
 
@@ -489,7 +491,7 @@ module DataCycleCore
                 .map { |d| { time: "#{d[:date]} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
             end
 
-            DataCycleCore::Schedule.new.from_hash({
+            transform_data_for_data_hash({
               id: t['id'],
               start_time: {
                 time: start_time.to_s,
@@ -504,9 +506,9 @@ module DataCycleCore
                 validations: {
                   day: days
                 },
-                until: until_as_utc_iso8601(s['valid_until'], t['opens'])
+                until: s['valid_until'].to_date.as_json # until_as_utc_iso8601(s['valid_until'], t['opens'])
               }]
-            }.deep_reject { |_, v| DataCycleCore::DataHashService.blank?(v) }.with_indifferent_access).to_hash.except(:relation, :thing_id).merge(id: t['id']).with_indifferent_access.compact
+            }.deep_reject { |_, v| DataCycleCore::DataHashService.blank?(v) }).merge(id: t['id'])
           end
         }.flatten.compact
       end
@@ -614,6 +616,109 @@ module DataCycleCore
         }
 
         schedule_hash.with_indifferent_access
+      end
+
+      def duration_to_iso8601_string(data)
+        if data.is_a?(ActiveSupport::Duration) && !data.zero?
+          data.iso8601
+        elsif data.is_a?(::Hash)
+          duration = parts_to_iso8601_duration(data)
+          duration.zero? ? nil : duration.iso8601
+        elsif data.is_a?(Numeric) && data.positive?
+          ActiveSupport::Duration.build(data).iso8601
+        end
+      end
+
+      def add_missing_rrule_values!(rrule, data)
+        if rrule.key?(:interval)
+          rrule[:interval] = rrule[:interval].to_i
+        else
+          rrule[:interval] = 1
+        end
+
+        if rrule[:until].present?
+          start_time = data.dig(:start_time, :time)
+          rrule[:until] = rrule[:until].in_time_zone(data.dig(:start_time, :zone)).change(hour: start_time.hour, min: start_time.min, sec: start_time.sec, usec: 0).utc
+        end
+
+        add_missing_rrule_validations!(rrule, data)
+
+        rrule
+      end
+
+      def add_missing_rrule_validations!(rrule, data)
+        rrule[:validations] = {} unless rrule.key?(:validations)
+        start_time = data.dig(:start_time, :time)
+
+        rrule[:validations][:hour_of_day] =  rrule[:validations][:hour_of_day].presence&.map(&:to_i)&.sort || [start_time.hour]
+        rrule[:validations][:minute_of_hour] = rrule[:validations][:minute_of_hour].presence&.map(&:to_i)&.sort || [start_time.min]
+
+        if rrule[:rule_type] == 'IceCube::WeeklyRule'
+          rrule[:week_start] = rrule[:week_start].to_i
+          rrule[:validations][:day] = rrule[:validations][:day].map(&:to_i).sort if rrule[:validations].key?(:day)
+        else
+          rrule.delete(:week_start)
+        end
+
+        if rrule[:rule_type] == 'IceCube::MonthlyRule'
+          if rrule[:validations][:day_of_week].is_a?(::String)
+            begin
+              rrule[:validations][:day_of_week] = JSON.parse(rrule[:validations][:day_of_week])
+            rescue JSON::ParserError
+              rrule[:validations].delete(:day_of_week)
+            end
+          elsif rrule[:validations][:day_of_week].is_a?(::Hash)
+            rrule[:validations][:day_of_week] = rrule[:validations][:day_of_week].to_h { |k, v| [k.to_i, v.map(&:to_i).sort] }
+          end
+
+          if rrule[:validations][:day_of_month].is_a?(::String)
+            begin
+              rrule[:validations][:day_of_month] = JSON.parse(rrule[:validations][:day_of_month])
+            rescue JSON::ParserError
+              rrule[:validations].delete(:day_of_month)
+            end
+          else
+            rrule[:validations][:day_of_month]&.map!(&:to_i)&.sort!
+          end
+        else
+          rrule[:validations]&.delete(:day_of_month)
+        end
+
+        if rrule[:rule_type] == 'IceCube::YearlyRule'
+          rrule[:validations][:day_of_year] = rrule[:validations][:day_of_year].presence&.map(&:to_i)&.sort || [start_time.yday]
+        else
+          rrule[:validations]&.delete(:day_of_year)
+        end
+
+        rrule[:validations].delete(:minute_of_hour) if rrule[:validations][:minute_of_hour].presence&.all?(&:zero?)
+        rrule
+      end
+
+      def transform_data_for_data_hash(schedule_hash)
+        data = schedule_hash.with_indifferent_access.except(:relation, :thing_id)
+
+        data[:end_time] = {} unless data.key?(:end_time)
+        data[:start_time][:time] = data.dig(:start_time, :time).in_time_zone(data.dig(:start_time, :zone) || Time.zone.name) if data.dig(:start_time, :time).is_a?(::String)
+        data[:end_time][:time] = data.dig(:end_time, :time).in_time_zone(data.dig(:end_time, :zone) || Time.zone.name) if data.dig(:end_time, :time).is_a?(::String)
+
+        data[:duration] = iso8601_duration(data[:start_time][:time], data[:end_time][:time]) if data.key?(:end_time) && !data.key?(:duration)
+        data[:duration] = duration_to_iso8601_string(data[:duration]) if data.key?(:duration)
+        data[:end_time][:time] = data.dig(:start_time, :time).advance(iso8601_duration_to_parts(data[:duration]).to_h) if data.dig(:end_time, :time).blank? && data.key?(:duration) && data.key?(:start_time)
+
+        data[:start_time][:zone] = data.dig(:start_time, :time).time_zone.name if data.dig(:start_time, :zone).blank?
+        data[:end_time][:zone] = data.dig(:end_time, :time).time_zone.name if data.dig(:end_time, :zone).blank?
+
+        data[:rrules] = [] if data.dig(:rrules, 0, :rule_type) == 'IceCube::SingleOccurrenceRule'
+        data[:rtimes] = nil if data[:rtimes].blank?
+        data[:extimes] = nil if data[:extimes].blank?
+        data.delete(:duration) if data[:duration].blank?
+
+        data[:rrules].each { |rrule| add_missing_rrule_values!(rrule, data) }
+
+        data[:start_time][:time] = data[:start_time][:time].utc if data[:start_time][:time].is_a?(ActiveSupport::TimeWithZone) && data[:start_time][:time].zone != 'UTC'
+        data[:end_time][:time] = data[:end_time][:time].utc if data[:end_time][:time].is_a?(ActiveSupport::TimeWithZone) && data[:end_time][:time].zone != 'UTC'
+
+        data
       end
     end
   end

@@ -112,7 +112,7 @@ module DataCycleCore
               .map { |d| { time: "#{d[:date]} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
           end
 
-          DataCycleCore::Schedule.new.from_hash({
+          DataCycleCore::Schedule.transform_data_for_data_hash({
             external_source_id:,
             external_key:,
             start_time: {
@@ -130,7 +130,7 @@ module DataCycleCore
               },
               until: until_time
             }]
-          }.deep_reject { |_, v| DataCycleCore::DataHashService.blank?(v) }.with_indifferent_access).to_hash.except(:relation, :thing_id).merge(id: schedule_id).with_indifferent_access.compact
+          }.deep_reject { |_, v| DataCycleCore::DataHashService.blank?(v) }).merge(id: schedule_id)
         end
 
         private

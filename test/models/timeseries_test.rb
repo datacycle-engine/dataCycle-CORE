@@ -44,7 +44,7 @@ module DataCycleCore
 
     test 'create multiple timeseries points' do
       data = []
-      10.times { data.push(to_timeseries(['series', Time.zone.now, rand])) }
+      10.times { |i| data.push(to_timeseries(['series', Time.zone.now + i.seconds, rand])) }
 
       result = DataCycleCore::Timeseries.create_all(@timeseries, data)
       expected = response
@@ -55,7 +55,7 @@ module DataCycleCore
 
     test 'create datapoints more than once' do
       data = []
-      10.times { data.push(to_timeseries(['series', Time.zone.now, rand])) }
+      10.times { |i| data.push(to_timeseries(['series', Time.zone.now + i.seconds, rand])) }
 
       DataCycleCore::Timeseries.create_all(@timeseries, data)
       result = DataCycleCore::Timeseries.create_all(@timeseries, data)

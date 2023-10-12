@@ -2,6 +2,7 @@ import ConfirmationModal from "../components/confirmation_modal";
 import ObjectUtilities from "./object_utilities";
 
 const DomElementHelpers = {
+	inputFieldSelectors: ["input", "select", "textarea", "button"],
 	isVisible(elem) {
 		return (
 			elem.offsetWidth > 0 ||

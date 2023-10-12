@@ -39,8 +39,9 @@ module DataCycleCore
         end
 
         def diff_schedule(a, b)
-          a_hash = (a.is_a?(DataCycleCore::Schedule) || a.is_a?(IceCube::Schedule) ? a.to_h : a)&.except('relation', 'thing_id', 'dtstart', 'dtend')
-          b_hash = (b.is_a?(DataCycleCore::Schedule) || b.is_a?(IceCube::Schedule) ? b.to_h : b)&.except('relation', 'thing_id', 'dtstart', 'dtend')
+          a_hash = (a.is_a?(DataCycleCore::Schedule) || a.is_a?(IceCube::Schedule) ? a.to_h : a)&.except('relation', 'thing_id', 'dtstart', 'dtend', 'external_key', 'external_source_id')
+          b_hash = (b.is_a?(DataCycleCore::Schedule) || b.is_a?(IceCube::Schedule) ? b.to_h : b)&.except('relation', 'thing_id', 'dtstart', 'dtend', 'external_key', 'external_source_id')
+
           @diff_hash = generic_diff(a_hash, b_hash, method(:schedule_comp).to_proc)
         end
 

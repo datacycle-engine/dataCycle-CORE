@@ -1261,6 +1261,22 @@ UNION
 
 
 --
+-- Name: external_hashes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.external_hashes (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    external_source_id uuid NOT NULL,
+    external_key character varying NOT NULL,
+    hash_value character varying,
+    locale character varying NOT NULL,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: external_system_syncs; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1864,6 +1880,14 @@ ALTER TABLE ONLY public.delayed_jobs
 
 ALTER TABLE ONLY public.data_links
     ADD CONSTRAINT edit_links_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: external_hashes external_hashes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.external_hashes
+    ADD CONSTRAINT external_hashes_pkey PRIMARY KEY (id);
 
 
 --
@@ -2628,6 +2652,13 @@ CREATE INDEX index_data_links_on_item_id ON public.data_links USING btree (item_
 --
 
 CREATE INDEX index_data_links_on_item_type ON public.data_links USING btree (item_type);
+
+
+--
+-- Name: index_external_hash_on_external_source_id_external_key_locale; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_external_hash_on_external_source_id_external_key_locale ON public.external_hashes USING btree (external_source_id, external_key, locale);
 
 
 --
@@ -4098,6 +4129,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230810101627'),
 ('20230821094137'),
 ('20230823081910'),
-('20230824060920');
+('20230824060920'),
+('20231010095157');
 
 
