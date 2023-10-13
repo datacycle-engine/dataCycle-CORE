@@ -183,7 +183,8 @@
       margin: 0 0 0 1rem;
     }
 
-    &.classification {
+    &.classification,
+    &.boolean {
       &.check_box {
         padding: 2.5rem 0.5rem 1rem 0.5rem;
 
