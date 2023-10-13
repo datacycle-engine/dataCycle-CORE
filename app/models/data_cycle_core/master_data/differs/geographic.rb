@@ -16,9 +16,7 @@ module DataCycleCore
 
         def geo_comp(a, b)
           # special case to fix a problem with linestrings from gip with changed direction (#32435)
-          if a.respond_to?(:coordinates) && b.respond_to?(:coordinates)
-            return false unless a.coordinates.flatten[0..1] == b.coordinates.flatten[0..1]
-          end
+          return false if a.respond_to?(:coordinates) && b.respond_to?(:coordinates) && a.coordinates.flatten[0..1] != b.coordinates.flatten[0..1]
 
           return true if a == b
           return false if a.blank? || b.blank?
