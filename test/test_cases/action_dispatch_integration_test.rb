@@ -14,6 +14,12 @@ module DataCycleCore
       before(:all) do
         @routes = Engine.routes
       end
+
+      private
+
+      def current_user
+        @current_user
+      end
     end
   end
 end

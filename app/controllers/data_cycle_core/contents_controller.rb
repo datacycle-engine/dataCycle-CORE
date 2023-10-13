@@ -3,6 +3,8 @@
 module DataCycleCore
   class ContentsController < ApplicationController
     include DataCycleCore::Filter
+    include DataCycleCore::ContentByIdOrTemplate
+
     before_action :set_watch_list, except: [:asset]
     before_action :set_return_to, only: [:show, :edit]
 
@@ -152,7 +154,7 @@ module DataCycleCore
       template = DataCycleCore::Thing.new(template_name: params[:template])
       authorize!(__method__, template, resolve_params(params, false).dig(:scope))
 
-      @object_browser_parent = DataCycleCore::Thing.find_by(id: params[:content_id]) || DataCycleCore::Thing.new { |t| t.id = params[:content_id] } if params[:content_id].present?
+      @object_browser_parent = content_by_id_or_template
 
       I18n.with_locale(create_locale) do
         object_params = content_params(params[:template])
@@ -397,7 +399,7 @@ module DataCycleCore
     end
 
     def render_embedded_object
-      @content = DataCycleCore::Thing.find_by(id: render_embedded_object_params[:id]) || DataCycleCore::Thing.new { |t| t.id = render_embedded_object_params[:id] || SecureRandom.uuid } # new Thing required for bulk_edit
+      @content = DataCycleCore::Thing.find_by(id: render_embedded_object_params[:id]) || content_by_id_or_template
       @key = render_embedded_object_params[:key]
       @definition = render_embedded_object_params[:definition]
       @index = render_embedded_object_params[:index]

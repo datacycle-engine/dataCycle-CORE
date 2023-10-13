@@ -18,6 +18,8 @@
         min: definition.dig('validations', 'min') || 0,
         content_id: content.id,
         content_type: content.class.table_name,
+        template_name: content.thing_template.persisted? ? content.template_name : nil,
+        template: to_query_params(thing_template: content.thing_template).to_json,
         url: thing_path(content),
         write: attribute_editable?(key, definition, options, content),
       }.merge(local_assigns[:no_accordion] ? {} : {

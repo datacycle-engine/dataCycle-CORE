@@ -3427,8 +3427,12 @@ section.duplicate-candidates {
     .attribute-title {
       overflow: hidden;
       text-overflow: ellipsis;
-      margin: 0 0.3rem;
+      margin: 0;
     }
+  }
+
+  &.hidden {
+    display: none;
   }
 }
 

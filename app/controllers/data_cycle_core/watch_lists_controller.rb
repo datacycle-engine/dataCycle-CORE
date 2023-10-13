@@ -141,9 +141,6 @@ module DataCycleCore
 
       authorize!(:bulk_edit, @watch_list)
 
-      @shared_properties = @watch_list.things.shared_ordered_properties(current_user)
-      @shared_template_features = @watch_list.things.shared_template_features
-
       I18n.with_locale(params[:locale]) do
         @locale = I18n.locale
 
@@ -158,13 +155,13 @@ module DataCycleCore
 
       authorize!(:bulk_edit, @watch_list)
 
-      @shared_properties = @watch_list.things.shared_ordered_properties(current_user)
-      @shared_template_features = @watch_list.things.shared_template_features
       bulk_edit_types = bulk_update_type_params
       bulk_edit_allowed_keys = Array.wrap(bulk_edit_types.dig(:datahash)&.keys).concat(Array.wrap(bulk_edit_types.dig(:translations)&.values&.map(&:keys)&.flatten))
 
-      template_hash = { name: 'Generic', type: 'object', schema_ancestors: ['Generic'], content_type: 'entity', features: @shared_template_features, properties: @shared_properties.slice(*bulk_edit_allowed_keys) }.stringify_keys
-      object_params = content_params(template_hash)
+      @object = DataCycleCore::Thing.new(thing_template: content_template, id: SecureRandom.uuid)
+      @object.schema['properties'].slice!(*bulk_edit_allowed_keys)
+
+      object_params = content_params(@object.schema)
 
       if object_params.dig(:datahash).blank? && object_params.dig(:translations).blank?
         flash.now[:error] = I18n.t(:no_selected_attributes, scope: [:controllers, :error], locale: helpers.active_ui_locale)
@@ -172,7 +169,7 @@ module DataCycleCore
         return head(:ok)
       end
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, template_hash)
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, @object.schema)
 
       I18n.with_locale(params[:locale]) do
         unless can?(:bulk_edit, @watch_list) && @watch_list.things.all? { |t| can?(:update, t) }
@@ -202,7 +199,7 @@ module DataCycleCore
           if specific_datahash[:translations].present? || specific_datahash[:datahash].present?
             I18n.with_locale(content.first_available_locale(specific_datahash[:translations]&.keys&.first || params[:locale])) do
               valid = content.set_data_hash_with_translations(
-                data_hash: transform_exisiting_values(bulk_edit_types, template_hash, specific_datahash, content),
+                data_hash: transform_exisiting_values(bulk_edit_types, @object.schema, specific_datahash, content),
                 current_user: current_user
               )
               errors.concat(Array.wrap(content.errors.full_messages)) unless valid
@@ -213,7 +210,9 @@ module DataCycleCore
         end
 
         if errors.present?
-          flash.now[:error] = errors.join(', ')
+          error_string = errors.first(5).join('<br>')
+          error_string += "<br>+ #{I18n.t('common.more_errors', count: errors.size - 5, locale: helpers.active_ui_locale)}" if errors.size > 5
+          flash.now[:error] = error_string
         else
           flash.now[:success] = I18n.t :bulk_updated, scope: [:controllers, :success], count: item_count, locale: helpers.active_ui_locale
 
@@ -284,9 +283,7 @@ module DataCycleCore
       else
         render(json: { warning: { content: ['content not found'] } }) && return if params[:thing].blank?
 
-        @shared_properties = @watch_list.things.shared_ordered_properties(current_user)
-        @shared_template_features = @watch_list.things.shared_template_features
-        @object = helpers.generic_content(@shared_template_features, @shared_properties)
+        @object = DataCycleCore::Thing.new(thing_template: content_template, id: SecureRandom.uuid)
 
         object_params = content_params(@object.schema)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, @object.schema)
@@ -373,6 +370,12 @@ module DataCycleCore
       return {} if params[:bulk_update].blank?
 
       params.require(:bulk_update).permit(datahash: {}, translations: {})
+    end
+
+    def content_template
+      resolve_params(JSON.parse(params.permit(:content_template)[:content_template]))&.dig(:thing_template)
+    rescue StandardError
+      nil
     end
 
     def content_params(schema_hash)

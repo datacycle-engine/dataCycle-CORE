@@ -3,6 +3,7 @@ import ConfirmationModal from "./../components/confirmation_modal";
 import UuidHelper from "./../helpers/uuid_helper";
 import ObserverHelpers from "../helpers/observer_helpers";
 import CalloutHelpers from "../helpers/callout_helpers";
+import ObjectUtilities from "../helpers/object_utilities";
 
 class NewContentDialog {
 	constructor(form) {
@@ -597,7 +598,20 @@ class NewContentDialog {
 		params.key = this.id;
 
 		const promise = DataCycle.httpRequest("/things/new", {
-			body: params,
+			body: ObjectUtilities.pick(params, [
+				"key",
+				"template",
+				"locale",
+				"search_param",
+				"search_required",
+				"scope",
+				"options.force_render",
+				"options.prefix",
+				"parent.id",
+				"parent.class",
+				"content.id",
+				"content.class",
+			]),
 		})
 			.then(this.renderNewFormHtml.bind(this, template))
 			.catch(this.renderLoadError.bind(this));

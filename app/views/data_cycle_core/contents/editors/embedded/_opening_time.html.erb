@@ -108,6 +108,8 @@
         data-total="<%= time_objects.presence&.size %>"
         data-ids="<%= time_objects.presence&.pluck(:id) %>"
         data-content-type="<%= content.class.table_name %>"
+        data-template-name="<%= content.thing_template.persisted? ? content.template_name : nil %>"
+        data-template="<%= to_query_params(thing_template: content.thing_template).to_json %>"
         data-url="<%= thing_path(content) %>"
         data-write="<%= attribute_editable?(time_key, time_definition, options, content) %>"
         data-accordion

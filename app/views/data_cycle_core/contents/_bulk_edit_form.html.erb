@@ -5,7 +5,7 @@
         <i class="fa fa-pencil" aria-hidden="true"></i> <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale) + ' ' + t('actions.bulk_edit', locale: active_ui_locale) %> (<%= I18n.locale %>)
       </div>
       <ul>
-        <% content = generic_content(@shared_template_features, @shared_properties) %>
+        <% content = generic_content(watch_list) %>
 
         <%= render 'agbs' if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
 
@@ -45,13 +45,14 @@
   <%= hidden_field_tag :uuid, watch_list.id %>
   <%= hidden_field_tag :table, watch_list.class.table_name %>
   <%= hidden_field_tag :locale, @locale %>
+  <%= hidden_field_tag :content_template, to_query_params(thing_template: content.thing_template).to_json %>
 
   <div>
     <div class="row">
       <div class="column">
         <div class="detail-header editor">
           <%= tag.span(t('controllers.error.no_shared_attributes', locale: active_ui_locale), class: 'bulk-no-attributes') if @shared_properties.blank? %>
-          <% @shared_properties.presence&.each do |key, prop| %>
+          <% ordered_validation_properties(validation: content.schema, scope: :edit).presence&.each do |key, prop| %>
             <%= render_attribute_editor key: key,
                                         prefix: key_prefix,
                                         definition: prop,
