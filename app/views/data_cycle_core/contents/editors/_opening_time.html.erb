@@ -16,6 +16,8 @@
     data-min="<%= definition.dig('validations', 'min') || 0 %>"
     data-content-id="<%= content.id %>"
     data-content-type="<%= content.class.table_name %>"
+    data-template-name="<%= content.thing_template.persisted? ? content.template_name : nil %>"
+    data-template="<%= to_query_params(thing_template: content.thing_template).to_json %>"
     data-url="<%= thing_path(content) %>"
     data-write="<%= attribute_editable?(key, definition, options, content) %>"
     data-accordion

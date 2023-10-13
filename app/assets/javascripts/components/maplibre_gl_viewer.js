@@ -43,7 +43,7 @@ class MapLibreGlViewer {
 			get: function (target, name) {
 				if (Object.hasOwn(target, name)) return target[name];
 				else if (name) return name;
-				else target["default"];
+				else target.default;
 			},
 		};
 		this.turfCircleOptions = {
@@ -340,7 +340,7 @@ class MapLibreGlViewer {
 				icon.onload = () => this.map.addImage(`${iconKey}_${colorKey}`, icon);
 				icon.src = iconValue.interpolate({
 					color: escape(colorValue),
-					strokeColor: escape(this.colors["white"]),
+					strokeColor: escape(this.colors.white),
 				});
 			}
 		}

@@ -2842,6 +2842,7 @@ input.normalized {
   width: 100%;
   z-index: 1007;
   max-height: 100vh;
+  backdrop-filter: blur(5px);
 
   #admin-icons {
     background: none;
@@ -3427,8 +3428,12 @@ section.duplicate-candidates {
     .attribute-title {
       overflow: hidden;
       text-overflow: ellipsis;
-      margin: 0 0.3rem;
+      margin: 0;
     }
+  }
+
+  &.hidden {
+    display: none;
   }
 }
 

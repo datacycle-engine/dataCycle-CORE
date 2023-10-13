@@ -549,6 +549,7 @@ en:
     geolocation_error: The current position could not be accessed
     api_url: API Link
     url: URL
+    more_errors: "%{count} more errors"
 
   embedded:
     move_down: move down

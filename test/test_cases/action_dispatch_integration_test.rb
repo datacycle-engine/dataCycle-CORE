@@ -11,6 +11,8 @@ module DataCycleCore
       include DataCycleCore::MinitestHookHelper
       include DataCycleCore::ActiveStorageHelper
 
+      attr_reader :current_user
+
       before(:all) do
         @routes = Engine.routes
       end

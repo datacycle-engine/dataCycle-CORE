@@ -831,7 +831,7 @@ footer {
 
   input,
   .editor-block,
-  .daterange,
+  .daterange:not(.schedule-range):not(.special-dates),
   .embedded_object:not(.publication_schedule)>.embedded-object>.content-object-item,
   .readonly-select,
   .form-element.detail_object,

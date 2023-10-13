@@ -45,16 +45,18 @@ class DcStickyBar {
 		}
 	}
 	static calculateStickyOffset(elem, previousElement = undefined, offset = 0) {
+		let newOffset = offset;
+
 		if (!(elem && elem instanceof Element))
 			return {
 				scrollableParent: window,
-				offset: offset,
+				offset: newOffset,
 				scrollElement: document.body,
 			};
 		if (DomElementHelpers.isScrollable(elem))
 			return {
 				scrollableParent: elem,
-				offset: offset,
+				offset: newOffset,
 				scrollElement: previousElement,
 			};
 
@@ -63,13 +65,13 @@ class DcStickyBar {
 			activeElem = activeElem.previousElementSibling;
 
 			if (this.stickyHtmlClasses.some((c) => activeElem.classList.contains(c)))
-				offset += activeElem.getBoundingClientRect().height;
+				newOffset += activeElem.getBoundingClientRect().height;
 		}
 
 		if (this.stickyHtmlClasses.some((c) => elem.classList.contains(c)))
-			offset += elem.getBoundingClientRect().height;
+			newOffset += elem.getBoundingClientRect().height;
 
-		return this.calculateStickyOffset(elem.parentElement, elem, offset);
+		return this.calculateStickyOffset(elem.parentElement, elem, newOffset);
 	}
 	static scrollIntoViewWithStickyOffset(element) {
 		const { scrollableParent, offset, scrollElement } =

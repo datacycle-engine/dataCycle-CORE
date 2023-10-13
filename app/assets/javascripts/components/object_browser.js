@@ -34,6 +34,7 @@ class ObjectBrowser {
 		this.options = this.$element.data("options");
 		this.class = this.$element.data("class");
 		this.templateName = this.$element.data("template-name");
+		this.template = this.$element.data("template");
 		this.max = this.$element.data("max");
 		this.min = this.$element.data("min");
 		this.limitedBy = this.$element.data("limited-by");
@@ -399,6 +400,8 @@ class ObjectBrowser {
 			editable: this.editable,
 			options: this.options,
 			content_id: this.content_id,
+			content_template_name: this.templateName,
+			content_template: this.template,
 			class: this.class,
 			prefix: this.prefix,
 			objects: this.chosen,
@@ -430,6 +433,8 @@ class ObjectBrowser {
 				editable: this.editable,
 				options: this.options,
 				content_id: this.content_id,
+				content_template_name: this.templateName,
+				content_template: this.template,
 				class: this.class,
 				prefix: this.prefix,
 				objects: this.chosen,
@@ -528,7 +533,8 @@ class ObjectBrowser {
 				class: this.class,
 				content_id: this.content_id,
 				content_type: this.content_type,
-				template_name: this.templateName,
+				content_template_name: this.templateName,
+				content_template: this.template,
 				objects: this.chosen,
 				external: external,
 			},
@@ -825,7 +831,8 @@ class ObjectBrowser {
 			excluded: this.excluded,
 			content_id: this.content_id,
 			content_type: this.content_type,
-			template_name: this.templateName,
+			content_template_name: this.templateName,
+			content_template: this.template,
 			prefix: this.prefix,
 			filter_ids: this.filteredIds(),
 		};
