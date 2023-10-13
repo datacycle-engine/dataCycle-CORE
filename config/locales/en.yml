@@ -1756,6 +1756,11 @@ en:
       subtitle: Subtitle
       teaser: Teaser
       Persons: person
+      season_header: season (month - suitability)
+      Season: season
+      Unsuitable: unsuitable
+      Depends: depends
+      Suitable: suitable
     bierfinder:
       book: Description
       tipp: Tip

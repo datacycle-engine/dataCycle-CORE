@@ -1730,6 +1730,11 @@ de:
       subtitle: Untertitel
       teaser: Teaser
       Persons: Person
+      season_header: Saison (Monat - Eignung)
+      Season: Saison
+      Unsuitable: ungeeignet
+      Depends: wetterabhängig
+      Suitable: geeignet
     bierfinder:
       book: Beschreibung
       tipp: Tip
