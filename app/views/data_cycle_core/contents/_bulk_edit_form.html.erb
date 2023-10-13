@@ -51,8 +51,9 @@
     <div class="row">
       <div class="column">
         <div class="detail-header editor">
-          <%= tag.span(t('controllers.error.no_shared_attributes', locale: active_ui_locale), class: 'bulk-no-attributes') if @shared_properties.blank? %>
-          <% ordered_validation_properties(validation: content.schema, scope: :edit).presence&.each do |key, prop| %>
+          <% ordered_props = ordered_validation_properties(validation: content.schema, scope: :edit) %>
+          <%= tag.span(t('controllers.error.no_shared_attributes', locale: active_ui_locale), class: 'bulk-no-attributes') if ordered_props.blank? %>
+          <% ordered_props.presence&.each do |key, prop| %>
             <%= render_attribute_editor key: key,
                                         prefix: key_prefix,
                                         definition: prop,
