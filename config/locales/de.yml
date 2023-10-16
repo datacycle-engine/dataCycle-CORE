@@ -615,6 +615,7 @@ de:
           by_name_and_length: "Anzahl der Zeichen"
           by_name_and_presence: "ausgefüllt"
           by_type_and_presence: "Informationstyp"
+          first_by_type_and_presence: Informationstypen
           by_type_and_length: "Informationstyp und Anzahl der Zeichen"
         object:
           by_attribute_and_presence: ausgefüllt

@@ -620,6 +620,7 @@ en:
           by_name_and_length: "Number of characters"
           by_name_and_presence: "filled"
           by_type_and_presence: "Type of Information"
+          first_by_type_and_presence: "Types of Information"
           by_type_and_length: "Type of Information and Number of characters"
         object:
           by_attribute_and_presence: filled

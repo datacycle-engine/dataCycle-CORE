@@ -51,6 +51,19 @@ module DataCycleCore
             score
           end
 
+          def first_by_type_and_presence(definition:, parameters:, key:, **_args)
+            score = 0
+            part = Rational(1, definition.dig('content_score', 'score_matrix').size) unless definition.dig('content_score', 'score_matrix').values.all? { |v| v&.key?('weight') }
+
+            definition.dig('content_score', 'score_matrix').each do |_k, v|
+              type_of_information = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('Informationstypen', v['types'])
+
+              score += (DataCycleCore::DataHashService.present?(parameters&.[](key)&.find { |e| e['type_of_information']&.intersection(type_of_information).present? || e['universal_classifications']&.intersection(type_of_information).present? }) ? 1 : 0) * (part || (v['weight'].is_a?(::Float) ? v['weight'] : v['weight'].to_r))
+            end
+
+            score
+          end
+
           def by_type_and_length(definition:, parameters:, key:, **_args)
             score = 0
             part = Rational(1, definition.dig('content_score', 'score_matrix').size) unless definition.dig('content_score', 'score_matrix').values.all? { |v| v&.key?('weight') }
@@ -112,6 +125,26 @@ module DataCycleCore
               end
 
               tooltip.join
+            when 'first_by_type_and_presence'
+              tooltip = [tooltip_base_string(definition.dig('content_score', 'method'), locale: locale)]
+
+              if definition.dig('content_score', 'score_matrix').present?
+                subtips = ['<ul>']
+
+                definition.dig('content_score', 'score_matrix')
+                  &.sort_by { |k, v| [-v&.dig('weight')&.to_r, k] }
+                  &.each do |_k, v|
+                    nested_tip = []
+                    nested_tip.push("<b>#{v['types']&.join(', ')}</b> #{"(#{DataCycleCore::LocalizationService.view_helpers.number_with_precision(v['weight'].to_r * 100, precision: 1)}%)" if v.key?('weight')}")
+
+                    nested_tip.push('<ul>')
+
+                    subtips.push("<li>#{nested_tip.join}</ul></li>")
+                  end
+
+                subtips.push('</ul>')
+                tooltip.push(subtips.join)
+              end
             else
               super
             end
