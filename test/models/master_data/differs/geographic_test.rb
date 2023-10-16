@@ -62,7 +62,7 @@ describe DataCycleCore::MasterData::Differs::Geographic do
       b = geo_factory.line(geo_factory.point(30, 25), geo_factory.point(10, 20))
 
       [[a, b], [b, a]].each do |item|
-        refute_nil(subject.new(item[0], item[1]).diff_hash)
+        assert_not_nil(subject.new(item[0], item[1]).diff_hash)
       end
     end
   end

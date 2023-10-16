@@ -28,5 +28,9 @@ module DataCycleCore
     def assert_not(object)
       assert !object # rubocop:disable Rails/AssertNot
     end
+
+    def assert_not_nil(object)
+      assert !object.nil? # rubocop:disable Rails/AssertNot
+    end
   end
 end
