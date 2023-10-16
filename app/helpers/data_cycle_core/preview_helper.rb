@@ -10,7 +10,7 @@ module DataCycleCore
                    elsif key.include?('event')
                      'fa-calendar'
                    elsif key.include?('gallery')
-                      'fa-picture-o'
+                     'fa-picture-o'
                    else
                      'fa-columns'
                    end
