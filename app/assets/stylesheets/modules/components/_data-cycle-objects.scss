@@ -217,6 +217,7 @@
     transition: box-shadow 0.25s ease-out;
     border-radius: $global-radius;
     font-size: 0.9rem;
+    background-color: rgba(white, 0.5);
 
     &.highlight {
       box-shadow: 0 1px 7px $primary-color;

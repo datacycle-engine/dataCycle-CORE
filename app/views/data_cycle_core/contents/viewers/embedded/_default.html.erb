@@ -2,6 +2,8 @@
   <% validation_properties = ordered_validation_properties(validation: object&.schema, scope: :show) %>
   <% item_diff = object.diff(local_assigns[:diff_target]&.get_data_hash) if changes_by_mode(options.dig('item_diff'), '~').present? %>
   <% validation_properties&.each do |embedded_key, prop| %>
+    <% next if prop&.dig('inverse_of') == key.attribute_name_from_key %>
+
     <% object_value = object.try(embedded_key.to_sym) %>
     <% object_value = object_value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if object_value.is_a?(ActiveRecord::Relation) && !content.history? && ['linked', 'embedded'].include?(prop&.dig('type')) %>
 
