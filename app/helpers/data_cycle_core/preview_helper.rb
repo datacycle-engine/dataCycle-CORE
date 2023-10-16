@@ -9,6 +9,8 @@ module DataCycleCore
                      'fa-map'
                    elsif key.include?('event')
                      'fa-calendar'
+                   elsif key.include?('gallery')
+                      'fa-picture-o'
                    else
                      'fa-columns'
                    end
