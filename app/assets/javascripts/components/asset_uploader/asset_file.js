@@ -508,11 +508,12 @@ class AssetFile {
 				.find(".upload-number")
 				.html(await I18n.translate("frontend.upload.uploaded_successfully"));
 			this.asset = Object.assign({}, this.asset, data);
-			if (!this.uploader.showNewForm) this.updateValidated({});
-			else this.validateAttributes();
-
-			this._loadDefaultValues();
-			this._initEditForm();
+			if (!this.uploader.showNewForm) {
+				this.updateValidated({});
+			} else {
+				this._loadDefaultValues();
+				this._initEditForm();
+			}
 		}
 
 		this.uploader.updateCreateButton(error);
