@@ -21,11 +21,9 @@ json ||= {}
 json.merge! render 'content_header', content: content, options: options
 json.merge! render 'content_translations', content: content, options: options
 
-return json if options[:ancestor_ids]&.include?(content.id) && full_recursive?(options[:include])
+if in_language?(content, options) && !(options[:ancestor_ids]&.include?(content.id) && full_recursive?(options[:include]))
+  options[:ancestor_ids].push(content.id)
 
-options[:ancestor_ids].push(content.id)
-
-if in_language?(content, options)
   json.merge! render 'content_classifications', content: content, options: options if options[:field_filter] == false || (included_attribute?('dc:classification', options[:include]) || included_attribute?('dc:classification', options[:fields]))
 
   json.merge! render 'content_properties', content: content, options: options
