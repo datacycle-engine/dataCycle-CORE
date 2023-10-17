@@ -64,12 +64,28 @@ module DataCycleCore
 
     def included_attribute?(name, attribute_list)
       return if attribute_list.blank?
+      return true if full_recursive?(attribute_list)
 
       attribute_list.pluck(0).intersection(Array.wrap(name)).any?
     end
 
     def subtree_for(name, attribute_list)
+      return attribute_list if full_recursive?(attribute_list)
+
       attribute_list.select { |item| item.first == name }.map { |item| item.drop(1) }.select(&:present?)
+    end
+
+    def full_recursive?(attribute_list)
+      attribute_list.first&.intersection(['full', 'recursive'])&.size&.==(2)
+    end
+
+    def inherit_options(new_options, options)
+      new_options ||= {}
+
+      new_options[:ancestor_ids] = options[:ancestor_ids].dup
+      new_options[:languages] = options[:languages].dup
+
+      new_options
     end
 
     def select_attributes(attribute_list)

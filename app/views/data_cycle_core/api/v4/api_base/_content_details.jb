@@ -10,7 +10,8 @@ default_options = {
   field_filter: @field_filter,
   classification_trees: @classification_trees_parameters,
   classification_trees_filter: @classification_trees_filter,
-  transformation_mapping: content.attribute_transformation_mapping('v4')
+  transformation_mapping: content.attribute_transformation_mapping('v4'),
+  ancestor_ids: []
 }
 options = default_options.merge(defined?(options) ? options || {} : {})
 options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
@@ -19,6 +20,10 @@ json ||= {}
 
 json.merge! render 'content_header', content: content, options: options
 json.merge! render 'content_translations', content: content, options: options
+
+return json if options[:ancestor_ids]&.include?(content.id) && full_recursive?(options[:include])
+
+options[:ancestor_ids].push(content.id)
 
 if in_language?(content, options)
   json.merge! render 'content_classifications', content: content, options: options if options[:field_filter] == false || (included_attribute?('dc:classification', options[:include]) || included_attribute?('dc:classification', options[:fields]))
@@ -31,4 +36,5 @@ if in_language?(content, options)
 
   json.merge! render 'external', content: content if (included_attribute?('identifier', options[:include]) || included_attribute?('identifier', options[:fields])) && (content.external? || content.synch?)
 end
+
 json
