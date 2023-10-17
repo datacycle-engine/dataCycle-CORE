@@ -552,14 +552,19 @@ module DataCycleCore
 
                         session.client.command(refreshSessions: [session.session_id]) # keep the mongo_session alive
 
-                        if archived.present? && archived.call(content.dump[locale], archive_from)
-                          content.dump[locale]['archived_at'] ||= Time.zone.now
-                          content.dump[locale]['last_seen_before_archived'] ||= content.seen_at
-                          content.dump[locale]['archive_reason'] ||= options.dig(:download, :archive_reason) if options.dig(:download, :archive_reason).present?
-                        else
-                          content.dump[locale]['deleted_at'] ||= Time.zone.now
-                          content.dump[locale]['last_seen_before_delete'] ||= content.seen_at
-                          content.dump[locale]['delete_reason'] ||= options.dig(:download, :delete_reason) if options.dig(:download, :delete_reason).present?
+                        delete_locales = [locale.to_s]
+                        delete_locales = content.dump.keys.map(&:to_s) if options.dig(:download, :delete_all_languages)
+
+                        delete_locales.each do |locale|
+                          if archived.present? && archived.call(content.dump[locale], archive_from)
+                            content.dump[locale]['archived_at'] ||= Time.zone.now
+                            content.dump[locale]['last_seen_before_archived'] ||= content.seen_at
+                            content.dump[locale]['archive_reason'] ||= options.dig(:download, :archive_reason) if options.dig(:download, :archive_reason).present?
+                          else
+                            content.dump[locale]['deleted_at'] ||= Time.zone.now
+                            content.dump[locale]['last_seen_before_delete'] ||= content.seen_at
+                            content.dump[locale]['delete_reason'] ||= options.dig(:download, :delete_reason) if options.dig(:download, :delete_reason).present?
+                          end
                         end
                         content.save!
 
