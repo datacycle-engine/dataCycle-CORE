@@ -2020,6 +2020,7 @@ de:
     data_cycle_core/error/api/expired_content_error:
       expired_content: Inhalt ist abgelaufen
     active_record/record_not_found: Nicht gefunden
+    active_record/record_not_unique: Konflikt
     data_cycle_core/error/filter/date_filter_range_error: "Fehler bei Suchparametern: das Enddatum bei Datumsfiltern muss nach dem Startdatum liegen."
     data_cycle_core/error/filter/union_filter_recursion_error: "Fehler bei Suchparametern: Gespeicherte Suchen können nicht auf sich selbst filtern (unendliche Rekursion)."
 
@@ -2037,3 +2038,4 @@ de:
     not_found: Diese Seite existiert leider nicht
     internal_server_error: Es ist ein unerwarteter Fehler aufgetreten
     unauthorized: Sie haben keine Berechtigung, die gewünschte Seite zu öffnen
+    conflict: Die Anfrage konnte wegen eines Konflikts nicht abgeschlossen werden

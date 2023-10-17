@@ -21,6 +21,7 @@ DataCycleCore::Engine.routes.draw do
 
   match '/401', to: 'exceptions#unauthorized_exception', via: :all, as: :unauthorized_exception
   match '/404', to: 'exceptions#not_found_exception', via: :all, as: :not_found_exception
+  match '/409', to: 'exceptions#conflict_exception', via: :all, as: :conflict_exception
   match '/422', to: 'exceptions#unprocessable_entity_exception', via: :all, as: :unprocessable_entity_exception
   match '/500', to: 'exceptions#internal_server_error_exception', via: :all, as: :internal_server_error_exception
 
