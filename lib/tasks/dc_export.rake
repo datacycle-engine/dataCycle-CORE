@@ -31,39 +31,115 @@ namespace :dc do
 
       query = filter.apply(watch_list: watch_list)
       query = query.watch_list_id(watch_list.id) unless watch_list.nil?
-      contents = query.query
+      contents = query.query.page(1).per(query.query.size)
 
-      result = DataCycleCore::Api::V4::ContentsController.renderer.new(
+      renderer = DataCycleCore::Api::V4::ContentsController.renderer.new(
         http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
         https: Rails.application.config.force_ssl
-      ).render_to_string(
+      )
+
+      context = renderer.render_to_string(
+        template: 'data_cycle_core/api/v4/api_base/_context',
+        layout: false,
         assigns: {
-          url_parameters: {},
-          include_parameters: [['full', 'recursive']],
-          fields_parameters: [],
-          field_filter: false,
-          classification_trees_parameters: [],
-          classification_trees_filter: false,
-          section_parameters: { links: 0 },
-          language: locales,
-          api_subversion: 0,
-          api_version: 4,
-          contents: contents.page(1).per(contents.size),
-          permitted_params: {
-            section: { links: 0 }
-          },
+          permitted_params: { section: { links: 0 } },
+          expand_language: false
+        },
+        locals: {
+          languages: locales
+        }
+      )
+
+      meta = renderer.render_to_string(
+        template: 'data_cycle_core/api/v4/api_base/_pagination_links',
+        layout: false,
+        assigns: {
+          permitted_params: { section: { links: 0 } },
           watch_list: watch_list,
           stored_filter: stored_filter
         },
-        template: 'data_cycle_core/api/v4/contents/index',
-        layout: false
+        locals: {
+          objects: contents
+        }
       )
+
+      result = {
+        **JSON.parse(context),
+        **JSON.parse(meta),
+        '@graph' => []
+      }
+
+      queue = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
+      progress = ProgressBar.create(total: contents.total_count, format: '%t |%w>%i| %a - %c/%C', title: endpoint.id)
+
+      contents.find_each do |item|
+        queue.append do
+          data = Rails.cache.fetch(DataCycleCore::LocalizationService.view_helpers.api_v4_cache_key(item, locales, [['full', 'recursive']], []), expires_in: 1.year + Random.rand(7.days)) do
+            I18n.with_locale(item.first_available_locale(locales)) do
+              JSON.parse(renderer.render_to_string(
+                           template: 'data_cycle_core/api/v4/api_base/_content_details',
+                           layout: false,
+                           assigns: {
+                             url_parameters: {},
+                             include_parameters: [['full', 'recursive']],
+                             fields_parameters: [],
+                             field_filter: false,
+                             classification_trees_parameters: [],
+                             classification_trees_filter: false,
+                             section_parameters: { links: 0 },
+                             language: locales,
+                             api_subversion: nil,
+                             api_version: 4,
+                             contents: contents,
+                             permitted_params: { section: { links: 0 } },
+                             watch_list: watch_list,
+                             stored_filter: stored_filter
+                           },
+                           locals: {
+                             content: item,
+                             options: { languages: locales }
+                           }
+                         ))
+            end
+          end
+
+          result['@graph'].push(data)
+
+          progress.increment
+        end
+      end
+
+      queue.wait!
+
+      # normal APIv4 renderer
+      # renderer.render_to_string(
+      #   assigns: {
+      #     url_parameters: {},
+      #     include_parameters: [['full', 'recursive']],
+      #     fields_parameters: [],
+      #     field_filter: false,
+      #     classification_trees_parameters: [],
+      #     classification_trees_filter: false,
+      #     section_parameters: { links: 0 },
+      #     language: locales,
+      #     api_subversion: 0,
+      #     api_version: 4,
+      #     contents: contents.page(1).per(contents.size),
+      #     permitted_params: {
+      #       section: { links: 0 }
+      #     },
+      #     watch_list: watch_list,
+      #     stored_filter: stored_filter
+      #   },
+      #   template: 'data_cycle_core/api/v4/contents/index',
+      #   layout: false
+      # )
 
       dir = Rails.public_path.join('uploads', 'export')
       dir = dir.join(*folder_path) if folder_path.present?
       FileUtils.mkdir_p(dir)
 
-      File.write(dir.join("#{endpoint.id}.jsonld"), result)
+      File.write(dir.join("#{endpoint.id}.jsonld"), result.to_json)
     end
   end
 end
