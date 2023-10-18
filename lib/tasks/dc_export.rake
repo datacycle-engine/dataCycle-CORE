@@ -59,7 +59,7 @@ namespace :dc do
         layout: false
       )
 
-      dir = Rails.public_path
+      dir = Rails.public_path.join('uploads', 'export')
       dir = dir.join(*folder_path) if folder_path.present?
       FileUtils.mkdir_p(dir)
 
