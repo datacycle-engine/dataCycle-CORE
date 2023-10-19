@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class PublicationsController < ApplicationController
-    include DataCycleCore::Filter
+    include DataCycleCore::FilterConcern
     authorize_resource class: false # from cancancan (authorize)
     before_action :check_feature_enabled
 

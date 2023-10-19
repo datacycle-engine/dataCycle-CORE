@@ -6,7 +6,7 @@ module DataCycleCore
       class ClassificationTreesController < ::DataCycleCore::Api::V4::ApiBaseController
         before_action :prepare_url_parameters
 
-        include DataCycleCore::Filter
+        include DataCycleCore::FilterConcern
 
         ALLOWED_FILTER_ATTRIBUTES = [:'dct:modified', :'dct:created', :'dct:deleted'].freeze
         ALLOWED_SORT_ATTRIBUTES = { 'dct:created' => 'created_at', 'dct:modified' => 'updated_at' }.freeze

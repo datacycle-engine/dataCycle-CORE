@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class ContentsController < ApplicationController
-    include DataCycleCore::Filter
+    include DataCycleCore::FilterConcern
     include DataCycleCore::ContentByIdOrTemplate
 
     before_action :set_watch_list, except: [:asset]

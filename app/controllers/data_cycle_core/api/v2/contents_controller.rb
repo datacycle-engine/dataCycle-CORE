@@ -5,7 +5,7 @@ module DataCycleCore
     module V2
       class ContentsController < Api::V2::ApiBaseController
         PUMA_MAX_TIMEOUT = 60
-        include DataCycleCore::Filter
+        include DataCycleCore::FilterConcern
 
         before_action :prepare_url_parameters
 
