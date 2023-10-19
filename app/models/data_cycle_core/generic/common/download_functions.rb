@@ -136,8 +136,8 @@ module DataCycleCore
                             if item.data_has_changed.nil?
                               last_download = download_object.external_source.last_successful_download
                               if modified.present? && last_download.present?
-                                item_data[:updated_at] = modified.call(item_data)
-                                item.data_has_changed = item_data[:updated_at] > last_download
+                                updated_at = modified.call(item_data)
+                                item.data_has_changed = updated_at > last_download
                               end
                             end
 
