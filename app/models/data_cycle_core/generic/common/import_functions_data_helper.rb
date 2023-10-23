@@ -31,7 +31,9 @@ module DataCycleCore
           external_source_id = utility_object.external_source.id
           external_hash = DataCycleCore::ExternalHash.find_or_initialize_by(external_key:, external_source_id:, locale: I18n.locale)
 
-          unless external_hash.hash_value == transformation_hash
+          if external_hash.hash_value == transformation_hash
+            content = DataCycleCore::Thing.by_external_key(utility_object.external_source.id, data['external_key']).first
+          else
             content = create_or_update_content(
               utility_object:,
               template: load_template(template),
@@ -43,6 +45,7 @@ module DataCycleCore
           end
           external_hash.seen_at = Time.zone.now
           external_hash.save
+          content
         end
 
         def create_or_update_content(utility_object:, template:, data:, local: false, config: {})
