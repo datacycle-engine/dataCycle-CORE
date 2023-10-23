@@ -82,7 +82,7 @@ module DataCycleCore
           private
 
           def get_value_by_filter(content, path, filter)
-            I18n.with_locale(content.respond_to?(:first_available_locale) ? content.first_available_locale : I18n.locale) do
+            I18n.with_locale(content.try(:first_available_locale) || I18n.locale) do
               key, *new_path = path
 
               return content.send(key) if new_path.blank? && DataCycleCore::DataHashService.present?(content.try(key))
