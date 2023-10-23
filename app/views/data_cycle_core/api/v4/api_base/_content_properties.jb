@@ -48,9 +48,9 @@ unless content.schema.nil?
 
     next if value_blank
 
-    partial_params = render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content
-    if (api_property_definition.dig('transformation', 'method') == 'nest' || api_property_definition.dig('transformation', 'method') == 'merge_object') && property_name.present?
+    partial_params = render_api_attribute(key: key, definition: prop, value: value, parameters: { options: options }, content: content)
 
+    if (api_property_definition.dig('transformation', 'method') == 'nest' || api_property_definition.dig('transformation', 'method') == 'merge_object') && property_name.present?
       if json.dig(property_name).present?
         json.dig(property_name).merge! render(*partial_params) unless partial_params.nil?
       else

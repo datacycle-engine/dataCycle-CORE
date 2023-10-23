@@ -72,7 +72,7 @@ namespace :dc do
       queue = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
       progress = ProgressBar.create(total: contents.total_count, format: '%t |%w>%i| %a - %c/%C', title: endpoint.id)
 
-      contents.find_each do |item|
+      contents.limit(1).find_each do |item|
         queue.append do
           data = Rails.cache.fetch(DataCycleCore::LocalizationService.view_helpers.api_v4_cache_key(item, locales, [['full', 'recursive']], []), expires_in: 1.year + Random.rand(7.days)) do
             I18n.with_locale(item.first_available_locale(locales)) do
@@ -93,7 +93,8 @@ namespace :dc do
                              contents: contents,
                              permitted_params: { section: { links: 0 } },
                              watch_list: watch_list,
-                             stored_filter: stored_filter
+                             stored_filter: stored_filter,
+                             api_context: 'api'
                            },
                            locals: {
                              content: item,
