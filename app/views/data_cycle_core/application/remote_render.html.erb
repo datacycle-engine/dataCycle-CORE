@@ -1,5 +1,5 @@
 <% if @render_function.present? && respond_to?(@render_function) %>
-  <%= try(@render_function, (@render_params || {}).deep_merge(parameters: @options)) %>
+  <%= try(@render_function, **(@render_params || {}).deep_merge(parameters: @options)) %>
 <% else %>
   <%= render(@partial, @options) %>
 <% end %>
