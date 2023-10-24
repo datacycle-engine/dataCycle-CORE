@@ -188,6 +188,45 @@ module DataCycleCore
         )
       end
 
+      def sort_proximity_occurrence_with_distance(ordering = '', value = [])
+        return self if !value.is_a?(::Array) || value.first.blank?
+        geo = value.first
+        schedule = value.second
+        return self if geo&.first.blank? || geo&.second.blank?
+
+        geo_order_string = "things.geom_simple <-> 'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry"
+
+        if schedule.present? && schedule.is_a?(::Hash) && (schedule['in'] || schedule['v'])
+          start_date, end_date = date_from_filter_object(schedule['in'] || schedule['v'], schedule['q'])
+        else
+          start_date = Time.zone.now.beginning_of_day
+          end_date = Time.zone.now.end_of_day
+        end
+
+        joined_table_name = "schedule_occurrences_#{SecureRandom.hex(10)}"
+
+        order_parameter_join = <<-SQL.squish
+          LEFT OUTER JOIN LATERAL (
+          	SELECT thing_id, DATE(MIN(LOWER(schedule_occurrences.occurrence))) "min_start_date"
+          	FROM schedule_occurrences
+          	WHERE things.id = schedule_occurrences.thing_id AND schedule_occurrences.occurrence && TSTZRANGE(?, ?)
+          	GROUP BY thing_id
+          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
+        SQL
+
+        reflect(
+          @query
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
+            .reorder(nil)
+            .order(
+              sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
+              sanitized_order_string(geo_order_string, ordering, true),
+              sanitized_order_string('things.updated_at', 'DESC'),
+              sanitized_order_string('things.id', 'DESC')
+            )
+        )
+      end
+
       def sort_fulltext_search(ordering, value)
         return self if value.blank?
         locale = @locale&.first || I18n.available_locales.first.to_s

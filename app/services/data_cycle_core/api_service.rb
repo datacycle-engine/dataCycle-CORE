@@ -396,6 +396,7 @@ module DataCycleCore
 
     def self.order_value_from_params(key, full_text_search, raw_query_params)
       schedule_order_params = order_constraints.dig(key)&.map { |c| raw_query_params.dig(*c) }&.compact
+      return schedule_order_params if schedule_order_params.present? && key == 'proximity.occurrence_with_distance'
       return schedule_order_params.first if schedule_order_params.present?
       return full_text_search if key == 'similarity' && full_text_search.present?
     end
@@ -409,6 +410,10 @@ module DataCycleCore
         ],
         'proximity.occurrence' => [
           ['filter', 'schedule'],
+          *API_SCHEDULE_ATTRIBUTES.map { |a| ['filter', 'attribute', a.to_s] }
+        ],
+        'proximity.occurrence_with_distance' => [
+          ['filter', 'geo', 'in', 'perimeter'],
           *API_SCHEDULE_ATTRIBUTES.map { |a| ['filter', 'attribute', a.to_s] }
         ]
       }
