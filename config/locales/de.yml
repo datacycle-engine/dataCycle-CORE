@@ -1762,7 +1762,9 @@ de:
     pimcore:
       description: Beschreibung
       text: Detailbeschreibung
-
+    lottaleben:
+      description: Beschreibung
+      text: Detailbeschreibung
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
       <ul class="no-bullet">
