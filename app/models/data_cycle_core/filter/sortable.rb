@@ -199,7 +199,7 @@ module DataCycleCore
         if schedule.present? && schedule.is_a?(::Hash) && (schedule['in'] || schedule['v'])
           start_date, end_date = date_from_filter_object(schedule['in'] || schedule['v'], schedule['q'])
         else
-          start_date = Time.zone.now.beginning_of_day
+          start_date = Time.zone.now
           end_date = Time.zone.now.end_of_day
         end
 
