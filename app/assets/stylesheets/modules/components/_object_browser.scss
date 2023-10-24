@@ -39,12 +39,27 @@
   }
 }
 
-.show-sidebar-details {
-  display: none;
+a.show-sidebar-details {
+  display: none !important;
 }
 
-.object-browser-overlay>ul.items .show-sidebar-details {
-  display: block;
+.object-browser-overlay>ul.items a.show-sidebar-details {
+  display: inherit !important;
+}
+
+.reveal {
+  img {
+    max-width: 90vw;
+    max-height: 90vh;
+    min-height: 5rem;
+    min-width: 5rem;
+  }
+
+  .image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .media-thumbs .object-thumbs,

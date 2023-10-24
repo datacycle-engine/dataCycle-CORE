@@ -1280,6 +1280,10 @@
         &.detail-thumb {
           display: block;
           margin-bottom: 0.5rem;
+
+          img[data-open] {
+            cursor: pointer;
+          }
         }
 
         img {

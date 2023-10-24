@@ -13,9 +13,7 @@
 
       <div class="image">
 
-        <%
-          thumbnail_url = content.try(:asset_web_url) || content.try(:thumbnail_url)
-        %>
+        <% thumbnail_url = content.try(:asset_web_url) || content.try(:thumbnail_url) %>
 
         <% if thumbnail_url.present? %>
 

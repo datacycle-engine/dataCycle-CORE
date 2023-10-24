@@ -1,0 +1,11 @@
+  <% web_url = object.try(:asset_web_url) || object.try(:thumbnail_url) || object.try(:image_asset).try(:first).try(:thumbnail_url) || object.try(:asset).try(:first).try(:thumbnail_url) %>
+
+<div class="width-content reveal" id="<%= html_id %>" data-reveal>
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <div class="name"><%= object.title %></div>
+  <div class="image">
+    <img class="lazyload" data-src="<%= web_url %>" />
+  </div>
+</div>

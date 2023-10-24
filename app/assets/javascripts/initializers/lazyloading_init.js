@@ -20,7 +20,7 @@ export default function () {
 	});
 
 	document.addEventListener("lazybeforeunveil", (e) => {
-		let bg = e.target.dataset.bg;
+		const bg = e.target.dataset.bg;
 		if (bg) e.target.style.backgroundImage = `url(${bg})`;
 	});
 }
