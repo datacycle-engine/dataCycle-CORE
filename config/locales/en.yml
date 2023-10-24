@@ -899,6 +899,7 @@ en:
 
   object_browser:
     details:
+      button: show details
       created_at: created
       updated_at: Edited
       title: Title

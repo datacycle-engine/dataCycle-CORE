@@ -9,7 +9,7 @@ class NewContentDialog {
 	constructor(form) {
 		this.form = form;
 		this.form.classList.add("dcjs-new-content-dialog");
-		this.searchWarning = this.$form = $(this.form);
+		this.$form = $(this.form);
 		this.nextButton = this.$form.find(".next");
 		this.prevButton = this.$form.find(".prev");
 		this.resetButton = this.$form.find(".button.reset");
@@ -602,8 +602,8 @@ class NewContentDialog {
 				"key",
 				"template",
 				"locale",
-				"search_param",
-				"search_required",
+				"searchParam",
+				"searchRequired",
 				"scope",
 				"options.force_render",
 				"options.prefix",

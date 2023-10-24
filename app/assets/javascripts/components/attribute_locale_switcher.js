@@ -201,6 +201,13 @@ class AttributeLocaleSwitcher {
 				if (elem.dataset.locale !== this.locale)
 					elem.dataset.locale = this.locale;
 			}
+
+		const geoCodeButtonSelector = ".geocode-address-button";
+		if (element.querySelector(geoCodeButtonSelector))
+			for (const elem of element.querySelectorAll(geoCodeButtonSelector)) {
+				if (elem.dataset.locale !== this.locale)
+					elem.dataset.locale = this.locale;
+			}
 	}
 }
 
