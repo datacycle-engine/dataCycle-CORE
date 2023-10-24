@@ -189,6 +189,14 @@ module DataCycleCore
       end
 
       def sort_proximity_occurrence_with_distance(ordering = '', value = [])
+        proximity_occurrence_with_distance(ordering, value)
+      end
+
+      def sort_proximity_in_occurrence_with_distance(ordering = '', value = [])
+        proximity_occurrence_with_distance(ordering, value, false)
+      end
+
+      def proximity_occurrence_with_distance(ordering = '', value = [], sort_by_date = true)
         return self if !value.is_a?(::Array) || value.first.blank?
         geo = value.first
         schedule = value.second
@@ -205,9 +213,15 @@ module DataCycleCore
 
         joined_table_name = "schedule_occurrences_#{SecureRandom.hex(10)}"
 
+        if sort_by_date
+          min_start_date = 'MIN(LOWER(schedule_occurrences.occurrence))'
+        else
+          min_start_date = '1'
+        end
+
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
-          	SELECT thing_id, DATE(MIN(LOWER(schedule_occurrences.occurrence))) "min_start_date"
+          	SELECT thing_id, #{min_start_date} as "min_start_date"
           	FROM schedule_occurrences
           	WHERE things.id = schedule_occurrences.thing_id AND schedule_occurrences.occurrence && TSTZRANGE(?, ?)
           	GROUP BY thing_id
