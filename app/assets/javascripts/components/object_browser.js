@@ -67,6 +67,7 @@ class ObjectBrowser {
 		this.changeObserver = new MutationObserver(
 			this._checkForChangedFormData.bind(this),
 		);
+		this.itemsToHighlight = [];
 
 		this.setup();
 	}
@@ -121,6 +122,8 @@ class ObjectBrowser {
 			if (!this.$element.closest(".split-content.edit-content").length)
 				this.removeDeletedItem();
 		} else this.limitedBy = undefined;
+
+		window.addEventListener("focus", this.highlightItems.bind(this));
 	}
 	_checkForChangedFormData(mutations) {
 		for (const mutation of mutations) {
@@ -337,14 +340,35 @@ class ObjectBrowser {
 			this.removeThumbObject(event.target, !data.preventDefault);
 		}
 	}
+	highlightItems(_event) {
+		if (!this.itemsToHighlight.length) return;
+
+		const highlightItemsClasses = this.itemsToHighlight
+			.map((v) => `:scope > li.item[data-id="${v}"]`)
+			.join(", ");
+		const itemList = this.overlayItemList.get(0);
+
+		if (itemList.querySelector(highlightItemsClasses))
+			for (const item of itemList.querySelectorAll(highlightItemsClasses)) {
+				item.classList.add("highlight");
+
+				setTimeout(() => {
+					item.classList.remove("highlight");
+				}, 2000);
+			}
+
+		this.itemsToHighlight.length = 0;
+	}
 	clickItemsHandler(event) {
 		const $target = $(event.currentTarget);
+		const target = event.target;
 
-		if (
-			event.target.closest("a.show-link") ||
-			event.target.closest("a.edit-link")
-		)
+		if (target.closest("a.show-link") || target.closest("a.edit-link")) {
+			const liElement = target.closest("li.item");
+			if (liElement) this.itemsToHighlight.push(liElement.dataset.id);
+
 			return;
+		}
 
 		event.preventDefault();
 		event.stopImmediatePropagation();
@@ -353,6 +377,9 @@ class ObjectBrowser {
 			$target.addClass("in-object-browser");
 			this.loadDetails($target.data("id"));
 		}
+
+		if (target.closest("a.show-sidebar-details")) return;
+
 		if (this.chosen.indexOf($target.data("id")) === -1) {
 			this.addObject($target.data("id"), this.cloneHtml($target), event);
 		} else {
@@ -384,7 +411,7 @@ class ObjectBrowser {
 	updateLocale(e) {
 		e.stopPropagation();
 
-		this.locale = this.$element.data("locale");
+		this.locale = this.element.dataset.locale;
 	}
 	submitWithoutRedirectHandler(event) {
 		event.preventDefault();

@@ -38,3 +38,59 @@
     }
   }
 }
+
+.show-sidebar-details {
+  display: none;
+}
+
+.object-browser-overlay>ul.items .show-sidebar-details {
+  display: block;
+}
+
+.media-thumbs .object-thumbs,
+.object-browser-overlay .items {
+  .media {
+    &.thumbnail {
+      position: relative;
+      width: 100%;
+      height: 170px;
+      padding: 5px 0;
+      cursor: pointer;
+      text-align: right;
+      border: 0;
+
+      .draggable-handle {
+        margin-left: 5px;
+      }
+
+      &:focus,
+      &:hover {
+        .description {
+          opacity: 1;
+        }
+      }
+
+      .description {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        height: 100%;
+        line-height: 1rem;
+        font-size: 0.8rem;
+        color: $body-font-color;
+        overflow: hidden;
+        padding: 0.5rem;
+        text-align: center;
+        display: -ms-flexbox;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: $opacity-transition;
+        box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
+      }
+    }
+  }
+}

@@ -915,6 +915,7 @@ de:
 
   object_browser:
     details:
+      button: Details anzeigen
       created_at: erstellt
       updated_at: bearbeitet
       title: Titel

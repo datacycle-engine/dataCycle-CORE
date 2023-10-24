@@ -98,7 +98,7 @@ class EmbeddedObject {
 		}
 	}
 	locale() {
-		return this.$element.data("locale") || "de";
+		return this.element.dataset.locale || "de";
 	}
 	import(_event, data) {
 		const newItems = difference(
