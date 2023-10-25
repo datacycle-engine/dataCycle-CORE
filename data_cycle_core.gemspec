@@ -36,7 +36,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'rgeo-proj4'
   s.add_dependency 'rgeo-shapefile'
   # mongoDB driver
-  s.add_dependency 'mongoid', '~> 7.0.6'
+  s.add_dependency 'mongoid', '~> 8.1.3'
   # REST Client
   s.add_dependency 'faraday'
   s.add_dependency 'faraday_middleware'
