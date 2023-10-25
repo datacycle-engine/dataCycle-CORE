@@ -196,13 +196,17 @@ module DataCycleCore
         proximity_occurrence_with_distance(ordering, value, false)
       end
 
-      def proximity_occurrence_with_distance(ordering = '', value = [], sort_by_date = true)
+      def proximity_occurrence_with_distance(ordering = '', value = [], sort_by_date = true, use_spheroid = true)
         return self if !value.is_a?(::Array) || value.first.blank?
         geo = value.first
         schedule = value.second
         return self if geo&.first.blank? || geo&.second.blank?
 
-        geo_order_string = "things.geom_simple <-> 'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry"
+        if use_spheroid
+          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry,true)"
+        else
+          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry)"
+        end
 
         if schedule.present? && schedule.is_a?(::Hash) && (schedule['in'] || schedule['v'])
           start_date, end_date = date_from_filter_object(schedule['in'] || schedule['v'], schedule['q'])
