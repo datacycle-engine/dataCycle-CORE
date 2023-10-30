@@ -215,14 +215,13 @@ module DataCycleCore
           end_date = Time.zone.now.end_of_day
         end
 
-        joined_table_name = "schedule_occurrences_#{SecureRandom.hex(10)}"
-
         if sort_by_date
           min_start_date = 'MIN(LOWER(schedule_occurrences.occurrence))'
         else
           min_start_date = '1'
         end
 
+        joined_table_name = "schedule_occurrences_#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
           	SELECT thing_id, #{min_start_date} as "min_start_date"
@@ -232,12 +231,24 @@ module DataCycleCore
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
+        joined_exists_table_name = "schedule_occurrences_#{SecureRandom.hex(10)}"
+        order_parameter_exists_join = <<-SQL.squish
+          LEFT OUTER JOIN LATERAL (
+            SELECT thing_id, 1 AS "occurrence_exists"
+            FROM schedule_occurrences
+            WHERE things.id = schedule_occurrences.thing_id
+            GROUP BY thing_id
+          ) "#{joined_exists_table_name}" ON #{joined_exists_table_name}.thing_id = things.id
+        SQL
+
         reflect(
           @query
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_exists_join]))
             .reorder(nil)
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
+              sanitized_order_string("#{joined_exists_table_name}.occurrence_exists", ordering, true),
               sanitized_order_string(geo_order_string, ordering, true),
               sanitized_order_string('things.updated_at', 'DESC'),
               sanitized_order_string('things.id', 'DESC')
