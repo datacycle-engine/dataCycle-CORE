@@ -72,7 +72,7 @@ module DataCycleCore
 
           Array.wrap(data).map { |item|
             next if item.blank? || item['TimeFrom'].blank? || item['TimeTo'].blank?
-            external_schedule_key = Digest::SHA1.hexdigest "#{external_key}-#{data.to_json}"
+            external_schedule_key = Digest::SHA1.hexdigest "#{external_key}-#{item.to_json}"
             schedule_id = DataCycleCore::Schedule.find_by(external_source_id: external_source_id, external_key: external_schedule_key)&.id
             preprocess_opening_time(item, external_source_id, external_schedule_key, day_transformation, schedule_id)
           }.compact
@@ -83,7 +83,7 @@ module DataCycleCore
 
           Array.wrap(data).map { |item|
             next if item.blank? || item['TimeFrom'].blank? || item['TimeTo'].blank?
-            external_schedule_key = Digest::SHA1.hexdigest "#{external_key}-#{data.to_json}"
+            external_schedule_key = Digest::SHA1.hexdigest "#{external_key}-#{item.to_json}"
             schedule_id = DataCycleCore::Generic::Common::DataReferenceTransformations.get_external_schedule_references(item, external_source_id, ->(*) { external_schedule_key })&.first
             preprocess_opening_time(item, external_source_id, external_schedule_key, day_transformation, schedule_id)
           }.compact
