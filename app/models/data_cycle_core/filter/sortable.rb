@@ -231,12 +231,12 @@ module DataCycleCore
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
-        joined_exists_table_name = "schedule_occurrences_#{SecureRandom.hex(10)}"
+        joined_exists_table_name = "schedules_#{SecureRandom.hex(10)}"
         order_parameter_exists_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
             SELECT thing_id, 1 AS "occurrence_exists"
-            FROM schedule_occurrences
-            WHERE things.id = schedule_occurrences.thing_id
+            FROM schedules
+            WHERE things.id = schedules.thing_id
             GROUP BY thing_id
           ) "#{joined_exists_table_name}" ON #{joined_exists_table_name}.thing_id = things.id
         SQL
