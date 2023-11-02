@@ -55,7 +55,7 @@ a.show-sidebar-details {
     min-width: 1.6rem;
   }
 
-  .image {
+  .image:not(.tile-property) {
     display: flex;
     align-items: center;
     justify-content: center;
