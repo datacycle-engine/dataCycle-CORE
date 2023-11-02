@@ -24,6 +24,8 @@ module DataCycleCore
       end
 
       def classifications
+        return DataCycleCore::Classification.none if all.is_a?(ActiveRecord::NullRelation)
+
         DataCycleCore::Classification.where(id: all.select(:classification_id))
       end
     end

@@ -7,6 +7,8 @@ module DataCycleCore
     belongs_to :classfication_alias
 
     def self.classification_aliases
+      return DataCycleCore::ClassificationAlias.none if all.is_a?(ActiveRecord::NullRelation)
+
       DataCycleCore::ClassificationAlias.where(id: all.select(:classification_alias_id))
     end
 

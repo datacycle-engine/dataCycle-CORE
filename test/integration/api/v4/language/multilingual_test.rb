@@ -121,12 +121,11 @@ module DataCycleCore
               }
             end
 
-            # locations content_location, virtual_location=not translatable embedded
-            assert_attributes(json_validate, required_attributes, ['content_location', 'virtual_location']) do
+            # locations content_location
+            assert_attributes(json_validate, required_attributes, ['content_location']) do
               {
                 'location' => [
-                  @content.content_location.first.to_api_default_values,
-                  @content.virtual_location.first.to_api_default_values
+                  @content.content_location.first.to_api_default_values
                 ]
               }
             end

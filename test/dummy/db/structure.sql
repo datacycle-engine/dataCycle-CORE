@@ -968,48 +968,14 @@ CREATE TABLE public.thing_templates (
 
 
 --
--- Name: things; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.things (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    metadata jsonb,
-    template_name character varying NOT NULL,
-    external_source_id uuid,
-    external_key character varying,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid,
-    cache_valid_since timestamp without time zone,
-    created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
-    updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
-    deleted_at timestamp without time zone,
-    location public.geometry(Point,4326),
-    is_part_of uuid,
-    validity_range tstzrange,
-    boost numeric,
-    content_type character varying,
-    representation_of_id uuid,
-    version_name character varying,
-    line public.geometry(MultiLineStringZ,4326),
-    last_updated_locale character varying,
-    write_history boolean DEFAULT false,
-    geom_simple public.geometry(Geometry,4326),
-    geom public.geometry(GeometryZ,4326)
-);
-
-
---
 -- Name: content_properties; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.content_properties AS
- SELECT things.id AS content_id,
-    things.template_name AS content_template_name,
+ SELECT thing_templates.template_name,
     properties.key AS property_name,
     properties.value AS property_definition
-   FROM ((public.things
-     JOIN public.thing_templates ON (((thing_templates.template_name)::text = (things.template_name)::text)))
+   FROM (public.thing_templates
      CROSS JOIN LATERAL jsonb_each((thing_templates.schema -> 'properties'::text)) properties(key, value));
 
 
@@ -1018,8 +984,7 @@ CREATE VIEW public.content_properties AS
 --
 
 CREATE VIEW public.content_computed_properties AS
- SELECT content_properties.content_id,
-    content_properties.content_template_name,
+ SELECT content_properties.template_name,
     content_properties.property_name,
     split_part(parameters.value, '.'::text, 1) AS compute_parameter_property_name
    FROM public.content_properties,
@@ -1147,6 +1112,38 @@ UNION
 
 
 --
+-- Name: things; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.things (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    metadata jsonb,
+    template_name character varying NOT NULL,
+    external_source_id uuid,
+    external_key character varying,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    cache_valid_since timestamp without time zone,
+    created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
+    updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
+    deleted_at timestamp without time zone,
+    location public.geometry(Point,4326),
+    is_part_of uuid,
+    validity_range tstzrange,
+    boost numeric,
+    content_type character varying,
+    representation_of_id uuid,
+    version_name character varying,
+    line public.geometry(MultiLineStringZ,4326),
+    last_updated_locale character varying,
+    write_history boolean DEFAULT false,
+    geom_simple public.geometry(Geometry,4326),
+    geom public.geometry(GeometryZ,4326)
+);
+
+
+--
 -- Name: content_meta_items; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -1169,15 +1166,27 @@ CREATE VIEW public.content_meta_items AS
 --
 
 CREATE VIEW public.content_property_dependencies AS
- SELECT content_computed_properties.content_id,
-    content_computed_properties.content_template_name,
+ SELECT t2.id AS content_id,
+    t2.template_name,
     content_computed_properties.property_name,
     content_computed_properties.compute_parameter_property_name,
     things.id AS dependent_content_id,
     things.template_name AS dependent_content_template_name
-   FROM ((public.things
+   FROM (((public.things
      JOIN public.content_contents ON ((content_contents.content_b_id = things.id)))
-     JOIN public.content_computed_properties ON (((content_computed_properties.content_id = content_contents.content_a_id) AND (content_computed_properties.compute_parameter_property_name = (content_contents.relation_a)::text))));
+     JOIN public.things t2 ON ((t2.id = content_contents.content_a_id)))
+     JOIN public.content_computed_properties ON ((((content_computed_properties.template_name)::text = (t2.template_name)::text) AND (content_computed_properties.compute_parameter_property_name = (content_contents.relation_a)::text))))
+UNION
+ SELECT t2.id AS content_id,
+    t2.template_name,
+    content_computed_properties.property_name,
+    content_computed_properties.compute_parameter_property_name,
+    things.id AS dependent_content_id,
+    things.template_name AS dependent_content_template_name
+   FROM (((public.things
+     JOIN public.content_contents ON (((content_contents.content_a_id = things.id) AND (content_contents.relation_b IS NOT NULL))))
+     JOIN public.things t2 ON ((t2.id = content_contents.content_b_id)))
+     JOIN public.content_computed_properties ON ((((content_computed_properties.template_name)::text = (t2.template_name)::text) AND (content_computed_properties.compute_parameter_property_name = (content_contents.relation_b)::text))));
 
 
 --
@@ -4106,6 +4115,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230810101627'),
 ('20230821094137'),
 ('20230823081910'),
-('20230824060920');
+('20230824060920'),
+('20231023100607');
 
 

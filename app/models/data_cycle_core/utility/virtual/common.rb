@@ -59,9 +59,13 @@ module DataCycleCore
 
           def take_first_linked(virtual_parameters:, content:, **_args)
             if content.respond_to?(virtual_parameters.first)
-              content.send(virtual_parameters.first)&.limit(1) || []
+              value = content.send(virtual_parameters.first)
+
+              return DataCycleCore::Thing.none if value.first.nil?
+
+              DataCycleCore::Thing.unscoped.where(id: value.first.id).tap { |rel| rel.send(:load_records, [value.first]) }
             else
-              []
+              DataCycleCore::Thing.none
             end
           end
 

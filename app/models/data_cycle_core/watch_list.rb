@@ -36,6 +36,8 @@ module DataCycleCore
     alias available_locales translated_locales
 
     def self.watch_list_data_hashes
+      return DataCycleCore::WatchListDataHash.none if all.is_a?(ActiveRecord::NullRelation)
+
       DataCycleCore::WatchListDataHash.where(watch_list_id: all.select(:id))
     end
 

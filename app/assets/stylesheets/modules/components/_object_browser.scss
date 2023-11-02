@@ -51,14 +51,21 @@ a.show-sidebar-details {
   img {
     max-width: 90vw;
     max-height: 90vh;
-    min-height: 5rem;
-    min-width: 5rem;
+    min-height: 0.9rem;
+    min-width: 1.6rem;
   }
 
   .image {
     display: flex;
     align-items: center;
     justify-content: center;
+
+    img {
+      max-width: 90vw;
+      max-height: 90vh;
+      min-height: 9rem;
+      min-width: 16rem;
+    }
   }
 }
 

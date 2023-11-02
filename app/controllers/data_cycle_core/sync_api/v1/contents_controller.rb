@@ -14,16 +14,13 @@ module DataCycleCore
             query = build_search_query
             @pagination_contents = apply_paging(query)
             @contents = @pagination_contents
-            render json: sync_api_format(@contents) { @contents.map { |i| i.to_sync_data(locales: i.available_locales) } }.to_json
+            render json: sync_api_format(@contents) { @contents.to_sync_data }.to_json
           end
         end
 
         def show
-          if DataCycleCore::Thing.where(id: permitted_params[:id]).present?
-            @content = DataCycleCore::Thing
-              .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
-              .find(permitted_params[:id])
-            render json: @content.to_sync_data(locales: @content.available_locales).to_json
+          if (@contents = DataCycleCore::Thing.where(id: permitted_params[:id]).limit(1)).present?
+            render json: @contents.to_sync_data&.first.to_json
           else
             render json: { error: 'Id not found!' }, layout: false, status: :bad_request
           end
@@ -36,7 +33,7 @@ module DataCycleCore
               .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
               .where(id: uuid)
             @contents = apply_paging(fetched_things)
-            render json: sync_api_format(@contents) { @contents.map { |i| i.to_sync_data(locales: i.available_locales) } }.to_json
+            render json: sync_api_format(@contents) { @contents.to_sync_data }.to_json
           else
             render json: { error: 'No ids given!' }, layout: false, status: :bad_request
           end

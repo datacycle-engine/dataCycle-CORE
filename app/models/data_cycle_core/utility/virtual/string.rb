@@ -27,7 +27,11 @@ module DataCycleCore
           end
 
           def license_uri(content:, **_args)
-            content.classification_aliases.for_tree('Lizenzen').reorder(nil).pick(:uri)
+            if content.collected_classification_contents.loaded?
+              content.collected_classification_contents.detect { |ccc| ccc.classification_tree_label.name == 'Lizenzen' }&.classification_alias&.uri
+            else
+              content.collected_classification_contents.classification_aliases.for_tree('Lizenzen').reorder(nil).pick(:uri)
+            end
           end
 
           # only works for sync_api
