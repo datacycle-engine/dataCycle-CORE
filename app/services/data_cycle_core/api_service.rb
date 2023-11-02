@@ -412,6 +412,10 @@ module DataCycleCore
           ['filter', 'schedule'],
           *API_SCHEDULE_ATTRIBUTES.map { |a| ['filter', 'attribute', a.to_s] }
         ],
+        'proximity.in_occurrence' => [
+          ['filter', 'schedule'],
+          *API_SCHEDULE_ATTRIBUTES.map { |a| ['filter', 'attribute', a.to_s] }
+        ],
         'proximity.occurrence_with_distance' => [
           ['filter', 'geo', 'in', 'perimeter'],
           *API_SCHEDULE_ATTRIBUTES.map { |a| ['filter', 'attribute', a.to_s] }
