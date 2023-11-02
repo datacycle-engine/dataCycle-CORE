@@ -24,7 +24,10 @@ module DataCycleCore
             attribute_to_sync_h('included', preloaded: preloaded, ancestor_ids: new_ancestor_ids, included: included, classifications: classifications, locales: languages)
             attribute_to_sync_h('classifications', preloaded: preloaded, ancestor_ids: new_ancestor_ids, included: included, classifications: classifications)
 
-            return data.merge!({ 'recursive' => ancestor_ids.reject(&ancestor_proc).filter { |a| a[:attribute_name]&.in?(data[languages.first].keys) } }).deep_stringify_keys! if ancestor_ids.any?(&ancestor_proc)
+            if ancestor_ids.any?(&ancestor_proc)
+              data['recursive'] = ancestor_ids.reject(&ancestor_proc).filter { |a| a[:attribute_name]&.in?(data[languages.first].keys) }
+              return data.deep_stringify_keys!
+            end
 
             if new_ancestor_ids.size == 1
               data[:included] = included
