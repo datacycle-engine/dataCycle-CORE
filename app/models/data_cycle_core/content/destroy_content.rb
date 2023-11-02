@@ -15,7 +15,7 @@ module DataCycleCore
             to_history(delete: true, all_translations: !(destroy_locale && available_locales.many?))
           end
 
-          destroy_children(current_user: current_user, save_time: save_time, destroy_linked: destroy_linked, destroy_locale: destroy_local, destroyed_ancestors: new_destroyed_ancestorse)
+          destroy_children(current_user: current_user, save_time: save_time, destroy_linked: destroy_linked, destroy_locale: destroy_locale, destroyed_ancestors: new_destroyed_ancestorse)
           if destroy_locale && available_locales.many?
             destroy_translation(I18n.locale)
             after_save_data_hash(DataCycleCore::Content::DataHashOptions.new(current_user: current_user, save_time: save_time)) unless history?
