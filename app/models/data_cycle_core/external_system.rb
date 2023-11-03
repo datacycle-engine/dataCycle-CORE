@@ -289,7 +289,7 @@ module DataCycleCore
     def query(collection_name, &block)
       mongo_class = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: collection_name)
       db_name = mongo_class.database_name.to_s
-      db_name += "_#{id}" unless db_name.split('_') == id
+      db_name = "#{db_name}_#{id}" unless db_name.split('_').last == id
       Mongoid.override_database(db_name)
       DataCycleCore::Generic::Collection.with(mongo_class, &block)
     ensure
@@ -299,9 +299,9 @@ module DataCycleCore
     def query2(collection_name, &block)
       mongo_class = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: collection_name)
       db_name = mongo_class.database_name.to_s
-      # db_name += "_#{id}" unless db_name.split('_') == id
+      db_name = "#{db_name}_#{id}" unless db_name.split('_').last == id
       Mongoid.override_database(db_name)
-      DataCycleCore::Generic::Collection.with(mongo_class, &block)
+      DataCycleCore::Generic::Collection2.with(mongo_class, &block)
     ensure
       Mongoid.override_database(nil)
     end
