@@ -258,6 +258,7 @@ module DataCycleCore
             .reorder(nil)
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
+              sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
               sanitized_order_string(geo_order_string, ordering, true),
               sanitized_order_string('things.updated_at', 'DESC'),
               sanitized_order_string('things.id', 'DESC')
@@ -311,6 +312,7 @@ module DataCycleCore
             .reorder(nil)
             .order(
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
+              sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
               sanitized_order_string('things.updated_at', 'DESC'),
               sanitized_order_string('things.id', 'DESC')
             )
