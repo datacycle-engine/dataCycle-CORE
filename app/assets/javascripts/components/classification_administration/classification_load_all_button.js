@@ -47,7 +47,7 @@ class ClassificationLoadAllButton {
 			element.classList.contains("dcjs-classification-name-button") &&
 			!element.classList.contains("open")
 		)
-			element.click();
+			requestAnimationFrame(() => element.click());
 	}
 	waitForLoadCallback(mutations, observer) {
 		for (const mutation of mutations) {
@@ -72,12 +72,14 @@ class ClassificationLoadAllButton {
 		}
 	}
 	hideChildrenIfEmpty(element) {
+		if (!element.classList.contains("open")) return;
+
 		const children = element
 			.closest("li")
 			.querySelector(":scope > ul.children");
 
 		if (!children.querySelectorAll(":scope > li:not(.new-button)").length)
-			element.click();
+			requestAnimationFrame(() => element.click());
 	}
 	showChildrenRecursive(element) {
 		for (const child of element

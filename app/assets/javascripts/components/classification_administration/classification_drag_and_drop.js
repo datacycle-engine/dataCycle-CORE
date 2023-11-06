@@ -86,10 +86,17 @@ class ClassificationDragAndDrop {
 		target.classList.remove("merging", "merge-target");
 
 		const nameTag = target.querySelector(":scope > .inner-item > a.name");
-		const open = nameTag?.classList?.contains("open");
-		if (open) nameTag.click();
-		if (nameTag) nameTag.classList.remove("loaded");
-		if (open) nameTag.click();
+
+		if (!nameTag) return;
+
+		nameTag.classList.remove("loaded");
+
+		if (nameTag.classList.contains("open")) {
+			requestAnimationFrame(() => {
+				nameTag.click();
+				requestAnimationFrame(() => nameTag.click());
+			});
+		}
 	}
 	disableMergeElements(source, target) {
 		source.classList.add("merging", "merge-source");
