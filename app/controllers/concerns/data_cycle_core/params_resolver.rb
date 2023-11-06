@@ -26,7 +26,7 @@ module DataCycleCore
             return_hash[key] = class_name.find_by(class_name.primary_key => value[class_name.primary_key])
           elsif value.key?('attributes')
             return_hash[key] = class_name.new(resolve_params(value['attributes'], resolve_instances, false).with_indifferent_access)
-          else
+          elsif value.except('class').present?
             return_hash[key] = value
           end
         elsif value.is_a?(::Hash) && value.key?('value') && value.key?('class')
