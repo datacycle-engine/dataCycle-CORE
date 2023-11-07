@@ -78,6 +78,8 @@ module DataCycleCore
           if @classification_id.present?
             @classification_aliases = @classification_aliases.where(id: @classification_id)
             raise ActiveRecord::RecordNotFound if @classification_aliases.blank?
+          elsif permitted_params[:classification_ids].present?
+            @classification_aliases = @classification_aliases.where(id: permitted_params[:classification_ids].split(','))
           end
 
           @classification_aliases = apply_order_query(@classification_aliases, permitted_params.dig(:sort))
@@ -114,7 +116,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :classification_id, :classification_tree_label_id] + [permitted_filter_parameters]
+          super + [:id, :language, :classification_id, :classification_ids, :classification_tree_label_id] + [permitted_filter_parameters]
         end
 
         def permitted_filter_parameters
