@@ -13,7 +13,7 @@ module DataCycleCore
           'ymax', st_ymax(ST_Extent(classification_polygons."geom"))
         )
       SQL
-      query = all.reorder(nil).select(select_sql).to_sql
+      query = all.reorder(nil).except(:limit, :offset).select(select_sql).to_sql
 
       ActiveRecord::Base.connection.execute(
         Arel.sql(query)
