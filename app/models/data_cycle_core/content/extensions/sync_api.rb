@@ -230,6 +230,8 @@ module DataCycleCore
                 .index_by(&:id)
             )
             preloaded['classifications'] = collected_classification_contents&.map { |ccc|
+              next if ccc.classification_alias.primary_classification.nil?
+
               {
                 classification: ccc.classification_alias.primary_classification,
                 classification_alias_id: ccc.classification_alias.id,
@@ -253,11 +255,11 @@ module DataCycleCore
                     ccc.classification_tree_label.as_json(only: [:id, :name]).merge({ 'class_type' => 'DataCycleCore::ClassificationTreeLabel' })
                   ]
               }
-            }&.index_by { |v| v[:classification].id } || {}
+            }&.compact&.index_by { |v| v[:classification].id } || {}
 
             preloaded['classification_contents'] = preloaded['contents'].values.map!(&:classification_content).flatten!.group_by(&:content_data_id).transform_values! { |v| v.group_by(&:relation).transform_values! { |cc| cc.map(&:classification_id) } }
             preloaded['full_classifications'] = collected_classification_contents.group_by(&:thing_id).transform_values! do |v|
-              v.map { |ccc| ccc.classification_alias.primary_classification.id }
+              v.map { |ccc| ccc.classification_alias.primary_classification&.id }.compact
             end
 
             preloaded['contents'].each_value do |content|
