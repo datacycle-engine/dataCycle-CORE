@@ -1,5 +1,5 @@
 <% I18n.with_locale(local_assigns[:locale]) do %>
-  <% validation_properties = ordered_validation_properties(validation: object&.schema, scope: :show) %>
+  <% validation_properties = ordered_validation_properties(validation: object&.schema, scope: :show, exclude_keys: object.history? ? object.virtual_property_names : []) %>
   <% item_diff = object.diff(local_assigns[:diff_target]&.get_data_hash) if changes_by_mode(options.dig('item_diff'), '~').present? %>
   <% validation_properties&.each do |embedded_key, prop| %>
     <% next if prop&.dig('inverse_of') == key.attribute_name_from_key %>
