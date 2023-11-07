@@ -5,11 +5,9 @@
     <div class="row">
       <div class="small-12 columns">
         <h4>
-          <i class='fa fa-arrow-circle-o-right' aria-hidden='true'></i> import configs
+          <i class='fa fa-arrow-circle-o-right' aria-hidden='true'></i> maintenance
         </h4>
-        <%= link_to 'templates', admin_import_templates_path, class: 'button small' %>
-        <%= link_to 'classifications', admin_import_classifications_path, class: 'button small' %>
-        <%= link_to 'external_systems', admin_import_external_systems_path, class:'button small' %>
+        <%= link_to 'rebuild classification_mappings', admin_rebuild_classification_mappings_path, class: 'button small' %>
       </div>
     </div>
   <% end %>

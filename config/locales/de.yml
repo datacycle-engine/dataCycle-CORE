@@ -101,6 +101,8 @@ de:
     download_import: Download & Import
     delete: delete
     errors_were_encountered: errors were encountered
+    maintenance:
+      classification_mappings_rebuilt: classification_mappings were successfully rebuilt
 
   notification:
     frequency:
