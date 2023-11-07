@@ -56,12 +56,12 @@ module DataCycleCore
 
       raise 'locked Contents!' unless valid
 
-      duplicate_external_key = duplicate.external_key
+      duplicate_external_key = duplicate.external_key || duplicate.id
       duplicate_external_source_id = duplicate.external_source_id
 
       ActiveRecord::Base.transaction do
         duplicate.original_id = original.id
-        duplicate_sync_query(duplicate.id, original.id) # .update_all(syncable_id: original.id, sync_type: 'duplicate')
+        duplicate_sync_query(duplicate.id, original.id)
         duplicate.destroy_content
 
         if duplicate_external_source_id.present? && duplicate_external_key.present? && (original.external_source_id != duplicate_external_source_id || original.external_key != duplicate_external_key)
