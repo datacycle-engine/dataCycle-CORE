@@ -24,11 +24,9 @@ module DataCycleCore
                 'ymax', st_ymax(ST_Extent(things.geom_simple))
               )
             SQL
-            query = all.except(:order).select(select_sql).to_sql
+            query = all.except(:order, :limit, :offset).select(select_sql).to_sql
 
-            ActiveRecord::Base.connection.execute(
-              Arel.sql(query)
-            ).first&.values&.first
+            ActiveRecord::Base.connection.execute(Arel.sql(query)).first&.values&.first
           end
         end
       end
