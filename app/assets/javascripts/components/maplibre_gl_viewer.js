@@ -43,7 +43,7 @@ class MapLibreGlViewer {
 			get: function (target, name) {
 				if (Object.hasOwn(target, name)) return target[name];
 				else if (name) return name;
-				else target["default"];
+				else target.default;
 			},
 		};
 		this.turfCircleOptions = {
@@ -83,6 +83,7 @@ class MapLibreGlViewer {
 			"center",
 			"zoom",
 			"minZoom",
+			"maxZoom",
 			"maxBounds",
 		]);
 		// fallback for old config files main projects
@@ -228,16 +229,33 @@ class MapLibreGlViewer {
 		if (features.length)
 			this.filterFeatures = this._createFeatureCollection(features);
 	}
-	mapBaseLayer() {
-		const baseStyle = this.mapStyles[0].value;
+	mergeStyles(oldStyle, newStyle) {
+		oldStyle.version = Math.max(oldStyle.version ?? 0, newStyle.version);
+		oldStyle.sources = Object.assign({}, oldStyle.sources, newStyle.sources);
+		oldStyle.layers = (oldStyle.layers ?? []).concat(newStyle.layers);
 
-		if (typeof this[`baseLayer${baseStyle}`] === "function")
-			return this[`baseLayer${baseStyle}`]();
-		else if (baseStyle) return baseStyle;
-
-		throw "No Map-Style defined!";
+		return oldStyle;
 	}
-	baseLayerOSM() {
+	mapBaseLayer() {
+		const styles = {};
+
+		if (!this.mapStyles) throw "No Map-Style defined!";
+
+		for (const style of this.mapStyles) {
+			if (
+				typeof style.value === "string" &&
+				typeof this[`baseLayer${style.value}`] === "function"
+			) {
+				this.mergeStyles(styles, this[`baseLayer${style.value}`](style));
+			} else if (typeof style.value === "string" && style.value)
+				return style.value;
+			else if (typeof style.value === "object" && style.value)
+				this.mergeStyles(styles, style.value);
+		}
+
+		return styles;
+	}
+	baseLayerOSM(config = {}) {
 		return {
 			version: 8,
 			sources: {
@@ -250,21 +268,22 @@ class MapLibreGlViewer {
 					],
 					tileSize: 256,
 					attribution:
+						config.attribution ??
 						'&#169; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors.',
 				},
 			},
 			layers: [
 				{
-					id: "osm-tiles",
+					id: config.id ?? "osm-tiles",
 					type: "raster",
 					source: "osm-tiles",
-					minzoom: 0,
-					maxzoom: 19,
+					minzoom: config.minzoom ?? 0,
+					maxzoom: config.maxzoom ?? 19,
 				},
 			],
 		};
 	}
-	baseLayerBaseMapAt() {
+	baseLayerBaseMapAt(config = {}) {
 		const layer = this.highDpi ? "bmaphidpi" : "geolandbasemap";
 		const matrixSet = "google3857";
 		const style = "normal";
@@ -283,21 +302,22 @@ class MapLibreGlViewer {
 					],
 					tileSize: 256,
 					attribution:
+						config.attribution ??
 						'© <a href="https://www.basemap.at" target="_blank">basemap.at</a>',
 				},
 			},
 			layers: [
 				{
-					id: "basemap-at-tiles",
+					id: config.id ?? "basemap-at-tiles",
 					type: "raster",
 					source: "basemap-at-tiles",
-					minzoom: 0,
-					maxzoom: 18,
+					minzoom: config.minzoom ?? 0,
+					maxzoom: config.maxzoom ?? 18,
 				},
 			],
 		};
 	}
-	baseLayerTourSprung() {
+	baseLayerTourSprung(config = {}) {
 		return {
 			version: 8,
 			sources: {
@@ -310,16 +330,17 @@ class MapLibreGlViewer {
 					],
 					tileSize: 256,
 					attribution:
+						config.attribution ??
 						'© <a href="http://www.toursprung.com" target="_blank">Toursprung</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OSM Contributors</a>',
 				},
 			},
 			layers: [
 				{
-					id: "toursprung-tiles",
+					id: config.id ?? "toursprung-tiles",
 					type: "raster",
 					source: "toursprung-tiles",
-					minzoom: 0,
-					maxzoom: 22,
+					minzoom: config.minzoom ?? 0,
+					maxzoom: config.maxzoom ?? 22,
 				},
 			],
 		};
@@ -340,7 +361,7 @@ class MapLibreGlViewer {
 				icon.onload = () => this.map.addImage(`${iconKey}_${colorKey}`, icon);
 				icon.src = iconValue.interpolate({
 					color: escape(colorValue),
-					strokeColor: escape(this.colors["white"]),
+					strokeColor: escape(this.colors.white),
 				});
 			}
 		}
