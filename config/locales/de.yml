@@ -1596,12 +1596,16 @@ de:
         EventGroup: Beschreibung
       infrastructure:
         AdditionalService: Zusatzleistung
+        Arrival Information: Informationen zur Anreise
         CurrentInformation: Aktuelle Informationen
         GuestCardClassification: Gästekartenleistungen
         InfrastructureLong: Detailbeschreibung
         InfrastructureOpeningTimes: Öffnungszeiten
         InfrastructurePriceInfo: Preisinformation
         InfrastructureShort: Kurzbeschreibung
+        Payment: Zahlungsmodalitäten
+        Price Information: Preis
+        ServiceDescription: Beschreibung
       GuestCards:
         GuestCardClassification: Gästekartenleistungen
       accommodation:

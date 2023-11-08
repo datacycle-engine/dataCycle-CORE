@@ -1619,12 +1619,16 @@ en:
         EventGroup: Description
       infrastructure:
         AdditionalService: Additional service
+        Arrival Information: Arrival Information
         CurrentInformation: Current information
         GuestCardClassification: Guest card services
         InfrastructureLong: Detailed description
         InfrastructureOpeningTimes: Opening hours
         InfrastructurePriceInfo: Price information
         InfrastructureShort: Brief description
+        Payment: Payment modalities
+        Price Information: Price
+        ServiceDescription: Description
       GuestCards:
         GuestCardClassification: Guest card services
       accommodation:
