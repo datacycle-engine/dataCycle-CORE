@@ -36,12 +36,13 @@ module DataCycleCore
       label_html
     end
 
-    def ordered_validation_properties(validation:, type: nil, content_area: nil, scope: :edit, exclude_types: [])
+    def ordered_validation_properties(validation:, type: nil, content_area: nil, scope: :edit, exclude_types: [], exclude_keys: [])
       return if validation.nil? || validation['properties'].blank?
 
       ordered_props = {}
 
       validation['properties'].sort_by { |_, prop| prop['sorting'] }.each do |key, prop|
+        next if Array.wrap(exclude_keys).include?(key)
         next if Array.wrap(exclude_types).include?(prop['type'])
         next if INTERNAL_PROPERTIES.include?(key) || prop['sorting'].blank?
         next if type.present? && prop['type'] != type

@@ -101,6 +101,13 @@ de:
     download_import: Download & Import
     delete: delete
     errors_were_encountered: errors were encountered
+    maintenance:
+      classification_mappings:
+        button: Klassifizierungsmappings neu generieren
+        queued: Job zum Generieren der Klassifizierungsmappings wurde in die Queue eingefügt
+        started: Generieren der Klassifizierungsmappings wurde gestartet
+        finished: Generieren der Klassifizierungsmappings wurde abgeschlossen
+        error: Beim Generieren der Klassifizierungsmappings ist ein Fehler aufgetreten!
 
   notification:
     frequency:

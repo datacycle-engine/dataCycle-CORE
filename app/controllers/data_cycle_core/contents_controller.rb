@@ -334,22 +334,30 @@ module DataCycleCore
 
       authorize! :history, @content
 
-      @source_locale = @diff_source.last_updated_locale || @diff_source.first_available_locale
+      @source_locale = @diff_source.first_available_locale(@diff_source.last_updated_locale)
 
       I18n.with_locale(@source_locale) do
-        @target_locale = @content.last_updated_locale || @content.first_available_locale
+        @target_locale = @content.first_available_locale(@content.last_updated_locale)
         I18n.with_locale(@target_locale) { @data_schema = @content.get_data_hash }
         @diff_schema = @diff_source.diff(@data_schema) || {}
 
         if @source_locale.to_s != @target_locale.to_s
           @content.translatable_property_names.each do |key|
-            @diff_schema[key] = ['0', nil]
+            if key.in?(@content.embedded_property_names)
+              if @diff_schema.dig(key, 0, 0).present?
+                @diff_schema[key][0][0] = '0'
+              else
+                @diff_schema[key] = [['0', nil]]
+              end
+            else
+              @diff_schema[key] = ['0', nil]
+            end
           end
         end
 
         render
       rescue StandardError => e
-        redirect_back(fallback_location: root_path, alert: helpers.tag.span(I18n.t('controllers.error.definition_mismatch', locale: helpers.active_ui_locale), title: "#{e.message.truncate(250)}\n\n#{e.backtrace.first(10).join("\n")}")) && return
+        redirect_back(fallback_location: root_path, alert: helpers.tag.span(I18n.t('controllers.error.definition_mismatch', locale: helpers.active_ui_locale), title: "#{e.message.truncate(100)}\n\n#{e.backtrace.first(5).join("\n")}"), allow_other_host: false) && return
       end
     end
 
@@ -357,7 +365,7 @@ module DataCycleCore
       @content = DataCycleCore::Thing.find(params[:id])
       @history = @content.histories.find(params[:history_id]) if params[:history_id].present?
 
-      redirect_back(fallback_location: root_path) && return if @history.nil? || @content.nil?
+      redirect_back(fallback_location: root_path, allow_other_host: false) && return if @history.nil? || @content.nil?
 
       I18n.with_locale(@history.first_available_locale) do
         history_hash = @history.get_data_hash

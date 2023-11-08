@@ -94,6 +94,13 @@ en:
     download_import: Download &amp; Import
     delete: delete
     errors_were_encountered: errors were encountered
+    maintenance:
+      classification_mappings:
+        button: rebuild classification_mappings
+        queued: queued job to rebuild classification_mappings
+        started: started rebuilding classification_mappings
+        finished: finished rebuilding classification_mappings
+        error: an error occurred while rebuilding classification_mappings!
 
   notification:
     frequency:

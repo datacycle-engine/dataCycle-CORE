@@ -230,6 +230,8 @@ module DataCycleCore
                 .index_by(&:id)
             )
             preloaded['classifications'] = collected_classification_contents&.map { |ccc|
+              next if ccc.classification_alias.primary_classification.nil?
+
               {
                 classification: ccc.classification_alias.primary_classification,
                 classification_alias_id: ccc.classification_alias.id,
@@ -253,11 +255,11 @@ module DataCycleCore
                     ccc.classification_tree_label.as_json(only: [:id, :name]).merge({ 'class_type' => 'DataCycleCore::ClassificationTreeLabel' })
                   ]
               }
-            }&.index_by { |v| v[:classification].id } || {}
+            }&.compact&.index_by { |v| v[:classification].id } || {}
 
             preloaded['classification_contents'] = preloaded['contents'].values.map!(&:classification_content).flatten!.group_by(&:content_data_id).transform_values! { |v| v.group_by(&:relation).transform_values! { |cc| cc.map(&:classification_id) } }
             preloaded['full_classifications'] = collected_classification_contents.group_by(&:thing_id).transform_values! do |v|
-              v.map { |ccc| ccc.classification_alias.primary_classification.id }
+              v.map { |ccc| ccc.classification_alias.primary_classification&.id }.compact
             end
 
             preloaded['contents'].each_value do |content|
@@ -307,7 +309,7 @@ module DataCycleCore
                       I18n.with_locale(locale) do
                         content.set_memoized_attribute(
                           k,
-                          content.overlay_property_names.include?(k) ? preloaded['contents'].values_at(*preloaded.dig('content_contents', content.overlay_content&.id, k)).filter { |t| t.translated_locales.include?(locale) }.presence || preloaded['contents'].values_at(*preloaded.dig('content_contents', content.id, k)).filter { |t| t.translated_locales.include?(locale) } : preloaded['contents'].values_at(*preloaded.dig('content_contents', content.id, k)).filter { |t| t.translated_locales.include?(locale) },
+                          content.overlay_property_names.include?(k) ? preloaded['contents'].values_at(*preloaded.dig('content_contents', content.overlay_content&.id, k)).filter { |t| t&.translated_locales&.include?(locale) }.presence || preloaded['contents'].values_at(*preloaded.dig('content_contents', content.id, k)).filter { |t| t&.translated_locales&.include?(locale) } : preloaded['contents'].values_at(*preloaded.dig('content_contents', content.id, k)).filter { |t| t&.translated_locales&.include?(locale) },
                           nil,
                           content.overlay_property_names.include?(k)
                         )
