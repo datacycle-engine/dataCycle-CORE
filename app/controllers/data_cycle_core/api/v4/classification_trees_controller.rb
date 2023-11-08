@@ -52,7 +52,6 @@ module DataCycleCore
 
         def facets
           @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:classification_tree_label_id])
-
           query = build_search_query
 
           join_sql = "LEFT OUTER JOIN (SELECT ccc1.* FROM collected_classification_contents ccc1 WHERE EXISTS (#{query.query.where('things.id = ccc1.thing_id').except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).select(1).to_sql})) ccc ON ccc.classification_alias_id = classification_aliases.id"
@@ -131,6 +130,11 @@ module DataCycleCore
                   }
                 }
               ]
+            }
+          elsif action_name == 'facets'
+            {
+              filter:
+                attribute_filters + [linked: {}] + [union: []]
             }
           else
             {
