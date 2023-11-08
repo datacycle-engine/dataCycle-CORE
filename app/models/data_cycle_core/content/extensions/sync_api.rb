@@ -309,10 +309,7 @@ module DataCycleCore
                       I18n.with_locale(locale) do
                         content.set_memoized_attribute(
                           k,
-                          content.overlay_property_names.include?(k) ?
-                            preloaded['contents'].values_at(*preloaded.dig('content_contents', content.overlay_content&.id, k)).filter { |t| t&.translated_locales&.include?(locale) }.presence ||
-                              preloaded['contents'].values_at(*preloaded.dig('content_contents', content.id, k)).filter { |t| t&.translated_locales&.include?(locale) } :
-                              preloaded['contents'].values_at(*preloaded.dig('content_contents', content.id, k)).filter { |t| t&.translated_locales&.include?(locale) },
+                          content.overlay_property_names.include?(k) ? preloaded['contents'].values_at(*preloaded.dig('content_contents', content.overlay_content&.id, k)).filter { |t| t&.translated_locales&.include?(locale) }.presence || preloaded['contents'].values_at(*preloaded.dig('content_contents', content.id, k)).filter { |t| t&.translated_locales&.include?(locale) } : preloaded['contents'].values_at(*preloaded.dig('content_contents', content.id, k)).filter { |t| t&.translated_locales&.include?(locale) },
                           nil,
                           content.overlay_property_names.include?(k)
                         )
