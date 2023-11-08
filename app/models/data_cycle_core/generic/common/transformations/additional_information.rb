@@ -25,11 +25,13 @@ module DataCycleCore
           end
 
           def self.add_description_to_additional_information_types(data, external_source_id, importer_name, types)
+            data['additional_information'] = []
             return data if types.blank?
             return data if data['external_key'].blank?
 
             additional_information = []
             Array.wrap(types).each do |type|
+              next if data[type].blank?
               additional_information << {
                 'type' => type,
                 'type_of_info' => type,

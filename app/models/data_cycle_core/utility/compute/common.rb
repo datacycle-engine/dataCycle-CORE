@@ -48,7 +48,7 @@ module DataCycleCore
 
           def attribute_value_by_first_match(computed_parameters:, computed_definition:, **_args)
             Array.wrap(computed_definition.dig('compute', 'value')).each do |config|
-              value = Array.wrap(get_values_from_hash(computed_parameters, config['attribute'].split('.'), config['filter'])).first
+              value = Array.wrap(get_values_from_hash(computed_parameters, config['attribute'].split('.'), config['filter'])).compact.first
 
               return value if DataCycleCore::DataHashService.present?(value)
             end
