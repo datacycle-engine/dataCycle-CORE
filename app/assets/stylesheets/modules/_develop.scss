@@ -3365,7 +3365,7 @@ section.duplicate-candidates {
   .tile-top {
     position: relative;
     padding-bottom: 1rem;
-    flex-flow: row;
+    flex-flow: row wrap;
   }
 
   .external-source-icon {
