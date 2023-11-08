@@ -41,6 +41,12 @@ module DummyTransformations
   end
 end
 
+module DummyNestedFilter
+  def self.value?(raw_data)
+    raw_data.dig('has_value') == 'MY VALUE'
+  end
+end
+
 describe DataCycleCore::Generic::Common::ImportContents do
   include DataCycleCore::MinitestSpecHelper
 
@@ -126,6 +132,110 @@ describe DataCycleCore::Generic::Common::ImportContents do
     assert_equal('ImageObject', arguments.dig(0, 1))
     assert_equal(DummyTransformations.method(:do_nothing_two), arguments.dig(0, 2))
     assert_equal({ 'external_key' => 'NESTED KEY' }, arguments.dig(0, 3))
+
+    assert_equal(utility_object, arguments.dig(1, 0))
+    assert_equal('Thing', arguments.dig(1, 1))
+    assert_equal(DummyTransformations.method(:do_nothing_one), arguments.dig(1, 2))
+    assert_equal(data, arguments.dig(1, 3))
+  end
+
+  it 'should process single nested content using jsonpath' do
+    configuration = {
+      transformations: 'DummyTransformations',
+      import: {
+        nested_contents: [
+          {
+            json_path: '$..nested',
+            template: 'ImageObject',
+            transformation: 'do_nothing_two'
+          }
+        ],
+        main_content: {
+          template: 'Thing',
+          transformation: 'do_nothing_one'
+        }
+      }
+    }
+
+    data = {
+      'external_key' => 'SOME KEY',
+      'nested' => {
+        'external_key' => 'NESTED KEY'
+      }
+    }
+
+    arguments = []
+
+    collect_arguments = lambda do |*args|
+      arguments << args
+    end
+
+    subject.stub :process_single_content, collect_arguments do
+      subject.process_content(utility_object:, raw_data: data, locale: :de, options: configuration)
+    end
+
+    assert_equal(2, arguments.size)
+    assert_equal(utility_object, arguments.dig(0, 0))
+    assert_equal('ImageObject', arguments.dig(0, 1))
+    assert_equal(DummyTransformations.method(:do_nothing_two), arguments.dig(0, 2))
+    assert_equal({ 'external_key' => 'NESTED KEY' }, arguments.dig(0, 3))
+
+    assert_equal(utility_object, arguments.dig(1, 0))
+    assert_equal('Thing', arguments.dig(1, 1))
+    assert_equal(DummyTransformations.method(:do_nothing_one), arguments.dig(1, 2))
+    assert_equal(data, arguments.dig(1, 3))
+  end
+
+  it 'should process single nested content using jsonpath and nested content filter' do
+    configuration = {
+      transformations: 'DummyTransformations',
+      import: {
+        nested_contents: [
+          {
+            json_path: '$..nested',
+            filter: {
+              module: 'DummyNestedFilter',
+              method: 'value?'
+            },
+            template: 'ImageObject',
+            transformation: 'do_nothing_two'
+          }
+        ],
+        main_content: {
+          template: 'Thing',
+          transformation: 'do_nothing_one'
+        }
+      }
+    }
+
+    data = {
+      'external_key' => 'SOME KEY',
+      'nested' => [
+        {
+          'external_key' => 'NESTED KEY2'
+        },
+        {
+          'external_key' => 'NESTED KEY',
+          'has_value' => 'MY VALUE'
+        }
+      ]
+    }
+
+    arguments = []
+
+    collect_arguments = lambda do |*args|
+      arguments << args
+    end
+
+    subject.stub :process_single_content, collect_arguments do
+      subject.process_content(utility_object:, raw_data: data, locale: :de, options: configuration)
+    end
+
+    assert_equal(2, arguments.size)
+    assert_equal(utility_object, arguments.dig(0, 0))
+    assert_equal('ImageObject', arguments.dig(0, 1))
+    assert_equal(DummyTransformations.method(:do_nothing_two), arguments.dig(0, 2))
+    assert_equal({'external_key' => 'NESTED KEY', 'has_value' => 'MY VALUE'}, arguments.dig(0, 3))
 
     assert_equal(utility_object, arguments.dig(1, 0))
     assert_equal('Thing', arguments.dig(1, 1))
