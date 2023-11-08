@@ -8,7 +8,7 @@ module DataCycleCore
       @errors = nil
       @duplicates = nil
       @stat_database = StatsDatabase.new.load_all_stats
-      @stat_job_queue = StatsJobQueue.new.update
+      @stat_job_queue = StatsJobQueue.new.job_list
     end
 
     def download
@@ -73,9 +73,12 @@ module DataCycleCore
     end
 
     def rebuild_classification_mappings
-      DataCycleCore::RunTaskJob.perform_now('db:configure:rebuild_transitive_tables')
+      DataCycleCore::RebuildClassificationMappingsJob.perform_later
 
-      redirect_to(admin_path, notice: I18n.t('dash_board.maintenance.classification_mappings_rebuilt', locale: helpers.active_ui_locale))
+      respond_to do |format|
+        format.html { redirect_to(admin_path, notice: I18n.t('dash_board.maintenance.classification_mappings.queued', locale: helpers.active_ui_locale)) }
+        format.json { head :ok }
+      end
     end
 
     def activities

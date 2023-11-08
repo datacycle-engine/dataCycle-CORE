@@ -7,7 +7,12 @@
         <h4>
           <i class='fa fa-arrow-circle-o-right' aria-hidden='true'></i> maintenance
         </h4>
-        <%= link_to 'rebuild classification_mappings', admin_rebuild_classification_mappings_path, class: 'button small' %>
+
+        <%
+          text = I18n.t('dash_board.maintenance.classification_mappings.button', locale: active_ui_locale)
+          disabled_text = safe_join([text, tag.i(class: 'fa fa-spinner fa-spin fa-fw')], ' ')
+        %>
+        <%= link_to text, admin_rebuild_classification_mappings_path, class: "button small rebuild_classification_mappings", data: { disable_with: disabled_text, disabled: @stat_job_queue[:rebuild_classification_mappings] } %>
       </div>
     </div>
   <% end %>
