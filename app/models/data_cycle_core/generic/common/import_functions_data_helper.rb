@@ -31,7 +31,7 @@ module DataCycleCore
           external_source_id = utility_object.external_source.id
           external_hash = DataCycleCore::ExternalHash.find_or_initialize_by(external_key:, external_source_id:, locale: I18n.locale)
 
-          if external_hash.hash_value == transformation_hash
+          if external_hash.hash_value == transformation_hash && utility_object.mode.to_s != 'reset'
             content = DataCycleCore::Thing.by_external_key(utility_object.external_source.id, data['external_key']).first
           else
             content = create_or_update_content(
