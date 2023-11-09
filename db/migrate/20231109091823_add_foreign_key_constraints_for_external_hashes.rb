@@ -6,8 +6,6 @@ class AddForeignKeyConstraintsForExternalHashes < ActiveRecord::Migration[6.1]
       ALTER TABLE external_hashes
       ADD CONSTRAINT fk_external_hashes_things FOREIGN KEY (external_source_id, external_key) REFERENCES things (external_source_id, external_key) ON DELETE CASCADE NOT VALID;
 
-      ALTER TABLE external_hashes VALIDATE CONSTRAINT fk_external_hashes_things;
-
       CREATE OR REPLACE FUNCTION delete_external_hashes_trigger_1() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN
       DELETE FROM external_hashes
       WHERE external_hashes.id IN (
