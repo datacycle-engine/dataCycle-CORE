@@ -291,7 +291,7 @@ module DataCycleCore
       db_name = mongo_class.database_name.to_s
       db_name = "#{db_name}_#{id}" unless db_name.split('_').last == id
       Mongoid.override_database(db_name)
-      DataCycleCore::Generic::Collection.with(mongo_class, &block)
+      DataCycleCore::Generic::Collection.with(mongo_class, &)
     ensure
       Mongoid.override_database(nil)
     end
@@ -301,7 +301,7 @@ module DataCycleCore
       db_name = mongo_class.database_name.to_s
       db_name = "#{db_name}_#{id}" unless db_name.split('_').last == id
       Mongoid.override_database(db_name)
-      DataCycleCore::Generic::Collection2.with(mongo_class, &block)
+      DataCycleCore::Generic::Collection2.with(mongo_class, &)
     ensure
       Mongoid.override_database(nil)
     end
