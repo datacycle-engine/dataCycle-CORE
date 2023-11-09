@@ -96,9 +96,8 @@ namespace :db do
 
       next if Rails.env.test?
 
-      ActiveRecord::Base.connection.execute <<-SQL.squish
-        VACUUM (FULL, ANALYZE) classification_alias_paths, classification_alias_paths_transitive, collected_classification_contents;
-      SQL
+      ActiveRecord::Base.connection.execute('VACUUM (FULL, ANALYZE) classification_alias_paths, classification_alias_paths_transitive, collected_classification_contents;')
+      ActiveRecord::Base.connection.execute('VACUUM (ANALYZE) classification_alias_paths, classification_alias_paths_transitive, collected_classification_contents;')
     end
   end
 end
