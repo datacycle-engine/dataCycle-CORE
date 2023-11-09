@@ -54,9 +54,12 @@ describe DataCycleCore::Generic::Common::ImportContents do
     DataCycleCore::Generic::Common::ImportContents
   end
 
+  ExternalSystemDummyStruct = Struct.new('ExternalSystemDummy', :id, :default_options)
+  UtilityObjectDummyStruct = Struct.new('UtilityObjectDummy', :external_source)
+
   let :utility_object do
-    Struct.new('UtilityObjectDummy', :external_source).new(
-      Struct.new('ExternalSystemDummy', :id, :default_options).new('53a82828-d3aa-4765-99ca-7aef176de1c2', {})
+    UtilityObjectDummyStruct.new(
+      ExternalSystemDummyStruct.new('53a82828-d3aa-4765-99ca-7aef176de1c2', {})
     )
   end
 
@@ -79,6 +82,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
 
     collect_arguments = lambda do |*args|
       arguments << args
+      nil
     end
 
     subject.stub :process_single_content, collect_arguments do
@@ -120,6 +124,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
 
     collect_arguments = lambda do |*args|
       arguments << args
+      nil
     end
 
     subject.stub :process_single_content, collect_arguments do
@@ -168,6 +173,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
 
     collect_arguments = lambda do |*args|
       arguments << args
+      nil
     end
 
     subject.stub :process_single_content, collect_arguments do
@@ -225,6 +231,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
 
     collect_arguments = lambda do |*args|
       arguments << args
+      nil
     end
 
     subject.stub :process_single_content, collect_arguments do
@@ -278,6 +285,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
 
     collect_arguments = lambda do |*args|
       arguments << args
+      nil
     end
 
     subject.stub :process_single_content, collect_arguments do
@@ -333,6 +341,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
 
     collect_arguments = lambda do |*args|
       arguments << args
+      nil
     end
 
     result = nil
@@ -370,6 +379,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
 
     collect_arguments = lambda do |*args|
       arguments << args
+      nil
     end
 
     result = nil
@@ -403,6 +413,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
     get_dummy_template = ->(template_name) { template_name }
     collect_arguments = lambda do |*args|
       arguments << args
+      nil
     end
 
     DataCycleCore::Generic::Common::ImportFunctions.stub :load_template, get_dummy_template do
@@ -433,6 +444,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
     get_dummy_template = ->(template_name) { template_name }
     collect_arguments = lambda do |*args|
       arguments << args
+      nil
     end
 
     DataCycleCore::Generic::Common::ImportFunctions.stub :load_template, get_dummy_template do

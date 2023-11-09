@@ -166,6 +166,15 @@ CREATE FUNCTION public.delete_content_content_links_trigger() RETURNS trigger
 
 
 --
+-- Name: delete_external_hashes_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_external_hashes_trigger_1() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN DELETE FROM external_hashes WHERE external_hashes.id IN ( SELECT eh.id FROM external_hashes eh WHERE EXISTS ( SELECT 1 FROM old_thing_translations INNER JOIN things ON things.id = old_thing_translations.thing_id WHERE things.external_source_id = eh.external_source_id AND things.external_key = eh.external_key AND old_thing_translations.locale = eh.locale ) FOR UPDATE ); RETURN NULL; END; $$;
+
+
+--
 -- Name: delete_schedule_occurences(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1229,6 +1238,22 @@ CREATE SEQUENCE public.delayed_jobs_id_seq
 --
 
 ALTER SEQUENCE public.delayed_jobs_id_seq OWNED BY public.delayed_jobs.id;
+
+
+--
+-- Name: delayed_jobs_statistics; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.delayed_jobs_statistics AS
+ SELECT delayed_jobs.queue AS queue_name,
+    sum(1) FILTER (WHERE (delayed_jobs.failed_at IS NOT NULL)) AS failed,
+    sum(1) FILTER (WHERE ((delayed_jobs.failed_at IS NULL) AND (delayed_jobs.locked_at IS NOT NULL) AND (delayed_jobs.locked_by IS NOT NULL))) AS running,
+    sum(1) FILTER (WHERE ((delayed_jobs.failed_at IS NULL) AND (delayed_jobs.locked_at IS NULL) AND (delayed_jobs.locked_by IS NULL))) AS queued,
+    array_agg(DISTINCT delayed_jobs.delayed_reference_type) FILTER (WHERE (delayed_jobs.failed_at IS NOT NULL)) AS failed_types,
+    array_agg(DISTINCT delayed_jobs.delayed_reference_type) FILTER (WHERE ((delayed_jobs.failed_at IS NULL) AND (delayed_jobs.locked_at IS NOT NULL) AND (delayed_jobs.locked_by IS NOT NULL))) AS running_types,
+    array_agg(DISTINCT delayed_jobs.delayed_reference_type) FILTER (WHERE ((delayed_jobs.failed_at IS NULL) AND (delayed_jobs.locked_at IS NULL) AND (delayed_jobs.locked_by IS NULL))) AS queued_types
+   FROM public.delayed_jobs
+  GROUP BY delayed_jobs.queue;
 
 
 --
@@ -3279,6 +3304,13 @@ CREATE TRIGGER delete_content_content_links_trigger BEFORE DELETE ON public.cont
 
 
 --
+-- Name: thing_translations delete_external_hashes_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_external_hashes_trigger AFTER DELETE ON public.thing_translations REFERENCING OLD TABLE AS old_thing_translations FOR EACH STATEMENT EXECUTE FUNCTION public.delete_external_hashes_trigger_1();
+
+
+--
 -- Name: schedules delete_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -3670,6 +3702,14 @@ ALTER TABLE ONLY public.collection_configurations
 
 ALTER TABLE ONLY public.collection_configurations
     ADD CONSTRAINT fk_collection_watch_list FOREIGN KEY (watch_list_id) REFERENCES public.watch_lists(id) ON DELETE CASCADE;
+
+
+--
+-- Name: external_hashes fk_external_hashes_things; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.external_hashes
+    ADD CONSTRAINT fk_external_hashes_things FOREIGN KEY (external_source_id, external_key) REFERENCES public.things(external_source_id, external_key) ON DELETE CASCADE;
 
 
 --
@@ -4147,6 +4187,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230821094137'),
 ('20230823081910'),
 ('20230824060920'),
-('20231010095157');
+('20231010095157'),
+('20231023100607'),
+('20231108115445'),
+('20231109091823');
 
 
