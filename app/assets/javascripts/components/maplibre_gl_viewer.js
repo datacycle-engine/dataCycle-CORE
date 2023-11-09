@@ -129,7 +129,7 @@ class MapLibreGlViewer {
 		this.map = new this.maplibreGl.Map(
 			Object.assign(this.defaultOptions, {
 				container: this.containerId,
-				style: this.mapBaseLayer(),
+				style: await this.mapBaseStyle(),
 				transformRequest: (url, _resourceType) => {
 					if (
 						url.includes("tiles.pixelmap.at/") ||
@@ -229,33 +229,49 @@ class MapLibreGlViewer {
 		if (features.length)
 			this.filterFeatures = this._createFeatureCollection(features);
 	}
-	mergeStyles(oldStyle, newStyle) {
+	mergeStyles(oldStyle, newStyle, layerOverrides) {
+		if (!newStyle) return oldStyle;
+
 		oldStyle.version = Math.max(oldStyle.version ?? 0, newStyle.version);
 		oldStyle.sources = Object.assign({}, oldStyle.sources, newStyle.sources);
-		oldStyle.layers = (oldStyle.layers ?? []).concat(newStyle.layers);
+
+		if (!oldStyle.layers) oldStyle.layers = [];
+		for (const layer of newStyle.layers)
+			oldStyle.layers.push(Object.assign({}, layer, layerOverrides));
+
+		for (const [key, value] of Object.entries(newStyle)) {
+			if (Object.hasOwn(oldStyle, key)) continue;
+
+			oldStyle[key] = value;
+		}
 
 		return oldStyle;
 	}
-	mapBaseLayer() {
+	async mapBaseStyle() {
 		const styles = {};
 
 		if (!this.mapStyles) throw "No Map-Style defined!";
 
 		for (const style of this.mapStyles) {
+			let newStyle;
+
 			if (
 				typeof style.value === "string" &&
 				typeof this[`baseLayer${style.value}`] === "function"
-			) {
-				this.mergeStyles(styles, this[`baseLayer${style.value}`](style));
-			} else if (typeof style.value === "string" && style.value)
-				return style.value;
-			else if (typeof style.value === "object" && style.value)
-				this.mergeStyles(styles, style.value);
+			)
+				newStyle = this[`baseLayer${style.value}`]();
+			else if (typeof style.value === "string" && style.value) {
+				const response = await fetch(style.value);
+				newStyle = await response.json();
+			} else if (typeof style.value === "object" && style.value)
+				newStyle = style.value;
+
+			this.mergeStyles(styles, newStyle, pick(style, ["minzoom", "maxzoom"]));
 		}
 
 		return styles;
 	}
-	baseLayerOSM(config = {}) {
+	baseLayerOSM() {
 		return {
 			version: 8,
 			sources: {
@@ -268,22 +284,21 @@ class MapLibreGlViewer {
 					],
 					tileSize: 256,
 					attribution:
-						config.attribution ??
 						'&#169; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors.',
 				},
 			},
 			layers: [
 				{
-					id: config.id ?? "osm-tiles",
+					id: "osm-tiles",
 					type: "raster",
 					source: "osm-tiles",
-					minzoom: config.minzoom ?? 0,
-					maxzoom: config.maxzoom ?? 19,
+					minzoom: 0,
+					maxzoom: 19,
 				},
 			],
 		};
 	}
-	baseLayerBaseMapAt(config = {}) {
+	baseLayerBaseMapAt() {
 		const layer = this.highDpi ? "bmaphidpi" : "geolandbasemap";
 		const matrixSet = "google3857";
 		const style = "normal";
@@ -302,22 +317,21 @@ class MapLibreGlViewer {
 					],
 					tileSize: 256,
 					attribution:
-						config.attribution ??
 						'© <a href="https://www.basemap.at" target="_blank">basemap.at</a>',
 				},
 			},
 			layers: [
 				{
-					id: config.id ?? "basemap-at-tiles",
+					id: "basemap-at-tiles",
 					type: "raster",
 					source: "basemap-at-tiles",
-					minzoom: config.minzoom ?? 0,
-					maxzoom: config.maxzoom ?? 18,
+					minzoom: 0,
+					maxzoom: 18,
 				},
 			],
 		};
 	}
-	baseLayerTourSprung(config = {}) {
+	baseLayerTourSprung() {
 		return {
 			version: 8,
 			sources: {
@@ -330,17 +344,16 @@ class MapLibreGlViewer {
 					],
 					tileSize: 256,
 					attribution:
-						config.attribution ??
 						'© <a href="http://www.toursprung.com" target="_blank">Toursprung</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OSM Contributors</a>',
 				},
 			},
 			layers: [
 				{
-					id: config.id ?? "toursprung-tiles",
+					id: "toursprung-tiles",
 					type: "raster",
 					source: "toursprung-tiles",
-					minzoom: config.minzoom ?? 0,
-					maxzoom: config.maxzoom ?? 22,
+					minzoom: 0,
+					maxzoom: 22,
 				},
 			],
 		};
