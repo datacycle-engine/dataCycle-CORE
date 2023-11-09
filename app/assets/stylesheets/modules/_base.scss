@@ -831,7 +831,7 @@ footer {
 
   input,
   .editor-block,
-  .daterange,
+  .daterange:not(.schedule-range):not(.special-dates),
   .embedded_object:not(.publication_schedule)>.embedded-object>.content-object-item,
   .readonly-select,
   .form-element.detail_object,
@@ -1974,13 +1974,42 @@ body .v-select {
 
 /* Animations für lazyloaded iamges */
 .lazyload,
+.lazyloading,
+.lazyloaded {
+  transition: $opacity-transition;
+}
+
+.lazyload {
+  opacity: 0.25;
+}
+
 .lazyloading {
-  opacity: 0;
+  opacity: 0.5;
+}
+
+@keyframes lazyload {
+  0% {
+    background-position: 200% 50%;
+  }
+
+  100% {
+    background-position: 50% 50%;
+  }
+}
+
+.lazyload,
+.lazyloading {
+  color: transparent;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0) 75%, var(--light-gray) 87.5%, rgba(255, 255, 255, 0) 100%) !important;
+  background-size: 200% 100% !important;
+  background-position: 200% 50%;
+  background-repeat: no-repeat !important;
+  animation: lazyload 1.5s linear infinite forwards;
+  box-shadow: 0 0 0 1px var(--light-gray) inset;
 }
 
 .lazyloaded {
   opacity: 1;
-  transition: $opacity-transition;
 }
 
 a {

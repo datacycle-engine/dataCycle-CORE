@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class SubscriptionsController < ApplicationController
-    include DataCycleCore::Filter
+    include DataCycleCore::FilterConcern
 
     def index
       authorize! :index, DataCycleCore::Subscription

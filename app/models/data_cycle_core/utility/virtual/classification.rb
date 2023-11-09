@@ -22,9 +22,13 @@ module DataCycleCore
           end
 
           def classifcation_alias_value(classifications, key)
-            classifications
-              &.classification_aliases
-              &.map { |ca| ca.send(key) || ca.internal_name }
+            if classifications.loaded?
+              aliases = classifications&.map(&:classification_aliases)&.flatten
+            else
+              aliases = classifications&.classification_aliases
+            end
+
+            aliases&.map { |ca| ca.send(key) || ca.internal_name }
           end
         end
       end

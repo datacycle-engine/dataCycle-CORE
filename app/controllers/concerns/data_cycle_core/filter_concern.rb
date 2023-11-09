@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  module Filter
+  module FilterConcern
     extend ActiveSupport::Concern
     DEFAULT_PAGE_SIZE = 25
 

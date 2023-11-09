@@ -26,6 +26,10 @@ module DataCycleCore
 
     def wait!
       @queue.each(&:wait!) if @pool
+    rescue DataCycleCore::Error::Api::TimeOutError, Timeout::Error => e
+      @pool&.kill
+
+      raise e
     ensure
       @pool&.shutdown
     end

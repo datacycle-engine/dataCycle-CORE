@@ -134,8 +134,8 @@ module DataCycleCore
       dtfrom = '2019-11-20T09:00:00'
       dtend = '2020-01-04T16:00:00'
       schedule_hash = create_schedule(dtfrom, dtend, 7.hours)
-      odtfrom = '2020-11-20T09:00:00'
-      odtend = '2021-01-04T16:00:00'
+      odtfrom = '2020-11-20T09:00:00.000+01:00'
+      odtend = '2021-01-04T16:00:00.000+01:00'
       overlay_schedule_hash = create_schedule(odtfrom, odtend, 7.hours)
       event = create_event_with_event_schedule(schedule_hash, overlay_schedule_hash)
 
@@ -145,8 +145,9 @@ module DataCycleCore
       ['id', 'name', 'end_date', 'start_date', 'event_schedule', 'template_name', 'updated_at', 'created_at'].each do |attribute|
         assert(main_data[attribute].present?)
       end
-      assert_equal(odtfrom, main_data['start_date'].to_s(:long_datetime))
-      assert_equal(odtend, main_data['end_date'].to_s(:long_datetime))
+
+      assert_equal(odtfrom, main_data['start_date'])
+      assert_equal(odtend, main_data['end_date'])
       assert_equal(odtfrom.in_time_zone, main_data.dig('event_schedule', 0, 'dtstart').in_time_zone)
       assert_equal(odtend.in_time_zone, main_data.dig('event_schedule', 0, 'dtend').in_time_zone)
     end
@@ -182,7 +183,7 @@ module DataCycleCore
       assert_equal(['de', 'included', 'classifications'].sort, serialized_event.keys.sort)
 
       assert_equal(event.event_status, event.event_status_overlay)
-      serialized_classification = serialized_event.dig('classifications').detect { |i| i.dig('attribute_name') == 'event_status' }
+      serialized_classification = serialized_event.dig('classifications').detect { |i| i.dig('attribute_name')&.include?('event_status') }
       assert_equal(event.event_status_overlay.first.name, serialized_classification.dig('name'))
     end
 
@@ -192,7 +193,7 @@ module DataCycleCore
       assert_equal('Veranstaltung geplant', event.event_status.first.name)
       assert_equal('Veranstaltung abgesagt', event.event_status_overlay.first.name)
 
-      serialized_classification = serialized_event.dig('classifications').detect { |i| i.dig('attribute_name') == 'event_status' }
+      serialized_classification = serialized_event.dig('classifications').detect { |i| i.dig('attribute_name').include?('event_status') }
       assert_equal(event.event_status_overlay.first.name, serialized_classification.dig('name'))
     end
 
@@ -213,10 +214,10 @@ module DataCycleCore
 
       # serialized_event classifications
       assert_equal(4, serialized_event['classifications'].size)
-      assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'] == 'event_status' })
-      assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'] == 'universal_classifications' })
-      assert_equal(['Test Veranstaltung geplant'], serialized_event['classifications'].select { |i| i['attribute_name'] == 'event_status' }.map { |i| i['name'] }.sort)
-      assert_equal(['Test1'], serialized_event['classifications'].select { |i| i['attribute_name'] == 'universal_classifications' }.map { |i| i['name'] }.sort)
+      assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'].include?('event_status') })
+      assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'].include?('universal_classifications') })
+      assert_equal(['Test Veranstaltung geplant'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('event_status') }.map { |i| i['name'] }.sort)
+      assert_equal(['Test1'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('universal_classifications') }.map { |i| i['name'] }.sort)
     end
 
     test 'serialize mapped classifications overwritten in overlay' do
@@ -228,10 +229,10 @@ module DataCycleCore
       assert_equal(['Test2'], DataCycleCore::Classification.where(id: serialized_event.dig('de', 'universal_classifications')).pluck(:name))
 
       assert_equal(4, serialized_event['classifications'].size)
-      assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'] == 'event_status' })
-      assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'] == 'universal_classifications' })
-      assert_equal(['Test Veranstaltung abgesagt'], serialized_event['classifications'].select { |i| i['attribute_name'] == 'event_status' }.map { |i| i['name'] }.sort)
-      assert_equal(['Test2'], serialized_event['classifications'].select { |i| i['attribute_name'] == 'universal_classifications' }.map { |i| i['name'] }.sort)
+      assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'].include?('event_status') })
+      assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'].include?('universal_classifications') })
+      assert_equal(['Test Veranstaltung abgesagt'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('event_status') }.map { |i| i['name'] }.sort)
+      assert_equal(['Test2'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('universal_classifications') }.map { |i| i['name'] }.sort)
     end
   end
 end

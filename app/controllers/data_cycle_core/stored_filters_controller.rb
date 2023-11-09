@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class StoredFiltersController < ApplicationController
-    include DataCycleCore::Filter
+    include DataCycleCore::FilterConcern
 
     load_and_authorize_resource except: [:create, :search, :select_search_or_collection, :add_to_watchlist, :saved_searches, :render_update_form] # from cancancan (authorize)
 

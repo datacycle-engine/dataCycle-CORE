@@ -1,15 +1,8 @@
 <% if DataCycleCore::Feature::Preview.enabled? %>
   <div class="preview-widget-list">
-    <% DataCycleCore::Feature::Preview.available_widgets.each do |k,v| %>
-      <a href="<%= "#{v}?data_cycle_widget[endpoint]=#{content.id}" %>" data-dc-tooltip="<%= t("common.widgets.#{k}", locale: active_ui_locale) %>" class="copy-to-clipboard right" data-value="<%= "#{v}?data_cycle_widget[endpoint]=#{content.id}" %>">
-        <%=
-        case k
-        when 'list' then tag.i(class: 'fa fa-list')
-        when 'map' then tag.i(class: 'fa fa-map')
-        when 'event' then tag.i(class: 'fa fa-calendar')
-        else tag.i(class: 'fa fa-columns')
-        end
-      %>
+    <% DataCycleCore::Feature::Preview.available_widgets(content.id, active_ui_locale).each do |k,v| %>
+      <a href="<%= v %>" data-dc-tooltip="<%= t("common.widgets.#{k}", locale: active_ui_locale) %>" class="copy-to-clipboard right" data-value="<%= v %>">
+        <%= preview_icon(k) %>
       </a>
     <% end %>
   </div>

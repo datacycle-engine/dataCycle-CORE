@@ -69,11 +69,51 @@ module DataCycleCore
         end
 
         def data_links
+          return DataCycleCore::DataLink.none if self == DataCycleCore::Thing::History
+
           DataCycleCore::DataLink.where(item_id: all.select(:id))
         end
 
         def thing_templates
           DataCycleCore::ThingTemplate.where(template_name: all.reorder(nil).select(:template_name))
+        end
+
+        def recursive_content_content_a
+          return DataCycleCore::ContentContent.none if self == DataCycleCore::Thing::History
+
+          DataCycleCore::ContentContent.where("content_contents.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [recursive_content_content_a_query, id: all.pluck(:id)])})").order(order_a: :asc)
+        end
+
+        def classification_contents
+          return DataCycleCore::ClassificationContent.none if self == DataCycleCore::Thing::History
+
+          DataCycleCore::ClassificationContent.where(content_data_id: all.pluck(:id))
+        end
+
+        def collected_classification_contents
+          return DataCycleCore::CollectedClassificationContent.none if self == DataCycleCore::Thing::History
+
+          DataCycleCore::CollectedClassificationContent.where(thing_id: all.pluck(:id))
+        end
+
+        private
+
+        def recursive_content_content_a_query
+          <<-SQL.squish
+            WITH RECURSIVE content_tree(id) AS (
+              SELECT content_contents.id,
+                content_contents.content_b_id
+              FROM content_contents
+              WHERE content_contents.content_a_id IN (:id)
+              UNION
+              SELECT content_contents.id,
+                content_contents.content_b_id
+              FROM content_contents
+                INNER JOIN content_tree ON content_tree.content_b_id = content_contents.content_a_id
+            )
+            SELECT content_tree.id
+            FROM content_tree
+          SQL
         end
       end
 
@@ -276,6 +316,12 @@ module DataCycleCore
         SQL
 
         self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [tree_query, id:, depth: DataCycleCore.cache_invalidation_depth])})")
+      end
+
+      def recursive_content_content_a
+        return self.class.none if history?
+
+        DataCycleCore::ContentContent.where("content_contents.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [self.class.recursive_content_content_a_query, id:])})").order(order_a: :asc)
       end
 
       private

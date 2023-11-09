@@ -117,5 +117,19 @@ module DataCycleCore
                   tag.span(t('feature.content_score.tooltip_score', score: content_score), class: 'tooltip-content-score')
               })
     end
+
+    def thing_helper_text(content, key)
+      return unless I18n.exists?("helper_text.attributes.#{content&.template_name}.#{key.attribute_name_from_key}.tooltip", locale: active_ui_locale)
+
+      I18n.t("helper_text.attributes.#{content&.template_name}.#{key.attribute_name_from_key}.tooltip", locale: active_ui_locale)
+    end
+
+    def thing_info_icon(content, key)
+      helper_text = thing_helper_text(content, key)
+
+      return if helper_text.blank?
+
+      tag.i(class: 'fa fa-info-circle', data: { dc_tooltip: helper_text })
+    end
   end
 end

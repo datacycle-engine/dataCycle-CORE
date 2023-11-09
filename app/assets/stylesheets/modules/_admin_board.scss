@@ -277,3 +277,15 @@ ul.import-data-timestamps li {
     }
   }
 }
+
+.rebuild_classification_mappings {
+  &.disabled {
+    pointer-events: none;
+  }
+}
+
+.maintenance-administration {
+  a>.fa {
+    font-size: 0.9rem;
+  }
+}

@@ -1,19 +1,19 @@
 <%= render 'data_cycle_core/contents/viewers/attribute',
-      local_assigns.merge(data_attributes: {
-        value: value,
-        editor: "boolean"
-      }) do %>
+    local_assigns.merge(data_attributes: {
+      value: value,
+      editor: "boolean"
+    }) do %>
 
-    <span class="detail-content">
-      <% case options.dig(:item_diff, 0) %>
-      <% when '~' %>
-        <del><%= t("common.#{options.dig(:item_diff, 1).to_s}", locale: active_ui_locale) %></del>
-        <ins><%= t("common.#{options.dig(:item_diff, 2).to_s}", locale: active_ui_locale) %></ins>
-      <% when '+' %>
-        <%= t("common.#{options.dig(:item_diff, 1).to_s}", locale: active_ui_locale) %>
-      <% else %>
-        <%= t("common.#{value.to_s}", locale: active_ui_locale) unless value.nil? %>
-      <% end %>
-    </span>
+  <span class="detail-content" data-dc-tooltip="<%= thing_helper_text(content, "#{key}_#{value}") unless value.nil? %>">
+    <% case options.dig(:item_diff, 0) %>
+    <% when '~' %>
+      <del><%= t("common.#{options.dig(:item_diff, 1)}", locale: active_ui_locale) %></del>
+      <ins><%= t("common.#{options.dig(:item_diff, 2)}", locale: active_ui_locale) %></ins>
+    <% when '+' %>
+      <%= t("common.#{options.dig(:item_diff, 1)}", locale: active_ui_locale) %>
+    <% else %>
+      <%= safe_join([t("common.#{value}", locale: active_ui_locale), thing_info_icon(content, "#{key}_#{value}")].compact_blank, ' ') unless value.nil? %>
+  <% end %>
+</span>
 
 <% end %>

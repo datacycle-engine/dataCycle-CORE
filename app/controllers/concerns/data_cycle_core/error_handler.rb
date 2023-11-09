@@ -11,6 +11,7 @@ module DataCycleCore
         rescue_from ActionController::UnknownFormat, with: :not_acceptable
         rescue_from ActionController::InvalidAuthenticityToken, with: :unprocessable_entity
         rescue_from ActionController::BadRequest, with: :bad_request
+        rescue_from ActiveRecord::RecordNotUnique, with: :conflict
         rescue_from DataCycleCore::Error::Filter::DateFilterRangeError, with: :stored_filter_error
         rescue_from DataCycleCore::Error::Filter::UnionFilterRecursionError, with: :stored_filter_error
       end
@@ -97,6 +98,15 @@ module DataCycleCore
         format.json { render status: :not_found, json: { errors: content_api_error(exception) } }
         format.js { render status: :not_found, js: "console.warn('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale)}')" } if is_a?(ApplicationController)
         format.any { head :not_found }
+      end
+    end
+
+    def conflict(exception)
+      respond_to do |format|
+        format.html { render 'data_cycle_core/exceptions/conflict_exception', status: :conflict } if is_a?(ApplicationController)
+        format.json { render status: :conflict, json: { errors: content_api_error(exception) } }
+        format.js { render status: :conflict, js: "console.warn('#{I18n.t("exceptions.#{exception.class.name.underscore}", default: exception_message(exception), locale: helpers.active_ui_locale)}')" } if is_a?(ApplicationController)
+        format.any { head :conflict }
       end
     end
 

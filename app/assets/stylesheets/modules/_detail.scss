@@ -283,6 +283,10 @@
             color: $dark-gray;
             padding: 0.4rem 0.7rem;
             font-size: 0.9rem;
+            max-width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
 
             >*:not(:last-child) {
               margin-right: 0.3rem;

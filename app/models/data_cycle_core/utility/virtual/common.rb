@@ -59,9 +59,13 @@ module DataCycleCore
 
           def take_first_linked(virtual_parameters:, content:, **_args)
             if content.respond_to?(virtual_parameters.first)
-              content.send(virtual_parameters.first)&.limit(1) || []
+              value = content.send(virtual_parameters.first)
+
+              return DataCycleCore::Thing.none if value.first.nil?
+
+              DataCycleCore::Thing.unscoped.where(id: value.first.id).tap { |rel| rel.send(:load_records, [value.first]) }
             else
-              []
+              DataCycleCore::Thing.none
             end
           end
 
@@ -82,7 +86,7 @@ module DataCycleCore
           private
 
           def get_value_by_filter(content, path, filter)
-            I18n.with_locale(content.respond_to?(:first_available_locale) ? content.first_available_locale : I18n.locale) do
+            I18n.with_locale(content.try(:first_available_locale) || I18n.locale) do
               key, *new_path = path
 
               return content.send(key) if new_path.blank? && DataCycleCore::DataHashService.present?(content.try(key))

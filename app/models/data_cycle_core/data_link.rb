@@ -35,6 +35,8 @@ module DataCycleCore
     end
 
     def self.valid_stored_filters
+      return DataCycleCore::StoredFilter.none if all.is_a?(ActiveRecord::NullRelation)
+
       DataCycleCore::StoredFilter.where(id: all.where(item_type: 'DataCycleCore::StoredFilter').valid.pluck(:item_id))
     end
 

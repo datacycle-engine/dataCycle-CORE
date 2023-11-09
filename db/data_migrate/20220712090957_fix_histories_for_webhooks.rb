@@ -5,7 +5,7 @@ class FixHistoriesForWebhooks < ActiveRecord::Migration[6.1]
   # disable_ddl_transaction!
 
   def up
-    DataCycleCore::RunTaskJob.perform_later('dc:migrate:migrate_history_definitions')
+    # DataCycleCore::RunTaskJob.perform_later('dc:migrate:migrate_history_definitions')
   end
 
   def down

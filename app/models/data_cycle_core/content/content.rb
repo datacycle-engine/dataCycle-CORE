@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+raise 'ActiveRecord::Relation#load_records is no longer available, check patch!' unless ActiveRecord::Relation.method_defined? :load_records
+raise 'ActiveRecord::Relation#load_records arity != 1, check patch!' unless ActiveRecord::Relation.instance_method(:load_records).arity == 1
+
 module DataCycleCore
   module Content
     class Content < ApplicationRecord
@@ -188,7 +191,9 @@ module DataCycleCore
       end
 
       def translatable_property_names
-        @translatable_property_names ||= property_definitions.select { |property_name, definition|
+        return @translatable_property_names if defined? @translatable_property_names
+
+        @translatable_property_names = property_definitions.select { |property_name, definition|
           translatable_property?(property_name, definition)
         }.keys
       end
@@ -198,17 +203,18 @@ module DataCycleCore
       end
 
       def translatable_property?(property_name, property_definition = nil)
-        property_definition ||= property_definitions[property_name]
-        property_definition['storage_location'] == 'translated_value' ||
-          (property_definition['storage_location'] == 'column' && translated_columns.include?(property_name))
+        property_definition ||= properties_for(property_name)
+
+        property_definition&.dig('storage_location') == 'translated_value' ||
+          (property_definition&.dig('storage_location') == 'column' && translated_columns.include?(property_name)) ||
+          (property_definition&.dig('type') == 'embedded' && !property_definition&.dig('translated'))
       end
 
       def untranslatable_property_names
-        untranslated_columns = self.class.column_names
+        return @untranslatable_property_names if defined? @untranslatable_property_names
 
-        property_definitions.select { |property_name, definition|
-          definition['storage_location'] == 'value' || definition['type'] == 'key' ||
-            (definition['storage_location'] == 'column' && untranslated_columns.include?(property_name))
+        @untranslatable_property_names = property_definitions.reject { |property_name, definition|
+          translatable_property?(property_name, definition)
         }.keys
       end
 
@@ -300,11 +306,7 @@ module DataCycleCore
       end
 
       def untranslatable_embedded_property_names
-        name_property_selector { |definition| definition['type'] == 'embedded' && !definition.dig('translatable') }
-      end
-
-      def translatable_embedded_property_names
-        name_property_selector { |definition| definition['type'] == 'embedded' && definition.dig('translatable') }
+        name_property_selector { |definition| definition['type'] == 'embedded' && definition.dig('translated') }
       end
 
       def searchable_embedded_property_names
@@ -434,27 +436,28 @@ module DataCycleCore
 
         return @get_property_value[key] if @get_property_value&.key?(key)
 
-        (@get_property_value ||= {})[key] = if virtual_property_names.include?(property_name)
-                                              load_virtual_attribute(property_name, I18n.locale)
-                                            elsif plain_property_names(true).include?(property_name)
-                                              load_json_attribute(property_name, property_definition, overlay_flag)
-                                            elsif included_property_names(true).include?(property_name)
-                                              load_included_data(property_name, property_definition, overlay_flag)
-                                            elsif classification_property_names(true).include?(property_name)
-                                              load_classifications(property_name, overlay_flag)
-                                            elsif linked_property_names(true).include?(property_name)
-                                              load_linked_objects(property_name, filter, false, [I18n.locale], overlay_flag)
-                                            elsif embedded_property_names(true).include?(property_name)
-                                              load_embedded_objects(property_name, filter, !property_definition&.dig('translated'), [I18n.locale], overlay_flag)
-                                            elsif asset_property_names.include?(property_name) # no overlay
-                                              load_asset_relation(property_name)&.first
-                                            elsif schedule_property_names(true).include?(property_name)
-                                              load_schedule(property_name, overlay_flag)
-                                            elsif timeseries_property_names.include?(property_name)
-                                              load_timeseries(property_name)
-                                            else
-                                              raise NotImplementedError
-                                            end
+        (@get_property_value ||= {})[key] =
+          if virtual_property_names.include?(property_name)
+            load_virtual_attribute(property_name, I18n.locale)
+          elsif plain_property_names(true).include?(property_name)
+            load_json_attribute(property_name, property_definition, overlay_flag)
+          elsif included_property_names(true).include?(property_name)
+            load_included_data(property_name, property_definition, overlay_flag)
+          elsif classification_property_names(true).include?(property_name)
+            load_classifications(property_name, overlay_flag)
+          elsif linked_property_names(true).include?(property_name)
+            load_linked_objects(property_name, filter, false, [I18n.locale], overlay_flag)
+          elsif embedded_property_names(true).include?(property_name)
+            load_embedded_objects(property_name, filter, !property_definition&.dig('translated'), [I18n.locale], overlay_flag)
+          elsif asset_property_names.include?(property_name) # no overlay
+            load_asset_relation(property_name)&.first
+          elsif schedule_property_names(true).include?(property_name)
+            load_schedule(property_name, overlay_flag)
+          elsif timeseries_property_names.include?(property_name)
+            load_timeseries(property_name)
+          else
+            raise NotImplementedError
+          end
       end
 
       def load_virtual_attribute(property_name, locale = I18n.locale)
@@ -555,7 +558,7 @@ module DataCycleCore
               }
               .sort_by { |_, v| v['sorting'] }
               .map! do |(k, v)|
-              [k, v.except('sorting', 'api', 'content_score').deep_reject { |p_k, p_v| p_k == 'show' || (!p_v.is_a?(FalseClass) && p_v.blank?) }]
+              [k, v.except('api', 'content_score').deep_reject { |p_k, p_v| p_k == 'show' || (!p_v.is_a?(FalseClass) && p_v.blank?) }]
             end
           }
           .reduce(:&)
@@ -601,19 +604,45 @@ module DataCycleCore
 
         attibute_cache_key = attibute_cache_key(key, filter, overlay_flag)
 
-        (@get_property_value ||= {})[attibute_cache_key] = if plain_property_names.include?(key)
-                                                             convert_to_type(definition['type'], value, definition)
-                                                           elsif value.is_a?(ActiveRecord::Relation) || (value.is_a?(::Array) && value.first.is_a?(ActiveRecord::Base)) || value.is_a?(ActiveRecord::Base)
-                                                             value
-                                                           elsif linked_property_names.include?(key) || embedded_property_names.include?(key)
-                                                             value.present? ? DataCycleCore::Thing.where(id: value) : DataCycleCore::Thing.none
-                                                           elsif classification_property_names.include?(key)
-                                                             value.present? ? DataCycleCore::Classification.where(id: value) : DataCycleCore::Classification.none
-                                                           elsif asset_property_names.include?(key)
-                                                             value.present? ? DataCycleCore::Asset.find_by(id: value) : nil
-                                                           else # rubocop:disable Lint/DuplicateBranch
-                                                             value
-                                                           end
+        (@get_property_value ||= {})[attibute_cache_key] =
+          if plain_property_names.include?(key)
+            convert_to_type(definition['type'], value, definition)
+          elsif value.is_a?(ActiveRecord::Relation) || value.is_a?(ActiveRecord::Base)
+            value
+          elsif value.is_a?(::Array) && value.first.is_a?(ActiveRecord::Base)
+            ids = value.pluck(:id)
+            value.first.class
+            .unscoped
+            .where(id: ids)
+            .order(
+              [
+                Arel.sql("array_position(ARRAY[?]::uuid[], #{value.first.class.table_name}.id)"),
+                ids
+              ]
+            )
+            .tap { |rel| rel.send(:load_records, value) }
+          elsif linked_property_names.include?(key) || embedded_property_names.include?(key)
+            if value.present?
+              DataCycleCore::Thing.where(id: value).order(
+                [
+                  Arel.sql('array_position(ARRAY[?]::uuid[], things.id)'),
+                  value
+                ]
+              )
+            else
+              DataCycleCore::Thing.none
+            end
+          elsif classification_property_names.include?(key)
+            if value.present?
+              DataCycleCore::Classification.where(id: value)
+            else
+              DataCycleCore::Classification.none
+            end
+          elsif asset_property_names.include?(key)
+            value.present? ? DataCycleCore::Asset.find_by(id: value) : nil
+          else # rubocop:disable Lint/DuplicateBranch
+            value
+          end
       end
 
       private
@@ -632,7 +661,7 @@ module DataCycleCore
       end
 
       def attibute_cache_key(key, filter = nil, overlay_flag = false)
-        "#{key}_#{I18n.locale}_#{filter.hash}_#{overlay_flag}"
+        "#{key}_#{translatable_property?(key) ? I18n.locale : nil}_#{filter&.hash}_#{overlay_flag}"
       end
 
       def reload_memoized(key = nil)

@@ -47,6 +47,7 @@ module DataCycleCore
               _id: "$dump.#{locale}.id",
               :dump.first => '$dump'
             ).pipeline
+            aggregation << { '$match' => { '_id' => { '$ne' => nil } } }
             mongo_item.collection.aggregate(aggregation)
           end
 

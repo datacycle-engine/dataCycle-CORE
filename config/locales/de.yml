@@ -101,6 +101,13 @@ de:
     download_import: Download & Import
     delete: delete
     errors_were_encountered: errors were encountered
+    maintenance:
+      classification_mappings:
+        button: Klassifizierungsmappings neu generieren
+        queued: Job zum Generieren der Klassifizierungsmappings wurde in die Queue eingefügt
+        started: Generieren der Klassifizierungsmappings wurde gestartet
+        finished: Generieren der Klassifizierungsmappings wurde abgeschlossen
+        error: Beim Generieren der Klassifizierungsmappings ist ein Fehler aufgetreten!
 
   notification:
     frequency:
@@ -393,6 +400,7 @@ de:
     status: Status
     confirm_delete_all_caches: Wirklich alle Caches leeren?
     confirm_delete_cache: Wirklich den Cache leeren?
+    all_caches_cleared: Alle Caches wurden geleert
     confirm_delete_autotranslation: Wirklich alle manuellen Übersetzungen löschen?
     content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden.
     download_gpx: Als GPX-Datei herunterladen
@@ -546,6 +554,7 @@ de:
     geolocation_error: Auf die aktuelle Position konnte nicht zugegriffen werden
     api_url: API Link
     url: URL
+    more_errors: "%{count} weitere Fehler"
 
   embedded:
     move_down: nach unten verschieben
@@ -614,6 +623,7 @@ de:
           by_name_and_length: "Anzahl der Zeichen"
           by_name_and_presence: "ausgefüllt"
           by_type_and_presence: "Informationstyp"
+          first_by_type_and_presence: Informationstypen
           by_type_and_length: "Informationstyp und Anzahl der Zeichen"
         object:
           by_attribute_and_presence: ausgefüllt
@@ -917,6 +927,7 @@ de:
 
   object_browser:
     details:
+      button: Details anzeigen
       created_at: erstellt
       updated_at: bearbeitet
       title: Titel
@@ -1738,6 +1749,11 @@ de:
       subtitle: Untertitel
       teaser: Teaser
       Persons: Person
+      season_header: Saison (Monat - Eignung)
+      Season: Saison
+      Unsuitable: ungeeignet
+      Depends: wetterabhängig
+      Suitable: geeignet
     bierfinder:
       book: Beschreibung
       tipp: Tip
@@ -1763,7 +1779,9 @@ de:
     pimcore:
       description: Beschreibung
       text: Detailbeschreibung
-
+    lottaleben:
+      description: Beschreibung
+      text: Detailbeschreibung
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
       <ul class="no-bullet">
@@ -2021,6 +2039,7 @@ de:
     data_cycle_core/error/api/expired_content_error:
       expired_content: Inhalt ist abgelaufen
     active_record/record_not_found: Nicht gefunden
+    active_record/record_not_unique: Konflikt
     data_cycle_core/error/filter/date_filter_range_error: "Fehler bei Suchparametern: das Enddatum bei Datumsfiltern muss nach dem Startdatum liegen."
     data_cycle_core/error/filter/union_filter_recursion_error: "Fehler bei Suchparametern: Gespeicherte Suchen können nicht auf sich selbst filtern (unendliche Rekursion)."
 
@@ -2038,3 +2057,4 @@ de:
     not_found: Diese Seite existiert leider nicht
     internal_server_error: Es ist ein unerwarteter Fehler aufgetreten
     unauthorized: Sie haben keine Berechtigung, die gewünschte Seite zu öffnen
+    conflict: Die Anfrage konnte wegen eines Konflikts nicht abgeschlossen werden

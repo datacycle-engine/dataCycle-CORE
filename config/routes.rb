@@ -21,6 +21,7 @@ DataCycleCore::Engine.routes.draw do
 
   match '/401', to: 'exceptions#unauthorized_exception', via: :all, as: :unauthorized_exception
   match '/404', to: 'exceptions#not_found_exception', via: :all, as: :not_found_exception
+  match '/409', to: 'exceptions#conflict_exception', via: :all, as: :conflict_exception
   match '/422', to: 'exceptions#unprocessable_entity_exception', via: :all, as: :unprocessable_entity_exception
   match '/500', to: 'exceptions#internal_server_error_exception', via: :all, as: :internal_server_error_exception
 
@@ -214,21 +215,23 @@ DataCycleCore::Engine.routes.draw do
       get :load_more, on: :member
     end
 
-    get '/admin', to: 'dash_board#home'
-    get  '/admin/download/:id', to: 'dash_board#download', as: 'admin_download'
-    get  '/admin/download_full/:id', to: 'dash_board#download_full', as: 'admin_download_full'
-    get  '/admin/download_import/:id', to: 'dash_board#download_import', as: 'admin_download_import'
-    get  '/admin/import/:id', to: 'dash_board#import', as: 'admin_import'
-    get  '/admin/import_full/:id', to: 'dash_board#import_full', as: 'admin_import_full'
-    get  '/admin/delete_queue/:id', to: 'dash_board#delete_queue', as: 'admin_delete_queue'
-    get  '/admin/import_templates', to: 'dash_board#import_templates'
-    get  '/admin/import_classifications', to: 'dash_board#import_classifications'
-    get  '/admin/import_external_systems', to: 'dash_board#import_external_systems'
-    get  '/admin/classifications', to: 'dash_board#classifications'
-    get  '/admin/activities', to: 'dash_board#activities'
-    get  '/admin/activity_details/:type', to: 'dash_board#activity_details', format: :json
+    namespace :dash_board, path: '/admin', as: :admin do
+      get '/', action: :home, as: ''
+      get '/download/:id', action: :download, as: :download
+      get '/download_full/:id', action: :download_full, as: :download_full
+      get '/download_import/:id', action: :download_import, as: :download_import
+      get '/import/:id', action: :import, as: :import
+      get '/import_full/:id', action: :import_full, as: :import_full
+      get '/delete_queue/:id', action: :delete_queue, as: :delete_queue
+      get :activities
+      get '/activity_details/:type', action: :activity_details, as: :activity_details, defaults: { format: :json }
 
-    get  '/reports', to: 'reports#index'
+      scope :maintenance do
+        get :rebuild_classification_mappings
+      end
+    end
+
+    get '/reports', to: 'reports#index'
     match '/download_reports', to: 'reports#download_report', via: [:get, :post]
 
     if DataCycleCore.main_config.dig(:api, :enabled)

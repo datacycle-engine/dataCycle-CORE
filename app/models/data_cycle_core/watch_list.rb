@@ -36,13 +36,21 @@ module DataCycleCore
     alias available_locales translated_locales
 
     def self.watch_list_data_hashes
+      return DataCycleCore::WatchListDataHash.none if all.is_a?(ActiveRecord::NullRelation)
+
       DataCycleCore::WatchListDataHash.where(watch_list_id: all.select(:id))
     end
 
     def self.by_id_or_slug(value)
       return none if value.blank?
 
-      value.to_s.uuid? ? where(id: value) : where(collection_configuration: { slug: value })
+      uuids = Array.wrap(value).filter { |v| v.to_s.uuid? }
+      slugs = Array.wrap(value)
+      queries = []
+      queries.push(unscoped.where(id: uuids).select(:id).to_sql) if uuids.present?
+      queries.push(DataCycleCore::CollectionConfiguration.where.not(watch_list_id: nil).where(slug: slugs).select(:watch_list_id).to_sql) if slugs.present?
+
+      where("watch_lists.id IN (#{send(:sanitize_sql_array, [queries.join(' UNION ')])})")
     end
 
     def valid_write_links?

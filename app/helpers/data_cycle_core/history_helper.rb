@@ -279,7 +279,7 @@ module DataCycleCore
 
     def history_version_html(content)
       history_html = ActionView::OutputBuffer.new
-      content.try(:updated_at)&.then { |date| history_html << t('history.updated_at_html', locale: active_ui_locale, language: content.last_updated_locale || content.first_available_locale, date: l(date.in_time_zone, locale: active_ui_locale, format: :history)) }
+      content.try(:updated_at)&.then { |date| history_html << t('history.updated_at_html', locale: active_ui_locale, language: content.first_available_locale(content.last_updated_locale), date: l(date.in_time_zone, locale: active_ui_locale, format: :history)) }
       history_html << ' '
       history_html << history_by_link(content.updated_by_user)
 

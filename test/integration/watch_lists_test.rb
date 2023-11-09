@@ -1,9 +1,14 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require_relative '../../app/helpers/data_cycle_core/bulk_edit_helper'
+require_relative '../../app/helpers/data_cycle_core/application_helper'
 
 module DataCycleCore
   class WatchListsTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
+    include DataCycleCore::BulkEditHelper
+    include DataCycleCore::ApplicationHelper
+
     before(:all) do
       @routes = Engine.routes
       @default_tags = DataCycleCore::Classification.for_tree('Tags').where(name: ['Tag 1', 'Tag 2']).ids
@@ -250,6 +255,7 @@ module DataCycleCore
     test 'bulk update all watch_list items' do
       DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
       bulk_name = 'Test Artikel Bulk Update 1'
+      content_template = to_query_params(thing_template: generic_content(@watch_list).thing_template).to_json
 
       patch bulk_update_watch_list_path(@watch_list), params: {
         locale: 'de',
@@ -266,7 +272,8 @@ module DataCycleCore
               name: ['override']
             }
           }
-        }
+        },
+        content_template:
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
       }
@@ -290,7 +297,8 @@ module DataCycleCore
               name: ['override']
             }
           }
-        }
+        },
+        content_template:
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
       }
@@ -325,7 +333,8 @@ module DataCycleCore
               name: ['override']
             }
           }
-        }
+        },
+        content_template: to_query_params(thing_template: generic_content(@watch_list).thing_template).to_json
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
       }
@@ -360,7 +369,8 @@ module DataCycleCore
               name: ['override']
             }
           }
-        }
+        },
+        content_template: to_query_params(thing_template: generic_content(@watch_list).thing_template).to_json
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
       }
@@ -395,7 +405,8 @@ module DataCycleCore
           datahash: {
             tags: ['remove']
           }
-        }
+        },
+        content_template: to_query_params(thing_template: generic_content(@watch_list).thing_template).to_json
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
       }
@@ -417,7 +428,8 @@ module DataCycleCore
         },
         bulk_update: {
           name: ['override']
-        }
+        },
+        content_template: to_query_params(thing_template: generic_content(@watch_list).thing_template).to_json
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
       }

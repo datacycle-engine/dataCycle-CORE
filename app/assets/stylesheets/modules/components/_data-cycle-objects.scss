@@ -217,6 +217,7 @@
     transition: box-shadow 0.25s ease-out;
     border-radius: $global-radius;
     font-size: 0.9rem;
+    background-color: rgba(white, 0.5);
 
     &.highlight {
       box-shadow: 0 1px 7px $primary-color;
@@ -497,49 +498,6 @@
 
       .name {
         font-weight: 600;
-      }
-
-      &.thumbnail {
-        position: relative;
-        width: 100%;
-        height: 170px;
-        padding: 5px 0;
-        cursor: pointer;
-        text-align: right;
-        border: 0;
-
-        .draggable-handle {
-          margin-left: 5px;
-        }
-
-        &:focus,
-        &:hover {
-          .description {
-            opacity: 1;
-          }
-        }
-
-        .description {
-          position: absolute;
-          left: 0;
-          top: 0;
-          opacity: 0;
-          width: 100%;
-          background: rgba(255, 255, 255, 0.9);
-          height: 100%;
-          line-height: 1rem;
-          font-size: 0.8rem;
-          color: $body-font-color;
-          overflow: hidden;
-          padding: 0.5rem;
-          text-align: center;
-          display: -ms-flexbox;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: $opacity-transition;
-          box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
-        }
       }
 
       span.caption {
@@ -1111,6 +1069,10 @@
             top: 0;
             right: 0;
           }
+
+          &.show-sidebar-details {
+            padding: 0 0.5rem;
+          }
         }
       }
 
@@ -1123,6 +1085,14 @@
           .content-warning {
             color: $alert-color;
           }
+        }
+      }
+
+      &.highlight {
+
+        &.media,
+        .media {
+          box-shadow: 0 0 10px 1px var(--primary-color);
         }
       }
 
@@ -1310,6 +1280,10 @@
         &.detail-thumb {
           display: block;
           margin-bottom: 0.5rem;
+
+          img[data-open] {
+            cursor: pointer;
+          }
         }
 
         img {

@@ -3,12 +3,13 @@ import ConfirmationModal from "./../components/confirmation_modal";
 import UuidHelper from "./../helpers/uuid_helper";
 import ObserverHelpers from "../helpers/observer_helpers";
 import CalloutHelpers from "../helpers/callout_helpers";
+import ObjectUtilities from "../helpers/object_utilities";
 
 class NewContentDialog {
 	constructor(form) {
 		this.form = form;
 		this.form.classList.add("dcjs-new-content-dialog");
-		this.searchWarning = this.$form = $(this.form);
+		this.$form = $(this.form);
 		this.nextButton = this.$form.find(".next");
 		this.prevButton = this.$form.find(".prev");
 		this.resetButton = this.$form.find(".button.reset");
@@ -597,7 +598,20 @@ class NewContentDialog {
 		params.key = this.id;
 
 		const promise = DataCycle.httpRequest("/things/new", {
-			body: params,
+			body: ObjectUtilities.pick(params, [
+				"key",
+				"template",
+				"locale",
+				"searchParam",
+				"searchRequired",
+				"scope",
+				"options.force_render",
+				"options.prefix",
+				"parent.id",
+				"parent.class",
+				"content.id",
+				"content.class",
+			]),
 		})
 			.then(this.renderNewFormHtml.bind(this, template))
 			.catch(this.renderLoadError.bind(this));

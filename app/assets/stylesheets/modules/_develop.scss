@@ -33,6 +33,7 @@
     cursor: not-allowed;
   }
 
+  .attribute-group-content-element>.detail-type.linked,
   >.detail-type.linked {
     margin-bottom: 1rem;
     padding: 2.5rem 1rem 1rem 1rem;
@@ -183,7 +184,8 @@
       margin: 0 0 0 1rem;
     }
 
-    &.classification {
+    &.classification,
+    &.boolean {
       &.check_box {
         padding: 2.5rem 0.5rem 1rem 0.5rem;
 
@@ -590,8 +592,8 @@
   padding-top: 2.5rem;
 
   img.lazyload {
-    min-height: 10rem;
-    min-width: 10rem;
+    min-height: 3rem;
+    min-width: 3rem;
   }
 
   .preview-title {
@@ -2842,6 +2844,7 @@ input.normalized {
   width: 100%;
   z-index: 1007;
   max-height: 100vh;
+  backdrop-filter: blur(5px);
 
   #admin-icons {
     background: none;
@@ -3362,7 +3365,7 @@ section.duplicate-candidates {
   .tile-top {
     position: relative;
     padding-bottom: 1rem;
-    flex-flow: row;
+    flex-flow: row wrap;
   }
 
   .external-source-icon {
@@ -3427,8 +3430,12 @@ section.duplicate-candidates {
     .attribute-title {
       overflow: hidden;
       text-overflow: ellipsis;
-      margin: 0 0.3rem;
+      margin: 0;
     }
+  }
+
+  &.hidden {
+    display: none;
   }
 }
 
@@ -3722,9 +3729,11 @@ button.button-prime.small.bulk-delete-button {
   position: relative;
 
   a {
-    display: block;
+    display: flex;
     padding-bottom: 0.5rem;
     padding-top: 0.5rem;
+    gap: 0.4rem;
+    align-items: center;
   }
 }
 

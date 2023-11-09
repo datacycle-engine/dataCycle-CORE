@@ -2,6 +2,8 @@
 
 <% content_for(:tile_header_buttons, render('data_cycle_core/contents/viewers/shared/buttons', content: object, definition: definition, options: local_assigns[:options], removable: local_assigns[:options]&.[]('force_tile_buttons') || (local_assigns[:edit_buttons] && can?(:update, DataCycleCore::DataAttribute.new(key, definition, local_assigns[:options], content, :update))))) %>
 
+<% content_for(:tile_header_buttons, link_to(tag.i(class: 'fa fa-info'), '#', class: 'show-sidebar-details', data: { dc_tooltip: t('object_browser.details.button', locale: active_ui_locale) })) %>
+
 <%= tag.li(class: [
   'item',
   'content',

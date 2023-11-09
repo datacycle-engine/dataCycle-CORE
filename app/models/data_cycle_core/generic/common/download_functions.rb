@@ -44,7 +44,7 @@ module DataCycleCore
                   logging.info("Single download item: #{item_name}", item_id)
                 end
               rescue StandardError => e
-                ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                   exception: e,
                   namespace: 'background'
                 }
@@ -136,8 +136,8 @@ module DataCycleCore
                             if item.data_has_changed.nil?
                               last_download = download_object.external_source.last_successful_download
                               if modified.present? && last_download.present?
-                                item_data[:updated_at] = modified.call(item_data)
-                                item.data_has_changed = item_data[:updated_at] > last_download
+                                updated_at = modified.call(item_data)
+                                item.data_has_changed = updated_at > last_download
                               end
                             end
 
@@ -154,7 +154,7 @@ module DataCycleCore
                           end
                         end
                       rescue StandardError => e
-                        ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                        ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                           exception: e,
                           namespace: 'background'
                         }
@@ -175,7 +175,7 @@ module DataCycleCore
                     pool.wait!
                   end
                 rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                  ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                     exception: e,
                     namespace: 'background'
                   }
@@ -245,7 +245,7 @@ module DataCycleCore
                       end
                       item.save!
                     rescue StandardError => e
-                      ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                      ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                         exception: e,
                         namespace: 'background'
                       }
@@ -264,7 +264,7 @@ module DataCycleCore
                   end
                 end
               rescue StandardError => e
-                ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                   exception: e,
                   namespace: 'background'
                 }
@@ -338,7 +338,7 @@ module DataCycleCore
                       end
                       item.save!
                     rescue StandardError => e
-                      ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                      ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                         exception: e,
                         namespace: 'background'
                       }
@@ -357,7 +357,7 @@ module DataCycleCore
                   end
                 end
               rescue StandardError => e
-                ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                   exception: e,
                   namespace: 'background'
                 }
@@ -385,7 +385,7 @@ module DataCycleCore
                 GC.start
                 logging.info("Single download_all item #{item_name}", item_id)
               rescue StandardError => e
-                ActiveSupport::Notifications.instrument 'dump_failed.datacycle', this: {
+                ActiveSupport::Notifications.instrument 'dump_failed.datacycle', {
                   exception: e,
                   namespace: 'background'
                 }
@@ -411,7 +411,7 @@ module DataCycleCore
                 GC.start
                 logging.info("Single download_all item #{item_name}", item_id)
               rescue StandardError => e
-                ActiveSupport::Notifications.instrument 'dump_failed.datacycle', this: {
+                ActiveSupport::Notifications.instrument 'dump_failed.datacycle', {
                   exception: e,
                   namespace: 'background'
                 }
@@ -475,7 +475,7 @@ module DataCycleCore
                         item.save!
                         logging.item_processed('delete', item_id, item_count, max_string)
                       rescue StandardError => e
-                        ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', this: {
+                        ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', {
                           exception: e,
                           namespace: 'background'
                         }
@@ -494,7 +494,7 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', this: {
+                  ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', {
                     exception: e,
                     namespace: 'background'
                   }
@@ -552,14 +552,19 @@ module DataCycleCore
 
                         session.client.command(refreshSessions: [session.session_id]) # keep the mongo_session alive
 
-                        if archived.present? && archived.call(content.dump[locale], archive_from)
-                          content.dump[locale]['archived_at'] ||= Time.zone.now
-                          content.dump[locale]['last_seen_before_archived'] ||= content.seen_at
-                          content.dump[locale]['archive_reason'] ||= options.dig(:download, :archive_reason) if options.dig(:download, :archive_reason).present?
-                        else
-                          content.dump[locale]['deleted_at'] ||= Time.zone.now
-                          content.dump[locale]['last_seen_before_delete'] ||= content.seen_at
-                          content.dump[locale]['delete_reason'] ||= options.dig(:download, :delete_reason) if options.dig(:download, :delete_reason).present?
+                        delete_locales = [locale.to_s]
+                        delete_locales = content.dump.keys.map(&:to_s) if options.dig(:download, :delete_all_languages)
+
+                        delete_locales.each do |l|
+                          if archived.present? && archived.call(content.dump[l], archive_from)
+                            content.dump[l]['archived_at'] ||= Time.zone.now
+                            content.dump[l]['last_seen_before_archived'] ||= content.seen_at
+                            content.dump[l]['archive_reason'] ||= options.dig(:download, :archive_reason) if options.dig(:download, :archive_reason).present?
+                          else
+                            content.dump[l]['deleted_at'] ||= Time.zone.now
+                            content.dump[l]['last_seen_before_delete'] ||= content.seen_at
+                            content.dump[l]['delete_reason'] ||= options.dig(:download, :delete_reason) if options.dig(:download, :delete_reason).present?
+                          end
                         end
                         content.save!
 
@@ -573,7 +578,7 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', this: {
+                  ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', {
                     exception: e,
                     namespace: 'background'
                   }
@@ -652,7 +657,7 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'mark_updated_failed.datacycle', this: {
+                  ActiveSupport::Notifications.instrument 'mark_updated_failed.datacycle', {
                     exception: e,
                     namespace: 'background'
                   }

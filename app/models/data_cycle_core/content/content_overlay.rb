@@ -4,9 +4,14 @@ module DataCycleCore
   module Content
     module ContentOverlay
       def overlay?
-        return false unless content_type == 'entity'
-        return false unless respond_to?(overlay_name)
+        return false unless overlay_allowed?
         send(overlay_name).size.positive?
+      end
+
+      def overlay_allowed?
+        return false if content_type != 'entity'
+        return false unless respond_to?(overlay_name)
+        true
       end
 
       def overlay_name
