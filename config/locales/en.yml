@@ -388,6 +388,7 @@ en:
     status: Status
     confirm_delete_all_caches: Really clear all caches?
     confirm_delete_cache: Really clear the cache?
+    all_caches_cleared: All Caches were cleared
     confirm_delete_autotranslation: Really delete all manual translations?
     content_not_editable: Content cannot be edited afterwards.
     download_gpx: Download as GPX file

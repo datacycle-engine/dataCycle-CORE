@@ -8,7 +8,8 @@
         <h5 class="has-jobs">in queue:</h5>
         <ul>
           <% @stat_job_queue[:queued].each do |queue, count| %>
-            <%= tag.li(tag.span("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", data: { dc_tooltip: "<b>delayed_reference_types:</b><br>#{@stat_job_queue.dig(:delayed_reference_types, queue, 'queued_types')&.join('<br>')}" }), class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
+            <% queued_types = @stat_job_queue.dig(:delayed_reference_types, queue, 'queued_types')&.then { |r_types| "<b>delayed_reference_types:</b><br>#{r_types.first(10).join('<br>') + (r_types.size > 10 ? "<br>..." : '')}" } %>
+            <%= tag.li(tag.span("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", data: { dc_tooltip: queued_types }), class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
           <% end %>
         </ul>
       <% else %>
@@ -19,7 +20,8 @@
         <h5 class="has-jobs">running:</h5>
         <ul>
           <% @stat_job_queue[:running].each do |queue, count| %>
-            <%= tag.li(tag.span("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", data: { dc_tooltip: "<b>delayed_reference_types:</b><br>#{@stat_job_queue.dig(:delayed_reference_types, queue, 'running_types')&.join('<br>')}" }), class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
+            <% running_types = @stat_job_queue.dig(:delayed_reference_types, queue, 'running_types')&.then { |r_types| "<b>delayed_reference_types:</b><br>#{r_types.first(10).join('<br>') + (r_types.size > 10 ? "<br>..." : '')}" } %>
+            <%= tag.li(tag.span("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", data: { dc_tooltip: running_types }), class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
           <% end %>
         </ul>
       <% else %>
@@ -47,7 +49,8 @@
         <h5 class="has-jobs">failed:</h5>
         <ul>
           <% @stat_job_queue[:failed].each do |queue, count| %>
-            <%= tag.li(tag.span("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", data: { dc_tooltip: "<b>delayed_reference_types:</b><br>#{@stat_job_queue.dig(:delayed_reference_types, queue, 'failed_types')&.join('<br>')}" }), class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
+            <% failed_types = @stat_job_queue.dig(:delayed_reference_types, queue, 'failed_types')&.then { |r_types| "<b>delayed_reference_types:</b><br>#{r_types.first(10).join('<br>') + (r_types.size > 10 ? "<br>..." : '')}" } %>
+            <%= tag.li(tag.span("#{number_with_delimiter(count, locale: active_ui_locale)} (#{queue})", data: { dc_tooltip: failed_types }), class: queue.in?(DataCycleCore.job_queues.keys.map(&:to_s)) ? '' : 'alert-color') %>
           <% end %>
         </ul>
       <% else %>

@@ -400,6 +400,7 @@ de:
     status: Status
     confirm_delete_all_caches: Wirklich alle Caches leeren?
     confirm_delete_cache: Wirklich den Cache leeren?
+    all_caches_cleared: Alle Caches wurden geleert
     confirm_delete_autotranslation: Wirklich alle manuellen Übersetzungen löschen?
     content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden.
     download_gpx: Als GPX-Datei herunterladen

@@ -1,18 +1,30 @@
 <% breadcrumb :admin %>
 
 <section>
-  <% if current_user.email =~ /@pixelpoint\.at/ || current_user.email =~ /@datacycle\.at/ %>
+  <% if can?(:rebuild_classification_mappings, :dash_board) || can?(:clear_all, :cache) %>
+
     <div class="row">
-      <div class="small-12 columns">
+      <div class="small-12 columns maintenance-administration">
         <h4>
           <i class='fa fa-arrow-circle-o-right' aria-hidden='true'></i> maintenance
         </h4>
 
-        <%
-          text = I18n.t('dash_board.maintenance.classification_mappings.button', locale: active_ui_locale)
-          disabled_text = safe_join([text, tag.i(class: 'fa fa-spinner fa-spin fa-fw')], ' ')
-        %>
-        <%= link_to text, admin_rebuild_classification_mappings_path, class: "button small rebuild_classification_mappings", data: { disable_with: disabled_text, disabled: @stat_job_queue[:rebuild_classification_mappings] } %>
+        <% if can? :rebuild_classification_mappings, :dash_board %>
+          <%= link_to safe_join([tag.i(class: 'fa fa-refresh'), t('dash_board.maintenance.classification_mappings.button', locale: active_ui_locale)], ' '), admin_rebuild_classification_mappings_path, class: "button small rebuild_classification_mappings", data: { disable_with: safe_join([tag.i(class: 'fa fa-refresh fa-spin fa-fw'), t('dash_board.maintenance.classification_mappings.button', locale: active_ui_locale)], ' '), disabled: @stat_job_queue[:rebuild_classification_mappings] } %>
+        <% end %>
+
+        <% if can? :clear_all, :cache %>
+          <%= link_to safe_join([
+          tag.i(class: 'fa fa-shield'),
+          t('data_cycle_core.cache.clear_all', locale: active_ui_locale)
+        ], ' '),
+        clear_all_caches_path,
+        class: 'button small',
+        data: {
+          confirm: "#{t('common.confirm_delete_all_caches', locale: active_ui_locale) }",
+          dc_tooltip: t('data_cycle_core.cache.clear_all', locale: active_ui_locale)
+        } %>
+        <% end %>
       </div>
     </div>
   <% end %>

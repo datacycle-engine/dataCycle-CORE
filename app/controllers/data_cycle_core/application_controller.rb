@@ -34,7 +34,7 @@ module DataCycleCore
     def clear_all_caches
       authorize! :clear_all, :cache
       Rails.cache.clear
-      redirect_back(fallback_location: root_path)
+      redirect_back(fallback_location: root_path, notice: t('common.all_caches_cleared', locale: helpers.active_ui_locale))
     end
 
     def add_filter
