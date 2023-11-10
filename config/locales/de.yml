@@ -884,6 +884,11 @@ de:
       confirmed_at: E-Mail bestätigt
       not_confirmed_at: E-Mail nicht bestätigt
     active: Aktiv
+    ascent: Aufstieg (m)
+    descent: Abstieg (m)
+    min_altitude: Minimale Seehöhe (m)
+    max_altitude: Maximale Seehöhe (m)
+    length: Länge (m)
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...
