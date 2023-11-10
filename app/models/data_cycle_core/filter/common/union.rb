@@ -125,7 +125,7 @@ module DataCycleCore
 
           filters = DataCycleCore::StoredFilter.where(id: ids).index_by(&:id)
 
-          Array.wrap(ids).map { |f| (filters[f]&.apply(skip_ordering: true) || DataCycleCore::Thing.where('1 = 0')).select(:id).except(*UNION_FILTER_EXCEPTS).to_sql }.join(' UNION ')
+          Array.wrap(ids).map { |f| (filters[f]&.apply(skip_ordering: true) || DataCycleCore::Thing.where('1 = 0')).select(:id).except(*UNION_FILTER_EXCEPTS).to_sql }.join(' UNION ALL ')
         rescue SystemStackError
           raise DataCycleCore::Error::Filter::UnionFilterRecursionError
         end
