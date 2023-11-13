@@ -21,7 +21,7 @@ module DataCycleCore
           return self if filter_queries.blank?
 
           reflect(
-            @query.where(thing[:id].in(Arel.sql(filter_queries.join(' UNION ALL '))))
+            @query.where(thing[:id].in(Arel.sql(filter_queries.join(' UNION '))))
           )
         end
 
@@ -36,7 +36,7 @@ module DataCycleCore
           return self if filter_queries.blank?
 
           reflect(
-            @query.where(thing[:id].not_in(Arel.sql(filter_queries.join(' UNION ALL '))))
+            @query.where(thing[:id].not_in(Arel.sql(filter_queries.join(' UNION '))))
           )
         end
 
@@ -125,7 +125,7 @@ module DataCycleCore
 
           filters = DataCycleCore::StoredFilter.where(id: ids).index_by(&:id)
 
-          Array.wrap(ids).map { |f| (filters[f]&.apply(skip_ordering: true) || DataCycleCore::Thing.where('1 = 0')).select(:id).except(*UNION_FILTER_EXCEPTS).to_sql }.join(' UNION ALL ')
+          Array.wrap(ids).map { |f| (filters[f]&.apply(skip_ordering: true) || DataCycleCore::Thing.where('1 = 0')).select(:id).except(*UNION_FILTER_EXCEPTS).to_sql }.join(' UNION ')
         rescue SystemStackError
           raise DataCycleCore::Error::Filter::UnionFilterRecursionError
         end
@@ -136,7 +136,7 @@ module DataCycleCore
           return self if filters.blank?
 
           reflect(
-            @query.where(thing[:id].in(Arel.sql(filters.join(' UNION ALL '))))
+            @query.where(thing[:id].in(Arel.sql(filters.join(' UNION '))))
           )
         end
       end

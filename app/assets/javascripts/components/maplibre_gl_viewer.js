@@ -147,7 +147,7 @@ class MapLibreGlViewer {
 								"X-CSRF-Token":
 									document.getElementsByName("csrf-token")[0].content,
 							},
-							url: url,
+							url: `${url}?cache=false`,
 						};
 					}
 					return;
