@@ -33,7 +33,7 @@ class MapLibreGlDashboard extends MapLibreGlViewer {
 		});
 	}
 	_addSourceType(name, _data) {
-		this._addVectorSource(name, `/endpoints/${this.currentEndpointId}`);
+		this._addVectorSource(name, `endpoints/${this.currentEndpointId}`);
 	}
 	_addClickHandler() {
 		this.map.on("click", (e) => {
