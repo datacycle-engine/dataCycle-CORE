@@ -59,7 +59,7 @@ group :development, :test, :review do
   gem 'spring'
   gem 'spring-watcher-listen'
 
-  gem 'pry'
+  gem 'pry', '0.14.2'
   gem 'pry-byebug'
   gem 'rb-readline'
   gem 'simplecov', require: false
