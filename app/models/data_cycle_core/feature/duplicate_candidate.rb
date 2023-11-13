@@ -48,6 +48,8 @@ module DataCycleCore
         end
 
         def only_title_duplicate(content)
+          return if content.name.blank?
+
           DataCycleCore::Thing
             .joins(:translations)
             .where(template_name: content.template_name)
