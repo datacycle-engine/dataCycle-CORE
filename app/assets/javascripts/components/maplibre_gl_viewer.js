@@ -261,7 +261,11 @@ class MapLibreGlViewer {
 			)
 				newStyle = this[`baseLayer${style.value}`]();
 			else if (typeof style.value === "string" && style.value) {
-				const response = await fetch(style.value);
+				const options = { Accept: 'application/json' }
+				if (this.credentials.api_key) {
+					options['Authorization'] = `Bearer ${this.credentials.api_key}`
+				}
+				const response = await fetch(style.value,{headers: options});
 				newStyle = await response.json();
 			} else if (typeof style.value === "object" && style.value)
 				newStyle = style.value;

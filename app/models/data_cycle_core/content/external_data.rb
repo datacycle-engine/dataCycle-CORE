@@ -26,7 +26,7 @@ module DataCycleCore
         find_by_hash = { external_system_id: external_system.id, sync_type: }
         find_by_hash[:external_key] = external_key if use_key && external_key.present?
 
-        external_system_syncs.find_or_create_by(find_by_hash) do |s|
+        external_system_syncs.find_or_create_by(**find_by_hash) do |s|
           s.external_key = external_key
         end
       rescue ActiveRecord::RecordNotUnique
