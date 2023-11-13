@@ -11,13 +11,13 @@ module DataCycleCore
             x,
             y,
             z,
-            contents: self.class.where(id: id).limit(1),
-            simplify_factor: simplify_factor,
-            include_parameters: include_parameters,
-            fields_parameters: fields_parameters,
-            classification_trees_parameters: classification_trees_parameters,
+            contents: self.class.where(id:).limit(1),
+            simplify_factor:,
+            include_parameters:,
+            fields_parameters:,
+            classification_trees_parameters:,
             single_item: true,
-            cache: cache
+            cache:
           ).render
         end
 
@@ -27,16 +27,16 @@ module DataCycleCore
               x,
               y,
               z,
-              layer_name: layer_name,
+              layer_name:,
               contents: all,
-              simplify_factor: simplify_factor,
-              include_parameters: include_parameters,
-              fields_parameters: fields_parameters,
-              classification_trees_parameters: classification_trees_parameters,
-              single_item: single_item,
-              cache: cache,
-              cluster: cluster,
-              cluster_layer_name: cluster_layer_name
+              simplify_factor:,
+              include_parameters:,
+              fields_parameters:,
+              classification_trees_parameters:,
+              single_item:,
+              cache:,
+              cluster:,
+              cluster_layer_name:
             ).render
           end
 
