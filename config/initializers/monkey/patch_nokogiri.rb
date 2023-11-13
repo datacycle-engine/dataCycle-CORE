@@ -36,7 +36,7 @@ Nokogiri::XML::Node.class_eval do
     elsif is_a? Nokogiri::XML::Element
       nil
     else
-      raise 'NotImplemented'
+      raise NotImplementedError
     end
   rescue StandardError => e
     raise e
