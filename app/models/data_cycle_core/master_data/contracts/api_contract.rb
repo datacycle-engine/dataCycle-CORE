@@ -58,6 +58,9 @@ module DataCycleCore
           optional(:z).value(:integer)
           optional(:bbox).value(:bool)
           optional(:layerName).value(:string)
+          optional(:clusterLayerName).value(:string)
+          optional(:cache).value(:bool)
+          optional(:cluster).value(:bool)
         end
 
         WATCHLIST = Dry::Schema.Params do

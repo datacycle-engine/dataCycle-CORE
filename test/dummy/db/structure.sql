@@ -1232,6 +1232,22 @@ ALTER SEQUENCE public.delayed_jobs_id_seq OWNED BY public.delayed_jobs.id;
 
 
 --
+-- Name: delayed_jobs_statistics; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.delayed_jobs_statistics AS
+ SELECT delayed_jobs.queue AS queue_name,
+    sum(1) FILTER (WHERE (delayed_jobs.failed_at IS NOT NULL)) AS failed,
+    sum(1) FILTER (WHERE ((delayed_jobs.failed_at IS NULL) AND (delayed_jobs.locked_at IS NOT NULL) AND (delayed_jobs.locked_by IS NOT NULL))) AS running,
+    sum(1) FILTER (WHERE ((delayed_jobs.failed_at IS NULL) AND (delayed_jobs.locked_at IS NULL) AND (delayed_jobs.locked_by IS NULL))) AS queued,
+    array_agg(DISTINCT delayed_jobs.delayed_reference_type) FILTER (WHERE (delayed_jobs.failed_at IS NOT NULL)) AS failed_types,
+    array_agg(DISTINCT delayed_jobs.delayed_reference_type) FILTER (WHERE ((delayed_jobs.failed_at IS NULL) AND (delayed_jobs.locked_at IS NOT NULL) AND (delayed_jobs.locked_by IS NOT NULL))) AS running_types,
+    array_agg(DISTINCT delayed_jobs.delayed_reference_type) FILTER (WHERE ((delayed_jobs.failed_at IS NULL) AND (delayed_jobs.locked_at IS NULL) AND (delayed_jobs.locked_by IS NULL))) AS queued_types
+   FROM public.delayed_jobs
+  GROUP BY delayed_jobs.queue;
+
+
+--
 -- Name: thing_duplicates; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3151,6 +3167,13 @@ CREATE INDEX thing_translations_name_idx ON public.thing_translations USING btre
 
 
 --
+-- Name: things_geom_simple_geography_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX things_geom_simple_geography_idx ON public.things USING gist (public.geography(geom_simple));
+
+
+--
 -- Name: things_id_content_type_validity_range_template_name_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4116,6 +4139,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230821094137'),
 ('20230823081910'),
 ('20230824060920'),
-('20231023100607');
+('20231023100607'),
+('20231108115445'),
+('20231109142629');
 
 

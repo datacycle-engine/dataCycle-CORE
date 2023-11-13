@@ -54,7 +54,7 @@ module DataCycleCore
         end
 
         def in_validity_period(current_date = nil)
-          current_date ||= Time.zone.now
+          current_date ||= Time.zone.now.beginning_of_day
           reflect(
             @query.where(in_range(thing[:validity_range], cast_tstz(current_date)))
           )
