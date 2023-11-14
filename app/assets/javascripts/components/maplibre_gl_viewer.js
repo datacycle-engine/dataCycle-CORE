@@ -130,30 +130,31 @@ class MapLibreGlViewer {
 			Object.assign(this.defaultOptions, {
 				container: this.containerId,
 				style: await this.mapBaseStyle(),
-				transformRequest: (url, _resourceType) => {
-					if (
-						url.includes("tiles.pixelmap.at/") ||
-						url.includes("tiles.pixelpoint.at/")
-					) {
-						return {
-							headers: {
-								Authorization: `Bearer ${this.credentials.api_key}`,
-							},
-							url: url,
-						};
-					} else if (url.includes(location.host)) {
-						return {
-							headers: {
-								"X-CSRF-Token":
-									document.getElementsByName("csrf-token")[0].content,
-							},
-							url: `${url}?cache=false`,
-						};
-					}
-					return;
-				},
+				transformRequest: this.transformRequest.bind(this),
 			}),
 		);
+	}
+	transformRequest(url, _resourceType) {
+		if (
+			url.includes("tiles.pixelmap.at/") ||
+			url.includes("tiles.pixelpoint.at/")
+		) {
+			return {
+				headers: {
+					Authorization: `Bearer ${this.credentials.api_key}`,
+				},
+				url: url,
+			};
+		} else if (url.includes(location.host)) {
+			return {
+				headers: {
+					"X-CSRF-Token": document.getElementsByName("csrf-token")[0].content,
+				},
+				url: `${url}?cache=false`,
+			};
+		}
+
+		return;
 	}
 	async configureMap() {
 		await this.initControls();
@@ -261,11 +262,11 @@ class MapLibreGlViewer {
 			)
 				newStyle = this[`baseLayer${style.value}`]();
 			else if (typeof style.value === "string" && style.value) {
-				const options = { Accept: 'application/json' }
+				const options = { Accept: "application/json" };
 				if (this.credentials.api_key) {
-					options['Authorization'] = `Bearer ${this.credentials.api_key}`
+					options.Authorization = `Bearer ${this.credentials.api_key}`;
 				}
-				const response = await fetch(style.value,{headers: options});
+				const response = await fetch(style.value, { headers: options });
 				newStyle = await response.json();
 			} else if (typeof style.value === "object" && style.value)
 				newStyle = style.value;
