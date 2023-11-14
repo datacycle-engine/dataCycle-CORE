@@ -708,7 +708,7 @@ module DataCycleCore
         data[:start_time][:zone] = data.dig(:start_time, :time).time_zone.name if data.dig(:start_time, :zone).blank?
         data[:end_time][:zone] = data.dig(:end_time, :time).time_zone.name if data.dig(:end_time, :zone).blank?
 
-        data[:rrules] = [] if data.dig(:rrules, 0, :rule_type) == 'IceCube::SingleOccurrenceRule'
+        data[:rrules] = [] if data.dig(:rrules, 0, :rule_type) == 'IceCube::SingleOccurrenceRule' || data[:rrules].blank?
         data[:rtimes] = nil if data[:rtimes].blank?
         data[:extimes] = nil if data[:extimes].blank?
         data.delete(:duration) if data[:duration].blank?
