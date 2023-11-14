@@ -10,14 +10,14 @@ module DataCycleCore
 
       result = ActiveRecord::Base.connection.select_all query.to_sql
 
-      result.to_a.map { |s| DataCycleCore::CollectionService.to_select_option(s, active_ui_locale) }
+      DataCycleCore::CollectionService.to_select_options(result)
     end
 
     def thing_ids_to_value(value)
       DataCycleCore::Thing.where(id: value)
         .where.not(content_type: 'embedded')
         .includes(:translations)
-        .map { |t| t.to_select_option(false, active_ui_locale) }
+        .map { |t| t.to_select_option(active_ui_locale) }
     end
 
     def union_values_to_options(value)

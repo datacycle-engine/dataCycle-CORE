@@ -87,12 +87,15 @@ module DataCycleCore
       end
     end
 
-    def to_select_option
+    def to_select_option(locale = DataCycleCore.ui_locales.first)
       DataCycleCore::Filter::SelectOption.new(
         id,
-        name,
+        ActionController::Base.helpers.safe_join([
+          ActionController::Base.helpers.tag.i(class: 'fa dc-type-icon watch_list-icon'),
+          name
+        ].compact, ' '),
         model_name.param_key,
-        full_path
+        "#{model_name.human(count: 1, locale:)}: #{full_path}"
       )
     end
 

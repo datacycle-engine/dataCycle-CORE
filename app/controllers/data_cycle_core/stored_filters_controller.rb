@@ -146,7 +146,7 @@ module DataCycleCore
 
       result = ActiveRecord::Base.connection.select_all arel_query.to_sql
 
-      render plain: result.map { |s| DataCycleCore::CollectionService.to_select_option(s, helpers.active_ui_locale) }.to_json, content_type: 'application/json'
+      render plain: DataCycleCore::CollectionService.to_select_options(result).to_json, content_type: 'application/json'
     end
 
     def add_to_watchlist

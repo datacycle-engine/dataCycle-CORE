@@ -610,14 +610,17 @@
 
       .fulltext-search {
         position: relative;
+        min-width: 200px;
+        max-width: 350px;
+        flex: 1;
 
         .object-browser-search {
           border: 0;
           line-height: 2.5rem;
           font-weight: 200;
           padding: 0 0.5rem 0 3rem;
+          width: 100%;
           box-shadow: none;
-          width: 350px;
           outline: none;
           background-color: lighten($light-gray, 7%);
           transition: background ease-out 0.25s;
@@ -650,10 +653,13 @@
         }
       }
 
-      .union-filter {
-        width: 360px;
+      .union-filter,
+      .relation-filter {
+        min-width: 200px;
+        max-width: 360px;
         height: 2.5rem;
         font-size: 1rem;
+        flex: 1;
 
         .select2 {
           height: 100%;
@@ -714,6 +720,7 @@
           align-items: center;
           justify-content: center;
           height: 2.5rem;
+          white-space: nowrap;
 
           .fa {
             margin-right: 0.3rem;
@@ -745,6 +752,7 @@
         display: flex;
         align-items: center;
         margin-left: auto;
+        min-width: 7rem;
 
         >* {
           margin-right: 0.3rem;
