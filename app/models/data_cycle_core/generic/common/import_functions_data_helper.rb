@@ -44,7 +44,7 @@ module DataCycleCore
             external_hash.hash_value = transformation_hash if content.present?
           end
           external_hash.seen_at = Time.zone.now
-          external_hash.save if content&.persisted?
+          external_hash.save if content&.persisted? && content.external_key == external_key && content.external_source_id == external_source_id
           content
         end
 
