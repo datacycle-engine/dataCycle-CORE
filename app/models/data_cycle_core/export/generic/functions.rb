@@ -5,7 +5,7 @@ module DataCycleCore
     module Generic
       module Functions
         def self.filter(**args)
-          DataCycleCore::Export::Generic::Filter.filter(args)
+          DataCycleCore::Export::Generic::Filter.filter(**args)
         end
 
         def self.enqueue_webhook(data, webhook, external_system)
