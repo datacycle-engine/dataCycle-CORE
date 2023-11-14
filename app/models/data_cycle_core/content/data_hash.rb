@@ -91,7 +91,7 @@ module DataCycleCore
           self.cache_valid_since = options.save_time
           self.updated_by = options.current_user&.id
           self.last_updated_locale = I18n.locale
-          self.version_name = DataCycleCore::Feature::NamedVersion.enabled? ? options.version_name.presence : nil
+          self.version_name = options.version_name.presence
 
           if id.nil?
             self.created_at = options.save_time

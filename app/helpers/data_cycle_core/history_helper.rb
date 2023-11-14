@@ -190,8 +190,7 @@ module DataCycleCore
         )
       end
 
-      data.push(version_name_html(item)) if DataCycleCore::Feature::NamedVersion.enabled?
-
+      data.push(version_name_html(item))
       data.push(history_link(content, item))
 
       tag.li(safe_join(data.compact), class: item.active_class)

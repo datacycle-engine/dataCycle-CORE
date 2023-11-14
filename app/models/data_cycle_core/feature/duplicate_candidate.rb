@@ -92,6 +92,10 @@ module DataCycleCore
           .map { |d| { thing_duplicate_id: d, method: 'data_metric_name_geo', score: 83 } }
           .compact
         end
+
+        def version_name_for_merge(duplicate, ui_locale = DataCycleCore.ui_locales.first)
+          I18n.t('common.merged_with_version_name', name: I18n.with_locale(duplicate.first_available_locale) { duplicate.title }, id: duplicate.id, locale: ui_locale)
+        end
       end
     end
   end
