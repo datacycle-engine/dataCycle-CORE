@@ -4,12 +4,12 @@ module DataCycleCore
   module Generic
     module Common
       module Functions
-        extend Dry::Transformer::Registry
+        extend Transproc::Registry
 
-        import Dry::Transformer::ArrayTransformations
-        import Dry::Transformer::HashTransformations
-        import Dry::Transformer::Conditional
-        import Dry::Transformer::Recursion
+        import Transproc::ArrayTransformations
+        import Transproc::HashTransformations
+        import Transproc::Conditional
+        import Transproc::Recursion
         import Transformations::BasicFunctions
         import Transformations::LegacyLinkFunctions
         import Transformations::RatingTransformations
