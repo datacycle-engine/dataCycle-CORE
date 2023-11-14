@@ -122,7 +122,7 @@ module DataCycleCore
 
           feratel_params = [:days, :units, :from, :to, :page_size, :start_index, :occupation]
           credentials = { options: permitted_params.slice(*feratel_params) }.merge(Array.wrap(external_system.credentials).first.symbolize_keys)
-          endpoint = DataCycleCore::Generic::Feratel::Endpoint.new(credentials)
+          endpoint = DataCycleCore::Generic::Feratel::Endpoint.new(**credentials)
           search_data = endpoint.send(search_method)
           if search_data&.first.try(:'[]', 'error').present?
             error = search_data.first['error']
