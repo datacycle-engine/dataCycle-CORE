@@ -887,13 +887,9 @@ $filter-border: #aaa;
       }
 
       label {
+        display: inline-block;
         line-height: inherit;
         font-size: inherit;
-      }
-
-      label,
-      a {
-        display: inline-block;
       }
 
       a.tag {
@@ -1291,6 +1287,10 @@ $filter-border: #aaa;
             color: $dark-gray;
             min-width: 10rem;
             flex: 0;
+
+            i.fa {
+              font-size: 0.9rem;
+            }
           }
         }
 
@@ -1368,11 +1368,6 @@ $filter-border: #aaa;
                 }
 
                 color: $black;
-              }
-
-              i {
-                font-size: 0.9rem;
-                margin-right: 0.2rem;
               }
 
               span {
@@ -1589,6 +1584,9 @@ $filter-border: #aaa;
 .tag-group-label {
   color: $black;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 
   .fa {
     font-size: 0.8rem;
@@ -1897,26 +1895,6 @@ $filter-border: #aaa;
     &.active {
       background: $white;
       box-shadow: 0 5px 3px rgba(0, 0, 0, 0.3);
-    }
-  }
-}
-
-.tag-group {
-  &.advanced-tags {
-    .tag {
-      &.stored_filter::before {
-        content: '\f0b0';
-        font-family: FontAwesome;
-        position: relative;
-        padding: 2px 5px 2px 2px;
-      }
-
-      &.watch_list::before {
-        content: '\f0ca';
-        font-family: FontAwesome;
-        position: relative;
-        padding: 2px 5px 2px 2px;
-      }
     }
   }
 }

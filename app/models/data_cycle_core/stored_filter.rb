@@ -58,12 +58,25 @@ module DataCycleCore
       query1 = all.arel
       query1.projections = []
       query1 = query1.where(query1_table[:name].not_eq(nil)) if name_filter
-      query1 = query1.project(query1_table[:id], query1_table[:name], Arel::Nodes::SqlLiteral.new("'#{all.klass.model_name.param_key}'").as('class_name'))
+      query1 = query1.project(
+        query1_table[:id],
+        query1_table[:name],
+        query1_table[:system],
+        query1_table[:name].as('full_path'),
+        Arel::Nodes::SqlLiteral.new("'#{all.klass.model_name.param_key}'").as('class_name')
+      )
 
       query2_table = collections.arel_table
       query2 = collections.arel
       query2.projections = []
-      query2 = query2.where(query2_table[:name].not_eq(nil)).project(query2_table[:id], query2_table[:name], Arel::Nodes::SqlLiteral.new("'#{collections.klass.model_name.param_key}'").as('class_name'))
+      query2 = query2.where(query2_table[:name].not_eq(nil))
+        .project(
+          query2_table[:id],
+          query2_table[:name],
+          Arel::Nodes::SqlLiteral.new('false').as('system'),
+          query2_table[:full_path],
+          Arel::Nodes::SqlLiteral.new("'#{collections.klass.model_name.param_key}'").as('class_name')
+        )
 
       unless filter_proc.nil?
         query1 = filter_proc.call(query1, query1_table)
@@ -73,12 +86,15 @@ module DataCycleCore
       Arel::SelectManager.new(Arel::Nodes::TableAlias.new(query1.union(:all, query2), 'combined_collections_and_searches')).project(Arel.star).order('name ASC')
     end
 
-    def to_select_option
+    def to_select_option(locale = DataCycleCore.ui_locales.first)
       DataCycleCore::Filter::SelectOption.new(
         id,
-        name.presence || '__DELETED__',
+        ActionController::Base.helpers.safe_join([
+          ActionController::Base.helpers.tag.i(class: "fa dc-type-icon stored_filter-icon #{self.system ? 'system' : ''}".strip),
+          name.presence || '__DELETED__'
+        ].compact, ' '),
         model_name.param_key,
-        name.presence || '__DELETED__'
+        "#{model_name.human(count: 1, locale:)}: #{name.presence || '__DELETED__'}"
       )
     end
 

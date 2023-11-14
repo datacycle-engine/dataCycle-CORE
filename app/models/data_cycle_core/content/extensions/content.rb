@@ -52,16 +52,16 @@ module DataCycleCore
           true
         end
 
-        def to_select_option(template_filter = false, locale = DataCycleCore.ui_locales.first)
+        def to_select_option(locale = DataCycleCore.ui_locales.first)
           DataCycleCore::Filter::SelectOption.new(
             id,
             ActionController::Base.helpers.safe_join([
-              template_filter ? nil : ActionController::Base.helpers.tag.b(translated_template_name(locale)) + ': ',
+              ActionController::Base.helpers.tag.i(class: "fa dc-type-icon thing-icon #{template_name.underscore_blanks}"),
               I18n.with_locale(first_available_locale) { title },
-              " (#{translated_locales.join(', ')})"
-            ].compact),
+              "(#{translated_locales.join(', ')})"
+            ].compact, ' '),
             "#{template_name.underscore_blanks} #{schema_type.underscore_blanks}",
-            "#{"#{template_name}: " unless template_filter}#{I18n.with_locale(first_available_locale) { title }} (#{translated_locales.join(', ')})"
+            "#{translated_template_name(locale)}: #{I18n.with_locale(first_available_locale) { title }} (#{translated_locales.join(', ')})"
           )
         end
       end

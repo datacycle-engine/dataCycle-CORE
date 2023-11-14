@@ -369,6 +369,14 @@
     content: '\f0ca';
   }
 
+  &.stored_filter-icon::before {
+    content: '\f0b0';
+  }
+
+  &.stored_filter-icon.system::before {
+    content: '\f0ac';
+  }
+
   &.property-icon {
 
     &.type-date::before,
