@@ -33,19 +33,15 @@ module DataCycleCore
 
       if ViteRuby.instance.dev_server_running?
         return send(method_name, "/vendor/gems/data-cycle-core/app/assets/#{asset_path}") unless File.file?(ViteRuby.config.vite_root_dir.join(asset_path))
-
-        send(method_name, "/#{asset_path}")
+      elsif ViteRuby.instance.manifest.send(:lookup, asset_path)&.dig('file').blank?
+        return send(method_name, "/vendor/gems/data-cycle-core/app/assets/#{asset_path}")
       end
 
       send(method_name, asset_path)
-    rescue ViteRuby::MissingEntrypointError
-      begin
-        send(method_name, "/vendor/gems/data-cycle-core/app/assets/#{asset_path}")
-      rescue ViteRuby::MissingEntrypointError => e
-        ActiveSupport::Notifications.instrument 'vite_asset_path_error.datacycle', content: asset_path, exception: e
+    rescue ViteRuby::MissingEntrypointError => e
+      ActiveSupport::Notifications.instrument 'vite_asset_path_error.datacycle', content: asset_path, exception: e
 
-        asset_path
-      end
+      asset_path
     end
   end
 end
