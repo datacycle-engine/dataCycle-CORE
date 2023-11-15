@@ -54,7 +54,6 @@ module DataCycleCore
                 end
               end
 
-
               if oldest_duplicate.nil?
                 content.try(:destroy_content, save_history: true, destroy_linked: true, destroy_locale: true) # delete only a particular translation!
               else
