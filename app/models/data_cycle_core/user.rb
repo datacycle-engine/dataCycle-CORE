@@ -155,7 +155,7 @@ module DataCycleCore
     def send_notification(content_ids)
       return if content_ids.blank?
 
-      SubscriptionMailer.notify(self, content_ids).deliver_later
+      DataCycleCore::SubscriptionMailer.notify(self, content_ids).deliver_later
     end
 
     def generate_user_token(refresh_jti = false)
