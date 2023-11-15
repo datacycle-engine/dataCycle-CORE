@@ -32,7 +32,7 @@ module DataCycleCore
         class_attribute :reference_type, instance_accessor: false
       end
 
-      def initialize(*)
+      def initialize(*args, **kwargs)
         super
 
         @reference_id = self.class.reference_id
