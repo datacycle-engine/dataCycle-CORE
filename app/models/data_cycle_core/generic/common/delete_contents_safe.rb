@@ -45,11 +45,15 @@ module DataCycleCore
               )&.destroy
             else
               if content.available_locales.one? && content.available_locales.include?(I18n.locale)
-                oldest_duplicate = content.external_system_syncs.where(
-                  sync_type: 'duplicate',
-                  syncable_type: 'DataCycleCore::Thing'
-                ).order(created_at: :asc).first
+                duplicates = content.external_system_syncs.where(sync_type: 'duplicate', syncable_type: 'DataCycleCore::Thing')
+                if options.dig(:import, :delete_all_duplicates)
+                  duplicates.destroy_all
+                  oldest_duplicate = nil
+                else
+                  oldest_duplicate = duplicates.order(created_at: :asc).first
+                end
               end
+
 
               if oldest_duplicate.nil?
                 content.try(:destroy_content, save_history: true, destroy_linked: true, destroy_locale: true) # delete only a particular translation!
