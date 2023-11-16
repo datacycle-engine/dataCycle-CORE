@@ -134,4 +134,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'net-smtp'
 
   s.add_dependency 'jsonpath'
+  s.add_dependency 'rexml'
 end
