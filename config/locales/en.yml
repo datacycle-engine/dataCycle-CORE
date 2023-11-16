@@ -1777,7 +1777,8 @@ en:
       Depends: depends
       Suitable: suitable
     bierfinder:
-      book: Description
+      description: Description
+      book: Detailed description
       tipp: Tip
       essenUndSpezial: Food and Specials
       biersorten: Brand of Beer

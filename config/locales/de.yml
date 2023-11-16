@@ -1762,7 +1762,8 @@ de:
       Depends: wetterabhängig
       Suitable: geeignet
     bierfinder:
-      book: Beschreibung
+      description: Beschreibung
+      book: Detailbeschreibung
       tipp: Tip
       essenUndSpezial: Essen und Spezialitäten
       biersorten: Biersorten
