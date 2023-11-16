@@ -708,7 +708,7 @@ module DataCycleCore
       flash.now[:success] = I18n.t('external_connections.remove_external_system_sync.success', locale: helpers.active_ui_locale)
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path) }
+        format.html { redirect_back(fallback_location: root_path, notice: flash[:success]) }
         format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).strip, **flash.discard.to_h } }
       end
     end

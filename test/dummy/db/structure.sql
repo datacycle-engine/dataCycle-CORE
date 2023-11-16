@@ -840,9 +840,9 @@ CREATE TABLE public.classification_aliases (
     created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     external_source_id uuid,
-    internal boolean DEFAULT false,
+    internal boolean DEFAULT false NOT NULL,
     deleted_at timestamp without time zone,
-    assignable boolean DEFAULT true,
+    assignable boolean DEFAULT true NOT NULL,
     name_i18n jsonb DEFAULT '{}'::jsonb,
     description_i18n jsonb DEFAULT '{}'::jsonb,
     uri character varying,
@@ -893,7 +893,7 @@ CREATE TABLE public.classification_tree_labels (
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    internal boolean DEFAULT false,
+    internal boolean DEFAULT false NOT NULL,
     deleted_at timestamp without time zone,
     visibility character varying[] DEFAULT '{}'::character varying[],
     change_behaviour character varying[] DEFAULT '{trigger_webhooks}'::character varying[]
@@ -1146,7 +1146,7 @@ CREATE TABLE public.things (
     version_name character varying,
     line public.geometry(MultiLineStringZ,4326),
     last_updated_locale character varying,
-    write_history boolean DEFAULT false,
+    write_history boolean DEFAULT false NOT NULL,
     geom_simple public.geometry(Geometry,4326),
     geom public.geometry(GeometryZ,4326)
 );
@@ -1348,7 +1348,7 @@ CREATE TABLE public.external_systems (
     last_successful_download timestamp without time zone,
     last_import timestamp without time zone,
     last_successful_import timestamp without time zone,
-    deactivated boolean DEFAULT false,
+    deactivated boolean DEFAULT false NOT NULL,
     last_successful_download_time interval,
     last_download_time interval,
     last_successful_import_time interval,
@@ -1500,8 +1500,8 @@ CREATE TABLE public.stored_filters (
     user_id uuid,
     language character varying[],
     parameters jsonb,
-    system boolean DEFAULT false,
-    api boolean DEFAULT false,
+    system boolean DEFAULT false NOT NULL,
+    api boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     api_users text[],
@@ -1697,7 +1697,7 @@ CREATE TABLE public.watch_lists (
     full_path_names character varying[],
     my_selection boolean DEFAULT false NOT NULL,
     manual_order boolean DEFAULT false NOT NULL,
-    api boolean DEFAULT false
+    api boolean DEFAULT false NOT NULL
 );
 
 
@@ -3708,7 +3708,7 @@ ALTER TABLE ONLY public.collection_configurations
 --
 
 ALTER TABLE ONLY public.external_hashes
-    ADD CONSTRAINT fk_external_hashes_things FOREIGN KEY (external_source_id, external_key) REFERENCES public.things(external_source_id, external_key) ON DELETE CASCADE NOT VALID;
+    ADD CONSTRAINT fk_external_hashes_things FOREIGN KEY (external_source_id, external_key) REFERENCES public.things(external_source_id, external_key) ON UPDATE CASCADE ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4191,6 +4191,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20231108115445'),
 ('20231109091823'),
 ('20231109142629'),
-('20231113104134');
+('20231113104134'),
+('20231115104227');
 
 

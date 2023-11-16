@@ -59,6 +59,7 @@ module DataCycleCore
 
             assert_response(:success)
             assert_equal('application/geo+json; charset=utf-8', response.content_type)
+            response.content_type = 'application/json; charset=utf-8'
             geojson_data = response.parsed_body
 
             assert_equal('Feature', geojson_data.dig('type'))
@@ -115,6 +116,7 @@ module DataCycleCore
 
             assert_response(:success)
             assert_equal('application/geo+json; charset=utf-8', response.content_type)
+            response.content_type = 'application/json; charset=utf-8'
             geojson_data = response.parsed_body
 
             assert_kind_of(Array, geojson_data.dig('properties', 'dc:classification'))
@@ -132,6 +134,7 @@ module DataCycleCore
 
             assert_response(:success)
             assert_equal('application/geo+json; charset=utf-8', response.content_type)
+            response.content_type = 'application/json; charset=utf-8'
             geojson_data = response.parsed_body
 
             assert_nil(geojson_data.dig('properties', 'name'))
@@ -150,6 +153,7 @@ module DataCycleCore
 
             assert_response(:success)
             assert_equal('application/geo+json; charset=utf-8', response.content_type)
+            response.content_type = 'application/json; charset=utf-8'
             geojson_data = response.parsed_body
 
             assert_equal(1, geojson_data.dig('properties', 'dc:classification').count)
@@ -165,6 +169,7 @@ module DataCycleCore
             assert_response(:success)
             assert_equal('application/geo+json; charset=utf-8', response.content_type)
 
+            response.content_type = 'application/json; charset=utf-8'
             geojson_data = response.parsed_body
 
             assert_equal('Feature', geojson_data.dig('type'))
