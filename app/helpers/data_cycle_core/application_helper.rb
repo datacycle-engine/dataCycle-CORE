@@ -187,7 +187,7 @@ module DataCycleCore
         elsif value.is_a?(ActiveRecord::Relation)
           params_hash[key] = { class: value.klass.name, value.klass.primary_key.to_sym => value.pluck(value.klass.primary_key), type: 'Collection' }
         elsif value.is_a?(OpenStruct)
-          params_hash[key] = { value: value.to_h, class: 'OpenStruct' }
+          params_hash[key] = { attributes: value.to_h, class: 'OpenStruct' }
         elsif value.is_a?(::Hash)
           params_hash[key] = to_query_params(value)
         else
