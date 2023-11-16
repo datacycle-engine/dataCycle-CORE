@@ -28,7 +28,8 @@ namespace :dc do
 
       desc 'audit JS packages'
       task js_audit: :environment do
-        system('yarn audit --level high')
+        puts 'pnpm audit --audit-level high'
+        system('pnpm audit --audit-level high')
 
         exit($CHILD_STATUS.exitstatus) if $CHILD_STATUS.exitstatus >= 16
       end
