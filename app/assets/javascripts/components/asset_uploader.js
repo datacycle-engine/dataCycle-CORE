@@ -336,11 +336,13 @@ class AssetUploader {
 	startNextFileUpload() {
 		if (this.files.filter((f) => f.uploading).length >= 20) return;
 
-		const nextFile = this.files.find((f) => !f.uploading && !f.uploaded);
+		const nextFile = this.files.find(
+			(f) => !f.uploading && !f.uploaded && !f.errors,
+		);
 
 		if (!nextFile) return;
 
-		if (!nextFile.errors) nextFile._uploadFile();
+		nextFile._uploadFile();
 	}
 	async updateCreateButton(error = null) {
 		let e = error;

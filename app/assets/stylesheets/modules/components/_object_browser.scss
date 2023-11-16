@@ -49,7 +49,7 @@ a.show-sidebar-details {
 
 .reveal {
   img {
-    max-width: 90vw;
+    max-width: min(100%, 90vw);
     max-height: 90vh;
     min-height: 0.9rem;
     min-width: 1.6rem;

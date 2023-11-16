@@ -185,7 +185,7 @@ class ImageEditor {
 		event.preventDefault();
 		event.stopPropagation();
 
-		let newUrl = this.editor.toDataURL({ format: this.fileFormat });
+		const newUrl = this.editor.toDataURL({ format: this.fileFormat });
 
 		this.updateAsset(newUrl, true);
 	}
@@ -199,7 +199,7 @@ class ImageEditor {
 
 		this.urlToFile(fileUrl, fileName, this.fileMimeType)
 			.then((file) => {
-				let data = new FormData();
+				const data = new FormData();
 				data.append("asset[file]", file);
 				data.append("asset[type]", "DataCycleCore::Image");
 				data.append("asset[name]", fileName);

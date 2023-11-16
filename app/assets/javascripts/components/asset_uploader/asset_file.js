@@ -470,7 +470,6 @@ class AssetFile {
 	}
 	async _updateFileAttributes(data) {
 		this.retryUpload = false;
-		let error = null;
 
 		this.fileField
 			.add(this.fileFormField)
@@ -480,7 +479,7 @@ class AssetFile {
 		if (data.error) {
 			this._resetFileField();
 			this._renderError(data.error);
-			error = data.error;
+			this.errors = data.error;
 		} else if (
 			!this.uploader.createDuplicates &&
 			data.duplicateCandidates &&
@@ -490,7 +489,7 @@ class AssetFile {
 			this._renderError(
 				await this._renderDuplicateHtml(data.duplicateCandidates),
 			);
-			error = await I18n.translate("frontend.upload.found_duplicate");
+			this.errors = await I18n.translate("frontend.upload.found_duplicate");
 		} else {
 			if (data.duplicateCandidates?.length)
 				this._renderErrorHtml(
@@ -516,7 +515,7 @@ class AssetFile {
 			}
 		}
 
-		this.uploader.updateCreateButton(error);
+		this.uploader.updateCreateButton(this.errors);
 	}
 	async updateProgress(startTime, e) {
 		if (!e.lengthComputable) return;
@@ -600,19 +599,19 @@ class AssetFile {
 		});
 
 		promise
-			.then((data) => {
+			.then(async (data) => {
 				if (!document.querySelector(`[data-id="${this.id}"]`)) return;
 
-				this._updateFileAttributes(data);
+				await this._updateFileAttributes(data);
 			})
-			.catch((data) => {
+			.catch(async (data) => {
 				if (!document.querySelector(`[data-id="${this.id}"]`)) return;
 
 				this.retryUpload = true;
 				this._resetFileField();
 				let error = data.statusText;
 				if (data?.responseJSON?.error) error = data.responseJSON.error;
-				this._renderError(error);
+				await this._renderError(error);
 			})
 			.finally(() => {
 				if (!document.querySelector(`[data-id="${this.id}"]`)) return;
