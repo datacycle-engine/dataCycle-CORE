@@ -34,7 +34,7 @@ describe DataCycleCore::MasterData::ImportExternalSystems do
     end
 
     it 'has a config path defined' do
-      assert(DataCycleCore.external_systems_path.is_a?(::Array))
+      assert(DataCycleCore.external_systems_path.is_a?(Array))
     end
 
     it 'successfully validates the test config' do

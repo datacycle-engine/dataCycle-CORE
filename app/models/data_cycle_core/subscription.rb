@@ -14,13 +14,13 @@ module DataCycleCore
     def self.things
       return DataCycleCore::Thing.none if all.is_a?(ActiveRecord::NullRelation)
 
-      DataCycleCore::Thing.where(id: all.select(:subscribable_id))
+      DataCycleCore::Thing.where(id: select(:subscribable_id))
     end
 
     def self.users
       return DataCycleCore::User.none if all.is_a?(ActiveRecord::NullRelation)
 
-      DataCycleCore::User.where(id: all.select(:user_id))
+      DataCycleCore::User.where(id: select(:user_id))
     end
 
     def self.to_notify(frequencies = ['always'])

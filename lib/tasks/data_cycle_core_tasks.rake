@@ -36,7 +36,7 @@ namespace :data_cycle_core do
         puts "frequency: #{args.frequency}"
         puts "Users for interval (#{args.frequency}): #{DataCycleCore::User.where(notification_frequency: args.frequency).size}"
 
-        DataCycleCore::User.where(notification_frequency: args.frequency, locked_at: nil).each do |user|
+        DataCycleCore::User.where(notification_frequency: args.frequency, locked_at: nil).find_each do |user|
           changed_content_ids = user.subscriptions.things.reject { |c| c.as_of(1.send(args.frequency).ago).try(:history?) == false }.pluck(:id)
 
           puts "Subscriptions with changes: #{changed_content_ids.size}"
@@ -233,7 +233,8 @@ namespace :data_cycle_core do
       ['things'].map { |table| "DataCycleCore::#{table.classify}".constantize }.each do |model_class|
         duplicated_contents = model_class
           .select(:external_source_id, :external_key)
-          .where.not(external_source_id: nil, external_key: nil)
+          .where.not(external_source_id: nil)
+          .where.not(external_key: nil)
           .group(:external_source_id, :external_key)
           .having('COUNT(*) > 1')
 

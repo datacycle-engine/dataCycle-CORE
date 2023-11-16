@@ -31,7 +31,7 @@ module DataCycleCore
           else
             puts "Error: #{error}"
           end
-          puts "  DATA: #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}" if data
+          puts "  DATA: #{JSON.pretty_generate(data).gsub("\n", "\n  ")}" if data
         end
 
         def info(title, id)

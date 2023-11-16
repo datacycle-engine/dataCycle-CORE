@@ -26,7 +26,7 @@ module DataCycleCore
           content_name += "_#{postfix}" unless postfix.nil?
 
           # relation content to classification
-          has_many classification_content_table.to_sym, class_name: class_name, foreign_key: content_name.foreign_key, dependent: :destroy
+          has_many classification_content_table.to_sym, class_name:, foreign_key: content_name.foreign_key, dependent: :destroy
           has_many :classifications, through: classification_content_table.to_sym
           has_many :classification_groups, through: :classifications
           has_many :classification_aliases, -> { distinct }, through: :classification_groups

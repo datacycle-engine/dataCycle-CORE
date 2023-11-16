@@ -2,6 +2,6 @@
 
 class AddApiUsersToWatchList < ActiveRecord::Migration[6.1]
   def change
-    add_column :watch_lists, :api, :boolean, default: false
+    add_column :watch_lists, :api, :boolean, default: false, null: false
   end
 end

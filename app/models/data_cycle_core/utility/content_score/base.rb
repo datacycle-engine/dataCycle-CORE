@@ -31,7 +31,7 @@ module DataCycleCore
           def parameter_keys(content, key, properties)
             Array.wrap(properties&.dig('content_score', 'parameters'))
               .map { |p| p.split('.').first }
-              .concat([key])
+              .push(key)
               .compact
               .uniq
               .intersection(content.property_names)

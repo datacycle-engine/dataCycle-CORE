@@ -46,7 +46,7 @@ module DataCycleCore
             }
 
             post api_v4_facets_path(params)
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_data['@graph'].each do |item|
               assert_equal(@count_mapping[item['@id']].size, item['dc:thingCountWithSubtree'])
               assert_equal(item['dc:thingCountWithSubtree'].positive? ? 1 : 0, item['dc:thingCountWithoutSubtree'])
@@ -67,7 +67,7 @@ module DataCycleCore
             }
 
             post api_v4_facets_path(params)
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_data['@graph'].each do |item|
               assert_equal(item['@id'] == @tag1.id ? 1 : 0, item['dc:thingCountWithSubtree'])
             end
@@ -85,7 +85,7 @@ module DataCycleCore
             }
 
             post api_v4_facets_path(params)
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(@count_mapping.sort_by { |k, v| [-v.size, k] }.to_h.keys, json_data['@graph'].pluck('@id'))
           end
@@ -105,7 +105,7 @@ module DataCycleCore
             }
 
             post api_v4_facets_path(params)
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_data['@graph'].each do |item|
               assert_equal(tmp_mapping[item['@id']].size, item['dc:thingCountWithSubtree'])
             end

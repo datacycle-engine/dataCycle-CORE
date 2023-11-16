@@ -45,7 +45,7 @@ module DataCycleCore
         def includes_attribute_key(content, key)
           template_keys = attribute_keys(content)
 
-          (key.attribute_path_from_key & template_keys).any?
+          key.attribute_path_from_key.intersect?(template_keys)
         end
 
         def configuration(content = nil, attribute_key = nil)

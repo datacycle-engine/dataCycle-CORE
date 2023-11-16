@@ -17,7 +17,7 @@ module DataCycleCore
       if api_version == 4
         partials = [
           "#{definition&.dig('type')&.underscore}_#{key.underscore}",
-          (api_property_definition&.dig('partial')&.present? ? "#{definition&.dig('type')&.underscore}_#{api_property_definition&.dig('partial')&.underscore}" : ''),
+          (api_property_definition&.dig('partial').present? ? "#{definition&.dig('type')&.underscore}_#{api_property_definition&.dig('partial')&.underscore}" : ''),
           api_property_definition&.dig('partial')&.underscore,
           definition['type'].underscore,
           'default'
@@ -63,7 +63,7 @@ module DataCycleCore
     end
 
     def included_attribute?(name, attribute_list)
-      return if attribute_list.blank?
+      return false if attribute_list.blank?
       return true if full_recursive?(attribute_list)
 
       attribute_list.pluck(0).intersection(Array.wrap(name)).any?
@@ -144,7 +144,7 @@ module DataCycleCore
       else
         data_value = []
 
-        content.translations.where(locale: languages).each do |translation|
+        content.translations.where(locale: languages).find_each do |translation|
           I18n.with_locale(translation.locale) do
             o_value = content.send(key + '_overlay')&.try(o_key)
             data_value << { '@language' => I18n.locale, '@value' => api_value_format(o_value, api_property_definition) } if o_value.present?

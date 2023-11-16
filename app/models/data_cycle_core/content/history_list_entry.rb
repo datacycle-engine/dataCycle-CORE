@@ -64,7 +64,7 @@ module DataCycleCore
 
       def active_class
         return 'active' if active_id == id
-        return 'diff-active' if diff_id == id
+        'diff-active' if diff_id == id
       end
 
       def source_icon?

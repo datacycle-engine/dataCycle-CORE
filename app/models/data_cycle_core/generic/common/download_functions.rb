@@ -641,7 +641,7 @@ module DataCycleCore
                       next if options[:min_count].present? && item_count < options[:min_count]
 
                       embedded_keys = dependent_keys.call(item.dump[locale])
-                      next if (affected_keys[locale] & embedded_keys).blank? # have an empty intersection --> item is not affected
+                      next unless affected_keys[locale].intersect?(embedded_keys) # have an empty intersection --> item is not affected
 
                       item.dump[locale]['mark_for_update'] = Time.zone.now
                       item.save!

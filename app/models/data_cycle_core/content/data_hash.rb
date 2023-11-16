@@ -56,8 +56,8 @@ module DataCycleCore
         execute_delete_webhooks unless embedded?
       end
 
-      def set_data_hash(**args) # rubocop:disable Naming/AccessorMethodName
-        options = DataCycleCore::Content::DataHashOptions.new(**args)
+      def set_data_hash(**) # rubocop:disable Naming/AccessorMethodName
+        options = DataCycleCore::Content::DataHashOptions.new(**)
 
         return no_changes(options.ui_locale) if options.data_hash.blank? && !options.force_update
 
@@ -108,8 +108,8 @@ module DataCycleCore
         true
       end
 
-      def set_data_hash_with_translations(**args) # rubocop:disable Naming/AccessorMethodName
-        options = DataCycleCore::Content::DataHashOptions.new(**args)
+      def set_data_hash_with_translations(**) # rubocop:disable Naming/AccessorMethodName
+        options = DataCycleCore::Content::DataHashOptions.new(**)
         return {} if options.data_hash.blank? && !options.force_update
 
         translations = DataCycleCore::DataHashService.parse_translated_hash(options.data_hash)

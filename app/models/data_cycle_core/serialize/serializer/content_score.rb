@@ -16,7 +16,7 @@ module DataCycleCore
           end
 
           def serialize_thing(content:, language:, user:, **_options)
-            content = content.is_a?(Array) ? content.first : content
+            content = content.first if content.is_a?(Array)
 
             serialize_contents(
               content:,

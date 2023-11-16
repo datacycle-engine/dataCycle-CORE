@@ -12,5 +12,5 @@ new_options[:include] = subtree_for(key_new, options[:include])
 new_options[:languages] = options[:languages]
 new_options[:full] = included_attribute?('dc:classification', options[:include]) || included_attribute?('dc:classification', options[:fields])
 
-json.merge! render 'classifications', classification_aliases: classification_aliases, key: key_new, definition: {}, options: new_options
+json.merge! render 'classifications', classification_aliases:, key: key_new, definition: {}, options: new_options
 json.reject { |_k, v| v.blank? }

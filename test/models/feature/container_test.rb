@@ -79,7 +79,7 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::ContentContent::History.count)
       assert_equal(7, DataCycleCore::ClassificationContent::History.count)
 
-      DataCycleCore::Thing::History.all.each do |item|
+      DataCycleCore::Thing::History.find_each do |item|
         assert_equal(current_user.id, item.updated_by)
         assert_equal(current_user.id, item.updated_by_user.id)
         assert_equal(true, item.updated_at.present?)

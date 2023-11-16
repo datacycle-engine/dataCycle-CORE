@@ -13,12 +13,13 @@ AllCops:
   DisplayCopNames: true
   NewCops: enable
   Exclude:
-    - 'node_modules/**/*'
-    - 'tmp/**/*'
-    - 'cache/**/*'
-    - 'bash/**/*'
-    - 'test/dummy/db/migrate_6_1/**/*'
-    - 'test/dummy/db/migrate_7_0/**/*'
+    - "node_modules/**/*"
+    - "tmp/**/*"
+    - "cache/**/*"
+    - "bash/**/*"
+    - "test/dummy/db/migrate_6_1/**/*"
+    - "test/dummy/db/migrate_7_0/**/*"
+    - "*/**/transformations.rb"
 
 #Rails:
 #  Enabled: true
@@ -95,14 +96,14 @@ Style/EmptyMethod:
 
 Style/HashSyntax:
   Exclude:
-    - 'app/views/data_cycle_core/api/v2/api_base/**/*'
+    - "app/views/data_cycle_core/api/v2/api_base/**/*"
 
 Style/MixinUsage:
   Exclude:
-    - 'bin/setup'
-    - 'bin/update'
-    - 'test/dummy/bin/setup'
-    - 'test/dummy/bin/update'
+    - "bin/setup"
+    - "bin/update"
+    - "test/dummy/bin/setup"
+    - "test/dummy/bin/update"
 
 Style/MultilineBlockChain:
   Enabled: false
@@ -194,7 +195,7 @@ Rails/ReflectionClassName:
 
 Rails/ApplicationController:
   Exclude:
-    - 'app/controllers/data_cycle_core/missing_asset_controller.rb'
+    - "app/controllers/data_cycle_core/missing_asset_controller.rb"
 
 Rails/RakeEnvironment:
   Enabled: false
@@ -271,7 +272,7 @@ Rake/MethodDefinitionInTask:
 
 Security/YAMLLoad:
   Exclude:
-    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
-    - 'app/models/data_cycle_core/master_data/import_templates.rb'
-    - 'app/models/data_cycle_core/master_data/import_external_sources.rb'
-    - 'app/models/data_cycle_core/master_data/import_mixins.rb'
+    - "app/models/data_cycle_core/master_data/import_classifications.rb"
+    - "app/models/data_cycle_core/master_data/import_templates.rb"
+    - "app/models/data_cycle_core/master_data/import_external_sources.rb"
+    - "app/models/data_cycle_core/master_data/import_mixins.rb"

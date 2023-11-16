@@ -5,7 +5,7 @@ module DataCycleCore
     def authorize
       @external_source = ExternalSystem.find(params[:id])
 
-      endpoints = @external_source.config['download_config'].values.map { |v| v['endpoint'] }
+      endpoints = @external_source.config['download_config'].values.pluck('endpoint')
 
       return head :forbidden unless endpoints.include?('DataCycleCore::Generic::GoogleBusiness::Endpoint')
 
@@ -24,7 +24,7 @@ module DataCycleCore
     def callback
       @external_source = ExternalSystem.find(params[:id])
 
-      endpoints = @external_source.config['download_config'].values.map { |v| v['endpoint'] }
+      endpoints = @external_source.config['download_config'].values.pluck('endpoint')
 
       return head :forbidden unless endpoints.include?('DataCycleCore::Generic::GoogleBusiness::Endpoint')
 

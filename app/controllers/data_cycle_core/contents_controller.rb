@@ -150,6 +150,26 @@ module DataCycleCore
       }
     end
 
+    def edit
+      @content ||= DataCycleCore::Thing.find(params[:id])
+      @hide_embedded = params[:hide_embedded].present?
+
+      redirect_to(edit_thing_path(@content.related_contents.first)) && return if @content.embedded?
+
+      # get show data for split view
+      if source_params.present?
+        @split_source = DataCycleCore::Thing.find(source_params[:source_id])
+        @source_locale = source_params[:source_locale]
+      end
+
+      I18n.with_locale(params[:locale] || @content.first_available_locale) do
+        @locale = I18n.locale
+        authorize!(:edit, @content)
+
+        render && return
+      end
+    end
+
     def create
       template = DataCycleCore::Thing.new(template_name: params[:template])
       authorize!(__method__, template, resolve_params(params, false).dig(:scope))
@@ -168,7 +188,7 @@ module DataCycleCore
         @content = DataCycleCore::DataHashService.create_internal_object(params[:template], object_params, current_user, parent_params[:parent_id], source)
 
         if @content.try(:errors).present?
-          flash[:error] = @content.errors.full_messages
+          flash.now[:error] = @content.errors.full_messages
         elsif @content.present?
           flash[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale)
         end
@@ -191,26 +211,6 @@ module DataCycleCore
             }
           end
         end
-      end
-    end
-
-    def edit
-      @content ||= DataCycleCore::Thing.find(params[:id])
-      @hide_embedded = params[:hide_embedded].present?
-
-      redirect_to(edit_thing_path(@content.related_contents.first)) && return if @content.embedded?
-
-      # get show data for split view
-      if source_params.present?
-        @split_source = DataCycleCore::Thing.find(source_params[:source_id])
-        @source_locale = source_params[:source_locale]
-      end
-
-      I18n.with_locale(params[:locale] || @content.first_available_locale) do
-        @locale = I18n.locale
-        authorize!(:edit, @content)
-
-        render && return
       end
     end
 
@@ -392,7 +392,7 @@ module DataCycleCore
       @content = api_strategy.create(content.except('source_key'))
       @content = @content.try(:first)
 
-      flash[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale)
+      flash.now[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale)
 
       if params[:render_html]
         render js: "document.location = '#{thing_path(@content)}'"
@@ -705,7 +705,7 @@ module DataCycleCore
 
       @content.invalidate_self
 
-      flash[:success] = I18n.t('external_connections.remove_external_system_sync.success', locale: helpers.active_ui_locale)
+      flash.now[:success] = I18n.t('external_connections.remove_external_system_sync.success', locale: helpers.active_ui_locale)
 
       respond_to do |format|
         format.html { redirect_back(fallback_location: root_path) }

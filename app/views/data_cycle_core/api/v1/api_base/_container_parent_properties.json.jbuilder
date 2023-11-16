@@ -2,7 +2,7 @@
 
 if content&.parent&.content_type?('container')
   json.set! 'isPartOf' do
-    json.content_partial! 'header', content: content.parent, options: options
+    json.content_partial!('header', content: content.parent, options:)
 
     if content.parent.translations.reject { |t| t.id.nil? }.size == 1
       json.set! 'inLanguage', content.parent.translations.first.locale

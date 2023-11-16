@@ -31,7 +31,7 @@ module DataCycleCore
     def self.classification_aliases
       return DataCycleCore::ClassificationAlias.none if all.is_a?(ActiveRecord::NullRelation)
 
-      DataCycleCore::ClassificationAlias.includes(classifications: :user_groups).where(classifications: { user_groups: all.select(:id) })
+      DataCycleCore::ClassificationAlias.includes(classifications: :user_groups).where(classifications: { user_groups: select(:id) })
     end
 
     def self.search_columns
@@ -41,7 +41,7 @@ module DataCycleCore
     def self.users
       return DataCycleCore::User.none if all.is_a?(ActiveRecord::NullRelation)
 
-      DataCycleCore::User.where(id: all.joins('INNER JOIN user_group_users user_group_users_user_groups ON user_group_users_user_groups.user_group_id = user_groups.id').select('user_group_users_user_groups.user_id'))
+      DataCycleCore::User.where(id: joins('INNER JOIN user_group_users user_group_users_user_groups ON user_group_users_user_groups.user_group_id = user_groups.id').select('user_group_users_user_groups.user_id'))
     end
   end
 end

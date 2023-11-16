@@ -38,7 +38,7 @@ module DataCycleCore
     def self.watch_list_data_hashes
       return DataCycleCore::WatchListDataHash.none if all.is_a?(ActiveRecord::NullRelation)
 
-      DataCycleCore::WatchListDataHash.where(watch_list_id: all.select(:id))
+      DataCycleCore::WatchListDataHash.where(watch_list_id: select(:id))
     end
 
     def self.by_id_or_slug(value)
@@ -66,7 +66,7 @@ module DataCycleCore
     def self.fulltext_search(q)
       return all if q.blank?
 
-      all.where('watch_lists.full_path ILIKE ?', "%#{q}%")
+      where('watch_lists.full_path ILIKE ?', "%#{q}%")
     end
 
     def to_hash
@@ -83,7 +83,7 @@ module DataCycleCore
       if DataCycleCore::Feature::MySelection.enabled?
         all
       else
-        all.where(arel_table[:my_selection].not_eq(true))
+        where(arel_table[:my_selection].not_eq(true))
       end
     end
 

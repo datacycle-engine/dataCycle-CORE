@@ -28,7 +28,7 @@ module DataCycleCore
             return factory.collection([content.line, content.location])
           end
           return content.line unless content.line.nil?
-          return content.location unless content.location.nil?
+          content.location unless content.location.nil?
         end
 
         def geojson_properties

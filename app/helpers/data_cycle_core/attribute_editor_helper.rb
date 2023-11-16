@@ -3,7 +3,7 @@
 module DataCycleCore
   module AttributeEditorHelper
     ATTRIBUTE_DATAHASH_PREFIX = '[datahash]'
-    ATTRIBUTE_DATAHASH_REGEX = Regexp.new(/.*\K(#{Regexp.quote(ATTRIBUTE_DATAHASH_PREFIX)}|\[translations\]\[[^\]]*\])/)
+    ATTRIBUTE_DATAHASH_REGEX = /.*\K(#{Regexp.quote(ATTRIBUTE_DATAHASH_PREFIX)}|\[translations\]\[[^\]]*\])/
     ATTRIBUTE_FIELD_PREFIX = "thing#{ATTRIBUTE_DATAHASH_PREFIX}".freeze
     RENDER_EDITOR_ARGUMENTS = DataCycleCore::AttributeViewerHelper::RENDER_VIEWER_ARGUMENTS.deep_merge({
       parameters: { options: { edit_scope: 'edit' } },
@@ -53,8 +53,8 @@ module DataCycleCore
       true
     end
 
-    def render_attribute_editor(**args)
-      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**args, defaults: RENDER_EDITOR_ARGUMENTS)
+    def render_attribute_editor(**)
+      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**, defaults: RENDER_EDITOR_ARGUMENTS)
 
       options.key = Array.wrap(options.key.is_a?(String) ? options.key.attribute_name_from_key : options.key).map { |k| "[#{k}]" if k != 'properties' }.join.prepend(options.prefix.to_s)
 
@@ -68,8 +68,8 @@ module DataCycleCore
       end
     end
 
-    def render_specific_translatable_attribute_editor(**args)
-      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**args, defaults: RENDER_EDITOR_ARGUMENTS)
+    def render_specific_translatable_attribute_editor(**)
+      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**, defaults: RENDER_EDITOR_ARGUMENTS)
 
       I18n.with_locale(options.locale) do
         content = options.parameters[:parent] || options.content
@@ -86,14 +86,14 @@ module DataCycleCore
       end
     end
 
-    def render_translatable_attribute_editor(**args)
-      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**args, defaults: RENDER_EDITOR_ARGUMENTS)
+    def render_translatable_attribute_editor(**)
+      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**, defaults: RENDER_EDITOR_ARGUMENTS)
 
       render 'data_cycle_core/contents/editors/translatable_field', options.to_h
     end
 
-    def render_untranslatable_attribute_editor(**args)
-      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**args, defaults: RENDER_EDITOR_ARGUMENTS)
+    def render_untranslatable_attribute_editor(**)
+      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**, defaults: RENDER_EDITOR_ARGUMENTS)
 
       partials = [
         options.definition&.dig('ui', options.parameters.dig(:options, :edit_scope), 'partial').presence,

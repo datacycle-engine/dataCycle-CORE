@@ -216,8 +216,8 @@ module DataCycleCore
       assert_equal(4, serialized_event['classifications'].size)
       assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'].include?('event_status') })
       assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'].include?('universal_classifications') })
-      assert_equal(['Test Veranstaltung geplant'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('event_status') }.map { |i| i['name'] }.sort)
-      assert_equal(['Test1'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('universal_classifications') }.map { |i| i['name'] }.sort)
+      assert_equal(['Test Veranstaltung geplant'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('event_status') }.pluck('name').sort)
+      assert_equal(['Test1'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('universal_classifications') }.pluck('name').sort)
     end
 
     test 'serialize mapped classifications overwritten in overlay' do
@@ -231,8 +231,8 @@ module DataCycleCore
       assert_equal(4, serialized_event['classifications'].size)
       assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'].include?('event_status') })
       assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'].include?('universal_classifications') })
-      assert_equal(['Test Veranstaltung abgesagt'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('event_status') }.map { |i| i['name'] }.sort)
-      assert_equal(['Test2'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('universal_classifications') }.map { |i| i['name'] }.sort)
+      assert_equal(['Test Veranstaltung abgesagt'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('event_status') }.pluck('name').sort)
+      assert_equal(['Test2'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('universal_classifications') }.pluck('name').sort)
     end
   end
 end

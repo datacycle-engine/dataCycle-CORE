@@ -72,7 +72,7 @@ module DataCycleCore
     delegate :can?, :cannot?, to: :ability
 
     after_create :execute_create_webhooks, unless: :skip_callbacks
-    after_update_commit :execute_update_webhooks, if: proc { |u| !u.skip_callbacks && (u.saved_changes.keys & u.allowed_webhook_attributes).present? }
+    after_update_commit :execute_update_webhooks, if: proc { |u| !u.skip_callbacks && u.saved_changes.keys.intersect?(u.allowed_webhook_attributes) }
     after_destroy :execute_delete_webhooks, unless: :skip_callbacks
 
     default_scope { where(deleted_at: nil) }

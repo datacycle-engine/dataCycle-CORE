@@ -48,7 +48,7 @@ namespace :data_cycle_core do
       template = DataCycleCore::ThingTemplate.find_by(template_name: args[:template_name])
       if template.nil?
         puts 'ERROR: template not found. The following templates are known to the system:'
-        puts DataCycleCore::ThingTemplate.all.pluck(:template_name).sort
+        puts DataCycleCore::ThingTemplate.pluck(:template_name).sort
         exit(-1)
       end
 

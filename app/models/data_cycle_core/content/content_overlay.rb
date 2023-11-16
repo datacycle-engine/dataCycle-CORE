@@ -52,8 +52,8 @@ module DataCycleCore
         property_names + add_overlay_property_names
       end
 
-      def value_from_overlay(method_name, *args)
-        overlay_content.send(method_name, *args) if overlay? && overlay_content.respond_to?(method_name)
+      def value_from_overlay(method_name, *)
+        overlay_content.send(method_name, *) if overlay? && overlay_content.respond_to?(method_name)
       end
 
       # attribute_getter_method Extensions

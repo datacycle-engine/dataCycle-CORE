@@ -41,6 +41,14 @@ module DataCycleCore
       @watch_list = DataCycleCore::WatchList.new
     end
 
+    def edit
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
+
+      return if params[:data_id].blank?
+      add_remove_data params
+      redirect_back(fallback_location: root_path)
+    end
+
     def create
       @watch_list = current_user.watch_lists.build(watch_list_params)
       @new_form_id = create_form_params[:new_form_id]
@@ -53,14 +61,6 @@ module DataCycleCore
           format.html { redirect_back(fallback_location: root_path) }
         end
       end
-    end
-
-    def edit
-      @watch_list = DataCycleCore::WatchList.find(params[:id])
-
-      return if params[:data_id].blank?
-      add_remove_data params
-      redirect_back(fallback_location: root_path)
     end
 
     def update
@@ -339,7 +339,7 @@ module DataCycleCore
 
       @watch_list.update_order_by_array(update_order_params[:order])
 
-      flash[:success] = I18n.t('collection.manual_order.success', locale: helpers.active_ui_locale)
+      flash.now[:success] = I18n.t('collection.manual_order.success', locale: helpers.active_ui_locale)
 
       render json: flash.discard.to_h
     end

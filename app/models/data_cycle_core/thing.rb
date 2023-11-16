@@ -44,13 +44,13 @@ module DataCycleCore
       def self.thing_duplicates
         return DataCycleCore::ThingDuplicate.none if all.is_a?(ActiveRecord::NullRelation)
 
-        DataCycleCore::ThingDuplicate.where(id: all.pluck(:thing_duplicate_id))
+        DataCycleCore::ThingDuplicate.where(id: pluck(:thing_duplicate_id))
       end
 
       def self.duplicates
         return DataCycleCore::Thing.none if all.is_a?(ActiveRecord::NullRelation)
 
-        DataCycleCore::Thing.where(id: all.pluck(:duplicate_id))
+        DataCycleCore::Thing.where(id: pluck(:duplicate_id))
       end
 
       def self.with_fp
@@ -90,7 +90,7 @@ module DataCycleCore
     translates :slug, :content, backend: :table
     default_scope { i18n.includes(:thing_template) }
 
-    content_relations table_name: table_name
+    content_relations(table_name:)
 
     has_many :external_system_syncs, as: :syncable, dependent: :destroy, inverse_of: :syncable
     has_many :external_systems, through: :external_system_syncs

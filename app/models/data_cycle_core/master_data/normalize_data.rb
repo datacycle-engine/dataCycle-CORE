@@ -6,14 +6,14 @@ module DataCycleCore
       attr_accessor :logger
       attr_accessor :endpoint
 
-      def initialize(logger: nil, host: nil, end_point: nil, **options)
+      def initialize(logger: nil, host: nil, end_point: nil, **)
         if logger.blank?
           @logger = DataCycleCore::Generic::Logger::LogFile.new('normalize')
         else
           @logger = logger
         end
 
-        @endpoint = DataCycleCore::MasterData::Normalizer::Endpoint.new(host:, end_point:, **options)
+        @endpoint = DataCycleCore::MasterData::Normalizer::Endpoint.new(host:, end_point:, **)
       end
 
       def normalize(data, template_hash, **options)
@@ -92,7 +92,7 @@ module DataCycleCore
         def merge_street_streetnr(report)
           fields_list = report&.dig('entry', 'fields')
           return report if fields_list.blank?
-          types = fields_list.map { |item| item['type'] }.uniq
+          types = fields_list.pluck('type').uniq
           return report unless types.include?('STREET') && types.include?('STREETNR')
 
           index_street_nr = fields_list.find_index { |item| item['type'] == 'STREETNR' }

@@ -68,10 +68,10 @@ module DataCycleCore
 
       def parse_search_data
         string_hash = {}
-        string_hash[:full_text] = DataCycleCore::MasterData::DataConverter.string_to_string(search_property_names.map { |item| try(item) }.join(' ').gsub(/'/, "''"))
+        string_hash[:full_text] = DataCycleCore::MasterData::DataConverter.string_to_string(search_property_names.map { |item| try(item) }.join(' ').gsub("'", "''"))
         string_hash[:full_text] = '' if string_hash[:full_text].nil?
         string_hash[:headline] = try('title')
-        string_hash[:headline] = DataCycleCore::MasterData::DataConverter.string_to_string(string_hash[:headline].gsub(/'/, "''")) unless string_hash[:headline].nil?
+        string_hash[:headline] = DataCycleCore::MasterData::DataConverter.string_to_string(string_hash[:headline].gsub("'", "''")) unless string_hash[:headline].nil?
         string_hash[:headline] = '' if string_hash[:headline].nil?
 
         if embedded? # only headline of main content gets full boost!
@@ -79,7 +79,7 @@ module DataCycleCore
           string_hash[:headline] = ''
           string_hash[:classification_string] = ''
         else
-          string_hash[:classification_string] = display_classification_aliases(['show', 'show_more']).map { |ca| [ca.name, ca.internal_name] }.flatten.compact.uniq.join(' ').gsub(/'/, "''").squish
+          string_hash[:classification_string] = display_classification_aliases(['show', 'show_more']).map { |ca| [ca.name, ca.internal_name] }.flatten.compact.uniq.join(' ').gsub("'", "''").squish
         end
 
         string_hash[:all_text] = [string_hash[:headline].squish, string_hash[:classification_string], string_hash[:full_text].squish].join(' ')

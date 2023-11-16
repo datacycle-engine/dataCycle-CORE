@@ -284,7 +284,7 @@ namespace :dc do
       systems.each do |identifier|
         es = DataCycleCore::ExternalSystem.find_by(identifier:)
         next if es.blank?
-        DataCycleCore::Thing.where(template_name: 'Örtlichkeit', external_source_id: es.id).each do |place|
+        DataCycleCore::Thing.where(template_name: 'Örtlichkeit', external_source_id: es.id).find_each do |place|
           # update data-type
           DataCycleCore::ClassificationContent.where(content_data_id: place.id, relation: 'data_type').update_all(classification_id: poi_class)
           # update template, template definition
@@ -471,7 +471,7 @@ namespace :dc do
 
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING')
 
-      contents.includes(:translations).each do |content|
+      contents.includes(:translations).find_each do |content|
         translation = content.translations.first
 
         if translation&.content&.dig('author')
@@ -636,7 +636,7 @@ namespace :dc do
 
             content.set_data_hash_with_translations(data_hash:, prevent_history: true)
           rescue StandardError => e
-            puts e.message.to_s
+            puts e.message
           ensure
             progressbar.increment
           end
@@ -674,7 +674,7 @@ namespace :dc do
           data_hash['potential_action'] << new_action if new_action[:translations].present?
           content.set_data_hash_with_translations(data_hash:, prevent_history: true)
         rescue StandardError => e
-          puts e.message.to_s
+          puts e.message
         ensure
           progressbar.increment
         end

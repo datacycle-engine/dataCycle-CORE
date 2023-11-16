@@ -26,7 +26,7 @@ module DataCycleCore
       def classifications
         return DataCycleCore::Classification.none if all.is_a?(ActiveRecord::NullRelation)
 
-        DataCycleCore::Classification.where(id: all.select(:classification_id))
+        DataCycleCore::Classification.where(id: select(:classification_id))
       end
     end
   end

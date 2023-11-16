@@ -129,7 +129,7 @@ module DataCycleCore
     def search
       authorize! :show, DataCycleCore::User
 
-      users = DataCycleCore::User.all.limit(20)
+      users = DataCycleCore::User.limit(20)
       users = users.fulltext_search(search_params[:q]) if search_params[:q].present?
 
       render plain: users.map { |u| u.to_select_option(helpers.active_ui_locale, search_params[:disable_locked].to_s != 'false') }.to_json, content_type: 'application/json'

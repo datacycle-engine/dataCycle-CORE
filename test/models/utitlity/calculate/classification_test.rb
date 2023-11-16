@@ -14,12 +14,12 @@ describe DataCycleCore::Utility::Compute::Classification do
 
   describe 'testing classification method: keywords' do
     it 'one attribute given' do
-      classifications = DataCycleCore::Classification.all.limit(2)
+      classifications = DataCycleCore::Classification.limit(2)
       assert_equal(classifications.map(&:name).join(','), subject.keywords(computed_parameters: { key: classifications.pluck(:id) }))
     end
 
     it 'more than one attribute given' do
-      classifications = DataCycleCore::Classification.all.limit(4)
+      classifications = DataCycleCore::Classification.limit(4)
       computed_first = [classifications.first] + [classifications.second]
       computed_second = [classifications.third]
       computed_third = [classifications.fourth]

@@ -34,7 +34,7 @@ module DataCycleCore
 
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_equal name, json_data['headline']
         end
       end

@@ -15,11 +15,11 @@ module DataCycleCore
             I18n.t('feature.content_score.tooltip.criteria', text: tooltip, locale: params[:locale]) if tooltip.present?
           end
 
-          def tooltip_string(path, **params)
-            if I18n.exists?("feature.content_score.tooltip.#{name.demodulize.underscore}.#{path}", **params)
-              I18n.t("feature.content_score.tooltip.#{name.demodulize.underscore}.#{path}", **params)
-            elsif I18n.exists?("feature.content_score.tooltip.#{path}", **params)
-              I18n.t("feature.content_score.tooltip.#{path}", **params)
+          def tooltip_string(path, **)
+            if I18n.exists?("feature.content_score.tooltip.#{name.demodulize.underscore}.#{path}", **)
+              I18n.t("feature.content_score.tooltip.#{name.demodulize.underscore}.#{path}", **)
+            elsif I18n.exists?("feature.content_score.tooltip.#{path}", **)
+              I18n.t("feature.content_score.tooltip.#{path}", **)
             end
           end
         end

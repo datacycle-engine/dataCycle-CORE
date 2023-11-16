@@ -38,7 +38,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(1)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@food_establishment_a.id, json_data.dig('@graph').first.dig('@id'))
 
             params = {
@@ -150,7 +150,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(1)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@food_establishment_a.id, json_data.dig('@graph').first.dig('@id'))
 
             params = {
@@ -300,7 +300,7 @@ module DataCycleCore
             assert_api_count_result(2)
 
             # make sure only id and deleted_at timestamp is present
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             validator = DataCycleCore::V4::Validation::Thing.deleted_thing
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)

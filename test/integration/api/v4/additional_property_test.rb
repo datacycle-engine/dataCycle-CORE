@@ -21,7 +21,7 @@ module DataCycleCore
 
           assert_response(:success)
           assert_equal('application/json; charset=utf-8', response.content_type)
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
 
           assert(json_data['@context'].present?)
           assert_equal('de', json_data.dig('@context', 1, '@language'))

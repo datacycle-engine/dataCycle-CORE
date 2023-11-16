@@ -398,7 +398,7 @@ module DataCycleCore
       schedule_order_params = order_constraints.dig(key)&.map { |c| raw_query_params.dig(*c) }&.compact
       return schedule_order_params if schedule_order_params.present? && ['proximity.occurrence_with_distance', 'proximity.in_occurrence_with_distance'].include?(key)
       return schedule_order_params.first if schedule_order_params.present?
-      return full_text_search if key == 'similarity' && full_text_search.present?
+      full_text_search if key == 'similarity' && full_text_search.present?
     end
 
     def self.order_constraints
@@ -450,7 +450,7 @@ module DataCycleCore
 
     def new_thing_search(language, ids, embedded = false)
       DataCycleCore::Filter::Search
-        .new(language, ids.blank? ? DataCycleCore::Thing.none : DataCycleCore::Thing.all.limit(1), embedded)
+        .new(language, ids.blank? ? DataCycleCore::Thing.none : DataCycleCore::Thing.limit(1), embedded)
         .content_ids(ids)
     end
 

@@ -131,7 +131,7 @@ module DataCycleCore
     end
 
     def self.content_types
-      DataCycleCore::ThingTemplate.all.map(&:schema).map { |schema| schema['content_type'] }.uniq
+      DataCycleCore::ThingTemplate.all.map(&:schema).pluck('content_type').uniq
     end
 
     def self.templates_with_content_type(content_type)

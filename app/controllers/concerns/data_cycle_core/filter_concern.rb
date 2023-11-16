@@ -27,7 +27,7 @@ module DataCycleCore
               (f['t'] == 'geo_filter' && f['q'] == 'geo_within_classification') ||
               (f['t'] == 'advanced_attributes' && f['q'] == 'classification_alias_ids')
             }
-            .map { |f| f['v'] }
+            .pluck('v')
             .flatten
             .compact
             .uniq

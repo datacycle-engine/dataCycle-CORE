@@ -12,7 +12,7 @@ unless content.schema.nil?
     value = content.try(key.to_sym)
     next if value.blank? && !['sub_event', 'schedule'].include?(key)
 
-    partial_params = render_api_attribute key: key, definition: prop, value: value, parameters: { options: }, content: content
+    partial_params = render_api_attribute(key:, definition: prop, value:, parameters: { options: }, content:)
     if (prop.dig('api', 'transformation', 'method') == 'nest' || prop.dig('api', 'transformation', 'method') == 'merge_object') && prop.dig('api', 'transformation', 'name').present?
       if json.dig(prop.dig('api', 'transformation', 'name')).present?
         json.dig(prop.dig('api', 'transformation', 'name')).merge! render(*partial_params) unless partial_params.nil?

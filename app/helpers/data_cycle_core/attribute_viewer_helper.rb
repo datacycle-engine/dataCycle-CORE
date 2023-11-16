@@ -69,8 +69,8 @@ module DataCycleCore
       end
     end
 
-    def render_attribute_viewer(**args)
-      options = RenderMethodOptions.new(**args, defaults: RENDER_VIEWER_ARGUMENTS)
+    def render_attribute_viewer(**)
+      options = RenderMethodOptions.new(**, defaults: RENDER_VIEWER_ARGUMENTS)
 
       allowed = attribute_viewer_allowed(options)
       return allowed unless allowed.is_a?(TrueClass)
@@ -83,14 +83,14 @@ module DataCycleCore
       end
     end
 
-    def render_translatable_attribute_viewer(**args)
-      options = RenderMethodOptions.new(**args, defaults: RENDER_VIEWER_ARGUMENTS)
+    def render_translatable_attribute_viewer(**)
+      options = RenderMethodOptions.new(**, defaults: RENDER_VIEWER_ARGUMENTS)
 
       render 'data_cycle_core/contents/viewers/translatable_field', options.to_h
     end
 
-    def render_specific_translatable_attribute_viewer(**args)
-      options = RenderMethodOptions.new(**args, defaults: RENDER_VIEWER_ARGUMENTS)
+    def render_specific_translatable_attribute_viewer(**)
+      options = RenderMethodOptions.new(**, defaults: RENDER_VIEWER_ARGUMENTS)
 
       I18n.with_locale(options.locale) do
         options.value ||= if options.parameters[:parent].nil?
@@ -110,8 +110,8 @@ module DataCycleCore
       DataCycleCore::DataHashService.present?(value)
     end
 
-    def render_untranslatable_attribute_viewer(**args)
-      options = RenderMethodOptions.new(**args, defaults: RENDER_VIEWER_ARGUMENTS)
+    def render_untranslatable_attribute_viewer(**)
+      options = RenderMethodOptions.new(**, defaults: RENDER_VIEWER_ARGUMENTS)
 
       type = options.definition['type'].underscore_blanks
 
@@ -129,8 +129,8 @@ module DataCycleCore
       render_first_existing_partial(partials, options.render_params)
     end
 
-    def render_attribute_history_viewer(**args)
-      options = RenderMethodOptions.new(**args, defaults: RENDER_VIEWER_ARGUMENTS)
+    def render_attribute_history_viewer(**)
+      options = RenderMethodOptions.new(**, defaults: RENDER_VIEWER_ARGUMENTS)
       options.scope = :history
 
       partials = [

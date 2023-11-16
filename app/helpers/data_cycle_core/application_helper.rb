@@ -146,7 +146,7 @@ module DataCycleCore
     end
 
     def schema_path_from_key(key)
-      key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
+      key.gsub('datahash', 'properties').scan(/\[(.*?)\]/).flatten || []
     end
 
     def content_view_cache_key(item:, mode:, watch_list:, locale: 'de')

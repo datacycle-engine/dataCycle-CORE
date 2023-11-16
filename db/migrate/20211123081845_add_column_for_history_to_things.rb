@@ -2,7 +2,7 @@
 
 class AddColumnForHistoryToThings < ActiveRecord::Migration[5.2]
   def up
-    add_column :things, :write_history, :boolean, default: false
+    add_column :things, :write_history, :boolean, default: false, null: false
 
     execute <<~SQL.squish
       UPDATE

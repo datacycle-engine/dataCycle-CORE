@@ -316,7 +316,7 @@ describe DataCycleCore::MasterData::DataConverter do
       test_cases = ['3', '4.9', '5,7']
       test_cases.each do |test_case|
         converted_data = subject.convert_to_type('number', test_case)
-        assert(converted_data.is_a?(::Float))
+        assert(converted_data.is_a?(Float))
         assert_equal(test_case.to_f, converted_data)
       end
     end
@@ -329,7 +329,7 @@ describe DataCycleCore::MasterData::DataConverter do
       test_cases = ['3', '4.9', '5,7']
       test_cases.each do |test_case|
         converted_data = subject.convert_to_type('number', test_case, definition)
-        assert(converted_data.is_a?(::Float))
+        assert(converted_data.is_a?(Float))
         assert_equal(test_case.to_f, converted_data)
       end
     end
@@ -342,7 +342,7 @@ describe DataCycleCore::MasterData::DataConverter do
       test_cases = ['3', '4.9', '5,7']
       test_cases.each do |test_case|
         converted_data = subject.convert_to_type('number', test_case, definition)
-        assert(converted_data.is_a?(::Integer))
+        assert(converted_data.is_a?(Integer))
         assert_equal(test_case.to_i, converted_data)
       end
     end

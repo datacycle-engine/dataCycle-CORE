@@ -21,7 +21,7 @@ module DataCycleCore
 
       @paths.each do |path|
         path.each do |file_path|
-          config = YAML.safe_load(File.read(file_path), permitted_classes: [Symbol])
+          config = YAML.safe_load_file(file_path, permitted_classes: [Symbol])
           configs.concat(config) if config.is_a?(::Array)
         end
       end

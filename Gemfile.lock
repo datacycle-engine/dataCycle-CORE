@@ -618,11 +618,11 @@ DEPENDENCIES
   rb-readline
   rgeo
   rgeo-proj4
-  rubocop (= 1.39.0)
+  rubocop
   rubocop-ast
-  rubocop-minitest (= 0.31.1)
+  rubocop-minitest
   rubocop-performance
-  rubocop-rails (= 2.15.2)
+  rubocop-rails
   rubocop-rake
   seed_dump
   simplecov

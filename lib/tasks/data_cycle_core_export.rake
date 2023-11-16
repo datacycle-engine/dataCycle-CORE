@@ -4,7 +4,7 @@ namespace :data_cycle_core do
   namespace :export do
     desc 'List available endpoints for import'
     task list: :environment do
-      DataCycleCore::ExternalSystem.all.each do |external_system|
+      DataCycleCore::ExternalSystem.find_each do |external_system|
         puts "#{external_system.id} - #{external_system.name}"
       end
     end

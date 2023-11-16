@@ -31,14 +31,14 @@ module DataCycleCore
           search_feratel_api(:search_additional_services)
         end
 
-        def update
-          response, status = content_request(type: :update)
+        def create
+          response, status = content_request(type: :create)
 
           render plain: response.to_json, content_type: 'application/json', status:
         end
 
-        def create
-          response, status = content_request(type: :create)
+        def update
+          response, status = content_request(type: :update)
 
           render plain: response.to_json, content_type: 'application/json', status:
         end
@@ -61,7 +61,7 @@ module DataCycleCore
 
           data = data_from_request(content)
 
-          render(json: { warning: 'no data given' }, status: :no_content) && return if data.blank?
+          render(status: :no_content) && return if data.blank?
 
           response = Timeseries.create_all(content, data)
 

@@ -39,7 +39,7 @@ namespace :dc do
         existing_translations[new_locale] = existing_translations.delete('de')
 
         new_translations = existing_translations.dc_deep_transform_values do |value|
-          next value unless value.is_a?(::String)
+          next value unless value.is_a?(String)
 
           translated_value = DataCycleCore::Feature::Translate.translate_text({ 'text' => value, 'source_locale' => 'de', 'target_locale' => new_locale })
 
@@ -49,7 +49,6 @@ namespace :dc do
           else
             translated_value.dig('text')
           end
-
         rescue Faraday::Error => e
           puts "FARADAY ERROR: #{e.message}"
         end

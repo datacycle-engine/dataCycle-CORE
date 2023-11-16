@@ -7,7 +7,7 @@ module DataCycleCore
         extend ActiveSupport::Concern
 
         def attribute_translatable?(attribute, definition = nil)
-          return if attribute.blank?
+          return false if attribute.blank?
 
           definition ||= properties_for(attribute)
 

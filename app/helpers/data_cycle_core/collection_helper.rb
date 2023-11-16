@@ -42,11 +42,9 @@ module DataCycleCore
                             prop.dig('ui', 'edit', 'options', 'multiple').to_s == 'false' ||
                             prop.dig('validations', 'max') == 1
 
-      check_boxes.concat(
-        [
-          BulkUpdateType.new('add', t('common.bulk_update.check_box_labels.add_html', locale: active_ui_locale, data: label)),
-          BulkUpdateType.new('remove', t('common.bulk_update.check_box_labels.remove_html', locale: active_ui_locale, data: label))
-        ]
+      check_boxes.push(
+        BulkUpdateType.new('add', t('common.bulk_update.check_box_labels.add_html', locale: active_ui_locale, data: label)),
+        BulkUpdateType.new('remove', t('common.bulk_update.check_box_labels.remove_html', locale: active_ui_locale, data: label))
       )
     end
 

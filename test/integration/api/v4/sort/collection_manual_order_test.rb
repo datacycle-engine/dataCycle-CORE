@@ -29,7 +29,7 @@ module DataCycleCore
               fields: '@id'
             }
             post api_v4_stored_filter_path(id: @collection.id, **params)
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal([@content5.id, @content4.id, @content3.id, @content2.id, @content.id], json_data.dig('@graph').pluck('@id'))
           end
@@ -39,7 +39,7 @@ module DataCycleCore
               fields: '@id'
             }
             post api_v4_stored_filter_path(id: @collection.id, **params)
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal([@content.id, @content2.id, @content3.id, @content4.id, @content5.id], json_data.dig('@graph').pluck('@id'))
           end
@@ -51,7 +51,7 @@ module DataCycleCore
               fields: '@id'
             }
             post api_v4_stored_filter_path(id: @collection.id, **params)
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal([@content3.id, @content5.id, @content.id, @content4.id, @content2.id], json_data.dig('@graph').pluck('@id'))
           end

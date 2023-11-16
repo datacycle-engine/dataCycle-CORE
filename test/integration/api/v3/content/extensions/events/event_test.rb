@@ -40,7 +40,7 @@ module DataCycleCore
 
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body)
+                json_data = response.parsed_body
 
                 # validate header
                 assert_equal('http://schema.org', json_data.dig('@context'))
@@ -142,7 +142,7 @@ module DataCycleCore
 
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body)
+                json_data = response.parsed_body
 
                 # content data
                 assert_equal(data_hash.dig('overlay').first.dig('event_schedule', 0, 'start_time', 'time').in_time_zone, json_data.dig('startDate'))
@@ -158,19 +158,19 @@ module DataCycleCore
                 get(api_v3_things_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Event' }
+                json_data = response.parsed_body.dig('data').detect { |item| item.dig('@type') == 'Event' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Event' }
+                json_data = response.parsed_body.dig('data').detect { |item| item.dig('@type') == 'Event' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_events_path(filter: { from: '2019-10-01' }))
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').first
+                json_data = response.parsed_body.dig('data').first
                 assert_equal(@content.id, json_data.dig('identifier'))
               end
 
@@ -178,12 +178,12 @@ module DataCycleCore
                 get api_v2_thing_path(id: @content)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                api_v2_json = JSON.parse(response.body)
+                api_v2_json = response.parsed_body
 
                 get api_v3_thing_path(id: @content)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                api_v3_json = JSON.parse(response.body)
+                api_v3_json = response.parsed_body
 
                 excepted_params = ['@id', 'image', 'location']
 

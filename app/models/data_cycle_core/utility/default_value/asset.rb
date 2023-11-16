@@ -50,7 +50,7 @@ module DataCycleCore
           else
             classification_ids = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(property_definition&.dig('tree_label'), search_values)
             return classification_ids if classification_ids.present?
-            return DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(property_definition&.dig('tree_label'), default_value) if default_value.present?
+            DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(property_definition&.dig('tree_label'), default_value) if default_value.present?
           end
         end
 
@@ -65,7 +65,7 @@ module DataCycleCore
           return if meta_data.blank? || meta_property_keys.blank?
 
           value = meta_data.dig(meta_property_keys.detect { |attribute| meta_data.dig(attribute).present? })
-          value = value.is_a?(Array) ? value.join(', ') : value
+          value = value.join(', ') if value.is_a?(Array)
           value
         end
 

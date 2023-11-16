@@ -35,7 +35,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@food_establishment_a.id, json_data.dig('@graph').first.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
@@ -50,7 +50,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@food_establishment_a.id, json_data.dig('@graph').last.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
@@ -65,7 +65,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@food_establishment_a.id, json_data.dig('@graph').last.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
@@ -87,7 +87,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@food_establishment_a.id, json_data.dig('@graph').first.dig('@id'))
             json_data.dig('@graph').each_cons(2) do |a, b|
               assert(a.dig('dct:modified').to_datetime >= b.dig('dct:modified').to_datetime)
@@ -101,7 +101,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@food_establishment_a.id, json_data.dig('@graph').last.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
@@ -116,7 +116,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@food_establishment_a.id, json_data.dig('@graph').last.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
@@ -130,7 +130,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@food_establishment_a.id, json_data.dig('@graph').first.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
@@ -151,7 +151,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@food_establishment_a.id, json_data.dig('@graph').first.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|

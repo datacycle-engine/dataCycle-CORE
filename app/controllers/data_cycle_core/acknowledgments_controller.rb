@@ -31,7 +31,7 @@ module DataCycleCore
       file = File.join(package['base_path'], package[allowed_files_attribute].find { |f| f == package_params['file'] })
 
       if File.file?(file)
-        render file: file, layout: false
+        render file:, layout: false
       else
         render not_found
       end

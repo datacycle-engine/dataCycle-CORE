@@ -27,7 +27,7 @@ module DataCycleCore
             get api_v4_thing_path(id: @container.id)
             assert_response :success
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse response.body
+            json_data = response.parsed_body
             json_data = json_data.dig('@graph').first
 
             header = json_data.slice(*full_header_attributes)
@@ -40,7 +40,7 @@ module DataCycleCore
             get api_v4_thing_path(id: @container.id, include: 'hasPart')
             assert_response :success
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse response.body
+            json_data = response.parsed_body
             json_data = json_data.dig('@graph').first
 
             header = json_data.slice(*full_header_attributes)

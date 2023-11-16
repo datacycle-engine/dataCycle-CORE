@@ -88,7 +88,7 @@ module DataCycleCore
 
           sub_keys = simple_objects.map { |_, v| v['properties'].keys }.flatten
           root_keys = properties.keys
-          return if (root_keys & sub_keys).blank?
+          return unless root_keys.intersect?(sub_keys)
 
           @errors.push("#{[*prefix, :property_names].join('.')} => Simple Objects Error: keys #{root_keys & sub_keys} are not unique!")
         end

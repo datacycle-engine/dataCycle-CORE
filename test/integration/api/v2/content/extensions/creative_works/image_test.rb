@@ -24,7 +24,7 @@ module DataCycleCore
 
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body)
+                json_data = response.parsed_body
 
                 # validate header
                 assert_equal('http://schema.org', json_data.dig('@context'))
@@ -76,19 +76,19 @@ module DataCycleCore
                 get(api_v2_things_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').first
+                json_data = response.parsed_body.dig('data').first
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v2_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').first
+                json_data = response.parsed_body.dig('data').first
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v2_creative_works_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').first
+                json_data = response.parsed_body.dig('data').first
                 assert_equal(@content.id, json_data.dig('identifier'))
               end
             end

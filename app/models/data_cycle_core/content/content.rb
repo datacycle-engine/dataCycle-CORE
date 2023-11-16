@@ -544,7 +544,7 @@ module DataCycleCore
       end
 
       def self.shared_ordered_properties(user)
-        contents = all.includes(:primary_classification_aliases, classification_aliases: [:classification_alias_path, :classification_tree_label])
+        contents = includes(:primary_classification_aliases, classification_aliases: [:classification_alias_path, :classification_tree_label])
 
         ordered_properties = all.thing_templates.template_things
           .map { |t|

@@ -38,7 +38,7 @@ module DataCycleCore
     end
 
     def object_has_translatable_attributes?(content, definition)
-      return unless definition&.dig('type') == 'object'
+      return false unless definition&.dig('type') == 'object'
 
       definition['properties']&.any? { |k, v| attribute_translatable?(k, v, content) }
     end

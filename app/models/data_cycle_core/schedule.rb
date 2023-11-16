@@ -197,8 +197,8 @@ module DataCycleCore
       if schedule_object&.recurrence_rules&.first.present?
         rule = schedule_object&.recurrence_rules&.first
         rule_hash = rule.to_hash
-        end_date = schedule_object&.last&.in_time_zone&.+(duration&.presence || 0)&.to_s(:only_date) if end_date.blank? && schedule_object.terminating?
-        end_time = schedule_object&.last&.in_time_zone&.+(duration&.presence || 0)&.to_s(:only_time) if end_time.blank? && schedule_object.terminating?
+        end_date = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.to_s(:only_date) if end_date.blank? && schedule_object.terminating?
+        end_time = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.to_s(:only_time) if end_time.blank? && schedule_object.terminating?
         repeat_count = rule&.occurrence_count
         repeat_frequency = to_repeat_frequency(rule_hash)
         by_day = rule_hash.dig(:validations, :day)&.map { |day| dow(day) }
@@ -248,8 +248,8 @@ module DataCycleCore
         rule = schedule_object&.recurrence_rules&.first
         rule_ical = rule.to_ical
         rule_hash = rule.to_hash
-        end_date = schedule_object&.last&.in_time_zone&.+(duration&.presence || 0)&.beginning_of_day&.to_s(:long_msec) if end_date.blank? && schedule_object.terminating?
-        end_time = schedule_object&.last&.in_time_zone&.+(duration&.presence || 0)&.to_s(:only_time) if end_time.blank? && schedule_object.terminating?
+        end_date = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.beginning_of_day&.to_s(:long_msec) if end_date.blank? && schedule_object.terminating?
+        end_time = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.to_s(:only_time) if end_time.blank? && schedule_object.terminating?
         repeat_count = rule&.occurrence_count
         repeat_frequency = /FREQ=(.+?);/.match(rule_ical).try(:send, '[]', 1)&.downcase&.presence
         by_day = rule_hash.dig(:validations, :day)
@@ -294,8 +294,8 @@ module DataCycleCore
       if schedule_object&.recurrence_rules&.first.present?
         rule = schedule_object&.recurrence_rules&.first
         rule_hash = rule.to_hash
-        end_date = schedule_object&.last&.in_time_zone&.+(duration&.presence || 0)&.beginning_of_day&.to_s(:long_msec) if end_date.blank? && schedule_object.terminating?
-        end_time = schedule_object&.last&.in_time_zone&.+(duration&.presence || 0)&.to_s(:only_time) if end_time.blank? && schedule_object.terminating?
+        end_date = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.beginning_of_day&.to_s(:long_msec) if end_date.blank? && schedule_object.terminating?
+        end_time = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.to_s(:only_time) if end_time.blank? && schedule_object.terminating?
         by_day = rule_hash.dig(:validations, :day)
         by_month = rule_hash.dig(:validations, :month_of_year)
         by_month_day = rule_hash.dig(:validations, :day_of_month)
@@ -650,7 +650,7 @@ module DataCycleCore
         rrule[:validations] = {} unless rrule.key?(:validations)
         start_time = data.dig(:start_time, :time)
 
-        rrule[:validations][:hour_of_day] =  rrule[:validations][:hour_of_day].presence&.map(&:to_i)&.sort || [start_time.hour]
+        rrule[:validations][:hour_of_day] = rrule[:validations][:hour_of_day].presence&.map(&:to_i)&.sort || [start_time.hour]
         rrule[:validations][:minute_of_hour] = rrule[:validations][:minute_of_hour].presence&.map(&:to_i)&.sort || [start_time.min]
 
         if rrule[:rule_type] == 'IceCube::WeeklyRule'
@@ -783,7 +783,7 @@ module DataCycleCore
       query = '(external_source_id = :external_system_id AND external_key = :external_key)'
       query += ' OR id = :external_key' if external_key.uuid?
 
-      all.find_by(query, external_system_id:, external_key:)
+      find_by(query, external_system_id:, external_key:)
     end
   end
 end

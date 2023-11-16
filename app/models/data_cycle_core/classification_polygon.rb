@@ -13,7 +13,7 @@ module DataCycleCore
           'ymax', st_ymax(ST_Extent(classification_polygons."geom"))
         )
       SQL
-      query = all.reorder(nil).except(:limit, :offset).select(select_sql).to_sql
+      query = reorder(nil).except(:limit, :offset).select(select_sql).to_sql
 
       ActiveRecord::Base.connection.execute(
         Arel.sql(query)
@@ -37,7 +37,7 @@ module DataCycleCore
             t.id AS "@id",
             t."@type" AS "@type",
             t.name AS name
-          FROM (#{all.reselect(select_sql).joins(:classification_alias).where("ST_Intersects(geom, ST_Transform(ST_TileEnvelope(#{z}, #{x}, #{y}), 4326))").to_sql}) AS t
+          FROM (#{reselect(select_sql).joins(:classification_alias).where("ST_Intersects(geom, ST_Transform(ST_TileEnvelope(#{z}, #{x}, #{y}), 4326))").to_sql}) AS t
         )
         SELECT ST_AsMVT(mvtgeom, '#{layer_name.presence || 'dcConcepts'}')
         FROM mvtgeom;

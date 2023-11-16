@@ -22,7 +22,7 @@ namespace :dc do
         next if computed_names.present? && computed_names.any? && (computed_names & template.computed_property_names).none?
 
         items = DataCycleCore::Thing.where(template_name: template.template_name)
-        translated_computed = (template.computed_property_names & template.translatable_property_names).present?
+        translated_computed = template.computed_property_names.intersect?(template.translatable_property_names)
         progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
 
         update_proc = lambda { |content|
@@ -83,7 +83,7 @@ namespace :dc do
         items = DataCycleCore::Thing.where(template_name: template.template_name)
         items = items.where(external_source_id: nil) if args.imported&.to_s&.downcase == 'false'
 
-        translated_properties = (template.default_value_property_names & template.translatable_property_names).present?
+        translated_properties = template.default_value_property_names.intersect?(template.translatable_property_names)
         progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
 
         update_proc = lambda { |item|
