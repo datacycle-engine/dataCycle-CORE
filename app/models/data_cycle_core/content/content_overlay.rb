@@ -9,7 +9,7 @@ module DataCycleCore
       end
 
       def overlay_allowed?
-        return false if content_type != 'entity'
+         return false if content_type != 'entity'
         return false unless respond_to?(overlay_name)
         true
       end
