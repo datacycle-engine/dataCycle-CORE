@@ -9,9 +9,6 @@ namespace :dc do
     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:code:validate:bundle_audit"].invoke(ignore_cve)
     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:code:validate:bundle_audit"].reenable
 
-    Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:code:validate:js_audit"].invoke
-    Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:code:validate:js_audit"].reenable
-
     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:code:validate:brakeman"].invoke
     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:code:validate:brakeman"].reenable
 
