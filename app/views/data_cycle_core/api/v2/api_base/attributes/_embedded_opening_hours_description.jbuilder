@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-def serialize_opening_hours_description(description)
+def serialize_opening_hours_description_v2(description)
   I18n.with_locale(description.first_available_locale) do
     schedule_hash = description&.validity_schedule&.first&.schedule_object&.to_hash || {}
     description_values = description&.property_definitions&.select { |k, v| attribute_key(k, v) == 'description' }&.sort_by { |_k, v| v['sorting'] }&.map { |k, _v| description.try(k) }
@@ -26,7 +26,7 @@ if value.present?
 
   json.set! key_name do
     json.array!(value.map do |description|
-      serialize_opening_hours_description(description)
+      serialize_opening_hours_description_v2(description)
     end)
   end
 end

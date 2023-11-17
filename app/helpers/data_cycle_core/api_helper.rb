@@ -43,7 +43,8 @@ module DataCycleCore
 
     def first_existing_partial(partials)
       partials.each do |partial|
-        next unless lookup_context.exists?(partial, [], true)
+        next unless lookup_context.exists?(partial, partial.start_with?('data_cycle_core') ? [] : lookup_context.prefixes, true)
+
         return partial
       end
     end
