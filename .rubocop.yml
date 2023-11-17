@@ -19,7 +19,6 @@ AllCops:
     - "bash/**/*"
     - "test/dummy/db/migrate_6_1/**/*"
     - "test/dummy/db/migrate_7_0/**/*"
-    - "*/**/transformations.rb"
 
 #Rails:
 #  Enabled: true

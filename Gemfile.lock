@@ -51,6 +51,7 @@ PATH
       rake
       redcarpet
       redis (< 5)
+      rexml
       rgeo
       rgeo-geojson
       rgeo-proj4
