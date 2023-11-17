@@ -21,7 +21,7 @@ module DataCycleCore
         end
 
         def endpoint
-          @endpoint ||= (configuration.dig(:endpoint).constantize.new(external_source.credentials.symbolize_keys) if external_source.present?)
+          @endpoint ||= (configuration.dig(:endpoint).constantize.new(**external_source.credentials.symbolize_keys) if external_source.present?)
         end
 
         def get_key_figure(part_ids, key = nil)
