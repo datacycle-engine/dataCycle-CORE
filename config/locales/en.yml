@@ -1778,7 +1778,7 @@ en:
       Suitable: suitable
     bierfinder:
       description: Description
-      book: Detailed description
+      book: Description
       tipp: Tip
       essenUndSpezial: Food and Specials
       biersorten: Brand of Beer
@@ -1792,7 +1792,9 @@ en:
       startingPointDescription: Starting point description
       character: Tour character
       parkingPossibilities: Parking
-      seasonDescription: Sesion
+      seasonDescription: Season
+      doorTime: Door time
+      meetingPoint: Meeting point
     wintop:
       beschreibung: Description
       teaser: Teaser

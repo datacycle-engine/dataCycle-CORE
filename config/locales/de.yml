@@ -1779,6 +1779,8 @@ de:
       parkingPossibilities: Parkmöglichkeiten
       seasonDescription: Begehbare Monate
       priceSpecification: Preisbeschreibung
+      doorTime: Einlass
+      meetingPoint: Treffpunkt
     wintop:
       beschreibung: Beschreibung
       teaser: Teaser
