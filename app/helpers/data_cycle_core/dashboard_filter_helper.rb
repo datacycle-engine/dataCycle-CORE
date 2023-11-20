@@ -132,7 +132,7 @@ module DataCycleCore
         [t('filter.relation_filter.contained_in', locale: active_ui_locale), 'i'],
         [t('filter.relation_filter.not_contained_in', locale: active_ui_locale), 'e'],
         [t('filter.relation_filter.exists', locale: active_ui_locale), 'p'],
-        [t('filter.relation_filter.not_exists', locale: active_ui_locale), 'b'],
+        [t('filter.relation_filter.not_exists', locale: active_ui_locale), 'b']
       ]
 
       if thing_filter
