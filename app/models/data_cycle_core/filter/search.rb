@@ -150,15 +150,15 @@ module DataCycleCore
 
       def related_through_attribute(value, relation_name)
         if value.to_s == 'true'
-          exists_relation_filter(relation_name)
+          exists_relation_filter(relation_name, true)
         else
-          not_exists_relation_filter(relation_name)
+          not_exists_relation_filter(relation_name, true)
         end
       end
 
-      def exists_relation_filter(name = nil)
+      def exists_relation_filter(name = nil, inverse = false)
         return self if name.blank?
-        subquery = related_to_any(name, true)
+        subquery = related_to_any(name, inverse == true)
         return self if subquery.nil?
 
         reflect(
@@ -166,9 +166,9 @@ module DataCycleCore
         )
       end
 
-      def not_exists_relation_filter(name = nil)
+      def not_exists_relation_filter(name = nil, inverse = false)
         return self if name.blank?
-        subquery = related_to_any(name, true)
+        subquery = related_to_any(name, inverse == true)
         return self if subquery.nil?
 
         reflect(
@@ -357,8 +357,7 @@ module DataCycleCore
 
       def related_to_any(name = nil, inverse = false)
         thing_id = :content_a_id
-        related_to_id = :content_b_id
-        thing_id = related_to_id if inverse
+        thing_id = :content_b_id if inverse
 
         sub_select = content_content[thing_id].eq(thing[:id])
         sub_select = sub_select.and(content_content[:relation_a].eq(name)) if name.present?
