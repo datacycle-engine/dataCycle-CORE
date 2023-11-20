@@ -24,7 +24,7 @@
               multiple: true,
               id: "f_#{identifier}_v_thing",
               class: "async-select",
-              disabled: filter_method.in?(['i', 'e']),
+              disabled: !filter_method.in?(['s', 'u']),
               data: {
                 active_for: ['s', 'u'],
                 max: 20,
@@ -43,7 +43,7 @@
             multiple: false,
             id: "f_#{identifier}_v_collection_stored_filter",
             class: "async-select",
-            disabled: filter_method.in?(['s', 'u']),
+            disabled: !filter_method.in?(['i', 'e']),
             data: {
               active_for: ['i', 'e'],
               max: 20,
@@ -54,6 +54,9 @@
               search_path: select_search_or_collection_stored_filters_path
             }
           }) %>
+    </div>
+    <div>
+      <%= hidden_field_tag "f[#{identifier}][v]", filter_advanced_type, disabled: !filter_method.in?(['p', 'b']), data: { active_for: ['p', 'b'] } %>
     </div>
   </div>
   <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>

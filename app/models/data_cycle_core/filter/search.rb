@@ -162,7 +162,7 @@ module DataCycleCore
         return self if subquery.nil?
 
         reflect(
-          @query.where(subquery.exists)
+          @query.where(subquery.project(1).exists)
         )
       end
 
@@ -172,7 +172,7 @@ module DataCycleCore
         return self if subquery.nil?
 
         reflect(
-          @query.where.not(subquery.exists)
+          @query.where.not(subquery.project(1).exists)
         )
       end
 

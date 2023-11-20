@@ -243,10 +243,10 @@
             }
 
             .tag-group {
-              color: $dark-gray;
+              color: var(--black);
               display: flex;
               align-items: center;
-              gap: 0.5rem;
+              gap: 0.3rem;
               border-radius: $global-radius;
               padding: 2px 4px;
               background-color: lighten($dark-gray, 32%);

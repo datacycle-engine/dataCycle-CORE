@@ -32,6 +32,14 @@ module DataCycleCore
       options_for_select(thing_ids_to_value(value).map(&:to_option_for_select), value)
     end
 
+    def relation_filter_items(value, filter_method)
+      if filter_method.in?(['i', 'e'])
+        union_ids_to_value(value)
+      elsif filter_method.in?(['s', 'u'])
+        thing_ids_to_value(value)
+      end
+    end
+
     def advanced_attribute_filter_options(filter_advanced_type)
       case filter_advanced_type
       when 'string'
@@ -122,7 +130,9 @@ module DataCycleCore
     def advanced_relation_filter_options(filter_method, thing_filter = false)
       filter_options = [
         [t('filter.relation_filter.contained_in', locale: active_ui_locale), 'i'],
-        [t('filter.relation_filter.not_contained_in', locale: active_ui_locale), 'e']
+        [t('filter.relation_filter.not_contained_in', locale: active_ui_locale), 'e'],
+        [t('filter.relation_filter.exists', locale: active_ui_locale), 'p'],
+        [t('filter.relation_filter.not_exists', locale: active_ui_locale), 'b'],
       ]
 
       if thing_filter
