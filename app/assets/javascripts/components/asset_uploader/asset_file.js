@@ -605,12 +605,16 @@ class AssetFile {
 				await this._updateFileAttributes(data);
 			})
 			.catch(async (data) => {
-				if (!document.querySelector(`[data-id="${this.id}"]`)) return;
+				if (!document.querySelector(`[data-id="${this.id}"]`)) {
+					this.errors = "already removed";
+					return;
+				}
 
 				this.retryUpload = true;
 				this._resetFileField();
 				let error = data.statusText;
 				if (data?.responseJSON?.error) error = data.responseJSON.error;
+				this.errors = error;
 				await this._renderError(error);
 			})
 			.finally(() => {
