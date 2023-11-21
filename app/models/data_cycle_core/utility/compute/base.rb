@@ -61,7 +61,7 @@ module DataCycleCore
                     when 'I18n'
                       I18n.send(definition['name'])
                     when 'content'
-                      content.try(definition['name'])
+                      definition['name']&.split('.')&.inject(content, &:try)
                     else
                       raise 'Unknown type for validation'
                     end

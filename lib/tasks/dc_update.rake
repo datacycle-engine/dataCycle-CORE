@@ -6,8 +6,10 @@ namespace :dc do
     task configs: :environment do
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_classifications"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_classifications"].reenable
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_system_configs"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_system_configs"].reenable
+
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:external_systems:import"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:external_systems:import"].reenable
+
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:import"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:import"].reenable
     end

@@ -18,6 +18,9 @@ namespace :dc do
     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:code:validate:fasterer"].invoke
     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:code:validate:fasterer"].reenable
 
+    Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:external_systems:validate"].invoke
+    Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:external_systems:validate"].reenable
+
     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:validate"].invoke
     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:validate"].reenable
 

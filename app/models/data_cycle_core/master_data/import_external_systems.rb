@@ -7,7 +7,7 @@ module DataCycleCore
         # remove credentials for safety, when running imported live database
         DataCycleCore::ExternalSystem.update_all(credentials: nil)
 
-        errors = {}
+        errors = []
         paths ||= [DataCycleCore.external_sources_path, DataCycleCore.external_systems_path]
         paths = paths&.flatten&.compact
         file_paths = Dir.glob(Array.wrap(paths&.flatten&.map { |p| p + Rails.env + '*.yml' })).concat(Dir.glob(Array.wrap(paths&.map { |p| p + '*.yml' }))).uniq { |p| File.basename(p) }
@@ -26,46 +26,75 @@ module DataCycleCore
             external_system.attributes = data.slice('name', 'identifier', 'credentials', 'config', 'default_options', 'deactivated').reverse_merge!({ 'name' => nil, 'identifier' => nil, 'credentials' => nil, 'config' => nil, 'default_options' => nil, 'deactivated' => false })
             external_system.save
           else
-            errors[data['name']] = error
+            errors.concat(error)
           end
         rescue StandardError => e
           puts "could not access the YML File #{file_name}"
           puts e.message
           puts e.backtrace
         end
+
+        errors
+      end
+
+      def self.validate_all
+        errors = []
+        paths = [DataCycleCore.external_sources_path, DataCycleCore.external_systems_path]
+        paths = paths&.flatten&.compact
+        file_paths = Dir.glob(Array.wrap(paths&.flatten&.map { |p| p + Rails.env + '*.yml' })).concat(Dir.glob(Array.wrap(paths&.map { |p| p + '*.yml' }))).uniq { |p| File.basename(p) }
+
+        if file_paths.blank?
+          puts 'INFO: no external systems found'
+          return
+        end
+
+        file_paths.each do |file_name|
+          data = YAML.safe_load(File.open(file_name), permitted_classes: [Symbol])
+          errors.concat(validate(data.deep_symbolize_keys))
+        rescue StandardError => e
+          puts "could not access the YML File #{file_name}"
+          puts e.message
+          puts e.backtrace
+        end
+
         errors
       end
 
       def self.validate(data_hash)
         validation_hash = data_hash.deep_symbolize_keys
         validate_header = ExternalSystemHeaderContract.new
-        errors = {}.merge!(validate_header.call(validation_hash).errors.to_h)
-        errors[:import_config] = {}
-        errors[:download_config] = {}
+
+        errors = []
+
+        validate_header.call(validation_hash).errors.each do |error|
+          errors.push("#{data_hash[:name]}.#{error.path.join('.')} => #{error.text}")
+        end
 
         validate_import = ExternalSystemImportContract.new
         import_config = validation_hash.dig(:config, :import_config) || {}
         if import_config.is_a?(Hash)
           import_config.each do |key, value|
-            error = validate_import.call(value).errors.to_h
-            errors[:import_config][key] = error if error.present?
+            validate_import.call(value).errors.each do |error|
+              errors.push("#{data_hash[:name]}.config.import_config.#{key}.#{error.path.join('.')} => #{error.text}")
+            end
           end
         else
-          errors[:import_config][:general] = 'Import config must be a Hash'
+          errors.push("#{data_hash[:name]}.config.import_config.general => Import config must be a Hash")
         end
 
         validate_download = ExternalSystemDownloadContract.new
         download_config = validation_hash.dig(:config, :download_config) || {}
         if download_config.is_a?(Hash)
           download_config.each do |key, value|
-            error = validate_download.call(value).errors.to_h
-            errors[:download_config][key] = error if error.present?
+            validate_download.call(value).errors.each do |error|
+              errors.push("#{data_hash[:name]}.config.download_config.#{key}.#{error.path.join('.')} => #{error.text}")
+            end
           end
         else
-          errors[:download_config][:general] = 'Download config must be a Hash'
+          errors.push("#{data_hash[:name]}.config.download_config.general => Download config must be a Hash")
         end
 
-        errors.reject { |_, v| v.blank? }
+        errors
       end
 
       class ExternalSystemHeaderContract < DataCycleCore::MasterData::Contracts::GeneralContract
@@ -78,7 +107,7 @@ module DataCycleCore
           optional(:identifier) { str? }
           optional(:credentials)
           optional(:default_options).hash do
-            optional(:locales).each { str? }
+            optional(:locales).each { str? & included_in?(I18n.available_locales.map(&:to_s)) }
           end
           optional(:config).hash do
             optional(:api_strategy) { str? }
@@ -132,6 +161,7 @@ module DataCycleCore
           optional(:endpoint) { str? }
           required(:download_strategy) { str? }
           optional(:logging_strategy) { str? }
+          optional(:locales).each { str? & included_in?(I18n.available_locales.map(&:to_s)) }
         end
 
         rule(:endpoint).validate(:dc_class)
@@ -151,6 +181,7 @@ module DataCycleCore
           optional(:external_id_prefix) { str? }
           optional(:logging_strategy) { str? }
           optional(:transformations) { hash? }
+          optional(:locales).each { str? & included_in?(I18n.available_locales.map(&:to_s)) }
         end
 
         rule(:import_strategy).validate(:dc_module)

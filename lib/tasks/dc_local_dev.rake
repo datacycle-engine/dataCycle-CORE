@@ -8,11 +8,22 @@ namespace :dc do
     desc 'init new lokal project'
     task init: :environment do
       Rake::Task['db:create'].invoke
+      Rake::Task['db:create'].reenable
+
       Rake::Task['db:migrate'].invoke
+      Rake::Task['db:migrate'].reenable
+
       Rake::Task['db:seed'].invoke
+      Rake::Task['db:seed'].reenable
+
       Rake::Task['data_cycle_core:update:import_classifications'].invoke
-      Rake::Task['data_cycle_core:update:import_external_system_configs'].invoke
+      Rake::Task['data_cycle_core:update:import_classifications'].reenable
+
+      Rake::Task['dc:external_systems:import'].invoke
+      Rake::Task['dc:external_systems:import'].reenable
+
       Rake::Task['dc:templates:import'].invoke
+      Rake::Task['dc:templates:import'].reenable
     end
 
     desc 'translate I18n locale files'
