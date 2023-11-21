@@ -626,6 +626,8 @@ module DataCycleCore
           duration.zero? ? nil : duration.iso8601
         elsif data.is_a?(Numeric) && data.positive?
           ActiveSupport::Duration.build(data).iso8601
+        elsif data.is_a?(String)
+          data
         end
       end
 
