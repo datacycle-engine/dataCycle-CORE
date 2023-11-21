@@ -626,9 +626,12 @@ module DataCycleCore
           duration.zero? ? nil : duration.iso8601
         elsif data.is_a?(Numeric) && data.positive?
           ActiveSupport::Duration.build(data).iso8601
-        elsif data.is_a?(String)
-          data
+        elsif data.is_a?(String) && data != 'PT0S'
+          duration = ActiveSupport::Duration.parse(data)
+          duration.zero? ? nil : duration.iso8601
         end
+      rescue ActiveSupport::Duration::ISO8601Parser::ParsingError
+        nil
       end
 
       def add_missing_rrule_values!(rrule, data)
