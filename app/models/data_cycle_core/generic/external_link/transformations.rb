@@ -4,8 +4,8 @@ module DataCycleCore
   module Generic
     module ExternalLink
       module Transformations
-        def self.t(*)
-          DataCycleCore::Generic::ExternalLink::Functions[*]
+        def self.t(*args)
+          DataCycleCore::Generic::ExternalLink::Functions[*args]
         end
 
         def self.transformation(external_system_id)
