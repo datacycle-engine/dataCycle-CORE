@@ -17,8 +17,8 @@ AllCops:
     - "tmp/**/*"
     - "cache/**/*"
     - "bash/**/*"
-    - "test/dummy/db/migrate_6_1/**/*"
-    - "test/dummy/db/migrate_7_0/**/*"
+    # - "test/dummy/db/migrate_6_1/**/*"
+    # - "test/dummy/db/migrate_7_0/**/*"
 
 #Rails:
 #  Enabled: true
@@ -101,8 +101,8 @@ Style/MixinUsage:
   Exclude:
     - "bin/setup"
     - "bin/update"
-    - "test/dummy/bin/setup"
-    - "test/dummy/bin/update"
+    # - "test/dummy/bin/setup"
+    # - "test/dummy/bin/update"
 
 Style/MultilineBlockChain:
   Enabled: false

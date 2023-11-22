@@ -144,31 +144,31 @@ Layout/EmptyLineBetweenDefs:
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: around, only_before
-Layout/EmptyLinesAroundAccessModifier:
-  Exclude:
-    - "test/dummy/db/migrate_7_0/20220207131147_create_active_storage_variant_records.active_storage.rb"
+# Layout/EmptyLinesAroundAccessModifier:
+#   Exclude:
+#     - "test/dummy/db/migrate_7_0/20220207131147_create_active_storage_variant_records.active_storage.rb"
 
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: AllowForAlignment, AllowBeforeTrailingComments, ForceEqualSignAlignment.
-Layout/ExtraSpacing:
-  Exclude:
-    - "test/dummy/config/environments/development.rb"
+# Layout/ExtraSpacing:
+#   Exclude:
+#     - "test/dummy/config/environments/development.rb"
 
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: normal, indented_internal_methods
-Layout/IndentationConsistency:
-  Exclude:
-    - "test/dummy/db/migrate_7_0/20220207131147_create_active_storage_variant_records.active_storage.rb"
+# Layout/IndentationConsistency:
+#   Exclude:
+#     - "test/dummy/db/migrate_7_0/20220207131147_create_active_storage_variant_records.active_storage.rb"
 
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: Width, IgnoredPatterns.
-Layout/IndentationWidth:
-  Exclude:
-    - "test/dummy/db/migrate_7_0/20220207131147_create_active_storage_variant_records.active_storage.rb"
+# Layout/IndentationWidth:
+#   Exclude:
+#     - "test/dummy/db/migrate_7_0/20220207131147_create_active_storage_variant_records.active_storage.rb"
 
 # Offense count: 1
 # Cop supports --auto-correct.
@@ -194,10 +194,10 @@ Layout/RescueEnsureAlignment:
 
 # Offense count: 4
 # Cop supports --auto-correct.
-Layout/SpaceInsidePercentLiteralDelimiters:
-  Exclude:
-    - "test/dummy/db/migrate_6_1/20220207112139_create_active_storage_variant_records.active_storage.rb"
-    - "test/dummy/db/migrate_7_0/20220207131147_create_active_storage_variant_records.active_storage.rb"
+# Layout/SpaceInsidePercentLiteralDelimiters:
+#   Exclude:
+#     - "test/dummy/db/migrate_6_1/20220207112139_create_active_storage_variant_records.active_storage.rb"
+#     - "test/dummy/db/migrate_7_0/20220207131147_create_active_storage_variant_records.active_storage.rb"
 
 # Offense count: 18
 # Cop supports --auto-correct.
@@ -215,10 +215,10 @@ Lint/AmbiguousOperatorPrecedence:
 
 # Offense count: 2
 # Configuration parameters: AllowSafeAssignment.
-Lint/AssignmentInCondition:
-  Exclude:
-    - "test/dummy/db/migrate_6_1/20220207112138_add_service_name_to_active_storage_blobs.active_storage.rb"
-    - "test/dummy/db/migrate_7_0/20220207131146_add_service_name_to_active_storage_blobs.active_storage.rb"
+# Lint/AssignmentInCondition:
+#   Exclude:
+#     - "test/dummy/db/migrate_6_1/20220207112138_add_service_name_to_active_storage_blobs.active_storage.rb"
+#     - "test/dummy/db/migrate_7_0/20220207131146_add_service_name_to_active_storage_blobs.active_storage.rb"
 
 # Offense count: 1
 # Configuration parameters: AllowedMethods.
@@ -562,22 +562,22 @@ Style/FrozenStringLiteralComment:
     - "config/initializers/new_framework_defaults_6_1.rb"
     - "config/initializers/new_framework_defaults_7_0.rb"
     - "config/initializers/permissions_policy.rb"
-    - "test/dummy/config.ru"
-    - "test/dummy/config/environments/test.rb"
-    - "test/dummy/db/migrate_6_1/20220207112138_add_service_name_to_active_storage_blobs.active_storage.rb"
-    - "test/dummy/db/migrate_6_1/20220207112139_create_active_storage_variant_records.active_storage.rb"
-    - "test/dummy/db/migrate_7_0/20220207131146_add_service_name_to_active_storage_blobs.active_storage.rb"
-    - "test/dummy/db/migrate_7_0/20220207131147_create_active_storage_variant_records.active_storage.rb"
-    - "test/dummy/db/migrate_7_0/20220207131148_remove_not_null_on_active_storage_blobs_checksum.active_storage.rb"
+    # - "test/dummy/config.ru"
+    # - "test/dummy/config/environments/test.rb"
+    # - "test/dummy/db/migrate_6_1/20220207112138_add_service_name_to_active_storage_blobs.active_storage.rb"
+    # - "test/dummy/db/migrate_6_1/20220207112139_create_active_storage_variant_records.active_storage.rb"
+    # - "test/dummy/db/migrate_7_0/20220207131146_add_service_name_to_active_storage_blobs.active_storage.rb"
+    # - "test/dummy/db/migrate_7_0/20220207131147_create_active_storage_variant_records.active_storage.rb"
+    # - "test/dummy/db/migrate_7_0/20220207131148_remove_not_null_on_active_storage_blobs_checksum.active_storage.rb"
 
 # Offense count: 4
 # Cop supports --auto-correct.
 Style/GlobalStdStream:
   Exclude:
     - "lib/rake_helpers/shell_helper.rb"
-    - "test/dummy/config/environments/development.rb"
-    - "test/dummy/config/environments/production.rb"
-    - "test/dummy/config/environments/staging.rb"
+    # - "test/dummy/config/environments/development.rb"
+    # - "test/dummy/config/environments/production.rb"
+    # - "test/dummy/config/environments/staging.rb"
 
 # Offense count: 47
 # Cop supports --auto-correct.
@@ -787,6 +787,6 @@ Style/StringConcatenation:
 Style/StringLiterals:
   Exclude:
     - "config/initializers/new_framework_defaults_7_0.rb"
-    - "test/dummy/config.ru"
-    - "test/dummy/config/environments/development.rb"
-    - "test/dummy/config/environments/test.rb"
+    # - "test/dummy/config.ru"
+    # - "test/dummy/config/environments/development.rb"
+    # - "test/dummy/config/environments/test.rb"
