@@ -11,31 +11,30 @@ module DataCycleCore
 
           return if ancestor_ids.count(&ancestor_proc) >= 2
 
-          Rails.cache.fetch("sync_api_v1/#{self.class.name.underscore}/#{id}_#{Array.wrap(locales).sort.join(',')}_#{updated_at.to_i}_#{cache_valid_since.to_i}_#{translated}_#{ancestor_ids.any?(&ancestor_proc)}", expires_in: 1.year + Random.rand(7.days)) do
-            languages = available_locales.presence || [I18n.locale]
-            languages = locales if locales.present? && translated
-            new_ancestor_ids = ancestor_ids + [{ id:, attribute_name: }]
-            preloaded = preload_sync_data if preloaded.blank?
+          # disable cache as included and classifications from children are not added if read from cache (line 25 and 26)
+          languages = available_locales.presence || [I18n.locale]
+          languages = locales if locales.present? && translated
+          new_ancestor_ids = ancestor_ids + [{ id:, attribute_name: }]
+          preloaded = preload_sync_data if preloaded.blank?
 
-            data = languages.index_with do |lang|
-              I18n.with_locale(lang) { to_sync_h(locales:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:) }
-            end
-
-            attribute_to_sync_h('included', preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, locales: languages)
-            attribute_to_sync_h('classifications', preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:)
-
-            if ancestor_ids.any?(&ancestor_proc)
-              data['recursive'] = ancestor_ids.reject(&ancestor_proc).filter { |a| a[:attribute_name]&.in?(data[languages.first].keys) }
-              return data.deep_stringify_keys!
-            end
-
-            if new_ancestor_ids.size == 1
-              data[:included] = included
-              data[:classifications] = classifications
-            end
-
-            data.deep_stringify_keys!
+          data = languages.index_with do |lang|
+            I18n.with_locale(lang) { to_sync_h(locales:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:) }
           end
+
+          attribute_to_sync_h('included', preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, locales: languages)
+          attribute_to_sync_h('classifications', preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:)
+
+          if ancestor_ids.any?(&ancestor_proc)
+            data['recursive'] = ancestor_ids.reject(&ancestor_proc).filter { |a| a[:attribute_name]&.in?(data[languages.first].keys) }
+            return data.deep_stringify_keys!
+          end
+
+          if new_ancestor_ids.size == 1
+            data[:included] = included
+            data[:classifications] = classifications
+          end
+
+          data.deep_stringify_keys!
         end
 
         def to_sync_h(locales: nil, preloaded: {}, ancestor_ids: [], included: [], classifications: [])
