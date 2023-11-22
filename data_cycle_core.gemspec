@@ -70,7 +70,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'dry-transformer', '>= 1.0'
   s.add_dependency 'dry-validation'
   s.add_dependency 'hashdiff', '>= 0.4.0'
-  s.add_dependency 'transproc', '~> 1.0'
 
   # gems for event-schedules
   s.add_dependency 'ice_cube'
