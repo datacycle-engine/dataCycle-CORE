@@ -2,9 +2,9 @@
 
 class AddCleanupIndexesContent < ActiveRecord::Migration[5.1]
   def up
-    remove_index :creative_works, name: 'index_creative_works_on_external_key' if index_exists?(:creative_works, name: 'index_creative_works_on_external_key')
+    remove_index :creative_works, name: 'index_creative_works_on_external_key' if index_exists?(:creative_works, :external_key, name: 'index_creative_works_on_external_key')
     add_index :creative_works, [:external_source_id, :external_key], name: 'index_cw_on_external_source_id_and_external_key' unless index_exists?(:creative_works, [:external_source_id, :external_key], name: 'index_cw_on_external_source_id_and_external_key')
-    remove_index :creative_works, name: 'index_creative_works_on_metadata_validation_name' if index_exists?(:creative_works, name: 'index_creative_works_on_metadata_validation_name')
+    remove_index :creative_works, name: 'index_creative_works_on_metadata_validation_name' if index_exists?(:creative_works, :external_key, name: 'index_creative_works_on_metadata_validation_name')
 
     add_index :event_translations, [:event_id, :locale], unique: true, name: 'by_et_ei_locale' unless index_exists?(:event_translations, [:event_id, :locale], unique: true, name: 'by_et_ei_locale')
     add_index :events, :id, unique: true unless index_exists?(:events, :id, unique: true)

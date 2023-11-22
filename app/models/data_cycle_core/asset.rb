@@ -119,7 +119,7 @@ module DataCycleCore
     def full_warnings(locale)
       warnings
         .messages
-        .map { |k, v| I18n.t("activerecord.warnings.messages.#{k}", default: k, locale: locale, warnings: Array.wrap(v).join(', ')) }
+        .map { |k, v| I18n.t("activerecord.warnings.messages.#{k}", default: k, locale:, warnings: Array.wrap(v).join(', ')) }
         .join(', ')
     end
 
@@ -147,7 +147,7 @@ module DataCycleCore
           tmp_file = tmp_uri.open
           filename = File.basename(tmp_uri.path)
         end
-        file.attach(io: tmp_file, filename: filename)
+        file.attach(io: tmp_file, filename:)
       rescue StandardError => e
         raise DataCycleCore::Error::Asset::RemoteFileDownloadError, "could not download file: #{e.message}" if @retry_count >= 3
 

@@ -53,12 +53,8 @@ module DataCycleCore
 
           redirect_back(fallback_location: root_path, alert: (I18n.t :type_mismatch, scope: [:controllers, :error, :duplicate], locale: helpers.active_ui_locale)) && return if @content.template_name != @duplicate.template_name
 
-          I18n.with_locale(@content.first_available_locale) do
-            @duplicate.original_id = @content.id
-            @content.merge_with_duplicate(@duplicate)
-
-            flash[:success] = I18n.t :merged_with_duplicate, scope: [:controllers, :success], locale: helpers.active_ui_locale
-          end
+          @content.merge_with_duplicate(@duplicate)
+          flash[:success] = I18n.t('controllers.success.merged_with_duplicate', locale: helpers.active_ui_locale)
         end
 
         private
@@ -69,11 +65,12 @@ module DataCycleCore
 
         def version_name_for_merge(datahash)
           duplicate = DataCycleCore::Thing.find(merge_params[:duplicate_id])
+          version_name = DataCycleCore::Feature::DuplicateCandidate.version_name_for_merge(duplicate, helpers.active_ui_locale)
 
           datahash[:version_name] = [
-            datahash[:version_name].presence,
-            I18n.t('common.merged_with_version_name', name: I18n.with_locale(duplicate.first_available_locale) { duplicate.title }, id: duplicate.id)
-          ].compact.join(' / ')
+            datahash[:version_name],
+            version_name
+          ].compact_blank.join(' / ')
         end
       end
     end

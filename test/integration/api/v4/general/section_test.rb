@@ -29,7 +29,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(3, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
@@ -44,7 +44,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
@@ -58,7 +58,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(3, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
@@ -71,7 +71,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
@@ -84,7 +84,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
@@ -97,7 +97,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
             assert(json_data['@context'].blank?)
@@ -110,7 +110,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert(json_data['@graph'].blank?)
             assert(json_data['@context'].present?)
@@ -123,7 +123,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(3, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
@@ -138,7 +138,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
@@ -152,7 +152,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(3, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
@@ -165,7 +165,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
@@ -178,7 +178,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
             assert_equal(2, json_data['@context'].size)
@@ -191,7 +191,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
             assert(json_data['@context'].blank?)
@@ -204,7 +204,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert(json_data['@graph'].blank?)
             assert(json_data['@context'].present?)
@@ -217,7 +217,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data_full = JSON.parse(response.body)
+            json_data_full = response.parsed_body
 
             second = json_data_full['@graph'].second
             third = json_data_full['@graph'].third
@@ -226,7 +226,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(1, json_data['@graph'].size)
             assert_equal(json_data['@graph'].first.dig('@id'), second.dig('@id'))
             assert(json_data['@context'].present?)
@@ -237,7 +237,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(1, json_data['@graph'].size)
             assert_equal(json_data['@graph'].first.dig('@id'), third.dig('@id'))
             assert(json_data['@context'].present?)
@@ -248,7 +248,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(1, json_data['@graph'].size)
             assert_equal(json_data['@graph'].first.dig('@id'), third.dig('@id'))
             assert(json_data['@context'].present?)
@@ -261,7 +261,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
             assert(json_data['@context'].present?)

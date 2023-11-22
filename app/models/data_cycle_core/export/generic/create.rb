@@ -7,11 +7,11 @@ module DataCycleCore
         def self.process(utility_object:, data:)
           return if data.blank?
 
-          Functions.create(utility_object: utility_object, data: data)
+          Functions.create(utility_object:, data:)
         end
 
         def self.filter(data, external_system)
-          Functions.filter(data: data, external_system: external_system, method_name: name.demodulize.underscore)
+          Functions.filter(data:, external_system:, method_name: name.demodulize.underscore)
         end
       end
     end

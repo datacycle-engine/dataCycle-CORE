@@ -215,7 +215,7 @@ namespace :dc do
               time: start_time.to_s,
               zone: start_time.time_zone.name
             },
-            duration: duration,
+            duration:,
             rrules: [{
               rule_type: 'IceCube::WeeklyRule',
               validations: {
@@ -253,8 +253,8 @@ namespace :dc do
                   time: from_date.to_s,
                   zone: from_date.time_zone.name
                 },
-                duration: duration,
-                rrules: rrules
+                duration:,
+                rrules:
               }.with_indifferent_access]
             }, prevent_history: true, new_content: true)
 
@@ -262,7 +262,7 @@ namespace :dc do
 
             DataCycleCore::ContentContent.create!({
               content_a_id: thing_relation.content_a_id,
-              relation_a: relation_a,
+              relation_a:,
               order_a: thing_relation.order_a,
               content_b_id: description_content.id
             })
@@ -282,9 +282,9 @@ namespace :dc do
 
       systems = ['feratel']
       systems.each do |identifier|
-        es = DataCycleCore::ExternalSystem.find_by(identifier: identifier)
+        es = DataCycleCore::ExternalSystem.find_by(identifier:)
         next if es.blank?
-        DataCycleCore::Thing.where(template_name: 'Örtlichkeit', external_source_id: es.id).each do |place|
+        DataCycleCore::Thing.where(template_name: 'Örtlichkeit', external_source_id: es.id).find_each do |place|
           # update data-type
           DataCycleCore::ClassificationContent.where(content_data_id: place.id, relation: 'data_type').update_all(classification_id: poi_class)
           # update template, template definition
@@ -471,7 +471,7 @@ namespace :dc do
 
       progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: 'MIGRATING')
 
-      contents.includes(:translations).each do |content|
+      contents.includes(:translations).find_each do |content|
         translation = content.translations.first
 
         if translation&.content&.dig('author')
@@ -634,9 +634,9 @@ namespace :dc do
 
             data_hash['potential_action'] << new_action if new_action[:translations].present?
 
-            content.set_data_hash_with_translations(data_hash: data_hash, prevent_history: true)
+            content.set_data_hash_with_translations(data_hash:, prevent_history: true)
           rescue StandardError => e
-            puts e.message.to_s
+            puts e.message
           ensure
             progressbar.increment
           end
@@ -672,9 +672,9 @@ namespace :dc do
           end
 
           data_hash['potential_action'] << new_action if new_action[:translations].present?
-          content.set_data_hash_with_translations(data_hash: data_hash, prevent_history: true)
+          content.set_data_hash_with_translations(data_hash:, prevent_history: true)
         rescue StandardError => e
-          puts e.message.to_s
+          puts e.message
         ensure
           progressbar.increment
         end
@@ -687,7 +687,7 @@ namespace :dc do
       count = 0
 
       template_names.each do |template_name|
-        contents = DataCycleCore::Thing.where(template_name: template_name, external_source_id: nil)
+        contents = DataCycleCore::Thing.where(template_name:, external_source_id: nil)
         progressbar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: template_name)
 
         contents.find_each do |content|
@@ -715,7 +715,7 @@ namespace :dc do
               additional_information.each { |a| a.slice!('id') }
               additional_information.concat(new_informations)
 
-              content.set_data_hash(data_hash: { additional_information: additional_information })
+              content.set_data_hash(data_hash: { additional_information: })
 
               count += 1
             end

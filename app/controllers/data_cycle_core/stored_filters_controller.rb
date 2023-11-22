@@ -56,7 +56,7 @@ module DataCycleCore
             html: render_to_string(
               formats: [:html],
               layout: false,
-              partial: partial,
+              partial:,
               locals: {
                 stored_searches: @stored_searches,
                 last_page: @last_page,
@@ -70,7 +70,7 @@ module DataCycleCore
             json[:count_string] = helpers.number_with_delimiter(@stored_searches.total_count.to_i, locale: helpers.active_ui_locale)
           end
 
-          render json: json
+          render json:
         end
       end
     end
@@ -94,7 +94,7 @@ module DataCycleCore
         get_filtered_results(user_filter: nil) # prefill stored_filter params
         stored_filter = save_filter(new_filter: stored_filter)
 
-        redirect_to(root_path(stored_filter: stored_filter), notice: (I18n.t (stored_filter_params[:id].present? ? :updated : :created), scope: [:controllers, :success], data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
+        redirect_to(root_path(stored_filter:), notice: (I18n.t (stored_filter_params[:id].present? ? :updated : :created), scope: [:controllers, :success], data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
       elsif stored_filter.save
         redirect_back(fallback_location: root_path, notice: (I18n.t :updated, scope: [:controllers, :success], data: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: helpers.active_ui_locale), locale: helpers.active_ui_locale))
       else
@@ -146,7 +146,7 @@ module DataCycleCore
 
       result = ActiveRecord::Base.connection.select_all arel_query.to_sql
 
-      render plain: result.map { |s| DataCycleCore::CollectionService.to_select_option(s, helpers.active_ui_locale) }.to_json, content_type: 'application/json'
+      render plain: DataCycleCore::CollectionService.to_select_options(result).to_json, content_type: 'application/json'
     end
 
     def add_to_watchlist

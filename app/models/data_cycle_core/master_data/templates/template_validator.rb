@@ -4,7 +4,7 @@ module DataCycleCore
   module MasterData
     module Templates
       class TemplateValidator
-        TRANSLATED_COLUMS = ['content', 'name', 'description', 'slug'].freeze
+        TRANSLATED_COLUMS = ['content', 'slug'].freeze
 
         attr_reader :errors
 
@@ -12,6 +12,8 @@ module DataCycleCore
           @templates = templates
           @template_header_contract = TemplateHeaderContract.new
           @template_property_contract = TemplatePropertyContract.new
+          @all_templates = @templates.values.flatten
+          @overlay_key = DataCycleCore.features.dig('overlay', 'attribute_keys')&.first
           @errors = []
         end
 
@@ -31,6 +33,7 @@ module DataCycleCore
               validate_properties!(template[:data], prefix)
               validate_translatable_embedded!(template, prefix)
               validate_property_names!(template.dig(:data, :properties), prefix)
+              validate_overlay_properties(template[:data], prefix)
             end
           end
 
@@ -40,6 +43,20 @@ module DataCycleCore
         def merge_errors!(contract, prefix)
           contract.errors.each do |error|
             @errors.push("#{[*prefix, *error.path].join('.')} => #{error.text}")
+          end
+        end
+
+        def validate_overlay_properties(template, prefix)
+          return if @overlay_key.blank?
+
+          belongs_to_templates = @all_templates.filter { |t| t.dig(:data, :features, :overlay, :allowed) && template[:name] == t.dig(:data, :properties, @overlay_key, 'template_name') }
+
+          return if belongs_to_templates.blank?
+
+          belongs_to_templates.each do |belongs_to_template|
+            (template[:properties].keys - belongs_to_template.dig(:data, :properties).keys - ['dummy']).each do |key|
+              @errors.push("#{[*prefix, :properties, key].join('.')} => property does not exist in original template (#{belongs_to_template[:name]})")
+            end
           end
         end
 
@@ -88,7 +105,7 @@ module DataCycleCore
 
           sub_keys = simple_objects.map { |_, v| v['properties'].keys }.flatten
           root_keys = properties.keys
-          return if (root_keys & sub_keys).blank?
+          return unless root_keys.intersect?(sub_keys)
 
           @errors.push("#{[*prefix, :property_names].join('.')} => Simple Objects Error: keys #{root_keys & sub_keys} are not unique!")
         end

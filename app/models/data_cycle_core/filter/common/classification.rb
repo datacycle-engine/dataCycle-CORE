@@ -92,7 +92,7 @@ module DataCycleCore
 
           ids = DataCycleCore::ClassificationAlias
             .includes(classifications: [user_groups: :user_group_users])
-            .where(classifications: { user_groups: { user_group_users: { user_id: user_id } } })
+            .where(classifications: { user_groups: { user_group_users: { user_id: } } })
             .pluck(:id)
 
           if ids.blank?

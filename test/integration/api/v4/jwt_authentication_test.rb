@@ -44,7 +44,7 @@ module DataCycleCore
 
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
 
           assert json_data['token'].present?
           assert_equal @user_data['email'], json_data.dig('user', 'email')
@@ -60,7 +60,7 @@ module DataCycleCore
 
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
 
           assert json_data['token'].present?
           assert_equal @user_data['email'], json_data.dig('user', 'email')
@@ -78,7 +78,7 @@ module DataCycleCore
           assert_response :success
 
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
 
           assert json_data['token'].present?
           assert_equal @user_data['email'], json_data.dig('user', 'email')
@@ -122,7 +122,7 @@ module DataCycleCore
           assert_response :success
 
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
 
           assert json_data['token'].present?
           assert_equal @user_data['email'], json_data.dig('user', 'email')
@@ -142,7 +142,7 @@ module DataCycleCore
           assert_response :success
 
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
 
           assert json_data['token'].present?
           assert_equal @current_user.email, json_data.dig('user', 'email')
@@ -161,7 +161,7 @@ module DataCycleCore
 
           assert_response :created
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
 
           assert json_data['token'].present?
           assert_equal user_data['email'], json_data.dig('email')
@@ -194,7 +194,7 @@ module DataCycleCore
 
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
 
           assert json_data['token'].present?
           assert_equal 'Test', json_data['givenName']
@@ -216,7 +216,7 @@ module DataCycleCore
           assert_response :success
 
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
           assert_equal user_data['email'], json_data.dig('@graph', 'userData', 'email')
           assert DataCycleCore::User.exists?(email: user_data['email'])
 
@@ -230,7 +230,7 @@ module DataCycleCore
           assert_response :success
 
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
           assert_equal user_data['email'], json_data.dig('@graph', 'userData', 'email')
           assert_equal user_data['family_name'], DataCycleCore::User.find_by(email: user_data['email']).family_name
 

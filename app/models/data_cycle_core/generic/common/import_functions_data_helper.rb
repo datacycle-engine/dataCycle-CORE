@@ -13,7 +13,6 @@ module DataCycleCore
             blacklist = config.dig(:before, :blacklist)
             raw_data = Transformations::BlacklistWhitelistFunctions.apply_blacklist(raw_data, blacklist) if blacklist.present?
           end
-
           data = merge_default_values(
             config,
             transformation.call(raw_data || {}),
@@ -27,13 +26,26 @@ module DataCycleCore
             data = Transformations::BlacklistWhitelistFunctions.apply_blacklist(data, blacklist) if blacklist.present?
           end
 
-          create_or_update_content(
-            utility_object: utility_object,
-            template: load_template(template),
-            data: data,
-            local: false,
-            config: config
-          )
+          transformation_hash = Digest::SHA256.hexdigest(data.to_json)
+          external_key = data.dig('external_key')
+          external_source_id = utility_object.external_source.id
+          external_hash = DataCycleCore::ExternalHash.find_or_initialize_by(external_key:, external_source_id:, locale: I18n.locale)
+
+          if external_hash.hash_value == transformation_hash && utility_object.mode.to_s != 'reset'
+            content = DataCycleCore::Thing.by_external_key(utility_object.external_source.id, data['external_key']).first
+          else
+            content = create_or_update_content(
+              utility_object:,
+              template: load_template(template),
+              data:,
+              local: false,
+              config:
+            )
+            external_hash.hash_value = transformation_hash if content.present?
+          end
+          external_hash.seen_at = Time.zone.now
+          external_hash.save if content&.persisted? && content.external_key == external_key && content.external_source_id == external_source_id
+          content
         end
 
         def create_or_update_content(utility_object:, template:, data:, local: false, config: {})
@@ -152,10 +164,10 @@ module DataCycleCore
             data_hash: normalized_data,
             prevent_history: !utility_object.history,
             update_search_all: true,
-            current_user: current_user,
-            partial_update_improved: partial_update_improved,
+            current_user:,
+            partial_update_improved:,
             new_content: created,
-            invalidate_related_cache: invalidate_related_cache
+            invalidate_related_cache:
           )
 
           if valid
@@ -204,7 +216,7 @@ module DataCycleCore
 
         def load_template(template_name)
           I18n.with_locale(:de) do
-            DataCycleCore::Thing.new(template_name: template_name).require_template!
+            DataCycleCore::Thing.new(template_name:).require_template!
           end
         rescue ActiveRecord::RecordNotFound
           raise "Missing template #{template_name}"

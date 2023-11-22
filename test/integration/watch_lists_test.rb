@@ -38,12 +38,12 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal DataCycleCore::WatchList.where(name: name).size, 1
+      assert_equal DataCycleCore::WatchList.where(name:).size, 1
 
       get api_v2_collections_path
       assert_response :success
       assert_equal response.content_type, 'application/json; charset=utf-8'
-      json_data = JSON.parse response.body
+      json_data = response.parsed_body
       assert_equal(1, json_data.dig('collections').count { |w| w['name'] == name })
     end
 
@@ -78,7 +78,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      response_body = JSON.parse(response.body)
+      response_body = response.parsed_body
       assert response_body['valid']
     end
 
@@ -92,7 +92,7 @@ module DataCycleCore
       }
 
       assert_response :success
-      response_body = JSON.parse(response.body)
+      response_body = response.parsed_body
       assert_not response_body['valid']
     end
 
@@ -107,7 +107,7 @@ module DataCycleCore
       get api_v2_collections_path
       assert_response :success
       assert_equal response.content_type, 'application/json; charset=utf-8'
-      json_data = JSON.parse response.body
+      json_data = response.parsed_body
       assert_equal json_data.dig('collections').size, 0
     end
 
@@ -128,7 +128,7 @@ module DataCycleCore
       get api_v2_collection_path(@watch_list)
       assert_response :success
       assert_equal response.content_type, 'application/json; charset=utf-8'
-      json_data = JSON.parse response.body
+      json_data = response.parsed_body
       assert_equal json_data.dig('collection', 'items').size, 1
     end
 
@@ -155,7 +155,7 @@ module DataCycleCore
       get api_v2_collection_path(@watch_list)
       assert_response :success
       assert_equal response.content_type, 'application/json; charset=utf-8'
-      json_data = JSON.parse response.body
+      json_data = response.parsed_body
       assert_equal json_data.dig('collection', 'items').size, 2
     end
 
@@ -184,7 +184,7 @@ module DataCycleCore
       get api_v2_collection_path(watch_list)
       assert_response :success
       assert_equal response.content_type, 'application/json; charset=utf-8'
-      json_data = JSON.parse response.body
+      json_data = response.parsed_body
       assert_equal json_data.dig('collection', 'items').size, 2
     end
 
@@ -207,7 +207,7 @@ module DataCycleCore
       get api_v2_collection_path(@watch_list)
       assert_response :success
       assert_equal response.content_type, 'application/json; charset=utf-8'
-      json_data = JSON.parse response.body
+      json_data = response.parsed_body
       assert_equal json_data.dig('collection', 'items').size, 0
     end
 
@@ -273,7 +273,7 @@ module DataCycleCore
             }
           }
         },
-        content_template: content_template
+        content_template:
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
       }
@@ -298,7 +298,7 @@ module DataCycleCore
             }
           }
         },
-        content_template: content_template
+        content_template:
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
       }
@@ -436,7 +436,7 @@ module DataCycleCore
 
       assert_response :success
       assert_equal 'application/json; charset=utf-8', response.content_type
-      json_data = JSON.parse response.body
+      json_data = response.parsed_body
       assert json_data['valid']
     end
 

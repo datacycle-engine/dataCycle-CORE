@@ -29,7 +29,7 @@ module DataCycleCore
               fields: 'name'
             }
             post api_v4_things_path(params)
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             orig = json_data.dig('@graph').pluck('@id')
 
             # random
@@ -40,7 +40,7 @@ module DataCycleCore
 
             100.times do
               post api_v4_things_path(params)
-              json_data = JSON.parse(response.body)
+              json_data = response.parsed_body
               t = json_data.dig('@graph').pluck('@id')
 
               assert_not_equal(t, orig)
@@ -54,13 +54,13 @@ module DataCycleCore
             }
 
             post api_v4_things_path(params)
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             orig = json_data.dig('@graph').pluck('@id')
 
             100.times do
               post api_v4_things_path(params)
-              json_data = JSON.parse(response.body)
+              json_data = response.parsed_body
               t = json_data.dig('@graph').pluck('@id')
               assert_equal(t, orig)
             end

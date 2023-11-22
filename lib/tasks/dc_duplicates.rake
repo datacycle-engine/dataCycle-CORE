@@ -76,18 +76,21 @@ namespace :dc do
       query = query.duplicate_candidates(true, score)
 
       items = query.all
-      progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+      puts "Started merging #{items.size} duplicates\n"
 
       items.find_each do |item|
-        next(progressbar.increment) if dry_run
+        next if dry_run
 
         duplicates = (item.duplicate_candidates.where('score >= ?', score).duplicates + [item]).sort_by { |v| [v.try(:width), v.try(:updated_at)] }
         original = duplicates.pop
 
-        duplicates.each { |duplicate| original.merge_with_duplicate(duplicate) }
-
-        progressbar.increment
+        duplicates.each do |duplicate|
+          original.merge_with_duplicate_and_version(duplicate)
+          print '.'
+        end
       end
+
+      puts "\nFinished merging duplicates"
 
       if dry_run
         puts 'Dry run: no database changes made'
@@ -109,18 +112,21 @@ namespace :dc do
       query = query.duplicate_candidates(true, score)
 
       items = query.all
-      progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: 'Progress')
+      puts "Started merging #{items.size} duplicates\n"
 
       items.find_each do |item|
-        next(progressbar.increment) if dry_run
+        next if dry_run
 
         duplicates = (item.duplicate_candidates.where('score >= ?', score).duplicates + [item]).sort_by { |v| v.try(:updated_at) }
         original = duplicates.pop
 
-        duplicates.each { |duplicate| original.merge_with_duplicate(duplicate) }
-
-        progressbar.increment
+        duplicates.each do |duplicate|
+          original.merge_with_duplicate_and_version(duplicate)
+          print '.'
+        end
       end
+
+      puts "\nFinished merging duplicates"
 
       if dry_run
         puts 'Dry run: no database changes made'
@@ -138,7 +144,8 @@ namespace :dc do
       duplicate = DataCycleCore::Thing.find(duplicate_param)
 
       puts "Thing(#{original_param}) <--- Thing(#{duplicate_param})"
-      DataCycleCore::MergeDuplicateJob.perform_later(original.id, duplicate.id)
+
+      original.merge_with_duplicate_and_version(duplicate)
     end
   end
 end

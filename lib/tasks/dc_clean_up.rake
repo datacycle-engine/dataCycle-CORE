@@ -71,7 +71,7 @@ namespace :dc do
         next if name.blank?
         linked = CleanupHelper.linked(name)
         next if linked.blank?
-        { external_source_id: item.id, name: item.name, linked: linked }
+        { external_source_id: item.id, name: item.name, linked: }
       }.compact
 
       dirty_data = []
@@ -198,7 +198,7 @@ namespace :dc do
       ShellHelper.error 'invalid number of arguments' unless collection_name.present? && external_system_id.present? && template_name.present?
 
       external_system = DataCycleCore::ExternalSystem.find(external_system_id)
-      things = DataCycleCore::Thing.where(template_name: template_name, external_source_id: external_system.id)
+      things = DataCycleCore::Thing.where(template_name:, external_source_id: external_system.id)
 
       puts "things (#{template_name}) found: #{things.size}\n"
 

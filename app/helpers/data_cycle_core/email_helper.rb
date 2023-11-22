@@ -2,12 +2,12 @@
 
 module DataCycleCore
   module EmailHelper
-    def email_image_tag(image, **options)
+    def email_image_tag(image, **)
       logo_file_path = Rails.root.join('app', 'assets', 'images', "#{@locale || I18n.locale.to_s}_#{image}")
       logo_file_path = Rails.root.join('app', 'assets', 'images', image) unless File.exist?(logo_file_path)
       logo_file_path = DataCycleCore::Engine.root.join('app', 'assets', 'images', image) unless File.exist?(logo_file_path)
       attachments.inline[image] = File.read(logo_file_path)
-      image_tag attachments[image].url, **options
+      image_tag(attachments[image].url, **)
     end
 
     def first_available_i18n_t(i18n_path, dynamic_parts, **i18n_options)
@@ -53,7 +53,7 @@ module DataCycleCore
       return value unless value.acts_like?(:time) || key.end_with?('_at')
       return value if (v = value.try(:in_time_zone)).blank?
 
-      l(v, locale: locale, format: :edit)
+      l(v, locale:, format: :edit)
     end
 
     def layout_params(params, issuer = nil)

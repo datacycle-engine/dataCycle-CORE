@@ -26,15 +26,6 @@ module DataCycleCore
           render xml: xml_content
         end
 
-        def update
-          strategy = api_strategy
-          content = content_params.as_json
-
-          updated = strategy.update content
-
-          render plain: { 'updated' => updated }.to_json, content_type: 'application/json'
-        end
-
         def create
           strategy = api_strategy
           content = content_params.as_json
@@ -42,6 +33,15 @@ module DataCycleCore
           created = strategy.create content
 
           render plain: { 'created' => created }.to_json, content_type: 'application/json'
+        end
+
+        def update
+          strategy = api_strategy
+          content = content_params.as_json
+
+          updated = strategy.update content
+
+          render plain: { 'updated' => updated }.to_json, content_type: 'application/json'
         end
 
         def destroy
@@ -73,7 +73,7 @@ module DataCycleCore
           end
 
           items.each do |item|
-            utility_object = DataCycleCore::Export::RefreshObject.new(external_system: external_system)
+            utility_object = DataCycleCore::Export::RefreshObject.new(external_system:)
             job_id = item.external_system_data(external_system, 'export', nil, false)&.dig('job_id')
 
             init_logging do |logger|
@@ -81,7 +81,7 @@ module DataCycleCore
             end
 
             next if job_id.blank?
-            DataCycleCore::Export::OutdoorActive::JobStatus.process(utility_object: utility_object, options: { job_id: job_id })
+            DataCycleCore::Export::OutdoorActive::JobStatus.process(utility_object:, options: { job_id: })
           end
         end
 

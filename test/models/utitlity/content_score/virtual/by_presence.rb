@@ -14,16 +14,16 @@ module DataCycleCore
           test 'by_presence works with virtual strings' do
             key = 'copyright_notice'
 
-            assert_equal 1, DataCycleCore::Utility::ContentScore::Virtual.by_presence(key: key, content: @content)
+            assert_equal 1, DataCycleCore::Utility::ContentScore::Virtual.by_presence(key:, content: @content)
 
             @content.set_data_hash(data_hash: { copyright_notice_override: 'T' })
-            assert_equal 1, DataCycleCore::Utility::ContentScore::Virtual.by_presence(key: key, content: @content)
+            assert_equal 1, DataCycleCore::Utility::ContentScore::Virtual.by_presence(key:, content: @content)
 
             @content.set_data_hash(data_hash: { copyright_notice_override: '' })
-            assert_equal 0, DataCycleCore::Utility::ContentScore::Virtual.by_presence(key: key, content: @content)
+            assert_equal 0, DataCycleCore::Utility::ContentScore::Virtual.by_presence(key:, content: @content)
 
             @content.set_data_hash(data_hash: { copyright_notice_override: nil })
-            assert_equal 0, DataCycleCore::Utility::ContentScore::Virtual.by_presence(key: key, content: @content)
+            assert_equal 0, DataCycleCore::Utility::ContentScore::Virtual.by_presence(key:, content: @content)
           end
         end
       end

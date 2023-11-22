@@ -103,7 +103,7 @@ module DataCycleCore
           post things_path, params: {
             thing: {
               datahash: {
-                name: name
+                name:
               }
             },
             table: 'things',
@@ -112,7 +112,7 @@ module DataCycleCore
           }
           assert_equal('Artikel wurde erfolgreich erstellt.', flash[:success])
 
-          content = DataCycleCore::Thing.where_translated_value(name: name).first
+          content = DataCycleCore::Thing.where_translated_value(name:).first
 
           get xml_v1_thing_path(id: content)
 

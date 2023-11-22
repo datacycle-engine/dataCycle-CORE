@@ -28,7 +28,7 @@ module DataCycleCore
     private
 
     def update_computed_properties(content)
-      if (content.computed_property_names & content.translatable_property_names).present?
+      if content.computed_property_names.intersect?(content.translatable_property_names)
         content.available_locales.each do |locale|
           I18n.with_locale(locale) do
             content.webhook_priority = WEBHOOK_PRIORITY

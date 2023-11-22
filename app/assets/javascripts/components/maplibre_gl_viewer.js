@@ -83,6 +83,7 @@ class MapLibreGlViewer {
 			"center",
 			"zoom",
 			"minZoom",
+			"maxZoom",
 			"maxBounds",
 		]);
 		// fallback for old config files main projects
@@ -128,31 +129,32 @@ class MapLibreGlViewer {
 		this.map = new this.maplibreGl.Map(
 			Object.assign(this.defaultOptions, {
 				container: this.containerId,
-				style: this.mapBaseLayer(),
-				transformRequest: (url, _resourceType) => {
-					if (
-						url.includes("tiles.pixelmap.at/") ||
-						url.includes("tiles.pixelpoint.at/")
-					) {
-						return {
-							headers: {
-								Authorization: `Bearer ${this.credentials.api_key}`,
-							},
-							url: url,
-						};
-					} else if (url.includes(location.host)) {
-						return {
-							headers: {
-								"X-CSRF-Token":
-									document.getElementsByName("csrf-token")[0].content,
-							},
-							url: `${url}?cache=false`,
-						};
-					}
-					return;
-				},
+				style: await this.mapBaseStyle(),
+				transformRequest: this.transformRequest.bind(this),
 			}),
 		);
+	}
+	transformRequest(url, _resourceType) {
+		if (
+			url.includes("tiles.pixelmap.at/") ||
+			url.includes("tiles.pixelpoint.at/")
+		) {
+			return {
+				headers: {
+					Authorization: `Bearer ${this.credentials.api_key}`,
+				},
+				url: url,
+			};
+		} else if (url.includes(location.host)) {
+			return {
+				headers: {
+					"X-CSRF-Token": document.getElementsByName("csrf-token")[0].content,
+				},
+				url: `${url}?cache=false`,
+			};
+		}
+
+		return;
 	}
 	async configureMap() {
 		await this.initControls();
@@ -228,14 +230,51 @@ class MapLibreGlViewer {
 		if (features.length)
 			this.filterFeatures = this._createFeatureCollection(features);
 	}
-	mapBaseLayer() {
-		const baseStyle = this.mapStyles[0].value;
+	mergeStyles(oldStyle, newStyle, layerOverrides) {
+		if (!newStyle) return oldStyle;
 
-		if (typeof this[`baseLayer${baseStyle}`] === "function")
-			return this[`baseLayer${baseStyle}`]();
-		else if (baseStyle) return baseStyle;
+		oldStyle.version = Math.max(oldStyle.version ?? 0, newStyle.version);
+		oldStyle.sources = Object.assign({}, oldStyle.sources, newStyle.sources);
 
-		throw "No Map-Style defined!";
+		if (!oldStyle.layers) oldStyle.layers = [];
+		for (const layer of newStyle.layers)
+			oldStyle.layers.push(Object.assign({}, layer, layerOverrides));
+
+		for (const [key, value] of Object.entries(newStyle)) {
+			if (Object.hasOwn(oldStyle, key)) continue;
+
+			oldStyle[key] = value;
+		}
+
+		return oldStyle;
+	}
+	async mapBaseStyle() {
+		const styles = {};
+
+		if (!this.mapStyles) throw "No Map-Style defined!";
+
+		for (const style of this.mapStyles) {
+			let newStyle;
+
+			if (
+				typeof style.value === "string" &&
+				typeof this[`baseLayer${style.value}`] === "function"
+			)
+				newStyle = this[`baseLayer${style.value}`]();
+			else if (typeof style.value === "string" && style.value) {
+				const options = { Accept: "application/json" };
+				if (this.credentials?.api_key) {
+					options.Authorization = `Bearer ${this.credentials.api_key}`;
+				}
+				const response = await fetch(style.value, { headers: options });
+				newStyle = await response.json();
+			} else if (typeof style.value === "object" && style.value)
+				newStyle = style.value;
+
+			this.mergeStyles(styles, newStyle, pick(style, ["minzoom", "maxzoom"]));
+		}
+
+		return styles;
 	}
 	baseLayerOSM() {
 		return {

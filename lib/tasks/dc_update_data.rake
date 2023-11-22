@@ -17,18 +17,18 @@ namespace :dc do
       puts "ATTRIBUTES TO UPDATE: #{computed_names.present? ? computed_names.join(', ') : 'all'}"
 
       selected_things.find_each do |thing_template|
-        template = DataCycleCore::Thing.new(thing_template: thing_template)
+        template = DataCycleCore::Thing.new(thing_template:)
         next if template.computed_property_names.blank?
         next if computed_names.present? && computed_names.any? && (computed_names & template.computed_property_names).none?
 
         items = DataCycleCore::Thing.where(template_name: template.template_name)
-        translated_computed = (template.computed_property_names & template.translatable_property_names).present?
+        translated_computed = template.computed_property_names.intersect?(template.translatable_property_names)
         progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
 
         update_proc = lambda { |content|
           data_hash = {}
-          content.add_computed_values(data_hash: data_hash, keys: computed_names, force: true)
-          content.set_data_hash(data_hash: data_hash, update_computed: false)
+          content.add_computed_values(data_hash:, keys: computed_names, force: true)
+          content.set_data_hash(data_hash:, update_computed: false)
         }
 
         items.find_in_batches.with_index do |batch, index|
@@ -76,20 +76,20 @@ namespace :dc do
       puts "ATTRIBUTES TO UPDATE: #{default_value_names.present? ? default_value_names.join(', ') : 'all'}, THREADS: #{thread_pool_size}"
 
       selected_things.find_each do |thing_template|
-        template = DataCycleCore::Thing.new(thing_template: thing_template)
+        template = DataCycleCore::Thing.new(thing_template:)
         next if template.default_value_property_names.blank?
         next if default_value_names.present? && default_value_names.any? && (default_value_names & template.default_value_property_names).none?
 
         items = DataCycleCore::Thing.where(template_name: template.template_name)
         items = items.where(external_source_id: nil) if args.imported&.to_s&.downcase == 'false'
 
-        translated_properties = (template.default_value_property_names & template.translatable_property_names).present?
+        translated_properties = template.default_value_property_names.intersect?(template.translatable_property_names)
         progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
 
         update_proc = lambda { |item|
           data_hash = {}
-          item.add_default_values(data_hash: data_hash, force: true, keys: default_value_names)
-          item.set_data_hash(data_hash: data_hash)
+          item.add_default_values(data_hash:, force: true, keys: default_value_names)
+          item.set_data_hash(data_hash:)
         }
 
         items.find_in_batches.with_index do |batch, index|

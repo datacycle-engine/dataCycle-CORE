@@ -25,7 +25,7 @@ module DataCycleCore
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.number',
               substitutions: {
-                data: data,
+                data:,
                 class: data.class,
                 template: template['label']
               }
@@ -43,8 +43,8 @@ module DataCycleCore
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.min_number',
             substitutions: {
-              data: data,
-              value: value
+              data:,
+              value:
             }
           }
         end
@@ -55,8 +55,8 @@ module DataCycleCore
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.max_number',
             substitutions: {
-              data: data,
-              value: value
+              data:,
+              value:
             }
           }
         end
@@ -68,8 +68,8 @@ module DataCycleCore
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.format',
               substitutions: {
-                data: data,
-                format_string: format_string
+                data:,
+                format_string:
               }
             }
           end
@@ -82,7 +82,7 @@ module DataCycleCore
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.integer',
             substitutions: {
-              data: data
+              data:
             }
           }
         end
@@ -93,7 +93,7 @@ module DataCycleCore
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.float',
             substitutions: {
-              data: data
+              data:
             }
           }
         end

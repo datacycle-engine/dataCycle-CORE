@@ -56,53 +56,37 @@ module DataCycleCore
 
       if image.width >= image.height
         if image.width < options.dig(:landscape, :min, :width).to_i
-          errors.add :file, **{
-            path: 'uploader.validation.dimensions.landscape.min.width',
-            substitutions: { data: options.dig(:landscape, :min, :width).to_i }
-          }
+          errors.add :file, path: 'uploader.validation.dimensions.landscape.min.width',
+                            substitutions: { data: options.dig(:landscape, :min, :width).to_i }
         end
         if image.height < options.dig(:landscape, :min, :height).to_i
-          errors.add :file, **{
-            path: 'uploader.validation.dimensions.landscape.min.height',
-            substitutions: { data: options.dig(:landscape, :min, :height).to_i }
-          }
+          errors.add :file, path: 'uploader.validation.dimensions.landscape.min.height',
+                            substitutions: { data: options.dig(:landscape, :min, :height).to_i }
         end
         if options.dig(:landscape, :max, :width).present? && image.width > options.dig(:landscape, :max, :width).to_i
-          errors.add :file, **{
-            path: 'uploader.validation.dimensions.landscape.max.width',
-            substitutions: { data: options.dig(:landscape, :max, :width).to_i }
-          }
+          errors.add :file, path: 'uploader.validation.dimensions.landscape.max.width',
+                            substitutions: { data: options.dig(:landscape, :max, :width).to_i }
         end
         if options.dig(:landscape, :max, :height).present? && image.height > options.dig(:landscape, :max, :height).to_i
-          errors.add :file, **{
-            path: 'uploader.validation.dimensions.landscape.max.height',
-            substitutions: { data: options.dig(:landscape, :max, :height).to_i }
-          }
+          errors.add :file, path: 'uploader.validation.dimensions.landscape.max.height',
+                            substitutions: { data: options.dig(:landscape, :max, :height).to_i }
         end
       else
         if image.width < options.dig(:portrait, :min, :width).to_i
-          errors.add :file, **{
-            path: 'uploader.validation.dimensions.portrait.min.width',
-            substitutions: { data: options.dig(:portrait, :min, :width).to_i }
-          }
+          errors.add :file, path: 'uploader.validation.dimensions.portrait.min.width',
+                            substitutions: { data: options.dig(:portrait, :min, :width).to_i }
         end
         if image.height < options.dig(:portrait, :min, :height).to_i
-          errors.add :file, **{
-            path: 'uploader.validation.dimensions.portrait.min.height',
-            substitutions: { data: options.dig(:portrait, :min, :height).to_i }
-          }
+          errors.add :file, path: 'uploader.validation.dimensions.portrait.min.height',
+                            substitutions: { data: options.dig(:portrait, :min, :height).to_i }
         end
         if options.dig(:portrait, :max, :width).present? && image.width > options.dig(:portrait, :max, :width).to_i
-          errors.add :file, **{
-            path: 'uploader.validation.dimensions.portrait.max.width',
-            substitutions: { data: options.dig(:portrait, :max, :width).to_i }
-          }
+          errors.add :file, path: 'uploader.validation.dimensions.portrait.max.width',
+                            substitutions: { data: options.dig(:portrait, :max, :width).to_i }
         end
         if options.dig(:portrait, :max, :height).present? && image.height > options.dig(:portrait, :max, :height).to_i
-          errors.add :file, **{
-            path: 'uploader.validation.dimensions.portrait.max.height',
-            substitutions: { data: options.dig(:portrait, :max, :height).to_i }
-          }
+          errors.add :file, path: 'uploader.validation.dimensions.portrait.max.height',
+                            substitutions: { data: options.dig(:portrait, :max, :height).to_i }
         end
       end
     end
@@ -115,8 +99,8 @@ module DataCycleCore
                                     .joins(thing: [:translations, :thing_template])
                                     .where("thing_templates.schema -> 'features' -> 'duplicate_candidate' ->> 'method' = ?", 'bild_duplicate')
                                     .where("duplicate_check IS NOT NULL AND duplicate_check ->> 'phash' IS NOT NULL AND duplicate_check ->> 'phash' != '0' AND phash_hamming(?, duplicate_check ->> 'phash') <= ? AND assets.id != ?", duplicate_check['phash']&.to_s, 6, id)
-                                    .map(&:thing)
-                                    .flatten
+                                    .select('DISTINCT ON ("things"."id") "assets".*')
+                                    .flat_map(&:thing)
                                 end
     end
 

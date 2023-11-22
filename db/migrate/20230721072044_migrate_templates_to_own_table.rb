@@ -135,10 +135,10 @@ class MigrateTemplatesToOwnTable < ActiveRecord::Migration[6.1]
     remove_foreign_key :thing_histories, :thing_templates
 
     add_column :things, :schema, :jsonb, if_not_exists: true
-    add_column :things, :template, :boolean, default: false, if_not_exists: true
+    add_column :things, :template, :boolean, default: false, null: false, if_not_exists: true
 
     add_column :thing_histories, :schema, :jsonb, if_not_exists: true
-    add_column :thing_histories, :template, :boolean, default: false, if_not_exists: true
+    add_column :thing_histories, :template, :boolean, default: false, null: false, if_not_exists: true
 
     execute <<-SQL.squish
       ALTER TABLE things ADD COLUMN IF NOT EXISTS computed_schema_types VARCHAR[];

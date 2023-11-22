@@ -34,7 +34,7 @@ module DataCycleCore
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal('de', json_data.dig('@context', 1, '@language'))
 
             validator = DataCycleCore::V4::Validation::Concept.concept_scheme
@@ -54,7 +54,7 @@ module DataCycleCore
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal('en', json_data.dig('@context', 1, '@language'))
 
             fields = Dry::Schema.JSON do
@@ -66,7 +66,7 @@ module DataCycleCore
               end
             end
 
-            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
             end
@@ -83,13 +83,13 @@ module DataCycleCore
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal('de', json_data.dig('@context', 1, '@language'))
 
             fields = Dry::Schema.JSON do
               required(:'skos:prefLabel').value(:string)
             end
-            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
             end
@@ -106,7 +106,7 @@ module DataCycleCore
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_nil(json_data.dig('@context', 1, '@language'))
 
             fields = Dry::Schema.JSON do
@@ -118,7 +118,7 @@ module DataCycleCore
               end
             end
 
-            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
             end
@@ -136,14 +136,14 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(@tree.classification_aliases.count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal('de', json_data.dig('@context', 1, '@language'))
 
             fields = Dry::Schema.JSON do
               required(:'skos:prefLabel').value(:string)
               optional(:'dct:description').value(:string)
             end
-            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
             end
@@ -161,14 +161,14 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(@tree.classification_aliases.count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal('de', json_data.dig('@context', 1, '@language'))
 
             fields = Dry::Schema.JSON do
               required(:'skos:prefLabel').value(:string)
               optional(:'dct:description').value(:string)
             end
-            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
             end
@@ -186,7 +186,7 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(@tree.classification_aliases.count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal('en', json_data.dig('@context', 1, '@language'))
 
             fields_translated = Dry::Schema.JSON do
@@ -236,7 +236,7 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(@tree.classification_aliases.count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal('en', json_data.dig('@context', 1, '@language'))
 
             fields_translated = Dry::Schema.JSON do
@@ -287,7 +287,7 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(@tree.classification_aliases.count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_nil(json_data.dig('@context', 1, '@language'))
 
             fields = Dry::Schema.JSON do
@@ -305,7 +305,7 @@ module DataCycleCore
               end
             end
 
-            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: })
             concept_with_description = false
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
@@ -327,7 +327,7 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(@tree.classification_aliases.count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_nil(json_data.dig('@context', 1, '@language'))
 
             fields = Dry::Schema.JSON do
@@ -347,7 +347,7 @@ module DataCycleCore
               required(:'skos:inScheme').hash(DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER)
             end
 
-            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+            validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: })
             concept_with_description = false
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)

@@ -21,8 +21,8 @@ module DataCycleCore
       validate_proxy_urls(DataCycleCore::Feature::ImageProxy.config, content)
 
       # unknown variant or variant with incorrect configuration must return nil
-      assert_nil(DataCycleCore::Feature::ImageProxy.process_image(content: content, variant: 'dynamic'))
-      assert_nil(DataCycleCore::Feature::ImageProxy.process_image(content: content, variant: 'unkown'))
+      assert_nil(DataCycleCore::Feature::ImageProxy.process_image(content:, variant: 'dynamic'))
+      assert_nil(DataCycleCore::Feature::ImageProxy.process_image(content:, variant: 'unkown'))
     end
 
     test 'image proxy disabled' do
@@ -36,7 +36,7 @@ module DataCycleCore
       config = DataCycleCore::Feature::ImageProxy.config
 
       config.each do |variant, _processing|
-        assert_nil DataCycleCore::Feature::ImageProxy.process_image(content: content, variant: variant)
+        assert_nil DataCycleCore::Feature::ImageProxy.process_image(content:, variant:)
       end
     end
 
@@ -47,8 +47,8 @@ module DataCycleCore
       image = upload_image 'test_rgb.jpeg'
       content = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image.id })
 
-      assert_equal(content.thumbnail_url, DataCycleCore::Feature::ImageProxy.process_image(content: content, variant: 'thumb'))
-      assert_equal(content.asset_web_url, DataCycleCore::Feature::ImageProxy.process_image(content: content, variant: 'web'))
+      assert_equal(content.thumbnail_url, DataCycleCore::Feature::ImageProxy.process_image(content:, variant: 'thumb'))
+      assert_equal(content.asset_web_url, DataCycleCore::Feature::ImageProxy.process_image(content:, variant: 'web'))
     end
 
     test 'image proxy frontend disabled' do
@@ -88,15 +88,15 @@ module DataCycleCore
 
       config.each do |variant, processing|
         next if variant == 'dynamic'
-        proxy_url = DataCycleCore::Feature::ImageProxy.process_image(content: content, variant: variant)
+        proxy_url = DataCycleCore::Feature::ImageProxy.process_image(content:, variant:)
 
         assert allowed_schemes.include?(Addressable::URI.parse(proxy_url).scheme)
-        assert_equal(proxy_url, DataCycleCore::Feature::ImageProxy.process_image(content: content, variant: variant, image_processing: processing&.dig('processing')))
+        assert_equal(proxy_url, DataCycleCore::Feature::ImageProxy.process_image(content:, variant:, image_processing: processing&.dig('processing')))
       end
 
       # testing dynamic url
       dynamic_url = DataCycleCore::Feature::ImageProxy.process_image(
-        content: content,
+        content:,
         variant: 'dynamic',
         image_processing: {
           'resize_type' => 'fit',

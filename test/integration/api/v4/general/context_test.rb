@@ -14,7 +14,7 @@ module DataCycleCore
           test 'api/v4/concept_schemes' do
             post api_v4_concept_schemes_path
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_context = json_data.dig('@context')
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
@@ -29,7 +29,7 @@ module DataCycleCore
             }
             post api_v4_concept_schemes_path(params)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_context = json_data.dig('@context')
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
@@ -44,7 +44,7 @@ module DataCycleCore
             }
             post api_v4_concept_schemes_path(params)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_context = json_data.dig('@context')
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
@@ -59,7 +59,7 @@ module DataCycleCore
             }
             post api_v4_concept_schemes_path(params)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_context = json_data.dig('@context')
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
@@ -74,7 +74,7 @@ module DataCycleCore
             }
             post api_v4_concept_schemes_path(params)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_context = json_data.dig('@context')
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
@@ -87,7 +87,7 @@ module DataCycleCore
             params = {}
             post api_v4_things_path(params)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_context = json_data.dig('@context')
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
@@ -102,7 +102,7 @@ module DataCycleCore
             }
             post api_v4_things_path(params)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_context = json_data.dig('@context')
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)
@@ -115,7 +115,7 @@ module DataCycleCore
             params = {}
             post api_v4_contents_deleted_path(params)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_context = json_data.dig('@context')
             assert_equal(2, json_context.size)
             assert_equal('https://schema.org/', json_context.first)

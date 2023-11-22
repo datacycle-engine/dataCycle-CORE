@@ -54,7 +54,7 @@ describe DataCycleCore::MasterData::DiffData do
 
     it 'uses template a as template b if it is not given' do
       differ = subject.new.diff(a: data, schema_a: data_template.deep_stringify_keys, b: data, schema_b: nil)
-      assert differ.errors[:error].size.zero?
+      assert differ.errors[:error].empty?
     end
 
     it 'checks that both templates have the same name' do

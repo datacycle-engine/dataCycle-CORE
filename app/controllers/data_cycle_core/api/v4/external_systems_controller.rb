@@ -31,22 +31,22 @@ module DataCycleCore
           search_feratel_api(:search_additional_services)
         end
 
-        def update
-          response, status = content_request(type: :update)
-
-          render plain: response.to_json, content_type: 'application/json', status: status
-        end
-
         def create
           response, status = content_request(type: :create)
 
-          render plain: response.to_json, content_type: 'application/json', status: status
+          render plain: response.to_json, content_type: 'application/json', status:
+        end
+
+        def update
+          response, status = content_request(type: :update)
+
+          render plain: response.to_json, content_type: 'application/json', status:
         end
 
         def destroy
           response, status = content_request(type: :delete)
 
-          render plain: response.to_json, content_type: 'application/json', status: status
+          render plain: response.to_json, content_type: 'application/json', status:
         end
 
         def timeseries
@@ -61,7 +61,7 @@ module DataCycleCore
 
           data = data_from_request(content)
 
-          render(json: { warning: 'no data given' }, status: :no_content) && return if data.blank?
+          render(status: :no_content) && return if data.blank?
 
           response = Timeseries.create_all(content, data)
 
@@ -116,13 +116,13 @@ module DataCycleCore
           external_system = DataCycleCore::ExternalSystem.find_by(id: permitted_params[:external_source_id])
           if external_system.blank? || external_system&.identifier != 'feratel'
             error = 'Only available for Feratel data.'
-            render plain: { error: error }.to_json, content_type: 'application/json', status: :bad_request
+            render plain: { error: }.to_json, content_type: 'application/json', status: :bad_request
             return
           end
 
           feratel_params = [:days, :units, :from, :to, :page_size, :start_index, :occupation]
           credentials = { options: permitted_params.slice(*feratel_params) }.merge(Array.wrap(external_system.credentials).first.symbolize_keys)
-          endpoint = DataCycleCore::Generic::Feratel::Endpoint.new(credentials)
+          endpoint = DataCycleCore::Generic::Feratel::Endpoint.new(**credentials)
           search_data = endpoint.send(search_method)
           if search_data&.first.try(:'[]', 'error').present?
             error = search_data.first['error']
@@ -135,7 +135,7 @@ module DataCycleCore
           end
 
           if error.present?
-            render plain: { error: error }.to_json, content_type: 'application/json', status: :bad_request
+            render plain: { error: }.to_json, content_type: 'application/json', status: :bad_request
           else
             query_params = permitted_params
               .except(:external_source_id, :controller, :action, :format, :endpoint_id, *feratel_params)

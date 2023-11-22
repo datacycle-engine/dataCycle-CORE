@@ -25,7 +25,7 @@ JbuilderTemplate.class_eval do
       'default'
     ].reject(&:blank?).map { |p| "data_cycle_core/api/v2/api_base/attributes/#{p}" }
 
-    render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
+    render_first_existing_partial(partials, parameters.merge({ key:, definition:, value:, content: }))
   end
 
   private

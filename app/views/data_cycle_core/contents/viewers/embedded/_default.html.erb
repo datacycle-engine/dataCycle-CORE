@@ -6,12 +6,11 @@
 
     <% object_value = object.try(embedded_key.to_sym) %>
     <% object_value = object_value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if object_value.is_a?(ActiveRecord::Relation) && !content.history? && ['linked', 'embedded'].include?(prop&.dig('type')) %>
-
     <%= render_attribute_viewer key: "#{key}[#{index}][#{embedded_key}]",
                                 definition: prop,
                                 value: object_value,
                                 parameters: {
-                                  options: object_viewer_history_options(local_assigns.merge({ key: embedded_key, item_diff: item_diff })),
+                                  options: object_viewer_history_options(**local_assigns.merge({ key: embedded_key, item_diff: item_diff })),
                                   parent: object,
                                   diff_target: local_assigns[:diff_target]
                                 },

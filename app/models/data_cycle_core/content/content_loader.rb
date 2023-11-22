@@ -18,18 +18,18 @@ module DataCycleCore
       def diff_obj(data, template = nil, partial_update = false)
         differ = DataCycleCore::MasterData::DiffData.new
         if template.present?
-          differ.diff(a: get_data_hash_partial(data.keys), schema_a: template, b: data, schema_b: template, partial_update: partial_update)
+          differ.diff(a: get_data_hash_partial(data.keys), schema_a: template, b: data, schema_b: template, partial_update:)
         else
-          differ.diff(a: get_data_hash, schema_a: schema, b: data, schema_b: template, partial_update: partial_update)
+          differ.diff(a: get_data_hash, schema_a: schema, b: data, schema_b: template, partial_update:)
         end
       end
 
       def diff?(data, template = nil, partial_update = false)
         differ = DataCycleCore::MasterData::DiffData.new
         if template.present?
-          differ.diff?(a: get_data_hash_partial(data.keys), schema_a: template, b: data, schema_b: template, partial_update: partial_update)
+          differ.diff?(a: get_data_hash_partial(data.keys), schema_a: template, b: data, schema_b: template, partial_update:)
         else
-          differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template, partial_update: partial_update)
+          differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template, partial_update:)
         end
       end
 

@@ -17,7 +17,7 @@ module DataCycleCore
           return content&.asset&.file&.url if web_safe_mime_type?(content&.asset&.content_type)
           if DataCycleCore::Feature::ImageProxy.enabled?
             return DataCycleCore::Feature::ImageProxy.process_image(
-              content: content,
+              content:,
               variant: 'dynamic',
               image_processing: {
                 'resize_type' => 'fit',

@@ -11,7 +11,7 @@ module DataCycleCore
     end
 
     def update_thing(thing, data_hash)
-      thing.set_data_hash(data_hash: data_hash, partial_update: true, prevent_history: true)
+      thing.set_data_hash(data_hash:, partial_update: true, prevent_history: true)
       thing
     end
 

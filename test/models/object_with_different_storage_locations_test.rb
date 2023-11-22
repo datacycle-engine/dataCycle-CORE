@@ -14,7 +14,7 @@ module DataCycleCore
         }
       }
 
-      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Included-Object-Creative-Work', data_hash: data_hash)
+      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Included-Object-Creative-Work', data_hash:)
       returned_data_hash = data_set.get_data_hash
       expected_hash = {
         'name' => 'Dies ist ein Test!',
@@ -45,7 +45,7 @@ module DataCycleCore
         }
       }
 
-      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Nested-Included-Object-Creative-Work', data_hash: data_hash)
+      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Nested-Included-Object-Creative-Work', data_hash:)
       returned_data_hash = data_set.get_data_hash
       expected_hash = {
         'name' => 'Dies ist ein Test!',

@@ -49,7 +49,7 @@ module DataCycleCore
         end
 
         def debug(title, id, data)
-          @log.debug "#{title} | #{id} | #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}"
+          @log.debug "#{title} | #{id} | #{JSON.pretty_generate(data).gsub("\n", "\n  ")}"
         end
 
         def phase_finished(label, total)

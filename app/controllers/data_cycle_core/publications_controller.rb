@@ -37,7 +37,7 @@ module DataCycleCore
               f['t'].in?(['classification_alias_ids', 'geo_within_classification']) ||
                 (f['t'] == 'advanced_attributes' && f['q'] == 'classification_alias_ids')
             }
-            .map { |f| f['v'] }
+            .pluck('v')
             .flatten
             .compact
             .uniq

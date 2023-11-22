@@ -9,7 +9,7 @@ class RenameEditLinksToDataLinks < ActiveRecord::Migration[5.0]
 
   def down
     remove_column :data_links, :permissions
-    add_column :data_links, :read_only, :boolean
+    add_column :data_links, :read_only, :boolean, default: false, null: false
     rename_table :data_links, :edit_links
   end
 end

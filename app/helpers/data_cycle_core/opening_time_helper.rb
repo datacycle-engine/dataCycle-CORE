@@ -20,6 +20,7 @@ module DataCycleCore
       extimes = opening_times
         .map { |o| o[:extimes]&.map { |e| e[:time] } }
         .flatten
+        .compact
         .uniq
         .sort_by
         .map { |e| l(e.to_date, format: :edit, locale: active_ui_locale) }

@@ -16,9 +16,9 @@ module DataCycleCore
 
         def self.filter(**args)
           if args[:external_system].export_config_by_filter_key(args[:method_name], 'endpoints').present?
-            filter_endpoints(args)
+            filter_endpoints(**args)
           else
-            AVAILABLE_WEBHOOK_FILTERS.all? { |f| send(f, args) }
+            AVAILABLE_WEBHOOK_FILTERS.all? { |f| send(f, **args) }
           end
         end
 

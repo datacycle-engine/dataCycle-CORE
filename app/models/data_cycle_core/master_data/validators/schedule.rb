@@ -23,7 +23,7 @@ module DataCycleCore
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.schedule.general',
               substitutions: {
-                data: data,
+                data:,
                 template: template['label']
               }
             }
@@ -41,7 +41,7 @@ module DataCycleCore
                   (@error[:error][@template_key] ||= []) << {
                     path: 'validation.errors.schedule.thing_id',
                     substitutions: {
-                      data: data,
+                      data:,
                       template: template['label']
                     }
                   }
@@ -51,7 +51,7 @@ module DataCycleCore
                   (@error[:error][@template_key] ||= []) << {
                     path: 'validation.errors.schedule.relation',
                     substitutions: {
-                      data: data,
+                      data:,
                       template: template['label']
                     }
                   }
@@ -61,7 +61,7 @@ module DataCycleCore
                   (@error[:error][@template_key] ||= []) << {
                     path: 'validation.errors.schedule.time',
                     substitutions: {
-                      data: data,
+                      data:,
                       template: template['label']
                     }
                   }
@@ -71,7 +71,7 @@ module DataCycleCore
                   (@error[:error][@template_key] ||= []) << {
                     path: 'validation.errors.schedule.date_time_array',
                     substitutions: {
-                      data: data,
+                      data:,
                       template: template['label']
                     }
                   }
@@ -81,7 +81,7 @@ module DataCycleCore
                   (@error[:error][@template_key] ||= []) << {
                     path: 'validation.errors.schedule.rrule',
                     substitutions: {
-                      data: data,
+                      data:,
                       template: template['label']
                     }
                   }

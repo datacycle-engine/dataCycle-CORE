@@ -9,7 +9,7 @@ module DataCycleCore
     end
 
     def update_event(event, data_hash)
-      event.set_data_hash(data_hash: data_hash, partial_update: true, prevent_history: true)
+      event.set_data_hash(data_hash:, partial_update: true, prevent_history: true)
       event
     end
 
@@ -78,10 +78,10 @@ module DataCycleCore
       dtstart = Time.parse(dtstart).in_time_zone
       dtend = Time.parse(dtend).in_time_zone
       end_time = dtstart + duration
-      schedule.schedule_object = IceCube::Schedule.new(dtstart, end_time: end_time) do |s|
+      schedule.schedule_object = IceCube::Schedule.new(dtstart, end_time:) do |s|
         s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(9).until(dtend))
       end
-      schedule.schedule_object.to_hash.merge(dtstart: dtstart, dtend: dtend).compact
+      schedule.schedule_object.to_hash.merge(dtstart:, dtend:).compact
     end
 
     def create_event_with_event_schedule(schedule_hash, overlay_schedule_hash)
@@ -216,8 +216,8 @@ module DataCycleCore
       assert_equal(4, serialized_event['classifications'].size)
       assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'].include?('event_status') })
       assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'].include?('universal_classifications') })
-      assert_equal(['Test Veranstaltung geplant'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('event_status') }.map { |i| i['name'] }.sort)
-      assert_equal(['Test1'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('universal_classifications') }.map { |i| i['name'] }.sort)
+      assert_equal(['Test Veranstaltung geplant'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('event_status') }.pluck('name').sort)
+      assert_equal(['Test1'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('universal_classifications') }.pluck('name').sort)
     end
 
     test 'serialize mapped classifications overwritten in overlay' do
@@ -231,8 +231,8 @@ module DataCycleCore
       assert_equal(4, serialized_event['classifications'].size)
       assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'].include?('event_status') })
       assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'].include?('universal_classifications') })
-      assert_equal(['Test Veranstaltung abgesagt'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('event_status') }.map { |i| i['name'] }.sort)
-      assert_equal(['Test2'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('universal_classifications') }.map { |i| i['name'] }.sort)
+      assert_equal(['Test Veranstaltung abgesagt'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('event_status') }.pluck('name').sort)
+      assert_equal(['Test2'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('universal_classifications') }.pluck('name').sort)
     end
   end
 end

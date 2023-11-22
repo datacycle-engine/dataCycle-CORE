@@ -20,10 +20,10 @@ module DataCycleCore
               .method(properties.dig('content_score', 'method'))
 
             data_hash[key] = method_name.call(
-              key: key,
+              key:,
               parameters: parameter_keys.index_with { |v| data_hash[v] },
               data_hash: data_hash || {},
-              content: content,
+              content:,
               definition: properties
             )&.to_f
           end
@@ -31,7 +31,7 @@ module DataCycleCore
           def parameter_keys(content, key, properties)
             Array.wrap(properties&.dig('content_score', 'parameters'))
               .map { |p| p.split('.').first }
-              .concat([key])
+              .push(key)
               .compact
               .uniq
               .intersection(content.property_names)

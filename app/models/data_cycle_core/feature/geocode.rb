@@ -23,7 +23,7 @@ module DataCycleCore
         def endpoint
           return if external_source.blank?
 
-          @endpoint ||= configuration.dig(:endpoint).constantize.new(external_source.credentials.symbolize_keys)
+          @endpoint ||= configuration.dig(:endpoint).constantize.new(**external_source.credentials.symbolize_keys)
         end
 
         def geocode_address(address_hash, locale = I18n.locale)

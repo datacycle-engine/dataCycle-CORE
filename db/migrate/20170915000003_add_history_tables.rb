@@ -31,8 +31,8 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
     create_table :classification_creative_work_histories, id: :uuid do |t|
       t.uuid :creative_work_history_id
       t.uuid :classification_id
-      t.boolean :tag
-      t.boolean :classification
+      t.boolean :tag, default: false, null: false
+      t.boolean :classification, default: false, null: false
       t.datetime :seen_at
       t.timestamps
       t.uuid :external_source_id
@@ -70,8 +70,8 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
     create_table :classification_event_histories, id: :uuid do |t|
       t.uuid :event_history_id
       t.uuid :classification_id
-      t.boolean :tag
-      t.boolean :classification
+      t.boolean :tag, default: false, null: false
+      t.boolean :classification, default: false, null: false
       t.datetime :seen_at
       t.timestamps
       t.uuid :external_source_id
@@ -109,8 +109,8 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
     create_table :classification_person_histories, id: :uuid do |t|
       t.uuid :person_history_id
       t.uuid :classification_id
-      t.boolean :tag
-      t.boolean :classification
+      t.boolean :tag, default: false, null: false
+      t.boolean :classification, default: false, null: false
       t.datetime :seen_at
       t.timestamps
       t.uuid :external_source_id
@@ -164,8 +164,8 @@ class AddHistoryTables < ActiveRecord::Migration[5.0]
     create_table :classification_place_histories, id: :uuid do |t|
       t.uuid :place_history_id
       t.uuid :classification_id
-      t.boolean :tag
-      t.boolean :classification
+      t.boolean :tag, default: false, null: false
+      t.boolean :classification, default: false, null: false
       t.datetime :seen_at
       t.timestamps
       t.uuid :external_source_id

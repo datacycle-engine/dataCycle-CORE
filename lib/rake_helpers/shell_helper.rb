@@ -11,8 +11,8 @@ class ShellHelper
       exit(-1) # rubocop:disable Rails/Exit
     end
 
-    def prompt(*args)
-      print(*args) # rubocop:disable Rails/Output
+    def prompt(*)
+      print(*) # rubocop:disable Rails/Output
       STDIN.gets.strip
     end
 

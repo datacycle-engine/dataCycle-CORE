@@ -69,7 +69,7 @@ module DataCycleCore
         end
 
         def prepare_url_parameters
-          @url_parameters = permitted_params.reject { |k, _| k == 'format' }
+          @url_parameters = permitted_params.except('format')
         end
 
         def apply_ordering(query)

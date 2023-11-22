@@ -73,7 +73,7 @@ module DataCycleCore
         end
 
         def prepare_url_parameters
-          @url_parameters = permitted_params.reject { |k, _| k == 'format' }
+          @url_parameters = permitted_params.except('format')
           @include_parameters = (permitted_params.dig(:include)&.split(',') || []).select { |v| ALLOWED_INCLUDE_PARAMETERS.include?(v) }.sort
           @mode_parameters = (permitted_params.dig(:mode)&.split(',') || []).select { |v| ALLOWED_MODE_PARAMETERS.include?(v) }.sort
           @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s

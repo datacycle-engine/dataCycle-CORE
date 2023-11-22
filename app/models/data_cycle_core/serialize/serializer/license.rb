@@ -35,7 +35,7 @@ module DataCycleCore
             end
             DataCycleCore::Serialize::SerializedData::Content.new(
               data: data.join("\r\n"),
-              mime_type: mime_type,
+              mime_type:,
               file_name: I18n.t('feature.serialize.license.copyright.file_name', default: 'copyright', locale: language),
               id: SecureRandom.uuid
             )
@@ -44,7 +44,7 @@ module DataCycleCore
           def introduction_file(language)
             DataCycleCore::Serialize::SerializedData::Content.new(
               data: I18n.t('feature.serialize.license.introducton.text', default: 'Your text goes here', locale: language),
-              mime_type: mime_type,
+              mime_type:,
               file_name: I18n.t('feature.serialize.license.introducton.file_name', default: 'introduction', locale: language),
               id: SecureRandom.uuid
             )

@@ -4,21 +4,21 @@ inherit_from: .rubocop_todo.yml
 require:
   - rubocop-performance
   - rubocop-rails
-  - rubocop-minitest
+  # - rubocop-minitest
   - rubocop-rake
 
 AllCops:
-  TargetRubyVersion: 2.7.4
+  TargetRubyVersion: 3.2.2
   # TargetRailsVersion: 5.2.3
   DisplayCopNames: true
   NewCops: enable
   Exclude:
-    - 'node_modules/**/*'
-    - 'tmp/**/*'
-    - 'cache/**/*'
-    - 'bash/**/*'
-    - 'test/dummy/db/migrate_6_1/**/*'
-    - 'test/dummy/db/migrate_7_0/**/*'
+    - "node_modules/**/*"
+    - "tmp/**/*"
+    - "cache/**/*"
+    - "bash/**/*"
+    # - "test/dummy/db/migrate_6_1/**/*"
+    # - "test/dummy/db/migrate_7_0/**/*"
 
 #Rails:
 #  Enabled: true
@@ -93,12 +93,16 @@ Style/Documentation:
 Style/EmptyMethod:
   EnforcedStyle: expanded
 
+Style/HashSyntax:
+  Exclude:
+    - "app/views/data_cycle_core/api/v2/api_base/**/*"
+
 Style/MixinUsage:
   Exclude:
-    - 'bin/setup'
-    - 'bin/update'
-    - 'test/dummy/bin/setup'
-    - 'test/dummy/bin/update'
+    - "bin/setup"
+    - "bin/update"
+    # - "test/dummy/bin/setup"
+    # - "test/dummy/bin/update"
 
 Style/MultilineBlockChain:
   Enabled: false
@@ -190,7 +194,7 @@ Rails/ReflectionClassName:
 
 Rails/ApplicationController:
   Exclude:
-    - 'app/controllers/data_cycle_core/missing_asset_controller.rb'
+    - "app/controllers/data_cycle_core/missing_asset_controller.rb"
 
 Rails/RakeEnvironment:
   Enabled: false
@@ -217,57 +221,57 @@ Rake/MethodDefinitionInTask:
 
 #######################################################
 ########## Minitest
-Minitest/AssertInDelta:
-  Enabled: false
+# Minitest/AssertInDelta:
+#   Enabled: false
 
-Minitest/AssertTruthy:
-  Enabled: false
+# Minitest/AssertTruthy:
+#   Enabled: false
 
-Minitest/AssertNil:
-  Enabled: false
+# Minitest/AssertNil:
+#   Enabled: false
 
-Minitest/RefuteFalse:
-  Enabled: false
+# Minitest/RefuteFalse:
+#   Enabled: false
 
-Minitest/RefuteEqual:
-  Enabled: false
+# Minitest/RefuteEqual:
+#   Enabled: false
 
-Minitest/AssertWithExpectedArgument:
-  Enabled: false
+# Minitest/AssertWithExpectedArgument:
+#   Enabled: false
 
-Minitest/AssertPredicate:
-  Enabled: false
+# Minitest/AssertPredicate:
+#   Enabled: false
 
-Minitest/AssertEmptyLiteral:
-  Enabled: false
+# Minitest/AssertEmptyLiteral:
+#   Enabled: false
 
-Minitest/MultipleAssertions:
-  Enabled: false
+# Minitest/MultipleAssertions:
+#   Enabled: false
 
-Minitest/AssertEqual:
-  Enabled: false
+# Minitest/AssertEqual:
+#   Enabled: false
 
-Minitest/LiteralAsActualArgument:
-  Enabled: false
+# Minitest/LiteralAsActualArgument:
+#   Enabled: false
 
-Minitest/AssertIncludes:
-  Enabled: false
+# Minitest/AssertIncludes:
+#   Enabled: false
 
-Minitest/AssertionInLifecycleHook:
-  Enabled: false
+# Minitest/AssertionInLifecycleHook:
+#   Enabled: false
 
-Minitest/AssertRespondTo:
-  Enabled: false
+# Minitest/AssertRespondTo:
+#   Enabled: false
 
-Minitest/EmptyLineBeforeAssertionMethods:
-  Enabled: false
+# Minitest/EmptyLineBeforeAssertionMethods:
+#   Enabled: false
 
 #######################################################
 ########## Security
 
 Security/YAMLLoad:
   Exclude:
-    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
-    - 'app/models/data_cycle_core/master_data/import_templates.rb'
-    - 'app/models/data_cycle_core/master_data/import_external_sources.rb'
-    - 'app/models/data_cycle_core/master_data/import_mixins.rb'
+    - "app/models/data_cycle_core/master_data/import_classifications.rb"
+    - "app/models/data_cycle_core/master_data/import_templates.rb"
+    - "app/models/data_cycle_core/master_data/import_external_sources.rb"
+    - "app/models/data_cycle_core/master_data/import_mixins.rb"

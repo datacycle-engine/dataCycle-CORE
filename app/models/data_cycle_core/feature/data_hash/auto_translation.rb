@@ -25,7 +25,7 @@ module DataCycleCore
           timestamp = Time.zone.now
 
           additional_infos.each do |classification, locale_data_hash|
-            content = Thing.find_or_create_by(external_source_id: external_source_id, external_key: "#{classification}:#{external_key}") do |new_content|
+            content = Thing.find_or_create_by(external_source_id:, external_key: "#{classification}:#{external_key}") do |new_content|
               new_content.metadata ||= {}
               new_content.thing_template = template
               new_content.template_name = template.template_name
@@ -150,7 +150,7 @@ module DataCycleCore
               set_data_hash(
                 data_hash: {
                   translated_classification: ClassificationAlias.classifications_for_tree_with_name('Übersetzungstyp', 'Automatisch'),
-                  translation_type: translation_type
+                  translation_type:
                 }
               )
             end

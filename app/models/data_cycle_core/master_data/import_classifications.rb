@@ -14,7 +14,7 @@ module DataCycleCore
         classification_paths.each do |classification_path|
           file = classification_path + 'classifications.yml'
           next unless File.exist?(file)
-          tree_array = YAML.safe_load(File.open(file.to_s), [Symbol])
+          tree_array = YAML.safe_load(File.open(file.to_s), permitted_classes: [Symbol])
           tree_hash = iterate_array(tree_array)
           merged_data_trees, inhaltstypen_trees = merge_trees(merged_data_trees, tree_hash, inhaltstypen_trees)
         end
@@ -92,12 +92,12 @@ module DataCycleCore
 
         if find_alias.present?
           updated_data = find_alias
-          update_hash = { seen_at: Time.zone.now, internal: internal, description: description || updated_data.description, uri: uri || updated_data.uri }
+          update_hash = { seen_at: Time.zone.now, internal:, description: description || updated_data.description, uri: uri || updated_data.uri }
           updated_data.classification_tree&.update(parent_classification_alias_id: parent&.id)
           updated_data.update(update_hash)
         else
           # new Alias, create respective tree-entry
-          updated_data = DataCycleCore::ClassificationAlias.create(name: data, internal: internal, seen_at: Time.zone.now, description: description, uri: uri)
+          updated_data = DataCycleCore::ClassificationAlias.create(name: data, internal:, seen_at: Time.zone.now, description:, uri:)
 
           DataCycleCore::ClassificationTree.create(
             classification_alias_id: updated_data.id,
@@ -134,10 +134,10 @@ module DataCycleCore
           .joins(classification_groups: [:classification_alias])
           .where(classification_aliases: { id: classification_alias_id })
         if find_classification.empty?
-          classification = DataCycleCore::Classification.create(name: data, external_source_id: nil, description: description, uri: uri) do |item|
+          classification = DataCycleCore::Classification.create(name: data, external_source_id: nil, description:, uri:) do |item|
             item.seen_at = Time.zone.now
           end
-          DataCycleCore::ClassificationGroup.create(classification_id: classification.id, classification_alias_id: classification_alias_id, external_source_id: nil) do |group|
+          DataCycleCore::ClassificationGroup.create(classification_id: classification.id, classification_alias_id:, external_source_id: nil) do |group|
             group.seen_at = Time.zone.now
           end
         else
@@ -175,7 +175,7 @@ module DataCycleCore
 
         tree_label.external_source_id = external_source_id
         tree_label.save
-        DataCycleCore::ClassificationAlias.for_tree(tree_name).update_all(external_source_id: external_source_id)
+        DataCycleCore::ClassificationAlias.for_tree(tree_name).update_all(external_source_id:)
       end
     end
   end

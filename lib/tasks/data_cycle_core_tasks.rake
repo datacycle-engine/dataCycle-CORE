@@ -36,7 +36,7 @@ namespace :data_cycle_core do
         puts "frequency: #{args.frequency}"
         puts "Users for interval (#{args.frequency}): #{DataCycleCore::User.where(notification_frequency: args.frequency).size}"
 
-        DataCycleCore::User.where(notification_frequency: args.frequency, locked_at: nil).each do |user|
+        DataCycleCore::User.where(notification_frequency: args.frequency, locked_at: nil).find_each do |user|
           changed_content_ids = user.subscriptions.things.reject { |c| c.as_of(1.send(args.frequency).ago).try(:history?) == false }.pluck(:id)
 
           puts "Subscriptions with changes: #{changed_content_ids.size}"
@@ -58,7 +58,7 @@ namespace :data_cycle_core do
       DataCycleCore::ReportMailer.notify(
         identifier: args.fetch(:report_identifier, 'downloads_popular'),
         format: args.fetch(:format, 'xlsx'),
-        recipient: recipient
+        recipient:
       ).deliver_now
     end
     desc 'send monthly download report from the last month via email'
@@ -77,8 +77,8 @@ namespace :data_cycle_core do
       DataCycleCore::ReportMailer.notify(
         identifier: args.fetch(:report_identifier, 'downloads_popular'),
         format: args.fetch(:format, 'xlsx'),
-        recipient: recipient,
-        params: params
+        recipient:,
+        params:
       ).deliver_now
     end
   end
@@ -108,7 +108,7 @@ namespace :data_cycle_core do
             data_hash = {}
             data_hash[DataCycleCore::Feature::Releasable.attribute_keys.first] = [archive_release_id]
             data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = 'archived automatically.'
-            content.set_data_hash(data_hash: data_hash)
+            content.set_data_hash(data_hash:)
             logger.info("Archived (release_status): #{content.id} (THINGS/#{content.template_name}/#{content.translated_locales&.join(', ')})")
           end
           progressbar.increment
@@ -132,7 +132,7 @@ namespace :data_cycle_core do
           I18n.with_locale(content.first_available_locale) do
             data_hash = {}
             data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = [archive_life_cycle_id]
-            content.set_data_hash(data_hash: data_hash)
+            content.set_data_hash(data_hash:)
             logger.info("Archived (life_cycle): #{content.id} (THINGS/#{content.template_name}/#{content.translated_locales&.join(', ')})")
           end
           progressbar.increment
@@ -176,7 +176,7 @@ namespace :data_cycle_core do
             data_hash[DataCycleCore::Feature::Releasable.attribute_keys.first] = [valid_release_id]
             data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = 'reactivated automatically.'
 
-            if content.set_data_hash(data_hash: data_hash)
+            if content.set_data_hash(data_hash:)
               logger.info("Unarchived (release_status): #{content.id} (THINGS/#{content.template_name}/#{content.translated_locales&.join(', ')})")
             else
               logger.warn("Fehler (#{content.id}): #{content.errors.messages}")
@@ -206,7 +206,7 @@ namespace :data_cycle_core do
               data_hash = {}
               data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = [valid_life_cycle_id]
 
-              if content.set_data_hash(data_hash: data_hash)
+              if content.set_data_hash(data_hash:)
                 logger.info("Unarchived (life_cycle): #{content.id} (THINGS/#{content.template_name})")
               else
                 logger.warn("Fehler (#{content.id}): #{content.errors.messages}")
@@ -233,7 +233,8 @@ namespace :data_cycle_core do
       ['things'].map { |table| "DataCycleCore::#{table.classify}".constantize }.each do |model_class|
         duplicated_contents = model_class
           .select(:external_source_id, :external_key)
-          .where.not(external_source_id: nil, external_key: nil)
+          .where.not(external_source_id: nil)
+          .where.not(external_key: nil)
           .group(:external_source_id, :external_key)
           .having('COUNT(*) > 1')
 

@@ -14,15 +14,15 @@ module DataCycleCore
           Rails.cache.fetch("sync_api_v1/#{self.class.name.underscore}/#{id}_#{Array.wrap(locales).sort.join(',')}_#{updated_at.to_i}_#{cache_valid_since.to_i}_#{translated}_#{ancestor_ids.any?(&ancestor_proc)}", expires_in: 1.year + Random.rand(7.days)) do
             languages = available_locales.presence || [I18n.locale]
             languages = locales if locales.present? && translated
-            new_ancestor_ids = ancestor_ids + [{ id: id, attribute_name: attribute_name }]
+            new_ancestor_ids = ancestor_ids + [{ id:, attribute_name: }]
             preloaded = preload_sync_data if preloaded.blank?
 
             data = languages.index_with do |lang|
-              I18n.with_locale(lang) { to_sync_h(locales: locales, preloaded: preloaded, ancestor_ids: new_ancestor_ids, included: included, classifications: classifications) }
+              I18n.with_locale(lang) { to_sync_h(locales:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:) }
             end
 
-            attribute_to_sync_h('included', preloaded: preloaded, ancestor_ids: new_ancestor_ids, included: included, classifications: classifications, locales: languages)
-            attribute_to_sync_h('classifications', preloaded: preloaded, ancestor_ids: new_ancestor_ids, included: included, classifications: classifications)
+            attribute_to_sync_h('included', preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, locales: languages)
+            attribute_to_sync_h('classifications', preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:)
 
             if ancestor_ids.any?(&ancestor_proc)
               data['recursive'] = ancestor_ids.reject(&ancestor_proc).filter { |a| a[:attribute_name]&.in?(data[languages.first].keys) }
@@ -40,9 +40,9 @@ module DataCycleCore
 
         def to_sync_h(locales: nil, preloaded: {}, ancestor_ids: [], included: [], classifications: [])
           (property_names - timeseries_property_names)
-            .index_with { |key| attribute_to_sync_h(key, locales: locales, preloaded: preloaded, ancestor_ids: ancestor_ids, included: included, classifications: classifications) }
+            .index_with { |key| attribute_to_sync_h(key, locales:, preloaded:, ancestor_ids:, included:, classifications:) }
             .merge(sync_metadata)
-            .tap { |sync_data| sync_data['universal_classifications'] += attribute_to_sync_h('mapped_classifications', locales: locales, preloaded: preloaded, ancestor_ids: ancestor_ids, included: included, classifications: classifications) }
+            .tap { |sync_data| sync_data['universal_classifications'] += attribute_to_sync_h('mapped_classifications', locales:, preloaded:, ancestor_ids:, included:, classifications:) }
             .deep_stringify_keys
         end
 
@@ -68,7 +68,7 @@ module DataCycleCore
             embedded_array = send(property_name_with_overlay)
 
             translated = property_definitions[property_name]['translated']
-            embedded_array&.map { |i| i.to_sync_data(translated: translated, locales: locales, preloaded: preloaded, ancestor_ids: ancestor_ids, included: included, classifications: classifications, attribute_name: property_name) }&.compact || []
+            embedded_array&.map { |i| i.to_sync_data(translated:, locales:, preloaded:, ancestor_ids:, included:, classifications:, attribute_name: property_name) }&.compact || []
           elsif asset_property_names.include?(property_name)
             # send(property_name_with_overlay) # do nothing --> only import url not asset itself
           elsif schedule_property_names.include?(property_name)
@@ -83,7 +83,7 @@ module DataCycleCore
               property_name_with_overlay = "#{linked}_#{overlay_name}" if overlay_property_names.include?(linked)
               linked_array = get_property_value(linked, property_definitions[linked], nil, present_overlay)
               linked_array&.each do |i|
-                data = i.to_sync_data(preloaded: preloaded, ancestor_ids: ancestor_ids, included: included, classifications: classifications, attribute_name: linked)&.merge({ attribute_name: [linked] })
+                data = i.to_sync_data(preloaded:, ancestor_ids:, included:, classifications:, attribute_name: linked)&.merge({ attribute_name: [linked] })
 
                 existing = included.detect { |item| item.dig(locales&.first&.to_s || I18n.locale.to_s, 'id') == i.id }
 
@@ -154,11 +154,11 @@ module DataCycleCore
 
         def sync_metadata
           sm = {
-            template_name: template_name,
-            updated_at: updated_at,
-            created_at: created_at,
-            external_key: external_key,
-            external_source_id: external_source_id,
+            template_name:,
+            updated_at:,
+            created_at:,
+            external_key:,
+            external_source_id:,
             external_source: external_source&.identifier
           }
           unless embedded?
@@ -189,7 +189,7 @@ module DataCycleCore
         end
 
         def preload_sync_data
-          DataCycleCore::Thing.unscoped.where(id: id).tap { |rel| rel.send(:load_records, [self]) }.preload_sync_data.last
+          DataCycleCore::Thing.unscoped.where(id:).tap { |rel| rel.send(:load_records, [self]) }.preload_sync_data.last
         end
 
         class_methods do
@@ -336,7 +336,7 @@ module DataCycleCore
             things.map do |content|
               content.to_sync_data(
                 locales: content.available_locales,
-                preloaded: preloaded
+                preloaded:
               )
             end
           end

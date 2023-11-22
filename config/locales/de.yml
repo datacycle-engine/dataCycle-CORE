@@ -653,9 +653,11 @@ de:
             one: "Erinnerung: Bearbeitung von Inhalt abschließen"
             other: "Erinnerung: Bearbeitung von Inhalten abschließen"
           first_line:
-            one: Folgender Inhalt wurde seit mehr als einer Woche nicht bearbeitet und die Bearbeitung wurde noch nicht abgeschlossen.
-            other: Folgende Inhalte wurden seit mehr als einer Woche nicht bearbeitet und die Bearbeitung wurde noch nicht abgeschlossen.
-          second_line: Bitte ergänzen Sie fehlende Inhalte und schließen Sie die Bearbeitung ab!
+            one: Folgender Inhalt wurde seit mehr als einer Woche nicht bearbeitet.
+            other: Folgende Inhalte wurden seit mehr als einer Woche nicht bearbeitet.
+          second_line:
+            one: Daher möchten wir Sie daran erinnern, fehlende Inhalte zu vervollständigen und den Inhalt final abzuschließen.
+            other: Daher möchten wir Sie daran erinnern, fehlende Inhalte zu vervollständigen und die Inhalte final abzuschließen.
     named_version:
       input_label: Versionsname
       version_name: "Version: %{name}"
@@ -796,6 +798,10 @@ de:
     upload_date: Uploaddatum
     duplicate_candidates: Potentielle Duplikate vorhanden
     not_duplicate_candidates: keine potentiellen Duplikate vorhanden
+    with_geom: Inhalte mit Geokoordinaten
+    not_with_geom: Inhalte ohne Geokoordinaten
+    with_external_source: Importierte Inhalte
+    not_with_external_source: Nicht Importierte Inhalte
     bookable: buchbar
     not_bookable: nicht buchbar
     width: Breite
@@ -880,6 +886,11 @@ de:
       confirmed_at: E-Mail bestätigt
       not_confirmed_at: E-Mail nicht bestätigt
     active: Aktiv
+    ascent: Aufstieg (m)
+    descent: Abstieg (m)
+    min_altitude: Minimale Seehöhe (m)
+    max_altitude: Maximale Seehöhe (m)
+    length: Länge (m)
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...
@@ -1603,12 +1614,16 @@ de:
         EventGroup: Beschreibung
       infrastructure:
         AdditionalService: Zusatzleistung
+        Arrival Information: Informationen zur Anreise
         CurrentInformation: Aktuelle Informationen
         GuestCardClassification: Gästekartenleistungen
         InfrastructureLong: Detailbeschreibung
         InfrastructureOpeningTimes: Öffnungszeiten
         InfrastructurePriceInfo: Preisinformation
         InfrastructureShort: Kurzbeschreibung
+        Payment: Zahlungsmodalitäten
+        Price Information: Preis
+        ServiceDescription: Beschreibung
       GuestCards:
         GuestCardClassification: Gästekartenleistungen
       accommodation:
@@ -1667,6 +1682,7 @@ de:
       literature: Literatur
       publicTransit: Öffentlicher Transport
       seasonDescription: Begehbare Monate
+      Preis-Zusatzbeschreibung: Preis-Zusatzbeschreibung
     gem2go:
       description: Beschreibung
     timm4:
@@ -1747,7 +1763,8 @@ de:
       Depends: wetterabhängig
       Suitable: geeignet
     bierfinder:
-      book: Beschreibung
+      description: Beschreibung
+      book: Detailbeschreibung
       tipp: Tip
       essenUndSpezial: Essen und Spezialitäten
       biersorten: Biersorten
@@ -1763,6 +1780,8 @@ de:
       parkingPossibilities: Parkmöglichkeiten
       seasonDescription: Begehbare Monate
       priceSpecification: Preisbeschreibung
+      doorTime: Einlass
+      meetingPoint: Treffpunkt
     wintop:
       beschreibung: Beschreibung
       teaser: Teaser

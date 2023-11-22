@@ -19,7 +19,7 @@ module DataCycleCore
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.data_type',
               substitutions: {
-                data: data,
+                data:,
                 template: template['label']
               }
             }
@@ -55,7 +55,7 @@ module DataCycleCore
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.data_format',
               substitutions: {
-                key: key,
+                key:,
                 template: template['label']
               }
             }
@@ -72,7 +72,7 @@ module DataCycleCore
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.not_found',
             substitutions: {
-              key: key,
+              key:,
               template: template['label'],
               table: 'things'
             }
@@ -86,7 +86,7 @@ module DataCycleCore
             path: 'validation.errors.min_ref',
             substitutions: {
               data: data&.size.to_i,
-              value: value
+              value:
             }
           }
         end
@@ -98,7 +98,7 @@ module DataCycleCore
             path: 'validation.errors.min_ref',
             substitutions: {
               data: data&.size.to_i,
-              value: value
+              value:
             }
           }
         end
@@ -110,7 +110,7 @@ module DataCycleCore
             path: 'validation.errors.max_ref',
             substitutions: {
               data: data&.size.to_i,
-              value: value
+              value:
             }
           }
         end
@@ -122,7 +122,7 @@ module DataCycleCore
             path: 'validation.errors.max_ref',
             substitutions: {
               data: data&.size.to_i,
-              value: value
+              value:
             }
           }
         end

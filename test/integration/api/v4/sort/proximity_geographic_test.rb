@@ -78,8 +78,8 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(4)
 
-            json_data = JSON.parse(response.body)
-            assert_equal([@poi_d.id, @poi_b.id, @poi_a.id, @poi_c.id], json_data.dig('@graph').map { |thing| thing['@id'] })
+            json_data = response.parsed_body
+            assert_equal([@poi_d.id, @poi_b.id, @poi_a.id, @poi_c.id], json_data.dig('@graph').pluck('@id'))
 
             # sorting: proximity.geographic ASC
             params = {
@@ -96,8 +96,8 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(4)
 
-            json_data = JSON.parse(response.body)
-            assert_equal([@poi_d.id, @poi_b.id, @poi_a.id, @poi_c.id], json_data.dig('@graph').map { |thing| thing['@id'] })
+            json_data = response.parsed_body
+            assert_equal([@poi_d.id, @poi_b.id, @poi_a.id, @poi_c.id], json_data.dig('@graph').pluck('@id'))
 
             # proximity.geographic DESC
             params = {
@@ -114,8 +114,8 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(4)
 
-            json_data = JSON.parse(response.body)
-            assert_equal([@poi_a.id, @poi_c.id, @poi_b.id, @poi_d.id], json_data.dig('@graph').map { |thing| thing['@id'] })
+            json_data = response.parsed_body
+            assert_equal([@poi_a.id, @poi_c.id, @poi_b.id, @poi_d.id], json_data.dig('@graph').pluck('@id'))
           end
         end
       end

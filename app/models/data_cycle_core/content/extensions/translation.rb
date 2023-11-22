@@ -7,7 +7,7 @@ module DataCycleCore
         extend ActiveSupport::Concern
 
         def attribute_translatable?(attribute, definition = nil)
-          return if attribute.blank?
+          return false if attribute.blank?
 
           definition ||= properties_for(attribute)
 
@@ -29,21 +29,21 @@ module DataCycleCore
           def translated_attribute_name(key, _definition, content, ui_scope, locale, _display_locale, count)
             return if key.blank?
 
-            if I18n.exists?("attribute_labels.#{ui_scope}.#{content&.template_name}.#{key}", count: count, locale: locale)
-              I18n.t("attribute_labels.#{ui_scope}.#{content&.template_name}.#{key}", count: count, locale: locale)
-            elsif I18n.exists?("attribute_labels.#{content&.template_name}.#{key}", count: count, locale: locale)
-              I18n.t("attribute_labels.#{content&.template_name}.#{key}", count: count, locale: locale)
-            elsif I18n.exists?("attribute_labels.#{ui_scope}.#{key}", count: count, locale: locale)
-              I18n.t("attribute_labels.#{ui_scope}.#{key}", count: count, locale: locale)
-            elsif I18n.exists?("attribute_labels.#{key}", count: count, locale: locale)
-              I18n.t("attribute_labels.#{key}", count: count, locale: locale)
+            if I18n.exists?("attribute_labels.#{ui_scope}.#{content&.template_name}.#{key}", count:, locale:)
+              I18n.t("attribute_labels.#{ui_scope}.#{content&.template_name}.#{key}", count:, locale:)
+            elsif I18n.exists?("attribute_labels.#{content&.template_name}.#{key}", count:, locale:)
+              I18n.t("attribute_labels.#{content&.template_name}.#{key}", count:, locale:)
+            elsif I18n.exists?("attribute_labels.#{ui_scope}.#{key}", count:, locale:)
+              I18n.t("attribute_labels.#{ui_scope}.#{key}", count:, locale:)
+            elsif I18n.exists?("attribute_labels.#{key}", count:, locale:)
+              I18n.t("attribute_labels.#{key}", count:, locale:)
             end
           end
 
           def translated_tree_label_name(_key, definition, _content, _ui_scope, locale, _display_locale, _count)
-            return unless definition&.dig('tree_label').present? && I18n.exists?("filter.#{definition.dig('tree_label').underscore_blanks}", locale: locale)
+            return unless definition&.dig('tree_label').present? && I18n.exists?("filter.#{definition.dig('tree_label').underscore_blanks}", locale:)
 
-            I18n.t("filter.#{definition.dig('tree_label').underscore_blanks}", locale: locale)
+            I18n.t("filter.#{definition.dig('tree_label').underscore_blanks}", locale:)
           end
 
           def translated_attribute_fallback_name(key, definition, _content, ui_scope, _locale, _display_locale, _count)

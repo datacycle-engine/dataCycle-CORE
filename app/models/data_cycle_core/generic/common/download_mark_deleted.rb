@@ -8,7 +8,7 @@ module DataCycleCore
           DataCycleCore::Generic::Common::DownloadFunctions.mark_deleted_from_data(
             download_object: utility_object,
             iterator: method(:load_contents).to_proc,
-            options: options
+            options:
           )
         end
 

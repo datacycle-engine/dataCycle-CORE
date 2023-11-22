@@ -9,7 +9,7 @@ module DataCycleCore
     def self.classification_aliases
       return DataCycleCore::ClassificationAlias.none if all.is_a?(ActiveRecord::NullRelation)
 
-      DataCycleCore::ClassificationAlias.where(id: all.pluck(:classification_alias_id))
+      DataCycleCore::ClassificationAlias.where(id: pluck(:classification_alias_id))
     end
   end
 end

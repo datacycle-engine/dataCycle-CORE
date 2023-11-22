@@ -19,7 +19,7 @@
           options: merged_options,
           content: content,
           parent: local_assigns[:parent],
-          diff_target: changes_by_mode(changes_by_value_hash, '~').present? ? diff_target_by_id(local_assigns.merge({ object: object })) : nil,
+          diff_target: changes_by_mode(changes_by_value_hash, '~').present? ? diff_target_by_id(**local_assigns.merge({ object: object })) : nil,
           data_attributes: {
             editor: 'embedded_object',
             id: [object.id],

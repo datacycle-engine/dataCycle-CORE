@@ -48,7 +48,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(2)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@poi_a.id, json_data.dig('@graph').first.dig('@id'))
 
             # ASC
@@ -62,7 +62,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(2)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@poi_b.id, json_data.dig('@graph').first.dig('@id'))
 
             # ASC
@@ -76,7 +76,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(2)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@poi_b.id, json_data.dig('@graph').first.dig('@id'))
 
             # DESC
@@ -90,7 +90,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(2)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@poi_a.id, json_data.dig('@graph').first.dig('@id'))
           end
         end

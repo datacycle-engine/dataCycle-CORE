@@ -22,7 +22,7 @@ describe DataCycleCore::MasterData::ImportExternalSystems do
     end
 
     let(:external_source_config) do
-      YAML.safe_load(File.open(external_source), [Symbol]).to_h
+      YAML.safe_load(File.open(external_source), permitted_classes: [Symbol]).to_h
     end
 
     let(:external_source_download_contract) do
@@ -34,7 +34,7 @@ describe DataCycleCore::MasterData::ImportExternalSystems do
     end
 
     it 'has a config path defined' do
-      assert(DataCycleCore.external_systems_path.is_a?(::Array))
+      assert(DataCycleCore.external_systems_path.is_a?(Array))
     end
 
     it 'successfully validates the test config' do

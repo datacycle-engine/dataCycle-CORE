@@ -93,7 +93,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(['D', 'C', 'B', 'A'], json_data.dig('@graph').pluck('name'))
             # default = proximity.inTime
@@ -114,7 +114,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(['A', 'B', 'C', 'D'], json_data.dig('@graph').pluck('name'))
           end
@@ -138,7 +138,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(['D', 'C', 'B', 'A'], json_data.dig('@graph').pluck('name'))
           end

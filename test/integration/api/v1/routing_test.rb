@@ -21,7 +21,7 @@ module DataCycleCore
 
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_equal 1, json_data['collections'].length
         end
 
@@ -30,7 +30,7 @@ module DataCycleCore
 
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_equal 'Merkliste 1', json_data.dig('collection', 'name')
           assert_equal 0, json_data.dig('collection', 'items').length
         end

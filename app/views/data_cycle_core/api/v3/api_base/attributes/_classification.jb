@@ -14,7 +14,7 @@ unless @mode_parameters.include?('compact')
         }
       end
     else
-      json.merge! render 'classifications', classification_aliases: classification_aliases, key: key_new, definition: definition
+      json.merge! render 'classifications', classification_aliases:, key: key_new, definition:
     end
   end
 end

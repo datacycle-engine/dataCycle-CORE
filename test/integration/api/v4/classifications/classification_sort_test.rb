@@ -29,7 +29,7 @@ module DataCycleCore
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(tree_tags.id, json_data.dig('@graph').first.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
@@ -46,7 +46,7 @@ module DataCycleCore
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(tree_tags.id, json_data.dig('@graph').last.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
@@ -63,7 +63,7 @@ module DataCycleCore
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(tree_tags.id, json_data.dig('@graph').last.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
@@ -88,7 +88,7 @@ module DataCycleCore
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(tree_tags.id, json_data.dig('@graph').first.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
@@ -105,7 +105,7 @@ module DataCycleCore
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(tree_tags.id, json_data.dig('@graph').last.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
@@ -122,7 +122,7 @@ module DataCycleCore
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(tree_tags.id, json_data.dig('@graph').last.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
@@ -138,7 +138,7 @@ module DataCycleCore
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(tree_tags.id, json_data.dig('@graph').first.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
@@ -161,7 +161,7 @@ module DataCycleCore
             post api_v4_concept_schemes_path(params)
             assert_api_count_result(@trees)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(tree_tags.id, json_data.dig('@graph').first.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
@@ -190,7 +190,7 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(classificaton_tag.id, json_data.dig('@graph').last.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
@@ -208,7 +208,7 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(classificaton_tag.id, json_data.dig('@graph').last.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
@@ -226,7 +226,7 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(classificaton_tag.id, json_data.dig('@graph').first.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|
@@ -243,7 +243,7 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(classifications.first.id, json_data.dig('@graph').first.dig('@id'))
 
             classification_mappings = classifications.index_by(&:id)
@@ -263,7 +263,7 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
             assert_api_count_result(classifications_count)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(classificaton_tag.id, json_data.dig('@graph').first.dig('@id'))
 
             json_data.dig('@graph').each_cons(2) do |a, b|

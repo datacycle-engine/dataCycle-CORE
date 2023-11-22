@@ -54,11 +54,11 @@ module DataCycleCore
                                                   external_key: attributes[:external_key],
                                                   uri: attributes[:uri])
 
-          ClassificationGroup.create!(classification: classification,
-                                      classification_alias: classification_alias)
+          ClassificationGroup.create!(classification:,
+                                      classification_alias:)
 
           ClassificationTree.create!(classification_tree_label: self,
-                                     parent_classification_alias: parent_classification_alias,
+                                     parent_classification_alias:,
                                      sub_classification_alias: classification_alias)
         end
 
@@ -93,11 +93,11 @@ module DataCycleCore
 
           classification = Classification.create!(attributes.slice(:name, :external_source_id, :external_key, :uri))
 
-          ClassificationGroup.create!(classification: classification,
-                                      classification_alias: classification_alias)
+          ClassificationGroup.create!(classification:,
+                                      classification_alias:)
 
           ClassificationTree.create!(classification_tree_label: self,
-                                     parent_classification_alias: parent_classification_alias,
+                                     parent_classification_alias:,
                                      sub_classification_alias: classification_alias)
         else
           classification_alias.primary_classification.update!(attributes.slice(:external_source_id, :external_key, :uri))

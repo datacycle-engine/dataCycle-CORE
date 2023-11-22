@@ -43,43 +43,52 @@ module DataCycleCore
         raise 'missing definition in permission' if definition.blank?
 
         self.class.list.push({
-          condition: condition,
-          actions: actions,
-          definition: definition
+          condition:,
+          actions:,
+          definition:
         })
       end
 
       alias add_permission permit
 
-      def permit_user(role, *actions, definition)
+      def permit_user(role, *, definition)
         raise 'missing role in permission' if role.blank?
 
-        permit(segment(:UsersByRole).new(role), *actions, definition_to_segment(definition))
+        permit(segment(:UsersByRole).new(role), *, definition_to_segment(definition))
       end
 
-      def permit_user_except(roles, *actions, definition)
+      def permit_user_except(roles, *, definition)
         raise 'missing role in permission' if roles.blank?
 
-        permit(segment(:UsersExceptRoles).new(roles), *actions, definition_to_segment(definition))
+        permit(segment(:UsersExceptRoles).new(roles), *, definition_to_segment(definition))
       end
 
-      def permit_by_email_domain(domain, *actions, definition)
+      def permit_by_email_domain(domain, *, definition)
         raise 'missing domain in permission' if domain.blank?
 
-        permit(segment(:UsersByEmailDomain).new(domain), *actions, definition_to_segment(definition))
+        permit(segment(:UsersByEmailDomain).new(domain), *, definition_to_segment(definition))
       end
 
-      def permit_user_group(group_name, roles, *actions, definition)
+      def permit_user_group(group_name, roles, *, definition)
         raise 'missing user_group name in permission' if group_name.blank?
         raise 'missing roles in permission' if roles.blank?
 
-        permit(segment(:UsersByUserGroup).new(group_name, roles), *actions, definition_to_segment(definition))
+        permit(segment(:UsersByUserGroup).new(group_name, roles), *, definition_to_segment(definition))
       end
 
       def definition_to_segment(definition)
         return segment(definition).new unless definition.is_a?(::Hash)
 
-        segment(definition.keys.first).new(*definition.values.first)
+        definition_values = definition.values.first
+        if definition_values.last.is_a?(::Hash)
+          if definition_values.length > 1
+            segment(definition.keys.first).new(*definition_values[0..-2], **definition_values[-1])
+          else
+            segment(definition.keys.first).new(**definition_values[0])
+          end
+        else
+          segment(definition.keys.first).new(*definition_values)
+        end
       end
 
       def self.filtered_list(user)

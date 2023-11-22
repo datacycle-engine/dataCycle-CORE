@@ -116,7 +116,7 @@ module DataCycleCore
         data_hash = {}
         data_hash['linked_place'] = linked_bi_objects if linked_bi_objects.present?
         data_hash['linked_main_place'] = linked_objects if linked_objects.present?
-        data_set.set_data_hash(data_hash: data_hash, save_time: timestamp)
+        data_set.set_data_hash(data_hash:, save_time: timestamp)
 
         return data_set, timestamp
       end

@@ -6,6 +6,6 @@ class RemoveAdminFromUsers < ActiveRecord::Migration[5.1]
   end
 
   def down
-    add_column :users, :admin, :boolean
+    add_column :users, :admin, :boolean, default: false, null: false
   end
 end

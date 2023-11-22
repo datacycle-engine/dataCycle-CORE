@@ -31,7 +31,7 @@ module DataCycleCore
             }
             post api_v4_concept_scheme_path(params)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_validate = json_data.dup.dig('@graph').first
 
             assert_context(json_data.dig('@context'), 'de')
@@ -74,7 +74,7 @@ module DataCycleCore
             }
             post api_v4_concept_scheme_path(params)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_validate = json_data.dup.dig('@graph').first
 
             assert_context(json_data.dig('@context'), params.dig(:language))
@@ -127,7 +127,7 @@ module DataCycleCore
             }
             post api_v4_concept_scheme_path(params)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_validate = json_data.dup.dig('@graph').first
 
             assert_context(json_data.dig('@context'), params.dig(:language))
@@ -187,7 +187,7 @@ module DataCycleCore
             }
             post classifications_api_v4_concept_scheme_path(params)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_validate = json_data.dup.dig('@graph').first
 
             assert_context(json_data.dig('@context'), params.dig(:language))
@@ -303,7 +303,7 @@ module DataCycleCore
             }
             post classifications_api_v4_concept_scheme_path(params)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_validate = json_data.dup.dig('@graph').first
 
             assert_context(json_data.dig('@context'), params.dig(:language))
@@ -447,7 +447,7 @@ module DataCycleCore
             }
             post classifications_api_v4_concept_scheme_path(params)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_validate = json_data.dup.dig('@graph').first
 
             assert_context(json_data.dig('@context'), params.dig(:language))
@@ -616,7 +616,7 @@ module DataCycleCore
             }
             post classifications_api_v4_concept_scheme_path(params)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_validate = json_data.dup.dig('@graph').first
 
             assert_context(json_data.dig('@context'), params.dig('de'))

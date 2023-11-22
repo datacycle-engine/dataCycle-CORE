@@ -737,6 +737,7 @@ $filter-border: #aaa;
     .tag-group {
       display: flex;
       align-items: flex-start;
+      gap: 0.3rem;
 
       >.tags-container {
         flex: auto;
@@ -772,14 +773,13 @@ $filter-border: #aaa;
         display: inline-flex;
         align-items: center;
         white-space: nowrap;
-        margin-right: 0.5rem;
         color: $primary-color;
         font-weight: bold;
         padding-top: 1px;
+        gap: 0.3rem;
 
         i {
           font-size: 1rem;
-          margin-right: 0.5rem;
         }
       }
     }
@@ -805,6 +805,7 @@ $filter-border: #aaa;
 
     .tag-group {
       display: inline-flex;
+      gap: 0.3rem;
       border-radius: $global-radius;
       padding: 2px 4px;
       margin: 0 0.5rem 0.5rem 0;
@@ -879,21 +880,17 @@ $filter-border: #aaa;
 
       .tag-buttons {
         flex: none;
-        padding: 1px 3px 1px 5px;
+        padding: 1px 3px 1px 1px;
       }
 
       .tag-group-label {
-        padding: 1px 5px 1px 3px;
+        padding: 1px 1px 1px 3px;
       }
 
       label {
+        display: inline-block;
         line-height: inherit;
         font-size: inherit;
-      }
-
-      label,
-      a {
-        display: inline-block;
       }
 
       a.tag {
@@ -1291,6 +1288,10 @@ $filter-border: #aaa;
             color: $dark-gray;
             min-width: 10rem;
             flex: 0;
+
+            i.fa {
+              font-size: 0.9rem;
+            }
           }
         }
 
@@ -1370,11 +1371,6 @@ $filter-border: #aaa;
                 color: $black;
               }
 
-              i {
-                font-size: 0.9rem;
-                margin-right: 0.2rem;
-              }
-
               span {
                 &.title {
                   color: $black;
@@ -1393,10 +1389,10 @@ $filter-border: #aaa;
                   flex: auto;
 
                   .tag-group {
-                    color: $dark-gray;
+                    color: var(--black);
                     display: flex;
                     align-items: center;
-                    gap: 0.5rem;
+                    gap: 0.3rem;
                     border-radius: $global-radius;
                     padding: 2px 4px;
                     background-color: lighten($dark-gray, 32%);
@@ -1589,6 +1585,9 @@ $filter-border: #aaa;
 .tag-group-label {
   color: $black;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 
   .fa {
     font-size: 0.8rem;
@@ -1897,26 +1896,6 @@ $filter-border: #aaa;
     &.active {
       background: $white;
       box-shadow: 0 5px 3px rgba(0, 0, 0, 0.3);
-    }
-  }
-}
-
-.tag-group {
-  &.advanced-tags {
-    .tag {
-      &.stored_filter::before {
-        content: '\f0b0';
-        font-family: FontAwesome;
-        position: relative;
-        padding: 2px 5px 2px 2px;
-      }
-
-      &.watch_list::before {
-        content: '\f0ca';
-        font-family: FontAwesome;
-        position: relative;
-        padding: 2px 5px 2px 2px;
-      }
     }
   }
 }

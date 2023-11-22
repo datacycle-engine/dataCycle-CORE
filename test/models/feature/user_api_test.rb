@@ -39,7 +39,7 @@ module DataCycleCore
       update_user_api_config({ test1: {} })
 
       assert_equal Rails.application.secrets.secret_key_base.to_s, DataCycleCore::Feature::UserApi.secret_key
-      assert_equal OpenSSL::PKey::RSA, DataCycleCore::Feature::UserApi.secret_for_issuer('test1').class
+      assert_instance_of OpenSSL::PKey::RSA, DataCycleCore::Feature::UserApi.secret_for_issuer('test1')
       assert_equal DataCycleCore.features.dig(:user_api, :allowed_issuers, :test1, :public_key), DataCycleCore::Feature::UserApi.secret_for_issuer('test1').to_s
     end
   end

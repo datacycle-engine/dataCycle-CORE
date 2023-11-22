@@ -42,7 +42,7 @@ module DataCycleCore
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.uuid',
             substitutions: {
-              data: data
+              data:
             }
           }
         end
@@ -88,8 +88,8 @@ module DataCycleCore
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.match',
             substitutions: {
-              data: data,
-              expression: expression
+              data:,
+              expression:
             }
           }
         end
@@ -101,8 +101,8 @@ module DataCycleCore
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.format',
               substitutions: {
-                data: data,
-                format_string: format_string
+                data:,
+                format_string:
               }
             }
           end
@@ -117,7 +117,7 @@ module DataCycleCore
               (@error[:error][@template_key] ||= []) << {
                 path: 'validation.errors.url',
                 substitutions: {
-                  data: data
+                  data:
                 }
               }
             end
@@ -125,7 +125,7 @@ module DataCycleCore
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.url',
               substitutions: {
-                data: data
+                data:
               }
             }
           end
@@ -140,7 +140,7 @@ module DataCycleCore
               (@error[:warning][@template_key] ||= []) << {
                 path: 'validation.errors.url',
                 substitutions: {
-                  data: data
+                  data:
                 }
               }
             end
@@ -148,7 +148,7 @@ module DataCycleCore
             (@error[:warning][@template_key] ||= []) << {
               path: 'validation.errors.url',
               substitutions: {
-                data: data
+                data:
               }
             }
           end
@@ -167,7 +167,7 @@ module DataCycleCore
           (@error[:warning][@template_key] ||= []) << {
             path: 'validation.warnings.telephone_din5008',
             substitutions: {
-              data: data
+              data:
             }
           }
         end

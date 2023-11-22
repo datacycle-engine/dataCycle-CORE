@@ -15,8 +15,8 @@ class CreateSearch < ActiveRecord::Migration[5.0]
       t.uuid :content_data_id
       t.string :content_data_type
       t.uuid :classification_id
-      t.boolean :tag
-      t.boolean :classification
+      t.boolean :tag, default: false, null: false
+      t.boolean :classification, default: false, null: false
       t.datetime :seen_at
       t.timestamps
       t.uuid :external_source_id
@@ -26,8 +26,8 @@ class CreateSearch < ActiveRecord::Migration[5.0]
       t.uuid :content_data_history_id
       t.string :content_data_history_type
       t.uuid :classification_id
-      t.boolean :tag
-      t.boolean :classification
+      t.boolean :tag, default: false, null: false
+      t.boolean :classification, default: false, null: false
       t.datetime :seen_at
       t.timestamps
       t.uuid :external_source_id
@@ -87,8 +87,8 @@ class CreateSearch < ActiveRecord::Migration[5.0]
       create_table "classification_#{item[:name]}s".to_sym, id: :uuid do |t|
         t.uuid "#{item[:name]}_id".to_sym
         t.uuid :classification_id
-        t.boolean :tag
-        t.boolean :classification
+        t.boolean :tag, default: false, null: false
+        t.boolean :classification, default: false, null: false
         t.datetime :seen_at
         t.timestamps
         t.uuid :external_source_id
@@ -97,8 +97,8 @@ class CreateSearch < ActiveRecord::Migration[5.0]
       create_table "classification_#{item[:name]}_histories", id: :uuid do |t|
         t.uuid "#{item[:name]}_history_id"
         t.uuid :classification_id
-        t.boolean :tag
-        t.boolean :classification
+        t.boolean :tag, default: false, null: false
+        t.boolean :classification, default: false, null: false
         t.datetime :seen_at
         t.timestamps
         t.uuid :external_source_id

@@ -10,17 +10,17 @@ module DataCycleCore
         rescue SystemStackError => e
           ActiveSupport::Notifications.instrument 'webhooks_failed.datacycle', {
             exception: e,
-            action: action,
+            action:,
             payload: data
           }
         end
       end
 
       def self.execute(external_system, webhook, data, action)
-        utility_object = DataCycleCore::Export::PushObject.new(external_system: external_system)
+        utility_object = DataCycleCore::Export::PushObject.new(external_system:)
         init_logging(utility_object) do |logging|
           logging.info("Webhook: #{action} | #{external_system.name} | #{webhook}", data.id)
-          webhook.process(utility_object: utility_object, data: data)
+          webhook.process(utility_object:, data:)
         end
       end
 

@@ -8,7 +8,7 @@ namespace :dc do
       tsv = CSV.open(Rails.root.join('log', 'POI.tsv'), 'wb')
       tsv << [['#ID', 'EVENTPLACE', 'LATITUDE', 'LONGITUDE', 'STREET', 'COUNTRY', 'CITY', 'ZIP', 'COMMENT'].join("\t")]
       tsv << [['#ID', 'EVENTPLACE', 'LATITUDE', 'LONGITUDE', 'STREET', 'COUNTRY', 'CITY', 'ZIP', 'COMMENT'].join("\t")]
-      DataCycleCore::Thing.where(template_name: 'POI').each do |item|
+      DataCycleCore::Thing.where(template_name: 'POI').find_each do |item|
         tsv << [[item.id, item.name, item.latitude.presence, item.longitude.presence, item.address.street_address.presence, item.address.address_country.presence, item.address.address_locality.presence, item.address.postal_code.presence, item.id].join("\t")]
       end
       tsv.close
@@ -29,7 +29,7 @@ namespace :dc do
       filter = stored_filter || DataCycleCore::StoredFilter.new
       filter.language = locales
 
-      query = filter.apply(watch_list: watch_list)
+      query = filter.apply(watch_list:)
       query = query.watch_list_id(watch_list.id) unless watch_list.nil?
       contents = query.query.page(1).per(query.query.size)
 
@@ -55,8 +55,8 @@ namespace :dc do
         layout: false,
         assigns: {
           permitted_params: { section: { links: 0 } },
-          watch_list: watch_list,
-          stored_filter: stored_filter
+          watch_list:,
+          stored_filter:
         },
         locals: {
           objects: contents
@@ -90,10 +90,10 @@ namespace :dc do
                              language: locales,
                              api_subversion: nil,
                              api_version: 4,
-                             contents: contents,
+                             contents:,
                              permitted_params: { section: { links: 0 } },
-                             watch_list: watch_list,
-                             stored_filter: stored_filter,
+                             watch_list:,
+                             stored_filter:,
                              api_context: 'api'
                            },
                            locals: {

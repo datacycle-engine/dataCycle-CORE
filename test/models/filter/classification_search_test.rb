@@ -71,7 +71,7 @@ module DataCycleCore
     private
 
     def create_content(template_name, data = {})
-      DataCycleCore::TestPreparations.create_content(template_name: template_name, data_hash: data)
+      DataCycleCore::TestPreparations.create_content(template_name:, data_hash: data)
     end
 
     def update_content_partially(content, data = {})

@@ -9,15 +9,6 @@ module DataCycleCore
           redirect_to thing_path(@content)
         end
 
-        def update
-          strategy = api_strategy
-          content = content_params.as_json
-
-          updated = strategy.update content
-
-          render plain: { 'updated' => updated }.to_json, content_type: 'application/json'
-        end
-
         def create
           strategy = api_strategy
           content = content_params.as_json
@@ -25,6 +16,15 @@ module DataCycleCore
           created = strategy.create content
 
           render plain: { 'created' => created }.to_json, content_type: 'application/json'
+        end
+
+        def update
+          strategy = api_strategy
+          content = content_params.as_json
+
+          updated = strategy.update content
+
+          render plain: { 'updated' => updated }.to_json, content_type: 'application/json'
         end
 
         def destroy

@@ -20,7 +20,7 @@ class FixDuplicatePotentialActionForEvents < ActiveRecord::Migration[6.1]
           'potential_action' => content.attribute_to_h('potential_action').reject { |c| c['name'] == 'potential_action' && c['external_key'].blank? }
         }
 
-        content.set_data_hash(data_hash: data_hash, prevent_history: true)
+        content.set_data_hash(data_hash:, prevent_history: true)
       rescue StandardError
         nil
       ensure

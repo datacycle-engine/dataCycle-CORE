@@ -24,6 +24,15 @@ module DataCycleCore
           duplicates.present? ? thing_duplicates.insert_all(duplicates.each { |v| v.merge!({ created_at: timestamp, updated_at: timestamp }) }, unique_by: :unique_thing_duplicate_idx).count : 0
         end
 
+        def merge_with_duplicate_and_version(duplicate)
+          I18n.with_locale(first_available_locale) do
+            duplicate.original_id = id
+            set_data_hash(data_hash: {}, version_name: DataCycleCore::Feature::DuplicateCandidate.version_name_for_merge(duplicate), force_update: true)
+          end
+
+          merge_with_duplicate(duplicate)
+        end
+
         def merge_with_duplicate(duplicate)
           DataCycleCore::MergeDuplicateJob.perform_later(id, duplicate.id)
 

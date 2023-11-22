@@ -6,7 +6,7 @@ module DataCycleCore
       class ApiContract < Dry::Validation::Contract
         config.validate_keys = true
 
-        UUID_OR_STRING_OF_UUIDS_REGEX = /^(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*)?(,(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*))*$/i.freeze
+        UUID_OR_STRING_OF_UUIDS_REGEX = /^(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*)?(,(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*))*$/i
 
         SORTING_VALIDATION = Dry::Types['string'].constructor do |input|
           next input unless input&.starts_with?('random')
@@ -41,6 +41,7 @@ module DataCycleCore
 
         CLASSIFICATIONS = Dry::Schema.Params do
           optional(:classification_id).filled(:string)
+          optional(:classification_ids).filled(:string)
           optional(:classification_tree_label_id).filled(:str?, format?: UUID_OR_STRING_OF_UUIDS_REGEX)
         end
 
@@ -132,6 +133,10 @@ module DataCycleCore
             optional(:notIn).filled(:array)
           end
           optional(:watchListId).hash do
+            optional(:in).filled(:array)
+            optional(:notIn).filled(:array)
+          end
+          optional(:classificationTreeId).hash do
             optional(:in).filled(:array)
             optional(:notIn).filled(:array)
           end

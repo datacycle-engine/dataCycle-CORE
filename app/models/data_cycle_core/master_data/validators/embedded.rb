@@ -15,7 +15,7 @@ module DataCycleCore
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.data_format_embedded',
               substitutions: {
-                data: data,
+                data:,
                 template: template['label']
               }
             }
@@ -57,7 +57,7 @@ module DataCycleCore
               (@error[:error][@template_key] ||= []) << {
                 path: 'validation.errors.data_format_embedded',
                 substitutions: {
-                  data: data,
+                  data:,
                   template: template['label']
                 }
               }
@@ -115,7 +115,7 @@ module DataCycleCore
             path: 'validation.errors.min_ref',
             substitutions: {
               data: data.size,
-              value: value
+              value:
             }
           }
         end
@@ -127,7 +127,7 @@ module DataCycleCore
             path: 'validation.errors.max_ref',
             substitutions: {
               data: data.size,
-              value: value
+              value:
             }
           }
         end

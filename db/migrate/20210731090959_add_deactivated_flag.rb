@@ -2,6 +2,6 @@
 
 class AddDeactivatedFlag < ActiveRecord::Migration[5.2]
   def change
-    add_column :external_systems, :deactivated, :boolean, default: false
+    add_column :external_systems, :deactivated, :boolean, default: false, null: false
   end
 end

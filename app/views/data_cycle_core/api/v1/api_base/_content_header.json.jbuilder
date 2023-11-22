@@ -7,7 +7,7 @@ default_options = {
 
 options = default_options.merge(defined?(options) ? options || {} : {})
 
-json.content_partial! 'context', content: content
+json.content_partial!('context', content:)
 
 json.set! '@id', content.id
 json.set! 'identifier', send("#{content.model_name.element.tableize.singularize}_url", content)

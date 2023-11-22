@@ -24,7 +24,7 @@ module DataCycleCore
           elsif (@content = DataCycleCore::Schedule.find_by(id: permitted_params[:id])).present?
             render template: 'data_cycle_core/api/v4/schedules/show', locals: { id: permitted_params[:id] }, layout: false
           elsif (id = DataCycleCore::Thing.find_by('id::VARCHAR ILIKE ?', "#{permitted_params[:id][0..-14]}%")&.id).present? # for generated uuids in e.g. DZT exported Things
-            redirect_to api_v4_thing_path(id: id, params: permitted_params.except(:id))
+            redirect_to api_v4_thing_path(id:, params: permitted_params.except(:id))
           else
             render json: { error: "Could not find any item with id=#{permitted_params[:id]}" }, layout: false, status: :bad_request
           end

@@ -19,7 +19,7 @@ module DataCycleCore
         'text' => 'Full Test'
       }
 
-      DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: data_hash)
+      DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash:)
 
       assert_equal(1, DataCycleCore::Search.count - search_count)
     end
@@ -61,7 +61,7 @@ module DataCycleCore
     private
 
     def create_content(template_name, data = {})
-      DataCycleCore::TestPreparations.create_content(template_name: template_name, data_hash: data)
+      DataCycleCore::TestPreparations.create_content(template_name:, data_hash: data)
     end
 
     def get_classification_ids_from_alias_names(tree_name, *alias_names)

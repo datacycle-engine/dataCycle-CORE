@@ -16,13 +16,13 @@ module DataCycleCore
           end
 
           def serialize_thing(content:, language:, user:, **_options)
-            content = content.is_a?(Array) ? content.first : content
+            content = content.first if content.is_a?(Array)
 
             serialize_contents(
-              content: content,
+              content:,
               contents: DataCycleCore::Thing.where(id: content.id),
-              language: language,
-              user: user
+              language:,
+              user:
             )
           end
 
@@ -32,8 +32,8 @@ module DataCycleCore
             serialize_contents(
               content: watch_list,
               contents: watch_list.things,
-              language: language,
-              user: user
+              language:,
+              user:
             )
           end
 
@@ -43,8 +43,8 @@ module DataCycleCore
             serialize_contents(
               content: stored_filter,
               contents: stored_filter.apply.query,
-              language: language,
-              user: user
+              language:,
+              user:
             )
           end
 
@@ -83,9 +83,9 @@ module DataCycleCore
 
             DataCycleCore::Serialize::SerializedData::ContentCollection.new(
               [DataCycleCore::Serialize::SerializedData::Content.new(
-                data: data,
-                mime_type: mime_type,
-                file_name: file_name(content: content, language: language),
+                data:,
+                mime_type:,
+                file_name: file_name(content:, language:),
                 id: content.id
               )]
             )

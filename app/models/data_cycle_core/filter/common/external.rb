@@ -4,6 +4,18 @@ module DataCycleCore
   module Filter
     module Common
       module External
+        def with_external_system
+          reflect(
+            @query.where.not(thing[:external_source_id].eq(nil))
+          )
+        end
+
+        def not_with_external_system
+          reflect(
+            @query.where(thing[:external_source_id].eq(nil))
+          )
+        end
+
         def external_source(ids = nil)
           return self if ids.blank?
 

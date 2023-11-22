@@ -35,12 +35,12 @@ module DataCycleCore
                       http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
                       https: Rails.application.config.force_ssl
                     ).render(
-                      assigns: { contents: pagination_contents, watch_list: watch_list, language: language, include_parameters: [], mode_parameters: [], api_version: 3, api_context: 'api' },
+                      assigns: { contents: pagination_contents, watch_list:, language:, include_parameters: [], mode_parameters: [], api_version: 3, api_context: 'api' },
                       template: 'data_cycle_core/api/v3/watch_lists/show',
                       layout: false
                     ),
-                  mime_type: mime_type,
-                  file_name: file_name(content: watch_list, language: language),
+                  mime_type:,
+                  file_name: file_name(content: watch_list, language:),
                   id: watch_list.id
                 )
               ]
@@ -59,12 +59,12 @@ module DataCycleCore
                       http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
                       https: Rails.application.config.force_ssl
                     ).render(
-                      assigns: { contents: pagination_contents, language: language, include_parameters: [], mode_parameters: [], api_version: 3, api_context: 'api' },
+                      assigns: { contents: pagination_contents, language:, include_parameters: [], mode_parameters: [], api_version: 3, api_context: 'api' },
                       template: 'data_cycle_core/api/v3/contents/index',
                       layout: false
                     ),
-                  mime_type: mime_type,
-                  file_name: file_name(content: stored_filter, language: language),
+                  mime_type:,
+                  file_name: file_name(content: stored_filter, language:),
                   id: stored_filter.id
                 )
               ]
@@ -80,12 +80,12 @@ module DataCycleCore
                   http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
                   https: Rails.application.config.force_ssl
                 ).render(
-                  assigns: { content: content, language: language, include_parameters: [], mode_parameters: [], api_version: 3, api_context: 'api' },
+                  assigns: { content:, language:, include_parameters: [], mode_parameters: [], api_version: 3, api_context: 'api' },
                   template: 'data_cycle_core/api/v3/contents/show',
                   layout: false
                 ),
-              mime_type: mime_type,
-              file_name: file_name(content: content, language: language),
+              mime_type:,
+              file_name: file_name(content:, language:),
               id: content.id
             )
           end

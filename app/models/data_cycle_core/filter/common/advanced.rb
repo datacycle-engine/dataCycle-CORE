@@ -357,9 +357,9 @@ module DataCycleCore
             attribute_path_exists = false
             query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil = \'\' OR pil IS NULL)', attribute_path])
           when :equal
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: search_value])
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path:, value: search_value])
           when :not_equal
-            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: search_value])
+            query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path:, value: search_value])
           when :like
             query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements_text(advanced_attributes -> ?) pil WHERE pil ILIKE ?)', attribute_path, "%#{search_value&.split(' ')&.join('%')}%"])
           when :not_like
@@ -388,11 +388,11 @@ module DataCycleCore
         end
 
         def attribute_path_exists(path)
-          ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['advanced_attributes ? :path', path: path])
+          ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['advanced_attributes ? :path', path:])
         end
 
         def attribute_path_not_exists(path)
-          ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(advanced_attributes ? :path)', path: path])
+          ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(advanced_attributes ? :path)', path:])
         end
       end
     end

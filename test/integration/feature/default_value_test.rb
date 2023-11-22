@@ -15,7 +15,7 @@ module DataCycleCore
       end
 
       def set_schema_attribute_value(template_name, key, type_name, value, content = nil)
-        template = content || DataCycleCore::ThingTemplate.find_by(template_name: template_name)
+        template = content || DataCycleCore::ThingTemplate.find_by(template_name:)
 
         if value.blank?
           template.schema['properties'][key].delete(type_name)
@@ -38,7 +38,7 @@ module DataCycleCore
 
         assert_response :success
         assert_equal 'application/json; charset=utf-8', response.content_type
-        json_data = JSON.parse response.body
+        json_data = response.parsed_body
 
         assert json_data['valid']
         assert_empty json_data['errors']
@@ -57,7 +57,7 @@ module DataCycleCore
 
         assert_response :success
         assert_equal 'application/json; charset=utf-8', response.content_type
-        json_data = JSON.parse response.body
+        json_data = response.parsed_body
 
         assert json_data['valid']
         assert_empty json_data['errors']
@@ -78,7 +78,7 @@ module DataCycleCore
 
         assert_response :success
         assert_equal 'application/json; charset=utf-8', response.content_type
-        json_data = JSON.parse response.body
+        json_data = response.parsed_body
 
         assert json_data['valid']
         assert_empty json_data['errors']
@@ -96,7 +96,7 @@ module DataCycleCore
 
         assert_response :success
         assert_equal 'application/json; charset=utf-8', response.content_type
-        json_data = JSON.parse response.body
+        json_data = response.parsed_body
         assert_not json_data['valid']
         assert_equal 1, json_data['errors'].size
         assert_empty json_data['warnings']

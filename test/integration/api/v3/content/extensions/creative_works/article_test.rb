@@ -24,7 +24,7 @@ module DataCycleCore
 
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body)
+                json_data = response.parsed_body
 
                 # validate header
                 assert_equal('http://schema.org', json_data.dig('@context'))
@@ -80,19 +80,19 @@ module DataCycleCore
                 get(api_v3_things_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'Article' }
+                json_data = response.parsed_body.dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'Article' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'Article' }
+                json_data = response.parsed_body.dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'Article' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_creative_works_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'Article' }
+                json_data = response.parsed_body.dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'Article' }
                 assert_equal(@content.id, json_data.dig('identifier'))
               end
 
@@ -100,12 +100,12 @@ module DataCycleCore
                 get api_v2_thing_path(id: @content)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                api_v2_json = JSON.parse(response.body)
+                api_v2_json = response.parsed_body
 
                 get api_v3_thing_path(id: @content)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                api_v3_json = JSON.parse(response.body)
+                api_v3_json = response.parsed_body
 
                 excepted_params = ['@id', 'author', 'about', 'image', 'contentLocation', 'tags']
 

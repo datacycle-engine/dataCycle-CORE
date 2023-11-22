@@ -1630,12 +1630,16 @@ en:
         EventGroup: Description
       infrastructure:
         AdditionalService: Additional service
+        Arrival Information: Arrival Information
         CurrentInformation: Current information
         GuestCardClassification: Guest card services
         InfrastructureLong: Detailed description
         InfrastructureOpeningTimes: Opening hours
         InfrastructurePriceInfo: Price information
         InfrastructureShort: Brief description
+        Payment: Payment modalities
+        Price Information: Price
+        ServiceDescription: Description
       GuestCards:
         GuestCardClassification: Guest card services
       accommodation:
@@ -1693,6 +1697,7 @@ en:
       literature: Literture
       publicTransit: Public transit
       seasonDescription: Sesion
+      Preis-Zusatzbeschreibung: Additional price description
     gem2go:
       description: Description
     timm4:
@@ -1773,6 +1778,7 @@ en:
       Depends: depends
       Suitable: suitable
     bierfinder:
+      description: Description
       book: Description
       tipp: Tip
       essenUndSpezial: Food and Specials
@@ -1787,7 +1793,9 @@ en:
       startingPointDescription: Starting point description
       character: Tour character
       parkingPossibilities: Parking
-      seasonDescription: Sesion
+      seasonDescription: Season
+      doorTime: Door time
+      meetingPoint: Meeting point
     wintop:
       beschreibung: Description
       teaser: Teaser

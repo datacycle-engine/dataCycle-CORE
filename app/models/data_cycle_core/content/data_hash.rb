@@ -56,8 +56,8 @@ module DataCycleCore
         execute_delete_webhooks unless embedded?
       end
 
-      def set_data_hash(**args) # rubocop:disable Naming/AccessorMethodName
-        options = DataCycleCore::Content::DataHashOptions.new(**args)
+      def set_data_hash(**) # rubocop:disable Naming/AccessorMethodName
+        options = DataCycleCore::Content::DataHashOptions.new(**)
 
         return no_changes(options.ui_locale) if options.data_hash.blank? && !options.force_update
 
@@ -91,7 +91,7 @@ module DataCycleCore
           self.cache_valid_since = options.save_time
           self.updated_by = options.current_user&.id
           self.last_updated_locale = I18n.locale
-          self.version_name = DataCycleCore::Feature::NamedVersion.enabled? ? options.version_name.presence : nil
+          self.version_name = options.version_name.presence
 
           if id.nil?
             self.created_at = options.save_time
@@ -108,8 +108,8 @@ module DataCycleCore
         true
       end
 
-      def set_data_hash_with_translations(**args) # rubocop:disable Naming/AccessorMethodName
-        options = DataCycleCore::Content::DataHashOptions.new(**args)
+      def set_data_hash_with_translations(**) # rubocop:disable Naming/AccessorMethodName
+        options = DataCycleCore::Content::DataHashOptions.new(**)
         return {} if options.data_hash.blank? && !options.force_update
 
         translations = DataCycleCore::DataHashService.parse_translated_hash(options.data_hash)
@@ -179,7 +179,7 @@ module DataCycleCore
       end
 
       def validate(data_hash:, schema_hash: nil, strict: false, add_defaults: false, current_user: nil, add_warnings: true, add_errors: true)
-        data_hash = add_default_values(data_hash: data_hash, current_user: current_user, partial: !strict).dup if add_defaults && default_value_property_names.present?
+        data_hash = add_default_values(data_hash:, current_user:, partial: !strict).dup if add_defaults && default_value_property_names.present?
 
         validator = DataCycleCore::MasterData::ValidateData.new(self)
         valid = DataCycleCore::LocalizationService.localize_validation_errors(validator.validate(data_hash, schema_hash || schema, strict), current_user&.ui_locale || DataCycleCore.ui_locales.first)
@@ -245,7 +245,7 @@ module DataCycleCore
       private
 
       def no_changes(locale)
-        warnings&.add(translated_template_name(locale), I18n.t('controllers.warning.no_changes', locale: locale))
+        warnings&.add(translated_template_name(locale), I18n.t('controllers.warning.no_changes', locale:))
 
         true
       end
@@ -360,7 +360,7 @@ module DataCycleCore
             item_ids_after_update
               .map
               .with_index do |content_b_id, index|
-                { relation_a: field_name, content_b_id: content_b_id, order_a: index, relation_b: relation_b, updated_at: Time.zone.now }
+                { relation_a: field_name, content_b_id:, order_a: index, relation_b:, updated_at: Time.zone.now }
               end,
             unique_by: :by_content_relation_a
           )
@@ -466,7 +466,7 @@ module DataCycleCore
           classification_content.upsert_all(
             ids.map do |classification_id|
               {
-                classification_id: classification_id,
+                classification_id:,
                 relation: relation_name,
                 updated_at: Time.zone.now
               }
@@ -491,8 +491,8 @@ module DataCycleCore
           DataCycleCore::AssetContent.find_or_create_by(
             'content_data_id' => id,
             'content_data_type' => self.class.to_s,
-            asset_id: asset_id,
-            asset_type: asset_type,
+            asset_id:,
+            asset_type:,
             relation: relation_name
           )
         end
@@ -514,12 +514,7 @@ module DataCycleCore
         data = input_data || []
 
         data.each do |item|
-          schedule =
-            if item['id'].present? && DataCycleCore::Schedule.find_by(id: item['id']).present?
-              DataCycleCore::Schedule.find_by(id: item['id'])
-            else
-              DataCycleCore::Schedule.new
-            end
+          schedule = item['id'].presence&.then { |sid| DataCycleCore::Schedule.find_by(id: sid) } || DataCycleCore::Schedule.new
           schedule.id = item['id'] if item['id'].present?
           schedule.external_source_id = item['external_source_id'] if item['external_source_id'].present?
           schedule.external_key = item['external_key'] if item['external_key'].present?

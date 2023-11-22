@@ -47,7 +47,7 @@ module DataCycleCore
             @query
               .where.not(thing[:geom_simple].eq(nil))
               .where(
-                DataCycleCore::Thing.all.select(1).arel
+                DataCycleCore::Thing.select(1).arel
                 .from(thing_alias)
                 .where(
                   thing[:id].eq(thing_alias[:id])
@@ -74,7 +74,7 @@ module DataCycleCore
             @query
               .where.not(thing[:geom_simple].eq(nil))
               .where.not(
-                DataCycleCore::Thing.all.select(1).arel
+                DataCycleCore::Thing.select(1).arel
                 .from(thing_alias)
                 .where(
                   thing[:id].eq(thing_alias[:id])

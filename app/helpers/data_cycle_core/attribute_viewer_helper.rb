@@ -63,14 +63,14 @@ module DataCycleCore
         label_html = ActionView::OutputBuffer.new
         label_html << content.try(key)
         definition = content.properties_for('name')
-        label_html << render('data_cycle_core/contents/content_score', key: 'name', content: contextual_content({ content: content }.merge(args.slice(:parent))), definition: definition) if definition&.key?('content_score')
+        label_html << render('data_cycle_core/contents/content_score', key: 'name', content: contextual_content({ content: }.merge(args.slice(:parent))), definition:) if definition&.key?('content_score')
 
         label_html
       end
     end
 
-    def render_attribute_viewer(**args)
-      options = RenderMethodOptions.new(**args, defaults: RENDER_VIEWER_ARGUMENTS)
+    def render_attribute_viewer(**)
+      options = RenderMethodOptions.new(**, defaults: RENDER_VIEWER_ARGUMENTS)
 
       allowed = attribute_viewer_allowed(options)
       return allowed unless allowed.is_a?(TrueClass)
@@ -83,14 +83,14 @@ module DataCycleCore
       end
     end
 
-    def render_translatable_attribute_viewer(**args)
-      options = RenderMethodOptions.new(**args, defaults: RENDER_VIEWER_ARGUMENTS)
+    def render_translatable_attribute_viewer(**)
+      options = RenderMethodOptions.new(**, defaults: RENDER_VIEWER_ARGUMENTS)
 
       render 'data_cycle_core/contents/viewers/translatable_field', options.to_h
     end
 
-    def render_specific_translatable_attribute_viewer(**args)
-      options = RenderMethodOptions.new(**args, defaults: RENDER_VIEWER_ARGUMENTS)
+    def render_specific_translatable_attribute_viewer(**)
+      options = RenderMethodOptions.new(**, defaults: RENDER_VIEWER_ARGUMENTS)
 
       I18n.with_locale(options.locale) do
         options.value ||= if options.parameters[:parent].nil?
@@ -110,8 +110,8 @@ module DataCycleCore
       DataCycleCore::DataHashService.present?(value)
     end
 
-    def render_untranslatable_attribute_viewer(**args)
-      options = RenderMethodOptions.new(**args, defaults: RENDER_VIEWER_ARGUMENTS)
+    def render_untranslatable_attribute_viewer(**)
+      options = RenderMethodOptions.new(**, defaults: RENDER_VIEWER_ARGUMENTS)
 
       type = options.definition['type'].underscore_blanks
 
@@ -129,8 +129,8 @@ module DataCycleCore
       render_first_existing_partial(partials, options.render_params)
     end
 
-    def render_attribute_history_viewer(**args)
-      options = RenderMethodOptions.new(**args, defaults: RENDER_VIEWER_ARGUMENTS)
+    def render_attribute_history_viewer(**)
+      options = RenderMethodOptions.new(**, defaults: RENDER_VIEWER_ARGUMENTS)
       options.scope = :history
 
       partials = [
@@ -162,7 +162,7 @@ module DataCycleCore
 
     def render_translatable_linked_field(content, partial, params)
       if I18n.available_locales.many? && content&.translatable?
-        render('data_cycle_core/contents/grid/compact/attributes/translatable_field', params: params, partial: partial)
+        render('data_cycle_core/contents/grid/compact/attributes/translatable_field', params:, partial:)
       else
         render(partial, params)
       end
@@ -193,7 +193,7 @@ module DataCycleCore
 
       html_classes.push(definition.dig('ui', 'show', 'type').underscore) if definition.dig('ui', 'show', 'type').present?
       html_classes.push(options.dig(:mode) || 'has-changes edit') if options.dig(:item_diff).present?
-      html_classes.push('is-embedded-title') if parent&.embedded_title_property_name.present? && key.attribute_name_from_key == parent.embedded_title_property_name
+      html_classes.push('is-embedded-title') if parent.is_a?(DataCycleCore::Thing) && parent.embedded_title_property_name.present? && key.attribute_name_from_key == parent.embedded_title_property_name
 
       html_classes.compact_blank!
       html_classes.uniq!

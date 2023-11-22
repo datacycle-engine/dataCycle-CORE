@@ -26,7 +26,7 @@ describe 'DataCycleCore::Utility::Virtual::Common#attribute_value_from_first_lin
       ]
     })
 
-    value = subject.attribute_value_from_first_linked(virtual_parameters: ['my_linked', 'name'], content: content)
+    value = subject.attribute_value_from_first_linked(virtual_parameters: ['my_linked', 'name'], content:)
 
     assert_equal('One', value)
   end
@@ -36,7 +36,7 @@ describe 'DataCycleCore::Utility::Virtual::Common#attribute_value_from_first_lin
       my_linked: []
     })
 
-    value = subject.attribute_value_from_first_linked(virtual_parameters: ['my_linked', 'name'], content: content)
+    value = subject.attribute_value_from_first_linked(virtual_parameters: ['my_linked', 'name'], content:)
 
     assert_nil(value)
   end
@@ -46,7 +46,7 @@ describe 'DataCycleCore::Utility::Virtual::Common#attribute_value_from_first_lin
       different_linked: []
     })
 
-    value = subject.attribute_value_from_first_linked(virtual_parameters: ['my_linked', 'name'], content: content)
+    value = subject.attribute_value_from_first_linked(virtual_parameters: ['my_linked', 'name'], content:)
 
     assert_nil(value)
   end

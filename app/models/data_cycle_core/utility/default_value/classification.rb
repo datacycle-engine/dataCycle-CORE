@@ -85,7 +85,7 @@ module DataCycleCore
               .primary_classifications
               .limit(1)
               .pluck(:id)
-              .presence || Array.wrap(DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label_name)&.create_classification_alias(*path.map { |p| { name: p, internal: internal } })&.primary_classification&.id).compact
+              .presence || Array.wrap(DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label_name)&.create_classification_alias(*path.map { |p| { name: p, internal: } })&.primary_classification&.id).compact
           end
         end
       end

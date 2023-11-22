@@ -20,7 +20,7 @@ module DataCycleCore
       end
 
       def write(content_item, data_hash, timestamp)
-        content_item.set_data_hash(data_hash: data_hash, save_time: timestamp, prevent_history: true)
+        content_item.set_data_hash(data_hash:, save_time: timestamp, prevent_history: true)
       end
     end
   end

@@ -3,7 +3,7 @@
 class ChangePlacesForDataHash < ActiveRecord::Migration[5.0]
   def change
     rename_column :places, :content, :metadata
-    add_column :places, :template, :boolean, default: false
+    add_column :places, :template, :boolean, default: false, null: false
     add_column :places, :headline, :string
 
     reversible do |dir|

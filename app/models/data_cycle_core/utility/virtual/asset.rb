@@ -49,9 +49,9 @@ module DataCycleCore
             transform_gravity!(content, image_processing) if image_processing&.key?('gravity')
 
             DataCycleCore::Feature::ImageProxy.process_image(
-              content: content,
-              variant: variant,
-              image_processing: image_processing
+              content:,
+              variant:,
+              image_processing:
             )
           end
 

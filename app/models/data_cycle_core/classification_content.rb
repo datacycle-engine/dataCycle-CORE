@@ -12,7 +12,7 @@ module DataCycleCore
 
     class << self
       def with_content(content_data_id)
-        where(content_data_id: content_data_id)
+        where(content_data_id:)
       end
 
       def with_relation(relation_name)
@@ -26,7 +26,7 @@ module DataCycleCore
       def classifications
         return DataCycleCore::Classification.none if all.is_a?(ActiveRecord::NullRelation)
 
-        DataCycleCore::Classification.where(id: all.select(:classification_id))
+        DataCycleCore::Classification.where(id: select(:classification_id))
       end
     end
   end

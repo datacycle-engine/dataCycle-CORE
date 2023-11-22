@@ -11,7 +11,7 @@ module DataCycleCore
       # https://www.crunchydata.com/blog/waiting-for-postgis-3-st_tileenvelopezxy
 
       def initialize(x, y, z, contents:, layer_name: nil, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, cache: true, cluster: false, cluster_layer_name: nil, **_options)
-        super(contents: contents, simplify_factor: simplify_factor, include_parameters: include_parameters, fields_parameters: fields_parameters, classification_trees_parameters: classification_trees_parameters, single_item: single_item, cache: cache)
+        super(contents:, simplify_factor:, include_parameters:, fields_parameters:, classification_trees_parameters:, single_item:, cache:)
 
         @x = x
         @y = y
@@ -109,7 +109,17 @@ module DataCycleCore
                   ),
                   json_agg(json_build_object('@id', mvtgeom."@id", #{include_config.pluck(:identifier).map { |p| "'#{p}', mvtgeom.#{p}" }.join(', ')})) AS "items",
                   COUNT(mvtgeom."@id") AS "count",
-                  concat('#{@z}-#{@x}-#{@y}-', mvtgeom.cluster_id) AS "@id"
+                  concat('#{@z}-#{@x}-#{@y}-', mvtgeom.cluster_id) AS "@id",
+                  json_build_object(
+                    'xmin',
+                    st_xmin(ST_Extent(mvtgeom.geom)),
+                    'ymin',
+                    st_ymin(ST_Extent(mvtgeom.geom)),
+                    'xmax',
+                    st_xmax(ST_Extent(mvtgeom.geom)),
+                    'ymax',
+                    st_ymax(ST_Extent(mvtgeom.geom))
+                  ) AS "bbox"
                 FROM mvtgeom
                 WHERE mvtgeom.cluster_id IS NOT NULL
                 GROUP BY mvtgeom.cluster_id

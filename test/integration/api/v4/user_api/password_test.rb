@@ -25,13 +25,13 @@ module DataCycleCore
             patch api_v4_users_password_path, headers: {
               Authorization: "Bearer #{@current_user.access_token}"
             }, params: {
-              password: password
+              password:
             }
 
             assert_response :unprocessable_entity
 
             assert response.content_type.include?('application/json')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert json_data.dig('errors', 'reset_password_token').present?
           end
 
@@ -42,13 +42,13 @@ module DataCycleCore
               Authorization: "Bearer #{@current_user.access_token}"
             }, params: {
               resetPasswordToken: 'invalid',
-              password: password
+              password:
             }
 
             assert_response :unprocessable_entity
 
             assert response.content_type.include?('application/json')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert json_data.dig('errors', 'reset_password_token').present?
           end
 
@@ -64,7 +64,7 @@ module DataCycleCore
             assert_response :unprocessable_entity
 
             assert response.content_type.include?('application/json')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert json_data.dig('errors', 'password').present?
           end
 
@@ -76,13 +76,13 @@ module DataCycleCore
               Authorization: "Bearer #{@current_user.access_token}"
             }, params: {
               resetPasswordToken: reset_token,
-              password: password
+              password:
             }
 
             assert_response :success
 
             assert response.content_type.include?('application/json')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert json_data.dig('token').present?
           end
 
@@ -94,14 +94,14 @@ module DataCycleCore
               Authorization: "Bearer #{@current_user.access_token}"
             }, params: {
               resetPasswordToken: reset_token,
-              password: password,
+              password:,
               passwordConfirmation: password
             }
 
             assert_response :success
 
             assert response.content_type.include?('application/json')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert json_data.dig('token').present?
           end
 
@@ -113,13 +113,13 @@ module DataCycleCore
               Authorization: "Bearer #{@current_user.access_token}"
             }, params: {
               resetPasswordToken: reset_token,
-              password: password
+              password:
             }
 
             assert_response :success
 
             assert response.content_type.include?('application/json')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert json_data.dig('token').present?
           end
         end

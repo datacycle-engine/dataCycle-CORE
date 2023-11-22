@@ -77,13 +77,13 @@ module DataCycleCore
         assert(thing.available_locales.include?(locale.to_sym))
       end
 
-      def assert_attributes(json_validate, required_attributes, attributes, &block)
-        assert_json_attributes(json_validate, &block)
+      def assert_attributes(json_validate, required_attributes, attributes, &)
+        assert_json_attributes(json_validate, &)
         attributes.each { |a| required_attributes.delete(a) }
       end
 
-      def assert_translated_attributes(json_validate, required_attributes, attributes, &block)
-        assert_translated_json_attributes(json_validate, &block)
+      def assert_translated_attributes(json_validate, required_attributes, attributes, &)
+        assert_translated_json_attributes(json_validate, &)
         attributes.each { |a| required_attributes.delete(a) }
       end
 

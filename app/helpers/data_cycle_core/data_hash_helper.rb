@@ -16,7 +16,7 @@ module DataCycleCore
       return nil if definition.blank? || definition.dig('template_name').nil?
 
       template_name = definition['template_name']
-      DataCycleCore::Thing.new(template_name: template_name)
+      DataCycleCore::Thing.new(template_name:)
     end
 
     def attribute_group_title(content, key)
@@ -31,7 +31,7 @@ module DataCycleCore
       end
 
       label_html.prepend(tag.i(class: "dc-type-icon property-icon key-#{key.attribute_name_from_key} type-object"))
-      label_html << render('data_cycle_core/contents/helper_text', key: key, content: content)
+      label_html << render('data_cycle_core/contents/helper_text', key:, content:)
 
       label_html
     end
@@ -58,17 +58,17 @@ module DataCycleCore
     def content_header_classification_aliases(content:, scope: :show, context: :show)
       classification_aliases = {}
       parameters = {
-        allowed_properties: ordered_header_classification_properties(content: content, scope: scope),
-        classification_aliases: classification_aliases,
+        allowed_properties: ordered_header_classification_properties(content:, scope:),
+        classification_aliases:,
         options: { ui_scope: :show },
-        scope: scope,
-        context: context,
-        content: content
+        scope:,
+        context:,
+        content:
       }
 
-      content.classification_content.preload(classification: [primary_classification_alias: [:classification_tree_label, :classification_alias_path]]).group_by(&:relation).each { |key, ccs| ccs.each { |cc| add_content_header_classification_alias(**parameters.merge(key: key, classification_alias: cc.classification&.primary_classification_alias)) } }
+      content.classification_content.preload(classification: [primary_classification_alias: [:classification_tree_label, :classification_alias_path]]).group_by(&:relation).each { |key, ccs| ccs.each { |cc| add_content_header_classification_alias(**parameters.merge(key:, classification_alias: cc.classification&.primary_classification_alias)) } }
 
-      content.mapped_classification_aliases.preload(:classification_tree_label, :classification_alias_path).each do |ca|
+      content.mapped_classification_aliases.preload(:classification_tree_label, :classification_alias_path).find_each do |ca|
         add_content_header_classification_alias(**parameters.merge(key: '', classification_alias: ca, type: :mapped_value))
       end
 
@@ -107,7 +107,7 @@ module DataCycleCore
       definition['tree_label'] ||= classification_alias.classification_tree_label.name
       definition['type'] ||= 'classification'
       label = translated_attribute_label(key, definition, content, options)
-      classification_aliases[label] ||= { key: key, definition: definition, options: options, value: [], mapped_value: [] }
+      classification_aliases[label] ||= { key:, definition:, options:, value: [], mapped_value: [] }
       classification_aliases[label][type] << classification_alias
     end
 

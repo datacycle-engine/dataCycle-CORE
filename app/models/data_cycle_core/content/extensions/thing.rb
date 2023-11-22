@@ -69,7 +69,7 @@ module DataCycleCore
         end
 
         def translated_template_name(locale)
-          I18n.t("template_names.#{template_name}", default: template_name, locale: locale)
+          I18n.t("template_names.#{template_name}", default: template_name, locale:)
         end
 
         def icon_class

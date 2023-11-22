@@ -116,13 +116,13 @@ Rails.application.configure do
 
   # Bullet configuration:
   # only activate if required for local testing
-  # config.after_initialize do
-  #   Bullet.enable = true
-  #   Bullet.bullet_logger = true
-  #   Bullet.console = true
-  #   Bullet.rails_logger = true
-  #   Bullet.add_footer = true
-  # end
+  config.after_initialize do
+    Prosopite.raise = false
+    Prosopite.rails_logger = true
+    Prosopite.prosopite_logger = true
+    Prosopite.stderr_logger = true
+    Prosopite.enabled = true
+  end
   config.action_cable.url = '/cable'
   config.action_cable.allowed_request_origins = [config.asset_host]
 end

@@ -44,7 +44,7 @@ module DataCycleCore
     private
 
     def create_content(template_name, data = {}, external_source_id = nil)
-      data = DataCycleCore::TestPreparations.create_content(template_name: template_name, data_hash: data)
+      data = DataCycleCore::TestPreparations.create_content(template_name:, data_hash: data)
       if external_source_id.present?
         data.external_source_id = external_source_id
         data.save

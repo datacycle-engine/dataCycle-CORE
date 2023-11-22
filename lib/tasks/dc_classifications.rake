@@ -41,7 +41,7 @@ namespace :dc do
             mapped_ca = DataCycleCore::ClassificationAlias.custom_find_by_full_path!(mapped_ca_path)
             raise ActiveRecord::RecordNotFound if mapped_ca.primary_classification.nil?
 
-            to_insert.push({ classification_id: mapped_ca.primary_classification.id, classification_alias_id: ca.id, updated_at: updated_at })
+            to_insert.push({ classification_id: mapped_ca.primary_classification.id, classification_alias_id: ca.id, updated_at: })
 
             print('.')
           rescue ActiveRecord::RecordNotFound

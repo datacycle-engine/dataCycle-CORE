@@ -25,7 +25,7 @@ module DataCycleCore
           get api_v4_stored_filter_path(id: @watch_list.id)
 
           assert_equal(response.content_type, 'application/json; charset=utf-8')
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
           assert_equal(@watch_list.id, json_data.dig('meta', 'collection', 'id'))
@@ -36,7 +36,7 @@ module DataCycleCore
           get api_v4_stored_filter_path(id: @watch_list.slug)
 
           assert_equal(response.content_type, 'application/json; charset=utf-8')
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
           assert_equal(@watch_list.id, json_data.dig('meta', 'collection', 'id'))

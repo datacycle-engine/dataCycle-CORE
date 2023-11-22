@@ -188,6 +188,137 @@ module DataCycleCore
         )
       end
 
+      def sort_proximity_occurrence_with_distance(ordering = '', value = [])
+        proximity_occurrence_with_distance(ordering, value)
+      end
+
+      def sort_proximity_in_occurrence_with_distance(ordering = '', value = [])
+        proximity_occurrence_with_distance(ordering, value, false)
+      end
+
+      def sort_proximity_in_occurrence(ordering = '', value = {})
+        proximity_in_occurrence(ordering, value, false)
+      end
+
+      def proximity_occurrence_with_distance(ordering = '', value = [], sort_by_date = true, use_spheroid = true)
+        return self if !value.is_a?(::Array) || value.first.blank?
+        geo = value.first
+        schedule = value.second
+        return self if geo&.first.blank? || geo&.second.blank?
+
+        if use_spheroid
+          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry,true)"
+        else
+          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry)"
+        end
+
+        if schedule.present? && schedule.is_a?(::Hash) && (schedule['in'] || schedule['v'])
+          start_date, end_date = date_from_filter_object(schedule['in'] || schedule['v'], schedule['q'])
+        else
+          start_date = Time.zone.now
+          end_date = Time.zone.now.end_of_day
+        end
+
+        if sort_by_date
+          min_start_date = 'MIN(LOWER(schedule_occurrences.occurrence))'
+        else
+          min_start_date = '1'
+        end
+
+        joined_table_name = "schedules_#{SecureRandom.hex(10)}"
+        order_parameter_join = <<-SQL.squish
+          LEFT OUTER JOIN LATERAL (
+            SELECT
+              a.thing_id,
+              1 AS "occurrence_exists",
+              t.min_start_date
+            FROM
+              schedules a
+            LEFT OUTER JOIN (
+              SELECT
+                thing_id,
+                #{min_start_date} as "min_start_date"
+              FROM
+                schedule_occurrences
+              WHERE
+                schedule_occurrences.occurrence && TSTZRANGE(?, ?)
+              GROUP BY
+                thing_id
+            ) as t on t.thing_id = a.thing_id
+            WHERE
+              things.id = a.thing_id
+            GROUP BY
+              a.thing_id, t.min_start_date
+          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
+        SQL
+
+        reflect(
+          @query
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
+            .reorder(nil)
+            .order(
+              sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
+              sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
+              sanitized_order_string(geo_order_string, ordering, true),
+              sanitized_order_string('things.updated_at', 'DESC'),
+              sanitized_order_string('things.id', 'DESC')
+            )
+        )
+      end
+
+      def proximity_in_occurrence(ordering = '', value = {}, sort_by_date = true)
+        start_date, end_date = date_from_filter_object(value['in'] || value['v'], value['q']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
+
+        if start_date.nil? && end_date.nil?
+          start_date = Time.zone.now
+          end_date = Time.zone.now.end_of_day
+        end
+        if sort_by_date
+          min_start_date = 'MIN(LOWER(schedule_occurrences.occurrence))'
+        else
+          min_start_date = '1'
+        end
+
+        joined_table_name = "schedules_#{SecureRandom.hex(10)}"
+        order_parameter_join = <<-SQL.squish
+          LEFT OUTER JOIN LATERAL (
+            SELECT
+              a.thing_id,
+              1 AS "occurrence_exists",
+              t.min_start_date
+            FROM
+              schedules a
+            LEFT OUTER JOIN (
+              SELECT
+                thing_id,
+                #{min_start_date} as "min_start_date"
+              FROM
+                schedule_occurrences
+              WHERE
+                schedule_occurrences.occurrence && TSTZRANGE(?, ?)
+              GROUP BY
+                thing_id
+            ) as t on t.thing_id = a.thing_id
+            WHERE
+              things.id = a.thing_id
+            GROUP BY
+              a.thing_id, t.min_start_date
+          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
+        SQL
+
+        reflect(
+          @query
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
+            .reorder(nil)
+            .order(
+              sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
+              sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
+              sanitized_order_string('things.updated_at', 'DESC'),
+              sanitized_order_string('things.id', 'DESC')
+            )
+        )
+      end
+
       def sort_fulltext_search(ordering, value)
         return self if value.blank?
         locale = @locale&.first || I18n.available_locales.first.to_s

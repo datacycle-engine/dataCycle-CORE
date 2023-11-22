@@ -7,8 +7,8 @@ class AddTableStoredFilter < ActiveRecord::Migration[5.0]
       t.uuid :user_id
       t.string :language
       t.jsonb :parameters
-      t.boolean :system, default: false
-      t.boolean :api, default: false
+      t.boolean :system, default: false, null: false
+      t.boolean :api, default: false, null: false
       t.timestamps
     end
 

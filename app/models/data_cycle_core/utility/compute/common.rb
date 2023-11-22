@@ -30,7 +30,7 @@ module DataCycleCore
                 value = data_hash.dig(key) || data_hash.dig('datahash', key) || data_hash.dig('translations', I18n.locale.to_s, key)
               else
                 id = data_hash.dig('id') || data_hash.dig('datahash', 'id') || data_hash.dig('translations', I18n.locale.to_s, 'id')
-                item = DataCycleCore::Thing.find_by(id: id)
+                item = DataCycleCore::Thing.find_by(id:)
                 value = item.respond_to?(key) ? item.attribute_to_h(key) : nil
               end
 

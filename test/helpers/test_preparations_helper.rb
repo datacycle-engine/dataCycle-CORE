@@ -81,7 +81,7 @@ module DataCycleCore
     end
 
     def self.load_external_systems(paths)
-      errors = DataCycleCore::MasterData::ImportExternalSystems.import_all(validation: true, paths: paths)
+      errors = DataCycleCore::MasterData::ImportExternalSystems.import_all(validation: true, paths:)
 
       return if errors.blank?
 
@@ -146,14 +146,14 @@ module DataCycleCore
       data_hash = data_hash.dup.with_indifferent_access
 
       @content  = DataCycleCore::Thing
-        .where({ template_name: template_name })
+        .where({ template_name: })
         .where_value(data_hash.slice('given_name', 'family_name'))
         .where_translated_value(data_hash.slice('name'))
         .first
 
       return @content if @content.present?
 
-      @content = DataCycleCore::Thing.new(template_name: template_name)
+      @content = DataCycleCore::Thing.new(template_name:)
 
       return if @content.template_missing?
 
@@ -163,14 +163,14 @@ module DataCycleCore
       @content.save!(touch: false)
 
       @content.set_data_hash(
-        data_hash: data_hash,
+        data_hash:,
         new_content: true,
         current_user: (user || User.find_by(email: 'tester@datacycle.at')),
         update_search_all: false,
-        prevent_history: prevent_history,
-        save_time: save_time,
-        version_name: version_name,
-        source: source
+        prevent_history:,
+        save_time:,
+        version_name:,
+        source:
       )
 
       @content
@@ -181,7 +181,7 @@ module DataCycleCore
       untild = dtend
       end_time = dtstart + duration
       untildt = DataCycleCore::Schedule.until_as_utc_iso8601(untild, dtstart).to_datetime.utc
-      schedule.schedule_object = IceCube::Schedule.new(dtstart, { end_time: end_time, duration: duration.to_i }) do |s|
+      schedule.schedule_object = IceCube::Schedule.new(dtstart, { end_time:, duration: duration.to_i }) do |s|
         if frequency == 'daily'
           s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(dtstart.hour).until(untildt))
         elsif frequency == 'weekly'

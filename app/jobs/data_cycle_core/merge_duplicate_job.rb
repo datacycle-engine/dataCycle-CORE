@@ -102,7 +102,7 @@ module DataCycleCore
       ActiveRecord::Base.connection.execute(
         ActiveRecord::Base.send(:sanitize_sql_array, [
                                   insert_sql,
-                                  duplicate_id: duplicate_id,
+                                  duplicate_id:,
                                   model_name: DataCycleCore::Thing.model_name.to_s
                                 ])
       )

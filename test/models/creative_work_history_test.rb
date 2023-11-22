@@ -9,7 +9,7 @@ module DataCycleCore
       template_trans_count = DataCycleCore::Thing::Translation.count
 
       data_hash = { 'name' => 'Dies ist ein Test!' }
-      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'TestSimple', data_hash: data_hash, prevent_history: true)
+      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'TestSimple', data_hash:, prevent_history: true)
       returned_data_hash = data_set.get_data_hash
       assert_equal(data_hash, returned_data_hash.except('id').compact)
       assert_equal(0, data_set.errors.messages.size)
@@ -29,7 +29,7 @@ module DataCycleCore
 
       data_hash = { 'name' => 'Dies ist ein Test!' }
       save_time = Time.zone.now
-      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'TestSimple', data_hash: data_hash, save_time: save_time)
+      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'TestSimple', data_hash:, save_time:)
       returned_data_hash = data_set.get_data_hash
       assert_equal(data_hash, returned_data_hash.except('id').compact)
 
@@ -47,7 +47,7 @@ module DataCycleCore
       template_cwt_count = DataCycleCore::Thing::Translation.count
 
       data_hash = { 'name' => 'Dies ist ein Test!', 'included_data' => { 'item1' => 'Test item 1', 'item2' => 'Test item 2' } }
-      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'TestIncludedData', data_hash: data_hash)
+      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'TestIncludedData', data_hash:)
 
       save_time = Time.zone.now
       returned_data_hash = data_set.get_data_hash
@@ -73,7 +73,7 @@ module DataCycleCore
       data_set.updated_at = save_time
       data_set.save
       data_hash = { 'name' => 'Dies ist ein Test!' }
-      data_set.set_data_hash(data_hash: data_hash, new_content: true)
+      data_set.set_data_hash(data_hash:, new_content: true)
 
       returned_data_hash = data_set.get_data_hash
       assert_equal(data_hash, returned_data_hash.except('id', 'data_pool').compact)
@@ -109,7 +109,7 @@ module DataCycleCore
       data_set_place.save
 
       data_hash = { 'name' => 'Dies ist ein Test!', 'test_place' => [{ 'id' => data_set_place.id }] }
-      data_set.set_data_hash(data_hash: data_hash, save_time: save_time + 4.seconds)
+      data_set.set_data_hash(data_hash:, save_time: save_time + 4.seconds)
       data_set.save
 
       returned_data_hash = data_set.get_data_hash
@@ -150,7 +150,7 @@ module DataCycleCore
       data_set_cw.set_data_hash(data_hash: { 'name' => 'eingebettete Kreativdaten' }, save_time: save_time + 2.seconds, new_content: true)
 
       data_hash = { 'name' => 'Dies ist ein Test!', 'test_cw' => [{ 'id' => data_set_cw.id }] }
-      data_set.set_data_hash(data_hash: data_hash, save_time: save_time + 4.seconds, new_content: true)
+      data_set.set_data_hash(data_hash:, save_time: save_time + 4.seconds, new_content: true)
 
       returned_data_hash = data_set.get_data_hash
       expected_hash = data_hash

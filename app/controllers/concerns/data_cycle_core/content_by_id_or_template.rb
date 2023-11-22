@@ -21,7 +21,7 @@ module DataCycleCore
 
       thing_template = resolve_params(content_by_id_or_template_params[:content_template])&.dig(:thing_template)
 
-      return DataCycleCore::Thing.new(thing_template: thing_template, id: content_by_id_or_template_params[:content_id].presence || SecureRandom.uuid) if thing_template.present?
+      DataCycleCore::Thing.new(thing_template:, id: content_by_id_or_template_params[:content_id].presence || SecureRandom.uuid) if thing_template.present?
     end
   end
 end

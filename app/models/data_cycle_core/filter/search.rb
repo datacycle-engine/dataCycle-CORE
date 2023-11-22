@@ -95,7 +95,7 @@ module DataCycleCore
           )
         SQL
 
-        query_string = Thing.send(:sanitize_sql_for_conditions, [sql, attribute_path: 'schema_type', type: type])
+        query_string = Thing.send(:sanitize_sql_for_conditions, [sql, attribute_path: 'schema_type', type:])
 
         reflect(
           @query.left_outer_joins(:thing_template).where(Arel.sql(query_string))
@@ -150,29 +150,29 @@ module DataCycleCore
 
       def related_through_attribute(value, relation_name)
         if value.to_s == 'true'
-          exists_relation_filter(relation_name)
+          exists_relation_filter(relation_name, true)
         else
-          not_exists_relation_filter(relation_name)
+          not_exists_relation_filter(relation_name, true)
         end
       end
 
-      def exists_relation_filter(name = nil)
+      def exists_relation_filter(name = nil, inverse = false)
         return self if name.blank?
-        subquery = related_to_any(name, true)
+        subquery = related_to_any(name, inverse == true)
         return self if subquery.nil?
 
         reflect(
-          @query.where(subquery.exists)
+          @query.where(subquery.project(1).exists)
         )
       end
 
-      def not_exists_relation_filter(name = nil)
+      def not_exists_relation_filter(name = nil, inverse = false)
         return self if name.blank?
-        subquery = related_to_any(name, true)
+        subquery = related_to_any(name, inverse == true)
         return self if subquery.nil?
 
         reflect(
-          @query.where.not(subquery.exists)
+          @query.where.not(subquery.project(1).exists)
         )
       end
 
@@ -265,6 +265,22 @@ module DataCycleCore
         end
       end
 
+      def with_geom(value)
+        if value.to_s == 'true'
+          with_geometry
+        else
+          not_with_geometry
+        end
+      end
+
+      def with_external_source(value)
+        if value.to_s == 'true'
+          with_external_system
+        else
+          not_with_external_system
+        end
+      end
+
       def template_names(names)
         return self if names.blank?
 
@@ -341,8 +357,7 @@ module DataCycleCore
 
       def related_to_any(name = nil, inverse = false)
         thing_id = :content_a_id
-        related_to_id = :content_b_id
-        thing_id = related_to_id if inverse
+        thing_id = :content_b_id if inverse
 
         sub_select = content_content[thing_id].eq(thing[:id])
         sub_select = sub_select.and(content_content[:relation_a].eq(name)) if name.present?

@@ -24,7 +24,7 @@ module DataCycleCore
         end
 
         return if options&.dig(:download, :endpoint).blank? # for mark_deleted_from_data tasks
-        endpoint_options_params = options.except(:download, :credentials, :external_source).merge({ changed_from: changed_from })
+        endpoint_options_params = options.except(:download, :credentials, :external_source).merge({ changed_from: })
         endpoint_params = @credentials.symbolize_keys
           .merge(read_type)
           .merge(options: options.dig(:download).merge(params: endpoint_options_params))

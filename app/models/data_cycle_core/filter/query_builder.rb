@@ -29,16 +29,16 @@ module DataCycleCore
         reflect(@query.offset(number))
       end
 
-      def where(*params)
-        reflect(@query.where(*params))
+      def where(*)
+        reflect(@query.where(*))
       end
 
-      def not(*params)
-        reflect(@query.not(*params))
+      def not(*)
+        reflect(@query.not(*))
       end
 
-      def order(*params)
-        reflect(@query.order(*params))
+      def order(*)
+        reflect(@query.order(*))
       end
 
       private

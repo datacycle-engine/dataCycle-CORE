@@ -4,7 +4,7 @@ namespace :data_cycle_core do
   namespace :import do
     desc 'List available endpoints for import'
     task list: :environment do
-      DataCycleCore::ExternalSystem.where('external_systems.config ? :key', key: 'import_config').each do |external_source|
+      DataCycleCore::ExternalSystem.where('external_systems.config ? :key', key: 'import_config').find_each do |external_source|
         puts "#{external_source.id} - #{external_source.name}"
       end
     end

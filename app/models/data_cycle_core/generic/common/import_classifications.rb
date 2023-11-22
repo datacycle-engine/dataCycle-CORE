@@ -46,8 +46,8 @@ module DataCycleCore
                         extracted_classification_data = extract_data.call(options, raw_classification_data)
                         next if extracted_classification_data[:external_key].blank?
                         import_classification(
-                          utility_object: utility_object,
-                          classification_data: extracted_classification_data.merge({ tree_name: tree_name }),
+                          utility_object:,
+                          classification_data: extracted_classification_data.merge({ tree_name: }),
                           parent_classification_alias: load_parent_classification_alias.call(raw_classification_data, external_source_id, options)
                         )
                         raw_classification_data_stack +=
@@ -107,15 +107,15 @@ module DataCycleCore
                         extracted_classification_data = extract_parent_data.call(options, classification_data)
 
                         import_classification(
-                          utility_object: utility_object,
-                          classification_data: extracted_classification_data.merge({ tree_name: tree_name }),
+                          utility_object:,
+                          classification_data: extracted_classification_data.merge({ tree_name: }),
                           parent_classification_alias: nil
                         )
 
                         extract_child_data.call(options, classification_data).each do |child_classification_data|
                           import_classification(
-                            utility_object: utility_object,
-                            classification_data: child_classification_data.merge({ tree_name: tree_name }),
+                            utility_object:,
+                            classification_data: child_classification_data.merge({ tree_name: }),
                             parent_classification_alias: load_parent_classification_alias.call(classification_data, external_source_id, options)
                           )
                         end
@@ -163,7 +163,7 @@ module DataCycleCore
                 I18n.with_locale(locale) do
                   logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                    classification_processing.call(mongo_item, logging, utility_object, locale, tree_name, options.merge({ importer_name: importer_name, phase_name: phase_name }))
+                    classification_processing.call(mongo_item, logging, utility_object, locale, tree_name, options.merge({ importer_name:, phase_name: }))
                   end
                 end
               end
@@ -181,13 +181,13 @@ module DataCycleCore
             if classification_data[:external_key].blank?
               classification = DataCycleCore::Classification
                 .find_or_initialize_by(
-                  external_source_id: external_source_id,
+                  external_source_id:,
                   name: classification_data[:name]
                 )
             else
               classification = DataCycleCore::Classification
                 .find_or_initialize_by(
-                  external_source_id: external_source_id,
+                  external_source_id:,
                   external_key: classification_data[:external_key]
                 ) do |c|
                   c.name = classification_data[:name]
@@ -196,18 +196,18 @@ module DataCycleCore
 
             if classification.new_record?
               classification_alias = DataCycleCore::ClassificationAlias.create!(
-                external_source_id: external_source_id,
+                external_source_id:,
                 **classification_data.slice(:name, :description, :uri, :classification_polygons_attributes, :assignable)
               )
 
               DataCycleCore::ClassificationGroup.create!(
-                classification: classification,
-                classification_alias: classification_alias,
-                external_source_id: external_source_id
+                classification:,
+                classification_alias:,
+                external_source_id:
               )
 
               tree_label = DataCycleCore::ClassificationTreeLabel.find_or_create_by(
-                external_source_id: external_source_id,
+                external_source_id:,
                 name: classification_data[:tree_name]
               ) do |item|
                 item.visibility = DataCycleCore.default_classification_visibilities
@@ -216,7 +216,7 @@ module DataCycleCore
               DataCycleCore::ClassificationTree.create!(
                 {
                   classification_tree_label: tree_label,
-                  parent_classification_alias: parent_classification_alias,
+                  parent_classification_alias:,
                   sub_classification_alias: classification_alias
                 }
               )

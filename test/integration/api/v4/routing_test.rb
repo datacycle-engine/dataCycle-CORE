@@ -22,12 +22,12 @@ module DataCycleCore
           params = {}
 
           get api_v4_things_path(params)
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_api_count_result(@thing_count)
 
           post api_v4_things_path(params)
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_api_count_result(@thing_count)
         end
@@ -38,12 +38,12 @@ module DataCycleCore
           }
 
           get api_v4_thing_path(params)
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_equal(@content.id, json_data.dig('@graph').first.dig('@id'))
 
           post api_v4_thing_path(params)
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_equal(@content.id, json_data.dig('@graph').first.dig('@id'))
         end
@@ -57,31 +57,31 @@ module DataCycleCore
           }
 
           get api_v4_contents_select_path(params)
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_api_count_result(2)
-          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].pluck('@id').sort)
 
           post api_v4_contents_select_path(params)
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_api_count_result(2)
-          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].pluck('@id').sort)
 
           params = {
             uuids: "#{@content.id},#{@content.image.first.id}"
           }
           get api_v4_contents_select_path(params)
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_api_count_result(2)
-          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].pluck('@id').sort)
 
           post api_v4_contents_select_path(params)
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_api_count_result(2)
-          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].pluck('@id').sort)
         end
 
         # test 'GET/POST /api/v4/endpoints/[:content_id(slug)]' do
@@ -109,32 +109,32 @@ module DataCycleCore
             ]
           }
 
-          get api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
-          json_data = JSON.parse response.body
+          get api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_api_count_result(2)
-          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].pluck('@id').sort)
 
-          post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
-          json_data = JSON.parse response.body
+          post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_api_count_result(2)
-          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].pluck('@id').sort)
 
           params = {
             content_id: @content.id
           }
-          get api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
-          json_data = JSON.parse response.body
+          get api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_api_count_result(1)
-          assert_equal([@content.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          assert_equal([@content.id].sort, json_data['@graph'].pluck('@id').sort)
 
-          post api_v4_stored_filter_path(id: @stored_filter.id), params: params, as: :json
-          json_data = JSON.parse response.body
+          post api_v4_stored_filter_path(id: @stored_filter.id), params:, as: :json
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_api_count_result(1)
-          assert_equal([@content.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          assert_equal([@content.id].sort, json_data['@graph'].pluck('@id').sort)
         end
 
         test 'GET/POST /api/v4/endpoints/things/[:content_id]' do
@@ -145,32 +145,32 @@ module DataCycleCore
             ]
           }
 
-          get api_v4_stored_filter_things_path(id: @stored_filter.id), params: params, as: :json
-          json_data = JSON.parse response.body
+          get api_v4_stored_filter_things_path(id: @stored_filter.id), params:, as: :json
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_api_count_result(2)
-          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].pluck('@id').sort)
 
-          post api_v4_stored_filter_things_path(id: @stored_filter.id), params: params, as: :json
-          json_data = JSON.parse response.body
+          post api_v4_stored_filter_things_path(id: @stored_filter.id), params:, as: :json
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_api_count_result(2)
-          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          assert_equal([@content.id, @content.image.first.id].sort, json_data['@graph'].pluck('@id').sort)
 
           params = {
             content_id: @content.id
           }
-          get api_v4_stored_filter_things_path(id: @stored_filter.id), params: params, as: :json
-          json_data = JSON.parse response.body
+          get api_v4_stored_filter_things_path(id: @stored_filter.id), params:, as: :json
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_api_count_result(1)
-          assert_equal([@content.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          assert_equal([@content.id].sort, json_data['@graph'].pluck('@id').sort)
 
-          post api_v4_stored_filter_things_path(id: @stored_filter.id), params: params, as: :json
-          json_data = JSON.parse response.body
+          post api_v4_stored_filter_things_path(id: @stored_filter.id), params:, as: :json
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_api_count_result(1)
-          assert_equal([@content.id].sort, json_data['@graph'].map { |a| a['@id'] }.sort)
+          assert_equal([@content.id].sort, json_data['@graph'].pluck('@id').sort)
         end
 
         test '/api/v4/things/deleted' do
@@ -188,7 +188,7 @@ module DataCycleCore
             }
           }
           get api_v4_contents_deleted_path(params)
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_equal(2, json_data['@context'].size)
           assert_api_count_result(1)
           assert_equal(deleted_content_id, json_data.dig('@graph').first.dig('@id'))
@@ -199,12 +199,12 @@ module DataCycleCore
 
           get api_v4_concept_schemes_path(params)
           assert_api_default_sections
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
 
           post api_v4_concept_schemes_path(params)
           assert_api_default_sections
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
         end
 
@@ -213,12 +213,12 @@ module DataCycleCore
           params = { id: tree_id }
 
           get api_v4_concept_scheme_path(params)
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_equal(tree_id, json_data.dig('@graph').first.dig('@id'))
 
           post api_v4_concept_scheme_path(params)
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_equal(tree_id, json_data.dig('@graph').first.dig('@id'))
         end
@@ -229,12 +229,12 @@ module DataCycleCore
 
           get classifications_api_v4_concept_scheme_path(params)
           assert_api_default_sections
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
 
           post classifications_api_v4_concept_scheme_path(params)
           assert_api_default_sections
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
         end
 
@@ -247,12 +247,12 @@ module DataCycleCore
           }
 
           get classifications_api_v4_concept_scheme_path(params)
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_equal(classification.id, json_data.dig('@graph').first.dig('@id'))
 
           post classifications_api_v4_concept_scheme_path(params)
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_context(json_data.dig('@context'), 'de')
           assert_equal(classification.id, json_data.dig('@graph').first.dig('@id'))
         end
@@ -263,11 +263,11 @@ module DataCycleCore
             id: user_id
           }
           get api_v4_users_user_path(params)
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_equal(user_id, json_data.dig('id'))
 
           post api_v4_users_user_path(params)
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_equal(user_id, json_data.dig('id'))
         end
       end

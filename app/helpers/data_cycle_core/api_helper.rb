@@ -17,7 +17,7 @@ module DataCycleCore
       if api_version == 4
         partials = [
           "#{definition&.dig('type')&.underscore}_#{key.underscore}",
-          (api_property_definition&.dig('partial')&.present? ? "#{definition&.dig('type')&.underscore}_#{api_property_definition&.dig('partial')&.underscore}" : ''),
+          (api_property_definition&.dig('partial').present? ? "#{definition&.dig('type')&.underscore}_#{api_property_definition&.dig('partial')&.underscore}" : ''),
           api_property_definition&.dig('partial')&.underscore,
           definition['type'].underscore,
           'default'
@@ -38,12 +38,13 @@ module DataCycleCore
         api_partials = subversion_partials + api_partials
       end
 
-      return first_existing_partial(api_partials), parameters.merge({ key: key, definition: definition, value: value, content: content })
+      return first_existing_partial(api_partials), parameters.merge({ key:, definition:, value:, content: })
     end
 
     def first_existing_partial(partials)
       partials.each do |partial|
-        next unless lookup_context.exists?(partial, [], true)
+        next unless lookup_context.exists?(partial, partial.start_with?('data_cycle_core') ? [] : lookup_context.prefixes, true)
+
         return partial
       end
     end
@@ -63,7 +64,7 @@ module DataCycleCore
     end
 
     def included_attribute?(name, attribute_list)
-      return if attribute_list.blank?
+      return false if attribute_list.blank?
       return true if full_recursive?(attribute_list)
 
       attribute_list.pluck(0).intersection(Array.wrap(name)).any?
@@ -144,7 +145,7 @@ module DataCycleCore
       else
         data_value = []
 
-        content.translations.where(locale: languages).each do |translation|
+        content.translations.where(locale: languages).find_each do |translation|
           I18n.with_locale(translation.locale) do
             o_value = content.send(key + '_overlay')&.try(o_key)
             data_value << { '@language' => I18n.locale, '@value' => api_value_format(o_value, api_property_definition) } if o_value.present?
@@ -235,7 +236,7 @@ module DataCycleCore
     def api_plain_meta(count, pages)
       {
         total: count,
-        pages: pages
+        pages:
       }
     end
 
@@ -247,7 +248,7 @@ module DataCycleCore
       if request.request_method == 'POST'
         common_params = {}
       else
-        common_params = @permitted_params.to_h.reject { |k, _| ['id', 'format', 'page', 'api_subversion'].include?(k) }
+        common_params = @permitted_params.to_h.except('id', 'format', 'page', 'api_subversion')
       end
       links = {}
       links[:prev] = object_url.call(common_params.merge(page: { number: contents.prev_page, size: contents.limit_value })) if contents.prev_page

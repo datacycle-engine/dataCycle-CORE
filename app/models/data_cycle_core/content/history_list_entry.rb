@@ -55,7 +55,7 @@ module DataCycleCore
       end
 
       def history_thing_path_params(content)
-        { id: path_id || content.id, history_id: path_history_id, watch_list_id: watch_list_id }
+        { id: path_id || content.id, history_id: path_history_id, watch_list_id: }
       end
 
       def active?
@@ -64,7 +64,7 @@ module DataCycleCore
 
       def active_class
         return 'active' if active_id == id
-        return 'diff-active' if diff_id == id
+        'diff-active' if diff_id == id
       end
 
       def source_icon?

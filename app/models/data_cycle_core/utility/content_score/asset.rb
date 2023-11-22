@@ -14,10 +14,10 @@ module DataCycleCore
           def to_tooltip(content, definition, locale)
             return super if definition.dig('content_score', 'method') != 'by_mime_types'
 
-            tooltip = [tooltip_base_string(definition.dig('content_score', 'method'), locale: locale)]
+            tooltip = [tooltip_base_string(definition.dig('content_score', 'method'), locale:)]
 
             if definition.dig('content_score', 'mime_types').present?
-              tooltip.push(tooltip_string('mime_types', locale: locale))
+              tooltip.push(tooltip_string('mime_types', locale:))
 
               subtips = ['<ul>']
               definition.dig('content_score', 'mime_types').each do |v|

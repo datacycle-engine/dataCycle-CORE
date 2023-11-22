@@ -153,6 +153,10 @@
           font-size: inherit;
         }
       }
+
+      .finalize-agbs-checkbox {
+        box-shadow: 0 2px 0 0px;
+      }
     }
 
     .data-link-text-files {
@@ -1730,18 +1734,12 @@ a.email-link {
 
     .select2-selection__choice,
     .select2-selection__rendered {
-      .stored_filter::before {
-        content: '\f0b0';
-        font-family: FontAwesome;
-        position: relative;
-        padding: 2px 5px 2px 2px;
-      }
 
-      .watch_list::before {
-        content: '\f0ca';
-        font-family: FontAwesome;
-        position: relative;
-        padding: 2px 5px 2px 2px;
+      .stored_filter,
+      .watch_list {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
       }
     }
   }
@@ -1770,31 +1768,17 @@ a.email-link {
       &.select2-results__option--highlighted {
         color: $light-gray;
 
-        .select2-option-title,
-        .stored_filter::before,
-        .watch_list::before {
+        .select2-option-title {
           color: $white;
         }
       }
 
       .select2-option-title {
         color: $black;
-      }
 
-      .stored_filter::before {
-        content: '\f0b0';
-        font-family: FontAwesome;
-        position: relative;
-        padding: 2px 5px 2px 2px;
-        color: lighten($black, 20%);
-      }
-
-      .watch_list::before {
-        content: '\f0ca';
-        font-family: FontAwesome;
-        position: relative;
-        padding: 2px 5px 2px 2px;
-        color: lighten($black, 20%);
+        i.fa {
+          font-size: 1rem;
+        }
       }
 
       .new-tag::before {

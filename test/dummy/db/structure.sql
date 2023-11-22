@@ -166,6 +166,15 @@ CREATE FUNCTION public.delete_content_content_links_trigger() RETURNS trigger
 
 
 --
+-- Name: delete_external_hashes_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_external_hashes_trigger_1() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN DELETE FROM external_hashes WHERE external_hashes.id IN ( SELECT eh.id FROM external_hashes eh WHERE EXISTS ( SELECT 1 FROM old_thing_translations INNER JOIN things ON things.id = old_thing_translations.thing_id WHERE things.external_source_id = eh.external_source_id AND things.external_key = eh.external_key AND old_thing_translations.locale = eh.locale ) FOR UPDATE ); RETURN NULL; END; $$;
+
+
+--
 -- Name: delete_schedule_occurences(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -831,9 +840,9 @@ CREATE TABLE public.classification_aliases (
     created_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     updated_at timestamp without time zone DEFAULT transaction_timestamp() NOT NULL,
     external_source_id uuid,
-    internal boolean DEFAULT false,
+    internal boolean DEFAULT false NOT NULL,
     deleted_at timestamp without time zone,
-    assignable boolean DEFAULT true,
+    assignable boolean DEFAULT true NOT NULL,
     name_i18n jsonb DEFAULT '{}'::jsonb,
     description_i18n jsonb DEFAULT '{}'::jsonb,
     uri character varying,
@@ -884,7 +893,7 @@ CREATE TABLE public.classification_tree_labels (
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    internal boolean DEFAULT false,
+    internal boolean DEFAULT false NOT NULL,
     deleted_at timestamp without time zone,
     visibility character varying[] DEFAULT '{}'::character varying[],
     change_behaviour character varying[] DEFAULT '{trigger_webhooks}'::character varying[]
@@ -1137,7 +1146,7 @@ CREATE TABLE public.things (
     version_name character varying,
     line public.geometry(MultiLineStringZ,4326),
     last_updated_locale character varying,
-    write_history boolean DEFAULT false,
+    write_history boolean DEFAULT false NOT NULL,
     geom_simple public.geometry(Geometry,4326),
     geom public.geometry(GeometryZ,4326)
 );
@@ -1286,6 +1295,22 @@ UNION
 
 
 --
+-- Name: external_hashes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.external_hashes (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    external_source_id uuid NOT NULL,
+    external_key character varying NOT NULL,
+    hash_value character varying,
+    locale character varying NOT NULL,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: external_system_syncs; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1323,7 +1348,7 @@ CREATE TABLE public.external_systems (
     last_successful_download timestamp without time zone,
     last_import timestamp without time zone,
     last_successful_import timestamp without time zone,
-    deactivated boolean DEFAULT false,
+    deactivated boolean DEFAULT false NOT NULL,
     last_successful_download_time interval,
     last_download_time interval,
     last_successful_import_time interval,
@@ -1475,8 +1500,8 @@ CREATE TABLE public.stored_filters (
     user_id uuid,
     language character varying[],
     parameters jsonb,
-    system boolean DEFAULT false,
-    api boolean DEFAULT false,
+    system boolean DEFAULT false NOT NULL,
+    api boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     api_users text[],
@@ -1672,7 +1697,7 @@ CREATE TABLE public.watch_lists (
     full_path_names character varying[],
     my_selection boolean DEFAULT false NOT NULL,
     manual_order boolean DEFAULT false NOT NULL,
-    api boolean DEFAULT false
+    api boolean DEFAULT false NOT NULL
 );
 
 
@@ -1889,6 +1914,14 @@ ALTER TABLE ONLY public.delayed_jobs
 
 ALTER TABLE ONLY public.data_links
     ADD CONSTRAINT edit_links_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: external_hashes external_hashes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.external_hashes
+    ADD CONSTRAINT external_hashes_pkey PRIMARY KEY (id);
 
 
 --
@@ -2656,6 +2689,13 @@ CREATE INDEX index_data_links_on_item_type ON public.data_links USING btree (ite
 
 
 --
+-- Name: index_external_hash_on_external_source_id_external_key_locale; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_external_hash_on_external_source_id_external_key_locale ON public.external_hashes USING btree (external_source_id, external_key, locale);
+
+
+--
 -- Name: index_external_system_syncs_on_syncalbe_id_and_external_key; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3253,8 +3293,6 @@ ALTER TABLE public.classification_contents DISABLE TRIGGER delete_ccc_relations_
 
 CREATE TRIGGER delete_ccc_relations_transitive_trigger AFTER DELETE ON public.classification_groups REFERENCING OLD TABLE AS old_classification_groups FOR EACH STATEMENT EXECUTE FUNCTION public.delete_ca_paths_transitive_trigger_1();
 
-ALTER TABLE public.classification_groups DISABLE TRIGGER delete_ccc_relations_transitive_trigger;
-
 
 --
 -- Name: classification_groups delete_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
@@ -3268,6 +3306,13 @@ CREATE TRIGGER delete_collected_classification_content_relations_trigger_1 AFTER
 --
 
 CREATE TRIGGER delete_content_content_links_trigger BEFORE DELETE ON public.content_contents FOR EACH ROW EXECUTE FUNCTION public.delete_content_content_links_trigger();
+
+
+--
+-- Name: thing_translations delete_external_hashes_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_external_hashes_trigger AFTER DELETE ON public.thing_translations REFERENCING OLD TABLE AS old_thing_translations FOR EACH STATEMENT EXECUTE FUNCTION public.delete_external_hashes_trigger_1();
 
 
 --
@@ -3321,8 +3366,6 @@ ALTER TABLE public.classification_contents DISABLE TRIGGER generate_ccc_relation
 --
 
 CREATE TRIGGER generate_ccc_relations_transitive_trigger AFTER INSERT ON public.classification_groups REFERENCING NEW TABLE AS new_classification_groups FOR EACH STATEMENT EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_4();
-
-ALTER TABLE public.classification_groups DISABLE TRIGGER generate_ccc_relations_transitive_trigger;
 
 
 --
@@ -3501,8 +3544,6 @@ ALTER TABLE public.classification_contents DISABLE TRIGGER update_ccc_relations_
 
 CREATE TRIGGER update_ccc_relations_transitive_trigger AFTER UPDATE ON public.classification_groups REFERENCING OLD TABLE AS old_classification_groups NEW TABLE AS new_classification_groups FOR EACH STATEMENT EXECUTE FUNCTION public.update_ca_paths_transitive_trigger_4();
 
-ALTER TABLE public.classification_groups DISABLE TRIGGER update_ccc_relations_transitive_trigger;
-
 
 --
 -- Name: classification_groups update_ccc_relations_trigger_4; Type: TRIGGER; Schema: public; Owner: -
@@ -3594,8 +3635,6 @@ CREATE TRIGGER update_content_content_links_trigger AFTER UPDATE OF content_a_id
 
 CREATE TRIGGER update_deleted_at_ccc_relations_transitive_trigger AFTER UPDATE ON public.classification_groups REFERENCING OLD TABLE AS old_classification_groups NEW TABLE AS new_classification_groups FOR EACH STATEMENT EXECUTE FUNCTION public.delete_ca_paths_transitive_trigger_2();
 
-ALTER TABLE public.classification_groups DISABLE TRIGGER update_deleted_at_ccc_relations_transitive_trigger;
-
 
 --
 -- Name: classification_groups update_deleted_at_ccc_relations_trigger_4; Type: TRIGGER; Schema: public; Owner: -
@@ -3662,6 +3701,14 @@ ALTER TABLE ONLY public.collection_configurations
 
 ALTER TABLE ONLY public.collection_configurations
     ADD CONSTRAINT fk_collection_watch_list FOREIGN KEY (watch_list_id) REFERENCES public.watch_lists(id) ON DELETE CASCADE;
+
+
+--
+-- Name: external_hashes fk_external_hashes_things; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.external_hashes
+    ADD CONSTRAINT fk_external_hashes_things FOREIGN KEY (external_source_id, external_key) REFERENCES public.things(external_source_id, external_key) ON UPDATE CASCADE ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4139,8 +4186,12 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230821094137'),
 ('20230823081910'),
 ('20230824060920'),
+('20231010095157'),
 ('20231023100607'),
 ('20231108115445'),
-('20231109142629');
+('20231109091823'),
+('20231109142629'),
+('20231113104134'),
+('20231115104227');
 
 

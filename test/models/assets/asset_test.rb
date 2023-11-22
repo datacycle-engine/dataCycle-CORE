@@ -88,7 +88,7 @@ module DataCycleCore
         asset_name = 'test_rgb.gif'
         asset = upload_image(asset_name)
         assert asset.thumb_preview.present?
-        test_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: asset })
+        test_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: })
         I18n.available_locales.each do |locale|
           I18n.with_locale(locale) do
             test_image.set_data_hash(partial_update: true, data_hash: { name: "Test Bild 1 #{locale}" }.stringify_keys)
@@ -108,7 +108,7 @@ module DataCycleCore
       test 'delete asset, if last translation is destroyed' do
         asset_name = 'test_rgb.jpeg'
         asset = upload_image(asset_name)
-        test_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: asset })
+        test_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: })
         I18n.available_locales.each do |locale|
           I18n.with_locale(locale) do
             test_image.set_data_hash(partial_update: true, data_hash: { name: "Test Bild 1 #{locale}" }.stringify_keys)
@@ -130,7 +130,7 @@ module DataCycleCore
       test 'delete asset, if content is destroyed' do
         asset_name = 'test_rgb.jpeg'
         asset = upload_image(asset_name)
-        test_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: asset })
+        test_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: })
         I18n.available_locales.each do |locale|
           I18n.with_locale(locale) do
             test_image.set_data_hash(partial_update: true, data_hash: { name: "Test Bild 1 #{locale}" }.stringify_keys)

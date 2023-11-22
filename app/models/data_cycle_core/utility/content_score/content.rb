@@ -8,7 +8,7 @@ module DataCycleCore
 
         class << self
           def by_minimum(content:, parameters:, **_args)
-            scores = Base.calculate_scores_by_method_or_presence(content: content, parameters: parameters).values
+            scores = Base.calculate_scores_by_method_or_presence(content:, parameters:).values
 
             scores.flatten!
             scores.compact!
@@ -17,7 +17,7 @@ module DataCycleCore
           end
 
           def by_weight_matrix(content:, parameters:, definition:, **_args)
-            scores = Base.calculate_scores_by_method_or_presence(content: content, parameters: parameters)
+            scores = Base.calculate_scores_by_method_or_presence(content:, parameters:)
 
             definition.dig('content_score', 'weight_matrix')&.sum { |k, v| scores[k].to_f * v.to_r }
           end
@@ -27,7 +27,7 @@ module DataCycleCore
             rating_factor = max_value / parameters.size
             min_value = 0
 
-            scores = Base.calculate_scores_by_method_or_presence(content: content, parameters: parameters)
+            scores = Base.calculate_scores_by_method_or_presence(content:, parameters:)
 
             definition.dig('content_score', 'score_matrix').each do |max, property_names|
               required = property_names.size
@@ -61,14 +61,14 @@ module DataCycleCore
           end
 
           def to_tooltip(content, definition, locale)
-            tooltip = [tooltip_base_string(definition.dig('content_score', 'method'), locale: locale)]
+            tooltip = [tooltip_base_string(definition.dig('content_score', 'method'), locale:)]
 
             if definition.dig('content_score', 'weight_matrix').present?
               subtips = ['<ul>']
               definition.dig('content_score', 'weight_matrix')
                 .sort_by { |k, _v| content.properties_for(k)&.[]('sorting') }
                 .each do |k, v|
-                subtips.push("<li><b>#{content.class.human_attribute_name(k, { base: content, definition: content.properties_for(k), locale: locale })}</b> (#{(v.to_r * 100).round}%)</li>")
+                subtips.push("<li><b>#{content.class.human_attribute_name(k, { base: content, definition: content.properties_for(k), locale: })}</b> (#{(v.to_r * 100).round}%)</li>")
               end
               tooltip.push("#{subtips.join}</ul>")
             end
@@ -81,20 +81,20 @@ module DataCycleCore
                 .uniq
                 .sort_by { |name| content.properties_for(name)&.[]('sorting') }
                 .each do |name|
-                subtips.push("<li><b>#{content.class.human_attribute_name(name, { base: content, definition: content.properties_for(name), locale: locale })}</b></li>")
+                subtips.push("<li><b>#{content.class.human_attribute_name(name, { base: content, definition: content.properties_for(name), locale: })}</b></li>")
               end
 
               tooltip.push("#{subtips.join}</ul>")
 
               definition.dig('content_score', 'score_matrix').each do |k, v|
                 subtips = ['<ul>']
-                subtips.push("<li>#{tooltip_string('score_matrix', max: (k.to_f * 100).round, locale: locale)}</li><ul>")
+                subtips.push("<li>#{tooltip_string('score_matrix', max: (k.to_f * 100).round, locale:)}</li><ul>")
 
                 v.map { |n| n.split('.').first }
                   .uniq
                   .sort_by { |name| content.properties_for(name)&.[]('sorting') }
                   .each do |name|
-                  subtips.push("<li><b>#{content.class.human_attribute_name(name, { base: content, definition: content.properties_for(name), locale: locale })}</b></li>")
+                  subtips.push("<li><b>#{content.class.human_attribute_name(name, { base: content, definition: content.properties_for(name), locale: })}</b></li>")
                 end
 
                 tooltip.push("#{subtips.join}</ul></ul>")

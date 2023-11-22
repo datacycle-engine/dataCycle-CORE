@@ -66,7 +66,7 @@ module DataCycleCore
 
     test 'copy persons in split view with external id' do
       external_key = 'xxx-xxx-xxx'
-      @person.update(external_key: external_key)
+      @person.update(external_key:)
 
       post object_browser_find_path, xhr: true, as: :json, params: {
         class: @person.class.name,

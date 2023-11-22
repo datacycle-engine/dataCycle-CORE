@@ -29,7 +29,7 @@ module DataCycleCore
 
       test 'remove version_name from history entry' do
         version_name = 'Version 2'
-        @content.set_data_hash(data_hash: { name: 'Test Artikel 2' }, partial_update: true, version_name: version_name)
+        @content.set_data_hash(data_hash: { name: 'Test Artikel 2' }, partial_update: true, version_name:)
         history_entry = @content.histories.first
 
         patch remove_version_name_path, params: {

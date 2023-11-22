@@ -52,7 +52,7 @@ module DataCycleCore
         {
           created: finished,
           redirect_path: finished ? root_path : nil,
-          content_ids: content_ids,
+          content_ids:,
           error: finished ? nil : I18n.t('controllers.error.bulk_created', count: item_count - content_ids.size, locale: helpers.active_ui_locale)
         }
       )
@@ -66,7 +66,7 @@ module DataCycleCore
         {
           created: finished,
           redirect_path: finished ? root_path : nil,
-          content_ids: content_ids,
+          content_ids:,
           error: finished ? nil : I18n.t('controllers.error.bulk_created', count: item_count - content_ids.size, locale: helpers.active_ui_locale)
         }
       )
@@ -150,6 +150,26 @@ module DataCycleCore
       }
     end
 
+    def edit
+      @content ||= DataCycleCore::Thing.find(params[:id])
+      @hide_embedded = params[:hide_embedded].present?
+
+      redirect_to(edit_thing_path(@content.related_contents.first)) && return if @content.embedded?
+
+      # get show data for split view
+      if source_params.present?
+        @split_source = DataCycleCore::Thing.find(source_params[:source_id])
+        @source_locale = source_params[:source_locale]
+      end
+
+      I18n.with_locale(params[:locale] || @content.first_available_locale) do
+        @locale = I18n.locale
+        authorize!(:edit, @content)
+
+        render && return
+      end
+    end
+
     def create
       template = DataCycleCore::Thing.new(template_name: params[:template])
       authorize!(__method__, template, resolve_params(params, false).dig(:scope))
@@ -168,7 +188,7 @@ module DataCycleCore
         @content = DataCycleCore::DataHashService.create_internal_object(params[:template], object_params, current_user, parent_params[:parent_id], source)
 
         if @content.try(:errors).present?
-          flash[:error] = @content.errors.full_messages
+          flash.now[:error] = @content.errors.full_messages
         elsif @content.present?
           flash[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale)
         end
@@ -191,26 +211,6 @@ module DataCycleCore
             }
           end
         end
-      end
-    end
-
-    def edit
-      @content ||= DataCycleCore::Thing.find(params[:id])
-      @hide_embedded = params[:hide_embedded].present?
-
-      redirect_to(edit_thing_path(@content.related_contents.first)) && return if @content.embedded?
-
-      # get show data for split view
-      if source_params.present?
-        @split_source = DataCycleCore::Thing.find(source_params[:source_id])
-        @source_locale = source_params[:source_locale]
-      end
-
-      I18n.with_locale(params[:locale] || @content.first_available_locale) do
-        @locale = I18n.locale
-        authorize!(:edit, @content)
-
-        render && return
       end
     end
 
@@ -253,7 +253,7 @@ module DataCycleCore
 
         version_name_for_merge(datahash) if merge_duplicate
 
-        unless @content.set_data_hash_with_translations(data_hash: datahash, current_user: current_user, force_update: merge_duplicate)
+        unless @content.set_data_hash_with_translations(data_hash: datahash, current_user:, force_update: merge_duplicate)
           flash[:error] = @content.i18n_errors.map { |k, v| v.full_messages.map { |m| "#{k}: #{m}" } }.flatten
           redirect_back(fallback_location: root_path) && return
         end
@@ -280,7 +280,7 @@ module DataCycleCore
       @content = DataCycleCore::Thing.find(params[:id])
 
       I18n.with_locale(@content.first_available_locale(destroy_params[:locale])) do
-        destroy_content_params = { current_user: current_user }
+        destroy_content_params = { current_user: }
         if @content.external_source_id.present?
           destroy_content_params[:save_history] = true
           destroy_content_params[:destroy_linked] = true
@@ -392,7 +392,7 @@ module DataCycleCore
       @content = api_strategy.create(content.except('source_key'))
       @content = @content.try(:first)
 
-      flash[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale)
+      flash.now[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale)
 
       if params[:render_html]
         render js: "document.location = '#{thing_path(@content)}'"
@@ -453,7 +453,7 @@ module DataCycleCore
       datahash = (datahash[:datahash] || {}).merge(values || {})
 
       I18n.with_locale(locale || validation_params[:locale]) do
-        @object.validate(data_hash: datahash, strict: validation_params[:strict] == '1', add_defaults: true, current_user: current_user)
+        @object.validate(data_hash: datahash, strict: validation_params[:strict] == '1', add_defaults: true, current_user:)
 
         render json: @object.validation_messages_as_json.to_json
       end
@@ -541,7 +541,6 @@ module DataCycleCore
 
     def select_search
       authorize! :show, DataCycleCore::Thing
-      template_filter = select_search_params[:template_name].present?
 
       filter = DataCycleCore::StoredFilter.new.parameters_from_hash(select_search_params[:stored_filter])
       query = filter.apply
@@ -552,7 +551,7 @@ module DataCycleCore
       query = query.limit(select_search_params[:max].to_i) if select_search_params[:max].present?
       query = query.sort_fulltext_search('DESC', select_search_params[:q])
 
-      render plain: query.includes(:translations).map { |t| t.to_select_option(template_filter, helpers.active_ui_locale) }.to_json,
+      render plain: query.includes(:translations).map { |t| t.to_select_option(helpers.active_ui_locale) }.to_json,
              content_type: 'application/json'
     end
 
@@ -706,10 +705,10 @@ module DataCycleCore
 
       @content.invalidate_self
 
-      flash[:success] = I18n.t('external_connections.remove_external_system_sync.success', locale: helpers.active_ui_locale)
+      flash.now[:success] = I18n.t('external_connections.remove_external_system_sync.success', locale: helpers.active_ui_locale)
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path) }
+        format.html { redirect_back(fallback_location: root_path, notice: flash[:success]) }
         format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).strip, **flash.discard.to_h } }
       end
     end
