@@ -202,6 +202,33 @@ CREATE FUNCTION public.generate_ca_paths_transitive(classification_alias_ids uui
 
 
 --
+-- Name: generate_ca_paths_transitive_statement_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_ca_paths_transitive_statement_trigger_1() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_ca_paths_transitive ( ARRAY_AGG(DISTINCT inserted_classification_aliases.id) ) FROM ( SELECT DISTINCT new_classification_aliases.id FROM new_classification_aliases ) "inserted_classification_aliases"; RETURN NULL; END; $$;
+
+
+--
+-- Name: generate_ca_paths_transitive_statement_trigger_2(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_ca_paths_transitive_statement_trigger_2() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_ca_paths_transitive ( ARRAY_AGG( DISTINCT inserted_classification_tree_labels.classification_alias_id ) ) FROM ( SELECT DISTINCT classification_trees.classification_alias_id FROM classification_trees WHERE classification_trees.classification_tree_label_id IN ( SELECT new_classification_tree_labels.id FROM new_classification_tree_labels ) ) "inserted_classification_tree_labels"; RETURN NULL; END; $$;
+
+
+--
+-- Name: generate_ca_paths_transitive_statement_trigger_3(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_ca_paths_transitive_statement_trigger_3() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_ca_paths_transitive ( ARRAY_AGG( DISTINCT inserted_classification_tree_labels.classification_alias_id ) ) FROM ( SELECT DISTINCT new_classification_trees.classification_alias_id FROM new_classification_trees ) "inserted_classification_tree_labels"; RETURN NULL; END; $$;
+
+
+--
 -- Name: generate_ca_paths_transitive_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3326,21 +3353,21 @@ CREATE TRIGGER delete_schedule_occurences_trigger AFTER DELETE ON public.schedul
 -- Name: classification_aliases generate_ca_paths_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_ca_paths_transitive_trigger AFTER INSERT ON public.classification_aliases FOR EACH ROW EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_1();
+CREATE TRIGGER generate_ca_paths_transitive_trigger AFTER INSERT ON public.classification_aliases REFERENCING NEW TABLE AS new_classification_aliases FOR EACH STATEMENT EXECUTE FUNCTION public.generate_ca_paths_transitive_statement_trigger_1();
 
 
 --
 -- Name: classification_tree_labels generate_ca_paths_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_ca_paths_transitive_trigger AFTER INSERT ON public.classification_tree_labels FOR EACH ROW EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_3();
+CREATE TRIGGER generate_ca_paths_transitive_trigger AFTER INSERT ON public.classification_tree_labels REFERENCING NEW TABLE AS new_classification_tree_labels FOR EACH STATEMENT EXECUTE FUNCTION public.generate_ca_paths_transitive_statement_trigger_2();
 
 
 --
 -- Name: classification_trees generate_ca_paths_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_ca_paths_transitive_trigger AFTER INSERT ON public.classification_trees FOR EACH ROW EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_2();
+CREATE TRIGGER generate_ca_paths_transitive_trigger AFTER INSERT ON public.classification_trees REFERENCING NEW TABLE AS new_classification_trees FOR EACH STATEMENT EXECUTE FUNCTION public.generate_ca_paths_transitive_statement_trigger_3();
 
 
 --
@@ -4192,6 +4219,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20231109091823'),
 ('20231109142629'),
 ('20231113104134'),
-('20231115104227');
+('20231115104227'),
+('20231122124135');
 
 

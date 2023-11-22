@@ -194,6 +194,101 @@ module DataCycleCore
       )
     end
 
+    def insert_all_classifications_by_path(attributes)
+      sql_values = attributes.compact_blank.map { |row|
+        [
+          id,
+          I18n.locale,
+          row[:name],
+          row[:full_path_names],
+          row[:full_path_names].drop(1),
+          row[:classification_ids]
+        ]
+      }.uniq
+
+      sql = <<-SQL.squish
+        WITH raw_data(classification_tree_label_id, locale, name, full_path_names, parent_path_names, classification_ids) AS (
+          VALUES #{Array.new(sql_values.size, '(?::uuid, ?, ?, ARRAY[?]::varchar[], ARRAY[?]::varchar[], ARRAY[?]::uuid[])').join(', ')}
+        ),
+        classification_data AS (
+          SELECT DISTINCT ON (raw_data.full_path_names) raw_data.*,
+            coalesce(cap.id, uuid_generate_v4()) AS classification_alias_id,
+            coalesce(pcg.classification_id, uuid_generate_v4()) AS classification_id
+          FROM raw_data
+            LEFT OUTER JOIN classification_alias_paths cap ON cap.full_path_names = raw_data.full_path_names
+            LEFT OUTER JOIN classification_aliases ca ON ca.id = cap.id
+            AND ca.deleted_at IS NULL
+            LEFT OUTER JOIN primary_classification_groups pcg ON pcg.classification_alias_id = cap.id
+            AND pcg.deleted_at IS NULL
+        ),
+        classifications AS (
+          INSERT INTO classifications (id, name, created_at, updated_at)
+          SELECT classification_data.classification_id,
+            classification_data.name,
+            NOW(),
+            NOW()
+          FROM classification_data ON conflict (id) DO NOTHING
+        ),
+        classification_aliases AS (
+          INSERT INTO classification_aliases (
+              id,
+              internal_name,
+              name_i18n,
+              created_at,
+              updated_at
+            )
+          SELECT classification_data.classification_alias_id,
+            classification_data.name,
+            (
+              '{"' || classification_data.locale || '":"' || classification_data.name || '"}'
+            )::jsonb,
+            NOW(),
+            NOW()
+          FROM classification_data ON conflict (id) DO NOTHING
+        ),
+        classification_groups AS (
+          INSERT INTO classification_groups (classification_id, classification_alias_id) (
+              SELECT classification_data.classification_id,
+                classification_data.classification_alias_id
+              FROM classification_data
+              UNION
+              SELECT unnest(classification_data.classification_ids),
+                classification_data.classification_alias_id
+              FROM classification_data
+            ) ON conflict(classification_id, classification_alias_id)
+          WHERE deleted_at IS NULL DO NOTHING
+        ),
+        classification_trees_data AS (
+          SELECT classification_data.classification_tree_label_id AS classification_tree_label_id,
+            joined_cd.classification_alias_id AS parent_id,
+            classification_data.classification_alias_id AS child_id
+          FROM classification_data
+            LEFT OUTER JOIN classification_data joined_cd ON joined_cd.full_path_names = classification_data.parent_path_names
+        )
+        INSERT INTO classification_trees(
+          classification_tree_label_id,
+          parent_classification_alias_id,
+          classification_alias_id,
+          created_at,
+          updated_at
+        )
+        SELECT classification_trees_data.classification_tree_label_id,
+          classification_trees_data.parent_id,
+          classification_trees_data.child_id,
+          NOW(),
+          NOW()
+        FROM classification_trees_data ON conflict (classification_alias_id)
+        WHERE deleted_at IS NULL DO NOTHING
+      SQL
+
+      ActiveRecord::Base.connection.execute(
+        ActiveRecord::Base.send(:sanitize_sql_array, [
+                                  sql,
+                                  *sql_values.flatten(1)
+                                ])
+      )
+    end
+
     def to_csv(include_contents: false)
       CSV.generate do |csv|
         csv << [name]
