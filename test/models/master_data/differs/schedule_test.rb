@@ -78,5 +78,29 @@ describe DataCycleCore::MasterData::Differs::Schedule do
       assert_nil(subject.new(a_hash, transformed_schedule_hash).diff_hash)
       assert_nil(subject.new(a_hash, transformed_schedule_hash, template_hash).diff_hash)
     end
+
+    it 'recognizes hashes from UI with duration as existing schedules without changes' do
+      start_time = Time.zone.now.change(hour: 9, minute: 0)
+      a_schedule = IceCube::Schedule.new(start_time, duration: ActiveSupport::Duration.parse('PT1H2M')) do |s|
+        s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(9))
+      end
+      a = DataCycleCore::Schedule.new(id: SecureRandom.uuid)
+      a.schedule_object = a_schedule
+      a_hash = [a.to_h.with_indifferent_access]
+
+      schedule_hash = { 'event_schedule' => { '0' =>
+        {
+          'id' => a.id,
+          'start_time' => { 'time' => start_time.strftime('%Y-%m-%d %H:%M') },
+          'rrules' => [{ 'rule_type' => 'IceCube::DailyRule', 'interval' => '1' }],
+          'duration' => { 'hours' => '1', 'minutes' => '2' }
+        } } }
+
+      template = DataCycleCore::ThingTemplate.find_by(template_name: 'Event')
+      transformed_schedule_hash = DataCycleCore::DataHashService.flatten_datahash_value(schedule_hash, template.schema).dig('event_schedule')
+
+      assert_nil(subject.new(a_hash, transformed_schedule_hash).diff_hash)
+      assert_nil(subject.new(a_hash, transformed_schedule_hash, template_hash).diff_hash)
+    end
   end
 end
