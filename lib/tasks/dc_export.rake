@@ -33,6 +33,10 @@ namespace :dc do
       query = query.watch_list_id(watch_list.id) unless watch_list.nil?
       contents = query.query.page(1).per(query.query.size)
 
+      dir = Rails.public_path.join('uploads', 'export')
+      dir = dir.join(*folder_path) if folder_path.present?
+      FileUtils.mkdir_p(dir)
+
       renderer = DataCycleCore::Api::V4::ContentsController.renderer.new(
         http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
         https: Rails.application.config.force_ssl
@@ -67,10 +71,12 @@ namespace :dc do
         **JSON.parse(context),
         **JSON.parse(meta),
         '@graph' => []
-      }
+      }.to_json
 
+      size = contents.total_count
       queue = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
-      progress = ProgressBar.create(total: contents.total_count, format: '%t |%w>%i| %a - %c/%C', title: endpoint.id)
+      progress = ProgressBar.create(total: size, format: '%t |%w>%i| %a - %c/%C', title: endpoint.id)
+      json_data = []
 
       contents.find_each do |item|
         queue.append do
@@ -104,43 +110,14 @@ namespace :dc do
             end
           end
 
-          result['@graph'].push(data)
-
+          json_data.push(data.to_json)
           progress.increment
         end
       end
 
       queue.wait!
 
-      # normal APIv4 renderer
-      # renderer.render_to_string(
-      #   assigns: {
-      #     url_parameters: {},
-      #     include_parameters: [['full', 'recursive']],
-      #     fields_parameters: [],
-      #     field_filter: false,
-      #     classification_trees_parameters: [],
-      #     classification_trees_filter: false,
-      #     section_parameters: { links: 0 },
-      #     language: locales,
-      #     api_subversion: 0,
-      #     api_version: 4,
-      #     contents: contents.page(1).per(contents.size),
-      #     permitted_params: {
-      #       section: { links: 0 }
-      #     },
-      #     watch_list: watch_list,
-      #     stored_filter: stored_filter
-      #   },
-      #   template: 'data_cycle_core/api/v4/contents/index',
-      #   layout: false
-      # )
-
-      dir = Rails.public_path.join('uploads', 'export')
-      dir = dir.join(*folder_path) if folder_path.present?
-      FileUtils.mkdir_p(dir)
-
-      File.write(dir.join("#{endpoint.id}.jsonld"), result.to_json)
+      File.write(dir.join("#{endpoint.id}.jsonld"), result.delete_suffix(']}') + json_data.join(',') + ']}')
     end
   end
 end
