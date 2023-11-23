@@ -3795,6 +3795,14 @@ ALTER TABLE ONLY public.classification_trees
 
 
 --
+-- Name: classification_contents fk_rails_6ff9fbf404; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.classification_contents
+    ADD CONSTRAINT fk_rails_6ff9fbf404 FOREIGN KEY (content_data_id) REFERENCES public.things(id) ON DELETE CASCADE NOT VALID;
+
+
+--
 -- Name: classifications fk_rails_72385dbd06; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4220,6 +4228,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20231109142629'),
 ('20231113104134'),
 ('20231115104227'),
-('20231122124135');
+('20231122124135'),
+('20231123103232');
 
 

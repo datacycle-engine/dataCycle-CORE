@@ -29,7 +29,10 @@ module DataCycleCore
 
       tag.span(
         "(#{I18n.t('opening_time.except', locale: active_ui_locale)}: #{extimes.join(', ')})",
-        class: 'opening-time-ex-times'
+        class: 'opening-time-ex-times',
+        data: {
+          dc_tooltip: "#{I18n.t('opening_time.except', locale: active_ui_locale)}: #{extimes.join(', ')})"
+        }
       )
     end
 
