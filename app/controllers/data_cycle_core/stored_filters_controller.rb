@@ -132,7 +132,15 @@ module DataCycleCore
       stored_filters = stored_filters.where(DataCycleCore::StoredFilter.arel_table[:name].matches("%#{index_params[:q]}%")) if index_params[:q].present?
 
       render plain: stored_filters.map { |filter|
-        filter.tap { |f| f.name += "<span class=\"stored-filter-creator\"> | #{f.user.full_name} &lt;#{f.user.email}&gt;</span>" if f.user_id != current_user.id }.to_select_option
+        select_option = filter.to_select_option
+
+        if filter.user_id != current_user.id
+          suffix = helpers.tag.span(" | #{filter.user.full_name} <#{filter.user.email}>", class: 'stored-filter-creator')
+          select_option.name += suffix
+          select_option.dc_tooltip += suffix
+        end
+
+        select_option
       }.to_json, content_type: 'application/json'
     end
 
