@@ -18,7 +18,9 @@ module DataCycleCore
           preloaded = preload_sync_data if preloaded.blank?
 
           data = languages.index_with do |lang|
-            I18n.with_locale(lang) { to_sync_h(locales:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:) }
+            Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{lang}_#{updated_at.to_i}_#{cache_valid_since.to_i}", expires_in: 1.year + Random.rand(7.days)) do
+              I18n.with_locale(lang) { to_sync_h(locales:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:) }
+            end
           end
 
           attribute_to_sync_h('included', preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, locales: languages)
