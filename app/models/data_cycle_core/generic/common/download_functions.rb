@@ -30,7 +30,7 @@ module DataCycleCore
                         data_hash[:deleted_at] = item.dump[language].try(:[], 'deleted_at') || Time.zone.now
                         data_hash[:delete_reason] = item.dump[language].try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
                       else
-                        data_hash = data_hash.except(:deleted_at, :delte_reason)
+                        data_hash = data_hash.except(:deleted_at, :delete_reason)
                       end
                     end
                     data_hash[:updated_at] = modified.call(data_hash) if modified.present?
@@ -137,7 +137,7 @@ module DataCycleCore
                               last_download = download_object.external_source.last_successful_download
                               if modified.present? && last_download.present?
                                 updated_at = modified.call(item_data)
-                                item.data_has_changed = updated_at > last_download
+                                item.data_has_changed = updated_at > last_download ? true : nil
                               end
                             end
 
