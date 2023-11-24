@@ -61,7 +61,7 @@ module DataCycleCore
 
           data = data_from_request(content)
 
-          render(status: :no_content) && return if data.blank?
+          head(:no_content) && return if data.blank?
 
           response = Timeseries.create_all(content, data)
 
