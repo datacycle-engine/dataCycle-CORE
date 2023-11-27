@@ -1807,6 +1807,10 @@ en:
     lottaleben:
       description: Description
       text: Detailed description
+    tramino:
+      info: Description
+      slogan: Slogan
+      text: Detailed description
   media_archive:
     allowed_html:
       '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>
