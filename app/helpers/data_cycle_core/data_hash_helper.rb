@@ -96,7 +96,9 @@ module DataCycleCore
       return if classification_alias.nil?
       return if DataCycleCore::Feature::LifeCycle.enabled? && can?(:show, DataCycleCore::Feature::LifeCycle.data_attribute(content)) && type == :value && key == DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(content)&.first
 
-      ui_config = allowed_properties.dig(key, 'ui').to_h.merge(allowed_properties.dig(key, 'ui', scope.to_s).to_h)
+      ui_config = content&.properties_for(key)&.[]('ui').to_h
+      ui_config.merge!(ui_config[scope.to_s].to_h) if ui_config.present?
+
       if context == :show && ui_config.key?('disabled')
         return if ui_config['disabled'].to_s == 'true'
       else
