@@ -1809,6 +1809,7 @@ en:
       text: Detailed description
     tramino:
       info: Description
+      intro: Description
       slogan: Slogan
       text: Detailed description
   media_archive:
