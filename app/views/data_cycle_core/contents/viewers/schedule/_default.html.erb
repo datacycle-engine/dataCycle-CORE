@@ -23,6 +23,7 @@
         <%= object.try(:schedule_object)&.terminating? ? "(#{object.schedule_object.all_occurrences.size})" : "#{t('schedule.ongoing', locale: active_ui_locale)}" %>
         <span class="schedule-duration"> / <b><%= t('schedule.duration.root', locale: active_ui_locale) %>:</b> <%= object.duration&.positive? ? distance_of_time_in_words(Time.zone.now, Time.zone.now + object.duration, locale: active_ui_locale) : ' - ' %></span>
       </i>
+      <%= render 'data_cycle_core/shared/validation_messages', content: content, key: key, value: Array.wrap(object.to_h) if definition.key?('validations') %>
     </span>
 
     <% next_occurrences = object.try(:schedule_object)&.next_occurrences(5) || [] %>

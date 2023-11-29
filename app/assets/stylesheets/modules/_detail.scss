@@ -399,3 +399,9 @@
 .type {
   color: var(--classification-color, inherit);
 }
+
+.validation-message {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

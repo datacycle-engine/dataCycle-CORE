@@ -1,0 +1,15 @@
+<%
+  content.validate(data_hash: { key.attribute_name_from_key => value }, current_user: current_user)
+  messages = validation_messages(content, key)
+%>
+
+<%= tag.i class: "fa fa-exclamation-triangle validation-message #{content.valid? ? 'warning' : 'alert'}",
+      aria_hidden: true,
+      data: {
+        dc_tooltip: messages
+      } if messages.present? %>
+
+<%
+  content.errors.clear
+  content.warnings.clear
+%>

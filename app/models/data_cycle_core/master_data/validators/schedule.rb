@@ -5,7 +5,7 @@ module DataCycleCore
     module Validators
       class Schedule < BasicValidator
         def keywords
-          ['valid_dates', 'closed_range', 'soft_max_duration', 'required']
+          ['valid_dates', 'soft_valid_dates', 'closed_range', 'soft_max_duration', 'required']
         end
 
         def validate(data, template, _strict = false)
@@ -99,14 +99,14 @@ module DataCycleCore
           true
         end
 
-        def check_valid_dates(schedule_hash)
+        def check_valid_dates(schedule_hash, error_type = :error)
           schedule = DataCycleCore::Schedule.new.from_hash(schedule_hash)&.schedule_object
 
           return if schedule.nil?
 
           return if schedule.first.present?
 
-          (@error[:error][@template_key] ||= []) << {
+          (@error[error_type][@template_key] ||= []) << {
             path: 'validation.errors.schedule.invalid',
             substitutions: {
               data: {
@@ -124,16 +124,26 @@ module DataCycleCore
           return unless value
 
           data.each do |data_item|
-            check_valid_dates(data_item)
+            check_valid_dates(data_item, :error)
+          end
+        end
+
+        def soft_valid_dates(data, value)
+          return unless value
+
+          data.each do |data_item|
+            check_valid_dates(data_item, :warning)
           end
         end
 
         def check_closed_range(schedule_hash)
-          return if schedule_hash.dig('rrules', 0, 'until').present? || (
+          validation_hash = schedule_hash.with_indifferent_access
+
+          return if validation_hash.dig('rrules', 0, 'until').present? || (
             (
-              schedule_hash.dig('rrules', 0, 'rule_type') == 'IceCube::SingleOccurrenceRule' ||
-              schedule_hash.dig('rrules', 0, 'rule_type').blank?
-            ) && schedule_hash.dig('end_time', 'time').present?
+              validation_hash.dig('rrules', 0, 'rule_type') == 'IceCube::SingleOccurrenceRule' ||
+              validation_hash.dig('rrules', 0, 'rule_type').blank?
+            ) && validation_hash.dig('end_time', 'time').present?
           )
 
           (@error[:error][@template_key] ||= []) << {
@@ -141,7 +151,7 @@ module DataCycleCore
             substitutions: {
               data: {
                 method: 'l',
-                value: schedule_hash.dig('start_time', 'time')&.in_time_zone,
+                value: validation_hash.dig('start_time', 'time')&.in_time_zone,
                 substitutions: {
                   format: :edit
                 }

@@ -1612,10 +1612,7 @@ body .v-select {
 }
 
 .warning {
-  color: map-get($foundation-palette, alert);
-  font-style: italic;
-  display: block;
-  margin-top: 1rem;
+  color: map-get($foundation-palette, warning);
 }
 
 /* Korrektur für Fehler im Neuen Eintrag erstellen reveal  */

@@ -463,6 +463,24 @@ module DataCycleCore
       end
     end
 
+    def validation_messages(content, key)
+      messages_html = ActionView::OutputBuffer.new
+
+      if content.errors.present?
+        messages_html << tag.b(t('frontend.validate.error', locale: active_ui_locale), class: 'error-tooltip-title')
+        messages_html << tag.br
+        messages_html << safe_join(content.errors.messages[key.attribute_name_from_key.to_sym]&.map { |em| tag.span(em, class: 'alert') }, tag.br)
+      end
+
+      if content.warnings.present?
+        messages_html << tag.b(t('frontend.validate.warning', locale: active_ui_locale), class: 'warning-tooltip-title')
+        messages_html << tag.br
+        messages_html << safe_join(content.warnings.messages[key.attribute_name_from_key.to_sym]&.map { |em| tag.span(em, class: 'warning') }, tag.br)
+      end
+
+      messages_html
+    end
+
     private
 
     def render_first_existing_partial(partials, parameters)

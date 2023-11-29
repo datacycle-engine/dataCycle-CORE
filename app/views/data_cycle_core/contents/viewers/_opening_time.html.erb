@@ -6,6 +6,7 @@
       <span class="opening-time-validity-period">
         <%= opening_time_validity_period(validity_period) %>
         <%= opening_time_ex_dates(opening_times) %>
+        <%= render 'data_cycle_core/shared/validation_messages', content: content, key: key, value: opening_times if definition.key?('validations') %>
       </span>
 
       <span class="opening-time-opening-hours">
