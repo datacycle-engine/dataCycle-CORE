@@ -180,7 +180,7 @@ module DataCycleCore
       schedule = DataCycleCore::Schedule.new
       untild = dtend
       end_time = dtstart + duration
-      untildt = DataCycleCore::Schedule.until_as_utc_iso8601(untild, dtstart).to_datetime.utc
+      untildt = DataCycleCore::Schedule.until_as_utc(untild, dtstart)
       schedule.schedule_object = IceCube::Schedule.new(dtstart, { end_time:, duration: duration.to_i }) do |s|
         if frequency == 'daily'
           s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(dtstart.hour).until(untildt))

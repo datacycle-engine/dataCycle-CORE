@@ -397,10 +397,15 @@ module DataCycleCore
     end
 
     module ClassMethods
-      def until_as_utc_iso8601(until_date, until_time)
+      def until_as_utc(until_date, until_time)
         return if until_date.blank? || until_time.blank?
 
-        "#{until_date.in_time_zone.to_date.iso8601}T#{until_time.in_time_zone.strftime('%T')}+00:00"
+        parsed_until_date = until_date
+        parsed_until_date = rrule[:until][:time] if parsed_until_date.is_a?(::Hash) && rrule[:until].key?(:time)
+        parsed_until_time = until_time
+        parsed_until_time = parsed_until_time.in_time_zone if parsed_until_time.is_a?(::String)
+
+        "#{parsed_until_date.to_date.iso8601}T#{parsed_until_time.strftime('%T')}+00:00".to_datetime.utc
       end
 
       def to_h_from_schedule_params(value)
@@ -424,7 +429,7 @@ module DataCycleCore
             zone: start_time.time_zone.name
           }
 
-          s['rrules'][0]['until'] = until_as_utc_iso8601(s.dig('rrules', 0, 'until'), start_time) if s.dig('rrules', 0, 'until').present?
+          s['rrules'][0]['until'] = until_as_utc(s.dig('rrules', 0, 'until'), start_time) if s.dig('rrules', 0, 'until').present?
           s['rrules'][0]['validations'] ||= {}
           s['rrules'][0]['validations']['hour_of_day'] = [start_time.to_datetime.hour] if s.dig('rrules', 0).present?
           s['rrules'][0]['validations']['minute_of_hour'] = [start_time.to_datetime.minute] if s.dig('rrules', 0).present? && start_time.to_datetime.minute.positive?
@@ -506,7 +511,7 @@ module DataCycleCore
                 validations: {
                   day: days
                 },
-                until: s['valid_until'].to_date.as_json # until_as_utc_iso8601(s['valid_until'], t['opens'])
+                until: until_as_utc(s['valid_until'], start_time)
               }]
             }.deep_reject { |_, v| DataCycleCore::DataHashService.blank?(v) }).merge(id: t['id'])
           end
@@ -641,10 +646,7 @@ module DataCycleCore
           rrule[:interval] = 1
         end
 
-        if rrule[:until].present?
-          start_time = data.dig(:start_time, :time)
-          rrule[:until] = rrule[:until].in_time_zone(data.dig(:start_time, :zone)).change(hour: start_time.hour, min: start_time.min, sec: start_time.sec, usec: 0).utc
-        end
+        rrule[:until] = until_as_utc(rrule[:until], data.dig(:start_time, :time)) if rrule[:until].present?
 
         add_missing_rrule_validations!(rrule, data)
 

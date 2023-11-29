@@ -5,7 +5,7 @@ class RebuildClassificationAliasPathsAfterTriggerUpdate < ActiveRecord::Migratio
   # disable_ddl_transaction!
 
   def up
-    DataCycleCore::RunTaskJob.perform_later('db:configure:rebuild_ca_paths')
+    DataCycleCore::RunTaskJob.perform_later('db:configure:rebuild_transitive_tables')
   end
 
   def down
