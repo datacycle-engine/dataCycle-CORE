@@ -1667,6 +1667,23 @@ de:
         landscape_rating: Landschaft
         difficulty_rating: Schwierigkeit
         panoramic_view_rating: Panoramaaussicht
+    general_solutions:
+      place:
+        directions: Anfahrt
+        parking: Parken
+        hours_available: Öffnungszeiten
+        text: Beschreibung
+        price: Preis
+        description: Kurzbeschreibung
+        directions_public_transport: Öffentliche Verkehrsmittel
+      tour:
+        text: Beschreibung
+        description: Kurzbeschreibung
+        instructions: Wegbeschreibung
+        public_transport: Öffentliche Verkehrsmittel
+        parking: Parken
+      ratings:
+        difficulty_rating: Schwierigkeit
     imx_platform:
       description: Beschreibung
       text: Detailbeschreibung
