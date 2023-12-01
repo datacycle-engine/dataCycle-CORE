@@ -1680,10 +1680,11 @@ de:
         text: Beschreibung
         description: Kurzbeschreibung
         instructions: Wegbeschreibung
-        public_transport: Öffentliche Verkehrsmittel
+        directions_public_transport: Öffentliche Verkehrsmittel
         parking: Parken
       ratings:
         difficulty_rating: Schwierigkeit
+        priority_rating: Priorität
     imx_platform:
       description: Beschreibung
       text: Detailbeschreibung

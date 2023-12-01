@@ -1682,6 +1682,24 @@ en:
         experience_rating: Experience
         landscape_rating: Landscape
         difficulty_rating: Difficulty
+    general_solutions:
+      place:
+        directions: Approach
+        parking: Parking
+        hours_available: Opening hours
+        text: Description
+        price: Price
+        description: Brief description
+        directions_public_transport: Public transport
+      tour:
+        text: Description
+        description: Brief description
+        instructions: Directions
+        directions_public_transport: Public transport
+        parking: Parking
+      ratings:
+        difficulty_rating: Difficulty
+        priority_rating: Priority
     imx_platform:
       description: Description
       text: Detailed description
