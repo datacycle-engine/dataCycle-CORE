@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class ReportMailer < ApplicationMailer
-    def notify(identifier:, format:, recipient:, params: {})
+    def notify(identifier, format, recipient, params = {})
       report_class = DataCycleCore::Feature::ReportGenerator.by_identifier(identifier)
       params[:key] = identifier
       data, options = report_class.constantize.new(params:, locale: 'de').send("to_#{format}")

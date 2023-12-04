@@ -14,12 +14,16 @@ module DataCycleCore
           @enabled ||= DataCycleCore.features.dig(name.demodulize.underscore.to_sym, :enabled) && dependencies_enabled?
         end
 
-        def dependencies_enabled?
-          !DataCycleCore.features.dig(name.demodulize.underscore.to_sym, :dependencies)&.any? { |d| !"data_cycle_core/feature/#{d}".classify.constantize.enabled? }
+        def dependencies(content = nil)
+          Array.wrap(configuration(content).dig(:dependencies))
+        end
+
+        def dependencies_enabled?(content = nil)
+          dependencies(content).all? { |d| "data_cycle_core/feature/#{d}".classify.constantize.enabled? }
         end
 
         def dependencies_allowed?(content = nil)
-          dependencies_enabled? && !DataCycleCore.features.dig(name.demodulize.underscore.to_sym, :dependencies)&.any? { |d| !"data_cycle_core/feature/#{d}".classify.constantize.allowed?(content) }
+          dependencies_enabled? && dependencies(content).all? { |d| "data_cycle_core/feature/#{d}".classify.constantize.allowed?(content) }
         end
 
         def attribute_keys(content = nil)

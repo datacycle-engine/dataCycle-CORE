@@ -6,6 +6,6 @@ end
 
 json.partial! 'pagination_links',
               objects: @contents,
-              object_url: (lambda do |params|
+              object_url: lambda do |params|
                 File.join(request.protocol + request.host + ':' + request.port.to_s, request.path) + '?' + params.to_query
-              end)
+              end

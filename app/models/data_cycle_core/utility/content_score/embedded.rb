@@ -55,7 +55,7 @@ module DataCycleCore
             score = 0
             part = Rational(1, definition.dig('content_score', 'score_matrix').size) unless definition.dig('content_score', 'score_matrix').values.all? { |v| v&.key?('weight') }
 
-            definition.dig('content_score', 'score_matrix').each do |_k, v|
+            definition.dig('content_score', 'score_matrix').each_value do |v|
               type_of_information = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('Informationstypen', v['types'])
 
               score += (DataCycleCore::DataHashService.present?(parameters&.[](key)&.find { |e| e['type_of_information']&.intersection(type_of_information).present? || e['universal_classifications']&.intersection(type_of_information).present? }) ? 1 : 0) * (part || (v['weight'].is_a?(::Float) ? v['weight'] : v['weight'].to_r))
@@ -133,7 +133,7 @@ module DataCycleCore
 
                 definition.dig('content_score', 'score_matrix')
                   &.sort_by { |k, v| [-v&.dig('weight')&.to_r, k] }
-                  &.each do |_k, v|
+                  &.each_value do |v|
                     nested_tip = []
                     nested_tip.push("<b>#{v['types']&.join(', ')}</b> #{"(#{DataCycleCore::LocalizationService.view_helpers.number_with_precision(v['weight'].to_r * 100, precision: 1)}%)" if v.key?('weight')}")
 

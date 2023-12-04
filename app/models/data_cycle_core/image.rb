@@ -161,7 +161,7 @@ module DataCycleCore
       if file&.attached?
         begin
           if transformation.dig('width').present? || transformation.dig('height').present?
-            dynamic = file.variant(resize_to_fit: [(transformation.dig('width')&.to_i || nil), (transformation.dig('height')&.to_i || nil)], colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
+            dynamic = file.variant(resize_to_fit: [transformation.dig('width')&.to_i || nil, transformation.dig('height')&.to_i || nil], colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
           else
             dynamic = file.variant(colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
           end

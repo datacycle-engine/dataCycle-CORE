@@ -23,7 +23,7 @@ module DataCycleCore
 
       def get_validity_range(validity_hash)
         from, to = get_validity_values(validity_hash)
-        ((from || Time::LONG_AGO)..(to || Float::INFINITY))
+        ((from || Time::LONG_AGO)..(to || Float::INFINITY)) # rubocop:disable Style/RedundantParentheses
       end
 
       def get_validity_values(validity_hash)

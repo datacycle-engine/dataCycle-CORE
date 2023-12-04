@@ -68,7 +68,7 @@ module DataCycleCore
         end
 
         def frontend_enabled?
-          (enabled? && DataCycleCore.features.dig(name.demodulize.underscore.to_sym).dig(:frontend, :enabled))
+          enabled? && DataCycleCore.features.dig(name.demodulize.underscore.to_sym).dig(:frontend, :enabled)
         end
 
         def supported_content_type?(content)

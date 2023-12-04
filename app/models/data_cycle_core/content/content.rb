@@ -128,7 +128,7 @@ module DataCycleCore
       end
 
       def i18n_valid?
-        !i18n_errors&.any? { |(_k, v)| v.present? }
+        i18n_errors&.none? { |(_k, v)| v.present? }
       end
 
       def content_template
@@ -564,7 +564,7 @@ module DataCycleCore
           .reduce(:&)
           .to_h
           .keep_if do |_, v|
-            (v['type'] != 'classification' || DataCycleCore::ClassificationService.visible_classification_tree?(v['tree_label'], 'edit'))
+            v['type'] != 'classification' || DataCycleCore::ClassificationService.visible_classification_tree?(v['tree_label'], 'edit')
           end
 
         contents.find_each do |t|

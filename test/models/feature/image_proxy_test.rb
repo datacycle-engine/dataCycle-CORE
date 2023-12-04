@@ -35,7 +35,7 @@ module DataCycleCore
 
       config = DataCycleCore::Feature::ImageProxy.config
 
-      config.each do |variant, _processing|
+      config.each_key do |variant|
         assert_nil DataCycleCore::Feature::ImageProxy.process_image(content:, variant:)
       end
     end

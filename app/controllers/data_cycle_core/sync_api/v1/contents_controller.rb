@@ -110,9 +110,9 @@ module DataCycleCore
 
         def api_plain_links(contents = nil)
           contents ||= @contents
-          object_url = (lambda do |params|
+          object_url = lambda do |params|
             File.join(request.protocol + request.host + ':' + request.port.to_s, request.path) + '?' + params.to_query
-          end)
+          end
           if request.request_method == 'POST'
             common_params = {}
           else

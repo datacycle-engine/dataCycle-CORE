@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class UserGroupsController < ApplicationController
-    load_and_authorize_resource         # from cancancan (authorize)
+    load_and_authorize_resource # from cancancan (authorize)
     before_action :set_user_group, only: [:edit, :update, :destroy]
 
     def index

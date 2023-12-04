@@ -246,10 +246,8 @@ module DataCycleCore
     end
 
     def advanced_attribute_filter?(key)
-      (
-        DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym).present? ||
+      DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym).present? ||
         API_NUMERIC_ATTRIBUTES.include?(key)
-      )
     end
 
     def advanced_attribute_type_for_key(key)

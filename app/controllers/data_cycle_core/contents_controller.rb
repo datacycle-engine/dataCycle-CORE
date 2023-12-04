@@ -30,7 +30,7 @@ module DataCycleCore
 
       ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { progress: 0, items: item_count })
 
-      new_thing_params.each do |_key, thing_params|
+      new_thing_params.each_value do |thing_params|
         thing_hash = content_params(params[:template], thing_params)
 
         I18n.with_locale(create_locale(thing_params)) do
@@ -773,7 +773,7 @@ module DataCycleCore
     end
 
     def create_locale(params_hash = nil)
-      locale_param = (params_hash&.dig(:locale) || params.dig(:thing, :locale))
+      locale_param = params_hash&.dig(:locale) || params.dig(:thing, :locale)
       I18n.available_locales.include?(locale_param&.to_sym) ? locale_param : I18n.locale.to_s
     end
 

@@ -75,7 +75,7 @@ namespace :db do
       sql = "VACUUM (#{options.join(', ')}) #{table_names.join(', ')}"
 
       ActiveRecord::Base.connection.execute("#{sql.squish};")
-      ActiveRecord::Base.connection.execute('VACUUM (ANALYZE);') if full.to_s == 'true'  # fix visibility tables
+      ActiveRecord::Base.connection.execute('VACUUM (ANALYZE);') if full.to_s == 'true' # fix visibility tables
 
       next if full.to_s == 'true' || reindex.to_s != 'true'
 

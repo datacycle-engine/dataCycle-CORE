@@ -119,7 +119,7 @@ module DataCycleCore
       data_value = nil
 
       return api_value_format(value, definition) unless content.translatable_property_names.include?(key)
-      single_value = (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first))
+      single_value = languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first)
       if single_value && !expand_language
         data_value = I18n.with_locale(Array.wrap(languages).first) { api_value_format(content.send(key + '_overlay'), definition) }
       else
@@ -242,9 +242,9 @@ module DataCycleCore
 
     def api_plain_links(contents = nil)
       contents ||= @contents
-      object_url = (lambda do |params|
+      object_url = lambda do |params|
         File.join(request.protocol + request.host + ':' + request.port.to_s, request.path) + '?' + params.to_query
-      end)
+      end
       if request.request_method == 'POST'
         common_params = {}
       else

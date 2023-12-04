@@ -33,7 +33,7 @@ module DataCycleCore
 
           def self.universal_classifications(data_hash, function)
             data_hash['universal_classifications'] ||= []
-            data_hash['universal_classifications'] += (function.call(data_hash) || [])
+            data_hash['universal_classifications'] += function.call(data_hash) || []
             data_hash
           end
 

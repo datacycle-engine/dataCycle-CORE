@@ -10,7 +10,7 @@ module DataCycleCore
           end
 
           def take_first(computed_parameters:, computed_definition:, **_args)
-            computed_parameters.each do |_, val|
+            computed_parameters.each_value do |val|
               return val if val.present?
             end
 

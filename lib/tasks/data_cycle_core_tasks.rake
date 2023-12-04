@@ -56,9 +56,9 @@ namespace :data_cycle_core do
         exit(-1)
       end
       DataCycleCore::ReportMailer.notify(
-        identifier: args.fetch(:report_identifier, 'downloads_popular'),
-        format: args.fetch(:format, 'xlsx'),
-        recipient:
+        args.fetch(:report_identifier, 'downloads_popular'),
+        args.fetch(:format, 'xlsx'),
+        recipient
       ).deliver_now
     end
     desc 'send monthly download report from the last month via email'
@@ -75,10 +75,10 @@ namespace :data_cycle_core do
       }
 
       DataCycleCore::ReportMailer.notify(
-        identifier: args.fetch(:report_identifier, 'downloads_popular'),
-        format: args.fetch(:format, 'xlsx'),
-        recipient:,
-        params:
+        args.fetch(:report_identifier, 'downloads_popular'),
+        args.fetch(:format, 'xlsx'),
+        recipient,
+        params
       ).deliver_now
     end
   end

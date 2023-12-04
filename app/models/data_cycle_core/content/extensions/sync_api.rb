@@ -121,7 +121,7 @@ module DataCycleCore
                   mapped_ids = c_data[:classification].additional_classification_aliases.map(&:id)
                   preloaded['classifications']
                     .filter { |_k, v| v[:classification_alias_id].in?(mapped_ids) }
-                    .each do |_k, v|
+                    .each_value do |v|
                       existing = classifications.detect { |c| c['id'] == v.dig(:classification_hash, 'id') }
 
                       if existing.present?

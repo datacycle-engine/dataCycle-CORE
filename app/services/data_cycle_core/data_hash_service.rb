@@ -34,7 +34,7 @@ module DataCycleCore
 
       return datahash[:id] if flatten_arrays && datahash.keys.except('id').none?
 
-      datahash.each do |_key, value|
+      datahash.each_value do |value|
         next unless value.is_a?(::Array)
 
         value.map! { |v| flatten_datahash_translations_recursive(v, true) }

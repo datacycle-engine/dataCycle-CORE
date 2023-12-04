@@ -159,7 +159,7 @@ module DataCycleCore
       private
 
       def sort_translated_attributes(attributes)
-        attributes.map { |k, v|
+        attributes.to_h do |k, v|
           if v.is_a?(::Hash)
             [k, sort_translated_attributes(v)]
           elsif v.is_a?(::Array) && v.detect { |c| c.is_a?(::Hash) && c['@language'].blank? }
@@ -169,7 +169,7 @@ module DataCycleCore
           else
             [k, v]
           end
-        }&.to_h
+        end
       end
     end
   end

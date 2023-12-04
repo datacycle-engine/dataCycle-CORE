@@ -12,8 +12,7 @@ module DataCycleCore
         &.schema
         &.dig('properties')
         &.select { |_, v| v['type'] == 'classification' && (Array(DataCycleCore::ClassificationTreeLabel.find_by(name: v['tree_label'])&.visibility) & ['show', 'show_more']).size.positive? }
-        &.map { |k, v| [k, v['tree_label']] }
-        &.to_h || {}
+        .to_h { |k, v| [k, v['tree_label']] }
 
       @stored_filter ||= DataCycleCore::StoredFilter.new
       @filters = pre_filters.dup

@@ -34,7 +34,7 @@ module DataCycleCore
 
       def to_json(*_args)
         mime_type = 'application/json'
-        return { (@params.dig(:key) || 'data') => @data }.to_json, { filename: "#{@params.dig(:key) || 'report'}.json", disposition: 'attachment', type: mime_type }
+        return { @params.dig(:key) || 'data' => @data }.to_json, { filename: "#{@params.dig(:key) || 'report'}.json", disposition: 'attachment', type: mime_type }
       end
 
       def generate_csv(file_extension: 'csv', separator: ';', mime_type: 'text/csv')

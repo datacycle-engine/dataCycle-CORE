@@ -14,14 +14,12 @@ module DataCycleCore
           end
 
           def mime_type(serialized_content:, content:)
-            (
-              serialized_content.try(:content_type) ||
-                serialized_content.try(:variation)&.try(:content_type) ||
-                MiniMime.lookup_by_extension(content.try(:file_format)&.downcase.to_s)&.content_type ||
-                content.try(:file_format) ||
-                MiniMime.lookup_by_extension(File.extname(content.content_url).delete_prefix('.'))&.content_type ||
-                MiniMime.lookup_by_filename(File.basename(content.content_url))&.content_type
-            )
+            serialized_content.try(:content_type) ||
+              serialized_content.try(:variation)&.try(:content_type) ||
+              MiniMime.lookup_by_extension(content.try(:file_format)&.downcase.to_s)&.content_type ||
+              content.try(:file_format) ||
+              MiniMime.lookup_by_extension(File.extname(content.content_url).delete_prefix('.'))&.content_type ||
+              MiniMime.lookup_by_filename(File.basename(content.content_url))&.content_type
           end
 
           # legacy method for indesign downloader

@@ -165,7 +165,7 @@ module DataCycleCore
       @content.set_data_hash(
         data_hash:,
         new_content: true,
-        current_user: (user || User.find_by(email: 'tester@datacycle.at')),
+        current_user: user || User.find_by(email: 'tester@datacycle.at'),
         update_search_all: false,
         prevent_history:,
         save_time:,
