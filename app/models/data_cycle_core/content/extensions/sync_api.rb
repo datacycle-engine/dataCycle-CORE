@@ -11,16 +11,14 @@ module DataCycleCore
 
           return if ancestor_ids.count(&ancestor_proc) >= 2
 
-          # disable cache as included and classifications from children are not added if read from cache (line 25 and 26)
+          # disable cache as included and classifications from children and embedded are not added if read from cache (line 25 and 26)
           languages = available_locales.presence || [I18n.locale]
           languages = locales if locales.present? && translated
           new_ancestor_ids = ancestor_ids + [{ id:, attribute_name: }]
           preloaded = preload_sync_data if preloaded.blank?
 
           data = languages.index_with do |lang|
-            Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{lang}_#{updated_at.to_i}_#{cache_valid_since.to_i}", expires_in: 1.year + Random.rand(7.days)) do
-              I18n.with_locale(lang) { to_sync_h(locales:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:) }
-            end
+            I18n.with_locale(lang) { to_sync_h(locales:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:) }
           end
 
           attribute_to_sync_h('included', preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, locales: languages)
@@ -53,16 +51,24 @@ module DataCycleCore
           property_name_with_overlay = "#{property_name}_#{overlay_name}" if overlay_property_names.include?(property_name) && property_name != 'id'
 
           if plain_property_names.include?(property_name)
-            send(property_name_with_overlay)&.as_json
+            Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{I18n.locale}_#{updated_at.to_i}_#{cache_valid_since.to_i}_#{property_name}", expires_in: 1.year + Random.rand(7.days)) do
+              send(property_name_with_overlay)&.as_json
+            end
           elsif classification_property_names.include?(property_name)
-            send(property_name).try(:pluck, :id)
+            Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{I18n.locale}_#{updated_at.to_i}_#{cache_valid_since.to_i}_#{property_name}", expires_in: 1.year + Random.rand(7.days)) do
+              send(property_name).try(:pluck, :id)
+            end
           elsif linked_property_names.include?(property_name)
-            return [] if properties_for(property_name)['link_direction'] == 'inverse'
+            Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{I18n.locale}_#{updated_at.to_i}_#{cache_valid_since.to_i}_#{property_name}", expires_in: 1.year + Random.rand(7.days)) do
+              return [] if properties_for(property_name)['link_direction'] == 'inverse'
 
-            get_property_value(property_name, property_definitions[property_name], nil, present_overlay).pluck(:id) || []
+              get_property_value(property_name, property_definitions[property_name], nil, present_overlay).pluck(:id) || []
+            end
           elsif included_property_names.include?(property_name)
-            embedded_hash = send(property_name_with_overlay).to_h
-            embedded_hash.presence
+            Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{I18n.locale}_#{updated_at.to_i}_#{cache_valid_since.to_i}_#{property_name}", expires_in: 1.year + Random.rand(7.days)) do
+              embedded_hash = send(property_name_with_overlay).to_h
+              embedded_hash.presence
+            end
           elsif embedded_property_names.include?(property_name)
             return if property_name == overlay_name
             translated = properties_for(property_name)['translated']
@@ -73,9 +79,11 @@ module DataCycleCore
           elsif asset_property_names.include?(property_name)
             # send(property_name_with_overlay) # do nothing --> only import url not asset itself
           elsif schedule_property_names.include?(property_name)
-            schedule_array = send(property_name_with_overlay)
+            Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{I18n.locale}_#{updated_at.to_i}_#{cache_valid_since.to_i}_#{property_name}", expires_in: 1.year + Random.rand(7.days)) do
+              schedule_array = send(property_name_with_overlay)
 
-            schedule_array&.map { |schedule| schedule.to_h.except(:thing_id) }&.compact || []
+              schedule_array&.map { |schedule| schedule.to_h.except(:thing_id) }&.compact || []
+            end
           elsif property_name == 'included'
             linked_property_names.each do |linked|
               next if properties_for(linked)['link_direction'] == 'inverse'
@@ -138,16 +146,18 @@ module DataCycleCore
                 end
             end
           elsif property_name == 'mapped_classifications'
-            classification_property_names&.map { |classification_property_name|
-              classification_property_name_overlay = classification_property_name
-              classification_property_name_overlay = "#{classification_property_name}_#{overlay_name}" if overlay_property_names.include?(classification_property_name)
-              send(classification_property_name_overlay)&.map { |classification|
-                mapped_ids = classification.additional_classification_aliases.map(&:id)
-                preloaded['classifications']
-                  &.filter { |_k, v| v[:classification_alias_id].in?(mapped_ids) }
-                  &.keys
-              }.presence&.flatten
-            }&.compact&.flatten
+            Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{I18n.locale}_#{updated_at.to_i}_#{cache_valid_since.to_i}_#{property_name}", expires_in: 1.year + Random.rand(7.days)) do
+              classification_property_names&.map { |classification_property_name|
+                classification_property_name_overlay = classification_property_name
+                classification_property_name_overlay = "#{classification_property_name}_#{overlay_name}" if overlay_property_names.include?(classification_property_name)
+                send(classification_property_name_overlay)&.map { |classification|
+                  mapped_ids = classification.additional_classification_aliases.map(&:id)
+                  preloaded['classifications']
+                    &.filter { |_k, v| v[:classification_alias_id].in?(mapped_ids) }
+                    &.keys
+                }.presence&.flatten
+              }&.compact&.flatten
+            end
           else
             raise StandardError, "Can not determine how to serialize #{property_name} for sync_api."
           end
