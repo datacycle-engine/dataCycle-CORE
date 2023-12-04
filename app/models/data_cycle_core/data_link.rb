@@ -31,7 +31,8 @@ module DataCycleCore
     end
 
     def is_valid?
-      valid_from.presence&.<=(Time.zone.now.round) && valid_until.presence&.>=(Time.zone.now.round)
+      now = Time.zone.now.round
+      (valid_from.nil? || valid_from <= now) && (valid_until.nil? || valid_until >= now)
     end
 
     def self.valid_stored_filters

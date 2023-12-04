@@ -23,7 +23,7 @@ module DataCycleCore
         end
 
         def dependencies_allowed?(content = nil)
-          dependencies_enabled? && dependencies(content).all? { |d| "data_cycle_core/feature/#{d}".classify.constantize.allowed?(content) }
+          dependencies_enabled?(content) && dependencies(content).all? { |d| "data_cycle_core/feature/#{d}".classify.constantize.allowed?(content) }
         end
 
         def attribute_keys(content = nil)
