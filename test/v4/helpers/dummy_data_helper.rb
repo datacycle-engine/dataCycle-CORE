@@ -25,7 +25,7 @@ module DataCycleCore
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
           data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
-        DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash:, user: @user)
       end
 
       def poi
@@ -41,7 +41,7 @@ module DataCycleCore
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
           data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
-        DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash:, user: @user)
       end
 
       def full_poi
@@ -62,7 +62,7 @@ module DataCycleCore
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
           data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
-        DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash:, user: @user)
       end
 
       def food_establishment
@@ -70,7 +70,7 @@ module DataCycleCore
         data_hash['name'] = "food_establishment_#{SecureRandom.uuid}"
         data_hash['validity_period'] = validity_period
         data_hash['image'] = [image.id]
-        DataCycleCore::TestPreparations.create_content(template_name: 'Gastronomischer Betrieb', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'Gastronomischer Betrieb', data_hash:, user: @user)
       end
 
       def image
@@ -85,7 +85,7 @@ module DataCycleCore
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name(data_hash['tags'])
           data_hash['tags'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
-        DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash:, user: @user)
       end
 
       def video
@@ -100,7 +100,7 @@ module DataCycleCore
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name(data_hash['tags'])
           data_hash['tags'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
-        DataCycleCore::TestPreparations.create_content(template_name: 'Video', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'Video', data_hash:, user: @user)
       end
 
       def full_image
@@ -121,7 +121,7 @@ module DataCycleCore
         data_hash['validity_period'] = validity_period
         data_hash['asset'] = upload_image
 
-        DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash:, user: @user)
       end
 
       def event
@@ -147,7 +147,7 @@ module DataCycleCore
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Veranstaltungsstatus').with_name(data_hash['event_status'])
           data_hash['event_status'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
-        DataCycleCore::TestPreparations.create_content(template_name: 'Event', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'Event', data_hash:, user: @user)
       end
 
       def event_series
@@ -169,7 +169,7 @@ module DataCycleCore
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Veranstaltungsstatus').with_name(data_hash['event_status'])
           data_hash['event_status'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
-        DataCycleCore::TestPreparations.create_content(template_name: 'Eventserie', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'Eventserie', data_hash:, user: @user)
       end
 
       def minimal_event
@@ -177,7 +177,7 @@ module DataCycleCore
         data_hash['name'] = "event_#{SecureRandom.uuid}"
         data_hash['event_schedule'] = [schedule]
         data_hash['validity_period'] = validity_period
-        DataCycleCore::TestPreparations.create_content(template_name: 'Event', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'Event', data_hash:, user: @user)
       end
 
       def article
@@ -195,7 +195,7 @@ module DataCycleCore
         data_hash['author'] = [person.id]
         data_hash['validity_period'] = validity_period
         data_hash['content_location'] = [poi.id]
-        DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash:, user: @user)
       end
 
       def structured_article
@@ -214,7 +214,7 @@ module DataCycleCore
         data_hash['validity_period'] = validity_period
         data_hash['content_location'] = [poi.id]
         data_hash['content_block'] = [content_block]
-        DataCycleCore::TestPreparations.create_content(template_name: 'Strukturierter Artikel', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'Strukturierter Artikel', data_hash:, user: @user)
       end
 
       def person
@@ -229,7 +229,7 @@ module DataCycleCore
         end
         data_hash['member_of'] = [organization.id]
         data_hash['image'] = [image.id]
-        DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash:, user: @user)
       end
 
       def minimal_person
@@ -242,7 +242,7 @@ module DataCycleCore
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
           data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
-        DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash:, user: @user)
       end
 
       def person_overlay
@@ -252,13 +252,13 @@ module DataCycleCore
           data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
         data_hash['image'] = [image.id]
-        DataCycleCore::TestPreparations.create_content(template_name: 'PersonOverlay', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'PersonOverlay', data_hash:, user: @user)
       end
 
       def person_overlay_minimal
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person_overlay_minimal')
         data_hash['image'] = [image.id]
-        DataCycleCore::TestPreparations.create_content(template_name: 'PersonOverlay', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'PersonOverlay', data_hash:, user: @user)
       end
 
       def organization
@@ -273,7 +273,7 @@ module DataCycleCore
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
           data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
-        DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash:, user: @user)
       end
 
       def offer
@@ -288,7 +288,7 @@ module DataCycleCore
       def service
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('intangibles', 'v4_service')
         data_hash['hours_available'] = [schedule]
-        DataCycleCore::TestPreparations.create_content(template_name: 'Service', data_hash: data_hash, user: @user)
+        DataCycleCore::TestPreparations.create_content(template_name: 'Service', data_hash:, user: @user)
       end
 
       def price_specification

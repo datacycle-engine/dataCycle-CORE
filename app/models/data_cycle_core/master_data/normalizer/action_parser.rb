@@ -63,7 +63,7 @@ module DataCycleCore
           def propose(action)
             [{
               action.dig('fieldsProposed').first.dig('id') =>
-                ['?', action.dig('fieldsProposed').map { |item| item['content'] }]
+                ['?', action.dig('fieldsProposed').pluck('content')]
             }]
           end
 

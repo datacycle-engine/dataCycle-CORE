@@ -1,7 +1,7 @@
 <%= render 'data_cycle_core/contents/viewers/attribute',
       local_assigns.merge(data_attributes: {
         value: nil,
-        thing_id: content&.id,
+        thing_id: contextual_content(local_assigns)&.id,
         min: definition.dig('validations', 'min'),
         max: definition.dig('validations', 'max')
       }.compact) do %>

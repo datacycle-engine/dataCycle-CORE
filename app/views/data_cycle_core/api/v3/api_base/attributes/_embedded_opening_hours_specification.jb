@@ -18,7 +18,7 @@ opening_hours = value.presence&.includes(:translations, :classifications)&.map {
                                hidden_attributes: (options[:hidden_attributes] || []) + ['time', 'opens', 'closes']
                              )
 
-      item_res.merge! render 'content_properties', content: specification_with_time.second, options: options
+      item_res.merge! render 'content_properties', content: specification_with_time.second, options:
     end
   end
 end

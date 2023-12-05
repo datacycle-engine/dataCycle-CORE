@@ -6,7 +6,7 @@ namespace :dc do
     task obscure_users: :environment do
       Faker::Config.locale = 'de_AT'
 
-      DataCycleCore::User.all.each do |user|
+      DataCycleCore::User.find_each do |user|
         user.given_name = Faker::Name.first_name
         user.family_name = Faker::Name.last_name
         user.email = "#{user.given_name}.#{user.family_name}@example.com".downcase

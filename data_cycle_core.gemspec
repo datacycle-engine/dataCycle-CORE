@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.md']
 
-  s.required_ruby_version = '~> 2.7.1'
+  s.required_ruby_version = '~> 3.2.2'
 
   # rails
   s.add_dependency 'rails', '~> 6.1'
@@ -36,7 +36,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'rgeo-proj4'
   s.add_dependency 'rgeo-shapefile'
   # mongoDB driver
-  s.add_dependency 'mongoid', '~> 7.0.6'
+  s.add_dependency 'mongoid', '~> 8.1.3'
   # REST Client
   s.add_dependency 'faraday'
   s.add_dependency 'faraday_middleware'
@@ -70,7 +70,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'dry-transformer', '>= 1.0'
   s.add_dependency 'dry-validation'
   s.add_dependency 'hashdiff', '>= 0.4.0'
-  s.add_dependency 'transproc', '~> 1.0'
 
   # gems for event-schedules
   s.add_dependency 'ice_cube'
@@ -126,4 +125,13 @@ Gem::Specification.new do |s|
   # render PDFs
   s.add_dependency 'pdfkit'
   s.add_dependency 'wkhtmltopdf-binary'
+
+  # ruby 3.2
+  s.add_dependency 'net-ftp'
+  s.add_dependency 'net-imap'
+  s.add_dependency 'net-pop'
+  s.add_dependency 'net-smtp'
+
+  s.add_dependency 'jsonpath'
+  s.add_dependency 'rexml'
 end

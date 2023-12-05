@@ -46,6 +46,7 @@ module DataCycleCore
         ),
         agbs: tag.span(
           t('actions.finalize_agbs_text', locale: active_ui_locale),
+          class: 'finalize-agbs-checkbox',
           data: {
             dc_tooltip: t('finalize_agbs_html', locale: active_ui_locale)
           }

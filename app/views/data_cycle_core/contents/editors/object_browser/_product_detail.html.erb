@@ -9,7 +9,7 @@
 
     <% if object.try(:manufacturer).size.positive? %>
       <dt>
-        Hersteller  
+        Hersteller
       </dt>
       <dd>
         <%= object.try(:manufacturer).first.name %>
@@ -22,11 +22,11 @@
 
     <% if object.try(:created_at).present? %>
       <dt><%= t('object_browser.details.created_at', locale: active_ui_locale).capitalize %> </dt>
-      <dd><%= l(object.created_at, locale: active_ui_locale, format: :short) %></dd>
+      <dd><%= l(object.created_at, locale: active_ui_locale, format: :history) %></dd>
     <% end %>
     <% if object.try(:updated_at).present? %>
       <dt><%= t('object_browser.details.updated_at', locale: active_ui_locale).capitalize %> </dt>
-      <dd><%= l(object.updated_at, locale: active_ui_locale, format: :short) %></dd>
+      <dd><%= l(object.updated_at, locale: active_ui_locale, format: :history) %></dd>
     <% end %>
   </dl>
 <% end %>

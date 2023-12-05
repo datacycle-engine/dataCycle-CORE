@@ -28,6 +28,8 @@ module DataCycleCore
       alias translated_locales available_locales
 
       def self.translated_locales
+        return DataCycleCore::Thing::History::Translation.none if all.is_a?(ActiveRecord::NullRelation)
+
         DataCycleCore::Thing::History::Translation.where(translated_model: all).distinct.pluck(:locale).map(&:to_sym)
       end
     end
@@ -40,11 +42,15 @@ module DataCycleCore
       belongs_to :thing_duplicate
 
       def self.thing_duplicates
-        DataCycleCore::ThingDuplicate.where(id: all.pluck(:thing_duplicate_id))
+        return DataCycleCore::ThingDuplicate.none if all.is_a?(ActiveRecord::NullRelation)
+
+        DataCycleCore::ThingDuplicate.where(id: pluck(:thing_duplicate_id))
       end
 
       def self.duplicates
-        DataCycleCore::Thing.where(id: all.pluck(:duplicate_id))
+        return DataCycleCore::Thing.none if all.is_a?(ActiveRecord::NullRelation)
+
+        DataCycleCore::Thing.where(id: pluck(:duplicate_id))
       end
 
       def self.with_fp
@@ -84,7 +90,7 @@ module DataCycleCore
     translates :slug, :content, backend: :table
     default_scope { i18n.includes(:thing_template) }
 
-    content_relations table_name: table_name
+    content_relations(table_name:)
 
     has_many :external_system_syncs, as: :syncable, dependent: :destroy, inverse_of: :syncable
     has_many :external_systems, through: :external_system_syncs
@@ -92,12 +98,17 @@ module DataCycleCore
     has_many :activities, as: :activitiable, dependent: :destroy
     has_many :timeseries, class_name: 'DataCycleCore::Timeseries', dependent: :destroy, inverse_of: :thing
 
+    has_many :schedules
+    has_many :collected_classification_contents
+
     def available_locales
       I18n.available_locales.intersection(translations.select(&:persisted?).pluck(:locale).map(&:to_sym))
     end
     alias translated_locales available_locales
 
     def self.translated_locales
+      return DataCycleCore::Thing::Translation.none if all.is_a?(ActiveRecord::NullRelation)
+
       DataCycleCore::Thing::Translation.where(translated_model: all).distinct.pluck(:locale)
     end
 

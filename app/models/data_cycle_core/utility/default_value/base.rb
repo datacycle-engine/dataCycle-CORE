@@ -33,11 +33,11 @@ module DataCycleCore
 
             data_hash[key] = method_name.call(
               property_parameters: property_parameters&.index_with { |v| default_value_hash[v] },
-              key: key,
+              key:,
               data_hash: default_value_hash,
-              content: content,
+              content:,
               property_definition: properties,
-              current_user: current_user
+              current_user:
             )
           end
 

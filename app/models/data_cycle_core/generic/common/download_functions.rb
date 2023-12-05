@@ -9,7 +9,7 @@ module DataCycleCore
         def self.download_data(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, options:)
           iteration_strategy = options.dig(:download, :iteration_strategy) || options.dig(:iteration_strategy) || :download_sequential
           raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel, :download_all].include?(iteration_strategy.to_sym)
-          send(iteration_strategy, download_object: download_object, data_id: data_id, data_name: data_name, modified: modified, delete: delete, iterator: iterator, options: options)
+          send(iteration_strategy, download_object:, data_id:, data_name:, modified:, delete:, iterator:, options:)
         end
 
         def self.download_single(download_object:, data_id:, data_name:, modified: nil, delete: nil, raw_data:, _iterator: nil, options:)
@@ -30,7 +30,7 @@ module DataCycleCore
                         data_hash[:deleted_at] = item.dump[language].try(:[], 'deleted_at') || Time.zone.now
                         data_hash[:delete_reason] = item.dump[language].try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
                       else
-                        data_hash = data_hash.except(:deleted_at, :delte_reason)
+                        data_hash = data_hash.except(:deleted_at, :delete_reason)
                       end
                     end
                     data_hash[:updated_at] = modified.call(data_hash) if modified.present?
@@ -44,7 +44,7 @@ module DataCycleCore
                   logging.info("Single download item: #{item_name}", item_id)
                 end
               rescue StandardError => e
-                ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                   exception: e,
                   namespace: 'background'
                 }
@@ -61,7 +61,7 @@ module DataCycleCore
           options[:locales] ||= I18n.available_locales
           if options[:locales].size != 1
             options[:locales].each do |language|
-              success &&= download_sequential(download_object: download_object, data_id: data_id, data_name: data_name, modified: modified, delete: delete, iterator: iterator, options: options.except(:locales).merge({ locales: [language] }))
+              success &&= download_sequential(download_object:, data_id:, data_name:, modified:, delete:, iterator:, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
@@ -136,8 +136,8 @@ module DataCycleCore
                             if item.data_has_changed.nil?
                               last_download = download_object.external_source.last_successful_download
                               if modified.present? && last_download.present?
-                                item_data[:updated_at] = modified.call(item_data)
-                                item.data_has_changed = item_data[:updated_at] > last_download
+                                updated_at = modified.call(item_data)
+                                item.data_has_changed = updated_at > last_download ? true : nil
                               end
                             end
 
@@ -154,7 +154,7 @@ module DataCycleCore
                           end
                         end
                       rescue StandardError => e
-                        ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                        ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                           exception: e,
                           namespace: 'background'
                         }
@@ -175,7 +175,7 @@ module DataCycleCore
                     pool.wait!
                   end
                 rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                  ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                     exception: e,
                     namespace: 'background'
                   }
@@ -245,7 +245,7 @@ module DataCycleCore
                       end
                       item.save!
                     rescue StandardError => e
-                      ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                      ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                         exception: e,
                         namespace: 'background'
                       }
@@ -264,7 +264,7 @@ module DataCycleCore
                   end
                 end
               rescue StandardError => e
-                ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                   exception: e,
                   namespace: 'background'
                 }
@@ -338,7 +338,7 @@ module DataCycleCore
                       end
                       item.save!
                     rescue StandardError => e
-                      ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                      ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                         exception: e,
                         namespace: 'background'
                       }
@@ -357,7 +357,7 @@ module DataCycleCore
                   end
                 end
               rescue StandardError => e
-                ActiveSupport::Notifications.instrument 'download_failed.datacycle', this: {
+                ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                   exception: e,
                   namespace: 'background'
                 }
@@ -385,7 +385,7 @@ module DataCycleCore
                 GC.start
                 logging.info("Single download_all item #{item_name}", item_id)
               rescue StandardError => e
-                ActiveSupport::Notifications.instrument 'dump_failed.datacycle', this: {
+                ActiveSupport::Notifications.instrument 'dump_failed.datacycle', {
                   exception: e,
                   namespace: 'background'
                 }
@@ -411,7 +411,7 @@ module DataCycleCore
                 GC.start
                 logging.info("Single download_all item #{item_name}", item_id)
               rescue StandardError => e
-                ActiveSupport::Notifications.instrument 'dump_failed.datacycle', this: {
+                ActiveSupport::Notifications.instrument 'dump_failed.datacycle', {
                   exception: e,
                   namespace: 'background'
                 }
@@ -430,7 +430,7 @@ module DataCycleCore
           deleted_from = download_object.external_source.last_successful_download || Time.zone.local(2010)
           if options[:locales].size != 1
             options[:locales].each do |language|
-              success &&= mark_deleted(download_object: download_object, data_id: data_id, options: options.except(:locales).merge({ locales: [language] }))
+              success &&= mark_deleted(download_object:, data_id:, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
@@ -443,7 +443,7 @@ module DataCycleCore
                 begin
                   download_object.source_object.with(download_object.source_type) do |mongo_item|
                     endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
-                    items = download_object.endpoint.send(endpoint_method, lang: locale, deleted_from: deleted_from)
+                    items = download_object.endpoint.send(endpoint_method, lang: locale, deleted_from:)
 
                     max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
                     logging.phase_started("#{download_object.source_type.collection_name}_#{locale}", max_string)
@@ -475,7 +475,7 @@ module DataCycleCore
                         item.save!
                         logging.item_processed('delete', item_id, item_count, max_string)
                       rescue StandardError => e
-                        ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', this: {
+                        ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', {
                           exception: e,
                           namespace: 'background'
                         }
@@ -494,7 +494,7 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', this: {
+                  ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', {
                     exception: e,
                     namespace: 'background'
                   }
@@ -517,7 +517,7 @@ module DataCycleCore
           options[:locales] ||= I18n.available_locales
           if options[:locales].size != 1
             options[:locales].each do |language|
-              success &&= mark_deleted_from_data(download_object: download_object, iterator: iterator, options: options.except(:locales).merge({ locales: [language] }))
+              success &&= mark_deleted_from_data(download_object:, iterator:, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
@@ -552,14 +552,19 @@ module DataCycleCore
 
                         session.client.command(refreshSessions: [session.session_id]) # keep the mongo_session alive
 
-                        if archived.present? && archived.call(content.dump[locale], archive_from)
-                          content.dump[locale]['archived_at'] ||= Time.zone.now
-                          content.dump[locale]['last_seen_before_archived'] ||= content.seen_at
-                          content.dump[locale]['archive_reason'] ||= options.dig(:download, :archive_reason) if options.dig(:download, :archive_reason).present?
-                        else
-                          content.dump[locale]['deleted_at'] ||= Time.zone.now
-                          content.dump[locale]['last_seen_before_delete'] ||= content.seen_at
-                          content.dump[locale]['delete_reason'] ||= options.dig(:download, :delete_reason) if options.dig(:download, :delete_reason).present?
+                        delete_locales = [locale.to_s]
+                        delete_locales = content.dump.keys.map(&:to_s) if options.dig(:download, :delete_all_languages)
+
+                        delete_locales.each do |l|
+                          if archived.present? && archived.call(content.dump[l], archive_from)
+                            content.dump[l]['archived_at'] ||= Time.zone.now
+                            content.dump[l]['last_seen_before_archived'] ||= content.seen_at
+                            content.dump[l]['archive_reason'] ||= options.dig(:download, :archive_reason) if options.dig(:download, :archive_reason).present?
+                          else
+                            content.dump[l]['deleted_at'] ||= Time.zone.now
+                            content.dump[l]['last_seen_before_delete'] ||= content.seen_at
+                            content.dump[l]['delete_reason'] ||= options.dig(:download, :delete_reason) if options.dig(:download, :delete_reason).present?
+                          end
                         end
                         content.save!
 
@@ -573,7 +578,7 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', this: {
+                  ActiveSupport::Notifications.instrument 'mark_deleted_failed.datacycle', {
                     exception: e,
                     namespace: 'background'
                   }
@@ -605,7 +610,7 @@ module DataCycleCore
               affected_keys = {}
               endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
               locales.each do |locale|
-                affected_keys[locale] = download_object.endpoint.send(endpoint_method, lang: locale, deleted_from: deleted_from)
+                affected_keys[locale] = download_object.endpoint.send(endpoint_method, lang: locale, deleted_from:)
               end
 
               source_filter = options&.dig(:download, :source_filter) || {}
@@ -636,7 +641,7 @@ module DataCycleCore
                       next if options[:min_count].present? && item_count < options[:min_count]
 
                       embedded_keys = dependent_keys.call(item.dump[locale])
-                      next if (affected_keys[locale] & embedded_keys).blank? # have an empty intersection --> item is not affected
+                      next unless affected_keys[locale].intersect?(embedded_keys) # have an empty intersection --> item is not affected
 
                       item.dump[locale]['mark_for_update'] = Time.zone.now
                       item.save!
@@ -652,7 +657,7 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  ActiveSupport::Notifications.instrument 'mark_updated_failed.datacycle', this: {
+                  ActiveSupport::Notifications.instrument 'mark_updated_failed.datacycle', {
                     exception: e,
                     namespace: 'background'
                   }

@@ -58,7 +58,6 @@ require 'jbuilder'
 
 require 'acts_as_paranoid'
 
-require 'transproc/all'
 require 'dry-transformer'
 require 'dry-validation'
 
@@ -267,7 +266,7 @@ module DataCycleCore
 
       next unless respond_to?(config_name)
 
-      new_value = YAML.safe_load(ERB.new(File.read(file_name)).result, [Symbol])
+      new_value = YAML.safe_load(ERB.new(File.read(file_name)).result, permitted_classes: [Symbol])
       value = try(config_name)
 
       next unless new_value.present? || new_value.is_a?(FalseClass)

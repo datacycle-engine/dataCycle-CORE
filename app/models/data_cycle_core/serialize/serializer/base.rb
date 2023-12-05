@@ -35,7 +35,7 @@ module DataCycleCore
               return content_title.parameterize(separator: '_').to_s
             end
 
-            if content.try(:asset)&.file&.path&.present?
+            if content.try(:asset)&.file&.path.present?
               File.basename(content.try(:asset)&.file&.path)
             else
               "#{content.try(:template_name)}_#{SecureRandom.uuid}"

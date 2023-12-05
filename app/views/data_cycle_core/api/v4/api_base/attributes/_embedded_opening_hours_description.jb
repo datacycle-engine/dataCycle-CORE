@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-def serialize_opening_hours_description(description, filter, fields, options, includes = [], translatable_embedded = false)
+def serialize_opening_hours_description_v4(description, filter, fields, options, includes = [], translatable_embedded = false)
   I18n.with_locale(description.first_available_locale) do
     schedule_hash = description&.validity_schedule&.first&.schedule_object&.to_hash || {}
     description_values = description&.property_definitions&.select { |k, v| attribute_key(k, v) == 'description' }&.sort_by { |_k, v| v['sorting'] }&.map { |k, _v| description.try(k) }
@@ -16,8 +16,7 @@ def serialize_opening_hours_description(description, filter, fields, options, in
         )
       )&.in_time_zone&.to_s(:only_date),
       'description' => description_values&.compact_blank&.first
-    }.compact.merge(render('content_translations', content: description, options: { include: includes, fields: fields, field_filter:
-      options[:field_filter] && fields.present? ? options[:field_filter] : false, languages: options[:languages], translatable_embedded: translatable_embedded }))
+    }.compact.merge(render('content_translations', content: description, options: inherit_options({ include: includes, fields:, field_filter: options[:field_filter] && fields.present? ? options[:field_filter] : false, translatable_embedded: }, options)))
 
     return data unless filter
 
@@ -42,9 +41,9 @@ if data.present?
 
   json[key_name] = data.map do |description|
     if options[:field_filter] && new_fields.present?
-      serialize_opening_hours_description(description, options[:field_filter], new_fields, options, new_include, translatable_embedded)
+      serialize_opening_hours_description_v4(description, options[:field_filter], new_fields, options, new_include, translatable_embedded)
     else
-      serialize_opening_hours_description(description, false, new_fields, options, new_include, translatable_embedded)
+      serialize_opening_hours_description_v4(description, false, new_fields, options, new_include, translatable_embedded)
     end
   end
 end

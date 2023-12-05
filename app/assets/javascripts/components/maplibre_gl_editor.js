@@ -22,7 +22,6 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		this.drawing = false;
 		this.draw;
 		this.precision = 5;
-		this.$geoCodeButton = $(".geocode-address-button").first();
 		this.additionalValueTargets = {};
 		this.routingOptions = this.mapOptions.routing_options || {};
 		this.$mapEditContainer = this.$parentContainer
@@ -48,6 +47,9 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 			.first();
 		this.$locationField = this.$parentContainer
 			.siblings("input.location-data:hidden")
+			.first();
+		this.$geoCodeButton = this.$mapInfoContainer
+			.find(".geocode-address-button")
 			.first();
 		this.geoCodeAttributes = [
 			"street_address",
@@ -288,7 +290,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		return elem.querySelector(`option[value="${value}"]`)?.textContent;
 	}
 	getAddressFromAttributes() {
-		const locale = this.$geoCodeButton.data("locale");
+		const locale = this.$geoCodeButton[0].dataset.locale;
 		const address = {
 			locale: locale,
 		};

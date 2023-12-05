@@ -21,7 +21,7 @@ module DataCycleCore
 
           assert_response(:success)
           assert_equal('application/json; charset=utf-8', response.content_type)
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
           assert_equal('TestArtikel', json_data['headline'])
         end
 
@@ -30,7 +30,7 @@ module DataCycleCore
 
           assert_response(:success)
           assert_equal('application/json; charset=utf-8', response.content_type)
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
 
           assert(json_data.dig('data').present?)
           assert_equal(1, json_data.dig('data').size)
@@ -66,17 +66,17 @@ module DataCycleCore
           get(api_v2_contents_search_path)
           assert_response(:success)
           assert_equal('application/json; charset=utf-8', response.content_type)
-          json_data_search = JSON.parse(response.body)
+          json_data_search = response.parsed_body
 
           get(api_v2_things_path)
           assert_response(:success)
           assert_equal('application/json; charset=utf-8', response.content_type)
-          json_data_things = JSON.parse(response.body)
+          json_data_things = response.parsed_body
 
           get(api_v2_creative_works_path)
           assert_response(:success)
           assert_equal('application/json; charset=utf-8', response.content_type)
-          json_data_creative_works = JSON.parse(response.body)
+          json_data_creative_works = response.parsed_body
 
           assert(json_data_search != json_data_things)
           assert_equal(json_data_search.except('links'), json_data_things.except('links'))
@@ -88,12 +88,12 @@ module DataCycleCore
           get(api_v1_contents_search_path)
           assert_response(:success)
           assert_equal('application/json; charset=utf-8', response.content_type)
-          json_data_search_old = JSON.parse(response.body)
+          json_data_search_old = response.parsed_body
 
           get(api_v2_contents_search_path)
           assert_response(:success)
           assert_equal('application/json; charset=utf-8', response.content_type)
-          json_data_search = JSON.parse(response.body)
+          json_data_search = response.parsed_body
           data_hash = json_data_search['data'].first
 
           v1_hash = {

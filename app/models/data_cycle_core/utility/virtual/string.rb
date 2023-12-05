@@ -27,7 +27,27 @@ module DataCycleCore
           end
 
           def license_uri(content:, **_args)
-            content.classification_aliases.for_tree('Lizenzen').reorder(nil).pick(:uri)
+            if content.association(:collected_classification_contents).loaded? &&
+               content.collected_classification_contents.any? &&
+               content.collected_classification_contents.first.association(:classification_tree_label).loaded? &&
+               content.collected_classification_contents.first.association(:classification_alias).loaded? &&
+               content.collected_classification_contents.first.classification_alias.association(:classification_alias_path).loaded?
+
+              content.collected_classification_contents
+                .sort_by { |ccc| -ccc.classification_alias&.classification_alias_path&.full_path_ids&.size.to_i }
+                .detect { |ccc| ccc.classification_tree_label.name == 'Lizenzen' }
+                &.classification_alias
+                &.uri
+            elsif content.association(:collected_classification_contents).loaded? && content.collected_classification_contents.empty?
+              nil
+            else
+              content.collected_classification_contents
+                .classification_aliases
+                .joins(:classification_alias_path)
+                .for_tree('Lizenzen')
+                .reorder(Arel.sql('ARRAY_LENGTH(classification_alias_paths.full_path_ids, 1) DESC'))
+                .pick(:uri)
+            end
           end
 
           # only works for sync_api

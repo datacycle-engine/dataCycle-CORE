@@ -19,7 +19,7 @@ module DataCycleCore
 
           return if delayed_job.nil?
 
-          job = deserialize(YAML.load(delayed_job.handler).job_data) # rubocop:disable Security/YAMLLoad
+          job = deserialize(YAML.load(delayed_job.handler).job_data, permitted_classes: [Symbol]) # rubocop:disable Security/YAMLLoad
           job.provider_job_id = delayed_job.id
           job.send(:deserialize_arguments_if_needed)
 
@@ -32,7 +32,7 @@ module DataCycleCore
         class_attribute :reference_type, instance_accessor: false
       end
 
-      def initialize(*)
+      def initialize(*args, **kwargs)
         super
 
         @reference_id = self.class.reference_id

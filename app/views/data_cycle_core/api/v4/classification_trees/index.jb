@@ -17,7 +17,7 @@ unless @permitted_params.dig(:section, :'@graph')&.to_i&.zero?
   @classification_tree_labels&.map do |item|
     json['@graph'] << Rails.cache.fetch(api_v4_cache_key(item, options[:languages], options[:include], options[:fields], @api_subversion, options[:full]), expires_in: 1.year + Random.rand(7.days)) do
       I18n.with_locale(I18n.default_locale) do
-        render 'classification_tree', content: item, options: options
+        render 'classification_tree', content: item, options:
       end
     end
   end

@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class PublicationsController < ApplicationController
-    include DataCycleCore::Filter
+    include DataCycleCore::FilterConcern
     authorize_resource class: false # from cancancan (authorize)
     before_action :check_feature_enabled
 
@@ -12,8 +12,7 @@ module DataCycleCore
         &.schema
         &.dig('properties')
         &.select { |_, v| v['type'] == 'classification' && (Array(DataCycleCore::ClassificationTreeLabel.find_by(name: v['tree_label'])&.visibility) & ['show', 'show_more']).size.positive? }
-        &.map { |k, v| [k, v['tree_label']] }
-        &.to_h || {}
+        .to_h { |k, v| [k, v['tree_label']] }
 
       @stored_filter ||= DataCycleCore::StoredFilter.new
       @filters = pre_filters.dup
@@ -37,7 +36,7 @@ module DataCycleCore
               f['t'].in?(['classification_alias_ids', 'geo_within_classification']) ||
                 (f['t'] == 'advanced_attributes' && f['q'] == 'classification_alias_ids')
             }
-            .map { |f| f['v'] }
+            .pluck('v')
             .flatten
             .compact
             .uniq

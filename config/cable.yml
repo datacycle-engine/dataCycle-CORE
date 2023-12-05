@@ -1,11 +1,17 @@
 development:
-  adapter: postgresql
+  adapter: redis
+  url: <%= "redis://#{Rails.application.secrets.redis_server}:#{Rails.application.secrets.redis_port}/#{Rails.application.secrets.redis_cache_database}" %>
+  channel_prefix: <%= Rails.application.secrets.redis_cache_namespace %>
 
 test:
   adapter: async
 
 staging:
-  adapter: postgresql
+  adapter: redis
+  url: <%= "redis://#{Rails.application.secrets.redis_server}:#{Rails.application.secrets.redis_port}/#{Rails.application.secrets.redis_cache_database}" %>
+  channel_prefix: <%= Rails.application.secrets.redis_cache_namespace %>
 
 production:
-  adapter: postgresql
+  adapter: redis
+  url: <%= "redis://#{Rails.application.secrets.redis_server}:#{Rails.application.secrets.redis_port}/#{Rails.application.secrets.redis_cache_database}" %>
+  channel_prefix: <%= Rails.application.secrets.redis_cache_namespace %>

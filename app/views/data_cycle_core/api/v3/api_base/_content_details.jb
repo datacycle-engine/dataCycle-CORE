@@ -7,7 +7,7 @@ default_options = {
 }
 options = default_options.merge(defined?(options) ? options || {} : {})
 json ||= {}
-json.merge! render 'content_header', content: content, options: options
+json.merge! render('content_header', content:, options:)
 
 json.merge! render 'container_parent_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present?
 if content.translations.size > 1 && @include_parameters.include?('translations')
@@ -17,9 +17,9 @@ else
 end
 
 json.merge! render 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.content_type?('container')
-json.merge! render 'content_properties', content: content, options: options
+json.merge! render('content_properties', content:, options:)
 
-json.merge! render 'combined_properties', content: content, options: options
+json.merge! render('combined_properties', content:, options:)
 
 json_overlay = render 'overlay_properties', content: content, options: options if content.content_type?('entity')
 json.merge! merge_overlay(json, json_overlay) if json_overlay.present?

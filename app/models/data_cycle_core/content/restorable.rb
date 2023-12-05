@@ -26,7 +26,7 @@ module DataCycleCore
         DataCycleCore::Thing.create!(attributes.slice(*DataCycleCore::Thing.column_names).merge(
                                        'id' => thing_id,
                                        'version_name' => I18n.t('history.restored', date: I18n.l(Time.zone.now, format: :edit)),
-                                       'created_at' => DataCycleCore::Thing::History.order(created_at: :asc).find_by(thing_id: thing_id)&.created_at
+                                       'created_at' => DataCycleCore::Thing::History.order(created_at: :asc).find_by(thing_id:)&.created_at
                                      ))
       end
 

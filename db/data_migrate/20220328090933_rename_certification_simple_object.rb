@@ -6,7 +6,7 @@ class RenameCertificationSimpleObject < ActiveRecord::Migration[5.2]
 
   def up
     # Zertifizierung: short_report [...] -> short_reports [...]
-    DataCycleCore::Thing.where(template_name: ['Zertifizierung']).each do |thing|
+    DataCycleCore::Thing.where(template_name: ['Zertifizierung']).find_each do |thing|
       thing.available_locales.each do |locale|
         I18n.with_locale(locale) do
           next unless thing.content&.key?('short_report')
@@ -20,7 +20,7 @@ class RenameCertificationSimpleObject < ActiveRecord::Migration[5.2]
 
   def down
     # Zertifizierung: short_report [...] -> short_reports [...]
-    DataCycleCore::Thing.where(template_name: ['Zertifizierung']).each do |thing|
+    DataCycleCore::Thing.where(template_name: ['Zertifizierung']).find_each do |thing|
       thing.available_locales.each do |locale|
         I18n.with_locale(locale) do
           next unless thing.content&.key?('short_reports')

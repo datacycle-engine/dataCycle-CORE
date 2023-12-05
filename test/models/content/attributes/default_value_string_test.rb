@@ -7,7 +7,7 @@ module DataCycleCore
     module Attributes
       class DefaultValueStringTest < ActiveSupport::TestCase
         def set_default_value(template_name, key, value, content = nil)
-          template = content || DataCycleCore::ThingTemplate.find_by(template_name: template_name)
+          template = content || DataCycleCore::ThingTemplate.find_by(template_name:)
 
           if value.blank?
             template.schema['properties'][key].delete('default_value')

@@ -8,7 +8,7 @@ module DataCycleCore
 
       DataCycleCore::ClassificationTreeLabel
         .includes(classification_trees: [:classification_tree_label, :sub_classification_alias])
-        .find_by(name: name)
+        .find_by(name:)
     end
 
     # TODO: refactor

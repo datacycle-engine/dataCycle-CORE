@@ -41,16 +41,24 @@ module DataCycleCore
 
           distance = values['distance'].to_i
           distance *= 1000 if values&.dig('unit') == 'km'
+          thing_alias = thing.alias
 
           reflect(
             @query
               .where.not(thing[:geom_simple].eq(nil))
               .where(
-                st_dwithin(
-                  cast_geography(thing[:geom_simple]),
-                  cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
-                  distance
-                )
+                DataCycleCore::Thing.select(1).arel
+                .from(thing_alias)
+                .where(
+                  thing[:id].eq(thing_alias[:id])
+                  .and(
+                    st_dwithin(
+                      cast_geography(thing_alias[:geom_simple]),
+                      cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
+                      distance
+                    )
+                  )
+                ).exists
               )
           )
         end
@@ -60,15 +68,24 @@ module DataCycleCore
 
           distance = values['distance'].to_i
           distance *= 1000 if values&.dig('unit') == 'km'
+          thing_alias = thing.alias
 
           reflect(
             @query
+              .where.not(thing[:geom_simple].eq(nil))
               .where.not(
-                st_dwithin(
-                  cast_geography(thing[:geom_simple]),
-                  cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
-                  distance
-                )
+                DataCycleCore::Thing.select(1).arel
+                .from(thing_alias)
+                .where(
+                  thing[:id].eq(thing_alias[:id])
+                  .and(
+                    st_dwithin(
+                      cast_geography(thing_alias[:geom_simple]),
+                      cast_geography(st_setsrid(st_makepoint(values&.dig('lon').to_s, values&.dig('lat').to_s), 4326)),
+                      distance
+                    )
+                  )
+                ).exists
               )
           )
         end

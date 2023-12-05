@@ -28,6 +28,14 @@ module DataCycleCore
             )
         end
 
+        def destroy_failed_jobs?
+          if @utility_object.external_system.export_config&.key?(:destroy_failed_jobs)
+            @utility_object.external_system.export_config[:destroy_failed_jobs]
+          else
+            Delayed::Worker.destroy_failed_jobs
+          end
+        end
+
         def failure(_job)
           return unless @data.is_a?(DataCycleCore::Thing)
 

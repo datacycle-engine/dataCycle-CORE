@@ -21,8 +21,8 @@ module DataCycleCore
             req.headers['Accept'] = 'application/json'
             req.headers['Content-Type'] = 'application/json'
             req.body = {
-              id: id,
-              comment: comment,
+              id:,
+              comment:,
               fields: data_list
             }.to_json
           end

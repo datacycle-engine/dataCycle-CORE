@@ -129,7 +129,7 @@ describe DataCycleCore::ClassificationAlias do
       )
 
       classification_alias = DataCycleCore::ClassificationAlias.for_tree('EXTERNAL CLASSIFICATION TREE').with_name('UPDATED - Alpha - 1').first
-      refute_nil(classification_alias)  # rubocop:disable Rails/RefuteMethods
+      refute_nil(classification_alias) # rubocop:disable Rails/RefuteMethods
       assert_equal('UPDATED - Alpha - 1', classification_alias.name)
       assert_equal('UPDATED - Alpha - 1', classification_alias.internal_name)
       assert_equal('key:alpha_1', classification_alias.external_key)

@@ -50,7 +50,7 @@ module DataCycleCore
         'alternative_headline' => 'ein lustiges Quiz für jeden Tag!'
       }
 
-      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Quiz', data_hash: data_hash)
+      data_set = DataCycleCore::TestPreparations.create_content(template_name: 'Quiz', data_hash:)
       returned_data_hash = data_set.get_data_hash
 
       assert_equal(0, data_set.errors.messages.size)
@@ -117,7 +117,7 @@ module DataCycleCore
         'alternative_headline' => 'ein lustiges Quiz für jeden Tag!'
       }
 
-      data_set.set_data_hash(data_hash: data_hash, new_content: true)
+      data_set.set_data_hash(data_hash:, new_content: true)
       returned_data_hash = data_set.get_data_hash
 
       assert_equal(0, data_set.errors.size)

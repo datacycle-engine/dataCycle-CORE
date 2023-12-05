@@ -831,7 +831,7 @@ footer {
 
   input,
   .editor-block,
-  .daterange,
+  .daterange:not(.schedule-range):not(.special-dates),
   .embedded_object:not(.publication_schedule)>.embedded-object>.content-object-item,
   .readonly-select,
   .form-element.detail_object,
@@ -1473,6 +1473,9 @@ span.single_warning:before {
         color: $white;
         background-color: lighten($dark-gray, 6%);
         font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
 
         .select2-selection__choice__remove {
           position: absolute;
@@ -1484,6 +1487,10 @@ span.single_warning:before {
           &:hover {
             color: $alert-color;
           }
+        }
+
+        i.fa {
+          font-size: 0.9rem;
         }
       }
     }
@@ -1503,7 +1510,7 @@ body .v-select {
   .tag,
   .selected-tag,
   .select2-selection__choice {
-    display: inline-block;
+    display: inline-flex;
     background-color: lighten($dark-gray, 6%);
     font-size: 0.8rem;
     color: $white;
@@ -1514,10 +1521,12 @@ body .v-select {
     font-weight: 600;
     word-break: break-word;
     white-space: normal;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
 
     i {
       font-size: 0.8rem;
-      margin-left: 0.2rem;
     }
 
     .close {
@@ -1525,6 +1534,7 @@ body .v-select {
       color: $white;
       text-shadow: none;
       opacity: 0.7;
+      margin-left: 0.2rem;
     }
   }
 
@@ -1602,10 +1612,7 @@ body .v-select {
 }
 
 .warning {
-  color: map-get($foundation-palette, alert);
-  font-style: italic;
-  display: block;
-  margin-top: 1rem;
+  color: map-get($foundation-palette, warning);
 }
 
 /* Korrektur für Fehler im Neuen Eintrag erstellen reveal  */
@@ -1782,7 +1789,7 @@ body .v-select {
         color: $black;
         padding: 3px 7px;
         white-space: nowrap;
-        z-index: 13;
+        z-index: 14;
         border-radius: $global-radius;
         top: 0;
         box-shadow: 0 0 3px #ccc;
@@ -1925,7 +1932,7 @@ body .v-select {
     }
 
     &.show-copy-attribute-to-all {
-      .copy-attribute-to-all {
+      .copy-attribute-to-all:not(.hidden) {
         display: block;
       }
 
@@ -1974,13 +1981,42 @@ body .v-select {
 
 /* Animations für lazyloaded iamges */
 .lazyload,
+.lazyloading,
+.lazyloaded {
+  transition: $opacity-transition;
+}
+
+.lazyload {
+  opacity: 0.25;
+}
+
 .lazyloading {
-  opacity: 0;
+  opacity: 0.5;
+}
+
+@keyframes lazyload {
+  0% {
+    background-position: 200% 50%;
+  }
+
+  100% {
+    background-position: 50% 50%;
+  }
+}
+
+.lazyload,
+.lazyloading {
+  color: transparent;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0) 75%, var(--light-gray) 87.5%, rgba(255, 255, 255, 0) 100%) !important;
+  background-size: 200% 100% !important;
+  background-position: 200% 50%;
+  background-repeat: no-repeat !important;
+  animation: lazyload 1.5s linear infinite forwards;
+  box-shadow: 0 0 0 1px var(--light-gray) inset;
 }
 
 .lazyloaded {
   opacity: 1;
-  transition: $opacity-transition;
 }
 
 a {

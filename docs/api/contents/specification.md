@@ -22,6 +22,10 @@
             "in": "[UUID]",
             "notIn": "[UUID]"
         },
+        "classificationTreeId": {
+            "in": "[UUID]",
+            "notIn": "[UUID]"
+        },
         "attribute": {
             "{attributeName}":{
                 "in": {
@@ -93,6 +97,10 @@
                     "in": "[UUID]",
                     "notIn": "[UUID]"
                 },
+                "classificationTreeId": {
+                    "in": "[UUID]",
+                    "notIn": "[UUID]"
+                },
                 "attribute": {
                     "{attributeName}":{
                         "in": {
@@ -156,6 +164,10 @@
                     "in": "[UUID]",
                     "notIn": "[UUID]"
                 },
+                "classificationTreeId": {
+                    "in": "[UUID]",
+                    "notIn": "[UUID]"
+                },
                 "attribute": {
                     "{attributeName}": {
                         "in": {
@@ -214,6 +226,10 @@
                             "notIn": "[UUID]"
                         },
                         "watchListId": {
+                            "in": "[UUID]",
+                            "notIn": "[UUID]"
+                        },
+                        "classificationTreeId": {
                             "in": "[UUID]",
                             "notIn": "[UUID]"
                         },

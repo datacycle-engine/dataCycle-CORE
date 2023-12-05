@@ -5,8 +5,13 @@ namespace :dc do
     desc 'import and update all classifications, external_sources, external_systems and templates'
     task configs: :environment do
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_classifications"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_system_configs"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_classifications"].reenable
+
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:external_systems:import"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:external_systems:import"].reenable
+
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:import"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:import"].reenable
     end
 
     namespace :search do
@@ -21,7 +26,7 @@ namespace :dc do
 
         query.find_each do |thing_template|
           strategy = DataCycleCore::Update::UpdateSearch
-          DataCycleCore::Update::Update.new(type: DataCycleCore::Thing, template: DataCycleCore::Thing.new(thing_template: thing_template), strategy: strategy, transformation: nil)
+          DataCycleCore::Update::Update.new(type: DataCycleCore::Thing, template: DataCycleCore::Thing.new(thing_template:), strategy:, transformation: nil)
         end
 
         clean_up_query = DataCycleCore::Search.where('searches.updated_at < ?', temp_time)
@@ -73,7 +78,7 @@ namespace :dc do
 
     desc 'create all dictionaries in postgresql'
     task dictionaries: :environment do
-      present_dictionaries = Dir[Rails.root.join('config', 'configurations', 'ts_search', '*.ths')].sort
+      present_dictionaries = Dir[Rails.root.join('config', 'configurations', 'ts_search', '*.ths')]
       file_names = present_dictionaries.map { |f| f.split('/').last.split('.').first }
 
       file_names.each do |dict|

@@ -1,10 +1,20 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class StatsJobQueue
-    attr_accessor :job_list
+  class StatsJobQueue < ApplicationRecord
+    self.table_name = 'delayed_jobs_statistics'
 
-    def update
+    def readonly?
+      true
+    end
+
+    def runnable_types
+      Array.wrap(queued_types) + Array.wrap(running_types)
+    end
+
+    def job_list
+      return @job_list if defined? @job_list
+
       @job_list = {
         importers: [],
         running: [],
@@ -38,9 +48,13 @@ module DataCycleCore
         end
       end
 
-      @job_list[:queued] = Delayed::Job.where(failed_at: nil, locked_at: nil, locked_by: nil).group(:queue).count
-      @job_list[:running] = Delayed::Job.where(failed_at: nil).where.not(locked_at: nil).group(:queue).count
-      @job_list[:failed] = Delayed::Job.where.not(failed_at: nil).group(:queue).count
+      data = self.class.all.to_a
+
+      @job_list[:queued] = data.filter(&:queued).pluck(:queue_name, :queued).to_h
+      @job_list[:running] = data.filter(&:running).pluck(:queue_name, :running).to_h
+      @job_list[:failed] = data.filter(&:failed).pluck(:queue_name, :failed).to_h
+      @job_list[:delayed_reference_types] = data.to_h { |d| [d.queue_name, d.attributes.slice('queued_types', 'running_types', 'failed_types')] }
+      @job_list[:rebuild_classification_mappings] = data.any? { |d| d.queue_name == DataCycleCore::RebuildClassificationMappingsJob.queue_as && DataCycleCore::RebuildClassificationMappingsJob::REFERENCE_TYPE.in?(d.runnable_types) }
 
       @job_list
     end

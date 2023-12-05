@@ -171,7 +171,7 @@
           :v4:
             :disabled: false
         :validations:
-          valid_dates: true
+          soft_valid_dates: true
           soft_max_duration: P1D
       :sub_event:
         :label: Veranstaltungsdaten

@@ -56,53 +56,37 @@ module DataCycleCore
 
       if image.width >= image.height
         if image.width < options.dig(:landscape, :min, :width).to_i
-          errors.add :file, **{
-            path: 'uploader.validation.dimensions.landscape.min.width',
-            substitutions: { data: options.dig(:landscape, :min, :width).to_i }
-          }
+          errors.add :file, path: 'uploader.validation.dimensions.landscape.min.width',
+                            substitutions: { data: options.dig(:landscape, :min, :width).to_i }
         end
         if image.height < options.dig(:landscape, :min, :height).to_i
-          errors.add :file, **{
-            path: 'uploader.validation.dimensions.landscape.min.height',
-            substitutions: { data: options.dig(:landscape, :min, :height).to_i }
-          }
+          errors.add :file, path: 'uploader.validation.dimensions.landscape.min.height',
+                            substitutions: { data: options.dig(:landscape, :min, :height).to_i }
         end
         if options.dig(:landscape, :max, :width).present? && image.width > options.dig(:landscape, :max, :width).to_i
-          errors.add :file, **{
-            path: 'uploader.validation.dimensions.landscape.max.width',
-            substitutions: { data: options.dig(:landscape, :max, :width).to_i }
-          }
+          errors.add :file, path: 'uploader.validation.dimensions.landscape.max.width',
+                            substitutions: { data: options.dig(:landscape, :max, :width).to_i }
         end
         if options.dig(:landscape, :max, :height).present? && image.height > options.dig(:landscape, :max, :height).to_i
-          errors.add :file, **{
-            path: 'uploader.validation.dimensions.landscape.max.height',
-            substitutions: { data: options.dig(:landscape, :max, :height).to_i }
-          }
+          errors.add :file, path: 'uploader.validation.dimensions.landscape.max.height',
+                            substitutions: { data: options.dig(:landscape, :max, :height).to_i }
         end
       else
         if image.width < options.dig(:portrait, :min, :width).to_i
-          errors.add :file, **{
-            path: 'uploader.validation.dimensions.portrait.min.width',
-            substitutions: { data: options.dig(:portrait, :min, :width).to_i }
-          }
+          errors.add :file, path: 'uploader.validation.dimensions.portrait.min.width',
+                            substitutions: { data: options.dig(:portrait, :min, :width).to_i }
         end
         if image.height < options.dig(:portrait, :min, :height).to_i
-          errors.add :file, **{
-            path: 'uploader.validation.dimensions.portrait.min.height',
-            substitutions: { data: options.dig(:portrait, :min, :height).to_i }
-          }
+          errors.add :file, path: 'uploader.validation.dimensions.portrait.min.height',
+                            substitutions: { data: options.dig(:portrait, :min, :height).to_i }
         end
         if options.dig(:portrait, :max, :width).present? && image.width > options.dig(:portrait, :max, :width).to_i
-          errors.add :file, **{
-            path: 'uploader.validation.dimensions.portrait.max.width',
-            substitutions: { data: options.dig(:portrait, :max, :width).to_i }
-          }
+          errors.add :file, path: 'uploader.validation.dimensions.portrait.max.width',
+                            substitutions: { data: options.dig(:portrait, :max, :width).to_i }
         end
         if options.dig(:portrait, :max, :height).present? && image.height > options.dig(:portrait, :max, :height).to_i
-          errors.add :file, **{
-            path: 'uploader.validation.dimensions.portrait.max.height',
-            substitutions: { data: options.dig(:portrait, :max, :height).to_i }
-          }
+          errors.add :file, path: 'uploader.validation.dimensions.portrait.max.height',
+                            substitutions: { data: options.dig(:portrait, :max, :height).to_i }
         end
       end
     end
@@ -115,8 +99,8 @@ module DataCycleCore
                                     .joins(thing: [:translations, :thing_template])
                                     .where("thing_templates.schema -> 'features' -> 'duplicate_candidate' ->> 'method' = ?", 'bild_duplicate')
                                     .where("duplicate_check IS NOT NULL AND duplicate_check ->> 'phash' IS NOT NULL AND duplicate_check ->> 'phash' != '0' AND phash_hamming(?, duplicate_check ->> 'phash') <= ? AND assets.id != ?", duplicate_check['phash']&.to_s, 6, id)
-                                    .map(&:thing)
-                                    .flatten
+                                    .select('DISTINCT ON ("things"."id") "assets".*')
+                                    .flat_map(&:thing)
                                 end
     end
 
@@ -131,10 +115,6 @@ module DataCycleCore
                                                .where("assets.duplicate_check IS NOT NULL AND assets.duplicate_check ->> 'phash' IS NOT NULL AND assets.duplicate_check ->> 'phash' != '0' AND phash_hamming(?, assets.duplicate_check ->> 'phash') <= ? AND assets.id != ?", duplicate_check['phash']&.to_s, 6, id)
                                                .map { |d| { thing_duplicate_id: d.thing_id, method: 'phash', score: d.score } }
                                            end
-    end
-
-    def original(_transformation = {})
-      file
     end
 
     def thumb_preview(transformation = {})
@@ -181,7 +161,7 @@ module DataCycleCore
       if file&.attached?
         begin
           if transformation.dig('width').present? || transformation.dig('height').present?
-            dynamic = file.variant(resize_to_fit: [(transformation.dig('width')&.to_i || nil), (transformation.dig('height')&.to_i || nil)], colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
+            dynamic = file.variant(resize_to_fit: [transformation.dig('width')&.to_i || nil, transformation.dig('height')&.to_i || nil], colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
           else
             dynamic = file.variant(colorspace: 'sRGB', format: format_for_transformation(transformation.dig('format'))).processed
           end
@@ -204,18 +184,21 @@ module DataCycleCore
     def metadata_from_blob
       if attachment_changes['file'].attachable.is_a?(::Hash) && attachment_changes['file'].attachable.dig(:io).present?
         # import from local disc
-        path_to_tempfile = attachment_changes['file'].attachable.dig(:io).path
+        tempfile = attachment_changes['file'].attachable.dig(:io)
       else
-        path_to_tempfile = attachment_changes['file'].attachable.tempfile.path
+        tempfile = attachment_changes['file'].attachable
       end
 
-      image = ::MiniMagick::Image.new(path_to_tempfile)
-      colorspace = { ImColorSpace: image.data.dig('colorspace') }
-      exif_data = MiniExiftool.new(path_to_tempfile, { replace_invalid_chars: true })
-      exif_data
+      image = ::MiniMagick::Image.new(tempfile.path, tempfile)
+      exif_data = MiniExiftool.new(tempfile, { replace_invalid_chars: true })
+      exif_data = exif_data
         .to_hash
         .transform_values { |value| value.is_a?(String) ? value.delete("\u0000") : value }
-        .merge!(colorspace)
+      exif_data['ImColorSpace'] = image.colorspace.to_s.gsub(/.*class|alpha/i, '').strip
+
+      tempfile.rewind
+
+      exif_data
     end
 
     def set_duplicate_hash

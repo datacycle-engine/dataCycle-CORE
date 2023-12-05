@@ -364,9 +364,23 @@
     padding-top: 1rem;
     margin: 0 !important;
 
+    .opening-time-validity-period {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      display: flex;
+      max-width: 100%;
+      gap: 0.3rem;
+      flex-flow: row nowrap;
+    }
+
     .opening-time-ex-times {
       color: var(--dark-gray);
       font-size: 0.9rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+      white-space: nowrap;
     }
 
     .opening-time-opening-hours {

@@ -13,27 +13,24 @@ module DataCycleCore
         key = key.to_sym if symbolize_keys
         value = parse_json_string(value) if value.is_a?(String)
 
-        if resolve_instances && value.is_a?(::Hash) && value.key?('id') && value.key?('class')
-          next unless defined?(value['class'])
-
-          class_name = value['class'].safe_constantize
-          return_hash[key] = class_name.find_by(class_name.primary_key => value['id'])
-        elsif resolve_instances && value.is_a?(::Hash) && value.key?('attributes') && value.key?('class')
-          return_hash[key] = value['class'].safe_constantize.new(value['attributes']) if defined?(value['class'])
-        elsif resolve_instances && value.is_a?(::Hash) && value.key?('ids') && value.key?('class')
-          if defined?(value['class'])
-            return_hash[key] = value['class']
-              .safe_constantize
-              .where(id: value['ids'])
-              .order(
-                [
-                  Arel.sql("array_position(ARRAY[?]::uuid[], #{value['class'].safe_constantize.table_name}.id)"),
-                  value['ids']
-                ]
-              )
+        if resolve_instances && value.is_a?(::Hash) && value.key?('class') && !(class_name = value['class'].classify.safe_constantize).nil?
+          if value.key?(class_name.try(:primary_key)) && value[:type] == 'Collection'
+            return_hash[key] = class_name.where(id: value[class_name.primary_key])
+            .order(
+              [
+                Arel.sql("array_position(ARRAY[?]::uuid[], #{class_name.table_name}.id)"),
+                value[class_name.primary_key]
+              ]
+            )
+          elsif value.key?(class_name.try(:primary_key))
+            return_hash[key] = class_name.find_by(class_name.primary_key => value[class_name.primary_key])
+          elsif value.key?('attributes')
+            return_hash[key] = class_name.new(resolve_params(value['attributes'], resolve_instances, false).with_indifferent_access)
+          elsif value.except('class').present?
+            return_hash[key] = value
           end
         elsif value.is_a?(::Hash) && value.key?('value') && value.key?('class')
-          return_hash[key] = value['class'].safe_constantize.new(value['value'])
+          return_hash[key] = value['class'].classify.safe_constantize.new(value['value'])
         elsif value.is_a?(::Hash) && value.key?('class') && value.except('class').blank?
           return_hash[key] = nil
         elsif value.is_a?(::Hash)

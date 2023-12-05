@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'jsonpath'
 module DataCycleCore
   module Generic
     module Common
@@ -8,10 +9,10 @@ module DataCycleCore
 
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.import_contents(
-            utility_object: utility_object,
+            utility_object:,
             iterator: method(:load_contents).to_proc,
             data_processor: method(:process_content).to_proc,
-            options: options
+            options:
           )
         end
 
@@ -35,12 +36,20 @@ module DataCycleCore
             Array.wrap(options.dig(:import, :nested_contents)).each do |nested_contents_config|
               transformation = options[:transformations].constantize.method(nested_contents_config[:transformation])
 
-              Array.wrap(resolve_attribute_path(raw_data, nested_contents_config[:path])).each do |nested_data|
+              nested_content_filter_module = nested_contents_config.dig(:filter, :module)
+              nested_content_filter_method = nested_contents_config.dig(:filter, :method)
+
+              if nested_contents_config.dig(:json_path).present?
+                nested_contents_items = JsonPath.new(nested_contents_config.dig(:json_path)).on(raw_data).flatten
+              else
+                nested_contents_items = resolve_attribute_path(raw_data, nested_contents_config[:path])
+              end
+
+              Array.wrap(nested_contents_items).each do |nested_data|
                 next if nested_contents_config[:exists].present? && Array.wrap(nested_contents_config[:exists]).map { |path| resolve_attribute_path(nested_data, path).blank? }.inject(:|)
+                next if nested_content_filter_module && nested_content_filter_method && !nested_content_filter_module.constantize.method(nested_content_filter_method).call(nested_data)
 
-                # ap transformation.call(utility_object.external_source.id).call(nested_data)
-
-                nested_content_config = nested_contents_config.except(:exists, :path, :template, :transformation)
+                nested_content_config = nested_contents_config.except(:exists, :path, :json_path, :template, :transformation)
                 raw_data = raw_data.merge(options.dig(:import, :main_content, :data)) if options.dig(:import, :main_content, :data).present?
                 process_single_content(utility_object, nested_contents_config[:template], transformation, nested_data, nested_content_config)
               end
@@ -62,11 +71,11 @@ module DataCycleCore
           return if raw_data.keys.size == 1 && raw_data.keys.first.in?(['id', '@id'])
 
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
-            utility_object: utility_object,
-            raw_data: raw_data,
+            utility_object:,
+            raw_data:,
             transformation: transformation.call(transformation.parameters.dig(0, 1).to_s.end_with?('_id') ? utility_object.external_source.id : utility_object.external_source),
             default: { template: template_name },
-            config: config
+            config:
           )
         end
       end

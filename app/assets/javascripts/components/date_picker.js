@@ -71,8 +71,16 @@ class DatePicker {
 			fixTimeElementValueUpdate: this.fixTimeElementValueUpdate.bind(this),
 		};
 		this.cacheNamespace = "dcDatepickerCache";
+		this.isDateTime = this.elementIsDateTime(this.element);
+		this.element.dataset.isDateTime = this.isDateTime;
 
 		this.setup();
+	}
+	elementIsDateTime(element) {
+		return Object.hasOwn(element.dataset, "isDateTime")
+			? domElementHelpers.parseDataAttribute(element.dataset.isDateTime)
+			: element.getAttribute("type") === "datetime-local" &&
+					element.dataset.disableTime !== "true";
 	}
 	setup() {
 		this.setCalType();
@@ -206,18 +214,35 @@ class DatePicker {
 		if (this.calType === "single" || !this.sibling || !this.sibling._flatpickr)
 			return;
 
-		this.sibling._flatpickr.set(
-			this.calType === "start" ? "minDate" : "maxDate",
-			dateStr,
+		const option = this.calType === "start" ? "minDate" : "maxDate";
+		const date = this.transformDateForSibling(
+			Flatpickr.parseDate(dateStr),
+			option,
 		);
+
+		if (!date) return this.sibling._flatpickr.set(option, null);
+
+		this.sibling._flatpickr.set(option, date);
 	}
 	getLimitFromSibling() {
-		if (this.calType === "single" || !this.sibling) return;
+		if (this.calType === "single" || !this.sibling || !this.calInstance) return;
 
-		this.calInstance.set(
-			this.calType === "start" ? "maxDate" : "minDate",
-			this.sibling.value,
+		const option = this.calType === "start" ? "maxDate" : "minDate";
+		const date = this.transformDateForSibling(
+			Flatpickr.parseDate(this.sibling.value),
+			option,
 		);
+
+		this.calInstance.set(option, date);
+	}
+	transformDateForSibling(date, option) {
+		if (!date) return date;
+		if (this.isDateTime === this.elementIsDateTime(this.sibling)) return date;
+
+		if (option === "maxDate") date.setHours(23, 59, 59);
+		else date.setHours(0, 0, 0);
+
+		return date;
 	}
 	async loadHolidays(year) {
 		const promise = DataCycle.httpRequest("/holidays", {
@@ -261,12 +286,10 @@ class DatePicker {
 	options() {
 		const options = Object.assign({}, this.defaultOptions);
 
-		if (
-			(this.element.getAttribute("type") === "datetime-local" &&
-				this.element.dataset.disableTime !== "true") ||
-			this.configs?.enableTime
-		)
+		if (this.isDateTime || this.configs?.enableTime) {
+			this.isDateTime = true;
 			Object.assign(options, this.dateTimeOptions);
+		}
 
 		if (this.element.dataset.type === "timepicker")
 			Object.assign(options, this.timeOptions);

@@ -235,8 +235,8 @@ class DashboardFilter {
 
 		const mode = $(event.currentTarget).val();
 		const $valueSelectors = $(event.currentTarget)
-			.closest(".advanced-filter.conditional-value-selector ")
-			.find(".advanced-filter-selector select");
+			.closest(".advanced-filter.conditional-value-selector")
+			.find(".advanced-filter-selector [data-active-for]");
 
 		$valueSelectors.attr("disabled", function (_i, _attribute) {
 			return !this.dataset.activeFor?.includes(mode);

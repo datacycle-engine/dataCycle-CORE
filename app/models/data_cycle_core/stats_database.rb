@@ -127,16 +127,16 @@ module DataCycleCore
       last_import_class = 'primary-color' if last_import_class == 'alert-color' && last_download_class != 'primary-color' && Delayed::Job.where("delayed_reference_type ILIKE '%import%'").where(queue: 'importers', delayed_reference_id: external_source.id, failed_at: nil).where.not(locked_by: nil).exists?
 
       {
-        last_download: last_download,
-        last_download_time: last_download_time,
-        last_import: last_import,
-        last_import_time: last_import_time,
-        last_successful_download: last_successful_download,
-        last_successful_download_time: last_successful_download_time,
-        last_successful_import: last_successful_import,
-        last_successful_import_time: last_successful_import_time,
-        last_download_class: last_download_class,
-        last_import_class: last_import_class
+        last_download:,
+        last_download_time:,
+        last_import:,
+        last_import_time:,
+        last_successful_download:,
+        last_successful_download_time:,
+        last_successful_import:,
+        last_successful_import_time:,
+        last_download_class:,
+        last_import_class:
       }
     end
 

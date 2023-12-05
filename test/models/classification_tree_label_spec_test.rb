@@ -53,6 +53,7 @@ describe DataCycleCore::ClassificationTreeLabel do
     tree_one.create_classification_alias('CLASSIFICATION I', 'CLASSIFICATION I - A', 'CLASSIFICATION I - A - 1')
 
     classification_aliases = tree_one.classification_aliases.roots
+
     assert(classification_aliases.size, 1)
     assert(classification_aliases.first.name, 'CLASSIFICATION I')
 
@@ -60,6 +61,7 @@ describe DataCycleCore::ClassificationTreeLabel do
     assert(classification_aliases.first.classifications.first.name, 'CLASSIFICATION I')
 
     classification_aliases = classification_aliases.first.sub_classification_alias
+
     assert(classification_aliases.size, 1)
     assert(classification_aliases.first.name, 'CLASSIFICATION I - A')
 
@@ -67,6 +69,7 @@ describe DataCycleCore::ClassificationTreeLabel do
     assert(classification_aliases.first.classifications.first.name, 'CLASSIFICATION I - A')
 
     classification_aliases = classification_aliases.first.sub_classification_alias
+
     assert(classification_aliases.size, 1)
     assert(classification_aliases.first.name, 'CLASSIFICATION I - A - 1')
 
@@ -77,7 +80,7 @@ describe DataCycleCore::ClassificationTreeLabel do
   it 'should create nested classifications with external sources and keys' do
     classification_attributes = {
       name: 'CLASSIFICATION 1',
-      external_source: external_source,
+      external_source:,
       external_key: '1234'
     }
     tree_one.create_classification_alias(classification_attributes)
@@ -96,6 +99,7 @@ describe DataCycleCore::ClassificationTreeLabel do
     tree_one.create_classification_alias('CLASSIFICATION I', 'CLASSIFICATION I')
 
     classification_aliases = tree_one.classification_aliases.roots
+
     assert(classification_aliases.size, 1)
     assert(classification_aliases.first.name, 'CLASSIFICATION I')
 
@@ -103,6 +107,7 @@ describe DataCycleCore::ClassificationTreeLabel do
     assert(classification_aliases.first.classifications.first.name, 'CLASSIFICATION I')
 
     classification_aliases = classification_aliases.first.sub_classification_alias
+
     assert(classification_aliases.size, 1)
     assert(classification_aliases.first.name, 'CLASSIFICATION I')
 
@@ -124,8 +129,50 @@ describe DataCycleCore::ClassificationTreeLabel do
   it 'should return newly created alias' do
     classification_alias = tree_one.create_classification_alias('CLASSIFICATION I', 'CLASSIFICATION I - A')
 
-    assert_equal(classification_alias.new_record?, false)
-    assert(classification_alias.present?)
+    assert_equal(false, classification_alias.new_record?)
+    assert_predicate(classification_alias, :present?)
     assert(classification_alias.name, 'CLASSIFICATION I - A')
+  end
+
+  it 'create new classifications with insert_all_classifications_by_path' do
+    classification_attributes = lambda { |key|
+      {
+        name: "CLASSIFICATION #{key}",
+        external_source:,
+        external_key: SecureRandom.uuid,
+        uri: SecureRandom.uuid
+      }
+    }
+    tree_one.create_classification_alias(classification_attributes.call('I'), classification_attributes.call('I - A'))
+    tree_one.create_classification_alias(classification_attributes.call('I'), classification_attributes.call('I - A'))
+    tree_one.create_classification_alias(classification_attributes.call('I'), classification_attributes.call('I - A'))
+    tree_one.create_classification_alias(classification_attributes.call('II'), classification_attributes.call('II - A'))
+    tree_one.create_classification_alias(classification_attributes.call('II'), classification_attributes.call('II - A'))
+    tree_one.create_classification_alias(classification_attributes.call('II'), classification_attributes.call('II - A'))
+
+    classifications = tree_one
+      .classification_aliases
+      .preload(:classification_alias_path, :primary_classification)
+      .group_by { |ca| ca.classification_alias_path&.full_path_names&.reverse&.drop(1) }
+      .map do |k, v|
+        {
+          name: k.last,
+          full_path_names: k.reverse + [tree_two.name],
+          classification_ids: v.flat_map(&:primary_classification).pluck(:id).uniq
+        }
+      end
+
+    tree_two.insert_all_classifications_by_path(classifications)
+
+    assert_equal(12, tree_one.classification_aliases.size)
+    assert_equal(4, tree_two.classification_aliases.size)
+
+    tree_two.classification_aliases.each do |ca|
+      assert_equal(4, ca.classifications.size)
+
+      ca.classifications.each do |c|
+        assert_equal(ca.internal_name, c.name)
+      end
+    end
   end
 end

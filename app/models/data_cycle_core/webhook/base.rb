@@ -8,19 +8,19 @@ module DataCycleCore
         get_webhooks_for(action, data).each do |external_system, webhook|
           execute(external_system, webhook, data, action)
         rescue SystemStackError => e
-          ActiveSupport::Notifications.instrument 'webhooks_failed.datacycle', this: {
+          ActiveSupport::Notifications.instrument 'webhooks_failed.datacycle', {
             exception: e,
-            action: action,
+            action:,
             payload: data
           }
         end
       end
 
       def self.execute(external_system, webhook, data, action)
-        utility_object = DataCycleCore::Export::PushObject.new(external_system: external_system)
+        utility_object = DataCycleCore::Export::PushObject.new(external_system:)
         init_logging(utility_object) do |logging|
           logging.info("Webhook: #{action} | #{external_system.name} | #{webhook}", data.id)
-          webhook.process(utility_object: utility_object, data: data)
+          webhook.process(utility_object:, data:)
         end
       end
 
@@ -37,8 +37,8 @@ module DataCycleCore
       end
 
       def self.validate_webhook(external_system, action, data)
-        webhook = external_system.export_config.dig(action.to_sym)&.symbolize_keys
-        return unless webhook&.dig(:strategy)
+        webhook = external_system.export_config&.dig(action.to_sym)&.symbolize_keys
+        return if webhook&.dig(:strategy).blank?
 
         export_class = webhook.dig(:strategy).constantize
         return [external_system, export_class] if data&.model_name&.in?(Array(external_system.export_config.dig(:allowed_models) || 'DataCycleCore::Thing')) && export_class.filter(data, external_system)

@@ -31,11 +31,14 @@ module DataCycleCore
     end
 
     def is_valid?
-      !valid_from.presence&.>(Time.zone.now.round) && !valid_until.presence&.<(Time.zone.now.round)
+      now = Time.zone.now.round
+      (valid_from.nil? || valid_from <= now) && (valid_until.nil? || valid_until >= now)
     end
 
     def self.valid_stored_filters
-      DataCycleCore::StoredFilter.where(id: all.where(item_type: 'DataCycleCore::StoredFilter').valid.pluck(:item_id))
+      return DataCycleCore::StoredFilter.none if all.is_a?(ActiveRecord::NullRelation)
+
+      DataCycleCore::StoredFilter.where(id: where(item_type: 'DataCycleCore::StoredFilter').valid.pluck(:item_id))
     end
 
     def self.user_id_from_creators(users)

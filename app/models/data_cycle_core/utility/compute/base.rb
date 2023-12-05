@@ -24,9 +24,9 @@ module DataCycleCore
 
             data_hash[key] = method_name.call(
               computed_parameters: computed_parameters.index_with { |v| computed_value_hash[v] },
-              key: key,
+              key:,
               data_hash: computed_value_hash,
-              content: content,
+              content:,
               computed_definition: properties
             )
 
@@ -61,7 +61,7 @@ module DataCycleCore
                     when 'I18n'
                       I18n.send(definition['name'])
                     when 'content'
-                      content.send(definition['name'])
+                      definition['name']&.split('.')&.inject(content, &:try)
                     else
                       raise 'Unknown type for validation'
                     end

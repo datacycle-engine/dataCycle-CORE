@@ -24,13 +24,13 @@ module DataCycleCore
       if translation_object.key?(:path)
         I18n.t(
           translation_object[:path],
-          **substitutions.merge(locale: locale)
+          **substitutions.merge(locale:)
         )
       elsif translation_object.key?(:method)
         view_helpers.send(
           translation_object[:method],
           *Array.wrap(translation_object[:value]),
-          **substitutions.merge(locale: locale)
+          **substitutions.merge(locale:)
         )
       else
         translation_object.transform_values do |value|

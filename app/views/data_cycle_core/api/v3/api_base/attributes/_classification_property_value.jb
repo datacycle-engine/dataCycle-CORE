@@ -6,7 +6,7 @@ unless @mode_parameters.include?('compact')
   classification_aliases = content.send(key).includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
   if classification_aliases.present?
 
-    property_header = render "data_cycle_core/api/v#{@api_version}/api_base/headers/property_value", key: key, definition: definition
+    property_header = render("data_cycle_core/api/v#{@api_version}/api_base/headers/property_value", key:, definition:)
 
     json['valueReference'] = classification_aliases.map do |classification_alias|
       {

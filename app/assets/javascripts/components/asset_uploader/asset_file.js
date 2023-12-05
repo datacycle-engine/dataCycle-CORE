@@ -20,6 +20,7 @@ class AssetFile {
 		this.attributeFieldsValidated = false;
 		this.fileField;
 		this.fileFormField;
+		this.uploading = false;
 		this.valid = {
 			valid: false,
 		};
@@ -216,15 +217,16 @@ class AssetFile {
 		}
 	}
 	renderAttributeHtml(attribute, value = "") {
-		if (attribute.type === "datetime" && value && value.length) {
-			value = new Date(value).toLocaleDateString();
+		let v = value;
+		if (attribute.type === "datetime" && v && v.length) {
+			v = new Date(v).toLocaleDateString();
 		}
 
 		const label = attribute.label;
 
 		return `<span class="file-label" title="${label}">${label}</span><span class="file-attribute-value" title="${$(
-			`<span>${value}</span>`,
-		).text()}">${value}</span>`;
+			`<span>${v}</span>`,
+		).text()}">${v}</span>`;
 	}
 	async validateAttributes() {
 		if (this.uploader.showNewForm && !this.attributeFieldValues?.length) {
@@ -333,14 +335,15 @@ class AssetFile {
 		this.fileField.find(".cancel-upload-button").trigger("click");
 	}
 	_updateIdsInClonedErrors(errorText) {
+		let text = errorText;
 		const randomId = DomElementHelpers.randomId("cloned_asset");
 
-		errorText = errorText.replaceAll(
+		text = text.replaceAll(
 			/(")([^"-]*)(-duplicates-list)/gi,
 			`$1${randomId}$3`,
 		);
 
-		return errorText;
+		return text;
 	}
 	_renderErrorHtml(cssClass, message) {
 		const fileInfoField = this.fileField.find(".file-info");
@@ -387,7 +390,7 @@ class AssetFile {
 		const data_hash = {};
 		data_hash[this.uploader.assetKey] = this.assetId();
 
-		DataCycle.httpRequest("/things/attribute_default_value", {
+		const promise = DataCycle.httpRequest("/things/attribute_default_value", {
 			method: "POST",
 			body: {
 				locale: this.uploader.locale,
@@ -395,7 +398,9 @@ class AssetFile {
 				keys: this._attributesWithBlankDefaultValues(),
 				data_hash: data_hash,
 			},
-		})
+		});
+
+		promise
 			.then((data) => {
 				const blankValues = this._attributesWithBlankDefaultValues();
 				const defaultValues = Object.fromEntries(
@@ -411,6 +416,8 @@ class AssetFile {
 			.catch((e) => {
 				if (e.status !== 404) console.error(e.statusText);
 			});
+
+		return promise;
 	}
 	_renderEditOverlay() {
 		this.uploader.remoteOptions.search_required = false;
@@ -463,7 +470,6 @@ class AssetFile {
 	}
 	async _updateFileAttributes(data) {
 		this.retryUpload = false;
-		let error = null;
 
 		this.fileField
 			.add(this.fileFormField)
@@ -473,7 +479,7 @@ class AssetFile {
 		if (data.error) {
 			this._resetFileField();
 			this._renderError(data.error);
-			error = data.error;
+			this.errors = data.error;
 		} else if (
 			!this.uploader.createDuplicates &&
 			data.duplicateCandidates &&
@@ -483,7 +489,7 @@ class AssetFile {
 			this._renderError(
 				await this._renderDuplicateHtml(data.duplicateCandidates),
 			);
-			error = await I18n.translate("frontend.upload.found_duplicate");
+			this.errors = await I18n.translate("frontend.upload.found_duplicate");
 		} else {
 			if (data.duplicateCandidates?.length)
 				this._renderErrorHtml(
@@ -501,14 +507,15 @@ class AssetFile {
 				.find(".upload-number")
 				.html(await I18n.translate("frontend.upload.uploaded_successfully"));
 			this.asset = Object.assign({}, this.asset, data);
-			if (!this.uploader.showNewForm) this.updateValidated({});
-			else this.validateAttributes();
-
-			this._loadDefaultValues();
-			this._initEditForm();
+			if (!this.uploader.showNewForm) {
+				this.updateValidated({});
+			} else {
+				this._loadDefaultValues();
+				this._initEditForm();
+			}
 		}
 
-		this.uploader.updateCreateButton(error);
+		this.uploader.updateCreateButton(this.errors);
 	}
 	async updateProgress(startTime, e) {
 		if (!e.lengthComputable) return;
@@ -551,6 +558,7 @@ class AssetFile {
 		if (this.uploaded)
 			return this._updateFileAttributes(this.dataImported || {});
 
+		this.uploading = true;
 		this.uploader.uploadForm.find(".upload-file").attr("disabled", true);
 		DataCycle.disableElement(this.uploader.assetReloadButton);
 
@@ -591,24 +599,30 @@ class AssetFile {
 		});
 
 		promise
-			.then((data) => {
+			.then(async (data) => {
 				if (!document.querySelector(`[data-id="${this.id}"]`)) return;
 
-				this._updateFileAttributes(data);
+				await this._updateFileAttributes(data);
 			})
-			.catch((data) => {
-				if (!document.querySelector(`[data-id="${this.id}"]`)) return;
+			.catch(async (data) => {
+				if (!document.querySelector(`[data-id="${this.id}"]`)) {
+					this.errors = "already removed";
+					return;
+				}
 
 				this.retryUpload = true;
 				this._resetFileField();
 				let error = data.statusText;
 				if (data?.responseJSON?.error) error = data.responseJSON.error;
-				this._renderError(error);
+				this.errors = error;
+				await this._renderError(error);
 			})
 			.finally(() => {
 				if (!document.querySelector(`[data-id="${this.id}"]`)) return;
 
 				this._updateOverlayButtons();
+				this.uploading = false;
+				this.uploader.startNextFileUpload();
 				DataCycle.enableElement(this.uploader.assetReloadButton);
 			});
 
@@ -714,7 +728,7 @@ class AssetFile {
 		}
 		this._renderFileField();
 
-		if (!this.errors) this._uploadFile();
+		if (this.uploaded) this._updateFileAttributes(this.dataImported || {});
 	}
 	_retryUpload(event) {
 		event.preventDefault();

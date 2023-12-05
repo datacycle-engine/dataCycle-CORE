@@ -20,7 +20,12 @@
         class: 'async-select',
         data: {
           max: 20,
-          placeholder: '',
+          placeholder: t(
+            'filter.relation_filter.placeholder.collection_or_stored_filter',
+            collection: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale),
+            stored_filter: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: active_ui_locale),
+            locale: active_ui_locale
+          ),
           search_path: select_search_or_collection_stored_filters_path
         }
       }) %>

@@ -20,7 +20,7 @@ module DataCycleCore
       ].reject(&:blank?)
 
       xml_partials_prefix = "data_cycle_core/xml/v#{xml_version}/xml_base/attributes/"
-      return first_existing_xml_partial(partials, xml_partials_prefix), parameters.merge({ key: key, definition: definition, value: value, content: content, cache: true })
+      return first_existing_xml_partial(partials, xml_partials_prefix), parameters.merge({ key:, definition:, value:, content:, cache: true })
     end
 
     def content_partial(partial, parameters)

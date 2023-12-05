@@ -10,7 +10,7 @@ module DataCycleCore
 
             data_hash.merge(
               {
-                attribute => find_thing_ids(external_system_id: external_source_id, external_key: key_function.call(data_hash), content_type: content_type, limit: 1).presence
+                attribute => find_thing_ids(external_system_id: external_source_id, external_key: key_function.call(data_hash), content_type:, limit: 1).presence
               }
             )
           end
@@ -22,7 +22,7 @@ module DataCycleCore
 
             data_hash.merge(
               {
-                attribute => find_thing_ids(external_system_id: external_source_id, external_key: key_function_values, content_type: content_type)
+                attribute => find_thing_ids(external_system_id: external_source_id, external_key: key_function_values, content_type:)
               }
             )
           end
@@ -33,7 +33,7 @@ module DataCycleCore
 
           def self.universal_classifications(data_hash, function)
             data_hash['universal_classifications'] ||= []
-            data_hash['universal_classifications'] += (function.call(data_hash) || [])
+            data_hash['universal_classifications'] += function.call(data_hash) || []
             data_hash
           end
 
@@ -43,7 +43,7 @@ module DataCycleCore
             if data_hash[attribute].blank?
               data_hash[attribute] = []
             else
-              data_hash[attribute] = DataCycleCore::Classification.where(external_source_id: external_source_id, external_key: data_hash[attribute].map { |a| "#{external_prefix}#{a}" }).pluck(:id)
+              data_hash[attribute] = DataCycleCore::Classification.where(external_source_id:, external_key: data_hash[attribute].map { |a| "#{external_prefix}#{a}" }).pluck(:id)
             end
 
             data_hash
@@ -66,7 +66,7 @@ module DataCycleCore
                 attribute =>
                   data_list.call(data_hash)&.map { |item_data|
                     search_params = {
-                      external_source_id: external_source_id,
+                      external_source_id:,
                       external_key: external_prefix + item_data.dig(key)
                     }
                     DataCycleCore::Classification.find_by(search_params)&.id
@@ -80,7 +80,7 @@ module DataCycleCore
               {
                 attribute => [
                   DataCycleCore::Classification.find_by(
-                    external_source_id: external_source_id, external_key: external_key.call(data_hash)
+                    external_source_id:, external_key: external_key.call(data_hash)
                   )&.id
                 ].compact.presence
               }
@@ -107,7 +107,7 @@ module DataCycleCore
                   ]
                 )
             else
-              query = content_type.where(external_source_id: external_system_id, external_key: external_key).order(
+              query = content_type.where(external_source_id: external_system_id, external_key:).order(
                 [
                   Arel.sql("array_position(ARRAY[?]::varchar[], #{content_type.table_name}.external_key::varchar)"),
                   external_key

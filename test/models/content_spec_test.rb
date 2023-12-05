@@ -13,12 +13,12 @@ module SharedExamplesForContent
           property: {
             label: 'property',
             type: 'string',
-            storage_location: storage_location
+            storage_location:
           },
           existing_property: {
             label: 'existing property',
             type: 'string',
-            storage_location: storage_location
+            storage_location:
           }
         }
       }
@@ -50,7 +50,7 @@ module SharedExamplesForContent
           property: {
             label: 'property',
             type: 'string',
-            storage_location: storage_location
+            storage_location:
           }
         }
       }

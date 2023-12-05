@@ -36,7 +36,7 @@ module DataCycleCore
             assert_response :unprocessable_entity
 
             assert response.content_type.include?('application/json')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert json_data.dig('errors', 'confirmation_token').present?
           end
 
@@ -50,7 +50,7 @@ module DataCycleCore
             assert_response :unprocessable_entity
 
             assert response.content_type.include?('application/json')
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert json_data.dig('errors', 'confirmation_token').present?
           end
 

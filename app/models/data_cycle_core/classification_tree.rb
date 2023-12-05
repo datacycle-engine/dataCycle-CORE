@@ -16,16 +16,16 @@ module DataCycleCore
     def parent
       ClassificationTree.find_by(
         classification_alias_id: parent_classification_alias_id,
-        external_source_id: external_source_id,
-        classification_tree_label_id: classification_tree_label_id
+        external_source_id:,
+        classification_tree_label_id:
       )
     end
 
     def children
       ClassificationTree.where(
         parent_classification_alias_id: classification_alias_id,
-        external_source_id: external_source_id,
-        classification_tree_label_id: classification_tree_label_id
+        external_source_id:,
+        classification_tree_label_id:
       )
     end
 

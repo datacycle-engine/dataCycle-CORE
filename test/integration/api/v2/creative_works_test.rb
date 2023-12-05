@@ -19,7 +19,7 @@ module DataCycleCore
           post things_path, params: {
             thing: {
               datahash: {
-                name: name
+                name:
               }
             },
             table: 'things',
@@ -28,13 +28,13 @@ module DataCycleCore
           }
           assert_equal 'Artikel wurde erfolgreich erstellt.', flash[:success]
 
-          content = DataCycleCore::Thing.where_translated_value(name: name).first
+          content = DataCycleCore::Thing.where_translated_value(name:).first
 
           get api_v2_thing_path(id: content)
 
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_equal name, json_data['headline']
         end
       end

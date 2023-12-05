@@ -34,7 +34,7 @@ module DataCycleCore
             }
 
             post api_v4_classification_trees_by_external_key_path(params)
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(1, json_data['@graph'].size)
             assert_equal(@external_system.identifier, json_data.dig('@graph', 0, 'identifier', 0, 'propertyID'))
@@ -53,7 +53,7 @@ module DataCycleCore
             }
 
             post api_v4_classification_trees_by_external_key_path(params)
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
 
             assert_equal(@external_keys.size, json_data['@graph'].size)
             json_data['@graph'].each do |item|

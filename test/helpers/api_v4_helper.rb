@@ -19,10 +19,10 @@ module DataCycleCore
 
     def header_name(thing, languages = 'de')
       language_arr = languages.split(',')
-      return (thing.title || thing.template_name) if language_arr.size == 1
+      return thing.title || thing.template_name if language_arr.size == 1
       language_arr.map! do |lang|
         I18n.with_locale(lang) do
-          { '@language' => I18n.locale.to_s, '@value' => (thing.title || thing.template_name) }
+          { '@language' => I18n.locale.to_s, '@value' => thing.title || thing.template_name }
         end
       end
     end

@@ -10,8 +10,8 @@
                                 value: o_value,
                                 parameters: {
                                   parent: value,
-                                  diff_target: diff_target_by_key(local_assigns),
-                                  options: object_viewer_history_options(local_assigns.merge({ object: value, key: o_key }))
+                                  diff_target: diff_target_by_key(**local_assigns),
+                                  options: object_viewer_history_options(**local_assigns.merge({ object: value, key: o_key }))
                                 },
                                 content: content unless o_value.nil? %>
   <% end %>

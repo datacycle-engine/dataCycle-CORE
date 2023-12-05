@@ -50,12 +50,12 @@
           <div class="detail-content detail-content-wrapper">
             <div class="row align-center">
               <div class="type properties">
-                <% ordered_validation_properties(validation: @diff_source.schema, scope: :show, exclude_types: ['timeseries']).each do |key, prop| %>
+                <% ordered_validation_properties(validation: @diff_source.schema, scope: :show, exclude_types: ['timeseries'], exclude_keys: @diff_source.virtual_property_names).each do |key, prop| %>
                   <%= render_attribute_viewer key: key,
                                               definition: prop,
                                               value: @diff_source.try(key.to_sym),
                                               parameters: {
-                                                options: object_viewer_history_options({
+                                                options: object_viewer_history_options(**{
                                                   object: @diff_source,
                                                   key: key,
                                                   options: { compare: true, force_render: true }.stringify_keys,

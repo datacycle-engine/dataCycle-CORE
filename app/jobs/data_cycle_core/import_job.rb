@@ -13,7 +13,7 @@ module DataCycleCore
       job_record.delayed_reference_id = @arguments.first
       store_job_id_to_external_source = ExternalSystem.find(job_record.delayed_reference_id)
       if store_job_id_to_external_source.config.nil?
-        store_job_id_to_external_source.config = { 'last_download_import_job_id' => @provider_job_id, 'last_import_failed' => false, 'last_download_job_id' => @provider_job_id }
+        store_job_id_to_external_source.config = { 'last_download_import_job_id' => @provider_job_id, 'last_download_import_failed' => false, 'last_download_job_id' => @provider_job_id }
       else
         store_job_id_to_external_source.config['last_download_import_job_id'] = @provider_job_id
         store_job_id_to_external_source.config['last_download_import_failed'] = false
@@ -44,7 +44,7 @@ module DataCycleCore
 
         external_source.import(options) if success
       rescue StandardError => e
-        ActiveSupport::Notifications.instrument "#{self.class.name.demodulize.underscore}_failed.datacycle", this: {
+        ActiveSupport::Notifications.instrument "#{self.class.name.demodulize.underscore}_failed.datacycle", {
           exception: e,
           external_system: external_source
         }
@@ -56,7 +56,7 @@ module DataCycleCore
 
       external_source.reload
       ActiveRecord::Base.establish_connection
-      raise external_source.config.dig('last_download_import_exception') if external_source.config.dig('last_import_failed')
+      raise external_source.config.dig('last_download_import_exception') if external_source.config.dig('last_download_import_failed')
     end
   end
 end

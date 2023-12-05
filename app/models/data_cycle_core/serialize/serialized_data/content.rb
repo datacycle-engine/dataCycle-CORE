@@ -20,7 +20,7 @@ module DataCycleCore
           return if data_url.blank?
 
           uri = URI.parse(data_url)
-          uri.hostname = 'nginx' if Rails.env.development?
+          uri.hostname = 'nginx' if Rails.env.development? && uri.hostname == Rails.configuration.action_mailer&.default_url_options&.dig(:host)
           uri
         rescue URI::InvalidURIError
           nil
@@ -83,17 +83,17 @@ module DataCycleCore
           data.try(:record)
         end
 
-        def stream_data(&block)
+        def stream_data(&)
           if local_file?
             yield(data&.read)
           elsif active_storage?
-            data&.blob&.download(&block)
+            data&.blob&.download(&)
           elsif remote?
-            load_remote_file(&block)
+            load_remote_file(&)
           elsif data.is_a?(Proc)
             yield(data.call)
           elsif enumerator?
-            @data.each(&block)
+            @data.each(&)
           else
             yield(data)
           end

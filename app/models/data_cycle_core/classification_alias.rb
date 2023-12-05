@@ -137,7 +137,7 @@ module DataCycleCore
     def self.order_by_similarity(term)
       term = ActiveRecord::Base.connection.quote(term)
 
-      max_cardinality = Path.all.pluck(Arel.sql('MAX(CARDINALITY(full_path_names))')).max
+      max_cardinality = Path.pluck(Arel.sql('MAX(CARDINALITY(full_path_names))')).max
 
       joins(:classification_alias_path).reorder(nil).order(
         Arel.sql(
@@ -149,7 +149,9 @@ module DataCycleCore
     end
 
     def self.classification_polygons
-      DataCycleCore::ClassificationPolygon.where(classification_alias_id: all.select(:id))
+      return DataCycleCore::ClassificationPolygon.none if all.is_a?(ActiveRecord::NullRelation)
+
+      DataCycleCore::ClassificationPolygon.where(classification_alias_id: select(:id))
     end
 
     def primary_classification_id
@@ -215,14 +217,13 @@ module DataCycleCore
     end
 
     def self.custom_find_by_full_path(full_path)
-      all
-        .includes(:classification_alias_path)
-        .where(
-          "array_to_string(classification_alias_paths.full_path_names, ' < ') ILIKE ?",
-          full_path.split('>').reverse.map(&:strip).join(' < ')
-        )
-        .references(:classification_alias_paths)
-        .first
+      includes(:classification_alias_path)
+      .where(
+        "array_to_string(classification_alias_paths.full_path_names, ' < ') ILIKE ?",
+        full_path.split('>').reverse.map(&:strip).join(' < ')
+      )
+      .references(:classification_alias_paths)
+      .first
     end
 
     def self.custom_find_by_full_path!(full_path)
@@ -372,7 +373,7 @@ module DataCycleCore
 
     def set_internal_data
       return unless name_i18n_changed? # && internal_name.blank?
-      available_translation = I18n.available_locales.drop_while { |locale| name(locale: locale).blank? }
+      available_translation = I18n.available_locales.drop_while { |locale| name(locale:).blank? }
       return if available_translation.blank?
       self.internal_name = DataCycleCore::MasterData::DataConverter.string_to_string(name(locale: available_translation.first)&.to_s)
     end
@@ -391,7 +392,7 @@ module DataCycleCore
     def search_attributes_changed?
       return @search_attributes_changed if defined? @search_attributes_changed
 
-      @search_attributes_changed = (saved_changes.keys & ['internal_name']).any? ||
+      @search_attributes_changed = saved_changes.keys.intersect?(['internal_name']) ||
                                    saved_changes.dig('name_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
     end
 
@@ -402,7 +403,7 @@ module DataCycleCore
     def webhook_attributes_changed?
       return @webhook_attributes_changed if defined? @webhook_attributes_changed
 
-      @webhook_attributes_changed = (saved_changes.keys & ['internal_name', 'uri']).any? ||
+      @webhook_attributes_changed = saved_changes.keys.intersect?(['internal_name', 'uri']) ||
                                     saved_changes.dig('name_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present? ||
                                     saved_changes.dig('description_i18n')&.map { |attr| attr.reject { |_k, v| v.blank? } }&.reject(&:blank?).present?
     end

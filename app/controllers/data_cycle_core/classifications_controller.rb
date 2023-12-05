@@ -255,7 +255,7 @@ module DataCycleCore
         move_params[:new_parent_alias_id]&.then { |npca| aliases[npca] }
       )
 
-      flash[:success] = I18n.t('classification_administration.move.success', locale: helpers.active_ui_locale)
+      flash.now[:success] = I18n.t('classification_administration.move.success', locale: helpers.active_ui_locale)
 
       render json: flash.discard.to_h
     end
@@ -271,7 +271,7 @@ module DataCycleCore
 
       source_alias.merge_with_children(target_alias)
 
-      flash[:success] = I18n.t('classification_administration.merge.success', locale: helpers.active_ui_locale)
+      flash.now[:success] = I18n.t('classification_administration.merge.success', locale: helpers.active_ui_locale)
 
       render json: flash.discard.to_h
     end

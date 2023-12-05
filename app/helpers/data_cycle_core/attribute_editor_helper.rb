@@ -3,8 +3,8 @@
 module DataCycleCore
   module AttributeEditorHelper
     ATTRIBUTE_DATAHASH_PREFIX = '[datahash]'
-    ATTRIBUTE_DATAHASH_REGEX = Regexp.new(/.*\K(#{Regexp.quote(ATTRIBUTE_DATAHASH_PREFIX)}|\[translations\]\[[^\]]*\])/)
-    ATTRIBUTE_FIELD_PREFIX = "thing#{ATTRIBUTE_DATAHASH_PREFIX}"
+    ATTRIBUTE_DATAHASH_REGEX = /.*\K(#{Regexp.quote(ATTRIBUTE_DATAHASH_PREFIX)}|\[translations\]\[[^\]]*\])/
+    ATTRIBUTE_FIELD_PREFIX = "thing#{ATTRIBUTE_DATAHASH_PREFIX}".freeze
     RENDER_EDITOR_ARGUMENTS = DataCycleCore::AttributeViewerHelper::RENDER_VIEWER_ARGUMENTS.deep_merge({
       parameters: { options: { edit_scope: 'edit' } },
       scope: :edit
@@ -36,9 +36,6 @@ module DataCycleCore
       return if options.type?('slug') && options.parameters[:parent]&.embedded?
       return if options.definition['compute'].present?
       return render('data_cycle_core/contents/editors/attribute_group', options.render_params) if options.type?('attribute_group')
-
-      return render_linked_viewer(**options.to_h.slice(:key, :definition, :value, :parameters, :content)) if options.type?('linked') && options.definition['link_direction'] == 'inverse'
-
       return unless can?(:edit, DataCycleCore::DataAttribute.new(
                                   options.key,
                                   options.definition,
@@ -49,13 +46,15 @@ module DataCycleCore
                                 )) &&
                     (options.content.nil? || options.content&.allowed_feature_attribute?(options.key.attribute_name_from_key))
 
+      return render_linked_viewer(**options.to_h.slice(:key, :definition, :value, :parameters, :content)) if options.type?('linked') && options.definition['link_direction'] == 'inverse'
+
       return if options.type?('classification') && !DataCycleCore::ClassificationService.visible_classification_tree?(options.definition['tree_label'], options.scope.to_s)
 
       true
     end
 
-    def render_attribute_editor(**args)
-      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**args, defaults: RENDER_EDITOR_ARGUMENTS)
+    def render_attribute_editor(**)
+      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**, defaults: RENDER_EDITOR_ARGUMENTS)
 
       options.key = Array.wrap(options.key.is_a?(String) ? options.key.attribute_name_from_key : options.key).map { |k| "[#{k}]" if k != 'properties' }.join.prepend(options.prefix.to_s)
 
@@ -69,8 +68,8 @@ module DataCycleCore
       end
     end
 
-    def render_specific_translatable_attribute_editor(**args)
-      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**args, defaults: RENDER_EDITOR_ARGUMENTS)
+    def render_specific_translatable_attribute_editor(**)
+      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**, defaults: RENDER_EDITOR_ARGUMENTS)
 
       I18n.with_locale(options.locale) do
         content = options.parameters[:parent] || options.content
@@ -83,18 +82,18 @@ module DataCycleCore
         allowed = attribute_editor_allowed(options)
         return allowed unless allowed.is_a?(TrueClass)
 
-        render_untranslatable_attribute_editor options.to_h
+        render_untranslatable_attribute_editor(**options.to_h)
       end
     end
 
-    def render_translatable_attribute_editor(**args)
-      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**args, defaults: RENDER_EDITOR_ARGUMENTS)
+    def render_translatable_attribute_editor(**)
+      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**, defaults: RENDER_EDITOR_ARGUMENTS)
 
       render 'data_cycle_core/contents/editors/translatable_field', options.to_h
     end
 
-    def render_untranslatable_attribute_editor(**args)
-      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**args, defaults: RENDER_EDITOR_ARGUMENTS)
+    def render_untranslatable_attribute_editor(**)
+      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**, defaults: RENDER_EDITOR_ARGUMENTS)
 
       partials = [
         options.definition&.dig('ui', options.parameters.dig(:options, :edit_scope), 'partial').presence,
@@ -129,7 +128,7 @@ module DataCycleCore
       html_classes.push('disabled') unless attribute_editable?(key, definition, options, content)
       html_classes.push('validation-container') if definition.key?('validations')
       html_classes.push(definition.dig('ui', 'edit', 'type')&.underscore) if definition&.dig('ui', options[:edit_scope], 'partial').blank?
-      html_classes.push('is-embedded-title') if parent&.embedded_title_property_name.present? && key.attribute_name_from_key == parent.embedded_title_property_name
+      html_classes.push('is-embedded-title') if parent.is_a?(DataCycleCore::Thing) && parent.embedded_title_property_name.present? && key.attribute_name_from_key == parent.embedded_title_property_name
 
       html_classes.compact_blank!
       html_classes.uniq!
@@ -139,7 +138,7 @@ module DataCycleCore
     def attribute_editor_data_attributes(key:, definition:, options:, content:, **_args)
       {
         label: translated_attribute_label(key, definition, content, options),
-        key: key,
+        key:,
         id: "#{options&.dig(:prefix)}#{sanitize_to_id(key)}"
       }.merge(definition.dig('ui', 'edit', 'data_attributes')&.symbolize_keys&.transform_values { |v| v.is_a?(::Array) || v.is_a?(::Hash) ? v.to_json : v } || {})
     end

@@ -159,7 +159,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(2)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_data['@graph'].each do |res|
               assert('Event', res.dig('@type'))
             end
@@ -204,7 +204,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(2)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_data['@graph'].each do |res|
               assert('Event', res.dig('@type'))
             end
@@ -242,7 +242,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(0)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_data['@graph'].each do |res|
               assert('Event', res.dig('@type'))
             end
@@ -280,7 +280,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(2)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_data['@graph'].each do |res|
               assert('Event', res.dig('@type'))
             end
@@ -325,7 +325,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(2)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             json_data['@graph'].each do |res|
               assert('Event', res.dig('@type'))
             end
@@ -370,7 +370,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(1)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@event_b.id, json_data['@graph'].first.dig('@id'))
 
             # validate linked with 'dct:modified'
@@ -413,7 +413,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(1)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@event_c.id, json_data['@graph'].first.dig('@id'))
             image_test.update_column(:updated_at, orig_ts)
           end

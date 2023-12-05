@@ -14,7 +14,7 @@ module DataCycleCore
               elsif partial_data.is_a?(Hash)
                 partial_data[key]
               elsif partial_data.is_a?(Array)
-                partial_data.flatten.map { |v| v[key] }
+                partial_data.flatten.pluck(key)
               else
                 raise "Invalid class '#{partial_data.class}' for raw data"
               end

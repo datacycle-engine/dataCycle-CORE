@@ -72,7 +72,7 @@ module DataCycleCore
     delegate :can?, :cannot?, to: :ability
 
     after_create :execute_create_webhooks, unless: :skip_callbacks
-    after_update_commit :execute_update_webhooks, if: proc { |u| !u.skip_callbacks && (u.saved_changes.keys & u.allowed_webhook_attributes).present? }
+    after_update_commit :execute_update_webhooks, if: proc { |u| !u.skip_callbacks && u.saved_changes.keys.intersect?(u.allowed_webhook_attributes) }
     after_destroy :execute_delete_webhooks, unless: :skip_callbacks
 
     default_scope { where(deleted_at: nil) }
@@ -155,13 +155,13 @@ module DataCycleCore
     def send_notification(content_ids)
       return if content_ids.blank?
 
-      SubscriptionMailer.notify(self, content_ids).deliver_later
+      DataCycleCore::SubscriptionMailer.notify(self, content_ids).deliver_later
     end
 
     def generate_user_token(refresh_jti = false)
       update_columns(jti: SecureRandom.uuid) if refresh_jti || jti.blank?
 
-      DataCycleCore::JsonWebToken.encode(payload: { user_id: id, jti: jti, original_iss: user_api_feature.current_issuer }.compact_blank)
+      DataCycleCore::JsonWebToken.encode(payload: { user_id: id, jti:, original_iss: user_api_feature.current_issuer }.compact_blank)
     end
 
     def update_with_token(token)
@@ -230,7 +230,7 @@ module DataCycleCore
         id,
         email,
         model_name.param_key,
-        locked? ? "#{full_name} <span class=\"alert-color\"><i class=\"fa fa-ban\"></i> #{self.class.human_attribute_name(deleted? ? :deleted_at : :locked_at, locale: locale)}</span>" : full_name,
+        locked? ? "#{full_name} <span class=\"alert-color\"><i class=\"fa fa-ban\"></i> #{self.class.human_attribute_name(deleted? ? :deleted_at : :locked_at, locale:)}</span>" : full_name,
         disable_locked && locked?
       )
     end
@@ -239,7 +239,7 @@ module DataCycleCore
       transaction(joinable: true) do
         # disable cleanup for now, as performance is seriously impacted
         # activities.where('activities.activity_type = ? AND activities.created_at < ?', type, 3.months.ago).delete_all
-        activities.create(activity_type: type, data: data)
+        activities.create(activity_type: type, data:)
       end
     end
 

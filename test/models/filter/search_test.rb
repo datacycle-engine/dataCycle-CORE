@@ -14,12 +14,12 @@ module DataCycleCore
       create_content('Event', { name: 'DDD', overlay: [{ name: 'EEE' }], sub_event: [{ name: 'FFF' }] })
 
       validity_period = { valid_from: Date.current.to_s, valid_until: Date.current.to_s }
-      multiling = create_content('Artikel', { name: 'XYZ de', validity_period: validity_period })
+      multiling = create_content('Artikel', { name: 'XYZ de', validity_period: })
       multiling.external_source_id = DataCycleCore::ExternalSystem.find_by(identifier: 'remote-system').id
       multiling.created_by = DataCycleCore::User.find_by(email: 'admin@datacycle.at').id
       multiling.save!
       I18n.with_locale(:en) do
-        multiling.set_data_hash(data_hash: { name: 'XYZ en', validity_period: validity_period }.stringify_keys)
+        multiling.set_data_hash(data_hash: { name: 'XYZ en', validity_period: }.stringify_keys)
         multiling.save!
       end
 
@@ -263,7 +263,7 @@ module DataCycleCore
     private
 
     def create_content(template_name, data = {})
-      DataCycleCore::TestPreparations.create_content(template_name: template_name, data_hash: data)
+      DataCycleCore::TestPreparations.create_content(template_name:, data_hash: data)
     end
 
     def get_classification_ids(tree_name, *alias_names)

@@ -35,7 +35,7 @@ module DataCycleCore
       }
       assert response.body.include?('Container')
 
-      article_template = DataCycleCore::ThingTemplate.find_by(template_name: 'Artikel')
+      article_template = DataCycleCore::ThingTemplate.find_by(template_name: 'Artikel').template_thing
       post remote_render_path, xhr: true, params: {
         partial: 'data_cycle_core/contents/new/shared/new_form',
         target: 'thing_datahash_content_location_new_form',
@@ -49,8 +49,8 @@ module DataCycleCore
           locale: 'de',
           object_browser: true,
           template: {
-            id: article_template&.id,
-            class: article_template&.class&.name
+            class: article_template.class.name,
+            attributes: article_template.attributes
           }
         }
       }, headers: {

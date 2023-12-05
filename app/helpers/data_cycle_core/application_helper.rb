@@ -92,7 +92,7 @@ module DataCycleCore
                             tree_label.id == params_hash[:ctl_id],
                             t("filter.#{tree_label.name.presence&.underscore_blanks}", default: tree_label.name, locale: active_ui_locale),
                             params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset)
-                              .merge({ mode: mode, ctl_id: tree_label.id })
+                              .merge({ mode:, ctl_id: tree_label.id })
                           )
                         )
                       )
@@ -107,12 +107,12 @@ module DataCycleCore
               tree_label.id == params_hash[:ctl_id],
               mode_icon(mode, t("filter.#{tree_label.name.presence&.underscore_blanks}", default: tree_label.name, locale: active_ui_locale)),
               params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset)
-                .merge({ mode: mode, ctl_id: tree_label.id })
+                .merge({ mode:, ctl_id: tree_label.id })
             )
           end
         end
       else
-        link_to_unless selected, mode_icon(mode), params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset).merge(mode: mode)
+        link_to_unless selected, mode_icon(mode), params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset).merge(mode:)
       end
     end
 
@@ -146,7 +146,7 @@ module DataCycleCore
     end
 
     def schema_path_from_key(key)
-      key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
+      key.gsub('datahash', 'properties').scan(/\[(.*?)\]/).flatten || []
     end
 
     def content_view_cache_key(item:, mode:, watch_list:, locale: 'de')
@@ -163,7 +163,7 @@ module DataCycleCore
         end
       end
 
-      query = query.template_things.each.select { |t| can?(:create, t, scope, { content: content }) }
+      query = query.template_things.each.select { |t| can?(:create, t, scope, { content: }) }
       if ordered_array.present?
         query = query.sort_by { |t| ordered_array.index(t.template_name).to_i }
       else
@@ -180,12 +180,14 @@ module DataCycleCore
       return params_hash if options_hash.blank?
 
       options_hash.each do |key, value|
-        if value.is_a?(ActiveRecord::Base)
-          params_hash[key] = value.persisted? ? { id: value&.id, class: value&.class&.name } : { class: value&.class&.name, attributes: value.attributes }
+        if value.is_a?(DataCycleCore::Thing) && !value.persisted?
+          params_hash[key] = value.thing_template.persisted? ? { class: value.class.name, attributes: value.attributes } : { class: value.class.name, attributes: value.attributes.merge(thing_template: { class: value.thing_template.class.name, attributes: value.thing_template.attributes }) }
+        elsif value.is_a?(ActiveRecord::Base)
+          params_hash[key] = value.persisted? ? { value.class.primary_key.to_sym => value.try(value.class.primary_key), class: value.class.name } : { class: value.class.name, attributes: value.attributes }
         elsif value.is_a?(ActiveRecord::Relation)
-          params_hash[key] = { ids: value&.ids, class: value&.klass&.name }
+          params_hash[key] = { class: value.klass.name, value.klass.primary_key.to_sym => value.pluck(value.klass.primary_key), type: 'Collection' }
         elsif value.is_a?(OpenStruct)
-          params_hash[key] = { value: value.to_h, class: 'OpenStruct' }
+          params_hash[key] = { attributes: value.to_h, class: 'OpenStruct' }
         elsif value.is_a?(::Hash)
           params_hash[key] = to_query_params(value)
         else
@@ -328,7 +330,7 @@ module DataCycleCore
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/linked/#{p}" }
 
-      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
+      render_first_existing_partial(partials, parameters.merge({ key:, definition:, value:, content: }))
     end
 
     def render_linked_history_viewer(key:, definition:, value:, parameters: {}, content: nil)
@@ -340,7 +342,7 @@ module DataCycleCore
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/history/linked/#{p}" }
 
-      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
+      render_first_existing_partial(partials, parameters.merge({ key:, definition:, value:, content: }))
     end
 
     def render_asset_editor(key:, value:, definition:, parameters: {}, content: nil)
@@ -348,7 +350,7 @@ module DataCycleCore
         definition.dig('asset_type')&.underscore_blanks,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/asset/#{p}" }
-      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
+      render_first_existing_partial(partials, parameters.merge({ key:, definition:, value:, content: }))
     end
 
     def render_asset_viewer(key:, value:, definition:, parameters: {}, content: nil)
@@ -357,7 +359,7 @@ module DataCycleCore
         value.try(:type)&.demodulize&.underscore_blanks,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/asset/#{p}" }
-      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
+      render_first_existing_partial(partials, parameters.merge({ key:, definition:, value:, content: }))
     end
 
     def render_content_tile(item:, parameters: {}, mode: 'grid')
@@ -369,7 +371,7 @@ module DataCycleCore
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/#{mode}/#{p}" }
 
-      render_first_existing_partial(partials, parameters.merge({ item: item }))
+      render_first_existing_partial(partials, parameters.merge({ item: }))
     end
 
     def render_content_tile_details(item:, parameters: {}, mode: 'grid')
@@ -381,7 +383,7 @@ module DataCycleCore
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/#{mode}/#{p}_details" }
 
-      render_first_existing_partial(partials, parameters.merge({ item: item }))
+      render_first_existing_partial(partials, parameters.merge({ item: }))
     end
 
     def render_linked_partial(key:, definition:, parameters: {}, content: nil)
@@ -390,7 +392,7 @@ module DataCycleCore
         parameters&.dig(:object)&.try(:schema_type)&.underscore_blanks,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/grid/compact/#{p}" }
-      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
+      render_first_existing_partial(partials, parameters.merge({ key:, definition:, content: }))
     end
 
     def render_linked_details(key:, definition:, parameters: {}, content: nil)
@@ -399,7 +401,7 @@ module DataCycleCore
         parameters&.dig(:object)&.try(:schema_type)&.underscore_blanks,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_detail" }
-      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
+      render_first_existing_partial(partials, parameters.merge({ key:, definition:, content: }))
     end
 
     def render_embedded_object_partial(key:, definition:, parameters: {}, content: nil)
@@ -410,7 +412,7 @@ module DataCycleCore
         'default'
       ].compact.map { |p| "data_cycle_core/contents/editors/embedded/#{p}" }
 
-      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
+      render_first_existing_partial(partials, parameters.merge({ key:, definition:, content: }))
     end
 
     def render_advanced_filter_partial(parameters = {})
@@ -440,7 +442,7 @@ module DataCycleCore
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/new/#{p}" }
 
-      render_first_existing_partial(partials, parameters.merge({ template: template }))
+      render_first_existing_partial(partials, parameters.merge({ template: }))
     end
 
     def link_to_condition(condition, name, options = {}, html_options = {}, &block)
@@ -453,12 +455,30 @@ module DataCycleCore
       end
     end
 
-    def conditional_tag(name, condition, options = nil, &block)
+    def conditional_tag(name, condition, options = nil, &)
       if condition
-        content_tag name, capture(&block), options
+        content_tag name, capture(&), options
       else
-        capture(&block)
+        capture(&)
       end
+    end
+
+    def validation_messages(content, key)
+      messages_html = ActionView::OutputBuffer.new
+
+      if content.errors.present?
+        messages_html << tag.b(t('frontend.validate.error', locale: active_ui_locale), class: 'error-tooltip-title')
+        messages_html << tag.br
+        messages_html << safe_join(content.errors.messages[key.attribute_name_from_key.to_sym]&.map { |em| tag.span(em, class: 'alert') }, tag.br)
+      end
+
+      if content.warnings.present?
+        messages_html << tag.b(t('frontend.validate.warning', locale: active_ui_locale), class: 'warning-tooltip-title')
+        messages_html << tag.br
+        messages_html << safe_join(content.warnings.messages[key.attribute_name_from_key.to_sym]&.map { |em| tag.span(em, class: 'warning') }, tag.br)
+      end
+
+      messages_html
     end
 
     private

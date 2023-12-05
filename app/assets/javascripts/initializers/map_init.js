@@ -34,7 +34,7 @@ function initMap(entries, observer) {
 			).editor;
 
 			if (
-				mapEditors.hasOwnProperty(editor) &&
+				Object.hasOwn(mapEditors, editor) &&
 				mapEditors[editor].isAllowedType(item.dataset.type)
 			)
 				return new mapEditors[editor](item).setup();

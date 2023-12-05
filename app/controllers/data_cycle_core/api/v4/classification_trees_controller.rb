@@ -6,7 +6,7 @@ module DataCycleCore
       class ClassificationTreesController < ::DataCycleCore::Api::V4::ApiBaseController
         before_action :prepare_url_parameters
 
-        include DataCycleCore::Filter
+        include DataCycleCore::FilterConcern
 
         ALLOWED_FILTER_ATTRIBUTES = [:'dct:modified', :'dct:created', :'dct:deleted'].freeze
         ALLOWED_SORT_ATTRIBUTES = { 'dct:created' => 'created_at', 'dct:modified' => 'updated_at' }.freeze
@@ -52,7 +52,6 @@ module DataCycleCore
 
         def facets
           @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:classification_tree_label_id])
-
           query = build_search_query
 
           join_sql = "LEFT OUTER JOIN (SELECT ccc1.* FROM collected_classification_contents ccc1 WHERE EXISTS (#{query.query.where('things.id = ccc1.thing_id').except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).select(1).to_sql})) ccc ON ccc.classification_alias_id = classification_aliases.id"
@@ -78,6 +77,8 @@ module DataCycleCore
           if @classification_id.present?
             @classification_aliases = @classification_aliases.where(id: @classification_id)
             raise ActiveRecord::RecordNotFound if @classification_aliases.blank?
+          elsif permitted_params[:classification_ids].present?
+            @classification_aliases = @classification_aliases.where(id: permitted_params[:classification_ids].split(','))
           end
 
           @classification_aliases = apply_order_query(@classification_aliases, permitted_params.dig(:sort))
@@ -114,7 +115,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :classification_id, :classification_tree_label_id] + [permitted_filter_parameters]
+          super + [:id, :language, :classification_id, :classification_ids, :classification_tree_label_id] + [permitted_filter_parameters]
         end
 
         def permitted_filter_parameters
@@ -129,6 +130,11 @@ module DataCycleCore
                   }
                 }
               ]
+            }
+          elsif action_name == 'facets'
+            {
+              filter:
+                attribute_filters + [linked: {}] + [union: []]
             }
           else
             {

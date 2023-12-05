@@ -22,7 +22,7 @@ module DataCycleCore
 
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_equal count, json_data['data'].length
           assert_equal count, json_data['meta']['total'].to_i
           assert_equal true, json_data['links'].present?
@@ -37,7 +37,7 @@ module DataCycleCore
             get api_v2_contents_search_path(include: param)
             assert_response :success
             assert_equal response.content_type, 'application/json; charset=utf-8'
-            json_data = JSON.parse response.body
+            json_data = response.parsed_body
             assert_equal count, json_data['data'].length
             assert_equal count, json_data['meta']['total'].to_i
             assert_equal true, json_data['links'].present?
@@ -48,7 +48,7 @@ module DataCycleCore
             get api_v2_contents_search_path(mode: param)
             assert_response :success
             assert_equal response.content_type, 'application/json; charset=utf-8'
-            json_data = JSON.parse response.body
+            json_data = response.parsed_body
             assert_equal count, json_data['data'].length
             assert_equal count, json_data['meta']['total'].to_i
             assert_equal true, json_data['links'].present?
@@ -60,7 +60,7 @@ module DataCycleCore
 
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_equal 0, json_data['data'].length
           assert_equal 0, json_data['meta']['total'].to_i
           assert_equal true, json_data['links'].present?
@@ -72,7 +72,7 @@ module DataCycleCore
 
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_equal count, json_data['data'].length
           assert_equal count, json_data['meta']['total'].to_i
           assert_equal true, json_data['links'].present?
@@ -84,7 +84,7 @@ module DataCycleCore
 
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_equal count, json_data['data'].length
           assert_equal count, json_data['meta']['total'].to_i
           assert_equal true, json_data['links'].present?
@@ -96,7 +96,7 @@ module DataCycleCore
 
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_equal count, json_data['data'].length
           assert_equal count, json_data['meta']['total'].to_i
           assert_equal true, json_data['links'].present?
@@ -108,7 +108,7 @@ module DataCycleCore
 
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_equal count, json_data['data'].length
           assert_equal count, json_data['meta']['total'].to_i
           assert_equal true, json_data['links'].present?
@@ -120,7 +120,7 @@ module DataCycleCore
 
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_equal count, json_data['data'].length
           assert_equal count, json_data['meta']['total'].to_i
           assert_equal true, json_data['links'].present?
@@ -138,7 +138,7 @@ module DataCycleCore
 
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_equal count, json_data['data'].length
           assert_equal count, json_data['meta']['total'].to_i
           assert_equal true, json_data['links'].present?
@@ -148,13 +148,13 @@ module DataCycleCore
           get api_v2_classification_tree_path(id: test_classification)
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_equal test_classification, json_data['data']['id']
 
           get classifications_api_v2_classification_tree_path(id: test_classification)
           assert_response :success
           assert_equal response.content_type, 'application/json; charset=utf-8'
-          json_data = JSON.parse response.body
+          json_data = response.parsed_body
           assert_equal true, json_data['meta']['total'].positive?
         end
       end

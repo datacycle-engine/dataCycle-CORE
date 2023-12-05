@@ -8,7 +8,7 @@ module DataCycleCore
 
         def initialize(*allowed)
           allowed = Array.wrap(allowed).flatten.map(&:to_s)
-          allowed_roles = allowed.include?('all') ? DataCycleCore::Role.all.pluck(:name) : DataCycleCore::Role.where(name: allowed).pluck(:name)
+          allowed_roles = allowed.include?('all') ? DataCycleCore::Role.pluck(:name) : DataCycleCore::Role.where(name: allowed).pluck(:name)
 
           @subject = DataCycleCore::Role
           @conditions = { name: allowed_roles }

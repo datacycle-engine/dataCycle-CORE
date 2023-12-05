@@ -8,11 +8,22 @@ namespace :dc do
     desc 'init new lokal project'
     task init: :environment do
       Rake::Task['db:create'].invoke
+      Rake::Task['db:create'].reenable
+
       Rake::Task['db:migrate'].invoke
+      Rake::Task['db:migrate'].reenable
+
       Rake::Task['db:seed'].invoke
+      Rake::Task['db:seed'].reenable
+
       Rake::Task['data_cycle_core:update:import_classifications'].invoke
-      Rake::Task['data_cycle_core:update:import_external_system_configs'].invoke
+      Rake::Task['data_cycle_core:update:import_classifications'].reenable
+
+      Rake::Task['dc:external_systems:import'].invoke
+      Rake::Task['dc:external_systems:import'].reenable
+
       Rake::Task['dc:templates:import'].invoke
+      Rake::Task['dc:templates:import'].reenable
     end
 
     desc 'translate I18n locale files'
@@ -32,14 +43,14 @@ namespace :dc do
       file_paths.each do |file_path|
         puts "TRANSLATING #{file_path}..."
 
-        existing_translations = YAML.safe_load(File.open(file_path), [Symbol])
+        existing_translations = YAML.safe_load(File.open(file_path), permitted_classes: [Symbol])
 
         next if existing_translations.blank?
 
         existing_translations[new_locale] = existing_translations.delete('de')
 
         new_translations = existing_translations.dc_deep_transform_values do |value|
-          next value unless value.is_a?(::String)
+          next value unless value.is_a?(String)
 
           translated_value = DataCycleCore::Feature::Translate.translate_text({ 'text' => value, 'source_locale' => 'de', 'target_locale' => new_locale })
 
@@ -49,7 +60,6 @@ namespace :dc do
           else
             translated_value.dig('text')
           end
-
         rescue Faraday::Error => e
           puts "FARADAY ERROR: #{e.message}"
         end

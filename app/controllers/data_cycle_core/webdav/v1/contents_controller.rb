@@ -69,7 +69,7 @@ module DataCycleCore
           headers['Display-Name'] = filename
 
           headers.delete 'X-Frame-Options'
-          send_file @asset_path, disposition: 'inline', filename: filename, type: @asset.content_type
+          send_file @asset_path, disposition: 'inline', filename:, type: @asset.content_type
         end
 
         def options

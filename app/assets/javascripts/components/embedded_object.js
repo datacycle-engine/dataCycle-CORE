@@ -2,7 +2,6 @@ import CalloutHelpers from "./../helpers/callout_helpers";
 import ConfirmationModal from "./../components/confirmation_modal";
 import { Sortable } from "sortablejs";
 import difference from "lodash/difference";
-import union from "lodash/union";
 import intersection from "lodash/intersection";
 import ObserverHelpers from "../helpers/observer_helpers";
 import DcStickyBar from "./dc_sticky_bar";
@@ -36,6 +35,8 @@ class EmbeddedObject {
 		this.sortable;
 		this.content_id = this.$element.data("content-id");
 		this.content_type = this.$element.data("content-type");
+		this.templateName = this.$element.data("template-name");
+		this.template = this.$element.data("template");
 		this.locationArray = location.hash.substr(1).split("+").filter(Boolean);
 		this.eventHandlers = {
 			import: this.import.bind(this),
@@ -97,7 +98,7 @@ class EmbeddedObject {
 		}
 	}
 	locale() {
-		return this.$element.data("locale") || "de";
+		return this.element.dataset.locale || "de";
 	}
 	import(_event, data) {
 		const newItems = difference(
@@ -208,6 +209,8 @@ class EmbeddedObject {
 					options: this.options,
 					content_id: this.content_id,
 					content_type: this.content_type,
+					content_template_name: this.templateName,
+					content_template: this.template,
 					object_ids: newIds,
 					duplicated_content: type === "split_view",
 					translate: translate,

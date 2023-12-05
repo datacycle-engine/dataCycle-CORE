@@ -4,7 +4,7 @@ module DataCycleCore
   module Api
     module V1
       class StoredFiltersController < Api::V1::ApiBaseController
-        include DataCycleCore::Filter
+        include DataCycleCore::FilterConcern
 
         def show
           apply_filter(filter_id: permitted_params[:id], api_only: true)

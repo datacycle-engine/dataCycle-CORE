@@ -125,10 +125,10 @@ module DataCycleCore
     def refresh(options = {})
       raise "Missing refresh_strategy for #{name}, options given: #{options}" if refresh_config.dig(:strategy).blank?
       utility_object = DataCycleCore::Export::RefreshObject.new(external_system: self)
-      refresh_config.dig(:strategy).constantize.process(utility_object: utility_object, options: options)
+      refresh_config.dig(:strategy).constantize.process(utility_object:, options:)
     end
 
-    def download(options = {}, &block)
+    def download(options = {}, &)
       raise 'First parameter has to be an options hash!' unless options.is_a?(::Hash)
       success = true
       ts_start = Time.zone.now
@@ -137,7 +137,7 @@ module DataCycleCore
       download_config.sort_by { |v|
         v.second['sorting']
       }.each do |(name, _)|
-        success &&= download_single(name, options, &block)
+        success &&= download_single(name, options, &)
       end
       ts_after = Time.zone.now
       self.last_download_time = ts_after - ts_start
@@ -149,7 +149,7 @@ module DataCycleCore
       success
     end
 
-    def download_range(options = {}, &block)
+    def download_range(options = {}, &)
       raise 'First parameter has to be an options hash!' unless options.is_a?(::Hash)
       success = true
       max_sorting = download_config.map { |_name, data| data.dig('sorting') }.max
@@ -160,7 +160,7 @@ module DataCycleCore
       }.sort_by { |v|
         v.second['sorting']
       }.each do |(name, _data)|
-        success &&= download_single(name, options, &block)
+        success &&= download_single(name, options, &)
       end
       success
     end
@@ -175,19 +175,19 @@ module DataCycleCore
       cred = credentials
       cred = cred[full_options[:credentials_index]] if full_options[:credentials_index].present?
       if cred.is_a?(Hash)
-        utility_object = DataCycleCore::Generic::DownloadObject.new(**full_options.merge(external_source: self, locales: locales, credentials: cred))
-        success &&= full_options.dig(:download, :download_strategy).constantize.download_content(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
+        utility_object = DataCycleCore::Generic::DownloadObject.new(**full_options.merge(external_source: self, locales:, credentials: cred))
+        success &&= full_options.dig(:download, :download_strategy).constantize.download_content(utility_object:, options: full_options.merge(locales:).deep_symbolize_keys)
       else
         cred.each do |credential|
-          utility_object = DataCycleCore::Generic::DownloadObject.new(**full_options.merge(external_source: self, locales: locales, credentials: credential))
-          success &&= full_options.dig(:download, :download_strategy).constantize.download_content(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
+          utility_object = DataCycleCore::Generic::DownloadObject.new(**full_options.merge(external_source: self, locales:, credentials: credential))
+          success &&= full_options.dig(:download, :download_strategy).constantize.download_content(utility_object:, options: full_options.merge(locales:).deep_symbolize_keys)
         end
       end
       success
     end
     alias single_download download_single
 
-    def import(options = {}, &block)
+    def import(options = {}, &)
       raise 'First parameter has to be an options Hash!' unless options.is_a?(::Hash)
       ts_start = Time.zone.now
       self.last_import = ts_start
@@ -197,7 +197,7 @@ module DataCycleCore
       }.each do |(name, _)|
         self.last_import_time = Time.zone.now - ts_start
         save
-        import_single(name, options, &block)
+        import_single(name, options, &)
         self.last_import_time = Time.zone.now - ts_start
         save
       end
@@ -206,7 +206,7 @@ module DataCycleCore
       save
     end
 
-    def import_range(options = {}, &block)
+    def import_range(options = {}, &)
       raise 'First parameter has to be an options Hash!' unless options.is_a?(::Hash)
       max_sorting = import_config.map { |_name, data| data.dig('sorting') }.max
       min = options.dig(:min) || 0
@@ -216,7 +216,7 @@ module DataCycleCore
       }.sort_by { |v|
         v.second['sorting']
       }.each do |(name, _)|
-        import_single(name, options, &block)
+        import_single(name, options, &)
       end
     end
 
@@ -224,9 +224,9 @@ module DataCycleCore
       raise "unknown importer name: #{name}" if import_config.dig(name).blank?
       full_options = full_options(name, 'import', options)
       locales = full_options[:import][:locales] || full_options[:locales] || I18n.available_locales
-      utility_object = DataCycleCore::Generic::ImportObject.new(**full_options.merge(external_source: self, locales: locales))
+      utility_object = DataCycleCore::Generic::ImportObject.new(**full_options.merge(external_source: self, locales:))
       raise "Missing import_strategy for #{name}, options given: #{options}" if full_options.dig(:import, :import_strategy).blank?
-      full_options.dig(:import, :import_strategy).constantize.import_data(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
+      full_options.dig(:import, :import_strategy).constantize.import_data(utility_object:, options: full_options.merge(locales:).deep_symbolize_keys)
     end
     alias single_import import_single
 
@@ -286,22 +286,22 @@ module DataCycleCore
       find_by(identifier: data['name']) || find_by(name: data['name'])
     end
 
-    def query(collection_name, &block)
+    def query(collection_name, &)
       mongo_class = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: collection_name)
       db_name = mongo_class.database_name.to_s
-      db_name += "_#{id}" unless db_name.split('_') == id
+      db_name = "#{db_name}_#{id}" unless db_name.split('_').last == id
       Mongoid.override_database(db_name)
-      DataCycleCore::Generic::Collection.with(mongo_class, &block)
+      DataCycleCore::Generic::Collection.with(mongo_class, &)
     ensure
       Mongoid.override_database(nil)
     end
 
-    def query2(collection_name, &block)
+    def query2(collection_name, &)
       mongo_class = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: collection_name)
       db_name = mongo_class.database_name.to_s
-      # db_name += "_#{id}" unless db_name.split('_') == id
+      db_name = "#{db_name}_#{id}" unless db_name.split('_').last == id
       Mongoid.override_database(db_name)
-      DataCycleCore::Generic::Collection.with(mongo_class, &block)
+      DataCycleCore::Generic::Collection2.with(mongo_class, &)
     ensure
       Mongoid.override_database(nil)
     end
@@ -319,12 +319,12 @@ module DataCycleCore
       Mongoid.override_database("#{mongo_class.database_name}_#{id}")
       DataCycleCore::Generic::Collection.with(mongo_class) do |mongo_collection|
         mongo_collection.where({ 'dump.de.deleted_at': { '$exists' => true }, 'dump.en.deleted_at': { '$exists' => false } }).find_all do |item|
-          item.dump['en']['archived_at'] =                item.dump['de']['archived_at']                if item.dump['de']['archived_at'].present?
-          item.dump['en']['last_seen_before_archived'] =  item.dump['de']['last_seen_before_archived']  if item.dump['de']['last_seen_before_archived'].present?
-          item.dump['en']['archive_reason'] =             item.dump['de']['archive_reason']             if item.dump['de']['archive_reason'].present?
-          item.dump['en']['deleted_at'] =                 item.dump['de']['deleted_at']                 if item.dump['de']['deleted_at'].present?
-          item.dump['en']['last_seen_before_delete'] =    item.dump['de']['last_seen_before_delete']    if item.dump['de']['last_seen_before_delete'].present?
-          item.dump['en']['delete_reason'] =              item.dump['de']['delete_reason']              if item.dump['de']['delete_reason'].present?
+          item.dump['en']['archived_at'] = item.dump['de']['archived_at'] if item.dump['de']['archived_at'].present?
+          item.dump['en']['last_seen_before_archived'] = item.dump['de']['last_seen_before_archived'] if item.dump['de']['last_seen_before_archived'].present?
+          item.dump['en']['archive_reason'] = item.dump['de']['archive_reason'] if item.dump['de']['archive_reason'].present?
+          item.dump['en']['deleted_at'] = item.dump['de']['deleted_at'] if item.dump['de']['deleted_at'].present?
+          item.dump['en']['last_seen_before_delete'] = item.dump['de']['last_seen_before_delete'] if item.dump['de']['last_seen_before_delete'].present?
+          item.dump['en']['delete_reason'] = item.dump['de']['delete_reason'] if item.dump['de']['delete_reason'].present?
           item.save!
         end
       end

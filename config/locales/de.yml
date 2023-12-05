@@ -101,6 +101,13 @@ de:
     download_import: Download & Import
     delete: delete
     errors_were_encountered: errors were encountered
+    maintenance:
+      classification_mappings:
+        button: Klassifizierungsmappings neu generieren
+        queued: Job zum Generieren der Klassifizierungsmappings wurde in die Queue eingefügt
+        started: Generieren der Klassifizierungsmappings wurde gestartet
+        finished: Generieren der Klassifizierungsmappings wurde abgeschlossen
+        error: Beim Generieren der Klassifizierungsmappings ist ein Fehler aufgetreten!
 
   notification:
     frequency:
@@ -393,6 +400,7 @@ de:
     status: Status
     confirm_delete_all_caches: Wirklich alle Caches leeren?
     confirm_delete_cache: Wirklich den Cache leeren?
+    all_caches_cleared: Alle Caches wurden geleert
     confirm_delete_autotranslation: Wirklich alle manuellen Übersetzungen löschen?
     content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden.
     download_gpx: Als GPX-Datei herunterladen
@@ -527,7 +535,7 @@ de:
       events: Events
       gallery: Bildergalerie
     user_registration:
-      terms_conditions: 'Ich aktzeptiere die <a href="%{url}" target="_blank">Allgemeinen Geschäftsbedingungen</a>.'
+      terms_conditions: 'Ich akzeptiere die <a href="%{url}" target="_blank">Allgemeinen Geschäftsbedingungen</a>.'
       privacy_policy: 'Ich bin mit der Verarbeitung meiner Daten laut  <a href="%{url}" target="_blank">Datenschutzerklärung</a> einverstanden.'
     no_selection: keine Auswahl
     external_name: Titel
@@ -546,6 +554,7 @@ de:
     geolocation_error: Auf die aktuelle Position konnte nicht zugegriffen werden
     api_url: API Link
     url: URL
+    more_errors: "%{count} weitere Fehler"
 
   embedded:
     move_down: nach unten verschieben
@@ -614,6 +623,7 @@ de:
           by_name_and_length: "Anzahl der Zeichen"
           by_name_and_presence: "ausgefüllt"
           by_type_and_presence: "Informationstyp"
+          first_by_type_and_presence: Informationstypen
           by_type_and_length: "Informationstyp und Anzahl der Zeichen"
         object:
           by_attribute_and_presence: ausgefüllt
@@ -643,9 +653,11 @@ de:
             one: "Erinnerung: Bearbeitung von Inhalt abschließen"
             other: "Erinnerung: Bearbeitung von Inhalten abschließen"
           first_line:
-            one: Folgender Inhalt wurde seit mehr als einer Woche nicht bearbeitet und die Bearbeitung wurde noch nicht abgeschlossen.
-            other: Folgende Inhalte wurden seit mehr als einer Woche nicht bearbeitet und die Bearbeitung wurde noch nicht abgeschlossen.
-          second_line: Bitte ergänzen Sie fehlende Inhalte und schließen Sie die Bearbeitung ab!
+            one: Folgender Inhalt wurde seit mehr als einer Woche nicht bearbeitet.
+            other: Folgende Inhalte wurden seit mehr als einer Woche nicht bearbeitet.
+          second_line:
+            one: Daher möchten wir Sie daran erinnern, fehlende Inhalte zu vervollständigen und den Inhalt final abzuschließen.
+            other: Daher möchten wir Sie daran erinnern, fehlende Inhalte zu vervollständigen und die Inhalte final abzuschließen.
     named_version:
       input_label: Versionsname
       version_name: "Version: %{name}"
@@ -786,6 +798,10 @@ de:
     upload_date: Uploaddatum
     duplicate_candidates: Potentielle Duplikate vorhanden
     not_duplicate_candidates: keine potentiellen Duplikate vorhanden
+    with_geom: Inhalte mit Geokoordinaten
+    not_with_geom: Inhalte ohne Geokoordinaten
+    with_external_source: Importierte Inhalte
+    not_with_external_source: Nicht Importierte Inhalte
     bookable: buchbar
     not_bookable: nicht buchbar
     width: Breite
@@ -850,7 +866,7 @@ de:
     number_of_accommodations: Anzahl der Wohneinheiten
     linked_image: Verknüpftes Bild
     linked_location: Verknüpfter Ort
-    linked_author: Verknüpfter Fotograf
+    linked_author: Verknüpfter Autor
     linked_copyright_holder: Verknüpfter Rechteinhaber
     linked_provider: Verknüpfter Dienstleister
     linked_sd_publisher: Verknüpfter Inhaber / Herausgeber
@@ -870,6 +886,11 @@ de:
       confirmed_at: E-Mail bestätigt
       not_confirmed_at: E-Mail nicht bestätigt
     active: Aktiv
+    ascent: Aufstieg (m)
+    descent: Abstieg (m)
+    min_altitude: Minimale Seehöhe (m)
+    max_altitude: Maximale Seehöhe (m)
+    length: Länge (m)
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...
@@ -913,6 +934,7 @@ de:
 
   object_browser:
     details:
+      button: Details anzeigen
       created_at: erstellt
       updated_at: bearbeitet
       title: Titel
@@ -1165,6 +1187,9 @@ de:
       user_locked: Ein Benutzer mit dieser E-Mail existiert bereits und ist gesperrt. Bitte wenden Sie sich an einen Administrator, um den Benutzer freizuschalten.
       classification_mappings_error: Beim Aktualisieren der Klassifizierungs-Mappings ist ein Fehler aufgetreten
       external_system_already_exists: Für dieses externe System gibt es bereits eine Konfiguration
+      bulk_created:
+        one: "<b>%{count}</b> Inhalt konnte nicht erstellt werden!"
+        other: "<b>%{count}</b> Inhalte konnten nicht erstellt werden!"
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."
@@ -1589,12 +1614,16 @@ de:
         EventGroup: Beschreibung
       infrastructure:
         AdditionalService: Zusatzleistung
+        Arrival Information: Informationen zur Anreise
         CurrentInformation: Aktuelle Informationen
         GuestCardClassification: Gästekartenleistungen
         InfrastructureLong: Detailbeschreibung
         InfrastructureOpeningTimes: Öffnungszeiten
         InfrastructurePriceInfo: Preisinformation
         InfrastructureShort: Kurzbeschreibung
+        Payment: Zahlungsmodalitäten
+        Price Information: Preis
+        ServiceDescription: Beschreibung
       GuestCards:
         GuestCardClassification: Gästekartenleistungen
       accommodation:
@@ -1638,6 +1667,24 @@ de:
         landscape_rating: Landschaft
         difficulty_rating: Schwierigkeit
         panoramic_view_rating: Panoramaaussicht
+    general_solutions:
+      place:
+        directions: Anfahrt
+        parking: Parken
+        hours_available: Öffnungszeiten
+        text: Beschreibung
+        price: Preis
+        description: Kurzbeschreibung
+        directions_public_transport: Öffentliche Verkehrsmittel
+      tour:
+        text: Beschreibung
+        description: Kurzbeschreibung
+        instructions: Wegbeschreibung
+        directions_public_transport: Öffentliche Verkehrsmittel
+        parking: Parken
+      ratings:
+        difficulty_rating: Schwierigkeit
+        priority_rating: Priorität
     imx_platform:
       description: Beschreibung
       text: Detailbeschreibung
@@ -1653,6 +1700,7 @@ de:
       literature: Literatur
       publicTransit: Öffentlicher Transport
       seasonDescription: Begehbare Monate
+      Preis-Zusatzbeschreibung: Preis-Zusatzbeschreibung
     gem2go:
       description: Beschreibung
     timm4:
@@ -1727,8 +1775,14 @@ de:
       subtitle: Untertitel
       teaser: Teaser
       Persons: Person
+      season_header: Saison (Monat - Eignung)
+      Season: Saison
+      Unsuitable: ungeeignet
+      Depends: wetterabhängig
+      Suitable: geeignet
     bierfinder:
-      book: Beschreibung
+      description: Beschreibung
+      book: Detailbeschreibung
       tipp: Tip
       essenUndSpezial: Essen und Spezialitäten
       biersorten: Biersorten
@@ -1744,6 +1798,8 @@ de:
       parkingPossibilities: Parkmöglichkeiten
       seasonDescription: Begehbare Monate
       priceSpecification: Preisbeschreibung
+      doorTime: Einlass
+      meetingPoint: Treffpunkt
     wintop:
       beschreibung: Beschreibung
       teaser: Teaser
@@ -1752,7 +1808,14 @@ de:
     pimcore:
       description: Beschreibung
       text: Detailbeschreibung
-
+    lottaleben:
+      description: Beschreibung
+      text: Detailbeschreibung
+    tramino:
+      info: Kurzbeschreibung
+      intro: Kurzbeschreibung
+      slogan: Slogan
+      text: Beschreibung
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
       <ul class="no-bullet">
@@ -2010,6 +2073,7 @@ de:
     data_cycle_core/error/api/expired_content_error:
       expired_content: Inhalt ist abgelaufen
     active_record/record_not_found: Nicht gefunden
+    active_record/record_not_unique: Konflikt
     data_cycle_core/error/filter/date_filter_range_error: "Fehler bei Suchparametern: das Enddatum bei Datumsfiltern muss nach dem Startdatum liegen."
     data_cycle_core/error/filter/union_filter_recursion_error: "Fehler bei Suchparametern: Gespeicherte Suchen können nicht auf sich selbst filtern (unendliche Rekursion)."
 
@@ -2027,3 +2091,4 @@ de:
     not_found: Diese Seite existiert leider nicht
     internal_server_error: Es ist ein unerwarteter Fehler aufgetreten
     unauthorized: Sie haben keine Berechtigung, die gewünschte Seite zu öffnen
+    conflict: Die Anfrage konnte wegen eines Konflikts nicht abgeschlossen werden

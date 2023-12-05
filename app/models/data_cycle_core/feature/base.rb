@@ -14,12 +14,16 @@ module DataCycleCore
           @enabled ||= DataCycleCore.features.dig(name.demodulize.underscore.to_sym, :enabled) && dependencies_enabled?
         end
 
-        def dependencies_enabled?
-          !DataCycleCore.features.dig(name.demodulize.underscore.to_sym, :dependencies)&.any? { |d| !"data_cycle_core/feature/#{d}".classify.constantize.enabled? }
+        def dependencies(content = nil)
+          Array.wrap(configuration(content).dig(:dependencies))
+        end
+
+        def dependencies_enabled?(content = nil)
+          dependencies(content).all? { |d| "data_cycle_core/feature/#{d}".classify.constantize.enabled? }
         end
 
         def dependencies_allowed?(content = nil)
-          dependencies_enabled? && !DataCycleCore.features.dig(name.demodulize.underscore.to_sym, :dependencies)&.any? { |d| !"data_cycle_core/feature/#{d}".classify.constantize.allowed?(content) }
+          dependencies_enabled?(content) && dependencies(content).all? { |d| "data_cycle_core/feature/#{d}".classify.constantize.allowed?(content) }
         end
 
         def attribute_keys(content = nil)
@@ -45,7 +49,7 @@ module DataCycleCore
         def includes_attribute_key(content, key)
           template_keys = attribute_keys(content)
 
-          (key.attribute_path_from_key & template_keys).any?
+          key.attribute_path_from_key.intersect?(template_keys)
         end
 
         def configuration(content = nil, attribute_key = nil)

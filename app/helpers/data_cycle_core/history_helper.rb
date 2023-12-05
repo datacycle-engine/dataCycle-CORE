@@ -190,8 +190,7 @@ module DataCycleCore
         )
       end
 
-      data.push(version_name_html(item)) if DataCycleCore::Feature::NamedVersion.enabled?
-
+      data.push(version_name_html(item))
       data.push(history_link(content, item))
 
       tag.li(safe_join(data.compact), class: item.active_class)
@@ -219,7 +218,7 @@ module DataCycleCore
         .where('thing_translations.created_at <= ?', content.created_at&.+(10.seconds))
         .pluck(:locale)
 
-      content.translations.where.not(locale: content.histories.translated_locales + created_locales + [content.last_updated_locale]).each do |created_translation|
+      content.translations.where.not(locale: content.histories.translated_locales + created_locales + [content.last_updated_locale]).find_each do |created_translation|
         history_entries.push(
           DataCycleCore::Content::HistoryListEntry.new(
             user: current_user,
@@ -279,7 +278,7 @@ module DataCycleCore
 
     def history_version_html(content)
       history_html = ActionView::OutputBuffer.new
-      content.try(:updated_at)&.then { |date| history_html << t('history.updated_at_html', locale: active_ui_locale, language: content.last_updated_locale || content.first_available_locale, date: l(date.in_time_zone, locale: active_ui_locale, format: :history)) }
+      content.try(:updated_at)&.then { |date| history_html << t('history.updated_at_html', locale: active_ui_locale, language: content.first_available_locale(content.last_updated_locale), date: l(date.in_time_zone, locale: active_ui_locale, format: :history)) }
       history_html << ' '
       history_html << history_by_link(content.updated_by_user)
 
@@ -315,8 +314,8 @@ module DataCycleCore
       diff_target.try(key&.attribute_name_from_key)
     end
 
-    def diff_target_by_id(object:, **args)
-      diff_objects = diff_target_by_key(args)
+    def diff_target_by_id(object:, **)
+      diff_objects = diff_target_by_key(**)
 
       return if diff_objects.nil?
 

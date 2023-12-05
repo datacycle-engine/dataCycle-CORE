@@ -15,9 +15,9 @@ module DataCycleCore
         def self.update(utility_object:, data:)
           body = transformations.json_api_v2(utility_object, data)
           webhook = DataCycleCore::Export::TextFile::Webhook.new(
-            data: data,
+            data:,
             method: 'Update',
-            body: body,
+            body:,
             endpoint: utility_object.endpoint
           )
           webhook.perform
@@ -26,9 +26,9 @@ module DataCycleCore
         def self.create(utility_object:, data:)
           body = transformations.json_api_v2(utility_object, data)
           webhook = DataCycleCore::Export::TextFile::Webhook.new(
-            data: data,
+            data:,
             method: 'Create',
-            body: body,
+            body:,
             endpoint: utility_object.endpoint
           )
           webhook.perform
@@ -37,9 +37,9 @@ module DataCycleCore
         def self.delete(utility_object:, data:)
           body = transformations.json_api_v2(utility_object, data)
           webhook = DataCycleCore::Export::TextFile::Webhook.new(
-            data: data,
+            data:,
             method: 'Delete',
-            body: body,
+            body:,
             endpoint: utility_object.endpoint
           )
           webhook.perform

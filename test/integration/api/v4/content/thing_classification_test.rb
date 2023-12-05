@@ -29,7 +29,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse response.body
+            json_data = response.parsed_body
             json_data = json_data.dig('@graph').first
 
             header = json_data.slice(*full_header_attributes)
@@ -44,7 +44,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse response.body
+            json_data = response.parsed_body
             json_data = json_data.dig('@graph').first
 
             header = json_data.slice(*full_header_attributes)
@@ -62,7 +62,7 @@ module DataCycleCore
             assert_response :success
 
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse response.body
+            json_data = response.parsed_body
             json_data = json_data.dig('@graph').first
 
             header = json_data.slice(*full_header_attributes)
@@ -81,13 +81,13 @@ module DataCycleCore
             get api_v4_thing_path(id: @content.id, include: 'dc:classification,dc:classification.skos:inScheme')
             assert_response :success
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse response.body
+            json_data = response.parsed_body
             json_data = json_data.dig('@graph').first
 
             get api_v4_thing_path(id: @content.id, include: 'dc:classification.skos:inScheme')
             assert_response :success
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data2 = JSON.parse response.body
+            json_data2 = response.parsed_body
             json_data2 = json_data2.dig('@graph').first
             assert_equal(json_data, json_data2)
           end
@@ -96,7 +96,7 @@ module DataCycleCore
             get api_v4_thing_path(id: @content.id, fields: 'dc:classification.skos:inScheme.skos:prefLabel')
             assert_response :success
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse response.body
+            json_data = response.parsed_body
             json_data = json_data.dig('@graph').first
 
             assert_equal(1, json_data.dig('dc:classification').size)
@@ -108,7 +108,7 @@ module DataCycleCore
             get api_v4_thing_path(id: @content.id, fields: 'dc:classification.skos:inScheme.skos:prefLabel', include: 'dc:classification')
             assert_response :success
             assert_equal(response.content_type, 'application/json; charset=utf-8')
-            json_data = JSON.parse response.body
+            json_data = response.parsed_body
             json_data = json_data.dig('@graph').first
 
             assert_equal(1, json_data.dig('dc:classification').size)

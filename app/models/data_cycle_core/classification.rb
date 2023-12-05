@@ -19,7 +19,7 @@ module DataCycleCore
     has_one :primary_classification_alias, through: :primary_classification_group, source: :classification_alias
 
     has_many :additional_classification_groups, lambda {
-      where.not(id: DataCycleCore::ClassificationGroup::PrimaryClassificationGroup.all)
+      where.not('EXISTS (SELECT 1 FROM primary_classification_groups WHERE primary_classification_groups.id = classification_groups.id)')
     }, class_name: 'DataCycleCore::ClassificationGroup'
     has_many :additional_classification_aliases, through: :additional_classification_groups, source: :classification_alias
 
@@ -34,7 +34,7 @@ module DataCycleCore
     def self.by_external_key(external_source_id, external_keys)
       return none if external_source_id.blank? || external_keys.blank?
 
-      where(external_source_id: external_source_id, external_key: external_keys)
+      where(external_source_id:, external_key: external_keys)
     end
 
     def to_hash
@@ -48,15 +48,21 @@ module DataCycleCore
     end
 
     def self.things
-      DataCycleCore::Thing.includes(:classifications).where(classifications: { id: all.select(:id) })
+      return DataCycleCore::Thing.none if all.is_a?(ActiveRecord::NullRelation)
+
+      DataCycleCore::Thing.includes(:classifications).where(classifications: { id: select(:id) })
     end
 
     def self.classification_aliases
-      DataCycleCore::ClassificationAlias.includes(:classifications).where(classifications: { id: all.select(:id) })
+      return DataCycleCore::ClassificationAlias.none if all.is_a?(ActiveRecord::NullRelation)
+
+      DataCycleCore::ClassificationAlias.includes(:classifications).where(classifications: { id: select(:id) })
     end
 
     def self.primary_classification_aliases
-      DataCycleCore::ClassificationAlias.includes(:primary_classification).where(classifications: { id: all.select(:id) })
+      return DataCycleCore::ClassificationAlias.none if all.is_a?(ActiveRecord::NullRelation)
+
+      DataCycleCore::ClassificationAlias.includes(:primary_classification).where(classifications: { id: select(:id) })
     end
 
     def ancestors

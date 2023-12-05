@@ -10,9 +10,9 @@ module DataCycleCore
 
         def self.import_contents(utility_object:, iterator:, data_processor:, options:)
           if options&.dig(:iteration_strategy).blank?
-            import_sequential(utility_object: utility_object, iterator: iterator, data_processor: data_processor, options: options)
+            import_sequential(utility_object:, iterator:, data_processor:, options:)
           else
-            send(options.dig(:iteration_strategy), utility_object: utility_object, iterator: iterator, data_processor: data_processor, options: options)
+            send(options.dig(:iteration_strategy), utility_object:, iterator:, data_processor:, options:)
           end
         end
 
@@ -71,10 +71,10 @@ module DataCycleCore
                           next if options[:min_count].present? && item_count < options[:min_count]
 
                           data_processor.call(
-                            utility_object: utility_object,
+                            utility_object:,
                             raw_data: content[:dump][locale],
-                            locale: locale,
-                            options: options
+                            locale:,
+                            options:
                           )
                         end
                         times << Time.current
@@ -90,10 +90,10 @@ module DataCycleCore
                             next if options[:min_count].present? && item_count < options[:min_count]
 
                             data_processor.call(
-                              utility_object: utility_object,
+                              utility_object:,
                               raw_data: content[:dump][locale],
-                              locale: locale,
-                              options: options
+                              locale:,
+                              options:
                             )
                           end
                         rescue StandardError => e
@@ -164,10 +164,10 @@ module DataCycleCore
                     next if options[:min_count].present? && item_count < options[:min_count]
 
                     data_processor.call(
-                      utility_object: utility_object,
+                      utility_object:,
                       raw_data: content[:dump],
                       locale: nil,
-                      options: options
+                      options:
                     )
 
                     next unless (item_count % logging_delta).zero?
@@ -223,7 +223,7 @@ module DataCycleCore
               logging.preparing_phase("#{utility_object.external_source.name} #{download_name}")
               logging.phase_started("#{download_name}(#{phase_name})")
               utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                aggregation_function.call(mongo_item, logging, utility_object, options.merge({ download_name: download_name, phase_name: phase_name })).to_a
+                aggregation_function.call(mongo_item, logging, utility_object, options.merge({ download_name:, phase_name: })).to_a
               end
               logging.phase_finished("#{download_name}(#{phase_name})", 0)
             ensure
@@ -283,10 +283,10 @@ module DataCycleCore
 
                       content_data = query.first[:dump][locale]
                       data_processor.call(
-                        utility_object: utility_object,
+                        utility_object:,
                         raw_data: content_data,
-                        locale: locale,
-                        options: options
+                        locale:,
+                        options:
                       )
 
                       times << Time.current

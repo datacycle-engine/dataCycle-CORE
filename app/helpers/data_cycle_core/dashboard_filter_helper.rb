@@ -10,14 +10,14 @@ module DataCycleCore
 
       result = ActiveRecord::Base.connection.select_all query.to_sql
 
-      result.to_a.map { |s| DataCycleCore::CollectionService.to_select_option(s, active_ui_locale) }
+      DataCycleCore::CollectionService.to_select_options(result)
     end
 
     def thing_ids_to_value(value)
       DataCycleCore::Thing.where(id: value)
         .where.not(content_type: 'embedded')
         .includes(:translations)
-        .map { |t| t.to_select_option(false, active_ui_locale) }
+        .map { |t| t.to_select_option(active_ui_locale) }
     end
 
     def union_values_to_options(value)
@@ -30,6 +30,14 @@ module DataCycleCore
       return if value.blank?
 
       options_for_select(thing_ids_to_value(value).map(&:to_option_for_select), value)
+    end
+
+    def relation_filter_items(value, filter_method)
+      if filter_method.in?(['i', 'e'])
+        union_ids_to_value(value)
+      elsif filter_method.in?(['s', 'u'])
+        thing_ids_to_value(value)
+      end
     end
 
     def advanced_attribute_filter_options(filter_advanced_type)
@@ -60,18 +68,18 @@ module DataCycleCore
       end
     end
 
-    def conditional_filter_accordion(filter_config, &block)
+    def conditional_filter_accordion(filter_config, &)
       return if filter_config[:filter].blank?
 
       if filter_config[:collapse]
         tag.div(class: 'accordion filter-collapse', data: { accordion: true, allow_all_closed: true }) do
           tag.div(class: "row accordion-item #{'is-active' if filter_config[:collapse] == 'open'}", data: { accordion_item: true }) do
-            tag.section(capture(&block), class: 'filters accordion-content', data: { tab_content: true }) +
+            tag.section(capture(&), class: 'filters accordion-content', data: { tab_content: true }) +
               tag.a(tag.span(tag.i(class: 'fa fa-chevron-down')), class: 'accordion-title')
           end
         end
       else
-        tag.section(capture(&block), class: 'filters')
+        tag.section(capture(&), class: 'filters')
       end
     end
 
@@ -122,7 +130,9 @@ module DataCycleCore
     def advanced_relation_filter_options(filter_method, thing_filter = false)
       filter_options = [
         [t('filter.relation_filter.contained_in', locale: active_ui_locale), 'i'],
-        [t('filter.relation_filter.not_contained_in', locale: active_ui_locale), 'e']
+        [t('filter.relation_filter.not_contained_in', locale: active_ui_locale), 'e'],
+        [t('filter.relation_filter.exists', locale: active_ui_locale), 'p'],
+        [t('filter.relation_filter.not_exists', locale: active_ui_locale), 'b']
       ]
 
       if thing_filter

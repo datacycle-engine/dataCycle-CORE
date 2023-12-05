@@ -25,7 +25,7 @@ module DataCycleCore
 
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body)
+                json_data = response.parsed_body
 
                 # validate header
                 assert_equal('http://schema.org', json_data.dig('@context'))
@@ -102,7 +102,7 @@ module DataCycleCore
                   }]
                 }
                 I18n.with_locale(:de) do
-                  @content.set_data_hash(data_hash: data_hash, partial_update: true, current_user: User.find_by(email: 'tester@datacycle.at'))
+                  @content.set_data_hash(data_hash:, partial_update: true, current_user: User.find_by(email: 'tester@datacycle.at'))
                 end
                 @content.reload
 
@@ -110,7 +110,7 @@ module DataCycleCore
 
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body)
+                json_data = response.parsed_body
 
                 # content data
                 assert_equal(data_hash.dig('overlay').first.dig('name'), json_data.dig('name'))
@@ -122,19 +122,19 @@ module DataCycleCore
                 get(api_v2_things_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'TouristAttraction' }
+                json_data = response.parsed_body.dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'TouristAttraction' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v2_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'TouristAttraction' }
+                json_data = response.parsed_body.dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'TouristAttraction' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v2_places_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').first
+                json_data = response.parsed_body.dig('data').first
                 assert_equal(@content.id, json_data.dig('identifier'))
               end
             end

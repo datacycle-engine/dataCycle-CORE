@@ -27,7 +27,7 @@ module DataCycleCore
       end
 
       def self.load_template(path, template_index = 0)
-        template = YAML.safe_load(File.open(path), [Symbol])[template_index]
+        template = YAML.safe_load(File.open(path), permitted_classes: [Symbol])[template_index]
 
         transformer = DataCycleCore::MasterData::Templates::TemplateTransformer.new(template: template[:data].dup, content_set: DEFAULT_CONTENT_TABLE, mixins: nil)
         template[:data] = transformer.transform
@@ -131,7 +131,7 @@ module DataCycleCore
     end
 
     def self.content_types
-      DataCycleCore::ThingTemplate.all.map(&:schema).map { |schema| schema['content_type'] }.uniq
+      DataCycleCore::ThingTemplate.all.map(&:schema).pluck('content_type').uniq
     end
 
     def self.templates_with_content_type(content_type)
@@ -145,7 +145,7 @@ module DataCycleCore
     end
 
     def self.count_templates(path)
-      YAML.safe_load(File.open(path), [Symbol]).count
+      YAML.safe_load(File.open(path), permitted_classes: [Symbol]).count
     end
 
     def self.load_schema(paths)

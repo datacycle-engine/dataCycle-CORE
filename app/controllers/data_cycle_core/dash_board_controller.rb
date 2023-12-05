@@ -8,7 +8,7 @@ module DataCycleCore
       @errors = nil
       @duplicates = nil
       @stat_database = StatsDatabase.new.load_all_stats
-      @stat_job_queue = StatsJobQueue.new.update
+      @stat_job_queue = StatsJobQueue.new.job_list
     end
 
     def download
@@ -72,55 +72,13 @@ module DataCycleCore
       redirect_to admin_path
     end
 
-    def import_templates
-      @errors = nil
-      @duplicates = nil
+    def rebuild_classification_mappings
+      DataCycleCore::RebuildClassificationMappingsJob.perform_later
 
-      template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new
-      template_importer.import
-
-      if template_importer.errors.blank? && template_importer.mixin_errors.blank? && template_importer.duplicates.blank?
-        flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'data types', locale: helpers.active_ui_locale
-      else
-        error_level = template_importer.errors.blank? && template_importer.mixin_errors.blank? ? :notice : :error
-        @errors = [*template_importer.errors, *template_importer.mixin_errors]
-        @duplicates = template_importer.duplicates
-        puts 'duplicates:'
-        ap @duplicates
-        puts 'errors:'
-        ap @errors
-
-        flash[error_level] = "#{@errors.size} errors/#{@duplicates.size} warnings were encountered"
+      respond_to do |format|
+        format.html { redirect_to(admin_path, notice: I18n.t('dash_board.maintenance.classification_mappings.queued', locale: helpers.active_ui_locale)) }
+        format.json { head :ok }
       end
-
-      redirect_to admin_path
-    end
-
-    def import_classifications
-      MasterData::ImportClassifications.import_all
-
-      flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'basic classification trees', locale: helpers.active_ui_locale
-
-      redirect_to admin_path
-    end
-
-    def import_external_systems
-      @errors = nil
-      errors = MasterData::ImportExternalSystems.import_all
-
-      if errors.blank?
-        flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'import external systems', locale: helpers.active_ui_locale
-      else
-        @errors = errors
-        puts 'errors:'
-        ap errors
-        flash[:error] = I18n.t('dash_board.errors_were_encountered', locale: helpers.active_ui_locale)
-      end
-
-      redirect_to admin_path
-    end
-
-    def classifications
     end
 
     def activities

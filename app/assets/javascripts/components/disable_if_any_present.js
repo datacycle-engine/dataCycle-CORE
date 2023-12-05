@@ -34,23 +34,26 @@ class DisableIfAnyPresent {
 		this.updateStatus();
 	}
 	updateStatus() {
-		if (this.disabled) {
-			const firstKey = Array.from(
-				DomElementHelpers.getFormData(this.element).keys(),
-			)[0];
-			DomElementHelpers.disableElement(this.element);
-			this.element.insertAdjacentHTML(
-				"afterbegin",
-				`<input type="hidden" name="${firstKey}" class="disable-and-clear-dummy">`,
-			);
-		} else {
-			DomElementHelpers.enableElement(this.element);
-			this.element
-				.querySelector('input[type="hidden"].disable-and-clear-dummy')
-				?.remove();
-		}
+		if (this.disabled) this.disable();
+		else this.enable();
 
 		$(this.element).trigger("change");
+	}
+	disable() {
+		const firstKey = Array.from(
+			DomElementHelpers.getFormData(this.element).keys(),
+		)[0];
+		DomElementHelpers.disableElement(this.element);
+		this.element.insertAdjacentHTML(
+			"afterbegin",
+			`<input type="hidden" name="${firstKey}" class="disable-and-clear-dummy">`,
+		);
+	}
+	enable() {
+		DomElementHelpers.enableElement(this.element);
+		this.element
+			.querySelector('input[type="hidden"].disable-and-clear-dummy')
+			?.remove();
 	}
 	getStatus() {
 		const value = Array.from(DomElementHelpers.getFormData(this.dependentOn));

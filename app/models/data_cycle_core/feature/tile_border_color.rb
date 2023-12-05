@@ -46,7 +46,7 @@ module DataCycleCore
         def event_schedule_classes(content)
           return if configuration[:event_schedule].blank? || !content.respond_to?(:event_schedule)
 
-          return ['event_schedule_past'] if content.event_schedule.presence&.none? do |es|
+          ['event_schedule_past'] if content.event_schedule.presence&.none? do |es|
             es.schedule_object.next_occurrence(Time.zone.now, spans: true).present?
           end
         end

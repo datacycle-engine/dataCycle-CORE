@@ -19,6 +19,14 @@
       overflow: hidden;
     }
 
+    .user-details-row {
+
+      >.show-user-link,
+      >.user-title {
+        flex: auto;
+      }
+    }
+
     .user-settings-link,
     .logout-link {
       .icon {
@@ -39,6 +47,10 @@
       overflow: hidden;
     }
 
+    :not(.user-details-row) a {
+      flex: auto;
+    }
+
     a {
       color: $black;
       outline-width: 0;
@@ -46,7 +58,6 @@
       flex-flow: row nowrap;
       align-items: center;
       gap: 0.5rem;
-      flex: auto;
       transition: $color-transition;
 
       &:hover {

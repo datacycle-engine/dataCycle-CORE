@@ -42,9 +42,16 @@ module DataCycleCore
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.uuid',
             substitutions: {
-              data: data
+              data:
             }
           }
+        end
+
+        def self.valid_url?(data)
+          schemes = ['http', 'https', 'mailto', 'ftp', 'sftp', 'tel']
+          schemes.include?(Addressable::URI.parse(data)&.scheme)
+        rescue Addressable::URI::InvalidURIError
+          false
         end
 
         private
@@ -88,8 +95,8 @@ module DataCycleCore
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.match',
             substitutions: {
-              data: data,
-              expression: expression
+              data:,
+              expression:
             }
           }
         end
@@ -101,57 +108,33 @@ module DataCycleCore
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.format',
               substitutions: {
-                data: data,
-                format_string: format_string
+                data:,
+                format_string:
               }
             }
           end
         end
 
         def url(data)
-          return if data.blank?
-          schemes = ['http', 'https', 'mailto', 'ftp', 'sftp', 'tel']
+          return if data.blank? || self.class.valid_url?(data)
 
-          begin
-            unless schemes.include?(Addressable::URI.parse(data)&.scheme)
-              (@error[:error][@template_key] ||= []) << {
-                path: 'validation.errors.url',
-                substitutions: {
-                  data: data
-                }
-              }
-            end
-          rescue Addressable::URI::InvalidURIError
-            (@error[:error][@template_key] ||= []) << {
-              path: 'validation.errors.url',
-              substitutions: {
-                data: data
-              }
+          (@error[:error][@template_key] ||= []) << {
+            path: 'validation.errors.url',
+            substitutions: {
+              data:
             }
-          end
+          }
         end
 
         def soft_url(data)
-          return if data.blank?
-          schemes = ['http', 'https', 'mailto', 'ftp', 'sftp', 'tel']
+          return if data.blank? || self.class.valid_url?(data)
 
-          begin
-            unless schemes.include?(Addressable::URI.parse(data)&.scheme)
-              (@error[:warning][@template_key] ||= []) << {
-                path: 'validation.errors.url',
-                substitutions: {
-                  data: data
-                }
-              }
-            end
-          rescue Addressable::URI::InvalidURIError
-            (@error[:warning][@template_key] ||= []) << {
-              path: 'validation.errors.url',
-              substitutions: {
-                data: data
-              }
+          (@error[:warning][@template_key] ||= []) << {
+            path: 'validation.errors.url',
+            substitutions: {
+              data:
             }
-          end
+          }
         end
 
         def required(data, value)
@@ -167,7 +150,7 @@ module DataCycleCore
           (@error[:warning][@template_key] ||= []) << {
             path: 'validation.warnings.telephone_din5008',
             substitutions: {
-              data: data
+              data:
             }
           }
         end

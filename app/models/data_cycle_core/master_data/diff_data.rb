@@ -32,7 +32,7 @@ module DataCycleCore
       end
 
       def diff?(a:, schema_a:, b:, schema_b: nil, partial_update: false)
-        diff(a: a, b: b, schema_a: schema_a, schema_b: schema_b, partial_update: partial_update)
+        diff(a:, b:, schema_a:, schema_b:, partial_update:)
         !(diff_hash.blank? && errors[:error].blank?)
       end
     end

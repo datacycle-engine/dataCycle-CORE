@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class UserGroupsController < ApplicationController
-    load_and_authorize_resource         # from cancancan (authorize)
+    load_and_authorize_resource # from cancancan (authorize)
     before_action :set_user_group, only: [:edit, :update, :destroy]
 
     def index
@@ -45,6 +45,9 @@ module DataCycleCore
       end
     end
 
+    def edit
+    end
+
     def create
       @user_group = DataCycleCore::UserGroup.new(user_group_params)
 
@@ -54,9 +57,6 @@ module DataCycleCore
         flash[:error] = @user_group.try(:errors).try(:first).try(:[], 1)
       end
       redirect_back(fallback_location: root_path)
-    end
-
-    def edit
     end
 
     def update

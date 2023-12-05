@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-property_header = render "data_cycle_core/api/v#{@api_version}/api_base/headers/property_value", key: key, definition: definition
+property_header = render("data_cycle_core/api/v#{@api_version}/api_base/headers/property_value", key:, definition:)
 
 if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations')
   translated_values = {}

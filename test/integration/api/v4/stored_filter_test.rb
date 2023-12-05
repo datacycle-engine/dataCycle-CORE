@@ -65,7 +65,7 @@ module DataCycleCore
 
         def all_things
           get api_v4_things_path(include: 'image,poi.image')
-          JSON.parse(response.body)
+          response.parsed_body
         end
 
         test '/api/v4/endpoints/:uuid with a valid stored_filter slug' do
@@ -74,7 +74,7 @@ module DataCycleCore
           get api_v4_stored_filter_path(id: fulltext_filter.slug, include: 'image,poi.image')
 
           assert_equal(response.content_type, 'application/json; charset=utf-8')
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
           assert_equal(true, json_data.key?('links'))
@@ -89,7 +89,7 @@ module DataCycleCore
           get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
 
           assert_equal(response.content_type, 'application/json; charset=utf-8')
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
           assert_equal(true, json_data.key?('links'))
@@ -103,7 +103,7 @@ module DataCycleCore
           fulltext_filter = add_fulltext_filter(poi_name)
           get api_v4_stored_filter_path(id: fulltext_filter.id)
 
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
           poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
           assert_equal(1, poi.dig('dc:classification')&.size)
 
@@ -114,13 +114,13 @@ module DataCycleCore
           fulltext_filter.save
 
           get api_v4_stored_filter_path(id: fulltext_filter.id)
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
           poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
           assert_nil(poi.dig('dc:classification'))
 
           # whitelist for in request
           get api_v4_stored_filter_path(id: fulltext_filter.id, classification_trees: tree1)
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
           poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
           assert_equal(1, poi.dig('dc:classification')&.size)
 
@@ -129,7 +129,7 @@ module DataCycleCore
           fulltext_filter.save
 
           get api_v4_stored_filter_path(id: fulltext_filter.id)
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
           poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
           assert_equal(1, poi.dig('dc:classification')&.size)
         end
@@ -141,21 +141,21 @@ module DataCycleCore
           fulltext_filter = add_fulltext_filter(poi_name)
 
           get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
           poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
           assert_equal(2, poi.dig('image', 0, 'dc:classification')&.size)
 
           fulltext_filter.classification_tree_labels = tree1
           fulltext_filter.save
           get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
           poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
           assert_equal(1, poi.dig('image', 0, 'dc:classification')&.size)
 
           fulltext_filter.classification_tree_labels = tree2
           fulltext_filter.save
           get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
           poi = json_data.dig('@graph').detect { |i| i.dig('name') == poi_name }
           assert_nil(poi.dig('image', 0, 'dc:classification')&.size)
         end
@@ -186,7 +186,7 @@ module DataCycleCore
           get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
 
           assert_equal(response.content_type, 'application/json; charset=utf-8')
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
           assert_equal(true, json_data.key?('links'))
@@ -199,7 +199,7 @@ module DataCycleCore
           relation_filter = add_relation_filter('headline')
           get api_v4_stored_filter_path(id: relation_filter.id, include: 'image,poi.image')
           assert_equal(response.content_type, 'application/json; charset=utf-8')
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
 
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
@@ -211,7 +211,7 @@ module DataCycleCore
           relation_filter = add_relation_filter('something_not_present')
           get api_v4_stored_filter_path(id: relation_filter.id, include: 'image,poi.image')
           assert_equal(response.content_type, 'application/json; charset=utf-8')
-          json_data = JSON.parse(response.body)
+          json_data = response.parsed_body
 
           assert_equal(0, json_data['@graph'].size)
           assert_equal(0, json_data['meta']['total'].to_i)

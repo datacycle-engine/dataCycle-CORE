@@ -141,7 +141,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(1)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@event_d.id, json_data.dig('@graph').first.dig('@id'))
 
             params = {
@@ -160,7 +160,7 @@ module DataCycleCore
             post api_v4_things_path(params)
             assert_api_count_result(1)
 
-            json_data = JSON.parse(response.body)
+            json_data = response.parsed_body
             assert_equal(@event_a.id, json_data.dig('@graph').first.dig('@id'))
           end
 

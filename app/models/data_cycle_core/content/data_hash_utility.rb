@@ -23,7 +23,7 @@ module DataCycleCore
 
       def get_validity_range(validity_hash)
         from, to = get_validity_values(validity_hash)
-        ((from || Time::LONG_AGO)..(to || Float::INFINITY))
+        ((from || Time::LONG_AGO)..(to || Float::INFINITY)) # rubocop:disable Style/RedundantParentheses
       end
 
       def get_validity_values(validity_hash)
@@ -40,8 +40,8 @@ module DataCycleCore
         [from, to]
       end
 
-      def name_property_selector(include_overlay = false, &block)
-        property_selector(include_overlay, &block).keys
+      def name_property_selector(include_overlay = false, &)
+        property_selector(include_overlay, &).keys
       end
 
       def property_selector(include_overlay = false)

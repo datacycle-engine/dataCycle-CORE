@@ -32,6 +32,36 @@
       </div>
     <% end %>
 
+    <% if (rel_filter = definition.dig('ui', 'edit', 'options', 'filter', 0, 'advanced', 'relation_filter')).present? %>
+      <div class="relation-filter">
+        <%
+          rel_id = SecureRandom.hex(10)
+          rel_name, rel_definition = rel_filter.first
+          rel_key = rel_definition.is_a?(::Hash) ? rel_definition['attribute'] : rel_definition
+          filter_restrictions = DataCycleCore::Feature::AdvancedFilter.relation_filter_restrictions('relation_filter', rel_name)
+        %>
+        <%= hidden_field_tag "f[#{rel_id}][t]", :relation_filter %>
+        <%= hidden_field_tag "f[#{rel_id}][n]", rel_name %>
+        <%= hidden_field_tag "f[#{rel_id}][q]", rel_key %>
+        <%= hidden_field_tag "f[#{rel_id}][c]", 'a' %>
+        <%= hidden_field_tag "f[#{rel_id}][m]", 's' %>
+        <%= select_tag(
+          "f[#{rel_id}][v]",
+          nil,
+          {
+            class: 'async-select',
+            include_blank: true,
+            data: {
+              max: 20,
+              placeholder: t("filter.#{rel_name}", default: rel_key, locale: active_ui_locale),
+              search_path: select_search_things_path,
+              query_params: filter_restrictions.to_json
+            }
+          }
+        ) %>
+      </div>
+    <% end %>
+
     <div class="buttons">
       <%= button_tag type: :submit, class: "button success" do %>
         <i class="fa fa-search" aria-hidden="true"></i>

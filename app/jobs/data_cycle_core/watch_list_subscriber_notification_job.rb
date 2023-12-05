@@ -18,7 +18,7 @@ module DataCycleCore
         changed_items[watch_list.id] = [] unless changed_items.key?(watch_list.id)
         content_ids.each do |id|
           deleted = changed_items[watch_list.id].reject! { |item| item[:id] == id }
-          changed_items[watch_list.id].push({ type: type, id: id, user_id: current_user.id }) if deleted.blank?
+          changed_items[watch_list.id].push({ type:, id:, user_id: current_user.id }) if deleted.blank?
         end
 
         SubscriptionMailer.notify_changed_watch_list_items(user, changed_items).deliver_later(wait_until: delivery_time(user))

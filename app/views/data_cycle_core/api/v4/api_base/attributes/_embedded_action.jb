@@ -15,11 +15,11 @@ if data.present?
   json[key_new] = data.map { |item|
     if new_fields.present?
       Rails.cache.fetch(api_v4_cache_key(item, options[:languages], new_include, new_fields, @api_subversion), expires_in: 1.year + Random.rand(7.days)) do
-        render 'content_details', content: item, options: { include: new_include, fields: new_fields, field_filter: options[:field_filter], languages: options[:languages], translatable_embedded: translatable_embedded }
+        render 'content_details', content: item, options: inherit_options({ include: new_include, fields: new_fields, field_filter: options[:field_filter], translatable_embedded: }, options)
       end
     else
       Rails.cache.fetch(api_v4_cache_key(item, options[:languages], new_include, new_fields, @api_subversion), expires_in: 1.year + Random.rand(7.days)) do
-        render 'content_details', content: item, options: { include: new_include, fields: new_fields, field_filter: false, languages: options[:languages], translatable_embedded: translatable_embedded }
+        render 'content_details', content: item, options: inherit_options({ include: new_include, fields: new_fields, field_filter: false, translatable_embedded: }, options)
       end
     end
   }.compact.presence

@@ -25,7 +25,7 @@ module DataCycleCore
 
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body)
+                json_data = response.parsed_body
 
                 # validate header
                 assert_equal('http://schema.org', json_data.dig('@context'))
@@ -108,7 +108,7 @@ module DataCycleCore
                   }]
                 }
                 I18n.with_locale(:de) do
-                  @content.set_data_hash(data_hash: data_hash, partial_update: true, current_user: User.find_by(email: 'tester@datacycle.at'))
+                  @content.set_data_hash(data_hash:, partial_update: true, current_user: User.find_by(email: 'tester@datacycle.at'))
                 end
                 @content.reload
 
@@ -116,7 +116,7 @@ module DataCycleCore
 
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body)
+                json_data = response.parsed_body
 
                 # content data
                 assert_equal(data_hash.dig('overlay').first.dig('name'), json_data.dig('name'))
@@ -130,19 +130,19 @@ module DataCycleCore
                 get(api_v3_things_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'TouristAttraction' }
+                json_data = response.parsed_body.dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'TouristAttraction' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'TouristAttraction' }
+                json_data = response.parsed_body.dig('data').detect { |item| Array.wrap(item.dig('@type')).last == 'TouristAttraction' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_places_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').first
+                json_data = response.parsed_body.dig('data').first
                 assert_equal(@content.id, json_data.dig('identifier'))
               end
 
@@ -150,12 +150,12 @@ module DataCycleCore
                 get api_v2_thing_path(id: @content)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                api_v2_json = JSON.parse(response.body)
+                api_v2_json = response.parsed_body
 
                 get api_v3_thing_path(id: @content)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                api_v3_json = JSON.parse(response.body)
+                api_v3_json = response.parsed_body
 
                 # openingHoursSpecification has been changed in APIv3
                 excepted_params = ['@id', 'image', 'photo', 'logo', 'openingHoursSpecification', 'potentialAction', 'additionalInformation']

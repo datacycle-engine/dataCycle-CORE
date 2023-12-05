@@ -1,0 +1,14 @@
+<% thumbnail_url = object.try(:thumbnail_url) || object.try(:asset).try(:first).try(:thumbnail_url) %>
+
+<div class="width-content reveal" id="<%= html_id %>" data-reveal>
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <div class="name"><%= object.title %></div>
+  <div class="video">
+    <video class="lazyload" data-poster="<%= thumbnail_url %>" controls="controls" controlsList="nodownload" preload="none">
+      <source src="<%= object.try(:content_url) %>" type="video/mp4">
+      Your browser does not support the video tag
+    </video>
+  </div>
+</div>

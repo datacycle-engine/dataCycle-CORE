@@ -19,7 +19,7 @@ module DataCycleCore
         def self.parse_identifier(data, external_system_id)
           result = data.map { |d|
             {
-              external_system_id: external_system_id,
+              external_system_id:,
               external_key: d.dig('value'),
               name: d.dig('name'),
               alternate_name: d.dig('alternateName')

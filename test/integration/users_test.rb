@@ -56,7 +56,7 @@ module DataCycleCore
       })
 
       post create_user_users_path, params: {
-        user: user
+        user:
       }, headers: {
         referer: users_path
       }

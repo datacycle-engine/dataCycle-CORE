@@ -16,7 +16,7 @@ module DataCycleCore
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.date_time',
               substitutions: {
-                data: data
+                data:
               }
             }
           end
@@ -30,7 +30,7 @@ module DataCycleCore
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.boolean',
             substitutions: {
-              data: data
+              data:
             }
           }
         end

@@ -56,7 +56,7 @@ module DataCycleCore
         end
 
         def prepare_url_parameters
-          @url_parameters = permitted_params.reject { |k, _| k == 'format' }
+          @url_parameters = permitted_params.except('format')
           @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
           @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:sync_api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))
           @full_text_search = permitted_params.dig(:filter, :search) || permitted_params.dig(:filter, :q)

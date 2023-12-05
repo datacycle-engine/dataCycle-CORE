@@ -5,7 +5,7 @@ module DataCycleCore
     module V1
       class ContentsController < ::DataCycleCore::SyncApi::V1::BaseController
         PUMA_MAX_TIMEOUT = 600
-        include DataCycleCore::Filter
+        include DataCycleCore::FilterConcern
         before_action :prepare_url_parameters
 
         def index
@@ -14,16 +14,13 @@ module DataCycleCore
             query = build_search_query
             @pagination_contents = apply_paging(query)
             @contents = @pagination_contents
-            render json: sync_api_format(@contents) { @contents.map { |i| i.to_sync_data(locales: i.available_locales) } }.to_json
+            render json: sync_api_format(@contents) { @contents.to_sync_data }.to_json
           end
         end
 
         def show
-          if DataCycleCore::Thing.where(id: permitted_params[:id]).present?
-            @content = DataCycleCore::Thing
-              .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
-              .find(permitted_params[:id])
-            render json: @content.to_sync_data(locales: @content.available_locales).to_json
+          if (@contents = DataCycleCore::Thing.where(id: permitted_params[:id]).limit(1)).present?
+            render json: @contents.to_sync_data&.first.to_json
           else
             render json: { error: 'Id not found!' }, layout: false, status: :bad_request
           end
@@ -36,7 +33,7 @@ module DataCycleCore
               .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
               .where(id: uuid)
             @contents = apply_paging(fetched_things)
-            render json: sync_api_format(@contents) { @contents.map { |i| i.to_sync_data(locales: i.available_locales) } }.to_json
+            render json: sync_api_format(@contents) { @contents.to_sync_data }.to_json
           else
             render json: { error: 'No ids given!' }, layout: false, status: :bad_request
           end
@@ -113,13 +110,13 @@ module DataCycleCore
 
         def api_plain_links(contents = nil)
           contents ||= @contents
-          object_url = (lambda do |params|
+          object_url = lambda do |params|
             File.join(request.protocol + request.host + ':' + request.port.to_s, request.path) + '?' + params.to_query
-          end)
+          end
           if request.request_method == 'POST'
             common_params = {}
           else
-            common_params = @permitted_params.to_h.reject { |k, _| ['id', 'format', 'page', 'api_subversion'].include?(k) }
+            common_params = @permitted_params.to_h.except('id', 'format', 'page', 'api_subversion')
           end
           links = {}
           links[:prev] = object_url.call(common_params.merge(page: { number: contents.prev_page, size: contents.limit_value })) if contents.prev_page
@@ -130,7 +127,7 @@ module DataCycleCore
         def api_plain_meta(count, pages)
           {
             total: count,
-            pages: pages
+            pages:
           }
         end
       end

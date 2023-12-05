@@ -2,6 +2,7 @@ import ConfirmationModal from "../components/confirmation_modal";
 import ObjectUtilities from "./object_utilities";
 
 const DomElementHelpers = {
+	inputFieldSelectors: ["input", "select", "textarea", "button"],
 	isVisible(elem) {
 		return (
 			elem.offsetWidth > 0 ||
@@ -200,25 +201,32 @@ const DomElementHelpers = {
 			for (const e of elem) fragment.append(e.cloneNode(true));
 		else fragment.append(elem.cloneNode(true));
 
-		for (const dcjsElem of fragment.querySelectorAll('[class*="dcjs"]')) {
-			for (const className of dcjsElem.classList)
-				if (className.startsWith("dcjs-")) dcjsElem.classList.remove(className);
+		if (fragment.querySelector('[class*="dcjs"]'))
+			for (const dcjsElem of fragment.querySelectorAll('[class*="dcjs"]'))
+				this.removeDcjsClasses(dcjsElem);
 
-			if (
-				dcjsElem.classList.contains("reveal") ||
-				dcjsElem.classList.contains("dropdown-pane")
-			) {
-				const newId = DomElementHelpers.randomId();
-				const elem = fragment.querySelector(
+		if (fragment.querySelector(".reveal, .dropdown-pane"))
+			for (const dcjsElem of fragment.querySelectorAll(
+				".reveal, .dropdown-pane",
+			)) {
+				const button = fragment.querySelector(
 					`[data-open="${dcjsElem.id}"], [data-toggle="${dcjsElem.id}"]`,
 				);
-				dcjsElem.id = newId;
-				if (elem.dataset.open) elem.dataset.open = newId;
-				if (elem.dataset.toggle) elem.dataset.toggle = newId;
+				this.duplicateFoundationIds(dcjsElem, button);
 			}
-		}
 
 		return $(fragment.children);
+	},
+	removeDcjsClasses(element) {
+		const dcjsRegex = new RegExp(/\s*dcjs[-A-Za-z0-9]*\s*/, "g");
+
+		element.className = element.className.replace(dcjsRegex, "");
+	},
+	duplicateFoundationIds(element, button) {
+		const newId = DomElementHelpers.randomId();
+		element.id = newId;
+		if (button.dataset.open) button.dataset.open = newId;
+		if (button.dataset.toggle) button.dataset.toggle = newId;
 	},
 };
 

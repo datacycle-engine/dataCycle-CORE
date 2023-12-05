@@ -73,7 +73,7 @@ module DataCycleCore
         'terms_conditions_at' => Time.zone.now.iso8601
       })
 
-      DataCycleCore::User.all.update_all(created_at: 3.weeks.ago)
+      DataCycleCore::User.update_all(created_at: 3.weeks.ago)
 
       assert_equal(
         DataCycleCore::User.where(locked_at: nil).size - 1,

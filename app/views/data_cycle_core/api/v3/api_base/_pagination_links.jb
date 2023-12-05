@@ -7,7 +7,7 @@ json = {
   }
 }
 
-common_params = @permitted_params.to_h.reject { |k, _| ['id', 'format', 'page', 'api_subversion'].include?(k) }
+common_params = @permitted_params.to_h.except('id', 'format', 'page', 'api_subversion')
 json['links'] = {}
 json['links']['self'] = object_url.call(common_params.merge(page: { number: objects.current_page, size: objects.limit_value }))
 json['links']['first'] = object_url.call(common_params.merge(page: { number: 1, size: objects.limit_value })) unless objects.first_page?

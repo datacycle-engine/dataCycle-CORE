@@ -77,13 +77,13 @@ module DataCycleCore
         assert(thing.available_locales.include?(locale.to_sym))
       end
 
-      def assert_attributes(json_validate, required_attributes, attributes, &block)
-        assert_json_attributes(json_validate, &block)
+      def assert_attributes(json_validate, required_attributes, attributes, &)
+        assert_json_attributes(json_validate, &)
         attributes.each { |a| required_attributes.delete(a) }
       end
 
-      def assert_translated_attributes(json_validate, required_attributes, attributes, &block)
-        assert_translated_json_attributes(json_validate, &block)
+      def assert_translated_attributes(json_validate, required_attributes, attributes, &)
+        assert_translated_json_attributes(json_validate, &)
         attributes.each { |a| required_attributes.delete(a) }
       end
 
@@ -159,7 +159,7 @@ module DataCycleCore
       private
 
       def sort_translated_attributes(attributes)
-        attributes.map { |k, v|
+        attributes.to_h do |k, v|
           if v.is_a?(::Hash)
             [k, sort_translated_attributes(v)]
           elsif v.is_a?(::Array) && v.detect { |c| c.is_a?(::Hash) && c['@language'].blank? }
@@ -169,7 +169,7 @@ module DataCycleCore
           else
             [k, v]
           end
-        }&.to_h
+        end
       end
     end
   end

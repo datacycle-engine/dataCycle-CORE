@@ -41,7 +41,7 @@ module DataCycleCore
         post things_path, params: {
           thing: {
             datahash: {
-              name: name
+              name:
             }
           },
           table: 'things',
@@ -50,7 +50,7 @@ module DataCycleCore
           parent_id: @container.id
         }
 
-        child = DataCycleCore::Thing.where_translated_value(name: name).first
+        child = DataCycleCore::Thing.where_translated_value(name:).first
 
         assert child
         assert_equal(child.parent.id, @container.id)

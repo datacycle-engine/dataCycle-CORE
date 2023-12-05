@@ -8,15 +8,19 @@ module DataCycleCore
     scope :by_user, ->(user) { where(user_id: user.id) }
 
     def self.except_user_id(user_id)
-      where.not(user_id: user_id)
+      where.not(user_id:)
     end
 
     def self.things
-      DataCycleCore::Thing.where(id: all.select(:subscribable_id))
+      return DataCycleCore::Thing.none if all.is_a?(ActiveRecord::NullRelation)
+
+      DataCycleCore::Thing.where(id: select(:subscribable_id))
     end
 
     def self.users
-      DataCycleCore::User.where(id: all.select(:user_id))
+      return DataCycleCore::User.none if all.is_a?(ActiveRecord::NullRelation)
+
+      DataCycleCore::User.where(id: select(:user_id))
     end
 
     def self.to_notify(frequencies = ['always'])

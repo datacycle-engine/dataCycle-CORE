@@ -40,7 +40,7 @@ module DataCycleCore
 
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body)
+                json_data = response.parsed_body
 
                 # validate header
                 assert_equal('http://schema.org', json_data.dig('@context'))
@@ -132,7 +132,7 @@ module DataCycleCore
                   ]
                 }
                 I18n.with_locale(:de) do
-                  @content.set_data_hash(data_hash: data_hash, partial_update: true, current_user: User.find_by(email: 'tester@datacycle.at'))
+                  @content.set_data_hash(data_hash:, partial_update: true, current_user: User.find_by(email: 'tester@datacycle.at'))
                 end
                 @content.reload
 
@@ -140,7 +140,7 @@ module DataCycleCore
 
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body)
+                json_data = response.parsed_body
 
                 # content data
                 assert_equal(event_schedule['start_date'], json_data.dig('startDate'))
@@ -156,19 +156,19 @@ module DataCycleCore
                 get(api_v2_things_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Event' }
+                json_data = response.parsed_body.dig('data').detect { |item| item.dig('@type') == 'Event' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v2_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Event' }
+                json_data = response.parsed_body.dig('data').detect { |item| item.dig('@type') == 'Event' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v2_events_path(filter: { from: '2019-10-01' }))
                 assert_response(:success)
                 assert_equal('application/json; charset=utf-8', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').first
+                json_data = response.parsed_body.dig('data').first
                 assert_equal(@content.id, json_data.dig('identifier'))
               end
             end

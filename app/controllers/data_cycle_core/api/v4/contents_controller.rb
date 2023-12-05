@@ -5,7 +5,7 @@ module DataCycleCore
     module V4
       class ContentsController < ::DataCycleCore::Api::V4::ApiBaseController
         PUMA_MAX_TIMEOUT = 60
-        include DataCycleCore::Filter
+        include DataCycleCore::FilterConcern
         include DataCycleCore::ApiHelper
         before_action :prepare_url_parameters
 
@@ -55,7 +55,7 @@ module DataCycleCore
 
           raise CanCan::AccessDenied unless DataCycleCore::StoredFilter.new.apply_user_filter(current_user, { scope: 'api' }).apply(skip_ordering: true).query.exists?(id: content.id)
 
-          @renderer = DataCycleCore::ApiRenderer::TimeseriesRenderer.new(content: content, **timeseries_params.slice(:timeseries, :group_by, :time, :data_format).to_h.deep_symbolize_keys)
+          @renderer = DataCycleCore::ApiRenderer::TimeseriesRenderer.new(content:, **timeseries_params.slice(:timeseries, :group_by, :time, :data_format).to_h.deep_symbolize_keys)
 
           case permitted_params[:format].to_sym
           when :json

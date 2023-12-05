@@ -43,16 +43,33 @@ module DataCycleCore
             end
           end
 
-          def imgproxy(**args)
-            variant = args.dig(:virtual_definition, 'virtual', 'transformation', 'version')
-            image_processing = args.dig(:virtual_definition, 'virtual', 'processing')
-            content = args.dig(:content)
+          def imgproxy(virtual_definition:, content:, **_args)
+            variant = virtual_definition&.dig('virtual', 'transformation', 'version')
+            image_processing = virtual_definition&.dig('virtual', 'processing')
+            transform_gravity!(content, image_processing) if image_processing&.key?('gravity')
 
             DataCycleCore::Feature::ImageProxy.process_image(
-              content: content,
-              variant: variant,
-              image_processing: image_processing
+              content:,
+              variant:,
+              image_processing:
             )
+          end
+
+          private
+
+          def transform_gravity!(content, image_processing)
+            gravity_array = Array.wrap(image_processing['gravity'])
+            image_processing['gravity'] = 'sm'
+
+            gravity_array.each do |gravity_key|
+              break image_processing['gravity'] = gravity_key unless content&.classification_property_names&.include?(gravity_key)
+
+              gravity = content.try(gravity_key)&.first&.uri&.split('#')&.last
+
+              break image_processing['gravity'] = gravity if gravity.present?
+            end
+
+            image_processing
           end
         end
       end

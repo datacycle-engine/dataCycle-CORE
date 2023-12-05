@@ -3,12 +3,13 @@ import ConfirmationModal from "./../components/confirmation_modal";
 import UuidHelper from "./../helpers/uuid_helper";
 import ObserverHelpers from "../helpers/observer_helpers";
 import CalloutHelpers from "../helpers/callout_helpers";
+import ObjectUtilities from "../helpers/object_utilities";
 
 class NewContentDialog {
 	constructor(form) {
 		this.form = form;
 		this.form.classList.add("dcjs-new-content-dialog");
-		this.searchWarning = this.$form = $(this.form);
+		this.$form = $(this.form);
 		this.nextButton = this.$form.find(".next");
 		this.prevButton = this.$form.find(".prev");
 		this.resetButton = this.$form.find(".button.reset");
@@ -28,6 +29,9 @@ class NewContentDialog {
 		);
 		this.changeObserver = new MutationObserver(
 			this._checkForChangedFormData.bind(this),
+		);
+		this.formFieldVisibilityObserver = new IntersectionObserver(
+			this.checkForVisibleElements.bind(this),
 		);
 
 		this.init();
@@ -133,11 +137,23 @@ class NewContentDialog {
 			}
 		}
 	}
+	checkForVisibleElements(entries) {
+		for (const entry of entries) {
+			const button = entry.target.previousElementSibling;
+
+			if (!button?.classList.contains("copy-attribute-to-all")) continue;
+			const isHidden = button.classList.contains("hidden");
+
+			if (entry.isIntersecting && isHidden) button.classList.remove("hidden");
+			else if (!entry.isIntersecting && !isHidden)
+				button.classList.add("hidden");
+		}
+	}
 	copyToReferenceField(event, config = {}) {
 		event.preventDefault();
 
 		QuillHelpers.updateEditors(this.$form);
-		let formData = this.$form.serializeArray();
+		const formData = this.$form.serializeArray();
 
 		if (config?.allFiles) this.reveal.foundation("close");
 		else this.nextAssetForm(event);
@@ -210,7 +226,7 @@ class NewContentDialog {
 		allFiles = false,
 		copyPrimary = false,
 	) {
-		let requests = [];
+		const requests = [];
 
 		formData.forEach((v, i) => {
 			if (v && UuidHelper.isUuid(v.value)) {
@@ -254,7 +270,7 @@ class NewContentDialog {
 		}
 	}
 	showNotice(target, text) {
-		let notice = $(`<span class="copy-attribute-notice">${text}</span>`);
+		const notice = $(`<span class="copy-attribute-notice">${text}</span>`);
 		$(notice).appendTo(target);
 		setTimeout(
 			function () {
@@ -280,11 +296,12 @@ class NewContentDialog {
 					),
 			);
 
-		let button = $(
-			`<button class="copy-attribute-to-all button-prime small" title="dieses Attribut für alle ${this.templateTranslationPlural} übernehmen"><span class="copy-icon fa-stack"><i class="fa fa-clone"></i><i class="fa fa-arrow-right fa-stack-1x"></i></span><i class="fa loading-icon fa-spinner fa-fw fa-spin"></i></button>`,
-		);
+		const buttonHtml = `<button class="copy-attribute-to-all button-prime small" title="dieses Attribut für alle ${this.templateTranslationPlural} übernehmen"><span class="copy-icon fa-stack"><i class="fa fa-clone"></i><i class="fa fa-arrow-right fa-stack-1x"></i></span><i class="fa loading-icon fa-spinner fa-fw fa-spin"></i></button>`;
 
-		button.insertBefore(formFields);
+		for (const el of formFields.get()) {
+			el.insertAdjacentHTML("beforebegin", buttonHtml);
+			this.formFieldVisibilityObserver.observe(el);
+		}
 
 		if (this.primaryAttributeKey?.length)
 			formFields
@@ -311,12 +328,12 @@ class NewContentDialog {
 		if (!data?.attributes) return;
 		if (!data?.locale) this.$form.get(0).reset();
 
-		let groupedAttributes = this.groupAttributeValues(
+		const groupedAttributes = this.groupAttributeValues(
 			data.attributes,
 			data.locale,
 		);
 
-		for (let key in groupedAttributes) {
+		for (const key in groupedAttributes) {
 			this.$form
 				.find(`[data-key="${key}"]`)
 				.find(DataCycle.config.EditorSelectors.join(", "))
@@ -331,7 +348,7 @@ class NewContentDialog {
 		}
 	}
 	groupAttributeValues(values, locale = null) {
-		let groupedValues = {};
+		const groupedValues = {};
 
 		if (!values?.length) return groupedValues;
 
@@ -342,7 +359,7 @@ class NewContentDialog {
 			)
 				return;
 
-			let key = v.name.normalizeKey();
+			const key = v.name.normalizeKey();
 
 			if (groupedValues[key] || UuidHelper.isUuid(v.value)) {
 				if (!Array.isArray(groupedValues[key]))
@@ -401,7 +418,9 @@ class NewContentDialog {
 	nextAssetForm(event) {
 		event.preventDefault();
 		this.reveal.foundation("close");
-		let nextAsset = this.referencedAssetField.next(".file-for-upload.finished");
+		const nextAsset = this.referencedAssetField.next(
+			".file-for-upload.finished",
+		);
 
 		if (nextAsset?.length)
 			$(
@@ -413,7 +432,9 @@ class NewContentDialog {
 	prevAssetForm(event) {
 		event.preventDefault();
 		this.reveal.foundation("close");
-		let prevAsset = this.referencedAssetField.prev(".file-for-upload.finished");
+		const prevAsset = this.referencedAssetField.prev(
+			".file-for-upload.finished",
+		);
 
 		if (prevAsset?.length)
 			$(
@@ -426,7 +447,7 @@ class NewContentDialog {
 		this.updateCrumbs();
 		this.updateWarningLevel();
 
-		let activeFieldset = this.$form.find("fieldset.active");
+		const activeFieldset = this.$form.find("fieldset.active");
 
 		if (
 			!(
@@ -449,7 +470,7 @@ class NewContentDialog {
 	}
 	next(event) {
 		event.preventDefault();
-		let activeFieldset = this.$form.find("fieldset.active");
+		const activeFieldset = this.$form.find("fieldset.active");
 		if (this.$form.hasClass("validation-form")) {
 			activeFieldset.trigger("dc:form:validate", {
 				successCallback: () => {
@@ -572,12 +593,25 @@ class NewContentDialog {
 		this.disableForm();
 
 		const template = this.$form.find(':input[name="template"]').val();
-		let params = this.$form.data();
+		const params = this.$form.data();
 		params.template = template;
 		params.key = this.id;
 
 		const promise = DataCycle.httpRequest("/things/new", {
-			body: params,
+			body: ObjectUtilities.pick(params, [
+				"key",
+				"template",
+				"locale",
+				"searchParam",
+				"searchRequired",
+				"scope",
+				"options.force_render",
+				"options.prefix",
+				"parent.id",
+				"parent.class",
+				"content.id",
+				"content.class",
+			]),
 		})
 			.then(this.renderNewFormHtml.bind(this, template))
 			.catch(this.renderLoadError.bind(this));

@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class WatchListsController < ApplicationController
-    include DataCycleCore::Filter
+    include DataCycleCore::FilterConcern
     include DataCycleCore::Feature::ControllerFunctions::ContentLock if DataCycleCore::Feature::ContentLock.enabled?
     include DataCycleCore::BulkUpdateTypes
 
@@ -41,6 +41,14 @@ module DataCycleCore
       @watch_list = DataCycleCore::WatchList.new
     end
 
+    def edit
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
+
+      return if params[:data_id].blank?
+      add_remove_data params
+      redirect_back(fallback_location: root_path)
+    end
+
     def create
       @watch_list = current_user.watch_lists.build(watch_list_params)
       @new_form_id = create_form_params[:new_form_id]
@@ -53,14 +61,6 @@ module DataCycleCore
           format.html { redirect_back(fallback_location: root_path) }
         end
       end
-    end
-
-    def edit
-      @watch_list = DataCycleCore::WatchList.find(params[:id])
-
-      return if params[:data_id].blank?
-      add_remove_data params
-      redirect_back(fallback_location: root_path)
     end
 
     def update
@@ -141,9 +141,6 @@ module DataCycleCore
 
       authorize!(:bulk_edit, @watch_list)
 
-      @shared_properties = @watch_list.things.shared_ordered_properties(current_user)
-      @shared_template_features = @watch_list.things.shared_template_features
-
       I18n.with_locale(params[:locale]) do
         @locale = I18n.locale
 
@@ -158,13 +155,13 @@ module DataCycleCore
 
       authorize!(:bulk_edit, @watch_list)
 
-      @shared_properties = @watch_list.things.shared_ordered_properties(current_user)
-      @shared_template_features = @watch_list.things.shared_template_features
       bulk_edit_types = bulk_update_type_params
       bulk_edit_allowed_keys = Array.wrap(bulk_edit_types.dig(:datahash)&.keys).concat(Array.wrap(bulk_edit_types.dig(:translations)&.values&.map(&:keys)&.flatten))
 
-      template_hash = { name: 'Generic', type: 'object', schema_ancestors: ['Generic'], content_type: 'entity', features: @shared_template_features, properties: @shared_properties.slice(*bulk_edit_allowed_keys) }.stringify_keys
-      object_params = content_params(template_hash)
+      @object = DataCycleCore::Thing.new(thing_template: content_template, id: SecureRandom.uuid)
+      @object.schema['properties'].slice!(*bulk_edit_allowed_keys)
+
+      object_params = content_params(@object.schema)
 
       if object_params.dig(:datahash).blank? && object_params.dig(:translations).blank?
         flash.now[:error] = I18n.t(:no_selected_attributes, scope: [:controllers, :error], locale: helpers.active_ui_locale)
@@ -172,7 +169,7 @@ module DataCycleCore
         return head(:ok)
       end
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, template_hash)
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, @object.schema)
 
       I18n.with_locale(params[:locale]) do
         unless can?(:bulk_edit, @watch_list) && @watch_list.things.all? { |t| can?(:update, t) }
@@ -200,18 +197,22 @@ module DataCycleCore
           specific_datahash[:translations]&.slice!(*allowed_translations)
 
           if specific_datahash[:translations].present? || specific_datahash[:datahash].present?
-            valid = content.set_data_hash_with_translations(
-              data_hash: transform_exisiting_values(bulk_edit_types, template_hash, specific_datahash, content),
-              current_user: current_user
-            )
-            errors.concat(Array.wrap(content.errors.full_messages)) unless valid
+            I18n.with_locale(content.first_available_locale(specific_datahash[:translations]&.keys&.first || params[:locale])) do
+              valid = content.set_data_hash_with_translations(
+                data_hash: transform_exisiting_values(bulk_edit_types, @object.schema, specific_datahash, content),
+                current_user:
+              )
+              errors.concat(Array.wrap(content.errors.full_messages)) unless valid
+            end
           end
 
           ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", { progress: index + 1, items: item_count })
         end
 
         if errors.present?
-          flash.now[:error] = errors.join(', ')
+          error_string = errors.first(5).join('<br>')
+          error_string += "<br>+ #{I18n.t('common.more_errors', count: errors.size - 5, locale: helpers.active_ui_locale)}" if errors.size > 5
+          flash.now[:error] = error_string
         else
           flash.now[:success] = I18n.t :bulk_updated, scope: [:controllers, :success], count: item_count, locale: helpers.active_ui_locale
 
@@ -282,9 +283,7 @@ module DataCycleCore
       else
         render(json: { warning: { content: ['content not found'] } }) && return if params[:thing].blank?
 
-        @shared_properties = @watch_list.things.shared_ordered_properties(current_user)
-        @shared_template_features = @watch_list.things.shared_template_features
-        @object = helpers.generic_content(@shared_template_features, @shared_properties)
+        @object = DataCycleCore::Thing.new(thing_template: content_template, id: SecureRandom.uuid)
 
         object_params = content_params(@object.schema)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, @object.schema)
@@ -292,7 +291,7 @@ module DataCycleCore
         datahash = (datahash[:datahash] || {}).merge(values || {})
 
         I18n.with_locale(locale) do
-          @object.validate(data_hash: datahash, current_user: current_user)
+          @object.validate(data_hash: datahash, current_user:)
 
           render json: @object.validation_messages_as_json.to_json
         end
@@ -340,7 +339,7 @@ module DataCycleCore
 
       @watch_list.update_order_by_array(update_order_params[:order])
 
-      flash[:success] = I18n.t('collection.manual_order.success', locale: helpers.active_ui_locale)
+      flash.now[:success] = I18n.t('collection.manual_order.success', locale: helpers.active_ui_locale)
 
       render json: flash.discard.to_h
     end
@@ -371,6 +370,12 @@ module DataCycleCore
       return {} if params[:bulk_update].blank?
 
       params.require(:bulk_update).permit(datahash: {}, translations: {})
+    end
+
+    def content_template
+      resolve_params(JSON.parse(params.permit(:content_template)[:content_template]))&.dig(:thing_template)
+    rescue StandardError
+      nil
     end
 
     def content_params(schema_hash)

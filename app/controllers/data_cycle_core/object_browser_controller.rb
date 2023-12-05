@@ -4,13 +4,12 @@ module DataCycleCore
   class ObjectBrowserController < ApplicationController
     DEFAULT_PER = 50
 
+    include DataCycleCore::ContentByIdOrTemplate
+
     def show
       authorize! :show, :object_browser
-      if permitted_params[:content_id].present?
-        @content = DataCycleCore::Thing.find_by(id: permitted_params[:content_id])
-      else
-        @content = DataCycleCore::Thing.new(template_name: permitted_params[:template_name], created_by: current_user)
-      end
+
+      @content = content_by_id_or_template
 
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
         @definition = permitted_params.dig(:definition)
@@ -53,11 +52,7 @@ module DataCycleCore
       authorize! :show, :object_browser
       return if permitted_params[:ids].blank?
 
-      if permitted_params[:content_id].present?
-        @content = DataCycleCore::Thing.find_by(id: permitted_params[:content_id])
-      else
-        @content = DataCycleCore::Thing.new(template_name: permitted_params[:template_name], created_by: current_user)
-      end
+      @content = content_by_id_or_template
 
       I18n.with_locale(permitted_params[:locale]) do
         if permitted_params[:external]
@@ -75,7 +70,7 @@ module DataCycleCore
 
       return if params[:ids].blank?
 
-      @content = DataCycleCore::Thing.find(permitted_params[:content_id]) if permitted_params[:content_id].present?
+      @content = content_by_id_or_template
       @objects = DataCycleCore::Thing.where(id: params[:ids])
 
       I18n.with_locale(params[:locale]) do
@@ -104,7 +99,7 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      [:per, :page, :id, :locale, :content_id, :template_name, :external, { filter_ids: [] }, { ids: [] }, { definition: {} }, filter: {}, excluded: []]
+      [:per, :page, :id, :locale, :external, { filter_ids: [] }, { ids: [] }, { definition: {} }, filter: {}, excluded: []]
     end
 
     def count_only_params

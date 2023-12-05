@@ -11,7 +11,7 @@ module DataCycleCore
           data = DataCycleCore::Generic::ExternalLink::Transformations.transformation(external_system.id).call(raw_data)
 
           init_logging do |logging|
-            errors = update_sync(data: data, external_system: external_system)
+            errors = update_sync(data:, external_system:)
 
             if errors.present?
               logging.error('update', data['id'], raw_data, errors)
@@ -30,7 +30,7 @@ module DataCycleCore
           data = DataCycleCore::Generic::ExternalLink::Transformations.transformation(external_system.id).call(raw_data)
 
           init_logging do |logging|
-            errors = delete_sync(data: data, external_system: external_system)
+            errors = delete_sync(data:, external_system:)
 
             if errors.present?
               logging.error('delete', data['id'], raw_data, errors)

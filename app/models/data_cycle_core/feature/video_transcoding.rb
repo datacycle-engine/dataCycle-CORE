@@ -5,7 +5,7 @@ module DataCycleCore
     class VideoTranscoding < Base
       class << self
         def process_video(content:, variant:)
-          return unless processable?(content: content, variant: variant)
+          return unless processable?(content:, variant:)
           video_processing = config.dig(variant, 'processing')
 
           processed_dir = Rails.public_path.join('uploads', 'processed', 'video', content.id)
@@ -45,7 +45,7 @@ module DataCycleCore
 
         def video_filename(content, variant)
           filename = content.asset.name
-          filename = filename.split('.').size > 1 ? filename.split('.')[0...-1].join : filename
+          filename = filename.split('.')[0...-1].join if filename.split('.').size > 1
           filename_append = variant.dig('filename_append').present? ? "-#{variant.dig('filename_append')}" : ''
           file_extension = variant.dig('file_ext')
           "#{filename.parameterize(separator: '_')}#{filename_append}.#{file_extension}"

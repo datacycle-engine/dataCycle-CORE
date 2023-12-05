@@ -7,7 +7,7 @@ module DataCycleCore
         extend ActiveSupport::Concern
 
         def siblings
-          (parent ? parent.children : self.class.roots).where.not(id: id)
+          (parent ? parent.children : self.class.roots).where.not(id:)
         end
 
         module ClassMethods

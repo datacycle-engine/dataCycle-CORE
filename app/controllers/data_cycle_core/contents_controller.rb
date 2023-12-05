@@ -2,7 +2,9 @@
 
 module DataCycleCore
   class ContentsController < ApplicationController
-    include DataCycleCore::Filter
+    include DataCycleCore::FilterConcern
+    include DataCycleCore::ContentByIdOrTemplate
+
     before_action :set_watch_list, except: [:asset]
     before_action :set_return_to, only: [:show, :edit]
 
@@ -28,22 +30,46 @@ module DataCycleCore
 
       ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { progress: 0, items: item_count })
 
-      new_thing_params.each do |_key, thing_params|
+      new_thing_params.each_value do |thing_params|
         thing_hash = content_params(params[:template], thing_params)
 
         I18n.with_locale(create_locale(thing_params)) do
           content = DataCycleCore::DataHashService.create_internal_object(params[:template], thing_hash, current_user)
           content_ids << { id: content.id, field_id: thing_params[:uploader_field_id] } if content.try(:id).present?
 
-          ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { progress: index += 1, items: item_count, errors: content.try(:errors).presence })
+          ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { progress: index + 1, items: item_count, error: content.try(:errors).full_messages.join(', '), id: content.id, field_id: thing_params[:uploader_field_id] })
+        rescue StandardError => e
+          ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { progress: index + 1, items: item_count, error: e.message, id: content.id, field_id: thing_params[:uploader_field_id] })
+        ensure
+          index += 1
         end
       end
 
-      flash.now[:success] = I18n.t :bulk_created, scope: [:controllers, :success], count: item_count, locale: helpers.active_ui_locale
+      finished = item_count == content_ids.size
 
-      ActionCable.server.broadcast("bulk_create_#{params[:overlay_id]}_#{current_user.id}", { redirect_path: root_path, flash: flash.to_hash, created: true, content_ids: content_ids })
+      ActionCable.server.broadcast(
+        "bulk_create_#{params[:overlay_id]}_#{current_user.id}",
+        {
+          created: finished,
+          redirect_path: finished ? root_path : nil,
+          content_ids:,
+          error: finished ? nil : I18n.t('controllers.error.bulk_created', count: item_count - content_ids.size, locale: helpers.active_ui_locale)
+        }
+      )
 
       head(:ok)
+    rescue StandardError
+      finished = item_count == content_ids.size
+
+      ActionCable.server.broadcast(
+        "bulk_create_#{params[:overlay_id]}_#{current_user.id}",
+        {
+          created: finished,
+          redirect_path: finished ? root_path : nil,
+          content_ids:,
+          error: finished ? nil : I18n.t('controllers.error.bulk_created', count: item_count - content_ids.size, locale: helpers.active_ui_locale)
+        }
+      )
     end
 
     def show
@@ -124,11 +150,31 @@ module DataCycleCore
       }
     end
 
+    def edit
+      @content ||= DataCycleCore::Thing.find(params[:id])
+      @hide_embedded = params[:hide_embedded].present?
+
+      redirect_to(edit_thing_path(@content.related_contents.first)) && return if @content.embedded?
+
+      # get show data for split view
+      if source_params.present?
+        @split_source = DataCycleCore::Thing.find(source_params[:source_id])
+        @source_locale = source_params[:source_locale]
+      end
+
+      I18n.with_locale(params[:locale] || @content.first_available_locale) do
+        @locale = I18n.locale
+        authorize!(:edit, @content)
+
+        render && return
+      end
+    end
+
     def create
       template = DataCycleCore::Thing.new(template_name: params[:template])
       authorize!(__method__, template, resolve_params(params, false).dig(:scope))
 
-      @object_browser_parent = DataCycleCore::Thing.find_by(id: params[:content_id]) || DataCycleCore::Thing.new { |t| t.id = params[:content_id] } if params[:content_id].present?
+      @object_browser_parent = content_by_id_or_template
 
       I18n.with_locale(create_locale) do
         object_params = content_params(params[:template])
@@ -142,7 +188,7 @@ module DataCycleCore
         @content = DataCycleCore::DataHashService.create_internal_object(params[:template], object_params, current_user, parent_params[:parent_id], source)
 
         if @content.try(:errors).present?
-          flash[:error] = @content.errors.full_messages
+          flash.now[:error] = @content.errors.full_messages
         elsif @content.present?
           flash[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale)
         end
@@ -165,26 +211,6 @@ module DataCycleCore
             }
           end
         end
-      end
-    end
-
-    def edit
-      @content ||= DataCycleCore::Thing.find(params[:id])
-      @hide_embedded = params[:hide_embedded].present?
-
-      redirect_to(edit_thing_path(@content.related_contents.first)) && return if @content.embedded?
-
-      # get show data for split view
-      if source_params.present?
-        @split_source = DataCycleCore::Thing.find(source_params[:source_id])
-        @source_locale = source_params[:source_locale]
-      end
-
-      I18n.with_locale(params[:locale] || @content.first_available_locale) do
-        @locale = I18n.locale
-        authorize!(:edit, @content)
-
-        render && return
       end
     end
 
@@ -227,7 +253,7 @@ module DataCycleCore
 
         version_name_for_merge(datahash) if merge_duplicate
 
-        unless @content.set_data_hash_with_translations(data_hash: datahash, current_user: current_user, force_update: merge_duplicate)
+        unless @content.set_data_hash_with_translations(data_hash: datahash, current_user:, force_update: merge_duplicate)
           flash[:error] = @content.i18n_errors.map { |k, v| v.full_messages.map { |m| "#{k}: #{m}" } }.flatten
           redirect_back(fallback_location: root_path) && return
         end
@@ -254,7 +280,7 @@ module DataCycleCore
       @content = DataCycleCore::Thing.find(params[:id])
 
       I18n.with_locale(@content.first_available_locale(destroy_params[:locale])) do
-        destroy_content_params = { current_user: current_user }
+        destroy_content_params = { current_user: }
         if @content.external_source_id.present?
           destroy_content_params[:save_history] = true
           destroy_content_params[:destroy_linked] = true
@@ -308,22 +334,30 @@ module DataCycleCore
 
       authorize! :history, @content
 
-      @source_locale = @diff_source.last_updated_locale || @diff_source.first_available_locale
+      @source_locale = @diff_source.first_available_locale(@diff_source.last_updated_locale)
 
       I18n.with_locale(@source_locale) do
-        @target_locale = @content.last_updated_locale || @content.first_available_locale
+        @target_locale = @content.first_available_locale(@content.last_updated_locale)
         I18n.with_locale(@target_locale) { @data_schema = @content.get_data_hash }
         @diff_schema = @diff_source.diff(@data_schema) || {}
 
         if @source_locale.to_s != @target_locale.to_s
           @content.translatable_property_names.each do |key|
-            @diff_schema[key] = ['0', nil]
+            if key.in?(@content.embedded_property_names)
+              if @diff_schema.dig(key, 0, 0).present?
+                @diff_schema[key][0][0] = '0'
+              else
+                @diff_schema[key] = [['0', nil]]
+              end
+            else
+              @diff_schema[key] = ['0', nil]
+            end
           end
         end
 
         render
       rescue StandardError => e
-        redirect_back(fallback_location: root_path, alert: helpers.tag.span(I18n.t('controllers.error.definition_mismatch', locale: helpers.active_ui_locale), title: "#{e.message.truncate(250)}\n\n#{e.backtrace.first(10).join("\n")}")) && return
+        redirect_back(fallback_location: root_path, alert: helpers.tag.span(I18n.t('controllers.error.definition_mismatch', locale: helpers.active_ui_locale), title: "#{e.message.truncate(100)}\n\n#{e.backtrace.first(5).join("\n")}"), allow_other_host: false) && return
       end
     end
 
@@ -331,7 +365,7 @@ module DataCycleCore
       @content = DataCycleCore::Thing.find(params[:id])
       @history = @content.histories.find(params[:history_id]) if params[:history_id].present?
 
-      redirect_back(fallback_location: root_path) && return if @history.nil? || @content.nil?
+      redirect_back(fallback_location: root_path, allow_other_host: false) && return if @history.nil? || @content.nil?
 
       I18n.with_locale(@history.first_available_locale) do
         history_hash = @history.get_data_hash
@@ -358,7 +392,7 @@ module DataCycleCore
       @content = api_strategy.create(content.except('source_key'))
       @content = @content.try(:first)
 
-      flash[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale)
+      flash.now[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale)
 
       if params[:render_html]
         render js: "document.location = '#{thing_path(@content)}'"
@@ -373,7 +407,7 @@ module DataCycleCore
     end
 
     def render_embedded_object
-      @content = DataCycleCore::Thing.find_by(id: render_embedded_object_params[:id]) || DataCycleCore::Thing.new { |t| t.id = render_embedded_object_params[:id] || SecureRandom.uuid } # new Thing required for bulk_edit
+      @content = DataCycleCore::Thing.find_by(id: render_embedded_object_params[:id]) || content_by_id_or_template
       @key = render_embedded_object_params[:key]
       @definition = render_embedded_object_params[:definition]
       @index = render_embedded_object_params[:index]
@@ -419,7 +453,7 @@ module DataCycleCore
       datahash = (datahash[:datahash] || {}).merge(values || {})
 
       I18n.with_locale(locale || validation_params[:locale]) do
-        @object.validate(data_hash: datahash, strict: validation_params[:strict] == '1', add_defaults: true, current_user: current_user)
+        @object.validate(data_hash: datahash, strict: validation_params[:strict] == '1', add_defaults: true, current_user:)
 
         render json: @object.validation_messages_as_json.to_json
       end
@@ -507,7 +541,6 @@ module DataCycleCore
 
     def select_search
       authorize! :show, DataCycleCore::Thing
-      template_filter = select_search_params[:template_name].present?
 
       filter = DataCycleCore::StoredFilter.new.parameters_from_hash(select_search_params[:stored_filter])
       query = filter.apply
@@ -518,7 +551,7 @@ module DataCycleCore
       query = query.limit(select_search_params[:max].to_i) if select_search_params[:max].present?
       query = query.sort_fulltext_search('DESC', select_search_params[:q])
 
-      render plain: query.includes(:translations).map { |t| t.to_select_option(template_filter, helpers.active_ui_locale) }.to_json,
+      render plain: query.includes(:translations).map { |t| t.to_select_option(helpers.active_ui_locale) }.to_json,
              content_type: 'application/json'
     end
 
@@ -672,10 +705,10 @@ module DataCycleCore
 
       @content.invalidate_self
 
-      flash[:success] = I18n.t('external_connections.remove_external_system_sync.success', locale: helpers.active_ui_locale)
+      flash.now[:success] = I18n.t('external_connections.remove_external_system_sync.success', locale: helpers.active_ui_locale)
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path) }
+        format.html { redirect_back(fallback_location: root_path, notice: flash[:success]) }
         format.json { render json: { html: render_to_string(formats: [:html], layout: false, partial: 'data_cycle_core/contents/external_connections', locals: { content: @content }).strip, **flash.discard.to_h } }
       end
     end
@@ -740,7 +773,7 @@ module DataCycleCore
     end
 
     def create_locale(params_hash = nil)
-      locale_param = (params_hash&.dig(:locale) || params.dig(:thing, :locale))
+      locale_param = params_hash&.dig(:locale) || params.dig(:thing, :locale)
       I18n.available_locales.include?(locale_param&.to_sym) ? locale_param : I18n.locale.to_s
     end
 

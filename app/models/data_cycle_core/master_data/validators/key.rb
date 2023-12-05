@@ -14,7 +14,7 @@ module DataCycleCore
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.key',
               substitutions: {
-                data: data
+                data:
               }
             }
           end

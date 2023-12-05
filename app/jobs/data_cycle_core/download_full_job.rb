@@ -34,7 +34,7 @@ module DataCycleCore
       pid = Process.fork do
         ExternalSystem.find(uuid).download({ mode: 'full' })
       rescue StandardError => e
-        ActiveSupport::Notifications.instrument "#{self.class.name.demodulize.underscore}_failed.datacycle", this: {
+        ActiveSupport::Notifications.instrument "#{self.class.name.demodulize.underscore}_failed.datacycle", {
           exception: e,
           external_system: external_source
         }

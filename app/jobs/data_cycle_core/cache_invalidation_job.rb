@@ -19,7 +19,7 @@ module DataCycleCore
     end
 
     def perform(class_name, id, method_name)
-      class_name.classify.constantize.find_by(id: id)&.send(method_name)
+      class_name.classify.constantize.find_by(id:)&.send(method_name)
     end
   end
 end

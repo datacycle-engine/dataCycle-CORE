@@ -94,6 +94,13 @@ en:
     download_import: Download &amp; Import
     delete: delete
     errors_were_encountered: errors were encountered
+    maintenance:
+      classification_mappings:
+        button: rebuild classification_mappings
+        queued: queued job to rebuild classification_mappings
+        started: started rebuilding classification_mappings
+        finished: finished rebuilding classification_mappings
+        error: an error occurred while rebuilding classification_mappings!
 
   notification:
     frequency:
@@ -381,6 +388,7 @@ en:
     status: Status
     confirm_delete_all_caches: Really clear all caches?
     confirm_delete_cache: Really clear the cache?
+    all_caches_cleared: All Caches were cleared
     confirm_delete_autotranslation: Really delete all manual translations?
     content_not_editable: Content cannot be edited afterwards.
     download_gpx: Download as GPX file
@@ -549,6 +557,7 @@ en:
     geolocation_error: The current position could not be accessed
     api_url: API Link
     url: URL
+    more_errors: "%{count} more errors"
 
   embedded:
     move_down: move down
@@ -619,6 +628,7 @@ en:
           by_name_and_length: "Number of characters"
           by_name_and_presence: "filled"
           by_type_and_presence: "Type of Information"
+          first_by_type_and_presence: "Types of Information"
           by_type_and_length: "Type of Information and Number of characters"
         object:
           by_attribute_and_presence: filled
@@ -839,7 +849,7 @@ en:
     number_of_accommodations: Number of residential units
     linked_image: Linked image
     linked_location: Linked location
-    linked_author: Linked photographer
+    linked_author: Linked author
     linked_copyright_holder: Related rights holder
     linked_provider: Linked service provider
     linked_sd_publisher: Linked Owner / Publisher
@@ -897,6 +907,7 @@ en:
 
   object_browser:
     details:
+      button: show details
       created_at: created
       updated_at: Edited
       title: Title
@@ -1170,6 +1181,9 @@ en:
       user_locked: A user with this email already exists and is locked. Please contact an administrator to unlock the user.
       classification_mappings_error: An error occurred while updating the classification mappings
       external_system_already_exists: There already exists a configuration for this external system
+      bulk_created:
+        one: "<b>%{count}</b> Content could not be created!"
+        other: "<b>%{count}</b> Contents could not be created!"
     success:
       created: "%{data} was successfully created."
       ready_to_send: "%{data} has been successfully created and can now be sent."
@@ -1616,12 +1630,16 @@ en:
         EventGroup: Description
       infrastructure:
         AdditionalService: Additional service
+        Arrival Information: Arrival Information
         CurrentInformation: Current information
         GuestCardClassification: Guest card services
         InfrastructureLong: Detailed description
         InfrastructureOpeningTimes: Opening hours
         InfrastructurePriceInfo: Price information
         InfrastructureShort: Brief description
+        Payment: Payment modalities
+        Price Information: Price
+        ServiceDescription: Description
       GuestCards:
         GuestCardClassification: Guest card services
       accommodation:
@@ -1664,6 +1682,24 @@ en:
         experience_rating: Experience
         landscape_rating: Landscape
         difficulty_rating: Difficulty
+    general_solutions:
+      place:
+        directions: Approach
+        parking: Parking
+        hours_available: Opening hours
+        text: Description
+        price: Price
+        description: Brief description
+        directions_public_transport: Public transport
+      tour:
+        text: Description
+        description: Brief description
+        instructions: Directions
+        directions_public_transport: Public transport
+        parking: Parking
+      ratings:
+        difficulty_rating: Difficulty
+        priority_rating: Priority
     imx_platform:
       description: Description
       text: Detailed description
@@ -1679,6 +1715,7 @@ en:
       literature: Literture
       publicTransit: Public transit
       seasonDescription: Sesion
+      Preis-Zusatzbeschreibung: Additional price description
     gem2go:
       description: Description
     timm4:
@@ -1753,7 +1790,13 @@ en:
       subtitle: Subtitle
       teaser: Teaser
       Persons: person
+      season_header: season (month - suitability)
+      Season: season
+      Unsuitable: unsuitable
+      Depends: depends
+      Suitable: suitable
     bierfinder:
+      description: Description
       book: Description
       tipp: Tip
       essenUndSpezial: Food and Specials
@@ -1768,7 +1811,9 @@ en:
       startingPointDescription: Starting point description
       character: Tour character
       parkingPossibilities: Parking
-      seasonDescription: Sesion
+      seasonDescription: Season
+      doorTime: Door time
+      meetingPoint: Meeting point
     wintop:
       beschreibung: Description
       teaser: Teaser
@@ -1777,7 +1822,14 @@ en:
     pimcore:
       description: Description
       text: Detailed description
-
+    lottaleben:
+      description: Description
+      text: Detailed description
+    tramino:
+      info: Description
+      intro: Description
+      slogan: Slogan
+      text: Detailed description
   media_archive:
     allowed_html:
       '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>
@@ -2019,6 +2071,7 @@ en:
     data_cycle_core/error/api/expired_content_error:
       expired_content: Content is expired
     active_record/record_not_found: Not found
+    active_record/record_not_unique: Conflict
     data_cycle_core/error/filter/date_filter_range_error: "error in filter params: end date must be equal or greater then start date in date filters"
     data_cycle_core/error/filter/union_filter_recursion_error: "error in filter params: stored filters cannot filter on themselves inside union filters (infinite recursion)"
 
@@ -2033,3 +2086,4 @@ en:
     not_found: Sorry, this page does not exist
     internal_server_error: An unexpected error has occurred
     unauthorized: You do not have permission to open the desired page
+    conflict: The request could not be completed due to a conflict

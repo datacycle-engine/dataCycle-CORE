@@ -20,6 +20,9 @@ class Validator {
 		this.$agbsCheck = this.$editHeader.find(".form-element.agbs").first();
 		this.$contentUploader = this.$form.data("content-uploader");
 		this.bulkEdit = this.$form.hasClass("bulk-edit-form");
+		this.contentTemplate = this.$form
+			.find('input[type="hidden"]#content_template')
+			.val();
 		this.initialFormData = [];
 		this.submitFormData = [];
 		this.requests = [];
@@ -128,7 +131,8 @@ class Validator {
 
 		if (this.formDataChanged()) {
 			event.preventDefault();
-			return (event.returnValue = "");
+			event.returnValue = "";
+			return event.returnValue;
 		}
 	}
 	pageLeaveWarning() {
@@ -342,7 +346,7 @@ class Validator {
 			key.match(/\[translations\]\[([\-a-zA-Z]+)\]/)[1]
 		);
 	}
-	formFieldChanged(newFieldData, translationLocale, submitFormaDataUpToDate) {
+	formFieldChanged(fieldData, translationLocale, submitFormaDataUpToDate) {
 		if (
 			!translationLocale ||
 			translationLocale === this.locale() ||
@@ -350,7 +354,7 @@ class Validator {
 		)
 			return true;
 
-		newFieldData = this.sortedFormData(newFieldData || []);
+		const newFieldData = this.sortedFormData(fieldData || []);
 		const key = newFieldData[0]?.[0];
 		let oldFieldData = [];
 		if (key)
@@ -394,6 +398,8 @@ class Validator {
 
 		if (template) formData.set("template", template);
 		if (locale) formData.set("locale", locale);
+		if (this.contentTemplate)
+			formData.set("content_template", this.contentTemplate);
 
 		const promise = DataCycle.httpRequest(url, {
 			method: "POST",
@@ -563,7 +569,10 @@ class Validator {
 		}
 	}
 	resolveRequests(submit = false, eventData = {}) {
-		if (eventData.hasOwnProperty("submit")) submit = eventData.submit;
+		let submitForm = submit;
+		let data = eventData;
+
+		if (Object.hasOwn(data, "submit")) submitForm = data.submit;
 
 		this.queryCount++;
 		const requests = this.requests.slice();
@@ -579,19 +588,19 @@ class Validator {
 					if (!validation.valid) this.valid = false;
 				});
 
-				if (this.valid && submit) {
+				if (this.valid && submitForm) {
 					this.queryCount = 0;
 					const warnings = this.$form.find(".form-element .warning.counter");
 
-					eventData = Object.assign({}, eventData || {}, {
+					data = Object.assign({}, data || {}, {
 						finalize: true,
 						confirm: true,
 					});
 
-					if (warnings.length) Object.assign(eventData, { warnings: warnings });
+					if (warnings.length) Object.assign(data, { warnings: warnings });
 
-					this.submitForm(eventData);
-				} else if (!this.valid && submit) {
+					this.submitForm(data);
+				} else if (!this.valid && submitForm) {
 					if (
 						this.$form.hasClass("edit-content-form") &&
 						error !== undefined &&
@@ -600,20 +609,20 @@ class Validator {
 						error[0].scrollIntoView({ behavior: "smooth", block: "center" });
 					}
 				}
-				if (!(this.valid && submit)) this.enable();
+				if (!(this.valid && submitForm)) this.enable();
 				if (
 					this.valid &&
-					eventData !== undefined &&
-					eventData.successCallback !== undefined
+					data !== undefined &&
+					data.successCallback !== undefined
 				) {
-					eventData.successCallback();
+					data.successCallback();
 				}
 				if (
 					!this.valid &&
-					eventData !== undefined &&
-					eventData.errorCallback !== undefined
+					data !== undefined &&
+					data.errorCallback !== undefined
 				) {
-					eventData.errorCallback();
+					data.errorCallback();
 				}
 				// scroll to step in multi-step form
 				if (

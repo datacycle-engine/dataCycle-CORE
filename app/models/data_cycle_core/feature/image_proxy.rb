@@ -16,7 +16,7 @@ module DataCycleCore
 
         def mini_thumb_url(content:)
           process_image(
-            content: content,
+            content:,
             variant: 'dynamic',
             image_processing: {
               'preset' => 'default',
@@ -30,7 +30,7 @@ module DataCycleCore
         end
 
         def process_image(content:, variant:, image_processing: {})
-          return unless processable?(content: content, variant: variant)
+          return unless processable?(content:, variant:)
 
           image_processing = image_processing.presence || config.dig(variant, 'processing')
           target_url = [
@@ -68,7 +68,7 @@ module DataCycleCore
         end
 
         def frontend_enabled?
-          (enabled? && DataCycleCore.features.dig(name.demodulize.underscore.to_sym).dig(:frontend, :enabled))
+          enabled? && DataCycleCore.features.dig(name.demodulize.underscore.to_sym).dig(:frontend, :enabled)
         end
 
         def supported_content_type?(content)
@@ -78,11 +78,11 @@ module DataCycleCore
         private
 
         def processable?(content:, variant:)
-          enabled? && content.is_a?(DataCycleCore::Thing) && supported_content_type?(content) && config.include?(variant) && (content&.asset.present? || content.try(:content_url)&.present?)
+          enabled? && content.is_a?(DataCycleCore::Thing) && supported_content_type?(content) && config.include?(variant) && (content&.asset.present? || content.try(:content_url).present?)
         end
 
         def image_filename(content, variant, processing)
-          name = content.name&.parameterize(separator: '_') || content.id
+          name = content.name&.parameterize(separator: '_').presence || content.slug.presence || content.id
           file_extension = image_file_extension(content, variant, processing)
           file_extension.present? ? "#{name}.#{file_extension}" : name
         end

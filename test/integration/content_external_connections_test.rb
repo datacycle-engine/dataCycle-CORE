@@ -83,7 +83,7 @@ module DataCycleCore
       follow_redirect!
 
       assert_response :success
-      assert_equal I18n.t('external_connections.remove_external_system_sync.success', locale: @current_user.ui_locale), flash[:success]
+      assert_equal I18n.t('external_connections.remove_external_system_sync.success', locale: @current_user.ui_locale), flash[:notice]
     end
 
     test 'remove external_source with nil value' do
@@ -97,7 +97,7 @@ module DataCycleCore
       follow_redirect!
 
       assert_response :success
-      assert_equal I18n.t('external_connections.remove_external_system_sync.success', locale: @current_user.ui_locale), flash[:success]
+      assert_equal I18n.t('external_connections.remove_external_system_sync.success', locale: @current_user.ui_locale), flash[:notice]
     end
 
     test 'remove external_source with missing param' do
@@ -109,7 +109,7 @@ module DataCycleCore
       follow_redirect!
 
       assert_response :success
-      assert_equal I18n.t('external_connections.remove_external_system_sync.success', locale: @current_user.ui_locale), flash[:success]
+      assert_equal I18n.t('external_connections.remove_external_system_sync.success', locale: @current_user.ui_locale), flash[:notice]
     end
   end
 end

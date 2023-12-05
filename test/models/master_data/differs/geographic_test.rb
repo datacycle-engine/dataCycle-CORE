@@ -21,6 +21,10 @@ describe DataCycleCore::MasterData::Differs::Geographic do
       }
     end
 
+    let(:geo_factory) do
+      RGeo::Cartesian.preferred_factory
+    end
+
     it 'properly diffs equal geographic points' do
       a_val = RGeo::Geographic.simple_mercator_factory.point(10, 20)
       a_string = a_val.to_s
@@ -50,6 +54,15 @@ describe DataCycleCore::MasterData::Differs::Geographic do
       b = RGeo::Geographic.simple_mercator_factory.point(10.0, 20.000000001)
       [[a, b], [b, a]].each do |item|
         assert_nil(subject.new(item[0], item[1]).diff_hash)
+      end
+    end
+
+    it 'recognizes linestring with different directions as different' do
+      a = geo_factory.line(geo_factory.point(10, 20), geo_factory.point(30, 25))
+      b = geo_factory.line(geo_factory.point(30, 25), geo_factory.point(10, 20))
+
+      [[a, b], [b, a]].each do |item|
+        assert_not_nil(subject.new(item[0], item[1]).diff_hash)
       end
     end
   end

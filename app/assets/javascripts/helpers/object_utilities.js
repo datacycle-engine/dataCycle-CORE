@@ -73,6 +73,36 @@ const ObjectUtilities = {
 
 		return object;
 	},
+	pick(object, keys) {
+		if (object == null) {
+			return {};
+		}
+		const newObject = {};
+
+		for (const key of keys) {
+			let keyPath;
+			if (typeof key === "string") {
+				keyPath = key.split(/[.\[\]\"]+/).filter((x) => x);
+			} else if (Array.isArray(key)) {
+				keyPath = key;
+			} else {
+				throw new Error(`Received a key ${key}, which is of an invalid type.`);
+			}
+
+			const [head, ...tail] = keyPath;
+			if (!(head in object)) {
+			} else if (tail.length === 0) {
+				newObject[key] = object[key];
+			} else if (this.isObject(object[head]) || Array.isArray(object[head])) {
+				newObject[head] = {
+					...(newObject[head] ?? {}),
+					...this.pick(object[head], [tail]),
+				};
+			}
+		}
+
+		return newObject;
+	},
 };
 
 Object.freeze(ObjectUtilities);

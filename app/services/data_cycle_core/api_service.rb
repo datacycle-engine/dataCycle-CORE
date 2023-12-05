@@ -168,7 +168,7 @@ module DataCycleCore
       linked_filter.each do |linked_name, attribute_filter|
         linked_query = DataCycleCore::StoredFilter.new(language: @language).apply
 
-        attribute_filter.delete_if { |k, _v| [:classifications, :'dc:classification', :geo, :attribute, :contentId, :filterId, :watchListId, :endpointId].exclude?(k) }
+        attribute_filter.delete_if { |k, _v| [:classifications, :'dc:classification', :geo, :attribute, :contentId, :filterId, :classificationTreeId, :watchListId, :endpointId].exclude?(k) }
 
         linked_query = apply_filters(linked_query, attribute_filter)
         query = query.relation_filter(linked_query, linked_attribute_mapping(linked_name)) if linked_query.present?
@@ -212,6 +212,10 @@ module DataCycleCore
       apply_union_filter_methods(query, filters, 'union_filter_ids')
     end
 
+    def apply_classification_tree_id_filters(query, filters)
+      apply_union_filter_methods(query, filters, 'classification_tree_ids')
+    end
+
     def apply_union_filter_methods(query, filters, query_method)
       filters.each do |operator, values|
         query_method = 'not_' + query_method if operator == :notIn
@@ -242,10 +246,8 @@ module DataCycleCore
     end
 
     def advanced_attribute_filter?(key)
-      (
-        DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym).present? ||
+      DataCycleCore::ApiService.additional_advanced_attributes.dig(key.to_s.underscore.to_sym).present? ||
         API_NUMERIC_ATTRIBUTES.include?(key)
-      )
     end
 
     def advanced_attribute_type_for_key(key)
@@ -392,8 +394,9 @@ module DataCycleCore
 
     def self.order_value_from_params(key, full_text_search, raw_query_params)
       schedule_order_params = order_constraints.dig(key)&.map { |c| raw_query_params.dig(*c) }&.compact
+      return schedule_order_params if schedule_order_params.present? && ['proximity.occurrence_with_distance', 'proximity.in_occurrence_with_distance'].include?(key)
       return schedule_order_params.first if schedule_order_params.present?
-      return full_text_search if key == 'similarity' && full_text_search.present?
+      full_text_search if key == 'similarity' && full_text_search.present?
     end
 
     def self.order_constraints
@@ -405,6 +408,18 @@ module DataCycleCore
         ],
         'proximity.occurrence' => [
           ['filter', 'schedule'],
+          *API_SCHEDULE_ATTRIBUTES.map { |a| ['filter', 'attribute', a.to_s] }
+        ],
+        'proximity.in_occurrence' => [
+          ['filter', 'schedule'],
+          *API_SCHEDULE_ATTRIBUTES.map { |a| ['filter', 'attribute', a.to_s] }
+        ],
+        'proximity.occurrence_with_distance' => [
+          ['filter', 'geo', 'in', 'perimeter'],
+          *API_SCHEDULE_ATTRIBUTES.map { |a| ['filter', 'attribute', a.to_s] }
+        ],
+        'proximity.in_occurrence_with_distance' => [
+          ['filter', 'geo', 'in', 'perimeter'],
           *API_SCHEDULE_ATTRIBUTES.map { |a| ['filter', 'attribute', a.to_s] }
         ]
       }
@@ -433,7 +448,7 @@ module DataCycleCore
 
     def new_thing_search(language, ids, embedded = false)
       DataCycleCore::Filter::Search
-        .new(language, ids.blank? ? DataCycleCore::Thing.none : DataCycleCore::Thing.all.limit(1), embedded)
+        .new(language, ids.blank? ? DataCycleCore::Thing.none : DataCycleCore::Thing.limit(1), embedded)
         .content_ids(ids)
     end
 
@@ -448,8 +463,8 @@ module DataCycleCore
         error_path.prepend(:filter, :linked, linked_name) if linked_name.present?
         parameter_path = error_path.drop(1).inject(error_path.first.to_s) { |a, b| a << "[#{b}]" }
         {
-          parameter_path: parameter_path,
-          type: type,
+          parameter_path:,
+          type:,
           detail: error.to_s
         }
       end

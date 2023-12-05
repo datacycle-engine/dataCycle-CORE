@@ -11,7 +11,7 @@ module DataCycleCore
         end
 
         def include?(classification_alias, *_args)
-          classification_alias.external_source_id.nil? && !classification_alias.internal && !classification_alias.sub_classification_alias&.any?(&:internal) && !classification_alias.sub_classification_alias&.any?(&:external_source_id)
+          classification_alias.external_source_id.nil? && !classification_alias.internal && classification_alias.sub_classification_alias&.none?(&:internal) && classification_alias.sub_classification_alias&.none?(&:external_source_id)
         end
 
         def to_proc

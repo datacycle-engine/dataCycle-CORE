@@ -36,7 +36,7 @@
             <%= tag.span(object.send(object.embedded_title_property_name), title: object.send(object.embedded_title_property_name), class: 'embedded-title') if object.embedded_title_property_name.present? && object.try(object.embedded_title_property_name).present? %>
           </span>
 
-          <% if object.embedded? || definition.dig('ui', 'edit', 'partial') == 'embedded' %>
+          <% if object.embedded? # || definition.dig('ui', 'edit', 'partial') == 'embedded' %>
             <%= link_to tag.i(class: 'fa fa-pencil'),
                         edit_thing_path(
                           content,
@@ -48,18 +48,13 @@
                         class: 'edit-content-link',
                         title: t('actions.edit', locale: active_ui_locale) if can?(:edit, object.embedded? ? content : object) %>
           <% else %>
-            <%= link_to tag.i(class: 'fa fa-pencil'),
-                        edit_thing_path(object, watch_list_id: @watch_list, locale: I18n.locale),
-                        target: :_blank,
-                        class: 'edit-content-link',
-                        title: t('actions.edit', locale: active_ui_locale) if can?(:edit, object) %>
+            <%= tag.div(render('data_cycle_core/contents/viewers/shared/buttons', content: object, definition: definition), class: 'buttons') %>
           <% end %>
-
         </div>
 
         <div class="accordion-content remote-render" data-tab-content
         data-remote-path="data_cycle_core/contents/viewers/embedded/default"
-        data-remote-options="<%= to_query_params(local_assigns.merge({ object: object, index: index, locale: I18n.locale, options: merged_options, diff_target: changes_by_mode(changes_by_value_hash, '~').present? ? diff_target_by_id(local_assigns.merge({ object: object })) : nil })).to_json %>">
+        data-remote-options="<%= to_query_params(local_assigns.merge({ object: object, index: index, locale: I18n.locale, options: merged_options, diff_target: changes_by_mode(changes_by_value_hash, '~').present? ? diff_target_by_id(**local_assigns.merge({ object: object })) : nil })).to_json %>">
         </div>
       <% end %>
     <% end %>

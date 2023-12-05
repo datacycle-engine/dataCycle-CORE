@@ -34,6 +34,7 @@ class ObjectBrowser {
 		this.options = this.$element.data("options");
 		this.class = this.$element.data("class");
 		this.templateName = this.$element.data("template-name");
+		this.template = this.$element.data("template");
 		this.max = this.$element.data("max");
 		this.min = this.$element.data("min");
 		this.limitedBy = this.$element.data("limited-by");
@@ -66,6 +67,7 @@ class ObjectBrowser {
 		this.changeObserver = new MutationObserver(
 			this._checkForChangedFormData.bind(this),
 		);
+		this.itemsToHighlight = [];
 
 		this.setup();
 	}
@@ -120,6 +122,8 @@ class ObjectBrowser {
 			if (!this.$element.closest(".split-content.edit-content").length)
 				this.removeDeletedItem();
 		} else this.limitedBy = undefined;
+
+		window.addEventListener("focus", this.highlightItems.bind(this));
 	}
 	_checkForChangedFormData(mutations) {
 		for (const mutation of mutations) {
@@ -336,14 +340,35 @@ class ObjectBrowser {
 			this.removeThumbObject(event.target, !data.preventDefault);
 		}
 	}
+	highlightItems(_event) {
+		if (!this.itemsToHighlight.length) return;
+
+		const highlightItemsClasses = this.itemsToHighlight
+			.map((v) => `:scope > li.item[data-id="${v}"]`)
+			.join(", ");
+		const itemList = this.overlayItemList.get(0);
+
+		if (itemList.querySelector(highlightItemsClasses))
+			for (const item of itemList.querySelectorAll(highlightItemsClasses)) {
+				item.classList.add("highlight");
+
+				setTimeout(() => {
+					item.classList.remove("highlight");
+				}, 2000);
+			}
+
+		this.itemsToHighlight.length = 0;
+	}
 	clickItemsHandler(event) {
 		const $target = $(event.currentTarget);
+		const target = event.target;
 
-		if (
-			event.target.closest("a.show-link") ||
-			event.target.closest("a.edit-link")
-		)
+		if (target.closest("a.show-link") || target.closest("a.edit-link")) {
+			const liElement = target.closest("li.item");
+			if (liElement) this.itemsToHighlight.push(liElement.dataset.id);
+
 			return;
+		}
 
 		event.preventDefault();
 		event.stopImmediatePropagation();
@@ -352,6 +377,9 @@ class ObjectBrowser {
 			$target.addClass("in-object-browser");
 			this.loadDetails($target.data("id"));
 		}
+
+		if (target.closest("a.show-sidebar-details")) return;
+
 		if (this.chosen.indexOf($target.data("id")) === -1) {
 			this.addObject($target.data("id"), this.cloneHtml($target), event);
 		} else {
@@ -383,7 +411,7 @@ class ObjectBrowser {
 	updateLocale(e) {
 		e.stopPropagation();
 
-		this.locale = this.$element.data("locale");
+		this.locale = this.element.dataset.locale;
 	}
 	submitWithoutRedirectHandler(event) {
 		event.preventDefault();
@@ -399,6 +427,8 @@ class ObjectBrowser {
 			editable: this.editable,
 			options: this.options,
 			content_id: this.content_id,
+			content_template_name: this.templateName,
+			content_template: this.template,
 			class: this.class,
 			prefix: this.prefix,
 			objects: this.chosen,
@@ -430,6 +460,8 @@ class ObjectBrowser {
 				editable: this.editable,
 				options: this.options,
 				content_id: this.content_id,
+				content_template_name: this.templateName,
+				content_template: this.template,
 				class: this.class,
 				prefix: this.prefix,
 				objects: this.chosen,
@@ -528,7 +560,8 @@ class ObjectBrowser {
 				class: this.class,
 				content_id: this.content_id,
 				content_type: this.content_type,
-				template_name: this.templateName,
+				content_template_name: this.templateName,
+				content_template: this.template,
 				objects: this.chosen,
 				external: external,
 			},
@@ -825,7 +858,8 @@ class ObjectBrowser {
 			excluded: this.excluded,
 			content_id: this.content_id,
 			content_type: this.content_type,
-			template_name: this.templateName,
+			content_template_name: this.templateName,
+			content_template: this.template,
 			prefix: this.prefix,
 			filter_ids: this.filteredIds(),
 		};

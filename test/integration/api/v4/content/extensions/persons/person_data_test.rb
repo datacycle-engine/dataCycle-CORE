@@ -23,7 +23,7 @@ module DataCycleCore
                   id: @content.id
                 }
                 post api_v4_thing_path(params)
-                json_data = JSON.parse response.body
+                json_data = response.parsed_body
                 json_validate = json_data.dup.dig('@graph').first
 
                 assert_context(json_data.dig('@context'), 'de')
@@ -223,7 +223,7 @@ module DataCycleCore
                   language: 'en'
                 }
                 post api_v4_thing_path(params)
-                json_data = JSON.parse response.body
+                json_data = response.parsed_body
                 json_validate = json_data.dup.dig('@graph').first
 
                 assert_context(json_data.dig('@context'), 'en')
@@ -331,7 +331,7 @@ module DataCycleCore
                   language: 'en,de'
                 }
                 post api_v4_thing_path(params)
-                json_data = JSON.parse response.body
+                json_data = response.parsed_body
                 json_validate = json_data.dup.dig('@graph').first
 
                 assert_context(json_data.dig('@context'), params.dig(:language))
@@ -435,7 +435,7 @@ module DataCycleCore
                   id: @content.id
                 }
                 post api_v4_thing_path(params)
-                json_data = JSON.parse response.body
+                json_data = response.parsed_body
                 json_validate = json_data.dup.dig('@graph').first
 
                 assert_context(json_data.dig('@context'), 'de')
@@ -550,7 +550,7 @@ module DataCycleCore
                   id: @content.id
                 }
                 post api_v4_thing_path(params)
-                json_data = JSON.parse response.body
+                json_data = response.parsed_body
                 json_validate = json_data.dup.dig('@graph').first
 
                 assert_context(json_data.dig('@context'), 'de')

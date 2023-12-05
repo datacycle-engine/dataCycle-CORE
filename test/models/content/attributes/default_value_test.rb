@@ -7,7 +7,7 @@ module DataCycleCore
     module Attributes
       class DefaultValueTest < ActiveSupport::TestCase
         def set_default_value(template_name, key, value, content = nil)
-          template = content || DataCycleCore::ThingTemplate.find_by(template_name: template_name)
+          template = content || DataCycleCore::ThingTemplate.find_by(template_name:)
 
           if value.blank?
             template.schema['properties'][key].delete('default_value')
@@ -128,8 +128,8 @@ module DataCycleCore
           assert_equal(upload_date.as_json, data_set.get_data_hash.dig('upload_date'))
 
           data_hash = {}
-          data_set.add_default_values(data_hash: data_hash, force: true)
-          data_set.set_data_hash(data_hash: data_hash, partial_update: true)
+          data_set.add_default_values(data_hash:, force: true)
+          data_set.set_data_hash(data_hash:, partial_update: true)
 
           assert_equal(upload_date, data_set.upload_date)
           assert_equal(upload_date.as_json, data_set.get_data_hash.dig('upload_date'))

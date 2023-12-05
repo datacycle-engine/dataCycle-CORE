@@ -34,7 +34,7 @@ module DataCycleCore
 
       return datahash[:id] if flatten_arrays && datahash.keys.except('id').none?
 
-      datahash.each do |_key, value|
+      datahash.each_value do |value|
         next unless value.is_a?(::Array)
 
         value.map! { |v| flatten_datahash_translations_recursive(v, true) }
@@ -57,7 +57,7 @@ module DataCycleCore
             created = new_content.new_record?
             new_content.save!
             new_content_datahash = content.duplicate_data_hash(content.get_data_hash).merge({ 'name': "DUPLICATE: #{content.title}" })
-            valid = new_content.set_data_hash(data_hash: new_content_datahash, current_user: current_user, new_content: created)
+            valid = new_content.set_data_hash(data_hash: new_content_datahash, current_user:, new_content: created)
 
             raise ActiveRecord::Rollback, 'dataHash errors found' unless valid
           end
@@ -109,10 +109,10 @@ module DataCycleCore
 
         raise ActiveRecord::Rollback unless object.set_data_hash_with_translations(
           data_hash: object_hash,
-          current_user: current_user,
-          source: source,
+          current_user:,
+          source:,
           new_content: true,
-          save_time: save_time,
+          save_time:,
           check_for_duplicates: true
         )
       end

@@ -48,6 +48,8 @@ module DataCycleCore
         end
 
         def only_title_duplicate(content)
+          return if content.name.blank?
+
           DataCycleCore::Thing
             .joins(:translations)
             .where(template_name: content.template_name)
@@ -75,7 +77,7 @@ module DataCycleCore
             .map { |d|
               diff = content.diff(d.get_data_hash.except(*except), relevant_schema)
               score = [0, 100 * (total - diff.size * WEIGHTING) / total].max
-              { thing_duplicate_id: d.id, method: 'data_metric_hamming', score: score } if score > 80
+              { thing_duplicate_id: d.id, method: 'data_metric_hamming', score: } if score > 80
             }.compact
         end
 
@@ -89,6 +91,10 @@ module DataCycleCore
           .pluck(:id)
           .map { |d| { thing_duplicate_id: d, method: 'data_metric_name_geo', score: 83 } }
           .compact
+        end
+
+        def version_name_for_merge(duplicate, ui_locale = DataCycleCore.ui_locales.first)
+          I18n.t('common.merged_with_version_name', name: I18n.with_locale(duplicate.first_available_locale) { duplicate.title }, id: duplicate.id, locale: ui_locale)
         end
       end
     end

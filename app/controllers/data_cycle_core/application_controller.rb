@@ -34,19 +34,19 @@ module DataCycleCore
     def clear_all_caches
       authorize! :clear_all, :cache
       Rails.cache.clear
-      redirect_back(fallback_location: root_path)
+      redirect_back(fallback_location: root_path, notice: t('common.all_caches_cleared', locale: helpers.active_ui_locale))
     end
 
     def add_filter
       identifier = SecureRandom.hex(10)
 
-      render json: { identifier: identifier, html: render_to_string(formats: [:html], layout: false, locals: { filter_params: add_filter_params, identifier: identifier }).strip }
+      render json: { identifier:, html: render_to_string(formats: [:html], layout: false, locals: { filter_params: add_filter_params, identifier: }).strip }
     end
 
     def add_tag_group
       filter_params = tag_group_params
 
-      render json: { identifier: filter_params['identifier'], html: render_to_string(formats: [:html], layout: false, locals: { filter_params: filter_params }).strip }
+      render json: { identifier: filter_params['identifier'], html: render_to_string(formats: [:html], layout: false, locals: { filter_params: }).strip }
     end
 
     def remote_render
@@ -116,7 +116,7 @@ module DataCycleCore
 
     def flashes_from_params
       flash_params.each do |k, v|
-        flash[k] = v
+        flash.now[k] = v
       end
       redirect_to request.path, params: params.delete(:flash)
     end

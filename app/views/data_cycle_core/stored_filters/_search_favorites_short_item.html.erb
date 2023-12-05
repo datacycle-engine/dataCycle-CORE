@@ -19,7 +19,7 @@
   <div class="buttons">
     <span class="stored-date"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= l(Time.zone.at(stored_filter.created_at.to_datetime), format: :edit, locale: active_ui_locale) %></span>
 
-    <%= render 'data_cycle_core/application/preview/widget_list', content: stored_filter if DataCycleCore::Feature::Preview.enabled? %>
+    <%= render 'data_cycle_core/application/preview/widget_list', content: stored_filter if DataCycleCore::Feature::Preview.enabled? && stored_filter.api %>
 
     <%= link_to tag.i(class: 'fa fa-clipboard'),
                 send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_path", id: stored_filter),

@@ -61,7 +61,7 @@
         :label: Warme Küche
         :type: opening_time
         :validations:
-          valid_dates: true
+          soft_valid_dates: true
           closed_range: true
         :api:
           :name: dc:diningHoursSpecification

@@ -4,7 +4,7 @@ namespace :data_cycle_core do
   namespace :export do
     desc 'List available endpoints for import'
     task list: :environment do
-      DataCycleCore::ExternalSystem.all.each do |external_system|
+      DataCycleCore::ExternalSystem.find_each do |external_system|
         puts "#{external_system.id} - #{external_system.name}"
       end
     end
@@ -23,11 +23,11 @@ namespace :data_cycle_core do
 
       external_system = DataCycleCore::ExternalSystem.find(args[:external_system_id])
 
-      utility_object = DataCycleCore::Export::PushObject.new(external_system: external_system)
+      utility_object = DataCycleCore::Export::PushObject.new(external_system:)
 
       contents = DataCycleCore::Thing.where(id: args[:id])
       contents = DataCycleCore::WatchList.where(id: args[:id]).map(&:things).flatten if contents.empty?
-      contents = DataCycleCore::StoredFilter.where(id: args[:id]).map(&:apply).map(&:to_a).flatten if contents.empty?
+      contents = DataCycleCore::StoredFilter.where(id: args[:id]).map { |x| x.apply.to_a }.flatten if contents.empty?
 
       webhook_class = external_system.export_config.dig(:webhook).constantize
 
@@ -38,7 +38,7 @@ namespace :data_cycle_core do
         endpoint: utility_object.endpoint,
         transformation: external_system.config.dig('export_config', 'update', 'transformation') || external_system.config.dig('export_config', 'transformation') || :json_partial,
         path: utility_object.endpoint.path_transformation(contents.first, external_system, 'update'),
-        utility_object: utility_object,
+        utility_object:,
         type: 'update',
         locale: I18n.locale
       )

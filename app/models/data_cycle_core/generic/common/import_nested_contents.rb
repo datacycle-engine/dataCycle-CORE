@@ -15,10 +15,10 @@ module DataCycleCore
           #   options: options
           # )
           import(
-            utility_object: utility_object,
+            utility_object:,
             iterator: method(:load_contents).to_proc,
             data_processor: method(:process_content).to_proc,
-            options: options
+            options:
           )
         end
 
@@ -73,10 +73,10 @@ module DataCycleCore
           template = DataCycleCore::Generic::Common::ImportFunctions.load_template(template_name)
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
-            utility_object: utility_object,
-            template: template,
+            utility_object:,
+            template:,
             data: transformation.call(transformation.parameters.dig(0, 1).to_s.end_with?('_id') ? utility_object.external_source.id : utility_object.external_source).call(raw_data).with_indifferent_access,
-            config: config
+            config:
           )
         end
 
@@ -108,17 +108,17 @@ module DataCycleCore
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                     times = [Time.current]
 
-                    iterate = iterator.call(mongo_item: mongo_item, locale: locale, source_filter: source_filter, options: options).allow_disk_use(true)
+                    iterate = iterator.call(mongo_item:, locale:, source_filter:, options:).allow_disk_use(true)
                     iterate.each do |content|
                       break if options[:max_count].present? && item_count >= options[:max_count]
                       item_count += 1
                       next if options[:min_count].present? && item_count < options[:min_count]
 
                       data_processor.call(
-                        utility_object: utility_object,
+                        utility_object:,
                         raw_data: content.dig('dump', locale, 'data'),
-                        locale: locale,
-                        options: options
+                        locale:,
+                        options:
                       )
                     rescue StandardError => e
                       logging.info("E: #{e.message}")

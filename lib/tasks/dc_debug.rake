@@ -9,7 +9,7 @@ namespace :dc do
         [i.id, i.available_locales] if i.available_locales.size != 1 && i.template_name != 'LodgingBusinessOverlay'
       }.compact
       puts 'Overlays without translation: '
-      ap(bad_overlays.select { |i| i[1].blank? }.map { |i| i[0] })
+      ap(bad_overlays.select { |i| i[1].blank? }.pluck(0))
       puts 'Overlays with multiple translations'
       ap(bad_overlays.select { |i| i[1].size > 1 }.map { |i| "#{i[0]} (#{i[1]})" })
     end
@@ -21,7 +21,7 @@ namespace :dc do
         'Ergänzende Information', 'SubEvent', 'AmenityFeature', 'Offer',
         'VirtualLocation', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt'
       ].each do |template_name|
-        data.push(DataCycleCore::Thing.where(template_name: template_name).map { |i|
+        data.push(DataCycleCore::Thing.where(template_name:).map { |i|
           [i.id, template_name, i.available_locales] if i.available_locales.size != 1
         }.compact)
       end
@@ -34,7 +34,7 @@ namespace :dc do
       bad_overlays = DataCycleCore::Thing.where(id: overlay_ids).map { |i|
         [i.id, i.available_locales] if i.available_locales.size != 1 && i.template_name != 'LodgingBusinessOverlay'
       }.compact
-      overlays = bad_overlays.select { |i| i[1].blank? }.map { |i| i[0] }
+      overlays = bad_overlays.select { |i| i[1].blank? }.pluck(0)
       items = DataCycleCore::Thing.where(id: overlays)
       DataCycleCore::ProgressBarService.for_shell(items.count, title: "remove Overlays without translations (#{items.count}):") do |pb|
         items.find_each do |item|
@@ -46,9 +46,9 @@ namespace :dc do
 
     desc '[debug] show content with more than one overlay'
     task overlay_survey: :environment do
-      DataCycleCore::ContentContent.select(:content_a_id).where(relation_a: 'overlay')
+      DataCycleCore::ContentContent.where(relation_a: 'overlay')
         .group(:content_a_id).having('count(relation_a) > ?', 1)
-        .map(&:content_a_id)
+        .pluck(:content_a_id)
         .map do |i|
           puts "#{i}; #{DataCycleCore::Thing.find(i).template_name}; #{DataCycleCore::Thing.find(i).load_embedded_objects('overlay', nil, false).map { |o| o.translations.pluck(:locale) }.inject(:+)}"
         end
@@ -56,9 +56,9 @@ namespace :dc do
 
     desc '[debug] migrate translated overlays'
     task overlay_migration: :environment do
-      items = DataCycleCore::ContentContent.select(:content_a_id).where(relation_a: 'overlay')
+      items = DataCycleCore::ContentContent.where(relation_a: 'overlay')
         .group(:content_a_id).having('count(relation_a) > ?', 1)
-        .map(&:content_a_id)
+        .pluck(:content_a_id)
         .map do |i|
         DataCycleCore::Thing.find(i)
       end
