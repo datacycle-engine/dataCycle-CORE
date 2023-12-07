@@ -1660,6 +1660,8 @@ de:
         suggestion: Tipps
         additional_information: Zusatzinformationen
         maps: Literatur
+        starting_point_descr: Start
+        destination: Ziel
       ratings:
         technique_rating: Technik
         condition_rating: Kondition
