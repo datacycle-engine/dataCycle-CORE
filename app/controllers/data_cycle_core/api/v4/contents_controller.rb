@@ -183,6 +183,7 @@ module DataCycleCore
           super + [:id, :language, :uuids, :external_source_id, :external_keys, :search, :limit, uuid: [], filter: {}, 'dc:liveData': [:'@id', :minPrice]]
         end
 
+        # @todo: remove obsolete method?
         def permitted_filter_parameters
           {
             filter:
