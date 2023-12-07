@@ -157,24 +157,6 @@ CREATE FUNCTION public.delete_collected_classification_content_relations_trigger
 
 
 --
--- Name: delete_content_content_links(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.delete_content_content_links(a uuid, b uuid) RETURNS void
-    LANGUAGE plpgsql
-    AS $$ BEGIN DELETE FROM content_content_links WHERE content_a_id = a AND content_b_id = b; RETURN; END; $$;
-
-
---
--- Name: delete_content_content_links_trigger(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.delete_content_content_links_trigger() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ DECLARE a_b INTEGER; DECLARE b_a INTEGER; BEGIN a_b := ( SELECT COUNT(*) FROM content_contents WHERE ( content_a_id = OLD.content_a_id AND content_b_id = OLD.content_b_id ) OR ( content_a_id = OLD.content_b_id AND content_b_id = OLD.content_a_id AND relation_b IS NOT NULL ) ); b_a := ( SELECT COUNT(*) FROM content_contents WHERE ( content_a_id = OLD.content_a_id AND content_b_id = OLD.content_b_id AND OLD.relation_b IS NOT NULL ) OR ( content_a_id = OLD.content_b_id AND content_b_id = OLD.content_a_id ) ); IF a_b = 1 THEN PERFORM delete_content_content_links(OLD.content_a_id, OLD.content_b_id); END IF; IF b_a = 1 THEN PERFORM delete_content_content_links(OLD.content_b_id, OLD.content_a_id); END IF; RETURN OLD; END;$$;
-
-
---
 -- Name: delete_external_hashes_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -446,12 +428,12 @@ CREATE FUNCTION public.generate_collection_slug_trigger() RETURNS trigger
 
 
 --
--- Name: generate_content_content_links(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
+-- Name: generate_content_content_links(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_content_content_links(a uuid, b uuid) RETURNS void
+CREATE FUNCTION public.generate_content_content_links(content_content_ids uuid[]) RETURNS void
     LANGUAGE plpgsql
-    AS $$ BEGIN INSERT INTO content_content_links (content_a_id, content_b_id) SELECT content_a_id, content_b_id FROM content_contents WHERE content_a_id = a AND content_b_id = b ON CONFLICT DO NOTHING; INSERT INTO content_content_links (content_a_id, content_b_id) SELECT content_b_id, content_a_id FROM content_contents WHERE content_a_id = a AND content_b_id = b AND relation_b IS NOT NULL ON CONFLICT DO NOTHING; RETURN; END; $$;
+    AS $$ BEGIN INSERT INTO content_content_links ( content_a_id, content_b_id, content_content_id, relation ) SELECT content_contents.content_a_id AS "content_a_id", content_contents.content_b_id AS "content_b_id", content_contents.id AS "content_content_id", content_contents.relation_a AS "relation" FROM content_contents WHERE content_contents.id = ANY(content_content_ids) UNION SELECT content_contents.content_b_id AS "content_a_id", content_contents.content_a_id AS "content_b_id", content_contents.id AS "content_content_id", content_contents.relation_b AS "relation" FROM content_contents WHERE content_contents.id = ANY(content_content_ids) AND content_contents.relation_b IS NOT NULL ON CONFLICT (content_content_id, content_a_id, content_b_id) DO UPDATE SET relation = EXCLUDED.relation; RETURN; END; $$;
 
 
 --
@@ -460,7 +442,16 @@ CREATE FUNCTION public.generate_content_content_links(a uuid, b uuid) RETURNS vo
 
 CREATE FUNCTION public.generate_content_content_links_trigger() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_content_content_links(NEW.content_a_id, NEW.content_b_id); RETURN NEW; END;$$;
+    AS $$ BEGIN PERFORM generate_content_content_links ( ARRAY_AGG(DISTINCT inserted_content_contents.id) ) FROM ( SELECT DISTINCT new_content_contents.id FROM new_content_contents ) "inserted_content_contents"; RETURN NULL; END; $$;
+
+
+--
+-- Name: generate_content_content_links_trigger2(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.generate_content_content_links_trigger2() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN PERFORM generate_content_content_links ( ARRAY_AGG(DISTINCT updated_content_contents.id) ) FROM ( SELECT DISTINCT old_content_contents.id FROM old_content_contents INNER JOIN new_content_contents ON old_content_contents.id = new_content_contents.id WHERE old_content_contents.content_a_id IS DISTINCT FROM new_content_contents.content_a_id OR old_content_contents.relation_a IS DISTINCT FROM new_content_contents.relation_a OR old_content_contents.content_b_id IS DISTINCT FROM new_content_contents.content_b_id OR old_content_contents.relation_b IS DISTINCT FROM new_content_contents.relation_b ) "updated_content_contents"; RETURN NULL; END; $$;
 
 
 --
@@ -1060,7 +1051,9 @@ CREATE TABLE public.content_content_histories (
 
 CREATE TABLE public.content_content_links (
     content_a_id uuid,
-    content_b_id uuid
+    content_b_id uuid,
+    content_content_id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    relation character varying
 );
 
 
@@ -1929,6 +1922,14 @@ ALTER TABLE ONLY public.content_content_histories
 
 
 --
+-- Name: content_content_links content_content_links_uq_constraint; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.content_content_links
+    ADD CONSTRAINT content_content_links_uq_constraint UNIQUE (content_content_id, content_a_id, content_b_id);
+
+
+--
 -- Name: content_contents content_contents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2690,17 +2691,17 @@ CREATE INDEX index_content_content_links_on_content_b_id ON public.content_conte
 
 
 --
+-- Name: index_content_content_links_on_contents_a_b; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_content_content_links_on_contents_a_b ON public.content_content_links USING btree (content_a_id, content_b_id);
+
+
+--
 -- Name: index_content_contents_on_content_b_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_content_contents_on_content_b_id ON public.content_contents USING btree (content_b_id);
-
-
---
--- Name: index_contents_a_b; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_contents_a_b ON public.content_content_links USING btree (content_a_id, content_b_id);
 
 
 --
@@ -3329,19 +3330,14 @@ ALTER TABLE public.classification_contents DISABLE TRIGGER delete_ccc_relations_
 
 CREATE TRIGGER delete_ccc_relations_transitive_trigger AFTER DELETE ON public.classification_groups REFERENCING OLD TABLE AS old_classification_groups FOR EACH STATEMENT EXECUTE FUNCTION public.delete_ca_paths_transitive_trigger_1();
 
+ALTER TABLE public.classification_groups DISABLE TRIGGER delete_ccc_relations_transitive_trigger;
+
 
 --
 -- Name: classification_groups delete_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER delete_collected_classification_content_relations_trigger_1 AFTER DELETE ON public.classification_groups FOR EACH ROW EXECUTE FUNCTION public.delete_collected_classification_content_relations_trigger_1();
-
-
---
--- Name: content_contents delete_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER delete_content_content_links_trigger BEFORE DELETE ON public.content_contents FOR EACH ROW EXECUTE FUNCTION public.delete_content_content_links_trigger();
 
 
 --
@@ -3402,6 +3398,8 @@ ALTER TABLE public.classification_contents DISABLE TRIGGER generate_ccc_relation
 --
 
 CREATE TRIGGER generate_ccc_relations_transitive_trigger AFTER INSERT ON public.classification_groups REFERENCING NEW TABLE AS new_classification_groups FOR EACH STATEMENT EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_4();
+
+ALTER TABLE public.classification_groups DISABLE TRIGGER generate_ccc_relations_transitive_trigger;
 
 
 --
@@ -3471,7 +3469,7 @@ CREATE TRIGGER generate_collection_slug_trigger BEFORE INSERT ON public.collecti
 -- Name: content_contents generate_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_content_content_links_trigger AFTER INSERT ON public.content_contents FOR EACH ROW EXECUTE FUNCTION public.generate_content_content_links_trigger();
+CREATE TRIGGER generate_content_content_links_trigger AFTER INSERT ON public.content_contents REFERENCING NEW TABLE AS new_content_contents FOR EACH STATEMENT EXECUTE FUNCTION public.generate_content_content_links_trigger();
 
 
 --
@@ -3580,6 +3578,8 @@ ALTER TABLE public.classification_contents DISABLE TRIGGER update_ccc_relations_
 
 CREATE TRIGGER update_ccc_relations_transitive_trigger AFTER UPDATE ON public.classification_groups REFERENCING OLD TABLE AS old_classification_groups NEW TABLE AS new_classification_groups FOR EACH STATEMENT EXECUTE FUNCTION public.update_ca_paths_transitive_trigger_4();
 
+ALTER TABLE public.classification_groups DISABLE TRIGGER update_ccc_relations_transitive_trigger;
+
 
 --
 -- Name: classification_groups update_ccc_relations_trigger_4; Type: TRIGGER; Schema: public; Owner: -
@@ -3662,7 +3662,7 @@ CREATE TRIGGER update_collection_slug_trigger BEFORE UPDATE OF slug ON public.co
 -- Name: content_contents update_content_content_links_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_content_content_links_trigger AFTER UPDATE OF content_a_id, content_b_id, relation_b ON public.content_contents FOR EACH ROW WHEN (((old.content_a_id IS DISTINCT FROM new.content_a_id) OR (old.content_b_id IS DISTINCT FROM new.content_b_id) OR ((old.relation_b)::text IS DISTINCT FROM (new.relation_b)::text))) EXECUTE FUNCTION public.generate_content_content_links_trigger();
+CREATE TRIGGER update_content_content_links_trigger AFTER UPDATE ON public.content_contents REFERENCING OLD TABLE AS old_content_contents NEW TABLE AS new_content_contents FOR EACH STATEMENT EXECUTE FUNCTION public.generate_content_content_links_trigger2();
 
 
 --
@@ -3670,6 +3670,8 @@ CREATE TRIGGER update_content_content_links_trigger AFTER UPDATE OF content_a_id
 --
 
 CREATE TRIGGER update_deleted_at_ccc_relations_transitive_trigger AFTER UPDATE ON public.classification_groups REFERENCING OLD TABLE AS old_classification_groups NEW TABLE AS new_classification_groups FOR EACH STATEMENT EXECUTE FUNCTION public.delete_ca_paths_transitive_trigger_2();
+
+ALTER TABLE public.classification_groups DISABLE TRIGGER update_deleted_at_ccc_relations_transitive_trigger;
 
 
 --
@@ -3737,6 +3739,14 @@ ALTER TABLE ONLY public.collection_configurations
 
 ALTER TABLE ONLY public.collection_configurations
     ADD CONSTRAINT fk_collection_watch_list FOREIGN KEY (watch_list_id) REFERENCES public.watch_lists(id) ON DELETE CASCADE;
+
+
+--
+-- Name: content_content_links fk_content_content_links_content_contents; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.content_content_links
+    ADD CONSTRAINT fk_content_content_links_content_contents FOREIGN KEY (content_content_id) REFERENCES public.content_contents(id) ON UPDATE CASCADE ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4256,6 +4266,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20231115104227'),
 ('20231122124135'),
 ('20231123103232'),
-('20231127144259');
+('20231127144259'),
+('20231201083233');
 
 

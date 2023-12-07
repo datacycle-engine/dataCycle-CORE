@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+raise 'ActiveRecord::Relation#load_records is no longer available, check patch!' unless ActiveRecord::Relation.method_defined? :load_records
+raise 'ActiveRecord::Relation#load_records arity != 1, check patch!' unless ActiveRecord::Relation.instance_method(:load_records).arity == 1
+
 module DataCycleCore
   module Utility
     module Virtual
@@ -63,7 +66,7 @@ module DataCycleCore
 
               return DataCycleCore::Thing.none if value.first.nil?
 
-              DataCycleCore::Thing.unscoped.where(id: value.first.id).tap { |rel| rel.send(:load_records, [value.first]) }
+              DataCycleCore::Thing.default_scoped.where(id: value.first.id).tap { |rel| rel.send(:load_records, [value.first]) }
             else
               DataCycleCore::Thing.none
             end

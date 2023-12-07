@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+raise 'ActiveRecord::Relation#load_records is no longer available, check patch!' unless ActiveRecord::Relation.method_defined? :load_records
+raise 'ActiveRecord::Relation#load_records arity != 1, check patch!' unless ActiveRecord::Relation.instance_method(:load_records).arity == 1
+
 module DataCycleCore
   module Content
     module Extensions
@@ -210,7 +213,7 @@ module DataCycleCore
             return [], {} if content_ids.blank?
 
             preloaded_content_contents = all
-              .recursive_content_content_a
+              .recursive_content_links
               .select(:content_a_id, :relation_a, :content_b_id)
               .to_a
 

@@ -48,7 +48,10 @@ module DataCycleCore
         load_relation(relation_name, nil, same_language, languages, filter, false, overlay_flag)
       end
 
-      def load_relation(relation_a, relation_b, same_language, languages, filter = nil, inverse = false, _overlay_flag = false)
+      def load_relation(relation_a, relation_b, same_language, languages, filter = nil, inverse = false, overlay_flag = false)
+        key = attibute_cache_key(relation_a, filter, overlay_flag)
+        return @get_property_value[key] if @get_property_value&.key?(key)
+
         if inverse
           relation_name = :content_a
           relation_a_name = relation_b

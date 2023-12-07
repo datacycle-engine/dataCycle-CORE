@@ -158,17 +158,20 @@ module DataCycleCore
     def load_embedded_object(content, key, languages, definition)
       return nil if languages.blank?
 
-      return content.load_embedded_objects(key, nil, false, languages, true).includes(:translations, :classifications) unless definition['translated']
+      return content.try(key + '_overlay') unless definition['translated']
 
-      languages.map(&:to_sym).reduce(nil) do |v, locale|
-        t_value = I18n.with_locale(locale) { content.load_embedded_objects(key, nil, false, [locale], true).includes(:translations, :classifications) }
+      query = nil
+      value = []
 
-        if v.nil?
-          t_value
-        else
-          v.or(t_value)
+      languages.each do |locale|
+        I18n.with_locale(locale) do
+          t_value = content.load_relation(key, nil, false, [locale], nil, false, true)
+          value.concat(content.try(key + '_overlay').to_a).uniq!
+          query = query.nil? ? t_value : query.or(t_value)
         end
       end
+
+      query.tap { |rel| rel.send(:load_records, value) }
     end
 
     def api_value_format(value, definition)

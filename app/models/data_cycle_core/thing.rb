@@ -4,6 +4,7 @@ module DataCycleCore
   class Thing < Content::DataHash
     include Content::ContentLoader
     include Content::Extensions::Thing
+    include Content::Extensions::OptimizedContentContents
     include Content::ExternalData
     prepend Content::ContentOverlay
 

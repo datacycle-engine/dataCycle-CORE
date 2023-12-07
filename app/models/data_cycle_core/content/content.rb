@@ -41,6 +41,7 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::Mvt
       include DataCycleCore::Content::Extensions::DefaultValue
       include DataCycleCore::Content::Extensions::ComputedValue
+      include DataCycleCore::Content::Extensions::PropertyPreloader
       prepend DataCycleCore::Content::Extensions::Translation
 
       scope :where_value, ->(attributes) { where(value_condition(attributes), *attributes&.values) }
@@ -305,6 +306,14 @@ module DataCycleCore
         name_property_selector { |definition| definition.dig('external') }
       end
 
+      def relation_property_names(include_overlay = false)
+        linked_property_names(include_overlay) +
+          embedded_property_names(include_overlay) +
+          classification_property_names(include_overlay) +
+          asset_property_names +
+          schedule_property_names(include_overlay)
+      end
+
       def untranslatable_embedded_property_names
         name_property_selector { |definition| definition['type'] == 'embedded' && definition.dig('translated') }
       end
@@ -433,6 +442,8 @@ module DataCycleCore
 
       def get_property_value(property_name, property_definition, filter = nil, overlay_flag = false)
         key = attibute_cache_key(property_name, filter, overlay_flag)
+
+        preload_property(property_name, filter, overlay_flag) unless history?
 
         return @get_property_value[key] if @get_property_value&.key?(key)
 
@@ -634,12 +645,21 @@ module DataCycleCore
             end
           elsif classification_property_names.include?(key)
             if value.present?
-              DataCycleCore::Classification.where(id: value)
+              DataCycleCore::Classification.where(id: value).order(
+                [
+                  Arel.sql('array_position(ARRAY[?]::uuid[], classifications.id)'),
+                  value
+                ]
+              )
             else
               DataCycleCore::Classification.none
             end
           elsif asset_property_names.include?(key)
             value.present? ? DataCycleCore::Asset.find_by(id: value) : nil
+          elsif schedule_property_names.include?(key)
+            value.present? ? DataCycleCore::Schedule.where(id: value) : DataCycleCore::Schedule.none
+          elsif timeseries_property_names.include?(key)
+            value.present? ? DataCycleCore::Timeseries.where(id: value) : DataCycleCore::Timeseries.none
           else # rubocop:disable Lint/DuplicateBranch
             value
           end
@@ -661,7 +681,9 @@ module DataCycleCore
       end
 
       def attibute_cache_key(key, filter = nil, overlay_flag = false)
-        "#{key}_#{translatable_property?(key) ? I18n.locale : nil}_#{filter&.hash}_#{overlay_flag}"
+        filter = nil if linked_property_names.exclude?(key) && embedded_property_names.exclude?(key)
+
+        "#{key}_#{translatable_property?(key) ? I18n.locale : nil}_#{filter&.hash}_#{overlay_flag && overlay_property_names.include?(key)}"
       end
 
       def reload_memoized(key = nil)
