@@ -173,6 +173,12 @@
       }
     }
 
+    &.ladestation {
+      &::before {
+        content: '\f242'
+      }
+    }
+
     &.zertifizierung::before {
       content: '\f0a3';
     }
