@@ -96,9 +96,9 @@ module DataCycleCore
         assert_equal([@image.id, @image3.id, @image2.id], @pois[4].recursive_content_links(depth: 1).filter { |cc| cc.relation_a == 'image' }.pluck(:content_b_id))
 
         assert_equal(6, @pois[2].recursive_content_links(depth: 1).size)
-        assert_equal(1, @pois[2].recursive_content_links(depth: 1).count(&:leaf))
+        assert_equal(5, @pois[2].recursive_content_links(depth: 1).count(&:leaf))
         assert_equal(5, @pois[3].recursive_content_links(depth: 1).size)
-        assert_equal(0, @pois[3].recursive_content_links(depth: 1).count(&:leaf))
+        assert_equal(4, @pois[3].recursive_content_links(depth: 1).count(&:leaf))
 
         assert_equal(@image2.id, @pois[2].recursive_content_links(depth: 1).detect(&:leaf).content_b_id)
       end
@@ -138,6 +138,28 @@ module DataCycleCore
 
         image = contents.detect { |c| c.id == @image.id }
         assert(image.asset.present?)
+      end
+
+      test 'preload depth of 1 is recognized' do
+        contents = DataCycleCore::Thing.where(template_name: 'POI').limit(5)
+        contents.instance_variable_set(:@_recursive_preload_depth, 1)
+        contents.first.image
+
+        contents.each do |content|
+          assert(content.image.loaded?)
+          assert_not(content.image.first.author.loaded?)
+        end
+      end
+
+      test 'preload depth of 2 is recognized' do
+        contents = DataCycleCore::Thing.where(template_name: 'POI').limit(5)
+        contents.instance_variable_set(:@_recursive_preload_depth, 2)
+        contents.first.image
+
+        contents.each do |content|
+          assert(content.image.loaded?)
+          assert(content.image.first.author.loaded?)
+        end
       end
     end
   end

@@ -117,21 +117,38 @@ module DataCycleCore
 
     def load_value_object(content, key, value, languages, definition = nil, expand_language = false)
       data_value = nil
+      first_locale = Array.wrap(languages).first
 
       return api_value_format(value, definition) unless content.translatable_property_names.include?(key)
-      single_value = languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first)
+      single_value = languages.size == 1 && content.available_locales.map(&:to_s).include?(first_locale)
+
       if single_value && !expand_language
-        data_value = I18n.with_locale(Array.wrap(languages).first) { api_value_format(content.send(key + '_overlay'), definition) }
+        data_value = I18n.with_locale(first_locale) { api_value_format(content.send(key + '_overlay'), definition) } || []
+
+        if content.embedded_property_names.include?(key)
+          data_value = DataCycleCore::Thing.none
+          content.available_locales.map(&:to_s).each do |locale|
+            records = data_value.to_a + I18n.with_locale(locale) { content.try(key + '_overlay') }.to_a
+            records_ids = records.pluck(:id)
+            data_value = DataCycleCore::Thing.where(id: records_ids).order(
+              [
+                Arel.sql('array_position(ARRAY[?]::uuid[], things.id)'),
+                records_ids
+              ]
+            ).tap { |rel| rel.send(:load_records, records) }
+          end
+        end
       else
         data_value = []
 
-        content.translations.each do |translation|
-          next unless languages.include?(translation.locale)
-          I18n.with_locale(translation.locale) do
-            data_value << { '@language' => I18n.locale, '@value' => api_value_format(content.send(key + '_overlay'), definition) } if content.send(key + '_overlay').present?
+        content.available_locales.map(&:to_s).intersection(Array.wrap(languages)).each do |locale|
+          I18n.with_locale(locale) do
+            o_value = content.send(key + '_overlay')
+            data_value << { '@language' => I18n.locale, '@value' => api_value_format(o_value, definition) } if o_value.present?
           end
         end
       end
+
       data_value
     end
 
@@ -139,39 +156,43 @@ module DataCycleCore
       data_value = nil
       api_property_definition = api_definition(definition)
 
-      single_value = definition['storage_location'] != 'translated_value' || ((languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first)) && !expand_language)
+      return api_value_format(value, api_property_definition) unless content.translatable_property_names.include?(key)
+
+      single_value = (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first)) && !expand_language
+
       if single_value
         data_value = api_value_format(value, api_property_definition)
       else
         data_value = []
 
-        content.translations.where(locale: languages).find_each do |translation|
-          I18n.with_locale(translation.locale) do
+        content.available_locales.map(&:to_s).intersection(Array.wrap(languages)).each do |locale|
+          I18n.with_locale(locale) do
             o_value = content.send(key + '_overlay')&.try(o_key)
             data_value << { '@language' => I18n.locale, '@value' => api_value_format(o_value, api_property_definition) } if o_value.present?
           end
         end
       end
+
       data_value
     end
 
-    def load_embedded_object(content, key, languages, definition)
-      return nil if languages.blank?
+    def load_embedded_object(content, key, languages, _definition)
+      return if languages.blank?
+      return content.try(key + '_overlay') unless content.translatable_property_names.include?(key)
 
-      return content.try(key + '_overlay') unless definition['translated']
-
-      query = nil
-      value = []
-
-      languages.each do |locale|
-        I18n.with_locale(locale) do
-          t_value = content.load_relation(key, nil, false, [locale], nil, false, true)
-          value.concat(content.try(key + '_overlay').to_a).uniq!
-          query = query.nil? ? t_value : query.or(t_value)
-        end
+      data_value = DataCycleCore::Thing.none
+      content.available_locales.map(&:to_s).each do |locale|
+        records = data_value.to_a + I18n.with_locale(locale) { content.try(key + '_overlay') }.to_a
+        records_ids = records.pluck(:id)
+        data_value = DataCycleCore::Thing.where(id: records_ids).order(
+          [
+            Arel.sql('array_position(ARRAY[?]::uuid[], things.id)'),
+            records_ids
+          ]
+        ).tap { |rel| rel.send(:load_records, records) }
       end
 
-      query.tap { |rel| rel.send(:load_records, value) }
+      data_value
     end
 
     def api_value_format(value, definition)

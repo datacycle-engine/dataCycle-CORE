@@ -151,7 +151,7 @@ module DataCycleCore
         .where_translated_value(data_hash.slice('name'))
         .first
 
-      return @content if @content.present?
+      return @content.reload if @content.present?
 
       @content = DataCycleCore::Thing.new(template_name:)
 

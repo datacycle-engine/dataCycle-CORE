@@ -103,7 +103,6 @@ module DataCycleCore
       end
 
       test 'get only images for all POIs, with custom scope, preloaded content_content_a' do
-        puts 'start test'
         contents = DataCycleCore::Thing.where(template_name: 'POI').limit(5).preload(:content_content_a).load
         ccs = contents.load_relation(relation_name: :content_content_a, scope: DataCycleCore::ContentContent.where(content_a_id: contents.pluck(:id), relation_a: 'image'))
 

@@ -85,10 +85,10 @@ module DataCycleCore
 
           if original_name.in?(embedded_property_names) || original_name.in?(linked_property_names)
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
-            get_property_value(original_name, property_definition, args.first, overlay_flag & original_name.in?(overlay_property_names))
+            get_property_value(original_name, property_definition, args.first, overlay_flag && original_name.in?(overlay_property_names))
           else
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
-            get_property_value(original_name, property_definition, nil, overlay_flag & original_name.in?(overlay_property_names))
+            get_property_value(original_name, property_definition, nil, overlay_flag && original_name.in?(overlay_property_names))
           end
         else
           super
@@ -450,19 +450,19 @@ module DataCycleCore
         (@get_property_value ||= {})[key] =
           if virtual_property_names.include?(property_name)
             load_virtual_attribute(property_name, I18n.locale)
-          elsif plain_property_names(true).include?(property_name)
+          elsif plain_property_names.include?(property_name)
             load_json_attribute(property_name, property_definition, overlay_flag)
-          elsif included_property_names(true).include?(property_name)
+          elsif included_property_names.include?(property_name)
             load_included_data(property_name, property_definition, overlay_flag)
-          elsif classification_property_names(true).include?(property_name)
+          elsif classification_property_names.include?(property_name)
             load_classifications(property_name, overlay_flag)
-          elsif linked_property_names(true).include?(property_name)
+          elsif linked_property_names.include?(property_name)
             load_linked_objects(property_name, filter, false, [I18n.locale], overlay_flag)
-          elsif embedded_property_names(true).include?(property_name)
+          elsif embedded_property_names.include?(property_name)
             load_embedded_objects(property_name, filter, !property_definition&.dig('translated'), [I18n.locale], overlay_flag)
           elsif asset_property_names.include?(property_name) # no overlay
             load_asset_relation(property_name)&.first
-          elsif schedule_property_names(true).include?(property_name)
+          elsif schedule_property_names.include?(property_name)
             load_schedule(property_name, overlay_flag)
           elsif timeseries_property_names.include?(property_name)
             load_timeseries(property_name)
@@ -687,6 +687,11 @@ module DataCycleCore
       end
 
       def reload_memoized(key = nil)
+        remove_instance_variable(:@_current_collection) if instance_variable_defined?(:@_current_collection)
+        remove_instance_variable(:@_current_recursive_collection) if instance_variable_defined?(:@_current_recursive_collection)
+        remove_instance_variable(:@_current_rc_with_leafs) if instance_variable_defined?(:@_current_rc_with_leafs)
+        remove_instance_variable(:@_current_recursive_ccs) if instance_variable_defined?(:@_current_recursive_ccs)
+
         remove_instance_variable(:@datahash_changes) if instance_variable_defined?(:@datahash_changes)
 
         if key.present?

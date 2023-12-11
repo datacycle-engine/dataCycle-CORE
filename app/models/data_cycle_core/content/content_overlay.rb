@@ -10,8 +10,7 @@ module DataCycleCore
 
       def overlay_allowed?
         return false if content_type != 'entity'
-        return false unless respond_to?(overlay_name)
-        true
+        respond_to?(overlay_name)
       end
 
       def overlay_name
@@ -28,7 +27,7 @@ module DataCycleCore
       alias overlay_properties overlay_property_names
 
       def overlay_property_definitions
-        @overlay_property_definitions ||= DataCycleCore::ThingTemplate.find_by(template_name: overlay_template_name)&.schema&.dig('properties') || {}
+        @overlay_property_definitions ||= overlay_template_name.present? ? DataCycleCore::ThingTemplate.find_by(template_name: overlay_template_name)&.schema&.dig('properties') || {} : {}
       end
 
       def overlay_properties_for(overlay_property_name)

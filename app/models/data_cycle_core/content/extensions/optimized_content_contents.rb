@@ -36,7 +36,7 @@ module DataCycleCore
               SELECT content_content_links.content_content_id,
                 content_content_links.content_b_id,
                 content_content_links.relation
-                #{depth&.positive? ? ', content_tree.depth >= :depth1 AS "leaf", content_tree.depth + 1 AS "depth"' : ', FALSE AS "leaf"'}
+                #{depth&.positive? ? ", CASE WHEN content_content_links.relation = 'overlay' THEN FALSE ELSE content_tree.depth + 1 >= :depth1 END AS \"leaf\", content_tree.depth + 1 AS \"depth\"" : ', FALSE AS "leaf"'}
               FROM content_content_links
                 INNER JOIN content_tree ON content_tree.content_b_id = content_content_links.content_a_id
             SQL
@@ -59,14 +59,14 @@ module DataCycleCore
                 SELECT content_content_links.content_content_id,
                   content_content_links.content_b_id,
                   content_content_links.relation,
-                  FALSE AS "leaf"
+                  #{depth == 1 ? "content_content_links.relation != 'overlay'" : 'FALSE'} AS "leaf"
                   #{', 1 AS "depth"' if depth&.positive?}
                 FROM content_content_links
                 WHERE content_content_links.content_a_id IN (:id)
-                UNION
+                UNION #{'ALL' if depth&.positive?}
                 #{recursive_subquery}
               )
-              SELECT content_contents.*, content_tree.leaf FROM content_contents
+              SELECT DISTINCT ON (content_contents.id) content_contents.*, content_tree.leaf FROM content_contents
               INNER JOIN content_tree ON content_tree.id = content_contents.id
             SQL
           end
