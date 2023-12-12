@@ -198,7 +198,7 @@ module DataCycleCore
       sql_values = attributes.compact_blank.map { |row|
         [
           id,
-          I18n.locale,
+          (row[:name_i18n].presence || { I18n.locale.to_s => row[:name] })&.to_json,
           row[:name],
           row[:full_path_names],
           row[:full_path_names].drop(1),
@@ -207,8 +207,8 @@ module DataCycleCore
       }.uniq
 
       sql = <<-SQL.squish
-        WITH raw_data(classification_tree_label_id, locale, name, full_path_names, parent_path_names, classification_ids) AS (
-          VALUES #{Array.new(sql_values.size, '(?::uuid, ?, ?, ARRAY[?]::varchar[], ARRAY[?]::varchar[], ARRAY[?]::uuid[])').join(', ')}
+        WITH raw_data(classification_tree_label_id, name_i18n, name, full_path_names, parent_path_names, classification_ids) AS (
+          VALUES #{Array.new(sql_values.size, '(?::uuid, ?::jsonb, ?, ARRAY[?]::varchar[], ARRAY[?]::varchar[], ARRAY[?]::uuid[])').join(', ')}
         ),
         classification_data AS (
           SELECT DISTINCT ON (raw_data.full_path_names) raw_data.*,
@@ -239,12 +239,10 @@ module DataCycleCore
             )
           SELECT classification_data.classification_alias_id,
             classification_data.name,
-            (
-              '{"' || classification_data.locale || '":"' || classification_data.name || '"}'
-            )::jsonb,
+            classification_data.name_i18n,
             NOW(),
             NOW()
-          FROM classification_data ON conflict (id) DO NOTHING
+          FROM classification_data ON conflict (id) DO UPDATE SET name_i18n = EXCLUDED.name_i18n
         ),
         classification_groups AS (
           INSERT INTO classification_groups (classification_id, classification_alias_id) (
