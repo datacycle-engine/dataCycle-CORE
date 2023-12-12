@@ -145,7 +145,7 @@ module DataCycleCore
 
         contents.each do |content|
           assert(content.image.loaded?)
-          assert(content.image.first.author.loaded?) # preloads relations for all leafs
+          assert_not(content.image.first.author.loaded?)
         end
       end
 
