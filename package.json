@@ -2,7 +2,7 @@
   "name": "data-cycle-core",
   "version": "23.08.0",
   "description": "data-cycle-core assets",
-  "author": "Patrick Rainer",
+  "author": "dataCycle GmbH",
   "engineStrict": true,
   "engines": {
     "node": ">=14"

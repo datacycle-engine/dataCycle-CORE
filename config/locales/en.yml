@@ -1676,6 +1676,8 @@ en:
         suggestion: Tips
         additional_information: Additional information
         maps: Literature
+        starting_point_descr: Starting Point
+        destination: Destination
       ratings:
         technique_rating: Technique
         condition_rating: Stamina

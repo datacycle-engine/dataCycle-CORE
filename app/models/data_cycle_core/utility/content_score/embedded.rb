@@ -133,6 +133,7 @@ module DataCycleCore
 
                 definition.dig('content_score', 'score_matrix')
                   &.sort_by { |k, v| [-v&.dig('weight')&.to_r, k] }
+                  &.to_h
                   &.each_value do |v|
                     nested_tip = []
                     nested_tip.push("<b>#{v['types']&.join(', ')}</b> #{"(#{DataCycleCore::LocalizationService.view_helpers.number_with_precision(v['weight'].to_r * 100, precision: 1)}%)" if v.key?('weight')}")

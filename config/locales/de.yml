@@ -1107,7 +1107,7 @@ de:
       key: "%{data} ist kein gültiges uuid Format."
       boolean: "%{data} ist kein gültiges Boolean Format. (Nur 'true' oder 'false' erlaubt)"
       url: "%{data} ist keine gültige Url (gültiges Beispiel: 'https://www.example.com')."
-      string: "%{template} ist kein String, sondern %{label}."
+      string: "%{label} ist kein String, sondern %{template}."
       geo: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ, oder einen WKT formatierten String."
       geo_no_linestring: "Für diesen Typ müssen mindestens zwei Punkte angegeben werden"
       schedule:
@@ -1660,6 +1660,8 @@ de:
         suggestion: Tipps
         additional_information: Zusatzinformationen
         maps: Literatur
+        starting_point_descr: Start
+        destination: Ziel
       ratings:
         technique_rating: Technik
         condition_rating: Kondition

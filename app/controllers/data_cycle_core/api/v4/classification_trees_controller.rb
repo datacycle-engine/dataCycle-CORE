@@ -133,8 +133,7 @@ module DataCycleCore
             }
           elsif action_name == 'facets'
             {
-              filter:
-                attribute_filters + [linked: {}] + [union: []]
+              filter: {}
             }
           else
             {
