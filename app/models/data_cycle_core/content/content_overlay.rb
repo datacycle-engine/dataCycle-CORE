@@ -10,8 +10,7 @@ module DataCycleCore
 
       def overlay_allowed?
         return false if content_type != 'entity'
-        return false unless respond_to?(overlay_name)
-        true
+        respond_to?(overlay_name)
       end
 
       def overlay_name
@@ -28,7 +27,7 @@ module DataCycleCore
       alias overlay_properties overlay_property_names
 
       def overlay_property_definitions
-        @overlay_property_definitions ||= DataCycleCore::ThingTemplate.find_by(template_name: overlay_template_name)&.schema&.dig('properties') || {}
+        @overlay_property_definitions ||= overlay_template_name.present? ? DataCycleCore::ThingTemplate.find_by(template_name: overlay_template_name)&.schema&.dig('properties') || {} : {}
       end
 
       def overlay_properties_for(overlay_property_name)
@@ -52,8 +51,10 @@ module DataCycleCore
         property_names + add_overlay_property_names
       end
 
-      def value_from_overlay(method_name, *)
-        overlay_content.send(method_name, *) if overlay? && overlay_content.respond_to?(method_name)
+      def value_from_overlay(method_name, *args)
+        return unless overlay_property_names.include?(args[0])
+
+        overlay_content.send(method_name, *args) if overlay? && overlay_content.respond_to?(method_name)
       end
 
       # attribute_getter_method Extensions
