@@ -74,7 +74,7 @@ module DataCycleCore
           end
 
           depth = @include_parameters&.map(&:size)&.max
-          query.instance_variable_set(:@_recursive_preload_depth, depth) if depth
+          query.instance_variable_set(:@_recursive_preload_depth, 1 + depth) if depth
 
           query
         end

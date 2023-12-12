@@ -10,8 +10,7 @@ module DataCycleCore
           DataCycleCore::ContentContent.from("(#{ActiveRecord::Base.send(:sanitize_sql_array, [
                                                                            self.class.send(:recursive_content_links_query, depth:),
                                                                            id:,
-                                                                           depth1: depth.to_i,
-                                                                           depth2: depth.to_i + 1
+                                                                           depth1: depth.to_i
                                                                          ])}) content_contents").reorder(order_a: :asc)
         end
 
@@ -22,8 +21,7 @@ module DataCycleCore
               scope: DataCycleCore::ContentContent.from("(#{ActiveRecord::Base.send(:sanitize_sql_array, [
                                                                                       recursive_content_links_query(depth:),
                                                                                       id: current_scope.pluck(:id),
-                                                                                      depth1: depth.to_i,
-                                                                                      depth2: depth.to_i + 1
+                                                                                      depth1: depth.to_i
                                                                                     ])}) content_contents").reorder(order_a: :asc),
               preload:
             )
@@ -36,21 +34,14 @@ module DataCycleCore
               SELECT content_content_links.content_content_id,
                 content_content_links.content_b_id,
                 content_content_links.relation
-                #{depth&.positive? ? ", CASE WHEN content_content_links.relation = 'overlay' THEN FALSE ELSE content_tree.depth + 1 >= :depth1 END AS \"leaf\", content_tree.depth + 1 AS \"depth\"" : ', FALSE AS "leaf"'}
+                #{depth&.positive? ? ", content_tree.depth + 1 >= :depth1 AS \"leaf\", CASE WHEN content_content_links.relation = 'overlay' THEN content_tree.depth ELSE content_tree.depth + 1 END AS \"depth\"" : ', FALSE AS "leaf"'}
               FROM content_content_links
                 INNER JOIN content_tree ON content_tree.content_b_id = content_content_links.content_a_id
             SQL
 
             if depth&.positive?
               recursive_subquery << ' ' + <<-SQL.squish
-                WHERE (
-                  content_tree.depth < :depth1
-                  AND content_tree.relation != 'overlay'
-                )
-                OR (
-                  content_tree.depth < :depth2
-                  AND content_tree.relation = 'overlay'
-                )
+                WHERE NOT content_tree.leaf
               SQL
             end
 
@@ -60,7 +51,7 @@ module DataCycleCore
                   content_content_links.content_b_id,
                   content_content_links.relation,
                   #{depth == 1 ? "content_content_links.relation != 'overlay'" : 'FALSE'} AS "leaf"
-                  #{', 1 AS "depth"' if depth&.positive?}
+                  #{", CASE WHEN content_content_links.relation = 'overlay' THEN 0 ELSE 1 END AS \"depth\"" if depth&.positive?}
                 FROM content_content_links
                 WHERE content_content_links.content_a_id IN (:id)
                 UNION #{'ALL' if depth&.positive?}
@@ -68,6 +59,7 @@ module DataCycleCore
               )
               SELECT DISTINCT ON (content_contents.id) content_contents.*, content_tree.leaf FROM content_contents
               INNER JOIN content_tree ON content_tree.id = content_contents.id
+              ORDER BY content_contents.id ASC #{', content_tree.depth ASC' if depth&.positive?}
             SQL
           end
         end

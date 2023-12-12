@@ -80,13 +80,13 @@ module DataCycleCore
           leaf_contents = self.class
             .default_scoped
             .where(id: leaf_ids)
-            .tap { |rel| rel.send(:load_records, additional_contents.filter { |c| ids_to_preload.exclude?(c.id) }) }
+          leaf_contents.send(:load_records, additional_contents.filter { |c| ids_to_preload.exclude?(c.id) })
 
-          @_current_rc_with_leafs = self.class
+          current_rc_with_leafs = self.class
             .default_scoped
             .where(id: content_ids + ids_to_preload + leaf_ids)
-            .tap { |rel| rel.send(:load_records, (current_contents + additional_contents).uniq) }
-            .index_by(&:id)
+          current_rc_with_leafs.send(:load_records, (current_contents + additional_contents).uniq)
+          @_current_rc_with_leafs = current_rc_with_leafs.index_by(&:id)
 
           values_to_preload = @_current_rc_with_leafs.values_at(*ids_to_preload)
           values_to_preload.compact!
@@ -94,7 +94,7 @@ module DataCycleCore
           @_current_recursive_collection = self.class
             .default_scoped
             .where(id: content_ids + ids_to_preload)
-            .tap { |rel| rel.send(:load_records, (current_contents + values_to_preload).uniq) }
+          @_current_recursive_collection.send(:load_records, (current_contents + values_to_preload).uniq)
 
           ActiveRecord::Associations::Preloader.new.preload(@_current_rc_with_leafs.values, :translations)
 
@@ -114,11 +114,11 @@ module DataCycleCore
         def preload_overlays
           return if @_current_recursive_collection.instance_variable_get(:@_overlays_preloaded) || @_current_recursive_collection.all? { |c| c.instance_variable_get(:@_overlay_preloaded) }
 
-          overlay_templates = DataCycleCore::ThingTemplate.where(template_name: @_current_recursive_collection.map(&:overlay_template_name).compact.uniq).index_by(&:template_name)
+          overlay_templates = DataCycleCore::ThingTemplate.where(template_name: @_current_recursive_collection.map(&:overlay_template_name).compact.uniq).to_h { |tt| [tt.template_name, Array.wrap(tt.property_names)] }
 
           @_current_recursive_collection.each do |content|
             content.instance_variable_set(:@_overlay_preloaded, true)
-            content.instance_variable_set(:@overlay_property_names, content.overlay_template_name.present? ? Array.wrap(overlay_templates[content.overlay_template_name]&.property_names) : [])
+            content.instance_variable_set(:@overlay_property_names, content.overlay_template_name.present? ? overlay_templates[content.overlay_template_name] : [])
 
             next unless content.overlay_allowed?
 
