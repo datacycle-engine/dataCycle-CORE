@@ -346,6 +346,56 @@ module DataCycleCore
         .merge(attributes)
     end
 
+    def sort_classifications_alphabetically!
+      raw_sql = <<-SQL.squish
+        UPDATE classification_aliases
+        SET order_a = w.order_a
+        FROM (
+            WITH RECURSIVE paths (id, full_internal_name, tree_label_id) AS (
+              SELECT classification_aliases.id,
+                ARRAY [classification_aliases.internal_name],
+                classification_trees.classification_tree_label_id
+              FROM classification_trees
+                JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id
+                AND classification_aliases.deleted_at IS NULL
+              WHERE classification_trees.parent_classification_alias_id IS NULL
+                AND classification_trees.deleted_at IS NULL
+                AND classification_trees.classification_tree_label_id = :id
+              UNION
+              SELECT classification_trees.classification_alias_id,
+                paths.full_internal_name || classification_aliases.internal_name,
+                classification_trees.classification_tree_label_id
+              FROM classification_trees
+                JOIN paths ON paths.id = classification_trees.parent_classification_alias_id
+                JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id
+                AND classification_aliases.deleted_at IS NULL
+              WHERE classification_trees.deleted_at IS NULL
+                AND classification_trees.classification_tree_label_id = :id
+            )
+            SELECT paths.id,
+              (
+                ROW_NUMBER() OVER (
+                  PARTITION BY classification_tree_labels.id
+                  ORDER BY paths.full_internal_name ASC
+                )
+              ) AS order_a
+            FROM paths
+              JOIN classification_tree_labels ON classification_tree_labels.id = paths.tree_label_id
+          ) w
+        WHERE w.id = classification_aliases.id;
+      SQL
+
+      ActiveRecord::Base.connection.execute(
+        ActiveRecord::Base.send(
+          :sanitize_sql_array,
+          [
+            raw_sql,
+            id:
+          ]
+        )
+      )
+    end
+
     private
 
     def trigger_things_cache_invalidation?
