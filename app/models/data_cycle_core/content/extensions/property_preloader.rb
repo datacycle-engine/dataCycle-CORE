@@ -99,7 +99,7 @@ module DataCycleCore
           ActiveRecord::Associations::Preloader.new.preload(@_current_rc_with_leafs.values, :translations)
 
           leaf_contents.each do |content|
-            content.instance_variable_set(:@_current_collection, leaf_contents)
+            content.remove_instance_variable(:@_current_collection)
           end
 
           @_current_recursive_collection.each do |content|
@@ -210,7 +210,7 @@ module DataCycleCore
         def preload_asset_properties
           asset_contents = @_current_recursive_collection.asset_contents(preload: :asset)
           acs = asset_contents.group_by(&:content_data_id).transform_values! { |v| v.group_by(&:relation).transform_values! { |ac| ac.map(&:asset_id) } }
-          assets = asset_contents.flat_map(&:asset).index_by(&:id)
+          assets = asset_contents.flat_map(&:asset).compact.index_by(&:id)
 
           @_current_recursive_collection.each do |content|
             content.asset_property_names.each do |k|
