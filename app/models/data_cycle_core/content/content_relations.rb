@@ -82,7 +82,7 @@ module DataCycleCore
           load_relation(relation_name: :thing_template, preload:)
         end
 
-        def content_content_a(linked_filter: nil, preload: false)
+        def content_content_a(preload: false)
           load_relation(relation_name: __method__, preload:)
         end
 
