@@ -11,7 +11,7 @@ class RefactorContentContentLinkTriggers < ActiveRecord::Migration[6.1]
       ADD COLUMN content_content_id uuid DEFAULT uuid_generate_v4() NOT NULL,
         ADD COLUMN relation character varying,
         ADD CONSTRAINT fk_content_content_links_content_contents FOREIGN KEY (content_content_id) REFERENCES content_contents (id) ON DELETE CASCADE ON UPDATE CASCADE NOT VALID,
-        ADD CONSTRAINT content_content_links_uq_constraint UNIQUE (content_content_id, content_a_id, content_b_id);
+        ADD CONSTRAINT content_content_links_uq_constraint UNIQUE (content_content_id, content_a_id, content_b_id, relation);
 
       DROP TRIGGER IF EXISTS delete_content_content_links_trigger ON content_contents;
 
@@ -47,9 +47,8 @@ class RefactorContentContentLinkTriggers < ActiveRecord::Migration[6.1]
         content_contents.relation_b AS "relation"
       FROM content_contents
       WHERE content_contents.id = ANY(content_content_ids)
-        AND content_contents.relation_b IS NOT NULL ON CONFLICT (content_content_id, content_a_id, content_b_id) DO
-        UPDATE
-        SET relation = EXCLUDED.relation;
+        AND content_contents.relation_b IS NOT NULL ON CONFLICT (content_content_id, content_a_id, content_b_id, relation) DO
+        NOTHING;
 
       RETURN;
 
