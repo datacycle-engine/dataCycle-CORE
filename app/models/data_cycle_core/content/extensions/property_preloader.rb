@@ -166,9 +166,9 @@ module DataCycleCore
           end
         end
 
-        def preload_linked_properties(filter)
+        def preload_linked_properties(linked_filter)
           collection_with_leafs = @_current_rc_with_leafs
-          collection_with_leafs = collection_with_leafs&.slice(*filter.apply(skip_ordering: true).query.reorder(nil).pluck(:id)) if filter.present?
+          collection_with_leafs = collection_with_leafs&.slice(*linked_filter.apply(skip_ordering: true).query.where(id: collection_with_leafs.keys).reorder(nil).pluck(:id)) if linked_filter.present?
 
           @_current_recursive_collection.each do |content|
             content.linked_property_names.each do |k|
@@ -180,10 +180,10 @@ module DataCycleCore
                 overlay_related_contents = collection_with_leafs&.values_at(*@_current_recursive_ccs&.dig(content.overlay_content&.id, k))
                 overlay_related_contents&.compact!
 
-                content.set_memoized_attribute(k, overlay_related_contents.presence || related_contents, filter, true)
+                content.set_memoized_attribute(k, overlay_related_contents.presence || related_contents, linked_filter, true)
               end
 
-              content.set_memoized_attribute(k, related_contents, filter, false)
+              content.set_memoized_attribute(k, related_contents, linked_filter, false)
             end
           end
         end
