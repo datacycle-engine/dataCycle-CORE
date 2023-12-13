@@ -157,9 +157,11 @@ module DataCycleCore
 
       return if @content.template_missing?
 
-      @content.created_at = save_time # - 1 / 1001.0 # use - 1 / 1001.0 to ensure history creation
-      @content.updated_at = save_time # - 1 / 1001.0 # use - 1 / 1001.0 to ensure history creation
+      @content.created_at = save_time
+      @content.updated_at = save_time
       @content.created_by = user&.id if user.present?
+      @content.external_key = data_hash['external_key'] if data_hash.key?('external_key')
+      @content.external_source_id = data_hash['external_source_id'] if data_hash.key?('external_source_id')
       @content.save!(touch: false)
 
       @content.set_data_hash(
