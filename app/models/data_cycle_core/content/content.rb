@@ -443,7 +443,8 @@ module DataCycleCore
       def get_property_value(property_name, property_definition, filter = nil, overlay_flag = false)
         key = attibute_cache_key(property_name, filter, overlay_flag)
 
-        preload_property(property_name, filter, overlay_flag) unless history?
+        # disable preloader
+        # preload_property(property_name, filter, overlay_flag) unless history?
 
         return @get_property_value[key] if @get_property_value&.key?(key)
 
