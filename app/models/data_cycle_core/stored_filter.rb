@@ -21,6 +21,7 @@ module DataCycleCore
     scope :by_api_user, ->(user) { where("'#{user.id}' = ANY (api_users)") }
     scope :named, -> { where.not(name: nil) }
     belongs_to :user
+    belongs_to :user_with_deleted, -> { with_deleted }, foreign_key: :user_id, class_name: 'DataCycleCore::User'
 
     has_many :activities, as: :activitiable, dependent: :destroy
 
