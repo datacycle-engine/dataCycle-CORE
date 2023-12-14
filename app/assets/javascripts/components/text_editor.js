@@ -126,14 +126,14 @@ class TextEditor {
 				},
 				keyboard: {
 					bindings: {
-						handleEnter: {
-							key: 13,
-							handler: handleEnter,
-						},
 						linebreak: {
 							key: 13,
 							shiftKey: true,
 							handler: lineBreakHandler,
+						},
+						handleEnter: {
+							key: 13,
+							handler: handleEnter,
 						},
 					},
 				},
@@ -218,8 +218,8 @@ class TextEditor {
 		if (range == null) quillHelpers.updateEditors(this.editor.container, true);
 	}
 	removeInitialExtraLines() {
-		let length = this.editor.getLength();
-		let text = this.editor.getText(length - 2, 2);
+		const length = this.editor.getLength();
+		const text = this.editor.getText(length - 2, 2);
 
 		// Remove extraneous new lines
 		if (text === "\n\n") {

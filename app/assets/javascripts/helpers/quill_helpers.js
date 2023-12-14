@@ -1,10 +1,11 @@
 const QuillHelpers = {
 	updateEditors(container = document, triggerChangeEvent = false) {
-		if (container instanceof $) container = container[0];
-		if (!container) return;
+		let newContainer = container;
+		if (newContainer instanceof $) newContainer = newContainer[0];
+		if (!newContainer) return;
 
-		const editors = Array.from(container.querySelectorAll(".quill-editor"));
-		if (container.matches(".quill-editor")) editors.push(container);
+		const editors = Array.from(newContainer.querySelectorAll(".quill-editor"));
+		if (newContainer.matches(".quill-editor")) editors.push(newContainer);
 
 		for (const editor of editors) {
 			const hiddenField = document.getElementById(editor.dataset.hiddenFieldId);
@@ -21,7 +22,7 @@ const QuillHelpers = {
 		}
 	},
 	normalizeText(text) {
-		let normalizedText = text
+		const normalizedText = text
 			.replaceAll(/(<p>\s*(<br>)*\s*<\/p>)*$/gi, "")
 			.replaceAll(/^(<p>\s*(<br>)*\s*<\/p>)*/gi, "")
 			.replaceAll(/(\s*&nbsp;\s*)+/gi, "&nbsp;");
