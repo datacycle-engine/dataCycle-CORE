@@ -558,6 +558,7 @@ en:
     api_url: API Link
     url: URL
     more_errors: "%{count} more errors"
+    number: number
 
   embedded:
     move_down: move down

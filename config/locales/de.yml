@@ -555,6 +555,7 @@ de:
     api_url: API Link
     url: URL
     more_errors: "%{count} weitere Fehler"
+    number: Anzahl
 
   embedded:
     move_down: nach unten verschieben
