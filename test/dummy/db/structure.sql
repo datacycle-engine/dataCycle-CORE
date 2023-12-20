@@ -189,25 +189,7 @@ CREATE FUNCTION public.delete_schedule_occurences_trigger() RETURNS trigger
 
 CREATE FUNCTION public.generate_ca_paths_transitive(classification_alias_ids uuid[]) RETURNS void
     LANGUAGE plpgsql
-    AS $$ BEGIN IF array_length(classification_alias_ids, 1) > 0 THEN WITH RECURSIVE paths( id, parent_id, ancestor_ids, full_path_ids, full_path_names, link_types, tree_label_id ) AS ( SELECT classification_aliases.id, classification_trees.parent_classification_alias_id, ARRAY []::uuid [], ARRAY [classification_aliases.id], ARRAY [classification_aliases.internal_name], ARRAY []::text [], classification_trees.classification_tree_label_id FROM classification_trees JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id WHERE classification_trees.classification_alias_id = ANY(classification_alias_ids) UNION ALL SELECT paths.id, classification_trees.parent_classification_alias_id, ancestor_ids || classification_aliases.id, full_path_ids || classification_aliases.id, full_path_names || classification_aliases.internal_name, ARRAY ['broader'] || paths.link_types, classification_trees.classification_tree_label_id FROM classification_trees JOIN paths ON paths.parent_id = classification_trees.classification_alias_id JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id ), child_paths( id, ancestor_ids, full_path_ids, full_path_names, link_types ) AS ( SELECT paths.id AS id, paths.ancestor_ids AS ancestor_ids, paths.full_path_ids AS full_path_ids, paths.full_path_names || classification_tree_labels.name AS full_path_names, paths.link_types AS link_types FROM paths JOIN classification_tree_labels ON classification_tree_labels.id = paths.tree_label_id WHERE paths.parent_id IS NULL UNION ALL SELECT classification_aliases.id AS id, ( classification_alias_links.parent_classification_alias_id || p1.ancestor_ids ) AS ancestors_ids, ( classification_aliases.id || p1.full_path_ids ) AS full_path_ids, ( classification_aliases.internal_name || p1.full_path_names ) AS full_path_names, ( classification_alias_links.link_type || p1.link_types ) AS link_types FROM classification_alias_links JOIN classification_aliases ON classification_aliases.id = classification_alias_links.child_classification_alias_id JOIN child_paths p1 ON p1.id = classification_alias_links.parent_classification_alias_id WHERE classification_aliases.id <> ALL (p1.full_path_ids) ), deleted_capt AS ( DELETE FROM classification_alias_paths_transitive WHERE classification_alias_paths_transitive.id IN ( SELECT capt.id FROM classification_alias_paths_transitive capt WHERE capt.full_path_ids && classification_alias_ids AND NOT EXISTS ( SELECT 1 FROM child_paths WHERE child_paths.full_path_ids = capt.full_path_ids ) ORDER BY capt.id ASC FOR UPDATE SKIP LOCKED ) ) INSERT INTO classification_alias_paths_transitive ( classification_alias_id, ancestor_ids, full_path_ids, full_path_names, link_types ) SELECT DISTINCT ON (child_paths.full_path_ids) child_paths.id, child_paths.ancestor_ids, child_paths.full_path_ids, child_paths.full_path_names, child_paths.link_types FROM child_paths ON CONFLICT ON CONSTRAINT classification_alias_paths_transitive_unique DO UPDATE SET full_path_names = EXCLUDED.full_path_names; END IF; END; $$;
-
-
---
--- Name: generate_ca_paths_transitive_statement_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.generate_ca_paths_transitive_statement_trigger_1() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_ca_paths_transitive ( ARRAY_AGG(DISTINCT inserted_classification_aliases.id) ) FROM ( SELECT DISTINCT new_classification_aliases.id FROM new_classification_aliases ) "inserted_classification_aliases"; RETURN NULL; END; $$;
-
-
---
--- Name: generate_ca_paths_transitive_statement_trigger_2(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.generate_ca_paths_transitive_statement_trigger_2() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_ca_paths_transitive ( ARRAY_AGG( DISTINCT inserted_classification_tree_labels.classification_alias_id ) ) FROM ( SELECT DISTINCT classification_trees.classification_alias_id FROM classification_trees WHERE classification_trees.classification_tree_label_id IN ( SELECT new_classification_tree_labels.id FROM new_classification_tree_labels ) ) "inserted_classification_tree_labels"; RETURN NULL; END; $$;
+    AS $$ BEGIN IF array_length(classification_alias_ids, 1) > 0 THEN WITH RECURSIVE paths( id, parent_id, ancestor_ids, full_path_ids, full_path_names, link_types, tree_label_id ) AS ( SELECT ca.id, cal.parent_classification_alias_id, ARRAY []::uuid [], ARRAY [ca.id], ARRAY [ca.internal_name], ARRAY []::text [], ct.classification_tree_label_id FROM classification_alias_links cal JOIN classification_aliases ca ON ca.id = cal.child_classification_alias_id AND ca.deleted_at IS NULL JOIN classification_trees ct ON ct.classification_alias_id = ca.id AND ct.deleted_at IS NULL WHERE cal.child_classification_alias_id = ANY(classification_alias_ids) UNION ALL SELECT paths.id, cal.parent_classification_alias_id, ancestor_ids || ca.id, full_path_ids || ca.id, full_path_names || ca.internal_name, ARRAY [cal.link_type]::text [] || paths.link_types, ct.classification_tree_label_id FROM classification_alias_links cal JOIN paths ON paths.parent_id = cal.child_classification_alias_id JOIN classification_aliases ca ON ca.id = cal.child_classification_alias_id AND ca.deleted_at IS NULL JOIN classification_trees ct ON ct.classification_alias_id = ca.id AND ct.deleted_at IS NULL WHERE ca.id <> ALL (paths.full_path_ids) ), child_paths( id, ancestor_ids, full_path_ids, full_path_names, link_types ) AS ( SELECT paths.id AS id, paths.ancestor_ids AS ancestor_ids, paths.full_path_ids AS full_path_ids, paths.full_path_names || classification_tree_labels.name AS full_path_names, paths.link_types AS link_types FROM paths JOIN classification_tree_labels ON classification_tree_labels.id = paths.tree_label_id WHERE paths.parent_id IS NULL UNION ALL SELECT classification_aliases.id AS id, ( classification_alias_links.parent_classification_alias_id || p1.ancestor_ids ) AS ancestors_ids, ( classification_aliases.id || p1.full_path_ids ) AS full_path_ids, ( classification_aliases.internal_name || p1.full_path_names ) AS full_path_names, ( classification_alias_links.link_type || p1.link_types ) AS link_types FROM classification_alias_links JOIN classification_aliases ON classification_aliases.id = classification_alias_links.child_classification_alias_id JOIN child_paths p1 ON p1.id = classification_alias_links.parent_classification_alias_id WHERE classification_aliases.id <> ALL (p1.full_path_ids) ), deleted_capt AS ( DELETE FROM classification_alias_paths_transitive WHERE classification_alias_paths_transitive.id IN ( SELECT capt.id FROM classification_alias_paths_transitive capt WHERE capt.full_path_ids && classification_alias_ids AND NOT EXISTS ( SELECT 1 FROM child_paths WHERE child_paths.full_path_ids = capt.full_path_ids ) ORDER BY capt.id ASC FOR UPDATE SKIP LOCKED ) ) INSERT INTO classification_alias_paths_transitive ( classification_alias_id, ancestor_ids, full_path_ids, full_path_names, link_types ) SELECT DISTINCT ON (child_paths.full_path_ids) child_paths.id, child_paths.ancestor_ids, child_paths.full_path_ids, child_paths.full_path_names, child_paths.link_types FROM child_paths ON CONFLICT ON CONSTRAINT classification_alias_paths_transitive_unique DO UPDATE SET full_path_names = EXCLUDED.full_path_names; END IF; END; $$;
 
 
 --
@@ -433,7 +415,7 @@ CREATE FUNCTION public.generate_collection_slug_trigger() RETURNS trigger
 
 CREATE FUNCTION public.generate_content_content_links(content_content_ids uuid[]) RETURNS void
     LANGUAGE plpgsql
-    AS $$ BEGIN INSERT INTO content_content_links ( content_a_id, content_b_id, content_content_id, relation ) SELECT content_contents.content_a_id AS "content_a_id", content_contents.content_b_id AS "content_b_id", content_contents.id AS "content_content_id", content_contents.relation_a AS "relation" FROM content_contents WHERE content_contents.id = ANY(content_content_ids) UNION SELECT content_contents.content_b_id AS "content_a_id", content_contents.content_a_id AS "content_b_id", content_contents.id AS "content_content_id", content_contents.relation_b AS "relation" FROM content_contents WHERE content_contents.id = ANY(content_content_ids) AND content_contents.relation_b IS NOT NULL ON CONFLICT (content_content_id, content_a_id, content_b_id) DO UPDATE SET relation = EXCLUDED.relation; RETURN; END; $$;
+    AS $$ BEGIN INSERT INTO content_content_links ( content_a_id, content_b_id, content_content_id, relation ) SELECT content_contents.content_a_id AS "content_a_id", content_contents.content_b_id AS "content_b_id", content_contents.id AS "content_content_id", content_contents.relation_a AS "relation" FROM content_contents WHERE content_contents.id = ANY(content_content_ids) UNION SELECT content_contents.content_b_id AS "content_a_id", content_contents.content_a_id AS "content_b_id", content_contents.id AS "content_content_id", content_contents.relation_b AS "relation" FROM content_contents WHERE content_contents.id = ANY(content_content_ids) AND content_contents.relation_b IS NOT NULL ON CONFLICT (content_content_id, content_a_id, content_b_id, relation) DO NOTHING; RETURN; END; $$;
 
 
 --
@@ -1926,7 +1908,7 @@ ALTER TABLE ONLY public.content_content_histories
 --
 
 ALTER TABLE ONLY public.content_content_links
-    ADD CONSTRAINT content_content_links_uq_constraint UNIQUE (content_content_id, content_a_id, content_b_id);
+    ADD CONSTRAINT content_content_links_uq_constraint UNIQUE (content_content_id, content_a_id, content_b_id, relation);
 
 
 --
@@ -3330,8 +3312,6 @@ ALTER TABLE public.classification_contents DISABLE TRIGGER delete_ccc_relations_
 
 CREATE TRIGGER delete_ccc_relations_transitive_trigger AFTER DELETE ON public.classification_groups REFERENCING OLD TABLE AS old_classification_groups FOR EACH STATEMENT EXECUTE FUNCTION public.delete_ca_paths_transitive_trigger_1();
 
-ALTER TABLE public.classification_groups DISABLE TRIGGER delete_ccc_relations_transitive_trigger;
-
 
 --
 -- Name: classification_groups delete_collected_classification_content_relations_trigger_1; Type: TRIGGER; Schema: public; Owner: -
@@ -3352,20 +3332,6 @@ CREATE TRIGGER delete_external_hashes_trigger AFTER DELETE ON public.thing_trans
 --
 
 CREATE TRIGGER delete_schedule_occurences_trigger AFTER DELETE ON public.schedules REFERENCING OLD TABLE AS old_schedules FOR EACH STATEMENT EXECUTE FUNCTION public.delete_schedule_occurences_trigger();
-
-
---
--- Name: classification_aliases generate_ca_paths_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER generate_ca_paths_transitive_trigger AFTER INSERT ON public.classification_aliases REFERENCING NEW TABLE AS new_classification_aliases FOR EACH STATEMENT EXECUTE FUNCTION public.generate_ca_paths_transitive_statement_trigger_1();
-
-
---
--- Name: classification_tree_labels generate_ca_paths_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER generate_ca_paths_transitive_trigger AFTER INSERT ON public.classification_tree_labels REFERENCING NEW TABLE AS new_classification_tree_labels FOR EACH STATEMENT EXECUTE FUNCTION public.generate_ca_paths_transitive_statement_trigger_2();
 
 
 --
@@ -3398,22 +3364,6 @@ ALTER TABLE public.classification_contents DISABLE TRIGGER generate_ccc_relation
 --
 
 CREATE TRIGGER generate_ccc_relations_transitive_trigger AFTER INSERT ON public.classification_groups REFERENCING NEW TABLE AS new_classification_groups FOR EACH STATEMENT EXECUTE FUNCTION public.generate_ca_paths_transitive_trigger_4();
-
-ALTER TABLE public.classification_groups DISABLE TRIGGER generate_ccc_relations_transitive_trigger;
-
-
---
--- Name: classification_aliases generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_aliases FOR EACH ROW EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_1();
-
-
---
--- Name: classification_tree_labels generate_classification_alias_paths_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER generate_classification_alias_paths_trigger AFTER INSERT ON public.classification_tree_labels FOR EACH ROW EXECUTE FUNCTION public.generate_classification_alias_paths_trigger_3();
 
 
 --
@@ -3578,8 +3528,6 @@ ALTER TABLE public.classification_contents DISABLE TRIGGER update_ccc_relations_
 
 CREATE TRIGGER update_ccc_relations_transitive_trigger AFTER UPDATE ON public.classification_groups REFERENCING OLD TABLE AS old_classification_groups NEW TABLE AS new_classification_groups FOR EACH STATEMENT EXECUTE FUNCTION public.update_ca_paths_transitive_trigger_4();
 
-ALTER TABLE public.classification_groups DISABLE TRIGGER update_ccc_relations_transitive_trigger;
-
 
 --
 -- Name: classification_groups update_ccc_relations_trigger_4; Type: TRIGGER; Schema: public; Owner: -
@@ -3670,8 +3618,6 @@ CREATE TRIGGER update_content_content_links_trigger AFTER UPDATE ON public.conte
 --
 
 CREATE TRIGGER update_deleted_at_ccc_relations_transitive_trigger AFTER UPDATE ON public.classification_groups REFERENCING OLD TABLE AS old_classification_groups NEW TABLE AS new_classification_groups FOR EACH STATEMENT EXECUTE FUNCTION public.delete_ca_paths_transitive_trigger_2();
-
-ALTER TABLE public.classification_groups DISABLE TRIGGER update_deleted_at_ccc_relations_transitive_trigger;
 
 
 --
@@ -4133,7 +4079,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210510120343'),
 ('20210518074537'),
 ('20210518133349'),
-('20210520121223'),
 ('20210520123323'),
 ('20210522171126'),
 ('20210527121641'),
@@ -4146,48 +4091,32 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20210709121013'),
 ('20210731090959'),
 ('20210802095013'),
-('20210802130128'),
-('20210803170527'),
 ('20210804140504'),
 ('20210817101040'),
 ('20210908095952'),
 ('20211001085525'),
-('20211004160440'),
 ('20211005125306'),
 ('20211005134137'),
 ('20211007123156'),
-('20211007150305'),
-('20211011060931'),
 ('20211011123517'),
 ('20211014062654'),
 ('20211021062347'),
 ('20211021111915'),
-('20211110092804'),
-('20211115140202'),
 ('20211122075759'),
 ('20211123081845'),
 ('20211130111352'),
 ('20211214135559'),
 ('20211216110505'),
 ('20211217094832'),
-('20211217111102'),
 ('20220105142232'),
 ('20220111132413'),
 ('20220113113445'),
-('20220113150316'),
-('20220119101040'),
-('20220125101015'),
 ('20220218095025'),
 ('20220221123152'),
 ('20220304071341'),
-('20220308150335'),
-('20220308150336'),
 ('20220316115212'),
-('20220316130143'),
-('20220316140219'),
 ('20220317105304'),
 ('20220317131316'),
-('20220317140209'),
 ('20220322104259'),
 ('20220426105827'),
 ('20220505135021'),
@@ -4267,6 +4196,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20231122124135'),
 ('20231123103232'),
 ('20231127144259'),
-('20231201083233');
+('20231201083233'),
+('20231220082023');
 
 

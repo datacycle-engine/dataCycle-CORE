@@ -16,16 +16,20 @@ module DataCycleCore
 
       @tree2 = DataCycleCore::ClassificationTreeLabel.create!(name: 'Tree 2')
       @tree3 = DataCycleCore::ClassificationTreeLabel.create!(name: 'Tree 3')
+      @dummy_tree = DataCycleCore::ClassificationTreeLabel.create!(name: 'Tree Dummy')
       @tree2.create_classification_alias('parent 1', 'mapped 1')
       @tree3.create_classification_alias('parent 2', 'mapped 2')
+      @dummy_tree.create_classification_alias('parent dummy', 'mapped dummy')
 
       tag1 = DataCycleCore::ClassificationAlias.for_tree(@tags.name).find_by!(internal_name: 'Tag 1')
       mapped1 = DataCycleCore::ClassificationAlias.for_tree(@tree2.name).find_by!(internal_name: 'mapped 1')
       mapped2 = DataCycleCore::ClassificationAlias.for_tree(@tree3.name).find_by!(internal_name: 'mapped 2')
       parent1 = DataCycleCore::ClassificationAlias.for_tree(@tree2.name).find_by!(internal_name: 'parent 1')
+      dummy = DataCycleCore::ClassificationAlias.for_tree(@dummy_tree.name).find_by!(internal_name: 'mapped dummy')
 
       mapped1.update!(classification_ids: [mapped1.primary_classification.id, tag1.primary_classification.id])
       mapped2.update!(classification_ids: [mapped2.primary_classification.id, parent1.primary_classification.id])
+      mapped1.update!(classification_ids: [mapped1.primary_classification.id, tag1.primary_classification.id, dummy.primary_classification.id])
     end
 
     after(:all) do
@@ -33,6 +37,21 @@ module DataCycleCore
       DataCycleCore::Feature::TransitiveClassificationPath.reload
       DataCycleCore::Feature::TransitiveClassificationPath.update_triggers(false)
       DataCycleCore::RunTaskJob.perform_now('db:configure:rebuild_transitive_tables')
+    end
+
+    test 'recursion in mappings works without infinite loop' do
+      mapped1 = DataCycleCore::ClassificationAlias.for_tree(@tree2.name).find_by!(internal_name: 'mapped 1')
+      mapped2 = DataCycleCore::ClassificationAlias.for_tree(@tree3.name).find_by!(internal_name: 'mapped 2')
+
+      timeout = 10
+
+      ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+        ActiveRecord::Base.connection.execute(ActiveRecord::Base.sanitize_sql_for_conditions(['SET LOCAL statement_timeout = ?', timeout * 1000]))
+        Timeout.timeout(timeout) do
+          mapped1.update!(classification_ids: [mapped1.primary_classification.id, mapped2.primary_classification.id])
+          mapped2.update!(classification_ids: [mapped2.primary_classification.id, mapped1.primary_classification.id])
+        end
+      end
     end
 
     test 'filter contents based on mapped (2 hops) classifications by id' do
