@@ -576,7 +576,7 @@ de:
     pending: wird synchronisiert
     running: Export getriggert
     error: "Es ist ein Fehler aufgetreten.\nDie Synchronisation wird in bestimmten Intervallen erneut versucht."
-    failure: "Es ist ein schwerer Fehler aufgetreten.\nDer Inhalt kann nich synchronisiert werden."
+    failure: "Es ist ein schwerer Fehler aufgetreten.\nDer Inhalt kann nicht synchronisiert werden."
     export: Externes System
 
   external_connections:
