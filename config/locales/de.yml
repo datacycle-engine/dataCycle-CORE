@@ -1044,7 +1044,7 @@ de:
     create_from_existing: "Inhalt anhand dieser Vorlage erstellen"
     move_to_container: "Inhalt verschieben"
     move: verschieben
-    geocode: "Geokoordinaten von %{title} übernehmen"
+    geocode: "%{target} von %{source} übernehmen"
     upload_gpx: "GPX-Datei hochladen"
     remove_feature: "Geometrie löschen"
     open_asset: "Datei öffnen"

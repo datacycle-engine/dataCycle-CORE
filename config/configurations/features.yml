@@ -294,7 +294,11 @@
 
 :geocode:
   :enabled: false
+  :target_key: location
   :attribute_keys:
+  :reverse_geocode:
+    :enabled: false
+    :attribute_keys:
 
 :auto_translation:
   :enabled: false

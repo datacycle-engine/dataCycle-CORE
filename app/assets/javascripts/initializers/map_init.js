@@ -3,6 +3,7 @@ import MapLibreGlViewer from "./../components/maplibre_gl_viewer";
 import MapLibreGlEditor from "./../components/maplibre_gl_editor";
 import MapLibreGlDashboard from "./../components/maplibre_gl_dashboard";
 import DomElementHelpers from "../helpers/dom_element_helpers";
+import ReverseGeocoding from "../components/reverse_geocoding";
 
 const mapEditors = {
 	TourSprung: TourSprungEditor,
@@ -19,6 +20,11 @@ export default function () {
 		e.classList.add("dcjs-map");
 		intersectionObserver.observe(e);
 	});
+
+	DataCycle.initNewElements(
+		".reverse-geocode-button:not(.dcjs-reverse-geocoding)",
+		(e) => new ReverseGeocoding(e),
+	);
 }
 
 function initMap(entries, observer) {
