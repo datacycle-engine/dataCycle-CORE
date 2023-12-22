@@ -20,6 +20,11 @@ module DataCycleCore
       schema&.[]('properties') || {}
     end
 
+    def schema_sorted
+      sorted_properties = schema.dig('properties').map { |key, value| { key => value } }.sort_by { |i| i.values.first.dig('sorting') }.inject(&:merge)
+      schema.deep_dup.merge({ 'properties' => sorted_properties })
+    end
+
     def property_names
       property_definitions.keys
     end
