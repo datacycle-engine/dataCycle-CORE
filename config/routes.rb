@@ -401,6 +401,7 @@ DataCycleCore::Engine.routes.draw do
           namespace :config do
             match 'schema', to: 'schema#index', via: [:get, :post]
             # @todo: add route for show action 'schema/:template_name
+            match 'schema/:template_name', to: 'schema#show', via: [:get, :post]
           end
         end
       end

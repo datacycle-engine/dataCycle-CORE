@@ -15,12 +15,19 @@ module DataCycleCore
         end
 
         def show
-          # id = ?
-          # DataCycleCore::ThingTemplate.where(template_name: 'Artikel').first.schema_sorted
+          name = params[:template_name]
+          template = DataCycleCore::ThingTemplate.where(template_name: name)
+          if template.present?
+            render json: template.first.schema_sorted.to_json
+          else
+            error = "Couldn't find ThingTemplate #{name}"
+            raise ActiveRecord::RecordNotFound.new(error)
+          end
+
         end
 
         def permitted_parameter_keys
-          super + [:id]
+          super + [:id, :template_name]
         end
 
         private
