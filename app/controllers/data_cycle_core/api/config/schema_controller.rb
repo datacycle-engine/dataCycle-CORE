@@ -18,10 +18,11 @@ module DataCycleCore
           name = params[:template_name]
           template = DataCycleCore::ThingTemplate.where(template_name: name)
           if template.present?
-            render json: template.first.schema_sorted.to_json
+            content = Array.wrap(template.first.schema_sorted)
+            render json: schema_api_format(content) { content }.to_json
           else
-            error = "Couldn't find ThingTemplate #{name}"
-            raise ActiveRecord::RecordNotFound.new(error)
+            error = "Couldn't find ThingTemplate '#{name}'"
+            render json: { error: error }, layout: false, status: :not_found
           end
 
         end
