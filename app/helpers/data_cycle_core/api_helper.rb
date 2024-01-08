@@ -178,11 +178,11 @@ module DataCycleCore
 
     def load_embedded_object(content, key, languages, _definition)
       return if languages.blank?
-      return content.try(key + '_overlay') unless content.translatable_property_names.include?(key)
+      return content.try(key + '_overlay') if content.translatable_property_names.include?(key)
 
       data_value = DataCycleCore::Thing.none
       content.available_locales.map(&:to_s).each do |locale|
-        records = data_value.to_a + I18n.with_locale(locale) { content.try(key + '_overlay') }.to_a
+        records = (data_value.to_a + I18n.with_locale(locale) { content.try(key + '_overlay') }.to_a).uniq
         records_ids = records.pluck(:id)
         data_value = DataCycleCore::Thing.where(id: records_ids).order(
           [
