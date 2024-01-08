@@ -533,6 +533,7 @@ en:
       list: List view
       map: Map view
       gallery: Gallery view
+      statistics: Statistic
     user_registration:
       terms_conditions:
         I accept the <a href="%{url}" target="_blank">general terms
