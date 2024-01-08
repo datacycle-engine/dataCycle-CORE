@@ -97,8 +97,6 @@ module DataCycleCore
                         download_object.endpoint.send(endpoint_method, lang: locale)
                       end
 
-                    pool = DataCycleCore::WorkerPool.new(options.dig(:download, :run_in_parallel) ? 5 : 1)
-
                     items.each do |item_data|
                       break if options[:max_count] && item_count >= options[:max_count]
 
@@ -107,60 +105,50 @@ module DataCycleCore
 
                       item_name = nil
                       item_id = nil
-                      pool.append_without_db_connection do
-                        init_mongo_db(database_name) do
-                          download_object.source_object.with(download_object.source_type) do |mongo_item_parallel|
-                            item_id = data_id.call(item_data)
-                            item_name = data_name.call(item_data)
+                      init_mongo_db(database_name) do
+                        download_object.source_object.with(download_object.source_type) do |mongo_item_parallel|
+                          item_id = data_id.call(item_data)
+                          item_name = data_name.call(item_data)
 
-                            item = mongo_item_parallel.find_or_initialize_by('external_id': item_id)
+                          item = mongo_item_parallel.find_or_initialize_by('external_id': item_id)
 
-                            item.dump ||= {}
-                            local_item = item.dump[locale]
+                          item.dump ||= {}
+                          local_item = item.dump[locale]
 
-                            if options.dig(:download, :restorable).present? && local_item.present?
-                              local_item.delete('deleted_at')
-                              local_item.delete('delete_reason')
-                              local_item.delete('last_seen_before_delete')
-                              item.dump[locale] = local_item
-                            end
-
-                            if delete.present? && delete.call(item_data, locale)
-                              item_data[:deleted_at] = local_item.try(:[], 'deleted_at') || Time.zone.now
-                              item_data[:delete_reason] = local_item.try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
-                            end
-
-                            item.data_has_changed = true if options[:mode] == 'full'
-                            item.data_has_changed = true if item.dump.dig(locale, 'mark_for_update').present?
-
-                            if item.data_has_changed.nil?
-                              last_download = download_object.external_source.last_successful_download
-                              if modified.present? && last_download.present?
-                                updated_at = modified.call(item_data)
-                                item.data_has_changed = updated_at > last_download ? true : nil
-                              end
-                            end
-
-                            item.data_has_changed = true if options.dig(:download, :skip_diff) == true && item.data_has_changed.nil?
-                            item.data_has_changed = diff?(bson_to_hash(item.dump[locale]), item_data, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
-
-                            if item.data_has_changed
-                              item.dump[locale] = item_data
-                              item.save!
-                            else
-                              item.set('seen_at' => Time.zone.now)
-                            end
-                            logging.item_processed(item_name, item_id, item_count, max_string)
+                          if options.dig(:download, :restorable).present? && local_item.present?
+                            local_item.delete('deleted_at')
+                            local_item.delete('delete_reason')
+                            local_item.delete('last_seen_before_delete')
+                            item.dump[locale] = local_item
                           end
-                        end
-                      rescue StandardError => e
-                        ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
-                          exception: e,
-                          namespace: 'background'
-                        }
 
-                        logging.error(item_name, item_id, item_data, e)
-                        success = false
+                          if delete.present? && delete.call(item_data, locale)
+                            item_data[:deleted_at] = local_item.try(:[], 'deleted_at') || Time.zone.now
+                            item_data[:delete_reason] = local_item.try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
+                          end
+
+                          item.data_has_changed = true if options[:mode] == 'full'
+                          item.data_has_changed = true if item.dump.dig(locale, 'mark_for_update').present?
+
+                          if item.data_has_changed.nil?
+                            last_download = download_object.external_source.last_successful_download
+                            if modified.present? && last_download.present?
+                              updated_at = modified.call(item_data)
+                              item.data_has_changed = updated_at > last_download ? true : nil
+                            end
+                          end
+
+                          item.data_has_changed = true if options.dig(:download, :skip_diff) == true && item.data_has_changed.nil?
+                          item.data_has_changed = diff?(bson_to_hash(item.dump[locale]), item_data, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
+
+                          if item.data_has_changed
+                            item.dump[locale] = item_data
+                            item.save!
+                          else
+                            item.set('seen_at' => Time.zone.now)
+                          end
+                          logging.item_processed(item_name, item_id, item_count, max_string)
+                        end
                       end
 
                       next unless (item_count % delta).zero?
@@ -171,8 +159,6 @@ module DataCycleCore
 
                       logging.info("Downloaded #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
                     end
-
-                    pool.wait!
                   end
                 rescue StandardError => e
                   ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
