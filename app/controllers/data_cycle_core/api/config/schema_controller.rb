@@ -4,7 +4,7 @@ module DataCycleCore
   module Api
     module Config
       class SchemaController < ::DataCycleCore::Api::Config::ApiBaseController
-        before_action :authorize_user, :prepare_url_parameters,
+        before_action :authorize_user, :prepare_url_parameters
 
         def index
           contents = DataCycleCore::ThingTemplate.all.to_a
