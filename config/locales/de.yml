@@ -534,6 +534,7 @@ de:
       map: Kartenansicht
       events: Events
       gallery: Bildergalerie
+      statistics: Statistik
     user_registration:
       terms_conditions: 'Ich akzeptiere die <a href="%{url}" target="_blank">Allgemeinen Geschäftsbedingungen</a>.'
       privacy_policy: 'Ich bin mit der Verarbeitung meiner Daten laut  <a href="%{url}" target="_blank">Datenschutzerklärung</a> einverstanden.'
