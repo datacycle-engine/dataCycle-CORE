@@ -34,6 +34,21 @@ module DataCycleCore
       DataCycleCore::Thing.new(thing_template: self)
     end
 
+    def schema_as_json
+      content = schema_sorted
+      embedded = template_thing.embedded_property_names
+
+      embedded_template_names = content['properties'].values_at(*embedded).pluck('template_name')
+
+      embedded_templates = DataCycleCore::ThingTemplate.where(template_name: embedded_template_names).index_by(&:template_name)
+
+      embedded.each do |property_name|
+        content['properties'][property_name]['embedded_schema'] = embedded_templates[content.dig('properties', property_name, 'template_name')].schema_as_json
+      end
+
+      content
+    end
+
     def self.template_things
       all.map(&:template_thing)
     end
