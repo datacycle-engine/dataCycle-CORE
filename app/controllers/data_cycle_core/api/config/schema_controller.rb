@@ -16,9 +16,13 @@ module DataCycleCore
 
         def show
           name = params[:template_name]
-          template = DataCycleCore::ThingTemplate.where(template_name: name)
+          template = DataCycleCore::ThingTemplate.find_by(template_name: name)
           if template.present?
-            content = Array.wrap(template.first.schema_sorted)
+            embedded = template.template_thing.embedded_property_names
+            content = Array.wrap(template.schema_sorted)
+            embedded.each do |property_name|
+              content[0]['properties'][property_name]['schema_template_url'] = show_api_config_schema_index_url(template_name: content[0]['properties'][property_name]['template_name'])
+            end
             render json: schema_api_format(content) { content }.to_json
           else
             error = "Couldn't find ThingTemplate '#{name}'"
