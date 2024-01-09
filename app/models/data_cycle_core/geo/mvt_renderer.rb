@@ -10,7 +10,7 @@ module DataCycleCore
       # https://www.crunchydata.com/blog/crunchy-spatial-tile-serving-with-postgresql-functions
       # https://www.crunchydata.com/blog/waiting-for-postgis-3-st_tileenvelopezxy
 
-      def initialize(x, y, z, contents:, layer_name: nil, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, cache: true, cluster: false, cluster_layer_name: nil, **_options)
+      def initialize(x, y, z, contents:, layer_name: nil, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, cache: true, cluster: false, cluster_lines: false, cluster_layer_name: nil, **_options)
         super(contents:, simplify_factor:, include_parameters:, fields_parameters:, classification_trees_parameters:, single_item:, cache:)
 
         @x = x
@@ -21,6 +21,7 @@ module DataCycleCore
         @cluster_layer_name = cluster_layer_name.presence || 'dataCycleCluster'
         @cache = cache
         @cluster = cluster
+        @cluster_lines = cluster_lines
         @cluster_radius = 500_000 / (1.7**@z.to_f)
       end
 
@@ -91,23 +92,42 @@ module DataCycleCore
                                 ])
       end
 
+      def mvt_cluster_sql
+        if @cluster_lines
+          "ST_ClusterDBSCAN(ST_StartPoint(contents.geometry), #{@cluster_radius}, 2)"
+        else
+          "ST_ClusterDBSCAN(contents.geometry, #{@cluster_radius}, 2)"
+        end
+      end
+
+      def mvt_cluster_unclustered_sql
+        <<-SQL.squish
+          UNION ALL
+          SELECT ST_AsMVTGeom(contents.geometry, ST_TileEnvelope(#{@z}, #{@x}, #{@y})),
+            contents.id AS "@id",
+            #{include_config.pluck(:identifier).map { |p| "contents.#{p} as #{p}" }.join(', ')}
+          FROM contents
+          WHERE contents.geometry_type != 'ST_Point'
+        SQL
+      end
+
       def mvt_clustered_sql
         <<-SQL.squish
               WITH contents AS (#{contents_with_default_scope.select('ST_GeometryType(things.geom_simple) AS geometry_type').reorder(id: :desc).to_sql}),
               mvtgeom AS (
                 SELECT contents.geometry AS geom,
                 contents.id AS "@id",
-                ST_ClusterDBSCAN(contents.geometry, #{@cluster_radius}, 2) over () AS cluster_id,
+                #{mvt_cluster_sql} over () AS cluster_id,
                 #{include_config.pluck(:identifier).map { |p| "contents.#{p} as #{p}" }.join(', ')}
                 FROM contents
-                WHERE contents.geometry_type = 'ST_Point'
+                #{"WHERE contents.geometry_type = 'ST_Point'" unless @cluster_lines}
               ),
               clustered_items AS (
                 SELECT ST_AsMVTGeom(
                     st_centroid(ST_Union(mvtgeom.geom)),
                     ST_TileEnvelope(#{@z}, #{@x}, #{@y})
                   ),
-                  json_agg(json_build_object('@id', mvtgeom."@id", #{include_config.pluck(:identifier).map { |p| "'#{p}', mvtgeom.#{p}" }.join(', ')})) AS "items",
+                  json_agg(mvtgeom."@id") AS "itemIds",
                   COUNT(mvtgeom."@id") AS "count",
                   concat('#{@z}-#{@x}-#{@y}-', mvtgeom.cluster_id) AS "@id",
                   json_build_object(
@@ -133,12 +153,7 @@ module DataCycleCore
                   #{include_config.pluck(:identifier).map { |p| "mvtgeom.#{p} as #{p}" }.join(', ')}
                 FROM mvtgeom
                 WHERE mvtgeom.cluster_id IS NULL
-                UNION ALL
-                SELECT ST_AsMVTGeom(contents.geometry, ST_TileEnvelope(#{@z}, #{@x}, #{@y})),
-                  contents.id AS "@id",
-                  #{include_config.pluck(:identifier).map { |p| "contents.#{p} as #{p}" }.join(', ')}
-                FROM contents
-                WHERE contents.geometry_type != 'ST_Point'
+                #{mvt_cluster_unclustered_sql unless @cluster_lines}
               ),
               #{mvt_clustered_select_sql};
         SQL
