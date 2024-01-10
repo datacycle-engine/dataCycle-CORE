@@ -11,7 +11,7 @@
       :thing:
         :enabled: true
         :serializers:
-          :asset: false
+          :asset: true
           :gpx: true
           :json: false
           :indesign: false
@@ -80,7 +80,7 @@
 :serialize:
   :enabled: true
   :serializers:
-    :asset: false
+    :asset: true
     :license: true
     :gpx: true
     :indesign: false
