@@ -43,7 +43,7 @@ PATH
       pdfkit
       pg
       premailer
-      puma (< 6)
+      puma
       puma-status
       puma_worker_killer
       rails (~> 6.1)
@@ -418,7 +418,7 @@ GEM
       byebug (~> 11.0)
       pry (>= 0.13, < 0.15)
     public_suffix (5.0.3)
-    puma (5.6.7)
+    puma (6.4.2)
       nio4r (~> 2.0)
     puma-status (1.6)
       colorize (~> 0.8)
