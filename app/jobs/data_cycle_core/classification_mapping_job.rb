@@ -4,8 +4,6 @@ module DataCycleCore
   class ClassificationMappingJob < ApplicationJob
     PRIORITY = 10
 
-    queue_as :cache_invalidation
-
     before_enqueue :notify_with_lock
 
     def priority
