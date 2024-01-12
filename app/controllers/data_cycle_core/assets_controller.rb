@@ -104,6 +104,16 @@ module DataCycleCore
       @asset.destroy
     end
 
+    def destroy_multiple
+      assets = DataCycleCore::Asset.where(id: permitted_params[:selected])
+
+      assets.each do |asset|
+        authorize! :destroy, asset
+      end
+
+      assets.each(&:destroy)
+    end
+
     def duplicate
       @asset = DataCycleCore::Asset.find(permitted_params[:id])
       @duplicate = @asset.duplicate

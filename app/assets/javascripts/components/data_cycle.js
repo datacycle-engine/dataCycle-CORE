@@ -145,6 +145,7 @@ class DataCycle {
 	}
 	httpRequest(url, options = {}, retries = 3) {
 		const [mergedUrl, mergedOptions] = this.mergeHttpOptions(url, options);
+		console.log(mergedUrl, mergedOptions)
 
 		return fetch(mergedUrl, mergedOptions).then((res) => {
 			if (res.ok) {

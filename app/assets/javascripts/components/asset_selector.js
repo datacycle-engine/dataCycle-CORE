@@ -31,6 +31,7 @@ class AssetSelector {
 		this.reveal.on("open.zf.reveal", (_) => this.loadAssets(false));
 		this.assetList.on("click", "li:not(.locked)", this.clickOnAsset.bind(this));
 		this.assetList.on("click", ".asset-destroy", this.destroyAsset.bind(this));
+		this.reveal.on("click", ".assets-destroy", this.destroyAssets.bind(this));
 		this.reveal.on(
 			"click",
 			".select-asset-link:not(.disabled)",
@@ -124,6 +125,41 @@ class AssetSelector {
 				DataCycle.httpRequest(url, { method: "DELETE" })
 					.then((_data) => {
 						$asset.remove();
+					})
+					.finally(() => {
+						DataCycle.enableElement($button);
+					});
+			},
+			cancelCallback: () => {
+				DataCycle.enableElement($button);
+			},
+		});
+	}
+	async destroyAssets(event) {
+		event.preventDefault();
+		event.stopPropagation();
+
+		const $button = $(event.currentTarget);
+		console.log(this.selectedAssetIds)
+		console.log(this.total)
+
+		DataCycle.disableElement($button);
+
+		new ConfirmationModal({
+			text: await I18n.translate("actions.delete_file"),
+			confirmationClass: "alert",
+			cancelable: true,
+			confirmationCallback: () => {
+				console.log("delete confirm");
+				this.total -= this.selectedAssetIds.length;
+				this.deleteCount += this.selectedAssetIds.length;
+
+				DataCycle.httpRequest('/files/assets/delete', { method: "POST", body: { selected: this.selectedAssetIds } })
+					.then((_data) => {
+						this.selectedAssetIds.forEach((selected) => {
+							this.assetList.find(`li[data-id="${selected}"]`).remove();
+						})
+						this.selectedAssetIds = [];
 					})
 					.finally(() => {
 						DataCycle.enableElement($button);
