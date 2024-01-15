@@ -107,11 +107,10 @@ module DataCycleCore
     def destroy_multiple
       assets = DataCycleCore::Asset.where(id: permitted_params[:selected])
 
-      assets.each do |asset|
-        authorize! :destroy, asset
-      end
+      assets.each { |a| authorize! :destroy, a }
 
-      assets.each(&:destroy)
+      # assets.delete_all
+      assets.destroy_all
     end
 
     def duplicate

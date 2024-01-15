@@ -1,6 +1,7 @@
 import loadingIcon from "../templates/loadingIcon";
+import loadingIconIcon from "../templates/loadingIcon_icon";
 import ConfirmationModal from "./confirmation_modal";
-
+import CalloutHelpers from "../helpers/callout_helpers";
 class AssetSelector {
 	constructor(selector) {
 		this.reveal = $(selector);
@@ -9,6 +10,7 @@ class AssetSelector {
 		this.hiddenFieldKey = this.reveal.data("hidden-field-key");
 		this.assetList = this.reveal.find("ul.asset-list");
 		this.selectButton = this.reveal.find(".select-asset-link");
+		this.deleteAllButton = this.reveal.find(".assets-destroy");
 		this.multiSelect = this.reveal.data("multi-select");
 		this.selectedAssetIds = [];
 		this.page = 1;
@@ -139,34 +141,43 @@ class AssetSelector {
 		event.preventDefault();
 		event.stopPropagation();
 
-		const $button = $(event.currentTarget);
-		console.log(this.selectedAssetIds)
-		console.log(this.total)
+		const url = this.deleteAllButton.data("url");
 
-		DataCycle.disableElement($button);
+		DataCycle.disableElement(this.deleteAllButton, loadingIconIcon());
 
 		new ConfirmationModal({
-			text: await I18n.translate("actions.delete_file"),
+			text: await I18n.translate("actions.delete_files"),
 			confirmationClass: "alert",
 			cancelable: true,
 			confirmationCallback: () => {
-				console.log("delete confirm");
 				this.total -= this.selectedAssetIds.length;
 				this.deleteCount += this.selectedAssetIds.length;
 
-				DataCycle.httpRequest('/files/assets/delete', { method: "POST", body: { selected: this.selectedAssetIds } })
+				DataCycle.httpRequest(url, {
+					method: "DELETE",
+					body: { selected: this.selectedAssetIds },
+				})
 					.then((_data) => {
 						this.selectedAssetIds.forEach((selected) => {
 							this.assetList.find(`li[data-id="${selected}"]`).remove();
-						})
+						});
 						this.selectedAssetIds = [];
 					})
+					.catch(async () => {
+						const text = await I18n.translate("controllers.error.destroy");
+						CalloutHelpers.show(text, "alert");
+					})
 					.finally(() => {
-						DataCycle.enableElement($button);
+						DataCycle.enableElement(this.deleteAllButton);
+
+						if (this.selectedAssetIds.length === 0) {
+							DataCycle.disableElement(this.deleteAllButton);
+							DataCycle.disableElement(this.selectButton);
+						}
 					});
 			},
 			cancelCallback: () => {
-				DataCycle.enableElement($button);
+				DataCycle.enableElement(this.deleteAllButton);
 			},
 		});
 	}
@@ -212,6 +223,7 @@ class AssetSelector {
 			this.assetList.html(loadingIcon);
 		} else this.assetList.append(loadingIcon);
 		DataCycle.disableElement(this.selectButton);
+		DataCycle.disableElement(this.deleteAllButton);
 		this.loading = true;
 
 		const promise = DataCycle.httpRequest("/files/assets", {
@@ -265,6 +277,7 @@ class AssetSelector {
 			if (data !== undefined) {
 				if (data.selected?.length && data.total !== 0) {
 					DataCycle.enableElement(this.selectButton);
+					DataCycle.enableElement(this.deleteAllButton);
 					this.selectButton.data("value", data.selected[0]);
 				}
 
@@ -300,12 +313,14 @@ class AssetSelector {
 				);
 				if (!this.selectedAssetIds.length) {
 					DataCycle.disableElement(this.selectButton);
+					DataCycle.disableElement(this.deleteAllButton);
 					this.selectButton.removeData("value");
 				}
 			} else {
 				$selectedItem.siblings("li").removeClass("active");
 				this.selectedAssetIds = [];
 				DataCycle.disableElement(this.selectButton);
+				DataCycle.disableElement(this.deleteAllButton);
 				this.selectButton.removeData("value");
 			}
 		} else {
@@ -319,6 +334,7 @@ class AssetSelector {
 			}
 
 			DataCycle.enableElement(this.selectButton);
+			DataCycle.enableElement(this.deleteAllButton);
 			this.selectButton.data("value", $selectedItem.data("id"));
 		}
 	}

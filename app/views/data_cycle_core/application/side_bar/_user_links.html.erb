@@ -32,8 +32,8 @@
           </div>
 
           <div class="buttons">
-            <button data-disable="true" class="assets-destroy">
-              Ausgewählte löschen
+            <button data-disable="true" class="button alert assets-destroy" data-url="<%= delete_assets_path %>">
+             <%= t('common.delete_assets', locale: active_ui_locale)  %>
             </button>
           </div>
         </div>

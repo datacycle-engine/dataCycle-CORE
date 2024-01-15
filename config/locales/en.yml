@@ -448,6 +448,7 @@ en:
     create_new_content: Create new content
     data_type: Content type
     select_asset: Select %{data}
+    delete_assets: Delete selected assets
     select_asset_title: Uploaded files
     my_assets: My files
     select_assets: Link files
@@ -1027,6 +1028,7 @@ en:
     back: Back
     add_files: Add files
     delete_file: Really delete the file?
+    delete_files: Really delete the files?
     uploaded: Uploaded
     back_to_select: Back to the selection
     delete_translation: Delete translation (%{data})
@@ -1166,6 +1168,7 @@ en:
       no_source: No valid template specified
       wrong_content_type: Unsupported file type
       missing_parameter: Parameter missing!
+      destroy: An error occurred while deleting.
       duplicate:
         type_mismatch: Contents of different types cannot be merged!
         cannot_merge_self: The content cannot be merged with itself!
