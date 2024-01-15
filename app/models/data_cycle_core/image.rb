@@ -189,7 +189,7 @@ module DataCycleCore
         tempfile = attachment_changes['file'].attachable
       end
 
-      image = ::MiniMagick::Image.new(tempfile.path, tempfile)
+      image = ::MiniMagick::Image.new(tempfile.is_a?(::StringIO) ? tempfile.base_uri : tempfile.path, tempfile)
       exif_data = MiniExiftool.new(tempfile, { replace_invalid_chars: true })
       exif_data = exif_data
         .to_hash
