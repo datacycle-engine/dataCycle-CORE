@@ -1,0 +1,38 @@
+<% if !api_restriction_type.present? %>
+  <% api_restriction_type = 'default' %>
+<% elsif api_restriction_type == 'user_list' %>
+  <%= render 'data_cycle_core/application/filters/tag_groups/user', local_assigns %>
+<% elsif api_restriction_type== 'classification_tree_ids' || api_restriction_type == 'classification_alias_ids' %>
+  <%= render_advanced_filter_tags_partial(
+        {
+          title: title,
+          filter_type: api_restriction_type,
+          key: key,
+          target: target,
+          value: value,
+          buttons: buttons
+        }
+      )
+  %>
+<% else %>
+  <span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
+    <span class="tag-group-label">
+      <% if api_restriction_type == 'default' %>
+        <i class="fa fa-tags" aria-hidden="true"></i>
+      <% elsif api_restriction_type == 'linked_filter' %>
+        <i class="fa fa-filter" aria-hidden="true"></i>
+      <% else %>
+        <i class="fa" aria-hidden="true"></i>
+      <% end %>
+      <%= title %>
+      <%= ":" if value.present? && value.length > 0%>
+    </span>
+    <span class="tags-container">
+      <% value.each do |tag| %>
+        <span class="tag"><%= tag %></span>
+      <% end %>
+    </span>
+
+    <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons %>
+  </span>
+<% end %>
