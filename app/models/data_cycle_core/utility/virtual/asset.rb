@@ -60,7 +60,7 @@ module DataCycleCore
           end
 
           def asset_id(content:, **_args)
-            content.asset&.id
+            content.try(:asset)&.id
           end
 
           private
