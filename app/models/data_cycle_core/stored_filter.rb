@@ -115,6 +115,18 @@ module DataCycleCore
       where("stored_filters.id IN (#{send(:sanitize_sql_array, [queries.join(' UNION ')])})")
     end
 
+    def self.by_id_or_name(value)
+      return none if value.blank?
+
+      uuids = Array.wrap(value).filter { |v| v.to_s.uuid? }
+      names = Array.wrap(value)
+      queries = []
+      queries.push(default_scoped.where(id: uuids).select(:id).to_sql) if uuids.present?
+      queries.push(default_scoped.where(name: names).select(:id).to_sql) if names.present?
+
+      where("stored_filters.id IN (#{send(:sanitize_sql_array, [queries.join(' UNION ')])})")
+    end
+
     private
 
     def update_slug?

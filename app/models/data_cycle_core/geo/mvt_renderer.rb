@@ -94,9 +94,9 @@ module DataCycleCore
 
       def mvt_cluster_sql
         if @cluster_lines
-          "ST_ClusterDBSCAN(ST_StartPoint(contents.geometry), #{@cluster_radius}, 2)"
+          "CASE WHEN ST_Intersects(ST_StartPoint(contents.geometry), ST_TileEnvelope(#{@z}, #{@x}, #{@y})) THEN ST_ClusterDBSCAN(ST_StartPoint(contents.geometry), #{@cluster_radius}, 2) over () ELSE NULL END"
         else
-          "ST_ClusterDBSCAN(contents.geometry, #{@cluster_radius}, 2)"
+          "ST_ClusterDBSCAN(contents.geometry, #{@cluster_radius}, 2) over ()"
         end
       end
 
@@ -117,14 +117,14 @@ module DataCycleCore
               mvtgeom AS (
                 SELECT contents.geometry AS geom,
                 contents.id AS "@id",
-                #{mvt_cluster_sql} over () AS cluster_id,
+                #{mvt_cluster_sql} AS cluster_id,
                 #{include_config.pluck(:identifier).map { |p| "contents.#{p} as #{p}" }.join(', ')}
                 FROM contents
                 #{"WHERE contents.geometry_type = 'ST_Point'" unless @cluster_lines}
               ),
               clustered_items AS (
                 SELECT ST_AsMVTGeom(
-                    st_centroid(ST_Union(mvtgeom.geom)),
+                    st_centroid(ST_Union(ST_StartPoint(mvtgeom.geom))),
                     ST_TileEnvelope(#{@z}, #{@x}, #{@y})
                   ),
                   json_agg(mvtgeom."@id") AS "itemIds",
