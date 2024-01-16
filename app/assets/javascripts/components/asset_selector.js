@@ -2,6 +2,7 @@ import loadingIcon from "../templates/loadingIcon";
 import loadingIconIcon from "../templates/loadingIcon_icon";
 import ConfirmationModal from "./confirmation_modal";
 import CalloutHelpers from "../helpers/callout_helpers";
+
 class AssetSelector {
 	constructor(selector) {
 		this.reveal = $(selector);
@@ -158,9 +159,14 @@ class AssetSelector {
 					body: { selected: this.selectedAssetIds },
 				})
 					.then((_data) => {
-						this.selectedAssetIds.forEach((selected) => {
-							this.assetList.find(`li[data-id="${selected}"]`).remove();
-						});
+						this.assetList
+							.find(
+								this.selectedAssetIds
+									.map((id) => `li[data-id="${id}"]`)
+									.join(", "),
+							)
+							.remove();
+
 						this.selectedAssetIds = [];
 					})
 					.catch(async () => {
@@ -188,11 +194,11 @@ class AssetSelector {
 
 		if (this.selectedAssetIds?.length) {
 			if (this.editableList.length) this.editableList.addClass("has-items");
-			this.selectedAssetIds.forEach((selected) => {
+			for (const selected of this.selectedAssetIds) {
 				this.editableFormElement.append(
 					`<input type="hidden" id="${this.hiddenFieldId}_${selected}" name="${this.hiddenFieldKey}" value="${selected}">`,
 				);
-			});
+			}
 		} else {
 			if (this.editableList.length) this.editableList.removeClass("has-items");
 
@@ -221,6 +227,7 @@ class AssetSelector {
 			this.deleteCount = 0;
 			this.page = 1;
 			this.assetList.html(loadingIcon);
+			this.lastAssetType = undefined;
 		} else this.assetList.append(loadingIcon);
 		DataCycle.disableElement(this.selectButton);
 		DataCycle.disableElement(this.deleteAllButton);
