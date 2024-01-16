@@ -132,13 +132,13 @@ module DataCycleCore
                   concat('#{@z}-#{@x}-#{@y}-', mvtgeom.cluster_id) AS "@id",
                   json_build_object(
                     'xmin',
-                    st_xmin(ST_Extent(ST_Transform(mvtgeom.geom, 4326))),
+                    st_xmin(ST_Extent(ST_Transform(ST_StartPoint(mvtgeom.geom), 4326))),
                     'ymin',
-                    st_ymin(ST_Extent(ST_Transform(mvtgeom.geom, 4326))),
+                    st_ymin(ST_Extent(ST_Transform(ST_StartPoint(mvtgeom.geom), 4326))),
                     'xmax',
-                    st_xmax(ST_Extent(ST_Transform(mvtgeom.geom, 4326))),
+                    st_xmax(ST_Extent(ST_Transform(ST_StartPoint(mvtgeom.geom), 4326))),
                     'ymax',
-                    st_ymax(ST_Extent(ST_Transform(mvtgeom.geom, 4326)))
+                    st_ymax(ST_Extent(ST_Transform(ST_StartPoint(mvtgeom.geom), 4326)))
                   ) AS "bbox"
                 FROM mvtgeom
                 WHERE mvtgeom.cluster_id IS NOT NULL
