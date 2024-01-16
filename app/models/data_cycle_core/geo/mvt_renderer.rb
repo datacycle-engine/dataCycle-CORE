@@ -10,7 +10,7 @@ module DataCycleCore
       # https://www.crunchydata.com/blog/crunchy-spatial-tile-serving-with-postgresql-functions
       # https://www.crunchydata.com/blog/waiting-for-postgis-3-st_tileenvelopezxy
 
-      def initialize(x, y, z, contents:, layer_name: nil, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, cache: true, cluster: false, cluster_lines: false, cluster_layer_name: nil, **_options)
+      def initialize(x, y, z, contents:, layer_name: nil, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, cache: true, cluster: false, cluster_lines: false, cluster_items: false, cluster_layer_name: nil, **_options)
         super(contents:, simplify_factor:, include_parameters:, fields_parameters:, classification_trees_parameters:, single_item:, cache:)
 
         @x = x
@@ -22,6 +22,7 @@ module DataCycleCore
         @cache = cache
         @cluster = cluster
         @cluster_lines = cluster_lines
+        @cluster_items = cluster_items
         @cluster_radius = 500_000 / (1.7**@z.to_f)
       end
 
@@ -111,6 +112,14 @@ module DataCycleCore
         SQL
       end
 
+      def mvt_cluster_items
+        return unless @cluster_items
+
+        <<-SQL.squish
+          json_agg(json_build_object('@id', mvtgeom."@id", #{include_config.pluck(:identifier).map { |p| "'#{p}', mvtgeom.#{p}" }.join(', ')})) AS "items",
+        SQL
+      end
+
       def mvt_clustered_sql
         <<-SQL.squish
               WITH contents AS (#{contents_with_default_scope.select('ST_GeometryType(things.geom_simple) AS geometry_type').reorder(id: :desc).to_sql}),
@@ -127,7 +136,7 @@ module DataCycleCore
                     st_centroid(ST_Union(ST_StartPoint(mvtgeom.geom))),
                     ST_TileEnvelope(#{@z}, #{@x}, #{@y})
                   ),
-                  json_agg(mvtgeom."@id") AS "itemIds",
+                  #{mvt_cluster_items}
                   COUNT(mvtgeom."@id") AS "count",
                   concat('#{@z}-#{@x}-#{@y}-', mvtgeom.cluster_id) AS "@id",
                   json_build_object(
