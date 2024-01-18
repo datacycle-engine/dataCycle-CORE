@@ -146,6 +146,7 @@ DataCycleCore::Engine.routes.draw do
         get :find, on: :collection
         post :duplicate, on: :member
         delete :delete, action: 'destroy_multiple', on: :collection
+        delete :delete_all, action: 'destroy_all', on: :collection
       end
     end
 

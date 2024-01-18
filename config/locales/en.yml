@@ -448,7 +448,8 @@ en:
     create_new_content: Create new content
     data_type: Content type
     select_asset: Select %{data}
-    delete_assets: Delete selected assets
+    delete_assets_selected: Delete selected assets
+    delete_assets_all: Delete all assets
     select_asset_title: Uploaded files
     my_assets: My files
     select_assets: Link files
@@ -1028,7 +1029,8 @@ en:
     back: Back
     add_files: Add files
     delete_file: Really delete the file?
-    delete_files: Really delete the files?
+    delete_files: Really delete files?
+    delete_all_files: Really delete ALL files?
     uploaded: Uploaded
     back_to_select: Back to the selection
     delete_translation: Delete translation (%{data})

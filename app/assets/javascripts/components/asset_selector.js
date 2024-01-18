@@ -11,7 +11,8 @@ class AssetSelector {
 		this.hiddenFieldKey = this.reveal.data("hidden-field-key");
 		this.assetList = this.reveal.find("ul.asset-list");
 		this.selectButton = this.reveal.find(".select-asset-link");
-		this.deleteAllButton = this.reveal.find(".assets-destroy");
+		this.deleteAllSelectedButton = this.reveal.find(".assets-destroy");
+		this.deteteAllButton = this.reveal.find(".assets-destroy-all");
 		this.multiSelect = this.reveal.data("multi-select");
 		this.selectedAssetIds = [];
 		this.page = 1;
@@ -35,6 +36,11 @@ class AssetSelector {
 		this.assetList.on("click", "li:not(.locked)", this.clickOnAsset.bind(this));
 		this.assetList.on("click", ".asset-destroy", this.destroyAsset.bind(this));
 		this.reveal.on("click", ".assets-destroy", this.destroyAssets.bind(this));
+		this.reveal.on(
+			"click",
+			".assets-destroy-all",
+			this.destroyAllAssets.bind(this),
+		);
 		this.reveal.on(
 			"click",
 			".select-asset-link:not(.disabled)",
@@ -142,9 +148,10 @@ class AssetSelector {
 		event.preventDefault();
 		event.stopPropagation();
 
-		const url = this.deleteAllButton.data("url");
+		const url = this.deleteAllSelectedButton.data("url");
 
-		DataCycle.disableElement(this.deleteAllButton, loadingIconIcon());
+		DataCycle.disableElement(this.deleteAllSelectedButton, loadingIconIcon());
+		DataCycle.disableElement(this.deteteAllButton);
 
 		new ConfirmationModal({
 			text: await I18n.translate("actions.delete_files"),
@@ -174,16 +181,69 @@ class AssetSelector {
 						CalloutHelpers.show(text, "alert");
 					})
 					.finally(() => {
-						DataCycle.enableElement(this.deleteAllButton);
+						DataCycle.enableElement(this.deleteAllSelectedButton);
+						DataCycle.enableElement(this.deteteAllButton);
 
 						if (this.selectedAssetIds.length === 0) {
-							DataCycle.disableElement(this.deleteAllButton);
+							DataCycle.disableElement(this.deleteAllSelectedButton);
 							DataCycle.disableElement(this.selectButton);
+						}
+						if (this.total === 0) {
+							DataCycle.disableElement(this.deteteAllButton);
 						}
 					});
 			},
 			cancelCallback: () => {
-				DataCycle.enableElement(this.deleteAllButton);
+				DataCycle.enableElement(this.deleteAllSelectedButton);
+				DataCycle.enableElement(this.deteteAllButton);
+			},
+		});
+	}
+
+	async destroyAllAssets(event) {
+		event.preventDefault();
+		event.stopPropagation();
+
+		const url = this.deteteAllButton.data("url");
+
+		DataCycle.disableElement(this.deleteAllSelectedButton);
+		DataCycle.disableElement(this.deteteAllButton, loadingIconIcon());
+
+		new ConfirmationModal({
+			text: await I18n.translate("actions.delete_all_files"),
+			confirmationClass: "alert",
+			cancelable: true,
+			confirmationCallback: () => {
+				DataCycle.httpRequest(url, {
+					method: "DELETE",
+				})
+					.then((_data) => {
+						this.deleteCount += _data.total;
+						this.total -= _data.total;
+						this.assetList
+							.find(_data.deleted.map((id) => `li[data-id="${id}"]`).join(", "))
+							.remove();
+						this.selectedAssetIds = [];
+					})
+					.catch(async () => {
+						const text = await I18n.translate("controllers.error.destroy");
+						CalloutHelpers.show(text, "alert");
+					})
+					.finally(() => {
+						DataCycle.enableElement(this.deteteAllButton);
+
+						if (this.selectedAssetIds.length === 0) {
+							DataCycle.disableElement(this.deleteAllSelectedButton);
+							DataCycle.disableElement(this.selectButton);
+						}
+						if (this.total === 0) {
+							DataCycle.disableElement(this.deteteAllButton);
+						}
+					});
+			},
+			cancelCallback: () => {
+				DataCycle.enableElement(this.deleteAllSelectedButton);
+				DataCycle.enableElement(this.deteteAllButton);
 			},
 		});
 	}
@@ -230,7 +290,8 @@ class AssetSelector {
 			this.lastAssetType = undefined;
 		} else this.assetList.append(loadingIcon);
 		DataCycle.disableElement(this.selectButton);
-		DataCycle.disableElement(this.deleteAllButton);
+		DataCycle.disableElement(this.deleteAllSelectedButton);
+		DataCycle.disableElement(this.deteteAllButton);
 		this.loading = true;
 
 		const promise = DataCycle.httpRequest("/files/assets", {
@@ -284,8 +345,10 @@ class AssetSelector {
 			if (data !== undefined) {
 				if (data.selected?.length && data.total !== 0) {
 					DataCycle.enableElement(this.selectButton);
-					DataCycle.enableElement(this.deleteAllButton);
+					DataCycle.enableElement(this.deleteAllSelectedButton);
 					this.selectButton.data("value", data.selected[0]);
+				} else if (data.total !== 0) {
+					DataCycle.enableElement(this.deteteAllButton);
 				}
 
 				if (data.total !== undefined) this.total = data.total;
@@ -320,14 +383,14 @@ class AssetSelector {
 				);
 				if (!this.selectedAssetIds.length) {
 					DataCycle.disableElement(this.selectButton);
-					DataCycle.disableElement(this.deleteAllButton);
+					DataCycle.disableElement(this.deleteAllSelectedButton);
 					this.selectButton.removeData("value");
 				}
 			} else {
 				$selectedItem.siblings("li").removeClass("active");
 				this.selectedAssetIds = [];
 				DataCycle.disableElement(this.selectButton);
-				DataCycle.disableElement(this.deleteAllButton);
+				DataCycle.disableElement(this.deleteAllSelectedButton);
 				this.selectButton.removeData("value");
 			}
 		} else {
@@ -341,7 +404,7 @@ class AssetSelector {
 			}
 
 			DataCycle.enableElement(this.selectButton);
-			DataCycle.enableElement(this.deleteAllButton);
+			DataCycle.enableElement(this.deleteAllSelectedButton);
 			this.selectButton.data("value", $selectedItem.data("id"));
 		}
 	}

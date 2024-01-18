@@ -34,7 +34,10 @@
           <% if can?(:destroy, DataCycleCore::Asset) %>
             <div class="buttons">
               <button data-disable="true" class="button alert assets-destroy" data-url="<%= delete_assets_path %>">
-                <%= t('common.delete_assets', locale: active_ui_locale)  %>
+                <%= t('common.delete_assets_selected', locale: active_ui_locale)  %>
+              </button>
+                <button data-disable="true" class="button alert assets-destroy-all" data-url="<%= delete_all_assets_path %>">
+                <%= t('common.delete_assets_all', locale: active_ui_locale)  %>
               </button>
             </div>
           <% end %>

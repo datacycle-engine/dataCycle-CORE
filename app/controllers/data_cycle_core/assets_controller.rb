@@ -113,6 +113,16 @@ module DataCycleCore
       assets.destroy_all
     end
 
+    def destroy_all
+      assets = DataCycleCore::Asset.includes(:thing).accessible_by(current_ability)
+      ids = assets.map(&:id)
+
+      assets.each { |a| authorize! :destroy, a }
+
+      assets.destroy_all
+      render json: { deleted: ids, total: ids.count }
+    end
+
     def duplicate
       @asset = DataCycleCore::Asset.find(permitted_params[:id])
       @duplicate = @asset.duplicate
