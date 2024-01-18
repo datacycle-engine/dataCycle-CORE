@@ -38,11 +38,11 @@ module DataCycleCore
 
               get_values_from_hash(value, key_path.drop(1), filter)
             elsif data_hash.is_a?(::Array) && data_hash.first.is_a?(ActiveRecord::Base) || data_hash.is_a?(ActiveRecord::Relation)
-              (limit.positive? ? data_hash.first(limit) : data_hash).map { |v| get_values_from_hash(v.to_h_partial([key_path.first, 'id', *filter&.pluck('key')&.flatten&.uniq]), key_path, filter) }.compact
+              (limit.to_i.positive? ? data_hash.first(limit) : data_hash).map { |v| get_values_from_hash(v.to_h_partial([key_path.first, 'id', *filter&.pluck('key')&.flatten&.uniq]), key_path, filter) }.compact
             elsif data_hash.is_a?(::Array) && data_hash.first.to_s.uuid?
               DataCycleCore::Thing.where(id: data_hash).limit(limit).map { |v| get_values_from_hash(v.to_h_partial([key_path.first, 'id', *filter&.pluck('key')&.flatten&.uniq]), key_path, filter) }.compact
             elsif data_hash.is_a?(::Array)
-              (limit.positive? ? data_hash.first(limit) : data_hash).map { |v| get_values_from_hash(v, key_path, filter) }.compact
+              (limit.to_i.positive? ? data_hash.first(limit) : data_hash).map { |v| get_values_from_hash(v, key_path, filter) }.compact
             end
           end
 
