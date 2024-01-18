@@ -45,6 +45,7 @@ module DataCycleCore
               s.advanced_attributes = advanced_search_attributes
               s.classification_aliases_mapping = classification_alias_mapping
               s.classification_ancestors_mapping = classification_ancestors_mapping
+              s.self_contained = !embedded?
               s.save!
             end
           rescue ActiveRecord::RecordNotUnique
