@@ -19,7 +19,7 @@ module DataCycleCore
             nil
           end
 
-          def get_values_from_hash(data_hash, key_path, filter = nil)
+          def get_values_from_hash(data_hash, key_path, filter = nil, limit = nil)
             return data_hash if key_path.blank?
             return if data_hash.blank?
 
@@ -38,17 +38,27 @@ module DataCycleCore
 
               get_values_from_hash(value, key_path.drop(1), filter)
             elsif data_hash.is_a?(::Array) && data_hash.first.is_a?(ActiveRecord::Base) || data_hash.is_a?(ActiveRecord::Relation)
-              data_hash.map { |v| get_values_from_hash(v.to_h_partial([key_path.first, 'id', *filter&.pluck('key')&.flatten&.uniq]), key_path, filter) }.compact
+              (limit.positive? ? data_hash.first(limit) : data_hash).map { |v| get_values_from_hash(v.to_h_partial([key_path.first, 'id', *filter&.pluck('key')&.flatten&.uniq]), key_path, filter) }.compact
             elsif data_hash.is_a?(::Array) && data_hash.first.to_s.uuid?
-              DataCycleCore::Thing.where(id: data_hash).map { |v| get_values_from_hash(v.to_h_partial([key_path.first, 'id', *filter&.pluck('key')&.flatten&.uniq]), key_path, filter) }.compact
+              DataCycleCore::Thing.where(id: data_hash).limit(limit).map { |v| get_values_from_hash(v.to_h_partial([key_path.first, 'id', *filter&.pluck('key')&.flatten&.uniq]), key_path, filter) }.compact
             elsif data_hash.is_a?(::Array)
-              data_hash.map { |v| get_values_from_hash(v, key_path, filter) }.compact
+              (limit.positive? ? data_hash.first(limit) : data_hash).map { |v| get_values_from_hash(v, key_path, filter) }.compact
             end
           end
 
           def attribute_value_by_first_match(computed_parameters:, computed_definition:, **_args)
             Array.wrap(computed_definition.dig('compute', 'value')).each do |config|
               value = Array.wrap(get_values_from_hash(computed_parameters, config['attribute'].split('.'), config['filter'])).compact.first
+
+              return value if DataCycleCore::DataHashService.present?(value)
+            end
+
+            nil
+          end
+
+          def attribute_value_from_first_linked(computed_parameters:, computed_definition:, **_args)
+            computed_definition.dig('compute', 'parameters').each do |config|
+              value = Array.wrap(get_values_from_hash(computed_parameters, config.split('.'), nil, 1)).compact.first
 
               return value if DataCycleCore::DataHashService.present?(value)
             end
