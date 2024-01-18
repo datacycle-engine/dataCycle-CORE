@@ -166,7 +166,7 @@ module DataCycleCore
 
     def apply_linked_filters(query, linked_filter)
       linked_filter.each do |linked_name, attribute_filter|
-        linked_query = DataCycleCore::StoredFilter.new(language: @language).apply
+        linked_query = DataCycleCore::StoredFilter.new(language: @language, include_embedded: true).apply
 
         attribute_filter.delete_if { |k, _v| [:classifications, :'dc:classification', :geo, :attribute, :contentId, :filterId, :classificationTreeId, :watchListId, :endpointId].exclude?(k) }
 
