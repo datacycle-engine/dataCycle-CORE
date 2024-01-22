@@ -145,6 +145,8 @@ DataCycleCore::Engine.routes.draw do
       resources :assets, only: [:index, :create, :update, :destroy] do
         get :find, on: :collection
         post :duplicate, on: :member
+        delete :delete, action: 'destroy_multiple', on: :collection
+        delete :delete_all, action: 'destroy_all', on: :collection
       end
     end
 

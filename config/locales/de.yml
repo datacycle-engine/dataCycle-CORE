@@ -458,6 +458,8 @@ de:
     create_new_content: Neuen Inhalt erstellen
     data_type: Inhaltstyp
     select_asset: "%{data} auswählen"
+    delete_assets_selected: "Ausgewählte Inhalte löschen"
+    delete_assets_all: "Alle Inhalte löschen"
     select_asset_title: Hochgeladene Dateien
     my_assets: Meine Dateien
     select_assets: Dateien verknüpfen
@@ -1063,6 +1065,8 @@ de:
     back: Zurück
     add_files: Dateien hinzufügen
     delete_file: Datei wirklich löschen?
+    delete_files: Dateien wirklich löschen?
+    delete_all_files: ALLE Dateien wirklich löschen?
     uploaded: hochgeladen
     back_to_select: Zurück zur Auswahl
     delete_translation: "Übersetzung (%{data}) löschen"
@@ -1174,6 +1178,7 @@ de:
       no_source: "Keine gültige Vorlage angegeben"
       wrong_content_type: Nicht unterstützter Datei-Typ
       missing_parameter: Parameter fehlt!
+      destroy: "Beim Löschen ist ein Fehler aufgetreten."
       duplicate:
         type_mismatch: "Inhalte unterschiedlichen Typs können nicht zusammengeführt werden!"
         cannot_merge_self: Der Inhalt kann nicht mit sich selbst zusammengeführt werden!
