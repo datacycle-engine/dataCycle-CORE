@@ -1825,6 +1825,10 @@ de:
       intro: Kurzbeschreibung
       slogan: Slogan
       text: Beschreibung
+    jugendherberge:
+      titel: Titel
+      teaser: Teaser
+      text: Detailbeschreibung
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
       <ul class="no-bullet">

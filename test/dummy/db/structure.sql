@@ -1497,7 +1497,8 @@ CREATE TABLE public.searches (
     advanced_attributes jsonb,
     classification_aliases_mapping uuid[],
     classification_ancestors_mapping uuid[],
-    words_typeahead tsvector
+    words_typeahead tsvector,
+    self_contained boolean DEFAULT true NOT NULL
 );
 
 
@@ -4205,6 +4206,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20231123103232'),
 ('20231127144259'),
 ('20231201083233'),
-('20231220082023');
+('20231220082023'),
+('20240118164523');
 
 

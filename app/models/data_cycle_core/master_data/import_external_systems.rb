@@ -23,6 +23,10 @@ module DataCycleCore
           if error.blank?
             external_system = DataCycleCore::ExternalSystem.find_by(identifier: data['identifier']) || DataCycleCore::ExternalSystem.find_or_initialize_by(name: data['name'])
             data['identifier'] ||= data['name']
+
+            add_sorting!(data.dig('config', 'download_config'))
+            add_sorting!(data.dig('config', 'import_config'))
+
             external_system.attributes = data.slice('name', 'identifier', 'credentials', 'config', 'default_options', 'deactivated').reverse_merge!({ 'name' => nil, 'identifier' => nil, 'credentials' => nil, 'config' => nil, 'default_options' => nil, 'deactivated' => false })
             external_system.save
           else
@@ -35,6 +39,14 @@ module DataCycleCore
         end
 
         errors
+      end
+
+      def self.add_sorting!(data)
+        return if data.blank?
+
+        data.each_value.with_index(1) do |value, index|
+          value['sorting'] ||= index
+        end
       end
 
       def self.validate_all

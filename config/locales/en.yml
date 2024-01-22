@@ -1839,6 +1839,10 @@ en:
       intro: Description
       slogan: Slogan
       text: Detailed description
+    jugendherberge:
+      titel: Title
+      teaser: Teaser
+      text: Detailed description
   media_archive:
     allowed_html:
       '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>

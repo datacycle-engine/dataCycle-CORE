@@ -43,6 +43,10 @@ module DataCycleCore
 
       self
     end
+
+    def to_pg_array
+      PG::TextEncoder::Array.new.encode(self)
+    end
   end
 end
 

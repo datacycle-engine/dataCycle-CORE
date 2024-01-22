@@ -37,12 +37,12 @@ module DataCycleCore
 
     before_save :update_slug, if: :update_slug?
 
-    attr_accessor :query
+    attr_accessor :query, :include_embedded
 
     KEYS_FOR_EQUALITY = ['t', 'c', 'n'].freeze
 
     def apply(query: nil, skip_ordering: false, watch_list: nil)
-      self.query = query || DataCycleCore::Filter::Search.new(language&.exclude?('all') ? language : nil)
+      self.query = query || DataCycleCore::Filter::Search.new(language&.exclude?('all') ? language : nil, nil, include_embedded || false)
 
       apply_filter_parameters
       apply_order_parameters(watch_list) unless skip_ordering
