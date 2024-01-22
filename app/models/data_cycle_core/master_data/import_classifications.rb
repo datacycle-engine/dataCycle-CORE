@@ -28,14 +28,14 @@ module DataCycleCore
       end
 
       def self.merge_trees(merged_hash, tree, inhaltstypen_trees)
-        tree.select { |k, _| k.exclude?('Inhaltstypen') }.each do |key, sub_tree|
+        tree.reject { |k, _| k.split('|').first.squish == 'Inhaltstypen' }.each do |key, sub_tree|
           old_hash = merged_hash.select { |k, _| k.split('|').first.squish == key.split('|').first.squish }
           merged_hash.delete(old_hash&.keys&.first)
 
           merged_hash[key] = sub_tree
         end
 
-        return merged_hash, inhaltstypen_trees.push(tree.select { |k, _| k.include?('Inhaltstypen') })
+        return merged_hash, inhaltstypen_trees.push(tree.select { |k, _| k.split('|').first.squish == 'Inhaltstypen' })
       end
 
       def self.iterate_array(array)

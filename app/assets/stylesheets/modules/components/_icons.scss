@@ -264,6 +264,12 @@
         content: '\f153';
       }
     }
+
+    &.weather_station {
+      &::before {
+        content: '\f2cb';
+      }
+    }
   }
 
   &.wetterstation,
