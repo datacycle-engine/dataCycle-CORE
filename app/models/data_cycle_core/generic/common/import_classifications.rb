@@ -32,6 +32,8 @@ module DataCycleCore
                       source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false }, "dump.#{locale}.archived_at" => { '$exists' => false } })
                     end
 
+                    times = [Time.current]
+
                     utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                       raw_classification_data_stack =
                         if with_filters
@@ -45,11 +47,13 @@ module DataCycleCore
                         next if options[:min_count].present? && item_count < options[:min_count]
                         extracted_classification_data = extract_data.call(options, raw_classification_data)
                         next if extracted_classification_data[:external_key].blank?
+
                         import_classification(
                           utility_object:,
                           classification_data: extracted_classification_data.merge({ tree_name: }),
                           parent_classification_alias: load_parent_classification_alias.call(raw_classification_data, external_source_id, options)
                         )
+
                         raw_classification_data_stack +=
                           if with_filters
                             load_child_classifications.call(mongo_item, raw_classification_data, locale, source_filter).to_a
@@ -64,8 +68,16 @@ module DataCycleCore
                           nil
                         )
 
+                        if (item_count % 100).zero?
+                          times << Time.current
+                          logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                        end
+
                         break if options[:max_count] && item_count >= options[:max_count]
                       end
+
+                      times << Time.current
+                      logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
                     end
                   ensure
                     logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count)
@@ -177,7 +189,7 @@ module DataCycleCore
           external_source_id = utility_object.external_source.id
           external_source_id = nil if utility_object.options.dig('import', 'no_external_source_id')
 
-          ActiveRecord::Base.transaction do
+          ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
             if classification_data[:external_key].blank?
               classification = DataCycleCore::Classification
                 .find_or_initialize_by(
