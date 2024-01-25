@@ -20,7 +20,7 @@ module DataCycleCore
     def perform(id)
       asset = DataCycleCore::Asset.find_by(id:)
 
-      return if asset.nil? || !asset.file.service.exist?(asset.file.key)
+      return if asset.nil?
 
       reader = PDF::Reader.new(asset.file.service.path_for(asset.file.key))
       content = reader.try(:pages)&.map { |page| page.try(:text)&.delete("\u0000") }&.join(' ')
