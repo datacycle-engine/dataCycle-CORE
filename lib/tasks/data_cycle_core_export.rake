@@ -46,10 +46,13 @@ namespace :data_cycle_core do
           locale: I18n.locale
         )
         webhook.perform
+
         webhook.success(webhook)
 
         puts "Updating #{content.name} (#{content.id}) ... DONE"
       rescue DataCycleCore::Export::Common::Error::GenericError => e
+        webhook.failure(webhook)
+
         puts "Failed to update #{content.name} (#{content.id}): #{e.message}"
       end
     end
