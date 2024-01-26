@@ -31,19 +31,27 @@ namespace :data_cycle_core do
 
       webhook_class = external_system.export_config.dig(:webhook).constantize
 
-      webhook = webhook_class.new(
-        data: contents.first.tap { |c| c.updated_at = Time.zone.now },
-        method: (external_system.config.dig('export_config', 'update', 'method') || external_system.config.dig('export_config', 'method') || :put).to_sym,
-        body: nil,
-        endpoint: utility_object.endpoint,
-        transformation: external_system.config.dig('export_config', 'update', 'transformation') || external_system.config.dig('export_config', 'transformation') || :json_partial,
-        path: utility_object.endpoint.path_transformation(contents.first, external_system, 'update'),
-        utility_object:,
-        type: 'update',
-        locale: I18n.locale
-      )
-      webhook.perform
-      webhook.success(webhook)
+      contents.each do |content|
+        puts "Updating #{content.name} (#{content.id}) ..."
+
+        webhook = webhook_class.new(
+          data: content.tap { |c| c.updated_at = Time.zone.now },
+          method: (external_system.config.dig('export_config', 'update', 'method') || external_system.config.dig('export_config', 'method') || :put).to_sym,
+          body: nil,
+          endpoint: utility_object.endpoint,
+          transformation: external_system.config.dig('export_config', 'update', 'transformation') || external_system.config.dig('export_config', 'transformation') || :json_partial,
+          path: utility_object.endpoint.path_transformation(content, external_system, 'update'),
+          utility_object:,
+          type: 'update',
+          locale: I18n.locale
+        )
+        webhook.perform
+        webhook.success(webhook)
+
+        puts "Updating #{content.name} (#{content.id}) ... DONE"
+      rescue DataCycleCore::Export::Common::Error::GenericError => e
+        puts "Failed to update #{content.name} (#{content.id}): #{e.message}"
+      end
     end
   end
 end
