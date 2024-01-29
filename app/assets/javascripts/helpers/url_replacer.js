@@ -1,5 +1,5 @@
 export default {
-	isPersistedUrlParam: function (key) {
+	isPersistedUrlParam: (key) => {
 		return ["mode", "page", "ctl_id", "ct_id", "stored_filter"].includes(key);
 	},
 	cleanSearchFormParams: function () {
@@ -15,6 +15,7 @@ export default {
 		const mode = params.get("mode") || searchForm.dataset.mode || "grid";
 		const thingId = params.get("thing_id");
 		const page = params.get("page") || 1;
+
 		const state = {
 			mode: mode,
 			page: page,
