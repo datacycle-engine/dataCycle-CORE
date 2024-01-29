@@ -136,7 +136,7 @@ module DataCycleCore
     end
 
     def concatenated_path_names
-      full_path_names + [name]
+      Array.wrap(full_path_names) + [name]
     end
 
     private
