@@ -17,6 +17,19 @@
   <% end %>
 
   <div class="buttons">
+
+    <span class = "api-restrictions">
+      <%=
+        tag.i(class: 'fa fa-user') if stored_filter.api_users.present? && stored_filter.api_users.length > 0
+      %>
+      <%=
+        tag.i(class: 'fa fa-filter') if stored_filter.linked_stored_filter_id.present?
+      %>
+      <%=
+        tag.i(class: 'fa fa-sitemap') if stored_filter.classification_tree_labels.present? && stored_filter.classification_tree_labels.length > 0
+      %>
+    </span>
+
     <span class="stored-date"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= l(Time.zone.at(stored_filter.created_at.to_datetime), format: :edit, locale: active_ui_locale) %></span>
 
     <%= render 'data_cycle_core/application/preview/widget_list', content: stored_filter if DataCycleCore::Feature::Preview.enabled? && stored_filter.api %>
