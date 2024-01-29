@@ -78,7 +78,8 @@ module DataCycleCore
             query_sql = <<-SQL.squish
               WITH filtered_classifications AS (
                 SELECT
-                  classification_polygons.classification_alias_id
+                  classification_polygons.classification_alias_id,
+                    primary_classification_groups.classification_id
                 FROM
                   classification_polygons
                   INNER JOIN classification_aliases ON classification_aliases.deleted_at IS NULL
@@ -87,30 +88,18 @@ module DataCycleCore
                     AND "classification_trees"."classification_alias_id" = "classification_aliases"."id"
                   INNER JOIN "classification_tree_labels" ON "classification_tree_labels"."deleted_at" IS NULL
                     AND "classification_tree_labels"."id" = "classification_trees"."classification_tree_label_id"
+                  INNER JOIN primary_classification_groups ON primary_classification_groups.classification_alias_id = classification_aliases.id
                 WHERE
                   "classification_tree_labels"."name" = :tree_label
                   AND ST_Intersects ("classification_polygons"."geom", ST_GeomFromText (:geo, 4326)))
-              SELECT DISTINCT ON (classification_groups.classification_id)
-                classification_groups.classification_id
-              FROM
-                classification_groups
-              WHERE
-                classification_groups.deleted_at IS NULL
-                AND classification_groups.classification_alias_id IN (
+              SELECT DISTINCT filtered_classifications.classification_id
+              FROM filtered_classifications
+              WHERE NOT EXISTS (
                   SELECT
-                    filtered_classifications.classification_alias_id
-                  FROM
-                    filtered_classifications
-                  WHERE
-                    NOT EXISTS (
-                      SELECT
-                      FROM
-                        classification_alias_paths
-                      WHERE
-                        classification_alias_paths.ancestor_ids @> ARRAY[filtered_classifications.classification_alias_id]::uuid[]))
-                ORDER BY
-                  classification_groups.classification_id,
-                  classification_groups.created_at
+                  FROM classification_alias_paths
+                  WHERE classification_alias_paths.ancestor_ids @> ARRAY [filtered_classifications.classification_alias_id]::uuid []
+                )
+              ORDER BY filtered_classifications.classification_id
             SQL
 
             ActiveRecord::Base.connection.execute(

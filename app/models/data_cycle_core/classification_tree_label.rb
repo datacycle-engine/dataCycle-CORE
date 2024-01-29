@@ -198,7 +198,7 @@ module DataCycleCore
       sql_values = attributes.compact_blank.map { |row|
         [
           id,
-          I18n.locale,
+          (row[:name_i18n].presence || { I18n.locale.to_s => row[:name] })&.to_json,
           row[:name],
           row[:full_path_names],
           row[:full_path_names].drop(1),
@@ -207,8 +207,8 @@ module DataCycleCore
       }.uniq
 
       sql = <<-SQL.squish
-        WITH raw_data(classification_tree_label_id, locale, name, full_path_names, parent_path_names, classification_ids) AS (
-          VALUES #{Array.new(sql_values.size, '(?::uuid, ?, ?, ARRAY[?]::varchar[], ARRAY[?]::varchar[], ARRAY[?]::uuid[])').join(', ')}
+        WITH raw_data(classification_tree_label_id, name_i18n, name, full_path_names, parent_path_names, classification_ids) AS (
+          VALUES #{Array.new(sql_values.size, '(?::uuid, ?::jsonb, ?, ARRAY[?]::varchar[], ARRAY[?]::varchar[], ARRAY[?]::uuid[])').join(', ')}
         ),
         classification_data AS (
           SELECT DISTINCT ON (raw_data.full_path_names) raw_data.*,
@@ -239,12 +239,10 @@ module DataCycleCore
             )
           SELECT classification_data.classification_alias_id,
             classification_data.name,
-            (
-              '{"' || classification_data.locale || '":"' || classification_data.name || '"}'
-            )::jsonb,
+            classification_data.name_i18n,
             NOW(),
             NOW()
-          FROM classification_data ON conflict (id) DO NOTHING
+          FROM classification_data ON conflict (id) DO UPDATE SET name_i18n = EXCLUDED.name_i18n
         ),
         classification_groups AS (
           INSERT INTO classification_groups (classification_id, classification_alias_id) (
@@ -346,6 +344,56 @@ module DataCycleCore
       { 'class_type' => self.class.to_s }
         .merge({ 'external_system' => external_source&.identifier })
         .merge(attributes)
+    end
+
+    def sort_classifications_alphabetically!
+      raw_sql = <<-SQL.squish
+        UPDATE classification_aliases
+        SET order_a = w.order_a
+        FROM (
+            WITH RECURSIVE paths (id, full_internal_name, tree_label_id) AS (
+              SELECT classification_aliases.id,
+                ARRAY [classification_aliases.internal_name],
+                classification_trees.classification_tree_label_id
+              FROM classification_trees
+                JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id
+                AND classification_aliases.deleted_at IS NULL
+              WHERE classification_trees.parent_classification_alias_id IS NULL
+                AND classification_trees.deleted_at IS NULL
+                AND classification_trees.classification_tree_label_id = :id
+              UNION
+              SELECT classification_trees.classification_alias_id,
+                paths.full_internal_name || classification_aliases.internal_name,
+                classification_trees.classification_tree_label_id
+              FROM classification_trees
+                JOIN paths ON paths.id = classification_trees.parent_classification_alias_id
+                JOIN classification_aliases ON classification_aliases.id = classification_trees.classification_alias_id
+                AND classification_aliases.deleted_at IS NULL
+              WHERE classification_trees.deleted_at IS NULL
+                AND classification_trees.classification_tree_label_id = :id
+            )
+            SELECT paths.id,
+              (
+                ROW_NUMBER() OVER (
+                  PARTITION BY classification_tree_labels.id
+                  ORDER BY paths.full_internal_name ASC
+                )
+              ) AS order_a
+            FROM paths
+              JOIN classification_tree_labels ON classification_tree_labels.id = paths.tree_label_id
+          ) w
+        WHERE w.id = classification_aliases.id;
+      SQL
+
+      ActiveRecord::Base.connection.execute(
+        ActiveRecord::Base.send(
+          :sanitize_sql_array,
+          [
+            raw_sql,
+            id:
+          ]
+        )
+      )
     end
 
     private

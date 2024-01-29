@@ -23,7 +23,7 @@ module DataCycleCore
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.string',
               substitutions: {
-                template: data.class,
+                template: data.class.name,
                 label: template['label']
               }
             }

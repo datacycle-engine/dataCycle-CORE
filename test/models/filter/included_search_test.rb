@@ -35,7 +35,7 @@ module DataCycleCore
         ]
       })
 
-      stored_search = DataCycleCore::Search.first
+      stored_search = DataCycleCore::Search.where(self_contained: true).first
 
       assert_includes(stored_search.advanced_attributes.dig('float_main'), content.float_main)
       assert_includes(stored_search.advanced_attributes.dig('validity_period.valid_until'), content.validity_period.valid_until.as_json)

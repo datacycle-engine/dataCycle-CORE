@@ -7,7 +7,7 @@ module DataCycleCore
         attr_reader :template, :mixin_paths
 
         def initialize(template:, content_set: nil, mixins: nil)
-          @template = template
+          @template = template.with_indifferent_access
           @content_set = content_set
           @mixins = mixins
           @mixin_paths = []
@@ -31,8 +31,25 @@ module DataCycleCore
 
           new_properties.deep_merge!(main_config_property(:properties))
           add_sorting_recursive!(new_properties)
+          add_missing_parameters!(new_properties)
 
           new_properties
+        end
+
+        def add_missing_parameters!(properties)
+          return properties if properties.blank?
+
+          properties.each_value do |value|
+            next if value.dig(:compute, :parameters_path).blank?
+
+            value[:compute][:parameters] = []
+
+            Array.wrap(value[:compute].delete(:parameters_path)).each do |path|
+              value[:compute][:parameters].concat(Array.wrap(@template.dig(*path.split('.'))))
+            end
+          end
+
+          properties
         end
 
         def add_sorting_recursive!(properties)

@@ -593,6 +593,10 @@ $filter-border: #aaa;
           }
         }
 
+        input[type="checkbox"]:disabled+label {
+          cursor: not-allowed;
+        }
+
         label:before {
           content: 'o';
           text-align: center;

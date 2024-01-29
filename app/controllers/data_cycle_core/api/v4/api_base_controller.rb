@@ -72,6 +72,10 @@ module DataCycleCore
             end
             query = query.padding(page_params[:offset].to_i) if page_params[:offset].to_i.positive?
           end
+
+          depth = @include_parameters&.map(&:size)&.max
+          query.instance_variable_set(:@_recursive_preload_depth, 1 + depth) if depth
+
           query
         end
 

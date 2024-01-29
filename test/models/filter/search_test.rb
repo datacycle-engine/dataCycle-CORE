@@ -78,7 +78,11 @@ module DataCycleCore
     end
 
     test 'no search entries' do
-      assert_equal(0, DataCycleCore::Thing.joins(:searches).where(content_type: 'embedded').count)
+      assert_equal(0, DataCycleCore::Thing.joins(:searches).where(searches: {self_contained: true}).where(content_type: 'embedded').count)
+    end
+
+    test 'search entries with embedded' do
+      assert_equal(2, DataCycleCore::Thing.joins(:searches).where(searches: {self_contained: false}).where(content_type: 'embedded').count)
     end
 
     # TODO: change this test because with 1 result this test will always rank valid

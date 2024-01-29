@@ -14,15 +14,19 @@ module DataCycleCore
         # check consistency of data in DB
         assert_equal(1, DataCycleCore::Pdf.count)
         # check pdf data
-        assert(@pdf.file_size.positive?)
+        assert_predicate(@pdf.file_size, :positive?)
         assert_equal(file_name, @pdf.name)
         assert_equal('DataCycleCore::Pdf', @pdf.type)
         assert(@pdf.metadata.is_a?(Hash))
+        assert_predicate(@pdf.metadata.dig('content'), :present?)
+        assert(@pdf.metadata.dig('metadata').is_a?(Hash))
+        assert_predicate(@pdf.metadata.dig('metadata'), :present?)
       end
 
       test 'upload Pdf: pdf' do
         file_name = 'test.pdf'
         @pdf = upload_pdf(file_name)
+
         assert_equal('application/pdf', @pdf.content_type)
 
         validate_pdf file_name
@@ -37,7 +41,7 @@ module DataCycleCore
 
         assert_not(@pdf.persisted?)
         assert_not(@pdf.valid?)
-        assert(@pdf.errors.present?)
+        assert_predicate(@pdf.errors, :present?)
       end
     end
   end

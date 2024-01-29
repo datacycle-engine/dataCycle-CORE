@@ -22,7 +22,7 @@ module DataCycleCore
         end
 
         class_methods do
-          def to_mvt(x, y, z, layer_name: nil, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, cache: true, cluster: false, cluster_layer_name: nil)
+          def to_mvt(x, y, z, layer_name: nil, simplify_factor: nil, include_parameters: [], fields_parameters: [], classification_trees_parameters: [], single_item: false, cache: true, cluster: false, cluster_lines: false, cluster_items: false, cluster_layer_name: nil)
             DataCycleCore::Geo::MvtRenderer.new(
               x,
               y,
@@ -36,6 +36,8 @@ module DataCycleCore
               single_item:,
               cache:,
               cluster:,
+              cluster_lines:,
+              cluster_items:,
               cluster_layer_name:
             ).render
           end

@@ -99,7 +99,7 @@ module DataCycleCore
           end
 
           save(touch: false)
-          search_languages(options.update_search_all) unless id.nil? || embedded?
+          search_languages(options.update_search_all) unless id.nil?
         end
 
         reload

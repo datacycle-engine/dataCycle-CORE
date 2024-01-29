@@ -101,7 +101,7 @@ Gem::Specification.new do |s|
   # URI (https://tools.ietf.org/html/rfc3986) and IRI (https://tools.ietf.org/html/rfc3987) Parser
   s.add_dependency 'addressable'
 
-  s.add_dependency 'puma', '< 6'
+  s.add_dependency 'puma'
   s.add_dependency 'puma-status'
   s.add_dependency 'puma_worker_killer'
 

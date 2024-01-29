@@ -18,9 +18,9 @@ module DataCycleCore
       end
 
       def update_search(language)
-        return if search_property_names.blank? || embedded?
+        return if search_property_names.blank?
         I18n.with_locale(language) do
-          search_data = walk_embedded_data
+          search_data = walk_embedded_data(language)
           advanced_search_attributes = walk_advanced
           classification_mapping = walk_classifications
           classification_alias_mapping = classification_mapping.dig(:classification_aliases)
@@ -45,6 +45,7 @@ module DataCycleCore
               s.advanced_attributes = advanced_search_attributes
               s.classification_aliases_mapping = classification_alias_mapping
               s.classification_ancestors_mapping = classification_ancestors_mapping
+              s.self_contained = !embedded?
               s.save!
             end
           rescue ActiveRecord::RecordNotUnique
@@ -53,12 +54,13 @@ module DataCycleCore
         end
       end
 
-      def walk_embedded_data
+      def walk_embedded_data(language)
         string_hash = parse_search_data
 
         embedded_property_names.each do |embedded_name|
           try('send', embedded_name)&.each do |embedded_object|
-            embedded_string_hash = embedded_object.walk_embedded_data
+            embedded_object.update_search(language)
+            embedded_string_hash = embedded_object.walk_embedded_data(language)
             string_hash = append_hash(string_hash, embedded_string_hash)
           end
         end

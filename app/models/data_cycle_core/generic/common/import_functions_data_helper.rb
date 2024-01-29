@@ -7,24 +7,15 @@ module DataCycleCore
         def process_step(utility_object:, raw_data:, transformation:, default:, config:)
           template = config&.dig(:template) || default.dig(:template)
 
-          if config&.key?(:before)
-            whitelist = config.dig(:before, :whitelist)
-            raw_data = Transformations::BlacklistWhitelistFunctions.apply_whitelist(raw_data, whitelist) if whitelist.present?
-            blacklist = config.dig(:before, :blacklist)
-            raw_data = Transformations::BlacklistWhitelistFunctions.apply_blacklist(raw_data, blacklist) if blacklist.present?
-          end
+          raw_data = pre_process_data(raw_data:, config:)
+
           data = merge_default_values(
             config,
             transformation.call(raw_data || {}),
             utility_object
           ).with_indifferent_access
 
-          if config&.key?(:after)
-            whitelist = config.dig(:after, :whitelist)
-            data = Transformations::BlacklistWhitelistFunctions.apply_whitelist(data, whitelist) if whitelist.present?
-            blacklist = config.dig(:after, :blacklist)
-            data = Transformations::BlacklistWhitelistFunctions.apply_blacklist(data, blacklist) if blacklist.present?
-          end
+          data = post_process_data(data:, config:)
 
           transformation_hash = Digest::SHA256.hexdigest(data.to_json)
           external_key = data.dig('external_key')
@@ -250,6 +241,52 @@ module DataCycleCore
           return unless transformation_config&.key?('module') && transformation_config&.key?('method')
 
           data_hash['external_system_data'].each { |d| d['identifier'] = transformation_config['module'].safe_constantize.send(transformation_config['method'], d['identifier']) }
+        end
+
+        def pre_process_data(raw_data:, config:)
+          return raw_data unless config&.key?(:before)
+
+          whitelist = config.dig(:before, :whitelist)
+          raw_data = Transformations::BlacklistWhitelistFunctions.apply_whitelist(raw_data, whitelist) if whitelist.present?
+          blacklist = config.dig(:before, :blacklist)
+          raw_data = Transformations::BlacklistWhitelistFunctions.apply_blacklist(raw_data, blacklist) if blacklist.present?
+
+          return raw_data if config.dig(:before, :processors).blank?
+
+          Array.wrap(config.dig(:before, :processors)).each do |processor|
+            class_name = DataCycleCore::ModuleService.load_module(processor[:module])
+
+            Array.wrap(processor[:method]).each do |method_name|
+              next unless class_name.respond_to?(method_name)
+
+              raw_data = class_name.send(method_name, raw_data)
+            end
+          end
+
+          raw_data
+        end
+
+        def post_process_data(data:, config:)
+          return data unless config&.key?(:after)
+
+          whitelist = config.dig(:after, :whitelist)
+          data = Transformations::BlacklistWhitelistFunctions.apply_whitelist(data, whitelist) if whitelist.present?
+          blacklist = config.dig(:after, :blacklist)
+          data = Transformations::BlacklistWhitelistFunctions.apply_blacklist(data, blacklist) if blacklist.present?
+
+          return data if config.dig(:after, :processors).blank?
+
+          Array.wrap(config.dig(:after, :processors)).each do |processor|
+            class_name = DataCycleCore::ModuleService.load_module(processor[:module])
+
+            Array.wrap(processor[:method]).each do |method_name|
+              next unless class_name.respond_to?(method_name)
+
+              data = class_name.send(method_name, data)
+            end
+          end
+
+          data
         end
 
         def fixnum_max

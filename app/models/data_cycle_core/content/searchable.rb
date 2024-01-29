@@ -44,7 +44,7 @@ module DataCycleCore
 
         join_external_connections_query = <<-SQL.squish
           INNER JOIN (
-            SELECT DISTINCT on (thing_id) *
+            SELECT DISTINCT ON (thing_id) *
             FROM (
               SELECT
                 external_system_syncs.syncable_id AS thing_id,

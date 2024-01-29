@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+raise 'ActiveRecord::Relation#load_records is no longer available, check patch!' unless ActiveRecord::Relation.method_defined? :load_records
+raise 'ActiveRecord::Relation#load_records arity != 1, check patch!' unless ActiveRecord::Relation.instance_method(:load_records).arity == 1
+
 module DataCycleCore
   module Content
     module Extensions
@@ -226,7 +229,7 @@ module DataCycleCore
                 :schedules,
                 external_system_syncs: [:external_system],
                 asset_contents: [:asset],
-                collected_classification_contents: [classification_tree_label: [:external_source], classification_alias: [:external_source, :classification_alias_path, primary_classification: [:external_source, :additional_classification_aliases]]]
+                collected_classification_contents: [classification_alias: [:external_source, :classification_alias_path, classification_tree_label: [:external_source], primary_classification: [:external_source, :additional_classification_aliases]]]
               )
               .index_by(&:id)
 
@@ -263,7 +266,7 @@ module DataCycleCore
                     })
                   } +
                   [
-                    ccc.classification_tree_label.as_json(only: [:id, :name]).merge({ 'class_type' => 'DataCycleCore::ClassificationTreeLabel' })
+                    ccc.classification_alias.classification_tree_label.as_json(only: [:id, :name]).merge({ 'class_type' => 'DataCycleCore::ClassificationTreeLabel' })
                   ]
               }
             }&.compact&.index_by { |v| v[:classification].id } || {}

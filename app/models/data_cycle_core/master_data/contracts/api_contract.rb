@@ -62,6 +62,8 @@ module DataCycleCore
           optional(:clusterLayerName).value(:string)
           optional(:cache).value(:bool)
           optional(:cluster).value(:bool)
+          optional(:clusterLines).value(:bool)
+          optional(:clusterItems).value(:bool)
         end
 
         WATCHLIST = Dry::Schema.Params do

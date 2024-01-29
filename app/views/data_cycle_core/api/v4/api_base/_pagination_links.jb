@@ -17,10 +17,12 @@ unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
     json['meta']['collection'] = {
       id: endpoint.id,
       name: endpoint.name,
-      slug: endpoint.slug
+      slug: endpoint.slug,
+      path: endpoint.try(:concatenated_path_names)
     }.compact_blank
   end
 end
+
 if request.request_method == 'POST'
   common_params = {}
 else

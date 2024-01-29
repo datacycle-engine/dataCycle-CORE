@@ -4,11 +4,11 @@
     <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>:
   </span>
 
-  <% users = DataCycleCore::User.with_deleted.where(id: value).map { |c| [c.id, { title: c.email, text: c.try(:full_name) }] }.to_h %>
+  <% users = DataCycleCore::User.with_deleted.where(id: value).to_h { |c| [c.id, c.to_select_option(active_ui_locale)] } %>
 
   <span class="tags-container">
     <% Array.wrap(value).each do |user_id| %>
-      <span class="tag" data-dc-tooltip="<%= users.dig(user_id, :title) %>"><%= users.dig(user_id, :text) %></span>
+      <%= tag.span(users[user_id]&.name, class: 'tag', data: { dc_tooltip: users[user_id]&.dc_tooltip }) %>
     <% end %>
   </span>
 

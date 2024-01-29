@@ -10,6 +10,10 @@ module DataCycleCore
         CONTENT_TYPE_EMBEDDED = 'embedded'
       ].freeze
 
+      included do
+        extend DataCycleCore::Common::RelationClassMethods
+      end
+
       module ClassMethods
         def content_relations(options = {})
           table_given = options[:table_name]
@@ -74,46 +78,42 @@ module DataCycleCore
           DataCycleCore::DataLink.where(item_id: all.select(:id))
         end
 
-        def thing_templates
-          DataCycleCore::ThingTemplate.where(template_name: all.reorder(nil).select(:template_name))
+        def thing_templates(preload: false)
+          load_relation(relation_name: :thing_template, preload:)
         end
 
-        def recursive_content_content_a
-          return DataCycleCore::ContentContent.none if self == DataCycleCore::Thing::History
-
-          DataCycleCore::ContentContent.where("content_contents.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [recursive_content_content_a_query, id: all.pluck(:id)])})").order(order_a: :asc)
+        def content_content_a(preload: false)
+          load_relation(relation_name: __method__, preload:)
         end
 
-        def classification_contents
+        def classification_contents(preload: false)
           return DataCycleCore::ClassificationContent.none if self == DataCycleCore::Thing::History
 
-          DataCycleCore::ClassificationContent.where(content_data_id: all.pluck(:id))
+          load_relation(relation_name: :classification_content, preload:)
         end
 
-        def collected_classification_contents
+        def collected_classification_contents(preload: false)
           return DataCycleCore::CollectedClassificationContent.none if self == DataCycleCore::Thing::History
 
-          DataCycleCore::CollectedClassificationContent.where(thing_id: all.pluck(:id))
+          load_relation(relation_name: :collected_classification_contents, preload:)
         end
 
-        private
+        def asset_contents(preload: false)
+          return DataCycleCore::AssetContent.none if self == DataCycleCore::Thing::History
 
-        def recursive_content_content_a_query
-          <<-SQL.squish
-            WITH RECURSIVE content_tree(id) AS (
-              SELECT content_contents.id,
-                content_contents.content_b_id
-              FROM content_contents
-              WHERE content_contents.content_a_id IN (:id)
-              UNION
-              SELECT content_contents.id,
-                content_contents.content_b_id
-              FROM content_contents
-                INNER JOIN content_tree ON content_tree.content_b_id = content_contents.content_a_id
-            )
-            SELECT content_tree.id
-            FROM content_tree
-          SQL
+          load_relation(relation_name: :asset_contents, preload:)
+        end
+
+        def schedules(preload: false)
+          return DataCycleCore::Schedule.none if self == DataCycleCore::Thing::History
+
+          load_relation(relation_name: :schedules, preload:)
+        end
+
+        def timeseries(preload: false)
+          return DataCycleCore::Timeseries.none if self == DataCycleCore::Thing::History
+
+          load_relation(relation_name: :timeseries, preload:)
         end
       end
 
@@ -137,6 +137,14 @@ module DataCycleCore
         end
       end
 
+      def full_classification_aliases
+        full_ccc = collected_classification_contents.to_a
+        ActiveRecord::Associations::Preloader.new.preload(collected_classification_contents, classification_alias: [:classification_alias_path, :classification_tree_label])
+        full_ccc.reject! { |ccc| !ccc.direct && full_ccc.any? { |ccc2| ccc2.id != ccc.id && ccc2.classification_alias.full_path.include?(ccc.classification_alias.full_path) } }
+
+        DataCycleCore::ClassificationAlias.where(id: full_ccc.pluck(:classification_alias_id)).tap { |rel| rel.send(:load_records, full_ccc.flat_map(&:classification_alias)) }
+      end
+
       def assigned_classification_aliases
         primary_classification_aliases
       end
@@ -145,7 +153,7 @@ module DataCycleCore
         if DataCycleCore::Feature::TransitiveClassificationPath.enabled?
           classification_alias_paths_transitive.mapped_classification_aliases
         else
-          classification_aliases.where.not(id: primary_classification_aliases.select(:id))
+          classification_aliases.where.not(id: primary_classification_aliases.pluck(:id))
         end
       end
 
@@ -316,12 +324,6 @@ module DataCycleCore
         SQL
 
         self.class.where("#{self.class.table_name}.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [tree_query, id:, depth: DataCycleCore.cache_invalidation_depth])})")
-      end
-
-      def recursive_content_content_a
-        return self.class.none if history?
-
-        DataCycleCore::ContentContent.where("content_contents.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [self.class.recursive_content_content_a_query, id:])})").order(order_a: :asc)
       end
 
       private

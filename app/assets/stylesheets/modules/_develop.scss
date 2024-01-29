@@ -2405,6 +2405,13 @@ select {
   }
 }
 
+.reverse-geocode-button {
+  position: absolute;
+  right: 0.5rem;
+  top: 0.5rem;
+  font-size: 1.4rem;
+}
+
 .form-element.geographic {
   .map-info {
     .content-object-item {

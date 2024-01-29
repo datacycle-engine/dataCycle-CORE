@@ -230,9 +230,27 @@ module DataCycleCore
         id,
         email,
         model_name.param_key,
-        locked? ? "#{full_name} <span class=\"alert-color\"><i class=\"fa fa-ban\"></i> #{self.class.human_attribute_name(deleted? ? :deleted_at : :locked_at, locale:)}</span>" : full_name,
+        full_name_with_status(locale:),
         disable_locked && locked?
       )
+    end
+
+    def full_name_with_status(locale: DataCycleCore.ui_locales.first)
+      return full_name unless locked? || deleted?
+
+      ActionController::Base.helpers.safe_join([
+        full_name,
+        ActionController::Base.helpers.tag.span(
+          ActionController::Base.helpers.safe_join(
+            [
+              ActionController::Base.helpers.tag.i(class: 'fa fa-ban'),
+              self.class.human_attribute_name(deleted? ? :deleted_at : :locked_at, locale:)
+            ],
+            ' '
+          ),
+          class: 'alert-color'
+        )
+      ].compact, ' ')
     end
 
     def log_activity(type:, data:)

@@ -141,6 +141,55 @@ namespace :dc do
 
         puts("SUCCESS: successfully moved classification to new path: #{new_ca.reload.full_path}")
       end
+
+      desc 'sort tree alphabetically'
+      task :sort_alphabetically, [:tree_labels] => [:environment] do |_, args|
+        abort('tree_labels missing!') if args.tree_labels.blank?
+
+        classification_tree_labels = DataCycleCore::ClassificationTreeLabel.where(name: args.tree_labels.split('|').map(&:strip))
+
+        abort('tree_labels not found!') if classification_tree_labels.blank?
+
+        classification_tree_labels.each(&:sort_classifications_alphabetically!)
+      end
+    end
+
+    namespace :merge do
+      desc 'create distinct classification tree with mappings'
+      task :create_distinct_tree, [:from_tree_label, :to_tree_label] => [:environment] do |_, args|
+        from_tree_label_name = args.from_tree_label.strip
+        to_tree_label_name = args.to_tree_label.strip
+
+        abort('missing from_tree_label!') if from_tree_label_name.blank?
+        abort('missing to_tree_label!') if to_tree_label_name.blank?
+
+        from_tree_label = DataCycleCore::ClassificationTreeLabel.find_by!(name: from_tree_label_name)
+        to_tree_label = DataCycleCore::ClassificationTreeLabel.find_or_create_by(name: to_tree_label_name) do |tree_label|
+          tree_label.seen_at = Time.zone.now
+          tree_label.visibility = DataCycleCore.default_classification_visibilities
+        end
+
+        classifications = from_tree_label
+          .classification_aliases
+          .preload(:classification_alias_path, :primary_classification)
+          .group_by { |ca| ca.classification_alias_path&.full_path_names&.reverse&.drop(1) }
+          .map do |k, v|
+            {
+              name: k.last,
+              name_i18n: v.pluck(:name_i18n).compact_blank.reduce(&:merge),
+              full_path_names: k.reverse + [to_tree_label_name],
+              classification_ids: v.flat_map(&:primary_classification).pluck(:id).uniq
+            }
+          end
+
+        puts "upserting #{classifications.size} classifications to new tree_label"
+
+        tmp = Time.zone.now
+
+        to_tree_label.insert_all_classifications_by_path(classifications)
+
+        puts "[DONE] finished upserting in #{Time.zone.now - tmp}s."
+      end
     end
 
     namespace :merge do

@@ -24,13 +24,25 @@
         <span class="title"><%= t('common.my_assets', locale: active_ui_locale) %></span>
       </a>
 
-      <div class="full reveal asset-selector-reveal" id="asset-selector-sidebar" data-reveal data-multiple-opened="true" data-v-offset="0">
+      <div class="full reveal asset-selector-reveal" id="asset-selector-sidebar" data-reveal data-multiple-opened="true" data-v-offset="0" data-multi-select="true" >
         <div class="asset-list-container">
           <h3><%= t('common.my_assets', locale: active_ui_locale) %></h3>
           <div class="scrollable-asset-list">
-            <%= render 'data_cycle_core/assets/asset_list', class: 'timestamps', key: 'sidebar', asset_types: DataCycleCore.asset_objects %>
+            <%= render 'data_cycle_core/assets/asset_list', class: "timestamps #{'selectable' if can?(:destroy, DataCycleCore::Asset)}", key: 'sidebar', asset_types: DataCycleCore.asset_objects %>
           </div>
+
+          <% if can?(:destroy, DataCycleCore::Asset) %>
+            <div class="buttons">
+              <button data-disable="true" class="button alert assets-destroy" data-url="<%= delete_assets_path %>">
+                <%= t('common.delete_assets_selected', locale: active_ui_locale) %>
+              </button>
+              <button data-disable="true" class="button alert assets-destroy-all" data-url="<%= delete_all_assets_path %>">
+                <%= t('common.delete_assets_all', locale: active_ui_locale) %>
+              </button>
+            </div>
+          <% end %>
         </div>
+
         <button class="close-button" data-close aria-label="Close modal" type="button">
           <span aria-hidden="true">&times;</span>
         </button>
