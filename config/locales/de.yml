@@ -926,6 +926,7 @@ de:
     width: Breite
     height: Höhe
     upload_date: Uploaddatum
+    internal_content_score: Content Score (intern)
     users_context:
       given_name: Vorname
       family_name: Nachname

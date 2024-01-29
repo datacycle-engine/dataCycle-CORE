@@ -899,6 +899,7 @@ en:
     width: Width
     height: Height
     upload_date: Upload date
+    internal_content_score: Content score (internal)
     users_context:
       given_name: Given name
       family_name: Family name
