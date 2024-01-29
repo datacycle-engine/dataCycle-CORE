@@ -51,14 +51,17 @@
       </span>
     </div>
 
-    <div class="detail-type latitude number" data-label="<%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: active_ui_locale) %>">
+      <div class="detail-type latitude number" data-label="<%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: active_ui_locale) %>">
       <span class="detail-label">
         <%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: active_ui_locale) %>
       </span>
-      <span class="detail-content">
+        <span class="detail-content">
         <%= y_html&.html_safe %>
       </span>
-    </div>
+      </div>
+
+      <%= perimeter_search_link(y_html, x_html, { }) %>
+
   <% end %>
 
   <% if content.try(:elevation).present? && content.elevation.nonzero? %>

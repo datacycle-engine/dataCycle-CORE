@@ -1433,6 +1433,7 @@ en:
         longitude: Longitude
         latitude: Latitude
         elevation: Sea level (m)
+        use_geo_for_perimeter_search: Use coordinates for perimeter search
       data_cycle_core/data_link:
         comment: Comment
         permissions: Permissions
