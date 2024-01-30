@@ -127,8 +127,7 @@ module DataCycleCore
         "v" => {
           "lat" => lat,
           "lon" => lon,
-          "distance" => 1,
-          "unit" => "km"
+          "distance" => nil
         }
       }
       }
