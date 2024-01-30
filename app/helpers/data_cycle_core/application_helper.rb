@@ -118,36 +118,26 @@ module DataCycleCore
 
     def perimeter_search_link(lat, lon, params_hash)
 
-      # {
-      #   "m"=>"i",
-      #   "mode"=>"list",
-      #   "q"=>"geo_radius",
-      #   "stored_filter"=>"a0e02037-5643-43f9-8086-ea80bfd709bb",
-      #   "t"=>"geo_filter",
-      #   "v"=>{"lat"=>"46,61819", "lon"=>"13,84869"},
-      #   "controller"=>"data_cycle_core/backend",
-      #   "action"=>"index"
-      # }
+      params_hash["f"] = { rand(1000) => {
+        "c" => "a",
+        "m" => "i",
+        "q" => "geo_radius",
+        "t" => "geo_filter",
+        "n" => "geo_radius",
+        "v" => {
+          "lat" => lat,
+          "lon" => lon,
+          "distance" => 1,
+          "unit" => "km"
+        }
+      }
+      }
 
-      mode = "grid"
+      params_hash["controller"] = "data_cycle_core/backend"
+      params_hash["action"] = "index"
 
-      params = params_hash
-      params['m'] = "i"
-      params["q"] = "geo_radius"
-      params["t"] = "geo_filter"
-      params["v"] = {}
-      params["v"]["lat"] = lat
-      params["v"]["lon"] = lon
-      params["v"]["unit"] = "km"
-      params["v"]["distance"] = 1
-      params["controller"]="data_cycle_core/backend"
-      params["action"] = "index"
+      button_to t("activerecord.attributes.data_cycle_core/place.use_geo_for_perimeter_search", locale: active_ui_locale), params_hash.except(:id, :watch_list_id, :locale, :stored_filter), class: "button info", type: "default", name: "button"
 
-
-      logger.info("PARAMS: "+params.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset).to_s)
-
-
-      link_to t("activerecord.attributes.data_cycle_core/place.use_geo_for_perimeter_search", locale: active_ui_locale) + params.to_s, params.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset).merge(mode: ), class: "button info", type: "default", name: "button"
     end
 
     def valid_mode(mode)
