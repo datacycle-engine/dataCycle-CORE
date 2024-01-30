@@ -103,30 +103,24 @@ module DataCycleCore
 
                 data_templates.each do |template|
                   template = template[:data]
-                  transformer = TemplateTransformer.new(template:, content_set: content_set_name, mixins: @mixins)
-                  transformed_data = transformer.transform
+                  transformer = TemplateTransformer.new(template:, content_set: content_set_name, mixins: @mixins, templates:)
 
-                  if (duplicate = templates.dig(content_set_name)&.find { |v| v[:name] == template[:name] }).present?
-                    key = "#{content_set_name}.#{template[:name]}"
-                    @duplicates[key] ||= []
-                    @duplicates[key].push(duplicate[:path])
-                    @duplicates[key].push(path)
-                    @duplicates[key].uniq!
+                  data = {
+                    name: template[:name],
+                    path:,
+                    data: transformer.transform,
+                    set: content_set_name,
+                    mixins: transformer.mixin_paths
+                  }
 
-                    duplicate[:path] = path
-                    duplicate[:data] = transformed_data
+                  merge_base_templates!(data:, extends: template[:extends], templates:) if template.key?(:extends)
 
-                    @mixin_paths.delete_if { |s| s.start_with?(key) }
+                  if (duplicate = templates.values.flatten.find { |v| v[:name] == data[:name] }).present?
+                    merge_duplicate_template!(data:, duplicate:)
                   else
                     templates[content_set_name] ||= []
-                    templates[content_set_name].push({
-                      name: template[:name],
-                      path:,
-                      data: transformed_data
-                    })
+                    templates[content_set_name].push(data)
                   end
-
-                  @mixin_paths.concat(transformer.mixin_paths)
                 end
               rescue StandardError => e
                 @errors.push("error loading YML File (#{path}) => #{e.message}")
@@ -134,7 +128,31 @@ module DataCycleCore
             end
           end
 
+          @mixin_paths = templates.values.flatten.flat_map { |v| v[:mixins] }
           @templates = templates
+        end
+
+        def merge_base_templates!(data:, extends:, templates:)
+          flat_templates = templates.values.flatten
+          Array.wrap(extends).each do |extends_name|
+            base_template = flat_templates.find { |v| v[:name] == extends_name }
+
+            raise "BaseTemplates missing for #{extends_name}" if base_template.blank?
+
+            data[:name] ||= base_template[:name]
+            data[:data] = base_template[:data].deep_merge(data[:data])
+            data[:mixins].concat(base_template[:mixins]).uniq! { |v| v.split('=>')&.first }
+          end
+        end
+
+        def merge_duplicate_template!(data:, duplicate:)
+          key = "#{data[:set]}.#{data[:name]}"
+          @duplicates[key] ||= []
+          @duplicates[key].push(duplicate[:path])
+          @duplicates[key].push(data[:path])
+          @duplicates[key].uniq!
+
+          duplicate.merge!(data)
         end
       end
     end

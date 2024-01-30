@@ -42,7 +42,7 @@ module DataCycleCore
 
         def merge_errors!(contract, prefix)
           contract.errors.each do |error|
-            @errors.push("#{[*prefix, *error.path].join('.')} => #{error.text}")
+            @errors.push("#{[*prefix, *error.path].join('.')} => #{error}")
           end
         end
 

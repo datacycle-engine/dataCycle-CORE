@@ -113,6 +113,11 @@ module DataCycleCore
             optional(:parameters) { array? }
             optional(:score_matrix) { hash? }
           end
+
+          optional(:position).hash do
+            required(:after) { str? }
+            required(:before) { str? }
+          end
         end
 
         rule(:type) do
