@@ -75,7 +75,7 @@ module DataCycleCore
         def self.load_value_for_attribute(attribute)
           case attribute.dig(:type)
           when 'classification'
-            value = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
+            value = DataCycleCore::Classification.joins(primary_classification_alias: [classification_tree: [:classification_tree_label]])
               .where('classification_tree_labels.name = ?', attribute.dig(:tree_label))
               .where('classification_aliases.internal_name = ?', attribute.dig(:value)).first!.id
             [value] || nil
