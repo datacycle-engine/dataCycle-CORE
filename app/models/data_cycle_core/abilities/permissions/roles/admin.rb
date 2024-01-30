@@ -121,6 +121,7 @@ module DataCycleCore
             permit_user(role, :map_classifications, :set_color, SubjectNotInternal: DataCycleCore::ClassificationAlias)
             permit_user(role, :destroy, :ClassificationTreeLabelAndClassificationAliasesNotExternalAndNotInternal)
             permit_user(role, :destroy, :ClassificationAliasAndChildrenNotExternalAndNotInternal)
+            permit_user(role, :copy_api_link, :copy_to_clipboard, SubjectByConditions: [[DataCycleCore::ClassificationTreeLabel, DataCycleCore::ClassificationAlias]])
 
             # Cache
             permit_user(role, :clear, :clear_all, SubjectByConditions: :cache)
