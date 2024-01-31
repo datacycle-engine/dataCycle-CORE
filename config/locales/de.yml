@@ -1461,8 +1461,11 @@ de:
         system: Für alle Benutzer sichtbar (gilt auch für die API)
         api: Über API abrufbar
         api_users: Für API zugelassene Benutzer
+        api_users_tooltip: API-Zugriff auf bestimmte User eingeschränkt
         linked_stored_filter_id: Filter für verknüpfte Inhalte
+        linked_stored_filter_id_tooltip: Filter für verknüpfte Inhalte
         classification_tree_labels: Auf Klassifizierungsbäume einschränken
+        classification_tree_labels_tooltip: Auf bestimmte Klassifizierungsbäume eingeschränkt
         name: Name
       data_cycle_core/asset:
         name: Name
