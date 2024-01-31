@@ -115,8 +115,12 @@ module DataCycleCore
           end
 
           optional(:position).hash do
-            required(:after) { str? }
-            required(:before) { str? }
+            optional(:after) { str? }
+            optional(:before) { str? }
+          end
+
+          optional(:visible) do
+            bool? | (str? & included_in?(TemplateTransformer::VISIBILITIES.keys)) | (array? & array { included_in?(TemplateTransformer::VISIBILITIES.keys) })
           end
         end
 

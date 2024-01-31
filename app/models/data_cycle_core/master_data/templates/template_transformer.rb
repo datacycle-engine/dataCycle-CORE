@@ -4,6 +4,13 @@ module DataCycleCore
   module MasterData
     module Templates
       class TemplateTransformer
+        VISIBILITIES = {
+          'api' => { 'api' => { 'disabled' => true } },
+          'xml' => { 'xml' => { 'disabled' => true } },
+          'show' => { 'ui' => { 'show' => { 'disabled' => true } } },
+          'edit' => { 'ui' => { 'edit' => { 'disabled' => true } } }
+        }.freeze
+
         attr_reader :template, :mixin_paths
 
         def initialize(template:, content_set: nil, mixins: nil, templates: nil)
@@ -36,6 +43,7 @@ module DataCycleCore
           new_properties.deep_merge!(main_config_property(:properties))
           add_sorting_recursive!(new_properties)
           add_missing_parameters!(new_properties)
+          transform_visibilities!(new_properties)
 
           new_properties
         end
@@ -48,7 +56,7 @@ module DataCycleCore
 
             raise "BaseTemplates missing for #{extends_name}" if base_template.blank?
 
-            @template = base_template[:data].deep_merge(@template)
+            @template = base_template[:data].deep_dup.deep_merge(@template)
             @mixin_paths.concat(base_template[:mixins])
           end
 
@@ -58,9 +66,7 @@ module DataCycleCore
         def add_missing_parameters!(properties)
           return properties if properties.blank?
 
-          properties.each_value do |value|
-            next if value.dig(:compute, :parameters_path).blank?
-
+          properties.filter { |_k, prop| prop&.dig(:compute, :parameters_path).present? }.each_value do |value|
             value[:compute][:parameters] = []
 
             Array.wrap(value[:compute].delete(:parameters_path)).each do |path|
@@ -71,16 +77,59 @@ module DataCycleCore
           properties
         end
 
+        def sort_properties!(properties)
+          sortable_props = properties.filter { |_k, prop| prop&.key?(:position) }
+
+          return properties if sortable_props.blank?
+
+          ordered_keys = properties.keys
+
+          sortable_props.each do |k, prop|
+            position = prop.delete(:position)
+            ordered_keys.delete(k)
+
+            if position.key?(:after)
+              new_index = ordered_keys.index(position[:after]) + 1
+            else
+              new_index = ordered_keys.index(position[:before])
+            end
+
+            ordered_keys.insert(new_index, k)
+          end
+
+          properties.slice!(*ordered_keys)
+          properties
+        end
+
         def add_sorting_recursive!(properties)
           return properties if properties.blank?
 
-          index = 0
+          sort_properties!(properties)
 
           properties.deep_reject! { |_, v| v.nil? }
-          properties.each_value do |value|
-            value[:sorting] = index += 1
+
+          properties.each_value.with_index(1) do |value, index|
+            value[:sorting] = index
 
             add_sorting_recursive!(value[:properties]) if value[:type] == 'object' && value.key?(:properties)
+          end
+
+          properties
+        end
+
+        def transform_visibilities!(properties)
+          return properties if properties.blank?
+
+          properties.transform_values! do |value|
+            next value unless value&.key?(:visible)
+
+            visibility = value.delete(:visible)
+
+            next value if visibility == true
+
+            visibilities = visibility == false ? VISIBILITIES : VISIBILITIES.except(*Array.wrap(visibility))
+
+            visibilities.values.reduce(&:deep_merge).deep_merge(value).with_indifferent_access
           end
 
           properties

@@ -97,51 +97,66 @@ module DataCycleCore
           templates = {}
 
           @template_paths.each do |core_template_path|
+            template_definitions = []
+
             CONTENT_SETS.each do |content_set_name|
               Dir[File.join(core_template_path, content_set_name.to_s, '*.yml')].each do |path|
-                data_templates = YAML.safe_load(File.open(path.to_s), permitted_classes: [Symbol])
+                data_templates = Array.wrap(YAML.safe_load(File.open(path.to_s), permitted_classes: [Symbol]))
 
                 data_templates.each do |template|
-                  template = template[:data]
-                  transformer = TemplateTransformer.new(template:, content_set: content_set_name, mixins: @mixins, templates:)
-
-                  data = {
-                    name: template[:name],
+                  template_definitions.push({
                     path:,
-                    data: transformer.transform,
-                    set: content_set_name,
-                    mixins: transformer.mixin_paths
-                  }
-
-                  merge_base_templates!(data:, extends: template[:extends], templates:) if template.key?(:extends)
-
-                  if (duplicate = templates.values.flatten.find { |v| v[:name] == data[:name] }).present?
-                    merge_duplicate_template!(data:, duplicate:)
-                  else
-                    templates[content_set_name] ||= []
-                    templates[content_set_name].push(data)
-                  end
+                    data: template[:data],
+                    set: content_set_name
+                  })
                 end
               rescue StandardError => e
                 @errors.push("error loading YML File (#{path}) => #{e.message}")
               end
             end
+
+            transform_template_definitions!(template_definitions, templates)
           end
 
           @mixin_paths = templates.values.flatten.flat_map { |v| v[:mixins] }
           @templates = templates
         end
 
-        def merge_base_templates!(data:, extends:, templates:)
-          flat_templates = templates.values.flatten
-          Array.wrap(extends).each do |extends_name|
-            base_template = flat_templates.find { |v| v[:name] == extends_name }
+        def transform_template_definitions!(template_definitions, templates)
+          while template_definitions.present?
+            data_template = template_definitions.shift
+            template = data_template[:data]
 
-            raise "BaseTemplates missing for #{extends_name}" if base_template.blank?
+            next template_definitions.push(data_template) unless template_dependencies_ready?(template, template_definitions, templates)
 
-            data[:name] ||= base_template[:name]
-            data[:data] = base_template[:data].deep_merge(data[:data])
-            data[:mixins].concat(base_template[:mixins]).uniq! { |v| v.split('=>')&.first }
+            transformer = TemplateTransformer.new(template:, content_set: data_template[:set], mixins: @mixins, templates:)
+            transformed_data = transformer.transform
+
+            data = {
+              name: transformed_data[:name],
+              path: data_template[:path],
+              data: transformed_data,
+              set: data_template[:set],
+              mixins: transformer.mixin_paths
+            }
+
+            if (duplicate = templates.values.flatten.find { |v| v[:name] == data[:name] }).present?
+              merge_duplicate_template!(data:, duplicate:)
+            else
+              templates[data_template[:set]] ||= []
+              templates[data_template[:set]].push(data)
+            end
+          end
+        end
+
+        def template_dependencies_ready?(template, template_definitions, templates)
+          return true unless template.key?(:extends)
+          return false if templates.values.flatten.none? { |v| v[:name] == template[:extends] }
+          return true if template[:name].blank? || template[:name] == template[:extends]
+
+          template_definitions.none? do |v|
+            v.dig(:data, :extends) == template[:extends] &&
+              (v.dig(:data, :name).blank? || v.dig(:data, :name) == v.dig(:data, :extends))
           end
         end
 
