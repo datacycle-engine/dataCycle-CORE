@@ -1,17 +1,22 @@
+import CalloutHelpers from '../helpers/callout_helpers';
+
 const positions = {
   top: {
+    value: 'no',
     top: '0',
     left: '50%',
     transform: 'translateX(-50%)',
     iconClass: 'fa-arrow-up'
   },
   'top-right': {
+    value: 'noea',
     top: '0',
     right: '0',
     rotate: '45deg',
     iconClass: 'fa-arrow-up'
   },
   right: {
+    value: 'ea',
     top: '50%',
     right: '0',
     rotate: '90deg',
@@ -19,12 +24,14 @@ const positions = {
     iconClass: 'fa-arrow-up'
   },
   'bottom-right': {
+    value: 'soea',
     bottom: '0',
     right: '0',
     rotate: '135deg',
     iconClass: 'fa-arrow-up'
   },
   bottom: {
+    value: 'so',
     bottom: '0',
     left: '50%',
     rotate: '-180deg',
@@ -32,12 +39,14 @@ const positions = {
     iconClass: 'fa-arrow-up'
   },
   'bottom-left': {
+    value: 'sowe',
     bottom: '0',
     left: '0',
     rotate: '-135deg',
     iconClass: 'fa-arrow-up'
   },
   left: {
+    value: 'we',
     top: '50%',
     left: '0',
     rotate: '-90deg',
@@ -45,24 +54,20 @@ const positions = {
     iconClass: 'fa-arrow-up'
   },
   'top-left': {
+    value: 'nowe',
     top: '0',
     left: '0',
     rotate: '-45deg',
     iconClass: 'fa-arrow-up'
   },
   center: {
+    value: 'ce',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
     iconClass: 'fa-circle'
   }
 };
-for (const position in positions) {
-  Object.freeze(positions[position]);
-}
-Object.freeze(positions);
-
-const IDEAL_PREVIEW_SIZE = 400;
 
 class GravityUiSelector {
   constructor(button) {
@@ -70,23 +75,27 @@ class GravityUiSelector {
     this.button.classList.add('dcjs-gravity-ui-selector');
     this.gravitySelecorIcons = [];
     this.thumbContainer = null;
+    this.thingId = this.button.dataset.thingId;
+    this.gravityInfo = JSON.parse(this.button.dataset.gravityInfo);
+    this.setGravity = this.button.dataset.gravity || null;
+    this.buttonText = this.button.innerHTML;
     this.setUp();
   }
 
   setUp() {
+    const imageContainer = this.button.closest('.image');
+    this.thumbContainer = imageContainer.querySelector('.thumb');
     this.addEventListeners();
   }
 
   addEventListeners() {
-    const imageContainer = this.button.closest('.image');
-    this.thumbContainer = imageContainer.querySelector('.thumb');
-
-    this.button.addEventListener('click', () => {
+    this.button.addEventListener('click', e => {
       if (this.button.classList.contains('active')) {
         this.button.classList.remove('active');
         this.thumbContainer.classList.remove('gravity-control');
         this.thumbContainer.querySelector('a').style = '';
         this.removeGravitySelectors();
+        this.button.innerHTML = this.buttonText;
       } else {
         this.button.classList.add('active');
         this.thumbContainer.classList.toggle('gravity-control');
@@ -95,14 +104,29 @@ class GravityUiSelector {
         for (const position in positions) {
           this.createGravitySelector(position);
         }
+        this.button.innerHTML = e.currentTarget.dataset.editorActiveText;
+
+        if (this.gravitySelecorIcons.length > 0 && this.setGravity) {
+          this.gravitySelecorIcons
+            .find(icon => {
+              return icon.dataset.gravity === this.setGravity;
+            })
+            ?.classList?.add('gravity-icon--active');
+        }
       }
     });
   }
 
   createGravitySelector(position) {
-    const gravitySelector = document.createElement('div');
+    const gravitySelector = document.createElement('button');
     gravitySelector.innerHTML = `<i class="fa ${positions[position].iconClass}" aria-hidden="true"></i>`;
+    const gravityInfo = this.gravityInfo.find(info => info.gravity === positions[position].value);
+    gravitySelector.setAttribute('data-gravity', gravityInfo.id);
+    gravitySelector.setAttribute('data-dc-tooltip', gravityInfo.name);
     gravitySelector.classList.add('gravity-icon');
+    if (this.setGravity === gravityInfo.id) {
+      gravitySelector.classList.add('gravity-icon--active');
+    }
     gravitySelector.style.top = positions[position].top;
     gravitySelector.style.left = positions[position].left;
     gravitySelector.style.right = positions[position].right;
@@ -113,26 +137,65 @@ class GravityUiSelector {
     if (positions[position].rotate) {
       gravitySelector.style.transform += ` rotate(${positions[position].rotate})`;
     }
-    gravitySelector.setAttribute('tabindex', '0');
     this.gravitySelecorIcons.push(gravitySelector);
     gravitySelector.addEventListener('mouseenter', e => {
-      this.gravitySelecorIcons.forEach(icon => {
-        if (icon != e.target) {
+      for (const icon of this.gravitySelecorIcons) {
+        if (icon !== e.target) {
           icon.setAttribute('data-hide', 'true');
         } else {
           icon.setAttribute('data-pale', 'true');
         }
-      });
+      }
 
       this.thumbContainer.appendChild(this.createPreviewBox(position));
     });
 
     gravitySelector.addEventListener('mouseleave', () => {
       this.thumbContainer.removeChild(this.thumbContainer.querySelector('#gravity-box'));
-      this.gravitySelecorIcons.forEach(icon => {
+      for (const icon of this.gravitySelecorIcons) {
         icon.removeAttribute('data-hide');
         icon.removeAttribute('data-pale');
-      });
+      }
+    });
+
+    gravitySelector.addEventListener('click', e => {
+      const target = e.currentTarget;
+      let gravityConceptId = target.dataset.gravity;
+      if (target.classList.contains('gravity-icon--active')) {
+        gravityConceptId = '';
+      }
+      DataCycle.httpRequest(`/things/${this.thingId}/update_gravity`, {
+        method: 'PATCH',
+        body: {
+          gravity: gravityConceptId
+        }
+      })
+        .then(data => {
+          this.button.dataset.gravity = gravityConceptId;
+          this.setGravity = gravityConceptId;
+          for (const icon of this.gravitySelecorIcons) {
+            if (icon !== target) {
+              icon.classList.remove('gravity-icon--active');
+            } else {
+              if (gravityConceptId === '') {
+                icon.classList.remove('gravity-icon--active');
+                I18n.t('frontend.gravity_editor.success_reset').then(text => {
+                  CalloutHelpers.show(text, 'success');
+                });
+              } else {
+                icon.classList.add('gravity-icon--active');
+                I18n.t('frontend.gravity_editor.success_set', { data: gravityInfo.name }).then(text => {
+                  CalloutHelpers.show(text, 'success');
+                });
+              }
+            }
+          }
+        })
+        .catch(error => {
+          I18n.t('frontend.gravity_editor.error').then(text => {
+            CalloutHelpers.show(text, 'error');
+          });
+        });
     });
     this.thumbContainer.appendChild(gravitySelector);
   }
@@ -142,7 +205,7 @@ class GravityUiSelector {
     box.id = 'gravity-box';
     box.classList.add('gravity-box');
     const imageDimensions = this.thumbContainer.querySelector('img').getBoundingClientRect();
-    const width = 0.8 * Math.min(imageDimensions.width, imageDimensions.height) + 'px';
+    const width = `${0.8 * Math.min(imageDimensions.width, imageDimensions.height)}px`;
     box.style.width = width;
     box.style.aspectRatio = '1/1';
     box.style.top = positions[position].top;
@@ -154,9 +217,9 @@ class GravityUiSelector {
   }
 
   removeGravitySelectors() {
-    this.gravitySelecorIcons.forEach(icon => {
+    for (const icon of this.gravitySelecorIcons) {
       this.thumbContainer.removeChild(icon);
-    });
+    }
     this.gravitySelecorIcons = [];
   }
 }

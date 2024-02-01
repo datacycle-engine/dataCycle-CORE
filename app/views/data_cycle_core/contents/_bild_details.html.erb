@@ -128,8 +128,21 @@
 
           </dl>
 
-          <% if can?(:edit, content) %>
-            <button class="button change-gravity-ui">Set/Change gravity</button>
+          <% if DataCycleCore::Feature::GravityEditor.enabled? &&
+              can?(:edit, content) && 
+              can?(:update, DataCycleCore::DataAttribute.new(DataCycleCore::Feature::GravityEditor.attribute_keys.first, content.properties_for(DataCycleCore::Feature::GravityEditor.attribute_keys.first), {}, content, :update)) %>
+            <button 
+              class="button change-gravity-ui" 
+              data-thing-id="<%= content['id'] %>" 
+              data-gravity-info="<%= DataCycleCore::ClassificationAlias.for_tree("Gravity").map { |ca| { gravity: URI(ca.uri).fragment, id: ca.primary_classification.id, name: ca.name } }.to_json %>"
+              data-gravity="<%= content.try(DataCycleCore::Feature::GravityEditor.attribute_keys.first)&.first&.id %>"
+              data-editor-active-text="<%= I18n.t('actions.deactivate_gravity_editor',  locale: active_ui_locale) %>"
+              >
+               <%= I18n.t('actions.set_gravity',  locale: active_ui_locale) %>
+            </button>
+            <p class="gravity-editor-hint">
+             <%= I18n.t("frontend.gravity_editor.hint", locale: active_ui_locale) %>
+            </p>
           <% end %>
 
          
