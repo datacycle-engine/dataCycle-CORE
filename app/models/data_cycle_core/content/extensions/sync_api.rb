@@ -80,7 +80,7 @@ module DataCycleCore
             translated = property_definitions[property_name]['translated']
             embedded_array&.map { |i| i.to_sync_data(translated:, locales:, preloaded:, ancestor_ids:, included:, classifications:, attribute_name: property_name) }&.compact || []
           elsif asset_property_names.include?(property_name)
-            # send(property_name_with_overlay) # do nothing --> only import url not asset itself
+          # send(property_name_with_overlay) # do nothing --> only import url not asset itself
           elsif schedule_property_names.include?(property_name)
             Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{I18n.locale}_#{updated_at.to_i}_#{cache_valid_since.to_i}_#{property_name}", expires_in: 1.year + Random.rand(7.days)) do
               schedule_array = send(property_name_with_overlay)
@@ -95,14 +95,14 @@ module DataCycleCore
               property_name_with_overlay = "#{linked}_#{overlay_name}" if overlay_property_names.include?(linked)
               linked_array = get_property_value(linked, property_definitions[linked], nil, present_overlay)
               linked_array&.each do |i|
-                data = i.to_sync_data(preloaded:, ancestor_ids:, included:, classifications:, attribute_name: linked)&.merge({ attribute_name: [linked] })
-
-                existing = included.detect { |item| item.dig(locales&.first&.to_s || I18n.locale.to_s, 'id') == i.id }
+                locale = locales&.first&.to_s || I18n.locale.to_s
+                existing = included.detect { |item| item.dig(locale, 'id') == i.id }
 
                 if existing.present?
                   existing[:attribute_name].push(linked) unless existing[:attribute_name].include?(linked)
-                elsif data.present?
-                  included.unshift(data)
+                else
+                  data = i.to_sync_data(preloaded:, ancestor_ids:, included:, classifications:, attribute_name: linked)&.merge({ attribute_name: [linked] })
+                  included.unshift(data) if data.present?
                 end
               end
             end
