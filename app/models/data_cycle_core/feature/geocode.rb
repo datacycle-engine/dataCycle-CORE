@@ -79,7 +79,7 @@ module DataCycleCore
         end
 
         def geocode_cache_key(data)
-          Digest::SHA1.hexdigest(data.sort.to_h.transform_values(&:downcase).to_json)
+          Digest::SHA1.hexdigest(data.sort.to_h.transform_values { |v| v.to_s.downcase }.to_json)
         end
 
         def reverse_geocode_cache_key(geo)

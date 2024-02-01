@@ -1455,8 +1455,11 @@ en:
         system: Visible for all users (also applies to the API)
         api: Retrievable via API
         api_users: Users permitted for API
+        api_users_tooltip: Users permitted for API limited
         linked_stored_filter_id: Filter for linked content
+        linked_stored_filter_id_tooltip: Filter for linked content
         classification_tree_labels: Limit to classification trees
+        classification_tree_labels_tooltip: Limited to certain classification trees
         name: Name
       data_cycle_core/asset:
         name: Name

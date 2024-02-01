@@ -4,12 +4,20 @@ module DataCycleCore
   module MasterData
     module Templates
       class TemplateTransformer
+        VISIBILITIES = {
+          'api' => { 'api' => { 'disabled' => true } },
+          'xml' => { 'xml' => { 'disabled' => true } },
+          'show' => { 'ui' => { 'show' => { 'disabled' => true } } },
+          'edit' => { 'ui' => { 'edit' => { 'disabled' => true } } }
+        }.freeze
+
         attr_reader :template, :mixin_paths
 
-        def initialize(template:, content_set: nil, mixins: nil)
+        def initialize(template:, content_set: nil, mixins: nil, templates: nil)
           @template = template.with_indifferent_access
           @content_set = content_set
           @mixins = mixins
+          @templates = templates
           @mixin_paths = []
         end
 
@@ -18,30 +26,47 @@ module DataCycleCore
         end
 
         def transform
+          merge_base_templates! if @template.key?(:extends)
           @template[:boost] ||= 1.0
           (@template[:features] ||= {}).deep_merge!(main_config_property(:features))
           @template[:properties] = transform_properties
           @template[:api] = main_config_property(:api).presence || @template[:api].presence || {}
 
+          @mixin_paths.uniq! { |v| v.split('=>')&.first }
+
           @template
         end
 
         def transform_properties
-          new_properties = deep_transform_properties(@template)
+          new_properties = replace_mixin_properties(@template[:properties])
 
           new_properties.deep_merge!(main_config_property(:properties))
           add_sorting_recursive!(new_properties)
           add_missing_parameters!(new_properties)
+          transform_visibilities!(new_properties)
 
           new_properties
+        end
+
+        def merge_base_templates!
+          flat_templates = @templates.values.flatten
+
+          Array.wrap(@template[:extends]).each do |extends_name|
+            base_template = flat_templates.find { |v| v[:name] == extends_name }
+
+            raise "BaseTemplates missing for #{extends_name}" if base_template.blank?
+
+            @template = base_template[:data].deep_dup.deep_merge(@template)
+            @mixin_paths.concat(base_template[:mixins])
+          end
+
+          @template.delete(:extends)
         end
 
         def add_missing_parameters!(properties)
           return properties if properties.blank?
 
-          properties.each_value do |value|
-            next if value.dig(:compute, :parameters_path).blank?
-
+          properties.filter { |_k, prop| prop&.dig(:compute, :parameters_path).present? }.each_value do |value|
             value[:compute][:parameters] = []
 
             Array.wrap(value[:compute].delete(:parameters_path)).each do |path|
@@ -52,17 +77,39 @@ module DataCycleCore
           properties
         end
 
+        def sort_properties!(properties)
+          sortable_props = properties.filter { |_k, prop| prop&.key?(:position) }
+
+          return properties if sortable_props.blank?
+
+          ordered_keys = properties.keys
+
+          sortable_props.each do |k, prop|
+            position = prop.delete(:position)
+            ordered_keys.delete(k)
+
+            if position.key?(:after)
+              new_index = ordered_keys.index(position[:after]) + 1
+            else
+              new_index = ordered_keys.index(position[:before])
+            end
+
+            ordered_keys.insert(new_index, k)
+          end
+
+          properties.slice!(*ordered_keys)
+          properties
+        end
+
         def add_sorting_recursive!(properties)
           return properties if properties.blank?
 
-          index = 0
+          sort_properties!(properties)
 
-          properties.each do |key, value|
-            next properties.delete(key) if value.nil?
+          properties.deep_reject! { |_, v| v.nil? }
 
-            value[:sorting] = index += 1
-
-            properties.deep_reject! { |_, v| v.nil? }
+          properties.each_value.with_index(1) do |value, index|
+            value[:sorting] = index
 
             add_sorting_recursive!(value[:properties]) if value[:type] == 'object' && value.key?(:properties)
           end
@@ -70,11 +117,30 @@ module DataCycleCore
           properties
         end
 
-        def deep_transform_properties(template)
+        def transform_visibilities!(properties)
+          return properties if properties.blank?
+
+          properties.transform_values! do |value|
+            next value unless value&.key?(:visible)
+
+            visibility = value.delete(:visible)
+
+            next value if visibility == true
+
+            visibilities = visibility == false ? VISIBILITIES : VISIBILITIES.except(*Array.wrap(visibility))
+
+            visibilities.values.reduce(&:deep_merge).deep_merge(value).with_indifferent_access
+          end
+
+          properties
+        end
+
+        def replace_mixin_properties(props)
           properties = ActiveSupport::HashWithIndifferentAccess.new
 
-          template[:properties].each do |key, value|
-            next properties[key.to_sym] = value if value[:type] != 'mixin'
+          props&.each do |key, value|
+            next if value.nil?
+            next properties[key] = value unless value[:type] == 'mixin'
 
             properties.merge!(replace_mixin_property(value[:name].to_sym))
           end
@@ -92,9 +158,9 @@ module DataCycleCore
           raise "mixin for #{property_name} not found!" if mixin.nil?
           return {} if mixin[:properties].blank?
 
-          @mixin_paths.push("#{@content_set}.#{@template[:name]}.#{property_name} => #{mixin[:path]}")
+          @mixin_paths.unshift("#{@content_set}.#{@template[:name]}.#{property_name} => #{mixin[:path]}")
 
-          deep_transform_properties(mixin)
+          replace_mixin_properties(mixin[:properties])
         end
       end
     end

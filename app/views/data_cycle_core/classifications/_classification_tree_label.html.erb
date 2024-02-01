@@ -62,7 +62,19 @@
       </div>
     <% end %>
 
-    <%= link_to tag.i(class: 'fa fa-clipboard'), '#', class: 'copy-to-clipboard', data: { value: tree_label.id, dc_tooltip: t('actions.copy_to_clipboard', locale: active_ui_locale) } if can?(:copy_to_clipboard, tree_label) %>
+    <%= link_to tag.i(class: 'fa fa-hashtag'), '#', 
+                class: 'copy-to-clipboard', 
+                data: { 
+                  value: tree_label.id, 
+                  dc_tooltip: t('actions.copy_to_clipboard_data', locale: active_ui_locale, data: 'ID')
+                } if can?(:copy_to_clipboard, tree_label) %>
+
+    <%= link_to tag.i(class: 'fa fa-clipboard'), '#', 
+                class: 'copy-to-clipboard', 
+                data: { 
+                  value: api_v4_concept_scheme_url(id: tree_label.id), 
+                  dc_tooltip: t('actions.copy_to_clipboard_data', locale: active_ui_locale, data: t('common.api_url', locale: active_ui_locale)) 
+                } if can?(:copy_api_link, tree_label) %>
 
     <%= link_to tag.i(class: 'fa fa-list'),
                 root_path(mode: 'tree', ctl_id: tree_label.id, reset: true),

@@ -1,0 +1,11 @@
+---
+- :data:
+    :name: EntityExtensionExtension
+    :extends: EntityExtension
+    :properties:
+      :tmp_value:
+        :label: Tmp Value
+        :type: string
+        :storage_location: translated_value
+        :position:
+          :before: tmp_name
