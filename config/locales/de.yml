@@ -1830,6 +1830,17 @@ de:
       titel: Titel
       teaser: Teaser
       text: Detailbeschreibung
+    green_solutions:
+      TourMoreInfos_additionalInformation: Zusatzinformationen zur Tour
+      anfahrt: Anfahrt
+      anfahrt_oepnv: Anfahrt öffentlicher Verkehr
+      ausgangspunkt: Ausgangspunkt
+      beschreibung: Beschreibung
+      currentConditions: Aktuelle Gegebenheiten
+      moreInfo: Zusatzinformationen
+      seasonDescription: Saison
+      qualified: geeignet
+      dependent: wetterabhängig
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
       <ul class="no-bullet">

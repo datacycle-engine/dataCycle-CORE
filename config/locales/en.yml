@@ -1844,6 +1844,17 @@ en:
       titel: Title
       teaser: Teaser
       text: Detailed description
+    green_solutions:
+      TourMoreInfos_additionalInformation: More information for tour
+      anfahrt: Approach
+      anfahrt_oepnv: Approach public transport
+      ausgangspunkt: Starting point
+      beschreibung: Description
+      currentConditions: Current conditions
+      moreInfo: More information
+      seasonDescription: Season
+      qualified: qualified
+      dependent: dependent
   media_archive:
     allowed_html:
       '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>
