@@ -17,7 +17,7 @@
 
         <% if thumbnail_url.present? %>
 
-          <div class="image-container stripes">
+          <div class="image-container stripes gravity-ui">
             <%= render_attribute_viewer key: 'thumbnail_url',
                                         definition: content.schema['properties']['thumbnail_url'],
                                         value: thumbnail_url,
@@ -128,6 +128,11 @@
 
           </dl>
 
+          <% if can?(:edit, content) %>
+            <button class="button change-gravity-ui">Set/Change gravity</button>
+          <% end %>
+
+         
         </div>
       </div>
 
