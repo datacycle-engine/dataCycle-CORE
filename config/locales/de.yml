@@ -1845,6 +1845,8 @@ de:
       qualified: geeignet
       dependent: wetterabhängig
       roadmap: Streckenstichpunkte
+    museumsportal:
+      opening_hours: Öffungszeiten Beschreibung
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
       <ul class="no-bullet">
