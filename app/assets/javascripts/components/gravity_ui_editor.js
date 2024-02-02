@@ -69,15 +69,15 @@ const positions = {
   }
 };
 
-class GravityUiSelector {
+class GravityUiEditor {
   constructor(button) {
     this.button = button;
-    this.button.classList.add('dcjs-gravity-ui-selector');
+    this.button.classList.add('dcjs-gravity-ui-editor');
     this.gravitySelecorIcons = [];
     this.thumbContainer = null;
     this.thingId = this.button.dataset.thingId;
     this.gravityInfo = JSON.parse(this.button.dataset.gravityInfo);
-    this.setGravity = this.button.dataset.gravity || null;
+    this.gravity = this.button.dataset.gravity || null;
     this.buttonText = this.button.innerHTML;
     this.setUp();
   }
@@ -93,28 +93,29 @@ class GravityUiSelector {
       if (this.button.classList.contains('active')) {
         this.button.classList.remove('active');
         this.thumbContainer.classList.remove('gravity-control');
-        this.thumbContainer.querySelector('a').style = '';
         this.removeGravitySelectors();
         this.button.innerHTML = this.buttonText;
       } else {
         this.button.classList.add('active');
         this.thumbContainer.classList.toggle('gravity-control');
-        this.thumbContainer.querySelector('a').style.cursor = 'default';
-        this.thumbContainer.querySelector('a').style.pointerEvents = 'none';
         for (const position in positions) {
           this.createGravitySelector(position);
         }
         this.button.innerHTML = e.currentTarget.dataset.editorActiveText;
-
-        if (this.gravitySelecorIcons.length > 0 && this.setGravity) {
-          this.gravitySelecorIcons
-            .find(icon => {
-              return icon.dataset.gravity === this.setGravity;
-            })
-            ?.classList?.add('gravity-icon--active');
-        }
       }
+      this.toggleImageLinkInteractivity();
     });
+  }
+
+  toggleImageLinkInteractivity() {
+    const imageLink = this.thumbContainer.querySelector('a');
+    if (!imageLink) return;
+    if (this.button.classList.contains('active')) {
+      imageLink.style.cursor = 'default';
+      imageLink.style.pointerEvents = 'none';
+    } else {
+      imageLink.style = '';
+    }
   }
 
   createGravitySelector(position) {
@@ -124,7 +125,7 @@ class GravityUiSelector {
     gravitySelector.setAttribute('data-gravity', gravityInfo.id);
     gravitySelector.setAttribute('data-dc-tooltip', gravityInfo.name);
     gravitySelector.classList.add('gravity-icon');
-    if (this.setGravity === gravityInfo.id) {
+    if (this.gravity === gravityInfo.id) {
       gravitySelector.classList.add('gravity-icon--active');
     }
     gravitySelector.style.top = positions[position].top;
@@ -151,7 +152,7 @@ class GravityUiSelector {
     });
 
     gravitySelector.addEventListener('mouseleave', () => {
-      this.thumbContainer.removeChild(this.thumbContainer.querySelector('#gravity-box'));
+      this.thumbContainer.removeChild(this.thumbContainer.querySelector('#gravity-preview-box'));
       for (const icon of this.gravitySelecorIcons) {
         icon.removeAttribute('data-hide');
         icon.removeAttribute('data-pale');
@@ -172,7 +173,7 @@ class GravityUiSelector {
       })
         .then(data => {
           this.button.dataset.gravity = gravityConceptId;
-          this.setGravity = gravityConceptId;
+          this.gravity = gravityConceptId;
           for (const icon of this.gravitySelecorIcons) {
             if (icon !== target) {
               icon.classList.remove('gravity-icon--active');
@@ -202,11 +203,10 @@ class GravityUiSelector {
 
   createPreviewBox(position) {
     const box = document.createElement('div');
-    box.id = 'gravity-box';
-    box.classList.add('gravity-box');
+    box.id = 'gravity-preview-box';
+    box.classList.add('gravity-preview-box');
     const imageDimensions = this.thumbContainer.querySelector('img').getBoundingClientRect();
-    const width = `${0.8 * Math.min(imageDimensions.width, imageDimensions.height)}px`;
-    box.style.width = width;
+    box.style.width = `${0.8 * Math.min(imageDimensions.width, imageDimensions.height)}px`;
     box.style.aspectRatio = '1/1';
     box.style.top = positions[position].top;
     box.style.left = positions[position].left;
@@ -224,4 +224,4 @@ class GravityUiSelector {
   }
 }
 
-export default GravityUiSelector;
+export default GravityUiEditor;
