@@ -57,7 +57,7 @@ module DataCycleCore
           if plain_property_names.include?(property_name)
             send(property_name_with_overlay)&.as_json
           elsif classification_property_names.include?(property_name)
-            send(property_name).try(:pluck, :id)
+            send(property_name_with_overlay).try(:pluck, :id)
           elsif linked_property_names.include?(property_name)
             return [] if properties_for(property_name)['link_direction'] == 'inverse'
 
