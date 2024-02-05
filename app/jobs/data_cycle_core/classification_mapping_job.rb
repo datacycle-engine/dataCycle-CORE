@@ -26,42 +26,41 @@ module DataCycleCore
       insert_ids = Array.wrap(to_insert) - ca.classification_ids
       delete_ids = Array.wrap(to_delete).intersection(ca.classification_ids)
 
-      # disable triggers if transitive
-      if DataCycleCore::Feature::TransitiveClassificationPath.enabled?
-        ActiveRecord::Base.connection.execute <<-SQL.squish
-        ALTER TABLE classification_groups DISABLE TRIGGER delete_ccc_relations_transitive_trigger;
-        ALTER TABLE classification_groups DISABLE TRIGGER generate_ccc_relations_transitive_trigger;
-        ALTER TABLE classification_groups DISABLE TRIGGER update_ccc_relations_transitive_trigger;
-        ALTER TABLE classification_groups DISABLE TRIGGER update_deleted_at_ccc_relations_transitive_trigger;
-        SQL
-      end
+      read, write = IO.pipe
+      pid = Process.fork do
+        read.close
 
-      ca.classification_groups.insert_all(insert_ids.map { |cid| { classification_id: cid } }, unique_by: :classification_groups_ca_id_c_id_uq_idx, returning: false) if insert_ids.present?
-      ca.classification_groups.where(classification_id: delete_ids).delete_all if delete_ids.present?
+        if insert_ids.present?
+          ca.classification_groups.insert_all(insert_ids.map { |cid| { classification_id: cid } }, unique_by: :classification_groups_ca_id_c_id_uq_idx, returning: false)
 
-      if DataCycleCore::Feature::TransitiveClassificationPath.enabled?
-        # run job for all mappings
-        DataCycleCore::RebuildClassificationMappingsJob.perform_now
-
-        # reenable triggers for transitive
-        ActiveRecord::Base.connection.execute <<-SQL.squish
-        ALTER TABLE classification_groups ENABLE TRIGGER delete_ccc_relations_transitive_trigger;
-        ALTER TABLE classification_groups ENABLE TRIGGER generate_ccc_relations_transitive_trigger;
-        ALTER TABLE classification_groups ENABLE TRIGGER update_ccc_relations_transitive_trigger;
-        ALTER TABLE classification_groups ENABLE TRIGGER update_deleted_at_ccc_relations_transitive_trigger;
-        SQL
-      end
-
-      if insert_ids.present?
-        DataCycleCore::Classification.where(id: insert_ids).find_each do |c|
-          ca.send(:classifications_added, c)
+          DataCycleCore::Classification.where(id: insert_ids).find_each do |c|
+            ca.send(:classifications_added, c)
+          end
         end
+
+        if delete_ids.present?
+          ca.classification_groups.where(classification_id: delete_ids).delete_all
+
+          DataCycleCore::Classification.where(id: delete_ids).find_each do |c|
+            ca.send(:classifications_removed, c)
+          end
+        end
+      rescue StandardError => e
+        Marshal.dump({ error_class: e.class.name, error: e.to_s, backtrace: e.backtrace.first(10) }, write)
+      ensure
+        write.close
       end
 
-      if delete_ids.present?
-        DataCycleCore::Classification.where(id: delete_ids).find_each do |c|
-          ca.send(:classifications_removed, c)
-        end
+      write.close
+      result = read.read
+      Process.waitpid(pid)
+      read.close
+
+      if result.size.positive?
+        data = Marshal.load(result) # rubocop:disable Security/MarshalLoad
+        exception = data[:error_class]&.safe_constantize&.new(data[:error])
+        exception&.set_backtrace(data[:backtrace])
+        raise exception.presence || 'unkown error'
       end
 
       if insert_ids.present? || delete_ids.present? ? ca.update(updated_at: Time.zone.now) : true
