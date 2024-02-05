@@ -34,7 +34,7 @@ module DataCycleCore
             ALTER TABLE classification_groups #{non_transitive_triggers} TRIGGER update_deleted_at_ccc_relations_trigger_4;
           SQL
 
-          DataCycleCore::RunTaskJob.perform_later('db:configure:rebuild_transitive_tables') if update_jobs
+          DataCycleCore::RebuildClassificationMappingsJob.perform_later if update_jobs
         rescue ActiveRecord::NoDatabaseError
           nil
         end
