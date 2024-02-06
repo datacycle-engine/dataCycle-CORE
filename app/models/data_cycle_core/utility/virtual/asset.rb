@@ -55,6 +55,14 @@ module DataCycleCore
             )
           end
 
+          def name(content:, virtual_parameters:, **_args)
+            content.try(virtual_parameters&.first)&.name
+          end
+
+          def asset_id(content:, **_args)
+            content.try(:asset)&.id
+          end
+
           private
 
           def transform_gravity!(content, image_processing)

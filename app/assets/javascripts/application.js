@@ -62,7 +62,7 @@ export default (dataCycleConfig = {}, postDataCycleInit = null) => {
 		console.error(detail);
 	});
 
-	$(function () {
+	$(() => {
 		for (const path in initializers) {
 			if (!initializerExceptions.some((e) => path.includes(e))) {
 				try {

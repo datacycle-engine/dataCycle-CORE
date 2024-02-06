@@ -55,7 +55,7 @@ module DataCycleCore
         end
 
         def geocode_address(address_hash, locale = I18n.locale)
-          return {} if endpoint.blank? || address_hash.blank? || address_hash.values.all?(&:blank?)
+          return {} if address_hash.blank? || address_hash.values.all?(&:blank?) || endpoint.blank?
 
           Rails.cache.fetch(geocode_cache_key(address_hash), expires_in: 7.days) do
             endpoint.geocode(address_hash.to_h, locale)
@@ -63,7 +63,7 @@ module DataCycleCore
         end
 
         def reverse_geocode(geo, locale = I18n.locale)
-          return {} if endpoint.blank? || !endpoint.respond_to?(:reverse_geocode) || geo.blank?
+          return {} if geo.blank? || endpoint.blank? || !endpoint.respond_to?(:reverse_geocode)
 
           geo = DataCycleCore::MasterData::DataConverter.string_to_geographic(geo)
 
@@ -79,7 +79,7 @@ module DataCycleCore
         end
 
         def geocode_cache_key(data)
-          Digest::SHA1.hexdigest(data.sort.to_h.transform_values(&:downcase).to_json)
+          Digest::SHA1.hexdigest(data.sort.to_h.transform_values { |v| v.to_s.downcase }.to_json)
         end
 
         def reverse_geocode_cache_key(geo)

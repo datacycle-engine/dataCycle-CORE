@@ -32,6 +32,8 @@ de:
     key_figures_container: Kennzahlen
     copyright_holder_or_sd_publisher: Rechteinhaber
     universal_classifications: Klassifizierungen
+    copyright_attributes_group: Copyright
+    content_classifications_group: Klassifizierungen
 
   footer_links:
     privacy_policy: Datenschutz
@@ -458,6 +460,8 @@ de:
     create_new_content: Neuen Inhalt erstellen
     data_type: Inhaltstyp
     select_asset: "%{data} auswählen"
+    delete_assets_selected: "Ausgewählte Inhalte löschen"
+    delete_assets_all: "Alle Inhalte löschen"
     select_asset_title: Hochgeladene Dateien
     my_assets: Meine Dateien
     select_assets: Dateien verknüpfen
@@ -534,6 +538,7 @@ de:
       map: Kartenansicht
       events: Events
       gallery: Bildergalerie
+      statistics: Statistik
     user_registration:
       terms_conditions: 'Ich akzeptiere die <a href="%{url}" target="_blank">Allgemeinen Geschäftsbedingungen</a>.'
       privacy_policy: 'Ich bin mit der Verarbeitung meiner Daten laut  <a href="%{url}" target="_blank">Datenschutzerklärung</a> einverstanden.'
@@ -923,6 +928,7 @@ de:
     width: Breite
     height: Höhe
     upload_date: Uploaddatum
+    internal_content_score: Content Score (intern)
     users_context:
       given_name: Vorname
       family_name: Nachname
@@ -1062,6 +1068,8 @@ de:
     back: Zurück
     add_files: Dateien hinzufügen
     delete_file: Datei wirklich löschen?
+    delete_files: Dateien wirklich löschen?
+    delete_all_files: ALLE Dateien wirklich löschen?
     uploaded: hochgeladen
     back_to_select: Zurück zur Auswahl
     delete_translation: "Übersetzung (%{data}) löschen"
@@ -1173,6 +1181,7 @@ de:
       no_source: "Keine gültige Vorlage angegeben"
       wrong_content_type: Nicht unterstützter Datei-Typ
       missing_parameter: Parameter fehlt!
+      destroy: "Beim Löschen ist ein Fehler aufgetreten."
       duplicate:
         type_mismatch: "Inhalte unterschiedlichen Typs können nicht zusammengeführt werden!"
         cannot_merge_self: Der Inhalt kann nicht mit sich selbst zusammengeführt werden!
@@ -1455,8 +1464,11 @@ de:
         system: Für alle Benutzer sichtbar (gilt auch für die API)
         api: Über API abrufbar
         api_users: Für API zugelassene Benutzer
+        api_users_tooltip: API-Zugriff auf bestimmte User eingeschränkt
         linked_stored_filter_id: Filter für verknüpfte Inhalte
+        linked_stored_filter_id_tooltip: Filter für verknüpfte Inhalte
         classification_tree_labels: Auf Klassifizierungsbäume einschränken
+        classification_tree_labels_tooltip: Auf bestimmte Klassifizierungsbäume eingeschränkt
         name: Name
       data_cycle_core/asset:
         name: Name
@@ -1820,6 +1832,24 @@ de:
       intro: Kurzbeschreibung
       slogan: Slogan
       text: Beschreibung
+    jugendherberge:
+      titel: Titel
+      teaser: Teaser
+      text: Detailbeschreibung
+    green_solutions:
+      TourMoreInfos_additionalInformation: Zusatzinformationen zur Tour
+      anfahrt: Anfahrt
+      anfahrt_oepnv: Anfahrt öffentlicher Verkehr
+      ausgangspunkt: Ausgangspunkt
+      beschreibung: Beschreibung
+      currentConditions: Aktuelle Gegebenheiten
+      moreInfo: Zusatzinformationen
+      seasonDescription: Saison
+      qualified: geeignet
+      dependent: wetterabhängig
+      roadmap: Streckenstichpunkte
+    museumsportal:
+      opening_hours: Öffungszeiten Beschreibung
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
       <ul class="no-bullet">

@@ -165,11 +165,17 @@ class DataCycle {
 		if (!el) return;
 
 		if (innerHTML !== undefined) {
-			el.dataset.dcDisableWith = el.dataset.disableWith;
+			el.dataset.dcDisableWith = el.dataset.disableWith ?? "";
 			el.dataset.disableWith = innerHTML;
-		} else if (el.dataset.dcDisableWith) {
-			el.dataset.disableWith = el.dataset.dcDisableWith;
-			el.dataset.dcDisableWith = undefined;
+		} else if (el.hasAttribute("data-dc-disable-with")) {
+			if (!el.dataset.dcDisableWith) {
+				// biome-ignore lint/performance/noDelete: <explanation>
+				delete el.dataset.disableWith;
+			} else {
+				el.dataset.disableWith = el.dataset.dcDisableWith;
+			}
+			// biome-ignore lint/performance/noDelete: <explanation>
+			delete el.dataset.dcDisableWith;
 		}
 
 		if (!(el.dataset.disable || el.dataset.disableWith))

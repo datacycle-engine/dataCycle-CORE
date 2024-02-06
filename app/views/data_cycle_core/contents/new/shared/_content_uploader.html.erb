@@ -29,6 +29,11 @@
           <a class="select-asset-link success button" data-disable="true">
             <%= t('common.select_asset', locale: active_ui_locale, data: type_translation) %>
           </a>
+          <% if can?(:destroy, DataCycleCore::Asset) %>
+            <button data-disable="true" class="button alert assets-destroy" data-url="<%= delete_assets_path %>">
+              <%= t('common.delete_assets_selected', locale: active_ui_locale)  %>
+            </button>
+          <% end %>
         </div>
       </div>
       <button class="close-button" data-close aria-label="Close modal" type="button">

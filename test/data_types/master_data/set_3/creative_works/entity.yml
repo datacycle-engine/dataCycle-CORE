@@ -1,0 +1,19 @@
+---
+- :data:
+    :extends: Entity-Creative-Work-1
+    :properties:
+      :tmp_name:
+        :label: Tmp Titel
+        :type: string
+        :storage_location: translated_value
+        :visible: ["api", "show"]
+        :position:
+          :before: description
+      :name:
+        :visible: false
+        :position:
+          :before: id
+      :description:
+        :position:
+          :before: name
+        :visible: "xml"

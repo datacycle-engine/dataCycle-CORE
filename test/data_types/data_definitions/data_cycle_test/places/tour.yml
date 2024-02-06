@@ -271,6 +271,7 @@
         :label: Tourenbewertung
         :type: embedded
         :template_name: Tourenbewertung
+        :translated: true
       :potential_actions:
         :type: mixin
         :name: potential_actions

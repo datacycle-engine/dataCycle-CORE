@@ -30,3 +30,33 @@
     buttons: false
   }) %>
 <% end %>
+
+<%= render_advanced_filter_tags_partial({
+    title: t('activerecord.attributes.data_cycle_core/stored_filter.api_users', locale: active_ui_locale),
+    filter_type: 'api_restriction',
+    api_restriction_type: 'user_list',
+    key: "activerecord.attributes.data_cycle_core/stored_filter.api_users",
+    target: "stored_search.api_users",
+    value: stored_search.api_users,
+    buttons: false,
+  }) if stored_search.api_users.present? %>
+
+<%= render_advanced_filter_tags_partial({
+    title: t('activerecord.attributes.data_cycle_core/stored_filter.linked_stored_filter_id', locale: active_ui_locale),
+    filter_type: 'api_restriction',
+    api_restriction_type: 'linked_filter',
+    key: "activerecord.attributes.data_cycle_core/stored_filter.linked_stored_filter_id",
+    target:"stored_filter.linked_stored_filter_id",
+    value: [DataCycleCore::StoredFilter.find(stored_search.linked_stored_filter_id).name],
+    buttons: false
+  }) if stored_search.linked_stored_filter_id != nil %>
+
+<%= render_advanced_filter_tags_partial({
+    title: t('activerecord.attributes.data_cycle_core/stored_filter.classification_tree_labels', locale: active_ui_locale),
+    filter_type: 'api_restriction',
+    api_restriction_type: 'classification_tree_ids',
+    key: "activerecord.attributes.data_cycle_core/stored_filter.classification_tree_labels",
+    target: "stored_filter.classification_tree_labels",
+    value: stored_search.classification_tree_labels,
+    buttons: false
+  }) if stored_search.classification_tree_labels.present? %>

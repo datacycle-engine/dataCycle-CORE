@@ -31,6 +31,8 @@ en:
       other: Tour ratings
     key_figures_container: Key figures
     universal_classifications: Classifications
+    copyright_attributes_group: Copyright
+    content_classifications_group: Classifications
 
   footer_links:
     privacy_policy: Privacy policy
@@ -448,6 +450,8 @@ en:
     create_new_content: Create new content
     data_type: Content type
     select_asset: Select %{data}
+    delete_assets_selected: Delete selected assets
+    delete_assets_all: Delete all assets
     select_asset_title: Uploaded files
     my_assets: My files
     select_assets: Link files
@@ -533,6 +537,7 @@ en:
       list: List view
       map: Map view
       gallery: Gallery view
+      statistics: Statistic
     user_registration:
       terms_conditions:
         I accept the <a href="%{url}" target="_blank">general terms
@@ -896,6 +901,7 @@ en:
     width: Width
     height: Height
     upload_date: Upload date
+    internal_content_score: Content score (internal)
     users_context:
       given_name: Given name
       family_name: Family name
@@ -1026,6 +1032,8 @@ en:
     back: Back
     add_files: Add files
     delete_file: Really delete the file?
+    delete_files: Really delete files?
+    delete_all_files: Really delete ALL files?
     uploaded: Uploaded
     back_to_select: Back to the selection
     delete_translation: Delete translation (%{data})
@@ -1165,6 +1173,7 @@ en:
       no_source: No valid template specified
       wrong_content_type: Unsupported file type
       missing_parameter: Parameter missing!
+      destroy: An error occurred while deleting.
       duplicate:
         type_mismatch: Contents of different types cannot be merged!
         cannot_merge_self: The content cannot be merged with itself!
@@ -1449,8 +1458,11 @@ en:
         system: Visible for all users (also applies to the API)
         api: Retrievable via API
         api_users: Users permitted for API
+        api_users_tooltip: Users permitted for API limited
         linked_stored_filter_id: Filter for linked content
+        linked_stored_filter_id_tooltip: Filter for linked content
         classification_tree_labels: Limit to classification trees
+        classification_tree_labels_tooltip: Limited to certain classification trees
         name: Name
       data_cycle_core/asset:
         name: Name
@@ -1834,6 +1846,24 @@ en:
       intro: Description
       slogan: Slogan
       text: Detailed description
+    jugendherberge:
+      titel: Title
+      teaser: Teaser
+      text: Detailed description
+    green_solutions:
+      TourMoreInfos_additionalInformation: More information for tour
+      anfahrt: Approach
+      anfahrt_oepnv: Approach public transport
+      ausgangspunkt: Starting point
+      beschreibung: Description
+      currentConditions: Current conditions
+      moreInfo: More information
+      seasonDescription: Season
+      qualified: qualified
+      dependent: dependent
+      roadmap: Roadmap
+    museumsportal:
+      opening_hours: Opening hours description
   media_archive:
     allowed_html:
       '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>

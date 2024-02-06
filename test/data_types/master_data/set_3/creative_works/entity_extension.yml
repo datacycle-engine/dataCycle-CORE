@@ -1,0 +1,11 @@
+---
+- :data:
+    :name: EntityExtension
+    :extends: Entity-Creative-Work-1
+    :properties:
+      :tmp_name:
+        :label: Tmp Titel
+        :type: string
+        :storage_location: translated_value
+        :position:
+          :after: name

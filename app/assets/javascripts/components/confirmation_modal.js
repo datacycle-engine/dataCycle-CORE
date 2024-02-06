@@ -86,8 +86,9 @@ class ConfirmationModal {
 			cancelButton.addEventListener("click", this.cancel.bind(this));
 
 		$(this.overlay).on("closed.zf.reveal", (_event) => {
-			if (!(this.closed || this.preventCancelOnAbort))
-				this.close("cancelCallback", true);
+			if (!(this.closed || this.preventCancelOnAbort)) {
+				this.close("cancelCallback", true, true);
+			}
 		});
 
 		$(this.section).on(
@@ -114,9 +115,9 @@ class ConfirmationModal {
 
 		this.close("confirmationCallback");
 	}
-	close(method_name, closeAll = false) {
+	close(method_name, closeAll = false, force = false) {
 		if (
-			domElementHelpers.isVisible(this.overlay) &&
+			(domElementHelpers.isVisible(this.overlay) || force) &&
 			(closeAll ||
 				this.overlay.querySelectorAll(":scope > section.confirmation-section")
 					.length === 1)
@@ -125,7 +126,7 @@ class ConfirmationModal {
 			if (typeof $(this.overlay).foundation === "function")
 				$(this.overlay).foundation("close");
 			this.overlay.parentElement.remove();
-		} else if (domElementHelpers.isVisible(this.overlay)) {
+		} else if (domElementHelpers.isVisible(this.overlay) || force) {
 			this.section.remove();
 			$(this.overlay.querySelector("section.confirmation-section")).trigger(
 				"dc:confirmation_count:update",

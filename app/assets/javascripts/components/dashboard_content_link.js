@@ -39,7 +39,10 @@ class DashboardContentLink {
 
 		history.replaceState(state, "", url);
 	}
-	pushState(_event) {
+	pushState(event) {
+		if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)
+			return;
+
 		const { url, state } = this.getUpdatedUrl();
 
 		if (this.id) {

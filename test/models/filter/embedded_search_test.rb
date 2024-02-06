@@ -37,7 +37,7 @@ module DataCycleCore
         ]
       })
 
-      stored_search = DataCycleCore::Search.first
+      stored_search = DataCycleCore::Search.where(self_contained: true).first
       assert_includes(stored_search.advanced_attributes.dig('float_main'), content.float_main)
       content.embedded_search.each do |embedded_search|
         assert_includes(stored_search.advanced_attributes.dig('float_one'), embedded_search.float_one)
@@ -81,7 +81,7 @@ module DataCycleCore
           ]
         }
       ))
-      stored_search = DataCycleCore::Search.first
+      stored_search = DataCycleCore::Search.where(self_contained: true).first
       assert_includes(stored_search.advanced_attributes.dig('float_main'), content.float_main)
       content.embedded_search.each do |embedded_search|
         assert_includes(stored_search.advanced_attributes.dig('float_one'), embedded_search.float_one)
@@ -124,7 +124,7 @@ module DataCycleCore
           }
         ]
       })
-      assert_equal(DataCycleCore::Search.count, 2)
+      assert_equal(DataCycleCore::Search.where(self_contained: true).count, 2)
 
       query = DataCycleCore::Filter::Search.new([:de])
 
@@ -179,7 +179,7 @@ module DataCycleCore
           }
         ]
       })
-      assert_equal(DataCycleCore::Search.count, 2)
+      assert_equal(DataCycleCore::Search.where(self_contained: true).count, 2)
 
       query = DataCycleCore::Filter::Search.new([:de])
 
@@ -210,7 +210,7 @@ module DataCycleCore
           }
         ]
       })
-      assert_equal(DataCycleCore::Search.count, 2)
+      assert_equal(DataCycleCore::Search.where(self_contained: true).count, 2)
 
       query = DataCycleCore::Filter::Search.new([:de])
 
@@ -279,7 +279,7 @@ module DataCycleCore
           }
         ]
       })
-      assert_equal(DataCycleCore::Search.count, 2)
+      assert_equal(DataCycleCore::Search.where(self_contained: true).count, 2)
 
       query = DataCycleCore::Filter::Search.new([:de])
 

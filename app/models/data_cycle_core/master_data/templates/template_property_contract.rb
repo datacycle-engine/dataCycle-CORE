@@ -113,6 +113,15 @@ module DataCycleCore
             optional(:parameters) { array? }
             optional(:score_matrix) { hash? }
           end
+
+          optional(:position).hash do
+            optional(:after) { str? }
+            optional(:before) { str? }
+          end
+
+          optional(:visible) do
+            bool? | (str? & included_in?(TemplateTransformer::VISIBILITIES.keys)) | (array? & array { included_in?(TemplateTransformer::VISIBILITIES.keys) })
+          end
         end
 
         rule(:type) do

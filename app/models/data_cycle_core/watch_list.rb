@@ -135,6 +135,10 @@ module DataCycleCore
         .update_all(['order_a = array_position(ARRAY[?]::uuid[], hashable_id)', order_array])
     end
 
+    def path
+      Array.wrap(full_path_names) + [name]
+    end
+
     private
 
     def split_full_path

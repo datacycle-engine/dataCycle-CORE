@@ -32,10 +32,7 @@ namespace :dc do
       abort('Feature DuplicateCandidate has to be enabled!') unless DataCycleCore::Feature::DuplicateCandidate.enabled?
       abort('A stored filter ID, or a stored filter Name has to be specified') if args.stored_filter.blank?
 
-      query = []
-      query << 'id = :key' if args.stored_filter.uuid?
-      query << 'name = :key'
-      stored_filter = DataCycleCore::StoredFilter.find_by(query.join(' OR '), key: args.stored_filter)
+      stored_filter = DataCycleCore::StoredFilter.by_id_or_name(args.stored_filter).first
 
       abort("stored filter #{args.stored_filter} does not exist!") if stored_filter.nil?
 
@@ -45,21 +42,21 @@ namespace :dc do
       total_items = query.count
       puts "(RE)CREATE Duplicate Candidates (#{total_items})"
 
-      progress = ProgressBar.create(total: total_items, format: '%t |%w>%i| %a - %c/%C', title: 'Items')
+      progress = ProgressBar.create(total: total_items, format: '%t |%w>%i| %a - %c/%C', title: stored_filter.name.presence || 'Items')
 
-      duplicate_count = 0
+      duplicate_counts = []
       queue = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
 
       query.query.find_each do |content|
         queue.append do
-          duplicate_count += content.create_duplicate_candidates.to_i
+          duplicate_counts.push(content.create_duplicate_candidates.to_i)
           progress.increment
         end
       end
 
       queue.wait!
 
-      puts "(RE)CREATED Duplicate Candidates - #{duplicate_count} duplicates found"
+      puts "(RE)CREATED Duplicate Candidates - #{duplicate_counts.sum} duplicates found"
     end
 
     desc 'delete duplicates with <score> and above'

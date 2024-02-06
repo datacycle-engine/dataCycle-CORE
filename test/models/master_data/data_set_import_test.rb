@@ -21,6 +21,10 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       Rails.root.join('..', 'data_types', 'master_data', 'set_2')
     end
 
+    let(:import_path3) do
+      Rails.root.join('..', 'data_types', 'master_data', 'set_3')
+    end
+
     let(:non_existent_path) do
       Rails.root.join('..', 'data_types', '1234567890')
     end
@@ -107,6 +111,91 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
     it 'gives appropriate duplicate_list for test_folder and test_folder2' do
       template_importer = subject.new(template_paths: [import_path2, import_path])
       assert_equal duplicates_import_paths, template_importer.duplicates
+    end
+
+    it 'extends existing template' do
+      template_importer = subject.new(template_paths: [import_path2, import_path3])
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'EntityExtension' }
+
+      assert_not(template.nil?)
+      assert(template.dig(:data, :properties)&.key?(:id))
+      assert(template.dig(:data, :properties)&.key?(:name))
+      assert(template.dig(:data, :properties)&.key?(:description))
+      assert(template.dig(:data, :properties)&.key?(:tmp_name))
+    end
+
+    it 'overrides existing template' do
+      template_importer = subject.new(template_paths: [import_path2, import_path3])
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
+
+      assert_not(template.nil?)
+      assert(template.dig(:data, :properties)&.key?(:id))
+      assert(template.dig(:data, :properties)&.key?(:name))
+      assert(template.dig(:data, :properties)&.key?(:description))
+      assert(template.dig(:data, :properties)&.key?(:tmp_name))
+    end
+
+    it 'change position of propery with after' do
+      template_importer = subject.new(template_paths: [import_path2, import_path3])
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'EntityExtension' }
+
+      assert_not(template.nil?)
+      assert_equal(template.dig(:data, :properties, :name, :sorting) + 1, template.dig(:data, :properties, :tmp_name, :sorting))
+    end
+
+    it 'change position of propery with before' do
+      template_importer = subject.new(template_paths: [import_path2, import_path3])
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
+
+      assert_not(template.nil?)
+      assert_equal(template.dig(:data, :properties, :name, :sorting) - 1, template.dig(:data, :properties, :description, :sorting))
+    end
+
+    it 'disable property in all contexts' do
+      template_importer = subject.new(template_paths: [import_path2, import_path3])
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
+
+      assert_not(template.nil?)
+      assert(template.dig(:data, :properties, :name, :xml, :disabled))
+      assert(template.dig(:data, :properties, :name, :api, :disabled))
+      assert(template.dig(:data, :properties, :name, :ui, :edit, :disabled))
+      assert(template.dig(:data, :properties, :name, :ui, :show, :disabled))
+    end
+
+    it 'enable property only in xml' do
+      template_importer = subject.new(template_paths: [import_path2, import_path3])
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
+
+      assert_not(template.nil?)
+      assert_not(template.dig(:data, :properties, :description, :xml, :disabled))
+      assert(template.dig(:data, :properties, :description, :api, :disabled))
+      assert(template.dig(:data, :properties, :description, :ui, :edit, :disabled))
+      assert(template.dig(:data, :properties, :description, :ui, :show, :disabled))
+    end
+
+    it 'enable property only in api and show' do
+      template_importer = subject.new(template_paths: [import_path2, import_path3])
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
+
+      assert_not(template.nil?)
+      assert(template.dig(:data, :properties, :tmp_name, :xml, :disabled))
+      assert_not(template.dig(:data, :properties, :tmp_name, :api, :disabled))
+      assert(template.dig(:data, :properties, :tmp_name, :ui, :edit, :disabled))
+      assert_not(template.dig(:data, :properties, :tmp_name, :ui, :show, :disabled))
+    end
+
+    it 'extend template in same folder' do
+      template_importer = subject.new(template_paths: [import_path2, import_path3])
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'EntityExtensionExtension' }
+
+      assert_not(template.nil?)
+      assert(template.dig(:data, :properties).key?(:id))
+      assert(template.dig(:data, :properties).key?(:name))
+      assert(template.dig(:data, :properties).key?(:description))
+      assert(template.dig(:data, :properties).key?(:tmp_name))
+      assert(template.dig(:data, :properties).key?(:tmp_value))
+
+      assert_equal(template.dig(:data, :properties, :tmp_name, :sorting) - 1, template.dig(:data, :properties, :tmp_value, :sorting))
     end
   end
 end

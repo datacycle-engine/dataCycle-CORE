@@ -6,7 +6,7 @@ json.merge! render 'context', languages: @language
 unless @permitted_params.dig(:section, :'@graph')&.to_i&.zero?
   json['@graph'] = {
     '@type': 'dcls:User',
-    watchLists: @watch_lists.as_json(only: [:id, :name]),
+    watchLists: @watch_lists.as_json(only: [:id, :name], methods: :path),
     storedFilters: @stored_filter.as_json(only: [:id, :name]),
     userData: @user_data.as_json(only: [:email])
   }

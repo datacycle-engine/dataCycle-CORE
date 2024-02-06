@@ -179,6 +179,12 @@
       }
     }
 
+    &.ski_resort {
+      &::before {
+        content: '\f2dc'
+      }
+    }
+
     &.zertifizierung::before {
       content: '\f0a3';
     }
@@ -262,6 +268,12 @@
     &.win_tours_rabatt {
       &::before {
         content: '\f153';
+      }
+    }
+
+    &.weather_station {
+      &::before {
+        content: '\f2cb';
       }
     }
   }

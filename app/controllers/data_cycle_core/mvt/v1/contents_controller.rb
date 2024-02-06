@@ -29,7 +29,9 @@ module DataCycleCore
                     fields_parameters: @fields_parameters,
                     classification_trees_parameters: @classification_trees_parameters,
                     cache: permitted_params[:cache].to_s != 'false',
-                    cluster: permitted_params[:cluster].to_s == 'true'
+                    cluster: permitted_params[:cluster].to_s == 'true',
+                    cluster_lines: permitted_params[:clusterLines].to_s == 'true',
+                    cluster_items: permitted_params[:clusterItems].to_s == 'true'
                   ),
                   content_type: request.format
                 )
@@ -60,7 +62,9 @@ module DataCycleCore
                   fields_parameters: @fields_parameters,
                   classification_trees_parameters: @classification_trees_parameters,
                   cache: permitted_params[:cache].to_s != 'false',
-                  cluster: permitted_params[:cluster].to_s == 'true'
+                  cluster: permitted_params[:cluster].to_s == 'true',
+                  cluster_lines: permitted_params[:clusterLines].to_s == 'true',
+                  cluster_items: permitted_params[:clusterItems].to_s == 'true'
                 ),
                 content_type: request.format.to_s
               )
@@ -80,7 +84,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super.union([:x, :y, :z, :bbox, :layerName, :clusterLayerName, :cache, :cluster])
+          super.union([:x, :y, :z, :bbox, :layerName, :clusterLayerName, :cache, :cluster, :clusterLines, :clusterItems])
         end
 
         def prepare_url_parameters

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    data_cycle_core (23.12)
+    data_cycle_core (24.02.1)
       activerecord-postgis-adapter
       acts_as_paranoid
       acts_as_tree
@@ -43,7 +43,7 @@ PATH
       pdfkit
       pg
       premailer
-      puma (< 6)
+      puma
       puma-status
       puma_worker_killer
       rails (~> 6.1)
@@ -363,12 +363,12 @@ GEM
       net-protocol
     net_http_unix (0.2.2)
     nio4r (2.7.0)
-    nokogiri (1.15.5)
+    nokogiri (1.16.2)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.15.5-x86_64-darwin)
+    nokogiri (1.16.2-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.15.5-x86_64-linux)
+    nokogiri (1.16.2-x86_64-linux)
       racc (~> 1.4)
     oauth2 (2.0.9)
       faraday (>= 0.17.3, < 3.0)
@@ -418,7 +418,7 @@ GEM
       byebug (~> 11.0)
       pry (>= 0.13, < 0.15)
     public_suffix (5.0.3)
-    puma (5.6.7)
+    puma (6.4.2)
       nio4r (~> 2.0)
     puma-status (1.6)
       colorize (~> 0.8)

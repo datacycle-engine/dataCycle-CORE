@@ -40,9 +40,11 @@ module DataCycleCore
 
             raise "No external id found! Item:#{raw_data.dig('Id')}, external_key_path: #{external_key_path}" if raw_data.dig(*external_key_path).blank?
 
+            external_key = options.dig(:import, :external_key_prefix).present? ? options.dig(:import, :external_key_prefix) + raw_data.dig(*external_key_path).to_s : raw_data.dig(*external_key_path).to_s
+
             update_item = DataCycleCore::Thing.find_by(
               external_source_id: utility_object.external_source.id,
-              external_key: raw_data.dig(*external_key_path)
+              external_key:
             )
 
             update_hash = {}
@@ -73,7 +75,7 @@ module DataCycleCore
         def self.load_value_for_attribute(attribute)
           case attribute.dig(:type)
           when 'classification'
-            value = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
+            value = DataCycleCore::Classification.joins(primary_classification_alias: [classification_tree: [:classification_tree_label]])
               .where('classification_tree_labels.name = ?', attribute.dig(:tree_label))
               .where('classification_aliases.internal_name = ?', attribute.dig(:value)).first!.id
             [value] || nil
