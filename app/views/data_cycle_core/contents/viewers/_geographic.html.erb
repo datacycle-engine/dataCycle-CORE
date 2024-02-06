@@ -60,7 +60,11 @@
       </span>
       </div>
 
-      <%= perimeter_search_link(value.y, value.x, request.params) %>
+      <%=
+        if DataCycleCore::Feature::ViewMode.allowed?.select{|allowed| allowed=="map"}.present?
+          perimeter_search_link(value.y, value.x, request.params)
+        end
+      %>
 
   <% end %>
 
