@@ -44,7 +44,7 @@ module DataCycleCore
 
         join_external_connections_query = <<-SQL.squish
           INNER JOIN (
-            SELECT DISTINCT on (thing_id) *
+            SELECT DISTINCT ON (thing_id) *
             FROM (
               SELECT
                 external_system_syncs.syncable_id AS thing_id,
@@ -148,6 +148,72 @@ module DataCycleCore
             ON things.id = #{virtual_table_name}.content_data_id
         SQL
         )
+      end
+
+      def first_by_id_or_external_data(id:, external_key:, external_system:, external_system_syncs:)
+        # by id (primary external_system_sync)
+        content = all.find_by(id:) if id.is_a?(::String) && id.uuid?
+
+        # by external_key
+        content ||= all.by_external_key(external_system.id, external_key).first
+
+        # by external_system_syncs for current_instance_identifier
+        content ||= first_by_current_identified_syncs(external_system:, external_system_syncs:)
+
+        # by primary external_system_sync for existing external_systems
+        content ||= first_by_primary_sync(external_system:, external_system_syncs:)
+
+        # by external_system_syncs for existing external_systems
+        content ||= first_by_existing_syncs(external_system:, external_system_syncs:)
+
+        content
+      end
+
+      def first_by_current_identified_syncs(external_system:, external_system_syncs:)
+        return if external_system.nil? || external_system_syncs.blank?
+
+        current_identifiers = Array.wrap(external_system.default_options['current_instance_identifiers'])
+        return if current_identifiers.blank?
+
+        current_ids = Array.wrap(external_system_syncs).filter { |sync| current_identifiers.include?(sync['identifier'] || sync['name']) }.pluck('external_key')
+        return if current_ids.blank?
+
+        all.find_by(id: current_ids)
+      end
+
+      def first_by_primary_sync(external_system:, external_system_syncs:)
+        return if external_system.nil? || external_system_syncs.blank?
+
+        primary_sync = Array.wrap(external_system_syncs).detect { |sync| sync['primary'] }
+
+        return if primary_sync.nil? || primary_sync['external_key'].blank?
+
+        primary_system = DataCycleCore::ExternalSystem.find_by(identifier: primary_sync['identifier'] || primary_sync['name'])
+
+        return if primary_system.nil?
+
+        all.by_external_key(primary_system.id, primary_sync['external_key']).first
+      end
+
+      def first_by_existing_syncs(external_system:, external_system_syncs:)
+        return if external_system.nil? || external_system_syncs.blank?
+
+        current_identifiers = Array.wrap(external_system.default_options['current_instance_identifiers'])
+        external_systems = DataCycleCore::ExternalSystem.where(identifier: Array.wrap(external_system_syncs).map { |sync| sync['identifier'] || sync['name'] }).index_by(&:identifier)
+
+        external_system_syncs.each do |sync|
+          next if sync['external_key'].blank?
+          next if current_identifiers.include?(sync['identifier'] || sync['name'])
+
+          es = external_systems[sync['identifier'] || sync['name']]
+
+          next if es.nil?
+
+          content = all.by_external_key(es.id, sync['external_key']).first
+          return content unless content.nil?
+        end
+
+        nil
       end
 
       # Deprecated: no replacement

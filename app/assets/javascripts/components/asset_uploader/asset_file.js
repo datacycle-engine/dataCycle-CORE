@@ -93,7 +93,7 @@ class AssetFile {
 	}
 	_renderSpecificFields(fields, all = false, primaryAttributeKey = null) {
 		if (all) {
-			this.uploader.files.forEach((file) => {
+			for (const file of this.uploader.files) {
 				file.updateFileField(
 					file.id === this.id
 						? fields
@@ -101,7 +101,7 @@ class AssetFile {
 								(v) => !v.name.includes(`[${primaryAttributeKey}]`),
 						  ),
 				);
-			});
+			}
 
 			this._updateNeighborForms();
 		} else {
@@ -112,11 +112,11 @@ class AssetFile {
 		const neighbors = this.uploader.files.filter((file) => file.id !== this.id);
 
 		window.requestAnimationFrame(() => {
-			neighbors.forEach((file) => {
+			for (const file of neighbors) {
 				file.fileField.trigger("dc:form:importAttributeValues", {
 					attributes: file.attributeFieldValues,
 				});
-			});
+			}
 		});
 	}
 	_getFileExtension() {

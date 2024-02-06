@@ -27,18 +27,15 @@ module DataCycleCore
           end
 
           def license_uri(content:, **_args)
-            if content.association(:collected_classification_contents).loaded? &&
-               content.collected_classification_contents.any? &&
-               content.collected_classification_contents.first.association(:classification_tree_label).loaded? &&
-               content.collected_classification_contents.first.association(:classification_alias).loaded? &&
-               content.collected_classification_contents.first.classification_alias.association(:classification_alias_path).loaded?
-
+            if content.association_cached?(:collected_classification_contents) &&
+               content.collected_classification_contents.present? &&
+               content.collected_classification_contents.all? { |ccc| ccc.association_cached?(:classification_alias) && ccc.classification_alias.association_cached?(:classification_alias_path) && ccc.classification_alias.association_cached?(:classification_tree_label) }
               content.collected_classification_contents
                 .sort_by { |ccc| -ccc.classification_alias&.classification_alias_path&.full_path_ids&.size.to_i }
-                .detect { |ccc| ccc.classification_tree_label.name == 'Lizenzen' }
+                .detect { |ccc| ccc.classification_alias&.classification_tree_label&.name == 'Lizenzen' }
                 &.classification_alias
                 &.uri
-            elsif content.association(:collected_classification_contents).loaded? && content.collected_classification_contents.empty?
+            elsif content.association_cached?(:collected_classification_contents) && content.collected_classification_contents.blank?
               nil
             else
               content.collected_classification_contents

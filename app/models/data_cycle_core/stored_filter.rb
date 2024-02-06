@@ -21,6 +21,7 @@ module DataCycleCore
     scope :by_api_user, ->(user) { where("'#{user.id}' = ANY (api_users)") }
     scope :named, -> { where.not(name: nil) }
     belongs_to :user
+    belongs_to :user_with_deleted, -> { with_deleted }, foreign_key: :user_id, class_name: 'DataCycleCore::User'
 
     has_many :activities, as: :activitiable, dependent: :destroy
 
@@ -36,12 +37,12 @@ module DataCycleCore
 
     before_save :update_slug, if: :update_slug?
 
-    attr_accessor :query
+    attr_accessor :query, :include_embedded
 
     KEYS_FOR_EQUALITY = ['t', 'c', 'n'].freeze
 
     def apply(query: nil, skip_ordering: false, watch_list: nil)
-      self.query = query || DataCycleCore::Filter::Search.new(language&.exclude?('all') ? language : nil)
+      self.query = query || DataCycleCore::Filter::Search.new(language&.exclude?('all') ? language : nil, nil, include_embedded || false)
 
       apply_filter_parameters
       apply_order_parameters(watch_list) unless skip_ordering
@@ -110,6 +111,18 @@ module DataCycleCore
       queries = []
       queries.push(unscoped.where(id: uuids).select(:id).to_sql) if uuids.present?
       queries.push(DataCycleCore::CollectionConfiguration.where.not(stored_filter_id: nil).where(slug: slugs).select(:stored_filter_id).to_sql) if slugs.present?
+
+      where("stored_filters.id IN (#{send(:sanitize_sql_array, [queries.join(' UNION ')])})")
+    end
+
+    def self.by_id_or_name(value)
+      return none if value.blank?
+
+      uuids = Array.wrap(value).filter { |v| v.to_s.uuid? }
+      names = Array.wrap(value)
+      queries = []
+      queries.push(default_scoped.where(id: uuids).select(:id).to_sql) if uuids.present?
+      queries.push(default_scoped.where(name: names).select(:id).to_sql) if names.present?
 
       where("stored_filters.id IN (#{send(:sanitize_sql_array, [queries.join(' UNION ')])})")
     end

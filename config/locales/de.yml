@@ -32,6 +32,8 @@ de:
     key_figures_container: Kennzahlen
     copyright_holder_or_sd_publisher: Rechteinhaber
     universal_classifications: Klassifizierungen
+    copyright_attributes_group: Copyright
+    content_classifications_group: Klassifizierungen
 
   footer_links:
     privacy_policy: Datenschutz
@@ -458,6 +460,8 @@ de:
     create_new_content: Neuen Inhalt erstellen
     data_type: Inhaltstyp
     select_asset: "%{data} auswählen"
+    delete_assets_selected: "Ausgewählte Inhalte löschen"
+    delete_assets_all: "Alle Inhalte löschen"
     select_asset_title: Hochgeladene Dateien
     my_assets: Meine Dateien
     select_assets: Dateien verknüpfen
@@ -534,6 +538,7 @@ de:
       map: Kartenansicht
       events: Events
       gallery: Bildergalerie
+      statistics: Statistik
     user_registration:
       terms_conditions: 'Ich akzeptiere die <a href="%{url}" target="_blank">Allgemeinen Geschäftsbedingungen</a>.'
       privacy_policy: 'Ich bin mit der Verarbeitung meiner Daten laut  <a href="%{url}" target="_blank">Datenschutzerklärung</a> einverstanden.'
@@ -555,6 +560,7 @@ de:
     api_url: API Link
     url: URL
     more_errors: "%{count} weitere Fehler"
+    number: Anzahl
 
   embedded:
     move_down: nach unten verschieben
@@ -575,7 +581,7 @@ de:
     pending: wird synchronisiert
     running: Export getriggert
     error: "Es ist ein Fehler aufgetreten.\nDie Synchronisation wird in bestimmten Intervallen erneut versucht."
-    failure: "Es ist ein schwerer Fehler aufgetreten.\nDer Inhalt kann nich synchronisiert werden."
+    failure: "Es ist ein schwerer Fehler aufgetreten.\nDer Inhalt kann nicht synchronisiert werden."
     export: Externes System
 
   external_connections:
@@ -922,6 +928,7 @@ de:
     width: Breite
     height: Höhe
     upload_date: Uploaddatum
+    internal_content_score: Content Score (intern)
     users_context:
       given_name: Vorname
       family_name: Nachname
@@ -1043,7 +1050,7 @@ de:
     create_from_existing: "Inhalt anhand dieser Vorlage erstellen"
     move_to_container: "Inhalt verschieben"
     move: verschieben
-    geocode: "Geokoordinaten von %{title} übernehmen"
+    geocode: "%{target} von %{source} übernehmen"
     upload_gpx: "GPX-Datei hochladen"
     remove_feature: "Geometrie löschen"
     open_asset: "Datei öffnen"
@@ -1061,6 +1068,8 @@ de:
     back: Zurück
     add_files: Dateien hinzufügen
     delete_file: Datei wirklich löschen?
+    delete_files: Dateien wirklich löschen?
+    delete_all_files: ALLE Dateien wirklich löschen?
     uploaded: hochgeladen
     back_to_select: Zurück zur Auswahl
     delete_translation: "Übersetzung (%{data}) löschen"
@@ -1107,7 +1116,7 @@ de:
       key: "%{data} ist kein gültiges uuid Format."
       boolean: "%{data} ist kein gültiges Boolean Format. (Nur 'true' oder 'false' erlaubt)"
       url: "%{data} ist keine gültige Url (gültiges Beispiel: 'https://www.example.com')."
-      string: "%{template} ist kein String, sondern %{label}."
+      string: "%{label} ist kein String, sondern %{template}."
       geo: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ, oder einen WKT formatierten String."
       geo_no_linestring: "Für diesen Typ müssen mindestens zwei Punkte angegeben werden"
       schedule:
@@ -1172,6 +1181,7 @@ de:
       no_source: "Keine gültige Vorlage angegeben"
       wrong_content_type: Nicht unterstützter Datei-Typ
       missing_parameter: Parameter fehlt!
+      destroy: "Beim Löschen ist ein Fehler aufgetreten."
       duplicate:
         type_mismatch: "Inhalte unterschiedlichen Typs können nicht zusammengeführt werden!"
         cannot_merge_self: Der Inhalt kann nicht mit sich selbst zusammengeführt werden!
@@ -1453,8 +1463,11 @@ de:
         system: Für alle Benutzer sichtbar (gilt auch für die API)
         api: Über API abrufbar
         api_users: Für API zugelassene Benutzer
+        api_users_tooltip: API-Zugriff auf bestimmte User eingeschränkt
         linked_stored_filter_id: Filter für verknüpfte Inhalte
+        linked_stored_filter_id_tooltip: Filter für verknüpfte Inhalte
         classification_tree_labels: Auf Klassifizierungsbäume einschränken
+        classification_tree_labels_tooltip: Auf bestimmte Klassifizierungsbäume eingeschränkt
         name: Name
       data_cycle_core/asset:
         name: Name
@@ -1660,6 +1673,8 @@ de:
         suggestion: Tipps
         additional_information: Zusatzinformationen
         maps: Literatur
+        starting_point_descr: Start
+        destination: Ziel
       ratings:
         technique_rating: Technik
         condition_rating: Kondition
@@ -1816,6 +1831,24 @@ de:
       intro: Kurzbeschreibung
       slogan: Slogan
       text: Beschreibung
+    jugendherberge:
+      titel: Titel
+      teaser: Teaser
+      text: Detailbeschreibung
+    green_solutions:
+      TourMoreInfos_additionalInformation: Zusatzinformationen zur Tour
+      anfahrt: Anfahrt
+      anfahrt_oepnv: Anfahrt öffentlicher Verkehr
+      ausgangspunkt: Ausgangspunkt
+      beschreibung: Beschreibung
+      currentConditions: Aktuelle Gegebenheiten
+      moreInfo: Zusatzinformationen
+      seasonDescription: Saison
+      qualified: geeignet
+      dependent: wetterabhängig
+      roadmap: Streckenstichpunkte
+    museumsportal:
+      opening_hours: Öffungszeiten Beschreibung
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
       <ul class="no-bullet">

@@ -34,9 +34,9 @@ module DataCycleCore
               check_reference(key.id, template)
             else
               (@error[:error][@template_key] ||= []) << {
-                path: 'validation.warnings.data_array_format',
+                path: 'validation.errors.data_array_format',
                 substitutions: {
-                  data: key,
+                  key:,
                   template: template['label']
                 }
               }

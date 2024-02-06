@@ -20,6 +20,8 @@ module DataCycleCore
             ALTER TABLE classification_groups #{transitive_triggers} TRIGGER generate_ccc_relations_transitive_trigger;
             ALTER TABLE classification_groups #{transitive_triggers} TRIGGER update_ccc_relations_transitive_trigger;
             ALTER TABLE classification_groups #{transitive_triggers} TRIGGER update_deleted_at_ccc_relations_transitive_trigger;
+            ALTER TABLE classification_trees #{transitive_triggers} TRIGGER generate_ca_paths_transitive_trigger;
+            ALTER TABLE classification_trees #{transitive_triggers} TRIGGER update_ca_paths_transitive_trigger;
 
             ALTER TABLE classification_alias_paths #{non_transitive_triggers} TRIGGER generate_collected_classification_content_relations_trigger;
             ALTER TABLE classification_alias_paths #{non_transitive_triggers} TRIGGER update_collected_classification_content_relations_trigger;
@@ -32,7 +34,7 @@ module DataCycleCore
             ALTER TABLE classification_groups #{non_transitive_triggers} TRIGGER update_deleted_at_ccc_relations_trigger_4;
           SQL
 
-          DataCycleCore::RunTaskJob.perform_later('db:configure:rebuild_transitive_tables') if update_jobs
+          DataCycleCore::RebuildClassificationMappingsJob.perform_later if update_jobs
         rescue ActiveRecord::NoDatabaseError
           nil
         end

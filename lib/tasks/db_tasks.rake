@@ -99,5 +99,17 @@ namespace :db do
       ActiveRecord::Base.connection.execute('VACUUM (FULL, ANALYZE) classification_alias_paths, classification_alias_paths_transitive, collected_classification_contents;')
       ActiveRecord::Base.connection.execute('VACUUM (ANALYZE) classification_alias_paths, classification_alias_paths_transitive, collected_classification_contents;')
     end
+
+    desc 'rebuild content_content_links'
+    task rebuild_content_content_links: :environment do
+      ActiveRecord::Base.connection.execute <<-SQL.squish
+        SELECT generate_content_content_links(ARRAY_AGG(id)) FROM content_contents;
+      SQL
+
+      next if Rails.env.test?
+
+      ActiveRecord::Base.connection.execute('VACUUM (FULL, ANALYZE) content_content_links;')
+      ActiveRecord::Base.connection.execute('VACUUM (ANALYZE) content_content_links;')
+    end
   end
 end

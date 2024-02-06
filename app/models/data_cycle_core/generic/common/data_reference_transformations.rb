@@ -158,10 +158,10 @@ module DataCycleCore
           end
         end
 
-        def self.load_things(external_source_id, external_keys)
+        def self.load_things(external_source_id, external_key)
           (
-            DataCycleCore::Thing.by_external_key(external_source_id, external_keys).pluck(:external_key, :id) +
-            DataCycleCore::ExternalSystemSync.where(external_system_id: external_source_id, external_key: external_keys)
+            DataCycleCore::Thing.where(external_source_id:, external_key:).pluck(:external_key, :id) +
+            DataCycleCore::ExternalSystemSync.where(external_system_id: external_source_id, external_key:)
                                              .pluck(:external_key, :syncable_id)
           ).uniq.to_h
         end

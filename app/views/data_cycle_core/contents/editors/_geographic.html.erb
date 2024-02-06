@@ -62,12 +62,7 @@
                                     parameters: { options: { force_render: true, prefix: local_assigns.dig(:options, :prefix) } },
                                     content: content if content.collect_properties.flatten.include?('elevation') %>
 
-        <%= link_to t('actions.geocode', locale: active_ui_locale, title: content&.schema&.dig('properties', DataCycleCore::Feature::Geocode.address_source(content), 'label')), '#',
-          class: 'button geocode-address-button',
-          title: t('actions.geocode', locale: active_ui_locale, title: content&.schema&.dig('properties', DataCycleCore::Feature::Geocode.address_source(content), 'label')),
-          data: {
-            locale: I18n.locale.to_s
-          } if attribute_editable?(key, definition, options, content) && DataCycleCore::Feature::Geocode.allowed?(content) %>
+        <%= render 'data_cycle_core/contents/editors/features/geocode_button', content: content if attribute_editable?(key, definition, options, content) && DataCycleCore::Feature::Geocode.allowed?(content) && DataCycleCore::Feature::Geocode.target_key?(key, content) %>
       <% end %>
     </div>
   </div>

@@ -593,6 +593,10 @@ $filter-border: #aaa;
           }
         }
 
+        input[type="checkbox"]:disabled+label {
+          cursor: not-allowed;
+        }
+
         label:before {
           content: 'o';
           text-align: center;
@@ -1284,7 +1288,8 @@ $filter-border: #aaa;
         }
 
         &.search-history-short>ul li {
-          .stored-date {
+          .stored-date,
+          .api-restrictions{
             color: $dark-gray;
             min-width: 10rem;
             flex: 0;
@@ -1295,7 +1300,8 @@ $filter-border: #aaa;
           }
         }
 
-        &.search-favorites-short>ul li .stored-date {
+        &.search-favorites-short>ul li .stored-date,
+        &.search-favorites-short>ul li .api-restrictions {
           color: $dark-gray;
           white-space: nowrap;
           padding: 0.2rem 0.5rem;

@@ -41,6 +41,7 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::Mvt
       include DataCycleCore::Content::Extensions::DefaultValue
       include DataCycleCore::Content::Extensions::ComputedValue
+      include DataCycleCore::Content::Extensions::PropertyPreloader
       prepend DataCycleCore::Content::Extensions::Translation
 
       scope :where_value, ->(attributes) { where(value_condition(attributes), *attributes&.values) }
@@ -84,10 +85,10 @@ module DataCycleCore
 
           if original_name.in?(embedded_property_names) || original_name.in?(linked_property_names)
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
-            get_property_value(original_name, property_definition, args.first, overlay_flag & original_name.in?(overlay_property_names))
+            get_property_value(original_name, property_definition, args.first, overlay_flag && original_name.in?(overlay_property_names))
           else
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
-            get_property_value(original_name, property_definition, nil, overlay_flag & original_name.in?(overlay_property_names))
+            get_property_value(original_name, property_definition, nil, overlay_flag && original_name.in?(overlay_property_names))
           end
         else
           super
@@ -305,6 +306,14 @@ module DataCycleCore
         name_property_selector { |definition| definition.dig('external') }
       end
 
+      def relation_property_names(include_overlay = false)
+        linked_property_names(include_overlay) +
+          embedded_property_names(include_overlay) +
+          classification_property_names(include_overlay) +
+          asset_property_names +
+          schedule_property_names(include_overlay)
+      end
+
       def untranslatable_embedded_property_names
         name_property_selector { |definition| definition['type'] == 'embedded' && definition.dig('translated') }
       end
@@ -354,11 +363,6 @@ module DataCycleCore
 
       def exif_property_names
         name_property_selector { |definition| definition['exif'].present? }
-      end
-
-      def schema_sorted
-        sorted_properties = schema.dig('properties').map { |key, value| { key => value } }.sort_by { |i| i.values.first.dig('sorting') }.inject(&:merge)
-        schema.deep_dup.merge({ 'properties' => sorted_properties })
       end
 
       # returns data the same way, as .as_json
@@ -434,24 +438,27 @@ module DataCycleCore
       def get_property_value(property_name, property_definition, filter = nil, overlay_flag = false)
         key = attibute_cache_key(property_name, filter, overlay_flag)
 
+        # disable preloader
+        # preload_property(property_name, filter, overlay_flag) unless history?
+
         return @get_property_value[key] if @get_property_value&.key?(key)
 
         (@get_property_value ||= {})[key] =
           if virtual_property_names.include?(property_name)
             load_virtual_attribute(property_name, I18n.locale)
-          elsif plain_property_names(true).include?(property_name)
+          elsif plain_property_names.include?(property_name)
             load_json_attribute(property_name, property_definition, overlay_flag)
-          elsif included_property_names(true).include?(property_name)
+          elsif included_property_names.include?(property_name)
             load_included_data(property_name, property_definition, overlay_flag)
-          elsif classification_property_names(true).include?(property_name)
+          elsif classification_property_names.include?(property_name)
             load_classifications(property_name, overlay_flag)
-          elsif linked_property_names(true).include?(property_name)
+          elsif linked_property_names.include?(property_name)
             load_linked_objects(property_name, filter, false, [I18n.locale], overlay_flag)
-          elsif embedded_property_names(true).include?(property_name)
+          elsif embedded_property_names.include?(property_name)
             load_embedded_objects(property_name, filter, !property_definition&.dig('translated'), [I18n.locale], overlay_flag)
           elsif asset_property_names.include?(property_name) # no overlay
             load_asset_relation(property_name)&.first
-          elsif schedule_property_names(true).include?(property_name)
+          elsif schedule_property_names.include?(property_name)
             load_schedule(property_name, overlay_flag)
           elsif timeseries_property_names.include?(property_name)
             load_timeseries(property_name)
@@ -634,12 +641,21 @@ module DataCycleCore
             end
           elsif classification_property_names.include?(key)
             if value.present?
-              DataCycleCore::Classification.where(id: value)
+              DataCycleCore::Classification.where(id: value).order(
+                [
+                  Arel.sql('array_position(ARRAY[?]::uuid[], classifications.id)'),
+                  value
+                ]
+              )
             else
               DataCycleCore::Classification.none
             end
           elsif asset_property_names.include?(key)
             value.present? ? DataCycleCore::Asset.find_by(id: value) : nil
+          elsif schedule_property_names.include?(key)
+            value.present? ? DataCycleCore::Schedule.where(id: value) : DataCycleCore::Schedule.none
+          elsif timeseries_property_names.include?(key)
+            value.present? ? DataCycleCore::Timeseries.where(id: value) : DataCycleCore::Timeseries.none
           else # rubocop:disable Lint/DuplicateBranch
             value
           end
@@ -661,10 +677,17 @@ module DataCycleCore
       end
 
       def attibute_cache_key(key, filter = nil, overlay_flag = false)
-        "#{key}_#{translatable_property?(key) ? I18n.locale : nil}_#{filter&.hash}_#{overlay_flag}"
+        filter = nil if linked_property_names.exclude?(key) && embedded_property_names.exclude?(key)
+
+        "#{key}_#{translatable_property?(key) ? I18n.locale : nil}_#{filter&.hash}_#{overlay_flag && overlay_property_names.include?(key)}"
       end
 
       def reload_memoized(key = nil)
+        remove_instance_variable(:@_current_collection) if instance_variable_defined?(:@_current_collection)
+        remove_instance_variable(:@_current_recursive_collection) if instance_variable_defined?(:@_current_recursive_collection)
+        remove_instance_variable(:@_current_rc_with_leafs) if instance_variable_defined?(:@_current_rc_with_leafs)
+        remove_instance_variable(:@_current_recursive_ccs) if instance_variable_defined?(:@_current_recursive_ccs)
+
         remove_instance_variable(:@datahash_changes) if instance_variable_defined?(:@datahash_changes)
 
         if key.present?

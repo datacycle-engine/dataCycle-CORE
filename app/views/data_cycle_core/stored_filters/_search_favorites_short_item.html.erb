@@ -17,6 +17,25 @@
   <% end %>
 
   <div class="buttons">
+
+    <span class = "api-restrictions">
+      <%=
+        tag.i(class: 'fa fa-user', data: {
+          dc_tooltip: t('activerecord.attributes.data_cycle_core/stored_filter.api_users_tooltip', locale: active_ui_locale)
+        }) if stored_filter.api_users.present? && stored_filter.api_users.length > 0
+      %>
+      <%=
+        tag.i(class: 'fa fa-filter', data: {
+          dc_tooltip: t('activerecord.attributes.data_cycle_core/stored_filter.linked_stored_filter_id_tooltip', locale: active_ui_locale)+ ": "+(DataCycleCore::StoredFilter.find(stored_filter.linked_stored_filter_id).name.to_s)
+        }) if stored_filter.linked_stored_filter_id.present?
+      %>
+      <%=
+        tag.i(class: 'fa fa-sitemap', data: {
+          dc_tooltip: t('activerecord.attributes.data_cycle_core/stored_filter.classification_tree_labels_tooltip', locale: active_ui_locale)
+        }) if stored_filter.classification_tree_labels.present? && stored_filter.classification_tree_labels.length > 0
+      %>
+    </span>
+
     <span class="stored-date"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= l(Time.zone.at(stored_filter.created_at.to_datetime), format: :edit, locale: active_ui_locale) %></span>
 
     <%= render 'data_cycle_core/application/preview/widget_list', content: stored_filter if DataCycleCore::Feature::Preview.enabled? && stored_filter.api %>

@@ -22,9 +22,9 @@ class DataCycle {
 					"> ul.classification-radiobutton-list",
 					"> .form-element > .flatpickr-wrapper > input[type=text].flatpickr-input",
 					"> .geographic > .geographic-map",
-					"> :checkbox",
-					"> :radio",
-					'> :input[type="number"]',
+					'> input[type="checkbox"]',
+					'> input[type="radio "]',
+					'> input[type="number"]',
 					'> .duration-slider > div > input[type="number"]',
 				],
 				retryableHttpCodes: [401, 403, 408, 500, 501, 502, 503, 504, 507, 509],
@@ -165,11 +165,17 @@ class DataCycle {
 		if (!el) return;
 
 		if (innerHTML !== undefined) {
-			el.dataset.dcDisableWith = el.dataset.disableWith;
+			el.dataset.dcDisableWith = el.dataset.disableWith ?? "";
 			el.dataset.disableWith = innerHTML;
-		} else if (el.dataset.dcDisableWith) {
-			el.dataset.disableWith = el.dataset.dcDisableWith;
-			el.dataset.dcDisableWith = undefined;
+		} else if (el.hasAttribute("data-dc-disable-with")) {
+			if (!el.dataset.dcDisableWith) {
+				// biome-ignore lint/performance/noDelete: <explanation>
+				delete el.dataset.disableWith;
+			} else {
+				el.dataset.disableWith = el.dataset.dcDisableWith;
+			}
+			// biome-ignore lint/performance/noDelete: <explanation>
+			delete el.dataset.dcDisableWith;
 		}
 
 		if (!(el.dataset.disable || el.dataset.disableWith))

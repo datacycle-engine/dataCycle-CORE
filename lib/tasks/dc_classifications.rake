@@ -141,6 +141,17 @@ namespace :dc do
 
         puts("SUCCESS: successfully moved classification to new path: #{new_ca.reload.full_path}")
       end
+
+      desc 'sort tree alphabetically'
+      task :sort_alphabetically, [:tree_labels] => [:environment] do |_, args|
+        abort('tree_labels missing!') if args.tree_labels.blank?
+
+        classification_tree_labels = DataCycleCore::ClassificationTreeLabel.where(name: args.tree_labels.split('|').map(&:strip))
+
+        abort('tree_labels not found!') if classification_tree_labels.blank?
+
+        classification_tree_labels.each(&:sort_classifications_alphabetically!)
+      end
     end
 
     namespace :merge do
@@ -165,6 +176,7 @@ namespace :dc do
           .map do |k, v|
             {
               name: k.last,
+              name_i18n: v.pluck(:name_i18n).compact_blank.reduce(&:merge),
               full_path_names: k.reverse + [to_tree_label_name],
               classification_ids: v.flat_map(&:primary_classification).pluck(:id).uniq
             }

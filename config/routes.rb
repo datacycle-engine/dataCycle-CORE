@@ -145,6 +145,8 @@ DataCycleCore::Engine.routes.draw do
       resources :assets, only: [:index, :create, :update, :destroy] do
         get :find, on: :collection
         post :duplicate, on: :member
+        delete :delete, action: 'destroy_multiple', on: :collection
+        delete :delete_all, action: 'destroy_all', on: :collection
       end
     end
 
@@ -396,6 +398,12 @@ DataCycleCore::Engine.routes.draw do
 
                 match 'external_systems/:external_system_id/things/:id', to: 'external_systems_export#show', via: :get
               end
+            end
+          end
+          namespace :config do
+            resources :schema, only: [] do
+              match '/:template_name', action: :show, on: :collection, as: :show, via: [:get, :post]
+              match '/', action: :index, on: :collection, via: [:get, :post]
             end
           end
         end

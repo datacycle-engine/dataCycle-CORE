@@ -91,6 +91,7 @@
         :compute:
           :module: ContentScore
           :method: calculate_from_feature
+          :parameters_path: features.content_score.parameters
           :condition:
             - :type: content
               :name: content_score_allowed?

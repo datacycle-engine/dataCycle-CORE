@@ -47,9 +47,10 @@ module DataCycleCore
 
               Array.wrap(nested_contents_items).each do |nested_data|
                 next if nested_contents_config[:exists].present? && Array.wrap(nested_contents_config[:exists]).map { |path| resolve_attribute_path(nested_data, path).blank? }.inject(:|)
+                next if nested_contents_config[:not_exists].present? && Array.wrap(nested_contents_config[:not_exists]).map { |path| resolve_attribute_path(nested_data, path).present? }.inject(:|)
                 next if nested_content_filter_module && nested_content_filter_method && !nested_content_filter_module.constantize.method(nested_content_filter_method).call(nested_data)
 
-                nested_content_config = nested_contents_config.except(:exists, :path, :json_path, :template, :transformation)
+                nested_content_config = nested_contents_config.except(:exists, :not_exists, :path, :json_path, :template, :transformation)
                 raw_data = raw_data.merge(options.dig(:import, :main_content, :data)) if options.dig(:import, :main_content, :data).present?
                 process_single_content(utility_object, nested_contents_config[:template], transformation, nested_data, nested_content_config)
               end

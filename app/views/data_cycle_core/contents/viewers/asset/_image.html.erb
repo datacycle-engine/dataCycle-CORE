@@ -1,7 +1,7 @@
 <% image ||= value %>
 
 <% unless image.nil? %>
-  <% content_for :additional_asset_metadata, ", #{image.metadata.dig('ImageWidth')}x#{image.metadata.dig('ImageHeight')}", flush: true if image&.metadata.dig('ImageWidth').present? && image&.metadata.dig('ImageHeight').present? %>
+  <% content_for :additional_asset_metadata, ", #{image.metadata.dig('ImageWidth')}x#{image.metadata.dig('ImageHeight')}", flush: true if image&.metadata&.dig('ImageWidth').present? && image&.metadata&.dig('ImageHeight').present? %>
   <% content_for :asset_thumb, flush: true do %>
     <img class="lazyload" data-src="<%= image.try(:thumb_preview)&.url || image.thing&.thumbnail_url || image.file&.url %>" />
   <% end %>

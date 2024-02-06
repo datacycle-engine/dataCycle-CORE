@@ -97,44 +97,77 @@ module DataCycleCore
           templates = {}
 
           @template_paths.each do |core_template_path|
+            template_definitions = []
+
             CONTENT_SETS.each do |content_set_name|
               Dir[File.join(core_template_path, content_set_name.to_s, '*.yml')].each do |path|
-                data_templates = YAML.safe_load(File.open(path.to_s), permitted_classes: [Symbol])
+                data_templates = Array.wrap(YAML.safe_load(File.open(path.to_s), permitted_classes: [Symbol]))
 
                 data_templates.each do |template|
-                  template = template[:data]
-                  transformer = TemplateTransformer.new(template:, content_set: content_set_name, mixins: @mixins)
-                  transformed_data = transformer.transform
-
-                  if (duplicate = templates.dig(content_set_name)&.find { |v| v[:name] == template[:name] }).present?
-                    key = "#{content_set_name}.#{template[:name]}"
-                    @duplicates[key] ||= []
-                    @duplicates[key].push(duplicate[:path])
-                    @duplicates[key].push(path)
-                    @duplicates[key].uniq!
-
-                    duplicate[:path] = path
-                    duplicate[:data] = transformed_data
-
-                    @mixin_paths.delete_if { |s| s.start_with?(key) }
-                  else
-                    templates[content_set_name] ||= []
-                    templates[content_set_name].push({
-                      name: template[:name],
-                      path:,
-                      data: transformed_data
-                    })
-                  end
-
-                  @mixin_paths.concat(transformer.mixin_paths)
+                  template_definitions.push({
+                    path:,
+                    data: template[:data],
+                    set: content_set_name
+                  })
                 end
               rescue StandardError => e
                 @errors.push("error loading YML File (#{path}) => #{e.message}")
               end
             end
+
+            transform_template_definitions!(template_definitions, templates)
           end
 
+          @mixin_paths = templates.values.flatten.flat_map { |v| v[:mixins] }
           @templates = templates
+        end
+
+        def transform_template_definitions!(template_definitions, templates)
+          while template_definitions.present?
+            data_template = template_definitions.shift
+            template = data_template[:data]
+
+            next template_definitions.push(data_template) unless template_dependencies_ready?(template, template_definitions, templates)
+
+            transformer = TemplateTransformer.new(template:, content_set: data_template[:set], mixins: @mixins, templates:)
+            transformed_data = transformer.transform
+
+            data = {
+              name: transformed_data[:name],
+              path: data_template[:path],
+              data: transformed_data,
+              set: data_template[:set],
+              mixins: transformer.mixin_paths
+            }
+
+            if (duplicate = templates.values.flatten.find { |v| v[:name] == data[:name] }).present?
+              merge_duplicate_template!(data:, duplicate:)
+            else
+              templates[data_template[:set]] ||= []
+              templates[data_template[:set]].push(data)
+            end
+          end
+        end
+
+        def template_dependencies_ready?(template, template_definitions, templates)
+          return true unless template.key?(:extends)
+          return false if templates.values.flatten.none? { |v| v[:name] == template[:extends] }
+          return true if template[:name].blank? || template[:name] == template[:extends]
+
+          template_definitions.none? do |v|
+            v.dig(:data, :extends) == template[:extends] &&
+              (v.dig(:data, :name).blank? || v.dig(:data, :name) == v.dig(:data, :extends))
+          end
+        end
+
+        def merge_duplicate_template!(data:, duplicate:)
+          key = "#{data[:set]}.#{data[:name]}"
+          @duplicates[key] ||= []
+          @duplicates[key].push(duplicate[:path])
+          @duplicates[key].push(data[:path])
+          @duplicates[key].uniq!
+
+          duplicate.merge!(data)
         end
       end
     end

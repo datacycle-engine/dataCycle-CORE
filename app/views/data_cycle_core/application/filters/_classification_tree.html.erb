@@ -12,8 +12,7 @@
   <div>
     <ul class="clearfix <%= 'split-list' unless has_children %>">
       <%= render partial: 'data_cycle_core/application/filters/classification_items',
-                  collection: classification_tree
-                    .sort{ |a,b| I18n.with_locale(a.first_available_locale(active_ui_locale)){ a.name } <=> I18n.with_locale(b.first_available_locale(active_ui_locale)){ b.name } },
+                  collection: classification_tree,
                   as: :item,
                   locals: {
                     excluded_types: excluded_types,
