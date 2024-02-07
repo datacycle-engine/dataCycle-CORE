@@ -24,7 +24,7 @@ module DataCycleCore
     def saved_searches
       authorize! :index, DataCycleCore::StoredFilter
 
-      @stored_searches = DataCycleCore::StoredFilter.accessible_by(current_ability).where.not(name: nil).order(:name)
+      @stored_searches = DataCycleCore::StoredFilter.accessible_by(current_ability).or(DataCycleCore::StoredFilter.by_api_user(current_user)).where.not(name: nil).order(:name)
       @search_param = index_params[:q]
 
       if @search_param.present?
