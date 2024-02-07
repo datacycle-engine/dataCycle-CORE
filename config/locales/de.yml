@@ -1572,6 +1572,7 @@ de:
         contents:
           root: Inhalte
           specification: Spezifikation
+          elevation_profile: Höhenprofil
         webhooks:
           root: Webhooks
           json_ld: JSON-LD
