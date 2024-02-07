@@ -22,7 +22,10 @@
           data-after-position="<%= value_to_geojson(options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2) : options.dig(:item_diff, 1), { '@id':'afterValue', name: t('history.active_target', locale: active_ui_locale), color: 'green' })&.to_json %>"
           data-type="<%= (value.presence&.geometry_type || (is_line_string ? 'MultiLineString' : 'Point')).to_s %>"
           data-value="<%= value_to_geojson(value, {'@id': content.id})&.to_json %>"
-          data-additional-values="<%= additional_values&.to_json %>">
+          data-additional-values="<%= additional_values&.to_json %>"
+          data-thing-id="<%= contextual_content(local_assigns)&.id %>"
+          data-has-elevation="<%= is_line_string && content.line.is_3d? && content.line.geometries.any? { |geo| geo.points.any? { |point| point.z&.>0 } } ? true : false %>"
+          >
     </div>
   </div>
 
@@ -51,16 +54,16 @@
       </span>
     </div>
 
-      <div class="detail-type latitude number" data-label="<%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: active_ui_locale) %>">
+    <div class="detail-type latitude number" data-label="<%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: active_ui_locale) %>">
       <span class="detail-label">
         <%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: active_ui_locale) %>
       </span>
-        <span class="detail-content">
+      <span class="detail-content">
         <%= y_html&.html_safe %>
       </span>
-      </div>
+    </div>
 
-      <%=
+    <%=
         if DataCycleCore::Feature::ViewMode.allowed?.select{|allowed| allowed=="map"}.present?
           perimeter_search_link(value.y, value.x, request.params)
         end

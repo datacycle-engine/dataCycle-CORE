@@ -85,4 +85,24 @@
       background-color: var(--dark-gray);
     }
   }
+
+  &.elevation-profile {
+    display: flex;
+    flex-flow: row nowrap;
+
+    .elevation-profile-container {
+      display: none;
+      min-width: 400px;
+      padding: 0.5rem;
+    }
+
+    &.expanded {
+      background-color: rgba(white, 0.8);
+
+      .elevation-profile-container {
+        display: block;
+
+      }
+    }
+  }
 }

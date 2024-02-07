@@ -715,7 +715,7 @@ module DataCycleCore
 
     def elevation_profile
       content = DataCycleCore::Thing.find(elevation_profile_params[:id])
-      @renderer = DataCycleCore::ApiRenderer::ElevationProfileRenderer.new(content:)
+      @renderer = DataCycleCore::ApiRenderer::ElevationProfileRenderer.new(content:, locale: helpers.active_ui_locale)
 
       begin
         render json: @renderer.render

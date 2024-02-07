@@ -128,6 +128,13 @@ en:
         terms_conditions: The terms and conditions have been updated and must be accepted again.
         privacy_policy: The privacy policy has been updated and must be accepted again.
 
+  api_renderer:
+    elevation_profile_renderer:
+      errors:
+        no_geodata: no geodata data found!
+        no_elevation_data: no elevation data found!
+        illegal_combination: Combination Format/dataFormat not allowed
+
   frontend:
     load_error: Error loading content.
     update_browser: "Your web browser does not yet support all necessary features!<br>Please update your web browser."
@@ -187,6 +194,10 @@ en:
       redo: Reapply undone changes
       upload_gpx:
         button_title: Upload GPX file
+      elevation_profile:
+        button_title: "show elevation profile"
+        y_label: sea level
+        x_label: distance
       styles:
         osm: OpenStreetMap
         topo: Topo

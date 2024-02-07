@@ -2,7 +2,7 @@ import ObserverHelpers from "../helpers/observer_helpers";
 
 class DataCycle {
 	constructor(config = {}) {
-		// rome-ignore lint/correctness/noConstructorReturn: <explanation>
+		// biome-ignore lint/correctness/noConstructorReturn: <explanation>
 		if (DataCycle._instance) return DataCycle._instance;
 
 		DataCycle._instance = this;
@@ -151,7 +151,7 @@ class DataCycle {
 				return res.json().catch(() => undefined);
 			}
 
-			if (retries > 0)
+			if (retries > 0 && this.config.retryableHttpCodes.includes(res.status))
 				return this.wait(1000 * (3 / retries)).then(() =>
 					this.httpRequest(mergedUrl, mergedOptions, retries - 1),
 				);

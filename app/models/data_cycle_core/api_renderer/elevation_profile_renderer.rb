@@ -5,22 +5,23 @@ module DataCycleCore
     class ElevationProfileRenderer
       attr_reader :query
 
-      def initialize(content:, data_format: nil)
+      def initialize(content:, locale: I18n.locales.first, data_format: nil)
         @data_format = data_format || 'object'
         @content = content
+        @locale = locale
 
         raise ActiveRecord::RecordNotFound if content.nil?
 
         unless content&.geo_properties&.key?('line') && content.line.present?
           @status_code = :not_found
-          @error = "no geodata data found for #{content.name}(#{content.id})"
+          @error = I18n.t('api_renderer.elevation_profile_renderer.errors.no_geodata', locale: @locale)
           return
         end
 
         return if content.line.is_3d? && content.line.geometries.any? { |geo| geo.points.any? { |point| point.z&.>0 } }
 
         @status_code = :not_found
-        @error = "no elevation data found for #{content.name}(#{content.id})"
+        @error = I18n.t('api_renderer.elevation_profile_renderer.errors.no_elevation_data', locale: @locale)
       end
 
       def render
@@ -32,7 +33,7 @@ module DataCycleCore
       def sql_for_data_format(combined_format)
         return send(combined_format) if respond_to?(combined_format)
 
-        raise Error::RendererError, "Combination Format/dataFormat not allowed: #{combined_format}"
+        raise Error::RendererError, I18n.t('api_renderer.elevation_profile_renderer.errors.illegal_combination', locale: @locale)
       end
 
       def transform_data
