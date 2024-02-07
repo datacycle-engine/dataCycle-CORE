@@ -208,6 +208,8 @@ DataCycleCore::Engine.routes.draw do
     end
   end
 
+  resources :external_systems, only: [:index]
+
   authenticate do
     resources :external_systems, only: [:create] do
       get :render_new_form, on: :collection
