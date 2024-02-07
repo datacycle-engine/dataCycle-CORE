@@ -1,0 +1,9 @@
+<main id="public-importer-list" class="external-system-overview-page">
+  <h1>Importer</h1>
+  <p>Aktuelle Quellsysteme aus denen importiert wird:</p>
+  <ul>
+  <% @importer_names.each do |importer| %>
+    <%= content_tag(:li, importer) %>
+  <% end %>
+  </ul>
+</main>
