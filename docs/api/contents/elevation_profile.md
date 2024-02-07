@@ -4,12 +4,15 @@ In dataCycle gibt es die Möglichkeit, ein Höhenprofil für Routen abzurufen. D
 
 #### HTTP-GET:
 
-_/api/v4/endpoints/<endpoint-id>/<thing-id>/elevation_profile?token=YOUR_ACCESS_TOKEN&dataFormat=object
-
+```url
+_/api/v4/endpoints/<ENDPOINT-ID>/<THING-ID>/elevation_profile?token=<YOUR_ACCESS_TOKEN>&dataFormat=object
+```
 #### HTTP-POST:
 
-_/api/v4/endpoints/<endpoint-id>/<thing-id>/elevation_profile
-
+```url
+_/api/v4/endpoints/<ENDPOINT-ID>/<THING-ID>/elevation_profile
+```
+JSON-Body:
 ```json
 {
   "token": "YOUR_ACCESS_TOKEN",
