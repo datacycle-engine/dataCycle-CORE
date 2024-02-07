@@ -5,7 +5,7 @@ module DataCycleCore
     class ElevationProfileRenderer
       attr_reader :query
 
-      def initialize(content:, locale: I18n.locales.first, data_format: nil)
+      def initialize(content:, locale: I18n.available_locales.first, data_format: nil)
         @data_format = data_format || 'object'
         @content = content
         @locale = locale
