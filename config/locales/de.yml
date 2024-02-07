@@ -1448,6 +1448,7 @@ de:
         longitude: Längengrad
         latitude: Breitengrad
         elevation: Meereshöhe (m)
+        use_geo_for_perimeter_search: Koordinaten für Umkreissuche übernehmen
       data_cycle_core/data_link:
         comment: Kommentar
         permissions: Berechtigungen
