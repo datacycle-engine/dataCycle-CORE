@@ -115,7 +115,7 @@ module DataCycleCore
 
       content = content.try(:image)&.first unless content.respond_to?(:asset)
 
-      attribute = asset_proxy_params.dig(:type) == 'content' && ['Bild', 'ImageVariant'].include?(content.template_name) ? :content_url : :thumbnail_url
+      attribute = asset_proxy_params.dig(:type) == 'content' && ['Bild', 'ImageVariant', 'ImageObject'].include?(content.template_name) ? :content_url : :thumbnail_url
 
       raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
 
