@@ -65,5 +65,23 @@ describe DataCycleCore::MasterData::Differs::Geographic do
         assert_not_nil(subject.new(item[0], item[1]).diff_hash)
       end
     end
+
+    it 'recognizes polygon with different directions as different' do
+      a = geo_factory.polygon(geo_factory.linear_ring([geo_factory.point(10, 20), geo_factory.point(30, 25), geo_factory.point(40, 35), geo_factory.point(10, 20)]))
+      b = geo_factory.polygon(geo_factory.linear_ring([geo_factory.point(10, 20), geo_factory.point(40, 35), geo_factory.point(30, 25), geo_factory.point(10, 20)]))
+
+      [[a, b], [b, a]].each do |item|
+        assert_not_nil(subject.new(item[0], item[1]).diff_hash)
+      end
+    end
+
+    it 'recognizes linestring with different elevations as different' do
+      a = DataCycleCore::MasterData::DataConverter.string_to_geographic('MULTILINESTRING Z ((9.802584 47.150712 500, 9.802617 47.15066 520, 9.802537 47.150632 480))')
+      b = DataCycleCore::MasterData::DataConverter.string_to_geographic('MULTILINESTRING Z ((9.802584 47.150712 0, 9.802617 47.15066 0, 9.802537 47.150632 0))')
+
+      [[a, b], [b, a]].each do |item|
+        assert_not_nil(subject.new(item[0], item[1]).diff_hash)
+      end
+    end
   end
 end
