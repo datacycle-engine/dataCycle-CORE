@@ -151,6 +151,7 @@ module DataCycleCore
         def template_dependencies_ready?(template, template_definitions, templates)
           return true unless template.key?(:extends)
           return false if templates.values.flatten.none? { |v| v[:name] == template[:extends] }
+          return true if template[:name].blank? || template[:name] == template[:extends]
 
           template_definitions.none? do |v|
             v.dig(:data, :extends) == template[:extends] &&
