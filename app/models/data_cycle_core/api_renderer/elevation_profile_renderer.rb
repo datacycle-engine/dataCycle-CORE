@@ -18,7 +18,7 @@ module DataCycleCore
           return
         end
 
-        return if content.line.is_3d? && content.line.geometries.any? { |geo| geo.points.any? { |point| point.z&.>0 } }
+        return if content.elevation_data?('line')
 
         @status_code = :not_found
         @error = I18n.t('api_renderer.elevation_profile_renderer.errors.no_elevation_data', locale: @locale)
