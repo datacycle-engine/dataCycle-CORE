@@ -24,7 +24,7 @@
           data-value="<%= value_to_geojson(value, {'@id': content.id})&.to_json %>"
           data-additional-values="<%= additional_values&.to_json %>"
           data-thing-id="<%= contextual_content(local_assigns)&.id %>"
-          data-has-elevation="<%= is_line_string && content.line.is_3d? && content.line.geometries.any? { |geo| geo.points.any? { |point| point.z&.>0 } } ? true : false %>"
+          data-has-elevation="<%= is_line_string && content.elevation_data?(key) ? true : false %>"
           >
     </div>
   </div>

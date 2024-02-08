@@ -43,6 +43,7 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::ComputedValue
       include DataCycleCore::Content::Extensions::PropertyPreloader
       prepend DataCycleCore::Content::Extensions::Translation
+      prepend DataCycleCore::Content::Extensions::Geo
 
       scope :where_value, ->(attributes) { where(value_condition(attributes), *attributes&.values) }
       scope :where_not_value, ->(attributes) { where.not(value_condition(attributes), *attributes&.values) }
