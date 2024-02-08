@@ -11,12 +11,12 @@ module DataCycleCore
         end
 
         def thumbnail_url
-          return DataCycleCore::Feature::ImageProxy.process_image(content: self, variant: 'thumb') if DataCycleCore::Feature::ImageProxy.frontend_enabled? && ['Bild', 'ImageObject', 'ImageVariant'].include?(template_name)
+          return DataCycleCore::Feature::ImageProxy.process_image(content: self, variant: 'thumb') if DataCycleCore::Feature::ImageProxy.frontend_enabled? && ['Bild', 'ImageObject', 'ImageVariant', 'ImageObjectVariant'].include?(template_name)
           super
         end
 
         def asset_web_url
-          return DataCycleCore::Feature::ImageProxy.process_image(content: self, variant: 'web') if DataCycleCore::Feature::ImageProxy.frontend_enabled? && ['Bild', 'ImageObject', 'ImageVariant'].include?(template_name)
+          return DataCycleCore::Feature::ImageProxy.process_image(content: self, variant: 'web') if DataCycleCore::Feature::ImageProxy.frontend_enabled? && ['Bild', 'ImageObject', 'ImageVariant', 'ImageObjectVariant'].include?(template_name)
           super
         end
       end

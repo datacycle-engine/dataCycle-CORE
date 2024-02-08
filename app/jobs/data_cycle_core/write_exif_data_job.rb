@@ -76,7 +76,7 @@ module DataCycleCore
     end
 
     def update_variants(thing, updated_values)
-      image_variant_property_names = thing.name_property_selector { |definition| definition['type'] == 'embedded' && definition['template_name'] == 'ImageVariant' }
+      image_variant_property_names = thing.name_property_selector { |definition| definition['type'] == 'embedded' && ['ImageVariant', 'ImageObjectVariant'].include?(definition['template_name']) }
       return if image_variant_property_names.blank?
 
       image_variants = thing.send(image_variant_property_names.first)
