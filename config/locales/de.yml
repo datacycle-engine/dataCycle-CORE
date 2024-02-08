@@ -135,6 +135,13 @@ de:
         terms_conditions: Die Allgemeinen Geschäftsbedingungen wurden aktualisiert und müssen erneut akzeptiert werden.
         privacy_policy: Die Datenschutzerklärung wurde aktualisiert und muss erneut akzeptiert werden.
 
+  api_renderer:
+    elevation_profile_renderer:
+      errors:
+        no_geodata: Keine Geodaten gefunden!
+        no_elevation_data: Keine Höheninformationen gefunden!
+        illegal_combination: Diese Kombination von Format und dataFormat ist nicht erlaubt
+
   frontend:
     load_error: Fehler beim Laden des Inhalts.
     update_browser: "Ihr Webbrowser unterstützt noch nicht alle notwendingen Features!<br>Bitte aktualisieren Sie Ihren Webbrowser."
@@ -190,6 +197,10 @@ de:
       redo: Rückgängig gemachte Änderungen erneut anwenden
       upload_gpx:
         button_title: "GPX-Datei hochladen"
+      elevation_profile:
+        button_title: "Höhenprofil anzeigen"
+        y_label: Seehöhe
+        x_label: Entfernung
       styles:
         osm: OpenStreetMap
         topo: Topo
@@ -1572,6 +1583,7 @@ de:
         contents:
           root: Inhalte
           specification: Spezifikation
+          elevation_profile: Höhenprofil
         webhooks:
           root: Webhooks
           json_ld: JSON-LD

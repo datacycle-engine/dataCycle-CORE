@@ -713,6 +713,17 @@ module DataCycleCore
       end
     end
 
+    def elevation_profile
+      content = DataCycleCore::Thing.find(elevation_profile_params[:id])
+      @renderer = DataCycleCore::ApiRenderer::ElevationProfileRenderer.new(content:, locale: helpers.active_ui_locale)
+
+      begin
+        render json: @renderer.render
+      rescue DataCycleCore::ApiRenderer::Error::RendererError => e
+        render json: { error: e.message }, status: e.status_code
+      end
+    end
+
     private
 
     def external_connection_params
@@ -729,6 +740,10 @@ module DataCycleCore
 
     def default_value_params
       params.permit(:template_name, :locale, keys: [], data_hash: {})
+    end
+
+    def elevation_profile_params
+      params.permit(:id)
     end
 
     def set_watch_list

@@ -27,6 +27,7 @@ export default function () {
 	DataCycle.initNewElements(
 		".attribute-content-score:not(.dcjs-content-score)",
 		(e) => {
+			e.classList.add("dcjs-content-score");
 			intersectionObserver.observe(e);
 		},
 	);
