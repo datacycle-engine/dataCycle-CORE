@@ -300,6 +300,11 @@
           .detail-content {
             position: relative;
             display: inline-block;
+
+            &.tags {
+              display: inline-flex;
+              gap: 0.3rem;
+            }
           }
         }
       }
