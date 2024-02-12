@@ -129,6 +129,7 @@
           </dl>
 
           <% if DataCycleCore::Feature::GravityEditor.enabled? &&
+              content.respond_to?(DataCycleCore::Feature::GravityEditor.attribute_keys.first) &&
               can?(:edit, content) && 
               can?(:update, DataCycleCore::DataAttribute.new(DataCycleCore::Feature::GravityEditor.attribute_keys.first, content.properties_for(DataCycleCore::Feature::GravityEditor.attribute_keys.first), {}, content, :update)) %>
             <button 
