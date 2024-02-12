@@ -49,15 +49,12 @@ module DataCycleCore
             )
           else
             # try to find already present content:
-            content = DataCycleCore::Thing.by_external_key(utility_object.external_source.id, data['external_key']).first
-            if content.blank? && data['external_system_data'].present?
-              data['external_system_data'].each do |external_system_entry|
-                external_system = DataCycleCore::ExternalSystem.find_by(identifier: external_system_entry['identifier'] || external_system_entry['name'])
-                next if external_system.blank?
-                next if external_system_entry['external_key'].blank?
-                content ||= DataCycleCore::Thing.by_external_key(external_system&.id, external_system_entry['external_key']).first
-              end
-            end
+            content = DataCycleCore::Thing.first_by_id_or_external_data(
+              id: data['id'],
+              external_key: data['external_key'],
+              external_system: utility_object.external_source,
+              external_system_syncs: data['external_system_data']
+            )
 
             # add external_system_syncs where necessary and return
             if content.present?

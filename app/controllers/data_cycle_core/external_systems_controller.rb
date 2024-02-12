@@ -2,6 +2,10 @@
 
 module DataCycleCore
   class ExternalSystemsController < ApplicationController
+    def index
+      @importer_names = DataCycleCore::ExternalSystem.where("config->>'import_config' IS NOT NULL").where(deactivated: false).pluck(:name)
+    end
+
     def authorize
       @external_source = ExternalSystem.find(params[:id])
 

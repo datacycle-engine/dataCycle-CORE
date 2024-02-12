@@ -116,6 +116,26 @@ module DataCycleCore
       end
     end
 
+    def perimeter_search_link(lat, lon, params_hash)
+      params_hash['f'] = { rand(1000) => {
+        'c' => 'a',
+        'm' => 'i',
+        'q' => 'geo_radius',
+        't' => 'geo_filter',
+        'n' => 'geo_radius',
+        'v' => {
+          'lat' => lat,
+          'lon' => lon,
+          'distance' => nil
+        }
+      }}
+
+      params_hash['controller'] = 'data_cycle_core/backend'
+      params_hash['action'] = 'index'
+
+      button_to t('activerecord.attributes.data_cycle_core/place.use_geo_for_perimeter_search', locale: active_ui_locale), params_hash.except(:id, :watch_list_id, :locale, :stored_filter), class: 'button info', type: 'default', name: 'button'
+    end
+
     def valid_mode(mode)
       case mode
       when 'list', 'tree', 'map' then mode

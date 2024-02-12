@@ -21,14 +21,15 @@ module DataCycleCore
           preloaded = preload_sync_data if preloaded.blank?
 
           data = languages.index_with do |lang|
-            I18n.with_locale(lang) { to_sync_h(locales:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:) }
+            Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{lang}_#{updated_at.to_i}_#{cache_valid_since.to_i}", expires_in: 1.year + Random.rand(7.days)) do
+              I18n.with_locale(lang) { to_sync_h(locales:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:) }
+            end
           end
 
-          attribute_to_sync_h('included', preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, locales: languages)
-          attribute_to_sync_h('classifications', preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:)
+          add_sync_included_data(data:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, locales: languages) unless embedded?
 
           if ancestor_ids.any?(&ancestor_proc)
-            data['recursive'] = ancestor_ids.reject(&ancestor_proc).filter { |a| a[:attribute_name]&.in?(data[languages.first].keys) }
+            data['recursive'] = ancestor_ids.reject(&ancestor_proc).filter { |a| a[:attribute_name]&.in?(data[languages.first].keys) }.uniq
             return data.deep_stringify_keys!
           end
 
@@ -54,24 +55,16 @@ module DataCycleCore
           property_name_with_overlay = "#{property_name}_#{overlay_name}" if overlay_property_names.include?(property_name) && property_name != 'id'
 
           if plain_property_names.include?(property_name)
-            Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{I18n.locale}_#{updated_at.to_i}_#{cache_valid_since.to_i}_#{property_name}", expires_in: 1.year + Random.rand(7.days)) do
-              send(property_name_with_overlay)&.as_json
-            end
+            send(property_name_with_overlay)&.as_json
           elsif classification_property_names.include?(property_name)
-            Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{I18n.locale}_#{updated_at.to_i}_#{cache_valid_since.to_i}_#{property_name}", expires_in: 1.year + Random.rand(7.days)) do
-              send(property_name).try(:pluck, :id)
-            end
+            send(property_name_with_overlay).try(:pluck, :id)
           elsif linked_property_names.include?(property_name)
-            Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{I18n.locale}_#{updated_at.to_i}_#{cache_valid_since.to_i}_#{property_name}", expires_in: 1.year + Random.rand(7.days)) do
-              return [] if properties_for(property_name)['link_direction'] == 'inverse'
+            return [] if properties_for(property_name)['link_direction'] == 'inverse'
 
-              get_property_value(property_name, property_definitions[property_name], nil, present_overlay).pluck(:id) || []
-            end
+            get_property_value(property_name, property_definitions[property_name], nil, present_overlay).pluck(:id) || []
           elsif included_property_names.include?(property_name)
-            Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{I18n.locale}_#{updated_at.to_i}_#{cache_valid_since.to_i}_#{property_name}", expires_in: 1.year + Random.rand(7.days)) do
-              embedded_hash = send(property_name_with_overlay).to_h
-              embedded_hash.presence
-            end
+            embedded_hash = send(property_name_with_overlay).to_h
+            embedded_hash.presence
           elsif embedded_property_names.include?(property_name)
             return if property_name == overlay_name
             translated = properties_for(property_name)['translated']
@@ -80,59 +73,79 @@ module DataCycleCore
             translated = property_definitions[property_name]['translated']
             embedded_array&.map { |i| i.to_sync_data(translated:, locales:, preloaded:, ancestor_ids:, included:, classifications:, attribute_name: property_name) }&.compact || []
           elsif asset_property_names.include?(property_name)
-            # send(property_name_with_overlay) # do nothing --> only import url not asset itself
+          # send(property_name_with_overlay) # do nothing --> only import url not asset itself
           elsif schedule_property_names.include?(property_name)
-            Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{I18n.locale}_#{updated_at.to_i}_#{cache_valid_since.to_i}_#{property_name}", expires_in: 1.year + Random.rand(7.days)) do
-              schedule_array = send(property_name_with_overlay)
+            schedule_array = send(property_name_with_overlay)
 
-              schedule_array&.map { |schedule| schedule.to_h.except(:thing_id) }&.compact || []
-            end
-          elsif property_name == 'included'
-            linked_property_names.each do |linked|
-              next if properties_for(linked)['link_direction'] == 'inverse'
-              present_overlay = overlay_property_names.include?(linked)
-              property_name_with_overlay = linked
-              property_name_with_overlay = "#{linked}_#{overlay_name}" if overlay_property_names.include?(linked)
-              linked_array = get_property_value(linked, property_definitions[linked], nil, present_overlay)
-              linked_array&.each do |i|
-                data = i.to_sync_data(preloaded:, ancestor_ids:, included:, classifications:, attribute_name: linked)&.merge({ attribute_name: [linked] })
-
-                existing = included.detect { |item| item.dig(locales&.first&.to_s || I18n.locale.to_s, 'id') == i.id }
-
-                if existing.present?
-                  existing[:attribute_name].push(linked) unless existing[:attribute_name].include?(linked)
-                elsif data.present?
-                  included.unshift(data)
-                end
-              end
-            end
-          elsif property_name == 'classifications'
-            classification_property_names&.each do |classification_property_name|
+            schedule_array&.map { |schedule| schedule.to_h.except(:thing_id) }&.compact || []
+          elsif property_name == 'mapped_classifications'
+            classification_property_names&.map { |classification_property_name|
               classification_property_name_overlay = classification_property_name
               classification_property_name_overlay = "#{classification_property_name}_#{overlay_name}" if overlay_property_names.include?(classification_property_name)
+              send(classification_property_name_overlay)&.map { |classification|
+                mapped_ids = classification.additional_classification_aliases.map(&:id)
+                preloaded['classifications']
+                  &.filter { |_k, v| v[:classification_alias_id].in?(mapped_ids) }
+                  &.keys
+              }.presence&.flatten
+            }&.compact&.flatten
+          else
+            raise StandardError, "Can not determine how to serialize #{property_name} for sync_api."
+          end
+        end
 
-              value = send(classification_property_name_overlay).map(&:id)
+        def add_sync_included_data(data:, preloaded:, ancestor_ids:, included:, classifications:, locales:)
+          data&.each_value do |translation|
+            translation&.each do |key, value|
+              if embedded_property_names.include?(key) && value.present?
+                value.each do |v|
+                  embedded_id = v&.values&.first&.dig('id')
+                  next if embedded_id.nil?
+                  new_ancestor_ids = ancestor_ids + [{ id: embedded_id, attribute_name: key }]
 
-              preloaded['classifications']
-                &.values_at(*value)
-                &.each do |c_data|
-                  existing = classifications.detect { |c| c['id'] == c_data.dig(:classification_hash, 'id') }
+                  preloaded.dig('contents', embedded_id)&.add_sync_included_data(data: v, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, locales:)
+                end
+
+                next
+              end
+
+              if linked_property_names.include?(key) && value.present?
+                value.each do |linked_id|
+                  existing = included.detect { |item| locales.any? { |l| item.dig(l.to_s, 'id') == linked_id } }
 
                   if existing.present?
-                    existing['attribute_name'].push(classification_property_name) unless existing['attribute_name'].include?(classification_property_name)
+                    existing[:attribute_name].push(key) unless existing[:attribute_name].include?(key)
+                  else
+                    data = preloaded.dig('contents', linked_id)&.to_sync_data(preloaded:, ancestor_ids:, included:, classifications:, attribute_name: key)&.merge({ attribute_name: [key] })
+                    included.unshift(data) if data.present?
+                  end
+                end
+              end
+
+              if classification_property_names.include?(key) && value.present?
+                value.each do |classification_id|
+                  existing = classifications.detect { |c| c['id'] == classification_id }
+                  c_data = preloaded.dig('classifications', classification_id)
+
+                  next if c_data.blank?
+
+                  if existing.present?
+                    existing['attribute_name'].push(key) unless existing['attribute_name'].include?(key)
                   else
                     classifications.unshift(
                       c_data[:classification_hash]&.merge({
                         'ancestors' => c_data[:ancestors],
-                        'attribute_name' => [classification_property_name]
+                        'attribute_name' => [key]
                       })
                     )
                   end
 
                   mapped_ids = c_data[:classification].additional_classification_aliases.map(&:id)
+
                   preloaded['classifications']
-                    .filter { |_k, v| v[:classification_alias_id].in?(mapped_ids) }
                     .each_value do |v|
+                      next unless mapped_ids.include?(v[:classification_alias_id])
+
                       existing = classifications.detect { |c| c['id'] == v.dig(:classification_hash, 'id') }
 
                       if existing.present?
@@ -147,22 +160,8 @@ module DataCycleCore
                       end
                     end
                 end
+              end
             end
-          elsif property_name == 'mapped_classifications'
-            Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{I18n.locale}_#{updated_at.to_i}_#{cache_valid_since.to_i}_#{property_name}", expires_in: 1.year + Random.rand(7.days)) do
-              classification_property_names&.map { |classification_property_name|
-                classification_property_name_overlay = classification_property_name
-                classification_property_name_overlay = "#{classification_property_name}_#{overlay_name}" if overlay_property_names.include?(classification_property_name)
-                send(classification_property_name_overlay)&.map { |classification|
-                  mapped_ids = classification.additional_classification_aliases.map(&:id)
-                  preloaded['classifications']
-                    &.filter { |_k, v| v[:classification_alias_id].in?(mapped_ids) }
-                    &.keys
-                }.presence&.flatten
-              }&.compact&.flatten
-            end
-          else
-            raise StandardError, "Can not determine how to serialize #{property_name} for sync_api."
           end
         end
 
@@ -354,6 +353,11 @@ module DataCycleCore
               )
             end
           end
+        end
+
+        private
+
+        def add_included_data
         end
       end
     end

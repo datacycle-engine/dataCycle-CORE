@@ -32,6 +32,8 @@ de:
     key_figures_container: Kennzahlen
     copyright_holder_or_sd_publisher: Rechteinhaber
     universal_classifications: Klassifizierungen
+    copyright_attributes_group: Copyright
+    content_classifications_group: Klassifizierungen
 
   footer_links:
     privacy_policy: Datenschutz
@@ -133,6 +135,13 @@ de:
         terms_conditions: Die Allgemeinen Geschäftsbedingungen wurden aktualisiert und müssen erneut akzeptiert werden.
         privacy_policy: Die Datenschutzerklärung wurde aktualisiert und muss erneut akzeptiert werden.
 
+  api_renderer:
+    elevation_profile_renderer:
+      errors:
+        no_geodata: Keine Geodaten gefunden!
+        no_elevation_data: Keine Höheninformationen gefunden!
+        illegal_combination: Diese Kombination von Format und dataFormat ist nicht erlaubt
+
   frontend:
     load_error: Fehler beim Laden des Inhalts.
     update_browser: "Ihr Webbrowser unterstützt noch nicht alle notwendingen Features!<br>Bitte aktualisieren Sie Ihren Webbrowser."
@@ -188,6 +197,10 @@ de:
       redo: Rückgängig gemachte Änderungen erneut anwenden
       upload_gpx:
         button_title: "GPX-Datei hochladen"
+      elevation_profile:
+        button_title: "Höhenprofil anzeigen"
+        y_label: Seehöhe
+        x_label: Entfernung
       styles:
         osm: OpenStreetMap
         topo: Topo
@@ -1453,6 +1466,7 @@ de:
         longitude: Längengrad
         latitude: Breitengrad
         elevation: Meereshöhe (m)
+        use_geo_for_perimeter_search: Koordinaten für Umkreissuche übernehmen
       data_cycle_core/data_link:
         comment: Kommentar
         permissions: Berechtigungen
@@ -1576,6 +1590,7 @@ de:
         contents:
           root: Inhalte
           specification: Spezifikation
+          elevation_profile: Höhenprofil
         webhooks:
           root: Webhooks
           json_ld: JSON-LD
@@ -1851,6 +1866,9 @@ de:
       seasonDescription: Saison
       qualified: geeignet
       dependent: wetterabhängig
+      roadmap: Streckenstichpunkte
+    museumsportal:
+      opening_hours: Öffungszeiten Beschreibung
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
       <ul class="no-bullet">

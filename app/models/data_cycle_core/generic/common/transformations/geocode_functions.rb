@@ -16,7 +16,7 @@ module DataCycleCore
           end
 
           def self.reverse_geocode(data)
-            return data unless Feature::Geocode.reverse_geocode_enabled? && data&.key?('location') && data['address'].compact_blank.blank?
+            return data unless Feature::Geocode.reverse_geocode_enabled? && data&.key?('location') && data['address']&.compact_blank.blank?
 
             address_hash = Feature::Geocode.reverse_geocode(data['location'])
 

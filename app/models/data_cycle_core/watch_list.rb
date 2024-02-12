@@ -135,7 +135,7 @@ module DataCycleCore
         .update_all(['order_a = array_position(ARRAY[?]::uuid[], hashable_id)', order_array])
     end
 
-    def concatenated_path_names
+    def path
       Array.wrap(full_path_names) + [name]
     end
 

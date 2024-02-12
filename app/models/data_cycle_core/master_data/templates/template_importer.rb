@@ -95,10 +95,9 @@ module DataCycleCore
 
         def load_templates
           templates = {}
+          template_definitions = []
 
           @template_paths.each do |core_template_path|
-            template_definitions = []
-
             CONTENT_SETS.each do |content_set_name|
               Dir[File.join(core_template_path, content_set_name.to_s, '*.yml')].each do |path|
                 data_templates = Array.wrap(YAML.safe_load(File.open(path.to_s), permitted_classes: [Symbol]))
@@ -114,9 +113,9 @@ module DataCycleCore
                 @errors.push("error loading YML File (#{path}) => #{e.message}")
               end
             end
-
-            transform_template_definitions!(template_definitions, templates)
           end
+
+          transform_template_definitions!(template_definitions, templates)
 
           @mixin_paths = templates.values.flatten.flat_map { |v| v[:mixins] }
           @templates = templates

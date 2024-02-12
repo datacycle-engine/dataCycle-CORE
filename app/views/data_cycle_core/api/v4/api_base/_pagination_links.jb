@@ -18,7 +18,7 @@ unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
       id: endpoint.id,
       name: endpoint.name,
       slug: endpoint.slug,
-      path: endpoint.try(:concatenated_path_names)
+      path: endpoint.try(:path)
     }.compact_blank
   end
 end

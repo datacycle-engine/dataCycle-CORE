@@ -31,6 +31,8 @@ en:
       other: Tour ratings
     key_figures_container: Key figures
     universal_classifications: Classifications
+    copyright_attributes_group: Copyright
+    content_classifications_group: Classifications
 
   footer_links:
     privacy_policy: Privacy policy
@@ -126,6 +128,13 @@ en:
         terms_conditions: The terms and conditions have been updated and must be accepted again.
         privacy_policy: The privacy policy has been updated and must be accepted again.
 
+  api_renderer:
+    elevation_profile_renderer:
+      errors:
+        no_geodata: no geodata data found!
+        no_elevation_data: no elevation data found!
+        illegal_combination: Combination Format/dataFormat not allowed
+
   frontend:
     load_error: Error loading content.
     update_browser: "Your web browser does not yet support all necessary features!<br>Please update your web browser."
@@ -185,6 +194,10 @@ en:
       redo: Reapply undone changes
       upload_gpx:
         button_title: Upload GPX file
+      elevation_profile:
+        button_title: "show elevation profile"
+        y_label: sea level
+        x_label: distance
       styles:
         osm: OpenStreetMap
         topo: Topo
@@ -1446,6 +1459,7 @@ en:
         longitude: Longitude
         latitude: Latitude
         elevation: Sea level (m)
+        use_geo_for_perimeter_search: Use coordinates for perimeter search
       data_cycle_core/data_link:
         comment: Comment
         permissions: Permissions
@@ -1864,6 +1878,9 @@ en:
       seasonDescription: Season
       qualified: qualified
       dependent: dependent
+      roadmap: Roadmap
+    museumsportal:
+      opening_hours: Opening hours description
   media_archive:
     allowed_html:
       '<h4>Restrictions</h4> <ul class="no-bullet"> <li><b>Image:</b>

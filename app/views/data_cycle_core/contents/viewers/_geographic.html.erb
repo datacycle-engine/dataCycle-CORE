@@ -22,7 +22,10 @@
           data-after-position="<%= value_to_geojson(options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2) : options.dig(:item_diff, 1), { '@id':'afterValue', name: t('history.active_target', locale: active_ui_locale), color: 'green' })&.to_json %>"
           data-type="<%= (value.presence&.geometry_type || (is_line_string ? 'MultiLineString' : 'Point')).to_s %>"
           data-value="<%= value_to_geojson(value, {'@id': content.id})&.to_json %>"
-          data-additional-values="<%= additional_values&.to_json %>">
+          data-additional-values="<%= additional_values&.to_json %>"
+          data-thing-id="<%= contextual_content(local_assigns)&.id %>"
+          data-has-elevation="<%= is_line_string && content.elevation_data?(key) ? true : false %>"
+          >
     </div>
   </div>
 
@@ -59,6 +62,13 @@
         <%= y_html&.html_safe %>
       </span>
     </div>
+
+    <%=
+        if DataCycleCore::Feature::ViewMode.allowed?.select{|allowed| allowed=="map"}.present?
+          perimeter_search_link(value.y, value.x, request.params)
+        end
+      %>
+
   <% end %>
 
   <% if content.try(:elevation).present? && content.elevation.nonzero? %>

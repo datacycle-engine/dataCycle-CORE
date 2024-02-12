@@ -43,6 +43,7 @@ module DataCycleCore
       include DataCycleCore::Content::Extensions::ComputedValue
       include DataCycleCore::Content::Extensions::PropertyPreloader
       prepend DataCycleCore::Content::Extensions::Translation
+      prepend DataCycleCore::Content::Extensions::Geo
 
       scope :where_value, ->(attributes) { where(value_condition(attributes), *attributes&.values) }
       scope :where_not_value, ->(attributes) { where.not(value_condition(attributes), *attributes&.values) }
@@ -269,10 +270,10 @@ module DataCycleCore
         @computed_property_names[include_overlay]
       end
 
-      def resolved_computed_dependencies(key)
-        if computed_property_names.include?(key)
+      def resolved_computed_dependencies(key, datahash = {})
+        if computed_property_names.include?(key) && !datahash&.key?(key)
           Array.wrap(properties_for(key)&.dig('compute', 'parameters')).map { |p|
-            resolved_computed_dependencies(p.split('.').first)
+            resolved_computed_dependencies(p.split('.').first, datahash)
           }.flatten.uniq
         else
           [key]

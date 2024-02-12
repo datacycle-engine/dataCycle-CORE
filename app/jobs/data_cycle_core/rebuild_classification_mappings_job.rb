@@ -30,6 +30,7 @@ module DataCycleCore
 
       ActionCable.server.broadcast('rebuild_classification_mappings', { type: 'lock', message_path: 'dash_board.maintenance.classification_mappings.started' })
       Rake::Task['db:configure:rebuild_transitive_tables'].invoke
+      Rake::Task['db:configure:rebuild_transitive_tables'].reenable
       ActionCable.server.broadcast('rebuild_classification_mappings', { type: 'unlock', message_path: 'dash_board.maintenance.classification_mappings.finished' })
     rescue StandardError
       ActionCable.server.broadcast('rebuild_classification_mappings', { type: 'unlock', message_path: 'dash_board.maintenance.classification_mappings.error', message_type: 'alert' })
