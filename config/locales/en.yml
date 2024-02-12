@@ -256,6 +256,11 @@ en:
       edit_image: edit image
       unsupported_format: The image will be converted to a supported file format by the image editor.
       save_error: The image could not be saved
+    gravity_edito:
+      success_set: "Gravity was successfully set to %{data}"
+      success_reset: "Gravity was successfully reset"
+      error: "Gravity could not be set"
+      hint: "The 'smart' option is used by default if no other option has been selected."
 
   schedule:
     dtstart: Start time
@@ -1075,6 +1080,7 @@ en:
     clear: "remove all contents from %{data}"
     remove_content_from: "Remove %{name} from %{collection}?"
     remove_from: "remove from %{collection}"
+    set_gravity: "Set image gravity"
 
   validation:
     errors:

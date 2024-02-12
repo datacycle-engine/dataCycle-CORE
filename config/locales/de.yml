@@ -258,6 +258,11 @@ de:
       edit_image: Bild bearbeiten
       unsupported_format: Das Bild wird vom Bild-Editor in ein unterstützes Dateiformat konvertiert.
       save_error: Das Bild konnte nicht gespeichert werden
+    gravity_editor:
+      success_set: "Bildausschnitt wurde erfolgreich auf %{data} gesetzt"
+      success_reset: "Bildausschnitt wurde erfolgreich zurückgesetzt"
+      error: "Bildausschnitt konnte nicht gesetzt werden"
+      hint: "Standardmäßig wird die Option 'smart' verwendet, sofern keine andere Option ausgewählt wurde."
 
   schedule:
     dtstart: Startzeitpunkt
@@ -1109,6 +1114,8 @@ de:
     clear: "Alle Inhalte aus %{data} entfernen"
     remove_content_from: "%{name} aus %{collection} entfernen?"
     remove_from: "aus %{collection} entfernen"
+    set_gravity: "Bildausschnitt festlegen (Gravity)"
+    deactivate_gravity_editor: "Bearbeitung beenden"
 
   validation:
     errors:
