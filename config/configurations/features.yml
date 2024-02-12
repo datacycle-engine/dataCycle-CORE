@@ -572,3 +572,8 @@
 
 :transitive_classification_path:
   :enabled: false
+
+:gravity_editor:
+  :enabled: false
+  :attribute_keys:
+    - gravity
