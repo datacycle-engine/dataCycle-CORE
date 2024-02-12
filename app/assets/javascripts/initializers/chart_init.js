@@ -11,8 +11,6 @@ function checkForNewVisibleElements(entries, observer) {
 	for (const entry of entries) {
 		if (!entry.isIntersecting) continue;
 
-		console.log("checkForNewVisibleElements");
-
 		observer.unobserve(entry.target);
 		ElevationProfileChart().then((mod) => new mod.default(entry.target));
 	}

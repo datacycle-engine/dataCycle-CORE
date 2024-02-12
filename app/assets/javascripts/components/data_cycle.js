@@ -151,7 +151,11 @@ class DataCycle {
 				return res.json().catch(() => undefined);
 			}
 
-			if (retries > 0 && this.config.retryableHttpCodes.includes(res.status))
+			if (
+				retries > 0 &&
+				this.config.retryableHttpCodes.includes(res.status) &&
+				import.meta.env.PROD
+			)
 				return this.wait(1000 * (3 / retries)).then(() =>
 					this.httpRequest(mergedUrl, mergedOptions, retries - 1),
 				);

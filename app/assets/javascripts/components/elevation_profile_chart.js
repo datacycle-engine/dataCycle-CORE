@@ -59,7 +59,6 @@ class ElevationProfileChart {
 	}
 	initEvents() {}
 	async initChart() {
-		console.log("initChart", this.datasets);
 		if (!this.chartCanvas) this.renderChartCanvas();
 		if (!this.datasets.length) return;
 

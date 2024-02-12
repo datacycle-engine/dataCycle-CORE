@@ -31,7 +31,7 @@ class MapLibreGlViewer {
 		this.value = this.$container.data("value");
 		this.beforeValue = this.$container.data("before-position");
 		this.afterValue = this.$container.data("after-position");
-		this.type = this.$container.data("type");
+		this.type = this.$container.data("type") || "Collection";
 		this.additionalValues = this.$container.data("additionalValues") || {};
 		this.additionalValuesOverlay = this.$container.data(
 			"additionalValuesOverlay",
@@ -1128,10 +1128,10 @@ class MapLibreGlViewer {
 		return ["concat", "start_", ["get", "color"]];
 	}
 	isPoint() {
-		return this.type.includes("Point");
+		return this.type?.includes("Point");
 	}
 	isLineString() {
-		return this.type.includes("LineString");
+		return this.type?.includes("LineString");
 	}
 }
 
