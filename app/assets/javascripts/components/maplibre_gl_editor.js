@@ -159,7 +159,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 	}
 	availableControlsByType() {
 		if (this.isPoint()) return ["trash", "draw_point"];
-		else if (this.isLineString()) {
+		if (this.isLineString()) {
 			const options = ["trash", "draw_line_string"];
 
 			if (this.routingOptions?.type)
@@ -375,7 +375,7 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 			// TODO: catch error and show some warning "Uncaught Error: Invalid LngLat latitude value: must be between -90 and 90"
 			valid =
 				valid &&
-				!isNaN(element) &&
+				!Number.isNaN(element) &&
 				((index === 0 && element >= -180.0 && element <= 180.0) ||
 					(index === 1 && element >= -90.0 && element <= 90.0));
 		});
