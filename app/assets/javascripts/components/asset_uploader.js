@@ -80,9 +80,9 @@ class AssetUploader {
 		const parsedAssets = this.parseAssetsForImport(data.assets);
 
 		if (parsedAssets.length) {
-			parsedAssets.forEach((f) => {
+			for (const f of parsedAssets) {
 				this.checkFileAndQueue(f.file, f);
-			});
+			}
 		}
 	}
 	parseAssetsForImport(assets) {
@@ -240,9 +240,9 @@ class AssetUploader {
 				name: "thing[uploader_field_id]",
 				value: file.id,
 			});
-			attributeValues.forEach((a) => {
+			for (const a of attributeValues) {
 				a.name = `${a.name.slice(0, 5)}[${i}]${a.name.slice(5)}`;
-			});
+			}
 
 			if (attributeValues)
 				for (const data of attributeValues)

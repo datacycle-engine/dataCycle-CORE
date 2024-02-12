@@ -1,40 +1,11 @@
 class DragAndDropField {
 	constructor(container) {
 		container.classList.add("dcjs-drag-and-drop-field");
-		this.container = $(container);
-		this.uploaderRevealId = this.container.data("asset-uploader");
-		this.uploaderReveal = $(`#${this.container.data("asset-uploader")}`);
-		this.fileField = this.container.find("input.content-upload-field");
-
-		this.init();
-	}
-	init() {
-		if (!this.isAdvancedUpload) return;
-		if (!this.fileField.length)
-			this.fileField = this.uploaderReveal.find(
-				'input[type="file"].upload-file',
-			);
-
-		this.initDragAndDropEvents(
-			this.container[0].querySelector(".drag-and-drop-field"),
-		);
-		if (this.uploaderReveal.length)
-			for (const field of this.uploaderReveal[0].querySelectorAll(
-				".drag-and-drop-field",
-			))
-				this.initDragAndDropEvents(field);
-
-		this.fileField.on("change", (e) => {
-			e.preventDefault();
-			e.stopPropagation();
-
-			this.openUploaderReveal(e.target.files);
-		});
-	}
-	initDragAndDropEvents(field) {
-		if (!field) return;
-
-		for (const type of [
+		this.container = container;
+		this.uploaderRevealId = this.container.dataset.assetUploader;
+		this.uploaderReveal = document.getElementById(this.uploaderRevealId);
+		this.fileField = this.container.querySelector("input.content-upload-field");
+		this.dragEvents = [
 			"drag",
 			"dragstart",
 			"dragend",
@@ -42,7 +13,42 @@ class DragAndDropField {
 			"dragenter",
 			"dragleave",
 			"drop",
-		])
+		];
+
+		this.init();
+	}
+	init() {
+		if (!this.isAdvancedUpload) return;
+		if (!this.fileField)
+			this.fileField = this.uploaderReveal.querySelector(
+				'input[type="file"].upload-file',
+			);
+
+		this.initDragAndDropEvents(
+			this.container.querySelector(".drag-and-drop-field"),
+		);
+
+		if (this.uploaderReveal) {
+			for (const field of this.uploaderReveal.querySelectorAll(
+				".drag-and-drop-field",
+			)) {
+				this.initDragAndDropEvents(field);
+			}
+		}
+
+		this.fileField.addEventListener("change", (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+
+			this.openUploaderReveal(e.target.files);
+		});
+	}
+	initDragAndDropEvents(field) {
+		if (!field || field.classList.contains("dcjs-drag-and-drop")) return;
+
+		field.classList.add("dcjs-drag-and-drop");
+
+		for (const type of this.dragEvents)
 			field.addEventListener(type, (e) => {
 				e.preventDefault();
 				e.stopPropagation();
@@ -66,7 +72,7 @@ class DragAndDropField {
 			e.preventDefault();
 			e.stopPropagation();
 
-			this.fileField.trigger("click");
+			$(this.fileField).trigger("click");
 		});
 	}
 	openUploaderReveal(files) {
