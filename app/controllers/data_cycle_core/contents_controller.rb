@@ -111,7 +111,7 @@ module DataCycleCore
     # used in api with image proxy
     def asset
       content = DataCycleCore::Thing.find(params[:id])
-      raise ActiveRecord::RecordInvalid if content.template_name == 'Audio'
+      raise ActiveRecord::RecordInvalid if ['Audio', 'AudioObject'].include?(content.template_name)
 
       content = content.try(:image)&.first unless content.respond_to?(:asset)
 
