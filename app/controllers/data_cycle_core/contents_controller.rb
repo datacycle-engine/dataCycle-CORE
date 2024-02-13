@@ -186,9 +186,8 @@ module DataCycleCore
         end
 
         @content = DataCycleCore::DataHashService.create_internal_object(params[:template], object_params, current_user, parent_params[:parent_id], source)
-
         if @content.try(:errors).present?
-          flash.now[:error] = @content.errors.full_messages
+          flash[:error] = @content.errors.full_messages # rubocop:disable Rails/ActionControllerFlashBeforeRender
         elsif @content.present?
           flash[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale)
         end
