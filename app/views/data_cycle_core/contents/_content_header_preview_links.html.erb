@@ -1,0 +1,28 @@
+<% random_id = SecureRandom.hex(10) %>
+
+<a data-toggle="<%= random_id %>"><i class="fa fa-eye" aria-hidden="true"></i></a>
+<div class="dropdown-pane no-bullet bottom" id="<%= random_id %>" data-dropdown>
+
+  <h5><%= t('common.preview_links', locale: active_ui_locale) %></h5>
+
+<ul class="list-items">
+  <% content.try(:output_channel).to_a.each do |channel| %>
+    <%
+      uri = channel.uri ||DataCycleCore::ClassificationAlias.find_by_internal_name(channel.name).present? ? DataCycleCore::ClassificationAlias.find_by_internal_name(channel.name).uri : nil
+    %>
+    <% if uri.present? %>
+      <li class="active">
+        <a class="available-attribute-locale" href="<%= uri+request_params %>">
+          <%= channel.name %>
+        </a>
+
+        <span class="buttons">
+          <a href="<%= uri+request_params %>">
+            <i class="fa fa-share" aria-hidden="true"></i>
+          </a>
+        </span>
+      </li>
+      <% end %>
+  <% end %>
+</ul>
+</div>

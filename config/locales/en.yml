@@ -580,6 +580,7 @@ en:
     url: URL
     more_errors: "%{count} more errors"
     number: number
+    preview_links: Preview links
 
   embedded:
     move_down: move down
