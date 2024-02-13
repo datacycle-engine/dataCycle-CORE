@@ -39,12 +39,14 @@ module DataCycleCore
 
       def generate_csv(file_extension: 'csv', separator: ';', mime_type: 'text/csv')
         options = { col_sep: separator }
-        csv_string = CSV.generate(options) do |csv|
+        csv_string = CSV.generate(**options) do |csv|
           csv << translated_headings
+
           @data.to_a.each do |value|
             csv << value.values
           end
         end
+
         return csv_string, { filename: "#{@params.dig(:key) || 'report'}.#{file_extension}", disposition: 'attachment', type: mime_type }
       end
 
