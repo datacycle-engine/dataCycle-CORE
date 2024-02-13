@@ -1,5 +1,7 @@
 <% random_id = SecureRandom.hex(10) %>
 
+<% request_params = "?" + param_hash_to_param_string(request_params_hash) %>
+
 <a data-toggle="<%= random_id %>"><i class="fa fa-eye" aria-hidden="true"></i></a>
 <div class="dropdown-pane no-bullet bottom" id="<%= random_id %>" data-dropdown>
 

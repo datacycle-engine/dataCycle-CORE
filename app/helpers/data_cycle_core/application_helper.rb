@@ -551,6 +551,5 @@ module DataCycleCore
     def param_hash_to_param_string(request_params_hash)
       request_params_hash.to_query
     end
-
   end
 end
