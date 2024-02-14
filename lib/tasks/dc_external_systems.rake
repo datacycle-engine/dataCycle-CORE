@@ -18,11 +18,12 @@ namespace :dc do
 
     desc 'import and update all template definitions'
     task import: :environment do
+      tmp = Time.zone.now
       puts "importing new external_system configs\n"
       errors = DataCycleCore::MasterData::ImportExternalSystems.import_all
 
       if errors.blank?
-        puts('[done] ... looks good')
+        puts("[done] ... looks good (Duration: #{(Time.zone.now - tmp).round} sec)")
       else
         puts 'the following errors were encountered during import:'
         ap errors
