@@ -34,7 +34,16 @@ module DataCycleCore
 
           return @errors.concat(@validator.errors) unless @validator.valid?
 
-          update_templates
+          ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+            begin
+              update_templates
+              update_schema_types
+            rescue StandardError => e
+              @errors.push("import error => #{e}")
+            end
+
+            raise ActiveRecord::Rollback if @errors.present?
+          end
         end
 
         def validate
@@ -91,6 +100,23 @@ module DataCycleCore
               updated_at: Time.zone.now
             }
           end, unique_by: :template_name)
+        end
+
+        def update_schema_types
+          schema_types = []
+          tree_label = DataCycleCore::ClassificationTreeLabel.create_with(internal: true).find_or_create_by!(name: 'SchemaTypes')
+
+          DataCycleCore::ThingTemplate.where.not(content_type: 'embedded').find_each do |thing_template|
+            thing_template.schema_types.each do |types|
+              next if schema_types.any? { |st| st[:full_path_names] == types }
+
+              schema_types.push({
+                path: types
+              })
+            end
+          end
+
+          tree_label.insert_all_classifications_by_path(schema_types)
         end
 
         def load_templates

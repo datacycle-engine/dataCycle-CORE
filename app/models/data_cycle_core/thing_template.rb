@@ -49,6 +49,17 @@ module DataCycleCore
       content
     end
 
+    def schema_types
+      schema_ancestors.map do |ancestors|
+        ancestors.push("dcls:#{template_name}") if ancestors.last != template_name
+        ancestors
+      end
+    end
+
+    def schema_ancestors
+      Array.wrap(schema&.[]('schema_ancestors')).deep_dup.then { |a| a.present? && !a.all?(::Array) ? [a] : a }
+    end
+
     def self.template_things
       all.map(&:template_thing)
     end
