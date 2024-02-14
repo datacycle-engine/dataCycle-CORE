@@ -114,7 +114,7 @@ module DataCycleCore
       redirect_back(fallback_location: root_path, alert: I18n.t('feature.download.missing_serialize_format', locale: helpers.active_ui_locale)) && return if serialize_formats.blank?
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_formats}" unless DataCycleCore::Feature::Download.enabled_serializers_for_download?(@object, [:archive, :indesign], serialize_formats)
 
-      asset_items = @object.linked_contents.where(template_name: 'Bild').to_a.select do |thing|
+      asset_items = @object.linked_contents.where(template_name: ['Bild', 'ImageObject']).to_a.select do |thing|
         can?(:download, thing)
       end
 
@@ -197,8 +197,8 @@ module DataCycleCore
       query = query.watch_list_id(@watch_list.id)
       download_items = []
       query.to_a.select do |thing|
-        download_items += [thing] if thing.template_name == 'Bild' && can?(:download, thing)
-        items = thing.linked_contents.where(template_name: 'Bild').to_a.select do |linked_item|
+        download_items += [thing] if ['Bild', 'ImageObject'].include?(thing.template_name) && can?(:download, thing)
+        items = thing.linked_contents.where(template_name: ['Bild', 'ImageObject']).to_a.select do |linked_item|
           can?(:download, linked_item)
         end
         download_items += items

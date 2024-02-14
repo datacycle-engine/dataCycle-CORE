@@ -7,7 +7,7 @@ data_value = load_value_object(content, key, value, options[:languages], api_pro
 
 if DataCycleCore::DataHashService.present?(data_value)
   json[key.camelize(:lower)] = data_value
-  json['license'] = data_value if content.template_name.in?(['Bild', 'Video', 'Audio']) || content.schema_ancestors.flatten.include?('CreativeWork')
+  json['license'] = data_value if content.template_name.in?(['Bild', 'Video', 'Audio', 'ImageObject', 'VideoObject', 'AudioObject']) || content.schema_ancestors.flatten.include?('CreativeWork')
 end
 
 json

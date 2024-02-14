@@ -1,0 +1,45 @@
+<% I18n.with_locale(item.first_available_locale(local_assigns[:language], active_ui_locale)) do %>
+
+  <div class="inner-item">
+    <div class="content-row">
+      <%= link_to thing_path(item, watch_list_id: @watch_list&.id, locale: I18n.locale), class: 'content-link' do %>
+        <span class="type <%= item.template_name.downcase %>">
+          <% if DataCycleCore::Feature::ImageProxy.frontend_enabled? %>
+            <% mini_thumb_url = DataCycleCore::Feature::ImageProxy.mini_thumb_url(content: item) %>
+            <figure class="mini-preview-image">
+              <img data-src="<%= mini_thumb_url %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= item.thumbnail_url %>' />" />
+            </figure>
+          <% else %>
+            <%= render 'data_cycle_core/shared/icon', icon_type: item.template_name.underscore_blanks, icon_class: item.try(:icon_class) || item.class.name.demodulize.underscore_blanks %>
+          <% end %>
+          <span><%= item.translated_template_name(active_ui_locale) %></span>
+          <span class="locale">(<%= I18n.locale.to_s %>)</span>
+        </span>
+
+        <span class="title" title="<%= item.title %>"><%= item.title %></span>
+
+        <%= render 'data_cycle_core/contents/grid/attributes/event_period', local_assigns if item.try(:start_date).present? || item.try(:end_date).present? %>
+        <% if item.respond_to?(:is_valid?) && !item.try(:is_valid?) %>
+          <span class="validity_period">
+            <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: item} %>
+          </span>
+        <% end %>
+      <% end %>
+    </div>
+
+    <a class="toggle-details" data-toggle="content-details-<%= item.id %>"></a>
+
+    <% if content_for?(:media_buttons) %>
+      <div class="buttons">
+        <%= yield_content!(:media_buttons) %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="content-details remote-render"
+    id="content-details-<%= item.id %>"
+    data-remote-render-function="render_content_tile_details"
+    data-remote-render-params="<%= to_query_params(item: item, mode: 'list').to_json %>"
+    data-remote-options="<%= to_query_params(locale: I18n.locale.to_s, language: local_assigns[:language]).to_json %>">
+  </div>
+<% end %>

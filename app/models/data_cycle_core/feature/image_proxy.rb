@@ -7,7 +7,7 @@ module DataCycleCore
   module Feature
     class ImageProxy < Base
       class << self
-        SUPPORTED_CONTENT_TYPES = ['Bild', 'ImageVariant', 'Video', 'PDF'].freeze
+        SUPPORTED_CONTENT_TYPES = ['Bild', 'ImageObject', 'ImageVariant', 'ImageObjectVariant', 'VideoObject', 'Video', 'PDF'].freeze
         SUPPORTED_FILE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'avif', 'webp', 'gif'].freeze
 
         def data_hash_module

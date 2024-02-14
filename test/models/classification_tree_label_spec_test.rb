@@ -157,7 +157,7 @@ describe DataCycleCore::ClassificationTreeLabel do
       .map do |k, v|
         {
           name: k.last,
-          full_path_names: k.reverse + [tree_two.name],
+          path: k,
           classification_ids: v.flat_map(&:primary_classification).pluck(:id).uniq
         }
       end

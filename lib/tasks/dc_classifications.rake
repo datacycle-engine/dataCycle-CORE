@@ -177,7 +177,7 @@ namespace :dc do
             {
               name: k.last,
               name_i18n: v.pluck(:name_i18n).compact_blank.reduce(&:merge),
-              full_path_names: k.reverse + [to_tree_label_name],
+              path: k,
               classification_ids: v.flat_map(&:primary_classification).pluck(:id).uniq
             }
           end

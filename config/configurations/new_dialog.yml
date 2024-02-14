@@ -37,3 +37,22 @@
   :copyright:
     - copyright_holder **list
     - validity_period
+:image_object:
+  :title:
+    - name **list
+    - caption
+    - description
+    - tags
+  :copyright:
+    - copyright_holder **list
+    - author **list
+    - validity_period
+:video_object:
+  :title:
+    - name **list
+    - caption
+    - description
+    - tags
+  :copyright:
+    - copyright_holder **list
+    - validity_period
