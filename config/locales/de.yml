@@ -21,6 +21,23 @@ de:
 
   template_names:
     skos:Concept: Klassifizierung
+    Article: Artikel
+    dcls:AdditionalDescription: Beschreibungstext
+    AudioObject: Audio
+    ImageObject: Bild
+    VideoObject: Video
+    dcls:ExternalVideo: Video (extern)
+    dcls:PDF: PDF
+    Event: Veranstaltung
+    EventSeries: Veranstaltungsreihe
+    Organization: Organisation
+    LocalBusiness: Betrieb
+    FoodEstablishment: Gastronomischer Betrieb
+    LodgingBusiness: Beherbergungsbetrieb
+    Person: Person
+    Place: Ort
+    Accommodation: Zimmer / Apartment
+    TouristAttraction: POI
 
   attribute_labels:
     additional_information:
