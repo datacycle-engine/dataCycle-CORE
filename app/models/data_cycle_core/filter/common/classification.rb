@@ -36,6 +36,18 @@ module DataCycleCore
           )
         end
 
+        def with_classification_paths(paths)
+          return self if paths.blank?
+
+          classification_alias_ids_with_subtree(DataCycleCore::ClassificationAlias.by_full_paths(paths).pluck(:id))
+        end
+
+        def not_with_classification_paths(paths)
+          return self if paths.blank?
+
+          not_classification_alias_ids_with_subtree(DataCycleCore::ClassificationAlias.by_full_paths(paths).pluck(:id))
+        end
+
         def with_classification_aliases_and_treename(definition)
           return self if definition.blank?
           raise StandardError, 'Missing data definition: treeLabel' if definition.dig('treeLabel').blank?
