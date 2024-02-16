@@ -1687,6 +1687,9 @@ de:
       package:
         PackageShortText: Kurzbeschreibung
         Package: Beschreibung
+    hrs:
+      text: Beschreibung
+      description: Kurzbeschreibung
     outdoor_active:
       place:
         directions: Anfahrt
