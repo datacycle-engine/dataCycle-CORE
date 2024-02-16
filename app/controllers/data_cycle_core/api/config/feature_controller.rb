@@ -8,12 +8,7 @@ module DataCycleCore
 
         def index
           features = Array.wrap(DataCycleCore.features)
-          render json: api_response_format(features) { features }
-        end
-
-
-        def permitted_parameter_keys
-          super + [:id]
+          render json: api_response_format(features) { features }.to_json
         end
 
         private
