@@ -72,14 +72,18 @@
             &.has-changes {
 
               &.new.bild .thumbnail,
+              &.new.image-object .thumbnail,
               &.new.video .thumbnail,
+              &.new.video-object .thumbnail,
               &.new:not(.image) {
                 background-color: rgba($success-color, 0.3) !important;
                 box-shadow: 0 0 1px darken($success-color, 20%);
               }
 
               &.remove.bild .thumbnail,
+              &.remove.image-object .thumbnail,
               &.remove.video .thumbnail,
+              &.remove.video-object .thumbnail,
               &.remove:not(.image) {
                 background-color: rgba($alert-color, 0.2) !important;
                 box-shadow: 0 0 1px $alert-color;

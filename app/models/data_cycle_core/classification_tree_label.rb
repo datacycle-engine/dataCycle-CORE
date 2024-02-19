@@ -287,7 +287,9 @@ module DataCycleCore
           NOW(),
           NOW()
         FROM classification_trees_data ON conflict (classification_alias_id)
-        WHERE deleted_at IS NULL DO NOTHING;
+        WHERE deleted_at IS NULL DO
+        UPDATE
+        SET parent_classification_alias_id = EXCLUDED.parent_classification_alias_id;
       SQL
 
       ActiveRecord::Base.connection.execute(
