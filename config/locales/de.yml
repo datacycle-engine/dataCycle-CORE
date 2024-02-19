@@ -22,12 +22,13 @@ de:
   template_names:
     skos:Concept: Klassifizierung
     Article: Artikel
-    dcls:AdditionalDescription: Beschreibungstext
+    AdditionalDescription: Beschreibungstext
     AudioObject: Audio
     ImageObject: Bild
     VideoObject: Video
-    dcls:ExternalVideo: Video (extern)
-    dcls:PDF: PDF
+    MediaObject: Datei
+    ExternalVideo: Video (extern)
+    PDF: PDF
     Event: Veranstaltung
     EventSeries: Veranstaltungsreihe
     Organization: Organisation
@@ -38,6 +39,7 @@ de:
     Place: Ort
     Accommodation: Zimmer / Apartment
     TouristAttraction: POI
+    Trail: Tour
 
   attribute_labels:
     additional_information:
