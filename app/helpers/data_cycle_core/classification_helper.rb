@@ -156,13 +156,13 @@ module DataCycleCore
 
     def simple_classification_select_options(value, classification_items, expected_type = DataCycleCore::ClassificationAlias, disabled_proc = nil)
       value = Array.wrap(value).compact
-
       options_for_select(
         classification_items
-          &.where&.not(internal_name: DataCycleCore.excluded_filter_classifications)
           &.map { |c|
             ca = expected_classification_alias(c)
             next if ca.nil?
+
+            next if ca.classification_alias_path&.full_path_names&.last == 'Inhaltstypen' && DataCycleCore.excluded_filter_classifications.include?(ca.internal_name)
 
             [
               ca.internal_name,

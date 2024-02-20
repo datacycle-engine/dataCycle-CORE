@@ -1,0 +1,5 @@
+FirstTree:
+  "FirstTree > Tag 1": "SecondTree > Tag 1"
+  "FirstTree > Tag 2":
+    - "SecondTree > Tag 2"
+    - "SecondTree > Tag 3"

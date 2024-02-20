@@ -1,0 +1,43 @@
+<% I18n.with_locale(item.first_available_locale(local_assigns[:language], active_ui_locale)) do %>
+  <div class="row">
+    <div class="small-3 columns">
+      <div class="thumbnails large">
+        <% if item.try(:image).is_a?(ActiveRecord::Relation) %>
+          <% item.image.presence&.includes(:translations)&.each do |image| %>
+            <img data-src="<%= image.thumbnail_url %>" alt="<%= image.title %>" class="lazyload" data-dc-tooltip="<img src='<%= image.thumbnail_url %>' />" />
+          <% end %>
+        <% elsif item.try(:thumbnail_url).present? %>
+          <img data-src="<%= item.thumbnail_url %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= item.thumbnail_url %>' />" />
+        <% elsif item.try(:image).is_a?(String) && item.try(:image).present? %>
+          <img data-src="<%= item.image %>" alt="<%= item.title %>" class="lazyload" data-dc-tooltip="<img src='<%= item.image %>' />" />
+        <% end %>
+      </div>
+    </div>
+    <div class="small-9 columns">
+      <% if item.try(:desc).present? %>
+        <div class="description">
+          <h5><%= t('list_titles.teaser', locale: active_ui_locale) %></h5>
+          <%= sanitize(item.desc) %>
+        </div>
+      <% end %>
+
+      <% if item.try(:text).present? %>
+        <div class="text <%= 'show-more' if item.text.size > 140 %>">
+          <h5><%= t('list_titles.text', locale: active_ui_locale) %></h5>
+          <div class="closed <%= 'hidden' if item.text.size < 140 %>">
+            <%= sanitize(strip_links(truncate(item.try(:text), length: 140, separator: " ", escape: false))) %>
+          </div>
+          <div class="open">
+            <%= sanitize(strip_links(item.try(:text))) %>
+          </div>
+          <a href="#" class="show-more-link">
+            <span class="open"><%= t('common.show_less', locale: active_ui_locale) %></span>
+            <span class="closed"><%= t('common.show_more', locale: active_ui_locale) %></span>
+          </a>
+        </div>
+      <% end %>
+
+      <%= render 'data_cycle_core/contents/grid/attributes/tags', item: item, classification_tree_visibility: 'list' if item.try(:display_classification_aliases, 'list').present? %>
+    </div>
+  </div>
+<% end %>

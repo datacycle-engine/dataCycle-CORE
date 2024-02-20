@@ -21,12 +21,12 @@ module DataCycleCore
             if content.schema_ancestors.present?
               content.schema_ancestors.each do |path|
                 schema_types.concat(
-                  find_or_create_classification(transform_path(path, content), property_definition['tree_label'], true)
+                  find_classification(transform_path(path, content), property_definition['tree_label'])
                 )
               end
             elsif content.schema_type.present?
               schema_types.concat(
-                find_or_create_classification(transform_path([content.schema_type], content), property_definition['tree_label'], true)
+                find_classification(transform_path([content.schema_type], content), property_definition['tree_label'])
               )
             end
 
@@ -75,7 +75,7 @@ module DataCycleCore
             path
           end
 
-          def find_or_create_classification(path, tree_label_name, internal = false)
+          def find_classification(path, tree_label_name)
             return [] if path.blank? || tree_label_name.blank?
 
             DataCycleCore::ClassificationAlias
@@ -85,7 +85,6 @@ module DataCycleCore
               .primary_classifications
               .limit(1)
               .pluck(:id)
-              .presence || Array.wrap(DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label_name)&.create_classification_alias(*path.map { |p| { name: p, internal: } })&.primary_classification&.id).compact
           end
         end
       end

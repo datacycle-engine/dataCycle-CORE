@@ -30,6 +30,16 @@ module DataCycleCore
 
             aliases&.map { |ca| ca.send(key) || ca.internal_name }
           end
+
+          def to_mapped_value(virtual_parameters:, content:, virtual_definition:, **_args)
+            values = virtual_parameters&.map { |v| content.try(v)&.pluck(:name) }&.flatten&.map { |v| virtual_definition.dig('virtual', 'mapping', v) }
+
+            if virtual_definition['type'] == 'boolean'
+              values&.first
+            else
+              values
+            end
+          end
         end
       end
     end

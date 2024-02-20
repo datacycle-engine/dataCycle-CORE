@@ -133,7 +133,7 @@ module DataCycleCore
 
         def self.replace_references(data, external_reference_mapping_table, classification_mapping_table)
           if data.is_a?(ExternalReference)
-            external_reference_mapping_table.dig(data.reference_type, data.external_source_id, data.external_key)
+            external_reference_mapping_table.dig(data.reference_type, data.external_source_id, data.external_key&.to_s)
           elsif data.is_a?(ClassificationNameReference)
             classification_mapping_table[data.classification_path]
           elsif data.is_a?(Hash)

@@ -3239,7 +3239,9 @@ section.duplicate-candidates {
     .content.image,
     .content.bild,
     .content.bild-filmcommission,
-    .content.video {
+    .content.image-object,
+    .content.video,
+    .content.video-object {
       box-shadow: 0 0 0 1px rgba($dark-gray, 0.5) inset;
       padding: 1px 0.65rem 0.65rem;
 

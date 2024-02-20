@@ -46,6 +46,7 @@
     }
 
     &.artikel,
+    &.article,
     &.standard_artikel,
     &.strukturierter_artikel,
     &.radroutenbeschreibung,
@@ -57,6 +58,7 @@
       }
     }
 
+    &.image_object,
     &.bild,
     &.foto-serie {
       &::before {
@@ -136,6 +138,8 @@
       content: '\f007';
     }
 
+    &.place,
+    &.tourist_attraction,
     &.content_location,
     &.ortlichkeit,
     &.poi {
@@ -144,12 +148,14 @@
       }
     }
 
+    &.lodging_business,
     &.unterkunft {
       &::before {
         content: '\f236';
       }
     }
 
+    &.food_establishment,
     &.gastronomischer_betrieb {
       &::before {
         content: '\f0f5';
@@ -189,6 +195,7 @@
       content: '\f0a3';
     }
 
+    &.video_object,
     &.video,
     &.video_serie,
     &.webcam,
@@ -212,8 +219,11 @@
       }
     }
 
-    &.audio::before {
-      content: '\f1c7';
+    &.audio_object,
+    &.audio {
+      &::before {
+        content: '\f1c7';
+      }
     }
 
     &.vkzeit::before {
@@ -227,6 +237,7 @@
       }
     }
 
+    &.accommodation,
     &.hotel,
     &.wintours_-_hotel,
     &.hotel_-_zimmer,

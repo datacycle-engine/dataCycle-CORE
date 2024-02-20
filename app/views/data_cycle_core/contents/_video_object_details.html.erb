@@ -1,0 +1,148 @@
+<% if content.present? %>
+
+  <div class="detail-content imageobject">
+
+    <div class="row align-center">
+
+      <div class="image">
+
+        <% if content.try(:content_url).present? %>
+          <%
+            thumbnail_url = content.try(:thumbnail_image)&.first&.thumbnail_url || content.try(:asset_web_url) || content.try(:thumbnail_url)
+          %>
+          <div class="image-container stripes">
+            <div data-vjs-player>
+              <video class="video-js" poster="<%= thumbnail_url %>">
+                <source src="<%= content.try(:content_url) %>" type="video/mp4">
+                Your browser does not support the video tag
+              </video>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="image-data">
+          <h5>Details</h5>
+          <dl>
+            <% ['caption', 'description', 'transcript'].each do |property_name| %>
+              <% next if content.properties_for(property_name).blank? %>
+              <dd>
+                <%= render_attribute_viewer key: property_name,
+                                                            definition: content.properties_for(property_name),
+                                                            value: content.try(property_name.to_sym),
+                                                            parameters: { options: {} },
+                                                            content: content %>
+              </dd>
+            <% end %>
+
+            <% ['content_location', 'comment', 'source', 'image_id', 'visibility'].each do |property_name| %>
+              <% next if content.try(property_name.to_sym).blank? %>
+              <dd>
+                <%= render_attribute_viewer key: property_name,
+                                                            definition: content.schema['properties'][property_name],
+                                                            value: content.try(property_name.to_sym),
+                                                            parameters: {options: {}},
+                                                            content: content %>
+              </dd>
+            <% end %>
+
+            <% if ['copyright_notice_override', 'copyright_notice_computed', 'contributor', 'director', 'copyright_holder', 'copyright_year', 'restrictions'].any?{|val| content.try(val.to_sym).present? } %>
+
+              <dt>
+                <i class="fa fa-copyright" aria-hidden="true"></i> Copyright
+              </dt>
+
+              <% ['copyright_notice_override', 'copyright_notice_computed', 'contributor', 'director', 'copyright_holder', 'copyright_year'].each do |property_name| %>
+                <% next if content.try(property_name.to_sym).blank? %>
+                <dd>
+                  <%= render_attribute_viewer key: property_name,
+                                                                definition: content.schema['properties'][property_name],
+                                                                value: content.try(property_name.to_sym),
+                                                                parameters: {options: {}},
+                                                                content: content %>
+                </dd>
+              <% end %>
+
+              <% if !content.try(:restrictions).nil? && !content.try(:restrictions).blank? %>
+                <dt><i class="fa fa-info-circle" aria-hidden="true"></i> <%= content.schema['properties']['restrictions']['label'] %></dt>
+                <dd>
+                  <%= render_attribute_viewer key: 'restrictions',
+                                                                definition: content.schema['properties']['restrictions'],
+                                                                value: content.restrictions,
+                                                                parameters: { options: {hide_label: true}},
+                                                                content: content %>
+                </dd>
+              <% end %>
+
+            <% end %>
+
+            <% if ['width', 'height', 'content_size', 'file_format', 'duration', 'video_frame_size', 'video_quality', 'date_created', 'date_modified', 'upload_date', 'publication_date', 'video_start_time', 'preview_image_start_time'].any?{|val| content.try(val.to_sym).present? } %>
+
+              <dt><i class="fa fa-info-circle" aria-hidden="true"></i> Video - Informationen</dt>
+              <dd><%= content.width&.to_i %>px/<%= content.height&.to_i %>px, <%= number_to_human_size(content.content_size) %><br />
+                <strong>Format:</strong> <%= content.file_format %>
+              </dd>
+
+              <% ['duration', 'video_frame_size', 'video_quality', 'date_created', 'date_modified', 'upload_date', 'publication_date', 'video_start_time', 'preview_image_start_time'].each do |property_name| %>
+                <% next if content.try(property_name.to_sym).blank? %>
+                <dd>
+                  <%= render_attribute_viewer key: property_name,
+                                                                definition: content.schema['properties'][property_name],
+                                                                value: content.try(property_name.to_sym),
+                                                                parameters: {options: {}},
+                                                                content: content %>
+                </dd>
+              <% end %>
+
+            <% end %>
+
+            <dt><i class="fa fa-external-link-square" aria-hidden="true"></i> Video-URLs</dt>
+            <dd>
+
+              <% if content.try(:url).present? %>
+
+                <a class="button button-small" href="<%= content.url %>" target="_blank">
+                  <i class="fa fa-external-link" aria-hidden="true"></i>
+
+                  <%= t('details.bild.open_url', locale: active_ui_locale) %>
+                </a>
+              <% end %>
+
+              <% if content.try(:youtube_url).present? %>
+
+                <a class="button button-small" href="<%= content.youtube_url %>" target="_blank">
+                  <i class="fa fa-external-link" aria-hidden="true"></i>
+
+                  <%= t('details.bild.open_youtube_url', locale: active_ui_locale) %>
+                </a>
+              <% end %>
+
+              <% if content.try(:content_url).present? %>
+
+                <a class="button button-small" href="<%= content.content_url %>" target="_blank">
+                  <i class="fa fa-external-link" aria-hidden="true"></i>
+
+                  <%= t('details.video.open_content_url', locale: active_ui_locale) %>
+                </a>
+              <% end %>
+
+            </dd>
+          </dl>
+
+        </div>
+
+      </div>
+
+      <% if content.try(:additional_information) %>
+        <%= render 'data_cycle_core/contents/viewers/embedded',
+                   key: 'additional_information',
+                   definition: content.properties_for('additional_information'),
+                   value: content.try(:additional_information),
+                   options: {},
+                   content: content
+        %>
+      <% end %>
+
+    </div>
+
+  </div>
+<% end %>
