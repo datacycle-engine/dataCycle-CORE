@@ -1,7 +1,5 @@
 <% random_id = SecureRandom.hex(10) %>
 
-<% request_params = "?" + param_hash_to_param_string(request_params_hash) %>
-
 <a data-toggle="<%= random_id %>"><i class="fa fa-eye" aria-hidden="true"></i></a>
 <div class="dropdown-pane no-bullet bottom" id="<%= random_id %>" data-dropdown>
 
@@ -13,15 +11,14 @@
       uri = channel.uri ||DataCycleCore::ClassificationAlias.find_by_internal_name(channel.name).present? ? DataCycleCore::ClassificationAlias.find_by_internal_name(channel.name).uri : nil
     %>
     <% if uri.present? %>
+      <% preview_url = format(uri+"?dc_preview_lang=%{dc_preview_lang}&dc_preview_id=%{dc_preview_id}", dc_preview_lang: active_ui_locale, dc_preview_id: content[:id]) %>
       <li class="active">
-        <%= link_to channel.name,
-                    uri+request_params,
-                    data: { dc_tooltip: uri+request_params } %>
-
+        <span>
+          <%= link_to channel.name, preview_url %>
+        </span>
         <span class="buttons">
             <%= link_to tag.i(class: 'fa fa-share', aria_hidden: true),
-                        uri+request_params,
-                        data: { dc_tooltip: uri+request_params } %>
+                        preview_url %>
         </span>
       </li>
       <% end %>
