@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rake_helpers/parallel_helper'
+# require 'hashdiff' # for debugging
 
 module DataCycleCore
   module Generic
@@ -145,6 +146,8 @@ module DataCycleCore
                           item.data_has_changed = diff?(item.dump[locale].as_json, item_data.as_json, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
 
                           if item.data_has_changed
+                            # for debugging, also uncomment the require 'hashdiff' at the top of this file
+                            # differences = ::Hashdiff.diff(item_data.as_json, item.dump[locale].as_json)
                             item.dump[locale] = item_data
                             item.save!
                           else
