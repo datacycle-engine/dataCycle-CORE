@@ -144,6 +144,25 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
     assert_includes(transformed_data['seasons'].map(&:classification_path).uniq, ['Jahreszeiten', 'Winter'])
   end
 
+  it 'should create classification uri references for nested attributes' do
+    raw_data = {
+      'classifications' => {
+        'weekdays' => [
+          { 'name' => 'Montag', 'uri' => 'https://schema.org/Monday' },
+          { 'name' => 'Dienstag', 'uri' => 'https://schema.org/Tuesday' }
+        ]
+      }
+    }
+
+    transformed_data = subject.add_classification_uri_references(
+      raw_data, 'days', 'Wochentage', ['classifications', 'weekdays', 'uri']
+    )
+
+    assert_equal(2, transformed_data['days'].size)
+    assert_includes(transformed_data['days'].map(&:classification_identifier).uniq, ['Wochentage', 'https://schema.org/Monday'])
+    assert_includes(transformed_data['days'].map(&:classification_identifier).uniq, ['Wochentage', 'https://schema.org/Tuesday'])
+  end
+
   it 'should create external references using lambdas' do
     raw_data = {
       'content' => ['some external id', 'another external id']
@@ -172,6 +191,21 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
     assert_equal(2, transformed_data['seasons'].size)
     assert_includes(transformed_data['seasons'].map(&:classification_path).uniq, ['Jahreszeiten', 'Sommer'])
     assert_includes(transformed_data['seasons'].map(&:classification_path).uniq, ['Jahreszeiten', 'Herbst'])
+  end
+
+  it 'should create classification uri references using lambdas' do
+    raw_data = {
+      'weekdays' => ['https://schema.org/Monday', 'https://schema.org/Tuesday']
+    }
+
+    transformed_data = subject.add_classification_uri_references(
+      raw_data, 'weekdays', 'Wochentage',
+      ->(data) { data['weekdays'] }
+    )
+
+    assert_equal(2, transformed_data['weekdays'].size)
+    assert_includes(transformed_data['weekdays'].map(&:classification_identifier).uniq, ['Wochentage', 'https://schema.org/Monday'])
+    assert_includes(transformed_data['weekdays'].map(&:classification_identifier).uniq, ['Wochentage', 'https://schema.org/Tuesday'])
   end
 
   it 'should use optional mapping table when creating classification name references' do
@@ -502,6 +536,32 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
     end
 
     subject.stub :load_classifications_by_path, load_classifications_by_path_stub do
+      transformed_data = subject.resolve_references(transformed_data)
+
+      assert_equal(2, transformed_data['classifications'].size)
+      assert_includes(transformed_data['classifications'], '00000000-0000-0000-0000-000000000001')
+      assert_includes(transformed_data['classifications'], '00000000-0000-0000-0000-000000000002')
+    end
+  end
+
+  it 'should resolve classification uri references' do
+    raw_data = {
+      'weekdays' => ['https://schema.org/Monday', 'https://schema.org/Tuesday']
+    }
+
+    transformed_data = subject.add_classification_name_references(
+      raw_data, 'classifications', 'Wochentage',
+      ->(data) { data['weekdays'] }
+    )
+
+    load_classifications_uri_stub = lambda do |_classification_identifiers|
+      {
+        ['Wochentage', 'https://schema.org/Monday'] => '00000000-0000-0000-0000-000000000001',
+        ['Wochentage', 'https://schema.org/Tuesday'] => '00000000-0000-0000-0000-000000000002'
+      }
+    end
+
+    subject.stub :load_classifications_by_uri, load_classifications_uri_stub do
       transformed_data = subject.resolve_references(transformed_data)
 
       assert_equal(2, transformed_data['classifications'].size)

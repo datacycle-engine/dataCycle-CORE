@@ -14,6 +14,12 @@ module DataCycleCore
           end
         end
 
+        ClassificationUriReference = Struct.new(:tree_name, :uri) do
+          def classification_identifier
+            [tree_name, uri]
+          end
+        end
+
         def self.add_external_content_references(data, property_name, external_source_id, key_resolver)
           add_reference(data, property_name, key_resolver) do |key|
             ExternalReference.new(:content, external_source_id, key)
@@ -62,6 +68,12 @@ module DataCycleCore
           end
         end
 
+        def self.add_classification_uri_references(data, property_name, tree_name, key_resolver, uri_mapping_table = ->(v) { v })
+          add_reference(data, property_name, key_resolver) do |key|
+            ClassificationUriReference.new(tree_name, uri_mapping_table.to_proc.call(key))
+          end
+        end
+
         def self.get_reference(data, key_resolver, &)
           reference_keys = if key_resolver.respond_to?(:to_proc)
                              Array.wrap(key_resolver.to_proc.call(data)) || []
@@ -86,13 +98,15 @@ module DataCycleCore
           collected_references = collect_references(data)
 
           external_reference_mapping_table = create_external_reference_mapping_table(collected_references)
-          classification_mapping_table = create_classification_mapping_table(collected_references)
+          classification_path_mapping_table = create_classification_path_mapping_table(collected_references)
+          classification_uri_mapping_table = create_classification_uri_mapping_table(collected_references)
+          classification_mapping_table = classification_path_mapping_table.merge(classification_uri_mapping_table)
 
           replace_references(data, external_reference_mapping_table, classification_mapping_table)
         end
 
         def self.collect_references(data)
-          if data.is_a?(ExternalReference) || data.is_a?(ClassificationNameReference)
+          if data.is_a?(ExternalReference) || data.is_a?(ClassificationNameReference) || data.is_a?(ClassificationUriReference)
             data
           elsif data.is_a?(Hash)
             data.values.map { |v| collect_references(v) }.flatten
@@ -123,11 +137,19 @@ module DataCycleCore
           }.reduce(&:merge)
         end
 
-        def self.create_classification_mapping_table(collected_references)
+        def self.create_classification_path_mapping_table(collected_references)
           load_classifications_by_path(
             collected_references.select { |ref|
               ref.is_a?(ClassificationNameReference)
             }.map(&:classification_path)
+          )
+        end
+
+        def self.create_classification_uri_mapping_table(collected_references)
+          load_classifications_by_uri(
+            collected_references.select { |ref|
+              ref.is_a?(ClassificationUriReference)
+            }.map(&:classification_identifier)
           )
         end
 
@@ -136,6 +158,8 @@ module DataCycleCore
             external_reference_mapping_table.dig(data.reference_type, data.external_source_id, data.external_key&.to_s)
           elsif data.is_a?(ClassificationNameReference)
             classification_mapping_table[data.classification_path]
+          elsif data.is_a?(ClassificationUriReference)
+            classification_mapping_table[data.uri]
           elsif data.is_a?(Hash)
             data.transform_values { |v| replace_references(v, external_reference_mapping_table, classification_mapping_table) }
           elsif data.is_a?(Array)
@@ -174,6 +198,13 @@ module DataCycleCore
         def self.load_classifications(external_source_id, external_keys)
           DataCycleCore::Classification.where(external_source_id:, external_key: external_keys)
                                        .pluck(:external_key, :id).to_h
+        end
+
+        def self.load_classifications_by_uri(classification_identifier)
+          DataCycleCore::ClassificationAlias.for_tree(classification_identifier.pluck(0).uniq)
+                                            .where(uri: classification_identifier.pluck(1).uniq)
+                                            .primary_classifications
+                                            .pluck(:uri, :id).to_h
         end
 
         def self.load_classifications_by_path(classification_paths)

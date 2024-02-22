@@ -912,6 +912,7 @@ de:
     linked_copyright_holder: Verknüpfter Rechteinhaber
     linked_provider: Verknüpfter Dienstleister
     linked_sd_publisher: Verknüpfter Inhaber / Herausgeber
+    linked_event_series: Verknüpfte Eventserie
     in_schedule_types:
       absolute: Fester Zeitraum
       relative: Relativer Zeitraum
