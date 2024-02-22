@@ -875,6 +875,7 @@ en:
     linked_copyright_holder: Related rights holder
     linked_provider: Linked service provider
     linked_sd_publisher: Linked Owner / Publisher
+    linked_event_series: Linked event series
     in_schedule_types:
       absolute: Fixed period
       relative: Relative period
