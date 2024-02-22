@@ -354,11 +354,12 @@ DataCycleCore::Engine.routes.draw do
 
                 match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
                 match 'endpoints/:id/suggest', to: 'contents#typeahead', as: 'typeahead', via: [:get, :post]
-                match 'endpoints/:id/download', to: 'downloads#endpoint', as: 'endpoint', via: [:get, :post]
+                match 'endpoints/:id/download', to: 'downloads#endpoint', as: 'download_endpoint', via: [:get, :post]
                 match 'endpoints/:id/facets/:classification_tree_label_id(/:classification_id)', to: 'classification_trees#facets', as: 'facets', via: [:get, :post]
                 get 'endpoints/:id/statistics/:attribute(/:format)', to: 'contents#statistics', as: 'statistics'
                 match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
                 match 'endpoints/:id/:content_id/elevation_profile(/:format)', to: 'contents#elevation_profile', as: 'content_elevation_profile', via: [:get, :post]
+                match 'endpoints/:id/:content_id/download', to: 'downloads#thing', as: 'download_thing', via: [:get, :post]
                 match 'endpoints/:id/:content_id/:timeseries(/:format)', to: 'contents#timeseries', as: 'content_timeseries', via: [:get, :post]
 
                 post 'collections/create', to: 'watch_lists#create'

@@ -25,6 +25,18 @@ module DataCycleCore
           download_filtered_collection(@collection, query.query, serialize_format, @language, additional_data)
         end
 
+        def thing
+          raise ActiveRecord::RecordNotFound unless download_params[:content_id]&.uuid?
+
+          query = build_search_query
+          @content = query.query.find(download_params[:content_id])
+          serialize_format = download_params[:serialize_format]
+
+          raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.allowed?(@content, :content) && DataCycleCore::Feature::Download.enabled_serializer_for_download?(@content, :content, serialize_format)
+
+          download_content(@content, serialize_format, @language)
+        end
+
         private
 
         def permitted_parameter_keys
@@ -32,7 +44,7 @@ module DataCycleCore
         end
 
         def download_params
-          params.permit(:serialize_format, meta: [collection: [:name]])
+          params.permit(:content_id, :serialize_format, meta: [collection: [:name]])
         end
 
         def validate_params_exceptions
