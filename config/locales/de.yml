@@ -596,6 +596,7 @@ de:
     url: URL
     more_errors: "%{count} weitere Fehler"
     number: Anzahl
+    preview_links: Vorschau-Links
 
   embedded:
     move_down: nach unten verschieben
