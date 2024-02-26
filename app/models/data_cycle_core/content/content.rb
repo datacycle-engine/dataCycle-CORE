@@ -21,7 +21,7 @@ module DataCycleCore
 
       self.abstract_class = true
 
-      attr_accessor :datahash, :datahash_changes, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS
+      attr_accessor :datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS
       attr_writer :webhook_data
 
       DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
@@ -51,7 +51,7 @@ module DataCycleCore
       scope :where_translated_value, ->(attributes) { includes(:translations).where(translated_value_condition(attributes), *attributes&.values).references(attributes.blank? ? nil : :translations) }
       scope :where_not_translated_value, ->(attributes) { includes(:translations).where.not(translated_value_condition(attributes), *attributes&.values).references(attributes.blank? ? nil : :translations) }
 
-      after_save :reload_memoized
+      after_save :move_changes_to_previous_changes, :reload_memoized
 
       def self.value_condition(attributes)
         attributes&.map { |k, v| "things.metadata ->> '#{k}' #{v.is_a?(::Array) ? 'IN (?)' : '= ?'}" }&.join(' AND ')
@@ -683,12 +683,15 @@ module DataCycleCore
         "#{key}_#{translatable_property?(key) ? I18n.locale : nil}_#{filter&.hash}_#{overlay_flag && overlay_property_names.include?(key)}"
       end
 
+      def move_changes_to_previous_changes
+        self.previous_datahash_changes = datahash_changes&.deep_dup
+      end
+
       def reload_memoized(key = nil)
         remove_instance_variable(:@_current_collection) if instance_variable_defined?(:@_current_collection)
         remove_instance_variable(:@_current_recursive_collection) if instance_variable_defined?(:@_current_recursive_collection)
         remove_instance_variable(:@_current_rc_with_leafs) if instance_variable_defined?(:@_current_rc_with_leafs)
         remove_instance_variable(:@_current_recursive_ccs) if instance_variable_defined?(:@_current_recursive_ccs)
-
         remove_instance_variable(:@datahash_changes) if instance_variable_defined?(:@datahash_changes)
 
         if key.present?
