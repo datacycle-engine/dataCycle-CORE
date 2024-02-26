@@ -4,11 +4,17 @@ namespace :dc do
   namespace :code do
     namespace :validate do
       desc 'run bundle audit'
-      task :bundle_audit, [:ignore_cve] => :environment do |_, args|
-        ignore_cve = ['CVE-2021-21288', 'CVE-2021-21305']
-        ignore_cve += args.fetch(:ignore_cve, '').split('|')
+      task :bundle_audit, [:config_file_path] => :environment do |_, args|
+        # ignore_cve = ['CVE-2024-26143']
+        # ignore_cve += args.fetch(:ignore_cve, '').split('|')
 
-        sh "bundle exec bundle audit check --update --ignore #{ignore_cve.join(' ')}"
+        if args.config_file_path.present?
+          config_file_path = args.config_file_path
+        else
+          config_file_path = DataCycleCore::Engine.root.join('.bundler-audit.yml')
+        end
+
+        sh "bundle exec bundle audit check --update --config #{config_file_path}"
       end
 
       desc 'run brakeman'
