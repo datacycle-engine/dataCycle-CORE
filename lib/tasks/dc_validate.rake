@@ -3,9 +3,6 @@
 namespace :dc do
   desc 'run all validations for code and templates, add | seperated list of additional CVEs to ignore'
   task :validate, [:ignore_cve] => :environment do |_, _args|
-    # ignore_cve = ['CVE-2021-21288', 'CVE-2021-21305']
-    # ignore_cve += args.fetch(:ignore_cve, '').split('|')
-
     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:code:validate:bundle_audit"].invoke
     Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:code:validate:bundle_audit"].reenable
 

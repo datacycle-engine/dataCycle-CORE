@@ -5,9 +5,6 @@ namespace :dc do
     namespace :validate do
       desc 'run bundle audit'
       task :bundle_audit, [:config_file_path] => :environment do |_, args|
-        # ignore_cve = ['CVE-2024-26143']
-        # ignore_cve += args.fetch(:ignore_cve, '').split('|')
-
         if args.config_file_path.present?
           config_file_path = args.config_file_path
         else
