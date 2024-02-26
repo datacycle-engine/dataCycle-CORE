@@ -1658,6 +1658,7 @@ de:
         Requirements: Voraussetzung
         ServiceDescription: Beschreibung
         Suitable for: Geeignet für
+        Payment conditions: Zahlungsbedingungen
       event:
         EventHeader: Beschreibung
         EventHeaderShort: Kurzbeschreibung

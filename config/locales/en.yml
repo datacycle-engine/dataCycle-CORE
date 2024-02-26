@@ -1653,6 +1653,7 @@ en:
         Requirements: Prerequisite
         ServiceDescription: Description
         Suitable for: Suitable for
+        Payment conditions: Payment conditions
       event:
         EventHeader: Description
         EventHeaderShort: Brief description
