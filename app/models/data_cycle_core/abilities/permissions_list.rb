@@ -19,6 +19,10 @@ module DataCycleCore
         @list
       end
 
+      def self.reload
+        remove_instance_variable(:@list) if instance_variable_defined?(:@list)
+      end
+
       def segment(segment_name)
         return ::Abilities::Segments.const_get(segment_name) if Module.const_defined?("::Abilities::Segments::#{segment_name}")
 
@@ -76,8 +80,53 @@ module DataCycleCore
         permit(segment(:UsersByUserGroup).new(group_name, roles), *, definition_to_segment(definition))
       end
 
+      def permit_user_from_yaml(role, permissions)
+        raise 'missing role in permission' if role.blank?
+
+        DataCycleCore.permissions.dig(:roles, permissions)&.each_value do |permission|
+          parameters = parse_parameters_from_yaml(permission[:parameters])
+
+          permit(
+            segment(:UsersByRole).new(role),
+            *Array.wrap(permission[:actions]).map(&:to_sym),
+            definition_to_segment({ permission[:segment].to_sym => Array.wrap(parameters) })
+          )
+        end
+      end
+
+      def permit_user_groups_from_yaml(role)
+        raise 'missing roles in permission' if role.blank?
+
+        DataCycleCore.permissions.dig(:user_groups)&.each do |group_name, permissions|
+          raise 'missing user_group name in permission' if group_name.blank?
+
+          permissions.each_value do |permission|
+            parameters = parse_parameters_from_yaml(permission[:parameters])
+
+            permit(
+              segment(:UsersByUserGroup).new(group_name, role),
+              *Array.wrap(permission[:actions]).map(&:to_sym),
+              definition_to_segment({ permission[:segment].to_sym => Array.wrap(parameters) })
+            )
+          end
+        end
+      end
+
+      def parse_parameters_from_yaml(parameters)
+        if parameters.is_a?(::Array)
+          parameters.map { |v| parse_parameters_from_yaml(v) }
+        elsif parameters.is_a?(::String)
+          parameters.safe_constantize || parameters
+        elsif parameters.is_a?(::Hash)
+          parameters.transform_values { |v| parse_parameters_from_yaml(v) }
+        else
+          parameters
+        end
+      end
+
       def definition_to_segment(definition)
         return segment(definition).new unless definition.is_a?(::Hash)
+        return segment(definition.keys.first).new if definition.values.compact.blank?
 
         definition_values = definition.values.first
         if definition_values.last.is_a?(::Hash)

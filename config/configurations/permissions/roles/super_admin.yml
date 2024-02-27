@@ -1,0 +1,261 @@
+manage_subjects:
+  actions: manage
+  segment: SubjectByConditions
+  parameters:
+    - - :dash_board
+      - :backend
+      - :user_api
+      - :object_browser
+      - :cache
+      - :report
+      - DataCycleCore::ClassificationTreeLabel
+      - DataCycleCore::ClassificationAlias
+      - DataCycleCore::User
+      - DataCycleCore::UserGroup
+      - DataCycleCore::DataLink
+
+role_index:
+  actions: read
+  segment: SubjectByConditions
+  parameters: DataCycleCore::Role
+
+asset_read:
+  actions: read
+  segment: AssetByUserAndNoContent
+
+asset_create_duplicate:
+  actions: create_duplicate
+  segment: SubjectByConditions
+  parameters: DataCycleCore::Asset
+
+asset_create:
+  actions: [create, update, destroy]
+  segment: SubjectByUserAndConditions
+  parameters:
+    - DataCycleCore::Asset
+    - :creator_id
+
+asset_for_data_link:
+  actions: read
+  segment: AssetByUserGroupsForDataLink
+
+thing_create:
+  actions: create
+  segment: TemplateByCreatableScope
+  parameters: :all
+
+thing_print:
+  actions: print
+  segment: ThingByContentType
+  parameters: entity
+
+thing_actions:
+  actions:
+    - update
+    - read
+    - import
+    - destroy
+    - show_admin_panel
+    - show_related
+    - show_external_connections
+    - subscribe
+    - history
+    - merge_duplicates
+    - remove_lock
+    - translate
+    - set_life_cycle
+    - view_life_cycle
+    - move_content
+    - switch_primary_external_system
+    - create_external_connection
+    - remove_external_connection
+  segment: SubjectByConditions
+  parameters: DataCycleCore::Thing
+
+thing_history:
+  actions: history
+  segment: SubjectByConditions
+  parameters: DataCycleCore::Thing::History
+
+stored_filter_actions:
+  actions:
+    - read
+    - create
+    - update
+    - destroy
+    - show_history
+    - create_global
+    - create_api
+    - create_api_with_users
+    - api
+  segment: SubjectByConditions
+  parameters: DataCycleCore::StoredFilter
+
+watch_list_subscribe:
+  actions: subscribe
+  segment: SubjectByConditions
+  parameters: DataCycleCore::WatchList
+
+watch_list_bulk_actions:
+  actions: [show, bulk_edit, bulk_delete, update, change_owner, create_api]
+  segment: SubjectByConditions
+  parameters: DataCycleCore::WatchList
+
+watch_list_actions:
+  actions: [read, create, add_item, remove_item]
+  segment: SubjectByUserAndConditions
+  parameters:
+    - DataCycleCore::WatchList
+    - :user_id
+
+watch_list_actions_except_my_selection:
+  actions: [destroy, share]
+  segment: SubjectByUserAndConditions
+  parameters:
+    - DataCycleCore::WatchList
+    - :user_id
+    - :my_selection: false
+
+watch_list_group_shares:
+  actions: [read, add_item, remove_item]
+  segment: WatchListByGroupShares
+  parameters:
+    - :my_selection: false
+
+watch_list_user_shares:
+  actions: [read, add_item, remove_item]
+  segment: WatchListByUserShares
+  parameters:
+    - :my_selection: false
+
+data_attribute_read:
+  actions: read
+  segment: DataAttributeAllowedForShow
+  parameters:
+    - - :attribute_not_disabled?
+      - :overlay_attribute_visible?
+      - :attribute_not_releasable?
+
+data_attribute_edit:
+  actions: edit
+  segment: DataAttributeAllowedForEdit
+  parameters:
+    - - :attribute_not_included_in_publication_schedule?
+      - :attribute_not_disabled?
+      - :overlay_attribute_visible?
+      - :attribute_not_external?
+      - :attribute_tree_label_visible?
+
+data_attribute_update:
+  actions: update
+  segment: DataAttributeAllowedForUpdate
+  parameters:
+    - - :attribute_not_included_in_publication_schedule?
+      - :attribute_not_disabled?
+      - :attribute_not_read_only?
+      - :overlay_attribute_visible?
+      - :attribute_not_external?
+      - :attribute_tree_label_visible?
+
+filter:
+  actions:
+    - search
+    - classification_trees
+    - classification_tree
+    - permanent_advanced
+    - advanced
+    - publication_date
+  segment: SubjectByConditions
+  parameters:
+    - - :backend
+      - :classification_tree
+      - :publications
+      - :subscriptions
+      - :things
+      - :collection
+
+advanced_filter:
+  actions: advanced_filter
+  segment: AdvancedFilterExceptType
+  parameters:
+    - - :backend
+      - :classification_tree
+      - :publications
+      - :subscriptions
+      - :things
+      - :collection
+
+subscription_actions:
+  actions: read
+  segment: SubjectByConditions
+  parameters:
+    - - DataCycleCore::Subscription
+      - :publication
+
+download_content:
+  actions: download
+  segment: DownloadAllowedByContentAndScope
+  parameters:
+    - - DataCycleCore::Thing
+      - DataCycleCore::WatchList
+      - DataCycleCore::StoredFilter
+    - - :content
+
+download_zip:
+  actions: download_zip
+  segment: DownloadAllowedByContentAndScope
+  parameters:
+    - - DataCycleCore::Thing
+      - DataCycleCore::WatchList
+      - DataCycleCore::StoredFilter
+    - - :archive
+      - :zip
+
+download_indesign:
+  actions: download_indesign
+  segment: DownloadAllowedByContentAndScope
+  parameters:
+    - - DataCycleCore::Thing
+      - DataCycleCore::WatchList
+      - DataCycleCore::StoredFilter
+    - - :archive
+      - :indesign
+
+report_content:
+  actions: download_content_report
+  segment: ContentByReportGenerator
+
+classification_actions:
+  actions: manage
+  segment: SubjectNotExternal
+  parameters:
+    - DataCycleCore::Classification
+    - DataCycleCore::ClassificationTree
+
+thing_history_actions:
+  actions: [show, restore_version]
+  segment: SubjectByConditions
+  parameters: DataCycleCore::Thing::History
+
+view_mode_feature:
+  actions: [grid, list, tree, map]
+  segment: SubjectByConditions
+  parameters: :view_mode
+
+named_version_feature:
+  actions: remove_version_name
+  segment: SubjectByEnabledFeature
+  parameters:
+    - - DataCycleCore::Thing
+      - DataCycleCore::Thing::History
+    - DataCycleCore::Feature::NamedVersion
+
+auto_translate:
+  actions: [create, destroy]
+  segment: SubjectByConditions
+  parameters: :auto_translate
+
+external_system_actions:
+  actions: create
+  segment: SubjectByConditions
+  parameters: DataCycleCore::ExternalSystem

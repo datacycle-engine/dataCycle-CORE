@@ -22,7 +22,6 @@ module DataCycleCore
 
           return if @mixin_errors.present?
 
-          reload_main_config! if Rails.env.development?
           @templates = load_templates
           @validator = TemplateValidator.new(templates: @templates)
         end
@@ -87,10 +86,6 @@ module DataCycleCore
           ap @mixin_paths.sort
         end
         # rubocop:enable Rails/Output
-
-        def reload_main_config!
-          DataCycleCore.load_configurations_for_file('main_config')
-        end
 
         def update_templates
           DataCycleCore::ThingTemplate.upsert_all(@templates.values.flatten.map do |t|
