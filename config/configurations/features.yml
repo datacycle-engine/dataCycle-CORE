@@ -36,6 +36,10 @@
     :archive:
       :zip:
         :enabled: false
+        # :terms_of_use:
+        #   # put files in app/assets/downloader/archive/zip/terms_of_use
+        #   :de:
+        #   :en:
         :thing:
           :enabled: false
           # used from downloader.download.content.thing.serializers. can be overruled here.
