@@ -144,6 +144,25 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
     assert_includes(transformed_data['seasons'].map(&:classification_path).uniq, ['Jahreszeiten', 'Winter'])
   end
 
+  it 'should create classification uri references for nested attributes' do
+    raw_data = {
+      'classifications' => {
+        'weekdays' => [
+          { 'name' => 'Montag', 'uri' => 'https://schema.org/Monday' },
+          { 'name' => 'Dienstag', 'uri' => 'https://schema.org/Tuesday' }
+        ]
+      }
+    }
+
+    transformed_data = subject.add_classification_uri_references(
+      raw_data, 'days', 'Wochentage', ['classifications', 'weekdays', 'uri']
+    )
+
+    assert_equal(2, transformed_data['days'].size)
+    assert_includes(transformed_data['days'].map(&:classification_identifier).uniq, ['Wochentage', 'https://schema.org/Monday'])
+    assert_includes(transformed_data['days'].map(&:classification_identifier).uniq, ['Wochentage', 'https://schema.org/Tuesday'])
+  end
+
   it 'should create external references using lambdas' do
     raw_data = {
       'content' => ['some external id', 'another external id']
@@ -172,6 +191,21 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
     assert_equal(2, transformed_data['seasons'].size)
     assert_includes(transformed_data['seasons'].map(&:classification_path).uniq, ['Jahreszeiten', 'Sommer'])
     assert_includes(transformed_data['seasons'].map(&:classification_path).uniq, ['Jahreszeiten', 'Herbst'])
+  end
+
+  it 'should create classification uri references using lambdas' do
+    raw_data = {
+      'weekdays' => ['https://schema.org/Monday', 'https://schema.org/Tuesday']
+    }
+
+    transformed_data = subject.add_classification_uri_references(
+      raw_data, 'weekdays', 'Wochentage',
+      ->(data) { data['weekdays'] }
+    )
+
+    assert_equal(2, transformed_data['weekdays'].size)
+    assert_includes(transformed_data['weekdays'].map(&:classification_identifier).uniq, ['Wochentage', 'https://schema.org/Monday'])
+    assert_includes(transformed_data['weekdays'].map(&:classification_identifier).uniq, ['Wochentage', 'https://schema.org/Tuesday'])
   end
 
   it 'should use optional mapping table when creating classification name references' do
@@ -510,6 +544,32 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
     end
   end
 
+  it 'should resolve classification uri references' do
+    raw_data = {
+      'weekdays' => ['https://schema.org/Monday', 'https://schema.org/Tuesday']
+    }
+
+    transformed_data = subject.add_classification_name_references(
+      raw_data, 'classifications', 'Wochentage',
+      ->(data) { data['weekdays'] }
+    )
+
+    load_classifications_uri_stub = lambda do |_classification_identifiers|
+      {
+        ['Wochentage', 'https://schema.org/Monday'] => '00000000-0000-0000-0000-000000000001',
+        ['Wochentage', 'https://schema.org/Tuesday'] => '00000000-0000-0000-0000-000000000002'
+      }
+    end
+
+    subject.stub :load_classifications_by_uri, load_classifications_uri_stub do
+      transformed_data = subject.resolve_references(transformed_data)
+
+      assert_equal(2, transformed_data['classifications'].size)
+      assert_includes(transformed_data['classifications'], '00000000-0000-0000-0000-000000000001')
+      assert_includes(transformed_data['classifications'], '00000000-0000-0000-0000-000000000002')
+    end
+  end
+
   it 'should resolve mixed external references' do
     raw_data = {
       'content' => { 'id' => 'EXTERNAL CONTENT ID' },
@@ -685,6 +745,48 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
         DataCycleCore::ClassificationAlias.classification_for_tree_with_name('CLASSIFICATION TREE TWO', 'I'),
         mapping_table[['CLASSIFICATION TREE TWO', 'I']]
       )
+    end
+
+    it 'should resolve external content references with non-string keys' do
+      raw_data = {
+        'contents_1' => [
+          {
+            'contents_2' => [
+              {
+                'contents_3' => [
+                  { 'id' => 2 },
+                  { 'id' => 4 }
+                ]
+              }
+            ]
+          }
+        ],
+        'additional_content' => { 'id' => 'SOME ADDITIONAL EXTERNAL ID' }
+      }
+
+      transformed_data = subject.add_external_content_references(raw_data, 'content', 'EXTERNAL SOURCE ID',
+                                                                 ['contents_1', 'contents_2', 'contents_3', 'id'])
+      transformed_data = subject.add_external_content_references(transformed_data, 'additional_content', 'EXTERNAL SOURCE ID',
+                                                                 ['additional_content', 'id'])
+
+      load_things_stub = lambda do |_external_source_id, _external_keys|
+        {
+          '2' => '00000000-0000-0000-0000-000000000001',
+          '4' => '00000000-0000-0000-0000-000000000002',
+          'SOME ADDITIONAL EXTERNAL ID' => '00000000-0000-0000-0000-000000000003'
+        }
+      end
+
+      subject.stub :load_things, load_things_stub do
+        transformed_data = subject.resolve_references(transformed_data)
+
+        assert_equal(2, transformed_data['content'].size)
+        assert_includes(transformed_data['content'], '00000000-0000-0000-0000-000000000001')
+        assert_includes(transformed_data['content'], '00000000-0000-0000-0000-000000000002')
+
+        assert_equal(1, transformed_data['additional_content'].size)
+        assert_includes(transformed_data['additional_content'], '00000000-0000-0000-0000-000000000003')
+      end
     end
   end
 end

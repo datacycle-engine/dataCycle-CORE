@@ -24,7 +24,58 @@ module DataCycleCore
           return_data.merge!(iterate_tree_hash(inhaltstypen_tree, false))
         end
         check_features
+
+        import_classification_mappings(classification_paths)
+
         return_data
+      end
+
+      def self.import_classification_mappings(classification_paths)
+        new_groups = []
+        mappings = load_mappings_hash(classification_paths)
+        return if mappings.blank?
+
+        full_paths = (mappings.keys + mappings.values).flatten
+        concepts = DataCycleCore::ClassificationAlias.includes(:primary_classification).by_full_paths(full_paths).to_h { |ca| [ca.full_path, { classification_alias_id: ca.id, classification_id: ca.primary_classification&.id }] }
+
+        mappings.each do |key, value|
+          next unless concepts.key?(key)
+
+          Array.wrap(value).each do |v|
+            next unless concepts.key?(v)
+
+            new_groups.push({ classification_alias_id: concepts[key][:classification_alias_id], classification_id: concepts[v][:classification_id], created_at: Time.zone.now, updated_at: Time.zone.now }) # created_at and updated_at required for primary_classification in tests
+          end
+        end
+
+        return if new_groups.blank?
+
+        DataCycleCore::ClassificationGroup.insert_all(new_groups, unique_by: :classification_groups_ca_id_c_id_uq_idx, returning: false)
+
+        new_groups.size
+      end
+
+      def self.load_mappings_hash(classification_paths)
+        merged_hash = {}
+
+        classification_paths.each do |classification_path|
+          file = classification_path + 'classification_mappings.yml'
+          next unless File.exist?(file)
+
+          mapping_hash = YAML.safe_load(File.open(file.to_s), permitted_classes: [Symbol])
+
+          next if mapping_hash.blank?
+
+          merged_hash.deep_merge!(mapping_hash) do |_k, v1, v2|
+            if (v1.is_a?(::Array) || v1.is_a?(String)) && (v2.is_a?(::Array) || v2.is_a?(String))
+              Array.wrap(v1) + Array.wrap(v2)
+            else
+              v2
+            end
+          end
+        end
+
+        merged_hash.values.reduce(&:merge)&.compact
       end
 
       def self.merge_trees(merged_hash, tree, inhaltstypen_trees)

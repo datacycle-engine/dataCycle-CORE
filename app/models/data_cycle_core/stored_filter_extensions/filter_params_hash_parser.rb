@@ -88,6 +88,10 @@ module DataCycleCore
           hash['v'] = DataCycleCore::ClassificationAlias
             .for_tree(hash.dig('v', 'treeLabel'))
             .with_internal_name(hash.dig('v', 'aliases')).pluck(:id)
+        when 'with_classification_paths'
+          hash['t'] = 'classification_alias_ids'
+          hash['n'] = Array.wrap(hash.dig('v')).map { |v| v&.split(' > ')&.first }.join(', ')
+          hash['v'] = DataCycleCore::ClassificationAlias.by_full_paths(hash.dig('v')).pluck(:id)
         when 'external_source'
           hash['t'] = 'external_system'
           hash['n'] = hash['t'].capitalize

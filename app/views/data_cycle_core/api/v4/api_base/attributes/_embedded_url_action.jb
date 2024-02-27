@@ -1,0 +1,14 @@
+# frozen_string_literal: true
+
+json ||= {}
+data = load_embedded_object(content, key, options[:languages], definition)&.to_a&.map(&:url)
+if data.present?
+  api_property_definition = api_definition(definition)
+
+  key_new = attribute_key(key, definition)
+  key_new = api_property_definition.dig('transformation', 'name') if api_property_definition.dig('transformation', 'method') == 'append'
+
+  json[key_new] = data.compact.presence
+end
+
+json.compact

@@ -23,11 +23,12 @@ namespace :data_cycle_core do
       puts 'importing new classification definitions'
       imported_classifications = DataCycleCore::MasterData::ImportClassifications.import_all
       if imported_classifications.size.positive?
-        puts('[done] ... looks good')
+        puts("[done] ... looks good (Duration: #{(Time.zone.now - before_import).round} sec)")
       else
         exit(-1)
       end
 
+      tmp = Time.zone.now
       puts 'checking for unused <Inhaltstypen> classifications'
       data = DataCycleCore::MasterData::ImportClassifications.updated_classification_statistics(before_import)
       if data.present?
@@ -38,7 +39,7 @@ namespace :data_cycle_core do
           puts "#{key.to_s.ljust(30)} |  #{value[:seen_at].to_s(:long_usec).ljust(38)} | #{value[:count].to_s.rjust(7)}"
         end
       else
-        puts('[done] ... looks good')
+        puts("[done] ... looks good (Duration: #{(Time.zone.now - tmp).round} sec)")
       end
       puts "\n"
     end

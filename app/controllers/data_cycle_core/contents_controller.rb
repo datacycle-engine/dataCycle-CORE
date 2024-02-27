@@ -111,11 +111,11 @@ module DataCycleCore
     # used in api with image proxy
     def asset
       content = DataCycleCore::Thing.find(params[:id])
-      raise ActiveRecord::RecordInvalid if content.template_name == 'Audio'
+      raise ActiveRecord::RecordInvalid if ['Audio', 'AudioObject'].include?(content.template_name)
 
       content = content.try(:image)&.first unless content.respond_to?(:asset)
 
-      attribute = asset_proxy_params.dig(:type) == 'content' && ['Bild', 'ImageVariant'].include?(content.template_name) ? :content_url : :thumbnail_url
+      attribute = asset_proxy_params.dig(:type) == 'content' && ['Bild', 'ImageVariant', 'ImageObject', 'ImageObjectVariant'].include?(content.template_name) ? :content_url : :thumbnail_url
 
       raise ActiveRecord::RecordNotFound unless content.respond_to?(attribute)
 
@@ -186,9 +186,8 @@ module DataCycleCore
         end
 
         @content = DataCycleCore::DataHashService.create_internal_object(params[:template], object_params, current_user, parent_params[:parent_id], source)
-
         if @content.try(:errors).present?
-          flash.now[:error] = @content.errors.full_messages
+          flash[:error] = @content.errors.full_messages # rubocop:disable Rails/ActionControllerFlashBeforeRender
         elsif @content.present?
           flash[:success] = I18n.t('controllers.success.created', data: @content.template_name, locale: helpers.active_ui_locale)
         end
@@ -713,6 +712,17 @@ module DataCycleCore
       end
     end
 
+    def elevation_profile
+      content = DataCycleCore::Thing.find(elevation_profile_params[:id])
+      @renderer = DataCycleCore::ApiRenderer::ElevationProfileRenderer.new(content:, locale: helpers.active_ui_locale)
+
+      begin
+        render json: @renderer.render
+      rescue DataCycleCore::ApiRenderer::Error::RendererError => e
+        render json: { error: e.message }, status: e.status_code
+      end
+    end
+
     private
 
     def external_connection_params
@@ -729,6 +739,10 @@ module DataCycleCore
 
     def default_value_params
       params.permit(:template_name, :locale, keys: [], data_hash: {})
+    end
+
+    def elevation_profile_params
+      params.permit(:id)
     end
 
     def set_watch_list

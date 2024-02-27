@@ -195,16 +195,26 @@ module DataCycleCore
     end
 
     def insert_all_classifications_by_path(attributes)
-      sql_values = attributes.compact_blank.map { |row|
-        [
-          id,
-          (row[:name_i18n].presence || { I18n.locale.to_s => row[:name] })&.to_json,
-          row[:name],
-          row[:full_path_names],
-          row[:full_path_names].drop(1),
-          row[:classification_ids]
-        ]
-      }.uniq
+      sql_values = []
+
+      attributes.each do |row|
+        value = transform_row_data(row.deep_dup)
+
+        next if value.nil? || sql_values.any? { |sv| sv[3] == value[3] }
+
+        sql_values.push(value)
+
+        value[4].each.with_index(1) do |a_name, i|
+          next if a_name == name
+          ancestor = transform_row_data({ path: value[4][0...i] })
+          sql_values.push(ancestor) if ancestor.present? && sql_values.none? { |sv| sv[3] == ancestor[3] }
+        end
+      end
+
+      sql_values.each do |v|
+        v[3].reverse!
+        v[4].reverse!
+      end
 
       sql = <<-SQL.squish
         WITH raw_data(classification_tree_label_id, name_i18n, name, full_path_names, parent_path_names, classification_ids) AS (
@@ -212,7 +222,7 @@ module DataCycleCore
         ),
         classification_data AS (
           SELECT DISTINCT ON (raw_data.full_path_names) raw_data.*,
-            coalesce(cap.id, uuid_generate_v4()) AS classification_alias_id,
+            coalesce(ca.id, uuid_generate_v4()) AS classification_alias_id,
             coalesce(pcg.classification_id, uuid_generate_v4()) AS classification_id
           FROM raw_data
             LEFT OUTER JOIN classification_alias_paths cap ON cap.full_path_names = raw_data.full_path_names
@@ -220,6 +230,7 @@ module DataCycleCore
             AND ca.deleted_at IS NULL
             LEFT OUTER JOIN primary_classification_groups pcg ON pcg.classification_alias_id = cap.id
             AND pcg.deleted_at IS NULL
+            ORDER BY raw_data.full_path_names, ca.id ASC NULLS LAST
         ),
         classifications AS (
           INSERT INTO classifications (id, name, created_at, updated_at)
@@ -242,7 +253,7 @@ module DataCycleCore
             classification_data.name_i18n,
             NOW(),
             NOW()
-          FROM classification_data ON conflict (id) DO UPDATE SET name_i18n = EXCLUDED.name_i18n
+          FROM classification_data ON conflict (id) DO NOTHING
         ),
         classification_groups AS (
           INSERT INTO classification_groups (classification_id, classification_alias_id) (
@@ -276,7 +287,7 @@ module DataCycleCore
           NOW(),
           NOW()
         FROM classification_trees_data ON conflict (classification_alias_id)
-        WHERE deleted_at IS NULL DO NOTHING
+        WHERE deleted_at IS NULL DO NOTHING;
       SQL
 
       ActiveRecord::Base.connection.execute(
@@ -397,6 +408,24 @@ module DataCycleCore
     end
 
     private
+
+    def transform_row_data(row)
+      return if row[:path].blank?
+
+      row[:path].unshift(name) if row[:path].first != name
+      row[:name] = row[:path].last unless row.key?(:name)
+      row[:name] = row.dig(:name_i18n, I18n.locale.to_s) if !row.key?(:name) && row[:name_i18n]&.key?(I18n.locale.to_s)
+      row[:name_i18n] = { I18n.locale.to_s => row[:name] } if row.key?(:name) && !row.key?(:name_i18n)
+
+      [
+        id,
+        row[:name_i18n]&.to_json,
+        row[:name],
+        row[:path],
+        row[:path][...-1],
+        row[:classification_ids]
+      ]
+    end
 
     def trigger_things_cache_invalidation?
       cached_attributes_changed?

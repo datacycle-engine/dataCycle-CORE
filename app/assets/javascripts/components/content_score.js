@@ -3,7 +3,6 @@ import DomElementHelper from "../helpers/dom_element_helpers";
 class ContentScore {
 	constructor(element) {
 		this.element = element;
-		this.element.classList.add("dcjs-content-score");
 		this.contentScoreText = this.element.querySelector(".content-score-text");
 		this.container = this.element.closest(
 			".form-element, .detail-property, .detail-type, #edit-form, .detail-header, .embedded-object > .content-object-item, .detail-header > .title",

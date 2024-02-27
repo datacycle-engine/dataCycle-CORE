@@ -6,6 +6,9 @@ module DataCycleCore
                     'Ö' => 'Oe', 'ö' => 'oe', 'Ü' => 'Ue',
                     'ü' => 'ue', 'ß' => 'ss' }.freeze
     GERMAN_REGEXP = /[ÄäÖöÜüß]/
+    ENCODING_GUESSES = [
+      Encoding::ISO_8859_1
+    ].freeze
 
     def attribute_name_from_key
       split(/[\[\]]+/).last&.underscore
@@ -34,6 +37,17 @@ module DataCycleCore
 
     def strip_tags
       ActionController::Base.helpers.strip_tags(self)
+    end
+
+    def encode_utf8!
+      return self if is_utf8?
+
+      ENCODING_GUESSES.each do |guess|
+        force_encoding(guess)
+        return encode!(Encoding::UTF_8) if valid_encoding?
+      end
+
+      raise Encoding::UndefinedConversionError 'could not guess encoding!'
     end
   end
 end

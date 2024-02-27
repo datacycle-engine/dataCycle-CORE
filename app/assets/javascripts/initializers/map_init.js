@@ -44,11 +44,12 @@ function initMap(entries, observer) {
 				mapEditors[editor].isAllowedType(item.dataset.type)
 			)
 				return new mapEditors[editor](item).setup();
-			else return new MapLibreGlEditor(item).setup();
-		} else if (item.classList.contains("dashboard")) {
-			return new MapLibreGlDashboard(item).setup();
-		} else {
-			return new MapLibreGlViewer(item).setup();
+			return new MapLibreGlEditor(item).setup();
 		}
+
+		if (item.classList.contains("dashboard"))
+			return new MapLibreGlDashboard(item).setup();
+
+		return new MapLibreGlViewer(item).setup();
 	}
 }

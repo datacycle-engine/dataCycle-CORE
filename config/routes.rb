@@ -107,6 +107,7 @@ DataCycleCore::Engine.routes.draw do
         post :switch_primary_external_system, on: :member
         post :content_score, on: :collection
         post :create_external_connection, on: :member
+        post :elevation_profile, on: :member
         delete :remove_external_connection, on: :member
         post '/', on: :member, action: :show
       end
@@ -207,6 +208,8 @@ DataCycleCore::Engine.routes.draw do
       get :callback, on: :member
     end
   end
+
+  resources :external_systems, only: [:index]
 
   authenticate do
     resources :external_systems, only: [:create] do
@@ -351,10 +354,12 @@ DataCycleCore::Engine.routes.draw do
 
                 match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
                 match 'endpoints/:id/suggest', to: 'contents#typeahead', as: 'typeahead', via: [:get, :post]
-                match 'endpoints/:id/download', to: 'downloads#endpoint', as: 'endpoint', via: [:get, :post]
+                match 'endpoints/:id/download', to: 'downloads#endpoint', as: 'download_endpoint', via: [:get, :post]
                 match 'endpoints/:id/facets/:classification_tree_label_id(/:classification_id)', to: 'classification_trees#facets', as: 'facets', via: [:get, :post]
                 get 'endpoints/:id/statistics/:attribute(/:format)', to: 'contents#statistics', as: 'statistics'
                 match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
+                match 'endpoints/:id/:content_id/elevation_profile(/:format)', to: 'contents#elevation_profile', as: 'content_elevation_profile', via: [:get, :post]
+                match 'endpoints/:id/:content_id/download', to: 'downloads#thing', as: 'download_thing', via: [:get, :post]
                 match 'endpoints/:id/:content_id/:timeseries(/:format)', to: 'contents#timeseries', as: 'content_timeseries', via: [:get, :post]
 
                 post 'collections/create', to: 'watch_lists#create'
@@ -403,6 +408,9 @@ DataCycleCore::Engine.routes.draw do
           namespace :config do
             resources :schema, only: [] do
               match '/:template_name', action: :show, on: :collection, as: :show, via: [:get, :post]
+              match '/', action: :index, on: :collection, via: [:get, :post]
+            end
+            resources :feature, only: [] do
               match '/', action: :index, on: :collection, via: [:get, :post]
             end
           end

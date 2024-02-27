@@ -60,6 +60,12 @@ a.show-sidebar-details {
     align-items: center;
     justify-content: center;
 
+    .content-linkd {
+      position: relative;
+      height: 100%;
+      width: 100%;
+    }
+
     img {
       max-width: 90vw;
       max-height: 90vh;

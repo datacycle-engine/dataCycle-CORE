@@ -21,6 +21,25 @@ de:
 
   template_names:
     skos:Concept: Klassifizierung
+    Article: Artikel
+    AdditionalDescription: Beschreibungstext
+    AudioObject: Audio
+    ImageObject: Bild
+    VideoObject: Video
+    MediaObject: Datei
+    ExternalVideo: Video (extern)
+    PDF: PDF
+    Event: Veranstaltung
+    EventSeries: Veranstaltungsreihe
+    Organization: Organisation
+    LocalBusiness: Betrieb
+    FoodEstablishment: Gastronomischer Betrieb
+    LodgingBusiness: Beherbergungsbetrieb
+    Person: Person
+    Place: Ort
+    Accommodation: Zimmer / Apartment
+    TouristAttraction: POI
+    Trail: Tour
 
   attribute_labels:
     additional_information:
@@ -135,6 +154,13 @@ de:
         terms_conditions: Die Allgemeinen Geschäftsbedingungen wurden aktualisiert und müssen erneut akzeptiert werden.
         privacy_policy: Die Datenschutzerklärung wurde aktualisiert und muss erneut akzeptiert werden.
 
+  api_renderer:
+    elevation_profile_renderer:
+      errors:
+        no_geodata: Keine Geodaten gefunden!
+        no_elevation_data: Keine Höheninformationen gefunden!
+        illegal_combination: Diese Kombination von Format und dataFormat ist nicht erlaubt
+
   frontend:
     load_error: Fehler beim Laden des Inhalts.
     update_browser: "Ihr Webbrowser unterstützt noch nicht alle notwendingen Features!<br>Bitte aktualisieren Sie Ihren Webbrowser."
@@ -190,6 +216,10 @@ de:
       redo: Rückgängig gemachte Änderungen erneut anwenden
       upload_gpx:
         button_title: "GPX-Datei hochladen"
+      elevation_profile:
+        button_title: "Höhenprofil anzeigen"
+        y_label: Seehöhe
+        x_label: Entfernung
       styles:
         osm: OpenStreetMap
         topo: Topo
@@ -247,6 +277,11 @@ de:
       edit_image: Bild bearbeiten
       unsupported_format: Das Bild wird vom Bild-Editor in ein unterstützes Dateiformat konvertiert.
       save_error: Das Bild konnte nicht gespeichert werden
+    gravity_editor:
+      success_set: "Bildausschnitt wurde erfolgreich auf %{data} gesetzt"
+      success_reset: "Bildausschnitt wurde erfolgreich zurückgesetzt"
+      error: "Bildausschnitt konnte nicht gesetzt werden"
+      hint: "Standardmäßig wird die Option 'smart' verwendet, sofern keine andere Option ausgewählt wurde."
 
   schedule:
     dtstart: Startzeitpunkt
@@ -561,6 +596,7 @@ de:
     url: URL
     more_errors: "%{count} weitere Fehler"
     number: Anzahl
+    preview_links: Vorschau-Links
 
   embedded:
     move_down: nach unten verschieben
@@ -876,6 +912,7 @@ de:
     linked_copyright_holder: Verknüpfter Rechteinhaber
     linked_provider: Verknüpfter Dienstleister
     linked_sd_publisher: Verknüpfter Inhaber / Herausgeber
+    linked_event_series: Verknüpfte Eventserie
     in_schedule_types:
       absolute: Fester Zeitraum
       relative: Relativer Zeitraum
@@ -1098,6 +1135,8 @@ de:
     clear: "Alle Inhalte aus %{data} entfernen"
     remove_content_from: "%{name} aus %{collection} entfernen?"
     remove_from: "aus %{collection} entfernen"
+    set_gravity: "Bildausschnitt festlegen (Gravity)"
+    deactivate_gravity_editor: "Bearbeitung beenden"
 
   validation:
     errors:
@@ -1448,6 +1487,7 @@ de:
         longitude: Längengrad
         latitude: Breitengrad
         elevation: Meereshöhe (m)
+        use_geo_for_perimeter_search: Koordinaten für Umkreissuche übernehmen
       data_cycle_core/data_link:
         comment: Kommentar
         permissions: Berechtigungen
@@ -1571,6 +1611,7 @@ de:
         contents:
           root: Inhalte
           specification: Spezifikation
+          elevation_profile: Höhenprofil
         webhooks:
           root: Webhooks
           json_ld: JSON-LD
@@ -1617,6 +1658,7 @@ de:
         Requirements: Voraussetzung
         ServiceDescription: Beschreibung
         Suitable for: Geeignet für
+        Payment conditions: Zahlungsbedingungen
       event:
         EventHeader: Beschreibung
         EventHeaderShort: Kurzbeschreibung
@@ -1650,6 +1692,9 @@ de:
       package:
         PackageShortText: Kurzbeschreibung
         Package: Beschreibung
+    hrs:
+      text: Beschreibung
+      description: Kurzbeschreibung
     outdoor_active:
       place:
         directions: Anfahrt

@@ -48,7 +48,7 @@ module DataCycleCore
         # trigger update of dependent computed properties
         add_update_dependent_computed_properties_job
 
-        add_update_exif_values_job if template_name == 'Bild' && exif_property_names.present?
+        add_update_exif_values_job if ['Bild', 'ImageObject'].include?(template_name) && exif_property_names.present?
       end
 
       def before_destroy_data_hash(_options)

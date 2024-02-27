@@ -4,14 +4,14 @@ namespace :dc do
   namespace :update do
     desc 'import and update all classifications, external_sources, external_systems and templates'
     task configs: :environment do
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:import"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:import"].reenable
+
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_classifications"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_classifications"].reenable
 
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:external_systems:import"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:external_systems:import"].reenable
-
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:import"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:import"].reenable
     end
 
     namespace :search do

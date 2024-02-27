@@ -197,6 +197,7 @@ module DataCycleCore
 
     def api_value_format(value, definition)
       return value if definition.blank? || definition.dig('format').blank?
+      return value if DataCycleCore::DataHashService.blank?(value)
       "#{definition.dig('format', 'prepend')}#{value}#{definition.dig('format', 'append')}"
     end
 
@@ -251,8 +252,9 @@ module DataCycleCore
           'cc' => 'http://creativecommons.org/ns#',
           'dc' => 'https://schema.datacycle.at/',
           'dcls' => schema_url + '/',
-          'odta' => 'https://odta.io/voc/', # 'https://ds.sti2.org/'
-          'sdm' => 'https://smartdatamodels.org/'
+          'odta' => 'https://odta.io/voc/',
+          'sdm' => 'https://smartdatamodels.org/',
+          'alps' => 'http://json-schema.org/draft-07/schema/destinationdata/schemas/2022-04/datatypes#/definitions/'
         }.compact
       ]
     end

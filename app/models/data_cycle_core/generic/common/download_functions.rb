@@ -1,18 +1,19 @@
 # frozen_string_literal: true
 
 require 'rake_helpers/parallel_helper'
+# require 'hashdiff' # for debugging
 
 module DataCycleCore
   module Generic
     module Common
       module DownloadFunctions
-        def self.download_data(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, options:)
+        def self.download_data(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, options:)
           iteration_strategy = options.dig(:download, :iteration_strategy) || options.dig(:iteration_strategy) || :download_sequential
           raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel, :download_all].include?(iteration_strategy.to_sym)
-          send(iteration_strategy, download_object:, data_id:, data_name:, modified:, delete:, iterator:, options:)
+          send(iteration_strategy, download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, options:)
         end
 
-        def self.download_single(download_object:, data_id:, data_name:, modified: nil, delete: nil, raw_data:, _iterator: nil, options:)
+        def self.download_single(download_object:, data_id:, data_name:, modified: nil, delete: nil, raw_data:, _iterator: nil, cleanup_data: nil, options:)
           database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
@@ -27,15 +28,17 @@ module DataCycleCore
                     next unless locales.include?(language.to_sym)
                     if delete.present?
                       if delete.call(data_hash, language)
-                        data_hash[:deleted_at] = item.dump[language].try(:[], 'deleted_at') || Time.zone.now
-                        data_hash[:delete_reason] = item.dump[language].try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
+                        data_hash['deleted_at'] = item.dump[language].try(:[], 'deleted_at') || Time.zone.now
+                        data_hash['delete_reason'] = item.dump[language].try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
                       else
-                        data_hash = data_hash.except(:deleted_at, :delete_reason)
+                        data_hash = data_hash.except('deleted_at', 'delete_reason')
                       end
                     end
                     data_hash[:updated_at] = modified.call(data_hash) if modified.present?
                     item.data_has_changed = true if item.dump.dig(language, 'mark_for_update').present?
-                    item.data_has_changed ||= diff?(bson_to_hash(item.dump[language]), data_hash, diff_base: options.dig(:download, :diff_base))
+
+                    data_hash = cleanup_data.call(data_hash) if cleanup_data.present?
+                    item.data_has_changed ||= diff?(item.dump[language].as_json, data_hash.as_json, diff_base: options.dig(:download, :diff_base))
                     item.dump[language] = data_hash
                   end
                   item.updated_at = modified.call(raw_data.first[1]) if modified.present?
@@ -55,13 +58,13 @@ module DataCycleCore
           end
         end
 
-        def self.download_sequential(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, options:)
+        def self.download_sequential(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, options:)
           success = true
           delta = 100
           options[:locales] ||= I18n.available_locales
           if options[:locales].size != 1
             options[:locales].each do |language|
-              success &&= download_sequential(download_object:, data_id:, data_name:, modified:, delete:, iterator:, options: options.except(:locales).merge({ locales: [language] }))
+              success &&= download_sequential(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
@@ -123,8 +126,8 @@ module DataCycleCore
                           end
 
                           if delete.present? && delete.call(item_data, locale)
-                            item_data[:deleted_at] = local_item.try(:[], 'deleted_at') || Time.zone.now
-                            item_data[:delete_reason] = local_item.try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
+                            item_data['deleted_at'] = local_item.try(:[], 'deleted_at') || Time.zone.now
+                            item_data['delete_reason'] = local_item.try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
                           end
 
                           item.data_has_changed = true if options[:mode] == 'full'
@@ -139,9 +142,12 @@ module DataCycleCore
                           end
 
                           item.data_has_changed = true if options.dig(:download, :skip_diff) == true && item.data_has_changed.nil?
-                          item.data_has_changed = diff?(bson_to_hash(item.dump[locale]), item_data, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
+                          item_data = cleanup_data.call(item_data) if cleanup_data.present?
+                          item.data_has_changed = diff?(item.dump[locale].as_json, item_data.as_json, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
 
                           if item.data_has_changed
+                            # for debugging, also uncomment the require 'hashdiff' at the top of this file
+                            # differences = ::Hashdiff.diff(item_data.as_json, item.dump[locale].as_json)
                             item.dump[locale] = item_data
                             item.save!
                           else
@@ -177,7 +183,7 @@ module DataCycleCore
           success
         end
 
-        def self.download_parallel(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, options:) # rubocop:disable Lint/UnusedMethodArgument
+        def self.download_parallel(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, options:) # rubocop:disable Lint/UnusedMethodArgument
           success = true
           delta = 100
 
@@ -225,7 +231,9 @@ module DataCycleCore
                         data_hash[:updated_at] = modified.call(data_hash) if modified.present?
                         item.data_has_changed = true if options.dig(:download, :skip_diff) == true || item.dump.dig(language, 'mark_for_update').present?
                         item.data_has_changed = false if modified.present? && modified.call(item_data) < download_object.external_source.last_successful_download
-                        item.data_has_changed = diff?(bson_to_hash(item.dump[language]), data_hash, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
+
+                        data_hash = cleanup_data.call(data_hash) if cleanup_data.present?
+                        item.data_has_changed = diff?(item.dump[language].as_json, data_hash.as_json, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
                         item.dump[language] = data_hash
                         logging.item_processed(item_name, item_id, item_count, max_string)
                       end
@@ -265,7 +273,7 @@ module DataCycleCore
           success
         end
 
-        def self.download_all(download_object:, data_id:, data_name:, modified: nil, delete: nil, options:, **_unused)
+        def self.download_all(download_object:, data_id:, data_name:, modified: nil, delete: nil, cleanup_data: nil, options:, **_unused)
           success = true
           delta = 100
 
@@ -313,7 +321,8 @@ module DataCycleCore
                           data_hash[:updated_at] = modified.call(data_hash) if modified.present?
                           item.data_has_changed = true if options.dig(:download, :skip_diff) == true || item.dump.dig(key, 'mark_for_update').present?
                           item.data_has_changed = false if modified.present? && modified.call(item_data) < download_object.external_source.last_successful_download
-                          item.data_has_changed = diff?(bson_to_hash(item.dump[key]), data_hash, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
+                          data_hash = cleanup_data.call(data_hash) if cleanup_data.present?
+                          item.data_has_changed = diff?(item.dump[key].as_json, data_hash.as_json, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
                           item.dump[key] = data_hash
                         elsif ['included', 'classifications'].include?(key)
                           item.dump[key] = data_hash

@@ -88,7 +88,7 @@ module DataCycleCore
         end
 
         def float(data)
-          return if data.to_f
+          return if data.is_a?(::Numeric)
 
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.float',

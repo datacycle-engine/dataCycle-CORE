@@ -4,6 +4,7 @@ import turfBbox from "@turf/bbox";
 import turfCircle from "@turf/circle";
 import DomElementHelpers from "../helpers/dom_element_helpers";
 import throttle from "lodash/throttle";
+import MaplibreElevationProfileControl from "./map_controls/maplibre_elevation_profile_control";
 
 const MaplibreGl = () =>
 	import("maplibre-gl/dist/maplibre-gl").then((mod) => mod.default);
@@ -19,12 +20,18 @@ class MapLibreGlViewer {
 		this.$container = $(container);
 		this.$parentContainer = this.$container.parent(".geographic");
 		this.containerId = this.$container.attr("id");
+		this.thingId = DomElementHelpers.parseDataAttribute(
+			this.container.dataset.thingId,
+		);
+		this.hasElevation = DomElementHelpers.parseDataAttribute(
+			this.container.dataset.hasElevation,
+		);
 		this.maplibreGl;
 		this.map;
 		this.value = this.$container.data("value");
 		this.beforeValue = this.$container.data("before-position");
 		this.afterValue = this.$container.data("after-position");
-		this.type = this.$container.data("type");
+		this.type = this.$container.data("type") || "Collection";
 		this.additionalValues = this.$container.data("additionalValues") || {};
 		this.additionalValuesOverlay = this.$container.data(
 			"additionalValuesOverlay",
@@ -40,10 +47,11 @@ class MapLibreGlViewer {
 		);
 		this.icons = iconPaths;
 		this.colorsHandler = {
-			get: function (target, name) {
+			get: (target, name) => {
 				if (Object.hasOwn(target, name)) return target[name];
-				else if (name) return name;
-				else target.default;
+				if (name) return name;
+
+				return target.default;
 			},
 		};
 		this.turfCircleOptions = {
@@ -145,7 +153,9 @@ class MapLibreGlViewer {
 				},
 				url: url,
 			};
-		} else if (url.includes(location.host)) {
+		}
+
+		if (url.includes(location.host)) {
 			return {
 				headers: {
 					"X-CSRF-Token": document.getElementsByName("csrf-token")[0].content,
@@ -966,6 +976,11 @@ class MapLibreGlViewer {
 	initControls() {
 		this.map.addControl(new this.maplibreGl.NavigationControl(), "top-left");
 		this.map.addControl(new this.maplibreGl.FullscreenControl(), "top-right");
+		if (this.isLineString() && this.hasElevation)
+			this.map.addControl(
+				new MaplibreElevationProfileControl({ thingId: this.thingId }),
+				"top-right",
+			);
 	}
 	initMouseWheelZoom() {
 		this.map.scrollZoom.disable();
@@ -1113,10 +1128,10 @@ class MapLibreGlViewer {
 		return ["concat", "start_", ["get", "color"]];
 	}
 	isPoint() {
-		return this.type.includes("Point");
+		return this.type?.includes("Point");
 	}
 	isLineString() {
-		return this.type.includes("LineString");
+		return this.type?.includes("LineString");
 	}
 }
 

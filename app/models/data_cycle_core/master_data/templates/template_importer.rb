@@ -34,7 +34,16 @@ module DataCycleCore
 
           return @errors.concat(@validator.errors) unless @validator.valid?
 
-          update_templates
+          ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
+            begin
+              update_templates
+              update_schema_types
+            rescue StandardError => e
+              @errors.push("import error => #{e}")
+            end
+
+            raise ActiveRecord::Rollback if @errors.present?
+          end
         end
 
         def validate
@@ -93,12 +102,28 @@ module DataCycleCore
           end, unique_by: :template_name)
         end
 
+        def update_schema_types
+          schema_types = []
+          tree_label = DataCycleCore::ClassificationTreeLabel.create_with(internal: true).find_or_create_by!(name: 'SchemaTypes')
+
+          DataCycleCore::ThingTemplate.where.not(content_type: 'embedded').find_each do |thing_template|
+            thing_template.schema_types.each do |types|
+              next if schema_types.any? { |st| st[:full_path_names] == types }
+
+              schema_types.push({
+                path: types
+              })
+            end
+          end
+
+          tree_label.insert_all_classifications_by_path(schema_types)
+        end
+
         def load_templates
           templates = {}
+          template_definitions = []
 
           @template_paths.each do |core_template_path|
-            template_definitions = []
-
             CONTENT_SETS.each do |content_set_name|
               Dir[File.join(core_template_path, content_set_name.to_s, '*.yml')].each do |path|
                 data_templates = Array.wrap(YAML.safe_load(File.open(path.to_s), permitted_classes: [Symbol]))
@@ -114,9 +139,9 @@ module DataCycleCore
                 @errors.push("error loading YML File (#{path}) => #{e.message}")
               end
             end
-
-            transform_template_definitions!(template_definitions, templates)
           end
+
+          transform_template_definitions!(template_definitions, templates)
 
           @mixin_paths = templates.values.flatten.flat_map { |v| v[:mixins] }
           @templates = templates
@@ -124,34 +149,45 @@ module DataCycleCore
 
         def transform_template_definitions!(template_definitions, templates)
           while template_definitions.present?
-            data_template = template_definitions.shift
-            template = data_template[:data]
+            begin
+              data_template = template_definitions.shift
+              template = data_template[:data]
 
-            next template_definitions.push(data_template) unless template_dependencies_ready?(template, template_definitions, templates)
+              next template_definitions.push(data_template) unless template_dependencies_ready?(template, template_definitions, templates)
 
-            transformer = TemplateTransformer.new(template:, content_set: data_template[:set], mixins: @mixins, templates:)
-            transformed_data = transformer.transform
+              transformer = TemplateTransformer.new(template:, content_set: data_template[:set], mixins: @mixins, templates:)
+              transformed_data = transformer.transform
 
-            data = {
-              name: transformed_data[:name],
-              path: data_template[:path],
-              data: transformed_data,
-              set: data_template[:set],
-              mixins: transformer.mixin_paths
-            }
+              data = {
+                name: transformed_data[:name],
+                path: data_template[:path],
+                data: transformed_data,
+                set: data_template[:set],
+                mixins: transformer.mixin_paths
+              }
 
-            if (duplicate = templates.values.flatten.find { |v| v[:name] == data[:name] }).present?
-              merge_duplicate_template!(data:, duplicate:)
-            else
-              templates[data_template[:set]] ||= []
-              templates[data_template[:set]].push(data)
+              if (duplicate = templates.values.flatten.find { |v| v[:name] == data[:name] }).present?
+                merge_duplicate_template!(data:, duplicate:)
+              else
+                templates[data_template[:set]] ||= []
+                templates[data_template[:set]].push(data)
+              end
+            rescue StandardError => e
+              @errors.push("#{data_template[:set]}.#{template[:name]} => #{e.message}")
             end
           end
         end
 
         def template_dependencies_ready?(template, template_definitions, templates)
           return true unless template.key?(:extends)
-          return false if templates.values.flatten.none? { |v| v[:name] == template[:extends] }
+          if templates.values.flatten.none? { |v| v[:name] == template[:extends] }
+            raise "BaseTemplate missing for #{template[:extends]}" if template_definitions.none? do |v|
+                                                                        v.dig(:data, :name) == template[:extends] &&
+                                                                        (v.dig(:data, :extends).blank? || v.dig(:data, :extends) != v.dig(:data, :name))
+                                                                      end
+
+            return false
+          end
           return true if template[:name].blank? || template[:name] == template[:extends]
 
           template_definitions.none? do |v|

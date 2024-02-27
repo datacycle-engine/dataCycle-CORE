@@ -95,18 +95,19 @@ namespace :dc do
       end
     end
 
-    desc 'consolidate duplicates with <score> and above'
-    task :merge_duplicates, [:min_score, :stored_filter_id, :dry_run] => [:environment] do |_, args|
+    desc 'consolidate duplicates with <score> and above for external_source_id'
+    task :merge_duplicates, [:min_score, :stored_filter_id, :filter_duplicates, :dry_run] => [:environment] do |_, args|
       abort('Feature DuplicateCandidate has to be enabled!') unless DataCycleCore::Feature::DuplicateCandidate.enabled?
 
+      filter_duplicates = args.fetch(:filter_duplicates, false)
       dry_run = args.fetch(:dry_run, false)
       stored_filter_id = args.fetch(:stored_filter_id, nil)
       score = args.fetch(:min_score, nil)&.to_i
 
       stored_filter = stored_filter_id.present? ? DataCycleCore::StoredFilter.find(stored_filter_id) : DataCycleCore::StoredFilter.new
       stored_filter.language = Array(I18n.available_locales).map(&:to_s)
-      query = stored_filter.apply
-      query = query.duplicate_candidates(true, score)
+      query_sf = stored_filter.apply
+      query = query_sf.duplicate_candidates(true, score)
 
       items = query.all
       puts "Started merging #{items.size} duplicates\n"
@@ -114,7 +115,10 @@ namespace :dc do
       items.find_each do |item|
         next if dry_run
 
-        duplicates = (item.duplicate_candidates.where('score >= ?', score).duplicates + [item]).sort_by { |v| v.try(:updated_at) }
+        duplicates_query = item.duplicate_candidates.where('score >= ?', score).duplicates
+        duplicates_query = duplicates_query.where(id: query_sf.select(:id)) if filter_duplicates
+
+        duplicates = (duplicates_query + [item]).sort_by { |v| v.try(:updated_at) }
         original = duplicates.pop
 
         duplicates.each do |duplicate|

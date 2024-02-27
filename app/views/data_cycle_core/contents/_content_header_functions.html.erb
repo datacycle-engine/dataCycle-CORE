@@ -4,6 +4,18 @@
 
     <%= render 'locale_links', local_assigns if content.try(:translated_locales)&.many? %>
 
+    <%
+      channel = content.try(:output_channel)
+      channel_uri = channel.pluck('uri').first ||
+        DataCycleCore::ClassificationAlias.find_by_internal_name(channel.pluck('name').first)&.uri
+    %>
+
+    <% if channel_uri.present? %>
+      <li class="has-dropdown preview_links">
+        <%= render 'content_header_preview_links', content: content if channel_uri.present? %>
+      </li>
+    <% end %>
+
     <% if can? :create, :auto_translate %>
       <%= render 'auto_translation', local_assigns if DataCycleCore::Feature::AutoTranslation.allowed?(content) %>
     <% end %>

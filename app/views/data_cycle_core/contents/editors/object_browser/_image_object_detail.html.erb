@@ -1,0 +1,53 @@
+<% I18n.with_locale(object.first_available_locale) do %>
+  <%
+    thumbnail_url = object.try(:thumbnail_url) || object.try(:image_asset).try(:first).try(:thumbnail_url) || object.try(:asset).try(:first).try(:thumbnail_url)
+    random_id = SecureRandom.hex(10)
+  %>
+
+  <%= tag.div(class: "item-info-content #{thing_content_score_class(object)}", data: { content_score: object.try(:internal_content_score)&.round }) do %>
+    <h5>Details (<%= I18n.locale %>)</h5>
+    <%= tag.div(render('data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({content: object})), class: 'buttons') %>
+    <% unless object.schema.nil? %>
+      <dl>
+        <% if thumbnail_url.present? %>
+          <dd class="detail-thumb"><img class="lazyload" data-src="<%= thumbnail_url %>" data-open="<%= random_id %>" /></dd>
+        <% end %>
+
+        <% unless object.title.blank? %>
+          <dt><%= t('object_browser.details.title', locale: active_ui_locale).capitalize %> </dt>
+          <dd><%= object.title %></dd>
+        <% end %>
+
+        <% if object.try(:width).present? || object.try(:height).present? || object.try(:content_size).present? %>
+          <dt><%= t('object_browser.details.info', locale: active_ui_locale).capitalize %> </dt>
+          <dd><%= "#{object.try(:width)&.to_i}px/#{object.try(:height)&.to_i}px " if object.try(:width).present? && object.try(:height).present? %><%= "(#{number_to_human_size(object.try(:content_size))})" if object.try(:content_size).present? %></dd>
+        <% end %>
+
+        <% if object.try(:copyright_holder).present? || object.try(:author).present? %>
+          <dt><%= t('object_browser.details.copyright', locale: active_ui_locale).capitalize %> </dt>
+          <dd>
+            © <%= "#{object.copyright_year.to_i} " if object.try(:copyright_year).present? %>
+            <%= "#{I18n.with_locale(object.copyright_holder.first.first_available_locale){ object.copyright_holder.first.try(:title) }} " if object.try(:copyright_holder).present? %>
+            <%= "/ #{I18n.with_locale(object.author.first.first_available_locale){ object.author.first.try(:title) }}" if object.try(:author).present? %>
+          </dd>
+        <% end %>
+
+        <% object.object_browser_fields.each do |attribute| %>
+          <%= render_attribute_viewer key: attribute, definition: object.properties_for(attribute), value: object.try(attribute.to_sym), parameters: {options: {}}, content: object if object.properties_for(attribute).present? %>
+        <% end %>
+
+        <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: object} %>
+        <% if object.try(:created_at).present? %>
+          <dt><%= t('object_browser.details.created_at', locale: active_ui_locale).capitalize %> </dt>
+          <dd><%= l(object.created_at, locale: active_ui_locale, format: :history) %></dd>
+        <% end %>
+        <% if object.try(:updated_at).present? %>
+          <dt><%= t('object_browser.details.updated_at', locale: active_ui_locale).capitalize %> </dt>
+          <dd><%= l(object.updated_at, locale: active_ui_locale, format: :history) %></dd>
+        <% end %>
+      </dl>
+    <% end %>
+  <% end %>
+
+  <%= render 'data_cycle_core/contents/grid/compact/attributes/image_overlay', object: object, html_id: random_id %>
+<% end %>

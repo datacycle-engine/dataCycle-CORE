@@ -15,19 +15,13 @@ module DataCycleCore
         end
 
         def geo_comp(a, b)
-          # special case to fix a problem with linestrings from gip with changed direction (#32435)
-          return false if a.respond_to?(:coordinates) && b.respond_to?(:coordinates) &&
-                          a.geometry_type != RGeo::Feature::Point && b.geometry_type != RGeo::Feature::Point &&
-                          a.coordinates.flatten[0..1] != b.coordinates.flatten[0..1]
-
-          return true if a == b
+          return true if a.blank? && b.blank?
           return false if a.blank? || b.blank?
-          if a.respond_to?(:geometry_type) &&
-             b.respond_to?(:geometry_type) &&
-             a.geometry_type == RGeo::Feature::Point &&
-             b.geometry_type == RGeo::Feature::Point
-            ((a.x - b.x).abs < epsilon) && ((a.y - b.y).abs < epsilon)
-          end
+          return true if a.coordinates == b.coordinates
+
+          return ((a.x - b.x).abs < epsilon) && ((a.y - b.y).abs < epsilon) if a.geometry_type == RGeo::Feature::Point && b.geometry_type == RGeo::Feature::Point
+
+          false
         end
       end
     end

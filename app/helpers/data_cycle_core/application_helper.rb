@@ -116,6 +116,26 @@ module DataCycleCore
       end
     end
 
+    def perimeter_search_link(lat, lon)
+      return unless can?(:advanced_filter, :backend, '', 'geo_filter', { data: { name: 'geo_radius', advancedType: ' geo_radius' } }) &&
+                    lat.present? &&
+                    lon.present?
+
+      id_path = "f[#{SecureRandom.hex(10)}]"
+
+      form_tag(root_path) do |_f|
+        concat hidden_field_tag("#{id_path}[c]", 'a')
+        concat hidden_field_tag("#{id_path}[m]", 'i')
+        concat hidden_field_tag("#{id_path}[q]", 'geo_radius')
+        concat hidden_field_tag("#{id_path}[t]", 'geo_filter')
+        concat hidden_field_tag("#{id_path}[n]", 'geo_radius')
+        concat hidden_field_tag("#{id_path}[v][lat]", lat)
+        concat hidden_field_tag("#{id_path}[v][lon]", lon)
+        concat hidden_field_tag("#{id_path}[v][distance]", 5000)
+        concat submit_tag(t('activerecord.attributes.data_cycle_core/place.use_geo_for_perimeter_search', locale: active_ui_locale), class: 'button info')
+      end
+    end
+
     def valid_mode(mode)
       case mode
       when 'list', 'tree', 'map' then mode

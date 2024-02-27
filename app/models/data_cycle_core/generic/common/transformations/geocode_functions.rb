@@ -10,7 +10,12 @@ module DataCycleCore
 
             location = Feature::Geocode.geocode_address(data['address'])
 
-            data['location'] = location if location.is_a?(RGeo::Feature::Point) && location.present?
+            if location.is_a?(RGeo::Feature::Point) && location.present?
+              data['location'] = location
+              data['longitude'] = location.x
+              data['latitude'] = location.y
+              data['universal_classifications'] = (data['universal_classifications'] || []) + DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('Geocoding', 'geocoded')
+            end
 
             data
           end
@@ -20,7 +25,10 @@ module DataCycleCore
 
             address_hash = Feature::Geocode.reverse_geocode(data['location'])
 
-            data['address'] = address_hash.to_h if address_hash.is_a?(DataCycleCore::OpenStructHash) && address_hash.present?
+            if address_hash.is_a?(DataCycleCore::OpenStructHash) && address_hash.present?
+              data['address'] = address_hash.to_h
+              data['universal_classifications'] = (data['universal_classifications'] || []) + DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('Geocoding', 'reverse_geocoded')
+            end
 
             data
           end
@@ -29,3 +37,5 @@ module DataCycleCore
     end
   end
 end
+
+# Rails.cache.fetch(Digest::SHA1.hexdigest(data['location'].to_s))
