@@ -34,8 +34,8 @@ module DataCycleCore
           endpoint.translate(translate_hash.to_h)
         end
 
-        def allowed_attribute?(content, key, locale)
-          enabled? && allowed_languages.include?(locale.to_s) && configuration(content, key).dig(:inline)
+        def allowed_attribute?(content, key, locale, user)
+          enabled? && allowed_languages.include?(locale.to_s) && configuration(content, key).dig(:inline) && user&.can?(:translate, content)
         end
 
         def allowed_languages

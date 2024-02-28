@@ -225,6 +225,12 @@ module DataCycleCore
   mattr_accessor :external_system_template_paths
   self.external_system_template_paths = []
 
+  mattr_accessor :permissions
+  self.permissions = {}
+
+  mattr_accessor :additional_configuration_paths
+  self.additional_configuration_paths = []
+
   mattr_accessor :job_queues
   self.job_queues = {
     default: 1,
@@ -243,16 +249,28 @@ module DataCycleCore
     classification_visibilities.except(['show_more', 'tree_view', 'classification_overview'])
   end
 
-  def self.load_configurations_for_file(file_name)
-    load_configurations(Rails.root.join('config', 'configurations', Rails.env, file_name, '**', '*.yml'))
-    load_configurations(Rails.root.join('config', 'configurations', Rails.env, "#{file_name}.yml"))
-    load_configurations(Rails.root.join('config', 'configurations', file_name, '**', '*.yml'), false)
-    load_configurations(Rails.root.join('config', 'configurations', "#{file_name}.yml"))
+  def self.configuration_paths
+    [
+      Rails.root.join('config', 'configurations'),
+      DataCycleCore::Engine.root.join('config', 'configurations')
+    ].unshift(*DataCycleCore.additional_configuration_paths.reverse)
+  end
 
-    load_configurations(DataCycleCore::Engine.root.join('config', 'configurations', Rails.env, file_name, '**', '*.yml'))
-    load_configurations(DataCycleCore::Engine.root.join('config', 'configurations', Rails.env, "#{file_name}.yml"))
-    load_configurations(DataCycleCore::Engine.root.join('config', 'configurations', file_name, '**', '*.yml'), false)
-    load_configurations(DataCycleCore::Engine.root.join('config', 'configurations', "#{file_name}.yml"))
+  def self.reset_configurations(file_name = '*')
+    Dir.glob(configuration_paths.map { |p| File.join(p, file_name) }).map { |p| File.basename(p, '.*') }.uniq.each do |config_name|
+      next unless respond_to?(config_name)
+
+      send("#{config_name}=", {})
+    end
+  end
+
+  def self.load_configurations_for_file(file_name)
+    configuration_paths.each do |file_path|
+      load_configurations(File.join(file_path, Rails.env, file_name, '**', '*.yml'))
+      load_configurations(File.join(file_path, Rails.env, "#{file_name}.yml"))
+      load_configurations(File.join(file_path, file_name, '**', '*.yml'), false)
+      load_configurations(File.join(file_path, "#{file_name}.yml"))
+    end
   end
 
   def self.load_configurations(path, include_environments = true)
@@ -346,6 +364,12 @@ module DataCycleCore
     config.autoload_once_paths << "#{root}/app/middlewares"
     config.autoload_paths += Dir['vendor/gems/datacycle-*/lib']
     config.eager_load_paths += Dir['vendor/gems/datacycle-*/lib']
+
+    if Rails.env.development? # needed for reloading yml configurations in development context
+      config.eager_load_paths += Dir['config/configurations/**/*.yml']
+      config.eager_load_paths += Dir['vendor/gems/data-cycle-core/config/configurations/**/*.yml']
+      config.eager_load_paths += Dir['vendor/gems/datacycle-*/config/configurations/**/*.yml']
+    end
 
     config.before_initialize do |app|
       ### used for backward compatibility (Rails < 5.0)

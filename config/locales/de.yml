@@ -1644,21 +1644,25 @@ de:
     feratel:
       meeting_point: Treffpunkt
       additional_service:
-        Arrival Information: Informationen zur Anreise
-        Cancellation Information: Stornierungsregelungen
-        Difficulty: Schwierigkeitsgrad
-        Equipment: Ausrüstung
-        "FAQ / good to know": FAQ / nützliche Hinweise
+        Payment: Zahlungsmodalitäten
+        ServiceDescription: Beschreibung
         Included Services: Enthaltene Leistungen
+        Not included Services: Nicht enthaltene Leistungen
+        Equipment: Ausrüstung
+        Bring along: Zum Mitbringen
+        Rental Equipment: Leihausrüstung
+        Suitable for: Geeignet für
+        Difficulty: Schwierigkeitsgrad
+        Requirements: Voraussetzungen
         Meeting Point: Treffpunkt
         Opening hours: Öffnungszeiten
-        Payment: Zahlungsmodalitäten
-        Price Information: Preis
-        Rental Equipment: Mietausrüstung
-        Requirements: Voraussetzung
-        ServiceDescription: Beschreibung
-        Suitable for: Geeignet für
-        Payment conditions: Zahlungsbedingungen
+        Price Information: Preis Information
+        Payment conditions: Zahlungskonditionen
+        Cancellation Information: Stornierungsregelungen
+        Arrival Information: Informationen zur Anreise
+        "FAQ / good to know": Häufige Fragen und Antworten
+        "Hint / Advice": Hinweis
+        Important information: Wichtige Informationen
       event:
         EventHeader: Beschreibung
         EventHeaderShort: Kurzbeschreibung
