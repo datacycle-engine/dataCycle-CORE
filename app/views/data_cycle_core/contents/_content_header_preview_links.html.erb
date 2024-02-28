@@ -5,23 +5,21 @@
 
   <h5><%= t('common.preview_links', locale: active_ui_locale) %></h5>
 
-<ul class="list-items">
-  <% content.try(:output_channel).to_a.each do |channel| %>
-    <%
-      uri = channel.uri || DataCycleCore::ClassificationAlias.find_by_internal_name(channel.name).present? ? DataCycleCore::ClassificationAlias.find_by_internal_name(channel.name).uri : nil
-    %>
-    <% if uri.present? %>
-      <% preview_url = format(uri+"?dc_preview_lang=%{dc_preview_lang}&dc_preview_id=%{dc_preview_id}", dc_preview_lang: active_ui_locale, dc_preview_id: content[:id]) %>
-      <li class="active">
-        <span>
-          <%= link_to channel.name, preview_url %>
-        </span>
-        <span class="buttons">
+  <ul class="list-items">
+    <% content.try(:output_channel).to_a.each do |channel| %>
+      <% uri = channel.uri.presence || channel.primary_classification_alias&.uri %>
+      <% if uri.present? %>
+        <% preview_url = format(uri, locale: active_ui_locale, id: content&.id) %>
+        <li class="active">
+          <span>
+            <%= link_to channel.name, preview_url %>
+          </span>
+          <span class="buttons">
             <%= link_to tag.i(class: 'fa fa-share', aria_hidden: true),
                         preview_url %>
-        </span>
-      </li>
+          </span>
+        </li>
       <% end %>
-  <% end %>
-</ul>
+    <% end %>
+  </ul>
 </div>
