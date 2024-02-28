@@ -4,11 +4,7 @@
 
     <%= render 'locale_links', local_assigns if content.try(:translated_locales)&.many? %>
 
-    <% if content.try(:output_channel)&.includes(:primary_classification_alias)&.any? { |c| c.uri.present? || c.primary_classification_alias&.uri.present? } %>
-      <li class="has-dropdown preview_links">
-        <%= render 'content_header_preview_links', content: content %>
-      </li>
-    <% end %>
+    <%= render 'content_header_preview_links', content: content if content.try(:output_channel)&.includes(:primary_classification_alias)&.any? { |c| c.uri.present? || c.primary_classification_alias&.uri.present? } %>
 
     <% if can? :create, :auto_translate %>
       <%= render 'auto_translation', local_assigns if DataCycleCore::Feature::AutoTranslation.allowed?(content) %>
