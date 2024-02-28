@@ -84,6 +84,7 @@ module DataCycleCore
         raise 'missing role in permission' if role.blank?
 
         DataCycleCore.permissions.dig(:roles, permissions)&.each_value do |permission|
+          next if permission.blank?
           parameters = parse_parameters_from_yaml(permission[:parameters])
 
           permit(
@@ -100,7 +101,8 @@ module DataCycleCore
         DataCycleCore.permissions.dig(:user_groups)&.each do |group_name, permissions|
           raise 'missing user_group name in permission' if group_name.blank?
 
-          permissions.each_value do |permission|
+          permissions&.each_value do |permission|
+            next if permission.blank?
             parameters = parse_parameters_from_yaml(permission[:parameters])
 
             permit(

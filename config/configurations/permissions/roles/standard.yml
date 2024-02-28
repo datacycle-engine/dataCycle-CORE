@@ -215,7 +215,7 @@ classification_overview:
   segment: TreeLabelByVisibility
   parameters: classification_overview
 
-auto_translate:
+auto_translate_feature:
   actions: [create, destroy]
   segment: SubjectByConditions
   parameters: :auto_translate
