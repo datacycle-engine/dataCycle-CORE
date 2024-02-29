@@ -1183,7 +1183,7 @@
     bottom: 0;
     padding: 5rem 1.5rem 1.5rem 1.5rem;
     height: calc(100% - 7.9rem);
-    overflow-y: scroll;
+    overflow-y: auto;
     backface-visibility: hidden;
     z-index: 3;
     background-color: $white;

@@ -137,7 +137,7 @@ module DataCycleCore
           end
         end
 
-        tile_attributes
+        tile_attributes.reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }
       end
 
       def json_params
