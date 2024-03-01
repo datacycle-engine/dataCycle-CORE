@@ -22,12 +22,13 @@ namespace :dc do
         next if computed_names.present? && computed_names.any? && (computed_names & template.computed_property_names).none?
 
         items = DataCycleCore::Thing.where(template_name: template.template_name)
-        translated_computed = template.computed_property_names.intersect?(template.translatable_property_names)
+        computed_keys = computed_names.presence || template.computed_property_names
+        translated_computed = computed_keys.intersect?(template.translatable_property_names)
         progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
 
-        update_proc = lambda { |content|
+        update_proc = lambda { |content, keys|
           data_hash = {}
-          content.add_computed_values(data_hash:, keys: computed_names, force: true)
+          content.add_computed_values(data_hash:, keys:, force: true)
           content.set_data_hash(data_hash:, update_computed: false)
         }
 
@@ -42,10 +43,11 @@ namespace :dc do
 
               if translated_computed
                 item.available_locales.each do |locale|
-                  I18n.with_locale(locale) { update_proc.call(item) }
+                  keys = locale == item.first_available_locale ? computed_keys : computed_keys.intersection(template.translatable_property_names)
+                  I18n.with_locale(locale) { update_proc.call(item, keys) }
                 end
               else
-                I18n.with_locale(item.first_available_locale) { update_proc.call(item) }
+                I18n.with_locale(item.first_available_locale) { update_proc.call(item, computed_keys) }
               end
             rescue StandardError => e
               puts "Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}"
