@@ -117,9 +117,7 @@ module DataCycleCore
     end
 
     def perimeter_search_link(lat, lon)
-      return unless can?(:advanced_filter, :backend, '', 'geo_filter', { data: { name: 'geo_radius', advancedType: ' geo_radius' } }) &&
-                    lat.present? &&
-                    lon.present?
+      return unless lat.present? && lon.present? && can?(:advanced_filter, :backend, '', 'geo_filter', { data: { name: 'geo_radius', advancedType: ' geo_radius' } })
 
       id_path = "f[#{SecureRandom.hex(10)}]"
 
