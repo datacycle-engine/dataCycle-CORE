@@ -25,7 +25,7 @@
                   confirm: tag.div(class: 'remote-render', data: { remote_path: 'data_cycle_core/classifications/classification_alias_removal_warning', remote_options: CGI::escapeHTML(to_query_params(classification_alias: classification_tree.sub_classification_alias).to_json) }),
                   disable_with: tag.i(class: 'fa fa-spinner fa-spin'),
                   dc_tooltip: t('actions.delete_with_data', data: classification_tree.sub_classification_alias.try(:internal_name), locale: active_ui_locale)
-                } if can?(:destroy, classification_tree.sub_classification_alias) %>
+                } if can?(:destroy, classification_tree) %>
 
     <% if @classification_polygon_counts&.key?(classification_tree.sub_classification_alias.id) %>
       <% overlay_id = SecureRandom.hex(10) %>
