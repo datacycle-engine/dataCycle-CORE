@@ -217,8 +217,8 @@ module DataCycleCore
       end
 
       sql = <<-SQL.squish
-        WITH raw_data(classification_tree_label_id, name_i18n, name, full_path_names, parent_path_names, classification_ids) AS (
-          VALUES #{Array.new(sql_values.size, '(?::uuid, ?::jsonb, ?, ARRAY[?]::varchar[], ARRAY[?]::varchar[], ARRAY[?]::uuid[])').join(', ')}
+        WITH raw_data(classification_tree_label_id, name_i18n, name, full_path_names, parent_path_names, classification_ids, external_source_id) AS (
+          VALUES #{Array.new(sql_values.size, '(?::uuid, ?::jsonb, ?, ARRAY[?]::varchar[], ARRAY[?]::varchar[], ARRAY[?]::uuid[], ?::uuid)').join(', ')}
         ),
         classification_data AS (
           SELECT DISTINCT ON (raw_data.full_path_names) raw_data.*,
@@ -233,9 +233,10 @@ module DataCycleCore
             ORDER BY raw_data.full_path_names, ca.id ASC NULLS LAST
         ),
         classifications AS (
-          INSERT INTO classifications (id, name, created_at, updated_at)
+          INSERT INTO classifications (id, name, external_source_id, created_at, updated_at)
           SELECT classification_data.classification_id,
             classification_data.name,
+            classification_data.external_source_id,
             NOW(),
             NOW()
           FROM classification_data ON conflict (id) DO NOTHING
@@ -245,12 +246,14 @@ module DataCycleCore
               id,
               internal_name,
               name_i18n,
+              external_source_id,
               created_at,
               updated_at
             )
           SELECT classification_data.classification_alias_id,
             classification_data.name,
             classification_data.name_i18n,
+            classification_data.external_source_id,
             NOW(),
             NOW()
           FROM classification_data ON conflict (id) DO NOTHING
@@ -270,7 +273,8 @@ module DataCycleCore
         classification_trees_data AS (
           SELECT classification_data.classification_tree_label_id AS classification_tree_label_id,
             joined_cd.classification_alias_id AS parent_id,
-            classification_data.classification_alias_id AS child_id
+            classification_data.classification_alias_id AS child_id,
+            classification_data.external_source_id AS external_source_id
           FROM classification_data
             LEFT OUTER JOIN classification_data joined_cd ON joined_cd.full_path_names = classification_data.parent_path_names
         )
@@ -278,12 +282,14 @@ module DataCycleCore
           classification_tree_label_id,
           parent_classification_alias_id,
           classification_alias_id,
+          external_source_id,
           created_at,
           updated_at
         )
         SELECT classification_trees_data.classification_tree_label_id,
           classification_trees_data.parent_id,
           classification_trees_data.child_id,
+          classification_trees_data.external_source_id,
           NOW(),
           NOW()
         FROM classification_trees_data ON conflict (classification_alias_id)
@@ -423,7 +429,8 @@ module DataCycleCore
         row[:name],
         row[:path],
         row[:path][...-1],
-        row[:classification_ids]
+        row[:classification_ids],
+        row[:external_source_id]
       ]
     end
 

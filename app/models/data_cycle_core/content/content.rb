@@ -25,7 +25,7 @@ module DataCycleCore
       attr_writer :webhook_data
 
       DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
-        feature = ('DataCycleCore::Feature::' + key.to_s.classify).constantize
+        feature = ModuleService.load_module("Feature::#{key.to_s.classify}", 'Datacycle')
         include feature.content_module if feature.enabled? && feature.content_module
       end
       extend  DataCycleCore::Common::ArelBuilder
@@ -537,7 +537,7 @@ module DataCycleCore
           h[key] = DataCycleCore.features
             .select { |_, v| !v.dig(:only_config) == true }
             .keys
-            .map { |f| "DataCycleCore::Feature::#{f.to_s.classify}".constantize.try("#{prefix}attribute_keys", self) }
+            .map { |f| ModuleService.load_module("Feature::#{f.to_s.classify}", 'Datacycle').try("#{prefix}attribute_keys", self) }
             .flatten
         end
         @feature_attributes[prefix]
