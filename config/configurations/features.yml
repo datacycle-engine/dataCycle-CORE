@@ -580,3 +580,6 @@
 
 :auto_tagging:
   :enabled: false
+  :external_source: "Cloud Vision"
+  :endpoint: Datacycle::Feature::AutoTagging::CloudVision::Endpoint
+  :tree_label: Cloud Vision - Labels
