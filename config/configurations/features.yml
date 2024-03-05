@@ -577,3 +577,6 @@
   :enabled: false
   :attribute_keys:
     - gravity
+
+:auto_tagging:
+  :enabled: false
