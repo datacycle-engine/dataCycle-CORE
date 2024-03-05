@@ -9,7 +9,7 @@ module DataCycleCore
     before_action :set_return_to, only: [:show, :edit]
 
     DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
-      feature = ('DataCycleCore::Feature::' + key.to_s.classify).constantize
+      feature = ModuleService.load_module("Feature::#{key.to_s.classify}", 'Datacycle')
       include feature.controller_module if feature.enabled? && feature.controller_module
     end
 
