@@ -401,7 +401,7 @@ module DataCycleCore
         return if until_date.blank? || until_time.blank?
 
         parsed_until_date = until_date
-        parsed_until_date = rrule[:until][:time] if parsed_until_date.is_a?(::Hash) && rrule[:until].key?(:time)
+        parsed_until_date = parsed_until_date[:time]&.in_time_zone(parsed_until_date[:zone]) if parsed_until_date.is_a?(::Hash) && parsed_until_date.key?(:time)
         parsed_until_time = until_time
         parsed_until_time = parsed_until_time.in_time_zone if parsed_until_time.is_a?(::String)
 
