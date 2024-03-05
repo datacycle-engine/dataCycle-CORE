@@ -104,7 +104,7 @@ namespace :data_cycle_core do
           )
       SQL
 
-      images = DataCycleCore::Thing.where(query).limit(10)
+      images = DataCycleCore::Thing.where(query)
 
       total_items = images.count
 
@@ -118,7 +118,7 @@ namespace :data_cycle_core do
 
       queue.append do
         images.find_each do |image|
-          puts "Auto tagging image: #{image.id}"
+          # puts "Auto tagging image: #{image.id}"
           progress.increment
           success = image.auto_tag
           count += 1 if success
