@@ -142,5 +142,42 @@ module DataCycleCore
         id: "#{options&.dig(:prefix)}#{sanitize_to_id(key)}"
       }.merge(definition.dig('ui', 'edit', 'data_attributes')&.symbolize_keys&.transform_values { |v| v.is_a?(::Array) || v.is_a?(::Hash) ? v.to_json : v } || {})
     end
+
+    def attribute_group_container(key:, definition:, options:, content:, html_content:, **args)
+      return if html_content.blank?
+      return html_content if options&.dig('edit_scope') == 'bulk_edit'
+
+      is_accordion = definition.dig('features', 'collapsible')
+      group_title = attribute_group_title(contextual_content(key:, definition:, options:, content:, **args), key)
+      group_classes = ['attribute-group', 'editor', key.attribute_name_from_key, definition['features']&.keys&.join(' ')]
+      group_classes << 'accordion' if is_accordion
+      group_classes << 'has-title' if group_title.present?
+
+      accordion_classes = ['attribute-group-item']
+      accordion_classes << 'accordion-item' if is_accordion
+      accordion_classes << 'is-active' unless !is_accordion || definition.dig('features', 'collapsed')
+
+      tag.div(class: group_classes.compact.join(' '), data: { allow_all_closed: true, accordion: is_accordion }) do
+        tag.div(class: accordion_classes.compact.join(' '), data: { accordion_item: is_accordion }) do
+          concat link_to_if(
+            is_accordion,
+            tag.span(group_title, class: 'attribute-group-title'),
+            '#',
+            class: "attribute-group-title-link #{'accordion-title' if is_accordion}"
+          )
+          concat tag.div(
+            safe_join([
+              group_title.present? && DataCycleCore::Feature::GeoKeyFigure.allowed_child_attribute_key?(content, definition) ? render('data_cycle_core/contents/editors/features/geo_key_figure_all') : nil
+            ].compact),
+            class: 'buttons'
+          )
+          concat tag.div(
+            tag.div(html_content, class: 'attribute-group-content-element'),
+            class: "attribute-group-content #{'accordion-content' if is_accordion}",
+            data: { tab_content: is_accordion }
+          )
+        end
+      end
+    end
   end
 end
