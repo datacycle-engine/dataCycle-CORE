@@ -250,10 +250,11 @@ module DataCycleCore
     [
       Rails.root.join('config', 'configurations'),
       *Rails.application.railties
-        .filter { |railtie| railtie.is_a?(::Rails::Engine) && railtie.root.to_s.include?('vendor/gems') }
+        .filter { |railtie| railtie.is_a?(::Rails::Engine) && railtie.root.to_s.match?(%r{vendor/gems/datacycle-}i) }
         .map { |railtie| railtie.root.join('config', 'configurations') }
-        .reverse
-    ]
+        .reverse,
+      DataCycleCore::Engine.root.join('config', 'configurations')
+    ].uniq
   end
 
   def self.reset_configurations(file_name = '*')
