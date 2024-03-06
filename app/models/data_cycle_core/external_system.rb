@@ -329,5 +329,44 @@ module DataCycleCore
     ensure
       Mongoid.override_database(nil)
     end
+
+    def config?(key)
+      config&.dig(key).present?
+    end
+
+    def import_module?
+      config?('import_config')
+    end
+
+    def export_module?
+      config?('export_config')
+    end
+
+    def webhook_module?
+      config?('api_strategy')
+    end
+
+    def service_module?
+      config.blank? && credentials.present?
+    end
+
+    def foreign_module?
+      !import_module? &&
+        !export_module? &&
+        !webhook_module? &&
+        !service_module?
+    end
+
+    def self.grouped_by_type(additional_properties = {})
+      external_systems = order(name: :asc).to_a
+
+      {
+        import: external_systems.filter(&:import_module?).as_json(only: [:id, :name]).map { |es| es.with_indifferent_access.merge(additional_properties&.dig(es['id']) || {}) },
+        export: external_systems.filter(&:export_module?).as_json(only: [:id, :name]),
+        webhook: external_systems.filter(&:webhook_module?).as_json(only: [:id, :name]),
+        service: external_systems.filter(&:service_module?).as_json(only: [:id, :name]),
+        foreign: external_systems.filter(&:foreign_module?).as_json(only: [:id, :name])
+      }.with_indifferent_access
+    end
   end
 end
