@@ -228,9 +228,6 @@ module DataCycleCore
   mattr_accessor :permissions
   self.permissions = {}
 
-  mattr_accessor :additional_configuration_paths
-  self.additional_configuration_paths = []
-
   mattr_accessor :job_queues
   self.job_queues = {
     default: 1,
@@ -252,8 +249,11 @@ module DataCycleCore
   def self.configuration_paths
     [
       Rails.root.join('config', 'configurations'),
-      DataCycleCore::Engine.root.join('config', 'configurations')
-    ].unshift(*DataCycleCore.additional_configuration_paths.reverse)
+      *Rails.application.railties
+        .filter { |railtie| railtie.is_a?(::Rails::Engine) && railtie.root.to_s.include?('vendor/gems') }
+        .map { |railtie| railtie.root.join('config', 'configurations') }
+        .reverse
+    ]
   end
 
   def self.reset_configurations(file_name = '*')
