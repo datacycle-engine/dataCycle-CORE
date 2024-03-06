@@ -99,23 +99,6 @@ module DataCycleCore
           end
 
           save(touch: false)
-          to_history if write_history
-          self.write_history = !options.prevent_history
-
-          set_template_data_hash(options, partial_schema&.dig('properties') || property_definitions)
-
-          self.updated_at = options.save_time
-          self.cache_valid_since = options.save_time
-          self.updated_by = options.current_user&.id
-          self.last_updated_locale = I18n.locale
-          self.version_name = options.version_name.presence
-
-          if id.nil?
-            self.created_at = options.save_time
-            self.created_by = options.current_user&.id
-          end
-
-          save(touch: false)
           search_languages(options.update_search_all) unless id.nil?
         end
 

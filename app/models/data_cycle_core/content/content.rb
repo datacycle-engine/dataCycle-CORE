@@ -28,6 +28,7 @@ module DataCycleCore
         feature = ModuleService.load_module("Feature::#{key.to_s.classify}", 'Datacycle')
         include feature.content_module if feature.enabled? && feature.content_module
       end
+
       extend  DataCycleCore::Common::ArelBuilder
       include DataCycleCore::Content::ContentRelations
       extend  DataCycleCore::Content::Searchable
@@ -537,7 +538,7 @@ module DataCycleCore
           h[key] = DataCycleCore.features
             .select { |_, v| !v.dig(:only_config) == true }
             .keys
-            .map { |f| ModuleService.load_module("Feature::#{f.to_s.classify}", 'Datacycle').try("#{prefix}attribute_keys", self) }
+            .map { |f| ModuleService.safe_load_module("Feature::#{f.to_s.classify}", 'Datacycle').try("#{prefix}attribute_keys", self) }
             .flatten
         end
         @feature_attributes[prefix]

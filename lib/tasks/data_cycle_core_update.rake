@@ -77,58 +77,5 @@ namespace :data_cycle_core do
       end
       puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
     end
-
-    desc 'Auto tag all untagged images'
-    task auto_tagging: [:environment] do
-      abort('Feature AutoTagging has to be enabled!') unless Datacycle::Feature::AutoTagging.enabled?
-      config = Datacycle::Feature::AutoTagging.configuration
-      abort('Feature AutoTagging has to be configured!') if config.blank?
-      abort('Feature AutoTagging has to be configured with a valid tree_label!') if config.dig(:tree_label).blank?
-      tree_label = DataCycleCore::ClassificationTreeLabel.create_with(internal: true).find_or_create_by!(name: config.dig(:tree_label)) do |item|
-        item.visibility = ['show']
-      end
-
-      template_names = ['Bild', 'ImageObject']
-      classification_tree_label_id = tree_label.id
-
-      query = <<-SQL.squish
-          "things"."content_type" != 'embedded'
-          AND "things"."template_name" IN ('#{template_names.join("', '")}')
-          AND NOT (
-            EXISTS (
-              SELECT 1
-              FROM collected_classification_contents
-              WHERE collected_classification_contents.thing_id = things.id
-              AND collected_classification_contents.classification_tree_label_id IN ('#{classification_tree_label_id}')
-            )
-          )
-      SQL
-
-      images = DataCycleCore::Thing.where(query)
-
-      total_items = images.count
-
-      start_time = Time.zone.now
-      count = 0
-
-      queue = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
-      progress = ProgressBar.create(total: total_items, format: '%t |%w>%i| %a - %c/%C', title: 'AutoTagging')
-
-      puts "Auto tagging #{total_items} Things  with template names #{template_names.join(', ')}, without tree label: #{tree_label.name}"
-
-      queue.append do
-        images.find_each do |image|
-          # puts "Auto tagging image: #{image.id}"
-          progress.increment
-          success = image.auto_tag
-          count += 1 if success
-        end
-      end
-
-      queue.wait!
-
-      puts "AutoTagging finished (Duration: #{(Time.zone.now - start_time).round} sec)"
-      puts "AutoTagging successful for #{count} of #{total_items} images"
-    end
   end
 end
