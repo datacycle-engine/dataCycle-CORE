@@ -228,9 +228,9 @@ module DataCycleCore
     end
     alias single_import import_single
 
-    def import_one(name, external_key, options = {})
+    def import_one(name, external_key, options = {}, mode = 'full')
       raise 'no external key given' if external_key.blank?
-      import_single(name, options.deep_merge({ mode: 'full', import: { source_filter: { external_id: external_key } } }))
+      import_single(name, options.deep_merge({ mode:, import: { source_filter: { external_id: external_key } } }))
     end
 
     def collections
