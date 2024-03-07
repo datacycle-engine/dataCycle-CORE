@@ -197,7 +197,7 @@ module DataCycleCore
       if schedule_object&.recurrence_rules&.first.present?
         rule = schedule_object&.recurrence_rules&.first
         rule_hash = rule.to_hash
-        end_date = (schedule_object&.last&.in_time_zone&.+(duration.presence || 0) || schedule_object&.to_h&.dig(:rrules, 0, :until)&.+(duration.presence || 0))&.to_s(:only_date) if end_date.blank? && schedule_object.terminating?
+        end_date = (schedule_object&.last&.in_time_zone || rule_hash.dig(:until))&.+(duration.presence || 0)&.to_s(:only_date) if end_date.blank? && schedule_object.terminating?
         end_time = schedule_object&.end_time&.to_s(:only_time) if end_time.blank? && schedule_object.terminating?
         repeat_count = rule&.occurrence_count
         repeat_frequency = to_repeat_frequency(rule_hash)
@@ -364,7 +364,7 @@ module DataCycleCore
     end
 
     def load_schedule_object
-      options = { duration: self[:duration].presence }.compact
+      options = { duration: self[:duration].presence || ActiveSupport::Duration.build(0) }
 
       IceCube::Schedule.new(self[:dtstart].presence || Time.zone.now, options) do |s|
         s.add_recurrence_rule(IceCube::Rule.from_ical(self[:rrule])) if self[:rrule].present? # allow only one rrule!!
