@@ -198,7 +198,8 @@ module DataCycleCore
         rule = schedule_object&.recurrence_rules&.first
         rule_hash = rule.to_hash
         end_date = (schedule_object&.last&.in_time_zone || rule_hash.dig(:until))&.+(duration.presence || 0)&.to_s(:only_date) if end_date.blank? && schedule_object.terminating?
-        end_time = schedule_object&.end_time&.to_s(:only_time) || start_time if end_time.blank? && schedule_object.terminating?
+        end_time = schedule_object&.end_time&.to_s(:only_time) if end_time.blank? && schedule_object.terminating?
+        end_time = start_time if end_date.present? && end_time.blank?
         repeat_count = rule&.occurrence_count
         repeat_frequency = to_repeat_frequency(rule_hash)
         by_day = rule_hash.dig(:validations, :day)&.map { |day| dow(day) }
