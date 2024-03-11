@@ -4,9 +4,10 @@ module DataCycleCore
   module Abilities
     module Segments
       class UsersByUserGroup < Base
-        attr_accessor :group_name, :roles
+        attr_accessor :group_name, :roles, :subject
 
         def initialize(group_name, roles)
+          @subject = DataCycleCore::User
           @group_name = group_name
           @roles = Array.wrap(roles).map(&:to_s)
         end
@@ -16,6 +17,13 @@ module DataCycleCore
         end
 
         private
+
+        def to_restrictions(**)
+          to_restriction(
+            roles: Array.wrap(roles).map { |v| I18n.t("roles.#{v}", locale:) }.join(', '),
+            group: group_name
+          )
+        end
 
         def role?(user)
           return true if roles.include?('all')

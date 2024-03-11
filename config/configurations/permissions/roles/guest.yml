@@ -33,11 +33,7 @@ thing_print:
 
 stored_filter_api_by_user:
   actions: api
-  segment: SubjectByUserAndConditions
-  parameters:
-    - DataCycleCore::StoredFilter
-    - :user_id
-    - :api: true
+  segment: StoredFilterByCreatorAndApi
 
 stored_filter_api_by_api_users:
   actions: api

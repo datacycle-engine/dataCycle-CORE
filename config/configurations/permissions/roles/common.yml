@@ -27,11 +27,7 @@ watch_list_api_common:
 
 watch_list_create_api:
   actions: create_api
-  segment: SubjectByUserAndConditions
-  parameters:
-    - DataCycleCore::WatchList
-    - :user_id
-    - :my_selection: false
+  segment: WatchListByCreatorWithoutMySelection
 
 view_mode_feature:
   actions: grid

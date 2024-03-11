@@ -174,3 +174,7 @@ crumb :user do |item|
 
   parent :index, item.class.table_name
 end
+
+crumb :permissions do
+  link to_html_string(t('data_cycle_core.permissions', locale: active_ui_locale)), permissions_path, authorized: can?(:index, :permissions)
+end

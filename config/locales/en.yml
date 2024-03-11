@@ -1383,6 +1383,9 @@ en:
       data_cycle_core/classification_tree_label:
         one: Classification tree
         other: Classification trees
+      data_cycle_core/permission:
+        one: Permission
+        other: Permissions
     attributes:
       data_cycle_core/watch_list:
         name: Name

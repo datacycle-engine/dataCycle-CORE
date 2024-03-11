@@ -73,6 +73,8 @@ DataCycleCore::Engine.routes.draw do
       match '/index', via: [:get, :post], on: :collection, action: :index
     end
 
+    resources :permissions, only: [:index]
+
     resources :user_groups, only: [:index, :edit, :update, :destroy] do
       post '/create', on: :collection, action: :create
       post '/', on: :collection, action: :index

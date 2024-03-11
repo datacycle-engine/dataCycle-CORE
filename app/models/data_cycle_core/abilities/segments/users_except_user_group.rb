@@ -17,6 +17,13 @@ module DataCycleCore
 
         private
 
+        def to_restrictions(**)
+          to_restriction(
+            roles: Array.wrap(roles).map { |v| I18n.t("roles.#{v}", locale:) }.join(', '),
+            group: group_name
+          )
+        end
+
         def role?(user)
           return true if roles.include?('all')
 

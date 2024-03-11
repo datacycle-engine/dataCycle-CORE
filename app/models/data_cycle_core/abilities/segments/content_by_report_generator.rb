@@ -17,6 +17,12 @@ module DataCycleCore
         def to_proc
           ->(*args) { include?(*args) }
         end
+
+        private
+
+        def visible?
+          DataCycleCore::Feature::ReportGenerator.enabled?
+        end
       end
     end
   end

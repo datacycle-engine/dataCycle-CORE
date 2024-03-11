@@ -63,5 +63,23 @@ module DataCycleCore
     def self.template_things
       all.map(&:template_thing)
     end
+
+    def self.translated_property_names(locale:)
+      template_things
+        .to_h do |t|
+          [
+            t.template_name,
+            t.property_names.index_with do |k|
+              definition = t.properties_for(k)
+              {
+                text: t.class.human_attribute_name(k, { base: t, locale:, definition:, locale_string: false }),
+                type: definition.dig('type'),
+                template: definition.dig('type') == 'embedded' ? definition.dig('template_name') : nil,
+                embedded_template: t.embedded?
+              }
+            end
+          ]
+        end
+    end
   end
 end

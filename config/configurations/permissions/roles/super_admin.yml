@@ -13,6 +13,7 @@ manage_subjects:
       - DataCycleCore::User
       - DataCycleCore::UserGroup
       - DataCycleCore::DataLink
+      - DataCycleCore::Permission
 
 role_index:
   actions: read
@@ -114,11 +115,7 @@ watch_list_actions:
 
 watch_list_actions_except_my_selection:
   actions: [destroy, share]
-  segment: SubjectByUserAndConditions
-  parameters:
-    - DataCycleCore::WatchList
-    - :user_id
-    - :my_selection: false
+  segment: WatchListByCreatorWithoutMySelection
 
 watch_list_group_shares:
   actions: [read, add_item, remove_item]

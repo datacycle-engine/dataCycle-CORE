@@ -30,6 +30,10 @@ module DataCycleCore
         def to_proc
           ->(*args) { include?(*args) }
         end
+
+        def to_restrictions(**)
+          Array.wrap(method_names).map { |v| I18n.t("abilities.content_is_editable_method_names.#{v}", locale:) }
+        end
       end
     end
   end
