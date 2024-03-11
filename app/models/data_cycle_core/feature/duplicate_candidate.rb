@@ -36,6 +36,29 @@ module DataCycleCore
           duplicates
         end
 
+        def find_duplicates_for_contents(contents)
+          duplicates = []
+
+          contents.thing_templates.each do |template|
+            things = contents.where(template_name: template.template_name)
+
+            duplicate_methods = duplicate_method(template.template_thing)
+            next if duplicate_methods.blank?
+
+            duplicate_methods.each do |dm|
+              duplicates.concat(Array.wrap(send(dm, things)))
+            end
+          end
+
+          duplicates.sort_by! { |t| -t[:score] }
+          duplicates.uniq! { |t| t[:thing_id] }
+          duplicates
+        end
+
+        def content_ids(content)
+          content.is_a?(ActiveRecord::Relation) ? content.pluck(:id) : content.id
+        end
+
         def duplicate_method(content)
           return unless enabled?
 
