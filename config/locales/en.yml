@@ -1476,6 +1476,7 @@ en:
         permissions_write: edit
         text_file: Further information (%{file_types})
         locale: E-mail language
+        creator_id: Creator
       data_cycle_core/stored_filter:
         system: Visible for all users (also applies to the API)
         api: Retrievable via API
@@ -1489,6 +1490,7 @@ en:
       data_cycle_core/asset:
         name: Name
         file: File
+        creator_id: Creator
       data_cycle_core/external_source:
         name: Name
   unauthorized:
