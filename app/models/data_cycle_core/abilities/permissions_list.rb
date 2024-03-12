@@ -81,6 +81,13 @@ module DataCycleCore
         permit(segment(:UsersByUserGroup).new(group_name, roles), *, definition_to_segment(definition))
       end
 
+      def permit_user_group_with_api_token(group_name, roles, *, definition)
+        raise 'missing user_group name in permission' if group_name.blank?
+        raise 'missing roles in permission' if roles.blank?
+
+        permit(segment(:UsersByUserGroupAndApiToken).new(group_name, roles), *, definition_to_segment(definition))
+      end
+
       def permit_user_from_yaml(role, permissions)
         raise 'missing role in permission' if role.blank?
 

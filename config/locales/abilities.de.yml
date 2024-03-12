@@ -64,6 +64,7 @@ de:
       auto_translate: Automatische Übersetzung
       dash_board: Admin Dashboard
       permission: Berechtigungen
+      preview: Widget-Link
     actions:
       index: anzeigen (Liste)
       show: anzeigen

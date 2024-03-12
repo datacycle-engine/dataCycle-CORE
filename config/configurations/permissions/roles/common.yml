@@ -45,3 +45,8 @@ user_filter_user_groups:
   actions: search
   segment: SubjectByConditions
   parameters: :user_groups
+
+widget_links:
+  actions: show
+  segment: SubjectByConditions
+  parameters: :preview
