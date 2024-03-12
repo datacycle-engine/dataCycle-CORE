@@ -9,7 +9,6 @@ module DataCycleCore
         def include?(user)
           role?(user) && user_group?(user) && user.access_token.present?
         end
-
       end
     end
   end
