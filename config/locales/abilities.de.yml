@@ -193,6 +193,10 @@ de:
       users_by_user_group:
         - "Benutzergruppe: %{group}"
         - "Rolle: %{roles}"
+      users_by_user_group_and_api_token:
+        - "Benutzergruppe: %{group}"
+        - "Rolle: %{roles}"
+        - "API-Token vorhanden"
       users_except_roles: "Rolle: %{roles}"
       users_except_user_group:
         - "Rolle: %{roles}"

@@ -4,6 +4,9 @@ module DataCycleCore
   module PermissionHelper
     def permission_type_string(type)
       description = type.to_descriptions.first
+
+      return "translation missing: abilities.restrictions.#{type.class.name.demodulize.underscore}" if description[:restrictions].blank?
+
       Array.wrap(description[:restrictions]).join(', ')
     end
 

@@ -212,6 +212,10 @@ en:
       users_by_user_group:
         - "User group: %{group}"
         - "Role: %{roles}"
+      users_by_user_group_and_api_token:
+        - "User group: %{group}"
+        - "Role: %{roles}"
+        - "API-Token exists"
       users_except_roles: "Role: %{roles}"
       users_except_user_group:
         - "Role: %{roles}"
