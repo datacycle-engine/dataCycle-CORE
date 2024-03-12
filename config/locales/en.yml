@@ -1380,6 +1380,12 @@ en:
       data_cycle_core/classification_alias:
         one: Classification
         other: Classifications
+      data_cycle_core/classification:
+        one: Classification
+        other: Classifications
+      data_cycle_core/classification_tree:
+        one: Classification tree
+        other: Classification trees
       data_cycle_core/classification_tree_label:
         one: Classification tree
         other: Classification trees

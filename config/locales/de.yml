@@ -1413,6 +1413,12 @@ de:
       data_cycle_core/classification_alias:
         one: Klassifizierung
         other: Klassifizierungen
+      data_cycle_core/classification:
+        one: Klassifizierung
+        other: Klassifizierungen
+      data_cycle_core/classification_tree:
+        one: Klassifizierungsbaum
+        other: Klassifizierungsbäume
       data_cycle_core/classification_tree_label:
         one: Klassifizierungsbaum
         other: Klassifizierungsbäume
