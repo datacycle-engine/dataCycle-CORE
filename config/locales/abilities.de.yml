@@ -49,16 +49,11 @@ de:
     model_names:
       backend: Dashboard
       view_mode: Anzeigemodus für Listen
-      users: Benutzerübersicht
-      user_groups: Benutzergruppenübersicht
       object_browser: Objectbrowser
       user_api: User-API
       classification_tree: Klassifizierungsübersicht
       publications: Publikationskalender
       publication: Publikationskalender
-      subscriptions: Abos
-      things: Inhalte
-      collection: Inhaltssammlung
       report: Report
       cache: Cache
       auto_translate: Automatische Übersetzung
@@ -90,7 +85,7 @@ de:
       destroy: löschen
       create_editable_links: Bearbeitungslinks erstellen
       auto_login: automatisch anmelden
-      find: suchen
+      find: filtern mit Volltextsuche
       login: anmelden
       renew_login: Login erneuern
       reset_password: Passwort zurücksetzen
@@ -102,13 +97,13 @@ de:
       subscribe: abonnieren
       history: Änderungsverlauf anzeigen
       show_history: Filterverlauf anzeigen
-      add_item: hinzugügen
-      remove_item: entfernen
+      add_item: Inhalt hinzugügen
+      remove_item: Inhalt entfernen
       share: teilen
       change_owner: Besitzer ändern
       settings: Einstellungen ändern
       publication_date: filtern nach Publikationsdatum
-      advanced_filter: filtern mit erweiterten Filtern
+      advanced_filter: verwenden von allen erweiterten Filtern
       translate: übersetzen
       set_life_cycle: Lebenszyklus ändern
       move_content: Inhalt verschieben
@@ -146,7 +141,7 @@ de:
       bulk_edit: im Bulk bearbeiten
       bulk_delete: im Bulk löschen
     restrictions:
-      advanced_filter_except_type: "Filter nicht: %{except}"
+      advanced_filter_except_type: "nicht: %{except}"
       asset_by_user_and_no_content:
         - "Benutzer die Datei hochgeladen hat"
         - "%{data} noch nicht als Inhalt gespeichert wurde"
@@ -208,7 +203,11 @@ de:
       watch_list_by_creator_without_my_selection:
         - Benutzer ist Ersteller
         - nicht "Meine Auswahl"
-      watch_list_by_group_shares: nicht "Meine Auswahl"
-      watch_list_by_user_shares: nicht "Meine Auswahl"
+      watch_list_by_group_shares:
+        - mit Benutzergruppe geteilt
+        - nicht "Meine Auswahl"
+      watch_list_by_user_shares:
+        - mit Benutzer geteilt
+        - nicht "Meine Auswahl"
       stored_filter_by_global: "für alle sichtbar"
       stored_filter_by_api: für die API freigegeben

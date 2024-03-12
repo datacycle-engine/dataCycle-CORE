@@ -13,6 +13,7 @@
           <div class="accordion-content" data-tab-content>
             <ul class="permission-list accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
               <% permission_groups(permissions).each do |permission_name, permission_actions| %>
+                <%# binding.pry if permission_name == 'Merkliste' && permission_actions.keys.include?('API-Link kopieren') %>
                 <li class="permission accordion-item" data-accordion-item>
                   <a href="#" class="permission-name accordion-title <%= 'alert-color' if permission_name.match?(/translation missing:/i) %>"><%= permission_name %></a>
                   <ul class="permission-actions accordion-content no-bullet" data-tab-content>
@@ -20,11 +21,10 @@
                       <li>
                         <span class="permission-action <%= 'alert-color' if action_name.match?(/translation missing:/i) %> <%= 'has-restrictions' if action_restrictions.present? %>"><%= action_name %></span>
                         <ul class="permission-restriction-blocks">
-                          <% filtered_restrictions = filtered_restrictions(action_restrictions) %>
-                          <% filtered_restrictions.each.with_index do |(restrictions, segment), index| %>
-                            <li data-segment="<%= segment&.i18n_key %>">
+                          <% action_restrictions.each.with_index do |restrictions, index| %>
+                            <li>
                               <% if index.zero? %>
-                                <span class="permission-restriction-block"><%= t('abilities.restriction', locale: active_ui_locale, count: filtered_restrictions.size) %>:</span>
+                                <span class="permission-restriction-block"><%= t('abilities.restriction', locale: active_ui_locale, count: action_restrictions.size) %>:</span>
                               <% else %>
                                 <span class="permission-restriction-block or-part"><%= t('common.or', locale: active_ui_locale) %>:</span>
                               <% end %>

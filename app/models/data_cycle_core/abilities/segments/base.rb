@@ -8,6 +8,14 @@ module DataCycleCore
 
         attr_reader :user, :session
 
+        MODEL_NAME_MAPPINGS = {
+          users: User,
+          user_groups: UserGroup,
+          subscriptions: Subscription,
+          things: Thing,
+          collection: WatchList
+        }.freeze
+
         def to_descriptions
           return unless visible?
 
@@ -40,11 +48,13 @@ module DataCycleCore
 
         def translated_subjects
           Array.wrap(try(:subject)).to_h do |v|
-            case v
+            value = MODEL_NAME_MAPPINGS[v] || v
+
+            case value
             when Symbol
-              [v, I18n.t("abilities.model_names.#{v}", locale:)]
+              [value, I18n.t("abilities.model_names.#{value}", locale:)]
             else
-              [v, v.model_name.human(locale:, count: 1)]
+              [value, value.model_name.human(locale:, count: 2)]
             end
           end
         end
