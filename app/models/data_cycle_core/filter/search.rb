@@ -242,6 +242,16 @@ module DataCycleCore
         )
       end
 
+      def graph_filter(item_a, item_b, filter_id = nil, direction_a_b = true, inverse = false)
+        direction_a_b ? item_a : item_b
+        direction_a_b ? item_b : item_a
+
+        return unless direction_a_b
+        related_to_query(filter_id, nil, inverse)
+        # elsif
+        #
+      end
+
       def boolean(value, filter_method)
         if respond_to?(filter_method)
           send(filter_method, value)
@@ -330,6 +340,45 @@ module DataCycleCore
       private
 
       def related_to_query(filter, name = nil, inverse = false)
+        graph_filter_query(filter, name, inverse, false)
+
+        # if filter.is_a?(DataCycleCore::Filter::Search)
+        #   filter_query = Arel.sql(filter.select(:id).except(:order).to_sql)
+        # elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
+        #   filter_query = Arel.sql(stored_filter.apply.select(:id).except(:order).to_sql)
+        # elsif (collection = DataCycleCore::WatchList.find_by(id: filter))
+        #   filter_query = Arel.sql(collection.watch_list_data_hashes.select(:hashable_id).except(:order).to_sql)
+        # else # in case filter is array of thing_ids
+        #   filter_query = Array.wrap(filter)
+        # end
+        #
+        # thing_id = :content_a_id
+        # related_to_id = :content_b_id
+        # thing_id, related_to_id = related_to_id, thing_id if inverse
+        # relation_name = inverse ? :relation_b : :relation_a
+        #
+        # sub_select = content_content[thing_id].eq(thing[:id])
+        #                                       .and(content_content[related_to_id].in(filter_query))
+        #
+        # sub_select = sub_select.and(content_content[relation_name].eq(name)) if name.present?
+        #
+        # Arel::SelectManager.new
+        #                    .from(content_content)
+        #                    .where(sub_select)
+      end
+
+      ##
+      # This is the core functionality for the new bi-directional graph filter
+      # Params:
+      # +filter+:: Base-Filter / Filter, based on which the graph-filter shall operate. Could be: StoredFilter, WatchList, ...
+      # +name+:: TODO: Evaluate if this is still needed later! - Takes a relation_name for which checks shall occur. Currently only content_location and image is supported, should not be needed at all in the end
+      # +inverse+:: OPTIONAL - Defaults to FALSE - Tell the graph filter if it should work as an inverse filter or not - ToDo: Evaluate if logic works properly or if it needs adapion - originally copied from related_to filter function
+      # +direction_a_b:: OPTIONAL - DEFAULTS to FALSE ( B -> A ) - Tell the graph Filter in which direction it shall work.
+      #  Direction A -> B: Return all linked items B of the base filter's resulting items A
+      #  Direction B -> A (related_to): Return items A that have a linked item b that can be found in the results of the base filter
+      # +target_template+:: More or less the same as 'name' now, but not mapped: ToDo: Re-evaluate what to pass on to the graph filter and update logic accordingly
+
+      def graph_filter_query(filter, name = nil, inverse = false, direction_a_b = false, target_template = nil)
         if filter.is_a?(DataCycleCore::Filter::Search)
           filter_query = Arel.sql(filter.select(:id).except(:order).to_sql)
         elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
@@ -340,19 +389,39 @@ module DataCycleCore
           filter_query = Array.wrap(filter)
         end
 
-        thing_id = :content_a_id
-        related_to_id = :content_b_id
+        thing_id = direction_a_b ? :content_a_id : :content_b_id
+        related_to_id = direction_a_b ? :content_b_id : :content_a_id
         thing_id, related_to_id = related_to_id, thing_id if inverse
-        relation_name = inverse ? :relation_b : :relation_a
 
-        sub_select = content_content[thing_id].eq(thing[:id])
-          .and(content_content[related_to_id].in(filter_query))
+        # TODO: Replace once new filter is properly created and can be enabled in features.yml
+        if name == 'content_location'
+          target_template = 'Place'
+        elsif name == 'image'
+          target_template = 'ImageObject'
+        end
+        # Todo - END
 
-        sub_select = sub_select.and(content_content[relation_name].eq(name)) if name.present?
+        related_found_things = content_content_link[related_to_id].in(filter_query)
+
+        if target_template.present?
+          infix_operation = Arel::Nodes::InfixOperation.new('=', Arel::Nodes.build_quoted(target_template), any(thing_template[:computed_schema_types]))
+          target_template_query = Arel::SelectManager.new.from(thing_template).where(infix_operation).project(thing_template[:template_name])
+          target_template_things = Arel::SelectManager.new.from(thing).where(thing[:template_name].in(target_template_query)).project(thing[:id])
+
+          related_template_things = content_content_link[related_to_id].in(target_template_things)
+
+          sub_select = content_content_link[thing_id].eq(thing[:id])
+                                                     .and(related_found_things)
+                                                     .and(related_template_things)
+        else
+          sub_select = content_content_link[thing_id].eq(thing[:id])
+                                                     .and(related_found_things)
+        end
 
         Arel::SelectManager.new
-          .from(content_content)
-          .where(sub_select)
+                                    # .from("#{content_content_link.name}, #{thing.name}, #{thing_template.name}")
+                                    .from(content_content_link)
+                           .where(sub_select)
       end
 
       def related_to_any(name = nil, inverse = false)

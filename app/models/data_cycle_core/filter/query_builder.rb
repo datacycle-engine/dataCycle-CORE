@@ -285,6 +285,10 @@ module DataCycleCore
         DataCycleCore::ContentContent.arel_table
       end
 
+      def content_content_link
+        DataCycleCore::ContentContent::Link.arel_table
+      end
+
       def search
         DataCycleCore::Search.arel_table
       end
