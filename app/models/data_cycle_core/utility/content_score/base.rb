@@ -101,7 +101,7 @@ module DataCycleCore
           end
 
           def load_linked(parameters, key)
-            parameters[key] = DataCycleCore::Thing.where(id: parameters[key]).order([Arel.sql('array_position(ARRAY[?]::uuid[], things.id)'), parameters[key]]) if parameters[key].present?
+            parameters[key] = DataCycleCore::Thing.by_ordered_values(parameters[key]) if parameters[key].present?
           end
         end
       end

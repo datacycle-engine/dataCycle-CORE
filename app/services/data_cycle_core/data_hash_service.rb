@@ -174,6 +174,19 @@ module DataCycleCore
       present?(value)
     end
 
+    def none_by_property_type(type)
+      case type
+      when *Content::Content::EMBEDDED_PROPERTY_TYPES, *Content::Content::LINKED_PROPERTY_TYPES
+        DataCycleCore::Thing.none
+      when *Content::Content::CLASSIFICATION_PROPERTY_TYPES
+        DataCycleCore::Classification.none
+      when *Content::Content::SCHEDULE_PROPERTY_TYPES
+        DataCycleCore::Schedule.none
+      when *Content::Content::TIMESERIES_PROPERTY_TYPES
+        DataCycleCore::Timeseries.none
+      end
+    end
+
     def self.parse_translated_hash(datahash)
       return {} unless datahash.is_a?(::Hash)
 

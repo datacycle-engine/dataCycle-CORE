@@ -16,6 +16,12 @@ module DataCycleCore
       }.freeze
       PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic', 'slug'].freeze
       WEBHOOK_ACCESSORS = [:webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks].freeze
+      LINKED_PROPERTY_TYPES = ['linked'].freeze
+      EMBEDDED_PROPERTY_TYPES = ['embedded'].freeze
+      CLASSIFICATION_PROPERTY_TYPES = ['classification'].freeze
+      SCHEDULE_PROPERTY_TYPES = ['schedule', 'opening_time'].freeze
+      TIMESERIES_PROPERTY_TYPES = ['timeseries'].freeze
+      ASSET_PROPERTY_TYPES = ['asset'].freeze
 
       after_initialize :add_template_properties, if: :new_record?
 
@@ -29,22 +35,22 @@ module DataCycleCore
         include feature.content_module if feature.enabled? && feature.content_module
       end
 
-      extend  DataCycleCore::Common::ArelBuilder
-      include DataCycleCore::Content::ContentRelations
-      extend  DataCycleCore::Content::Searchable
-      include DataCycleCore::Content::DestroyContent
-      include DataCycleCore::Content::DataHashUtility
-      include DataCycleCore::Content::Extensions::Content
-      include DataCycleCore::Content::Extensions::ContentWarnings
-      include DataCycleCore::Content::Extensions::Api
-      include DataCycleCore::Content::Extensions::SyncApi
-      include DataCycleCore::Content::Extensions::Geojson
-      include DataCycleCore::Content::Extensions::Mvt
-      include DataCycleCore::Content::Extensions::DefaultValue
-      include DataCycleCore::Content::Extensions::ComputedValue
-      include DataCycleCore::Content::Extensions::PropertyPreloader
-      prepend DataCycleCore::Content::Extensions::Translation
-      prepend DataCycleCore::Content::Extensions::Geo
+      extend  Common::ArelBuilder
+      include ContentRelations
+      extend  Searchable
+      include DestroyContent
+      include DataHashUtility
+      include Extensions::Content
+      include Extensions::ContentWarnings
+      include Extensions::Api
+      include Extensions::SyncApi
+      include Extensions::Geojson
+      include Extensions::Mvt
+      include Extensions::DefaultValue
+      include Extensions::ComputedValue
+      include Extensions::PropertyPreloader
+      prepend Extensions::Translation
+      prepend Extensions::Geo
 
       scope :where_value, ->(attributes) { where(value_condition(attributes), *attributes&.values) }
       scope :where_not_value, ->(attributes) { where.not(value_condition(attributes), *attributes&.values) }
@@ -253,11 +259,11 @@ module DataCycleCore
       end
 
       def linked_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'linked' }
+        name_property_selector(include_overlay) { |definition| LINKED_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def embedded_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'embedded' }
+        name_property_selector(include_overlay) { |definition| EMBEDDED_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def included_property_names(include_overlay = false)
@@ -289,19 +295,19 @@ module DataCycleCore
       end
 
       def classification_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'classification' }
+        name_property_selector(include_overlay) { |definition| CLASSIFICATION_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def asset_property_names
-        name_property_selector { |definition| definition['type'] == 'asset' }
+        name_property_selector { |definition| ASSET_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def schedule_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'].in?(['schedule', 'opening_time']) }
+        name_property_selector(include_overlay) { |definition| SCHEDULE_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def timeseries_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'timeseries' }
+        name_property_selector(include_overlay) { |definition| TIMESERIES_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def external_property_names
@@ -619,45 +625,17 @@ module DataCycleCore
           elsif value.is_a?(ActiveRecord::Relation) || value.is_a?(ActiveRecord::Base)
             value
           elsif value.is_a?(::Array) && value.first.is_a?(ActiveRecord::Base)
-            ids = value.pluck(:id)
-            value.first.class
-            .unscoped
-            .where(id: ids)
-            .order(
-              [
-                Arel.sql("array_position(ARRAY[?]::uuid[], #{value.first.class.table_name}.id)"),
-                ids
-              ]
-            )
-            .tap { |rel| rel.send(:load_records, value) }
+            value.first.class.unscoped.by_ordered_values(value.pluck(:id)).tap { |rel| rel.send(:load_records, value) }
           elsif linked_property_names.include?(key) || embedded_property_names.include?(key)
-            if value.present?
-              DataCycleCore::Thing.where(id: value).order(
-                [
-                  Arel.sql('array_position(ARRAY[?]::uuid[], things.id)'),
-                  value
-                ]
-              )
-            else
-              DataCycleCore::Thing.none
-            end
+            DataCycleCore::Thing.by_ordered_values(value)
           elsif classification_property_names.include?(key)
-            if value.present?
-              DataCycleCore::Classification.where(id: value).order(
-                [
-                  Arel.sql('array_position(ARRAY[?]::uuid[], classifications.id)'),
-                  value
-                ]
-              )
-            else
-              DataCycleCore::Classification.none
-            end
+            DataCycleCore::Classification.by_ordered_values(value)
           elsif asset_property_names.include?(key)
-            value.present? ? DataCycleCore::Asset.find_by(id: value) : nil
+            DataCycleCore::Asset.by_ordered_values(value).first
           elsif schedule_property_names.include?(key)
-            value.present? ? DataCycleCore::Schedule.where(id: value) : DataCycleCore::Schedule.none
+            DataCycleCore::Schedule.by_ordered_values(value)
           elsif timeseries_property_names.include?(key)
-            value.present? ? DataCycleCore::Timeseries.where(id: value) : DataCycleCore::Timeseries.none
+            DataCycleCore::Timeseries.by_ordered_values(value)
           else # rubocop:disable Lint/DuplicateBranch
             value
           end

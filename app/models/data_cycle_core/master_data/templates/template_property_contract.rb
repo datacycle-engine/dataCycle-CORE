@@ -6,6 +6,11 @@ module DataCycleCore
       class TemplatePropertyContract < DataCycleCore::MasterData::Contracts::GeneralContract
         attr_accessor :property_name
 
+        ALLOWED_OVERLAY_TYPES = ['string', 'text', 'number', 'boolean',
+                                 'datetime', 'date', 'geographic', 'slug',
+                                 'embedded', 'linked', 'classification',
+                                 'schedule', 'opening_time'].freeze
+
         schema do
           optional(:label) { str? }
           required(:type) do
@@ -27,26 +32,7 @@ module DataCycleCore
           optional(:xml) { hash? }
           optional(:search) { bool? }
           optional(:advanced_search) { bool? }
-          optional(:normalize).hash do
-            required(:id) do
-              str? & included_in?(
-                ['sex', 'degree', 'forename', 'surname', 'birthdate',
-                 'company', 'email',
-                 'street', 'streetnr', 'city', 'zip', 'country',
-                 'eventname', 'eventstart', 'eventend',
-                 'eventplace', 'longitude', 'latitude']
-              )
-            end
-            required(:type) do
-              str? & included_in?(
-                ['sex', 'degree', 'forename', 'surname', 'birthdate',
-                 'company', 'email',
-                 'street', 'streetnr', 'city', 'zip', 'country',
-                 'eventname', 'datetime',
-                 'eventplace', 'longitude', 'latitude']
-              )
-            end
-          end
+          optional(:overlay) { bool? }
 
           # for type object
           optional(:properties) { hash? }
@@ -177,6 +163,10 @@ module DataCycleCore
 
         rule(:storage_location) do
           key.failure(:invalid_column) if key? && value == 'column' && ['external_key', 'slug', 'location', 'line', 'geom'].exclude?(property_name.to_s)
+        end
+
+        rule(:overlay, :type) do
+          key.failure(:invalid_overlay_type) if key? && ALLOWED_OVERLAY_TYPES.exclude?(values[:type])
         end
       end
     end

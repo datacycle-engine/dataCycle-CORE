@@ -21,14 +21,7 @@ module DataCycleCore
             h[k] = DataCycleCore::ClassificationAlias
               .joins(:primary_classification)
               .for_tree(k[0])
-              .with_internal_name(k[1])
-              .reorder(nil)
-              .order(
-                [
-                  Arel.sql('array_position(ARRAY[?]::VARCHAR[], classification_aliases.internal_name)'),
-                  k[1]
-                ]
-              )
+              .by_ordered_values(k[1], :internal_name)
               .pluck(
                 Arel.sql("classification_aliases.internal_name, json_build_object('id', classifications.id, 'alias_id', classification_aliases.id)")
               ).to_h.with_indifferent_access

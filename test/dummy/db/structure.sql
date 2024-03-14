@@ -1277,7 +1277,7 @@ CREATE VIEW public.duplicate_candidates AS
     thing_duplicates.id AS thing_duplicate_id,
     thing_duplicates.false_positive
    FROM public.thing_duplicates
-UNION
+UNION ALL
  SELECT thing_duplicates.thing_id AS duplicate_id,
     thing_duplicates.thing_duplicate_id AS original_id,
     thing_duplicates.score,
@@ -4182,6 +4182,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20231201083233'),
 ('20231220082023'),
 ('20240118164523'),
-('20240124113601');
+('20240124113601'),
+('20240311123217');
 
 
