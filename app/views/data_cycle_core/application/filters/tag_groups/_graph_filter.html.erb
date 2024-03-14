@@ -7,7 +7,6 @@
 <span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
   <div><span class="tag-group-label">
     <i class="fa fa-link" aria-hidden="true"></i>
-    <%# binding.pry %>
     <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>:
   </span>
 
@@ -15,7 +14,7 @@
     <% if content_types.present?%>
       <!-- Content Types -->
       <% content_types.each do |tag| %>
-        <span class="tag"><%= DataCycleCore::ClassificationAlias.find(tag).internal_name %></span>
+        <span class="tag"><%= DataCycleCore::ClassificationAlias.find(tag).internal_name if tag.present? %></span>
       <% end %>
     <% end %>
 
@@ -39,7 +38,7 @@
 
     <% if stored_filter.present?%>
       <!-- StoredFilter -->
-      <span class="tag"><%= DataCycleCore::StoredFilter.find(stored_filter).name %></span>
+      <span class="tag"><%= DataCycleCore::StoredFilter.find(stored_filter).name if stored_filter.present? %></span>
     <% end %>
 
   </span>

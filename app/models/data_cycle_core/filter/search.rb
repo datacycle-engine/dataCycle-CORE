@@ -242,10 +242,16 @@ module DataCycleCore
         )
       end
 
-      def graph_filter(filter_id = nil, target_template = nil, direction_a_b = true)
-        return self if filter_id.blank? || direction_a_b.blank?
+      def graph_filter(filter, name, query)
+        return self if filter.blank? || name.blank? || query.blank?
 
-        subquery = graph_filter_query(filter_id, target_template, direction_a_b)
+        filter_id = filter.dig('filter')
+        content_type = filter.dig('content_type')
+        direction_a_b = query == 'linked_items_in' ? false : (query == 'items_linked_to' ? true : nil)
+
+        return self if filter_id.blank? || direction_a_b.nil?
+
+        subquery = graph_filter_query(filter_id, nil, direction_a_b)
 
         return self if subquery.nil?
 

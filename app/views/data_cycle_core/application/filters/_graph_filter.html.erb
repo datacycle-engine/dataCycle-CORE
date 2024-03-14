@@ -1,8 +1,6 @@
 <% filter_restrictions = DataCycleCore::Feature::AdvancedFilter.graph_filter_restrictions(filter_type, filter_name) %>
 <% data_type_restriction = DataCycleCore::Feature::AdvancedFilter.graph_filter_data_types(filter_type, filter_name) %>
 
-<% binding.pry %>
-
 <div data-id="<%= identifier %>" class="advanced-filter conditional-value-selector <%= filter_method ||= (filter_restrictions.present? ? 's' : 'i') %>" data-label="<%= filter_name %>">
   <%= hidden_field_tag "f[#{identifier}][t]", 'graph_filter' %>
   <%= hidden_field_tag "f[#{identifier}][n]", filter_title %>
@@ -18,9 +16,9 @@
   </div>
 
   <div class="advanced-filter-selector">
+    <% select_value = value&.[]('content_type') %>
     <% if data_type_restriction.present? %>
       <% if data_type_restriction.size > DataCycleCore.max_asynch_classification_items %>
-        <% select_value = value&.[]('content_type') %>
         <%= select_tag(
               "f[#{identifier}][v][content_type]",
               async_classification_select_options(@selected_classification_aliases&.values_at(*select_value)),
