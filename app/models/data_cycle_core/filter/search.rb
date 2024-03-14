@@ -376,6 +376,14 @@ module DataCycleCore
       # Params:
       # +filter+:: Base-Filter / Filter, based on which the graph-filter shall operate. Could be: StoredFilter, WatchList, ...
       # +target_template+:: OPTIONAL - thing_template for linked ('b-side') if nil -> do not check for linked thing thing_template
+      #   @note: For now requires mapping in feature.yml to map relation_name to a computed thing template. Example:
+      #   :relation_filter:
+      #     :linked_image: image
+      #     :linked_location: content_location
+      #   :graph_filter:
+      #     :mapping:
+      #       :image: ImageObject (-> relation name 'image' shall restrict linked Objects to ImageObjects)
+      #       :content_location: Place (-> relation name 'content_location' shall restrict linked objects to Places)
       # +direction_a_b+:: OPTIONAL - DEFAULTS to FALSE ( B -> A ) - Tell the graph Filter in which direction it shall work.
       #  Direction A -> B: Return all linked items B of the base filter's resulting items A
       #  Direction B -> A (related_to): Return items A that have a linked item b that can be found in the results of the base filter
