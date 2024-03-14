@@ -35,5 +35,26 @@ namespace :dc do
 
       puts "\n"
     end
+    namespace :migrations do
+      task :validate, [:debug] => :environment do |_, _args|
+        puts "validating new data definitions\n"
+      end
+      task :data_definitions, [:debug] => :environment do |_, _args|
+        puts "migrate to new data_definitions\n"
+      end
+      task :universal_classifications, [:debug] => :environment do |_, _args|
+        puts "migrate classifications to universal classifications\n"
+        if DataCycleCore.data_definition_mapping.dig('universal_classifications').blank?
+          puts 'no mappings found'
+          exit(-1)
+        end
+        classifications = DataCycleCore.data_definition_mapping.dig('universal_classifications')
+        ap classifications
+        ActiveRecord::Base.connection.execute <<-SQL.squish
+          UPDATE classification_contents SET relation = 'universal_classifications' WHERE relation IN ('#{classifications.join("','")}');
+          UPDATE classification_content_histories SET relation = 'universal_classifications' WHERE relation IN ('#{classifications.join("','")}');
+        SQL
+      end
+    end
   end
 end

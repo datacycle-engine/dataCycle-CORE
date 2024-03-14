@@ -133,6 +133,9 @@ module DataCycleCore
   mattr_accessor :features
   self.features = {}
 
+  mattr_accessor :data_definition_mapping
+  self.data_definition_mapping = {}
+
   mattr_accessor :experimental_features
   self.experimental_features = {}
 
