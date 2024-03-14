@@ -141,18 +141,15 @@ describe 'DataCycleCore::Utility::Virtual::Common#overlay' do
       my_classification:
         create_classification_dummy([{
           id: '00000000-0000-0000-0000-000000000001',
-          name: 'One',
-          klass: DataCycleCore::Classification
+          name: 'One'
         }]),
       my_classification_override:
         create_classification_dummy([{
           id: '00000000-0000-0000-0000-000000000002',
-          name: 'Two',
-          klass: DataCycleCore::Classification
+          name: 'Two'
         }, {
           id: '00000000-0000-0000-0000-000000000003',
-          name: 'Three',
-          klass: DataCycleCore::Classification
+          name: 'Three'
         }]),
       my_classification_add: DataCycleCore::Classification.none
     })
@@ -169,8 +166,7 @@ describe 'DataCycleCore::Utility::Virtual::Common#overlay' do
       my_classification:
         create_classification_dummy([{
           id: '00000000-0000-0000-0000-000000000001',
-          name: 'One',
-          klass: DataCycleCore::Classification
+          name: 'One'
         }]),
       my_classification_override: DataCycleCore::Classification.none,
       my_classification_add: DataCycleCore::Classification.none
