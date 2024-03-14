@@ -859,6 +859,10 @@ en:
       placeholder:
         thing: content
         collection_or_stored_filter: "%{collection} or %{stored_filter}"
+    graph_filter:
+      placeholder:
+        thing: content
+        collection_or_stored_filter: "%{collection} or %{stored_filter}"
     related_to: is linked to
     feratel_content_score: Feratel - Content Score
     internal_content_score: Content Score - dataCycle
@@ -891,6 +895,10 @@ en:
       not_access_token: no API token present
       confirmed_at: Email confirmed
       not_confirmed_at: Email not confirmed
+    items_linked_to: (A) ==> (B) Linked data type
+    items_linked_to_2: from
+    linked_items_in: (B) ==> (A) Data type
+    linked_items_in_2: which is linked to
 
   filter_groups:
     classification_alias_ids: filter by classifications ...
@@ -911,6 +919,7 @@ en:
     related_to: filter by linked content ...
     in_schedule: filter by date ...
     inactive_things: filter for expired content ...
+    graph_filter: Filter via linked content...
   sortable:
     default: Standard
     created_at: Creation date

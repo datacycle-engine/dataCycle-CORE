@@ -1,0 +1,50 @@
+<%
+  content_types = value["content_type"].is_a?(Array) ? value["content_type"] : [value["content_type"]]
+  filter_restrictions = value["restriction"]
+  stored_filter = value["filter"]
+%>
+
+<span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
+  <div><span class="tag-group-label">
+    <i class="fa fa-link" aria-hidden="true"></i>
+    <%# binding.pry %>
+    <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>:
+  </span>
+
+  <span class="tags-container">
+    <% if content_types.present?%>
+      <!-- Content Types -->
+      <% content_types.each do |tag| %>
+        <span class="tag"><%= DataCycleCore::ClassificationAlias.find(tag).internal_name %></span>
+      <% end %>
+    <% end %>
+
+  </span>
+
+  </div>
+  <div>
+
+    <span class="tag-group-label">
+      <%= t("filter.#{key}_2", default: "", locale: active_ui_locale) %>:
+  </span>
+
+  <span class="tags-container">
+
+
+    <% if filter_restrictions.present?%>
+      <!-- Filter Restrictions -->
+      <span class="tag"><%= filter_restrictions %></span>
+    <% end %>
+
+
+    <% if stored_filter.present?%>
+      <!-- StoredFilter -->
+      <span class="tag"><%= DataCycleCore::StoredFilter.find(stored_filter).name %></span>
+    <% end %>
+
+  </span>
+
+  </div>
+
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons %>
+</span>

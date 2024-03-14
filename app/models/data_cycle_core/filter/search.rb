@@ -342,9 +342,9 @@ module DataCycleCore
       private
 
       def related_to_query(filter, name = nil, inverse = false)
-        target_template = DataCycleCore.features.dig('advanced_filter', 'graph_filter', 'mapping')&.[](name)
+        target_template = DataCycleCore.features.dig('advanced_filter', 'graph_filter', 'relation_mapping')&.[](name)
 
-        graph_filter_query(filter, name, target_template, inverse)
+        graph_filter_query(filter, target_template, inverse)
 
         # if filter.is_a?(DataCycleCore::Filter::Search)
         #   filter_query = Arel.sql(filter.select(:id).except(:order).to_sql)
@@ -388,7 +388,7 @@ module DataCycleCore
       #  Direction A -> B: Return all linked items B of the base filter's resulting items A
       #  Direction B -> A (related_to): Return items A that have a linked item b that can be found in the results of the base filter
 
-      def graph_filter_query(filter, _name = nil, target_template = nil, direction_a_b = false)
+      def graph_filter_query(filter, schema_template = nil, direction_a_b = true)
         if filter.is_a?(DataCycleCore::Filter::Search)
           filter_query = Arel.sql(filter.select.except(:order).to_sql)
         elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
@@ -400,12 +400,12 @@ module DataCycleCore
         end
 
         target = direction_a_b ? :content_b_id : :content_a_id
-        direction_a_b ? :content_a_id : :content_b_id
+        # source = direction_a_b ? :content_a_id : :content_b_id
 
         sub_select = content_content_link[:content_a_id].eq(thing[:id])
 
-        if target_template.present?
-          infix_operation = Arel::Nodes::InfixOperation.new('=', Arel::Nodes.build_quoted(target_template), any(thing_template[:computed_schema_types]))
+        if schema_template.present?
+          infix_operation = Arel::Nodes::InfixOperation.new('=', Arel::Nodes.build_quoted(schema_template), any(thing_template[:computed_schema_types]))
           target_template_query = Arel::SelectManager.new.from(thing_template).where(infix_operation).project(thing_template[:template_name])
           target_template_things = Arel::SelectManager.new.from(thing).where(thing[:template_name].in(target_template_query)).project(thing[:id])
 

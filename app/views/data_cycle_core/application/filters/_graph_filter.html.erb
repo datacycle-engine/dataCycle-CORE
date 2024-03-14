@@ -1,0 +1,112 @@
+<% filter_restrictions = DataCycleCore::Feature::AdvancedFilter.graph_filter_restrictions(filter_type, filter_name) %>
+<% data_type_restriction = DataCycleCore::Feature::AdvancedFilter.graph_filter_data_types(filter_type, filter_name) %>
+
+<% binding.pry %>
+
+<div data-id="<%= identifier %>" class="advanced-filter conditional-value-selector <%= filter_method ||= (filter_restrictions.present? ? 's' : 'i') %>" data-label="<%= filter_name %>">
+  <%= hidden_field_tag "f[#{identifier}][t]", 'graph_filter' %>
+  <%= hidden_field_tag "f[#{identifier}][n]", filter_title %>
+  <%= hidden_field_tag "f[#{identifier}][q]", 'graph_filter' %>
+  <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
+
+  <div class="advanced-filter-title">
+    <%= render 'data_cycle_core/shared/icon', icon_type: filter_name&.underscore_blanks, icon_class: 'filter' %>
+    <span><%= t("filter.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
+  </div>
+  <div class="advanced-filter-mode">
+    <%= select_tag "f[#{identifier}][m]", advanced_graph_filter_options(filter_method, filter_restrictions.present?) %>
+  </div>
+
+  <div class="advanced-filter-selector">
+    <% if data_type_restriction.present? %>
+      <% if data_type_restriction.size > DataCycleCore.max_asynch_classification_items %>
+        <% select_value = value&.[]('content_type') %>
+        <%= select_tag(
+              "f[#{identifier}][v][content_type]",
+              async_classification_select_options(@selected_classification_aliases&.values_at(*select_value)),
+              {
+                multiple: true,
+                class: 'async-select',
+                data: {
+                  tree_label: filter_title,
+                  max: 20,
+                  placeholder: '',
+                  alias_ids: true,
+                  find_path: find_classifications_path,
+                  search_path: search_classifications_path
+                }
+              }
+            ) %>
+      <% else %>
+        <%= select_tag(
+              "f[#{identifier}][v][content_type]",
+              simple_classification_select_options(@selected_classification_aliases&.values_at(*select_value), data_type_restriction),
+              {
+                multiple: true,
+                class: 'multi-select',
+                data: {
+                  tree_label: filter_title,
+                  max: 20,
+                  placeholder: ''
+                }
+              }
+            ) %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="advanced-filter-title">
+    <span><%= t("filter.#{filter_name}_2", default: "", locale: active_ui_locale) %></span>
+  </div>
+
+  <div class="advanced-filter-selector">
+    <% if filter_restrictions.present? %>
+      <div>
+        <%= select_tag("f[#{identifier}][v][restriction]",
+            (filter_method.in?(['s', 'u']) ? value&.[]('restriction') : nil),
+            {
+              include_blank: true,
+              multiple: false,
+              id: "f_#{identifier}_v_thing",
+              class: "async-select",
+              disabled: !filter_method.in?(['s', 'u']),
+              data: {
+                active_for: ['s', 'u'],
+                max: 20,
+                placeholder: t('filter.graph_filter.placeholder.thing', locale: active_ui_locale),
+                search_path: select_search_things_path,
+                query_params: filter_restrictions.to_json
+              }
+            }) %>
+      </div>
+    <% end %>
+    <div>
+      <%= select_tag("f[#{identifier}][v][filter]",
+          (filter_method.in?(['i', 'e']) ? union_values_to_options(value&.[]('filter')) : nil),
+          {
+            include_blank: true,
+            multiple: false,
+            id: "f_#{identifier}_v_collection_stored_filter",
+            class: "async-select",
+            disabled: !filter_method.in?(['i', 'e']),
+            data: {
+              active_for: ['i', 'e'],
+              max: 20,
+              placeholder: t('filter.graph_filter.placeholder.collection_or_stored_filter',
+                collection: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale),
+                stored_filter: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: active_ui_locale),
+                locale: active_ui_locale),
+              search_path: select_search_or_collection_stored_filters_path
+            }
+          }) %>
+    </div>
+    <div>
+      <%= hidden_field_tag "f[#{identifier}][v]", filter_advanced_type, disabled: !filter_method.in?(['p', 'b']), data: { active_for: ['p', 'b'] } %>
+    </div>
+  </div>
+  <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
+    <div class="buttons">
+      <a class="remove-advanced-filter" data-target="<%= identifier %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+    </div>
+  <% end %>
+</div>

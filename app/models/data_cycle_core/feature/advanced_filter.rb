@@ -83,6 +83,21 @@ module DataCycleCore
           }.compact
         end
 
+        def graph_filter(user, value)
+          return [] unless value.is_a?(Hash)
+
+          value.map { |k, v|
+            next unless v
+            next if ['enabled', 'relation_mapping'].include?(k)
+
+            [
+              I18n.t("filter.graph_filter.#{k.underscore_blanks}", default: I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale), locale: user.ui_locale),
+              'graph_filter',
+              data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
+            ]
+          }.compact
+        end
+
         def union_filter_ids(user, value)
           return [] unless value
 
@@ -270,6 +285,17 @@ module DataCycleCore
           return unless configuration.dig(type, name).is_a?(::Hash)
 
           configuration.dig(type, name, 'filter')
+        end
+
+        def graph_filter_restrictions(type, name)
+          return unless configuration.dig(type, name).is_a?(::Hash)
+
+          # TODO: Evaluate how to update graph_filter_restrictions in a way that makes sense
+          configuration.dig(type, name, 'filter')
+        end
+
+        def graph_filter_data_types(_type, _name)
+          DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen')
         end
       end
     end

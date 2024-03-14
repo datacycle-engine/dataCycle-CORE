@@ -145,6 +145,12 @@ module DataCycleCore
       options_for_select(filter_options, filter_method)
     end
 
+    def advanced_graph_filter_options(filter_method, thing_filter = false)
+      # TODO: Evaluate or update for graph_filter
+
+      advanced_relation_filter_options(filter_method, thing_filter)
+    end
+
     def selected_filter_params(filter, config)
       if config[:hidden_filter]&.any?(filter)
         { buttons: 'h', container_classes: 'hidden-filter' }
