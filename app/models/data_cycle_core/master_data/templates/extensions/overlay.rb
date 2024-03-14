@@ -21,7 +21,7 @@ module DataCycleCore
             version_prop['local'] = true
             version_prop['position'] = { 'after' => key }
             version_prop['visible'] = ['show', 'edit']
-            version_prop['ui']&.each do |_k, v|
+            version_prop['ui']&.each_value do |v|
               v.delete('content_area') if v.is_a?(::Hash) && v['content_area'] == 'none'
             end
 
