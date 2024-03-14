@@ -15,13 +15,7 @@ module DataCycleCore
 
         if resolve_instances && value.is_a?(::Hash) && value.key?('class') && !(class_name = value['class'].classify.safe_constantize).nil?
           if value.key?(class_name.try(:primary_key)) && value[:type] == 'Collection'
-            return_hash[key] = class_name.where(id: value[class_name.primary_key])
-            .order(
-              [
-                Arel.sql("array_position(ARRAY[?]::uuid[], #{class_name.table_name}.id)"),
-                value[class_name.primary_key]
-              ]
-            )
+            return_hash[key] = class_name.by_ordered_values(value[class_name.primary_key])
           elsif value.key?(class_name.try(:primary_key))
             return_hash[key] = class_name.find_by(class_name.primary_key => value[class_name.primary_key])
           elsif value.key?('attributes')

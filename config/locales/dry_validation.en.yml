@@ -20,5 +20,7 @@ en:
           invalid_object: "invalid included_object: type must be 'object' and must have properties defined. storage_location must be a jsonb field (translated_value for translated fields, value for not translatable data)."
         storage_location:
           invalid_column: "invalid storage_location column, column is only allowed for external_key, slug, line, location, geom"
+        overlay:
+          invalid_overlay_type: overlay is not allowed for this attribute type
         data:
           missing_schema_type_or_ancestors: "schema_type or schema_ancestors have to be defined."
