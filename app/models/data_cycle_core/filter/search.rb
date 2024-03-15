@@ -247,11 +247,19 @@ module DataCycleCore
 
         filter_id = filter.dig('filter')
         content_type = filter.dig('content_type')
-        direction_a_b = query == 'linked_items_in' ? false : (query == 'items_linked_to' ? true : nil)
+
+        relation_name = JSON.parse(filter.dig('relation_type'))[1] if !filter.dig('relation_type').blank?
+        direction_a_b = nil
+
+        if query == 'linked_items_in'
+          direction_a_b = false
+        elsif query == 'items_linked_to'
+          direction_a_b = true
+        end
 
         return self if filter_id.blank? || direction_a_b.nil?
 
-        subquery = graph_filter_query(filter_id, nil, direction_a_b)
+        subquery = graph_filter_query(filter_id, relation_name, content_type, direction_a_b)
 
         return self if subquery.nil?
 
@@ -348,53 +356,43 @@ module DataCycleCore
       private
 
       def related_to_query(filter, name = nil, inverse = false)
-        target_template = DataCycleCore.features.dig('advanced_filter', 'graph_filter', 'relation_mapping')&.[](name)
 
-        graph_filter_query(filter, target_template, inverse)
+        if filter.is_a?(DataCycleCore::Filter::Search)
+          filter_query = Arel.sql(filter.select(:id).except(:order).to_sql)
+        elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
+          filter_query = Arel.sql(stored_filter.apply.select(:id).except(:order).to_sql)
+        elsif (collection = DataCycleCore::WatchList.find_by(id: filter))
+          filter_query = Arel.sql(collection.watch_list_data_hashes.select(:hashable_id).except(:order).to_sql)
+        else # in case filter is array of thing_ids
+          filter_query = Array.wrap(filter)
+        end
 
-        # if filter.is_a?(DataCycleCore::Filter::Search)
-        #   filter_query = Arel.sql(filter.select(:id).except(:order).to_sql)
-        # elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
-        #   filter_query = Arel.sql(stored_filter.apply.select(:id).except(:order).to_sql)
-        # elsif (collection = DataCycleCore::WatchList.find_by(id: filter))
-        #   filter_query = Arel.sql(collection.watch_list_data_hashes.select(:hashable_id).except(:order).to_sql)
-        # else # in case filter is array of thing_ids
-        #   filter_query = Array.wrap(filter)
-        # end
-        #
-        # thing_id = :content_a_id
-        # related_to_id = :content_b_id
-        # thing_id, related_to_id = related_to_id, thing_id if inverse
-        # relation_name = inverse ? :relation_b : :relation_a
-        #
-        # sub_select = content_content[thing_id].eq(thing[:id])
-        #                                       .and(content_content[related_to_id].in(filter_query))
-        #
-        # sub_select = sub_select.and(content_content[relation_name].eq(name)) if name.present?
-        #
-        # Arel::SelectManager.new
-        #                    .from(content_content)
-        #                    .where(sub_select)
+        thing_id = :content_a_id
+        related_to_id = :content_b_id
+        thing_id, related_to_id = related_to_id, thing_id if inverse
+        relation_name = inverse ? :relation_b : :relation_a
+
+        sub_select = content_content[thing_id].eq(thing[:id])
+                                              .and(content_content[related_to_id].in(filter_query))
+
+        sub_select = sub_select.and(content_content[relation_name].eq(name)) if name.present?
+
+        Arel::SelectManager.new
+                           .from(content_content)
+                           .where(sub_select)
       end
 
       ##
       # This is the core functionality for the new bi-directional graph filter
       # Params:
       # +filter+:: Base-Filter / Filter, based on which the graph-filter shall operate. Could be: StoredFilter, WatchList, ...
-      # +target_template+:: OPTIONAL - thing_template for linked ('b-side') if nil -> do not check for linked thing thing_template
-      #   @note: For now requires mapping in feature.yml to map relation_name to a computed thing template. Example:
-      #   :relation_filter:
-      #     :linked_image: image
-      #     :linked_location: content_location
-      #   :graph_filter:
-      #     :mapping:
-      #       :image: ImageObject (-> relation name 'image' shall restrict linked Objects to ImageObjects)
-      #       :content_location: Place (-> relation name 'content_location' shall restrict linked objects to Places)
+      # +relation+: OPTIONAL: Restriction for relation name - default: nil (no restriction)
+      # +class_aliases+:: OPTIONAL - list of classification aliases that shall be applied # ToDo: Update description to be more meaningful
       # +direction_a_b+:: OPTIONAL - DEFAULTS to FALSE ( B -> A ) - Tell the graph Filter in which direction it shall work.
       #  Direction A -> B: Return all linked items B of the base filter's resulting items A
       #  Direction B -> A (related_to): Return items A that have a linked item b that can be found in the results of the base filter
 
-      def graph_filter_query(filter, schema_template = nil, direction_a_b = true)
+      def graph_filter_query(filter, relation = nil, class_aliases = [], direction_a_b = true)
         if filter.is_a?(DataCycleCore::Filter::Search)
           filter_query = Arel.sql(filter.select.except(:order).to_sql)
         elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
@@ -406,12 +404,21 @@ module DataCycleCore
         end
 
         target = direction_a_b ? :content_b_id : :content_a_id
-        # source = direction_a_b ? :content_a_id : :content_b_id
+        source = direction_a_b ? :content_a_id : :content_b_id
 
-        sub_select = content_content_link[:content_a_id].eq(thing[:id])
+        sub_select = content_content_link[source].eq(thing[:id])
 
-        if schema_template.present?
-          infix_operation = Arel::Nodes::InfixOperation.new('=', Arel::Nodes.build_quoted(schema_template), any(thing_template[:computed_schema_types]))
+        if relation.present?
+
+          sub_select = sub_select.and(content_content_link[:relation].eq(relation))
+
+          # binding.pry
+
+        elsif class_aliases.present? && class_aliases.size.positive?
+
+          collected_classification_contents
+
+          infix_operation = Arel::Nodes::InfixOperation.new('=', Arel::Nodes.build_quoted(class_aliases), any(thing_template[:computed_schema_types]))
           target_template_query = Arel::SelectManager.new.from(thing_template).where(infix_operation).project(thing_template[:template_name])
           target_template_things = Arel::SelectManager.new.from(thing).where(thing[:template_name].in(target_template_query)).project(thing[:id])
 
@@ -419,8 +426,6 @@ module DataCycleCore
 
           sub_select = sub_select.and(related_template_things)
         end
-
-        sub_select = sub_select.and(content_content_link[:relation].not_eq(nil)) # if name.present?
 
         sub_select = sub_select.and(content_content_link[target].in(filter_query))
 

@@ -1,30 +1,43 @@
 <%
   content_types = value["content_type"].is_a?(Array) ? value["content_type"] : [value["content_type"]]
+  relation_types = value["relation_type"].is_a?(Array) ? value["relation_type"] : [value["relation_type"]]
   filter_restrictions = value["restriction"]
   stored_filter = value["filter"]
 %>
 
 <span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
-  <div><span class="tag-group-label">
+  <span><span class="tag-group-label">
     <i class="fa fa-link" aria-hidden="true"></i>
-    <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>:
+    <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>
   </span>
 
-  <span class="tags-container">
-    <% if content_types.present?%>
+  <% if content_types&.first&.present? || (relation_types.present? && !relation_types.first&.blank?) %>
+    <span class="tags-container">
+    <% if content_types&.first&.present?%>
       <!-- Content Types -->
-      <% content_types.each do |tag| %>
+        <% content_types.each do |tag| %>
         <span class="tag"><%= DataCycleCore::ClassificationAlias.find(tag).internal_name if tag.present? %></span>
       <% end %>
     <% end %>
 
+      <% if relation_types.present? && !relation_types.first&.blank?%>
+      <!-- Content Types -->
+        <% relation_types.each do |tag| %>
+        <%
+          next if tag.blank?
+          parsed_tag = JSON.parse(tag)
+        %>
+          <span class="tag"><%= t("filter.#{parsed_tag[0]}", default: "", locale: active_ui_locale).split(' ')[1..-1]&.join(' ') %></span>
+      <% end %>
+    <% end %>
   </span>
+  <% end %>
 
-  </div>
-  <div>
+  </span>
+  <span>
 
     <span class="tag-group-label">
-      <%= t("filter.#{key}_2", default: "", locale: active_ui_locale) %>:
+      <%= t("filter.#{key}_2", default: "", locale: active_ui_locale) %>
   </span>
 
   <span class="tags-container">
@@ -43,7 +56,7 @@
 
   </span>
 
-  </div>
+  </span>
 
   <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons %>
 </span>

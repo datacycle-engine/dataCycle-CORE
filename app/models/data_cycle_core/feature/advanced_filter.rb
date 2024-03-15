@@ -294,8 +294,16 @@ module DataCycleCore
           configuration.dig(type, name, 'filter')
         end
 
-        def graph_filter_data_types(_type, _name)
+        def graph_filter_data_types
           DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen')
+        end
+
+        def graph_filter_relations
+          configuration.dig('relation_filter')
+        end
+
+        def graph_filter_mode
+          configuration.dig('graph_filter','mode')
         end
       end
     end
