@@ -2,58 +2,40 @@
 
 module VirtualAttributeTestUtilities
   def create_content_dummy(data)
-    if data.is_a?(Array)
-      data.map { |d| create_content_dummy(d) }.then { |v| DataCycleCore::Thing.by_ordered_values(v.pluck(:id)).tap { |rel| rel.send(:load_records, v) } }
-    elsif data.is_a?(Hash)
-      Struct.new(*data.keys) {
-        def is_a?(class_name)
-          class_name == DataCycleCore::Thing
-        end
-
-        def class
-          DataCycleCore::Thing
-        end
-      }.new(*data.values.map { |d| create_content_dummy(d) })
-    else
-      data
-    end
+    create_dummy(data, DataCycleCore::Thing)
   end
 
   def create_classification_dummy(data)
-    if data.is_a?(Array)
-      data.map { |d| create_classification_dummy(d) }.then { |v| DataCycleCore::Classification.by_ordered_values(v.pluck(:id)).tap { |rel| rel.send(:load_records, v) } }
-    elsif data.is_a?(Hash)
-      Struct.new(*data.keys) {
-        def is_a?(class_name)
-          class_name == DataCycleCore::Classification
-        end
-
-        def class
-          DataCycleCore::Classification
-        end
-      }.new(*data.values.map { |d| create_classification_dummy(d) })
-    else
-      data
-    end
+    create_dummy(data, DataCycleCore::Classification)
   end
 
   def create_classification_alias_dummy(data)
+    create_dummy(data, DataCycleCore::ClassificationAlias)
+  end
+
+  def create_dummy(data, klass)
     if data.is_a?(Array)
-      data.map { |d| create_classification_alias_dummy(d) }.then { |v| DataCycleCore::ClassificationAlias.by_ordered_values(v.pluck(:id)).tap { |rel| rel.send(:load_records, v) } }
-    elsif data.is_a?(Hash)
-      Struct.new(*data.keys) {
+      data.map { |d| create_dummy(d, klass) }.then { |v| klass.by_ordered_values(v.pluck(:id)).tap { |rel| rel.send(:load_records, v) } }
+    elsif data.is_a?(::Hash)
+      Struct.new(*data.keys.except(:id), :id, :klass, keyword_init: true) {
+        def initialize(id: SecureRandom.uuid, **args)
+          super
+        end
+
         def is_a?(class_name)
-          class_name == DataCycleCore::ClassificationAlias
+          class_name == klass
         end
 
         def class
-          DataCycleCore::ClassificationAlias
+          klass
         end
 
-        def name
-          name_i18n.dig(I18n.locale.to_s)
+        if klass == DataCycleCore::ClassificationAlias
+          def name
+            name_i18n.dig(I18n.locale.to_s)
+          end
         end
-      }.new(*data.values.map { |d| create_classification_alias_dummy(d) })
+      }.new(klass:, **data.transform_values { |d| create_dummy(d, klass) })
     else
       data
     end
