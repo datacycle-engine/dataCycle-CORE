@@ -3,11 +3,13 @@ it:
   activerecord:
     errors:
       messages:
-        record_invalid: 'Validazione fallita: %{errors}'
+        record_invalid: "Validazione fallita: %{errors}"
         restrict_dependent_destroy:
-          has_one: Il record non può essere cancellato perchè esiste un %{record}
+          has_one:
+            Il record non può essere cancellato perchè esiste un %{record}
             dipendente
-          has_many: Il record non può essere cancellato perchè esistono %{record}
+          has_many:
+            Il record non può essere cancellato perchè esistono %{record}
             dipendenti
   import:
     outdoor_active:
@@ -17,59 +19,121 @@ it:
         experience_rating: Emozione
         landscape_rating: Paesaggio
         difficulty_rating: Difficoltà
+    generic:
+      description: Descrizione
+      text: Descrizione dettagliata
+    booking:
+      hotel_important_information: Informazioni importanti
+      hotel_description: Descrizione breve
+    feratel:
+      meeting_point: Punto di incontro
+      additional_service:
+        Payment: Modalità di pagamento
+        ServiceDescription: Descrizione
+        Included Services: Servizi inclusi
+        Not included Services: Servizi non inclusi
+        Equipment: Attrezzatura
+        Bring along: Portare con te
+        Rental Equipment: Noleggio equipaggiamento
+        Suitable for: Adatto per
+        Difficulty: Difficoltà
+        Requirements: Requisiti
+        Meeting Point: Punto d'incontro
+        Opening hours: Orari di apertura
+        Price Information: Informazioni sul prezzo
+        Payment conditions: Pagamento
+        Cancellation Information: Informazioni sulla cancellazione
+        Arrival Information: Informazioni di arrivo
+        "FAQ / good to know": FAQ / Informazioni utili
+        "Hint / Advice": Consigli
+        Important information: Informazioni importanti
+      event:
+        EventHeader: Descrizione
+        EventHeaderShort: Descrizione breve
+        AdditionalService: Servizio aggiuntivo
+        CurrentInformation: Informazioni attuali
+        GuestCardClassification: Classificazione della carta ospite
+      serial_event:
+        EventGroup: Descrizione
+      infrastructure:
+        AdditionalService: Servizio aggiuntivo
+        Arrival Information: Informazioni sull'arrivo
+        CurrentInformation: Informazioni attuali
+        GuestCardClassification: Classificazione della carta ospite
+        InfrastructureLong: Descrizione dettagliata
+        InfrastructureOpeningTimes: Orari di apertura
+        InfrastructurePriceInfo: Informazioni sui prezzi
+        InfrastructureShort: Descrizione breve
+        Payment: Modalità di pagamento
+        Price Information: Prezzo
+        ServiceDescription: Descrizione
+      GuestCards:
+        GuestCardClassification: Classificazione della carta ospite
+      accommodation:
+        CurrentInformation: Informazioni attuali
+        SEOKeywords: Parole chiave SEO
+        ServiceProviderArrivalVoucher: Voucher di arrivo del fornitore di servizi
+        ServiceProviderConditions: Condizioni del fornitore di servizi
+        ServiceProviderDescription: Descrizione del fornitore di servizi
+      GTC:
+        GTC: Condizioni generali di contratto
+      package:
+        PackageShortText: Descrizione breve
+        Package: Descrizione
+
   date:
     abbr_day_names:
-    - dom
-    - lun
-    - mar
-    - mer
-    - gio
-    - ven
-    - sab
+      - dom
+      - lun
+      - mar
+      - mer
+      - gio
+      - ven
+      - sab
     abbr_month_names:
-    -
-    - gen
-    - feb
-    - mar
-    - apr
-    - mag
-    - giu
-    - lug
-    - ago
-    - set
-    - ott
-    - nov
-    - dic
+      -
+      - gen
+      - feb
+      - mar
+      - apr
+      - mag
+      - giu
+      - lug
+      - ago
+      - set
+      - ott
+      - nov
+      - dic
     day_names:
-    - domenica
-    - lunedì
-    - martedì
-    - mercoledì
-    - giovedì
-    - venerdì
-    - sabato
+      - domenica
+      - lunedì
+      - martedì
+      - mercoledì
+      - giovedì
+      - venerdì
+      - sabato
     formats:
       default: "%d/%m/%Y"
       long: "%d %B %Y"
       short: "%d %b"
     month_names:
-    -
-    - gennaio
-    - febbraio
-    - marzo
-    - aprile
-    - maggio
-    - giugno
-    - luglio
-    - agosto
-    - settembre
-    - ottobre
-    - novembre
-    - dicembre
+      -
+      - gennaio
+      - febbraio
+      - marzo
+      - aprile
+      - maggio
+      - giugno
+      - luglio
+      - agosto
+      - settembre
+      - ottobre
+      - novembre
+      - dicembre
     order:
-    - :day
-    - :month
-    - :year
+      - :day
+      - :month
+      - :year
   datetime:
     distance_in_words:
       about_x_hours:
@@ -149,10 +213,10 @@ it:
         one: è della lunghezza sbagliata (deve essere di 1 carattere)
         other: è della lunghezza sbagliata (deve essere di %{count} caratteri)
     template:
-      body: 'Ricontrolla i seguenti campi:'
+      body: "Ricontrolla i seguenti campi:"
       header:
-        one: 'Non posso salvare questo %{model}: 1 errore'
-        other: 'Non posso salvare questo %{model}: %{count} errori.'
+        one: "Non posso salvare questo %{model}: 1 errore"
+        other: "Non posso salvare questo %{model}: %{count} errori."
   helpers:
     select:
       prompt: Seleziona...
@@ -185,9 +249,9 @@ it:
           quadrillion: Biliardi
           thousand: Mila
           trillion: Bilioni
-          unit: ''
+          unit: ""
       format:
-        delimiter: ''
+        delimiter: ""
         precision: 3
         significant: true
         strip_insignificant_zeros: true
@@ -203,11 +267,11 @@ it:
           tb: TB
     percentage:
       format:
-        delimiter: ''
+        delimiter: ""
         format: "%n%"
     precision:
       format:
-        delimiter: ''
+        delimiter: ""
   support:
     array:
       last_word_connector: " e "
@@ -220,4 +284,3 @@ it:
       long: "%d %B %Y %H:%M"
       short: "%d %b %H:%M"
     pm: pm
-
