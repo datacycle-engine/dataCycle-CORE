@@ -751,6 +751,19 @@ en:
         api_usage_current_month: Number of uses via the API in the current month
         api_usage_last_month: Number of uses via the API in the last month
         api_usage_last_12_months: Number of uses via the API in the last 12 months
+        first_name: First name
+        last_name: Last name
+        created_at: Created on
+        updated_at: Edited on
+        last_sign_in_at: Last login
+        current_sign_in_at: Current login
+        sign_in_count: Number of logins
+        deleted_at: Deleted on
+        locked_at: Locked on
+        external: External
+        role_name: Role
+        latest_activity_type: Last activitytype
+        latest_api_access: Last API access
       mailer:
         subject:
           downloads_popular: TOP 50 Image Downloads
