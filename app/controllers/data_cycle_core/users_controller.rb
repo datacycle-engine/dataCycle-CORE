@@ -183,13 +183,6 @@ module DataCycleCore
       redirect_to(session.delete(:return_to) || root_path)
     end
 
-    def download_info_activity
-      # authorize! :download_user_info_activity, @user
-      activity = DataCycleCore::Report::Downloads::UserInfoActivity.new(params: { key: 'user_info_activity' })
-      csv = activity.to_csv
-      send_data csv, type: 'text/csv', filename: "user_info_activity_#{Time.zone.now.strftime('%Y-%m-%d_%H-%M-%S')}.csv"
-    end
-
     private
 
     def consent_params
