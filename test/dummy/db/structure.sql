@@ -3763,6 +3763,14 @@ ALTER TABLE ONLY public.classification_contents
 
 
 --
+-- Name: thing_histories fk_rails_71ac418654; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.thing_histories
+    ADD CONSTRAINT fk_rails_71ac418654 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL NOT VALID;
+
+
+--
 -- Name: classifications fk_rails_72385dbd06; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3784,6 +3792,22 @@ ALTER TABLE ONLY public.classification_trees
 
 ALTER TABLE ONLY public.classification_groups
     ADD CONSTRAINT fk_rails_783650782d FOREIGN KEY (classification_alias_id) REFERENCES public.classification_aliases(id) ON DELETE CASCADE NOT VALID;
+
+
+--
+-- Name: things fk_rails_7b61990cb0; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.things
+    ADD CONSTRAINT fk_rails_7b61990cb0 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL NOT VALID;
+
+
+--
+-- Name: external_system_syncs fk_rails_8fcdea2ef6; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.external_system_syncs
+    ADD CONSTRAINT fk_rails_8fcdea2ef6 FOREIGN KEY (external_system_id) REFERENCES public.external_systems(id) ON DELETE CASCADE NOT VALID;
 
 
 --
@@ -4195,6 +4219,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20231220082023'),
 ('20240118164523'),
 ('20240124113601'),
-('20240311123217');
+('20240311123217'),
+('20240318112843');
 
 
