@@ -344,3 +344,8 @@ view_mode_feature:
   parameters:
     - :view_mode
     - DataCycleCore::Feature::ViewMode
+
+download_user_info_activity:
+  actions: download_user_info_activity
+  segment: SubjectByConditions
+  parameters: DataCycleCore::User

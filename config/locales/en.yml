@@ -1096,7 +1096,7 @@ en:
     remove_content_from: "Remove %{name} from %{collection}?"
     remove_from: "remove from %{collection}"
     set_gravity: "Set image gravity"
-
+    download_user_info_activity: "Download user activity"
   validation:
     errors:
       slug: "%{data} is already the slug of another record."

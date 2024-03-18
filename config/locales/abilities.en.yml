@@ -77,6 +77,7 @@ en:
       auto_translate: Automatic translation
       dash_board: Admin Dashboard
       permission: Authorizations
+      preview: Widget link
     actions:
       index: show (list)
       show: show
@@ -157,6 +158,7 @@ en:
       remove_external_connection: Delete external connection
       bulk_edit: Edit in bulk
       bulk_delete: Delete in bulk
+      download_user_info_activity: "Download user information and API activity"
     restrictions:
       advanced_filter_except_type: "Filter not: %{except}"
       asset_by_user_and_no_content:

@@ -1152,7 +1152,7 @@ de:
     remove_from: "aus %{collection} entfernen"
     set_gravity: "Bildausschnitt festlegen (Gravity)"
     deactivate_gravity_editor: "Bearbeitung beenden"
-
+    download_user_info_activity: "Nutzeraktivitäten herunterladen"
   validation:
     errors:
       slug: "%{data} ist bereits der slug von einem anderen Datensatz."

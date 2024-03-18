@@ -71,7 +71,7 @@ DataCycleCore::Engine.routes.draw do
       post :update_consent, on: :collection
       get :become
       match '/index', via: [:get, :post], on: :collection, action: :index
-      get :download_info_activity, on: :collection
+      post :download_user_info_activity, on: :collection
     end
 
     resources :permissions, only: [:index]
