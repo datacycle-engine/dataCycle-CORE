@@ -777,6 +777,19 @@ de:
         api_usage_current_month: Anzahl der Verwendungen über die API im aktuellen Monat
         api_usage_last_month: Anzahl der Verwendungen über die API im letzten Monat
         api_usage_last_12_months: Anzahl der Verwendungen über die API in den letzten 12 Monaten
+        first_name: Vorname
+        last_name: Nachname
+        created_at: Erstellt am
+        updated_at: Aktualisiert am
+        last_sign_in_at: Letzter Login
+        current_sign_in_at: Aktueller Login
+        sign_in_count: Anzahl der Logins
+        deleted_at: Gelöscht am
+        locked_at: Gesperrt am
+        external: Extern
+        role_name: Rolle
+        latest_activity_type: Aktivitätsart
+        latest_api_access: Letzter API Zugriff
       mailer:
         subject:
           downloads_popular: TOP 50 Bild Downloads
@@ -1143,7 +1156,7 @@ de:
     remove_from: "aus %{collection} entfernen"
     set_gravity: "Bildausschnitt festlegen (Gravity)"
     deactivate_gravity_editor: "Bearbeitung beenden"
-
+    download_user_info_activity: "Nutzeraktivitäten herunterladen"
   validation:
     errors:
       slug: "%{data} ist bereits der slug von einem anderen Datensatz."
@@ -1678,7 +1691,7 @@ de:
         Payment: Zahlungsmodalitäten
         ServiceDescription: Beschreibung
         Included Services: Enthaltene Leistungen
-        Not included Services: Nicht enthaltene Leistungen
+        Not included Services: Nicht inkludierte Leistungen
         Equipment: Ausrüstung
         Bring along: Zum Mitbringen
         Rental Equipment: Leihausrüstung

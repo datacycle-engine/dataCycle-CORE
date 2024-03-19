@@ -2377,3 +2377,15 @@ body.object-browser-overlay-open {
 button[disabled] {
   cursor: not-allowed;
 }
+
+.vertical-separator {
+  border-left: 2px solid #d8d8d8;
+  height: 2.8rem;
+  margin: 0 0.9rem;
+  flex-shrink: 0;
+}
+
+.vertical-separator:last-child {
+  display: none;
+}
+
