@@ -53,10 +53,21 @@ module DataCycleCore
               key&.titleize
           end
 
+          def overlay_propery_name(key, definition, content, ui_scope, locale, _display_locale, count, locale_string)
+            overlay_type = key&.attribute_name_from_key&.scan(AttributeViewerHelper::OVERLAY_REGEX)&.first&.delete_prefix('_')
+
+            [
+              human_property_name(definition&.dig('features', 'overlay', 'overlay_for'), { base: content, ui_scope:, locale:, count:, locale_string: }),
+              I18n.t("feature.overlay.label_postfix.#{overlay_type}", locale:)
+            ].join(' ')
+          end
+
           def human_property_name(attribute, options = {})
             @human_property_name ||= Hash.new do |h, k|
               h[k] = begin
-                label = if k[0] == 'universal_classifications' && k.dig(1, 'type') == 'classification'
+                label = if k.dig(1, 'features', 'overlay', 'overlay_for').present?
+                          next overlay_propery_name(*k)
+                        elsif k[0] == 'universal_classifications' && k.dig(1, 'type') == 'classification'
                           translated_tree_label_name(*k).presence ||
                             k.dig(1, 'tree_label').presence ||
                             translated_attribute_name(*k).presence ||
@@ -91,7 +102,7 @@ module DataCycleCore
           end
 
           def human_attribute_name(attribute, options = {})
-            return super unless options[:base]&.property_names&.include?(attribute.to_s)
+            return super unless options[:base]&.property_names&.include?(attribute.to_s) || attribute.blank?
 
             human_property_name(attribute, options)
           end

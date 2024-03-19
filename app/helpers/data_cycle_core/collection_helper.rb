@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module CollectionHelper
-    BulkUpdateType = Struct.new(:value, :text, :checked)
+    CheckBoxStruct = Struct.new(:value, :text, :checked)
 
     def get_collection_groups(local_assigns)
       collection_group_index = local_assigns[:collection_group_index] || 0
@@ -33,7 +33,7 @@ module DataCycleCore
     def bulk_update_types(content, key, prop)
       label = translated_attribute_label(key, prop, content, {})
       check_boxes = [
-        BulkUpdateType.new('override', t('common.bulk_update.check_box_labels.override_html', locale: active_ui_locale, data: label))
+        CheckBoxStruct.new('override', t('common.bulk_update.check_box_labels.override_html', locale: active_ui_locale, data: label))
       ]
 
       type = prop.dig('ui', 'bulk_edit', 'partial') || prop.dig('ui', 'edit', 'partial') || prop.dig('ui', 'edit', 'type') || prop['type']
@@ -43,8 +43,8 @@ module DataCycleCore
                             prop.dig('validations', 'max') == 1
 
       check_boxes.push(
-        BulkUpdateType.new('add', t('common.bulk_update.check_box_labels.add_html', locale: active_ui_locale, data: label)),
-        BulkUpdateType.new('remove', t('common.bulk_update.check_box_labels.remove_html', locale: active_ui_locale, data: label))
+        CheckBoxStruct.new('add', t('common.bulk_update.check_box_labels.add_html', locale: active_ui_locale, data: label)),
+        CheckBoxStruct.new('remove', t('common.bulk_update.check_box_labels.remove_html', locale: active_ui_locale, data: label))
       )
     end
 

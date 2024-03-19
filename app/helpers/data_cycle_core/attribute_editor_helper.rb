@@ -26,16 +26,26 @@ module DataCycleCore
 
     def attribute_editable?(key, definition, options, content)
       @attribute_editable ||= Hash.new do |h, k|
-        h[k] = can?(:update, DataCycleCore::DataAttribute.new(k[0], k[1], k[2], k[3], :update, k.dig(2, 'edit_scope')))
+        h[k] = can?(:update, DataCycleCore::DataAttribute.new(*k, :update, k.dig(2, 'edit_scope')))
       end
 
       @attribute_editable[[key, definition, options, content]]
     end
 
     def attribute_editor_allowed(options)
-      return if options.type?('slug') && options.parameters[:parent]&.embedded?
-      return if options.definition['compute'].present?
       return render('data_cycle_core/contents/editors/attribute_group', options.render_params) if options.type?('attribute_group')
+      return if options.type?('slug') && options.parameters[:parent]&.embedded?
+      return if options.definition.key?('compute')
+      return if options.definition.key?('virtual')
+
+      if options.overlay_attribute?
+        return unless options.render_overlay_attribute?
+
+        options.add_overlay_properties!
+      end
+
+      options.add_has_overlay_options! if options.attribute_has_overlay?
+
       return unless can?(:edit, DataCycleCore::DataAttribute.new(
                                   options.key,
                                   options.definition,
@@ -62,9 +72,9 @@ module DataCycleCore
       return allowed unless allowed.is_a?(TrueClass)
 
       if (attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values) && !options.parameters&.dig(:parent_translatable)) || object_has_translatable_attributes?(options.content, options.definition)
-        render_translatable_attribute_editor(**options.to_h)
+        render_translatable_attribute_editor(options)
       else
-        render_untranslatable_attribute_editor(**options.to_h)
+        render_untranslatable_attribute_editor(options)
       end
     end
 
@@ -82,19 +92,15 @@ module DataCycleCore
         allowed = attribute_editor_allowed(options)
         return allowed unless allowed.is_a?(TrueClass)
 
-        render_untranslatable_attribute_editor(**options.to_h)
+        render_untranslatable_attribute_editor(options)
       end
     end
 
-    def render_translatable_attribute_editor(**)
-      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**, defaults: RENDER_EDITOR_ARGUMENTS)
-
-      render 'data_cycle_core/contents/editors/translatable_field', options.to_h
+    def render_translatable_attribute_editor(options)
+      render 'data_cycle_core/contents/editors/translatable_field', **options.to_h
     end
 
-    def render_untranslatable_attribute_editor(**)
-      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**, defaults: RENDER_EDITOR_ARGUMENTS)
-
+    def render_untranslatable_attribute_editor(options)
       partials = [
         options.definition&.dig('ui', options.parameters.dig(:options, :edit_scope), 'partial').presence,
         options.definition&.dig('ui', 'edit', 'partial').presence,
@@ -178,6 +184,27 @@ module DataCycleCore
           )
         end
       end
+    end
+
+    def overlay_types(content, key, prop)
+      label = translated_attribute_label(key, prop, content, {})
+      check_boxes = [
+        CollectionHelper::CheckBoxStruct.new(
+          MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX.delete_prefix('_'),
+          t('common.bulk_update.check_box_labels.override_html', locale: active_ui_locale, data: label)
+        )
+      ]
+
+      type = prop.dig('ui', 'bulk_edit', 'partial') || prop.dig('ui', 'edit', 'partial') || prop.dig('ui', 'edit', 'type') || prop['type']
+
+      return check_boxes if MasterData::Templates::Extensions::Overlay::ADDITIONAL_OVERLAY_POSTFIXES.keys.exclude?(type)
+
+      check_boxes.push(
+        CollectionHelper::CheckBoxStruct.new(
+          MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX.delete_prefix('_'),
+          t('common.bulk_update.check_box_labels.add_html', locale: active_ui_locale, data: label)
+        )
+      )
     end
   end
 end

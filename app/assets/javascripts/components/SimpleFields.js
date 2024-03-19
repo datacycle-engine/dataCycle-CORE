@@ -21,11 +21,13 @@ class SimpleFields {
 		);
 	}
 	watchForNewField(type, selector) {
-		DataCycle.initNewElements(selector, (e) =>
+		DataCycle.initNewElements(selector, (e) => {
 			$(e)
 				.on("dc:import:data", this[`${type}EventHandler`].bind(this))
-				.addClass("dc-import-data"),
-		);
+				.addClass("dc-import-data");
+
+			e.addEventListener("clear", this[`${type}ClearHandler`].bind(this));
+		});
 	}
 	stringEventHandler(event, data) {
 		const target = event.currentTarget;
@@ -42,6 +44,13 @@ class SimpleFields {
 			);
 		}
 	}
+	stringClearHandler(event) {
+		const element = event.currentTarget;
+
+		element.value = "";
+		const inputEvent = new Event("input");
+		element.dispatchEvent(inputEvent);
+	}
 	async numberEventHandler(event, data) {
 		const target = event.currentTarget;
 
@@ -57,6 +66,9 @@ class SimpleFields {
 			);
 		}
 	}
+	numberClearHandler(event) {
+		return stringClearHandler(event);
+	}
 	async checkboxEventHandler(event, data) {
 		const target = event.currentTarget;
 
@@ -71,6 +83,11 @@ class SimpleFields {
 				},
 			);
 		}
+	}
+	checkboxClearHandler(event) {
+		const element = event.currentTarget;
+
+		element.checked = false;
 	}
 }
 

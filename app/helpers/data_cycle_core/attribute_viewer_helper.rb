@@ -13,6 +13,12 @@ module DataCycleCore
       locale: nil
     }.freeze
 
+    OVERLAY_REGEX = Regexp.new([
+      MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX,
+      MasterData::Templates::Extensions::Overlay::VIRTUAL_OVERLAY_POSTFIX,
+      MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX
+    ].join('|'), 'i')
+
     RenderMethodOptions = Struct.new(*RENDER_VIEWER_ARGUMENTS.keys.push(:defaults), keyword_init: true) do
       def initialize(**args)
         args.reverse_merge!(args[:defaults])
@@ -31,6 +37,42 @@ module DataCycleCore
 
       def render_params
         parameters.merge(to_h.slice(:key, :definition, :value, :content))
+      end
+
+      def overlay_attribute?
+        definition.dig('features', 'overlay', 'overlay_for').present? && OVERLAY_REGEX.match?(key&.attribute_name_from_key)
+      end
+
+      def specific_scope
+        parameters&.dig(:options, :edit_scope)&.to_s
+      end
+
+      def render_overlay_attribute?
+        content.external? && specific_scope == 'edit'
+      end
+
+      def add_overlay_properties!
+        css_class = parameters.dig(:options, :class).to_s.split
+
+        if DataHashService.present?(value)
+          css_class.push('dc-overlay-visible')
+        else
+          css_class.delete('dc-overlay-visible')
+        end
+
+        parameters[:options][:class] = css_class.uniq.join(' ') if parameters[:options].key?(:class) && css_class.present?
+      end
+
+      def add_has_overlay_options!
+        css_class = parameters.dig(:options, :class).to_s.split
+        css_class << 'dc-has-overlay'
+
+        parameters[:options][:class] = css_class.uniq.join(' ')
+        parameters[:options][:additional_attribute_partials] = ['data_cycle_core/contents/overlay/overlay_type_selector']
+      end
+
+      def attribute_has_overlay?
+        render_overlay_attribute? && !!definition&.dig('overlay')
       end
     end
 
@@ -77,16 +119,14 @@ module DataCycleCore
 
       if attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values) ||
          object_has_translatable_attributes?(options.content, options.definition)
-        render_translatable_attribute_viewer(**options.to_h)
+        render_translatable_attribute_viewer(options)
       else
-        render_untranslatable_attribute_viewer(**options.to_h)
+        render_untranslatable_attribute_viewer(options)
       end
     end
 
-    def render_translatable_attribute_viewer(**)
-      options = RenderMethodOptions.new(**, defaults: RENDER_VIEWER_ARGUMENTS)
-
-      render 'data_cycle_core/contents/viewers/translatable_field', options.to_h
+    def render_translatable_attribute_viewer(options)
+      render 'data_cycle_core/contents/viewers/translatable_field', **options.to_h
     end
 
     def render_specific_translatable_attribute_viewer(**)
@@ -102,7 +142,7 @@ module DataCycleCore
         allowed = attribute_viewer_allowed(options)
         return allowed unless allowed.is_a?(TrueClass)
 
-        render_untranslatable_attribute_viewer(**options.to_h)
+        render_untranslatable_attribute_viewer(options)
       end
     end
 
@@ -110,9 +150,7 @@ module DataCycleCore
       DataCycleCore::DataHashService.present?(value)
     end
 
-    def render_untranslatable_attribute_viewer(**)
-      options = RenderMethodOptions.new(**, defaults: RENDER_VIEWER_ARGUMENTS)
-
+    def render_untranslatable_attribute_viewer(options)
       type = options.definition['type'].underscore_blanks
 
       partials = [

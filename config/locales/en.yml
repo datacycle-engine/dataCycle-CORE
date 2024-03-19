@@ -729,6 +729,10 @@ en:
         subject: A new user was created
         text_html: The new user %{name} (%{email}) has been created.
         user_link: Show user
+    overlay:
+      label_postfix:
+        override: (Overlay)
+        add: (Appendix)
 
     report_generator:
       downloads_popular: Top 50 Downloads

@@ -29,6 +29,8 @@ module DataCycleCore
     has_many :schedules, foreign_key: :external_source_id, inverse_of: :external_source
     # rubocop:enable Rails/HasManyOrHasOneDependent, Rails/InverseOf
 
+    validates :name, presence: true
+
     def name_with_types
       nwt = name
       type = []

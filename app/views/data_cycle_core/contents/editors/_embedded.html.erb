@@ -1,4 +1,10 @@
-<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge('class' => 'object embedded_object'), content: content, parent: local_assigns[:parent] do %>
+<%
+  options['class'] = Array.wrap(options['class'])
+  options['class'] << 'object embedded_object'
+  options['class'] = options['class'].compact_blank.join(' ')
+%>
+
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
   <% objects = local_assigns[:duplicated_content].to_s == 'true' ? value&.includes(:translations) : value&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
 
   <%= embedded_editor_header(**local_assigns) %>

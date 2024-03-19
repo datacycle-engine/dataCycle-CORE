@@ -43,6 +43,7 @@ class EmbeddedObject {
 			addItem: this.addNewItem.bind(this),
 			removeItem: this.handleRemoveEvent.bind(this),
 			scrollToLocationHash: this.scrollToLocationHash.bind(this),
+			clear: this.clear.bind(this),
 		};
 		this.addedItemsObserver = new MutationObserver(
 			this.checkForAddedNodes.bind(this),
@@ -66,6 +67,9 @@ class EmbeddedObject {
 			.off("dc:import:data", this.eventHandlers.import)
 			.on("dc:import:data", this.eventHandlers.import)
 			.addClass("dc-import-data");
+
+		this.element.removeEventListener("clear", this.eventHandlers.clear);
+		this.element.addEventListener("clear", this.eventHandlers.clear);
 
 		this.addEventHandlers();
 		this.update();
@@ -121,7 +125,9 @@ class EmbeddedObject {
 				data.locale,
 				data.translate,
 			);
-		} else if (
+		}
+
+		if (
 			this.write &&
 			this.max !== 0 &&
 			ids.length + newItems.length > this.max
@@ -426,6 +432,13 @@ class EmbeddedObject {
 		});
 
 		this.element.querySelector(":scope > .load-more-linked-contents")?.click();
+	}
+	clear(_event) {
+		const selector = ":scope > .content-object-item";
+
+		if (this.element.querySelector(selector))
+			for (const element of this.element.querySelectorAll(selector))
+				this.removeObject($(element));
 	}
 }
 

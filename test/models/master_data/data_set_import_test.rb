@@ -215,7 +215,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       assert_equal(template.dig(:data, :properties, :name, :sorting) + 2, template.dig(:data, :properties, :name_override, :sorting))
 
       [:name_overlay, :name_override].each do |key|
-        assert_equal(template.dig(:data, :properties, :name, :label) + ' (Overlay)', template.dig(:data, :properties, key, :label))
+        assert_nil(template.dig(:data, :properties, key, :label))
         assert_equal(template.dig(:data, :properties, :name, :type), template.dig(:data, :properties, key, :type))
         assert_equal(template.dig(:data, :properties, :name, :storage_location), template.dig(:data, :properties, key, :storage_location))
         assert_equal(template.dig(:data, :properties, :name, :search), template.dig(:data, :properties, key, :search))
@@ -244,7 +244,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       assert_equal(template.dig(:data, :properties, :author, :sorting) + 3, template.dig(:data, :properties, :author_override, :sorting))
 
       [:author_overlay, :author_add, :author_override].each do |key|
-        assert_equal(template.dig(:data, :properties, :author, :label) + ' (Overlay)', template.dig(:data, :properties, key, :label))
+        assert_nil(template.dig(:data, :properties, key, :label))
         assert_equal(template.dig(:data, :properties, :author, :type), template.dig(:data, :properties, key, :type))
         assert_equal(template.dig(:data, :properties, :author, :template_name), template.dig(:data, :properties, key, :template_name))
         assert_not(template.dig(:data, :properties, key).key?(:validations))
@@ -266,7 +266,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       assert_equal(template.dig(:data, :properties, :test_classification, :sorting) + 3, template.dig(:data, :properties, :test_classification_override, :sorting))
 
       [:test_classification_overlay, :test_classification_add, :test_classification_override].each do |key|
-        assert_equal(template.dig(:data, :properties, :test_classification, :label) + ' (Overlay)', template.dig(:data, :properties, key, :label))
+        assert_nil(template.dig(:data, :properties, key, :label))
         assert_equal(template.dig(:data, :properties, :test_classification, :type), template.dig(:data, :properties, key, :type))
         assert_equal(template.dig(:data, :properties, :test_classification, :tree_label), template.dig(:data, :properties, key, :tree_label))
         assert_not(template.dig(:data, :properties, key).key?(:validations))
