@@ -59,16 +59,15 @@ module DataCycleCore
       @download_list = download_config&.sort_by { |v| v.second['sorting'] }&.map { |k, _| k.to_sym }
     end
 
-    def download_pretty_list
-      return @download_pretty_list if defined? @download_pretty_list
-      @download_pretty_list = download_config
-        &.sort_by { |v| v.second['sorting'] }
-        &.map { |k, v| "#{v['sorting'].to_s.ljust(4)}:#{k.to_sym}" }
-    end
-
     def download_list_ranked
       return @download_list_ranked if defined? @download_list_ranked
       @download_list_ranked = download_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
+    end
+
+    def download_pretty_list
+      return @download_pretty_list if defined? @download_pretty_list
+      @download_pretty_list = download_list_ranked
+        &.map { |sorting, name| "#{sorting.to_s.ljust(4)}:#{name.to_sym}" }
     end
 
     def import_config
@@ -81,16 +80,15 @@ module DataCycleCore
       @import_list = import_config&.sort_by { |v| v.second['sorting'] }&.map { |k, _| k.to_sym }
     end
 
-    def import_pretty_list
-      return @import_pretty_list if defined? @import_pretty_list
-      @import_pretty_list = import_config
-        &.sort_by { |v| v.second['sorting'] }
-        &.map { |k, v| "#{v['sorting'].to_s.ljust(4)}:#{k.to_sym}" }
-    end
-
     def import_list_ranked
       return @import_list_ranked if defined? @import_list_ranked
       @import_list_ranked = import_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
+    end
+
+    def import_pretty_list
+      return @import_pretty_list if defined? @import_pretty_list
+      @import_pretty_list = import_list_ranked
+        &.map { |sorting, name| "#{sorting.to_s.ljust(4)}:#{name.to_sym}" }
     end
 
     def export_config_by_filter_key(method_name, key)
@@ -230,9 +228,9 @@ module DataCycleCore
     end
     alias single_import import_single
 
-    def import_one(name, external_key, options = {})
+    def import_one(name, external_key, options = {}, mode = 'full')
       raise 'no external key given' if external_key.blank?
-      import_single(name, options.deep_merge({ mode: 'full', import: { source_filter: { external_id: external_key } } }))
+      import_single(name, options.deep_merge({ mode:, import: { source_filter: { external_id: external_key } } }))
     end
 
     def collections
@@ -330,6 +328,45 @@ module DataCycleCore
       end
     ensure
       Mongoid.override_database(nil)
+    end
+
+    def config?(key)
+      config&.dig(key).present?
+    end
+
+    def import_module?
+      config?('import_config')
+    end
+
+    def export_module?
+      config?('export_config')
+    end
+
+    def webhook_module?
+      config?('api_strategy')
+    end
+
+    def service_module?
+      config.blank? && credentials.present?
+    end
+
+    def foreign_module?
+      !import_module? &&
+        !export_module? &&
+        !webhook_module? &&
+        !service_module?
+    end
+
+    def self.grouped_by_type(additional_properties = {})
+      external_systems = order(name: :asc).to_a
+
+      {
+        import: external_systems.filter(&:import_module?).as_json(only: [:id, :name]).map { |es| es.with_indifferent_access.merge(additional_properties&.dig(es['id']) || {}) },
+        export: external_systems.filter(&:export_module?).as_json(only: [:id, :name]),
+        webhook: external_systems.filter(&:webhook_module?).as_json(only: [:id, :name]),
+        service: external_systems.filter(&:service_module?).as_json(only: [:id, :name]),
+        foreign: external_systems.filter(&:foreign_module?).as_json(only: [:id, :name])
+      }.with_indifferent_access
     end
   end
 end

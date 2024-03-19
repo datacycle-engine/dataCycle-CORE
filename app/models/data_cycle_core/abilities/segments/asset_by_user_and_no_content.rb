@@ -13,6 +13,12 @@ module DataCycleCore
         def conditions
           { creator_id: user&.id, asset_content: { id: nil } }
         end
+
+        private
+
+        def to_restrictions(subject:, **)
+          to_restriction(data: subject.model_name.human(locale:))
+        end
       end
     end
   end

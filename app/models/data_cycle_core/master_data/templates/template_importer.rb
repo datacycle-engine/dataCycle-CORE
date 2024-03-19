@@ -22,7 +22,6 @@ module DataCycleCore
 
           return if @mixin_errors.present?
 
-          reload_main_config! if Rails.env.development?
           @templates = load_templates
           @validator = TemplateValidator.new(templates: @templates)
         end
@@ -88,10 +87,6 @@ module DataCycleCore
         end
         # rubocop:enable Rails/Output
 
-        def reload_main_config!
-          DataCycleCore.load_configurations_for_file('main_config')
-        end
-
         def update_templates
           DataCycleCore::ThingTemplate.upsert_all(@templates.values.flatten.map do |t|
             {
@@ -149,34 +144,45 @@ module DataCycleCore
 
         def transform_template_definitions!(template_definitions, templates)
           while template_definitions.present?
-            data_template = template_definitions.shift
-            template = data_template[:data]
+            begin
+              data_template = template_definitions.shift
+              template = data_template[:data]
 
-            next template_definitions.push(data_template) unless template_dependencies_ready?(template, template_definitions, templates)
+              next template_definitions.push(data_template) unless template_dependencies_ready?(template, template_definitions, templates)
 
-            transformer = TemplateTransformer.new(template:, content_set: data_template[:set], mixins: @mixins, templates:)
-            transformed_data = transformer.transform
+              transformer = TemplateTransformer.new(template:, content_set: data_template[:set], mixins: @mixins, templates:)
+              transformed_data = transformer.transform
 
-            data = {
-              name: transformed_data[:name],
-              path: data_template[:path],
-              data: transformed_data,
-              set: data_template[:set],
-              mixins: transformer.mixin_paths
-            }
+              data = {
+                name: transformed_data[:name],
+                path: data_template[:path],
+                data: transformed_data,
+                set: data_template[:set],
+                mixins: transformer.mixin_paths
+              }
 
-            if (duplicate = templates.values.flatten.find { |v| v[:name] == data[:name] }).present?
-              merge_duplicate_template!(data:, duplicate:)
-            else
-              templates[data_template[:set]] ||= []
-              templates[data_template[:set]].push(data)
+              if (duplicate = templates.values.flatten.find { |v| v[:name] == data[:name] }).present?
+                merge_duplicate_template!(data:, duplicate:)
+              else
+                templates[data_template[:set]] ||= []
+                templates[data_template[:set]].push(data)
+              end
+            rescue StandardError => e
+              @errors.push("#{data_template[:set]}.#{template[:name]} => #{e.message}")
             end
           end
         end
 
         def template_dependencies_ready?(template, template_definitions, templates)
           return true unless template.key?(:extends)
-          return false if templates.values.flatten.none? { |v| v[:name] == template[:extends] }
+          if templates.values.flatten.none? { |v| v[:name] == template[:extends] }
+            raise "BaseTemplate missing for #{template[:extends]}" if template_definitions.none? do |v|
+                                                                        v.dig(:data, :name) == template[:extends] &&
+                                                                        (v.dig(:data, :extends).blank? || v.dig(:data, :extends) != v.dig(:data, :name))
+                                                                      end
+
+            return false
+          end
           return true if template[:name].blank? || template[:name] == template[:extends]
 
           template_definitions.none? do |v|

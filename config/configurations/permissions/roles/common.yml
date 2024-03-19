@@ -1,0 +1,47 @@
+show_common:
+  actions: show
+  segment: SubjectByConditions
+  parameters:
+    - - DataCycleCore::Thing
+      - DataCycleCore::WatchList
+      - DataCycleCore::StoredFilter
+
+data_link_common:
+  actions: [update, import]
+  segment: ThingByDataLink
+
+stored_filter_data_link_common:
+  actions:
+    - read
+    - search
+    - classification_trees
+    - classification_tree
+    - permanent_advanced
+    - advanced
+  segment: StoredFilterByDataLink
+  parameters: fulltext_search
+
+watch_list_api_common:
+  actions: [api, copy_api_link]
+  segment: WatchListByApi
+
+watch_list_create_api:
+  actions: create_api
+  segment: WatchListByCreatorWithoutMySelection
+
+view_mode_feature:
+  actions: grid
+  segment: SubjectByEnabledFeature
+  parameters:
+    - :view_mode
+    - DataCycleCore::Feature::ViewMode
+
+user_filter_users:
+  actions: [search, user_dropdown, user_advanced, sortable]
+  segment: SubjectByConditions
+  parameters: :users
+
+user_filter_user_groups:
+  actions: search
+  segment: SubjectByConditions
+  parameters: :user_groups

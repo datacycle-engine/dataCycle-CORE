@@ -4,11 +4,20 @@ module DataCycleCore
   module Abilities
     module Segments
       class UsersByRoleWhitelist < Base
-        attr_accessor :subject, :conditions
+        attr_accessor :subject, :conditions, :roles
 
         def initialize(*whitelist)
           @subject = DataCycleCore::User
-          @conditions = Array.wrap(whitelist).flatten.map(&:to_s).then { |wl| wl.include?('all') ? {} : { role: { name: wl } } }
+          @roles = Array.wrap(whitelist).flatten.map(&:to_s)
+          @conditions = @roles.include?('all') ? {} : { role: { name: @roles } }
+        end
+
+        private
+
+        def to_restrictions(**)
+          return if roles.include?('all')
+
+          to_restriction(roles: Array.wrap(roles).map { |v| I18n.t("roles.#{v}", locale:) }.join(', '))
         end
       end
     end

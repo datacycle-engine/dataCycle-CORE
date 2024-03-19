@@ -5,6 +5,3 @@
   - node_modules/
   - cache/
   - lib/data_cycle_core/rufus_yaml_scheduler.rb
-
-:skip_checks:
-  - CheckEOLRuby

@@ -27,16 +27,15 @@ namespace :dc do
     end
 
     desc 'translate I18n locale files'
-    task :translate_i18n, [:new_locale, :source_file_paths] => :environment do |_, args|
+    task :translate_i18n, [:new_locale, :file_names] => :environment do |_, args|
       abort('MISSING_LOCALE') if args.new_locale.blank?
       abort('TRANSLATE_FEATURE_DISABLED') unless DataCycleCore::Feature::Translate.enabled?
 
       new_locale = args.new_locale
-      source_file_paths = args.source_file_paths&.split('|')&.map(&:squish)
-
+      file_names = Regexp.new(args.file_names, 'i') if args.file_names.present?
       file_paths = Dir[DataCycleCore::Engine.root.join('config', 'locales', '{*.de,de}.yml')]
       file_paths.concat(Dir[Rails.root.join('config', 'locales', '{*.de,de}.yml')])
-      file_paths.select! { |p| p.in?(source_file_paths) } if source_file_paths.present?
+      file_paths.select! { |p| file_names.match?(File.basename(p)) } if file_names.present?
 
       puts 'AUTOMATIC I18N TRANSLATION STARTED...'
 

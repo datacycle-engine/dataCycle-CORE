@@ -116,24 +116,22 @@ module DataCycleCore
       end
     end
 
-    def perimeter_search_link(lat, lon, params_hash)
-      params_hash['f'] = { rand(1000) => {
-        'c' => 'a',
-        'm' => 'i',
-        'q' => 'geo_radius',
-        't' => 'geo_filter',
-        'n' => 'geo_radius',
-        'v' => {
-          'lat' => lat,
-          'lon' => lon,
-          'distance' => nil
-        }
-      }}
+    def perimeter_search_link(lat, lon)
+      return unless lat.present? && lon.present? && can?(:advanced_filter, :backend, '', 'geo_filter', { data: { name: 'geo_radius', advancedType: ' geo_radius' } })
 
-      params_hash['controller'] = 'data_cycle_core/backend'
-      params_hash['action'] = 'index'
+      id_path = "f[#{SecureRandom.hex(10)}]"
 
-      button_to t('activerecord.attributes.data_cycle_core/place.use_geo_for_perimeter_search', locale: active_ui_locale), params_hash.except(:id, :watch_list_id, :locale, :stored_filter), class: 'button info', type: 'default', name: 'button'
+      form_tag(root_path) do |_f|
+        concat hidden_field_tag("#{id_path}[c]", 'a')
+        concat hidden_field_tag("#{id_path}[m]", 'i')
+        concat hidden_field_tag("#{id_path}[q]", 'geo_radius')
+        concat hidden_field_tag("#{id_path}[t]", 'geo_filter')
+        concat hidden_field_tag("#{id_path}[n]", 'geo_radius')
+        concat hidden_field_tag("#{id_path}[v][lat]", lat)
+        concat hidden_field_tag("#{id_path}[v][lon]", lon)
+        concat hidden_field_tag("#{id_path}[v][distance]", 5000)
+        concat submit_tag(t('activerecord.attributes.data_cycle_core/place.use_geo_for_perimeter_search', locale: active_ui_locale), class: 'button info')
+      end
     end
 
     def valid_mode(mode)

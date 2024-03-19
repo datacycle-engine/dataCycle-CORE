@@ -1,0 +1,184 @@
+data_link_create:
+  actions: create_editable_links
+  segment: SubjectByConditions
+  parameters: DataCycleCore::DataLink
+
+object_browser:
+  actions: [show, find]
+  segment: SubjectByConditions
+  parameters: :object_browser
+
+user_api_login:
+  actions: [login, renew_login, reset_password, confirm]
+  segment: SubjectByConditions
+  parameters: :user_api
+
+asset_read:
+  actions: read
+  segment: AssetByUserAndNoContent
+
+asset_create_duplicate:
+  actions: create_duplicate
+  segment: SubjectByConditions
+  parameters: DataCycleCore::Asset
+
+thing_create:
+  actions: create
+  segment: TemplateByCreatableScope
+  parameters: asset
+
+thing_print:
+  actions: print
+  segment: ThingByContentType
+  parameters: entity
+
+thing_actions:
+  actions:
+    - show_related
+    - show_external_connections
+    - subscribe
+    - history
+  segment: SubjectByConditions
+  parameters: DataCycleCore::Thing
+
+thing_history:
+  actions: history
+  segment: SubjectByConditions
+  parameters: DataCycleCore::Thing::History
+
+stored_filter_api_by_user:
+  actions: api
+  segment: StoredFilterByCreatorAndApi
+
+stored_filter_api_by_api_users:
+  actions: api
+  segment: StoredFilterByApiUsers
+
+stored_filter_actions:
+  actions: [read, create, update, destroy, show_history]
+  segment: SubjectByUserAndConditions
+  parameters:
+    - DataCycleCore::StoredFilter
+    - :user_id
+
+stored_filter_read_global:
+  actions: read
+  segment: StoredFilterByGlobal
+
+watch_list_subscribe:
+  actions: subscribe
+  segment: SubjectByConditions
+  parameters: DataCycleCore::WatchList
+
+watch_list_actions:
+  actions: [read, create, update, add_item, remove_item]
+  segment: SubjectByUserAndConditions
+  parameters:
+    - DataCycleCore::WatchList
+    - :user_id
+
+watch_list_actions_except_my_selection:
+  actions: [destroy, share, change_owner]
+  segment: WatchListByCreatorWithoutMySelection
+
+watch_list_group_shares:
+  actions: [read, add_item, remove_item]
+  segment: WatchListByGroupShares
+  parameters:
+    - :my_selection: false
+
+watch_list_user_shares:
+  actions: [read, add_item, remove_item]
+  segment: WatchListByUserShares
+  parameters:
+    - :my_selection: false
+
+data_attribute_read:
+  actions: read
+  segment: DataAttributeAllowedForShow
+  parameters:
+    - - :attribute_not_disabled?
+      - :overlay_attribute_visible?
+      - :attribute_not_releasable?
+
+data_attribute_edit:
+  actions: edit
+  segment: DataAttributeAllowedForEdit
+  parameters:
+    - - :attribute_not_included_in_publication_schedule?
+      - :attribute_not_disabled?
+      - :overlay_attribute_visible?
+      - :attribute_not_external?
+      - :attribute_tree_label_visible?
+
+data_attribute_update:
+  actions: update
+  segment: DataAttributeAllowedForUpdate
+  parameters:
+    - - :attribute_not_included_in_publication_schedule?
+      - :attribute_not_disabled?
+      - :attribute_not_read_only?
+      - :overlay_attribute_visible?
+      - :attribute_not_external?
+      - :attribute_tree_label_visible?
+
+backend:
+  actions: [read, settings]
+  segment: SubjectByConditions
+  parameters: :backend
+
+filter:
+  actions:
+    - search
+    - classification_trees
+    - classification_tree
+    - permanent_advanced
+    - advanced
+    - publication_date
+  segment: SubjectByConditions
+  parameters:
+    - - :backend
+      - :classification_tree
+      - :publications
+      - :subscriptions
+      - :things
+      - :collection
+
+advanced_filter:
+  actions: advanced_filter
+  segment: AdvancedFilterExceptType
+  parameters:
+    - - :backend
+      - :classification_tree
+      - :publications
+      - :subscriptions
+      - :things
+      - :collection
+    - - :advanced_attributes
+      - :classification_tree_ids
+
+subscription_actions:
+  actions: read
+  segment: SubjectByConditions
+  parameters:
+    - - DataCycleCore::Subscription
+      - :publication
+
+user_actions:
+  actions: [show, update]
+  segment: SubjectByUserAndConditions
+  parameters:
+    - DataCycleCore::User
+    - :id
+
+classification_overview:
+  actions: read
+  segment: TreeLabelByVisibility
+  parameters: classification_overview
+
+view_mode_feature:
+  actions: [grid, tree]
+  segment: SubjectByEnabledFeature
+  parameters:
+    - :view_mode
+    - DataCycleCore::Feature::ViewMode

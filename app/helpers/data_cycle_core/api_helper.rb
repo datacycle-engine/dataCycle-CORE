@@ -253,7 +253,8 @@ module DataCycleCore
           'dc' => 'https://schema.datacycle.at/',
           'dcls' => schema_url + '/',
           'odta' => 'https://odta.io/voc/',
-          'sdm' => 'https://smartdatamodels.org/'
+          'sdm' => 'https://smartdatamodels.org/',
+          'alps' => 'http://json-schema.org/draft-07/schema/destinationdata/schemas/2022-04/datatypes#/definitions/'
         }.compact
       ]
     end

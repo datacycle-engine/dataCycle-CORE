@@ -1,0 +1,76 @@
+data_link_create:
+  actions: [create_editable_links, auto_login]
+  segment: SubjectByConditions
+  parameters: DataCycleCore::DataLink
+
+data_link_login:
+  actions: auto_login
+  segment: DataLinkByReceiver
+
+object_browser:
+  actions: [show, find]
+  segment: SubjectByConditions
+  parameters: :object_browser
+
+user_api_login:
+  actions: [login, renew_login, reset_password, confirm]
+  segment: SubjectByConditions
+  parameters: :user_api
+
+asset_read:
+  actions: read
+  segment: AssetByUserAndNoContent
+
+thing_create:
+  actions: create
+  segment: TemplateByCreatableScope
+  parameters: asset
+
+thing_print:
+  actions: print
+  segment: ThingByContentType
+  parameters: entity
+
+stored_filter_api_by_user:
+  actions: api
+  segment: StoredFilterByCreatorAndApi
+
+stored_filter_api_by_api_users:
+  actions: api
+  segment: StoredFilterByApiUsers
+
+data_attribute_read:
+  actions: read
+  segment: DataAttributeAllowedForShow
+  parameters:
+    - - :attribute_not_disabled?
+      - :overlay_attribute_visible?
+      - :attribute_not_releasable?
+
+data_attribute_edit:
+  actions: edit
+  segment: DataAttributeAllowedForEdit
+  parameters:
+    - - :attribute_not_included_in_publication_schedule?
+      - :attribute_not_disabled?
+      - :overlay_attribute_visible?
+      - :attribute_not_external?
+      - :attribute_tree_label_visible?
+
+data_attribute_update:
+  actions: update
+  segment: DataAttributeAllowedForUpdate
+  parameters:
+    - - :attribute_not_included_in_publication_schedule?
+      - :attribute_not_disabled?
+      - :attribute_not_read_only?
+      - :overlay_attribute_visible?
+      - :attribute_not_external?
+      - :attribute_tree_label_visible?
+
+user_actions:
+  actions: [show, update]
+  segment: SubjectByUserAndConditions
+  parameters:
+    - DataCycleCore::User
+    - :id

@@ -8,16 +8,20 @@ const QuillCustomHandlers = {
 		inlineTranslator: `<span data-dc-tooltip><i class="fa fa-language" aria-hidden="true"></i></span>`,
 	},
 	insertNbsp(_value) {
-		var selection = this.quill.getSelection(true);
+		if (this.quill.options.readOnly) return;
+
+		const selection = this.quill.getSelection(true);
 		this.quill.insertText(selection, "\u00a0");
 	},
 	async loadIconsWithTooltips(icons, toolbarConfig) {
 		for (const key of toolbarConfig) {
-			if (typeof key === "string" && this.icons.hasOwnProperty(key))
+			if (typeof key === "string" && Object.hasOwn(this.icons, key))
 				await this.loadIconTranslation(icons, key);
 		}
 	},
 	async replaceAllNbsp(_value) {
+		if (this.quill.options.readOnly) return;
+
 		this.quill.disable();
 
 		this.quill.clipboard.dangerouslyPasteHTML(
@@ -43,6 +47,8 @@ const QuillCustomHandlers = {
 		}, 1000);
 	},
 	async inlineTranslator(_value) {
+		if (this.quill.options.readOnly) return;
+
 		this.quill.disable();
 
 		const button = this.quill.root

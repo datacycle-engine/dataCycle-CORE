@@ -95,6 +95,7 @@ de:
     standard: Standard
     guest: Gast
     external_user: Externer Benutzer
+    all: Alle
 
   view_modes:
     grid: Kacheln
@@ -597,6 +598,7 @@ de:
     more_errors: "%{count} weitere Fehler"
     number: Anzahl
     preview_links: Vorschau-Links
+    or: oder
 
   embedded:
     move_down: nach unten verschieben
@@ -1305,6 +1307,11 @@ de:
       imported: "'%{data}' wurden aus YAML Datei importiert."
       running: "Job befindet sich bereits in der Job-Queue."
 
+  activemodel:
+    models:
+      data_cycle_core/permission:
+        one: Berechtigung
+        other: Berechtigungen
   activerecord:
     errors:
       messages:
@@ -1393,8 +1400,8 @@ de:
         one: Externe Synchronisierung
         other: Externe Synchronisierungen
       data_cycle_core/asset:
-        one: Asset
-        other: Assets
+        one: Datei
+        other: Dateien
       data_cycle_core/text_file:
         one: Textdokument
         other: Textdokumente
@@ -1422,6 +1429,15 @@ de:
       data_cycle_core/classification_tree_label:
         one: Klassifizierungsbaum
         other: Klassifizierungsbäume
+      data_cycle_core/thing:
+        one: Inhalt
+        other: Inhalte
+      data_cycle_core/data_attribute:
+        one: Attribut
+        other: Attribute
+      data_cycle_core/thing/history:
+        one: Inhaltsversion
+        other: Inhaltsversionen
     attributes:
       data_cycle_core/watch_list:
         name: Name
@@ -1484,6 +1500,8 @@ de:
         latitude: Breitengrad
         elevation: Meereshöhe (m)
         external_key: Externe Id
+        created_by: Ersteller
+        updated_by: Bearbeiter
       data_cycle_core/person:
         given_name: Vorname
         family_name: Familienname
@@ -1512,6 +1530,7 @@ de:
         permissions_write: bearbeiten
         text_file: Weitere Infos (%{file_types})
         locale: "E-Mail Sprache"
+        creator_id: Ersteller
       data_cycle_core/stored_filter:
         system: Für alle Benutzer sichtbar (gilt auch für die API)
         api: Über API abrufbar
@@ -1522,9 +1541,11 @@ de:
         classification_tree_labels: Auf Klassifizierungsbäume einschränken
         classification_tree_labels_tooltip: Auf bestimmte Klassifizierungsbäume eingeschränkt
         name: Name
+        user_id: Ersteller
       data_cycle_core/asset:
         name: Name
         file: Datei
+        creator_id: Ersteller
       data_cycle_core/external_source:
         name: Name
       data_cycle_core/external_system_sync:
@@ -1657,20 +1678,25 @@ de:
     feratel:
       meeting_point: Treffpunkt
       additional_service:
-        Arrival Information: Informationen zur Anreise
-        Cancellation Information: Stornierungsregelungen
-        Difficulty: Schwierigkeitsgrad
-        Equipment: Ausrüstung
-        "FAQ / good to know": FAQ / nützliche Hinweise
+        Payment: Zahlungsmodalitäten
+        ServiceDescription: Beschreibung
         Included Services: Enthaltene Leistungen
+        Not included Services: Nicht enthaltene Leistungen
+        Equipment: Ausrüstung
+        Bring along: Zum Mitbringen
+        Rental Equipment: Leihausrüstung
+        Suitable for: Geeignet für
+        Difficulty: Schwierigkeitsgrad
+        Requirements: Voraussetzungen
         Meeting Point: Treffpunkt
         Opening hours: Öffnungszeiten
-        Payment: Zahlungsmodalitäten
-        Price Information: Preis
-        Rental Equipment: Mietausrüstung
-        Requirements: Voraussetzung
-        ServiceDescription: Beschreibung
-        Suitable for: Geeignet für
+        Price Information: Preis Information
+        Payment conditions: Zahlungskonditionen
+        Cancellation Information: Stornierungsregelungen
+        Arrival Information: Informationen zur Anreise
+        "FAQ / good to know": Häufige Fragen und Antworten
+        "Hint / Advice": Hinweis
+        Important information: Wichtige Informationen
       event:
         EventHeader: Beschreibung
         EventHeaderShort: Kurzbeschreibung

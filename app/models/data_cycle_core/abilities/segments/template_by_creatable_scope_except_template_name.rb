@@ -21,6 +21,15 @@ module DataCycleCore
         def to_proc
           ->(*args) { include?(*args) }
         end
+
+        private
+
+        def to_restrictions(**)
+          to_restriction(
+            scopes: scopes.map { |scope| I18n.t("abilities.scopes.#{scope}", locale:) }.join(', '),
+            template_names: template_names.map { |v| I18n.t("template_names.#{v}", default: v, locale:) }.join(', ')
+          )
+        end
       end
     end
   end

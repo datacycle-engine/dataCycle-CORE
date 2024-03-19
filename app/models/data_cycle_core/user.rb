@@ -137,7 +137,7 @@ module DataCycleCore
     end
 
     def has_user_group?(group_name)
-      user_groups.exists?(name: group_name)
+      user_groups.any? { |ug| ug.name == group_name }
     end
 
     def locked?

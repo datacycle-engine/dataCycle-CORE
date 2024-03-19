@@ -1396,6 +1396,9 @@ en:
       data_cycle_core/classification_tree_label:
         one: Classification tree
         other: Classification trees
+      data_cycle_core/permission:
+        one: Permission
+        other: Permissions
     attributes:
       data_cycle_core/watch_list:
         name: Name
@@ -1486,6 +1489,7 @@ en:
         permissions_write: edit
         text_file: Further information (%{file_types})
         locale: E-mail language
+        creator_id: Creator
       data_cycle_core/stored_filter:
         system: Visible for all users (also applies to the API)
         api: Retrievable via API
@@ -1499,6 +1503,7 @@ en:
       data_cycle_core/asset:
         name: Name
         file: File
+        creator_id: Creator
       data_cycle_core/external_source:
         name: Name
   unauthorized:
@@ -1652,20 +1657,25 @@ en:
     feratel:
       meeting_point: Meeting point
       additional_service:
-        Arrival Information: Travel information
-        Cancellation Information: Cancellation policy
-        Difficulty: Level of difficulty
-        Equipment: Equipment
-        FAQ / good to know: FAQ / useful hints
+        Payment: Payment modalities
+        ServiceDescription: Description
         Included Services: Included services
+        Not included Services: Not included services
+        Equipment: Equipment
+        Bring along: Bring along
+        Rental Equipment: Rental equipment
+        Suitable for: Suitable for
+        Difficulty: Level of difficulty
+        Requirements: Requirements
         Meeting Point: Meeting point
         Opening hours: Opening hours
-        Payment: Payment modalities
         Price Information: Price
-        Rental Equipment: Rental equipment
-        Requirements: Prerequisite
-        ServiceDescription: Description
-        Suitable for: Suitable for
+        Payment conditions: Payment conditions
+        Cancellation Information: Cancellation policy
+        Arrival Information: Arrival Information
+        "FAQ / good to know": FAQ / good to know
+        "Hint / Advice": Hint / Advice
+        Important information: Important information
       event:
         EventHeader: Description
         EventHeaderShort: Brief description

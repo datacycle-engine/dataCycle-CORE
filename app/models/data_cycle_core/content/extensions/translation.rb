@@ -26,7 +26,7 @@ module DataCycleCore
         end
 
         class_methods do
-          def translated_attribute_name(key, _definition, content, ui_scope, locale, _display_locale, count)
+          def translated_attribute_name(key, _definition, content, ui_scope, locale, _display_locale, count, _locale_string)
             return if key.blank?
 
             if I18n.exists?("attribute_labels.#{ui_scope}.#{content&.template_name}.#{key}", count:, locale:)
@@ -40,13 +40,13 @@ module DataCycleCore
             end
           end
 
-          def translated_tree_label_name(_key, definition, _content, _ui_scope, locale, _display_locale, _count)
+          def translated_tree_label_name(_key, definition, _content, _ui_scope, locale, _display_locale, _count, _locale_string)
             return unless definition&.dig('tree_label').present? && I18n.exists?("filter.#{definition.dig('tree_label').underscore_blanks}", locale:)
 
             I18n.t("filter.#{definition.dig('tree_label').underscore_blanks}", locale:)
           end
 
-          def translated_attribute_fallback_name(key, definition, _content, ui_scope, _locale, _display_locale, _count)
+          def translated_attribute_fallback_name(key, definition, _content, ui_scope, _locale, _display_locale, _count, _locale_string)
             definition&.dig('ui', ui_scope, 'label').presence ||
               definition&.dig('label').presence ||
               definition&.dig('tree_label').presence ||
@@ -70,7 +70,7 @@ module DataCycleCore
                             translated_attribute_fallback_name(*k)
                         end
 
-                label += " (#{k[5]})" if k[2].attribute_translatable?(k[0], k[1])
+                label += " (#{k[5]})" if k[2].attribute_translatable?(k[0], k[1]) && k[7]
 
                 label
               end
@@ -84,7 +84,8 @@ module DataCycleCore
                 options[:ui_scope].to_s,
                 options[:locale] || I18n.locale,
                 I18n.locale,
-                options[:count] || 1
+                options[:count] || 1,
+                options.fetch(:locale_string, true)
               ]
             ]
           end

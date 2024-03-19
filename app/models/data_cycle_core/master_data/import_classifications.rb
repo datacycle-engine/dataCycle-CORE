@@ -23,7 +23,6 @@ module DataCycleCore
         inhaltstypen_trees.each do |inhaltstypen_tree|
           return_data.merge!(iterate_tree_hash(inhaltstypen_tree, false))
         end
-        check_features
 
         import_classification_mappings(classification_paths)
 
@@ -211,22 +210,6 @@ module DataCycleCore
           .to_a
           .sort_by { |item| item[1][:seen_at] }
           .reduce({}) { |aggregate, item| aggregate.merge({ item[0] => item[1] }) }
-      end
-
-      def self.check_features
-        return unless DataCycleCore::Feature::AutoTagging.enabled?
-
-        tree_name = DataCycleCore.features.dig(:auto_tagging, :tree_label) || 'Cloud Vision - Tags'
-        tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: tree_name, external_source_id: nil)
-        external_source_name = DataCycleCore.features.dig(:auto_tagging, :external_source) || 'Google Cloud Vision'
-        return if tree_label.blank? || external_source_name.blank?
-
-        external_source_id = DataCycleCore::ExternalSystem.find_by(name: external_source_name)&.id
-        return if external_source_id.blank?
-
-        tree_label.external_source_id = external_source_id
-        tree_label.save
-        DataCycleCore::ClassificationAlias.for_tree(tree_name).update_all(external_source_id:)
       end
     end
   end

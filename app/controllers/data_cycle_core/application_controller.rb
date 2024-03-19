@@ -116,8 +116,9 @@ module DataCycleCore
 
     def flashes_from_params
       flash_params.each do |k, v|
-        flash.now[k] = v
+        flash[k] = v # rubocop:disable Rails/ActionControllerFlashBeforeRender
       end
+
       redirect_to request.path, params: params.delete(:flash)
     end
 
