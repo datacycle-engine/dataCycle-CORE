@@ -260,3 +260,8 @@ external_system_actions:
   actions: create
   segment: SubjectByConditions
   parameters: DataCycleCore::ExternalSystem
+
+download_user_info_activity:
+  actions: download_user_info_activity
+  segment: SubjectByConditions
+  parameters: DataCycleCore::User
