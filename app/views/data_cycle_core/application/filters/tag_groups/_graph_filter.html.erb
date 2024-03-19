@@ -2,13 +2,28 @@
   content_types = value["content_type"].is_a?(Array) ? value["content_type"] : [value["content_type"]]
   relation_types = value["relation_type"].is_a?(Array) ? value["relation_type"] : [value["relation_type"]]
   filter_restrictions = value["restriction"]
-  stored_filter = value["filter"]
+  collection = value["filter"]
+
+  if collection.is_a?(DataCycleCore::Filter::Search)
+    collection_name = collection.name
+    collection_icon = 'search'
+  elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: collection))
+    collection_name = stored_filter.name
+    collection_icon = 'filter'
+  elsif (watch_list = DataCycleCore::WatchList.find_by(id: collection))
+    collection_name = watch_list.name
+    collection_icon = 'list'
+  else
+    collection_name = collection
+    collection_icon = 'question'
+  end
+
 %>
 
 <span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
   <span><span class="tag-group-label">
     <i class="fa fa-link" aria-hidden="true"></i>
-    <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>
+    <%#= t("filter.#{key}", default: title, locale: active_ui_locale) %>
   </span>
 
   <% if content_types&.first&.present? || (relation_types.present? && !relation_types.first&.blank?) %>
@@ -49,9 +64,9 @@
     <% end %>
 
 
-    <% if stored_filter.present?%>
+    <% if collection.present?%>
       <!-- StoredFilter -->
-      <span class="tag"><%= DataCycleCore::StoredFilter.find(stored_filter).name if stored_filter.present? %></span>
+      <span class="tag"><i class="fa fa-<%=collection_icon %>" aria-hidden="true"></i><%= collection_name if collection.present? %></span>
     <% end %>
 
   </span>

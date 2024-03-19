@@ -303,7 +303,7 @@ module DataCycleCore
         end
 
         def graph_filter_mode
-          configuration.dig('graph_filter','mode')
+          configuration.dig('graph_filter', 'mode')
         end
       end
     end

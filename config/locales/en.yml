@@ -898,7 +898,7 @@ en:
     items_linked_to: (A) ==> (B) Linked data type
     items_linked_to_2: from
     linked_items_in: (B) ==> (A) Data type
-    linked_items_in_2: which is linked to
+    linked_items_in_2: which is linked to item in
 
   filter_groups:
     classification_alias_ids: filter by classifications ...

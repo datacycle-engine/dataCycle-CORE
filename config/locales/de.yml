@@ -941,7 +941,7 @@ de:
     items_linked_to: (A) ==> (B) Verknüpfter Inhaltstyp
     items_linked_to_2: aus
     linked_items_in: (B) ==> (A) Inhaltstyp
-    linked_items_in_2: verknüft mit
+    linked_items_in_2: verknüft mit Inhalt aus
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...

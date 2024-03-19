@@ -248,7 +248,7 @@ module DataCycleCore
         filter_id = filter.dig('filter')
         content_type = filter.dig('content_type')
 
-        relation_name = JSON.parse(filter.dig('relation_type'))[1] if !filter.dig('relation_type').blank?
+        relation_name = JSON.parse(filter.dig('relation_type'))[1] if filter.dig('relation_type').present?
         direction_a_b = nil
 
         if query == 'linked_items_in'
@@ -356,7 +356,6 @@ module DataCycleCore
       private
 
       def related_to_query(filter, name = nil, inverse = false)
-
         if filter.is_a?(DataCycleCore::Filter::Search)
           filter_query = Arel.sql(filter.select(:id).except(:order).to_sql)
         elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
@@ -411,8 +410,6 @@ module DataCycleCore
         if relation.present?
 
           sub_select = sub_select.and(content_content_link[:relation].eq(relation))
-
-          # binding.pry
 
         elsif class_aliases.present? && class_aliases.size.positive?
 
