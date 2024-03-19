@@ -29,6 +29,10 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       Rails.root.join('..', 'data_types', 'master_data', 'overlay_set')
     end
 
+    let(:import_path_overlay2) do
+      Rails.root.join('..', 'data_types', 'master_data', 'overlay_set_2')
+    end
+
     let(:non_existent_path) do
       Rails.root.join('..', 'data_types', '1234567890')
     end
@@ -203,7 +207,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
     end
 
     it 'overlay for simple attribute' do
-      template_importer = subject.new(template_paths: [import_path_overlay])
+      template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
 
       assert_not(template.nil?)
@@ -211,8 +215,8 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       assert(template.dig(:data, :properties).key?(:name_override))
       assert_not(template.dig(:data, :properties).key?(:name_add))
 
-      assert_equal(template.dig(:data, :properties, :name, :sorting) + 1, template.dig(:data, :properties, :name_overlay, :sorting))
-      assert_equal(template.dig(:data, :properties, :name, :sorting) + 2, template.dig(:data, :properties, :name_override, :sorting))
+      assert_equal(template.dig(:data, :properties, :name, :sorting) + 1, template.dig(:data, :properties, :name_override, :sorting))
+      assert_equal(template.dig(:data, :properties, :name, :sorting) + 2, template.dig(:data, :properties, :name_overlay, :sorting))
 
       [:name_overlay, :name_override].each do |key|
         assert_nil(template.dig(:data, :properties, key, :label))
@@ -231,7 +235,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
     end
 
     it 'overlay for linked attribute' do
-      template_importer = subject.new(template_paths: [import_path_overlay])
+      template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
 
       assert_not(template.nil?)
@@ -239,9 +243,9 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       assert(template.dig(:data, :properties).key?(:author_override))
       assert(template.dig(:data, :properties).key?(:author_add))
 
-      assert_equal(template.dig(:data, :properties, :author, :sorting) + 1, template.dig(:data, :properties, :author_overlay, :sorting))
+      assert_equal(template.dig(:data, :properties, :author, :sorting) + 1, template.dig(:data, :properties, :author_override, :sorting))
       assert_equal(template.dig(:data, :properties, :author, :sorting) + 2, template.dig(:data, :properties, :author_add, :sorting))
-      assert_equal(template.dig(:data, :properties, :author, :sorting) + 3, template.dig(:data, :properties, :author_override, :sorting))
+      assert_equal(template.dig(:data, :properties, :author, :sorting) + 3, template.dig(:data, :properties, :author_overlay, :sorting))
 
       [:author_overlay, :author_add, :author_override].each do |key|
         assert_nil(template.dig(:data, :properties, key, :label))
@@ -253,25 +257,88 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
     end
 
     it 'overlay for classification attribute' do
-      template_importer = subject.new(template_paths: [import_path_overlay])
+      template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
 
       assert_not(template.nil?)
       assert(template.dig(:data, :properties).key?(:test_classification_overlay))
-      assert(template.dig(:data, :properties).key?(:test_classification_override))
       assert(template.dig(:data, :properties).key?(:test_classification_add))
 
-      assert_equal(template.dig(:data, :properties, :test_classification, :sorting) + 1, template.dig(:data, :properties, :test_classification_overlay, :sorting))
-      assert_equal(template.dig(:data, :properties, :test_classification, :sorting) + 2, template.dig(:data, :properties, :test_classification_add, :sorting))
-      assert_equal(template.dig(:data, :properties, :test_classification, :sorting) + 3, template.dig(:data, :properties, :test_classification_override, :sorting))
+      assert_equal(template.dig(:data, :properties, :test_classification, :sorting) + 1, template.dig(:data, :properties, :test_classification_add, :sorting))
+      assert_equal(template.dig(:data, :properties, :test_classification, :sorting) + 2, template.dig(:data, :properties, :test_classification_overlay, :sorting))
 
-      [:test_classification_overlay, :test_classification_add, :test_classification_override].each do |key|
+      [:test_classification_overlay, :test_classification_add].each do |key|
         assert_nil(template.dig(:data, :properties, key, :label))
         assert_equal(template.dig(:data, :properties, :test_classification, :type), template.dig(:data, :properties, key, :type))
         assert_equal(template.dig(:data, :properties, :test_classification, :tree_label), template.dig(:data, :properties, key, :tree_label))
         assert_not(template.dig(:data, :properties, key).key?(:validations))
         assert(template.dig(:data, :properties, key, :local))
         assert_equal(template.dig(:data, :properties, :test_classification, :ui, :show, :content_area), template.dig(:data, :properties, key, :ui, :show, :content_area))
+      end
+    end
+
+    it 'overlay for opening_time attribute' do
+      template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
+
+      assert_not(template.nil?)
+      assert(template.dig(:data, :properties).key?(:opening_hours_specification_overlay))
+      assert(template.dig(:data, :properties).key?(:opening_hours_specification_override))
+      assert(template.dig(:data, :properties).key?(:opening_hours_specification_add))
+
+      assert_equal(template.dig(:data, :properties, :opening_hours_specification, :sorting) + 1, template.dig(:data, :properties, :opening_hours_specification_override, :sorting))
+      assert_equal(template.dig(:data, :properties, :opening_hours_specification, :sorting) + 2, template.dig(:data, :properties, :opening_hours_specification_add, :sorting))
+      assert_equal(template.dig(:data, :properties, :opening_hours_specification, :sorting) + 3, template.dig(:data, :properties, :opening_hours_specification_overlay, :sorting))
+
+      [:opening_hours_specification_overlay, :opening_hours_specification_add, :opening_hours_specification_override].each do |key|
+        assert_nil(template.dig(:data, :properties, key, :label))
+        assert_equal(template.dig(:data, :properties, :opening_hours_specification, :type), template.dig(:data, :properties, key, :type))
+        assert_not(template.dig(:data, :properties, key).key?(:validations))
+        assert(template.dig(:data, :properties, key, :local))
+      end
+    end
+
+    it 'overlay for schedule attribute' do
+      template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
+
+      assert_not(template.nil?)
+      assert(template.dig(:data, :properties).key?(:event_schedule_overlay))
+      assert(template.dig(:data, :properties).key?(:event_schedule_override))
+      assert(template.dig(:data, :properties).key?(:event_schedule_add))
+
+      assert_equal(template.dig(:data, :properties, :event_schedule, :sorting) + 1, template.dig(:data, :properties, :event_schedule_override, :sorting))
+      assert_equal(template.dig(:data, :properties, :event_schedule, :sorting) + 2, template.dig(:data, :properties, :event_schedule_add, :sorting))
+      assert_equal(template.dig(:data, :properties, :event_schedule, :sorting) + 3, template.dig(:data, :properties, :event_schedule_overlay, :sorting))
+
+      [:event_schedule_overlay, :event_schedule_add, :event_schedule_override].each do |key|
+        assert_nil(template.dig(:data, :properties, key, :label))
+        assert_equal(template.dig(:data, :properties, :event_schedule, :type), template.dig(:data, :properties, key, :type))
+        assert_not(template.dig(:data, :properties, key).key?(:validations))
+        assert(template.dig(:data, :properties, key, :local))
+      end
+    end
+
+    it 'overlay for date attribute' do
+      template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
+
+      assert_not(template.nil?)
+      assert(template.dig(:data, :properties).key?(:start_date_overlay))
+      assert(template.dig(:data, :properties).key?(:start_date_override))
+      assert_not(template.dig(:data, :properties).key?(:start_date_add))
+
+      assert_equal(template.dig(:data, :properties, :start_date, :sorting) + 1, template.dig(:data, :properties, :start_date_override, :sorting))
+      assert_equal(template.dig(:data, :properties, :start_date, :sorting) + 2, template.dig(:data, :properties, :start_date_overlay, :sorting))
+
+      [:start_date_overlay, :start_date_override].each do |key|
+        assert_nil(template.dig(:data, :properties, key, :label))
+        assert_equal(template.dig(:data, :properties, :start_date, :type), template.dig(:data, :properties, key, :type))
+        assert_equal(template.dig(:data, :properties, :start_date, :storage_location), template.dig(:data, :properties, key, :storage_location))
+        assert_not(template.dig(:data, :properties, key).key?(:validations))
+        assert(template.dig(:data, :properties, key, :local))
+        assert_not(template.dig(:data, :properties, key).key?(:exif))
+        assert_not(template.dig(:data, :properties, key).key?(:content_score))
       end
     end
   end

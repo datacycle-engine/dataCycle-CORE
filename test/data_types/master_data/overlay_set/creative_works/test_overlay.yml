@@ -42,3 +42,16 @@
           :show:
             :content_area: header
         :overlay: true
+      :opening_hours_specification:
+        :label: Öffnungszeit
+        :type: opening_time
+        :overlay: true
+      :event_schedule:
+        :label: Termine
+        :type: schedule
+        :overlay: true
+      :start_date:
+        :label: Startzeitpunkt
+        :storage_location: value
+        :type: datetime
+        :overlay: true

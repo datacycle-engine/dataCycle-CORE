@@ -17,7 +17,11 @@ module DataCycleCore
               ordered_keys.delete(k)
 
               if position.key?(:after)
-                new_index = ordered_keys.index(position[:after]) + 1
+                if Overlay.overlay_attribute?(k)
+                  new_index = ordered_keys.index(position[:after]) + 1
+                else
+                  new_index = ordered_keys.rindex { |v| Overlay.key_without_overlay_type(v) == position[:after] } + 1
+                end
               else
                 new_index = ordered_keys.index(position[:before])
               end

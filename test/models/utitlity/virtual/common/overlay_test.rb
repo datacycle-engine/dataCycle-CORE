@@ -136,39 +136,36 @@ describe 'DataCycleCore::Utility::Virtual::Common#overlay' do
     assert_equal(['00000000-0000-0000-0000-000000000001'], value.pluck(:id))
   end
 
-  it 'should take override for classification' do
+  it 'should combine original with add for classification' do
     content = create_content_dummy({
       my_classification:
         create_classification_dummy([{
           id: '00000000-0000-0000-0000-000000000001',
           name: 'One'
         }]),
-      my_classification_override:
-        create_classification_dummy([{
-          id: '00000000-0000-0000-0000-000000000002',
-          name: 'Two'
-        }, {
-          id: '00000000-0000-0000-0000-000000000003',
-          name: 'Three'
-        }]),
-      my_classification_add: DataCycleCore::Classification.none
+      my_classification_add: create_classification_dummy([{
+        id: '00000000-0000-0000-0000-000000000002',
+        name: 'Two'
+      }, {
+        id: '00000000-0000-0000-0000-000000000003',
+        name: 'Three'
+      }])
     })
-    value = subject.overlay(virtual_parameters: ['my_classification', 'my_classification_override', 'my_classification_add'], content:, virtual_definition: { 'type' => 'classification' })
+    value = subject.overlay(virtual_parameters: ['my_classification', 'my_classification_add'], content:, virtual_definition: { 'type' => 'classification' })
 
     assert(value.is_a?(ActiveRecord::Relation))
     assert(value.first.is_a?(DataCycleCore::Classification))
-    assert_equal(2, value.size)
-    assert_equal(['00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003'], value.pluck(:id))
+    assert_equal(3, value.size)
+    assert_equal(['00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003'], value.pluck(:id))
   end
 
-  it 'should take orignal for classification if override is blank' do
+  it 'should take orignal for classification if add is blank' do
     content = create_content_dummy({
       my_classification:
         create_classification_dummy([{
           id: '00000000-0000-0000-0000-000000000001',
           name: 'One'
         }]),
-      my_classification_override: DataCycleCore::Classification.none,
       my_classification_add: DataCycleCore::Classification.none
     })
     value = subject.overlay(virtual_parameters: ['my_classification', 'my_classification_override', 'my_classification_add'], content:, virtual_definition: { 'type' => 'classification' })

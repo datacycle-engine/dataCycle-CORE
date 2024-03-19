@@ -1,1 +1,1 @@
-<%= render 'data_cycle_core/contents/editors/string', local_assigns.deep_merge({ options: { 'class' => 'string' } }) %>
+<%= render 'data_cycle_core/contents/editors/string', local_assigns.deep_merge({ options: options.merge({ 'class' => Array.wrap(options['class']).push('string').compact_blank.join(' ') }) }) %>

@@ -200,7 +200,7 @@ module DataCycleCore
       end
 
       type = prop.dig('ui', 'bulk_edit', 'partial') || prop.dig('ui', 'edit', 'partial') || prop.dig('ui', 'edit', 'type') || prop['type']
-      versions = Array.wrap(MasterData::Templates::Extensions::Overlay::OVERLAY_POSTFIXES[type] || [MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX])
+      versions = MasterData::Templates::Extensions::Overlay.allowed_postfixes_for_type(type)
 
       check_boxes.values_at(*versions)
     end

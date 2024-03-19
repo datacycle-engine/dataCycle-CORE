@@ -13,12 +13,6 @@ module DataCycleCore
       locale: nil
     }.freeze
 
-    OVERLAY_REGEX = Regexp.new([
-      MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX,
-      MasterData::Templates::Extensions::Overlay::VIRTUAL_OVERLAY_POSTFIX,
-      MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX
-    ].join('|'), 'i')
-
     RenderMethodOptions = Struct.new(*RENDER_VIEWER_ARGUMENTS.keys.push(:defaults), keyword_init: true) do
       def initialize(**args)
         args.reverse_merge!(args[:defaults])
@@ -40,7 +34,8 @@ module DataCycleCore
       end
 
       def overlay_attribute?
-        definition.dig('features', 'overlay', 'overlay_for').present? && OVERLAY_REGEX.match?(key&.attribute_name_from_key)
+        definition.dig('features', 'overlay', 'overlay_for').present? &&
+          MasterData::Templates::Extensions::Overlay.overlay_attribute?(key&.attribute_name_from_key)
       end
 
       def specific_scope

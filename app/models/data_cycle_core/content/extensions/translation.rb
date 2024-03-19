@@ -54,7 +54,7 @@ module DataCycleCore
           end
 
           def overlay_propery_name(key, definition, content, ui_scope, locale, _display_locale, count, locale_string)
-            overlay_type = key&.attribute_name_from_key&.scan(AttributeViewerHelper::OVERLAY_REGEX)&.first&.delete_prefix('_')
+            overlay_type = MasterData::Templates::Extensions::Overlay.overlay_attribute_type(key&.attribute_name_from_key)
 
             [
               human_property_name(definition&.dig('features', 'overlay', 'overlay_for'), { base: content, ui_scope:, locale:, count:, locale_string: }),
