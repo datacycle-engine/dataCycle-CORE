@@ -146,9 +146,20 @@ module DataCycleCore
     end
 
     def advanced_graph_filter_options(filter_method, thing_filter = false)
-      # TODO: Evaluate or update for graph_filter
 
-      advanced_relation_filter_options(filter_method, thing_filter)
+      filter_options = [
+        [t('filter.graph_filter.contained_in', locale: active_ui_locale), 'i'],
+        [t('filter.graph_filter.not_contained_in', locale: active_ui_locale), 'e']
+        # [t('filter.graph_filter.contained_in_any', locale: active_ui_locale), 'i'],
+        # [t('filter.graph_filter.not_contained_in_any', locale: active_ui_locale), 'e']
+      ]
+
+      if thing_filter
+        # ToDo: ThingFilterMagic
+      end
+
+      options_for_select(filter_options, filter_method)
+
     end
 
     def selected_filter_params(filter, config)

@@ -863,6 +863,8 @@ en:
       placeholder:
         thing: content
         collection_or_stored_filter: "%{collection} or %{stored_filter}"
+      contained_in: is included in
+      not_contained_in: is not included in
     related_to: is linked to
     feratel_content_score: Feratel - Content Score
     internal_content_score: Content Score - dataCycle
@@ -895,9 +897,11 @@ en:
       not_access_token: no API token present
       confirmed_at: Email confirmed
       not_confirmed_at: Email not confirmed
-    items_linked_to: (A) ==> (B) Linked data type
+    items_linked_to: Linked data type
+    items_linked_to_all: Linked item
     items_linked_to_2: from
-    linked_items_in: (B) ==> (A) Data type
+    linked_items_in: Data type
+    linked_items_in_all: Any item
     linked_items_in_2: which is linked to item in
 
   filter_groups:

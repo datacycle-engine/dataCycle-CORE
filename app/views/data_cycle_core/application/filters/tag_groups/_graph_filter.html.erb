@@ -21,9 +21,14 @@
 %>
 
 <span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
-  <span><span class="tag-group-label">
+  <span class="tag-group-label">
     <i class="fa fa-link" aria-hidden="true"></i>
-    <%#= t("filter.#{key}", default: title, locale: active_ui_locale) %>
+    <% if content_types&.first&.present? || (relation_types.present? && !relation_types.first&.blank?) %>
+      <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>
+    <% end %>
+    <% unless content_types&.first&.present? || (relation_types.present? && !relation_types.first&.blank?) %>
+      <%= t("filter.#{key}_all", default: title, locale: active_ui_locale) %>
+    <%end %>
   </span>
 
   <% if content_types&.first&.present? || (relation_types.present? && !relation_types.first&.blank?) %>
@@ -42,17 +47,14 @@
           next if tag.blank?
           parsed_tag = JSON.parse(tag)
         %>
-          <span class="tag"><%= t("filter.#{parsed_tag[0]}", default: "", locale: active_ui_locale).split(' ')[1..-1]&.join(' ') %></span>
+          <span class="tag"><%=t("filter.#{parsed_tag[0]}", default: "", locale: active_ui_locale).split(' ')[1..-1]&.join(' ') %></span>
       <% end %>
     <% end %>
   </span>
   <% end %>
 
-  </span>
-  <span>
-
     <span class="tag-group-label">
-      <%= t("filter.#{key}_2", default: "", locale: active_ui_locale) %>
+      <%=t("filter.#{key}_2", default: "", locale: active_ui_locale) %>
   </span>
 
   <span class="tags-container">
@@ -71,7 +73,7 @@
 
   </span>
 
-  </span>
 
   <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons %>
+
 </span>

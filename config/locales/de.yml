@@ -899,6 +899,8 @@ de:
       placeholder:
         thing: Inhalt
         collection_or_stored_filter: "%{collection} oder %{stored_filter}"
+      contained_in: ist enthalten in
+      not_contained_in: ist nicht enthalten in
     related_to: ist verknüpft mit
     feratel_content_score: Feratel - Content Score
     internal_content_score: Content Score - dataCycle
@@ -938,9 +940,11 @@ de:
     min_altitude: Minimale Seehöhe (m)
     max_altitude: Maximale Seehöhe (m)
     length: Länge (m)
-    items_linked_to: (A) ==> (B) Verknüpfter Inhaltstyp
+    items_linked_to: Verknüpfter Inhaltstyp
+    items_linked_to_all: Verknüpfte Inhalte
     items_linked_to_2: aus
-    linked_items_in: (B) ==> (A) Inhaltstyp
+    linked_items_in: Inhaltstyp
+    linked_items_in_all: Alle Inhalte
     linked_items_in_2: verknüft mit Inhalt aus
 
   filter_groups:

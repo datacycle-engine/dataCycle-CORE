@@ -15,11 +15,16 @@
 
   <div class="advanced-filter-title">
     <%= render 'data_cycle_core/shared/icon', icon_type: filter_name&.underscore_blanks, icon_class: 'filter' %>
-    <span><%= t("filter.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
   </div>
+
   <div class="advanced-filter-mode">
     <%= select_tag "f[#{identifier}][m]", advanced_graph_filter_options(filter_method, filter_restrictions.present?) %>
   </div>
+
+  <div class="advanced-filter-title">
+    <span><%= t("filter.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
+  </div>
+
 
   <div class="advanced-filter-selector">
 
