@@ -60,7 +60,7 @@ module DataCycleCore
           css_class.delete('dc-overlay-visible')
         end
 
-        parameters[:options][:class] = css_class.uniq.join(' ') if parameters[:options].key?(:class) && css_class.present?
+        parameters[:options][:class] = css_class.uniq.join(' ') if css_class.present?
       end
 
       def add_has_overlay_options!

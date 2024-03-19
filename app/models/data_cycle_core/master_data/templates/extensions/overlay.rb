@@ -8,10 +8,10 @@ module DataCycleCore
           BASE_OVERLAY_POSTFIX = '_override'
           VIRTUAL_OVERLAY_POSTFIX = '_overlay'
           ADD_OVERLAY_POSTFIX = '_add'
-          ADDITIONAL_OVERLAY_POSTFIXES = {
-            'embedded' => [ADD_OVERLAY_POSTFIX],
-            'linked' => [ADD_OVERLAY_POSTFIX],
-            'classification' => [ADD_OVERLAY_POSTFIX]
+          OVERLAY_POSTFIXES = {
+            'embedded' => [BASE_OVERLAY_POSTFIX, ADD_OVERLAY_POSTFIX].freeze,
+            'linked' => [BASE_OVERLAY_POSTFIX, ADD_OVERLAY_POSTFIX].freeze,
+            'classification' => [ADD_OVERLAY_POSTFIX].freeze
           }.freeze
           OVERLAY_PROP_EXCEPTIONS = ['overlay', 'default_value', 'compute', 'virtual', 'content_score', 'exif', 'validations', 'api', 'label'].freeze
 
@@ -60,7 +60,7 @@ module DataCycleCore
             return properties if overlay_props.blank?
 
             overlay_props.each do |key, prop|
-              versions = ([BASE_OVERLAY_POSTFIX] + Array.wrap(ADDITIONAL_OVERLAY_POSTFIXES[prop['type']]))
+              versions = Array.wrap(OVERLAY_POSTFIXES[prop['type']].dup || [BASE_OVERLAY_POSTFIX])
               versions.map! { |v| key + v }
               versions.each do |version|
                 properties[version] = overlay_version_prop(key, prop, version.delete_prefix("#{key}_"))

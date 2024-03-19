@@ -188,23 +188,21 @@ module DataCycleCore
 
     def overlay_types(content, key, prop)
       label = translated_attribute_label(key, prop, content, {})
+
       check_boxes = [
+        MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX,
+        MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX
+      ].index_with do |v|
         CollectionHelper::CheckBoxStruct.new(
-          MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX.delete_prefix('_'),
-          t('common.bulk_update.check_box_labels.override_html', locale: active_ui_locale, data: label)
+          v.delete_prefix('_'),
+          t("common.bulk_update.check_box_labels.#{v.delete_prefix('_')}_html", locale: active_ui_locale, data: label)
         )
-      ]
+      end
 
       type = prop.dig('ui', 'bulk_edit', 'partial') || prop.dig('ui', 'edit', 'partial') || prop.dig('ui', 'edit', 'type') || prop['type']
+      versions = Array.wrap(MasterData::Templates::Extensions::Overlay::OVERLAY_POSTFIXES[type] || [MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX])
 
-      return check_boxes if MasterData::Templates::Extensions::Overlay::ADDITIONAL_OVERLAY_POSTFIXES.keys.exclude?(type)
-
-      check_boxes.push(
-        CollectionHelper::CheckBoxStruct.new(
-          MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX.delete_prefix('_'),
-          t('common.bulk_update.check_box_labels.add_html', locale: active_ui_locale, data: label)
-        )
-      )
+      check_boxes.values_at(*versions)
     end
   end
 end
