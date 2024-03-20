@@ -239,7 +239,8 @@ module DataCycleCore
           )
           SELECT things.id
           FROM things
-          WHERE EXISTS (
+          WHERE things.id != :id::UUID
+          AND EXISTS (
               SELECT 1
               FROM content_dependencies
               WHERE content_dependencies.id = #{self.class.table_name}.#{self.class.primary_key}
@@ -247,7 +248,7 @@ module DataCycleCore
         SQL
 
         self.class
-          .where(content_type: 'entity')
+          .where.not(content_type: 'embedded')
           .where("things.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, id:])})")
       end
 
