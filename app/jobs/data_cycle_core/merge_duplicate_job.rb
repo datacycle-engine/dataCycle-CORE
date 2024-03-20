@@ -51,7 +51,7 @@ module DataCycleCore
           c.update_columns(updated_at: save_time, updated_by: nil)
         end
         linked_content.update_column(:content_b_id, original.id)
-        content.send(:execute_update_webhooks)
+        content.send(:execute_update_webhooks) unless content.embedded?
       end
 
       raise 'locked Contents!' unless valid
