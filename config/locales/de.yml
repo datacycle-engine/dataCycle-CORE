@@ -790,6 +790,7 @@ de:
         role_name: Rolle
         latest_activity_type: Aktivitätsart
         latest_api_access: Letzter API Zugriff
+        user_group_names: Benutzergruppen
       mailer:
         subject:
           downloads_popular: TOP 50 Bild Downloads

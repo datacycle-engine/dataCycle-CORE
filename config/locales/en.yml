@@ -768,6 +768,7 @@ en:
         role_name: Role
         latest_activity_type: Last activitytype
         latest_api_access: Last API access
+        user_group_names: User groups
       mailer:
         subject:
           downloads_popular: TOP 50 Image Downloads
