@@ -95,7 +95,7 @@
       </div>
     </div>
 
-    <%= render 'data_cycle_core/contents/editors/attribute', key: time_key, definition: {}, value: nil, options: options.merge('class' => 'object embedded_object'), content: content do %>
+    <%= render 'data_cycle_core/contents/editors/attribute', key: time_key, definition: {}, value: nil, options: options.merge({ 'class' => 'object embedded_object' }), content: content do %>
 
       <%= embedded_editor_header(**local_assigns.merge({ key: time_key, definition: time_definition })) %>
 

@@ -1,0 +1,8 @@
+---
+- :data:
+    :name: TestOverlay
+    :extends: TestOverlay
+    :properties:
+      :opening_hours_specification:
+        :position:
+          :after: author

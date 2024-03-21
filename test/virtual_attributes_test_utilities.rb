@@ -13,6 +13,10 @@ module VirtualAttributeTestUtilities
     create_dummy(data, DataCycleCore::ClassificationAlias)
   end
 
+  def create_schedule_dummy(data)
+    create_dummy(data, DataCycleCore::Schedule)
+  end
+
   def create_dummy(data, klass)
     if data.is_a?(Array)
       data.map { |d| create_dummy(d, klass) }.then { |v| klass.by_ordered_values(v.pluck(:id)).tap { |rel| rel.send(:load_records, v) } }

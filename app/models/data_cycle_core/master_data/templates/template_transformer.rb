@@ -52,7 +52,7 @@ module DataCycleCore
           Array.wrap(@template[:extends]).each do |extends_name|
             base_template = flat_templates.find { |v| v[:name] == extends_name }
 
-            raise "BaseTemplates missing for #{extends_name}" if base_template.blank?
+            raise TemplateError.new('extends'), "BaseTemplate missing for #{extends_name}" if base_template.blank?
 
             @template = base_template[:data].deep_dup.deep_merge(@template)
             @mixin_paths.concat(base_template[:mixins])
@@ -75,32 +75,36 @@ module DataCycleCore
           properties
         end
 
-        def replace_mixin_properties(props)
+        def replace_mixin_properties(props, additional_attributes = {})
           properties = ActiveSupport::HashWithIndifferentAccess.new
 
           props&.each do |key, value|
             next if value.nil?
-            next properties[key] = value unless value[:type] == 'mixin'
 
-            properties.merge!(replace_mixin_property(value[:name].to_sym))
+            if value[:type] == 'mixin'
+              properties.deep_merge!(replace_mixin_property(value[:name].to_sym, value.except(:name, :type)))
+            else
+              properties.deep_merge!({ key => value.merge(additional_attributes) })
+            end
           end
 
+          properties.deep_reject! { |_, v| v.nil? }
           properties
         end
 
-        def replace_mixin_property(property_name)
+        def replace_mixin_property(property_name, additional_attributes)
           template_name = @template[:name].underscore_blanks
           mixin = @mixins&.dig(property_name)&.find do |m|
             (m[:set] == @content_set || m[:set].nil?) &&
               (m[:template_name] == template_name || m[:template_name].nil?)
           end
 
-          raise "mixin for #{property_name} not found!" if mixin.nil?
+          raise TemplateError.new("properties.#{property_name}"), "mixin for #{property_name} not found!" if mixin.nil?
           return {} if mixin[:properties].blank?
 
           @mixin_paths.unshift("#{@content_set}.#{@template[:name]}.#{property_name} => #{mixin[:path]}")
 
-          replace_mixin_properties(mixin[:properties])
+          replace_mixin_properties(mixin[:properties], additional_attributes)
         end
       end
     end
