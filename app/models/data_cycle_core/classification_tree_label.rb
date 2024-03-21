@@ -194,10 +194,10 @@ module DataCycleCore
       )
     end
 
-    def insert_all_classifications_by_path(attributes)
+    def insert_all_classifications_by_path(classification_attributes)
       sql_values = []
 
-      attributes.each do |row|
+      classification_attributes.each do |row|
         value = transform_row_data(row.deep_dup)
 
         next if value.nil? || sql_values.any? { |sv| sv[3] == value[3] }
@@ -264,9 +264,11 @@ module DataCycleCore
                 classification_data.classification_alias_id
               FROM classification_data
               UNION
-              SELECT unnest(classification_data.classification_ids),
+              SELECT data.classification_id,
                 classification_data.classification_alias_id
-              FROM classification_data
+              FROM classification_data,
+                unnest(classification_data.classification_ids) AS data(classification_id)
+              WHERE data.classification_id IS NOT NULL
             ) ON conflict(classification_id, classification_alias_id)
           WHERE deleted_at IS NULL DO NOTHING
         ),
