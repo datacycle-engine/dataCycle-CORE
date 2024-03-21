@@ -437,7 +437,7 @@ module DataCycleCore
 
     def execute_things_webhooks
       linked_contents.find_each do |content|
-        content.send(:execute_update_webhooks)
+        content.send(:execute_update_webhooks) unless content.embedded?
       end
     end
 
