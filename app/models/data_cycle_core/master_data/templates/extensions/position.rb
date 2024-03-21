@@ -17,12 +17,16 @@ module DataCycleCore
               ordered_keys.delete(k)
 
               if position.key?(:after)
+                raise TemplateError.new("properties.#{k}"), "attribute '#{position[:after]}' missing for position: { after: #{position[:after]} }" if ordered_keys.exclude?(position[:after])
+
                 if Overlay.overlay_attribute?(k)
                   new_index = ordered_keys.index(position[:after]) + 1
                 else
                   new_index = ordered_keys.rindex { |v| Overlay.key_without_overlay_type(v) == position[:after] } + 1
                 end
               else
+                raise TemplateError.new("properties.#{k}"), "attribute '#{position[:before]}' missing for position: { before: #{position[:before]} }" if ordered_keys.exclude?(position[:before])
+
                 new_index = ordered_keys.index(position[:before])
               end
 

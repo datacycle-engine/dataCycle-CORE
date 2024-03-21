@@ -92,16 +92,19 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
 
     it 'gives empty list when wrong path is given for checking duplicates' do
       template_importer = subject.new(template_paths: [non_existent_path])
-      assert_equal({}, template_importer.templates)
+
+      assert_empty(template_importer.templates)
     end
 
     it 'gives nil for duplicates when wrong path is given for checking duplicates' do
       template_importer = subject.new(template_paths: [non_existent_path])
-      assert_equal({}, template_importer.duplicates)
+
+      assert_empty(template_importer.duplicates)
     end
 
     it 'gives appropriate list for test_folder' do
       template_importer = subject.new(template_paths: [import_path])
+
       assert_equal(
         import_list_import_path[:creative_works].pluck(:name),
         template_importer.templates[:creative_works].pluck(:name)
@@ -110,6 +113,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
 
     it 'gives appropriate list for test_folder and test_folder2' do
       template_importer = subject.new(template_paths: [import_path2, import_path])
+
       assert_equal(
         import_list_import_paths[:creative_works].pluck(:name),
         template_importer.templates[:creative_works].pluck(:name)
@@ -118,6 +122,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
 
     it 'gives appropriate duplicate_list for test_folder and test_folder2' do
       template_importer = subject.new(template_paths: [import_path2, import_path])
+
       assert_equal duplicates_import_paths, template_importer.duplicates
     end
 
@@ -141,6 +146,31 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       assert(template.dig(:data, :properties)&.key?(:name))
       assert(template.dig(:data, :properties)&.key?(:description))
       assert(template.dig(:data, :properties)&.key?(:tmp_name))
+    end
+
+    it 'extends multiple existing templates' do
+      template_importer = subject.new(template_paths: [import_path2, import_path3])
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity2Extension' }
+
+      assert_not(template.nil?)
+      assert(template.dig(:data, :properties)&.key?(:id))
+      assert(template.dig(:data, :properties)&.key?(:name))
+      assert(template.dig(:data, :properties)&.key?(:description))
+      assert(template.dig(:data, :properties)&.key?(:tmp_name))
+      assert(template.dig(:data, :properties)&.key?(:text))
+    end
+
+    it 'copies overlay flag to all mixin properties' do
+      template_importer = subject.new(template_paths: [import_path2, import_path3])
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-3' }
+
+      assert_not(template.nil?)
+      assert(template.dig(:data, :properties)&.key?(:id))
+      assert(template.dig(:data, :properties)&.key?(:text))
+      assert(template.dig(:data, :properties)&.key?(:test_mixin))
+      assert(template.dig(:data, :properties, :test_mixin, :overlay))
+      assert(template.dig(:data, :properties)&.key?(:test_mixin2))
+      assert(template.dig(:data, :properties, :test_mixin2, :overlay))
     end
 
     it 'change position of propery with after' do

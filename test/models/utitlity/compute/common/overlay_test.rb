@@ -70,29 +70,23 @@ describe 'DataCycleCore::Utility::Compute::Common#overlay' do
   end
 
   it 'should take override for embedded' do
-    value = subject.overlay(computed_parameters: {
-      my_embedded: ['00000000-0000-0000-0000-000000000001'],
-      my_embedded_override: ['00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003'],
-      my_embedded_add: []
-    }, computed_definition: { 'type' => 'embedded' })
-
-    assert(value.is_a?(Array))
-    assert(value.first.uuid?)
-    assert_equal(2, value.size)
-    assert_equal(['00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003'], value)
+    assert_raises(StandardError) do
+      subject.overlay(computed_parameters: {
+        my_embedded: ['00000000-0000-0000-0000-000000000001'],
+        my_embedded_override: ['00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003'],
+        my_embedded_add: []
+      }, computed_definition: { 'type' => 'embedded' })
+    end
   end
 
   it 'should take original for embedded if override is blank' do
-    value = subject.overlay(computed_parameters: {
-      my_embedded: ['00000000-0000-0000-0000-000000000001'],
-      my_embedded_override: [],
-      my_embedded_add: []
-    }, computed_definition: { 'type' => 'embedded' })
-
-    assert(value.is_a?(Array))
-    assert(value.first.uuid?)
-    assert_equal(1, value.size)
-    assert_equal(['00000000-0000-0000-0000-000000000001'], value)
+    assert_raises(StandardError) do
+      subject.overlay(computed_parameters: {
+        my_embedded: ['00000000-0000-0000-0000-000000000001'],
+        my_embedded_override: [],
+        my_embedded_add: []
+      }, computed_definition: { 'type' => 'embedded' })
+    end
   end
 
   it 'should combine original with add for classification' do

@@ -48,7 +48,7 @@ module DataCycleCore
             overlay_prop['api']['name'] = key.camelize(:lower)
             overlay_prop['visible'] = ['api']
             overlay_prop['features'].delete('overlay')
-            overlay_prop['compute'] = {
+            overlay_prop['virtual'] = {
               'module' => 'Common',
               'method' => 'overlay',
               'parameters' => [key, *versions]

@@ -66,7 +66,10 @@ module DataCycleCore
             nil
           end
 
+          # does not work for embedded or schedule attributes
           def overlay(computed_parameters:, computed_definition:, **_args)
+            raise "Cloning #{computed_definition.dig('type')} is not implemented yet" if computed_definition.dig('type').in?(Content::Content::EMBEDDED_PROPERTY_TYPES + Content::Content::SCHEDULE_PROPERTY_TYPES + Content::Content::TIMESERIES_PROPERTY_TYPES + Content::Content::ASSET_PROPERTY_TYPES)
+
             allowed_postfixes = MasterData::Templates::Extensions::Overlay.allowed_postfixes_for_type(computed_definition['type'])
 
             override_value = computed_parameters.detect { |k, _v| k.ends_with?(MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX) }&.last if allowed_postfixes.include?(MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX)

@@ -1,0 +1,13 @@
+---
+- :data:
+    :name: test_mixin
+    :type: mixin
+    :properties:
+      :test_mixin:
+        :label: test
+        :type: string
+        :storage_location: value
+      :test_mixin2:
+        :label: test2
+        :type: string
+        :storage_location: value
