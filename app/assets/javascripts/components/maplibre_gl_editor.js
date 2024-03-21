@@ -432,8 +432,8 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 	getGeoJsonFromInputs() {
 		return this.getGeoJsonFromCoordinates(
 			[
-				parseFloat(this.$longitudeField.val()),
-				parseFloat(this.$latitudeField.val()),
+				Number.parseFloat(this.$longitudeField.val()),
+				Number.parseFloat(this.$latitudeField.val()),
 			],
 			this.type,
 		);
