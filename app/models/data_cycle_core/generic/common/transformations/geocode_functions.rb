@@ -6,7 +6,7 @@ module DataCycleCore
       module Transformations
         module GeocodeFunctions
           def self.geocode(data)
-            return data unless Feature::Geocode.enabled? && data&.key?('address') && data['location'].blank?
+            return data unless Feature::Geocode.enabled? && data&.key?('address') && data.dig('address', 'postal_code').present? && data.dig('address', 'street_address').present? && data.dig('address', 'address_locality').present? && data['location'].blank?
 
             location = Feature::Geocode.geocode_address(data['address'])
 
@@ -37,5 +37,3 @@ module DataCycleCore
     end
   end
 end
-
-# Rails.cache.fetch(Digest::SHA1.hexdigest(data['location'].to_s))
