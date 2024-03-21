@@ -51,7 +51,7 @@
         <% else %>
           <%= select_tag(
                 "f[#{identifier}][v][content_type]",
-                simple_classification_select_options(@selected_classification_aliases&.values_at(*select_value), data_type_restriction),
+                simple_classification_select_options(DataCycleCore::ClassificationAlias.where(id: select_value), data_type_restriction),
                 {
                   multiple: true,
                   class: 'multi-select',

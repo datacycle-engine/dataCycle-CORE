@@ -248,8 +248,6 @@ module DataCycleCore
         filter_id = filter.dig('filter')
         content_type = filter.dig('content_type')
 
-        # binding.pry
-
         relation_name = filter.dig('relation_type').split(';')[1] if filter.dig('relation_type').present?
         direction_a_b = nil
 
@@ -406,6 +404,8 @@ module DataCycleCore
           filter_query = Array.wrap(filter)
         end
 
+        class_aliases = [class_aliases] unless class_aliases.is_a?(Array)
+
         target = direction_a_b ? :content_b_id : :content_a_id
         source = direction_a_b ? :content_a_id : :content_b_id
 
@@ -417,11 +417,8 @@ module DataCycleCore
 
         elsif class_aliases.present? && class_aliases.size.positive?
 
-          collected_classification_contents
-
-          infix_operation = Arel::Nodes::InfixOperation.new('=', Arel::Nodes.build_quoted(class_aliases), any(thing_template[:computed_schema_types]))
-          target_template_query = Arel::SelectManager.new.from(thing_template).where(infix_operation).project(thing_template[:template_name])
-          target_template_things = Arel::SelectManager.new.from(thing).where(thing[:template_name].in(target_template_query)).project(thing[:id])
+          infix_operation = Arel.sql(DataCycleCore::CollectedClassificationContent.where(classification_alias_id: class_aliases).select('thing_id').to_sql)
+          target_template_things = Arel::SelectManager.new.from(thing).where(thing[:id].in(infix_operation)).project(thing[:id])
 
           related_template_things = content_content_link[:content_b_id].in(target_template_things)
 
