@@ -86,12 +86,14 @@ module DataCycleCore
         def graph_filter(user, value)
           return [] unless value.is_a?(Hash)
 
+          to_ignore = ['enabled', 'relation_mapping', 'mode']
+
           value.map { |k, v|
             next unless v
-            next if ['enabled', 'relation_mapping'].include?(k)
+            next if to_ignore.include?(k) # things from features.yml to be excluded in graph filter list
 
             [
-              I18n.t("filter.graph_filter.#{k.underscore_blanks}", default: I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale), locale: user.ui_locale),
+              I18n.t("filter.graph_filter.dropdown_text.#{k.underscore_blanks}", default: I18n.t("filter.graph_filter.#{k.underscore_blanks}", default: I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale), locale: user.ui_locale), locale: user.ui_locale),
               'graph_filter',
               data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
             ]

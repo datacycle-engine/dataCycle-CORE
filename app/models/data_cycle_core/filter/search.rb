@@ -248,7 +248,9 @@ module DataCycleCore
         filter_id = filter.dig('filter')
         content_type = filter.dig('content_type')
 
-        relation_name = JSON.parse(filter.dig('relation_type'))[1] if filter.dig('relation_type').present?
+        # binding.pry
+
+        relation_name = filter.dig('relation_type').split(';')[1] if filter.dig('relation_type').present?
         direction_a_b = nil
 
         if query == 'linked_items_in'
@@ -257,7 +259,9 @@ module DataCycleCore
           direction_a_b = true
         end
 
-        return self if filter_id.blank? || direction_a_b.nil?
+        return self if direction_a_b.nil?
+
+        filter_id = DataCycleCore::StoredFilter.create.id if filter_id.blank?
 
         subquery = graph_filter_query(filter_id, relation_name, content_type, direction_a_b)
 

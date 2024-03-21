@@ -865,6 +865,9 @@ en:
         collection_or_stored_filter: "%{collection} or %{stored_filter}"
       contained_in: is included in
       not_contained_in: is not included in
+      dropdown_text:
+        items_linked_to: Linked data type ... from ...
+        linked_items_in: Data type ... which is linked to item in ...
     related_to: is linked to
     feratel_content_score: Feratel - Content Score
     internal_content_score: Content Score - dataCycle

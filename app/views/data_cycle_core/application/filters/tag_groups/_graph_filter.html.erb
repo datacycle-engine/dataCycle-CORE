@@ -45,7 +45,7 @@
         <% relation_types.each do |tag| %>
         <%
           next if tag.blank?
-          parsed_tag = JSON.parse(tag)
+          parsed_tag = tag.split(';')
         %>
           <span class="tag"><%=t("filter.#{parsed_tag[0]}", default: "", locale: active_ui_locale).split(' ')[1..-1]&.join(' ') %></span>
       <% end %>
