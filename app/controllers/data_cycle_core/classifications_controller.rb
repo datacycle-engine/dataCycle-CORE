@@ -219,16 +219,18 @@ module DataCycleCore
     end
 
     def download
-      params.permit(:classification_tree_label_id, :include_contents, :for_mapping_import)
-
-      object = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
+      object = DataCycleCore::ClassificationTreeLabel.find(download_params[:classification_tree_label_id])
 
       respond_to do |format|
         format.csv do
-          if params[:include_contents]
+          if download_params[:include_contents]
             raw_csv = object.to_csv(include_contents: true)
-          elsif params[:for_mapping_import]
+          elsif download_params[:specific_type] == 'mapping_import'
             raw_csv = object.to_csv_for_mappings
+          elsif download_params[:specific_type] == 'mapping_export'
+            raw_csv = object.to_csv_with_mappings
+          elsif download_params[:specific_type] == 'mapping_export_inverse'
+            raw_csv = object.to_csv_with_inverse_mappings
           else
             raw_csv = object.to_csv
           end
@@ -277,6 +279,10 @@ module DataCycleCore
     end
 
     private
+
+    def download_params
+      params.permit(:classification_tree_label_id, :include_contents, :specific_type)
+    end
 
     def search_params
       params.permit(:q, :max, :tree_label, :exclude, :disabled_unless_any?, :preload, preload: [])

@@ -1536,6 +1536,8 @@ en:
       download_tree: Classification tree without contents (csv)
       download_tree_with_contents: Classification tree with contents (csv)
       download_tree_for_mappings: Classification tree for defining mappings (csv)
+      download_tree_with_mappings: Classification tree with mappings (csv)
+      download_tree_with_inverse_mappings: Classification tree with ivnerse mappings (csv)
     this_classification: This classification
     this_classification_tree: This classification tree
     show_contents_for_tree_label: List contents in %{data}

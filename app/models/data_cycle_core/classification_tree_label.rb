@@ -336,6 +336,29 @@ module DataCycleCore
       end
     end
 
+    def to_csv_with_mappings
+      CSV.generate do |csv|
+        csv << ['Pfad zur Klassifizierung', 'Pfad zu gemappter Klassifizierung']
+        classification_aliases.includes(:classification_alias_path, additional_classifications: [primary_classification_alias: :classification_alias_path]).reorder(nil).order('array_reverse(classification_alias_paths.full_path_names) ASC').references(:classification_alias_path).find_each do |ca|
+          ca.additional_classifications.map(&:primary_classification_alias).each do |mapped_ca|
+            csv << [ca.full_path, mapped_ca.full_path]
+          end
+        end
+      end
+    end
+
+    def to_csv_with_inverse_mappings
+      CSV.generate do |csv|
+        csv << ['Pfad zur Klassifizierung', 'Pfad zu gemappter Klassifizierung']
+        classification_aliases.includes(:classification_alias_path, primary_classification: [additional_classification_aliases: :classification_alias_path]).reorder(nil).order('array_reverse(classification_alias_paths.full_path_names) ASC').references(:classification_alias_path).find_each do |ca|
+          binding.pry if ca.id == 'bc683eb4-d6cf-4e7a-8d91-bfb97576afd8'
+          ca.primary_classification.additional_classification_aliases.each do |mapped_ca|
+            csv << [mapped_ca.full_path, ca.full_path]
+          end
+        end
+      end
+    end
+
     def ancestors
       []
     end

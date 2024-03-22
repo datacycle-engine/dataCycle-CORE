@@ -1583,6 +1583,8 @@ de:
       download_tree: Klassifizierungsbaum ohne Inhalte (csv)
       download_tree_with_contents: Klassifizierungsbaum mit Inhalten (csv)
       download_tree_for_mappings: Klassifizierungsbaum zum Definieren von Mappings (csv)
+      download_tree_with_mappings: Klassifizierungsbaum mit Mappings (csv)
+      download_tree_with_inverse_mappings: Klassifizierungsbaum mit inversen Mappings (csv)
     this_classification: Dieser Klassifizierung
     this_classification_tree: Diesem Klassifizierungsbaum
     show_contents_for_tree_label: "Inhalte in %{data} auflisten"

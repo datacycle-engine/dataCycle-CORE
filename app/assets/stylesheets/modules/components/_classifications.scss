@@ -1169,8 +1169,13 @@ ul.backend-treeview-list,
   }
 }
 
-.download-for-mapping {
-  .fa-arrows-h {
+.download-for-mapping,
+.download-with-mapping,
+.download-with-inverse-mapping {
+
+  .fa-arrows-h,
+  .fa-long-arrow-right,
+  .fa-long-arrow-left {
     font-size: 0.8rem;
     margin-left: 0.1rem;
     align-self: flex-start;

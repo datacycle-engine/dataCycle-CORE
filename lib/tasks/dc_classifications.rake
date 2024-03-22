@@ -8,8 +8,8 @@ namespace :dc do
       require 'csv'
       require 'roo'
 
-      desc 'import mappings from XLSX or CSV file'
-      task :mappings_from_spreadsheet, [:file_path] => :environment do |_, args|
+      desc 'import mappings CSV file'
+      task :mappings_from_csv, [:file_path] => :environment do |_, args|
         abort('file_path missing!') if args.file_path.blank?
 
         updated_at = Time.zone.now
@@ -21,32 +21,30 @@ namespace :dc do
         to_insert = []
 
         file_paths.each do |file_path|
-          data = Roo::Spreadsheet.open(file_path)
-          sheet = data.sheet(data.sheets.first)
-          sheet.each do |row|
-            next if row.blank?
+          file = File.read(file_path)
+          data = CSV.parse(file.encode_utf8!, skip_blanks: true)
+          data.select! { |(ca_path, mapped_ca_path)| ca_path.to_s.include?('>') && mapped_ca_path.to_s.include?('>') }
+            .map! { |(ca_path, mapped_ca_path)| [ca_path.to_s.strip, mapped_ca_path.to_s.strip] }
+          cas = DataCycleCore::ClassificationAlias.by_full_paths(data.flatten).includes(:primary_classification).index_by(&:full_path)
 
-            ca_path = row[0].to_s.strip
-            mapped_ca_path = row[1].to_s.strip
-
-            next unless ca_path.include?('>') && mapped_ca_path.include?('>')
-
-            ca = DataCycleCore::ClassificationAlias.custom_find_by_full_path(ca_path)
+          data.each do |(ca_path, mapped_ca_path)|
+            ca = cas[ca_path]
             if ca.nil?
-              errors << "classification_alias not found (#{File.basename(file_path)} => #{ca_path})"
+              errors << "classification_alias not found (#{File.basename(file_path)}: '#{ca_path}' => '#{mapped_ca_path}')"
               print 'x'
               next
             end
 
-            mapped_ca = DataCycleCore::ClassificationAlias.custom_find_by_full_path!(mapped_ca_path)
-            raise ActiveRecord::RecordNotFound if mapped_ca.primary_classification.nil?
+            mapped_ca = cas[mapped_ca_path]
+            if mapped_ca.nil? || mapped_ca.primary_classification.nil?
+              errors << "mapped classification_alias not found (#{File.basename(file_path)}: '#{ca_path}' => '#{mapped_ca_path}')"
+              print 'x'
+              next
+            end
 
             to_insert.push({ classification_id: mapped_ca.primary_classification.id, classification_alias_id: ca.id, updated_at: })
 
             print('.')
-          rescue ActiveRecord::RecordNotFound
-            errors << "mapped classification_alias not found (#{File.basename(file_path)} => #{mapped_ca_path})"
-            print 'x'
           end
         end
 
