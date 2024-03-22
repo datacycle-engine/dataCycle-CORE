@@ -983,6 +983,7 @@ de:
     translated_name: Name
     updated_at: Aktualisierungsdatum
     width: Breite
+    content_size: Dateigröße
     height: Höhe
     upload_date: Uploaddatum
     internal_content_score: Content Score (intern)

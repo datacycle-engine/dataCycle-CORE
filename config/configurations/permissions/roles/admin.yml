@@ -204,7 +204,6 @@ advanced_filter:
       - :subscriptions
       - :things
       - :collection
-    - - :advanced_attributes
 
 subscription_actions:
   actions: read
