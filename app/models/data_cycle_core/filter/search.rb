@@ -242,7 +242,15 @@ module DataCycleCore
         )
       end
 
+      def not_graph_filter(filter, name, query)
+        common_graph_filter_prep(filter, name, query, true)
+      end
+
       def graph_filter(filter, name, query)
+        common_graph_filter_prep(filter, name, query, false)
+      end
+
+      def common_graph_filter_prep(filter, name, query, exclude = false)
         return self if filter.blank? || name.blank? || query.blank?
 
         filter_id = filter.dig('filter')
@@ -265,9 +273,15 @@ module DataCycleCore
 
         return self if subquery.nil?
 
-        reflect(
-          @query.where(subquery.exists)
-        )
+        if exclude
+          reflect(
+            @query.where(subquery.exists.not)
+          )
+        else
+          reflect(
+            @query.where(subquery.exists)
+          )
+        end
       end
 
       def boolean(value, filter_method)
@@ -388,7 +402,7 @@ module DataCycleCore
       # Params:
       # +filter+:: Base-Filter / Filter, based on which the graph-filter shall operate. Could be: StoredFilter, WatchList, ...
       # +relation+: OPTIONAL: Restriction for relation name - default: nil (no restriction)
-      # +class_aliases+:: OPTIONAL - list of classification aliases that shall be applied # ToDo: Update description to be more meaningful
+      # +class_aliases+:: OPTIONAL - list of classification aliases that shall be applied instead of relation
       # +direction_a_b+:: OPTIONAL - DEFAULTS to FALSE ( B -> A ) - Tell the graph Filter in which direction it shall work.
       #  Direction A -> B: Return all linked items B of the base filter's resulting items A
       #  Direction B -> A (related_to): Return items A that have a linked item b that can be found in the results of the base filter
@@ -409,7 +423,7 @@ module DataCycleCore
         target = direction_a_b ? :content_b_id : :content_a_id
         source = direction_a_b ? :content_a_id : :content_b_id
 
-        sub_select = content_content_link[source].eq(thing[:id])
+        sub_select = content_content_link[target].eq(thing[:id])
 
         if relation.present?
 
@@ -418,14 +432,13 @@ module DataCycleCore
         elsif class_aliases.present? && class_aliases.size.positive?
 
           infix_operation = Arel.sql(DataCycleCore::CollectedClassificationContent.where(classification_alias_id: class_aliases).select('thing_id').to_sql)
-          target_template_things = Arel::SelectManager.new.from(thing).where(thing[:id].in(infix_operation)).project(thing[:id])
 
-          related_template_things = content_content_link[:content_b_id].in(target_template_things)
+          related_template_things = content_content_link[:content_b_id].in(infix_operation)
 
           sub_select = sub_select.and(related_template_things)
         end
 
-        sub_select = sub_select.and(content_content_link[target].in(filter_query))
+        sub_select = sub_select.and(content_content_link[source].in(filter_query))
 
         Arel::SelectManager.new.from(content_content_link).where(sub_select)
       end
