@@ -41,7 +41,7 @@ asset_for_data_link:
   segment: AssetByUserGroupsForDataLink
 
 thing_create:
-  actions: create
+  actions: [create, create_without_search]
   segment: TemplateByCreatableScope
   parameters: :all
 
