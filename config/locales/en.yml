@@ -863,8 +863,8 @@ en:
       placeholder:
         thing: content
         collection_or_stored_filter: "%{collection} or %{stored_filter}"
-      contained_in: is included in
-      not_contained_in: is not included in
+      contained_in: has a
+      not_contained_in: has not a
       dropdown_text:
         items_linked_to: Linked data type ... from ...
         linked_items_in: Data type ... which is linked to item in ...
