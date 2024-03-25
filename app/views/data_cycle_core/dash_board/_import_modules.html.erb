@@ -1,3 +1,5 @@
+<%= return render('data_cycle_core/dash_board/export_modules', external_system: import_data) if import_data[:webhook_only] %>
+
 <div>
   <div class="card import-module accordion <%= 'deactivated' if import_data[:deactivated] %>" data-accordion data-allow-all-closed="true">
     <div class="accordion-item" data-accordion-item>
