@@ -67,6 +67,7 @@ module DataCycleCore
               FROM content_content_links
               JOIN things AS t ON t.id = content_content_links.content_b_id
               WHERE content_content_links.content_a_id = things.id
+              AND content_content_links.relation NOT NULL
               AND t.updated_at >= ?
             UNION
             SELECT content_content_links.content_b_id || content_dependencies.content_ids "content_ids"
