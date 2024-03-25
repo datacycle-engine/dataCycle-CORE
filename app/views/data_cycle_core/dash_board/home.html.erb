@@ -65,8 +65,10 @@
 
     <div class="grid-external-modules">
       <div class="grid-parent">
+        <% import_systems = @grouped_external_systems&.dig(:import) %>
+        <% import_system_ids = Array.wrap(import_systems).pluck(:id) %>
         <%= render partial: 'import_modules', collection: @grouped_external_systems&.dig(:import), as: :import_data %>
-        <%= render partial: 'export_modules', collection: @grouped_external_systems&.dig(:webhook), as: :external_system %>
+        <%= render partial: 'export_modules', collection: @grouped_external_systems&.dig(:webhook)&.reject { |v| v[:id].in?(import_system_ids) }, as: :external_system %>
       </div>
     </div>
   <% end %>
