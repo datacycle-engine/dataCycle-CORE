@@ -9,12 +9,13 @@ namespace :dc do
       require 'roo'
 
       desc 'import mappings CSV file'
-      task :mappings_from_csv, [:file_path] => :environment do |_, args|
+      task :mappings_from_csv, [:file_path, :separator] => :environment do |_, args|
         abort('file_path missing!') if args.file_path.blank?
 
         updated_at = Time.zone.now
         errors = []
         file_paths = Dir[args.file_path]
+        separator = args.separator.presence || ','
 
         abort('no files found at this path!') if file_paths.blank?
 
@@ -22,7 +23,7 @@ namespace :dc do
 
         file_paths.each do |file_path|
           file = File.read(file_path)
-          data = CSV.parse(file.encode_utf8!, skip_blanks: true)
+          data = CSV.parse(file.encode_utf8!, skip_blanks: true, col_sep: separator)
           data.select! { |(ca_path, mapped_ca_path)| ca_path.to_s.include?('>') && mapped_ca_path.to_s.include?('>') }
             .map! { |(ca_path, mapped_ca_path)| [ca_path.to_s.strip, mapped_ca_path.to_s.strip] }
           cas = DataCycleCore::ClassificationAlias.by_full_paths(data.flatten).includes(:primary_classification).index_by(&:full_path)
