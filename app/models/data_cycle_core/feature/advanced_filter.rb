@@ -86,7 +86,7 @@ module DataCycleCore
         def graph_filter(user, value)
           return [] unless value.is_a?(Hash)
 
-          to_ignore = ['enabled', 'relation_mapping', 'mode', 'allowed_relations']
+          to_ignore = ['enabled', 'mode', 'allowed_relations']
 
           mode = configuration.dig('graph_filter', 'mode')
 
@@ -303,7 +303,7 @@ module DataCycleCore
         end
 
         def graph_filter_relations(user)
-          if user&.role == DataCycleCore::Role.find_by(name: 'super_admin')
+          if user&.role == DataCycleCore::Role.find_by(name: 'super_admin') || can(:view_all_graph_relation_filter, DataCycleCore::Feature::AdvancedFilter)
             ActiveRecord::Base.connection.execute('SELECT DISTINCT relation FROM content_content_links WHERE relation IS NOT NULL').values.flatten
           else
             configuration.dig('graph_filter', 'allowed_relations')
