@@ -86,14 +86,16 @@ module DataCycleCore
         def graph_filter(user, value)
           return [] unless value.is_a?(Hash)
 
-          to_ignore = ['enabled', 'relation_mapping', 'mode']
+          to_ignore = ['enabled', 'relation_mapping', 'mode', 'allowed_relations']
+
+          mode = configuration.dig('graph_filter', 'mode')
 
           value.map { |k, v|
             next unless v
             next if to_ignore.include?(k) # things from features.yml to be excluded in graph filter list
 
             [
-              I18n.t("filter.graph_filter.dropdown_text.#{k.underscore_blanks}", default: I18n.t("filter.graph_filter.#{k.underscore_blanks}", default: I18n.t("filter.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale), locale: user.ui_locale), locale: user.ui_locale),
+              I18n.t("filter.graph_filter.dropdown_text.#{mode}.#{k.underscore_blanks}", default: I18n.t("filter.graph_filter.#{mode}.#{k.underscore_blanks}", default: I18n.t("filter.#{mode}.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale), locale: user.ui_locale), locale: user.ui_locale),
               'graph_filter',
               data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
             ]
@@ -300,8 +302,12 @@ module DataCycleCore
           DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen')
         end
 
-        def graph_filter_relations
-          configuration.dig('relation_filter')
+        def graph_filter_relations(user)
+          if user&.role == DataCycleCore::Role.find_by(name: 'super_admin')
+            ActiveRecord::Base.connection.execute('SELECT DISTINCT relation FROM content_content_links WHERE relation IS NOT NULL').values.flatten
+          else
+            configuration.dig('graph_filter', 'allowed_relations')
+          end
         end
 
         def graph_filter_mode

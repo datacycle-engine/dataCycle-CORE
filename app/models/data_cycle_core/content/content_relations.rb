@@ -232,7 +232,7 @@ module DataCycleCore
             SELECT ARRAY [content_content_links.content_a_id, content_content_links.content_b_id] content_ids
             FROM content_content_links
             WHERE content_content_links.content_b_id = :id::UUID
-            AND content_content_links.relation NOT NULL
+            AND content_content_links.relation IS NOT NULL
             UNION ALL
             SELECT content_content_links.content_a_id || content_dependencies.content_ids content_ids
             FROM content_content_links

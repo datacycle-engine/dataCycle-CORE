@@ -67,7 +67,7 @@ module DataCycleCore
               FROM content_content_links
               JOIN things AS t ON t.id = content_content_links.content_b_id
               WHERE content_content_links.content_a_id = things.id
-              AND content_content_links.relation NOT NULL
+              AND content_content_links.relation IS NOT NULL
               AND t.updated_at >= ?
             UNION
             SELECT content_content_links.content_b_id || content_dependencies.content_ids "content_ids"
@@ -257,7 +257,7 @@ module DataCycleCore
         filter_id = filter.dig('filter')
         content_type = filter.dig('content_type')
 
-        relation_name = filter.dig('relation_type').split(';')[1] if filter.dig('relation_type').present?
+        relation_name = filter.dig('relation_type') if filter.dig('relation_type').present?
         direction_a_b = nil
 
         if query == 'linked_items_in'

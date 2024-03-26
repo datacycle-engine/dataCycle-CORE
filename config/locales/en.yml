@@ -866,8 +866,35 @@ en:
       contained_in: has a
       not_contained_in: has not a
       dropdown_text:
-        items_linked_to: Linked data type ... from ...
-        linked_items_in: Data type ... which is linked to item in ...
+        relation_mode:
+          items_linked_to: Linked ... from ...
+          linked_items_in: ... which is linked to item in ...
+        content_mode:
+          items_linked_to: Linked data type ... from ...
+          linked_items_in: Data type ... which is linked to item in ...
+      relations:
+        linked_thing: --------------Linked Thing
+        organizer: --------------Organizer
+        image: Bild
+        member_of: --------------Member of
+        copyright_holder: Rechteinhaber
+        content_location: Ort
+        overlay: --------------Overlay
+        sd_publisher: --------------SD Publisher
+        member: --------------Mitglied
+        tour: Tour
+        dc_media_link: dataCycle Medien-Link
+        primary_image: Primäres Bild
+        linked_to: --------------Linked to
+        subject_of: --------------Subject of
+        additional_information: --------------Zusätzliche Information
+        is_linked_to: --------------is linked to
+        contained_in_place: --------------contained in place
+        author: Autor
+        potential_action: --------------potential action
+        aggregate_rating: --------------aggregate raging
+        waypoint: --------------waypoint
+        contains_place: --------------contains place
     related_to: is linked to
     feratel_content_score: Feratel - Content Score
     internal_content_score: Content Score - dataCycle
@@ -900,12 +927,20 @@ en:
       not_access_token: no API token present
       confirmed_at: Email confirmed
       not_confirmed_at: Email not confirmed
-    items_linked_to: Linked data type
-    items_linked_to_all: Linked items of content type ... in ...
-    items_linked_to_2: from
-    linked_items_in: Item which is linked to content type
-    linked_items_in_all: Any item which is linked to content type ... in ...
-    linked_items_in_2:  in
+    relation_mode:
+      items_linked_to: Linked
+      items_linked_to_all: Linked items of ... in ...
+      items_linked_to_2: from
+      linked_items_in: Item which is linked to
+      linked_items_in_all: Any item which is linked to ... in ...
+      linked_items_in_2: in
+    content_mode:
+      items_linked_to: Linked data type
+      items_linked_to_all: Linked items of content type ... in ...
+      items_linked_to_2: from
+      linked_items_in: Item which is linked to content type
+      linked_items_in_all: Any item which is linked to content type ... in ...
+      linked_items_in_2:  in
 
   filter_groups:
     classification_alias_ids: filter by classifications ...

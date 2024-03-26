@@ -1,6 +1,6 @@
 <%
-  content_types = value["content_type"].is_a?(Array) ? value["content_type"] : [value["content_type"]]
-  relation_types = value["relation_type"].is_a?(Array) ? value["relation_type"] : [value["relation_type"]]
+  content_types = value["content_type"].is_a?(Array) ? value["content_type"] : [value["content_type"]] if value['content_type'] != nil
+  relation_type = value["relation_type"]
   filter_restrictions = value["restriction"]
   collection = value["filter"]
 
@@ -23,15 +23,21 @@
 <span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
   <span class="tag-group-label">
     <i class="fa fa-link" aria-hidden="true"></i>
-    <% if content_types&.first&.present? || (relation_types.present? && !relation_types.first&.blank?) %>
-      <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>
-    <% end %>
-    <% unless content_types&.first&.present? || (relation_types.present? && !relation_types.first&.blank?) %>
-      <%= t("filter.#{key}_all", default: title, locale: active_ui_locale) %>
-    <%end %>
+
+    <%=
+      if content_types != nil
+        if content_types.first&.present?
+          t("filter.content_mode.#{key}", default: title, locale: active_ui_locale)
+        else
+          t("filter.'content_mode'.#{key}_all", default: title, locale: active_ui_locale)
+        end
+      else
+        t("filter.relation_mode.#{key}", default: title, locale: active_ui_locale)
+      end
+    %>
   </span>
 
-  <% if content_types&.first&.present? || (relation_types.present? && !relation_types.first&.blank?) %>
+  <% if content_types&.first&.present? || (relation_type.present? && !relation_type.blank?) %>
     <span class="tags-container">
     <% if content_types&.first&.present?%>
       <!-- Content Types -->
@@ -40,21 +46,21 @@
       <% end %>
     <% end %>
 
-      <% if relation_types.present? && !relation_types.first&.blank?%>
+      <% if relation_type.present? && !relation_type.blank?%>
       <!-- Content Types -->
-        <% relation_types.each do |tag| %>
-        <%
-          next if tag.blank?
-          parsed_tag = tag.split(';')
-        %>
-          <span class="tag"><%=t("filter.#{parsed_tag[0]}", default: "", locale: active_ui_locale).split(' ')[1..-1]&.join(' ') %></span>
-      <% end %>
+          <span class="tag"><%=t("filter.graph_filter.relations.#{relation_type}", default: relation_type, locale: active_ui_locale) %></span>
     <% end %>
   </span>
   <% end %>
 
     <span class="tag-group-label">
-      <%=t("filter.#{key}_2", default: "", locale: active_ui_locale) %>
+      <%=
+        if content_types != nil
+          t("filter.content_mode.#{key}_2", default: "", locale: active_ui_locale)
+        else
+          t("filter.relation_mode.#{key}_2", default: "", locale: active_ui_locale)
+        end
+      %>
   </span>
 
   <span class="tags-container">

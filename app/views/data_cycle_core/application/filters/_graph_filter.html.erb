@@ -1,10 +1,11 @@
 <%
   filter_restrictions = DataCycleCore::Feature::AdvancedFilter.graph_filter_restrictions(filter_type, filter_name)
   data_type_restriction = DataCycleCore::Feature::AdvancedFilter.graph_filter_data_types
-  relation_restriction = DataCycleCore::Feature::AdvancedFilter.graph_filter_relations
-  relation_restriction_options =  options_from_collection_for_select(relation_restriction.to_a.collect { |option| [option.join(';'), t("filter.#{option[0]}", default: "", locale: active_ui_locale).split(' ')[1..-1]&.join(' ') ] }, :first, :last, value&.[]('relation_type'))
-  relation_mode = DataCycleCore::Feature::AdvancedFilter.graph_filter_mode == 'relation_mode' || DataCycleCore::Feature::AdvancedFilter.graph_filter_mode == nil
-  content_mode = DataCycleCore::Feature::AdvancedFilter.graph_filter_mode == 'content_mode'
+  relation_restriction = DataCycleCore::Feature::AdvancedFilter.graph_filter_relations(current_user)
+  relation_restriction_options =  options_from_collection_for_select(relation_restriction.to_a.collect { |option| [option, t("filter.graph_filter.relations.#{option}", default: "(translation missing!) #{option}", locale: active_ui_locale)] }, :first, :last, value&.[]('relation_type'))
+  filter_mode = DataCycleCore::Feature::AdvancedFilter.graph_filter_mode
+  relation_mode = filter_mode == 'relation_mode' || filter_mode == nil
+  content_mode = filter_mode == 'content_mode'
 %>
 
 <div data-id="<%= identifier %>" class="advanced-filter conditional-value-selector <%= filter_method ||= (filter_restrictions.present? ? 's' : 'i') %>" data-label="<%= filter_name %>">
@@ -22,7 +23,7 @@
   </div>
 
   <div class="advanced-filter-title">
-    <span><%= t("filter.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
+    <span><%= t("filter.#{filter_mode}.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
   </div>
 
 
@@ -105,7 +106,7 @@
   </div>
 
   <div class="advanced-filter-title">
-    <span><%= t("filter.#{filter_name}_2", default: "", locale: active_ui_locale) %></span>
+    <span><%= t("filter.#{filter_mode}.#{filter_name}_2", default: "", locale: active_ui_locale) %></span>
   </div>
 
   <div class="advanced-filter-selector">
