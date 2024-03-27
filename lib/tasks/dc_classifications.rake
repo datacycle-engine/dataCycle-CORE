@@ -168,24 +168,31 @@ namespace :dc do
           tree_label.visibility = DataCycleCore.default_classification_visibilities
         end
 
+        mappings = []
         classifications = from_tree_label
           .classification_aliases
           .preload(:classification_alias_path, :primary_classification)
           .group_by { |ca| ca.classification_alias_path&.full_path_names&.reverse&.drop(1) }
-          .map do |k, v|
+          .map { |k, v|
+            next if k.include?(nil)
+            mappings.concat(v.map { |ca| { path: ([to_tree_label.name] + k).join(' > '), classification_id: ca.primary_classification&.id } }.uniq)
+
             {
               name: k.last,
               name_i18n: v.pluck(:name_i18n).compact_blank.reduce(&:merge),
-              path: k,
-              classification_ids: v.flat_map(&:primary_classification).pluck(:id).uniq
+              path: k
             }
-          end
+          }.compact_blank
 
         puts "upserting #{classifications.size} classifications to new tree_label"
 
         tmp = Time.zone.now
-
         to_tree_label.insert_all_classifications_by_path(classifications)
+
+        aliases = DataCycleCore::ClassificationAlias.by_full_paths(mappings.pluck(:path).uniq).to_h { |ca| [ca.full_path, ca.id] }
+        new_ca_groups = mappings.map { |m| { classification_alias_id: aliases[m[:path]], classification_id: m[:classification_id] } }
+
+        DataCycleCore::ClassificationGroup.insert_all(new_ca_groups, unique_by: :classification_groups_ca_id_c_id_uq_idx, returning: false)
 
         puts "[DONE] finished upserting in #{Time.zone.now - tmp}s."
       end
