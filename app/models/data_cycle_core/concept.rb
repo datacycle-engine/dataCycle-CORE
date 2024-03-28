@@ -13,10 +13,22 @@ module DataCycleCore
     belongs_to :external_system
     belongs_to :concept_scheme
 
-    has_one :parent, through: :concept_links
-    has_many :children, through: :concept_links
+    has_many :mapped_concept_links, -> { where(link_type: 'related') }, inverse_of: :parent, class_name: 'ConceptLink', foreign_key: :parent_id
+    has_many :mapped_concepts, through: :mapped_concept_links, source: :child
+
+    has_many :mapped_inverse_concept_links, -> { where(link_type: 'related') }, inverse_of: :child, class_name: 'ConceptLink', foreign_key: :child_id
+    has_many :mapped_inverse_concepts, through: :mapped_inverse_concept_links, source: :parent
+
+    has_one :parent_concept_link, -> { where(link_type: 'broader') }, inverse_of: :child, class_name: 'ConceptLink', foreign_key: :child_id
+    has_one :parent, through: :parent_concept_link
+
+    has_many :children_concept_links, -> { where(link_type: 'broader') }, inverse_of: :parent, class_name: 'ConceptLink', foreign_key: :parent_id
+    has_many :children, through: :children_concept_links
+
     belongs_to :classification
-    belongs_to :classification_alias_path, primary_key: :id, foreign_key: :id, class_name: 'ClassificationAlias::Path' # rubocop:disable Rails/InverseOf
+    belongs_to :classification_alias, foreign_key: :id, inverse_of: :concept
+
+    belongs_to :classification_alias_path, primary_key: :id, foreign_key: :id, class_name: 'ClassificationAlias::Path', inverse_of: :concept
 
     delegate :visible?, to: :concept_scheme
 
@@ -31,11 +43,43 @@ module DataCycleCore
       true
     end
 
-    # def self.new(*args, **keyword_args)
-    # end
+    def self.create(attributes = nil, &)
+      if attributes.is_a?(Array)
+        attributes.collect { |attr| create(attr, &) }
+      else
+        attributes[:external_source_id] = attributes.delete(:external_system_id) if attributes.key?(:external_system_id)
+        attributes[:external_source] = attributes.delete(:external_system) if attributes.key?(:external_system)
+        attributes[:classification_tree_label_id] = attributes.delete(:concept_scheme_id) if attributes.key?(:concept_scheme_id)
+        attributes[:classification_tree_label] = attributes.delete(:concept_scheme)&.classification_tree_label if attributes.key?(:concept_scheme)
+        attributes[:parent_classification_alias] = attributes.delete(:parent)&.classification_alias if attributes.key?(:parent)
 
-    # def save
-    # end
+        ca = ClassificationAlias.create(attributes.slice(:name, :description, :external_source, :external_source_id, :external_key, :assignable, :internal, :uri, :ui_configs, :created_at, :updated_at), &)
+        c = Classification.create(attributes.slice(:name, :description, :external_source, :external_source_id, :external_key, :uri, :created_at, :updated_at), &)
+        ClassificationGroup.create(classification: c, classification_alias: ca, &)
+        ClassificationTree.create(sub_classification_alias: ca, **attributes.slice(:classification_tree_label_id, :classification_tree_label, :parent_classification_alias), &)
+
+        find_by(id: ca.id)
+      end
+    end
+
+    def self.create!(attributes = nil, &)
+      if attributes.is_a?(Array)
+        attributes.collect { |attr| create!(attr, &) }
+      else
+        attributes[:external_source_id] = attributes.delete(:external_system_id) if attributes.key?(:external_system_id)
+        attributes[:external_source] = attributes.delete(:external_system) if attributes.key?(:external_system)
+        attributes[:classification_tree_label_id] = attributes.delete(:concept_scheme_id) if attributes.key?(:concept_scheme_id)
+        attributes[:classification_tree_label] = attributes.delete(:concept_scheme)&.classification_tree_label if attributes.key?(:concept_scheme)
+        attributes[:parent_classification_alias] = attributes.delete(:parent)&.classification_alias if attributes.key?(:parent)
+
+        ca = ClassificationAlias.create!(attributes.slice(:name, :description, :external_source, :external_source_id, :external_key, :assignable, :internal, :uri, :ui_configs, :created_at, :updated_at), &)
+        c = Classification.create!(attributes.slice(:name, :description, :external_source, :external_source_id, :external_key, :uri, :created_at, :updated_at), &)
+        ClassificationGroup.create!(classification: c, classification_alias: ca, &)
+        ClassificationTree.create!(sub_classification_alias: ca, **attributes.slice(:classification_tree_label_id, :classification_tree_label, :parent_classification_alias), &)
+
+        find(ca.id)
+      end
+    end
 
     def self.for_tree(tree_name)
       return none if tree_name.blank?

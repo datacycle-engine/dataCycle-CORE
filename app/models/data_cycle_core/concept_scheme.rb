@@ -16,6 +16,34 @@ module DataCycleCore
       true
     end
 
+    def self.create(attributes = nil, &)
+      if attributes.is_a?(Array)
+        attributes.collect { |attr| create(attr, &) }
+      else
+        attributes[:external_source_id] = attributes.delete(:external_system_id) if attributes.key?(:external_system_id)
+        attributes[:external_source] = attributes.delete(:external_system) if attributes.key?(:external_system)
+
+        object = ClassificationTreeLabel.new(attributes, &)
+        object.save
+
+        object.valid? ? find_by(id: object.id) : object
+      end
+    end
+
+    def self.create!(attributes = nil, &)
+      if attributes.is_a?(Array)
+        attributes.collect { |attr| create!(attr, &) }
+      else
+        attributes[:external_source_id] = attributes.delete(:external_system_id) if attributes.key?(:external_system_id)
+        attributes[:external_source] = attributes.delete(:external_system) if attributes.key?(:external_system)
+
+        object = ClassificationTreeLabel.new(attributes, &)
+        object.save!
+
+        find(object.id)
+      end
+    end
+
     def visible?(context)
       visibility.include?(context)
     end
