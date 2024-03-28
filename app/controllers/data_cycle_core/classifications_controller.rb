@@ -98,6 +98,10 @@ module DataCycleCore
       query = query.order_by_similarity(search_params[:q])
       query = query.limit(search_params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
       query = query.where.not(id: search_params[:exclude]) if search_params[:exclude].present?
+      if search_params[:exclude_tree_label].present?
+        query = query.includes(:classification_tree)
+          .where.not(classification_trees: { classification_tree_label_id: search_params[:exclude_tree_label] })
+      end
       query = query.preload(*Array.wrap(search_params[:preload])) if search_params[:preload].present?
       query = query.preload(:primary_classification, :classification_alias_path)
 
@@ -285,7 +289,7 @@ module DataCycleCore
     end
 
     def search_params
-      params.permit(:q, :max, :tree_label, :exclude, :disabled_unless_any?, :preload, preload: [])
+      params.permit(:q, :max, :tree_label, :exclude, :exclude_tree_label, :disabled_unless_any?, :preload, preload: [])
     end
 
     def move_params
