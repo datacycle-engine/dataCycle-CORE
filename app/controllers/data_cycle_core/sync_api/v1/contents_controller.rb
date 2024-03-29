@@ -12,6 +12,9 @@ module DataCycleCore
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
             query = build_search_query
+
+            return render(json: { '@graph': query.query.reorder(nil).pluck(:id) }) if permitted_params[:index_only].to_s == 'true'
+
             @pagination_contents = apply_paging(query)
             @contents = @pagination_contents
             render json: sync_api_format(@contents) { @contents.to_sync_data }.to_json
@@ -60,7 +63,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :delted_at, :updated_since, :uuids, uuid: []]
+          super + [:id, :language, :deleted_at, :updated_since, :uuids, :index_only, uuid: []]
         end
 
         private

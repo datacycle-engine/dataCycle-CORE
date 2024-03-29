@@ -127,7 +127,7 @@ module DataCycleCore
 
     private
 
-    # used only in APIv4
+    # used only in APIv4 and sync_api
     def build_search_query
       endpoint_id = permitted_params[:id]
       @linked_stored_filter = nil
