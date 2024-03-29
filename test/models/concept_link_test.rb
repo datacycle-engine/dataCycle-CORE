@@ -49,6 +49,7 @@ module DataCycleCore
 
     test 'concept without parent has correct concept_links' do
       assert_nil @concept1.parent
+      assert_nil @concept1.parent_concept_link.parent_id
       assert_equal 1, @concept1.children.size
       assert_equal 0, @concept1.mapped_concepts.size
       assert_equal 0, @concept1.mapped_inverse_concepts.size

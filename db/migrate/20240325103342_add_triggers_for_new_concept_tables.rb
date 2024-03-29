@@ -334,8 +334,7 @@ class AddTriggersForNewConceptTables < ActiveRecord::Migration[6.1]
         new_classification_trees.parent_classification_alias_id,
         new_classification_trees.classification_alias_id,
         'broader'
-      FROM new_classification_trees
-      WHERE new_classification_trees.parent_classification_alias_id IS NOT NULL ON CONFLICT DO NOTHING;
+      FROM new_classification_trees ON CONFLICT DO NOTHING;
 
       RETURN NULL;
 

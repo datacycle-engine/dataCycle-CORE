@@ -100,10 +100,10 @@ class PrefillNewConceptTables < ActiveRecord::Migration[6.1]
         SELECT *
         FROM classification_trees ct
         WHERE ct.deleted_at IS NULL
-        AND ct.parent_classification_alias_id IS NOT NULL
         AND EXISTS (
           SELECT 1 FROM concepts
           WHERE concepts.id = ct.parent_classification_alias_id
+          OR ct.parent_classification_alias_id IS NULL
         )
         AND EXISTS (
           SELECT 1 FROM concepts

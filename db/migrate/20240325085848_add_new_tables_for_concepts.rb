@@ -73,7 +73,7 @@ class AddNewTablesForConcepts < ActiveRecord::Migration[6.1]
 
     create_table :concept_links, id: :uuid do |t|
       t.uuid :parent_id
-      t.uuid :child_id
+      t.uuid :child_id, null: false
       t.string :link_type, null: false, default: 'broader', index: true
 
       t.index [:parent_id, :child_id], unique: true
@@ -85,7 +85,7 @@ class AddNewTablesForConcepts < ActiveRecord::Migration[6.1]
 
     create_table :concept_link_histories, id: :uuid do |t|
       t.uuid :parent_id
-      t.uuid :child_id
+      t.uuid :child_id, null: false
       t.string :link_type, null: false, default: 'broader', index: true
       t.datetime :deleted_at, null: false, default: -> { 'NOW()' }, index: true
 
