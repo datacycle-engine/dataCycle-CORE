@@ -20,6 +20,8 @@ module DataCycleCore
       end
     end
 
+    has_one :concept_scheme, foreign_key: :id, dependent: nil, inverse_of: :classification_tree_label
+
     has_many :classification_aliases_with_deleted, -> { with_deleted }, through: :classification_trees, source: :sub_classification_alias
 
     has_many :classifications, through: :classification_aliases
@@ -110,6 +112,7 @@ module DataCycleCore
     end
 
     def upsert_all_external_classifications(attributes)
+      # might have problems with concept triggers
       sql_values = attributes.compact_blank.map { |row|
         [
           "'#{id}'::uuid",
@@ -217,8 +220,8 @@ module DataCycleCore
       end
 
       sql = <<-SQL.squish
-        WITH raw_data(classification_tree_label_id, name_i18n, name, full_path_names, parent_path_names, classification_ids, external_source_id) AS (
-          VALUES #{Array.new(sql_values.size, '(?::uuid, ?::jsonb, ?, ARRAY[?]::varchar[], ARRAY[?]::varchar[], ARRAY[?]::uuid[], ?::uuid)').join(', ')}
+        WITH raw_data(classification_tree_label_id, name_i18n, name, full_path_names, parent_path_names, external_source_id) AS (
+          VALUES #{Array.new(sql_values.size, '(?::uuid, ?::jsonb, ?, ARRAY[?]::varchar[], ARRAY[?]::varchar[], ?::uuid)').join(', ')}
         ),
         classification_data AS (
           SELECT DISTINCT ON (raw_data.full_path_names) raw_data.*,
@@ -241,7 +244,7 @@ module DataCycleCore
             NOW()
           FROM classification_data ON conflict (id) DO NOTHING
         ),
-        classification_aliases AS (
+        new_classification_aliases AS (
           INSERT INTO classification_aliases (
               id,
               internal_name,
@@ -256,19 +259,13 @@ module DataCycleCore
             classification_data.external_source_id,
             NOW(),
             NOW()
-          FROM classification_data ON conflict (id) DO NOTHING
+          FROM classification_data ON conflict (id) DO NOTHING RETURNING *
         ),
         classification_groups AS (
           INSERT INTO classification_groups (classification_id, classification_alias_id) (
               SELECT classification_data.classification_id,
                 classification_data.classification_alias_id
               FROM classification_data
-              UNION
-              SELECT data.classification_id,
-                classification_data.classification_alias_id
-              FROM classification_data,
-                unnest(classification_data.classification_ids) AS data(classification_id)
-              WHERE data.classification_id IS NOT NULL
             ) ON conflict(classification_id, classification_alias_id)
           WHERE deleted_at IS NULL DO NOTHING
         ),
@@ -288,13 +285,15 @@ module DataCycleCore
           created_at,
           updated_at
         )
-        SELECT classification_trees_data.classification_tree_label_id,
-          classification_trees_data.parent_id,
-          classification_trees_data.child_id,
-          classification_trees_data.external_source_id,
+        SELECT ctd.classification_tree_label_id,
+          ctd.parent_id,
+          ctd.child_id,
+          ctd.external_source_id,
           NOW(),
           NOW()
-        FROM classification_trees_data ON conflict (classification_alias_id)
+        FROM classification_trees_data ctd
+        LEFT OUTER JOIN new_classification_aliases nca on nca.id = ctd.child_id
+        ON conflict (classification_alias_id)
         WHERE deleted_at IS NULL DO NOTHING;
       SQL
 
@@ -441,6 +440,7 @@ module DataCycleCore
 
     def transform_row_data(row)
       return if row[:path].blank?
+      raise 'classification_alias_path cannot contain blank values' if row[:path].include?(nil)
 
       row[:path].unshift(name) if row[:path].first != name
       row[:name] = row[:path].last unless row.key?(:name)
@@ -453,7 +453,6 @@ module DataCycleCore
         row[:name],
         row[:path],
         row[:path][...-1],
-        row[:classification_ids],
         row[:external_source_id]
       ]
     end

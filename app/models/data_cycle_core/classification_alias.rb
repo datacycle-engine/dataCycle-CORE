@@ -5,7 +5,8 @@ module DataCycleCore
     class Path < ApplicationRecord
       self.table_name = 'classification_alias_paths'
 
-      belongs_to :classification_alias, foreign_key: 'id'
+      belongs_to :classification_alias, foreign_key: :id
+      belongs_to :concept, foreign_key: :id
       has_many :ancestor_classification_aliases, ->(p) { unscope(:where).where('id = ANY(ARRAY[?]::UUID[])', p.ancestor_ids) }, class_name: 'DataCycleCore::ClassificationAlias'
 
       def readonly?
@@ -63,6 +64,8 @@ module DataCycleCore
 
     has_many :classification_alias_paths_transitive
     has_many :things, through: :primary_classification
+
+    has_one :concept, foreign_key: :id
 
     delegate :visible?, to: :classification_tree_label
 
