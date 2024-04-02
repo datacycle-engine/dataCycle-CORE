@@ -30,6 +30,19 @@ module DataCycleCore
       end
     end
 
+    module Import
+      class TemplateMismatchError < StandardError
+        attr_reader :template_name, :expected_template_name
+
+        def initialize(options)
+          @template_name = options[:template_name]
+          @expected_template_name = options[:expected_template_name]
+
+          super("Template mismatch: #{template_name} != #{expected_template_name}")
+        end
+      end
+    end
+
     module Report
       class ProcessingError < StandardError
       end
