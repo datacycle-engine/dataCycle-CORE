@@ -404,13 +404,10 @@ footer {
           display: flex;
           flex-flow: row nowrap;
           align-items: center;
+          gap: 0.5rem;
 
           >* {
             white-space: nowrap;
-          }
-
-          >*:not(:last-child) {
-            margin-right: 0.5rem;
           }
 
           .sync-external-key {
@@ -425,6 +422,12 @@ footer {
 
           .last-successful-sync-at {
             color: $dark-gray;
+          }
+
+          .demote-primary-external-system-link {
+            font-size: 0.9rem;
+            line-height: 0.9rem;
+            padding: 0 0.2rem;
           }
 
           .external-edit-link,
@@ -2388,4 +2391,3 @@ button[disabled] {
 .vertical-separator:last-child {
   display: none;
 }
-

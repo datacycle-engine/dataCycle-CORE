@@ -154,6 +154,7 @@ en:
       remove_version_name: Remove version name
       show_admin_panel: Show admin panel
       switch_primary_external_system: Change primary external system
+      demote_primary_external_system: Convert primary external system into external link
       create_external_connection: Create external connection
       remove_external_connection: Delete external connection
       bulk_edit: Edit in bulk

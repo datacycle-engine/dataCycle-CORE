@@ -349,6 +349,7 @@ en:
     toolip: Use this external system as the primary external system
     primary_system_switched: The primary external system was successfully switched
     duplicate_record_html: There is already a <a href="%{url}" target="_blank">content</a> in the target external system
+    warning_html: Use this external system as the primary external system?
 
   common:
     "true": "Yes"
@@ -617,6 +618,10 @@ en:
       tooltip: Remove link to external system
       success: Link to external system was removed
       warning_html: 'Remove link to external system?<br><br><i class="alert-color">This may affect the function of an importer!</i>'
+    demote_to_sync:
+      tooltip: Convert primary external system into external link
+      success: Primary external system has been converted to external link
+      warning_html: 'Convert primary external system to external link?<br><br><i class="alert-color">This may affect the function of an importer!</i>'
 
   duplicate:
     candidates: Possible duplicates

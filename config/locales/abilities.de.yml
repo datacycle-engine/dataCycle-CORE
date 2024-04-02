@@ -136,6 +136,7 @@ de:
       remove_version_name: Versionsname entfernen
       show_admin_panel: Adminpanel anzeigen
       switch_primary_external_system: primäres externes System ändern
+      demote_primary_external_system: primäres externes System in externe Verknüpfung umwandeln
       create_external_connection: externe Verbindung erstellen
       remove_external_connection: externe Verbindung löschen
       bulk_edit: im Bulk bearbeiten

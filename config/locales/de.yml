@@ -381,6 +381,7 @@ de:
     tooltip: Dieses externe System als primäres externes System verwenden
     primary_system_switched: Das primäre externe System wurde erfolgreich getauscht
     duplicate_record_html: Es existiert bereits ein <a href="%{url}" target="_blank">Inhalt</a> im externen Zielsystem
+    warning_html: Dieses externe System wiklich als primäres externes System verwenden?
 
   common:
     "true": Ja
@@ -631,6 +632,10 @@ de:
       tooltip: Externe Verknüpfung entfernen
       success: Externe Verknüpfung wurde entfernt
       warning_html: 'Externe Verknüpfung entfernen?<br><br><i class="alert-color">Das beeinflusst möglicherweise die Funktion eines Importers!</i>'
+    demote_to_sync:
+      tooltip: primäres externes System in externe Verknüpfung umwandeln
+      success: primäres externes System wurde in externe Verknüpfung umgewandelt
+      warning_html: 'primäres externes System in externe Verknüpfung umwandeln?<br><br><i class="alert-color">Das beeinflusst möglicherweise die Funktion eines Importers!</i>'
 
   duplicate:
     candidates: Mögliche Duplikate

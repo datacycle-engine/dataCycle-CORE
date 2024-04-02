@@ -67,6 +67,7 @@ thing_actions:
     - view_life_cycle
     - move_content
     - switch_primary_external_system
+    - demote_primary_external_system
     - create_external_connection
     - remove_external_connection
   segment: SubjectByConditions

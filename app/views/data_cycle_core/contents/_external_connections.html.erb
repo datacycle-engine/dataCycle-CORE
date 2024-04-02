@@ -27,20 +27,34 @@
 
               <%= link_to tag.i(class: 'switch-primary-external-system-icon fa fa-exchange'),
                             switch_primary_external_system_thing_path(content, external_system_sync_id: sync[:id]),
-                            class: 'switch-primary-external-system-link',
+                            class: 'switch-primary-external-system-link external-connection-button',
                             data: {
                               method: :post,
                               dc_tooltip: t('content_external_data.tooltip', locale: active_ui_locale),
+                              confirm: t('content_external_data.warning_html', locale: active_ui_locale),
+                              confirmation_button_class: 'success',
                               disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw')
                             } if sync[:id].present? && sync[:sync_type] == 'duplicate' && can?(:switch_primary_external_system, content) %>
 
+              <%= link_to tag.i(class: 'demote-primary-external-system-icon fa fa-long-arrow-down'),
+                            demote_primary_external_system_thing_path(content),
+                            class: 'demote-primary-external-system-link external-connection-button',
+                            data: {
+                              method: :post,
+                              dc_tooltip: t('external_connections.demote_to_sync.tooltip', locale: active_ui_locale),
+                              confirm: t('external_connections.demote_to_sync.warning_html', locale: active_ui_locale),
+                              confirmation_button_class: 'success',
+                              disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw')
+                            } if sync[:primary] && can?(:demote_primary_external_system, content) %>
+
               <%= link_to tag.i(class: 'remove-external-system-icon fa fa-trash'),
                             remove_external_connection_thing_path(content, external_system_sync_id: sync[:id]),
-                            class: 'remove-external-system-link alert',
+                            class: 'remove-external-system-link alert external-connection-button',
                             data: {
                               method: :delete,
                               dc_tooltip: t('external_connections.remove_external_system_sync.tooltip', locale: active_ui_locale),
                               confirm: t('external_connections.remove_external_system_sync.warning_html', locale: active_ui_locale),
+                              confirmation_button_class: 'alert',
                               disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw')
                             } if sync[:id].present? && can?(:remove_external_connection, content) %>
             </li>

@@ -310,6 +310,15 @@ CREATE FUNCTION public.delete_schedule_occurences_trigger() RETURNS trigger
 
 
 --
+-- Name: delete_things_external_source_trigger_function(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_things_external_source_trigger_function() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN DELETE FROM external_hashes eh WHERE eh.external_source_id = OLD.external_source_id AND eh.external_key = OLD.external_key; RETURN NEW; END; $$;
+
+
+--
 -- Name: generate_ccc_relations_transitive_trigger_1(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3867,6 +3876,13 @@ CREATE TRIGGER delete_schedule_occurences_trigger AFTER DELETE ON public.schedul
 
 
 --
+-- Name: things delete_things_external_source_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_things_external_source_trigger BEFORE UPDATE OF external_key, external_source_id ON public.things FOR EACH ROW WHEN ((((old.external_key)::text IS DISTINCT FROM (new.external_key)::text) OR ((old.external_source_id IS DISTINCT FROM new.external_source_id) AND (new.external_key IS NULL) AND (new.external_source_id IS NULL)))) EXECUTE FUNCTION public.delete_things_external_source_trigger_function();
+
+
+--
 -- Name: classification_alias_paths_transitive generate_ccc_relations_transitive_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -4239,7 +4255,7 @@ ALTER TABLE ONLY public.content_content_links
 --
 
 ALTER TABLE ONLY public.external_hashes
-    ADD CONSTRAINT fk_external_hashes_things FOREIGN KEY (external_source_id, external_key) REFERENCES public.things(external_source_id, external_key) ON UPDATE CASCADE ON DELETE CASCADE NOT VALID;
+    ADD CONSTRAINT fk_external_hashes_things FOREIGN KEY (external_source_id, external_key) REFERENCES public.things(external_source_id, external_key) ON DELETE CASCADE;
 
 
 --
@@ -4809,6 +4825,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240325103342'),
 ('20240326094944'),
 ('20240326121702'),
-('20240328130446');
+('20240328130446'),
+('20240402073855');
 
 
