@@ -25,7 +25,7 @@ module DataCycleCore
           optional(:storage_location) do
             str? & included_in?(['column', 'value', 'translated_value', 'classification'])
           end
-          optional(:template_name) { str? }
+          optional(:template_name) { str? | (array? & each { str? }) }
           optional(:validations) { hash? }
           optional(:ui) { hash? }
           optional(:api) { hash? }

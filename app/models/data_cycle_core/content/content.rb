@@ -641,6 +641,20 @@ module DataCycleCore
           end
       end
 
+      def template_missing?
+        thing_template.nil?
+      end
+
+      def require_template!
+        raise ActiveRecord::RecordNotFound if template_missing?
+
+        self
+      end
+
+      def thing_template?
+        !template_missing?
+      end
+
       private
 
       def add_template_properties

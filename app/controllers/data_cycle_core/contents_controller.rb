@@ -417,6 +417,7 @@ module DataCycleCore
       @duplicated_content = render_embedded_object_params[:duplicated_content]
       @hide_embedded = render_embedded_object_params[:hide_embedded]
       @translate = render_embedded_object_params[:translate]
+      @embedded_template = render_embedded_object_params[:embedded_template]
 
       if @content&.persisted?
         authorize! :edit, @content
@@ -762,7 +763,7 @@ module DataCycleCore
     end
 
     def render_embedded_object_params
-      params.permit(:id, :locale, :attribute_locale, :key, :index, :duplicated_content, :hide_embedded, :translate, object_ids: [], definition: {}, options: {})
+      params.permit(:id, :locale, :attribute_locale, :key, :index, :duplicated_content, :hide_embedded, :translate, :embedded_template, object_ids: [], definition: {}, options: {})
     end
 
     def validation_params

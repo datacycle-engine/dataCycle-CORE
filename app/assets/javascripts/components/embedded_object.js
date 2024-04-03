@@ -11,10 +11,12 @@ class EmbeddedObject {
 		this.element = selector;
 		this.parent = this.element.parentElement;
 		this.$element = $(this.element);
-		this.addButton = this.$element
-			.siblings(".embedded-editor-header")
-			.find("> .add-content-object")
-			.first();
+		this.addButtonWrapper = this.parent.querySelector(
+			":scope > .embedded-editor-header .new-embedded-button-wrapper",
+		);
+		this.addButtons = this.parent.querySelectorAll(
+			":scope > .embedded-editor-header .new-embedded-button-wrapper .add-content-object",
+		);
 		this.page = 1;
 		this.id = this.$element.prop("id");
 		this.key = this.$element.data("key");
@@ -193,7 +195,13 @@ class EmbeddedObject {
 
 		DcStickyBar.scrollIntoViewWithStickyOffset(currentObject);
 	}
-	renderEmbeddedObjects(type, ids = [], locale = null, translate = false) {
+	renderEmbeddedObjects(
+		type,
+		ids = [],
+		locale = null,
+		translate = false,
+		specificEmbeddedTemplate = "",
+	) {
 		const index = this.index;
 		const newIds = difference(ids, this.ids);
 		if (type === "split_view") this.index += newIds.length;
@@ -220,6 +228,7 @@ class EmbeddedObject {
 					object_ids: newIds,
 					duplicated_content: type === "split_view",
 					translate: translate,
+					embedded_template: specificEmbeddedTemplate,
 				},
 			},
 		);
@@ -277,9 +286,10 @@ class EmbeddedObject {
 		return `:scope ${parent} > .removeContentObject, :scope ${parent} > .form-element > .editor-block > .removeContentObject`;
 	}
 	addEventHandlers() {
-		this.addButton
-			.off("click", this.eventHandlers.addItem)
-			.on("click", this.eventHandlers.addItem);
+		for (const button of this.addButtons) {
+			button.removeEventListener("click", this.eventHandlers.addItem);
+			button.addEventListener("click", this.eventHandlers.addItem);
+		}
 
 		this.runAddCallbacks(this.element);
 
@@ -291,7 +301,17 @@ class EmbeddedObject {
 		event.preventDefault();
 		event.stopPropagation();
 
-		await this.renderEmbeddedObjects("new");
+		const currentElement = event.currentTarget;
+		const templateName = currentElement.dataset.template;
+		if (currentElement.classList.contains("in-dropdown")) {
+			const $dropdown = $(
+				currentElement.closest(".new-embedded-object.dropdown-pane"),
+			);
+			if (typeof $dropdown.foundation === "function")
+				$dropdown.foundation("close");
+		}
+
+		await this.renderEmbeddedObjects("new", [], null, null, templateName);
 
 		this.$element.trigger("change");
 	}
@@ -335,8 +355,8 @@ class EmbeddedObject {
 		);
 
 		if (this.max && contentObjectItems.length >= this.max)
-			this.addButton.hide();
-		else if (this.write) this.addButton.show();
+			this.addButtonWrapper.style.display = "none";
+		else if (this.write) this.addButtonWrapper.style.removeProperty("display");
 
 		if (this.min && contentObjectItems.length <= this.min)
 			for (const button of removeButtons) button.style.display = "none";

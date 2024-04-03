@@ -187,20 +187,6 @@ module DataCycleCore
         cached_related_contents.exists?
       end
 
-      def template_missing?
-        thing_template.nil?
-      end
-
-      def require_template!
-        raise ActiveRecord::RecordNotFound if thing_template.nil?
-
-        self
-      end
-
-      def thing_template?
-        !template_missing?
-      end
-
       def related_contents(embedded: false)
         tree_query = <<-SQL.squish
           WITH RECURSIVE content_tree(id) AS (

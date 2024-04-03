@@ -35,9 +35,9 @@ module DataCycleCore
           end
 
           # validate references
-          embedded_template = DataCycleCore::Thing.new(template_name: template['template_name'])
+          embedded_templates = Array.wrap(template['template_name']).index_with { |t| DataCycleCore::DataHashService.get_internal_template(t) }
 
-          if template.blank? || embedded_template.template_missing?
+          if template.blank? || embedded_templates.blank?
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.no_template',
               substitutions: {
@@ -52,7 +52,8 @@ module DataCycleCore
             next if item.blank?
 
             if item.is_a?(::Hash)
-              validate_item(item, embedded_template)
+              embedded_template = template['template_name'].is_a?(Array) ? item.dig(:datahash, :template_name).presence || item[:template_name].presence : template['template_name']
+              validate_item(item, embedded_templates[embedded_template])
             else
               (@error[:error][@template_key] ||= []) << {
                 path: 'validation.errors.data_format_embedded',
