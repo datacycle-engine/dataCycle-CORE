@@ -1792,6 +1792,7 @@ en:
       publicTransit: Public transit
       seasonDescription: Sesion
       Preis-Zusatzbeschreibung: Additional price description
+      booking_link: Booking link
     gem2go:
       description: Description
     timm4:
