@@ -139,5 +139,20 @@ module DataCycleCore
         end
       end
     end
+
+    class TemplateNotAllowedError < StandardError
+      attr_reader :template_name, :expected_template_names
+
+      def initialize(template_name, expected_template_names)
+        @template_name = template_name
+        @expected_template_names = Array.wrap(expected_template_names).join(', ')
+
+        if @template_name.blank?
+          super("Template missing! (allowed: #{@expected_template_names})")
+        else
+          super("Template not allowed: #{@template_name}, (allowed: #{@expected_template_names})")
+        end
+      end
+    end
   end
 end
