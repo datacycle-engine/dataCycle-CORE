@@ -717,9 +717,10 @@ de:
       missing_serialize_format: Es muss mindestens ein Format ausgewählt werden
     serialize:
       license:
+        terms_of_use: Nutzungsbedingungen
         copyright:
-          file_name: nutzungsbedingungen
-        introducton:
+          file_name: copyright
+        introduction:
           file_name: einleitungstext
           text: |
             Überschrift
