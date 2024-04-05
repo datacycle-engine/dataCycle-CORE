@@ -6,6 +6,7 @@ class ImageEditor {
     reveal.classList.add('dcjs-image-editor');
     this.supportedFileExtensions = ['jpg', 'jpeg', 'png'];
     this.$reveal = $(reveal);
+    this.reveal = reveal;
     this.editor = null;
     this.fileUrl = reveal.dataset.fileUrl;
     this.fileName = reveal.dataset.fileName || 'unnamed_asset';
@@ -244,7 +245,7 @@ class ImageEditor {
    * ]);
    */
   addCustomCropOptions(options) {
-    const cropList = document.querySelector('.tie-crop-preset-button');
+    const cropList = this.reveal.querySelector('.tie-crop-preset-button');
     options.forEach(option => {
       if (
         !option.crop_ratio ||
@@ -267,29 +268,17 @@ class ImageEditor {
         <label>${option.label}</label>`;
       cropList.appendChild(customCropButton);
       customCropButton.addEventListener('click', () => {
-        console.log('custom crop clicked', option);
         this.editor.setCropzoneRect(option.crop_ratio);
       });
     });
 
-    // add event listener to reset the active state of the custom crop buttons
-    // cropList.addEventListener('click', e => {
-    //   const customCropButtons = document.querySelectorAll('.preset-custom-option');
-    //   console.log(e.target);
-    //   if (!e.currentTarget.classList.contains('preset-custom-option')) {
-    //     customCropButtons.forEach(button => button.classList.remove('active'));
-    //   } else {
-    //     // remove active class from all buttons except the clicked one
-    //   }
-    // });
-
     for (let i = 0; i < cropList.children.length; i++) {
       const button = cropList.children[i];
-      const customCropButtons = document.querySelectorAll('.preset-custom-option');
+      const customCropButtons = this.reveal.querySelectorAll('.preset-custom-option');
       button.addEventListener('click', () => {
         customCropButtons.forEach(customCropButton => customCropButton.classList.remove('active'));
         if (button.classList.contains('preset-custom-option')) {
-          const presetButtons = document.querySelectorAll('.preset:not(.preset-custom-option)');
+          const presetButtons = this.reveal.querySelectorAll('.preset:not(.preset-custom-option)');
           presetButtons.forEach(presetButton => presetButton.classList.remove('active'));
           button.classList.add('active');
         }
