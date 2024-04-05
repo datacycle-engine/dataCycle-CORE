@@ -42,10 +42,9 @@ module DataCycleCore
           end
 
           def terms_of_service_file(language = 'de')
-            tos_file = DataCycleCore.features.dig('download', 'terms_of_use', language) ||
-                       DataCycleCore.features.dig('download', 'terms_of_use', 'de')
+            tos_file = DataCycleCore.features.dig('download', 'downloader', 'archive', 'zip', 'terms_of_use', language) ||
+                       DataCycleCore.features.dig('download', 'downloader', 'archive', 'zip', 'terms_of_use', 'de')
             return nil if tos_file.blank?
-
             file_path = Rails.root.join('app', 'assets', 'downloader', 'archive', 'zip', 'terms_of_use', tos_file)
             file_path = Rails.root.join('app', 'assets', 'downloader', 'archive', 'zip', 'terms_of_use', DataCycleCore.features.dig('download', 'terms_of_use_file', 'de')) unless File.exist?(file_path)
             return nil unless File.exist?(file_path)
