@@ -90,6 +90,8 @@ module DataCycleCore
 
           mode = configuration.dig('graph_filter', 'mode')
 
+          return [] if mode == 'relation_mode' && graph_filter_relations(user).empty?
+
           value.map { |k, v|
             next unless v
             next if to_ignore.include?(k) # things from features.yml to be excluded in graph filter list
@@ -303,11 +305,15 @@ module DataCycleCore
         end
 
         def graph_filter_relations(user)
-          if user&.role == DataCycleCore::Role.find_by(name: 'super_admin') || can(:view_all_graph_relation_filter, DataCycleCore::Feature::AdvancedFilter)
-            ActiveRecord::Base.connection.execute('SELECT DISTINCT relation FROM content_content_links WHERE relation IS NOT NULL').values.flatten
+          if user.can?(:graph_filter_view_all_relations, :backend)
+            allowed_relations = ActiveRecord::Base.connection.execute('SELECT DISTINCT relation FROM content_content_links WHERE relation IS NOT NULL').values.flatten
           else
-            configuration.dig('graph_filter', 'allowed_relations')
+            allowed_relations = configuration.dig('graph_filter', 'allowed_relations')
           end
+
+          allowed_relations = [] if allowed_relations.nil?
+
+          allowed_relations
         end
 
         def graph_filter_mode

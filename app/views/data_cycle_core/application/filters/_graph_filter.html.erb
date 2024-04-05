@@ -2,7 +2,7 @@
   filter_restrictions = DataCycleCore::Feature::AdvancedFilter.graph_filter_restrictions(filter_type, filter_name)
   data_type_restriction = DataCycleCore::Feature::AdvancedFilter.graph_filter_data_types
   relation_restriction = DataCycleCore::Feature::AdvancedFilter.graph_filter_relations(current_user)
-  relation_restriction_options =  options_from_collection_for_select(relation_restriction.to_a.collect { |option| [option, t("filter.graph_filter.relations.#{option}", default: "(translation missing!) #{option}", locale: active_ui_locale)] }, :first, :last, value&.[]('relation_type'))
+  relation_restriction_options =  options_from_collection_for_select(relation_restriction.to_a.collect { |option| [option, t("filter.graph_filter.relations.#{option}", default: "translation missing: filter.graph_filter.relations.#{option}", locale: active_ui_locale)] }, :first, :last, value&.[]('relation_type'))
   filter_mode = DataCycleCore::Feature::AdvancedFilter.graph_filter_mode
   relation_mode = filter_mode == 'relation_mode' || filter_mode == nil
   content_mode = filter_mode == 'content_mode'

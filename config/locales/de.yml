@@ -934,32 +934,13 @@ de:
           items_linked_to: Verknüpfter Inhaltstyp ... aus ...
           linked_items_in: Inhalt verknüpft mit Inhaltstyp ... aus ...
       relations:
-        about: -(localization update needed)-about
-        linked_thing: -(localization update needed)-Linked Thing
-        organizer: -(localization update needed)-Organizer
+        # [#28520] In Customer project: adjust translation for relation names in graph filter as needed!
+        linked_thing: Verknüpfter Inhalt
         image: Bild
-        member_of: -(localization update needed)-Member of
         copyright_holder: Rechteinhaber
         content_location: Ort
-        overlay: -(localization update needed)-Overlay
-        sd_publisher: -(localization update needed)-SD Publisher
-        member: -(localization update needed)-Mitglied
         tour: Tour
-        dc_media_link: dataCycle Medien-Link
-        primary_image: Primäres Bild
-        linked_to: -(localization update needed)-Linked to
-        subject_of: -(localization update needed)-Subject of
-        additional_information: -(localization update needed)-Zusätzliche Information
-        is_linked_to: -(localization update needed)-is linked to
-        contained_in_place: -(localization update needed)-contained in place
         author: Autor
-        potential_action: -(localization update needed)-potential action
-        aggregate_rating: -(localization update needed)-aggregate raging
-        waypoint: -(localization update needed)-waypoint
-        contains_place: -(localization update needed)-contains place
-
-
-        
     related_to: ist verknüpft mit
     feratel_content_score: Feratel - Content Score
     internal_content_score: Content Score - dataCycle
