@@ -154,11 +154,10 @@ describe DataCycleCore::ClassificationTreeLabel do
       .classification_aliases
       .preload(:classification_alias_path, :primary_classification)
       .group_by { |ca| ca.classification_alias_path&.full_path_names&.reverse&.drop(1) }
-      .map do |k, v|
+      .map do |k, _v|
         {
           name: k.last,
-          path: k,
-          classification_ids: v.flat_map(&:primary_classification).pluck(:id).uniq
+          path: k
         }
       end
 
@@ -168,7 +167,7 @@ describe DataCycleCore::ClassificationTreeLabel do
     assert_equal(4, tree_two.classification_aliases.size)
 
     tree_two.classification_aliases.each do |ca|
-      assert_equal(4, ca.classifications.size)
+      assert_equal(1, ca.classifications.size)
 
       ca.classifications.each do |c|
         assert_equal(ca.internal_name, c.name)

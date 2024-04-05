@@ -349,6 +349,7 @@ en:
     toolip: Use this external system as the primary external system
     primary_system_switched: The primary external system was successfully switched
     duplicate_record_html: There is already a <a href="%{url}" target="_blank">content</a> in the target external system
+    warning_html: Use this external system as the primary external system?
 
   common:
     "true": "Yes"
@@ -617,6 +618,10 @@ en:
       tooltip: Remove link to external system
       success: Link to external system was removed
       warning_html: 'Remove link to external system?<br><br><i class="alert-color">This may affect the function of an importer!</i>'
+    demote_to_sync:
+      tooltip: Convert primary external system into external link
+      success: Primary external system has been converted to external link
+      warning_html: 'Convert primary external system to external link?<br><br><i class="alert-color">This may affect the function of an importer!</i>'
 
   duplicate:
     candidates: Possible duplicates
@@ -730,6 +735,10 @@ en:
         subject: A new user was created
         text_html: The new user %{name} (%{email}) has been created.
         user_link: Show user
+    overlay:
+      label_postfix:
+        override: (Overlay)
+        add: (Appendix)
 
     report_generator:
       downloads_popular: Top 50 Downloads
@@ -752,6 +761,20 @@ en:
         api_usage_current_month: Number of uses via the API in the current month
         api_usage_last_month: Number of uses via the API in the last month
         api_usage_last_12_months: Number of uses via the API in the last 12 months
+        first_name: First name
+        last_name: Last name
+        created_at: Created on
+        updated_at: Edited on
+        last_sign_in_at: Last login
+        current_sign_in_at: Current login
+        sign_in_count: Number of logins
+        deleted_at: Deleted on
+        locked_at: Locked on
+        external: External
+        role_name: Role
+        latest_activity_type: Last activitytype
+        latest_api_access: Last API access
+        user_group_names: User groups
       mailer:
         subject:
           downloads_popular: TOP 50 Image Downloads
@@ -1084,7 +1107,7 @@ en:
     remove_content_from: "Remove %{name} from %{collection}?"
     remove_from: "remove from %{collection}"
     set_gravity: "Set image gravity"
-
+    download_user_info_activity: "Download user activity"
   validation:
     errors:
       slug: "%{data} is already the slug of another record."
@@ -1381,9 +1404,18 @@ en:
       data_cycle_core/classification_alias:
         one: Classification
         other: Classifications
+      data_cycle_core/classification:
+        one: Classification
+        other: Classifications
+      data_cycle_core/classification_tree:
+        one: Classification tree
+        other: Classification trees
       data_cycle_core/classification_tree_label:
         one: Classification tree
         other: Classification trees
+      data_cycle_core/permission:
+        one: Permission
+        other: Permissions
     attributes:
       data_cycle_core/watch_list:
         name: Name
@@ -1474,6 +1506,7 @@ en:
         permissions_write: edit
         text_file: Further information (%{file_types})
         locale: E-mail language
+        creator_id: Creator
       data_cycle_core/stored_filter:
         system: Visible for all users (also applies to the API)
         api: Retrievable via API
@@ -1487,6 +1520,7 @@ en:
       data_cycle_core/asset:
         name: Name
         file: File
+        creator_id: Creator
       data_cycle_core/external_source:
         name: Name
   unauthorized:
@@ -1508,6 +1542,8 @@ en:
       download_tree: Classification tree without contents (csv)
       download_tree_with_contents: Classification tree with contents (csv)
       download_tree_for_mappings: Classification tree for defining mappings (csv)
+      download_tree_with_mappings: Classification tree with mappings (csv)
+      download_tree_with_inverse_mappings: Classification tree with ivnerse mappings (csv)
     this_classification: This classification
     this_classification_tree: This classification tree
     show_contents_for_tree_label: List contents in %{data}
@@ -1757,6 +1793,7 @@ en:
       publicTransit: Public transit
       seasonDescription: Sesion
       Preis-Zusatzbeschreibung: Additional price description
+      booking_link: Booking link
     gem2go:
       description: Description
     timm4:

@@ -130,12 +130,7 @@ module DataCycleCore
           content.available_locales.map(&:to_s).each do |locale|
             records = data_value.to_a + I18n.with_locale(locale) { content.try(key + '_overlay') }.to_a
             records_ids = records.pluck(:id)
-            data_value = DataCycleCore::Thing.where(id: records_ids).order(
-              [
-                Arel.sql('array_position(ARRAY[?]::uuid[], things.id)'),
-                records_ids
-              ]
-            ).tap { |rel| rel.send(:load_records, records) }
+            data_value = DataCycleCore::Thing.by_ordered_values(records_ids).tap { |rel| rel.send(:load_records, records) }
           end
         end
       else
@@ -184,12 +179,7 @@ module DataCycleCore
       content.available_locales.map(&:to_s).each do |locale|
         records = (data_value.to_a + I18n.with_locale(locale) { content.try(key + '_overlay') }.to_a).uniq
         records_ids = records.pluck(:id)
-        data_value = DataCycleCore::Thing.where(id: records_ids).order(
-          [
-            Arel.sql('array_position(ARRAY[?]::uuid[], things.id)'),
-            records_ids
-          ]
-        ).tap { |rel| rel.send(:load_records, records) }
+        data_value = DataCycleCore::Thing.by_ordered_values(records_ids).tap { |rel| rel.send(:load_records, records) }
       end
 
       data_value

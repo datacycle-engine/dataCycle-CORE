@@ -1,4 +1,4 @@
-<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge('class' => 'object embedded_object'), content: content, parent: local_assigns[:parent] do %>
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge({ 'class' => Array.wrap(options['class']).push('object embedded_object').compact_blank.join(' ') }), content: content, parent: local_assigns[:parent] do %>
 
   <% objects = value.presence&.group_by { |s| [s.dtstart.strftime('%Y-%m-%d'), s.rrule&.gsub(/T\d+Z/, '')] }&.values %>
 

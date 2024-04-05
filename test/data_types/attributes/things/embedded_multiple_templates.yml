@@ -1,0 +1,76 @@
+---
+- :data:
+    :name: Embedded-Multiple-Templates-Entity-1
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 1.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+      :embedded_creative_work:
+        :label: Embedded Creative-Work
+        :type: embedded
+        :template_name:
+          - Embedded-Multiple-Templates-1
+          - Embedded-Multiple-Templates-2
+
+- :data:
+    :name: Embedded-Multiple-Templates-1
+    :type: object
+    :content_type: embedded
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 1.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+
+- :data:
+    :name: Embedded-Multiple-Templates-2
+    :type: object
+    :content_type: embedded
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 1.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic

@@ -15,6 +15,15 @@ module DataCycleCore
         def conditions
           { template_name: template_names, user_attribute_name.to_sym => user&.id }
         end
+
+        private
+
+        def to_restrictions(subject:, **)
+          to_restriction(
+            attribute_name: subject.human_attribute_name(user_attribute_name, locale:),
+            template_names: template_names.map { |v| I18n.t("template_names.#{v}", default: v, locale:) }.join(', ')
+          )
+        end
       end
     end
   end

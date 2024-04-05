@@ -2,7 +2,7 @@
   <div class="card pg-stats accordion" data-accordion data-allow-all-closed="true">
     <div class="accordion-item" data-accordion-item>
       <div class="card-divider accordion-title">
-        <h5><%= @stat_database.pg_name %></h5>
+        <h5 class="copy-to-clipboard" data-value="<%= @stat_database.pg_name%>" title="<%= @stat_database.pg_name %>"><%= @stat_database.pg_name %></h5>
         <h6>Total-size <b><%= number_to_human_size(@stat_database.pg_size, locale: active_ui_locale) %></b></h6>
       </div>
 

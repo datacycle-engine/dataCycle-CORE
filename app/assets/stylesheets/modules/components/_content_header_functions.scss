@@ -270,6 +270,17 @@
       text-overflow: ellipsis;
     }
   }
+
+  .content-preview-link {
+    a {
+      display: flex;
+      align-items: center;
+
+      span {
+        flex: auto;
+      }
+    }
+  }
 }
 
 label.agb-link {

@@ -4,15 +4,20 @@ module DataCycleCore
   module Abilities
     module Segments
       class WatchListByUserShares < Base
-        attr_reader :subject, :additional_conditions
+        attr_reader :subject
 
-        def initialize(**additional_conditions)
+        def initialize(**)
           @subject = DataCycleCore::WatchList
-          @additional_conditions = additional_conditions
         end
 
         def conditions
-          { watch_list_shares: { shareable_id: user.id, shareable_type: 'DataCycleCore::User' } }.merge(additional_conditions)
+          {
+            watch_list_shares: {
+              shareable_id: user.id,
+              shareable_type: 'DataCycleCore::User'
+            },
+            my_selection: false
+          }
         end
       end
     end

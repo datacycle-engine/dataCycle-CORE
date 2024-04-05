@@ -102,6 +102,8 @@ module DataCycleCore
     has_many :schedules
     has_many :collected_classification_contents
 
+    scope :duplicate_candidates, -> { DataCycleCore::Thing::DuplicateCandidate.where(original_id: select(:id).reorder(nil)).where(false_positive: false).order(score: :desc) }
+
     def available_locales
       I18n.available_locales.intersection(translations.select(&:persisted?).pluck(:locale).map(&:to_sym))
     end

@@ -100,6 +100,8 @@ module DataCycleCore
             content.created_by = data['created_by']
             created = true
             content.save!
+          elsif content.template_name != template.template_name
+            raise DataCycleCore::Error::Import::TemplateMismatchError.new(template_name: content.template_name, expected_template_name: template.template_name)
           end
 
           global_data = data.except(*content.local_property_names + DataCycleCore::Feature::OverlayAttributeService.call(content))
@@ -181,6 +183,12 @@ module DataCycleCore
           end
 
           content
+        rescue DataCycleCore::Error::Import::TemplateMismatchError => e
+          ActiveSupport::Notifications.instrument 'object_import_failed_template.datacycle', {
+            exception: e,
+            namespace: 'importer'
+          }
+          # puts 'Error: Template mismatch, expected: ' + e.expected_template_name + ', got: ' + e.template_name
         end
 
         def load_default_values(data_hash)

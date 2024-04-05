@@ -226,7 +226,7 @@ module DataCycleCore
     test 'bulk delete all watch_list_items, fails because one item is external' do
       DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
       content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
-      content2.external_source_id = SecureRandom.uuid
+      content2.external_source_id = ExternalSystem.first.id
       content2.save!
       DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: content2.id, hashable_type: content2.class.name)
       items_before = @watch_list.things.count

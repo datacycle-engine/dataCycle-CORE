@@ -28,7 +28,7 @@ const ObjectUtilities = {
 			path = path
 				.split(/[.\[\]]+/)
 				.filter((x) => x)
-				.map((x) => (!isNaN(Number(x)) ? Number(x) : x))
+				.map((x) => (!Number.isNaN(Number(x)) ? Number(x) : x))
 				.map((x) =>
 					typeof x === "string" && isQuoted(x) ? x.slice(1, -1) : x,
 				);

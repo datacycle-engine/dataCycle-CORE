@@ -1,4 +1,5 @@
 import domElementHelpers from "../helpers/dom_element_helpers";
+import AccordionToggleChildren from "../components/accordion/accordion_toggle_children";
 
 import { Foundation } from "foundation-sites/js/foundation.core";
 import { Reveal } from "foundation-sites/js/foundation.reveal";
@@ -132,9 +133,8 @@ export default function () {
 	);
 
 	// Foundation Reveal
-	DataCycle.initNewElements(
-		"[data-reveal]:not(.dcjs-foundation-reveal)",
-		(e) => initReveal(e),
+	DataCycle.initNewElements("[data-reveal]:not(.dcjs-foundation-reveal)", (e) =>
+		initReveal(e),
 	);
 
 	// Foundation Reveal Position Updater
@@ -195,4 +195,9 @@ export default function () {
 					.siblings(".accordion-content"),
 			);
 	});
+
+	DataCycle.initNewElements(
+		".accordion-close-all:not(.dcjs-accordion-toggle-children), .accordion-close-children:not(.dcjs-accordion-toggle-children), .accordion-open-all:not(.dcjs-accordion-toggle-children), .accordion-open-children:not(.dcjs-accordion-toggle-children)",
+		(e) => new AccordionToggleChildren(e),
+	);
 }

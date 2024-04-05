@@ -6,28 +6,8 @@
 
   .grid-parent {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     grid-gap: 1rem;
-  }
-
-  .grid-parent-few {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 400px));
-    grid-gap: 1rem;
-  }
-
-  .accordion-content {
-    border: none;
-
-    &.remote-render,
-    &.remote-rendering {
-      padding: 1.7rem 1rem;
-
-      &::before,
-      &::after {
-        margin: 1rem;
-      }
-    }
   }
 
   .pg-stats {
@@ -42,12 +22,6 @@
 
       h5 {
         width: calc(100% - 1.2rem);
-      }
-
-      &::before {
-        color: $dark-gray;
-        top: 1.7rem;
-        font-size: 1.5rem;
       }
     }
 
@@ -88,16 +62,57 @@
   }
 }
 
+.accordion-content {
+  border: none;
+
+  &.remote-render,
+  &.remote-rendering {
+    padding: 1.7rem 1rem;
+
+    &::before,
+    &::after {
+      margin: 1rem;
+    }
+  }
+}
+
 .card .card-divider h5 {
   color: var(--black);
+  font-size: 1.2rem;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline;
+  width: auto;
+}
+
+.card .card-divider h6 {
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+
+  .copy-to-clipboard {
+    display: inline;
+    width: auto;
+  }
+}
+
+.card .card-divider {
+  padding: 0.8rem 1rem;
+
+  .header {
+    display: flex;
+    gap: 1rem;
+  }
 }
 
 .card-divider.accordion-title {
   cursor: pointer;
-  padding: 1rem;
+  padding: 0.8rem 1rem;
+  border-bottom: none;
 
   h5 {
-    width: calc(100% - 1.2rem);
+    max-width: calc(100% - 1.2rem);
   }
 
   h6 {
@@ -106,31 +121,33 @@
 
   &::before {
     color: $dark-gray;
-    top: 3.5rem;
+    top: unset;
+    bottom: 0.7rem;
     font-size: 1.5rem;
   }
 }
 
-.accordion.import-module .accordion-item {
-  .accordion-title {
-    transition: padding 0.3s;
-    padding-bottom: 0;
-    border-radius: 0;
+.accordion.card.import-module {
+  &.deactivated {
+    border-color: var(--nearly-white);
 
-    h6 {
-      display: flex;
-      margin: 0;
-    }
-
-    .header {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 0.5rem;
+    .card-divider {
+      border-color: var(--nearly-white);
+      background-color: var(--nearly-white);
 
       h5 {
-        margin: 0;
+        text-decoration: line-through;
       }
+    }
+  }
 
+}
+
+.accordion.import-module .accordion-item {
+  .accordion-title {
+    border-radius: 0;
+
+    .header {
       .import-data-timestamps {
         display: flex;
         flex: auto;
@@ -140,11 +157,11 @@
         margin: 0;
       }
     }
-
   }
 
-  .accordion-content {
-    border: none;
+  .accordion-content:not(.remote-render):not(.remote-rendering) {
+    padding: 0;
+    // min-height: 3.5rem;
   }
 
   &.is-active .accordion-title {
@@ -152,12 +169,23 @@
   }
 }
 
-.card-divider.buttons {
-  padding: 1rem;
+.card-section .mongo-db-name {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-section.buttons {
   display: grid;
   gap: 1rem;
   grid-template-columns: 1fr 1fr;
   padding: 1rem;
+  background-color: var(--light-gray);
+
+  &.deactivated {
+    background-color: var(--nearly-white);
+  }
 
   .download-import {
     grid-column: 1 / -1;
@@ -251,14 +279,10 @@ ul.import-data-timestamps li {
     margin-top: 1rem;
     display: flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.5rem;
 
     .fa {
       font-size: inherit;
-    }
-
-    .add-external_system-button {
-      margin: 0 0 0 auto;
     }
   }
 

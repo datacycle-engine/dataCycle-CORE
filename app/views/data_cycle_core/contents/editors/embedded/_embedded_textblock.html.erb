@@ -12,6 +12,7 @@
       index: index
     } do %>
     <%= hidden_field_tag("#{new_prefix}[id]", object.id) unless object.new_record? || local_assigns[:duplicated_content] %>
+    <%= hidden_field_tag("#{new_prefix}[template_name]", object.template_name, class: 'embedded-template') %>
 
     <% content_for(:text_editor_header) do %>
       <span class="embedded-header dc-sticky-bar form-element validation-container" data-key="<%= "#{new_prefix}[name]" %>">

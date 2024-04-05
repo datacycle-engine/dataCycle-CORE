@@ -668,6 +668,88 @@ module DataCycleCore
           success
         end
 
+        def self.bulk_touch_items(download_object:, iterator:, options:)
+          success = true
+          locale = I18n.available_locales.first.to_s
+          database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+          init_mongo_db(database_name) do
+            init_logging(download_object) do |logging|
+              logging.preparing_phase("Touch: #{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
+              endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
+              external_keys = download_object.endpoint.send(endpoint_method, lang: locale)
+              source_filter = options&.dig(:download, :source_filter) || {}
+              source_filter = source_filter.with_evaluated_values
+
+              begin
+                download_object.source_object.with(download_object.source_type) do |mongo_item|
+                  collection = iterator.call(mongo_item, locale, source_filter, external_keys)
+
+                  result = collection.update_all(
+                    '$set' => { 'seen_at' => Time.zone.now },
+                    '$unset' => {
+                      "dump.#{locale}.deleted_at" => true,
+                      "dump.#{locale}.last_seen_before_delete" => true,
+                      "dump.#{locale}.delete_reason" => true
+                    }
+                  )
+
+                  item_count = result.documents.pluck('nModified').sum
+                rescue StandardError => e
+                  ActiveSupport::Notifications.instrument 'touch_items_failed.datacycle', {
+                    exception: e,
+                    namespace: 'background'
+                  }
+                  success = false
+                  logging.error(nil, nil, nil, e)
+                ensure
+                  logging.phase_finished("#{download_object.source_type.collection_name} #{locale}", item_count)
+                end
+              end
+            end
+          end
+          success
+        end
+
+        def self.bulk_mark_deleted_from_data(download_object:, iterator:, options:)
+          success = true
+          locale = I18n.available_locales.first.to_s
+          database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+          init_mongo_db(database_name) do
+            init_logging(download_object) do |logging|
+              logging.preparing_phase("Mark Deleted: #{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
+
+              source_filter = options&.dig(:download, :source_filter) || {}
+              source_filter = source_filter.with_evaluated_values(binding)
+
+              begin
+                download_object.source_object.with(download_object.source_type) do |mongo_item|
+                  collection = iterator.call(mongo_item, locale, source_filter)
+
+                  item_count = collection.count
+                  delete_props = {
+                    "dump.#{locale}.deleted_at" => Time.zone.now,
+                    "dump.#{locale}.last_seen_before_delete" => '$seen_at'
+                  }
+                  delete_props["dump.#{locale}.delete_reason"] = options.dig(:download, :delete_reason) if options.dig(:download, :delete_reason).present?
+
+                  result = collection.update_all(delete_props)
+                  item_count = result.documents.pluck('nModified').sum
+                rescue StandardError => e
+                  ActiveSupport::Notifications.instrument 'bulk_mark_deleted_failed.datacycle', {
+                    exception: e,
+                    namespace: 'background'
+                  }
+                  success = false
+                  logging.error(nil, nil, nil, e)
+                ensure
+                  logging.phase_finished("#{download_object.source_type.collection_name} #{locale}", item_count)
+                end
+              end
+            end
+          end
+          success
+        end
+
         def self.init_logging(download_object)
           logging = download_object.init_logging(:download)
           yield(logging)

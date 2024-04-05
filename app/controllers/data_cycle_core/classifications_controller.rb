@@ -98,6 +98,10 @@ module DataCycleCore
       query = query.order_by_similarity(search_params[:q])
       query = query.limit(search_params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
       query = query.where.not(id: search_params[:exclude]) if search_params[:exclude].present?
+      if search_params[:exclude_tree_label].present?
+        query = query.includes(:classification_tree)
+          .where.not(classification_trees: { classification_tree_label_id: search_params[:exclude_tree_label] })
+      end
       query = query.preload(*Array.wrap(search_params[:preload])) if search_params[:preload].present?
       query = query.preload(:primary_classification, :classification_alias_path)
 
@@ -219,16 +223,18 @@ module DataCycleCore
     end
 
     def download
-      params.permit(:classification_tree_label_id, :include_contents, :for_mapping_import)
-
-      object = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
+      object = DataCycleCore::ClassificationTreeLabel.find(download_params[:classification_tree_label_id])
 
       respond_to do |format|
         format.csv do
-          if params[:include_contents]
+          if download_params[:include_contents]
             raw_csv = object.to_csv(include_contents: true)
-          elsif params[:for_mapping_import]
+          elsif download_params[:specific_type] == 'mapping_import'
             raw_csv = object.to_csv_for_mappings
+          elsif download_params[:specific_type] == 'mapping_export'
+            raw_csv = object.to_csv_with_mappings
+          elsif download_params[:specific_type] == 'mapping_export_inverse'
+            raw_csv = object.to_csv_with_inverse_mappings
           else
             raw_csv = object.to_csv
           end
@@ -278,8 +284,12 @@ module DataCycleCore
 
     private
 
+    def download_params
+      params.permit(:classification_tree_label_id, :include_contents, :specific_type)
+    end
+
     def search_params
-      params.permit(:q, :max, :tree_label, :exclude, :disabled_unless_any?, :preload, preload: [])
+      params.permit(:q, :max, :tree_label, :exclude, :exclude_tree_label, :disabled_unless_any?, :preload, preload: [])
     end
 
     def move_params

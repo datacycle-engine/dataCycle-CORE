@@ -1,7 +1,7 @@
 <% data = DataCycleCore::StatsDatabase.new.load_mongo_stats(local_assigns[:external_source_id]) %>
 
 <div class="card-section">
-  <%= truncate(data[:database], length: 35)%>
+  <div class="mongo-db-name copy-to-clipboard" data-value="<%= data[:database] %>" title="<%= data[:database] %>"><%= data[:database] %></div>
   <ul>
     <%= content_tag(:li, "size: #{number_to_human_size(data[:db_size])}")%>
   </ul>
@@ -46,3 +46,36 @@
     </li>
   </ul>
 </div>
+<% if data[:deactivated] %>
+  <div class="card-section buttons deactivated">
+    <span class="deactivated">DEACTIVATED</span>
+  </div>
+<% else %>
+  <div class="card-section buttons">
+    <%= link_to_condition(
+          data[:downloadable],
+          tag.span(t('dash_board.download_import', locale: active_ui_locale), class: 'button small download-import'),
+          admin_download_import_path(id: data[:uuid]),
+          class: 'download-import') %>
+
+    <%= link_to_condition(
+          data[:downloadable],
+          tag.span(t('dash_board.download', locale: active_ui_locale), class: "button small"),
+          admin_download_path(id: data[:uuid])) %>
+
+    <%= link_to_condition(
+          data[:importable],
+          tag.span(t('dash_board.import', locale: active_ui_locale), class: "button small"),
+          admin_import_path(id: data[:uuid])) %>
+
+    <%= link_to_condition(
+          data[:downloadable],
+          tag.span(t('dash_board.download_full', locale: active_ui_locale), class: "button small"),
+          admin_download_full_path(id: data[:uuid])) %>
+
+    <%= link_to_condition(
+          data[:importable],
+          tag.span(t('dash_board.import_full', locale: active_ui_locale), class: "button small"),
+          admin_import_full_path(id: data[:uuid])) %>
+  </div>
+<% end %>

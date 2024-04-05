@@ -9,6 +9,7 @@ module DataCycleCore
       @duplicates = nil
       @stat_database = StatsDatabase.new.load_all_stats
       @stat_job_queue = StatsJobQueue.new.job_list
+      @grouped_external_systems = DataCycleCore::ExternalSystem.grouped_by_type(@stat_database.import_modules)
     end
 
     def download

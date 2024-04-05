@@ -1,0 +1,14 @@
+---
+- :data:
+    :name: Entity2Extension
+    :extends:
+      - Entity-Creative-Work-1
+      - Entity-Creative-Work-3
+    :properties:
+      :tmp_name2:
+        :label: Tmp Titel2
+        :type: string
+        :storage_location: translated_value
+        :visible: ["api", "show"]
+        :position:
+          :before: description

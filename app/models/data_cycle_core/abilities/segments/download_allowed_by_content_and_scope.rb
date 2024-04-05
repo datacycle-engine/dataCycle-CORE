@@ -18,6 +18,12 @@ module DataCycleCore
         def to_proc
           ->(*args) { include?(*args) }
         end
+
+        private
+
+        def to_restrictions(**)
+          to_restriction(scopes: Array.wrap(scopes).map { |v| I18n.t("abilities.download_scopes.#{v}", locale:) }.join(', '))
+        end
       end
     end
   end

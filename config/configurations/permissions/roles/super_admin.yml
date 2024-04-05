@@ -13,6 +13,7 @@ manage_subjects:
       - DataCycleCore::User
       - DataCycleCore::UserGroup
       - DataCycleCore::DataLink
+      - DataCycleCore::Permission
 
 role_index:
   actions: read
@@ -40,7 +41,7 @@ asset_for_data_link:
   segment: AssetByUserGroupsForDataLink
 
 thing_create:
-  actions: create
+  actions: [create, create_without_search]
   segment: TemplateByCreatableScope
   parameters: :all
 
@@ -62,13 +63,18 @@ thing_actions:
     - history
     - merge_duplicates
     - remove_lock
-    - translate
     - set_life_cycle
     - view_life_cycle
     - move_content
     - switch_primary_external_system
+    - demote_primary_external_system
     - create_external_connection
     - remove_external_connection
+  segment: SubjectByConditions
+  parameters: DataCycleCore::Thing
+
+translate_feature:
+  actions: translate
   segment: SubjectByConditions
   parameters: DataCycleCore::Thing
 
@@ -110,11 +116,7 @@ watch_list_actions:
 
 watch_list_actions_except_my_selection:
   actions: [destroy, share]
-  segment: SubjectByUserAndConditions
-  parameters:
-    - DataCycleCore::WatchList
-    - :user_id
-    - :my_selection: false
+  segment: WatchListByCreatorWithoutMySelection
 
 watch_list_group_shares:
   actions: [read, add_item, remove_item]
@@ -250,7 +252,7 @@ named_version_feature:
       - DataCycleCore::Thing::History
     - DataCycleCore::Feature::NamedVersion
 
-auto_translate:
+auto_translate_feature:
   actions: [create, destroy]
   segment: SubjectByConditions
   parameters: :auto_translate
@@ -259,3 +261,8 @@ external_system_actions:
   actions: create
   segment: SubjectByConditions
   parameters: DataCycleCore::ExternalSystem
+
+download_user_info_activity:
+  actions: download_user_info_activity
+  segment: SubjectByConditions
+  parameters: DataCycleCore::User

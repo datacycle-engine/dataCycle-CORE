@@ -15,7 +15,7 @@ module DataCycleCore
     ].freeze
 
     def load_all_stats
-      @import_modules = []
+      @import_modules = {}
       load_postgres_data
       load_mongo_data
 
@@ -143,22 +143,18 @@ module DataCycleCore
     def load_mongo_data
       mongo_dbs = Generic::Collection.mongo_client.list_databases
 
-      DataCycleCore::ExternalSystem.where('external_systems.config ? :key', key: 'import_config').find_each do |external_source|
-        next if external_source.config.blank?
-
+      DataCycleCore::ExternalSystem.where("external_systems.config ? 'import_config'").find_each do |external_source|
         mongo_database = "#{Generic::Collection.database_name}_#{external_source.id}"
         mongo_dbs_index = mongo_dbs.find_index { |db| db['name'] == mongo_database }
         mongo_dbsize = mongo_dbs_index&.then { |i| mongo_dbs.dig(i, 'sizeOnDisk') } || 0
 
-        @import_modules.push(
-          {
-            uuid: external_source.id,
-            deactivated: external_source.deactivated || false,
-            downloadable: external_source.download_config.present?,
-            importable: external_source.import_config.present? && (external_source.download_config.blank? || mongo_dbsize&.positive?),
-            name: external_source.name
-          }.merge(last_download_and_import(external_source))
-        )
+        @import_modules[external_source.id] = {
+          uuid: external_source.id,
+          deactivated: external_source.deactivated || false,
+          downloadable: external_source.download_config.present?,
+          importable: external_source.import_config.present? && (external_source.download_config.blank? || mongo_dbsize&.positive?),
+          name: external_source.name
+        }.merge(last_download_and_import(external_source))
       end
     end
   end

@@ -1,7 +1,8 @@
 <% random_id = SecureRandom.hex(10) %>
 <div class="bulk-update-type dc-checkbox" data-attribute-key="<%= key %>">
-  <%= collection_check_boxes nil, "bulk_update#{key.delete_prefix('thing')}", bulk_update_types(content, key, definition), :value, :text, { include_hidden: false } do |cb| %>
-    <%= cb.check_box(id: sanitize_to_id("bulk_update#{key.delete_prefix('thing')}[#{cb.value}][#{random_id}]")) %>
-    <%= cb.label(for: sanitize_to_id("bulk_update#{key.delete_prefix('thing')}[#{cb.value}][#{random_id}]")) %>
+  <% bulk_type_key = "bulk_update#{key.delete_prefix('thing')}" %>
+  <%= collection_check_boxes nil, bulk_type_key, bulk_update_types(content, key, definition), :value, :text, { include_hidden: false } do |cb| %>
+    <%= cb.check_box(id: sanitize_to_id("#{bulk_type_key}[#{cb.value}][#{random_id}]")) %>
+    <%= cb.label(for: sanitize_to_id("#{bulk_type_key}[#{cb.value}][#{random_id}]")) %>
   <% end %>
 </div>

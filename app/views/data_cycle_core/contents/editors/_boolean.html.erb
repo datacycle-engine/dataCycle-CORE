@@ -1,4 +1,4 @@
-<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge('class' => 'dc-checkbox'), content: content, parent: local_assigns[:parent] do %>
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge({ 'class' => Array.wrap(options['class']).push('dc-checkbox').compact_blank.join(' ') }), content: content, parent: local_assigns[:parent] do %>
   <% value ||= false %>
 
   <%= hidden_field_tag key, value, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" unless attribute_editable?(key, definition, options, content) %>

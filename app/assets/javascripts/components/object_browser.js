@@ -106,6 +106,7 @@ class ObjectBrowser {
 
 		this.$element.on("dc:locale:changed", this.updateLocale.bind(this));
 		this.$element.closest("form").on("reset", this.reset.bind(this));
+		this.$element.on("clear", this.reset.bind(this));
 
 		if (this.limitedBy === Object(this.limitedBy)) {
 			let filterItem = this.$element.get(0);
@@ -263,13 +264,13 @@ class ObjectBrowser {
 				behavior: "smooth",
 			});
 
-		data.ids.forEach((id) => {
+		for (const id of data.ids) {
 			this.addObject(
 				id,
 				this.cloneHtml(this.$overlay.find(`[data-id=${id}]`)),
 				event,
 			);
-		});
+		}
 
 		$(`#new_${this.id}.in-object-browser form`).trigger("reset");
 	}
@@ -609,7 +610,9 @@ class ObjectBrowser {
 				)}`,
 			});
 			return false;
-		} else if (type !== "+" && this.min !== 0 && new_length < this.min) {
+		}
+
+		if (type !== "+" && this.min !== 0 && new_length < this.min) {
 			new ConfirmationModal({
 				text: `${this.label}: ${await errorPrefix}${await I18n.translate(
 					"frontend.minimum_embedded",
@@ -935,13 +938,13 @@ class ObjectBrowser {
 
 		const toRemove = difference(this.chosen, this.filteredIds());
 		if (toRemove.length) {
-			toRemove.forEach((item) => {
+			for (const item of toRemove) {
 				this.removeThumbObject(
 					this.$element.find(
 						`> .media-thumbs > .object-thumbs > li.item[data-id="${item}"], > .media-thumbs > .object-thumbs > :input[value="${item}"]`,
 					),
 				);
-			});
+			}
 		}
 	}
 	filteredIds() {

@@ -150,7 +150,8 @@ module DataCycleCore
 
           external_keys = permitted_params[:external_keys]&.split(',')
           if external_keys.present? && external_keys.is_a?(::Array) && external_keys.size.positive?
-            query = DataCycleCore::Thing
+            query = build_search_query
+            query = query.query
               .by_external_key(external_system_id, external_keys)
               .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
 

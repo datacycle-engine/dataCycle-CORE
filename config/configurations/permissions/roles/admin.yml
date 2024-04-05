@@ -59,10 +59,14 @@ thing_actions:
     - history
     - merge_duplicates
     - remove_lock
-    - translate
     - set_life_cycle
     - view_life_cycle
     - move_content
+  segment: SubjectByConditions
+  parameters: DataCycleCore::Thing
+
+translate_feature:
+  actions: translate
   segment: SubjectByConditions
   parameters: DataCycleCore::Thing
 
@@ -86,11 +90,7 @@ thing_destroy:
 
 stored_filter_api_by_user:
   actions: api
-  segment: SubjectByUserAndConditions
-  parameters:
-    - DataCycleCore::StoredFilter
-    - :user_id
-    - :api: true
+  segment: StoredFilterByCreatorAndApi
 
 stored_filter_api_by_api_users:
   actions: api
@@ -113,10 +113,7 @@ stored_filter_actions:
 
 stored_filter_read_global:
   actions: read
-  segment: SubjectByConditions
-  parameters:
-    - DataCycleCore::StoredFilter
-    - :system: true
+  segment: StoredFilterByGlobal
 
 watch_list_subscribe:
   actions: subscribe
@@ -132,11 +129,7 @@ watch_list_actions:
 
 watch_list_actions_except_my_selection:
   actions: [destroy, share, change_owner]
-  segment: SubjectByUserAndConditions
-  parameters:
-    - DataCycleCore::WatchList
-    - :user_id
-    - :my_selection: false
+  segment: WatchListByCreatorWithoutMySelection
 
 watch_list_group_shares:
   actions: [read, add_item, remove_item]
@@ -211,7 +204,6 @@ advanced_filter:
       - :subscriptions
       - :things
       - :collection
-    - - :advanced_attributes
 
 subscription_actions:
   actions: read
@@ -340,7 +332,7 @@ named_version_feature:
       - DataCycleCore::Thing::History
     - DataCycleCore::Feature::NamedVersion
 
-auto_translate:
+auto_translate_feature:
   actions: [create, destroy]
   segment: SubjectByConditions
   parameters: :auto_translate
@@ -351,3 +343,8 @@ view_mode_feature:
   parameters:
     - :view_mode
     - DataCycleCore::Feature::ViewMode
+
+download_user_info_activity:
+  actions: download_user_info_activity
+  segment: SubjectByConditions
+  parameters: DataCycleCore::User

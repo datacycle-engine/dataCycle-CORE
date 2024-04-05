@@ -45,23 +45,24 @@ module DataCycleCore
               )&.destroy
             else
               if content.available_locales.one? && content.available_locales.include?(I18n.locale)
-                duplicates = content.external_system_syncs.where(sync_type: 'duplicate', syncable_type: 'DataCycleCore::Thing')
+                duplicates = content.external_system_syncs.where(sync_type: 'duplicate')
                 if options.dig(:import, :delete_all_duplicates)
                   duplicates.destroy_all
-                  oldest_duplicate = nil
+                  oldest_import_duplicate = nil
                 else
-                  oldest_duplicate = duplicates.order(created_at: :asc).first
+                  # look for oldest with import_config
+                  oldest_import_duplicate = duplicates.joins(:external_system).where("external_systems.config ->> 'import_config' IS NOT NULL").order(created_at: :asc).first
                 end
               end
 
-              if oldest_duplicate.nil?
+              if oldest_import_duplicate.nil?
                 content.try(:destroy_content, save_history: true, destroy_linked: true, destroy_locale: true) # delete only a particular translation!
               else
-                content.update_columns(external_source_id: oldest_duplicate.external_system_id, external_key: oldest_duplicate.external_key) unless DataCycleCore::Thing.exists?(
-                  external_source_id: oldest_duplicate.external_system_id,
-                  external_key: oldest_duplicate.external_key
+                content.update_columns(external_source_id: oldest_import_duplicate.external_system_id, external_key: oldest_import_duplicate.external_key) unless DataCycleCore::Thing.exists?(
+                  external_source_id: oldest_import_duplicate.external_system_id,
+                  external_key: oldest_import_duplicate.external_key
                 )
-                oldest_duplicate.destroy
+                oldest_import_duplicate.destroy
               end
             end
           end

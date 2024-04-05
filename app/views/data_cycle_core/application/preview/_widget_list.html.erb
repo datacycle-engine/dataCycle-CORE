@@ -1,4 +1,4 @@
-<% if DataCycleCore::Feature::Preview.enabled? %>
+<% if DataCycleCore::Feature::Preview.enabled? && can?(:show, :preview) %>
   <div class="preview-widget-list">
     <% DataCycleCore::Feature::Preview.available_widgets(content.id, active_ui_locale).each do |k,v| %>
       <a href="<%= v %>" data-dc-tooltip="<%= t("common.widgets.#{k}", locale: active_ui_locale) %>" class="copy-to-clipboard right" data-value="<%= v %>">

@@ -15,6 +15,12 @@ module DataCycleCore
         def conditions
           { user_attribute_name.to_sym => { role: { name: whitelisted_role_names } } }
         end
+
+        private
+
+        def to_restrictions(**)
+          to_restriction(roles: Array.wrap(whitelisted_role_names).map { |v| I18n.t("roles.#{v}", locale:) }.join(', '))
+        end
       end
     end
   end

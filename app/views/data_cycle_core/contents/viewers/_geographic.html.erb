@@ -63,7 +63,7 @@
       </span>
     </div>
 
-    <%= perimeter_search_link(value.y, value.x) %>
+    <%= perimeter_search_link(value.presence&.y, value.presence&.x) %>
   <% end %>
 
   <% if content.try(:elevation).present? && content.elevation.nonzero? %>

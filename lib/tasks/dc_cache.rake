@@ -30,6 +30,8 @@ namespace :dc do
       abort('feature disabled!') unless DataCycleCore::Feature::Geocode.enabled?
       abort('endpoint missing!') if args.endpoint_id_or_slug.blank?
 
+      logger = Logger.new('log/geocoder_cache_warmup.log')
+      logger.info('Started Warmup...')
       stored_filter = DataCycleCore::StoredFilter.by_id_or_slug(args.endpoint_id_or_slug).first
       watch_list = DataCycleCore::WatchList.without_my_selection.by_id_or_slug(args.endpoint_id_or_slug).first if stored_filter.nil?
 
@@ -54,6 +56,8 @@ namespace :dc do
           progressbar.increment
         end
       end
+
+      logger.info("[DONE] Finished Warmup (#{contents.size} Contents).")
     end
   end
 end

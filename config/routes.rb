@@ -71,7 +71,10 @@ DataCycleCore::Engine.routes.draw do
       post :update_consent, on: :collection
       get :become
       match '/index', via: [:get, :post], on: :collection, action: :index
+      post :download_user_info_activity, on: :collection
     end
+
+    resources :permissions, only: [:index]
 
     resources :user_groups, only: [:index, :edit, :update, :destroy] do
       post '/create', on: :collection, action: :create
@@ -105,6 +108,7 @@ DataCycleCore::Engine.routes.draw do
         post :attribute_value, on: :member
         post :attribute_default_value, on: :collection, defaults: { format: 'application/json' }
         post :switch_primary_external_system, on: :member
+        post :demote_primary_external_system, on: :member
         post :content_score, on: :collection
         post :create_external_connection, on: :member
         post :elevation_profile, on: :member

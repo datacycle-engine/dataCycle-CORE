@@ -31,7 +31,7 @@
         <div class="accordion-title">
           <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.underscore_blanks, icon_class: object.try(:icon_class) || object.class.name.demodulize.underscore_blanks %>
           <span class="title">
-            <span class="embedded-type"><%= translated_attribute_label(key, definition, content, options) %></span>
+            <span class="embedded-type"><%= object.translated_template_name(active_ui_locale) %></span>
             <%= render('data_cycle_core/contents/content_score', key: nil, content: object, definition: object.content_score_definition(nil)) if object.try(:content_score_allowed?) %>
             <%= tag.span(object.send(object.embedded_title_property_name), title: object.send(object.embedded_title_property_name), class: 'embedded-title') if object.embedded_title_property_name.present? && object.try(object.embedded_title_property_name).present? %>
           </span>
