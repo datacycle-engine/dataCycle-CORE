@@ -29,6 +29,18 @@
                 <i class="fa fa-times" aria-hidden="true"></i>
               <% end %>
             </div>
+
+            <hr class="vertical-separator"/>
+
+            <% if can?(:download_user_info_activity, current_user) %>
+              <div class="filter-buttons">
+                <%= button_tag type: :button, class: "button user-info-activity", id: 'download-user-info-activity', data: {
+                  dc_tooltip: t('actions.download_user_info_activity', locale: active_ui_locale),
+                  download_path: download_user_info_activity_users_path
+                } do %>
+                  <i class="fa fa-table" aria-hidden="true"></i> 
+                <% end %>
+            <% end %>
           </div>
         </div>
       </div>

@@ -45,6 +45,8 @@ module DataCycleCore
             ca.send(:classifications_removed, c)
           end
         end
+
+        ca.update(updated_at: Time.zone.now)
       rescue StandardError => e
         Marshal.dump({ error_class: e.class.name, error: e.to_s, backtrace: e.backtrace.first(10) }, write)
       ensure

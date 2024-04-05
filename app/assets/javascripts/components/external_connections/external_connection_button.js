@@ -1,10 +1,10 @@
 import CalloutHelpers from "../../helpers/callout_helpers";
 import ConfirmationModal from "../confirmation_modal";
 
-class RemoveExternalSystemButton {
+class ExternalConnectionButton {
 	constructor(item) {
 		this.item = item;
-		this.item.classList.add("dcjs-remove-external-system-button");
+		this.item.classList.add("dcjs-external-connection-button");
 		this.externalConnectionsContainer = this.item.closest(
 			".external-connections",
 		);
@@ -12,9 +12,9 @@ class RemoveExternalSystemButton {
 		this.setup();
 	}
 	setup() {
-		this.item.addEventListener("click", this.removeExternalSystem.bind(this));
+		this.item.addEventListener("click", this.switchPrimarySystem.bind(this));
 	}
-	removeExternalSystem(event) {
+	switchPrimarySystem(event) {
 		event.preventDefault();
 		event.stopPropagation();
 
@@ -22,10 +22,12 @@ class RemoveExternalSystemButton {
 
 		new ConfirmationModal({
 			text: this.item.dataset.confirm,
-			confirmationClass: "alert",
+			confirmationClass: this.item.dataset.confirmationButtonClass,
 			cancelable: true,
 			confirmationCallback: () => {
-				DataCycle.httpRequest(this.item.href, { method: "DELETE" })
+				DataCycle.httpRequest(this.item.href, {
+					method: this.item.dataset.method ?? "GET",
+				})
 					.then((data) => {
 						if (data?.html) {
 							this.externalConnectionsContainer.insertAdjacentHTML(
@@ -37,7 +39,7 @@ class RemoveExternalSystemButton {
 						if (data?.error) CalloutHelpers.show(data.error, "alert");
 						if (data?.success) CalloutHelpers.show(data.success, "success");
 					})
-					.catch(() => {
+					.finally(() => {
 						DataCycle.enableElement(this.item);
 					});
 			},
@@ -48,4 +50,4 @@ class RemoveExternalSystemButton {
 	}
 }
 
-export default RemoveExternalSystemButton;
+export default ExternalConnectionButton;

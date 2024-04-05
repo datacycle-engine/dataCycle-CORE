@@ -153,7 +153,7 @@ data_attribute_update:
       - :attribute_tree_label_visible?
 
 backend:
-  actions: [read, settings]
+  actions: [read, settings, sortable]
   segment: SubjectByConditions
   parameters: :backend
 

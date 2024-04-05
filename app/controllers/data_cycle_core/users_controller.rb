@@ -6,29 +6,7 @@ module DataCycleCore
     before_action :set_user, only: [:edit, :update, :destroy, :unlock, :update_consent]
 
     def index
-      query = DataCycleCore::User.accessible_by(current_ability).except(:left_outer_joins).includes(:represented_by, :external_systems)
-
-      query = query.where(locked_at: nil) unless current_user.has_rank?(10)
-
-      @filters = filter_params
-      @filters&.select { |f| f.key?('c') }&.each { |f| f['identifier'] = SecureRandom.hex(10) }
-
-      @filters&.each do |filter|
-        filter_method = (filter['c'] == 'd' ? filter['n'] : filter['t']).dup
-        filter_method = +"#{filter['t']}_#{filter['n']}" if filter['c'] == 'a' && query.respond_to?("#{filter['t']}_#{filter['n']}")
-        filter_method.prepend(DataCycleCore::StoredFilterExtensions::FilterParamsHashParser::FILTER_PREFIX[filter['m']].to_s)
-
-        next unless query.respond_to?(filter_method)
-
-        query = query.send(filter_method, filter['v'])
-      end
-
-      @sort_params = sort_params
-      if @sort_params.present?
-        query = query.order(*@sort_params.map { |s| { s[:m].to_sym => s[:o].to_sym } })
-      else
-        query = query.order(:email)
-      end
+      query = filterd_users
 
       @mode = mode_params[:mode].in?(['list', 'tree', 'map']) ? mode_params[:mode].to_s : 'grid'
 
@@ -183,6 +161,14 @@ module DataCycleCore
       redirect_to(session.delete(:return_to) || root_path)
     end
 
+    def download_user_info_activity
+      users = filterd_users
+      user_ids = users.pluck(:id)
+      activity = DataCycleCore::Report::Downloads::UserInfoActivity.new(params: { key: 'user_info_activity', user_ids: })
+      data, options = activity.to_csv
+      send_data data, options
+    end
+
     private
 
     def consent_params
@@ -219,6 +205,32 @@ module DataCycleCore
 
     def filter_params
       params.permit(f: {}).to_h[:f].presence&.values&.reject { |f| DataCycleCore::DataHashService.blank?(f) || DataCycleCore::DataHashService.blank?(f['v']) }
+    end
+
+    def filterd_users
+      query = DataCycleCore::User.accessible_by(current_ability).except(:left_outer_joins).includes(:represented_by, :external_systems)
+
+      query = query.where(locked_at: nil) unless current_user.has_rank?(10)
+
+      @filters = filter_params
+      @filters&.select { |f| f.key?('c') }&.each { |f| f['identifier'] = SecureRandom.hex(10) }
+
+      @filters&.each do |filter|
+        filter_method = (filter['c'] == 'd' ? filter['n'] : filter['t']).dup
+        filter_method = +"#{filter['t']}_#{filter['n']}" if filter['c'] == 'a' && query.respond_to?("#{filter['t']}_#{filter['n']}")
+        filter_method.prepend(DataCycleCore::StoredFilterExtensions::FilterParamsHashParser::FILTER_PREFIX[filter['m']].to_s)
+
+        next unless query.respond_to?(filter_method)
+
+        query = query.send(filter_method, filter['v'])
+      end
+
+      @sort_params = sort_params
+      if @sort_params.present?
+        query = query.order(*@sort_params.map { |s| { s[:m].to_sym => s[:o].to_sym } })
+      else
+        query = query.order(:email)
+      end
     end
   end
 end

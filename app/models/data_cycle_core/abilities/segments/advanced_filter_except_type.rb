@@ -24,6 +24,8 @@ module DataCycleCore
         private
 
         def to_restrictions(**)
+          return if except_types.blank?
+
           to_restriction(except: Array.wrap(except_types).map { |v| I18n.t("filter_groups.#{v}", locale:) }.join(', '))
         end
       end

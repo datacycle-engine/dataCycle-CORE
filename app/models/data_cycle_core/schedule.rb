@@ -466,6 +466,8 @@ module DataCycleCore
             s['rrules'][0]['validations']['day_of_year'] = [from_yday]
             s.dig('rrules', 0, 'validations')&.delete('day')
           else
+            s.dig('rrules', 0, 'validations')&.delete('day_of_week')
+            s.dig('rrules', 0, 'validations')&.delete('day_of_month')
             s.dig('rrules', 0, 'validations')&.delete('day')
           end
 
@@ -603,12 +605,12 @@ module DataCycleCore
           rrule[:until] = data.values_at('endDate', 'endTime').compact_blank.join('T')&.in_time_zone(time_zone)
           rrule[:interval] = data['repeatFrequency'].to_s[1..-2].to_i
           rrule[:validations] = {}
-          rrule[:validations][:hour_of_day] = start_time[:time].to_datetime.hour
-          rrule[:validations][:minute_of_hour] = start_time[:time].to_datetime.minute
+          rrule[:validations][:hour_of_day] = [start_time[:time].to_datetime.hour]
+          rrule[:validations][:minute_of_hour] = [start_time[:time].to_datetime.minute]
 
-          if data.key?('byMonthDay')
+          if data.key?('byMonthDay') && rrule[:rule_type] == 'IceCube::MonthlyRule'
             rrule[:validations][:day_of_month] = Array.wrap(data['byMonthDay'])
-          elsif data.key?('byMonthWeek') && data.key?('byDay')
+          elsif data.key?('byMonthWeek') && data.key?('byDay') && rrule[:rule_type] == 'IceCube::MonthlyRule'
             rrule[:validations][:day_of_week] = DAY_OF_WEEK_MAPPING.select { |_k, v| v.in?(Array.wrap(data['byDay'])) }.keys.index_with { |_k| Array.wrap(data['byMonthWeek']) }
           elsif data.key?('byDay')
             rrule[:validations][:day] = DAY_OF_WEEK_MAPPING.select { |_k, v| v.in?(Array.wrap(data['byDay'])) }.keys
@@ -621,7 +623,7 @@ module DataCycleCore
           rrules: Array.wrap(rrule.deep_reject { |_, v| v.blank? }).compact_blank.presence
         }
 
-        schedule_hash.with_indifferent_access
+        transform_data_for_data_hash(schedule_hash)
       end
 
       def duration_to_iso8601_string(data)

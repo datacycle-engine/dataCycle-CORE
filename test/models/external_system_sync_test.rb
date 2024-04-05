@@ -65,7 +65,7 @@ module DataCycleCore
     end
 
     test 'external source to external systems sync' do
-      external_source_id = SecureRandom.uuid
+      external_source_id = DataCycleCore::ExternalSystem.first.id
       external_key = '1234'
 
       data_set2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1' })

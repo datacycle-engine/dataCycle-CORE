@@ -4,18 +4,23 @@ module DataCycleCore
   module PermissionHelper
     def permission_type_string(type)
       description = type.to_descriptions.first
+
+      return "translation missing: abilities.restrictions.#{type.class.name.demodulize.underscore}" if description[:restrictions].blank?
+
       Array.wrap(description[:restrictions]).join(', ')
     end
 
     def permission_groups(permissions)
       resolve_attribute_translations(permissions.flat_map(&:translated_descriptions))
-        .sort_by { |d| [d[:permission], d[:action]] }
+        .sort_by { |d| "#{I18n.transliterate(d[:permission].downcase, locale: active_ui_locale)} - #{I18n.transliterate(d[:action].downcase, locale: active_ui_locale)}" }
         .group_by { |d| d[:permission] }
         .transform_values do |v|
-        v.group_by { |a| a[:action] }.transform_values do |a|
-          a.filter { |p| p[:restrictions].present? }.uniq { |p| p[:restrictions] }
+          v.group_by { |a| a[:action] }
+            .transform_values do |a|
+            next [] if a.any? { |r| r[:restrictions].blank? }
+            Array.wrap(a.pluck(:restrictions)).compact_blank.uniq
+          end
         end
-      end
     end
 
     def resolve_attribute_translations(permissions)
@@ -42,10 +47,6 @@ module DataCycleCore
       else
         restriction
       end
-    end
-
-    def filtered_restrictions(action_restrictions)
-      Array.wrap(action_restrictions).filter { |p| p[:restrictions].present? }.pluck(:restrictions, :segment)
     end
   end
 end

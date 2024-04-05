@@ -16,12 +16,13 @@ module DataCycleCore
             ALTER TABLE classification_contents #{transitive_triggers} TRIGGER delete_ccc_relations_transitive_trigger;
             ALTER TABLE classification_contents #{transitive_triggers} TRIGGER generate_ccc_relations_transitive_trigger;
             ALTER TABLE classification_contents #{transitive_triggers} TRIGGER update_ccc_relations_transitive_trigger;
-            ALTER TABLE classification_groups #{transitive_triggers} TRIGGER delete_ccc_relations_transitive_trigger;
-            ALTER TABLE classification_groups #{transitive_triggers} TRIGGER generate_ccc_relations_transitive_trigger;
-            ALTER TABLE classification_groups #{transitive_triggers} TRIGGER update_ccc_relations_transitive_trigger;
-            ALTER TABLE classification_groups #{transitive_triggers} TRIGGER update_deleted_at_ccc_relations_transitive_trigger;
-            ALTER TABLE classification_trees #{transitive_triggers} TRIGGER generate_ca_paths_transitive_trigger;
-            ALTER TABLE classification_trees #{transitive_triggers} TRIGGER update_ca_paths_transitive_trigger;
+            ALTER TABLE concept_schemes #{transitive_triggers} TRIGGER concept_schemes_update_transitive_paths_trigger;
+            ALTER TABLE concepts #{transitive_triggers} TRIGGER concepts_create_transitive_paths_trigger;
+            ALTER TABLE concepts #{transitive_triggers} TRIGGER concepts_update_transitive_paths_trigger;
+            ALTER TABLE concepts #{transitive_triggers} TRIGGER concepts_delete_transitive_paths_trigger;
+            ALTER TABLE concept_links #{transitive_triggers} TRIGGER concept_links_create_transitive_paths_trigger;
+            ALTER TABLE concept_links #{transitive_triggers} TRIGGER concept_links_update_transitive_paths_trigger;
+            ALTER TABLE concept_links #{transitive_triggers} TRIGGER concept_links_delete_transitive_paths_trigger;
 
             ALTER TABLE classification_alias_paths #{non_transitive_triggers} TRIGGER generate_collected_classification_content_relations_trigger;
             ALTER TABLE classification_alias_paths #{non_transitive_triggers} TRIGGER update_collected_classification_content_relations_trigger;

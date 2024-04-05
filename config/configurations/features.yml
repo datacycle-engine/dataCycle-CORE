@@ -523,6 +523,9 @@
 
 :image_editor:
   :enabled: false
+  # :custom_crop_options:
+  #   - :label: "2880/900"
+  #     :crop_ratio: 3.2 # 2880 / 900
 
 :translation_of_work:
   :enabled: true

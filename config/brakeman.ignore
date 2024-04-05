@@ -1,26 +1,50 @@
 {
   "ignored_warnings": [
     {
-      "warning_type": "File Access",
-      "warning_code": 16,
-      "fingerprint": "9da67047fcc2607c4d7f5d50b8ad22d27b5e002c8900bc474dabd9e1415862a8",
-      "check_name": "SendFile",
-      "message": "Model attribute used in file name",
-      "file": "app/controllers/data_cycle_core/data_links_controller.rb",
-      "line": 93,
-      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "send_file(DataCycleCore::DataLink.find(params[:id]).text_file.file.service.path_for(DataCycleCore::DataLink.find(params[:id]).text_file.file.key), :type => DataCycleCore::DataLink.find(params[:id]).text_file.content_type, :disposition => :inline, :filename => (\"#{(DataCycleCore::DataLink.find(params[:id]).text_file.name or DataCycleCore::DataLink.human_attribute_name(\"text_file\", :locale => helpers.active_ui_locale)).underscore_blanks}.#{(MiniMime.lookup_by_content_type(DataCycleCore::DataLink.find(params[:id]).text_file.content_type).extension or DataCycleCore::DataLink.find(params[:id]).text_file.content_type.split(\"/\").last)}\"))",
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "229031e5e08c52ec281925ce41d6929d5439d625c64cac47f9b5fd4748aec895",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/data_cycle_core/common/by_ordered_values.rb",
+      "line": 9,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Arel.sql(\"array_position(ARRAY[?]::#{columns_hash[key.to_s].sql_type}[], #{table_name}.#{key})\")",
       "render_path": null,
       "location": {
         "type": "method",
-        "class": "DataCycleCore::DataLinksController",
-        "method": "get_text_file"
+        "class": "DataCycleCore::Common",
+        "method": null
       },
-      "user_input": "DataCycleCore::DataLink.find(params[:id]).text_file.file.service.path_for(DataCycleCore::DataLink.find(params[:id]).text_file.file.key)",
+      "user_input": "columns_hash[key.to_s].sql_type",
       "confidence": "Medium",
       "cwe_id": [
-        22
-      ]
+        89
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "455bf01374be4c00b3fb84c7ca5358152176a94c2ccf63464d06cadb59133cca",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/data_cycle_core/common/by_ordered_values.rb",
+      "line": 9,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Arel.sql(\"array_position(ARRAY[?]::#{columns_hash[key.to_s].sql_type}[], #{table_name}.#{key})\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "DataCycleCore::Common::ByOrderedValues",
+        "method": null
+      },
+      "user_input": "columns_hash[key.to_s].sql_type",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": ""
     },
     {
       "warning_type": "SQL Injection",
@@ -42,7 +66,54 @@
       "confidence": "Medium",
       "cwe_id": [
         89
-      ]
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "9da67047fcc2607c4d7f5d50b8ad22d27b5e002c8900bc474dabd9e1415862a8",
+      "check_name": "SendFile",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/data_cycle_core/data_links_controller.rb",
+      "line": 93,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "send_file(DataCycleCore::DataLink.find(params[:id]).text_file.file.service.path_for(DataCycleCore::DataLink.find(params[:id]).text_file.file.key), :type => DataCycleCore::DataLink.find(params[:id]).text_file.content_type, :disposition => :inline, :filename => (\"#{(DataCycleCore::DataLink.find(params[:id]).text_file.name or DataCycleCore::DataLink.human_attribute_name(\"text_file\", :locale => helpers.active_ui_locale)).underscore_blanks}.#{(MiniMime.lookup_by_content_type(DataCycleCore::DataLink.find(params[:id]).text_file.content_type).extension or DataCycleCore::DataLink.find(params[:id]).text_file.content_type.split(\"/\").last)}\"))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "DataCycleCore::DataLinksController",
+        "method": "get_text_file"
+      },
+      "user_input": "DataCycleCore::DataLink.find(params[:id]).text_file.file.service.path_for(DataCycleCore::DataLink.find(params[:id]).text_file.file.key)",
+      "confidence": "Medium",
+      "cwe_id": [
+        22
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "a6945d5ddca14bc5d0d57fa9dd8bae519890dbb034c445749877bfcde0d0b4bd",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/data_cycle_core/common/by_ordered_values.rb",
+      "line": 9,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Arel.sql(\"array_position(ARRAY[?]::#{columns_hash[key.to_s].sql_type}[], #{table_name}.#{key})\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "DataCycleCore",
+        "method": null
+      },
+      "user_input": "columns_hash[key.to_s].sql_type",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": ""
     },
     {
       "warning_type": "SQL Injection",
@@ -64,9 +135,10 @@
       "confidence": "Medium",
       "cwe_id": [
         89
-      ]
+      ],
+      "note": ""
     }
   ],
-  "updated": "2022-08-29 12:32:51 +0200",
-  "brakeman_version": "5.3.1"
+  "updated": "2024-03-14 16:16:40 +0100",
+  "brakeman_version": "6.0.1"
 }

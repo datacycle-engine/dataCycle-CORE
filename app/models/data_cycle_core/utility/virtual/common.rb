@@ -15,15 +15,10 @@ module DataCycleCore
           def take_first(virtual_parameters:, virtual_definition:, content:, **_args)
             virtual_parameters.each do |virtual_key|
               val = content.try(virtual_key.to_sym)
-              return val if val.present?
+              return val if DataHashService.present?(val)
             end
 
-            case virtual_definition.dig('type')
-            when 'embedded', 'linked'
-              DataCycleCore::Thing.none
-            when 'classification'
-              DataCycleCore::Classification.none
-            end
+            DataHashService.none_by_property_type(virtual_definition.dig('type'))
           end
 
           def value_from_definition(virtual_definition:, content:, **_args)
@@ -84,6 +79,24 @@ module DataCycleCore
             end
 
             nil
+          end
+
+          def overlay(virtual_parameters:, content:, virtual_definition:, **_args)
+            allowed_postfixes = MasterData::Templates::Extensions::Overlay.allowed_postfixes_for_type(virtual_definition['type'])
+
+            override_key = virtual_parameters.detect { |v| v.ends_with?(MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX) } if allowed_postfixes.include?(MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX)
+            override_value = content.try(override_key) if override_key.present?
+
+            return override_value if DataHashService.present?(override_value)
+
+            add_key = virtual_parameters.detect { |v| v.ends_with?(MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX) } if allowed_postfixes.include?(MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX)
+            add_value = content.try(add_key) if add_key.present?
+            original_value = content.try(virtual_parameters.first)
+
+            return original_value if DataHashService.blank?(add_value)
+
+            new_value = original_value + add_value
+            new_value.first.class.by_ordered_values(new_value.pluck(:id)).tap { |rel| rel.send(:load_records, new_value) }
           end
 
           private

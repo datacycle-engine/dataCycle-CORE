@@ -215,10 +215,10 @@ class MapLibreGlViewer {
 				features.push(
 					Object.assign(
 						turfCircle(
-							[parseFloat(filter.lon), parseFloat(filter.lat)],
+							[Number.parseFloat(filter.lon), Number.parseFloat(filter.lat)],
 							filter.unit === "km"
-								? parseFloat(filter.distance)
-								: parseFloat(filter.distance) / 1000,
+								? Number.parseFloat(filter.distance)
+								: Number.parseFloat(filter.distance) / 1000,
 						),
 						{
 							properties: {
@@ -1079,8 +1079,8 @@ class MapLibreGlViewer {
 			const bbox = turfBbox(geoJson);
 
 			if (
-				Object.values(bbox).includes(Infinity) ||
-				Object.values(bbox).includes(-Infinity)
+				Object.values(bbox).includes(Number.POSITIVE_INFINITY) ||
+				Object.values(bbox).includes(Number.NEGATIVE_INFINITY)
 			)
 				continue;
 

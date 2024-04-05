@@ -69,6 +69,7 @@ class DatePicker {
 			setDate: this.setDate.bind(this),
 			import: this.importData.bind(this),
 			fixTimeElementValueUpdate: this.fixTimeElementValueUpdate.bind(this),
+			clear: this.clear.bind(this),
 		};
 		this.cacheNamespace = "dcDatepickerCache";
 		this.isDateTime = this.elementIsDateTime(this.element);
@@ -111,6 +112,11 @@ class DatePicker {
 		$(this.calInstance.altInput)
 			.on("dc:import:data", this.eventHandlers.import)
 			.addClass("dc-import-data");
+
+		this.calInstance.altInput.addEventListener(
+			"clear",
+			this.eventHandlers.clear,
+		);
 	}
 	removeEvents() {
 		if (this.calInstance.hourElement)
@@ -136,6 +142,11 @@ class DatePicker {
 		$(this.calInstance.altInput)
 			.off("dc:import:data", this.eventHandlers.import)
 			.removeClass("dc-import-data");
+
+		this.calInstance.altInput.removeEventListener(
+			"clear",
+			this.eventHandlers.clear,
+		);
 	}
 	toRegex(values) {
 		if (!values?.length) return;
@@ -314,6 +325,10 @@ class DatePicker {
 				},
 			);
 		}
+	}
+	clear(_event) {
+		this.setDate(null);
+		this.updateConditionalField(null);
 	}
 	updateConditionalField(value) {
 		$(this.conditionalFormField).trigger("dc:conditionalField:refresh", {

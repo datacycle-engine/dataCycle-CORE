@@ -41,7 +41,7 @@ asset_for_data_link:
   segment: AssetByUserGroupsForDataLink
 
 thing_create:
-  actions: create
+  actions: [create, create_without_search]
   segment: TemplateByCreatableScope
   parameters: :all
 
@@ -67,6 +67,7 @@ thing_actions:
     - view_life_cycle
     - move_content
     - switch_primary_external_system
+    - demote_primary_external_system
     - create_external_connection
     - remove_external_connection
   segment: SubjectByConditions
@@ -260,3 +261,8 @@ external_system_actions:
   actions: create
   segment: SubjectByConditions
   parameters: DataCycleCore::ExternalSystem
+
+download_user_info_activity:
+  actions: download_user_info_activity
+  segment: SubjectByConditions
+  parameters: DataCycleCore::User

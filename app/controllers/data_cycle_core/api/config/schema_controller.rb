@@ -7,8 +7,8 @@ module DataCycleCore
         before_action :authorize_user, :prepare_url_parameters
 
         def index
-          contents = DataCycleCore::ThingTemplate.all.to_a
-          render json: schema_api_format(contents) { contents.map(&:schema_as_json) }.to_json
+          contents = DataCycleCore::ThingTemplate.all
+          render json: schema_api_format(contents) { contents.schema_as_json }.to_json
         end
 
         def show

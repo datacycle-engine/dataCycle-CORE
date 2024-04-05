@@ -35,6 +35,10 @@ module DataCycleCore
         def web_safe_mime_type?(type)
           DataCycleCore::Image::WEB_SAVE_MIME_TYPES.include?(type)
         end
+
+        def crop_options
+          configuration[:custom_crop_options] || []
+        end
       end
     end
   end

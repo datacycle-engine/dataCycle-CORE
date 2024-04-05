@@ -12,6 +12,10 @@ module DataCycleCore
               values << classifcation_alias_value(content.send(param), virtual_definition.dig(:virtual, :key))
             end
 
+            values.compact_blank!
+
+            return if values.empty?
+
             values.join(', ')
           end
 

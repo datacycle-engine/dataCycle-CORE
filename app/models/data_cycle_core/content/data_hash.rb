@@ -431,13 +431,20 @@ module DataCycleCore
 
       def upsert_content(name, item, options)
         item_id = item&.dig('datahash', 'id') || item&.dig('id')
+        template_name = name
+        if template_name.is_a?(Array)
+          specific_template_name = item&.dig('datahash', 'template_name').presence || item&.dig('template_name')
+          raise DataCycleCore::Error::TemplateNotAllowedError.new(specific_template_name, template_name) unless template_name.include?(specific_template_name)
+
+          template_name = specific_template_name
+        end
 
         if item_id.present?
           upsert_item = DataCycleCore::Thing.find_or_initialize_by(id: item_id) do |c|
-            c.template_name = name
+            c.template_name = template_name
           end
         else
-          upsert_item = DataCycleCore::Thing.new(template_name: name)
+          upsert_item = DataCycleCore::Thing.new(template_name:)
         end
         # TODO: check if external_source_id is required
         upsert_item.external_source_id = external_source_id

@@ -1,5 +1,5 @@
 <% I18n.with_locale(locale) do %>
-  <% object = DataCycleCore::DataHashService.get_internal_template(definition['template_name']) if local_assigns[:object].blank? %>
+  <% object = DataCycleCore::DataHashService.get_internal_template(local_assigns[:embedded_template].presence || definition['template_name']) if local_assigns[:object].blank? %>
 
   <%= tag.div class: "content-object-item draggable_#{sanitize_to_id(key)} accordion-item#{ ' is-active' if (!local_assigns[:hide_embedded] && !definition.dig('ui', 'edit', 'hide_onload')) || object.new_record? || local_assigns[:duplicated_content] }",
         id: "#{sanitize_to_id(key)}_item_#{index}",
@@ -21,7 +21,7 @@
         <%= tag.span(tag.i(class: 'fa fa-ban', aria_hidden: true), class: 'readonly-icon') unless attribute_editable?(key, definition, options, content) %>
         <%= tag.span(tag.i(class: 'fa fa-language translatable-attribute-icon'), class: 'translatable-icon') if attribute_translatable?(key, definition, content) %>
         <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.underscore_blanks, icon_class: object.class.name.demodulize.underscore %>
-        <span class="embedded-label"><%= translated_attribute_label(key, definition, content, options)  %></span>
+        <span class="embedded-label"><%= object.translated_template_name(active_ui_locale) %></span>
         <%= render 'data_cycle_core/contents/helper_text', key: key, definition: definition, content: contextual_content(local_assigns) %>
         <%= render('data_cycle_core/contents/content_score', key: nil, content: object, definition: object.content_score_definition(nil)) if object.try(:content_score_allowed?) %>
         <%= tag.span object.try(object.embedded_title_property_name), title: object.try(object.embedded_title_property_name), class: "embedded-title#{' visible' if object.try(object.embedded_title_property_name).present?}" if object.embedded_title_property_name.present? %>
@@ -35,6 +35,7 @@
     <% end %>
 
     <%= hidden_field_tag("#{embedded_key_prefix(key, index)}[id]", object.id) unless object.new_record? || local_assigns[:duplicated_content] %>
+    <%= hidden_field_tag("#{embedded_key_prefix(key, index)}[template_name]", object.template_name, class: 'embedded-template') %>
 
     <% if object.new_record? || local_assigns[:duplicated_content] %>
       <div class="embedded-properties accordion-content" data-tab-content>

@@ -29,6 +29,8 @@ module DataCycleCore
     has_many :schedules, foreign_key: :external_source_id, inverse_of: :external_source
     # rubocop:enable Rails/HasManyOrHasOneDependent, Rails/InverseOf
 
+    validates :name, presence: true
+
     def name_with_types
       nwt = name
       type = []
@@ -361,9 +363,11 @@ module DataCycleCore
       external_systems = order(name: :asc).to_a
 
       {
-        import: external_systems.filter(&:import_module?).as_json(only: [:id, :name]).map { |es| es.with_indifferent_access.merge(additional_properties&.dig(es['id']) || {}) },
+        import: external_systems.filter { |v| v.import_module? || v.webhook_module? }
+          .as_json(only: [:id, :name])
+          .map { |es| es.with_indifferent_access.merge(additional_properties&.dig(es['id']) || { webhook_only: true }) }
+          .sort_by { |v| [v[:deactivated] ? 1 : 0, v[:webhook_only] ? 1 : 0, v[:name].downcase] },
         export: external_systems.filter(&:export_module?).as_json(only: [:id, :name]),
-        webhook: external_systems.filter(&:webhook_module?).as_json(only: [:id, :name]),
         service: external_systems.filter(&:service_module?).as_json(only: [:id, :name]),
         foreign: external_systems.filter(&:foreign_module?).as_json(only: [:id, :name])
       }.with_indifferent_access

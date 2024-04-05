@@ -77,6 +77,7 @@ en:
       auto_translate: Automatic translation
       dash_board: Admin Dashboard
       permission: Authorizations
+      preview: Widget link
     actions:
       index: show (list)
       show: show
@@ -153,10 +154,12 @@ en:
       remove_version_name: Remove version name
       show_admin_panel: Show admin panel
       switch_primary_external_system: Change primary external system
+      demote_primary_external_system: Convert primary external system into external link
       create_external_connection: Create external connection
       remove_external_connection: Delete external connection
       bulk_edit: Edit in bulk
       bulk_delete: Delete in bulk
+      download_user_info_activity: "Download user information and API activity"
     restrictions:
       advanced_filter_except_type: "Filter not: %{except}"
       asset_by_user_and_no_content:
@@ -212,6 +215,10 @@ en:
       users_by_user_group:
         - "User group: %{group}"
         - "Role: %{roles}"
+      users_by_user_group_and_api_token:
+        - "User group: %{group}"
+        - "Role: %{roles}"
+        - "API-Token exists"
       users_except_roles: "Role: %{roles}"
       users_except_user_group:
         - "Role: %{roles}"

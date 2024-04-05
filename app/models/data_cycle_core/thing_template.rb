@@ -34,19 +34,35 @@ module DataCycleCore
       DataCycleCore::Thing.new(thing_template: self)
     end
 
+    def all_templates
+      return @all_templates if defined? @all_templates
+      @all_templates = self.class.all.index_by(&:template_name)
+      @all_templates.each_value { |v| v.instance_variable_set(:@all_templates, @all_templates) }
+      @all_templates
+    end
+
     def schema_as_json
       content = schema_sorted
       embedded = template_thing.embedded_property_names
 
-      embedded_template_names = content['properties'].values_at(*embedded).pluck('template_name')
+      # embedded_template_names = content['properties'].values_at(*embedded).pluck('template_name').flatten
 
-      embedded_templates = DataCycleCore::ThingTemplate.where(template_name: embedded_template_names).index_by(&:template_name)
+      # embedded_templates = DataCycleCore::ThingTemplate.where(template_name: embedded_template_names).index_by(&:template_name)
 
       embedded.each do |property_name|
-        content['properties'][property_name]['embedded_schema'] = embedded_templates[content.dig('properties', property_name, 'template_name')].schema_as_json
+        content['properties'][property_name]['embedded_schema'] = Array.wrap(content.dig('properties', property_name, 'template_name')).map { |et| all_templates[et].schema_as_json }
       end
 
       content
+    end
+
+    def self.schema_as_json
+      all_templates = first.all_templates
+
+      all.map do |tt|
+        tt.instance_variable_set(:@all_templates, all_templates)
+        tt.schema_as_json
+      end
     end
 
     def schema_types

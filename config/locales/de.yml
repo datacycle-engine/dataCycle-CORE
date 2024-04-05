@@ -381,6 +381,7 @@ de:
     tooltip: Dieses externe System als primäres externes System verwenden
     primary_system_switched: Das primäre externe System wurde erfolgreich getauscht
     duplicate_record_html: Es existiert bereits ein <a href="%{url}" target="_blank">Inhalt</a> im externen Zielsystem
+    warning_html: Dieses externe System wiklich als primäres externes System verwenden?
 
   common:
     "true": Ja
@@ -631,6 +632,10 @@ de:
       tooltip: Externe Verknüpfung entfernen
       success: Externe Verknüpfung wurde entfernt
       warning_html: 'Externe Verknüpfung entfernen?<br><br><i class="alert-color">Das beeinflusst möglicherweise die Funktion eines Importers!</i>'
+    demote_to_sync:
+      tooltip: primäres externes System in externe Verknüpfung umwandeln
+      success: primäres externes System wurde in externe Verknüpfung umgewandelt
+      warning_html: 'primäres externes System in externe Verknüpfung umwandeln?<br><br><i class="alert-color">Das beeinflusst möglicherweise die Funktion eines Importers!</i>'
 
   duplicate:
     candidates: Mögliche Duplikate
@@ -751,6 +756,10 @@ de:
         subject: Ein neuer Benutzer wurde erstellt
         text_html: Der neue Benutzer %{name} (%{email}) wurde erstellt.
         user_link: Benutzer anzeigen
+    overlay:
+      label_postfix:
+        override: (Overlay)
+        add: (Anhang)
 
     report_generator:
       downloads_popular: Top 50 Downloads
@@ -773,6 +782,20 @@ de:
         api_usage_current_month: Anzahl der Verwendungen über die API im aktuellen Monat
         api_usage_last_month: Anzahl der Verwendungen über die API im letzten Monat
         api_usage_last_12_months: Anzahl der Verwendungen über die API in den letzten 12 Monaten
+        first_name: Vorname
+        last_name: Nachname
+        created_at: Erstellt am
+        updated_at: Aktualisiert am
+        last_sign_in_at: Letzter Login
+        current_sign_in_at: Aktueller Login
+        sign_in_count: Anzahl der Logins
+        deleted_at: Gelöscht am
+        locked_at: Gesperrt am
+        external: Extern
+        role_name: Rolle
+        latest_activity_type: Aktivitätsart
+        latest_api_access: Letzter API Zugriff
+        user_group_names: Benutzergruppen
       mailer:
         subject:
           downloads_popular: TOP 50 Bild Downloads
@@ -1020,6 +1043,7 @@ de:
     translated_name: Name
     updated_at: Aktualisierungsdatum
     width: Breite
+    content_size: Dateigröße
     height: Höhe
     upload_date: Uploaddatum
     internal_content_score: Content Score (intern)
@@ -1194,7 +1218,7 @@ de:
     remove_from: "aus %{collection} entfernen"
     set_gravity: "Bildausschnitt festlegen (Gravity)"
     deactivate_gravity_editor: "Bearbeitung beenden"
-
+    download_user_info_activity: "Nutzeraktivitäten herunterladen"
   validation:
     errors:
       slug: "%{data} ist bereits der slug von einem anderen Datensatz."
@@ -1468,6 +1492,12 @@ de:
       data_cycle_core/classification_alias:
         one: Klassifizierung
         other: Klassifizierungen
+      data_cycle_core/classification:
+        one: Klassifizierung
+        other: Klassifizierungen
+      data_cycle_core/classification_tree:
+        one: Klassifizierungsbaum
+        other: Klassifizierungsbäume
       data_cycle_core/classification_tree_label:
         one: Klassifizierungsbaum
         other: Klassifizierungsbäume
@@ -1614,6 +1644,8 @@ de:
       download_tree: Klassifizierungsbaum ohne Inhalte (csv)
       download_tree_with_contents: Klassifizierungsbaum mit Inhalten (csv)
       download_tree_for_mappings: Klassifizierungsbaum zum Definieren von Mappings (csv)
+      download_tree_with_mappings: Klassifizierungsbaum mit Mappings (csv)
+      download_tree_with_inverse_mappings: Klassifizierungsbaum mit inversen Mappings (csv)
     this_classification: Dieser Klassifizierung
     this_classification_tree: Diesem Klassifizierungsbaum
     show_contents_for_tree_label: "Inhalte in %{data} auflisten"
@@ -1723,7 +1755,7 @@ de:
         Payment: Zahlungsmodalitäten
         ServiceDescription: Beschreibung
         Included Services: Enthaltene Leistungen
-        Not included Services: Nicht enthaltene Leistungen
+        Not included Services: Nicht inkludierte Leistungen
         Equipment: Ausrüstung
         Bring along: Zum Mitbringen
         Rental Equipment: Leihausrüstung
@@ -1841,6 +1873,7 @@ de:
       publicTransit: Öffentlicher Transport
       seasonDescription: Begehbare Monate
       Preis-Zusatzbeschreibung: Preis-Zusatzbeschreibung
+      booking_link: Buchungslink
     gem2go:
       description: Beschreibung
     timm4:
