@@ -209,6 +209,10 @@ module DataCycleCore
           by_day = dow(rule_hash.dig(:validations, :day_of_week).keys.first)
           by_month_week = rule_hash.dig(:validations, :day_of_week).values.flatten.first
         end
+      else
+        end_timestamp = dtstart&.+(duration.presence || 0)
+        end_date = end_timestamp&.to_s(:only_date)
+        end_time = end_timestamp&.to_s(:only_time)
       end
 
       {
