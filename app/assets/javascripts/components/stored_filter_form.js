@@ -1,3 +1,5 @@
+import QuillHelpers from "../helpers/quill_helpers";
+
 class StoredFilterForm {
 	constructor(form) {
 		this.form = form;
@@ -55,6 +57,8 @@ class StoredFilterForm {
 			formDataHtml += `<input type="hidden" name="${name}" value="${value}">`;
 
 		this.searchFormPart.insertAdjacentHTML("beforeend", formDataHtml);
+
+		QuillHelpers.updateEditors(this.form);
 
 		this.form.submit();
 	}

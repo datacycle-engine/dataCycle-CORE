@@ -40,6 +40,20 @@
 
   <div class="dynamic-form-parts">
     <%= f.fields_for :collection_configuration, stored_search.collection_configuration || DataCycleCore::CollectionConfiguration.new do |cc_form| %>
+      <% if can?(:update_description, stored_search) %>
+        <div class="form-element description" data-key="stored_filter[collection_configuration][description]">
+          <div class="editor-block">
+            <%= cc_form.label :description %>
+            <% description_id = [cc_form.options[:namespace], (cc_form.object_name + '[description]').underscore_blanks].compact.join('_') %>
+            <%= cc_form.hidden_field :description %>
+
+            <div class="quill-editor" data-hidden-field-id="<%= description_id %>" data-size="minimal" data-default-value="<%= stored_search&.description %>">
+              <%= stored_search&.description&.html_safe %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
       <div class="form-element slug" data-key="stored_filter[collection_configuration][slug]">
         <%= cc_form.label :slug do %>
           <%= DataCycleCore::CollectionConfiguration.human_attribute_name(:slug, locale: active_ui_locale) %>

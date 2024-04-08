@@ -1523,6 +1523,12 @@ en:
         creator_id: Creator
       data_cycle_core/external_source:
         name: Name
+      data_cycle_core/external_system_sync:
+        external_system_id: External System
+        external_key: External Identifier
+      data_cycle_core/collection_configuration:
+        description: Description
+
   unauthorized:
     manage:
       all: No access authorization!

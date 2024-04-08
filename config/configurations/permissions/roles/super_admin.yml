@@ -94,6 +94,8 @@ stored_filter_actions:
     - create_api
     - create_api_with_users
     - api
+    - update_description
+    - show_description
   segment: SubjectByConditions
   parameters: DataCycleCore::StoredFilter
 
@@ -103,7 +105,15 @@ watch_list_subscribe:
   parameters: DataCycleCore::WatchList
 
 watch_list_bulk_actions:
-  actions: [show, bulk_edit, bulk_delete, update, change_owner, create_api]
+  actions:
+    - show
+    - bulk_edit
+    - bulk_delete
+    - update
+    - change_owner
+    - create_api
+    - update_description
+    - show_description
   segment: SubjectByConditions
   parameters: DataCycleCore::WatchList
 

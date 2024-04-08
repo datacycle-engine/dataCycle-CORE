@@ -435,6 +435,29 @@
     &:last-child {
       margin-bottom: 0;
     }
+
+    .editor-block {
+
+      label,
+      .ql-toolbar {
+        padding: 0;
+        height: 1.6rem;
+      }
+
+      .ql-editor {
+        box-shadow: inset 0 1px 2px rgba($black, 0.1);
+        border: 1px solid var(--medium-gray);
+        padding: 0.45rem 0.5rem 0.25rem;
+
+        &:focus,
+        &:focus-within {
+          &:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
+            border: 1px solid var(--dark-gray);
+            box-shadow: 0 0 5px var(--medium-gray);
+          }
+        }
+      }
+    }
   }
 }
 

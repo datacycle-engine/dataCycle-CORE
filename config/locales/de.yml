@@ -1569,6 +1569,8 @@ de:
       data_cycle_core/external_system_sync:
         external_system_id: Externes System
         external_key: Externer Identifier
+      data_cycle_core/collection_configuration:
+        description: Beschreibung
 
   unauthorized:
     manage:

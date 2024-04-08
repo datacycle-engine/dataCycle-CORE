@@ -20,6 +20,17 @@ module DataCycleCore
     scope :by_user, ->(user) { where(user:) }
     scope :by_api_user, ->(user) { where("'#{user.id}' = ANY (api_users)") }
     scope :named, -> { where.not(name: nil) }
+    scope :by_id_name_slug_description, lambda { |value|
+      return all if value.blank?
+
+      arel_subquery = DataCycleCore::StoredFilter.arel_table[:name].matches("%#{value}%")
+        .or(DataCycleCore::CollectionConfiguration.arel_table[:slug].matches("%#{value}%"))
+        .or(DataCycleCore::CollectionConfiguration.arel_table[:description].matches("%#{value}%"))
+
+      arel_subquery = arel_subquery.or(DataCycleCore::StoredFilter.arel_table[:id].eq(value.to_s)) if value.to_s.uuid?
+
+      left_outer_joins(:collection_configuration).where(arel_subquery)
+    }
     belongs_to :user
     belongs_to :user_with_deleted, -> { with_deleted }, foreign_key: :user_id, class_name: 'DataCycleCore::User'
 
@@ -33,7 +44,7 @@ module DataCycleCore
 
     has_one :collection_configuration
     accepts_nested_attributes_for :collection_configuration, update_only: true
-    delegate :slug, to: :collection_configuration, allow_nil: true
+    delegate :slug, :description, to: :collection_configuration, allow_nil: true
 
     before_save :update_slug, if: :update_slug?
 
@@ -54,7 +65,7 @@ module DataCycleCore
       filter1.slice(*KEYS_FOR_EQUALITY) == filter2.slice(*KEYS_FOR_EQUALITY)
     end
 
-    def self.combine_with_collections(collections, filter_proc, name_filter = true)
+    def self.combine_with_collections(collections, filter_proc = nil, name_filter = true)
       query1_table = all.arel_table
       query1 = all.arel
       query1.projections = []

@@ -25,6 +25,12 @@
       </span>
     <% end %>
 
+    <% if stored_search.description.present? && can?(:show_description, stored_search) %>
+      <span class="content-title" data-dc-tooltip="<%= stored_search.description %>">
+        <i class="fa fa-info-circle" aria-hidden="true"></i>
+      </span>
+    <% end %>
+
     <span class="stored-filter-date-container">
       <span class="stored-filter-creator">
         <i class="fa fa-user" aria-hidden="true"></i>
