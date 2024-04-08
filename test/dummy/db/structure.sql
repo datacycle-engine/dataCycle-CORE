@@ -1101,7 +1101,8 @@ CREATE TABLE public.collection_configurations (
     id uuid NOT NULL,
     watch_list_id uuid,
     stored_filter_id uuid,
-    slug character varying
+    slug character varying,
+    description text
 );
 
 
@@ -2945,6 +2946,13 @@ CREATE UNIQUE INDEX index_classifications_on_id ON public.classifications USING 
 --
 
 CREATE UNIQUE INDEX index_classifications_unique_external_source_id_and_key ON public.classifications USING btree (external_source_id, external_key) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: index_collection_configurations_on_description; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_collection_configurations_on_description ON public.collection_configurations USING btree (description);
 
 
 --
@@ -4826,6 +4834,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240326094944'),
 ('20240326121702'),
 ('20240328130446'),
-('20240402073855');
+('20240402073855'),
+('20240405095332');
 
 
