@@ -29,7 +29,7 @@ function resizeDropdown(element) {
 		element.classList.remove("has-alignment-left");
 	}
 
-	const pseudoWidth = parseInt(
+	const pseudoWidth = Number.parseInt(
 		window.getComputedStyle(element, ":before").width,
 	);
 	let resetOffset = Math.abs($(element).position().left) - pseudoWidth / 2;
@@ -45,12 +45,14 @@ function resizeDropdown(element) {
 	if (!$linkedItem.length) return;
 
 	if (
-		$linkedItem.offset().top -
+		($linkedItem.offset().top -
 			Math.max($(document).scrollTop(), headerHeight) >=
-		window.innerWidth -
-			($linkedItem.offset().top +
-				$linkedItem.outerHeight() -
-				$(document).scrollTop())
+			window.innerWidth -
+				($linkedItem.offset().top +
+					$linkedItem.outerHeight() -
+					$(document).scrollTop()) &&
+			element.dataset.position !== "bottom") ||
+		element.dataset.position === "top"
 	) {
 		$(element).addClass("top");
 		if ($(element).find(".list-items").length) {
