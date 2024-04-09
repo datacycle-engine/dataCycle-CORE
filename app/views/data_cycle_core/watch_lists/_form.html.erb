@@ -57,7 +57,7 @@
                 <% description_id = [cc_form.options[:namespace], (cc_form.object_name + '[description]').underscore_blanks].compact.join('_') %>
                 <%= cc_form.hidden_field :description %>
 
-                <div class="quill-editor" data-hidden-field-id="<%= description_id %>" data-size="minimal" data-default-value="<%= content&.description %>">
+                <div class="quill-editor" data-hidden-field-id="<%= description_id %>" data-size="none" data-default-value="<%= content&.description %>">
                   <%= content&.description&.html_safe %>
                 </div>
               </div>
