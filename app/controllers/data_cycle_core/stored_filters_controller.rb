@@ -175,7 +175,7 @@ module DataCycleCore
           p[:name] ||= p.delete(:id) unless p[:id].to_s.uuid?
           p[:classification_tree_labels]&.reject!(&:blank?)
           p[:api_users]&.reject!(&:blank?)
-          p[:collection_configuration_attributes][:description] = DataCycleCore::MasterData::DataConverter.string_to_string(p[:collection_configuration_attributes][:description]) if p.dig(:collection_configuration_attributes, :description).present?
+          p[:collection_configuration_attributes][:description] = DataCycleCore::MasterData::DataConverter.string_to_string(p[:collection_configuration_attributes][:description]) if p.dig(:collection_configuration_attributes)&.key?(:description)
         end
     end
 

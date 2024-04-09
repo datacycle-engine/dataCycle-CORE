@@ -353,7 +353,7 @@ module DataCycleCore
     def watch_list_params
       params.require(:watch_list).permit(:full_path, :user_id, :manual_order, :api, user_group_ids: [], user_ids: [], collection_configuration_attributes: [:id, :slug, :description])
       .tap do |p|
-        p[:collection_configuration_attributes][:description] = DataCycleCore::MasterData::DataConverter.string_to_string(p[:collection_configuration_attributes][:description]) if p.dig(:collection_configuration_attributes, :description).present?
+        p[:collection_configuration_attributes][:description] = DataCycleCore::MasterData::DataConverter.string_to_string(p[:collection_configuration_attributes][:description]) if p.dig(:collection_configuration_attributes)&.key?(:description)
       end
     end
 
