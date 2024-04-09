@@ -276,22 +276,24 @@ module DataCycleCore
         value = options.data_hash[key]
         # puts "#{key}, #{value}, #{properties.dig('type')}"
         case properties['type']
-        when 'linked'
-          set_linked(key, value, properties)
-        when 'embedded'
-          set_embedded(key, value, properties['template_name'], properties['translated'], options)
-        when 'string', 'number', 'datetime', 'date', 'boolean', 'geographic', 'object'
-          save_values(key, value, properties)
-        when 'classification'
-          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])
-        when 'asset'
-          set_asset_id(value, key, properties['asset_type'])
-        when 'schedule', 'opening_time'
-          set_schedule(value, key)
         when 'slug'
           save_slug(key, value, options.data_hash)
         when 'key', 'timeseries'
           true # do nothing
+        when *Content::LINKED_PROPERTY_TYPES
+          set_linked(key, value, properties)
+        when *Content::EMBEDDED_PROPERTY_TYPES
+          set_embedded(key, value, properties['template_name'], properties['translated'], options)
+        when 'object', *Content::PLAIN_PROPERTY_TYPES
+          save_values(key, value, properties)
+        when *Content::CLASSIFICATION_PROPERTY_TYPES
+          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])
+        when *Content::ASSET_PROPERTY_TYPES
+          set_asset_id(value, key, properties['asset_type'])
+        when *Content::SCHEDULE_PROPERTY_TYPES
+          set_schedule(value, key)
+        when *Content::COLLECTION_PROPERTY_TYPES
+          set_collection_links(key, value)
         end
       end
 
@@ -379,6 +381,29 @@ module DataCycleCore
         data = a&.ids if data.is_a?(ActiveRecord::Relation)
         raise ArgumentError, 'expected a uuid or list of uuids' unless data.is_a?(::Array)
         data
+      end
+
+      def set_collection_links(field_name, input_data)
+        item_ids_before_update = send(field_name).pluck(:id)
+        item_ids_after_update = parse_collection_ids(input_data, field_name)
+
+        content_collection_links.upsert_all(item_ids_after_update, unique_by: :ccl_unique_index) if DataCycleCore::DataHashService.present?(item_ids_after_update)
+
+        to_delete = item_ids_before_update - item_ids_after_update.pluck(:collection_id)
+
+        return if to_delete.empty?
+
+        content_collection_links.where(relation: field_name, collection_id: to_delete).delete_all
+      end
+
+      def parse_collection_ids(a, key)
+        ids = Array.wrap(a).compact
+
+        return ids.map { |c| { collection_id: c.id, collection_type: c.class.name, relation: key } } if ids.all?(ActiveRecord::Base)
+
+        collections = DataCycleCore::WatchList.where(id: ids).to_a + DataCycleCore::StoredFilter.where(id: ids).to_a
+
+        collections.map { |c| { collection_id: c.id, collection_type: c.class.name, relation: key } }
       end
 
       def set_embedded(field_name, input_data, name, translated, options)

@@ -96,6 +96,10 @@ module DataCycleCore
         DataCycleCore::Timeseries.where(thing_id: id, property: property_name).order(timestamp: :asc)
       end
 
+      def load_content_collection_links(property_name)
+        DataCycleCore::ContentCollectionLink.where(thing_id: id, relation: property_name).preload(:collection).order(updated_at: :asc).flat_map(&:collection)
+      end
+
       def as_of(timestamp)
         timestamp = timestamp.in_time_zone if timestamp.is_a?(::String)
 

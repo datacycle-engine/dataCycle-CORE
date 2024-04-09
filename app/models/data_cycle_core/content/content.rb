@@ -14,14 +14,15 @@ module DataCycleCore
         'column' => 'column',
         'classification' => 'classification'
       }.freeze
-      PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic', 'slug'].freeze
       WEBHOOK_ACCESSORS = [:webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks].freeze
+      PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic', 'slug'].freeze
       LINKED_PROPERTY_TYPES = ['linked'].freeze
       EMBEDDED_PROPERTY_TYPES = ['embedded'].freeze
       CLASSIFICATION_PROPERTY_TYPES = ['classification'].freeze
       SCHEDULE_PROPERTY_TYPES = ['schedule', 'opening_time'].freeze
       TIMESERIES_PROPERTY_TYPES = ['timeseries'].freeze
       ASSET_PROPERTY_TYPES = ['asset'].freeze
+      COLLECTION_PROPERTY_TYPES = ['collection'].freeze
 
       after_initialize :add_template_properties, if: :new_record?
 
@@ -262,6 +263,10 @@ module DataCycleCore
         name_property_selector(include_overlay) { |definition| LINKED_PROPERTY_TYPES.include?(definition['type']) }
       end
 
+      def collection_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| COLLECTION_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
       def embedded_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| EMBEDDED_PROPERTY_TYPES.include?(definition['type']) }
       end
@@ -395,7 +400,7 @@ module DataCycleCore
           send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
         elsif plain_property_names.include?(property_name)
           send(property_name)&.as_json
-        elsif classification_property_names.include?(property_name) || linked_property_names.include?(property_name)
+        elsif classification_property_names.include?(property_name) || linked_property_names.include?(property_name) || collection_property_names.include?(property_name)
           send(property_name).try(:pluck, :id)
         elsif included_property_names.include?(property_name)
           embedded_hash = send(property_name).to_h
@@ -470,6 +475,8 @@ module DataCycleCore
             load_schedule(property_name, overlay_flag)
           elsif timeseries_property_names.include?(property_name)
             load_timeseries(property_name)
+          elsif collection_property_names.include?(property_name)
+            load_content_collection_links(property_name)
           else
             raise NotImplementedError
           end
@@ -636,6 +643,8 @@ module DataCycleCore
             DataCycleCore::Schedule.by_ordered_values(value)
           elsif timeseries_property_names.include?(key)
             DataCycleCore::Timeseries.by_ordered_values(value)
+          # elsif collection_property_names.include?(key)
+          #   DataCycleCore::ContentCollectionLink.by_ordered_values(value)
           else # rubocop:disable Lint/DuplicateBranch
             value
           end

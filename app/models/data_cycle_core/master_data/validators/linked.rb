@@ -43,36 +43,29 @@ module DataCycleCore
           # validate references
           return if blank?(converted_data)
 
-          converted_data.each do |key|
-            validate_reference(key, template)
-          end
+          validate_references(converted_data, template)
         end
 
-        def validate_reference(key, template)
-          if key.is_a?(::String)
-            check_reference(key, template)
-          else
+        def validate_references(data, template)
+          unless data.all? { |d| d.is_a?(::String) && d.uuid? }
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.data_format',
               substitutions: {
-                key:,
+                key: data.filter { |d| !d.is_a?(::String) || !d.uuid? }.join(', '),
                 template: template['label']
               }
             }
+            return false
           end
-        end
 
-        def check_reference(key, template)
-          return unless uuid?(key)
+          linked_ids = DataCycleCore::Thing.where(id: data).ids
 
-          data_set = DataCycleCore::Thing.where(id: key)
-
-          return unless data_set.count < 1
+          return true if linked_ids.size == data.size && data.to_set == linked_ids.to_set
 
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.not_found',
             substitutions: {
-              key:,
+              key: (data - linked_ids).join(', '),
               template: template['label'],
               table: 'things'
             }
