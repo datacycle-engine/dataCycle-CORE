@@ -218,10 +218,12 @@ module DataCycleCore
             SELECT content_content_links.content_a_id AS id
             FROM content_content_links
             WHERE content_content_links.content_b_id = :id::UUID
+            AND content_content_links.relation IS NOT NULL
             UNION
             SELECT content_content_links.content_a_id AS id
             FROM content_content_links
               JOIN content_dependencies ON content_dependencies.id = content_content_links.content_b_id
+            WHERE content_content_links.relation IS NOT NULL
           )
           SELECT things.id
           FROM things
@@ -299,11 +301,13 @@ module DataCycleCore
             SELECT DISTINCT ON (c.content_a_id) c.content_b_id, c.content_a_id, ARRAY[c.content_b_id, c.content_a_id]
             FROM content_content_links c
             WHERE c.content_b_id = :id
+            AND c.relation IS NOT NULL
             UNION ALL
             SELECT DISTINCT ON (d.content_a_id) d.content_b_id, d.content_a_id, p.path || ARRAY[d.content_a_id]
             FROM paths p
             INNER JOIN content_content_links d ON p.content_a_id = d.content_b_id
             WHERE d.content_a_id != ALL (p.path)
+            AND d.relation IS NOT NULL
             AND ARRAY_LENGTH(p.path, 1) <= :depth
           )
           SELECT DISTINCT paths.content_a_id FROM paths
