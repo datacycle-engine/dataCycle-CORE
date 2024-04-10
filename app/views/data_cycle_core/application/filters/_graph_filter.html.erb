@@ -66,7 +66,7 @@
         <% end %>
       <% end %>
     <% elsif relation_mode %>
-      <% if data_type_restriction.present? %>
+      <% if relation_restriction.present? %>
         <% if relation_restriction.size > DataCycleCore.max_asynch_classification_items %>
           <%= select_tag(
                 "f[#{identifier}][v][relation_type]",
