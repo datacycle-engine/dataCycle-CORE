@@ -905,6 +905,45 @@ en:
         dc_media_link: dataCycle Meda Link
         primary_image: Primary image
         author: Author
+        opening_hours_description: Opening Hours - Description
+        additional_description: Additional description
+        additional_information: Additional information
+        organizer: Organizer
+        potential_action: (additional) links
+        is_linked_to: Relation linked to
+        addons: Addon
+        contained_in_place: Relation 'contained in place'
+        snow_report: Snow depth - Measuring point
+        aggregate_rating: Tour rating
+        founder: Host
+        super_event: Event series
+        sub_event: Event data
+        price_specification: Price
+        snow_resort: Ski resort
+        same_as: (external) Link
+        logo: Logo
+        sd_publisher: Für den Inhalt verantwortlich
+        makes_offer: Offers
+        about: About
+        amenity_feature: Additional offer / feature
+        area_served: Meeting point
+        contains_place: Stage / Service / Linked Location
+        copyright_holder_or_sd_publisher: Copyright holder / publisher
+        dining_hours_description: Kitchen opened - description
+        item_offered: Offered services
+        lift_details: Lifts
+        member: Members
+        member_of: Member of
+        offers: Offers
+        operator: Operator
+        overlay: Overlay
+        performer: Performer
+        provider: Provider
+        schedule: Starting time
+        slope_details: Slopes
+        subject_of: Subject of
+        video: Video
+        waypoint: Waypoint (POI)
     related_to: is linked to
     feratel_content_score: Feratel - Content Score
     internal_content_score: Content Score - dataCycle
