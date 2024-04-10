@@ -202,7 +202,8 @@ module DataCycleCore
     end
 
     def contextual_content(local_assigns)
-      local_assigns[:parent] || local_assigns[:content]
+      return local_assigns[:parent] if local_assigns[:parent].is_a?(DataCycleCore::Thing)
+      local_assigns[:content] if local_assigns[:content].is_a?(DataCycleCore::Thing)
     end
 
     def life_cycle_class(content, stage)
