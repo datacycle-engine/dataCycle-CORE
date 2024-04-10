@@ -1273,6 +1273,9 @@ de:
       required: "sollte ausgefüllt werden."
       schedule:
         duration_too_long: "Der Termin mit Startzeitpunkt %{data} dauert länger als %{max} (Das könnte wahrscheinlich auch über Wiederholungen abgebildet werden)"
+      collection:
+        no_api: '"%{data}" ist nicht über die API abrufbar'
+        api_users: '"%{data}" ist nur für bestimmte Benutzer über die API abrufbar'
   controllers:
     error:
       invalid_parent: "Ungültiges Eltern Objekt."
