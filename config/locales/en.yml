@@ -695,9 +695,10 @@ en:
       missing_serialize_format: At least one format must be selected
     serialize:
       license:
+        terms_of_use: terms_of_use
         copyright:
-          file_name: terms_of_use
-        introducton:
+          file_name: copyright
+        introduction:
           file_name: intro_text
           text: |
             Headline
@@ -1559,6 +1560,12 @@ en:
         creator_id: Creator
       data_cycle_core/external_source:
         name: Name
+      data_cycle_core/external_system_sync:
+        external_system_id: External System
+        external_key: External Identifier
+      data_cycle_core/collection_configuration:
+        description: Description
+
   unauthorized:
     manage:
       all: No access authorization!

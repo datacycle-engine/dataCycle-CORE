@@ -717,9 +717,10 @@ de:
       missing_serialize_format: Es muss mindestens ein Format ausgewählt werden
     serialize:
       license:
+        terms_of_use: Nutzungsbedingungen
         copyright:
-          file_name: nutzungsbedingungen
-        introducton:
+          file_name: copyright
+        introduction:
           file_name: einleitungstext
           text: |
             Überschrift
@@ -1604,6 +1605,8 @@ de:
       data_cycle_core/external_system_sync:
         external_system_id: Externes System
         external_key: Externer Identifier
+      data_cycle_core/collection_configuration:
+        description: Beschreibung
 
   unauthorized:
     manage:
@@ -1988,6 +1991,11 @@ de:
       roadmap: Streckenstichpunkte
     museumsportal:
       opening_hours: Öffungszeiten Beschreibung
+    oya_media:
+      description: Beschreibung
+      short_description: Teaser
+      price_description: Preisbeschreibung
+      price_from: Preis ab (€)
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
       <ul class="no-bullet">

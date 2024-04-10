@@ -106,6 +106,8 @@ stored_filter_actions:
     - create_global
     - create_api
     - create_api_with_users
+    - update_description
+    - show_description
   segment: SubjectByUserAndConditions
   parameters:
     - DataCycleCore::StoredFilter
@@ -121,7 +123,14 @@ watch_list_subscribe:
   parameters: DataCycleCore::WatchList
 
 watch_list_actions:
-  actions: [read, create, update, add_item, remove_item]
+  actions:
+    - read
+    - create
+    - update
+    - add_item
+    - remove_item
+    - update_description
+    - show_description
   segment: SubjectByUserAndConditions
   parameters:
     - DataCycleCore::WatchList

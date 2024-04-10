@@ -441,6 +441,8 @@ module DataCycleCore
               'inLanguage' => 'de',
               'startDate' => event_schedule_object_hash.dig(:dtstart).to_s(:only_date),
               'startTime' => event_schedule_object_hash.dig(:dtstart).to_s(:only_time),
+              'endDate' => (event_schedule_object_hash.dig(:dtstart) + event_schedule_object.duration).to_s(:only_date),
+              'endTime' => (event_schedule_object_hash.dig(:dtstart) + event_schedule_object.duration).to_s(:only_time),
               'duration' => event_schedule_object.iso8601_duration(event_schedule_object_hash.dig(:dtstart), event_schedule_object_hash.dig(:dtend)).iso8601,
               'scheduleTimezone' => 'Europe/Vienna'
             }

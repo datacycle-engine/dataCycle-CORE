@@ -155,6 +155,8 @@ module DataCycleCore
         'inLanguage' => 'de',
         'startDate' => '2019-11-20',
         'startTime' => '09:00',
+        'endDate' => '2020-01-03',
+        'endTime' => '16:00',
         'duration' => 'P1M14DT7H',
         'scheduleTimezone' => 'Europe/Vienna'
       }
@@ -177,6 +179,8 @@ module DataCycleCore
         'inLanguage' => 'de',
         'startDate' => '2019-11-20',
         'startTime' => '09:00',
+        'endDate' => '2020-01-03',
+        'endTime' => '16:00',
         'duration' => 'P1M14DT7H',
         'scheduleTimezone' => 'Europe/Vienna'
       }

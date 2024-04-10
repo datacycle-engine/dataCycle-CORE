@@ -24,16 +24,10 @@ module DataCycleCore
     def saved_searches
       authorize! :index, DataCycleCore::StoredFilter
 
-      @stored_searches = DataCycleCore::StoredFilter.accessible_by(current_ability).or(DataCycleCore::StoredFilter.by_api_user(current_user)).where.not(name: nil).order(:name)
+      @stored_searches = DataCycleCore::StoredFilter.accessible_by(current_ability).or(DataCycleCore::StoredFilter.by_api_user(current_user)).named.order(:name)
       @search_param = index_params[:q]
 
-      if @search_param.present?
-        @stored_searches = @stored_searches.left_outer_joins(:collection_configuration).where(
-          DataCycleCore::StoredFilter.arel_table[:name].matches("%#{@search_param}%")
-            .or(DataCycleCore::StoredFilter.arel_table[:id].eq(@search_param.to_s))
-            .or(DataCycleCore::CollectionConfiguration.arel_table[:slug].matches("%#{@search_param}%"))
-        )
-      end
+      @stored_searches = @stored_searches.by_id_name_slug_description(@search_param) if @search_param.present?
 
       @page = (index_params[:page] || 1).to_i
 
@@ -148,8 +142,7 @@ module DataCycleCore
       authorize! :show, DataCycleCore::StoredFilter
 
       filter_string = select_search_params[:q]&.strip
-      filter_proc = ->(query, query_table) { query.where(query_table[:name].matches("%#{filter_string}%")) } if filter_string.present?
-      arel_query = DataCycleCore::StoredFilter.accessible_by(current_ability).combine_with_collections(DataCycleCore::WatchList.accessible_by(current_ability).conditional_my_selection, filter_proc)
+      arel_query = DataCycleCore::StoredFilter.accessible_by(current_ability).by_id_name_slug_description(filter_string).combine_with_collections(DataCycleCore::WatchList.accessible_by(current_ability).conditional_my_selection.by_id_name_slug_description(filter_string))
       arel_query = arel_query.take(select_search_params[:max].to_i) if select_search_params[:max].present?
 
       result = ActiveRecord::Base.connection.select_all arel_query.to_sql
@@ -177,11 +170,12 @@ module DataCycleCore
     def stored_filter_params
       params
         .require(:stored_filter)
-        .permit(:id, :name, :system, :api, :linked_stored_filter_id, classification_tree_labels: [], api_users: [], collection_configuration_attributes: [:id, :slug])
+        .permit(:id, :name, :system, :api, :linked_stored_filter_id, classification_tree_labels: [], api_users: [], collection_configuration_attributes: [:id, :slug, :description])
         .tap do |p|
           p[:name] ||= p.delete(:id) unless p[:id].to_s.uuid?
           p[:classification_tree_labels]&.reject!(&:blank?)
           p[:api_users]&.reject!(&:blank?)
+          p[:collection_configuration_attributes][:description] = DataCycleCore::MasterData::DataConverter.string_to_string(p[:collection_configuration_attributes][:description]) if p.dig(:collection_configuration_attributes)&.key?(:description)
         end
     end
 

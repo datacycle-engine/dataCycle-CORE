@@ -82,6 +82,28 @@ module DataCycleCore
             assert_equal 'P1W', schedule['repeatFrequency']
             assert_equal 'Europe/Vienna', schedule['scheduleTimezone']
           end
+
+          test 'api/v4/things schedule attribute with schedule with single occurrence' do # rubocop:disable Minitest/MultipleAssertions
+            event = DataCycleCore::V4::DummyDataHelper.create_data('minimal_event')
+            event_schedule = DataCycleCore::TestPreparations.generate_schedule('2023-05-25T15:00'.in_time_zone, '2023-05-25'.in_time_zone, 2.hours, frequency: nil).serialize_schedule_object
+            event.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_schedule: [event_schedule.schedule_object.to_hash] })
+
+            post api_v4_thing_path(id: event.id), params: { include: 'eventSchedule', fields: 'eventSchedule' }
+            json_data = response.parsed_body
+            schedule = json_data.dig('@graph', 0, 'eventSchedule', 0)
+
+            assert schedule.key?('startDate')
+            assert schedule.key?('endDate')
+            assert schedule.key?('startTime')
+            assert schedule.key?('endTime')
+            assert schedule.key?('scheduleTimezone')
+
+            assert_equal '2023-05-25', schedule['startDate']
+            assert_equal '2023-05-25', schedule['endDate']
+            assert_equal '15:00', schedule['startTime']
+            assert_equal '17:00', schedule['endTime']
+            assert_equal 'Europe/Vienna', schedule['scheduleTimezone']
+          end
         end
       end
     end

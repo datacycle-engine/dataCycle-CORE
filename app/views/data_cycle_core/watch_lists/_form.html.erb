@@ -49,6 +49,22 @@
           <%= f.text_field :full_path, data: { validate: 'text' } %>
         </div>
 
+        <%= f.fields_for :collection_configuration, content.collection_configuration || DataCycleCore::CollectionConfiguration.new do |cc_form| %>
+          <% if can?(:update_description, content) %>
+            <div class="form-element input description" data-key="watch_list[collection_configuration][description]">
+              <div class="editor-block">
+                <%= cc_form.label :description %>
+                <% description_id = [cc_form.options[:namespace], (cc_form.object_name + '[description]').underscore_blanks].compact.join('_') %>
+                <%= cc_form.hidden_field :description %>
+
+                <div class="quill-editor" data-hidden-field-id="<%= description_id %>" data-size="none" data-default-value="<%= content&.description %>">
+                  <%= content&.description&.html_safe %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+
         <% if !content.my_selection %>
           <div class="form-element check_box manual_order dc-checkbox" data-key="watch_list[manual_order]">
             <%= f.check_box :manual_order %>

@@ -9,6 +9,17 @@ module DataCycleCore
     scope :by_user, ->(user) { where(user:) }
     scope :my_selection, -> { unscope(where: :my_selection).where(my_selection: true) }
     scope :without_my_selection, -> { unscope(where: :my_selection).where(my_selection: false) }
+    scope :by_id_name_slug_description, lambda { |value|
+      return all if value.blank?
+
+      arel_subquery = DataCycleCore::WatchList.arel_table[:name].matches("%#{value}%")
+        .or(DataCycleCore::CollectionConfiguration.arel_table[:slug].matches("%#{value}%"))
+        .or(DataCycleCore::CollectionConfiguration.arel_table[:description].matches("%#{value}%"))
+
+      arel_subquery = arel_subquery.or(DataCycleCore::WatchList.arel_table[:id].eq(value.to_s)) if value.to_s.uuid?
+
+      left_outer_joins(:collection_configuration).where(arel_subquery)
+    }
 
     has_many :watch_list_data_hashes, dependent: :delete_all
     has_many :things, through: :watch_list_data_hashes, source: :hashable, source_type: 'DataCycleCore::Thing'
@@ -27,7 +38,7 @@ module DataCycleCore
 
     has_one :collection_configuration
     accepts_nested_attributes_for :collection_configuration, update_only: true
-    delegate :slug, to: :collection_configuration, allow_nil: true
+    delegate :slug, :description, to: :collection_configuration, allow_nil: true
 
     before_save :split_full_path, if: :full_path_changed?
     before_save :update_slug, if: :update_slug?

@@ -41,13 +41,38 @@ module DataCycleCore
             )
           end
 
-          def introduction_file(language)
+          def terms_of_service_file(language = 'de')
+            tos_file = DataCycleCore.features.dig('download', 'downloader', 'archive', 'zip', 'terms_of_use', language) ||
+                       DataCycleCore.features.dig('download', 'downloader', 'archive', 'zip', 'terms_of_use', 'de')
+            return nil if tos_file.blank?
+            file_path = Rails.root.join('app', 'assets', 'downloader', 'archive', 'zip', 'terms_of_use', tos_file)
+            file_path = Rails.root.join('app', 'assets', 'downloader', 'archive', 'zip', 'terms_of_use', DataCycleCore.features.dig('download', 'terms_of_use_file', 'de')) unless File.exist?(file_path)
+            return nil unless File.exist?(file_path)
+
+            file = begin
+              File.binread(file_path)
+            rescue StandardError
+              nil
+            end
+            return nil if file.nil?
+
+            file_name = I18n.t('feature.serialize.license.terms_of_use', default: 'Nutzungsbedingungen', locale: language) + File.extname(file_path)
             DataCycleCore::Serialize::SerializedData::Content.new(
-              data: I18n.t('feature.serialize.license.introducton.text', default: 'Your text goes here', locale: language),
-              mime_type:,
-              file_name: I18n.t('feature.serialize.license.introducton.file_name', default: 'introduction', locale: language),
+              data: file,
+              mime_type: nil,
+              file_name:,
               id: SecureRandom.uuid
             )
+          end
+
+          def introduction_file(language)
+            terms_of_service_file(language) ||
+              DataCycleCore::Serialize::SerializedData::Content.new(
+                data: I18n.t('feature.serialize.license.introduction.text', default: 'Your text goes here', locale: language),
+                mime_type:,
+                file_name: I18n.t('feature.serialize.license.introduction.file_name', default: 'introduction', locale: language),
+                id: SecureRandom.uuid
+              )
           end
 
           def file_names_by_content_id(serialized_collections)

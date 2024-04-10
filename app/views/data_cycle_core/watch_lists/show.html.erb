@@ -110,7 +110,14 @@
       </div>
 
       <div class="title flex-column">
-        <%= @watch_list&.name %>
+        <span>
+          <%= @watch_list&.name %>
+          <% if @watch_list&.description.present? && can?(:show_description, @watch_list) %>
+            <span data-dc-tooltip="<%= @watch_list.description %>">
+              <i class="fa fa-info-circle" aria-hidden="true"></i>
+            </span>
+          <% end %>
+        </span>
         <%= tag.div(@watch_list.slug, class: 'slug copy-to-clipboard', data: { dc_tooltip: t('actions.copy_to_clipboard_data', data: DataCycleCore::CollectionConfiguration.human_attribute_name(:slug, locale: active_ui_locale), locale: active_ui_locale) }) if @watch_list.slug.present? %>
       </div>
 
