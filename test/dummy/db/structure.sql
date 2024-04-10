@@ -598,6 +598,15 @@ CREATE FUNCTION public.to_classification_content_history(content_id uuid, new_hi
 
 
 --
+-- Name: to_content_collection_link_history(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.to_content_collection_link_history(content_id uuid, new_history_id uuid) RETURNS void
+    LANGUAGE plpgsql
+    AS $$ DECLARE insert_query TEXT; BEGIN SELECT 'INSERT INTO content_collection_link_histories (thing_history_id, ' || string_agg(column_name, ', ') || ') SELECT ''' || new_history_id || '''::UUID, ' || string_agg('t.' || column_name, ', ') || ' FROM content_collection_links t WHERE t.thing_id = ''' || content_id || '''::UUID;' INTO insert_query FROM information_schema.columns WHERE table_name = 'content_collection_link_histories' AND column_name NOT IN ('id', 'thing_history_id', 'stored_filter_id', 'watch_list_id'); EXECUTE insert_query; RETURN; END; $$;
+
+
+--
 -- Name: to_content_content_history(uuid, uuid, character varying, boolean, boolean); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -621,7 +630,7 @@ CREATE FUNCTION public.to_schedule_history(content_id uuid, new_history_id uuid)
 
 CREATE FUNCTION public.to_thing_history(content_id uuid, current_locale character varying, all_translations boolean DEFAULT false, deleted boolean DEFAULT false) RETURNS uuid
     LANGUAGE plpgsql
-    AS $$ DECLARE insert_query TEXT; new_history_id UUID; BEGIN SELECT 'INSERT INTO thing_histories (thing_id, deleted_at, ' || string_agg(column_name, ', ') || ') SELECT t.id, CASE WHEN t.deleted_at IS NOT NULL THEN t.deleted_at WHEN ' || deleted || '::BOOLEAN THEN transaction_timestamp() ELSE NULL END, ' || string_agg('t.' || column_name, ', ') || ' FROM things t WHERE t.id = ''' || content_id || '''::UUID LIMIT 1 RETURNING id;' INTO insert_query FROM information_schema.columns WHERE table_name = 'thing_histories' AND column_name NOT IN ('id', 'thing_id', 'deleted_at'); EXECUTE insert_query INTO new_history_id; PERFORM to_thing_history_translation ( content_id, new_history_id, current_locale, all_translations ); PERFORM to_classification_content_history (content_id, new_history_id); PERFORM to_content_content_history ( content_id, new_history_id, current_locale, all_translations, deleted ); PERFORM to_schedule_history (content_id, new_history_id); RETURN new_history_id; END; $$;
+    AS $$ DECLARE insert_query TEXT; new_history_id UUID; BEGIN SELECT 'INSERT INTO thing_histories (thing_id, deleted_at, ' || string_agg(column_name, ', ') || ') SELECT t.id, CASE WHEN t.deleted_at IS NOT NULL THEN t.deleted_at WHEN ' || deleted || '::BOOLEAN THEN transaction_timestamp() ELSE NULL END, ' || string_agg('t.' || column_name, ', ') || ' FROM things t WHERE t.id = ''' || content_id || '''::UUID LIMIT 1 RETURNING id;' INTO insert_query FROM information_schema.columns WHERE table_name = 'thing_histories' AND column_name NOT IN ('id', 'thing_id', 'deleted_at'); EXECUTE insert_query INTO new_history_id; PERFORM to_thing_history_translation ( content_id, new_history_id, current_locale, all_translations ); PERFORM to_classification_content_history (content_id, new_history_id); PERFORM to_content_content_history ( content_id, new_history_id, current_locale, all_translations, deleted ); PERFORM to_schedule_history (content_id, new_history_id); PERFORM to_content_collection_link_history (content_id, new_history_id); RETURN new_history_id; END; $$;
 
 
 --
@@ -1208,6 +1217,58 @@ CREATE TABLE public.concepts (
     classification_id uuid,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: content_collection_link_histories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.content_collection_link_histories (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    thing_history_id uuid,
+    collection_id uuid,
+    collection_type character varying,
+    relation character varying,
+    order_a integer,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    stored_filter_id uuid GENERATED ALWAYS AS (
+CASE
+    WHEN ((collection_type)::text = 'DataCycleCore::StoredFilter'::text) THEN collection_id
+    ELSE NULL::uuid
+END) STORED,
+    watch_list_id uuid GENERATED ALWAYS AS (
+CASE
+    WHEN ((collection_type)::text = 'DataCycleCore::WatchList'::text) THEN collection_id
+    ELSE NULL::uuid
+END) STORED
+);
+
+
+--
+-- Name: content_collection_links; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.content_collection_links (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    thing_id uuid,
+    collection_id uuid,
+    collection_type character varying,
+    relation character varying,
+    order_a integer,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    stored_filter_id uuid GENERATED ALWAYS AS (
+CASE
+    WHEN ((collection_type)::text = 'DataCycleCore::StoredFilter'::text) THEN collection_id
+    ELSE NULL::uuid
+END) STORED,
+    watch_list_id uuid GENERATED ALWAYS AS (
+CASE
+    WHEN ((collection_type)::text = 'DataCycleCore::WatchList'::text) THEN collection_id
+    ELSE NULL::uuid
+END) STORED
 );
 
 
@@ -2186,6 +2247,22 @@ ALTER TABLE ONLY public.concepts
 
 
 --
+-- Name: content_collection_link_histories content_collection_link_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.content_collection_link_histories
+    ADD CONSTRAINT content_collection_link_histories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: content_collection_links content_collection_links_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.content_collection_links
+    ADD CONSTRAINT content_collection_links_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: content_content_histories content_content_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2505,6 +2582,27 @@ CREATE INDEX ccc_ctl_id_t_id_idx ON public.collected_classification_contents USI
 --
 
 CREATE UNIQUE INDEX ccc_unique_thing_id_classification_alias_id_idx ON public.collected_classification_contents USING btree (thing_id, classification_alias_id);
+
+
+--
+-- Name: ccl_collection_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ccl_collection_index ON public.content_collection_links USING btree (collection_id, collection_type);
+
+
+--
+-- Name: ccl_unique_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX ccl_unique_index ON public.content_collection_links USING btree (thing_id, relation, collection_id, collection_type);
+
+
+--
+-- Name: cclh_collection_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX cclh_collection_index ON public.content_collection_link_histories USING btree (collection_id, collection_type);
 
 
 --
@@ -3086,6 +3184,48 @@ CREATE INDEX index_concepts_on_internal_name ON public.concepts USING gin (inter
 --
 
 CREATE INDEX index_concepts_on_order_a ON public.concepts USING btree (order_a);
+
+
+--
+-- Name: index_content_collection_link_histories_on_order_a; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_content_collection_link_histories_on_order_a ON public.content_collection_link_histories USING btree (order_a);
+
+
+--
+-- Name: index_content_collection_link_histories_on_relation; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_content_collection_link_histories_on_relation ON public.content_collection_link_histories USING btree (relation);
+
+
+--
+-- Name: index_content_collection_link_histories_on_thing_history_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_content_collection_link_histories_on_thing_history_id ON public.content_collection_link_histories USING btree (thing_history_id);
+
+
+--
+-- Name: index_content_collection_links_on_order_a; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_content_collection_links_on_order_a ON public.content_collection_links USING btree (order_a);
+
+
+--
+-- Name: index_content_collection_links_on_relation; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_content_collection_links_on_relation ON public.content_collection_links USING btree (relation);
+
+
+--
+-- Name: index_content_collection_links_on_thing_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_content_collection_links_on_thing_id ON public.content_collection_links USING btree (thing_id);
 
 
 --
@@ -4443,6 +4583,14 @@ ALTER TABLE ONLY public.classification_alias_paths_transitive
 
 
 --
+-- Name: content_collection_link_histories fk_rails_cc667ddb92; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.content_collection_link_histories
+    ADD CONSTRAINT fk_rails_cc667ddb92 FOREIGN KEY (thing_history_id) REFERENCES public.thing_histories(id) ON DELETE CASCADE;
+
+
+--
 -- Name: classification_groups fk_rails_d9919e12e6; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4464,6 +4612,14 @@ ALTER TABLE ONLY public.user_group_users
 
 ALTER TABLE ONLY public.concept_links
     ADD CONSTRAINT fk_rails_dc47cbf944 FOREIGN KEY (child_id) REFERENCES public.concepts(id) ON DELETE CASCADE;
+
+
+--
+-- Name: content_collection_links fk_rails_eb360242ed; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.content_collection_links
+    ADD CONSTRAINT fk_rails_eb360242ed FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
 
 
 --
@@ -4835,6 +4991,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240326121702'),
 ('20240328130446'),
 ('20240402073855'),
-('20240405095332');
+('20240405095332'),
+('20240408124153'),
+('20240409104345'),
+('20240409105043');
 
 

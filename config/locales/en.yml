@@ -1206,6 +1206,9 @@ en:
       required: "should be filled in."
       schedule:
         duration_too_long: "The schedule with start time %{data} lasts longer than %{max} (This could probably also be achieved via repeating schedules)"
+      collection:
+        no_api: '"%{data}" is not accessible via the API'
+        api_users: '"%{data}" is only accessible by certain users via the API'
   controllers:
     error:
       invalid_parent: Invalid parent object.

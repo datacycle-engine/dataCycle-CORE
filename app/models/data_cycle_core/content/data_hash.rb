@@ -399,11 +399,11 @@ module DataCycleCore
       def parse_collection_ids(a, key)
         ids = Array.wrap(a).compact
 
-        return ids.map { |c| { collection_id: c.id, collection_type: c.class.name, relation: key } } if ids.all?(ActiveRecord::Base)
+        return ids.map.with_index { |c, index| { collection_id: c.id, collection_type: c.class.name, relation: key, order_a: index } } if ids.all?(ActiveRecord::Base)
 
-        collections = DataCycleCore::WatchList.where(id: ids).to_a + DataCycleCore::StoredFilter.where(id: ids).to_a
+        collections = (DataCycleCore::WatchList.where(id: ids).to_a + DataCycleCore::StoredFilter.where(id: ids).to_a).sort_by { |c| ids.index(c.id) }
 
-        collections.map { |c| { collection_id: c.id, collection_type: c.class.name, relation: key } }
+        collections.map.with_index { |c, index| { collection_id: c.id, collection_type: c.class.name, relation: key, order_a: index } }
       end
 
       def set_embedded(field_name, input_data, name, translated, options)

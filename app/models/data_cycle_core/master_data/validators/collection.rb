@@ -4,7 +4,7 @@ module DataCycleCore
   module MasterData
     module Validators
       class Collection < BasicValidator
-        KEYWORDS = [].freeze
+        KEYWORDS = ['soft_api', 'soft_api_users'].freeze
 
         def validate(data, template, _strict = false)
           if blank?(data)
@@ -27,8 +27,7 @@ module DataCycleCore
         private
 
         def check_reference_array(data, template)
-          converted_data = data.deep_dup
-          converted_data = converted_data.ids if data.first.is_a?(ActiveRecord::Base)
+          converted_data = convert_data(data, template)
           # validate given validations
           if template.key?('validations')
             template['validations'].each_key do |key|
@@ -39,33 +38,64 @@ module DataCycleCore
           # validate references
           return if blank?(converted_data)
 
-          validate_references(converted_data, template)
+          validate_references(data, converted_data.pluck(:id), template)
         end
 
-        def validate_references(data, template)
-          unless data.all? { |d| d.is_a?(::String) && d.uuid? }
+        def convert_data(data, template)
+          converted_data = data.deep_dup
+          converted_data = converted_data.ids if data.first.is_a?(ActiveRecord::Base)
+
+          unless converted_data.all? { |d| d.is_a?(::String) && d.uuid? }
             (@error[:error][@template_key] ||= []) << {
               path: 'validation.errors.data_format',
               substitutions: {
-                key: data.filter { |d| !d.is_a?(::String) || !d.uuid? }.join(', '),
+                key: converted_data.filter { |d| !d.is_a?(::String) || !d.uuid? }.join(', '),
                 template: template['label']
               }
             }
             return false
           end
 
-          collections = DataCycleCore::WatchList.where(id: data).ids + DataCycleCore::StoredFilter.where(id: data).ids
+          DataCycleCore::WatchList.where(id: converted_data) + DataCycleCore::StoredFilter.where(id: converted_data)
+        end
 
-          return true if collections.size == data.size && data.to_set == collections.to_set
+        def validate_references(data, collection_ids, template)
+          return true if collection_ids.size == data.size && data.to_set == collection_ids.to_set
 
           (@error[:error][@template_key] ||= []) << {
             path: 'validation.errors.not_found',
             substitutions: {
-              key: (data.to_set - collections.to_set).join(', '),
+              key: (data - collection_ids).join(', '),
               template: template['label'],
               table: 'things'
             }
           }
+        end
+
+        def soft_api(data, _value)
+          data.each do |collection|
+            next if collection.try(:api)
+
+            (@error[:warning][@template_key] ||= []) << {
+              path: 'validation.warnings.collection.no_api',
+              substitutions: {
+                data: collection.name
+              }
+            }
+          end
+        end
+
+        def soft_api_users(data, _value)
+          data.each do |collection|
+            next if collection.try(:api_users).blank?
+
+            (@error[:warning][@template_key] ||= []) << {
+              path: 'validation.warnings.collection.api_users',
+              substitutions: {
+                data: collection.name
+              }
+            }
+          end
         end
       end
     end

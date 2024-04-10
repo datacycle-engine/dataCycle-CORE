@@ -9,6 +9,7 @@ class AddTablesForContentCollectionLinks < ActiveRecord::Migration[6.1]
       t.string :relation, index: true
       t.uuid :stored_filter_id
       t.uuid :watch_list_id
+      t.integer :order_a, index: true
       t.datetime :created_at, null: false, default: -> { 'NOW()' }
       t.datetime :updated_at, null: false, default: -> { 'NOW()' }
 
@@ -17,8 +18,6 @@ class AddTablesForContentCollectionLinks < ActiveRecord::Migration[6.1]
     end
 
     add_foreign_key :content_collection_links, :things, column: :thing_id, on_delete: :cascade
-    add_foreign_key :content_collection_links, :stored_filters, column: :stored_filter_id, on_delete: :cascade
-    add_foreign_key :content_collection_links, :watch_lists, column: :watch_list_id, on_delete: :cascade
 
     create_table :content_collection_link_histories, id: :uuid do |t|
       t.uuid :thing_history_id, index: true
@@ -27,6 +26,7 @@ class AddTablesForContentCollectionLinks < ActiveRecord::Migration[6.1]
       t.string :relation, index: true
       t.uuid :stored_filter_id
       t.uuid :watch_list_id
+      t.integer :order_a, index: true
       t.datetime :created_at, null: false, default: -> { 'NOW()' }
       t.datetime :updated_at, null: false, default: -> { 'NOW()' }
 
@@ -34,7 +34,5 @@ class AddTablesForContentCollectionLinks < ActiveRecord::Migration[6.1]
     end
 
     add_foreign_key :content_collection_link_histories, :thing_histories, column: :thing_history_id, on_delete: :cascade
-    add_foreign_key :content_collection_link_histories, :stored_filters, column: :stored_filter_id, on_delete: :cascade
-    add_foreign_key :content_collection_link_histories, :watch_lists, column: :watch_list_id, on_delete: :cascade
   end
 end

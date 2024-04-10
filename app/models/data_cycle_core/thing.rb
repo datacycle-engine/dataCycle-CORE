@@ -22,7 +22,7 @@ module DataCycleCore
       has_many :scheduled_history_data, class_name: 'DataCycleCore::Schedule::History', foreign_key: 'thing_history_id', dependent: :destroy, inverse_of: :thing_history
 
       belongs_to :thing
-      has_many :content_collection_links, dependent: :delete_all
+      has_many :content_collection_link_histories, dependent: :delete_all, foreign_key: :thing_history_id, inverse_of: :thing_history
 
       def available_locales
         I18n.available_locales.intersection(translations.select(&:persisted?).pluck(:locale).map(&:to_sym))

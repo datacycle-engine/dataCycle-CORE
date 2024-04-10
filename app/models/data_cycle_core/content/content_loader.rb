@@ -97,7 +97,7 @@ module DataCycleCore
       end
 
       def load_content_collection_links(property_name)
-        DataCycleCore::ContentCollectionLink.where(thing_id: id, relation: property_name).preload(:collection).order(updated_at: :asc).flat_map(&:collection)
+        DataCycleCore::ContentCollectionLink.where(thing_id: id, relation: property_name).preload(:collection).order(order_a: :asc).flat_map(&:collection)
       end
 
       def as_of(timestamp)
