@@ -570,7 +570,7 @@ en:
     inverse_linked: Inverse reference
     has_overlay: This content has an overlay
     no_name: untitled
-    o_clock: Watch
+    o_clock: ""
     and: and
     "yes": "Yes"
     "no": "No"
@@ -950,7 +950,7 @@ en:
       items_linked_to_2: from
       linked_items_in: Item which is linked to content type
       linked_items_in_all: Any item which is linked to content type ... in ...
-      linked_items_in_2:  in
+      linked_items_in_2: in
 
   filter_groups:
     classification_alias_ids: filter by classifications ...
