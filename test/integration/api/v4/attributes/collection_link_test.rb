@@ -24,6 +24,8 @@ module DataCycleCore
 
             assert_equal @stored_filter.id, collections.first['@id']
             assert_equal @watch_list.id, collections.last['@id']
+            assert_equal 'dcls:StoredFilter', collections.first['@type'].last
+            assert_equal 'dcls:WatchList', collections.last['@type'].last
           end
 
           test 'api/v4/things collection attribute' do # rubocop:disable Minitest/MultipleAssertions
@@ -33,6 +35,7 @@ module DataCycleCore
 
             collections.each do |collection|
               assert collection.key?('@id')
+              assert collection.key?('@type')
               assert collection.key?('name')
               assert collection.key?('url')
               assert collection.key?('dc:slug')
@@ -46,6 +49,7 @@ module DataCycleCore
 
             collections.each do |collection|
               assert collection.key?('@id')
+              assert collection.key?('@type')
               assert_not collection.key?('name')
               assert_not collection.key?('url')
               assert_not collection.key?('dc:slug')
@@ -59,6 +63,7 @@ module DataCycleCore
 
             collections.each do |collection|
               assert collection.key?('@id')
+              assert collection.key?('@type')
               assert collection.key?('name')
               assert_not collection.key?('url')
               assert_not collection.key?('dc:slug')
@@ -72,6 +77,7 @@ module DataCycleCore
 
             collections.each do |collection|
               assert collection.key?('@id')
+              assert collection.key?('@type')
               assert_not collection.key?('name')
               assert collection.key?('url')
               assert_not collection.key?('dc:slug')
@@ -85,6 +91,7 @@ module DataCycleCore
 
             collections.each do |collection|
               assert collection.key?('@id')
+              assert collection.key?('@type')
               assert_not collection.key?('name')
               assert_not collection.key?('url')
               assert collection.key?('dc:slug')
