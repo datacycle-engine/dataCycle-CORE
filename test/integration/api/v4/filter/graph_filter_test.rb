@@ -15,6 +15,7 @@ module DataCycleCore
             @routes = Engine.routes
 
             @user = User.find_by(email: 'tester@datacycle.at')
+            # @user = User.find_by(email: 'admin@datacycle.at')
 
             @poi_a = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             @poi_b = DataCycleCore::V4::DummyDataHelper.create_data('poi')
@@ -56,176 +57,176 @@ module DataCycleCore
           # relation_type based filter tests:
           test 'api/v4/things with filter[graph_filter][items_linked_to] - relation_type based - content_location' do
             # test without base filter
-            graph_filter = add_a_b_graph_filter(nil, 'linked_location;content_location', nil)
+            graph_filter = add_a_b_graph_filter(nil, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(1)
 
             # test with watch_list as base filter
-            graph_filter = add_a_b_graph_filter(@watch_list, 'linked_location;content_location', nil)
+            graph_filter = add_a_b_graph_filter(@watch_list, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(1)
 
             # test with empty stored_filter as base filter
-            graph_filter = add_a_b_graph_filter(@empty_filter, 'linked_location;content_location', nil)
+            graph_filter = add_a_b_graph_filter(@empty_filter, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(0)
 
             # test with stored_filter as base filter
-            graph_filter = add_a_b_graph_filter(@stored_filter, 'linked_location;content_location', nil)
+            graph_filter = add_a_b_graph_filter(@stored_filter, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(0)
           end
 
           test 'api/v4/things without filter[graph_filter][items_linked_to] - relation_type based - content_location' do
             # test without base filter
-            graph_filter = not_add_a_b_graph_filter(nil, 'linked_location;content_location', nil)
+            graph_filter = not_add_a_b_graph_filter(nil, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(4)
 
             # test with watch_list as base filter
-            graph_filter = not_add_a_b_graph_filter(@watch_list, 'linked_location;content_location', nil)
+            graph_filter = not_add_a_b_graph_filter(@watch_list, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(5)
 
             # test with empty stored_filter as base filter
-            graph_filter = not_add_a_b_graph_filter(@empty_filter, 'linked_location;content_location', nil)
+            graph_filter = not_add_a_b_graph_filter(@empty_filter, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(5)
 
             # test with stored_filter as base filter
-            graph_filter = not_add_a_b_graph_filter(@stored_filter, 'linked_location;content_location', nil)
+            graph_filter = not_add_a_b_graph_filter(@stored_filter, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(4)
           end
 
           test 'api/v4/things with filter[graph_filter][linked_items_in] - relation_type based - content_location' do
             # test without base filter
-            graph_filter = add_b_a_graph_filter(nil, 'linked_location;content_location', nil)
+            graph_filter = add_b_a_graph_filter(nil, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(1)
 
             # test with watch_list as base filter
-            graph_filter = add_b_a_graph_filter(@watch_list, 'linked_location;content_location', nil)
+            graph_filter = add_b_a_graph_filter(@watch_list, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(0)
 
             # test with empty stored_filter as base filter
-            graph_filter = add_b_a_graph_filter(@empty_filter, 'linked_location;content_location', nil)
+            graph_filter = add_b_a_graph_filter(@empty_filter, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(0)
 
             # test with stored_filter as base filter
-            graph_filter = add_b_a_graph_filter(@stored_filter, 'linked_location;content_location', nil)
+            graph_filter = add_b_a_graph_filter(@stored_filter, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(1)
           end
 
           test 'api/v4/things without filter[graph_filter][linked_items_in] - relation_type based - content_location' do
             # test without base filter
-            graph_filter = not_add_b_a_graph_filter(nil, 'linked_location;content_location', nil)
+            graph_filter = not_add_b_a_graph_filter(nil, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(4)
 
             # test with watch_list as base filter
-            graph_filter = not_add_b_a_graph_filter(@watch_list, 'linked_location;content_location', nil)
+            graph_filter = not_add_b_a_graph_filter(@watch_list, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(5)
 
             # test with empty stored_filter as base filter
-            graph_filter = not_add_b_a_graph_filter(@empty_filter, 'linked_location;content_location', nil)
+            graph_filter = not_add_b_a_graph_filter(@empty_filter, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(5)
 
             # test with stored_filter as base filter
-            graph_filter = not_add_b_a_graph_filter(@stored_filter, 'linked_location;content_location', nil)
+            graph_filter = not_add_b_a_graph_filter(@stored_filter, 'content_location', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(4)
           end
 
           test 'api/v4/things with filter[graph_filter][items_linked_to] - relation_type based - image' do
             # test without base filter
-            graph_filter = add_a_b_graph_filter(nil, 'linked_image;image', nil)
+            graph_filter = add_a_b_graph_filter(nil, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(3)
 
             # test with watch_list as base filter
-            graph_filter = add_a_b_graph_filter(@watch_list, 'linked_image;image', nil)
+            graph_filter = add_a_b_graph_filter(@watch_list, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(2)
 
             # test with empty stored_filter as base filter
-            graph_filter = add_a_b_graph_filter(@empty_filter, 'linked_image;image', nil)
+            graph_filter = add_a_b_graph_filter(@empty_filter, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(0)
 
             # test with stored_filter as base filter
-            graph_filter = add_a_b_graph_filter(@stored_filter, 'linked_image;image', nil)
+            graph_filter = add_a_b_graph_filter(@stored_filter, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(1)
           end
 
           test 'api/v4/things without filter[graph_filter][items_linked_to] - relation_type based - image' do
             # test without base filter
-            graph_filter = not_add_a_b_graph_filter(nil, 'linked_image;image', nil)
+            graph_filter = not_add_a_b_graph_filter(nil, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(3)
 
             # test with watch_list as base filter
-            graph_filter = not_add_a_b_graph_filter(@watch_list, 'linked_image;image', nil)
+            graph_filter = not_add_a_b_graph_filter(@watch_list, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(5)
 
             # test with empty stored_filter as base filter
-            graph_filter = not_add_a_b_graph_filter(@empty_filter, 'linked_image;image', nil)
+            graph_filter = not_add_a_b_graph_filter(@empty_filter, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(5)
 
             # test with stored_filter as base filter
-            graph_filter = not_add_a_b_graph_filter(@stored_filter, 'linked_image;image', nil)
+            graph_filter = not_add_a_b_graph_filter(@stored_filter, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(5)
           end
 
           test 'api/v4/things with filter[graph_filter][linked_items_in] - relation_type based - image' do
             # test without base filter
-            graph_filter = add_b_a_graph_filter(nil, 'linked_image;image', nil)
+            graph_filter = add_b_a_graph_filter(nil, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(2)
 
             # test with watch_list as base filter
-            graph_filter = add_b_a_graph_filter(@watch_list, 'linked_image;image', nil)
+            graph_filter = add_b_a_graph_filter(@watch_list, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(0)
 
             # test with empty stored_filter as base filter
-            graph_filter = add_b_a_graph_filter(@empty_filter, 'linked_image;image', nil)
+            graph_filter = add_b_a_graph_filter(@empty_filter, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(0)
 
             # test with stored_filter as base filter
-            graph_filter = add_b_a_graph_filter(@stored_filter, 'linked_image;image', nil)
+            graph_filter = add_b_a_graph_filter(@stored_filter, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(0)
           end
 
           test 'api/v4/things without filter[graph_filter][linked_items_in] - relation_type based - image' do
             # test without base filter
-            graph_filter = not_add_b_a_graph_filter(nil, 'linked_image;image', nil)
+            graph_filter = not_add_b_a_graph_filter(nil, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(3)
 
             # test with watch_list as base filter
-            graph_filter = not_add_b_a_graph_filter(@watch_list, 'linked_image;image', nil)
+            graph_filter = not_add_b_a_graph_filter(@watch_list, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(5)
 
             # test with empty stored_filter as base filter
-            graph_filter = not_add_b_a_graph_filter(@empty_filter, 'linked_image;image', nil)
+            graph_filter = not_add_b_a_graph_filter(@empty_filter, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(5)
 
             # test with stored_filter as base filter
-            graph_filter = not_add_b_a_graph_filter(@stored_filter, 'linked_image;image', nil)
+            graph_filter = not_add_b_a_graph_filter(@stored_filter, 'image', nil)
             post api_v4_stored_filter_path(id: graph_filter.id)
             assert_api_count_result(5)
           end

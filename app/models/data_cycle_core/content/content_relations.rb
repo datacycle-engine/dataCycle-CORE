@@ -299,7 +299,6 @@ module DataCycleCore
             SELECT DISTINCT ON (c.content_a_id) c.content_b_id, c.content_a_id, ARRAY[c.content_b_id, c.content_a_id]
             FROM content_content_links c
             WHERE c.content_b_id = :id
-            AND c.relation NOT NULL
             UNION ALL
             SELECT DISTINCT ON (d.content_a_id) d.content_b_id, d.content_a_id, p.path || ARRAY[d.content_a_id]
             FROM paths p
