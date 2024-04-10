@@ -1204,7 +1204,7 @@ span.single_warning,
   padding: 0.5rem 2rem 0.5rem 1rem;
   color: $white;
   border-radius: $global-radius;
-  z-index: 20;
+  z-index: 999;
   transition: $global-transition;
   line-height: 1.5;
   text-align: left;
