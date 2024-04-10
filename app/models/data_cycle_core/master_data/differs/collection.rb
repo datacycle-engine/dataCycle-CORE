@@ -8,7 +8,7 @@ module DataCycleCore
           ids_a = parse_uuids(a)
           ids_b = parse_uuids(b)
           @diff_hash = (
-            (set_diff(ids_a, ids_b) || [])
+            set_diff(ids_a, ids_b) || []
           ).compact.presence
         end
 
