@@ -39,6 +39,7 @@ namespace :dc do
               AND t.content_type = 'embedded'
             WHERE
               content_content_links.content_a_id = content_dependencies.id
+              AND content_content_links.relation IS NOT NULL
           )
         SELECT
           id

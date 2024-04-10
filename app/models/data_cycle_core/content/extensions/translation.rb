@@ -102,7 +102,7 @@ module DataCycleCore
           end
 
           def human_attribute_name(attribute, options = {})
-            return super unless options[:base]&.property_names&.include?(attribute.to_s) || attribute.blank?
+            return super unless options[:base]&.property_names&.include?(attribute.to_s) || options&.dig(:definition, 'label').present? || attribute.blank?
 
             human_property_name(attribute, options)
           end

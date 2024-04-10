@@ -77,6 +77,7 @@ module DataCycleCore
               AND content_content_links.content_b_id <> ALL(content_dependencies.content_ids)
               AND t.updated_at >= ?
             WHERE array_length(content_dependencies.content_ids, 1) < ?
+              AND content_content_links.relation IS NOT NULL
           ) SELECT 1 FROM content_dependencies WHERE content_ids[array_length(content_ids, 1)] = things.id
         SQL
 
