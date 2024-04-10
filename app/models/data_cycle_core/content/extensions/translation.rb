@@ -81,7 +81,7 @@ module DataCycleCore
                             translated_attribute_fallback_name(*k)
                         end
 
-                label += " (#{k[5]})" if k[2].attribute_translatable?(k[0], k[1]) && k[7]
+                label += " (#{k[5]})" if k[2]&.attribute_translatable?(k[0], k[1]) && k[7]
 
                 label
               end
