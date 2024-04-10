@@ -459,7 +459,7 @@ CREATE FUNCTION public.generate_collection_slug_trigger() RETURNS trigger
 
 CREATE FUNCTION public.generate_content_content_links(content_content_ids uuid[]) RETURNS void
     LANGUAGE plpgsql
-    AS $$ BEGIN INSERT INTO content_content_links ( content_a_id, content_b_id, content_content_id, relation ) SELECT content_contents.content_a_id AS "content_a_id", content_contents.content_b_id AS "content_b_id", content_contents.id AS "content_content_id", content_contents.relation_a AS "relation" FROM content_contents WHERE content_contents.id = ANY(content_content_ids) UNION SELECT content_contents.content_b_id AS "content_a_id", content_contents.content_a_id AS "content_b_id", content_contents.id AS "content_content_id", content_contents.relation_b AS "relation" FROM content_contents WHERE content_contents.id = ANY(content_content_ids) AND content_contents.relation_b IS NOT NULL ON CONFLICT (content_content_id, content_a_id, content_b_id, relation) DO NOTHING; RETURN; END; $$;
+    AS $$ BEGIN INSERT INTO content_content_links ( content_a_id, content_b_id, content_content_id, relation ) SELECT content_contents.content_a_id AS "content_a_id", content_contents.content_b_id AS "content_b_id", content_contents.id AS "content_content_id", content_contents.relation_a AS "relation" FROM content_contents WHERE content_contents.id = ANY(content_content_ids) UNION SELECT content_contents.content_b_id AS "content_a_id", content_contents.content_a_id AS "content_b_id", content_contents.id AS "content_content_id", content_contents.relation_b AS "relation" FROM content_contents WHERE content_contents.id = ANY(content_content_ids) ON CONFLICT (content_content_id, content_a_id, content_b_id, relation) DO NOTHING; RETURN; END; $$;
 
 
 --
@@ -4983,6 +4983,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20231220082023'),
 ('20240118164523'),
 ('20240124113601'),
+('20240227133132'),
 ('20240311123217'),
 ('20240318112843'),
 ('20240325085848'),

@@ -883,6 +883,28 @@ en:
       placeholder:
         thing: content
         collection_or_stored_filter: "%{collection} or %{stored_filter}"
+    graph_filter:
+      placeholder:
+        thing: content
+        collection_or_stored_filter: "%{collection} or %{stored_filter}"
+      contained_in: has a
+      not_contained_in: has not a
+      dropdown_text:
+        relation_mode:
+          items_linked_to: Linked ... from ...
+          linked_items_in: ... which is linked to item in ...
+        content_mode:
+          items_linked_to: Linked data type ... from ...
+          linked_items_in: Data type ... which is linked to item in ...
+      relations:
+        # [#28520] In Customer project: adjust translation for relation names in graph filter as needed!
+        image: Image
+        copyright_holder: Copyright holder
+        content_location: Location
+        tour: Tour
+        dc_media_link: dataCycle Meda Link
+        primary_image: Primary image
+        author: Author
     related_to: is linked to
     feratel_content_score: Feratel - Content Score
     internal_content_score: Content Score - dataCycle
@@ -915,6 +937,20 @@ en:
       not_access_token: no API token present
       confirmed_at: Email confirmed
       not_confirmed_at: Email not confirmed
+    relation_mode:
+      items_linked_to: Linked
+      items_linked_to_all: Linked items of ... in ...
+      items_linked_to_2: from
+      linked_items_in: Item which is linked to
+      linked_items_in_all: Any item which is linked to ... in ...
+      linked_items_in_2: in
+    content_mode:
+      items_linked_to: Linked data type
+      items_linked_to_all: Linked items of content type ... in ...
+      items_linked_to_2: from
+      linked_items_in: Item which is linked to content type
+      linked_items_in_all: Any item which is linked to content type ... in ...
+      linked_items_in_2:  in
 
   filter_groups:
     classification_alias_ids: filter by classifications ...
@@ -935,6 +971,7 @@ en:
     related_to: filter by linked content ...
     in_schedule: filter by date ...
     inactive_things: filter for expired content ...
+    graph_filter: Filter via linked content...
   sortable:
     default: Standard
     created_at: Creation date

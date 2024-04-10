@@ -83,6 +83,27 @@ module DataCycleCore
           }.compact
         end
 
+        def graph_filter(user, value)
+          return [] unless value.is_a?(Hash)
+
+          to_ignore = ['enabled', 'mode', 'allowed_relations']
+
+          mode = configuration.dig('graph_filter', 'mode')
+
+          return [] if mode == 'relation_mode' && graph_filter_relations(user).empty?
+
+          value.map { |k, v|
+            next unless v
+            next if to_ignore.include?(k) # things from features.yml to be excluded in graph filter list
+
+            [
+              I18n.t("filter.graph_filter.dropdown_text.#{mode}.#{k.underscore_blanks}", default: I18n.t("filter.graph_filter.#{mode}.#{k.underscore_blanks}", default: I18n.t("filter.#{mode}.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale), locale: user.ui_locale), locale: user.ui_locale),
+              'graph_filter',
+              data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
+            ]
+          }.compact
+        end
+
         def union_filter_ids(user, value)
           return [] unless value
 
@@ -270,6 +291,33 @@ module DataCycleCore
           return unless configuration.dig(type, name).is_a?(::Hash)
 
           configuration.dig(type, name, 'filter')
+        end
+
+        def graph_filter_restrictions(type, name)
+          return unless configuration.dig(type, name).is_a?(::Hash)
+
+          # TODO: Evaluate how to update graph_filter_restrictions in a way that makes sense
+          configuration.dig(type, name, 'filter')
+        end
+
+        def graph_filter_data_types
+          DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen')
+        end
+
+        def graph_filter_relations(user)
+          if user.can?(:graph_filter_view_all_relations, :backend)
+            allowed_relations = ActiveRecord::Base.connection.execute('SELECT DISTINCT relation FROM content_content_links WHERE relation IS NOT NULL').values.flatten
+          else
+            allowed_relations = configuration.dig('graph_filter', 'allowed_relations')
+          end
+
+          allowed_relations = [] if allowed_relations.nil?
+
+          allowed_relations
+        end
+
+        def graph_filter_mode
+          configuration.dig('graph_filter', 'mode')
         end
       end
     end

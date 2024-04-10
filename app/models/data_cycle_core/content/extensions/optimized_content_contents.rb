@@ -74,6 +74,7 @@ module DataCycleCore
                   #{", CASE WHEN content_content_links.relation = 'overlay' THEN 0 ELSE 1 END AS \"depth\"" if depth&.positive?}
                 FROM content_content_links
                 WHERE content_content_links.content_a_id IN (:id)
+                AND content_content_links.relation IS NOT NULL
                 UNION #{'ALL' if depth&.positive?}
                 #{recursive_subquery}
               )

@@ -1,0 +1,85 @@
+<%
+  content_types = value["content_type"].is_a?(Array) ? value["content_type"] : [value["content_type"]] if value['content_type'] != nil
+  relation_type = value["relation_type"]
+  filter_restrictions = value["restriction"]
+  collection = value["filter"]
+
+  if collection.is_a?(DataCycleCore::Filter::Search)
+    collection_name = collection.name
+    collection_icon = 'search'
+  elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: collection))
+    collection_name = stored_filter.name
+    collection_icon = 'filter'
+  elsif (watch_list = DataCycleCore::WatchList.find_by(id: collection))
+    collection_name = watch_list.name
+    collection_icon = 'list'
+  else
+    collection_name = collection
+    collection_icon = 'question'
+  end
+
+%>
+
+<span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
+  <span class="tag-group-label">
+    <i class="fa fa-link" aria-hidden="true"></i>
+
+    <%=
+      if content_types != nil
+        if content_types.first&.present?
+          t("filter.content_mode.#{key}", default: title, locale: active_ui_locale)
+        else
+          t("filter.'content_mode'.#{key}_all", default: title, locale: active_ui_locale)
+        end
+      else
+        t("filter.relation_mode.#{key}", default: title, locale: active_ui_locale)
+      end
+    %>
+  </span>
+
+  <% if content_types&.first&.present? || (relation_type.present? && !relation_type.blank?) %>
+    <span class="tags-container">
+    <% if content_types&.first&.present?%>
+      <!-- Content Types -->
+        <% content_types.each do |tag| %>
+        <span class="tag"><%= DataCycleCore::ClassificationAlias.find(tag).internal_name if tag.present? %></span>
+      <% end %>
+    <% end %>
+
+      <% if relation_type.present? && !relation_type.blank?%>
+      <!-- Content Types -->
+          <span class="tag"><%=t("filter.graph_filter.relations.#{relation_type}", default: relation_type, locale: active_ui_locale) %></span>
+    <% end %>
+  </span>
+  <% end %>
+
+    <span class="tag-group-label">
+      <%=
+        if content_types != nil
+          t("filter.content_mode.#{key}_2", default: "", locale: active_ui_locale)
+        else
+          t("filter.relation_mode.#{key}_2", default: "", locale: active_ui_locale)
+        end
+      %>
+  </span>
+
+  <span class="tags-container">
+
+
+    <% if filter_restrictions.present?%>
+      <!-- Filter Restrictions -->
+      <span class="tag"><%= filter_restrictions %></span>
+    <% end %>
+
+
+    <% if collection.present?%>
+      <!-- StoredFilter -->
+      <span class="tag"><i class="fa fa-<%=collection_icon %>" aria-hidden="true"></i><%= collection_name if collection.present? %></span>
+    <% end %>
+
+  </span>
+
+
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons %>
+
+</span>

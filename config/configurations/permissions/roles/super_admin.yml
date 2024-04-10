@@ -187,7 +187,9 @@ filter:
       - :collection
 
 advanced_filter:
-  actions: advanced_filter
+  actions:
+    - advanced_filter
+    - graph_filter_view_all_relations
   segment: AdvancedFilterExceptType
   parameters:
     - - :backend
