@@ -122,6 +122,7 @@ module DataCycleCore
       stored_filters = DataCycleCore::StoredFilter.accessible_by(current_ability, :update)
         .includes(:user)
         .limit(20)
+        .order(name: :asc)
 
       stored_filters = stored_filters.where(DataCycleCore::StoredFilter.arel_table[:name].matches("%#{index_params[:q]}%")) if index_params[:q].present?
 
