@@ -42,7 +42,6 @@ namespace :data_cycle_core do
 
     desc 'Only import (without downloading) data from given data source'
     task :import, [:external_source_id, :mode, :max_count] => [:environment] do |_, args|
-      z
       options = Hash[{}.merge(args.to_h).map do |k, v|
         if k == :max_count
           [k, v.to_i]
