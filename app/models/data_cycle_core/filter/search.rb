@@ -420,7 +420,7 @@ module DataCycleCore
           filter_query = Array.wrap(filter)
         end
 
-        class_aliases = [class_aliases] unless class_aliases.is_a?(Array)
+        class_aliases = (class_aliases.present? ? [class_aliases] : []) unless class_aliases.is_a?(Array)
 
         target = direction_a_b ? :content_b_id : :content_a_id
         source = direction_a_b ? :content_a_id : :content_b_id
