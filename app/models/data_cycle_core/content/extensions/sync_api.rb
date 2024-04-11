@@ -14,7 +14,6 @@ module DataCycleCore
 
           return if ancestor_ids.count(&ancestor_proc) >= 2
 
-          # disable cache as included and classifications from children and embedded are not added if read from cache (line 25 and 26)
           languages = available_locales.presence || [I18n.locale]
           languages = locales if locales.present? && translated
           new_ancestor_ids = ancestor_ids + [{ id:, attribute_name: }]
@@ -26,11 +25,16 @@ module DataCycleCore
             end
           end
 
-          add_sync_included_data(data:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, locales: languages) unless embedded?
+          data = data.with_indifferent_access
+
+          unless embedded?
+            included.unshift(data.merge!({ attribute_name: [attribute_name] })) if attribute_name.present?
+            add_sync_included_data(data:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, locales: languages)
+          end
 
           if ancestor_ids.any?(&ancestor_proc)
             data['recursive'] = ancestor_ids.reject(&ancestor_proc).filter { |a| a[:attribute_name]&.in?(data[languages.first].keys) }.uniq
-            return data.deep_stringify_keys!
+            return data
           end
 
           if new_ancestor_ids.size == 1
@@ -38,7 +42,7 @@ module DataCycleCore
             data[:classifications] = classifications
           end
 
-          data.deep_stringify_keys!
+          data
         end
 
         def to_sync_h(locales: nil, preloaded: {}, ancestor_ids: [], included: [], classifications: [])
@@ -116,8 +120,7 @@ module DataCycleCore
                   if existing.present?
                     existing[:attribute_name].push(key) unless existing[:attribute_name].include?(key)
                   else
-                    data = preloaded.dig('contents', linked_id)&.to_sync_data(preloaded:, ancestor_ids:, included:, classifications:, attribute_name: key)&.merge({ attribute_name: [key] })
-                    included.unshift(data) if data.present?
+                    preloaded.dig('contents', linked_id)&.to_sync_data(preloaded:, ancestor_ids:, included:, classifications:, attribute_name: key)
                   end
                 end
               end
