@@ -28,7 +28,10 @@ module DataCycleCore
           data = data.with_indifferent_access
 
           unless embedded?
-            included.unshift(data.merge!({ attribute_name: [attribute_name] })) if attribute_name.present?
+            if attribute_name.present?
+              data[:attribute_name] = [attribute_name]
+              included.unshift(data)
+            end
             add_sync_included_data(data:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, locales: languages)
           end
 
