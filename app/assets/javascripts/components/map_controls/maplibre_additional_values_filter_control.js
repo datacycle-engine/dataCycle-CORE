@@ -173,6 +173,8 @@ class AdditionalValuesFilterControl {
 	}
 	_addClickableFeatures() {
 		this.map.on("click", (e) => {
+			if (!this.enabled) return;
+
 			const [feature, key] = this._findFeatureAndKey(
 				this.map.queryRenderedFeatures(e.point),
 			);

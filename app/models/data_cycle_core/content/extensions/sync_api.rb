@@ -360,11 +360,6 @@ module DataCycleCore
             end
           end
         end
-
-        private
-
-        def add_included_data
-        end
       end
     end
   end
