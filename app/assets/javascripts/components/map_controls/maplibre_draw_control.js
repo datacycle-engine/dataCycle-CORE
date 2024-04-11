@@ -97,6 +97,8 @@ class MaplibreDrawControl {
 		e.preventDefault();
 		e.stopPropagation();
 
+		if (this.editor.additionalValuesFilterControl?.enabled) return;
+
 		const previousMode = this.editor.draw.getMode();
 		// temporarily change mode to simple_select to disable active drawing mode
 		if (previousMode !== "simple_select")

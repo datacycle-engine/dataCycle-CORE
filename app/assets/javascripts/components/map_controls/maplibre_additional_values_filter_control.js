@@ -29,10 +29,11 @@ class AdditionalValuesFilterControl {
 	_setupControls() {
 		this.container = document.createElement("div");
 		this.container.className =
-			"maplibregl-ctrl maplibregl-ctrl-group additional-values-overlay-control";
+			"maplibregl-ctrl maplibregl-ctrl-group mapboxgl-ctrl-group additional-values-overlay-control";
 
 		this.controlButton = document.createElement("button");
-		this.controlButton.className = "dc-additional-values-overlay-button";
+		this.controlButton.className =
+			"dc-additional-values-overlay-button dc-map-control-button";
 		this.controlButton.type = "button";
 		I18n.translate("frontend.map.filter.button_title").then((text) => {
 			this.controlButton.title = text;
@@ -202,6 +203,11 @@ class AdditionalValuesFilterControl {
 		this.enabled = true;
 		this.controlOverlay.classList.add("active");
 		this.controlButton.classList.add("active");
+
+		if (this.editor.draw) {
+			this.editor.draw.changeMode("simple_select", {});
+			this.editor.map.fire("draw.modechange", { mode: "simple_select" });
+		}
 
 		if (this.controlOverlay.classList.contains("remote-render")) {
 			const changeObserver = new MutationObserver(
