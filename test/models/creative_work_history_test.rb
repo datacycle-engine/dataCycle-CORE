@@ -19,7 +19,6 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::Thing::Translation.count - template_trans_count)
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
-
       assert_equal(data_set.get_data_hash, data_set.get_data_hash)
     end
 
@@ -274,6 +273,25 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::ContentContent::History.count)
 
       assert_equal([data_place_id2, data_place_id1].sort, data_set.histories.map { |item| item.linked.ids }.flatten.sort)
+    end
+
+    test 'create content with translation and ensure correct translations in history' do
+      data_hash = { 'name' => 'Dies ist ein Test!' }
+      save_time = Time.zone.now
+      content = DataCycleCore::TestPreparations.create_content(template_name: 'TestSimple', data_hash:, save_time:)
+
+      travel 1.minute
+      I18n.with_locale(:en) { content.set_data_hash(data_hash: { name: 'English Test Name' }, save_time: Time.zone.now) }
+
+      travel 1.minute
+      I18n.with_locale(:de) { content.set_data_hash(data_hash: { name: 'English Test Name' }, save_time: Time.zone.now) }
+
+      assert_equal [:de, :en].to_set, content.available_locales.to_set
+      assert_equal 'de', content.last_updated_locale
+      assert_equal [:en], content.histories[0].available_locales
+      assert_equal 'en', content.histories[0].last_updated_locale
+      assert_equal [:de], content.histories[1].available_locales
+      assert_equal 'de', content.histories[1].last_updated_locale
     end
   end
 end

@@ -5,6 +5,9 @@
     :content_type: entity
     :schema_ancestors:
       - CreativeWork
+    :features:
+      :translatable:
+        :allowed: true
     :properties:
       :id:
         :label: id
