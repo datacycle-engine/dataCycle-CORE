@@ -78,3 +78,13 @@
             :disabled: true
           :edit:
             :disabled: true
+      :attribution_name:
+        :label: Namensnennung
+        :type: string
+        :storage_location: translated_value
+        :compute:
+          :method: copyright_notice
+          :module: Copyright
+          :parameters:
+            - copyright_holder
+            - author

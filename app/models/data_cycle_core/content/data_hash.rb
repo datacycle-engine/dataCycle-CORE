@@ -131,6 +131,8 @@ module DataCycleCore
             no_changes_key = translated_template_name(options.ui_locale).to_sym
             i18n_warnings.each_value { |w| w.delete(no_changes_key) } unless translations.keys.push(locale).all? { |l| i18n_warnings[l]&.include?(no_changes_key) }
           end
+
+          add_update_translated_computed_properties_job(available_locales.map(&:to_s) - translations.keys - [locale]) if computed_property_names.intersect?(translatable_property_names)
         end
 
         i18n_valid?
@@ -212,6 +214,12 @@ module DataCycleCore
 
       def add_update_dependent_computed_properties_job
         DataCycleCore::UpdateComputedPropertiesJob.perform_later(id, Array.wrap(datahash_changes&.keys))
+      end
+
+      def add_update_translated_computed_properties_job(locales)
+        return if locales.blank?
+
+        DataCycleCore::UpdateTranslatedComputedPropertiesJob.perform_later(id, Array.wrap(locales))
       end
 
       def invalidate_self_and_update_search
