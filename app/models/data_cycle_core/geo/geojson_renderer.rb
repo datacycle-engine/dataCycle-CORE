@@ -10,8 +10,8 @@ module DataCycleCore
         super || empty_geojson
       end
 
-      def contents_with_default_scope
-        query = super
+      def contents_with_default_scope(query = @contents)
+        query = super(query)
 
         query = query.where.not(geom_simple: nil)
 
