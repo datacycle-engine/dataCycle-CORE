@@ -430,7 +430,28 @@ class Validator {
 						.append(await this.renderErrorMessage(data, validationContainer))
 						.addClass("has-error");
 				}
+
+				// remove dup-check warnings from previous validation
+				if ($("button.button.success.submit").attr('data-dup-confirm')) {
+					$("button.button.success.submit").removeAttr("data-confirm data-dup-confirm")
+				}
+
 				if (data.warnings && Object.keys(data.warnings).length > 0) {
+
+					//logic that gets triggered if user can create things without prior search && a search has found similiar names - otherwise remove confirmation window!
+					// if (data.warnings['dup_confirm']){
+					// 	$("button.button.success.submit").attr({
+					// 		'data-confirm': data.warnings['dup_confirm'],
+					// 		'data-dup-confirm': true,
+					// 		'disabled': false
+					// 	});
+					// }
+
+					if (data.warnings['dup_search_btn']){
+						let btnHtml = $.parseHTML(data.warnings['dup_search_btn'][0]);
+						$("a.button.dup-found-show").replaceWith(btnHtml);
+					}
+
 					this.$form.trigger("dc:form:validationError", {
 						locale: translationLocale,
 						type: "warning",
@@ -444,7 +465,11 @@ class Validator {
 								"warning",
 							),
 						)
-						.addClass("has-warning");
+						.addClass("has-warning")
+						.addClass("warning");
+
+				} else {
+					$("a.button.dup-found-show").hide();
 				}
 			}
 		});
@@ -481,6 +506,7 @@ class Validator {
 		if (confirmations.warnings !== undefined) {
 			this.$form
 				.find(".form-element .warning.counter")
+				// .find(".form-element.has-warning")
 				.closest(".form-element")
 				.addClass("has-warning");
 
@@ -605,12 +631,16 @@ class Validator {
 
 				if (this.valid && submitForm) {
 					this.queryCount = 0;
-					const warnings = this.$form.find(".form-element .warning.counter");
+					// const warnings = this.$form.find(".form-element .warning.counter");
+
+					const warnings = this.$form.find(".form-element.has-warning");
 
 					data = Object.assign({}, data || {}, {
 						finalize: true,
 						confirm: true,
 					});
+
+					console.log(warnings)
 
 					if (warnings.length) Object.assign(data, { warnings: warnings });
 

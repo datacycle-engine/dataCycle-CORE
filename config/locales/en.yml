@@ -1353,6 +1353,10 @@ en:
       external_system_created: The configuration for the external system has been created
     warning:
       no_changes: No new version was created because no changes were made to the content.
+      dup_found: "<b>%{count}</b> entries with the same or a similiar name found"
+      dup_found_one: "<b>%{count}</b> entry with the same or a similiar name found"
+      dup_found_show: "Show potential duplicates"
+      dup_continue_creation: "Do you really want to continue creating this asset"
     info:
       not_modified: "%{data} has not been changed."
       created_duplication: "%{data} was successfully duplicated."

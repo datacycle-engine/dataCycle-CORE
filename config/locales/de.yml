@@ -1381,6 +1381,10 @@ de:
       external_system_created: Die Konfiguration für das externe System wurde erstellt
     warning:
       no_changes: Es wurde keine neue Version angelegt, da keine Änderungen am Inhalt gemacht worden sind.
+      dup_found: "Es wurden <b>%{count}</b> Inhalte mit &auml;hnlichem Namen gefunden"
+      dup_found_one: "Es wurde <b>%{count}</b> Inhalt mit &auml;hnlichem Namen gefunden"
+      dup_found_show: Mögliche Duplikate anzeigen
+      dup_continue_creation: "Wollen Sie mit der Erstellung des Inhaltes fortfahren"
     info:
       not_modified: "%{data} wurde nicht geändert."
       created_duplication: "%{data} wurde erfolgreich dupliziert."

@@ -1,1 +1,6 @@
-<%= render_new_form(template: @template, parameters: @resolved_params) %>
+<%
+  params = @resolved_params
+  params[:search_required] = cannot?(:create_without_search, DataCycleCore::Thing) && @resolved_params[:search_required]
+%>
+
+<%= render_new_form(template: @template, parameters: params) %>
