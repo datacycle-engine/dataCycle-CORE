@@ -4,8 +4,7 @@
   relation_restriction = DataCycleCore::Feature::AdvancedFilter.graph_filter_relations(current_user)
   relation_restriction_options =  options_from_collection_for_select(relation_restriction.to_a.collect { |option| [option, t("filter.graph_filter.relations.#{option}", default: "translation missing: filter.graph_filter.relations.#{option}", locale: active_ui_locale)] }, :first, :last, value&.[]('relation_type'))
   filter_mode = DataCycleCore::Feature::AdvancedFilter.graph_filter_mode
-  relation_mode = filter_mode == 'relation_mode' || filter_mode == nil
-  content_mode = filter_mode == 'content_mode'
+  direction_is_a_b = filter_name == 'items_linked_to'
 %>
 
 <div data-id="<%= identifier %>" class="advanced-filter conditional-value-selector <%= filter_method ||= (filter_restrictions.present? ? 's' : 'i') %>" data-label="<%= filter_name %>">
@@ -18,96 +17,37 @@
     <%= render 'data_cycle_core/shared/icon', icon_type: filter_name&.underscore_blanks, icon_class: 'filter' %>
   </div>
 
-  <div class="advanced-filter-mode">
-    <%= select_tag "f[#{identifier}][m]", advanced_graph_filter_options(filter_method, filter_restrictions.present?) %>
+  <div class="advanced-filter-title">
+    <span><%= t("filter.graph_filter.input_ui.#{filter_mode}.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
   </div>
+
+  <% if direction_is_a_b %>
+
+    <div class="advanced-filter-mode">
+      <%= select_tag "f[#{identifier}][m]", advanced_graph_filter_options(filter_method, filter_restrictions.present?) %>
+    </div>
+
+    <div class="advanced-filter-title">
+      <span><%= t("filter.graph_filter.input_ui.#{filter_mode}.#{filter_name}_2", default: filter_title, locale: active_ui_locale) %></span>
+    </div>
+
+    <%= render 'data_cycle_core/application/filters/sections/graph_filter_selection', filter_mode: filter_mode, data_type_restriction: data_type_restriction, relation_restriction: relation_restriction, relation_restriction_options: relation_restriction_options, filter_title: filter_title, identifier: identifier %>
+
+
+<% else %>
+
+    <%= render 'data_cycle_core/application/filters/sections/graph_filter_selection', filter_mode: filter_mode, data_type_restriction: data_type_restriction, relation_restriction: relation_restriction, relation_restriction_options: relation_restriction_options, filter_title: filter_title, identifier: identifier %>
+
+    <div class="advanced-filter-mode">
+      <%= select_tag "f[#{identifier}][m]", advanced_graph_filter_options(filter_method, filter_restrictions.present?) %>
+    </div>
+
+  <% end %>
 
   <div class="advanced-filter-title">
-    <span><%= t("filter.#{filter_mode}.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
+    <span><%= t("filter.graph_filter.input_ui.#{filter_mode}.#{filter_name}_3", default: filter_title, locale: active_ui_locale) %></span>
   </div>
 
-
-  <div class="advanced-filter-selector">
-
-    <% if content_mode %>
-
-      <% select_value = value&.[]('content_type') %>
-      <% if data_type_restriction.present? %>
-        <% if data_type_restriction.size > DataCycleCore.max_asynch_classification_items %>
-          <%= select_tag(
-                "f[#{identifier}][v][content_type]",
-                async_classification_select_options(@selected_classification_aliases&.values_at(*select_value)),
-                {
-                  multiple: true,
-                  class: 'async-select',
-                  data: {
-                    tree_label: filter_title,
-                    max: 20,
-                    placeholder: '',
-                    find_path: find_classifications_path,
-                    search_path: search_classifications_path
-                  }
-                }
-              ) %>
-        <% else %>
-          <%= select_tag(
-                "f[#{identifier}][v][content_type]",
-                simple_classification_select_options(DataCycleCore::ClassificationAlias.where(id: select_value), data_type_restriction),
-                {
-                  multiple: true,
-                  class: 'multi-select',
-                  data: {
-                    tree_label: filter_title,
-                    max: 20,
-                    placeholder: ''
-                  }
-                }
-              ) %>
-        <% end %>
-      <% end %>
-    <% elsif relation_mode %>
-      <% if relation_restriction.present? %>
-        <% if relation_restriction.size > DataCycleCore.max_asynch_classification_items %>
-          <%= select_tag(
-                "f[#{identifier}][v][relation_type]",
-                relation_restriction_options,
-                {
-                  multiple: false,
-                  class: 'async-select',
-                  include_blank: true,
-                  data: {
-                    tree_label: filter_title,
-                    max: 20,
-                    placeholder: '',
-                    alias_ids: true,
-                    find_path: find_classifications_path,
-                    search_path: search_classifications_path
-                  }
-                }
-              ) %>
-        <% else %>
-          <%= select_tag(
-                "f[#{identifier}][v][relation_type]",
-                relation_restriction_options,
-                {
-                  multiple: false,
-                  class: 'single-select',
-                  include_blank: true,
-                  data: {
-                    tree_label: filter_title,
-                    max: 20,
-                    placeholder: ''
-                  }
-                }
-              ) %>
-        <% end %>
-      <% end %>
-    <% end %>
-  </div>
-
-  <div class="advanced-filter-title">
-    <span><%= t("filter.#{filter_mode}.#{filter_name}_2", default: "", locale: active_ui_locale) %></span>
-  </div>
 
   <div class="advanced-filter-selector">
     <% if filter_restrictions.present? %>

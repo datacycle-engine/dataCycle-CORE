@@ -887,15 +887,43 @@ en:
       placeholder:
         thing: content
         collection_or_stored_filter: "%{collection} or %{stored_filter}"
-      contained_in: has a
-      not_contained_in: has not a
+      contained_in: is
+      not_contained_in: is not
       dropdown_text:
         relation_mode:
-          items_linked_to: Linked ... from ...
-          linked_items_in: ... which is linked to item in ...
+          items_linked_to: Item linked as ... in ...
+          linked_items_in: Items with linked Item ... in ...
         content_mode:
-          items_linked_to: Linked data type ... from ...
-          linked_items_in: Data type ... which is linked to item in ...
+          items_linked_to: Linked item of data type ... in ...
+          linked_items_in: Items with linked item of data type ... in ...
+      input_ui:
+        relation_mode:
+          items_linked_to: Items
+          items_linked_to_2: as linked
+          items_linked_to_3: in
+          linked_items_in: Linked items
+          linked_items_in_3: in
+        content_mode:
+          items_linked_to: Items
+          items_linked_to_2: as linked
+          items_linked_to_3: in
+          linked_items_in: Linked items
+          linked_items_in_2: in
+      tag_group:
+        relation_mode:
+          items_linked_to: Linked
+          items_linked_to_all: Linked items
+          items_linked_to_2: from
+          linked_items_in: Linked
+          linked_items_in_all: Linked items
+          linked_items_in_2: in
+        content_mode:
+          items_linked_to: Linked
+          items_linked_to_all: Linked items
+          items_linked_to_2: from
+          linked_items_in: Linked
+          linked_items_in_all: Linked items
+          linked_items_in_2: in
       relations:
         # [#28520] In Customer project: adjust translation for relation names in graph filter as needed!
         image: Image
@@ -976,20 +1004,6 @@ en:
       not_access_token: no API token present
       confirmed_at: Email confirmed
       not_confirmed_at: Email not confirmed
-    relation_mode:
-      items_linked_to: Linked
-      items_linked_to_all: Linked items of ... in ...
-      items_linked_to_2: from
-      linked_items_in: Item which is linked to
-      linked_items_in_all: Any item which is linked to ... in ...
-      linked_items_in_2: in
-    content_mode:
-      items_linked_to: Linked data type
-      items_linked_to_all: Linked items of content type ... in ...
-      items_linked_to_2: from
-      linked_items_in: Item which is linked to content type
-      linked_items_in_all: Any item which is linked to content type ... in ...
-      linked_items_in_2: in
 
   filter_groups:
     classification_alias_ids: filter by classifications ...

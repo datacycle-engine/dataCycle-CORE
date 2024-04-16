@@ -142,6 +142,7 @@ de:
       bulk_edit: im Bulk bearbeiten
       bulk_delete: im Bulk löschen
       download_user_info_activity: "Nutzerinformationen und API-Aktivität herunterladen"
+      graph_filter_view_all_relations: "Keine Inhaltstyp-Einschränkung bei Filtern über verknüpfte Inhalte (Graph-Filter)"
     restrictions:
       advanced_filter_except_type: "nicht: %{except}"
       asset_by_user_and_no_content:

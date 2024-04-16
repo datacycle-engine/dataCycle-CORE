@@ -3,6 +3,7 @@
   relation_type = value["relation_type"]
   filter_restrictions = value["restriction"]
   collection = value["filter"]
+  is_direction_a_b = local_assigns[:key] == "items_linked_to"
 
   if collection.is_a?(DataCycleCore::Filter::Search)
     collection_name = collection.name
@@ -27,12 +28,14 @@
     <%=
       if content_types != nil
         if content_types.first&.present?
-          t("filter.content_mode.#{key}", default: title, locale: active_ui_locale)
+          t("filter.graph_filter.tag_group.content_mode.#{key}", default: title, locale: active_ui_locale)
         else
-          t("filter.'content_mode'.#{key}_all", default: title, locale: active_ui_locale)
+          t("filter.graph_filter.tag_group.content_mode.#{key}_all", default: title, locale: active_ui_locale)
         end
+      elsif relation_type != ""
+        t("filter.graph_filter.tag_group.relation_mode.#{key}", default: title, locale: active_ui_locale)
       else
-        t("filter.relation_mode.#{key}", default: title, locale: active_ui_locale)
+        t("filter.graph_filter.tag_group.relation_mode.#{key}_all", default: title, locale: active_ui_locale)
       end
     %>
   </span>
@@ -56,9 +59,9 @@
     <span class="tag-group-label">
       <%=
         if content_types != nil
-          t("filter.content_mode.#{key}_2", default: "", locale: active_ui_locale)
+          t("filter.graph_filter.tag_group.content_mode.#{key}_2", default: "", locale: active_ui_locale)
         else
-          t("filter.relation_mode.#{key}_2", default: "", locale: active_ui_locale)
+          t("filter.graph_filter.tag_group.relation_mode.#{key}_2", default: "", locale: active_ui_locale)
         end
       %>
   </span>

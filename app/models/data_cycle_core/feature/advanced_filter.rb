@@ -86,6 +86,8 @@ module DataCycleCore
         def graph_filter(user, value)
           return [] unless value.is_a?(Hash)
 
+          return [] unless configuration.dig('graph_filter', 'enabled') == true
+
           to_ignore = ['enabled', 'mode', 'allowed_relations']
 
           mode = configuration.dig('graph_filter', 'mode')
@@ -95,6 +97,8 @@ module DataCycleCore
           value.map { |k, v|
             next unless v
             next if to_ignore.include?(k) # things from features.yml to be excluded in graph filter list
+
+            next unless v.dig('enabled') == true
 
             [
               I18n.t("filter.graph_filter.dropdown_text.#{mode}.#{k.underscore_blanks}", default: I18n.t("filter.graph_filter.#{mode}.#{k.underscore_blanks}", default: I18n.t("filter.#{mode}.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale), locale: user.ui_locale), locale: user.ui_locale),
