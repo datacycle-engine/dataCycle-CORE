@@ -111,7 +111,7 @@ module DataCycleCore
           valid_until: Time.zone.tomorrow,
           permissions: 'write',
           item_id: watch_list.id,
-          item_type: watch_list.class.name,
+          item_type: watch_list.class.base_class.name,
           comment: 'Testkommentar'
         }
       }, headers: {

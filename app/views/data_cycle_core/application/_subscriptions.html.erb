@@ -3,5 +3,5 @@
   <%= link_to t('actions.unsubscribe', locale: active_ui_locale), subscription_path(content.subscriptions.by_user(current_user).first), remote: true, method: :delete, class: 'button', data: { disable_with: '<i class="fa fa-spinner fa-spin fa-fw"></i> ' + t('actions.unsubscribe', locale: active_ui_locale) } %>
 <% else %>
   <%= t('common.subscribe_text', locale: active_ui_locale) %><br />
-  <%= link_to t('actions.subscribe', locale: active_ui_locale).capitalize, create_subscriptions_path(subscribable_id: content.id, subscribable_type: content.class.name), remote: true, method: :post, class: 'button', data: { disable_with: '<i class="fa fa-spinner fa-spin fa-fw"></i> ' + t('actions.subscribe', locale: active_ui_locale).capitalize } %>
+  <%= link_to t('actions.subscribe', locale: active_ui_locale).capitalize, create_subscriptions_path(subscribable_id: content.id, subscribable_type: content.class.base_class.name), remote: true, method: :post, class: 'button', data: { disable_with: '<i class="fa fa-spinner fa-spin fa-fw"></i> ' + t('actions.subscribe', locale: active_ui_locale).capitalize } %>
 <% end %>

@@ -3,7 +3,7 @@
 require 'test_helper'
 
 module DataCycleCore
-  module Collection
+  module Collections
     class CollectionOrderTest < DataCycleCore::TestCases::ActiveSupportTestCase
       before(:all) do
         @collection = DataCycleCore::TestPreparations.create_watch_list(name: 'Inhaltssammlung 1')

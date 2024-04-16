@@ -5,7 +5,7 @@
   <p class="lead"><%= DataCycleCore::DataLink.model_name.human(locale: active_ui_locale).titleize %></p>
   <%= form.hidden_field 'source_table', value: local_assigns[:split_source].class.table_name unless local_assigns[:split_source].blank? %>
   <%= form.hidden_field 'source_id', value: local_assigns[:split_source].id unless local_assigns[:split_source].blank? %>
-  <%= form.hidden_field 'item_type', value: content.class.name %>
+  <%= form.hidden_field 'item_type', value: content.class.base_class.name %>
   <%= form.hidden_field 'item_id', value: content.id %>
 
   <%= render 'data_cycle_core/data_links/receiver_form', receiver: data_link.receiver || DataCycleCore::User.new, namespace: namespace %>

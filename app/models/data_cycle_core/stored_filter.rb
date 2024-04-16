@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class StoredFilter < ApplicationRecord
+  class StoredFilter < Collection
     # Mögliche Filter-Parameter: c, t, v, m, n, q
     #
     # c => one of 'd', 'a', 'p', 'u', 'uf'                | für 'default', 'advanced', 'permanent advanced', 'user', 'user forced'
@@ -14,39 +14,6 @@ module DataCycleCore
     include StoredFilterExtensions::SortParamTransformations
     include StoredFilterExtensions::FilterParamsTransformations
     include StoredFilterExtensions::FilterParamsHashParser
-
-    default_scope { includes(:collection_configuration) }
-
-    scope :by_user, ->(user) { where(user:) }
-    scope :by_api_user, ->(user) { where("'#{user.id}' = ANY (api_users)") }
-    scope :named, -> { where.not(name: nil) }
-    scope :by_id_name_slug_description, lambda { |value|
-      return all if value.blank?
-
-      arel_subquery = DataCycleCore::StoredFilter.arel_table[:name].matches("%#{value}%")
-        .or(DataCycleCore::CollectionConfiguration.arel_table[:slug].matches("%#{value}%"))
-        .or(DataCycleCore::CollectionConfiguration.arel_table[:description].matches("%#{value}%"))
-
-      arel_subquery = arel_subquery.or(DataCycleCore::StoredFilter.arel_table[:id].eq(value.to_s)) if value.to_s.uuid?
-
-      left_outer_joins(:collection_configuration).where(arel_subquery)
-    }
-    belongs_to :user
-    belongs_to :user_with_deleted, -> { with_deleted }, foreign_key: :user_id, class_name: 'DataCycleCore::User'
-
-    has_many :activities, as: :activitiable, dependent: :destroy
-
-    belongs_to :linked_stored_filter, class_name: 'DataCycleCore::StoredFilter', inverse_of: :filter_uses, dependent: nil
-    has_many :filter_uses, class_name: 'DataCycleCore::StoredFilter', foreign_key: :linked_stored_filter_id, inverse_of: :linked_stored_filter, dependent: :nullify
-
-    has_many :data_links, as: :item, dependent: :destroy
-    has_many :valid_write_links, -> { valid.writable }, class_name: 'DataCycleCore::DataLink', as: :item
-
-    has_one :collection_configuration
-    accepts_nested_attributes_for :collection_configuration, update_only: true
-    delegate :slug, :description, to: :collection_configuration, allow_nil: true
-
-    before_save :update_slug, if: :update_slug?
 
     attr_accessor :query, :include_embedded
 
@@ -65,87 +32,16 @@ module DataCycleCore
       filter1.slice(*KEYS_FOR_EQUALITY) == filter2.slice(*KEYS_FOR_EQUALITY)
     end
 
-    def self.combine_with_collections(collections, filter_proc = nil, name_filter = true)
-      query1_table = all.arel_table
-      query1 = all.arel
-      query1.projections = []
-      query1 = query1.where(query1_table[:name].not_eq(nil)) if name_filter
-      query1 = query1.project(
-        query1_table[:id],
-        query1_table[:name],
-        query1_table[:system],
-        query1_table[:name].as('full_path'),
-        Arel::Nodes::SqlLiteral.new("'#{all.klass.model_name.param_key}'").as('class_name')
-      )
-
-      query2_table = collections.arel_table
-      query2 = collections.arel
-      query2.projections = []
-      query2 = query2.where(query2_table[:name].not_eq(nil))
-        .project(
-          query2_table[:id],
-          query2_table[:name],
-          Arel::Nodes::SqlLiteral.new('false').as('system'),
-          query2_table[:full_path],
-          Arel::Nodes::SqlLiteral.new("'#{collections.klass.model_name.param_key}'").as('class_name')
-        )
-
-      unless filter_proc.nil?
-        query1 = filter_proc.call(query1, query1_table)
-        query2 = filter_proc.call(query2, query2_table)
-      end
-
-      Arel::SelectManager.new(Arel::Nodes::TableAlias.new(query1.union(:all, query2), 'combined_collections_and_searches')).project(Arel.star).order('name ASC')
-    end
-
     def to_select_option(locale = DataCycleCore.ui_locales.first)
       DataCycleCore::Filter::SelectOption.new(
         id,
         ActionController::Base.helpers.safe_join([
-          ActionController::Base.helpers.tag.i(class: "fa dc-type-icon stored_filter-icon #{self.system ? 'system' : ''}".strip),
+          ActionController::Base.helpers.tag.i(class: 'fa dc-type-icon stored_filter-icon'),
           name.presence || '__DELETED__'
         ].compact, ' '),
         model_name.param_key,
         "#{model_name.human(count: 1, locale:)}: #{name.presence || '__DELETED__'}"
       )
-    end
-
-    def valid_write_links?
-      valid_write_links.present?
-    end
-
-    def self.by_id_or_slug(value)
-      return none if value.blank?
-
-      uuids = Array.wrap(value).filter { |v| v.to_s.uuid? }
-      slugs = Array.wrap(value)
-      queries = []
-      queries.push(unscoped.where(id: uuids).select(:id).to_sql) if uuids.present?
-      queries.push(DataCycleCore::CollectionConfiguration.where.not(stored_filter_id: nil).where(slug: slugs).select(:stored_filter_id).to_sql) if slugs.present?
-
-      where("stored_filters.id IN (#{send(:sanitize_sql_array, [queries.join(' UNION ')])})")
-    end
-
-    def self.by_id_or_name(value)
-      return none if value.blank?
-
-      uuids = Array.wrap(value).filter { |v| v.to_s.uuid? }
-      names = Array.wrap(value)
-      queries = []
-      queries.push(default_scoped.where(id: uuids).select(:id).to_sql) if uuids.present?
-      queries.push(default_scoped.where(name: names).select(:id).to_sql) if names.present?
-
-      where("stored_filters.id IN (#{send(:sanitize_sql_array, [queries.join(' UNION ')])})")
-    end
-
-    private
-
-    def update_slug?
-      name_changed? && slug.blank?
-    end
-
-    def update_slug
-      self.collection_configuration_attributes = { slug: name&.to_slug }
     end
   end
 end

@@ -208,6 +208,7 @@ module DataCycleCore
 
       def self.add_alias_actions(ability)
         ability.alias_action :manual_order, to: :update
+        ability.alias_action :share, to: :create_api_with_users
       end
 
       def self.add_abilities_for_user(ability)
@@ -221,6 +222,7 @@ module DataCycleCore
           parameters = [:can, permission[:actions], definition.subject]
           parameters.push(definition.scope) if definition.respond_to?(:scope)
           parameters.push(definition.conditions) if definition.respond_to?(:conditions)
+
           next ability.send(*parameters) unless definition.respond_to?(:to_proc)
 
           ability.send(*parameters, &definition.to_proc)

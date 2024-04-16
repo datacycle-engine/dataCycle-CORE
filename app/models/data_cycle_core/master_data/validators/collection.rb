@@ -4,7 +4,7 @@ module DataCycleCore
   module MasterData
     module Validators
       class Collection < BasicValidator
-        KEYWORDS = ['soft_api', 'soft_api_users'].freeze
+        KEYWORDS = ['soft_api'].freeze
 
         def validate(data, template, _strict = false)
           if blank?(data)
@@ -78,19 +78,6 @@ module DataCycleCore
 
             (@error[:warning][@template_key] ||= []) << {
               path: 'validation.warnings.collection.no_api',
-              substitutions: {
-                data: collection.name
-              }
-            }
-          end
-        end
-
-        def soft_api_users(data, _value)
-          data.each do |collection|
-            next if collection.try(:api_users).blank?
-
-            (@error[:warning][@template_key] ||= []) << {
-              path: 'validation.warnings.collection.api_users',
               substitutions: {
                 data: collection.name
               }

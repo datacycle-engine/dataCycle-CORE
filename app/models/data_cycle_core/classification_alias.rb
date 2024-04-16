@@ -483,15 +483,15 @@ module DataCycleCore
                 ELSE elem
             END ) AS new_parameters
             FROM
-              stored_filters,
+              collections ,
               jsonb_array_elements( parameters ) elem
             WHERE parameters::TEXT ILIKE '%#{id}%'
             GROUP BY id
         )
-        UPDATE stored_filters
+        UPDATE collections
         SET
           parameters = subquery.new_parameters FROM subquery
-        WHERE stored_filters.id = subquery.id
+        WHERE collections.id = subquery.id
       SQL
     end
   end

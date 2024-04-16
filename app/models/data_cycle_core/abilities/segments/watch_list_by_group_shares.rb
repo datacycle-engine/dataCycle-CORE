@@ -13,7 +13,7 @@ module DataCycleCore
 
         def conditions
           {
-            watch_list_shares: {
+            collection_shares: {
               shareable_id: user.user_group_ids,
               shareable_type: 'DataCycleCore::UserGroup'
             },

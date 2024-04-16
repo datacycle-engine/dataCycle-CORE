@@ -49,7 +49,6 @@ module DataCycleCore
       new_filter ||= @stored_filter
       new_filter.user_id ||= current_user.id
       new_filter.name = filter_params[:name] if params[:stored_filter].present? && filter_params[:name].present? && !new_filter.persisted?
-      new_filter.system = filter_params[:system] if params[:stored_filter].present? && filter_params[:system].present?
       new_filter.parameters = @stored_filter.parameters
       new_filter.language = Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
       new_filter.sort_parameters = @stored_filter.sort_parameters
@@ -81,7 +80,7 @@ module DataCycleCore
             .part_of(@container.id)
           tmp_count = @contents.count
           @contents = @contents.content_includes.page(params[:page])
-          ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:watch_list_shares))
+          ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
 
           @page = @contents.current_page
           @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
@@ -98,7 +97,7 @@ module DataCycleCore
             .classification_alias_ids_without_subtree(@classification_tree.sub_classification_alias.id)
           tmp_count = @contents.count
           @contents = @contents.content_includes.page(params[:page])
-          ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:watch_list_shares))
+          ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
 
           @page = @contents.current_page
           @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
@@ -121,7 +120,7 @@ module DataCycleCore
         page_size = DataCycleCore.main_config.dig(:ui, :dashboard, :page, :size)&.to_i || DEFAULT_PAGE_SIZE
         @contents = get_filtered_results(query:, user_filter:, watch_list:)
         @contents = @contents.content_includes.page(params[:page]).per(page_size).without_count
-        ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:watch_list_shares))
+        ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
       end
     end
 
@@ -205,7 +204,7 @@ module DataCycleCore
     end
 
     def filter_params
-      params.require(:stored_filter).permit(:id, :name, :system)
+      params.require(:stored_filter).permit(:id, :name)
     end
 
     def mode_params

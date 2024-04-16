@@ -41,19 +41,6 @@ module DataCycleCore
           assert validator.error[:error].blank?
           assert validator.error[:warning].blank?
         end
-
-        test 'successfully validates collection without api_users with soft_api_users validation' do
-          validator = subject.new([@stored_filter.id], validation_hash.merge({ 'validations' => { 'soft_api_users' => true } }))
-          assert validator.error[:error].blank?
-          assert validator.error[:warning].blank?
-        end
-
-        test 'successfully validates collection with api_users with soft_api_users validation' do
-          @stored_filter.update(api: true, api_users: [@user.id])
-          validator = subject.new([@stored_filter.id], validation_hash.merge({ 'validations' => { 'soft_api_users' => true } }))
-          assert validator.error[:error].blank?
-          assert validator.error[:warning].present?
-        end
       end
     end
   end

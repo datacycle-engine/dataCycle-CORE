@@ -7,8 +7,8 @@ module DataCycleCore
     has_many :user_group_users, dependent: :destroy
     has_many :users, through: :user_group_users
 
-    has_many :watch_list_shares, as: :shareable, dependent: :destroy, inverse_of: :shareable
-    has_many :watch_lists, through: :watch_list_shares
+    has_many :collection_shares, as: :shareable, dependent: :destroy, inverse_of: :shareable
+    has_many :shared_collections, through: :collection_shares
 
     has_many :classification_user_groups, dependent: :destroy
     has_many :classifications, through: :classification_user_groups
@@ -42,6 +42,22 @@ module DataCycleCore
       return DataCycleCore::User.none if all.is_a?(ActiveRecord::NullRelation)
 
       DataCycleCore::User.where(id: joins('INNER JOIN user_group_users user_group_users_user_groups ON user_group_users_user_groups.user_group_id = user_groups.id').select('user_group_users_user_groups.user_id'))
+    end
+
+    def to_select_option(locale = DataCycleCore.ui_locales.first)
+      DataCycleCore::Filter::SelectOption.new(
+        id,
+        ActionController::Base.helpers.safe_join([
+          ActionController::Base.helpers.tag.i(class: 'fa dc-type-icon user_group-icon'),
+          name
+        ].compact, ' '),
+        model_name.param_key,
+        "#{model_name.human(count: 1, locale:)}: #{name}"
+      )
+    end
+
+    def self.to_select_options(locale = DataCycleCore.ui_locales.first)
+      all.map { |v| v.to_select_option(locale) }
     end
   end
 end

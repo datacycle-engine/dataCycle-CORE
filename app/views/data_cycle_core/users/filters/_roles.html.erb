@@ -13,7 +13,7 @@
 
           <label for="<%= item.id %>">
             <span class="title">
-              <span class="inner-title"><%= t('roles.'+item.name, locale: active_ui_locale) %></span>
+              <span class="inner-title"><%= item.translated_name(active_ui_locale) %></span>
             </span>
           </label>
         </li>

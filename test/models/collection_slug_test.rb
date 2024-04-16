@@ -23,15 +23,15 @@ module DataCycleCore
     end
 
     test 'collections increment slug' do
-      @collection.update(collection_configuration_attributes: { slug: 'Test' })
-      @collection2.update(collection_configuration_attributes: { slug: 'Test' })
+      @collection.update(slug: 'Test')
+      @collection2.update(slug: 'Test')
 
       assert_equal 'test', @collection.slug
       assert_equal 'test-1', @collection2.slug
     end
 
     test 'multiple watch_list slugs are generated correctly' do
-      @collection.update(collection_configuration_attributes: { slug: 'test' })
+      @collection.update(slug: 'test')
       assert_equal 'test', @collection.slug
 
       1.upto(10) do |index|

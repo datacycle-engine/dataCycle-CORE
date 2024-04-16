@@ -1300,7 +1300,6 @@ en:
         duration_too_long: "The schedule with start time %{data} lasts longer than %{max} (This could probably also be achieved via repeating schedules)"
       collection:
         no_api: '"%{data}" is not accessible via the API'
-        api_users: '"%{data}" is only accessible by certain users via the API'
   controllers:
     error:
       invalid_parent: Invalid parent object.
@@ -1517,13 +1516,7 @@ en:
         other: Permissions
     attributes:
       data_cycle_core/watch_list:
-        name: Name
-        full_path: Name (including folder path)
-        user_group_ids: User groups
-        user_ids: User
-        user_id: Owner
         manual_order: Use manual order as default order
-        api: Retrievable via API
       data_cycle_core/classification_tree_label:
         visibility: Visibility
         change_behaviour: Change behavior
@@ -1606,16 +1599,6 @@ en:
         text_file: Further information (%{file_types})
         locale: E-mail language
         creator_id: Creator
-      data_cycle_core/stored_filter:
-        system: Visible for all users (also applies to the API)
-        api: Retrievable via API
-        api_users: Users permitted for API
-        api_users_tooltip: Users permitted for API limited
-        linked_stored_filter_id: Filter for linked content
-        linked_stored_filter_id_tooltip: Filter for linked content
-        classification_tree_labels: Limit to classification trees
-        classification_tree_labels_tooltip: Limited to certain classification trees
-        name: Name
       data_cycle_core/asset:
         name: Name
         file: File
@@ -1625,8 +1608,17 @@ en:
       data_cycle_core/external_system_sync:
         external_system_id: External System
         external_key: External Identifier
-      data_cycle_core/collection_configuration:
+      data_cycle_core/collection:
         description: Description
+        name: Name
+        full_path: Name (including folder path)
+        shared_users: shared with users
+        shared_user_groups: shared with user groups
+        shared_roles: shared with roles
+        user_id: Owner
+        api: Retrievable via API
+        linked_stored_filter: Filter for linked content
+        concept_schemes: Limit to classification trees
 
   unauthorized:
     manage:

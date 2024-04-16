@@ -20,4 +20,3 @@
         :type: collection
         :validations:
           :soft_api: true
-          :soft_api_users: true

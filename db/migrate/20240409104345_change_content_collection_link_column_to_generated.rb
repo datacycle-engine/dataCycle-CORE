@@ -3,9 +3,9 @@
 class ChangeContentCollectionLinkColumnToGenerated < ActiveRecord::Migration[6.1]
   def up
     execute <<-SQL.squish
-      ALTER TABLE content_collection_links DROP stored_filter_id;
+      ALTER TABLE content_collection_links DROP COLUMN IF EXISTS stored_filter_id;
 
-      ALTER TABLE content_collection_links DROP watch_list_id;
+      ALTER TABLE content_collection_links DROP COLUMN IF EXISTS watch_list_id;
 
       ALTER TABLE content_collection_links
       ADD stored_filter_id uuid generated always AS (CASE
@@ -17,19 +17,19 @@ class ChangeContentCollectionLinkColumnToGenerated < ActiveRecord::Migration[6.1
           WHEN collection_type = 'DataCycleCore::WatchList' THEN collection_id
         END) stored;
 
-      ALTER TABLE content_collection_link_histories DROP stored_filter_id;
+      ALTER TABLE content_collection_link_histories DROP COLUMN IF EXISTS stored_filter_id;
 
-      ALTER TABLE content_collection_link_histories DROP watch_list_id;
+      ALTER TABLE content_collection_link_histories DROP COLUMN IF EXISTS watch_list_id;
 
       ALTER TABLE content_collection_link_histories
-      ADD stored_filter_id uuid generated always AS (
+      ADD COLUMN stored_filter_id uuid generated always AS (
           CASE
             WHEN collection_type = 'DataCycleCore::StoredFilter' THEN collection_id
           END
         ) stored;
 
       ALTER TABLE content_collection_link_histories
-      ADD watch_list_id uuid generated always AS (
+      ADD COLUMN watch_list_id uuid generated always AS (
           CASE
             WHEN collection_type = 'DataCycleCore::WatchList' THEN collection_id
           END

@@ -3,12 +3,13 @@
 module DataCycleCore
   module Abilities
     module Segments
+      # Legacy Segment, should be deleted, after all permissions are up to date
       class StoredFilterByGlobal < Base
         attr_reader :subject, :conditions
 
         def initialize
           @subject = StoredFilter
-          @conditions = { system: true }
+          @conditions = {}
         end
       end
     end

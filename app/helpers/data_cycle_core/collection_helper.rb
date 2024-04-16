@@ -12,7 +12,7 @@ module DataCycleCore
         collections = local_assigns.dig(:collection_group, 1)
         nested = true
       else
-        collections = DataCycleCore::WatchList.accessible_by(current_ability).includes(:valid_write_links, :watch_list_shares, :user).without_my_selection
+        collections = DataCycleCore::WatchList.accessible_by(current_ability).includes(:valid_write_links, :collection_shares, :user).without_my_selection
         collections = collections.fulltext_search(local_assigns[:q]) if local_assigns[:q].present?
         collections = collections.order(updated_at: :desc)
       end
@@ -87,6 +87,14 @@ module DataCycleCore
 
     def manual_order_allowed?(mode, language, filters)
       mode == 'list' && Array.wrap(language).include?('all') && filters.blank?
+    end
+
+    def watch_list_list_title(watch_list)
+      safe_join([
+        watch_list.collection_shares.any? ? tag.i(class: 'fa fa-users') : nil,
+        watch_list.name,
+        watch_list.api ? tag.span('API', class: 'content-title-api') : nil
+      ].compact)
     end
   end
 end

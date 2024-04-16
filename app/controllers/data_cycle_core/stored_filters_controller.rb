@@ -24,7 +24,7 @@ module DataCycleCore
     def saved_searches
       authorize! :index, DataCycleCore::StoredFilter
 
-      @stored_searches = DataCycleCore::StoredFilter.accessible_by(current_ability).or(DataCycleCore::StoredFilter.by_api_user(current_user)).named.order(:name)
+      @stored_searches = DataCycleCore::StoredFilter.includes(:linked_stored_filter, :concept_schemes, :shared_users, :shared_user_groups, :shared_roles).accessible_by(current_ability).named.order(:name)
       @search_param = index_params[:q]
 
       @stored_searches = @stored_searches.by_id_name_slug_description(@search_param) if @search_param.present?
@@ -45,6 +45,8 @@ module DataCycleCore
         end
         format.json do
           partial = "data_cycle_core/stored_filters/#{index_params[:partial].presence || 'saved_searches_list'}"
+
+          @stored_searches.reorder(updated_at: :desc) if @search_param.blank?
 
           json = {
             html: render_to_string(
@@ -124,7 +126,7 @@ module DataCycleCore
         .limit(20)
         .order(name: :asc)
 
-      stored_filters = stored_filters.where(DataCycleCore::StoredFilter.arel_table[:name].matches("%#{index_params[:q]}%")) if index_params[:q].present?
+      stored_filters = stored_filters.where('name ILIKE ?', "%#{index_params[:q]&.strip}%") if index_params[:q].present?
 
       render plain: stored_filters.map { |filter|
         select_option = filter.to_select_option
@@ -143,12 +145,11 @@ module DataCycleCore
       authorize! :show, DataCycleCore::StoredFilter
 
       filter_string = select_search_params[:q]&.strip
-      arel_query = DataCycleCore::StoredFilter.accessible_by(current_ability).by_id_name_slug_description(filter_string).combine_with_collections(DataCycleCore::WatchList.accessible_by(current_ability).conditional_my_selection.by_id_name_slug_description(filter_string))
-      arel_query = arel_query.take(select_search_params[:max].to_i) if select_search_params[:max].present?
 
-      result = ActiveRecord::Base.connection.select_all arel_query.to_sql
+      query = DataCycleCore::Collection.accessible_by_subclass(current_ability).conditional_my_selection.by_id_name_slug_description(filter_string)
+      query = query.limit(select_search_params[:max].to_i) if select_search_params[:max].present?
 
-      render plain: DataCycleCore::CollectionService.to_select_options(result).to_json, content_type: 'application/json'
+      render plain: query.map { |c| c.to_select_option(helpers.active_ui_locale) }.to_json, content_type: 'application/json'
     end
 
     def add_to_watchlist
@@ -171,12 +172,10 @@ module DataCycleCore
     def stored_filter_params
       params
         .require(:stored_filter)
-        .permit(:id, :name, :system, :api, :linked_stored_filter_id, classification_tree_labels: [], api_users: [], collection_configuration_attributes: [:id, :slug, :description])
+        .permit(:id, :name, :api, :user_id, :linked_stored_filter_id, :description, shared_user_ids: [], shared_user_group_ids: [], shared_role_ids: [], classification_tree_labels: [])
         .tap do |p|
           p[:name] ||= p.delete(:id) unless p[:id].to_s.uuid?
-          p[:classification_tree_labels]&.reject!(&:blank?)
-          p[:api_users]&.reject!(&:blank?)
-          p[:collection_configuration_attributes][:description] = DataCycleCore::MasterData::DataConverter.string_to_string(p[:collection_configuration_attributes][:description]) if p.dig(:collection_configuration_attributes)&.key?(:description)
+          p[:description] = DataCycleCore::MasterData::DataConverter.string_to_string(p[:description]) if p.key?(:description)
         end
     end
 

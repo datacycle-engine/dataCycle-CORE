@@ -1330,7 +1330,6 @@ de:
         duration_too_long: "Der Termin mit Startzeitpunkt %{data} dauert länger als %{max} (Das könnte wahrscheinlich auch über Wiederholungen abgebildet werden)"
       collection:
         no_api: '"%{data}" ist nicht über die API abrufbar'
-        api_users: '"%{data}" ist nur für bestimmte Benutzer über die API abrufbar'
   controllers:
     error:
       invalid_parent: "Ungültiges Eltern Objekt."
@@ -1554,15 +1553,12 @@ de:
       data_cycle_core/thing/history:
         one: Inhaltsversion
         other: Inhaltsversionen
+      data_cycle_core/concept_scheme:
+        one: Klassifizierungsbaum
+        other: Klassifizierungsbäume
     attributes:
       data_cycle_core/watch_list:
-        name: Name
-        full_path: Name (inklusive Ordnerpfad)
-        user_group_ids: Benutzergruppen
-        user_ids: Benutzer
-        user_id: Eigentümer
         manual_order: Manuelle Sortierung als Standard-Sortierung verwenden
-        api: Über API abrufbar
       data_cycle_core/classification_tree_label:
         visibility: Sichtbarkeit
         change_behaviour: Änderungsverhalten
@@ -1647,17 +1643,6 @@ de:
         text_file: Weitere Infos (%{file_types})
         locale: "E-Mail Sprache"
         creator_id: Ersteller
-      data_cycle_core/stored_filter:
-        system: Für alle Benutzer sichtbar (gilt auch für die API)
-        api: Über API abrufbar
-        api_users: Für API zugelassene Benutzer
-        api_users_tooltip: API-Zugriff auf bestimmte User eingeschränkt
-        linked_stored_filter_id: Filter für verknüpfte Inhalte
-        linked_stored_filter_id_tooltip: Filter für verknüpfte Inhalte
-        classification_tree_labels: Auf Klassifizierungsbäume einschränken
-        classification_tree_labels_tooltip: Auf bestimmte Klassifizierungsbäume eingeschränkt
-        name: Name
-        user_id: Ersteller
       data_cycle_core/asset:
         name: Name
         file: Datei
@@ -1667,8 +1652,17 @@ de:
       data_cycle_core/external_system_sync:
         external_system_id: Externes System
         external_key: Externer Identifier
-      data_cycle_core/collection_configuration:
+      data_cycle_core/collection:
         description: Beschreibung
+        name: Name
+        full_path: Name (inklusive Ordnerpfad)
+        shared_users: geteilt mit Benutzern
+        shared_user_groups: geteilt mit Benutzergruppen
+        shared_roles: geteilt mit Rollen
+        user_id: Eigentümer
+        api: Über API abrufbar
+        linked_stored_filter: Filter für verknüpfte Inhalte
+        concept_schemes: Einschränkung auf Klassifizierungsbäume
 
   unauthorized:
     manage:

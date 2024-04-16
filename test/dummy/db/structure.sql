@@ -486,7 +486,7 @@ CREATE FUNCTION public.generate_content_content_links_trigger2() RETURNS trigger
 
 CREATE FUNCTION public.generate_my_selection_watch_list() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN IF EXISTS ( SELECT FROM roles WHERE roles.id = NEW.role_id AND roles.rank <> 0) THEN INSERT INTO watch_lists ( name, user_id, created_at, updated_at, full_path, full_path_names, my_selection) SELECT 'Meine Auswahl', users.id, NOW(), NOW(), 'Meine Auswahl', ARRAY[]::varchar[], TRUE FROM users INNER JOIN roles ON roles.id = users.role_id WHERE users.id = NEW.id AND roles.rank <> 0 AND NOT EXISTS ( SELECT FROM watch_lists WHERE watch_lists.my_selection AND watch_lists.user_id = users.id); ELSE DELETE FROM watch_lists WHERE watch_lists.user_id = NEW.id AND watch_lists.my_selection; END IF; RETURN NEW; END; $$;
+    AS $$ BEGIN IF EXISTS ( SELECT FROM roles WHERE roles.id = NEW.role_id AND roles.rank <> 0 ) THEN INSERT INTO collections ( name, TYPE, user_id, created_at, updated_at, full_path, full_path_names, my_selection ) SELECT 'Meine Auswahl', 'DataCycleCore::WatchList', users.id, NOW(), NOW(), 'Meine Auswahl', ARRAY []::varchar [], TRUE FROM users INNER JOIN roles ON roles.id = users.role_id WHERE users.id = NEW.id AND roles.rank <> 0 AND NOT EXISTS ( SELECT 1 FROM collections WHERE collections.my_selection AND collections.user_id = users.id ); ELSE DELETE FROM collections WHERE collections.user_id = NEW.id AND collections.my_selection; END IF; RETURN NEW; END; $$;
 
 
 --
@@ -522,7 +522,7 @@ CREATE FUNCTION public.generate_thing_schema_types() RETURNS trigger
 
 CREATE FUNCTION public.generate_unique_collection_slug(old_slug character varying, OUT new_slug character varying) RETURNS character varying
     LANGUAGE plpgsql
-    AS $_$ BEGIN WITH input AS ( SELECT old_slug::VARCHAR AS slug, regexp_replace(old_slug, '-\d*$', '')::VARCHAR || '-' AS base_slug ) SELECT i.slug FROM input i LEFT JOIN collection_configurations a USING (slug) WHERE a.slug IS NULL UNION ALL ( SELECT i.base_slug || COALESCE( right(a.slug, length(i.base_slug) * -1)::int + 1, 1 ) FROM input i LEFT JOIN collection_configurations a ON a.slug LIKE (i.base_slug || '%') AND right(a.slug, length(i.base_slug) * -1) ~ '^\d+$' ORDER BY right(a.slug, length(i.base_slug) * -1)::int DESC ) LIMIT 1 INTO new_slug; END; $_$;
+    AS $_$ BEGIN WITH input AS ( SELECT old_slug::VARCHAR AS slug, regexp_replace(old_slug, '-\d*$', '')::VARCHAR || '-' AS base_slug ) SELECT i.slug FROM input i LEFT JOIN collections a USING (slug) WHERE a.slug IS NULL UNION ALL ( SELECT i.base_slug || COALESCE( right(a.slug, length(i.base_slug) * -1)::int + 1, 1 ) FROM input i LEFT JOIN collections a ON a.slug LIKE (i.base_slug || '%') AND right(a.slug, length(i.base_slug) * -1) ~ '^\d+$' ORDER BY right(a.slug, length(i.base_slug) * -1)::int DESC ) LIMIT 1 INTO new_slug; END; $_$;
 
 
 --
@@ -1103,15 +1103,67 @@ CREATE TABLE public.collected_classification_contents (
 
 
 --
--- Name: collection_configurations; Type: TABLE; Schema: public; Owner: -
+-- Name: collection_concept_scheme_links; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.collection_configurations (
-    id uuid NOT NULL,
-    watch_list_id uuid,
-    stored_filter_id uuid,
+CREATE TABLE public.collection_concept_scheme_links (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    collection_id uuid NOT NULL,
+    concept_scheme_id uuid NOT NULL
+);
+
+
+--
+-- Name: collection_shares; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.collection_shares (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    collection_id uuid NOT NULL,
+    shareable_id uuid NOT NULL,
+    shareable_type character varying NOT NULL,
+    user_id uuid GENERATED ALWAYS AS (
+CASE
+    WHEN ((shareable_type)::text = 'DataCycleCore::User'::text) THEN shareable_id
+    ELSE NULL::uuid
+END) STORED,
+    user_group_id uuid GENERATED ALWAYS AS (
+CASE
+    WHEN ((shareable_type)::text = 'DataCycleCore::UserGroup'::text) THEN shareable_id
+    ELSE NULL::uuid
+END) STORED,
+    role_id uuid GENERATED ALWAYS AS (
+CASE
+    WHEN ((shareable_type)::text = 'DataCycleCore::Role'::text) THEN shareable_id
+    ELSE NULL::uuid
+END) STORED
+);
+
+
+--
+-- Name: collections; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.collections (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    type character varying NOT NULL,
+    name character varying,
     slug character varying,
-    description text
+    description text,
+    description_stripped text,
+    user_id uuid,
+    full_path character varying,
+    full_path_names character varying[],
+    my_selection boolean DEFAULT false NOT NULL,
+    manual_order boolean DEFAULT false NOT NULL,
+    api boolean DEFAULT false NOT NULL,
+    language character varying[],
+    linked_stored_filter_id uuid,
+    parameters jsonb,
+    sort_parameters jsonb,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    search_vector tsvector GENERATED ALWAYS AS (((setweight(to_tsvector('simple'::regconfig, (COALESCE(name, ''::character varying))::text), 'A'::"char") || setweight(to_tsvector('simple'::regconfig, (COALESCE(slug, ''::character varying))::text), 'B'::"char")) || setweight(to_tsvector('simple'::regconfig, COALESCE(description_stripped, ''::text)), 'C'::"char"))) STORED
 );
 
 
@@ -1228,21 +1280,10 @@ CREATE TABLE public.content_collection_link_histories (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     thing_history_id uuid,
     collection_id uuid,
-    collection_type character varying,
     relation character varying,
     order_a integer,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
-    updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    stored_filter_id uuid GENERATED ALWAYS AS (
-CASE
-    WHEN ((collection_type)::text = 'DataCycleCore::StoredFilter'::text) THEN collection_id
-    ELSE NULL::uuid
-END) STORED,
-    watch_list_id uuid GENERATED ALWAYS AS (
-CASE
-    WHEN ((collection_type)::text = 'DataCycleCore::WatchList'::text) THEN collection_id
-    ELSE NULL::uuid
-END) STORED
+    updated_at timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1254,21 +1295,10 @@ CREATE TABLE public.content_collection_links (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     thing_id uuid,
     collection_id uuid,
-    collection_type character varying,
     relation character varying,
     order_a integer,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
-    updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    stored_filter_id uuid GENERATED ALWAYS AS (
-CASE
-    WHEN ((collection_type)::text = 'DataCycleCore::StoredFilter'::text) THEN collection_id
-    ELSE NULL::uuid
-END) STORED,
-    watch_list_id uuid GENERATED ALWAYS AS (
-CASE
-    WHEN ((collection_type)::text = 'DataCycleCore::WatchList'::text) THEN collection_id
-    ELSE NULL::uuid
-END) STORED
+    updated_at timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1805,27 +1835,6 @@ CREATE TABLE public.searches (
 
 
 --
--- Name: stored_filters; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.stored_filters (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    name character varying,
-    user_id uuid,
-    language character varying[],
-    parameters jsonb,
-    system boolean DEFAULT false NOT NULL,
-    api boolean DEFAULT false NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    api_users text[],
-    linked_stored_filter_id uuid,
-    sort_parameters jsonb,
-    classification_tree_labels uuid[]
-);
-
-
---
 -- Name: subscriptions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1978,40 +1987,6 @@ CREATE TABLE public.users (
     unconfirmed_email character varying,
     ui_locale character varying DEFAULT 'de'::character varying NOT NULL,
     deleted_at timestamp without time zone
-);
-
-
---
--- Name: watch_list_shares; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.watch_list_shares (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    shareable_id uuid,
-    watch_list_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    shareable_type character varying DEFAULT 'DataCycleCore::UserGroup'::character varying
-);
-
-
---
--- Name: watch_lists; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.watch_lists (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    name character varying,
-    user_id uuid,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    full_path character varying,
-    full_path_names character varying[],
-    my_selection boolean DEFAULT false NOT NULL,
-    manual_order boolean DEFAULT false NOT NULL,
-    api boolean DEFAULT false NOT NULL
 );
 
 
@@ -2183,19 +2158,27 @@ ALTER TABLE ONLY public.collected_classification_contents
 
 
 --
--- Name: collection_configurations collection_configurations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: collection_concept_scheme_links collection_concept_scheme_links_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.collection_configurations
-    ADD CONSTRAINT collection_configurations_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.collection_concept_scheme_links
+    ADD CONSTRAINT collection_concept_scheme_links_pkey PRIMARY KEY (id);
 
 
 --
--- Name: collection_configurations collection_configurations_slug_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: collection_shares collection_shares_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.collection_configurations
-    ADD CONSTRAINT collection_configurations_slug_key UNIQUE (slug);
+ALTER TABLE ONLY public.collection_shares
+    ADD CONSTRAINT collection_shares_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: collections collections_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collections
+    ADD CONSTRAINT collections_pkey PRIMARY KEY (id);
 
 
 --
@@ -2367,14 +2350,6 @@ ALTER TABLE ONLY public.searches
 
 
 --
--- Name: stored_filters stored_filters_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.stored_filters
-    ADD CONSTRAINT stored_filters_pkey PRIMARY KEY (id);
-
-
---
 -- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2468,22 +2443,6 @@ ALTER TABLE ONLY public.users
 
 ALTER TABLE ONLY public.watch_list_data_hashes
     ADD CONSTRAINT watch_list_data_hashes_pkey PRIMARY KEY (id);
-
-
---
--- Name: watch_list_shares watch_list_user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.watch_list_shares
-    ADD CONSTRAINT watch_list_user_groups_pkey PRIMARY KEY (id);
-
-
---
--- Name: watch_lists watch_lists_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.watch_lists
-    ADD CONSTRAINT watch_lists_pkey PRIMARY KEY (id);
 
 
 --
@@ -2585,24 +2544,10 @@ CREATE UNIQUE INDEX ccc_unique_thing_id_classification_alias_id_idx ON public.co
 
 
 --
--- Name: ccl_collection_index; Type: INDEX; Schema: public; Owner: -
+-- Name: ccsl_unique_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ccl_collection_index ON public.content_collection_links USING btree (collection_id, collection_type);
-
-
---
--- Name: ccl_unique_index; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX ccl_unique_index ON public.content_collection_links USING btree (thing_id, relation, collection_id, collection_type);
-
-
---
--- Name: cclh_collection_index; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX cclh_collection_index ON public.content_collection_link_histories USING btree (collection_id, collection_type);
+CREATE UNIQUE INDEX ccsl_unique_index ON public.collection_concept_scheme_links USING btree (collection_id, concept_scheme_id);
 
 
 --
@@ -2669,24 +2614,17 @@ CREATE INDEX classification_string_idx ON public.searches USING gin (classificat
 
 
 --
--- Name: classified_name_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: collection_shares_unique_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX classified_name_idx ON public.stored_filters USING btree (api, system, name);
-
-
---
--- Name: collection_configurations_stored_filter_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX collection_configurations_stored_filter_id_idx ON public.collection_configurations USING btree (stored_filter_id);
+CREATE UNIQUE INDEX collection_shares_unique_index ON public.collection_shares USING btree (collection_id, shareable_id, shareable_type);
 
 
 --
--- Name: collection_configurations_watch_list_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: collections_search_vector_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX collection_configurations_watch_list_id_idx ON public.collection_configurations USING btree (watch_list_id);
+CREATE INDEX collections_search_vector_idx ON public.collections USING gin (search_vector);
 
 
 --
@@ -2750,13 +2688,6 @@ CREATE INDEX deleted_at_id_idx ON public.classification_aliases USING btree (del
 --
 
 CREATE INDEX extid_extkey_del_idx ON public.classifications USING btree (deleted_at, external_source_id, external_key);
-
-
---
--- Name: full_path_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX full_path_idx ON public.watch_lists USING gin (full_path public.gin_trgm_ops);
 
 
 --
@@ -3047,10 +2978,45 @@ CREATE UNIQUE INDEX index_classifications_unique_external_source_id_and_key ON p
 
 
 --
--- Name: index_collection_configurations_on_description; Type: INDEX; Schema: public; Owner: -
+-- Name: index_collection_shares_on_shareable_type; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_collection_configurations_on_description ON public.collection_configurations USING btree (description);
+CREATE INDEX index_collection_shares_on_shareable_type ON public.collection_shares USING btree (shareable_type);
+
+
+--
+-- Name: index_collections_on_full_path; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_collections_on_full_path ON public.collections USING gin (full_path public.gin_trgm_ops);
+
+
+--
+-- Name: index_collections_on_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_collections_on_name ON public.collections USING gin (name public.gin_trgm_ops);
+
+
+--
+-- Name: index_collections_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_collections_on_slug ON public.collections USING btree (slug) WHERE (slug IS NOT NULL);
+
+
+--
+-- Name: index_collections_on_updated_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_collections_on_updated_at ON public.collections USING btree (updated_at);
+
+
+--
+-- Name: index_collections_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_collections_on_user_id ON public.collections USING btree (user_id);
 
 
 --
@@ -3418,20 +3384,6 @@ CREATE INDEX index_searches_on_words ON public.searches USING gin (words);
 
 
 --
--- Name: index_stored_filters_on_updated_at; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_stored_filters_on_updated_at ON public.stored_filters USING btree (updated_at);
-
-
---
--- Name: index_stored_filters_on_user_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_stored_filters_on_user_id ON public.stored_filters USING btree (user_id);
-
-
---
 -- Name: index_subscriptions_on_subscribable_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3740,27 +3692,6 @@ CREATE INDEX index_watch_list_data_hashes_on_watch_list_id ON public.watch_list_
 
 
 --
--- Name: index_watch_list_shares_on_watch_list_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_watch_list_shares_on_watch_list_id ON public.watch_list_shares USING btree (watch_list_id);
-
-
---
--- Name: index_watch_lists_on_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_watch_lists_on_id ON public.watch_lists USING btree (id);
-
-
---
--- Name: index_watch_lists_on_user_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_watch_lists_on_user_id ON public.watch_lists USING btree (user_id);
-
-
---
 -- Name: name_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3807,13 +3738,6 @@ CREATE INDEX things_geom_simple_geography_idx ON public.things USING gist (publi
 --
 
 CREATE INDEX things_id_content_type_validity_range_template_name_idx ON public.things USING btree (id, content_type, validity_range, template_name);
-
-
---
--- Name: unique_by_shareable; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX unique_by_shareable ON public.watch_list_shares USING btree (shareable_id, shareable_type, watch_list_id);
 
 
 --
@@ -4084,17 +4008,10 @@ CREATE TRIGGER generate_collected_classification_content_relations_trigger_4 AFT
 
 
 --
--- Name: collection_configurations generate_collection_id_trigger; Type: TRIGGER; Schema: public; Owner: -
+-- Name: collections generate_collection_slug_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER generate_collection_id_trigger BEFORE INSERT ON public.collection_configurations FOR EACH ROW EXECUTE FUNCTION public.generate_collection_id_trigger();
-
-
---
--- Name: collection_configurations generate_collection_slug_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER generate_collection_slug_trigger BEFORE INSERT ON public.collection_configurations FOR EACH ROW EXECUTE FUNCTION public.generate_collection_slug_trigger();
+CREATE TRIGGER generate_collection_slug_trigger BEFORE INSERT ON public.collections FOR EACH ROW WHEN ((new.slug IS NOT NULL)) EXECUTE FUNCTION public.generate_collection_slug_trigger();
 
 
 --
@@ -4268,17 +4185,10 @@ CREATE TRIGGER update_collected_classification_content_relations_trigger_1 AFTER
 
 
 --
--- Name: collection_configurations update_collection_id_trigger; Type: TRIGGER; Schema: public; Owner: -
+-- Name: collections update_collection_slug_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_collection_id_trigger BEFORE UPDATE OF watch_list_id, stored_filter_id ON public.collection_configurations FOR EACH ROW WHEN (((old.watch_list_id IS DISTINCT FROM new.watch_list_id) OR (old.stored_filter_id IS DISTINCT FROM new.stored_filter_id))) EXECUTE FUNCTION public.generate_collection_id_trigger();
-
-
---
--- Name: collection_configurations update_collection_slug_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER update_collection_slug_trigger BEFORE UPDATE OF slug ON public.collection_configurations FOR EACH ROW WHEN (((old.slug)::text IS DISTINCT FROM (new.slug)::text)) EXECUTE FUNCTION public.generate_collection_slug_trigger();
+CREATE TRIGGER update_collection_slug_trigger BEFORE UPDATE OF slug ON public.collections FOR EACH ROW WHEN (((new.slug IS NOT NULL) AND ((old.slug)::text IS DISTINCT FROM (new.slug)::text))) EXECUTE FUNCTION public.generate_collection_slug_trigger();
 
 
 --
@@ -4375,22 +4285,6 @@ ALTER TABLE ONLY public.collected_classification_contents
 
 
 --
--- Name: collection_configurations fk_collection_stored_filter; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.collection_configurations
-    ADD CONSTRAINT fk_collection_stored_filter FOREIGN KEY (stored_filter_id) REFERENCES public.stored_filters(id) ON DELETE CASCADE;
-
-
---
--- Name: collection_configurations fk_collection_watch_list; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.collection_configurations
-    ADD CONSTRAINT fk_collection_watch_list FOREIGN KEY (watch_list_id) REFERENCES public.watch_lists(id) ON DELETE CASCADE;
-
-
---
 -- Name: content_content_links fk_content_content_links_content_contents; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4420,6 +4314,22 @@ ALTER TABLE ONLY public.things
 
 ALTER TABLE ONLY public.classification_trees
     ADD CONSTRAINT fk_rails_0aeb2f8fa2 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL NOT VALID;
+
+
+--
+-- Name: collection_shares fk_rails_1858f5b63d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collection_shares
+    ADD CONSTRAINT fk_rails_1858f5b63d FOREIGN KEY (user_group_id) REFERENCES public.user_groups(id) ON DELETE CASCADE;
+
+
+--
+-- Name: collection_concept_scheme_links fk_rails_1865a6d52b; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collection_concept_scheme_links
+    ADD CONSTRAINT fk_rails_1865a6d52b FOREIGN KEY (concept_scheme_id) REFERENCES public.concept_schemes(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -4455,6 +4365,14 @@ ALTER TABLE ONLY public.concepts
 
 
 --
+-- Name: collection_shares fk_rails_36b2297df7; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collection_shares
+    ADD CONSTRAINT fk_rails_36b2297df7 FOREIGN KEY (role_id) REFERENCES public.roles(id) ON DELETE CASCADE;
+
+
+--
 -- Name: concept_schemes fk_rails_434bc563a9; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4476,6 +4394,14 @@ ALTER TABLE ONLY public.user_group_users
 
 ALTER TABLE ONLY public.timeseries
     ADD CONSTRAINT fk_rails_53ff16144f FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
+
+
+--
+-- Name: watch_list_data_hashes fk_rails_5a75554f32; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.watch_list_data_hashes
+    ADD CONSTRAINT fk_rails_5a75554f32 FOREIGN KEY (watch_list_id) REFERENCES public.collections(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -4543,6 +4469,14 @@ ALTER TABLE ONLY public.external_system_syncs
 
 
 --
+-- Name: content_collection_links fk_rails_9798cd1238; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.content_collection_links
+    ADD CONSTRAINT fk_rails_9798cd1238 FOREIGN KEY (collection_id) REFERENCES public.collections(id) ON DELETE CASCADE;
+
+
+--
 -- Name: active_storage_variant_records fk_rails_993965df05; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4559,11 +4493,27 @@ ALTER TABLE ONLY public.concepts
 
 
 --
+-- Name: collections fk_rails_9b33697360; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collections
+    ADD CONSTRAINT fk_rails_9b33697360 FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
 -- Name: classification_aliases fk_rails_a7798aa495; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.classification_aliases
     ADD CONSTRAINT fk_rails_a7798aa495 FOREIGN KEY (external_source_id) REFERENCES public.external_systems(id) ON DELETE SET NULL NOT VALID;
+
+
+--
+-- Name: content_collection_link_histories fk_rails_c0f274630b; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.content_collection_link_histories
+    ADD CONSTRAINT fk_rails_c0f274630b FOREIGN KEY (collection_id) REFERENCES public.collections(id) ON DELETE CASCADE;
 
 
 --
@@ -4591,6 +4541,14 @@ ALTER TABLE ONLY public.content_collection_link_histories
 
 
 --
+-- Name: collection_shares fk_rails_cd18bf012f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collection_shares
+    ADD CONSTRAINT fk_rails_cd18bf012f FOREIGN KEY (collection_id) REFERENCES public.collections(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: classification_groups fk_rails_d9919e12e6; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4615,11 +4573,35 @@ ALTER TABLE ONLY public.concept_links
 
 
 --
+-- Name: collection_concept_scheme_links fk_rails_e331a2a8bf; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collection_concept_scheme_links
+    ADD CONSTRAINT fk_rails_e331a2a8bf FOREIGN KEY (collection_id) REFERENCES public.collections(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: collection_shares fk_rails_e7eded8bbe; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collection_shares
+    ADD CONSTRAINT fk_rails_e7eded8bbe FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
 -- Name: content_collection_links fk_rails_eb360242ed; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.content_collection_links
     ADD CONSTRAINT fk_rails_eb360242ed FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
+
+
+--
+-- Name: collections fk_rails_f092282905; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collections
+    ADD CONSTRAINT fk_rails_f092282905 FOREIGN KEY (linked_stored_filter_id) REFERENCES public.collections(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -4995,6 +4977,10 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240405095332'),
 ('20240408124153'),
 ('20240409104345'),
-('20240409105043');
+('20240409105043'),
+('20240415082040'),
+('20240415084245'),
+('20240415103014'),
+('20240415124045');
 
 
