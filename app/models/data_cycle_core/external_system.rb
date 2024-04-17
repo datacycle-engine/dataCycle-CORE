@@ -122,6 +122,15 @@ module DataCycleCore
       @default_options[type.to_s]
     end
 
+    def error_notification(type = 'import')
+      binding.pry
+      @error_notification ||= Hash.new do |h, key|
+        next h[key] = self[:error_notification] unless self[:error_notification].is_a?(Hash)
+        h[key] = self[:error_notification].merge(self[:error_notification].dig(key) || {}).except('import', 'export')
+      end
+      @error_notification[type.to_s]
+    end
+
     def refresh(options = {})
       raise "Missing refresh_strategy for #{name}, options given: #{options}" if refresh_config.dig(:strategy).blank?
       utility_object = DataCycleCore::Export::RefreshObject.new(external_system: self)

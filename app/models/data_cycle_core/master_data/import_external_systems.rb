@@ -120,6 +120,10 @@ module DataCycleCore
           optional(:credentials)
           optional(:default_options).hash do
             optional(:locales).each { str? & included_in?(I18n.available_locales.map(&:to_s)) }
+            optional(:error_notification).hash do
+              optional(:emails).each { str? & format?(Devise.email_regexp) }
+              # optional(:grace_period) { type?(ActiveSupport::Duration) } # ToDo: Find a way to validate this properly
+            end
           end
           optional(:config).hash do
             optional(:api_strategy) { str? }

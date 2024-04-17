@@ -113,6 +113,8 @@ module DataCycleCore
                           item_id = data_id.call(item_data)
                           item_name = data_name.call(item_data)
 
+                          raise "TESTING ERROR!!!"
+
                           item = mongo_item_parallel.find_or_initialize_by('external_id': item_id)
 
                           item.dump ||= {}
@@ -173,6 +175,29 @@ module DataCycleCore
                   }
 
                   logging.error(nil, nil, nil, e)
+
+                  logging.error(nil, nil, nil, "There was an error with the download of external source with id: #{download_object.external_source}")
+
+                  instrumentation_check = download_object.external_source.default_options["error_notification"].present?
+
+                  grace_period_raw = download_object.external_source.default_options["error_notification"]["grace_period"].split(".")
+
+                  grace_period = grace_period_raw[0].to_i.send(grace_period_raw[1])
+
+                  binding.pry
+
+                  grace_period_exceeded = instrumentation_check ? ( grace_period.present? ) :k false
+
+                  if instrumentation_check && grace_period_exceeded
+
+                    ActiveSupport::Notifications.instrument 'download_failed_repeatedly.datacycle', {
+                      exception: e,
+                      namespace: 'background',
+                      trigger: 'downloader'
+                    }
+
+                  end
+
                   success = false
                 ensure
                   logging.phase_finished("#{download_object.source_type.collection_name}_#{locale}", item_count)
