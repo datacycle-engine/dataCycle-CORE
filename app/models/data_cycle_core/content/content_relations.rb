@@ -118,12 +118,13 @@ module DataCycleCore
       end
 
       def valid_writable_links_by_receiver?(user)
-        data_links = DataCycleCore::DataLink.valid.writable.by_receiver(user).joins("LEFT OUTER JOIN watch_list_data_hashes ON watch_list_data_hashes.watch_list_id = data_links.item_id AND watch_list_data_hashes.hashable_type = 'DataCycleCore::Thing'")
+        data_links = DataCycleCore::DataLink.valid.writable.by_receiver(user)
 
-        data_links
-          .where(item_type: 'DataCycleCore::Thing', item_id: id)
-          .or(data_links.where(item_type: 'DataCycleCore::WatchList', watch_list_data_hashes: { hashable_id: id }))
-          .any?
+        sub_queries = []
+        sub_queries << data_links.thing_links.where(item_id: id).select(:id).reorder(nil).to_sql
+        sub_queries << data_links.joins(watch_list: :watch_list_data_hashes).where(watch_list_data_hashes: { hashable_id: id }).select(:id).reorder(nil).to_sql
+
+        DataLink.where("#{DataLink.table_name}.id IN (#{DataLink.send(:sanitize_sql_array, [sub_queries.join(' UNION ')])})").exists?
       end
 
       def display_classification_aliases(context)

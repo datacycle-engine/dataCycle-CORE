@@ -3,15 +3,9 @@
 module DataCycleCore
   module Abilities
     module Segments
-      class StoredFilterByApiAndSharedUserGroups < StoredFilterBySharedUserGroups
-        attr_reader :subject
-
+      class StoredFilterByApiAndSharedUserGroups < CollectionByApiAndSharedUserGroups
         def initialize
           @subject = DataCycleCore::StoredFilter
-        end
-
-        def conditions
-          super.merge({ api: true })
         end
       end
     end

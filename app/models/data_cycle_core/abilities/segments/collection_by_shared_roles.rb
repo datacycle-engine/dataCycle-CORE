@@ -3,15 +3,15 @@
 module DataCycleCore
   module Abilities
     module Segments
-      class StoredFilterByCreatorAndApi < Base
+      class CollectionBySharedRoles < Base
         attr_reader :subject
 
         def initialize
-          @subject = DataCycleCore::StoredFilter
+          @subject = DataCycleCore::Collection
         end
 
         def conditions
-          { user_id: user&.id, api: true }
+          { my_selection: false, shared_roles: { id: user.role_id } }
         end
       end
     end

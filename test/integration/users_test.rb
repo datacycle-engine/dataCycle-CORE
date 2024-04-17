@@ -112,6 +112,7 @@ module DataCycleCore
     end
 
     test 'search user by email' do
+      user = User.find_by(email: 'admin@datacycle.at')
       get search_users_path, xhr: true, params: {
         q: 'admin'
       }
@@ -119,7 +120,7 @@ module DataCycleCore
       assert_response :success
       users = JSON.parse(@response.body)
 
-      assert_equal 'admin@datacycle.at', users.first['name']
+      assert_equal user.to_select_option.name, users.first['name']
     end
 
     test 'become specific user' do

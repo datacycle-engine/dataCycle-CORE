@@ -96,8 +96,8 @@ module DataCycleCore
         DataCycleCore::Timeseries.where(thing_id: id, property: property_name).order(timestamp: :asc)
       end
 
-      def load_content_collection_links(property_name)
-        DataCycleCore::ContentCollectionLink.where(thing_id: id, relation: property_name).preload(:collection).order(order_a: :asc).flat_map(&:collection)
+      def load_collections(property_name)
+        DataCycleCore::Collection.joins(:content_collection_links).where(content_collection_links: { thing_id: id, relation: property_name }).order(order_a: :asc)
       end
 
       def as_of(timestamp)

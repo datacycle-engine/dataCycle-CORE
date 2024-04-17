@@ -8,7 +8,7 @@ data_value = load_value_object(content, key, value, options[:languages], api_pro
 
 new_fields = subtree_for(key_new, options[:fields])
 
-data_value.map! do |v|
+new_json = data_value.map do |v|
   json_data = {
     '@id' => v.id,
     '@type' => [
@@ -24,5 +24,5 @@ data_value.map! do |v|
   json_data
 end
 
-json = { key_new.camelize(:lower) => data_value } unless DataCycleCore::DataHashService.blank?(data_value)
+json = { key_new.camelize(:lower) => new_json } unless DataCycleCore::DataHashService.blank?(new_json)
 json

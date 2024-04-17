@@ -133,7 +133,6 @@ en:
       merge_duplicates: Merge duplicates
       remove_lock: Release content for editing
       view_life_cycle: Show life cycle
-      create_global: Release for all users
       create_api_with_users: Release for API users
       create_user: Create user
       lock: lock
@@ -180,10 +179,10 @@ en:
       data_link_by_receiver: User of the recipient of the external link
       download_allowed_by_content_and_scope: "Context: %{scopes}"
       roles_except: "Role: %{roles}"
-      stored_filter_by_api_users: released for users for API
+      stored_filter_by_api_users: shared with user for API
       stored_filter_by_creator_and_api:
         - User is creator
-        - released for the API
+        - accessible by API
       stored_filter_by_data_link: Valid external links available
       subject_by_user_and_conditions: User is %{attribute_name}
       subject_by_user_and_user_group_users:
@@ -230,7 +229,28 @@ en:
       watch_list_by_creator_without_my_selection:
         - User is creator
         - not "Meine Auswahl"
-      watch_list_by_group_shares: not "Meine Auswahl"
-      watch_list_by_user_shares: not "Meine Auswahl"
-      stored_filter_by_global: visible to all
-      stored_filter_by_api: released for the API
+      watch_list_by_user_shares:
+        - shared with user
+        - not "Meine Auswahl"
+      watch_list_by_group_shares:
+        - shared with user by user group
+        - not "Meine Auswahl"
+      watch_list_by_role_shares:
+        - shared with user by role
+        - not "Meine Auswahl"
+      stored_filter_by_api: accessible by API
+      stored_filter_by_api_and_shared_users: shared with user for API
+      stored_filter_by_api_and_shared_user_groups: shared with user by user group for API
+      stored_filter_by_api_and_shared_roles: shared with user by role for API
+      stored_filter_by_shared_roles: shared with user by role
+      stored_filter_by_shared_users: shared with user
+      stored_filter_by_shared_user_groups: shared with user by user group
+      collection_by_creator_and_api:
+        - User is creator
+        - accessible by API
+      collection_by_api_and_shared_roles: shared with user by role for API
+      collection_by_api_and_shared_user_groups: shared with user by user group for API
+      collection_by_api_and_shared_users: shared with user for API
+      collection_by_shared_roles: shared with user by role
+      collection_by_shared_user_groups: shared with user by user group
+      collection_by_shared_users: shared with user

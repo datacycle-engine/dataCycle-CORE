@@ -486,7 +486,7 @@ module DataCycleCore
           elsif timeseries_property_names.include?(property_name)
             load_timeseries(property_name)
           elsif collection_property_names.include?(property_name)
-            load_content_collection_links(property_name)
+            load_collections(property_name)
           else
             raise NotImplementedError
           end
@@ -657,8 +657,8 @@ module DataCycleCore
             DataCycleCore::Schedule.by_ordered_values(value)
           elsif timeseries_property_names.include?(key)
             DataCycleCore::Timeseries.by_ordered_values(value)
-          # elsif collection_property_names.include?(key)
-          #   DataCycleCore::ContentCollectionLink.by_ordered_values(value)
+          elsif collection_property_names.include?(key)
+            DataCycleCore::Collection.by_ordered_values(value)
           else # rubocop:disable Lint/DuplicateBranch
             value
           end

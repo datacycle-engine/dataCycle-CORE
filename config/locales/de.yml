@@ -1556,6 +1556,9 @@ de:
       data_cycle_core/concept_scheme:
         one: Klassifizierungsbaum
         other: Klassifizierungsbäume
+      data_cycle_core/collection:
+        one: Inhaltssammlung/gespeicherte Suche
+        other: Inhaltssammlungen/gespeicherte Suchen
     attributes:
       data_cycle_core/watch_list:
         manual_order: Manuelle Sortierung als Standard-Sortierung verwenden

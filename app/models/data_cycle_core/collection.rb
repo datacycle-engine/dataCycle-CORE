@@ -83,6 +83,8 @@ module DataCycleCore
     has_many :concept_schemes, through: :collection_concept_scheme_links
 
     has_many :subscriptions, as: :subscribable, dependent: :delete_all
+    has_many :content_collection_links, dependent: :delete_all
+    has_many :content_collection_link_histories, dependent: :delete_all
 
     before_save :split_full_path, if: :full_path_changed?
     before_save :transform_slug, if: :slug_changed?

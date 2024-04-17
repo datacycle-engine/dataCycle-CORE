@@ -52,7 +52,7 @@ module DataCycleCore
     has_many :valid_received_data_links, -> { valid }, class_name: :DataLink, foreign_key: :receiver_id
     has_many :valid_received_readable_data_links, -> { valid.readable }, class_name: :DataLink, foreign_key: :receiver_id
     has_many :valid_received_writable_data_links, -> { valid.writable }, class_name: :DataLink, foreign_key: :receiver_id
-    has_many :valid_received_readable_stored_filter_data_links, -> { valid.readable.where(item_type: 'DataCycleCore::Collection').joins(:item).where(item: { type: 'DataCycleCore::StoredFilter' }) }, class_name: :DataLink, foreign_key: :receiver_id
+    has_many :valid_received_readable_stored_filter_data_links, -> { valid.readable.joins(:collection).where(collection: { type: 'DataCycleCore::StoredFilter' }) }, class_name: :DataLink, foreign_key: :receiver_id
 
     has_many :assets, foreign_key: :creator_id, class_name: 'DataCycleCore::Asset'
 

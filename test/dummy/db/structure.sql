@@ -2544,6 +2544,13 @@ CREATE UNIQUE INDEX ccc_unique_thing_id_classification_alias_id_idx ON public.co
 
 
 --
+-- Name: ccl_unique_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX ccl_unique_index ON public.content_collection_links USING btree (thing_id, relation, collection_id);
+
+
+--
 -- Name: ccsl_unique_index; Type: INDEX; Schema: public; Owner: -
 --
 

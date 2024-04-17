@@ -103,19 +103,15 @@ stored_filter_actions:
     - update
     - destroy
     - show_history
-    - create_global
     - create_api
     - create_api_with_users
     - update_description
     - show_description
+    - change_owner
   segment: SubjectByUserAndConditions
   parameters:
     - DataCycleCore::StoredFilter
     - :user_id
-
-stored_filter_read_global:
-  actions: read
-  segment: StoredFilterByGlobal
 
 watch_list_subscribe:
   actions: subscribe
@@ -140,17 +136,17 @@ watch_list_actions_except_my_selection:
   actions: [destroy, share, change_owner]
   segment: WatchListByCreatorWithoutMySelection
 
-watch_list_group_shares:
-  actions: [read, add_item, remove_item]
-  segment: WatchListByGroupShares
-  parameters:
-    - :my_selection: false
-
 watch_list_user_shares:
-  actions: [read, add_item, remove_item]
+  actions: [add_item, remove_item]
   segment: WatchListByUserShares
-  parameters:
-    - :my_selection: false
+
+watch_list_group_shares:
+  actions: [add_item, remove_item]
+  segment: WatchListByGroupShares
+
+watch_list_role_shares:
+  actions: [add_item, remove_item]
+  segment: WatchListByRoleShares
 
 data_attribute_read:
   actions: read

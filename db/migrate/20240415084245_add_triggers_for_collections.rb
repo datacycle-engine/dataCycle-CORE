@@ -227,6 +227,7 @@ class AddTriggersForCollections < ActiveRecord::Migration[6.1]
     remove_column :content_collection_links, :collection_type, :string
     remove_column :content_collection_link_histories, :collection_type, :string
 
+    add_index :content_collection_links, [:thing_id, :relation, :collection_id], unique: true, name: 'ccl_unique_index'
     add_foreign_key :collection_shares, :users, on_delete: :cascade
     add_foreign_key :collection_shares, :user_groups, on_delete: :cascade
     add_foreign_key :collection_shares, :roles, on_delete: :cascade

@@ -11,10 +11,11 @@ module DataCycleCore
           before(:all) do
             @routes = Engine.routes
             @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'Merkliste 1')
+            @current_user = User.find_by(email: 'tester@datacycle.at')
           end
 
           setup do
-            sign_in(User.find_by(email: 'tester@datacycle.at'))
+            sign_in(@current_user)
           end
 
           test '/api/v4/collections default results' do
@@ -76,7 +77,8 @@ module DataCycleCore
             assert_equal(['@context', '@graph'], json_data.keys)
             assert_equal(@watch_list.id, json_data.dig('@graph', 'watchLists', 0, 'id'))
             assert_equal(@watch_list.name, json_data.dig('@graph', 'watchLists', 0, 'name'))
-            assert_equal([], json_data.dig('@graph', 'storedFilters'))
+            assert_equal(filter.id, json_data.dig('@graph', 'storedFilters', 0, 'id'))
+            assert_equal(filter.name, json_data.dig('@graph', 'storedFilters', 0, 'name'))
             assert_equal('tester@datacycle.at', json_data.dig('@graph', 'userData', 'email'))
           end
 

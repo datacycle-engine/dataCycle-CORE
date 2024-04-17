@@ -6,6 +6,9 @@ module DataCycleCore
 
     belongs_to :item, polymorphic: true
     belongs_to :data_link_content_item, foreign_key: 'data_link_id'
+    belongs_to :collection, -> { where(data_links: { item_type: 'DataCycleCore::Collection' }) }, foreign_key: :item_id
+    belongs_to :watch_list, -> { where(type: 'DataCycleCore::WatchList', data_links: { item_type: 'DataCycleCore::Collection' }) }, foreign_key: :item_id
+    belongs_to :stored_filter, -> { where(type: 'DataCycleCore::StoredFilter', data_links: { item_type: 'DataCycleCore::Collection' }) }, foreign_key: :item_id
 
     belongs_to :creator, class_name: :User
     belongs_to :receiver, class_name: :User
@@ -17,6 +20,7 @@ module DataCycleCore
     scope :valid, -> { where('(data_links.valid_from IS NULL OR data_links.valid_from <= :d) AND (data_links.valid_until IS NULL OR data_links.valid_until >= :d)', d: Time.zone.now.round) }
     scope :readable, -> { where(permissions: ['read', 'write']) }
     scope :writable, -> { where(permissions: 'write') }
+    scope :thing_links, -> { where(item_type: 'DataCycleCore::Thing') }
 
     def writable?
       permissions == 'write'

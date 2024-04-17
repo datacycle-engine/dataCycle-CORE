@@ -115,7 +115,6 @@ de:
       merge_duplicates: Duplikate zusammenführen
       remove_lock: Inhalt zur Bearbeitung freigeben
       view_life_cycle: Lebenszyklus anzeigen
-      create_global: für alle Benutzer freigeben
       create_api_with_users: für API Benutzer freigeben
       create_user: Benutzer erstellen
       lock: sperren
@@ -162,7 +161,7 @@ de:
       data_link_by_receiver: Benutzer der Empfänger des externen Links
       download_allowed_by_content_and_scope: "Kontext: %{scopes}"
       roles_except: "Rolle: %{roles}"
-      stored_filter_by_api_users: "für Benutzer für API freigegeben"
+      stored_filter_by_api_users: mit Benutzer für API geteilt
       stored_filter_by_creator_and_api:
         - "Benutzer ist Ersteller"
         - "für die API freigegeben"
@@ -210,11 +209,28 @@ de:
       watch_list_by_creator_without_my_selection:
         - Benutzer ist Ersteller
         - nicht "Meine Auswahl"
-      watch_list_by_group_shares:
-        - mit Benutzergruppe geteilt
-        - nicht "Meine Auswahl"
       watch_list_by_user_shares:
         - mit Benutzer geteilt
         - nicht "Meine Auswahl"
-      stored_filter_by_global: "für alle sichtbar"
+      watch_list_by_group_shares:
+        - mit Benutzer über Benutzergruppe geteilt
+        - nicht "Meine Auswahl"
+      watch_list_by_role_shares:
+        - mit Benutzer über Rolle geteilt
+        - nicht "Meine Auswahl"
       stored_filter_by_api: für die API freigegeben
+      stored_filter_by_api_and_shared_users: mit Benutzer für API geteilt
+      stored_filter_by_api_and_shared_user_groups: mit Benutzer über Benutzergruppe für API geteilt
+      stored_filter_by_api_and_shared_roles: mit Benutzer über Rolle für API geteilt
+      stored_filter_by_shared_roles: mit Benutzer über Rolle geteilt
+      stored_filter_by_shared_users: mit Benutzer geteilt
+      stored_filter_by_shared_user_groups: mit Benutzer über Benutzergruppe geteilt
+      collection_by_creator_and_api:
+        - "Benutzer ist Ersteller"
+        - "für die API freigegeben"
+      collection_by_api_and_shared_roles: mit Benutzer über Rolle für API geteilt
+      collection_by_api_and_shared_user_groups: mit Benutzer über Benutzergruppe für API geteilt
+      collection_by_api_and_shared_users: mit Benutzer für API geteilt
+      collection_by_shared_roles: mit Benutzer über Rolle geteilt
+      collection_by_shared_user_groups: mit Benutzer über Benutzergruppe geteilt
+      collection_by_shared_users: mit Benutzer geteilt
