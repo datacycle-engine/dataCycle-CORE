@@ -5,6 +5,8 @@ module DataCycleCore
     validates :type, presence: true
 
     scope :by_user, ->(user) { where(user:) }
+    scope :my_selection, -> { unscope(where: :my_selection).where(my_selection: true) }
+    scope :without_my_selection, -> { unscope(where: :my_selection).where(my_selection: false) }
 
     scope :accessible_by_subclass, lambda { |current_ability|
                                      sub_queries = []
@@ -34,8 +36,8 @@ module DataCycleCore
                             uuids = Array.wrap(value).filter { |v| v.to_s.uuid? }
                             slugs = Array.wrap(value).map { |v| v.to_s.strip }
                             queries = []
-                            queries.push(default_scoped.where(id: uuids).select(:id).to_sql) if uuids.present?
-                            queries.push(default_scoped.where(slug: slugs).select(:id).to_sql) if slugs.present?
+                            queries.push(default_scoped.where(id: uuids).without_my_selection.select(:id).to_sql) if uuids.present?
+                            queries.push(default_scoped.where(slug: slugs).without_my_selection.select(:id).to_sql) if slugs.present?
 
                             where("collections.id IN (#{send(:sanitize_sql_array, [queries.join(' UNION ')])})")
                           }
@@ -46,8 +48,8 @@ module DataCycleCore
                             uuids = Array.wrap(value).filter { |v| v.to_s.uuid? }
                             names = Array.wrap(value).map { |v| v.to_s.strip }
                             queries = []
-                            queries.push(default_scoped.where(id: uuids).select(:id).to_sql) if uuids.present?
-                            queries.push(default_scoped.where(name: names).select(:id).to_sql) if names.present?
+                            queries.push(default_scoped.where(id: uuids).without_my_selection.select(:id).to_sql) if uuids.present?
+                            queries.push(default_scoped.where(name: names).without_my_selection.select(:id).to_sql) if names.present?
 
                             where("collections.id IN (#{send(:sanitize_sql_array, [queries.join(' UNION ')])})")
                           }
@@ -60,7 +62,7 @@ module DataCycleCore
     }
     scope :by_api_user, ->(user) { shared_with_user(user) }
 
-    scope :conditional_my_selection, -> { DataCycleCore::Feature::MySelection.enabled? ? all : where(my_selection: false).or(where.not(type: 'DataCycleCore::WatchList')) }
+    scope :conditional_my_selection, -> { DataCycleCore::Feature::MySelection.enabled? ? all : without_my_selection }
     scope :named, -> { where.not(name: nil) }
 
     belongs_to :user

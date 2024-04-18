@@ -130,19 +130,19 @@ module DataCycleCore
     def build_search_query
       endpoint_id = permitted_params[:id]
       @linked_stored_filter = nil
-      if endpoint_id.present?
-        @stored_filter = DataCycleCore::StoredFilter.by_id_or_slug(endpoint_id).first
 
-        if @stored_filter
-          authorize! :api, @stored_filter unless any_authenticity_token_valid?
-          @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
-          @classification_trees_parameters |= Array.wrap(@stored_filter.classification_tree_labels)
-          @classification_trees_filter = @classification_trees_parameters.present?
-        elsif (@watch_list = DataCycleCore::WatchList.without_my_selection.by_id_or_slug(endpoint_id).first).present?
-          authorize! :api, @watch_list unless any_authenticity_token_valid?
-        else
-          raise ActiveRecord::RecordNotFound
-        end
+      if endpoint_id.present?
+        @collection = DataCycleCore::Collection.by_id_or_slug(endpoint_id).first
+
+        raise ActiveRecord::RecordNotFound if @collection.nil?
+
+        authorize! :api, @collection # unless any_authenticity_token_valid?
+
+        @stored_filter = @collection if @collection.is_a?(DataCycleCore::StoredFilter)
+        @watch_list = @collection if @collection.is_a?(DataCycleCore::WatchList)
+        @linked_stored_filter = @collection.linked_stored_filter if @collection.linked_stored_filter_id.present?
+        @classification_trees_parameters |= Array.wrap(@collection.classification_tree_labels)
+        @classification_trees_filter = @classification_trees_parameters.present?
       end
 
       filter = @stored_filter || DataCycleCore::StoredFilter.new

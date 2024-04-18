@@ -4,9 +4,6 @@ module DataCycleCore
   class WatchList < Collection
     validates :full_path, presence: true
 
-    scope :my_selection, -> { unscope(where: :my_selection).where(my_selection: true) }
-    scope :without_my_selection, -> { unscope(where: :my_selection).where(my_selection: false) }
-
     scope :conditional_my_selection, -> { DataCycleCore::Feature::MySelection.enabled? ? all : where(my_selection: false) }
 
     has_many :watch_list_data_hashes, dependent: :delete_all
