@@ -469,7 +469,7 @@ module DataCycleCore
               'm' => 'i',
               'n' => 'Inhaltstypen',
               't' => 'classification_alias_ids',
-              'v' => [DataCycleCore::ClassificationAlias.find_by(internal_name: @object.template_name).id],
+              'v' => [DataCycleCore::ClassificationAlias.find_by(internal_name: @object.template_name)&.id],
               'identifier' => rand(1000)
             }
           ]
