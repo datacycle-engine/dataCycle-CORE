@@ -410,7 +410,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
     }
     arguments = []
 
-    get_dummy_template = ->(template_name) { template_name }
+    get_dummy_template = ->(template_name) { DataCycleCore::ThingTemplate.new(template_name:) }
     collect_arguments = lambda do |*args|
       arguments << args
       nil
@@ -441,7 +441,7 @@ describe DataCycleCore::Generic::Common::ImportContents do
     }
     arguments = []
 
-    get_dummy_template = ->(template_name) { template_name }
+    get_dummy_template = ->(template_name) { DataCycleCore::ThingTemplate.new(template_name:) }
     collect_arguments = lambda do |*args|
       arguments << args
       nil
