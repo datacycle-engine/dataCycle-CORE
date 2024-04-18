@@ -76,10 +76,6 @@ thing_destroy:
     - DataCycleCore::Thing
     - :created_by
 
-stored_filter_api_by_user:
-  actions: api
-  segment: StoredFilterByCreatorAndApi
-
 stored_filter_actions:
   actions: [read, create, update, destroy, show_history, change_owner]
   segment: SubjectByUserAndConditions

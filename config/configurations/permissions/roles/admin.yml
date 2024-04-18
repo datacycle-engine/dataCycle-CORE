@@ -88,10 +88,6 @@ thing_destroy:
   segment: SubjectNotExternal
   parameters: DataCycleCore::Thing
 
-stored_filter_api_by_user:
-  actions: api
-  segment: StoredFilterByCreatorAndApi
-
 stored_filter_actions:
   actions:
     - read

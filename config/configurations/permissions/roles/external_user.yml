@@ -46,10 +46,6 @@ thing_history:
   segment: SubjectByConditions
   parameters: DataCycleCore::Thing::History
 
-stored_filter_api_by_user:
-  actions: api
-  segment: StoredFilterByCreatorAndApi
-
 stored_filter_actions:
   actions: [read, create, update, destroy, show_history, change_owner]
   segment: SubjectByUserAndConditions
