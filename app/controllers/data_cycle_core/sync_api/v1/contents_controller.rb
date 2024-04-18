@@ -17,7 +17,7 @@ module DataCycleCore
 
             @pagination_contents = apply_paging(query)
             @contents = @pagination_contents
-            render json: sync_api_format(@contents) { @contents.to_sync_data }.to_json
+            render json: sync_api_format(@contents) { @contents.to_sync_data(linked_stored_filter: @linked_stored_filter) }.to_json
           end
         end
 

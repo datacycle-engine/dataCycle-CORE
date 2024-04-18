@@ -65,7 +65,7 @@ module DataCycleCore
           relation_a: relation_a_name,
           relation_b: relation_b_name
         }
-        content_contents_condition[content_filter] = filter.apply.select(:id).except(:order) if filter.present?
+        content_contents_condition[content_filter] = filter.apply(skip_ordering: true).select(:id).except(:order) if filter.present?
 
         relation_contents = self.class.unscoped do
           send(relation_name).where(content_contents: content_contents_condition).i18n
