@@ -455,6 +455,10 @@ module DataCycleCore
 
         if dup_search
 
+          data_type_definition = @object.properties_for('data_type') || @object.properties_for('schema_types')
+          tree_label = data_type_definition&.dig('tree_label')
+          internal_name = @object.respond_to?(:data_type) ? data_type_definition&.dig('default_value') : @object.schema_ancestors&.flatten&.last
+
           dup_filter = DataCycleCore::StoredFilter.new
           dup_filter['parameters'] = [
             {
@@ -467,9 +471,9 @@ module DataCycleCore
             {
               'c' => 'd',
               'm' => 'i',
-              'n' => 'Inhaltstypen',
+              'n' => tree_label,
               't' => 'classification_alias_ids',
-              'v' => [DataCycleCore::ClassificationAlias.find_by(internal_name: @object.template_name)&.id],
+              'v' => DataCycleCore::ClassificationAlias.for_tree(tree_label).with_internal_name(internal_name).pluck(:id),
               'identifier' => rand(1000)
             }
           ]
@@ -482,8 +486,6 @@ module DataCycleCore
 
           dup_query = dup_filter.apply
           dup_query.fulltext_search(datahash['name'])
-
-          # binding.pry
 
           if dup_query.entries.length.positive?
 
