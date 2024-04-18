@@ -151,7 +151,7 @@ module DataCycleCore
 
       ActiveSupport::Notifications.instrument 'download_import_failed_repeatedly.datacycle', {
         exception: "The #{failed_function} for external system '#{name}' (#{identifier} - #{id}) has been repeatedly failing for more than #{grace_period.inspect}. Last successful #{failed_function}: #{last_success}. #{last_exception.present? ? "The last exception was: #{last_exception}" : ''}",
-        namespace: 'background',
+        namespace: "repeated_failure_#{failed_function}",
         mailing_list: options['error_notification']['emails'],
         trigger: failed_function,
         external_source_info: {name:}
