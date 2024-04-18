@@ -163,7 +163,10 @@ module DataCycleCore
               template_name: content.template_name
             }
 
-            utility_object.logging&.error('Validating import data', data['external_key'], data, content.errors.messages.collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', '))
+            errors = content.errors.messages.collect { |k, v| "#{k} #{v&.join(', ')}" }.join(', ')
+
+            utility_object.logging&.error('Validating import data', data['external_key'], data, errors)
+            utility_object.external_source&.handle_import_error_notification(errors)
 
             content.destroy_content(save_history: false) if created
             return
@@ -188,6 +191,7 @@ module DataCycleCore
             exception: e,
             namespace: 'importer'
           }
+          utility_object&.external_source&.handle_import_error_notification(e)
           # puts 'Error: Template mismatch, expected: ' + e.expected_template_name + ', got: ' + e.template_name
         end
 

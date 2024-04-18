@@ -49,9 +49,10 @@ module DataCycleCore
               rescue StandardError => e
                 ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                   exception: e,
-                  namespace: 'background',
-                  external_source: download_object.external_source
+                  namespace: 'background'
                 }
+
+                download_object.external_source.handle_download_error_notification(e)
 
                 logging.error(nil, nil, nil, e)
               end
@@ -114,8 +115,6 @@ module DataCycleCore
                           item_id = data_id.call(item_data)
                           item_name = data_name.call(item_data)
 
-                          raise 'TESTING ERROR!!!'
-
                           item = mongo_item_parallel.find_or_initialize_by('external_id': item_id)
 
                           item.dump ||= {}
@@ -172,9 +171,10 @@ module DataCycleCore
                 rescue StandardError => e
                   ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                     exception: e,
-                    namespace: 'background',
-                    external_source: download_object.external_source
+                    namespace: 'background'
                   }
+
+                  download_object.external_source.handle_download_error_notification(e)
 
                   logging.error(nil, nil, nil, e)
 
@@ -311,6 +311,8 @@ module DataCycleCore
                     namespace: 'background'
                   }
 
+                  download_object.external_source.handle_download_error_notification(e)
+
                   logging.error(nil, nil, nil, e)
                   success = false
                 ensure
@@ -380,9 +382,10 @@ module DataCycleCore
                     rescue StandardError => e
                       ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                         exception: e,
-                        namespace: 'background',
-                        external_source: download_object.external_source
+                        namespace: 'background'
                       }
+
+                      download_object.external_source.handle_download_error_notification(e)
 
                       logging.error(item_name, item_id, item_data, e)
                       success = false
@@ -400,9 +403,10 @@ module DataCycleCore
               rescue StandardError => e
                 ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                   exception: e,
-                  namespace: 'background',
-                  external_source: download_object.external_source
+                  namespace: 'background'
                 }
+
+                download_object.external_source.handle_download_error_notification(e)
 
                 logging.error(nil, nil, nil, e)
                 success = false
@@ -476,9 +480,10 @@ module DataCycleCore
                     rescue StandardError => e
                       ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                         exception: e,
-                        namespace: 'background',
-                        external_source: download_object.external_source
+                        namespace: 'background'
                       }
+
+                      download_object.external_source.handle_download_error_notification(e)
 
                       logging.error(item_name, item_id, item_data, e)
                       success = false
@@ -496,9 +501,10 @@ module DataCycleCore
               rescue StandardError => e
                 ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                   exception: e,
-                  namespace: 'background',
-                  external_source: download_object.external_source
+                  namespace: 'background'
                 }
+
+                download_object.external_source.handle_download_error_notification(e)
 
                 logging.error(nil, nil, nil, e)
                 success = false
