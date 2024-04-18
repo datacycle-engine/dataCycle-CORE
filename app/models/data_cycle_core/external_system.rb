@@ -149,11 +149,12 @@ module DataCycleCore
 
       return unless grace_period_exceeded
 
-      ActiveSupport::Notifications.instrument 'download_failed_repeatedly.datacycle', {
+      ActiveSupport::Notifications.instrument 'download_import_failed_repeatedly.datacycle', {
         exception: "The #{failed_function} for external system '#{name}' (#{identifier} - #{id}) has been repeatedly failing for more than #{grace_period.inspect}. Last successful #{failed_function}: #{last_success.to_s}. #{last_exception.present? ? "The last exception was: #{last_exception}" : ''}",
         namespace: 'background',
         mailing_list: options['error_notification']['emails'],
-        trigger: failed_function
+        trigger: failed_function,
+        external_source: self
       }
     end
 

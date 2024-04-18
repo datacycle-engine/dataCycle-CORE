@@ -49,7 +49,8 @@ module DataCycleCore
               rescue StandardError => e
                 ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                   exception: e,
-                  namespace: 'background'
+                  namespace: 'background',
+                  external_source: download_object.external_source
                 }
 
                 logging.error(nil, nil, nil, e)
@@ -171,12 +172,11 @@ module DataCycleCore
                 rescue StandardError => e
                   ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                     exception: e,
-                    namespace: 'background'
+                    namespace: 'background',
+                    external_source: download_object.external_source
                   }
 
                   logging.error(nil, nil, nil, e)
-
-                  download_object.external_source.handle_download_error_notification(e)
 
                   success = false
                 ensure
@@ -246,7 +246,8 @@ module DataCycleCore
                     rescue StandardError => e
                       ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                         exception: e,
-                        namespace: 'background'
+                        namespace: 'background',
+                        external_source: download_object.external_source
                       }
 
                       logging.error(item_name, item_id, item_data, e)
@@ -265,7 +266,8 @@ module DataCycleCore
               rescue StandardError => e
                 ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                   exception: e,
-                  namespace: 'background'
+                  namespace: 'background',
+                  external_source: download_object.external_source
                 }
 
                 logging.error(nil, nil, nil, e)
@@ -340,7 +342,8 @@ module DataCycleCore
                     rescue StandardError => e
                       ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                         exception: e,
-                        namespace: 'background'
+                        namespace: 'background',
+                        external_source: download_object.external_source
                       }
 
                       logging.error(item_name, item_id, item_data, e)
@@ -359,7 +362,8 @@ module DataCycleCore
               rescue StandardError => e
                 ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
                   exception: e,
-                  namespace: 'background'
+                  namespace: 'background',
+                  external_source: download_object.external_source
                 }
 
                 logging.error(nil, nil, nil, e)
