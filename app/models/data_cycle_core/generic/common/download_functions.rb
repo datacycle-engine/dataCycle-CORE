@@ -189,7 +189,7 @@ module DataCycleCore
           options[:locales] ||= I18n.available_locales
           if options[:locales].size != 1
             options[:locales].each do |language|
-              success &&= download_sequential(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, options: options.except(:locales).merge({ locales: [language] }))
+              success &&= download_optimized(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
