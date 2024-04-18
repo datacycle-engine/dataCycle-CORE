@@ -41,6 +41,10 @@ collection_role_shares:
   actions: read
   segment: CollectionBySharedRoles
 
+collection_api_creator:
+  actions: [api, copy_api_link]
+  segment: CollectionByCreatorAndApi
+
 collection_api_user_shares:
   actions: [api, copy_api_link]
   segment: CollectionByApiAndSharedUsers

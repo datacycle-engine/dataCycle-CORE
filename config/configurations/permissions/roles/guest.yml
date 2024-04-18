@@ -35,10 +35,6 @@ stored_filter_api_by_user:
   actions: api
   segment: StoredFilterByCreatorAndApi
 
-stored_filter_api_by_api_users:
-  actions: api
-  segment: StoredFilterByApiUsers
-
 data_attribute_read:
   actions: read
   segment: DataAttributeAllowedForShow
