@@ -199,7 +199,7 @@ module DataCycleCore
 
       options_hash.each do |key, value|
         if value.is_a?(DataCycleCore::Thing) && !value.persisted?
-          params_hash[key] = value.thing_template.persisted? ? { class: value.class.name, attributes: value.attributes } : { class: value.class.name, attributes: value.attributes.merge(thing_template: { class: value.thing_template.class.name, attributes: value.thing_template.attributes }) }
+          params_hash[key] = value.thing_template.persisted? ? { class: value.class.name, attributes: value.attributes.merge(value.attr_accessor_attributes) } : { class: value.class.name, attributes: value.attributes.merge(value.attr_accessor_attributes).merge(thing_template: { class: value.thing_template.class.name, attributes: value.thing_template.attributes }) }
         elsif value.is_a?(ActiveRecord::Base)
           params_hash[key] = value.persisted? ? { value.class.primary_key.to_sym => value.try(value.class.primary_key), class: value.class.name } : { class: value.class.name, attributes: value.attributes }
         elsif value.is_a?(ActiveRecord::Relation)

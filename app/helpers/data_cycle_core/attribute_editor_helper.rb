@@ -85,7 +85,7 @@ module DataCycleCore
         content = options.parameters[:parent] || options.content
 
         if DataCycleCore::DataHashService.blank?(options.value)
-          content.default_value(options.key.attribute_name_from_key, current_user) if content.is_a?(DataCycleCore::Thing) && (content.new_record? || content.available_locales.exclude?(I18n.locale))
+          content.default_value(options.key.attribute_name_from_key, current_user) if content.is_a?(DataCycleCore::Thing) && !content.generic_template? && (content.new_record? || content.available_locales.exclude?(I18n.locale))
           options.value = content.try(options.key.attribute_name_from_key)
         end
 

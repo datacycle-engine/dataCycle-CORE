@@ -3,7 +3,7 @@
 module DataCycleCore
   module BulkEditHelper
     def generic_content(watch_list)
-      DataCycleCore::Thing.new(
+      generic_thing = DataCycleCore::Thing.new(
         id: SecureRandom.uuid,
         thing_template: DataCycleCore::ThingTemplate.new(
           template_name: 'Generic',
@@ -17,6 +17,14 @@ module DataCycleCore
           }.deep_stringify_keys!
         )
       )
+
+      generic_thing.readonly!
+
+      I18n.available_locales.each do |locale|
+        generic_thing.translations.new(thing_id: generic_thing.id, locale:, &:readonly!)
+      end
+
+      generic_thing
     end
   end
 end

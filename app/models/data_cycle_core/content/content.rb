@@ -23,13 +23,15 @@ module DataCycleCore
       TIMESERIES_PROPERTY_TYPES = ['timeseries'].freeze
       ASSET_PROPERTY_TYPES = ['asset'].freeze
       COLLECTION_PROPERTY_TYPES = ['collection'].freeze
+      ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS].freeze
+      ATTR_WRITERS = [:webhook_data].freeze
 
       after_initialize :add_template_properties, if: :new_record?
 
       self.abstract_class = true
 
-      attr_accessor :datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS
-      attr_writer :webhook_data
+      attr_accessor(*ATTR_ACCESSORS)
+      attr_writer(*ATTR_WRITERS)
 
       DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
         feature = ModuleService.load_module("Feature::#{key.to_s.classify}", 'Datacycle')
@@ -69,10 +71,18 @@ module DataCycleCore
         attributes&.map { |k, v| "thing_translations.content ->> '#{k}' #{v.is_a?(::Array) ? 'IN (?)' : '= ?'}" }&.join(' AND ')
       end
 
+      def attr_accessor_attributes
+        ATTR_ACCESSORS.index_with { |k| send(k) }.stringify_keys
+      end
+
       def reload(options = nil)
         reload_memoized
 
         super(options)
+      end
+
+      def generic_template?
+        template_name == 'Generic'
       end
 
       def webhook_data
@@ -585,9 +595,13 @@ module DataCycleCore
           }
           .reduce(:&)
           .to_h
-          .keep_if do |_, v|
-            v['type'] != 'classification' || DataCycleCore::ClassificationService.visible_classification_tree?(v['tree_label'], 'edit')
-          end
+
+        tree_label_names = ordered_properties.values.pluck('tree_label').compact.uniq
+        tree_labels = DataCycleCore::ClassificationTreeLabel.where(name: tree_label_names).index_by(&:name) if tree_label_names.present?
+
+        ordered_properties = ordered_properties.keep_if do |_, v|
+          v['type'] != 'classification' || DataCycleCore::ClassificationService.visible_classification_tree?(tree_labels[v['tree_label']], 'edit')
+        end
 
         contents.find_each do |t|
           ordered_properties.select! do |k, v|
