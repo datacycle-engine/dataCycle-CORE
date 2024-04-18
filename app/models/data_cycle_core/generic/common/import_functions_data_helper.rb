@@ -5,7 +5,7 @@ module DataCycleCore
     module Common
       module ImportFunctionsDataHelper
         def process_step(utility_object:, raw_data:, transformation:, default:, config:)
-          template = config&.dig(:template) || default.dig(:template)
+          template = load_template(config&.dig(:template) || default.dig(:template))
 
           raw_data = pre_process_data(raw_data:, config:)
 
@@ -15,8 +15,7 @@ module DataCycleCore
             utility_object
           ).with_indifferent_access
 
-          data = post_process_data(data:, config:)
-
+          data = post_process_data(data:, config:).slice(*template.properties, 'external_system_data', 'external_source_id')
           transformation_hash = Digest::SHA256.hexdigest(data.to_json)
           external_key = data.dig('external_key')
           external_source_id = utility_object.external_source.id
@@ -27,7 +26,7 @@ module DataCycleCore
           else
             content = create_or_update_content(
               utility_object:,
-              template: load_template(template),
+              template:,
               data:,
               local: false,
               config:
