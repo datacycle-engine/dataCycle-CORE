@@ -515,6 +515,14 @@
           - "tsv"
           - "json"
           - "xlsx"
+      :watch_lists_usage:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::WatchListsUsage
+        :allowed_formats:
+          - "csv"
+          - "tsv"
+          - "json"
+          - "xlsx"
     :content:
       :downloads_content:
         :enabled: false

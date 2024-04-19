@@ -3,11 +3,11 @@
 module DataCycleCore
   module Report
     module Downloads
-      class StoredSearchesUsage < Base
+      class WatchListsUsage < Base
         def apply(_params)
           raw_query = <<-SQL.squish
             SELECT
-              stored_filters.name AS NAME,
+              watch_lists.name AS NAME,
               MIN(
                 CONCAT(
                   users.given_name,
@@ -18,8 +18,7 @@ module DataCycleCore
                   '>'
                 )
               ) AS creator,
-              stored_filters.api AS api_access,
-              stored_filters.updated_at AS last_used_dashboard,
+              watch_lists.api AS api_access,
               MAX(activities.created_at) AS last_used_api,
               COUNT(activities.id) FILTER (
                 WHERE
@@ -45,18 +44,15 @@ module DataCycleCore
                   AND activities.created_at < DATE_TRUNC('month', NOW())
               ) AS api_usage_last_12_months
             FROM
-              stored_filters
-              LEFT OUTER JOIN users ON users.id = stored_filters.user_id
-              LEFT OUTER JOIN activities ON activities.data ->> 'id' = stored_filters.id::TEXT
-            WHERE
-              stored_filters.name IS NOT NULL
-              AND stored_filters.name != ''
+              watch_lists
+              LEFT OUTER JOIN users ON users.id = watch_lists.user_id
+              LEFT OUTER JOIN activities ON activities.data ->> 'id' = watch_lists.id::TEXT
             GROUP BY
-              stored_filters.name,
-              stored_filters.id
+              watch_lists.name,
+              watch_lists.id
             ORDER BY
-              stored_filters.name,
-              stored_filters.id;
+              watch_lists.name,
+              watch_lists.id;
           SQL
 
           @data = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query]))

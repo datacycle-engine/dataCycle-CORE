@@ -766,6 +766,7 @@ de:
       downloads_popular: Top 50 Downloads
       downloads_content: Alle Downloads dieses Inhalts
       stored_searches_usage: Verwendung Gespeicherte Suchen
+      watch_lists_usage: Verwendung Inhaltssammlungen
       headings:
         id: ID
         name: Name
@@ -797,6 +798,7 @@ de:
         latest_activity_type: Aktivitätsart
         latest_api_access: Letzter API Zugriff
         user_group_names: Benutzergruppen
+        api_access: Für API freigegeben
       mailer:
         subject:
           downloads_popular: TOP 50 Bild Downloads

@@ -744,6 +744,7 @@ en:
       downloads_popular: Top 50 Downloads
       downloads_content: All downloads of this content
       stored_searches_usage: Usage of saved Searches
+      watch_lists_usage: Usage of content collections
       headings:
         id: ID
         name: Name
@@ -775,6 +776,7 @@ en:
         latest_activity_type: Last activitytype
         latest_api_access: Last API access
         user_group_names: User groups
+        api_access: accessible via API
       mailer:
         subject:
           downloads_popular: TOP 50 Image Downloads
