@@ -1730,6 +1730,7 @@ de:
       update_params: speichern und Suchparameter übernehmen
       form:
         api: API
+        shares: Freigaben
     watch_list:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
       mailer:

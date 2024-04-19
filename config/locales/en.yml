@@ -1687,6 +1687,7 @@ en:
         other: "<b>%{count}</b> searches"
       form:
         api: API
+        shares: Shares
       update_params: save and apply search parameters
     watch_list:
       locked_by_data_link: Add/Remove Content Locked (Active External Links)

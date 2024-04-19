@@ -418,9 +418,50 @@
     margin-bottom: 1rem;
     border-radius: $global-radius;
 
-    legend {
-      padding: 0 0.5rem;
-      font-weight: 600;
+    &.accordion-item {
+      padding: 0;
+      margin-top: 1.5rem;
+
+      .accordion-title {
+        padding: 0 1.5rem 0 0.5rem;
+        font-size: 1rem;
+        color: var(--black);
+        font-weight: 600;
+        height: 2rem;
+        margin-top: -1rem;
+        display: flex;
+        align-items: center;
+        background: var(--white);
+        width: fit-content;
+        border: none;
+        margin-left: 0.5rem;
+
+        &::before {
+          right: 0.5rem;
+          content: '\f107';
+          font-family: FontAwesome;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+
+      &.is-active {
+        .accordion-title {
+          &::before {
+            content: '\f106';
+          }
+        }
+      }
+
+      &:not(.is-active) {
+        border-color: var(--white);
+        border-top: 1px solid $medium-gray;
+      }
+
+      .accordion-content {
+        padding-top: 0;
+      }
     }
   }
 
