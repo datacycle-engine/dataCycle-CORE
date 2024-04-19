@@ -132,9 +132,9 @@ module DataCycleCore
         select_option = filter.to_select_option
 
         if filter.user_id != current_user.id
-          suffix = helpers.tag.span(" | #{filter.user.full_name} <#{filter.user.email}>", class: 'stored-filter-creator')
-          select_option.name += suffix
-          select_option.dc_tooltip += suffix
+          suffix = helpers.tag.span(helpers.safe_join([' |', filter.user_with_deleted.full_name_with_status, "<#{filter.user_with_deleted.email}>"], ' '), class: 'stored-filter-creator')
+          select_option.name = helpers.safe_join([select_option.name, suffix])
+          select_option.dc_tooltip = helpers.safe_join([select_option.dc_tooltip, suffix])
         end
 
         select_option
