@@ -9,9 +9,10 @@ module DataCycleCore
 
       store_in collection: 'name'
 
-      field :external_id,  type: String
-      field :dump,         type: Hash
-      field :seen_at,      type: DateTime
+      field :external_id,      type: String
+      field :dump,             type: Hash
+      field :external_system,  type: Hash
+      field :seen_at,          type: DateTime
       include Mongoid::Timestamps
 
       before_save ->(document) { document.seen_at = Time.zone.now unless keep_seen_at }

@@ -7,19 +7,20 @@ module DataCycleCore
   module Generic
     module Common
       module DownloadFunctions
-        def self.download_data(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, options:)
+        def self.download_data(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil, options:)
           iteration_strategy = options.dig(:download, :iteration_strategy) || options.dig(:iteration_strategy) || :download_sequential
           raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel, :download_all, :download_optimized].include?(iteration_strategy.to_sym)
-          send(iteration_strategy, download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, options:)
+          send(iteration_strategy, download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options:)
         end
 
-        def self.download_single(download_object:, data_id:, data_name:, modified: nil, delete: nil, raw_data:, _iterator: nil, cleanup_data: nil, options:)
+        def self.download_single(download_object:, data_id:, data_name:, modified: nil, delete: nil, raw_data:, _iterator: nil, cleanup_data: nil, credential: nil, options:)
           database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
               locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
               begin
                 download_object.source_object.with(download_object.source_type) do |mongo_item|
+                  _credentials = credential.call(download_object.credentials) if credential.present?
                   item_id = data_id.call(raw_data.first[1])
                   item_name = data_name.call(raw_data.first[1])
                   item = mongo_item.find_or_initialize_by('external_id': item_id)
@@ -58,13 +59,13 @@ module DataCycleCore
           end
         end
 
-        def self.download_sequential(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, options:)
+        def self.download_sequential(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil, options:)
           success = true
           delta = 100
           options[:locales] ||= I18n.available_locales
           if options[:locales].size != 1
             options[:locales].each do |language|
-              success &&= download_sequential(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, options: options.except(:locales).merge({ locales: [language] }))
+              success &&= download_sequential(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
@@ -167,13 +168,13 @@ module DataCycleCore
           success
         end
 
-        def self.download_optimized(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, options:)
+        def self.download_optimized(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil, options:)
           success = true
           delta = 100
           options[:locales] ||= I18n.available_locales
           if options[:locales].size != 1
             options[:locales].each do |language|
-              success &&= download_optimized(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, options: options.except(:locales).merge({ locales: [language] }))
+              success &&= download_optimized(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
@@ -191,6 +192,8 @@ module DataCycleCore
                     times = [Time.current]
 
                     endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
+
+                    credentials = credential.call(download_object.credentials) if credential.present?
 
                     items = download_object.endpoint.send(endpoint_method, lang: locale)
                     items.each_slice(100) do |item_data_slice|
@@ -243,19 +246,17 @@ module DataCycleCore
                             item.data_has_changed = diff?(item.dump[locale].as_json, item_data.as_json, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
 
                             # add credential from download_object to item
-                            # update all download iterator strategies (add lambda for credential key)
-                            # refactor forced update to use credentials
-                            # check for usage of other forced updates.
-                            # check difference between external_keys and forced_updates
-                            # credential_key = download_object.credentials.dig('key') || "#{download_object.credentials['pos_code']}-#{download_object.credentials['range_code']}-#{download_object.credentials['range_id']}"
-                            # item.external_system ||= {}
-                            # item.external_system['credentials'] ||= {}
-                            # if item.external_system.dig('credentials', credential_key).blank? ||
-                            #    Digest::MD5.hexdigest(item.external_system.dig('credentials', credential_key)) != Digest::MD5.hexdigest(download_object.credentials.to_json)
+                            if credentials.dig('key').present?
+                              credential_key = credentials['key']
+                              item.external_system ||= {}
+                              item.external_system['credentials'] ||= {}
+                              if item.external_system.dig('credentials', credential_key).blank? ||
+                                 Digest::MD5.hexdigest(item.external_system.dig('credentials', credential_key).to_json) != Digest::MD5.hexdigest(download_object.credentials.to_json)
 
-                            #   item.external_system['credentials'][credential_key] = download_object.credentials
-                            #   item.save!
-                            # end
+                                item.external_system['credentials'][credential_key] = download_object.credentials
+                                item.save!
+                              end
+                            end
 
                             if item.data_has_changed
                               # for debugging, also uncomment the require 'hashdiff' at the top of this file
@@ -303,7 +304,7 @@ module DataCycleCore
           success
         end
 
-        def self.download_parallel(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, options:) # rubocop:disable Lint/UnusedMethodArgument
+        def self.download_parallel(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil, options:) # rubocop:disable Lint/UnusedMethodArgument
           success = true
           delta = 100
 
@@ -393,7 +394,7 @@ module DataCycleCore
           success
         end
 
-        def self.download_all(download_object:, data_id:, data_name:, modified: nil, delete: nil, cleanup_data: nil, options:, **_unused)
+        def self.download_all(download_object:, data_id:, data_name:, modified: nil, delete: nil, cleanup_data: nil, credential: nil, options:, **_unused)
           success = true
           delta = 100
 
@@ -407,6 +408,7 @@ module DataCycleCore
 
               begin
                 download_object.source_object.with(download_object.source_type) do |mongo_item|
+                  _credentials = credential.call(download_object.credentials) if credential.present?
                   endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
                   items = download_object.endpoint.send(endpoint_method)
 
