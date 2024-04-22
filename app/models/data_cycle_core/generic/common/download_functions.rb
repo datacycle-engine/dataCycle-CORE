@@ -75,30 +75,14 @@ module DataCycleCore
                 item_count = 0
 
                 begin
-                  download_object.source_object.with(download_object.source_type) do |mongo_item|
+                  download_object.source_object.with(download_object.source_type) do |_mongo_item|
                     max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
                     logging.phase_started("#{download_object.source_type.collection_name}_#{locale}", max_string)
                     GC.start
                     times = [Time.current]
 
                     endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
-                    external_keys =
-                      if iterator.present? && options[:mode] != 'full'
-                        external_keys = options[:external_keys] || []
-                        iterator
-                          .call(mongo_item, locale, external_keys)
-                          .find_all
-                          .map { |i| [i.external_id, i.dump.dig(locale, '_RangeCode'), i.dump.dig(locale, '_RangeId')] }
-                          .select { |i| i[1].present? && i[2].present? }
-                      else
-                        []
-                      end
-                    items =
-                      if external_keys.present?
-                        download_object.endpoint.send(endpoint_method, lang: locale, forced_updates: external_keys)
-                      else
-                        download_object.endpoint.send(endpoint_method, lang: locale)
-                      end
+                    items = download_object.endpoint.send(endpoint_method, lang: locale)
 
                     items.each do |item_data|
                       break if options[:max_count] && item_count >= options[:max_count]
@@ -200,31 +184,15 @@ module DataCycleCore
                 item_count = 0
 
                 begin
-                  download_object.source_object.with(download_object.source_type) do |mongo_item|
+                  download_object.source_object.with(download_object.source_type) do |_mongo_item|
                     max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
                     logging.phase_started("#{download_object.source_type.collection_name}_#{locale}", max_string)
                     GC.start
                     times = [Time.current]
 
                     endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
-                    external_keys =
-                      if iterator.present? && options[:mode] != 'full'
-                        external_keys = options[:external_keys] || []
-                        iterator
-                          .call(mongo_item, locale, external_keys)
-                          .find_all
-                          .map { |i| [i.external_id, i.dump.dig(locale, '_RangeCode'), i.dump.dig(locale, '_RangeId')] }
-                          .select { |i| i[1].present? && i[2].present? }
-                      else
-                        []
-                      end
-                    items =
-                      if external_keys.present?
-                        download_object.endpoint.send(endpoint_method, lang: locale, forced_updates: external_keys)
-                      else
-                        download_object.endpoint.send(endpoint_method, lang: locale)
-                      end
 
+                    items = download_object.endpoint.send(endpoint_method, lang: locale)
                     items.each_slice(100) do |item_data_slice|
                       break if options[:max_count] && item_count >= options[:max_count]
 
@@ -273,11 +241,29 @@ module DataCycleCore
                             item.data_has_changed = true if options.dig(:download, :skip_diff) == true && item.data_has_changed.nil?
                             item_data = cleanup_data.call(item_data) if cleanup_data.present?
                             item.data_has_changed = diff?(item.dump[locale].as_json, item_data.as_json, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
+
+                            # add credential from download_object to item
+                            # update all download iterator strategies (add lambda for credential key)
+                            # refactor forced update to use credentials
+                            # check for usage of other forced updates.
+                            # check difference between external_keys and forced_updates
+                            # credential_key = download_object.credentials.dig('key') || "#{download_object.credentials['pos_code']}-#{download_object.credentials['range_code']}-#{download_object.credentials['range_id']}"
+                            # item.external_system ||= {}
+                            # item.external_system['credentials'] ||= {}
+                            # if item.external_system.dig('credentials', credential_key).blank? ||
+                            #    Digest::MD5.hexdigest(item.external_system.dig('credentials', credential_key)) != Digest::MD5.hexdigest(download_object.credentials.to_json)
+
+                            #   item.external_system['credentials'][credential_key] = download_object.credentials
+                            #   item.save!
+                            # end
+
                             if item.data_has_changed
                               # for debugging, also uncomment the require 'hashdiff' at the top of this file
                               # differences = ::Hashdiff.diff(item_data.as_json, item.dump[locale].as_json)
+                              # binding.pry if differences.present?
                               item.dump[locale] = item_data
                               # update_items << item
+                              # save only updates seen_at!
                               item.save!
                             else
                               seen_at << item.external_id
