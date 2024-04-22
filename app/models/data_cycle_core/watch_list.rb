@@ -4,8 +4,6 @@ module DataCycleCore
   class WatchList < Collection
     validates :full_path, presence: true
 
-    scope :conditional_my_selection, -> { DataCycleCore::Feature::MySelection.enabled? ? all : where(my_selection: false) }
-
     has_many :watch_list_data_hashes, dependent: :delete_all
     has_many :things, through: :watch_list_data_hashes, source: :hashable, source_type: 'DataCycleCore::Thing'
 
