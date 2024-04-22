@@ -18,8 +18,8 @@ module DataCycleCore
                   '>'
                 )
               ) AS creator,
-              stored_filters.api AS api_access,
-              stored_filters.updated_at AS last_used_dashboard,
+              collections.api AS api_access,
+              collections.updated_at AS last_used_dashboard,
               MAX(activities.created_at) AS last_used_api,
               COUNT(activities.id) FILTER (
                 WHERE
@@ -45,7 +45,7 @@ module DataCycleCore
                   AND activities.created_at < DATE_TRUNC('month', NOW())
               ) AS api_usage_last_12_months
             FROM
-            collections
+              collections
               LEFT OUTER JOIN users ON users.id = collections.user_id
               LEFT OUTER JOIN activities ON activities.data ->> 'id' = collections.id::TEXT
             WHERE

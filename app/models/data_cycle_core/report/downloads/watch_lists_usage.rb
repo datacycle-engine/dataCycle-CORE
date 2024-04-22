@@ -7,7 +7,7 @@ module DataCycleCore
         def apply(_params)
           raw_query = <<-SQL.squish
             SELECT
-              watch_lists.name AS NAME,
+              collections.name AS NAME,
               MIN(
                 CONCAT(
                   users.given_name,
@@ -18,7 +18,7 @@ module DataCycleCore
                   '>'
                 )
               ) AS creator,
-              watch_lists.api AS api_access,
+              collections.api AS api_access,
               MAX(activities.created_at) AS last_used_api,
               COUNT(activities.id) FILTER (
                 WHERE
@@ -44,15 +44,15 @@ module DataCycleCore
                   AND activities.created_at < DATE_TRUNC('month', NOW())
               ) AS api_usage_last_12_months
             FROM
-              watch_lists
-              LEFT OUTER JOIN users ON users.id = watch_lists.user_id
-              LEFT OUTER JOIN activities ON activities.data ->> 'id' = watch_lists.id::TEXT
+              collections
+              LEFT OUTER JOIN users ON users.id = collections.user_id
+              LEFT OUTER JOIN activities ON activities.data ->> 'id' = collections.id::TEXT
             GROUP BY
-              watch_lists.name,
-              watch_lists.id
+              collections.name,
+              collections.id
             ORDER BY
-              watch_lists.name,
-              watch_lists.id;
+              collections.name,
+              collections.id;
           SQL
 
           @data = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query]))
