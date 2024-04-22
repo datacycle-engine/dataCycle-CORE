@@ -54,6 +54,13 @@ class AddTriggersForCollections < ActiveRecord::Migration[6.1]
           WHERE users.id = sf.user_id
         );
 
+      DELETE FROM watch_lists wl
+      WHERE NOT EXISTS (
+          SELECT 1
+          FROM users
+          WHERE users.id = wl.user_id
+        );
+
       INSERT INTO collections(
           id,
           TYPE,
