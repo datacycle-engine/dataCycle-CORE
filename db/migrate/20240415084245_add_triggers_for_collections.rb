@@ -110,7 +110,7 @@ class AddTriggersForCollections < ActiveRecord::Migration[6.1]
         LEFT OUTER JOIN collection_configurations cc ON cc.stored_filter_id = sf.id;
 
       INSERT INTO collection_concept_scheme_links(concept_scheme_id, collection_id)
-      SELECT unnest(sf.classification_tree_labels),
+      SELECT unnest(sf.classification_tree_labels)::UUID,
         sf.id
       FROM stored_filters sf
       WHERE sf.classification_tree_labels IS NOT NULL
@@ -123,12 +123,13 @@ class AddTriggersForCollections < ActiveRecord::Migration[6.1]
       FROM watch_list_shares wls;
 
       INSERT INTO collection_shares(shareable_id, shareable_type, collection_id)
-      SELECT unnest(sf.api_users)::UUID,
+      SELECT api_user::UUID,
         'DataCycleCore::User',
         sf.id
-      FROM stored_filters sf
-      WHERE sf.api_users IS NOT NULL
-        AND sf.api_users != '{}';
+      FROM stored_filters sf,
+        unnest(sf.api_users) api_user
+      WHERE api_user IS NOT NULL
+        AND api_user != '';
 
       INSERT INTO collection_shares(shareable_id, shareable_type, collection_id)
       SELECT roles.id,
