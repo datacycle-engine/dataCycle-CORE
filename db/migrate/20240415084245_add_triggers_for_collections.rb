@@ -142,8 +142,8 @@ class AddTriggersForCollections < ActiveRecord::Migration[6.1]
       FROM watch_list_shares wls
       WHERE EXISTS (
         SELECT 1
-        FROM collections
-        WHERE collections.id = wls.watch_list_id
+        FROM watch_lists
+        WHERE watch_lists.id = wls.watch_list_id
       );
 
       INSERT INTO collection_shares(shareable_id, shareable_type, collection_id)
