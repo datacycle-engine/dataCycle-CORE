@@ -115,14 +115,42 @@
             <div class="form-element shared_user_groups">
               <%= f.label :shared_user_group_ids, DataCycleCore::StoredFilter.human_attribute_name(:shared_user_groups, locale: active_ui_locale) %>
               <div class="v-select white">
-                <%= f.collection_select(:shared_user_group_ids, DataCycleCore::UserGroup.all, :id, :name, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
+                <%= hidden_field_tag 'stored_filter[shared_user_group_ids][]', nil, id: 'hidden_stored_filter_shared_user_group_ids' %>
+                <%= f.select(
+                    :shared_user_group_ids,
+                    DataCycleCore::UserGroup.all.order(name: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
+                    {
+                      include_blank: true
+                    },
+                    {
+                      multiple: true,
+                      class: 'multi-select',
+                      data: {
+                        placeholder: ''
+                      }
+                    }
+                  ) %>
               </div>
             </div>
 
             <div class="form-element shared_roles">
               <%= f.label :shared_role_ids, DataCycleCore::StoredFilter.human_attribute_name(:shared_roles, locale: active_ui_locale) %>
               <div class="v-select white">
-                <%= I18n.with_locale(active_ui_locale) { f.collection_select(:shared_role_ids, DataCycleCore::Role.all.order(rank: :asc), :id, :translated_name, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) }%>
+                <%= hidden_field_tag 'stored_filter[shared_role_ids][]', nil, id: 'hidden_stored_filter_shared_role_ids' %>
+                <%= f.select(
+                    :shared_role_ids,
+                    DataCycleCore::Role.all.order(rank: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
+                    {
+                      include_blank: true
+                    },
+                    {
+                      multiple: true,
+                      class: 'multi-select',
+                      data: {
+                        placeholder: ''
+                      }
+                    }
+                  ) %>
               </div>
             </div>
           </div>
