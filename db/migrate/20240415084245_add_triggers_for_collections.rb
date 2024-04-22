@@ -47,6 +47,13 @@ class AddTriggersForCollections < ActiveRecord::Migration[6.1]
           WHEN shareable_type = 'DataCycleCore::Role' THEN shareable_id
         END) stored;
 
+      DELETE FROM stored_filters sf
+      WHERE NOT EXISTS (
+          SELECT 1
+          FROM users
+          WHERE users.id = sf.user_id
+        );
+
       INSERT INTO collections(
           id,
           TYPE,
