@@ -167,25 +167,25 @@
               <%= f.label :api, DataCycleCore::StoredFilter.human_attribute_name(:api, locale: active_ui_locale) %>
             </div>
 
-            <% if can?(:create_api_with_users, stored_search) %>
+            <% if can?(:share, stored_search) %>
               <div class="form-element">
                 <%= f.label :linked_stored_filter_id, DataCycleCore::StoredFilter.human_attribute_name(:linked_stored_filter, locale: active_ui_locale) %>
                 <div class="v-select white">
                   <%= f.select(
-              :linked_stored_filter_id,
-              [stored_search.linked_stored_filter&.to_select_option&.to_option_for_select].compact,
-              {
-                include_blank: true
-              },
-              {
-                class: 'async-select',
-                data: {
-                  max: 20,
-                  placeholder: '',
-                  search_path: search_stored_filters_path
-                }
-              }
-            ) %>
+                    :linked_stored_filter_id,
+                    [stored_search.linked_stored_filter&.to_select_option&.to_option_for_select].compact,
+                    {
+                      include_blank: true
+                    },
+                    {
+                      class: 'async-select',
+                      data: {
+                        max: 20,
+                        placeholder: '',
+                        search_path: search_stored_filters_path
+                      }
+                    }
+                  ) %>
                 </div>
               </div>
 

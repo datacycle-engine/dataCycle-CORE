@@ -96,7 +96,7 @@ stored_filter_actions:
     - destroy
     - show_history
     - create_api
-    - create_api_with_users
+    - share
     - update_description
     - show_description
     - change_owner
