@@ -124,17 +124,27 @@ class AddTriggersForCollections < ActiveRecord::Migration[6.1]
         LEFT OUTER JOIN collection_configurations cc ON cc.stored_filter_id = sf.id;
 
       INSERT INTO collection_concept_scheme_links(concept_scheme_id, collection_id)
-      SELECT unnest(sf.classification_tree_labels)::UUID,
+      SELECT ctl::UUID,
         sf.id
-      FROM stored_filters sf
-      WHERE sf.classification_tree_labels IS NOT NULL
-        AND sf.classification_tree_labels != '{}';
+      FROM stored_filters sf,
+        unnest(sf.classification_tree_labels) ctl
+      WHERE ctl IS NOT NULL
+        AND EXISTS (
+          SELECT 1
+          FROM concept_schemes
+          WHERE concept_schemes.id = ctl::UUID
+        );
 
       INSERT INTO collection_shares(collection_id, shareable_id, shareable_type)
       SELECT wls.watch_list_id,
         wls.shareable_id,
         wls.shareable_type
-      FROM watch_list_shares wls;
+      FROM watch_list_shares wls
+      WHERE EXISTS (
+        SELECT 1
+        FROM collections
+        WHERE collections.id = wls.watch_list_id
+      );
 
       INSERT INTO collection_shares(shareable_id, shareable_type, collection_id)
       SELECT api_user::UUID,
@@ -143,7 +153,12 @@ class AddTriggersForCollections < ActiveRecord::Migration[6.1]
       FROM stored_filters sf,
         unnest(sf.api_users) api_user
       WHERE api_user IS NOT NULL
-        AND api_user != '';
+        AND api_user != ''
+        AND EXISTS (
+          SELECT 1
+          FROM users
+          WHERE users.id = api_user::UUID
+        );
 
       INSERT INTO collection_shares(shareable_id, shareable_type, collection_id)
       SELECT roles.id,
@@ -239,6 +254,9 @@ class AddTriggersForCollections < ActiveRecord::Migration[6.1]
       $$;
     SQL
 
+    add_foreign_key :content_collection_links, :collections, on_delete: :cascade
+    add_foreign_key :content_collection_link_histories, :collections, on_delete: :cascade
+
     remove_column :content_collection_links, :collection_type, :string
     remove_column :content_collection_link_histories, :collection_type, :string
 
@@ -250,6 +268,9 @@ class AddTriggersForCollections < ActiveRecord::Migration[6.1]
   end
 
   def down
+    remove_foreign_key :content_collection_links, :collections
+    remove_foreign_key :content_collection_link_histories, :collections
+
     add_column :content_collection_links, :collection_type, :string
     add_column :content_collection_link_histories, :collection_type, :string
 

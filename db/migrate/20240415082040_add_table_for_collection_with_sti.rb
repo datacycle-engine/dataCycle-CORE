@@ -49,8 +49,5 @@ class AddTableForCollectionWithSti < ActiveRecord::Migration[6.1]
     end
 
     add_foreign_key :collection_shares, :collections, on_delete: :cascade, on_update: :cascade
-
-    add_foreign_key :content_collection_links, :collections, on_delete: :cascade
-    add_foreign_key :content_collection_link_histories, :collections, on_delete: :cascade
   end
 end
