@@ -15,7 +15,7 @@ module DataCycleCore
             utility_object
           ).with_indifferent_access
 
-          data = post_process_data(data:, config:).slice(*template.properties, 'external_system_data', 'external_source_id')
+          data = post_process_data(data:, config:).slice(*template.properties, 'external_system_data')
           transformation_hash = Digest::SHA256.hexdigest(data.to_json)
           external_key = data.dig('external_key')
           external_source_id = utility_object.external_source.id
