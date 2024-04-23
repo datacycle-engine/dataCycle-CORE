@@ -152,6 +152,7 @@
         :compute:
           :module: Common
           :method: take_first
+          :fallback: false
           :parameters:
             - copyright_notice_override
             - copyright_notice_computed
