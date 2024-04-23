@@ -1,4 +1,4 @@
-export default (function () {
+export default (() => {
 	String.prototype.attributeNameFromKey = function () {
 		return this.split(/[\[\]]+/)
 			.filter((elem) => elem?.length)
@@ -13,9 +13,7 @@ export default (function () {
 		);
 	};
 	String.prototype.camelize = function () {
-		return this.replace(/_+(.)/g, function (_match, chr) {
-			return chr.toUpperCase();
-		});
+		return this.replace(/_+(.)/g, (_match, chr) => chr.toUpperCase());
 	};
 	String.prototype.interpolate = function (params) {
 		const names = Object.keys(params);

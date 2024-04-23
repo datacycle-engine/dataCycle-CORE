@@ -376,6 +376,13 @@ de:
       success: Die Sortierung wurde aktualisiert
       error: Die Sortierung konnte nicht aktualisiert werden
 
+  duplicate_search:
+    found_html:
+      one: "Es wurde <b>%{count}</b> Inhalt mit ähnlichem Namen gefunden"
+      other: "Es wurden <b>%{count}</b> Inhalte mit ähnlichem Namen gefunden"
+    show: Mögliche Duplikate anzeigen
+    continue_creation: "Wollen Sie mit der Erstellung des Inhaltes fortfahren?"
+
   content_external_data:
     primary_external_system_tooltip: Dieses System ist das primäre externe System
     tooltip: Dieses externe System als primäres externes System verwenden
@@ -1396,10 +1403,6 @@ de:
       external_system_created: Die Konfiguration für das externe System wurde erstellt
     warning:
       no_changes: Es wurde keine neue Version angelegt, da keine Änderungen am Inhalt gemacht worden sind.
-      dup_found: "Es wurden <b>%{count}</b> Inhalte mit &auml;hnlichem Namen gefunden"
-      dup_found_one: "Es wurde <b>%{count}</b> Inhalt mit &auml;hnlichem Namen gefunden"
-      dup_found_show: Mögliche Duplikate anzeigen
-      dup_continue_creation: "Wollen Sie mit der Erstellung des Inhaltes fortfahren"
     info:
       not_modified: "%{data} wurde nicht geändert."
       created_duplication: "%{data} wurde erfolgreich dupliziert."

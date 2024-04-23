@@ -9,7 +9,12 @@ import DomElementHelpers from "../helpers/dom_element_helpers";
 
 class Validator {
 	constructor(formElement) {
-		this.$form = $(formElement);
+		this.form = formElement;
+		this.$form = $(this.form);
+		this.duplicateSearch = !!DomElementHelpers.parseDataAttribute(
+			this.form.dataset.duplicateSearch,
+		);
+		this.primaryAttributeKey = this.form.dataset.primaryAttributeKey;
 		this.$editHeader = this.$form
 			.siblings(".edit-header")
 			.add(this.$form.find(".edit-header"))
@@ -414,6 +419,11 @@ class Validator {
 
 		this.addParentEmbeddedTemplates(formData, validationContainer);
 
+		const duplicateSearchAllowed = this.duplicateSearchAllowed(formData);
+
+		if (duplicateSearchAllowed)
+			formData.set("duplicate_search", this.primaryAttributeKey);
+
 		const promise = DataCycle.httpRequest(url, {
 			method: "POST",
 			body: formData,
@@ -424,20 +434,43 @@ class Validator {
 				if (!data.valid && data.errors && Object.keys(data.errors).length > 0)
 					await this.showErrors(data, validationContainer, translationLocale);
 
-				// remove dup-check warnings from previous validation
-				if ($("button.button.success.submit").attr("data-dup-confirm")) {
-					$("button.button.success.submit").removeAttr(
-						"data-confirm data-dup-confirm",
-					);
-				}
+				if (duplicateSearchAllowed) this.cleanDuplicateSearch();
 
 				if (data.warnings && Object.keys(data.warnings).length > 0)
-					this.showWarnings(data, validationContainer, translationLocale);
-				else $("a.button.dup-found-show").hide();
+					this.showWarnings(
+						data,
+						validationContainer,
+						translationLocale,
+						duplicateSearchAllowed,
+					);
 			}
 		});
 
 		return promise;
+	}
+	duplicateSearchAllowed(formData) {
+		if (!this.duplicateSearch || !this.primaryAttributeKey) return false;
+
+		return Array.from(formData.keys()).some(
+			(v) => v.attributeNameFromKey() === this.primaryAttributeKey,
+		);
+	}
+	cleanDuplicateSearch() {
+		const submitButton = this.form.querySelector('[type="submit"]');
+
+		submitButton?.removeAttribute("data-confirm");
+		submitButton?.removeAttribute("data-dup-confirm");
+
+		this.form.querySelector("a.button.show-duplicate-search-result")?.remove();
+	}
+	async renderDuplicateSearchWarning(data) {
+		const buttonHtml = `<a class="button show-duplicate-search-result" target="_blank" href="/?stored_filter=${
+			data.duplicate_search?.filter_id
+		}">${await I18n.t("duplicate_search.show")}</a>`;
+
+		this.form
+			.querySelector(":scope > div.buttons")
+			?.insertAdjacentHTML("afterbegin", buttonHtml);
 	}
 	async showErrors(data, validationContainer, translationLocale) {
 		this.$form.trigger("dc:form:validationError", {
@@ -448,20 +481,14 @@ class Validator {
 			.append(await this.renderErrorMessage(data, validationContainer))
 			.addClass("has-error");
 	}
-	async showWarnings(data, validationContainer, translationLocale) {
-		//logic that gets triggered if user can create things without prior search && a search has found similiar names - otherwise remove confirmation window!
-		// if (data.warnings['dup_confirm']){
-		// 	$("button.button.success.submit").attr({
-		// 		'data-confirm': data.warnings['dup_confirm'],
-		// 		'data-dup-confirm': true,
-		// 		'disabled': false
-		// 	});
-		// }
-
-		if (data.warnings.dup_search_btn) {
-			const btnHtml = $.parseHTML(data.warnings.dup_search_btn[0]);
-			$("a.button.dup-found-show").replaceWith(btnHtml);
-		}
+	async showWarnings(
+		data,
+		validationContainer,
+		translationLocale,
+		duplicateSearchAllowed = false,
+	) {
+		if (duplicateSearchAllowed && data.duplicate_search)
+			this.renderDuplicateSearchWarning(data);
 
 		this.$form.trigger("dc:form:validationError", {
 			locale: translationLocale,
@@ -642,8 +669,6 @@ class Validator {
 						finalize: true,
 						confirm: true,
 					});
-
-					console.log(warnings);
 
 					if (warnings.length) Object.assign(data, { warnings: warnings });
 

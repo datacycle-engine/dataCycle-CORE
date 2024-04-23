@@ -8,7 +8,7 @@
   local: !local_assigns[:object_browser],
   html: {
     class: "validation-form multi-step#{' disabled' if local_assigns[:search_required] && local_assigns[:search_param].blank? && cannot?(:create_without_search, template || DataCycleCore::Thing)}",
-    data: to_query_params(local_assigns.slice(:template, :key, :search_param, :search_required, :scope, :parent, :content, :locale, :options, :content_uploader).merge({ primary_attribute_key: primary_attribute_key, template_translation: asset_model_name&.human(count: 2, locale: active_ui_locale) }))
+    data: to_query_params(local_assigns.slice(:template, :key, :search_param, :search_required, :scope, :parent, :content, :locale, :options, :content_uploader).merge({ primary_attribute_key: primary_attribute_key, template_translation: asset_model_name&.human(count: 2, locale: active_ui_locale), duplicate_search: true }))
   } do %>
 
   <div class="form-crumbs"></div>
@@ -51,11 +51,6 @@
   <% end %>
 
   <div class="buttons">
-
-    <label>
-      <a type="button" class="button dup-found-show" style="margin: 0 auto; display: none" value="<%= t("controllers.warning.dup_found_show", locale: active_ui_locale) %>"></a>
-    </label>
-
     <% unless local_assigns[:content_uploader] %>
       <button class="button reset" data-disable type="reset">
         <%= t('actions.reset', count: 1, locale: active_ui_locale) %>

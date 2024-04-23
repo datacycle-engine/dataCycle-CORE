@@ -43,5 +43,60 @@ module DataCycleCore
         "#{model_name.human(count: 1, locale:)}: #{name.presence || '__DELETED__'}"
       )
     end
+
+    def self.validate_by_duplicate_search(content, datahash, primary_key, current_user, active_ui_locale)
+      return {} if datahash.blank? || primary_key.blank?
+
+      value = datahash&.dig(primary_key)
+
+      return {} if value.blank?
+
+      data_type_definition = content.properties_for('data_type') || content.properties_for('schema_types')
+      tree_label = data_type_definition&.dig('tree_label')
+      internal_name = content.respond_to?(:data_type) ? data_type_definition&.dig('default_value') : content.schema_ancestors&.flatten&.last
+      classification_alias_ids = DataCycleCore::ClassificationAlias.for_tree(tree_label).with_internal_name(internal_name).pluck(:id)
+      last_filter = current_user.stored_filters.order(created_at: :desc).first
+
+      if last_filter.parameters&.size&.==(2) && last_filter.parameters&.any? { |f| f['t'] == 'fulltext_search' && f['v'] == value } && last_filter.parameters&.any? { |f| f['t'] == 'classification_alias_ids' && f['v'] == classification_alias_ids }
+        filter = last_filter
+      else
+        filter = create(user: current_user, language: [I18n.locale.to_s], parameters: [
+                          {
+                            'c' => 'a',
+                            'n' => I18n.t('common.searchterm', locale: active_ui_locale),
+                            't' => 'fulltext_search',
+                            'v' => value,
+                            'identifier' => SecureRandom.hex(10)
+                          },
+                          {
+                            'c' => 'a',
+                            'm' => 'i',
+                            'n' => tree_label,
+                            't' => 'classification_alias_ids',
+                            'v' => classification_alias_ids,
+                            'identifier' => SecureRandom.hex(10)
+                          }
+                        ])
+      end
+
+      duplicate_count = filter.apply(skip_ordering: true).query.reorder(nil).size
+
+      return {} if duplicate_count.zero?
+
+      dup_confirm_diag = <<-DIAG.squish
+        <p>#{I18n.t('duplicate_search.found_html', count: duplicate_count, locale: active_ui_locale)}!</p>
+        <p>#{I18n.t('duplicate_search.continue_creation', locale: active_ui_locale)}</p>
+      DIAG
+
+      content.warnings.add(primary_key, I18n.t('duplicate_search.found_html', count: duplicate_count, locale: active_ui_locale))
+
+      {
+        duplicate_search: {
+          count: duplicate_count,
+          popup_text: dup_confirm_diag,
+          filter_id: filter.id
+        }
+      }
+    end
   end
 end

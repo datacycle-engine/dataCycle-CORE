@@ -657,7 +657,7 @@ class NewContentDialog {
 	resetForm(_) {
 		this.$form.find(":input").blur();
 		this.enableForm();
-		$("a.button.dup-found-show").hide();
+		this.$form.find(".button.show-duplicate-search-result").remove();
 		this.$form.find(".single_error").remove();
 		this.$form.find(".single_warning").remove();
 		this.$form.removeData("template");

@@ -447,74 +447,9 @@ module DataCycleCore
       I18n.with_locale(locale || validation_params[:locale]) do
         @object.validate(data_hash: datahash, strict: validation_params[:strict] == '1', add_defaults: true, current_user:)
 
-        # latest_stored_filter = DataCycleCore::StoredFilter.by_user(current_user.id).max_by(&:updated_at)
-        # was_latest_filter_search = latest_stored_filter.present? ? latest_stored_filter.parameters.find { |p| p['t'] == 'fulltext_search' }.present? : false
+        duplicate_search_data = DataCycleCore::StoredFilter.validate_by_duplicate_search(@object, datahash, validation_params[:duplicate_search], current_user, helpers.active_ui_locale) if validation_params[:duplicate_search]
 
-        # dup_search = can?(:create_without_search, DataCycleCore::Thing) && datahash['name'] != '' # && !was_latest_filter_search
-        dup_search = datahash['name'] != ''
-
-        if dup_search
-
-          data_type_definition = @object.properties_for('data_type') || @object.properties_for('schema_types')
-          tree_label = data_type_definition&.dig('tree_label')
-          internal_name = @object.respond_to?(:data_type) ? data_type_definition&.dig('default_value') : @object.schema_ancestors&.flatten&.last
-
-          dup_filter = DataCycleCore::StoredFilter.new
-          dup_filter['parameters'] = [
-            {
-              'c' => 'a',
-              'n' => 'Suchbegriff',
-              't' => 'fulltext_search',
-              'v' => datahash['name'],
-              'identifier' => rand(1000)
-            },
-            {
-              'c' => 'd',
-              'm' => 'i',
-              'n' => tree_label,
-              't' => 'classification_alias_ids',
-              'v' => DataCycleCore::ClassificationAlias.for_tree(tree_label).with_internal_name(internal_name).pluck(:id),
-              'identifier' => rand(1000)
-            }
-          ]
-          dup_filter['language'] = [linked_object_params[:locale]]
-          dup_filter['sort_parameters'] = [{
-            'm' => 'fulltext_search',
-            'o' => 'DESC',
-            'v' => datahash['name']
-          }]
-
-          dup_query = dup_filter.apply
-          dup_query.fulltext_search(datahash['name'])
-
-          if dup_query.entries.length.positive?
-
-            dup_confirm_diag = <<-DIAG
-              <p>#{t(dup_query.entries.length == 1 ? 'controllers.warning.dup_found_one' : 'controllers.warning.dup_found', count: dup_query.entries.length, locale: helpers.active_ui_locale)}!</p>
-              <p>#{t('controllers.warning.dup_continue_creation', locale: helpers.active_ui_locale)}?</p>
-            DIAG
-
-            params_hash = {}
-            params_hash['f'] = {}
-            dup_filter['parameters'].each { |param| params_hash['f'][rand(1000)] = param }
-
-            params_hash['controller'] = 'data_cycle_core/backend'
-            params_hash['action'] = 'index'
-
-            dup_search_btn = helpers.link_to t('controllers.warning.dup_found_show', locale: helpers.active_ui_locale),
-                                             params_hash.except(:id, :watch_list_id, :locale, :stored_filter, :identifier),
-                                             type: :button,
-                                             class: 'button dup-found-show',
-                                             style: 'margin: 0px auto',
-                                             target: '_blank', rel: 'noopener'
-
-            @object.warnings.add('name', I18n.t(dup_query.entries.length == 1 ? 'controllers.warning.dup_found_one' : 'controllers.warning.dup_found', count: dup_query.entries.length, locale: helpers.active_ui_locale))
-            @object.warnings.add('dup_search_btn', dup_search_btn)
-            @object.warnings.add('dup_confirm', dup_confirm_diag)
-          end
-        end
-
-        render json: @object.validation_messages_as_json.to_json
+        render json: @object.validation_messages_as_json.merge(duplicate_search_data.to_h).to_json
       end
     end
 
@@ -834,7 +769,7 @@ module DataCycleCore
     end
 
     def validation_params
-      params.permit(:id, :template, :strict, :locale)
+      params.permit(:id, :template, :strict, :locale, :duplicate_search)
     end
 
     def content_params(template_name, params_hash = nil)
