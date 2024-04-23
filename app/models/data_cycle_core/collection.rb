@@ -2,6 +2,8 @@
 
 module DataCycleCore
   class Collection < ApplicationRecord
+    TS_QUERY_EXCEPTIONS = /[&|<>\-]/
+
     validates :type, presence: true
 
     scope :by_user, ->(user) { where(user:) }
@@ -24,7 +26,7 @@ module DataCycleCore
 
       return where(id: value) if value.uuid?
 
-      q = "#{value.squish}:*".split.join(' <-> ')
+      q = value.gsub(TS_QUERY_EXCEPTIONS, '').squish.split.map { |v| "#{v}:*" }.join(' & ')
 
       where("collections.search_vector @@ to_tsquery('simple', ?)", q)
       .reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, [Arel.sql("ts_rank(collections.search_vector, to_tsquery('simple', ?)) DESC"), q]))
