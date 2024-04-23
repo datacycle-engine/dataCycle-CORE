@@ -65,7 +65,6 @@
       <div class="form-element owner">
         <%= f.label :user_id, DataCycleCore::StoredFilter.human_attribute_name(:user_id, locale: active_ui_locale) %>
         <div class="v-select white">
-          <%= hidden_field_tag 'watch_list[user_id]', nil, id: 'hidden_watch_list_user_id' %>
           <%= f.select(
                   :user_id,
                   Array.wrap(stored_search.user).map { |u| u.to_select_option(active_ui_locale) }.map(&:to_option_for_select),
@@ -92,7 +91,6 @@
             <div class="form-element shared_users">
               <%= f.label :shared_user_ids, DataCycleCore::StoredFilter.human_attribute_name(:shared_users, locale: active_ui_locale) %>
               <div class="v-select white">
-                <%= hidden_field_tag 'watch_list[shared_user_ids][]', nil, id: 'hidden_watch_list_shared_user_ids' %>
                 <%= f.select(
                   :shared_user_ids,
                   stored_search.shared_users.map { |u| u.to_select_option(active_ui_locale) }.map(&:to_option_for_select),
@@ -115,7 +113,6 @@
             <div class="form-element shared_user_groups">
               <%= f.label :shared_user_group_ids, DataCycleCore::StoredFilter.human_attribute_name(:shared_user_groups, locale: active_ui_locale) %>
               <div class="v-select white">
-                <%= hidden_field_tag 'stored_filter[shared_user_group_ids][]', nil, id: 'hidden_stored_filter_shared_user_group_ids' %>
                 <%= f.select(
                     :shared_user_group_ids,
                     DataCycleCore::UserGroup.all.order(name: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
@@ -136,7 +133,6 @@
             <div class="form-element shared_roles">
               <%= f.label :shared_role_ids, DataCycleCore::StoredFilter.human_attribute_name(:shared_roles, locale: active_ui_locale) %>
               <div class="v-select white">
-                <%= hidden_field_tag 'stored_filter[shared_role_ids][]', nil, id: 'hidden_stored_filter_shared_role_ids' %>
                 <%= f.select(
                     :shared_role_ids,
                     DataCycleCore::Role.all.order(rank: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
@@ -192,7 +188,20 @@
               <div class="form-element">
                 <%= f.label :classification_tree_labels, DataCycleCore::StoredFilter.human_attribute_name(:concept_schemes, locale: active_ui_locale) %>
                 <div class="v-select white">
-                  <%= f.collection_select(:classification_tree_labels, DataCycleCore::ClassificationTreeLabel.all, :id, :name, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
+                  <%= f.select(
+                    :classification_tree_labels,
+                    DataCycleCore::ClassificationTreeLabel.all.order(name: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
+                    {
+                      include_blank: true
+                    },
+                    {
+                      multiple: true,
+                      class: 'multi-select',
+                      data: {
+                        placeholder: ''
+                      }
+                    }
+                  ) %>
                 </div>
               </div>
             <% end %>

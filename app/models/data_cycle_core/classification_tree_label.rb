@@ -436,6 +436,22 @@ module DataCycleCore
       )
     end
 
+    def to_select_option(locale = DataCycleCore.ui_locales.first)
+      DataCycleCore::Filter::SelectOption.new(
+        id,
+        ActionController::Base.helpers.safe_join([
+          ActionController::Base.helpers.tag.i(class: 'fa dc-type-icon classification_tree_label-icon'),
+          name
+        ].compact, ' '),
+        model_name.param_key,
+        "#{model_name.human(count: 1, locale:)}: #{name}"
+      )
+    end
+
+    def self.to_select_options(locale = DataCycleCore.ui_locales.first)
+      all.map { |v| v.to_select_option(locale) }
+    end
+
     private
 
     def transform_row_data(row)

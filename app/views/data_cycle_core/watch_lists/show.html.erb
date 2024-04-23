@@ -165,6 +165,33 @@
         </div>
       <% end %>
 
+      <% if @watch_list.linked_stored_filter_id.present? %>
+        <div class="detail-type">
+          <span class="detail-label">
+            <i class="dc-type-icon stored_filter-icon"></i>
+            <%= DataCycleCore::WatchList.human_attribute_name(:linked_stored_filter, locale: active_ui_locale) %>
+          </span>
+          <span class="detail-content tags">
+            <% value = @watch_list.linked_stored_filter.to_select_option(active_ui_locale) %>
+            <%= tag.span(value.name, class: 'tag', data: { dc_tooltip: value.dc_tooltip }) %>
+          </span>
+        </div>
+      <% end %>
+
+      <% if @watch_list.concept_schemes.any? %>
+        <div class="detail-type">
+          <span class="detail-label">
+            <i class="dc-type-icon concept_scheme-icon"></i>
+            <%= DataCycleCore::WatchList.human_attribute_name(:concept_schemes, locale: active_ui_locale) %>
+          </span>
+          <span class="detail-content tags">
+            <% @watch_list.concept_schemes.order(name: :asc).to_select_options(active_ui_locale).each do |cs| %>
+              <%= tag.span(cs.name, class: 'tag', data: { dc_tooltip: cs.dc_tooltip }) %>
+            <% end %>
+          </span>
+        </div>
+      <% end %>
+
       <div class="edit">
         <%= render 'data_cycle_core/application/downloads/download_buttons', content: @watch_list %>
 

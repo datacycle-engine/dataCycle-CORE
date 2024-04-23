@@ -93,7 +93,7 @@
       <%= DataCycleCore::StoredFilter.human_attribute_name(:concept_schemes, locale: active_ui_locale) %>
     </span>
     <span class="tags-container">
-      <% stored_search.concept_schemes.to_select_options(active_ui_locale).each do |cs| %>
+      <% stored_search.concept_schemes.order(name: :asc).to_select_options(active_ui_locale).each do |cs| %>
         <%= tag.span(cs.name, class: 'tag', data: { dc_tooltip: cs.dc_tooltip }) %>
       <% end %>
     </span>

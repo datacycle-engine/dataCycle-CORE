@@ -351,7 +351,7 @@ module DataCycleCore
     end
 
     def watch_list_params
-      params.require(:watch_list).permit(:full_path, :description, :user_id, :manual_order, :api, shared_user_group_ids: [], shared_user_ids: [], shared_role_ids: [])
+      params.require(:watch_list).permit(:full_path, :description, :user_id, :manual_order, :api, :linked_stored_filter_id, shared_user_group_ids: [], shared_user_ids: [], shared_role_ids: [], classification_tree_labels: [])
       .tap do |p|
         p[:description] = DataCycleCore::MasterData::DataConverter.string_to_string(p[:description]) if p.key?(:description)
       end

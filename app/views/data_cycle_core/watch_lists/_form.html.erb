@@ -77,7 +77,6 @@
           <div class="form-element owner">
             <div class="v-select">
               <%= f.label :user_id, DataCycleCore::WatchList.human_attribute_name(:user_id, locale: active_ui_locale) %>
-              <%= hidden_field_tag 'watch_list[user_id]', nil, id: 'hidden_watch_list_user_id' %>
               <%= f.select(
                   :user_id,
                   Array.wrap(content.user).map { |u| u.to_select_option(active_ui_locale) }.map(&:to_option_for_select),
@@ -100,7 +99,6 @@
           <div class="form-element shared_users">
             <div class="v-select">
               <%= f.label :shared_user_ids, DataCycleCore::WatchList.human_attribute_name(:shared_users, locale: active_ui_locale) %>
-              <%= hidden_field_tag 'watch_list[shared_user_ids][]', nil, id: 'hidden_watch_list_shared_user_ids' %>
               <%= f.select(
                   :shared_user_ids,
                   content.shared_users.to_select_options(active_ui_locale).map(&:to_option_for_select),
@@ -123,7 +121,6 @@
           <div class="form-element shared_user_groups">
             <div class="v-select">
               <%= f.label :shared_user_group_ids, DataCycleCore::WatchList.human_attribute_name(:shared_user_groups, locale: active_ui_locale) %>
-              <%= hidden_field_tag 'watch_list[shared_user_group_ids][]', nil, id: 'hidden_watch_list_shared_user_group_ids' %>
               <%= f.select(
                   :shared_user_group_ids,
                   DataCycleCore::UserGroup.all.order(name: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
@@ -144,7 +141,6 @@
           <div class="form-element shared_roles">
             <div class="v-select">
               <%= f.label :shared_role_ids, DataCycleCore::WatchList.human_attribute_name(:shared_roles, locale: active_ui_locale) %>
-              <%= hidden_field_tag 'watch_list[shared_role_ids][]', nil, id: 'hidden_watch_list_shared_role_ids' %>
               <%= f.select(
                   :shared_role_ids,
                   DataCycleCore::Role.all.order(rank: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
@@ -168,6 +164,49 @@
             <%= f.check_box :api %>
             <%= f.label :api, DataCycleCore::WatchList.human_attribute_name(:api, locale: active_ui_locale) %>
           </div>
+
+          <% if can?(:share, content) %>
+            <div class="form-element linked_stored_filter">
+              <div class="v-select">
+                <%= f.label :linked_stored_filter_id, DataCycleCore::StoredFilter.human_attribute_name(:linked_stored_filter, locale: active_ui_locale) %>
+                <%= f.select(
+                    :linked_stored_filter_id,
+                    [content.linked_stored_filter&.to_select_option&.to_option_for_select].compact,
+                    {
+                      include_blank: true
+                    },
+                    {
+                      class: 'async-select',
+                      data: {
+                        max: 20,
+                        placeholder: '',
+                        search_path: search_stored_filters_path
+                      }
+                    }
+                  ) %>
+              </div>
+            </div>
+
+            <div class="form-element classification_tree_labels">
+              <div class="v-select">
+                <%= f.label :classification_tree_labels, DataCycleCore::StoredFilter.human_attribute_name(:concept_schemes, locale: active_ui_locale) %>
+                <%= f.select(
+                  :classification_tree_labels,
+                  DataCycleCore::ClassificationTreeLabel.all.order(name: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
+                  {
+                    include_blank: true
+                  },
+                  {
+                    multiple: true,
+                    class: 'multi-select',
+                    data: {
+                      placeholder: ''
+                    }
+                  }
+                ) %>
+              </div>
+            </div>
+          <% end %>
         <% end %>
 
         <% unless content.my_selection %>
