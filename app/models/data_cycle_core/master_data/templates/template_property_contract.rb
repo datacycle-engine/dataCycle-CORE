@@ -119,7 +119,7 @@ module DataCycleCore
           when 'linked'
             key.failure(:invalid_linked) unless values.dig(:template_name).present? || values.dig(:stored_filter).present? || values.dig(:inverse_of).present?
           when 'classification'
-            key.failure(:invalid_classification) if values.dig(:tree_label).blank? && values.dig(:universal) == false
+            key.failure(:invalid_classification) if values.dig(:tree_label).blank? && values.dig(:universal) != true
           when 'asset'
             key.failure(:invalid_asset) if values.dig(:asset_type).blank?
           end
