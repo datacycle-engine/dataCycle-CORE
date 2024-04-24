@@ -86,12 +86,13 @@ module DataCycleCore
           @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
           @total_pages = @contents.total_pages
         elsif mode_params[:ct_id].present?
+          binding.pry
           @classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id])
           @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees
           @classification_trees = @classification_trees.where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications }) if @classification_tree_label.name == 'Inhaltstypen'
           @classification_trees = @classification_trees
             .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
-            .order('classification_aliases.internal_name')
+            .order('classification_aliases.order_a')
             .page(params[:tree_page])
           @contents = get_filtered_results(query:, user_filter:)
             .classification_alias_ids_without_subtree(@classification_tree.sub_classification_alias.id)
@@ -109,7 +110,7 @@ module DataCycleCore
           @classification_trees = @classification_trees.where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications }) if @classification_tree_label.name == 'Inhaltstypen'
           @classification_trees = @classification_trees
             .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
-            .order('classification_aliases.internal_name')
+            .order('classification_aliases.order_a')
             .page(params[:tree_page])
           get_filtered_results(query:, user_filter:) # set default parameters for filters
         end
