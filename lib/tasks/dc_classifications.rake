@@ -197,5 +197,55 @@ namespace :dc do
         puts "[DONE] finished upserting in #{Time.zone.now - tmp}s."
       end
     end
+
+    desc 'outputs all stored filters that use the provided classification_alias_id or tree_id'
+    task :in_stored_filter, [:classification_alias_id_or_tree_id, :include_children] => [:environment] do |_, args|
+      id = args.classification_alias_id_or_tree_id
+      abort('classification_alias_id or tree_id missing!') if id.blank?
+
+      classification_alias = DataCycleCore::ClassificationAlias.find_by(id:)
+      tree = DataCycleCore::ClassificationTreeLabel.find_by(id:) if classification_alias.nil?
+
+      abort('classification_alias_id or tree_id not found!') if classification_alias.nil? && tree.nil?
+
+      if tree.present?
+        ca_ids = DataCycleCore::ClassificationAlias.for_tree(tree.name).pluck(:id)
+        puts "Found #{ca_ids.size} classification_alias_ids for classification_tree_id: #{id} (#{tree.name})"
+      elsif classification_alias.present?
+        include_children = args.include_children == 'true'
+
+        ca_children_ids = []
+        if include_children
+          child_query = <<~SQL.squish
+            SELECT * FROM classification_alias_paths
+            WHERE '#{id}' = ANY(ancestor_ids);
+          SQL
+          ca_children = ActiveRecord::Base.connection.execute(
+            ActiveRecord::Base.send(:sanitize_sql_array, [child_query])
+          )
+          ca_children_ids = ca_children.pluck('id')
+          puts "Found #{ca_children.ntuples} children for classification_alias_id: #{id} (#{classification_alias.full_path})"
+        end
+
+        ca_ids = [id] + ca_children_ids
+      end
+
+      found_stored_filters = []
+
+      ca_ids.each do |ca_id|
+        stored_filters = DataCycleCore::StoredFilter.where('parameters::TEXT ILIKE ?', "%#{ca_id}%").named.order(updated_at: :desc).select(:id, :name, :updated_at, :api)
+        classification_alias = DataCycleCore::ClassificationAlias.find_by(id:)
+        next if classification_alias.nil? || stored_filters.empty?
+        found_stored_filters << stored_filters.pluck(:id)
+        puts "Found #{stored_filters.size} stored_filters for classification_alias_id: #{ca_id} (#{classification_alias.full_path})"
+        pp stored_filters.as_json(only: [:id, :name, :updated_at, :api]) if stored_filters.size.positive?
+      end
+
+      found_stored_filters = found_stored_filters.flatten.uniq
+
+      puts 'SUMMARY:'
+      puts "Found #{found_stored_filters.size} stored_filters"
+      puts found_stored_filters if found_stored_filters.size.positive?
+    end
   end
 end
