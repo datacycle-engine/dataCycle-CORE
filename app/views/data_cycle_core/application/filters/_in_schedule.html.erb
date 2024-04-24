@@ -13,7 +13,7 @@
   <% if local_assigns[:filter_advanced_type] == 'absolute' %>
     <div class="advanced-filter-selector">
       <span class="separator"><%= t("terms.from", locale: active_ui_locale) %></span>
-      <%= date_field_tag "f[#{identifier}][v][from]", value&.dig('from') || local_assigns[:default_from], { placeholder: 'tt.mm.jjjj' } %>
+      <%= date_field_tag "f[#{identifier}][v][from]", value&.dig('from') || local_assigns[:default_from], { placeholder: 'tt.mm.jjjj', data: { initial_focus: true } } %>
       <span class="separator"><%= t("terms.until", locale: active_ui_locale) %></span>
       <%= date_field_tag "f[#{identifier}][v][until]", value&.dig('until') || local_assigns[:default_until], { placeholder: 'tt.mm.jjjj' } %>
     </div>
@@ -29,7 +29,7 @@
                 value&.dig('from','mode')
             ) %>
 
-      <%= number_field_tag "f[#{identifier}][v][from][n]", value&.dig('from','n'), { placeholder: '', class: 'filter-text' } %>
+      <%= number_field_tag "f[#{identifier}][v][from][n]", value&.dig('from','n'), { placeholder: '', class: 'filter-text', data: { initial_focus: true } } %>
 
       <%= select_tag "f[#{identifier}][v][from][unit]", options_for_select(
                 [

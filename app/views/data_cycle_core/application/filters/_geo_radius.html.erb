@@ -12,7 +12,7 @@
 
   <div class="advanced-filter-selector">
     <span class="separator"><%= t("common.center_point", locale: active_ui_locale) %></span>
-    <%= number_field_tag "f[#{identifier}][v][lon]", value&.dig('lon'), { step: 'any', placeholder: t('common.placeholder.longitude', locale: active_ui_locale), class: 'filter-text' } %>
+    <%= number_field_tag "f[#{identifier}][v][lon]", value&.dig('lon'), { step: 'any', placeholder: t('common.placeholder.longitude', locale: active_ui_locale), class: 'filter-text', data: { initial_focus: true } } %>
 
     <%= number_field_tag "f[#{identifier}][v][lat]", value&.dig('lat'), { step: 'any', placeholder: t('common.placeholder.latitude', locale: active_ui_locale), class: 'filter-text' } %>
     <span class="separator"><%= t("common.distance", locale: active_ui_locale) %></span>

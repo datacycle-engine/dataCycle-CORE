@@ -322,7 +322,12 @@ class DashboardFilter {
 		);
 
 		nextElement.insertAdjacentHTML("beforebegin", data?.html);
-		DomElementHelpers.slideDown(nextElement.previousElementSibling);
+		const insertedElement = nextElement.previousElementSibling;
+		DomElementHelpers.slideDown(insertedElement).then(() => {
+			insertedElement
+				.querySelector("[data-initial-focus]")
+				?.focus({ focusVisible: true });
+		});
 
 		addAdvancedFilterSelect.dataset.index += 1;
 	}

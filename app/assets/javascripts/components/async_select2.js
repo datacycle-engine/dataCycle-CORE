@@ -27,14 +27,14 @@ class AsyncSelect2 extends BasicSelect2 {
 		});
 
 		promise.then((data) => {
-			data = data.map((value) => {
+			const newData = data.map((value) => {
 				if (this.aliasIds && value.classification_alias_id)
 					value.id = value.classification_alias_id;
 				else if (value.classification_id) value.id = value.classification_id;
 				return value;
 			});
 
-			data.forEach((element) => {
+			for (const element of newData) {
 				const option = new Option(element.name, element.id, true, true);
 				option.title = element.title;
 				this.$element.append(option).trigger("change");
@@ -46,7 +46,7 @@ class AsyncSelect2 extends BasicSelect2 {
 						data: element,
 					},
 				});
-			});
+			}
 		});
 
 		return await promise;

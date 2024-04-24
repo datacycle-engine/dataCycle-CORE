@@ -26,6 +26,7 @@ class BasicSelect2 {
 			suppressChange: this.suppressChangeEvent.bind(this),
 			resizeDropdown: this.resizeDropdownEvent.bind(this),
 			clear: this.clear.bind(this),
+			setFocus: this.setFocus.bind(this),
 		};
 	}
 	init() {
@@ -76,6 +77,10 @@ class BasicSelect2 {
 			);
 		this.$element.on("change", this.eventHandlers.resizeDropdown);
 		this.$element.on("select2:select", this.removeUnusedTags.bind(this));
+		this.element.addEventListener("focus", this.eventHandlers.setFocus);
+	}
+	setFocus() {
+		this.$element.select2("open");
 	}
 	removeUnusedTags(event) {
 		if (

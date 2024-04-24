@@ -20,7 +20,7 @@
 
   <div class="advanced-filter-selector">
     <%= hidden_field_tag "f[#{identifier}][v][helper]", 'true', {class: 'hidden_helper', disabled: (!['b', 'p'].include?(filter_method))} %>
-    <%= text_field_tag "f[#{identifier}][v][text]", value&.dig('text'), { placeholder: '', class: 'filter-text', disabled: (['b', 'p'].include?(filter_method)) } %>
+    <%= text_field_tag "f[#{identifier}][v][text]", value&.dig('text'), { placeholder: '', class: 'filter-text', disabled: (['b', 'p'].include?(filter_method)), data: { initial_focus: true } } %>
   </div>
 
   <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>

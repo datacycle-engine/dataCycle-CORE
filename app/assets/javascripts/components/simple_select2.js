@@ -32,7 +32,7 @@ class SimpleSelect2 extends BasicSelect2 {
 		await this.$element.val(value.concat(newOptions)).trigger("change");
 	}
 	createOption(_event, data) {
-		let newOption = new Option(data.text, data.id, false, false);
+		const newOption = new Option(data.text, data.id, false, false);
 		this.$element.append(newOption).trigger("change");
 	}
 	languageOptions() {
@@ -61,7 +61,7 @@ class SimpleSelect2 extends BasicSelect2 {
 			return null;
 		}
 
-		var filteredChildren = [];
+		const filteredChildren = [];
 		$.each(data.children, (_idx, child) => {
 			if (this.optionMatches(child, params)) {
 				filteredChildren.push(child);
@@ -69,7 +69,7 @@ class SimpleSelect2 extends BasicSelect2 {
 		});
 
 		if (filteredChildren.length) {
-			var modifiedData = $.extend({}, data, true);
+			const modifiedData = $.extend({}, data, true);
 			modifiedData.children = filteredChildren;
 
 			return modifiedData;
@@ -91,8 +91,8 @@ class SimpleSelect2 extends BasicSelect2 {
 	reloadData(event) {
 		event.preventDefault();
 
-		let reloadPath = this.config.reloadPath;
-		let type = this.config.type;
+		const reloadPath = this.config.reloadPath;
+		const type = this.config.type;
 
 		if (!(reloadPath?.length && type && type.length)) return Promise.reject();
 
@@ -101,12 +101,12 @@ class SimpleSelect2 extends BasicSelect2 {
 		promise.then((data) => {
 			if (!data?.length) return;
 
-			data.forEach((d) => {
+			for (const d of data) {
 				if (!this.$element.find(`option[value='${d[1]}']`).length)
 					this.$element
 						.append(new Option(d[0], d[1], false, false))
 						.trigger("change");
-			});
+			}
 		});
 
 		return promise;

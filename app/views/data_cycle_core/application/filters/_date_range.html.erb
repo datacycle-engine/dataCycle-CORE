@@ -15,7 +15,7 @@
   </div>
 
   <div class="advanced-filter-selector">
-    <%= date_field_tag "f[#{identifier}][v][from]", value&.dig('from') || local_assigns[:default_from], { placeholder: 'tt.mm.jjjj' } %>
+    <%= date_field_tag "f[#{identifier}][v][from]", value&.dig('from') || local_assigns[:default_from], { placeholder: 'tt.mm.jjjj', data: { initial_focus: true } } %>
     <span class="separator"><%= t("terms.until", locale: active_ui_locale) %></span>
     <%= date_field_tag "f[#{identifier}][v][until]", value&.dig('until') || local_assigns[:default_until], { placeholder: 'tt.mm.jjjj' } %>
   </div>
