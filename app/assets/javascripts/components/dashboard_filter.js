@@ -43,6 +43,7 @@ class DashboardFilter {
 			listItem: "li",
 			listClass: "sub-list",
 		};
+		this.leaveDebounceTimer = null;
 
 		this.setup();
 	}
@@ -426,13 +427,24 @@ class DashboardFilter {
 			"> li.active",
 			this.leaveMainFilter.bind(this),
 		);
+		this.$clickableMenus.on(
+			"mouseleave",
+			"> li.active",
+			this.leaveMainFilter.bind(this),
+		);
+		this.$clickableMenus.on(
+			"exit",
+			"> li.active",
+			this.leaveMainFilterInstant.bind(this),
+		);
 	}
 	clickOnMainFilter(event) {
 		if (
 			$(event.currentTarget).hasClass("active") &&
 			!$(event.target).parentsUntil(".clickable-menu").filter("ul").length
 		) {
-			$(event.currentTarget).trigger("mouseleave");
+			$(event.currentTarget).trigger("exit");
+			clearTimeout(this.leaveDebounceTimer);
 		} else if (!$(event.currentTarget).hasClass("active")) {
 			$(".clickable-menu .active").removeClass("active");
 			$(event.currentTarget)
@@ -452,7 +464,14 @@ class DashboardFilter {
 		}
 	}
 	leaveMainFilter(event) {
-		$(event.currentTarget).removeClass("active");
+		const currentTarget = event.currentTarget;
+		this.leaveDebounceTimer = setTimeout(() => {
+			if (currentTarget.querySelector("ul:hover")) return;
+			currentTarget.classList.remove("active");
+		}, 500);
+	}
+	leaveMainFilterInstant(event) {
+		event.currentTaget.classList.remove("active");
 	}
 	clickMainFilterInput(event) {
 		event.stopPropagation();
