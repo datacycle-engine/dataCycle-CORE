@@ -438,6 +438,9 @@ DataCycleCore::Engine.routes.draw do
 
                   match 'collections', to: 'watch_lists#index', via: [:get, :post]
                   match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
+
+                  match 'concept_schemes/:id', to: 'concept_schemes#show', as: :concept_scheme, via: [:get, :post]
+                  match 'concept_schemes/:id/concepts', to: 'concept_schemes#concepts', as: :concept_scheme_concept, via: [:get, :post]
                 end
               end
             end

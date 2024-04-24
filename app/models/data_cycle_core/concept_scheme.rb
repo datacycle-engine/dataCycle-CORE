@@ -84,5 +84,20 @@ module DataCycleCore
     def self.to_select_options(locale = DataCycleCore.ui_locales.first)
       all.map { |v| v.to_select_option(locale) }
     end
+
+    def to_sync_data
+      Rails.cache.fetch("sync_api/v1/concept_scheme/#{id}/#{updated_at}", expires_in: 1.year + Random.rand(7.days)) do
+        to_api_default_values.merge(
+          as_json(only: [:name, :external_system_id, :external_key])
+        )
+        .merge({ 'external_system' => external_system&.identifier })
+        .deep_transform_keys { |k| k.camelize(:lower) }
+        .compact_blank
+      end
+    end
+
+    def self.to_sync_data
+      includes(:external_system).map(&:to_sync_data)
+    end
   end
 end
