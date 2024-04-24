@@ -86,7 +86,6 @@ module DataCycleCore
           @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
           @total_pages = @contents.total_pages
         elsif mode_params[:ct_id].present?
-          binding.pry
           @classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id])
           @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees
           @classification_trees = @classification_trees.where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications }) if @classification_tree_label.name == 'Inhaltstypen'
