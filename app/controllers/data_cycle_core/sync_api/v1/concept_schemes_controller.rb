@@ -29,7 +29,15 @@ module DataCycleCore
 
         def sync_api_format(contents)
           {
-            '@graph' => contents.to_sync_data
+            '@graph' => contents.to_sync_data,
+            'meta' => api_plain_meta(contents)
+          }
+        end
+
+        def api_plain_meta(contents)
+          {
+            hasPrev: !contents.prev_page.nil?,
+            hasNext: !contents.next_page.nil?
           }
         end
       end
