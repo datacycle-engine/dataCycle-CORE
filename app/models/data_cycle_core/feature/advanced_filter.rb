@@ -299,8 +299,6 @@ module DataCycleCore
 
         def graph_filter_restrictions(type, name)
           return unless configuration.dig(type, name).is_a?(::Hash)
-
-          # TODO: Evaluate how to update graph_filter_restrictions in a way that makes sense
           configuration.dig(type, name, 'filter')
         end
 

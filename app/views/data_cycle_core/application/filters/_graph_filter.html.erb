@@ -42,7 +42,6 @@
     </div>
 
   <% end %>
-
   <div class="advanced-filter-title">
     <span><%= t("filter.graph_filter.input_ui.#{filter_mode}.#{filter_name}_3", default: filter_title, locale: active_ui_locale) %></span>
   </div>
@@ -51,10 +50,10 @@
     <% if filter_restrictions.present? %>
       <div>
         <%= select_tag("f[#{identifier}][v][restriction]",
-            (filter_method.in?(['s', 'u']) ? value&.[]('restriction') : nil),
+            (filter_method.in?(['s', 'u']) ? thing_values_to_options(value&.[]('restriction')) : nil),
             {
               include_blank: true,
-              multiple: false,
+              multiple: true,
               id: "f_#{identifier}_v_thing",
               class: "async-select",
               disabled: !filter_method.in?(['s', 'u']),

@@ -149,7 +149,10 @@ module DataCycleCore
       ]
 
       if thing_filter
-        # TODO: ThingFilterMagic
+        filter_options.prepend(
+          [t('filter.graph_filter.contained_in_thinglist', locale: active_ui_locale), 's'],
+          [t('filter.graph_filter.not_contained_in_thinglist', locale: active_ui_locale), 'u']
+        )
       end
 
       options_for_select(filter_options, filter_method)

@@ -936,6 +936,8 @@ de:
         collection_or_stored_filter: "%{collection} oder %{stored_filter}"
       contained_in: ist enthalten
       not_contained_in: ist nicht enthalten
+      contained_in_thinglist: ist
+      not_contained_in_thinglist: ist nicht
       dropdown_text:
         relation_mode:
           items_linked_to: Inhalt ist als verknüpfte/r/s ... enthalten in ...
