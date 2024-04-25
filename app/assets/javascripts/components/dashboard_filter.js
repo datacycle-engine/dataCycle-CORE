@@ -471,7 +471,7 @@ class DashboardFilter {
 		}, 500);
 	}
 	leaveMainFilterInstant(event) {
-		event.currentTaget.classList.remove("active");
+		event.currentTarget.classList.remove("active");
 	}
 	clickMainFilterInput(event) {
 		event.stopPropagation();
