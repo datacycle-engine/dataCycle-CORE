@@ -252,6 +252,22 @@ module DataCycleCore
         common_graph_filter_prep(filter, name, query, false)
       end
 
+      def exists_graph_filter(filter, name, query)
+        common_graph_filter_prep(filter, name, query, false)
+      end
+
+      def not_exists_graph_filter(filter, name, query)
+        common_graph_filter_prep(filter, name, query, true)
+      end
+
+      def like_graph_filter(filter, name, query)
+        common_graph_filter_prep(filter, name, query, false)
+      end
+
+      def not_like_graph_filter(filter, name, query)
+        common_graph_filter_prep(filter, name, query, true)
+      end
+
       def common_graph_filter_prep(filter, name, query, exclude = false)
         return self if filter.blank? || name.blank? || query.blank?
 
@@ -260,6 +276,8 @@ module DataCycleCore
 
         relation_name = filter.dig('relation_type') if filter.dig('relation_type').present?
         direction_a_b = nil
+
+        restriction = filter.dig('restriction')
 
         if query == 'linked_items_in'
           direction_a_b = false
@@ -271,7 +289,7 @@ module DataCycleCore
 
         filter_id = DataCycleCore::StoredFilter.create.id if filter_id.blank?
 
-        subquery = graph_filter_query(filter_id, relation_name, content_type, direction_a_b)
+        subquery = graph_filter_query(filter_id, restriction, relation_name, content_type, direction_a_b)
 
         return self if subquery.nil?
 
@@ -409,15 +427,15 @@ module DataCycleCore
       #  Direction A -> B: Return all linked items B of the base filter's resulting items A
       #  Direction B -> A (related_to): Return items A that have a linked item b that can be found in the results of the base filter
 
-      def graph_filter_query(filter, relation = nil, class_aliases = [], direction_a_b = true)
+      def graph_filter_query(filter, restriction = nil, relation = nil, class_aliases = [], direction_a_b = true)
         if filter.is_a?(DataCycleCore::Filter::Search)
           filter_query = Arel.sql(filter.select.except(:order).to_sql)
+        elsif DataCycleCore::Thing.find(Array.wrap(restriction)).present?
+          filter_query = Array.wrap(restriction)
         elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
           filter_query = Arel.sql(stored_filter.apply.select(:id).except(:order).to_sql)
         elsif (collection = DataCycleCore::WatchList.find_by(id: filter))
           filter_query = Arel.sql(collection.watch_list_data_hashes.select(:hashable_id).except(:order).to_sql)
-        else # in case filter is array of thing_ids
-          filter_query = Array.wrap(filter)
         end
 
         class_aliases = (class_aliases.present? ? [class_aliases] : []) unless class_aliases.is_a?(Array)
