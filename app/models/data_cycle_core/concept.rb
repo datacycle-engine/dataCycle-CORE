@@ -169,14 +169,11 @@ module DataCycleCore
 
     def to_sync_data
       Rails.cache.fetch("sync_api/v1/concepts/#{id}/#{updated_at}", expires_in: 1.year + Random.rand(7.days)) do
-        to_api_default_values.merge(
-          as_json(
-            only: [:internal_name, :external_system_id, :external_key, :name_i18n, :description_i18n, :uri, :order_a],
-            methods: [:parent_id]
-          )
+        as_json(
+          only: [:id, :internal_name, :external_system_id, :external_key, :name_i18n, :description_i18n, :uri, :order_a, :concept_scheme_id],
+          methods: [:parent_id]
         )
         .merge({ 'external_system' => external_system&.identifier })
-        .deep_transform_keys { |k| k.camelize(:lower) }
         .compact_blank
       end
     end
