@@ -169,17 +169,19 @@ module DataCycleCore
 
     def to_sync_data
       Rails.cache.fetch("sync_api/v1/concepts/#{id}/#{updated_at}", expires_in: 1.year + Random.rand(7.days)) do
+        next if available_locales.exclude?(I18n.locale)
+
         as_json(
-          only: [:id, :internal_name, :external_system_id, :external_key, :name_i18n, :description_i18n, :uri, :order_a, :concept_scheme_id],
-          methods: [:parent_id]
+          only: [:id, :external_key, :uri, :order_a, :concept_scheme_id],
+          methods: [:parent_id, :name, :description]
         )
-        .merge({ 'external_system' => external_system&.identifier })
+        .merge({ 'external_system_identifier' => external_system&.identifier })
         .compact_blank
       end
     end
 
     def self.to_sync_data
-      includes(:parent, :external_system).map(&:to_sync_data)
+      includes(:parent, :external_system).map(&:to_sync_data).compact
     end
 
     def parent_id

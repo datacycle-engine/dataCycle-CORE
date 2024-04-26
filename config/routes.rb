@@ -426,22 +426,21 @@ DataCycleCore::Engine.routes.draw do
           namespace :sync_api do
             if DataCycleCore.main_config.dig(:sync_api, :v1, :enabled)
               namespace :v1 do
-                scope path: '(/:sync_api_subversion)' do
-                  match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
-                  match 'things/select(/:uuids)', to: 'contents#select', as: 'contents_select', via: [:get, :post]
+                match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
+                match 'things/select(/:uuids)', to: 'contents#select', as: 'contents_select', via: [:get, :post]
 
-                  match 'things', to: 'contents#index', as: 'contents_index', via: [:get, :post]
-                  match 'things/:id', to: 'contents#show', as: 'content_show', via: [:get, :post]
+                match 'things', to: 'contents#index', as: 'contents_index', via: [:get, :post]
+                match 'things/:id', to: 'contents#show', as: 'content_show', via: [:get, :post]
 
-                  match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
-                  match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
+                match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
+                match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
 
-                  match 'collections', to: 'watch_lists#index', via: [:get, :post]
-                  match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
+                match 'collections', to: 'watch_lists#index', via: [:get, :post]
+                match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
 
-                  match 'concept_schemes/:id', to: 'concept_schemes#show', as: :concept_scheme, via: [:get, :post]
-                  match 'concept_schemes/:id/concepts', to: 'concept_schemes#concepts', as: :concept_scheme_concept, via: [:get, :post]
-                end
+                match 'concept_schemes', to: 'concept_schemes#index', as: :concept_scheme_index, via: [:get, :post]
+                match 'concept_schemes/:id', to: 'concept_schemes#show', as: :concept_scheme_show, via: [:get, :post]
+                match 'concept_schemes/:id/concepts', to: 'concept_schemes#concepts', as: :concept_scheme_concept, via: [:get, :post]
               end
             end
           end
