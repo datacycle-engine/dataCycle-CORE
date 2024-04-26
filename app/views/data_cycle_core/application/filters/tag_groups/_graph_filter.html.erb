@@ -1,6 +1,8 @@
 <%
   content_types = value["content_type"].is_a?(Array) ? value["content_type"] : [value["content_type"]] if value['content_type'] != nil
   relation_type = value["relation_type"]
+  thing_template_labels = DataCycleCore::ThingTemplate.all_property_labels(" / ")
+
   filter_restrictions = value["restriction"]
   collection = value["filter"]
   is_direction_a_b = local_assigns[:key] == "items_linked_to"
@@ -50,8 +52,8 @@
     <% end %>
 
       <% if relation_type.present? && !relation_type.blank?%>
-      <!-- Content Types -->
-          <span class="tag"><%=t("filter.graph_filter.relations.#{relation_type}", default: relation_type, locale: active_ui_locale) %></span>
+<!--          <span class="tag"><%#=t("filter.graph_filter.relations.#{relation_type}", default: relation_type, locale: active_ui_locale) %></span>-->
+          <span class="tag"><%= thing_template_labels[relation_type] %></span>
     <% end %>
   </span>
   <% end %>

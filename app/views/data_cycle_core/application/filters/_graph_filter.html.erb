@@ -2,7 +2,10 @@
   filter_restrictions = DataCycleCore::Feature::AdvancedFilter.graph_filter_restrictions(filter_type, filter_name)
   data_type_restriction = DataCycleCore::Feature::AdvancedFilter.graph_filter_data_types
   relation_restriction = DataCycleCore::Feature::AdvancedFilter.graph_filter_relations(current_user)
-  relation_restriction_options =  options_from_collection_for_select(relation_restriction.to_a.collect { |option| [option, t("filter.graph_filter.relations.#{option}", default: "translation missing: filter.graph_filter.relations.#{option}", locale: active_ui_locale)] }, :first, :last, value&.[]('relation_type'))
+  thing_template_labels = DataCycleCore::ThingTemplate.all_property_labels(" / ")
+
+  # relation_restriction_options =  options_from_collection_for_select(relation_restriction.to_a.collect { |option| [option, t("filter.graph_filter.relations.#{option}", default: "translation missing: filter.graph_filter.relations.#{option}", locale: active_ui_locale)] }, :first, :last, value&.[]('relation_type'))
+  relation_restriction_options =  options_from_collection_for_select(relation_restriction.to_a.collect { |option| [option, thing_template_labels[option]] }, :first, :last, value&.[]('relation_type'))
   filter_mode = DataCycleCore::Feature::AdvancedFilter.graph_filter_mode
   direction_is_a_b = filter_name == 'items_linked_to'
 %>

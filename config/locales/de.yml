@@ -973,53 +973,6 @@ de:
           linked_items_in: Verknüpfter Inhaltstyp
           linked_items_in_all: Verknüpfte Inhalte
           linked_items_in_2: aus
-      relations:
-        # [#28520] In Customer project: adjust translation for relation names in graph filter as needed!
-        linked_thing: Verknüpfter Inhalt
-        image: Bild
-        copyright_holder: Rechteinhaber
-        content_location: Ort
-        tour: Tour
-        author: Autor
-        opening_hours_description: Öffnungszeit - Beschreibung
-        additional_description: Ergänzende Beschreibung
-        additional_information: Ergänzende Information
-        organizer: Veranstalter
-        potential_action: (Weiterführende) Links
-        is_linked_to: Relation linked to
-        addons: Addon
-        contained_in_place: Relation zugehörig zu Ort
-        snow_report: Schneehöhe - Messpunkt
-        aggregate_rating: Tourenbewertung
-        founder: Gastgeber
-        super_event: Veranstaltungsserie
-        sub_event: Veranstaltungsdaten
-        price_specification: Preis
-        snow_resort: Skigebiet
-        same_as: (externer) Link
-        logo: Logo
-        sd_publisher: Für den Inhalt verantwortlich
-        makes_offer: Angebote
-        about: About
-        amenity_feature: Zusatzangebot / Zusätzliches Feature
-        area_served: Treffpunkt
-        contains_place: Etappe / Service / Verknüpfter Ort
-        copyright_holder_or_sd_publisher: Rechteinhaber / Urheber
-        dining_hours_description: Warme Küche - Beschreibung
-        item_offered: Angebotene Leistung
-        lift_details: Lifte
-        member: Mitglieder
-        member_of: Mitglied in
-        offers: Angebote
-        operator: Betreiber
-        overlay: Overlay
-        performer: Ausführende Person/Organisation
-        provider: Dienstleister
-        schedule: Startzeitpunkt
-        slope_details: Pisten
-        subject_of: Subject of
-        video: Video
-        waypoint: Wegpunkt (POI)
     related_to: ist verknüpft mit
     feratel_content_score: Feratel - Content Score
     internal_content_score: Content Score - dataCycle
