@@ -246,7 +246,7 @@ module DataCycleCore
                             item.data_has_changed = diff?(item.dump[locale].as_json, item_data.as_json, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
 
                             # add credential from download_object to item
-                            if credentials.dig('key').present?
+                            if credentials&.dig('key').present?
                               credential_key = credentials['key']
                               item.external_system ||= {}
                               item.external_system['credentials'] ||= {}

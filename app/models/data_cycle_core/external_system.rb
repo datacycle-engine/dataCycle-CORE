@@ -29,6 +29,8 @@ module DataCycleCore
     has_many :schedules, foreign_key: :external_source_id, inverse_of: :external_source
     # rubocop:enable Rails/HasManyOrHasOneDependent, Rails/InverseOf
 
+    scope :by_names_or_identifiers, ->(value) { where('identifier IN (:value) OR name IN (:value)', value:) }
+
     validates :name, presence: true
 
     def name_with_types
