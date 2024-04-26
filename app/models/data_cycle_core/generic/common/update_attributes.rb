@@ -51,10 +51,14 @@ module DataCycleCore
             options.dig(:import, :attributes).each do |attribute|
               next unless update_item.respond_to?(attribute.dig(:key)&.to_s)
               value = load_value_for_attribute(attribute)
-              if attribute.dig(:key) == 'universal_classifications'
+              if attribute.dig(:key) == 'universal_classifications' || attribute.dig(:type) == 'classification'
                 delete = attribute.dig(:delete) || false
                 update = false
-                old_value = update_item.universal_classifications.pluck(:id)
+                old_value = if attribute.dig(:key) == 'universal_classifications'
+                              update_item.universal_classifications.pluck(:id)
+                            else
+                              update_item.send(attribute.dig(:key)).pluck(:id)
+                            end
                 if delete && old_value.include?(*value)
                   new_value = old_value - value
                   update = true
@@ -75,10 +79,7 @@ module DataCycleCore
         def self.load_value_for_attribute(attribute)
           case attribute.dig(:type)
           when 'classification'
-            value = DataCycleCore::Classification.joins(primary_classification_alias: [classification_tree: [:classification_tree_label]])
-              .where('classification_tree_labels.name = ?', attribute.dig(:tree_label))
-              .where('classification_aliases.internal_name = ?', attribute.dig(:value)).first!.id
-            [value] || nil
+            DataCycleCore::Concept.includes(:concept_scheme).where(internal_name: attribute.dig(:value), concept_scheme: { name: attribute.dig(:tree_label) }).limit(1).pluck(:classification_id)
           when 'float'
             attribute.dig(:value).to_f
           when 'integer'
