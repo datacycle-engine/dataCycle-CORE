@@ -518,7 +518,7 @@ module DataCycleCore
           send(NEW_STORAGE_LOCATION[property_definition['storage_location']]).try(:[], property_name)
         )
 
-        OpenStructHash.new(thing_data).freeze
+        OpenStructHash.new(thing_data, self, property_definition).freeze
       end
 
       def load_subproperty_hash(sub_properties, storage_location, sub_properties_data)
