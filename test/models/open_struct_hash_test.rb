@@ -15,13 +15,15 @@ describe DataCycleCore::OpenStructHash do
   describe 'validate data' do
     it 'handles data like a hash' do
       data = subject.new('test_key' => 'test_value')
-      assert_equal(data.to_h, { 'test_key' => 'test_value' })
-      assert_equal(data['test_key'], 'test_value')
+
+      assert_equal({ 'test_key' => 'test_value' }, data.to_h)
+      assert_equal('test_value', data['test_key'])
     end
 
     it 'behaves correctly if empty' do
       data = subject.new
-      assert_equal(data.to_h, {})
+
+      assert_empty(data.to_h)
     end
   end
 end

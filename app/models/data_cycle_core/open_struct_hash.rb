@@ -3,7 +3,7 @@
 module DataCycleCore
   class OpenStructHash < OpenStruct
     def initialize(hash = nil, parent = nil, definition = nil)
-      hash = hash.to_h { |k, v| [k, v.is_a?(::Hash) ? DataCycleCore::OpenStructHash.new(v) : v] } if hash
+      hash = hash.to_h { |k, v| [k, v.is_a?(::Hash) ? DataCycleCore::OpenStructHash.new(v) : v] }
       super(**hash, parent:, definition:)
     end
 

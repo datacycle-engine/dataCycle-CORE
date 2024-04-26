@@ -3146,10 +3146,24 @@ CREATE UNIQUE INDEX index_concepts_on_external_system_id_and_external_key ON pub
 
 
 --
--- Name: index_concepts_on_internal_name; Type: INDEX; Schema: public; Owner: -
+-- Name: index_concepts_on_full_order_concept_scheme_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_concepts_on_internal_name ON public.concepts USING gin (internal_name public.gin_trgm_ops);
+CREATE INDEX index_concepts_on_full_order_concept_scheme_id ON public.concepts USING btree (order_a, id, concept_scheme_id);
+
+
+--
+-- Name: index_concepts_on_internal_name_btree; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_concepts_on_internal_name_btree ON public.concepts USING btree (internal_name);
+
+
+--
+-- Name: index_concepts_on_internal_name_gin; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_concepts_on_internal_name_gin ON public.concepts USING gin (internal_name public.gin_trgm_ops);
 
 
 --
@@ -4988,6 +5002,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240415082040'),
 ('20240415084245'),
 ('20240415103014'),
-('20240415124045');
+('20240415124045'),
+('20240423093936'),
+('20240424112003');
 
 
