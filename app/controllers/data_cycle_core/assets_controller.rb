@@ -14,14 +14,10 @@ module DataCycleCore
         @assets = @assets.where(id: permitted_params[:asset_ids]) if permitted_params[:asset_ids].present?
         @assets = @assets.limit(25).offset((@page - 1) * 25 - permitted_params[:delete_count].to_i)
 
-        @asset_details = @assets.map { |a|
-          begin
-            a.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
-                       .merge(a.warnings? ? { 'warning' => a.full_warnings(helpers.active_ui_locale) } : {})
-          rescue NoMethodError
-            nil
-          end
-        }.compact
+        @asset_details = @assets.includes(file_attachment: :blob).map do |a|
+          a.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
+           .merge(a.warnings? ? { 'warning' => a.full_warnings(helpers.active_ui_locale) } : {})
+        end
         @total = @assets.except(:limit, :offset).count
 
         render json: {
