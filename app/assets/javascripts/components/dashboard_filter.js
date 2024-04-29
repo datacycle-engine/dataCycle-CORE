@@ -468,7 +468,7 @@ class DashboardFilter {
 		this.leaveDebounceTimer = setTimeout(() => {
 			if (currentTarget.querySelector("ul:hover")) return;
 			currentTarget.classList.remove("active");
-		}, 500);
+		}, 300);
 	}
 	leaveMainFilterInstant(event) {
 		event.currentTarget.classList.remove("active");
