@@ -5,6 +5,7 @@ class MigrateCreatorFilterToUserFilter < ActiveRecord::Migration[6.1]
   # disable_ddl_transaction!
 
   def up
+    return unless ActiveRecord::Base.connection.table_exists? 'stored_filters'
     execute <<-SQL
       UPDATE
         stored_filters
@@ -16,6 +17,7 @@ class MigrateCreatorFilterToUserFilter < ActiveRecord::Migration[6.1]
   end
 
   def down
+    return unless ActiveRecord::Base.connection.table_exists? 'stored_filters'
     execute <<-SQL
       UPDATE
         stored_filters
