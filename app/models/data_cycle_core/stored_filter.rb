@@ -57,7 +57,7 @@ module DataCycleCore
       classification_alias_ids = DataCycleCore::ClassificationAlias.for_tree(tree_label).with_internal_name(internal_name).pluck(:id)
       last_filter = current_user.stored_filters.order(created_at: :desc).first
 
-      if last_filter.parameters&.size&.==(2) && last_filter.parameters&.any? { |f| f['t'] == 'fulltext_search' && f['v'] == value } && last_filter.parameters&.any? { |f| f['t'] == 'classification_alias_ids' && f['v'] == classification_alias_ids }
+      if last_filter&.parameters&.size&.==(2) && last_filter&.parameters&.any? { |f| f['t'] == 'fulltext_search' && f['v'] == value } && last_filter&.parameters&.any? { |f| f['t'] == 'classification_alias_ids' && f['v'] == classification_alias_ids }
         filter = last_filter
       else
         filter = create(user: current_user, language: [I18n.locale.to_s], parameters: [
