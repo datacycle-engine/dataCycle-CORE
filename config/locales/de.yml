@@ -947,22 +947,20 @@ de:
           linked_items_in: Verknüpfter Inhaltstyp ... enthalten in  ...
       input_ui:
         relation_mode:
-          items_linked_to: Inhalt
-          items_linked_to_2: als verknüpfte/r/s
-          items_linked_to_3: in
+          items_linked_to: Inhalt als verknüpfte/r/s
+          items_linked_to_2: in
           linked_items_in: Verknüpfte/r/s
-          linked_items_in_3: in
+          linked_items_in_2: in
         content_mode:
-          items_linked_to: Inhalt
-          items_linked_to_2: als verknüpfter Inhaltstyp
-          items_linked_to_3: in
-          linked_items_in: Verknüpfter Inhaltstyp
-          linked_items_in_2: aus
+          items_linked_to: Inhalt als verknüpfte/r/s
+          items_linked_to_2:
+          linked_items_in: Verknüpfte/r/s
+          linked_items_in_2:
       tag_group:
         relation_mode:
-          items_linked_to: Verknüpfte/r/s
-          items_linked_to_all: Verknüpfter Inhalt
-          items_linked_to_2: aus
+          items_linked_to: Inhalt als verknüpfte/r/s
+          items_linked_to_all: Inhalt als verknüpfter Inhalt
+          items_linked_to_2: in
           linked_items_in: Verknüpfte/r/s
           linked_items_in_all: Verknüpfter Inhalt
           linked_items_in_2: in

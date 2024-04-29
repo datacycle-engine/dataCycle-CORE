@@ -24,29 +24,15 @@
     <span><%= t("filter.graph_filter.input_ui.#{filter_mode}.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
   </div>
 
-  <% if direction_is_a_b %>
+   <%= render 'data_cycle_core/application/filters/sections/graph_filter_selection', filter_mode: filter_mode, data_type_restriction: data_type_restriction, relation_restriction: relation_restriction, relation_restriction_options: relation_restriction_options, filter_title: filter_title, identifier: identifier %>
+
 
     <div class="advanced-filter-mode">
       <%= select_tag "f[#{identifier}][m]", advanced_graph_filter_options(filter_method, filter_restrictions.present?) %>
     </div>
 
-    <div class="advanced-filter-title">
-      <span><%= t("filter.graph_filter.input_ui.#{filter_mode}.#{filter_name}_2", default: filter_title, locale: active_ui_locale) %></span>
-    </div>
-
-    <%= render 'data_cycle_core/application/filters/sections/graph_filter_selection', filter_mode: filter_mode, data_type_restriction: data_type_restriction, relation_restriction: relation_restriction, relation_restriction_options: relation_restriction_options, filter_title: filter_title, identifier: identifier %>
-
-  <% else %>
-
-    <%= render 'data_cycle_core/application/filters/sections/graph_filter_selection', filter_mode: filter_mode, data_type_restriction: data_type_restriction, relation_restriction: relation_restriction, relation_restriction_options: relation_restriction_options, filter_title: filter_title, identifier: identifier %>
-
-    <div class="advanced-filter-mode">
-      <%= select_tag "f[#{identifier}][m]", advanced_graph_filter_options(filter_method, filter_restrictions.present?) %>
-    </div>
-
-  <% end %>
   <div class="advanced-filter-title">
-    <span><%= t("filter.graph_filter.input_ui.#{filter_mode}.#{filter_name}_3", default: filter_title, locale: active_ui_locale) %></span>
+    <span><%= t("filter.graph_filter.input_ui.#{filter_mode}.#{filter_name}_2", default: filter_title, locale: active_ui_locale) %></span>
   </div>
 
   <div class="advanced-filter-selector">

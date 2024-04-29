@@ -63,7 +63,14 @@
         if content_types != nil
           t("filter.graph_filter.tag_group.content_mode.#{key}_2", default: "", locale: active_ui_locale)
         else
-          t("filter.graph_filter.tag_group.relation_mode.#{key}_2", default: "", locale: active_ui_locale)
+          case local_assigns[:filter_method]
+          when 'i'
+            t('filter.graph_filter.contained_in', locale: active_ui_locale) + ' ' +
+            t("filter.graph_filter.tag_group.relation_mode.#{key}_2", default: "", locale: active_ui_locale)
+          when 'e'
+            t('filter.graph_filter.not_contained_in', locale: active_ui_locale) + ' ' +
+            t("filter.graph_filter.tag_group.relation_mode.#{key}_2", default: "", locale: active_ui_locale)
+          end
         end
       %>
   </span>
