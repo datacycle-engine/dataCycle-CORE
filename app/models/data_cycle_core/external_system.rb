@@ -134,8 +134,9 @@ module DataCycleCore
       raise 'First parameter has to be an options hash!' unless options.is_a?(::Hash)
       success = true
       ts_start = Time.zone.now
+      skip_save = options.delete(:skip_save)
       self.last_download = ts_start
-      save
+      save if skip_save.blank?
       download_config.sort_by { |v|
         v.second['sorting']
       }.each do |(name, _)|
@@ -147,7 +148,7 @@ module DataCycleCore
         self.last_successful_download = ts_start
         self.last_successful_download_time = ts_after - ts_start
       end
-      save
+      save if skip_save.blank?
       success
     end
 
