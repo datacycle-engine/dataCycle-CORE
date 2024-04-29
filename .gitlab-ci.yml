@@ -3,9 +3,9 @@
 
 # @todo: update to latest ruby image in gitlab utility (master)
 include:
-  - project: 'datacycle/utilities/datacycle-gitlab'
-    ref: feature/ruby_3
-    file: '.gitlab-ci-dc-common.yml'
+  - project: "datacycle/utilities/datacycle-gitlab"
+    ref: master
+    file: ".gitlab-ci-dc-common.yml"
 
 stages:
   - build
@@ -24,7 +24,6 @@ before_script:
   only:
     - develop
     - master
-    - feature/ruby_3
   tags:
     - dc-opensource
 
@@ -38,7 +37,7 @@ code_validation:
   <<: *master_ci
   extends: .code_validation_config
   variables:
-    CORE_RAKE_PREFIX: 'app:'
+    CORE_RAKE_PREFIX: "app:"
 
 rails_test:
   <<: *master_ci
