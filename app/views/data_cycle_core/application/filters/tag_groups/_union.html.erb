@@ -1,7 +1,7 @@
 <span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
   <span class="tag-group-label">
     <i class="fa fa-filter" aria-hidden="true"></i>
-    <%= t("filter.#{local_assigns[:title]}", default: local_assigns[:title], locale: active_ui_locale) %>
+    <span><%= t("filter.#{local_assigns[:title]}", default: local_assigns[:title], locale: active_ui_locale) %></span>
   </span>
 
   <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons %>

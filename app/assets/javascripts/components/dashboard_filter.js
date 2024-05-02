@@ -234,14 +234,21 @@ class DashboardFilter {
 	_conditionalValueSelectorChange(event) {
 		event.preventDefault();
 
-		const mode = $(event.currentTarget).val();
-		const $valueSelectors = $(event.currentTarget)
-			.closest(".advanced-filter.conditional-value-selector")
-			.find(".advanced-filter-selector [data-active-for]");
+		const mode = event.currentTarget.value;
+		const container = event.currentTarget.closest(
+			".advanced-filter.conditional-value-selector",
+		);
+		let valueSelectors = [];
+		if (container.querySelector("[data-active-for]"))
+			valueSelectors = container.querySelectorAll("[data-active-for]");
 
-		$valueSelectors.attr("disabled", function (_i, _attribute) {
-			return !this.dataset.activeFor?.includes(mode);
-		});
+		for (const valueSelector of valueSelectors) {
+			valueSelector.disabled = !valueSelector.dataset.activeFor?.includes(mode);
+			valueSelector.classList.toggle(
+				"hidden",
+				!valueSelector.dataset.activeFor?.includes(mode),
+			);
+		}
 	}
 	advancedFilterChange(event) {
 		event.preventDefault();
@@ -389,7 +396,11 @@ class DashboardFilter {
 			behavior: "smooth",
 			block: "center",
 		});
-		$element.find(":text").first().focus();
+
+		$element
+			.get(0)
+			.querySelector("[data-initial-focus]")
+			?.focus({ focusVisible: true });
 
 		setTimeout(() => {
 			$element.removeClass("highlight");

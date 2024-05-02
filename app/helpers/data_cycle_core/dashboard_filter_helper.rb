@@ -2,6 +2,15 @@
 
 module DataCycleCore
   module DashboardFilterHelper
+    RELATION_FILTER_TYPES = {
+      'i' => 'contained_in',
+      'e' => 'not_contained_in',
+      'p' => 'exists',
+      'b' => 'not_exists',
+      's' => 'equal',
+      'u' => 'not_equal'
+    }.freeze
+
     def union_ids_to_value(value)
       return [] if value.blank?
 
@@ -140,20 +149,16 @@ module DataCycleCore
       options_for_select(filter_options, filter_method)
     end
 
-    def advanced_graph_filter_options(filter_method, thing_filter = false)
-      filter_options = [
-        [t('filter.graph_filter.contained_in', locale: active_ui_locale), 'i'],
-        [t('filter.graph_filter.not_contained_in', locale: active_ui_locale), 'e']
-        # [t('filter.graph_filter.contained_in_any', locale: active_ui_locale), 'i'],
-        # [t('filter.graph_filter.not_contained_in_any', locale: active_ui_locale), 'e']
-      ]
+    def filter_method_translation(key, path, optional_namespace = nil)
+      return t("#{path}.#{optional_namespace}.#{key}", locale: active_ui_locale) if I18n.exists?("#{path}.#{optional_namespace}.#{key}", locale: active_ui_locale)
 
-      if thing_filter
-        filter_options.prepend(
-          [t('filter.graph_filter.contained_in_thinglist', locale: active_ui_locale), 's'],
-          [t('filter.graph_filter.not_contained_in_thinglist', locale: active_ui_locale), 'u']
-        )
-      end
+      t("#{path}.#{key}", locale: active_ui_locale)
+    end
+
+    def advanced_graph_filter_options(filter_method, filter_type)
+      path = 'filter.graph_filter'
+
+      filter_options = RELATION_FILTER_TYPES.map { |k, v| [filter_method_translation(v, path, filter_type), k] }
 
       options_for_select(filter_options, filter_method)
     end

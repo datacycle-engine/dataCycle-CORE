@@ -1,86 +1,82 @@
 <%
-  filter_restrictions = DataCycleCore::Feature::AdvancedFilter.graph_filter_restrictions(filter_type, filter_name)
-  data_type_restriction = DataCycleCore::Feature::AdvancedFilter.graph_filter_data_types
-  relation_restriction = DataCycleCore::Feature::AdvancedFilter.graph_filter_relations(current_user)
-  thing_template_labels = DataCycleCore::ThingTemplate.all_property_labels(" / ")
-
-  # relation_restriction_options =  options_from_collection_for_select(relation_restriction.to_a.collect { |option| [option, t("filter.graph_filter.relations.#{option}", default: "translation missing: filter.graph_filter.relations.#{option}", locale: active_ui_locale)] }, :first, :last, value&.[]('relation_type'))
-  relation_restriction_options =  options_from_collection_for_select(relation_restriction.to_a.collect { |option| [option, thing_template_labels[option]] }, :first, :last, value&.[]('relation_type'))
-  filter_mode = DataCycleCore::Feature::AdvancedFilter.graph_filter_mode
-  direction_is_a_b = filter_name == 'items_linked_to'
+  allowed_relations = (DataCycleCore::Feature::AdvancedFilter.graph_filter_relations(current_user) + [filter_advanced_type]).compact.uniq
+  thing_template_labels = DataCycleCore::ThingTemplate.translated_property_labels(keys: allowed_relations, locale: active_ui_locale).invert.sort.to_a.map { |(v, k)| [v, k, { data: { dc_tooltip: v } }] }
 %>
 
-<div data-id="<%= identifier %>" class="advanced-filter conditional-value-selector <%= filter_method ||= (filter_restrictions.present? ? 's' : 'i') %>" data-label="<%= filter_name %>">
-  <%= hidden_field_tag "f[#{identifier}][t]", 'graph_filter' %>
-  <%= hidden_field_tag "f[#{identifier}][n]", filter_title %>
-  <%= hidden_field_tag "f[#{identifier}][q]", 'graph_filter' %>
+<div data-id="<%= identifier %>" class="advanced-filter conditional-value-selector <%= filter_method ||= 'i' %>" data-label="<%= filter_name %>">
   <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
+  <%= hidden_field_tag "f[#{identifier}][t]", filter_type %>
+  <%= hidden_field_tag "f[#{identifier}][n]", filter_name %>
 
   <div class="advanced-filter-title">
     <%= render 'data_cycle_core/shared/icon', icon_type: filter_name&.underscore_blanks, icon_class: 'filter' %>
+    <span><%= t("filter.graph_filter.input_ui.#{filter_name}.prefix", default: filter_title, locale: active_ui_locale) %></span>
   </div>
 
-  <div class="advanced-filter-title">
-    <span><%= t("filter.graph_filter.input_ui.#{filter_mode}.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
+  <div class="additional-selector">
+    <%= select_tag(
+          "f[#{identifier}][q]",
+          options_for_select(thing_template_labels, filter_advanced_type),
+          {
+            multiple: false,
+            class: 'single-select',
+            data: {
+              initial_focus: true,
+              max: 20,
+              allow_clear: false
+            }
+          }
+        ) %>
   </div>
 
-   <%= render 'data_cycle_core/application/filters/sections/graph_filter_selection', filter_mode: filter_mode, data_type_restriction: data_type_restriction, relation_restriction: relation_restriction, relation_restriction_options: relation_restriction_options, filter_title: filter_title, identifier: identifier %>
-
-
-    <div class="advanced-filter-mode">
-      <%= select_tag "f[#{identifier}][m]", advanced_graph_filter_options(filter_method, filter_restrictions.present?) %>
-    </div>
-
-  <div class="advanced-filter-title">
-    <span><%= t("filter.graph_filter.input_ui.#{filter_mode}.#{filter_name}_2", default: filter_title, locale: active_ui_locale) %></span>
-  </div>
+  <%= tag.div(select_tag("f[#{identifier}][m]", advanced_graph_filter_options(filter_method, filter_name)), class: 'advanced-filter-mode') %>
 
   <div class="advanced-filter-selector">
-    <% if filter_restrictions.present? %>
-      <div>
-        <%= select_tag("f[#{identifier}][v][restriction]",
-            (filter_method.in?(['s', 'u']) ? thing_values_to_options(value&.[]('restriction')) : nil),
-            {
-              include_blank: true,
-              multiple: true,
-              id: "f_#{identifier}_v_thing",
-              class: "async-select",
-              disabled: !filter_method.in?(['s', 'u']),
-              data: {
-                initial_focus: filter_method.in?(['s', 'u']),
-                active_for: ['s', 'u'],
-                max: 20,
-                placeholder: t('filter.graph_filter.placeholder.thing', locale: active_ui_locale),
-                search_path: select_search_things_path,
-                query_params: filter_restrictions.to_json
-              }
-            }) %>
-      </div>
-    <% end %>
-    <div>
-      <%= select_tag("f[#{identifier}][v][filter]",
-          (filter_method.in?(['i', 'e']) ? union_values_to_options(value&.[]('filter')) : nil),
-          {
-            include_blank: true,
-            multiple: false,
-            id: "f_#{identifier}_v_collection_stored_filter",
-            class: "async-select",
-            disabled: !filter_method.in?(['i', 'e']),
-            data: {
-              initial_focus: filter_method.in?(['i', 'e']),
-              active_for: ['i', 'e'],
-              max: 20,
-              placeholder: t('filter.graph_filter.placeholder.collection_or_stored_filter',
-                collection: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale),
-                stored_filter: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: active_ui_locale),
-                locale: active_ui_locale),
-              search_path: select_search_or_collection_stored_filters_path
+    <%= select_tag("f[#{identifier}][v]",
+        (filter_method.in?(['s', 'u']) ? thing_values_to_options(value) : nil),
+        {
+          include_blank: true,
+          multiple: true,
+          id: "f_#{identifier}_v_thing",
+          class: "async-select",
+          disabled: !filter_method.in?(['s', 'u']),
+          data: {
+            active_for: ['s', 'u'],
+            max: 20,
+            placeholder: t('filter.graph_filter.placeholder.thing', locale: active_ui_locale),
+            search_path: select_search_things_path,
+            query_params_from_selector: true,
+            query_params: {
+              stored_filter: [{
+                exists_graph_filter: {
+                  name: 'dummy',
+                  query: filter_name == 'items_linked_to' ? 'linked_items_in' : 'items_linked_to',
+                }
+              }]
             }
-          }) %>
-    </div>
-    <div>
-      <%= hidden_field_tag "f[#{identifier}][v]", filter_advanced_type, disabled: !filter_method.in?(['p', 'b']), data: { active_for: ['p', 'b'] } %>
-    </div>
+          }
+        }) %>
+
+    <%= select_tag("f[#{identifier}][v]",
+        (filter_method.in?(['i', 'e']) ? union_values_to_options(value) : nil),
+        {
+          include_blank: true,
+          multiple: false,
+          id: "f_#{identifier}_v_collection_stored_filter",
+          class: "async-select",
+          disabled: !filter_method.in?(['i', 'e']),
+          data: {
+            active_for: ['i', 'e'],
+            max: 20,
+            placeholder: t('filter.graph_filter.placeholder.collection_or_stored_filter',
+              collection: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale),
+              stored_filter: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: active_ui_locale),
+              locale: active_ui_locale),
+            search_path: select_search_or_collection_stored_filters_path
+          }
+        }) %>
+
+    <%= hidden_field_tag "f[#{identifier}][v]", 'dummy', disabled: !filter_method.in?(['p', 'b']), data: { active_for: ['p', 'b'] } %>
   </div>
   <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
     <div class="buttons">

@@ -1,7 +1,7 @@
 <span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
   <span class="tag-group-label">
     <i class="fa fa-external-link" aria-hidden="true"></i>
-    <%= t("filter.#{key}", default: title, locale: active_ui_locale) %>:
+    <span><%= t("filter.#{key}", default: title, locale: active_ui_locale) %></span>
   </span>
 
   <% external_sources = DataCycleCore::ExternalSystem.select(:id, :name).where(id: value).map { |c| [c.id, c.name] }.to_h %>

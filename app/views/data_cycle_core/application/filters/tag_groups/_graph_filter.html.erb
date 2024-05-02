@@ -1,103 +1,27 @@
 <%
-  content_types = value["content_type"].is_a?(Array) ? value["content_type"] : [value["content_type"]] if value['content_type'] != nil
-  relation_type = value["relation_type"]
-  thing_template_labels = DataCycleCore::ThingTemplate.all_property_labels(" / ")
-
-  filter_restrictions = value["restriction"]
-  collection = value["filter"]
-  is_direction_a_b = local_assigns[:key] == "items_linked_to"
-
-  if collection.is_a?(DataCycleCore::Filter::Search)
-    collection_name = collection.name
-    collection_icon = 'search'
-  elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: collection))
-    collection_name = stored_filter.name
-    collection_icon = 'filter'
-  elsif (watch_list = DataCycleCore::WatchList.find_by(id: collection))
-    collection_name = watch_list.name
-    collection_icon = 'list'
-  else
-    collection_name = collection
-    collection_icon = 'question'
-  end
-
+  filter_type = DataCycleCore::ThingTemplate.translated_property_labels(keys: filter_advanced_type, locale: active_ui_locale)&.dig(filter_advanced_type)
 %>
 
 <span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
   <span class="tag-group-label">
-    <i class="fa fa-link" aria-hidden="true"></i>
-
-    <%=
-      if content_types != nil
-        if content_types.first&.present?
-          t("filter.graph_filter.tag_group.content_mode.#{key}", default: title, locale: active_ui_locale)
-        else
-          t("filter.graph_filter.tag_group.content_mode.#{key}_all", default: title, locale: active_ui_locale)
-        end
-      elsif relation_type != ""
-        t("filter.graph_filter.tag_group.relation_mode.#{key}", default: title, locale: active_ui_locale)
-      else
-        t("filter.graph_filter.tag_group.relation_mode.#{key}_all", default: title, locale: active_ui_locale)
-      end
-    %>
+    <%= render 'data_cycle_core/shared/icon', icon_type: key&.underscore_blanks, icon_class: 'filter' %>
+    <% translated_label = safe_join([
+      t("filter.graph_filter.input_ui.#{key}.prefix", default: title, locale: active_ui_locale),
+      filter_type,
+      filter_method_translation(DataCycleCore::DashboardFilterHelper::RELATION_FILTER_TYPES[filter_method], 'filter.graph_filter', key)
+    ], ' ') %>
+    <span data-dc-tooltip="<%= translated_label %>">
+      <%= translated_label %>
+    </span>
   </span>
 
-  <% if content_types&.first&.present? || (relation_type.present? && !relation_type.blank?) %>
+  <% if !filter_method.in?(['p', 'b']) %>
     <span class="tags-container">
-    <% if content_types&.first&.present?%>
-      <!-- Content Types -->
-        <% content_types.each do |tag| %>
-        <span class="tag"><%= DataCycleCore::ClassificationAlias.find(tag).internal_name if tag.present? %></span>
+      <% relation_filter_items(value, filter_method).each do |item| %>
+        <%= tag.span(item.name, class: "tag #{item.html_class}", data: { dc_tooltip: item.dc_tooltip }) %>
       <% end %>
-    <% end %>
-
-      <% if relation_type.present? && !relation_type.blank?%>
-<!--          <span class="tag"><%#=t("filter.graph_filter.relations.#{relation_type}", default: relation_type, locale: active_ui_locale) %></span>-->
-          <span class="tag"><%= thing_template_labels[relation_type] %></span>
-    <% end %>
-  </span>
+    </span>
   <% end %>
 
-    <span class="tag-group-label">
-      <%=
-        if content_types != nil
-          t("filter.graph_filter.tag_group.content_mode.#{key}_2", default: "", locale: active_ui_locale)
-        else
-          case local_assigns[:filter_method]
-          when 'i'
-            t('filter.graph_filter.contained_in', locale: active_ui_locale) + ' ' +
-            t("filter.graph_filter.tag_group.relation_mode.#{key}_2", default: "", locale: active_ui_locale)
-          when 'e'
-            t('filter.graph_filter.not_contained_in', locale: active_ui_locale) + ' ' +
-            t("filter.graph_filter.tag_group.relation_mode.#{key}_2", default: "", locale: active_ui_locale)
-          end
-        end
-      %>
-  </span>
-
-  <span class="tags-container">
-
-
-    <% if filter_restrictions.present?%>
-
-      <%
-        thing_name_list = Array.wrap(filter_restrictions).map {|thing| DataCycleCore::Thing.find(thing)&.name || thing}
-      %>
-
-      <% thing_name_list.each do |tag| %>
-        <span class="tag"><%= tag %></span>
-      <% end %>
-    <% end %>
-
-
-    <% if collection.present?%>
-      <!-- StoredFilter -->
-      <span class="tag"><i class="fa fa-<%=collection_icon %>" aria-hidden="true"></i><%= collection_name if collection.present? %></span>
-    <% end %>
-
-  </span>
-
-
   <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons %>
-
 </span>

@@ -222,6 +222,7 @@
             gap: 0.5rem;
             flex: auto;
             align-items: flex-start;
+            min-width: 1rem;
 
             .stored-search-title {
               font-size: 0.9rem;
@@ -251,6 +252,7 @@
               padding: 2px 4px;
               background-color: lighten($dark-gray, 32%);
               box-shadow: 0 0 0 1px lighten($dark-gray, 12%);
+              max-width: 100%;
 
               .tag {
                 font-style: normal;

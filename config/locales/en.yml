@@ -896,45 +896,28 @@ en:
       placeholder:
         thing: content
         collection_or_stored_filter: "%{collection} or %{stored_filter}"
-      contained_in: contained in
-      not_contained_in: not contained in
-      contained_in_thinglist: is
-      not_contained_in_thinglist: is not
       dropdown_text:
-        relation_mode:
-          items_linked_to: Item linked as ... in ...
-          linked_items_in: Items with linked Item ... in ...
-        content_mode:
-          items_linked_to: Linked item of data type ... in ...
-          linked_items_in: Items with linked item of data type ... in ...
+        items_linked_to: Item linked as ... in ...
+        linked_items_in: Items with linked Item ... in ...
+      items_linked_to:
+        contained_in: from contents in
+        not_contained_in: from contents not in
+        exists: from contents are present
+        not_exists: from contents are not present
+        equal: from
+        not_equal: from
+      linked_items_in:
+        contained_in: contained in
+        not_contained_in: not contained in
+        exists: is present
+        not_exists: is not present
+        equal: is
+        not_equal: is not
       input_ui:
-        relation_mode:
-          items_linked_to: Items
-          items_linked_to_2: as linked
-          items_linked_to_3: in
-          linked_items_in: Linked items
-          linked_items_in_3: in
-        content_mode:
-          items_linked_to: Items
-          items_linked_to_2: as linked
-          items_linked_to_3: in
-          linked_items_in: Linked items
-          linked_items_in_2: in
-      tag_group:
-        relation_mode:
-          items_linked_to: Linked
-          items_linked_to_all: Linked items
-          items_linked_to_2: from
-          linked_items_in: Linked
-          linked_items_in_all: Linked items
-          linked_items_in_2: in
-        content_mode:
-          items_linked_to: Linked
-          items_linked_to_all: Linked items
-          items_linked_to_2: from
-          linked_items_in: Linked
-          linked_items_in_all: Linked items
-          linked_items_in_2: in
+        items_linked_to:
+          prefix: All linked
+        linked_items_in:
+          prefix: Linked
     related_to: is linked to
     feratel_content_score: Feratel - Content Score
     internal_content_score: Content Score - dataCycle

@@ -86,24 +86,17 @@ module DataCycleCore
         def graph_filter(user, value)
           return [] unless value.is_a?(Hash)
 
-          return [] unless configuration.dig('graph_filter', 'enabled') == true
+          allowed_relations_present = user.can?(:graph_filter_view_all_relations, :backend) ? DataCycleCore::ContentContent::Link.any? : value['allowed_relations'].present?
 
-          to_ignore = ['enabled', 'mode', 'allowed_relations']
+          return [] unless allowed_relations_present
 
-          mode = configuration.dig('graph_filter', 'mode')
-
-          return [] if mode == 'relation_mode' && graph_filter_relations(user).empty?
-
-          value.map { |k, v|
+          value.slice('items_linked_to', 'linked_items_in').map { |k, v|
             next unless v
-            next if to_ignore.include?(k) # things from features.yml to be excluded in graph filter list
-
-            next unless v.dig('enabled') == true
 
             [
-              I18n.t("filter.graph_filter.dropdown_text.#{mode}.#{k.underscore_blanks}", default: I18n.t("filter.graph_filter.#{mode}.#{k.underscore_blanks}", default: I18n.t("filter.#{mode}.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale), locale: user.ui_locale), locale: user.ui_locale),
+              I18n.t("filter.graph_filter.dropdown_text.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale),
               'graph_filter',
-              data: { name: k, advancedType: v.is_a?(::Hash) ? v['attribute'] : v }
+              data: { name: k }
             ]
           }.compact
         end
@@ -302,24 +295,12 @@ module DataCycleCore
           configuration.dig(type, name, 'filter')
         end
 
-        def graph_filter_data_types
-          DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen')
-        end
-
         def graph_filter_relations(user)
           if user.can?(:graph_filter_view_all_relations, :backend)
-            allowed_relations = ActiveRecord::Base.connection.execute('SELECT DISTINCT relation FROM content_content_links WHERE relation IS NOT NULL').values.flatten
+            DataCycleCore::ContentContent::Link.distinct.where.not(relation: nil).pluck(:relation)
           else
-            allowed_relations = configuration.dig('graph_filter', 'allowed_relations')
+            Array.wrap(configuration.dig('graph_filter', 'allowed_relations'))
           end
-
-          allowed_relations = [] if allowed_relations.nil?
-
-          allowed_relations
-        end
-
-        def graph_filter_mode
-          configuration.dig('graph_filter', 'mode')
         end
       end
     end

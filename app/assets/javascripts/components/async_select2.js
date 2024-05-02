@@ -89,7 +89,12 @@ class AsyncSelect2 extends BasicSelect2 {
 				tree_label: this.config.treeLabel,
 			});
 
-		if (this.config.queryParams)
+		if (this.config.queryParams && this.config.queryParamsFromSelector)
+			Object.assign(
+				returnObject,
+				this.getQueryParamsFromSelector(this.config.queryParams),
+			);
+		else if (this.config.queryParams)
 			Object.assign(returnObject, this.config.queryParams);
 
 		return returnObject;
@@ -108,6 +113,18 @@ class AsyncSelect2 extends BasicSelect2 {
 		return {
 			results: result,
 		};
+	}
+	getQueryParamsFromSelector(queryParams) {
+		const selector = this.element
+			.closest(".advanced-filter")
+			.querySelector(".additional-selector select");
+
+		if (!selector) return queryParams;
+
+		if (queryParams?.stored_filter[0]?.exists_graph_filter?.name)
+			queryParams.stored_filter[0].exists_graph_filter.name = selector.value;
+
+		return queryParams;
 	}
 }
 

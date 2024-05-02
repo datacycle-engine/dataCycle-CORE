@@ -13,6 +13,7 @@ module DataCycleCore
       include DataCycleCore::Filter::Common::Geo
       include DataCycleCore::Filter::Common::Union
       include DataCycleCore::Filter::Common::User
+      include DataCycleCore::Filter::Common::Graph
       include DataCycleCore::Filter::Sortable
 
       def initialize(locale = ['de'], query = nil, include_embedded = false)
@@ -244,66 +245,6 @@ module DataCycleCore
         )
       end
 
-      def not_graph_filter(filter, name, query)
-        common_graph_filter_prep(filter, name, query, true)
-      end
-
-      def graph_filter(filter, name, query)
-        common_graph_filter_prep(filter, name, query, false)
-      end
-
-      def exists_graph_filter(filter, name, query)
-        common_graph_filter_prep(filter, name, query, false)
-      end
-
-      def not_exists_graph_filter(filter, name, query)
-        common_graph_filter_prep(filter, name, query, true)
-      end
-
-      def like_graph_filter(filter, name, query)
-        common_graph_filter_prep(filter, name, query, false)
-      end
-
-      def not_like_graph_filter(filter, name, query)
-        common_graph_filter_prep(filter, name, query, true)
-      end
-
-      def common_graph_filter_prep(filter, name, query, exclude = false)
-        return self if filter.blank? || name.blank? || query.blank?
-
-        filter_id = filter.dig('filter')
-        content_type = filter.dig('content_type')
-
-        relation_name = filter.dig('relation_type') if filter.dig('relation_type').present?
-        direction_a_b = nil
-
-        restriction = filter.dig('restriction')
-
-        if query == 'linked_items_in'
-          direction_a_b = false
-        elsif query == 'items_linked_to'
-          direction_a_b = true
-        end
-
-        return self if direction_a_b.nil?
-
-        filter_id = DataCycleCore::StoredFilter.create.id if filter_id.blank?
-
-        subquery = graph_filter_query(filter_id, restriction, relation_name, content_type, direction_a_b)
-
-        return self if subquery.nil?
-
-        if exclude
-          reflect(
-            @query.where(subquery.exists.not)
-          )
-        else
-          reflect(
-            @query.where(subquery.exists)
-          )
-        end
-      end
-
       def boolean(value, filter_method)
         if respond_to?(filter_method)
           send(filter_method, value)
@@ -426,42 +367,6 @@ module DataCycleCore
       # +direction_a_b+:: OPTIONAL - DEFAULTS to FALSE ( B -> A ) - Tell the graph Filter in which direction it shall work.
       #  Direction A -> B: Return all linked items B of the base filter's resulting items A
       #  Direction B -> A (related_to): Return items A that have a linked item b that can be found in the results of the base filter
-
-      def graph_filter_query(filter, restriction = nil, relation = nil, class_aliases = [], direction_a_b = true)
-        if filter.is_a?(DataCycleCore::Filter::Search)
-          filter_query = Arel.sql(filter.select.except(:order).to_sql)
-        elsif DataCycleCore::Thing.find(Array.wrap(restriction)).present?
-          filter_query = Array.wrap(restriction)
-        elsif (stored_filter = DataCycleCore::StoredFilter.find_by(id: filter))
-          filter_query = Arel.sql(stored_filter.apply.select(:id).except(:order).to_sql)
-        elsif (collection = DataCycleCore::WatchList.find_by(id: filter))
-          filter_query = Arel.sql(collection.watch_list_data_hashes.select(:hashable_id).except(:order).to_sql)
-        end
-
-        class_aliases = (class_aliases.present? ? [class_aliases] : []) unless class_aliases.is_a?(Array)
-
-        target = direction_a_b ? :content_b_id : :content_a_id
-        source = direction_a_b ? :content_a_id : :content_b_id
-
-        sub_select = content_content_link[target].eq(thing[:id])
-
-        if relation.present?
-
-          sub_select = sub_select.and(content_content_link[:relation].eq(relation))
-
-        elsif class_aliases.present? && class_aliases.size.positive?
-
-          infix_operation = Arel.sql(DataCycleCore::CollectedClassificationContent.where(classification_alias_id: class_aliases).select('thing_id').to_sql)
-
-          related_template_things = content_content_link[:content_b_id].in(infix_operation)
-
-          sub_select = sub_select.and(related_template_things)
-        end
-
-        sub_select = sub_select.and(content_content_link[source].in(filter_query))
-
-        Arel::SelectManager.new.from(content_content_link).where(sub_select)
-      end
 
       def related_to_any(name = nil, inverse = false)
         thing_id = :content_a_id

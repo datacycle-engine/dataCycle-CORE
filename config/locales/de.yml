@@ -934,43 +934,28 @@ de:
       placeholder:
         thing: Inhalt
         collection_or_stored_filter: "%{collection} oder %{stored_filter}"
-      contained_in: ist enthalten
-      not_contained_in: ist nicht enthalten
-      contained_in_thinglist: ist
-      not_contained_in_thinglist: ist nicht
       dropdown_text:
-        relation_mode:
-          items_linked_to: Inhalt ist als verknüpfte/r/s ... enthalten in ...
-          linked_items_in: Verknüpfte/r/s ... ist enthalten in ...
-        content_mode:
-          items_linked_to: Inhalt ist verknüpft mit ... enthalten in  ...
-          linked_items_in: Verknüpfter Inhaltstyp ... enthalten in  ...
+        items_linked_to: Alle verknüpften ... enthalten in ...
+        linked_items_in: Verknüpfte/r/s ... ist enthalten in ...
+      items_linked_to:
+        contained_in: von Inhalten aus
+        not_contained_in: von Inhalten nicht aus
+        exists: von Inhalten sind vorhanden
+        not_exists: von Inhalten sind nicht vorhanden
+        equal: von
+        not_equal: nicht von
+      linked_items_in:
+        contained_in: ist enthalten in
+        not_contained_in: ist nicht enthalten in
+        exists: ist vorhanden
+        not_exists: ist nicht vorhanden
+        equal: ist
+        not_equal: ist nicht
       input_ui:
-        relation_mode:
-          items_linked_to: Inhalt als verknüpfte/r/s
-          items_linked_to_2: in
-          linked_items_in: Verknüpfte/r/s
-          linked_items_in_2: in
-        content_mode:
-          items_linked_to: Inhalt als verknüpfte/r/s
-          items_linked_to_2:
-          linked_items_in: Verknüpfte/r/s
-          linked_items_in_2:
-      tag_group:
-        relation_mode:
-          items_linked_to: Inhalt als verknüpfte/r/s
-          items_linked_to_all: Inhalt als verknüpfter Inhalt
-          items_linked_to_2: in
-          linked_items_in: Verknüpfte/r/s
-          linked_items_in_all: Verknüpfter Inhalt
-          linked_items_in_2: in
-        content_mode:
-          items_linked_to: Verknüpfter Inhaltstyp
-          items_linked_to_all: Verknüpfte Inhalte
-          items_linked_to_2: aus
-          linked_items_in: Verknüpfter Inhaltstyp
-          linked_items_in_all: Verknüpfte Inhalte
-          linked_items_in_2: aus
+        items_linked_to:
+          prefix: Alle verknüpften
+        linked_items_in:
+          prefix: Verknüpfte/r/s
     related_to: ist verknüpft mit
     feratel_content_score: Feratel - Content Score
     internal_content_score: Content Score - dataCycle

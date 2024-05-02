@@ -110,6 +110,10 @@ module DataCycleCore
           hash['t'] = 'classification_alias_ids'
           hash['n'] = hash['v']
           hash['v'] = user&.user_groups&.send(relation)&.pluck(:id)
+        when 'graph_filter'
+          hash['n'] = hash.dig('v', 'query')
+          hash['q'] = hash.dig('v', 'name')
+          hash['v'] = hash.dig('v', 'value')
         end
 
         transform_placeholders(hash, user)
