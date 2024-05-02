@@ -136,7 +136,7 @@ module DataCycleCore
 
         raise ActiveRecord::RecordNotFound if @collection.nil?
 
-        authorize! :api, @collection # unless any_authenticity_token_valid?
+        authorize! :api, @collection unless self.class.module_parents.include?(DataCycleCore::Mvt) && any_authenticity_token_valid?
 
         @stored_filter = @collection if @collection.is_a?(DataCycleCore::StoredFilter)
         @watch_list = @collection if @collection.is_a?(DataCycleCore::WatchList)
