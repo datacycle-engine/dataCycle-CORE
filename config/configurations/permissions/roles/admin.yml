@@ -335,7 +335,7 @@ auto_translate_feature:
   parameters: :auto_translate
 
 view_mode_feature:
-  actions: [grid, list, tree]
+  actions: [grid, list, tree, map]
   segment: SubjectByEnabledFeature
   parameters:
     - :view_mode
