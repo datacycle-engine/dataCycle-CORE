@@ -225,7 +225,7 @@ CREATE FUNCTION public.delete_concept_links_groups_trigger_function2() RETURNS t
 
 CREATE FUNCTION public.delete_concept_links_to_histories_trigger_function() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN INSERT INTO concept_link_histories SELECT * FROM old_concept_links; RETURN NULL; END; $$;
+    AS $$ DECLARE insert_query TEXT; BEGIN SELECT 'INSERT INTO concept_link_histories (' || string_agg(column_name, ', ') || ') SELECT ' || string_agg('ocl.' || column_name, ', ') || ' FROM old_concept_links ocl RETURNING id;' INTO insert_query FROM information_schema.columns WHERE table_name = 'concept_link_histories' AND column_name != 'deleted_at'; EXECUTE insert_query; RETURN NULL; END; $$;
 
 
 --
@@ -252,7 +252,7 @@ CREATE FUNCTION public.delete_concept_links_trees_trigger_function2() RETURNS tr
 
 CREATE FUNCTION public.delete_concept_schemes_to_histories_trigger_function() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN INSERT INTO concept_scheme_histories SELECT * FROM old_concept_schemes; RETURN NULL; END; $$;
+    AS $$ DECLARE insert_query TEXT; BEGIN SELECT 'INSERT INTO concept_scheme_histories (' || string_agg(column_name, ', ') || ') SELECT ' || string_agg('ocs.' || column_name, ', ') || ' FROM old_concept_schemes ocs RETURNING id;' INTO insert_query FROM information_schema.columns WHERE table_name = 'concept_scheme_histories' AND column_name != 'deleted_at'; EXECUTE insert_query; RETURN NULL; END; $$;
 
 
 --
@@ -270,7 +270,7 @@ CREATE FUNCTION public.delete_concept_schemes_trigger_function() RETURNS trigger
 
 CREATE FUNCTION public.delete_concepts_to_histories_trigger_function() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN INSERT INTO concept_histories SELECT * FROM old_concepts; RETURN NULL; END; $$;
+    AS $$ DECLARE insert_query TEXT; BEGIN SELECT 'INSERT INTO concept_histories (' || string_agg(column_name, ', ') || ') SELECT ' || string_agg('oc.' || column_name, ', ') || ' FROM old_concepts oc RETURNING id;' INTO insert_query FROM information_schema.columns WHERE table_name = 'concept_histories' AND column_name != 'deleted_at'; EXECUTE insert_query; RETURN NULL; END; $$;
 
 
 --
@@ -567,7 +567,7 @@ CREATE FUNCTION public.insert_concept_links_trees_trigger_function() RETURNS tri
 
 CREATE FUNCTION public.insert_concept_schemes_trigger_function() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN INSERT INTO concept_schemes( id, name, external_system_id, internal, visibility, change_behaviour, created_at, updated_at ) SELECT nctl.id, nctl.name, nctl.external_source_id, nctl.internal, nctl.visibility, nctl.change_behaviour, nctl.created_at, nctl.updated_at FROM new_classification_tree_labels nctl ON CONFLICT DO NOTHING; RETURN NULL; END; $$;
+    AS $$ BEGIN INSERT INTO concept_schemes( id, name, external_system_id, external_key, internal, visibility, change_behaviour, created_at, updated_at ) SELECT nctl.id, nctl.name, nctl.external_source_id, nctl.external_key, nctl.internal, nctl.visibility, nctl.change_behaviour, nctl.created_at, nctl.updated_at FROM new_classification_tree_labels nctl ON CONFLICT DO NOTHING; RETURN NULL; END; $$;
 
 
 --
@@ -733,7 +733,7 @@ CREATE FUNCTION public.update_concept_links_trees_trigger_function() RETURNS tri
 
 CREATE FUNCTION public.update_concept_schemes_trigger_function() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$ BEGIN UPDATE concept_schemes SET name = uctl.name, external_system_id = uctl.external_source_id, internal = uctl.internal, visibility = uctl.visibility, change_behaviour = uctl.change_behaviour, updated_at = uctl.updated_at FROM ( SELECT nctl.* FROM old_classification_tree_labels octl INNER JOIN new_classification_tree_labels nctl ON octl.id = nctl.id WHERE octl.name IS DISTINCT FROM nctl.name OR octl.external_source_id IS DISTINCT FROM nctl.external_source_id OR octl.internal IS DISTINCT FROM nctl.internal OR octl.visibility IS DISTINCT FROM nctl.visibility OR octl.change_behaviour IS DISTINCT FROM nctl.change_behaviour OR octl.updated_at IS DISTINCT FROM nctl.updated_at ) "uctl" WHERE uctl.id = concept_schemes.id; RETURN NULL; END; $$;
+    AS $$ BEGIN UPDATE concept_schemes SET name = uctl.name, external_system_id = uctl.external_source_id, external_key = uctl.external_key, internal = uctl.internal, visibility = uctl.visibility, change_behaviour = uctl.change_behaviour, updated_at = uctl.updated_at FROM ( SELECT nctl.* FROM old_classification_tree_labels octl INNER JOIN new_classification_tree_labels nctl ON octl.id = nctl.id WHERE octl.name IS DISTINCT FROM nctl.name OR octl.external_source_id IS DISTINCT FROM nctl.external_source_id OR octl.external_key IS DISTINCT FROM nctl.external_key OR octl.internal IS DISTINCT FROM nctl.internal OR octl.visibility IS DISTINCT FROM nctl.visibility OR octl.change_behaviour IS DISTINCT FROM nctl.change_behaviour OR octl.updated_at IS DISTINCT FROM nctl.updated_at ) "uctl" WHERE uctl.id = concept_schemes.id; RETURN NULL; END; $$;
 
 
 --
@@ -1049,7 +1049,8 @@ CREATE TABLE public.classification_tree_labels (
     internal boolean DEFAULT false NOT NULL,
     deleted_at timestamp without time zone,
     visibility character varying[] DEFAULT '{}'::character varying[],
-    change_behaviour character varying[] DEFAULT '{trigger_webhooks}'::character varying[]
+    change_behaviour character varying[] DEFAULT '{trigger_webhooks}'::character varying[],
+    external_key character varying
 );
 
 
@@ -1229,7 +1230,8 @@ CREATE TABLE public.concept_scheme_histories (
     change_behaviour character varying[] DEFAULT '{}'::character varying[] NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    deleted_at timestamp without time zone DEFAULT now() NOT NULL
+    deleted_at timestamp without time zone DEFAULT now() NOT NULL,
+    external_key character varying
 );
 
 
@@ -1245,7 +1247,8 @@ CREATE TABLE public.concept_schemes (
     visibility character varying[] DEFAULT '{}'::character varying[] NOT NULL,
     change_behaviour character varying[] DEFAULT '{}'::character varying[] NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
-    updated_at timestamp without time zone DEFAULT now() NOT NULL
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    external_key character varying
 );
 
 
@@ -3125,6 +3128,13 @@ CREATE INDEX index_concept_scheme_histories_on_name ON public.concept_scheme_his
 
 
 --
+-- Name: index_concept_schemes_on_external_system_id_and_external_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_concept_schemes_on_external_system_id_and_external_key ON public.concept_schemes USING btree (external_system_id, external_key);
+
+
+--
 -- Name: index_concept_schemes_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3241,6 +3251,13 @@ CREATE INDEX index_content_content_links_on_contents_a_b ON public.content_conte
 --
 
 CREATE INDEX index_content_contents_on_content_b_id ON public.content_contents USING btree (content_b_id);
+
+
+--
+-- Name: index_ctl_on_external_source_id_and_external_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_ctl_on_external_source_id_and_external_key ON public.classification_tree_labels USING btree (external_source_id, external_key) WHERE (deleted_at IS NULL);
 
 
 --
@@ -5004,6 +5021,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240415103014'),
 ('20240415124045'),
 ('20240423093936'),
-('20240424112003');
+('20240424112003'),
+('20240425095608'),
+('20240425100129');
 
 
