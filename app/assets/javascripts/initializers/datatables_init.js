@@ -62,6 +62,7 @@ class ActivityDetails extends ActivityList {
         { title: 'Page', data: 'request_page' },
         { title: 'Mode', data: 'request_mode' },
         { title: 'Id', data: 'request_id' },
+        { title: 'Referer', data: 'request_referer' },
         { title: 'Count', data: 'data_count' }
       ],
       order: [[10, 'desc']]

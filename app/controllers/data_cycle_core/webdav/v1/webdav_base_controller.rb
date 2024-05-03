@@ -25,7 +25,11 @@ module DataCycleCore
         end
 
         def log_activity
-          current_user.log_activity(type: "api_v#{@api_version}", data: permitted_params.to_h.merge(controller: params.dig('controller'), action: params.dig('action')))
+          current_user.log_activity(type: "api_v#{@api_version}", data: permitted_params.to_h.merge(
+            controller: params.dig('controller'),
+            action: params.dig('action'),
+            referer: request.referer
+          ))
         end
 
         private

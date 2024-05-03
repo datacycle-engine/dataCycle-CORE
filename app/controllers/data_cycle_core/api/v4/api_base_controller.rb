@@ -94,7 +94,12 @@ module DataCycleCore
         end
 
         def log_activity
-          current_user.log_activity(type: "api_v#{@api_version}", data: permitted_params.to_h.merge(controller: params.dig('controller'), action: params.dig('action'), format: request.format.to_sym))
+          current_user.log_activity(type: "api_v#{@api_version}", data: permitted_params.to_h.merge(
+            controller: params.dig('controller'),
+            action: params.dig('action'),
+            format: request.format.to_sym,
+            referer: request.referer
+          ))
         end
 
         def prepare_url_parameters
