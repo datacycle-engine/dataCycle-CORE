@@ -224,6 +224,7 @@
   :geo_filter:
     :geo_radius: false
     :geo_within_classification: false
+    :geo_type: false
   # :union_filter_ids: true
   # :relation_filter:
   #   :linked_image: image
