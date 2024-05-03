@@ -914,6 +914,12 @@ de:
     alternative_headline: Unterüberschrift
     geo_radius: Umkreis
     geo_within_classification: Lage
+    geo_type: Geometrietyp
+    geo_type_options:
+      any: Alle Geometrietypen
+      point: Punkt
+      line: Linie
+      polygon: Fläche
     event_location: Veranstaltungsort
     inactive_things: Abgelaufene Inhalte
     in_schedule: Termin

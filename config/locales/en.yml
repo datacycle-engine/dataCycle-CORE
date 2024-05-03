@@ -881,6 +881,12 @@ en:
     alternative_headline: Subtitle
     geo_radius: Perimeter
     geo_within_classification: Location
+    geo_type: Geometry type
+    geo_type_options:
+      any: Any geometry type
+      point: Point
+      line: Line
+      polygon: Area
     event_location: Venue
     inactive_things: Expired contents
     in_schedule: Date
