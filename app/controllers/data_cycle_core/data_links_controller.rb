@@ -10,7 +10,7 @@ module DataCycleCore
 
       raise CanCan::AccessDenied unless @data_link.try(:is_valid?)
 
-      sign_in(@data_link.receiver, store: !@data_link.downloadable?) if !signed_in? && @data_link.receiver.can?(:auto_login, @data_link)
+      sign_in(@data_link.receiver, store: !@data_link.downloadable?) if !signed_in? && @data_link.receiver&.can?(:auto_login, @data_link)
       @data_link.update_column(:seen_at, Time.zone.now)
 
       if @data_link.writable? && @data_link.item.is_a?(DataCycleCore::Thing)

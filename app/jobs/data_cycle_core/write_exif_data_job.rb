@@ -26,13 +26,13 @@ module DataCycleCore
     end
 
     def perform(content_id)
-      update_exif_values DataCycleCore::Thing.find(content_id)
+      update_exif_values DataCycleCore::Thing.find_by(id: content_id)
     end
 
     private
 
     def update_exif_values(thing)
-      asset = thing.asset
+      asset = thing&.asset
       return if asset.blank?
 
       asset_path = asset.file.service.path_for(asset.file.key)
@@ -73,6 +73,8 @@ module DataCycleCore
 
       exif_data.save
       update_variants(thing, updated_values)
+    rescue MiniExiftool::Error
+      nil
     end
 
     def update_variants(thing, updated_values)
