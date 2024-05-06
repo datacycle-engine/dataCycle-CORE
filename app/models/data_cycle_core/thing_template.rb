@@ -80,14 +80,23 @@ module DataCycleCore
       all.map(&:template_thing)
     end
 
-    def self.translated_property_labels(locale:, keys:)
+    def self.translated_property_labels(locale:, keys:, count: nil, specific: nil)
       return {} if keys.blank?
 
       DataCycleCore::ContentProperties.includes(:thing_template).where(property_name: keys).group_by(&:property_name)
       .to_h do |key, cps|
         [
           key,
-          cps.map { |cp| DataCycleCore::Thing.human_attribute_name(cp.property_name, { base: cp.thing_template.template_thing, locale:, definition: cp.property_definition, locale_string: false }) }.uniq.join(' / ')
+          cps.map { |cp|
+            DataCycleCore::Thing.human_attribute_name(cp.property_name, {
+              base: cp.thing_template.template_thing,
+              locale:,
+              definition: cp.property_definition,
+              locale_string: false,
+              count:,
+              specific:
+            })
+          }.uniq.join(' / ')
         ]
       end
     end

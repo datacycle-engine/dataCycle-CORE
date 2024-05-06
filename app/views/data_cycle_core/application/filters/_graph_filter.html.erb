@@ -1,6 +1,7 @@
 <%
   allowed_relations = (DataCycleCore::Feature::AdvancedFilter.graph_filter_relations(current_user) + [filter_advanced_type]).compact.uniq
-  thing_template_labels = DataCycleCore::ThingTemplate.translated_property_labels(keys: allowed_relations, locale: active_ui_locale).invert.sort.to_a.map { |(v, k)| [v, k, { data: { dc_tooltip: v } }] }
+  thing_template_labels = DataCycleCore::ThingTemplate.translated_property_labels(keys: allowed_relations, locale: active_ui_locale, count: filter_name == 'linked_items_in' ? 1 : 2, specific: filter_name).invert.sort.to_a.map { |(v, k)| [v, k, { data: { dc_tooltip: v } }] }
+  # specific keys: items_linked_to, linked_items_in
 %>
 
 <div data-id="<%= identifier %>" class="advanced-filter conditional-value-selector <%= filter_method ||= 'i' %>" data-label="<%= filter_name %>">
