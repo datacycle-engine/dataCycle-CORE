@@ -31,7 +31,9 @@ module DataCycleCore
     alias properties property_names
 
     def template_thing
-      DataCycleCore::Thing.new(thing_template: self)
+      tt = DataCycleCore::Thing.new(thing_template: self)
+      tt.readonly!
+      tt
     end
 
     def all_templates
