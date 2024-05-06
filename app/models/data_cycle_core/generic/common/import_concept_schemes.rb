@@ -35,15 +35,22 @@ module DataCycleCore
             return unless allowed_locales.include?(locale.to_s)
 
             I18n.with_locale(locale) do
-              external_key = extract_property(raw_data, options, 'id')
+              name = extract_property(raw_data, options, 'name')
+              external_key = extract_property(raw_data, options, 'id').presence || name
               external_key_prefix = options.dig(:import, :external_id_prefix)
 
-              return if external_key.blank?
+              return if external_key.blank? || name.blank?
+
+              exclude = options.dig(:import, :exclude_concept_schemes)
+              return if exclude.present? && exclude.include?(name)
+
+              concept_scheme_name_mapping = options.dig(:import, :concept_scheme_name_mapping)&.stringify_keys
+              name = concept_scheme_name_mapping&.dig(name) || name
 
               {
                 external_key: [external_key_prefix, external_key].compact_blank.join(' '),
                 external_source_id: utility_object.external_source&.id,
-                name: extract_property(raw_data, options, 'name'),
+                name:,
                 external_system_identifier: extract_property(raw_data, options, 'external_system_identifier'),
                 created_at: Time.zone.now,
                 updated_at: Time.zone.now
@@ -56,7 +63,7 @@ module DataCycleCore
             path.present? ? data.dig(*path.split('.')) : data[identifier]
           end
 
-          def external_system_identifiers_to_ids(data_array:, options:)
+          def external_system_identifiers_to_ids(data_array:, options:, utility_object:)
             external_system_identifiers = data_array.pluck(:external_system_identifier).compact.uniq
 
             if external_system_identifiers.present?
@@ -76,7 +83,17 @@ module DataCycleCore
               end
             end
 
-            data_array.map { |da| da.slice(*ALLOWED_CONCEPT_SCHEME_KEYS) }
+            concept_schemes_by_name = DataCycleCore::ConceptScheme.where(name: data_array.pluck(:name)).index_by(&:name)
+
+            data_array.map do |da|
+              existing = concept_schemes_by_name[da[:name]]
+              da[:name] = "#{utility_object.external_source.name} - #{da[:name]}" if existing.present? && existing.external_system_id != da[:external_source_id]
+
+              existing = concept_schemes_by_name[da[:name]]
+              raise "ConceptScheme (#{da[:name]}) already exists from another source!" if existing.present? && existing.external_system_id != da[:external_source_id]
+
+              da.slice(*ALLOWED_CONCEPT_SCHEME_KEYS)
+            end
           end
         end
 

@@ -26,9 +26,9 @@ module DataCycleCore
 
                       utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                         raw_data = iterator.call(mongo_item, locale, source_filter).to_a
-                        concept_scheme_data = raw_data.map { |rd| data_processor.call(raw_data: rd.dump[locale], utility_object:, locale:, options:) }
+                        concept_scheme_data = raw_data.map { |rd| data_processor.call(raw_data: rd.dump[locale], utility_object:, locale:, options:) }.compact.uniq
 
-                        concept_scheme_data = external_system_processor.call(data_array: concept_scheme_data, options:)
+                        concept_scheme_data = external_system_processor.call(data_array: concept_scheme_data, options:, utility_object:)
 
                         upserted = concept_scheme_data.present? ? DataCycleCore::ClassificationTreeLabel.upsert_all(concept_scheme_data, unique_by: :index_ctl_on_external_source_id_and_external_key, returning: :id) : []
 
@@ -37,6 +37,9 @@ module DataCycleCore
 
                         logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
                       end
+                    rescue StandardError => e
+                      logging.error("#{importer_name}(#{phase_name}) #{locale}", nil, nil, e.message)
+                      raise
                     ensure
                       logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count)
                     end
@@ -82,6 +85,9 @@ module DataCycleCore
 
                         logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
                       end
+                    rescue StandardError => e
+                      logging.error("#{importer_name}(#{phase_name}) #{locale}", nil, nil, e.message)
+                      raise
                     ensure
                       logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count)
                     end
