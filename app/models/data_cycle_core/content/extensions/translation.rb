@@ -29,7 +29,7 @@ module DataCycleCore
           def translated_attribute_name(key:, options: {}, **)
             return if key.blank?
 
-            new_options = options.except(:base, :definition, :ui_scope, :locale_string)
+            new_options = options.except(:base, :definition, :ui_scope, :locale_string).symbolize_keys
             ui_scope = options[:ui_scope].to_s
             template_name = options[:base]&.template_name
 
