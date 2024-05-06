@@ -121,7 +121,7 @@ header {
     line-height: 4.1rem;
     height: 4.1rem;
 
-    > li {
+    >li {
       height: 4.1rem;
 
       a,
@@ -671,6 +671,7 @@ ul.footer-links {
   flex: auto;
   max-width: 90vw;
   color: var(--white);
+  border-radius: var(--global-radius);
 
   .close-button,
   .close-button.medium {
@@ -734,6 +735,7 @@ ul.footer-links {
   0% {
     width: 100%;
   }
+
   100% {
     width: 0;
   }
@@ -744,6 +746,7 @@ ul.footer-links {
     transform: translateY(100%);
     opacity: 0;
   }
+
   100% {
     transform: translateY(0);
     opacity: 1;
@@ -755,6 +758,7 @@ ul.footer-links {
     transform: translateY(0);
     opacity: 1;
   }
+
   100% {
     transform: translateY(-100%);
     opacity: 0;
@@ -781,7 +785,7 @@ ul.footer-links {
 .dc-checkbox {
   position: relative;
 
-  > input {
+  >input {
     position: absolute;
     top: 0.4rem;
     opacity: 0;
@@ -790,7 +794,7 @@ ul.footer-links {
     z-index: -1;
   }
 
-  > label {
+  >label {
     display: inline-flex;
     align-items: center;
     justify-content: flex-start;
@@ -820,7 +824,7 @@ ul.footer-links {
     }
   }
 
-  > input:checked + label {
+  >input:checked+label {
     &::before {
       color: $white;
       background-color: $primary-color;
@@ -828,7 +832,7 @@ ul.footer-links {
     }
   }
 
-  > input[required] + label {
+  >input[required]+label {
     &::after {
       content: '*';
       display: inline-flex;
@@ -840,11 +844,11 @@ ul.footer-links {
     }
   }
 
-  > input:not(:disabled) + label:hover::before {
+  >input:not(:disabled)+label:hover::before {
     color: darken($medium-gray, 5%);
   }
 
-  > input:disabled + label {
+  >input:disabled+label {
     cursor: not-allowed;
 
     &::before {
@@ -853,7 +857,7 @@ ul.footer-links {
     }
   }
 
-  > input:checked:disabled + label::before {
+  >input:checked:disabled+label::before {
     color: $light-gray;
     background-color: $dark-gray;
     border-color: $dark-gray;
