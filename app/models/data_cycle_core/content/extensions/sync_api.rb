@@ -279,7 +279,10 @@ module DataCycleCore
                     })
                   } +
                   [
-                    ccc.classification_alias.classification_tree_label.as_json(only: [:id, :name]).merge({ 'class_type' => 'DataCycleCore::ClassificationTreeLabel' })
+                    ccc.classification_alias.classification_tree_label.as_json(only: [:id, :name]).merge({
+                      'class_type' => 'DataCycleCore::ClassificationTreeLabel',
+                      'external_system' => ccc.classification_alias.classification_tree_label&.external_source&.identifier
+                    })
                   ]
               }
             }&.compact&.index_by { |v| v[:classification].id } || {}
