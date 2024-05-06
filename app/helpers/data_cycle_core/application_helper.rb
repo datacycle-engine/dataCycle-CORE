@@ -513,33 +513,22 @@ module DataCycleCore
     end
 
     def alert_box(value, alert_class, closable)
-      options = { class: "flash flash-notification callout #{alert_class}" }
-      options[:data] = { closable: '' } if closable
+      options = { class: 'new-notification', data: {}, style: 'display: none;' }
+      options[:data][:closable] = '' if closable
+      options[:data][:type] = alert_class
+      options[:data][:id] = SecureRandom.hex(10)
 
-      tag.div(**options) do
-        if value.is_a?(::String)
-          concat value.html_safe
-        elsif value.is_a?(::Hash) || value.is_a?(ActiveModel::DeprecationHandlingMessageHash)
-          concat value.map { |k, v| tag.b(k.to_s.titleize + ': ') + v.join(', ') }.join('<br>').html_safe
-        elsif value.is_a?(::Array)
-          concat value.join('<br>').html_safe.to_s
-        else
-          concat value.to_s.html_safe
-        end
-
-        concat close_link if closable
+      if value.is_a?(::String)
+        options[:data][:text] = value
+      elsif value.is_a?(::Hash) || value.is_a?(ActiveModel::DeprecationHandlingMessageHash)
+        options[:data][:text] = value.map { |k, v| "#{k.to_s.titleize}: #{v.join(', ')}" }.join('<br>')
+      elsif value.is_a?(::Array)
+        options[:data][:text] = value.join('<br>')
+      else
+        options[:data][:text] = value.to_s
       end
-    end
 
-    def close_link
-      button_tag(
-        class: 'close-button',
-        type: 'button',
-        data: { close: '' },
-        aria: { label: 'Dismiss alert' }
-      ) do
-        tag.span('&times;'.html_safe, aria: { hidden: true })
-      end
+      tag.div(**options)
     end
 
     def yield_content!(content_key)
