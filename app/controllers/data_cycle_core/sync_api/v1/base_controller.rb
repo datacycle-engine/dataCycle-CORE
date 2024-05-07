@@ -55,7 +55,9 @@ module DataCycleCore
           current_user.log_activity(type: "sync_api_v#{@sync_api_version}", data: permitted_params.to_h.merge(
             controller: params.dig('controller'),
             action: params.dig('action'),
-            referer: request.referer
+            referer: request.referer,
+            origin: request.origin,
+            middlewareOrigin: request.headers['X-Dc-Middleware-Origin']
           ))
         end
 

@@ -98,7 +98,9 @@ module DataCycleCore
             controller: params.dig('controller'),
             action: params.dig('action'),
             format: request.format.to_sym,
-            referer: request.referer
+            referer: request.referer,
+            origin: request.origin,
+            middlewareOrigin: request.headers['X-Dc-Middleware-Origin']
           ))
         end
 
