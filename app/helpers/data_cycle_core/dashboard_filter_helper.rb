@@ -2,6 +2,11 @@
 
 module DataCycleCore
   module DashboardFilterHelper
+    RELATION_FILTER_ALLOWED_TYPES = {
+      'items_linked_to' => ['i', 'p', 's'],
+      'linked_items_in' => ['i', 'e', 'p', 'b', 's', 'u']
+    }.freeze
+
     RELATION_FILTER_TYPES = {
       'i' => 'contained_in',
       'e' => 'not_contained_in',
@@ -149,18 +154,36 @@ module DataCycleCore
       options_for_select(filter_options, filter_method)
     end
 
-    def filter_method_translation(key, path, optional_namespace = nil)
-      return t("#{path}.#{optional_namespace}.#{key}", locale: active_ui_locale) if I18n.exists?("#{path}.#{optional_namespace}.#{key}", locale: active_ui_locale)
-
-      t("#{path}.#{key}", locale: active_ui_locale)
-    end
-
     def advanced_graph_filter_options(filter_method, filter_type)
-      path = 'filter.graph_filter'
-
-      filter_options = RELATION_FILTER_TYPES.map { |k, v| [filter_method_translation(v, path, filter_type), k] }
+      filter_options = RELATION_FILTER_TYPES.slice(*RELATION_FILTER_ALLOWED_TYPES[filter_type]).map do |k, v|
+        [I18n.t("filter.graph_filter.#{filter_type}.#{v}", locale: active_ui_locale), k]
+      end
 
       options_for_select(filter_options, filter_method)
+    end
+
+    def advanced_graph_filter_advanced_type(identifier:, filter_name:, filter_advanced_type:)
+      allowed_relations = DataCycleCore::Feature::AdvancedFilter.graph_filter_relations
+      thing_template_labels = DataCycleCore::ThingTemplate.translated_property_labels(
+        attributes: allowed_relations,
+        locale: active_ui_locale,
+        count: filter_name == 'linked_items_in' ? 1 : 2,
+        specific: filter_name
+      ).invert.sort.to_a.map { |(v, k)| [v, k, { data: { dc_tooltip: v } }] }
+      # specific keys: items_linked_to, linked_items_in
+
+      select_tag(
+        "f[#{identifier}][q]",
+        options_for_select(thing_template_labels, filter_advanced_type),
+        {
+          multiple: false,
+          class: 'single-select',
+          data: {
+            max: 20,
+            allow_clear: false
+          }
+        }
+      )
     end
 
     def selected_filter_params(filter, config)

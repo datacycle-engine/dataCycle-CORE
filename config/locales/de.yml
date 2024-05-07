@@ -945,11 +945,11 @@ de:
         linked_items_in: Verknüpfte/r/s ... ist enthalten in ...
       items_linked_to:
         contained_in: von Inhalten aus
-        not_contained_in: von Inhalten nicht aus
-        exists: von Inhalten sind vorhanden
-        not_exists: von Inhalten sind nicht vorhanden
+        # not_contained_in: von Inhalten nicht aus
+        exists: die es gibt
+        # not_exists: von Inhalten sind nicht vorhanden
         equal: von
-        not_equal: nicht von
+        # not_equal: nicht von
       linked_items_in:
         contained_in: ist enthalten in
         not_contained_in: ist nicht enthalten in

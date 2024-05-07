@@ -333,7 +333,7 @@ class DashboardFilter {
 		const insertedElement = nextElement.previousElementSibling;
 		DomElementHelpers.slideDown(insertedElement).then(() => {
 			insertedElement
-				.querySelector("[data-initial-focus]")
+				.querySelector('[data-initial-focus]:not([data-initial-focus="false"])')
 				?.focus({ focusVisible: true });
 		});
 
@@ -399,7 +399,7 @@ class DashboardFilter {
 
 		$element
 			.get(0)
-			.querySelector("[data-initial-focus]")
+			.querySelector('[data-initial-focus]:not([data-initial-focus="false"])')
 			?.focus({ focusVisible: true });
 
 		setTimeout(() => {

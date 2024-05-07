@@ -86,9 +86,7 @@ module DataCycleCore
         def graph_filter(user, value)
           return [] unless value.is_a?(Hash)
 
-          allowed_relations_present = user.can?(:graph_filter_view_all_relations, :backend) ? DataCycleCore::ContentContent::Link.any? : value['allowed_relations'].present?
-
-          return [] unless allowed_relations_present
+          return [] unless DataCycleCore::ContentContent::Link.any?
 
           value.slice('items_linked_to', 'linked_items_in').map { |k, v|
             next unless v
@@ -295,12 +293,19 @@ module DataCycleCore
           configuration.dig(type, name, 'filter')
         end
 
-        def graph_filter_relations(user)
-          if user.can?(:graph_filter_view_all_relations, :backend)
-            DataCycleCore::ContentContent::Link.distinct.where.not(relation: nil).pluck(:relation)
-          else
-            Array.wrap(configuration.dig('graph_filter', 'allowed_relations'))
-          end
+        def graph_filter_relations(relations: nil)
+          query = DataCycleCore::ContentContent::Link
+            .includes(:content_a, :content_b)
+            .distinct.where.not(relation: nil)
+            .where.not(content_a: { content_type: 'embedded' })
+            .where.not(content_b: { content_type: 'embedded' })
+
+          query = query.where(relation: relations) if relations.present?
+
+          query
+            .pluck('content_content_links.relation, content_a.template_name')
+            .group_by(&:first)
+            .transform_values { |v| v.map(&:second).uniq }
         end
       end
     end

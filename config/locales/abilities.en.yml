@@ -159,7 +159,6 @@ en:
       bulk_edit: Edit in bulk
       bulk_delete: Delete in bulk
       download_user_info_activity: "Download user information and API activity"
-      graph_filter_view_all_relations: "No content restrictions while filtering based on linked itemse (graph filter)"
     restrictions:
       advanced_filter_except_type: "Filter not: %{except}"
       asset_by_user_and_no_content:

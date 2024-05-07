@@ -1,5 +1,6 @@
 <%
-  filter_type = DataCycleCore::ThingTemplate.translated_property_labels(keys: filter_advanced_type, locale: active_ui_locale, count: key == 'linked_items_in' ? 1 : 2, specific: key)&.dig(filter_advanced_type)
+  allowed_relations = DataCycleCore::Feature::AdvancedFilter.graph_filter_relations(relations: filter_advanced_type)
+  filter_type = DataCycleCore::ThingTemplate.translated_property_labels(attributes: allowed_relations, locale: active_ui_locale, count: key == 'linked_items_in' ? 1 : 2, specific: key)&.dig(filter_advanced_type)
   # specific keys: items_linked_to, linked_items_in
 %>
 
@@ -15,7 +16,7 @@
   </span>
 
   <span class="tag-group-label">
-    <% method_translation = filter_method_translation(DataCycleCore::DashboardFilterHelper::RELATION_FILTER_TYPES[filter_method], 'filter.graph_filter', key) %>
+    <% method_translation = t("filter.graph_filter.#{key}.#{DataCycleCore::DashboardFilterHelper::RELATION_FILTER_TYPES[filter_method]}", locale: active_ui_locale) %>
     <span data-dc-tooltip="<%= method_translation %>"><%= method_translation %></span>
   </span>
 

@@ -1,9 +1,3 @@
-<%
-  allowed_relations = (DataCycleCore::Feature::AdvancedFilter.graph_filter_relations(current_user) + [filter_advanced_type]).compact.uniq
-  thing_template_labels = DataCycleCore::ThingTemplate.translated_property_labels(keys: allowed_relations, locale: active_ui_locale, count: filter_name == 'linked_items_in' ? 1 : 2, specific: filter_name).invert.sort.to_a.map { |(v, k)| [v, k, { data: { dc_tooltip: v } }] }
-  # specific keys: items_linked_to, linked_items_in
-%>
-
 <div data-id="<%= identifier %>" class="advanced-filter conditional-value-selector <%= filter_method ||= 'i' %>" data-label="<%= filter_name %>">
   <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
   <%= hidden_field_tag "f[#{identifier}][t]", filter_type %>
@@ -14,20 +8,12 @@
     <span><%= t("filter.graph_filter.input_ui.#{filter_name}.prefix", default: filter_title, locale: active_ui_locale) %></span>
   </div>
 
-  <div class="additional-selector">
-    <%= select_tag(
-          "f[#{identifier}][q]",
-          options_for_select(thing_template_labels, filter_advanced_type),
-          {
-            multiple: false,
-            class: 'single-select',
-            data: {
-              initial_focus: true,
-              max: 20,
-              allow_clear: false
-            }
-          }
-        ) %>
+  <div class="additional-selector remote-render inverted" data-remote-render-function="advanced_graph_filter_advanced_type" data-remote-render-params="<%= to_query_params(
+    identifier: identifier,
+    filter_name: filter_name,
+    filter_advanced_type: filter_advanced_type
+  ).to_json %>">
+    <%= hidden_field_tag "f[#{identifier}][q]", filter_advanced_type %>
   </div>
 
   <%= tag.div(select_tag("f[#{identifier}][m]", advanced_graph_filter_options(filter_method, filter_name)), class: 'advanced-filter-mode') %>
@@ -43,6 +29,7 @@
           disabled: !filter_method.in?(['s', 'u']),
           data: {
             active_for: ['s', 'u'],
+            initial_focus: filter_method.in?(['s', 'u']),
             max: 20,
             placeholder: t('filter.graph_filter.placeholder.thing', locale: active_ui_locale),
             search_path: select_search_things_path,
@@ -68,6 +55,7 @@
           disabled: !filter_method.in?(['i', 'e']),
           data: {
             active_for: ['i', 'e'],
+            initial_focus: filter_method.in?(['i', 'e']),
             max: 20,
             placeholder: t('filter.graph_filter.placeholder.collection_or_stored_filter',
               collection: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale),

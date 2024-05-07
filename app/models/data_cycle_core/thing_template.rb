@@ -82,14 +82,18 @@ module DataCycleCore
       all.map(&:template_thing)
     end
 
-    def self.translated_property_labels(locale:, keys:, count: nil, specific: nil)
-      return {} if keys.blank?
+    def self.translated_property_labels(locale:, attributes:, count: nil, specific: nil)
+      return {} if attributes.blank?
+
+      keys = attributes.is_a?(::Hash) ? attributes.keys : attributes
 
       DataCycleCore::ContentProperties.includes(:thing_template).where(property_name: keys).group_by(&:property_name)
       .to_h do |key, cps|
         [
           key,
           cps.map { |cp|
+            next unless attributes.is_a?(::Array) || attributes[cp.property_name]&.include?(cp.template_name)
+
             DataCycleCore::Thing.human_attribute_name(cp.property_name, {
               base: cp.thing_template.template_thing,
               locale:,
@@ -98,7 +102,7 @@ module DataCycleCore
               count:,
               specific:
             })
-          }.uniq.join(' / ')
+          }.compact.uniq.join(' / ')
         ]
       end
     end

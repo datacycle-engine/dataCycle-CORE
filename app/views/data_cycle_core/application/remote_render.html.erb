@@ -1,5 +1,9 @@
 <% if @render_function.present? && respond_to?(@render_function) %>
-  <%= try(@render_function, **(@render_params || {}).deep_merge(parameters: @options)) %>
+  <%
+    render_options = (@render_params || {})
+    render_options = render_options.deep_merge(parameters: @options) if respond_to?(@render_function) && method(@render_function)&.parameters&.any? { |(p_type, p_name)| p_type == :keyrest || p_name == :parameters}
+  %>
+  <%= try(@render_function, **render_options) %>
 <% else %>
   <%= render(@partial, @options) %>
 <% end %>

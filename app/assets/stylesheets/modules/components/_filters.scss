@@ -395,6 +395,15 @@ $filter-border: #aaa;
         .advanced-filter-selector,
         .additional-selector {
           min-width: 10rem;
+
+          &.remote-render,
+          &.remote-rendering {
+
+            &::before,
+            &::after {
+              height: 100%;
+            }
+          }
         }
 
         .hidden {
