@@ -286,30 +286,6 @@
 #  :graph_filter:
 #    :items_linked_to: true
 #    :linked_items_in: true
-#    :allowed_relations: # Could be any relation from content_content_links, update of localization may be needed!
-#      - about
-#      - linked_thing
-#      - organizer
-#      - image
-#      - member_of
-#      - copyright_holder
-#      - content_location
-#      - overlay
-#      - sd_publisher
-#      - member
-#      - tour
-#      - dc_media_link
-#      - primary_image
-#      - linked_to
-#      - subject_of
-#      - additional_information
-#      - is_linked_to
-#      - contained_in_place
-#      - author
-#      - potential_action
-#      - aggregate_rating
-#      - waypoint
-#      - contains_place
 
 :sortable:
   :enabled: false
