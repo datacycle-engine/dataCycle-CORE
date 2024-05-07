@@ -683,6 +683,7 @@ module DataCycleCore
                             content.dump[l]['delete_reason'] ||= options.dig(:download, :delete_reason) if options.dig(:download, :delete_reason).present?
                           end
                         end
+                        content.keep_seen_at = true
                         content.save!
 
                         next unless (item_count % delta).zero?
