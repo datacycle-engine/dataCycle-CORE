@@ -1621,7 +1621,7 @@ $filter-border: #aaa;
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  min-width: 1rem;
+  min-width: fit-content;
   overflow: hidden;
 
   .fa {
