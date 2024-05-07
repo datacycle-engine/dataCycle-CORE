@@ -66,7 +66,7 @@ module DataCycleCore
             overlay_type = MasterData::Templates::Extensions::Overlay.overlay_attribute_type(key&.attribute_name_from_key)
 
             [
-              human_property_name(options&.dig(:definition, 'features', 'overlay', 'overlay_for'), options),
+              human_property_name(options&.dig(:definition, 'features', 'overlay', 'overlay_for'), options.except(:definition)),
               I18n.t("feature.overlay.label_postfix.#{overlay_type}", locale: options[:locale])
             ].join(' ')
           end
@@ -96,6 +96,7 @@ module DataCycleCore
               end
             end
 
+            options = options&.symbolize_keys || {}
             options[:definition] ||= options[:base].properties_for(attribute)
             options[:ui_scope] = options[:ui_scope].to_s
             options[:locale] ||= I18n.locale
