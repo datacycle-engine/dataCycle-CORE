@@ -5,6 +5,48 @@ class PrefillNewConceptTables < ActiveRecord::Migration[6.1]
 
   def up
     execute <<-SQL.squish
+      UPDATE classification_aliases
+      SET deleted_at = NOW()
+      WHERE classification_aliases.id IN (
+          SELECT ca.id
+          FROM classification_aliases ca
+            LEFT OUTER JOIN primary_classification_groups pcg ON pcg.classification_alias_id = ca.id
+            LEFT OUTER JOIN classifications c ON c.id = pcg.classification_id
+          WHERE ca.deleted_at IS NULL
+            AND (
+              c.deleted_at IS NOT NULL
+              OR pcg.deleted_at IS NOT NULL
+            )
+        );
+
+      UPDATE classifications
+      SET deleted_at = NOW()
+      WHERE classifications.id IN (
+          SELECT c.id
+          FROM classification_aliases ca
+            LEFT OUTER JOIN primary_classification_groups pcg ON pcg.classification_alias_id = ca.id
+            LEFT OUTER JOIN classifications c ON c.id = pcg.classification_id
+          WHERE c.deleted_at IS NULL
+            AND (
+              ca.deleted_at IS NOT NULL
+              OR pcg.deleted_at IS NOT NULL
+            )
+        );
+
+      UPDATE classification_groups
+      SET deleted_at = NOW()
+      WHERE classification_groups.id IN (
+          SELECT pcg.id
+          FROM classification_aliases ca
+            LEFT OUTER JOIN primary_classification_groups pcg ON pcg.classification_alias_id = ca.id
+            LEFT OUTER JOIN classifications c ON c.id = pcg.classification_id
+          WHERE pcg.deleted_at IS NULL
+            AND (
+              ca.deleted_at IS NOT NULL
+              OR c.deleted_at IS NOT NULL
+            )
+        );
+
       WITH new_classification_tree_labels AS (
         SELECT *
         FROM classification_tree_labels ctl
