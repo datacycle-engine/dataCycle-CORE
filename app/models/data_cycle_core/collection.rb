@@ -29,7 +29,7 @@ module DataCycleCore
       q = value.gsub(TS_QUERY_EXCEPTIONS, '').squish.split.map { |v| "#{v}:*" }.join(' & ')
 
       where("collections.search_vector @@ to_tsquery('simple', ?)", q)
-      .reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, [Arel.sql("ts_rank(collections.search_vector, to_tsquery('simple', ?), 1) DESC"), q]))
+      .reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, [Arel.sql("ts_rank_cd(collections.search_vector, to_tsquery('simple', ?), 1) DESC"), q]))
     }
 
     scope :by_id_or_slug, lambda { |value|
