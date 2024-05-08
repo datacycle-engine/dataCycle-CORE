@@ -27,34 +27,8 @@ namespace :data_cycle_core do
   namespace :db do
     desc 'Dumps the database to backups (mode = review|activities|full)'
     task :dump, [:backup_name, :format, :mode] => [:environment] do |_, args|
-      temp = Time.zone.now
-      dump_fmt = DbHelper.ensure_format(args[:format])
-      dump_sfx = DbHelper.suffix_for_format(dump_fmt)
-      backup_dir = DbHelper.backup_directory(Rails.env, create: true)
-      full_path  = nil
-      cmd        = nil
-
-      pgclusters = ''
-      pgclusters = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main " unless ENV.fetch('PGCLUSTER_DISABLED', false)
-
-      DbHelper.with_config do |host, port, db, user, password|
-        if args[:backup_name].nil?
-          full_path = "#{backup_dir}/#{Time.zone.now.strftime('%Y%m%d%H%M%S')}_#{db}.#{dump_sfx}"
-        else
-          full_path = "#{backup_dir}/#{args[:backup_name]}.#{dump_sfx}"
-        end
-
-        sh "rm -rf #{full_path}" if full_path.present?
-
-        excludes = DATABASE_DUMP_EXCLUDES[args.mode].map { |e| "--exclude-table-data='#{e}'" }.join(' ') if args.mode.present?
-        cmd = "#{pgclusters}pg_dump -F #{dump_fmt}#{' -j 4' if dump_fmt == 'd'} -v -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' #{excludes}".squish
-      end
-
-      sh cmd
-      puts ''
-      puts "Dumped to file: #{full_path}"
-      puts "Duration: #{TimeHelper.format_time(Time.zone.now - temp, 0, 6, 's')}"
-      puts ''
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:dump"].invoke(*args)
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:dump"].reenable
     end
 
     namespace :dump do
@@ -118,71 +92,14 @@ namespace :data_cycle_core do
 
     desc 'Restores the database from a backup using PATTERN'
     task :restore, [:pattern] => [:environment] do |_, args|
-      temp = Time.zone.now
-      pattern = args[:pattern]
-      pgclusters = ''
-      pgclusters = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main " unless ENV.fetch('PGCLUSTER_DISABLED', false)
-
-      if pattern.present?
-        file = nil
-        cmd  = nil
-
-        DbHelper.with_config do |host, port, db, user, password|
-          backup_dir = DbHelper.backup_directory
-          files      = Dir.glob("#{backup_dir}/**/*#{pattern}*")
-
-          case files.size
-          when 0
-            puts "No backups found for the pattern '#{pattern}'"
-          when 1
-            file = files.first
-            fmt = DbHelper.format_for_file file
-            case fmt
-            when nil
-              puts "No recognized dump file suffix: #{file}"
-            when 'p'
-              cmd = "psql --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{file}'"
-            else
-              cmd = "#{pgclusters}pg_restore -F #{fmt}#{' -j 4' if fmt == 'd'} -O -v --disable-triggers --superuser=#{user} --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' '#{file}'"
-            end
-          else
-            puts "Too many files match the pattern '#{pattern}':"
-            puts ' ' + files.join("\n ")
-            puts ''
-            puts 'Try a more specific pattern'
-            puts ''
-          end
-        end
-        unless cmd.nil?
-          ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
-          Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:clear_connections"].invoke
-          Rake::Task['db:drop'].invoke
-          Rake::Task['db:create'].invoke
-          puts cmd
-          system cmd
-          ActiveRecord::Base.connection.execute('VACUUM;')
-          ActiveRecord::Base.connection.execute('ANALYZE;')
-          puts ''
-          puts "Restored from file: #{file}"
-          puts "Duration: #{TimeHelper.format_time(Time.zone.now - temp, 0, 6, 's')}"
-          puts ''
-        end
-      else
-        puts 'Please specify a file pattern for the backup to restore (e.g. timestamp)'
-      end
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:restore"].invoke(*args)
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:restore"].reenable
     end
 
     desc 'remove all active database connections'
     task clear_connections: :environment do
-      environments = [Rails.env]
-      environments.unshift('test') if Rails.env.development?
-
-      ActiveRecord::Base.configurations.to_h.slice(*environments).each_value do |db|
-        ActiveRecord::Base.establish_connection(db)
-        ActiveRecord::Base.connection.select_all "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE datname='#{db['database']}' AND pid <> pg_backend_pid();"
-      rescue ActiveRecord::NoDatabaseError => e
-        puts e.try(:message)
-      end
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:clear_connections"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:clear_connections"].reenable
     end
 
     desc 'reset database, import templates, classifications, external_sources'
