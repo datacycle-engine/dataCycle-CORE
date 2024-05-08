@@ -35,18 +35,18 @@ module DataCycleCore
             return unless allowed_locales.include?(locale.to_s)
 
             I18n.with_locale(locale) do
-              external_key = extract_property(raw_data, options, 'id')
-              external_key_prefix = options.dig(:import, :external_id_prefix)
+              external_id = extract_property(raw_data, options, 'id')
+              external_id_prefix = options.dig(:import, :external_id_prefix)
               concept_scheme_external_id_prefix = options.dig(:import, :concept_scheme_external_id_prefix)
 
-              return if external_key.blank?
+              return if external_id.blank?
 
               {
-                external_key: [external_key_prefix, external_key].compact_blank.join(' '),
+                external_key: [external_id_prefix, external_id].compact_blank.join(' '),
                 external_source_id: utility_object.external_source.id,
                 name: extract_property(raw_data, options, 'name'),
                 parent_external_key: [
-                  external_key_prefix,
+                  external_id_prefix,
                   extract_property(raw_data, options, 'parent_id')
                 ].compact_blank.join(' ').presence,
                 external_system_identifier: extract_property(raw_data, options, 'external_system_identifier'),
@@ -94,9 +94,20 @@ module DataCycleCore
             concept_schemes = concept_schemes_by_key.to_h.merge(concept_schemes_by_name.to_h)
 
             data_array
-              .group_by { |da| da[:concept_scheme_external_key].presence || da[:concept_scheme_name] }
-              .transform_keys { |k| concept_schemes[k] }
-              .transform_values { |v| v.map { |da| da.slice(*ALLOWED_CONCEPT_KEYS) } }
+            .group_by { |da| da[:concept_scheme_external_key].presence || da[:concept_scheme_name] }
+            .to_h { |k, v|
+              new_k = concept_schemes[k]
+              next [nil, nil] if new_k.blank? # reject if concept scheme is missing
+
+              [
+                new_k,
+                v.map { |da|
+                  next if new_k.external_system_id != da[:external_source_id]
+                  da.slice(*ALLOWED_CONCEPT_KEYS)
+                }.compact.presence
+              ]
+            }
+            .compact_blank
           end
 
           def external_system_identifiers_to_ids(data_array:, options:)

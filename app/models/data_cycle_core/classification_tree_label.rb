@@ -169,7 +169,8 @@ module DataCycleCore
           FROM data
           JOIN classification_aliases
             ON data.external_system_id = classification_aliases.external_source_id AND
-              data.parent_external_key = classification_aliases.external_key
+              data.parent_external_key = classification_aliases.external_key AND
+              classification_aliases.deleted_at IS NULL
           UNION
           SELECT inserted_ca.id, inserted_ca.external_source_id, inserted_ca.external_key
           FROM data

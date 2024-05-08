@@ -36,22 +36,25 @@ module DataCycleCore
 
             I18n.with_locale(locale) do
               name = extract_property(raw_data, options, 'name')
-              external_key = extract_property(raw_data, options, 'id').presence || name
-              external_key_prefix = options.dig(:import, :external_id_prefix)
+              external_id = extract_property(raw_data, options, 'id').presence || name
+              external_id_prefix = options.dig(:import, :external_id_prefix)
 
-              return if external_key.blank? || name.blank?
+              return if external_id.blank? || name.blank?
 
               exclude = options.dig(:import, :exclude_concept_schemes)
               return if exclude.present? && exclude.include?(name)
 
               concept_scheme_name_mapping = options.dig(:import, :concept_scheme_name_mapping)&.stringify_keys
               name = concept_scheme_name_mapping&.dig(name) || name
+              external_system_identifier = extract_property(raw_data, options, 'external_system_identifier')
+              external_key = extract_property(raw_data, options, 'external_key') if external_system_identifier.present?
+              external_key = [external_id_prefix, external_id].compact_blank.join(' ') if external_key.blank?
 
               {
-                external_key: [external_key_prefix, external_key].compact_blank.join(' '),
+                external_key:,
                 external_source_id: utility_object.external_source&.id,
                 name:,
-                external_system_identifier: extract_property(raw_data, options, 'external_system_identifier'),
+                external_system_identifier:,
                 created_at: Time.zone.now,
                 updated_at: Time.zone.now
               }.compact
@@ -87,7 +90,11 @@ module DataCycleCore
 
             data_array.map do |da|
               existing = concept_schemes_by_name[da[:name]]
-              da[:name] = "#{utility_object.external_source.name} - #{da[:name]}" if existing.present? && existing.external_system_id != da[:external_source_id]
+              if existing.present? && existing.external_system_id != da[:external_source_id]
+                da[:name] = "#{utility_object.external_source.name} - #{da[:name]}"
+              elsif existing.present? && existing.external_system_id == da[:external_source_id]
+                da[:external_key] = existing.external_key
+              end
 
               existing = concept_schemes_by_name[da[:name]]
               raise "ConceptScheme (#{da[:name]}) already exists from another source!" if existing.present? && existing.external_system_id != da[:external_source_id]
