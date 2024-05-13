@@ -14,7 +14,7 @@ module DataCycleCore
         'column' => 'column',
         'classification' => 'classification'
       }.freeze
-      WEBHOOK_ACCESSORS = [:webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks].freeze
+      WEBHOOK_ACCESSORS = [:webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks, :allowed_webhooks].freeze
       PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic', 'slug'].freeze
       LINKED_PROPERTY_TYPES = ['linked'].freeze
       EMBEDDED_PROPERTY_TYPES = ['embedded'].freeze

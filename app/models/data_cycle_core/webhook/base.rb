@@ -25,7 +25,9 @@ module DataCycleCore
       end
 
       def self.available_system_names(data)
-        Array.wrap(DataCycleCore.webhooks) - Array.wrap(data.try(:webhook_source)) - Array.wrap(data.try(:prevent_webhooks))
+        allowed_webhooks = Array.wrap(DataCycleCore.webhooks) - Array.wrap(data.try(:webhook_source)) - Array.wrap(data.try(:prevent_webhooks))
+        allowed_webhooks = allowed_webhooks.intersection(Array.wrap(data.try(:allowed_webhooks))) if data.try(:allowed_webhooks).present?
+        allowed_webhooks
       end
 
       def self.get_webhooks_for(action, data)
