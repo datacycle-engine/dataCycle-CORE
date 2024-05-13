@@ -19,7 +19,7 @@ module DataCycleCore
         def parsed_data_uri
           return if data_url.blank?
 
-          uri = URI.parse(data_url)
+          uri = Addressable::URI.parse(data_url)
           uri.hostname = 'nginx' if Rails.env.development? && uri.hostname == Rails.configuration.action_mailer&.default_url_options&.dig(:host)
           uri
         rescue URI::InvalidURIError

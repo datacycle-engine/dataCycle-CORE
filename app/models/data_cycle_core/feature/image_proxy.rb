@@ -105,7 +105,7 @@ module DataCycleCore
           key = [Rails.application.secrets.imgproxy_key].pack('H*')
           salt = [Rails.application.secrets.imgproxy_salt].pack('H*')
 
-          application_url = URI.parse(Rails.application.config.asset_host)
+          application_url = Addressable::URI.parse(Rails.application.config.asset_host)
 
           url = [
             application_url.to_s,

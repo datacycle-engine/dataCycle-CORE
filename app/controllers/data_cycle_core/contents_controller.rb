@@ -135,7 +135,7 @@ module DataCycleCore
 
       raise ActiveRecord::RecordNotFound if rendered_attribute.blank?
 
-      uri = URI.parse(rendered_attribute)
+      uri = Addressable::URI.parse(rendered_attribute)
       # used for local development and docker env.
       redirect_to(uri.to_s, allow_other_host: true)
     end
@@ -705,7 +705,7 @@ module DataCycleCore
     def set_return_to
       return if session[:return_to].present?
 
-      referer_url = URI.parse(request.referer.to_s)
+      referer_url = Addressable::URI.parse(request.referer.to_s)
 
       return if referer_url.host != request.host
 

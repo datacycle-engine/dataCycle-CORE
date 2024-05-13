@@ -220,7 +220,7 @@ module DataCycleCore
         request.format.html? &&
         params.slice(:stored_filter, :f, :reset).blank? &&
         session[:return_to].present? &&
-        request.path == URI.parse(session[:return_to].to_s).path
+        request.path == Addressable::URI.parse(session[:return_to].to_s).path
     end
 
     def load_previous_page
