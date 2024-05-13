@@ -1,6 +1,6 @@
 <%= form_with model: content, local: true, html: { class: 'edit-content-form validation-form' } do |f| %>
   <%= hidden_field_tag 'uuid', content.id %>
-  <%= hidden_field_tag :table, content.class.table_name %>
+  <%= hidden_field_tag :table, content.class.model_name.route_key %>
 
   <section class="edit-header">
     <div class="row expanded">
@@ -49,47 +49,59 @@
           <%= f.text_field :full_path, data: { validate: 'text' } %>
         </div>
 
-        <% if !content.my_selection %>
-          <div class="form-element check_box manual_order dc-checkbox" data-key="watch_list[manual_order]">
-            <%= f.check_box :manual_order %>
-            <%= f.label :manual_order, DataCycleCore::WatchList.human_attribute_name(:manual_order, locale: active_ui_locale) %>
+        <% if can?(:update_description, content) %>
+          <div class="form-element input description" data-key="watch_list[description]">
+            <div class="editor-block">
+              <%= f.label :description %>
+              <% description_id = [f.options[:namespace], f.object_name, 'description'].compact.join('_') %>
+              <%= f.hidden_field :description %>
+
+              <div class="quill-editor" data-hidden-field-id="<%= description_id %>" data-size="none" data-default-value="<%= content&.description %>">
+                <%= content&.description&.html_safe %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <% unless content.my_selection %>
+          <div class="form-element input slug" data-key="watch_list[slug]">
+            <%= f.label :slug do %>
+              <%= DataCycleCore::WatchList.human_attribute_name(:slug, locale: active_ui_locale) %>
+            <% end %>
+
+            <%= f.text_field :slug %>
           </div>
         <% end %>
 
         <% if can? :change_owner, content %>
-          <div class="form-element">
+          <div class="form-element owner">
             <div class="v-select">
               <%= f.label :user_id, DataCycleCore::WatchList.human_attribute_name(:user_id, locale: active_ui_locale) %>
-              <%= hidden_field_tag 'watch_list[user_id]', nil, id: 'hidden_watch_list_user_id' %>
-              <%= select_tag('watch_list[user_id]', options_for_select(DataCycleCore::User.includes(:role, :user_groups).order(email: :asc).filter { |u| u.can?(:create, DataCycleCore::WatchList) }.map { |c| [c.full_name, c.id, { title: c.email }] }, content.user&.id), { class: 'single-select', data: { allow_clear: false } }) %>
-            </div>
-          </div>
-        <% end %>
-
-        <% if can?(:create_api, content) %>
-          <div class="form-element check_box api dc-checkbox" data-key="watch_list[api]">
-            <%= f.check_box :api %>
-            <%= f.label :api, DataCycleCore::WatchList.human_attribute_name(:api, locale: active_ui_locale) %>
-          </div>
-        <% end %>
-
-        <% if can? :share, content %>
-          <div class="form-element">
-            <div class="v-select">
-              <%= f.label :user_group_ids, DataCycleCore::WatchList.human_attribute_name(:user_group_ids, locale: active_ui_locale) %>
-              <%= f.collection_select(:user_group_ids, DataCycleCore::UserGroup.all, :id, :name, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
-            </div>
-          </div>
-        <% end %>
-
-        <% if can? :share, content %>
-          <div class="form-element">
-            <div class="v-select">
-              <%= f.label :user_ids, DataCycleCore::WatchList.human_attribute_name(:user_ids, locale: active_ui_locale) %>
-              <%= hidden_field_tag 'watch_list[user_ids][]', nil, id: 'hidden_watch_list_user_ids' %>
               <%= f.select(
-                  :user_ids,
-                  content.users.map { |u| u.to_select_option(active_ui_locale) }.map(&:to_option_for_select),
+                  :user_id,
+                  Array.wrap(content.user).map { |u| u.to_select_option(active_ui_locale) }.map(&:to_option_for_select),
+                  {},
+                  {
+                    class: 'async-select',
+                    data: {
+                      allow_clear: false,
+                      max: 20,
+                      placeholder: '',
+                      search_path: search_users_path
+                    }
+                  }
+                ) %>
+            </div>
+          </div>
+        <% end %>
+
+        <% if can?(:share, content) %>
+          <div class="form-element shared_users">
+            <div class="v-select">
+              <%= f.label :shared_user_ids, DataCycleCore::WatchList.human_attribute_name(:shared_users, locale: active_ui_locale) %>
+              <%= f.select(
+                  :shared_user_ids,
+                  content.shared_users.to_select_options(active_ui_locale).map(&:to_option_for_select),
                   {
                     include_blank: true
                   },
@@ -99,8 +111,47 @@
                     data: {
                       max: 20,
                       placeholder: '',
-                      search_path: search_users_path,
-                      close_on_select: false
+                      search_path: search_users_path
+                    }
+                  }
+                ) %>
+            </div>
+          </div>
+
+          <div class="form-element shared_user_groups">
+            <div class="v-select">
+              <%= f.label :shared_user_group_ids, DataCycleCore::WatchList.human_attribute_name(:shared_user_groups, locale: active_ui_locale) %>
+              <%= f.select(
+                  :shared_user_group_ids,
+                  DataCycleCore::UserGroup.all.order(name: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
+                  {
+                    include_blank: true
+                  },
+                  {
+                    multiple: true,
+                    class: 'multi-select',
+                    data: {
+                      placeholder: ''
+                    }
+                  }
+                ) %>
+            </div>
+          </div>
+
+          <div class="form-element shared_roles">
+            <div class="v-select">
+              <%= f.label :shared_role_ids, DataCycleCore::WatchList.human_attribute_name(:shared_roles, locale: active_ui_locale) %>
+              <%= f.select(
+                  :shared_role_ids,
+                  DataCycleCore::Role.all.order(rank: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
+                  {
+                    include_blank: true
+                  },
+                  {
+                    multiple: true,
+                    class: 'multi-select',
+                    data: {
+                      placeholder: ''
                     }
                   }
                 ) %>
@@ -108,15 +159,62 @@
           </div>
         <% end %>
 
-        <%= f.fields_for :collection_configuration, content.collection_configuration || DataCycleCore::CollectionConfiguration.new do |cc_form| %>
-          <div class="form-element input slug" data-key="watch_list[collection_configuration][slug]">
-            <%= cc_form.label :slug do %>
-              <%= DataCycleCore::CollectionConfiguration.human_attribute_name(:slug, locale: active_ui_locale) %>
-            <% end %>
-
-            <%= cc_form.text_field :slug %>
+        <% if can?(:create_api, content) %>
+          <div class="form-element check_box api dc-checkbox" data-key="watch_list[api]">
+            <%= f.check_box :api %>
+            <%= f.label :api, DataCycleCore::WatchList.human_attribute_name(:api, locale: active_ui_locale) %>
           </div>
-        <% end unless content.my_selection %>
+
+          <% if can?(:share, content) %>
+            <div class="form-element linked_stored_filter">
+              <div class="v-select">
+                <%= f.label :linked_stored_filter_id, DataCycleCore::StoredFilter.human_attribute_name(:linked_stored_filter, locale: active_ui_locale) %>
+                <%= f.select(
+                    :linked_stored_filter_id,
+                    [content.linked_stored_filter&.to_select_option&.to_option_for_select].compact,
+                    {
+                      include_blank: true
+                    },
+                    {
+                      class: 'async-select',
+                      data: {
+                        max: 20,
+                        placeholder: '',
+                        search_path: search_stored_filters_path
+                      }
+                    }
+                  ) %>
+              </div>
+            </div>
+
+            <div class="form-element classification_tree_labels">
+              <div class="v-select">
+                <%= f.label :classification_tree_labels, DataCycleCore::StoredFilter.human_attribute_name(:concept_schemes, locale: active_ui_locale) %>
+                <%= f.select(
+                  :classification_tree_labels,
+                  DataCycleCore::ClassificationTreeLabel.all.order(name: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
+                  {
+                    include_blank: true
+                  },
+                  {
+                    multiple: true,
+                    class: 'multi-select',
+                    data: {
+                      placeholder: ''
+                    }
+                  }
+                ) %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+
+        <% unless content.my_selection %>
+          <div class="form-element check_box manual_order dc-checkbox" data-key="watch_list[manual_order]">
+            <%= f.check_box :manual_order %>
+            <%= f.label :manual_order, DataCycleCore::WatchList.human_attribute_name(:manual_order, locale: active_ui_locale) %>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>

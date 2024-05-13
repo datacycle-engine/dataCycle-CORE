@@ -1,3 +1,3 @@
 <%= render partial: 'data_cycle_core/stored_filters/search_favorites_short_item',
-        collection: stored_searches.reorder(updated_at: :desc).first(9),
+        collection: stored_searches.first(9),
         as: :stored_filter %>

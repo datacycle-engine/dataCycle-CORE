@@ -83,6 +83,22 @@ module DataCycleCore
           }.compact
         end
 
+        def graph_filter(user, value)
+          return [] unless value.is_a?(Hash)
+
+          return [] unless DataCycleCore::ContentContent::Link.any?
+
+          value.slice('items_linked_to', 'linked_items_in').map { |k, v|
+            next unless v
+
+            [
+              I18n.t("filter.graph_filter.dropdown_text.#{k.underscore_blanks}", default: k.capitalize, locale: user.ui_locale),
+              'graph_filter',
+              data: { name: k }
+            ]
+          }.compact
+        end
+
         def union_filter_ids(user, value)
           return [] unless value
 
@@ -270,6 +286,26 @@ module DataCycleCore
           return unless configuration.dig(type, name).is_a?(::Hash)
 
           configuration.dig(type, name, 'filter')
+        end
+
+        def graph_filter_restrictions(type, name)
+          return unless configuration.dig(type, name).is_a?(::Hash)
+          configuration.dig(type, name, 'filter')
+        end
+
+        def graph_filter_relations(relations: nil)
+          query = DataCycleCore::ContentContent::Link
+            .includes(:content_a, :content_b)
+            .distinct.where.not(relation: nil)
+            .where.not(content_a: { content_type: 'embedded' })
+            .where.not(content_b: { content_type: 'embedded' })
+
+          query = query.where(relation: relations) if relations.present?
+
+          query
+            .pluck('content_content_links.relation, content_a.template_name')
+            .group_by(&:first)
+            .transform_values { |v| v.map(&:second).uniq }
         end
       end
     end

@@ -43,62 +43,78 @@
   </div>
 
   <div class="grid-external-modules">
-    <div class="grid-parent-few">
+    <div class="grid-parent">
       <%= render 'pg_total_stats' %>
       <%= render 'job_queue_stats' %>
     </div>
   </div>
 
-  <div class="row">
-    <div class="small-12 columns">
-      <h4>
-        <i class='fa fa-arrow-circle-o-down' aria-hidden='true'></i> import modules
-        <% if can?(:create, DataCycleCore::ExternalSystem) && DataCycleCore.external_system_template_paths.present? %>
-          <% random_id = SecureRandom.hex(10) %>
-          <a href="#" class="button small add-external_system-button" data-open="<%= random_id %>"><i class="fa fa-plus"></i></a>
-          <div class="reveal new-item remote-render" id="<%= random_id %>" data-reveal data-remote-path="data_cycle_core/external_systems/new"></div>
-        <% end %>
-      </h4>
+  <% if @grouped_external_systems&.dig(:import).present? || @grouped_external_systems&.dig(:webhook).present? || (can?(:create, DataCycleCore::ExternalSystem) && DataCycleCore.external_system_template_paths.present?) %>
+    <div class="row">
+      <div class="small-12 columns">
+        <h4>
+          <i class='fa fa-arrow-circle-o-down' aria-hidden='true'></i> import modules
+          <% if can?(:create, DataCycleCore::ExternalSystem) && DataCycleCore.external_system_template_paths.present? %>
+            <% random_id = SecureRandom.hex(10) %>
+            <a href="#" class="add-external_system-button" data-open="<%= random_id %>"><i class="fa fa-plus"></i></a>
+            <div class="reveal new-item remote-render" id="<%= random_id %>" data-reveal data-remote-path="data_cycle_core/external_systems/new"></div>
+          <% end %>
+        </h4>
+      </div>
     </div>
-  </div>
 
-  <div class="grid-external-modules">
-    <% grid_class = @stat_database.import_modules.size < 3 ? 'grid-parent-few' : 'grid-parent' %>
-    <div class="<%= grid_class %>">
-      <% @stat_database.import_modules.sort_by { |i| i[:name].downcase }.each do |import_modules| %>
-        <%= render 'import_modules', locals: { import_data: import_modules } %>
-      <% end %>
+    <div class="grid-external-modules">
+      <div class="grid-parent">
+        <%= render partial: 'import_modules', collection: @grouped_external_systems&.dig(:import), as: :import_data %>
+      </div>
     </div>
-  </div>
+  <% end %>
 
-  <div class="row">
-    <div class="small-12 columns">
-      <h4>
-        <i class='fa fa-arrow-circle-o-up' aria-hidden='true'></i> export modules
-      </h4>
+  <% if @grouped_external_systems&.dig(:export).present? %>
+    <div class="row">
+      <div class="small-12 columns">
+        <h4>
+          <i class='fa fa-arrow-circle-o-up' aria-hidden='true'></i> export modules
+        </h4>
+      </div>
     </div>
-  </div>
-  <div class="grid-external-modules">
-    <% external_systems = DataCycleCore::ExternalSystem.all %>
-    <% grid_class = external_systems.where("config -> 'export_config' IS NOT NULL").size < 3 ? 'grid-parent-few' : 'grid-parent' %>
-    <div class="<%=grid_class%>">
-      <%= render partial: 'export_modules', collection: external_systems.where("config -> 'export_config' IS NOT NULL").order(:name), as: 'external_system' %>
-    </div>
-  </div>
 
-  <div class="row">
-    <div class="small-12 columns">
-      <h4>
-        <i class='fa fa-arrow-circle-o-up' aria-hidden='true'></i> sync foreign modules
-      </h4>
+    <div class="grid-external-modules">
+      <div class="grid-parent">
+        <%= render partial: 'export_modules', collection: @grouped_external_systems&.dig(:export), as: :external_system %>
+      </div>
     </div>
-  </div>
-  <div class="grid-external-modules">
-    <% external_systems = DataCycleCore::ExternalSystem.all %>
-    <% grid_class = external_systems.where("credentials IS NULL").size < 3 ? 'grid-parent-few' : 'grid-parent' %>
-    <div class="<%=grid_class%>">
-      <%= render partial: 'export_modules', collection: external_systems.where("credentials IS NULL").order(:name), as: 'external_system' %>
-    </div>
-  </div>
+  <% end %>
 
+  <% if @grouped_external_systems&.dig(:service).present? %>
+    <div class="row">
+      <div class="small-12 columns">
+        <h4>
+          <i class='fa fa-wrench' aria-hidden='true'></i> service modules
+        </h4>
+      </div>
+    </div>
+
+    <div class="grid-external-modules">
+      <div class="grid-parent">
+        <%= render partial: 'export_modules', collection: @grouped_external_systems&.dig(:service), as: :external_system %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @grouped_external_systems&.dig(:foreign).present? %>
+    <div class="row">
+      <div class="small-12 columns">
+        <h4>
+          <i class='fa fa-refresh' aria-hidden='true'></i> foreign modules
+        </h4>
+      </div>
+    </div>
+
+    <div class="grid-external-modules">
+      <div class="grid-parent">
+        <%= render partial: 'export_modules', collection: @grouped_external_systems&.dig(:foreign), as: :external_system %>
+      </div>
+    </div>
+  <% end %>
 </section>

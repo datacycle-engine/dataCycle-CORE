@@ -24,6 +24,7 @@ module DataCycleCore
         @cluster_lines = cluster_lines
         @cluster_items = cluster_items
         @cluster_radius = 500_000 / (1.7**@z.to_f)
+        @include_linked = @include_parameters.any?(['linked'])
       end
 
       def render
@@ -36,20 +37,22 @@ module DataCycleCore
         end
       end
 
-      def contents_with_default_scope
-        query = super
+      def contents_with_default_scope(query = @contents)
+        query = super(query)
 
         query = query.where(
-          ActiveRecord::Base.send(:sanitize_sql_array, ["ST_Intersects(geom_simple, ST_Transform(ST_TileEnvelope(#{@z}, #{@x}, #{@y}), 4326))"])
+          ActiveRecord::Base.send(:sanitize_sql_array, ["ST_Intersects(things.geom_simple, ST_Transform(ST_TileEnvelope(#{@z}, #{@x}, #{@y}), 4326))"])
         )
+
+        query = query.select('ST_GeometryType(MAX(things.geom_simple)) AS geometry_type').reorder(id: :desc) if @cluster
 
         query
       end
 
       def content_select_sql
         [
-          'DISTINCT ON (things.id) things.id AS id',
-          "ST_Transform(ST_Simplify (things.geom_simple, #{@simplify_factor}, TRUE), 3857) AS geometry"
+          'things.id AS id',
+          "ST_Transform(ST_Simplify (MAX(things.geom_simple), #{@simplify_factor}, TRUE), 3857) AS geometry"
         ]
           .concat(include_config.map { |c| "#{c[:select]} AS #{c[:identifier]}" })
           .join(', ').squish
@@ -59,17 +62,44 @@ module DataCycleCore
         @cluster ? mvt_clustered_sql : mvt_unclustered_sql
       end
 
+      def base_contents_subquery
+        unless @include_linked
+          return <<-SQL.squish
+            WITH contents AS (
+              #{contents_with_default_scope.to_sql}
+            )
+          SQL
+        end
+
+        additional_things_query = DataCycleCore::Thing.default_scoped.from('base_things')
+          .joins('INNER JOIN content_contents cc ON cc.content_a_id = base_things.id INNER JOIN things ON things.id = cc.content_b_id')
+          .where.not(content_type: 'embedded')
+
+        <<-SQL.squish
+          WITH base_things AS (#{@contents.reorder(nil).reselect('things.*').to_sql}),
+          selected_things AS (
+            #{contents_with_default_scope(DataCycleCore::Thing.default_scoped.from('base_things things')).to_sql}
+          ), additional_things AS (
+            #{contents_with_default_scope(additional_things_query).to_sql}
+          ), contents AS (
+            SELECT * FROM selected_things
+            UNION ALL
+            SELECT * FROM additional_things
+          )
+        SQL
+      end
+
       def mvt_unclustered_sql
         as_mvt_select = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_AsMVT(mvtgeom, :layer_name) FROM mvtgeom', layer_name: @layer_name])
 
         <<-SQL.squish
-              WITH mvtgeom AS (
-                SELECT ST_AsMVTGeom(t.geometry, ST_TileEnvelope(#{@z}, #{@x}, #{@y})) AS geom,
-                  t.id as "@id",
-                  #{include_config.pluck(:identifier).map { |p| "t.#{p} as #{p}" }.join(', ')}
-                FROM (#{contents_with_default_scope.to_sql}) as t
-              )
-              #{as_mvt_select};
+          #{base_contents_subquery}, mvtgeom AS (
+            SELECT ST_AsMVTGeom(t.geometry, ST_TileEnvelope(#{@z}, #{@x}, #{@y})) AS geom,
+              t.id as "@id",
+              #{include_config.pluck(:identifier).map { |p| "t.#{p} as #{p}" }.join(', ')}
+            FROM contents as t
+          )
+          #{as_mvt_select};
         SQL
       end
 
@@ -122,49 +152,49 @@ module DataCycleCore
 
       def mvt_clustered_sql
         <<-SQL.squish
-              WITH contents AS (#{contents_with_default_scope.select('ST_GeometryType(things.geom_simple) AS geometry_type').reorder(id: :desc).to_sql}),
-              mvtgeom AS (
-                SELECT contents.geometry AS geom,
-                contents.id AS "@id",
-                #{mvt_cluster_sql} AS cluster_id,
-                #{include_config.pluck(:identifier).map { |p| "contents.#{p} as #{p}" }.join(', ')}
-                FROM contents
-                #{"WHERE contents.geometry_type = 'ST_Point'" unless @cluster_lines}
+          #{base_contents_subquery},
+          mvtgeom AS (
+            SELECT contents.geometry AS geom,
+            contents.id AS "@id",
+            #{mvt_cluster_sql} AS cluster_id,
+            #{include_config.pluck(:identifier).map { |p| "contents.#{p} as #{p}" }.join(', ')}
+            FROM contents
+            #{"WHERE contents.geometry_type = 'ST_Point'" unless @cluster_lines}
+          ),
+          clustered_items AS (
+            SELECT ST_AsMVTGeom(
+                st_centroid(ST_Union(ST_StartPoint(mvtgeom.geom))),
+                ST_TileEnvelope(#{@z}, #{@x}, #{@y})
               ),
-              clustered_items AS (
-                SELECT ST_AsMVTGeom(
-                    st_centroid(ST_Union(ST_StartPoint(mvtgeom.geom))),
-                    ST_TileEnvelope(#{@z}, #{@x}, #{@y})
-                  ),
-                  #{mvt_cluster_items}
-                  COUNT(mvtgeom."@id") AS "count",
-                  concat('#{@z}-#{@x}-#{@y}-', mvtgeom.cluster_id) AS "@id",
-                  json_build_object(
-                    'xmin',
-                    st_xmin(ST_Extent(ST_Transform(ST_StartPoint(mvtgeom.geom), 4326))),
-                    'ymin',
-                    st_ymin(ST_Extent(ST_Transform(ST_StartPoint(mvtgeom.geom), 4326))),
-                    'xmax',
-                    st_xmax(ST_Extent(ST_Transform(ST_StartPoint(mvtgeom.geom), 4326))),
-                    'ymax',
-                    st_ymax(ST_Extent(ST_Transform(ST_StartPoint(mvtgeom.geom), 4326)))
-                  ) AS "bbox"
-                FROM mvtgeom
-                WHERE mvtgeom.cluster_id IS NOT NULL
-                GROUP BY mvtgeom.cluster_id
+              #{mvt_cluster_items}
+              COUNT(mvtgeom."@id") AS "count",
+              concat('#{@z}-#{@x}-#{@y}-', mvtgeom.cluster_id) AS "@id",
+              json_build_object(
+                'xmin',
+                st_xmin(ST_Extent(ST_Transform(ST_StartPoint(mvtgeom.geom), 4326))),
+                'ymin',
+                st_ymin(ST_Extent(ST_Transform(ST_StartPoint(mvtgeom.geom), 4326))),
+                'xmax',
+                st_xmax(ST_Extent(ST_Transform(ST_StartPoint(mvtgeom.geom), 4326))),
+                'ymax',
+                st_ymax(ST_Extent(ST_Transform(ST_StartPoint(mvtgeom.geom), 4326)))
+              ) AS "bbox"
+            FROM mvtgeom
+            WHERE mvtgeom.cluster_id IS NOT NULL
+            GROUP BY mvtgeom.cluster_id
+          ),
+          items AS (
+            SELECT ST_AsMVTGeom(
+                mvtgeom.geom,
+                ST_TileEnvelope(#{@z}, #{@x}, #{@y})
               ),
-              items AS (
-                SELECT ST_AsMVTGeom(
-                    mvtgeom.geom,
-                    ST_TileEnvelope(#{@z}, #{@x}, #{@y})
-                  ),
-                  mvtgeom."@id" as "@id",
-                  #{include_config.pluck(:identifier).map { |p| "mvtgeom.#{p} as #{p}" }.join(', ')}
-                FROM mvtgeom
-                WHERE mvtgeom.cluster_id IS NULL
-                #{mvt_cluster_unclustered_sql unless @cluster_lines}
-              ),
-              #{mvt_clustered_select_sql};
+              mvtgeom."@id" as "@id",
+              #{include_config.pluck(:identifier).map { |p| "mvtgeom.#{p} as #{p}" }.join(', ')}
+            FROM mvtgeom
+            WHERE mvtgeom.cluster_id IS NULL
+            #{mvt_cluster_unclustered_sql unless @cluster_lines}
+          ),
+          #{mvt_clustered_select_sql};
         SQL
       end
     end

@@ -5,8 +5,7 @@
 <li class="search-favorites-list-li">
   <ul class="search-favorites-list no-bullet">
     <%=render partial: 'data_cycle_core/stored_filters/search_favorites_short_item',
-            # collection: DataCycleCore::StoredFilter.accessible_by(current_ability).where.not(name: nil).order(updated_at: :desc).first(9),
-             collection: DataCycleCore::StoredFilter.accessible_by(current_ability).or(DataCycleCore::StoredFilter.by_api_user(current_user)).where.not(name: nil).order(updated_at: :desc).first(9),
+             collection: DataCycleCore::StoredFilter.includes(:linked_stored_filter, :concept_schemes, :shared_users, :shared_user_groups, :shared_roles).accessible_by(current_ability).named.order(updated_at: :desc).first(9),
              as: :stored_filter %>
   </ul>
 </li>

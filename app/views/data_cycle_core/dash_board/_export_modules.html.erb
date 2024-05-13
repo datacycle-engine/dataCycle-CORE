@@ -1,9 +1,11 @@
 <div>
   <div class="card">
     <div class="card-divider">
-      <h5><%= external_system.name %></h5>
-      <h6 style="font-size: 0.8rem; position:relative;" >
-        <span class="copy-to-clipboard" data-value="<%= external_system.id %>"><%= external_system.id %></span>
+      <div class="header">
+        <h5 class="copy-to-clipboard" data-value="<%= external_system[:name] %>" title="<%= external_system[:name] %>"><%= external_system[:name] %></h5>
+      </div>
+      <h6 class="external-system-id">
+        <span class="copy-to-clipboard" data-value="<%= external_system[:id] %>"><%= external_system[:id] %></span>
       </h6>
     </div>
   </div>

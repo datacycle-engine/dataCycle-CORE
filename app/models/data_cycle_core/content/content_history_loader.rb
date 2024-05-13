@@ -94,6 +94,10 @@ module DataCycleCore
         DataCycleCore::Timeseries.where(thing_id: thing.id, property: relation_name).order(timestamp: :asc)
       end
 
+      def load_collections(property_name)
+        DataCycleCore::Collection.joins(:content_collection_link_histories).where(content_collection_link_histories: { thing_history_id: id, relation: property_name }).order(order_a: :asc)
+      end
+
       def as_of(_timestamp)
         raise 'as_of in history is no longer possible (app/models/data_cycle_core/content/content_history_loader.rb)'
       end

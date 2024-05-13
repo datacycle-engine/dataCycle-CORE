@@ -5,7 +5,8 @@ module DataCycleCore
     class Path < ApplicationRecord
       self.table_name = 'classification_alias_paths'
 
-      belongs_to :classification_alias, foreign_key: 'id'
+      belongs_to :classification_alias, foreign_key: :id
+      belongs_to :concept, foreign_key: :id
       has_many :ancestor_classification_aliases, ->(p) { unscope(:where).where('id = ANY(ARRAY[?]::UUID[])', p.ancestor_ids) }, class_name: 'DataCycleCore::ClassificationAlias'
 
       def readonly?
@@ -64,10 +65,12 @@ module DataCycleCore
     has_many :classification_alias_paths_transitive
     has_many :things, through: :primary_classification
 
+    has_one :concept, foreign_key: :id
+
     delegate :visible?, to: :classification_tree_label
 
     scope :in_context, ->(context) { includes(:classification_tree_label).where('classification_tree_labels.visibility && ARRAY[?]::varchar[]', Array.wrap(context)).references(:classification_tree_label) }
-    scope :by_full_paths, ->(full_paths) { joins(:classification_alias_path).where('classification_alias_paths.full_path_names IN (?)', Array.wrap(full_paths).map { |p| p.split('>').map(&:strip).reverse.to_pg_array }) } # rubocop:disable Rails/WhereEquals
+    scope :by_full_paths, ->(full_paths) { includes(:classification_alias_path).where('classification_alias_paths.full_path_names IN (?)', Array.wrap(full_paths).map { |p| p.split('>').map(&:strip).reverse.to_pg_array }).references(:classification_alias_path) } # rubocop:disable Rails/WhereEquals
 
     validate :validate_color_format
 
@@ -437,7 +440,7 @@ module DataCycleCore
 
     def execute_things_webhooks
       linked_contents.find_each do |content|
-        content.send(:execute_update_webhooks)
+        content.send(:execute_update_webhooks) unless content.embedded?
       end
     end
 
@@ -480,15 +483,15 @@ module DataCycleCore
                 ELSE elem
             END ) AS new_parameters
             FROM
-              stored_filters,
+              collections ,
               jsonb_array_elements( parameters ) elem
             WHERE parameters::TEXT ILIKE '%#{id}%'
             GROUP BY id
         )
-        UPDATE stored_filters
+        UPDATE collections
         SET
           parameters = subquery.new_parameters FROM subquery
-        WHERE stored_filters.id = subquery.id
+        WHERE collections.id = subquery.id
       SQL
     end
   end

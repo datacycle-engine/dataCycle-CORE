@@ -1,0 +1,235 @@
+de:
+  abilities:
+    attribute_types:
+      classification: Klassifizierung
+      string: Text
+      linked: verlinkter Inhalt
+      embedded: eingebetteter Inhalt
+      number: Nummer
+      geographic: Geodaten
+    restriction: wenn
+    scopes:
+      all: Überall
+      object_browser: Objectbrowser
+      asset: Asset
+      tile_buttons: Buttons in Kacheln
+    download_scopes:
+      content: Inhalt
+      archive: Archiv
+      zip: ZIP-Archiv
+      indesign: Indesign-Archiv
+    content_is_editable_method_names:
+      content_not_external?: Inhalt wurde nicht importiert
+      content_overlay_allowed?: Inhalt erlaubt überschreiben von importierten Attributen
+      content_global_property_names_present?: Inhalt hat globale Attribute
+    data_attribute_method_names:
+      attribute_content_not_external?: Inhalt nicht importiert
+      attribute_content_external?: Inhalt importiert
+      attribute_not_disabled?: Attribut nicht ausgeblendet
+      attribute_not_read_only?: Attribut nicht schreibgeschützt
+      attribute_is_in_overlay?: Inhalt importiert und Attribut darf im Overlay bearbeitet werden
+      overlay_attribute_visible?: Inhalt nicht importiert oder Attribut darf im Overlay bearbeitet werden
+      attribute_not_releasable?: "Attribute nicht: %{data}"
+      attribute_not_included_in_publication_schedule?: Attribut nicht im Publikationsplan vorhanden
+      attribute_not_external?: Attribut nicht als "extern" markiert
+      attribute_force_render?: Attribut als "immer anzeigen" markiert
+      attribute_tree_label_visible?: "Klassifizierungsbaum sichtbar (nur Attributtyp: Klassifizierung)"
+      attribute_not_excluded?: "Attribute nicht: %{data}"
+      template_whitelisted?: "Datentypen: %{data}"
+      template_not_blacklisted?: "Datentypen nicht: %{data}"
+      attribute_whitelisted?: "Attribute: %{data}"
+      attribute_not_blacklisted?: "Attribute nicht: %{data}"
+      attribute_and_template_whitelisted?: "Datentyp: %{template_name} (Attribute: %{data})"
+      attribute_and_template_not_blacklisted?: "Datentyp nicht: %{template_name} (Attribute: %{data})"
+      attribute_type_whitelisted?: "Attributtypen: %{data}"
+      attribute_type_not_blacklisted?: "Attributtypen nicht: %{data}"
+      content_created_by_user?: Benutzer ist Ersteller des Inhalts
+      attribute_value_present?: Attribut ist ausgefüllt
+      attribute_value_blank?: Attribut ist nicht ausgefüllt
+    model_names:
+      backend: Dashboard
+      view_mode: Anzeigemodus für Listen
+      object_browser: Objectbrowser
+      user_api: User-API
+      classification_tree: Klassifizierungsübersicht
+      publications: Publikationskalender
+      publication: Publikationskalender
+      report: Report
+      cache: Cache
+      auto_translate: Automatische Übersetzung
+      dash_board: Admin Dashboard
+      permission: Berechtigungen
+      preview: Widget-Link
+    actions:
+      index: anzeigen (Liste)
+      show: anzeigen
+      read: anzeigen
+      edit: anzeigen (Bearbeitungsansicht)
+      update: bearbeiten
+      import: importieren
+      search: filtern mit Volltextsuche
+      classification_tree: filtern mit Hauptkategoriefilter
+      classification_trees: filtern mit Hauptfilter
+      permanent_advanced: filtern mit erweiterten Filtern (immer sichtbar)
+      advanced: filtern mit erweiterten Filtern
+      api: abrufen über API
+      copy_api_link: API-Link kopieren
+      grid: anzeigen als Kacheln
+      list: anzeigen als Listenansicht
+      tree: anzeigen als Baumansicht
+      map: anzeigen als Karte
+      user_dropdown: filtern mit Hauptfilter
+      user_advanced: filtern mit erweiterten Filtern
+      sortable: sortieren
+      create: erstellen
+      destroy: löschen
+      create_editable_links: Bearbeitungslinks erstellen
+      auto_login: automatisch anmelden
+      find: filtern mit Volltextsuche
+      login: anmelden
+      renew_login: Login erneuern
+      reset_password: Passwort zurücksetzen
+      confirm: bestätigen
+      print: drucken
+      download: herunterladen
+      show_related: Verknüpfte Inhalte anzeigen
+      show_external_connections: Externe Verknüpfungen anzeigen
+      subscribe: abonnieren
+      history: Änderungsverlauf anzeigen
+      show_history: Filterverlauf anzeigen
+      add_item: Inhalt hinzugügen
+      remove_item: Inhalt entfernen
+      share: teilen
+      change_owner: Besitzer ändern
+      settings: Einstellungen ändern
+      publication_date: filtern nach Publikationsdatum
+      advanced_filter: verwenden von allen erweiterten Filtern
+      translate: übersetzen
+      set_life_cycle: Lebenszyklus ändern
+      move_content: Inhalt verschieben
+      create_api: für API freigeben
+      restore_version: Version wiederherstellen
+      change_ui_locale: Sprache der Benutzeroberfläche ändern
+      merge: zusammenführen
+      create_duplicate: Duplikat erstellen
+      merge_duplicates: Duplikate zusammenführen
+      remove_lock: Inhalt zur Bearbeitung freigeben
+      view_life_cycle: Lebenszyklus anzeigen
+      create_api_with_users: für API Benutzer freigeben
+      create_user: Benutzer erstellen
+      lock: sperren
+      unlock: entsperren
+      generate_access_token: Accesstoken generieren
+      set_role: Rolle ändern
+      set_user_groups: Benutzergruppen ändern
+      download_zip: als ZIP-Archiv herunterladen
+      download_indesign: als Indesign-Archiv herunterladen
+      download_report: Report herunterladen
+      download_global_report: globalen Report herunterladen
+      download_content_report: Report für Inhalt herunterladen
+      manage: alle Aktionen ausführen
+      map_classifications: Klassifizierungsmappings erstellen
+      set_color: Farbe ändern
+      clear: für Inhalt leeren
+      clear_all: für alle Inhalte leeren
+      remove_version_name: Versionsname entfernen
+      show_admin_panel: Adminpanel anzeigen
+      switch_primary_external_system: primäres externes System ändern
+      demote_primary_external_system: primäres externes System in externe Verknüpfung umwandeln
+      create_external_connection: externe Verbindung erstellen
+      remove_external_connection: externe Verbindung löschen
+      bulk_edit: im Bulk bearbeiten
+      bulk_delete: im Bulk löschen
+      download_user_info_activity: "Nutzerinformationen und API-Aktivität herunterladen"
+    restrictions:
+      advanced_filter_except_type: "nicht: %{except}"
+      asset_by_user_and_no_content:
+        - "Benutzer die Datei hochgeladen hat"
+        - "%{data} noch nicht als Inhalt gespeichert wurde"
+      asset_by_user_groups_for_data_link:
+        - "Kontext: Externer Link"
+        - Benutzer oder Benutzer aus einer geteilten Benutzergruppe die Datei hochgeladen hat
+      backend_by_readable_data_links: gültige externe Links vorhanden sind
+      classification_alias_and_children_not_external_and_not_internal:
+        - selbst und Kinder nicht "Internal"
+        - selbst und Kinder nicht importiert
+      ? classification_tree_label_and_classification_aliases_not_external_and_not_internal
+      : - selbst und Kinder nicht "Internal"
+        - selbst und Kinder nicht importiert
+      content_by_report_generator: Feature "Report" aktiviert
+      data_link_by_receiver: Benutzer der Empfänger des externen Links
+      download_allowed_by_content_and_scope: "Kontext: %{scopes}"
+      roles_except: "Rolle: %{roles}"
+      stored_filter_by_api_users: mit Benutzer für API geteilt
+      stored_filter_by_creator_and_api:
+        - "Benutzer ist Ersteller"
+        - "für die API freigegeben"
+      stored_filter_by_data_link: gültige externe Links vorhanden
+      subject_by_user_and_conditions: "Benutzer ist %{attribute_name}"
+      subject_by_user_and_user_group_users: "Benutzer oder Benutzer aus einer geteilten Benutzergruppe ist %{attribute_name}"
+      subject_by_user_roles_whitelist: "Rolle: %{roles}"
+      subject_not_external_and_not_internal:
+        - nicht importiert
+        - nicht "Internal"
+      subject_not_external: nicht importiert
+      subject_not_internal: nicht "Internal"
+      template_by_creatable_scope_and_template_name:
+        - "Kontext: %{scopes}"
+        - "Datentyp: %{template_names}"
+      template_by_creatable_scope_except_template_name:
+        - "Kontext: %{scopes}"
+        - "Datentyp nicht: %{template_names}"
+      template_by_creatable_scope: "Kontext: %{scopes}"
+      thing_by_data_link: gültiger externer Bearbeitungs-Link vorhanden
+      thing_by_external_and_template_name:
+        - importiert
+        - "Datentyp: %{template_names}"
+      thing_by_template_name: "Datentyp: %{template_names}"
+      thing_by_user_and_template_name:
+        - "Benutzer ist %{attribute_name}"
+        - "Datentyp: %{template_names}"
+      tree_label_by_visibility: "Sichtbarkeit: %{visibilities}"
+      users_by_email_domain: "E-Mail Domain: %{domain}"
+      users_by_role: "Rolle: %{roles}"
+      users_by_user_group:
+        - "Benutzergruppe: %{group}"
+        - "Rolle: %{roles}"
+      users_by_user_group_and_api_token:
+        - "Benutzergruppe: %{group}"
+        - "Rolle: %{roles}"
+        - "API-Token vorhanden"
+      users_except_roles: "Rolle: %{roles}"
+      users_except_user_group:
+        - "Rolle: %{roles}"
+        - "Benutzergruppe nicht: %{group}"
+      watch_list_by_api:
+        - "für die API freigegeben"
+        - nicht "Meine Auswahl"
+      watch_list_by_creator_without_my_selection:
+        - Benutzer ist Ersteller
+        - nicht "Meine Auswahl"
+      watch_list_by_user_shares:
+        - mit Benutzer geteilt
+        - nicht "Meine Auswahl"
+      watch_list_by_group_shares:
+        - mit Benutzer über Benutzergruppe geteilt
+        - nicht "Meine Auswahl"
+      watch_list_by_role_shares:
+        - mit Benutzer über Rolle geteilt
+        - nicht "Meine Auswahl"
+      stored_filter_by_api: für die API freigegeben
+      stored_filter_by_api_and_shared_users: mit Benutzer für API geteilt
+      stored_filter_by_api_and_shared_user_groups: mit Benutzer über Benutzergruppe für API geteilt
+      stored_filter_by_api_and_shared_roles: mit Benutzer über Rolle für API geteilt
+      stored_filter_by_shared_roles: mit Benutzer über Rolle geteilt
+      stored_filter_by_shared_users: mit Benutzer geteilt
+      stored_filter_by_shared_user_groups: mit Benutzer über Benutzergruppe geteilt
+      collection_by_creator_and_api:
+        - "Benutzer ist Ersteller"
+        - "für die API freigegeben"
+      collection_by_api_and_shared_roles: mit Benutzer über Rolle für API geteilt
+      collection_by_api_and_shared_user_groups: mit Benutzer über Benutzergruppe für API geteilt
+      collection_by_api_and_shared_users: mit Benutzer für API geteilt
+      collection_by_shared_roles: mit Benutzer über Rolle geteilt
+      collection_by_shared_user_groups: mit Benutzer über Benutzergruppe geteilt
+      collection_by_shared_users: mit Benutzer geteilt

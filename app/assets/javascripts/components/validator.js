@@ -9,7 +9,12 @@ import DomElementHelpers from "../helpers/dom_element_helpers";
 
 class Validator {
 	constructor(formElement) {
-		this.$form = $(formElement);
+		this.form = formElement;
+		this.$form = $(this.form);
+		this.duplicateSearch = !!DomElementHelpers.parseDataAttribute(
+			this.form.dataset.duplicateSearch,
+		);
+		this.primaryAttributeKey = this.form.dataset.primaryAttributeKey;
 		this.$editHeader = this.$form
 			.siblings(".edit-header")
 			.add(this.$form.find(".edit-header"))
@@ -369,6 +374,17 @@ class Validator {
 				.some((v) => !isEmpty(v[1]))
 		);
 	}
+	addParentEmbeddedTemplates(formData, element) {
+		const parentEmbeddeds = DomElementHelpers.findAncestors(element, (elem) =>
+			elem.classList.contains("content-object-item"),
+		);
+
+		for (const parent of parentEmbeddeds) {
+			const embeddedTemplate = parent.querySelector(".embedded-template");
+			if (embeddedTemplate)
+				formData.set(embeddedTemplate.name, embeddedTemplate.value);
+		}
+	}
 	validateItem(validationContainer, submitFormaDataUpToDate = false) {
 		this.resetField(validationContainer);
 
@@ -401,6 +417,13 @@ class Validator {
 		if (this.contentTemplate)
 			formData.set("content_template", this.contentTemplate);
 
+		this.addParentEmbeddedTemplates(formData, validationContainer);
+
+		const duplicateSearchAllowed = this.duplicateSearchAllowed(formData);
+
+		if (duplicateSearchAllowed)
+			formData.set("duplicate_search", this.primaryAttributeKey);
+
 		const promise = DataCycle.httpRequest(url, {
 			method: "POST",
 			body: formData,
@@ -408,35 +431,80 @@ class Validator {
 
 		promise.then(async (data) => {
 			if (data) {
-				if (!data.valid && data.errors && Object.keys(data.errors).length > 0) {
-					this.$form.trigger("dc:form:validationError", {
-						locale: translationLocale,
-						type: "error",
-					});
-					$(validationContainer)
-						.append(await this.renderErrorMessage(data, validationContainer))
-						.addClass("has-error");
-				}
-				if (data.warnings && Object.keys(data.warnings).length > 0) {
-					this.$form.trigger("dc:form:validationError", {
-						locale: translationLocale,
-						type: "warning",
-					});
-					$(validationContainer)
-						.append(
-							await this.renderErrorMessage(
-								data,
-								validationContainer,
-								"warning",
-								"warning",
-							),
-						)
-						.addClass("has-warning");
-				}
+				if (!data.valid && data.errors && Object.keys(data.errors).length > 0)
+					await this.showErrors(data, validationContainer, translationLocale);
+
+				if (duplicateSearchAllowed) this.cleanDuplicateSearch();
+
+				if (data.warnings && Object.keys(data.warnings).length > 0)
+					this.showWarnings(
+						data,
+						validationContainer,
+						translationLocale,
+						duplicateSearchAllowed,
+					);
 			}
 		});
 
 		return promise;
+	}
+	duplicateSearchAllowed(formData) {
+		if (!this.duplicateSearch || !this.primaryAttributeKey) return false;
+
+		return Array.from(formData.keys()).some(
+			(v) => v.attributeNameFromKey() === this.primaryAttributeKey,
+		);
+	}
+	cleanDuplicateSearch() {
+		const submitButton = this.form.querySelector('[type="submit"]');
+
+		submitButton?.removeAttribute("data-confirm");
+		submitButton?.removeAttribute("data-dup-confirm");
+
+		this.form.querySelector("a.button.show-duplicate-search-result")?.remove();
+	}
+	async renderDuplicateSearchWarning(data) {
+		const buttonHtml = `<a class="button show-duplicate-search-result" target="_blank" href="/?stored_filter=${
+			data.duplicate_search?.filter_id
+		}">${await I18n.t("duplicate_search.show")}</a>`;
+
+		this.form
+			.querySelector(":scope > div.buttons")
+			?.insertAdjacentHTML("afterbegin", buttonHtml);
+	}
+	async showErrors(data, validationContainer, translationLocale) {
+		this.$form.trigger("dc:form:validationError", {
+			locale: translationLocale,
+			type: "error",
+		});
+		$(validationContainer)
+			.append(await this.renderErrorMessage(data, validationContainer))
+			.addClass("has-error");
+	}
+	async showWarnings(
+		data,
+		validationContainer,
+		translationLocale,
+		duplicateSearchAllowed = false,
+	) {
+		if (duplicateSearchAllowed && data.duplicate_search)
+			this.renderDuplicateSearchWarning(data);
+
+		this.$form.trigger("dc:form:validationError", {
+			locale: translationLocale,
+			type: "warning",
+		});
+		$(validationContainer)
+			.append(
+				await this.renderErrorMessage(
+					data,
+					validationContainer,
+					"warning",
+					"warning",
+				),
+			)
+			.addClass("has-warning")
+			.addClass("warning");
 	}
 	validateForm(event, data) {
 		if (event.detail?.dcFormSubmitted) return;
@@ -468,6 +536,7 @@ class Validator {
 		if (confirmations.warnings !== undefined) {
 			this.$form
 				.find(".form-element .warning.counter")
+				// .find(".form-element.has-warning")
 				.closest(".form-element")
 				.addClass("has-warning");
 
@@ -503,7 +572,9 @@ class Validator {
 				},
 				cancelCallback: () => this.enable(),
 			});
-		} else if (
+		}
+
+		if (
 			confirmations.finalize &&
 			this.$form.find(':input[name="finalize"]').length
 		) {
@@ -550,23 +621,23 @@ class Validator {
 			this.$contentUploader
 		) {
 			return this.$form.trigger("dc:form:submitWithoutRedirect", confirmations);
-		} else {
-			$(window).off("beforeunload", this.eventHandlers.beforeunload);
-			if (confirmations?.saveAndClose)
-				this.$form.append(
-					'<input type="hidden" name="save_and_close" value="1">',
-				);
-			if (confirmations?.mergeConfirm)
-				this.$form.append(
-					`<input id="duplicate_id" type="hidden" name="duplicate_id" value="${this.$form.data(
-						"duplicate-id",
-					)}">`,
-				);
-
-			if (this.$form.data("remote"))
-				Rails.fire(this.$form[0], "submit", { dcFormSubmitted: true });
-			else this.$form[0].submit();
 		}
+
+		$(window).off("beforeunload", this.eventHandlers.beforeunload);
+		if (confirmations?.saveAndClose)
+			this.$form.append(
+				'<input type="hidden" name="save_and_close" value="1">',
+			);
+		if (confirmations?.mergeConfirm)
+			this.$form.append(
+				`<input id="duplicate_id" type="hidden" name="duplicate_id" value="${this.$form.data(
+					"duplicate-id",
+				)}">`,
+			);
+
+		if (this.$form.data("remote"))
+			Rails.fire(this.$form[0], "submit", { dcFormSubmitted: true });
+		else this.$form[0].submit();
 	}
 	resolveRequests(submit = false, eventData = {}) {
 		let submitForm = submit;
@@ -584,13 +655,15 @@ class Validator {
 				this.valid = true;
 
 				const error = this.$form.find(".single_error").first();
-				values.filter(Boolean).forEach((validation) => {
+				for (const validation of values.filter(Boolean)) {
 					if (!validation.valid) this.valid = false;
-				});
+				}
 
 				if (this.valid && submitForm) {
 					this.queryCount = 0;
-					const warnings = this.$form.find(".form-element .warning.counter");
+					// const warnings = this.$form.find(".form-element .warning.counter");
+
+					const warnings = this.$form.find(".form-element.has-warning");
 
 					data = Object.assign({}, data || {}, {
 						finalize: true,

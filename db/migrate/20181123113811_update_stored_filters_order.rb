@@ -2,6 +2,8 @@
 
 class UpdateStoredFiltersOrder < ActiveRecord::Migration[5.1]
   def up
+    return unless ActiveRecord::Base.connection.table_exists? 'stored_filters'
+
     DataCycleCore::StoredFilter.find_each do |filter|
       order_hash = filter.parameters&.select { |f| f['t'] == 'order' && f['v'].is_a?(Hash) }&.first || []
       next if order_hash.blank?

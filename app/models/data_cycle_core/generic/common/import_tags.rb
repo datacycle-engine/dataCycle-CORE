@@ -15,25 +15,26 @@ module DataCycleCore
               options.dig(:import, :tree_label),
               method(:load_root_classifications).to_proc,
               ->(_, _, _) { [] },
-              ->(_, _, _) { nil },
+              ->(_, _, _) {},
               method(:extract_data).to_proc,
               options
             )
           end
 
           def load_root_classifications(mongo_item, locale, options)
+            options = options.with_evaluated_values
             source_filter = options.dig(:import, :source_filter) || {}
 
             attribute_name = ['dump', locale, options.dig(:import, :tag_path) || options.dig(:import, :tag_id_path)].join('.')
             path_array = ['dump', locale.to_s, parse_common_tag_path(options)].flatten.join('.').split('.')
 
             aggregation = mongo_item
-              .where({ attribute_name => { '$ne' => nil } }.merge(source_filter.with_evaluated_values))
+              .where({ attribute_name => { '$ne' => nil } }.merge(source_filter))
 
             (1..path_array.size)
               .each { |n| aggregation = aggregation.unwind(path_array.take(n).join('.')) }
 
-            aggregation = aggregation.where(source_filter.with_evaluated_values)
+            aggregation = aggregation.where(source_filter)
 
             project_hash = {
               "dump.#{locale}.id": "$dump.#{locale}.#{options.dig(:import, :tag_id_path)}",

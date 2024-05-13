@@ -1,8 +1,10 @@
 <span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
   <span class="tag-group-label">
     <i class="fa fa-calendar" aria-hidden="true"></i>
-    <%= t("filter.date_range.#{key}", default: t("filter.#{key}", default: title, locale: active_ui_locale), locale: active_ui_locale) %>
-    <%= local_assigns[:filter_method] == 'e' ? t("common.is_not", locale: active_ui_locale) : t("common.is", locale: active_ui_locale) %>
+    <span>
+      <%= t("filter.date_range.#{key}", default: t("filter.#{key}", default: title, locale: active_ui_locale), locale: active_ui_locale) %>
+      <%= local_assigns[:filter_method] == 'e' ? t("common.is_not", locale: active_ui_locale) : t("common.is", locale: active_ui_locale) %>
+    </span>
   </span>
 
   <% if value&.dig('from').present? %>

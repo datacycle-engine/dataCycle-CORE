@@ -67,7 +67,7 @@ module DataCycleCore
         value = super.to_h
         value.merge!(value_from_overlay(__method__, *args).to_h) if args[2]
 
-        OpenStructHash.new(value).freeze
+        OpenStructHash.new(value, self, args[1]).freeze
       end
 
       def load_relation(*args)

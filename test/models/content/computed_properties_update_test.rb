@@ -12,6 +12,11 @@ module DataCycleCore
           data_hash: { name: 'Test Organization 1' }
         )
 
+        @organization2 = DataCycleCore::TestPreparations.create_content(
+          template_name: 'Organization',
+          data_hash: { name: 'Test Organization 2' }
+        )
+
         @person = DataCycleCore::TestPreparations.create_content(
           template_name: 'Person',
           data_hash: {
@@ -29,6 +34,7 @@ module DataCycleCore
             copyright_holder: [@organization.id]
           }
         )
+        I18n.with_locale(:en) { @image.set_data_hash(data_hash: { name: 'Test Name English' }) }
       end
 
       test 'update copyright_notice' do
@@ -49,6 +55,13 @@ module DataCycleCore
         }))
 
         assert_equal('(c) Test Person 1 / Test Organization 1', @image.copyright_notice_override || @image.copyright_notice_computed)
+      end
+
+      test 'update copyright_holder updates translated attribution_name in all languages' do
+        @image.set_data_hash_with_translations(data_hash: { copyright_holder: [@organization2.id] })
+
+        assert_equal '(c) Test Organization 2 / Test Person 1', I18n.with_locale(:de) { @image.attribution_name }
+        assert_equal '(c) Test Organization 2 / Test Person 1', I18n.with_locale(:en) { @image.reload.attribution_name }
       end
     end
   end

@@ -22,6 +22,7 @@ module DataCycleCore
       has_many :scheduled_history_data, class_name: 'DataCycleCore::Schedule::History', foreign_key: 'thing_history_id', dependent: :destroy, inverse_of: :thing_history
 
       belongs_to :thing
+      has_many :content_collection_link_histories, dependent: :delete_all, foreign_key: :thing_history_id, inverse_of: :thing_history
 
       def available_locales
         I18n.available_locales.intersection(translations.select(&:persisted?).pluck(:locale).map(&:to_sym))
@@ -101,6 +102,9 @@ module DataCycleCore
 
     has_many :schedules
     has_many :collected_classification_contents
+    has_many :content_collection_links, dependent: :delete_all
+
+    scope :duplicate_candidates, -> { DataCycleCore::Thing::DuplicateCandidate.where(original_id: select(:id).reorder(nil)).where(false_positive: false).order(score: :desc) }
 
     def available_locales
       I18n.available_locales.intersection(translations.select(&:persisted?).pluck(:locale).map(&:to_sym))

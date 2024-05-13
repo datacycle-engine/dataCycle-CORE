@@ -1,10 +1,7 @@
 import EmbeddedObject from "./../components/embedded_object";
-import AccordionExtension from "./../components/accordion_extension";
 import EmbeddedTitle from "../components/embedded_title";
 
 export default function () {
-	new AccordionExtension();
-
 	DataCycle.initNewElements(
 		".embedded-object:not(.dcjs-embedded-object)",
 		(e) => new EmbeddedObject(e),

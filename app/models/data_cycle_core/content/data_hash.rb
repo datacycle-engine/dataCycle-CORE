@@ -10,7 +10,7 @@ module DataCycleCore
       define_model_callbacks :destroyed_data_hash, only: :after
 
       DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
-        feature = ('DataCycleCore::Feature::' + key.to_s.classify).constantize
+        feature = ModuleService.load_module("Feature::#{key.to_s.classify}", 'Datacycle')
         prepend feature.data_hash_module if feature.enabled? && feature.data_hash_module
       end
 
@@ -131,6 +131,8 @@ module DataCycleCore
             no_changes_key = translated_template_name(options.ui_locale).to_sym
             i18n_warnings.each_value { |w| w.delete(no_changes_key) } unless translations.keys.push(locale).all? { |l| i18n_warnings[l]&.include?(no_changes_key) }
           end
+
+          add_update_translated_computed_properties_job(available_locales.map(&:to_s) - translations.keys - [locale]) if computed_property_names.intersect?(translatable_property_names)
         end
 
         i18n_valid?
@@ -214,6 +216,12 @@ module DataCycleCore
         DataCycleCore::UpdateComputedPropertiesJob.perform_later(id, Array.wrap(datahash_changes&.keys))
       end
 
+      def add_update_translated_computed_properties_job(locales)
+        return if locales.blank?
+
+        DataCycleCore::UpdateTranslatedComputedPropertiesJob.perform_later(id, Array.wrap(locales))
+      end
+
       def invalidate_self_and_update_search
         search_languages(true)
         invalidate_self
@@ -273,25 +281,28 @@ module DataCycleCore
       end
 
       def storage_cases_set(options, key, properties)
+        return if virtual_property_names.include?(key)
         value = options.data_hash[key]
         # puts "#{key}, #{value}, #{properties.dig('type')}"
         case properties['type']
-        when 'linked'
-          set_linked(key, value, properties)
-        when 'embedded'
-          set_embedded(key, value, properties['template_name'], properties['translated'], options)
-        when 'string', 'number', 'datetime', 'date', 'boolean', 'geographic', 'object'
-          save_values(key, value, properties)
-        when 'classification'
-          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])
-        when 'asset'
-          set_asset_id(value, key, properties['asset_type'])
-        when 'schedule', 'opening_time'
-          set_schedule(value, key)
         when 'slug'
           save_slug(key, value, options.data_hash)
         when 'key', 'timeseries'
           true # do nothing
+        when *Content::LINKED_PROPERTY_TYPES
+          set_linked(key, value, properties)
+        when *Content::EMBEDDED_PROPERTY_TYPES
+          set_embedded(key, value, properties['template_name'], properties['translated'], options)
+        when 'object', *Content::PLAIN_PROPERTY_TYPES
+          save_values(key, value, properties)
+        when *Content::CLASSIFICATION_PROPERTY_TYPES
+          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])
+        when *Content::ASSET_PROPERTY_TYPES
+          set_asset_id(value, key, properties['asset_type'])
+        when *Content::SCHEDULE_PROPERTY_TYPES
+          set_schedule(value, key)
+        when *Content::COLLECTION_PROPERTY_TYPES
+          set_collection_links(key, value)
         end
       end
 
@@ -381,6 +392,27 @@ module DataCycleCore
         data
       end
 
+      def set_collection_links(field_name, input_data)
+        item_ids_before_update = send(field_name).pluck(:id)
+        item_ids_after_update = parse_collection_ids(input_data, field_name)
+
+        content_collection_links.upsert_all(item_ids_after_update, unique_by: :ccl_unique_index) if DataCycleCore::DataHashService.present?(item_ids_after_update)
+
+        to_delete = item_ids_before_update - item_ids_after_update.pluck(:collection_id)
+
+        return if to_delete.empty?
+
+        content_collection_links.where(relation: field_name, collection_id: to_delete).delete_all
+      end
+
+      def parse_collection_ids(a, key)
+        ids = Array.wrap(a).compact
+
+        return ids.map.with_index { |c, index| { collection_id: c.id, relation: key, order_a: index } } if ids.all?(ActiveRecord::Base)
+
+        DataCycleCore::Collection.by_ordered_values(ids).map.with_index { |c, index| { collection_id: c.id, relation: key, order_a: index } }
+      end
+
       def set_embedded(field_name, input_data, name, translated, options)
         updated_item_keys = []
         available_update_item_keys = load_embedded_objects(field_name, nil, !translated).ids.uniq
@@ -431,13 +463,20 @@ module DataCycleCore
 
       def upsert_content(name, item, options)
         item_id = item&.dig('datahash', 'id') || item&.dig('id')
+        template_name = name
+        if template_name.is_a?(Array)
+          specific_template_name = item&.dig('datahash', 'template_name').presence || item&.dig('template_name')
+          raise DataCycleCore::Error::TemplateNotAllowedError.new(specific_template_name, template_name) unless template_name.include?(specific_template_name)
+
+          template_name = specific_template_name
+        end
 
         if item_id.present?
           upsert_item = DataCycleCore::Thing.find_or_initialize_by(id: item_id) do |c|
-            c.template_name = name
+            c.template_name = template_name
           end
         else
-          upsert_item = DataCycleCore::Thing.new(template_name: name)
+          upsert_item = DataCycleCore::Thing.new(template_name:)
         end
         # TODO: check if external_source_id is required
         upsert_item.external_source_id = external_source_id

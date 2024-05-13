@@ -3,16 +3,9 @@
 module DataCycleCore
   module Abilities
     module Segments
-      class WatchListByGroupShares < Base
-        attr_reader :subject, :additional_conditions
-
-        def initialize(**additional_conditions)
+      class WatchListByGroupShares < CollectionBySharedUserGroups
+        def initialize(**)
           @subject = DataCycleCore::WatchList
-          @additional_conditions = additional_conditions
-        end
-
-        def conditions
-          { watch_list_shares: { shareable_id: user.user_group_ids, shareable_type: 'DataCycleCore::UserGroup' } }.merge(additional_conditions)
         end
       end
     end

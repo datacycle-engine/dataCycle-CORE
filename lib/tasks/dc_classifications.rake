@@ -8,45 +8,44 @@ namespace :dc do
       require 'csv'
       require 'roo'
 
-      desc 'import mappings from XLSX or CSV file'
-      task :mappings_from_spreadsheet, [:file_path] => :environment do |_, args|
+      desc 'import mappings CSV file'
+      task :mappings_from_csv, [:file_path, :separator] => :environment do |_, args|
         abort('file_path missing!') if args.file_path.blank?
 
         updated_at = Time.zone.now
         errors = []
         file_paths = Dir[args.file_path]
+        separator = args.separator.presence || ','
 
         abort('no files found at this path!') if file_paths.blank?
 
         to_insert = []
 
         file_paths.each do |file_path|
-          data = Roo::Spreadsheet.open(file_path)
-          sheet = data.sheet(data.sheets.first)
-          sheet.each do |row|
-            next if row.blank?
+          file = File.read(file_path)
+          data = CSV.parse(file.encode_utf8!, skip_blanks: true, col_sep: separator)
+          data.select! { |(ca_path, mapped_ca_path)| ca_path.to_s.include?('>') && mapped_ca_path.to_s.include?('>') }
+            .map! { |(ca_path, mapped_ca_path)| [ca_path.to_s.strip, mapped_ca_path.to_s.strip] }
+          cas = DataCycleCore::ClassificationAlias.by_full_paths(data.flatten).includes(:primary_classification).index_by(&:full_path)
 
-            ca_path = row[0].to_s.strip
-            mapped_ca_path = row[1].to_s.strip
-
-            next unless ca_path.include?('>') && mapped_ca_path.include?('>')
-
-            ca = DataCycleCore::ClassificationAlias.custom_find_by_full_path(ca_path)
+          data.each do |(ca_path, mapped_ca_path)|
+            ca = cas[ca_path]
             if ca.nil?
-              errors << "classification_alias not found (#{File.basename(file_path)} => #{ca_path})"
+              errors << "classification_alias not found (#{File.basename(file_path)}: '#{ca_path}' => '#{mapped_ca_path}')"
               print 'x'
               next
             end
 
-            mapped_ca = DataCycleCore::ClassificationAlias.custom_find_by_full_path!(mapped_ca_path)
-            raise ActiveRecord::RecordNotFound if mapped_ca.primary_classification.nil?
+            mapped_ca = cas[mapped_ca_path]
+            if mapped_ca.nil? || mapped_ca.primary_classification.nil?
+              errors << "mapped classification_alias not found (#{File.basename(file_path)}: '#{ca_path}' => '#{mapped_ca_path}')"
+              print 'x'
+              next
+            end
 
             to_insert.push({ classification_id: mapped_ca.primary_classification.id, classification_alias_id: ca.id, updated_at: })
 
             print('.')
-          rescue ActiveRecord::RecordNotFound
-            errors << "mapped classification_alias not found (#{File.basename(file_path)} => #{mapped_ca_path})"
-            print 'x'
           end
         end
 
@@ -169,27 +168,84 @@ namespace :dc do
           tree_label.visibility = DataCycleCore.default_classification_visibilities
         end
 
+        mappings = []
         classifications = from_tree_label
           .classification_aliases
           .preload(:classification_alias_path, :primary_classification)
           .group_by { |ca| ca.classification_alias_path&.full_path_names&.reverse&.drop(1) }
-          .map do |k, v|
+          .map { |k, v|
+            next if k.include?(nil)
+            mappings.concat(v.map { |ca| { path: ([to_tree_label.name] + k).join(' > '), classification_id: ca.primary_classification&.id } }.uniq)
+
             {
               name: k.last,
               name_i18n: v.pluck(:name_i18n).compact_blank.reduce(&:merge),
-              path: k,
-              classification_ids: v.flat_map(&:primary_classification).pluck(:id).uniq
+              path: k
             }
-          end
+          }.compact_blank
 
         puts "upserting #{classifications.size} classifications to new tree_label"
 
         tmp = Time.zone.now
-
         to_tree_label.insert_all_classifications_by_path(classifications)
+
+        aliases = DataCycleCore::ClassificationAlias.by_full_paths(mappings.pluck(:path).uniq).to_h { |ca| [ca.full_path, ca.id] }
+        new_ca_groups = mappings.map { |m| { classification_alias_id: aliases[m[:path]], classification_id: m[:classification_id] } }
+
+        DataCycleCore::ClassificationGroup.insert_all(new_ca_groups, unique_by: :classification_groups_ca_id_c_id_uq_idx, returning: false)
 
         puts "[DONE] finished upserting in #{Time.zone.now - tmp}s."
       end
+    end
+
+    desc 'outputs all stored filters that use the provided classification_alias_id or tree_id'
+    task :in_stored_filter, [:classification_alias_id_or_tree_id, :include_children] => [:environment] do |_, args|
+      id = args.classification_alias_id_or_tree_id
+      abort('classification_alias_id or tree_id missing!') if id.blank?
+
+      classification_alias = DataCycleCore::ClassificationAlias.find_by(id:)
+      tree = DataCycleCore::ClassificationTreeLabel.find_by(id:) if classification_alias.nil?
+
+      abort('classification_alias_id or tree_id not found!') if classification_alias.nil? && tree.nil?
+
+      if tree.present?
+        ca_ids = DataCycleCore::ClassificationAlias.for_tree(tree.name).pluck(:id)
+        puts "Found #{ca_ids.size} classification_alias_ids for classification_tree_id: #{id} (#{tree.name})"
+      elsif classification_alias.present?
+        include_children = args.include_children == 'true'
+
+        ca_children_ids = []
+        if include_children
+          child_query = <<~SQL.squish
+            SELECT * FROM classification_alias_paths
+            WHERE '#{id}' = ANY(ancestor_ids);
+          SQL
+          ca_children = ActiveRecord::Base.connection.execute(
+            ActiveRecord::Base.send(:sanitize_sql_array, [child_query])
+          )
+          ca_children_ids = ca_children.pluck('id')
+          puts "Found #{ca_children.ntuples} children for classification_alias_id: #{id} (#{classification_alias.full_path})"
+        end
+
+        ca_ids = [id] + ca_children_ids
+      end
+
+      found_stored_filters = []
+
+      ca_ids.each do |ca_id|
+        stored_filters = DataCycleCore::StoredFilter.where('parameters::TEXT ILIKE ?', "%#{ca_id}%").named.order(updated_at: :desc).select(:id, :name, :updated_at, :api)
+        classification_alias = DataCycleCore::ClassificationAlias.find_by(id:)
+        next if classification_alias.nil? || stored_filters.empty?
+        found_stored_filters << stored_filters.pluck(:id)
+        puts "Found #{stored_filters.size} stored_filters for classification_alias_id: #{ca_id} (#{classification_alias.full_path})"
+        pp stored_filters.as_json(only: [:id, :name, :updated_at, :api]) if stored_filters.size.positive?
+      end
+
+      found_stored_filters = found_stored_filters.flatten.uniq
+
+      puts 'SUMMARY:'
+      puts "Found #{found_stored_filters.size} stored_filters"
+      puts found_stored_filters if found_stored_filters.size.positive?
     end
   end
 end

@@ -1,0 +1,22 @@
+---
+- :data:
+    :name: Entity-With-Collection-Link
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 1.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :collections:
+        :label: Test Listen
+        :type: collection
+        :validations:
+          :soft_api: true

@@ -6,7 +6,8 @@ import Select2Helpers from "../helpers/select2_helpers";
 
 class BasicSelect2 {
 	constructor(element) {
-		this.$element = $(element);
+		this.element = element;
+		this.$element = $(this.element);
 		this.query = {};
 		this.config = this.$element.data() || {};
 		this.defaultOptions = {
@@ -24,6 +25,8 @@ class BasicSelect2 {
 			destroy: this.destroy.bind(this),
 			suppressChange: this.suppressChangeEvent.bind(this),
 			resizeDropdown: this.resizeDropdownEvent.bind(this),
+			clear: this.clear.bind(this),
+			setFocus: this.setFocus.bind(this),
 		};
 	}
 	init() {
@@ -63,6 +66,7 @@ class BasicSelect2 {
 		this.$element
 			.on("dc:import:data", this.eventHandlers.import)
 			.addClass("dc-import-data");
+		this.element.addEventListener("clear", this.eventHandlers.clear);
 		this.$element.on("dc:select:destroy", this.eventHandlers.destroy);
 		this.$element
 			.parent()
@@ -73,6 +77,10 @@ class BasicSelect2 {
 			);
 		this.$element.on("change", this.eventHandlers.resizeDropdown);
 		this.$element.on("select2:select", this.removeUnusedTags.bind(this));
+		this.element.addEventListener("focus", this.eventHandlers.setFocus);
+	}
+	setFocus() {
+		this.$element.select2("open");
 	}
 	removeUnusedTags(event) {
 		if (
@@ -95,10 +103,21 @@ class BasicSelect2 {
 	suppressChangeEvent(event) {
 		event.stopPropagation();
 	}
+	clear(_event) {
+		if (this.element.querySelector(":scope > option")) {
+			for (const option of this.element.querySelectorAll(":scope > option")) {
+				option.selected = false;
+			}
+		}
+
+		this.$element.trigger("change", { type: "reset" });
+	}
 	reset(_event) {
-		this.$element.find("option").prop("selected", function () {
-			return this.defaultSelected;
-		});
+		if (this.element.querySelector(":scope > option")) {
+			for (const option of this.element.querySelectorAll(":scope > option")) {
+				option.selected = option.defaultSelected;
+			}
+		}
 
 		this.$element.trigger("change", { type: "reset" });
 	}
@@ -192,7 +211,7 @@ class BasicSelect2 {
 		$(container).addClass(this.getClassFromData(data));
 	}
 	decorateResult(result) {
-		$(result).html(function (_index, value) {
+		$(result).html((_index, value) => {
 			if (value !== undefined) {
 				const text = value.split(" &gt; ");
 				text[text.length - 1] = `<span class="select2-option-title">${
@@ -210,8 +229,9 @@ class BasicSelect2 {
 				return value.replace(`${this.config.treeLabel} &gt; `, "");
 		});
 	}
-	copyDataAttributes(data, target) {
+	copyDataAttributes(data, attributeTarget) {
 		let source = data.element;
+		let target = attributeTarget;
 
 		if (source && source instanceof $) source = source[0];
 		if (target instanceof $) target = target[0];

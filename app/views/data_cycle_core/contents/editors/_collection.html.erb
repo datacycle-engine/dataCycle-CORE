@@ -1,0 +1,33 @@
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content, parent: local_assigns[:parent] do %>
+
+  <%= attribute_edit_label_tag(**local_assigns) %>
+
+  <div class="v-select">
+    <%= hidden_field_tag "#{key}[]", nil %>
+
+    <%= select_tag(
+      "#{key}[]",
+      options_for_select(
+        Array.wrap(value).map { |v| v.to_select_option.to_option_for_select },
+        Array.wrap(value).pluck(:id)
+      ),
+      {
+        multiple: true,
+        class: 'async-select',
+        data: {
+          max: 20,
+          placeholder: t(
+            'filter.relation_filter.placeholder.collection_or_stored_filter',
+            collection: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale),
+            stored_filter: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: active_ui_locale),
+            locale: active_ui_locale
+          ),
+          search_path: select_search_or_collection_stored_filters_path
+        }
+      }) %>
+
+    <% value.presence&.each do |c| %>
+      <%= hidden_field_tag "#{key}[]", c.collection.id %>
+    <% end unless attribute_editable?(key, definition, options, content) %>
+  </div>
+<% end %>

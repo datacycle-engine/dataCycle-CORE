@@ -1,4 +1,4 @@
-<% content_for(:sidebar_administration, flush:true) do %>
+<% content_for(:sidebar_user_administration, flush:true) do %>
   <% if DataCycleCore::ClassificationTreeLabel.accessible_by(current_ability).exists? %>
     <div>
       <%= link_to classifications_path, class: 'classifications-link' do %>
@@ -26,6 +26,15 @@
     </div>
   <% end %>
 
+  <% if can? :index, DataCycleCore::Permission %>
+    <div>
+      <%= link_to permissions_path, class: 'permissions-link' do %>
+        <span class="icon"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>
+        <span class="title"><%= DataCycleCore::Permission.model_name.human(count: 2, locale: active_ui_locale) %></span>
+      <% end %>
+    </div>
+  <% end %>
+
   <% if can?(:index, :report) && DataCycleCore::Feature::ReportGenerator.enabled? %>
     <div>
       <%= link_to reports_path do %>
@@ -34,7 +43,9 @@
       <% end %>
     </div>
   <% end %>
+<% end %>
 
+<% content_for(:sidebar_administration, flush:true) do %>
   <% if can? :clear_all, :cache %>
     <div>
       <%= link_to clear_all_caches_path,
@@ -63,6 +74,12 @@
       <span class="icon"><i class="fa fa-book" aria-hidden="true"></i></span>
       <span class="title"><%= t('data_cycle_core.documentation', locale: active_ui_locale) %></span>
     <% end %>
+  </div>
+<% end %>
+
+<% if content_for?(:sidebar_user_administration) %>
+  <div class="settings-row">
+    <%= yield_content!(:sidebar_user_administration) %>
   </div>
 <% end %>
 

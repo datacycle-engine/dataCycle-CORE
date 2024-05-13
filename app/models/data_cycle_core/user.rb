@@ -52,12 +52,12 @@ module DataCycleCore
     has_many :valid_received_data_links, -> { valid }, class_name: :DataLink, foreign_key: :receiver_id
     has_many :valid_received_readable_data_links, -> { valid.readable }, class_name: :DataLink, foreign_key: :receiver_id
     has_many :valid_received_writable_data_links, -> { valid.writable }, class_name: :DataLink, foreign_key: :receiver_id
-    has_many :valid_received_readable_stored_filter_data_links, -> { valid.readable.where(item_type: 'DataCycleCore::StoredFilter') }, class_name: :DataLink, foreign_key: :receiver_id
+    has_many :valid_received_readable_stored_filter_data_links, -> { valid.readable.joins(:collection).where(collection: { type: 'DataCycleCore::StoredFilter' }) }, class_name: :DataLink, foreign_key: :receiver_id
 
     has_many :assets, foreign_key: :creator_id, class_name: 'DataCycleCore::Asset'
 
-    has_many :watch_list_shares, as: :shareable, dependent: :destroy, inverse_of: :shareable
-    has_many :shared_watch_lists, through: :watch_list_shares, source: :watch_list
+    has_many :collection_shares, as: :shareable, dependent: :destroy, inverse_of: :shareable
+    has_many :shared_collections, through: :collection_shares, source: :watch_list
 
     has_many :external_system_syncs, as: :syncable, dependent: :destroy, inverse_of: :syncable
     has_many :external_systems, through: :external_system_syncs
@@ -92,12 +92,10 @@ module DataCycleCore
     def forward_to_url_with_token(tokens)
       return if forward_to_url.blank?
 
-      uri = URI.parse(forward_to_url.to_s)
+      uri = Addressable::URI.parse(forward_to_url.to_s)
       uri.query = ([uri.query] + tokens.map { |k, v| "#{k.to_s.camelize(:lower)}=#{v}" }).compact.join('&') if tokens.present?
 
       uri.to_s
-    rescue URI::Error
-      ''
     end
 
     def allowed_webhook_attributes
@@ -137,7 +135,7 @@ module DataCycleCore
     end
 
     def has_user_group?(group_name)
-      user_groups.exists?(name: group_name)
+      user_groups.any? { |ug| ug.name == group_name }
     end
 
     def locked?
@@ -228,11 +226,23 @@ module DataCycleCore
     def to_select_option(locale = DataCycleCore.ui_locales.first, disable_locked = true)
       DataCycleCore::Filter::SelectOption.new(
         id,
-        email,
+        ActionController::Base.helpers.safe_join([
+          ActionController::Base.helpers.tag.i(class: 'fa dc-type-icon user-icon'),
+          email
+        ].compact, ' '),
         model_name.param_key,
-        full_name_with_status(locale:),
+        ActionController::Base.helpers.safe_join(
+          [
+            "#{model_name.human(count: 1, locale:)}:",
+            full_name_with_status(locale:)
+          ], ' '
+        ),
         disable_locked && locked?
       )
+    end
+
+    def self.to_select_options(locale = DataCycleCore.ui_locales.first, disable_locked = true)
+      all.map { |v| v.to_select_option(locale, disable_locked) }
     end
 
     def full_name_with_status(locale: DataCycleCore.ui_locales.first)

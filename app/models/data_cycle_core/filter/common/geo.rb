@@ -155,6 +155,58 @@ module DataCycleCore
               )
           )
         end
+
+        def geo_type(value)
+          return self if value.blank?
+
+          return with_geometry if value.include? 'any'
+
+          geom_type = geom_type_filter_builder(value)
+
+          @query = @query.where(
+            'GeometryType(geom_simple) IN (?)', geom_type
+          )
+
+          reflect(@query)
+        end
+
+        def not_geo_type(value)
+          return self if value.blank?
+
+          return not_with_geometry if value.include? 'any'
+
+          geom_type = geom_type_filter_builder(value)
+
+          reflect(
+            @query
+              .where(
+                'GeometryType(geom_simple) NOT IN (?)', geom_type
+              )
+          )
+        end
+
+        def geom_type_filter_builder(value)
+          geom_type = []
+
+          value = value.map(&:downcase)
+
+          if value.include? 'point'
+            geom_type << 'POINT'
+            geom_type << 'MULTIPOINT'
+          end
+
+          if value.include? 'line'
+            geom_type << 'LINESTRING'
+            geom_type << 'MULTILINESTRING'
+          end
+
+          if value.include? 'polygon'
+            geom_type << 'POLYGON'
+            geom_type << 'MULTIPOLYGON'
+          end
+
+          geom_type
+        end
       end
     end
   end

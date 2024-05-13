@@ -3,12 +3,13 @@
 module DataCycleCore
   module Abilities
     class PermissionsList
-      include DataCycleCore::Abilities::Permissions::Roles::Common
-      include DataCycleCore::Abilities::Permissions::Roles::Guest
-      include DataCycleCore::Abilities::Permissions::Roles::ExternalUser
-      include DataCycleCore::Abilities::Permissions::Roles::Standard
-      include DataCycleCore::Abilities::Permissions::Roles::Admin
-      include DataCycleCore::Abilities::Permissions::Roles::SuperAdmin
+      include ActiveModel::Translation
+      include Permissions::Roles::Common
+      include Permissions::Roles::Guest
+      include Permissions::Roles::ExternalUser
+      include Permissions::Roles::Standard
+      include Permissions::Roles::Admin
+      include Permissions::Roles::SuperAdmin
 
       def self.list
         unless defined? @list
@@ -26,7 +27,7 @@ module DataCycleCore
       def segment(segment_name)
         return ::Abilities::Segments.const_get(segment_name) if Module.const_defined?("::Abilities::Segments::#{segment_name}")
 
-        DataCycleCore::Abilities::Segments.const_get(segment_name)
+        Segments.const_get(segment_name)
       end
 
       def permissions
@@ -78,6 +79,13 @@ module DataCycleCore
         raise 'missing roles in permission' if roles.blank?
 
         permit(segment(:UsersByUserGroup).new(group_name, roles), *, definition_to_segment(definition))
+      end
+
+      def permit_user_group_with_api_token(group_name, roles, *, definition)
+        raise 'missing user_group name in permission' if group_name.blank?
+        raise 'missing roles in permission' if roles.blank?
+
+        permit(segment(:UsersByUserGroupAndApiToken).new(group_name, roles), *, definition_to_segment(definition))
       end
 
       def permit_user_from_yaml(role, permissions)
@@ -146,8 +154,61 @@ module DataCycleCore
         list.select { |l| l[:condition].include?(user) }
       end
 
+      def self.clone_role_permissions(role, ability)
+        user_segment = Segments::UsersByRole.new(role.name)
+        user_segment.instance_variable_set(:@user, ability.user)
+        user_segment.instance_variable_set(:@session, ability.session)
+
+        permissions = list.select { |l| l[:condition].class.in?([Segments::UsersByRole, Segments::UsersExceptRoles]) && l[:condition].include?(DataCycleCore::User.new(role:)) }
+        cloned_permissions = permissions.map do |permission|
+          DataCycleCore::Permission.new(
+            condition: permission[:condition].clone,
+            actions: permission[:actions].clone,
+            definition: permission[:definition].clone,
+            ability:
+          )
+        end
+
+        return user_segment, cloned_permissions
+      end
+
+      def self.cloned_additional_permissions(key, permissions, ability)
+        key_segment = key.clone
+        key_segment.instance_variable_set(:@user, ability.user)
+        key_segment.instance_variable_set(:@session, ability.session)
+
+        cloned_permissions = permissions.map do |permission|
+          DataCycleCore::Permission.new(
+            condition: permission[:condition].clone,
+            actions: permission[:actions].clone,
+            definition: permission[:definition].clone,
+            ability:
+          )
+        end
+
+        return key_segment, cloned_permissions
+      end
+
+      def self.grouped_list(roles, ability)
+        grouped_list = {}
+
+        roles.each do |role|
+          key_segment, permissions = clone_role_permissions(role, ability)
+          grouped_list[key_segment] = permissions
+        end
+
+        additional_permissions = list.reject { |l| l[:condition].class.in?([Segments::UsersByRole, Segments::UsersExceptRoles]) }.group_by { |l| l[:condition] }
+        additional_permissions.each do |key, permissions|
+          key_segment, cloned_permissions = cloned_additional_permissions(key, permissions, ability)
+          grouped_list[key_segment] = cloned_permissions
+        end
+
+        grouped_list
+      end
+
       def self.add_alias_actions(ability)
         ability.alias_action :manual_order, to: :update
+        ability.alias_action :share, to: :create_api_with_users
       end
 
       def self.add_abilities_for_user(ability)
@@ -161,6 +222,7 @@ module DataCycleCore
           parameters = [:can, permission[:actions], definition.subject]
           parameters.push(definition.scope) if definition.respond_to?(:scope)
           parameters.push(definition.conditions) if definition.respond_to?(:conditions)
+
           next ability.send(*parameters) unless definition.respond_to?(:to_proc)
 
           ability.send(*parameters, &definition.to_proc)

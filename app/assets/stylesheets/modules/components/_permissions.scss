@@ -1,0 +1,195 @@
+#permissions {
+  padding-top: 1.5rem;
+
+  .accordion-open-children,
+  .accordion-close-children {
+    cursor: pointer;
+  }
+
+  .permission-overview {
+    margin: 2rem 0;
+
+    >li.accordion-item {
+      border-top: 1px solid var(--light-gray);
+      padding: 0.7rem 1rem;
+
+      .accordion-title:hover,
+      .accordion-title:focus {
+        background: transparent;
+      }
+
+      .accordion-title,
+      .accordion-content {
+        border: none;
+      }
+
+      .accordion-title {
+        padding: 0;
+        font-size: 1rem;
+
+        &:not(.alert-color) {
+          color: var(--primary-color);
+        }
+
+        &.permission-root-segment {
+          font-size: 1.1rem;
+        }
+      }
+
+      .accordion-content {
+        padding: 0.25rem 0 0 0;
+      }
+
+      li.permission {
+        position: relative;
+        padding: 0.3rem 0 0.3rem 1rem;
+        border-left: 1px solid var(--dark-gray);
+        margin-left: 1rem;
+        line-height: 1rem;
+
+        &:last-child {
+          border-left: 1px solid transparent;
+        }
+
+        &::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: -1px;
+          height: 0.9rem;
+          width: 0.75rem;
+          transition: border-color 0.25s ease-out;
+          border: 1px solid var(--dark-gray);
+          border-top: 0 none transparent;
+          border-right: 0 none transparent;
+        }
+
+        .permission-actions {
+          list-style: none;
+          margin-left: 0.5rem;
+
+          >li .permission-action {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            color: var(--success-color);
+            font-weight: 600;
+
+            &::before {
+              content: "\f00c";
+              font-family: FontAwesome;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-style: normal;
+              font-weight: normal;
+              text-decoration: inherit;
+              position: relative;
+              height: 1rem;
+              width: 1rem;
+              background-color: transparent;
+              line-height: 0.7rem;
+              font-size: 0.7rem;
+            }
+
+            &.has-restrictions {
+              color: var(--warning-color);
+            }
+          }
+
+          .permission-restriction-blocks {
+            font-size: 0.9rem;
+            list-style: none;
+            margin-left: 2rem;
+
+            .permission-restriction-block {
+              display: inline-flex;
+              align-items: center;
+              gap: 0.3rem;
+              border-radius: var(--global-radius);
+              font-weight: 600;
+
+              &.or-part {
+                padding: 0.15rem 0 0.15rem 0.25rem;
+              }
+            }
+
+            .permission-restrictions {
+              margin-left: 2rem;
+              // list-style: none;
+
+              // .permission-restriction {
+              //   display: flex;
+              //   align-items: center;
+              //   gap: 0.3rem;
+
+              //   &::before {
+              //     content: "\f068";
+              //     font-family: FontAwesome;
+              //     display: flex;
+              //     align-items: center;
+              //     justify-content: center;
+              //     font-style: normal;
+              //     font-weight: normal;
+              //     text-decoration: inherit;
+              //     position: relative;
+              //     height: 1rem;
+              //     width: 1rem;
+              //     background-color: transparent;
+              //     line-height: 0.7rem;
+              //     font-size: 0.7rem;
+              //   }
+              // }
+            }
+          }
+        }
+      }
+    }
+
+    .accordion-item {
+      >.accordion-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        &::before {
+          display: none;
+        }
+
+        &::after {
+          content: "\f107";
+          font-family: FontAwesome;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-style: normal;
+          font-weight: normal;
+          text-decoration: inherit;
+          position: relative;
+          height: 1rem;
+          width: 1rem;
+          background-color: transparent;
+          line-height: 1rem;
+        }
+      }
+
+      .accordion-close-children,
+      .accordion-open-children {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary-color);
+        padding: 0;
+
+        i.fa {
+          font-size: 1.1rem;
+          line-height: 1rem;
+        }
+      }
+
+      &.is-active>.accordion-title::after {
+        content: "\f106";
+      }
+    }
+  }
+}

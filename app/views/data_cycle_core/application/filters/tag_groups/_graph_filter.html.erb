@@ -1,0 +1,32 @@
+<%
+  allowed_relations = DataCycleCore::Feature::AdvancedFilter.graph_filter_relations(relations: filter_advanced_type)
+  filter_type = DataCycleCore::ThingTemplate.translated_property_labels(attributes: allowed_relations, locale: active_ui_locale, count: key == 'linked_items_in' ? 1 : 2, specific: key)&.dig(filter_advanced_type)
+  # specific keys: items_linked_to, linked_items_in
+%>
+
+<span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
+  <span class="tag-group-label">
+    <%= render 'data_cycle_core/shared/icon', icon_type: key&.underscore_blanks, icon_class: 'filter' %>
+    <% prefix_translation = t("filter.graph_filter.input_ui.#{key}.prefix", default: title, locale: active_ui_locale) %>
+    <span data-dc-tooltip="<%= prefix_translation %>"><%= prefix_translation %></span>
+  </span>
+
+  <span class="tags-container">
+    <span class="tag" data-dc-tooltip="<%= filter_type %>"><%= filter_type %></span>
+  </span>
+
+  <span class="tag-group-label">
+    <% method_translation = t("filter.graph_filter.#{key}.#{DataCycleCore::DashboardFilterHelper::RELATION_FILTER_TYPES[filter_method]}", locale: active_ui_locale) %>
+    <span data-dc-tooltip="<%= method_translation %>"><%= method_translation %></span>
+  </span>
+
+  <% if !filter_method.in?(['p', 'b']) %>
+    <span class="tags-container">
+      <% relation_filter_items(value, filter_method).each do |item| %>
+        <%= tag.span(item.name, class: "tag #{item.html_class}", data: { dc_tooltip: item.dc_tooltip }) %>
+      <% end %>
+    </span>
+  <% end %>
+
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons %>
+</span>

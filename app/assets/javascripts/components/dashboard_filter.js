@@ -43,6 +43,7 @@ class DashboardFilter {
 			listItem: "li",
 			listClass: "sub-list",
 		};
+		this.leaveDebounceTimer = null;
 
 		this.setup();
 	}
@@ -233,14 +234,21 @@ class DashboardFilter {
 	_conditionalValueSelectorChange(event) {
 		event.preventDefault();
 
-		const mode = $(event.currentTarget).val();
-		const $valueSelectors = $(event.currentTarget)
-			.closest(".advanced-filter.conditional-value-selector")
-			.find(".advanced-filter-selector [data-active-for]");
+		const mode = event.currentTarget.value;
+		const container = event.currentTarget.closest(
+			".advanced-filter.conditional-value-selector",
+		);
+		let valueSelectors = [];
+		if (container.querySelector("[data-active-for]"))
+			valueSelectors = container.querySelectorAll("[data-active-for]");
 
-		$valueSelectors.attr("disabled", function (_i, _attribute) {
-			return !this.dataset.activeFor?.includes(mode);
-		});
+		for (const valueSelector of valueSelectors) {
+			valueSelector.disabled = !valueSelector.dataset.activeFor?.includes(mode);
+			valueSelector.classList.toggle(
+				"hidden",
+				!valueSelector.dataset.activeFor?.includes(mode),
+			);
+		}
 	}
 	advancedFilterChange(event) {
 		event.preventDefault();
@@ -322,7 +330,12 @@ class DashboardFilter {
 		);
 
 		nextElement.insertAdjacentHTML("beforebegin", data?.html);
-		DomElementHelpers.slideDown(nextElement.previousElementSibling);
+		const insertedElement = nextElement.previousElementSibling;
+		DomElementHelpers.slideDown(insertedElement).then(() => {
+			insertedElement
+				.querySelector('[data-initial-focus]:not([data-initial-focus="false"])')
+				?.focus({ focusVisible: true });
+		});
 
 		addAdvancedFilterSelect.dataset.index += 1;
 	}
@@ -383,7 +396,11 @@ class DashboardFilter {
 			behavior: "smooth",
 			block: "center",
 		});
-		$element.find(":text").first().focus();
+
+		$element
+			.get(0)
+			.querySelector('[data-initial-focus]:not([data-initial-focus="false"])')
+			?.focus({ focusVisible: true });
 
 		setTimeout(() => {
 			$element.removeClass("highlight");
@@ -421,13 +438,24 @@ class DashboardFilter {
 			"> li.active",
 			this.leaveMainFilter.bind(this),
 		);
+		this.$clickableMenus.on(
+			"mouseleave",
+			"> li.active",
+			this.leaveMainFilter.bind(this),
+		);
+		this.$clickableMenus.on(
+			"exit",
+			"> li.active",
+			this.leaveMainFilterInstant.bind(this),
+		);
 	}
 	clickOnMainFilter(event) {
 		if (
 			$(event.currentTarget).hasClass("active") &&
 			!$(event.target).parentsUntil(".clickable-menu").filter("ul").length
 		) {
-			$(event.currentTarget).trigger("mouseleave");
+			$(event.currentTarget).trigger("exit");
+			clearTimeout(this.leaveDebounceTimer);
 		} else if (!$(event.currentTarget).hasClass("active")) {
 			$(".clickable-menu .active").removeClass("active");
 			$(event.currentTarget)
@@ -447,7 +475,14 @@ class DashboardFilter {
 		}
 	}
 	leaveMainFilter(event) {
-		$(event.currentTarget).removeClass("active");
+		const currentTarget = event.currentTarget;
+		this.leaveDebounceTimer = setTimeout(() => {
+			if (currentTarget.querySelector("ul:hover")) return;
+			currentTarget.classList.remove("active");
+		}, 300);
+	}
+	leaveMainFilterInstant(event) {
+		event.currentTarget.classList.remove("active");
 	}
 	clickMainFilterInput(event) {
 		event.stopPropagation();

@@ -128,6 +128,52 @@ module DataCycleCore
         def attribute_value_blank?(attribute)
           !attribute_value_present?(attribute)
         end
+
+        def to_restrictions(**)
+          Array.wrap(method_names).map do |m|
+            params = case m.first.to_s
+                     when 'attribute_not_excluded?'
+                       next translated_attribute_labels(m.first, except_list)
+                     when 'template_whitelisted?',  'template_not_blacklisted?'
+                       { data: translated_template_names(m.last) }
+                     when 'attribute_whitelisted?', 'attribute_not_blacklisted?'
+                       next translated_attribute_labels(m.first, m.last)
+                     when 'attribute_and_template_whitelisted?', 'attribute_and_template_not_blacklisted?'
+                       next translated_attribute_labels_with_template_name(m.first, m.last)
+                     when 'attribute_type_whitelisted?', 'attribute_type_not_blacklisted?'
+                       { data: translated_attribute_types(m.last) }
+                     when 'attribute_not_releasable?'
+                       next releasable_attribute_labels(m.first)
+                     else {}
+                     end
+
+            I18n.t("abilities.data_attribute_method_names.#{m.first}", locale:, **params)
+          end
+        end
+
+        private
+
+        def releasable_attribute_labels(translation_key)
+          AttributeTranslation.new(Array.wrap(DataCycleCore::Feature::Releasable.attribute_keys), nil, ->(data) { I18n.t("abilities.data_attribute_method_names.#{translation_key}", locale:, data:) })
+        end
+
+        def translated_attribute_labels_with_template_name(translation_key, keys)
+          keys.map do |k, v|
+            AttributeTranslation.new(Array.wrap(v), k.to_s, ->(data, template_name) { I18n.t("abilities.data_attribute_method_names.#{translation_key}", locale:, data:, template_name:) })
+          end
+        end
+
+        def translated_attribute_labels(translation_key, keys)
+          AttributeTranslation.new(Array.wrap(keys), nil, ->(data) { I18n.t("abilities.data_attribute_method_names.#{translation_key}", locale:, data:) })
+        end
+
+        def translated_template_names(keys)
+          Array.wrap(keys).map { |v| I18n.t("template_names.#{v}", default: v, locale:) }.join(', ')
+        end
+
+        def translated_attribute_types(keys)
+          Array.wrap(keys).map { |k| I18n.t("abilities.attribute_types.#{k}", locale:) }.join(', ')
+        end
       end
     end
   end

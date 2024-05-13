@@ -26,6 +26,8 @@ module DataCycleCore
     has_many :classification_user_groups, dependent: :destroy
     has_many :user_groups, through: :classification_user_groups
 
+    has_one :concept
+
     def self.for_tree(tree_name)
       joins(primary_classification_alias: { classification_tree: :classification_tree_label })
         .where(classification_aliases: { classification_trees: { classification_tree_labels: { name: tree_name } } })

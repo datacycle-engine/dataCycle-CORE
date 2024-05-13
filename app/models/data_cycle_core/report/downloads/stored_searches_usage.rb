@@ -7,7 +7,7 @@ module DataCycleCore
         def apply(_params)
           raw_query = <<-SQL.squish
             SELECT
-              stored_filters.name AS NAME,
+              collections.name AS NAME,
               MIN(
                 CONCAT(
                   users.given_name,
@@ -18,7 +18,8 @@ module DataCycleCore
                   '>'
                 )
               ) AS creator,
-              stored_filters.updated_at AS last_used_dashboard,
+              collections.api AS api_access,
+              collections.updated_at AS last_used_dashboard,
               MAX(activities.created_at) AS last_used_api,
               COUNT(activities.id) FILTER (
                 WHERE
@@ -44,18 +45,19 @@ module DataCycleCore
                   AND activities.created_at < DATE_TRUNC('month', NOW())
               ) AS api_usage_last_12_months
             FROM
-              stored_filters
-              LEFT OUTER JOIN users ON users.id = stored_filters.user_id
-              LEFT OUTER JOIN activities ON activities.data ->> 'id' = stored_filters.id::TEXT
+              collections
+              LEFT OUTER JOIN users ON users.id = collections.user_id
+              LEFT OUTER JOIN activities ON activities.data ->> 'id' = collections.id::TEXT
             WHERE
-              stored_filters.name IS NOT NULL
-              AND stored_filters.name != ''
+              collections.name IS NOT NULL
+              AND collections.name != ''
+              AND collections.type = 'DataCycleCore::StoredFilter'
             GROUP BY
-              stored_filters.name,
-              stored_filters.id
+              collections.name,
+              collections.id
             ORDER BY
-              stored_filters.name,
-              stored_filters.id;
+              collections.name,
+              collections.id;
           SQL
 
           @data = ActiveRecord::Base.connection.execute(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [raw_query]))

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class StoredFilter < ApplicationRecord
+  class StoredFilter < Collection
     # Mögliche Filter-Parameter: c, t, v, m, n, q
     #
     # c => one of 'd', 'a', 'p', 'u', 'uf'                | für 'default', 'advanced', 'permanent advanced', 'user', 'user forced'
@@ -15,31 +15,13 @@ module DataCycleCore
     include StoredFilterExtensions::FilterParamsTransformations
     include StoredFilterExtensions::FilterParamsHashParser
 
-    default_scope { includes(:collection_configuration) }
-
-    scope :by_user, ->(user) { where(user:) }
-    scope :by_api_user, ->(user) { where("'#{user.id}' = ANY (api_users)") }
-    scope :named, -> { where.not(name: nil) }
-    belongs_to :user
-    belongs_to :user_with_deleted, -> { with_deleted }, foreign_key: :user_id, class_name: 'DataCycleCore::User'
-
-    has_many :activities, as: :activitiable, dependent: :destroy
-
-    belongs_to :linked_stored_filter, class_name: 'DataCycleCore::StoredFilter', inverse_of: :filter_uses, dependent: nil
-    has_many :filter_uses, class_name: 'DataCycleCore::StoredFilter', foreign_key: :linked_stored_filter_id, inverse_of: :linked_stored_filter, dependent: :nullify
-
-    has_many :data_links, as: :item, dependent: :destroy
-    has_many :valid_write_links, -> { valid.writable }, class_name: 'DataCycleCore::DataLink', as: :item
-
-    has_one :collection_configuration
-    accepts_nested_attributes_for :collection_configuration, update_only: true
-    delegate :slug, to: :collection_configuration, allow_nil: true
-
-    before_save :update_slug, if: :update_slug?
-
     attr_accessor :query, :include_embedded
 
     KEYS_FOR_EQUALITY = ['t', 'c', 'n'].freeze
+
+    def things(query: nil, skip_ordering: false, watch_list: nil)
+      apply(query:, skip_ordering:, watch_list:).query
+    end
 
     def apply(query: nil, skip_ordering: false, watch_list: nil)
       self.query = query || DataCycleCore::Filter::Search.new(language&.exclude?('all') ? language : nil, nil, include_embedded || false)
@@ -54,44 +36,11 @@ module DataCycleCore
       filter1.slice(*KEYS_FOR_EQUALITY) == filter2.slice(*KEYS_FOR_EQUALITY)
     end
 
-    def self.combine_with_collections(collections, filter_proc, name_filter = true)
-      query1_table = all.arel_table
-      query1 = all.arel
-      query1.projections = []
-      query1 = query1.where(query1_table[:name].not_eq(nil)) if name_filter
-      query1 = query1.project(
-        query1_table[:id],
-        query1_table[:name],
-        query1_table[:system],
-        query1_table[:name].as('full_path'),
-        Arel::Nodes::SqlLiteral.new("'#{all.klass.model_name.param_key}'").as('class_name')
-      )
-
-      query2_table = collections.arel_table
-      query2 = collections.arel
-      query2.projections = []
-      query2 = query2.where(query2_table[:name].not_eq(nil))
-        .project(
-          query2_table[:id],
-          query2_table[:name],
-          Arel::Nodes::SqlLiteral.new('false').as('system'),
-          query2_table[:full_path],
-          Arel::Nodes::SqlLiteral.new("'#{collections.klass.model_name.param_key}'").as('class_name')
-        )
-
-      unless filter_proc.nil?
-        query1 = filter_proc.call(query1, query1_table)
-        query2 = filter_proc.call(query2, query2_table)
-      end
-
-      Arel::SelectManager.new(Arel::Nodes::TableAlias.new(query1.union(:all, query2), 'combined_collections_and_searches')).project(Arel.star).order('name ASC')
-    end
-
     def to_select_option(locale = DataCycleCore.ui_locales.first)
       DataCycleCore::Filter::SelectOption.new(
         id,
         ActionController::Base.helpers.safe_join([
-          ActionController::Base.helpers.tag.i(class: "fa dc-type-icon stored_filter-icon #{self.system ? 'system' : ''}".strip),
+          ActionController::Base.helpers.tag.i(class: 'fa dc-type-icon stored_filter-icon'),
           name.presence || '__DELETED__'
         ].compact, ' '),
         model_name.param_key,
@@ -99,42 +48,59 @@ module DataCycleCore
       )
     end
 
-    def valid_write_links?
-      valid_write_links.present?
-    end
+    def self.validate_by_duplicate_search(content, datahash, primary_key, current_user, active_ui_locale)
+      return {} if datahash.blank? || primary_key.blank?
 
-    def self.by_id_or_slug(value)
-      return none if value.blank?
+      value = datahash&.dig(primary_key)
 
-      uuids = Array.wrap(value).filter { |v| v.to_s.uuid? }
-      slugs = Array.wrap(value)
-      queries = []
-      queries.push(unscoped.where(id: uuids).select(:id).to_sql) if uuids.present?
-      queries.push(DataCycleCore::CollectionConfiguration.where.not(stored_filter_id: nil).where(slug: slugs).select(:stored_filter_id).to_sql) if slugs.present?
+      return {} if value.blank?
 
-      where("stored_filters.id IN (#{send(:sanitize_sql_array, [queries.join(' UNION ')])})")
-    end
+      data_type_definition = content.properties_for('data_type') || content.properties_for('schema_types')
+      tree_label = data_type_definition&.dig('tree_label')
+      internal_name = content.respond_to?(:data_type) ? data_type_definition&.dig('default_value') : content.schema_ancestors&.flatten&.last
+      classification_alias_ids = DataCycleCore::ClassificationAlias.for_tree(tree_label).with_internal_name(internal_name).pluck(:id)
+      last_filter = current_user.stored_filters.order(created_at: :desc).first
 
-    def self.by_id_or_name(value)
-      return none if value.blank?
+      if last_filter&.parameters&.size&.==(2) && last_filter&.parameters&.any? { |f| f['t'] == 'fulltext_search' && f['v'] == value } && last_filter&.parameters&.any? { |f| f['t'] == 'classification_alias_ids' && f['v'] == classification_alias_ids }
+        filter = last_filter
+      else
+        filter = create(user: current_user, language: [I18n.locale.to_s], parameters: [
+                          {
+                            'c' => 'a',
+                            'n' => I18n.t('common.searchterm', locale: active_ui_locale),
+                            't' => 'fulltext_search',
+                            'v' => value,
+                            'identifier' => SecureRandom.hex(10)
+                          },
+                          {
+                            'c' => 'a',
+                            'm' => 'i',
+                            'n' => tree_label,
+                            't' => 'classification_alias_ids',
+                            'v' => classification_alias_ids,
+                            'identifier' => SecureRandom.hex(10)
+                          }
+                        ])
+      end
 
-      uuids = Array.wrap(value).filter { |v| v.to_s.uuid? }
-      names = Array.wrap(value)
-      queries = []
-      queries.push(default_scoped.where(id: uuids).select(:id).to_sql) if uuids.present?
-      queries.push(default_scoped.where(name: names).select(:id).to_sql) if names.present?
+      duplicate_count = filter.apply(skip_ordering: true).query.reorder(nil).size
 
-      where("stored_filters.id IN (#{send(:sanitize_sql_array, [queries.join(' UNION ')])})")
-    end
+      return {} if duplicate_count.zero?
 
-    private
+      dup_confirm_diag = <<-DIAG.squish
+        <p>#{I18n.t('duplicate_search.found_html', count: duplicate_count, locale: active_ui_locale)}!</p>
+        <p>#{I18n.t('duplicate_search.continue_creation', locale: active_ui_locale)}</p>
+      DIAG
 
-    def update_slug?
-      name_changed? && slug.blank?
-    end
+      content.warnings.add(primary_key, I18n.t('duplicate_search.found_html', count: duplicate_count, locale: active_ui_locale))
 
-    def update_slug
-      self.collection_configuration_attributes = { slug: name&.to_slug }
+      {
+        duplicate_search: {
+          count: duplicate_count,
+          popup_text: dup_confirm_diag,
+          filter_id: filter.id
+        }
+      }
     end
   end
 end

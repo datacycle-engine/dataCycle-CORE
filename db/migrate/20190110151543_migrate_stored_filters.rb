@@ -2,6 +2,8 @@
 
 class MigrateStoredFilters < ActiveRecord::Migration[5.1]
   def up
+    return unless ActiveRecord::Base.connection.table_exists? 'stored_filters'
+
     DataCycleCore::StoredFilter.find_each do |filter|
       order_hash = filter.parameters&.select { |parameter| parameter['t'] == 'order' }&.first || []
       next if order_hash.blank?

@@ -27,11 +27,35 @@ watch_list_api_common:
 
 watch_list_create_api:
   actions: create_api
-  segment: SubjectByUserAndConditions
-  parameters:
-    - DataCycleCore::WatchList
-    - :user_id
-    - :my_selection: false
+  segment: WatchListByCreatorWithoutMySelection
+
+collection_user_shares:
+  actions: read
+  segment: CollectionBySharedUsers
+
+collection_user_group_shares:
+  actions: read
+  segment: CollectionBySharedUserGroups
+
+collection_role_shares:
+  actions: read
+  segment: CollectionBySharedRoles
+
+collection_api_creator:
+  actions: [api, copy_api_link]
+  segment: CollectionByCreatorAndApi
+
+collection_api_user_shares:
+  actions: [api, copy_api_link]
+  segment: CollectionByApiAndSharedUsers
+
+collection_api_user_group_shares:
+  actions: [api, copy_api_link]
+  segment: CollectionByApiAndSharedUserGroups
+
+collection_api_role_shares:
+  actions: [api, copy_api_link]
+  segment: CollectionByApiAndSharedRoles
 
 view_mode_feature:
   actions: grid
@@ -49,3 +73,8 @@ user_filter_user_groups:
   actions: search
   segment: SubjectByConditions
   parameters: :user_groups
+
+widget_links:
+  actions: show
+  segment: SubjectByConditions
+  parameters: :preview

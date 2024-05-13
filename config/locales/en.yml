@@ -344,11 +344,19 @@ en:
       success: The order was updated
       error: The order could not be updated
 
+  duplicate_search:
+    found_html:
+      one: "<b>%{count}</b> entry with the same or a similiar name found"
+      other: "<b>%{count}</b> entries with the same or a similiar name found"
+    show: Show potential duplicates
+    continue_creation: "Do you really want to continue creating this content?"
+
   content_external_data:
     primary_external_system_tooltip: This system is the primary external system
     toolip: Use this external system as the primary external system
     primary_system_switched: The primary external system was successfully switched
     duplicate_record_html: There is already a <a href="%{url}" target="_blank">content</a> in the target external system
+    warning_html: Use this external system as the primary external system?
 
   common:
     "true": "Yes"
@@ -569,7 +577,7 @@ en:
     inverse_linked: Inverse reference
     has_overlay: This content has an overlay
     no_name: untitled
-    o_clock: Watch
+    o_clock: ""
     and: and
     "yes": "Yes"
     "no": "No"
@@ -617,6 +625,10 @@ en:
       tooltip: Remove link to external system
       success: Link to external system was removed
       warning_html: 'Remove link to external system?<br><br><i class="alert-color">This may affect the function of an importer!</i>'
+    demote_to_sync:
+      tooltip: Convert primary external system into external link
+      success: Primary external system has been converted to external link
+      warning_html: 'Convert primary external system to external link?<br><br><i class="alert-color">This may affect the function of an importer!</i>'
 
   duplicate:
     candidates: Possible duplicates
@@ -690,9 +702,10 @@ en:
       missing_serialize_format: At least one format must be selected
     serialize:
       license:
+        terms_of_use: terms_of_use
         copyright:
-          file_name: terms_of_use
-        introducton:
+          file_name: copyright
+        introduction:
           file_name: intro_text
           text: |
             Headline
@@ -729,11 +742,16 @@ en:
         subject: A new user was created
         text_html: The new user %{name} (%{email}) has been created.
         user_link: Show user
+    overlay:
+      label_postfix:
+        override: (Overlay)
+        add: (Appendix)
 
     report_generator:
       downloads_popular: Top 50 Downloads
       downloads_content: All downloads of this content
       stored_searches_usage: Usage of saved Searches
+      watch_lists_usage: Usage of content collections
       headings:
         id: ID
         name: Name
@@ -751,6 +769,21 @@ en:
         api_usage_current_month: Number of uses via the API in the current month
         api_usage_last_month: Number of uses via the API in the last month
         api_usage_last_12_months: Number of uses via the API in the last 12 months
+        first_name: First name
+        last_name: Last name
+        created_at: Created on
+        updated_at: Edited on
+        last_sign_in_at: Last login
+        current_sign_in_at: Current login
+        sign_in_count: Number of logins
+        deleted_at: Deleted on
+        locked_at: Locked on
+        external: External
+        role_name: Role
+        latest_activity_type: Last activitytype
+        latest_api_access: Last API access
+        user_group_names: User groups
+        api_access: accessible via API
       mailer:
         subject:
           downloads_popular: TOP 50 Image Downloads
@@ -848,6 +881,12 @@ en:
     alternative_headline: Subtitle
     geo_radius: Perimeter
     geo_within_classification: Location
+    geo_type: Geometry type
+    geo_type_options:
+      any: Any geometry type
+      point: Point
+      line: Line
+      polygon: Area
     event_location: Venue
     inactive_things: Expired contents
     in_schedule: Date
@@ -859,6 +898,32 @@ en:
       placeholder:
         thing: content
         collection_or_stored_filter: "%{collection} or %{stored_filter}"
+    graph_filter:
+      placeholder:
+        thing: content
+        collection_or_stored_filter: "%{collection} or %{stored_filter}"
+      dropdown_text:
+        items_linked_to: Item linked as ... in ...
+        linked_items_in: Items with linked Item ... in ...
+      items_linked_to:
+        contained_in: from contents in
+        # not_contained_in: from contents not in
+        exists: that exist
+        # not_exists: from contents are not present
+        equal: from
+        # not_equal: from
+      linked_items_in:
+        contained_in: contained in
+        not_contained_in: not contained in
+        exists: is present
+        not_exists: is not present
+        equal: is
+        not_equal: is not
+      input_ui:
+        items_linked_to:
+          prefix: All linked
+        linked_items_in:
+          prefix: Linked
     related_to: is linked to
     feratel_content_score: Feratel - Content Score
     internal_content_score: Content Score - dataCycle
@@ -911,6 +976,7 @@ en:
     related_to: filter by linked content ...
     in_schedule: filter by date ...
     inactive_things: filter for expired content ...
+    graph_filter: Filter via linked content...
   sortable:
     default: Standard
     created_at: Creation date
@@ -1083,7 +1149,7 @@ en:
     remove_content_from: "Remove %{name} from %{collection}?"
     remove_from: "remove from %{collection}"
     set_gravity: "Set image gravity"
-
+    download_user_info_activity: "Download user activity"
   validation:
     errors:
       slug: "%{data} is already the slug of another record."
@@ -1182,6 +1248,8 @@ en:
       required: "should be filled in."
       schedule:
         duration_too_long: "The schedule with start time %{data} lasts longer than %{max} (This could probably also be achieved via repeating schedules)"
+      collection:
+        no_api: '"%{data}" is not accessible via the API'
   controllers:
     error:
       invalid_parent: Invalid parent object.
@@ -1380,18 +1448,21 @@ en:
       data_cycle_core/classification_alias:
         one: Classification
         other: Classifications
+      data_cycle_core/classification:
+        one: Classification
+        other: Classifications
+      data_cycle_core/classification_tree:
+        one: Classification tree
+        other: Classification trees
       data_cycle_core/classification_tree_label:
         one: Classification tree
         other: Classification trees
+      data_cycle_core/permission:
+        one: Permission
+        other: Permissions
     attributes:
       data_cycle_core/watch_list:
-        name: Name
-        full_path: Name (including folder path)
-        user_group_ids: User groups
-        user_ids: User
-        user_id: Owner
         manual_order: Use manual order as default order
-        api: Retrievable via API
       data_cycle_core/classification_tree_label:
         visibility: Visibility
         change_behaviour: Change behavior
@@ -1473,21 +1544,28 @@ en:
         permissions_write: edit
         text_file: Further information (%{file_types})
         locale: E-mail language
-      data_cycle_core/stored_filter:
-        system: Visible for all users (also applies to the API)
-        api: Retrievable via API
-        api_users: Users permitted for API
-        api_users_tooltip: Users permitted for API limited
-        linked_stored_filter_id: Filter for linked content
-        linked_stored_filter_id_tooltip: Filter for linked content
-        classification_tree_labels: Limit to classification trees
-        classification_tree_labels_tooltip: Limited to certain classification trees
-        name: Name
+        creator_id: Creator
       data_cycle_core/asset:
         name: Name
         file: File
+        creator_id: Creator
       data_cycle_core/external_source:
         name: Name
+      data_cycle_core/external_system_sync:
+        external_system_id: External System
+        external_key: External Identifier
+      data_cycle_core/collection:
+        description: Description
+        name: Name
+        full_path: Name (including folder path)
+        shared_users: shared with users
+        shared_user_groups: shared with user groups
+        shared_roles: shared with roles
+        user_id: Owner
+        api: Retrievable via API
+        linked_stored_filter: Filter for linked content
+        concept_schemes: Limit to classification trees
+
   unauthorized:
     manage:
       all: No access authorization!
@@ -1507,6 +1585,8 @@ en:
       download_tree: Classification tree without contents (csv)
       download_tree_with_contents: Classification tree with contents (csv)
       download_tree_for_mappings: Classification tree for defining mappings (csv)
+      download_tree_with_mappings: Classification tree with mappings (csv)
+      download_tree_with_inverse_mappings: Classification tree with ivnerse mappings (csv)
     this_classification: This classification
     this_classification_tree: This classification tree
     show_contents_for_tree_label: List contents in %{data}
@@ -1553,6 +1633,7 @@ en:
         other: "<b>%{count}</b> searches"
       form:
         api: API
+        shares: Shares
       update_params: save and apply search parameters
     watch_list:
       locked_by_data_link: Add/Remove Content Locked (Active External Links)
@@ -1756,6 +1837,7 @@ en:
       publicTransit: Public transit
       seasonDescription: Sesion
       Preis-Zusatzbeschreibung: Additional price description
+      booking_link: Booking link
     gem2go:
       description: Description
     timm4:

@@ -27,14 +27,14 @@ class AsyncSelect2 extends BasicSelect2 {
 		});
 
 		promise.then((data) => {
-			data = data.map((value) => {
+			const newData = data.map((value) => {
 				if (this.aliasIds && value.classification_alias_id)
 					value.id = value.classification_alias_id;
 				else if (value.classification_id) value.id = value.classification_id;
 				return value;
 			});
 
-			data.forEach((element) => {
+			for (const element of newData) {
 				const option = new Option(element.name, element.id, true, true);
 				option.title = element.title;
 				this.$element.append(option).trigger("change");
@@ -46,7 +46,7 @@ class AsyncSelect2 extends BasicSelect2 {
 						data: element,
 					},
 				});
-			});
+			}
 		});
 
 		return await promise;
@@ -89,7 +89,12 @@ class AsyncSelect2 extends BasicSelect2 {
 				tree_label: this.config.treeLabel,
 			});
 
-		if (this.config.queryParams)
+		if (this.config.queryParams && this.config.queryParamsFromSelector)
+			Object.assign(
+				returnObject,
+				this.getQueryParamsFromSelector(this.config.queryParams),
+			);
+		else if (this.config.queryParams)
 			Object.assign(returnObject, this.config.queryParams);
 
 		return returnObject;
@@ -108,6 +113,18 @@ class AsyncSelect2 extends BasicSelect2 {
 		return {
 			results: result,
 		};
+	}
+	getQueryParamsFromSelector(queryParams) {
+		const selector = this.element
+			.closest(".advanced-filter")
+			.querySelector(".additional-selector select");
+
+		if (!selector) return queryParams;
+
+		if (queryParams?.stored_filter[0]?.exists_graph_filter?.name)
+			queryParams.stored_filter[0].exists_graph_filter.name = selector.value;
+
+		return queryParams;
 	}
 }
 

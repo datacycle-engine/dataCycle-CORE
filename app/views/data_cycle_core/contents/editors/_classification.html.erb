@@ -2,19 +2,13 @@
 
   <%= attribute_edit_label_tag(**local_assigns) %>
 
-  <% if attribute_editable?(key, definition, options, content) && DataCycleCore::Feature::AutoTagging.allowed?(content) && DataCycleCore.features.dig(:auto_tagging, :attribute_keys).include?(key.attribute_name_from_key) %>
-    <%= link_to auto_tagging_thing_path(id: content.id, key: sanitize_to_id(key)), class: 'auto-tagging-button', remote: true, data: { disable_with: '<i class="fa fa-spinner fa-spin fa-fw"></i>' } do %>
-      <i class="fa fa-cloud-download"></i>
-    <% end %>
-  <% end %>
-
   <div class="v-select">
     <% classification_items = classification_alias_filter_items(definition['tree_label'], { internal_name: :asc }) %>
     <% single_select = definition.dig('ui', 'edit', 'options', 'multiple') == false || definition.dig('validations', 'max') == 1 %>
     <% async = definition.dig('ui', 'edit', 'options', 'async') != false %>
     <%= hidden_field_tag "#{key}[]", nil %>
 
-    <% if (async && classification_items.size > DataCycleCore.max_asynch_classification_items) || (DataCycleCore::Feature::AutoTagging.allowed?(content) && DataCycleCore.features.dig(:auto_tagging, :attribute_keys).include?(key.attribute_name_from_key)) %>
+    <% if (async && classification_items.size > DataCycleCore.max_asynch_classification_items) %>
       <%= select_tag(
             "#{key}[]",
             async_classification_select_options(value, DataCycleCore::Classification),

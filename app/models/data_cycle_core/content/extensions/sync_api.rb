@@ -9,28 +9,35 @@ module DataCycleCore
       module SyncApi
         extend ActiveSupport::Concern
 
-        def to_sync_data(locales: nil, translated: false, preloaded: {}, ancestor_ids: [], included: [], classifications: [], attribute_name: nil)
+        def to_sync_data(locales: nil, translated: false, preloaded: {}, ancestor_ids: [], included: [], classifications: [], attribute_name: nil, linked_stored_filter: nil)
           ancestor_proc = ->(a) { a[:id] == id }
 
           return if ancestor_ids.count(&ancestor_proc) >= 2
 
-          # disable cache as included and classifications from children and embedded are not added if read from cache (line 25 and 26)
           languages = available_locales.presence || [I18n.locale]
           languages = locales if locales.present? && translated
           new_ancestor_ids = ancestor_ids + [{ id:, attribute_name: }]
-          preloaded = preload_sync_data if preloaded.blank?
+          preloaded = preload_sync_data(linked_stored_filter:) if preloaded.blank?
 
           data = languages.index_with do |lang|
             Rails.cache.fetch("sync_api_v1_show/#{self.class.name.underscore}/#{id}_#{lang}_#{updated_at.to_i}_#{cache_valid_since.to_i}", expires_in: 1.year + Random.rand(7.days)) do
-              I18n.with_locale(lang) { to_sync_h(locales:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:) }
+              I18n.with_locale(lang) { to_sync_h(locales:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, linked_stored_filter:) }
             end
           end
 
-          add_sync_included_data(data:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, locales: languages) unless embedded?
+          data = data.with_indifferent_access
+
+          unless embedded?
+            if attribute_name.present?
+              data[:attribute_name] = [attribute_name]
+              included.unshift(data)
+            end
+            add_sync_included_data(data:, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, locales: languages, linked_stored_filter:)
+          end
 
           if ancestor_ids.any?(&ancestor_proc)
             data['recursive'] = ancestor_ids.reject(&ancestor_proc).filter { |a| a[:attribute_name]&.in?(data[languages.first].keys) }.uniq
-            return data.deep_stringify_keys!
+            return data
           end
 
           if new_ancestor_ids.size == 1
@@ -38,18 +45,18 @@ module DataCycleCore
             data[:classifications] = classifications
           end
 
-          data.deep_stringify_keys!
+          data
         end
 
-        def to_sync_h(locales: nil, preloaded: {}, ancestor_ids: [], included: [], classifications: [])
+        def to_sync_h(locales: nil, preloaded: {}, ancestor_ids: [], included: [], classifications: [], linked_stored_filter: nil)
           (property_names - timeseries_property_names)
-            .index_with { |key| attribute_to_sync_h(key, locales:, preloaded:, ancestor_ids:, included:, classifications:) }
+            .index_with { |key| attribute_to_sync_h(key, locales:, preloaded:, ancestor_ids:, included:, classifications:, linked_stored_filter:) }
             .merge(sync_metadata)
-            .tap { |sync_data| sync_data['universal_classifications'] += attribute_to_sync_h('mapped_classifications', locales:, preloaded:, ancestor_ids:, included:, classifications:) }
+            .tap { |sync_data| sync_data['universal_classifications'] += attribute_to_sync_h('mapped_classifications', locales:, preloaded:, ancestor_ids:, included:, classifications:, linked_stored_filter:) }
             .deep_stringify_keys
         end
 
-        def attribute_to_sync_h(property_name, locales: nil, preloaded: {}, ancestor_ids: [], included: [], classifications: [])
+        def attribute_to_sync_h(property_name, locales: nil, preloaded: {}, ancestor_ids: [], included: [], classifications: [], linked_stored_filter: nil)
           present_overlay = overlay_property_names.include?(property_name)
           property_name_with_overlay = property_name
           property_name_with_overlay = "#{property_name}_#{overlay_name}" if overlay_property_names.include?(property_name) && property_name != 'id'
@@ -61,7 +68,7 @@ module DataCycleCore
           elsif linked_property_names.include?(property_name)
             return [] if properties_for(property_name)['link_direction'] == 'inverse'
 
-            get_property_value(property_name, property_definitions[property_name], nil, present_overlay).pluck(:id) || []
+            get_property_value(property_name, property_definitions[property_name], linked_stored_filter, present_overlay).pluck(:id) || []
           elsif included_property_names.include?(property_name)
             embedded_hash = send(property_name_with_overlay).to_h
             embedded_hash.presence
@@ -71,7 +78,7 @@ module DataCycleCore
             embedded_array = send(property_name_with_overlay)
 
             translated = property_definitions[property_name]['translated']
-            embedded_array&.map { |i| i.to_sync_data(translated:, locales:, preloaded:, ancestor_ids:, included:, classifications:, attribute_name: property_name) }&.compact || []
+            embedded_array&.map { |i| i.to_sync_data(translated:, locales:, preloaded:, ancestor_ids:, included:, classifications:, attribute_name: property_name, linked_stored_filter:) }&.compact || []
           elsif asset_property_names.include?(property_name)
           # send(property_name_with_overlay) # do nothing --> only import url not asset itself
           elsif schedule_property_names.include?(property_name)
@@ -94,7 +101,7 @@ module DataCycleCore
           end
         end
 
-        def add_sync_included_data(data:, preloaded:, ancestor_ids:, included:, classifications:, locales:)
+        def add_sync_included_data(data:, preloaded:, ancestor_ids:, included:, classifications:, locales:, linked_stored_filter: nil)
           data&.each_value do |translation|
             translation&.each do |key, value|
               if embedded_property_names.include?(key) && value.present?
@@ -103,7 +110,7 @@ module DataCycleCore
                   next if embedded_id.nil?
                   new_ancestor_ids = ancestor_ids + [{ id: embedded_id, attribute_name: key }]
 
-                  preloaded.dig('contents', embedded_id)&.add_sync_included_data(data: v, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, locales:)
+                  preloaded.dig('contents', embedded_id)&.add_sync_included_data(data: v, preloaded:, ancestor_ids: new_ancestor_ids, included:, classifications:, locales:, linked_stored_filter:)
                 end
 
                 next
@@ -116,8 +123,7 @@ module DataCycleCore
                   if existing.present?
                     existing[:attribute_name].push(key) unless existing[:attribute_name].include?(key)
                   else
-                    data = preloaded.dig('contents', linked_id)&.to_sync_data(preloaded:, ancestor_ids:, included:, classifications:, attribute_name: key)&.merge({ attribute_name: [key] })
-                    included.unshift(data) if data.present?
+                    preloaded.dig('contents', linked_id)&.to_sync_data(preloaded:, ancestor_ids:, included:, classifications:, attribute_name: key, linked_stored_filter:)
                   end
                 end
               end
@@ -201,12 +207,12 @@ module DataCycleCore
           }
         end
 
-        def preload_sync_data
-          DataCycleCore::Thing.unscoped.where(id:).tap { |rel| rel.send(:load_records, [self]) }.preload_sync_data.last
+        def preload_sync_data(linked_stored_filter: nil)
+          DataCycleCore::Thing.unscoped.where(id:).tap { |rel| rel.send(:load_records, [self]) }.preload_sync_data(linked_stored_filter:).last
         end
 
         class_methods do
-          def preload_sync_data
+          def preload_sync_data(linked_stored_filter: nil)
             content_ids = all.pluck(:id)
 
             return [], {} if content_ids.blank?
@@ -214,11 +220,19 @@ module DataCycleCore
             preloaded_content_contents = all
               .recursive_content_content_a
               .select(:content_a_id, :relation_a, :content_b_id)
-              .to_a
+
+            if linked_stored_filter.present?
+              sub_query = <<-SQL.squish
+                things.content_type = 'embedded'
+                OR EXISTS (#{linked_stored_filter.apply(skip_ordering: true).except(:order).select(1).where('things.id = content_contents.content_b_id').to_sql})
+              SQL
+              preloaded_content_contents = preloaded_content_contents.joins(:content_b).where(send(:sanitize_sql_array, [sub_query]))
+            end
+            preloaded_content_contents = preloaded_content_contents.to_a
 
             preloaded = {}
             preloaded['contents'] = DataCycleCore::Thing
-              .unscoped
+              .default_scoped
               .includes(:thing_template)
               .where(id: content_ids + preloaded_content_contents.pluck(:content_b_id))
               .preload(
@@ -265,7 +279,10 @@ module DataCycleCore
                     })
                   } +
                   [
-                    ccc.classification_alias.classification_tree_label.as_json(only: [:id, :name]).merge({ 'class_type' => 'DataCycleCore::ClassificationTreeLabel' })
+                    ccc.classification_alias.classification_tree_label.as_json(only: [:id, :name]).merge({
+                      'class_type' => 'DataCycleCore::ClassificationTreeLabel',
+                      'external_system' => ccc.classification_alias.classification_tree_label&.external_source&.identifier
+                    })
                   ]
               }
             }&.compact&.index_by { |v| v[:classification].id } || {}
@@ -311,7 +328,7 @@ module DataCycleCore
                   content.set_memoized_attribute(
                     k,
                     content.overlay_property_names.include?(k) ? preloaded['contents'].values_at(*preloaded.dig('content_contents', content.overlay_content&.id, k)).presence || preloaded['contents'].values_at(*preloaded.dig('content_contents', content.id, k)) : preloaded['contents'].values_at(*preloaded.dig('content_contents', content.id, k)),
-                    nil,
+                    linked_stored_filter,
                     content.overlay_property_names.include?(k)
                   )
                 end
@@ -343,21 +360,17 @@ module DataCycleCore
             return preloaded['contents'].values_at(*content_ids), preloaded
           end
 
-          def to_sync_data
-            things, preloaded = all.preload_sync_data
+          def to_sync_data(linked_stored_filter: nil)
+            things, preloaded = all.preload_sync_data(linked_stored_filter:)
 
             things.map do |content|
               content.to_sync_data(
                 locales: content.available_locales,
-                preloaded:
+                preloaded:,
+                linked_stored_filter:
               )
             end
           end
-        end
-
-        private
-
-        def add_included_data
         end
       end
     end

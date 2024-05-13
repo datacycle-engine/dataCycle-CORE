@@ -4,6 +4,7 @@
     file_url = DataCycleCore::Feature::ImageEditor.file_url(local_assigns[:parent]&.asset.present? ? local_assigns[:parent] : content)
     file_name = DataCycleCore::Feature::ImageEditor.file_name(local_assigns[:parent]&.asset.present? ? local_assigns[:parent] : content)
     file_mime_type = DataCycleCore::Feature::ImageEditor.file_mime_type(local_assigns[:parent]&.asset.present? ? local_assigns[:parent] : content)
+    crop_options = DataCycleCore::Feature::ImageEditor.crop_options
 %>
 
 <div class="image-editor" data-image-editor="image-editor-<%= asset_id || editor_id %>">
@@ -19,7 +20,8 @@
        data-file-url="<%= file_url %>"
        data-file-name="<%= file_name %>"
        data-file-mime-type="<%= file_mime_type %>"
-       data-hidden-field-key="<%= key %>">
+       data-hidden-field-key="<%= key %>"
+       data-crop-options="<%= crop_options.to_json %>">
     <div class="top-bar">
       <%= tag.button(
         tag.i(class: 'fa fa-floppy-o'),

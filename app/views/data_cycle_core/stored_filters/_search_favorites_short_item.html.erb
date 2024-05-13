@@ -1,12 +1,12 @@
 <li>
   <%= link_to root_path(stored_filter: stored_filter.id) do %>
-    <span class="title <%= 'global' if stored_filter.system %>" title="<%= stored_filter.name %>">
-      <%= stored_filter.system ? tag.i(class: 'fa fa-globe') : tag.i(class: 'fa fa-filter') %> <%= stored_filter.name %>
+    <span class="title" title="<%= stored_filter.name %>">
+      <%= tag.i(class: 'fa fa-filter') %> <%= stored_filter.name %>
     </span>
 
     <%= tag.span(
       'API',
-      class: "content-title-api copy-to-clipboard #{'global' if stored_filter.system}",
+      class: "content-title-api copy-to-clipboard",
       data: {
         value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_url", id: stored_filter),
         dc_tooltip: t('actions.copy_to_clipboard_data', data: t('common.api_url', locale: active_ui_locale), locale: active_ui_locale)
@@ -17,23 +17,22 @@
   <% end %>
 
   <div class="buttons">
-
     <span class = "api-restrictions">
-      <%=
-        tag.i(class: 'fa fa-user', data: {
-          dc_tooltip: t('activerecord.attributes.data_cycle_core/stored_filter.api_users_tooltip', locale: active_ui_locale)
-        }) if stored_filter.api_users.present? && stored_filter.api_users.length > 0
-      %>
-      <%=
-        tag.i(class: 'fa fa-filter', data: {
-          dc_tooltip: t('activerecord.attributes.data_cycle_core/stored_filter.linked_stored_filter_id_tooltip', locale: active_ui_locale)+ ": "+(DataCycleCore::StoredFilter.find(stored_filter.linked_stored_filter_id).name.to_s)
-        }) if stored_filter.linked_stored_filter_id.present?
-      %>
-      <%=
-        tag.i(class: 'fa fa-sitemap', data: {
-          dc_tooltip: t('activerecord.attributes.data_cycle_core/stored_filter.classification_tree_labels_tooltip', locale: active_ui_locale)
-        }) if stored_filter.classification_tree_labels.present? && stored_filter.classification_tree_labels.length > 0
-      %>
+      <%= tag.i(class: 'dc-type-icon user-icon', data: {
+          dc_tooltip: DataCycleCore::StoredFilter.human_attribute_name(:shared_users, locale: active_ui_locale)
+        }) if stored_filter.shared_users.present? %>
+      <%= tag.i(class: 'dc-type-icon user_group-icon', data: {
+          dc_tooltip: DataCycleCore::StoredFilter.human_attribute_name(:shared_user_groups, locale: active_ui_locale)
+        }) if stored_filter.shared_user_groups.present? %>
+      <%= tag.i(class: 'dc-type-icon role-icon', data: {
+          dc_tooltip: DataCycleCore::StoredFilter.human_attribute_name(:shared_roles, locale: active_ui_locale)
+        }) if stored_filter.shared_roles.present? %>
+      <%= tag.i(class: 'dc-type-icon stored_filter-icon', data: {
+          dc_tooltip: "#{DataCycleCore::StoredFilter.human_attribute_name(:linked_stored_filter, locale: active_ui_locale)}: #{stored_filter.linked_stored_filter&.name}"
+        }) if stored_filter.linked_stored_filter_id.present? %>
+      <%= tag.i(class: 'dc-type-icon concept_scheme-icon', data: {
+          dc_tooltip: DataCycleCore::StoredFilter.human_attribute_name(:concept_schemes, locale: active_ui_locale)
+        }) if stored_filter.concept_schemes.present? %>
     </span>
 
     <span class="stored-date"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= l(Time.zone.at(stored_filter.created_at.to_datetime), format: :edit, locale: active_ui_locale) %></span>
@@ -48,6 +47,6 @@
                   dc_tooltip:t('actions.copy_to_clipboard_data', data: t('common.api_url', locale: active_ui_locale), locale: active_ui_locale)
                 } if stored_filter.api %>
 
-    <%= link_to tag.i(class: 'fa fa-external-link'), saved_searches_stored_filters_path(q: stored_filter.slug.presence || stored_filter.id), target: :_blank, data: { dc_tooltip: t('data_cycle_core.stored_searches.show_in_my_saved_searches', locale: active_ui_locale) } %>
+    <%= link_to tag.i(class: 'fa fa-external-link'), saved_searches_stored_filters_path(q: stored_filter.name), target: :_blank, data: { dc_tooltip: t('data_cycle_core.stored_searches.show_in_my_saved_searches', locale: active_ui_locale) } %>
   </div>
 </li>

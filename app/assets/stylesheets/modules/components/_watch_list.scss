@@ -29,9 +29,10 @@
 
 .detail-header-functions {
 
-  .add-to-watchlist-link,
   .add-to-watchlist-link {
-    display: inline;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
   }
 }
 
@@ -39,7 +40,9 @@
 .detail-header-functions .remove-from-watchlist-link,
 .change-link .add-to-watchlist-link,
 .remove-from-watchlist-link {
-  display: inline;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 
   .fa {
     font-size: 1rem;
@@ -68,7 +71,7 @@
           color: $black;
           padding: 0;
           line-height: 1.4rem;
-          display: block;
+          display: flex;
           overflow: hidden;
           text-overflow: ellipsis;
           font-size: 0.9rem;
@@ -230,6 +233,7 @@
           text-overflow: ellipsis;
           display: flex;
           align-items: center;
+          gap: 0.3rem;
 
           >a {
             flex: auto;
@@ -238,8 +242,19 @@
           }
 
           .fa {
-            margin-right: 0.3rem;
             font-size: 0.9rem;
+          }
+
+          .watchlist-link {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+          }
+
+          .add-to-watchlist-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
           }
         }
 

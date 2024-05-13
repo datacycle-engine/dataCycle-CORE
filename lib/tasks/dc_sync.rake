@@ -42,5 +42,27 @@ namespace :dc do
         end
       end
     end
+
+    desc 'trigger webhooks for all things in collection not previously exported'
+    task :trigger_webhooks, [:endpoint_id_or_slug, :external_system_id, :force] => :environment do |_, args|
+      abort('endpoint missing!') if args.endpoint_id_or_slug.blank?
+      abort('external_system_id missing!') if args.external_system_id.blank?
+
+      force = args.force.to_s == 'true'
+
+      collection = DataCycleCore::Collection.by_id_or_slug(args.endpoint_id_or_slug).first
+      abort('endpoint not found!') if collection.nil?
+
+      external_system = DataCycleCore::ExternalSystem.find_by(id: args.external_system_id)
+      abort('external_system not found!') if external_system.nil?
+
+      things = collection.things
+      things = things.where.not(DataCycleCore::ExternalSystemSync.where(syncable_type: 'DataCycleCore::Thing', sync_type: 'export', external_system_id: external_system.id).where('external_system_syncs.syncable_id = things.id').select(1).arel.exists) unless force
+
+      things.find_each do |thing|
+        thing.allowed_webhooks = [external_system.name]
+        thing.execute_update_webhooks
+      end
+    end
   end
 end

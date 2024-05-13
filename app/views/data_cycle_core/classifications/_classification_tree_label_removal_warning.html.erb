@@ -1,18 +1,18 @@
 <%= t('common.are_you_sure', locale: active_ui_locale) %>
 
 <% if classification_tree_label.things.exists? %>
-  <span class='warning'>
+  <div class='warning'>
     <i class='fa fa-exclamation-triangle' aria-hidden='true'></i>
     <%= t('data_cycle_core.classification_tree_relations', locale: active_ui_locale) %>
-  </span>
+  </div>
 <% end %>
 
 <% if classification_tree_label.classifications.exists? %>
-  <span class='warning'>
+  <div class='warning'>
     <i class='fa fa-exclamation-triangle' aria-hidden='true'></i>
     <%= t('data_cycle_core.child_classification_relations_html',
           count: classification_tree_label.classifications.size,
           data: t('data_cycle_core.this_classification_tree', locale: active_ui_locale),
           locale: active_ui_locale) %>
-  </span>
+  </div>
 <% end %>

@@ -168,26 +168,46 @@ module DataCycleCore
                 templates[data_template[:set]].push(data)
               end
             rescue StandardError => e
-              @errors.push("#{data_template[:set]}.#{template[:name]} => #{e.message}")
+              if e.is_a?(TemplateError)
+                @errors.push("#{[data_template[:set], template[:name], e.path].compact.join('.')} => #{e.message}")
+              else
+                @errors.push("#{data_template[:set]}.#{template[:name]} => #{e.message}")
+              end
             end
           end
         end
 
         def template_dependencies_ready?(template, template_definitions, templates)
           return true unless template.key?(:extends)
-          if templates.values.flatten.none? { |v| v[:name] == template[:extends] }
-            raise "BaseTemplate missing for #{template[:extends]}" if template_definitions.none? do |v|
-                                                                        v.dig(:data, :name) == template[:extends] &&
-                                                                        (v.dig(:data, :extends).blank? || v.dig(:data, :extends) != v.dig(:data, :name))
-                                                                      end
+
+          extends_templates = Array.wrap(template[:extends])
+
+          # check if all BaseTemplates for extends templates exist
+          extends_templates.each do |t_name|
+            next if templates.values.flatten.any? { |v| v[:name] == t_name }
+
+            raise TemplateError.new('extends'), "BaseTemplate missing for #{t_name}" if template_definitions.none? do |v|
+                                                                                          v.dig(:data, :name) == t_name &&
+                                                                                          (v.dig(:data, :extends).blank? || Array.wrap(v.dig(:data, :extends)).exclude?(v.dig(:data, :name)))
+                                                                                        end
 
             return false
           end
-          return true if template[:name].blank? || template[:name] == template[:extends]
 
-          template_definitions.none? do |v|
-            v.dig(:data, :extends) == template[:extends] &&
-              (v.dig(:data, :name).blank? || v.dig(:data, :name) == v.dig(:data, :extends))
+          # remove extends_templates, if template overrides one of its extends templates
+          extends_templates.pop if template[:name].blank?
+          extends_templates.delete(template[:name]) if extends_templates.include?(template[:name])
+
+          return true if extends_templates.blank?
+
+          # check if any of the extends templates have overrides in queue
+          extends_templates.none? do |t_name|
+            template_definitions.any? do |v|
+              e_names = Array.wrap(v.dig(:data, :extends))
+
+              e_names.include?(t_name) &&
+                (v.dig(:data, :name).blank? || e_names.include?(v.dig(:data, :name)))
+            end
           end
         end
 

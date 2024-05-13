@@ -70,7 +70,7 @@ module DataCycleCore
         end
       end
 
-      object.activities.create(user: current_user, activity_type: 'download', data: { collection_items: items.map(&:id) })
+      object.activities.create(user: current_user, activity_type: 'download', data: { collection_items: items.map(&:id), referer: request.referer})
     rescue ActionController::Live::ClientDisconnected
       # ignore client disconnections
       nil
@@ -134,7 +134,7 @@ module DataCycleCore
         end
       end
 
-      object.activities.create(user: current_user, activity_type: 'download', data: { collection_items: items.map(&:id) })
+      object.activities.create(user: current_user, activity_type: 'download', data: { collection_items: items.map(&:id), referer: request.referer})
     rescue ActionController::Live::ClientDisconnected
       # ignore client disconnections
       nil
@@ -186,7 +186,11 @@ module DataCycleCore
         response.stream.write(chunk)
       end
 
-      content.activities.create(user: current_user, activity_type: 'download', data: additional_data)
+      content.activities.create(user: current_user, activity_type: 'download', data: additional_data.merge(
+        referer: request.referer,
+        origin: request.origin,
+        middlewareOrigin: request.headers['X-Dc-Middleware-Origin']
+      ))
     rescue ActionController::Live::ClientDisconnected
       # ignore client disconnections
       nil

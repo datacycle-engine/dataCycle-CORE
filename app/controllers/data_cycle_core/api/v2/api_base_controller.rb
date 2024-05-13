@@ -42,7 +42,13 @@ module DataCycleCore
         end
 
         def log_activity
-          current_user.log_activity(type: "api_v#{@api_version}", data: permitted_params.to_h.merge(controller: params.dig('controller'), action: params.dig('action')))
+          current_user.log_activity(type: "api_v#{@api_version}", data: permitted_params.to_h.merge(
+            ontroller: params.dig('controller'),
+            action: params.dig('action'),
+            referer: request.referer,
+            origin: request.origin,
+            middlewareOrigin: request.headers['X-Dc-Middleware-Origin']
+          ))
         end
 
         private

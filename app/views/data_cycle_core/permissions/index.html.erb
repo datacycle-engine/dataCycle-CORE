@@ -1,0 +1,50 @@
+<% breadcrumb :index, 'permissions' %>
+
+<div id="permissions" class="row">
+  <div class="small-12 columns">
+    <h1><%= DataCycleCore::Permission.model_name.human(count: 2, locale: active_ui_locale) %></h1>
+
+    <ul class="permission-overview accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
+      <% @permissions.each do |type, permissions| %>
+        <li class="accordion-item" data-accordion-item data-segment="<%= type.i18n_key %>">
+          <% permission_string = permission_type_string(type) %>
+          <%= link_to(permission_string, '#', class: "accordion-title permission-root-segment #{'alert-color' if permission_string.match?(/translation missing:/i)}") %>
+          <span class="accordion-open-children" data-dc-tooltip="<%= t('embedded.open_all', locale: active_ui_locale) %>"><i class="fa fa-angle-double-down"></i></span>
+          <span class="accordion-close-children" data-dc-tooltip="<%= t('embedded.close_all', locale: active_ui_locale) %>"><i class="fa fa-angle-double-up"></i></span>
+          <div class="accordion-content" data-tab-content>
+            <ul class="permission-list accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
+              <% permission_groups(permissions).each do |permission_name, permission_actions| %>
+                <li class="permission accordion-item" data-accordion-item>
+                  <a href="#" class="permission-name accordion-title <%= 'alert-color' if permission_name.match?(/translation missing:/i) %>"><%= permission_name %></a>
+                  <ul class="permission-actions accordion-content no-bullet" data-tab-content>
+                    <% permission_actions.each do |action_name, action_restrictions| %>
+                      <li>
+                        <span class="permission-action <%= 'alert-color' if action_name.match?(/translation missing:/i) %> <%= 'has-restrictions' if action_restrictions.present? %>"><%= action_name %></span>
+                        <ul class="permission-restriction-blocks">
+                          <% action_restrictions.each.with_index do |restrictions, index| %>
+                            <li>
+                              <% if index.zero? %>
+                                <span class="permission-restriction-block"><%= t('abilities.restriction', locale: active_ui_locale, count: action_restrictions.size) %>:</span>
+                              <% else %>
+                                <span class="permission-restriction-block or-part"><%= t('common.or', locale: active_ui_locale) %>:</span>
+                              <% end %>
+                              <ul class="permission-restrictions">
+                                <% restrictions.each do |restriction| %>
+                                  <li class="permission-restriction <%= 'alert-color' if restriction.match?(/translation missing:/i) %>"><%= restriction %></li>
+                                <% end %>
+                              </ul>
+                            </li>
+                          <% end %>
+                        </ul>
+                      </li>
+                    <% end %>
+                  </ul>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>

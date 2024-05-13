@@ -47,6 +47,7 @@
 
     &.artikel,
     &.article,
+    &.safety_tip,
     &.standard_artikel,
     &.strukturierter_artikel,
     &.radroutenbeschreibung,
@@ -349,7 +350,8 @@
     }
   }
 
-  &.classification_tree_label-icon {
+  &.classification_tree_label-icon,
+  &.concept_scheme-icon {
     &::before {
       content: '\f02c';
     }
@@ -390,6 +392,10 @@
     content: '\f0c0';
   }
 
+  &.role-icon::before {
+    content: '\f2be';
+  }
+
   &.organization-icon::before {
     content: '\f0c0';
   }
@@ -400,10 +406,6 @@
 
   &.stored_filter-icon::before {
     content: '\f0b0';
-  }
-
-  &.stored_filter-icon.system::before {
-    content: '\f0ac';
   }
 
   &.property-icon {

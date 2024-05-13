@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# future additon in file dc.rake
+
 namespace :data_cycle_core do
   namespace :import do
     desc 'List available endpoints for import'
@@ -53,12 +55,12 @@ namespace :data_cycle_core do
     end
 
     desc 'Import a specific data_set from a given source'
-    task :import_one, [:external_source_id, :stage, :external_key] => [:environment] do |_, args|
+    task :import_one, [:external_source_id, :stage, :external_key, :mode] => [:environment] do |_, args|
       options = args.to_h.symbolize_keys
       external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
       puts "importing from #{external_source.name} (#{external_source.id}) with external_key: #{options[:external_key]}"
       # puts 'Be aware that the data_set might not be updated if the data_hash detects that the old and the new data are the same!'
-      external_source.import_one(options[:stage].to_sym, options[:external_key])
+      external_source.import_one(options[:stage].to_sym, options[:external_key], {}, options[:mode] || 'full')
     end
 
     desc 'Download a specific data_set from a given source that supports it'

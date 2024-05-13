@@ -1,7 +1,7 @@
 import Flatpickr from "flatpickr";
 import { German } from "flatpickr/dist/l10n/de.js";
 import { english } from "flatpickr/dist/l10n/default";
-import domElementHelpers from "../helpers/dom_element_helpers";
+import DomElementHelpers from "../helpers/dom_element_helpers";
 import castArray from "lodash/castArray";
 import LocalStorageCache from "./local_storage_cache";
 
@@ -18,6 +18,9 @@ class DatePicker {
 			de: German,
 			en: english,
 		};
+		this.initialFocus = DomElementHelpers.parseDataAttribute(
+			this.element.dataset.initialFocus,
+		);
 		this.defaultOptions = {
 			locale: this.localeMapping[DataCycle.uiLocale],
 			altInput: true,
@@ -69,6 +72,7 @@ class DatePicker {
 			setDate: this.setDate.bind(this),
 			import: this.importData.bind(this),
 			fixTimeElementValueUpdate: this.fixTimeElementValueUpdate.bind(this),
+			clear: this.clear.bind(this),
 		};
 		this.cacheNamespace = "dcDatepickerCache";
 		this.isDateTime = this.elementIsDateTime(this.element);
@@ -78,7 +82,7 @@ class DatePicker {
 	}
 	elementIsDateTime(element) {
 		return Object.hasOwn(element.dataset, "isDateTime")
-			? domElementHelpers.parseDataAttribute(element.dataset.isDateTime)
+			? DomElementHelpers.parseDataAttribute(element.dataset.isDateTime)
 			: element.getAttribute("type") === "datetime-local" &&
 					element.dataset.disableTime !== "true";
 	}
@@ -111,6 +115,11 @@ class DatePicker {
 		$(this.calInstance.altInput)
 			.on("dc:import:data", this.eventHandlers.import)
 			.addClass("dc-import-data");
+
+		this.calInstance.altInput.addEventListener(
+			"clear",
+			this.eventHandlers.clear,
+		);
 	}
 	removeEvents() {
 		if (this.calInstance.hourElement)
@@ -136,6 +145,11 @@ class DatePicker {
 		$(this.calInstance.altInput)
 			.off("dc:import:data", this.eventHandlers.import)
 			.removeClass("dc-import-data");
+
+		this.calInstance.altInput.removeEventListener(
+			"clear",
+			this.eventHandlers.clear,
+		);
 	}
 	toRegex(values) {
 		if (!values?.length) return;
@@ -156,6 +170,10 @@ class DatePicker {
 	}
 	initCalInstance() {
 		this.calInstance = Flatpickr(this.element, this.options());
+		if (this.initialFocus) {
+			this.element.removeAttribute("data-initial-focus");
+			this.calInstance.altInput.dataset.initialFocus = true;
+		}
 
 		if (this.element.dataset.type !== "timepicker") this.getLimitFromSibling();
 
@@ -305,7 +323,7 @@ class DatePicker {
 		} else {
 			const target = event.currentTarget;
 
-			domElementHelpers.renderImportConfirmationModal(
+			DomElementHelpers.renderImportConfirmationModal(
 				target,
 				data.sourceId,
 				() => {
@@ -314,6 +332,10 @@ class DatePicker {
 				},
 			);
 		}
+	}
+	clear(_event) {
+		this.setDate(null);
+		this.updateConditionalField(null);
 	}
 	updateConditionalField(value) {
 		$(this.conditionalFormField).trigger("dc:conditionalField:refresh", {

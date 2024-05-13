@@ -10,6 +10,12 @@ module DataCycleCore
           @subject = subject
           @conditions = conditions
         end
+
+        private
+
+        def to_restrictions(**)
+          conditions.map { |k, v| "#{k} => #{v}" }
+        end
       end
     end
   end

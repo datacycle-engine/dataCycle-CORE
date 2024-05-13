@@ -49,7 +49,6 @@ module DataCycleCore
       new_filter ||= @stored_filter
       new_filter.user_id ||= current_user.id
       new_filter.name = filter_params[:name] if params[:stored_filter].present? && filter_params[:name].present? && !new_filter.persisted?
-      new_filter.system = filter_params[:system] if params[:stored_filter].present? && filter_params[:system].present?
       new_filter.parameters = @stored_filter.parameters
       new_filter.language = Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
       new_filter.sort_parameters = @stored_filter.sort_parameters
@@ -81,7 +80,7 @@ module DataCycleCore
             .part_of(@container.id)
           tmp_count = @contents.count
           @contents = @contents.content_includes.page(params[:page])
-          ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:watch_list_shares))
+          ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
 
           @page = @contents.current_page
           @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
@@ -92,13 +91,13 @@ module DataCycleCore
           @classification_trees = @classification_trees.where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications }) if @classification_tree_label.name == 'Inhaltstypen'
           @classification_trees = @classification_trees
             .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
-            .order('classification_aliases.internal_name')
+            .order('classification_aliases.order_a')
             .page(params[:tree_page])
           @contents = get_filtered_results(query:, user_filter:)
             .classification_alias_ids_without_subtree(@classification_tree.sub_classification_alias.id)
           tmp_count = @contents.count
           @contents = @contents.content_includes.page(params[:page])
-          ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:watch_list_shares))
+          ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
 
           @page = @contents.current_page
           @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
@@ -110,7 +109,7 @@ module DataCycleCore
           @classification_trees = @classification_trees.where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications }) if @classification_tree_label.name == 'Inhaltstypen'
           @classification_trees = @classification_trees
             .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
-            .order('classification_aliases.internal_name')
+            .order('classification_aliases.order_a')
             .page(params[:tree_page])
           get_filtered_results(query:, user_filter:) # set default parameters for filters
         end
@@ -121,29 +120,29 @@ module DataCycleCore
         page_size = DataCycleCore.main_config.dig(:ui, :dashboard, :page, :size)&.to_i || DEFAULT_PAGE_SIZE
         @contents = get_filtered_results(query:, user_filter:, watch_list:)
         @contents = @contents.content_includes.page(params[:page]).per(page_size).without_count
-        ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:watch_list_shares))
+        ActiveRecord::Associations::Preloader.new.preload(@contents, :watch_lists, DataCycleCore::WatchList.accessible_by(current_ability).preload(:collection_shares))
       end
     end
 
     private
 
-    # used only in APIv4
+    # used only in APIv4 and sync_api
     def build_search_query
       endpoint_id = permitted_params[:id]
       @linked_stored_filter = nil
-      if endpoint_id.present?
-        @stored_filter = DataCycleCore::StoredFilter.by_id_or_slug(endpoint_id).first
 
-        if @stored_filter
-          authorize! :api, @stored_filter unless any_authenticity_token_valid?
-          @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
-          @classification_trees_parameters |= Array.wrap(@stored_filter.classification_tree_labels)
-          @classification_trees_filter = @classification_trees_parameters.present?
-        elsif (@watch_list = DataCycleCore::WatchList.without_my_selection.by_id_or_slug(endpoint_id).first).present?
-          authorize! :api, @watch_list unless any_authenticity_token_valid?
-        else
-          raise ActiveRecord::RecordNotFound
-        end
+      if endpoint_id.present?
+        @collection = DataCycleCore::Collection.by_id_or_slug(endpoint_id).first
+
+        raise ActiveRecord::RecordNotFound if @collection.nil?
+
+        authorize! :api, @collection unless self.class.module_parents.include?(DataCycleCore::Mvt) && any_authenticity_token_valid?
+
+        @stored_filter = @collection if @collection.is_a?(DataCycleCore::StoredFilter)
+        @watch_list = @collection if @collection.is_a?(DataCycleCore::WatchList)
+        @linked_stored_filter = @collection.linked_stored_filter if @collection.linked_stored_filter_id.present?
+        @classification_trees_parameters |= Array.wrap(@collection.classification_tree_labels)
+        @classification_trees_filter = @classification_trees_parameters.present?
       end
 
       filter = @stored_filter || DataCycleCore::StoredFilter.new
@@ -205,7 +204,7 @@ module DataCycleCore
     end
 
     def filter_params
-      params.require(:stored_filter).permit(:id, :name, :system)
+      params.require(:stored_filter).permit(:id, :name)
     end
 
     def mode_params
@@ -221,7 +220,7 @@ module DataCycleCore
         request.format.html? &&
         params.slice(:stored_filter, :f, :reset).blank? &&
         session[:return_to].present? &&
-        request.path == URI.parse(session[:return_to].to_s).path
+        request.path == Addressable::URI.parse(session[:return_to].to_s).path
     end
 
     def load_previous_page

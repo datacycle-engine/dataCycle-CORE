@@ -59,6 +59,31 @@ namespace :dc do
       puts "(RE)CREATED Duplicate Candidates - #{duplicate_counts.sum} duplicates found"
     end
 
+    desc '(Re)Create Duplicate-Candidates from Endpoint (faster than create_duplicates)'
+    task :recreate_duplicates, [:endpoint_id_or_slug] => [:environment] do |_, args|
+      abort('Feature DuplicateCandidate has to be enabled!') unless DataCycleCore::Feature::DuplicateCandidate.enabled?
+      abort('A stored filter ID, or a stored filter Name has to be specified') if args.endpoint_id_or_slug.blank?
+
+      start_time = Time.zone.now
+      stored_filter = DataCycleCore::StoredFilter.by_id_or_slug(args.endpoint_id_or_slug).first
+      watch_list = DataCycleCore::WatchList.without_my_selection.by_id_or_slug(args.endpoint_id_or_slug).first if stored_filter.nil?
+
+      abort("endpoint #{args.endpoint_id_or_slug} not found!") if stored_filter.nil? && watch_list.nil?
+
+      if stored_filter.present?
+        stored_filter.language = Array(I18n.available_locales).map(&:to_s)
+        query = stored_filter.apply.query
+      else
+        query = watch_list.things
+      end
+
+      total_items = query.count
+      puts "(RE)CREATE Duplicate Candidates (#{total_items})"
+
+      duplicate_count = query.create_duplicate_candidates
+      puts "(RE)CREATED Duplicate Candidates - #{duplicate_count} duplicates found (#{(Time.zone.now - start_time).round} sec)"
+    end
+
     desc 'delete duplicates with <score> and above'
     task :delete_duplicates, [:min_score, :stored_filter_id, :dry_run] => [:environment] do |_, args|
       abort('Feature DuplicateCandidate has to be enabled!') unless DataCycleCore::Feature::DuplicateCandidate.enabled?

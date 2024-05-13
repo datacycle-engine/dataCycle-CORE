@@ -6,7 +6,7 @@
   <% end %>
 <% else %>
   <li class="<%= "invalid" unless data_link.is_valid? %>" id="data-link-<%= data_link.id %>">
-    <span class="email" data-dc-tooltip="<%= data_link.receiver&.email %>"><%= data_link_permission_icon(data_link.permissions) %><%= data_link.receiver&.email %></span>
+    <span class="email" data-dc-tooltip="<%= data_link.receiver&.email || 'DELETED' %>"><%= data_link_permission_icon(data_link.permissions) %><%= data_link.receiver&.email || 'DELETED' %></span>
     <span class="buttons">
       <% if data_link.valid_from.present? || data_link.valid_until.present? %>
         <i class="fa fa-calendar"

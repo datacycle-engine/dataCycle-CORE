@@ -110,23 +110,85 @@
       </div>
 
       <div class="title flex-column">
-        <%= @watch_list&.name %>
+        <span>
+          <%= @watch_list&.name %>
+          <% if @watch_list&.description.present? && can?(:show_description, @watch_list) %>
+            <span data-dc-tooltip="<%= @watch_list.description %>">
+              <i class="fa fa-info-circle" aria-hidden="true"></i>
+            </span>
+          <% end %>
+        </span>
         <%= tag.div(@watch_list.slug, class: 'slug copy-to-clipboard', data: { dc_tooltip: t('actions.copy_to_clipboard_data', data: DataCycleCore::CollectionConfiguration.human_attribute_name(:slug, locale: active_ui_locale), locale: active_ui_locale) }) if @watch_list.slug.present? %>
       </div>
 
       <%= tag.div(@watch_list.full_path, class: 'description watchlist') if @watch_list.full_path_names.present? %>
 
-      <% if @watch_list.users.any? %>
-        <div class="description watchlist">
-          <i class="fa fa-user"></i>
-          <%= safe_join(@watch_list.users.map{ |u| tag.span(u.full_name, data: { dc_tooltip: u.email }) }, ', ') %>
+      <% if @watch_list.shared_users.any? %>
+        <div class="detail-type">
+          <span class="detail-label">
+            <i class="dc-type-icon user-icon"></i>
+            <%= DataCycleCore::WatchList.human_attribute_name(:shared_users, locale: active_ui_locale) %>
+          </span>
+          <span class="detail-content tags">
+            <% @watch_list.shared_users.order(email: :asc).to_select_options(active_ui_locale).each do |user| %>
+              <%= tag.span(user.name, class: 'tag', data: { dc_tooltip: user.dc_tooltip }) %>
+            <% end %>
+          </span>
         </div>
       <% end %>
 
-      <% if @watch_list.user_groups.any? %>
-        <div class="description watchlist">
-          <i class="fa fa-users"></i>
-          <%= @watch_list.user_groups.map(&:name).join(', ') %>
+      <% if @watch_list.shared_user_groups.any? %>
+        <div class="detail-type">
+          <span class="detail-label">
+            <i class="dc-type-icon user_group-icon"></i>
+            <%= DataCycleCore::WatchList.human_attribute_name(:shared_user_groups, locale: active_ui_locale) %>
+          </span>
+          <span class="detail-content tags">
+            <% @watch_list.shared_user_groups.order(name: :asc).to_select_options(active_ui_locale).each do |group| %>
+              <%= tag.span(group.name, class: 'tag', data: { dc_tooltip: group.dc_tooltip }) %>
+            <% end %>
+          </span>
+        </div>
+      <% end %>
+
+      <% if @watch_list.shared_roles.any? %>
+        <div class="detail-type">
+          <span class="detail-label">
+            <i class="dc-type-icon role-icon"></i>
+            <%= DataCycleCore::WatchList.human_attribute_name(:shared_roles, locale: active_ui_locale) %>
+          </span>
+          <span class="detail-content tags">
+            <% @watch_list.shared_roles.order(rank: :asc).to_select_options(active_ui_locale).each do |role| %>
+              <%= tag.span(role.name, class: 'tag', data: { dc_tooltip: role.dc_tooltip }) %>
+            <% end %>
+          </span>
+        </div>
+      <% end %>
+
+      <% if @watch_list.linked_stored_filter_id.present? %>
+        <div class="detail-type">
+          <span class="detail-label">
+            <i class="dc-type-icon stored_filter-icon"></i>
+            <%= DataCycleCore::WatchList.human_attribute_name(:linked_stored_filter, locale: active_ui_locale) %>
+          </span>
+          <span class="detail-content tags">
+            <% value = @watch_list.linked_stored_filter.to_select_option(active_ui_locale) %>
+            <%= tag.span(value.name, class: 'tag', data: { dc_tooltip: value.dc_tooltip }) %>
+          </span>
+        </div>
+      <% end %>
+
+      <% if @watch_list.concept_schemes.any? %>
+        <div class="detail-type">
+          <span class="detail-label">
+            <i class="dc-type-icon concept_scheme-icon"></i>
+            <%= DataCycleCore::WatchList.human_attribute_name(:concept_schemes, locale: active_ui_locale) %>
+          </span>
+          <span class="detail-content tags">
+            <% @watch_list.concept_schemes.order(name: :asc).to_select_options(active_ui_locale).each do |cs| %>
+              <%= tag.span(cs.name, class: 'tag', data: { dc_tooltip: cs.dc_tooltip }) %>
+            <% end %>
+          </span>
         </div>
       <% end %>
 

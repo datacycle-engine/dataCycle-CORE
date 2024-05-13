@@ -77,24 +77,5 @@ namespace :data_cycle_core do
       end
       puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
     end
-
-    desc 'auto_tag all images (without Cloud Vision Tags)'
-    task auto_tagging: [:environment] do
-      abort('Feature AutoTagging has to be enabled!') unless DataCycleCore::Feature::AutoTagging.enabled?
-      taggable_templates = ['Bild']
-      tag_property = :cloud_vision_tags
-
-      query = DataCycleCore::Thing.where(template_name: taggable_templates)
-      max_items = query.count
-
-      puts "AutoTagging all untagged Things with template #{taggable_templates} (#{max_items}) - (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
-      DataCycleCore::ProgressBarService.for_shell(max_items) do |pb|
-        query.find_each do |image|
-          pb.inc
-          next if image.send(tag_property).present?
-          image.auto_tag
-        end
-      end
-    end
   end
 end

@@ -13,6 +13,7 @@ manage_subjects:
       - DataCycleCore::User
       - DataCycleCore::UserGroup
       - DataCycleCore::DataLink
+      - DataCycleCore::Permission
 
 role_index:
   actions: read
@@ -40,7 +41,7 @@ asset_for_data_link:
   segment: AssetByUserGroupsForDataLink
 
 thing_create:
-  actions: create
+  actions: [create, create_without_search]
   segment: TemplateByCreatableScope
   parameters: :all
 
@@ -66,6 +67,7 @@ thing_actions:
     - view_life_cycle
     - move_content
     - switch_primary_external_system
+    - demote_primary_external_system
     - create_external_connection
     - remove_external_connection
   segment: SubjectByConditions
@@ -88,10 +90,12 @@ stored_filter_actions:
     - update
     - destroy
     - show_history
-    - create_global
     - create_api
-    - create_api_with_users
+    - share
     - api
+    - update_description
+    - show_description
+    - change_owner
   segment: SubjectByConditions
   parameters: DataCycleCore::StoredFilter
 
@@ -101,7 +105,15 @@ watch_list_subscribe:
   parameters: DataCycleCore::WatchList
 
 watch_list_bulk_actions:
-  actions: [show, bulk_edit, bulk_delete, update, change_owner, create_api]
+  actions:
+    - show
+    - bulk_edit
+    - bulk_delete
+    - update
+    - change_owner
+    - create_api
+    - update_description
+    - show_description
   segment: SubjectByConditions
   parameters: DataCycleCore::WatchList
 
@@ -114,23 +126,19 @@ watch_list_actions:
 
 watch_list_actions_except_my_selection:
   actions: [destroy, share]
-  segment: SubjectByUserAndConditions
-  parameters:
-    - DataCycleCore::WatchList
-    - :user_id
-    - :my_selection: false
-
-watch_list_group_shares:
-  actions: [read, add_item, remove_item]
-  segment: WatchListByGroupShares
-  parameters:
-    - :my_selection: false
+  segment: WatchListByCreatorWithoutMySelection
 
 watch_list_user_shares:
-  actions: [read, add_item, remove_item]
+  actions: [add_item, remove_item]
   segment: WatchListByUserShares
-  parameters:
-    - :my_selection: false
+
+watch_list_group_shares:
+  actions: [add_item, remove_item]
+  segment: WatchListByGroupShares
+
+watch_list_role_shares:
+  actions: [add_item, remove_item]
+  segment: WatchListByRoleShares
 
 data_attribute_read:
   actions: read
@@ -179,7 +187,8 @@ filter:
       - :collection
 
 advanced_filter:
-  actions: advanced_filter
+  actions:
+    - advanced_filter
   segment: AdvancedFilterExceptType
   parameters:
     - - :backend
@@ -263,3 +272,8 @@ external_system_actions:
   actions: create
   segment: SubjectByConditions
   parameters: DataCycleCore::ExternalSystem
+
+download_user_info_activity:
+  actions: download_user_info_activity
+  segment: SubjectByConditions
+  parameters: DataCycleCore::User

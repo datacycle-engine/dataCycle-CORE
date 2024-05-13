@@ -7,19 +7,20 @@ module DataCycleCore
   module Generic
     module Common
       module DownloadFunctions
-        def self.download_data(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, options:)
+        def self.download_data(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil, options:)
           iteration_strategy = options.dig(:download, :iteration_strategy) || options.dig(:iteration_strategy) || :download_sequential
-          raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel, :download_all].include?(iteration_strategy.to_sym)
-          send(iteration_strategy, download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, options:)
+          raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel, :download_all, :download_optimized].include?(iteration_strategy.to_sym)
+          send(iteration_strategy, download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options:)
         end
 
-        def self.download_single(download_object:, data_id:, data_name:, modified: nil, delete: nil, raw_data:, _iterator: nil, cleanup_data: nil, options:)
+        def self.download_single(download_object:, data_id:, data_name:, modified: nil, delete: nil, raw_data:, _iterator: nil, cleanup_data: nil, credential: nil, options:)
           database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
           init_mongo_db(database_name) do
             init_logging(download_object) do |logging|
               locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
               begin
                 download_object.source_object.with(download_object.source_type) do |mongo_item|
+                  _credentials = credential.call(download_object.credentials) if credential.present?
                   item_id = data_id.call(raw_data.first[1])
                   item_name = data_name.call(raw_data.first[1])
                   item = mongo_item.find_or_initialize_by('external_id': item_id)
@@ -58,13 +59,13 @@ module DataCycleCore
           end
         end
 
-        def self.download_sequential(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, options:)
+        def self.download_sequential(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil, options:)
           success = true
           delta = 100
           options[:locales] ||= I18n.available_locales
           if options[:locales].size != 1
             options[:locales].each do |language|
-              success &&= download_sequential(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, options: options.except(:locales).merge({ locales: [language] }))
+              success &&= download_sequential(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
@@ -75,30 +76,14 @@ module DataCycleCore
                 item_count = 0
 
                 begin
-                  download_object.source_object.with(download_object.source_type) do |mongo_item|
+                  download_object.source_object.with(download_object.source_type) do |_mongo_item|
                     max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
                     logging.phase_started("#{download_object.source_type.collection_name}_#{locale}", max_string)
                     GC.start
                     times = [Time.current]
 
                     endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
-                    external_keys =
-                      if iterator.present? && options[:mode] != 'full'
-                        external_keys = options[:external_keys] || []
-                        iterator
-                          .call(mongo_item, locale, external_keys)
-                          .find_all
-                          .map { |i| [i.external_id, i.dump.dig(locale, '_RangeCode'), i.dump.dig(locale, '_RangeId')] }
-                          .select { |i| i[1].present? && i[2].present? }
-                      else
-                        []
-                      end
-                    items =
-                      if external_keys.present?
-                        download_object.endpoint.send(endpoint_method, lang: locale, forced_updates: external_keys)
-                      else
-                        download_object.endpoint.send(endpoint_method, lang: locale)
-                      end
+                    items = download_object.endpoint.send(endpoint_method, lang: locale)
 
                     items.each do |item_data|
                       break if options[:max_count] && item_count >= options[:max_count]
@@ -183,7 +168,143 @@ module DataCycleCore
           success
         end
 
-        def self.download_parallel(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, options:) # rubocop:disable Lint/UnusedMethodArgument
+        def self.download_optimized(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil, options:)
+          success = true
+          delta = 100
+          options[:locales] ||= I18n.available_locales
+          if options[:locales].size != 1
+            options[:locales].each do |language|
+              success &&= download_optimized(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options: options.except(:locales).merge({ locales: [language] }))
+            end
+          else
+            database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+            init_mongo_db(database_name) do
+              init_logging(download_object) do |logging|
+                locale = options[:locales].first
+                logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
+                item_count = 0
+
+                begin
+                  download_object.source_object.with(download_object.source_type) do |_mongo_item|
+                    max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
+                    logging.phase_started("#{download_object.source_type.collection_name}_#{locale}", max_string)
+                    GC.start
+                    times = [Time.current]
+
+                    endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
+
+                    credentials = credential.call(download_object.credentials) if credential.present?
+
+                    items = download_object.endpoint.send(endpoint_method, lang: locale)
+                    items.each_slice(100) do |item_data_slice|
+                      break if options[:max_count] && item_count >= options[:max_count]
+
+                      init_mongo_db(database_name) do
+                        download_object.source_object.with(download_object.source_type) do |mongo_item_parallel|
+                          mongo_items = mongo_item_parallel
+                            .where(external_id: { '$in' => item_data_slice.map { |item_data| data_id.call(item_data) }})
+                            .index_by(&:external_id)
+
+                          seen_at = []
+                          # update_items = []
+                          item_data_slice.each do |item_data|
+                            item_count += 1
+                            next if item_data.nil?
+
+                            item_id = data_id.call(item_data) || nil
+                            item_name = data_name.call(item_data) || nil
+
+                            item = mongo_items.dig(item_id) || mongo_item_parallel.new('external_id': item_id)
+                            item.dump ||= {}
+                            local_item = item.dump[locale]
+
+                            if options.dig(:download, :restorable).present? && local_item.present?
+                              local_item.delete('deleted_at')
+                              local_item.delete('delete_reason')
+                              local_item.delete('last_seen_before_delete')
+                              item.dump[locale] = local_item
+                            end
+
+                            if delete.present? && delete.call(item_data, locale)
+                              item_data['deleted_at'] = local_item.try(:[], 'deleted_at') || Time.zone.now
+                              item_data['delete_reason'] = local_item.try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
+                            end
+
+                            item.data_has_changed = true if options[:mode] == 'full'
+                            item.data_has_changed = true if item.dump.dig(locale, 'mark_for_update').present?
+
+                            if item.data_has_changed.nil? && modified.present?
+                              last_download = download_object.external_source.last_successful_download
+                              if last_download.present?
+                                updated_at = modified.call(item_data)
+                                item.data_has_changed = updated_at > last_download ? true : nil
+                              end
+                            end
+
+                            item.data_has_changed = true if options.dig(:download, :skip_diff) == true && item.data_has_changed.nil?
+                            item_data = cleanup_data.call(item_data) if cleanup_data.present?
+                            item.data_has_changed = diff?(item.dump[locale].as_json, item_data.as_json, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
+
+                            # add credential from download_object to item
+                            if credentials&.dig('key').present?
+                              credential_key = credentials['key']
+                              item.external_system ||= {}
+                              item.external_system['credentials'] ||= {}
+                              if item.external_system.dig('credentials', credential_key).blank? ||
+                                 Digest::MD5.hexdigest(item.external_system.dig('credentials', credential_key).to_json) != Digest::MD5.hexdigest(download_object.credentials.to_json)
+
+                                item.external_system['credentials'][credential_key] = download_object.credentials
+                                item.save!
+                              end
+                            end
+
+                            if item.data_has_changed
+                              # for debugging, also uncomment the require 'hashdiff' at the top of this file
+                              # differences = ::Hashdiff.diff(item_data.as_json, item.dump[locale].as_json)
+                              # binding.pry if differences.present?
+                              item.dump[locale] = item_data
+                              # update_items << item
+                              # save only updates seen_at!
+                              item.save!
+                            else
+                              seen_at << item.external_id
+                            end
+                            logging.item_processed(item_name, item_id, item_count, max_string)
+                          end
+                          # if update_items.present?
+                          #   mongo_item_parallel.collection.delete_many(external_id: { '$in' => update_items.map(&:external_id) })
+                          #   mongo_item_parallel.collection.insert_many(update_items.map(&:as_document))
+                          # end
+                          mongo_item_parallel.where(external_id: { '$in' => seen_at }).update_all(seen_at: Time.zone.now)
+                        end
+                      end
+
+                      next unless (item_count % delta).zero?
+
+                      times << Time.current
+
+                      logging.info("Downloaded #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                    end
+                    GC.start
+                  end
+                rescue StandardError => e
+                  ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
+                    exception: e,
+                    namespace: 'background'
+                  }
+
+                  logging.error(nil, nil, nil, e)
+                  success = false
+                ensure
+                  logging.phase_finished("#{download_object.source_type.collection_name}_#{locale}", item_count)
+                end
+              end
+            end
+          end
+          success
+        end
+
+        def self.download_parallel(download_object:, data_id:, data_name:, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil, options:) # rubocop:disable Lint/UnusedMethodArgument
           success = true
           delta = 100
 
@@ -273,7 +394,7 @@ module DataCycleCore
           success
         end
 
-        def self.download_all(download_object:, data_id:, data_name:, modified: nil, delete: nil, cleanup_data: nil, options:, **_unused)
+        def self.download_all(download_object:, data_id:, data_name:, modified: nil, delete: nil, cleanup_data: nil, credential: nil, options:, **_unused)
           success = true
           delta = 100
 
@@ -287,6 +408,7 @@ module DataCycleCore
 
               begin
                 download_object.source_object.with(download_object.source_type) do |mongo_item|
+                  _credentials = credential.call(download_object.credentials) if credential.present?
                   endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
                   items = download_object.endpoint.send(endpoint_method)
 
@@ -561,6 +683,7 @@ module DataCycleCore
                             content.dump[l]['delete_reason'] ||= options.dig(:download, :delete_reason) if options.dig(:download, :delete_reason).present?
                           end
                         end
+                        content.keep_seen_at = true
                         content.save!
 
                         next unless (item_count % delta).zero?
@@ -661,6 +784,88 @@ module DataCycleCore
                   success = false
                 ensure
                   logging.phase_finished("#{download_object.source_type.collection_name} #{locales}", item_count)
+                end
+              end
+            end
+          end
+          success
+        end
+
+        def self.bulk_touch_items(download_object:, iterator:, options:)
+          success = true
+          locale = I18n.available_locales.first.to_s
+          database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+          init_mongo_db(database_name) do
+            init_logging(download_object) do |logging|
+              logging.preparing_phase("Touch: #{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
+              endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
+              external_keys = download_object.endpoint.send(endpoint_method, lang: locale)
+              source_filter = options&.dig(:download, :source_filter) || {}
+              source_filter = source_filter.with_evaluated_values
+
+              begin
+                download_object.source_object.with(download_object.source_type) do |mongo_item|
+                  collection = iterator.call(mongo_item, locale, source_filter, external_keys)
+
+                  result = collection.update_all(
+                    '$set' => { 'seen_at' => Time.zone.now },
+                    '$unset' => {
+                      "dump.#{locale}.deleted_at" => true,
+                      "dump.#{locale}.last_seen_before_delete" => true,
+                      "dump.#{locale}.delete_reason" => true
+                    }
+                  )
+
+                  item_count = result.documents.pluck('nModified').sum
+                rescue StandardError => e
+                  ActiveSupport::Notifications.instrument 'touch_items_failed.datacycle', {
+                    exception: e,
+                    namespace: 'background'
+                  }
+                  success = false
+                  logging.error(nil, nil, nil, e)
+                ensure
+                  logging.phase_finished("#{download_object.source_type.collection_name} #{locale}", item_count)
+                end
+              end
+            end
+          end
+          success
+        end
+
+        def self.bulk_mark_deleted_from_data(download_object:, iterator:, options:)
+          success = true
+          locale = I18n.available_locales.first.to_s
+          database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+          init_mongo_db(database_name) do
+            init_logging(download_object) do |logging|
+              logging.preparing_phase("Mark Deleted: #{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
+
+              source_filter = options&.dig(:download, :source_filter) || {}
+              source_filter = source_filter.with_evaluated_values(binding)
+
+              begin
+                download_object.source_object.with(download_object.source_type) do |mongo_item|
+                  collection = iterator.call(mongo_item, locale, source_filter)
+
+                  item_count = collection.count
+                  delete_props = {
+                    "dump.#{locale}.deleted_at" => Time.zone.now,
+                    "dump.#{locale}.last_seen_before_delete" => '$seen_at'
+                  }
+                  delete_props["dump.#{locale}.delete_reason"] = options.dig(:download, :delete_reason) if options.dig(:download, :delete_reason).present?
+
+                  result = collection.update_all(delete_props)
+                  item_count = result.documents.pluck('nModified').sum
+                rescue StandardError => e
+                  ActiveSupport::Notifications.instrument 'bulk_mark_deleted_failed.datacycle', {
+                    exception: e,
+                    namespace: 'background'
+                  }
+                  success = false
+                  logging.error(nil, nil, nil, e)
+                ensure
+                  logging.phase_finished("#{download_object.source_type.collection_name} #{locale}", item_count)
                 end
               end
             end

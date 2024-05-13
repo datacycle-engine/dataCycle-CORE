@@ -44,7 +44,7 @@ module DataCycleCore
     end
 
     def self.get_internal_template(name)
-      DataCycleCore::Thing.new(template_name: name).require_template!
+      DataCycleCore::Thing.new(template_name: name)
     end
 
     def self.create_duplicate(content: nil, current_user: nil)
@@ -129,11 +129,11 @@ module DataCycleCore
         elsif value['type'] == 'opening_time'
           parameter = { key.to_sym => [datahash: [:valid_from, :valid_until, :holiday, time: [datahash: [:id, :opens, :closes]], rrules: [validations: [day: []]]]] }
         elsif value['type'] == 'embedded'
-          object_properties = get_internal_template(value['template_name'])
-          parameter = { key.to_sym => get_params_from_hash(object_properties.schema) }
+          object_schemas = Array.wrap(value['template_name']).map { |t| get_internal_template(t).schema }
+          parameter = { key.to_sym => object_schemas.map { |os| get_params_from_hash(os) }.reduce({}) { |p1, p2| p1.deep_merge(p2) { |_k, v1, v2| v1.is_a?(Array) && v2.is_a?(Array) ? (v1 + v2).uniq : v2 } } }
         elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
           parameter = { key.to_sym => get_params_from_hash(value, false) }
-        elsif value['type'] == 'classification' || value['type'] == 'linked'
+        elsif value['type'] == 'classification' || value['type'] == 'linked' || value['type'] == 'collection'
           parameter = { key.to_sym => [] }
         else
           parameter = key.to_sym
@@ -141,6 +141,8 @@ module DataCycleCore
 
         allowed_params.push(parameter)
       end
+
+      allowed_params.push(:template_name)
 
       return allowed_params unless translations
 
@@ -172,6 +174,19 @@ module DataCycleCore
 
     def self.deep_present?(value)
       present?(value)
+    end
+
+    def self.none_by_property_type(type)
+      case type
+      when *Content::Content::EMBEDDED_PROPERTY_TYPES, *Content::Content::LINKED_PROPERTY_TYPES
+        DataCycleCore::Thing.none
+      when *Content::Content::CLASSIFICATION_PROPERTY_TYPES
+        DataCycleCore::Classification.none
+      when *Content::Content::SCHEDULE_PROPERTY_TYPES
+        DataCycleCore::Schedule.none
+      when *Content::Content::TIMESERIES_PROPERTY_TYPES
+        DataCycleCore::Timeseries.none
+      end
     end
 
     def self.parse_translated_hash(datahash)
@@ -212,21 +227,25 @@ module DataCycleCore
 
         datahash&.each do |key, value|
           properties = template_hash['properties'][key]
-          type = properties['type']
+          type = properties&.dig('type')
 
           if value.is_a?(::Hash)
             if type == 'embedded'
-              object_properties = get_internal_template(properties['template_name'])
+              object_schemas = Array.wrap(properties['template_name']).index_with { |t| get_internal_template(t).schema }
+              default_schema = object_schemas.values.first
               temp_value = []
 
               value.each_value do |object_value|
                 if object_value.key?('datahash') || object_value.key?('translations')
                   temp_value.push(object_value.tap do |v|
-                    v['datahash'] = flatten_recursive(v['datahash'], object_properties.schema)
-                    v['translations'] = v['translations']&.transform_values { |t| flatten_recursive(t, object_properties.schema) }
+                    e_schema = object_schemas[v.dig('datahash', 'template_name')] || default_schema
+
+                    v['datahash'] = flatten_recursive(v['datahash'], e_schema)
+                    v['translations'] = v['translations']&.transform_values { |t| flatten_recursive(t, e_schema) }
                   end)
                 else
-                  temp_value.push(flatten_recursive(object_value, object_properties.schema))
+                  e_schema = object_schemas[object_value.dig('template_name')] || default_schema
+                  temp_value.push(flatten_recursive(object_value, e_schema))
                 end
               end
 

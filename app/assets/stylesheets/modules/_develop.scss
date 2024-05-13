@@ -3359,6 +3359,7 @@ section.duplicate-candidates {
     position: relative;
     padding-bottom: 1rem;
     flex-flow: row wrap;
+    min-width: min-content;
   }
 
   .external-source-icon {

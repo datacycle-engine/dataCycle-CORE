@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module CollectionHelper
-    BulkUpdateType = Struct.new(:value, :text, :checked)
+    CheckBoxStruct = Struct.new(:value, :text, :checked)
 
     def get_collection_groups(local_assigns)
       collection_group_index = local_assigns[:collection_group_index] || 0
@@ -12,7 +12,7 @@ module DataCycleCore
         collections = local_assigns.dig(:collection_group, 1)
         nested = true
       else
-        collections = DataCycleCore::WatchList.accessible_by(current_ability).includes(:valid_write_links, :watch_list_shares, :user).without_my_selection
+        collections = DataCycleCore::WatchList.accessible_by(current_ability).includes(:valid_write_links, :collection_shares, :user).without_my_selection
         collections = collections.fulltext_search(local_assigns[:q]) if local_assigns[:q].present?
         collections = collections.order(updated_at: :desc)
       end
@@ -33,7 +33,7 @@ module DataCycleCore
     def bulk_update_types(content, key, prop)
       label = translated_attribute_label(key, prop, content, {})
       check_boxes = [
-        BulkUpdateType.new('override', t('common.bulk_update.check_box_labels.override_html', locale: active_ui_locale, data: label))
+        CheckBoxStruct.new('override', t('common.bulk_update.check_box_labels.override_html', locale: active_ui_locale, data: label))
       ]
 
       type = prop.dig('ui', 'bulk_edit', 'partial') || prop.dig('ui', 'edit', 'partial') || prop.dig('ui', 'edit', 'type') || prop['type']
@@ -43,8 +43,8 @@ module DataCycleCore
                             prop.dig('validations', 'max') == 1
 
       check_boxes.push(
-        BulkUpdateType.new('add', t('common.bulk_update.check_box_labels.add_html', locale: active_ui_locale, data: label)),
-        BulkUpdateType.new('remove', t('common.bulk_update.check_box_labels.remove_html', locale: active_ui_locale, data: label))
+        CheckBoxStruct.new('add', t('common.bulk_update.check_box_labels.add_html', locale: active_ui_locale, data: label)),
+        CheckBoxStruct.new('remove', t('common.bulk_update.check_box_labels.remove_html', locale: active_ui_locale, data: label))
       )
     end
 
@@ -87,6 +87,14 @@ module DataCycleCore
 
     def manual_order_allowed?(mode, language, filters)
       mode == 'list' && Array.wrap(language).include?('all') && filters.blank?
+    end
+
+    def watch_list_list_title(watch_list)
+      safe_join([
+        watch_list.collection_shares.any? ? tag.i(class: 'fa fa-users') : nil,
+        watch_list.name,
+        watch_list.api ? tag.span('API', class: 'content-title-api') : nil
+      ].compact)
     end
   end
 end

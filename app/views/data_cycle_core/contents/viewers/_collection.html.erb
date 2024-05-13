@@ -1,0 +1,17 @@
+<%= render 'data_cycle_core/contents/viewers/attribute',
+      local_assigns.merge(data_attributes: {
+        id: (value&.presence&.pluck(:id) || [] ),
+        editor: "collection"
+      }) do %>
+  <span class="detail-content tags">
+    <% objects = value&.to_a %>
+    <% objects = objects.concat(new_content_collections(options.dig(:item_diff))) if changes_by_mode(options.dig(:item_diff), '+').present? %>
+
+    <% objects.each do |a| %>
+      <% v = a.to_select_option(active_ui_locale) %>
+      <span class="tag <%= v.html_class %> <%= changes_class(options.dig(:item_diff), v.id) %>" data-dc-tooltip="<%= v.dc_tooltip %>">
+        <%= v.name %>
+      </span>
+    <% end %>
+  </span>
+<% end %>

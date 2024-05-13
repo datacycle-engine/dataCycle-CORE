@@ -56,6 +56,15 @@ module DataCycleCore
             nil
           end
 
+          def attribute_values_from_linked(computed_parameters:, computed_definition:, **_args)
+            values = []
+            Array.wrap(computed_definition.dig('compute', 'value')).each do |config|
+              values += Array.wrap(get_values_from_hash(computed_parameters, config['attribute'].split('.'), config['filter'])).compact
+            end
+
+            values
+          end
+
           def attribute_value_from_first_linked(computed_parameters:, computed_definition:, **_args)
             computed_definition.dig('compute', 'parameters').each do |config|
               value = Array.wrap(get_values_from_hash(computed_parameters, config.split('.'), nil, 1)).compact.first
@@ -64,6 +73,24 @@ module DataCycleCore
             end
 
             nil
+          end
+
+          # does not work for embedded or schedule attributes
+          def overlay(computed_parameters:, computed_definition:, **_args)
+            raise "Cloning #{computed_definition.dig('type')} is not implemented yet" if computed_definition.dig('type').in?(Content::Content::EMBEDDED_PROPERTY_TYPES + Content::Content::SCHEDULE_PROPERTY_TYPES + Content::Content::TIMESERIES_PROPERTY_TYPES + Content::Content::ASSET_PROPERTY_TYPES)
+
+            allowed_postfixes = MasterData::Templates::Extensions::Overlay.allowed_postfixes_for_type(computed_definition['type'])
+
+            override_value = computed_parameters.detect { |k, _v| k.ends_with?(MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX) }&.last if allowed_postfixes.include?(MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX)
+
+            return override_value if DataHashService.present?(override_value)
+
+            add_value = computed_parameters.detect { |k, _v| k.ends_with?(MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX) }&.last if allowed_postfixes.include?(MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX)
+            original_value = computed_parameters.first.last
+
+            return original_value if DataHashService.blank?(add_value)
+
+            Array.wrap(original_value) + Array.wrap(add_value)
           end
 
           private

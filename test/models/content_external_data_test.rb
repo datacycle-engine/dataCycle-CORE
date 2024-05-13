@@ -9,7 +9,7 @@ module DataCycleCore
       @primary_external_system = DataCycleCore::ExternalSystem.first
 
       @secondary_key = '1234'
-      @secondary_system_id = SecureRandom.uuid
+      @secondary_system_id = ExternalSystem.last.id
 
       @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1' })
       @content.update_columns(external_source_id: @primary_external_system.id, external_key: @primary_key)

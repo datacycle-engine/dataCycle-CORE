@@ -1,0 +1,255 @@
+---
+en:
+  abilities:
+    attribute_types:
+      classification: Classification
+      string: Text
+      linked: linked content
+      embedded: embedded content
+      number: Number
+      geographic: Geodata
+    restriction: when
+    scopes:
+      all: Everywhere
+      object_browser: Objectbrowser
+      asset: Asset
+      tile_buttons: Buttons in tiles
+    download_scopes:
+      content: Contents
+      archive: Archive
+      zip: ZIP archive
+      indesign: Indesign archive
+    content_is_editable_method_names:
+      content_not_external?: Content was not imported
+      content_overlay_allowed?: Content allows overwriting of imported attributes
+      content_global_property_names_present?: Content has global attributes
+    data_attribute_method_names:
+      attribute_content_not_external?: Content not imported
+      attribute_content_external?: Content imported
+      attribute_not_disabled?: Attribute not hidden
+      attribute_not_read_only?: Attribute not read-only
+      attribute_is_in_overlay?:
+        Content imported and attribute can be edited in the
+        overlay
+      overlay_attribute_visible?:
+        Content not imported or attribute may be edited
+        in the overlay
+      attribute_not_releasable?: "Attributes not: %{data}"
+      attribute_not_included_in_publication_schedule?:
+        Attribute not available in
+        the publication plan
+      attribute_not_external?: Attribute not marked as "external"
+      attribute_force_render?: Attribute marked as "always show"
+      attribute_tree_label_visible?:
+        "Classification tree visible (only attribute
+        type: Classification)"
+      attribute_not_excluded?: "Attributes not: %{data}"
+      template_whitelisted?: "Data types: %{data}"
+      template_not_blacklisted?: "Data types not: %{data}"
+      attribute_whitelisted?: "Attributes: %{data}"
+      attribute_not_blacklisted?: "Attributes not: %{data}"
+      attribute_and_template_whitelisted?:
+        "Data type: %{template_name} (Attributes:
+        %{data})"
+      attribute_and_template_not_blacklisted?:
+        "Data type not: %{template_name} (Attributes:
+        %{data})"
+      attribute_type_whitelisted?: "Attribute types: %{data}"
+      attribute_type_not_blacklisted?: "Attribute types not: %{data}"
+      content_created_by_user?: User is creator of the content
+      attribute_value_present?: Attribute is filled in
+      attribute_value_blank?: Attribute is not filled in
+    model_names:
+      backend: Dashboard
+      view_mode: Display mode for lists
+      users: User overview
+      user_groups: User group overview
+      object_browser: Objectbrowser
+      user_api: User API
+      classification_tree: Classification overview
+      publications: Publication calendar
+      publication: Publication calendar
+      subscriptions: Subscriptions
+      things: Contents
+      collection: Collection of contents
+      report: Report
+      cache: Cache
+      auto_translate: Automatic translation
+      dash_board: Admin Dashboard
+      permission: Authorizations
+      preview: Widget link
+    actions:
+      index: show (list)
+      show: show
+      read: show
+      edit: show (edit view)
+      update: edit
+      import: import
+      search: filter with full text search
+      classification_tree: filter with main category filter
+      classification_trees: filter with main filter
+      permanent_advanced: Filter with advanced filters (always visible)
+      advanced: filter with advanced filters
+      api: retrieve via API
+      copy_api_link: Copy API link
+      grid: display as tiles
+      list: Display as list view
+      tree: Display as tree view
+      map: show as map
+      user_dropdown: filter with main filter
+      user_advanced: filter with advanced filters
+      sortable: sort
+      create: Create
+      destroy: delete
+      create_editable_links: Create edit links
+      auto_login: log in automatically
+      find: search
+      login: register
+      renew_login: Renew login
+      reset_password: Reset password
+      confirm: confirm
+      print: print
+      download: download
+      show_related: Show linked content
+      show_external_connections: Show external links
+      subscribe: subscribe
+      history: Show change history
+      show_history: Show filter history
+      add_item: add
+      remove_item: Remove
+      share: share
+      change_owner: Change owner
+      settings: Change settings
+      publication_date: filter by publication date
+      advanced_filter: filter with advanced filters
+      translate: translate
+      set_life_cycle: Change life cycle
+      move_content: Move content
+      create_api: Release for API
+      restore_version: Restore version
+      change_ui_locale: Change the language of the user interface
+      merge: merge
+      create_duplicate: Create duplicate
+      merge_duplicates: Merge duplicates
+      remove_lock: Release content for editing
+      view_life_cycle: Show life cycle
+      create_api_with_users: Release for API users
+      create_user: Create user
+      lock: lock
+      unlock: Unlock
+      generate_access_token: Generate access token
+      set_role: Change role
+      set_user_groups: Change user groups
+      download_zip: download as ZIP archive
+      download_indesign: download as Indesign archive
+      download_report: Download report
+      download_global_report: Download global report
+      download_content_report: Download report for content
+      manage: Execute all actions
+      map_classifications: Create classification mappings
+      set_color: Change color
+      clear: for empty content
+      clear_all: Empty for all content
+      remove_version_name: Remove version name
+      show_admin_panel: Show admin panel
+      switch_primary_external_system: Change primary external system
+      demote_primary_external_system: Convert primary external system into external link
+      create_external_connection: Create external connection
+      remove_external_connection: Delete external connection
+      bulk_edit: Edit in bulk
+      bulk_delete: Delete in bulk
+      download_user_info_activity: "Download user information and API activity"
+    restrictions:
+      advanced_filter_except_type: "Filter not: %{except}"
+      asset_by_user_and_no_content:
+        - User who uploaded the file
+        - "%{data} has not yet been saved as content"
+      asset_by_user_groups_for_data_link:
+        - "Context: External link"
+        - User or user from a shared user group has uploaded the file
+      backend_by_readable_data_links: valid external links are available
+      classification_alias_and_children_not_external_and_not_internal:
+        - not "internal" yourself and children
+        - not imported themselves and children
+      ? classification_tree_label_and_classification_aliases_not_external_and_not_internal
+      : - not "internal" yourself and children
+        - not imported themselves and children
+      content_by_report_generator: Report" feature activated
+      data_link_by_receiver: User of the recipient of the external link
+      download_allowed_by_content_and_scope: "Context: %{scopes}"
+      roles_except: "Role: %{roles}"
+      stored_filter_by_api_users: shared with user for API
+      stored_filter_by_creator_and_api:
+        - User is creator
+        - accessible by API
+      stored_filter_by_data_link: Valid external links available
+      subject_by_user_and_conditions: User is %{attribute_name}
+      subject_by_user_and_user_group_users:
+        User or user from a shared user group
+        is %{attribute_name}
+      subject_by_user_roles_whitelist: "Role: %{roles}"
+      subject_not_external_and_not_internal:
+        - not imported
+        - not "Internal"
+      subject_not_external: not imported
+      subject_not_internal: not "Internal"
+      template_by_creatable_scope_and_template_name:
+        - "Context: %{scopes}"
+        - "Data type: %{template_names}"
+      template_by_creatable_scope_except_template_name:
+        - "Context: %{scopes}"
+        - "Data type not: %{template_names}"
+      template_by_creatable_scope: "Context: %{scopes}"
+      thing_by_data_link: Valid external editing link available
+      thing_by_external_and_template_name:
+        - Imported
+        - "Data type: %{template_names}"
+      thing_by_template_name: "Data type: %{template_names}"
+      thing_by_user_and_template_name:
+        - User is %{attribute_name}
+        - "Data type: %{template_names}"
+      tree_label_by_visibility: "Visibility: %{visibilities}"
+      users_by_email_domain: "E-mail domain: %{domain}"
+      users_by_role: "Role: %{roles}"
+      users_by_user_group:
+        - "User group: %{group}"
+        - "Role: %{roles}"
+      users_by_user_group_and_api_token:
+        - "User group: %{group}"
+        - "Role: %{roles}"
+        - "API-Token exists"
+      users_except_roles: "Role: %{roles}"
+      users_except_user_group:
+        - "Role: %{roles}"
+        - "User group not: %{group}"
+      watch_list_by_api:
+        - released for the API
+        - not "Meine Auswahl"
+      watch_list_by_creator_without_my_selection:
+        - User is creator
+        - not "Meine Auswahl"
+      watch_list_by_user_shares:
+        - shared with user
+        - not "Meine Auswahl"
+      watch_list_by_group_shares:
+        - shared with user by user group
+        - not "Meine Auswahl"
+      watch_list_by_role_shares:
+        - shared with user by role
+        - not "Meine Auswahl"
+      stored_filter_by_api: accessible by API
+      stored_filter_by_api_and_shared_users: shared with user for API
+      stored_filter_by_api_and_shared_user_groups: shared with user by user group for API
+      stored_filter_by_api_and_shared_roles: shared with user by role for API
+      stored_filter_by_shared_roles: shared with user by role
+      stored_filter_by_shared_users: shared with user
+      stored_filter_by_shared_user_groups: shared with user by user group
+      collection_by_creator_and_api:
+        - User is creator
+        - accessible by API
+      collection_by_api_and_shared_roles: shared with user by role for API
+      collection_by_api_and_shared_user_groups: shared with user by user group for API
+      collection_by_api_and_shared_users: shared with user for API
+      collection_by_shared_roles: shared with user by role
+      collection_by_shared_user_groups: shared with user by user group
+      collection_by_shared_users: shared with user

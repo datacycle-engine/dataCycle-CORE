@@ -197,8 +197,9 @@ module DataCycleCore
       if schedule_object&.recurrence_rules&.first.present?
         rule = schedule_object&.recurrence_rules&.first
         rule_hash = rule.to_hash
-        end_date = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.to_s(:only_date) if end_date.blank? && schedule_object.terminating?
-        end_time = schedule_object&.last&.in_time_zone&.+(duration.presence || 0)&.to_s(:only_time) if end_time.blank? && schedule_object.terminating?
+        end_date = (schedule_object&.last&.in_time_zone || rule_hash.dig(:until))&.+(duration.presence || 0)&.to_s(:only_date) if end_date.blank? && schedule_object.terminating?
+        end_time = schedule_object&.end_time&.to_s(:only_time) if end_time.blank? && schedule_object.terminating?
+        end_time = start_time if end_date.present? && end_time.blank?
         repeat_count = rule&.occurrence_count
         repeat_frequency = to_repeat_frequency(rule_hash)
         by_day = rule_hash.dig(:validations, :day)&.map { |day| dow(day) }
@@ -208,6 +209,10 @@ module DataCycleCore
           by_day = dow(rule_hash.dig(:validations, :day_of_week).keys.first)
           by_month_week = rule_hash.dig(:validations, :day_of_week).values.flatten.first
         end
+      else
+        end_timestamp = dtstart&.+(duration.presence || 0)
+        end_date = end_timestamp&.to_s(:only_date)
+        end_time = end_timestamp&.to_s(:only_time)
       end
 
       {
@@ -364,7 +369,7 @@ module DataCycleCore
     end
 
     def load_schedule_object
-      options = { duration: self[:duration].presence }.compact
+      options = { duration: self[:duration].presence }
 
       IceCube::Schedule.new(self[:dtstart].presence || Time.zone.now, options) do |s|
         s.add_recurrence_rule(IceCube::Rule.from_ical(self[:rrule])) if self[:rrule].present? # allow only one rrule!!
@@ -401,7 +406,7 @@ module DataCycleCore
         return if until_date.blank? || until_time.blank?
 
         parsed_until_date = until_date
-        parsed_until_date = rrule[:until][:time] if parsed_until_date.is_a?(::Hash) && rrule[:until].key?(:time)
+        parsed_until_date = parsed_until_date[:time]&.in_time_zone(parsed_until_date[:zone]) if parsed_until_date.is_a?(::Hash) && parsed_until_date.key?(:time)
         parsed_until_time = until_time
         parsed_until_time = parsed_until_time.in_time_zone if parsed_until_time.is_a?(::String)
 
@@ -465,6 +470,8 @@ module DataCycleCore
             s['rrules'][0]['validations']['day_of_year'] = [from_yday]
             s.dig('rrules', 0, 'validations')&.delete('day')
           else
+            s.dig('rrules', 0, 'validations')&.delete('day_of_week')
+            s.dig('rrules', 0, 'validations')&.delete('day_of_month')
             s.dig('rrules', 0, 'validations')&.delete('day')
           end
 
@@ -602,12 +609,12 @@ module DataCycleCore
           rrule[:until] = data.values_at('endDate', 'endTime').compact_blank.join('T')&.in_time_zone(time_zone)
           rrule[:interval] = data['repeatFrequency'].to_s[1..-2].to_i
           rrule[:validations] = {}
-          rrule[:validations][:hour_of_day] = start_time[:time].to_datetime.hour
-          rrule[:validations][:minute_of_hour] = start_time[:time].to_datetime.minute
+          rrule[:validations][:hour_of_day] = [start_time[:time].to_datetime.hour]
+          rrule[:validations][:minute_of_hour] = [start_time[:time].to_datetime.minute]
 
-          if data.key?('byMonthDay')
+          if data.key?('byMonthDay') && rrule[:rule_type] == 'IceCube::MonthlyRule'
             rrule[:validations][:day_of_month] = Array.wrap(data['byMonthDay'])
-          elsif data.key?('byMonthWeek') && data.key?('byDay')
+          elsif data.key?('byMonthWeek') && data.key?('byDay') && rrule[:rule_type] == 'IceCube::MonthlyRule'
             rrule[:validations][:day_of_week] = DAY_OF_WEEK_MAPPING.select { |_k, v| v.in?(Array.wrap(data['byDay'])) }.keys.index_with { |_k| Array.wrap(data['byMonthWeek']) }
           elsif data.key?('byDay')
             rrule[:validations][:day] = DAY_OF_WEEK_MAPPING.select { |_k, v| v.in?(Array.wrap(data['byDay'])) }.keys
@@ -620,7 +627,7 @@ module DataCycleCore
           rrules: Array.wrap(rrule.deep_reject { |_, v| v.blank? }).compact_blank.presence
         }
 
-        schedule_hash.with_indifferent_access
+        transform_data_for_data_hash(schedule_hash)
       end
 
       def duration_to_iso8601_string(data)

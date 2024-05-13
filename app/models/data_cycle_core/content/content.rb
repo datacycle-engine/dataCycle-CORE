@@ -14,36 +14,46 @@ module DataCycleCore
         'column' => 'column',
         'classification' => 'classification'
       }.freeze
+      WEBHOOK_ACCESSORS = [:webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks, :allowed_webhooks].freeze
       PLAIN_PROPERTY_TYPES = ['key', 'string', 'number', 'date', 'datetime', 'boolean', 'geographic', 'slug'].freeze
-      WEBHOOK_ACCESSORS = [:webhook_source, :webhook_as_of, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks].freeze
+      LINKED_PROPERTY_TYPES = ['linked'].freeze
+      EMBEDDED_PROPERTY_TYPES = ['embedded'].freeze
+      CLASSIFICATION_PROPERTY_TYPES = ['classification'].freeze
+      SCHEDULE_PROPERTY_TYPES = ['schedule', 'opening_time'].freeze
+      TIMESERIES_PROPERTY_TYPES = ['timeseries'].freeze
+      ASSET_PROPERTY_TYPES = ['asset'].freeze
+      COLLECTION_PROPERTY_TYPES = ['collection'].freeze
+      ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS].freeze
+      ATTR_WRITERS = [:webhook_data].freeze
 
       after_initialize :add_template_properties, if: :new_record?
 
       self.abstract_class = true
 
-      attr_accessor :datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, *WEBHOOK_ACCESSORS
-      attr_writer :webhook_data
+      attr_accessor(*ATTR_ACCESSORS)
+      attr_writer(*ATTR_WRITERS)
 
       DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
-        feature = ('DataCycleCore::Feature::' + key.to_s.classify).constantize
+        feature = ModuleService.load_module("Feature::#{key.to_s.classify}", 'Datacycle')
         include feature.content_module if feature.enabled? && feature.content_module
       end
-      extend  DataCycleCore::Common::ArelBuilder
-      include DataCycleCore::Content::ContentRelations
-      extend  DataCycleCore::Content::Searchable
-      include DataCycleCore::Content::DestroyContent
-      include DataCycleCore::Content::DataHashUtility
-      include DataCycleCore::Content::Extensions::Content
-      include DataCycleCore::Content::Extensions::ContentWarnings
-      include DataCycleCore::Content::Extensions::Api
-      include DataCycleCore::Content::Extensions::SyncApi
-      include DataCycleCore::Content::Extensions::Geojson
-      include DataCycleCore::Content::Extensions::Mvt
-      include DataCycleCore::Content::Extensions::DefaultValue
-      include DataCycleCore::Content::Extensions::ComputedValue
-      include DataCycleCore::Content::Extensions::PropertyPreloader
-      prepend DataCycleCore::Content::Extensions::Translation
-      prepend DataCycleCore::Content::Extensions::Geo
+
+      extend  Common::ArelBuilder
+      include ContentRelations
+      extend  Searchable
+      include DestroyContent
+      include DataHashUtility
+      include Extensions::Content
+      include Extensions::ContentWarnings
+      include Extensions::Api
+      include Extensions::SyncApi
+      include Extensions::Geojson
+      include Extensions::Mvt
+      include Extensions::DefaultValue
+      include Extensions::ComputedValue
+      include Extensions::PropertyPreloader
+      prepend Extensions::Translation
+      prepend Extensions::Geo
 
       scope :where_value, ->(attributes) { where(value_condition(attributes), *attributes&.values) }
       scope :where_not_value, ->(attributes) { where.not(value_condition(attributes), *attributes&.values) }
@@ -61,10 +71,18 @@ module DataCycleCore
         attributes&.map { |k, v| "thing_translations.content ->> '#{k}' #{v.is_a?(::Array) ? 'IN (?)' : '= ?'}" }&.join(' AND ')
       end
 
+      def attr_accessor_attributes
+        ATTR_ACCESSORS.index_with { |k| send(k) }.stringify_keys
+      end
+
       def reload(options = nil)
         reload_memoized
 
         super(options)
+      end
+
+      def generic_template?
+        template_name == 'Generic'
       end
 
       def webhook_data
@@ -252,11 +270,15 @@ module DataCycleCore
       end
 
       def linked_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'linked' }
+        name_property_selector(include_overlay) { |definition| LINKED_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
+      def collection_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| COLLECTION_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def embedded_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'embedded' }
+        name_property_selector(include_overlay) { |definition| EMBEDDED_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def included_property_names(include_overlay = false)
@@ -288,19 +310,19 @@ module DataCycleCore
       end
 
       def classification_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'classification' }
+        name_property_selector(include_overlay) { |definition| CLASSIFICATION_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def asset_property_names
-        name_property_selector { |definition| definition['type'] == 'asset' }
+        name_property_selector { |definition| ASSET_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def schedule_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'].in?(['schedule', 'opening_time']) }
+        name_property_selector(include_overlay) { |definition| SCHEDULE_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def timeseries_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| definition['type'] == 'timeseries' }
+        name_property_selector(include_overlay) { |definition| TIMESERIES_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def external_property_names
@@ -388,7 +410,7 @@ module DataCycleCore
           send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
         elsif plain_property_names.include?(property_name)
           send(property_name)&.as_json
-        elsif classification_property_names.include?(property_name) || linked_property_names.include?(property_name)
+        elsif classification_property_names.include?(property_name) || linked_property_names.include?(property_name) || collection_property_names.include?(property_name)
           send(property_name).try(:pluck, :id)
         elsif included_property_names.include?(property_name)
           embedded_hash = send(property_name).to_h
@@ -463,6 +485,8 @@ module DataCycleCore
             load_schedule(property_name, overlay_flag)
           elsif timeseries_property_names.include?(property_name)
             load_timeseries(property_name)
+          elsif collection_property_names.include?(property_name)
+            load_collections(property_name)
           else
             raise NotImplementedError
           end
@@ -494,7 +518,7 @@ module DataCycleCore
           send(NEW_STORAGE_LOCATION[property_definition['storage_location']]).try(:[], property_name)
         )
 
-        OpenStructHash.new(thing_data).freeze
+        OpenStructHash.new(thing_data, self, property_definition).freeze
       end
 
       def load_subproperty_hash(sub_properties, storage_location, sub_properties_data)
@@ -537,7 +561,7 @@ module DataCycleCore
           h[key] = DataCycleCore.features
             .select { |_, v| !v.dig(:only_config) == true }
             .keys
-            .map { |f| "DataCycleCore::Feature::#{f.to_s.classify}".constantize.try("#{prefix}attribute_keys", self) }
+            .map { |f| ModuleService.safe_load_module("Feature::#{f.to_s.classify}", 'Datacycle').try("#{prefix}attribute_keys", self) }
             .flatten
         end
         @feature_attributes[prefix]
@@ -571,9 +595,13 @@ module DataCycleCore
           }
           .reduce(:&)
           .to_h
-          .keep_if do |_, v|
-            v['type'] != 'classification' || DataCycleCore::ClassificationService.visible_classification_tree?(v['tree_label'], 'edit')
-          end
+
+        tree_label_names = ordered_properties.values.pluck('tree_label').compact.uniq
+        tree_labels = DataCycleCore::ClassificationTreeLabel.where(name: tree_label_names).index_by(&:name) if tree_label_names.present?
+
+        ordered_properties = ordered_properties.keep_if do |_, v|
+          v['type'] != 'classification' || DataCycleCore::ClassificationService.visible_classification_tree?(tree_labels[v['tree_label']], 'edit')
+        end
 
         contents.find_each do |t|
           ordered_properties.select! do |k, v|
@@ -618,48 +646,36 @@ module DataCycleCore
           elsif value.is_a?(ActiveRecord::Relation) || value.is_a?(ActiveRecord::Base)
             value
           elsif value.is_a?(::Array) && value.first.is_a?(ActiveRecord::Base)
-            ids = value.pluck(:id)
-            value.first.class
-            .unscoped
-            .where(id: ids)
-            .order(
-              [
-                Arel.sql("array_position(ARRAY[?]::uuid[], #{value.first.class.table_name}.id)"),
-                ids
-              ]
-            )
-            .tap { |rel| rel.send(:load_records, value) }
+            value.first.class.unscoped.by_ordered_values(value.pluck(:id)).tap { |rel| rel.send(:load_records, value) }
           elsif linked_property_names.include?(key) || embedded_property_names.include?(key)
-            if value.present?
-              DataCycleCore::Thing.where(id: value).order(
-                [
-                  Arel.sql('array_position(ARRAY[?]::uuid[], things.id)'),
-                  value
-                ]
-              )
-            else
-              DataCycleCore::Thing.none
-            end
+            DataCycleCore::Thing.by_ordered_values(value)
           elsif classification_property_names.include?(key)
-            if value.present?
-              DataCycleCore::Classification.where(id: value).order(
-                [
-                  Arel.sql('array_position(ARRAY[?]::uuid[], classifications.id)'),
-                  value
-                ]
-              )
-            else
-              DataCycleCore::Classification.none
-            end
+            DataCycleCore::Classification.by_ordered_values(value)
           elsif asset_property_names.include?(key)
-            value.present? ? DataCycleCore::Asset.find_by(id: value) : nil
+            DataCycleCore::Asset.by_ordered_values(value).first
           elsif schedule_property_names.include?(key)
-            value.present? ? DataCycleCore::Schedule.where(id: value) : DataCycleCore::Schedule.none
+            DataCycleCore::Schedule.by_ordered_values(value)
           elsif timeseries_property_names.include?(key)
-            value.present? ? DataCycleCore::Timeseries.where(id: value) : DataCycleCore::Timeseries.none
+            DataCycleCore::Timeseries.by_ordered_values(value)
+          elsif collection_property_names.include?(key)
+            DataCycleCore::Collection.by_ordered_values(value)
           else # rubocop:disable Lint/DuplicateBranch
             value
           end
+      end
+
+      def template_missing?
+        thing_template.nil?
+      end
+
+      def require_template!
+        raise ActiveRecord::RecordNotFound if template_missing?
+
+        self
+      end
+
+      def thing_template?
+        !template_missing?
       end
 
       private

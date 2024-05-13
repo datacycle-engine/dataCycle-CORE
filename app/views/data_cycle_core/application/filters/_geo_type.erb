@@ -1,0 +1,37 @@
+<div data-id="<%= identifier %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
+  <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
+  <%= hidden_field_tag "f[#{identifier}][t]", local_assigns[:filter_type] %>
+  <%= hidden_field_tag "f[#{identifier}][n]", filter_title %>
+  <%= hidden_field_tag "f[#{identifier}][q]", local_assigns[:filter_advanced_type] %>
+  <%= hidden_field_tag "f[#{identifier}][m]", 'i' %>
+
+  <div class="advanced-filter-title">
+    <%= render 'data_cycle_core/shared/icon', icon_type: filter_name&.underscore_blanks, icon_class: 'filter' %>
+    <span><%= t("filter.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
+  </div>
+
+  <div class="advanced-filter-mode">
+    <% filter_mode_options = advanced_attribute_filter_options(filter_advanced_type) %>
+    <%= select_tag "f[#{identifier}][m]", options_for_select(filter_mode_options, filter_method), {class: 'advanced-filter-mode-selector'} %>
+  </div>
+
+  <div class="advanced-filter-selector">
+    <%= select_tag("f[#{identifier}][v]",
+      options_for_select(['any', 'line', 'point', 'polygon'].map { |v| [t("filter.geo_type_options.#{v}", locale: active_ui_locale), v] }, value),
+      {
+        multiple: true,
+        class: 'multi-select',
+        data: {
+          initial_focus: true,
+          placeholder: ''
+        }
+      }) %>
+  </div>
+
+  <div class="buttons">
+    <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
+      <a class="remove-advanced-filter" data-target="<%= identifier %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+    <% end %>
+  </div>
+
+</div>

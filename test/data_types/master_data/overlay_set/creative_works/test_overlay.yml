@@ -1,0 +1,57 @@
+---
+- :data:
+    :name: TestOverlay
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 1.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :overlay: true
+        :api:
+          :name: dc:name
+        :exif:
+          :keys:
+            - Headline
+        :content_score:
+          :module: Common
+          :method: by_presence
+        :ui:
+          :show:
+            :content_area: none
+      :author:
+        :label: Autor
+        :type: linked
+        :overlay: true
+        :template_name: Person
+        :validations:
+          :max: 1
+      :test_classification:
+        :label: Test
+        :type: classification
+        :tree_label: TestClassifications
+        :ui:
+          :show:
+            :content_area: header
+        :overlay: true
+      :opening_hours_specification:
+        :label: Öffnungszeit
+        :type: opening_time
+        :overlay: true
+      :event_schedule:
+        :label: Termine
+        :type: schedule
+        :overlay: true
+      :start_date:
+        :label: Startzeitpunkt
+        :storage_location: value
+        :type: datetime
+        :overlay: true

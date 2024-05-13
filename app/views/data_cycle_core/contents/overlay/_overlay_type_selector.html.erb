@@ -1,0 +1,8 @@
+<% random_id = SecureRandom.hex(10) %>
+<div class="dc-overlay-type dc-checkbox" data-attribute-key="<%= key %>">
+  <% overlay_key = "overlay#{key.delete_prefix('thing')}" %>
+  <%= collection_check_boxes nil, overlay_key, overlay_types(content, key, definition), :value, :text, { include_hidden: false } do |cb| %>
+    <%= cb.check_box(id: sanitize_to_id("#{overlay_key}[#{cb.value}][#{random_id}]"), disabled: true, data: { overlay_attribute_key: "#{key.delete_suffix(']')}_#{cb.value}]" }) %>
+    <%= cb.label(for: sanitize_to_id("#{overlay_key}[#{cb.value}][#{random_id}]")) %>
+  <% end %>
+</div>

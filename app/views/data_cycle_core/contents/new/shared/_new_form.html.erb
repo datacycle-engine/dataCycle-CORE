@@ -8,7 +8,7 @@
   local: !local_assigns[:object_browser],
   html: {
     class: "validation-form multi-step#{' disabled' if local_assigns[:search_required] && local_assigns[:search_param].blank? && cannot?(:create_without_search, template || DataCycleCore::Thing)}",
-    data: to_query_params(local_assigns.slice(:template, :key, :search_param, :search_required, :scope, :parent, :content, :locale, :options, :content_uploader).merge({ primary_attribute_key: primary_attribute_key, template_translation: asset_model_name&.human(count: 2, locale: active_ui_locale) }))
+    data: to_query_params(local_assigns.slice(:template, :key, :search_param, :search_required, :scope, :parent, :content, :locale, :options, :content_uploader).merge({ primary_attribute_key: primary_attribute_key, template_translation: asset_model_name&.human(count: 2, locale: active_ui_locale), duplicate_search: true }))
   } do %>
 
   <div class="form-crumbs"></div>
@@ -86,7 +86,8 @@
     <%= button_tag t("actions.#{local_assigns[:content_uploader] ? 'set_and_next' : 'save'}", locale: active_ui_locale),
       type: :submit,
       class: "button success submit",
-      disabled: local_assigns[:search_required] && local_assigns[:search_param].blank? && cannot?(:create_without_search, local_assigns[:template] || DataCycleCore::Thing),
+        disabled: local_assigns[:search_required] && local_assigns[:search_param].blank?,
+       # disabled: local_assigns[:search_required] && local_assigns[:search_param].blank? && cannot?(:create_without_search, local_assigns[:template] || DataCycleCore::Thing),
       data: {
         disable_with: "#{t("actions.#{local_assigns[:content_uploader] ? 'set_and_next' : 'save'}", locale: active_ui_locale)} <i class='fa fa-spinner fa-spin fa-fw'></i>"
         } %>

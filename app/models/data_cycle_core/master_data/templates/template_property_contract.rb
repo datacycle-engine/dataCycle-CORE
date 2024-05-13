@@ -6,6 +6,11 @@ module DataCycleCore
       class TemplatePropertyContract < DataCycleCore::MasterData::Contracts::GeneralContract
         attr_accessor :property_name
 
+        ALLOWED_OVERLAY_TYPES = ['string', 'text', 'number', 'boolean',
+                                 'datetime', 'date', 'geographic', 'slug',
+                                 'embedded', 'linked', 'classification',
+                                 'schedule', 'opening_time'].freeze
+
         schema do
           optional(:label) { str? }
           required(:type) do
@@ -14,39 +19,20 @@ module DataCycleCore
                'datetime', 'date', 'geographic', 'slug',
                'object', 'embedded', 'linked', 'classification',
                'asset', 'schedule', 'opening_time',
-               'timeseries']
+               'timeseries', 'collection']
             )
           end
           optional(:storage_location) do
             str? & included_in?(['column', 'value', 'translated_value', 'classification'])
           end
-          optional(:template_name) { str? }
+          optional(:template_name) { str? | (array? & each { str? }) }
           optional(:validations) { hash? }
           optional(:ui) { hash? }
           optional(:api) { hash? }
           optional(:xml) { hash? }
           optional(:search) { bool? }
           optional(:advanced_search) { bool? }
-          optional(:normalize).hash do
-            required(:id) do
-              str? & included_in?(
-                ['sex', 'degree', 'forename', 'surname', 'birthdate',
-                 'company', 'email',
-                 'street', 'streetnr', 'city', 'zip', 'country',
-                 'eventname', 'eventstart', 'eventend',
-                 'eventplace', 'longitude', 'latitude']
-              )
-            end
-            required(:type) do
-              str? & included_in?(
-                ['sex', 'degree', 'forename', 'surname', 'birthdate',
-                 'company', 'email',
-                 'street', 'streetnr', 'city', 'zip', 'country',
-                 'eventname', 'datetime',
-                 'eventplace', 'longitude', 'latitude']
-              )
-            end
-          end
+          optional(:overlay) { bool? }
 
           # for type object
           optional(:properties) { hash? }
@@ -133,7 +119,7 @@ module DataCycleCore
           when 'linked'
             key.failure(:invalid_linked) unless values.dig(:template_name).present? || values.dig(:stored_filter).present? || values.dig(:inverse_of).present?
           when 'classification'
-            key.failure(:invalid_classification) if values.dig(:tree_label).blank? && values.dig(:universal) == false
+            key.failure(:invalid_classification) if values.dig(:tree_label).blank? && values.dig(:universal) != true
           when 'asset'
             key.failure(:invalid_asset) if values.dig(:asset_type).blank?
           end
@@ -177,6 +163,10 @@ module DataCycleCore
 
         rule(:storage_location) do
           key.failure(:invalid_column) if key? && value == 'column' && ['external_key', 'slug', 'location', 'line', 'geom'].exclude?(property_name.to_s)
+        end
+
+        rule(:overlay, :type) do
+          key.failure(:invalid_overlay_type) if key? && ALLOWED_OVERLAY_TYPES.exclude?(values[:type])
         end
       end
     end

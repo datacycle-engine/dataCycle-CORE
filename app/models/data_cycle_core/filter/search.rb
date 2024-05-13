@@ -13,6 +13,7 @@ module DataCycleCore
       include DataCycleCore::Filter::Common::Geo
       include DataCycleCore::Filter::Common::Union
       include DataCycleCore::Filter::Common::User
+      include DataCycleCore::Filter::Common::Graph
       include DataCycleCore::Filter::Sortable
 
       def initialize(locale = ['de'], query = nil, include_embedded = false)
@@ -67,6 +68,7 @@ module DataCycleCore
               FROM content_content_links
               JOIN things AS t ON t.id = content_content_links.content_b_id
               WHERE content_content_links.content_a_id = things.id
+              AND content_content_links.relation IS NOT NULL
               AND t.updated_at >= ?
             UNION
             SELECT content_content_links.content_b_id || content_dependencies.content_ids "content_ids"
@@ -76,6 +78,7 @@ module DataCycleCore
               AND content_content_links.content_b_id <> ALL(content_dependencies.content_ids)
               AND t.updated_at >= ?
             WHERE array_length(content_dependencies.content_ids, 1) < ?
+              AND content_content_links.relation IS NOT NULL
           ) SELECT 1 FROM content_dependencies WHERE content_ids[array_length(content_ids, 1)] = things.id
         SQL
 
@@ -346,14 +349,24 @@ module DataCycleCore
         relation_name = inverse ? :relation_b : :relation_a
 
         sub_select = content_content[thing_id].eq(thing[:id])
-          .and(content_content[related_to_id].in(filter_query))
+                                              .and(content_content[related_to_id].in(filter_query))
 
         sub_select = sub_select.and(content_content[relation_name].eq(name)) if name.present?
 
         Arel::SelectManager.new
-          .from(content_content)
-          .where(sub_select)
+                           .from(content_content)
+                           .where(sub_select)
       end
+
+      ##
+      # This is the core functionality for the new bi-directional graph filter
+      # Params:
+      # +filter+:: Base-Filter / Filter, based on which the graph-filter shall operate. Could be: StoredFilter, WatchList, ...
+      # +relation+: OPTIONAL: Restriction for relation name - default: nil (no restriction)
+      # +class_aliases+:: OPTIONAL - list of classification aliases that shall be applied instead of relation
+      # +direction_a_b+:: OPTIONAL - DEFAULTS to FALSE ( B -> A ) - Tell the graph Filter in which direction it shall work.
+      #  Direction A -> B: Return all linked items B of the base filter's resulting items A
+      #  Direction B -> A (related_to): Return items A that have a linked item b that can be found in the results of the base filter
 
       def related_to_any(name = nil, inverse = false)
         thing_id = :content_a_id
@@ -368,7 +381,7 @@ module DataCycleCore
       end
 
       def default_query
-        query = DataCycleCore::Thing
+        query = DataCycleCore::Thing.default_scoped
         query = query.where.not(content_type: 'embedded') unless @include_embedded
         query = query.order(boost: :desc, updated_at: :desc, id: :desc)
         query = query.where(DataCycleCore::Search.select(1).where('searches.content_data_id = things.id').where(locale: @locale).arel.exists) if @locale.present?

@@ -220,7 +220,8 @@ module DataCycleCore
 
               tree_label = DataCycleCore::ClassificationTreeLabel.find_or_create_by(
                 external_source_id:,
-                name: classification_data[:tree_name]
+                name: classification_data[:tree_name],
+                external_key: classification_data[:tree_name]
               ) do |item|
                 item.visibility = DataCycleCore.default_classification_visibilities
               end

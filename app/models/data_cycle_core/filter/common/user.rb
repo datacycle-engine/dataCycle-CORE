@@ -93,10 +93,10 @@ module DataCycleCore
           raw_query = <<-SQL.squish
             SELECT 1
           	FROM watch_list_data_hashes
-            INNER JOIN watch_list_shares ON watch_list_shares.watch_list_id = watch_list_data_hashes.watch_list_id
+            INNER JOIN collection_shares ON collection_shares.collection_id = watch_list_data_hashes.watch_list_id
             WHERE watch_list_data_hashes.hashable_id = things.id
               AND watch_list_data_hashes.hashable_type = 'DataCycleCore::Thing'
-              AND watch_list_shares.shareable_id IN (?)
+              AND collection_shares.shareable_id IN (?)
           SQL
 
           reflect(

@@ -24,8 +24,7 @@
       <% else %>
         <i class="fa" aria-hidden="true"></i>
       <% end %>
-      <%= title %>
-      <%= ":" if value.present? && value.length > 0%>
+      <span><%= title %></span>
     </span>
     <span class="tags-container">
       <% value.each do |tag| %>

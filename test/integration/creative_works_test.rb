@@ -79,6 +79,7 @@ module DataCycleCore
       assert_redirected_to thing_path(@content, locale: I18n.locale)
       assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_locales.first), flash[:success]
       follow_redirect!
+
       assert_select ".detail-header > .title > .translatable-attribute-container > .translatable-attribute.#{I18n.locale}", 1
     end
 
@@ -92,6 +93,7 @@ module DataCycleCore
       assert_response :success
       assert_select ".detail-header > .title > .translatable-attribute-container > .translatable-attribute.#{I18n.locale}", 1
       get history_thing_path(@content, history_id: @content.histories&.first&.id)
+
       assert_response :success
       assert_select('.detail-content .type.properties .has-changes', count: 1) # title & slug
     end
@@ -150,6 +152,7 @@ module DataCycleCore
       }, headers: {
         referer: thing_path(@content)
       }
+
       assert(linked_pois[5..10].all? { |s| response.body.include?(s.name) })
 
       post load_more_linked_objects_thing_path(@content), xhr: true, params: {
@@ -165,6 +168,7 @@ module DataCycleCore
       }, headers: {
         referer: edit_thing_path(@content)
       }
+
       assert(linked_pois[5..10].all? { |s| response.body.include?(s.name) })
     end
 

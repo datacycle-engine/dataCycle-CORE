@@ -348,7 +348,7 @@
       >a,
       >span {
         padding: 0 3px !important;
-        margin-left: 3px;
+        //margin-left: 3px;
 
         &.copy {
           position: relative;
@@ -1410,6 +1410,35 @@ span.single_error.object-browser-error {
         height: 2rem;
         width: 2rem;
         margin: 0 0.5rem;
+        white-space: nowrap;
+      }
+
+      .new-embedded-object-links {
+        list-style: none;
+
+        .add-content-object {
+          justify-content: flex-start;
+          padding: 0;
+          height: auto;
+          width: 100%;
+          margin: 0;
+          gap: 0.5rem;
+        }
+      }
+
+      .new-embedded-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 0.3rem 0.5rem;
+        height: 2rem;
+        width: 2rem;
+        margin: 0 0.5rem;
+      }
+
+      .new-embedded-button-wrapper {
+        position: relative;
       }
     }
 

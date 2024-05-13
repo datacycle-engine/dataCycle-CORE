@@ -3,8 +3,7 @@
   <span class="watch-list-item <%= watch_list.user == current_user ? 'private' : 'shared' %>">
     <span class="check <%= 'checked' if linked_watch_lists %>"><i class="fa fa-check" aria-hidden="true"></i></span>
     <span class="watchlist-name">
-      <%= link_to_if !linked_watch_lists && can?(:add_item, watch_list),
-        (watch_list.watch_list_shares.any? ? tag.i(class: 'fa fa-users') : '') + watch_list.name,
+      <%= link_to_if !linked_watch_lists && can?(:add_item, watch_list), watch_list_list_title(watch_list),
         add_item_watch_list_path(watch_list, hashable_type: content&.class&.name, hashable_id: content),
         class: 'add-to-watchlist-link',
         remote: true,

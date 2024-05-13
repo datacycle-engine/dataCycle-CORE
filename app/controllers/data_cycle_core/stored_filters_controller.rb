@@ -24,16 +24,10 @@ module DataCycleCore
     def saved_searches
       authorize! :index, DataCycleCore::StoredFilter
 
-      @stored_searches = DataCycleCore::StoredFilter.accessible_by(current_ability).or(DataCycleCore::StoredFilter.by_api_user(current_user)).where.not(name: nil).order(:name)
+      @stored_searches = DataCycleCore::StoredFilter.includes(:linked_stored_filter, :concept_schemes, :shared_users, :shared_user_groups, :shared_roles).accessible_by(current_ability).named.order(:name)
       @search_param = index_params[:q]
 
-      if @search_param.present?
-        @stored_searches = @stored_searches.left_outer_joins(:collection_configuration).where(
-          DataCycleCore::StoredFilter.arel_table[:name].matches("%#{@search_param}%")
-            .or(DataCycleCore::StoredFilter.arel_table[:id].eq(@search_param.to_s))
-            .or(DataCycleCore::CollectionConfiguration.arel_table[:slug].matches("%#{@search_param}%"))
-        )
-      end
+      @stored_searches = @stored_searches.by_id_name_slug_description(@search_param) if @search_param.present?
 
       @page = (index_params[:page] || 1).to_i
 
@@ -51,6 +45,8 @@ module DataCycleCore
         end
         format.json do
           partial = "data_cycle_core/stored_filters/#{index_params[:partial].presence || 'saved_searches_list'}"
+
+          @stored_searches.reorder(updated_at: :desc) if @search_param.blank?
 
           json = {
             html: render_to_string(
@@ -128,16 +124,17 @@ module DataCycleCore
       stored_filters = DataCycleCore::StoredFilter.accessible_by(current_ability, :update)
         .includes(:user)
         .limit(20)
+        .order(name: :asc)
 
-      stored_filters = stored_filters.where(DataCycleCore::StoredFilter.arel_table[:name].matches("%#{index_params[:q]}%")) if index_params[:q].present?
+      stored_filters = stored_filters.where('name ILIKE ?', "%#{index_params[:q]&.strip}%") if index_params[:q].present?
 
       render plain: stored_filters.map { |filter|
         select_option = filter.to_select_option
 
         if filter.user_id != current_user.id
-          suffix = helpers.tag.span(" | #{filter.user.full_name} <#{filter.user.email}>", class: 'stored-filter-creator')
-          select_option.name += suffix
-          select_option.dc_tooltip += suffix
+          suffix = helpers.tag.span(helpers.safe_join([' |', filter.user_with_deleted.full_name_with_status, "<#{filter.user_with_deleted.email}>"], ' '), class: 'stored-filter-creator')
+          select_option.name = helpers.safe_join([select_option.name, suffix])
+          select_option.dc_tooltip = helpers.safe_join([select_option.dc_tooltip, suffix])
         end
 
         select_option
@@ -148,13 +145,11 @@ module DataCycleCore
       authorize! :show, DataCycleCore::StoredFilter
 
       filter_string = select_search_params[:q]&.strip
-      filter_proc = ->(query, query_table) { query.where(query_table[:name].matches("%#{filter_string}%")) } if filter_string.present?
-      arel_query = DataCycleCore::StoredFilter.accessible_by(current_ability).combine_with_collections(DataCycleCore::WatchList.accessible_by(current_ability).conditional_my_selection, filter_proc)
-      arel_query = arel_query.take(select_search_params[:max].to_i) if select_search_params[:max].present?
 
-      result = ActiveRecord::Base.connection.select_all arel_query.to_sql
+      query = DataCycleCore::Collection.accessible_by_subclass(current_ability).conditional_my_selection.by_id_name_slug_description(filter_string)
+      query = query.limit(select_search_params[:max].to_i) if select_search_params[:max].present?
 
-      render plain: DataCycleCore::CollectionService.to_select_options(result).to_json, content_type: 'application/json'
+      render plain: query.map { |c| c.to_select_option(helpers.active_ui_locale) }.to_json, content_type: 'application/json'
     end
 
     def add_to_watchlist
@@ -177,11 +172,10 @@ module DataCycleCore
     def stored_filter_params
       params
         .require(:stored_filter)
-        .permit(:id, :name, :system, :api, :linked_stored_filter_id, classification_tree_labels: [], api_users: [], collection_configuration_attributes: [:id, :slug])
+        .permit(:id, :name, :api, :user_id, :linked_stored_filter_id, :description, shared_user_ids: [], shared_user_group_ids: [], shared_role_ids: [], classification_tree_labels: [])
         .tap do |p|
           p[:name] ||= p.delete(:id) unless p[:id].to_s.uuid?
-          p[:classification_tree_labels]&.reject!(&:blank?)
-          p[:api_users]&.reject!(&:blank?)
+          p[:description] = DataCycleCore::MasterData::DataConverter.string_to_string(p[:description]) if p.key?(:description)
         end
     end
 

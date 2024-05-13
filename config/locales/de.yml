@@ -95,6 +95,7 @@ de:
     standard: Standard
     guest: Gast
     external_user: Externer Benutzer
+    all: Alle
 
   view_modes:
     grid: Kacheln
@@ -375,11 +376,19 @@ de:
       success: Die Sortierung wurde aktualisiert
       error: Die Sortierung konnte nicht aktualisiert werden
 
+  duplicate_search:
+    found_html:
+      one: "Es wurde <b>%{count}</b> Inhalt mit ähnlichem Namen gefunden"
+      other: "Es wurden <b>%{count}</b> Inhalte mit ähnlichem Namen gefunden"
+    show: Mögliche Duplikate anzeigen
+    continue_creation: "Wollen Sie mit der Erstellung des Inhaltes fortfahren?"
+
   content_external_data:
     primary_external_system_tooltip: Dieses System ist das primäre externe System
     tooltip: Dieses externe System als primäres externes System verwenden
     primary_system_switched: Das primäre externe System wurde erfolgreich getauscht
     duplicate_record_html: Es existiert bereits ein <a href="%{url}" target="_blank">Inhalt</a> im externen Zielsystem
+    warning_html: Dieses externe System wiklich als primäres externes System verwenden?
 
   common:
     "true": Ja
@@ -597,6 +606,7 @@ de:
     more_errors: "%{count} weitere Fehler"
     number: Anzahl
     preview_links: Vorschau-Links
+    or: oder
 
   embedded:
     move_down: nach unten verschieben
@@ -629,6 +639,10 @@ de:
       tooltip: Externe Verknüpfung entfernen
       success: Externe Verknüpfung wurde entfernt
       warning_html: 'Externe Verknüpfung entfernen?<br><br><i class="alert-color">Das beeinflusst möglicherweise die Funktion eines Importers!</i>'
+    demote_to_sync:
+      tooltip: primäres externes System in externe Verknüpfung umwandeln
+      success: primäres externes System wurde in externe Verknüpfung umgewandelt
+      warning_html: 'primäres externes System in externe Verknüpfung umwandeln?<br><br><i class="alert-color">Das beeinflusst möglicherweise die Funktion eines Importers!</i>'
 
   duplicate:
     candidates: Mögliche Duplikate
@@ -710,9 +724,10 @@ de:
       missing_serialize_format: Es muss mindestens ein Format ausgewählt werden
     serialize:
       license:
+        terms_of_use: Nutzungsbedingungen
         copyright:
-          file_name: nutzungsbedingungen
-        introducton:
+          file_name: copyright
+        introduction:
           file_name: einleitungstext
           text: |
             Überschrift
@@ -749,11 +764,16 @@ de:
         subject: Ein neuer Benutzer wurde erstellt
         text_html: Der neue Benutzer %{name} (%{email}) wurde erstellt.
         user_link: Benutzer anzeigen
+    overlay:
+      label_postfix:
+        override: (Overlay)
+        add: (Anhang)
 
     report_generator:
       downloads_popular: Top 50 Downloads
       downloads_content: Alle Downloads dieses Inhalts
       stored_searches_usage: Verwendung Gespeicherte Suchen
+      watch_lists_usage: Verwendung Inhaltssammlungen
       headings:
         id: ID
         name: Name
@@ -771,6 +791,21 @@ de:
         api_usage_current_month: Anzahl der Verwendungen über die API im aktuellen Monat
         api_usage_last_month: Anzahl der Verwendungen über die API im letzten Monat
         api_usage_last_12_months: Anzahl der Verwendungen über die API in den letzten 12 Monaten
+        first_name: Vorname
+        last_name: Nachname
+        created_at: Erstellt am
+        updated_at: Aktualisiert am
+        last_sign_in_at: Letzter Login
+        current_sign_in_at: Aktueller Login
+        sign_in_count: Anzahl der Logins
+        deleted_at: Gelöscht am
+        locked_at: Gesperrt am
+        external: Extern
+        role_name: Rolle
+        latest_activity_type: Aktivitätsart
+        latest_api_access: Letzter API Zugriff
+        user_group_names: Benutzergruppen
+        api_access: Für API freigegeben
       mailer:
         subject:
           downloads_popular: TOP 50 Bild Downloads
@@ -879,6 +914,12 @@ de:
     alternative_headline: Unterüberschrift
     geo_radius: Umkreis
     geo_within_classification: Lage
+    geo_type: Geometrietyp
+    geo_type_options:
+      any: Alle Geometrietypen
+      point: Punkt
+      line: Linie
+      polygon: Fläche
     event_location: Veranstaltungsort
     inactive_things: Abgelaufene Inhalte
     in_schedule: Termin
@@ -895,6 +936,32 @@ de:
       placeholder:
         thing: Inhalt
         collection_or_stored_filter: "%{collection} oder %{stored_filter}"
+    graph_filter:
+      placeholder:
+        thing: Inhalt
+        collection_or_stored_filter: "%{collection} oder %{stored_filter}"
+      dropdown_text:
+        items_linked_to: Alle verknüpften ... enthalten in ...
+        linked_items_in: Verknüpfte/r/s ... ist enthalten in ...
+      items_linked_to:
+        contained_in: von Inhalten aus
+        # not_contained_in: von Inhalten nicht aus
+        exists: die es gibt
+        # not_exists: von Inhalten sind nicht vorhanden
+        equal: von
+        # not_equal: nicht von
+      linked_items_in:
+        contained_in: ist enthalten in
+        not_contained_in: ist nicht enthalten in
+        exists: ist vorhanden
+        not_exists: ist nicht vorhanden
+        equal: ist
+        not_equal: ist nicht
+      input_ui:
+        items_linked_to:
+          prefix: Alle verknüpften
+        linked_items_in:
+          prefix: Verknüpfte/r/s
     related_to: ist verknüpft mit
     feratel_content_score: Feratel - Content Score
     internal_content_score: Content Score - dataCycle
@@ -956,6 +1023,7 @@ de:
     related_to: nach verknüpften Inhalten filtern ...
     in_schedule: nach Termin filtern ...
     inactive_things: nach abgelaufenen Inhalten filtern ...
+    graph_filter: Über Verknüpften Inhalt filtern...
 
   sortable:
     default: Standard
@@ -963,6 +1031,7 @@ de:
     translated_name: Name
     updated_at: Aktualisierungsdatum
     width: Breite
+    content_size: Dateigröße
     height: Höhe
     upload_date: Uploaddatum
     internal_content_score: Content Score (intern)
@@ -1137,7 +1206,7 @@ de:
     remove_from: "aus %{collection} entfernen"
     set_gravity: "Bildausschnitt festlegen (Gravity)"
     deactivate_gravity_editor: "Bearbeitung beenden"
-
+    download_user_info_activity: "Nutzeraktivitäten herunterladen"
   validation:
     errors:
       slug: "%{data} ist bereits der slug von einem anderen Datensatz."
@@ -1210,6 +1279,8 @@ de:
       required: "sollte ausgefüllt werden."
       schedule:
         duration_too_long: "Der Termin mit Startzeitpunkt %{data} dauert länger als %{max} (Das könnte wahrscheinlich auch über Wiederholungen abgebildet werden)"
+      collection:
+        no_api: '"%{data}" ist nicht über die API abrufbar'
   controllers:
     error:
       invalid_parent: "Ungültiges Eltern Objekt."
@@ -1292,6 +1363,11 @@ de:
       imported: "'%{data}' wurden aus YAML Datei importiert."
       running: "Job befindet sich bereits in der Job-Queue."
 
+  activemodel:
+    models:
+      data_cycle_core/permission:
+        one: Berechtigung
+        other: Berechtigungen
   activerecord:
     errors:
       messages:
@@ -1380,8 +1456,8 @@ de:
         one: Externe Synchronisierung
         other: Externe Synchronisierungen
       data_cycle_core/asset:
-        one: Asset
-        other: Assets
+        one: Datei
+        other: Dateien
       data_cycle_core/text_file:
         one: Textdokument
         other: Textdokumente
@@ -1406,18 +1482,33 @@ de:
       data_cycle_core/classification_alias:
         one: Klassifizierung
         other: Klassifizierungen
+      data_cycle_core/classification:
+        one: Klassifizierung
+        other: Klassifizierungen
+      data_cycle_core/classification_tree:
+        one: Klassifizierungsbaum
+        other: Klassifizierungsbäume
       data_cycle_core/classification_tree_label:
         one: Klassifizierungsbaum
         other: Klassifizierungsbäume
+      data_cycle_core/thing:
+        one: Inhalt
+        other: Inhalte
+      data_cycle_core/data_attribute:
+        one: Attribut
+        other: Attribute
+      data_cycle_core/thing/history:
+        one: Inhaltsversion
+        other: Inhaltsversionen
+      data_cycle_core/concept_scheme:
+        one: Klassifizierungsbaum
+        other: Klassifizierungsbäume
+      data_cycle_core/collection:
+        one: Inhaltssammlung/gespeicherte Suche
+        other: Inhaltssammlungen/gespeicherte Suchen
     attributes:
       data_cycle_core/watch_list:
-        name: Name
-        full_path: Name (inklusive Ordnerpfad)
-        user_group_ids: Benutzergruppen
-        user_ids: Benutzer
-        user_id: Eigentümer
         manual_order: Manuelle Sortierung als Standard-Sortierung verwenden
-        api: Über API abrufbar
       data_cycle_core/classification_tree_label:
         visibility: Sichtbarkeit
         change_behaviour: Änderungsverhalten
@@ -1471,6 +1562,8 @@ de:
         latitude: Breitengrad
         elevation: Meereshöhe (m)
         external_key: Externe Id
+        created_by: Ersteller
+        updated_by: Bearbeiter
       data_cycle_core/person:
         given_name: Vorname
         family_name: Familienname
@@ -1499,24 +1592,27 @@ de:
         permissions_write: bearbeiten
         text_file: Weitere Infos (%{file_types})
         locale: "E-Mail Sprache"
-      data_cycle_core/stored_filter:
-        system: Für alle Benutzer sichtbar (gilt auch für die API)
-        api: Über API abrufbar
-        api_users: Für API zugelassene Benutzer
-        api_users_tooltip: API-Zugriff auf bestimmte User eingeschränkt
-        linked_stored_filter_id: Filter für verknüpfte Inhalte
-        linked_stored_filter_id_tooltip: Filter für verknüpfte Inhalte
-        classification_tree_labels: Auf Klassifizierungsbäume einschränken
-        classification_tree_labels_tooltip: Auf bestimmte Klassifizierungsbäume eingeschränkt
-        name: Name
+        creator_id: Ersteller
       data_cycle_core/asset:
         name: Name
         file: Datei
+        creator_id: Ersteller
       data_cycle_core/external_source:
         name: Name
       data_cycle_core/external_system_sync:
         external_system_id: Externes System
         external_key: Externer Identifier
+      data_cycle_core/collection:
+        description: Beschreibung
+        name: Name
+        full_path: Name (inklusive Ordnerpfad)
+        shared_users: geteilt mit Benutzern
+        shared_user_groups: geteilt mit Benutzergruppen
+        shared_roles: geteilt mit Rollen
+        user_id: Eigentümer
+        api: Über API abrufbar
+        linked_stored_filter: Filter für verknüpfte Inhalte
+        concept_schemes: Einschränkung auf Klassifizierungsbäume
 
   unauthorized:
     manage:
@@ -1538,6 +1634,8 @@ de:
       download_tree: Klassifizierungsbaum ohne Inhalte (csv)
       download_tree_with_contents: Klassifizierungsbaum mit Inhalten (csv)
       download_tree_for_mappings: Klassifizierungsbaum zum Definieren von Mappings (csv)
+      download_tree_with_mappings: Klassifizierungsbaum mit Mappings (csv)
+      download_tree_with_inverse_mappings: Klassifizierungsbaum mit inversen Mappings (csv)
     this_classification: Dieser Klassifizierung
     this_classification_tree: Diesem Klassifizierungsbaum
     show_contents_for_tree_label: "Inhalte in %{data} auflisten"
@@ -1579,6 +1677,7 @@ de:
       update_params: speichern und Suchparameter übernehmen
       form:
         api: API
+        shares: Freigaben
     watch_list:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
       mailer:
@@ -1647,7 +1746,7 @@ de:
         Payment: Zahlungsmodalitäten
         ServiceDescription: Beschreibung
         Included Services: Enthaltene Leistungen
-        Not included Services: Nicht enthaltene Leistungen
+        Not included Services: Nicht inkludierte Leistungen
         Equipment: Ausrüstung
         Bring along: Zum Mitbringen
         Rental Equipment: Leihausrüstung
@@ -1765,6 +1864,7 @@ de:
       publicTransit: Öffentlicher Transport
       seasonDescription: Begehbare Monate
       Preis-Zusatzbeschreibung: Preis-Zusatzbeschreibung
+      booking_link: Buchungslink
     gem2go:
       description: Beschreibung
     timm4:
@@ -1898,6 +1998,11 @@ de:
       roadmap: Streckenstichpunkte
     museumsportal:
       opening_hours: Öffungszeiten Beschreibung
+    oya_media:
+      description: Beschreibung
+      short_description: Teaser
+      price_description: Preisbeschreibung
+      price_from: Preis ab (€)
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
       <ul class="no-bullet">

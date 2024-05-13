@@ -5,6 +5,7 @@ class FixStoredFiltersWithSortingForSchedule < ActiveRecord::Migration[6.1]
   # disable_ddl_transaction!
 
   def up
+    return unless ActiveRecord::Base.connection.table_exists? 'stored_filters'
     execute <<-SQL.squish
       UPDATE stored_filters
       SET sort_parameters = jsonb_set(

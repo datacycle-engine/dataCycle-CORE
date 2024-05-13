@@ -154,8 +154,12 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 		if (this.uploadable)
 			this.map.addControl(new UploadGpxControl(this), "top-left");
 
-		if (!isEmpty(this.additionalValuesOverlay))
-			this.map.addControl(new AdditionalValuesFilterControl(this), "top-left");
+		if (!isEmpty(this.additionalValuesOverlay)) {
+			this.additionalValuesFilterControl = new AdditionalValuesFilterControl(
+				this,
+			);
+			this.map.addControl(this.additionalValuesFilterControl, "top-left");
+		}
 	}
 	availableControlsByType() {
 		if (this.isPoint()) return ["trash", "draw_point"];
@@ -432,8 +436,8 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 	getGeoJsonFromInputs() {
 		return this.getGeoJsonFromCoordinates(
 			[
-				parseFloat(this.$longitudeField.val()),
-				parseFloat(this.$latitudeField.val()),
+				Number.parseFloat(this.$longitudeField.val()),
+				Number.parseFloat(this.$latitudeField.val()),
 			],
 			this.type,
 		);

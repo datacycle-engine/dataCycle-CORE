@@ -23,6 +23,8 @@ module DataCycleCore
         end
 
         def self.filter_endpoints(data:, external_system:, method_name:)
+          return false if data.try(:embedded?)
+
           endpoint_ids = Array.wrap(external_system.export_config_by_filter_key(method_name, 'endpoints'))
           endpoints = DataCycleCore::StoredFilter.where(id: endpoint_ids) if endpoint_ids.present?
 

@@ -71,7 +71,10 @@ DataCycleCore::Engine.routes.draw do
       post :update_consent, on: :collection
       get :become
       match '/index', via: [:get, :post], on: :collection, action: :index
+      post :download_user_info_activity, on: :collection
     end
+
+    resources :permissions, only: [:index]
 
     resources :user_groups, only: [:index, :edit, :update, :destroy] do
       post '/create', on: :collection, action: :create
@@ -105,6 +108,7 @@ DataCycleCore::Engine.routes.draw do
         post :attribute_value, on: :member
         post :attribute_default_value, on: :collection, defaults: { format: 'application/json' }
         post :switch_primary_external_system, on: :member
+        post :demote_primary_external_system, on: :member
         post :content_score, on: :collection
         post :create_external_connection, on: :member
         post :elevation_profile, on: :member
@@ -422,19 +426,21 @@ DataCycleCore::Engine.routes.draw do
           namespace :sync_api do
             if DataCycleCore.main_config.dig(:sync_api, :v1, :enabled)
               namespace :v1 do
-                scope path: '(/:sync_api_subversion)' do
-                  match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
-                  match 'things/select(/:uuids)', to: 'contents#select', as: 'contents_select', via: [:get, :post]
+                match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
+                match 'things/select(/:uuids)', to: 'contents#select', as: 'contents_select', via: [:get, :post]
 
-                  match 'things', to: 'contents#index', as: 'contents_index', via: [:get, :post]
-                  match 'things/:id', to: 'contents#show', as: 'content_show', via: [:get, :post]
+                match 'things', to: 'contents#index', as: 'contents_index', via: [:get, :post]
+                match 'things/:id', to: 'contents#show', as: 'content_show', via: [:get, :post]
 
-                  match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
-                  match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
+                match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
+                match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
 
-                  match 'collections', to: 'watch_lists#index', via: [:get, :post]
-                  match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
-                end
+                match 'collections', to: 'watch_lists#index', via: [:get, :post]
+                match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
+
+                match 'concept_schemes', to: 'concept_schemes#index', as: :concept_scheme_index, via: [:get, :post]
+                match 'concept_schemes/:id', to: 'concept_schemes#show', as: :concept_scheme_show, via: [:get, :post]
+                match 'concept_schemes/:id/concepts', to: 'concept_schemes#concepts', as: :concept_scheme_concept, via: [:get, :post]
               end
             end
           end

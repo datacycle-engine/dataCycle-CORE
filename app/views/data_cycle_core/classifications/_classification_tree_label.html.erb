@@ -55,25 +55,33 @@
                   class: 'download download-with-contents' %></li>
 
             <li><%= link_to tag.span(tag.i(class: 'fa fa-table') + tag.i(class: 'fa fa-arrows-h'), class: 'download-icon') + tag.span(t('data_cycle_core.classifications_adminitration.download_tree_for_mappings', locale: active_ui_locale), class: 'download-link-text'),
-                  download_classifications_path(classification_tree_label_id: tree_label.id, format: :csv, for_mapping_import: true),
+                  download_classifications_path(classification_tree_label_id: tree_label.id, format: :csv, specific_type: :mapping_import),
                   class: 'download download-for-mapping' %></li>
+
+            <li><%= link_to tag.span(tag.i(class: 'fa fa-table') + tag.i(class: 'fa fa-long-arrow-right'), class: 'download-icon') + tag.span(t('data_cycle_core.classifications_adminitration.download_tree_with_mappings', locale: active_ui_locale), class: 'download-link-text'),
+                  download_classifications_path(classification_tree_label_id: tree_label.id, format: :csv, specific_type: :mapping_export),
+                  class: 'download download-with-mapping' %></li>
+
+            <li><%= link_to tag.span(tag.i(class: 'fa fa-table') + tag.i(class: 'fa fa-long-arrow-left'), class: 'download-icon') + tag.span(t('data_cycle_core.classifications_adminitration.download_tree_with_inverse_mappings', locale: active_ui_locale), class: 'download-link-text'),
+                  download_classifications_path(classification_tree_label_id: tree_label.id, format: :csv, specific_type: :mapping_export_inverse),
+                  class: 'download download-with-inverse-mapping' %></li>
           </ul>
         </div>
       </div>
     <% end %>
 
-    <%= link_to tag.i(class: 'fa fa-hashtag'), '#', 
-                class: 'copy-to-clipboard', 
-                data: { 
-                  value: tree_label.id, 
+    <%= link_to tag.i(class: 'fa fa-hashtag'), '#',
+                class: 'copy-to-clipboard',
+                data: {
+                  value: tree_label.id,
                   dc_tooltip: t('actions.copy_to_clipboard_data', locale: active_ui_locale, data: 'ID')
                 } if can?(:copy_to_clipboard, tree_label) %>
 
-    <%= link_to tag.i(class: 'fa fa-clipboard'), '#', 
-                class: 'copy-to-clipboard', 
-                data: { 
-                  value: api_v4_concept_scheme_url(id: tree_label.id), 
-                  dc_tooltip: t('actions.copy_to_clipboard_data', locale: active_ui_locale, data: t('common.api_url', locale: active_ui_locale)) 
+    <%= link_to tag.i(class: 'fa fa-clipboard'), '#',
+                class: 'copy-to-clipboard',
+                data: {
+                  value: api_v4_concept_scheme_url(id: tree_label.id),
+                  dc_tooltip: t('actions.copy_to_clipboard_data', locale: active_ui_locale, data: t('common.api_url', locale: active_ui_locale))
                 } if can?(:copy_api_link, tree_label) %>
 
     <%= link_to tag.i(class: 'fa fa-list'),

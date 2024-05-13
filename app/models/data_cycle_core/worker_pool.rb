@@ -11,7 +11,7 @@ module DataCycleCore
 
     def append_without_db_connection(&)
       if @pool
-        @queue << Concurrent::Promise.execute({ executor: @pool }, &)
+        @queue << Concurrent::Promises.future_on(@pool, &)
       else
         yield
       end

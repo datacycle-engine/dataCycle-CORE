@@ -29,14 +29,15 @@ class AdditionalValuesFilterControl {
 	_setupControls() {
 		this.container = document.createElement("div");
 		this.container.className =
-			"maplibregl-ctrl maplibregl-ctrl-group additional-values-overlay-control";
+			"maplibregl-ctrl maplibregl-ctrl-group mapboxgl-ctrl-group additional-values-overlay-control";
 
 		this.controlButton = document.createElement("button");
-		this.controlButton.className = "dc-additional-values-overlay-button";
+		this.controlButton.className =
+			"dc-additional-values-overlay-button dc-map-control-button";
 		this.controlButton.type = "button";
-		I18n.translate("frontend.map.filter.button_title").then(
-			(text) => (this.controlButton.title = text),
-		);
+		I18n.translate("frontend.map.filter.button_title").then((text) => {
+			this.controlButton.title = text;
+		});
 		this.container.appendChild(this.controlButton);
 
 		const icon = document.createElement("i");
@@ -78,21 +79,28 @@ class AdditionalValuesFilterControl {
 	_initializeOverlay(_event) {
 		this._initClickableFeatures();
 
-		this.controlOverlay
-			.querySelectorAll(".dc-additional-values-filter-item")
-			.forEach((group) => {
+		if (
+			this.controlOverlay.querySelector(".dc-additional-values-filter-item")
+		) {
+			for (const group of this.controlOverlay.querySelectorAll(
+				".dc-additional-values-filter-item",
+			)) {
 				group
 					.querySelector("input.dc-additional-values-filter-group")
 					.addEventListener("change", this._groupChanged.bind(this));
-				group
-					.querySelectorAll("input.dc-additional-values-filter-specific")
-					.forEach((specificFilter) =>
+
+				if (group.querySelector("input.dc-additional-values-filter-specific")) {
+					for (const specificFilter of group.querySelectorAll(
+						"input.dc-additional-values-filter-specific",
+					)) {
 						specificFilter.addEventListener(
 							"change",
 							this._specificFilterChanged.bind(this),
-						),
-					);
-			});
+						);
+					}
+				}
+			}
+		}
 	}
 	_initClickableFeatures() {
 		this._addClickableFeatures();
@@ -165,7 +173,9 @@ class AdditionalValuesFilterControl {
 	}
 	_addClickableFeatures() {
 		this.map.on("click", (e) => {
-			let [feature, key] = this._findFeatureAndKey(
+			if (!this.enabled) return;
+
+			const [feature, key] = this._findFeatureAndKey(
 				this.map.queryRenderedFeatures(e.point),
 			);
 
@@ -195,6 +205,11 @@ class AdditionalValuesFilterControl {
 		this.enabled = true;
 		this.controlOverlay.classList.add("active");
 		this.controlButton.classList.add("active");
+
+		if (this.editor.draw) {
+			this.editor.draw.changeMode("simple_select", {});
+			this.editor.map.fire("draw.modechange", { mode: "simple_select" });
+		}
 
 		if (this.controlOverlay.classList.contains("remote-render")) {
 			const changeObserver = new MutationObserver(
@@ -331,7 +346,7 @@ class AdditionalValuesFilterControl {
 	}
 
 	async _reloadGeoJson(key) {
-		let data = await this.editor._loadGeojson(
+		const data = await this.editor._loadGeojson(
 			Object.assign({}, this.activeFilters[key].definition, {
 				filter: this.activeFilters[key].filter,
 			}),

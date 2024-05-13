@@ -624,7 +624,7 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
     end
 
     before do
-      subject.const_set(:PRELOADABLE_CLASSIFICATION_TREES, nil)
+      subject.instance_variable_set(:@preloadable_classification_trees, nil)
       subject.clear_peloaded_mappings
 
       classification_tree_one.create_classification_alias('A')
@@ -715,7 +715,7 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
     end
 
     it 'should preload given classification trees as a whole' do
-      subject.const_set(:PRELOADABLE_CLASSIFICATION_TREES, ['CLASSIFICATION TREE ONE'])
+      subject.instance_variable_set(:@preloadable_classification_trees, ['CLASSIFICATION TREE ONE'])
 
       mapping_table = subject.load_classifications_by_path([['CLASSIFICATION TREE ONE', 'A']])
 
@@ -727,7 +727,7 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
     end
 
     it 'should handle a combination of preloaded an not preloaded classifications' do
-      subject.const_set(:PRELOADABLE_CLASSIFICATION_TREES, ['CLASSIFICATION TREE ONE'])
+      subject.instance_variable_set(:@preloadable_classification_trees, ['CLASSIFICATION TREE ONE'])
 
       mapping_table = subject.load_classifications_by_path(
         [

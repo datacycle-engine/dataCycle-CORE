@@ -29,6 +29,10 @@ module DataCycleCore
     has_many :schedules, foreign_key: :external_source_id, inverse_of: :external_source
     # rubocop:enable Rails/HasManyOrHasOneDependent, Rails/InverseOf
 
+    scope :by_names_or_identifiers, ->(value) { where('identifier IN (:value) OR name IN (:value)', value:) }
+
+    validates :name, presence: true
+
     def name_with_types
       nwt = name
       type = []
@@ -130,8 +134,9 @@ module DataCycleCore
       raise 'First parameter has to be an options hash!' unless options.is_a?(::Hash)
       success = true
       ts_start = Time.zone.now
+      skip_save = options.delete(:skip_save)
       self.last_download = ts_start
-      save
+      save if skip_save.blank?
       download_config.sort_by { |v|
         v.second['sorting']
       }.each do |(name, _)|
@@ -143,7 +148,7 @@ module DataCycleCore
         self.last_successful_download = ts_start
         self.last_successful_download_time = ts_after - ts_start
       end
-      save
+      save if skip_save.blank?
       success
     end
 
@@ -228,9 +233,9 @@ module DataCycleCore
     end
     alias single_import import_single
 
-    def import_one(name, external_key, options = {})
+    def import_one(name, external_key, options = {}, mode = 'full')
       raise 'no external key given' if external_key.blank?
-      import_single(name, options.deep_merge({ mode: 'full', import: { source_filter: { external_id: external_key } } }))
+      import_single(name, options.deep_merge({ mode:, import: { source_filter: { external_id: external_key } } }))
     end
 
     def collections
@@ -328,6 +333,47 @@ module DataCycleCore
       end
     ensure
       Mongoid.override_database(nil)
+    end
+
+    def config?(key)
+      config&.dig(key).present?
+    end
+
+    def import_module?
+      config?('import_config')
+    end
+
+    def export_module?
+      config?('export_config')
+    end
+
+    def webhook_module?
+      config?('api_strategy')
+    end
+
+    def service_module?
+      config.blank? && credentials.present?
+    end
+
+    def foreign_module?
+      !import_module? &&
+        !export_module? &&
+        !webhook_module? &&
+        !service_module?
+    end
+
+    def self.grouped_by_type(additional_properties = {})
+      external_systems = order(name: :asc).to_a
+
+      {
+        import: external_systems.filter { |v| v.import_module? || v.webhook_module? }
+          .as_json(only: [:id, :name])
+          .map { |es| es.with_indifferent_access.merge(additional_properties&.dig(es['id']) || { webhook_only: true }) }
+          .sort_by { |v| [v[:deactivated] ? 1 : 0, v[:webhook_only] ? 1 : 0, v[:name].downcase] },
+        export: external_systems.filter(&:export_module?).as_json(only: [:id, :name]),
+        service: external_systems.filter(&:service_module?).as_json(only: [:id, :name]),
+        foreign: external_systems.filter(&:foreign_module?).as_json(only: [:id, :name])
+      }.with_indifferent_access
     end
   end
 end

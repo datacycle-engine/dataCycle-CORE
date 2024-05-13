@@ -2,15 +2,24 @@
 
 module DataCycleCore
   module DashboardFilterHelper
+    RELATION_FILTER_ALLOWED_TYPES = {
+      'items_linked_to' => ['i', 'p', 's'],
+      'linked_items_in' => ['i', 'e', 'p', 'b', 's', 'u']
+    }.freeze
+
+    RELATION_FILTER_TYPES = {
+      'i' => 'contained_in',
+      'e' => 'not_contained_in',
+      'p' => 'exists',
+      'b' => 'not_exists',
+      's' => 'equal',
+      'u' => 'not_equal'
+    }.freeze
+
     def union_ids_to_value(value)
       return [] if value.blank?
 
-      filter_proc = ->(query, query_table) { query.where(query_table[:id].in(value)) }
-      query = DataCycleCore::StoredFilter.combine_with_collections(DataCycleCore::WatchList.all, filter_proc, false)
-
-      result = ActiveRecord::Base.connection.select_all query.to_sql
-
-      DataCycleCore::CollectionService.to_select_options(result)
+      DataCycleCore::Collection.where(id: value).map { |t| t.to_select_option(active_ui_locale) }
     end
 
     def thing_ids_to_value(value)
@@ -143,6 +152,38 @@ module DataCycleCore
       end
 
       options_for_select(filter_options, filter_method)
+    end
+
+    def advanced_graph_filter_options(filter_method, filter_type)
+      filter_options = RELATION_FILTER_TYPES.slice(*RELATION_FILTER_ALLOWED_TYPES[filter_type]).map do |k, v|
+        [I18n.t("filter.graph_filter.#{filter_type}.#{v}", locale: active_ui_locale), k]
+      end
+
+      options_for_select(filter_options, filter_method)
+    end
+
+    def advanced_graph_filter_advanced_type(identifier:, filter_name:, filter_advanced_type:)
+      allowed_relations = DataCycleCore::Feature::AdvancedFilter.graph_filter_relations
+      thing_template_labels = DataCycleCore::ThingTemplate.translated_property_labels(
+        attributes: allowed_relations,
+        locale: active_ui_locale,
+        count: filter_name == 'linked_items_in' ? 1 : 2,
+        specific: filter_name
+      ).invert.sort.to_a.map { |(v, k)| [v, k, { data: { dc_tooltip: v } }] }
+      # specific keys: items_linked_to, linked_items_in
+
+      select_tag(
+        "f[#{identifier}][q]",
+        options_for_select(thing_template_labels, filter_advanced_type),
+        {
+          multiple: false,
+          class: 'single-select',
+          data: {
+            max: 20,
+            allow_clear: false
+          }
+        }
+      )
     end
 
     def selected_filter_params(filter, config)

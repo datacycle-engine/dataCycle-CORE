@@ -210,8 +210,8 @@ module DataCycleCore
         def self.load_classifications_by_path(classification_paths)
           return {} if classification_paths.empty?
 
-          preloadable_classification_trees = if const_defined?(:PRELOADABLE_CLASSIFICATION_TREES)
-                                               classification_paths.map(&:first) & (PRELOADABLE_CLASSIFICATION_TREES || [])
+          preloadable_classification_trees = if instance_variable_defined?(:@preloadable_classification_trees)
+                                               classification_paths.map(&:first) & (Array.wrap(instance_variable_get(:@preloadable_classification_trees)))
                                              else
                                                []
                                              end

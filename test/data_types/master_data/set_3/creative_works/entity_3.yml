@@ -1,0 +1,21 @@
+---
+- :data:
+    :name: Entity-Creative-Work-3
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :text:
+        :label: Text
+        :type: string
+        :storage_location: translated_value
+        :visible: ["api", "show"]
+      :test_mixin:
+        :type: mixin
+        :name: test_mixin
+        :overlay: true

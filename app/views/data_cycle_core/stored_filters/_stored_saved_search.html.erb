@@ -1,15 +1,15 @@
 <li class="content-item saved-search">
   <span class="content-title-line">
-    <span class="content-title <%= 'global' if stored_search.system %>" data-dc-tooltip="<%= DataCycleCore::StoredFilter.human_attribute_name(:system, locale: active_ui_locale) if stored_search.system %>">
+    <span class="content-title">
       <%= link_to root_path(stored_filter: stored_search.id), title: stored_search.name do %>
-        <%= stored_search.system ? tag.i(class: 'fa fa-globe') : tag.i(class: 'fa fa-filter') %>
+        <%= tag.i(class: 'fa fa-filter') %>
         <%= stored_search.name %>
       <% end %>
     </span>
 
     <%= tag.span(
       'API',
-      class: "content-title-api copy-to-clipboard #{'global' if stored_search.system}",
+      class: "content-title-api copy-to-clipboard",
       data: {
         value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_url", id: stored_search),
         dc_tooltip: t('actions.copy_to_clipboard_data', data: t('common.api_url', locale: active_ui_locale), locale: active_ui_locale)
@@ -22,6 +22,12 @@
       <span class="content-title" title="<%= stored_search.linked_stored_filter.name %>">
         <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
         <%= stored_search.linked_stored_filter.name %>
+      </span>
+    <% end %>
+
+    <% if stored_search.description.present? && can?(:show_description, stored_search) %>
+      <span class="content-title" data-dc-tooltip="<%= stored_search.description %>">
+        <i class="fa fa-info-circle" aria-hidden="true"></i>
       </span>
     <% end %>
 

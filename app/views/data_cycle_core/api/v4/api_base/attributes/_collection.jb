@@ -1,0 +1,28 @@
+# frozen_string_literal: true
+
+json ||= {}
+key_new = attribute_key(key, definition)
+api_property_definition = api_definition(definition)
+
+data_value = load_value_object(content, key, value, options[:languages], api_property_definition, options[:expand_language])
+
+new_fields = subtree_for(key_new, options[:fields])
+
+new_json = data_value.map do |v|
+  json_data = {
+    '@id' => v.id,
+    '@type' => [
+      'CreativeWork',
+      'Collection',
+      "dcls:#{v.class.name.demodulize}"
+    ]
+  }
+  json_data['name'] = v.name if included_attribute?('name', new_fields) || new_fields.blank?
+  json_data['url'] = api_v4_stored_filter_url(id: v.id) if included_attribute?('url', new_fields) || new_fields.blank?
+  json_data['dc:slug'] = v.slug if included_attribute?('dc:slug', new_fields) || new_fields.blank?
+
+  json_data
+end
+
+json = { key_new.camelize(:lower) => new_json } unless DataCycleCore::DataHashService.blank?(new_json)
+json

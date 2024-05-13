@@ -57,11 +57,12 @@ module DataCycleCore
                 #{depth&.positive? ? ", content_tree.depth + 1 >= :depth AS \"leaf\", CASE WHEN content_content_links.relation = 'overlay' THEN content_tree.depth ELSE content_tree.depth + 1 END AS \"depth\"" : ', FALSE AS "leaf"'}
               FROM content_content_links
                 INNER JOIN content_tree ON content_tree.content_b_id = content_content_links.content_a_id
+              WHERE content_content_links.relation IS NOT NULL
             SQL
 
             if depth&.positive?
               recursive_subquery << ' ' + <<-SQL.squish
-                WHERE NOT content_tree.leaf
+                AND NOT content_tree.leaf
               SQL
             end
 
@@ -74,6 +75,7 @@ module DataCycleCore
                   #{", CASE WHEN content_content_links.relation = 'overlay' THEN 0 ELSE 1 END AS \"depth\"" if depth&.positive?}
                 FROM content_content_links
                 WHERE content_content_links.content_a_id IN (:id)
+                AND content_content_links.relation IS NOT NULL
                 UNION #{'ALL' if depth&.positive?}
                 #{recursive_subquery}
               )

@@ -1,3 +1,5 @@
+import QuillHelpers from "../helpers/quill_helpers";
+
 class StoredFilterForm {
 	constructor(form) {
 		this.form = form;
@@ -12,11 +14,13 @@ class StoredFilterForm {
 	}
 	setup() {
 		$(this.idSelector).on("change", this.reloadFormData.bind(this));
-		if (this.searchFormPart && this.searchForm)
-			this.form.addEventListener(
-				"submit",
-				this.injectSearchFormData.bind(this),
-			);
+
+		this.form.addEventListener(
+			"submit",
+			this.searchFormPart && this.searchForm
+				? this.injectSearchFormData.bind(this)
+				: this.updateQuillEditors.bind(this),
+		);
 	}
 	reloadFormData(_event) {
 		DataCycle.disableElement(this.formSubmit, this.formSubmit.innerHTML);
@@ -56,7 +60,12 @@ class StoredFilterForm {
 
 		this.searchFormPart.insertAdjacentHTML("beforeend", formDataHtml);
 
+		this.updateQuillEditors();
+
 		this.form.submit();
+	}
+	updateQuillEditors() {
+		QuillHelpers.updateEditors(this.form);
 	}
 }
 

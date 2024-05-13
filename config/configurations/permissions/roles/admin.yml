@@ -88,18 +88,6 @@ thing_destroy:
   segment: SubjectNotExternal
   parameters: DataCycleCore::Thing
 
-stored_filter_api_by_user:
-  actions: api
-  segment: SubjectByUserAndConditions
-  parameters:
-    - DataCycleCore::StoredFilter
-    - :user_id
-    - :api: true
-
-stored_filter_api_by_api_users:
-  actions: api
-  segment: StoredFilterByApiUsers
-
 stored_filter_actions:
   actions:
     - read
@@ -107,20 +95,15 @@ stored_filter_actions:
     - update
     - destroy
     - show_history
-    - create_global
     - create_api
-    - create_api_with_users
+    - share
+    - update_description
+    - show_description
+    - change_owner
   segment: SubjectByUserAndConditions
   parameters:
     - DataCycleCore::StoredFilter
     - :user_id
-
-stored_filter_read_global:
-  actions: read
-  segment: SubjectByConditions
-  parameters:
-    - DataCycleCore::StoredFilter
-    - :system: true
 
 watch_list_subscribe:
   actions: subscribe
@@ -128,7 +111,14 @@ watch_list_subscribe:
   parameters: DataCycleCore::WatchList
 
 watch_list_actions:
-  actions: [read, create, update, add_item, remove_item]
+  actions:
+    - read
+    - create
+    - update
+    - add_item
+    - remove_item
+    - update_description
+    - show_description
   segment: SubjectByUserAndConditions
   parameters:
     - DataCycleCore::WatchList
@@ -136,23 +126,19 @@ watch_list_actions:
 
 watch_list_actions_except_my_selection:
   actions: [destroy, share, change_owner]
-  segment: SubjectByUserAndConditions
-  parameters:
-    - DataCycleCore::WatchList
-    - :user_id
-    - :my_selection: false
-
-watch_list_group_shares:
-  actions: [read, add_item, remove_item]
-  segment: WatchListByGroupShares
-  parameters:
-    - :my_selection: false
+  segment: WatchListByCreatorWithoutMySelection
 
 watch_list_user_shares:
-  actions: [read, add_item, remove_item]
+  actions: [add_item, remove_item]
   segment: WatchListByUserShares
-  parameters:
-    - :my_selection: false
+
+watch_list_group_shares:
+  actions: [add_item, remove_item]
+  segment: WatchListByGroupShares
+
+watch_list_role_shares:
+  actions: [add_item, remove_item]
+  segment: WatchListByRoleShares
 
 data_attribute_read:
   actions: read
@@ -215,7 +201,6 @@ advanced_filter:
       - :subscriptions
       - :things
       - :collection
-    - - :advanced_attributes
 
 subscription_actions:
   actions: read
@@ -350,8 +335,13 @@ auto_translate_feature:
   parameters: :auto_translate
 
 view_mode_feature:
-  actions: [grid, list, tree]
+  actions: [grid, list, tree, map]
   segment: SubjectByEnabledFeature
   parameters:
     - :view_mode
     - DataCycleCore::Feature::ViewMode
+
+download_user_info_activity:
+  actions: download_user_info_activity
+  segment: SubjectByConditions
+  parameters: DataCycleCore::User

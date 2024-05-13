@@ -21,7 +21,7 @@
         <a href="#" class="accordion-title"><%= t('common.warning', locale: active_ui_locale) %></a>
         <div class="accordion-content" data-tab-content>
           <%= t('uploader.close_warning_html', locale: active_ui_locale) %>
-          <%= link_to (request.fullpath.include?('remote_render') ? request.referrer : request.fullpath), target: :_blank do %>
+          <%= link_to request.referrer, target: :_blank do %>
             <i class="fa fa-external-link" aria-hidden="true"></i>
             <%= t('uploader.continue_in_new_tab', locale: active_ui_locale) %>
           <% end %>

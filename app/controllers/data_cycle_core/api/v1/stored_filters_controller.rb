@@ -9,7 +9,7 @@ module DataCycleCore
         def show
           apply_filter(filter_id: permitted_params[:id], api_only: true)
 
-          raise ActiveRecord::RecordNotFound unless (@stored_filter.api_users.to_a + [@stored_filter.user_id]).include?(current_user.id)
+          raise ActiveRecord::RecordNotFound unless (@stored_filter.shared_users.pluck(:id) + [@stored_filter.user_id]).include?(current_user.id)
 
           @language = @stored_filter.language
 

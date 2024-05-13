@@ -1,0 +1,75 @@
+<div data-id="<%= identifier %>" class="advanced-filter conditional-value-selector <%= filter_method ||= 'i' %>" data-label="<%= filter_name %>">
+  <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
+  <%= hidden_field_tag "f[#{identifier}][t]", filter_type %>
+  <%= hidden_field_tag "f[#{identifier}][n]", filter_name %>
+
+  <div class="advanced-filter-title">
+    <%= render 'data_cycle_core/shared/icon', icon_type: filter_name&.underscore_blanks, icon_class: 'filter' %>
+    <span><%= t("filter.graph_filter.input_ui.#{filter_name}.prefix", default: filter_title, locale: active_ui_locale) %></span>
+  </div>
+
+  <div class="additional-selector remote-render inverted" data-remote-render-function="advanced_graph_filter_advanced_type" data-remote-render-params="<%= to_query_params(
+    identifier: identifier,
+    filter_name: filter_name,
+    filter_advanced_type: filter_advanced_type
+  ).to_json %>">
+    <%= hidden_field_tag "f[#{identifier}][q]", filter_advanced_type %>
+  </div>
+
+  <%= tag.div(select_tag("f[#{identifier}][m]", advanced_graph_filter_options(filter_method, filter_name)), class: 'advanced-filter-mode') %>
+
+  <div class="advanced-filter-selector">
+    <%= select_tag("f[#{identifier}][v]",
+        (filter_method.in?(['s', 'u']) ? thing_values_to_options(value) : nil),
+        {
+          include_blank: true,
+          multiple: true,
+          id: "f_#{identifier}_v_thing",
+          class: "async-select",
+          disabled: !filter_method.in?(['s', 'u']),
+          data: {
+            active_for: ['s', 'u'],
+            initial_focus: filter_method.in?(['s', 'u']),
+            max: 20,
+            placeholder: t('filter.graph_filter.placeholder.thing', locale: active_ui_locale),
+            search_path: select_search_things_path,
+            query_params_from_selector: true,
+            query_params: {
+              stored_filter: [{
+                exists_graph_filter: {
+                  name: 'dummy',
+                  query: filter_name == 'items_linked_to' ? 'linked_items_in' : 'items_linked_to',
+                }
+              }]
+            }
+          }
+        }) %>
+
+    <%= select_tag("f[#{identifier}][v]",
+        (filter_method.in?(['i', 'e']) ? union_values_to_options(value) : nil),
+        {
+          include_blank: true,
+          multiple: false,
+          id: "f_#{identifier}_v_collection_stored_filter",
+          class: "async-select",
+          disabled: !filter_method.in?(['i', 'e']),
+          data: {
+            active_for: ['i', 'e'],
+            initial_focus: filter_method.in?(['i', 'e']),
+            max: 20,
+            placeholder: t('filter.graph_filter.placeholder.collection_or_stored_filter',
+              collection: DataCycleCore::WatchList.model_name.human(count: 1, locale: active_ui_locale),
+              stored_filter: DataCycleCore::StoredFilter.model_name.human(count: 1, locale: active_ui_locale),
+              locale: active_ui_locale),
+            search_path: select_search_or_collection_stored_filters_path
+          }
+        }) %>
+
+    <%= hidden_field_tag "f[#{identifier}][v]", 'dummy', disabled: !filter_method.in?(['p', 'b']), data: { active_for: ['p', 'b'] } %>
+  </div>
+  <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
+    <div class="buttons">
+      <a class="remove-advanced-filter" data-target="<%= identifier %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+    </div>
+  <% end %>
+</div>

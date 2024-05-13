@@ -36,6 +36,10 @@
     :archive:
       :zip:
         :enabled: false
+        # :terms_of_use:
+        #   # put files in app/assets/downloader/archive/zip/terms_of_use
+        #   :de:
+        #   :en:
         :thing:
           :enabled: false
           # used from downloader.download.content.thing.serializers. can be overruled here.
@@ -189,10 +193,10 @@
 
 :advanced_filter:
   :enabled: true
-  # :boolean:
-  #   - duplicate_candidates
-  #   - with_geom
-  #   - with_external_source
+  :boolean:
+    #   - duplicate_candidates
+    #   - with_geom
+    - with_external_source
   :config:
     :visible: false
     :schedule_exceptions:
@@ -220,6 +224,7 @@
   :geo_filter:
     :geo_radius: false
     :geo_within_classification: false
+    :geo_type: false
   # :union_filter_ids: true
   # :relation_filter:
   #   :linked_image: image
@@ -278,6 +283,9 @@
   #     :attribute_keys:
   #       - live_date_from
   #       - live_date_until
+#  :graph_filter:
+#    :items_linked_to: true
+#    :linked_items_in: true
 
 :sortable:
   :enabled: false
@@ -478,6 +486,14 @@
           - "tsv"
           - "json"
           - "xlsx"
+      :watch_lists_usage:
+        :enabled: false
+        :class: DataCycleCore::Report::Downloads::WatchListsUsage
+        :allowed_formats:
+          - "csv"
+          - "tsv"
+          - "json"
+          - "xlsx"
     :content:
       :downloads_content:
         :enabled: false
@@ -490,6 +506,9 @@
 
 :image_editor:
   :enabled: false
+  # :custom_crop_options:
+  #   - :label: "2880/900"
+  #     :crop_ratio: 3.2 # 2880 / 900
 
 :translation_of_work:
   :enabled: true

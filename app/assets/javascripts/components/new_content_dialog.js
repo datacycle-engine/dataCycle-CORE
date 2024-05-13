@@ -272,14 +272,11 @@ class NewContentDialog {
 	showNotice(target, text) {
 		const notice = $(`<span class="copy-attribute-notice">${text}</span>`);
 		$(notice).appendTo(target);
-		setTimeout(
-			function () {
-				notice.fadeOut("fast", function () {
-					notice.remove();
-				});
-			}.bind(this),
-			1000,
-		);
+		setTimeout(() => {
+			notice.fadeOut("fast", () => {
+				notice.remove();
+			});
+		}, 1000);
 	}
 	addCopyAttributeButtons(container) {
 		const formFields = $(container)
@@ -352,7 +349,7 @@ class NewContentDialog {
 
 		if (!values?.length) return groupedValues;
 
-		values.forEach((v) => {
+		for (const v of values) {
 			if (
 				locale &&
 				!(v.name.includes("translations") && v.name.includes(locale))
@@ -367,7 +364,7 @@ class NewContentDialog {
 
 				groupedValues[key].push(v.value);
 			} else groupedValues[key] = v.value;
-		});
+		}
 
 		return groupedValues;
 	}
@@ -549,7 +546,9 @@ class NewContentDialog {
 				.get()
 				.reverse()
 				.map((elem, i) => {
-					return `<a class="form-crumb-link" data-index="${i}">${$(elem).find("legend").html()}</a>`;
+					return `<a class="form-crumb-link" data-index="${i}">${$(elem)
+						.find("legend")
+						.html()}</a>`;
 				})
 				.concat([this.$form.find("fieldset.active legend").html()])
 				.join(' <i class="fa fa-angle-right" aria-hidden="true"></i> '),
@@ -658,7 +657,9 @@ class NewContentDialog {
 	resetForm(_) {
 		this.$form.find(":input").blur();
 		this.enableForm();
+		this.$form.find(".button.show-duplicate-search-result").remove();
 		this.$form.find(".single_error").remove();
+		this.$form.find(".single_warning").remove();
 		this.$form.removeData("template");
 		this.goTo(
 			undefined,

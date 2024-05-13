@@ -192,6 +192,10 @@ class TextEditor {
 		$(this.editor.container)
 			.on("dc:import:data", this.importData.bind(this))
 			.addClass("dc-import-data");
+		this.editor.container.addEventListener(
+			"reset",
+			this.resetEditor.bind(this),
+		);
 	}
 	async importData(event, data) {
 		if (this.editor.getText().trim().length > 1 && !data?.force) {

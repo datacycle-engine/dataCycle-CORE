@@ -649,58 +649,119 @@ ul.footer-links {
   align-items: center;
   pointer-events: none;
   top: 0;
-
-  .flash-notification.callout {
-    min-height: 2.8rem;
-    position: relative;
-    display: block;
-    margin: 1rem 0 0 0;
-    padding: 0.7rem 2.5rem 0.7rem 1rem;
-    border: 0;
-    color: $white;
-    font-weight: 600;
-    box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.3);
-    pointer-events: auto;
-    flex: auto;
-    max-width: 90vw;
-
-    .close-button,
-    .close-button.medium {
-      line-height: 2rem;
-      color: $white;
-      padding: 0;
-      right: 0.5rem;
-      top: 0.4rem;
-
-      span {
-        padding: 0 0.3rem;
-        line-height: 2rem;
-      }
-    }
-  }
 }
 
-.flash-notification {
+.toast-notification {
+  animation: slideIn 0.5s ease-in-out both;
+
+  &[data-auto-dismiss] {
+    // dont rename slideOut. It is used in the javascript to determine when the toast is done animating
+    animation: slideIn 0.5s ease-in-out both, slideOut 0.5s ease-in-out var(--_time) forwards;
+  }
+
+  min-height: 2.8rem;
+  position: relative;
+  display: block;
+  margin: 1rem 0 0 0;
+  padding: 0.7rem 2.5rem 0.7rem 1rem;
+  border: 0;
+  font-weight: 600;
+  box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.3);
+  pointer-events: auto;
+  flex: auto;
+  max-width: 90vw;
+  color: var(--white);
+  border-radius: var(--global-radius);
+
+  .close-button,
+  .close-button.medium {
+    line-height: 2rem;
+    padding: 0;
+    right: 0.5rem;
+    top: 0.4rem;
+    color: var(--white);
+
+    span {
+      padding: 0 0.3rem;
+      line-height: 2rem;
+    }
+  }
+
+  &:hover {
+    animation-play-state: paused;
+
+    .toast-timer-bar {
+      animation-play-state: paused;
+    }
+  }
+
   &.success {
-    background: rgba(map-get($foundation-palette, success), 0.95);
+    background: var(--success-color);
   }
 
   &.alert {
-    background: rgba(map-get($foundation-palette, alert), 0.95);
+    background: var(--alert-color);
   }
 
   &.info {
-    background: rgba(map-get($foundation-palette, warning), 0.95);
-  }
+    background: var(--warning-color);
+    color: var(--black);
 
-  span {
-    display: inline-block;
-    line-height: 1.5;
+    .close-button,
+    .close-button.medium {
+      color: var(--black);
+    }
   }
 
   a {
     color: inherit;
     text-decoration: underline;
+  }
+
+  .toast-timer-bar {
+    width: 100%;
+    height: 0.3rem;
+    background: rgba(0, 0, 0, 0.15);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    border-radius: 0 0 0.3rem 0.3rem;
+    animation: toast-timer-bar-animation var(--_time) linear;
+  }
+}
+
+@keyframes toast-timer-bar-animation {
+  0% {
+    width: 100%;
+  }
+
+  100% {
+    width: 0;
+  }
+}
+
+@keyframes slideIn {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-100%);
+    opacity: 0;
   }
 }
 

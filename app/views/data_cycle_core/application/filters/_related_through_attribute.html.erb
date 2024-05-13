@@ -10,7 +10,7 @@
   </div>
 
   <div class="advanced-filter-selector">
-    <%= radio_button_tag "f[#{identifier}][v]", 'true', (value != 'false') %>
+    <%= radio_button_tag "f[#{identifier}][v]", 'true', (value != 'false'), data: { initial_focus: true } %>
     <%= label_tag "f_#{identifier}_v_true", t("filter.related_through_attribute.#{filter_name}", default: filter_title, locale: active_ui_locale) %>
   </div>
 

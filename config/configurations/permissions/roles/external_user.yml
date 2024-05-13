@@ -46,31 +46,12 @@ thing_history:
   segment: SubjectByConditions
   parameters: DataCycleCore::Thing::History
 
-stored_filter_api_by_user:
-  actions: api
-  segment: SubjectByUserAndConditions
-  parameters:
-    - DataCycleCore::StoredFilter
-    - :user_id
-    - :api: true
-
-stored_filter_api_by_api_users:
-  actions: api
-  segment: StoredFilterByApiUsers
-
 stored_filter_actions:
-  actions: [read, create, update, destroy, show_history]
+  actions: [read, create, update, destroy, show_history, change_owner]
   segment: SubjectByUserAndConditions
   parameters:
     - DataCycleCore::StoredFilter
     - :user_id
-
-stored_filter_read_global:
-  actions: read
-  segment: SubjectByConditions
-  parameters:
-    - DataCycleCore::StoredFilter
-    - :system: true
 
 watch_list_subscribe:
   actions: subscribe
@@ -86,23 +67,19 @@ watch_list_actions:
 
 watch_list_actions_except_my_selection:
   actions: [destroy, share, change_owner]
-  segment: SubjectByUserAndConditions
-  parameters:
-    - DataCycleCore::WatchList
-    - :user_id
-    - :my_selection: false
-
-watch_list_group_shares:
-  actions: [read, add_item, remove_item]
-  segment: WatchListByGroupShares
-  parameters:
-    - :my_selection: false
+  segment: WatchListByCreatorWithoutMySelection
 
 watch_list_user_shares:
-  actions: [read, add_item, remove_item]
+  actions: [add_item, remove_item]
   segment: WatchListByUserShares
-  parameters:
-    - :my_selection: false
+
+watch_list_group_shares:
+  actions: [add_item, remove_item]
+  segment: WatchListByGroupShares
+
+watch_list_role_shares:
+  actions: [add_item, remove_item]
+  segment: WatchListByRoleShares
 
 data_attribute_read:
   actions: read

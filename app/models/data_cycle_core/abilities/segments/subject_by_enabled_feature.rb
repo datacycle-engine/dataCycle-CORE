@@ -12,11 +12,17 @@ module DataCycleCore
         end
 
         def include?(*_args)
-          @feature.enabled?
+          feature.enabled?
         end
 
         def to_proc
           ->(*args) { include?(*args) }
+        end
+
+        private
+
+        def visible?
+          feature.enabled?
         end
       end
     end

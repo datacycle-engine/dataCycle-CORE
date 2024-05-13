@@ -118,12 +118,13 @@ module DataCycleCore
       end
 
       def valid_writable_links_by_receiver?(user)
-        data_links = DataCycleCore::DataLink.valid.writable.by_receiver(user).joins("LEFT OUTER JOIN watch_list_data_hashes ON watch_list_data_hashes.watch_list_id = data_links.item_id AND watch_list_data_hashes.hashable_type = 'DataCycleCore::Thing'")
+        data_links = DataCycleCore::DataLink.valid.writable.by_receiver(user)
 
-        data_links
-          .where(item_type: 'DataCycleCore::Thing', item_id: id)
-          .or(data_links.where(item_type: 'DataCycleCore::WatchList', watch_list_data_hashes: { hashable_id: id }))
-          .any?
+        sub_queries = []
+        sub_queries << data_links.thing_links.where(item_id: id).select(:id).reorder(nil).to_sql
+        sub_queries << data_links.joins(watch_list: :watch_list_data_hashes).where(watch_list_data_hashes: { hashable_id: id }).select(:id).reorder(nil).to_sql
+
+        DataLink.where("#{DataLink.table_name}.id IN (#{DataLink.send(:sanitize_sql_array, [sub_queries.join(' UNION ')])})").exists?
       end
 
       def display_classification_aliases(context)
@@ -187,20 +188,6 @@ module DataCycleCore
         cached_related_contents.exists?
       end
 
-      def template_missing?
-        thing_template.nil?
-      end
-
-      def require_template!
-        raise ActiveRecord::RecordNotFound if thing_template.nil?
-
-        self
-      end
-
-      def thing_template?
-        !template_missing?
-      end
-
       def related_contents(embedded: false)
         tree_query = <<-SQL.squish
           WITH RECURSIVE content_tree(id) AS (
@@ -229,26 +216,28 @@ module DataCycleCore
       def depending_contents
         raw_sql = <<-SQL.squish
           WITH RECURSIVE content_dependencies AS (
-            SELECT ARRAY [content_content_links.content_a_id, content_content_links.content_b_id] content_ids
+            SELECT content_content_links.content_a_id AS id
             FROM content_content_links
             WHERE content_content_links.content_b_id = :id::UUID
-            UNION ALL
-            SELECT content_content_links.content_a_id || content_dependencies.content_ids content_ids
+            AND content_content_links.relation IS NOT NULL
+            UNION
+            SELECT content_content_links.content_a_id AS id
             FROM content_content_links
-              JOIN content_dependencies ON content_dependencies.content_ids [1] = content_content_links.content_b_id
-              AND content_content_links.content_a_id <> ALL (content_dependencies.content_ids)
+              JOIN content_dependencies ON content_dependencies.id = content_content_links.content_b_id
+            WHERE content_content_links.relation IS NOT NULL
           )
           SELECT things.id
           FROM things
-          WHERE EXISTS (
+          WHERE things.id != :id::UUID
+          AND EXISTS (
               SELECT 1
               FROM content_dependencies
-              WHERE content_ids [1] = #{self.class.table_name}.#{self.class.primary_key}
+              WHERE content_dependencies.id = #{self.class.table_name}.#{self.class.primary_key}
             )
         SQL
 
         self.class
-          .where(content_type: 'entity')
+          .where.not(content_type: 'embedded')
           .where("things.id IN (#{ActiveRecord::Base.send(:sanitize_sql_array, [raw_sql, id:])})")
       end
 
@@ -313,11 +302,13 @@ module DataCycleCore
             SELECT DISTINCT ON (c.content_a_id) c.content_b_id, c.content_a_id, ARRAY[c.content_b_id, c.content_a_id]
             FROM content_content_links c
             WHERE c.content_b_id = :id
+            AND c.relation IS NOT NULL
             UNION ALL
             SELECT DISTINCT ON (d.content_a_id) d.content_b_id, d.content_a_id, p.path || ARRAY[d.content_a_id]
             FROM paths p
             INNER JOIN content_content_links d ON p.content_a_id = d.content_b_id
             WHERE d.content_a_id != ALL (p.path)
+            AND d.relation IS NOT NULL
             AND ARRAY_LENGTH(p.path, 1) <= :depth
           )
           SELECT DISTINCT paths.content_a_id FROM paths

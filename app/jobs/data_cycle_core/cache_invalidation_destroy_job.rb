@@ -28,7 +28,7 @@ module DataCycleCore
       return if arguments[3].blank?
 
       DataCycleCore::Thing.where(id: arguments[3]).find_each do |content|
-        content.send(:execute_update_webhooks)
+        content.send(:execute_update_webhooks) unless content.embedded?
       end
     end
 

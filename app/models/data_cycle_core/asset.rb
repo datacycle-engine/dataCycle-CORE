@@ -107,7 +107,7 @@ module DataCycleCore
 
       hash = super(options)
 
-      hash['file'] = { 'url' => Rails.application.routes.url_helpers.rails_storage_proxy_url(file, host: Rails.application.config.asset_host) } if include_file.present?
+      hash['file'] = { 'url' => Rails.application.routes.url_helpers.rails_storage_proxy_url(file, host: Rails.application.config.asset_host) } if include_file.present? && !file&.attachment&.blob.nil?
 
       hash
     end
@@ -143,7 +143,7 @@ module DataCycleCore
           tmp_file = File.open(remote_file_url)
           filename = File.basename(tmp_file.path)
         else
-          tmp_uri = URI.parse(remote_file_url)
+          tmp_uri = URI.parse(Addressable::URI.parse(remote_file_url).normalize)
           tmp_file = tmp_uri.open
           filename = File.basename(tmp_uri.path)
         end

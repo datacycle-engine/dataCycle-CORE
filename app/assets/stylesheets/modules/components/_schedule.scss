@@ -1,5 +1,16 @@
+.detail-header.editor .schedule-editor {
+
+  .daterange,
+  .rrules {
+    .form-element {
+      margin: 0;
+    }
+  }
+}
+
 .detail-header.editor .schedule-editor .daterange .form-element {
   display: flex;
+  margin: 0;
 
   &.exdate {
     flex: auto;
@@ -23,21 +34,20 @@
     padding: 0;
     display: flex;
     flex-flow: row wrap;
-
-    >* {
-      margin-bottom: 1rem;
-    }
+    gap: 1rem;
 
     .form-element.start,
     .form-element.duration {
-      flex: 0;
-
       input {
         width: 150px;
       }
     }
 
     .form-element.duration {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+
       .duration-part {
         display: flex;
 
@@ -48,10 +58,6 @@
           text-align: right;
         }
       }
-
-      >*:not(:last-child) {
-        margin-right: 1rem;
-      }
     }
   }
 
@@ -59,6 +65,8 @@
     display: flex;
     flex-flow: row wrap;
     align-items: center;
+    margin-top: 1rem;
+    gap: 1rem;
 
     >* {
       height: 3.5rem;
@@ -66,10 +74,6 @@
 
     .until {
       flex: 0;
-    }
-
-    .after-label {
-      margin-left: 0.5rem;
     }
 
     .single_occurrence,
@@ -89,6 +93,7 @@
     &.weekly {
       .weekly {
         display: inherit;
+        gap: 0.5rem;
       }
     }
 
@@ -138,16 +143,13 @@
     box-shadow: 0 0 0 rgba($dark-gray, 0.5);
     border: 1px solid rgba($dark-gray, 0.5);
     border-radius: $global-radius;
-
-    &:not(:last-of-type):not(.until) {
-      margin-right: 1rem;
-    }
+    margin: 0;
+    gap: 1rem;
 
     label {
       position: relative;
       left: 0 !important;
       top: 0 !important;
-      margin-right: 1rem;
       padding: 0 !important;
       white-space: nowrap;
       display: flex;
@@ -257,7 +259,7 @@
       height: 2rem;
       width: 2rem;
       font-weight: 600;
-      margin: 0;
+      margin: 0 !important;
       color: $black;
       margin: 0 0 0 0.5rem;
       transition: box-shadow 0.25s ease-out;
@@ -285,6 +287,11 @@
   margin-bottom: 0;
 }
 
+.detail-header.editor .form-element.embedded_object .opening-time-editor .time,
+.opening-time-editor .time {
+  margin-top: 1rem;
+}
+
 .opening-time-editor .opening-time-range {
   display: flex;
   flex-flow: row nowrap;
@@ -304,6 +311,8 @@
     box-shadow: 0 0 0 rgba($dark-gray, 0.5);
     border: 1px solid rgba($dark-gray, 0.5);
     border-radius: $global-radius;
+    margin: 0;
+    gap: 1rem;
 
     label {
       position: relative;
@@ -315,6 +324,7 @@
 
     &.weekday {
       margin-left: 1rem;
+      gap: 0.5rem;
 
       .weekday-checkbox {
         input[type='radio'] {
@@ -336,8 +346,8 @@
       }
 
       .weekday-checkbox.holiday {
-        margin-left: 0.5rem;
         border-left: 1px solid darken($light-gray, 10%);
+        padding-left: 0.5rem;
 
         label {
           width: auto;
@@ -349,12 +359,14 @@
       border-right: none;
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
+      margin: 0;
     }
 
     &.valid_until {
       border-left: none;
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
+      margin: 0;
     }
   }
 }

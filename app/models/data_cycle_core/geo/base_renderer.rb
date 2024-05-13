@@ -18,8 +18,8 @@ module DataCycleCore
         ).first&.values&.first
       end
 
-      def contents_with_default_scope
-        query = @contents.except(:order).select(content_select_sql).group(:id)
+      def contents_with_default_scope(query = @contents)
+        query = query.reorder(nil).reselect(content_select_sql).group('things.id')
 
         joins = include_config.pluck(:joins)
         joins.uniq!
@@ -33,7 +33,7 @@ module DataCycleCore
       def content_select_sql
         [
           'things.id AS id',
-          'geom_simple AS geometry'
+          'things.geom_simple AS geometry'
         ]
           .concat(include_config.map { |c| "#{c[:select]} AS #{c[:identifier]}" })
           .join(', ').squish
@@ -74,7 +74,7 @@ module DataCycleCore
             select: 'json_agg(tmp1."dc:classification") FILTER (
               WHERE tmp1."dc:classification" IS NOT NULL
             )',
-            joins: "LEFT OUTER JOIN (
+            joins: "LEFT OUTER JOIN LATERAL (
                   SELECT
                   collected_classification_contents.thing_id,
                   json_build_object(#{json_object.join(', ')}) AS \"dc:classification\"

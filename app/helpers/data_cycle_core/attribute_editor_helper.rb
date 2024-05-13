@@ -26,16 +26,26 @@ module DataCycleCore
 
     def attribute_editable?(key, definition, options, content)
       @attribute_editable ||= Hash.new do |h, k|
-        h[k] = can?(:update, DataCycleCore::DataAttribute.new(k[0], k[1], k[2], k[3], :update, k.dig(2, 'edit_scope')))
+        h[k] = can?(:update, DataCycleCore::DataAttribute.new(*k, :update, k.dig(2, 'edit_scope')))
       end
 
       @attribute_editable[[key, definition, options, content]]
     end
 
     def attribute_editor_allowed(options)
-      return if options.type?('slug') && options.parameters[:parent]&.embedded?
-      return if options.definition['compute'].present?
       return render('data_cycle_core/contents/editors/attribute_group', options.render_params) if options.type?('attribute_group')
+      return if options.type?('slug') && options.parameters[:parent]&.embedded?
+      return if options.definition.key?('compute')
+      return if options.definition.key?('virtual')
+
+      if options.overlay_attribute?
+        return unless options.render_overlay_attribute?
+
+        options.add_overlay_properties!
+      end
+
+      options.add_has_overlay_options! if options.attribute_has_overlay?
+
       return unless can?(:edit, DataCycleCore::DataAttribute.new(
                                   options.key,
                                   options.definition,
@@ -62,9 +72,9 @@ module DataCycleCore
       return allowed unless allowed.is_a?(TrueClass)
 
       if (attribute_translatable?(*options.to_h.slice(:key, :definition, :content).values) && !options.parameters&.dig(:parent_translatable)) || object_has_translatable_attributes?(options.content, options.definition)
-        render_translatable_attribute_editor(**options.to_h)
+        render_translatable_attribute_editor(options)
       else
-        render_untranslatable_attribute_editor(**options.to_h)
+        render_untranslatable_attribute_editor(options)
       end
     end
 
@@ -75,26 +85,22 @@ module DataCycleCore
         content = options.parameters[:parent] || options.content
 
         if DataCycleCore::DataHashService.blank?(options.value)
-          content.default_value(options.key.attribute_name_from_key, current_user) if content.is_a?(DataCycleCore::Thing) && (content.new_record? || content.available_locales.exclude?(I18n.locale))
+          content.default_value(options.key.attribute_name_from_key, current_user) if content.is_a?(DataCycleCore::Thing) && !content.generic_template? && (content.new_record? || content.available_locales.exclude?(I18n.locale))
           options.value = content.try(options.key.attribute_name_from_key)
         end
 
         allowed = attribute_editor_allowed(options)
         return allowed unless allowed.is_a?(TrueClass)
 
-        render_untranslatable_attribute_editor(**options.to_h)
+        render_untranslatable_attribute_editor(options)
       end
     end
 
-    def render_translatable_attribute_editor(**)
-      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**, defaults: RENDER_EDITOR_ARGUMENTS)
-
-      render 'data_cycle_core/contents/editors/translatable_field', options.to_h
+    def render_translatable_attribute_editor(options)
+      render 'data_cycle_core/contents/editors/translatable_field', **options.to_h
     end
 
-    def render_untranslatable_attribute_editor(**)
-      options = DataCycleCore::AttributeViewerHelper::RenderMethodOptions.new(**, defaults: RENDER_EDITOR_ARGUMENTS)
-
+    def render_untranslatable_attribute_editor(options)
       partials = [
         options.definition&.dig('ui', options.parameters.dig(:options, :edit_scope), 'partial').presence,
         options.definition&.dig('ui', 'edit', 'partial').presence,
@@ -141,6 +147,62 @@ module DataCycleCore
         key:,
         id: "#{options&.dig(:prefix)}#{sanitize_to_id(key)}"
       }.merge(definition.dig('ui', 'edit', 'data_attributes')&.symbolize_keys&.transform_values { |v| v.is_a?(::Array) || v.is_a?(::Hash) ? v.to_json : v } || {})
+    end
+
+    def attribute_group_container(key:, definition:, options:, content:, html_content:, **args)
+      return if html_content.blank?
+      return html_content if options&.dig('edit_scope') == 'bulk_edit'
+
+      is_accordion = definition.dig('features', 'collapsible')
+      group_title = attribute_group_title(contextual_content(key:, definition:, options:, content:, **args), key)
+      group_classes = ['attribute-group', 'editor', key.attribute_name_from_key, definition['features']&.keys&.join(' ')]
+      group_classes << 'accordion' if is_accordion
+      group_classes << 'has-title' if group_title.present?
+
+      accordion_classes = ['attribute-group-item']
+      accordion_classes << 'accordion-item' if is_accordion
+      accordion_classes << 'is-active' unless !is_accordion || definition.dig('features', 'collapsed')
+
+      tag.div(class: group_classes.compact.join(' '), data: { allow_all_closed: true, accordion: is_accordion }) do
+        tag.div(class: accordion_classes.compact.join(' '), data: { accordion_item: is_accordion }) do
+          concat link_to_if(
+            is_accordion,
+            tag.span(group_title, class: 'attribute-group-title'),
+            '#',
+            class: "attribute-group-title-link #{'accordion-title' if is_accordion}"
+          )
+          concat tag.div(
+            safe_join([
+              group_title.present? && DataCycleCore::Feature::GeoKeyFigure.allowed_child_attribute_key?(content, definition) ? render('data_cycle_core/contents/editors/features/geo_key_figure_all') : nil
+            ].compact),
+            class: 'buttons'
+          )
+          concat tag.div(
+            tag.div(html_content, class: 'attribute-group-content-element'),
+            class: "attribute-group-content #{'accordion-content' if is_accordion}",
+            data: { tab_content: is_accordion }
+          )
+        end
+      end
+    end
+
+    def overlay_types(content, key, prop)
+      label = translated_attribute_label(key, prop, content, {})
+
+      check_boxes = [
+        MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX,
+        MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX
+      ].index_with do |v|
+        CollectionHelper::CheckBoxStruct.new(
+          v.delete_prefix('_'),
+          t("common.bulk_update.check_box_labels.#{v.delete_prefix('_')}_html", locale: active_ui_locale, data: label)
+        )
+      end
+
+      type = prop.dig('ui', 'bulk_edit', 'partial') || prop.dig('ui', 'edit', 'partial') || prop.dig('ui', 'edit', 'type') || prop['type']
+      versions = MasterData::Templates::Extensions::Overlay.allowed_postfixes_for_type(type)
+
+      check_boxes.values_at(*versions)
     end
   end
 end

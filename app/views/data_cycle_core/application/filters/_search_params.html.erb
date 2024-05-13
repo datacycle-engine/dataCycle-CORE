@@ -31,32 +31,71 @@
   }) %>
 <% end %>
 
-<%= render_advanced_filter_tags_partial({
-    title: t('activerecord.attributes.data_cycle_core/stored_filter.api_users', locale: active_ui_locale),
-    filter_type: 'api_restriction',
-    api_restriction_type: 'user_list',
-    key: "activerecord.attributes.data_cycle_core/stored_filter.api_users",
-    target: "stored_search.api_users",
-    value: stored_search.api_users,
-    buttons: false,
-  }) if stored_search.api_users.present? %>
+<% if stored_search.shared_users.present? %>
+  <span class="tag-group tags shared_users">
+    <span class="tag-group-label">
+      <i class="dc-type-icon user-icon"></i>
+      <%= DataCycleCore::StoredFilter.human_attribute_name(:shared_users, locale: active_ui_locale) %>
+    </span>
+    <span class="tags-container">
+      <% stored_search.shared_users.to_select_options(active_ui_locale).each do |user| %>
+        <%= tag.span(user.name, class: 'tag', data: { dc_tooltip: user.dc_tooltip }) %>
+      <% end %>
+    </span>
+  </span>
+<% end %>
 
-<%= render_advanced_filter_tags_partial({
-    title: t('activerecord.attributes.data_cycle_core/stored_filter.linked_stored_filter_id', locale: active_ui_locale),
-    filter_type: 'api_restriction',
-    api_restriction_type: 'linked_filter',
-    key: "activerecord.attributes.data_cycle_core/stored_filter.linked_stored_filter_id",
-    target:"stored_filter.linked_stored_filter_id",
-    value: [DataCycleCore::StoredFilter.find(stored_search.linked_stored_filter_id).name],
-    buttons: false
-  }) if stored_search.linked_stored_filter_id != nil %>
+<% if stored_search.shared_user_groups.present? %>
+  <span class="tag-group tags shared_user_groups">
+    <span class="tag-group-label">
+      <i class="dc-type-icon user_group-icon"></i>
+      <%= DataCycleCore::StoredFilter.human_attribute_name(:shared_user_groups, locale: active_ui_locale) %>
+    </span>
+    <span class="tags-container">
+      <% stored_search.shared_user_groups.to_select_options(active_ui_locale).each do |user| %>
+        <%= tag.span(user.name, class: 'tag', data: { dc_tooltip: user.dc_tooltip }) %>
+      <% end %>
+    </span>
+  </span>
+<% end %>
 
-<%= render_advanced_filter_tags_partial({
-    title: t('activerecord.attributes.data_cycle_core/stored_filter.classification_tree_labels', locale: active_ui_locale),
-    filter_type: 'api_restriction',
-    api_restriction_type: 'classification_tree_ids',
-    key: "activerecord.attributes.data_cycle_core/stored_filter.classification_tree_labels",
-    target: "stored_filter.classification_tree_labels",
-    value: stored_search.classification_tree_labels,
-    buttons: false
-  }) if stored_search.classification_tree_labels.present? %>
+<% if stored_search.shared_roles.present? %>
+  <span class="tag-group tags shared_roles">
+    <span class="tag-group-label">
+      <i class="dc-type-icon role-icon"></i>
+      <%= DataCycleCore::StoredFilter.human_attribute_name(:shared_roles, locale: active_ui_locale) %>
+    </span>
+    <span class="tags-container">
+      <% stored_search.shared_roles.to_select_options(active_ui_locale).each do |role| %>
+        <%= tag.span(role.name, class: 'tag', data: { dc_tooltip: role.dc_tooltip }) %>
+      <% end %>
+    </span>
+  </span>
+<% end %>
+
+<% if stored_search.linked_stored_filter_id.present? %>
+  <span class="tag-group tags linked_stored_filter">
+    <span class="tag-group-label">
+      <i class="dc-type-icon stored_filter-icon"></i>
+      <%= DataCycleCore::StoredFilter.human_attribute_name(:linked_stored_filter, locale: active_ui_locale) %>
+    </span>
+    <span class="tags-container">
+      <% value = stored_search.linked_stored_filter.to_select_option(active_ui_locale) %>
+      <%= tag.span(value.name, class: 'tag', data: { dc_tooltip: value.dc_tooltip }) %>
+    </span>
+  </span>
+<% end %>
+
+<% if stored_search.concept_schemes.present? %>
+  <span class="tag-group tags concept_schemes">
+    <span class="tag-group-label">
+      <i class="dc-type-icon concept_scheme-icon"></i>
+      <%= DataCycleCore::StoredFilter.human_attribute_name(:concept_schemes, locale: active_ui_locale) %>
+    </span>
+    <span class="tags-container">
+      <% stored_search.concept_schemes.order(name: :asc).to_select_options(active_ui_locale).each do |cs| %>
+        <%= tag.span(cs.name, class: 'tag', data: { dc_tooltip: cs.dc_tooltip }) %>
+      <% end %>
+    </span>
+  </span>
+<% end %>

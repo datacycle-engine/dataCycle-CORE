@@ -1,15 +1,16 @@
 speedups:
   each_with_index_vs_while: false
+  fetch_with_argument_vs_block: false
 
 exclude_paths:
-  - 'app/controllers/data_cycle_core/api/v1/api_base_controller.rb'
-  - 'app/models/data_cycle_core/callbacks.rb'
-  - 'app/models/data_cycle_core/pdf.rb'
-  - 'test/dummy/config/environments/review.rb'
-  - 'test/dummy/config/environments/development.rb'
-  - 'test/dummy/config/environments/production.rb'
-  - 'test/dummy/config/environments/staging.rb'
-  - 'node_modules/**/*'
-  - 'tmp/**/*'
-  - 'cache/**/*'
-  - 'vendor/**/*'
+  - "app/controllers/data_cycle_core/api/v1/api_base_controller.rb"
+  - "app/models/data_cycle_core/callbacks.rb"
+  - "app/models/data_cycle_core/pdf.rb"
+  - "test/dummy/config/environments/review.rb"
+  - "test/dummy/config/environments/development.rb"
+  - "test/dummy/config/environments/production.rb"
+  - "test/dummy/config/environments/staging.rb"
+  - "node_modules/**/*"
+  - "tmp/**/*"
+  - "cache/**/*"
+  - "vendor/**/*"

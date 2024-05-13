@@ -39,67 +39,176 @@
   <% end %>
 
   <div class="dynamic-form-parts">
-    <%= f.fields_for :collection_configuration, stored_search.collection_configuration || DataCycleCore::CollectionConfiguration.new do |cc_form| %>
-      <div class="form-element slug" data-key="stored_filter[collection_configuration][slug]">
-        <%= cc_form.label :slug do %>
-          <%= DataCycleCore::CollectionConfiguration.human_attribute_name(:slug, locale: active_ui_locale) %>
-        <% end %>
+    <% if can?(:update_description, stored_search) %>
+      <div class="form-element description" data-key="stored_filter[description]">
+        <div class="editor-block">
+          <%= f.label :description %>
+          <% description_id = [f.options[:namespace], f.object_name, 'description'].compact.join('_') %>
+          <%= f.hidden_field :description %>
 
-        <%= cc_form.text_field :slug %>
+          <div class="quill-editor" data-hidden-field-id="<%= description_id %>" data-size="none" data-default-value="<%= stored_search&.description %>">
+            <%= stored_search&.description&.html_safe %>
+          </div>
+        </div>
       </div>
     <% end %>
 
-    <div class="form-element dc-checkbox">
-      <%= f.check_box :system %>
-      <%= f.label :system, DataCycleCore::StoredFilter.human_attribute_name(:system, locale: active_ui_locale) %>
+    <div class="form-element slug" data-key="stored_filter[slug]">
+      <%= f.label :slug do %>
+        <%= DataCycleCore::StoredFilter.human_attribute_name(:slug, locale: active_ui_locale) %>
+      <% end %>
+
+      <%= f.text_field :slug %>
     </div>
 
-    <% if can?(:create_api, stored_search) %>
-      <fieldset>
-        <legend><%= t('data_cycle_core.stored_searches.form.api', locale: active_ui_locale) %></legend>
-        <div class="form-element dc-checkbox">
-          <%= f.check_box :api %>
-          <%= f.label :api, DataCycleCore::StoredFilter.human_attribute_name(:api, locale: active_ui_locale) %>
+    <% if can? :change_owner, stored_search %>
+      <div class="form-element owner">
+        <%= f.label :user_id, DataCycleCore::StoredFilter.human_attribute_name(:user_id, locale: active_ui_locale) %>
+        <div class="v-select white">
+          <%= f.select(
+                  :user_id,
+                  Array.wrap(stored_search.user).map { |u| u.to_select_option(active_ui_locale) }.map(&:to_option_for_select),
+                  {},
+                  {
+                    class: 'async-select',
+                    data: {
+                      allow_clear: false,
+                      max: 20,
+                      placeholder: '',
+                      search_path: search_users_path
+                    }
+                  }
+                ) %>
         </div>
-
-        <% if can?(:create_api_with_users, stored_search) %>
-          <div class="form-element">
-            <%= f.label :api_users, DataCycleCore::StoredFilter.human_attribute_name(:api_users, locale: active_ui_locale) %>
-            <div class="v-select white">
-              <%= f.collection_select(:api_users, DataCycleCore::User.all, :id, :email, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
-            </div>
-          </div>
-
-          <div class="form-element">
-            <%= f.label :linked_stored_filter_id, DataCycleCore::StoredFilter.human_attribute_name(:linked_stored_filter_id, locale: active_ui_locale) %>
-            <div class="v-select white">
-              <%= f.select(
-            :linked_stored_filter_id,
-            [stored_search.linked_stored_filter&.to_select_option&.to_option_for_select].compact,
-            {
-              include_blank: true
-            },
-            {
-              class: 'async-select',
-              data: {
-                max: 20,
-                placeholder: '',
-                search_path: search_stored_filters_path
-              }
-            }
-          ) %>
-            </div>
-          </div>
-
-          <div class="form-element">
-            <%= f.label :classification_tree_labels, DataCycleCore::StoredFilter.human_attribute_name(:classification_tree_labels, locale: active_ui_locale) %>
-            <div class="v-select white">
-              <%= f.collection_select(:classification_tree_labels, DataCycleCore::ClassificationTreeLabel.all, :id, :name, {}, { class: 'multi-select', multiple: true, data: { placeholder: '', close_on_select: false } }) %>
-            </div>
-          </div>
-        <% end %>
-      </fieldset>
+      </div>
     <% end %>
+
+    <div class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
+      <% if can?(:share, stored_search) %>
+        <fieldset class="accordion-item" data-accordion-item>
+          <a class="accordion-title"><%= t('data_cycle_core.stored_searches.form.shares', locale: active_ui_locale) %></a>
+          <div class="accordion-content" data-tab-content>
+            <div class="form-element shared_users">
+              <%= f.label :shared_user_ids, DataCycleCore::StoredFilter.human_attribute_name(:shared_users, locale: active_ui_locale) %>
+              <div class="v-select white">
+                <%= f.select(
+                  :shared_user_ids,
+                  stored_search.shared_users.map { |u| u.to_select_option(active_ui_locale) }.map(&:to_option_for_select),
+                  {
+                    include_blank: true
+                  },
+                  {
+                    multiple: true,
+                    class: 'async-select',
+                    data: {
+                      max: 20,
+                      placeholder: '',
+                      search_path: search_users_path
+                    }
+                  }
+                ) %>
+              </div>
+            </div>
+
+            <div class="form-element shared_user_groups">
+              <%= f.label :shared_user_group_ids, DataCycleCore::StoredFilter.human_attribute_name(:shared_user_groups, locale: active_ui_locale) %>
+              <div class="v-select white">
+                <%= f.select(
+                    :shared_user_group_ids,
+                    DataCycleCore::UserGroup.all.order(name: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
+                    {
+                      include_blank: true
+                    },
+                    {
+                      multiple: true,
+                      class: 'multi-select',
+                      data: {
+                        placeholder: ''
+                      }
+                    }
+                  ) %>
+              </div>
+            </div>
+
+            <div class="form-element shared_roles">
+              <%= f.label :shared_role_ids, DataCycleCore::StoredFilter.human_attribute_name(:shared_roles, locale: active_ui_locale) %>
+              <div class="v-select white">
+                <%= f.select(
+                    :shared_role_ids,
+                    DataCycleCore::Role.all.order(rank: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
+                    {
+                      include_blank: true
+                    },
+                    {
+                      multiple: true,
+                      class: 'multi-select',
+                      data: {
+                        placeholder: ''
+                      }
+                    }
+                  ) %>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      <% end %>
+
+      <% if can?(:create_api, stored_search) %>
+        <fieldset class="accordion-item" data-accordion-item>
+          <a class="accordion-title"><%= t('data_cycle_core.stored_searches.form.api', locale: active_ui_locale) %></a>
+          <div class="accordion-content" data-tab-content>
+
+            <div class="form-element dc-checkbox">
+              <%= f.check_box :api %>
+              <%= f.label :api, DataCycleCore::StoredFilter.human_attribute_name(:api, locale: active_ui_locale) %>
+            </div>
+
+            <% if can?(:share, stored_search) %>
+              <div class="form-element">
+                <%= f.label :linked_stored_filter_id, DataCycleCore::StoredFilter.human_attribute_name(:linked_stored_filter, locale: active_ui_locale) %>
+                <div class="v-select white">
+                  <%= f.select(
+                    :linked_stored_filter_id,
+                    [stored_search.linked_stored_filter&.to_select_option&.to_option_for_select].compact,
+                    {
+                      include_blank: true
+                    },
+                    {
+                      class: 'async-select',
+                      data: {
+                        max: 20,
+                        placeholder: '',
+                        search_path: search_stored_filters_path
+                      }
+                    }
+                  ) %>
+                </div>
+              </div>
+
+              <div class="form-element">
+                <%= f.label :classification_tree_labels, DataCycleCore::StoredFilter.human_attribute_name(:concept_schemes, locale: active_ui_locale) %>
+                <div class="v-select white">
+                  <%= f.select(
+                    :classification_tree_labels,
+                    DataCycleCore::ClassificationTreeLabel.all.order(name: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
+                    {
+                      include_blank: true
+                    },
+                    {
+                      multiple: true,
+                      class: 'multi-select',
+                      data: {
+                        placeholder: ''
+                      }
+                    }
+                  ) %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </fieldset>
+      <% end %>
+    </div>
   </div>
 
   <div class="buttons">

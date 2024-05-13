@@ -30,6 +30,19 @@ module DataCycleCore
       end
     end
 
+    module Import
+      class TemplateMismatchError < StandardError
+        attr_reader :template_name, :expected_template_name
+
+        def initialize(options)
+          @template_name = options[:template_name]
+          @expected_template_name = options[:expected_template_name]
+
+          super("Template mismatch: #{template_name} != #{expected_template_name}")
+        end
+      end
+    end
+
     module Report
       class ProcessingError < StandardError
       end
@@ -123,6 +136,21 @@ module DataCycleCore
       class UnionFilterRecursionError < StandardError
         def message
           'stored filters cannot filter on themselves inside union filters (infinite recursion)'
+        end
+      end
+    end
+
+    class TemplateNotAllowedError < StandardError
+      attr_reader :template_name, :expected_template_names
+
+      def initialize(template_name, expected_template_names)
+        @template_name = template_name
+        @expected_template_names = Array.wrap(expected_template_names).join(', ')
+
+        if @template_name.blank?
+          super("Template missing! (allowed: #{@expected_template_names})")
+        else
+          super("Template not allowed: #{@template_name}, (allowed: #{@expected_template_names})")
         end
       end
     end

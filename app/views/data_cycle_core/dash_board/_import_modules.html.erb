@@ -1,53 +1,22 @@
+<%= return render('data_cycle_core/dash_board/export_modules', external_system: import_data) if import_data[:webhook_only] %>
+
 <div>
-  <div class="card import-module accordion" data-accordion data-allow-all-closed="true">
+  <div class="card import-module accordion <%= 'deactivated' if import_data[:deactivated] %>" data-accordion data-allow-all-closed="true">
     <div class="accordion-item" data-accordion-item>
       <div class="card-divider accordion-title">
         <div class="header">
-          <h5><%= locals[:import_data][:name] %></h5>
+          <h5 class="copy-to-clipboard" data-value="<%= import_data[:name] %>" title="<%= import_data[:name] %>"><%= import_data[:name] %></h5>
           <ul class="import-data-timestamps">
-            <li class="download <%= locals.dig(:import_data, :last_download_class) %>" data-dc-tooltip="<%= timestamp_tooltip(locals.dig(:import_data), 'download') %>"></li>
-            <li class="import <%= locals.dig(:import_data, :last_import_class) %>" data-dc-tooltip="<%= timestamp_tooltip(locals.dig(:import_data), 'import') %>"></li>
+            <li class="download <%= import_data[:last_download_class] %>" data-dc-tooltip="<%= timestamp_tooltip(import_data, 'download') %>"></li>
+            <li class="import <%= import_data[:last_import_class] %>" data-dc-tooltip="<%= timestamp_tooltip(import_data, 'import') %>"></li>
           </ul>
         </div>
 
-        <h6 style="font-size: 0.8rem; position:relative;" >
-          <span class="copy-to-clipboard" data-value="<%= locals[:import_data][:uuid] %>" ><%= locals[:import_data][:uuid] %></span>
+        <h6 class="external-system-id">
+          <span class="copy-to-clipboard" data-value="<%= import_data[:uuid] %>" ><%= import_data[:uuid] %></span>
         </h6>
       </div>
-      <div class="accordion-content remote-render" data-tab-content data-remote-path="data_cycle_core/dash_board/import_module" data-remote-options="<%= to_query_params({ external_source_id: locals.dig(:import_data, :uuid) }).to_json %>"></div>
-      <% if locals.dig(:import_data, :deactivated) %>
-        <div class="card-divider buttons">
-          <span class="deactivated">DEACTIVATED</span>
-        </div>
-      <% else %>
-        <div class="card-divider buttons">
-          <%= link_to_condition(
-          locals.dig(:import_data, :downloadable),
-          tag.span(t('dash_board.download_import', locale: active_ui_locale), class: 'button small download-import'),
-          admin_download_import_path(id: locals[:import_data][:uuid]),
-          class: 'download-import') %>
-
-          <%= link_to_condition(
-          locals.dig(:import_data, :downloadable),
-          tag.span(t('dash_board.download', locale: active_ui_locale), class: "button small"),
-          admin_download_path(id: locals[:import_data][:uuid])) %>
-
-          <%= link_to_condition(
-          locals.dig(:import_data, :importable),
-          tag.span(t('dash_board.import', locale: active_ui_locale), class: "button small"),
-          admin_import_path(id: locals[:import_data][:uuid])) %>
-
-          <%= link_to_condition(
-          locals.dig(:import_data, :downloadable),
-          tag.span(t('dash_board.download_full', locale: active_ui_locale), class: "button small"),
-          admin_download_full_path(id: locals[:import_data][:uuid])) %>
-
-          <%= link_to_condition(
-          locals.dig(:import_data, :importable),
-          tag.span(t('dash_board.import_full', locale: active_ui_locale), class: "button small"),
-          admin_import_full_path(id: locals[:import_data][:uuid])) %>
-        </div>
-      <% end %>
+      <div class="accordion-content remote-render" data-tab-content data-remote-path="data_cycle_core/dash_board/import_module" data-remote-options="<%= to_query_params({ external_source_id: import_data[:uuid] }).to_json %>"></div>
     </div>
   </div>
 </div>

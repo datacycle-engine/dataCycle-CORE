@@ -1,4 +1,4 @@
-<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge('class' => 'detail_object'), content: content, parent: local_assigns[:parent] do %>
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge({ 'class' => Array.wrap(options['class']).push('detail_object').compact_blank.join(' ') }), content: content, parent: local_assigns[:parent] do %>
 
   <div class="content-object-item">
     <span class="embedded-header">

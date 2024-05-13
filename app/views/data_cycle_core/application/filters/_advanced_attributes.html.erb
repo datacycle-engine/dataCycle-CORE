@@ -22,15 +22,15 @@
   <div class="advanced-filter-selector">
     <% if filter_advanced_type == 'string' %>
       <%= hidden_field_tag "f[#{identifier}][v][helper]", 'true', {class: 'hidden_helper', disabled: (!['b', 'p'].include?(filter_method))} %>
-      <%= text_field_tag "f[#{identifier}][v][text]", value&.dig('text'), { placeholder: '', class: 'filter-text', disabled: (['b', 'p'].include?(filter_method)) } %>
+      <%= text_field_tag "f[#{identifier}][v][text]", value&.dig('text'), { placeholder: '', class: 'filter-text', disabled: (['b', 'p'].include?(filter_method)), data: { initial_focus: true } } %>
     <% elsif filter_advanced_type == 'date' || filter_advanced_type == 'date_range' %>
       <span class="separator"><%= t("terms.from", locale: active_ui_locale) %></span>
-      <%= date_field_tag "f[#{identifier}][v][from]", value&.dig('from') || local_assigns[:default_from], { placeholder: 'tt.mm.jjjj' } %>
+      <%= date_field_tag "f[#{identifier}][v][from]", value&.dig('from') || local_assigns[:default_from], { placeholder: 'tt.mm.jjjj', data: { initial_focus: true } } %>
       <span class="separator"><%= t("terms.until", locale: active_ui_locale) %></span>
       <%= date_field_tag "f[#{identifier}][v][until]", value&.dig('until') || local_assigns[:default_until], { placeholder: 'tt.mm.jjjj' } %>
     <% elsif filter_advanced_type == 'boolean' %>
       <div class="advanced-filter-selector">
-        <%= radio_button_tag "f[#{identifier}][v]", 'true', (value != 'false') %>
+        <%= radio_button_tag "f[#{identifier}][v]", 'true', (value != 'false'), data: { initial_focus: true } %>
         <%= label_tag "f_#{identifier}_v_true", t("common.is_true", default: filter_title, locale: active_ui_locale) %>
       </div>
       <div class="advanced-filter-selector">
@@ -39,7 +39,7 @@
       </div>
     <% else #numeric %>
       <span class="separator"><%= t("terms.min", locale: active_ui_locale) %></span>
-      <%= number_field_tag "f[#{identifier}][v][min]", value&.dig('min'), { step: 'any', placeholder: '', class: 'filter-text' } %>
+      <%= number_field_tag "f[#{identifier}][v][min]", value&.dig('min'), { step: 'any', placeholder: '', class: 'filter-text', data: { initial_focus: true } } %>
       <span class="separator"><%= t("terms.max", locale: active_ui_locale) %></span>
       <%= number_field_tag "f[#{identifier}][v][max]", value&.dig('max'), { step: 'any', placeholder: '', class: 'filter-text' } %>
     <% end %>

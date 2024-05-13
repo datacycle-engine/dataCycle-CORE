@@ -27,10 +27,20 @@ module DataCycleCore
       end
 
       configs.each do |config|
-        config.each do |cron_rule, tasks|
-          @scheduler.cron cron_rule do
-            tasks.each do |task|
+        if config.key?('type') || config.key?('task')
+          task_type = config['type'] || 'cron'
+
+          @scheduler.send(task_type, config['time']) do
+            Array(config['task']).each do |task|
               system "rake #{task}"
+            end
+          end
+        else
+          config.each do |cron_rule, tasks|
+            @scheduler.cron cron_rule do
+              tasks.each do |task|
+                system "rake #{task}"
+              end
             end
           end
         end

@@ -1,0 +1,64 @@
+---
+fr:
+  import:
+    generic:
+      description: Description
+      text: Description détaillée
+    booking:
+      hotel_important_information: Informations importantes
+      hotel_description: Description courte
+    feratel:
+      meeting_point: Point de rendez-vous
+      additional_service:
+        Payment: Modalités de paiement
+        ServiceDescription: Description
+        Included Services: Prestations incluses
+        Not included Services: Services non inclus
+        Equipment: Équipement
+        Bring along: À emporter
+        Rental Equipment: Prêt d'équipement
+        Suitable for: Adapté à
+        Difficulty: Difficulté
+        Requirements: Conditions
+        Meeting Point: Lieu de rendez-vous
+        Opening hours: Heures d'ouverture
+        Price Information: Informations prix
+        Payment conditions: Conditions de paiement
+        Cancellation Information: Informations annulation
+        Arrival Information: Informations arrivée
+        "FAQ / good to know": Questions fréquemment posées /
+        "Hint / Advice": Allusion
+        Important information: Informations importantes
+      event:
+        EventHeader: Description
+        EventHeaderShort: Description courte
+        AdditionalService: Service supplémentaire
+        CurrentInformation: Informations actuelles
+        GuestCardClassification: Classification de la carte d'hôte
+      serial_event:
+        EventGroup: Description
+      infrastructure:
+        AdditionalService: Service supplémentaire
+        Arrival Information: Informations d'arrivée
+        CurrentInformation: Informations actuelles
+        GuestCardClassification: Classification de la carte d'hôte
+        InfrastructureLong: Description détaillée
+        InfrastructureOpeningTimes: Horaires d'ouverture
+        InfrastructurePriceInfo: Informations sur les prix
+        InfrastructureShort: Description courte
+        Payment: Modalités de paiement
+        Price Information: Prix
+        ServiceDescription: Description
+      GuestCards:
+        GuestCardClassification: Classification de la carte d'hôte
+      accommodation:
+        CurrentInformation: Informations actuelles
+        SEOKeywords: Mots-clés SEO
+        ServiceProviderArrivalVoucher: Bon d'arrivée du fournisseur d'hébergement
+        ServiceProviderConditions: Conditions du fournisseur de services
+        ServiceProviderDescription: Description du fournisseur de services
+      GTC:
+        GTC: Conditions générales de vente
+      package:
+        PackageShortText: Description courte
+        Package: Description

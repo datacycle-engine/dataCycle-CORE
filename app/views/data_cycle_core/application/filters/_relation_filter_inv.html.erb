@@ -26,6 +26,7 @@
               class: "async-select",
               disabled: filter_method.in?(['i', 'e']),
               data: {
+                initial_focus: filter_method.in?(['s', 'u']),
                 active_for: ['s', 'u'],
                 max: 20,
                 placeholder: t('filter.relation_filter.placeholder.thing', locale: active_ui_locale),
@@ -45,6 +46,7 @@
             class: "async-select",
             disabled: filter_method.in?(['s', 'u']),
             data: {
+              initial_focus: filter_method.in?(['i', 'e']),
               active_for: ['i', 'e'],
               max: 20,
               placeholder: t('filter.relation_filter.placeholder.collection_or_stored_filter',

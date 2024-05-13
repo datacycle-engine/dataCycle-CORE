@@ -51,6 +51,11 @@ module DataCycleCore
       "data_cycle_core/#{table}".classify.constantize.where(id: changes_by_mode(diff, '+'))
     end
 
+    def new_content_collections(diff)
+      added_ids = Array.wrap(changes_by_mode(diff, '+'))
+      DataCycleCore::WatchList.where(id: added_ids).to_a + DataCycleCore::StoredFilter.where(id: added_ids).to_a
+    end
+
     def new_relation(diff, table)
       "data_cycle_core/#{table}".classify.constantize.where(id: change_by_mode(diff, '+'))
     end
