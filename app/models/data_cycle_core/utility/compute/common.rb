@@ -56,6 +56,15 @@ module DataCycleCore
             nil
           end
 
+          def attribute_values_from_linked(computed_parameters:, computed_definition:, **_args)
+            values = []
+            Array.wrap(computed_definition.dig('compute', 'value')).each do |config|
+              values += Array.wrap(get_values_from_hash(computed_parameters, config['attribute'].split('.'), config['filter'])).compact
+            end
+
+            values
+          end
+
           def attribute_value_from_first_linked(computed_parameters:, computed_definition:, **_args)
             computed_definition.dig('compute', 'parameters').each do |config|
               value = Array.wrap(get_values_from_hash(computed_parameters, config.split('.'), nil, 1)).compact.first
