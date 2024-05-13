@@ -281,6 +281,7 @@ module DataCycleCore
       end
 
       def storage_cases_set(options, key, properties)
+        return if virtual_property_names.include?(key)
         value = options.data_hash[key]
         # puts "#{key}, #{value}, #{properties.dig('type')}"
         case properties['type']
