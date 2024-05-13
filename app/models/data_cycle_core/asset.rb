@@ -143,7 +143,7 @@ module DataCycleCore
           tmp_file = File.open(remote_file_url)
           filename = File.basename(tmp_file.path)
         else
-          tmp_uri = Addressable::URI.parse(remote_file_url)
+          tmp_uri = URI.parse(Addressable::URI.parse(remote_file_url).normalize)
           tmp_file = tmp_uri.open
           filename = File.basename(tmp_uri.path)
         end
