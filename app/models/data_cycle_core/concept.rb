@@ -30,6 +30,8 @@ module DataCycleCore
 
     belongs_to :classification_alias_path, primary_key: :id, foreign_key: :id, class_name: 'ClassificationAlias::Path', inverse_of: :concept
 
+    has_many :classification_polygons, dependent: :delete_all, foreign_key: :classification_alias_id, inverse_of: false
+
     delegate :visible?, to: :concept_scheme
 
     scope :in_context, ->(context) { includes(:concept_scheme).where('concept_schemes.visibility && ARRAY[?]::varchar[]', Array.wrap(context)).references(:concept_scheme) }
