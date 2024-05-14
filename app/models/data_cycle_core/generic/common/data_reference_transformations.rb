@@ -157,9 +157,9 @@ module DataCycleCore
           if data.is_a?(ExternalReference)
             external_reference_mapping_table.dig(data.reference_type, data.external_source_id, data.external_key&.to_s)
           elsif data.is_a?(ClassificationNameReference)
-            classification_mapping_table[data.classification_path]
+            classification_mapping_table[data.classification_path&.map(&:to_s)]
           elsif data.is_a?(ClassificationUriReference)
-            classification_mapping_table[data.uri]
+            classification_mapping_table[data.uri&.to_s]
           elsif data.is_a?(Hash)
             data.transform_values { |v| replace_references(v, external_reference_mapping_table, classification_mapping_table) }
           elsif data.is_a?(Array)
