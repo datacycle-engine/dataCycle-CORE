@@ -7,6 +7,9 @@ module DataCycleCore
     attribute :type, :string, default: -> { name }
     belongs_to :creator, class_name: 'DataCycleCore::User'
 
+    attr_accessor :binary_file_blob
+    before_validation :load_file_from_binary_file_blob, if: -> { binary_file_blob.present? }
+
     before_create :update_asset_attributes
 
     validates :file, presence: true
@@ -155,6 +158,15 @@ module DataCycleCore
         sleep 5
         retry
       end
+    end
+
+    def load_file_from_binary_file_blob
+      return if binary_file_blob.blank? || name.blank?
+
+      tmp_file = Tempfile.new(name)
+      File.binwrite(tmp_file, [binary_file_blob].pack('H*'))
+
+      file.attach(io: tmp_file, filename: name)
     end
   end
 end

@@ -38,7 +38,7 @@ module DataCycleCore
           content
         end
 
-        def create_or_update_content(utility_object:, template:, data:, local: false, config: {})
+        def create_or_update_content(utility_object:, template:, data:, local: false, **)
           return nil if data.except('external_key', 'locale').blank?
 
           if local
@@ -105,35 +105,6 @@ module DataCycleCore
 
           global_data = data.except(*content.local_property_names + DataCycleCore::Feature::OverlayAttributeService.call(content))
           global_data.except!('external_key') unless created
-
-          if config&.dig(:asset_type).present?
-            if utility_object.asset_download
-              content.asset.try(:remove_file!)
-              if data.dig('binary_file_blob').present? && data.dig('binary_file_name').present?
-                full_file_path = Rails.root.join('tmp', data.dig('binary_file_name'))
-                File.binwrite(full_file_path.to_s, [data.dig('binary_file_blob')].pack('H*'))
-                asset = config
-                  .dig(:asset_type)
-                  .constantize
-                  .new(name: data.dig('binary_file_name'))
-                asset.file.attach(io: File.open(full_file_path), filename: data.dig('binary_file_name'))
-                # full_file_path.delete
-              elsif data.dig('binary_file').present? && data.dig('binary_file_name').present?
-                tempfile = File.new(Rails.root.join('tmp', data.dig('binary_file_name')), 'w')
-                tempfile.binmode
-                tempfile.write(data.dig('binary_file'))
-                tempfile.close
-                asset = config.dig(:asset_type).constantize.new(file: Pathname.new(Rails.root.join('tmp', data.dig('binary_file_name'))).open)
-                Rails.root.join('tmp', data.dig('binary_file_name')).delete
-              else
-                asset = config.dig(:asset_type).constantize.new(remote_file_url: data.dig('remote_file_url'))
-              end
-              asset.save
-              global_data['asset'] = asset.id
-            else
-              global_data['asset'] = content&.asset&.id
-            end
-          end
 
           current_user = data['updated_by'].present? ? DataCycleCore::User.find_by(id: data['updated_by']) : nil
           invalidate_related_cache = utility_object.external_source.default_options&.fetch('invalidate_related_cache', true)
