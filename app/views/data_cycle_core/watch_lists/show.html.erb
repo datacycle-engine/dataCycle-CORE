@@ -32,7 +32,7 @@
             </li>
           <% end %>
 
-          <% if can?(:copy_api_link, @watch_list) &&  @watch_list.api %>
+          <% if can?(:copy_api_link, @watch_list) && @watch_list.api %>
             <li>
               <span class="link" aria_hidden="true">
                 <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", api_subversion: nil, id: @watch_list),
@@ -68,7 +68,7 @@
             </li>
           <% end %>
 
-          <%= tag.li render('data_cycle_core/data_links/data_links_list', content: @watch_list) if can?(:index, DataCycleCore::DataLink) %>
+          <%= tag.li render('data_cycle_core/data_links/data_links_list', content: @watch_list) if !@watch_list.my_selection && can?(:index, DataCycleCore::DataLink) %>
 
           <% if !@watch_list.my_selection && can?(:subscribe, @watch_list) %>
             <li class="has-dropdown">
