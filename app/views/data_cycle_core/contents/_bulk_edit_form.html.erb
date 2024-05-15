@@ -43,7 +43,7 @@
 
 <%= form_with url: bulk_update_watch_list_path(watch_list), method: :patch, local: false, class: 'validation-form edit-content-form bulk-edit-form' do |f| %>
   <%= hidden_field_tag :uuid, watch_list.id %>
-  <%= hidden_field_tag :table, watch_list.class.table_name %>
+  <%= hidden_field_tag :table, watch_list.class.model_name.route_key %>
   <%= hidden_field_tag :locale, @locale %>
   <%= hidden_field_tag :content_template, to_query_params(thing_template: content.thing_template).to_json %>
 
