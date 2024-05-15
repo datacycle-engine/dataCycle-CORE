@@ -341,7 +341,6 @@ module DataCycleCore
 
           comparison_operator = COMPARISON_OPERATORS.dig(comparison)
           query_string = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::boolean #{comparison_operator} ?)", attribute_path, value])
-
           advanced_query(query_string, attribute_path)
         end
 
@@ -388,11 +387,11 @@ module DataCycleCore
         end
 
         def attribute_path_exists(path)
-          ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['advanced_attributes ? :path', path:])
+          ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['jsonb_path_exists(advanced_attributes, :path)', path: "$.#{path}"])
         end
 
         def attribute_path_not_exists(path)
-          ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(advanced_attributes ? :path)', path:])
+          ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(jsonb_path_exists(advanced_attributes, :path))', "$.#{path}"])
         end
       end
     end
