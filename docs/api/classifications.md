@@ -135,6 +135,10 @@ Die ausgelieferten Klassifizierungen enthalten neben den Daten der Klassifizieru
 }
 ```
 
+## Filtern und Sortieren von Klassifizierungen
+
+Eine detaillierte Auflistung aller möglichen Filter und Sortierungen kann in der [Spezifikation](/docs/api/classifications/specification) nachgelesen werden.
+
 ## Facettensuche
 
 Es kann im Context eines Inhalts-Endpunktes in Kombination mit einem Klassifizierungsbaums eine Facettierung angefordert werden.

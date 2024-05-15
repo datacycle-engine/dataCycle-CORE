@@ -7,6 +7,8 @@ module DataCycleCore
         config.validate_keys = true
 
         UUID_OR_STRING_OF_UUIDS_REGEX = /^(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*)?(,(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*))*$/i
+        UUID_REGEX = /^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i
+        NULL_REGEX = /^NULL$/i
 
         SORTING_VALIDATION = Dry::Types['string'].constructor do |input|
           next input unless input&.starts_with?('random')
@@ -121,27 +123,27 @@ module DataCycleCore
           end
         end
 
+        IN_UUID_OR_NULL_ARRAY_FILTER = Dry::Schema.Params do
+          optional(:in).filled(:array).each { str? & (format?(UUID_REGEX) | format?(NULL_REGEX)) }
+          optional(:notIn).filled(:array).each { str? & (format?(UUID_REGEX) | format?(NULL_REGEX)) }
+        end
+
+        IN_UUID_ARRAY_FILTER = Dry::Schema.Params do
+          optional(:in).filled(:array).each(:str?, format?: UUID_REGEX)
+          optional(:notIn).filled(:array).each(:str?, format?: UUID_REGEX)
+        end
+
+        IN_ARRAY_FILTER = Dry::Schema.Params do
+          optional(:in).filled(:array)
+          optional(:notIn).filled(:array)
+        end
+
         FILTER = Dry::Schema.Params do
-          optional(:contentId).hash do
-            optional(:in).filled(:array)
-            optional(:notIn).filled(:array)
-          end
-          optional(:endpointId).hash do
-            optional(:in).filled(:array)
-            optional(:notIn).filled(:array)
-          end
-          optional(:filterId).hash do
-            optional(:in).filled(:array)
-            optional(:notIn).filled(:array)
-          end
-          optional(:watchListId).hash do
-            optional(:in).filled(:array)
-            optional(:notIn).filled(:array)
-          end
-          optional(:classificationTreeId).hash do
-            optional(:in).filled(:array)
-            optional(:notIn).filled(:array)
-          end
+          optional(:contentId).hash(IN_ARRAY_FILTER)
+          optional(:endpointId).hash(IN_ARRAY_FILTER)
+          optional(:filterId).hash(IN_ARRAY_FILTER)
+          optional(:watchListId).hash(IN_ARRAY_FILTER)
+          optional(:classificationTreeId).hash(IN_ARRAY_FILTER)
           optional(:search).value(:string)
           optional(:q).value(:string)
           optional(:classifications).hash do
@@ -170,6 +172,8 @@ module DataCycleCore
               optional(a).hash(ATTRIBUTE_FILTER)
             end
             optional(:slug).hash(ATTRIBUTE_FILTER)
+            optional(:'skos:broader').hash(IN_UUID_OR_NULL_ARRAY_FILTER)
+            optional(:'skos:ancestors').hash(IN_UUID_ARRAY_FILTER)
           end
           optional(:schedule).hash(ATTRIBUTE_FILTER)
         end

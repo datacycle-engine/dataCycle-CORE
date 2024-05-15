@@ -31,8 +31,7 @@ module DataCycleCore
     end
 
     def uuid?
-      uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
-      length == 36 && !(downcase =~ uuid).nil?
+      MasterData::Contracts::ApiContract::UUID_REGEX.match?(self)
     end
 
     def strip_tags

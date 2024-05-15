@@ -7,8 +7,11 @@ module DataCycleCore
     module V4
       module Classifications
         class ClassificationFilterTest < DataCycleCore::V4::Base
+          # rubocop:disable Minitest/MultipleAssertions
           before(:all) do
             DataCycleCore::Thing.delete_all
+            @tags = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
+            @tag_aliases = @tags.classification_aliases.to_h { |v| [v.internal_name, v.id] }
             @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
             other_trees = DataCycleCore::ClassificationTreeLabel.where.not(name: 'Tags')
             now = Time.zone.now
@@ -19,10 +22,9 @@ module DataCycleCore
           # add tests to combine created / modified
 
           test 'api/v4/concept_schemes parameter filter[:dct:created]' do
-            tree_tags = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
-            orig_ts = tree_tags.created_at
+            orig_ts = @tags.created_at
 
-            tree_tags.update_column(:created_at, (Time.zone.now + 10.days))
+            @tags.update_column(:created_at, (Time.zone.now + 10.days))
             params = {
               filter: {
                 attribute: {
@@ -35,6 +37,7 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(1)
 
             params = {
@@ -50,9 +53,10 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(1)
 
-            tree_tags.update_column(:created_at, (Time.zone.now - 10.days))
+            @tags.update_column(:created_at, (Time.zone.now - 10.days))
             params = {
               filter: {
                 attribute: {
@@ -65,9 +69,10 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(1)
 
-            tree_tags.update_column(:created_at, (Time.zone.now + 10.days))
+            @tags.update_column(:created_at, (Time.zone.now + 10.days))
             params = {
               filter: {
                 attribute: {
@@ -83,6 +88,7 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(@trees - 1)
 
             params = {
@@ -101,9 +107,10 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(@trees - 1)
 
-            tree_tags.update_column(:created_at, (Time.zone.now - 10.days))
+            @tags.update_column(:created_at, (Time.zone.now - 10.days))
             params = {
               filter: {
                 attribute: {
@@ -119,6 +126,7 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(@trees - 1)
 
             params = {
@@ -136,16 +144,16 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(1)
 
-            tree_tags.update_column(:created_at, orig_ts)
+            @tags.update_column(:created_at, orig_ts)
           end
 
           test 'api/v4/concept_schemes parameter filter[:dct:modified]' do
-            tree_tags = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
-            orig_ts = tree_tags.updated_at
+            orig_ts = @tags.updated_at
 
-            tree_tags.update_column(:updated_at, (Time.zone.now + 10.days))
+            @tags.update_column(:updated_at, (Time.zone.now + 10.days))
             params = {
               filter: {
                 attribute: {
@@ -158,6 +166,7 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(1)
 
             params = {
@@ -173,9 +182,10 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(1)
 
-            tree_tags.update_column(:updated_at, (Time.zone.now - 10.days))
+            @tags.update_column(:updated_at, (Time.zone.now - 10.days))
             params = {
               filter: {
                 attribute: {
@@ -188,9 +198,10 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(1)
 
-            tree_tags.update_column(:updated_at, (Time.zone.now + 10.days))
+            @tags.update_column(:updated_at, (Time.zone.now + 10.days))
             params = {
               filter: {
                 attribute: {
@@ -206,6 +217,7 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(@trees - 1)
 
             params = {
@@ -224,9 +236,10 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(@trees - 1)
 
-            tree_tags.update_column(:updated_at, (Time.zone.now - 10.days))
+            @tags.update_column(:updated_at, (Time.zone.now - 10.days))
             params = {
               filter: {
                 attribute: {
@@ -242,6 +255,7 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(@trees - 1)
 
             params = {
@@ -259,9 +273,10 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(1)
 
-            tree_tags.update_column(:updated_at, orig_ts)
+            @tags.update_column(:updated_at, orig_ts)
           end
 
           test 'api/v4/concept_schemes parameter filter[:dct:deleted]' do
@@ -277,12 +292,14 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(0)
 
             DataCycleCore::MasterData::ImportClassifications.import_all(classification_paths: [Rails.root.join('..', 'fixtures', 'data', 'classifications')])
             DataCycleCore::ClassificationTreeLabel.find_by(name: 'Test').destroy
 
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(1)
 
             params = {
@@ -297,11 +314,12 @@ module DataCycleCore
               }
             }
             post api_v4_concept_schemes_path(params)
+
             assert_api_count_result(1)
           end
 
           test 'api/v4/concept_schemes/id/concepts parameter filter[:created_at]' do
-            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+            tree_id = @tags.id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags')
             now = Time.zone.now
             classifications.update_all(created_at: now, updated_at: now, seen_at: now)
@@ -323,6 +341,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(1)
 
             params = {
@@ -339,6 +358,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(1)
 
             classificaton_tag.update_column(:created_at, (Time.zone.now - 10.days))
@@ -355,6 +375,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(1)
 
             classificaton_tag.update_column(:created_at, (Time.zone.now + 10.days))
@@ -371,6 +392,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(classifications_count - 1)
 
             params = {
@@ -387,6 +409,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(classifications_count - 1)
 
             classificaton_tag.update_column(:created_at, (Time.zone.now - 10.days))
@@ -403,6 +426,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(classifications_count - 1)
 
             params = {
@@ -420,13 +444,14 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(1)
 
             classificaton_tag.update_column(:created_at, orig_ts)
           end
 
           test 'api/v4/concept_schemes/id/concepts parameter filter[:dct:modified]' do
-            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+            tree_id = @tags.id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags')
             classifications_count = classifications.count
             classificaton_tag = classifications.with_name('Tag 3').first
@@ -446,6 +471,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(1)
 
             params = {
@@ -462,6 +488,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(1)
 
             classificaton_tag.update_column(:updated_at, (Time.zone.now - 10.days))
@@ -478,6 +505,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(1)
 
             classificaton_tag.update_column(:updated_at, (Time.zone.now + 10.days))
@@ -494,6 +522,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(classifications_count - 1)
 
             params = {
@@ -510,6 +539,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(classifications_count - 1)
 
             classificaton_tag.update_column(:updated_at, (Time.zone.now - 10.days))
@@ -526,6 +556,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(classifications_count - 1)
 
             params = {
@@ -543,6 +574,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(1)
 
             classificaton_tag.update_column(:updated_at, orig_ts)
@@ -566,10 +598,12 @@ module DataCycleCore
             }
 
             get classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(0)
 
             DataCycleCore::ClassificationAlias.for_tree('Test').destroy_all
             get classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(classifications)
 
             params = {
@@ -584,10 +618,12 @@ module DataCycleCore
               }
             }
             get classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(classifications)
           end
+
           test 'api/v4/concept_schemes/id/concepts parameter filter[:q] filter[:search]' do
-            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+            tree_id = @tags.id
 
             params = {
               id: tree_id,
@@ -596,6 +632,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(5)
 
             params = {
@@ -605,6 +642,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(2)
 
             params = {
@@ -614,6 +652,7 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(5)
 
             params = {
@@ -623,8 +662,107 @@ module DataCycleCore
               }
             }
             post classifications_api_v4_concept_scheme_path(params)
+
             assert_api_count_result(2)
           end
+
+          test 'api/v4/concept_schemes/id/concepts parameter filter[attribute][skos:broader][in] without children' do
+            tree_id = @tags.id
+            params = { id: tree_id, filter: { attribute: { 'skos:broader': { in: @tag_aliases.values_at('Tag 1') } } } }
+            post classifications_api_v4_concept_scheme_path(params)
+
+            assert_api_count_result(0)
+          end
+
+          test 'api/v4/concept_schemes/id/concepts parameter filter[attribute][skos:broader][in] with children' do
+            tree_id = @tags.id
+            params = { id: tree_id, filter: { attribute: { 'skos:broader': { in: @tag_aliases.values_at('Tag 3') } } } }
+            post classifications_api_v4_concept_scheme_path(params)
+
+            assert_api_count_result(2)
+          end
+
+          test 'api/v4/concept_schemes/id/concepts parameter filter[attribute][skos:broader][in] root' do
+            tree_id = @tags.id
+            params = { id: tree_id, filter: { attribute: { 'skos:broader': { in: ['null'] } } } }
+            post classifications_api_v4_concept_scheme_path(params)
+
+            assert_api_count_result(3)
+          end
+
+          test 'api/v4/concept_schemes/id/concepts parameter filter[attribute][skos:broader][in] with children and root' do
+            tree_id = @tags.id
+            params = { id: tree_id, filter: { attribute: { 'skos:broader': { in: @tag_aliases.values_at('Tag 3') + ['null'] } } } }
+            post classifications_api_v4_concept_scheme_path(params)
+
+            assert_api_count_result(5)
+          end
+
+          test 'api/v4/concept_schemes/id/concepts parameter filter[attribute][skos:broader][notIn] without children' do
+            tree_id = @tags.id
+            params = { id: tree_id, filter: { attribute: { 'skos:broader': { notIn: @tag_aliases.values_at('Tag 1') } } } }
+            post classifications_api_v4_concept_scheme_path(params)
+
+            assert_api_count_result(5)
+          end
+
+          test 'api/v4/concept_schemes/id/concepts parameter filter[attribute][skos:broader][notIn] with children' do
+            tree_id = @tags.id
+            params = { id: tree_id, filter: { attribute: { 'skos:broader': { notIn: @tag_aliases.values_at('Tag 3') } } } }
+            post classifications_api_v4_concept_scheme_path(params)
+
+            assert_api_count_result(3)
+          end
+
+          test 'api/v4/concept_schemes/id/concepts parameter filter[attribute][skos:broader][notIn] root' do
+            tree_id = @tags.id
+            params = { id: tree_id, filter: { attribute: { 'skos:broader': { notIn: ['null'] } } } }
+            post classifications_api_v4_concept_scheme_path(params)
+
+            assert_api_count_result(2)
+          end
+
+          test 'api/v4/concept_schemes/id/concepts parameter filter[attribute][skos:broader][notIn] with children and root' do
+            tree_id = @tags.id
+            params = { id: tree_id, filter: { attribute: { 'skos:broader': { notIn: @tag_aliases.values_at('Tag 3') + ['null'] } } } }
+            post classifications_api_v4_concept_scheme_path(params)
+
+            assert_api_count_result(0)
+          end
+
+          test 'api/v4/concept_schemes/id/concepts parameter filter[attribute][skos:ancestors][in] without children' do
+            tree_id = @tags.id
+            params = { id: tree_id, filter: { attribute: { 'skos:ancestors': { in: @tag_aliases.values_at('Tag 1') } } } }
+            post classifications_api_v4_concept_scheme_path(params)
+
+            assert_api_count_result(0)
+          end
+
+          test 'api/v4/concept_schemes/id/concepts parameter filter[attribute][skos:ancestors][in] with children' do
+            tree_id = @tags.id
+            params = { id: tree_id, filter: { attribute: { 'skos:ancestors': { in: @tag_aliases.values_at('Tag 3') } } } }
+            post classifications_api_v4_concept_scheme_path(params)
+
+            assert_api_count_result(2)
+          end
+
+          test 'api/v4/concept_schemes/id/concepts parameter filter[attribute][skos:ancestors][notIn] without children' do
+            tree_id = @tags.id
+            params = { id: tree_id, filter: { attribute: { 'skos:ancestors': { notIn: @tag_aliases.values_at('Tag 1') } } } }
+            post classifications_api_v4_concept_scheme_path(params)
+
+            assert_api_count_result(5)
+          end
+
+          test 'api/v4/concept_schemes/id/concepts parameter filter[attribute][skos:ancestors][notIn] with children' do
+            tree_id = @tags.id
+            params = { id: tree_id, filter: { attribute: { 'skos:ancestors': { notIn: @tag_aliases.values_at('Tag 3') } } } }
+            post classifications_api_v4_concept_scheme_path(params)
+
+            assert_api_count_result(3)
+          end
+
+          # rubocop:enable Minitest/MultipleAssertions
         end
       end
     end

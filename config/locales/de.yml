@@ -1706,7 +1706,9 @@ de:
       classifications: Klassifizierungen
       api:
         root: Datenschnittstelle
-        classifications: Klassifizierungen
+        classifications:
+          root: Klassifizierungen
+          specification: Spezifikation
         contents:
           root: Inhalte
           specification: Spezifikation

@@ -1,304 +1,376 @@
-# Content specification
+# Inhalt (content) Spezifikation
 
-```javascript
+```json
 {
-    "apiSubversion": "String",
-    "fields": "String",
-    "classification_trees": "[UUID]",
-    "filter": {
+  "apiSubversion": "String",
+  "fields": "String",
+  "classification_trees": "[UUID]",
+  "filter": {
+    "contentId": {
+      "in": "[UUID]",
+      "notIn": "[UUID]"
+    },
+    "endpointId": {
+      "in": "[UUID]",
+      "notIn": "[UUID]"
+    },
+    "filterId": {
+      "in": "[UUID]",
+      "notIn": "[UUID]"
+    },
+    "watchListId": {
+      "in": "[UUID]",
+      "notIn": "[UUID]"
+    },
+    "classificationTreeId": {
+      "in": "[UUID]",
+      "notIn": "[UUID]"
+    },
+    "attribute": {
+      "{attributeName}": {
+        "in": {
+          "max": "Integer|Float|Date|DateTime",
+          "min": "Integer|Float|Date|DateTime",
+          "equals": "String",
+          "like": "String",
+          "bool": "Boolean"
+        },
+        "notIn": {
+          "max": "Integer|Float|Date|DateTime",
+          "min": "Integer|Float|Date|DateTime",
+          "equals": "String",
+          "like": "String",
+          "bool": "Boolean"
+        }
+      }
+    },
+    "schedule": {
+      "in": {
+        "min": "Date|DateTime",
+        "max": "Date|DateTime"
+      }
+    },
+    "classifications|dc:classification": {
+      "in": {
+        "withSubtree": "[UUID]",
+        "withoutSubtree": "[UUID]"
+      },
+      "notIn": {
+        "withSubtree": "[UUID]",
+        "withoutSubtree": "[UUID]"
+      }
+    },
+    "geo": {
+      "in": {
+        "box": [
+          "swLon",
+          "swLat",
+          "neLon",
+          "neLat"
+        ],
+        "perimeter": [
+          "lon",
+          "lat",
+          "distance"
+        ],
+        "shapes": "[UUID]",
+      },
+      "notIn": {
+        "box": [
+          "swLon",
+          "swLat",
+          "neLon",
+          "neLat"
+        ],
+        "perimeter": [
+          "lon",
+          "lat",
+          "distance"
+        ],
+        "shapes": "[UUID]",
+      },
+      "withGeometry": "Boolean"
+    },
+    "creator": {
+      "in": "[UUID]",
+      "notIn": "[UUID]"
+    },
+    "search": "String",
+    "q": "String",
+    "linked": {
+      "{attributeName(,attributeName)}": {
         "contentId": {
-            "in": "[UUID]",
-            "notIn": "[UUID]"
+          "in": "[UUID]",
+          "notIn": "[UUID]"
         },
         "endpointId": {
-            "in": "[UUID]",
-            "notIn": "[UUID]"
+          "in": "[UUID]",
+          "notIn": "[UUID]"
         },
         "filterId": {
-            "in": "[UUID]",
-            "notIn": "[UUID]"
+          "in": "[UUID]",
+          "notIn": "[UUID]"
         },
         "watchListId": {
-            "in": "[UUID]",
-            "notIn": "[UUID]"
+          "in": "[UUID]",
+          "notIn": "[UUID]"
         },
         "classificationTreeId": {
-            "in": "[UUID]",
-            "notIn": "[UUID]"
+          "in": "[UUID]",
+          "notIn": "[UUID]"
         },
         "attribute": {
-            "{attributeName}":{
-                "in": {
-                    "max": "Integer|Float|Date|DateTime",
-                    "min": "Integer|Float|Date|DateTime",
-                    "equals": "String",
-                    "like": "String",
-                    "bool": "Boolean"
-                },
-                "notIn": {
-                    "max": "Integer|Float|Date|DateTime",
-                    "min": "Integer|Float|Date|DateTime",
-                    "equals": "String",
-                    "like": "String",
-                    "bool": "Boolean"
-                }
+          "{attributeName}": {
+            "in": {
+              "max": "Integer|Float|Date|DateTime",
+              "min": "Integer|Float|Date|DateTime",
+              "equals": "String",
+              "like": "String",
+              "bool": "Boolean"
+            },
+            "notIn": {
+              "max": "Integer|Float|Date|DateTime",
+              "min": "Integer|Float|Date|DateTime",
+              "equals": "String",
+              "like": "String",
+              "bool": "Boolean"
             }
-        },
-        "schedule": {
-          "in": {
-            "min": "Date|DateTime",
-            "max": "Date|DateTime"
           }
         },
         "classifications|dc:classification": {
-            "in": {
-                "withSubtree": "[UUID]",
-                "withoutSubtree": "[UUID]"
-            },
-            "notIn": {
-                "withSubtree": "[UUID]",
-                "withoutSubtree": "[UUID]"
-            }
+          "in": {
+            "withSubtree": "[UUID]",
+            "withoutSubtree": "[UUID]"
+          },
+          "notIn": {
+            "withSubtree": "[UUID]",
+            "withoutSubtree": "[UUID]"
+          }
         },
         "geo": {
+          "in": {
+            "box": [
+              "swLon",
+              "swLat",
+              "neLon",
+              "neLat"
+            ],
+            "perimeter": [
+              "lon",
+              "lat",
+              "distance"
+            ],
+            "shapes": "[UUID]",
+          },
+          "notIn": {
+            "box": [
+              "swLon",
+              "swLat",
+              "neLon",
+              "neLat"
+            ],
+            "perimeter": [
+              "lon",
+              "lat",
+              "distance"
+            ],
+            "shapes": "[UUID]",
+          },
+          "withGeometry": "Boolean"
+        },
+        "search": "String",
+        "q": "String"
+      }
+    },
+    "union": [
+      {
+        "contentId": {
+          "in": "[UUID]",
+          "notIn": "[UUID]"
+        },
+        "endpointId": {
+          "in": "[UUID]",
+          "notIn": "[UUID]"
+        },
+        "filterId": {
+          "in": "[UUID]",
+          "notIn": "[UUID]"
+        },
+        "watchListId": {
+          "in": "[UUID]",
+          "notIn": "[UUID]"
+        },
+        "classificationTreeId": {
+          "in": "[UUID]",
+          "notIn": "[UUID]"
+        },
+        "attribute": {
+          "{attributeName}": {
             "in": {
-                "box": ["swLon","swLat","neLon","neLat"],
-                "perimeter": ["lon","lat","distance"],
-                "shapes": "[UUID]",
+              "max": "Integer|Float|Date|DateTime",
+              "min": "Integer|Float|Date|DateTime",
+              "equals": "String",
+              "like": "String",
+              "bool": "Boolean"
             },
             "notIn": {
-                "box": ["swLon","swLat","neLon","neLat"],
-                "perimeter": ["lon","lat","distance"],
-                "shapes": "[UUID]",
-            },
-            "withGeometry": "Boolean"
+              "max": "Integer|Float|Date|DateTime",
+              "min": "Integer|Float|Date|DateTime",
+              "equals": "String",
+              "like": "String",
+              "bool": "Boolean"
+            }
+          }
         },
-        "creator": {
-            "in": "[UUID]",
-            "notIn": "[UUID]"
+        "classifications|dc:classification": {
+          "in": {
+            "withSubtree": "[UUID]",
+            "withoutSubtree": "[UUID]"
+          },
+          "notIn": {
+            "withSubtree": "[UUID]",
+            "withoutSubtree": "[UUID]"
+          }
+        },
+        "geo": {
+          "in": {
+            "box": [
+              "swLon",
+              "swLat",
+              "neLon",
+              "neLat"
+            ],
+            "perimeter": [
+              "lon",
+              "lat",
+              "distance"
+            ],
+            "shapes": "[UUID]"
+          },
+          "notIn": {
+            "box": [
+              "swLon",
+              "swLat",
+              "neLon",
+              "neLat"
+            ],
+            "perimeter": [
+              "lon",
+              "lat",
+              "distance"
+            ],
+            "shapes": "[UUID]"
+          },
+          "withGeometry": "Boolean"
         },
         "search": "String",
         "q": "String",
         "linked": {
-            "{attributeName(,attributeName)}": {
-                "contentId": {
-                    "in": "[UUID]",
-                    "notIn": "[UUID]"
+          "{attributeName(,attributeName)}": {
+            "contentId": {
+              "in": "[UUID]",
+              "notIn": "[UUID]"
+            },
+            "endpointId": {
+              "in": "[UUID]",
+              "notIn": "[UUID]"
+            },
+            "filterId": {
+              "in": "[UUID]",
+              "notIn": "[UUID]"
+            },
+            "watchListId": {
+              "in": "[UUID]",
+              "notIn": "[UUID]"
+            },
+            "classificationTreeId": {
+              "in": "[UUID]",
+              "notIn": "[UUID]"
+            },
+            "attribute": {
+              "{attributeName}": {
+                "in": {
+                  "max": "Integer|Float|Date|DateTime",
+                  "min": "Integer|Float|Date|DateTime",
+                  "equals": "String",
+                  "like": "String",
+                  "bool": "Boolean"
                 },
-                "endpointId": {
-                    "in": "[UUID]",
-                    "notIn": "[UUID]"
-                },
-                "filterId": {
-                    "in": "[UUID]",
-                    "notIn": "[UUID]"
-                },
-                "watchListId": {
-                    "in": "[UUID]",
-                    "notIn": "[UUID]"
-                },
-                "classificationTreeId": {
-                    "in": "[UUID]",
-                    "notIn": "[UUID]"
-                },
-                "attribute": {
-                    "{attributeName}":{
-                        "in": {
-                            "max": "Integer|Float|Date|DateTime",
-                            "min": "Integer|Float|Date|DateTime",
-                            "equals": "String",
-                            "like": "String",
-                            "bool": "Boolean"
-                        },
-                        "notIn": {
-                            "max": "Integer|Float|Date|DateTime",
-                            "min": "Integer|Float|Date|DateTime",
-                            "equals": "String",
-                            "like": "String",
-                            "bool": "Boolean"
-                        }
-                    }
-                },
-                "classifications|dc:classification": {
-                    "in": {
-                        "withSubtree": "[UUID]",
-                        "withoutSubtree": "[UUID]"
-                    },
-                    "notIn": {
-                        "withSubtree": "[UUID]",
-                        "withoutSubtree": "[UUID]"
-                    }
-                },
-                "geo": {
-                    "in": {
-                        "box": ["swLon","swLat","neLon","neLat"],
-                        "perimeter": ["lon","lat","distance"],
-                        "shapes": "[UUID]",
-                    },
-                    "notIn": {
-                        "box": ["swLon","swLat","neLon","neLat"],
-                        "perimeter": ["lon","lat","distance"],
-                        "shapes": "[UUID]",
-                    },
-                    "withGeometry": "Boolean"
-                },
-                "search": "String",
-                "q": "String"
-            }
-        },
-        "union": [
-            {
-                "contentId": {
-                    "in": "[UUID]",
-                    "notIn": "[UUID]"
-                },
-                "endpointId": {
-                    "in": "[UUID]",
-                    "notIn": "[UUID]"
-                },
-                "filterId": {
-                    "in": "[UUID]",
-                    "notIn": "[UUID]"
-                },
-                "watchListId": {
-                    "in": "[UUID]",
-                    "notIn": "[UUID]"
-                },
-                "classificationTreeId": {
-                    "in": "[UUID]",
-                    "notIn": "[UUID]"
-                },
-                "attribute": {
-                    "{attributeName}": {
-                        "in": {
-                            "max": "Integer|Float|Date|DateTime",
-                            "min": "Integer|Float|Date|DateTime",
-                            "equals": "String",
-                            "like": "String",
-                            "bool": "Boolean"
-                        },
-                        "notIn": {
-                            "max": "Integer|Float|Date|DateTime",
-                            "min": "Integer|Float|Date|DateTime",
-                            "equals": "String",
-                            "like": "String",
-                            "bool": "Boolean"
-                        }
-                    }
-                },
-                "classifications|dc:classification": {
-                    "in": {
-                        "withSubtree": "[UUID]",
-                        "withoutSubtree": "[UUID]"
-                    },
-                    "notIn": {
-                        "withSubtree": "[UUID]",
-                        "withoutSubtree": "[UUID]"
-                    }
-                },
-                "geo": {
-                    "in": {
-                        "box": ["swLon", "swLat", "neLon", "neLat"],
-                        "perimeter": ["lon", "lat", "distance"],
-                        "shapes": "[UUID]"
-                    },
-                    "notIn": {
-                        "box": ["swLon", "swLat", "neLon", "neLat"],
-                        "perimeter": ["lon", "lat", "distance"],
-                        "shapes": "[UUID]"
-                    },
-                    "withGeometry": "Boolean"
-                },
-                "search": "String",
-                "q": "String",
-                "linked": {
-                    "{attributeName(,attributeName)}": {
-                        "contentId": {
-                            "in": "[UUID]",
-                            "notIn": "[UUID]"
-                        },
-                        "endpointId": {
-                            "in": "[UUID]",
-                            "notIn": "[UUID]"
-                        },
-                        "filterId": {
-                            "in": "[UUID]",
-                            "notIn": "[UUID]"
-                        },
-                        "watchListId": {
-                            "in": "[UUID]",
-                            "notIn": "[UUID]"
-                        },
-                        "classificationTreeId": {
-                            "in": "[UUID]",
-                            "notIn": "[UUID]"
-                        },
-                        "attribute": {
-                            "{attributeName}": {
-                                "in": {
-                                    "max": "Integer|Float|Date|DateTime",
-                                    "min": "Integer|Float|Date|DateTime",
-                                    "equals": "String",
-                                    "like": "String",
-                                    "bool": "Boolean"
-                                },
-                                "notIn": {
-                                    "max": "Integer|Float|Date|DateTime",
-                                    "min": "Integer|Float|Date|DateTime",
-                                    "equals": "String",
-                                    "like": "String",
-                                    "bool": "Boolean"
-                                }
-                            }
-                        },
-                        "classifications|dc:classification": {
-                            "in": {
-                                "withSubtree": "[UUID]",
-                                "withoutSubtree": "[UUID]"
-                            },
-                            "notIn": {
-                                "withSubtree": "[UUID]",
-                                "withoutSubtree": "[UUID]"
-                            }
-                        },
-                        "geo": {
-                            "in": {
-                                "box": ["swLon", "swLat", "neLon", "neLat"],
-                                "perimeter": ["lon", "lat", "distance"],
-                                "shapes": "[UUID]"
-                            },
-                            "notIn": {
-                                "box": ["swLon", "swLat", "neLon", "neLat"],
-                                "perimeter": ["lon", "lat", "distance"],
-                                "shapes": "[UUID]"
-                            },
-                            "withGeometry": "Boolean"
-                        },
-                        "search": "String",
-                        "q": "String"
-                    }
+                "notIn": {
+                  "max": "Integer|Float|Date|DateTime",
+                  "min": "Integer|Float|Date|DateTime",
+                  "equals": "String",
+                  "like": "String",
+                  "bool": "Boolean"
                 }
-            }
-        ]
-    },
-    "format": "String (json): json",
-    "language": "String: de",
-    "id": "UUID",
-    "include": "String",
-    "page": {
-        "size": "Integer: 25",
-        "number": "Integer: 1",
-        "offset": "Integer: 0",
-        "limit": "Integer: 0"
-    },
-    "section": {
-        "@graph": "Integer [1,0]: 1",
-        "@context": "Integer [1,0]: 1",
-        "meta": "Integer [1,0]: 1",
-        "links": "Integer [1,0]: 1"
-    },
-    "sort": "String ?[+,-] (dct:modified,dct:created,name,*similarity,*proximity.geographic, *proximity.inTime, proximity.occurrence, random): **default",
-    "token": "String"
+              }
+            },
+            "classifications|dc:classification": {
+              "in": {
+                "withSubtree": "[UUID]",
+                "withoutSubtree": "[UUID]"
+              },
+              "notIn": {
+                "withSubtree": "[UUID]",
+                "withoutSubtree": "[UUID]"
+              }
+            },
+            "geo": {
+              "in": {
+                "box": [
+                  "swLon",
+                  "swLat",
+                  "neLon",
+                  "neLat"
+                ],
+                "perimeter": [
+                  "lon",
+                  "lat",
+                  "distance"
+                ],
+                "shapes": "[UUID]"
+              },
+              "notIn": {
+                "box": [
+                  "swLon",
+                  "swLat",
+                  "neLon",
+                  "neLat"
+                ],
+                "perimeter": [
+                  "lon",
+                  "lat",
+                  "distance"
+                ],
+                "shapes": "[UUID]"
+              },
+              "withGeometry": "Boolean"
+            },
+            "search": "String",
+            "q": "String"
+          }
+        }
+      }
+    ]
+  },
+  "format": "String (json): json",
+  "language": "String: de",
+  "id": "UUID",
+  "include": "String",
+  "page": {
+    "size": "Integer: 25",
+    "number": "Integer: 1",
+    "offset": "Integer: 0",
+    "limit": "Integer: 0"
+  },
+  "section": {
+    "@graph": "Integer [1,0]: 1",
+    "@context": "Integer [1,0]: 1",
+    "meta": "Integer [1,0]: 1",
+    "links": "Integer [1,0]: 1"
+  },
+  "sort": "String ?[+,-] (dct:modified,dct:created,name,*similarity,*proximity.geographic, *proximity.inTime, proximity.occurrence, random): **default",
+  "token": "String"
 }
 ```
 
@@ -310,14 +382,13 @@
 
 ## Available attributes for "attributeName"
 
-```javascript
+```json
 {
-    "attributeName":
-        [
-            "dct:created",
-            "dct:modified",
-            "dct:deleted",
-            "schedule|eventSchedule|openingHoursSpecification|dc:diningHoursSpecification|hoursAvailable|validitySchedule"
-        ]
+  "attributeName": [
+    "dct:created",
+    "dct:modified",
+    "dct:deleted",
+    "schedule|eventSchedule|openingHoursSpecification|dc:diningHoursSpecification|hoursAvailable|validitySchedule"
+  ]
 }
 ```
