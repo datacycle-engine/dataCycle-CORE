@@ -126,7 +126,7 @@ module DataCycleCore
               .from(classification_polygon)
               .where(classification_polygon[:classification_alias_id].eq(id))
 
-            contains_queries << st_disjoint(sub_query, thing[:geom_simple])
+            contains_queries << st_intersects(sub_query, thing[:geom_simple]).not
           end
 
           reflect(
