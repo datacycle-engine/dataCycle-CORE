@@ -10,6 +10,58 @@ class PrefillNewConceptTables < ActiveRecord::Migration[6.1]
       WHERE classification_aliases.id IN (
           SELECT ca.id
           FROM classification_aliases ca
+            JOIN classification_trees ct ON ct.classification_alias_id = ca.id
+            JOIN classification_tree_labels ctl ON ctl.id = ct.classification_tree_label_id
+            JOIN primary_classification_groups pcg ON pcg.classification_alias_id = ca.id
+            JOIN classifications cl ON cl.id = pcg.classification_id
+          WHERE ca.deleted_at IS NULL
+            AND ctl.deleted_at IS NOT NULL
+        );
+
+      UPDATE classifications
+      SET deleted_at = NOW()
+      WHERE classifications.id IN (
+          SELECT cl.id
+          FROM classification_aliases ca
+            JOIN classification_trees ct ON ct.classification_alias_id = ca.id
+            JOIN classification_tree_labels ctl ON ctl.id = ct.classification_tree_label_id
+            JOIN primary_classification_groups pcg ON pcg.classification_alias_id = ca.id
+            JOIN classifications cl ON cl.id = pcg.classification_id
+          WHERE cl.deleted_at IS NULL
+            AND ctl.deleted_at IS NOT NULL
+        );
+
+      UPDATE classification_trees
+      SET deleted_at = NOW()
+      WHERE classification_trees.id IN (
+          SELECT ct.id
+          FROM classification_aliases ca
+            JOIN classification_trees ct ON ct.classification_alias_id = ca.id
+            JOIN classification_tree_labels ctl ON ctl.id = ct.classification_tree_label_id
+            JOIN primary_classification_groups pcg ON pcg.classification_alias_id = ca.id
+            JOIN classifications cl ON cl.id = pcg.classification_id
+          WHERE ct.deleted_at IS NULL
+            AND ctl.deleted_at IS NOT NULL
+        );
+
+      UPDATE classification_groups
+      SET deleted_at = NOW()
+      WHERE classification_groups.id IN (
+          SELECT pcg.id
+          FROM classification_aliases ca
+            JOIN classification_trees ct ON ct.classification_alias_id = ca.id
+            JOIN classification_tree_labels ctl ON ctl.id = ct.classification_tree_label_id
+            JOIN primary_classification_groups pcg ON pcg.classification_alias_id = ca.id
+            JOIN classifications cl ON cl.id = pcg.classification_id
+          WHERE pcg.deleted_at IS NULL
+            AND ctl.deleted_at IS NOT NULL
+        );
+
+      UPDATE classification_aliases
+      SET deleted_at = NOW()
+      WHERE classification_aliases.id IN (
+          SELECT ca.id
+          FROM classification_aliases ca
             LEFT OUTER JOIN primary_classification_groups pcg ON pcg.classification_alias_id = ca.id
             LEFT OUTER JOIN classifications c ON c.id = pcg.classification_id
           WHERE ca.deleted_at IS NULL
