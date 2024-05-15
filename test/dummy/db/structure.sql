@@ -2792,6 +2792,13 @@ CREATE INDEX index_assets_on_type ON public.assets USING btree (type);
 
 
 --
+-- Name: index_ccl_on_relation_content_a_content_b; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_ccl_on_relation_content_a_content_b ON public.content_content_links USING btree (relation, content_a_id, content_b_id);
+
+
+--
 -- Name: index_classification_alias_paths_on_ancestor_ids; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3041,13 +3048,6 @@ CREATE INDEX index_concept_histories_on_classification_id ON public.concept_hist
 --
 
 CREATE INDEX index_concept_histories_on_deleted_at ON public.concept_histories USING btree (deleted_at);
-
-
---
--- Name: index_concept_histories_on_external_system_id_and_external_key; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_concept_histories_on_external_system_id_and_external_key ON public.concept_histories USING btree (external_system_id, external_key) WHERE ((external_system_id IS NOT NULL) AND (external_key IS NOT NULL));
 
 
 --
@@ -5023,6 +5023,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240423093936'),
 ('20240424112003'),
 ('20240425095608'),
-('20240425100129');
+('20240425100129'),
+('20240507072758'),
+('20240507134603');
 
 
