@@ -19,12 +19,7 @@ module DataCycleCore
       if request.headers['Range'].present?
         send_blob_byte_range_data @blob, request.headers['Range']
       else
-        http_cache_forever public: true do
-          response.headers['Accept-Ranges'] = 'bytes'
-          response.headers['Content-Length'] = @blob.byte_size.to_s
-
-          send_blob_stream @blob, disposition: params[:disposition]
-        end
+        super
       end
     end
 
@@ -69,20 +64,6 @@ module DataCycleCore
         status: :partial_content,
         type: content_type
       )
-    end
-
-    # Stream the blob from storage directly to the response. The disposition can be controlled by setting +disposition+.
-    # The content type and filename is set directly from the +blob+.
-    def send_blob_stream(blob, disposition: nil)
-      send_stream(
-        filename: blob.filename.sanitized,
-        disposition: blob.forced_disposition_for_serving || disposition || DEFAULT_BLOB_STREAMING_DISPOSITION,
-        type: blob.content_type_for_serving
-      ) do |stream|
-        blob.download do |chunk|
-          stream.write chunk
-        end
-      end
     end
   end
 end
