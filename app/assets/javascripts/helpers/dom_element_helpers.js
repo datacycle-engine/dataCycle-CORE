@@ -228,6 +228,32 @@ const DomElementHelpers = {
 		if (button.dataset.open) button.dataset.open = newId;
 		if (button.dataset.toggle) button.dataset.toggle = newId;
 	},
+	submitFormData(url, method = "POST", formData = [], target = "_self") {
+		const form = document.createElement("form");
+		form.action = url;
+		form.method = method;
+		form.target = target;
+
+		let data = formData;
+		if (formData instanceof FormData) data = Array.from(formData.entries());
+
+		data.push([
+			"authenticity_token",
+			document.querySelector("meta[name='csrf-token']").content,
+		]);
+
+		for (const [key, value] of data) {
+			const input = document.createElement("input");
+			input.type = "hidden";
+			input.name = key;
+			input.value = value;
+			form.appendChild(input);
+		}
+
+		document.body.appendChild(form);
+		form.submit();
+		form.remove();
+	},
 };
 
 Object.freeze(DomElementHelpers);
