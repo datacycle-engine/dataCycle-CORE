@@ -139,6 +139,8 @@ module DataCycleCore
       save if skip_save.blank?
       download_config.sort_by { |v|
         v.second['sorting']
+      }.filter { |_, v|
+        v.dig('depends_on').blank?
       }.each do |(name, _)|
         success &&= download_single(name, options, &)
       end
@@ -197,6 +199,8 @@ module DataCycleCore
       save
       import_config.sort_by { |v|
         v.second['sorting']
+      }.filter { |_, v|
+        v.dig('depends_on').blank?
       }.each do |(name, _)|
         self.last_import_time = Time.zone.now - ts_start
         save
