@@ -288,7 +288,7 @@ module DataCycleCore
 
       next unless respond_to?(config_name)
 
-      new_value = YAML.safe_load(ERB.new(File.read(file_name)).result, permitted_classes: [Symbol])
+      new_value = YAML.safe_load(ERB.new(File.read(file_name)).result, permitted_classes: [Symbol], aliases: true)
       value = try(config_name)
 
       next unless new_value.present? || new_value.is_a?(FalseClass)
