@@ -13,6 +13,29 @@ namespace :dc do
       end
     end
 
+    desc 'append import and download partial jobs to DelayedJob Queue'
+    task :append_partial_job, [:external_source_name, :download_names, :import_names, :mode] => [:environment] do |_, args|
+      external_source = DataCycleCore::ExternalSystem.find_by(name: args.fetch(:external_source_name))
+      external_source ||= DataCycleCore::ExternalSystem.find_by!(identifier: args.fetch(:external_source_name))
+
+      if args[:download_names].blank? && args[:import_names].blank?
+        puts 'No download or import names provided. Exiting...'
+        exit(-1)
+      end
+
+      if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: "download_#{args[:download_names]}", delayed_reference_id: external_source.id, locked_at: nil, failed_at: nil) ||
+         Delayed::Job.exists?(queue: 'importers', delayed_reference_type: "import_#{args[:download_names]}", delayed_reference_id: external_source.id, locked_at: nil, failed_at: nil)
+        # do nothing
+      else
+        args[:download_names].presence.split(',').each do |download_name|
+          DataCycleCore::DownloadPartialJob.perform_later(external_source.id, download_name.squish.to_sym, args.fetch(:mode, nil))
+        end
+        args[:import_names].presence.split(',').each do |import_name|
+          DataCycleCore::ImportPartialJob.perform_later(external_source.id, import_name.squish.to_sym, args.fetch(:mode, nil))
+        end
+      end
+    end
+
     desc 'append vacuum job to importers Queue'
     task :append_vacuum_job, [:full] => [:environment] do |_, args|
       full = args.fetch(:full, false)
