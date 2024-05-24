@@ -33,6 +33,8 @@ namespace :dc do
       query = query.watch_list_id(watch_list.id) unless watch_list.nil?
       contents = query.query.page(1).per(query.query.size)
 
+      logger = Logger.new('log/dc_export_endpoint_jsonld.log')
+
       dir = Rails.public_path.join('uploads', 'export')
       dir = dir.join(*folder_path) if folder_path.present?
       FileUtils.mkdir_p(dir)
@@ -80,8 +82,10 @@ namespace :dc do
 
       contents.find_each do |item|
         queue.append do
+          logger.info("[START PROCESSING] for THING ID: #{item.id} / endpoint: #{endpoint.id}")
           data = Rails.cache.fetch(DataCycleCore::LocalizationService.view_helpers.api_v4_cache_key(item, locales, [['full', 'recursive']], []), expires_in: 1.year + Random.rand(7.days)) do
             I18n.with_locale(item.first_available_locale(locales)) do
+              logger.info("[START JSON] JSON Parsing for THING ID: #{item.id} / endpoint: #{endpoint.id}")
               JSON.parse(renderer.render_to_string(
                            template: 'data_cycle_core/api/v4/api_base/_content_details',
                            layout: false,
@@ -107,11 +111,13 @@ namespace :dc do
                              options: { languages: locales }
                            }
                          ))
+              logger.info("[FINISHED JSON] JSON Parsing for THING ID: #{item.id} / endpoint: #{endpoint.id}")
             end
           end
 
           json_data.push(data.to_json)
           progress.increment
+          logger.info("[FINISH PROCESSING] for THING ID: #{item.id} / endpoint: #{endpoint.id}")
         end
       end
 
