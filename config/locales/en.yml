@@ -784,6 +784,7 @@ en:
         latest_api_access: Last API access
         user_group_names: User groups
         api_access: accessible via API
+        user_role: User role
       mailer:
         subject:
           downloads_popular: TOP 50 Image Downloads

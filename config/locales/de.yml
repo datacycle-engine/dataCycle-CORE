@@ -806,6 +806,7 @@ de:
         latest_api_access: Letzter API Zugriff
         user_group_names: Benutzergruppen
         api_access: Für API freigegeben
+        user_role: Benutzerrolle
       mailer:
         subject:
           downloads_popular: TOP 50 Bild Downloads

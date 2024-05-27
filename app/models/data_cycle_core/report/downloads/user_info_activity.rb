@@ -17,12 +17,13 @@ module DataCycleCore
               FROM user_group_users ugu
               JOIN user_groups ug ON ugu.user_group_id = ug.id
               GROUP BY ugu.user_id
-            )
-            SELECT u.id, u.given_name as first_name,  u.family_name as last_name, u.email, uga.user_group_names, u.created_at, u.updated_at, u.last_sign_in_at, u.current_sign_in_at, u.sign_in_count, u.deleted_at, u.locked_at, u.external, u.ui_locale, lat.latest_api_access, ua.activity_type AS latest_activity_type
+              )
+            SELECT u.id, u.given_name as first_name, u.family_name as last_name, u.email, ur.name as user_role, uga.user_group_names, u.created_at, u.updated_at, u.last_sign_in_at, u.current_sign_in_at, u.sign_in_count, u.deleted_at, u.locked_at, u.external, u.ui_locale, lat.latest_api_access, ua.activity_type AS latest_activity_type
             FROM users u
             LEFT JOIN latest_activity_timestamps lat ON u.id = lat.user_id
             LEFT JOIN activities ua ON u.id = ua.user_id AND lat.latest_api_access = ua.updated_at
             LEFT JOIN user_groups_agg uga ON u.id = uga.user_id
+            LEFT JOIN roles ur ON u.role_id = ur.id
             WHERE u.id IN (\'#{params[:user_ids].join("', '")}\');
           SQL
 
