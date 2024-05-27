@@ -19,6 +19,24 @@ module DataCycleCore
             nil
           end
 
+          def copy_embedded(computed_parameters:, computed_definition:, **_args)
+            return [] unless computed_definition.dig('type') == 'embedded'
+            return_values = []
+            computed_parameters.each_value do |param_value|
+              Array.wrap(param_value).each do |value|
+                include = true
+                Array.wrap(computed_definition.dig('compute', 'value')).each do |config|
+                  unless data_in_filter?(value, config['filter'])
+                    include = false
+                    break
+                  end
+                end
+                return_values << value if include
+              end
+            end
+            return_values
+          end
+
           def get_values_from_hash(data_hash, key_path, filter = nil, limit = nil)
             return data_hash if key_path.blank?
             return if data_hash.blank?
