@@ -1848,6 +1848,8 @@ de:
         instructions: Wegbeschreibung
         directions_public_transport: Öffentliche Verkehrsmittel
         parking: Parken
+        route_start: Start
+        route_end: Ziel
       ratings:
         difficulty_rating: Schwierigkeit
         priority_rating: Priorität

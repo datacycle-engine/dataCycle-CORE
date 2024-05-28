@@ -1819,6 +1819,8 @@ en:
         instructions: Directions
         directions_public_transport: Public transport
         parking: Parking
+        route_start: Start
+        route_end: Destination
       ratings:
         difficulty_rating: Difficulty
         priority_rating: Priority
