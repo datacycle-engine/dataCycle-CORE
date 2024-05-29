@@ -87,30 +87,30 @@ namespace :dc do
             I18n.with_locale(item.first_available_locale(locales)) do
               logger.info("[START JSON] JSON Parsing for THING ID: #{item.id} / endpoint: #{endpoint.id}")
               retval = JSON.parse(renderer.render_to_string(
-                           template: 'data_cycle_core/api/v4/api_base/_content_details',
-                           layout: false,
-                           assigns: {
-                             url_parameters: {},
-                             include_parameters: [['full', 'recursive']],
-                             fields_parameters: [],
-                             field_filter: false,
-                             classification_trees_parameters: [],
-                             classification_trees_filter: false,
-                             section_parameters: { links: 0 },
-                             language: locales,
-                             api_subversion: nil,
-                             api_version: 4,
-                             contents:,
-                             permitted_params: { section: { links: 0 } },
-                             watch_list:,
-                             stored_filter:,
-                             api_context: 'api'
-                           },
-                           locals: {
-                             content: item,
-                             options: { languages: locales }
-                           }
-                         ))
+                                    template: 'data_cycle_core/api/v4/api_base/_content_details',
+                                    layout: false,
+                                    assigns: {
+                                      url_parameters: {},
+                                      include_parameters: [['full', 'recursive']],
+                                      fields_parameters: [],
+                                      field_filter: false,
+                                      classification_trees_parameters: [],
+                                      classification_trees_filter: false,
+                                      section_parameters: { links: 0 },
+                                      language: locales,
+                                      api_subversion: nil,
+                                      api_version: 4,
+                                      contents:,
+                                      permitted_params: { section: { links: 0 } },
+                                      watch_list:,
+                                      stored_filter:,
+                                      api_context: 'api'
+                                    },
+                                    locals: {
+                                      content: item,
+                                      options: { languages: locales }
+                                    }
+                                  ))
               logger.info("[FINISHED JSON] JSON Parsing for THING ID: #{item.id} / endpoint: #{endpoint.id}")
               retval
             end
