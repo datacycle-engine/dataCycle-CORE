@@ -31,6 +31,8 @@ module DataCycleCore
           links: 1
         }.freeze
 
+        VALIDATE_PARAMS_CONTRACT = nil
+
         after_action :log_activity, unless: -> { params[:sl] }
         before_action :set_default_response_format
 
@@ -38,7 +40,7 @@ module DataCycleCore
           return @permitted_params if defined? @permitted_params
 
           permitted = params.permit(*permitted_parameter_keys)
-          validate_api_params(permitted.to_h, validate_params_exceptions)
+          validate_api_params(permitted.to_h, validate_params_exceptions, self.class::VALIDATE_PARAMS_CONTRACT)
           @permitted_params = permitted
         end
 

@@ -343,8 +343,8 @@ module DataCycleCore
       ]
     end
 
-    def validate_api_params(unpermitted_params, exceptions = [])
-      validator = DataCycleCore::MasterData::Contracts::ApiContract.new
+    def validate_api_params(unpermitted_params, exceptions = [], validate_params_contract = nil)
+      validator = validate_params_contract&.new || DataCycleCore::MasterData::Contracts::ApiContract.new
       linked_validator = DataCycleCore::MasterData::Contracts::ApiLinkedContract.new
 
       validation_params = unpermitted_params&.deep_symbolize_keys&.except(*exceptions.map(&:to_sym))
