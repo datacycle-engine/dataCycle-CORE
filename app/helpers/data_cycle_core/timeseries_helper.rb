@@ -8,6 +8,14 @@ module DataCycleCore
       'scatter'
     ].freeze
 
+    def time_series_date(definition, key = 'min')
+      attribute = "date_#{key}"
+
+      return unless definition&.dig('ui', 'show', 'timeseries')&.key?(attribute)
+
+      ERB.new(definition.dig('ui', 'show', 'timeseries', attribute).to_s).result(binding).in_time_zone
+    end
+
     def grouping_options(definition)
       default_options = {
         I18n.t('timeseries.grouping_options.other', locale: active_ui_locale) => [[
