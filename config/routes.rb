@@ -378,6 +378,7 @@ DataCycleCore::Engine.routes.draw do
                 namespace :authentication, path: :auth do
                   post :login, defaults: { warden_strategy: 'email_password' }
                   post :renew_login
+                  get :check_credentials, defaults: { sl: '1' }
                   post :logout
                 end
 

@@ -6,10 +6,14 @@ module DataCycleCore
       class AuthenticationController < ::DataCycleCore::Api::V4::ApiBaseController
         # prepend_before_action :force_email_password_authentication!, only: :login
         before_action :set_original_issuer, only: :login
-        before_action :init_user_api_feature
+        before_action :init_user_api_feature, except: :check_credentials
 
         def permitted_params
           @permitted_params ||= params.permit(*permitted_parameter_keys)
+        end
+
+        def check_credentials
+          render json: { success: true }, status: :ok
         end
 
         def login
