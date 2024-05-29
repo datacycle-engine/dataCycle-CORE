@@ -30,6 +30,21 @@ module DataCycleCore
             nil
           end
 
+          def preview_url(computed_parameters:, **_args)
+            video = DataCycleCore::Video.find_by(id: computed_parameters.values.first)
+            thumb_url = nil
+
+            if video&.file&.attached?
+              ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
+                thumb_url = video.file.preview({}).processed.url
+              end
+            end
+
+            thumb_url
+          rescue ActiveStorage::FileNotFoundError
+            nil
+          end
+
           def thumbnail_url(computed_parameters:, **_args)
             video = DataCycleCore::Video.find_by(id: computed_parameters.values.first)
             thumb_url = nil
