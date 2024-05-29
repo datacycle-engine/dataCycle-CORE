@@ -8,7 +8,6 @@ namespace :dc do
       external_source ||= DataCycleCore::ExternalSystem.find_by!(identifier: args.fetch(:external_source_name))
 
       run_now = args.fetch(:run_now, false) == 'true' || args.fetch(:run_now, false) == true
-      binding.pry
       if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download_import', delayed_reference_id: external_source.id, locked_at: nil, failed_at: nil)
         # do nothing
       elsif run_now
