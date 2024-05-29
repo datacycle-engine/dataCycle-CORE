@@ -2,13 +2,20 @@
 
 namespace :dc do
   namespace :import do
-    desc 'append import and download jobs to DelayedJob Queue'
-    task :append_job, [:external_source_name, :mode] => [:environment] do |_, args|
+    desc 'append import and download jobs to DelayedJob Queue. If run_now is true, the job will be performed immediately'
+    task :append_job, [:external_source_name, :mode, :run_now] => [:environment] do |_, args|
       external_source = DataCycleCore::ExternalSystem.find_by(name: args.fetch(:external_source_name))
       external_source ||= DataCycleCore::ExternalSystem.find_by!(identifier: args.fetch(:external_source_name))
+
+      run_now = args.fetch(:run_now, false) == 'true' || args.fetch(:run_now, false) == true
+      binding.pry
       if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download_import', delayed_reference_id: external_source.id, locked_at: nil, failed_at: nil)
         # do nothing
+      elsif run_now
+        DataCycleCore::DownloadJob.perform_now(external_source.id)
+        DataCycleCore::ImportJob.perform_now(external_source.id, args.fetch(:mode, nil))
       else
+        DataCycleCore::DownloadJob.perform_later(external_source.id)
         DataCycleCore::ImportJob.perform_later(external_source.id, args.fetch(:mode, nil))
       end
     end
