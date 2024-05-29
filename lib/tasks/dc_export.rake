@@ -33,7 +33,7 @@ namespace :dc do
       query = query.watch_list_id(watch_list.id) unless watch_list.nil?
       contents = query.query.page(1).per(query.query.size)
 
-      logger = Logger.new('log/dc_export_endpoint_jsonld.log')
+      logger = Logger.new("log/dc_export_#{endpoint.id}_jsonld.log")
 
       dir = Rails.public_path.join('uploads', 'export')
       dir = dir.join(*folder_path) if folder_path.present?
@@ -86,7 +86,7 @@ namespace :dc do
           data = Rails.cache.fetch(DataCycleCore::LocalizationService.view_helpers.api_v4_cache_key(item, locales, [['full', 'recursive']], []), expires_in: 1.year + Random.rand(7.days)) do
             I18n.with_locale(item.first_available_locale(locales)) do
               logger.info("[START JSON] JSON Parsing for THING ID: #{item.id} / endpoint: #{endpoint.id}")
-              JSON.parse(renderer.render_to_string(
+              retval = JSON.parse(renderer.render_to_string(
                            template: 'data_cycle_core/api/v4/api_base/_content_details',
                            layout: false,
                            assigns: {
@@ -112,6 +112,7 @@ namespace :dc do
                            }
                          ))
               logger.info("[FINISHED JSON] JSON Parsing for THING ID: #{item.id} / endpoint: #{endpoint.id}")
+              retval
             end
           end
 
