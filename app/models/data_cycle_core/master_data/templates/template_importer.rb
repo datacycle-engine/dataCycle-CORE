@@ -151,7 +151,9 @@ module DataCycleCore
               next template_definitions.push(data_template) unless template_dependencies_ready?(template, template_definitions, templates)
 
               transformer = TemplateTransformer.new(template:, content_set: data_template[:set], mixins: @mixins, templates:)
-              transformed_data = transformer.transform
+              transformed_data, errors = transformer.transform
+
+              @errors.concat(errors) && next if errors.present?
 
               data = {
                 name: transformed_data[:name],

@@ -16,6 +16,8 @@ module DataCycleCore
           @mixins = mixins
           @templates = templates
           @mixin_paths = []
+          @errors = []
+          @error_path = "#{@content_set}.#{@template[:name]}"
         end
 
         def main_config_property(key)
@@ -31,7 +33,7 @@ module DataCycleCore
 
           @mixin_paths.uniq! { |v| v.split('=>')&.first }
 
-          @template
+          return @template, @errors
         end
 
         def transform_properties
@@ -82,7 +84,7 @@ module DataCycleCore
             next if value.nil?
 
             if value[:type] == 'mixin'
-              properties.deep_merge!(replace_mixin_property(value[:name].to_sym, value.except(:name, :type)))
+              properties.deep_merge!(replace_mixin_property(key, value[:name].to_sym, value.except(:name, :type)))
             else
               properties.deep_merge!({ key => value.merge(additional_attributes) })
             end
@@ -92,17 +94,20 @@ module DataCycleCore
           properties
         end
 
-        def replace_mixin_property(property_name, additional_attributes)
+        def replace_mixin_property(key, property_name, additional_attributes)
           template_name = @template[:name].underscore_blanks
           mixin = @mixins&.dig(property_name)&.find do |m|
             (m[:set] == @content_set || m[:set].nil?) &&
               (m[:template_name] == template_name || m[:template_name].nil?)
           end
 
-          raise TemplateError.new("properties.#{property_name}"), "mixin for #{property_name} not found!" if mixin.nil?
+          if mixin.nil?
+            @errors.push("#{@error_path}.properties.#{key} => mixin for #{property_name} not found!")
+            return {}
+          end
           return {} if mixin[:properties].blank?
 
-          @mixin_paths.unshift("#{@content_set}.#{@template[:name]}.#{property_name} => #{mixin[:path]}")
+          @mixin_paths.unshift("#{@content_set}.#{@template[:name]}.#{key} => #{mixin[:path]}")
 
           replace_mixin_properties(mixin[:properties], additional_attributes)
         end

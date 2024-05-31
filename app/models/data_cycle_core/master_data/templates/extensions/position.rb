@@ -16,8 +16,10 @@ module DataCycleCore
               position = prop.delete(:position)
               ordered_keys.delete(k)
 
+              @errors.push("#{@error_path}.properties.#{k} => position must be either 'before' or 'after', not both!") && next if position.key?(:after) && position.key?(:before)
+
               if position.key?(:after)
-                raise TemplateError.new("properties.#{k}"), "attribute '#{position[:after]}' missing for position: { after: #{position[:after]} }" if ordered_keys.exclude?(position[:after])
+                @errors.push("#{@error_path}.properties.#{k} => attribute '#{position[:after]}' missing for position: { after: #{position[:after]} }") && next if ordered_keys.exclude?(position[:after])
 
                 if Overlay.overlay_attribute?(k)
                   new_index = ordered_keys.index(position[:after]) + 1
@@ -25,7 +27,7 @@ module DataCycleCore
                   new_index = ordered_keys.rindex { |v| Overlay.key_without_overlay_type(v) == position[:after] } + 1
                 end
               else
-                raise TemplateError.new("properties.#{k}"), "attribute '#{position[:before]}' missing for position: { before: #{position[:before]} }" if ordered_keys.exclude?(position[:before])
+                @errors.push("#{@error_path}.properties.#{k} => attribute '#{position[:before]}' missing for position: { before: #{position[:before]} }") && next if ordered_keys.exclude?(position[:before])
 
                 new_index = ordered_keys.index(position[:before])
               end
