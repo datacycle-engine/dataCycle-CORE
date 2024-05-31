@@ -117,7 +117,7 @@ module DataCycleCore
         def watch_list_ids_query(ids)
           return if ids.blank?
 
-          DataCycleCore::WatchList.where(id: ids).watch_list_data_hashes.select(:hashable_id).except(*UNION_FILTER_EXCEPTS).to_sql
+          DataCycleCore::WatchList.where(id: ids).watch_list_data_hashes.select(:hashable_id).distinct.except(*UNION_FILTER_EXCEPTS).to_sql
         end
 
         def filter_ids_query(ids)
@@ -125,7 +125,7 @@ module DataCycleCore
 
           filters = DataCycleCore::StoredFilter.where(id: ids).index_by(&:id)
 
-          Array.wrap(ids).map { |f| (filters[f]&.apply(skip_ordering: true) || DataCycleCore::Thing.where('1 = 0')).select(:id).except(*UNION_FILTER_EXCEPTS).to_sql }.join(' UNION ')
+          Array.wrap(ids).map { |f| (filters[f]&.things(skip_ordering: true) || DataCycleCore::Thing.where('1 = 0')).select(:id).except(*UNION_FILTER_EXCEPTS).to_sql }.join(' UNION ')
         rescue SystemStackError
           raise DataCycleCore::Error::Filter::UnionFilterRecursionError
         end

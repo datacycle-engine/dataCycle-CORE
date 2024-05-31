@@ -56,6 +56,9 @@ module DataCycleCore
                             where("collections.id IN (#{send(:sanitize_sql_array, [queries.join(' UNION ')])})")
                           }
 
+    scope :shared_with_user_by_user, ->(user) { includes(:shared_users).where(shared_users: { id: user.id }) }
+    scope :shared_with_user_by_user_group, ->(user) { includes(:shared_user_groups).where(shared_user_groups: { id: user.user_groups.pluck(:id) }) }
+    scope :shared_with_user_by_role, ->(user) { includes(:shared_roles).where(shared_roles: { id: user.role_id }) }
     scope :shared_with_user, lambda { |user|
       includes(:shared_users, :shared_user_groups, :shared_roles)
         .where(shared_users: { id: user.id })

@@ -85,6 +85,21 @@ module DataCycleCore
           )
         end
 
+        def shared_by_collection_user_shares(ids = nil)
+          return self if ids.blank?
+
+          users = DataCycleCore::User.where(id: ids)
+          collection_ids = []
+
+          users.each do |user|
+            collection_ids.concat(DataCycleCore::Collection.shared_with_user_by_user(user).pluck(:id))
+          end
+
+          return reflect(@query.where('1 = 0')) if collection_ids.blank?
+
+          union_filter_ids(collection_ids)
+        end
+
         def shared_by_watch_list_shares(ids = nil)
           return self if ids.blank?
 
