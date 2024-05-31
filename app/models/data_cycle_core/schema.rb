@@ -30,7 +30,7 @@ module DataCycleCore
         template = YAML.safe_load(File.open(path), permitted_classes: [Symbol])[template_index]
 
         transformer = DataCycleCore::MasterData::Templates::TemplateTransformer.new(template: template[:data].dup, content_set: DEFAULT_CONTENT_TABLE, mixins: nil)
-        template[:data] = transformer.transform
+        template[:data], _errors = transformer.transform
         template[:path] = path
 
         validator = DataCycleCore::MasterData::Templates::TemplateValidator.new(templates: { DEFAULT_CONTENT_TABLE => [template] }.with_indifferent_access)
