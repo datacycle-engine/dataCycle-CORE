@@ -5,6 +5,8 @@ module DataCycleCore
     module Templates
       module Extensions
         module Position
+          # Adds sorting to the properties of a template
+          # repositions properties based on the position attribute and initial order
           def sort_properties!(properties)
             sortable_props = properties.filter { |_k, prop| prop&.key?(:position) }
 
