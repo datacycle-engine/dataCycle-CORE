@@ -188,6 +188,10 @@ module DataCycleCore
         )
       end
 
+      def sort_proximity_geographic_with(ordering = '', value = [])
+        sort_proximity_geographic(ordering, value)
+      end
+
       def sort_proximity_occurrence_with_distance(ordering = '', value = [])
         proximity_occurrence_with_distance(ordering, value)
       end

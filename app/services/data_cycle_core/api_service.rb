@@ -434,10 +434,21 @@ module DataCycleCore
     end
 
     def self.order_key_with_value(sort)
-      return sort[1..-1], 'DESC' if sort.starts_with?('-')
-      return sort[1..-1], 'ASC' if sort.starts_with?('+')
-      return 'random', sort.match(/random\((.+)\)/i)&.captures&.first&.to_f if sort.starts_with?('random')
-      return sort, 'ASC'
+      match_data = sort.match(/([+-]?)([\w\.]+)\((.+)\)/)
+
+      order = match_data[1] == '-' ? 'DESC' : 'ASC'
+      key = match_data[2] || sort
+      order_value = match_data[3] || nil
+
+      # temp fix for random sort
+      order = order_value&.to_f if key == 'random'
+
+      return key, order, order_value
+
+      # return sort[1..-1], 'DESC' if sort.starts_with?('-')
+      # return sort[1..-1], 'ASC' if sort.starts_with?('+')
+      # return 'random', sort.match(/random\((.+)\)/i)&.captures&.first&.to_f if sort.starts_with?('random')
+      # return sort, 'ASC'
     end
 
     def self.allowed_thread_count
