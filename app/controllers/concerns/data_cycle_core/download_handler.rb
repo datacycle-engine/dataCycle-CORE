@@ -200,7 +200,8 @@ module DataCycleCore
 
     def serializer_for_content(content, scope = [:content], serialize_format = nil)
       return if content.blank?
-      ('DataCycleCore::Serialize::Serializer::' + serialize_format.to_s.classify).constantize if DataCycleCore::Feature::Download.enabled_serializer_for_download?(content, scope, serialize_format)
+
+      DataCycleCore::Feature::Serialize.serializer_for_content(serialize_format) if DataCycleCore::Feature::Download.enabled_serializer_for_download?(content, scope, serialize_format)
     end
 
     def serializer_method_for_content(content)

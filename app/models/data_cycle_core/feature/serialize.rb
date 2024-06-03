@@ -26,6 +26,16 @@ module DataCycleCore
         def asset_versions(content = nil)
           configuration(content).dig('serializers', 'asset').is_a?(Hash) ? configuration(content).dig('serializers', 'asset') : {}
         end
+
+        def serializer_for_content(serialize_format)
+          serializer_name = enabled_serializers[serialize_format.to_s]
+
+          return "DataCycleCore::Serialize::Serializer::#{serialize_format.to_s.classify}".constantize if serializer_name.is_a?(TrueClass)
+
+          return unless serializer_name.is_a?(::String) || serializer_name.is_a?(::Symbol)
+
+          serializer_name.to_s.safe_constantize
+        end
       end
     end
   end
