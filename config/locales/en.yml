@@ -530,6 +530,7 @@ en:
       indesign: Adobe InDesign
       pdf: PDF
       content_score: Content scores (zip)
+      events_pdf: Export for Events (Pdf)
       version:
         original: Original
         default: Default
@@ -589,6 +590,17 @@ en:
     more_errors: "%{count} more errors"
     number: number
     preview_links: Preview links
+
+  events_pdf:
+    time: Time
+    name: Eventname/type
+    location: Location
+    info: Information
+    filter:
+      fulltext: Search
+      date: Date
+      classifications: Eventcategories
+      location: Location
 
   embedded:
     move_down: move down

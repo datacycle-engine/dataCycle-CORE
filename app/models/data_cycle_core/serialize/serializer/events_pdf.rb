@@ -107,7 +107,7 @@ module DataCycleCore
                       formats: [:html],
                       layout: false,
                       locals: { occurences:, endpoint_id: content.id, title:, filter: },
-                      template: 'events_pdf/index'
+                      template: 'data_cycle_core/events_pdf/index'
                     ).squish,
                     root_url: Rails.application.config.action_mailer.default_url_options.dig(:host),
                     protocol: Rails.application.config.force_ssl ? 'https' : 'http'

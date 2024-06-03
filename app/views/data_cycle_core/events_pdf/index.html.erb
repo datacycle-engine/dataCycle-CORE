@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= local_assigns[:title] %> <%= "[#{endpoint_id}]" if local_assigns[:endpoint_id].present? %></title>
+    <style>
+      body {
+        background: white;
+      }
+
+      table {
+        border-spacing: 3px 5px;
+        table-layout: fixed;
+        word-wrap: break-word;
+      }
+
+      .filters .filter {
+        padding: 2px 5px;
+      }
+
+      tr.date, tr.location-name {
+        font-weight: bold;
+        font-size: 1.1rem;
+      }
+
+      tr.date td {
+        padding-top: 10px;
+      }
+
+      tr.date td h2, tr.location-name td h3 {
+        margin: 0;
+        font-size: 1.1rem;
+      }
+
+      tr.location-name td {
+        padding-top: 5px;
+        border-bottom: 2px solid #333;
+      }
+
+      tr.title-row {
+        font-style: italic;
+      }
+
+      tr.title-row td {
+        background: #ccc;
+      }
+
+      tr.event td {
+        border-bottom: 2px dotted #333;
+      }
+
+      td {
+        vertical-align: top;
+        overflow: hidden;
+      }
+
+      td.time {
+        width: 7%;
+      }
+
+      td.event-name, td.content-location, td.organizer {
+        width: 31%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1><%= local_assigns[:title] %></h1>
+
+    <% if local_assigns[:filter].present? %>
+      <div class="filters">
+        <% filter.each do |k, v| %>
+          <div class="filter">
+            <span><%= t("events_pdf.filter.#{k}", locale: active_ui_locale) %>: </span>
+            <span><%== k.to_s == 'date' ? v.slice('from', 'until').map { |t, d| "#{t("terms.#{t}", locale: active_ui_locale)} #{tag.strong(l(d.to_date, format: :default, locale: active_ui_locale))}"  }.join(' ') : tag.strong(v) %></span>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% occurences_per_day = occurences.sort_by { |occurence|
+    occurence[:date]
+  }.group_by { |occurence|
+    l(occurence[:date].to_date, format: :default, locale: active_ui_locale)
+  } %>
+
+    <table>
+      <% occurences_per_day.each do |group_name, occs| %>
+        <tr colspan="4" class="date">
+          <td colspan="4">
+            <h2><%= group_name %></h2>
+          </td>
+        </tr>
+
+        <% occurences_per_location = occs.group_by { |occurence|
+      occurence[:event].content_location&.first&.then{ |c| I18n.with_locale(c.first_available_locale){ c.try(:address).try(:address_locality) || c.title } }
+    } %>
+        <% occurences_per_location.sort_by { |k, v| k.to_s }.each do |location_name, ocs| %>
+          <tr colspan="4" class="location-name">
+            <td colspan="4">
+              <h3><%= location_name %></h3>
+            </td>
+          </tr>
+
+          <tr class="title-row">
+            <td class="time"><%= t('events_pdf.time', locale: active_ui_locale) %></td>
+            <td class="event-name"><%= t('events_pdf.name', locale: active_ui_locale) %></td>
+            <td class="content-location"><%= t('events_pdf.location', locale: active_ui_locale) %></td>
+            <td class="organizer"><%= t('events_pdf.info', locale: active_ui_locale) %></td>
+          </tr>
+
+          <% ocs.each do |occurence| %>
+            <tr class="event">
+
+              <td class="time"><%= occurence[:date].strftime('%H:%M') %></td>
+              <td class="event-name">
+                <strong><%= occurence[:event].name %></strong><br>
+                <span class="art">
+                  <%= occurence[:event].classification_aliases.map(&:name).join(', ') %>
+                </span>
+              </td>
+
+              <td class="content-location">
+                <%= safe_join([
+                      occurence[:event].content_location&.first&.then{ |c| I18n.with_locale(c.first_available_locale){ c.title } },
+                      occurence[:event].content_location&.first&.then{ |c| I18n.with_locale(c.first_available_locale){ c.address&.street_address } },
+                      safe_join([
+                        occurence[:event].content_location&.first&.then{ |c| I18n.with_locale(c.first_available_locale){ c.address&.postal_code } },
+                        occurence[:event].content_location&.first&.then{ |c| I18n.with_locale(c.first_available_locale){ c.address&.address_locality } }
+                      ].compact_blank, ' ')
+                    ].compact_blank, tag.br) %>
+              </td>
+
+              <td class="organizer">
+                <%= safe_join([
+                      occurence[:event].organizer&.first&.then{ |c| I18n.with_locale(c.first_available_locale){ c.title } },
+                      occurence[:event].organizer&.first&.then{ |c| I18n.with_locale(c.first_available_locale){ c.address&.street_address } },
+                      safe_join([
+                        occurence[:event].organizer&.first&.then{ |c| I18n.with_locale(c.first_available_locale){ c.address&.postal_code } },
+                        occurence[:event].organizer&.first&.then{ |c| I18n.with_locale(c.first_available_locale){ c.address&.address_locality } }
+                      ].compact_blank, ' '),
+                      occurence[:event].organizer&.first&.then{ |c| I18n.with_locale(c.first_available_locale){ c.contact_info&.telephone } }
+                    ].compact_blank, tag.br) %>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+      <% end %>
+    </table>
+  </body>
+</html>

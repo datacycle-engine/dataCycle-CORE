@@ -550,6 +550,7 @@ de:
       indesign: Adobe InDesign
       pdf: PDF
       content_score: Content Scores (zip)
+      events_pdf: Export für Veranstaltungen (Pdf)
       version:
         original: Original
         default: Default
@@ -607,6 +608,17 @@ de:
     number: Anzahl
     preview_links: Vorschau-Links
     or: oder
+
+  events_pdf:
+    time: Uhrzeit
+    name: Veranstaltungsname/art
+    location: Ort
+    info: Information
+    filter:
+      fulltext: Volltextsuche
+      date: Datum
+      classifications: Veranstaltungskategorien
+      location: Ort
 
   embedded:
     move_down: nach unten verschieben
