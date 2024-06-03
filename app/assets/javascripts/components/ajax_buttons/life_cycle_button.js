@@ -63,13 +63,16 @@ class LifeCylceButton {
 						);
 					}
 				}
+
 				if (data?.life_cycle_html) {
 					this.lifeCycleContainer.insertAdjacentHTML(
 						"beforebegin",
 						data.life_cycle_html,
 					);
-					this.lifeCycleContainer.remove();
 				}
+
+				this.lifeCycleContainer.remove();
+
 				if (data?.error) CalloutHelpers.show(data.error, "alert");
 				if (data?.success) CalloutHelpers.show(data.success, "success");
 			})
