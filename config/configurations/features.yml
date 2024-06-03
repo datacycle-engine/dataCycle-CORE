@@ -25,6 +25,7 @@
           :json: false
           :indesign: false
           :xml: false
+          :events_pdf: false
       :stored_filter:
         :enabled: false
         :serializers:
@@ -33,6 +34,7 @@
           :json: false
           :indesign: false
           :xml: false
+          :events_pdf: false
     :archive:
       :zip:
         :enabled: false
@@ -94,6 +96,7 @@
     :mvt: false
     :pdf: false
     :content_score: false
+    :events_pdf: false
 
 :overlay:
   :enabled: true
