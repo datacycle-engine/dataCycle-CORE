@@ -8,6 +8,7 @@ module DataCycleCore
       SORT_VALUE_API_MAPPING = {
         'similarity' => 'sort_fulltext_value',
         'proximity.geographic' => 'sort_proximity_geographic_value',
+        'proximity.geographic_with' => 'sort_proximity_geographic_with_value',
         'proximity.inTime' => 'sort_by_proximity_value',
         'proximity.occurrence' => 'sort_by_proximity_value'
       }.freeze
@@ -32,10 +33,15 @@ module DataCycleCore
 
         sort_parameters.unshift({ 'm' => 'fulltext_search', 'o' => 'DESC', 'v' => full_text_search }) if full_text_search.present?
 
-        raw_query_params&.dig(:sort)&.split(',')&.reverse_each do |sort|
-          key, order = DataCycleCore::ApiService.order_key_with_value(sort)
+        raw_query_params&.dig(:sort)&.split(/,(?![^\(]*\))/)&.reverse_each do |sort|
+          key, order, order_value = DataCycleCore::ApiService.order_key_with_value(sort)
           value = DataCycleCore::ApiService.order_value_from_params(key, full_text_search, raw_query_params)
-          value = send(SORT_VALUE_API_MAPPING[key], parameters)&.dig('v') if value.blank? && SORT_VALUE_API_MAPPING.key?(key)
+
+          if value.blank? && SORT_VALUE_API_MAPPING.key?(key) && method(SORT_VALUE_API_MAPPING[key])&.parameters&.size == 1
+            value = send(SORT_VALUE_API_MAPPING[key], parameters)&.dig('v')
+          elsif value.blank? && SORT_VALUE_API_MAPPING.key?(key) && method(SORT_VALUE_API_MAPPING[key])&.parameters&.size == 2
+            value = send(SORT_VALUE_API_MAPPING[key], parameters, order_value)&.dig('v')
+          end
 
           if DataCycleCore::Feature::Sortable.available_advanced_attribute_options.key?(key.underscore)
             value = key.underscore
@@ -64,6 +70,16 @@ module DataCycleCore
         return if params.blank?
 
         params&.find { |f| f['t'] == 'geo_filter' && f['q'] == 'geo_radius' }&.dig('v')&.then { |v| { 'm' => 'proximity_geographic', 'o' => 'DESC', 'v' => v.values_at('lon', 'lat', 'distance') } }
+      end
+
+      def sort_proximity_geographic_with_value(_params, geo)
+        return if geo.blank?
+
+        lon, lat = geo.split(',').map(&:to_f)
+
+        return unless lon.present? && lat.present?
+
+        { 'm' => 'proximity_geographic_with', 'o' => 'ASC', 'v' => [lon, lat] }
       end
 
       def sort_by_proximity_value(params)

@@ -39,13 +39,13 @@ module DataCycleCore
         )
       end
 
-      def sort_random(ordering)
-        unless ordering.nil?
+      def sort_random(_ordering = nil, seed = nil)
+        unless seed.nil?
           random_seed_sql = <<-SQL.squish
             CROSS JOIN (SELECT :seed_value AS seed_value from setseed(:seed_value)) seed_values
           SQL
 
-          random_join_query = ActiveRecord::Base.send(:sanitize_sql_array, [random_seed_sql, seed_value: ordering])
+          random_join_query = ActiveRecord::Base.send(:sanitize_sql_array, [random_seed_sql, seed_value: seed])
         end
 
         # TODO: fix random sorting with moving active query into exists subquery
@@ -186,6 +186,10 @@ module DataCycleCore
               sanitized_order_string('things.id', 'DESC')
             )
         )
+      end
+
+      def sort_proximity_geographic_with(ordering = '', value = [])
+        sort_proximity_geographic(ordering, value)
       end
 
       def sort_proximity_occurrence_with_distance(ordering = '', value = [])
