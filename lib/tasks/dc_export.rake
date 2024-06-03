@@ -38,6 +38,8 @@ namespace :dc do
       dir = Rails.public_path.join('uploads', 'export')
       dir = dir.join(*folder_path) if folder_path.present?
       FileUtils.mkdir_p(dir)
+      # File.write(dir.join("#{endpoint.id}.jsonld"), '')
+      File.write(dir.join("#{endpoint.id}.jsonld.tmp"), '')
 
       renderer = DataCycleCore::Api::V4::ContentsController.renderer.new(
         http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
@@ -78,9 +80,13 @@ namespace :dc do
       size = contents.total_count
       queue = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
       progress = ProgressBar.create(total: size, format: '%t |%w>%i| %a - %c/%C', title: endpoint.id)
-      json_data = []
+      # json_data = []
 
-      contents.find_each do |item|
+      file = File.open(dir.join("#{endpoint.id}.jsonld.tmp"), 'a')
+      # file = File.open(dir.join("#{endpoint.id}.jsonld"), 'a')
+
+      file << result.delete_suffix(']}')
+      contents.each_with_index do |item, _index|
         queue.append do
           logger.info("[START PROCESSING] for THING ID: #{item.id} / endpoint: #{endpoint.id}")
           data = Rails.cache.fetch(DataCycleCore::LocalizationService.view_helpers.api_v4_cache_key(item, locales, [['full', 'recursive']], []), expires_in: 1.year + Random.rand(7.days)) do
@@ -116,7 +122,9 @@ namespace :dc do
             end
           end
 
-          json_data.push(data.to_json)
+          # json_data.push(data.to_json)
+          file << data.to_json + ','
+
           progress.increment
           logger.info("[FINISH PROCESSING] for THING ID: #{item.id} / endpoint: #{endpoint.id}")
         end
@@ -124,7 +132,16 @@ namespace :dc do
 
       queue.wait!
 
-      File.write(dir.join("#{endpoint.id}.jsonld"), result.delete_suffix(']}') + json_data.join(',') + ']}')
+      file.truncate(file.size - 1)
+      file << ']}'
+      file.close
+
+      FileUtils.rm_f(dir.join("#{endpoint.id}.jsonld"))
+      File.rename(dir.join("#{endpoint.id}.jsonld.tmp"), dir.join("#{endpoint.id}.jsonld"))
+
+      logger.info("[FINISHED EXPORT] for things in endpoint: #{endpoint.id}")
+
+      # File.write(dir.join("#{endpoint.id}.jsonld"), result.delete_suffix(']}') + json_data.join(',') + ']}')
     end
   end
 end
