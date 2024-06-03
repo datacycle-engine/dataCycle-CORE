@@ -48,6 +48,8 @@ module DataCycleCore
             key = 'advanced_attribute'
           end
 
+          value = order_value if value.blank? && order_value.present?
+
           sort_parameters.unshift({
             'm' => key.underscore_blanks,
             'o' => order,
