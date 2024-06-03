@@ -434,7 +434,7 @@ module DataCycleCore
     end
 
     def self.order_key_with_value(sort)
-      match_data = sort.match(/([+-]?)([\w\.]+)\((.+)\)/)
+      match_data = sort.match(/([+-]?)([\w:.]+)(?:\(([^)]*)\))?/)
 
       order = match_data[1] == '-' ? 'DESC' : 'ASC'
       key = match_data[2] || sort
