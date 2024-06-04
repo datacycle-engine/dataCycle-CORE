@@ -32,14 +32,15 @@ module DataCycleCore
 
     module Import
       class TemplateMismatchError < StandardError
-        attr_reader :template_name, :expected_template_name, :external_source
+        attr_reader :template_name, :expected_template_name, :external_source, :external_key
 
         def initialize(options)
           @template_name = options[:template_name]
           @expected_template_name = options[:expected_template_name]
           @external_source = options[:external_source]
+          @external_key = options[:external_key]
 
-          super("Template mismatch: #{template_name} != #{expected_template_name} (#{@external_source&.name})")
+          super("Template mismatch: #{template_name} != #{expected_template_name} (#{@external_source&.name} -> #{@external_key})")
         end
       end
     end
