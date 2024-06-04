@@ -5,7 +5,7 @@ module DataCycleCore
     module Validators
       class String < BasicValidator
         def string_keywords
-          ['min', 'max', 'format', 'pattern', 'required']
+          ['min', 'max', 'format', 'pattern', 'required', 'soft_required']
         end
 
         def string_formats
@@ -139,6 +139,10 @@ module DataCycleCore
 
         def required(data, value)
           (@error[:error][@template_key] ||= []) << { path: 'validation.errors.required' } if value && data.blank?
+        end
+
+        def soft_required(data, value)
+          (@error[:warning][@template_key] ||= []) << { path: 'validation.warnings.required' } if value && data.blank?
         end
 
         def telephone_din5008(data)
