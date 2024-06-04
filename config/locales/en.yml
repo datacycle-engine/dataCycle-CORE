@@ -213,6 +213,7 @@ en:
         draw_line_string_auto: car
         draw_line_string_bicycle: bike
         draw_line_string_pedestrian: pedestrian
+        draw_polygon: area
       routing:
         error: error calculating route
     remote_render:

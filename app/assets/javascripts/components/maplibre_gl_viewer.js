@@ -1133,6 +1133,9 @@ class MapLibreGlViewer {
 	isLineString() {
 		return this.type?.includes("LineString");
 	}
+	isPolygon() {
+		return this.type?.includes("Polygon");
+	}
 }
 
 export default MapLibreGlViewer;

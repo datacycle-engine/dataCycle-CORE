@@ -236,6 +236,7 @@ de:
         draw_line_string_auto: Auto
         draw_line_string_bicycle: Rad
         draw_line_string_pedestrian: Fußgänger
+        draw_polygon: Fläche
       routing:
         error: Fehler beim Berechnen der Route
     remote_render:
