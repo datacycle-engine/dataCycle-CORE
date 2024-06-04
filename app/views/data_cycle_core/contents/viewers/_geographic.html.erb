@@ -13,7 +13,7 @@
       } do %>
 
   <% value ||= options.dig(:item_diff, 1) %>
-  <% geometry_type = (value.presence&.geometry_type || definition.dig('ui', 'edit', 'type')).to_s %>
+  <% geometry_type = (value.presence&.geometry_type || definition.dig('ui', 'edit', 'type') || 'Point').to_s %>
   <% geometry_type = "Multi#{geometry_type}" unless geometry_type == 'Point' || geometry_type.start_with?('Multi') %>
   <% geometry_class = geometry_type&.downcase&.delete_prefix('multi') %>
 
