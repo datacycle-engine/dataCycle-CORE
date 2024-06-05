@@ -37,7 +37,7 @@ module DataCycleCore
                 content_part
                   &.send(params['attribute'])
                   &.find do |c|
-                    c.name == I18n.t(params['name'], default: params['name'])
+                    c.name == I18n.t(params['name'], default: params['name']&.split('.')&.last)
                   end
               else
                 content_part&.send(params['attribute'])
