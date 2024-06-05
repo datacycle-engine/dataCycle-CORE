@@ -755,6 +755,32 @@ CREATE FUNCTION public.update_template_definitions_trigger() RETURNS trigger
 
 
 --
+-- Name: update_template_name_dependent_in_things(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_template_name_dependent_in_things() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+      DECLARE template_data record;
+
+      BEGIN
+      SELECT tt.boost, tt.content_type
+      FROM thing_templates tt
+      WHERE tt.template_name = NEW.template_name
+      LIMIT 1 INTO template_data;
+
+      NEW.boost = template_data.boost;
+      NEW.content_type = template_data.content_type;
+      NEW.cache_valid_since = NOW();
+
+      RETURN NEW;
+
+      END;
+
+      $$;
+
+
+--
 -- Name: upsert_ca_paths_transitive(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1591,15 +1617,15 @@ ALTER SEQUENCE public.delayed_jobs_id_seq OWNED BY public.delayed_jobs.id;
 --
 
 CREATE VIEW public.delayed_jobs_statistics AS
- SELECT delayed_jobs.queue AS queue_name,
-    sum(1) FILTER (WHERE (delayed_jobs.failed_at IS NOT NULL)) AS failed,
-    sum(1) FILTER (WHERE ((delayed_jobs.failed_at IS NULL) AND (delayed_jobs.locked_at IS NOT NULL) AND (delayed_jobs.locked_by IS NOT NULL))) AS running,
-    sum(1) FILTER (WHERE ((delayed_jobs.failed_at IS NULL) AND (delayed_jobs.locked_at IS NULL) AND (delayed_jobs.locked_by IS NULL))) AS queued,
-    array_agg(DISTINCT delayed_jobs.delayed_reference_type) FILTER (WHERE (delayed_jobs.failed_at IS NOT NULL)) AS failed_types,
-    array_agg(DISTINCT delayed_jobs.delayed_reference_type) FILTER (WHERE ((delayed_jobs.failed_at IS NULL) AND (delayed_jobs.locked_at IS NOT NULL) AND (delayed_jobs.locked_by IS NOT NULL))) AS running_types,
-    array_agg(DISTINCT delayed_jobs.delayed_reference_type) FILTER (WHERE ((delayed_jobs.failed_at IS NULL) AND (delayed_jobs.locked_at IS NULL) AND (delayed_jobs.locked_by IS NULL))) AS queued_types
+ SELECT queue AS queue_name,
+    sum(1) FILTER (WHERE (failed_at IS NOT NULL)) AS failed,
+    sum(1) FILTER (WHERE ((failed_at IS NULL) AND (locked_at IS NOT NULL) AND (locked_by IS NOT NULL))) AS running,
+    sum(1) FILTER (WHERE ((failed_at IS NULL) AND (locked_at IS NULL) AND (locked_by IS NULL))) AS queued,
+    array_agg(DISTINCT delayed_reference_type) FILTER (WHERE (failed_at IS NOT NULL)) AS failed_types,
+    array_agg(DISTINCT delayed_reference_type) FILTER (WHERE ((failed_at IS NULL) AND (locked_at IS NOT NULL) AND (locked_by IS NOT NULL))) AS running_types,
+    array_agg(DISTINCT delayed_reference_type) FILTER (WHERE ((failed_at IS NULL) AND (locked_at IS NULL) AND (locked_by IS NULL))) AS queued_types
    FROM public.delayed_jobs
-  GROUP BY delayed_jobs.queue;
+  GROUP BY queue;
 
 
 --
@@ -1717,16 +1743,16 @@ CREATE TABLE public.pg_dict_mappings (
 --
 
 CREATE VIEW public.primary_classification_groups AS
- SELECT DISTINCT ON (classification_groups.classification_id) classification_groups.id,
-    classification_groups.classification_id,
-    classification_groups.classification_alias_id,
-    classification_groups.external_source_id,
-    classification_groups.seen_at,
-    classification_groups.created_at,
-    classification_groups.updated_at,
-    classification_groups.deleted_at
+ SELECT DISTINCT ON (classification_id) id,
+    classification_id,
+    classification_alias_id,
+    external_source_id,
+    seen_at,
+    created_at,
+    updated_at,
+    deleted_at
    FROM public.classification_groups
-  ORDER BY classification_groups.classification_id, classification_groups.created_at;
+  ORDER BY classification_id, created_at;
 
 
 --
@@ -4293,6 +4319,13 @@ CREATE TRIGGER update_template_definitions_trigger AFTER UPDATE ON public.thing_
 
 
 --
+-- Name: things update_template_name_in_things_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_template_name_in_things_trigger BEFORE UPDATE OF template_name ON public.things FOR EACH ROW WHEN (((old.template_name)::text IS DISTINCT FROM (new.template_name)::text)) EXECUTE FUNCTION public.update_template_name_dependent_in_things();
+
+
+--
 -- Name: thing_templates update_thing_templates_schema_types; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -5025,6 +5058,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240425095608'),
 ('20240425100129'),
 ('20240507072758'),
-('20240507134603');
+('20240507134603'),
+('20240604110021');
 
 

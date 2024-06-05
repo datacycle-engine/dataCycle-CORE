@@ -34,11 +34,8 @@ module DataCycleCore
               if !content_part.respond_to?(params['attribute'])
                 nil
               elsif params['name']
-                content_part
-                  &.send(params['attribute'])
-                  &.find do |c|
-                    c.name == I18n.t(params['name'], default: params['name']&.split('.')&.last)
-                  end
+                content_part&.send(params['attribute'])&.find { |c| c.name == I18n.t(params['name'], default: params['name']) } ||
+                  content_part&.send(params['attribute'])&.find { |c| c.name == I18n.t(params['name'], default: params['name']&.split('.')&.last) }
               else
                 content_part&.send(params['attribute'])
               end
