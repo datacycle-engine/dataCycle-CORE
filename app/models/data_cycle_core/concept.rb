@@ -38,6 +38,26 @@ module DataCycleCore
     scope :search, ->(q) { includes(:classification_alias_path).where("ARRAY_TO_STRING(full_path_names, ' | ') ILIKE :q OR (concepts.description_i18n ->> :locale) ILIKE :q OR (concepts.name_i18n ->> :locale) ILIKE :q", { locale: I18n.locale, q: "%#{q}%" }).references(:classification_alias_path) }
     scope :by_full_paths, ->(full_paths) { includes(:classification_alias_path).where('classification_alias_paths.full_path_names IN (?)', Array.wrap(full_paths).map { |p| p.split('>').map(&:strip).reverse.to_pg_array }).references(:classification_alias_path) } # rubocop:disable Rails/WhereEquals
 
+    scope :for_tree, ->(tree_name) { tree_name.blank? ? none : includes(:concept_scheme).where(concept_schemes: { name: tree_name }) }
+    scope :from_tree, ->(tree_name) { for_tree(tree_name) }
+    scope :with_name, ->(*names) { where(name: names.flatten) }
+    scope :with_internal_name, ->(*names) { where(internal_name: names.flatten) }
+    scope :without_name, ->(*names) { where.not(name: names.flatten) }
+    scope :order_by_similarity, lambda { |term|
+                                  max_cardinality = ClassificationAlias::Path.pluck(Arel.sql('MAX(CARDINALITY(full_path_names))')).max
+
+                                  joins(:classification_alias_path).reorder(nil).order(
+                                    [
+                                      Arel.sql(
+                                        (1..max_cardinality).map { |c|
+                                          "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> :term)), 0)"
+                                        }.join(' + ') + ' DESC'.to_s
+                                      ),
+                                      term:
+                                    ]
+                                  )
+                                }
+
     validate :validate_color_format
 
     # keep readonly until reverse triggers are defined and working
@@ -81,43 +101,6 @@ module DataCycleCore
 
         find(ca.id)
       end
-    end
-
-    def self.for_tree(tree_name)
-      return none if tree_name.blank?
-
-      includes(:concept_scheme).where(concept_scheme: { name: tree_name })
-    end
-
-    def self.from_tree(tree_name)
-      for_tree(tree_name)
-    end
-
-    def self.with_name(*names)
-      where(name: names.flatten)
-    end
-
-    def self.with_internal_name(*names)
-      where(internal_name: names.flatten)
-    end
-
-    def self.without_name(*names)
-      where.not(name: names.flatten)
-    end
-
-    def self.order_by_similarity(term)
-      max_cardinality = ClassificationAlias::Path.pluck(Arel.sql('MAX(CARDINALITY(full_path_names))')).max
-
-      joins(:classification_alias_path).reorder(nil).order(
-        [
-          Arel.sql(
-            (1..max_cardinality).map { |c|
-              "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> :term)), 0)"
-            }.join(' + ') + ' DESC'.to_s
-          ),
-          term:
-        ]
-      )
     end
 
     def full_path

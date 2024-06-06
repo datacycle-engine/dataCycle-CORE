@@ -9,6 +9,7 @@ module DataCycleCore
     belongs_to :collection, -> { where(data_links: { item_type: 'DataCycleCore::Collection' }) }, foreign_key: :item_id
     belongs_to :watch_list, -> { where(type: 'DataCycleCore::WatchList', data_links: { item_type: 'DataCycleCore::Collection' }) }, foreign_key: :item_id
     belongs_to :stored_filter, -> { where(type: 'DataCycleCore::StoredFilter', data_links: { item_type: 'DataCycleCore::Collection' }) }, foreign_key: :item_id
+    belongs_to :thing, -> { where(data_links: { item_type: 'DataCycleCore::Thing' }) }, foreign_key: :item_id
 
     belongs_to :creator, class_name: :User
     belongs_to :receiver, class_name: :User
