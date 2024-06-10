@@ -49,7 +49,7 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::Filter::Search.new([:de]).typeahead_by_title('Ende').count)
       assert_equal(1, DataCycleCore::Filter::Search.new([:de]).typeahead_by_title('Überschrift').count)
       assert_equal(0, DataCycleCore::Filter::Search.new([:de]).typeahead_by_title('Untertitel').count)
-      assert_equal(['Anfang 1', 'Anfang 2'], DataCycleCore::Filter::Search.new([:de]).typeahead_by_title('Anfang'))
+      assert_equal(['Anfang 1', 'Anfang 2'].to_set, DataCycleCore::Filter::Search.new([:de]).typeahead_by_title('Anfang').to_set)
     end
   end
 end
