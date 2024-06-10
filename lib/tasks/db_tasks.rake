@@ -17,6 +17,10 @@ namespace :db do
 
     desc 'check before migrations'
     task check: :environment do
+      # check for missing pg_dict_mappings
+      # missing_pg_dict_mappings = DataCycleCore::PgDictMapping.check_missing
+      # abort("missing pg_dict_mappings (#{missing_pg_dict_mappings.join(', ')})!") if missing_pg_dict_mappings.present?
+
       result = ActiveRecord::Base.connection.execute <<-SQL.squish
         WITH duplicate_external_classification AS (
           SELECT classifications.external_source_id,

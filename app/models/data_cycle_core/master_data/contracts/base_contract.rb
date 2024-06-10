@@ -9,6 +9,7 @@ module DataCycleCore
         UUID_OR_STRING_OF_UUIDS_REGEX = /^(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*)?(,(\s*[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}\s*))*$/i
         UUID_REGEX = /^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i
         NULL_REGEX = /^NULL$/i
+        WEIGHT_REGEX = /^[ABCD]{1,4}$/i
 
         SORTING_VALIDATION = Dry::Types['string'].constructor do |input|
           next input unless input&.starts_with?('random')
@@ -31,6 +32,7 @@ module DataCycleCore
           optional(:dataFormat).filled(:string)
           optional(:search).value(:string)
           optional(:limit).value(:integer)
+          optional(:weight).filled(:str?, format?: WEIGHT_REGEX)
         end
 
         EXTERNAL_IDENTITY = Dry::Schema.Params do

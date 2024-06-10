@@ -596,3 +596,6 @@
   :enabled: false
   :attribute_keys:
     - gravity
+
+:ts_query_fulltext_search:
+  :enabled: false

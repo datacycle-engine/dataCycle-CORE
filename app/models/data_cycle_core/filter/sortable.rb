@@ -335,7 +335,7 @@ module DataCycleCore
               "things.boost * (
               8 * similarity(searches.classification_string, :search_string) +
               4 * similarity(searches.headline, :search_string) +
-              2 * ts_rank_cd(searches.words, plainto_tsquery(COALESCE(pg_dict_mappings.dict, 'pg_catalog.simple')::regconfig, :search),16) +
+              2 * ts_rank_cd(searches.words, plainto_tsquery(pg_dict_mappings.dict, :search),16) +
               1 * similarity(searches.full_text, :search_string))"
             ),
             search_string: "%#{search_string}%",
@@ -354,19 +354,26 @@ module DataCycleCore
         )
       end
 
-      alias sort_similarity sort_fulltext_search
+      def sort_ts_rank_fulltext_search(ordering, value)
+        return self if value.blank?
 
-      def sort_fulltext_search_with_cte(ordering)
+        q = text_to_tsquery(value)
+        locale = @locale&.first || I18n.available_locales.first.to_s
+
         reflect(
           @query
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ? LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale', locale]))
             .reorder(nil)
             .order(
-              sanitized_order_string('fulltext_boost', ordering, true),
+              sanitized_order_string(ActiveRecord::Base.send(:sanitize_sql_for_order, [Arel.sql('ts_rank_cd(searches.search_vector, to_tsquery(pg_dict_mappings.dict, ?), 2)'), q]), ordering, true),
               sanitized_order_string('things.updated_at', 'DESC'),
               sanitized_order_string('things.id', 'DESC')
             )
         )
       end
+
+      alias sort_fulltext_search sort_ts_rank_fulltext_search if Feature::TsQueryFulltextSearch.enabled?
+      alias sort_similarity sort_fulltext_search
 
       def sanitized_order_string(order_string, order, nulls_last = false)
         raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for ordering: #{order}" unless ['ASC', 'DESC'].include?(order)

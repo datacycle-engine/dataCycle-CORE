@@ -17,23 +17,8 @@ namespace :dc do
     namespace :search do
       desc 'rebuild the searches table'
       task :rebuild, [:template_names] => :environment do |_, args|
-        temp_time = Time.zone.now
-        template_names = args.template_names&.split('|')&.map(&:squish)
-        puts 'UPDATING SEARCH ENTRIES'
-
-        query = DataCycleCore::ThingTemplate.where.not(content_type: 'embedded')
-        query = query.where(template_name: template_names) if template_names.present?
-
-        query.find_each do |thing_template|
-          strategy = DataCycleCore::Update::UpdateSearch
-          DataCycleCore::Update::Update.new(type: DataCycleCore::Thing, template: DataCycleCore::Thing.new(thing_template:), strategy:, transformation: nil)
-        end
-
-        clean_up_query = DataCycleCore::Search.where('searches.updated_at < ?', temp_time)
-        clean_up_query = clean_up_query.where(data_type: template_names) if template_names.present?
-        clean_up_count = clean_up_query.delete_all
-
-        puts "REMOVED #{clean_up_count} orphaned entries."
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:search:rebuild"].invoke(args.template_names)
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:search:rebuild"].reenable
       end
     end
 

@@ -175,6 +175,19 @@ module DataCycleCore
           }
         end
 
+        def typeahead_by_title
+          query = build_search_query
+          words = query.typeahead_by_title(permitted_params[:search], @language, permitted_params[:limit] || 10)
+
+          render json: {
+            '@context' => api_plain_context(@language),
+            '@graph' => {
+              '@type' => 'dcls:Statistics',
+              'suggest' => words
+            }
+          }
+        end
+
         def deleted
           deleted_contents = DataCycleCore::Thing::History.where.not(deleted_at: nil).where.not(content_type: 'embedded')
 
@@ -204,7 +217,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :language, :uuids, :external_source_id, :external_keys, :search, :limit, uuid: [], filter: {}, 'dc:liveData': [:'@id', :minPrice]]
+          super + [:id, :language, :uuids, :external_source_id, :external_keys, :search, :limit, :weight, uuid: [], filter: {}, 'dc:liveData': [:'@id', :minPrice]]
         end
 
         # @todo: remove obsolete method?

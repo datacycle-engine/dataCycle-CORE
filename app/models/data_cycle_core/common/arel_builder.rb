@@ -28,8 +28,8 @@ module DataCycleCore
         Arel::Nodes::NamedFunction.new('plainto_tsquery', [dict || quoted('simple'), string])
       end
 
-      def get_dict(column)
-        Arel::Nodes::NamedFunction.new('get_dict', [column])
+      def to_tsquery(string, dict = nil)
+        Arel::Nodes::NamedFunction.new('to_tsquery', [dict || quoted('simple'), string])
       end
     end
   end

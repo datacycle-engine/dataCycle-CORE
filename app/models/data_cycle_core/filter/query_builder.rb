@@ -329,10 +329,14 @@ module DataCycleCore
         DataCycleCore::ThingTemplate.arel_table
       end
 
+      def pg_dict_mapping
+        DataCycleCore::PgDictMapping.arel_table
+      end
+
       def search_exists(query_string, fulltext_search = false)
         search_query = search
 
-        search_query = search_query.join(Arel.sql(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale']))) if fulltext_search
+        search_query = search_query.join(pg_dict_mapping, Arel::Nodes::OuterJoin).on(pg_dict_mapping[:locale].eq(search[:locale])) if fulltext_search
 
         if @locale.present?
           search_query
@@ -340,13 +344,13 @@ module DataCycleCore
               search[:content_data_id].eq(thing[:id])
                 .and(query_string)
                 .and(search[:locale].in(@locale))
-            ).exists
+            ).project(1).exists
         else
           search_query
             .where(
               search[:content_data_id].eq(thing[:id])
                 .and(query_string)
-            ).exists
+            ).project(1).exists
         end
       end
 

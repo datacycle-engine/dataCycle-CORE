@@ -539,8 +539,8 @@ CREATE FUNCTION public.geom_simple_update() RETURNS trigger
 --
 
 CREATE FUNCTION public.get_dict(lang character varying) RETURNS regconfig
-    LANGUAGE plpgsql
-    AS $$ DECLARE dict varchar; BEGIN SELECT pg_dict_mappings.dict::regconfig INTO dict FROM pg_dict_mappings WHERE pg_dict_mappings.locale IN (lang, 'simple') LIMIT 1; IF dict IS NULL THEN dict := 'pg_catalog.simple'::regconfig; END IF; RETURN dict; END; $$;
+    LANGUAGE plpgsql IMMUTABLE STRICT PARALLEL SAFE
+    AS $$ DECLARE dict regconfig; BEGIN SELECT pg_dict_mappings.dict INTO dict FROM pg_dict_mappings WHERE pg_dict_mappings.locale = lang LIMIT 1; RETURN dict; END; $$;
 
 
 --
@@ -648,11 +648,7 @@ CREATE FUNCTION public.to_thing_history_translation(content_id uuid, new_history
 
 CREATE FUNCTION public.tsvectorsearchupdate() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$
-      BEGIN
-      	NEW.words := pg_catalog.to_tsvector(get_dict(NEW.locale), NEW.full_text::text);
-        RETURN NEW;
-      END;$$;
+    AS $$ BEGIN NEW.words := to_tsvector(NEW.dict, NEW.full_text::text); RETURN NEW; END; $$;
 
 
 --
@@ -743,6 +739,15 @@ CREATE FUNCTION public.update_concept_schemes_trigger_function() RETURNS trigger
 CREATE FUNCTION public.update_concepts_trigger_function() RETURNS trigger
     LANGUAGE plpgsql
     AS $$ BEGIN UPDATE concepts SET internal_name = uca.internal_name, name_i18n = coalesce(uca.name_i18n, '{}'), description_i18n = coalesce(uca.description_i18n, '{}'), external_system_id = uca.external_source_id, external_key = coalesce(uca.external_key, concepts.external_key), order_a = uca.order_a, assignable = uca.assignable, internal = uca.internal, uri = uca.uri, ui_configs = coalesce(uca.ui_configs, '{}'), updated_at = uca.updated_at FROM ( SELECT nca.* FROM old_classification_aliases oca INNER JOIN new_classification_aliases nca ON oca.id = nca.id WHERE oca.internal_name IS DISTINCT FROM nca.internal_name OR oca.name_i18n IS DISTINCT FROM nca.name_i18n OR oca.description_i18n IS DISTINCT FROM nca.description_i18n OR oca.external_source_id IS DISTINCT FROM nca.external_source_id OR oca.external_key IS DISTINCT FROM nca.external_key OR oca.order_a IS DISTINCT FROM nca.order_a OR oca.assignable IS DISTINCT FROM nca.assignable OR oca.internal IS DISTINCT FROM nca.internal OR oca.uri IS DISTINCT FROM nca.uri OR oca.ui_configs IS DISTINCT FROM nca.ui_configs OR oca.updated_at IS DISTINCT FROM nca.updated_at ) "uca" WHERE uca.id = concepts.id; RETURN NULL; END; $$;
+
+
+--
+-- Name: update_dict_in_searches(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.update_dict_in_searches() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN NEW.dict = get_dict(NEW.locale); RETURN NEW; END; $$;
 
 
 --
@@ -1734,7 +1739,7 @@ CREATE TABLE public.external_systems (
 
 CREATE TABLE public.pg_dict_mappings (
     locale character varying NOT NULL,
-    dict character varying NOT NULL
+    dict regconfig NOT NULL
 );
 
 
@@ -1859,7 +1864,10 @@ CREATE TABLE public.searches (
     classification_aliases_mapping uuid[],
     classification_ancestors_mapping uuid[],
     words_typeahead tsvector,
-    self_contained boolean DEFAULT true NOT NULL
+    self_contained boolean DEFAULT true NOT NULL,
+    slug character varying,
+    dict regconfig,
+    search_vector tsvector GENERATED ALWAYS AS ((((setweight(to_tsvector(dict, (COALESCE(headline, ''::character varying))::text), 'A'::"char") || setweight(to_tsvector(dict, (COALESCE(slug, ''::character varying))::text), 'B'::"char")) || setweight(to_tsvector(dict, (COALESCE(classification_string, ''::character varying))::text), 'C'::"char")) || setweight(to_tsvector(dict, COALESCE(full_text, ''::text)), 'D'::"char"))) STORED
 );
 
 
@@ -3777,6 +3785,13 @@ CREATE UNIQUE INDEX pg_dict_mappings_locale_dict_idx ON public.pg_dict_mappings 
 
 
 --
+-- Name: searches_search_vector_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX searches_search_vector_idx ON public.searches USING gin (search_vector);
+
+
+--
 -- Name: thing_attribute_timestamp_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4016,6 +4031,20 @@ CREATE TRIGGER delete_schedule_occurences_trigger AFTER DELETE ON public.schedul
 --
 
 CREATE TRIGGER delete_things_external_source_trigger BEFORE UPDATE OF external_key, external_source_id ON public.things FOR EACH ROW WHEN ((((old.external_key)::text IS DISTINCT FROM (new.external_key)::text) OR ((old.external_source_id IS DISTINCT FROM new.external_source_id) AND (new.external_key IS NULL) AND (new.external_source_id IS NULL)))) EXECUTE FUNCTION public.delete_things_external_source_trigger_function();
+
+
+--
+-- Name: searches dict_insert_in_searches_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER dict_insert_in_searches_trigger BEFORE INSERT ON public.searches FOR EACH ROW EXECUTE FUNCTION public.update_dict_in_searches();
+
+
+--
+-- Name: searches dict_update_in_searches_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER dict_update_in_searches_trigger BEFORE UPDATE OF locale ON public.searches FOR EACH ROW WHEN (((old.locale)::text IS DISTINCT FROM (new.locale)::text)) EXECUTE FUNCTION public.update_dict_in_searches();
 
 
 --
@@ -5059,6 +5088,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240425100129'),
 ('20240507072758'),
 ('20240507134603'),
-('20240604110021');
+('20240604110021'),
+('20240606080312');
 
 

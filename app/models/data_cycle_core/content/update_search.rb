@@ -32,13 +32,14 @@ module DataCycleCore
 
           begin
             DataCycleCore::Search.where(content_data_id: id, locale: language).first_or_initialize.tap do |s|
-              s.full_text = search_data[:full_text]&.unicode_normalize(:nfkc)
               s.created_at = created_at
               s.updated_at = Time.zone.now
               s.headline = search_data[:headline]
+              s.slug = search_data[:slug]
               s.classification_string = search_data[:classification_string]
-              s.data_type = template_name
+              s.full_text = search_data[:full_text]&.unicode_normalize(:nfkc)
               s.all_text = search_data[:all_text]&.unicode_normalize(:nfkc)
+              s.data_type = template_name
               s.validity_period = validity_string
               s.boost = boost
               s.schema_type = schema_type
@@ -70,9 +71,10 @@ module DataCycleCore
 
       def parse_search_data
         string_hash = {}
-        string_hash[:full_text] = DataCycleCore::MasterData::DataConverter.string_to_string(search_property_names.map { |item| try(item) }.join(' ').gsub("'", "''"))
+        string_hash[:full_text] = DataCycleCore::MasterData::DataConverter.string_to_string(search_property_names.map { |item| try(item) }.join(' ').gsub("'", "''"))&.strip_tags
         string_hash[:full_text] = '' if string_hash[:full_text].nil?
-        string_hash[:headline] = try('title')
+        string_hash[:headline] = try(:title)
+        string_hash[:slug] = try(:slug)
         string_hash[:headline] = DataCycleCore::MasterData::DataConverter.string_to_string(string_hash[:headline].gsub("'", "''")) unless string_hash[:headline].nil?
         string_hash[:headline] = '' if string_hash[:headline].nil?
 
