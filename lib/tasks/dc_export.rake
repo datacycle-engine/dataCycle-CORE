@@ -31,14 +31,13 @@ namespace :dc do
 
       query = filter.apply(watch_list:)
       query = query.watch_list_id(watch_list.id) unless watch_list.nil?
-      contents = query.query.page(1).per(query.query.size)
+      contents = query.query.page(1).per(query.query.size).where(id: 'a5485f8f-2ff5-4f27-b768-1f9f1f91b795')
 
       logger = Logger.new("log/dc_export_#{endpoint.id}_jsonld.log")
 
       dir = Rails.public_path.join('uploads', 'export')
       dir = dir.join(*folder_path) if folder_path.present?
       FileUtils.mkdir_p(dir)
-      # File.write(dir.join("#{endpoint.id}.jsonld"), '')
       File.write(dir.join("#{endpoint.id}.jsonld.tmp"), '')
 
       renderer = DataCycleCore::Api::V4::ContentsController.renderer.new(
@@ -78,55 +77,58 @@ namespace :dc do
       }.to_json
 
       size = contents.total_count
-      queue = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
+      # queue = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
+      queue = DataCycleCore::WorkerPool.new(1)
       progress = ProgressBar.create(total: size, format: '%t |%w>%i| %a - %c/%C', title: endpoint.id)
-      # json_data = []
+
+      logger.info("[EXPORTING] #{size} things in endpoint: #{endpoint.id}")
+      puts "Exporting #{size} things in endpoint: #{endpoint.id}"
 
       file = File.open(dir.join("#{endpoint.id}.jsonld.tmp"), 'a')
-      # file = File.open(dir.join("#{endpoint.id}.jsonld"), 'a')
-
       file << result.delete_suffix(']}')
-      contents.each_with_index do |item, _index|
+
+      contents.each do |item|
         queue.append do
-          logger.info("[START PROCESSING] for THING ID: #{item.id} / endpoint: #{endpoint.id}")
           data = Rails.cache.fetch(DataCycleCore::LocalizationService.view_helpers.api_v4_cache_key(item, locales, [['full', 'recursive']], []), expires_in: 1.year + Random.rand(7.days)) do
+            retries = 1
             I18n.with_locale(item.first_available_locale(locales)) do
-              logger.info("[START JSON] JSON Parsing for THING ID: #{item.id} / endpoint: #{endpoint.id}")
-              retval = JSON.parse(renderer.render_to_string(
-                                    template: 'data_cycle_core/api/v4/api_base/_content_details',
-                                    layout: false,
-                                    assigns: {
-                                      url_parameters: {},
-                                      include_parameters: [['full', 'recursive']],
-                                      fields_parameters: [],
-                                      field_filter: false,
-                                      classification_trees_parameters: [],
-                                      classification_trees_filter: false,
-                                      section_parameters: { links: 0 },
-                                      language: locales,
-                                      api_subversion: nil,
-                                      api_version: 4,
-                                      contents:,
-                                      permitted_params: { section: { links: 0 } },
-                                      watch_list:,
-                                      stored_filter:,
-                                      api_context: 'api'
-                                    },
-                                    locals: {
-                                      content: item,
-                                      options: { languages: locales }
-                                    }
-                                  ))
-              logger.info("[FINISHED JSON] JSON Parsing for THING ID: #{item.id} / endpoint: #{endpoint.id}")
-              retval
+              JSON.parse(renderer.render_to_string(
+                           template: 'data_cycle_core/api/v4/api_base/_content_details',
+                           layout: false,
+                           assigns: {
+                             url_parameters: {},
+                             include_parameters: [['full', 'recursive']],
+                             fields_parameters: [],
+                             field_filter: false,
+                             classification_trees_parameters: [],
+                             classification_trees_filter: false,
+                             section_parameters: { links: 0 },
+                             language: locales,
+                             api_subversion: nil,
+                             api_version: 4,
+                             contents:,
+                             permitted_params: { section: { links: 0 } },
+                             watch_list:,
+                             stored_filter:,
+                             api_context: 'api'
+                           },
+                           locals: {
+                             content: item,
+                             options: { languages: locales }
+                           }
+                         ))
+            rescue SystemStackError
+              raise unless retries < 5
+
+              logger.error("[RETRYING] for thing: #{item.id} (retry: #{retries})")
+              retries += 1
+              retry
             end
           end
 
-          # json_data.push(data.to_json)
           file << data.to_json + ','
 
           progress.increment
-          logger.info("[FINISH PROCESSING] for THING ID: #{item.id} / endpoint: #{endpoint.id}")
         end
       end
 
@@ -140,8 +142,6 @@ namespace :dc do
       File.rename(dir.join("#{endpoint.id}.jsonld.tmp"), dir.join("#{endpoint.id}.jsonld"))
 
       logger.info("[FINISHED EXPORT] for things in endpoint: #{endpoint.id}")
-
-      # File.write(dir.join("#{endpoint.id}.jsonld"), result.delete_suffix(']}') + json_data.join(',') + ']}')
     end
   end
 end
