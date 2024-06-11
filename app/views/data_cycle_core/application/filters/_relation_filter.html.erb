@@ -16,8 +16,7 @@
 
   <div class="advanced-filter-selector">
     <% if filter_restrictions.present? %>
-      <div>
-        <%= select_tag("f[#{identifier}][v]",
+      <%= select_tag("f[#{identifier}][v]",
             (filter_method.in?(['s', 'u']) ? thing_values_to_options(value) : nil),
             {
               include_blank: true,
@@ -34,10 +33,9 @@
                 query_params: filter_restrictions.to_json
               }
             }) %>
-      </div>
     <% end %>
-    <div>
-      <%= select_tag("f[#{identifier}][v]",
+
+    <%= select_tag("f[#{identifier}][v]",
           (filter_method.in?(['i', 'e']) ? union_values_to_options(value) : nil),
           {
             include_blank: true,
@@ -56,10 +54,7 @@
               search_path: select_search_or_collection_stored_filters_path
             }
           }) %>
-    </div>
-    <div>
-      <%= hidden_field_tag "f[#{identifier}][v]", filter_advanced_type, disabled: !filter_method.in?(['p', 'b']), data: { active_for: ['p', 'b'] } %>
-    </div>
+    <%= hidden_field_tag "f[#{identifier}][v]", filter_advanced_type, disabled: !filter_method.in?(['p', 'b']), data: { active_for: ['p', 'b'] } %>
   </div>
   <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
     <div class="buttons">
