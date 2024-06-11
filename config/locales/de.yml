@@ -1715,6 +1715,7 @@ de:
           root: Inhalte
           specification: Spezifikation
           elevation_profile: Höhenprofil
+          suggest: Autovervollständigung
         webhooks:
           root: Webhooks
           json_ld: JSON-LD
