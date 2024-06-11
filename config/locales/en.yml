@@ -855,6 +855,7 @@ en:
     order: Order
     content_size: File size
     contact_info_email: Email
+    contact_info_url: url (contact)
     contact_info_telephone: Phone number
     contact_info_fax_number: Fax number
     address_postal_code: POSTCODE

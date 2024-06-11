@@ -888,6 +888,7 @@ de:
     order: Reihenfolge
     content_size: Dateigröße
     contact_info_email: E-Mail
+    contact_info_url: URL (Kontakt)
     contact_info_telephone: Telefonnummer
     contact_info_fax_number: Faxnummer
     address_postal_code: PLZ
