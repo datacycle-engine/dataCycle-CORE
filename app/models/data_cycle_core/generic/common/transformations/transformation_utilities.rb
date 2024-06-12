@@ -9,14 +9,10 @@ module DataCycleCore
             path = Array.wrap(path)
 
             path.reduce(data) do |partial_data, key|
-              if partial_data.nil?
-                nil
-              elsif partial_data.is_a?(Hash)
+              if partial_data.is_a?(Hash)
                 partial_data[key]
               elsif partial_data.is_a?(Array)
                 partial_data.flatten.pluck(key)
-              else
-                raise "Invalid class '#{partial_data.class}' for raw data"
               end
             end
           end
