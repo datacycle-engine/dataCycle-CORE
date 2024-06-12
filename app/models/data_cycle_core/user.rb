@@ -30,7 +30,7 @@ module DataCycleCore
     has_many :watch_lists, dependent: :destroy
     has_one :my_selection, -> { where(my_selection: true) }, class_name: 'DataCycleCore::WatchList'
     has_many :api_accessible_watch_lists, ->(user) { unscope(where: :user_id).accessible_by(user.send(:ability)).without_my_selection }, class_name: 'DataCycleCore::WatchList'
-    has_many :api_accessible_stored_filters, ->(user) { unscope(where: :user_id).accessible_by(user.send(:ability), :api).named.by_api_user(user) }, class_name: 'DataCycleCore::StoredFilter'
+    has_many :api_accessible_stored_filters, ->(user) { unscope(where: :user_id).accessible_by(user.send(:ability), :api).named }, class_name: 'DataCycleCore::StoredFilter'
     has_many :subscriptions, dependent: :destroy
     has_many :things_subscribed, through: :subscriptions, source: :subscribable, source_type: 'DataCycleCore::Thing'
     belongs_to :role

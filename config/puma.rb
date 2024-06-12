@@ -3,6 +3,8 @@
 port ENV['PORT'] || 3000
 environment ENV['RAILS_ENV'] || 'development'
 
+supported_http_methods Puma::Const::SUPPORTED_HTTP_METHODS + ['PROPFIND']
+
 threads 5, 5
 workers 1
 

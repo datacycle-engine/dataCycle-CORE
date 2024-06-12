@@ -83,9 +83,7 @@ module DataCycleCore
         private
 
         def load_collection(id, user)
-          watch_list = DataCycleCore::WatchList.find(id)
-          raise ActiveRecord::RecordNotFound if watch_list.blank? || watch_list.user_id != user.id
-          watch_list
+          DataCycleCore::Collection.accessible_by(user.send(:ability), :index).find(id)
         end
 
         def load_contents(collection)
