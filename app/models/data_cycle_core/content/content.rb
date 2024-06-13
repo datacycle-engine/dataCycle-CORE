@@ -218,6 +218,10 @@ module DataCycleCore
         }.keys
       end
 
+      def required_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition.dig('validations', 'required') }
+      end
+
       def translated_columns
         @translated_columns ||= (self.class.to_s + '::Translation').constantize.column_names
       end
