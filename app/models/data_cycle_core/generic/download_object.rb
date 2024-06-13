@@ -15,7 +15,7 @@ module DataCycleCore
         @source_type = Mongoid::PersistenceContext.new(@source_object, collection: options.dig(:download, :source_type))
         @credentials = options.dig(:credentials) || options[:external_source].credentials
         changed_from = external_source.last_successful_download
-        changed_from = nil if options.dig(:mode) == 'full'
+        changed_from = nil if options.dig(:mode)&.in?(['full', 'reset'])
 
         if options&.dig(:download, :read_type).present?
           read_type = { read_type: Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type]) }
