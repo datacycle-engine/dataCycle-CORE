@@ -8,6 +8,7 @@ module DataCycleCore
 
     after_update :add_things_cache_invalidation_job_update, if: :trigger_things_cache_invalidation?
     after_update :add_things_webhooks_job_update, if: :trigger_things_webhooks?
+    after_destroy :clean_stored_filters
 
     acts_as_paranoid
 
@@ -511,6 +512,30 @@ module DataCycleCore
 
     def invalidate_things_cache
       things.invalidate_all
+    end
+
+    def clean_stored_filters
+      ActiveRecord::Base.connection.execute <<-SQL.squish
+        WITH subquery AS
+        (
+            SELECT
+              id,
+              jsonb_agg( CASE
+                WHEN jsonb_typeof( elem -> 'v' ) = 'array'
+                THEN jsonb_set( elem,'{v}',( ( elem -> 'v' ) - '#{id}' ) )
+                ELSE elem
+            END ) AS new_parameters
+            FROM
+              collections ,
+              jsonb_array_elements( parameters ) elem
+            WHERE parameters::TEXT ILIKE '%#{id}%'
+            GROUP BY id
+        )
+        UPDATE collections
+        SET
+          parameters = subquery.new_parameters FROM subquery
+        WHERE collections.id = subquery.id
+      SQL
     end
   end
 end
