@@ -31,6 +31,8 @@ module DataCycleCore
     belongs_to :classification_alias_path, primary_key: :id, foreign_key: :id, class_name: 'ClassificationAlias::Path', inverse_of: :concept
 
     has_many :classification_polygons, dependent: :delete_all, foreign_key: :classification_alias_id, inverse_of: false
+    has_many :classification_contents, dependent: :delete_all, foreign_key: :classification_id, primary_key: :classification_id, inverse_of: false
+    has_many :things, through: :classification_contents, source: 'content_data'
 
     delegate :visible?, to: :concept_scheme
 

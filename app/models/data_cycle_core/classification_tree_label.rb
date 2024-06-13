@@ -21,11 +21,12 @@ module DataCycleCore
     end
 
     has_one :concept_scheme, foreign_key: :id, dependent: nil, inverse_of: :classification_tree_label
+    has_many :concepts, through: :concept_scheme
 
     has_many :classification_aliases_with_deleted, -> { with_deleted }, through: :classification_trees, source: :sub_classification_alias
 
     has_many :classifications, through: :classification_aliases
-    has_many :things, -> { unscope(:order).distinct }, through: :classifications
+    has_many :things, -> { unscope(:order).distinct }, through: :concepts
 
     def create_classification_alias(*classification_attributes)
       parent_classification_alias = nil
