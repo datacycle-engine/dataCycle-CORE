@@ -9,7 +9,7 @@ module DataCycleCore
           normalized_search = typeahead_text.unicode_normalize(:nfkc)
           locale = language.first # typeahead only supports one language!
           typeahead_query = <<-SQL.squish
-            SELECT word, word <-> ? as score
+            SELECT word, word <-> :word as score
             FROM ts_stat($$
               #{
                 @query
@@ -21,10 +21,11 @@ module DataCycleCore
               }
             $$)
             ORDER BY score
-            LIMIT ?
+            LIMIT :limit
           SQL
+
           ActiveRecord::Base.connection.execute(
-            ActiveRecord::Base.send(:sanitize_sql_array, [typeahead_query, normalized_search, limit])
+            ActiveRecord::Base.send(:sanitize_sql_array, [typeahead_query, word: normalized_search, limit:])
           )
         end
 
