@@ -241,6 +241,12 @@ module DataCycleCore
     webhooks: 1
   }
 
+  mattr_accessor :schedule_occurrences_range
+  self.schedule_occurrences_range = {
+    start: -> { 1.year.ago },
+    end: -> { 5.years.from_now }
+  }
+
   def self.setup
     yield self
   end

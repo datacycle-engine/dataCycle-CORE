@@ -11,3 +11,6 @@
 
 - "0 3 * * *":
     - data_cycle_core:mongo:dump_backup
+
+- "01 3 1 * *": # every month on the 1st
+    - db:configure:rebuild_schedule_occurrences
