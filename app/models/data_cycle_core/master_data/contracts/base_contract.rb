@@ -57,7 +57,7 @@ module DataCycleCore
           optional(:sort).filled(SORTING_VALIDATION)
           optional(:fields).filled(:string)
           optional(:include).filled(:string)
-          optional(:classification_trees) { str? | array? }
+          optional(:classification_trees) { (str? & format?(UUID_REGEX)) | (array? & each(:str?, format?: UUID_REGEX)) }
         end
 
         BASE_MVT_API = Dry::Schema.Params do
