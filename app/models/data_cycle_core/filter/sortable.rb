@@ -161,15 +161,6 @@ module DataCycleCore
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
-        # order_parameter_join = <<-SQL.squish
-        #   LEFT OUTER JOIN LATERAL (
-        #   	SELECT thing_id, MIN(LOWER(schedule_occurrences.occurrence)) "min_start_date"
-        #   	FROM schedule_occurrences
-        #   	WHERE things.id = schedule_occurrences.thing_id AND schedule_occurrences.occurrence && TSTZRANGE(?, ?)
-        #   	GROUP BY thing_id
-        #   ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
-        # SQL
-
         reflect(
           @query
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
@@ -236,7 +227,7 @@ module DataCycleCore
         end
 
         if sort_by_date
-          min_start_date = 'MIN(LOWER(schedule_occurrences.occurrence))'
+          min_start_date = 'MIN(LOWER(so.occurrence))'
         else
           min_start_date = '1'
         end
@@ -247,24 +238,15 @@ module DataCycleCore
             SELECT
               a.thing_id,
               1 AS "occurrence_exists",
-              t.min_start_date
+              #{min_start_date} as "min_start_date"
             FROM
-              schedules a
-            LEFT OUTER JOIN (
-              SELECT
-                thing_id,
-                #{min_start_date} as "min_start_date"
-              FROM
-                schedule_occurrences
-              WHERE
-                schedule_occurrences.occurrence && TSTZRANGE(?, ?)
-              GROUP BY
-                thing_id
-            ) as t on t.thing_id = a.thing_id
+              schedules a,
+              UNNEST(a.occurrences) so(occurrence)
             WHERE
               things.id = a.thing_id
+              AND so.occurrence && TSTZRANGE(?, ?)
             GROUP BY
-              a.thing_id, t.min_start_date
+              a.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
@@ -290,7 +272,7 @@ module DataCycleCore
           end_date = Time.zone.now.end_of_day
         end
         if sort_by_date
-          min_start_date = 'MIN(LOWER(schedule_occurrences.occurrence))'
+          min_start_date = 'MIN(LOWER(so.occurrence))'
         else
           min_start_date = '1'
         end
@@ -301,24 +283,15 @@ module DataCycleCore
             SELECT
               a.thing_id,
               1 AS "occurrence_exists",
-              t.min_start_date
+              #{min_start_date} as "min_start_date"
             FROM
-              schedules a
-            LEFT OUTER JOIN (
-              SELECT
-                thing_id,
-                #{min_start_date} as "min_start_date"
-              FROM
-                schedule_occurrences
-              WHERE
-                schedule_occurrences.occurrence && TSTZRANGE(?, ?)
-              GROUP BY
-                thing_id
-            ) as t on t.thing_id = a.thing_id
+              schedules a,
+              UNNEST(a.occurrences) so(occurrence)
             WHERE
               things.id = a.thing_id
+              AND so.occurrence && TSTZRANGE(?, ?)
             GROUP BY
-              a.thing_id, t.min_start_date
+              a.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 

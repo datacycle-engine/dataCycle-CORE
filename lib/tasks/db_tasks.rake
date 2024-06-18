@@ -120,12 +120,12 @@ namespace :db do
       ActiveRecord::Base.connection.execute('VACUUM (ANALYZE) content_content_links;')
     end
 
-    desc 'rebuild schedule_occurrences'
+    desc 'rebuild schedule occurrences'
     task rebuild_schedule_occurrences: :environment do
-      puts 'Rebuilding schedule_occurrences...'
+      puts 'Rebuilding schedule occurrences...'
       tmp = Time.zone.now
       DataCycleCore::Schedule.rebuild_occurrences
-      puts "Rebuilding schedule_occurrences...done (#{(Time.zone.now - tmp).round}s)"
+      puts "Rebuilding schedule occurrences...done (#{(Time.zone.now - tmp).round}s)"
 
       tmp = Time.zone.now
       puts 'VACUUM FULL schedules...'
