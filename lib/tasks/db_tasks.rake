@@ -125,10 +125,13 @@ namespace :db do
       puts 'Rebuilding schedule_occurrences...'
       tmp = Time.zone.now
       DataCycleCore::Schedule.rebuild_occurrences
+      puts "Rebuilding schedule_occurrences...done (#{(Time.zone.now - tmp).round}s)"
+
+      tmp = Time.zone.now
+      puts 'VACUUM FULL schedules...'
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].invoke(true, false, 'schedules')
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].reenable
-
-      puts "Rebuilding schedule_occurrences...done (#{(Time.zone.now - tmp).round}s)"
+      puts "VACUUM FULL schedules...done (#{(Time.zone.now - tmp).round}s)"
     end
   end
 

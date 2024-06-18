@@ -14,78 +14,81 @@ class AddOccurrencesToSchedule < ActiveRecord::Migration[6.1]
     range_end = range_end.to_date
 
     execute <<-SQL.squish
-        CREATE OR REPLACE FUNCTION generate_schedule_occurences_array(
-            s_dtstart timestamp WITH time zone,
-            s_rrule character varying,
-            s_rdate timestamp WITH time zone [],
-            s_exdate timestamp WITH time zone [],
-            s_duration INTERVAL
-          ) RETURNS tstzmultirange LANGUAGE plpgsql IMMUTABLE PARALLEL SAFE AS $$
-        DECLARE schedule_array tstzmultirange;
+      CREATE OR REPLACE FUNCTION generate_schedule_occurences_array(
+          s_dtstart timestamp WITH time zone,
+          s_rrule character varying,
+          s_rdate timestamp WITH time zone [],
+          s_exdate timestamp WITH time zone [],
+          s_duration INTERVAL
+        ) RETURNS tstzmultirange LANGUAGE plpgsql IMMUTABLE PARALLEL SAFE AS $$
+      DECLARE schedule_array tstzmultirange;
 
-        schedule_duration INTERVAL;
+      schedule_duration INTERVAL;
 
-        BEGIN CASE
-          WHEN s_duration IS NULL THEN schedule_duration = INTERVAL '1 seconds';
+      all_occurrences timestamp WITHOUT time zone [];
 
-        WHEN s_duration <= INTERVAL '0 seconds' THEN schedule_duration = INTERVAL '1 seconds';
+      BEGIN CASE
+        WHEN s_duration IS NULL THEN schedule_duration = INTERVAL '1 seconds';
 
-        ELSE schedule_duration = s_duration;
+      WHEN s_duration <= INTERVAL '0 seconds' THEN schedule_duration = INTERVAL '1 seconds';
 
-        END CASE
-        ;
+      ELSE schedule_duration = s_duration;
 
-        WITH occurences AS (
-          SELECT unnest(
-              get_occurrences (
-                (
-                  CASE
-                    WHEN s_rrule LIKE '%UNTIL%' THEN s_rrule
-                    ELSE (s_rrule || ';UNTIL=#{range_end}')
-                  END
-                )::rrule,
-                s_dtstart AT TIME ZONE 'Europe/Vienna',
-                '#{range_end}' AT TIME ZONE 'Europe/Vienna'
-              )
-            ) AT TIME ZONE 'Europe/Vienna' AS occurence
-          WHERE s_rrule IS NOT NULL
-          UNION
-          SELECT unnest(s_rdate) AS occurence
-          WHERE s_rdate IS NOT NULL
-          UNION
-          SELECT s_dtstart
-          WHERE s_rrule IS NULL
-        ),
-        exdates AS (
-          SELECT tstzrange(
-              DATE_TRUNC('day', s.exdate),
-              DATE_TRUNC('day', s.exdate) + INTERVAL '1 day'
-            ) exdate
-          FROM unnest(s_exdate) AS s(exdate)
-        )
-        SELECT range_agg(
-            tstzrange(
+      END CASE
+      ;
+
+      CASE
+        WHEN s_rrule IS NULL THEN all_occurrences := ARRAY [(s_dtstart AT TIME ZONE 'Europe/Vienna')::timestamp WITHOUT time zone];
+
+      WHEN s_rrule IS NOT NULL THEN all_occurrences := get_occurrences (
+        (
+          CASE
+            WHEN s_rrule LIKE '%UNTIL%' THEN s_rrule
+            ELSE (s_rrule || ';UNTIL=#{range_end}')
+          END
+        )::rrule,
+        s_dtstart AT TIME ZONE 'Europe/Vienna',
+        '#{range_end}' AT TIME ZONE 'Europe/Vienna'
+      );
+
+      END CASE
+      ;
+
+      WITH occurences AS (
+        SELECT unnest(all_occurrences) AT TIME ZONE 'Europe/Vienna' AS occurence
+        UNION
+        SELECT unnest(s_rdate) AS occurence
+      ),
+      exdates AS (
+        SELECT tstzrange(
+            DATE_TRUNC('day', s.exdate),
+            DATE_TRUNC('day', s.exdate) + INTERVAL '1 day'
+          ) exdate
+        FROM unnest(s_exdate) AS s(exdate)
+      )
+      SELECT range_agg(
+          tstzrange(
+            occurences.occurence,
+            occurences.occurence + schedule_duration
+          )
+        ) INTO schedule_array
+      FROM occurences
+      WHERE occurences.occurence IS NOT NULL
+        AND occurences.occurence + schedule_duration > '#{range_start}'
+        AND NOT EXISTS (
+          SELECT 1
+          FROM exdates
+          WHERE exdates.exdate && tstzrange(
               occurences.occurence,
               occurences.occurence + schedule_duration
             )
-          ) INTO schedule_array
-        FROM occurences
-        WHERE occurences.occurence IS NOT NULL
-          AND occurences.occurence + schedule_duration > '#{range_start}'
-          AND NOT EXISTS (
-            SELECT 1
-            FROM exdates
-            WHERE exdates.exdate && tstzrange(
-                occurences.occurence,
-                occurences.occurence + schedule_duration
-              )
-          );
+        );
 
-        RETURN schedule_array;
+      RETURN schedule_array;
 
-        END;
+      END;
 
-        $$;
+      $$;
 
       ALTER TABLE IF EXISTS schedules
       ADD COLUMN occurrences tstzmultirange GENERATED ALWAYS AS (

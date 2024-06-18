@@ -828,6 +828,8 @@ module DataCycleCore
 
         schedule_duration INTERVAL;
 
+        all_occurrences timestamp WITHOUT time zone [];
+
         BEGIN CASE
           WHEN s_duration IS NULL THEN schedule_duration = INTERVAL '1 seconds';
 
@@ -838,26 +840,27 @@ module DataCycleCore
         END CASE
         ;
 
+        CASE
+          WHEN s_rrule IS NULL THEN all_occurrences := ARRAY [(s_dtstart AT TIME ZONE 'Europe/Vienna')::timestamp WITHOUT time zone];
+
+        WHEN s_rrule IS NOT NULL THEN all_occurrences := get_occurrences (
+          (
+            CASE
+              WHEN s_rrule LIKE '%UNTIL%' THEN s_rrule
+              ELSE (s_rrule || ';UNTIL=#{range_end}')
+            END
+          )::rrule,
+          s_dtstart AT TIME ZONE 'Europe/Vienna',
+          :range_end AT TIME ZONE 'Europe/Vienna'
+        );
+
+        END CASE
+        ;
+
         WITH occurences AS (
-          SELECT unnest(
-              get_occurrences (
-                (
-                  CASE
-                    WHEN s_rrule LIKE '%UNTIL%' THEN s_rrule
-                    ELSE (s_rrule || ';UNTIL=#{range_end}')
-                  END
-                )::rrule,
-                s_dtstart AT TIME ZONE 'Europe/Vienna',
-                :range_end AT TIME ZONE 'Europe/Vienna'
-              )
-            ) AT TIME ZONE 'Europe/Vienna' AS occurence
-          WHERE s_rrule IS NOT NULL
+          SELECT unnest(all_occurrences) AT TIME ZONE 'Europe/Vienna' AS occurence
           UNION
           SELECT unnest(s_rdate) AS occurence
-          WHERE s_rdate IS NOT NULL
-          UNION
-          SELECT s_dtstart
-          WHERE s_rrule IS NULL
         ),
         exdates AS (
           SELECT tstzrange(
