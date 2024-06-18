@@ -367,6 +367,8 @@ de:
     closes: bis
     closed: geschlossen
     except: ausgenommen
+    closed_from_to: geschlossen von %{from} bis %{to}
+    closed_on: geschlossen am %{date}
 
   collection:
     new: Neue %{data}
