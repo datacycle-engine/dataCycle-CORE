@@ -739,6 +739,7 @@ module DataCycleCore
 
   class Schedule < ApplicationRecord
     attribute :duration, :interval
+    attr_readonly :occurrences
 
     require 'dotiw'
 

@@ -5,6 +5,7 @@ raise 'ActiveRecord::ConnectionAdapters::PostgreSQLAdapter#initialize_type_map i
 module PostgresCustomTypesExtension
   def initialize_type_map(m)
     m.alias_type 'regconfig', 'varchar'
+    m.alias_type 'tstzmultirange', 'tstzrange'
     super(m)
   end
 end
