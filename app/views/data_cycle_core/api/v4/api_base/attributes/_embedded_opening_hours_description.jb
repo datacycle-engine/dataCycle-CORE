@@ -4,6 +4,7 @@ def serialize_opening_hours_description_v4(description, filter, fields, options,
   I18n.with_locale(description.first_available_locale) do
     schedule_hash = description&.validity_schedule&.first&.schedule_object&.to_hash || {}
     description_values = description&.property_definitions&.select { |k, v| attribute_key(k, v) == 'description' }&.sort_by { |_k, v| v['sorting'] }&.map { |k, _v| description.try(k) }
+    inherited_options = inherit_options({ include: includes, fields:, field_filter: options[:field_filter] && fields.present? ? options[:field_filter] : false, translatable_embedded: }, options)
 
     data = {
       '@id' => description&.id,
@@ -16,7 +17,11 @@ def serialize_opening_hours_description_v4(description, filter, fields, options,
         )
       )&.in_time_zone&.to_s(:only_date),
       'description' => description_values&.compact_blank&.first
-    }.compact.merge(render('content_translations', content: description, options: inherit_options({ include: includes, fields:, field_filter: options[:field_filter] && fields.present? ? options[:field_filter] : false, translatable_embedded: }, options)))
+    }.compact
+
+    data.merge! render 'content_translations', content: description, options: inherited_options
+
+    data.merge! render 'content_classifications', content: description, options: inherited_options if included_attribute?('dc:classification', inherited_options[:include]) || included_attribute?('dc:classification', inherited_options[:fields])
 
     return data unless filter
 
