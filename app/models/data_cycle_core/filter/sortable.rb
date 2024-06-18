@@ -151,12 +151,24 @@ module DataCycleCore
 
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
-          	SELECT thing_id, MIN(LOWER(schedule_occurrences.occurrence)) "min_start_date"
-          	FROM schedule_occurrences
-          	WHERE things.id = schedule_occurrences.thing_id AND schedule_occurrences.occurrence && TSTZRANGE(?, ?)
-          	GROUP BY thing_id
+            SELECT schedules.thing_id,
+              MIN(LOWER(so.occurrence)) AS "min_start_date"
+            FROM schedules,
+              UNNEST(schedules.occurrences) so(occurrence)
+            WHERE things.id = schedules.thing_id
+              AND so.occurrence && TSTZRANGE(?, ?)
+            GROUP BY schedules.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
+
+        # order_parameter_join = <<-SQL.squish
+        #   LEFT OUTER JOIN LATERAL (
+        #   	SELECT thing_id, MIN(LOWER(schedule_occurrences.occurrence)) "min_start_date"
+        #   	FROM schedule_occurrences
+        #   	WHERE things.id = schedule_occurrences.thing_id AND schedule_occurrences.occurrence && TSTZRANGE(?, ?)
+        #   	GROUP BY thing_id
+        #   ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
+        # SQL
 
         reflect(
           @query
