@@ -7,6 +7,9 @@ include:
     ref: master
     file: ".gitlab-ci-dc-common.yml"
 
+variables:
+  POSTGRES_VERSION: 16
+
 stages:
   - build
   - check
