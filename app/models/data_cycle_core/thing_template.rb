@@ -2,6 +2,8 @@
 
 module DataCycleCore
   class ThingTemplate < ApplicationRecord
+    attr_readonly :computed_schema_types, :content_type, :boost
+
     has_many :things, inverse_of: :thing_template, foreign_key: :template_name, primary_key: :template_name
 
     scope :with_template_names, ->(template_names) { where(template_name: template_names) }
@@ -11,6 +13,8 @@ module DataCycleCore
 
       where("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_types)
     }
+
+    after_initialize :add_template_properties, if: :new_record?
 
     def readonly?
       true
@@ -123,6 +127,14 @@ module DataCycleCore
             end
           ]
         end
+    end
+
+    private
+
+    def add_template_properties
+      raise ActiveModel::MissingAttributeError, ":schema is required to initialize #{self.class.name}" if schema.blank?
+
+      self.template_name ||= schema&.[]('name')
     end
   end
 end

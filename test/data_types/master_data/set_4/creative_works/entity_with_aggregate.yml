@@ -1,0 +1,7 @@
+---
+- :data:
+    :name: Entity-With-Aggregate-Creative-Work-1
+    :extends: Entity-Creative-Work-1
+    :features:
+      :aggregate:
+        :allowed: true

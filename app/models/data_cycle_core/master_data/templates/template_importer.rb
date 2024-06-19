@@ -4,6 +4,8 @@ module DataCycleCore
   module MasterData
     module Templates
       class TemplateImporter
+        include Extensions::Aggregate
+
         CONTENT_SETS = [:creative_works, :events, :media_objects, :organizations, :persons, :places, :products, :things, :intangibles].freeze
 
         attr_reader :duplicates, :mixin_errors, :errors, :mixin_paths, :templates
@@ -152,7 +154,6 @@ module DataCycleCore
 
               transformer = TemplateTransformer.new(template:, content_set: data_template[:set], mixins: @mixins, templates:)
               transformed_data, errors = transformer.transform
-
               @errors.concat(errors) && next if errors.present?
 
               data = {
@@ -163,12 +164,14 @@ module DataCycleCore
                 mixins: transformer.mixin_paths
               }
 
-              if (duplicate = templates.values.flatten.find { |v| v[:name] == data[:name] }).present?
-                merge_duplicate_template!(data:, duplicate:)
-              else
-                templates[data_template[:set]] ||= []
-                templates[data_template[:set]].push(data)
+              thing_template = ThingTemplate.new(schema: transformed_data).template_thing
+              if Feature::Aggregate.allowed?(thing_template)
+                aggregate_data = aggregate_template(data:, thing_template:)
+                add_inverse_aggregate_for_property!(data:)
+                append_template!(data: aggregate_data, set: data_template[:set], templates:)
               end
+
+              append_template!(data:, set: data_template[:set], templates:)
             rescue StandardError => e
               if e.is_a?(TemplateError)
                 @errors.push("#{[data_template[:set], template[:name], e.path].compact.join('.')} => #{e.message}")
@@ -176,6 +179,15 @@ module DataCycleCore
                 @errors.push("#{data_template[:set]}.#{template[:name]} => #{e.message}")
               end
             end
+          end
+        end
+
+        def append_template!(data:, set:, templates:)
+          if (duplicate = templates.values.flatten.find { |v| v[:name] == data[:name] }).present?
+            merge_duplicate_template!(data:, duplicate:)
+          else
+            templates[set] ||= []
+            templates[set].push(data)
           end
         end
 

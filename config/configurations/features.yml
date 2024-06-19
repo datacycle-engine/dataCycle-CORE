@@ -599,3 +599,6 @@
 
 :ts_query_fulltext_search:
   :enabled: false
+
+:aggregate:
+  :enabled: false

@@ -1,108 +1,33 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require 'minitest/spec'
-require 'minitest/autorun'
-require 'helpers/minitest_spec_helper'
 
-describe DataCycleCore::MasterData::Templates::TemplateImporter do
-  include DataCycleCore::MinitestSpecHelper
-
-  subject do
-    DataCycleCore::MasterData::Templates::TemplateImporter
-  end
-
-  describe 'loaded template_data' do
-    let(:import_path) do
-      Rails.root.join('..', 'data_types', 'master_data', 'set_1')
+module DataCycleCore
+  class TemplateImporterTest < DataCycleCore::TestCases::ActiveSupportTestCase
+    before(:all) do
+      @aggregate_before_state = DataCycleCore.features[:aggregate].deep_dup
+      DataCycleCore.features[:aggregate][:enabled] = true
+      Feature::Aggregate.reload
     end
 
-    let(:import_path2) do
-      Rails.root.join('..', 'data_types', 'master_data', 'set_2')
+    after(:all) do
+      DataCycleCore.features = DataCycleCore.features.except(:aggregate).merge({ aggregate: @aggregate_before_state })
+      Feature::Aggregate.reload
     end
 
-    let(:import_path3) do
-      Rails.root.join('..', 'data_types', 'master_data', 'set_3')
-    end
-
-    let(:import_path_overlay) do
-      Rails.root.join('..', 'data_types', 'master_data', 'overlay_set')
-    end
-
-    let(:import_path_overlay2) do
-      Rails.root.join('..', 'data_types', 'master_data', 'overlay_set_2')
-    end
-
-    let(:non_existent_path) do
-      Rails.root.join('..', 'data_types', '1234567890')
-    end
-
-    let(:import_list_import_path) do
-      {
-        creative_works: [
-          {
-            name: 'Entity-Creative-Work-1',
-            file: import_path.join('creative_works', 'entity.yml').to_s,
-            position: 0
-          },
-          {
-            name: 'Entity-Creative-Work-1-1',
-            file: import_path.join('creative_works', 'entity.yml').to_s,
-            position: 1
-          },
-          {
-            name: 'Entity-Creative-Work-2',
-            file: import_path.join('creative_works', 'entity_2.yml').to_s,
-            position: 0
-          }
-        ]
-      }
-    end
-
-    let(:import_list_import_paths) do
-      {
-        creative_works: [
-          {
-            name: 'Entity-Creative-Work-1',
-            file: import_path.join('creative_works', 'entity.yml').to_s,
-            position: 0
-          },
-          {
-            name: 'Entity-Creative-Work-1-1',
-            file: import_path.join('creative_works', 'entity.yml').to_s,
-            position: 1
-          },
-          {
-            name: 'Entity-Creative-Work-2',
-            file: import_path.join('creative_works', 'entity_2.yml').to_s,
-            position: 0
-          }
-        ]
-      }
-    end
-
-    let(:duplicates_import_paths) do
-      {
-        'creative_works.Entity-Creative-Work-1' => [
-          import_path2.join('creative_works', 'entity.yml').to_s,
-          import_path.join('creative_works', 'entity.yml').to_s
-        ]
-      }
-    end
-
-    it 'gives empty list when wrong path is given for checking duplicates' do
+    test 'gives empty list when wrong path is given for checking duplicates' do
       template_importer = subject.new(template_paths: [non_existent_path])
 
       assert_empty(template_importer.templates)
     end
 
-    it 'gives nil for duplicates when wrong path is given for checking duplicates' do
+    test 'gives nil for duplicates when wrong path is given for checking duplicates' do
       template_importer = subject.new(template_paths: [non_existent_path])
 
       assert_empty(template_importer.duplicates)
     end
 
-    it 'gives appropriate list for test_folder' do
+    test 'gives appropriate list for test_folder' do
       template_importer = subject.new(template_paths: [import_path])
 
       assert_equal(
@@ -111,7 +36,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       )
     end
 
-    it 'gives appropriate list for test_folder and test_folder2' do
+    test 'gives appropriate list for test_folder and test_folder2' do
       template_importer = subject.new(template_paths: [import_path2, import_path])
 
       assert_equal(
@@ -120,13 +45,13 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       )
     end
 
-    it 'gives appropriate duplicate_list for test_folder and test_folder2' do
+    test 'gives appropriate duplicate_list for test_folder and test_folder2' do
       template_importer = subject.new(template_paths: [import_path2, import_path])
 
       assert_equal duplicates_import_paths, template_importer.duplicates
     end
 
-    it 'extends existing template' do
+    test 'extends existing template' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'EntityExtension' }
 
@@ -137,7 +62,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       assert(template.dig(:data, :properties)&.key?(:tmp_name))
     end
 
-    it 'overrides existing template' do
+    test 'overrides existing template' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
 
@@ -148,7 +73,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       assert(template.dig(:data, :properties)&.key?(:tmp_name))
     end
 
-    it 'extends multiple existing templates' do
+    test 'extends multiple existing templates' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity2Extension' }
 
@@ -160,7 +85,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       assert(template.dig(:data, :properties)&.key?(:text))
     end
 
-    it 'copies overlay flag to all mixin properties' do
+    test 'copies overlay flag to all mixin properties' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-3' }
 
@@ -173,7 +98,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       assert(template.dig(:data, :properties, :test_mixin2, :overlay))
     end
 
-    it 'change position of propery with after' do
+    test 'change position of propery with after' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'EntityExtension' }
 
@@ -181,7 +106,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       assert_equal(template.dig(:data, :properties, :name, :sorting) + 1, template.dig(:data, :properties, :tmp_name, :sorting))
     end
 
-    it 'change position of propery with before' do
+    test 'change position of propery with before' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
 
@@ -189,7 +114,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       assert_equal(template.dig(:data, :properties, :name, :sorting) - 1, template.dig(:data, :properties, :description, :sorting))
     end
 
-    it 'disable property in all contexts' do
+    test 'disable property in all contexts' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
 
@@ -200,7 +125,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       assert(template.dig(:data, :properties, :name, :ui, :show, :disabled))
     end
 
-    it 'enable property only in xml' do
+    test 'enable property only in xml' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
 
@@ -211,7 +136,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       assert(template.dig(:data, :properties, :description, :ui, :show, :disabled))
     end
 
-    it 'enable property only in api and show' do
+    test 'enable property only in api and show' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
 
@@ -222,7 +147,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       assert_not(template.dig(:data, :properties, :tmp_name, :ui, :show, :disabled))
     end
 
-    it 'extend template in same folder' do
+    test 'extend template in same folder' do
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'EntityExtensionExtension' }
 
@@ -236,7 +161,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       assert_equal(template.dig(:data, :properties, :tmp_name, :sorting) - 1, template.dig(:data, :properties, :tmp_value, :sorting))
     end
 
-    it 'overlay for simple attribute' do
+    test 'overlay for simple attribute' do
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
 
@@ -264,7 +189,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       assert_not(template.dig(:data, :properties, :name_overlay, :ui, :show).key?(:content_area))
     end
 
-    it 'overlay for linked attribute' do
+    test 'overlay for linked attribute' do
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
 
@@ -286,7 +211,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       end
     end
 
-    it 'overlay for classification attribute' do
+    test 'overlay for classification attribute' do
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
 
@@ -307,7 +232,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       end
     end
 
-    it 'overlay for opening_time attribute' do
+    test 'overlay for opening_time attribute' do
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
 
@@ -328,7 +253,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       end
     end
 
-    it 'overlay for schedule attribute' do
+    test 'overlay for schedule attribute' do
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
 
@@ -349,7 +274,7 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
       end
     end
 
-    it 'overlay for date attribute' do
+    test 'overlay for date attribute' do
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
 
@@ -370,6 +295,116 @@ describe DataCycleCore::MasterData::Templates::TemplateImporter do
         assert_not(template.dig(:data, :properties, key).key?(:exif))
         assert_not(template.dig(:data, :properties, key).key?(:content_score))
       end
+    end
+
+    test 'aggregate template with correct definitions' do
+      template_importer = subject.new(template_paths: [import_path, import_path4])
+      template_name = 'Entity-With-Aggregate-Creative-Work-1'
+      agg_template_name = 'Entity-With-Aggregate-Creative-Work-1Aggregate'
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == template_name }
+      agg_template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == agg_template_name }
+
+      assert_not(template.nil?)
+      assert_not(agg_template.nil?)
+      assert(agg_template.dig(:data, :properties).key?(:aggregate_for))
+      assert(template.dig(:data, :properties).key?(:belongs_to_aggregate))
+
+      agg_template.dig(:data, :properties).each do |key, prop|
+        next if key == 'aggregate_for'
+
+        if key.ends_with?('_aggregate')
+          assert_equal('linked', prop.dig(:type))
+        else
+          assert(prop.key?(:compute))
+        end
+      end
+    end
+
+    private
+
+    def subject
+      DataCycleCore::MasterData::Templates::TemplateImporter
+    end
+
+    def import_path
+      Rails.root.join('..', 'data_types', 'master_data', 'set_1')
+    end
+
+    def import_path2
+      Rails.root.join('..', 'data_types', 'master_data', 'set_2')
+    end
+
+    def import_path3
+      Rails.root.join('..', 'data_types', 'master_data', 'set_3')
+    end
+
+    def import_path4
+      Rails.root.join('..', 'data_types', 'master_data', 'set_4')
+    end
+
+    def import_path_overlay
+      Rails.root.join('..', 'data_types', 'master_data', 'overlay_set')
+    end
+
+    def import_path_overlay2
+      Rails.root.join('..', 'data_types', 'master_data', 'overlay_set_2')
+    end
+
+    def non_existent_path
+      Rails.root.join('..', 'data_types', '1234567890')
+    end
+
+    def import_list_import_path
+      {
+        creative_works: [
+          {
+            name: 'Entity-Creative-Work-1',
+            file: import_path.join('creative_works', 'entity.yml').to_s,
+            position: 0
+          },
+          {
+            name: 'Entity-Creative-Work-1-1',
+            file: import_path.join('creative_works', 'entity.yml').to_s,
+            position: 1
+          },
+          {
+            name: 'Entity-Creative-Work-2',
+            file: import_path.join('creative_works', 'entity_2.yml').to_s,
+            position: 0
+          }
+        ]
+      }
+    end
+
+    def import_list_import_paths
+      {
+        creative_works: [
+          {
+            name: 'Entity-Creative-Work-1',
+            file: import_path.join('creative_works', 'entity.yml').to_s,
+            position: 0
+          },
+          {
+            name: 'Entity-Creative-Work-1-1',
+            file: import_path.join('creative_works', 'entity.yml').to_s,
+            position: 1
+          },
+          {
+            name: 'Entity-Creative-Work-2',
+            file: import_path.join('creative_works', 'entity_2.yml').to_s,
+            position: 0
+          }
+        ]
+      }
+    end
+
+    def duplicates_import_paths
+      {
+        'creative_works.Entity-Creative-Work-1' => [
+          import_path2.join('creative_works', 'entity.yml').to_s,
+          import_path.join('creative_works', 'entity.yml').to_s
+        ]
+      }
     end
   end
 end
