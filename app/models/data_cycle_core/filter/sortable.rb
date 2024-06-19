@@ -207,6 +207,85 @@ module DataCycleCore
         proximity_in_occurrence(ordering, value, false)
       end
 
+      def sort_proximity_in_occurrence_pia(ordering = '', value = {})
+        proximity_in_occurrence_pia(ordering, value, true)
+      end
+
+      def sort_proximity_occurrence_with_distance_pia(ordering = '', value = [])
+        proximity_occurrence_with_distance_pia(ordering, value, true)
+      end
+
+      def proximity_occurrence_with_distance_pia(ordering = '', value = [], sort_by_date = true, use_spheroid = true)
+        return self if !value.is_a?(::Array) || value.first.blank?
+        geo = value.first
+        schedule = value.second
+        return self if geo&.first.blank? || geo&.second.blank?
+
+        if use_spheroid
+          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry,true)"
+        else
+          geo_order_string = "ST_DISTANCE(things.geom_simple,'SRID=4326;POINT (#{geo.first} #{geo.second})'::geometry)"
+        end
+
+        if schedule.present? && schedule.is_a?(::Hash) && (schedule['in'] || schedule['v'])
+          start_date, end_date = date_from_filter_object(schedule['in'] || schedule['v'], schedule['q'])
+        else
+          start_date = Time.zone.now
+          end_date = (Time.zone.now + 1.week).end_of_week
+        end
+
+        if sort_by_date
+          min_start_date = 'MIN(LOWER(so.occurrence))'
+        else
+          min_start_date = '1'
+        end
+
+        joined_table_name = "schedules_#{SecureRandom.hex(10)}"
+        order_parameter_join = <<-SQL.squish
+          LEFT OUTER JOIN (
+            SELECT
+              a.thing_id,
+              1 AS "occurrence_exists",
+              #{min_start_date} as "min_start_date"
+            FROM
+              schedules a,
+              UNNEST(a.occurrences) so(occurrence)
+            WHERE so.occurrence && TSTZRANGE(?, ?)
+            GROUP BY
+              a.thing_id
+          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
+        SQL
+
+        join_tabel_name2 = "opening_hours_description_closed_#{SecureRandom.hex(10)}"
+        order_parameter_join2 = <<-SQL.squish
+          LEFT OUTER JOIN (
+            SELECT 1 AS "closed_description_exists", cc.content_a_id
+            FROM content_contents cc
+            LEFT OUTER JOIN classification_contents clc ON clc.content_data_id = cc.content_b_id
+            LEFT OUTER JOIN concepts c ON c.id = clc.classification_id  AND c.internal_name = 'geschlossen'
+            LEFT OUTER JOIN concept_schemes cs ON cs.id = c.concept_scheme_id  AND cs.name = 'Öffnungszeiten'
+            LEFT OUTER JOIN schedules s ON s.thing_id = cc.content_b_id AND s.relation = 'validity_schedule'
+            WHERE cc.relation_a = 'opening_hours_description'
+            AND s.occurrences && TSTZRANGE(#{"'#{start_date}'"}, #{"'#{start_date.end_of_day}'"})
+          ) "#{join_tabel_name2}" ON #{join_tabel_name2}.content_a_id = things.id
+        SQL
+
+        reflect(
+          @query
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join2]))
+            .reorder(nil)
+            .order(
+              sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
+              sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
+              sanitized_order_string("#{join_tabel_name2}.closed_description_exists", ordering, true),
+              sanitized_order_string(geo_order_string, ordering, true),
+              sanitized_order_string('things.updated_at', 'DESC'),
+              sanitized_order_string('things.id', 'DESC')
+            )
+        )
+      end
+
       def proximity_occurrence_with_distance(ordering = '', value = [], sort_by_date = true, use_spheroid = true)
         return self if !value.is_a?(::Array) || value.first.blank?
         geo = value.first
@@ -258,6 +337,64 @@ module DataCycleCore
               sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
               sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
               sanitized_order_string(geo_order_string, ordering, true),
+              sanitized_order_string('things.updated_at', 'DESC'),
+              sanitized_order_string('things.id', 'DESC')
+            )
+        )
+      end
+
+      def proximity_in_occurrence_pia(ordering = '', value = {}, sort_by_date = true)
+        start_date, end_date = date_from_filter_object(value['in'] || value['v'], value['q']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
+
+        if start_date.nil? && end_date.nil?
+          start_date = Time.zone.now
+          end_date = (Time.zone.now + 1.week).end_of_week
+        end
+        if sort_by_date
+          min_start_date = 'MIN(LOWER(so.occurrence))'
+        else
+          min_start_date = '1'
+        end
+
+        joined_table_name = "schedules_#{SecureRandom.hex(10)}"
+        order_parameter_join = <<-SQL.squish
+          LEFT OUTER JOIN (
+            SELECT
+              a.thing_id,
+              1 AS "occurrence_exists",
+              #{min_start_date} as "min_start_date"
+            FROM
+              schedules a,
+              UNNEST(a.occurrences) so(occurrence)
+            WHERE so.occurrence && TSTZRANGE(?, ?)
+            GROUP BY
+              a.thing_id
+          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
+        SQL
+
+        join_tabel_name2 = "opening_hours_description_closed_#{SecureRandom.hex(10)}"
+        order_parameter_join2 = <<-SQL.squish
+          LEFT OUTER JOIN (
+            SELECT 1 AS "closed_description_exists", cc.content_a_id
+            FROM content_contents cc
+            LEFT OUTER JOIN classification_contents clc ON clc.content_data_id = cc.content_b_id
+            LEFT OUTER JOIN concepts c ON c.id = clc.classification_id  AND c.internal_name = 'geschlossen'
+            LEFT OUTER JOIN concept_schemes cs ON cs.id = c.concept_scheme_id  AND cs.name = 'Öffnungszeiten'
+            LEFT OUTER JOIN schedules s ON s.thing_id = cc.content_b_id AND s.relation = 'validity_schedule'
+            WHERE cc.relation_a = 'opening_hours_description'
+            AND s.occurrences && TSTZRANGE(#{"'#{start_date}'"}, #{"'#{start_date.end_of_day}'"})
+          ) "#{join_tabel_name2}" ON #{join_tabel_name2}.content_a_id = things.id
+        SQL
+
+        reflect(
+          @query
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join, start_date, end_date]))
+            .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, [order_parameter_join2]))
+            .reorder(nil)
+            .order(
+              sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
+              sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
+              sanitized_order_string("#{join_tabel_name2}.closed_description_exists", ordering, true),
               sanitized_order_string('things.updated_at', 'DESC'),
               sanitized_order_string('things.id', 'DESC')
             )
