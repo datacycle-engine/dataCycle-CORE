@@ -17,6 +17,10 @@ namespace :db do
 
     desc 'check before migrations'
     task check: :environment do
+      # check for unsupported PostgreSQL versions (Multi-Range Types)
+      pg_version = ActiveRecord::Base.connection.select_value('SELECT VERSION()').match(/[0-9]{1,2}([,.][0-9]{1,2})?/)[0]&.to_f
+      abort("PostgreSQL version #{pg_version} is not supported!") if pg_version < 14.0
+
       # check for missing pg_dict_mappings
       # missing_pg_dict_mappings = DataCycleCore::PgDictMapping.check_missing
       # abort("missing pg_dict_mappings (#{missing_pg_dict_mappings.join(', ')})!") if missing_pg_dict_mappings.present?
@@ -114,6 +118,20 @@ namespace :db do
 
       ActiveRecord::Base.connection.execute('VACUUM (FULL, ANALYZE) content_content_links;')
       ActiveRecord::Base.connection.execute('VACUUM (ANALYZE) content_content_links;')
+    end
+
+    desc 'rebuild schedule occurrences'
+    task rebuild_schedule_occurrences: :environment do
+      puts 'Rebuilding schedule occurrences...'
+      tmp = Time.zone.now
+      DataCycleCore::Schedule.rebuild_occurrences
+      puts "Rebuilding schedule occurrences...done (#{(Time.zone.now - tmp).round}s)"
+
+      tmp = Time.zone.now
+      puts 'VACUUM FULL schedules...'
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].invoke(true, false, 'schedules')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].reenable
+      puts "VACUUM FULL schedules...done (#{(Time.zone.now - tmp).round}s)"
     end
   end
 

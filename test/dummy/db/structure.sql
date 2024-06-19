@@ -292,24 +292,6 @@ CREATE FUNCTION public.delete_external_hashes_trigger_1() RETURNS trigger
 
 
 --
--- Name: delete_schedule_occurences(uuid[]); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.delete_schedule_occurences(schedule_ids uuid[]) RETURNS void
-    LANGUAGE plpgsql
-    AS $$ BEGIN DELETE FROM schedule_occurrences WHERE schedule_id = ANY (schedule_ids); END; $$;
-
-
---
--- Name: delete_schedule_occurences_trigger(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.delete_schedule_occurences_trigger() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM delete_schedule_occurences (ARRAY_AGG(id)) FROM ( SELECT DISTINCT old_schedules.id FROM old_schedules) "old_schedules_alias"; RETURN NULL; END; $$;
-
-
---
 -- Name: delete_things_external_source_trigger_function(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -490,21 +472,12 @@ CREATE FUNCTION public.generate_my_selection_watch_list() RETURNS trigger
 
 
 --
--- Name: generate_schedule_occurences(uuid[]); Type: FUNCTION; Schema: public; Owner: -
+-- Name: generate_schedule_occurences_array(timestamp with time zone, character varying, timestamp with time zone[], timestamp with time zone[], interval); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.generate_schedule_occurences(schedule_ids uuid[]) RETURNS void
-    LANGUAGE plpgsql
-    AS $$ BEGIN DELETE FROM schedule_occurrences WHERE schedule_id = ANY (schedule_ids); WITH occurences AS ( SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest( get_occurrences ( schedules.rrule::rrule, schedules.dtstart AT TIME ZONE 'Europe/Vienna' ) ) AT TIME ZONE 'Europe/Vienna' AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND rrule LIKE '%UNTIL%' AND id = ANY (schedule_ids) UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest( get_occurrences ( (schedules.rrule || ';UNTIL=2037-12-31')::rrule, schedules.dtstart AT TIME ZONE 'Europe/Vienna' ) ) AT TIME ZONE 'Europe/Vienna' AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND rrule NOT LIKE '%UNTIL%' AND id = ANY (schedule_ids) UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, schedules.dtstart AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND schedules.rrule IS NULL AND id = ANY (schedule_ids) UNION SELECT schedules.id, schedules.thing_id, CASE WHEN duration IS NULL THEN INTERVAL '1 seconds' WHEN duration <= INTERVAL '0 seconds' THEN INTERVAL '1 seconds' ELSE duration END AS duration, unnest(schedules.rdate) AS occurence FROM schedules WHERE schedules.relation IS NOT NULL AND id = ANY (schedule_ids) ) INSERT INTO schedule_occurrences ( schedule_id, thing_id, duration, occurrence ) SELECT occurences.id, occurences.thing_id, occurences.duration, tstzrange( occurences.occurence, occurences.occurence + occurences.duration ) AS occurrence FROM occurences WHERE occurences.id = ANY (schedule_ids) AND NOT EXISTS ( SELECT 1 FROM ( SELECT id "schedule_id", UNNEST(exdate) "date" FROM schedules ) "exdates" WHERE exdates.schedule_id = occurences.id AND tstzrange( DATE_TRUNC('day', exdates.date), DATE_TRUNC('day', exdates.date) + INTERVAL '1 day' ) && tstzrange( occurences.occurence, occurences.occurence + occurences.duration ) ); RETURN; END; $$;
-
-
---
--- Name: generate_schedule_occurences_trigger(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.generate_schedule_occurences_trigger() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN PERFORM generate_schedule_occurences(NEW.id || '{}'::UUID[]); RETURN NEW; END;$$;
+CREATE FUNCTION public.generate_schedule_occurences_array(s_dtstart timestamp with time zone, s_rrule character varying, s_rdate timestamp with time zone[], s_exdate timestamp with time zone[], s_duration interval) RETURNS tstzmultirange
+    LANGUAGE plpgsql IMMUTABLE PARALLEL SAFE
+    AS $$ DECLARE schedule_array tstzmultirange; schedule_duration INTERVAL; all_occurrences timestamp WITHOUT time zone []; BEGIN CASE WHEN s_duration IS NULL THEN schedule_duration = INTERVAL '1 seconds'; WHEN s_duration <= INTERVAL '0 seconds' THEN schedule_duration = INTERVAL '1 seconds'; ELSE schedule_duration = s_duration; END CASE ; CASE WHEN s_rrule IS NULL THEN all_occurrences := ARRAY [(s_dtstart AT TIME ZONE 'Europe/Vienna')::timestamp WITHOUT time zone]; WHEN s_rrule IS NOT NULL THEN all_occurrences := get_occurrences ( ( CASE WHEN s_rrule LIKE '%UNTIL%' THEN s_rrule ELSE (s_rrule || ';UNTIL=2029-06-18') END )::rrule, s_dtstart AT TIME ZONE 'Europe/Vienna', '2029-06-18' AT TIME ZONE 'Europe/Vienna' ); END CASE ; WITH occurences AS ( SELECT unnest(all_occurrences) AT TIME ZONE 'Europe/Vienna' AS occurence UNION SELECT unnest(s_rdate) AS occurence ), exdates AS ( SELECT tstzrange( DATE_TRUNC('day', s.exdate), DATE_TRUNC('day', s.exdate) + INTERVAL '1 day' ) exdate FROM unnest(s_exdate) AS s(exdate) ) SELECT range_agg( tstzrange( occurences.occurence, occurences.occurence + schedule_duration ) ) INTO schedule_array FROM occurences WHERE occurences.occurence IS NOT NULL AND occurences.occurence + schedule_duration > '2023-06-18' AND NOT EXISTS ( SELECT 1 FROM exdates WHERE exdates.exdate && tstzrange( occurences.occurence, occurences.occurence + schedule_duration ) ); RETURN schedule_array; END; $$;
 
 
 --
@@ -1797,19 +1770,6 @@ CREATE TABLE public.schedule_histories (
 
 
 --
--- Name: schedule_occurrences; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.schedule_occurrences (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    schedule_id uuid NOT NULL,
-    thing_id uuid NOT NULL,
-    duration interval,
-    occurrence tstzrange NOT NULL
-);
-
-
---
 -- Name: schedules; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1828,7 +1788,8 @@ CREATE TABLE public.schedules (
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    holidays boolean
+    holidays boolean,
+    occurrences tstzmultirange GENERATED ALWAYS AS (public.generate_schedule_occurences_array(dtstart, rrule, rdate, exdate, duration)) STORED
 );
 
 
@@ -2352,14 +2313,6 @@ ALTER TABLE ONLY public.roles
 
 ALTER TABLE ONLY public.schedule_histories
     ADD CONSTRAINT schedule_histories_pkey PRIMARY KEY (id);
-
-
---
--- Name: schedule_occurrences schedule_occurrences_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.schedule_occurrences
-    ADD CONSTRAINT schedule_occurrences_pkey PRIMARY KEY (id);
 
 
 --
@@ -3344,13 +3297,6 @@ CREATE UNIQUE INDEX index_external_systems_on_id ON public.external_systems USIN
 
 
 --
--- Name: index_occurrence; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_occurrence ON public.schedule_occurrences USING gist (occurrence);
-
-
---
 -- Name: index_roles_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3379,24 +3325,17 @@ CREATE INDEX index_schedule_histories_on_thing_history_id ON public.schedule_his
 
 
 --
--- Name: index_schedule_occurrences_on_schedule_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_schedule_occurrences_on_schedule_id ON public.schedule_occurrences USING btree (schedule_id);
-
-
---
--- Name: index_schedule_occurrences_on_thing_id_occurrence; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_schedule_occurrences_on_thing_id_occurrence ON public.schedule_occurrences USING btree (thing_id, occurrence);
-
-
---
 -- Name: index_schedules_on_from_to; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_schedules_on_from_to ON public.schedules USING gist (tstzrange(dtstart, dtend, '[]'::text));
+
+
+--
+-- Name: index_schedules_on_occurrence; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_schedules_on_occurrence ON public.schedules USING gist (occurrences);
 
 
 --
@@ -4020,13 +3959,6 @@ CREATE TRIGGER delete_external_hashes_trigger AFTER DELETE ON public.thing_trans
 
 
 --
--- Name: schedules delete_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER delete_schedule_occurences_trigger AFTER DELETE ON public.schedules REFERENCING OLD TABLE AS old_schedules FOR EACH STATEMENT EXECUTE FUNCTION public.delete_schedule_occurences_trigger();
-
-
---
 -- Name: things delete_things_external_source_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -4119,13 +4051,6 @@ CREATE TRIGGER generate_content_content_links_trigger AFTER INSERT ON public.con
 --
 
 CREATE TRIGGER generate_my_selection_watch_list AFTER INSERT ON public.users FOR EACH ROW EXECUTE FUNCTION public.generate_my_selection_watch_list();
-
-
---
--- Name: schedules generate_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER generate_schedule_occurences_trigger AFTER INSERT ON public.schedules FOR EACH ROW EXECUTE FUNCTION public.generate_schedule_occurences_trigger();
 
 
 --
@@ -4331,13 +4256,6 @@ CREATE TRIGGER update_deleted_at_ccc_relations_trigger_4 AFTER UPDATE OF deleted
 --
 
 CREATE TRIGGER update_my_selection_watch_list AFTER UPDATE OF role_id ON public.users FOR EACH ROW WHEN ((old.role_id IS DISTINCT FROM new.role_id)) EXECUTE FUNCTION public.generate_my_selection_watch_list();
-
-
---
--- Name: schedules update_schedule_occurences_trigger; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER update_schedule_occurences_trigger AFTER UPDATE OF thing_id, duration, rrule, dtstart, relation, exdate, rdate ON public.schedules FOR EACH ROW WHEN (((old.thing_id IS DISTINCT FROM new.thing_id) OR (old.duration IS DISTINCT FROM new.duration) OR ((old.rrule)::text IS DISTINCT FROM (new.rrule)::text) OR (old.dtstart IS DISTINCT FROM new.dtstart) OR ((old.relation)::text IS DISTINCT FROM (new.relation)::text) OR (old.rdate IS DISTINCT FROM new.rdate) OR (old.exdate IS DISTINCT FROM new.exdate))) EXECUTE FUNCTION public.generate_schedule_occurences_trigger();
 
 
 --
@@ -4721,22 +4639,6 @@ ALTER TABLE ONLY public.collected_classification_contents
 
 
 --
--- Name: schedule_occurrences schedule_occurrences_schedule_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.schedule_occurrences
-    ADD CONSTRAINT schedule_occurrences_schedule_id_fkey FOREIGN KEY (schedule_id) REFERENCES public.schedules(id) ON DELETE CASCADE;
-
-
---
--- Name: schedule_occurrences schedule_occurrences_thing_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.schedule_occurrences
-    ADD CONSTRAINT schedule_occurrences_thing_id_fkey FOREIGN KEY (thing_id) REFERENCES public.things(id) ON DELETE CASCADE;
-
-
---
 -- PostgreSQL database dump complete
 --
 
@@ -5089,6 +4991,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240507072758'),
 ('20240507134603'),
 ('20240604110021'),
-('20240606080312');
+('20240606080312'),
+('20240611101126'),
+('20240614081426'),
+('20240618110250');
 
 

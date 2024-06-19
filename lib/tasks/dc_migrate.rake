@@ -315,20 +315,6 @@ namespace :dc do
       end
     end
 
-    desc 'rebuild schedule_occurrences'
-    task rebuild_schedule_occurrences: :environment do
-      rebuild_occurrences_sql = <<-SQL
-        TRUNCATE schedule_occurrences;
-
-        SELECT
-          generate_schedule_occurences (ARRAY_AGG(id))
-        FROM
-          schedules;
-      SQL
-
-      ActiveRecord::Base.connection.execute(rebuild_occurrences_sql)
-    end
-
     desc 'remove multiple BYYEARDAY in schedules'
     task remove_multiple_byyearday: :environment do
       byyearday_sql = <<-SQL
