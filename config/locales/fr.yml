@@ -1,5 +1,18 @@
 ---
 fr:
+  opening_time:
+    valid_from: Validité à partir de
+    valid_until: jusqu'à
+    weekday: Jour de la semaine
+    holiday: Jour férié
+    time: Temps
+    opens: ouvert de
+    closes: jusqu'à
+    closed: fermé
+    except: sauf
+    closed_from_to: fermé de %{from} à %{to}
+    closed_on: fermé le %{date}
+
   import:
     generic:
       description: Description

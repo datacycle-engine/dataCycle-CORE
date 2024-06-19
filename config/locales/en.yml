@@ -335,6 +335,8 @@ en:
     closes: By
     closed: closed
     except: except
+    closed_from_to: closed from %{from} to %{to}
+    closed_on: closed on %{date}
 
   collection:
     new: new %{data}
