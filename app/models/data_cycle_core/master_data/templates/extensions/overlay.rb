@@ -28,6 +28,14 @@ module DataCycleCore
             version_prop['position'] = { 'after' => key }
             version_prop['visible'] = ['show', 'edit']
 
+            if version_prop['storage_location'] == 'column'
+              if DataCycleCore::Thing::Translation.column_names.include?(key)
+                version_prop['storage_location'] = 'translated_value'
+              else
+                version_prop['storage_location'] = 'value'
+              end
+            end
+
             version_prop['ui']&.each_value do |v|
               v.delete('content_area') if v.is_a?(::Hash) && v['content_area'] == 'none'
             end

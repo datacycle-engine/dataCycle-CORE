@@ -1058,6 +1058,9 @@ de:
       title: Titel
       info: Info
       copyright: Copyright
+    limited_by:
+      filter_warning: Die Anzahl der angezeigten Inhalte wurde durch "Aggregat für" begrenzt
+      create_button_warning: Neue Inhalte können nur beim "Aggregat für" erstellt werden
 
   terms:
     valid: gültig

@@ -87,11 +87,11 @@ namespace :data_cycle_core do
 
     desc 'Remove activities except type donwload older than 3 monts [include_downloads=false, max_age=today-3months]'
     task :activities, [:include_downloads, :max_age] => [:environment] do |_, args|
-      max_age = args.fetch(:max_age, nil) || 3.months.ago.to_date.to_s
-      include_downloads = args.fetch(:include_downloads, false)
+      max_age = args.max_age || 3.months.ago.to_date.to_s
+      include_downloads = args.include_downloads.to_s == 'true'
 
       persistent_activities = DataCycleCore.persistent_activities
-      persistent_activities -= ['downloads'] if include_downloads.to_s == 'true'
+      persistent_activities -= ['downloads'] if include_downloads
 
       raw_query = <<-SQL.squish
         DELETE
@@ -111,6 +111,9 @@ namespace :data_cycle_core do
           ]
         )
       )
+
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].invoke(true, 'activities')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].reenable
     end
   end
 end

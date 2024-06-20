@@ -300,22 +300,40 @@ module DataCycleCore
     test 'aggregate template with correct definitions' do
       template_importer = subject.new(template_paths: [import_path, import_path4])
       template_name = 'Entity-With-Aggregate-Creative-Work-1'
-      agg_template_name = 'Entity-With-Aggregate-Creative-Work-1Aggregate'
+      agg_template_name = MasterData::Templates::AggregateTemplate.aggregate_template_name(template_name)
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == template_name }
       agg_template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == agg_template_name }
 
+      assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert_not(agg_template.nil?)
-      assert(agg_template.dig(:data, :properties).key?(:aggregate_for))
-      assert(template.dig(:data, :properties).key?(:belongs_to_aggregate))
 
-      agg_template.dig(:data, :properties).each do |key, prop|
-        next if key == 'aggregate_for'
+      template_thing = ThingTemplate.new(schema: template[:data]).template_thing
 
-        if key.ends_with?('_aggregate')
-          assert_equal('linked', prop.dig(:type))
-        else
-          assert(prop.key?(:compute))
+      assert(agg_template.dig(:data, :properties).key?(MasterData::Templates::AggregateTemplate::AGGREGATE_PROPERTY_NAME))
+      assert(agg_template.dig(:data, :properties).key?(:id))
+      assert(template.dig(:data, :properties).key?(MasterData::Templates::AggregateTemplate::AGGREGATE_INVERSE_PROPERTY_NAME))
+      assert(template.dig(:data, :properties, MasterData::Templates::AggregateTemplate::AGGREGATE_INVERSE_PROPERTY_NAME).key?(:sorting))
+
+      template.dig(:data, :properties).each_key do |key|
+        next unless DataCycleCore::MasterData::Templates::AggregateTemplate.key_allowed_for_aggregate?(key:, template_thing:)
+
+        prop = agg_template.dig(:data, :properties, key)
+        assert_not(prop.nil?)
+        assert(prop.key?(:compute))
+        sorting = prop[:sorting]
+
+        agg_prop = agg_template.dig(:data, :properties, DataCycleCore::MasterData::Templates::AggregateTemplate.aggregate_property_key(key))
+        assert_not(agg_prop.nil?)
+        assert_equal(sorting - 1, agg_prop[:sorting])
+        assert_equal('linked', agg_prop[:type])
+
+        assert(agg_template.dig(:data, :properties).key?("#{key}_overlay"))
+        assert_equal(sorting + 1, agg_template.dig(:data, :properties, "#{key}_overlay", :sorting))
+
+        DataCycleCore::MasterData::Templates::Extensions::Overlay.allowed_postfixes_for_type(prop[:type]).each.with_index(2) do |k, index|
+          assert(agg_template.dig(:data, :properties).key?("#{key}#{k}"))
+          assert_equal(sorting + index, agg_template.dig(:data, :properties, "#{key}#{k}", :sorting))
         end
       end
     end

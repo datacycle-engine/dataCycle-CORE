@@ -34,7 +34,7 @@
       data-content-type="<%= contextual_content(local_assigns).class.table_name %>"
       data-max="<%= definition.dig('validations', 'max') || 0 %>"
       data-min="<%= definition.dig('validations', 'min') || 0 %>"
-      data-limited-by="<%= definition.dig('ui', 'edit', 'options', 'limited_by')&.to_json %>">
+      data-limited-by="<%= definition.dig('ui', 'edit', 'options', 'limited_by').to_json %>">
     <div class="media-thumbs">
       <ul class="object-thumbs no-bullet<%= ' has-items' if objects.present? %>">
         <% if objects.present? %>

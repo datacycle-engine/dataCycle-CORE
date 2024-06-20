@@ -1009,6 +1009,10 @@ en:
       title: Title
       info: Info
       copyright: Copyright
+    limited_by:
+      filter_warning: The number of displayed contents has been limited by "Aggregat für"
+      create_button_warning: New contents can only be created at "Aggregat für"
+
   terms:
     valid: valid
     from: From
