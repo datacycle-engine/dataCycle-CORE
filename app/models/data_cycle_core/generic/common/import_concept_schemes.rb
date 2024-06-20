@@ -5,7 +5,7 @@ module DataCycleCore
     module Common
       module ImportConceptSchemes
         module ClassMethods
-          ALLOWED_CONCEPT_SCHEME_KEYS = [:external_key, :name, :external_source_id, :updated_at, :created_at].freeze
+          ALLOWED_CONCEPT_SCHEME_KEYS = [:external_key, :name, :external_source_id, :updated_at, :created_at, :visibility].freeze
 
           def import_data(utility_object:, options:)
             DataCycleCore::Generic::Common::ImportFunctions.import_concept_schemes(
@@ -56,9 +56,14 @@ module DataCycleCore
                 name:,
                 external_system_identifier:,
                 created_at: Time.zone.now,
-                updated_at: Time.zone.now
+                updated_at: Time.zone.now,
+                visibility: default_visibility(options)
               }.compact
             end
+          end
+
+          def default_visibility(options)
+            options.dig(:import, :concept_scheme_default_visibility) || DataCycleCore.default_classification_visibilities
           end
 
           def extract_property(data, options, identifier)
@@ -86,7 +91,7 @@ module DataCycleCore
               end
             end
 
-            concept_schemes_by_name = DataCycleCore::ConceptScheme.where(name: data_array.pluck(:name)).index_by(&:name)
+            concept_schemes_by_name = DataCycleCore::ConceptScheme.all.index_by(&:name)
 
             data_array.map do |da|
               existing = concept_schemes_by_name[da[:name]]
@@ -99,6 +104,7 @@ module DataCycleCore
               existing = concept_schemes_by_name[da[:name]]
               raise "ConceptScheme (#{da[:name]}) already exists from another source!" if existing.present? && existing.external_system_id != da[:external_source_id]
 
+              da[:visibility] = existing.visibility if existing.present?
               da.slice(*ALLOWED_CONCEPT_SCHEME_KEYS)
             end
           end
