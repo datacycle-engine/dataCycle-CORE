@@ -111,6 +111,9 @@ namespace :data_cycle_core do
           ]
         )
       )
+
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].invoke(true, false, 'activities')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].reenable
     end
   end
 end
