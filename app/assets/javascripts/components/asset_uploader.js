@@ -176,9 +176,7 @@ class AssetUploader {
 
 			if (data.created) this.reveal.foundation("close");
 		} else if (data.redirect_path) {
-			setTimeout(() => {
-				window.location.href = data.redirect_path;
-			}, 3000);
+			window.location.href = data.redirect_path;
 		}
 
 		if (!data.created && data.error) {

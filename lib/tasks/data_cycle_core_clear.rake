@@ -85,9 +85,9 @@ namespace :data_cycle_core do
       ActiveRecord::Base.connection.execute(delete_soft_deleted_classifications)
     end
 
-    desc 'Remove activities except type donwload older than 3 monts [include_downloads=false, max_age=today-3months]'
+    desc 'Remove activities except type donwload older than 3 months [include_downloads=false, max_age=90]. Max age is in days.'
     task :activities, [:include_downloads, :max_age] => [:environment] do |_, args|
-      max_age = args.max_age || 3.months.ago.to_date.to_s
+      max_age = (args.max_age&.to_i&.days || 3.months).ago
       include_downloads = args.include_downloads.to_s == 'true'
 
       persistent_activities = DataCycleCore.persistent_activities
