@@ -204,7 +204,7 @@ module DataCycleCore
       end
 
       def sort_proximity_in_occurrence(ordering = '', value = {})
-        proximity_in_occurrence(ordering, value, false)
+        proximity_in_occurrence(ordering, value, true)
       end
 
       def sort_proximity_in_occurrence_pia(ordering = '', value = {})
@@ -314,18 +314,13 @@ module DataCycleCore
         joined_table_name = "schedules_#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
-            SELECT
-              a.thing_id,
+            SELECT a.thing_id,
               1 AS "occurrence_exists",
-              #{min_start_date} as "min_start_date"
-            FROM
-              schedules a,
-              UNNEST(a.occurrences) so(occurrence)
-            WHERE
-              things.id = a.thing_id
-              AND so.occurrence && TSTZRANGE(?, ?)
-            GROUP BY
-              a.thing_id
+              CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
+            FROM schedules a
+            LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(?, ?)
+            WHERE things.id = a.thing_id
+            GROUP BY a.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
@@ -417,18 +412,13 @@ module DataCycleCore
         joined_table_name = "schedules_#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
-            SELECT
-              a.thing_id,
+            SELECT a.thing_id,
               1 AS "occurrence_exists",
-              #{min_start_date} as "min_start_date"
-            FROM
-              schedules a,
-              UNNEST(a.occurrences) so(occurrence)
-            WHERE
-              things.id = a.thing_id
-              AND so.occurrence && TSTZRANGE(?, ?)
-            GROUP BY
-              a.thing_id
+              CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
+            FROM schedules a
+            LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(?, ?)
+            WHERE things.id = a.thing_id
+            GROUP BY a.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
