@@ -25,10 +25,10 @@ module DataCycleCore
 
       return where(id: value) if value.uuid?
 
-      q = text_to_tsquery(value)
+      q = text_to_websearch_tsquery(value)
 
-      where("collections.search_vector @@ to_tsquery('simple', ?)", q)
-      .reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, [Arel.sql("ts_rank_cd(collections.search_vector, to_tsquery('simple', ?), 1) DESC"), q]))
+      where("collections.search_vector @@ websearch_to_prefix_tsquery('simple', ?)", q)
+      .reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, [Arel.sql("ts_rank_cd(collections.search_vector, websearch_to_prefix_tsquery('simple', ?), 1) DESC"), q]))
     }
 
     scope :by_id_or_slug, lambda { |value|

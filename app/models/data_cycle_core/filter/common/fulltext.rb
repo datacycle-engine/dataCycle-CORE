@@ -23,13 +23,13 @@ module DataCycleCore
         def ts_query_fulltext_search(name)
           return self if name.blank?
 
-          q = text_to_tsquery(name)
+          q = text_to_websearch_tsquery(name)
 
           reflect(
             @query
               .where(
                 search_exists(
-                  tsmatch(search[:search_vector], to_tsquery(quoted(q), pg_dict_mapping[:dict])),
+                  tsmatch(search[:search_vector], websearch_to_prefix_tsquery(q, pg_dict_mapping[:dict])),
                   true
                 )
               )

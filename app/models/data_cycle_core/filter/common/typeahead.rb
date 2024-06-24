@@ -61,6 +61,7 @@ module DataCycleCore
           ).to_a.pluck('headline').map(&:strip)
         end
 
+        # not working in special cases, as text_to_tsquery does not parse everything correctly
         # possible weights: A, B, C, D
         # A: name (headline)
         # B: slug

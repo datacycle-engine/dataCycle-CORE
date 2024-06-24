@@ -204,7 +204,7 @@ module DataCycleCore
       end
 
       def sort_proximity_in_occurrence(ordering = '', value = {})
-        proximity_in_occurrence(ordering, value, false)
+        proximity_in_occurrence(ordering, value, true)
       end
 
       def sort_proximity_in_occurrence_pia(ordering = '', value = {})
@@ -314,18 +314,13 @@ module DataCycleCore
         joined_table_name = "schedules_#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
-            SELECT
-              a.thing_id,
+            SELECT a.thing_id,
               1 AS "occurrence_exists",
-              #{min_start_date} as "min_start_date"
-            FROM
-              schedules a,
-              UNNEST(a.occurrences) so(occurrence)
-            WHERE
-              things.id = a.thing_id
-              AND so.occurrence && TSTZRANGE(?, ?)
-            GROUP BY
-              a.thing_id
+              CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
+            FROM schedules a
+            LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(?, ?)
+            WHERE things.id = a.thing_id
+            GROUP BY a.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
@@ -417,18 +412,13 @@ module DataCycleCore
         joined_table_name = "schedules_#{SecureRandom.hex(10)}"
         order_parameter_join = <<-SQL.squish
           LEFT OUTER JOIN LATERAL (
-            SELECT
-              a.thing_id,
+            SELECT a.thing_id,
               1 AS "occurrence_exists",
-              #{min_start_date} as "min_start_date"
-            FROM
-              schedules a,
-              UNNEST(a.occurrences) so(occurrence)
-            WHERE
-              things.id = a.thing_id
-              AND so.occurrence && TSTZRANGE(?, ?)
-            GROUP BY
-              a.thing_id
+              CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
+            FROM schedules a
+            LEFT OUTER JOIN UNNEST(a.occurrences) so(occurrence) ON so.occurrence && TSTZRANGE(?, ?)
+            WHERE things.id = a.thing_id
+            GROUP BY a.thing_id
           ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
         SQL
 
@@ -479,7 +469,7 @@ module DataCycleCore
       def sort_ts_rank_fulltext_search(ordering, value)
         return self if value.blank?
 
-        q = text_to_tsquery(value)
+        q = text_to_websearch_tsquery(value)
         locale = @locale&.first || I18n.available_locales.first.to_s
 
         reflect(
@@ -487,7 +477,7 @@ module DataCycleCore
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ? LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale', locale]))
             .reorder(nil)
             .order(
-              sanitized_order_string(ActiveRecord::Base.send(:sanitize_sql_for_order, [Arel.sql('ts_rank_cd(searches.search_vector, to_tsquery(pg_dict_mappings.dict, ?), 2)'), q]), ordering, true),
+              sanitized_order_string(ActiveRecord::Base.send(:sanitize_sql_for_order, [Arel.sql('ts_rank_cd(searches.search_vector, websearch_to_prefix_tsquery(pg_dict_mappings.dict, ?), 2)'), q]), ordering, true),
               sanitized_order_string('things.updated_at', 'DESC'),
               sanitized_order_string('things.id', 'DESC')
             )
