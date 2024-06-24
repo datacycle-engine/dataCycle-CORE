@@ -10,12 +10,10 @@ namespace :dc do
       run_now = args.fetch(:run_now, false) == 'true' || args.fetch(:run_now, false) == true
       if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download_import', delayed_reference_id: external_source.id, locked_at: nil, failed_at: nil)
         # do nothing
-      elsif run_now
-        DataCycleCore::DownloadJob.perform_now(external_source.id) if external_source.download_config.present?
+      elsif run_now && external_source.import_config.present?
         DataCycleCore::ImportJob.perform_now(external_source.id, args.fetch(:mode, nil)) if external_source.import_config.present?
-      else
-        DataCycleCore::DownloadJob.perform_later(external_source.id) if external_source.download_config.present?
-        DataCycleCore::ImportJob.perform_later(external_source.id, args.fetch(:mode, nil)) if external_source.import_config.present?
+      elsif external_source.import_config.present?
+        DataCycleCore::ImportJob.perform_later(external_source.id, args.fetch(:mode, nil))
       end
     end
 
