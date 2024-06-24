@@ -776,6 +776,15 @@ CREATE FUNCTION public.upsert_concept_tables_trigger_function() RETURNS trigger
     AS $$ BEGIN WITH groups AS ( SELECT cg.*, ( ( SELECT COUNT(cg1.id) <= 1 FROM classification_groups cg1 WHERE cg1.classification_alias_id = cg.classification_alias_id AND cg1.deleted_at IS NULL ) ) AS PRIMARY FROM new_classification_groups cg ), updated_concepts AS ( UPDATE concepts SET classification_id = groups.classification_id, external_system_id = coalesce( ca.external_source_id, c.external_source_id, concepts.external_system_id ), external_key = coalesce( ca.external_key, c.external_key, concepts.external_key ), uri = coalesce(ca.uri, c.uri, concepts.uri) FROM groups LEFT OUTER JOIN classifications c ON c.id = groups.classification_id AND c.deleted_at IS NULL LEFT OUTER JOIN classification_aliases ca ON ca.id = groups.classification_alias_id AND ca.deleted_at IS NULL WHERE concepts.id = groups.classification_alias_id AND groups.primary = TRUE ) INSERT INTO concept_links(id, parent_id, child_id, link_type) SELECT groups.id, groups.classification_alias_id, pcg.classification_alias_id, 'related' FROM groups JOIN primary_classification_groups pcg ON pcg.classification_id = groups.classification_id AND pcg.deleted_at IS NULL WHERE groups.primary = false ON CONFLICT DO NOTHING; RETURN NULL; END; $$;
 
 
+--
+-- Name: websearch_to_prefix_tsquery(regconfig, text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.websearch_to_prefix_tsquery(regconfig, text) RETURNS tsquery
+    LANGUAGE plpgsql IMMUTABLE STRICT COST 101 PARALLEL SAFE
+    AS $_$ DECLARE BEGIN RETURN REPLACE( websearch_to_tsquery($1, $2)::text || ' ', ''' ', ''':*' ); END; $_$;
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -4994,6 +5003,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240606080312'),
 ('20240611101126'),
 ('20240614081426'),
-('20240618110250');
+('20240618110250'),
+('20240624062503');
 
 
