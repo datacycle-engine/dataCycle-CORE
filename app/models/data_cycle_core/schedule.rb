@@ -817,6 +817,8 @@ module DataCycleCore
     end
 
     def self.schedule_occurrences_sql(range_start:, range_end:)
+      # public prefix is required for types and functions from pg_rrule extension
+
       sql = <<-SQL.squish
         CREATE OR REPLACE FUNCTION generate_schedule_occurences_array(
             s_dtstart timestamp WITH time zone,
@@ -844,13 +846,13 @@ module DataCycleCore
         CASE
           WHEN s_rrule IS NULL THEN all_occurrences := ARRAY [(s_dtstart AT TIME ZONE 'Europe/Vienna')::timestamp WITHOUT time zone];
 
-        WHEN s_rrule IS NOT NULL THEN all_occurrences := get_occurrences (
+        WHEN s_rrule IS NOT NULL THEN all_occurrences := public.get_occurrences (
           (
             CASE
               WHEN s_rrule LIKE '%UNTIL%' THEN s_rrule
               ELSE (s_rrule || ';UNTIL=#{range_end}')
             END
-          )::rrule,
+          )::public.rrule,
           s_dtstart AT TIME ZONE 'Europe/Vienna',
           :range_end AT TIME ZONE 'Europe/Vienna'
         );
