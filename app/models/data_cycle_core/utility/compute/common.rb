@@ -67,7 +67,7 @@ module DataCycleCore
             exptects_array ? [[]] : []
           end
 
-          def attribute_value_by_first_match(computed_parameters:, computed_definition:, **_args)
+          def attribute_value_by_first_match(computed_parameters:, computed_definition:, content:, **_args)
             Array.wrap(computed_definition.dig('compute', 'value')).each do |config|
               value = Array.wrap(get_values_from_hash(data: computed_parameters, key_path: config['attribute'].split('.'), filter: config['filter'], external_key_prefix: content&.id)).compact.first
 
