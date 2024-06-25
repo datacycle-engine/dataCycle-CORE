@@ -115,7 +115,7 @@ module DataCycleCore
         def add_compute_definition_for_prop!(key:, prop:)
           prop[:compute] = {
             module: 'Common',
-            method: 'attribute_value_from_first_linked',
+            method: 'attribute_value_from_first_existing_linked',
             parameters: [
               "#{self.class.aggregate_property_key(key)}.#{key}",
               "#{AGGREGATE_PROPERTY_NAME}.#{key}"
