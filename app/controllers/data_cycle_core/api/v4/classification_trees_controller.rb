@@ -56,10 +56,13 @@ module DataCycleCore
           query = build_search_query
 
           min_count_without_subtree = permitted_params[:min_count_without_subtree].to_i
+          min_count_without_subtree_sanitized = ActiveRecord::Base.connection.quote(min_count_without_subtree)
           min_count_with_subtree = [permitted_params[:min_count_with_subtree].to_i, min_count_without_subtree].max
+          min_count_with_subtree_sanitized = ActiveRecord::Base.connection.quote(min_count_with_subtree)
+          join_type = min_count_with_subtree.positive? || min_count_without_subtree.positive? ? 'INNER' : 'LEFT'
 
           join_sql = <<~SQL.squish
-            #{min_count_with_subtree.positive? || min_count_without_subtree.positive? ? 'INNER' : 'LEFT'} JOIN LATERAL (SELECT ccc1.classification_alias_id,
+            #{join_type} JOIN LATERAL (SELECT ccc1.classification_alias_id,
               COUNT(DISTINCT ccc1.thing_id) AS thing_count_with_subtree,
               COUNT(DISTINCT ccc1.thing_id) filter (WHERE ccc1.direct = TRUE) AS thing_count_without_subtree
               FROM collected_classification_contents ccc1
@@ -67,8 +70,8 @@ module DataCycleCore
                                                 @classification_tree_label.id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).select(1).to_sql})
               GROUP BY ccc1.classification_alias_id
             ) ccc ON ccc.classification_alias_id = classification_aliases.id
-                AND COALESCE(ccc.thing_count_with_subtree, 0) >= #{min_count_with_subtree}
-                AND COALESCE(ccc.thing_count_without_subtree, 0) >= #{min_count_without_subtree}
+                AND COALESCE(ccc.thing_count_with_subtree, 0) >= #{min_count_with_subtree_sanitized}
+                AND COALESCE(ccc.thing_count_without_subtree, 0) >= #{min_count_without_subtree_sanitized}
           SQL
 
           select_sql = <<-SQL.squish
