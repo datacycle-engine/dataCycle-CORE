@@ -11,6 +11,7 @@ module DataCycleCore
         ALLOWED_FILTER_ATTRIBUTES = [:'dct:modified', :'dct:created', :'dct:deleted', :'skos:broader', :'skos:ancestors'].freeze
         ALLOWED_SORT_ATTRIBUTES = { 'dct:created' => 'created_at', 'dct:modified' => 'updated_at' }.freeze
         ALLOWED_FACET_SORT_ATTRIBUTES = { 'dc:thingCountWithSubtree' => 'thing_count_with_subtree', 'dc:thingCountWithoutSubtree' => 'thing_count_without_subtree' }.freeze
+        VALIDATE_PARAMS_CONTRACT = MasterData::Contracts::ClassificationContract
 
         def index
           @classification_tree_labels = ClassificationTreeLabel.where(internal: false).visible('api')
@@ -54,7 +55,21 @@ module DataCycleCore
           @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:classification_tree_label_id])
           query = build_search_query
 
-          join_sql = "LEFT OUTER JOIN LATERAL (SELECT ccc1.classification_alias_id, COUNT(DISTINCT ccc1.thing_id) AS thing_count_with_subtree, COUNT(DISTINCT ccc1.thing_id) filter (WHERE ccc1.direct = TRUE) AS thing_count_without_subtree FROM collected_classification_contents ccc1 WHERE EXISTS (#{query.query.where('things.id = ccc1.thing_id AND ccc1.classification_tree_label_id = ?', @classification_tree_label.id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).select(1).to_sql}) GROUP BY ccc1.classification_alias_id) ccc ON ccc.classification_alias_id = classification_aliases.id"
+          min_count_without_subtree = permitted_params[:min_count_without_subtree].to_i
+          min_count_with_subtree = [permitted_params[:min_count_with_subtree].to_i, min_count_without_subtree].max
+
+          join_sql = <<~SQL.squish
+            #{min_count_with_subtree.positive? || min_count_without_subtree.positive? ? 'INNER' : 'LEFT'} JOIN LATERAL (SELECT ccc1.classification_alias_id,
+              COUNT(DISTINCT ccc1.thing_id) AS thing_count_with_subtree,
+              COUNT(DISTINCT ccc1.thing_id) filter (WHERE ccc1.direct = TRUE) AS thing_count_without_subtree
+              FROM collected_classification_contents ccc1
+              WHERE EXISTS (#{query.query.where('things.id = ccc1.thing_id AND ccc1.classification_tree_label_id = ?',
+                                                @classification_tree_label.id).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).select(1).to_sql})
+              GROUP BY ccc1.classification_alias_id
+            ) ccc ON ccc.classification_alias_id = classification_aliases.id
+                AND COALESCE(ccc.thing_count_with_subtree, 0) >= #{min_count_with_subtree}
+                AND COALESCE(ccc.thing_count_without_subtree, 0) >= #{min_count_without_subtree}
+          SQL
 
           select_sql = <<-SQL.squish
             classification_aliases.*,
