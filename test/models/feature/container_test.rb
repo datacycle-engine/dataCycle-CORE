@@ -67,7 +67,7 @@ module DataCycleCore
 
       assert_equal(1, data_set.children.count)
       save_time = Time.zone.now
-      data_set.destroy_content(current_user:, save_time:)
+      data_set.destroy(current_user:, save_time:)
 
       assert_equal(0, DataCycleCore::Thing.count - template)
       assert_equal(0, DataCycleCore::Thing::Translation.count - template_trans)

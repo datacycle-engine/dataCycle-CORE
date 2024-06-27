@@ -145,10 +145,20 @@ class MapLibreGlEditor extends MapLibreGlViewer {
 			.addClass("dc-import-data");
 		this.$latitudeField.on("change", this.updateMapMarker.bind(this));
 		this.$longitudeField.on("change", this.updateMapMarker.bind(this));
+
 		if (this.$geoCodeButton)
 			this.$geoCodeButton.on("click", this.geoCodeAddress.bind(this));
-	}
 
+		this.container.addEventListener("clear", this.clear.bind(this));
+	}
+	clear(event) {
+		event.preventDefault();
+
+		if (this.draw) {
+			this.draw.trash();
+			this.changeDrawMode();
+		}
+	}
 	async initAdditionalControls() {
 		await this.initDrawControl();
 		if (this.uploadable)

@@ -10,7 +10,7 @@
 
   <div class="edit-type geographic">
     <div id="map_<%= SecureRandom.hex(16) %>"
-          class="geographic-map <%= geometry_class %> <%= 'editor' if can?(:update, DataCycleCore::DataAttribute.new(key, definition, options, content, :update)) %>"
+          class="geographic-map <%= geometry_class %> <%= 'editor' if attribute_editable?(key, definition, options, content) %>"
           data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
           data-type="<%= geometry_type.to_s %>"
           data-value="<%= value_to_geojson(value, {'@id': content.id})&.to_json %>"

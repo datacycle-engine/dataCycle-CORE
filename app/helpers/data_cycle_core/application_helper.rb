@@ -221,7 +221,7 @@ module DataCycleCore
     end
 
     def new_dialog_config(template, except = nil, filter = nil)
-      if Feature::Aggregate.enabled? && Feature::Aggregate.allowed?(template)
+      if Feature::Aggregate.enabled? && Feature::Aggregate.aggregate?(template)
         { 'name' => [MasterData::Templates::AggregateTemplate::AGGREGATE_PROPERTY_NAME] }
       elsif DataCycleCore.new_dialog.key?(template&.template_name&.underscore_blanks)
         DataCycleCore.new_dialog.dig(template&.template_name&.underscore_blanks) || {}

@@ -38,12 +38,16 @@ module DataCycleCore
           MasterData::Templates::Extensions::Overlay.overlay_attribute?(key&.attribute_name_from_key)
       end
 
+      def aggregated_attribute?
+        DataCycleCore::Feature::Aggregate.allowed_attribute_key?(content, key&.attribute_name_from_key)
+      end
+
       def specific_scope
         parameters&.dig(:options, :edit_scope)&.to_s
       end
 
       def render_overlay_attribute?
-        content.external? && specific_scope == 'edit'
+        (content.external? || content.aggregate_type_aggregate?) && specific_scope == 'edit'
       end
 
       def add_overlay_properties!

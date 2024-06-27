@@ -771,6 +771,11 @@ de:
       label_postfix:
         override: (Overlay)
         add: (Anhang)
+    aggregate:
+      types:
+        default: Alleinstehend
+        aggregate: Aggregat
+        belongs_to_aggregate: mit Aggregat verknüpft
 
     report_generator:
       downloads_popular: Top 50 Downloads
@@ -1006,6 +1011,7 @@ de:
     min_altitude: Minimale Seehöhe (m)
     max_altitude: Maximale Seehöhe (m)
     length: Länge (m)
+    aggregate_filter: Aggregatstyp
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern ...
@@ -1029,6 +1035,7 @@ de:
     in_schedule: nach Termin filtern ...
     inactive_things: nach abgelaufenen Inhalten filtern ...
     graph_filter: Über Verknüpften Inhalt filtern...
+    aggregate_filter: nach Aggregaten filter...
 
   sortable:
     default: Standard

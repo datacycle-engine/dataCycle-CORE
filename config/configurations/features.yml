@@ -286,6 +286,7 @@
   #  :graph_filter:
   #    :items_linked_to: true
   #    :linked_items_in: true
+  #  :aggregate_filter: true
 
 :sortable:
   :enabled: false

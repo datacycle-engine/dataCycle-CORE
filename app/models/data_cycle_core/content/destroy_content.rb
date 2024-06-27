@@ -3,14 +3,15 @@
 module DataCycleCore
   module Content
     module DestroyContent
-      def destroy_content(current_user: nil, save_time: Time.zone.now, save_history: true, destroy_locale: false, destroy_linked: false, destroyed_ancestors: [])
+      def destroy(current_user: nil, save_time: Time.zone.now, save_history: true, destroy_locale: false, destroy_linked: false, destroyed_ancestors: [])
         return self if destroy_locale && available_locales.exclude?(I18n.locale)
         return self if destroyed_ancestors.include?(id)
 
-        transaction(joinable: false, requires_new: true) do
-          new_destroyed_ancestors = destroyed_ancestors.push(id)
+        current_user ||= parent&.deleted_by_user if respond_to?(:parent)
 
-          children.each { |item| item.destroy_content(current_user:, save_time:, destroyed_ancestors: new_destroyed_ancestors) } if respond_to?(:children)
+        transaction(joinable: false, requires_new: true) do
+          new_destroyed_ancestors = destroyed_ancestors + [id]
+
           if save_history && !history?
             update_columns(deleted_at: save_time, deleted_by: current_user&.id)
             to_history(delete: true, all_translations: !(destroy_locale && available_locales.many?))
@@ -23,21 +24,23 @@ module DataCycleCore
           else
             before_destroy_data_hash(DataCycleCore::Content::DataHashOptions.new(current_user:, save_time:)) unless history?
             destroy_linked_data(current_user:, save_time:, save_history:, destroy_linked:, destroyed_ancestors: new_destroyed_ancestors) if destroy_linked
-            destroy
+            super()
           end
         end
 
         self
       end
 
+      alias destroy_content destroy
+
       def destroy_children(current_user: nil, save_time: Time.zone.now, destroy_linked: false, destroy_locale: false, destroyed_ancestors: [])
         embedded_property_names.each do |name|
           load_embedded_objects(name, nil, destroy_locale).each do |item|
             if destroy_locale && item.available_locales.many?
-              item.destroy_children(current_user:, save_time:, destroy_linked:, destroy_locale:)
+              item.destroy_children(current_user:, save_time:, destroy_linked:, destroy_locale:, destroyed_ancestors:)
               item.destroy_translation(I18n.locale)
             else
-              item.destroy_content(current_user:, save_time:, save_history: false, destroy_linked:, destroy_locale:, destroyed_ancestors:)
+              item.destroy(current_user:, save_time:, save_history: false, destroy_linked:, destroy_locale:, destroyed_ancestors:)
             end
           end
         end
@@ -62,7 +65,7 @@ module DataCycleCore
 
           load_linked_objects(name).each do |item|
             next if number_of_unique_links(item.id) > 1
-            item.destroy_content(current_user:, save_time:, save_history:, destroy_linked:, destroyed_ancestors:)
+            item.destroy(current_user:, save_time:, save_history:, destroy_linked:, destroyed_ancestors:)
           end
         end
       end

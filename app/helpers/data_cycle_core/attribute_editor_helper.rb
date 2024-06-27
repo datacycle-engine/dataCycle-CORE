@@ -25,6 +25,8 @@ module DataCycleCore
     end
 
     def attribute_editable?(key, definition, options, content)
+      # binding.pry if key.include?('additional_information') && key.attribute_name_from_key == 'image'
+
       @attribute_editable ||= Hash.new do |h, k|
         h[k] = can?(:update, DataCycleCore::DataAttribute.new(*k, :update, k.dig(2, 'edit_scope')))
       end
@@ -35,7 +37,7 @@ module DataCycleCore
     def attribute_editor_allowed(options)
       return render('data_cycle_core/contents/editors/attribute_group', options.render_params) if options.type?('attribute_group')
       return if options.type?('slug') && options.parameters[:parent]&.embedded?
-      return if options.definition.key?('compute')
+      return if options.definition.key?('compute') && !options.aggregated_attribute?
       return if options.definition.key?('virtual')
 
       if options.overlay_attribute?
@@ -119,6 +121,12 @@ module DataCycleCore
 
     def embedded_key_prefix(key, index)
       "#{key}[#{index}]#{ATTRIBUTE_DATAHASH_PREFIX}"
+    end
+
+    def nested_definition(definition, options)
+      return definition unless options.dig(:readonly)
+
+      definition.deep_merge({ 'ui' => { 'edit' => { 'readonly' => options.dig(:readonly) } } })
     end
 
     def attribute_editor_html_classes(key:, definition:, options:, content: nil, parent: nil, **_args)

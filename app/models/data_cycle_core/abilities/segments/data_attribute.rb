@@ -44,7 +44,7 @@ module DataCycleCore
 
         def overlay_attribute_visible?(attribute)
           return true unless DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
-          return true if attribute.content&.external? && DataCycleCore::Feature::Overlay.allowed?(attribute.content)
+          return true if (attribute.content&.external? || attribute.content&.aggregate_type_aggregate?) && DataCycleCore::Feature::Overlay.allowed?(attribute.content)
 
           false
         end

@@ -28,7 +28,7 @@ module DataCycleCore
           translated_string_value: 'test de',
           linked_value: [@linked_content.id],
           embedded_value: [{ name: 'embedded test', embedded_sub_value: [{ name: 'sub embedded test' }] }],
-          translated_embedded_value: [{ name: 'embedded test de' }],
+          translated_embedded_value: [{ name: 'embedded test de', embedded_sub_value: [{ name: 'sub embedded test de' }] }],
           date_value: Time.zone.today.to_date,
           datetime_value: DateTime.now,
           boolean_value: true,
@@ -62,6 +62,7 @@ module DataCycleCore
     def subject_method(attribute, override_parameters, parameters)
       DataCycleCore::Utility::Compute::Common.attribute_value_from_first_existing_linked(
         content: @new_content,
+        key: attribute,
         computed_definition: {
           'compute' => {
             'parameters' => [
@@ -321,8 +322,8 @@ module DataCycleCore
       assert_empty(value)
     end
 
-    test 'return embedded_value from first linked, if present?' do
-      key = 'embedded_value'
+    test 'return translated_embedded_value from first linked, if present?' do
+      key = 'translated_embedded_value'
       value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access
       assert_equal(orig_value['name'], value['name'])
@@ -338,6 +339,43 @@ module DataCycleCore
       assert_equal(@new_content.try(key).first.id, value['id'])
       assert_equal(@new_content.try(key).first.embedded_sub_value.first.id, value.dig('embedded_sub_value', 0, 'id'))
       assert_equal("#{@new_content.id}_#{key}_#{orig_value['id']}_embedded_sub_value_#{orig_value.dig('embedded_sub_value', 0, 'id')}", value.dig('embedded_sub_value', 0, 'external_key'))
+
+      value = subject_method(key, nil, [@content3.id, @content1.id]).first
+      orig_value = @content1.send(key).first.to_h.with_indifferent_access
+      assert_equal(orig_value['name'], value['name'])
+
+      value = subject_method(key, nil, [@content1.id]).first
+      orig_value = @content1.send(key).first.to_h.with_indifferent_access
+      assert_equal(orig_value['name'], value['name'])
+
+      value = subject_method(key, [@content1.id], [@content2.id, @content3.id, @content1.id]).first
+      orig_value = @content1.send(key).first.to_h.with_indifferent_access
+      assert_equal(orig_value['name'], value['name'])
+
+      value = subject_method(key, [@content2.id], [@content2.id, @content3.id, @content1.id])
+      assert_empty(value)
+
+      value = subject_method(key, [@content3.id], [@content2.id, @content3.id, @content1.id])
+      assert_empty(value)
+    end
+
+    test 'return embedded_value from first linked, if present?' do
+      key = 'embedded_value'
+      value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id]).first
+      orig_value = @content1.send(key).first.to_h.with_indifferent_access
+      assert_equal(orig_value['name'], value['name'])
+      assert_equal("#{@new_content.id}_de_#{key}_#{orig_value['id']}", value['external_key'])
+      assert_nil(value['id'])
+
+      @new_content.set_data_hash(data_hash: { key => [value]})
+
+      value = subject_method(key, nil, [@content2.id, @content3.id, @content1.id]).first
+      orig_value = @content1.send(key).first.to_h.with_indifferent_access
+      assert_equal(orig_value['name'], value['name'])
+      assert_equal("#{@new_content.id}_de_#{key}_#{orig_value['id']}", value['external_key'])
+      assert_equal(@new_content.try(key).first.id, value['id'])
+      assert_equal(@new_content.try(key).first.embedded_sub_value.first.id, value.dig('embedded_sub_value', 0, 'id'))
+      assert_equal("#{@new_content.id}_de_#{key}_#{orig_value['id']}_embedded_sub_value_#{orig_value.dig('embedded_sub_value', 0, 'id')}", value.dig('embedded_sub_value', 0, 'external_key'))
 
       value = subject_method(key, nil, [@content3.id, @content1.id]).first
       orig_value = @content1.send(key).first.to_h.with_indifferent_access

@@ -8,7 +8,7 @@ module DataCycleCore
         AGGREGATE_PROPERTY_NAME = 'aggregate_for'
         AGGREGATE_INVERSE_PROPERTY_NAME = 'belongs_to_aggregate'
         AGGREGATE_KEY_EXCEPTIONS = ['overlay'].freeze
-        PROPS_WITHOUT_AGGREGATE = [AGGREGATE_PROPERTY_NAME, AGGREGATE_INVERSE_PROPERTY_NAME, *AGGREGATE_KEY_EXCEPTIONS, 'id'].freeze
+        PROPS_WITHOUT_AGGREGATE = [AGGREGATE_PROPERTY_NAME, AGGREGATE_INVERSE_PROPERTY_NAME, *AGGREGATE_KEY_EXCEPTIONS, 'id', 'external_key', 'schema_types', 'date_created', 'date_modified', 'date_deleted', 'data_type'].freeze
 
         def initialize(data:, template_thing:)
           @data = data
@@ -48,7 +48,12 @@ module DataCycleCore
         end
 
         def self.key_allowed_for_aggregate?(key:, template_thing:)
-          (PROPS_WITHOUT_AGGREGATE + template_thing.virtual_property_names + template_thing.computed_property_names).exclude?(key)
+          (
+            PROPS_WITHOUT_AGGREGATE +
+            template_thing.virtual_property_names +
+            template_thing.computed_property_names +
+            template_thing.inverse_linked_property_names
+          ).exclude?(key)
         end
 
         private
@@ -66,6 +71,7 @@ module DataCycleCore
         def transform_aggregate_features!
           @aggregate[:features] ||= {}
           @aggregate[:features][:overlay] = { allowed: true }
+          @aggregate[:features][:aggregate] = { aggregate: true }
         end
 
         def transform_aggregate_properties!
@@ -78,11 +84,12 @@ module DataCycleCore
             prop.except!(*AGGREGATE_PROP_EXCEPTIONS)
             add_prop_ui_definition!(prop:)
             add_compute_definition_for_prop!(key:, prop:)
+            add_feature_definition_for_prop!(prop:)
             prop[:overlay] = true if TemplatePropertyContract::ALLOWED_OVERLAY_TYPES.include?(prop[:type]) && TemplatePropertyContract::OVERLAY_KEY_EXCEPTIONS.exclude?(key)
 
             props.push([
                          self.class.aggregate_property_key(key),
-                         aggregate_property_definition(prop:)
+                         aggregate_property_definition(key:, prop:)
                        ])
             props.push([key, prop])
           end
@@ -90,14 +97,24 @@ module DataCycleCore
           @aggregate[:properties] = props.to_h
         end
 
-        def aggregate_property_definition(prop:)
+        def aggregate_prop_label(key:, prop:)
+          label = prop[:label].presence || I18n.t("attribute_labels.#{key}", locale: I18n.available_locales.first)
+
+          "Aggregat-Override für #{label}"
+        end
+
+        def aggregate_property_definition(key:, prop:)
           {
-            label: "Aggregat-Override für #{prop[:label]}",
+            label: aggregate_prop_label(key:, prop:),
             type: 'linked',
             template_name: @template_thing.template_name,
             visible: ['show', 'edit'],
             ui: {
+              show: {
+                disabled: prop.dig(:ui, :show, :disabled)
+              },
               edit: {
+                disabled: prop.dig(:ui, :edit, :disabled),
                 options: {
                   limited_by: "thing[datahash][#{AGGREGATE_PROPERTY_NAME}]"
                 }
@@ -121,6 +138,11 @@ module DataCycleCore
               "#{AGGREGATE_PROPERTY_NAME}.#{key}"
             ]
           }
+        end
+
+        def add_feature_definition_for_prop!(prop:)
+          prop[:features] ||= {}
+          prop[:features][:aggregate] = { allowed: true}
         end
 
         def add_aggregate_property!

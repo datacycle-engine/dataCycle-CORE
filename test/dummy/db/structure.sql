@@ -94,6 +94,17 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 
 
 --
+-- Name: aggregate_type; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.aggregate_type AS ENUM (
+    'default',
+    'aggregate',
+    'belongs_to_aggregate'
+);
+
+
+--
 -- Name: array_reverse(anyarray); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3034,7 +3045,8 @@ CREATE TABLE public.things (
     last_updated_locale character varying,
     write_history boolean DEFAULT false NOT NULL,
     geom_simple public.geometry(Geometry,4326),
-    geom public.geometry(GeometryZ,4326)
+    geom public.geometry(GeometryZ,4326),
+    aggregate_type public.aggregate_type DEFAULT 'default'::public.aggregate_type NOT NULL
 );
 
 
@@ -3408,7 +3420,8 @@ CREATE TABLE public.thing_histories (
     representation_of_id uuid,
     version_name character varying,
     line public.geometry(MultiLineStringZ,4326),
-    last_updated_locale character varying
+    last_updated_locale character varying,
+    aggregate_type public.aggregate_type DEFAULT 'default'::public.aggregate_type NOT NULL
 );
 
 
@@ -4952,6 +4965,13 @@ CREATE INDEX index_subscriptions_on_user_id ON public.subscriptions USING btree 
 
 
 --
+-- Name: index_thing_histories_on_aggregate_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_histories_on_aggregate_type ON public.thing_histories USING btree (aggregate_type);
+
+
+--
 -- Name: index_thing_histories_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5047,6 +5067,13 @@ CREATE UNIQUE INDEX index_thing_translations_on_slug ON public.thing_translation
 --
 
 CREATE INDEX index_thing_translations_on_thing_id ON public.thing_translations USING btree (thing_id);
+
+
+--
+-- Name: index_things_on_aggregate_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_aggregate_type ON public.things USING btree (aggregate_type);
 
 
 --
@@ -6511,6 +6538,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240614081426'),
 ('20240618110250'),
 ('20240619082251'),
-('20240624062503');
+('20240624062503'),
+('20240625133900');
 
 

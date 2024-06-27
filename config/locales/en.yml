@@ -749,6 +749,11 @@ en:
       label_postfix:
         override: (Overlay)
         add: (Appendix)
+    aggregate:
+      types:
+        default: Standalone
+        aggregate: Aggregate
+        belongs_to_aggregate: belongs to aggregate
 
     report_generator:
       downloads_popular: Top 50 Downloads
@@ -961,6 +966,7 @@ en:
       not_access_token: no API token present
       confirmed_at: Email confirmed
       not_confirmed_at: Email not confirmed
+    aggregate_filter: Aggregate type
 
   filter_groups:
     classification_alias_ids: filter by classifications ...
@@ -981,7 +987,9 @@ en:
     related_to: filter by linked content ...
     in_schedule: filter by date ...
     inactive_things: filter for expired content ...
-    graph_filter: Filter via linked content...
+    graph_filter: filter via linked content...
+    aggregate_filter: filter by aggregates...
+
   sortable:
     default: Standard
     created_at: Creation date

@@ -40,6 +40,7 @@ module DataCycleCore
               v.delete('content_area') if v.is_a?(::Hash) && v['content_area'] == 'none'
             end
 
+            version_prop['ui']['edit'].delete('readonly') if version_prop.dig('ui', 'edit')&.key?('readonly')
             version_prop['ui'] ||= {}
             version_prop['ui']['edit'] ||= {}
             version_prop['ui']['edit']['data_attributes'] ||= {}

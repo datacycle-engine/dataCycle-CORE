@@ -4,6 +4,8 @@ module DataCycleCore
   module Utility
     module ContentScore
       module Base
+        extend Compute::Extensions::ValueByPathExtension
+
         class << self
           def calculate_content_score(key, data_hash, content)
             return unless DataCycleCore::Feature::ContentScore.enabled?

@@ -4,6 +4,8 @@ module DataCycleCore
   module Utility
     module Compute
       module Classification
+        extend Extensions::ValueByPathExtension
+
         class << self
           def keywords(computed_parameters:, **_args)
             DataCycleCore::Classification.find(Array.wrap(computed_parameters.values).flatten.reject(&:blank?)).map(&:name).join(',').presence
@@ -33,7 +35,7 @@ module DataCycleCore
           def from_geo_shape(computed_parameters:, computed_definition:, **_args)
             values = []
             computed_definition.dig('compute', 'parameters')&.each do |parameter_key|
-              location_value = Array.wrap(Common.get_values_from_hash(data: computed_parameters, key_path: parameter_key.split('.'))).first
+              location_value = Array.wrap(get_values_from_hash(data: computed_parameters, key_path: parameter_key.split('.'))).first
               if (location_value.is_a?(::String) && location_value.uuid?) || (location_value.is_a?(::Array) && location_value.first.to_s.uuid?)
                 polygons = DataCycleCore::Classification
                   .where(id: Array.wrap(location_value).compact_blank)
@@ -63,7 +65,7 @@ module DataCycleCore
 
           def copy_from_path(computed_parameters:, computed_definition:, **_args)
             Array.wrap(computed_definition.dig('compute', 'parameters')&.map do |path|
-              Array.wrap(Common.get_values_from_hash(data: computed_parameters, key_path: path.split('.')))
+              Array.wrap(get_values_from_hash(data: computed_parameters, key_path: path.split('.')))
             end).flatten.compact_blank.uniq
           end
 

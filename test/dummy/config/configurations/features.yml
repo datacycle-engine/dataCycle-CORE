@@ -157,8 +157,8 @@
 
 :user_registration:
   :enabled: true
-  :terms_condition_url: 'https://datacycle.info/de/allgemeine-geschaeftsbedingungen/'
-  :privacy_policy_url: 'https://open.datacycle.cloud/de/datenschutzerklaerung/'
+  :terms_condition_url: "https://datacycle.info/de/allgemeine-geschaeftsbedingungen/"
+  :privacy_policy_url: "https://open.datacycle.cloud/de/datenschutzerklaerung/"
 
 :preview:
   :enabled: true
@@ -169,9 +169,9 @@
 :translate:
   :enabled: true
   :allowed: true
-  :external_source: 'DeeplTranslate'
-  :endpoint: 'DataCycleCore::Generic::DeeplTranslate::DummyEndpoint'
-  :attribute_keys: ['text']
+  :external_source: "DeeplTranslate"
+  :endpoint: "DataCycleCore::Generic::DeeplTranslate::DummyEndpoint"
+  :attribute_keys: ["text"]
 
 :auto_translation:
   :enabled: true
@@ -199,3 +199,6 @@
     :content:
       :downloads_content:
         :enabled: true
+
+:aggregate:
+  :enabled: true

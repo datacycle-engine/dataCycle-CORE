@@ -107,19 +107,16 @@ module DataCycleCore
 
           return config[:hidden_filter].concat(selected) if advanced_filter.blank?
 
-          advanced_filter[:filters] = selected
+          allowed_filters = allowed_advanced_filters(user, config[:view_type], selected, c)
+          advanced_filter[:filters] = selected.select { |f| allowed_filters.any? { |af| af['t'] == f['t'] && af['n'] == f['n'] && af['q'] == f['q'] && af['c'] == f['c'] } }
+          config[:hidden_filter].concat(selected.reject { |f| allowed_filters.any? { |af| af['t'] == f['t'] && af['n'] == f['n'] && af['q'] == f['q'] && af['c'] == f['c'] } })
+
           visible_filters = DataCycleCore::Feature::AdvancedFilter.available_visible_filters(user, config[:view_type], advanced_filter[:config])
 
-          visible_filters.each do |filter|
-            filter_hash = {
-              'c' => c,
-              't' => filter[1],
-              'n' => filter.dig(2, :data, :name),
-              'q' => filter.dig(2, :data, :advancedType),
-              'identifier' => SecureRandom.hex(10)
-            }
+          visible_filters.each do |_k, v, data|
+            filter_hash = transform_advanced_filter(c, v, data)
 
-            existing_index = advanced_filter[:filters].index { |f| filter_hash.except('identifier').reject { |_, v| v.blank? } == f.slice('c', 't', 'n', 'q').reject { |_, v| v.blank? } }
+            existing_index = advanced_filter[:filters].index { |f| filter_hash.except('identifier').compact_blank == f.slice('c', 't', 'n', 'q').compact_blank }
 
             advanced_filter[:filters].prepend(existing_index ? advanced_filter[:filters].delete_at(existing_index) : filter_hash)
           end
@@ -200,6 +197,28 @@ module DataCycleCore
             .sort
             .group_by { |f| f[1] }
             .transform_keys { |k| I18n.t("filter_groups.#{k}", default: k, locale: user.ui_locale) }
+        end
+
+        private
+
+        def transform_advanced_filter(c, t, data)
+          {
+            'c' => c,
+            't' => t,
+            'n' => data&.dig(:data, :name),
+            'q' => data&.dig(:data, :advancedType),
+            'identifier' => SecureRandom.hex(10)
+          }
+        end
+
+        def allowed_advanced_filters(user, view_type, selected, c = 'a')
+          return [] if selected.blank?
+
+          filter_proc = ->(_, v, data) { selected.any? { |f| f['t'] == v && f['n'] == data&.dig(:data, :name) && f['q'] == data&.dig(:data, :advancedType) } }
+
+          DataCycleCore::Feature::AdvancedFilter
+            .all_available_filters(user, view_type, filter_proc)
+            .map { |_k, v, data| transform_advanced_filter(c, v, data) }
         end
       end
     end
