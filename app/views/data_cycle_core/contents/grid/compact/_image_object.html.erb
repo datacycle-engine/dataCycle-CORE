@@ -10,7 +10,7 @@
       <div class="description">
         <%= render_translatable_linked_field(content, 'data_cycle_core/contents/grid/compact/attributes/title', { object: object }) %>
       </div>
-      <%= tag.span(tag.i(class: 'fa fa-bars'), class: 'draggable-handle') if local_assigns[:edit_buttons] && can?(:update, DataCycleCore::DataAttribute.new(key, definition, options, content, :update)) %>
+      <%= tag.span(tag.i(class: 'fa fa-bars'), class: 'draggable-handle') if local_assigns[:edit_buttons] && attribute_editable?(key, definition, options, content) %>
       <%= render_linked_content_warnings(content, { content: object, locale: render_locale }) %>
     </div>
 

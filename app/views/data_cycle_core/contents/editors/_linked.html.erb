@@ -3,11 +3,12 @@
   <% objects = value&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
   <% object_template = definition['template_name'] %>
   <% html_id = "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
+  <% attribute_editable = attribute_editable?(key, definition, options, content) %>
 
   <div class="linked-editor-header dc-sticky-bar">
     <%= attribute_edit_label_tag(**local_assigns) %>
 
-    <% if attribute_editable?(key, definition, options, content) %>
+    <% if attribute_editable %>
       <button class="button show-objectbrowser" data-disable id="show-object-browser-<%= html_id %>" type="button" data-open="object_browser_<%= html_id %>">
         <i class="fa fa-plus"></i>
       </button>
@@ -25,7 +26,7 @@
       data-definition="<%= definition.to_json %>"
       data-options="<%= options.to_json %>"
       data-class="DataCycleCore::Thing"
-      data-editable="<%= attribute_editable?(key, definition, options, content) %>"
+      data-editable="<%= attribute_editable %>"
       data-template-name="<%= content.thing_template.persisted? ? content.template_name : nil %>"
       data-template="<%= to_query_params(thing_template: content.thing_template).to_json %>"
       data-per="<%= DataCycleCore.linked_objects_page_size %>"
@@ -43,10 +44,10 @@
           <% end %>
 
           <% value&.ids&.reject { |v| objects&.ids&.include?(v) }&.each do |id| %>
-            <%= hidden_field_tag "#{key}[]", id %>
+            <%= hidden_field_tag "#{key}[]", id, disabled: !attribute_editable %>
           <% end %>
         <% else %>
-          <%= hidden_field_tag "#{key}[]", nil, id: "#{html_id}_default" %>
+          <%= hidden_field_tag "#{key}[]", nil, id: "#{html_id}_default", disabled: !attribute_editable %>
         <% end %>
 
         <%= tag.div(link_to(t('common.load_all', locale: active_ui_locale),
@@ -61,7 +62,7 @@
               options: options&.to_json,
               page: params.fetch(:page, 1).to_i + 1,
               load_more_action: :object_browser,
-              editable: attribute_editable?(key, definition, options, content),
+              editable: attribute_editable,
               locale: I18n.locale,
               content_id: content.id,
               content_type: content.class.table_name

@@ -16,17 +16,20 @@ module DataCycleCore
             'schedule' => [BASE_OVERLAY_POSTFIX, ADD_OVERLAY_POSTFIX].freeze
           }.freeze
           OVERLAY_PROP_EXCEPTIONS = ['overlay', 'default_value', 'compute', 'virtual', 'content_score', 'exif', 'validations', 'api', 'label'].freeze
-          OVERLAY_REGEX = Regexp.new([BASE_OVERLAY_POSTFIX, VIRTUAL_OVERLAY_POSTFIX, ADD_OVERLAY_POSTFIX].join('|'), 'i')
 
           def overlay_version_prop(key, prop, version)
             version_prop = prop.deep_dup.except(*OVERLAY_PROP_EXCEPTIONS)
-            version_prop['features'] ||= {}
-            version_prop['features']['overlay'] ||= {}
-            version_prop['features']['overlay']['allowed'] = true
-            version_prop['features']['overlay']['overlay_for'] = key
+            version_prop['features'] = {
+              'overlay' => {
+                'allowed' => true,
+                'overlay_for' => key,
+                'overlay_type' => version
+              }
+            }
             version_prop['local'] = true
             version_prop['position'] = { 'after' => key }
             version_prop['visible'] = ['show', 'edit']
+            version_prop['label'] = { key:, key_suffix: "overlay_#{version}" }
 
             if version_prop['storage_location'] == 'column'
               if DataCycleCore::Thing::Translation.column_names.include?(key)
@@ -86,18 +89,6 @@ module DataCycleCore
 
           def self.allowed_postfixes_for_type(type)
             Array.wrap(OVERLAY_POSTFIXES[type].dup || [BASE_OVERLAY_POSTFIX])
-          end
-
-          def self.overlay_attribute?(key)
-            OVERLAY_REGEX.match?(key)
-          end
-
-          def self.overlay_attribute_type(key)
-            key&.scan(OVERLAY_REGEX)&.first&.delete_prefix('_')
-          end
-
-          def self.key_without_overlay_type(key)
-            key&.sub(OVERLAY_REGEX, '')
           end
         end
       end

@@ -387,6 +387,10 @@ module DataCycleCore
         name_property_selector(include_overlay) { |definition| definition['search'] == true }
       end
 
+      def new_overlay_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition.dig('features', 'overlay', 'allowed') }
+      end
+
       def embedded_title_property_name
         return unless embedded?
 

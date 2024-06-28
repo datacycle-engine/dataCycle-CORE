@@ -54,5 +54,13 @@ module DataCycleCore
       assert_equal 'default', @content1.reload.aggregate_type
       assert_equal 'default', @content2.reload.aggregate_type
     end
+
+    test 'aggregate_content gets update after content is changed' do
+      assert_equal 'HEADLINE - NO TAGS 1', @aggregate_content.name
+
+      @content1.set_data_hash(data_hash: { name: 'HEADLINE - NO TAGS 1 NEW' })
+
+      assert_equal 'HEADLINE - NO TAGS 1 NEW', @aggregate_content.reload.name
+    end
   end
 end

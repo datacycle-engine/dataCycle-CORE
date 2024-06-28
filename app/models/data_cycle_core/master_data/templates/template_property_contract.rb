@@ -15,7 +15,13 @@ module DataCycleCore
         RESERVED_PROPERTY_NAMES = ((DataCycleCore::Thing::Translation.column_names + DataCycleCore::Thing.column_names).uniq - ALLOWED_RESERVED_PROPERTIES).freeze
 
         schema do
-          optional(:label) { str? }
+          optional(:label) do
+            str? | (hash? & hash do
+                              optional(:key) { str? }
+                              optional(:key_prefix) { str? }
+                              optional(:key_suffix) { str? }
+                            end)
+          end
           required(:type) do
             str? & included_in?(
               ['key', 'string', 'text', 'number', 'boolean',

@@ -26,7 +26,59 @@ module DataCycleCore
         end
 
         class_methods do
-          def translated_attribute_name(key:, options: {}, **)
+          def human_property_name(attribute, options = {})
+            @human_property_name ||= Hash.new do |h, k|
+              h[k] = begin
+                label_finders = [
+                  method(:translated_attribute_name),
+                  method(:translated_attribute_label_hash),
+                  method(:translated_attribute_fallback_name)
+                ]
+                if k.dig(:options, :definition, 'type') == 'classification' && k[:key] == 'universal_classifications'
+                  label_finders.unshift(method(:translated_tree_label_name), method(:tree_label_name))
+                elsif k.dig(:options, :definition, 'type') == 'classification'
+                  label_finders.insert(2, method(:translated_tree_label_name))
+                end
+
+                label = label_finders.reduce(nil) { |acc, finder| acc || finder.call(**k).presence }
+
+                add_translated_label_flag(label, **k)
+              end
+            end
+
+            options = options&.symbolize_keys || {}
+            options[:definition] ||= options[:base].properties_for(attribute)
+            options[:ui_scope] = options[:ui_scope].to_s
+            options[:locale] ||= I18n.locale
+            options[:count] ||= 1
+            options[:locale_string] = true if options[:locale_string].nil?
+
+            @human_property_name[{ key: attribute.to_s, options:, display_locale: I18n.locale }]
+          end
+
+          def human_attribute_name(attribute, options = {})
+            options = options.to_h if options.is_a?(ActionController::Parameters)
+
+            return super unless options[:base]&.property_names&.include?(attribute.to_s) || options&.dig(:definition, 'label').present? || attribute.blank?
+
+            human_property_name(attribute, options)
+          end
+
+          private
+
+          def translated_attribute_label_hash(options:, **)
+            return unless (label_hash = options.dig(:definition, 'label')).is_a?(::Hash)
+
+            new_options = options.except(:definition)
+
+            label = []
+            label << human_property_name(label_hash['key_prefix'], new_options) if label_hash['key_prefix'].present?
+            label << human_property_name(label_hash['key'], new_options) if label_hash['key'].present?
+            label << human_property_name(label_hash['key_suffix'], new_options) if label_hash['key_suffix'].present?
+            label.compact_blank.join(' ')
+          end
+
+          def translated_attribute_name(key:, options:, **)
             return if key.blank?
 
             new_options = options.except(:base, :definition, :ui_scope, :locale_string).symbolize_keys
@@ -53,7 +105,11 @@ module DataCycleCore
             I18n.t("filter.#{definition.dig('tree_label').underscore_blanks}", locale:)
           end
 
-          def translated_attribute_fallback_name(key:, options: {}, **)
+          def tree_label_name(options:, **)
+            options&.dig(:definition, 'tree_label').presence
+          end
+
+          def translated_attribute_fallback_name(key:, options:, **)
             definition = options[:definition]
 
             definition&.dig('ui', options[:ui_scope], 'label').presence ||
@@ -62,56 +118,11 @@ module DataCycleCore
               key&.titleize
           end
 
-          def overlay_propery_name(key:, options: {}, **)
-            overlay_type = MasterData::Templates::Extensions::Overlay.overlay_attribute_type(key&.attribute_name_from_key)
+          def add_translated_label_flag(label, options:, key:, display_locale:, **)
+            return label unless options[:locale_string] && options[:base]&.attribute_translatable?(key, options[:definition])
+            return label if label.blank? || label.include?("(#{display_locale})")
 
-            [
-              human_property_name(options&.dig(:definition, 'features', 'overlay', 'overlay_for'), options.except(:definition)),
-              I18n.t("feature.overlay.label_postfix.#{overlay_type}", locale: options[:locale])
-            ].join(' ')
-          end
-
-          def human_property_name(attribute, options = {})
-            @human_property_name ||= Hash.new do |h, k|
-              h[k] = begin
-                label = if k.dig(:options, :definition, 'features', 'overlay', 'overlay_for').present?
-                          next overlay_propery_name(**k)
-                        elsif k[:key] == 'universal_classifications' && k.dig(:options, :definition, 'type') == 'classification'
-                          translated_tree_label_name(**k).presence ||
-                            k.dig(:options, :definition, 'tree_label').presence ||
-                            translated_attribute_name(**k).presence ||
-                            translated_attribute_fallback_name(**k)
-                        elsif k.dig(:options, :definition, 'type') == 'classification'
-                          translated_attribute_name(**k).presence ||
-                            translated_tree_label_name(**k).presence ||
-                            translated_attribute_fallback_name(**k)
-                        else
-                          translated_attribute_name(**k).presence ||
-                            translated_attribute_fallback_name(**k)
-                        end
-
-                label += " (#{k[:display_locale]})" if k.dig(:options, :base)&.attribute_translatable?(k[:key], k.dig(:options, :definition)) && k.dig(:options, :locale_string)
-
-                label
-              end
-            end
-
-            options = options&.symbolize_keys || {}
-            options[:definition] ||= options[:base].properties_for(attribute)
-            options[:ui_scope] = options[:ui_scope].to_s
-            options[:locale] ||= I18n.locale
-            options[:count] ||= 1
-            options[:locale_string] = true if options[:locale_string].nil?
-
-            @human_property_name[{ key: attribute.to_s, options:, display_locale: I18n.locale }]
-          end
-
-          def human_attribute_name(attribute, options = {})
-            options = options.to_h if options.is_a?(ActionController::Parameters)
-
-            return super unless options[:base]&.property_names&.include?(attribute.to_s) || options&.dig(:definition, 'label').present? || attribute.blank?
-
-            human_property_name(attribute, options)
+            label + " (#{display_locale})"
           end
         end
       end

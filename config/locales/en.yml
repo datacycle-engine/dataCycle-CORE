@@ -33,6 +33,10 @@ en:
     universal_classifications: Classifications
     copyright_attributes_group: Copyright
     content_classifications_group: Classifications
+    belongs_to_aggregate: belongs to Aggregate
+    aggregate_for: Aggregate for
+    overlay_override: (Overlay)
+    overlay_add: (Appendix)
 
   footer_links:
     privacy_policy: Privacy policy
@@ -745,10 +749,6 @@ en:
         subject: A new user was created
         text_html: The new user %{name} (%{email}) has been created.
         user_link: Show user
-    overlay:
-      label_postfix:
-        override: (Overlay)
-        add: (Appendix)
     aggregate:
       types:
         default: Standalone

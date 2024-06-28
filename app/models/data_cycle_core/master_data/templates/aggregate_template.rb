@@ -18,7 +18,6 @@ module DataCycleCore
 
         def add_inverse_aggregate_for_property!(data:)
           data[:properties][AGGREGATE_INVERSE_PROPERTY_NAME.to_sym] = {
-            label: 'mit Aggregat verknüpft',
             type: 'linked',
             sorting: data[:properties].values.pluck('sorting').max + 1,
             inverse_of: AGGREGATE_PROPERTY_NAME,
@@ -52,7 +51,8 @@ module DataCycleCore
             PROPS_WITHOUT_AGGREGATE +
             template_thing.virtual_property_names +
             template_thing.computed_property_names +
-            template_thing.inverse_linked_property_names
+            template_thing.inverse_linked_property_names +
+            template_thing.new_overlay_property_names
           ).exclude?(key)
         end
 
@@ -105,7 +105,7 @@ module DataCycleCore
 
         def aggregate_property_definition(key:, prop:)
           {
-            label: aggregate_prop_label(key:, prop:),
+            label: { key:, key_prefix: 'aggregate_for'},
             type: 'linked',
             template_name: @template_thing.template_name,
             visible: ['show', 'edit'],
@@ -141,14 +141,14 @@ module DataCycleCore
         end
 
         def add_feature_definition_for_prop!(prop:)
-          prop[:features] ||= {}
-          prop[:features][:aggregate] = { allowed: true}
+          prop[:features] = {
+            aggregate: { allowed: true }
+          }
         end
 
         def add_aggregate_property!
           props = {
             AGGREGATE_PROPERTY_NAME.to_sym => {
-              label: 'Aggregat für',
               type: 'linked',
               inverse_of: AGGREGATE_INVERSE_PROPERTY_NAME,
               template_name: @template_thing.template_name,

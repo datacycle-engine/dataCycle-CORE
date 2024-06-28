@@ -34,8 +34,7 @@ module DataCycleCore
       end
 
       def overlay_attribute?
-        definition.dig('features', 'overlay', 'overlay_for').present? &&
-          MasterData::Templates::Extensions::Overlay.overlay_attribute?(key&.attribute_name_from_key)
+        definition.dig('features', 'overlay', 'allowed').present?
       end
 
       def aggregated_attribute?

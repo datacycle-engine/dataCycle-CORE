@@ -53,6 +53,11 @@ de:
     universal_classifications: Klassifizierungen
     copyright_attributes_group: Copyright
     content_classifications_group: Klassifizierungen
+    belongs_to_aggregate: mit Aggregat verknüpft
+    aggregate_for: Aggregat für
+    aggregate_for_override: Aggregat-Override für
+    overlay_override: (Overlay)
+    overlay_add: (Anhang)
 
   footer_links:
     privacy_policy: Datenschutz
@@ -767,10 +772,6 @@ de:
         subject: Ein neuer Benutzer wurde erstellt
         text_html: Der neue Benutzer %{name} (%{email}) wurde erstellt.
         user_link: Benutzer anzeigen
-    overlay:
-      label_postfix:
-        override: (Overlay)
-        add: (Anhang)
     aggregate:
       types:
         default: Alleinstehend
