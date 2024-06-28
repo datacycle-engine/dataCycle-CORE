@@ -40,6 +40,22 @@ namespace :dc do
       end
     end
 
+    desc 'append download job to the DelayedJob Queue'
+    task :append_download_job, [:external_source_name, :mode, :run_now] => [:environment] do |_, args|
+      external_source = DataCycleCore::ExternalSystem.find_by(name: args.fetch(:external_source_name))
+      external_source ||= DataCycleCore::ExternalSystem.find_by!(identifier: args.fetch(:external_source_name))
+
+      run_now = args.fetch(:run_now, false) == 'true' || args.fetch(:run_now, false) == true
+
+      if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download', delayed_reference_id: external_source.id, locked_at: nil, failed_at: nil)
+        # do nothing
+      elsif run_now && external_source.download_config.present?
+        DataCycleCore::DownloadJob.perform_now(external_source.id, args.fetch(:mode, nil))
+      elsif external_source.download_config.present?
+        DataCycleCore::DownloadJob.perform_later(external_source.id, args.fetch(:mode, nil))
+      end
+    end
+
     desc 'append vacuum job to importers Queue'
     task :append_vacuum_job, [:full] => [:environment] do |_, args|
       full = args.fetch(:full, false)
