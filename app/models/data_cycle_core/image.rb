@@ -189,12 +189,16 @@ module DataCycleCore
         tempfile = attachment_changes['file'].attachable
       end
 
-      image = ::MiniMagick::Image.new(tempfile.is_a?(::StringIO) ? tempfile.base_uri : tempfile.path, tempfile)
+      image_path = tempfile.is_a?(::StringIO) ? tempfile.try(:base_uri) : tempfile.path
+
+      raise ActiveStorage::FileNotFoundError, 'Image path not found' if image_path.nil?
+
+      image = ::MiniMagick::Image.new(image_path, tempfile)
       exif_data = MiniExiftool.new(tempfile, { replace_invalid_chars: true })
       exif_data = exif_data
         .to_hash
         .transform_values { |value| value.is_a?(String) ? value.delete("\u0000") : value }
-      exif_data['ImColorSpace'] = image.colorspace.to_s.gsub(/.*class|alpha/i, '').strip
+      exif_data['ImColorSpace'] = image.colorspace.to_s.gsub(/.*class|alpha/i, '').strip if image.path.present?
 
       tempfile.rewind
 

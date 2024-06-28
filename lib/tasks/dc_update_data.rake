@@ -6,22 +6,30 @@ require 'rake_helpers/parallel_helper'
 namespace :dc do
   namespace :update_data do
     desc 'update all computed attributes'
-    task :computed_attributes, [:template_name, :webhooks, :computed_name, :dry_run] => [:environment] do |_, args|
+    task :computed_attributes, [:template_name_or_collection_id, :webhooks, :computed_name, :dry_run] => [:environment] do |_, args|
       dry_run = args.fetch(:dry_run, false)
       webhooks = args.fetch(:webhooks, 'true').to_s
-      template_names = args.fetch(:template_name, false).to_s.then { |t| t.present? && t != 'false' ? t.split('|') : false }
+      template_names_or_collection_id = args.fetch(:template_name_or_collection_id, false).to_s.then { |t| t.present? && t != 'false' ? t.split('|') : false }
       computed_names = args.fetch(:computed_name, false).to_s.then { |c| c.present? && c != 'false' ? c.split('|') : false }
-      selected_things = DataCycleCore::ThingTemplate.all
-      selected_things = selected_things.where(template_name: template_names) if template_names.present?
+      selected_thing_templates = DataCycleCore::ThingTemplate.all
+      selected_things = DataCycleCore::Thing
+
+      if template_names_or_collection_id.present? && DataCycleCore::ThingTemplate.where(template_name: template_names_or_collection_id).present?
+        selected_thing_templates = selected_thing_templates.where(template_name: template_names_or_collection_id)
+      else
+        selected_thing_ids = DataCycleCore::Collection.find(template_names_or_collection_id).map { |collection| collection.things.map(&:id) }.flatten
+        selected_things = selected_things.where(id: selected_thing_ids)
+        selected_thing_templates = selected_thing_templates.where(template_name: selected_things.map(&:template_name))
+      end
 
       puts "ATTRIBUTES TO UPDATE: #{computed_names.present? ? computed_names.join(', ') : 'all'}"
 
-      selected_things.find_each do |thing_template|
+      selected_thing_templates.find_each do |thing_template|
         template = DataCycleCore::Thing.new(thing_template:)
         next if template.computed_property_names.blank?
         next if computed_names.present? && computed_names.any? && (computed_names & template.computed_property_names).none?
 
-        items = DataCycleCore::Thing.where(template_name: template.template_name)
+        items = selected_things.where(template_name: template.template_name)
         computed_keys = computed_names.presence || template.computed_property_names
         translated_computed = computed_keys.intersect?(template.translatable_property_names)
         progressbar = ProgressBar.create(total: items.size, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)

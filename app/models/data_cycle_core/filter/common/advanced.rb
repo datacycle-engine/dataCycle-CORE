@@ -391,7 +391,7 @@ module DataCycleCore
         end
 
         def attribute_path_not_exists(path)
-          ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(jsonb_path_exists(advanced_attributes, :path))', "$.\"#{path}\""])
+          ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['NOT(jsonb_path_exists(advanced_attributes, :path))', path: "$.\"#{path}\""])
         end
       end
     end

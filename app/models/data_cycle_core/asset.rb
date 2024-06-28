@@ -7,8 +7,9 @@ module DataCycleCore
     attribute :type, :string, default: -> { name }
     belongs_to :creator, class_name: 'DataCycleCore::User'
 
-    attr_accessor :binary_file_blob
+    attr_accessor :binary_file_blob, :base64_file_blob
     before_validation :load_file_from_binary_file_blob, if: -> { binary_file_blob.present? }
+    before_validation :load_file_from_base64_encoded_binary_file_blob, if: -> { base64_file_blob.present? }
 
     before_create :update_asset_attributes
 
@@ -165,6 +166,19 @@ module DataCycleCore
 
       tmp_file = Tempfile.new(name)
       File.binwrite(tmp_file, [binary_file_blob].pack('H*'))
+
+      file.attach(io: tmp_file, filename: name)
+    end
+
+    def load_file_from_base64_encoded_binary_file_blob
+      return if base64_file_blob.blank? || name.blank?
+
+      base64_encoded = base64_file_blob.split(',')[1] if base64_file_blob.start_with?('data:')
+
+      decoded_data = Base64.decode64(base64_encoded)
+
+      tmp_file = Tempfile.new(name)
+      File.binwrite(tmp_file, decoded_data)
 
       file.attach(io: tmp_file, filename: name)
     end

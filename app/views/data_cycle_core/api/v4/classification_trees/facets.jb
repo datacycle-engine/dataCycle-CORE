@@ -31,7 +31,7 @@ if @classification_tree_label.present?
     end
 
     queue.append do
-      @classification_aliases.instance_variable_set(:@total_count, @classification_aliases.except(:select, :joins, :order, :group, :limit, :offset).count)
+      @classification_aliases.instance_variable_set(:@total_count, @classification_aliases.except(:select, :order, :group, :limit, :offset).count)
 
       json.merge! render 'pagination_links',
                          objects: @classification_aliases,
