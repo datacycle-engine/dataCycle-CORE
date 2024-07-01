@@ -4,7 +4,7 @@ module DataCycleCore
   module MasterData
     module Templates
       class AggregateTemplate
-        AGGREGATE_PROP_EXCEPTIONS = ['default_value', 'validations', 'compute'].freeze
+        AGGREGATE_PROP_EXCEPTIONS = ['default_value', 'validations', 'compute', 'sorting'].freeze
         AGGREGATE_PROPERTY_NAME = 'aggregate_for'
         AGGREGATE_INVERSE_PROPERTY_NAME = 'belongs_to_aggregate'
         AGGREGATE_KEY_EXCEPTIONS = ['overlay'].freeze

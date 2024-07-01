@@ -174,7 +174,8 @@ module DataCycleCore
       assert_equal(template.dig(:data, :properties, :name, :sorting) + 2, template.dig(:data, :properties, :name_overlay, :sorting))
 
       [:name_overlay, :name_override].each do |key|
-        assert_nil(template.dig(:data, :properties, key, :label))
+        assert(template.dig(:data, :properties, key, :label).present?)
+        assert(template.dig(:data, :properties, key, :label).is_a?(::Hash))
         assert_equal(template.dig(:data, :properties, :name, :type), template.dig(:data, :properties, key, :type))
         assert_equal(template.dig(:data, :properties, :name, :storage_location), template.dig(:data, :properties, key, :storage_location))
         assert_equal(template.dig(:data, :properties, :name, :search), template.dig(:data, :properties, key, :search))
@@ -203,7 +204,8 @@ module DataCycleCore
       assert_equal(template.dig(:data, :properties, :author, :sorting) + 3, template.dig(:data, :properties, :author_overlay, :sorting))
 
       [:author_overlay, :author_add, :author_override].each do |key|
-        assert_nil(template.dig(:data, :properties, key, :label))
+        assert(template.dig(:data, :properties, key, :label).present?)
+        assert(template.dig(:data, :properties, key, :label).is_a?(::Hash))
         assert_equal(template.dig(:data, :properties, :author, :type), template.dig(:data, :properties, key, :type))
         assert_equal(template.dig(:data, :properties, :author, :template_name), template.dig(:data, :properties, key, :template_name))
         assert_not(template.dig(:data, :properties, key).key?(:validations))
@@ -223,7 +225,8 @@ module DataCycleCore
       assert_equal(template.dig(:data, :properties, :test_classification, :sorting) + 2, template.dig(:data, :properties, :test_classification_overlay, :sorting))
 
       [:test_classification_overlay, :test_classification_add].each do |key|
-        assert_nil(template.dig(:data, :properties, key, :label))
+        assert(template.dig(:data, :properties, key, :label).present?)
+        assert(template.dig(:data, :properties, key, :label).is_a?(::Hash))
         assert_equal(template.dig(:data, :properties, :test_classification, :type), template.dig(:data, :properties, key, :type))
         assert_equal(template.dig(:data, :properties, :test_classification, :tree_label), template.dig(:data, :properties, key, :tree_label))
         assert_not(template.dig(:data, :properties, key).key?(:validations))
@@ -246,7 +249,8 @@ module DataCycleCore
       assert_equal(template.dig(:data, :properties, :opening_hours_specification, :sorting) + 3, template.dig(:data, :properties, :opening_hours_specification_overlay, :sorting))
 
       [:opening_hours_specification_overlay, :opening_hours_specification_add, :opening_hours_specification_override].each do |key|
-        assert_nil(template.dig(:data, :properties, key, :label))
+        assert(template.dig(:data, :properties, key, :label).present?)
+        assert(template.dig(:data, :properties, key, :label).is_a?(::Hash))
         assert_equal(template.dig(:data, :properties, :opening_hours_specification, :type), template.dig(:data, :properties, key, :type))
         assert_not(template.dig(:data, :properties, key).key?(:validations))
         assert(template.dig(:data, :properties, key, :local))
@@ -267,7 +271,8 @@ module DataCycleCore
       assert_equal(template.dig(:data, :properties, :event_schedule, :sorting) + 3, template.dig(:data, :properties, :event_schedule_overlay, :sorting))
 
       [:event_schedule_overlay, :event_schedule_add, :event_schedule_override].each do |key|
-        assert_nil(template.dig(:data, :properties, key, :label))
+        assert(template.dig(:data, :properties, key, :label).present?)
+        assert(template.dig(:data, :properties, key, :label).is_a?(::Hash))
         assert_equal(template.dig(:data, :properties, :event_schedule, :type), template.dig(:data, :properties, key, :type))
         assert_not(template.dig(:data, :properties, key).key?(:validations))
         assert(template.dig(:data, :properties, key, :local))
@@ -287,7 +292,8 @@ module DataCycleCore
       assert_equal(template.dig(:data, :properties, :start_date, :sorting) + 2, template.dig(:data, :properties, :start_date_overlay, :sorting))
 
       [:start_date_overlay, :start_date_override].each do |key|
-        assert_nil(template.dig(:data, :properties, key, :label))
+        assert(template.dig(:data, :properties, key, :label).present?)
+        assert(template.dig(:data, :properties, key, :label).is_a?(::Hash))
         assert_equal(template.dig(:data, :properties, :start_date, :type), template.dig(:data, :properties, key, :type))
         assert_equal(template.dig(:data, :properties, :start_date, :storage_location), template.dig(:data, :properties, key, :storage_location))
         assert_not(template.dig(:data, :properties, key).key?(:validations))

@@ -13,6 +13,7 @@ module DataCycleCore
             return properties if sortable_props.blank?
 
             ordered_props = properties.to_a
+            key_proc = ->(k2, p2) { (p2.dig('features', 'overlay', 'overlay_for') || k2) }
 
             sortable_props.each do |k, prop|
               position = prop.delete(:position)
@@ -27,7 +28,7 @@ module DataCycleCore
                 if prop.dig('features', 'overlay', 'allowed')
                   new_index = ordered_keys.index(position[:after]) + 1
                 else
-                  new_index = ordered_props.rindex { |(k1, p1)| (p1.dig('features', 'overlay', 'overlay_for') || k1) == position[:after] } + 1
+                  new_index = ordered_props.rindex { |(k1, p1)| key_proc.call(k1, p1) == position[:after] } + 1
                 end
               else
                 @errors.push("#{@error_path}.properties.#{k} => attribute '#{position[:before]}' missing for position: { before: #{position[:before]} }") && next if ordered_keys.exclude?(position[:before])
