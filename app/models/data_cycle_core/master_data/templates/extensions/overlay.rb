@@ -15,7 +15,7 @@ module DataCycleCore
             'opening_time' => [BASE_OVERLAY_POSTFIX, ADD_OVERLAY_POSTFIX].freeze,
             'schedule' => [BASE_OVERLAY_POSTFIX, ADD_OVERLAY_POSTFIX].freeze
           }.freeze
-          OVERLAY_PROP_EXCEPTIONS = ['overlay', 'default_value', 'compute', 'virtual', 'content_score', 'exif', 'validations', 'api', 'label'].freeze
+          OVERLAY_PROP_EXCEPTIONS = ['overlay', 'default_value', 'compute', 'virtual', 'content_score', 'exif', 'validations', 'api', 'label', 'position'].freeze
 
           def overlay_version_prop(key, prop, version)
             version_prop = prop.deep_dup.except(*OVERLAY_PROP_EXCEPTIONS)
@@ -27,7 +27,6 @@ module DataCycleCore
               }
             }
             version_prop['local'] = true
-            version_prop['position'] = { 'after' => key }
             version_prop['visible'] = ['show', 'edit']
             version_prop['label'] = { key:, key_suffix: "overlay_#{version}" }
 
@@ -69,17 +68,22 @@ module DataCycleCore
 
             return properties if overlay_props.blank?
 
+            all_props = properties.to_a
+
             overlay_props.each do |key, prop|
+              new_index = all_props.pluck(0).index(key) + 1
+              new_versions = []
               versions = Overlay.allowed_postfixes_for_type(prop['type'])
               versions.map! { |v| key + v }
               versions.each do |version|
-                properties[version] = overlay_version_prop(key, prop, version.delete_prefix("#{key}_"))
+                new_versions.push([version, overlay_version_prop(key, prop, version.delete_prefix("#{key}_"))])
               end
 
-              properties[key + VIRTUAL_OVERLAY_POSTFIX] = overlay_prop(key, prop, versions)
+              new_versions.push([key + VIRTUAL_OVERLAY_POSTFIX, overlay_prop(key, prop, versions)])
+              all_props.insert(new_index, *new_versions)
             end
 
-            properties
+            properties.clear.merge!(all_props.to_h)
           end
 
           def self.allowed_postfixes_for_type(type)

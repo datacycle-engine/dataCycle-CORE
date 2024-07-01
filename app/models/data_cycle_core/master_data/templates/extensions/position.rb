@@ -16,7 +16,8 @@ module DataCycleCore
 
             sortable_props.each do |k, prop|
               position = prop.delete(:position)
-              ordered_props.reject! { |(k1, _)| k1 == k }
+              props_to_sort = ordered_props.filter { |(k1, p1)| related_keys(k1, p1, k) }
+              ordered_props.reject! { |(k1, p1)| related_keys(k1, p1, k) }
               ordered_keys = ordered_props.pluck(0)
 
               @errors.push("#{@error_path}.properties.#{k} => position must be either 'before' or 'after', not both!") && next if position.key?(:after) && position.key?(:before)
@@ -24,18 +25,14 @@ module DataCycleCore
               if position.key?(:after)
                 @errors.push("#{@error_path}.properties.#{k} => attribute '#{position[:after]}' missing for position: { after: #{position[:after]} }") && next if ordered_keys.exclude?(position[:after])
 
-                if prop.dig('features', 'overlay', 'allowed')
-                  new_index = ordered_keys.index(position[:after]) + 1
-                else
-                  new_index = ordered_props.rindex { |(k1, p1)| (p1.dig('features', 'overlay', 'overlay_for') || k1) == position[:after] } + 1
-                end
+                new_index = ordered_props.rindex { |(k1, p1)| related_keys(k1, p1, position[:after]) } + 1
               else
                 @errors.push("#{@error_path}.properties.#{k} => attribute '#{position[:before]}' missing for position: { before: #{position[:before]} }") && next if ordered_keys.exclude?(position[:before])
 
-                new_index = ordered_keys.index(position[:before])
+                new_index = ordered_props.index { |(k1, p1)| related_keys(k1, p1, position[:before]) }
               end
 
-              ordered_props.insert(new_index, [k, prop])
+              ordered_props.insert(new_index, *props_to_sort)
             end
 
             properties.slice!(*ordered_props.pluck(0))
@@ -56,6 +53,10 @@ module DataCycleCore
             end
 
             properties
+          end
+
+          def related_keys(k1, p1, k2)
+            (p1.dig('features', 'overlay', 'overlay_for') || p1.dig('features', 'aggregate', 'aggregate_for') || k1) == k2
           end
         end
       end

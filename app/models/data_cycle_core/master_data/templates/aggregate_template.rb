@@ -106,6 +106,7 @@ module DataCycleCore
             type: 'linked',
             template_name: @data[:name],
             visible: ['show', 'edit'],
+            features: { aggregate: { allowed: true, aggregate_for: key } },
             ui: {
               show: {
                 disabled: prop.dig(:ui, :show, :disabled)

@@ -333,9 +333,9 @@ module DataCycleCore
         assert_equal('linked', agg_prop[:type])
 
         assert(agg_template.dig(:data, :properties).key?("#{key}_overlay"))
-        assert_equal(sorting + 1, agg_template.dig(:data, :properties, "#{key}_overlay", :sorting))
+        assert_equal(sorting + 2, agg_template.dig(:data, :properties, "#{key}_overlay", :sorting))
 
-        DataCycleCore::MasterData::Templates::Extensions::Overlay.allowed_postfixes_for_type(prop[:type]).each.with_index(2) do |k, index|
+        DataCycleCore::MasterData::Templates::Extensions::Overlay.allowed_postfixes_for_type(prop[:type]).each.with_index(1) do |k, index|
           assert(agg_template.dig(:data, :properties).key?("#{key}#{k}"))
           assert_equal(sorting + index, agg_template.dig(:data, :properties, "#{key}#{k}", :sorting))
         end
