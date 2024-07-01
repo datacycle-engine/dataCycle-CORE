@@ -167,10 +167,9 @@ module DataCycleCore
 
         def add_aggregate_template!(data:, data_template:, templates:)
           return unless Feature::Aggregate.enabled?
-          template_thing = ThingTemplate.new(schema: data[:data]).template_thing
-          return unless Feature::Aggregate.allowed?(template_thing)
+          return unless data.dig(:data, :features, :aggregate, :allowed)
 
-          aggregate_template = AggregateTemplate.new(data: data[:data], template_thing:)
+          aggregate_template = AggregateTemplate.new(data: data[:data])
           aggregate_data = transform_template_data(template: aggregate_template.import, data_template:, templates:)
           return if aggregate_data.nil?
 

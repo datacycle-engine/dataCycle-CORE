@@ -10,10 +10,9 @@ module DataCycleCore
         AGGREGATE_KEY_EXCEPTIONS = ['overlay'].freeze
         PROPS_WITHOUT_AGGREGATE = [AGGREGATE_PROPERTY_NAME, AGGREGATE_INVERSE_PROPERTY_NAME, *AGGREGATE_KEY_EXCEPTIONS, 'id', 'external_key', 'schema_types', 'date_created', 'date_modified', 'date_deleted', 'data_type'].freeze
 
-        def initialize(data:, template_thing:)
+        def initialize(data:)
           @data = data
           @aggregate = @data.deep_dup
-          @template_thing = template_thing
         end
 
         def add_inverse_aggregate_for_property!(data:)
@@ -46,14 +45,12 @@ module DataCycleCore
           "#{key}_aggregate_for_override"
         end
 
-        def self.key_allowed_for_aggregate?(key:, template_thing:)
-          (
-            PROPS_WITHOUT_AGGREGATE +
-            template_thing.virtual_property_names +
-            template_thing.computed_property_names +
-            template_thing.inverse_linked_property_names +
-            template_thing.new_overlay_property_names
-          ).exclude?(key)
+        def self.key_allowed_for_aggregate?(key:, prop:)
+          PROPS_WITHOUT_AGGREGATE.exclude?(key) &&
+            !(prop[:type] == 'linked' && prop[:link_direction] == 'inverse') &&
+            !prop.key?(:virtual) &&
+            !prop.key?(:compute) &&
+            !prop.dig(:features, :overlay, :allowed)
         end
 
         private
@@ -79,7 +76,7 @@ module DataCycleCore
 
           @aggregate[:properties].each do |key, prop|
             next if AGGREGATE_KEY_EXCEPTIONS.include?(key)
-            next props.push([key, prop]) unless self.class.key_allowed_for_aggregate?(key:, template_thing: @template_thing)
+            next props.push([key, prop]) unless self.class.key_allowed_for_aggregate?(key:, prop:)
 
             prop.except!(*AGGREGATE_PROP_EXCEPTIONS)
             add_prop_ui_definition!(prop:)
@@ -107,7 +104,7 @@ module DataCycleCore
           {
             label: { key:, key_prefix: 'aggregate_for'},
             type: 'linked',
-            template_name: @template_thing.template_name,
+            template_name: @data[:name],
             visible: ['show', 'edit'],
             ui: {
               show: {
@@ -151,7 +148,7 @@ module DataCycleCore
             AGGREGATE_PROPERTY_NAME.to_sym => {
               type: 'linked',
               inverse_of: AGGREGATE_INVERSE_PROPERTY_NAME,
-              template_name: @template_thing.template_name,
+              template_name: @data[:name],
               validations: {
                 required: true
               },

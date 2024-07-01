@@ -314,15 +314,13 @@ module DataCycleCore
       assert_not(template.nil?)
       assert_not(agg_template.nil?)
 
-      template_thing = ThingTemplate.new(schema: template[:data]).template_thing
-
       assert(agg_template.dig(:data, :properties).key?(MasterData::Templates::AggregateTemplate::AGGREGATE_PROPERTY_NAME))
       assert(agg_template.dig(:data, :properties).key?(:id))
       assert(template.dig(:data, :properties).key?(MasterData::Templates::AggregateTemplate::AGGREGATE_INVERSE_PROPERTY_NAME))
       assert(template.dig(:data, :properties, MasterData::Templates::AggregateTemplate::AGGREGATE_INVERSE_PROPERTY_NAME).key?(:sorting))
 
-      template.dig(:data, :properties).each_key do |key|
-        next unless DataCycleCore::MasterData::Templates::AggregateTemplate.key_allowed_for_aggregate?(key:, template_thing:)
+      template.dig(:data, :properties).each do |key, old_prop|
+        next unless DataCycleCore::MasterData::Templates::AggregateTemplate.key_allowed_for_aggregate?(key:, prop: old_prop)
 
         prop = agg_template.dig(:data, :properties, key)
         assert_not(prop.nil?)
