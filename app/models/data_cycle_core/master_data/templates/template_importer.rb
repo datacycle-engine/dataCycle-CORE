@@ -166,7 +166,7 @@ module DataCycleCore
         end
 
         def add_aggregate_template!(data:, data_template:, templates:)
-          return unless Feature::Aggregate.enabled?
+          return unless DataCycleCore.features.dig(:aggregate, :enabled)
           return unless data.dig(:data, :features, :aggregate, :allowed)
 
           aggregate_template = AggregateTemplate.new(data: data[:data])
