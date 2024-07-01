@@ -12,7 +12,7 @@ module DataCycleCore
                                  'schedule', 'opening_time'].freeze
         OVERLAY_KEY_EXCEPTIONS = ['overlay', 'id', 'data_type', 'external_key', 'external_source_id'].freeze
         ALLOWED_RESERVED_PROPERTIES = ['id', 'external_key', 'slug', 'location', 'line', 'geom'].freeze
-        RESERVED_PROPERTY_NAMES = ((DataCycleCore::Thing::Translation.column_names + DataCycleCore::Thing.column_names).uniq - ALLOWED_RESERVED_PROPERTIES).freeze
+        # RESERVED_PROPERTY_NAMES = ((DataCycleCore::Thing::Translation.column_names + DataCycleCore::Thing.column_names).uniq - ALLOWED_RESERVED_PROPERTIES).freeze
 
         schema do
           optional(:label) do
@@ -178,9 +178,9 @@ module DataCycleCore
           key.failure(:invalid_overlay_type) if key? && (ALLOWED_OVERLAY_TYPES.exclude?(values[:type]) || OVERLAY_KEY_EXCEPTIONS.include?(property_name.to_s))
         end
 
-        rule do
-          base.failure(:reserved_property_name) if !nested_property && RESERVED_PROPERTY_NAMES.include?(property_name.to_s)
-        end
+        # rule do
+        #   base.failure(:reserved_property_name) if !nested_property && RESERVED_PROPERTY_NAMES.include?(property_name.to_s)
+        # end
       end
     end
   end
