@@ -97,9 +97,9 @@ module DataCycleCore
                             id = DataCycleCore::ClassificationAlias.joins(:classification_alias_path).find_by(classification_alias_path: { full_path_names: config['value'].split('>').map(&:strip).reverse })&.primary_classification&.id
                             next false if id.nil?
 
-                            Array.wrap(config['key']).any? { |k| Array.wrap(get_values_from_hash(data, [k])).include?(id) }
+                            Array.wrap(config['key']).any? { |k| Array.wrap(get_values_from_hash(data:, key_path: [k])).include?(id) }
                           else
-                            get_values_from_hash(data, [config['type']]) == config['value']
+                            get_values_from_hash(data:, key_path: [config['type']]) == config['value']
                           end
 
               return false unless in_filter

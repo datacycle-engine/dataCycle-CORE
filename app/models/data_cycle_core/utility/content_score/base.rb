@@ -74,7 +74,7 @@ module DataCycleCore
           end
 
           def value_present?(data, key)
-            DataCycleCore::DataHashService.deep_present?(DataCycleCore::Utility::Compute::Common.get_values_from_hash(data:, key_path: key.split('.')))
+            DataCycleCore::DataHashService.deep_present?(DataCycleCore::Utility::Compute::Common.send(:get_values_from_hash, data:, key_path: key.split('.')))
           end
 
           def values_present(parameters, keys)
