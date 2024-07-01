@@ -32,11 +32,7 @@ module DataCycleCore
             version_prop['label'] = { key:, key_suffix: "overlay_#{version}" }
 
             if version_prop['storage_location'] == 'column'
-              if DataCycleCore::Thing::Translation.column_names.include?(key)
-                version_prop['storage_location'] = 'translated_value'
-              else
-                version_prop['storage_location'] = 'value'
-              end
+              version_prop['storage_location'] = key == 'slug' ? 'translated_value' : 'value'
             end
 
             version_prop['ui']&.each_value do |v|
