@@ -102,6 +102,7 @@ module DataCycleCore
           object.created_at = save_time
           object.updated_at = save_time
           object.created_by = current_user&.id
+          object.last_updated_locale = locale
           object.save(touch: false)
         end
 
@@ -124,6 +125,8 @@ module DataCycleCore
       allowed_params = []
 
       template_hash['properties'].each do |key, value|
+        next if value.key?('compute') || value.key?('virtual')
+
         if value['type'] == 'schedule'
           parameter = { key.to_sym => [datahash: [:id, :full_day, :rtimes, :extimes, start_time: [:time], duration: DataCycleCore::AttributeEditorHelper::DURATION_UNITS.keys, end_time: [:time], rrules: [:rule_type, :interval, :until, validations: [:day_of_week, :day_of_month, day: [], day_of_month: [], day_of_week: {}]]]] }
         elsif value['type'] == 'opening_time'

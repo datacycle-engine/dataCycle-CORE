@@ -1,0 +1,119 @@
+---
+- :data:
+    :name: Computed-Common-attribute_value_from_first_existing_linked
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Value 1
+        :type: string
+        :storage_location: value
+      :translated_string_value:
+        :label: Value 2
+        :type: string
+        :storage_location: translated_value
+      :linked_value:
+        :label: Linked Value
+        :type: linked
+        :template_name: Linked-Place-1
+      :embedded_value:
+        :label: Embedded Value
+        :type: embedded
+        :template_name: Computed-Common-attribute_value_from_first_existing_linked-Embedded-1
+      :translated_embedded_value:
+        :label: Embedded Value
+        :type: embedded
+        :translated: true
+        :template_name: Computed-Common-attribute_value_from_first_existing_linked-Embedded-1
+      :date_value:
+        :label: Date Value
+        :type: date
+        :storage_location: value
+      :datetime_value:
+        :label: Date Value
+        :type: datetime
+        :storage_location: value
+      :boolean_value:
+        :label: Boolean Value
+        :type: boolean
+        :storage_location: value
+      :geographic_value:
+        :label: Geographic Value
+        :type: geographic
+        :storage_location: value
+      :slug_value:
+        :label: Slug Value
+        :type: slug
+        :storage_location: value
+      :number_value:
+        :label: Number Value
+        :type: number
+        :storage_location: value
+      :schedule_value:
+        :label: Schedule Value
+        :type: schedule
+      :classification_value:
+        :label: Classification Value
+        :type: classification
+        :tree_label: Tags
+      :asset_value:
+        :label: Asset Value
+        :type: asset
+        :asset_type: image
+      :collection_value:
+        :label: Collection Value
+        :type: collection
+
+- :data:
+    :name: Computed-Common-attribute_value_from_first_existing_linked-Embedded-1
+    :type: object
+    :content_type: embedded
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :embedded_sub_value:
+        :label: Embedded Sub Value
+        :type: embedded
+        :template_name: Computed-Common-attribute_value_from_first_existing_linked-Embedded-2
+      :external_key:
+        :label: external_key
+        :type: string
+        :storage_location: column
+        :visible: false
+
+- :data:
+    :name: Computed-Common-attribute_value_from_first_existing_linked-Embedded-2
+    :type: object
+    :content_type: embedded
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :external_key:
+        :label: external_key
+        :type: string
+        :storage_location: column
+        :visible: false

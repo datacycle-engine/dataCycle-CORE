@@ -97,6 +97,7 @@ class MaplibreDrawControl {
 		e.preventDefault();
 		e.stopPropagation();
 		this.editor.draw.trash();
+		this.editor.changeDrawMode();
 	}
 	drawModeControl(m, e) {
 		e.preventDefault();

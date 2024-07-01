@@ -150,25 +150,11 @@ module DataCycleCore
 
               next template_definitions.push(data_template) unless template_dependencies_ready?(template, template_definitions, templates)
 
-              transformer = TemplateTransformer.new(template:, content_set: data_template[:set], mixins: @mixins, templates:)
-              transformed_data, errors = transformer.transform
+              data = transform_template_data(template:, data_template:, templates:)
+              next if data.nil?
 
-              @errors.concat(errors) && next if errors.present?
-
-              data = {
-                name: transformed_data[:name],
-                path: data_template[:path],
-                data: transformed_data,
-                set: data_template[:set],
-                mixins: transformer.mixin_paths
-              }
-
-              if (duplicate = templates.values.flatten.find { |v| v[:name] == data[:name] }).present?
-                merge_duplicate_template!(data:, duplicate:)
-              else
-                templates[data_template[:set]] ||= []
-                templates[data_template[:set]].push(data)
-              end
+              add_aggregate_template!(data:, data_template:, templates:)
+              append_template!(data:, templates:)
             rescue StandardError => e
               if e.is_a?(TemplateError)
                 @errors.push("#{[data_template[:set], template[:name], e.path].compact.join('.')} => #{e.message}")
@@ -176,6 +162,52 @@ module DataCycleCore
                 @errors.push("#{data_template[:set]}.#{template[:name]} => #{e.message}")
               end
             end
+          end
+        end
+
+        def add_aggregate_template!(data:, data_template:, templates:)
+          return unless Feature::Aggregate.enabled?
+          template_thing = ThingTemplate.new(schema: data[:data]).template_thing
+          return unless Feature::Aggregate.allowed?(template_thing)
+
+          aggregate_template = AggregateTemplate.new(data: data[:data], template_thing:)
+          aggregate_data = transform_template_data(template: aggregate_template.import, data_template:, templates:)
+          return if aggregate_data.nil?
+
+          aggregate_template.add_inverse_aggregate_for_property!(data: data[:data])
+          append_template!(data: aggregate_data, templates:)
+        end
+
+        def transform_template_data(template:, data_template:, templates:)
+          transformer = TemplateTransformer.new(template:, content_set: data_template[:set], mixins: @mixins, templates:)
+          transformed_data, errors = transformer.transform
+          @errors.concat(errors) && return if errors.present?
+
+          {
+            name: transformed_data[:name],
+            path: data_template[:path],
+            data: transformed_data,
+            set: data_template[:set],
+            mixins: transformer.mixin_paths
+          }
+        end
+
+        def append_template!(data:, templates:)
+          if (duplicate = templates.values.flatten.find { |v| v[:name] == data[:name] }).present?
+            merge_duplicate_template!(data:, duplicate:)
+          else
+            templates[data[:set]] ||= []
+            templates[data[:set]].push(data)
+          end
+        end
+
+        def base_template?(base_name, template_definitions)
+          template_definitions.any? do |v|
+            v.dig(:data, :name) == base_name &&
+              (
+                v.dig(:data, :extends).blank? ||
+                Array.wrap(v.dig(:data, :extends)).exclude?(v.dig(:data, :name))
+              )
           end
         end
 
@@ -188,10 +220,7 @@ module DataCycleCore
           extends_templates.each do |t_name|
             next if templates.values.flatten.any? { |v| v[:name] == t_name }
 
-            raise TemplateError.new('extends'), "BaseTemplate missing for #{t_name}" if template_definitions.none? do |v|
-                                                                                          v.dig(:data, :name) == t_name &&
-                                                                                          (v.dig(:data, :extends).blank? || Array.wrap(v.dig(:data, :extends)).exclude?(v.dig(:data, :name)))
-                                                                                        end
+            raise TemplateError.new('extends'), "BaseTemplate missing for #{t_name}" unless base_template?(t_name, template_definitions)
 
             return false
           end

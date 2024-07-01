@@ -24,3 +24,4 @@ en:
           invalid_overlay_type: overlay is not allowed for this attribute type
         data:
           missing_schema_type_or_ancestors: "schema_type or schema_ancestors have to be defined."
+        reserved_property_name: "property name is reserved as database column"

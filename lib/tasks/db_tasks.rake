@@ -72,24 +72,24 @@ namespace :db do
 
   namespace :maintenance do
     desc 'run VACUUM (FULL) on DB, full(false|true)'
-    task :vacuum, [:full, :reindex, :table_names] => [:environment] do |_, args|
-      full = args.fetch(:full, false)
-      reindex = args.fetch(:reindex, false)
-      table_names = args.fetch(:table_names, nil).to_s.split('|')
+    task :vacuum, [:full, :table_names] => [:environment] do |_, args|
+      full = args.fetch(:full, 'false').to_s == 'true'
+      table_names = args.fetch(:table_names, nil).to_s.split('|').join(', ')
 
       options = []
-      options << 'FULL' if full.to_s == 'true'
+      options << 'FULL' if full
       options << 'ANALYZE'
-      sql = "VACUUM (#{options.join(', ')}) #{table_names.join(', ')}"
+      sql = "VACUUM (#{options.join(', ')}) #{table_names}".squish + ';'
+      visibility_sql = "VACUUM (ANALYZE) #{table_names}".squish + ';'
 
-      ActiveRecord::Base.connection.execute("#{sql.squish};")
-      ActiveRecord::Base.connection.execute('VACUUM (ANALYZE);') if full.to_s == 'true' # fix visibility tables
+      ActiveRecord::Base.connection.execute(sql)
+      ActiveRecord::Base.connection.execute(visibility_sql) if full # fix visibility tables
+    end
 
-      next if full.to_s == 'true' || reindex.to_s != 'true'
-
-      DbHelper.with_config do |_host, _port, db, _user, _password|
-        ActiveRecord::Base.connection.execute("REINDEX DATABASE \"#{db}\";")
-      end
+    desc 'Remove activities except type donwload older than 3 monts [include_downloads=false, max_age=today-3months]'
+    task :activities, [:include_downloads, :max_age] => [:environment] do |_, args|
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:clear:activities"].invoke(*args)
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:clear:activities"].reenable
     end
   end
 
@@ -104,8 +104,8 @@ namespace :db do
 
       next if Rails.env.test?
 
-      ActiveRecord::Base.connection.execute('VACUUM (FULL, ANALYZE) classification_alias_paths, classification_alias_paths_transitive, collected_classification_contents;')
-      ActiveRecord::Base.connection.execute('VACUUM (ANALYZE) classification_alias_paths, classification_alias_paths_transitive, collected_classification_contents;')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].invoke(true, 'classification_alias_paths|classification_alias_paths_transitive|collected_classification_contents')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].reenable
     end
 
     desc 'rebuild content_content_links'
@@ -116,8 +116,8 @@ namespace :db do
 
       next if Rails.env.test?
 
-      ActiveRecord::Base.connection.execute('VACUUM (FULL, ANALYZE) content_content_links;')
-      ActiveRecord::Base.connection.execute('VACUUM (ANALYZE) content_content_links;')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].invoke(true, 'content_content_links')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].reenable
     end
 
     desc 'rebuild schedule occurrences'
@@ -129,7 +129,7 @@ namespace :db do
 
       tmp = Time.zone.now
       puts 'VACUUM FULL schedules...'
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].invoke(true, false, 'schedules')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].invoke(true, 'schedules')
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].reenable
       puts "VACUUM FULL schedules...done (#{(Time.zone.now - tmp).round}s)"
     end
@@ -211,8 +211,8 @@ namespace :db do
         Rake::Task['db:create'].invoke
         puts cmd
         system cmd
-        ActiveRecord::Base.connection.execute('VACUUM;')
-        ActiveRecord::Base.connection.execute('ANALYZE;')
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].invoke
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].reenable
         puts ''
         puts "Restored from file: #{file}"
         puts "Duration: #{TimeHelper.format_time(Time.zone.now - temp, 0, 6, 's')}"

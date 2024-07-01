@@ -4,16 +4,24 @@ module DataCycleCore
   module Feature
     class AdvancedFilter < Base
       class << self
-        def available_filters(user, view_type)
+        def all_available_filters(user, view_type, filter = nil)
           return [] unless enabled? && !user.nil?
 
           filters = []
-          DataCycleCore.features.dig(name.demodulize.underscore.to_sym)&.except(:enabled, :config)&.each do |key, value|
+          configuration.except(:enabled, :config).each do |key, value|
             filters.concat(try(key.to_sym, user, value) || default(user, key.to_s, value) || [])
           end
 
+          filters = filters.select { |k, v, data| filter.call(k, v, data) } if filter.present?
+
+          filters.select { |k, v, data| user&.can?(:advanced_filter, view_type.to_sym, k, v, data) }
+        end
+
+        def available_filters(user, view_type)
+          return [] unless enabled? && !user.nil?
+
+          filters = all_available_filters(user, view_type)
           filters
-            .select { |k, v, data| user&.can?(:advanced_filter, view_type.to_sym, k, v, data) }
             .sort_by { |v| v[0] }
             .group_by { |f| f[1] }
             .transform_keys { |k| I18n.t("filter_groups.#{k}", default: k, locale: user.ui_locale) }
@@ -84,7 +92,7 @@ module DataCycleCore
         end
 
         def graph_filter(user, value)
-          return [] unless value.is_a?(Hash)
+          return [] unless value.is_a?(::Hash)
 
           return [] unless DataCycleCore::ContentContent::Link.any?
 
@@ -195,6 +203,7 @@ module DataCycleCore
 
         def default(user, key, value)
           return [] unless value
+
           [
             [
               I18n.t("filter.#{key.underscore_blanks}", default: key.capitalize, locale: user.ui_locale),

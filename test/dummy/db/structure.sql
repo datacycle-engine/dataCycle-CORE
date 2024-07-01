@@ -91,6 +91,16 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
 COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
 
 --
+-- Name: aggregate_type; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.aggregate_type AS ENUM (
+  'default',
+  'aggregate',
+  'belongs_to_aggregate'
+);
+
+--
 -- Name: array_reverse(anyarray); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -161,12 +171,24 @@ END;
 
 $$;
 
+RETURN NULL;
+
+END;
+
+$$;
+
 --
 -- Name: concept_links_delete_transitive_paths_trigger_function(); Type: FUNCTION; Schema: public; Owner: -
 --
 
 CREATE FUNCTION public.concept_links_delete_transitive_paths_trigger_function() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM upsert_ca_paths_transitive (ARRAY_AGG(old_concept_links.child_id))
 FROM old_concept_links;
+
+RETURN NULL;
+
+END;
+
+$$;
 
 RETURN NULL;
 
@@ -230,12 +252,24 @@ END;
 
 $$;
 
+RETURN NULL;
+
+END;
+
+$$;
+
 --
 -- Name: concepts_delete_transitive_paths_trigger_function(); Type: FUNCTION; Schema: public; Owner: -
 --
 
 CREATE FUNCTION public.concepts_delete_transitive_paths_trigger_function() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM upsert_ca_paths_transitive (ARRAY_AGG(old_concepts.id))
 FROM old_concepts;
+
+RETURN NULL;
+
+END;
+
+$$;
 
 RETURN NULL;
 
@@ -269,6 +303,12 @@ $$;
 --
 
 CREATE FUNCTION public.delete_ccc_relations_transitive_trigger_1() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive (ARRAY [OLD.content_data_id]::UUID []);
+
+RETURN NULL;
+
+END;
+
+$$;
 
 RETURN NULL;
 
@@ -571,6 +611,12 @@ $$;
 --
 
 CREATE FUNCTION public.generate_ccc_relations_transitive_trigger_2() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN PERFORM generate_collected_cl_content_relations_transitive (ARRAY [NEW.content_data_id]::UUID []);
+
+RETURN NULL;
+
+END;
+
+$$;
 
 RETURN NULL;
 
@@ -957,11 +1003,23 @@ END;
 
 $$;
 
+RETURN NEW;
+
+END;
+
+$$;
+
 --
 -- Name: generate_collection_slug_trigger(); Type: FUNCTION; Schema: public; Owner: -
 --
 
 CREATE FUNCTION public.generate_collection_slug_trigger() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN NEW.slug := generate_unique_collection_slug (NEW.slug);
+
+RETURN NEW;
+
+END;
+
+$$;
 
 RETURN NEW;
 
@@ -1587,6 +1645,12 @@ END;
 
 $$;
 
+RETURN NEW;
+
+END;
+
+$$;
+
 --
 -- Name: update_classification_aliases_order_a(uuid[]); Type: FUNCTION; Schema: public; Owner: -
 --
@@ -1931,6 +1995,12 @@ END;
 
 $$;
 
+RETURN NEW;
+
+END;
+
+$$;
+
 --
 -- Name: update_template_definitions_trigger(); Type: FUNCTION; Schema: public; Owner: -
 --
@@ -1971,6 +2041,19 @@ FROM thing_templates tt
 WHERE tt.template_name = NEW.template_name
 LIMIT 1 INTO template_data;
 
+BEGIN
+SELECT tt.boost,
+  tt.content_type
+FROM thing_templates tt
+WHERE tt.template_name = NEW.template_name
+LIMIT 1 INTO template_data;
+
+NEW.boost = template_data.boost;
+
+NEW.content_type = template_data.content_type;
+
+NEW.cache_valid_since = NOW();
+
 NEW.boost = template_data.boost;
 
 NEW.content_type = template_data.content_type;
@@ -1979,7 +2062,13 @@ NEW.cache_valid_since = NOW();
 
 RETURN NEW;
 
+RETURN NEW;
+
 END;
+
+END;
+
+$$;
 
 $$;
 
@@ -2915,7 +3004,8 @@ CREATE TABLE public.things (
   last_updated_locale character varying,
   write_history boolean DEFAULT false NOT NULL,
   geom_simple public.geometry(Geometry, 4326),
-  geom public.geometry(GeometryZ, 4326)
+  geom public.geometry(GeometryZ, 4326),
+  aggregate_type public.aggregate_type DEFAULT 'default'::public.aggregate_type NOT NULL
 );
 
 --
@@ -3364,7 +3454,8 @@ CREATE TABLE public.thing_histories (
   representation_of_id uuid,
   version_name character varying,
   line public.geometry(MultiLineStringZ, 4326),
-  last_updated_locale character varying
+  last_updated_locale character varying,
+  aggregate_type public.aggregate_type DEFAULT 'default'::public.aggregate_type NOT NULL
 );
 
 --
@@ -4733,6 +4824,12 @@ CREATE INDEX index_subscriptions_on_subscribable_type ON public.subscriptions US
 CREATE INDEX index_subscriptions_on_user_id ON public.subscriptions USING btree (user_id);
 
 --
+-- Name: index_thing_histories_on_aggregate_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_histories_on_aggregate_type ON public.thing_histories USING btree (aggregate_type);
+
+--
 -- Name: index_thing_histories_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4815,6 +4912,12 @@ CREATE UNIQUE INDEX index_thing_translations_on_slug ON public.thing_translation
 --
 
 CREATE INDEX index_thing_translations_on_thing_id ON public.thing_translations USING btree (thing_id);
+
+--
+-- Name: index_things_on_aggregate_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_aggregate_type ON public.things USING btree (aggregate_type);
 
 --
 -- Name: index_things_on_boost_updated_at_id; Type: INDEX; Schema: public; Owner: -
@@ -6429,4 +6532,5 @@ VALUES ('20170116165448'),
   ('20240614081426'),
   ('20240618110250'),
   ('20240619082251'),
-  ('20240624062503');
+  ('20240624062503'),
+  ('20240625133900');

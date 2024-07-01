@@ -2,11 +2,13 @@
 
 module DataCycleCore
   module OpeningTimeHelper
-    def opening_time_time_definition
-      {
+    def opening_time_time_definition(readonly: false)
+      base_def = {
         'type' => 'opening_time_time',
         'label' => t('opening_time.time', locale: active_ui_locale)
       }
+      base_def['ui'] = { 'edit' => { 'readonly' => readonly } } if readonly
+      base_def
     end
 
     def opening_time_validity_period(validity_period)

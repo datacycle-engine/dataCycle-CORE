@@ -288,7 +288,7 @@ module DataCycleCore
 
         destroy_content_params[:destroy_locale] = destroy_params[:locale].present?
 
-        @content.destroy_content(**destroy_content_params)
+        @content.destroy(**destroy_content_params)
 
         flash[:success] = @content.destroyed? ? I18n.t(:destroyed, scope: [:controllers, :success], data: @content.template_name, locale: helpers.active_ui_locale) : I18n.t(:destroyed_translation, scope: [:controllers, :success], data: @content.template_name, language: I18n.locale, locale: helpers.active_ui_locale)
 

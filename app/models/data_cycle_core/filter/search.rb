@@ -14,6 +14,7 @@ module DataCycleCore
       include Common::Union
       include Common::User
       include Common::Graph
+      include Common::Aggregate
       include Sortable
       include DataCycleCore::Common::TsQueryHelpers
 

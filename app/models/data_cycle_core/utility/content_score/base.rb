@@ -4,6 +4,8 @@ module DataCycleCore
   module Utility
     module ContentScore
       module Base
+        extend Compute::Extensions::ValueByPathExtension
+
         class << self
           def calculate_content_score(key, data_hash, content)
             return unless DataCycleCore::Feature::ContentScore.enabled?
@@ -72,7 +74,7 @@ module DataCycleCore
           end
 
           def value_present?(data, key)
-            DataCycleCore::DataHashService.deep_present?(DataCycleCore::Utility::Compute::Common.get_values_from_hash(data, key.split('.')))
+            DataCycleCore::DataHashService.deep_present?(DataCycleCore::Utility::Compute::Common.get_values_from_hash(data:, key_path: key.split('.')))
           end
 
           def values_present(parameters, keys)

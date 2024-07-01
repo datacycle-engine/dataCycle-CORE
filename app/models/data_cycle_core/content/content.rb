@@ -30,6 +30,8 @@ module DataCycleCore
 
       self.abstract_class = true
 
+      enum aggregate_type: { default: 'default', aggregate: 'aggregate', belongs_to_aggregate: 'belongs_to_aggregate' }, _prefix: :aggregate_type
+
       attr_accessor(*ATTR_ACCESSORS)
       attr_writer(*ATTR_WRITERS)
 
@@ -277,6 +279,10 @@ module DataCycleCore
         name_property_selector(include_overlay) { |definition| LINKED_PROPERTY_TYPES.include?(definition['type']) }
       end
 
+      def inverse_linked_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| LINKED_PROPERTY_TYPES.include?(definition['type']) && definition['link_direction'] == 'inverse' }
+      end
+
       def collection_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| COLLECTION_PROPERTY_TYPES.include?(definition['type']) }
       end
@@ -379,6 +385,10 @@ module DataCycleCore
 
       def search_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| definition['search'] == true }
+      end
+
+      def new_overlay_property_names(include_overlay = false)
+        name_property_selector(include_overlay) { |definition| definition.dig('features', 'overlay', 'allowed') }
       end
 
       def embedded_title_property_name

@@ -8,6 +8,12 @@ module DataCycleCore
     class ActiveSupportTestCase < ActiveSupport::TestCase
       include DataCycleCore::MinitestHookHelper
       include DataCycleCore::ActiveStorageHelper
+
+      private
+
+      def create_content(template_name, data = {})
+        DataCycleCore::TestPreparations.create_content(template_name:, data_hash: data)
+      end
     end
   end
 end

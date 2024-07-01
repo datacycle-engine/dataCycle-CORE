@@ -4,15 +4,24 @@ module DataCycleCore
   module MasterData
     module Templates
       class TemplatePropertyContract < DataCycleCore::MasterData::Contracts::GeneralContract
-        attr_accessor :property_name
+        attr_accessor :property_name, :nested_property
 
         ALLOWED_OVERLAY_TYPES = ['string', 'text', 'number', 'boolean',
-                                 'datetime', 'date', 'geographic', 'slug',
+                                 'datetime', 'date', 'geographic',
                                  'embedded', 'linked', 'classification',
                                  'schedule', 'opening_time'].freeze
+        OVERLAY_KEY_EXCEPTIONS = ['overlay', 'id', 'data_type', 'external_key', 'external_source_id'].freeze
+        ALLOWED_RESERVED_PROPERTIES = ['id', 'external_key', 'slug', 'location', 'line', 'geom'].freeze
+        RESERVED_PROPERTY_NAMES = ((DataCycleCore::Thing::Translation.column_names + DataCycleCore::Thing.column_names).uniq - ALLOWED_RESERVED_PROPERTIES).freeze
 
         schema do
-          optional(:label) { str? }
+          optional(:label) do
+            str? | (hash? & hash do
+                              optional(:key) { str? }
+                              optional(:key_prefix) { str? }
+                              optional(:key_suffix) { str? }
+                            end)
+          end
           required(:type) do
             str? & included_in?(
               ['key', 'string', 'text', 'number', 'boolean',
@@ -166,7 +175,11 @@ module DataCycleCore
         end
 
         rule(:overlay, :type) do
-          key.failure(:invalid_overlay_type) if key? && ALLOWED_OVERLAY_TYPES.exclude?(values[:type])
+          key.failure(:invalid_overlay_type) if key? && (ALLOWED_OVERLAY_TYPES.exclude?(values[:type]) || OVERLAY_KEY_EXCEPTIONS.include?(property_name.to_s))
+        end
+
+        rule do
+          base.failure(:reserved_property_name) if !nested_property && RESERVED_PROPERTY_NAMES.include?(property_name.to_s)
         end
       end
     end

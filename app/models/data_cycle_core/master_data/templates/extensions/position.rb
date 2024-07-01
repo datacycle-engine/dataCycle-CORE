@@ -12,21 +12,22 @@ module DataCycleCore
 
             return properties if sortable_props.blank?
 
-            ordered_keys = properties.keys
+            ordered_props = properties.to_a
 
             sortable_props.each do |k, prop|
               position = prop.delete(:position)
-              ordered_keys.delete(k)
+              ordered_props.reject! { |(k1, _)| k1 == k }
+              ordered_keys = ordered_props.pluck(0)
 
               @errors.push("#{@error_path}.properties.#{k} => position must be either 'before' or 'after', not both!") && next if position.key?(:after) && position.key?(:before)
 
               if position.key?(:after)
                 @errors.push("#{@error_path}.properties.#{k} => attribute '#{position[:after]}' missing for position: { after: #{position[:after]} }") && next if ordered_keys.exclude?(position[:after])
 
-                if Overlay.overlay_attribute?(k)
+                if prop.dig('features', 'overlay', 'allowed')
                   new_index = ordered_keys.index(position[:after]) + 1
                 else
-                  new_index = ordered_keys.rindex { |v| Overlay.key_without_overlay_type(v) == position[:after] } + 1
+                  new_index = ordered_props.rindex { |(k1, p1)| (p1.dig('features', 'overlay', 'overlay_for') || k1) == position[:after] } + 1
                 end
               else
                 @errors.push("#{@error_path}.properties.#{k} => attribute '#{position[:before]}' missing for position: { before: #{position[:before]} }") && next if ordered_keys.exclude?(position[:before])
@@ -34,10 +35,10 @@ module DataCycleCore
                 new_index = ordered_keys.index(position[:before])
               end
 
-              ordered_keys.insert(new_index, k)
+              ordered_props.insert(new_index, [k, prop])
             end
 
-            properties.slice!(*ordered_keys)
+            properties.slice!(*ordered_props.pluck(0))
             properties
           end
 

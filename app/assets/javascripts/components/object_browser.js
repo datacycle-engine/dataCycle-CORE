@@ -37,7 +37,8 @@ class ObjectBrowser {
 		this.template = this.$element.data("template");
 		this.max = this.$element.data("max");
 		this.min = this.$element.data("min");
-		this.limitedBy = this.$element.data("limited-by");
+		this.limitedByAttribute = this.$element.data("limited-by");
+		this.limitedBy;
 		this.index = this.per;
 		this.editable = this.$element.data("editable");
 		this.page = 1;
@@ -108,23 +109,24 @@ class ObjectBrowser {
 		this.$element.closest("form").on("reset", this.reset.bind(this));
 		this.$element.on("clear", this.reset.bind(this));
 
-		if (this.limitedBy === Object(this.limitedBy)) {
-			let filterItem = this.$element.get(0);
-
-			for (let i = 0; i < this.limitedBy.length; ++i) {
-				if (!filterItem) continue;
-
-				filterItem = filterItem[this.limitedBy[i][0]](this.limitedBy[i][1]);
-			}
-
-			this.limitedBy = $(filterItem);
-
-			this.limitedBy.on("change", this.removeDeletedItem.bind(this));
-			if (!this.$element.closest(".split-content.edit-content").length)
-				this.removeDeletedItem();
-		} else this.limitedBy = undefined;
+		if (this.limitedByAttribute) this._addHandlersForLimitedBy();
 
 		window.addEventListener("focus", this.highlightItems.bind(this));
+	}
+	_addHandlersForLimitedBy() {
+		const container = this.$element.get(0).closest("form");
+		this.limitedBy = $(
+			container.querySelector(
+				`.form-element.linked[data-key*=${this.limitedByAttribute}]`,
+			),
+		);
+
+		if (!this.limitedBy.length) return;
+
+		this.limitedBy.on("change", this.removeDeletedItem.bind(this));
+
+		if (!this.$element.closest(".split-content.edit-content").length)
+			this.removeDeletedItem();
 	}
 	_checkForChangedFormData(mutations) {
 		for (const mutation of mutations) {
@@ -948,7 +950,7 @@ class ObjectBrowser {
 		}
 	}
 	filteredIds() {
-		if (this.limitedBy === undefined) return [];
+		if (!this.limitedBy?.length) return [];
 
 		return this.limitedBy
 			.find("> .object-browser input:hidden")
