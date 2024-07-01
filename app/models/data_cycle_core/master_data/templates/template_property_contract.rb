@@ -11,8 +11,7 @@ module DataCycleCore
                                  'embedded', 'linked', 'classification',
                                  'schedule', 'opening_time'].freeze
         OVERLAY_KEY_EXCEPTIONS = ['overlay', 'id', 'data_type', 'external_key', 'external_source_id'].freeze
-        ALLOWED_RESERVED_PROPERTIES = ['id', 'external_key', 'slug', 'location', 'line', 'geom'].freeze
-        # RESERVED_PROPERTY_NAMES = ((DataCycleCore::Thing::Translation.column_names + DataCycleCore::Thing.column_names).uniq - ALLOWED_RESERVED_PROPERTIES).freeze
+        RESERVED_PROPERTY_NAMES = ['thing_id', 'locale', 'content', 'created_at', 'updated_at', 'metadata', 'template_name', 'external_source_id', 'created_by', 'updated_by', 'deleted_by', 'cache_valid_since', 'deleted_at', 'is_part_of', 'validity_range', 'boost', 'content_type', 'representation_of_id', 'version_name', 'last_updated_locale', 'write_history', 'geom_simple', 'aggregate_type'].freeze
 
         schema do
           optional(:label) do
@@ -178,9 +177,9 @@ module DataCycleCore
           key.failure(:invalid_overlay_type) if key? && (ALLOWED_OVERLAY_TYPES.exclude?(values[:type]) || OVERLAY_KEY_EXCEPTIONS.include?(property_name.to_s))
         end
 
-        # rule do
-        #   base.failure(:reserved_property_name) if !nested_property && RESERVED_PROPERTY_NAMES.include?(property_name.to_s)
-        # end
+        rule do
+          base.failure(:reserved_property_name) if !nested_property && RESERVED_PROPERTY_NAMES.include?(property_name.to_s)
+        end
       end
     end
   end
