@@ -197,5 +197,21 @@ module DataCycleCore
         { buttons: 'd' }
       end
     end
+
+    def filter_to_hidden_fields(key, value)
+      capture do
+        if value.is_a?(::Array)
+          value.each do |v|
+            concat filter_to_hidden_fields(key + '[]', v)
+          end
+        elsif value.is_a?(::Hash)
+          value.each do |k, v|
+            concat filter_to_hidden_fields("#{key}[#{k}]", v)
+          end
+        else
+          concat hidden_field_tag(key, value)
+        end
+      end
+    end
   end
 end

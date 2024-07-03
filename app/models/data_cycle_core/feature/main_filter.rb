@@ -108,8 +108,8 @@ module DataCycleCore
           return config[:hidden_filter].concat(selected) if advanced_filter.blank?
 
           allowed_filters = allowed_advanced_filters(user, config[:view_type], selected, c)
-          advanced_filter[:filters] = selected.select { |f| allowed_filters.any? { |af| af['t'] == f['t'] && af['n'] == f['n'] && af['q'] == f['q'] && af['c'] == f['c'] } }
-          config[:hidden_filter].concat(selected.reject { |f| allowed_filters.any? { |af| af['t'] == f['t'] && af['n'] == f['n'] && af['q'] == f['q'] && af['c'] == f['c'] } })
+          advanced_filter[:filters] = selected.select { |f| allowed_filters.any? { |af| af['t'] == f['t'] && (af['n'] == f['n'] || f['n'].blank?) && af['q'] == f['q'] && af['c'] == f['c'] } }
+          config[:hidden_filter].concat(selected.reject { |f| allowed_filters.any? { |af| af['t'] == f['t'] && (af['n'] == f['n'] || f['n'].blank?) && af['q'] == f['q'] && af['c'] == f['c'] } })
 
           visible_filters = DataCycleCore::Feature::AdvancedFilter.available_visible_filters(user, config[:view_type], advanced_filter[:config])
 
@@ -214,7 +214,7 @@ module DataCycleCore
         def allowed_advanced_filters(user, view_type, selected, c = 'a')
           return [] if selected.blank?
 
-          filter_proc = ->(_, v, data) { selected.any? { |f| f['t'] == v && f['n'] == data&.dig(:data, :name) && f['q'] == data&.dig(:data, :advancedType) } }
+          filter_proc = ->(_, v, data) { selected.any? { |f| f['t'] == v && (f['n'].blank? || f['n'] == data&.dig(:data, :name)) && f['q'] == data&.dig(:data, :advancedType) } }
 
           DataCycleCore::Feature::AdvancedFilter
             .all_available_filters(user, view_type, filter_proc)
