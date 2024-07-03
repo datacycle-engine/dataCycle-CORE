@@ -19,6 +19,7 @@ module DataCycleCore
 
         def self.import_sequential(utility_object:, iterator:, data_processor:, options:)
           last_err = nil
+          last_ext_key = nil
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
               importer_name = options.dig(:import, :name)
@@ -90,6 +91,7 @@ module DataCycleCore
                             break if options[:max_count].present? && item_count >= options[:max_count]
                             item_count += 1
                             next if options[:min_count].present? && item_count < options[:min_count]
+                            last_ext_key = content[:external_id]
 
                             data_processor.call(
                               utility_object:,
@@ -101,6 +103,7 @@ module DataCycleCore
                         rescue StandardError => e
                           last_err = e
                           e.message << " occured at '#{e.backtrace&.first}" if e.backtrace.present?
+                          e.message << " while trying to import ext. key '#{last_ext_key}'" if last_ext_key.present?
                           logging.info("E: #{e.message}")
                           e.backtrace.each do |line|
                             logging.info("E: #{line}")
