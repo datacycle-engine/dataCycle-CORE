@@ -5,7 +5,7 @@ module DataCycleCore
     module Common
       module Transformations
         module GeocodeFunctions
-          def self.geocode(data)
+          def self.geocode(data, **)
             return data unless Feature::Geocode.enabled? && data&.key?('address') && data.dig('address', 'postal_code').present? && data.dig('address', 'street_address').present? && data.dig('address', 'address_locality').present? && data['location'].blank?
 
             location = Feature::Geocode.geocode_address(data['address'])
@@ -20,7 +20,7 @@ module DataCycleCore
             data
           end
 
-          def self.reverse_geocode(data)
+          def self.reverse_geocode(data, **)
             return data unless Feature::Geocode.reverse_geocode_enabled? && data&.key?('location') && data['address']&.compact_blank.blank?
 
             address_hash = Feature::Geocode.reverse_geocode(data['location'])
