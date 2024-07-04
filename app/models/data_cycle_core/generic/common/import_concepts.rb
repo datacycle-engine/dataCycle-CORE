@@ -36,15 +36,16 @@ module DataCycleCore
 
             I18n.with_locale(locale) do
               external_id = extract_property(raw_data, options, 'id')
-              external_id_prefix = options.dig(:import, :external_id_prefix)
-              concept_scheme_external_id_prefix = options.dig(:import, :concept_scheme_external_id_prefix)
+              name = extract_property(raw_data, options, 'name')
+              external_id_prefix = options.dig(:import, :external_id_prefix) || extract_property(raw_data, options, 'external_id_prefix')
+              concept_scheme_external_id_prefix = options.dig(:import, :concept_scheme_external_id_prefix) || extract_property(raw_data, options, 'concept_scheme_external_id_prefix')
 
-              return if external_id.blank?
+              return if external_id.blank? || name.blank?
 
               {
                 external_key: [external_id_prefix, external_id].compact_blank.join(' '),
                 external_source_id: utility_object.external_source.id,
-                name: extract_property(raw_data, options, 'name'),
+                name:,
                 parent_external_key: [
                   external_id_prefix,
                   extract_property(raw_data, options, 'parent_id')
@@ -86,7 +87,7 @@ module DataCycleCore
             end
 
             concept_scheme_names = data_array.pluck(:concept_scheme_name).compact_blank.uniq
-            if concept_scheme_external_keys.present?
+            if concept_scheme_names.present?
               concept_schemes_by_name = DataCycleCore::ConceptScheme
                 .where(name: concept_scheme_names)
                 .index_by(&:name)
@@ -98,7 +99,6 @@ module DataCycleCore
             .to_h { |k, v|
               new_k = concept_schemes[k]
               next [nil, nil] if new_k.blank? # reject if concept scheme is missing
-
               [
                 new_k,
                 v.map { |da|
