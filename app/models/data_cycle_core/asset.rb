@@ -173,7 +173,7 @@ module DataCycleCore
     def load_file_from_base64_encoded_binary_file_blob
       return if base64_file_blob.blank? || name.blank?
 
-      base64_encoded = base64_file_blob.split(',')[1] if base64_file_blob.start_with?('data:')
+      base64_encoded = base64_file_blob.start_with?('data:') ? base64_file_blob.split(',')[1] : base64_file_blob
 
       decoded_data = Base64.decode64(base64_encoded)
 
