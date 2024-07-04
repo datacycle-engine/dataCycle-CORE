@@ -97,7 +97,8 @@ module DataCycleCore
           return { error: 'endpoint not active' }, :not_found if strategy.nil?
 
           locale = params.dig(:@context, :@language)
-          locale = I18n.available_locales.first if locale.blank? || !locale.to_sym.in?(I18n.available_locales)
+          locale = I18n.available_locales.first if locale.blank?
+          return { error: 'Invalid locale. Allowed are: ' + I18n.available_locales.join(', ') }, :bad_request unless locale.to_sym.in?(I18n.available_locales)
 
           I18n.with_locale(locale) do
             responses = content_params.map do |data|
@@ -108,7 +109,11 @@ module DataCycleCore
               end
             end
 
-            return responses, responses.any? { |i| i[:error].present? } ? :bad_request : :ok
+            error_present = responses.any? { |i| i[:error].present? }
+            return responses, error_present ? :bad_request : :ok unless responses.size == 1
+            status = responses.first[:status]
+            responses.first.delete(:status)
+            return responses, status.present? ? status : error_present ? :bad_request : :ok
           end
         end
 
