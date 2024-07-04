@@ -118,7 +118,6 @@ module DataCycleCore
 
                     endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
                     items = download_object.endpoint.send(endpoint_method, lang: locale)
-
                     items.each do |item_data|
                       break if options[:max_count] && item_count >= options[:max_count]
 
@@ -825,6 +824,154 @@ module DataCycleCore
 
         def self.logging_message
           # code here
+        end
+
+        def self.download_from_data(download_object:, data_id: nil, data_name: nil, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil, options:)
+          success = true
+          delta = 100
+          options[:locales] ||= I18n.available_locales
+          if options[:locales].size != 1
+            options[:locales].each do |language|
+              success &&= download_sequential(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options: options.except(:locales).merge({ locales: [language] }))
+            end
+          else
+            database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
+            init_mongo_db(database_name) do
+              init_logging(download_object) do |logging|
+                is_instrumentation_log = logging.instance_of?(DataCycleCore::Generic::Logger::Instrumentation)
+                locale = options[:locales].first
+                logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
+                item_count = 0
+
+                endpoint_method = 'unknown'
+                item = nil
+
+                begin
+                  download_object.source_object.with(download_object.source_type) do |_mongo_item|
+                    max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
+                    logging.phase_started("#{download_object.source_type.collection_name}_#{locale}", max_string)
+                    GC.start
+                    times = [Time.current]
+
+                    # endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
+                    # items = download_object.endpoint.send(endpoint_method, lang: locale)
+                    binding.pry
+                    items.each do |item_data|
+                      break if options[:max_count] && item_count >= options[:max_count]
+
+                      item_count += 1
+                      next if item_data.nil?
+
+                      item_name = nil
+                      item_id = nil
+
+                      init_mongo_db(database_name) do
+                        download_object.source_object.with(download_object.source_type) do |mongo_item_parallel|
+                          item_id = data_id.call(item_data)
+                          item_name = data_name.call(item_data)
+
+                          item = mongo_item_parallel.find_or_initialize_by('external_id': item_id)
+
+                          item.dump ||= {}
+                          local_item = item.dump[locale]
+
+                          if options.dig(:download, :restorable).present? && local_item.present?
+                            local_item.delete('deleted_at')
+                            local_item.delete('delete_reason')
+                            local_item.delete('last_seen_before_delete')
+                            item.dump[locale] = local_item
+                          end
+
+                          if delete.present? && delete.call(item_data, locale)
+                            item_data['deleted_at'] = local_item.try(:[], 'deleted_at') || Time.zone.now
+                            item_data['delete_reason'] = local_item.try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
+                          end
+
+                          item.data_has_changed = true if options[:mode] == 'full'
+                          item.data_has_changed = true if item.dump.dig(locale, 'mark_for_update').present?
+
+                          if item.data_has_changed.nil?
+                            last_download = download_object.external_source.last_successful_download
+                            if modified.present? && last_download.present?
+                              updated_at = modified.call(item_data)
+                              item.data_has_changed = updated_at > last_download ? true : nil if updated_at.present?
+                            end
+                          end
+
+                          item.data_has_changed = true if options.dig(:download, :skip_diff) == true && item.data_has_changed.nil?
+                          item_data = cleanup_data.call(item_data) if cleanup_data.present?
+                          item.data_has_changed = diff?(item.dump[locale].as_json, item_data.as_json, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
+
+                          if item.data_has_changed
+                            # for debugging, also uncomment the require 'hashdiff' at the top of this file
+                            # differences = ::Hashdiff.diff(item_data.as_json, item.dump[locale].as_json)
+                            item.dump[locale] = item_data
+                            item.save!
+                          else
+                            item.set('seen_at' => Time.zone.now)
+                          end
+                          logging.item_processed(item_name, item_id, item_count, max_string)
+                        rescue StandardError => e
+                          ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
+                            exception: e,
+                            namespace: 'background',
+                            logging_options: if !is_instrumentation_log
+                                               nil
+                                             else
+                                               {
+                                                 print_logs: is_instrumentation_log,
+                                                 logging_message: logging.error_detailed({
+                                                   exception: e,
+                                                   execution_step: "#{endpoint_method} [#{locale}]",
+                                                   external_system: download_object.external_source.name.to_s,
+                                                   item: {title: item_name.presence, id: item_id.presence, data: item_data.presence, raw_data: item.presence}
+                                                 })
+                                               }
+                                             end
+                          }
+
+                          logging.error(nil, nil, nil, e) unless is_instrumentation_log
+                          success = false
+                        end
+                      end
+
+                      next unless (item_count % delta).zero?
+
+                      GC.start
+
+                      times << Time.current
+
+                      logging.info("Downloaded #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                    end
+                  end
+                rescue StandardError => e
+                  ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
+                    exception: e,
+                    namespace: 'background',
+                    logging_options: if !is_instrumentation_log
+                                       nil
+                                     else
+                                       {
+                                         print_logs: is_instrumentation_log,
+                                         logging_message: logging.error_detailed({
+                                           exception: e,
+                                           external_system: download_object.external_source.name.to_s,
+                                           execution_step: "#{endpoint_method} [#{locale}]",
+                                           item: {raw_data: item.presence}
+                                         })
+                                       }
+                                     end
+                  }
+
+                  logging.error(nil, nil, nil, e) unless is_instrumentation_log
+                  success = false
+                ensure
+                  logging.phase_finished("#{download_object.source_type.collection_name}_#{locale}", item_count)
+                end
+              end
+            end
+          end
+          success
         end
 
         def self.mark_deleted_from_data(download_object:, iterator:, archived: nil, options:)
