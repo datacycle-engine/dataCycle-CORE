@@ -832,7 +832,7 @@ module DataCycleCore
           options[:locales] ||= I18n.available_locales
           if options[:locales].size != 1
             options[:locales].each do |language|
-              success &&= download_sequential(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options: options.except(:locales).merge({ locales: [language] }))
+              success &&= download_optimized(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
@@ -843,106 +843,99 @@ module DataCycleCore
                 logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
 
-                endpoint_method = 'unknown'
-                item = nil
+                # endpoint_method = 'unknown'
+                # item = nil
 
                 begin
-                  download_object.source_object.with(download_object.source_type) do |_mongo_item|
+                  download_object.source_object.with(download_object.source_type) do |mongo_item|
                     max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
                     logging.phase_started("#{download_object.source_type.collection_name}_#{locale}", max_string)
                     GC.start
                     times = [Time.current]
 
-                    # endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
-                    # items = download_object.endpoint.send(endpoint_method, lang: locale)
-                    binding.pry
-                    items.each do |item_data|
+                    items = Enumerator.new do |yielder|
+                      iterator.call(options:, lang: locale).each do |item|
+                        item[:tree_label] = options.dig(:download, :tree_label)
+                        yielder << item
+                      end
+                    end
+
+                    items.each_slice(100) do |item_data_slice|
                       break if options[:max_count] && item_count >= options[:max_count]
-
-                      item_count += 1
-                      next if item_data.nil?
-
-                      item_name = nil
-                      item_id = nil
 
                       init_mongo_db(database_name) do
                         download_object.source_object.with(download_object.source_type) do |mongo_item_parallel|
-                          item_id = data_id.call(item_data)
-                          item_name = data_name.call(item_data)
+                          mongo_items = mongo_item_parallel
+                            .where(external_id: { '$in' => item_data_slice.map { |item_data| data_id.call(item_data) }})
+                            .index_by(&:external_id)
 
-                          item = mongo_item_parallel.find_or_initialize_by('external_id': item_id)
+                          seen_at = []
+                          item_data_slice.each do |item_data|
+                            item_count += 1
+                            next if item_data.nil?
 
-                          item.dump ||= {}
-                          local_item = item.dump[locale]
+                            item_id = data_id.call(item_data) || nil
+                            item_name = data_name.call(item_data) || nil
 
-                          if options.dig(:download, :restorable).present? && local_item.present?
-                            local_item.delete('deleted_at')
-                            local_item.delete('delete_reason')
-                            local_item.delete('last_seen_before_delete')
-                            item.dump[locale] = local_item
-                          end
+                            item = mongo_items.dig(item_id) || mongo_item_parallel.new('external_id': item_id)
+                            item.dump ||= {}
+                            local_item = item.dump[locale]
 
-                          if delete.present? && delete.call(item_data, locale)
-                            item_data['deleted_at'] = local_item.try(:[], 'deleted_at') || Time.zone.now
-                            item_data['delete_reason'] = local_item.try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
-                          end
-
-                          item.data_has_changed = true if options[:mode] == 'full'
-                          item.data_has_changed = true if item.dump.dig(locale, 'mark_for_update').present?
-
-                          if item.data_has_changed.nil?
-                            last_download = download_object.external_source.last_successful_download
-                            if modified.present? && last_download.present?
-                              updated_at = modified.call(item_data)
-                              item.data_has_changed = updated_at > last_download ? true : nil if updated_at.present?
+                            if options.dig(:download, :restorable).present? && local_item.present?
+                              local_item.delete('deleted_at')
+                              local_item.delete('delete_reason')
+                              local_item.delete('last_seen_before_delete')
+                              item.dump[locale] = local_item
                             end
+
+                            if delete.present? && delete.call(item_data, locale)
+                              item_data['deleted_at'] = local_item.try(:[], 'deleted_at') || Time.zone.now
+                              item_data['delete_reason'] = local_item.try(:[], 'delete_reason') || 'Filtered directly at download. (see delete function in download class.)'
+                            end
+
+                            item.data_has_changed = true if options[:mode] == 'full'
+                            item.data_has_changed = true if item.dump.dig(locale, 'mark_for_update').present?
+
+                            if item.data_has_changed.nil? && modified.present?
+                              last_download = download_object.external_source.last_successful_download
+                              if last_download.present?
+                                updated_at = modified.call(item_data)
+                                item.data_has_changed = updated_at > last_download ? true : nil
+                              end
+                            end
+
+                            item.data_has_changed = true if options.dig(:download, :skip_diff) == true && item.data_has_changed.nil?
+                            item_data = cleanup_data.call(item_data) if cleanup_data.present?
+                            item.data_has_changed = diff?(item.dump[locale].as_json, item_data.as_json, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
+
+                            if item.data_has_changed
+                              # for debugging, also uncomment the require 'hashdiff' at the top of this file
+                              # differences = ::Hashdiff.diff(item_data.as_json, item.dump[locale].as_json)
+                              # binding.pry if differences.present?
+                              item.dump[locale] = item_data
+                              # update_items << item
+                              # save only updates seen_at!
+                              item.save!
+                            else
+                              seen_at << item.external_id
+                            end
+                            logging.item_processed(item_name, item_id, item_count, max_string)
                           end
-
-                          item.data_has_changed = true if options.dig(:download, :skip_diff) == true && item.data_has_changed.nil?
-                          item_data = cleanup_data.call(item_data) if cleanup_data.present?
-                          item.data_has_changed = diff?(item.dump[locale].as_json, item_data.as_json, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
-
-                          if item.data_has_changed
-                            # for debugging, also uncomment the require 'hashdiff' at the top of this file
-                            # differences = ::Hashdiff.diff(item_data.as_json, item.dump[locale].as_json)
-                            item.dump[locale] = item_data
-                            item.save!
-                          else
-                            item.set('seen_at' => Time.zone.now)
-                          end
-                          logging.item_processed(item_name, item_id, item_count, max_string)
-                        rescue StandardError => e
-                          ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
-                            exception: e,
-                            namespace: 'background',
-                            logging_options: if !is_instrumentation_log
-                                               nil
-                                             else
-                                               {
-                                                 print_logs: is_instrumentation_log,
-                                                 logging_message: logging.error_detailed({
-                                                   exception: e,
-                                                   execution_step: "#{endpoint_method} [#{locale}]",
-                                                   external_system: download_object.external_source.name.to_s,
-                                                   item: {title: item_name.presence, id: item_id.presence, data: item_data.presence, raw_data: item.presence}
-                                                 })
-                                               }
-                                             end
-                          }
-
-                          logging.error(nil, nil, nil, e) unless is_instrumentation_log
-                          success = false
+                          # if update_items.present?
+                          #   mongo_item_parallel.collection.delete_many(external_id: { '$in' => update_items.map(&:external_id) })
+                          #   mongo_item_parallel.collection.insert_many(update_items.map(&:as_document))
+                          # end
+                          mongo_item_parallel.where(external_id: { '$in' => seen_at }).update_all(seen_at: Time.zone.now)
                         end
                       end
 
                       next unless (item_count % delta).zero?
 
-                      GC.start
-
                       times << Time.current
 
                       logging.info("Downloaded #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
                     end
+                    GC.start
                   end
                 rescue StandardError => e
                   ActiveSupport::Notifications.instrument 'download_failed.datacycle', {
@@ -952,13 +945,13 @@ module DataCycleCore
                                        nil
                                      else
                                        {
-                                         print_logs: is_instrumentation_log,
                                          logging_message: logging.error_detailed({
                                            exception: e,
                                            external_system: download_object.external_source.name.to_s,
                                            execution_step: "#{endpoint_method} [#{locale}]",
-                                           item: {raw_data: item.presence}
-                                         })
+                                           item: { raw_data: item.presence }
+                                         }),
+                                         print_logs: is_instrumentation_log
                                        }
                                      end
                   }
