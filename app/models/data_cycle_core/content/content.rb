@@ -35,11 +35,6 @@ module DataCycleCore
       attr_accessor(*ATTR_ACCESSORS)
       attr_writer(*ATTR_WRITERS)
 
-      DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
-        feature = ModuleService.load_module("Feature::#{key.to_s.classify}", 'Datacycle')
-        include feature.content_module if feature.enabled? && feature.content_module
-      end
-
       extend  Common::ArelBuilder
       include ContentRelations
       extend  Searchable
@@ -56,6 +51,11 @@ module DataCycleCore
       include Extensions::PropertyPreloader
       prepend Extensions::Translation
       prepend Extensions::Geo
+
+      DataCycleCore.features.select { |_, v| !v.dig(:only_config) == true }.each_key do |key|
+        feature = ModuleService.load_module("Feature::#{key.to_s.classify}", 'Datacycle')
+        include feature.content_module if feature.enabled? && feature.content_module
+      end
 
       scope :where_value, ->(attributes) { where(value_condition(attributes), *attributes&.values) }
       scope :where_not_value, ->(attributes) { where.not(value_condition(attributes), *attributes&.values) }
@@ -457,13 +457,11 @@ module DataCycleCore
       end
 
       def collect_properties(definition = schema, parents = [])
+        parents = Array.wrap(parents)
         key_paths = []
         definition&.dig('properties')&.each do |k, v|
-          if v&.key?('properties')
-            key_paths << collect_properties(v, parents + [k, 'properties'])
-          else
-            key_paths << (parents.present? ? [parents + [k]] : [k])
-          end
+          key_paths << (parents + [k])
+          key_paths << collect_properties(v, parents + [k, 'properties']) if v&.key?('properties')
         end
         key_paths.flatten(1)
       end

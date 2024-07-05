@@ -284,7 +284,7 @@
             left: 0;
             top: 0;
             background: transparent;
-            color: $dark-gray;
+            color: var(--attribute-label-color);
             padding: 0.4rem 0.7rem;
             font-size: 0.9rem;
             max-width: 100%;

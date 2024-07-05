@@ -54,8 +54,8 @@ de:
     copyright_attributes_group: Copyright
     content_classifications_group: Klassifizierungen
     belongs_to_aggregate: mit Aggregat verknüpft
-    aggregate_for: Aggregat für
-    aggregate_for_override: Aggregat-Override für
+    aggregate_for: Aggregats-Basis
+    aggregate_for_override: Aggregats-Basis für
     overlay_override: (Overlay)
     overlay_add: (Anhang)
 
@@ -538,9 +538,9 @@ de:
     bulk_edit_locked_html: "<br><br>Mindestens ein Inhalt kann von Ihnen nicht bearbeitet werden, deshalb ist die Bulk-Bearbeitung gesperrt."
     bulk_update:
       check_box_labels:
-        override_html: '<span class="attribute-title">%{data}</span> überschreiben'
-        add_html: 'An vorhandene <span class="attribute-title">%{data}</span> anhängen'
-        remove_html: 'Ausgewählte <span class="attribute-title">%{data}</span> entfernen'
+        override: überschreiben
+        add: an vorhandene anhängen
+        remove: ausgewählte entfernen
       button:
         limited: Es können maximal %{data} Inhalte gleichzeitig bearbeitet werden.
     watch_list_external_things_locked_html: "<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>"
@@ -777,6 +777,8 @@ de:
         default: Alleinstehend
         aggregate: Aggregat
         belongs_to_aggregate: mit Aggregat verknüpft
+      check_box_labels:
+        aggregate_for_override: Aggregats-Basis überschreiben
 
     report_generator:
       downloads_popular: Top 50 Downloads

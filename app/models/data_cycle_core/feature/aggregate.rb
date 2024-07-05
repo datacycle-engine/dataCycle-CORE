@@ -10,6 +10,10 @@ module DataCycleCore
           DataCycleCore::Feature::DataHash::Aggregate
         end
 
+        def content_module
+          DataCycleCore::Feature::Content::Aggregate
+        end
+
         def aggregate?(content = nil)
           !!configuration(content).dig('aggregate')
         end

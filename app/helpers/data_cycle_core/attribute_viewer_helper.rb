@@ -20,7 +20,7 @@ module DataCycleCore
         args[:parameters][:options] = (args[:parameters][:options] || {})
           .dc_deep_dup
           .with_indifferent_access
-          .merge!(args[:definition]&.dig('ui', args[:scope].to_s, 'options') || {})
+          .merge!(args[:definition]&.dig('ui', args[:scope].to_s, 'options') || {}) { |k, v1, v2| k == 'class' ? [v1, v2].compact_blank.join(' ') : v2 }
 
         super(**args)
       end
@@ -34,11 +34,27 @@ module DataCycleCore
       end
 
       def overlay_attribute?
-        definition.dig('features', 'overlay', 'allowed').present?
+        definition.dig('features', 'overlay', 'overlay_for').present?
+      end
+
+      def attribute_has_overlay?
+        render_overlay_attribute? && definition&.dig('features', 'overlay', 'allowed')
       end
 
       def aggregated_attribute?
-        DataCycleCore::Feature::Aggregate.allowed_attribute_key?(content, key&.attribute_name_from_key)
+        definition&.dig('features', 'aggregate', 'allowed')
+      end
+
+      def aggregate_attribute?
+        definition.dig('features', 'aggregate', 'aggregate_for').present?
+      end
+
+      def options_for_original_key
+        duplicated = to_h.dc_deep_dup
+        duplicated[:key] = key.replace_attribute_name_in_key(definition.dig('features', 'aggregate', 'aggregate_for') || definition.dig('features', 'overlay', 'overlay_for'))
+        duplicated[:definition] = content.properties_for(duplicated[:key].attribute_name_from_key)
+
+        self.class.new(**duplicated)
       end
 
       def specific_scope
@@ -49,28 +65,40 @@ module DataCycleCore
         (content.external? || content.aggregate_type_aggregate?) && specific_scope == 'edit'
       end
 
-      def add_overlay_properties!
+      def add_additional_attribute_properties!
+        return unless overlay_attribute? || aggregate_attribute?
+
         css_class = parameters.dig(:options, :class).to_s.split
+        css_class.push('dc-overlay', "dc-overlay-#{definition.dig('features', 'overlay', 'overlay_type')}") if overlay_attribute?
+        css_class.push('dc-aggregate', "dc-aggregate-#{MasterData::Templates::AggregateTemplate::BASE_AGGREGATE_POSTFIX.delete_prefix('_')}") if aggregate_attribute?
 
         if DataHashService.present?(value)
-          css_class.push('dc-overlay-visible')
-        else
-          css_class.delete('dc-overlay-visible')
+          css_class.push('dc-overlay-visible') if overlay_attribute?
+          css_class.push('dc-aggregate-visible') if aggregate_attribute?
         end
 
         parameters[:options][:class] = css_class.uniq.join(' ') if css_class.present?
       end
 
-      def add_has_overlay_options!
+      def add_additional_attribute_partials!
+        return unless attribute_has_overlay? || aggregated_attribute?
+
         css_class = parameters.dig(:options, :class).to_s.split
-        css_class << 'dc-has-overlay'
+        additional_attribute_partials = []
+        css_class << 'dc-has-additional-attribute-partial'
+
+        if attribute_has_overlay?
+          css_class << 'dc-has-overlay'
+          additional_attribute_partials << { partial: 'data_cycle_core/contents/additional_attribute_partials/additional_attribute_partial_selector', locals: { key_prefix: 'overlay', check_box_types: -> { overlay_types(_1) } } }
+        end
+
+        if aggregated_attribute?
+          css_class << 'dc-has-aggregate'
+          additional_attribute_partials << { partial: 'data_cycle_core/contents/additional_attribute_partials/additional_attribute_partial_selector', locals: { key_prefix: 'aggregate', check_box_types: -> { aggregate_types(_1) } } }
+        end
 
         parameters[:options][:class] = css_class.uniq.join(' ')
-        parameters[:options][:additional_attribute_partials] = ['data_cycle_core/contents/overlay/overlay_type_selector']
-      end
-
-      def attribute_has_overlay?
-        render_overlay_attribute? && !!definition&.dig('overlay')
+        parameters[:options][:additional_attribute_partials] = additional_attribute_partials
       end
     end
 

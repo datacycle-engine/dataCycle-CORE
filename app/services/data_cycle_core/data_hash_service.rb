@@ -192,11 +192,11 @@ module DataCycleCore
       end
     end
 
-    def self.parse_translated_hash(datahash)
+    def self.parse_translated_hash(datahash, allowed_locales = [])
       return {} unless datahash.is_a?(::Hash)
 
       neutral_hash = datahash.key?(:datahash) ? datahash[:datahash].to_h : datahash.except(:translations, :version_name).to_h
-      keep_locales = find_locales_recursive(neutral_hash)
+      keep_locales = (find_locales_recursive(neutral_hash) + allowed_locales.map(&:to_s)).uniq
       translations = datahash[:translations]&.reject { |locale, value| keep_locales.exclude?(locale) && value&.deep_reject { |_k, v| DataCycleCore::DataHashService.blank?(v) }.blank? }.presence || { I18n.locale.to_s => {} }
 
       translations.transform_values { |value| neutral_hash.merge(value).with_indifferent_access }
@@ -274,6 +274,8 @@ module DataCycleCore
             value = value.blank? ? nil : value.to_f
           elsif type == 'number'
             value = value.blank? ? nil : value.to_i
+          elsif type == 'boolean'
+            value = blank?(value) ? nil : value == 'true'
           elsif type == 'geographic'
             if value.blank?
               value = nil

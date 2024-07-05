@@ -142,7 +142,15 @@
           grid-gap: 1rem;
 
           >* {
-            margin: 0 !important;
+            &:not(.dc-has-additional-attribute-partial) {
+              margin: 0 !important;
+            }
+
+            &.dc-has-additional-attribute-partial {
+              margin-bottom: 0 !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+            }
 
             >input,
             >.editor-block {

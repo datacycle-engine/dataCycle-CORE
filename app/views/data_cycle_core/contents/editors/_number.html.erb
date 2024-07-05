@@ -3,6 +3,6 @@
   <%= attribute_edit_label_tag(**local_assigns) %>
 
   <% number_method = definition&.dig('validations', 'format') == 'float' ? 'to_f' : 'to_i' %>
-  <%= number_field_tag key, value.try(number_method), options.merge({ step: :any, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" }) %>
+  <%= number_field_tag key, value.try(number_method), options.merge({ step: :any, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", disabled: !attribute_editable?(key, definition, options, content) }) %>
 
 <% end %>

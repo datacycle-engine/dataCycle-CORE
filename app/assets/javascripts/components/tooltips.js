@@ -85,7 +85,6 @@ class Tooltips {
 			this.addAutoUpdate();
 		await this.updatePosition();
 	}
-
 	hideTooltip(_event) {
 		Object.assign(this.tooltip.style, {
 			left: "",
@@ -142,7 +141,7 @@ class Tooltips {
 			this.referenceElement,
 			this.tooltip,
 			{
-				placement: this.referenceElement.dataset.dcTooltipPlacement || "bottom",
+				placement: this.referenceElement.dataset.dcTooltipPlacement || "top",
 				strategy: "fixed",
 				middleware: [
 					offset(6),

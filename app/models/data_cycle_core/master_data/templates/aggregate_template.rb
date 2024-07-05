@@ -4,6 +4,7 @@ module DataCycleCore
   module MasterData
     module Templates
       class AggregateTemplate
+        BASE_AGGREGATE_POSTFIX = '_aggregate_for_override'
         AGGREGATE_PROP_EXCEPTIONS = ['default_value', 'validations', 'compute', 'sorting'].freeze
         AGGREGATE_PROPERTY_NAME = 'aggregate_for'
         AGGREGATE_INVERSE_PROPERTY_NAME = 'belongs_to_aggregate'
@@ -42,7 +43,7 @@ module DataCycleCore
         end
 
         def self.aggregate_property_key(key)
-          "#{key}_aggregate_for_override"
+          "#{key}#{BASE_AGGREGATE_POSTFIX}"
         end
 
         def self.key_allowed_for_aggregate?(key:, prop:)
@@ -75,50 +76,61 @@ module DataCycleCore
           props = []
 
           @aggregate[:properties].each do |key, prop|
-            next if AGGREGATE_KEY_EXCEPTIONS.include?(key)
-            next props.push([key, prop]) unless self.class.key_allowed_for_aggregate?(key:, prop:)
-
-            prop.except!(*AGGREGATE_PROP_EXCEPTIONS)
-            add_prop_ui_definition!(prop:)
-            add_compute_definition_for_prop!(key:, prop:)
-            add_feature_definition_for_prop!(prop:)
-            prop[:overlay] = true if TemplatePropertyContract::ALLOWED_OVERLAY_TYPES.include?(prop[:type]) && TemplatePropertyContract::OVERLAY_KEY_EXCEPTIONS.exclude?(key)
-
-            props.push([
-                         self.class.aggregate_property_key(key),
-                         aggregate_property_definition(key:, prop:)
-                       ])
-            props.push([key, prop])
+            props.concat(transform_aggregate_property(key:, prop:))
           end
 
           @aggregate[:properties] = props.to_h
         end
 
-        def aggregate_prop_label(key:, prop:)
-          label = prop[:label].presence || I18n.t("attribute_labels.#{key}", locale: I18n.available_locales.first)
+        def transform_aggregate_property(key:, prop:)
+          return [] if AGGREGATE_KEY_EXCEPTIONS.include?(key)
+          return [[key, prop]] unless self.class.key_allowed_for_aggregate?(key:, prop:)
 
-          "Aggregat-Override für #{label}"
+          prop.except!(*AGGREGATE_PROP_EXCEPTIONS)
+          add_prop_ui_definition!(prop:)
+          add_compute_definition_for_prop!(key:, prop:)
+          add_feature_definition_for_prop!(prop:)
+          prop[:overlay] = true if TemplatePropertyContract::ALLOWED_OVERLAY_TYPES.include?(prop[:type]) && TemplatePropertyContract::OVERLAY_KEY_EXCEPTIONS.exclude?(key)
+
+          transform_nested_properties!(prop:) if prop.key?(:properties)
+
+          [
+            [
+              self.class.aggregate_property_key(key),
+              aggregate_property_definition(key:, prop:)
+            ],
+            [key, prop]
+          ]
+        end
+
+        def transform_nested_properties!(prop:)
+          prop[:properties].each_value do |nested_prop|
+            add_prop_ui_definition!(prop: nested_prop)
+          end
         end
 
         def aggregate_property_definition(key:, prop:)
           {
-            label: { key:, key_prefix: 'aggregate_for'},
+            label: { key:, key_prefix: 'aggregate_for_override'},
             type: 'linked',
             template_name: @data[:name],
             visible: ['show', 'edit'],
-            features: { aggregate: { allowed: true, aggregate_for: key } },
+            features: { aggregate: { aggregate_for: key } },
             ui: {
               show: {
-                disabled: prop.dig(:ui, :show, :disabled)
+                disabled: prop.dig(:ui, :show, :disabled),
+                attribute_group: prop.dig(:ui, :show, :attribute_group)
               },
               edit: {
                 disabled: prop.dig(:ui, :edit, :disabled),
                 options: {
                   limited_by: "thing[datahash][#{AGGREGATE_PROPERTY_NAME}]"
-                }
-              }
+                },
+                attribute_group: prop.dig(:ui, :show, :attribute_group)
+              },
+              attribute_group: prop.dig(:ui, :attribute_group)
             }
-          }
+          }.deep_reject { |_, v| DataHashService.blank?(v) }
         end
 
         def add_prop_ui_definition!(prop:)

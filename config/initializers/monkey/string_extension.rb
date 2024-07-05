@@ -11,7 +11,11 @@ module DataCycleCore
     ].freeze
 
     def attribute_name_from_key
-      split(/[\[\]]+/).last&.underscore
+      self[/\[?([^\[\]]+)\]?$/, 1]
+    end
+
+    def replace_attribute_name_in_key(new_attribute_name)
+      gsub(/(\[?)([^\[\]]+)(\]?)$/, "\\1#{new_attribute_name}\\3")
     end
 
     def attribute_path_from_key

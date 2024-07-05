@@ -40,6 +40,30 @@ module DataCycleCore
           api_types.concat(Array.wrap(schema.dig('api', 'type'))).uniq! if schema.dig('api', 'type').present?
           api_types
         end
+
+        def external_syncs_as_property_values
+          external_connections_hash = []
+
+          if external?
+            external_connections_hash << {
+              '@type' => 'PropertyValue',
+              'propertyID' => external_source.identifier,
+              'value' => external_key
+            }
+          end
+
+          external_system_syncs.includes(:external_system).find_each do |system_data|
+            next if system_data.external_key.blank?
+
+            external_connections_hash << {
+              '@type' => 'PropertyValue',
+              'propertyID' => system_data.external_system.identifier,
+              'value' => system_data.external_key
+            }
+          end
+
+          external_connections_hash
+        end
       end
     end
   end

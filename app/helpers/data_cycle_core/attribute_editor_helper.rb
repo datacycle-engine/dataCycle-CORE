@@ -32,35 +32,38 @@ module DataCycleCore
       @attribute_editable[[key, definition, options, content]]
     end
 
-    def attribute_editor_allowed(options)
-      return render('data_cycle_core/contents/editors/attribute_group', options.render_params) if options.type?('attribute_group')
-      return if options.type?('slug') && options.parameters[:parent]&.embedded?
-      return if options.definition.key?('compute') && !options.aggregated_attribute?
-      return if options.definition.key?('virtual')
+    def attribute_editor_allowed(r_options)
+      @attribute_editor_allowed ||= Hash.new do |h, options|
+        h[options] = begin
+          next render('data_cycle_core/contents/editors/attribute_group', options.render_params) if options.type?('attribute_group')
+          next if options.type?('slug') && options.parameters[:parent]&.embedded?
+          next if options.definition.key?('compute') && !options.aggregated_attribute?
+          next if (options.aggregate_attribute? || options.overlay_attribute?) && !attribute_editor_allowed(options.options_for_original_key).is_a?(TrueClass)
+          next if options.definition.key?('virtual')
+          next if options.overlay_attribute? && !options.render_overlay_attribute?
 
-      if options.overlay_attribute?
-        return unless options.render_overlay_attribute?
+          options.add_additional_attribute_properties!
+          options.add_additional_attribute_partials!
 
-        options.add_overlay_properties!
+          next unless can?(:edit, DataCycleCore::DataAttribute.new(
+                                    options.key,
+                                    options.definition,
+                                    options.parameters[:options],
+                                    options.content,
+                                    options.scope,
+                                    options.parameters.dig(:options, :edit_scope)
+                                  )) &&
+                      (options.content.nil? || options.content&.allowed_feature_attribute?(options.key.attribute_name_from_key))
+
+          next render_linked_viewer(**options.to_h.slice(:key, :definition, :value, :parameters, :content)) if options.type?('linked') && options.definition['link_direction'] == 'inverse'
+
+          next if options.type?('classification') && !DataCycleCore::ClassificationService.visible_classification_tree?(options.definition['tree_label'], options.scope.to_s)
+
+          true
+        end
       end
 
-      options.add_has_overlay_options! if options.attribute_has_overlay?
-
-      return unless can?(:edit, DataCycleCore::DataAttribute.new(
-                                  options.key,
-                                  options.definition,
-                                  options.parameters[:options],
-                                  options.content,
-                                  options.scope,
-                                  options.parameters.dig(:options, :edit_scope)
-                                )) &&
-                    (options.content.nil? || options.content&.allowed_feature_attribute?(options.key.attribute_name_from_key))
-
-      return render_linked_viewer(**options.to_h.slice(:key, :definition, :value, :parameters, :content)) if options.type?('linked') && options.definition['link_direction'] == 'inverse'
-
-      return if options.type?('classification') && !DataCycleCore::ClassificationService.visible_classification_tree?(options.definition['tree_label'], options.scope.to_s)
-
-      true
+      @attribute_editor_allowed[r_options]
     end
 
     def render_attribute_editor(**)
@@ -127,7 +130,7 @@ module DataCycleCore
       definition.deep_merge({ 'ui' => { 'edit' => { 'readonly' => options.dig(:readonly) } } })
     end
 
-    def embedded_options(definition, options)
+    def nested_options(definition, options)
       new_options = definition.dig('ui', 'edit', 'options') || {}
       new_options[:prefix] = options&.dig(:prefix)
       new_options[:readonly] = options&.dig(:readonly) if options&.key?(:readonly)
@@ -199,16 +202,14 @@ module DataCycleCore
       end
     end
 
-    def overlay_types(content, key, prop)
-      label = translated_attribute_label(key, prop, content, {})
-
+    def overlay_types(prop)
       check_boxes = [
         MasterData::Templates::Extensions::Overlay::BASE_OVERLAY_POSTFIX,
         MasterData::Templates::Extensions::Overlay::ADD_OVERLAY_POSTFIX
       ].index_with do |v|
         CollectionHelper::CheckBoxStruct.new(
           v.delete_prefix('_'),
-          t("common.bulk_update.check_box_labels.#{v.delete_prefix('_')}_html", locale: active_ui_locale, data: label)
+          t("common.bulk_update.check_box_labels.#{v.delete_prefix('_')}", locale: active_ui_locale)
         )
       end
 
@@ -216,6 +217,23 @@ module DataCycleCore
       versions = MasterData::Templates::Extensions::Overlay.allowed_postfixes_for_type(type)
 
       check_boxes.values_at(*versions)
+    end
+
+    def aggregate_types(_prop)
+      check_boxes = [
+        MasterData::Templates::AggregateTemplate::BASE_AGGREGATE_POSTFIX
+      ].index_with do |v|
+        CollectionHelper::CheckBoxStruct.new(
+          v.delete_prefix('_'),
+          t("feature.aggregate.check_box_labels.#{v.delete_prefix('_')}", locale: active_ui_locale)
+        )
+      end
+
+      check_boxes.values_at(MasterData::Templates::AggregateTemplate::BASE_AGGREGATE_POSTFIX)
+    end
+
+    def additional_attribute_partial_type_key(content, key)
+      content.translatable_property?(key) ? "thing[translations][#{I18n.locale}][#{key}]" : "thing[datahash][#{key}]"
     end
   end
 end

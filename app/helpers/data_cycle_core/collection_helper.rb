@@ -30,10 +30,9 @@ module DataCycleCore
       collections.any? { |c| c.watch_list_data_hashes.any? { |w| w.hashable_id == content_id && w.hashable_type == 'DataCycleCore::Thing' } }
     end
 
-    def bulk_update_types(content, key, prop)
-      label = translated_attribute_label(key, prop, content, {})
+    def bulk_update_types(prop)
       check_boxes = [
-        CheckBoxStruct.new('override', t('common.bulk_update.check_box_labels.override_html', locale: active_ui_locale, data: label))
+        CheckBoxStruct.new('override', t('common.bulk_update.check_box_labels.override', locale: active_ui_locale))
       ]
 
       type = prop.dig('ui', 'bulk_edit', 'partial') || prop.dig('ui', 'edit', 'partial') || prop.dig('ui', 'edit', 'type') || prop['type']
@@ -43,8 +42,8 @@ module DataCycleCore
                             prop.dig('validations', 'max') == 1
 
       check_boxes.push(
-        CheckBoxStruct.new('add', t('common.bulk_update.check_box_labels.add_html', locale: active_ui_locale, data: label)),
-        CheckBoxStruct.new('remove', t('common.bulk_update.check_box_labels.remove_html', locale: active_ui_locale, data: label))
+        CheckBoxStruct.new('add', t('common.bulk_update.check_box_labels.add', locale: active_ui_locale)),
+        CheckBoxStruct.new('remove', t('common.bulk_update.check_box_labels.remove', locale: active_ui_locale))
       )
     end
 

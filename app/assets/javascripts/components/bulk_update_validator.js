@@ -34,17 +34,15 @@ class BulkUpdateValidator extends Validator {
 			},
 		);
 	}
-	bulkUpdateTypes(item) {
-		return $(item)
-			.siblings(
-				`.bulk-update-type[data-attribute-key="${$(item).data("key")}"]`,
-			)
-			.find(":checkbox");
+	bulkUpdateEnabled(item) {
+		return !!item.querySelector(
+			`.dc-bulk_update-type[data-attribute-key="${$(item).data("key")}"] input[type="checkbox"]:checked`,
+		);
 	}
 	validateItem(validationContainer) {
 		if (
 			!$(validationContainer).hasClass("agbs") &&
-			!this.bulkUpdateTypes(validationContainer).filter(":checked").length
+			!this.bulkUpdateEnabled(validationContainer)
 		)
 			return Promise.resolve({ valid: true });
 

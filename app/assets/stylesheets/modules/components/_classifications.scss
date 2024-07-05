@@ -168,7 +168,7 @@ ul.backend-treeview-list,
           top: 0.5rem;
           left: 1rem;
           z-index: 12;
-          color: $dark-gray;
+          color: var(--attribute-label-color);
         }
       }
 
@@ -210,7 +210,7 @@ ul.backend-treeview-list,
           top: 0.5rem;
           left: 1rem;
           z-index: 12;
-          color: $dark-gray;
+          color: var(--attribute-label-color);
         }
 
         &:hover:not([readonly]):not([data-readonly='true']):not([disabled]):not(.disabled):not(.select2-search__field) {
@@ -655,7 +655,7 @@ ul.backend-treeview-list,
         top: 0.2rem;
         left: 1rem;
         z-index: 12;
-        color: $dark-gray;
+        color: var(--attribute-label-color);
         transition: $color-transition;
         padding-top: 0.5rem;
         opacity: 1;

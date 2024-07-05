@@ -5,7 +5,7 @@
                                 definition: nested_definition(o_prop, local_assigns[:options]),
                                 value: embedded_attribute_value(content, object, o_key, o_prop, local_assigns[:attribute_locale], local_assigns[:translate].to_s == 'true'),
                                 parameters: {
-                                  options: embedded_options(o_prop, local_assigns[:options]),
+                                  options: nested_options(o_prop, local_assigns[:options]),
                                   parent: object,
                                   parent_translatable: attribute_translatable?(key, definition, content),
                                   force_render_child_locales: local_assigns.dig(:force_render_child_locales),

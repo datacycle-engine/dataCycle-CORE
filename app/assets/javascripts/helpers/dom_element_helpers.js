@@ -3,6 +3,12 @@ import ObjectUtilities from "./object_utilities";
 
 const DomElementHelpers = {
 	inputFieldSelectors: ["input", "select", "textarea", "button"],
+	listPropertyClasses: ["classification", "linked", "embedded"],
+	isListFormElement(formElement) {
+		return this.listPropertyClasses.some((c) =>
+			formElement.classList.contains(c),
+		);
+	},
 	isVisible(elem) {
 		return (
 			elem.offsetWidth > 0 ||

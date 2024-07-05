@@ -12,7 +12,7 @@ class DcStickyBar {
 	}
 	static stickyHtmlClasses = ["dc-sticky-bar", "ql-toolbar"];
 	static joinedStickyHtmlClasses() {
-		return this.stickyHtmlClasses.map((c) => `.${c}`).join(", ");
+		return DcStickyBar.stickyHtmlClasses.map((c) => `.${c}`).join(", ");
 	}
 	setup() {
 		DataCycle.initNewElements(
@@ -29,7 +29,7 @@ class DcStickyBar {
 		this.throttledUpdateAllStickyZIndizes();
 	}
 	static setStickyOffset(element) {
-		const { offset } = this.calculateStickyOffset(element.parentElement);
+		const { offset } = DcStickyBar.calculateStickyOffset(element.parentElement);
 
 		element.style.setProperty("--dc-sticky-bar-offset", `${offset}px`);
 	}
@@ -37,7 +37,7 @@ class DcStickyBar {
 		const allElements = Array.from(
 			document.querySelectorAll(this.constructor.joinedStickyHtmlClasses()),
 		).reverse();
-		let index = parseInt(window.getComputedStyle(allElements[0]).zIndex);
+		let index = Number.parseInt(window.getComputedStyle(allElements[0]).zIndex);
 
 		for (const elem of allElements) {
 			elem.style.zIndex = index;
@@ -64,18 +64,26 @@ class DcStickyBar {
 		while (activeElem.previousElementSibling) {
 			activeElem = activeElem.previousElementSibling;
 
-			if (this.stickyHtmlClasses.some((c) => activeElem.classList.contains(c)))
+			if (
+				DcStickyBar.stickyHtmlClasses.some((c) =>
+					activeElem.classList.contains(c),
+				)
+			)
 				newOffset += activeElem.getBoundingClientRect().height;
 		}
 
-		if (this.stickyHtmlClasses.some((c) => elem.classList.contains(c)))
+		if (DcStickyBar.stickyHtmlClasses.some((c) => elem.classList.contains(c)))
 			newOffset += elem.getBoundingClientRect().height;
 
-		return this.calculateStickyOffset(elem.parentElement, elem, newOffset);
+		return DcStickyBar.calculateStickyOffset(
+			elem.parentElement,
+			elem,
+			newOffset,
+		);
 	}
 	static scrollIntoViewWithStickyOffset(element) {
 		const { scrollableParent, offset, scrollElement } =
-			this.calculateStickyOffset(element);
+			DcStickyBar.calculateStickyOffset(element);
 
 		scrollableParent.scrollTo({
 			behavior: "smooth",

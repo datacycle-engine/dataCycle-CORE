@@ -112,7 +112,7 @@ module DataCycleCore
         options = DataCycleCore::Content::DataHashOptions.new(**)
         return {} if options.data_hash.blank? && !options.force_update
 
-        translations = DataCycleCore::DataHashService.parse_translated_hash(options.data_hash)
+        translations = DataCycleCore::DataHashService.parse_translated_hash(options.data_hash, available_locales)
         version_name = (options.data_hash.key?(:version_name) ? options.data_hash[:version_name] : options.version_name).presence
         locale, datahash = translations.shift
 

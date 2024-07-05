@@ -14,6 +14,7 @@ module DataCycleCore
       I18n.with_locale(:en) do
         @content2.set_data_hash(data_hash: { name: 'HEADLINE - NO TAGS 2 EN' })
       end
+      @external_source = DataCycleCore::ExternalSystem.first
       @aggregate_content = create_content('Aggregate (Aggregate)', { aggregate_for: [@content1.id] })
     end
 
@@ -61,6 +62,21 @@ module DataCycleCore
       @content1.set_data_hash(data_hash: { name: 'HEADLINE - NO TAGS 1 NEW' })
 
       assert_equal 'HEADLINE - NO TAGS 1 NEW', @aggregate_content.reload.name
+    end
+
+    test 'aggregate content has correct external syncs' do
+      @content1.update(external_source_id: @external_source.id, external_key: '1')
+      assert_equal(
+        @content1.external_syncs_as_property_values,
+        @aggregate_content.external_syncs_as_property_values
+      )
+      @content2.add_external_system_data(@external_source, { name: 'HEADLINE - NO TAGS 2' }, 'success', 'export', '2')
+
+      @aggregate_content.set_data_hash(data_hash: { aggregate_for: [@content1.id, @content2.id] })
+      assert_equal(
+        @content1.external_syncs_as_property_values + @content2.external_syncs_as_property_values,
+        @aggregate_content.external_syncs_as_property_values
+      )
     end
   end
 end

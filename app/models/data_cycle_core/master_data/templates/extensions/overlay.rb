@@ -21,7 +21,6 @@ module DataCycleCore
             version_prop = prop.deep_dup.except(*OVERLAY_PROP_EXCEPTIONS)
             version_prop['features'] = {
               'overlay' => {
-                'allowed' => true,
                 'overlay_for' => key,
                 'overlay_type' => version
               }
@@ -43,8 +42,6 @@ module DataCycleCore
             version_prop['ui']['edit'] ||= {}
             version_prop['ui']['edit']['data_attributes'] ||= {}
             version_prop['ui']['edit']['data_attributes']['overlay_type'] = version
-            version_prop['ui']['edit']['options'] ||= {}
-            version_prop['ui']['edit']['options']['class'] = [version_prop['ui']['edit']['options']['class'], 'dc-overlay', "dc-overlay-#{version}"].compact.join(' ')
 
             version_prop.deep_reject { |_k, v| v.blank? }
           end
@@ -73,6 +70,7 @@ module DataCycleCore
             overlay_props.each do |key, prop|
               new_index = all_props.pluck(0).index(key) + 1
               new_versions = []
+              transform_prop_with_overlay!(prop)
               versions = Overlay.allowed_postfixes_for_type(prop['type'])
               versions.map! { |v| key + v }
               versions.each do |version|
@@ -84,6 +82,12 @@ module DataCycleCore
             end
 
             properties.clear.merge!(all_props.to_h)
+          end
+
+          def transform_prop_with_overlay!(prop)
+            prop.delete('overlay')
+            prop['features'] ||= {}
+            prop['features']['overlay'] = { allowed: true }
           end
 
           def self.allowed_postfixes_for_type(type)

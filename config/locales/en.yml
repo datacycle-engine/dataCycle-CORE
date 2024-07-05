@@ -34,7 +34,8 @@ en:
     copyright_attributes_group: Copyright
     content_classifications_group: Classifications
     belongs_to_aggregate: belongs to Aggregate
-    aggregate_for: Aggregate for
+    aggregate_for: Aggregate base
+    aggregate_for_override: Aggregate base for
     overlay_override: (Overlay)
     overlay_add: (Appendix)
 
@@ -509,9 +510,9 @@ en:
       so bulk editing is blocked."
     bulk_update:
       check_box_labels:
-        override_html: <span class="attribute-title">%{data}</span> overwrite
-        add_html: 'Append to existing <span class="attribute-title">%{data}</span> '
-        remove_html: 'Remove selected <span class="attribute-title">%{data}</span> '
+        override: overwrite
+        add: append to existing
+        remove: remove selected
       button:
         limited: A maximum of %{data} Contents can be edited at the same time.
     watch_list_external_things_locked_html:
@@ -754,6 +755,8 @@ en:
         default: Standalone
         aggregate: Aggregate
         belongs_to_aggregate: belongs to aggregate
+      check_box_labels:
+        aggregate_for_override: override Aggregate base
 
     report_generator:
       downloads_popular: Top 50 Downloads

@@ -810,7 +810,7 @@ footer {
     top: 0.2rem;
     left: 1rem;
     z-index: 12;
-    color: $dark-gray;
+    color: var(--attribute-label-color);
     transition: $color-transition;
     white-space: nowrap;
     overflow: hidden;
@@ -896,6 +896,10 @@ footer {
     &.disabled {
       cursor: not-allowed !important;
       background: lighten($light-gray, 5%) !important;
+    }
+
+    &.form-element.dc-has-additional-attribute-partial {
+      margin-top: 3rem;
     }
   }
 
@@ -1060,7 +1064,7 @@ footer {
       label {
         padding-top: 0.5rem;
         opacity: 1;
-        color: $dark-gray;
+        color: var(--attribute-label-color);
       }
 
       [type='checkbox']+label[for],
@@ -1911,7 +1915,7 @@ body .v-select {
           }
 
           label {
-            color: var(--dark-gray);
+            color: var(--attribute-label-color);
           }
 
           input {

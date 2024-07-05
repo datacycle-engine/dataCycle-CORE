@@ -10,11 +10,11 @@
 
     <% ordered_validation_properties(validation: definition, scope: :edit).each do |o_key, o_definition| %>
       <%= render_attribute_editor key: o_key,
-                                  definition: o_definition,
+                                  definition: nested_definition(o_definition, options),
                                   value: value.try(:[], o_key),
                                   parameters: {
                                     parent: value,
-                                    options: { prefix: local_assigns.dig(:options, :prefix) }
+                                    options: nested_options(o_definition, options)
                                   },
                                   content: content,
                                   prefix: key %>
