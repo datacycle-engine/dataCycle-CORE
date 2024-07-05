@@ -193,6 +193,8 @@ module DataCycleCore
         { buttons: 'a', container_classes: 'advanced-tags' }
       elsif filter['c'] == 'uf'
         { buttons: false, container_classes: 'user-force-filter' }
+      elsif filter['c'] == 'p'
+        { buttons: false }
       else
         { buttons: 'd' }
       end
