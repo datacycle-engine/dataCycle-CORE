@@ -3,9 +3,9 @@
 module DataCycleCore
   module Generic
     module Common
-      module DownloadFromData
+      module DownloadFromConceptsData
         def self.download_content(utility_object:, options:)
-          DataCycleCore::Generic::Common::DownloadFunctions.download_from_data(
+          DataCycleCore::Generic::Common::DownloadFunctions.download_concepts_from_data(
             download_object: utility_object,
             iterator: method(:load_concepts_from_mongo).to_proc,
             data_id: method(:data_id).to_proc,

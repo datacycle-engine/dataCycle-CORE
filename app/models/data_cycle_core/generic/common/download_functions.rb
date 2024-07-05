@@ -826,7 +826,7 @@ module DataCycleCore
           # code here
         end
 
-        def self.download_from_data(download_object:, data_id: nil, data_name: nil, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil, options:)
+        def self.download_concepts_from_data(download_object:, data_id: nil, data_name: nil, modified: nil, delete: nil, iterator: nil, cleanup_data: nil, credential: nil, options:)
           success = true
           delta = 100
           options[:locales] ||= I18n.available_locales
