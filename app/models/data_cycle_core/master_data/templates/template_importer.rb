@@ -22,7 +22,12 @@ module DataCycleCore
 
           return if @mixin_errors.present?
 
-          @templates = load_templates
+          @template_definitions = []
+          @extended_templates = []
+          @templates = {}
+
+          load_templates
+
           @validator = TemplateValidator.new(templates: @templates)
         end
 
@@ -87,6 +92,8 @@ module DataCycleCore
         end
         # rubocop:enable Rails/Output
 
+        private
+
         def update_templates
           DataCycleCore::ThingTemplate.upsert_all(@templates.values.flatten.map do |t|
             {
@@ -115,70 +122,105 @@ module DataCycleCore
         end
 
         def load_templates
-          templates = {}
-          template_definitions = []
-
-          @template_paths.each do |core_template_path|
-            CONTENT_SETS.each do |content_set_name|
-              Dir[File.join(core_template_path, content_set_name.to_s, '*.yml')].each do |path|
-                data_templates = Array.wrap(YAML.safe_load(File.open(path.to_s), permitted_classes: [Symbol]))
-
-                data_templates.each do |template|
-                  template_definitions.push({
-                    path:,
-                    data: template[:data],
-                    set: content_set_name
-                  })
-                end
-              rescue StandardError => e
-                @errors.push("error loading YML File (#{path}) => #{e.message}")
-              end
+          @template_paths.each do |path|
+            CONTENT_SETS.each do |set|
+              load_templates_from_path(path, set)
             end
           end
 
-          transform_template_definitions!(template_definitions, templates)
+          transform_template_definitions!
 
-          @mixin_paths = templates.values.flatten.flat_map { |v| v[:mixins] }
-          @templates = templates
+          @templates
         end
 
-        def transform_template_definitions!(template_definitions, templates)
-          while template_definitions.present?
+        def load_templates_from_path(template_path, set)
+          Dir[File.join(template_path, set.to_s, '*.yml')].each do |path|
+            data_templates = Array.wrap(YAML.safe_load(File.open(path.to_s), permitted_classes: [Symbol]))
+
+            data_templates.each do |template|
+              @template_definitions.push({
+                path:,
+                data: template[:data],
+                set:
+              })
+            end
+          rescue StandardError => e
+            @errors.push("error loading YML File (#{path}) => #{e.message}")
+          end
+        end
+
+        def append_error!(error, data_template, template)
+          if error.is_a?(TemplateError)
+            @errors.push("#{[data_template[:set], template[:name], error.path].compact.join('.')} => #{error.message}")
+          else
+            @errors.push("#{data_template[:set]}.#{template[:name]} => #{error.message}")
+          end
+        end
+
+        def extend_templates!
+          while @template_definitions.present?
             begin
-              data_template = template_definitions.shift
+              data_template = @template_definitions.shift
               template = data_template[:data]
 
-              next template_definitions.push(data_template) unless template_dependencies_ready?(template, template_definitions, templates)
+              next @template_definitions.push(data_template) unless template_dependencies_ready?(template)
 
-              data = transform_template_data(template:, data_template:, templates:)
+              data = extend_template_data(template:, data_template:)
               next if data.nil?
 
-              add_aggregate_template!(data:, data_template:, templates:)
-              append_template!(data:, templates:)
+              append_extended_template!(data:)
             rescue StandardError => e
-              if e.is_a?(TemplateError)
-                @errors.push("#{[data_template[:set], template[:name], e.path].compact.join('.')} => #{e.message}")
-              else
-                @errors.push("#{data_template[:set]}.#{template[:name]} => #{e.message}")
-              end
+              append_error!(e, data_template, template)
             end
           end
         end
 
-        def add_aggregate_template!(data:, data_template:, templates:)
+        def transform_template_definitions!
+          extend_templates!
+
+          @extended_templates.each do |data_template|
+            template = data_template[:data]
+            data = transform_template_data(template:, data_template:)
+            next if data.nil?
+
+            add_aggregate_template!(data:, data_template:)
+            append_template!(data:)
+          rescue StandardError => e
+            append_error!(e, data_template, template)
+          end
+        end
+
+        def append_template!(data:)
+          @templates[data[:set]] ||= []
+          @templates[data[:set]].push(data)
+          @mixin_paths.concat(data[:mixins])
+        end
+
+        def add_aggregate_template!(data:, data_template:)
           return unless DataCycleCore.features.dig(:aggregate, :enabled)
           return unless data.dig(:data, :features, :aggregate, :allowed)
 
           aggregate_template = AggregateTemplate.new(data: data[:data])
-          aggregate_data = transform_template_data(template: aggregate_template.import, data_template:, templates:)
+          aggregate_data = transform_template_data(template: aggregate_template.import, data_template:)
           return if aggregate_data.nil?
 
           aggregate_template.add_inverse_aggregate_for_property!(data: data[:data])
-          append_template!(data: aggregate_data, templates:)
+          append_template!(data: aggregate_data)
         end
 
-        def transform_template_data(template:, data_template:, templates:)
-          transformer = TemplateTransformer.new(template:, content_set: data_template[:set], mixins: @mixins, templates:)
+        def extend_template_data(template:, data_template:)
+          transformed_data = TemplateTransformer.merge_base_templates(template:, templates: @extended_templates)
+
+          {
+            name: transformed_data[:name],
+            path: data_template[:path],
+            data: transformed_data,
+            set: data_template[:set]
+          }
+        end
+
+        def transform_template_data(template:, data_template:)
+          transformer = TemplateTransformer.new(template:, content_set: data_template[:set], mixins: @mixins, templates: @templates)
           transformed_data, errors = transformer.transform
           @errors.concat(errors) && return if errors.present?
 
@@ -191,17 +233,36 @@ module DataCycleCore
           }
         end
 
-        def append_template!(data:, templates:)
-          if (duplicate = templates.values.flatten.find { |v| v[:name] == data[:name] }).present?
-            merge_duplicate_template!(data:, duplicate:)
-          else
-            templates[data[:set]] ||= []
-            templates[data[:set]].push(data)
+        def template_complete?(template, template_definitions)
+          name = template[:name].nil? ? template[:extends] : template[:name]
+
+          template_definitions.none? do |v|
+            v.dig(:data, :name).nil? ? v.dig(:data, :extends) == name : v.dig(:data, :name) == name
           end
         end
 
-        def base_template?(base_name, template_definitions)
-          template_definitions.any? do |v|
+        def append_extended_template!(data:)
+          if (duplicate = @extended_templates.find { |v| v[:name] == data[:name] }).present?
+            merge_duplicate_template!(data:, duplicate:)
+          else
+            @extended_templates.push(data)
+          end
+        end
+
+        def base_templates_exist?(template_names)
+          template_names.each do |t_name|
+            next if @extended_templates.any? { |v| v[:name] == t_name }
+
+            raise TemplateError.new('extends'), "BaseTemplate missing for #{t_name}" unless base_template?(t_name)
+
+            return false
+          end
+
+          true
+        end
+
+        def base_template?(base_name)
+          @template_definitions.any? do |v|
             v.dig(:data, :name) == base_name &&
               (
                 v.dig(:data, :extends).blank? ||
@@ -210,19 +271,22 @@ module DataCycleCore
           end
         end
 
-        def template_dependencies_ready?(template, template_definitions, templates)
+        def overrides_in_queue?(template_name)
+          @template_definitions.any? do |v|
+            e_names = Array.wrap(v.dig(:data, :extends))
+
+            e_names.include?(template_name) &&
+              (v.dig(:data, :name).blank? || e_names.include?(v.dig(:data, :name)))
+          end
+        end
+
+        def template_dependencies_ready?(template)
           return true unless template.key?(:extends)
 
           extends_templates = Array.wrap(template[:extends])
 
           # check if all BaseTemplates for extends templates exist
-          extends_templates.each do |t_name|
-            next if templates.values.flatten.any? { |v| v[:name] == t_name }
-
-            raise TemplateError.new('extends'), "BaseTemplate missing for #{t_name}" unless base_template?(t_name, template_definitions)
-
-            return false
-          end
+          return false unless base_templates_exist?(extends_templates)
 
           # remove extends_templates, if template overrides one of its extends templates
           extends_templates.pop if template[:name].blank?
@@ -231,14 +295,7 @@ module DataCycleCore
           return true if extends_templates.blank?
 
           # check if any of the extends templates have overrides in queue
-          extends_templates.none? do |t_name|
-            template_definitions.any? do |v|
-              e_names = Array.wrap(v.dig(:data, :extends))
-
-              e_names.include?(t_name) &&
-                (v.dig(:data, :name).blank? || e_names.include?(v.dig(:data, :name)))
-            end
-          end
+          extends_templates.none? { overrides_in_queue?(_1) }
         end
 
         def merge_duplicate_template!(data:, duplicate:)

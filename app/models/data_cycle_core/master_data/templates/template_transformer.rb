@@ -20,12 +20,28 @@ module DataCycleCore
           @error_path = "#{@content_set}.#{@template[:name]}"
         end
 
+        def self.merge_base_templates(template:, templates:)
+          return template unless template.key?(:extends)
+
+          Array.wrap(template[:extends]).each do |extends_name|
+            base_template = templates.find { |v| v[:name] == extends_name }
+
+            raise TemplateError.new('extends'), "BaseTemplate missing for #{extends_name}" if base_template.blank?
+
+            template = base_template[:data].deep_dup.deep_merge(template.except(:extends))
+          end
+
+          template
+        end
+
         def main_config_property(key)
           DataCycleCore.main_config.dig(:templates, @content_set, @template[:name], key) || {}
         end
 
         def transform
           merge_base_templates! if @template.key?(:extends)
+          return @template, @errors if @transform_properties == false
+
           @template[:boost] ||= 1.0
           (@template[:features] ||= {}).deep_merge!(main_config_property(:features))
           @template[:properties] = transform_properties
@@ -46,21 +62,6 @@ module DataCycleCore
           transform_visibilities!(new_properties)
 
           new_properties
-        end
-
-        def merge_base_templates!
-          flat_templates = @templates.values.flatten
-
-          Array.wrap(@template[:extends]).each do |extends_name|
-            base_template = flat_templates.find { |v| v[:name] == extends_name }
-
-            raise TemplateError.new('extends'), "BaseTemplate missing for #{extends_name}" if base_template.blank?
-
-            @template = base_template[:data].deep_dup.deep_merge(@template)
-            @mixin_paths.concat(base_template[:mixins])
-          end
-
-          @template.delete(:extends)
         end
 
         def add_missing_parameters!(properties)

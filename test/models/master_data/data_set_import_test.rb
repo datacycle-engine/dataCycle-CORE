@@ -55,6 +55,7 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'EntityExtension' }
 
+      assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert(template.dig(:data, :properties)&.key?(:id))
       assert(template.dig(:data, :properties)&.key?(:name))
@@ -66,6 +67,7 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
 
+      assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert(template.dig(:data, :properties)&.key?(:id))
       assert(template.dig(:data, :properties)&.key?(:name))
@@ -77,6 +79,7 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity2Extension' }
 
+      assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert(template.dig(:data, :properties)&.key?(:id))
       assert(template.dig(:data, :properties)&.key?(:name))
@@ -89,6 +92,7 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-3' }
 
+      assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert(template.dig(:data, :properties)&.key?(:id))
       assert(template.dig(:data, :properties)&.key?(:text))
@@ -102,6 +106,7 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'EntityExtension' }
 
+      assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert_equal(template.dig(:data, :properties, :name, :sorting) + 1, template.dig(:data, :properties, :tmp_name, :sorting))
     end
@@ -110,6 +115,7 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
 
+      assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert_equal(template.dig(:data, :properties, :name, :sorting) - 1, template.dig(:data, :properties, :description, :sorting))
     end
@@ -118,6 +124,7 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
 
+      assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert(template.dig(:data, :properties, :name, :xml, :disabled))
       assert(template.dig(:data, :properties, :name, :api, :disabled))
@@ -129,6 +136,7 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
 
+      assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert_not(template.dig(:data, :properties, :description, :xml, :disabled))
       assert(template.dig(:data, :properties, :description, :api, :disabled))
@@ -140,6 +148,7 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
 
+      assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert(template.dig(:data, :properties, :tmp_name, :xml, :disabled))
       assert_not(template.dig(:data, :properties, :tmp_name, :api, :disabled))
@@ -151,6 +160,7 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_path2, import_path3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'EntityExtensionExtension' }
 
+      assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert(template.dig(:data, :properties).key?(:id))
       assert(template.dig(:data, :properties).key?(:name))
@@ -161,14 +171,30 @@ module DataCycleCore
       assert_equal(template.dig(:data, :properties, :tmp_name, :sorting) - 1, template.dig(:data, :properties, :tmp_value, :sorting))
     end
 
-    test 'overlay for simple attribute' do
-      template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
+    test 'overlay for simple attribute has correct api name' do
+      template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay3])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
 
+      assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert(template.dig(:data, :properties).key?(:name_overlay))
       assert(template.dig(:data, :properties).key?(:name_override))
       assert_not(template.dig(:data, :properties).key?(:name_add))
+      assert_equal('dc:title', template.dig(:data, :properties, :name, :api, :name))
+      assert_equal('dc:title', template.dig(:data, :properties, :name_overlay, :api, :name))
+    end
+
+    test 'overlay for simple attribute' do
+      template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
+
+      assert_empty(template_importer.errors)
+      assert_not(template.nil?)
+      assert(template.dig(:data, :properties).key?(:name_overlay))
+      assert(template.dig(:data, :properties).key?(:name_override))
+      assert_not(template.dig(:data, :properties).key?(:name_add))
+      assert_equal('dc:name', template.dig(:data, :properties, :name, :api, :name))
+      assert_equal('dc:name', template.dig(:data, :properties, :name_overlay, :api, :name))
 
       assert_equal(template.dig(:data, :properties, :name, :sorting) + 1, template.dig(:data, :properties, :name_override, :sorting))
       assert_equal(template.dig(:data, :properties, :name, :sorting) + 2, template.dig(:data, :properties, :name_overlay, :sorting))
@@ -194,6 +220,7 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
 
+      assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert(template.dig(:data, :properties).key?(:author_overlay))
       assert(template.dig(:data, :properties).key?(:author_override))
@@ -217,6 +244,7 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
 
+      assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert(template.dig(:data, :properties).key?(:test_classification_overlay))
       assert(template.dig(:data, :properties).key?(:test_classification_add))
@@ -239,6 +267,7 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
 
+      assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert(template.dig(:data, :properties).key?(:opening_hours_specification_overlay))
       assert(template.dig(:data, :properties).key?(:opening_hours_specification_override))
@@ -261,6 +290,7 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
 
+      assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert(template.dig(:data, :properties).key?(:event_schedule_overlay))
       assert(template.dig(:data, :properties).key?(:event_schedule_override))
@@ -283,6 +313,7 @@ module DataCycleCore
       template_importer = subject.new(template_paths: [import_path_overlay, import_path_overlay2])
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'TestOverlay' }
 
+      assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert(template.dig(:data, :properties).key?(:start_date_overlay))
       assert(template.dig(:data, :properties).key?(:start_date_override))
@@ -310,6 +341,7 @@ module DataCycleCore
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == template_name }
       agg_template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == agg_template_name }
 
+      assert_empty(template_importer.errors)
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert_not(agg_template.nil?)
@@ -370,6 +402,10 @@ module DataCycleCore
 
     def import_path_overlay2
       Rails.root.join('..', 'data_types', 'master_data', 'overlay_set_2')
+    end
+
+    def import_path_overlay3
+      Rails.root.join('..', 'data_types', 'master_data', 'overlay_set_3')
     end
 
     def non_existent_path

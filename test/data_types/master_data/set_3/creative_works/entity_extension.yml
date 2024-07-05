@@ -8,4 +8,5 @@
         :type: string
         :storage_location: translated_value
         :position:
+          :before: ~
           :after: name

@@ -51,8 +51,8 @@ module DataCycleCore
 
           def overlay_prop(key, prop, versions)
             overlay_prop = overlay_version_prop(key, prop, 'overlay')
-            overlay_prop['api'] = prop['api'] || {}
-            overlay_prop['api']['name'] = key.camelize(:lower)
+            overlay_prop['api'] = prop['api']&.deep_dup || {}
+            overlay_prop['api']['name'] = key.camelize(:lower) if overlay_prop.dig('api', 'name').blank?
             overlay_prop['visible'] = ['api']
             overlay_prop['virtual'] = {
               'module' => 'Common',
