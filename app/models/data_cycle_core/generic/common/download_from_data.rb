@@ -15,38 +15,38 @@ module DataCycleCore
         end
 
         def self.load_concepts_from_mongo(options:, lang:)
-            raise ArgumentError, 'missing read_type for loading location ranges' if options.dig(:download, :read_type).nil?
-            read_type = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type])
+          raise ArgumentError, 'missing read_type for loading location ranges' if options.dig(:download, :read_type).nil?
+          read_type = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type])
 
-            concept_name = options.dig(:download, :concept_name_path)
-            concept_id = options.dig(:download, :concept_name_id) || concept_name
+          concept_name = options.dig(:download, :concept_name_path)
+          concept_id = options.dig(:download, :concept_id_path) || concept_name
 
-            concept_path = options.dig(:download, :concept_path)
-            concept_name_path = [concept_path, concept_name].compact_blank.join('.')
-            concept_id_path = [concept_path, concept_id].compact_blank.join('.')
+          concept_path = options.dig(:download, :concept_path)
+          concept_id_path = [concept_path, concept_id].compact_blank.join('.')
+          concept_name_path = [concept_path, concept_name].compact_blank.join('.')
 
-            DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
-              mongo.collection.aggregate([
-                  {
-                    '$match' => { "dump.#{lang}" => { '$exists' => true } }
-                  }, 
-                  {
-                    '$unwind' => "$dump.#{lang}.#{concept_path}"
-                  }, {
-                    '$project' => {
-                      'id' => "$dump.#{lang}.#{concept_id_path}",
-                      'name' => "$dump.#{lang}.#{concept_name_path}"
-                    }
-                  }, {
-                    '$group' => {
-                      '_id' => '$id',
-                      'id' => { '$first' => '$id' },
-                      'name' => { '$first' => '$status' },
-                    }
-                  }
-              ])
-            end
+          DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
+            mongo.collection.aggregate([
+              {
+                '$match' => { "dump.#{lang}" => { '$exists' => true } }
+              },
+              {
+                '$unwind' => "$dump.#{lang}.#{concept_path}"
+              }, {
+                '$project' => {
+                  'id' => "$dump.#{lang}.#{concept_id_path}",
+                  'name' => "$dump.#{lang}.#{concept_name_path}"
+                }
+              }, {
+                '$group' => {
+                  '_id' => '$id',
+                  'id' => { '$first' => '$id' },
+                  'name' => { '$first' => '$name' }
+                }
+              }
+            ])
           end
+        end
 
         def self.data_id(data)
           data.dig('id', 'text')

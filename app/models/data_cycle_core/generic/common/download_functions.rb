@@ -843,11 +843,8 @@ module DataCycleCore
                 logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
 
-                # endpoint_method = 'unknown'
-                # item = nil
-
                 begin
-                  download_object.source_object.with(download_object.source_type) do |mongo_item|
+                  download_object.source_object.with(download_object.source_type) do |_mongo_item|
                     max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
                     logging.phase_started("#{download_object.source_type.collection_name}_#{locale}", max_string)
                     GC.start
