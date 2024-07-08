@@ -103,7 +103,7 @@ module DataCycleCore
             raise DataCycleCore::Error::Import::TemplateMismatchError.new(template_name: content.template_name, expected_template_name: template.template_name, external_source: utility_object&.external_source, external_key: content.external_key)
           end
 
-          global_data = data.except(*content.local_property_names + DataCycleCore::Feature::OverlayAttributeService.call(content))
+          global_data = data.except(*content.local_property_names, 'overlay')
           global_data.except!('external_key') unless created
 
           current_user = data['updated_by'].present? ? DataCycleCore::User.find_by(id: data['updated_by']) : nil
