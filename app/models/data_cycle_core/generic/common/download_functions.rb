@@ -832,7 +832,7 @@ module DataCycleCore
           options[:locales] ||= I18n.available_locales
           if options[:locales].size != 1
             options[:locales].each do |language|
-              success &&= download_optimized(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options: options.except(:locales).merge({ locales: [language] }))
+              success &&= download_concepts_from_data(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             database_name = "#{download_object.source_type.database_name}_#{download_object.external_source.id}"
@@ -843,6 +843,13 @@ module DataCycleCore
                 logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
 
+
+                source_filter = nil
+                I18n.with_locale(locale) do
+                  source_filter = options&.dig(:download, :source_filter) || {}
+                  source_filter = I18n.with_locale(locale) { source_filter.with_evaluated_values }
+                end
+
                 begin
                   download_object.source_object.with(download_object.source_type) do |_mongo_item|
                     max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
@@ -851,7 +858,7 @@ module DataCycleCore
                     times = [Time.current]
 
                     items = Enumerator.new do |yielder|
-                      iterator.call(options:, lang: locale).each do |item|
+                      iterator.call(options:, lang: locale, source_filter:).each do |item|
                         item[:tree_label] = options.dig(:download, :tree_label)
                         item[:external_id_prefix] = options.dig(:download, :external_id_prefix)
                         yielder << item
