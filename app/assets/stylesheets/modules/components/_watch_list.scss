@@ -397,6 +397,7 @@
       border: none;
       border-bottom: 1px solid $light-gray;
       box-shadow: none;
+      border-radius: 0;
 
       &:focus {
         border-color: $dark-gray;
