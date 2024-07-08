@@ -19,7 +19,7 @@
       >.attribute-group-title {
         display: flex;
         align-items: center;
-        color: $dark-gray;
+        color: var(--darker-gray);
         font-size: 0.9rem;
         font-weight: normal;
         line-height: 1rem;
@@ -38,7 +38,7 @@
         padding: 0;
         border: 0;
         background-color: transparent;
-        color: $dark-gray;
+        color: var(--darker-gray);
         transition: $color-transition;
 
         &::before {
