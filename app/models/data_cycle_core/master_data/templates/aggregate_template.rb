@@ -8,6 +8,7 @@ module DataCycleCore
         AGGREGATE_PROP_EXCEPTIONS = ['default_value', 'validations', 'compute', 'sorting'].freeze
         AGGREGATE_PROPERTY_NAME = 'aggregate_for'
         AGGREGATE_INVERSE_PROPERTY_NAME = 'belongs_to_aggregate'
+        ADDITIONAL_BASE_TEMPLATES_KEY = 'additional_base_templates'
         AGGREGATE_KEY_EXCEPTIONS = ['overlay'].freeze
         PROPS_WITHOUT_AGGREGATE = [AGGREGATE_PROPERTY_NAME, AGGREGATE_INVERSE_PROPERTY_NAME, *AGGREGATE_KEY_EXCEPTIONS, 'id', 'external_key', 'schema_types', 'date_created', 'date_modified', 'date_deleted', 'data_type'].freeze
 
@@ -113,7 +114,7 @@ module DataCycleCore
           {
             label: { key:, key_prefix: 'aggregate_for_override'},
             type: 'linked',
-            template_name: @data[:name],
+            template_name: aggregate_base_template_name,
             visible: ['show', 'edit'],
             features: { aggregate: { aggregate_for: key } },
             ui: {
@@ -131,6 +132,17 @@ module DataCycleCore
               attribute_group: prop.dig(:ui, :attribute_group)
             }
           }.deep_reject { |_, v| DataHashService.blank?(v) }
+        end
+
+        def aggregate_base_template_name
+          @data[:name]
+
+          # enable after multiple base templates are supported for linked attribute
+          # if @data.dig('features', 'aggregate', ADDITIONAL_BASE_TEMPLATES_KEY).present?
+          #   [@data[:name]] + Array.wrap(@data.dig('features', 'aggregate', ADDITIONAL_BASE_TEMPLATES_KEY))
+          # else
+          #   @data[:name]
+          # end
         end
 
         def add_prop_ui_definition!(prop:)
@@ -161,7 +173,7 @@ module DataCycleCore
             AGGREGATE_PROPERTY_NAME.to_sym => {
               type: 'linked',
               inverse_of: AGGREGATE_INVERSE_PROPERTY_NAME,
-              template_name: @data[:name],
+              template_name: aggregate_base_template_name,
               validations: {
                 required: true
               },

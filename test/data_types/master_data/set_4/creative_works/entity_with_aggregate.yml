@@ -5,3 +5,6 @@
     :features:
       :aggregate:
         :allowed: true
+        :additional_base_templates:
+          - Entity-Creative-Work-1
+          - Entity-Creative-Work-2
