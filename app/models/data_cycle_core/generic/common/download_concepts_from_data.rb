@@ -27,24 +27,24 @@ module DataCycleCore
 
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate([
-              {
-                '$match' => { "dump.#{lang}" => { '$exists' => true } }.merge(source_filter.deep_stringify_keys)
-              },
-              {
-                '$unwind' => ['$dump', lang, concept_path].compact_blank.join('.')
-              }, {
-                '$project' => {
-                  'id' => ['$dump', lang, concept_id_path].compact_blank.join('.'),
-                  'name' => ['$dump', lang, concept_name_path].compact_blank.join('.')
-                }
-              }, {
-                '$group' => {
-                  '_id' => '$id',
-                  'id' => { '$first' => '$id' },
-                  'name' => { '$first' => '$name' }
-                }
-              }
-            ]).to_a
+                                         {
+                                           '$match' => { "dump.#{lang}" => { '$exists' => true } }.merge(source_filter.deep_stringify_keys)
+                                         },
+                                         {
+                                           '$unwind' => ['$dump', lang, concept_path].compact_blank.join('.')
+                                         }, {
+                                           '$project' => {
+                                             'id' => ['$dump', lang, concept_id_path].compact_blank.join('.'),
+                                             'name' => ['$dump', lang, concept_name_path].compact_blank.join('.')
+                                           }
+                                         }, {
+                                           '$group' => {
+                                             '_id' => '$id',
+                                             'id' => { '$first' => '$id' },
+                                             'name' => { '$first' => '$name' }
+                                           }
+                                         }
+                                       ]).to_a
           end
         end
 

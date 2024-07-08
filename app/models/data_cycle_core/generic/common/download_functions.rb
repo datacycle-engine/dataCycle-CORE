@@ -843,7 +843,6 @@ module DataCycleCore
                 logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
                 item_count = 0
 
-
                 source_filter = nil
                 I18n.with_locale(locale) do
                   source_filter = options&.dig(:download, :source_filter) || {}

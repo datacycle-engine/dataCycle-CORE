@@ -20,21 +20,21 @@ module DataCycleCore
 
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate([
-              {
-                '$match' => { "dump.#{lang}.tree_label" => { '$exists' => true } }
-              }, {
-                '$project' => {
-                  'id' => "$dump.#{lang}.tree_label",
-                  'name' => "$dump.#{lang}.tree_label"
-                }
-              }, {
-                '$group' => {
-                  '_id' => '$id',
-                  'id' => { '$first' => '$id' },
-                  'name' => { '$first' => '$name' },
-                }
-              }
-            ]).to_a
+                                         {
+                                           '$match' => { "dump.#{lang}.tree_label" => { '$exists' => true } }
+                                         }, {
+                                           '$project' => {
+                                             'id' => "$dump.#{lang}.tree_label",
+                                             'name' => "$dump.#{lang}.tree_label"
+                                           }
+                                         }, {
+                                           '$group' => {
+                                             '_id' => '$id',
+                                             'id' => { '$first' => '$id' },
+                                             'name' => { '$first' => '$name' }
+                                           }
+                                         }
+                                       ]).to_a
           end
         end
 
