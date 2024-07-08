@@ -97,9 +97,9 @@ module DataCycleCore
       assert(template.dig(:data, :properties)&.key?(:id))
       assert(template.dig(:data, :properties)&.key?(:text))
       assert(template.dig(:data, :properties)&.key?(:test_mixin))
-      assert(template.dig(:data, :properties, :test_mixin, :overlay))
+      assert(template.dig(:data, :properties, :test_mixin, :features, :overlay, :allowed))
       assert(template.dig(:data, :properties)&.key?(:test_mixin2))
-      assert(template.dig(:data, :properties, :test_mixin2, :overlay))
+      assert(template.dig(:data, :properties, :test_mixin2, :features, :overlay, :allowed))
     end
 
     test 'change position of propery with after' do
@@ -374,6 +374,30 @@ module DataCycleCore
       end
     end
 
+    test 'imports correct template when overwriting it from another folder' do
+      template_importer = subject.new(template_paths: [import_path2, import_path5])
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
+
+      assert_empty(template_importer.errors)
+      assert_not(template.nil?)
+      assert(template.dig(:data, :properties)&.key?(:id))
+      assert(template.dig(:data, :properties)&.key?(:name))
+      assert_not(template.dig(:data, :properties)&.key?(:description))
+      assert_equal('Name', template.dig(:data, :properties, :name, :label))
+    end
+
+    test 'imports correct template when overwriting it from another folder in reverse order' do
+      template_importer = subject.new(template_paths: [import_path5, import_path2])
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
+
+      assert_empty(template_importer.errors)
+      assert_not(template.nil?)
+      assert(template.dig(:data, :properties)&.key?(:id))
+      assert(template.dig(:data, :properties)&.key?(:name))
+      assert(template.dig(:data, :properties)&.key?(:description))
+      assert_equal('Titel', template.dig(:data, :properties, :name, :label))
+    end
+
     private
 
     def subject
@@ -394,6 +418,10 @@ module DataCycleCore
 
     def import_path4
       Rails.root.join('..', 'data_types', 'master_data', 'set_4')
+    end
+
+    def import_path5
+      Rails.root.join('..', 'data_types', 'master_data', 'set_5')
     end
 
     def import_path_overlay
