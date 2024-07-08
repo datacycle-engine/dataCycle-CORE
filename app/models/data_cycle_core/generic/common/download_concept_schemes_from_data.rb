@@ -24,8 +24,8 @@ module DataCycleCore
                 '$match' => { "dump.#{lang}.tree_label" => { '$exists' => true } }
               }, {
                 '$project' => {
-                  'id.text' => "$dump.#{lang}.tree_label",
-                  'name.text' => "$dump.#{lang}.tree_label"
+                  'id' => "$dump.#{lang}.tree_label",
+                  'name' => "$dump.#{lang}.tree_label"
                 }
               }, {
                 '$group' => {
@@ -39,11 +39,11 @@ module DataCycleCore
         end
 
         def self.data_id(data)
-          data.dig('id', 'text')
+          data.dig('id')
         end
 
         def self.data_name(data)
-          data.dig('name', 'text')
+          data.dig('name')
         end
       end
     end

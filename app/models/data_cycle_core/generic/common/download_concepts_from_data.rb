@@ -28,14 +28,14 @@ module DataCycleCore
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate([
               {
-                '$match' => { "dump.#{lang}" => { '$exists' => true } }
+                '$match' => { "dump.#{lang}" => { '$exists' => true } }.merge(source_filter.deep_stringify_keys)
               },
               {
-                '$unwind' => "$dump.#{lang}.#{concept_path}"
+                '$unwind' => ['$dump', lang, concept_path].compact_blank.join('.')
               }, {
                 '$project' => {
-                  'id' => "$dump.#{lang}.#{concept_id_path}",
-                  'name' => "$dump.#{lang}.#{concept_name_path}"
+                  'id' => ['$dump', lang, concept_id_path].compact_blank.join('.'),
+                  'name' => ['$dump', lang, concept_name_path].compact_blank.join('.')
                 }
               }, {
                 '$group' => {
@@ -49,17 +49,11 @@ module DataCycleCore
         end
 
         def self.data_id(data)
-          result = data.dig('id', 'text') rescue data.dig('id') rescue nil
-          result
+          data.dig('id')
         end
 
         def self.data_name(data)
-          result = data.dig('name', 'text') rescue data.dig('name') rescue nil
-          result
-        end
-
-        def self.a_data_name(data)
-          data.dig('name') || nil
+          data.dig('name')
         end
       end
     end
