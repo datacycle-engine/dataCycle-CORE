@@ -345,14 +345,14 @@ module DataCycleCore
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert_not(agg_template.nil?)
-      # assert_equal(
-      #   [template_name, *template.dig(:data, 'features', 'aggregate', MasterData::Templates::AggregateTemplate::ADDITIONAL_BASE_TEMPLATES_KEY)],
-      #   agg_template.dig(:data, 'properties', MasterData::Templates::AggregateTemplate::AGGREGATE_PROPERTY_NAME, 'template_name')
-      # )
-      # assert_equal(
-      #   [template_name, *template.dig(:data, 'features', 'aggregate', MasterData::Templates::AggregateTemplate::ADDITIONAL_BASE_TEMPLATES_KEY)],
-      #   agg_template.dig(:data, 'properties', DataCycleCore::MasterData::Templates::AggregateTemplate.aggregate_property_key('name'), 'template_name')
-      # )
+      assert_equal(
+        [template_name, *template.dig(:data, 'features', 'aggregate', MasterData::Templates::AggregateTemplate::ADDITIONAL_BASE_TEMPLATES_KEY)],
+        agg_template.dig(:data, 'properties', MasterData::Templates::AggregateTemplate::AGGREGATE_PROPERTY_NAME, 'template_name')
+      )
+      assert_equal(
+        [template_name, *template.dig(:data, 'features', 'aggregate', MasterData::Templates::AggregateTemplate::ADDITIONAL_BASE_TEMPLATES_KEY)],
+        agg_template.dig(:data, 'properties', DataCycleCore::MasterData::Templates::AggregateTemplate.aggregate_property_key('name'), 'template_name')
+      )
 
       assert(agg_template.dig(:data, :properties).key?(MasterData::Templates::AggregateTemplate::AGGREGATE_PROPERTY_NAME))
       assert(agg_template.dig(:data, :properties).key?(:id))

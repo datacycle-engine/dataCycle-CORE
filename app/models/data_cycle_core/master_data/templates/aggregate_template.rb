@@ -135,14 +135,11 @@ module DataCycleCore
         end
 
         def aggregate_base_template_name
-          @data[:name]
-
-          # enable after multiple base templates are supported for linked attribute
-          # if @data.dig('features', 'aggregate', ADDITIONAL_BASE_TEMPLATES_KEY).present?
-          #   [@data[:name]] + Array.wrap(@data.dig('features', 'aggregate', ADDITIONAL_BASE_TEMPLATES_KEY))
-          # else
-          #   @data[:name]
-          # end
+          if @data.dig('features', 'aggregate', ADDITIONAL_BASE_TEMPLATES_KEY).present?
+            [@data[:name]] + Array.wrap(@data.dig('features', 'aggregate', ADDITIONAL_BASE_TEMPLATES_KEY))
+          else
+            @data[:name]
+          end
         end
 
         def add_prop_ui_definition!(prop:)
