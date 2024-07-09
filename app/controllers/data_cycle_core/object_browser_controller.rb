@@ -13,18 +13,18 @@ module DataCycleCore
 
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
         @definition = permitted_params.dig(:definition)
-        template_name = @definition.dig(:template_name)
+        template_names = Array.wrap(@definition.dig(:template_name)).map(&:to_s).compact_blank
         stored_filter = @definition.dig(:stored_filter)
         @language = Array(@definition.dig(:linked_language) == 'same' ? permitted_params.fetch(:locale) { current_user.default_locale } : 'all')
 
         filter = DataCycleCore::StoredFilter.new
           .parameters_from_hash(stored_filter)
-          .apply_user_filter(current_user, { scope: 'object_browser', content_template: @content&.template_name, attribute_key: params[:key]&.attribute_name_from_key, template_name: stored_filter.blank? ? template_name : nil })
+          .apply_user_filter(current_user, { scope: 'object_browser', content_template: @content&.template_name, attribute_key: params[:key]&.attribute_name_from_key, template_name: stored_filter.blank? ? template_names : nil })
         filter.language = @language
         filter.parameters.concat Array.wrap(permitted_params.dig(:filter, :f)&.values)
 
         query = filter.apply
-        query = query.where(template_name: template_name.to_s) if template_name && stored_filter.blank?
+        query = query.where(template_name: template_names) if template_names.present? && stored_filter.blank?
         query = query.where.not(things: { id: @content.id }) unless @content.nil?
         query = query.where.not(things: { id: permitted_params[:excluded] }) if permitted_params[:excluded].present?
         query = query.where(id: permitted_params[:filter_ids]) if permitted_params[:filter_ids].present?

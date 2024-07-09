@@ -55,7 +55,7 @@ module DataCycleCore
                                   )) &&
                       (options.content.nil? || options.content&.allowed_feature_attribute?(options.key.attribute_name_from_key))
 
-          next render_linked_viewer(**options.to_h.slice(:key, :definition, :value, :parameters, :content)) if options.type?('linked') && options.definition['link_direction'] == 'inverse'
+          next render('data_cycle_core/contents/viewers/linked', options.render_params) if options.type?('linked') && options.definition['link_direction'] == 'inverse'
 
           next if options.type?('classification') && !DataCycleCore::ClassificationService.visible_classification_tree?(options.definition['tree_label'], options.scope.to_s)
 
