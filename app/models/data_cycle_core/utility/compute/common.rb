@@ -21,22 +21,24 @@ module DataCycleCore
             nil
           end
 
-          def copy_embedded(computed_parameters:, computed_definition:, **_args)
+          def copy_embedded(computed_parameters:, computed_definition:, content:, key:, **_args)
             return [] unless computed_definition.dig('type') == 'embedded'
-            return_values = []
-            computed_parameters.each_value do |param_value|
-              Array.wrap(param_value).each do |value|
-                include = true
-                Array.wrap(computed_definition.dig('compute', 'value')).each do |config|
-                  unless data_in_filter?(value, config['filter'])
-                    include = false
-                    break
-                  end
-                end
-                return_values << value if include
-              end
+
+            values = []
+
+            Array.wrap(computed_definition.dig('compute', 'value')).each do |config|
+              value = get_values_from_hash(
+                data: computed_parameters,
+                key_path: config['attribute'].split('.'),
+                filter: config['filter'],
+                external_key_prefix: base_key_prefix(content:, key:)
+              )
+
+              value.reject!(&:blank?)
+              values.concat(value) if DataHashService.present?(value)
             end
-            return_values
+
+            values
           end
 
           def attribute_value_by_first_match(computed_parameters:, computed_definition:, content:, key:, **_args)
