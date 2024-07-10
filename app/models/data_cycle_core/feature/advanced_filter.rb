@@ -203,15 +203,20 @@ module DataCycleCore
         end
 
         def boolean(locale, value = [])
-          value = ['duplicate_candidates'] if value == 'all'
+          value = [{'duplicate_candidates' => {'depends_on' => 'DataCycleCore::Feature::DuplicateCandidate'}}] if value == 'all'
 
-          value.presence&.map do |c|
+          value.presence&.map { |c|
+            if c.is_a?(::Hash)
+              next if c.values.first['depends_on'].present? && !c.values.first['depends_on'].safe_constantize&.enabled?
+              c = c.keys.first
+            end
+
             [
               I18n.t("filter.boolean.#{c.underscore_blanks}", default: I18n.t("filter.#{c.underscore_blanks}", default: c, locale:), locale:),
               'boolean',
               data: { name: c }
             ]
-          end || []
+          }&.compact || []
         end
 
         def related_through_attribute(locale, value)
@@ -229,6 +234,7 @@ module DataCycleCore
         end
 
         def default(locale, key, value)
+          return [] if value.is_a?(::Hash) && value[:depends_on].present? && !value[:depends_on].safe_constantize&.enabled?
           return [] unless value
 
           [

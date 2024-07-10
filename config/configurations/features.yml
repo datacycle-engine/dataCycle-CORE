@@ -194,8 +194,9 @@
 :advanced_filter:
   :enabled: true
   :boolean:
-    #   - duplicate_candidates
     #   - with_geom
+    - duplicate_candidates:
+        depends_on: DataCycleCore::Feature::DuplicateCandidate
     - with_external_source
   :config:
     :visible: false
@@ -225,6 +226,8 @@
     :geo_radius: false
     :geo_within_classification: false
     :geo_type: false
+  :aggregate_filter:
+    :depends_on: DataCycleCore::Feature::Aggregate
   # :union_filter_ids: true
   # :relation_filter:
   #   :linked_image: image
@@ -286,7 +289,6 @@
   #  :graph_filter:
   #    :items_linked_to: true
   #    :linked_items_in: true
-  #  :aggregate_filter: true
 
 :sortable:
   :enabled: false

@@ -68,7 +68,7 @@
         display: flex;
         margin-right: 3px;
         max-width: 29%;
-        border-radius: var(--global-radius);
+        border-radius: var(--small-radius);
       }
     }
   }
@@ -1875,7 +1875,7 @@ ul.list {
         img {
           height: 2.6rem;
           vertical-align: top;
-          border-radius: var(--global-radius);
+          border-radius: var(--small-radius);
         }
       }
     }
