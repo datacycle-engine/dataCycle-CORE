@@ -27,8 +27,8 @@ namespace :data_cycle_core do
   namespace :db do
     desc 'Dumps the database to backups (mode = review|activities|full)'
     task :dump, [:backup_name, :format, :mode] => [:environment] do |_, args|
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:dump"].invoke(*args)
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:dump"].reenable
+      Rake::Task['db:dump'].invoke(*args)
+      Rake::Task['db:dump'].reenable
     end
 
     namespace :dump do
@@ -92,14 +92,14 @@ namespace :data_cycle_core do
 
     desc 'Restores the database from a backup using PATTERN'
     task :restore, [:pattern] => [:environment] do |_, args|
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:restore"].invoke(*args)
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:restore"].reenable
+      Rake::Task['db:restore'].invoke(*args)
+      Rake::Task['db:restore'].reenable
     end
 
     desc 'remove all active database connections'
     task clear_connections: :environment do
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:clear_connections"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:clear_connections"].reenable
+      Rake::Task['db:clear_connections'].invoke
+      Rake::Task['db:clear_connections'].reenable
     end
 
     desc 'reset database, import templates, classifications, external_sources'
@@ -108,16 +108,16 @@ namespace :data_cycle_core do
       puts "Environment: #{ENV['RAILS_ENV']}"
 
       begin
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:clear_connections"].invoke
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:drop"].invoke
+        Rake::Task['data_cycle_core:db:clear_connections'].invoke
+        Rake::Task['db:drop'].invoke
       rescue ActiveRecord::NoDatabaseError
         puts 'No Database to drop, proceeding...'
       end
 
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:create"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:seed"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update:configs"].invoke
+      Rake::Task['db:create'].invoke
+      Rake::Task['db:migrate'].invoke
+      Rake::Task['db:seed'].invoke
+      Rake::Task['dc:update:configs'].invoke
       puts 'Reset Complete...'
     end
   end

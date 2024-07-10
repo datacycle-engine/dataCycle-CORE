@@ -57,8 +57,8 @@ namespace :data_cycle_core do
     task import_update_all_templates: :environment do
       temp = Time.zone.now
 
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:import"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:templates:import"].reenable
+      Rake::Task['dc:templates:import'].invoke
+      Rake::Task['dc:templates:import'].reenable
 
       puts 'END'
       puts "--> MIGRATION time: #{Time.zone.now - temp} sec"

@@ -77,7 +77,7 @@ namespace :data_cycle_core do
 
       histories_to_delete.delete_all
 
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].invoke
+      Rake::Task['db:maintenance:vacuum'].invoke
     end
 
     desc 'Remove all soft-deleted classification data (paranoid)'
@@ -112,8 +112,8 @@ namespace :data_cycle_core do
         )
       )
 
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].invoke(true, 'activities')
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].reenable
+      Rake::Task['db:maintenance:vacuum'].invoke(true, 'activities')
+      Rake::Task['db:maintenance:vacuum'].reenable
     end
   end
 end

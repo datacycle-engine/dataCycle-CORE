@@ -92,23 +92,23 @@ namespace :dc do
 
     desc 'migrate assets to active_storage'
     task migrate_assets_to_active_storage: :environment do
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_videos_to_active_storage"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_pdfs_to_active_storage"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_audio_to_active_storage"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_data_cycle_file_to_active_storage"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_text_file_to_active_storage"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_srt_file_to_active_storage"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:assets:migrate_images_to_active_storage"].invoke
+      Rake::Task['dc:assets:migrate_videos_to_active_storage'].invoke
+      Rake::Task['dc:assets:migrate_pdfs_to_active_storage'].invoke
+      Rake::Task['dc:assets:migrate_audio_to_active_storage'].invoke
+      Rake::Task['dc:assets:migrate_data_cycle_file_to_active_storage'].invoke
+      Rake::Task['dc:assets:migrate_text_file_to_active_storage'].invoke
+      Rake::Task['dc:assets:migrate_srt_file_to_active_storage'].invoke
+      Rake::Task['dc:assets:migrate_images_to_active_storage'].invoke
 
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('PDF', 'false')
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].reenable
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('Video', 'false')
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].reenable
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('Audio', 'false')
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].reenable
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('Bild', 'false')
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].reenable
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update_data:computed_attributes"].invoke('ImageVariant', 'false')
+      Rake::Task['dc:update_data:computed_attributes'].invoke('PDF', 'false')
+      Rake::Task['dc:update_data:computed_attributes'].reenable
+      Rake::Task['dc:update_data:computed_attributes'].invoke('Video', 'false')
+      Rake::Task['dc:update_data:computed_attributes'].reenable
+      Rake::Task['dc:update_data:computed_attributes'].invoke('Audio', 'false')
+      Rake::Task['dc:update_data:computed_attributes'].reenable
+      Rake::Task['dc:update_data:computed_attributes'].invoke('Bild', 'false')
+      Rake::Task['dc:update_data:computed_attributes'].reenable
+      Rake::Task['dc:update_data:computed_attributes'].invoke('ImageVariant', 'false')
     end
 
     desc 'migrate images to active_storage'

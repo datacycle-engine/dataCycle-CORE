@@ -12,7 +12,7 @@ namespace :db do
       Rails.application.config.paths['db/migrate'].concat(data_paths)
       ActiveRecord::Migrator.migrations_paths.concat(data_paths)
 
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].invoke
+      Rake::Task['db:migrate'].invoke
     end
 
     desc 'check before migrations'
@@ -66,7 +66,7 @@ namespace :db do
       Rails.application.config.paths['db/migrate'].concat(data_paths)
       ActiveRecord::Migrator.migrations_paths.concat(data_paths)
 
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:rollback"].invoke
+      Rake::Task['db:rollback'].invoke
     end
   end
 
@@ -88,8 +88,8 @@ namespace :db do
 
     desc 'Remove activities except type donwload older than 3 monts [include_downloads=false, max_age=today-3months]'
     task :activities, [:include_downloads, :max_age] => [:environment] do |_, args|
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:clear:activities"].invoke(*args)
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:clear:activities"].reenable
+      Rake::Task['data_cycle_core:clear:activities'].invoke(*args)
+      Rake::Task['data_cycle_core:clear:activities'].reenable
     end
   end
 
@@ -104,8 +104,8 @@ namespace :db do
 
       next if Rails.env.test?
 
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].invoke(true, 'classification_alias_paths|classification_alias_paths_transitive|collected_classification_contents')
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].reenable
+      Rake::Task['db:maintenance:vacuum'].invoke(true, 'classification_alias_paths|classification_alias_paths_transitive|collected_classification_contents')
+      Rake::Task['db:maintenance:vacuum'].reenable
     end
 
     desc 'rebuild content_content_links'
@@ -116,8 +116,8 @@ namespace :db do
 
       next if Rails.env.test?
 
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].invoke(true, 'content_content_links')
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].reenable
+      Rake::Task['db:maintenance:vacuum'].invoke(true, 'content_content_links')
+      Rake::Task['db:maintenance:vacuum'].reenable
     end
 
     desc 'rebuild schedule occurrences'
@@ -129,8 +129,8 @@ namespace :db do
 
       tmp = Time.zone.now
       puts 'VACUUM FULL schedules...'
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].invoke(true, 'schedules')
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].reenable
+      Rake::Task['db:maintenance:vacuum'].invoke(true, 'schedules')
+      Rake::Task['db:maintenance:vacuum'].reenable
       puts "VACUUM FULL schedules...done (#{(Time.zone.now - tmp).round}s)"
     end
   end
@@ -206,13 +206,13 @@ namespace :db do
       end
       unless cmd.nil?
         ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:clear_connections"].invoke
+        Rake::Task['db:clear_connections'].invoke
         Rake::Task['db:drop'].invoke
         Rake::Task['db:create'].invoke
         puts cmd
         system cmd
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].invoke
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:maintenance:vacuum"].reenable
+        Rake::Task['db:maintenance:vacuum'].invoke
+        Rake::Task['db:maintenance:vacuum'].reenable
         puts ''
         puts "Restored from file: #{file}"
         puts "Duration: #{TimeHelper.format_time(Time.zone.now - temp, 0, 6, 's')}"
