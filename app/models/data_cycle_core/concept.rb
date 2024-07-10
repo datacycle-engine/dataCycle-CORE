@@ -59,6 +59,7 @@ module DataCycleCore
                                     ]
                                   )
                                 }
+    scope :by_external_sources_and_keys, -> { where(Array.new(_1.size) { '(external_system_id = ? AND external_key = ?)' }.join(' OR '), *_1.pluck(:external_source_id, :external_key).flatten) }
 
     validate :validate_color_format
 

@@ -59,5 +59,45 @@ module DataCycleCore
         find(object.id)
       end
     end
+
+    def self.insert_all(attributes, returning: nil, **)
+      new_classification_groups = attributes.select { _1[:link_type] == 'related' }
+      new_classification_trees = attributes.select { _1[:link_type] == 'broader' }
+
+      if new_classification_groups.present?
+        classification_ids = Concept.where(id: new_classification_groups.pluck(:child_id)).to_h { [_1.id, _1.classification_id] }
+        new_classification_groups = new_classification_groups
+          .map { |cg|
+            {
+              classification_id: classification_ids[cg[:child_id]],
+              classification_alias_id: cg[:parent_id]
+            }
+          }
+          .reject { _1[:classification_id].nil? }
+
+        if new_classification_groups.present?
+          inserted_classification_groups = ClassificationGroup.insert_all(
+            new_classification_groups,
+            returning:,
+            unique_by: :classification_groups_ca_id_c_id_uq_idx
+          )
+        end
+      end
+
+      if new_classification_trees.present?
+        inserted_classification_trees = ClassificationTree.insert_all(
+          new_classification_trees.map do |ct|
+            {
+              parent_classification_alias_id: ct[:parent_id],
+              classification_alias_id: ct[:child_id]
+            }
+          end,
+          returning:,
+          unique_by: :child_parent_index
+        )
+      end
+
+      inserted_classification_groups.to_a + inserted_classification_trees.to_a
+    end
   end
 end

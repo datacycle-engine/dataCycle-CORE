@@ -12,7 +12,8 @@ module DataCycleCore
               utility_object:,
               iterator: method(:load_concepts).to_proc,
               data_processor: method(:process_content).to_proc,
-              external_system_processor: method(:transform_data_array).to_proc,
+              data_transformer: method(:transform_data_array).to_proc,
+              data_mapping_processor: method(:transform_concept_mappings).to_proc,
               options:
             )
           end
@@ -58,7 +59,8 @@ module DataCycleCore
                   concept_scheme_external_id_prefix,
                   extract_property(raw_data, options, 'concept_scheme_external_key')
                 ].compact_blank.join(' '),
-                concept_scheme_name: extract_property(raw_data, options, 'concept_scheme_name').presence || options.dig(:import, :concept_scheme).presence
+                concept_scheme_name: extract_property(raw_data, options, 'concept_scheme_name').presence || options.dig(:import, :concept_scheme).presence,
+                mapped_concepts: extract_property(raw_data, options, 'mapped_concepts')
               }.compact
             end
           end
@@ -69,7 +71,7 @@ module DataCycleCore
           end
 
           def transform_data_array(data_array:, options:)
-            data_array = external_system_identifiers_to_ids(data_array:, options:)
+            data_array = external_system_identifiers_to_ids!(data_array:, import_external_systems: options.dig(:import, :import_external_systems))
 
             transform_concept_scheme_identifiers(data_array:)
           end
@@ -110,7 +112,7 @@ module DataCycleCore
             .compact_blank
           end
 
-          def external_system_identifiers_to_ids(data_array:, options:)
+          def external_system_identifiers_to_ids!(data_array:, import_external_systems: false)
             external_system_identifiers = data_array.pluck(:external_system_identifier).compact.uniq
 
             if external_system_identifiers.present?
@@ -118,7 +120,7 @@ module DataCycleCore
               external_system_slugs = external_systems.pluck('name', 'identifier').flatten
               missing_systems = external_system_identifiers.filter { |esi| external_system_slugs.exclude?(esi) }
 
-              if missing_systems.present? && options.dig(:import, :import_external_systems)
+              if missing_systems.present? && import_external_systems
                 now = Time.zone.now
                 new_systems = DataCycleCore::ExternalSystem.insert_all(missing_systems.map { |ms| { name: ms, identifier: ms, created_at: now, updated_at: now } }, returning: [:id, :identifier, :name])
                 external_systems += new_systems
@@ -127,10 +129,71 @@ module DataCycleCore
               data_array.filter { |da| da[:external_system_identifier].present? }.each do |da|
                 es_id = external_systems.find { |es| es['identifier'] == da[:external_system_identifier] || es['name'] == da[:external_system_identifier] }&.dig('id')
                 da[:external_source_id] = es_id if es_id.present?
+                da.delete(:external_system_identifier)
               end
             end
 
             data_array
+          end
+
+          def transform_concept_mappings(data_array:, utility_object:)
+            concept_mappings = map_concept_mappings(data_array:, utility_object:)
+            external_system_identifiers_to_ids!(data_array: concept_mappings.pluck(:child))
+
+            mappings_for_existing_concepts(concept_mappings:)
+          end
+
+          def mappings_for_existing_concepts(concept_mappings:)
+            existing_concepts = DataCycleCore::Concept.by_external_sources_and_keys(concept_mappings.pluck(:parent, :child).flatten).index_by { |co| [co.external_system_id, co.external_key] }
+
+            concept_mappings.map { |cm|
+              parent = existing_concepts[[cm[:parent][:external_source_id], cm[:parent][:external_key]]]
+              child = existing_concepts[[cm[:child][:external_source_id], cm[:child][:external_key]]]
+
+              next if parent.blank? || child.blank?
+
+              {
+                parent_id: parent.id,
+                child_id: child.id,
+                link_type: 'related'
+              }
+            }.compact
+          end
+
+          def map_concept_mappings(data_array:, utility_object:)
+            concept_mappings = []
+            data_array.each do |da|
+              next if da[:mapped_concepts].blank?
+
+              da[:mapped_concepts].each do |mc|
+                if mc[:external_key].present?
+                  concept_mappings << {
+                    parent: {
+                      external_key: da[:external_key],
+                      external_source_id: da[:external_source_id]
+                    },
+                    child: {
+                      external_key: mc[:external_key],
+                      external_source_id: utility_object.external_source.id,
+                      external_system_identifier: mc[:external_system_identifier]
+                    }
+                  }
+                end
+
+                concept_mappings << {
+                  parent: {
+                    external_key: da[:external_key],
+                    external_source_id: da[:external_source_id]
+                  },
+                  child: {
+                    external_key: mc[:id],
+                    external_source_id: utility_object.external_source.id
+                  }
+                }
+              end
+            end
+
+            concept_mappings
           end
         end
 

@@ -49,7 +49,7 @@ module DataCycleCore
             end
           end
 
-          def import_concepts(utility_object:, iterator:, data_processor:, external_system_processor:, options:)
+          def import_concepts(utility_object:, iterator:, data_processor:, data_transformer:, data_mapping_processor:, options:)
             init_logging(utility_object) do |logging|
               init_mongo_db(utility_object) do
                 importer_name = options.dig(:import, :name)
@@ -59,6 +59,7 @@ module DataCycleCore
                 each_locale(utility_object.locales) do |locale|
                   I18n.with_locale(locale) do
                     item_count = 0
+                    mapping_count = 0
 
                     begin
                       logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
@@ -72,18 +73,21 @@ module DataCycleCore
                         raw_data = iterator.call(mongo_item, locale, source_filter).to_a
                         concepts_data = raw_data.map { |rd| data_processor.call(raw_data: rd.dump[locale], utility_object:, locale:, options:) }
 
-                        concepts_data = external_system_processor.call(data_array: concepts_data, options:)
-
-                        concepts_data.each do |concept_scheme, concepts|
+                        transformed_concepts = data_transformer.call(data_array: concepts_data, options:)
+                        transformed_concepts.each do |concept_scheme, concepts|
                           next logging.error("#{importer_name}(#{phase_name}) #{locale}", nil, nil, 'ConceptScheme missing!') if concept_scheme.nil?
 
                           upserted = concept_scheme.upsert_all_external_classifications(concepts)
                           item_count += upserted.count
                         end
 
+                        concept_mappings = data_mapping_processor.call(data_array: concepts_data, utility_object:)
+                        mapped = DataCycleCore::ConceptLink.insert_all(concept_mappings, unique_by: :index_concept_links_on_parent_id_and_child_id, returning: :id)
+                        mapping_count += mapped.count
+
                         times << Time.current
 
-                        logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                        logging.info("Imported   #{item_count.to_s.rjust(7)} items (#{mapping_count} new mappings) in #{GenericObject.format_float((times[-1] - times[0]), 0, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 0, 3)}")
                       end
                     rescue StandardError => e
                       logging.error("#{importer_name}(#{phase_name}) #{locale}", nil, nil, e.message)
