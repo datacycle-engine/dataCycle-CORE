@@ -24,7 +24,7 @@ module DataCycleCore
           # @log.info " -> \"#{title} (\##{id})\" #{@kind}ed (#{num} of #{total || '?'})"
         end
 
-        def error(title, id, data, error, instrumentation_payload)
+        def error(title, id, data, error, instrumentation_payload = nil)
           if title && id
             err = "Error #{@kind}ing \"#{title} (\##{id})\": #{error}"
           elsif title
