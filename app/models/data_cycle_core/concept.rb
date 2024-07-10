@@ -161,19 +161,23 @@ module DataCycleCore
 
         as_json(
           only: [:id, :external_key, :uri, :order_a, :concept_scheme_id],
-          methods: [:parent_id, :name, :description]
+          include: { mapped_concepts: { only: [:id, :external_key], methods: [:external_system_identifier] } },
+          methods: [:parent_id, :name, :description, :external_system_identifier]
         )
-        .merge({ 'external_system_identifier' => external_system&.identifier })
-        .compact_blank
+        .deep_compact_blank
       end
     end
 
     def self.to_sync_data
-      includes(:parent, :external_system).map(&:to_sync_data).compact
+      includes(:parent, :external_system, mapped_concepts: [:external_system]).map(&:to_sync_data).compact
     end
 
     def parent_id
       parent&.id
+    end
+
+    def external_system_identifier
+      external_system&.identifier
     end
 
     private
