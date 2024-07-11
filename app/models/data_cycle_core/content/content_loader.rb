@@ -11,11 +11,11 @@ module DataCycleCore
         try(:to_h_partial, keys)
       end
 
-      def diff(data, template = nil, partial_update = false)
+      def diff(data, template = nil, partial_update = true)
         diff_obj(data, template, partial_update).diff_hash
       end
 
-      def diff_obj(data, template = nil, partial_update = false)
+      def diff_obj(data, template = nil, partial_update = true)
         differ = DataCycleCore::MasterData::DiffData.new
         if template.present?
           differ.diff(a: get_data_hash_partial(data.keys), schema_a: template, b: data, schema_b: template, partial_update:)
@@ -24,7 +24,7 @@ module DataCycleCore
         end
       end
 
-      def diff?(data, template = nil, partial_update = false)
+      def diff?(data, template = nil, partial_update = true)
         differ = DataCycleCore::MasterData::DiffData.new
         if template.present?
           differ.diff?(a: get_data_hash_partial(data.keys), schema_a: template, b: data, schema_b: template, partial_update:)

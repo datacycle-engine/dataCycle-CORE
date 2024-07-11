@@ -58,27 +58,24 @@ module DataCycleCore
 
       def set_data_hash(**) # rubocop:disable Naming/AccessorMethodName
         options = DataCycleCore::Content::DataHashOptions.new(**)
+        options.data_hash.slice!(*property_names) # remove all keys that are not part of the schema
 
         return no_changes(options.ui_locale) if options.data_hash.blank? && !options.force_update
 
         before_save_data_hash(options)
 
         partial_schema = schema.deep_dup
-        partial_schema['properties'].slice!(*options.data_hash.keys) if options.partial_update && !options.new_content
+        partial_schema['properties'].slice!(*options.data_hash.keys)
         options.data_hash.deep_freeze # ensure data_hash doesn't get changed
 
         return false unless validate(data_hash: options.data_hash, schema_hash: partial_schema, current_user: options.current_user, strict: options.new_content)
 
         unless options.force_update
-          differ = diff_obj(options.data_hash, partial_schema, options.partial_update)
+          differ = diff_obj(options.data_hash, partial_schema)
           return no_changes(options.ui_locale) if differ.diff_hash.blank? && differ.errors[:error].blank?
 
           self.datahash_changes = differ.diff_hash.deep_dup
-
-          if options.partial_update_improved
-            # reduce partial schema to only updated properties:
-            partial_schema['properties']&.slice!(*differ.diff_hash.keys)
-          end
+          partial_schema['properties']&.slice!(*differ.diff_hash.keys)
         end
 
         transaction(joinable: false, requires_new: true) do
@@ -287,7 +284,7 @@ module DataCycleCore
         case properties['type']
         when 'slug'
           save_slug(key, value, options.data_hash)
-        when 'key', 'timeseries'
+        when 'key'
           true # do nothing
         when *Content::LINKED_PROPERTY_TYPES
           set_linked(key, value, properties)
@@ -303,6 +300,8 @@ module DataCycleCore
           set_schedule(value, key)
         when *Content::COLLECTION_PROPERTY_TYPES
           set_collection_links(key, value)
+        when *Content::TIMESERIES_PROPERTY_TYPES
+          set_timeseries(key, value)
         end
       end
 
@@ -357,6 +356,21 @@ module DataCycleCore
           end
         end
         data_hash
+      end
+
+      def set_timeseries(key, value)
+        return if value.blank?
+
+        data = value.map do |item|
+          v = item.with_indifferent_access.slice('timestamp', 'value')
+          {
+            thing_id: id,
+            property: key,
+            **v
+          }
+        end
+
+        Timeseries.insert_all(data, unique_by: :thing_attribute_timestamp_idx, returning: :thing_id)
       end
 
       def set_linked(field_name, input_data, properties)
@@ -489,8 +503,7 @@ module DataCycleCore
           current_user: options.current_user,
           save_time: options.save_time,
           prevent_history: true,
-          new_content: created,
-          partial_update: options.partial_update
+          new_content: created
         )
         upsert_item
       end

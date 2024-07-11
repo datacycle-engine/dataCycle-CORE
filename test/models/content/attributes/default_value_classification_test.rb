@@ -85,9 +85,9 @@ module DataCycleCore
           classification_id = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Bild')
 
           content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1', data_type: [classification_id] })
-          content.set_data_hash(data_hash: { name: 'Test Artikel 2' }, update_search_all: false, prevent_history: true, partial_update: false)
+          content.set_data_hash(data_hash: { name: 'Test Artikel 2' }, update_search_all: false, prevent_history: true)
 
-          assert content.data_type.blank?
+          assert_equal classification_id, content.data_type.pick(:id)
           assert_equal 'Test Artikel 2', content.name
         end
 

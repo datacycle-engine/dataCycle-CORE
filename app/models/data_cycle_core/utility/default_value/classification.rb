@@ -21,12 +21,12 @@ module DataCycleCore
             if content.schema_ancestors.present?
               content.schema_ancestors.each do |path|
                 schema_types.concat(
-                  find_classification(transform_path(path, content), property_definition['tree_label'])
+                  find_classification(transform_path(path, content, property_definition['tree_label']))
                 )
               end
             elsif content.schema_type.present?
               schema_types.concat(
-                find_classification(transform_path([content.schema_type], content), property_definition['tree_label'])
+                find_classification(transform_path([content.schema_type], content, property_definition['tree_label']))
               )
             end
 
@@ -80,22 +80,16 @@ module DataCycleCore
 
           private
 
-          def transform_path(path, content)
+          def transform_path(path, content, tree_label)
             path.push("dcls:#{content.template_name}") if path.last != content.template_name
 
-            path
+            ([tree_label] + path).join(' > ')
           end
 
-          def find_classification(path, tree_label_name)
-            return [] if path.blank? || tree_label_name.blank?
+          def find_classification(path)
+            return [] if path.blank?
 
-            DataCycleCore::ClassificationAlias
-              .for_tree(tree_label_name)
-              .includes(:classification_alias_path)
-              .where(classification_alias_paths: { full_path_names: path.reverse + [tree_label_name] })
-              .primary_classifications
-              .limit(1)
-              .pluck(:id)
+            DataCycleCore::Concept.by_full_paths(path).limit(1).pluck(:classification_id).compact
           end
         end
       end

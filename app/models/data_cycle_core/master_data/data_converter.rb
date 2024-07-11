@@ -8,19 +8,19 @@ module DataCycleCore
         when 'key'
           data
         when 'number'
-          DataCycleCore::MasterData::DataConverter.string_to_number(data, definition)
+          string_to_number(data, definition)
         when 'string'
-          DataCycleCore::MasterData::DataConverter.string_to_string(data)
+          string_to_string(data)
         when 'date'
-          DataCycleCore::MasterData::DataConverter.string_to_date(data)
+          string_to_date(data)
         when 'datetime'
-          DataCycleCore::MasterData::DataConverter.string_to_datetime(data)
+          string_to_datetime(data)
         when 'boolean'
-          DataCycleCore::MasterData::DataConverter.string_to_boolean(data)
+          string_to_boolean(data)
         when 'geographic'
-          DataCycleCore::MasterData::DataConverter.string_to_geographic(data)
+          string_to_geographic(data)
         when 'slug'
-          DataCycleCore::MasterData::DataConverter.string_to_slug(data, content)
+          string_to_slug(data, content)
         end
       end
 
@@ -29,17 +29,17 @@ module DataCycleCore
         when 'key', 'number'
           data&.to_s
         when 'string'
-          DataCycleCore::MasterData::DataConverter.string_to_string(data)
+          string_to_string(data)
         when 'date'
-          DataCycleCore::MasterData::DataConverter.date_to_string(data)
+          date_to_string(data)
         when 'datetime'
-          DataCycleCore::MasterData::DataConverter.datetime_to_string(data)
+          datetime_to_string(data)
         when 'boolean'
-          DataCycleCore::MasterData::DataConverter.boolean_to_string(data)
+          boolean_to_string(data)
         when 'geographic'
-          DataCycleCore::MasterData::DataConverter.geographic_to_string(data)
+          geographic_to_string(data)
         when 'slug'
-          DataCycleCore::MasterData::DataConverter.slug_to_string(data, content)
+          slug_to_string(data, content)
         end
       end
 

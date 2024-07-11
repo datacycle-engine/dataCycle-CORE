@@ -108,14 +108,12 @@ module DataCycleCore
 
           current_user = data['updated_by'].present? ? DataCycleCore::User.find_by(id: data['updated_by']) : nil
           invalidate_related_cache = utility_object.external_source.default_options&.fetch('invalidate_related_cache', true)
-          partial_update_improved = utility_object.external_source.default_options&.fetch('partial_update_improved', DataCycleCore.partial_update_improved) && !created
 
           valid = content.set_data_hash(
             data_hash: global_data,
             prevent_history: !utility_object.history,
             update_search_all: true,
             current_user:,
-            partial_update_improved:,
             new_content: created,
             invalidate_related_cache:
           )

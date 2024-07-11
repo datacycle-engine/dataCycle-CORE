@@ -20,7 +20,8 @@ module DataCycleCore
             'classification' => Differs::Classification,
             'schedule' => Differs::Schedule,
             'opening_time' => Differs::Schedule,
-            'collection' => Differs::Collection
+            'collection' => Differs::Collection,
+            'timeseries' => Differs::Timeseries
           }
         end
 
@@ -30,7 +31,7 @@ module DataCycleCore
           cleaned_b = b&.dc_deep_transform_values { |v| blank?(v) ? nil : v }
 
           template.each do |key, key_item|
-            next if key_item&.dig('type')&.in?(['key', 'timeseries'])
+            next if key_item&.dig('type')&.in?(['key'])
             item_template = key_item['type'] == 'object' ? key_item&.dig('properties') : key_item
             diff_key = basic_types[key_item['type']].new(cleaned_a&.dig(key), cleaned_b&.dig(key), item_template, '', partial_update).diff_hash
             @diff_hash[key] = diff_key if diff_key.present?

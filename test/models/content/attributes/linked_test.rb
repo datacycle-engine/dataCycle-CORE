@@ -5,9 +5,10 @@ require 'test_helper'
 module DataCycleCore
   module Content
     module Attributes
-      class LinkedTest < ActiveSupport::TestCase
+      class LinkedTest < DataCycleCore::TestCases::ActiveSupportTestCase
         include DataCycleCore::DataHelper
-        def setup
+
+        before(:all) do
           # create entity and add 5 linked entities from the same table
           @things_before = DataCycleCore::Thing.count
           linked_size = 5
@@ -186,10 +187,10 @@ module DataCycleCore
             data_set.set_data_hash(
               data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked').merge(
                 {
-                  'linked_place' => linked_places.dup
+                  'linked_place' => linked_places.dup,
+                  'linked_creative_work' => []
                 }
-              ),
-              partial_update: false
+              )
             )
             assert_equal(place_count, linked_places.size)
             assert_equal(DataCycleCore::Thing.where(template_name: 'Linked-Place-1').count, linked_places.size)
