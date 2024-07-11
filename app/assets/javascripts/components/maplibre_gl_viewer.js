@@ -127,6 +127,7 @@ class MapLibreGlViewer {
 			this.maplibreGl = await MaplibreGl();
 			await this.initMap();
 			this.map.on("load", this.configureMap.bind(this));
+			this.configureScrolling();
 		} catch (error) {
 			console.error(error);
 		}
@@ -166,14 +167,16 @@ class MapLibreGlViewer {
 
 		return;
 	}
+	configureScrolling() {
+		this.setZoomMethod();
+		this._disableScrollingOnMapOverlays();
+		this.initMouseWheelZoom();
+	}
 	async configureMap() {
 		await this.initControls();
-		await this.setZoomMethod();
 		await this.setIcons();
 
 		await this.initFeatures();
-		await this._disableScrollingOnMapOverlays();
-		await this.initMouseWheelZoom();
 	}
 	initFeatures() {
 		this.drawFeatures();

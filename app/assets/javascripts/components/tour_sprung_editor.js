@@ -129,6 +129,8 @@ class TourSprungEditor extends MapLibreGlEditor {
 		this.mtkMap = map;
 		this.map = this.mtkMap.gl;
 
+		this.configureScrolling();
+
 		if (this.mapOptions.i18n)
 			MTK.i18n = Object.assign({}, this.mapOptions.i18n);
 
