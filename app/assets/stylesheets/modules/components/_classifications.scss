@@ -341,8 +341,13 @@ ul.backend-treeview-list,
         color: $primary-color;
       }
 
-      &.destroy:hover {
+      &.destroy:hover,
+      &.destroy.disabled {
         color: map-get($foundation-palette, alert);
+      }
+
+      &.destroy.disabled {
+        pointer-events: none;
       }
 
       &.name {
