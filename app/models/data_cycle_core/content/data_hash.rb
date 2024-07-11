@@ -358,6 +358,7 @@ module DataCycleCore
         data_hash
       end
 
+      # format [{ 'timestamp' => Time, 'value' => 1 }, { 'timestamp' => Time, 'value' => 2 }]
       def set_timeseries(key, value)
         return if value.blank?
 
