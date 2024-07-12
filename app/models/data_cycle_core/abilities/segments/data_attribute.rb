@@ -129,6 +129,13 @@ module DataCycleCore
           !attribute_value_present?(attribute)
         end
 
+        def attribute_content_not_external_source?(attribute, external_source_names = [])
+          !(
+            attribute.content.try(:external_source)&.name&.in?(Array.wrap(external_source_names)) ||
+            attribute.content.try(:external_source)&.identifier&.in?(Array.wrap(external_source_names))
+          )
+        end
+
         def to_restrictions(**)
           Array.wrap(method_names).map do |m|
             params = case m.first.to_s
@@ -144,6 +151,8 @@ module DataCycleCore
                        { data: translated_attribute_types(m.last) }
                      when 'attribute_not_releasable?'
                        next releasable_attribute_labels(m.first)
+                     when 'attribute_content_not_external_source?'
+                       { data: ExternalSystem.by_names_or_identifiers(m.last).pluck(:name).join(', ') }
                      else {}
                      end
 

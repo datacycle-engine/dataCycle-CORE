@@ -59,6 +59,7 @@ en:
       content_created_by_user?: User is creator of the content
       attribute_value_present?: Attribute is filled in
       attribute_value_blank?: Attribute is not filled in
+      attribute_content_not_external_source?: Content not imported from %{data}
     model_names:
       backend: Dashboard
       view_mode: Display mode for lists
