@@ -562,7 +562,7 @@ class Validator {
 		this.requests = [];
 
 		$(event.target)
-			.find(".validation-container")
+			.find(".validation-container:not(.disabled)")
 			.add(this.$agbsCheck)
 			.each((_i, elem) => {
 				this.requests.push(this.validateItem(elem, true));
