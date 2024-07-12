@@ -75,22 +75,30 @@ namespace :dc do
     end
 
     desc 'add default values for all attributes'
-    task :add_defaults, [:template_names, :webhooks, :default_value_names, :imported, :thread_pool_size] => [:environment] do |_, args|
-      template_names = args.template_names&.split('|')&.map(&:squish)
-      selected_things = DataCycleCore::ThingTemplate.all
-      selected_things = selected_things.where(template_name: template_names) if template_names.present?
+    task :add_defaults, [:template_name_or_collection_id, :webhooks, :default_value_names, :imported, :thread_pool_size] => [:environment] do |_, args|
+      template_names_or_collection_id = args.fetch(:template_name_or_collection_id, false).to_s.then { |t| t.present? && t != 'false' ? t.split('|') : false }
       default_value_names = args.fetch(:default_value_names, false).to_s.then { |c| c.present? && c != 'false' ? c.split('|') : false }.freeze
       thread_pool_size = [args.thread_pool_size&.to_i, ActiveRecord::Base.connection_pool.size - 1].compact.min
       queue = DataCycleCore::WorkerPool.new(thread_pool_size)
+      selected_thing_templates = DataCycleCore::ThingTemplate.all
+      selected_things = DataCycleCore::Thing
+
+      if template_names_or_collection_id.present? && DataCycleCore::ThingTemplate.where(template_name: template_names_or_collection_id).present?
+        selected_thing_templates = selected_thing_templates.where(template_name: template_names_or_collection_id)
+      else
+        selected_thing_ids = DataCycleCore::Collection.find(template_names_or_collection_id).map { |collection| collection.things.map(&:id) }.flatten
+        selected_things = selected_things.where(id: selected_thing_ids)
+        selected_thing_templates = selected_thing_templates.where(template_name: selected_things.map(&:template_name))
+      end
 
       puts "ATTRIBUTES TO UPDATE: #{default_value_names.present? ? default_value_names.join(', ') : 'all'}, THREADS: #{thread_pool_size}"
 
-      selected_things.find_each do |thing_template|
+      selected_thing_templates.find_each do |thing_template|
         template = DataCycleCore::Thing.new(thing_template:)
         next if template.default_value_property_names.blank?
         next if default_value_names.present? && default_value_names.any? && (default_value_names & template.default_value_property_names).none?
 
-        items = DataCycleCore::Thing.where(template_name: template.template_name)
+        items = selected_things.where(template_name: template.template_name)
         items = items.where(external_source_id: nil) if args.imported&.to_s&.downcase == 'false'
 
         translated_properties = template.default_value_property_names.intersect?(template.translatable_property_names)
