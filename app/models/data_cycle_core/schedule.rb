@@ -161,17 +161,18 @@ module DataCycleCore
     end
 
     def to_opening_hours_specification_schema_org
-      rule = schedule_object&.recurrence_rules&.first
-      rule_hash = rule&.to_hash
+      r_hash = to_h
+      days = Array.wrap(r_hash&.dig(:rrules, 0, :validations, :day))
+      days.push(99) if holidays
 
       {
         '@id' => id,
         '@type' => 'OpeningHoursSpecification',
-        'validFrom' => dtstart&.to_s(:only_date),
-        'validThrough' => rule_hash&.dig(:until)&.to_s(:only_date),
-        'opens' => dtstart&.to_s(:only_time),
-        'closes' => dtend&.to_s(:only_time),
-        'dayOfWeek' => Array.wrap(rule_hash&.dig(:validations, :day)&.map { |day| dow(day) }).concat(holidays ? [dow(99)] : []).presence
+        'validFrom' => r_hash[:dtstart]&.in_time_zone&.beginning_of_day&.to_date&.iso8601,
+        'validThrough' => r_hash.dig(:rrules, 0, :until)&.to_datetime&.beginning_of_day&.to_date&.iso8601,
+        'opens' => r_hash.dig(:start_time, :time)&.in_time_zone&.to_s(:only_time),
+        'closes' => r_hash.dig(:end_time, :time)&.in_time_zone&.to_s(:only_time),
+        'dayOfWeek' => days.map { |day| dow(day) }.presence
       }.compact
     end
 
