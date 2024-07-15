@@ -14,7 +14,7 @@ module DataCycleCore
 
         def initialize(data:)
           @data = data
-          @aggregate = @data.deep_dup
+          @aggregate = @data.dc_deep_dup.with_indifferent_access
         end
 
         def add_inverse_aggregate_for_property!(data:)
@@ -34,6 +34,7 @@ module DataCycleCore
           transform_aggregate_header!
           transform_aggregate_features!
           transform_aggregate_properties!
+          transform_override_properties!
           add_aggregate_property!
 
           @aggregate
@@ -71,6 +72,12 @@ module DataCycleCore
           @aggregate[:features] ||= {}
           @aggregate[:features][:overlay] = { allowed: true }
           @aggregate[:features][:aggregate] = { aggregate: true }
+        end
+
+        def transform_override_properties!
+          return if @data.dig(:features, :aggregate, :features).blank?
+
+          @aggregate[:features].deep_merge!(@data.dig(:features, :aggregate, :features))
         end
 
         def transform_aggregate_properties!
@@ -111,8 +118,9 @@ module DataCycleCore
         end
 
         def aggregate_property_definition(key:, prop:)
+          # embedded should use plural for labels
           {
-            label: { key:, key_prefix: 'aggregate_for_override'},
+            label: { key:, key_prefix: 'aggregate_for_override', count: prop['type'] == 'embedded' ? 2 : nil },
             type: 'linked',
             template_name: aggregate_base_template_name,
             visible: ['show', 'edit'],

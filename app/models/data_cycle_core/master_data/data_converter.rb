@@ -67,9 +67,10 @@ module DataCycleCore
         number_format = definition&.dig('validations', 'format')
         case number_format
         when 'integer'
-          return value&.to_i
+          value&.to_i
+        else
+          value&.to_f
         end
-        value&.to_f
       end
 
       def self.geographic_to_string(value)

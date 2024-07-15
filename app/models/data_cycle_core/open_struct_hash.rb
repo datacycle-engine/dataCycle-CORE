@@ -14,6 +14,11 @@ module DataCycleCore
         as_hash = table.stringify_keys.except('parent', 'definition')
         struct_keys = as_hash.select { |_, v| v.is_a? self.class }.map(&:first)
         struct_keys.each { |key| as_hash[key] = as_hash[key].to_h.compact }
+        # transform nested properties to their respective types
+        as_hash.each do |key, value|
+          prop = definition&.dig('properties', key)
+          as_hash[key] = DataCycleCore::MasterData::DataConverter.convert_to_type(prop['type'], value, prop, parent) if prop.present?
+        end
       end
       as_hash.compact
     end

@@ -96,7 +96,8 @@ module DataCycleCore
       def method_missing(name, *args, &)
         original_name = name.to_s
         root_name = name.to_s.delete_suffix('=').delete_suffix("_#{overlay_name}")
-        property_definition = property_definitions.try(:[], root_name)
+        property_definition = properties_for(root_name)
+
         if property_definition && name.to_s.ends_with?('=')
           raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" unless args.size == 1
           set_property_value(name.to_s.delete_suffix('='), property_definition, args.first)
@@ -117,8 +118,13 @@ module DataCycleCore
       end
 
       def respond_to?(method_name, include_all = false)
-        (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym, (item.to_s + "_#{overlay_name}").to_sym] }.flatten +
-          linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
+        root_name = method_name.to_s.delete_suffix('=').delete_suffix("_#{overlay_name}")
+
+        property_names.include?(root_name) || super
+      end
+
+      def property?(property_name)
+        property_definitions.key?(property_name.to_s)
       end
 
       def errors

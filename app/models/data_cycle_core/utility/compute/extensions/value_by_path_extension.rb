@@ -57,7 +57,7 @@ module DataCycleCore
                     else
                       id = data.dig('id') || data.dig('datahash', 'id') || data.dig('translations', I18n.locale.to_s, 'id')
                       item = DataCycleCore::Thing.find_by(id:)
-                      item.respond_to?(key) ? item.attribute_to_h(key) : nil
+                      item&.property?(key) ? item.attribute_to_h(key) : nil
                     end
 
             value = clone_attribute_value(value:, external_key_prefix: external_key_prefix + key_path) if key_path.length <= 1

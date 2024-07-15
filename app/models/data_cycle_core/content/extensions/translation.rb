@@ -70,6 +70,7 @@ module DataCycleCore
             return unless (label_hash = options.dig(:definition, 'label')).is_a?(::Hash)
 
             new_options = options.except(:definition)
+            new_options[:count] = label_hash['count'] if label_hash['count'].present?
 
             label = []
             label << human_property_name(label_hash['key_prefix'], new_options) if label_hash['key_prefix'].present?

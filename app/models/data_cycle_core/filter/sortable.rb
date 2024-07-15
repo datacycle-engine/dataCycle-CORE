@@ -477,7 +477,7 @@ module DataCycleCore
             .joins(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ? LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale', locale]))
             .reorder(nil)
             .order(
-              sanitized_order_string(ActiveRecord::Base.send(:sanitize_sql_for_order, [Arel.sql('ts_rank_cd(searches.search_vector, websearch_to_prefix_tsquery(pg_dict_mappings.dict, ?), 2)'), q]), ordering, true),
+              sanitized_order_string(ActiveRecord::Base.send(:sanitize_sql_for_order, [Arel.sql('ts_rank_cd(searches.search_vector, websearch_to_prefix_tsquery(pg_dict_mappings.dict, ?), 5)'), q]), ordering, true),
               sanitized_order_string('things.updated_at', 'DESC'),
               sanitized_order_string('things.id', 'DESC')
             )
