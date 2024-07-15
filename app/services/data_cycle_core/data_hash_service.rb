@@ -90,7 +90,7 @@ module DataCycleCore
       elsif template.is_a?(::String)
         new_params[:template_name] = template
       end
-      object = DataCycleCore::Thing.new(new_params).require_template!
+      object = DataCycleCore::Thing.new(new_params)
       object_hash = DataCycleCore::DataHashService.flatten_datahash_value(object_params, object.schema)
       object_hash[:translations]&.deep_reject! { |_, v| v.blank? && !v.is_a?(FalseClass) }
       locale = object_hash[:translations]&.keys&.first || I18n.locale

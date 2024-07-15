@@ -170,10 +170,8 @@ module DataCycleCore
 
         def load_template(template_name)
           I18n.with_locale(:de) do
-            DataCycleCore::Thing.new(template_name:).require_template!
+            DataCycleCore::Thing.new(template_name:)
           end
-        rescue ActiveRecord::RecordNotFound
-          raise "Missing template #{template_name}"
         end
 
         def default_classification(value:, tree_label:)

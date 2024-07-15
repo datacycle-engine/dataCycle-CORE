@@ -686,8 +686,13 @@ module DataCycleCore
         thing_template.nil?
       end
 
+      def template_name_missing?
+        template_name.blank?
+      end
+
       def require_template!
-        raise ActiveRecord::RecordNotFound if template_missing?
+        raise ActiveModel::MissingAttributeError, ":thing_template is missing! #{self.class.name} (template: #{template_name})" if template_missing?
+        raise ActiveModel::MissingAttributeError, ":template_name is missing! #{self.class.name} " if template_name_missing?
 
         self
       end
@@ -705,7 +710,7 @@ module DataCycleCore
           self.thing_template ||= DataCycleCore::ThingTemplate.find_by(template_name:)
         end
 
-        raise ActiveModel::MissingAttributeError, ":thing_template or :template_name is required to initialize #{self.class.name}" if template_missing?
+        require_template!
 
         self.boost ||= thing_template.schema&.dig('boost').to_i
         self.content_type ||= thing_template.schema&.dig('content_type')

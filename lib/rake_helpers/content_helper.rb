@@ -10,7 +10,7 @@ class ContentHelper
       ).first
 
       unless content
-        content = DataCycleCore::Thing.new(template_name:).require_template!
+        content = DataCycleCore::Thing.new(template_name:)
 
         content.created_at = Time.zone.now
         content.updated_at = content.created_at
