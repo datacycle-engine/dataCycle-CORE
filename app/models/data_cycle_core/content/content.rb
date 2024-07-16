@@ -694,7 +694,7 @@ module DataCycleCore
         return self unless template_name_missing? || template_missing?
 
         error = if template_name_missing? && template_missing?
-                  ':template_name or :thing_template is required!'
+                  +':template_name or :thing_template is required!' # don't freeze string
                 elsif template_missing?
                   "template '#{template_name}' does not exist!"
                 else
