@@ -1874,9 +1874,11 @@ $filter-border: #aaa;
     align-items: center;
     margin: 0;
     gap: 0.5rem;
+    overflow: hidden;
 
     li {
       margin: 0;
+      min-width: 1px;
 
       &:last-child {
         margin-right: 0;
