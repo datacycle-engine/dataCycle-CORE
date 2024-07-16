@@ -27,6 +27,14 @@ module DataCycleCore
       assert_empty(template_importer.duplicates)
     end
 
+    test 'gives error for non existing templates in template_name definition' do
+      template_importer = subject.new(template_paths: [import_path_missing_template])
+      errors = template_importer.validate
+
+      assert_equal(1, errors.count)
+      assert_equal("creative_works.MissingTemplateDummy1.properties.linked_entity.template_name => template for 'NonExistingTemplate' missing!", errors.first)
+    end
+
     test 'gives appropriate list for test_folder' do
       template_importer = subject.new(template_paths: [import_path])
 
@@ -442,6 +450,10 @@ module DataCycleCore
 
     def import_path_overlay3
       Rails.root.join('..', 'data_types', 'master_data', 'overlay_set_3')
+    end
+
+    def import_path_missing_template
+      Rails.root.join('..', 'data_types', 'master_data', 'missing_template_set')
     end
 
     def non_existent_path

@@ -10,9 +10,11 @@ describe DataCycleCore::Schema::Template do
 
   describe 'for simple properties' do
     subject do
-      DataCycleCore::Schema::Template.load_template(
-        File.expand_path('../../data_types/simple_valid_templates/AllSimplePropertyTypes.yml', __dir__)
+      template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
+        template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
       )
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'All Simple Property Types' }
+      DataCycleCore::Schema::Template.new(template[:data].as_json)
     end
 
     it 'should exclude properties which are disabled for api' do
@@ -55,9 +57,11 @@ describe DataCycleCore::Schema::Template do
 
   describe 'for simple embedded container' do
     subject do
-      DataCycleCore::Schema.load_schema(
-        File.expand_path('../../data_types/simple_valid_templates/SimpleEmbeddedContainer.yml', __dir__)
-      ).template_by_schema_name('Thing_ActingAsEmbeddedContainer')
+      template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
+        template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
+      )
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Simple Embedded Container' }
+      DataCycleCore::Schema.new([DataCycleCore::Schema::Template.new(template[:data].as_json)]).template_by_schema_name('Thing_ActingAsEmbeddedContainer')
     end
 
     it 'should contain correct property definition for "embedded"' do
@@ -70,9 +74,11 @@ describe DataCycleCore::Schema::Template do
 
   describe 'for simple linked entites' do
     subject do
-      DataCycleCore::Schema.load_schema(
-        File.expand_path('../../data_types/simple_valid_templates/SimpleLinkedEntities.yml', __dir__)
-      ).template_by_schema_name('Thing_SimpleEntityLinkedOne')
+      template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
+        template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
+      )
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Simple Linked Entity One' }
+      DataCycleCore::Schema.new([DataCycleCore::Schema::Template.new(template[:data].as_json)]).template_by_schema_name('Thing_SimpleEntityLinkedOne')
     end
 
     it 'should contain correct property definition for linked properties based on templates' do
@@ -92,9 +98,11 @@ describe DataCycleCore::Schema::Template do
 
   describe 'for simple embedded object' do
     subject do
-      DataCycleCore::Schema.load_schema(
-        File.expand_path('../../data_types/simple_valid_templates/EntityWithNestedObject.yml', __dir__)
-      ).template_by_schema_name('Thing_Container')
+      template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
+        template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
+      )
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Container' }
+      DataCycleCore::Schema.new([DataCycleCore::Schema::Template.new(template[:data].as_json)]).template_by_schema_name('Thing_Container')
     end
 
     it 'should expand nested properties' do

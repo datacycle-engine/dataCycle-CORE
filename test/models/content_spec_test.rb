@@ -28,7 +28,7 @@ module SharedExamplesForContent
       subject do
         convert_storage_location = { 'value' => 'metadata', 'translated_value' => 'content' }
         DataCycleCore::Thing.new(
-          thing_template: DataCycleCore::ThingTemplate.new(schema: data_definition),
+          thing_template: DataCycleCore::ThingTemplate.new(template_name: 'dummy-template-1', schema: data_definition),
           convert_storage_location[storage_location] => { 'existing_property' => property_value }
         )
       end
@@ -56,7 +56,7 @@ module SharedExamplesForContent
       }
 
       subject do
-        DataCycleCore::Thing.new(thing_template: DataCycleCore::ThingTemplate.new(schema: data_definition))
+        DataCycleCore::Thing.new(thing_template: DataCycleCore::ThingTemplate.new(template_name: 'dummy-template-1', schema: data_definition))
       end
 
       it 'provides names of plain properties' do
@@ -77,34 +77,37 @@ describe DataCycleCore::Content do
   describe 'with translatable and untranslatable properties' do
     subject do
       DataCycleCore::Thing.new(
-        thing_template: DataCycleCore::ThingTemplate.new(schema: {
-          properties: {
-            id: {
-              label: 'id',
-              type: 'key'
-            },
-            name: {
-              label: 'name',
-              type: 'string',
-              storage_location: 'translated_value'
-            },
-            '1' => {
-              label: '1',
-              type: 'string',
-              storage_location: 'value'
-            },
-            '2' => {
-              label: '2',
-              type: 'string',
-              storage_location: 'value'
-            },
-            '3' => {
-              label: '3',
-              type: 'string',
-              storage_location: 'translated_value'
+        thing_template: DataCycleCore::ThingTemplate.new(
+          template_name: 'dummy-template-1',
+          schema: {
+            properties: {
+              id: {
+                label: 'id',
+                type: 'key'
+              },
+              name: {
+                label: 'name',
+                type: 'string',
+                storage_location: 'translated_value'
+              },
+              '1' => {
+                label: '1',
+                type: 'string',
+                storage_location: 'value'
+              },
+              '2' => {
+                label: '2',
+                type: 'string',
+                storage_location: 'value'
+              },
+              '3' => {
+                label: '3',
+                type: 'string',
+                storage_location: 'translated_value'
+              }
             }
           }
-        })
+        )
       )
     end
 
@@ -158,26 +161,29 @@ describe DataCycleCore::Content do
   describe 'with linked properties' do
     subject do
       DataCycleCore::Thing.new(
-        thing_template: DataCycleCore::ThingTemplate.new(schema: {
-          properties: {
-            id: {
-              label: 'id',
-              type: 'key'
+        thing_template: DataCycleCore::ThingTemplate.new(
+          template_name: 'dummy-template-1',
+          schema: {
+            properties: {
+              id: {
+                label: 'id',
+                type: 'key'
+              },
+              existing_locations: {
+                label: 'Location',
+                type: 'linked'
+              },
+              existing_main_location: {
+                label: 'Main Location',
+                type: 'linked'
+              }
             },
-            existing_locations: {
-              label: 'Location',
-              type: 'linked'
-            },
-            existing_main_location: {
-              label: 'Main Location',
-              type: 'linked'
+            metadata: {
+              existing_locations: [1, 2, 3],
+              existing_main_location: 1
             }
-          },
-          metadata: {
-            existing_locations: [1, 2, 3],
-            existing_main_location: 1
           }
-        })
+        )
       )
     end
 
@@ -206,22 +212,25 @@ describe DataCycleCore::Content do
   describe 'with embedded properties' do
     subject do
       DataCycleCore::Thing.new(
-        thing_template: DataCycleCore::ThingTemplate.new(schema: {
-          properties: {
-            id: {
-              label: 'id',
-              type: 'key'
-            },
-            existing_locations: {
-              label: 'Location',
-              type: 'embedded'
-            },
-            nested_creative_works: {
-              label: 'Nested Data',
-              type: 'embedded'
+        thing_template: DataCycleCore::ThingTemplate.new(
+          template_name: 'dummy-template-1',
+          schema: {
+            properties: {
+              id: {
+                label: 'id',
+                type: 'key'
+              },
+              existing_locations: {
+                label: 'Location',
+                type: 'embedded'
+              },
+              nested_creative_works: {
+                label: 'Nested Data',
+                type: 'embedded'
+              }
             }
           }
-        })
+        )
       )
     end
 
@@ -233,36 +242,39 @@ describe DataCycleCore::Content do
   describe 'with included properties' do
     subject do
       DataCycleCore::Thing.new(
-        thing_template: DataCycleCore::ThingTemplate.new(schema: {
-          properties: {
-            id: {
-              label: 'id',
-              type: 'key'
-            },
-            description: {
-              label: 'description',
-              type: 'string',
-              storage_location: 'translated_value'
-            },
-            included_object: {
-              label: 'Nested Data',
-              type: 'object',
-              storage_location: 'value',
-              properties: {
-                property1: {
-                  label: 'property_name a',
-                  type: 'string',
-                  storage_location: 'value'
-                },
-                property2: {
-                  label: 'property_name b',
-                  type: 'string',
-                  storage_location: 'value'
+        thing_template: DataCycleCore::ThingTemplate.new(
+          template_name: 'dummy-template-1',
+          schema: {
+            properties: {
+              id: {
+                label: 'id',
+                type: 'key'
+              },
+              description: {
+                label: 'description',
+                type: 'string',
+                storage_location: 'translated_value'
+              },
+              included_object: {
+                label: 'Nested Data',
+                type: 'object',
+                storage_location: 'value',
+                properties: {
+                  property1: {
+                    label: 'property_name a',
+                    type: 'string',
+                    storage_location: 'value'
+                  },
+                  property2: {
+                    label: 'property_name b',
+                    type: 'string',
+                    storage_location: 'value'
+                  }
                 }
               }
             }
           }
-        }),
+        ),
         metadata: {
           'included_object' => {
             'property1' => 'data property1',
@@ -316,56 +328,59 @@ describe DataCycleCore::Content do
   describe 'with included properties, two ranks deep' do
     subject do
       DataCycleCore::Thing.new(
-        thing_template: DataCycleCore::ThingTemplate.new(schema: {
-          properties: {
-            id: {
-              label: 'id',
-              type: 'key'
-            },
-            description: {
-              label: 'description',
-              type: 'string',
-              storage_location: 'translated_value'
-            },
-            included_object: {
-              label: 'Nested Data',
-              type: 'object',
-              storage_location: 'value',
-              properties: {
-                property1: {
-                  label: 'property_name a',
-                  type: 'string',
-                  storage_location: 'value'
-                },
-                property2: {
-                  label: 'property_name b',
-                  type: 'string',
-                  storage_location: 'value'
-                },
-                deep_included_object: {
-                  label: 'Nested Data',
-                  type: 'object',
-                  storage_location: 'value',
-                  properties: {
-                    property_deep1: {
-                      label: 'deep_property_name a',
-                      type: 'string',
-                      storage_location: 'value'
-                    },
-                    property_deep2: {
-                      label: 'deep_property_name b',
-                      type: 'string',
-                      storage_location: 'value'
-                    },
-                    deeper_object: {
-                      label: 'deeper Data',
-                      type: 'object',
-                      storage_location: 'value',
-                      properties: {
-                        property_deeper: {
-                          label: 'deeper_property_name ',
-                          type: 'string',
-                          storage_location: 'value'
+        thing_template: DataCycleCore::ThingTemplate.new(
+          template_name: 'dummy-template-1',
+          schema: {
+            properties: {
+              id: {
+                label: 'id',
+                type: 'key'
+              },
+              description: {
+                label: 'description',
+                type: 'string',
+                storage_location: 'translated_value'
+              },
+              included_object: {
+                label: 'Nested Data',
+                type: 'object',
+                storage_location: 'value',
+                properties: {
+                  property1: {
+                    label: 'property_name a',
+                    type: 'string',
+                    storage_location: 'value'
+                  },
+                  property2: {
+                    label: 'property_name b',
+                    type: 'string',
+                    storage_location: 'value'
+                  },
+                  deep_included_object: {
+                    label: 'Nested Data',
+                    type: 'object',
+                    storage_location: 'value',
+                    properties: {
+                      property_deep1: {
+                        label: 'deep_property_name a',
+                        type: 'string',
+                        storage_location: 'value'
+                      },
+                      property_deep2: {
+                        label: 'deep_property_name b',
+                        type: 'string',
+                        storage_location: 'value'
+                      },
+                      deeper_object: {
+                        label: 'deeper Data',
+                        type: 'object',
+                        storage_location: 'value',
+                        properties: {
+                          property_deeper: {
+                            label: 'deeper_property_name ',
+                            type: 'string',
+                            storage_location: 'value'
+                          }
                         }
                       }
                     }
@@ -374,7 +389,7 @@ describe DataCycleCore::Content do
               }
             }
           }
-        }),
+        ),
         metadata: {
           'included_object' => {
             'property1' => 'data property1',
@@ -459,36 +474,39 @@ describe DataCycleCore::Content do
   describe 'with included properties, different types' do
     subject do
       DataCycleCore::Thing.new(
-        thing_template: DataCycleCore::ThingTemplate.new(schema: {
-          properties: {
-            id: {
-              label: 'id',
-              type: 'key'
-            },
-            description: {
-              label: 'description',
-              type: 'string',
-              storage_location: 'translated_value'
-            },
-            included_object: {
-              label: 'Nested Data',
-              type: 'object',
-              storage_location: 'value',
-              properties: {
-                property1: {
-                  label: 'property_name a',
-                  type: 'string',
-                  storage_location: 'value'
-                },
-                property2: {
-                  label: 'property_name b',
-                  type: 'string',
-                  storage_location: 'value'
+        thing_template: DataCycleCore::ThingTemplate.new(
+          template_name: 'dummy-template-1',
+          schema: {
+            properties: {
+              id: {
+                label: 'id',
+                type: 'key'
+              },
+              description: {
+                label: 'description',
+                type: 'string',
+                storage_location: 'translated_value'
+              },
+              included_object: {
+                label: 'Nested Data',
+                type: 'object',
+                storage_location: 'value',
+                properties: {
+                  property1: {
+                    label: 'property_name a',
+                    type: 'string',
+                    storage_location: 'value'
+                  },
+                  property2: {
+                    label: 'property_name b',
+                    type: 'string',
+                    storage_location: 'value'
+                  }
                 }
               }
             }
           }
-        }),
+        ),
         metadata: {
           'included_object' => {
             'property1' => 'data property1',

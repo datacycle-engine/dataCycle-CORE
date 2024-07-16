@@ -23,6 +23,9 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
   describe 'loaded template_data' do
     let(:data_template) do
       {
+        name: 'App',
+        set: 'creative_works',
+        path: '',
         data: {
           name: 'App',
           type: 'object',
@@ -261,6 +264,95 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
       }
     end
 
+    let(:video) do
+      {
+        name: 'Video',
+        set: 'media_objects',
+        path: '',
+        data: {
+          name: 'Video',
+          type: 'object',
+          content_type: 'entity',
+          schema_type: 'MediaObject',
+          boost: 10.0,
+          properties: {
+            id: {
+              label: 'id',
+              type: 'key'
+            }
+          }
+        }
+      }
+    end
+
+    let(:bild) do
+      {
+        name: 'Bild',
+        set: 'media_objects',
+        path: '',
+        data: {
+          name: 'Bild',
+          type: 'object',
+          content_type: 'entity',
+          schema_type: 'MediaObject',
+          boost: 10.0,
+          properties: {
+            id: {
+              label: 'id',
+              type: 'key'
+            }
+          }
+        }
+      }
+    end
+
+    let(:mobile_application) do
+      {
+        name: 'MobileApplication',
+        set: 'media_objects',
+        path: '',
+        data: {
+          name: 'MobileApplication',
+          type: 'object',
+          content_type: 'entity',
+          schema_type: 'MediaObject',
+          boost: 10.0,
+          properties: {
+            id: {
+              label: 'id',
+              type: 'key'
+            },
+            name: {
+              label: 'Name',
+              type: 'string',
+              storage_location: 'translated_value'
+            }
+          }
+        }
+      }
+    end
+
+    let(:person) do
+      {
+        name: 'Person',
+        set: 'media_objects',
+        path: '',
+        data: {
+          name: 'Person',
+          type: 'object',
+          content_type: 'entity',
+          schema_type: 'MediaObject',
+          boost: 10.0,
+          properties: {
+            id: {
+              label: 'id',
+              type: 'key'
+            }
+          }
+        }
+      }
+    end
+
     let(:header_hash) do
       {
         data: {
@@ -272,70 +364,14 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
       }
     end
 
-    let(:simple_property_hash) do
-      {
-        label: 'whatever',
-        type: 'string',
-        storage_location: 'translated_value',
-        template_name: 'another_template'
-      }
-    end
-
-    let(:classification_relation_hash) do
-      {
-        label: 'whatever',
-        type: 'classification',
-        tree_label: 'Inhaltspools',
-        default_value: 'Aktuelle Inhalte'
-      }
-    end
-
-    let(:embedded_object_hash) do
-      {
-        label: 'whatever',
-        type: 'embedded',
-        template_name: 'MobileApplication'
-      }
-    end
-
-    let(:included_object_hash) do
-      {
-        label: 'whatever',
-        type: 'object',
-        storage_location: 'translated_value',
-        properties: {
-          propertyA: {
-            label: 'label Property A',
-            type: 'string',
-            storage_location: 'translated_value'
-          },
-          propertyB: {
-            label: 'label Property B',
-            type: 'string',
-            storage_location: 'translated_value'
-          }
-        }
-      }
-    end
-
-    let(:computed_value_hash) do
-      {
-        label: 'whatever',
-        type: 'number',
-        storage_location: 'value',
-        compute: {
-          module: 'Utility::Compute::Math',
-          method: 'sum',
-          parameters: [
-            'label Property B',
-            'string'
-          ]
-        }
-      }
-    end
-
     it 'check a complex data_template' do
-      validator = subject.new(templates: { creative_works: [data_template] }.with_indifferent_access)
+      validator = subject.new(templates: { creative_works: [
+        data_template,
+        video,
+        bild,
+        mobile_application,
+        person
+      ] }.with_indifferent_access)
       errors = validator.validate
       assert_equal [], errors
     end
@@ -345,141 +381,5 @@ describe DataCycleCore::MasterData::Templates::TemplateValidator do
       test_hash[:data][:name] = nil
       assert_not validate_header.call(test_hash).success?
     end
-
-    # it 'checks for presence of name attribute in header' do
-    #   test_hash = {}
-    #   test_hash[:data] = header_hash[:data].except(:name)
-    #   assert_not validate_header.call(test_hash).success?
-    # end
-
-    # it 'checks for valid value of type in header' do
-    #   test_hash = header_hash
-    #   test_hash[:data][:type] = nil
-    #   assert_not validate_header.call(test_hash).success?
-    # end
-
-    # it 'checks for wrong string value of type in header' do
-    #   test_hash = header_hash
-    #   test_hash[:data][:type] = 'string'
-    #   assert_not validate_header.call(test_hash).success?
-    # end
-
-    # it 'checks for presence of type attribute in header' do
-    #   test_hash = {}
-    #   test_hash[:data] = header_hash[:data].except(:type)
-    #   assert_not validate_header.call(test_hash).success?
-    # end
-
-    # it 'checks properties for label is a string' do
-    #   test_hash = simple_property_hash
-    #   test_hash[:label] = nil
-    #   assert_not validate_property.call(test_hash).success?
-    # end
-
-    # it 'checks properties for presence of type' do
-    #   test_hash = simple_property_hash.except(:type)
-    #   assert_not validate_property.call(test_hash).success?
-    # end
-
-    # it 'checks properties for type is a string' do
-    #   test_hash = simple_property_hash
-    #   test_hash[:type] = nil
-    #   assert_not validate_property.call(test_hash).success?
-    # end
-
-    # it 'checks properties for type is a wrong string' do
-    #   test_hash = simple_property_hash
-    #   test_hash[:type] = 'long'
-    #   assert_not validate_property.call(test_hash).success?
-    # end
-
-    # it 'checks properties for valid types' do
-    #   test_hash = simple_property_hash
-    #   available_types = ['key', 'string', 'text', 'number', 'boolean', 'datetime', 'geographic', 'embedded', 'linked']
-    #   available_types.each do |type_name|
-    #     test_hash[:type] = type_name
-    #     assert validate_property.call(test_hash).success?
-    #   end
-    # end
-
-    # it 'checks properties for type object' do
-    #   test_hash = simple_property_hash
-    #   test_hash[:type] = 'object'
-    #   test_hash[:storage_location] = 'value'
-    #   test_hash[:properties] = { id: { label: 'id', type: 'key' } }
-    #   assert validate_property.call(test_hash).success?
-    # end
-
-    # it 'checks properties for storage_location is a string' do
-    #   test_hash = simple_property_hash
-    #   test_hash[:storage_location] = nil
-    #   assert_not validate_property.call(test_hash).success?
-    # end
-
-    # it 'checks properties for storage_location is a wrong string' do
-    #   test_hash = simple_property_hash
-    #   test_hash[:storage_location] = 'long'
-    #   assert_not validate_property.call(test_hash).success?
-    # end
-
-    # it 'checks properties for valid storage_location' do
-    #   test_hash = simple_property_hash
-    #   available_storage_locations = ['column', 'value', 'translated_value']
-    #   available_storage_locations.each do |storage_location|
-    #     test_hash[:storage_location] = storage_location
-    #     assert validate_property.call(test_hash).success?
-    #   end
-    # end
-
-    # it 'checks correct classification_relation' do
-    #   test_hash = classification_relation_hash
-    #   assert validate_property.call(test_hash).success?
-    # end
-
-    # it 'checks classification_relation works without default_value' do
-    #   test_hash = classification_relation_hash.except(:default_value)
-    #   assert validate_property.call(test_hash).success?
-    # end
-
-    # it 'checks correct embedded_object_hash' do
-    #   test_hash = embedded_object_hash
-    #   assert validate_property.call(test_hash).success?
-    # end
-
-    # it 'checks included_object_hash correctly' do
-    #   test_hash = included_object_hash
-    #   assert validate_property.call(test_hash).success?
-    # end
-
-    # it 'checks included_object_hash for wrong type' do
-    #   test_hash = included_object_hash
-    #   test_hash[:type] = 'string'
-    #   assert_not validate_property.call(test_hash).success?
-    # end
-
-    # it 'checks included_object_hash for wrong storage_locations' do
-    #   test_hash = included_object_hash
-    #   (['key', 'column', 'classification_relation'] + ['things']).each do |location|
-    #     test_hash[:storage_location] = location
-    #     assert_not validate_property.call(test_hash).success?
-    #   end
-    # end
-
-    # it 'checks computed value definition' do
-    #   test_hash = computed_value_hash
-    #   assert validate_property.call(test_hash).success?
-    # end
-
-    # it 'checks computed value definition for non existing module' do
-    #   test_hash = computed_value_hash
-    #   test_hash[:compute][:module] = 'WhatEver'
-    #   assert_not validate_property.call(test_hash).success?
-    # end
-
-    # it 'checks computed value definition for non existing method' do
-    #   test_hash = computed_value_hash
-    #   test_hash[:compute][:method] = 'WhatEver'
-    #   assert_not validate_property.call(test_hash).success?
-    # end
   end
 end

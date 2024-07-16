@@ -18,13 +18,3 @@
         :type: linked
         :stored_filter:
           - :not_existing_filter:
-- :data:
-    :name: Simple Linked Entity Two
-    :type: object
-    :content_type: entity
-    :schema_ancestors:
-      - Thing_SimpleEntityLinkedTwo
-    :properties:
-      :id:
-        :label: id
-        :type: key

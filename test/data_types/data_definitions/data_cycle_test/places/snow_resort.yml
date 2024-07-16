@@ -59,7 +59,7 @@
         :type: linked
         :inverse_of: about
         :link_direction: inverse
-        :template_name: Skigebiets-Beschreibung
+        :template_name: Strukturierter Artikel
       :description:
         :label: Beschreibung
         :type: string
@@ -260,17 +260,6 @@
         :template_name: Skigebiet - Addon
         :api:
           :name: amenityFeature
-      :amenity_feature:
-        :label: Zusatzangebot
-        :type: linked
-        :template_name: Zusatzangebot
-        :api:
-          :disabled: true
-          :v4:
-            :disabled: false
-            :transformation:
-              :method: append
-              :name: amenityFeature
       :postal_address:
         :type: mixin
         :name: postal_address

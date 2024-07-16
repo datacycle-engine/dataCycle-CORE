@@ -9,8 +9,20 @@ describe DataCycleCore::Schema do
   include DataCycleCore::MinitestSpecHelper
 
   subject do
-    DataCycleCore::Schema.load_schema(
-      File.expand_path('../../data_types/simple_valid_templates/RandomContainersAndEntites.yml', __dir__)
+    template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
+      template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
+    )
+    cw = template_importer.templates.dig(:creative_works)
+    DataCycleCore::Schema.new(
+      [
+        DataCycleCore::Schema::Template.new(cw.find { |t| t[:name] == 'Container One' }[:data].as_json),
+        DataCycleCore::Schema::Template.new(cw.find { |t| t[:name] == 'Container Two' }[:data].as_json),
+        DataCycleCore::Schema::Template.new(cw.find { |t| t[:name] == 'Container Three' }[:data].as_json),
+        DataCycleCore::Schema::Template.new(cw.find { |t| t[:name] == 'Entity One' }[:data].as_json),
+        DataCycleCore::Schema::Template.new(cw.find { |t| t[:name] == 'Entity Two' }[:data].as_json),
+        DataCycleCore::Schema::Template.new(cw.find { |t| t[:name] == 'Entity Three' }[:data].as_json),
+        DataCycleCore::Schema::Template.new(cw.find { |t| t[:name] == 'Entity Four' }[:data].as_json)
+      ]
     )
   end
 

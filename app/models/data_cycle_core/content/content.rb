@@ -691,10 +691,17 @@ module DataCycleCore
       end
 
       def require_template!
-        raise ActiveModel::MissingAttributeError, ":thing_template is missing! #{self.class.name} (template: #{template_name})" if template_missing?
-        raise ActiveModel::MissingAttributeError, ":template_name is missing! #{self.class.name} " if template_name_missing?
+        return self unless template_name_missing? || template_missing?
 
-        self
+        error = if template_name_missing? && template_missing?
+                  ':template_name or :thing_template is required!'
+                elsif template_missing?
+                  "template '#{template_name}' does not exist!"
+                else
+                  "template_name is missing for template: #{thing_template.to_json}!"
+                end
+
+        raise ActiveModel::MissingAttributeError, error
       end
 
       def thing_template?
