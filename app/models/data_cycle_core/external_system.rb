@@ -124,6 +124,42 @@ module DataCycleCore
       @default_options[type.to_s]
     end
 
+    def handle_download_error_notification(last_exception = nil)
+      handle_error_notification('download', last_exception)
+    end
+
+    def handle_import_error_notification(last_exception = nil)
+      handle_error_notification('import', last_exception)
+    end
+
+    def handle_error_notification(failed_function = nil, last_exception = nil)
+      return if failed_function.nil?
+
+      options = default_options
+      last_success = failed_function == 'download' ? last_successful_download : last_successful_import
+
+      return if options.blank? || options.nil? || last_success.blank? || last_success.nil? || failed_function.nil? || failed_function.blank?
+
+      return if options['error_notification'].blank?
+
+      grace_period_raw = options['error_notification']['grace_period'].split('.')
+      grace_period = grace_period_raw[0].to_i.send(grace_period_raw[1])
+      end_of_grace_period = last_success + grace_period
+      now = Time.zone.now
+
+      grace_period_exceeded = now > end_of_grace_period
+
+      return unless grace_period_exceeded
+
+      ActiveSupport::Notifications.instrument "#{failed_function}_failed_repeatedly.datacycle", {
+        exception: "The #{failed_function} for external system '#{name}' (#{identifier} - #{id}) has been repeatedly failing for more than #{grace_period.inspect}. Last successful #{failed_function}: #{last_success}. #{last_exception.present? ? "The last exception was: #{last_exception}" : ''}",
+        namespace: "repeated_failure_#{failed_function}",
+        mailing_list: options['error_notification']['emails'],
+        trigger: failed_function,
+        external_source_info: {name:}
+      }
+    end
+
     def refresh(options = {})
       raise "Missing refresh_strategy for #{name}, options given: #{options}" if refresh_config.dig(:strategy).blank?
       utility_object = DataCycleCore::Export::RefreshObject.new(external_system: self)

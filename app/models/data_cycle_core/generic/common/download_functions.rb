@@ -83,6 +83,8 @@ module DataCycleCore
                                      }
                                    end
                 }
+                download_object.external_source.handle_download_error_notification(e)
+
                 logging.error(nil, nil, nil, e) unless is_instrumentation_log
               end
             end
@@ -224,6 +226,8 @@ module DataCycleCore
                                        }
                                      end
                   }
+
+                  download_object.external_source.handle_download_error_notification(e)
 
                   logging.error(nil, nil, nil, e) unless is_instrumentation_log
                   success = false
@@ -378,6 +382,8 @@ module DataCycleCore
                                      end
                   }
 
+                  download_object.external_source.handle_download_error_notification(e)
+
                   logging.error(nil, nil, nil, e) unless is_instrumentation_log
                   success = false
                 ensure
@@ -467,6 +473,8 @@ module DataCycleCore
                                          end
                       }
 
+                      download_object.external_source.handle_download_error_notification(e)
+
                       logging.error(item_name, item_id, item_data, e) unless is_instrumentation_log
                       success = false
                     end
@@ -499,6 +507,8 @@ module DataCycleCore
                                    end
 
                 }
+
+                download_object.external_source.handle_download_error_notification(e)
 
                 logging.error(nil, nil, nil, e) unless is_instrumentation_log
                 success = false
@@ -593,6 +603,8 @@ module DataCycleCore
 
                       }
 
+                      download_object.external_source.handle_download_error_notification(e)
+
                       logging.error(item_name, item_id, item_data, e) unless is_instrumentation_log
                       success = false
                     end
@@ -623,6 +635,8 @@ module DataCycleCore
                                      }
                                    end
                 }
+
+                download_object.external_source.handle_download_error_notification(e)
 
                 logging.error(nil, nil, nil, e) unless is_instrumentation_log
                 success = false

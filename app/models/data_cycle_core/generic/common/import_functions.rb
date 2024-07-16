@@ -108,6 +108,7 @@ module DataCycleCore
                           e.backtrace.each do |line|
                             logging.info("E: #{line}")
                           end
+                          utility_object.external_source.handle_import_error_notification(e)
                           raise e.exception
                         ensure
                           Marshal.dump({ count: item_count, timestamp: Time.current, last_err: last_err&.message}, write)
@@ -117,6 +118,7 @@ module DataCycleCore
                         result = read.read
                         Process.waitpid(pid)
                         read.close
+
                         if result.size.positive?
                           data = Marshal.load(result) # rubocop:disable Security/MarshalLoad
                           item_count = data[:count]
@@ -124,7 +126,12 @@ module DataCycleCore
                           last_err = data[:last_err]
                           logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)} ")
                         end
-                        raise DataCycleCore::Generic::Common::Error::ImporterError, "error importing data from #{utility_object.external_source.name} #{importer_name}, #{item_count.to_s.rjust(7)}/#{total} #{last_err.present? ? '| Last Error: ' + last_err.to_s : ''}" if $CHILD_STATUS.exitstatus&.positive? || $CHILD_STATUS.exitstatus.blank?
+
+                        if $CHILD_STATUS.exitstatus&.positive? || $CHILD_STATUS.exitstatus.blank?
+                          error_msg = "error importing data from #{utility_object.external_source.name} #{importer_name}, #{item_count.to_s.rjust(7)}/#{total} #{last_err.present? ? '| Last Error: ' + last_err.to_s : ''}"
+                          utility_object.external_source.handle_import_error_notification(error_msg)
+                          raise DataCycleCore::Generic::Common::Error::ImporterError, error_msg
+                        end
                       end
                     end
                   end
