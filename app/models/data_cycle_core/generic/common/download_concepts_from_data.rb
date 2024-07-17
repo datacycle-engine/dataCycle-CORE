@@ -21,7 +21,7 @@ module DataCycleCore
           concept_name = options.dig(:download, :concept_name_path)
           concept_id = options.dig(:download, :concept_id_path) || concept_name
 
-          concept_path = options.dig(:download, :concept_path)
+          concept_path = options.dig(:download, :concept_path) || ''
           concept_id_path = [concept_path, concept_id].compact_blank.join('.')
           concept_name_path = [concept_path, concept_name].compact_blank.join('.')
 
