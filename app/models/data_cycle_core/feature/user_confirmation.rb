@@ -3,8 +3,10 @@
 module DataCycleCore
   module Feature
     class UserConfirmation < Base
-      def enabled?
-        super || UserRegistration.enabled?
+      class << self
+        def enabled?
+          super || UserRegistration.enabled?
+        end
       end
     end
   end
