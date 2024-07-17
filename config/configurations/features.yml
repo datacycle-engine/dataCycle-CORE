@@ -399,6 +399,9 @@
   :enabled: true
   :only_config: true
 
+:user_confirmation:
+  :enabled: false
+
 :user_registration:
   :enabled: false
   # :terms_condition_url:
