@@ -86,7 +86,7 @@
       </div>
 
       <div class="edit">
-        <% if DataCycleCore::Feature::UserRegistration.enabled? && !@user.confirmed? && can?(:confirm, @user) %>
+        <% if DataCycleCore::Feature::UserConfirmation.enabled? && !@user.confirmed? && can?(:confirm, @user) %>
           <%= link_to tag.i(class: 'fa fa-check confirm-link-button', aria_hidden: true, data: { dc_tooltip: t("user.confirm", locale: active_ui_locale) }), confirm_user_path(@user), { method: :post, class: 'button-prime small confirm-link' } %>
         <% end %>
 
