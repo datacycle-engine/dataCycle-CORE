@@ -35,7 +35,7 @@ module DataCycleCore
             if pdf&.file&.attached?
               begin
                 ActiveStorage::Current.set(host: Rails.application.config.asset_host) do
-                  preview_url = pdf.file.preview(resize_to_limit: [1920, 1080]).processed.url
+                  preview_url = pdf.file.preview({}).processed.url
                 end
               rescue ActiveStorage::FileNotFoundError
                 # @todo: add some logging

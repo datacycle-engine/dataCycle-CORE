@@ -608,3 +608,6 @@
 
 :aggregate:
   :enabled: false
+
+:custom_asset_previewer:
+  :enabled: false
