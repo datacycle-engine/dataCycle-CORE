@@ -40,7 +40,7 @@
 
       <span class="flex-auto"></span>
 
-      <% if DataCycleCore::Feature::UserRegistration.enabled? && !item.confirmed? %>
+      <% if DataCycleCore::Feature::UserConfirmation.enabled? && !item.confirmed? %>
         <%= link_to_if can?(:confirm, item), tag.span(tag.i(class: 'fa fa-check', aria_hidden: true), class: 'confirm-link-button', data: { dc_tooltip: t("user.#{can?(:confirm, item) ? 'confirm' : 'user_not_confirmed'}", locale: active_ui_locale) }), confirm_user_path(item), { method: :post, class: 'confirm-link' } %>
       <% end %>
 

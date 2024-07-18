@@ -139,5 +139,17 @@ namespace :dc do
         end
       end
     end
+
+    desc 'update computed attributes for new custom previewer config'
+    task :computed_for_previewer, [:template_names, :webhooks] => [:environment] do |_, args|
+      abort('DataCycleCore::Feature::CustomAssetPreviewer: Feature is disabled!') unless DataCycleCore::Feature::CustomAssetPreviewer.enabled?
+
+      webhooks = args.webhooks.to_s != 'false'
+      template_names = args.template_names.to_s.then { |t| t.present? ? t.split('|') : nil }
+
+      DataCycleCore::Feature::CustomAssetPreviewer.update_computed_for_templates(template_names:, webhooks:)
+
+      puts "[DONE] Updated computed previewer attributes for templates: #{template_names&.join(', ') || 'all'}"
+    end
   end
 end

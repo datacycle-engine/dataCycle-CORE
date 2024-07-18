@@ -1819,6 +1819,9 @@ de:
     hrs:
       text: Beschreibung
       description: Kurzbeschreibung
+    regiondo:
+      text: Beschreibung
+      description: Kurzbeschreibung
     outdoor_active:
       place:
         directions: Anfahrt

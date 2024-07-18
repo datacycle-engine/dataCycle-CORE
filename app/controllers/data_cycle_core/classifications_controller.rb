@@ -76,7 +76,7 @@ module DataCycleCore
               .count
           end
 
-          @classification_trees = @classification_trees.order('classification_aliases.order_a ASC')
+          @classification_trees = @classification_trees.order('"classification_aliases"."order_a" ASC')
 
           render json: { html: render_to_string(formats: [:html], layout: false, action: 'children').strip }
         end

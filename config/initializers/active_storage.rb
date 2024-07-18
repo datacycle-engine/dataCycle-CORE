@@ -7,8 +7,10 @@ Rails.application.reloader.to_prepare do
       ActiveStorage::Previewer::MuPDFPreviewer,
       DataCycleCore::Storage::Previewer::VideoPreviewer
     ]
+
     ActiveStorage::Blobs::ProxyController.include DataCycleCore::ErrorHandler
     ActiveStorage::Blobs::ProxyController.prepend DataCycleCore::ActiveStorageProxyControllerExtension
+    ActiveStorage::Previewer::MuPDFPreviewer.prepend DataCycleCore::ActiveStorageMuPreviewerExtension
   end
 end
 

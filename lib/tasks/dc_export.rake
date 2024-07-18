@@ -31,7 +31,7 @@ namespace :dc do
 
       query = filter.apply(watch_list:)
       query = query.watch_list_id(watch_list.id) unless watch_list.nil?
-      contents = query.query.page(1).per(query.query.size).where(id: 'a5485f8f-2ff5-4f27-b768-1f9f1f91b795')
+      contents = query.query.page(1).per(query.query.size)
 
       logger = Logger.new("log/dc_export_#{endpoint.id}_jsonld.log")
 
@@ -77,8 +77,7 @@ namespace :dc do
       }.to_json
 
       size = contents.total_count
-      # queue = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
-      queue = DataCycleCore::WorkerPool.new(1)
+      queue = DataCycleCore::WorkerPool.new(ActiveRecord::Base.connection_pool.size - 1)
       progress = ProgressBar.create(total: size, format: '%t |%w>%i| %a - %c/%C', title: endpoint.id)
 
       logger.info("[EXPORTING] #{size} things in endpoint: #{endpoint.id}")
