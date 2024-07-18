@@ -11,10 +11,14 @@
       content: '\f15b';
     }
 
-    &.thema::before {
-      content: '\f07c';
+    &.thema::before,
+    &.lift::before {
+      content: '\f2dc';
     }
 
+    &.ski_slope::before {
+      content: '\f2dc';
+    }
     &.thema_archiv,
     &.container_archiv {
       &::before {
