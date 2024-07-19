@@ -14,6 +14,8 @@
     .accordion-title {
       cursor: pointer;
       padding: 1rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
 
       h6 {
         color: $black;
