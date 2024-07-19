@@ -41,58 +41,80 @@ module DataCycleCore
           return self if ids.blank?
 
           if type == 'import'
-            external_source(ids)
+            return external_source(ids)
           elsif type == 'all'
-            reflect(
-              @query.where(
-                external_system_sync.where(
-                  external_system_sync[:external_system_id].in(ids)
-                    .and(external_system_sync[:syncable_id].eq(thing[:id]))
-                ).exists
-                .or(thing[:external_source_id].in(ids))
+            alias1 = "things_#{SecureRandom.hex(5)}"
+            sub_query = <<-SQL.squish
+              things.id IN (
+                SELECT "ess"."syncable_id"
+                FROM "external_system_syncs" "ess"
+                WHERE "ess"."external_system_id" IN (:ids)
+                UNION ALL
+                SELECT "#{alias1}"."id"
+                FROM "things" "#{alias1}"
+                WHERE "#{alias1}"."external_source_id" IN (:ids)
               )
-            )
+            SQL
           else
-            reflect(
-              @query.where(
-                external_system_sync
-                  .where(
-                    external_system_sync[:external_system_id].in(ids)
-                      .and(external_system_sync[:syncable_id].eq(thing[:id]))
-                      .and(external_system_sync[:sync_type].eq(type))
-                  ).exists
+            sub_query = <<-SQL.squish
+              things.id IN (
+                SELECT "ess"."syncable_id"
+                FROM "external_system_syncs" "ess"
+                WHERE "ess"."external_system_id" IN (:ids)
+                AND "ess"."sync_type" = :type
               )
-            )
+            SQL
           end
+
+          reflect(
+            @query.where(
+              ActiveRecord::Base.send(:sanitize_sql_array, [
+                                        sub_query,
+                                        ids:,
+                                        type:
+                                      ])
+            )
+          )
         end
 
         def not_external_system(ids = nil, type = 'import')
           return self if ids.blank?
 
           if type == 'import'
-            not_external_source(ids)
+            return not_external_source(ids)
           elsif type == 'all'
-            reflect(
-              @query.where(
-                external_system_sync.where(
-                  external_system_sync[:external_system_id].in(ids)
-                    .and(external_system_sync[:syncable_id].eq(thing[:id]))
-                ).exists.not
-                .and(thing[:external_source_id].not_in(ids).or(thing[:external_source_id].eq(nil)))
+            alias1 = "things_#{SecureRandom.hex(5)}"
+            sub_query = <<-SQL.squish
+              things.id NOT IN (
+                SELECT "ess"."syncable_id"
+                FROM "external_system_syncs" "ess"
+                WHERE "ess"."external_system_id" IN (:ids)
+                UNION ALL
+                SELECT "#{alias1}"."id"
+                FROM "things" "#{alias1}"
+                WHERE "#{alias1}"."external_source_id" IN (:ids)
               )
-            )
+            SQL
           else
-            reflect(
-              @query.where(
-                external_system_sync
-                  .where(
-                    external_system_sync[:external_system_id].in(ids)
-                    .and(external_system_sync[:syncable_id].eq(thing[:id]))
-                    .and(external_system_sync[:sync_type].eq(type))
-                  ).exists.not
+            sub_query = <<-SQL.squish
+              things.id IN (
+                SELECT "ess"."syncable_id"
+                FROM "external_system_syncs" "ess"
+                WHERE "ess"."external_system_id" IN (:ids)
+                AND "ess"."sync_type" = :type
               )
-            )
+            SQL
           end
+
+          reflect(
+            @query.where(
+              ActiveRecord::Base.send(:sanitize_sql_array, [
+                                        sub_query,
+                                        ids:,
+                                        type:
+                                      ])
+            )
+          )
         end
       end
     end
