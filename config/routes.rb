@@ -55,6 +55,7 @@ DataCycleCore::Engine.routes.draw do
   get '/schema/:id', to: 'schema#show', as: :schema_details
   get '/info', to: 'frontend#info', as: :info
   get '/i18n/translate', to: 'application#translate'
+  # get '/export', to: 'nothing' # this route is reserved for jsonld file exports via rake task
 
   authenticate do
     get :clear_all_caches, controller: :application
