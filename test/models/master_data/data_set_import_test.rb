@@ -414,6 +414,20 @@ module DataCycleCore
       assert_equal('Titel', template.dig(:data, :properties, :name, :label))
     end
 
+    test 'mixed in properties have lower priority than direct properties' do
+      template_importer = subject.new(template_paths: [import_mixin_path1])
+      assert_empty(template_importer.errors)
+
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Mixin-Set-1-Creative-Work-1' }
+      assert_not(template.nil?)
+
+      assert(template.dig(:data, :properties)&.key?(:name))
+      assert(template.dig(:data, :properties)&.key?(:mixed_in_name1))
+      assert_not(template.dig(:data, :properties)&.key?(:mixed_in_name2))
+      assert(template.dig(:data, :properties)&.key?(:mixed_in_text2))
+      assert_equal('Titel', template.dig(:data, :properties, :name, :label))
+    end
+
     private
 
     def subject
@@ -458,6 +472,10 @@ module DataCycleCore
 
     def non_existent_path
       Rails.root.join('..', 'data_types', '1234567890')
+    end
+
+    def import_mixin_path1
+      Rails.root.join('..', 'data_types', 'master_data', 'mixin_set_1')
     end
 
     def import_list_import_path

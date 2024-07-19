@@ -82,12 +82,14 @@ module DataCycleCore
           properties = ActiveSupport::HashWithIndifferentAccess.new
 
           props&.each do |key, value|
-            next if value.nil?
-
-            if value[:type] == 'mixin'
-              properties.deep_merge!(replace_mixin_property(key, value[:name].to_sym, value.except(:name, :type)))
+            if value.nil?
+              properties.delete(key)
+            elsif value[:type] == 'mixin'
+              # deep reverse merge
+              m_proc = ->(_, v1, v2) { v1.is_a?(::Hash) && v2.is_a?(::Hash) ? v1.merge(v2, &m_proc) : v1 }
+              properties.merge!(replace_mixin_property(key, value[:name].to_sym, value.except(:name, :type)), &m_proc)
             else
-              properties.deep_merge!({ key => value.merge(additional_attributes) })
+              properties.deep_merge!({ key => value&.merge(additional_attributes) })
             end
           end
 
