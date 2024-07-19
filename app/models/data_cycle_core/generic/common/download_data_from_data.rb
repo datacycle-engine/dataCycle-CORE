@@ -18,11 +18,12 @@ module DataCycleCore
           raise ArgumentError, 'missing read_type for loading location ranges' if options.dig(:download, :read_type).nil?
           read_type = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type])
 
-          data_name = options.dig(:download, :data_name_path)
+          data_name = options.dig(:download, :data_name_path) || nil
           data_id = options.dig(:download, :data_id_path) || data_name
 
           data_path = options.dig(:download, :data_path)
           data_id_path = [data_id].compact_blank.join('.')
+          data_name_path = [data_name].compact_blank.join('.')
           additional_data_paths = options.dig(:download, :additional_data_paths) || []
 
           project_filter_stage = {
@@ -32,9 +33,10 @@ module DataCycleCore
             project_filter_stage[attr[:name]] = ['$dump', lang, attr[:path]].compact_blank.join('.')
           end
 
-          id_fallback_fields = ['$data.' + data_id_path, '$data.' + data_name] + additional_data_paths.map { |attr| "$data.#{attr[:path]}" }
+          id_fallback_fields = [['$data', data_id_path].compact_blank.join('.'), ['$data', data_name].compact_blank.join('.')] + additional_data_paths.map { |attr| "$data.#{attr[:path]}" }
           add_fields_stage = {
-            'data.id' => { '$ifNull' => id_fallback_fields}
+            'data.id' => { '$ifNull' => id_fallback_fields},
+            'data.name' => ['$data', data_name].compact_blank.join('.')
           }
           additional_data_paths.each do |attr|
             add_fields_stage["data.#{attr[:name]}"] = "$#{attr[:name]}"
