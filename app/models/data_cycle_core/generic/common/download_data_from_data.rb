@@ -33,10 +33,10 @@ module DataCycleCore
             project_filter_stage[attr[:name]] = ['$dump', lang, attr[:path]].compact_blank.join('.')
           end
 
-          id_fallback_fields = [['$data', data_id_path].compact_blank.join('.'), ['$data', data_name].compact_blank.join('.')] + additional_data_paths.map { |attr| "$data.#{attr[:path]}" }
+          id_fallback_fields = [['$data', data_id_path].compact_blank.join('.'), ['$data', data_name_path].compact_blank.join('.')] + additional_data_paths.map { |attr| "$data.#{attr[:path]}" }
           add_fields_stage = {
             'data.id' => { '$ifNull' => id_fallback_fields},
-            'data.name' => ['$data', data_name].compact_blank.join('.')
+            'data.name' => ['$data', data_name_path].compact_blank.join('.')
           }
           additional_data_paths.each do |attr|
             add_fields_stage["data.#{attr[:name]}"] = "$#{attr[:name]}"
