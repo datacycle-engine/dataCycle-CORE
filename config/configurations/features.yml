@@ -194,7 +194,7 @@
 :advanced_filter:
   :enabled: true
   :boolean:
-    #   - with_geom
+    - with_geom
     - duplicate_candidates:
         depends_on: DataCycleCore::Feature::DuplicateCandidate
     - with_external_source

@@ -14,7 +14,7 @@ module DataCycleCore
           )
         end
 
-        def self.load_data_from_mongo(options:, lang:)
+        def self.load_data_from_mongo(options:, lang:, source_filter:)
           raise ArgumentError, 'missing read_type for loading location ranges' if options.dig(:download, :read_type).nil?
           read_type = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type])
 
@@ -49,7 +49,7 @@ module DataCycleCore
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate([
                                          {
-                                           '$match' => { "dump.#{lang}" => { '$exists' => true } }
+                                           '$match' => { "dump.#{lang}" => { '$exists' => true } }.merge(source_filter.deep_stringify_keys)
                                          },
                                          {
                                            '$project' => project_filter_stage

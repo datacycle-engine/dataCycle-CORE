@@ -144,7 +144,7 @@ module DataCycleCore
 
         def aggregate_base_template_name
           if @data.dig('features', 'aggregate', ADDITIONAL_BASE_TEMPLATES_KEY).present?
-            [@data[:name]] + Array.wrap(@data.dig('features', 'aggregate', ADDITIONAL_BASE_TEMPLATES_KEY))
+            ([@data[:name]] + Array.wrap(@data.dig('features', 'aggregate', ADDITIONAL_BASE_TEMPLATES_KEY))).uniq
           else
             @data[:name]
           end
