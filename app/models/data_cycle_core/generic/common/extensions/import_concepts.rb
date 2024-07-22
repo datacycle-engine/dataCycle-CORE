@@ -71,7 +71,7 @@ module DataCycleCore
 
                       utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                         raw_data = iterator.call(mongo_item, locale, source_filter).to_a
-                        concepts_data = raw_data.map { |rd| data_processor.call(raw_data: rd.dump[locale], utility_object:, locale:, options:) }
+                        concepts_data = raw_data.map { |rd| data_processor.call(raw_data: rd.dump[locale], utility_object:, locale:, options:) }.compact_blank
 
                         transformed_concepts = data_transformer.call(data_array: concepts_data, options:)
                         transformed_concepts.each do |concept_scheme, concepts|
