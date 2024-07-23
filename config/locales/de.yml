@@ -40,6 +40,7 @@ de:
     Accommodation: Zimmer / Apartment
     TouristAttraction: POI
     Trail: Tour
+    GtfsStop: Haltestelle
 
   attribute_labels:
     additional_information:
@@ -351,16 +352,6 @@ de:
       scatter: Punkt
     from: von
     until: bis
-    # chart_labels:
-    #   monday: Montag
-    #   tuesday: Dienstag
-    #   wednesday: Mittwoch
-    #   thursday: Donnerstag
-    #   friday: Freitag
-    #   saturday: Samstag
-    #   sunday: Sonntag
-    # axe_labels:
-    #   hour_of_day: Stunden (h)
 
   opening_time:
     valid_from: Gültigkeit von

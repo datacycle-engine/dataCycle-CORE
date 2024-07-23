@@ -372,8 +372,6 @@ module DataCycleCore
     end
 
     config.autoload_once_paths << "#{root}/app/middlewares"
-    config.autoload_paths += Dir['vendor/gems/datacycle-*/lib']
-    config.eager_load_paths += Dir['vendor/gems/datacycle-*/lib']
 
     if Rails.env.development? # needed for reloading yml configurations in development context
       config.eager_load_paths += Dir['config/configurations/**/*.yml']
