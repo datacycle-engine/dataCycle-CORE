@@ -26,6 +26,15 @@ module DataCycleCore
           data_name_path = [data_name].compact_blank.join('.')
           additional_data_paths = options.dig(:download, :additional_data_paths) || []
 
+          source_filter_stage = {
+            '$and' => [
+              { "dump.#{lang}" => { '$exists' => true } }
+            ]
+          }
+          source_filter.each do |filter|
+            source_filter_stage['$and'].push(filter.deep_stringify_keys)
+          end
+
           project_filter_stage = {
             'data' => ['$dump', lang, data_path].compact_blank.join('.')
           }
@@ -49,7 +58,8 @@ module DataCycleCore
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate([
                                          {
-                                           '$match' => { "dump.#{lang}" => { '$exists' => true } }.merge(source_filter.deep_stringify_keys)
+                                           # '$match' => { "dump.#{lang}" => { '$exists' => true } }.merge(source_filter.deep_stringify_keys)
+                                           '$match' => source_filter_stage
                                          },
                                          {
                                            '$project' => project_filter_stage
