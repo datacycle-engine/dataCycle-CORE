@@ -31,9 +31,12 @@ module DataCycleCore
               { "dump.#{lang}" => { '$exists' => true } }
             ]
           }
+
           source_filter.each do |filter|
             source_filter_stage['$and'].push(filter.deep_stringify_keys)
           end
+
+          post_unwind_source_filter_stage = deep_transform_filter(source_filter_stage, ["dump.#{lang}", data_path].join('.'), "dump.#{lang}")
 
           project_filter_stage = {
             'data' => ['$dump', lang, data_path].compact_blank.join('.')
@@ -58,7 +61,6 @@ module DataCycleCore
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate([
                                          {
-                                           # '$match' => { "dump.#{lang}" => { '$exists' => true } }.merge(source_filter.deep_stringify_keys)
                                            '$match' => source_filter_stage
                                          },
                                          {
@@ -66,6 +68,9 @@ module DataCycleCore
                                          },
                                          {
                                            '$unwind' => '$data'
+                                         },
+                                         {
+                                           '$match' => post_unwind_source_filter_stage
                                          },
                                          {
                                            '$addFields' => add_fields_stage
@@ -86,6 +91,30 @@ module DataCycleCore
 
         def self.data_name(data)
           data.dig('name')
+        end
+
+        def self.deep_transform_filter(obj, data_path, lang_path)
+          case obj
+          when Hash
+            new_data = {}
+            obj.each do |key, value|
+              if key == lang_path
+                next
+              elsif key.start_with?(data_path)
+                new_key = ['data', key.sub("#{data_path}.", '')].join('.')
+                new_data[new_key] = deep_transform_filter(value, data_path, lang_path)
+              elsif key.start_with?('$') && !(value.is_a?(Hash) || value.is_a?(Array))
+                new_data[key] = value
+              elsif value.is_a?(Hash) || value.is_a?(Array)
+                new_data[key] = deep_transform_filter(value, data_path, lang_path)
+              end
+            end
+            new_data
+          when Array
+            obj.map { |item| deep_transform_filter(item, data_path, lang_path) }.compact
+          else
+            obj
+          end
         end
       end
     end
