@@ -70,7 +70,7 @@ module DataCycleCore
             execution_step:,
             type: @kind,
             severity:,
-            appsignal_triggered: false
+            trigger_appsignal: false
           }
         end
 
