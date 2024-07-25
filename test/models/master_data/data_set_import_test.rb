@@ -342,17 +342,49 @@ module DataCycleCore
       end
     end
 
+    test 'aggregate templates with correct belongs_to_aggregate definitions' do
+      template_importer = subject.new(template_paths: [import_path, import_path4, aggregate_path1])
+      template_names = ['Entity-With-Aggregate-Creative-Work-1', 'Entity-With-Aggregate-Creative-Work-2']
+      agg_template_names = template_names.map { |tn| MasterData::Templates::AggregateTemplate.aggregate_template_name(tn) }
+      agg_templates = template_importer.templates.dig(:creative_works).select { |t| t[:name].in?(agg_template_names) }
+      additional_base_template1 = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
+      additional_base_template2 = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-2' }
+
+      assert_equal(
+        agg_templates.pluck(:name),
+        additional_base_template1.dig(:data, :properties, MasterData::Templates::AggregateTemplate::AGGREGATE_INVERSE_PROPERTY_NAME, :template_name)
+      )
+
+      assert_equal(
+        agg_templates.pluck(:name),
+        additional_base_template2.dig(:data, :properties, MasterData::Templates::AggregateTemplate::AGGREGATE_INVERSE_PROPERTY_NAME, :template_name)
+      )
+    end
+
     test 'aggregate template with correct definitions' do
       template_importer = subject.new(template_paths: [import_path, import_path4])
       template_name = 'Entity-With-Aggregate-Creative-Work-1'
       agg_template_name = MasterData::Templates::AggregateTemplate.aggregate_template_name(template_name)
       template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == template_name }
       agg_template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == agg_template_name }
+      additional_base_template1 = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-1' }
+      additional_base_template2 = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Creative-Work-2' }
 
       assert_empty(template_importer.errors)
       assert_empty(template_importer.errors)
       assert_not(template.nil?)
       assert_not(agg_template.nil?)
+
+      assert_equal(
+        agg_template[:name],
+        additional_base_template1.dig(:data, :properties, MasterData::Templates::AggregateTemplate::AGGREGATE_INVERSE_PROPERTY_NAME, :template_name)
+      )
+
+      assert_equal(
+        agg_template[:name],
+        additional_base_template2.dig(:data, :properties, MasterData::Templates::AggregateTemplate::AGGREGATE_INVERSE_PROPERTY_NAME, :template_name)
+      )
+
       assert_equal(
         [template_name, *template.dig(:data, 'features', 'aggregate', MasterData::Templates::AggregateTemplate::ADDITIONAL_BASE_TEMPLATES_KEY)],
         agg_template.dig(:data, 'properties', MasterData::Templates::AggregateTemplate::AGGREGATE_PROPERTY_NAME, 'template_name')
@@ -476,6 +508,10 @@ module DataCycleCore
 
     def import_mixin_path1
       Rails.root.join('..', 'data_types', 'master_data', 'mixin_set_1')
+    end
+
+    def aggregate_path1
+      Rails.root.join('..', 'data_types', 'master_data', 'aggregate_set_1')
     end
 
     def import_list_import_path
