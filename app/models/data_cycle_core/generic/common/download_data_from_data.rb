@@ -32,8 +32,9 @@ module DataCycleCore
             ]
           }
 
+          source_filter.deep_stringify_keys
           source_filter.each do |filter|
-            source_filter_stage['$and'].push(filter.deep_stringify_keys)
+            source_filter_stage['$and'].push(filter)
           end
 
           post_unwind_source_filter_stage = deep_transform_filter(source_filter_stage, ["dump.#{lang}", data_path].join('.'), "dump.#{lang}")
@@ -81,7 +82,7 @@ module DataCycleCore
                                          {
                                            '$replaceRoot' => { 'newRoot' => '$data' }
                                          }
-                                       ]).to_a
+                                       ], allow_disk_use: true).to_a
           end
         end
 
