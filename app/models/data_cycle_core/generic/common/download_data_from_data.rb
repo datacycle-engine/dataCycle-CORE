@@ -32,9 +32,9 @@ module DataCycleCore
             ]
           }
 
-          source_filter.deep_stringify_keys
-          source_filter.each do |filter|
-            source_filter_stage['$and'].push(filter)
+          # source_filter.deep_stringify_keys
+          Array.wrap(source_filter).each do |filter|
+            source_filter_stage['$and'].push(filter.deep_stringify_keys)
           end
 
           post_unwind_source_filter_stage = deep_transform_filter(source_filter_stage, ["dump.#{lang}", data_path].join('.'), "dump.#{lang}")
