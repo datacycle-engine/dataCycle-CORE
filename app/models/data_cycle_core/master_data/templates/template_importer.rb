@@ -188,6 +188,8 @@ module DataCycleCore
           rescue StandardError => e
             append_error!(e, data_template, template)
           end
+
+          add_inverse_aggregate_property!
         end
 
         def append_template!(data:)
@@ -204,8 +206,31 @@ module DataCycleCore
           aggregate_data = transform_template_data(template: aggregate_template.import, data_template:)
           return if aggregate_data.nil?
 
-          aggregate_template.add_inverse_aggregate_for_property!(data: data[:data])
           append_template!(data: aggregate_data)
+        end
+
+        def add_inverse_aggregate_property!
+          all_templates = @templates.values.flatten
+          all_templates.each do |template|
+            next unless template.dig(:data, :features, :aggregate, :aggregate)
+
+            aggregated_templates = Array.wrap(
+              template.dig(:data, :properties, AggregateTemplate::AGGREGATE_PROPERTY_NAME, :template_name)
+            )
+
+            aggregated_templates.each do |template_name|
+              aggregated_template = all_templates.find { |v| v[:name] == template_name }
+
+              raise TemplateError.new('features.aggregate.additional_base_templates'), "BaseTemplate missing for #{template_name}" if aggregated_template.nil?
+
+              AggregateTemplate.merge_belongs_to_aggregate_property!(
+                data: aggregated_template[:data],
+                aggregate_name: template[:name]
+              )
+            rescue StandardError => e
+              append_error!(e, template, template[:data])
+            end
+          end
         end
 
         def extend_template_data(template:, data_template:)

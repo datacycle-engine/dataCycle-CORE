@@ -26,7 +26,12 @@ en:
     additional_information:
       one: Description block
       other: Description blocks
-    aggregate_rating:
+    Tour:
+      aggregate_rating:
+      one: Tour rating
+      other: Tour ratings
+    Trail:
+      aggregate_rating:
       one: Tour rating
       other: Tour ratings
     key_figures_container: Key figures

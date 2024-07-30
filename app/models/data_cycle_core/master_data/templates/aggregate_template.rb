@@ -17,17 +17,21 @@ module DataCycleCore
           @aggregate = @data.dc_deep_dup.with_indifferent_access
         end
 
-        def add_inverse_aggregate_for_property!(data:)
-          data[:properties][AGGREGATE_INVERSE_PROPERTY_NAME.to_sym] = {
-            type: 'linked',
-            sorting: data[:properties].values.pluck('sorting').max + 1,
-            inverse_of: AGGREGATE_PROPERTY_NAME,
-            link_direction: 'inverse',
-            template_name: self.class.aggregate_template_name(data[:name]),
-            api: {
-              name: 'dc:belongsToAggregate'
+        def self.merge_belongs_to_aggregate_property!(data:, aggregate_name:)
+          if data[:properties][AGGREGATE_INVERSE_PROPERTY_NAME.to_sym]
+            data[:properties][AGGREGATE_INVERSE_PROPERTY_NAME.to_sym][:template_name] = (Array.wrap(data[:properties][AGGREGATE_INVERSE_PROPERTY_NAME.to_sym][:template_name]) + [aggregate_name]).uniq
+          else
+            data[:properties][AGGREGATE_INVERSE_PROPERTY_NAME.to_sym] = {
+              type: 'linked',
+              sorting: data[:properties].values.pluck('sorting').max + 1,
+              inverse_of: AGGREGATE_PROPERTY_NAME,
+              link_direction: 'inverse',
+              template_name: aggregate_name,
+              api: {
+                name: 'dc:belongsToAggregate'
+              }
             }
-          }
+          end
         end
 
         def import

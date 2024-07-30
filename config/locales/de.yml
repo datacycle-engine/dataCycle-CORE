@@ -46,9 +46,14 @@ de:
     additional_information:
       one: Beschreibungsblock
       other: Beschreibungsblöcke
-    aggregate_rating:
-      one: Tourenbewertung
-      other: Tourenbewertungen
+    Tour:
+      aggregate_rating:
+        one: Tourenbewertung
+        other: Tourenbewertungen
+    Trail:
+      aggregate_rating:
+        one: Tourenbewertung
+        other: Tourenbewertungen
     key_figures_container: Kennzahlen
     copyright_holder_or_sd_publisher: Rechteinhaber
     universal_classifications: Klassifizierungen

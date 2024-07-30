@@ -183,10 +183,10 @@ module DataCycleCore
         end
 
         def self.load_things(external_source_id, external_key)
+          # Order is important, prioritize imported things over external_system_syncs, as to_h overwrites duplicate keys
           (
-            DataCycleCore::Thing.where(external_source_id:, external_key:).pluck(:external_key, :id) +
-            DataCycleCore::ExternalSystemSync.where(external_system_id: external_source_id, external_key:)
-                                             .pluck(:external_key, :syncable_id)
+            DataCycleCore::ExternalSystemSync.where(external_system_id: external_source_id, external_key:).pluck(:external_key, :syncable_id) +
+            DataCycleCore::Thing.where(external_source_id:, external_key:).pluck(:external_key, :id)
           ).uniq.to_h
         end
 

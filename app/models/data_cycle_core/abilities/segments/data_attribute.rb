@@ -20,6 +20,14 @@ module DataCycleCore
           ->(*args) { include?(*args) }
         end
 
+        def attribute_aggregate_override?(attribute)
+          attribute.definition.dig('features', 'aggregate', 'aggregate_for').present?
+        end
+
+        def attribute_not_aggregate_override?(attribute)
+          !attribute_aggregate_override?(attribute)
+        end
+
         def attribute_content_not_external?(attribute)
           !attribute.content.external?
         end
@@ -94,7 +102,7 @@ module DataCycleCore
         end
 
         def attribute_whitelisted?(attribute, attribute_names = [])
-          Array.wrap(attribute_names).any? { |a| Array.wrap(a).all? { |v| attribute.key.attribute_path_from_key.include?(v) } }
+          Array.wrap(attribute_names).any? { |a| Array.wrap(a) == attribute.key.attribute_path_from_key }
         end
 
         def attribute_not_blacklisted?(attribute, attribute_names = [])

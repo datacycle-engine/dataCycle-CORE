@@ -12,14 +12,6 @@ body {
   color: $warning-color;
 }
 
-.off-canvas-wrapper {
-  position: relative;
-  flex: auto;
-  display: flex;
-  flex-flow: column;
-  overflow: unset;
-}
-
 .off-canvas-content {
   flex: auto;
   display: flex;
@@ -392,8 +384,7 @@ body.with-glass {
     background: none;
   }
 
-  header,
-  .off-canvas-wrapper {
+  header {
     display: none;
   }
 
