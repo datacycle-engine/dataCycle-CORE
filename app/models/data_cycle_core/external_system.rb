@@ -167,27 +167,27 @@ module DataCycleCore
     end
 
     def download(options = {}, &)
-      raise 'First parameter has to be an options hash!' unless options.is_a?(::Hash)
-      success = true
-      ts_start = Time.zone.now
-      skip_save = options.delete(:skip_save)
-      self.last_download = ts_start
-      save if skip_save.blank?
-      download_config.sort_by { |v|
-        v.second['sorting']
-      }.filter { |_, v|
-        v.dig('depends_on').blank?
-      }.each do |(name, _)|
-        success &&= download_single(name, options, &)
-      end
-      ts_after = Time.zone.now
-      self.last_download_time = ts_after - ts_start
-      if success
-        self.last_successful_download = ts_start
-        self.last_successful_download_time = ts_after - ts_start
-      end
-      save if skip_save.blank?
-      success
+      import(options, &)
+      # success = true
+      # ts_start = Time.zone.now
+      # skip_save = options.delete(:skip_save)
+      # self.last_download = ts_start
+      # save if skip_save.blank?
+      # download_config.sort_by { |v|
+      #   v.second['sorting']
+      # }.filter { |_, v|
+      #   v.dig('depends_on').blank?
+      # }.each do |(name, _)|
+      #   success &&= download_single(name, options, &)
+      # end
+      # # ts_after = Time.zone.now
+      # self.last_download_time = ts_after - ts_start
+      # if success
+      #   self.last_successful_download = ts_start
+      #   self.last_successful_download_time = ts_after - ts_start
+      # end
+      # save if skip_save.blank?
+      # success
     end
 
     def download_range(options = {}, &)
@@ -207,10 +207,12 @@ module DataCycleCore
     end
 
     def download_single(name, options = {})
-      raise "unknown downloader name: #{name}" if download_config.dig(name).blank?
+      raise "unknown downloader name: #{name}" if import_config.dig(name).blank?
       success = true
-      full_options = full_options(name, 'download', options)
+      full_options = full_options(name, 'import', options)
       locales = full_options.dig(:download, :locales) || full_options.dig(:locales) || I18n.available_locales
+      # binding.pry
+      full_options[:download] = full_options.delete(:import) if full_options[:import].present?
       raise "Missing download_strategy for #{name}, options given: #{options}" if full_options.dig(:download, :download_strategy).blank?
 
       cred = credentials
@@ -229,24 +231,49 @@ module DataCycleCore
     alias single_download download_single
 
     def import(options = {}, &)
+      import_config.merge!(download_config)
       raise 'First parameter has to be an options Hash!' unless options.is_a?(::Hash)
+      success = true
       ts_start = Time.zone.now
-      self.last_import = ts_start
+      execution_type = nil
+      is_import_config = false
+      self.last_import = self.last_download = ts_start
       save
+
       import_config.sort_by { |v|
         v.second['sorting']
       }.filter { |_, v|
         v.dig('depends_on').blank?
       }.each do |(name, _)|
-        self.last_import_time = Time.zone.now - ts_start
-        save
-        import_single(name, options, &)
-        self.last_import_time = Time.zone.now - ts_start
-        save
+        execution_type = full_options(name, 'import', options).dig(:import, :download_strategy).present? ? 'download' : 'import'
+        is_import_config = execution_type == 'import'
+        if is_import_config
+          self.last_import_time = Time.zone.now - ts_start
+          save
+          import_single(name, options, &)
+          self.last_import_time = Time.zone.now - ts_start
+          save
+        else
+          success &&= download_single(name, options)
+          # binding.pry
+        end
       end
-      self.last_successful_import = ts_start
-      self.last_successful_import_time = Time.zone.now - ts_start
-      save
+
+      if is_import_config
+        self.last_successful_import = ts_start
+        self.last_successful_import_time = Time.zone.now - ts_start
+        save
+      else
+        if success
+          ts_after = Time.zone.now
+          self.last_download_time = if success
+                                      self.last_successful_download = ts_start
+                                      self.last_successful_download_time = ts_after - ts_start
+                                    end
+        end
+        save
+        success
+      end
     end
 
     def import_range(options = {}, &)

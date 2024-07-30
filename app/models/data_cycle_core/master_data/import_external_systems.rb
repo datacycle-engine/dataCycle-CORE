@@ -176,10 +176,12 @@ module DataCycleCore
 
       class ExternalSystemDownloadContract < DataCycleCore::MasterData::Contracts::GeneralContract
         schema do
+          optional(:read_type) { str? | (array? & each { str? }) }
           optional(:sorting) { int? & gt?(0) }
           required(:source_type) { str? }
           optional(:endpoint) { str? }
-          required(:download_strategy) { str? }
+          optional(:import_strategy) { str? }
+          optional(:download_strategy) { str? }
           optional(:logging_strategy) { str? }
           optional(:locales).each { str? & included_in?(I18n.available_locales.map(&:to_s)) }
         end
@@ -187,14 +189,18 @@ module DataCycleCore
         rule(:endpoint).validate(:dc_class)
         rule(:download_strategy).validate(:dc_module)
         rule(:logging_strategy).validate(:dc_logging_strategy)
+        rule do
+          base.failure(:reserved_property_name) unless values.key?(:import_strategy) || values.key?(:download_strategy)
+        end
       end
 
       class ExternalSystemImportContract < DataCycleCore::MasterData::Contracts::GeneralContract
         schema do
+          optional(:read_type) { str? | (array? & each { str? }) }
           optional(:sorting) { int? & gt?(0) }
           required(:source_type) { str? }
-          optional(:read_type) { str? }
-          required(:import_strategy) { str? }
+          optional(:import_strategy) { str? }
+          optional(:download_strategy) { str? }
           optional(:tree_label) { str? }
           optional(:tag_id_path) { str? }
           optional(:tag_name_path) { str? }
@@ -206,6 +212,10 @@ module DataCycleCore
 
         rule(:import_strategy).validate(:dc_module)
         rule(:logging_strategy).validate(:dc_logging_strategy)
+
+        rule do
+          base.failure(:reserved_property_name) unless values.key?(:import_strategy) || values.key?(:download_strategy)
+        end
       end
     end
   end
