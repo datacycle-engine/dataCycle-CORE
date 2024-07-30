@@ -218,6 +218,18 @@ module DataCycleCore
         include_overlay ? property_definitions.merge(add_overlay_property_definitions)[property_name] : property_definitions[property_name]
       end
 
+      def overlay_property_names_for(property_name, include_overlay = false)
+        name_property_selector(include_overlay) do |definition|
+          definition.dig('features', 'overlay', 'overlay_for') == property_name
+        end
+      end
+
+      def aggregate_property_names_for(property_name, include_overlay = false)
+        name_property_selector(include_overlay) do |definition|
+          definition.dig('features', 'aggregate', 'aggregate_for') == property_name
+        end
+      end
+
       def translatable_property_names
         return @translatable_property_names if defined? @translatable_property_names
 

@@ -460,6 +460,20 @@ module DataCycleCore
       assert_equal('Titel', template.dig(:data, :properties, :name, :label))
     end
 
+    test 'mixed in properties take conditions into account' do
+      template_importer = subject.new(template_paths: [mixin_with_condition_path])
+      assert_empty(template_importer.errors)
+
+      template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Mixin-Condition-Creative-Work-1' }
+      assert_not(template.nil?)
+
+      embedded_template = template_importer.templates.dig(:creative_works).find { |t| t[:name] == 'Entity-Mixin-Condition-Embedded-1' }
+      assert_not(embedded_template.nil?)
+
+      assert(template.dig(:data, :properties)&.key?(:mixed_in_name1))
+      assert_not(embedded_template.dig(:data, :properties)&.key?(:mixed_in_name1))
+    end
+
     private
 
     def subject
@@ -512,6 +526,10 @@ module DataCycleCore
 
     def aggregate_path1
       Rails.root.join('..', 'data_types', 'master_data', 'aggregate_set_1')
+    end
+
+    def mixin_with_condition_path
+      Rails.root.join('..', 'data_types', 'master_data', 'mixin_with_condition_set')
     end
 
     def import_list_import_path

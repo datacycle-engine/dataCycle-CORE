@@ -42,6 +42,8 @@
         :label: slug
         :storage_location: column
         :type: slug
+        :condition:
+          :not_content_type?: embedded
         :default_value:
           module: DataCycleCore::Utility::DefaultValue::Slug
           method: generate_slug
@@ -57,50 +59,31 @@
         :label: external_key
         :type: string
         :storage_location: column
-        :ui:
-          :show:
-            :disabled: true
-          :edit:
-            :disabled: true
-        :api:
-          :disabled: true
+        :visible: false
       :schema_types:
         :label: SchemaTypes
         :type: classification
         :tree_label: SchemaTypes
+        :condition:
+          :template_key?: schema_ancestors
+          :not_content_type?: embedded
         :default_value:
           :module: DataCycleCore::Utility::DefaultValue::Classification
           :method: schema_types
-          :condition:
-            :except_content_type: embedded
-            :schema_key_present: schema_ancestors
-        :ui:
-          :show:
-            :disabled: true
-          :edit:
-            :disabled: true
-        :api:
-          :disabled: true
-        :xml:
-          :disabled: true
+        :visible: false
       :internal_content_score:
         :label: Interner Content Score
         :type: number
         :storage_location: translated_value
         :advanced_search: true
+        :condition:
+          :template_key?: features.content_score.module
         :compute:
           :module: ContentScore
           :method: calculate_from_feature
           :parameters_path: features.content_score.parameters
-          :condition:
-            - :type: content
-              :name: content_score_allowed?
-              :method: equals?
-              :value: true
-        :xml:
-          disabled: true
+        :visible: false
         :api:
-          :disabled: true
           :v4:
             :disabled: false
             :partial: property_value
@@ -110,11 +93,8 @@
               :name: dc:contentScore
         :ui:
           :show:
-            :disabled: true
             :content_area: content_score
             :type: content_score
-          :edit:
-            :disabled: true
         :validations:
           :min: 0
           :max: 100

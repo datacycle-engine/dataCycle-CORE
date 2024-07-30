@@ -1,5 +1,7 @@
-<div class="off-canvas position-right" id="settings-off-canvas" data-off-canvas data-content-overlay="false">
-  <%= render 'data_cycle_core/application/side_bar/user_details', local_assigns %>
-  <%= render 'data_cycle_core/application/side_bar/user_links', local_assigns %>
-  <%= render 'data_cycle_core/application/side_bar/administration', local_assigns %>
+<div id="off-canvas-container">
+  <div class="off-canvas position-right" id="settings-off-canvas" data-off-canvas data-content-overlay="false" data-transition="overlap" data-close-on-click="false">
+    <%= render 'data_cycle_core/application/side_bar/user_details', local_assigns %>
+    <%= render 'data_cycle_core/application/side_bar/user_links', local_assigns %>
+    <%= render 'data_cycle_core/application/side_bar/administration', local_assigns %>
+  </div>
 </div>

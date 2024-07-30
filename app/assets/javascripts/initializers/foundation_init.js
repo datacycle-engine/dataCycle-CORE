@@ -1,5 +1,6 @@
 import domElementHelpers from "../helpers/dom_element_helpers";
 import AccordionToggleChildren from "../components/accordion/accordion_toggle_children";
+import OffCanvasClickHandler from "../components/offcanvas/offcanvas_click_handler";
 
 import { Foundation } from "foundation-sites/js/foundation.core";
 import { Reveal } from "foundation-sites/js/foundation.reveal";
@@ -87,6 +88,7 @@ export default function () {
 		"[data-open]",
 		(e) => removeFoundationOverlays(e, "open"),
 	]);
+
 	DataCycle.htmlObserver.removeCallbacks.push([
 		"[data-toggle]",
 		(e) => removeFoundationOverlays(e, "toggle"),
@@ -109,6 +111,7 @@ export default function () {
 		new Foundation.Accordion($(e));
 		e.classList.add("dcjs-fd-accordion");
 	});
+
 	DataCycle.initNewElements(
 		"[data-accordion].dcjs-fd-accordion .accordion-item:not(.dcjs-fd-accordion-item)",
 		(e) => {
@@ -129,6 +132,12 @@ export default function () {
 		(e) => {
 			e.classList.add("dcjs-fd-offcanvas");
 			new Foundation.OffCanvas($(e));
+		},
+	);
+	DataCycle.initNewElements(
+		"#settings-off-canvas:not(.dcjs-offcanvas-click-handler)",
+		(e) => {
+			new OffCanvasClickHandler(e);
 		},
 	);
 

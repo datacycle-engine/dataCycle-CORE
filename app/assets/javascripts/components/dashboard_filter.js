@@ -181,10 +181,10 @@ class DashboardFilter {
 		const childList = $(event.currentTarget).find("ul").first();
 		if (
 			childList.length &&
-			Math.round($(".off-canvas-wrapper").outerHeight()) <
+			Math.round($(".off-canvas-content").outerHeight()) <
 				Math.round(childList.outerHeight() + childList.offset().top + 150)
 		) {
-			$(".off-canvas-wrapper").css(
+			$(".off-canvas-content").css(
 				"height",
 				childList.outerHeight() + childList.offset().top + 150,
 			);

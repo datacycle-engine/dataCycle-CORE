@@ -1,15 +1,33 @@
 // offcanvas
+#off-canvas-container {
+  overflow: hidden;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  right: 0;
+  top: 0;
+  pointer-events: none;
+}
+
 #settings-off-canvas {
   padding-top: calc(4.1rem + 5px);
   max-height: 100vh;
+  height: auto;
+  border-bottom-left-radius: var(--large-radius);
+  border-bottom-right-radius: var(--large-radius);
+  position: absolute;
+  pointer-events: auto;
 
   .settings-row {
     padding: 1.5rem;
     color: $black;
-    border-bottom: 1px solid $medium-gray;
     display: flex;
     flex-flow: column;
     gap: 0.75rem;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid $medium-gray;
+    }
 
     &:first-child {
       padding-top: 1.5rem;
