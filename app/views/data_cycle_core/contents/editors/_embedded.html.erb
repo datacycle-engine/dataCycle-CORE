@@ -47,8 +47,11 @@
           content: content
         ) %>
       <% end %>
-      <% value&.ids&.reject {|v| objects&.ids&.include?(v)}&.each_with_index do |id, index| %>
-        <div class="content-object-item hidden" data-id="<%= id %>" id="<%= "#{sanitize_to_id(key)}_item_#{index + objects.size}" %>"><%= hidden_field_tag "#{embedded_key_prefix(key, index + objects.size)}[id]", id %></div>
+      <% value&.pluck(:id, :template_name)&.reject {|v| objects&.ids&.include?(v[0])}&.each_with_index do |(id,template_name), index| %>
+        <div class="content-object-item hidden" data-id="<%= id %>" id="<%= "#{sanitize_to_id(key)}_item_#{index + objects.size}" %>">
+          <%= hidden_field_tag "#{embedded_key_prefix(key, index + objects.size)}[id]", id %>
+          <%= hidden_field_tag "#{embedded_key_prefix(key, index + objects.size)}[template_name]", template_name %>
+        </div>
       <% end %>
     <% else %>
       <%= hidden_field_tag key + '[]', nil, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_default" %>
