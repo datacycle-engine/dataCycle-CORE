@@ -5,6 +5,8 @@ module DataCycleCore
     module Common
       module ImportFunctionsDataHelper
         def process_step(utility_object:, raw_data:, transformation:, default:, config:)
+          return if DataCycleCore::DataHashService.deep_blank?(raw_data)
+
           template = load_template(config&.dig(:template) || default.dig(:template))
 
           raw_data = pre_process_data(raw_data:, config:, utility_object:)
@@ -14,6 +16,8 @@ module DataCycleCore
             transformation.call(raw_data || {}),
             utility_object
           ).with_indifferent_access
+
+          return if DataCycleCore::DataHashService.deep_blank?(data) || data.dig('external_key').blank?
 
           data = post_process_data(data:, config:, utility_object:).slice(*template.properties, 'external_system_data')
           transformation_hash = Digest::SHA256.hexdigest(data.to_json)
