@@ -52,10 +52,14 @@ module DataCycleCore
              class_name: 'Path'
     has_many :descendants, through: :descendant_paths, source: :classification_alias
 
+    has_one :primary_classification_group, class_name: 'DataCycleCore::ClassificationGroup::PrimaryClassificationGroup' # rubocop:disable Rails/HasManyOrHasOneDependent
+    has_one :primary_classification, through: :primary_classification_group, source: :classification
+    has_many :additional_classification_groups, lambda {
+      where.not(id: DataCycleCore::ClassificationGroup::PrimaryClassificationGroup.all)
+    }, class_name: 'DataCycleCore::ClassificationGroup'
+    has_many :additional_classifications, through: :additional_classification_groups, source: :classification
+
     has_one :concept, foreign_key: :id
-    has_one :primary_classification, through: :concept, source: :classification, class_name: 'Classification'
-    has_many :additional_classification_groups, through: :concept, source: :mapped_classification_groups, class_name: 'ClassificationGroup'
-    has_many :additional_classifications, through: :concept, source: :mapped_classifications, class_name: 'Classification'
 
     has_many :classification_polygons, dependent: :destroy
     accepts_nested_attributes_for :classification_polygons

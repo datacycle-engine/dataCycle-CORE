@@ -4,7 +4,6 @@ module DataCycleCore
   class ConceptLink < ApplicationRecord
     belongs_to :parent, class_name: 'Concept'
     belongs_to :child, class_name: 'Concept'
-    belongs_to :classification_group, class_name: 'ClassificationGroup', optional: true, foreign_key: :id, inverse_of: false
 
     # keep readonly until reverse triggers are defined and working
     def readonly?

@@ -34,7 +34,8 @@ module DataCycleCore
           has_many :classifications, through: classification_content_table.to_sym
           has_many :classification_groups, through: :classifications
           has_many :classification_aliases, -> { distinct }, through: :classification_groups
-          has_many :primary_classification_aliases, through: :classifications, source: :primary_classification_alias
+          has_many :primary_classification_groups, through: :classifications
+          has_many :primary_classification_aliases, through: :primary_classification_groups, source: :classification_alias
           has_many :classification_alias_paths_transitive, through: :primary_classification_aliases
 
           # relation content to all other contents

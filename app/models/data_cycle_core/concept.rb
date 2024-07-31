@@ -14,13 +14,10 @@ module DataCycleCore
     belongs_to :concept_scheme
 
     has_many :mapped_concept_links, -> { where(link_type: 'related') }, inverse_of: :parent, class_name: 'ConceptLink', foreign_key: :parent_id
-    has_many :mapped_classification_groups, through: :mapped_concept_links, source: :classification_group, class_name: 'ClassificationGroup'
     has_many :mapped_concepts, through: :mapped_concept_links, source: :child
-    has_many :mapped_classifications, through: :mapped_concepts, source: :classification, class_name: 'Classification'
 
     has_many :mapped_inverse_concept_links, -> { where(link_type: 'related') }, inverse_of: :child, class_name: 'ConceptLink', foreign_key: :child_id
     has_many :mapped_inverse_concepts, through: :mapped_inverse_concept_links, source: :parent
-    has_many :mapped_classification_aliases, through: :mapped_inverse_concepts, source: :classification_alias, class_name: 'ClassificationAlias'
 
     has_one :parent_concept_link, -> { where(link_type: 'broader') }, inverse_of: :child, class_name: 'ConceptLink', foreign_key: :child_id
     has_one :parent, through: :parent_concept_link
