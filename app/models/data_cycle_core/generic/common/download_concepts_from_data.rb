@@ -14,16 +14,22 @@ module DataCycleCore
           )
         end
 
+        def self.credentials?
+          false
+        end
+
         def self.load_concepts_from_mongo(options:, lang:, source_filter:)
           raise ArgumentError, 'missing read_type for loading location ranges' if options.dig(:download, :read_type).nil?
           read_type = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type])
 
           concept_name = options.dig(:download, :concept_name_path)
           concept_id = options.dig(:download, :concept_id_path) || concept_name
+          concept_parent_id = options.dig(:download, :concept_parent_id_path) || 'parent_id'
 
           concept_path = options.dig(:download, :concept_path) || ''
           concept_id_path = [concept_path, concept_id].compact_blank.join('.')
           concept_name_path = [concept_path, concept_name].compact_blank.join('.')
+          concept_parent_id_path = [concept_path, concept_parent_id].compact_blank.join('.')
 
           DataCycleCore::Generic::Collection2.with(read_type) do |mongo|
             mongo.collection.aggregate([
@@ -35,7 +41,8 @@ module DataCycleCore
                                          }, {
                                            '$project' => {
                                              'id' => ['$dump', lang, concept_id_path].compact_blank.join('.'),
-                                             'name' => ['$dump', lang, concept_name_path].compact_blank.join('.')
+                                             'name' => ['$dump', lang, concept_name_path].compact_blank.join('.'),
+                                             'parent_id' => ['$dump', lang, concept_parent_id_path].compact_blank.join('.')
                                            }
                                          }, {
                                            '$group' => {

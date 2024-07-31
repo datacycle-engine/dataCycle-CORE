@@ -14,6 +14,10 @@ module DataCycleCore
           )
         end
 
+        def self.credentials?
+          false
+        end
+
         def self.load_data_from_mongo(options:, lang:, source_filter:)
           raise ArgumentError, 'missing read_type for loading location ranges' if options.dig(:download, :read_type).nil?
           read_type = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type])
@@ -26,18 +30,14 @@ module DataCycleCore
           data_name_path = [data_name].compact_blank.join('.')
           additional_data_paths = options.dig(:download, :additional_data_paths) || []
 
-          source_filter_stage = {
-            '$and' => [
-              { "dump.#{lang}" => { '$exists' => true } }
-            ]
-          }
+          full_data_path = ["dump.#{lang}", data_path].compact_blank.join('.')
+          source_filter_stage = { full_data_path => { '$exists' => true } }.with_indifferent_access
+          source_filter_stage.merge!(source_filter) if source_filter.present?
 
-          # source_filter.deep_stringify_keys
-          Array.wrap(source_filter).each do |filter|
-            source_filter_stage['$and'].push(filter.deep_stringify_keys)
-          end
-
-          post_unwind_source_filter_stage = deep_transform_filter(source_filter_stage, ["dump.#{lang}", data_path].join('.'), "dump.#{lang}")
+          post_unwind_source_filter_stage = source_filter_stage
+            .deep_stringify_keys
+            .deep_reject { |k, _| k.exclude?(full_data_path) }
+            .deep_transform_keys { |k| k.gsub(full_data_path, 'data') }
 
           project_filter_stage = {
             'data' => ['$dump', lang, data_path].compact_blank.join('.')
@@ -92,30 +92,6 @@ module DataCycleCore
 
         def self.data_name(data)
           data.dig('name')
-        end
-
-        def self.deep_transform_filter(obj, data_path, lang_path)
-          case obj
-          when Hash
-            new_data = {}
-            obj.each do |key, value|
-              if key == lang_path
-                next
-              elsif key.start_with?(data_path)
-                new_key = ['data', key.sub("#{data_path}.", '')].join('.')
-                new_data[new_key] = deep_transform_filter(value, data_path, lang_path)
-              elsif key.start_with?('$') && !(value.is_a?(Hash) || value.is_a?(Array))
-                new_data[key] = value
-              elsif value.is_a?(Hash) || value.is_a?(Array)
-                new_data[key] = deep_transform_filter(value, data_path, lang_path)
-              end
-            end
-            new_data
-          when Array
-            obj.map { |item| deep_transform_filter(item, data_path, lang_path) }.compact
-          else
-            obj
-          end
         end
       end
     end

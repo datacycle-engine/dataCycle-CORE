@@ -48,7 +48,7 @@ module DataCycleCore
               name = concept_scheme_name_mapping&.dig(name) || name
               external_system_identifier = extract_property(raw_data, options, 'external_system_identifier')
               external_key = extract_property(raw_data, options, 'external_key') if external_system_identifier.present?
-              external_key = [external_id_prefix, external_id].compact_blank.join(' ') if external_key.blank?
+              external_key = [external_id_prefix, external_id].compact_blank.join if external_key.blank?
 
               {
                 external_key:,

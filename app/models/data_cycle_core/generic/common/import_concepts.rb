@@ -44,13 +44,10 @@ module DataCycleCore
               return if external_id.blank? || name.blank?
 
               {
-                external_key: [external_id_prefix, external_id].compact_blank.join(' '),
+                external_key: [external_id_prefix, external_id].compact_blank.join,
                 external_source_id: utility_object.external_source.id,
                 name:,
-                parent_external_key: [
-                  external_id_prefix,
-                  extract_property(raw_data, options, 'parent_id')
-                ].compact_blank.join(' ').presence,
+                parent_external_key: extract_property(raw_data, options, 'parent_id').presence&.then { |pid| [external_id_prefix, pid].compact_blank.join },
                 external_system_identifier: extract_property(raw_data, options, 'external_system_identifier'),
                 description: extract_property(raw_data, options, 'description'),
                 uri: extract_property(raw_data, options, 'uri'),
@@ -58,7 +55,7 @@ module DataCycleCore
                 concept_scheme_external_key: [
                   concept_scheme_external_id_prefix,
                   extract_property(raw_data, options, 'concept_scheme_external_key')
-                ].compact_blank.join(' '),
+                ].compact_blank.join,
                 concept_scheme_name: extract_property(raw_data, options, 'concept_scheme_name').presence || options.dig(:import, :concept_scheme).presence,
                 mapped_concepts: extract_property(raw_data, options, 'mapped_concepts')
               }.compact

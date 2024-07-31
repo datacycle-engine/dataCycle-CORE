@@ -157,9 +157,9 @@ module DataCycleCore
               updated_at = NOW()
           RETURNING *
         ), inserted_cg AS (
-          INSERT INTO classification_groups (classification_id, classification_alias_id)
+          INSERT INTO classification_groups (classification_id, classification_alias_id, external_source_id)
           (
-            SELECT inserted_c.id, inserted_ca.id
+            SELECT inserted_c.id, inserted_ca.id, inserted_c.external_source_id
             FROM inserted_c
             JOIN inserted_ca ON inserted_c.external_source_id = inserted_ca.external_source_id
               AND inserted_c.external_key = inserted_ca.external_key
@@ -181,14 +181,14 @@ module DataCycleCore
               data.parent_external_key = inserted_ca.external_key
         ), classification_trees_data AS (
           SELECT
-            classification_tree_label_id, parent_ca.id parent_classification_alias_id, inserted_ca.id classification_alias_id,
+            classification_tree_label_id, parent_ca.id parent_classification_alias_id, inserted_ca.id classification_alias_id, inserted_ca.external_source_id external_source_id,
             NOW() created_at, NOW() updated_at
           FROM inserted_ca
           JOIN data ON data.external_system_id = inserted_ca.external_source_id AND data.external_key = inserted_ca.external_key
           LEFT OUTER JOIN parent_ca ON data.external_system_id = parent_ca.external_source_id AND
             data.parent_external_key = parent_ca.external_key
         ), inserted_ct AS (
-          INSERT INTO classification_trees(classification_tree_label_id, parent_classification_alias_id, classification_alias_id, created_at, updated_at)
+          INSERT INTO classification_trees(classification_tree_label_id, parent_classification_alias_id, classification_alias_id, external_source_id, created_at, updated_at)
           (
             SELECT classification_trees_data.*
             FROM classification_trees_data

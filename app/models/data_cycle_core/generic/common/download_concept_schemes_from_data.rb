@@ -14,6 +14,10 @@ module DataCycleCore
           )
         end
 
+        def self.credentials?
+          false
+        end
+
         def self.load_concept_schemes_from_mongo(options:, lang:)
           raise ArgumentError, 'missing read_type for loading location ranges' if options.dig(:download, :read_type).nil?
           read_type = Mongoid::PersistenceContext.new(DataCycleCore::Generic::Collection, collection: options[:download][:read_type])

@@ -14,6 +14,10 @@ module DataCycleCore
           )
         end
 
+        def self.credentials?
+          false
+        end
+
         def self.load_concept_schemes_from_config(options:, **)
           Array.wrap(options.dig(:download, :tree_label)).map do |label|
             { 'id' => label, 'name' => label }

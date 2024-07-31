@@ -215,15 +215,14 @@ module DataCycleCore
 
       cred = credentials
       cred = cred[full_options[:credentials_index]] if full_options[:credentials_index].present?
-      if cred.is_a?(Hash)
-        utility_object = DataCycleCore::Generic::DownloadObject.new(**full_options.merge(external_source: self, locales:, credentials: cred))
-        success &&= full_options.dig(:download, :download_strategy).constantize.download_content(utility_object:, options: full_options.merge(locales:).deep_symbolize_keys)
-      else
-        cred.each do |credential|
-          utility_object = DataCycleCore::Generic::DownloadObject.new(**full_options.merge(external_source: self, locales:, credentials: credential))
-          success &&= full_options.dig(:download, :download_strategy).constantize.download_content(utility_object:, options: full_options.merge(locales:).deep_symbolize_keys)
-        end
+      strategy = full_options.dig(:download, :download_strategy).safe_constantize
+      cred = {} if strategy.respond_to?(:credentials?) && !strategy.credentials?
+
+      Array.wrap(cred).each do |credential|
+        utility_object = DataCycleCore::Generic::DownloadObject.new(**full_options.merge(external_source: self, locales:, credentials: credential))
+        success &&= strategy.download_content(utility_object:, options: full_options.merge(locales:).deep_symbolize_keys)
       end
+
       success
     end
     alias single_download download_single

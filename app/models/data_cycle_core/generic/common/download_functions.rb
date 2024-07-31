@@ -995,7 +995,13 @@ module DataCycleCore
           success = true
           delta = 100
           options[:locales] ||= I18n.available_locales
-          if options[:locales].size != 1
+          read_type = options.dig(:download, :read_type)
+
+          if read_type.is_a?(::Array)
+            read_type.each do |type|
+              success &&= download_concepts_from_data(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options: options.deep_merge({ download: { read_type: type } }))
+            end
+          elsif options[:locales].size != 1
             options[:locales].each do |language|
               success &&= download_concepts_from_data(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options: options.except(:locales).merge({ locales: [language] }))
             end
@@ -1140,7 +1146,13 @@ module DataCycleCore
           success = true
           delta = 100
           options[:locales] ||= I18n.available_locales
-          if options[:locales].size != 1
+          read_type = options.dig(:download, :read_type)
+
+          if read_type.is_a?(::Array)
+            read_type.each do |type|
+              success &&= download_concept_schemes_from_data(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options: options.deep_merge({ download: { read_type: type } }))
+            end
+          elsif options[:locales].size != 1
             options[:locales].each do |language|
               success &&= download_concept_schemes_from_data(download_object:, data_id:, data_name:, modified:, delete:, iterator:, cleanup_data:, credential:, options: options.except(:locales).merge({ locales: [language] }))
             end

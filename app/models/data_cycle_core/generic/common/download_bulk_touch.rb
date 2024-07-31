@@ -12,6 +12,10 @@ module DataCycleCore
           )
         end
 
+        def self.credentials?
+          false
+        end
+
         def self.load_contents(mongo_item, locale, source_filter, external_keys)
           mongo_item.where(
             I18n.with_locale(locale) { source_filter.with_evaluated_values }

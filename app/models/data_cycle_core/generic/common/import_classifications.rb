@@ -209,7 +209,7 @@ module DataCycleCore
             if classification.new_record?
               classification_alias = DataCycleCore::ClassificationAlias.create!(
                 external_source_id:,
-                **classification_data.slice(:name, :description, :uri, :classification_polygons_attributes, :assignable)
+                **classification_data.slice(:name, :description, :uri, :classification_polygons_attributes, :assignable, :external_key)
               )
 
               DataCycleCore::ClassificationGroup.create!(
@@ -240,7 +240,7 @@ module DataCycleCore
                 classification_data[:classification_polygons_attributes].first[:id] = polygon.id
               end
 
-              primary_classification_alias.update!(name: classification_data[:name], **classification_data.slice(:description, :uri, :classification_polygons_attributes, :assignable).compact_blank)
+              primary_classification_alias.update!(name: classification_data[:name], **classification_data.slice(:description, :uri, :classification_polygons_attributes, :assignable, :external_key).compact_blank)
 
               classification_tree = primary_classification_alias.classification_tree
 
